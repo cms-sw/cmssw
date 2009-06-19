@@ -1,4 +1,4 @@
-// $Id$
+// $Id: WebPageHelper.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -192,7 +192,11 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
   XHTMLMaker::Node* cs_th_policy = maker.addNode( "th", cs_top_row );
   maker.addText( cs_th_policy, "Enquing Policy" );
   XHTMLMaker::Node* cs_th_queued = maker.addNode( "th", cs_top_row );
-  maker.addText( cs_th_queued, "Events Queued" );
+  maker.addText( cs_th_queued, "Events Enqueued" );
+  XHTMLMaker::Node* cs_th_in_queue = maker.addNode( "th", cs_top_row );
+  maker.addText( cs_th_in_queue, "Events In Queue" );
+  XHTMLMaker::Node* cs_th_queue_size = maker.addNode( "th", cs_top_row );
+  maker.addText( cs_th_queue_size, "Queue Size" );
   XHTMLMaker::Node* cs_th_served = maker.addNode( "th", cs_top_row );
   maker.addText( cs_th_served, "Events Served" );
   XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row );
@@ -204,6 +208,14 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
   boost::shared_ptr<ConsumerMonitorCollection> cc =
     resPtr->_statisticsReporter->getEventConsumerMonitorCollection();
+
+  boost::shared_ptr<EventQueueCollection> qcoll_ptr = resPtr->_eventConsumerQueueCollection;
+
+  // Consumer queue size:
+  const int qsize = resPtr->_configuration->getEventServingParams()._consumerQueueSize;
+  std::ostringstream qsize_oss;
+  qsize_oss << qsize;
+  const std::string qsize_str = qsize_oss.str();
 
   // Loop over consumers:
   for( RegistrationCollection::ConsumerRegistrations::const_iterator it = regs.begin();
@@ -267,7 +279,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
       XHTMLMaker::Node* cs_td_policy = maker.addNode( "td", cs_tr );
       maker.addText( cs_td_policy, policy_oss.str() );
 
-      // Events queued:
+      // Events enqueued:
       std::ostringstream eq_oss;
       MonitoredQuantity::Stats eq_stats;
       bool eq_found = cc->getQueued( (*it)->queueId(), eq_stats );
@@ -281,6 +293,17 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         }
       XHTMLMaker::Node* cs_td_eq = maker.addNode( "td", cs_tr );
       maker.addText( cs_td_eq, eq_oss.str() );
+
+      // Events in queue:
+      std::ostringstream in_q_oss;
+      const size_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
+      in_q_oss << nevents_in_queue;
+      XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr );
+      maker.addText( cs_td_in_q, in_q_oss.str() );
+
+      // Queue size (same for everybody):
+      XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr );
+      maker.addText( cs_td_q_size, qsize_str );
 
       // Number and rate of served events:
       std::ostringstream es_oss;

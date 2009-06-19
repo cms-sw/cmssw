@@ -1,4 +1,4 @@
-// $Id$
+// $Id: QueueCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef StorageManager_QueueCollection_h
 #define StorageManager_QueueCollection_h
@@ -32,9 +32,9 @@ namespace stor {
    * returning a std::vector<QueueID> which gives the list
    * of QueueIDs of queues the class should be added.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
 
   template <class T>
@@ -116,6 +116,11 @@ namespace stor {
        Test to see if the queue with the given QueueID is full.
      */
     bool full(QueueID id) const;
+
+    /**
+       Get number of elements in queue
+    */
+    size_t size( QueueID id ) const;
 
     /**
        Clear queues which are 'stale'; a queue is stale if it hasn't
@@ -496,6 +501,48 @@ namespace stor {
       default:
         {
           throw_unknown_queueid(id);
+          // does not return, no break needed
+        }
+      }
+    return result;
+  }
+
+  template <class T>
+  size_t
+  QueueCollection<T>::size( QueueID id ) const
+  {
+    size_t result = 0;
+    switch (id.policy()) 
+      {
+      case enquing_policy::DiscardNew:
+        {
+          read_lock_t lock( _protect_discard_new_queues );
+          if( id.index() < _discard_new_queues.size() )
+            {
+              result = _discard_new_queues[ id.index() ]->size();
+            }
+          else
+            {
+              throw_unknown_queueid( id );
+            }
+          break;
+        }
+      case enquing_policy::DiscardOld:
+        {
+          read_lock_t lock( _protect_discard_old_queues );
+          if( id.index() < _discard_old_queues.size() )
+            {
+              result = _discard_old_queues[ id.index() ]->size();
+            }
+          else
+            {
+              throw_unknown_queueid( id );
+            }
+          break;
+        }
+      default:
+        {
+          throw_unknown_queueid( id );
           // does not return, no break needed
         }
       }

@@ -180,7 +180,7 @@
       <properties xmlns="urn:xdaq-application:StorageManager" xsi:type="soapenc:Struct">
         <STparameterSet     xsi:type="xsd:string">file:../../cfg/SM_CFG_FILE</STparameterSet>
         <maxESEventRate     xsi:type="xsd:double">20.0</maxESEventRate>
-        <consumerQueueSize  xsi:type="xsd:integer">7</consumerQueueSize>
+        <consumerQueueSize  xsi:type="xsd:integer">100</consumerQueueSize>
         <DQMmaxESEventRate  xsi:type="xsd:double">1.0</DQMmaxESEventRate>
         <DQMconsumerQueueSize xsi:type="xsd:integer">9</DQMconsumerQueueSize>
         <runNumber          xsi:type="xsd:unsignedInt">0</runNumber>

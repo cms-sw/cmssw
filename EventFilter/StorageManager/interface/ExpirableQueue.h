@@ -1,4 +1,4 @@
-// $Id$
+// $Id: ExpirableQueue.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
 
 
 #ifndef EventFilter_StorageManager_ExpirableQueue_h
@@ -19,9 +19,9 @@ namespace stor
      information. It keeps track of when the most recent called to deq
      was made.
    
-     $Author$
-     $Revision$
-     $Date$
+     $Author: dshpakov $
+     $Revision: 1.2 $
+     $Date: 2009/06/10 08:15:22 $
    */
 
   template <class T, class Policy>
@@ -77,6 +77,11 @@ namespace stor
        Return true if the queue is full, and false otherwise.
     */
     bool full() const;
+
+    /**
+       Get number of entries in queue
+    */
+    size_t size() const;
 
     /**
        Return true if the queue is stale, and false if it is not. The
@@ -160,6 +165,13 @@ namespace stor
     return _events.empty();
   }
 
+  template <class T, class Policy>
+  inline
+  size_t
+  ExpirableQueue<T, Policy>::size() const
+  {
+    return _events.size();
+  }
 
   template <class T, class Policy>
   inline
