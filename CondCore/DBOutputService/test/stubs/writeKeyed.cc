@@ -42,10 +42,13 @@ writeKeyed::endJob() {
   // populated with the keyed payloads (configurations)
   for ( int i=0; i<dict.size();i++)
     for (int j=0;j<7;j++) {
-      if (0==j%2)
-	cond::KeyedElement k(new condex::ConfI(dict[i]+nums[j],10*i+j),dict[i]+nums[j]);
-      else
-	cond::KeyedElement k(new condex::ConfF(dict[i]+nums[j],i+0.1*j),dict[i]+nums[j]);
+
+      cond::KeyedElement k( 
+			   (0==j%2) ?
+			   new condex::ConfI(dict[i]+nums[j],10*i+j)
+			   :
+			   new condex::ConfF(dict[i]+nums[j],i+0.1*j),      
+			   dict[i]+nums[j]);
       std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
       outdb->writeOne(k.m_obj,k.m_sum,k.m_key,keys);
     }
