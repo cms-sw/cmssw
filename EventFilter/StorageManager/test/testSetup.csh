@@ -62,29 +62,15 @@ setenv PATH ${selectedProject}/test/${scramArch}:${PATH}
 
 alias startEverything "cd $demoSystemDir/bin; source ./startEverything.csh"
 
-# this test may need to be more sophisticated if Python configs
-# are enabled in 2_2_X...
-if ($selectedProject =~ *CMSSW_3_*) then
-    alias startConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/eventConsumer.py"
-    alias startConsumer1 "cd $demoSystemDir/log/client1; cmsRun ../../cfg/eventConsumer.py"
-    alias startConsumer2 "cd $demoSystemDir/log/client2; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer1 "cd $demoSystemDir/log/client1; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer2 "cd $demoSystemDir/log/client2; cmsRun ../../cfg/eventConsumer.py"
 
-    alias startProxyConsumer "cd $demoSystemDir/log/client1; cmsRun ../../cfg/proxyEventConsumer.py"
+alias startProxyConsumer "cd $demoSystemDir/log/client1; cmsRun ../../cfg/proxyEventConsumer.py"
 
-    alias startProxyDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/proxyDQMConsumer.py"
+alias startProxyDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/proxyDQMConsumer.py"
 
-    alias startDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/dqmConsumer.py"
-else
-    alias startConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/eventConsumer.cfg"
-    alias startConsumer1 "cd $demoSystemDir/log/client1; cmsRun ../../cfg/eventConsumer.cfg"
-    alias startConsumer2 "cd $demoSystemDir/log/client2; cmsRun ../../cfg/eventConsumer.cfg"
-
-    alias startProxyConsumer "cd $demoSystemDir/log/client1; cmsRun ../../cfg/proxyEventConsumer.cfg"
-
-    alias startProxyDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/proxyDQMConsumer.cfg"
-
-    alias startDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/dqmConsumer.cfg"
-endif
+alias startDQMConsumer "cd $demoSystemDir/log/client; cmsRun ../../cfg/dqmConsumer.py"
 
 alias cleanupShm "FUShmCleanUp_t"
 alias killEverything "killall -9 xdaq.exe; sleep 2; FUShmCleanUp_t; cd $demoSystemDir/bin; ./removeOldLogFiles.sh; ./removeOldDataFiles.sh; ./removeOldDQMFiles.sh; cd -"
