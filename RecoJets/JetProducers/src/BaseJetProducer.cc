@@ -1,9 +1,10 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.40 2008/11/07 14:11:53 oehler Exp $
+// $Id: BaseJetProducer.cc,v 1.41 2009/02/25 17:37:22 srappocc Exp $
 //--------------------------------------------
 #include <memory>
 #include <algorithm>
+#include <math>
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -154,6 +155,12 @@ namespace cms
     input.reserve (inputHandle->size());
     for (unsigned i = 0; i < inputHandle->size(); ++i) {
       JetReco::InputItem tmpInput(&((*inputHandle)[i]),i);
+      // Check for floating point exceptions (FPE) by
+      // looking at the pt. fastjet doesn't handle them well. 
+      if ( isnan( tmpInput->pt() ) ) {
+	edm::LogWarning("FloatingPointWarning") << "BaseJetProducer has an input that is not a number... ignoring input\n";
+	continue; 
+      }
       if (mVertexCorrectedInput){
 	tmpInput.setOriginal(tmpInput.get());
 	const CaloTower *tower=dynamic_cast<const CaloTower*>(&(*inputHandle)[i]);
