@@ -19,16 +19,26 @@ ecalSelectiveReadoutValidation = cms.EDFilter("EcalSelectiveReadoutValidation",
     verbose = cms.untracked.bool(False),
 
     #Name of the output histrogram root file:
-    outputFile = cms.untracked.string(''),
+    outputFile = cms.untracked.string('srvalid_hists.root'),
 
     #Switch to enable locale amplitude reconstruction from digis instead 
     #of RecHit's:
     LocalReco = cms.bool(True),
 
     #Weights used for the local reconstruction of the signal amplitude:
-    weights = cms.vdouble(-0.295252, -0.295252, -0.295252, -0.286034, 0.240376, 
-        0.402839, 0.322126, 0.172504, 0.0339461, 0.0),
+    weights = cms.vdouble(-0.295252, -0.295252, -0.295252, -0.286034, 0.240376,
+                          0.402839, 0.322126, 0.172504, 0.0339461, 0.0),
 
+    # Index of time sample (starting from 1) the first DCC weights is implied.
+    # Used for histogram of DCC filter output.
+    ecalDccZs1stSample = cms.int32(2),
+
+    #DCC ZS FIR weights: weights are rounded in such way that in Hw
+    #representation (weigth*1024 rounded to nearest integer) the sum is null.
+    #Used for the histogram of DCC filter output.
+    dccWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721,
+                             0.4681, 0.3707),
+ 
     #Switch to express TP in GeV for the histograms:
     tpInGeV = cms.bool(True),
 
