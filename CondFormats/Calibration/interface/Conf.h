@@ -10,12 +10,14 @@
 namespace condex {
 
   struct ConfI : public cond::BaseKeyed {
+    ConfI(){}
     ConfI(std::string k, int i) : v(i), key(k) {}
     int v;
     std::string key; // just for test
   };
 
   struct ConfF : public cond::BaseKeyed {
+    ConfF() {}
     ConfF(std::string k, float i) : v(i), key(k) {}
     float v;
     std::string key; // just for test
