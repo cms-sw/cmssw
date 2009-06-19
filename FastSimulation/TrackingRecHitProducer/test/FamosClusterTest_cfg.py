@@ -8,10 +8,11 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.load("FastSimulation.Configuration.mixNoPU_cfi")
+process.GlobalTag.globaltag = cms.string('IDEAL_31X::All') 
 
 # Magnetic Field (new mapping, 3.8 and 4.0T)
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
 
@@ -28,6 +29,8 @@ process.load("FastSimulation.TrackingRecHitProducer.FastStripCPE_cfi")
 process.load("RecoTracker.IterativeTracking.FirstStep_cff")
 process.newClusters.pixelClusters = cms.InputTag('siClusterTranslator')
 process.newClusters.stripClusters = cms.InputTag('siClusterTranslator')
+process.newPixelRecHits.CPE = cms.string('FastPixelCPE')
+process.newStripRecHits.StripCPE = cms.string('FastStripCPE')
 process.newMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 process.newMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
@@ -69,8 +72,8 @@ process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.siPixelRecHits.src = cms.InputTag('siClusterTranslator')
 process.siPixelRecHits.CPE = cms.string('FastPixelCPE')
-process.load("RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff")
-process.globalSeedsFromTripletsWithVertices.TTRHBuilder = cms.string("FastPixelCPE")
+process.load("RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff")
+process.globalSeedsFromTriplets.TTRHBuilder = cms.string("FastPixelCPE")
 
 #Transient Rec Hits
 process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
@@ -95,22 +98,36 @@ process.MeasurementTracker.pixelClusterProducer = cms.string('siClusterTranslato
 process.MeasurementTracker.StripCPE = cms.string('FastStripCPE')
 process.MeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
+#JeanRoch's changes
+#process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.500
+#process.newTrajectoryFilter.filterPset.minPt = 0.300
+
+#process.secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.2
+#process.secCkfTrajectoryFilter.filterPset.minPt = 0.1
+
+#process.newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
+#process.secTriplets.SeedComparitorPSet.ComponentName = 'none'
+
+#process.secStepTrkLoose.minNumberLayers =4
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
-)
+    input = cms.untracked.int32(-1)
+    )
 
 process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
                             debugVebosity = cms.untracked.uint32(10),
                             fileNames = cms.untracked.vstring(
-    #'/store/relval/CMSSW_3_0_0_pre2/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_V9_v2/0001/4C3E7FD2-1CB4-DD11-BFAB-0016177CA7A0.root'
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_30X_v1/0001/5CD601D0-5EF4-DD11-BC14-000423D9A212.root'
-    '/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/2E564F0D-4BF4-DD11-9983-00304879FBB2.root',
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/4CF899E9-4AF4-DD11-9CC9-000423D9970C.root',
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/948D4DFA-49F4-DD11-AD18-0030487D0D3A.root',
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/E4EEE43D-4AF4-DD11-9E76-001D09F2AF96.root',
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/E8ED1E7B-4DF4-DD11-9A02-001617C3B6CC.root',
-    #'/store/relval/CMSSW_3_1_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RECO/IDEAL_30X_FastSim_v1/0001/ECEA3F75-5EF4-DD11-AF3B-001617E30D4A.root'
+    #10 GeV Muons
+    #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/E60F748A-0558-DE11-99B7-001D09F251E0.root',
+    #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/9E97D7CC-8E57-DE11-A84E-0019B9F70607.root',
+    #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/5E8E28B2-9257-DE11-90DF-001D09F2983F.root'
+
+    #10 GeV Pions
+    #'/store/relval/CMSSW_3_1_0_pre10/RelValSinglePiPt10/GEN-SIM-RECO/IDEAL_31X_v1/0001/FC4B15EF-505A-DE11-8A8A-003048678AC0.root'
+
+    #1 GeV Pions
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSinglePiPt1/GEN-SIM-RECO/IDEAL_31X_v1/0001/4CDF3D15-515A-DE11-8B7A-001A92811744.root'
     )
                             )
 
@@ -120,7 +137,7 @@ process.FirstSecondTrackMerging = cms.EDFilter("QualityFilter",
                                                )
 
 
-process.FirstSecondThirdFourthTrackMerging = cms.EDFilter("QualityFilter",
+process.FirstSecondThirdFourthFifthTrackMerging = cms.EDFilter("QualityFilter",
                                                     TrackQuality = cms.string('highPurity'),
                                                     recTracks = cms.InputTag("generalTracks")
                                                     )
@@ -130,15 +147,15 @@ process.Output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('drop *',
                                                                          'keep *_*_*_FamosClusterTest',
                                                                          ),
-                                  fileName = cms.untracked.string('FastSim_FullTracking_committry_3_1_0_pre1.root')
+                                  fileName = cms.untracked.string('FastSim_FullTracking_pi1_3_1_0_pre10.root')
                                   )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['detailedInfoFullTk.txt']
+#process.MessageLogger.destinations = ['detailedInfoFullTk.txt']
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #note: Include process.mix to run on a FastSim RelVal file
 #note: Include process.famosWithTrackerHits to run straight off a FullSim file
-process.Path = cms.Path(process.mix*process.siClusterTranslator*process.siPixelRecHits*process.siStripMatchedRecHits*process.iterTracking*process.trackCollectionMerging*process.newCombinedSeeds*process.FirstSecondThirdFourthTrackMerging)
+process.Path = cms.Path(process.famosWithTrackerHits*process.siClusterTranslator*process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.FirstSecondThirdFourthFifthTrackMerging)
 process.o = cms.EndPath(process.Output)
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 #process.FamosRecHitAnalysis.UseCMSSWPixelParametrization = False
