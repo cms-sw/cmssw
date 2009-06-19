@@ -2,7 +2,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace muon {
-SelectionType selectionTypeFromString( std::string &label )
+SelectionType selectionTypeFromString( const std::string &label )
 {
    static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
@@ -32,7 +32,7 @@ SelectionType selectionTypeFromString( std::string &label )
       }
 
    // in case of unrecognized selection type
-   if (! found) throw cms::Exception("ConfigurationError") << label << " is not a recognized SelectionType";
+   if (! found) throw cms::Exception("MuonSelectorError") << label << " is not a recognized SelectionType";
    return value;
 }
 }
