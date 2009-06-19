@@ -1,4 +1,4 @@
-// $Id$
+// $Id: ThroughputMonitorCollection.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
 
@@ -6,7 +6,7 @@ using namespace stor;
 
 ThroughputMonitorCollection::ThroughputMonitorCollection(xdaq::Application *app) :
   MonitorCollection(app),
-  _binCount(150)
+  _binCount(300)
 {
   _entriesInFragmentQueue.setNewTimeWindowForRecentResults(_binCount);
   _poppedFragmentSize.setNewTimeWindowForRecentResults(_binCount);
