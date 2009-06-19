@@ -25,7 +25,7 @@ struct PtMinPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition
       if( pfc->pt() > ptMin_ ) {
 	selected_.push_back( reco::PFCandidate(*pfc) );
 	reco::PFCandidatePtr ptrToMother( hc, key );
-        selected_.back().setSourcePtr( ptrToMother );
+	selected_.back().setSourceCandidatePtr( ptrToMother );
       }
     }
   }

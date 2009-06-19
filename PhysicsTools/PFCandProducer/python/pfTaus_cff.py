@@ -12,15 +12,15 @@ allLayer0Taus.discriminators = cms.VPSet(
       cms.PSet( discriminator=cms.InputTag("shrinkingConePFTauDiscriminationByIsolation"),selectionCut=cms.double(0.5))
    )
 
-pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoMuonsNoPileUp:PFCandidates'
+pfRecoTauTagInfoProducer.PFCandidateProducer = 'muonsOnNoPileUp'
 
 
 pfTauSequence = cms.Sequence(
     ic5PFJetTracksAssociatorAtVertex + 
     pfRecoTauTagInfoProducer + 
-    shrinkingConePFTauProducer + 
-    shrinkingConePFTauDiscriminationByIsolation + 
-    allLayer0Taus
+    pfRecoTauProducerHighEfficiency + 
+    pfRecoTauDiscriminationByIsolationHighEfficiency + 
+    allLayer0Taus 
     )
 
 

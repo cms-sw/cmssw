@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfNoMuons = cms.EDProducer("PFTopProjector",
+pfNoMuons = cms.EDProducer("PFTopProjectorPF2PAT",
     PFCandidates = cms.InputTag("particleFlow"),
     PileUpPFCandidates = cms.InputTag(""),
     IsolatedElectrons = cms.InputTag(""),

@@ -25,7 +25,7 @@ struct PdgIdPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition
 	if ( pfc->pdgId() == pdgIds_[iId] ) {
 	  selected_.push_back( reco::PFCandidate(*pfc) );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
-	  selected_.back().setSourcePtr( ptrToMother );
+	  selected_.back().setSourceCandidatePtr( ptrToMother );
 	  break;
 	}
       }
