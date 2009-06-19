@@ -109,10 +109,12 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   PoolSource::readRun_() {
+    RunSourceSentry(*this);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
       boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_();
-      boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id());
-      if (secondaryPrincipal.get() != 0) {
+      bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), 0U, 0U, true, false);
+      if (found) {
+        boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readRun_();
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
       } else {
@@ -127,10 +129,12 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   PoolSource::readLuminosityBlock_() {
+    LumiSourceSentry(*this);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
       boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_();
-      boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id());
-      if (secondaryPrincipal.get() != 0) {
+      bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), primaryPrincipal->luminosityBlock(), 0U, true, false);
+      if (found) {
+        boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_();
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
       } else {
@@ -146,10 +150,15 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readEvent_() {
+    EventSourceSentry(*this);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
-      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->luminosityBlock(), true);
-      if (secondaryPrincipal.get() != 0) {
+      bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
+						       primaryPrincipal->luminosityBlock(),
+						       primaryPrincipal->id().event(),
+						       true, false);
+      if (found) {
+        std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readEvent_();
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
@@ -158,26 +167,13 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    EventSourceSentry(*this);
     return primaryFileSequence_->readEvent_();
   }
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readIt(EventID const& id) {
-    if (secondaryFileSequence_) {
-      std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
-      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->luminosityBlock(), true);
-      if (secondaryPrincipal.get() != 0) {
-        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
-        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
-      } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readIt") <<
-          primaryPrincipal->id() << " is not found in the secondary input files\n";
-      }
-      return primaryPrincipal;
-    }
-    EventSourceSentry(*this);
-    return primaryFileSequence_->readIt(id);
+    primaryFileSequence_->skipToItem(id.run(), 0U, id.event(), false, true);
+    return readEvent_();
   }
 
   InputSource::ItemType
@@ -194,7 +190,7 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   PoolSource::skip(int offset) {
-    primaryFileSequence_->skip(offset);
+    primaryFileSequence_->skipEvents(offset);
   }
 
   void
