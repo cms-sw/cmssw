@@ -12,8 +12,6 @@
 #include "HiggsAnalysis/Skimming/interface/HeavyChHiggsToTauNuSkim.h"
 
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-////#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
