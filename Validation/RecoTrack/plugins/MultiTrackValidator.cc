@@ -248,7 +248,7 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintpT,minpT,maxpT) );
       h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintpT,minpT,maxpT) );
 
-      ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",nintPhi,minPhi,maxPhi,nint,min,max,nintpT,minpT,maxpT));
+      ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",nintPhi,minPhi,maxPhi,nint,min,max,1000,0,1000));
       phimean_vs_eta_phi.push_back(dbe_->bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",nintPhi,minPhi,maxPhi,nint,min,max,nintPhi,minPhi,maxPhi));
 
       //pulls of track params vs eta: to be used with fitslicesytool
@@ -285,7 +285,35 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
       h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
 
+      if(useLogPt){
+      BinLogX(dzres_vs_pt[j]->getTH2F());
+      BinLogX(h_dzmeanhPt[j]->getTH1F());
+      BinLogX(h_dzrmshPt[j]->getTH1F());
+
+      BinLogX(dxyres_vs_pt[j]->getTH2F());
+      BinLogX(h_dxymeanhPt[j]->getTH1F());
+      BinLogX(h_dxyrmshPt[j]->getTH1F());
+
+      BinLogX(phires_vs_pt[j]->getTH2F());
+      BinLogX(h_phimeanhPt[j]->getTH1F());
+      BinLogX(h_phirmshPt[j]->getTH1F());
+
+      BinLogX(cotThetares_vs_pt[j]->getTH2F());
+      BinLogX(h_cotThetameanhPt[j]->getTH1F());
+      BinLogX(h_cotThetarmshPt[j]->getTH1F());
+
+      BinLogX(ptres_vs_pt[j]->getTH2F());
+      BinLogX(h_ptmeanhPt[j]->getTH1F());
+      BinLogX(h_ptrmshPt[j]->getTH1F());
+
+      BinLogX(h_efficPt[j]->getTH1F());
+      BinLogX(h_fakeratePt[j]->getTH1F());
+      BinLogX(h_recopT[j]->getTH1F());
+      BinLogX(h_assocpT[j]->getTH1F());
+      BinLogX(h_assoc2pT[j]->getTH1F());
+      BinLogX(h_simulpT[j]->getTH1F());
       j++;
+      }
     }
   }
   if (UseAssociators) {

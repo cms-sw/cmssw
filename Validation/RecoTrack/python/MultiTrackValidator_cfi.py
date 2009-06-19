@@ -47,8 +47,8 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     dxyRes_nbin = cms.int32(100),                                   
     dzRes_nbin = cms.int32(150),                                   
     # 
-    minpT = cms.double(0.0),
-    maxpT = cms.double(250.0),
+    minpT = cms.double(0),
+    maxpT = cms.double(250),
     nintpT = cms.int32(1000),
     #                               
     minHit = cms.double(-0.5),                            
