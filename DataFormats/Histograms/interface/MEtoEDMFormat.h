@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/10/15 13:44:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/02/18 20:56:50 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -32,6 +32,9 @@ class MEtoEDM
 {
  public:
   MEtoEDM() {}
+  explicit MEtoEDM(size_t reservedSize) {
+    MEtoEdmObject.reserve(reservedSize);
+  }
   virtual ~MEtoEDM() {}
 
   typedef std::vector<uint32_t> TagList;
@@ -65,6 +68,24 @@ class MEtoEDM
 	MEtoEdmObject[i].datatier = datatier[i];
       }
     }
+
+  void putMEtoEdmObject(const std::string &name,
+			const TagList &tags,
+			const T &object,
+			const std::string &release,
+			const int run,
+			const std::string &datatier)
+    {
+      typename MEtoEdmObjectVector::value_type temp;
+      temp.name = name;
+      temp.tags = tags;
+      temp.object = object;
+      temp.release = release;
+      temp.run = run;
+      temp.datatier = datatier;
+      MEtoEdmObject.push_back(temp);
+    }
+
 
   const MEtoEdmObjectVector & getMEtoEdmObject() const
     { return MEtoEdmObject; }
@@ -119,6 +140,9 @@ class MEtoEDM
     return true;
   }
 
+  void swap(MEtoEDM<T>& iOther) {
+    MEtoEdmObject.swap(iOther.MEtoEdmObject);
+  }
  private:
 
   MEtoEdmObjectVector MEtoEdmObject;
