@@ -53,7 +53,7 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
 
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->(); 
-  dbe_->showDirStructure();
+//  dbe_->showDirStructure();
   dbe_->setCurrentFolder("MixingV/Mixing");
 
   // define the histograms according to the configuration 
