@@ -216,11 +216,9 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 					 EEDigiCollection & endcapDigis){
   EBDigiCollection selectedBarrelDigis;
   EEDigiCollection selectedEndcapDigis;
-  EBSrFlagCollection ebSrFlags;
-  EESrFlagCollection eeSrFlags;
   
   run(eventSetup, trigPrims, barrelDigis, endcapDigis,
-      selectedBarrelDigis, selectedEndcapDigis, ebSrFlags, eeSrFlags);
+      &selectedBarrelDigis, &selectedEndcapDigis, 0, 0);
   
 //replaces the input with the suppressed version
   barrelDigis.swap(selectedBarrelDigis);
@@ -233,10 +231,10 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 				    const EcalTrigPrimDigiCollection & trigPrims,
 				    const EBDigiCollection & barrelDigis,
 				    const EEDigiCollection & endcapDigis,
-				    EBDigiCollection& selectedBarrelDigis,
-				    EEDigiCollection& selectedEndcapDigis,
-				    EBSrFlagCollection& ebSrFlags,
-				    EESrFlagCollection& eeSrFlags){
+				    EBDigiCollection* selectedBarrelDigis,
+				    EEDigiCollection* selectedEndcapDigis,
+				    EBSrFlagCollection* ebSrFlags,
+				    EESrFlagCollection* eeSrFlags){
   if(!trigPrimBypass_){//normal mode
     setTtFlags(trigPrims);
   } else{//debug mode, run w/o TP digis
@@ -244,31 +242,35 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   }
 
   ecalSelectiveReadout->runSelectiveReadout0(ttFlags);  
-  
-  selectedBarrelDigis.reserve(barrelDigis.size()/20);
-  selectedEndcapDigis.reserve(endcapDigis.size()/20);
 
-  // do barrel first
-  for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
-      digiItr != barrelDigis.end(); ++digiItr){
-    int interestLevel
-      = ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
-    if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
-      selectedBarrelDigis.push_back(digiItr->id(), digiItr->begin());
-    } 
-  }
-  
-  // and endcaps
-  for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
-      digiItr != endcapDigis.end(); ++digiItr){
-    int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
-    if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
-      selectedEndcapDigis.push_back(digiItr->id(), digiItr->begin());
+  if(selectedBarrelDigis){
+    selectedBarrelDigis->reserve(barrelDigis.size()/20);
+    
+    // do barrel first
+    for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
+	digiItr != barrelDigis.end(); ++digiItr){
+      int interestLevel
+	= ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
+      if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
+	selectedBarrelDigis->push_back(digiItr->id(), digiItr->begin());
+      } 
     }
   }
   
-  ebSrFlags.reserve(34*72);
-  eeSrFlags.reserve(624);
+  // and endcaps
+  if(selectedEndcapDigis){
+    selectedEndcapDigis->reserve(endcapDigis.size()/20);
+    for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
+	digiItr != endcapDigis.end(); ++digiItr){
+      int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
+      if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
+	selectedEndcapDigis->push_back(digiItr->id(), digiItr->begin());
+      }
+    }
+  }
+
+  if(ebSrFlags) ebSrFlags->reserve(34*72);
+  if(eeSrFlags) eeSrFlags->reserve(624);
   //SR flags:
   for(int iZ = -1; iZ <=1; iZ+=2){ //-1=>EE-, EB-, +1=>EE+, EB+
     //barrel:
@@ -288,7 +290,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	} else{
 	  flag = srFlags[BARREL][interest];
 	}
-	ebSrFlags.push_back(EBSrFlag(id, flag));
+	if(ebSrFlags) ebSrFlags->push_back(EBSrFlag(id, flag));
       }//next iPhi
     } //next barrel iEta
 
@@ -312,7 +314,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	  } else{
 	    flag = srFlags[ENDCAP][interest];
 	  }
-	  eeSrFlags.push_back(EESrFlag(id, flag));
+	  if(eeSrFlags) eeSrFlags->push_back(EESrFlag(id, flag));
 	} else if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
 	  cout << __FILE__ << ":" << __LINE__ << ": "
 	       <<  "negative interest in EE for SC "
