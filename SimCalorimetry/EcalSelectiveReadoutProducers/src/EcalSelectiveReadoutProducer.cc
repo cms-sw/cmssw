@@ -28,14 +28,17 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
    trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
    trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
    dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
-   writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags",false);
+   writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
+   produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
    //instantiates the selective readout algorithm:
    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params));
    //declares the products made by this producer:
-   produces<EBDigiCollection>(ebSRPdigiCollection_);
-   produces<EEDigiCollection>(eeSRPdigiCollection_);
-
-   if ( writeSrFlags_ ) {
+   if(produceDigis_){
+     produces<EBDigiCollection>(ebSRPdigiCollection_);
+     produces<EEDigiCollection>(eeSRPdigiCollection_);
+   }
+   
+   if (writeSrFlags_) {
      produces<EBSrFlagCollection>(ebSrFlagCollection_);
      produces<EESrFlagCollection>(eeSrFlagCollection_);
    }
@@ -66,18 +69,33 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 
   
   //gets the digis from the events:
-  const EBDigiCollection* ebDigis = getEBDigis(event);
-  const EEDigiCollection* eeDigis = getEEDigis(event);
+  EBDigiCollection dummyEbDigiColl;
+  EEDigiCollection dummyEeDigiColl;
+  
+  const EBDigiCollection* ebDigis = produceDigis_?getEBDigis(event)
+    :&dummyEbDigiColl;
+  const EEDigiCollection* eeDigis = produceDigis_?getEEDigis(event)
+    :&dummyEeDigiColl;
   
   //runs the selective readout algorithm:
-  auto_ptr<EBDigiCollection> selectedEBDigis(new EBDigiCollection);
-  auto_ptr<EEDigiCollection> selectedEEDigis(new EEDigiCollection);
-  auto_ptr<EBSrFlagCollection> ebSrFlags(new EBSrFlagCollection);
-  auto_ptr<EESrFlagCollection> eeSrFlags(new EESrFlagCollection);
+  auto_ptr<EBDigiCollection> selectedEBDigis;
+  auto_ptr<EEDigiCollection> selectedEEDigis;
+  auto_ptr<EBSrFlagCollection> ebSrFlags;
+  auto_ptr<EESrFlagCollection> eeSrFlags;
+
+  if(produceDigis_){
+    selectedEBDigis = auto_ptr<EBDigiCollection>(new EBDigiCollection);
+    selectedEEDigis = auto_ptr<EEDigiCollection>(new EEDigiCollection);
+  }
+
+  if(writeSrFlags_){
+    ebSrFlags = auto_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
+    eeSrFlags = auto_ptr<EESrFlagCollection>(new EESrFlagCollection);
+  }
 
   suppressor_->run(eventSetup, *trigPrims, *ebDigis, *eeDigis,
-		   *selectedEBDigis, *selectedEEDigis,
-		   *ebSrFlags, *eeSrFlags);
+		   selectedEBDigis.get(), selectedEEDigis.get(),
+		   ebSrFlags.get(), eeSrFlags.get());
 
   static int iEvent = 1;
   if(dumpFlags_>=iEvent){
@@ -99,13 +117,15 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   }
   
   ++iEvent; //event counter
-  
-  //puts the selected digis into the event:
-  event.put(selectedEBDigis, ebSRPdigiCollection_);
-  event.put(selectedEEDigis, eeSRPdigiCollection_);
+
+  if(produceDigis_){
+    //puts the selected digis into the event:
+    event.put(selectedEBDigis, ebSRPdigiCollection_);
+    event.put(selectedEEDigis, eeSRPdigiCollection_);
+  }
   
   //puts the SR flags into the event:
-  if ( writeSrFlags_ ) {
+  if(writeSrFlags_) {
     event.put(ebSrFlags, ebSrFlagCollection_);
     event.put(eeSrFlags, eeSrFlagCollection_);  
   }

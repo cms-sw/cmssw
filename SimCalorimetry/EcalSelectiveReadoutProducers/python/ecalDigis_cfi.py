@@ -80,7 +80,11 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     dumpFlags = cms.untracked.int32(0),
                               
     #logical flag to write out SrFlags
-    writeSrFlags = cms.untracked.bool(True)
+    writeSrFlags = cms.untracked.bool(True),
+
+    #switch to apply selective readout decision on the digis and produce
+    #the "suppressed" digis
+    produceDigis = cms.untracked.bool(True)
 )
 
 

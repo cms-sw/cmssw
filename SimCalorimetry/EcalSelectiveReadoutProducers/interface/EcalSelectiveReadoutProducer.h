@@ -114,9 +114,14 @@ private:
    */
   int dumpFlags_;
 
-  // switch to write out the SrFlags collections in the event
+  /** switch to write out the SrFlags collections in the event
+   */
   bool writeSrFlags_;
 
+  /** Switch for suppressed digi production If false SR flags are produced
+   * but selective readout is not applied on the crystal channel digis.
+   */
+  bool produceDigis_;
 };
 
 #endif 
