@@ -15,17 +15,6 @@
 #include <cmath>
 using namespace std;
 
-/**
- * This macro can be used to fit the y projections of 2D histograms. <br>
- * The fit2Dprojection function performs the fits and returns a TGraphErrors
- * with the mean values and their errors. <br>
- *
- * TO-DO:
- * - the values for the fit to the Z are hardcoded. Allow the selection of different intervals.
- * - the only possible fit function is the "gaus", also hardcoded. Allow different functions.
- * - Perform fits on the resulting TGraphErrors with the means.
- */
-
 void setTDRStyle();
 
 /// Small function to simplify the creation of text in the TPaveText
@@ -71,13 +60,44 @@ struct FitResult
   double chi2;
 };
 
-/// This function fits TH2F slices with a selected fitType function (gaussian, lorentz, ...).
-TGraphErrors * fit2Dprojection(const TString & inputFileName, const TString & histoName,
-                               const unsigned int rebinX = 0, const unsigned int rebinY = 0,
-                               const double fitXmin = 80, const double fitXmax = 100,
-                               const TString & append = "_1", const unsigned int minEntries = 1000) {
+class ProjectionFitter
+{
+ public:
+  TGraphErrors * fit2Dprojection(const TString & inputFileName, const TString & histoName,
+                                 const unsigned int rebinX, const unsigned int rebinY,
+                                 const double & fitXmin, const double & fitXmax,
+                                 const TString & fitName, const TString & append,
+                                 const unsigned int minEntries = 1000);
+ protected:
+  /// Take the projection and give it a suitable name and title
+  TH1 * takeProjectionY( const TH2 * histo, const int index ) {
+    // Name
+    stringstream number;
+    number << index;
+    TString numberString(number.str());
+    TString name = TString(histo->GetName()) + "_" + numberString;
+    // Title
+    double xBin = histo->GetXaxis()->GetBinCenter(index);
+    stringstream xBinString;
+    xBinString << xBin;
+    TString title("Projection of x = ");
+    title += xBinString.str();
 
-  //Read the TH2 from file
+    TH1 * histoY = histo->ProjectionY(name, index, index);
+    histoY->SetName(title);
+    return histoY;
+  }
+};
+
+/// This method fits TH2F slices with a selected fitType function (gaussian, lorentz, ...).
+TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, const TString & histoName,
+                                                 const unsigned int rebinX, const unsigned int rebinY,
+                                                 const double & fitXmin, const double & fitXmax,
+                                                 const TString & fitName, const TString & append,
+                                                 const unsigned int minEntries) {
+
+  // Read the TH2 from file
+  // cout << "inputFileName = " << inputFileName << endl;
   TFile *inputFile = new TFile(inputFileName);
   // FindObjectAny finds the object of the given name looking also in the subdirectories.
   // It does not change the current directory if it finds a matching (for that use FindKeyAny).
@@ -96,45 +116,32 @@ TGraphErrors * fit2Dprojection(const TString & inputFileName, const TString & hi
   // For each bin in X take the projection on Y and fit.
   // All the fits are saved in a single canvas.
   unsigned int nBins = histo->GetXaxis()->GetNbins();
-  unsigned int canvasYbins = int(sqrt(nBins));
-  unsigned int canvasXbins = canvasYbins;
-  if( nBins - canvasXbins*canvasYbins > 0 ) {
-    canvasXbins += 1;
-    canvasYbins += 1;
-  }
 
-  TCanvas * canvasY = new TCanvas(histoName+"_canvas", histoName+" fits check", 1000, 800);
-  canvasY->Divide(canvasXbins, canvasYbins);
-  // canvasY->Draw();
+  vector<TH1*> projections;
+  vector<TF1*> projectionsFits;
+
   for( unsigned int i=1; i<=nBins; ++i ) {
 
     // Project on Y
     // ------------
-    // Name
-    stringstream number;
-    number << i;
-    TString numberString(number.str());
-    TString name = histoName + "_" + numberString;
-    // Title
-    double xBin = histo->GetXaxis()->GetBinCenter(i);
-    stringstream xBinString;
-    xBinString << xBin;
-    TString title("Projection of x = ");
-    title += xBinString.str();
-
-    TH1 * histoY = histo->ProjectionY(name, i, i);
-    histoY->SetName(title);
+    TH1 * histoY = takeProjectionY( histo, i );
 
     // Require a minimum number of entries to do the fit
-    if (histoY->GetEntries() > minEntries) {
+    if( histoY->GetEntries() > minEntries ) {
 
       // Gaussian fit
-      canvasY->cd(i);
-      TF1 * fitFunction = new TF1("gaussianFit", "gaus");
+      stringstream ss;
+      ss << i;
+      TString fitFunctionName(fitName+"Fit_"+ss.str());
+      TF1 * fitFunction = new TF1(fitFunctionName.Data(), fitName.Data());
       fitFunction->SetLineColor(kRed);
+      projectionsFits.push_back(fitFunction);
       // Options: M = "more": improve fit results; Q = "quiet"
-      histoY->Fit("gaussianFit", "MQ", "", fitXmin, fitXmax);
-      // TF1 * fitFunction = histoY->GetFunction("gaus");
+      // If not using the N options it will try to save the histogram and corrupt the memory.
+      // We save also draw functions and write the later.
+      histoY->Fit(fitFunctionName, "MQN", "", fitXmin, fitXmax);
+
+      projections.push_back(histoY);
 
       double *par = fitFunction->GetParameters();
       double *err = fitFunction->GetParErrors();
@@ -174,6 +181,24 @@ TGraphErrors * fit2Dprojection(const TString & inputFileName, const TString & hi
       }
       fitResults.push_back(fitResult);
     }
+  }
+
+  TCanvas * canvasYcheck = new TCanvas(histoName+"_canvas_check", histoName+" fits check", 1000, 800);
+  int sizeCheck = projections.size();
+  int x = int(sqrt(sizeCheck));
+  int y = x;
+  if( x*y < sizeCheck ) y += 1;
+  if( x*y < sizeCheck ) x += 1;
+  cout << "sizeCheck = " << sizeCheck << endl;
+  cout << "x*y = " << x*y << endl;
+  canvasYcheck->Divide(x, y);
+
+  vector<TH1*>::const_iterator it = projections.begin();
+  vector<TF1*>::const_iterator fit = projectionsFits.begin();
+  for( int i=1; it != projections.end(); ++it, ++fit, ++i ) {
+    canvasYcheck->cd(i);
+    (*it)->Draw();
+    (*fit)->Draw("same");
   }
 
   // Plot the fit results in TGraphs
@@ -231,7 +256,7 @@ TGraphErrors * fit2Dprojection(const TString & inputFileName, const TString & hi
   c3->Write();
 
   // Write the canvas with the fits
-  canvasY->Write();
+  canvasYcheck->Write();
 
   outputFile->Close();
 
@@ -249,8 +274,12 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   setTDRStyle();
 
-  TGraphErrors *grM_1 = fit2Dprojection( nameFile1, name, rebinX, rebinY, 70, 110, "_1" );
-  TGraphErrors *grM_2 = fit2Dprojection( nameFile2, name, rebinX, rebinY, 70, 110, "_2" );
+  ProjectionFitter projectionFitter;
+
+  cout << "nameFile1 = " << nameFile1 << endl;
+
+  TGraphErrors *grM_1 = projectionFitter.fit2Dprojection( nameFile1, name, rebinX, rebinY, 70, 110, "gaus", "_1" );
+  TGraphErrors *grM_2 = projectionFitter.fit2Dprojection( nameFile2, name, rebinX, rebinY, 70, 110, "gaus", "_2" );
 
   TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
   c->SetGridx();
@@ -299,34 +328,6 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   paveText2->SetTextColor(2);
   paveText2->SetTextSize(0.02);
   paveText2->SetBorderSize(1);
-
-  /*****************************************/ 
-  if( name.Contains("Pt") ) {
-    cout << "Fitting pt" << endl;
-    // TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
-    TF1 * fit1 = new TF1("fit1", "[0]", 0., 150.);
-    fit1->SetParameters(0., 1.);
-    fit1->SetParNames("scale","pt coefficient");
-    fit1->SetLineWidth(2);
-    fit1->SetLineColor(1);
-    if( grM_1->GetN() > 0 ) {
-      if( name.Contains("Z") ) grM_1->Fit("fit1","","",0.,150.);
-      else grM_1->Fit("fit1","","",0.,27.);
-    }
-    setTPaveText(fit1, paveText1);
-
-    // TF1 * fit2 = new TF1("fit2", linear, 0., 150., 2);
-    TF1 * fit2 = new TF1("fit2", "[0]", 0., 150.);
-    fit2->SetParameters(0., 1.);
-    fit2->SetParNames("scale","pt coefficient");
-    fit2->SetLineWidth(2);
-    fit2->SetLineColor(2);
-    if( grM_2->GetN() > 0 ) {
-      if( name.Contains("Z") ) grM_2->Fit("fit2","","",0.,150.);
-      grM_2->Fit("fit2","","",0.,27.);
-    }
-    setTPaveText(fit2, paveText2);
-  }
 
   c->cd();
   gr->Draw("AP");
