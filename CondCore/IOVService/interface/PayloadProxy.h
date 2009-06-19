@@ -72,7 +72,7 @@ namespace cond {
   public:
  
     PayloadProxy(cond::Connection& conn,
-		 const std::string & token, bool errorPolicy) :
+		 const std::string & token, bool errorPolicy, const char * source=0) :
       BasePayloadProxy(conn, token, errorPolicy) {}
     
     virtual ~PayloadProxy(){}

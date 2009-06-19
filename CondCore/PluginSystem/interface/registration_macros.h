@@ -48,7 +48,9 @@ ONLY_REGISTER_PLUGIN(record_, type_ )
 
 // source_ is the record name of the keyed objects
 #define REGISTER_KEYLIST_PLUGIN(record_, type_, source_) \
-  namespace { const char * sourceRecordName_ = #source_;} \
-  REGISTER_PLUGIN(record_, type_)
+  template class DataProxyWrapper<record_, type_>; \
+  struct EDM_PLUGIN_SYM(Proxy , record_ ) : public  DataProxyWrapper<record_, type_> {  const char * sourceRecordName_ = #source_; EDM_PLUGIN_SYM(Proxy , record_ ) (cond::Connection& a, std::pair< std::string, std::string> const & b) :  DataProxyWrapper<record_, type_>(a,b);};\
+DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , record_ ), #record_ "@NewProxy") 
+
 
 #endif /* PLUGINSYSTEM_REGISTRATION_MACROS_H */
