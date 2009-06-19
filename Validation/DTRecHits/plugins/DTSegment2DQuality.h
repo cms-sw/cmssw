@@ -12,6 +12,9 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Histograms.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <vector>
 #include <map>
@@ -45,7 +48,7 @@ protected:
 private: 
 
   // The file which will store the histos
-  TFile *theFile;
+  //TFile *theFile;
   // Switch for debug output
   bool debug;
   // Root file name
@@ -69,5 +72,6 @@ private:
   HEff2DHit *h2DHitEff_RZ_W0;
   HEff2DHit *h2DHitEff_RZ_W1;
   HEff2DHit *h2DHitEff_RZ_W2;
+  DQMStore* dbe_;
 };
 #endif

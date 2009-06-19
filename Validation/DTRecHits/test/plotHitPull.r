@@ -48,7 +48,7 @@ bool setPullPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHi
 void plotHitPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");
@@ -101,7 +101,7 @@ void plotHitPull(){
 void plotWWWHitPull(TString dirBase, int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle();

@@ -19,6 +19,10 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "Histograms.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 #include <vector>
 #include <map>
@@ -57,7 +61,7 @@ private:
 
 
   // The file which will store the histos
-  TFile *theFile;
+  //TFile *theFile;
   // Switch for debug output
   bool debug;
   // Root file name
@@ -131,7 +135,7 @@ private:
 	       std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
 	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
 	       int step);
-
+  //HRes1DHit * hRes_S1RPhi;
   HRes1DHit *hRes_S1RPhi;  // RecHits, 1. step, RPh
   HRes1DHit *hRes_S2RPhi;     // RecHits, 2. step, RPhi
   HRes1DHit *hRes_S3RPhi;     // RecHits, 3. step, RPhi
@@ -172,6 +176,7 @@ private:
   HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
+  DQMStore* dbe_;
 };
 #endif
 

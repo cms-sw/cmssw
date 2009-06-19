@@ -5,12 +5,15 @@ process = cms.Process("DTValidationFromRECO")
 ## Conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.globaltag = "CRUZET4_V3P::All"
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #Geometry
 process.load("Configuration.StandardSequences.Geometry_cff")
 
+# DQM services
+process.load("DQMServices.Core.DQM_cfg")
 
 # Validation RecHits
 process.load("Validation.DTRecHits.DTRecHitQuality_cfi")
@@ -23,7 +26,7 @@ process.rechivalidation.doStep2 = False
 
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(-1)
+        input = cms.untracked.int32(1)
         )
 
 process.options = cms.untracked.PSet(

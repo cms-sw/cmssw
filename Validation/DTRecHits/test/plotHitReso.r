@@ -36,7 +36,7 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, b
 void plotHitReso(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle("tdr");
@@ -89,7 +89,7 @@ void plotHitReso(){
 void plotWWWHitReso(TString dirBase, int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
-  gROOT->LoadMacro("../plugins/Histograms.h"); // Load definition of histograms
+  gROOT->LoadMacro("Histograms.h"); // Load definition of histograms
 
   // Get the style
   TStyle * style = getStyle();
