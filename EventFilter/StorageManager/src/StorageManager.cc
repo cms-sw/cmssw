@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.92.4.127 2009/05/29 13:59:02 mommsen Exp $
+// $Id: StorageManager.cc,v 1.96 2009/06/10 08:15:28 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -38,7 +38,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   reasonForFailedState_(),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.92.4.127 2009/05/29 13:59:02 mommsen Exp $ $Name: V05-00-00 $")
+    "$Id: StorageManager.cc,v 1.96 2009/06/10 08:15:28 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -48,12 +48,28 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   bindWebInterfaceCallbacks();
   bindConsumerCallbacks();
 
-  // need the line below so that deserializeRegistry can run
-  // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
-  // need line below anyway in case we deserialize DQMEvents for collation
-  edm::RootAutoLibraryLoader::enable();
+  try
+    {
+      // need the line below so that deserializeRegistry can run in
+      // order to compare two registries (cannot compare
+      // byte-for-byte) (if we keep this) need line below anyway in
+      // case we deserialize DQMEvents for collation
+      edm::RootAutoLibraryLoader::enable();
+      initializeSharedResources();
+    }
+  catch(std::exception &e)
+    {
+      LOG4CPLUS_FATAL( getApplicationLogger(), e.what() );
+      XCEPT_RAISE( stor::exception::Exception, e.what() );
+    }
+  catch(...)
+  {
+    std::string errorMsg = "Unknown exception in StorageManager constructor";
+    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
+    XCEPT_RAISE( stor::exception::Exception, errorMsg );
+  }
 
-  initializeSharedResources();
+
   startWorkerThreads();
 }
 
@@ -173,13 +189,13 @@ void StorageManager::initializeSharedResources()
 
 void StorageManager::startWorkerThreads()
 {
-  _fragmentProcessor = new FragmentProcessor( this, _sharedResources );
-  _diskWriter = new DiskWriter(this, _sharedResources);
-  _dqmEventProcessor = new DQMEventProcessor(this, _sharedResources);
 
   // Start the workloops
   try
   {
+    _fragmentProcessor = new FragmentProcessor( this, _sharedResources );
+    _diskWriter = new DiskWriter(this, _sharedResources);
+    _dqmEventProcessor = new DQMEventProcessor(this, _sharedResources);
     _sharedResources->_statisticsReporter->startWorkLoop("theStatisticsReporter");
     _fragmentProcessor->startWorkLoop("theFragmentProcessor");
     _diskWriter->startWorkLoop("theDiskWriter");
