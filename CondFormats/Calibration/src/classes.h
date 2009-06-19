@@ -15,6 +15,7 @@
 #include "CondFormats/Calibration/interface/simpleInheritance.h"
 
 #include "CondFormats/Calibration/interface/Efficiency.h"
+#include "CondFormats/Calibration/interface/Conf.h"
 #include "CondFormats/Calibration/interface/big.h"
 
 namespace {

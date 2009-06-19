@@ -38,6 +38,11 @@ namespace cond {
     void load(std::vector<unsigned long long> const & keys);
 
     template<typename T> 
+    T const * get(int n) const {
+      return dynamic_cast<T const *>(elem(n));
+    }
+
+   template<typename T> 
     T const * get(char const * iname) const {
       return dynamic_cast<T const *>(elem(iname));
     }

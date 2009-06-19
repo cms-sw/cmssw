@@ -68,6 +68,9 @@
  <class name="cond::DataWrapper<condex::Efficiency>"/>
 
 
+<class name="condex::ConfI" class_version="0"/>
+<class name="condex::ConfF" class_version="0"/>
+
 
  <class name="big"/>
  <class name="big::bigEntry"/>
