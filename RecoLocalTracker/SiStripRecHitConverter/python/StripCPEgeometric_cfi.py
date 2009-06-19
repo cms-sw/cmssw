@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                ComponentName = cms.string('StripCPEgeometric'),
-               APVpeakmode             = cms.bool(False),
-               TanDriftAngle           = cms.double(0.01),
-               NoiseThreshold          = cms.double(10),
+               TanDriftAngle                = cms.double(0.01),
+               NoiseThreshold               = cms.double(10),
                ThicknessRelativeUncertainty = cms.double(0.01),
                #---Crosstalk
+               APVpeakmode             = cms.bool(False),
                # Deconvolution Mode
                CouplingConstantDecTIB  = cms.double(0.12),
                CouplingConstantDecTID  = cms.double(0.12),
@@ -18,5 +18,3 @@ StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                CouplingConstantPeakTID = cms.double(0.03),
                CouplingConstantPeakTEC = cms.double(0.03),
 )
-
-
