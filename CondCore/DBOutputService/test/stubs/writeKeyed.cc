@@ -44,7 +44,7 @@ writeKeyed::endJob() {
     for (int j=0;j<7;j++) {
       cond::BaseKeyed * bk=0;
       cond::KeyedElement k( 
-			   (0==j%2) ?
+			   (0==i%2) ?
 			   bk = new condex::ConfI(dict[i]+nums[j],10*i+j)
 			   :
 			   bk = new condex::ConfF(dict[i]+nums[j],i+0.1*j),      

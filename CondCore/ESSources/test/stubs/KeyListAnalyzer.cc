@@ -12,7 +12,19 @@
 
 #include "CondFormats/DataRecord/interface/ExEfficiency.h"
 #include "CondCore/IOVService/interface/KeyList.h"
+#include "CondFormats/Calibration/interface/Conf.h"
+
 using namespace std;
+
+namespace {
+
+  template<typename Conf>
+  void print(Conf const & c) {
+    std::cout << c.v << " " << c.key << " ; ";
+  }
+
+}
+
 
 namespace edmtest
 {
@@ -51,7 +63,13 @@ namespace edmtest
     cond::KeyList const &  kl= *klh.product();
     int n=0;
     for (int i=0; i<kl.size(); i++)
-      if (kl.elem(i)) n++; 
+      if (kl.elem(i)) { 
+	n++;
+	if (0==j%2) 
+	  print(*kl.get<condex::ConfI>(i));
+	else
+	  print(*kl.get<condex::ConfF>(i));
+      }
     std::cout << "found " << n << " valid keyed confs" << std::endl;
       
     std::cout << std::endl;
