@@ -143,11 +143,17 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       //Here is the hard part. From the position of the FastSim Cluster I need to figure out the Pixel location for the Cluster.
       LocalPoint position = aCluster->localPosition();
       LocalError error = aCluster->localPositionError();
+      //std::cout << "The pixel charge is " << aCluster->charge() << std::endl;
       int charge = (int)(aCluster->charge() + 0.5);
-      
-      std::vector<int> digi_vec;
-      digi_vec.push_back(charge);
+      //std::cout << "The pixel charge after integer conversion is " << charge << std::endl;
 
+      //std::vector<int> digi_vec;
+      //while (charge > 255) { 
+      //digi_vec.push_back(charge);
+      //charge -= 256;
+      //}
+      //digi_vec.push_back(charge);
+      
       const GeomDetUnit *  geoDet = tracker.idToDetUnit(det);
       const PixelGeomDetUnit * pixelDet=(const PixelGeomDetUnit*)(geoDet);
       const PixelTopology& topol=(PixelTopology&)pixelDet->topology();
@@ -184,12 +190,23 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       //Will have to make charge into ADC eventually...
       uint16_t charge = (uint16_t)(aCluster->charge() + 0.5);
+      
+      //std::cout << "The charge is " << charge << std::endl;
+      
       uint16_t strip_num = 0;
       std::vector<uint16_t> digi_vec;
-      digi_vec.push_back(charge);
-      
+      while (charge > 255) { 
+	digi_vec.push_back(255);
+	charge -= 255;
+      }
+      if (charge > 0) digi_vec.push_back(charge);
+      //std::cout << "The digi_vec size is " << digi_vec.size() << std::endl;
+      //int totcharge = 0;
+      //for(int i = 0; i < digi_vec.size(); ++i) {
+      //totcharge += digi_vec[i];
+      //} 
       const GeomDetUnit *  geoDet = tracker.idToDetUnit(det);
-      const StripGeomDetUnit * stripDet=(const StripGeomDetUnit*)(geoDet);
+      const StripGeomDetUnit * stripDet = (const StripGeomDetUnit*)(geoDet);
       
       //3 = TIB, 4 = TID, 5 = TOB, 6 = TEC
       if((subdet == 3) || (subdet == 5)) {
