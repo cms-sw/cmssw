@@ -1,5 +1,6 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include <algorithm>
 #include<cmath>
 
@@ -72,6 +73,11 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.topology=(StripTopology*)(&stripdet->topology());    
   p.nstrips = p.topology->nstrips(); 
   p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
+  
+  const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
+  p.pitch_RelErr2 = (rtop) 
+    ? pow( 0.5 * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2) / 12.
+    : 0;
   
   return p;
 }

@@ -33,6 +33,7 @@ public:
     StripTopology const * topology;
     LocalVector drift;
     float thickness;
+    float pitch_RelErr2;
     float maxLength;
     int nstrips;
     SiStripDetId::SubDetector subdet;

@@ -8,8 +8,9 @@ StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf,
 				      const SiStripLorentzAngle* LorentzAngle)
   : StripCPE(conf, mag, geom, LorentzAngle ),
     invsqrt12(1/sqrt(12)),
-    crosstalksigma(conf.getParameter<double>("CouplingConstantSpread")),
     tandriftangle(conf.getParameter<double>("TanDriftAngle")),    
+    thickness_RelErr2(0.05),
+    noise_threshold(5),
     crossoverRate(15)
 {
   std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
@@ -18,9 +19,6 @@ StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf,
   crosstalk[SiStripDetId::TID] = conf.getParameter<double>("CouplingConstant"+mode+"TID");
   crosstalk[SiStripDetId::TOB] = conf.getParameter<double>("CouplingConstant"+mode+"TOB");
   crosstalk[SiStripDetId::TEC] = conf.getParameter<double>("CouplingConstant"+mode+"TEC");
-  transform(crosstalk.begin(), crosstalk.end(), back_inserter(edgeRatioCut), edgeRatioFromCrosstalk(crosstalksigma));
-  edgeRatioCut[SiStripDetId::TID] *= 1.1;
-  edgeRatioCut[SiStripDetId::TEC] *= 1.1;
 }
 
 StripClusterParameterEstimator::LocalValues StripCPEgeometric::
@@ -36,10 +34,12 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
   track *=   (track.z()<0) ?  fabs(p.thickness/track.z()) : 
              (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                               p.maxLength/track.mag() ;
-  const float projection = std::max( 2*p.thickness*tandriftangle/p.topology->localPitch(ltp.position()),
-				     fabs( p.coveredStrips( track+p.drift, ltp.position() )) );
 
-  const std::pair<float,float> s_se2 = strip_stripErrorSquared( cluster, projection);
+  const float projection = fabs( p.coveredStrips( track+p.drift, ltp.position() ));
+  const float minProjection = 2*p.thickness*tandriftangle/p.topology->localPitch(ltp.position());
+  const float projection_RelErr2 = thickness_RelErr2 + p.pitch_RelErr2;
+
+  const std::pair<float,float> s_se2 = strip_stripErrorSquared( cluster, std::max(projection,minProjection), projection_RelErr2 );
   const float strip = p.driftCorrected( s_se2.first, ltp.position() );
 
   return std::make_pair( p.topology->localPosition( strip ),
@@ -48,24 +48,19 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
 
 
 std::pair<float,float> StripCPEgeometric::
-strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection) const {
-  WrappedCluster wc(cluster);
+strip_stripErrorSquared( const SiStripCluster& cluster, const float& projection, const float& projection_RelErr2) const {
+  WrappedCluster wc(cluster, crosstalk);
   if( isMultiPeaked( cluster, projection ) ) return std::make_pair( wc.middle(), wc.N*wc.N/12. ) ;
   while( useNMinusOne( wc, projection) )  wc.dropSmallerEdgeStrip();
-  if( wc.deformed() ) return std::make_pair( wc.centroid(), 1/12.);
+  if( wc.deformed() ) return std::make_pair( wc.middle()+wc.centroid(), 1/12.);
 
-  const float eta = wc.eta(crosstalk);
+  const float eta = wc.eta();
   float sigma;
   switch( wc.N ) {
   case 1: sigma = invsqrt12*( 1-0.82*projection );                                                                break;
-  case 2: sigma =  0.013 + 0.060*projection*projection*(1-eta*eta)*sqrt(0.5*(fabs(projection-2)-(projection-2))); break;
-  case 3: sigma = -0.040 + 0.060*projection + invsqrt12/(1+exp(10*(projection-2*fabs(eta)-0.8)));                 break;
-  case 4: sigma = -0.078 + 0.060*projection + invsqrt12/(1+exp(15*(projection-2.1)));                             break;
-  case 5: sigma = -0.190 + 0.075*projection + invsqrt12/(1+exp(15*(projection-3.2)));                             break;
-  case 6: sigma = -0.350 + 0.095*projection + invsqrt12/(1+exp(15*(projection-4.3)));                             break;
-  default: sigma = 0.250 + 0.100*(projection-wc.N);                                                               break;
+  default: sigma = 0.5*projection* sqrt(eta*eta*projection_RelErr2+ wc.etaErr2() );                               break;
   }
-  const float crossoverPoint = projection - wc.maxProjection(crosstalk);
+  const float crossoverPoint = projection - wc.maxProjection();
   const float offset = mix(   0.5*projection*eta,   wc.centroid(),   crossoverPoint);
   const float sigma2 = mix(          sigma*sigma,           1/12.,   crossoverPoint-0.22);                     
 
@@ -86,13 +81,13 @@ inline
 bool StripCPEgeometric::
 useNMinusOne(const WrappedCluster& wc, const float& projection) const {
   WrappedCluster wcTest(wc); wcTest.dropSmallerEdgeStrip();
-
   if( wc.N == 1 ) return false;
+  if( wc.smallerEdgeCharge() < 0) return true;
   if( projection < wc.N-2) return true;
-  if( projection >= wcTest.maxProjection(crosstalk) ) return false;
-  if( wc.eta(crosstalk) > 1./(wc.N-1) ) return true;
+  if( projection >= wcTest.maxProjection() ) return false;
+  if( wc.eta() > 1./(wc.N-1) ) return true;
   if( wc.N==2 || wc.N==3)  
-    return wc.smallEdgeRatio() < edgeRatioCut[wc.type];
+    return wc.smallerEdgeCharge() < noise_threshold;
   return fabs(  wcTest.dedxRatio(projection)-1 )   <   fabs(  wc.dedxRatio(projection)-1 ); 
 }
 
@@ -105,27 +100,26 @@ mix(const float& left, const float& right, const float& crossoverPoint ) const {
 
 inline
 StripCPEgeometric::WrappedCluster::
-WrappedCluster(const SiStripCluster& cluster) 
+WrappedCluster(const SiStripCluster& cluster, const std::vector<float>& xtalk) 
   : N(cluster.amplitudes().size()),
     type(SiStripDetId(cluster.geographicalId()).subDetector()),
-    first(cluster.amplitudes().begin()),
-    last(cluster.amplitudes().end()-1),
-    firstStrip(cluster.firstStrip()),
-    sumQ(0)
-{ for(std::vector<uint8_t>::const_iterator i = first; i<first+N; i++)  sumQ+=(*i);}
+    firstStrip(cluster.firstStrip())
+{ 
+  Q = inv_crosstalk(cluster.amplitudes(), xtalk[type]);
+  first = Q.begin();
+  last = Q.end()-1;
+  sumQ = accumulate(first, last+1, float(0));
+}
 
 inline
 float StripCPEgeometric::WrappedCluster::
-eta(const std::vector<float>& xtalk) const { 
-  const float x = xtalk[type];
-  switch(N) {   /*   (Q_r-Q_l)/sumQ   */
-  case  1: return 0;
-  case  2: return (1-x)/(1-3*x) * (*last-*first)/sumQ; 
-  case  3: return (1-2*x-2*x*x/(1-2*x)) * (*last-*first) / ((1-3*x)*sumQ - x* *(first+1));
-  default: return ((1-2*x)*(*last-*first)-x*(*(last-1)-*(first+1)+x*x*(*(last-2)-*(first+2)))) / 
-	     ((pow(1-2*x,2)-x*x)*(sumQ-x/(1-2*x) * (*last+*first)));
-  }
-}
+eta() const 
+{ return (*last-*first) / sumQ; }
+
+inline
+float StripCPEgeometric::WrappedCluster::
+etaErr2() const 
+{ return ( pow( *last-*first, 2) / sumQ + *first + *last ) / (sumQ*sumQ);}
 
 inline
 float StripCPEgeometric::WrappedCluster::
@@ -134,8 +128,8 @@ middle() const
 
 inline
 float StripCPEgeometric::WrappedCluster::
-maxProjection(const std::vector<float>& xtalk) const
-{ return N/(1+fabs(eta(xtalk))); }
+maxProjection() const
+{ return N/(1+fabs(eta())); }
 
 inline
 float StripCPEgeometric::WrappedCluster::
@@ -144,13 +138,13 @@ dedxRatio(const float& projection) const
 
 inline
 float StripCPEgeometric::WrappedCluster::
-smallEdgeRatio() const 
-{ return (*first<*last)? ( *first / float(*(first+1)) ) : (*last / float(*(last-1))); }
+smallerEdgeCharge() const 
+{ return (*first<*last)?  *first  : *last; }
 
 float StripCPEgeometric::WrappedCluster::
 centroid() const { 
   float sumXQ(0);
-  for(std::vector<uint8_t>::const_iterator i = first; i<last+1; i++) sumXQ += (i-first)*(*i);
+  for(std::vector<float>::const_iterator i = first; i<last+1; i++) sumXQ += (i-first)*(*i);
   return sumXQ/sumQ - (N-1)/2.;
 }
 
@@ -168,3 +162,53 @@ bool StripCPEgeometric::WrappedCluster::
 deformed() const {  
   return   N>2  &&  std::max(*first,*last) > (sumQ-*first-*last)/(N-2);
 }
+
+
+
+std::vector<float> StripCPEgeometric::WrappedCluster::
+inv_crosstalk(const std::vector<uint8_t>& q, const float x) const {
+  std::vector<float> Q_(q.size(),0);
+  std::vector<std::vector<float> > inv = inv_xtalk_matrix(x, q.size() );
+  for(unsigned i=0; i< q.size(); i++)
+    for(unsigned j=0; j< q.size(); j++ )
+      Q_[i] += inv[i][j] * q[j];
+  return Q_;
+}
+
+
+std::vector<std::vector<float> > StripCPEgeometric::WrappedCluster::
+inv_xtalk_matrix( const float x, unsigned N) const {
+  const float a = 1-2*x;
+  std::vector<std::vector<float> > crosstalk;
+  std::vector<std::vector<float> > inverse;
+  for(unsigned i=0; i<N; i++) {
+    std::vector<float> xrow;
+    std::vector<float> irow;
+    for(unsigned j=0; j<N; j++) {
+      xrow.push_back( i==j ? a: ( (i+1)==j || (i-1)==j) ? x  : 0 );
+      irow.push_back( i==j ? 1: 0 );
+    }
+    crosstalk.push_back(xrow);
+    inverse.push_back(irow);
+  }
+  for(unsigned i=1; i<N; i++) {
+    const float s = crosstalk[i][i-1] / crosstalk[i-1][i-1] ;
+    for(unsigned j=0;j<N; j++) {
+      crosstalk[i][j] -= s*crosstalk[i-1][j];
+      inverse[i][j]   -= s*inverse[i-1][j];
+    }
+  }
+  for(int i=N-2; i>=0; i--) {
+    const float s = crosstalk[i][i+1]/crosstalk[i+1][i+1];
+    for(unsigned j=0; j<N; j++) {
+      crosstalk[i][j] -= s*crosstalk[i+1][j];
+      inverse[i][j] -= s*inverse[i+1][j];
+    }
+  }
+  for(unsigned i=0; i<N; i++)
+    for(unsigned j=0; j<N; j++)
+      inverse[i][j] /= crosstalk[i][i];
+
+  return inverse;
+}
+
