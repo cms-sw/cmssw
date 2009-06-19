@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HIon_V36/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/HIon_V76/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V36/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V76/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -841,7 +841,7 @@ hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
     DaqGtFedId = cms.untracked.int32( 813 ),
-    ActiveBoardsMask = cms.uint32( 0x101 ),
+    ActiveBoardsMask = cms.uint32( 0xffff ),
     UnpackBxInEvent = cms.int32( 1 )
 )
 hltGctDigis = cms.EDProducer( "GctRawToDigi",

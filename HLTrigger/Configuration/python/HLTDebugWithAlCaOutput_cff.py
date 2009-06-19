@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HLT/V36 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/HLT/V76 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V36')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V76')
 )
 
 block_hltDebugWithAlCaOutput = cms.PSet(
@@ -118,6 +118,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltCorrectedHybridSuperClustersL1Isolated_*_*',
   'keep *_hltGtDigis_*_*',
   'keep *_hltMuonTauIsoL2PreFiltered_*_*',
+  'keep *_hltAlCaPi0RegRecHitsCosmics_*_*',
   'keep *_hltL1NonIsoHLTClusterShape_*_*',
   'keep *_hltMuonTauIsoL2PreFilteredNoL1Tau_*_*',
   'keep *_hltBLifetimeL25JetsStartupU_*_*',
@@ -145,6 +146,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL3TauJetTracksAssociator_*_*',
   'keep *_hltMuonTauIsoL2IsoFiltered_*_*',
   'keep *_hltL3TkTracksFromL2_*_*',
+  'keep *_hltAlCaEtaRegRecHitsCosmics_*_*',
   'keep *_hltL1IsoElectronTrackIsol_*_*',
   'keep *_hltL1HLTSingleLooseIsoTau20JetsMatch_*_*',
   'keep *_hltL2Muons_*_*',
@@ -162,6 +164,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL2MuonCandidates_*_*',
   'keep *_hltL1IsoPhotonHollowTrackIsol_*_*',
   'keep *_hltBSoftMuonL3TagInfosU_*_*',
+  'keep *_hltAlCaHcalFEDSelector_*_*',
   'keep *_hltL1IsolatedPhotonHcalIsol_*_*',
   'keep *_hltL1NonIsoRecoEcalCandidate_*_*',
   'keep *_hltCtfWithMaterialTracksMumu_*_*',
