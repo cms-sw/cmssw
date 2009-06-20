@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScan.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: PLScan.cc,v 1.4 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -113,14 +113,12 @@ PLScanResults* PLScan::doScan(bool profile){
     // Acquire the parameter to scan_min
     RooRealVar *par;
     TIterator* par_it = m_nll->getVariables()->createIterator();
-    par=(RooRealVar*) par_it->Next();
     bool found=false;
-    while(par_it!=NULL){
+    while(par=(RooRealVar*) par_it->Next()){
         if (m_scanned_parameter_name.Contains(par->GetName())){
             found = true;
             break;
             }
-        par=(RooRealVar*) par_it->Next();
         }
 
     if (not found){
