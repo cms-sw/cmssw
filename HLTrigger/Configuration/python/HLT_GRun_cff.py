@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/GRun_V88/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/GRun_V90/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/GRun_V88/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/GRun_V90/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -3125,7 +3125,7 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 0.5 )
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -3581,7 +3581,7 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       hOverEHFMinE = cms.double( 999999.0 ),
-      nSigmasDeltaZ1 = cms.double( 0.5 )
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
