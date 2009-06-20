@@ -48,9 +48,8 @@ private:
     std::vector<std::string> hitLabelsVector_;
     double                   volumeRadius_;
     double                   volumeZ_;
-    //    bool                     discardOutVolume_;
-    bool					   mergedBremsstrahlung_;
-    bool                     discardHitsFromDeltas_;
+    bool					 mergedBremsstrahlung_;
+    bool                     removeDeadModules_;
     std::string              simHitLabel_;
 
     std::string MessageCategory_;
@@ -88,6 +87,11 @@ private:
     void associator(
         std::auto_ptr<MixCollection<Object> > const &,
         Associator &
+    );
+
+    void associator(
+        std::vector<std::pair<PSimHit,int> > const &,
+        EncodedTruthIdToIndexes &
     );
 
     void mergeBremsstrahlung();
