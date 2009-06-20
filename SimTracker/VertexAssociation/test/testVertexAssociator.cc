@@ -7,10 +7,14 @@
 #include "SimTracker/Records/interface/VertexAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h" 
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/Math/interface/Vector.h"
 
 #include <memory>
 #include <iostream>
@@ -25,191 +29,274 @@ using namespace std;
 using namespace edm;
 
 
-testVertexAssociator::testVertexAssociator(edm::ParameterSet const& conf)
-{
-}
+testVertexAssociator::testVertexAssociator(edm::ParameterSet const& conf) : theConfig_(conf) {
 
-testVertexAssociator::~testVertexAssociator()
-{
-}
+  vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>( "vertexCollection" );
 
-void testVertexAssociator::beginJob(const EventSetup & setup)
-{
-
-    edm::ESHandle<MagneticField> theMF;
-    setup.get<IdealMagneticFieldRecord>().get(theMF);
-    edm::ESHandle<TrackAssociatorBase> theChiAssociator;
-    setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
-    associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
-    edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-    setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-    associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
-
-    edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
-    setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
-    associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
-
-    rootFile = new TFile("testVertexAssociator.root","RECREATE");
-    rootFile->cd();
-
-    xMiss = new TH1F("rs_xmiss","x Miss Distance (cm)",100,-0.05,0.05);
-    yMiss = new TH1F("rs_ymiss","y Miss Distance (cm)",100,-0.05,0.05);
-    zMiss = new TH1F("rs_zmiss","z Miss Distance (cm)",100,-0.05,0.05);
-    rMiss = new TH1F("rs_rmiss","r Miss Distance (cm)",100,-0.05,0.05);
-
-    zVert = new TH1F("rs_zvert","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
-    zTrue = new TH1F("rs_ztrue","z, Simulated Vertex (cm)",     200, -25.0,25.0);
-
-    nTrue = new TH1F("rs_ntrue","# of tracks, Simulated",    51,-0.5,50.5);
-    nReco = new TH1F("rs_nreco","# of tracks, Reconstructed",51,-0.5,50.5);
-
-    sr_xMiss = new TH1F("sr_xmiss","x Miss Distance (cm)",100,-0.05,0.05);
-    sr_yMiss = new TH1F("sr_ymiss","y Miss Distance (cm)",100,-0.05,0.05);
-    sr_zMiss = new TH1F("sr_zmiss","z Miss Distance (cm)",100,-0.05,0.05);
-    sr_rMiss = new TH1F("sr_rmiss","r Miss Distance (cm)",100,-0.05,0.05);
-
-    sr_zVert = new TH1F("sr_zvert","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
-    sr_zTrue = new TH1F("sr_ztrue","z, Simulated Vertex (cm)",     200, -25.0,25.0);
-
-    sr_nTrue = new TH1F("sr_ntrue","# of tracks, Simulated",    101,-0.5,100.5);
-    sr_nReco = new TH1F("sr_nreco","# of tracks, Reconstructed",101,-0.5,100.5);
-
-    rs_qual = new TH1F("rs_qual","Quality of Match",51,-0.01,1.01);
-    sr_qual = new TH1F("sr_qual","Quality of Match",51,-0.01,1.01);
+  n_event_ = 0;
+  n_rs_vertices_ = 0;
+  n_rs_vtxassocs_ = 0;
+  n_sr_vertices_ = 0;
+  n_sr_vtxassocs_ = 0;
 
 }
 
-void testVertexAssociator::endJob()
-{
-    cout << "Writing histos" << endl;
-//  rootFile->cd();
-//  xMiss->Write();
-    rootFile->Write();
-    rootFile->Close();
+testVertexAssociator::~testVertexAssociator() {
+
+
+}
+
+void testVertexAssociator::beginJob(const EventSetup & setup) {
+
+  edm::ESHandle<MagneticField> theMF;
+  setup.get<IdealMagneticFieldRecord>().get(theMF);
+
+  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
+  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
+
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+
+  edm::ESHandle<VertexAssociatorBase> theTracksAssociator;
+  setup.get<VertexAssociatorRecord>().get("VertexAssociatorByTracks",theTracksAssociator);
+  associatorByTracks = (VertexAssociatorBase *) theTracksAssociator.product();
+
+   edm::Service<TFileService> fs; 
+
+   //RecoToSim Histos
+
+  rs_dist = fs->make<TH1F>("rs_dist","r Miss Distance (cm)",100,0,0.1);
+  rs_recz = fs->make<TH1F>("rs_recz","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
+  rs_simz = fs->make<TH1F>("rs_simz","z, Simulated Vertex (cm)",     200, -25.0,25.0);
+  rs_nsimtrk = fs->make<TH1F>("rs_nsimtrk","# of tracks, Simulated",    501,-0.5,500.5);  
+  rs_nrectrk = fs->make<TH1F>("rs_nrectrk","# of tracks, Reconstructed",501,-0.5,500.5);
+  rs_qual = fs->make<TH1F>("rs_qual","Quality of Match",51,-0.01,1.01);
+  rs_chi2norm = fs->make<TH1F>("rs_chi2norm","Vertex Normalized Chi2",100, 0, 10.);
+  rs_chi2prob = fs->make<TH1F>("rs_chi2prob","Vertex Chi2 Probability",100, 0, 1.);
+  rs_resx = fs->make<TH1F>("rs_resx","rec - sim Distance (cm)",100,-0.05,0.05);  
+  rs_resy = fs->make<TH1F>("rs_resy","rec - sim Distance (cm)",100,-0.05,0.05);  
+  rs_resz = fs->make<TH1F>("rs_resz","rec - sim Distance (cm)",100,-0.05,0.05);  
+  rs_pullx = fs->make<TH1F>("rs_pullx","(rec - sim)/err_rec ",100,-10.,10.);  
+  rs_pully = fs->make<TH1F>("rs_pully","(rec - sim)/err_rec ",100,-10.,10.); 
+  rs_pullz = fs->make<TH1F>("rs_pullz","(rec - sim)/err_rec ",100,-10.,10.); 
+
+  //SimToReco Histos
+
+  sr_dist = fs->make<TH1F>("sr_dist","r Miss Distance (cm)",100,0,0.1);
+  sr_recz = fs->make<TH1F>("sr_recz","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
+  sr_simz = fs->make<TH1F>("sr_simz","z, Simulated Vertex (cm)",     200, -25.0,25.0);
+  sr_nsimtrk = fs->make<TH1F>("sr_nsimtrk","# of tracks, Simulated",    501,-0.5,500.5);  
+  sr_nrectrk = fs->make<TH1F>("sr_nrectrk","# of tracks, Reconstructed",501,-0.5,500.5);
+  sr_qual = fs->make<TH1F>("sr_qual","Quality of Match",51,-0.01,1.01);
+  sr_chi2norm = fs->make<TH1F>("sr_chi2norm","Vertex Normalized Chi2",100, 0, 10.);
+  sr_chi2prob = fs->make<TH1F>("sr_chi2prob","Vertex Chi2 Probability",100, 0, 1.);
+  sr_resx = fs->make<TH1F>("sr_resx","rec - sim Distance (cm)",100,-0.05,0.05);  
+  sr_resy = fs->make<TH1F>("sr_resy","rec - sim Distance (cm)",100,-0.05,0.05);  
+  sr_resz = fs->make<TH1F>("sr_resz","rec - sim Distance (cm)",100,-0.05,0.05);  
+  sr_pullx = fs->make<TH1F>("sr_pullx","(rec - sim)/err_rec ",100,-10.,10.);  
+  sr_pully = fs->make<TH1F>("sr_pully","(rec - sim)/err_rec ",100,-10.,10.); 
+  sr_pullz = fs->make<TH1F>("sr_pullz","(rec - sim)/err_rec ",100,-10.,10.); 
+
+
+}
+
+void testVertexAssociator::endJob() {
+ 
+  std::cout << std::endl;
+  std::cout << " ====== Total Number of analyzed events: " << n_event_        << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S vertices:    " << n_rs_vertices_  << " ====== " << std::endl;
+  std::cout << " ====== Total Number of R2S vtx assocs:  " << n_rs_vtxassocs_ << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R vertices:    " << n_sr_vertices_  << " ====== " << std::endl;
+  std::cout << " ====== Total Number of S2R vtx assocs:  " << n_sr_vtxassocs_ << " ====== " << std::endl;
 }
 
 void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-    using namespace edm;
-    using namespace reco;
 
-    Handle<edm::View<reco::Track> > trackCollectionH;
-    event.getByLabel("generalTracks",trackCollectionH);
-    const  edm::View<reco::Track>   tC = *(trackCollectionH.product());
+  using namespace edm;
+  using namespace reco;
 
-    Handle<SimTrackContainer> simTrackCollection;
-    event.getByLabel("g4SimHits", simTrackCollection);
-    const SimTrackContainer simTC = *(simTrackCollection.product());
+  ++n_event_;
 
-    Handle<SimVertexContainer> simVertexCollection;
-    event.getByLabel("g4SimHits", simVertexCollection);
-    const SimVertexContainer simVC = *(simVertexCollection.product());
+  std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_ << std::endl << std::endl;
 
-    edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-    event.getByLabel("mergedtruth","MergedTrackTruth",TPCollectionH);
-    const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
-    edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-    event.getByLabel("mergedtruth","MergedTrackTruth",TVCollectionH);
-    const TrackingVertexCollection tVC   = *(TVCollectionH.product());
+  Handle<edm::View<reco::Track> > trackCollection;
+  event.getByLabel("generalTracks",trackCollection);
+  const  edm::View<reco::Track>   tC = *(trackCollection.product());
 
-    edm::Handle<reco::VertexCollection>  primaryVertexH ;
-    event.getByLabel("offlinePrimaryVertices","",primaryVertexH);
-    const reco::VertexCollection primaryVertexCollection   = *(primaryVertexH.product());
+  edm::Handle<TrackingParticleCollection>  TPCollection ;
+  event.getByLabel("mergedtruth","MergedTrackTruth",TPCollection);
+  const TrackingParticleCollection tPC   = *(TPCollection.product());
 
-    //RECOTOSIM
-    cout << "                      ****************** Reco To Sim ****************** " << endl;
-    cout << "-- Associator by hits --" << endl;
-    reco::RecoToSimCollection p = associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  edm::Handle<TrackingVertexCollection>  TVCollection;
+  event.getByLabel("mergedtruth","MergedTrackTruth",TVCollection);
+  const TrackingVertexCollection tVC   = *(TVCollection.product());
 
-    reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollectionH,TPCollectionH,&event );
-//    associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
-    cout << " Running Reco To Sim" << endl;
-    reco::VertexRecoToSimCollection vR2S = associatorByTracks ->
-                                           associateRecoToSim(primaryVertexH,TVCollectionH,event,p);
-    cout << " Finished Reco To Sim" << endl;
-    cout << " Running Sim To Reco" << endl;
-    reco::VertexSimToRecoCollection vS2R = associatorByTracks ->
-                                           associateSimToReco(primaryVertexH,TVCollectionH,event,s2rTracks);
+  //Vertex Collection
+  edm::Handle<reco::VertexCollection>  vertexCollection;
+  event.getByLabel(vertexCollection_, vertexCollection);
+  const reco::VertexCollection vC   = *(vertexCollection.product());
 
-    cout << " Analyzing Reco To Sim" << endl;
+  cout << endl;
+  cout << "                      ****************** Before Assocs ****************** " << endl << endl;  
 
-    for (reco::VertexRecoToSimCollection::const_iterator iR2S = vR2S.begin();
-            iR2S != vR2S.end(); ++iR2S)
-    {
-        math::XYZPoint recoPos = (iR2S -> key) -> position();
-        double nreco = (iR2S -> key)->tracksSize();
-        std::vector<std::pair<TrackingVertexRef, double> > vVR = iR2S -> val;
-        for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator
-                iMatch = vVR.begin(); iMatch != vVR.end(); ++iMatch)
-        {
-            TrackingVertexRef trueV =  iMatch->first;
-            math::XYZTLorentzVectorD simVec = (iMatch->first)->position();
-            double ntrue = trueV->daughterTracks().size();
-            math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
-            double qual  = iMatch->second;
-            double xmiss = simPos.X() - recoPos.X();
-            double ymiss = simPos.Y() - recoPos.Y();
-            double zmiss = simPos.Z() - recoPos.Z();
-            double rmiss = sqrt(xmiss*xmiss+ymiss*ymiss+zmiss*zmiss);
+  cout << "trackCollection.size()  = " << tC.size() << endl;
+  cout << "TPCollection.size()     = " << tPC.size() << endl;
+  cout << "vertexCollection.size() = " << vC.size() << endl;
+  cout << "TVCollection.size()     = " << tVC.size() << endl;
+  
+  cout << endl;
+  cout << "                      ****************** Reco To Sim ****************** " << endl << endl;
 
-            xMiss->Fill(simPos.X() - recoPos.X());
-            yMiss->Fill(simPos.Y() - recoPos.Y());
-            zMiss->Fill(simPos.Z() - recoPos.Z());
-            rMiss->Fill(rmiss);
+  //cout << "-- Associator by hits --" << endl;
+  reco::RecoToSimCollection r2sTracks = associatorByHits->associateRecoToSim (trackCollection,TPCollection,&event );
 
-            zVert->Fill(simPos.Z());
-            zTrue->Fill(recoPos.Z());
+  reco::SimToRecoCollection s2rTracks = associatorByHits->associateSimToReco (trackCollection,TPCollection,&event );
+  //associatorByChi2->associateRecoToSim (trackCollection,TPCollection,&event );
 
-            nTrue->Fill(ntrue);
-            nReco->Fill(nreco);
-            rs_qual->Fill(qual);
-        }
-    }
+  reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection,TVCollection,event,r2sTracks);
 
-    cout << " Analyzing Sim To Reco" << endl;
+  reco::VertexSimToRecoCollection s2rVertices = associatorByTracks->associateSimToReco(vertexCollection,TVCollection,event,s2rTracks);
 
-    for (reco::VertexSimToRecoCollection::const_iterator iS2R = vS2R.begin();
-            iS2R != vS2R.end(); ++iS2R)
-    {
+  cout << endl;
+  cout << "associateRecoToSim tracks size = " <<  r2sTracks.size() << " ; associateSimToReco tracks size = " << s2rTracks.size() << endl;
+  cout << "VertexRecoToSim size           = " <<  r2sVertices.size() << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << endl;
+ 
+ 
+  cout << endl << " [testVertexAssociator] Analyzing Reco To Sim" << endl;
 
-        TrackingVertexRef simVertex = (iS2R -> key);
-        math::XYZTLorentzVectorD simVec = simVertex->position();
-        math::XYZPoint   simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
-        double ntrue = simVertex->daughterTracks().size();
-//    double ntrue = simVertex->nDaughterTracks();
-        std::vector<std::pair<VertexRef, double> > recoVertices = iS2R->val;
-        for (std::vector<std::pair<VertexRef, double> >::const_iterator iMatch = recoVertices.begin();
-                iMatch != recoVertices.end(); ++iMatch)
-        {
-            VertexRef recoV = iMatch->first;
-            double qual  = iMatch->second;
-            math::XYZPoint recoPos = (iMatch -> first) -> position();
-            double nreco = (iMatch->first)->tracksSize();
+  int cont_recvR2S = 0;
 
-            double xmiss = simPos.X() - recoPos.X();
-            double ymiss = simPos.Y() - recoPos.Y();
-            double zmiss = simPos.Z() - recoPos.Z();
-            double rmiss = sqrt(xmiss*xmiss+ymiss*ymiss+zmiss*zmiss);
+  for (reco::VertexRecoToSimCollection::const_iterator iR2S = r2sVertices.begin(); iR2S != r2sVertices.end(); ++iR2S, ++cont_recvR2S) {
 
-            sr_xMiss->Fill(simPos.X() - recoPos.X());
-            sr_yMiss->Fill(simPos.Y() - recoPos.Y());
-            sr_zMiss->Fill(simPos.Z() - recoPos.Z());
-            sr_rMiss->Fill(rmiss);
+    ++n_rs_vertices_;
 
-            sr_zVert->Fill(simPos.Z());
-            sr_zTrue->Fill(recoPos.Z());
+    reco::VertexRef recVertex = iR2S->key;
+    math::XYZPoint recPos = recVertex->position();
 
-            sr_nTrue->Fill(ntrue);
-            sr_nReco->Fill(nreco);
-            sr_qual->Fill(qual);
-        }
-    }
+    double nrectrk = recVertex->tracksSize();
+
+    std::vector<std::pair<TrackingVertexRef, double> > simVertices = iR2S->val;
+
+    int cont_simvR2S = 0;
+    for (std::vector<std::pair<TrackingVertexRef, double> >::const_iterator iMatch = simVertices.begin(); iMatch != simVertices.end(); ++iMatch, ++cont_simvR2S) {
+
+      TrackingVertexRef simVertex =  iMatch->first;
+      math::XYZTLorentzVectorD simVec = (iMatch->first)->position();
+      math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
+
+      ++n_rs_vtxassocs_;
+
+      cout << "rec vertex " << cont_recvR2S << " has associated sim vertex " << cont_simvR2S << endl;
+ 
+      double nsimtrk = simVertex->daughterTracks().size();
+      double qual  = iMatch->second;
+
+      double chi2norm = recVertex->normalizedChi2();
+      double chi2prob = ChiSquaredProbability( recVertex->chi2(), recVertex->ndof() ); 
+        
+      double resx = recVertex->x() - simVertex->position().x();
+      double resy = recVertex->y() - simVertex->position().y();
+      double resz = recVertex->z() - simVertex->position().z();	
+      double pullx = (recVertex->x() - simVertex->position().x())/recVertex->xError();
+      double pully = (recVertex->y() - simVertex->position().y())/recVertex->yError();
+      double pullz = (recVertex->z() - simVertex->position().z())/recVertex->zError();
+      double dist = sqrt(resx*resx+resy*resy+resz*resz);
+
+      cout << "            R2S: recPos = " << recPos << " ; simPos = " << simPos << endl;
+
+      rs_resx->Fill(resx);
+      rs_resy->Fill(resy);
+      rs_resz->Fill(resz);
+      rs_pullx->Fill(pullx);
+      rs_pully->Fill(pully);
+      rs_pullz->Fill(pullz);
+      rs_dist->Fill(dist);
+      rs_simz->Fill(simPos.Z());
+      rs_recz->Fill(recPos.Z());
+      rs_nsimtrk->Fill(nsimtrk);
+      rs_nrectrk->Fill(nrectrk);
+      rs_qual->Fill(qual);
+      rs_chi2norm->Fill(chi2norm);
+      rs_chi2prob->Fill(chi2prob);	
+
+    }//end simVertices
+    
+  }//end iR2S
+
+
+  cout << endl << "                      ****************** Sim To Reco ****************** " << endl << endl;
+
+  cout << endl << "[testVertexAssociator] Analyzing Sim To Reco" << endl;
+
+  int cont_simvS2R = 0;
+  for (reco::VertexSimToRecoCollection::const_iterator iS2R = s2rVertices.begin(); iS2R != s2rVertices.end(); ++iS2R, ++cont_simvS2R) {
+
+    ++n_sr_vertices_;
+
+    TrackingVertexRef simVertex = iS2R->key;
+    math::XYZTLorentzVectorD simVec = simVertex->position();
+    math::XYZPoint   simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
+
+    double nsimtrk = simVertex->daughterTracks().size();
+
+    std::vector<std::pair<VertexRef, double> > recoVertices = iS2R->val;
+
+    int cont_recvS2R = 0;
+
+    for (std::vector<std::pair<VertexRef, double> >::const_iterator iMatch = recoVertices.begin(); iMatch != recoVertices.end(); ++iMatch, ++cont_recvS2R) {
+
+      VertexRef recVertex = iMatch->first;
+      math::XYZPoint recPos = recVertex->position();
+
+      ++n_sr_vtxassocs_;
+
+      cout << "sim vertex " << cont_simvS2R << " has associated rec vertex " << cont_recvS2R << endl;
+
+      double nrectrk = recVertex->tracksSize();
+      double qual  = iMatch->second;
+
+      double chi2norm = recVertex->normalizedChi2();
+      double chi2prob = ChiSquaredProbability( recVertex->chi2(), recVertex->ndof() ); 
+         
+      double resx = recVertex->x() - simVertex->position().x();
+      double resy = recVertex->y() - simVertex->position().y(); 
+      double resz = recVertex->z() - simVertex->position().z(); 	
+      double pullx = ( recVertex->x() - simVertex->position().x() )/recVertex->xError();
+      double pully = ( recVertex->y() - simVertex->position().y() )/recVertex->yError();
+      double pullz = ( recVertex->z() - simVertex->position().z() )/recVertex->zError();
+      double dist = sqrt(resx*resx+resy*resy+resz*resz);
+
+
+      cout << "            S2R: simPos = " << simPos << " ; recPos = " << recPos << endl;
+
+      sr_resx->Fill(resx);
+      sr_resy->Fill(resy);
+      sr_resz->Fill(resz);
+      sr_pullx->Fill(pullx);
+      sr_pully->Fill(pully);
+      sr_pullz->Fill(pullz);
+      sr_dist->Fill(dist);
+      sr_simz->Fill(simPos.Z());
+      sr_recz->Fill(recPos.Z());
+      sr_nsimtrk->Fill(nsimtrk);
+      sr_nrectrk->Fill(nrectrk);
+      sr_qual->Fill(qual);
+      sr_chi2norm->Fill(chi2norm);
+      sr_chi2prob->Fill(chi2prob);	
+  
+    }//end recoVertices
+
+  }//end iS2R
+
+  cout << endl;
+
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(testVertexAssociator);
-
-
 
