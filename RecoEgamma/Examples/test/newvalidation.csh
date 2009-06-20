@@ -88,7 +88,8 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $cwd
-cd /afs/cern.ch/cms/Physics/egamma/www/validation
+#cd /afs/cern.ch/cms/Physics/egamma/www/validation
+cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_0_pre10/src/RecoEgamma/Examples/test/validation
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
@@ -291,24 +292,15 @@ h_ele_classes 1 0 1
 h_ele_mva 1 0 1
 h_ele_tkSumPt_dr03 1 1 1
 h_ele_ecalRecHitSumEt_dr03 1 1 1
-h_ele_hcalDepth1TowerSumEt_dr03 1 1
+h_ele_hcalDepth1TowerSumEt_dr03 1 1 1
 h_ele_hcalDepth2TowerSumEt_dr03 1 1 1
 h_ele_tkSumPt_dr04 1 1 1
 h_ele_ecalRecHitSumEt_dr04 1 1 1
 h_ele_hcalDepth1TowerSumEt_dr04 1 1 1
 h_ele_hcalDepth2TowerSumEt_dr04 1 1 1
 h_recEleNum 1 0 1
-h_ele_EoverP_all 1 1 1
-h_ele_EseedOP_all 1 1 1
-h_ele_EoPout_all 1 1 1
-h_ele_EeleOPout_all 1 1 1
-h_ele_TIP_all 1 1 1
-h_ele_dEtaSc_propVtx_all 1 1 1
-h_ele_dPhiSc_propVtx_all 1 1 1
-h_ele_dEtaCl_propOut_all 1 1 1
-h_ele_dPhiCl_propOut_all 1 1 1
-h_ele_HoE_all 1 1 1
 h_ele_mee_all 1 1 1
+h_ele_mee 1 1 1
 EOF
 
 cat >> histos.txt <<EOF
@@ -317,8 +309,6 @@ h_ele_etaEff 0 0 1
 h_ele_ptEff 0 0 1
 h_ele_phiEff 0 0 1
 h_ele_zEff 0 0 1
-h_ele_etaEff_all 0 0 1
-h_ele_ptEff_all 0 0 1
 h_ele_vertexPtVsEta_pfx 0 0 1
 h_ele_PoPmatchingObjectVsEta_pfx 0 0 1
 h_ele_PoPmatchingObjectVsPhi_pfx 0 0 1   

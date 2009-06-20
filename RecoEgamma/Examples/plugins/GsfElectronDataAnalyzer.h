@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.8 2009/03/28 22:29:08 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.9 2009/06/10 20:31:29 charlot Exp $
 //
 //
 
@@ -73,19 +73,8 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_matchingObjectPhi_matched;
   TH1F *h_ele_matchingObjectZ_matched;
 
-  TH1F *h_ele_EoverP_all;
-  TH1F *h_ele_EseedOP_all;
-  TH1F *h_ele_EoPout_all;
-  TH1F *h_ele_EeleOPout_all;
-  TH1F *h_ele_dEtaSc_propVtx_all;
-  TH1F *h_ele_dPhiSc_propVtx_all;
-  TH1F *h_ele_dEtaCl_propOut_all;
-  TH1F *h_ele_dPhiCl_propOut_all;
-  TH1F *h_ele_TIP_all;
-  TH1F *h_ele_HoE_all;
-  TH1F *h_ele_vertexEta_all;
-  TH1F *h_ele_vertexPt_all;
   TH1F *h_ele_mee_all;
+  TH1F *h_ele_mee;
 
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
@@ -271,8 +260,45 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   edm::InputTag matchingObjectCollection_;
   std::string type_;
 
-  double maxPt_;
+  //selection
   double maxAbsEta_;
+  double minEt_;
+  double minPt_;
+  bool isEB_;
+  bool isEE_;
+  bool isNotEBEEGap_;
+  bool isEcalDriven_;
+  bool isTrackerDriven_;
+  double eOverPMinBarrel_;
+  double eOverPMaxBarrel_;
+  double eOverPMinEndcaps_;
+  double eOverPMaxEndcaps_;
+  double dEtaMinBarrel_;
+  double dEtaMaxBarrel_;
+  double dEtaMinEndcaps_;
+  double dEtaMaxEndcaps_;
+  double dPhiMinBarrel_;
+  double dPhiMaxBarrel_;
+  double dPhiMinEndcaps_;
+  double dPhiMaxEndcaps_;
+  double sigIetaIetaMinBarrel_;
+  double sigIetaIetaMaxBarrel_;
+  double sigIetaIetaMinEndcaps_;
+  double sigIetaIetaMaxEndcaps_;
+  double hadronicOverEmMaxBarrel_;
+  double hadronicOverEmMaxEndcaps_;
+  double mvaMin_;
+  double tipMaxBarrel_;
+  double tipMaxEndcaps_;
+  double tkIso03Max_;
+  double hcalIso03Depth1MaxBarrel_;
+  double hcalIso03Depth1MaxEndcaps_;
+  double hcalIso03Depth2MaxEndcaps_;
+  double ecalIso03MaxBarrel_;
+  double ecalIso03MaxEndcaps_;
+  
+  //matching
+  double maxPt_;
   double deltaR_;
 
   // histos limits and binning

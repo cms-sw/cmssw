@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.23 2009/06/10 20:31:10 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.24 2009/06/17 21:39:02 charlot Exp $
 //
 //
 
@@ -185,8 +185,11 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexEta->Sumw2();
   h_ele_vertexEtaVsPhi  = new TH2F( "h_ele_vertexEtaVsPhi",      "ele momentum eta vs phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax );
   h_ele_simAbsEta_matched      = new TH1F( "h_ele_simAbsEta_matched",      "Efficiency vs gen |eta|",    nbineta/2,0.,2.5);
+  h_ele_simAbsEta_matched->Sumw2();
   h_ele_simEta_matched      = new TH1F( "h_ele_simEta_matched",      "Efficiency vs gen eta",    nbineta,etamin,etamax);
+  h_ele_simEta_matched->Sumw2();
   h_ele_simPhi_matched               = new TH1F( "h_ele_simPhi_matched",               "Efficiency vs gen phi",        nbinphi,phimin,phimax);
+  h_ele_simPhi_matched->Sumw2();
   h_ele_vertexPhi      = new TH1F( "h_ele_vertexPhi",      "ele  momentum #phi",    nbinphi,phimin,phimax);
   h_ele_vertexPhi->Sumw2();
   h_ele_vertexX      = new TH1F( "h_ele_vertexX",      "ele vertex x",    nbinxyz,-0.1,0.1 );
