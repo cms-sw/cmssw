@@ -19,14 +19,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     outOfOrder = cms.untracked.bool(True),
     toPut = cms.VPSet(
     cms.PSet(
-    record = cms.string('keys'),
+    record = cms.string('confcont'),
     tag = cms.string('KeyTest'),
     timetype = cms.untracked.string('hash'),
     withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(True)
     ),
     cms.PSet(
-    record = cms.string('names'),
+    record = cms.string('confiov'),
     tag = cms.string('ConfTest'),
     timetype = cms.untracked.string('runnumber'),
     withWrapper = cms.untracked.bool(True),

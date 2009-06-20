@@ -11,7 +11,7 @@ class writeKeyed : public edm::EDAnalyzer {
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob();
  private:
-  std::string keys, names;
+  std::string confcont, confiov;
 };
 
 void
@@ -50,7 +50,7 @@ writeKeyed::endJob() {
 			   bk = new condex::ConfF(dict[i]+nums[j],i+0.1*j),      
 			   dict[i]+nums[j]);
       std::cout << (*k.m_sum) << " " << k.m_key << std::endl;
-      outdb->writeOne(k.m_obj,k.m_sum,k.m_key,keys);
+      outdb->writeOne(k.m_obj,k.m_sum,k.m_key,confcont);
     }
 
   // populate the master payload
@@ -60,14 +60,14 @@ writeKeyed::endJob() {
     for ( int i=0; i<dict.size();i++)
       (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
     // outdb->writeOne(kl,new cond::GenericSummary(nums[j]),run,names);
-    outdb->writeOne(kl,0,run,names);
+    outdb->writeOne(kl,0,run,confiov);
     run+=10;
   }
 
 }
 
 writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
-  keys("keys"), names("names"){}
+  confcont("confcont"), confiov("confiov"){}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeKeyed);
