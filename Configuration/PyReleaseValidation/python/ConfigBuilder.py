@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.120 $"
+__version__ = "$Revision: 1.121 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -221,35 +221,29 @@ class ConfigBuilder(object):
 
     def addConditions(self):
         """Add conditions to the process"""
-        conditionsSP=self._options.conditions.split(',')
+        conditions=self._options.conditions.lstrip("FrontierConditions_GlobalTag,") #only for backwards compatibility
+	
         # FULL or FAST SIM ?
         if "FASTSIM" in self._options.step:
-            # fake or real conditions?
-            if len(conditionsSP)>1:
-                self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+            self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
-		if "STARTUP" in conditionsSP[1]:
-                    self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
-		    self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
-		    self.additionalCommands.append("process.hbhereco.doMiscalib = True")
-		    self.additionalCommands.append("process.horeco.doMiscalib = True")
-		    self.additionalCommands.append("process.hfreco.doMiscalib = True")
-                # Apply Tracker misalignment
-                self.additionalCommands.append("# Apply Tracker misalignment")
-                self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-		self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
+            if "STARTUP" in conditions:
+                self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
+	        self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
+	        self.additionalCommands.append("process.hbhereco.doMiscalib = True")
+	        self.additionalCommands.append("process.horeco.doMiscalib = True")
+	        self.additionalCommands.append("process.hfreco.doMiscalib = True")
+
+            # Apply Tracker misalignment
+            self.additionalCommands.append("# Apply Tracker misalignment")
+            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
+	    self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
                                        
-            else:
-                self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
-                self.additionalCommands.append('process.famosSimHits.SimulateCalorimetry = True')
-                self.additionalCommands.append('process.famosSimHits.SimulateTracking = True')
-                
         else:
-            self.loadAndRemember('Configuration/StandardSequences/'+conditionsSP[0]+'_cff')
-        
-        # set non-default conditions 
-        if ( len(conditionsSP)>1 ):
-            self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
+            self.loadAndRemember(self.ConditionsDefaultCFF)
+
+        # set the global tag
+        self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
                         
     def addCustomise(self):
         """Include the customise code """
@@ -303,7 +297,8 @@ class ConfigBuilder(object):
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-
+        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	
 	self.ALCADefaultSeq=None
 	self.SIMDefaultSeq=None
 	self.GENDefaultSeq=None
@@ -699,7 +694,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.120 $"),
+              (version=cms.untracked.string("$Revision: 1.121 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
