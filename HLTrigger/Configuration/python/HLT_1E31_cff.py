@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/1E31_V76/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/1E31_V84/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/1E31_V76/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/1E31_V84/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -6983,8 +6983,7 @@ HLTEle10SWL1RTripleJet30EGSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequen
 HLTEle10LWL1RHT150EGSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate + hltEle10LWL1RHT150L1MatchFilterRegional + hltEle10LWL1RHT150EleEtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedElectronHcalIsol + hltL1NonIsolatedElectronHcalIsol + hltEle10LWL1RHT150EleHcalIsolFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL1IsoLargeElectronPixelSeeds + hltL1NonIsoLargeElectronPixelSeeds + hltEle10LWL1RHT150ElePixelMatchFilter )
 HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 HLTL2HcalIsolTrackSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracks + hltPixelVertices )
-HLTDoRegionalPi0EtaESSequence = cms.Sequence( hltESRawToRecHitFacility + hltEcalRegionalPi0EtaFEDs + hltESRegionalPi0EtaRecHit )
-HLTDoRegionalPi0EtaEcalSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalPi0EtaFEDs + hltEcalRegionalPi0EtaRecHit )
+HLTDoRegionalPi0EtaSequence = cms.Sequence( hltESRawToRecHitFacility + hltEcalRawToRecHitFacility + hltEcalRegionalPi0EtaFEDs + hltESRegionalPi0EtaRecHit + hltEcalRegionalPi0EtaRecHit )
 
 HLTriggerFirstPath = cms.Path( HLTBeginSequence + hltGetRaw + hltPreFirstPath + hltBoolFirstPath )
 HLT_L1Jet15 = cms.Path( HLTBeginSequence + hltL1sL1Jet15 + hltPreL1Jet15 + HLTEndSequence )
@@ -7075,9 +7074,9 @@ HLT_ForwardBSC = cms.Path( HLTBeginSequence + hltL1sForwardBSC + hltPreForwardBS
 HLT_TrackerCosmics = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreTrackerCosmics + HLTEndSequence )
 HLT_IsoTrack_1E31 = cms.Path( HLTBeginSequence + hltL1sIsoTrack1E31 + hltPreIsoTrack1E31 + HLTL2HcalIsolTrackSequence + hltIsolPixelTrackProd1E31 + hltIsolPixelTrackL2Filter1E31 + HLTDoLocalStripSequence + hltHITPixelPairSeedGenerator1E31 + hltHITPixelTripletSeedGenerator1E31 + hltHITSeedCombiner1E31 + hltHITCkfTrackCandidates1E31 + hltHITCtfWithMaterialTracks1E31 + hltHITIPTCorrector1E31 + hltIsolPixelTrackL3Filter1E31 + HLTEndSequence )
 AlCa_HcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaHcalPhiSym + hltPreAlCaHcalPhiSym + hltAlCaHcalFEDSelector + HLTEndSequence )
-AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
-AlCa_EcalPi0_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalPi01E31 + HLTDoRegionalPi0EtaESSequence + HLTDoRegionalPi0EtaEcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
-AlCa_EcalEta_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalEta1E31 + HLTDoRegionalPi0EtaESSequence + HLTDoRegionalPi0EtaEcalSequence + hltAlCaEtaRegRecHits + HLTEndSequence )
+AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
+AlCa_EcalPi0_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalPi01E31 + HLTDoRegionalPi0EtaSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
+AlCa_EcalEta_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalEta1E31 + HLTDoRegionalPi0EtaSequence + hltAlCaEtaRegRecHits + HLTEndSequence )
 AlCa_RPCMuonNoHits = cms.Path( HLTBeginSequence + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNoHits + hltRPCMuonNoHitsL1Filtered0 + HLTL2muonrecoNocandSequence + HLTEndSequence )
 AlCa_RPCMuonNormalisation = cms.Path( HLTBeginSequence + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNorma + hltRPCMuonNormaL1Filtered0 + HLTL2muonrecoNocandSequence + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFinalPath )
