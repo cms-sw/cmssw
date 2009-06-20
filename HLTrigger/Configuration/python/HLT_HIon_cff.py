@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HIon_V84/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/HIon_V88/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V84/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V88/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -848,6 +848,7 @@ hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
     hltMode = cms.bool( True ),
+    unpackSharedRegions = cms.bool( False ),
     unpackerVersion = cms.uint32( 0 )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
@@ -1696,6 +1697,7 @@ hltBoolFinalPath = cms.EDFilter( "HLTBool",
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
     L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    PrintVerbosity = cms.untracked.int32( 0 ),
     PrintOutput = cms.untracked.int32( 2 )
 )
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",

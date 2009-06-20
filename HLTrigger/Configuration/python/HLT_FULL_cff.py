@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HLT/V84 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/HLT/V88 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V84')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V88')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1433,6 +1433,7 @@ hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
     hltMode = cms.bool( True ),
+    unpackSharedRegions = cms.bool( False ),
     unpackerVersion = cms.uint32( 0 )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
@@ -4960,7 +4961,8 @@ hltL1IsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       rMinI = cms.double( -0.2 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 0.5 )
     )
 )
 hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -5011,7 +5013,8 @@ hltL1NonIsoLargeWindowElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer
       rMinI = cms.double( -0.2 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -5279,7 +5282,8 @@ hltL1IsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       rMinI = cms.double( -0.11 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 0.5 )
     )
 )
 hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -5330,7 +5334,8 @@ hltL1NonIsoStartUpElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       rMinI = cms.double( -0.11 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltL1NonIsoHLTNonIsoSingleElectronEt10PixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -10018,7 +10023,8 @@ hltL1IsoLargeElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       PhiMax2 = cms.double( 0.0010 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltL1NonIsoLargeElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
@@ -10069,7 +10075,8 @@ hltL1NonIsoLargeElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       PhiMax2 = cms.double( 0.0010 ),
       hOverEConeSize = cms.double( 0.0 ),
       hOverEHBMinE = cms.double( 999999.0 ),
-      hOverEHFMinE = cms.double( 999999.0 )
+      hOverEHFMinE = cms.double( 999999.0 ),
+      nSigmasDeltaZ1 = cms.double( 5.0 )
     )
 )
 hltEle10LWL1RHT150ElePixelMatchFilter = cms.EDFilter( "HLTElectronPixelMatchFilter",
@@ -11731,6 +11738,7 @@ hltBoolFinalPath = cms.EDFilter( "HLTBool",
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
     L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    PrintVerbosity = cms.untracked.int32( 0 ),
     PrintOutput = cms.untracked.int32( 2 )
 )
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
