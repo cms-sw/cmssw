@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/05/12 11:39:51 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/06/19 18:59:58 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -285,18 +285,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   int run = iRun.run();
   std::string release = edm::getReleaseVersion();
-
-  /*
-  mestorage<TH1F> TH1FME;
-  mestorage<TH1S> TH1SME;
-  mestorage<TH2F> TH2FME;
-  mestorage<TH2S> TH2SME;
-  mestorage<TH3F> TH3FME;
-  mestorage<TProfile> TProfileME;
-  mestorage<TProfile2D> TProfile2DME;
-  mestorage<double> FloatME;
-  mestorage<int> IntME;
-  mestorage<TString> StringME; */
 
   std::string MsgLoggerCat = "MEtoEDMConverter_endRun";
   
