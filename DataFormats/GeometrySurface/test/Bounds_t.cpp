@@ -22,6 +22,7 @@ int main() {
     ok = bound.inside(in,err);
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
+    if (!ok) std::cout << "not inside?" << std::endl;
   }
 
   {
@@ -29,6 +30,7 @@ int main() {
     ok = bound.inside(outY,err);
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
+    if (ok) std::cout << "inside?" << std::endl;
   }
 
   
