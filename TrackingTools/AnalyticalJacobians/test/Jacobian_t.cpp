@@ -9,7 +9,11 @@
 #include "FWCore/Utilities/interface/HRRealTime.h"
 int main() {
 
-  Surface::RotationType rot;
+
+  GlobalVector xx(1.,1.,1);
+  GlobalVector yy(-1.,1.,1);
+  
+  Surface::RotationType rot(xx,yy);
   std::cout << rot << std::endl;
 
   Surface::PositionType pos( 0., 0., 0.);
