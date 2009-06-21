@@ -83,13 +83,13 @@ private:
 
   // Histograms
   TH2F* ProblemDigis;
-  TH2F* ProblemDigisByDepth[6];
-  TH2F* DigiErrorsBadCapID[6];
-  TH2F* DigiErrorsBadDigiSize[6];
-  TH2F* DigiErrorsBadADCSum[6];
-  TH2F* DigiErrorsNoDigi[6];
-  TH2F* DigiErrorsDVErr[6];
-  TH2F* DigiOccupancyByDepth[6];
+  TH2F* ProblemDigisByDepth[4];
+  TH2F* DigiErrorsBadCapID[4];
+  TH2F* DigiErrorsBadDigiSize[4];
+  TH2F* DigiErrorsBadADCSum[4];
+  TH2F* DigiErrorsNoDigi[4];
+  TH2F* DigiErrorsDVErr[4];
+  TH2F* DigiOccupancyByDepth[4];
   TH2F* DigiOccupancyVME;
   TH2F* DigiOccupancySpigot;
   TH2F* DigiErrorEtaPhi;
