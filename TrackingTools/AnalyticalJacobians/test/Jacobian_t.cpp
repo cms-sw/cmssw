@@ -4,7 +4,19 @@
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 
+namespace {
+
+  struct M5T : public  MagneticField {
+    virtual GlobalVector inTesla (const GlobalPoint&) const {
+      return m;
+    }
+
+    GloablVector m(0.,0.,5.);
+  }
+
+}
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
 int main() {
@@ -45,13 +57,23 @@ int main() {
 
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
 
-  edm::HRTimeType s= edm::hrRealTime();
-  JacobianLocalToCartesian jl2c(plane,tp);
-  edm::HRTimeType e = edm::hrRealTime();
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    JacobianLocalToCartesian jl2c(plane,tp);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
 
-  std::cout << e-s << std::endl;
+  {
+    M5T const m; 
+    edm::HRTimeType s= edm::hrRealTime();
+    JacobianLocalToCurvilinear jl2c(plane,tp,m);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << jl2c.jacobian() << std::endl;
+  }
 
-  std::cout << jl2c.jacobian() << std::endl;
 
   return 0;
 
