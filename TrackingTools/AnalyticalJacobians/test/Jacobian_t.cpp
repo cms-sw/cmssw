@@ -10,8 +10,8 @@
 int main() {
 
 
-  GlobalVector xx(1.,1.,1);
-  GlobalVector yy(-1.,1.,1);
+  GlobalVector xx(0.5,1.,1.);
+  GlobalVector yy(-1.,0.5,1.);
   
   Surface::RotationType rot(xx,yy);
   std::cout << rot << std::endl;
