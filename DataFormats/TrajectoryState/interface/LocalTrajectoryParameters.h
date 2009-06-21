@@ -198,6 +198,12 @@ public:
     return true;
   }
 
+
+  double qbp() const { return theQbp;}
+  double dxdz() const { return theDxdz;}
+  double dydz() const { return theDydz;}
+
+
 private:
   double theQbp;    ///< q/p (charged) or 1/p (neutral)
   double theDxdz;   ///< tangent of direction in local x vs. z
