@@ -13,9 +13,27 @@ int main() {
 
   Local3DPoint outY(0.,3.,0.);
 
+  Local3DPoint outZ(0.,3.,3.);
+
   LocalError err(0.1,0.0,0.1);
 
   bool ok;
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    ok = bound.inside(outZ);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    if (ok) std::cout << "not inside?" << std::endl;
+  }
+
+ {
+    edm::HRTimeType s= edm::hrRealTime();
+    ok = bound.inside(in);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    if (!ok) std::cout << "not inside?" << std::endl;
+  }
 
   {
     edm::HRTimeType s= edm::hrRealTime();
