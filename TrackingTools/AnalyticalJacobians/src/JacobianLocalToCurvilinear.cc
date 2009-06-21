@@ -13,10 +13,10 @@ JacobianLocalToCurvilinear(const Surface& surface,
   GlobalVector p = surface.toGlobal(localParameters.momentum());
   GlobalVector tn = p.unit();
  
-  // LocalVector tnl = localParameters.momentum().unit();
+  LocalVector tnl = localParameters.momentum().unit();
   // GlobalVector tn = surface.toGlobal(tnl);
  
-  //  GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
+  // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
   // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
   Surface::RotationType const & rot = surface.rotation();
   GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
