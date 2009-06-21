@@ -11,10 +11,8 @@ JacobianLocalToCurvilinear(const Surface& surface,
   // Origin: TRSDSC
 
   GlobalPoint  x = surface.toGlobal(localParameters.position());
-  // GlobalVector p = surface.toGlobal(localParameters.momentum());
   GlobalVector h  = magField.inInverseGeV(x);
 
-  // GlobalVector tn = p.unit();
  
   LocalVector tnl = localParameters.momentum().unit();
   GlobalVector tn = surface.toGlobal(tnl);
@@ -25,8 +23,10 @@ JacobianLocalToCurvilinear(const Surface& surface,
   GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
   GlobalVector dk(rot.yx(),rot.yy(),rot.yz());
  
+  // GlobalVector p = surface.toGlobal(localParameters.momentum());
   // GlobalVector pt(p.x(), p.y(), 0.);
   // pt = pt.unit();
+  // GlobalVector tn = p.unit();
 
   //  GlobalVector di = tsos.surface().toGlobal(LocalVector(0., 0., 1.));
 
@@ -34,12 +34,20 @@ JacobianLocalToCurvilinear(const Surface& surface,
   LocalVector tvw(tnl.z(), tnl.x(), tnl.y());
   double cosl = tn.perp(); if (cosl < 1.e-30) cosl = 1.e-30;
   double cosl1 = 1./cosl;
+
+  double q = -h.mag() * localParameters.signedInverseMomentum();
+
   GlobalVector un(-tn.y()*cosl1, tn.x()*cosl1, 0.);
-  GlobalVector vn(-tn.z()*un.y(), tn.z()*un.x(), cosl);
   double uj = un.dot(dj);
   double uk = un.dot(dk);
+  double sinz =-un.dot(h.unit());
+
+  GlobalVector vn(-tn.z()*un.y(), tn.z()*un.x(), cosl);
   double vj = vn.dot(dj);
   double vk = vn.dot(dk);
+  double cosz = vn.dot(h.unit());
+ 
+
   theJacobian(0,0) = 1.;
   theJacobian(1,1) = tvw.x()*vj;
   theJacobian(1,2) = tvw.x()*vk;
@@ -50,9 +58,6 @@ JacobianLocalToCurvilinear(const Surface& surface,
   theJacobian(4,3) = vj;
   theJacobian(4,4) = vk;
  
-  double q = -h.mag() * localParameters.signedInverseMomentum();
-  double sinz =-un.dot(h.unit());
-  double cosz = vn.dot(h.unit());
   theJacobian(1,3) = -q*tvw.y()*sinz;
   theJacobian(1,4) = -q*tvw.z()*sinz;
   theJacobian(2,3) = -q*tvw.y()*cosz*cosl1;
