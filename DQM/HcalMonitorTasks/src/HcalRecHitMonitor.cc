@@ -589,7 +589,7 @@ void HcalRecHitMonitor::fillNevents(void)
   // Fill Occupancy & Average Energy,Time plots
   if (ievt_>0)
     {
-      for (int eta=0;eta<(etaBins_-2);++eta)
+      for (int eta=0;eta<85;++eta)
 	{
 	  for (int phi=0;phi<72;++phi)
 	    {
