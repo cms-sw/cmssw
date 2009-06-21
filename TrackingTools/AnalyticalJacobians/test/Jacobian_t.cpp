@@ -6,12 +6,11 @@
 
 
 
-#include "FWCore/ Utilities/ interface/ HRRealTime.h"
+#include "FWCore/Utilities/interface/HRRealTime.h"
 int main() {
 
   Surface::RotationType rot;
   std::cout << rot << std::endl;
-
 
   Surface::PositionType pos( 0., 0., 0.);
 
@@ -29,11 +28,11 @@ int main() {
   
 
 
-  LocalTrajectoryParameters tp(1.1.,1.,0.,0.,1.);
+  LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
 
-  emd::HRTimeType s= hrRealTime();
-  JacobianLocalToCartesia jl2c(plane,tp);
-  emd::HRTimeType e = hrRealTime();
+  edm::HRTimeType s= edm::hrRealTime();
+  JacobianLocalToCartesian jl2c(plane,tp);
+  edm::HRTimeType e = edm::hrRealTime();
 
   std::cout << e-s << std::endl;
 
