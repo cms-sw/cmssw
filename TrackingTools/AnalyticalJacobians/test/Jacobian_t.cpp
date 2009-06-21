@@ -31,6 +31,17 @@ int main() {
   std::cout << Rsub << std::endl;
   
 
+  if ( rot.xx() != Rsub(0,0) ||
+       rot.xy() != Rsub(1,0) ||
+       rot.xz() != Rsub(2,0) ||
+       rot.yx() != Rsub(0,1) ||
+       rot.yy() != Rsub(1,1) ||
+       rot.yz() != Rsub(2,1) ||
+       rot.zx() != Rsub(0,2) ||
+       rot.zy() != Rsub(1,2) ||
+       rot.zz() != Rsub(2,2) )
+    std::cout << " wrong assumption!" << std::endl;
+
 
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
 
