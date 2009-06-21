@@ -1,5 +1,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
@@ -11,12 +13,13 @@
 namespace {
 
   struct M5T : public  MagneticField {
+    M5T() :  m(0.,0.,5.){}
     virtual GlobalVector inTesla (const GlobalPoint&) const {
       return m;
     }
 
-    GloablVector m(0.,0.,5.);
-  }
+    GlobalVector m;
+  };
 
 }
 
