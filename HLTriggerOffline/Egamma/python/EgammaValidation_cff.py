@@ -50,7 +50,7 @@ pathlumi = { 'HLT_Ele10_LW_L1RDQM':'8e29',
              'HLT_Photon25_L1R_DQM':'1e31'
              }
 
-lumiprocess = { '8e29':'HLT8E29',
+lumiprocess = { '8e29':'HLT',
                 '1e31':'HLT'
                 }
     
@@ -60,7 +60,7 @@ lumiprocess = { '8e29':'HLT8E29',
 ##########################################################
 
 genp = cms.EDFilter("PdgIdAndStatusCandViewSelector",
-    status = cms.vint32(1),
+    status = cms.vint32(3),
     src = cms.InputTag("genParticles"),
     pdgId = cms.vint32(11)  # replaced in loop
 )
