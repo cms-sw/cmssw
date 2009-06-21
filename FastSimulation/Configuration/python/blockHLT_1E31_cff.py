@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/1E31_V84/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/1E31_V90/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/1E31_V84/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/1E31_V90/V2')
 )
 
 block_hltL1IsoLargeElectronPixelSeeds = cms.PSet(
@@ -52,7 +52,8 @@ block_hltL1IsoLargeElectronPixelSeeds = cms.PSet(
   PhiMax2 = cms.double( 0.0010 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL1NonIsoLargeElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -99,7 +100,8 @@ block_hltL1NonIsoLargeElectronPixelSeeds = cms.PSet(
   PhiMax2 = cms.double( 0.0010 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -146,7 +148,8 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   rMinI = cms.double( -0.2 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -193,7 +196,8 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   rMinI = cms.double( -0.2 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -240,7 +244,8 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   rMinI = cms.double( -0.11 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
@@ -287,7 +292,8 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   rMinI = cms.double( -0.11 ),
   hOverEConeSize = cms.double( 0.0 ),
   hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 )
+  hOverEHFMinE = cms.double( 999999.0 ),
+  nSigmasDeltaZ1 = cms.double( 5.0 )
 )
 block_hltL3TrajectorySeed = cms.PSet(
   EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
