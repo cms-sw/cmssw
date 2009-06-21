@@ -2,17 +2,21 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
-    OutputMEsInRootFile = cms.bool(False),
-    MeasurementState = cms.string('default'),
-    OutputFileName = cms.string('MonitorTrack.root'),
     TrackProducer = cms.InputTag("generalTracks"),
     SeedProducer = cms.InputTag("combinedP5SeedsForCTF"),
     TCProducer = cms.InputTag("ckfTrackCandidatesP5"),
-    FolderName = cms.string('Track/GlobalParameters'),
     AlgoName = cms.string('GenTk'),
-    beamSpot = cms.InputTag("offlineBeamSpot"),                
+    beamSpot = cms.InputTag("offlineBeamSpot"),                                     
+    OutputMEsInRootFile = cms.bool(False),
+    OutputFileName = cms.string('MonitorTrack.root'),
+
+    FolderName = cms.string('Track/GlobalParameters'),
+
+    MeasurementState = cms.string('default'),
+
     doTrackerSpecific = cms.bool(True),
     doAllPlots = cms.bool(False),                    
+    doSeedParameterHistos = cms.bool(False),
 
     Chi2Bin = cms.int32(100),
     Chi2Max = cms.double(500.0),
