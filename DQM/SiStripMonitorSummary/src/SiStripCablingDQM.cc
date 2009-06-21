@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TCanvas.h"
 using namespace std;
 // -----
 
@@ -25,8 +26,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   // Get active and total detIds
   getConditionObject(eSetup);
   cablingHandle_->addActiveDetectorsRawIds(activeDetIds);
-  cablingHandle_->addAllDetectorsRawIds(all_DetIds);
-  selectModules(activeDetIds);
+  cablingHandle_->addAllDetectorsRawIds(activeDetIds);
 
 
   //Initialize arrays for counting:
@@ -44,15 +44,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   }
 
 
-  std::vector<uint32_t>::const_iterator iall_det=all_DetIds.begin();
-
-  //fill Histo_Map with initial value: 
-  for(;iall_det!=all_DetIds.end();++iall_det){
-    uint32_t all_detId = *iall_det;
-    if(HistoMaps_On_ ) Tk_HM_->setBinContent(all_detId, 0);
-  }
-
-
+ 
   std::vector<uint32_t>::const_iterator idet=activeDetIds.begin();
 
   //fill arrays for counting and fill Histo_Map with value for connected : 
@@ -60,7 +52,10 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
     uint32_t detId = *idet;
     StripSubdetector subdet(detId);
 
-    if(HistoMaps_On_ ) {Tk_HM_->setBinContent(detId, 1);}
+    if(HistoMaps_On_ ) {Tk_HM_->fill(detId, cablingHandle_->nApvPairs(detId)*2);}
+    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+      fillTkMap(detId,cablingHandle_->nApvPairs(detId)*2.); //fill with numb of active APVs
+    }
 
     switch (subdet.subdetId()) 
       {
@@ -152,6 +147,16 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
     for(int j=0;j<9;j++){
       ME->Fill(i+5,j+1,float(counterTEC[i][j])/TECDetIds[i][j]);
     }
+  }
+
+  if (fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
+
+    TCanvas c1("c1");
+    ME->getTH1()->Draw("TEXT");
+    ME->getTH1()->SetStats(kFALSE);
+    std::string name (ME->getTH1()->GetTitle());
+    name+=".png";
+    c1.Print(name.c_str());
   }
 
 }

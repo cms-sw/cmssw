@@ -1,5 +1,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
+#include "TCanvas.h"
+
 // -----
 
 
@@ -19,8 +21,8 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
   HistoMaps_On_            = fPSet_.getParameter<bool>("HistoMaps_On");
   SummaryOnLayerLevel_On_  = fPSet_.getParameter<bool>("SummaryOnLayerLevel_On");
   SummaryOnStringLevel_On_ = fPSet_.getParameter<bool>("SummaryOnStringLevel_On");
-  GrandSummary_On_         = fPSet_.getParameter<bool>("GrandSummary_On");
 
+  GrandSummary_On_         = fPSet_.getParameter<bool>("GrandSummary_On");
 
   CondObj_fillId_    = hPSet_.getParameter<std::string>("CondObj_fillId");
   CondObj_name_      = hPSet_.getParameter<std::string>("CondObj_name");
@@ -33,6 +35,7 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
        << std::endl; 
   }
 
+  //The OR of the two conditions allow to switch on this feature for all the components (if the FillConditions_PSet has the TkMap_On =true) or for single MEs (if the PSet for a ME has the TkMap_On =true)
   if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On"))
     bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
 
@@ -50,8 +53,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   
   getConditionObject(eSetup_);
 
-  //The or of the two conditions allow to switch on this feature for all the component, if the FillConditions_PSet as the ActiveDetIds_On =true
-  //or to switch on for few features is the single condmonitor pset is on 
+  //The OR of the two conditions allows to switch on this feature for all the components (if the FillConditions_PSet has the ActiveDetIds_On =true) or for single MEs (if the PSet for a ME has the ActiveDetIds_On =true)
   if(fPSet_.getParameter<bool>("ActiveDetIds_On") || hPSet_.getParameter<bool>("ActiveDetIds_On"))
     getActiveDetIds(eSetup_);
   else
@@ -68,7 +70,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
     sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
     filename.insert(filename.find("."),sRun);
     
-    saveTkMap(filename.c_str());
+    saveTkMap(filename.c_str(), hPSet_.getParameter<double>("minValue"), hPSet_.getParameter<double>("maxValue"));
   }
 }
 // -----
@@ -1195,8 +1197,8 @@ void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value)
 }
 
 //==========================
-void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname){
-  tkMap->save(false,0,0,TkMapname.c_str());
+void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, const double& minValue, const double& maxValue){
+  tkMap->save(false, minValue, maxValue, TkMapname.c_str());
 }
 
 
@@ -1223,5 +1225,44 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
     fillMEsForLayer(SummaryMEsMap_, *detIter_);    
-  } 
+  }
+
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+
+    ModMEs selME;
+    selME = iter->second;
+
+    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
+
+      if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
+
+	TCanvas c1("c1");
+	selME.SummaryOfProfileDistr->getTProfile()->Draw();
+	std::string name (selME.SummaryOfProfileDistr->getTProfile()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+    }
+    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
+
+      TCanvas c1("c1");
+      selME.SummaryDistr->getTH1()->Draw();
+      std::string name (selME.SummaryDistr->getTH1()->GetTitle());
+      name+=".png";
+      c1.Print(name.c_str());
+    }
+    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
+
+      if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
+
+	TCanvas c1("c1");
+	selME.SummaryOfCumulDistr->getTH1()->Draw();
+	std::string name (selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+    }
+
+  }
+ 
 }

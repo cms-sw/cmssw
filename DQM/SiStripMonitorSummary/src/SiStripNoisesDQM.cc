@@ -3,6 +3,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "TCanvas.h"
+
 // -----
 SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
                                    edm::ParameterSet const& hPSet,
@@ -27,10 +29,6 @@ void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
   getConditionObject(eSetup);
   noiseHandle_->getDetIds(activeDetIds);
-
-  //%FIXME: remove this selectModules from all the derived classes in the getActiveDetIds method
-  //selectModules(activeDetIds);
-  //FIXME end
 
 }
 
@@ -78,7 +76,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
       selModME_.CumulDistr->Fill(stripnoise);
     } 
-  }
+  } //istrip
 }
   
 
@@ -86,7 +84,6 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 //FIXME too long. factorize this method. 
 //FIXME the number of lines of code in the derived classes should be reduced ONLY at what cannot be done in the base class because of the specific implementation
 //FIXME of the derived class. Moreover, several loops on the same quantities should be avoided...
-//FIXME: For this time I will apply most of the changes, in this class. but the same work should be done in other derived classes
 
 void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
   
@@ -102,12 +99,10 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   }
   // ----
   
-  //FIXME: is this a duplication? there is not check for end()
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = selMEsMap_.find(getLayerNameAndId(selDetId_).second); //FIXME probably can be removed
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
   ModMEs selME_;
-  selME_ =selMEsMapIter_->second; //FIXME probably can be removed
+  selME_ =selMEsMapIter_->second;
   getSummaryMEs(selME_,selDetId_);
-  //FIXME end
   
   SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
@@ -186,12 +181,13 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 	selME_.SummaryOfCumulDistr->Fill(stripnoise);
       }
     }
-  
+
     // Fill the TkMap
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, stripnoise);
-    }
-  }
+      fillTkMap(selDetId_, stripnoise);   }
+  
+  } //istrip
+
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
     
     meanNoise = meanNoise/(nStrip-Nbadstrips);
@@ -204,10 +200,13 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     if(ibound!=sameLayerDetIds_.end() && *ibound==selDetId_)
       selME_.SummaryDistr->Fill(ibound-sameLayerDetIds_.begin()+1,meanNoise);
     
+
     // Fill the Histo_TkMap with the mean Noise:
-    if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanNoise);
-    
-  }
+    if(HistoMaps_On_ ){Tk_HM_->fill(selDetId_, meanNoise); }
+
+  } //if Fill...
+
+
 }
   
 

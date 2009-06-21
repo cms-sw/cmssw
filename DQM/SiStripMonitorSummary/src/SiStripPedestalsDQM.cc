@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripPedestalsDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TCanvas.h"
 
 // -----
 SiStripPedestalsDQM::SiStripPedestalsDQM(const edm::EventSetup & eSetup,
@@ -23,7 +24,6 @@ void SiStripPedestalsDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
   getConditionObject(eSetup);
   pedestalHandle_->getDetIds(activeDetIds);
-  selectModules(activeDetIds);
 
 }
 // -----
@@ -83,7 +83,35 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
     fillMEsForLayer(SummaryMEsMap_, *detIter_);
-  } 
+  }
+
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+
+    ModMEs selME;
+    selME = iter->second;
+
+    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
+
+      if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
+
+	TCanvas c1("c1");
+	selME.SummaryOfProfileDistr->getTProfile()->Draw();
+	std::string name (selME.SummaryOfProfileDistr->getTProfile()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+    }
+    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
+
+      TCanvas c1("c1");
+      selME.SummaryDistr->getTH1()->Draw();
+      std::string name (selME.SummaryDistr->getTH1()->GetTitle());
+      name+=".png";
+      c1.Print(name.c_str());
+    }
+
+  }
+
 }           
   
 // -----
@@ -139,7 +167,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 	if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 	  selME_.SummaryOfProfileDistr->Fill(istrip+1,pedestalHandle_->getPed(istrip,pedRange));
 	}
-      } 
+      }
       catch(cms::Exception& e){
 	edm::LogError("SiStripPedestalsDQM")          
 	  << "[SiStripPedestalsDQM::fillMEsForLayer] cms::Exception accessing pedestalHandle_->getPed(istrip,pedRange) for strip "  
@@ -149,6 +177,12 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 	  << " :  " 
 	  << e.what() ;
       }
+
+      //fill the TkMap
+    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+      fillTkMap(selDetId_, pedestalHandle_->getPed(istrip,pedRange));
+    }
+
     }// istrip	
    }//if Fill ...
 
@@ -205,6 +239,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 
     // Fill the Histo_TkMap with the mean Pedestal:
     if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanPedestal);
+
 
   }//if Fill ...
   

@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "TCanvas.h"
 
 // -----
 SiStripLorentzAngleDQM::SiStripLorentzAngleDQM(const edm::EventSetup & eSetup,
@@ -23,24 +24,15 @@ SiStripLorentzAngleDQM::~SiStripLorentzAngleDQM(){}
 void SiStripLorentzAngleDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
   getConditionObject(eSetup);
-  std::map<uint32_t,float>::const_iterator LAMapIter_;
-  std::map<uint32_t,float> LAMap_ = lorentzangleHandle_->getLorentzAngles(); 
-  
-  std::vector<uint32_t> cabledModules_ = getCabledModules(); 
-  
-  for(std::vector<uint32_t>::const_iterator cablingIter_ = cabledModules_.begin();
-      cablingIter_!= cabledModules_.end(); cablingIter_++){
-    
-    unsigned int cablingId;
-    cablingId=*cablingIter_;
-    LAMapIter_=LAMap_.find(cablingId);    
-    
-    if (LAMapIter_!=LAMap_.end() && (*LAMapIter_).first==cablingId) { 
-      activeDetIds.push_back(*cablingIter_);
-    }
-  }
 
-  selectModules(activeDetIds);
+  std::map<uint32_t,float>::const_iterator LAMapIter_;
+  std::map<uint32_t,float> LAMap_ = lorentzangleHandle_->getLorentzAngles();
+
+  for( LAMapIter_ = LAMap_.begin();
+       LAMapIter_!= LAMap_.end(); LAMapIter_++){
+
+    activeDetIds.push_back((*LAMapIter_).first);
+  }
 
 }
 // -----
@@ -48,7 +40,6 @@ void SiStripLorentzAngleDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
 // -----
 void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
-   
    
   // -----
   // LA on layer-level : fill at once all detIds belonging to same layer when encountering first detID in the layer 
@@ -73,7 +64,56 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
       else { fillNext=true;}
     } 
   }
-}    
+
+  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+
+    ModMEs selME;
+    selME = iter->second;
+
+    if(SummaryOnStringLevel_On_){
+
+      if (fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
+
+	TCanvas c1("c1");
+	selME.SummaryOfProfileDistr->getTProfile()->Draw();
+	std::string name (selME.SummaryOfProfileDistr->getTProfile()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+
+      if (fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
+
+	TCanvas c2("c2");
+	selME.SummaryOfCumulDistr->getTH1()->Draw();
+	std::string name2 (selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+	name2+=".png";
+	c2.Print(name2.c_str());
+      }
+
+    }
+    else{
+      if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
+
+	TCanvas c1("c1");
+	selME.SummaryOfProfileDistr->getTProfile()->Draw();
+	std::string name (selME.SummaryOfProfileDistr->getTProfile()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+
+      if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")){
+
+	TCanvas c1("c1");
+	selME.SummaryOfCumulDistr->getTH1()->Draw();
+	std::string name (selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+	name+=".png";
+	c1.Print(name.c_str());
+      }
+    }
+
+  }
+
+}
 // -----
 
 
@@ -86,7 +126,7 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       
   std::string hSummaryOfProfile_description;
   hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
-      
+
   std::string hSummary_name; 
 
   int subDetId_ = ((selDetId_>>25)&0x7);
@@ -105,7 +145,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
   std::vector<uint32_t> sameLayerDetIds_;
   sameLayerDetIds_.clear();
 
-  
   if (SummaryOnStringLevel_On_) {  //FILLING FOR STRING LEVEL
 
     hSummary_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer", getStringNameAndId(selDetId_).first, "") ;
@@ -143,9 +182,13 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       try{ 
 	selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 
-    // Fill the Histo_TkMap with the mean Pedestal:
+	// Fill the Histo_TkMap+TkMap with the LA:
         if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 
+	if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+	  fillTkMap(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+	}
+	
       }
       catch(cms::Exception& e){
 	edm::LogError("SiStripLorentzAngleDQM")
@@ -208,8 +251,12 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
 	try{ 
 	  selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 
-    // Fill the Histo_TkMap with the mean Pedestal:
-        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+	  // Fill the Histo_TkMap with the mean Pedestal:
+	  if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+
+	if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+	  fillTkMap(selDetId_, lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
+	}
 
 	}
 	catch(cms::Exception& e){
