@@ -10,14 +10,21 @@ JacobianLocalToCurvilinear(const Surface& surface,
   
     // Origin: TRSDSC
   GlobalPoint  x = surface.toGlobal(localParameters.position());
-  LocalVector tnl = localParameters.momentum().unit();
-  GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
-  GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
-  GlobalVector tn = surface.toGlobal(tnl);
-
   GlobalVector p = surface.toGlobal(localParameters.momentum());
-  GlobalVector pt(p.x(), p.y(), 0.);
-  pt = pt.unit();
+  GlobalVector tn = p.unit();
+ 
+  // LocalVector tnl = localParameters.momentum().unit();
+  // GlobalVector tn = surface.toGlobal(tnl);
+ 
+  //  GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
+  // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
+  Surface::RotationType const & rot = surface.rotation();
+  GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
+  GlobalVector dk(rot.yx(),rot.yy(),rot.yz());
+ 
+  // GlobalVector pt(p.x(), p.y(), 0.);
+  // pt = pt.unit();
+
   //  GlobalVector di = tsos.surface().toGlobal(LocalVector(0., 0., 1.));
 
   // rotate coordinates because of wrong coordinate system in orca
