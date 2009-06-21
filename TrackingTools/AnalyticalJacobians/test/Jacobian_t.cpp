@@ -30,7 +30,7 @@ int main() {
   // GlobalVector xx(0.5,1.,1.);
   // GlobalVector yy(-1.,0.5,1.);
 
-  Basic3DVector<float>  axis(0.5,,1.,1);
+  Basic3DVector<float>  axis(0.5,1.,1);
   
   Surface::RotationType rot(axis,0.5*M_PI);
   std::cout << rot << std::endl;
