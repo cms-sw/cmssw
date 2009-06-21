@@ -8,13 +8,16 @@ JacobianLocalToCurvilinear(const Surface& surface,
 			   const LocalTrajectoryParameters& localParameters,
 			   const MagneticField& magField) : theJacobian() {
   
-    // Origin: TRSDSC
+  // Origin: TRSDSC
+
   GlobalPoint  x = surface.toGlobal(localParameters.position());
-  GlobalVector p = surface.toGlobal(localParameters.momentum());
+  // GlobalVector p = surface.toGlobal(localParameters.momentum());
+  GlobalVector h  = magField.inInverseGeV(x);
+
   GlobalVector tn = p.unit();
  
   LocalVector tnl = localParameters.momentum().unit();
-  // GlobalVector tn = surface.toGlobal(tnl);
+  GlobalVector tn = surface.toGlobal(tnl);
  
   // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
   // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
@@ -46,8 +49,7 @@ JacobianLocalToCurvilinear(const Surface& surface,
   theJacobian(3,4) = uk;
   theJacobian(4,3) = vj;
   theJacobian(4,4) = vk;
-  // GlobalVector h = MagneticField::inInverseGeV(x);
-  GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
+ 
   double q = -h.mag() * localParameters.signedInverseMomentum();
   double sinz =-un.dot(h.unit());
   double cosz = vn.dot(h.unit());
