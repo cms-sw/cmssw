@@ -214,9 +214,19 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    // ====== hits and pt
    rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);
+   if (!rh1) {
+     TH2F* h2tmp;
+     rdir->GetObject(collname1+"/nhits_vs_eta",h2tmp);
+     rh1 = (TH1F*) h2tmp->ProfileX();
+   }
    sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);
+   if (!sh1) {
+     TH2F* h2tmp;
+     sdir->GetObject(collname2+"/nhits_vs_eta",h2tmp);
+     sh1 = (TH1F*) h2tmp->ProfileX();
+   }
    rdir->GetObject(collname1+"/hits",rh2);
-   sdir->GetObject(collname2+"/hits",sh2);         
+   sdir->GetObject(collname2+"/hits",sh2);
    
    rdir->GetObject(collname1+"/num_simul_pT",rh3);
    sdir->GetObject(collname2+"/num_simul_pT",sh3);
@@ -266,7 +276,17 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rdir->GetObject(collname1+"/chi2_prob",rh2);
    sdir->GetObject(collname2+"/chi2_prob",sh2);
    rdir->GetObject(collname1+"/chi2_vs_eta_pfx",(TProfile*)rh3);
+   if (!rh3) {
+     TH2F* h2tmp;
+     rdir->GetObject(collname1+"/chi2_vs_eta",h2tmp);
+     rh3 = (TH1F*) h2tmp->ProfileX();
+   }
    sdir->GetObject(collname2+"/chi2_vs_eta_pfx",(TProfile*)sh3);
+   if (!sh3) {
+     TH2F* h2tmp;
+     sdir->GetObject(collname2+"/chi2_vs_eta",h2tmp);
+     sh3 = (TH1F*) h2tmp->ProfileX();
+   }
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh4);
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);
@@ -1275,12 +1295,15 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     s->Draw();
     gPad->Update(); 
     TPaveStats* st1 = (TPaveStats*) s->GetListOfFunctions()->FindObject("stats");
-    if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(1001);}
-    st1->SetX1NDC(startingX);
-    st1->SetX2NDC(startingX+0.30);
-    st1->SetY1NDC(startingY+0.20);
-    st1->SetY2NDC(startingY+0.35);
-    st1->SetTextColor(2);
+    if (st1) {
+      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(1001);}
+      st1->SetX1NDC(startingX);
+      st1->SetX2NDC(startingX+0.30);
+      st1->SetY1NDC(startingY+0.20);
+      st1->SetY2NDC(startingY+0.35);
+      st1->SetTextColor(2);
+    }
+    else s->SetStats(0);
     if (fit) {
       r->Fit("gaus");
       TF1* f2 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
@@ -1290,12 +1313,15 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     r->Draw();
     gPad->Update(); 
     TPaveStats* st2 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
-    if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(1001);}
-    st2->SetX1NDC(startingX);
-    st2->SetX2NDC(startingX+0.30);
-    st2->SetY1NDC(startingY);
-    st2->SetY2NDC(startingY+0.15);
-    st2->SetTextColor(4);
+    if (st2) {
+      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(1001);}
+      st2->SetX1NDC(startingX);
+      st2->SetX2NDC(startingX+0.30);
+      st2->SetY1NDC(startingY);
+      st2->SetY2NDC(startingY+0.15);
+      st2->SetTextColor(4);
+    }
+    else r->SetStats(0);
   }
 }
 
