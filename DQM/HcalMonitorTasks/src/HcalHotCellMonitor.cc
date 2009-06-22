@@ -121,11 +121,12 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       // Overall plot gets an initial " " in its name
       ProblemHotCells=m_dbe->book2D(" ProblemHotCells",
                                      " Problem Hot Cell Rate for all HCAL",
-				    85,-42,42,
-				    72,1,72);
+				    85,-42.5,42.5,
+				    72,0.5,72.5);
       ProblemHotCells->setAxisTitle("i#eta",1);
       ProblemHotCells->setAxisTitle("i#phi",2);
-      
+      SetEtaPhiLabels(ProblemHotCells);
+
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
       SetupEtaPhiHists(ProblemHotCellsByDepth, " Problem Hot Cell Rate","");
@@ -417,9 +418,9 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 
   for (unsigned int d=0;d<ProblemHotCellsByDepth.depth.size();++d)
     {
-      for (int hist_eta=1;hist_eta<=ProblemHotCellsByDepth.depth[d]->getNbinsX();++hist_eta)
+      for (int hist_eta=0;hist_eta<ProblemHotCellsByDepth.depth[d]->getNbinsX();++hist_eta)
 	{
-	  for (int hist_phi=1;hist_phi<=ProblemHotCellsByDepth.depth[d]->getNbinsY();++hist_phi)
+	  for (int hist_phi=0;hist_phi<ProblemHotCellsByDepth.depth[d]->getNbinsY();++hist_phi)
 	    {
 	      ieta=CalcIeta(hist_eta,d+1);
 	      if (ieta==-9999) continue;
@@ -428,20 +429,33 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      binval=ProblemHotCellsByDepth.depth[d]->getBinContent(ieta,iphi)/ievt_;
 	     
 	        // Set subdetector labels for output
-	      if (d<2) // HB/HE/HF
+	      if (d==0)// HB/HE/HF
 		{
 		  // correct for HF offset 
-		  if (hist_eta< 14) // shift negative HF ieta values by +1
-		    {
-		      subdetname="HF";
-		      subdet=4;
-		    }
-		  else if (hist_eta>72) // shift positive HF ieta values by -1
+		  if (hist_eta< 13 || hist_eta>71)
 		    {
 		      subdetname="HF";
 		      subdet=4;
 		    }
 		  else if (abs(ieta)<=16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
+		    {
+		      subdetname="HB";
+		      subdet=1;
+		    }
+		  else // HE at |ieta|=16 is in depth 3; don't worry about it here
+		    {
+		      subdetname="HE";
+		      subdet=2;
+		    }
+		}
+	      else if (d==1) // HB/HE/HF
+		{
+		  if (hist_eta< 13 || hist_eta>42)
+		    {
+		      subdetname="HF";
+		      subdet=4;
+		    }
+		  else if (abs(ieta)<16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
 		    {
 		      subdetname="HB";
 		      subdet=1;
@@ -1122,7 +1136,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
   for (HBHEDigiCollection::const_iterator j=hbhedigi.begin();
        j!=hbhedigi.end(); ++j)
     {
-      digival=0;
+       digival=0;
       maxval=0;
       maxbin=0;
       ADCsum=0;
@@ -1135,8 +1149,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       ieta=digi.id().ieta();
       iphi=digi.id().iphi();
       depth=digi.id().depth();
-
       HcalDetId myid = digi.id();
+      if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
       cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
       //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
@@ -1192,7 +1206,7 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	      else
 		++diagADC_HE[int(10*(10+1.*(ADCsum-pedestals_[myid])/widths_[myid]))];
 	    } // if (hotmon_makeDiagnostics)
-	}
+	} // if (pedestal_thresholds_.find(myid)...)
     } // for (HBHEDigiCollection...)
 
   // Loop over HO
@@ -1213,8 +1227,9 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  ieta=digi.id().ieta();
 	  iphi=digi.id().iphi();
 	  depth=digi.id().depth();
-	  
 	  HcalDetId myid = digi.id();
+	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
+
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
@@ -1286,8 +1301,9 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  ieta=digi.id().ieta();
 	  iphi=digi.id().iphi();
 	  depth=digi.id().depth(); 
-
 	  HcalDetId myid = digi.id();
+	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
+
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
@@ -1466,7 +1482,6 @@ void HcalHotCellMonitor::fillNevents_pedestal(void)
 	    d_HBnormped->setBinContent(i+1,diagADC_HB[i]);
 	  if (diagADC_HE[i]>0)
 	    {
-	      cout <<i<<"  :  "<<diagADC_HE[i]<<endl;
 	      d_HEnormped->setBinContent(i+1,diagADC_HE[i]);
 	    }
 	  if (diagADC_HO[i]>0)

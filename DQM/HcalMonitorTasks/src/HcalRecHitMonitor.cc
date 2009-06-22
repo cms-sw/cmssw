@@ -634,7 +634,6 @@ void HcalRecHitMonitor::fillNevents(void)
 	    } // for (int phi=0;phi<72;++phi)
 	} // for (int eta=0;eta<(etaBins_-2);++eta)
 
-
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
       FillUnphysicalHEHFBins(EnergyByDepth);
@@ -645,6 +644,7 @@ void HcalRecHitMonitor::fillNevents(void)
       FillUnphysicalHEHFBins(SumEnergyThreshByDepth);
       FillUnphysicalHEHFBins(SumTimeByDepth);
       FillUnphysicalHEHFBins(SumTimeThreshByDepth);
+
     } // if (ievt_>0)
 
   // Fill subdet plots

@@ -101,11 +101,12 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
       ProblemDeadCells=m_dbe->book2D(" ProblemDeadCells",
-                                     " Problem Dead Cell Rate for all HCAL",
+				     " Problem Dead Cell Rate for all HCAL",
 				     85,-42.5,42.5,
 				     72,0.5,72.5);
       ProblemDeadCells->setAxisTitle("i#eta",1);
       ProblemDeadCells->setAxisTitle("i#phi",2);
+      SetEtaPhiLabels(ProblemDeadCells);
 
       // 1D plots count number of bad cells
       NumberOfDeadCells=m_dbe->book1D("Problem_TotalDeadCells_HCAL",
@@ -129,8 +130,11 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
-      SetupEtaPhiHists(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
 
+      // Create problem cell plots
+      // Overall plot gets an initial " " in its name
+      SetupEtaPhiHists(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
+      
       // Set up plots for each failure mode of dead cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
       stringstream name;
@@ -349,9 +353,9 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 
   for (int d=0;d<4;++d)
     {
-      for (int hist_eta=1;hist_eta<=ProblemDeadCellsByDepth.depth[d]->getNbinsX();++hist_eta)
+      for (int hist_eta=0;hist_eta<ProblemDeadCellsByDepth.depth[d]->getNbinsX();++hist_eta)
 	{
-	  for (int hist_phi=1;hist_phi<=ProblemDeadCellsByDepth.depth[d]->getNbinsY();++hist_phi)
+	  for (int hist_phi=0;hist_phi<ProblemDeadCellsByDepth.depth[d]->getNbinsY();++hist_phi)
 	    {
 	      ieta=CalcIeta(hist_eta,d+1);
 	      if (ieta==-9999) continue;
@@ -360,20 +364,39 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      binval=ProblemDeadCellsByDepth.depth[d]->getBinContent(hist_eta,hist_phi);
 	  
 	      // Set subdetector labels for output
-	      if (d<2) // HB/HE/HF
+	      if (d==0) // HB/HE/HF
 		{
 		  // correct for HF offset 
-		  if (hist_eta< 14) // shift negative HF ieta values by +1
+		  if (hist_eta< 13) // shift negative HF ieta values by +1
 		    {
 		      subdetname="HF";
 		      subdet=4;
 		    }
-		  else if (hist_eta>72) // shift positive HF ieta values by -1
+		  else if (hist_eta>71) 
 		    {
 		      subdetname="HF";
 		      subdet=4;
 		    }
 		  else if (abs(ieta)<=16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
+		    {
+		      subdetname="HB";
+		      subdet=1;
+		    }
+		  else // HE at |ieta|=16 is in depth 3; don't worry about it here
+		    {
+		      subdetname="HE";
+		      subdet=2;
+		    }
+		}
+	      else if (d==1)
+		{
+		  // correct for HF offset 
+		  if (hist_eta< 13 || hist_eta>42) 
+		    {
+		      subdetname="HF";
+		      subdet=4;
+		    }
+		  else if (abs(ieta)<16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
 		    {
 		      subdetname="HB";
 		      subdet=1;
@@ -1149,6 +1172,16 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 	      
 	      ieta=CalcIeta(eta,d+1);
 	      if (ieta==-9999) continue;
+	      if (d==0)
+		{
+		  if (eta<13) ieta--;
+		  else if (eta > 71 ) ieta++;
+		}
+	      else if (d==1)
+		{
+		  if (eta<13) ieta--;
+		  else if (eta > 43) ieta++;
+		}
 	      problemvalue=0;
 	      if (deadmon_test_neverpresent_)
 		{

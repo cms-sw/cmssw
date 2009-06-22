@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/06/12 19:07:47 $
-  * $Revision: 1.23 $
+  * $Date: 2009/06/18 11:50:43 $
+  * $Revision: 1.24 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -65,6 +65,7 @@ public:
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
   void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, char* Name, char* Units);
   void SetupEtaPhiHists(EtaPhiHists &hh, char* Name, char* Units);
+  void SetEtaPhiLabels(MonitorElement* &h);
 
   int CalcEtaBin(int subdet, int ieta, int depth);
   int CalcIeta(int subdet, int eta, int depth);  
@@ -82,6 +83,8 @@ public:
 
   void setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max);
  
+
+
   // 1-D histograms
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
@@ -113,6 +116,8 @@ protected:
   string rootFolder_;
   string baseFolder_;
 
+  static const int binmapd2[];
+  static const int binmapd3[];
 };
 
 #endif

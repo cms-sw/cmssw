@@ -34,8 +34,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/03/31 14:03:00 $
- * $Revision: 1.41 $
+ * $Date: 2009/04/27 16:02:50 $
+ * $Revision: 1.42 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -74,8 +74,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int dummy_ciy  ;
 
   //backstage accounting mechanisms for the ProblemMap
-  bool problemfound[ETABINS][PHIBINS][DEPTHBINS];     // HFd1,2 at 'depths' 3,4 to avoid collision with HE
-  uint64_t problemcount[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  bool problemfound[85][72][4];     // HFd1,2 at 'depths' 3,4 to avoid collision with HE
+  uint64_t problemcount[85][72][4]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   void mapHTRproblem (int dcc, int spigot) ;    // Increment problem counters for affected cells
   void mapDCCproblem(int dcc) ;                 // Increment problem counters for affected cells
 
@@ -99,7 +99,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    
   MonitorElement* meEVT_;
   MonitorElement* HWProblems_;
-  std::vector<MonitorElement*> HWProblemsByDepth_;
+  EtaPhiHists HWProblemsByDepth_;
 
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;

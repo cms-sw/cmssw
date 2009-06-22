@@ -37,21 +37,40 @@ class EtaPhiHists{
 	}
       depth[0]->setBinLabel(14,"-29HE");
       depth[1]->setBinLabel(14,"-29HE");
+
       // offset by one for HE
       for (int i=-27;i<=27;i=i+2)
 	{
 	  label<<i;
 	  depth[0]->setBinLabel(i+43,label.str().c_str());
-	  depth[1]->setBinLabel(i+43,label.str().c_str());
 	  label.str("");
 	}
       depth[0]->setBinLabel(72,"29HE");
-      depth[1]->setBinLabel(72,"29HE");
       for (int i=29;i<=41;i=i+2)
 	{
 	  label<<i;
 	  depth[0]->setBinLabel(i+44,label.str().c_str());
-	  depth[1]->setBinLabel(i+44,label.str().c_str());
+	  label.str("");
+	}
+      for (int i=16;i<=28;i=i+2)
+	{
+	  label<<i-43;
+	  depth[1]->setBinLabel(i,label.str().c_str());
+	  label.str("");
+	}
+      depth[1]->setBinLabel(29,"NULL");
+      for (int i=15;i<=27;i=i+2)
+	{
+	  label<<i;
+	  depth[1]->setBinLabel(i+15,label.str().c_str());
+	  label.str("");
+	}
+
+      depth[1]->setBinLabel(44,"29HE");
+      for (int i=29;i<=41;i=i+2)
+	{
+	  label<<i;
+	  depth[1]->setBinLabel(i+16,label.str().c_str());
 	  label.str("");
 	}
 
@@ -65,6 +84,12 @@ class EtaPhiHists{
       depth[2]->setBinLabel(7,"Null");
       depth[2]->setBinLabel(8,"27");
       depth[2]->setBinLabel(9,"28");
+     
+      for (int d=0;d<4;++d)
+	{
+	  depth[d]->setAxisTitle("i#eta",1);
+	  depth[d]->setAxisTitle("i#phi",2); 
+	}
     };
   // special fill call based on detid -- eventually will need special treatment
   void Fill(HcalDetId& id, double val=1)
@@ -81,8 +106,6 @@ class EtaPhiHists{
 
   // elements -- should we make a base Eta/Phi class that would contain a histo, nbinsx, nbinsy, etc.?
   std::vector<MonitorElement*> depth;
-  
-
 
 };
 
