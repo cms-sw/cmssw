@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.1 2009/02/02 09:50:24 kaussen Exp $
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.2 2009/05/19 09:31:17 kaussen Exp $
 //
 //
 
@@ -51,7 +51,7 @@ public:
   void setAbsoluteLowThreshold(long double absolute_low){absolutelow_=absolute_low;}
   void setNumberIterations(int number_iterations){numberiterations_=number_iterations;}
   void setAbsoluteOccupancyThreshold(long double occupancy){occupancy_=occupancy;}
-  void setNumberOfEvents(uint32_t Nevents){Nevents_=Nevents;}
+  void setNumberOfEvents(double Nevents){Nevents_=Nevents;}
   void setMinNumOfEvents();
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
@@ -82,7 +82,7 @@ public:
   long double highoccupancy_;
   long double absolutelow_;
   int numberiterations_;
-  uint32_t Nevents_;
+  double Nevents_;
   long double occupancy_;
   double minNevents_;
   std::string OutFileName_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.6 2009/01/26 13:36:20 kaussen Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.7 2009/02/02 15:24:14 hashemim Exp $
 //
 //
 
@@ -68,7 +68,7 @@ public:
   void setMinNumEntries(unsigned short m){MinNumEntries_=m;}
   void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
   void setOccupancyThreshold(long double occupancy){occupancy_=occupancy;minNevents_=occupancy_*Nevents_;}
-  void setNumberOfEvents(uint32_t Nevents);
+  void setNumberOfEvents(double Nevents);
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
   void extractBadStrips(SiStripQuality*,HistoMap&,  edm::ESHandle<SiStripQuality>&);
@@ -95,7 +95,7 @@ public:
   long double prob_;
   unsigned short MinNumEntries_;
   unsigned short MinNumEntriesPerStrip_;
-  uint32_t Nevents_;
+  double Nevents_;
   double minNevents_;
   long double occupancy_;
   std::string OutFileName_;

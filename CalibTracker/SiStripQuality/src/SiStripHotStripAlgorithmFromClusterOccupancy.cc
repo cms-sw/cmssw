@@ -281,7 +281,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::evaluatePoissonian(std::vecto
   }
 }
 
-void SiStripHotStripAlgorithmFromClusterOccupancy::setNumberOfEvents(uint32_t Nevents){
+void SiStripHotStripAlgorithmFromClusterOccupancy::setNumberOfEvents(double Nevents){
   Nevents_=Nevents;
   minNevents_=occupancy_*Nevents_; 
   if (edm::isDebugEnabled())                                                                                                                                                                          
