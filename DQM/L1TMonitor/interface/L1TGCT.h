@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/05/27 21:49:26 $
- * $Revision: 1.17 $
+ * $Date: 2009/06/22 15:47:04 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.17 2009/05/27 21:49:26 jad Exp $
+ * $Id: L1TGCT.h,v 1.18 2009/06/22 15:47:04 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.18  2009/06/22 15:47:04  tapper
+ * Removed rank difference histograms and added MHT. Untested so far!
+ *
  * Revision 1.17  2009/05/27 21:49:26  jad
  * updated Total and Missing Energy histograms and added Overlow plots
  *
@@ -156,6 +159,8 @@ private:
   MonitorElement* l1GctHtMiss_;
   MonitorElement* l1GctHtMissPhi_;
   MonitorElement* l1GctHtMissOf_;
+  MonitorElement* l1GctEtMissHtMissCorr_;
+  MonitorElement* l1GctEtMissHtMissCorrPhi_;
   MonitorElement* l1GctEtTotal_;
   MonitorElement* l1GctEtTotalOf_;
   MonitorElement* l1GctEtHad_;

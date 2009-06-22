@@ -313,6 +313,12 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctHtMiss_    = dbe->book1D("HtMiss", "MISSING H_{T}", R7BINS, R7MIN, R7MAX);
     l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MISSING H_{T} #phi", R5BINS, R5MIN, R5MAX);
     l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MISSING H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctEtMissHtMissCorr_ = dbe->book2D("EtMissHtMissCorr", "MISSING E_{T} MISSING H_{T} CORRELATION",
+                                         R12BINS, R12MIN, R12MAX,
+                                         R7BINS, R7MIN, R7MAX); 
+    l1GctEtMissHtMissCorrPhi_ = dbe->book2D("EtMissHtMissPhiCorr", "MISSING E_{T} MISSING H_{T} #phi CORRELATION",
+                                            METPHIBINS, METPHIMIN, METPHIMAX,
+                                            R5BINS, R5MIN, R5MAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "TOTAL E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
@@ -487,6 +493,19 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1HtMiss label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Missing ET HT correlations
+  if (l1HtMiss.isValid() && l1EtMiss.isValid()) { 
+    if (l1HtMiss->size() && l1HtMiss->size()) {
+      if (l1HtMiss->at(0).overFlow() == 0 && l1EtMiss->at(0).overFlow() == 0) {
+        // Avoid problems overflows
+         l1GctEtMissHtMissCorr_->Fill(l1EtMiss->at(0).et(),l1HtMiss->at(0).et());
+         l1GctEtMissHtMissCorrPhi_->Fill(l1EtMiss->at(0).phi(),l1HtMiss->at(0).phi());
+      }
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1EtMiss or l1HtMiss label was " << gctEnergySumsSource_ ;    
   }
 
   // HT 
