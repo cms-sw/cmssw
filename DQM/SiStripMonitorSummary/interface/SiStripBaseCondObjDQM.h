@@ -110,6 +110,8 @@ class SiStripBaseCondObjDQM {
     bool SummaryOnStringLevel_On_;
     bool GrandSummary_On_;
 
+    //bool ActiveDetIds_On_;
+
     std::string CondObj_fillId_;
     std::string CondObj_name_;
 
@@ -133,7 +135,7 @@ class SiStripBaseCondObjDQM {
     void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookTkMap(const std::string& TkMapname);
 
-    void saveTkMap(const std::string& TkMapname);
+    void saveTkMap(const std::string& TkMapname, const double& minValue, const double& maxValue);
 
     std::vector<uint32_t> ModulesToBeExcluded_;
     std::vector<uint32_t> ModulesToBeIncluded_;
