@@ -1,5 +1,5 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICSeedMeasurementEstimator.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+//#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DEBUG
 
@@ -9,6 +9,8 @@ MeasurementEstimator::HitReturnType HICSeedMeasurementEstimator::estimate(const 
 {
   double dfimean = 0.;
   double dzmean = 0.;
+  double pi=4.*atan(1.);
+  double twopi=8.*atan(1.);
 #ifdef DEBUG
    std::cout<<"  HICSeedMeasurementEstimator::estimate::start::eta "<<ts.freeTrajectoryState()->parameters().momentum().eta() <<std::endl;
 #endif
@@ -94,6 +96,10 @@ return HitReturnType(true,1.);
 MeasurementEstimator::SurfaceReturnType HICSeedMeasurementEstimator::estimate(const TrajectoryStateOnSurface& ts,
 					                const BoundPlane& plane) const
 {
+
+  double pi=4.*atan(1.);
+  double twopi=8.*atan(1.);
+
 #ifdef DEBUG
    std::cout<<"HICSeedMeasurementEstimator::estimate::Det::start::r,phi,z "<<plane.position().perp()<<" "<<plane.position().phi()<<" "<<
    plane.position().z()<<std::endl;

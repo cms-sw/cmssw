@@ -219,6 +219,9 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   GlobalPoint realhit = (*rh).globalPosition();
   df = fabs(realhit.phi() - phi);
 
+  double pi=4.*atan(1.);
+  double twopi=8.*atan(1.);
+
   if(df > pi) df = twopi-df;
   if(df > 1.e-5) 
   {
@@ -363,7 +366,10 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
   double dpt = 0.6*pt;
   
 //  std::cout<<" Point 0 "<<std::endl;
-  
+  double pi=4.*atan(1.);
+  double twopi=8.*atan(1.);
+ 
+ 
         GlobalPoint realhit = rh->globalPosition();
 
 //  std::cout<<" Point 1 "<<std::endl;

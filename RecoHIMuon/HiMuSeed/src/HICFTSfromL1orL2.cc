@@ -116,6 +116,9 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const TrackCollect
 
 vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMTExtendedCand>& gmt, const RecoChargedCandidateCollection& recmuons) 
 {
+    double pi=4.*atan(1.);
+    double twopi=8.*atan(1.);
+
     vector<FreeTrajectoryState> ftsL1orL2;
     vector<FreeTrajectoryState> ftsL1 = createFTSfromL1(gmt);
     vector<FreeTrajectoryState> ftsL2 = createFTSfromL2(recmuons);
@@ -218,6 +221,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
 // Vector of Free Trajectory State from L1 trigger candidate
 
   FreeTrajectoryState HICFTSfromL1orL2::FTSfromL1(const L1MuGMTExtendedCand& gmt){
+    double pi=4.*atan(1.);
     unsigned int det = gmt.isFwd();
     double px,py,pz,x,y,z;
     float pt    =  gmt.ptValue();

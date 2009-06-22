@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+//#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
 #include <stdlib.h>
 #include <string>
@@ -25,7 +25,8 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 		                                const TrajectoryMeasurement& ntm, 
 					        const DetLayer* layer,
 					        double& chirz, double& chirf) const {
-
+  double pi = 4.*atan(1.);
+  double twopi=8.*atan(1.);
   TrajectoryStateOnSurface badtsos; 
   if(!nTsos.isValid()) {
    std::cout<<" HICMuonUpdator::update:: can not start::initial tsos is not valid " <<std::endl;
@@ -310,6 +311,10 @@ return fit=true;
 
 double
         HICMuonUpdator::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDetEnumerators::Location location) const{
+
+     double pi = 4.*atan(1.);
+     double twopi=8.*atan(1.);
+
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();
      double psi;
@@ -347,6 +352,8 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
 
 // fit in (dphi dr), (dphi-dz)
   TrajectoryStateOnSurface badtsos; 
+       double pi = 4.*atan(1.);
+     double twopi=8.*atan(1.);
 
 //  cout<<" Update barrel begin "<<endl;
 
@@ -442,6 +449,10 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 						 double& chirz, double& chirf, int& tType) const{
 
 // fit in (dphi dr), (dphi-dz)
+  double pi = 4.*atan(1.);
+  double twopi=8.*atan(1.);
+
+
   TrajectoryStateOnSurface badtsos;
 
 //    cout<<" Update endcap begin "<<endl;

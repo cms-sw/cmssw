@@ -8,6 +8,9 @@ TrajectoryStateOnSurface
              HICTrajectoryCorrector::correct(FreeTrajectoryState& fts, FreeTrajectoryState& ftsnew,
   			                const GeomDet* det) const
   {
+        double pi=4.*atan(1.);
+        double twopi=8.*atan(1.);
+
 #ifdef CORRECT_DEBUG
         std::cout<<" HICTrajectoryCorrector::correct::start "<<std::endl;
 #endif
@@ -264,6 +267,9 @@ TrajectoryStateOnSurface
   }
 
 double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDet* det) const{
+        double pi=4.*atan(1.);
+        double twopi=8.*atan(1.);
+
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();
      double psi;
