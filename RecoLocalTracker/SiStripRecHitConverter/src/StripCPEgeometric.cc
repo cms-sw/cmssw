@@ -1,4 +1,5 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <numeric>
 
@@ -105,7 +106,7 @@ WrappedCluster(const SiStripCluster& cluster, const std::vector<float>& xtalk)
     type(SiStripDetId(cluster.geographicalId()).subDetector()),
     firstStrip(cluster.firstStrip())
 { 
-  Q = inv_crosstalk(cluster.amplitudes(), xtalk[type]);
+  Q = InverseCrosstalkMatrix::unfold( cluster.amplitudes(), xtalk[type]);
   first = Q.begin();
   last = Q.end()-1;
   sumQ = accumulate(first, last+1, float(0));
