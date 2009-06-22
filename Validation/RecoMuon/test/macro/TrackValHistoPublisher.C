@@ -103,7 +103,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  bool ctf=1;
  bool rs=0;
  
-  TIter iter_r( rl );
+ TIter iter_r( rl );
  TIter iter_s( sl );
  TKey * myKey1, *myKey2;
  while ( (myKey1 = (TKey*)iter_r()) ) {
@@ -112,8 +112,19 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    myKey2 = (TKey*)iter_s();
    collname2 = myKey2->GetName();
    if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
-     cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
-     continue;
+     bool goodAsWell = false;
+     if (collname1.BeginsWith("standAloneMuons_UpdatedAtVtx") && collname2.BeginsWith("standAloneMuons_UpdatedAtVtx")) {
+       if (collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation"));
+       goodAsWell = true;
+     }
+     if (collname1.BeginsWith("hltL2Muons_UpdatedAtVtx") && collname2.BeginsWith("hltL2Muons_UpdatedAtVtx")) {
+       if (collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation"));
+       goodAsWell = true;
+     }
+     if (! goodAsWell) {
+       cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
+       continue;
+     }
    }
 
    TString newDir("NEW_RELEASE/NEWSELECTION/NEW_LABEL/");
