@@ -34,8 +34,6 @@ class StripCPEgeometric : public StripCPE
     float centroid() const;
     bool deformed() const;
     void dropSmallerEdgeStrip();
-    std::vector<float> inv_crosstalk(const std::vector<uint8_t>&, const float) const;
-    std::vector<std::vector<float> > inv_xtalk_matrix( const float, unsigned) const;
    private:
     std::vector<float> Q;
     std::vector<float>::const_iterator first, last;
