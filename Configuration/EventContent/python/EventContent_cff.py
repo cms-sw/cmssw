@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.11 2009/05/28 17:18:04 futyand Exp $
+#  $Id: EventContent_cff.py,v 1.12 2009/06/15 08:12:29 arizzi Exp $
 #
 #
 #
@@ -155,6 +155,10 @@ FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
 )
+FEVTHLTALLEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+
 #
 #
 # FEVTSIM Data Tier definition
@@ -333,6 +337,10 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
+FEVTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTALLEventContent.outputCommands.extend('keep *_*_*_HLT')
+
 
 FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)

@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.9 2009/05/13 09:31:15 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.10 2009/06/15 08:12:29 arizzi Exp $
 #
 #
 #
@@ -68,6 +68,9 @@ FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
 )
+FEVTHLTALLEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
 #replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
 #
 #
@@ -93,6 +96,7 @@ RAWEventContent = cms.PSet(
         'keep  FEDRawDataCollection_rawDataCollector_*_*', 
         'keep  FEDRawDataCollection_source_*_*')
 )
+
 #
 #
 # RAWSIM Data Tier definition
@@ -130,6 +134,7 @@ FEVTSIMEventContent = cms.PSet(
 )
 
 
+
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
@@ -150,6 +155,9 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
+FEVTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTALLEventContent.outputCommands.extend('keep *_*_*_HLT')
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
