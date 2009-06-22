@@ -11,6 +11,7 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -24,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/04 11:48:57 $ 
- **  $Revision: 1.17 $
+ **  $Date: 2009/05/12 18:10:58 $ 
+ **  $Revision: 1.18 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -54,6 +55,7 @@ class PhotonValidator : public edm::EDAnalyzer
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob();
   virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
+  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob() ;
   
  private:
@@ -87,6 +89,9 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::ParameterSet parameters_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;	    
   edm::ESHandle<CaloTopology> theCaloTopo_;
+
+  std::string likelihoodWeights_;
+  ConversionLikelihoodCalculator* theLikelihoodCalc_;
 
            
   std::string photonCollectionProducer_;       
@@ -128,6 +133,7 @@ class PhotonValidator : public edm::EDAnalyzer
   double dCotCutValue_;
   double dCotHardCutValue_;
   bool signal_;
+  
 
   /// global variable for the MC photon
   double mcPhi_;
@@ -265,6 +271,9 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* p_hOverEVsEta_[3];
   MonitorElement* h2_hOverEVsEt_[3];
   MonitorElement* p_hOverEVsEt_[3];
+
+
+
   //
   MonitorElement* h_ecalRecHitSumEtConeDR04_[3][3];  
   MonitorElement* h2_ecalRecHitSumEtConeDR04VsEta_[3];
@@ -299,6 +308,10 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h2_eResVsEta_[3];
   MonitorElement* p_eResVsEta_[3];
+  MonitorElement* h2_eResVsR9_[3];
+  MonitorElement* p_eResVsR9_[3];
+  MonitorElement* h2_sceResVsR9_[3];
+  MonitorElement* p_sceResVsR9_[3];
 
 
   MonitorElement* h_phoEta_[2];
@@ -318,6 +331,9 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_EoverPTracks_[2][3];
   MonitorElement* h_PoverETracks_[2][3];
 
+  MonitorElement* h_mvaOut_[3];
+  MonitorElement* h2_etaVsRsim_[3];
+  MonitorElement* h2_etaVsRreco_[3];
 
   MonitorElement* h2_EoverEtrueVsEoverP_[3];
   MonitorElement* h2_PoverPtrueVsEoverP_[3];
