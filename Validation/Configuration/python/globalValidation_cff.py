@@ -6,7 +6,7 @@ from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
-multiTrackValidator.UseAssociators = True
+#multiTrackValidator.UseAssociators = True
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
