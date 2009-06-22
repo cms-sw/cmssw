@@ -57,97 +57,17 @@ namespace edm {
       }
     }
     else{ // In case mixProdStep2_=true
-      if (!isTracker_) {
+        // In the Step2, when using a mixed secondary source, there is no
+	// high/low treatment, it was done in the Step1, when producing the mixed source 
 	boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
-        if (shPtr) {
-	  
+        if (shPtr) { 
 	  boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
 	
       	  secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtr->product());
 	  LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
 
 	  copyPCrossingFrame(secSourceCF_);	  
-	}
-      } else {
-	boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtrHigh, shPtrLow;
-	
-        if(trackerHigh_) {
-	  
-	  shPtrHigh=getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);           	  	  
-          shPtrLow=getProductByTag<PCrossingFrame<PSimHit> >(*ep, opp_);
-        //--------------------------------------------------------------------------
-	  // add HighTof simhits to high and low signals
-        float tof = bcr*crFrame_->getBunchSpace();
-        if (shPtrHigh) {
-	   
-	  if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
-	    secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtrHigh->product());
-	    LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
-	 
-	    copyPCrossingFrame(secSourceCF_);		    
-	    
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<" PCrossingFrame<PSimHit> added from high";
-	  }
-        }
-	else LogDebug("MixingModule") << "Could not get the PCrossingFrame<PSimHit>!";
-
-        // add LowTof simhits to high and low signals
-        if (shPtrLow) {
-	  
-	  if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {
-	    
-	    secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtrLow->product());
-	    LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
-
-	    copyPCrossingFrame(secSourceCF_);
-	    
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<" PCrossingFrame<PSimHit> added from low";
-	  }
-	}
-	else LogDebug("MixingModule") << "Could not get the PCrossingFrame<PSimHit>!";
-	//-----------------------------------------------------------------------------
-	}
-        else {
-	  
-	  shPtrHigh=getProductByTag<PCrossingFrame<PSimHit> >(*ep, opp_);
-	  shPtrLow=getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
-	  
-        //--------------------------------------------------------------------------
-	  // add HighTof simhits to high and low signals
-        float tof = bcr*crFrame_->getBunchSpace();
-        if (shPtrHigh) {
-	  
-	  if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
-
-	    secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtrHigh->product());
-	    LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
-
-	    copyPCrossingFrame(secSourceCF_);	    
-	    
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<" PCrossingFrame<PSimHit> added from high";
-
-	  }
-        }
-	else LogDebug("MixingModule") << "Could not get the PCrossingFrame<PSimHit>!";
-
-        // add LowTof simhits to high and low signals
-        if (shPtrLow) {
-	  
-	  if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {
-	    
-	    secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtrLow->product());
-	    LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
-
-	    copyPCrossingFrame(secSourceCF_);
-
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<" PCrossingFrame<PSimHit> added from low";
-	  }     
-	}
-	else LogDebug("MixingModule") << "Could not get the PCrossingFrame<PSimHit>!";
-	//-----------------------------------------------------------------------------
-        }
-	  
-      }//else isTracker  
+	} 
     }//else mixProd2    
   }
 

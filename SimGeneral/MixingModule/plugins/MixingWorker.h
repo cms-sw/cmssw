@@ -171,17 +171,18 @@ template <>
 
 template <class T>
     void MixingWorker<T>::copyPCrossingFrame(const PCrossingFrame<T> *PCF)
-    {  
-      crFrame_->setEventID(PCF->getEventID());
-      crFrame_->setPileups(PCF->getPileups());
+    { 
+      crFrame_->setBunchRange(PCF->getBunchRange()); 
       crFrame_->setBunchSpace(PCF->getBunchSpace());
       crFrame_->setMaxNbSources(PCF->getMaxNbSources());
       crFrame_->setSubDet(PCF->getSubDet());
-      crFrame_->setPileupFileNr(PCF->getPileupFileNr());
-      crFrame_->setIdFirstPileup(PCF->getIdFirstPileup());
       crFrame_->setPileupOffsetsBcr(PCF->getPileupOffsetsBcr());
       crFrame_->setPileupOffsetsSource(PCF->getPileupOffsetsSource());
-      crFrame_->setBunchRange(PCF->getBunchRange());
+      crFrame_->setPileups(PCF->getPileups());
+      
+      // For playback option
+      crFrame_->setPileupFileNr(PCF->getPileupFileNr());
+      crFrame_->setIdFirstPileup(PCF->getIdFirstPileup());
     }
       
 }//edm

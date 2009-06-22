@@ -183,11 +183,7 @@ namespace edm
 	      std::string label;
               branchesActivate(TypeID(typeid(PCrossingFrame<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	   
-	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
-	      }else {
-		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
-	      }
+	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      
 	      
 	      //---------------------------------
@@ -203,27 +199,9 @@ namespace edm
 	         if (tags.size()==1) tagCF=tags[0];
 		 else if(tags.size()>1) tagCF=tags[ii];
                  std::string labelCF;
-	         branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
- 		 
-	         if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {		   
-		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  	            
-		 }
-		 else 
-		 {
-		    workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
-
-		    // here we have to give the opposite selector too (low for high, high for low)
-		    int slow=(tag.instance()).find("LowTof");
-		    int iend=(tag.instance()).size();
-		    std::string productInstanceNameOpp;
-		    if (slow>0) {
-		       productInstanceNameOpp=tag.instance().substr(0,iend-6)+"HighTof";
-		    }else{
-		       productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
-		    }
-		    InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
-                    workers_[workers_.size()-1]->setOppositeTag(tagOpp);
-	         }
+	         branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF); 		 	   
+		 workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  	            
+		
 	         produces<CrossingFrame<PSimHit> > (labelCF);
 	      }
 	      //-------------------------------
@@ -309,6 +287,7 @@ namespace edm
 		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(tag.instance()).find("LowTof");
+
 		int iend=(tag.instance()).size();
 		std::string productInstanceNameOpp;
 		if (slow>0) {
@@ -368,8 +347,9 @@ namespace edm
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() { 
-    for (unsigned int ii=0;ii<workers_.size();ii++) 
-      delete workers_[ii];
+    for (unsigned int ii=0;ii<workers_.size();ii++){ 
+      delete workers_[ii];}
+    delete sel_;  
   }  
 
   void MixingModule::addSignals(const edm::Event &e, const edm::EventSetup& setup) { 
@@ -379,7 +359,6 @@ namespace edm
     for (unsigned int ii=0;ii<workers_.size();ii++){ 
       workers_[ii]->addSignals(e);
     }
-
   }
 
   void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
@@ -399,7 +378,7 @@ namespace edm
 	}
       }
     }
-
+    
     // we have to do the ToF transformation for PSimHits once all pileup has been added
      for (unsigned int ii=0;ii<workers_.size();ii++) {
       workers_[ii]->setTof();
