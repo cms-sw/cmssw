@@ -35,14 +35,17 @@ class Tracklet {
 
 
 public:
-		typedef	std::map< unsigned int , GlobalStubPtrType >		TrackletMap;
-		typedef	std::map< unsigned int , PTrajectoryStateOnDet >	TrajectoryMap;
+		typedef	std::set< std::pair<unsigned int , GlobalStubPtrType> >		TrackletMap;
+		typedef typename TrackletMap::const_iterator 											TrackletMapIterator;
+
+//		typedef	std::map< unsigned int , GlobalStubPtrType >		TrackletMap;
+//		typedef	std::map< unsigned int , PTrajectoryStateOnDet >	TrajectoryMap;
 
 		Tracklet()
 		{
 			theStubs.clear();
 			theVertex=GlobalPoint(0.0,0.0,0.0);
-			theTrajectories.clear();
+//			theTrajectories.clear();
 			NullStub=GlobalStubPtrType();
  	 	}
 
@@ -55,10 +58,10 @@ public:
 	    	theStubs.insert( std::make_pair( aStubIdentifier , aHit ) ); 
 		}
 
-		void addTrajectory( unsigned int aStubIdentifier , const PTrajectoryStateOnDet& trajectory )
+/*		void addTrajectory( unsigned int aStubIdentifier , const PTrajectoryStateOnDet& trajectory )
 		{
 			theTrajectories.insert( std::make_pair( aStubIdentifier , trajectory ) ); 	
-		}
+		}*/
 
 		void addVertex( const GlobalPoint & aVertex )
 		{
@@ -67,11 +70,16 @@ public:
 
 		const GlobalStubPtrType &stub( unsigned int aStubIdentifier ) const
 		{
-			if( theStubs.find(aStubIdentifier) != theStubs.end()  ){
+			for (TrackletMapIterator i = theStubs.begin(); i != theStubs.end(); ++i){
+				if ( i->first == aStubIdentifier ) return i->second;
+			}
+			return NullStub;
+
+			/*if( theStubs.find(aStubIdentifier) != theStubs.end()  ){
 				return theStubs.find(aStubIdentifier)->second;
 			}else{
 				return NullStub;
-			}
+			}*/
 		}
 
 		const TrackletMap& stubs() const
@@ -110,7 +118,7 @@ public:
 			double r2 = outer.perp()/100;
 			double x2 = r1*r1 + r2*r2 - 2*r1*r2*cos(phidiff);
 			return 0.6*sqrt(x2)/sin(fabs(phidiff));
-			return 0.0;
+			//return 0.0;
 		}
 
 		std::string print(unsigned int i = 0 ) const {
@@ -123,9 +131,7 @@ public:
 			output << padding << "Projected Vertex: " << theVertex << '\n';
 			output << padding << "Two Point Pt: " << this->twoPointPt() << '\n';
 
-			typedef	typename TrackletMap::const_iterator	TrackletMapIter;
-
-			for( TrackletMapIter it=theStubs.begin() ; it!=theStubs.end() ; ++it )
+			for( TrackletMapIterator it=theStubs.begin() ; it!=theStubs.end() ; ++it )
 				output << it->second->print(i+1) << '\n';
 
 			return output.str();
@@ -137,7 +143,7 @@ public:
 	//which hits formed the tracklet
 		TrackletMap theStubs;
 		GlobalPoint theVertex;
-		TrajectoryMap theTrajectories;
+//		TrajectoryMap theTrajectories;
 
 		GlobalStubPtrType NullStub;
 

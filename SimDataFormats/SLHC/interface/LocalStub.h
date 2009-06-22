@@ -12,8 +12,6 @@
 #ifndef STACKED_TRACKER_LOCAL_STUB_FORMAT_H
 #define STACKED_TRACKER_LOCAL_STUB_FORMAT_H
 
-#include <map>
-#include <vector>
 #include "SLHCUpgradeSimulations/Utilities/interface/StackedTrackerDetId.h"
 
 //for the helper methods
@@ -38,7 +36,9 @@ class LocalStub {
 	typedef std::vector< T > HitCollection;
 
 	public:
-		typedef	std::map< unsigned int, HitCollection >						HitMap;
+		//typedef	std::map< unsigned int, HitCollection >						HitMap;
+		typedef	std::set< std::pair<unsigned int, HitCollection> >	HitMap;
+		typedef typename HitMap::const_iterator 							HitMapIterator;
 
 		LocalStub()
 		{
@@ -57,8 +57,8 @@ class LocalStub {
 
 		~LocalStub(){}
 
-		void addHit(    unsigned int point_within_hit ,
-						const T &hitRef )
+		void addHit(   unsigned int point_within_hit ,
+							const T &hitRef )
 		{
 			HitCollection temp;
 			temp.push_back(hitRef);
@@ -66,7 +66,7 @@ class LocalStub {
 		}
 
 		void addCluster(	unsigned int point_within_hit , 
-							const HitCollection &hitRefVector )
+								const HitCollection &hitRefVector )
 		{
 			theHits.insert( std::make_pair( point_within_hit , hitRefVector ) ); 
 		}
@@ -74,11 +74,16 @@ class LocalStub {
 
 		const HitCollection &hit( unsigned int hitIdentifier ) const
 		{
-			if( theHits.find(hitIdentifier) != theHits.end()  ){
+			for (HitMapIterator i = theHits.begin(); i != theHits.end(); ++i){
+				if ( i->first == hitIdentifier ) return i->second;
+			}
+			return nullVector;
+
+/*			if( theHits.find(hitIdentifier) != theHits.end()  ){
 				return theHits.find(hitIdentifier)->second;
 			}else{
 				return nullVector;
-			}
+			}*/
 		}
 
 
@@ -137,9 +142,7 @@ class LocalStub {
 			padding+='\t';
 			output << padding << "StackedTrackerDetId: " << id << '\n';
 
-			typedef	typename HitMap::const_iterator	HitMapIter;
-
-			for( HitMapIter it=theHits.begin() ; it!=theHits.end() ; ++it )
+			for( HitMapIterator it=theHits.begin() ; it!=theHits.end() ; ++it )
 				output << padding << "member " << it->first << ", cluster size = " << it->second.size() << '\n';
 			return output.str();
 		}
