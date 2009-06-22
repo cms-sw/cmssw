@@ -18,12 +18,12 @@
 
 class L1CaloEtScale;
 
-class L1GctHtMissLut : public L1GctLut<14,12>
+class L1GctHtMissLut : public L1GctLut<16,12>
 
 {
 public:
 
-  enum numberOfBits { kHxOrHyMissComponentNBits=7,
+  enum numberOfBits { kHxOrHyMissComponentNBits=8,
 		      kHtMissMagnitudeNBits=7,
 		      kHtMissAngleNBits=5 };
 

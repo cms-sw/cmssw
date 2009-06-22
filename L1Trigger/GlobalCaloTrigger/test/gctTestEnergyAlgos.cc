@@ -46,39 +46,74 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
   // same region several times.
   for (unsigned i=0; i<(simpleEvent ? 1 : L1CaloRegionDetId::N_ETA); i++) {
     etmiss_vec etVector=randomMissingEtVector();
-    //cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
+    //    cout << "Region et " << etVector.mag << " phi " << etVector.phi << endl;
     // Set a single region input
     unsigned etaRegion = i;
     unsigned phiRegion = etVector.phi/4;
 
-    unsigned maxEtForThisEta = MAX_ET_CENTRAL;
+    // Central or forward region? 
     if (etaRegion<4 || etaRegion>=18) {
-      etVector.mag = etVector.mag >> 2;
-      maxEtForThisEta = MAX_ET_FORWARD;
-    } 
-    //cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
 
-    bool regionOf = etVector.mag > maxEtForThisEta;
-    L1CaloRegion temp(etVector.mag, regionOf, true, false, false, etaRegion, phiRegion);
-    temp.setBx(bx);
-    inputRegions.push_back(temp);
-        
-    // Here we fill the expected values. Et values restricted to
-    // eight bits in HF and ten bits in the rest of the system.
-    if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
-      if (etVector.mag > maxEtForThisEta) {
-        etStripSums.at(phiRegion+base) += MAX_ET_CENTRAL;
-        tempMinusOvrFlow = true;
+      // forward
+      etVector.mag = etVector.mag >> 2;
+      if (etVector.mag >= MAX_ET_FORWARD) {
+	// deal with et values in overflow
+	etVector.mag = MAX_ET_FORWARD;
+	// Here we fill the expected values. Et values restricted to eight bits in HF.
+	// But overflow values are converted to maximum 10-bit number, 0x3ff.
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += MAX_ET_CENTRAL;
+	  tempMinusOvrFlow = true;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += MAX_ET_CENTRAL;
+	  tempPlusOverFlow = true;
+	}
       } else {
-        etStripSums.at(phiRegion+base) += etVector.mag;
-      }
+	// deal with et values not in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += etVector.mag;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += etVector.mag;
+	}
+      } 
+      // cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
+
+      // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)
+      // Set overflow and finegrain to false for forward regions.
+      L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(etVector.mag, false, false, false, false, etaRegion, phiRegion);
+      temp.setBx(bx);
+      inputRegions.push_back(temp);
+
     } else {
-      if (etVector.mag > maxEtForThisEta) {
-        etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += MAX_ET_CENTRAL;
-        tempPlusOverFlow = true;
+
+      // central
+        
+      // Here we fill the expected values. Et values restricted to ten bits.
+      if (etVector.mag > MAX_ET_CENTRAL) {
+	// deal with et values in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += MAX_ET_CENTRAL;
+	  tempMinusOvrFlow = true;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += MAX_ET_CENTRAL;
+	  tempPlusOverFlow = true;
+	}
       } else {
-        etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += etVector.mag;
+	// deal with et values not in overflow
+	if (etaRegion<(L1CaloRegionDetId::N_ETA)/2) {
+	  etStripSums.at(phiRegion+base) += etVector.mag;
+	} else {
+	  etStripSums.at(phiRegion+L1CaloRegionDetId::N_PHI+base) += etVector.mag;
+	}
       }
+      // cout << "Region et " << etVector.mag << " eta " << etaRegion << " phi " << etVector.phi << " bx " << bx << endl;
+
+      // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)
+      bool regionOf = etVector.mag > MAX_ET_CENTRAL;
+      L1CaloRegion temp = L1CaloRegion::makeRegionFromGctIndices(etVector.mag, regionOf, true, false, false, etaRegion, phiRegion);
+      temp.setBx(bx);
+      inputRegions.push_back(temp);
+        
     }
   }
   inMinusOvrFlow.at(bxRel) = tempMinusOvrFlow;
@@ -347,7 +382,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
       cout << "strip sums ";
       for (unsigned col=0; col<6; col++) {
 
-	unsigned strip = (22-rctStrip)%18 + 36*bx;
+	unsigned strip = (40-rctStrip)%18 + 36*bx;
 	cout << " s " << strip << " e " << etStripSums.at(strip);
 	rctStrip++;
       }

@@ -69,7 +69,7 @@ class L1GctMet
   const double componentLsb() const;
  private:
 
-  enum etComponentShift { kExOrEyMissComponentShift=3 };
+  enum etComponentShift { kExOrEyMissComponentShift=4 };
 
   struct etmiss_internal {
     unsigned mag;

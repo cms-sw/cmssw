@@ -271,7 +271,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htMiss = 0;
     unsigned htMPhi = 0;
 
-    if ((((-hxTotal) & 0x3f8) != 0) || (((-hyTotal) & 0x3f8) != 0)) {
+    if ((((-hxTotal) & 0xff0) != 0) || (((-hyTotal) & 0xff0) != 0)) {
 
       double dhx = htComponentGeVForHtMiss(-hxTotal);
       double dhy = htComponentGeVForHtMiss(-hyTotal);
@@ -299,7 +299,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htFromInternalJets = 0;
     for (L1GctInternJetDataCollection::const_iterator jet=internalJets.begin();
 	 jet != internalJets.end(); jet++) {
-      if ((jet->bx() == bx+m_bxStart) && (jet->et() >= m_jfPars->getHtJetEtThresholdGct())) {
+      if ((jet->bx() == bx+m_bxStart) && (jet->et() > m_jfPars->getHtJetEtThresholdGct())) {
 	htFromInternalJets += jet->et();
       }
     }
@@ -342,12 +342,12 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 //       unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : m_jfPars->correctedEtGct(htJetGeV));
       unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : jet->rawsum());
       // Add to total Ht sum
-      if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
+      if (htJet > m_jfPars->getHtJetEtThresholdGct()) {
 	sumHtt += htJet;
 	sumHttOvrFlo |= (jet->overFlow());
       }
       // Add to missing Ht sum
-      if (htJet >= m_jfPars->getMHtJetEtThresholdGct()) {
+      if (htJet > m_jfPars->getMHtJetEtThresholdGct()) {
 	if (jet->rctPhi() == 0) {
 	  sumHtStrip0 += htJet;
 	}
@@ -442,9 +442,9 @@ int gctTestHt::htComponent(const unsigned Emag0, const unsigned fact0,
 double gctTestHt::htComponentGeVForHtMiss(int inputComponent) const
 {
   // Deal properly with the LSB truncation for 2s-complement numbers
-  // Input is 17 bits including sign bit but we use only 7 bits
-  int truncatedComponent = (((inputComponent + 0x200) >> 3) & 0x7f) - 0x40;
-  return ( (static_cast<double>(truncatedComponent) + 0.5) * 4.0 * m_jfPars->getHtLsbGeV() );
+  // Input is 18 bits including sign bit but we use only 8 bits
+  int truncatedComponent = (((inputComponent + 0x800) >> 4) & 0xff) - 0x80;
+  return ( (static_cast<double>(truncatedComponent) + 0.5) * 8.0 * m_jfPars->getHtLsbGeV() );
 }
 
 
