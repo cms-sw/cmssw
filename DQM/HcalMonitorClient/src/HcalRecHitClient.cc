@@ -219,7 +219,7 @@ void HcalRecHitClient::cleanup(void)
   h_HOEnergy_1D=0;
   h_HFEnergy_1D=0;
 
-  for (int i=0;i<6;++i)
+  for (int i=0;i<4;++i)
     {
       ProblemRecHitsByDepth[i]    =0;
       OccupancyByDepth[i]          =0;
@@ -473,7 +473,7 @@ void HcalRecHitClient::getHistograms()
 	}
       name.str("");
 
-    } // for (int i=0;i<6;++i)
+    } // for (int i=0;i<4;++i)
 
   return;
 } //void HcalRecHitClient::getHistograms()
@@ -545,7 +545,7 @@ void HcalRecHitClient::resetAllME()
       name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/"<<subdets_[i]<<"Above Threshold Rec Hit Average Time nS";
       resetME(name.str().c_str(),dbe_);
       name.str("");
-    } // for (int i=0;i<6;++i)
+    } // for (int i=0;i<4;++i)
 
  if (rechitclient_makeDiagnostics_)
     {
@@ -863,8 +863,8 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,OccupancyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,OccupancyThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,OccupancyByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,OccupancyThreshByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -903,8 +903,8 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,EnergyByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,EnergyThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,EnergyByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,EnergyThreshByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -963,8 +963,8 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   for (int i=0;i<4;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,TimeByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,TimeThreshByDepth[mydepth[i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,TimeByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,TimeThreshByDepth[i],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -1082,7 +1082,7 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
       name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_info_threshold/sumplots/"<<subdets_[i]<<"Above Threshold Rec Hit Summed nS";
       SumTimeThreshByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
-    } //for (int i=0;i<6;++i)
+    } //for (int i=0;i<4;++i)
 
   if (rechitclient_makeDiagnostics_)
     {
@@ -1192,39 +1192,25 @@ void HcalRecHitClient::loadHistograms(TFile* infile)
 
 
 
-
-
-
 bool HcalRecHitClient::hasErrors_Temp()
 {
   int problemcount=0;
-
-  int etabins  = ProblemRecHits->GetNbinsX();
-  int phibins  = ProblemRecHits->GetNbinsY();
-  float etaMin = ProblemRecHits->GetXaxis()->GetXmin();
-  float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
-  int eta,phi;
+  int etabins=0;
+  int phibins=0;
 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      if (ProblemRecHitsByDepth[depth]==0) continue;
+      etabins  = ProblemRecHitsByDepth[depth]->GetNbinsX();
+      phibins  = ProblemRecHitsByDepth[depth]->GetNbinsY();
+      for (int ieta=0;ieta<etabins;++ieta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int iphi=0; iphi<phibins;++iphi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
-	      int mydepth=depth+1;
-	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
-	      if (ProblemRecHitsByDepth[depth]==0)
-		{
-		  continue;
-		}
-	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
-		{
-		  problemcount++;
-		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta+1,iphi+1)>minErrorFlag_)
+		problemcount++;
+	    } // for (int iphi=0;...)
+	} // for (int ieta=0;...)
     } // for (int depth=0;...)
 
   if (problemcount>=100) return true;
@@ -1232,36 +1218,26 @@ bool HcalRecHitClient::hasErrors_Temp()
 
 } // bool HcalRecHitClient::hasErrors_Temp()
 
+
 bool HcalRecHitClient::hasWarnings_Temp()
 {
   int problemcount=0;
+  int etabins=0;
+  int phibins=0;
 
-  int etabins  = ProblemRecHits->GetNbinsX();
-  int phibins  = ProblemRecHits->GetNbinsY();
-  float etaMin = ProblemRecHits->GetXaxis()->GetXmin();
-  float phiMin = ProblemRecHits->GetYaxis()->GetXmin();
-  int eta,phi;
- 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      if (ProblemRecHitsByDepth[depth]==0) continue;
+      etabins  = ProblemRecHitsByDepth[depth]->GetNbinsX();
+      phibins  = ProblemRecHitsByDepth[depth]->GetNbinsY();
+      for (int ieta=0;ieta<etabins;++ieta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int iphi=0; iphi<phibins;++iphi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
-	      int mydepth=depth+1;
-	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
-	      if (ProblemRecHitsByDepth[depth]==0)
-		{
-		  continue;
-		}
-	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
-		{
-		  problemcount++;
-		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	      if (ProblemRecHitsByDepth[depth]->GetBinContent(ieta+1,iphi+1)>minErrorFlag_)
+		problemcount++;
+	    } // for (int iphi=0;...)
+	} // for (int ieta=0;...)
     } // for (int depth=0;...)
 
   if (problemcount>0) return true;

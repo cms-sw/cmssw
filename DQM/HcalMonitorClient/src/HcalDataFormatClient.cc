@@ -101,6 +101,7 @@ void HcalDataFormatClient::endRun(void) {
 
 void HcalDataFormatClient::cleanup(void) {
 
+  return; // cleanup causes error?
   if ( cloneME_ ) {
     for(int i=0; i<3; i++){
       if ( dferr_[i] ) delete dferr_[i];

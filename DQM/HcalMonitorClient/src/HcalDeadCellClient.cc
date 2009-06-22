@@ -112,10 +112,9 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
   //need to update this
   if (dump2database_==true) // don't do anything special unless specifically asked to dump db file
     {
-      int eta,phi;
       float binval;
 
-      int subdet;
+      int subdet=0;
       char* subdetname;
       if (debug_>1)
 	{
@@ -143,7 +142,7 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 		  binval=ProblemDeadCellsByDepth[d]->GetBinContent(ieta,iphi);
 		  
 		  // Set subdetector labels for output
-		  if (d<2) // HB/HE/HF
+		  if (d==0) // HB/HE/HF
 		    {
 		      if (hist_eta<14)
 			{
@@ -167,6 +166,24 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 			}
 		    }
 		  
+		  else if (d==1)
+		    {
+		      if (hist_eta<14 || hist_eta >44)
+			{
+			  subdetname="HF";
+			  subdet=4;
+			}
+		      else if (abs(ieta)<17)
+			{
+			  subdetname="HB";
+			  subdet=1;
+			}
+		      else
+			{
+			  subdetname="HE";
+			  subdet=2;
+			}
+		    }
 		  else if (d==2)
 		    {
 		      subdetname="HE";
@@ -889,66 +906,59 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 bool HcalDeadCellClient::hasErrors_Temp()
 {
   int problemcount=0;
-
-  int etabins  = ProblemDeadCells->GetNbinsX();
-  int phibins  = ProblemDeadCells->GetNbinsY();
-  float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
-  float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
-  int eta,phi;
+  int ieta=-9999;
 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      int etabins  = ProblemDeadCells->GetNbinsX();
+      int phibins  = ProblemDeadCells->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
+              ieta=CalcIeta(hist_eta,depth+1);
+	      if (ieta==-9999) continue;
 	      if (ProblemDeadCellsByDepth[depth]==0)
 		{
 		  continue;
 		}
-	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(hist_eta,hist_phi)>minErrorFlag_)
 		{
 		  problemcount++;
 		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
 
   if (problemcount>=100) return true;
   return false;
-
 } // bool HcalDeadCellClient::hasErrors_Temp()
 
 bool HcalDeadCellClient::hasWarnings_Temp()
 {
   int problemcount=0;
+  int ieta=-9999;
 
-  int etabins  = ProblemDeadCells->GetNbinsX();
-  int phibins  = ProblemDeadCells->GetNbinsY();
-  float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
-  float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
-  int eta,phi;
- 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      int etabins  = ProblemDeadCells->GetNbinsX();
+      int phibins  = ProblemDeadCells->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
+              ieta=CalcIeta(hist_eta,depth+1);
+	      if (ieta==-9999) continue;
 	      if (ProblemDeadCellsByDepth[depth]==0)
 		{
 		  continue;
 		}
-	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(hist_eta,hist_phi)>minErrorFlag_)
 		{
 		  problemcount++;
 		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
     } // for (int depth=0;...)
 
   if (problemcount>0) return true;

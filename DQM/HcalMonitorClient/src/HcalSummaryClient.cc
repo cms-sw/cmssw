@@ -378,13 +378,12 @@ void HcalSummaryClient::analyze(void)
  if (HFpresent_) resetSummaryPlot(4);
 
  // Calculate status values for individual tasks
- if (dataFormatMon_.IsOn()) analyze_subtask(dataFormatMon_);
+ if (dataFormatMon_.IsOn()) New_analyze_subtask(dataFormatMon_);
  if (digiMon_.IsOn()) New_analyze_subtask(digiMon_);
  if (recHitMon_.IsOn()) New_analyze_subtask(recHitMon_);
- if (pedestalMon_.IsOn()) analyze_subtask(pedestalMon_);
+ if (pedestalMon_.IsOn()) New_analyze_subtask(pedestalMon_);
  if (ledMon_.IsOn()) analyze_subtask(ledMon_);
- if (hotCellMon_.IsOn()) analyze_subtask(hotCellMon_);
- 
+ if (hotCellMon_.IsOn()) New_analyze_subtask(hotCellMon_);
  if (deadCellMon_.IsOn()) New_analyze_subtask(deadCellMon_);
  if (trigPrimMon_.IsOn()) analyze_subtask(trigPrimMon_);
  if (caloTowerMon_.IsOn()) analyze_subtask(caloTowerMon_);
@@ -1000,6 +999,8 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
     {
       for (int d=1;d<=2;++d)
 	{
+	  int HF_eta_offset=72;
+	  if (d==2) HF_eta_offset=42;
 	  name.str("");
 	  name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth "<<d<<" "<<s.problemName;
 	  me=dqmStore_->get(name.str().c_str());
@@ -1026,27 +1027,31 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
 		      bincontent=hist->GetBinContent(eta,phi);
 		      if (bincontent>0)
 			{
-			  ieta=eta-43; // ieta value that accounts for shift of HF cells
-			  reportMap->Fill(ieta,iphi,bincontent); // need to adjust reportMap to contain shifted ieta bins
+			  ieta=CalcIeta(eta,d);
 			  iphi=phi;
-			  if (eta<14 || eta>72) // HF (shifted ieta)
+			  if (eta<14 || eta>HF_eta_offset)
 			    {
+			      if (eta<14) ieta--;
+			      else        ieta++;
 			      if (!HFpresent_) continue;
 			      if (iphi%2==0) continue; //skip non-physical phi bins
 			      if ((eta<3 || eta>83) && phi%4!=3) continue; // skip non-physical phi bins
 			      HFstatus+=bincontent;
 			    }
-			  else if (abs(ieta)<17) // HB between "true" ieta = -16 -> 16
+			  else if (abs(ieta)<17)
 			    {
 			      if (!HBpresent_) continue;
 			      HBstatus+=bincontent;
 			    }
-			  else 
-			    { 
+			  else if (ieta!=-9999)
+			    {
 			      if (!HEpresent_) continue;
 			      if (abs(ieta)>20 && iphi%2==0) continue;
 			      HEstatus+=bincontent;
 			    }
+
+			  reportMap->Fill(ieta,iphi,bincontent); // need to adjust reportMap to contain shifted ieta bins
+
 			} // if (bincontent>0)
 		    } // for (int iphi=1;...)
 		} // for (int ieta=1;...)
@@ -1071,14 +1076,13 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
 	      hist->SetMinimum(0.);  // change to some threshold value?
 	    }
 	  etabins=hist->GetNbinsX();
-	  int HEdepth3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
 	  phibins=hist->GetNbinsY();
 	  
 	  for (int eta=1;eta<=etabins;++eta)
 	    {
 	      for (int phi=1; phi<=phibins;++phi)
 		{
-		  ieta=HEdepth3[eta-1];
+		  ieta=binmapd3[eta-1];
 		  if (ieta==-9999) continue;
 		  iphi=phi;
 		  if (abs(ieta)>16 && iphi%2==0) continue; // skip unphysical cells

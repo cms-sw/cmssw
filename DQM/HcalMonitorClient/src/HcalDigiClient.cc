@@ -1618,37 +1618,26 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
 
 
+
 bool HcalDigiClient::hasErrors_Temp()
 {
   int problemcount=0;
-
-  int etabins  = ProblemDigis->GetNbinsX();
-  int phibins  = ProblemDigis->GetNbinsY();
-//   float etaMin = ProblemDigis->GetXaxis()->GetXmin();
-//   float phiMin = ProblemDigis->GetYaxis()->GetXmin();
-//   int eta,phi;
+  int etabins=0;
+  int phibins=0;
 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      if (ProblemDigisByDepth[depth]==0) continue;
+      etabins  = ProblemDigisByDepth[depth]->GetNbinsX();
+      phibins  = ProblemDigisByDepth[depth]->GetNbinsY();
+      for (int ieta=0;ieta<etabins;++ieta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int iphi=0; iphi<phibins;++iphi)
             {
-//               eta=ieta+int(etaMin)-1;
-//               phi=iphi+int(phiMin)-1;
-// 	      int mydepth=depth+1;
-// 	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
-	      if (ProblemDigisByDepth[depth]==0)
-		{
-		  continue;
-		}
-	      if (ProblemDigisByDepth[depth]->GetBinContent(ieta,iphi)>0)
-
-		{
-		  problemcount++;
-		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	      if (ProblemDigisByDepth[depth]->GetBinContent(ieta+1,iphi+1)>0)
+		problemcount++;
+	    } // for (int iphi=0;...)
+	} // for (int ieta=0;...)
     } // for (int depth=0;...)
 
   if (problemcount>=100) return true;
@@ -1656,36 +1645,26 @@ bool HcalDigiClient::hasErrors_Temp()
 
 } // bool HcalDigiClient::hasErrors_Temp()
 
+
 bool HcalDigiClient::hasWarnings_Temp()
 {
   int problemcount=0;
+  int etabins=0;
+  int phibins=0;
 
-  int etabins  = ProblemDigis->GetNbinsX();
-  int phibins  = ProblemDigis->GetNbinsY();
-//   float etaMin = ProblemDigis->GetXaxis()->GetXmin();
-//   float phiMin = ProblemDigis->GetYaxis()->GetXmin();
-//   int eta,phi;
- 
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      if (ProblemDigisByDepth[depth]==0) continue;
+      etabins  = ProblemDigisByDepth[depth]->GetNbinsX();
+      phibins  = ProblemDigisByDepth[depth]->GetNbinsY();
+      for (int ieta=0;ieta<etabins;++ieta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+          for (int iphi=0; iphi<phibins;++iphi)
             {
-//               eta=ieta+int(etaMin)-1;
-//               phi=iphi+int(phiMin)-1;
-// 	      int mydepth=depth+1;
-// 	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
-	      if (ProblemDigisByDepth[depth]==0)
-		{
-		  continue;
-		}
-	      if (ProblemDigisByDepth[depth]->GetBinContent(ieta,iphi)>0)
-		{
-		  problemcount++;
-		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	      if (ProblemDigisByDepth[depth]->GetBinContent(ieta+1,iphi+1)>0)
+		problemcount++;
+	    } // for (int iphi=0;...)
+	} // for (int ieta=0;...)
     } // for (int depth=0;...)
 
   if (problemcount>0) return true;

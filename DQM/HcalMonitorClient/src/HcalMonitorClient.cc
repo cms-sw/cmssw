@@ -430,6 +430,7 @@ void HcalMonitorClient::endJob(void) {
   */
 
   // dumping to database
+
   if (dump2database_)
     {
       if (debug_>0) std::cout <<"<HcalMonitorModule::endJob>  Writing file for database"<<endl;
@@ -484,7 +485,6 @@ void HcalMonitorClient::endJob(void) {
       HcalDbASCIIIO::dumpObject (outStream, (*newChanQual));
 
     } // if (dump2databse_)
-
 
   return;
 }
