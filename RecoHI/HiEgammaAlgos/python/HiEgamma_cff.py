@@ -19,3 +19,5 @@ hiPhotonSequence = cms.Sequence(photons)
 
 # HI Ecal reconstruction
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence * hiPhotonSequence)
+
+# Test
