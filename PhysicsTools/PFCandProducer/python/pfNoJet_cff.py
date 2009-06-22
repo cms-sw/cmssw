@@ -1,11 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from PhysicsTools.PFCandProducer.pfTopProjectionPFJetsOnPFCandidates_cfi import pfTopProjectionPFJetsOnPFCandidates  as tp
-jetsOnNoMuonsNoPileUp = tp.clone()
-jetsOnNoMuonsNoPileUp.name = 'jetsOnNoMuonsNoPileUp'
-jetsOnNoMuonsNoPileUp.topCollection = 'pfJets'
-jetsOnNoMuonsNoPileUp.bottomCollection = 'muonsOnNoPileUp'
+from PhysicsTools.PFCandProducer.TopProjectors.noJet_cfi 
 
 
 dump = cms.EDAnalyzer("EventContentAnalyzer")

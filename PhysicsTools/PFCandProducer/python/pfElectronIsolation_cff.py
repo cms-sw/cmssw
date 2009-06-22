@@ -4,7 +4,7 @@ from RecoEgamma.EgammaIsolationAlgos.egammaSuperClusterMerger_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.egammaBasicClusterMerger_cfi import *
 
 
-pfeleIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
+pfEleIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("pfElectronsPtGt5"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
@@ -23,9 +23,9 @@ pfeleIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
 
 
 
-pfEleIsoDeposit = cms.EDFilter("CandIsolatorFromDeposits",
+pfEleIsoDeposit = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
-        src = cms.InputTag("pfeleIsoDepositPFCandidates"),
+        src = cms.InputTag("pfEleIsoDepositPFCandidates"),
         deltaR = cms.double(0.5),
         weight = cms.string('1'),
         vetos = cms.vstring('0.01', 
@@ -35,7 +35,7 @@ pfEleIsoDeposit = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-pfeleIsoChDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
+pfEleIsoChDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("pfElectronsPtGt5"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
@@ -44,14 +44,14 @@ pfeleIsoChDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         ComponentName = cms.string('CandViewExtractor'),
         DR_Max = cms.double(1.0),
         Diff_r = cms.double(0.1),
-        inputCandView = cms.InputTag("pfAllChargedHadrons"),
+        inputCandView = cms.InputTag("allChargedHadrons"),
         DR_Veto = cms.double(1e-05),
         DepositLabel = cms.untracked.string('')
     )
 
 )
 
-pfeleIsoNeDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
+pfEleIsoNeDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("pfElectronsPtGt5"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
@@ -60,14 +60,14 @@ pfeleIsoNeDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         ComponentName = cms.string('CandViewExtractor'),
         DR_Max = cms.double(1.0),
         Diff_r = cms.double(0.1),
-        inputCandView = cms.InputTag("pfAllNeutralHadrons"),
+        inputCandView = cms.InputTag("allNeutralHadrons"),
         DR_Veto = cms.double(1e-05),
         DepositLabel = cms.untracked.string('')
     )
 
 )
 
-pfeleIsoGaDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
+pfEleIsoGaDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("pfElectronsPtGt5"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
@@ -76,7 +76,7 @@ pfeleIsoGaDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         ComponentName = cms.string('CandViewExtractor'),
         DR_Max = cms.double(1.0),
         Diff_r = cms.double(0.1),
-        inputCandView = cms.InputTag("pfAllPhotons"),
+        inputCandView = cms.InputTag("allPhotons"),
         DR_Veto = cms.double(1e-05),
         DepositLabel = cms.untracked.string('')
     )
@@ -84,11 +84,9 @@ pfeleIsoGaDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
 )
 
 
-
-
-pfEleIsoChDeposit = cms.EDFilter("CandIsolatorFromDeposits",
+pfEleIsoChDeposit = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
-        src = cms.InputTag("pfeleIsoChDepositPFCandidates"),
+        src = cms.InputTag("pfEleIsoChDepositPFCandidates"),
         deltaR = cms.double(0.5),
         weight = cms.string('1'),
         vetos = cms.vstring('0.01',
@@ -98,9 +96,9 @@ pfEleIsoChDeposit = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-pfEleIsoNeDeposit = cms.EDFilter("CandIsolatorFromDeposits",
+pfEleIsoNeDeposit = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
-        src = cms.InputTag("pfeleIsoNeDepositPFCandidates"),
+        src = cms.InputTag("pfEleIsoNeDepositPFCandidates"),
         deltaR = cms.double(0.5),
         weight = cms.string('1'),
         vetos = cms.vstring('0.01',
@@ -110,9 +108,9 @@ pfEleIsoNeDeposit = cms.EDFilter("CandIsolatorFromDeposits",
     ))
 )
 
-pfEleIsoGaDeposit = cms.EDFilter("CandIsolatorFromDeposits",
+pfEleIsoGaDeposit = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(cms.PSet(
-        src = cms.InputTag("pfeleIsoGaDepositPFCandidates"),
+        src = cms.InputTag("pfEleIsoGaDepositPFCandidates"),
         deltaR = cms.double(0.5),
         weight = cms.string('1'),
         vetos = cms.vstring('0.01',
@@ -128,7 +126,7 @@ pfEleIsoGaDeposit = cms.EDFilter("CandIsolatorFromDeposits",
 
 
 
-pfElectrons  = cms.EDFilter("IsolatedPFCandidateSelector",
+pfElectrons  = cms.EDProducer("IsolatedPFCandidateSelector",
     src = cms.InputTag("pfElectronsPtGt5"),
     IsoDeposit = cms.InputTag("pfEleIsoDeposit"),
     IsolationCut = cms.double(2.5),       
@@ -136,14 +134,14 @@ pfElectrons  = cms.EDFilter("IsolatedPFCandidateSelector",
 
 
 
-pfElectronIsol = cms.Sequence(    
-  pfeleIsoDepositPFCandidates
+pfElectronIsolationSequence = cms.Sequence(    
+  pfEleIsoDepositPFCandidates
   + pfEleIsoDeposit
-  + pfeleIsoChDepositPFCandidates
+  + pfEleIsoChDepositPFCandidates
   + pfEleIsoChDeposit
-  + pfeleIsoNeDepositPFCandidates
+  + pfEleIsoNeDepositPFCandidates
   + pfEleIsoNeDeposit
-  + pfeleIsoGaDepositPFCandidates
+  + pfEleIsoGaDepositPFCandidates
   + pfEleIsoGaDeposit
-#  + pfElectrons
+  + pfElectrons
   )

@@ -5,7 +5,7 @@ from PhysicsTools.PFCandProducer.ptMinPFJetSelector_cfi import ptMinPFJets as pf
 
 
 allPfJets = RecoJets.JetProducers.iterativeCone5PFJets_cff.iterativeCone5PFJets.clone()
-allPfJets.src = 'muonsOnNoPileUp'
+allPfJets.src = 'noMuon'
 
 pfJets.src = 'allPfJets'
 pfJets.ptMin = 10

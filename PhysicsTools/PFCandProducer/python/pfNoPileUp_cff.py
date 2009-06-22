@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.pfTopProjectionPileUpPFCandidatesOnPFCandidates_cfi import pfTopProjectionPileUpPFCandidatesOnPFCandidates as tp
+from PhysicsTools.PFCandProducer.pfTPPileUpPFCandidatesOnPFCandidates_cfi import pfTPPileUpPFCandidatesOnPFCandidates as tp
 pileUpOnPFCandidates = tp.clone()
 pileUpOnPFCandidates.name = 'pileUpOnPFCandidates'
 pileUpOnPFCandidates.topCollection = 'pfPileUp'

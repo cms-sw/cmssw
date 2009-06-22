@@ -15,7 +15,7 @@ PF2PATEventContent = cms.PSet(
     'keep *_pfMuons_*_*',
     'keep *_tausOnJets_*_*',
     'keep *_allLayer0Taus_*_*'
-#    'keep *_pfTopProjection_*_*',
+#    'keep *_pfTP_*_*',
     )
 )
 
