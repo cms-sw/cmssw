@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4)
+void OHltTree::PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4)
 {
   // Generic N, pT, eta, phi varibles
   Int_t nhlt=0;
@@ -33,13 +33,13 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
         hlteta[i] = ohMuL3Eta[i];
         hltphi[i] = ohMuL3Phi[i];
       }
-      nl1= NL1Mu;
+      if (cfg->selectBranchL1extra) nl1= NL1Mu;
       for(int i=0;i<nl1;i++){
         l1pt[i] = L1MuPt[i];
         l1eta[i] = L1MuEta[i];
         l1phi[i] = L1MuPhi[i];
       }
-      nrec=NrecoMuon;
+      if (cfg->selectBranchReco) nrec=NrecoMuon;
       for(int i=0;i<nrec;i++){
         recopt[i] = recoMuonPt[i];
         recoeta[i] = recoMuonEta[i];
@@ -55,13 +55,13 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
         hlteta[i] = ohPhotEta[i];
         hltphi[i] = ohPhotPhi[i];
       }
-      nl1= NL1IsolEm;
+     if (cfg->selectBranchL1extra) nl1= NL1IsolEm;
       for(int i=0;i<nl1;i++){
         l1pt[i] = L1IsolEmEt[i];
         l1eta[i] = L1IsolEmEta[i];
         l1phi[i] = L1IsolEmPhi[i];
       }
-      nrec=NrecoPhot;
+      if (cfg->selectBranchReco) nrec=NrecoPhot;
       for(int i=0;i<nrec;i++){
         recopt[i] = recoPhotEt[i];
         recoeta[i] = recoPhotEta[i];
@@ -78,13 +78,13 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
         hltphi[i] = ohElePhi[i];
         // No pixel-matching!
       }
-      nl1= NL1IsolEm;
+      if (cfg->selectBranchL1extra) nl1= NL1IsolEm;
       for(int i=0;i<nl1;i++){
         l1pt[i] = L1IsolEmEt[i];
         l1eta[i] = L1IsolEmEta[i];
         l1phi[i] = L1IsolEmPhi[i];
       }
-      nrec=NrecoElec;
+      if (cfg->selectBranchReco) nrec=NrecoElec;
       for(int i=0;i<nrec;i++){
         recopt[i] = recoElecEt[i];
         recoeta[i] = recoElecEta[i];
@@ -100,13 +100,13 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
         hlteta[i] = recoJetCorCalEta[i];
         hltphi[i] = recoJetCorCalPhi[i];
       }
-      nl1= NL1CenJet;
+      if (cfg->selectBranchL1extra) nl1= NL1CenJet;
       for(int i=0;i<nl1;i++){
         l1pt[i] = L1CenJetEt[i];
         l1eta[i] = L1CenJetEta[i];
         l1phi[i] = L1CenJetPhi[i];
       }
-      nrec=NrecoJetCorCal;
+      if (cfg->selectBranchReco) nrec=NrecoJetCorCal;
       for(int i=0;i<nrec;i++){
         recopt[i] = recoJetCorCalPt[i];
         recoeta[i] = recoJetCorCalEta[i];
@@ -122,7 +122,7 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
   Float_t drmatch = 0.5;
 
   // Do efficiency of HLT/GEN
-  if(hlteffmode == "GEN")
+  if(hlteffmode == "GEN" && (cfg->selectBranchMC))
     {
       for(Int_t n = 0;n < NMCpart;n++)
         {
@@ -163,7 +163,7 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
     }
 
   // Do efficiency of HLT/L1
-  else if(hlteffmode == "L1")
+  else if(hlteffmode == "L1"&& (cfg->selectBranchL1extra))
     {
       for(Int_t n = 0;n < nl1;n++)
 	{
@@ -200,7 +200,7 @@ void OHltTree::PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1
 	}
     }
   // Do efficiency of HLT/RECO
-  else if(hlteffmode == "RECO")
+  else if(hlteffmode == "RECO" && (cfg->selectBranchReco))
     {
       for(Int_t n = 0;n < nrec;n++)
 	{

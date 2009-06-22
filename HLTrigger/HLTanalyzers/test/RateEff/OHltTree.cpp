@@ -90,12 +90,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
       int accMCMu=0;
       int accMCEle=0;
-      for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+      if(cfg->selectBranchMC){
+	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	}
+	if((cfg->pnames[procID]=="zee" && accMCEle>1)||(cfg->pnames[procID] == "zmumu" && accMCMu>1)){ Den=Den+1;}
+	else{continue;}
       }
-      if((cfg->pnames[procID]=="zee" && accMCEle>1)||(cfg->pnames[procID] == "zmumu" && accMCMu>1)){ Den=Den+1;}
-      else{continue;}
     }
 
 
@@ -110,7 +112,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     ohltobject="None";
     if (cfg->pnames[procID]=="zee")ohltobject="electron";
     if (cfg->pnames[procID]=="zmumu")ohltobject="muon";
-    PlotOHltEffCurves(hlteffmode,ohltobject,h1,h2,h3,h4);
+    PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
     //////////////////////////////////////////////////////////////////
