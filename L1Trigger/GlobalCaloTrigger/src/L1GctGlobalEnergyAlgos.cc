@@ -265,9 +265,7 @@ void L1GctGlobalEnergyAlgos::process()
     m_mhtComponents.setComponents(-ExSum, -EySum);
     HtMissing = m_mhtComponents.metVector();
 
-    // Store 6 bits each of magnitude and phi angle.
-    // Note EtMissPhi is 7 bits so we keep the range (0-68)
-    // and lose the LSB.
+    // Store 7 bits of magnitude and 5 bits of phi angle.
     static const unsigned MAX_HT_VALUE = 0x7f;
     static const unsigned PHI_HT_MASK  = 0x1f;
     if ( (HtMissing.mag.value() > MAX_HT_VALUE) || (HtMissing.mag.overFlow()) ) {
