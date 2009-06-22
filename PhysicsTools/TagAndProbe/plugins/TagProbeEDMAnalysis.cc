@@ -716,7 +716,6 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     // Limit the scope of these variables and speed up by declaring them static.
     static const std::string passCond = "(ProbePass==1)";
     static  const std::string failCond = "(ProbePass==0)";
-    static FCIntervals FC;
     static std::ostringstream bvar1Cond;
     static double lowEdge;
     static double highEdge;
@@ -812,7 +811,7 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     
     if((npassR + nfailR) != 0){
       double eff, effErrHi, effErrLo;      
-      FC.Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
+      FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
       
       edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
 	nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;
@@ -986,10 +985,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	 double nfailR = SBSFailProbes->Integral("");
 
 	 if((npassR + nfailR) != 0){
-	   static FCIntervals FC;
-
 	   double eff, effErrHi, effErrLo;      
-	   FC.Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
+	   FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
 	   
 	   edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
 	     nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;

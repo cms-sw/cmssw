@@ -13,63 +13,25 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.13 2009/04/06 19:18:36 ahunt Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.14 2009/05/27 12:39:42 ahunt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
 
-
-// system include files
-#include <cmath>
-
-// user include files
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMNtuple.h"
 #include "PhysicsTools/TagAndProbe/interface/CandidateAssociation.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/RecoCandidate/interface/FitResult.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "Math/GenVector/VectorUtil.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-//
-// constants, enums and typedefs
-//
 
-using namespace reco; 
-using namespace edm;
-using namespace trigger;
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-//
-// static data member definitions
-//
+#include "DataFormats/Math/interface/deltaR.h" // reco::deltaR
 
 //
 // constructors and destructor
@@ -489,13 +451,13 @@ TagProbeEDMNtuple::fillTriggerInfo()
    std::auto_ptr<int> nhlt_( new int );
    
    // Trigger Info
-   Handle<TriggerEvent> trgEvent;
+   edm::Handle< trigger::TriggerEvent > trgEvent;
    m_event->getByLabel(triggerEventTag_,trgEvent);
 
    *nhlt_ = 0;
    if( trgEvent.isValid() )
    {
-      size_type index = trgEvent->filterIndex(hltTag_.label());
+      trigger::size_type index = trgEvent->filterIndex(hltTag_.label());
       if( index < trgEvent->sizeFilters() ) {
 	// find how many objects there are
 	const trigger::Keys& KEYS(trgEvent->filterKeys(index));
@@ -513,7 +475,7 @@ void TagProbeEDMNtuple::fillMCInfo()
    // Extract the MC information from the frame, if we are running on MC
    if( isMC_ )
    {      
-      Handle<GenParticleCollection> genparticles;
+      edm::Handle< reco::GenParticleCollection > genparticles;
       if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
 	edm::LogError("TagProbeEDMNtuple") << "Could not extract gen particles with input tag " 
 	      << genParticlesTag_ ;
@@ -554,7 +516,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 	       
 	       if( abs(pdg) == mcParticles_[j] )
 		  {
-		     Particle::LorentzVector p4 = (*genparticles)[i].p4();
+		     reco::Particle::LorentzVector p4 = (*genparticles)[i].p4();
 
 		     int    pid = pdg;
 		     int    barcode = 0;
@@ -573,7 +535,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 		     // we will just take the first).
 		     int parent_pi = 0;
 		     int parent_bc = 0;
-		     const Candidate *mcand = (*genparticles)[i].mother();
+		     const reco::Candidate *mcand = (*genparticles)[i].mother();
 		     if( mcand != 0 )
 		     {
 			parent_pi = mcand->pdgId();
@@ -581,7 +543,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 			{
 			   if( mcand->mother() != 0 )
 			   {
-			      const Candidate *gcand = mcand->mother();
+			      const reco::Candidate *gcand = mcand->mother();
 			      parent_pi = gcand->pdgId();
 			   }
 			}
@@ -721,7 +683,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 
    // Trigger Info
-   Handle<TriggerEvent> trgEvent;
+   edm::Handle< trigger::TriggerEvent> trgEvent;
    m_event->getByLabel(triggerEventTag_,trgEvent);
 
    // Fill some information about the tag & probe collections
@@ -729,47 +691,47 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    for( int itype=0; itype<(int)tagProbeMapTags_.size(); ++itype )
    {
       // Tag-Probes
-      Handle<CandViewCandViewAssociation> tagprobes;
+      edm::Handle< reco::CandViewCandViewAssociation> tagprobes;
       if ( !m_event->getByLabel(tagProbeMapTags_[itype],tagprobes) ) {
-	 LogWarning("Z") << "Could not extract tag-probe map with input tag " 
+	 edm::LogWarning("Z") << "Could not extract tag-probe map with input tag " 
 			 << tagProbeMapTags_[itype];
       }
 
       // Tag MC Truth Match Maps
-      Handle<GenParticleMatch> tagmatch;
+      edm::Handle< reco::GenParticleMatch> tagmatch;
       if ( !m_event->getByLabel(tagTruthMatchMapTags_[itype],tagmatch) ) {
-	 LogWarning("Z") << "Could not extract muon tag match map "
+	 edm::LogWarning("Z") << "Could not extract muon tag match map "
 			 << "with input tag " << tagTruthMatchMapTags_[itype];
       }
 
       // Truth match for probe
-      Handle<GenParticleMatch> allprobematch;
+      edm::Handle< reco::GenParticleMatch> allprobematch;
       if ( !m_event->getByLabel(allProbeTruthMatchMapTags_[itype],allprobematch) ) {
-	 LogWarning("Z") << "Could not extract muon allprobe match map "
+	 edm::LogWarning("Z") << "Could not extract muon allprobe match map "
 			 << "with input tag " << allProbeTruthMatchMapTags_[itype];
       }
 
       // Tag Candidates
-      Handle<CandidateView> tagmuons;
+      edm::Handle< reco::CandidateView> tagmuons;
       if ( !m_event->getByLabel(tagCandTags_[itype],tagmuons) ) {
-	 LogWarning("Z") << "Could not extract tag muon cands with input tag " 
+	 edm::LogWarning("Z") << "Could not extract tag muon cands with input tag " 
 			 << tagCandTags_[itype];
       }
 
       // Passing Probe Candidates
-      Handle<CandidateView> passprobemuons;
+      edm::Handle< reco::CandidateView> passprobemuons;
       if ( !m_event->getByLabel(passProbeCandTags_[itype],passprobemuons) ) {
-	 LogWarning("Z") << "Could not extract tag muon cands with input tag " 
+	 edm::LogWarning("Z") << "Could not extract tag muon cands with input tag " 
 			 << passProbeCandTags_[itype];
       }
 
       if( tagprobes.isValid() )
       {
-	 CandViewCandViewAssociation::const_iterator tpItr = tagprobes->begin();
+	 reco::CandViewCandViewAssociation::const_iterator tpItr = tagprobes->begin();
 	 for( ; tpItr != tagprobes->end(); ++tpItr )
 	 {
-	    const CandidateBaseRef &tag = tpItr->key;
-	    std::vector< std::pair<CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
+	    const reco::CandidateBaseRef &tag = tpItr->key;
+	    std::vector< std::pair< reco::CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
 
 	    // If there are two probes with the tag continue
 	    if( vprobes.size() > 1 ) {
@@ -795,19 +757,19 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if( trgEvent.isValid() )
 	    {
-	       size_type index = trgEvent->filterIndex(hltTag_.label());
+	       trigger::size_type index = trgEvent->filterIndex(hltTag_.label());
 	       if( index < trgEvent->sizeFilters() )
 	       {
 
 		 const trigger::Keys& KEYS(trgEvent->filterKeys(index));
-		 const size_type nK(KEYS.size());
+		 const trigger::size_type nK(KEYS.size());
 		 // loop over these objects to see whether they match
 		 const trigger::TriggerObjectCollection& TOC = trgEvent->getObjects();
      
 		 for(int ipart = 0; ipart != nK; ++ipart) { 
 		   
 		   const trigger::TriggerObject& TO = TOC[KEYS[ipart]];	
-		   double dRval = deltaR((float)tag->eta(), (float)tag->phi(), 
+		   double dRval = reco::deltaR((float)tag->eta(), (float)tag->phi(), 
 					 TO.eta(), TO.phi());	
 		   hltTrigger = (dRval < delRMatchingCut_);
 		   if( hltTrigger ) break;
@@ -873,7 +835,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if(candType_ != "Muon") {	      
 	      reco::SuperClusterRef SC 
-		= tag->get<SuperClusterRef>();
+		= tag->get< reco::SuperClusterRef >();
 	      float theta = SC->position().Theta();
 	      deta = SC->eta();
 	      dphi = SC->phi();
@@ -932,7 +894,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if(candType_ != "Muon") {	
 	      reco::SuperClusterRef SC 
-		= (vprobes[probenum].first)->get<SuperClusterRef>();
+		= (vprobes[probenum].first)->get< reco::SuperClusterRef>();
 	      float theta = SC->position().Theta();
 	      deta = SC->eta();
 	      dphi = SC->phi();
@@ -955,14 +917,14 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    tp_probe_phiDet_->push_back(  dphi );
 
 	    // Now look for deltaR between tag & nearest CaloJet
-	    Handle<reco::CaloJetCollection> jetsColl;
+	    edm::Handle<reco::CaloJetCollection> jetsColl;
 	    if ( !m_event->getByLabel(jetTags_, jetsColl) ) {
-	      LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;
+	      edm::LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;
 	      if ( !jetsColl->size() == 0){
 		double totaljets = 0.;
 		double dRjet_probe_min = 99.;
 		int iCounter = 0;
-		for (CaloJetCollection::const_iterator jet = jetsColl->begin(); 
+		for ( reco::CaloJetCollection::const_iterator jet = jetsColl->begin(); 
 		     jet != jetsColl->end(); ++jet) {
 		  ++iCounter;
 		  if (jet->et() < 0.5 ) continue ;
@@ -1094,9 +1056,9 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    std::auto_ptr< std::vector<float> > cnd_Detphi_( new std::vector<float> ); 
 
    // Should change this to get the eff info for all types of tag-probe!!
-   Handle<GenParticleCollection> genparticles;
+   edm::Handle< reco::GenParticleCollection> genparticles;
    if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
-      LogWarning("Z") << "Could not extract gen particles with input tag " 
+      edm::LogWarning("Z") << "Could not extract gen particles with input tag " 
 		      << genParticlesTag_;
    }
 
@@ -1106,39 +1068,39 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    {
       for( int itype=0; itype<(int)tagProbeMapTags_.size(); ++itype )
       {
-	 Handle<GenParticleMatch> tagmatch;
+	 edm::Handle< reco::GenParticleMatch> tagmatch;
 	 if ( !m_event->getByLabel(tagTruthMatchMapTags_[itype],tagmatch) ) {
-	    LogWarning("Z") << "Could not extract muon match map "
+	    edm::LogWarning("Z") << "Could not extract muon match map "
 			    << "with input tag " << tagTruthMatchMapTags_[itype];
 	 }
 
-	 Handle<CandidateView> tags;
+	 edm::Handle< reco::CandidateView> tags;
 	 if ( !m_event->getByLabel(tagCandTags_[itype],tags) ) {
-	    LogWarning("Z") << "Could not extract tag candidates "
+	    edm::LogWarning("Z") << "Could not extract tag candidates "
 			    << "with input tag " << tagCandTags_[itype];
 	 }
 
-	 Handle<CandidateView> aprobes;
+	 edm::Handle< reco::CandidateView> aprobes;
 	 if ( !m_event->getByLabel(allProbeCandTags_[itype],aprobes) ) {
-	    LogWarning("Z") << "Could not extract probe candidates "
+	    edm::LogWarning("Z") << "Could not extract probe candidates "
 			    << "with input tag " << allProbeCandTags_[itype];
 	 }
 
-	 Handle<CandidateView> pprobes;
+	 edm::Handle<reco::CandidateView> pprobes;
 	 if ( !m_event->getByLabel(passProbeCandTags_[itype],pprobes) ) {
-	    LogWarning("Z") << "Could not extract passing probe candidates "
+	    edm::LogWarning("Z") << "Could not extract passing probe candidates "
 			    << "with input tag " << passProbeCandTags_[itype];
 	 }
 
-	 Handle<GenParticleMatch> apmatch;
+	 edm::Handle< reco::GenParticleMatch> apmatch;
 	 if ( !m_event->getByLabel(allProbeTruthMatchMapTags_[itype],apmatch) ) {
-	    LogWarning("Z") << "Could not extract all probe match map "
+	    edm::LogWarning("Z") << "Could not extract all probe match map "
 			    << "with input tag " << allProbeTruthMatchMapTags_[itype];
 	 }
 
-	 Handle<GenParticleMatch> ppmatch;
+	 edm::Handle< reco::GenParticleMatch> ppmatch;
 	 if ( !m_event->getByLabel(passProbeTruthMatchMapTags_[itype],ppmatch) ) {
-	    LogWarning("Z") << "Could not extract pass probe match map "
+	    edm::LogWarning("Z") << "Could not extract pass probe match map "
 			    << "with input tag " << passProbeTruthMatchMapTags_[itype];
 	 }
 
@@ -1151,7 +1113,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    
 	    int moid  = -1;
 	    int gmoid = -1;
-	    const Candidate *mcand = (*genparticles)[i].mother();
+	    const reco::Candidate *mcand = (*genparticles)[i].mother();
 	    if( mcand != 0 )
 	    {
 	       moid = mcand->pdgId();
@@ -1159,7 +1121,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       {
 		  if( mcand->mother() != 0 )
 		  {
-		     const Candidate *gcand = mcand->mother();
+		     const reco::Candidate *gcand = mcand->mother();
 		     gmoid = gcand->pdgId();
 		  }
 	       }
@@ -1201,24 +1163,24 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    double Detphi = -99999.9;
 	    double Deteta = -99999.9;
 
-	    GenParticleRef mcRef( genparticles, (size_t)i );
+	    reco::GenParticleRef mcRef( genparticles, (size_t)i );
 	    if( mcRef.isNull() ) continue;
 	    if( tagmatch.isValid() && tags.isValid() )
 	    {
 	       // Loop over the tag muons	      
-	       CandidateView::const_iterator f = tags->begin();
+	       reco::CandidateView::const_iterator f = tags->begin();
 	       for( ; f != tags->end(); ++f )
 	       {
 		  unsigned int index = f - tags->begin();
-		  CandidateBaseRef tagRef = tags->refAt(index);
+		  reco::CandidateBaseRef tagRef = tags->refAt(index);
 		  if( tagRef.isNull() ) continue;
-		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  reco::GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {
 		     ftag = 1;
-		     const Candidate *cnd = tagRef.get();
+		     const reco::Candidate *cnd = tagRef.get();
 		     rp   = cnd->p();
 		     rpx  = cnd->px();
 		     rpy  = cnd->py();
@@ -1248,7 +1210,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		       Deteta = reta;
      
 		       reco::SuperClusterRef SC 
-			 = tagRef->get<SuperClusterRef>();
+			 = tagRef->get< reco::SuperClusterRef>();
 
 		       if ( SC.isNonnull() ) {
 			 float theta = SC->position().Theta();
@@ -1269,13 +1231,13 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    if( apmatch.isValid() && aprobes.isValid() )
 	    {	      
 	       // Loop over the tag muons
-	       CandidateView::const_iterator f = aprobes->begin();
+	       reco::CandidateView::const_iterator f = aprobes->begin();
 	       for( ; f != aprobes->end(); ++f )
 	       {
 		  unsigned int index = f - aprobes->begin();
-		  CandidateBaseRef probeRef = aprobes->refAt(index);
+		  reco::CandidateBaseRef probeRef = aprobes->refAt(index);
 		  if( probeRef.isNull() ) continue;
-		  GenParticleRef mcMatchRef = (*apmatch)[probeRef];
+		  reco::GenParticleRef mcMatchRef = (*apmatch)[probeRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
@@ -1283,7 +1245,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		     fapb = 1;
 		     if( ftag == 0 )
 		     {
-			const Candidate *cnd = probeRef.get();
+			const reco::Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1313,7 +1275,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Deteta = reta;
      	      
 			  reco::SuperClusterRef SC 
-			    = probeRef->get<SuperClusterRef>();
+			    = probeRef->get< reco::SuperClusterRef>();
 
 			  if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
@@ -1335,20 +1297,20 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    if( ppmatch.isValid() && pprobes.isValid() )
 	    {     
 	       // Loop over the tag muons
-	       CandidateView::const_iterator f = pprobes->begin();	       
+	       reco::CandidateView::const_iterator f = pprobes->begin();	       
 	       for( ; f != pprobes->end(); ++f )
 	       {
 		  unsigned int index = f - pprobes->begin();		  
-		  CandidateBaseRef probeRef = pprobes->refAt(index);		  
+		  reco::CandidateBaseRef probeRef = pprobes->refAt(index);		  
 		  if( probeRef.isNull() ) continue;                
-		  GenParticleRef mcMatchRef = (*ppmatch)[probeRef];                 
+		  reco::GenParticleRef mcMatchRef = (*ppmatch)[probeRef];                 
 		  if( mcMatchRef.isNull() ) continue;                  
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {                     
 		     fppb = 1;
 		     if( ftag == 0 && fapb == 0 )
 		     {
-			const Candidate *cnd = probeRef.get();
+			const reco::Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1378,7 +1340,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Detphi = rphi;
 			  Deteta = reta;
 			  reco::SuperClusterRef SC 
-			    = probeRef->get<SuperClusterRef>();
+			    = probeRef->get< reco::SuperClusterRef>();
                           if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
 			    Deteta = SC->eta();
@@ -1487,7 +1449,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 // *********************************************************************** //
 
 // ***************** Are Candidates from a Z? ******************** //
-bool TagProbeEDMNtuple::CandFromZ( GenParticleRef mcRef )
+bool TagProbeEDMNtuple::CandFromZ( reco::GenParticleRef mcRef )
 {
    bool isFromZ = false;
 
@@ -1495,7 +1457,7 @@ bool TagProbeEDMNtuple::CandFromZ( GenParticleRef mcRef )
    {
       int moid = -99;
       int gmoid = -99;
-      const Candidate *mcand = mcRef->mother();
+      const reco::Candidate *mcand = mcRef->mother();
       if( mcand != 0 )
       {
 	 moid = mcand->pdgId();
@@ -1503,7 +1465,7 @@ bool TagProbeEDMNtuple::CandFromZ( GenParticleRef mcRef )
 	 {
 	    if( mcand->mother() != 0 )
 	    {
-	       const Candidate *gcand = mcand->mother();
+	       const reco::Candidate *gcand = mcand->mother();
 	       gmoid = gcand->pdgId();
 	    }
 	 }
@@ -1516,8 +1478,8 @@ bool TagProbeEDMNtuple::CandFromZ( GenParticleRef mcRef )
 // *************************************************************** //
 
 // ***************** Does this probe pass? ******************** //
-int TagProbeEDMNtuple::ProbePassProbeOverlap( const CandidateBaseRef& probe, 
-					      Handle<CandidateView>& passprobes )
+int TagProbeEDMNtuple::ProbePassProbeOverlap( const reco::CandidateBaseRef& probe, 
+					      edm::Handle< reco::CandidateView>& passprobes )
 {
    int ppass = 0;
    if( passprobes.isValid() )
@@ -1532,12 +1494,12 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const CandidateBaseRef& probe,
 	   reco::SuperClusterRef passprobeSC; 
 
 	   if( not probe.isNull() ) probeSC  = 
-				    probe->get<SuperClusterRef>();
+				    probe->get< reco::SuperClusterRef >();
 
-	   CandidateBaseRef ref = passprobes->refAt(ipp);
+	   reco::CandidateBaseRef ref = passprobes->refAt(ipp);
 
 	   if( not ref.isNull() ) passprobeSC = 
-				    ref->get<SuperClusterRef>();
+				    ref->get< reco::SuperClusterRef >();
 
 	   isOverlap = isOverlap && ( probeSC == passprobeSC );
 	 }
@@ -1553,7 +1515,7 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const CandidateBaseRef& probe,
 
 
 // ***************** Trigger object matching ******************** //
-bool TagProbeEDMNtuple::MatchObjects( const Candidate *hltObj, 
+bool TagProbeEDMNtuple::MatchObjects( const reco::Candidate *hltObj, 
 				      const reco::CandidateBaseRef& tagObj,
 				      bool exact )
 {
@@ -1578,7 +1540,7 @@ bool TagProbeEDMNtuple::MatchObjects( const Candidate *hltObj,
 
 // ***************** Trigger object matching ******************** //
 int TagProbeEDMNtuple::getBestProbe(int ptype, const reco::CandidateBaseRef& tag,
-				      std::vector< std::pair<CandidateBaseRef,double> > vprobes )
+				      std::vector< std::pair<reco::CandidateBaseRef,double> > vprobes )
 {
    int tempProbeNum = 0;
    if (bestProbeCriteria_[ptype] == "OneProbe")
