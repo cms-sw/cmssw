@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.h,v 1.2 2008/07/04 08:26:26 kodolova Exp $
+// $Id: HITrackVertexMaker.h,v 1.3 2008/09/14 12:25:19 kodolova Exp $
 //
 //
 
@@ -90,7 +90,7 @@ class HITrackVertexMaker {
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
   edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
   edm::ESHandle<GeometricSearchTracker>         tracker;  
-  const NavigationSchool*                       theNavigationSchool;
+  std::vector<const NavigationSchool*>          theNavigationSchoolV;
   HICTrajectoryBuilder*                         theTrajectoryBuilder; 
   MinPtTrajectoryFilter*                        theMinPtFilter;  
   HICMeasurementEstimator*                      theEstimator;

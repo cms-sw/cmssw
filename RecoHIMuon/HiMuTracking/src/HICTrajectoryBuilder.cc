@@ -38,6 +38,7 @@
 
 using namespace std;
 using namespace cms;
+
 //#define DEBUG
 
 HICTrajectoryBuilder::
@@ -560,6 +561,16 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
         TSOS predictedState = tm.predictedState();
 	TM::ConstRecHitPointer  hit = tm.recHit();
 	TSOS updateState = traj0.lastMeasurement().updatedState();
+//
+// If track is not valid - stop with this hit
+//
+        if(!(*hit).isValid()) {
+#ifdef DEBUG
+         cout<<" findCompatibleMeasurements::hit is not valid "<<endl;
+#endif
+         continue;
+        } 
+
 #ifdef DEBUG
 	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<" Number of TM "<< numtmp<<
                    " valid updated state "<< updateState.isValid()<<" Predicted state is valid "<<predictedState.isValid()<<
@@ -590,13 +601,15 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
       if(predictedState0.isValid()) 
       {
 #ifdef DEBUG
-              std::cout<<" Accept the corrected state "<<numtmp<<std::endl; 
+              std::cout<<" Accept the corrected state "<<numtmp<<" Hit Valid "<<(*hit).isValid()<<std::endl; 
 #endif
               predictedState = predictedState0;
 	      
 	if((*hit).isValid())
 	{
-  
+#ifdef DEBUG
+                 std::cout<<" findCompatibleMeasurements::end corrector::hit valid "<<std::endl;
+#endif  
               bool accept= true;
               accept = (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(predictedState,*hit)).first; 
 	      

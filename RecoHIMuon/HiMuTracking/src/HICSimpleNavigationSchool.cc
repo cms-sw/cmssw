@@ -27,7 +27,7 @@
 using namespace std;
 
 HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
-					       const MagneticField* field) : 
+					             const MagneticField* field) : 
   theBarrelLength(0),theField(field), theTracker(theInputTracker)
 {
 
@@ -35,18 +35,73 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
 //  vector<DetLayer*> theDetLayers;
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
+  int kk=-1;
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
     if((*i)->specificSurface().radius()<20. || (*i)->specificSurface().radius()>65.) {
 //     cout<<"Barrel surface "<<(*i)->specificSurface().radius()<<endl;
+     kk++;
+     if(kk==excludedBarrelLayer) continue; 
      theBarrelLayers.push_back( (*i) );
      theDetLayers.push_back( (*i) );
     }
   }
 
+  // get forward layers
+  vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
+  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
+    if((*i)->specificSurface().outerRadius()>60.&& (*i)->specificSurface().innerRadius()>20.|| (*i)->specificSurface().innerRadius()<10.) {
+ //     cout<<" Endcap surface "<<(*i)->specificSurface().outerRadius()<<" "<<(*i)->specificSurface().innerRadius()<<endl;
+      theForwardLayers.push_back( (*i) );
+      theDetLayers.push_back( (*i) );
+    }
+  }
+ 
+//  cout<<" Number of detectors"<< theDetLayers.size()<<endl;
+ 
+  FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
+			 not1(DetBelowZ(0)));
+ // cout<<" Point 0 "<<endl;
+  theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
+ //  cout<<" Point 1 "<<endl;
+  theRightLayers = FDLC( middle, theForwardLayers.end());
+ //  cout<<" Point 2 "<<endl; 
+  SymmetricLayerFinder symFinder( theForwardLayers);
+ //  cout<<" Point 3 "<<endl;
+  // only work on positive Z side; negative by mirror symmetry later
+  linkBarrelLayers( symFinder);
+  //  cout<<" Point 4 "<<endl;
+  linkForwardLayers( symFinder);
+   // cout<<" Point 5 "<<endl;
+  establishInverseRelations();
+  // cout<<" Point 6 "<<endl;
+}
 
-// barrel pixel layers
+HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
+					             const MagneticField* field, int ll) : 
+  theBarrelLength(0),theField(field), theTracker(theInputTracker)
+{
 
+  excludedBarrelLayer = ll;
 
+  theAllDetLayersInSystem=&theInputTracker->allLayers();
+//  vector<DetLayer*> theDetLayers;
+  // Get barrel layers
+  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
+  int kk = 0;
+
+  cout<<" kk= "<<kk<<" excluded "<<excludedBarrelLayer<<endl;
+
+  for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
+    if((*i)->specificSurface().radius()<20. || (*i)->specificSurface().radius()>65.) {
+     cout<<"Barrel surface "<<kk<<" "<<(*i)->specificSurface().radius()<<" "<<excludedBarrelLayer<<endl;
+     if(kk != excludedBarrelLayer) {
+     cout<<"Excluded layer "<<endl;  
+      theBarrelLayers.push_back( (*i) );
+      theDetLayers.push_back( (*i) );
+     }
+    }
+    kk++; 
+  }
 
   // get forward layers
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 

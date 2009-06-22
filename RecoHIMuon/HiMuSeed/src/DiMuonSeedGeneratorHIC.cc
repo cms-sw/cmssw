@@ -119,6 +119,18 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
 
        for(std::vector<TrajectoryMeasurement>::iterator it=vTM.begin(); it!=vTM.end(); it++)
        {
+       
+#ifdef DEBUG
+      const TransientTrackingRecHit::ConstRecHitPointer rh = (*it).recHit();
+      if(!(rh->isValid())) {
+        cout<<" DiMuonSeedGenerator::rechit not valid "<<endl; 
+      } else {
+	GlobalPoint realhit = (*rh).globalPosition();
+       cout<<" DiMuonSeedGenerator::Compatible TM: "<<realhit.perp()<<" "
+       <<realhit.phi()<<" "<<realhit.z()<<endl;
+      }
+#endif       
+       
        pair<TrajectoryMeasurement,bool> newtmr;
 
        if( bl != 0 )
@@ -186,18 +198,20 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   double pt = FTS.parameters().momentum().perp();
   double aCharge = FTS.parameters().charge();
   AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
-//  double dpt = 0.2*pt;
-  double dpt = 0.35*pt;
+
+  double dptup = 0.35*pt;
+  double dptdown = 0.7*pt;
+  double ptshift = 0.22*pt;
   
 //  std::cout<<" BarrelSeed 3 "<<std::endl;  
 //
 // Calculate a bin for lower and upper boundary of PT interval available for track.  
 //  
-  int imax0 = (int)((pt+dpt-theHICConst->ptboun)/theHICConst->step) + 1;
-  int imin0 = (int)((pt-dpt-theHICConst->ptboun)/theHICConst->step) + 1;
+  int imax0 = (int)((pt+ptshift+dptup-theHICConst->ptboun)/theHICConst->step) + 1;
+  int imin0 = (int)((pt+ptshift-dptdown-theHICConst->ptboun)/theHICConst->step) + 1;
   if( imin0 < 1 ) imin0 = 1;
 #ifdef DEBUG	
-	std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt<<" "<<dpt<<std::endl;
+	std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt+ptshift<<" "<<dptup<<" "<<dptdown<<std::endl;
 #endif	
 
   double dens,df,ptmax,ptmin;
