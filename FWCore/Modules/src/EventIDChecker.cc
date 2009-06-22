@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 16 15:42:17 CDT 2009
-// $Id$
 //
 //
 
@@ -38,13 +37,13 @@
 
 class EventIDChecker : public edm::EDAnalyzer {
 public:
-   explicit EventIDChecker(const edm::ParameterSet&);
+   explicit EventIDChecker(edm::ParameterSet const&);
    ~EventIDChecker();
    
    
 private:
    virtual void beginJob() ;
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(edm::Event const&, edm::EventSetup const&);
    virtual void endJob() ;
    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
@@ -68,20 +67,18 @@ private:
 //
 // constructors and destructor
 //
-EventIDChecker::EventIDChecker(const edm::ParameterSet& iConfig):
-ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
-index_(0),
-multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents",0)),
-numberOfEventsToSkip_(0),
-numberOfEventsLeftBeforeSkip_(0)
-{
+EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
+  ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
+  index_(0),
+  multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents", 0)),
+  numberOfEventsToSkip_(0),
+  numberOfEventsLeftBeforeSkip_(0) {
    //now do what ever initialization is needed
 
 }
 
 
-EventIDChecker::~EventIDChecker()
-{
+EventIDChecker::~EventIDChecker() {
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
@@ -95,12 +92,11 @@ EventIDChecker::~EventIDChecker()
 
 // ------------ method called to for each event  ------------
 void
-EventIDChecker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   if(0!=numberOfEventsToSkip_) {
+EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+   if(0 != numberOfEventsToSkip_) {
       ++numberOfEventsLeftBeforeSkip_;
       if(numberOfEventsLeftBeforeSkip_ > multiProcessSequentialEvents_) {
-         numberOfEventsLeftBeforeSkip_=1;
+         numberOfEventsLeftBeforeSkip_ = 1;
          index_ += numberOfEventsToSkip_;
       }
    }
@@ -117,8 +113,7 @@ EventIDChecker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EventIDChecker::beginJob()
-{
+EventIDChecker::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
