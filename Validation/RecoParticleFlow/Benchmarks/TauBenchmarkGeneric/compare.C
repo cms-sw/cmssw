@@ -28,7 +28,7 @@ void compare() {
   FormatPad( c1, false );
 
   comp.SetAxis(4, -30, 30);
-  comp.DrawSlice("DeltaEtvsEt", 0, 50, mode);
+  comp.DrawSlice("DeltaEtvsEt", 0, 9999, mode);
   
 //  gPad->SetLogy();
   gPad->SaveAs("c_tauBenchmarkGeneric.png");
