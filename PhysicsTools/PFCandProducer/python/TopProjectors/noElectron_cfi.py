@@ -4,6 +4,6 @@ noElectron = cms.EDProducer(
     "TPPFCandidatesOnPFCandidates",
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("noElectron"),
-    topCollection = cms.InputTag("pfElectrons"),
+    topCollection = cms.InputTag("isolatedElectrons"),
     bottomCollection = cms.InputTag("noMuon"),
 )

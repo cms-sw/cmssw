@@ -15,8 +15,6 @@ struct PdgIdPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition
 	       const edm::EventSetup& s) {
     selected_.clear();
     
-    assert( hc.isValid() );
-    
     unsigned key=0;
     for( collection::const_iterator pfc = hc->begin(); 
          pfc != hc->end(); ++pfc, ++key) {
