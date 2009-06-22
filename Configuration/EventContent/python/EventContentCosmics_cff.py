@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.11 2009/06/22 16:59:42 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.12 2009/06/22 17:34:03 arizzi Exp $
 #
 #
 #
@@ -157,7 +157,7 @@ FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
-FEVTHLTALLEventContent.outputCommands.extend('keep *_*_*_HLT')
+FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
