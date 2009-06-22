@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.33 2009/06/10 10:12:00 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.34 2009/06/18 16:03:50 amraktad Exp $
 //
 
 // system include files
@@ -137,12 +137,13 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 
    // clean after previous detail view
    m_textCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
+   //   m_textCanvas->GetCanvas()->Clear("D");
    if (m_modeGL) {
       m_detailView->clearOverlayElements();
       m_sceneGL->DestroyElements();
    }
    else {
-      m_viewCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
+      m_viewCanvas->GetCanvas()->Clear("D");
    }
 
    // build
@@ -154,17 +155,21 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    latex->Draw();
    latex->DrawLatex(0.02, 0.97 -fs*0.5, Form("index[%d]", id.index()));
    latex->DrawLatex(0.02, 0.97 -fs, Form("item[%d]",  (size_t)id.item()));
-   m_detailView->setLatex(latex);
    m_detailView->setViewer(m_viewerGL);
-   m_detailView->setCanvas(m_viewCanvas->GetCanvas());
+   m_detailView->setTextCanvas(m_textCanvas->GetCanvas());
+   m_detailView->setViewCanvas(m_viewCanvas->GetCanvas());
    TEveElement *list = m_detailView->build(id);
-   if (list)
+   if (m_modeGL)
    {
-      gEve->AddElement(list, m_sceneGL);
+      if (list) gEve->AddElement(list, m_sceneGL);
       m_viewerGL->UpdateScene();
       m_viewerGL->CurrentCamera().Reset();
    }
-   m_textCanvas->GetCanvas()->SetEditable(kFALSE);
+   else
+   {
+      m_viewCanvas->GetCanvas()->Update();
+   }
+   //  m_textCanvas->GetCanvas()->SetEditable(kFALSE);
 
    //   m_mainFrame->Layout();
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));

@@ -8,13 +8,14 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.22 2009/04/27 16:53:30 dmytro Exp $
+// $Id: FWElectronDetailView.cc,v 1.23 2009/06/05 20:00:33 amraktad Exp $
 //
 
 // system include files
 #include "TLatex.h"
 #include "TAxis.h"
 #include "TGeoBBox.h"
+#include "TCanvas.h"
 
 #include "TGLViewer.h"
 #include "TGLOverlayButton.h"
@@ -142,74 +143,78 @@ double FWElectronDetailView::deltaPhiSuperClusterTrackAtVtx (const reco::GsfElec
 
 class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron &electron)
 {
+   textCanvas()->cd();
+   TLatex* latex = new TLatex(0.02, 0.970, "");
+   latex->SetTextSize(0.07);
+ 
    float_t x = 0.02;
    float_t x2 = 0.52;
    float   y = 0.83;
-   float fontsize = FWDetailViewBase::latex()->GetTextSize()*0.6;
+   float fontsize = latex->GetTextSize()*0.6;
  
    TEveElementList *ret = new TEveElementList("electron labels");
    // summary
    if (electron.charge() > 0)
-      FWDetailViewBase::latex()->DrawLatex(x, y, "charge = +1");
-   else FWDetailViewBase::latex()->DrawLatex(x, y, "charge = -1");
+      latex->DrawLatex(x, y, "charge = +1");
+   else latex->DrawLatex(x, y, "charge = -1");
    y -= fontsize;
 
    char summary[128];
    sprintf(summary, "%s = %.1f GeV",
            "E_{T}", electron.et());
-   FWDetailViewBase::latex()->DrawLatex(x, y, summary);
+   latex->DrawLatex(x, y, summary);
    y -= fontsize;
 
    // E/p, H/E
    char hoe[128];
    sprintf(hoe, "E/p = %.2f",
            electron.eSuperClusterOverP());
-   FWDetailViewBase::latex()->DrawLatex(x, y, hoe);
+   latex->DrawLatex(x, y, hoe);
    y -= fontsize;
    sprintf(hoe, "H/E = %.3f", electron.hadronicOverEm());
-   FWDetailViewBase::latex()->DrawLatex(x, y, hoe);
+   latex->DrawLatex(x, y, hoe);
    y -= fontsize;
   
    // phi eta
    char ephi[30];
    sprintf(ephi, " #eta = %.2f", electron.eta());
-   FWDetailViewBase::latex()->DrawLatex(x, y, ephi);
+   latex->DrawLatex(x, y, ephi);
    sprintf(ephi, " #varphi = %.2f", electron.phi());
-   FWDetailViewBase::latex()->DrawLatex(x2, y, ephi);
+   latex->DrawLatex(x2, y, ephi);
    y -= fontsize;
  
    // delta phi/eta in
    char din[128];
    sprintf(din, "#Delta#eta_{in} = %.3f",
            electron.deltaEtaSuperClusterTrackAtVtx());
-   FWDetailViewBase::latex()->DrawLatex(x, y, din);
+   latex->DrawLatex(x, y, din);
    sprintf(din, "#Delta#varphi_{in} = %.3f", 
 	   electron.deltaPhiSuperClusterTrackAtVtx());
-   FWDetailViewBase::latex()->DrawLatex(x2, y, din);
+   latex->DrawLatex(x2, y, din);
    y -= fontsize;
 
    // delta phi/eta out
    char dout[128];
    sprintf(dout, "#Delta#eta_{out} = %.3f",
            electron.deltaEtaSeedClusterTrackAtCalo());
-   FWDetailViewBase::latex()->DrawLatex(x, y, dout);
+   latex->DrawLatex(x, y, dout);
    sprintf(dout, "#Delta#varphi_{out} = %.3f",
 	   electron.deltaPhiSeedClusterTrackAtCalo());
-   FWDetailViewBase::latex()->DrawLatex(x2, y, dout);
+   latex->DrawLatex(x2, y, dout);
    y -= 2*fontsize;
    // legend
 
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[5]{+} track outer helix extrapolation");
+   latex->DrawLatex(x, y, "#color[5]{+} track outer helix extrapolation");
    y -= fontsize;
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
+   latex->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
    y -= fontsize;
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[5]{#bullet} seed cluster centroid");
+   latex->DrawLatex(x, y, "#color[5]{#bullet} seed cluster centroid");
    y -= fontsize;
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
+   latex->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
    y -= fontsize;
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[2]{#Box} seed cluster");
+   latex->DrawLatex(x, y, "#color[2]{#Box} seed cluster");
    y -= fontsize;
-   FWDetailViewBase::latex()->DrawLatex(x, y, "#color[5]{#Box} other clusters");
+   latex->DrawLatex(x, y, "#color[5]{#Box} other clusters");
    // eta, phi axis or x, y axis?
    assert(electron.superCluster().isNonnull());
    bool is_endcap = false;
