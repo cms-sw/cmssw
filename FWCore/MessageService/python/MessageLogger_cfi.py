@@ -19,11 +19,13 @@ MessageLogger = cms.Service("MessageLogger",
         placeholder = cms.untracked.bool(True)
     ),
     cerr = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
+        optionalPSet = cms.untracked.bool(True),
+	INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         noTimeStamps = cms.untracked.bool(False),
         FwkReport = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1),
             limit = cms.untracked.int32(10000000)
         ),
@@ -31,36 +33,43 @@ MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         ),
         Root_NoDictionary = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(0)
         ),
         FwkSummary = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1),
             limit = cms.untracked.int32(10000000)
         ),
         threshold = cms.untracked.string('INFO')
     ),
     FrameworkJobReport = cms.untracked.PSet(
+        optionalPSet = cms.untracked.bool(True),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000000)
         )
     ),
     suppressWarning = cms.untracked.vstring(),
     statistics = cms.untracked.vstring('cerr_stats'),
     cerr_stats = cms.untracked.PSet(
+        optionalPSet = cms.untracked.bool(True),
         threshold = cms.untracked.string('WARNING'),
         output = cms.untracked.string('cerr')
     ),
     infos = cms.untracked.PSet(
+        optionalPSet = cms.untracked.bool(True),
         Root_NoDictionary = cms.untracked.PSet(
+            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(0)
         ),
-        placeholder = cms.untracked.bool(True)
     ),
     destinations = cms.untracked.vstring('warnings', 
         'errors', 

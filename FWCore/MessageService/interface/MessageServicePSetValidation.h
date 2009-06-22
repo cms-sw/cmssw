@@ -21,7 +21,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Tue May 19  2009
-// $Id:  $
+// $Id: MessageServicePSetValidation.h,v 1.1 2009/06/14 23:45:25 fischler Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ private:
   bool lookForMatch(vString const & v, std::string const & s);
   void destinationPSets(ParameterSet const & pset);
   void destinationPSet(ParameterSet const & pset, std::string const & psetName);
+  void defaultPSet(ParameterSet const & main_pset);
   void statisticsPSets(ParameterSet const & pset);
   void statisticsPSet(ParameterSet const & pset, std::string const & psetName);
   void fwkJobReportPSets(ParameterSet const & pset);
@@ -94,6 +95,10 @@ private:
   void catNoPSets (ParameterSet const & pset, 
   		   std::string const & psetName,
 		   std::string const & categoryName); 
+  void catBoolRestriction (ParameterSet const & pset, 
+  			   std::string  const & psetName, 
+  			   std::string  const & categoryName, 
+			   std::string const & type);
 
   template <typename T>
   T check 
