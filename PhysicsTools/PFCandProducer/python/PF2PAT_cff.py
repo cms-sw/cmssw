@@ -11,7 +11,7 @@ from PhysicsTools.PFCandProducer.pfTaus_cff import *
 
 # sequential top projection cleaning
 from PhysicsTools.PFCandProducer.TopProjectors.noPileUp_cfi import *
-from PhysicsTools.PFCandProducer.sortByType_cff import *
+from PhysicsTools.PFCandProducer.ParticleSelectors.sortByType_cff import *
 from PhysicsTools.PFCandProducer.TopProjectors.noMuon_cfi import * 
 from PhysicsTools.PFCandProducer.TopProjectors.noElectron_cfi import * 
 from PhysicsTools.PFCandProducer.TopProjectors.noJet_cfi import *
