@@ -138,12 +138,12 @@ pfElectrons  = cms.EDFilter("IsolatedPFCandidateSelector",
 
 pfElectronIsol = cms.Sequence(    
   pfeleIsoDepositPFCandidates
-  *pfEleIsoDeposit
-  *pfeleIsoChDepositPFCandidates
-  *pfEleIsoChDeposit
-  *pfeleIsoNeDepositPFCandidates
-  *pfEleIsoNeDeposit
-  *pfeleIsoGaDepositPFCandidates
-  *pfEleIsoGaDeposit
-  *pfElectrons
+  + pfEleIsoDeposit
+  + pfeleIsoChDepositPFCandidates
+  + pfEleIsoChDeposit
+  + pfeleIsoNeDepositPFCandidates
+  + pfEleIsoNeDeposit
+  + pfeleIsoGaDepositPFCandidates
+  + pfEleIsoGaDeposit
+#  + pfElectrons
   )

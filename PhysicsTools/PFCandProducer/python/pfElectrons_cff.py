@@ -9,10 +9,12 @@ from PhysicsTools.PFCandProducer.pfElectrons_cfi import *
 
 
 pfElectronSequence = cms.Sequence(
-    pfAllElectrons +
-    pfElectronsPtGt5 +
+    pfAllElectrons
+#    +
+#    pfElectronsPtGt5
+#    + 
 #    pfElectrons +
-    pfElectronIsol
+#    pfElectronIsol
     )
 
 

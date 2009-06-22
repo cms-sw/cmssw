@@ -139,12 +139,12 @@ pfMuons  = cms.EDFilter("IsolatedPFCandidateSelector",
 
 pfMuonIsol = cms.Sequence(    
   pfmuIsoDepositPFCandidates
-  *pfMuIsoDeposit
-  *pfmuIsoChDepositPFCandidates
-  *pfMuIsoChDeposit
-  *pfmuIsoNeDepositPFCandidates
-  *pfMuIsoNeDeposit
-  *pfmuIsoGaDepositPFCandidates
-  *pfMuIsoGaDeposit
-  *pfMuons
+  + pfMuIsoDeposit
+  + pfmuIsoChDepositPFCandidates
+  + pfMuIsoChDeposit
+  + pfmuIsoNeDepositPFCandidates
+  + pfMuIsoNeDeposit
+  + pfmuIsoGaDepositPFCandidates
+  + pfMuIsoGaDeposit
+#  + pfMuons
   )

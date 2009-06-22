@@ -26,7 +26,6 @@ struct PdgIdPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition
 	  selected_.push_back( reco::PFCandidate(*pfc) );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
 	  selected_.back().setSourceCandidatePtr( ptrToMother );
-
 	  break;
 	}
       }
