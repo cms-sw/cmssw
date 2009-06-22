@@ -171,6 +171,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
 
   edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   bool gotNentries=true;
+  double TotNumberOfEvents;
   if( parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)==0 && parameters.getUntrackedParameter<double>("OccupancyThreshold",0)!=0)
     gotNentries=false;
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries 
@@ -181,10 +182,16 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     
-    if (!gotNentries && strstr(me_name.c_str(),"NumberOfClusterProfile__T")!=NULL && strstr(me_name.c_str(),"Total")==NULL ){
-      if (theIdentifier)  theIdentifier->setNumberOfEvents( (int) ((TProfile*)(*iter)->getTProfile())->GetBinEntries(1) );
-      if (theIdentifier2) theIdentifier2->setNumberOfEvents( (int) ((TProfile*)(*iter)->getTProfile())->GetBinEntries(1) );
+    if (!gotNentries && strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL ){
+
+      TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "Total Number of Events: " << TotNumberOfEvents << std::endl;
+
+      if (parameters.getParameter<std::string>("AlgoName")=="SiStripHotStripAlgorithmFromClusterOccupancy") {theIdentifier->setNumberOfEvents(TotNumberOfEvents);}
+      if (parameters.getParameter<std::string>("AlgoName")=="SiStripBadAPVAlgorithmFromClusterOccupancy")   {theIdentifier2->setNumberOfEvents(TotNumberOfEvents); theIdentifier2->setMinNumOfEvents();}
+
       gotNentries=true;
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries << std::endl;
     }
 
     if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
