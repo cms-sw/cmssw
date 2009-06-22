@@ -58,19 +58,23 @@ public:
    * @param trigPrims the ECAL trigger primitives used as input to the SR.
    * @param barrelDigis the input EB digi collection
    * @param endcapDigis the input EE digi collection
-   * @param selectedBarrelDigis [out] the EB digi passing the SR
-   * @param selectedEndcapDigis [out] the EE digi passing the SR
-   * @param ebSrFlags [out] the computed SR flags for EB
-   * @param eeSrFlags [out] the computed SR flags for EE
+   * @param selectedBarrelDigis [out] the EB digi passing the SR. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param selectedEndcapDigis [out] the EE digi passing the SR. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param ebSrFlags [out] the computed SR flags for EB. Pointer to
+   *        the collection to fill. If null, no collection is filled.
+   * @param eeSrFlags [out] the computed SR flags for EE. Pointer to
+   *        the collection to fill. If null, no collection is filled.
    */
   void run(const edm::EventSetup& eventSetup,
 	   const EcalTrigPrimDigiCollection & trigPrims,
            const EBDigiCollection & barrelDigis,
            const EEDigiCollection & endcapDigis,
-           EBDigiCollection & selectedBarrelDigis,
-           EEDigiCollection & selectedEndcapDigis,
-	   EBSrFlagCollection& ebSrFlags,
-	   EESrFlagCollection& eeSrFlags);
+           EBDigiCollection* selectedBarrelDigis,
+           EEDigiCollection* selectedEndcapDigis,
+	   EBSrFlagCollection* ebSrFlags,
+	   EESrFlagCollection* eeSrFlags);
 
   /** For debugging purposes.
    */
