@@ -1,0 +1,64 @@
+# Original Author: James Jackson
+# $Id$
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("HltRerun")
+
+# summary
+process.options = cms.untracked.PSet( 
+    wantSummary = cms.untracked.bool(True) 
+) 
+
+
+# Logging
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.cerr.threshold = 'ERROR'
+
+# TFileService
+process.TFileService = cms.Service("TFileService", fileName = cms.string("histograms.root"))
+
+#process.dump = cms.EDAnalyzer('EventContentAnalyzer')
+
+
+# Data to run
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+        '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/664D66FA-01AB-DD11-B9E5-001617C3B76A.root'
+    ),
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+
+# Trigger analysis - online
+process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+)
+
+# Trigger analysis - offline
+process.hltTrigReportRerun = cms.EDAnalyzer( "HLTrigReport",
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HltRerun' )
+)
+
+process.load("HLTriggerOffline.Common.HltComparator_cfi")
+
+# load HLT configuration -- NEED TO ADAPT THIS
+#process.load("PwTest.HltTester.JobHLTConfig_13691_32003_1244677280_cff")
+
+
+### output 
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('mismatchedTriggers.root'),
+         outputCommands = cms.untracked.vstring('drop *',
+                                                "keep *_*_*_HltRerun"
+                                                )
+)
+
+
+# Final reporting and output. The output is only for discrepant events.
+process.HLTAnalysisEndPath = cms.EndPath( process.hltTrigReport + process.hltTrigReportRerun+process.hltComparator+process.out)
+
+
+
