@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.17 2009/03/26 15:19:30 tucker Exp $
+// $Id: Muon.cc,v 1.18 2009/03/26 22:36:55 hegner Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -190,3 +190,7 @@ void Muon::embedPFCandidate() {
   }
 }
 
+bool Muon::muonID(const std::string& name) const {
+  muon::SelectionType st = muon::selectionTypeFromString(name);
+  return muon::isGoodMuon(*this, st);
+}
