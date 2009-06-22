@@ -127,12 +127,13 @@ class CrossingFrame
   void setPileups(std::vector<const T *> p) { pileups_ = p; } 
   void setBunchSpace(int bSpace) { bunchSpace_ = bSpace; } 
   void setMaxNbSources(unsigned int mNbS) { maxNbSources_ = mNbS; } 
-  void setSubDet(std::string det) { subdet_ = det;} 
+  void setSubDet(std::string det) { subdet_ = det; } 
   void setPileupFileNr(unsigned int pFileNr) { pileupFileNr_ = pFileNr;} 
   void setIdFirstPileup(edm::EventID idFP) {idFirstPileup_ = idFP;}
   void setPileupOffsetsBcr(std::vector<unsigned int> pOffsetsBcr) { pileupOffsetsBcr_ = pOffsetsBcr;}  
   void setPileupOffsetsSource(std::vector< std::vector<unsigned int> > pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
-  void setBunchRange(std::pair<int,int> bunchRange) { std::pair<int,int>(firstCrossing_,lastCrossing_) = std::make_pair(bunchRange.first,bunchRange.second);} 
+  void setBunchRange(std::pair<int,int> bunchRange) { firstCrossing_ = bunchRange.first;
+  						      lastCrossing_ = bunchRange.second;} 
 
   
 // limits for tof to be considered for trackers
