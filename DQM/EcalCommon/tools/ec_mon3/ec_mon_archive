@@ -64,8 +64,8 @@ system("touch $config{'ec_mon_master_rundir'}/dqm-data/.ec_mon_master_archive_lo
 my @done_runs;
 my @failed_runs;
 
-@done_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --mon_done --conf $config{'$ec_mon_conf'} @ARGV`);
-@failed_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --daq_fail --daq_abort --daq_empty --mon_fail --conf $config{'$ec_mon_conf'} @ARGV`);
+@done_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --mon_done --conf $config{'$ec_mon_conf'} @ARGV | tail -100`);
+@failed_runs = split('\n', `$config{'ec_mon_path'}/ec_mon_check --nocolor --short --daq_fail --daq_abort --daq_empty --mon_fail --conf $config{'$ec_mon_conf'} @ARGV | tail -100`);
 
 my $runfile;
 my $run;
