@@ -73,22 +73,14 @@
 #include <vector>
 #include <string>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): effBinsFromTxt_(NULL),
-									    SBS_(NULL),
-									    zLineShape_(NULL),
-									    cbLineShape_(NULL),
-									    gaussLineShape_(NULL),
-									    polyBkgLineShape_(NULL),
-									    cmsBkgLineShape_(NULL),
-									    signalShapePdf_(NULL),
-									    var1Pass_(NULL),
-									    var1All_(NULL),
-									    var2Pass_(NULL),
-									    var2All_(NULL),
-									    var1var2Pass_(NULL),
-									    var1var2All_(NULL) {
+TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): 
+  effBinsFromTxt_(NULL),SBS_(NULL),
+  zLineShape_(NULL), cbLineShape_(NULL), gaussLineShape_(NULL),
+  polyBkgLineShape_(NULL),cmsBkgLineShape_(NULL), signalShapePdf_(NULL),
+  var1Pass_(NULL), var1All_(NULL),
+  var2Pass_(NULL), var2All_(NULL),
+  var1var2Pass_(NULL), var1var2All_(NULL) {
 
-  
   // Efficiency input variables
   tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
   
@@ -715,7 +707,7 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
   for (unsigned int iBin=0; iBin<bnbins; ++iBin ) {
     // Limit the scope of these variables and speed up by declaring them static.
     static const std::string passCond = "(ProbePass==1)";
-    static  const std::string failCond = "(ProbePass==0)";
+    static const std::string failCond = "(ProbePass==0)";
     static std::ostringstream bvar1Cond;
     static double lowEdge;
     static double highEdge;
@@ -1470,7 +1462,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
 
    std::stringstream roofitstream;
 #if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-   data->defaultStream(&roofitstream;)
+   data->defaultStream(&roofitstream);
 #else
    data->defaultPrintStream(&roofitstream);
 #endif
