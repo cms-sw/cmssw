@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/11/11 13:20:31 $
- * $Revision: 1.16 $
+ * $Date: 2009/05/27 21:49:26 $
+ * $Revision: 1.17 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.16 2008/11/11 13:20:31 tapper Exp $
+ * $Id: L1TGCT.h,v 1.17 2009/05/27 21:49:26 jad Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.17  2009/05/27 21:49:26  jad
+ * updated Total and Missing Energy histograms and added Overlow plots
+ *
  * Revision 1.16  2008/11/11 13:20:31  tapper
  * A whole list of house keeping:
  * 1. New shifter histogram with central and forward jets together.
@@ -150,6 +153,9 @@ private:
   MonitorElement* l1GctEtMiss_;
   MonitorElement* l1GctEtMissPhi_;
   MonitorElement* l1GctEtMissOf_;
+  MonitorElement* l1GctHtMiss_;
+  MonitorElement* l1GctHtMissPhi_;
+  MonitorElement* l1GctHtMissOf_;
   MonitorElement* l1GctEtTotal_;
   MonitorElement* l1GctEtTotalOf_;
   MonitorElement* l1GctEtHad_;
@@ -182,13 +188,6 @@ private:
   MonitorElement* l1GctNonIsoEmRankCand2_;
   MonitorElement* l1GctNonIsoEmRankCand3_;
 
-  MonitorElement* l1GctIsoEmRankDiff01_;
-  MonitorElement* l1GctIsoEmRankDiff12_;
-  MonitorElement* l1GctIsoEmRankDiff23_;
-  MonitorElement* l1GctNonIsoEmRankDiff01_;
-  MonitorElement* l1GctNonIsoEmRankDiff12_;
-  MonitorElement* l1GctNonIsoEmRankDiff23_;
-
   //GCT jet stuff
   MonitorElement* l1GctCenJetsRankCand0_;
   MonitorElement* l1GctCenJetsRankCand1_;
@@ -202,17 +201,6 @@ private:
   MonitorElement* l1GctTauJetsRankCand1_;
   MonitorElement* l1GctTauJetsRankCand2_;
   MonitorElement* l1GctTauJetsRankCand3_;
-
-  MonitorElement* l1GctCenJetsRankDiff01_;
-  MonitorElement* l1GctCenJetsRankDiff12_;
-  MonitorElement* l1GctCenJetsRankDiff23_;
-  MonitorElement* l1GctForJetsRankDiff01_;
-  MonitorElement* l1GctForJetsRankDiff12_;
-  MonitorElement* l1GctForJetsRankDiff23_;
-  MonitorElement* l1GctTauJetsRankDiff01_;
-  MonitorElement* l1GctTauJetsRankDiff12_;
-  MonitorElement* l1GctTauJetsRankDiff23_;
-
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

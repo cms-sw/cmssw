@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/02/24 13:01:42 $
- * $Revision: 1.38 $
+ * $Date: 2009/05/27 21:49:26 $
+ * $Revision: 1.39 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.39  2009/05/27 21:49:26  jad
+ * updated Total and Missing Energy histograms and added Overlow plots
+ *
  * Revision 1.38  2009/02/24 13:01:42  jad
  * Updated MET_PHI histogram to obey the correct limits
  *
@@ -153,25 +156,25 @@ const unsigned int OFBINS = 2;
 const float OFMIN = -0.5;
 const float OFMAX = 1.5;
 
-// Ranks 6, 10 and 12 bits
+// Bins for 3, 5, 6, 7, 10 and 12 bits
+const unsigned int R3BINS = 8;
+const float R3MIN = -0.5;
+const float R3MAX = 7.5;
+const unsigned int R5BINS = 32;
+const float R5MIN = -0.5;
+const float R5MAX = 31.5;
 const unsigned int R6BINS = 64;
 const float R6MIN = -0.5;
 const float R6MAX = 63.5;
+const unsigned int R7BINS = 128;
+const float R7MIN = -0.5;
+const float R7MAX = 127.5;
 const unsigned int R10BINS = 1024;
 const float R10MIN = -0.5;
 const float R10MAX = 1023.5;
 const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
-//and for 5 bits for the HF Ring stuff
-const unsigned int R5BINS = 32;
-const float R5MIN = -0.5;
-const float R5MAX = 31.5;
-//and for 3 bits for the HF Ring stuff
-const unsigned int R3BINS = 8;
-const float R3MIN = -0.5;
-const float R3MAX = 7.5;
-
 
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   gctCenJetsSource_(ps.getParameter<edm::InputTag>("gctCentralJetsSource")),
@@ -307,6 +310,9 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctEtMiss_    = dbe->book1D("EtMiss", "MISSING E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtMissPhi_ = dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS, METPHIMIN, METPHIMAX);
     l1GctEtMissOf_  = dbe->book1D("EtMissOf", "MISSING E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
+    l1GctHtMiss_    = dbe->book1D("HtMiss", "MISSING H_{T}", R7BINS, R7MIN, R7MAX);
+    l1GctHtMissPhi_ = dbe->book1D("HtMissPhi", "MISSING H_{T} #phi", R5BINS, R5MIN, R5MAX);
+    l1GctHtMissOf_  = dbe->book1D("HtMissOf", "MISSING H_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtTotal_   = dbe->book1D("EtTotal", "TOTAL E_{T}", R12BINS, R12MIN, R12MAX);
     l1GctEtTotalOf_ = dbe->book1D("EtTotalOf", "TOTAL E_{T} OVERFLOW", OFBINS, OFMIN, OFMAX);
     l1GctEtHad_     = dbe->book1D("EtHad", "TOTAL HAD E_{T}", R12BINS, R12MIN, R12MAX);
@@ -337,26 +343,6 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctTauJetsRankCand1_ = dbe->book1D("TauJetsRankCand1","TAU JET RANK CAND 1", R6BINS, R6MIN, R6MAX);
     l1GctTauJetsRankCand2_ = dbe->book1D("TauJetsRankCand2","TAU JET RANK CAND 2", R6BINS, R6MIN, R6MAX);
     l1GctTauJetsRankCand3_ = dbe->book1D("TauJetsRankCand3","TAU JET RANK CAND 3", R6BINS, R6MIN, R6MAX);
-
-    l1GctIsoEmRankDiff01_ = dbe->book1D("IsoEmRankDiffCand01","ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctIsoEmRankDiff12_ = dbe->book1D("IsoEmRankDiffCand12","ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctIsoEmRankDiff23_ = dbe->book1D("IsoEmRankDiffCand23","ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
-
-    l1GctNonIsoEmRankDiff01_ = dbe->book1D("NonIsoEmRankDiffCand01","NON-ISO EM RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctNonIsoEmRankDiff12_ = dbe->book1D("NonIsoEmRankDiffCand12","NON-ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctNonIsoEmRankDiff23_ = dbe->book1D("NonIsoEmRankDiffCand23","NON-ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);    
-
-    l1GctCenJetsRankDiff01_ = dbe->book1D("CenJetsRankDiffCand01","CEN JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctCenJetsRankDiff12_ = dbe->book1D("CenJetsRankDiffCand12","CEN JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctCenJetsRankDiff23_ = dbe->book1D("CenJetsRankDiffCand23","CEN JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
-
-    l1GctForJetsRankDiff01_ = dbe->book1D("ForJetsRankDiffCand01","FOR JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctForJetsRankDiff12_ = dbe->book1D("ForJetsRankDiffCand12","FOR JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctForJetsRankDiff23_ = dbe->book1D("ForJetsRankDiffCand23","FOR JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
-
-    l1GctTauJetsRankDiff01_ = dbe->book1D("TauJetsRankDiffCand01","TAU JET RANK CAND 0 - CAND 1", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctTauJetsRankDiff12_ = dbe->book1D("TauJetsRankDiffCand12","TAU JET RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
-    l1GctTauJetsRankDiff23_ = dbe->book1D("TauJetsRankDiffCand23","TAU JET RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);
 
   }
 
@@ -392,6 +378,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctHFRingEtSumsCollection > l1HFSums; 
   edm::Handle < L1GctHFBitCountsCollection > l1HFCounts;
   edm::Handle < L1GctEtMissCollection >  l1EtMiss;
+  edm::Handle < L1GctHtMissCollection >  l1HtMiss;
   edm::Handle < L1GctEtHadCollection >   l1EtHad;
   edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
@@ -403,6 +390,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctEnergySumsSource_, l1HFSums);
   e.getByLabel(gctEnergySumsSource_, l1HFCounts);  
   e.getByLabel(gctEnergySumsSource_, l1EtMiss);
+  e.getByLabel(gctEnergySumsSource_, l1HtMiss);
   e.getByLabel(gctEnergySumsSource_, l1EtHad);
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
 
@@ -425,15 +413,10 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctCenJetsRankCand1_->Fill((*l1CenJets).at(1).rank());
       l1GctCenJetsRankCand2_->Fill((*l1CenJets).at(2).rank());
       l1GctCenJetsRankCand3_->Fill((*l1CenJets).at(3).rank());
-      // Differences between candidate ranks
-      l1GctCenJetsRankDiff01_->Fill((*l1CenJets).at(0).rank()-(*l1CenJets).at(1).rank());
-      l1GctCenJetsRankDiff12_->Fill((*l1CenJets).at(1).rank()-(*l1CenJets).at(2).rank());
-      l1GctCenJetsRankDiff23_->Fill((*l1CenJets).at(2).rank()-(*l1CenJets).at(3).rank());
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1CenJets label was " << gctCenJetsSource_ ;
   }
-
 
   // Forward jets
   if (l1ForJets.isValid()) {
@@ -452,10 +435,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctForJetsRankCand1_->Fill((*l1ForJets).at(1).rank());
       l1GctForJetsRankCand2_->Fill((*l1ForJets).at(2).rank());
       l1GctForJetsRankCand3_->Fill((*l1ForJets).at(3).rank());
-      // Differences between candidate ranks
-      l1GctForJetsRankDiff01_->Fill((*l1ForJets).at(0).rank()-(*l1ForJets).at(1).rank());
-      l1GctForJetsRankDiff12_->Fill((*l1ForJets).at(1).rank()-(*l1ForJets).at(2).rank());
-      l1GctForJetsRankDiff23_->Fill((*l1ForJets).at(2).rank()-(*l1ForJets).at(3).rank());
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1ForJets label was " << gctForJetsSource_ ;
@@ -477,16 +456,11 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctTauJetsRankCand1_->Fill((*l1TauJets).at(1).rank());
       l1GctTauJetsRankCand2_->Fill((*l1TauJets).at(2).rank());
       l1GctTauJetsRankCand3_->Fill((*l1TauJets).at(3).rank());
-      // Differences between candidate ranks
-      l1GctTauJetsRankDiff01_->Fill((*l1TauJets).at(0).rank()-(*l1TauJets).at(1).rank());
-      l1GctTauJetsRankDiff12_->Fill((*l1TauJets).at(1).rank()-(*l1TauJets).at(2).rank());
-      l1GctTauJetsRankDiff23_->Fill((*l1TauJets).at(2).rank()-(*l1TauJets).at(3).rank());
     }
   } else {    
     edm::LogWarning("DataNotFound") << " Could not find l1TauJets label was " << gctTauJetsSource_ ;
   }
   
-
   // Missing ET
   if (l1EtMiss.isValid()) { 
     if (l1EtMiss->size()) {
@@ -499,6 +473,20 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1EtMiss label was " << gctEnergySumsSource_ ;    
+  }
+
+  // Missing HT
+  if (l1HtMiss.isValid()) { 
+    if (l1HtMiss->size()) {
+      if (l1HtMiss->at(0).overFlow() == 0 && l1HtMiss->at(0).et() > 0) {
+        //Avoid problems with mht=0 candidates affecting MHT_PHI plots
+         l1GctHtMiss_->Fill(l1HtMiss->at(0).et());
+         l1GctHtMissPhi_->Fill(l1HtMiss->at(0).phi());
+      }
+      l1GctHtMissOf_->Fill(l1HtMiss->at(0).overFlow());
+    }
+  } else {
+    edm::LogWarning("DataNotFound") << " Could not find l1HtMiss label was " << gctEnergySumsSource_ ;    
   }
 
   // HT 
@@ -572,10 +560,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctIsoEmRankCand1_->Fill((*l1IsoEm).at(1).rank());
       l1GctIsoEmRankCand2_->Fill((*l1IsoEm).at(2).rank());
       l1GctIsoEmRankCand3_->Fill((*l1IsoEm).at(3).rank());
-      // Differences between candidate ranks
-      l1GctIsoEmRankDiff01_->Fill((*l1IsoEm).at(0).rank()-(*l1IsoEm).at(1).rank());
-      l1GctIsoEmRankDiff12_->Fill((*l1IsoEm).at(1).rank()-(*l1IsoEm).at(2).rank());
-      l1GctIsoEmRankDiff23_->Fill((*l1IsoEm).at(2).rank()-(*l1IsoEm).at(3).rank());
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1IsoEm label was " << gctIsoEmSource_ ;
@@ -597,10 +581,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm).at(1).rank());
       l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm).at(2).rank());
       l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm).at(3).rank());
-      // Differences between candidate ranks
-      l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm).at(0).rank()-(*l1NonIsoEm).at(1).rank());
-      l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm).at(1).rank()-(*l1NonIsoEm).at(2).rank());
-      l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm).at(2).rank()-(*l1NonIsoEm).at(3).rank());
     }
   } else {
     edm::LogWarning("DataNotFound") << " Could not find l1NonIsoEm label was " << gctNonIsoEmSource_ ;
