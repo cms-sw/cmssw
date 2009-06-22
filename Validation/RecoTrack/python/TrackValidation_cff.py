@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi 
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
-from Validation.RecoTrack.MultiTrackValidator_cfi import *
+import Validation.RecoMuon.MultiTrackValidator_cfi
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
@@ -57,8 +57,9 @@ cutsRecoTracksFifthHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSe
 cutsRecoTracksFifthHp.algorithm=cms.vstring("iter5")
 cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
 
+trackValidator= Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
-multiTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
+trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         cms.InputTag("cutsRecoTracksHp"),
                                         cms.InputTag("cutsRecoTracksZero"),
                                         cms.InputTag("cutsRecoTracksZeroHp"),
@@ -73,11 +74,11 @@ multiTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         cms.InputTag("cutsRecoTracksFifth"),
                                         cms.InputTag("cutsRecoTracksFifthHp")
                                         )
-multiTrackValidator.skipHistoFit=cms.untracked.bool(True)
-multiTrackValidator.useLogPt=cms.untracked.bool(True)
-multiTrackValidator.minpT = cms.double(-1)
-multiTrackValidator.maxpT = cms.double(3)
-multiTrackValidator.nintpT = cms.int32(40)
+trackValidator.skipHistoFit=cms.untracked.bool(True)
+trackValidator.useLogPt=cms.untracked.bool(True)
+trackValidator.minpT = cms.double(-1)
+trackValidator.maxpT = cms.double(3)
+trackValidator.nintpT = cms.int32(40)
 
 tracksValidation = cms.Sequence(cutsRecoTracksHp*
                                 cutsRecoTracksZero*
@@ -92,5 +93,5 @@ tracksValidation = cms.Sequence(cutsRecoTracksHp*
                                 cutsRecoTracksFourthHp*
                                 cutsRecoTracksFifth*
                                 cutsRecoTracksFifthHp*
-                                multiTrackValidator)
+                                trackValidator)
 

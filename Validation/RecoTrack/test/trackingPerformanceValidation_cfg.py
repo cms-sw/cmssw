@@ -46,6 +46,7 @@ multiTrackValidator.useLogPt=cms.untracked.bool(True)
 multiTrackValidator.minpT = cms.double(-1)
 multiTrackValidator.maxpT = cms.double(3)
 multiTrackValidator.nintpT = cms.int32(40)
+multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 
 process.multiTrackValidator.label = ['TRACKS']
 if (process.multiTrackValidator.label[0] == 'generalTracks'):

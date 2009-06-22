@@ -21,7 +21,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     #
     # set true if you do not want efficiency fakes and resolution fit
     # to be calculated in the end run (for automated validation):
-    skipHistoFit=cms.untracked.bool(False),
+    skipHistoFit=cms.untracked.bool(True),
     associators = cms.vstring('TrackAssociatorByHitsRecoDenom'),
     useInvPt = cms.bool(False),
     dirName = cms.string('RecoTrackV/Track/'),
@@ -67,5 +67,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     maxDz = cms.double(10),
     nintDz = cms.int32(100),    
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
-    UseAssociators = cms.bool(True)
+    UseAssociators = cms.bool(True),
+    useLogPt=cms.bool(False),
+
 )
