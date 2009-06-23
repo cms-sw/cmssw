@@ -77,6 +77,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
 
   // delta et quantities
   BOOK1D(DeltaEt,"#DeltaE_{T}", nbinsEt, minDeltaEt, maxDeltaEt);
+  BOOK1D(DeltaEx,"#DeltaE_{X}", nbinsEt, minDeltaEt, maxDeltaEt);
+  BOOK1D(DeltaEy,"#DeltaE_{Y}", nbinsEt, minDeltaEt, maxDeltaEt);
   BOOK2D(DeltaEtvsEt,"#DeltaE_{T} vs E_{T}",
 	 nbinsEt, minEt, maxEt,
 	 nbinsEt,minDeltaEt, maxDeltaEt);
@@ -158,6 +160,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
  
   // delta et quantities
   SETAXES(DeltaEt,"#DeltaE_{T} [GeV]","");
+  SETAXES(DeltaEx,"#DeltaE_{X} [GeV]","");
+  SETAXES(DeltaEy,"#DeltaE_{Y} [GeV]","");
   SETAXES(DeltaEtvsEt,ET,"#DeltaE_{T} [GeV]");
   SETAXES(DeltaEtOverEtvsEt,ET,"#DeltaE_{T}/E_{T}");
   SETAXES(DeltaEtvsEta,ETA,"#DeltaE_{T} [GeV]");
@@ -387,6 +391,8 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
 
 
   hDeltaEt->Fill(deltaEt);
+  hDeltaEx->Fill(recParticle->px()-genParticle->px());
+  hDeltaEy->Fill(recParticle->py()-genParticle->py());
   hDeltaEtvsEt->Fill(et,deltaEt);
   hDeltaEtOverEtvsEt->Fill(et,deltaEt/et);
   hDeltaEtvsEta->Fill(eta,deltaEt);

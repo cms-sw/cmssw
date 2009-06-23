@@ -61,6 +61,8 @@ class GenericBenchmark{
   TFile *file_;
 
   TH1F *hDeltaEt;
+  TH1F *hDeltaEx;
+  TH1F *hDeltaEy;
   TH2F *hDeltaEtvsEt;
   TH2F *hDeltaEtOverEtvsEt;
   TH2F *hDeltaEtvsEta;
