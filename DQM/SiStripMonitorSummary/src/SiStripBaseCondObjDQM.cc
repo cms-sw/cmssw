@@ -36,8 +36,7 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
   }
 
   //The OR of the two conditions allow to switch on this feature for all the components (if the FillConditions_PSet has the TkMap_On =true) or for single MEs (if the PSet for a ME has the TkMap_On =true)
-  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On"))
-    bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) bookTkMap(hPSet_.getParameter<std::string>("TkMapName"));
 
 }
 // -----
@@ -1199,6 +1198,8 @@ void SiStripBaseCondObjDQM::fillTkMap(const uint32_t& detid, const float& value)
 //==========================
 void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, const double& minValue, const double& maxValue){
   tkMap->save(false, minValue, maxValue, TkMapname.c_str());
+  tkMap->setPalette(1); tkMap->showPalette(true);
+
 }
 
 

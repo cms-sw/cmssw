@@ -10,8 +10,8 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     MonitorSiStripNoise        = cms.bool(True),
     MonitorSiStripQuality      = cms.bool(False),
     MonitorSiStripCabling      = cms.bool(True),
-    MonitorSiStripLowThreshold = cms.bool(False),
-    MonitorSiStripHighThreshold= cms.bool(False),
+    MonitorSiStripLowThreshold = cms.bool(True),
+    MonitorSiStripHighThreshold= cms.bool(True),
     MonitorSiStripApvGain      = cms.bool(True),                              
     MonitorSiStripLorentzAngle = cms.bool(True),                            
 
@@ -277,10 +277,10 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
       ActiveDetIds_On         =  cms.bool(True),
       
-      TkMap_On                =  cms.bool(False),
+      TkMap_On                =  cms.bool(True),
       TkMapName               =  cms.string('LowThresholdTkMap.png'),
       minValue               =  cms.double(0.),
-      maxValue               =  cms.double(5.), 
+      maxValue               =  cms.double(10.), 
 
       WhichThreshold= cms.string('Low'),
 
@@ -289,6 +289,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
       FillSummaryAtLayerLevel= cms.bool(True),
       FillSummaryProfileAtLayerLevel=cms.bool(True),
+      FillCumulativeSummaryAtLayerLevel = cms.bool(True),
 
       Profile_description = cms.string('Profile_LowThresholdFromCondDB'),
       Profile_xTitle      = cms.string('Strip Number'),
@@ -316,10 +317,10 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     ActiveDetIds_On         =  cms.bool(True),
 
-    TkMap_On                =  cms.bool(False),
+    TkMap_On                =  cms.bool(True),
     TkMapName               =  cms.string('HighThresholdTkMap.png'),
     minValue               =  cms.double(0.),
-    maxValue               =  cms.double(5.), 	
+    maxValue               =  cms.double(10.), 	
 
     WhichThreshold= cms.string('High'),
     
@@ -328,6 +329,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     FillSummaryAtLayerLevel= cms.bool(True),
     FillSummaryProfileAtLayerLevel=cms.bool(True),
+    FillCumulativeSummaryAtLayerLevel = cms.bool(True),
 
     Profile_description = cms.string('Profile_HighThresholdFromCondDB'),
     Profile_xTitle      = cms.string('Strip Number'),

@@ -124,6 +124,8 @@ class SiStripBaseCondObjDQM {
     unsigned long long cacheID_current;
 
     TkHistoMap* Tk_HM_;
+    TkHistoMap* Tk_HM_H;
+    TkHistoMap* Tk_HM_L;
     TrackerMap * tkMap;
   
  private:

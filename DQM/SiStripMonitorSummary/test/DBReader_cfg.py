@@ -48,10 +48,6 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripNoisesRcd'),
         tag = cms.string('SiStripNoise_CRAFT_21X_v4_offline')
     ),
-##     cms.PSet(
-##         record = cms.string('SiStripFedCablingRcd'),
-##         tag = cms.string('SiStripFedCabling_CRAFT_31X_v1_offline')  ## EMPTY IOV
-##     ),
     cms.PSet(
         record = cms.string('SiStripBadChannelRcd'), 
         tag = cms.string('SiStripBadChannel_CRAFT_21X_v4_offline') ## NO Monitor class?
@@ -60,12 +56,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripApvGainRcd'),
         tag = cms.string('SiStripGain_CRAFT_22X_v1_offline') 
     ),
-##      cms.PSet(
-##          record = cms.string('SiStripThresholdRcd'),
-##          tag = cms.string('SiStripThreshold_CRAFT_31X_v1_offline')  ## EMPTY IOV
-##      ),
-    
-     cms.PSet(
+    cms.PSet(
          record = cms.string('SiStripLorentzAngleRcd'),
          tag = cms.string('SiStripLorentzAngle_CRAFT_22X_v1_offline') 
      )
@@ -85,7 +76,7 @@ process.a = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
     cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripFedCabling_CRAFT_31X_v1_offline')  ## EMPTY IOV
+        tag = cms.string('SiStripFedCabling_CRAFT_31X_v1_offline')
     ),
 ##     cms.PSet(
 ##         record = cms.string('SiStripBadChannelRcd'), 
@@ -120,8 +111,8 @@ process.CondDataMonitoring.MonitorSiStripQuality       = False
 process.CondDataMonitoring.MonitorSiStripCabling       = True
 process.CondDataMonitoring.MonitorSiStripApvGain       = True
 process.CondDataMonitoring.MonitorSiStripLorentzAngle  = True
-process.CondDataMonitoring.MonitorSiStripLowThreshold  = False
-process.CondDataMonitoring.MonitorSiStripHighThreshold = False
+process.CondDataMonitoring.MonitorSiStripLowThreshold  = True
+process.CondDataMonitoring.MonitorSiStripHighThreshold = True
 
 process.CondDataMonitoring.OutputMEsInRootFile         = True
 process.CondDataMonitoring.FillConditions_PSet.OutputSummaryAtLayerLevelAsImage           = False
@@ -130,29 +121,39 @@ process.CondDataMonitoring.FillConditions_PSet.OutputSummaryProfileAtLayerLevelA
 ## --- TkMap specific Configurable options:
 
 process.CondDataMonitoring.SiStripCablingDQM_PSet.TkMap_On     = True
-process.CondDataMonitoring.SiStripCablingDQM_PSet.TkMapName     = 'CablingTkMap.png'
+process.CondDataMonitoring.SiStripCablingDQM_PSet.TkMapName     = 'CablingTkMap.svg'
 process.CondDataMonitoring.SiStripCablingDQM_PSet.minValue     = 0.
 process.CondDataMonitoring.SiStripCablingDQM_PSet.maxValue     = 6.
 
 process.CondDataMonitoring.SiStripPedestalsDQM_PSet.TkMap_On     = True
-process.CondDataMonitoring.SiStripPedestalsDQM_PSet.TkMapName     = 'PedestalTkMap.png'
+process.CondDataMonitoring.SiStripPedestalsDQM_PSet.TkMapName     = 'PedestalTkMap.svg'
 process.CondDataMonitoring.SiStripPedestalsDQM_PSet.minValue     = 0.
 process.CondDataMonitoring.SiStripPedestalsDQM_PSet.maxValue     = 400.
 
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.TkMap_On     = True
-process.CondDataMonitoring.SiStripNoisesDQM_PSet.TkMapName     = 'NoiseTkMap.png'
+process.CondDataMonitoring.SiStripNoisesDQM_PSet.TkMapName     = 'NoiseTkMap.svg'
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.minValue     = 0.
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.maxValue     = 6.
 
 process.CondDataMonitoring.SiStripApvGainsDQM_PSet.TkMap_On     = True
-process.CondDataMonitoring.SiStripApvGainsDQM_PSet.TkMapName     = 'GainTkMap.png'
+process.CondDataMonitoring.SiStripApvGainsDQM_PSet.TkMapName     = 'GainTkMap.svg'
 process.CondDataMonitoring.SiStripApvGainsDQM_PSet.minValue     = 0.
 process.CondDataMonitoring.SiStripApvGainsDQM_PSet.maxValue     = 1.5
 
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMap_On     = True
-process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMapName     = 'LorentzAngleTkMap.png'
+process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMapName     = 'LorentzAngleTkMap.svg'
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.minValue     = 0.01
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.maxValue     = 0.03
+
+process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMap_On     = True
+process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMapName     = 'LowThresholdTkMap.svg'
+process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.minValue     = 0.
+process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.maxValue     = 10.
+
+process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.TkMap_On     = True
+process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.TkMapName     = 'HighThresholdTkMap.svg'
+process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.minValue     = 0.
+process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.maxValue     = 10.
 
 ## ---
 process.p1 = cms.Path(process.CondDataMonitoring)
