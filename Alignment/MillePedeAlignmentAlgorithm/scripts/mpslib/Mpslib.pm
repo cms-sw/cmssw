@@ -20,10 +20,10 @@ package Mpslib;  # assumes Some/Module.pm
 #  $updateTimeHuman - time of last update (human readable)
 #  $elapsedTime - seconds since last update
 #  $mssDirPool - pool for $mssDir (e.g. cmscaf/cmscafuser)
+#  $pedeMem - Memory allocated for pede
 #  $spare1
 #  $spare2
 #  $spare3
-#  $spare4
 #
 # (2) Job-level variables
 #  
@@ -54,7 +54,7 @@ package Mpslib;  # assumes Some/Module.pm
 		    @JOBID
 		    $header 
 		    $batchScript $cfgTemplate $infiList $class $addFiles $driver $nJobs
-                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $spare1 $spare2 $spare3 $spare4
+                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $pedeMem $spare1 $spare2 $spare3
 		    @JOBDIR 
 		    @JOBSTATUS @JOBNTRY @JOBRUNTIME @JOBNEVT @JOBHOST @JOBINCR @JOBREMARK @JOBSP1 @JOBSP2 @JOBSP3
                    );
@@ -71,8 +71,6 @@ sub write_db() {
   $spare1 = "-- unused --";
   $spare2 = "-- unused --";
   $spare3 = "-- unused --";
-  $spare4 = "-- unused --";
-  $spare5 = "-- unused --";
 
   system "[[ -a mps.db ]] && cp -p mps.db mps.db~"; # GF: backup if exists (in case of interupt during write)
   open DBFILE,">mps.db";
@@ -89,10 +87,10 @@ sub write_db() {
   printf DBFILE "%s\n",$updateTimeHuman;
   printf DBFILE "%d\n",$elapsedTime;
   printf DBFILE "%s\n",$mssDirPool;
+  printf DBFILE "%d\n",$pedeMem;
   printf DBFILE "%s\n",$spare1;
   printf DBFILE "%s\n",$spare2;
   printf DBFILE "%s\n",$spare3;
-  printf DBFILE "%s\n",$spare4;
   my $i;
   for ($i = 0; $i < @JOBID; ++$i) {
     printf DBFILE "%03d:%s:%05d:%s:%d:%d:%d:%s:%d:%s:%s:%s:%s\n",
@@ -130,10 +128,10 @@ sub read_db() {
   $updateTimeHuman = <DBFILE>;
   $elapsedTime = <DBFILE>;
   $mssDirPool = <DBFILE>;
+  $pedeMem = <DBFILE>;
   $spare1 = <DBFILE>;
   $spare2 = <DBFILE>;
   $spare3 = <DBFILE>;
-  $spare4 = <DBFILE>;
   chomp $header;
   chomp $batchScript;
   chomp $cfgTemplate;
@@ -147,10 +145,10 @@ sub read_db() {
   chomp $updateTimeHuman;
   chomp $elapsedTime;
   chomp $mssDirPool;
+  chomp $pedeMem;
   chomp $spare1;
   chomp $spare2;
   chomp $spare3;
-  chomp $spare4;
   $nJobs = 0; 
   while (<DBFILE>) {
     chomp $_;
@@ -172,8 +170,8 @@ sub read_db() {
 sub print_memdb() {
   print "=== mps database printout ===\n";
   print "$header\n";
-  printf "Script %s card %s infi %s class %s files %s driver %s mergeScript %s mssDir %s updateTime %s elapsed %d mssDirPool %s\n",$batchScript,
-  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool;
+  printf "Script %s card %s infi %s class %s files %s driver %s mergeScript %s mssDir %s updateTime %s elapsed %d mssDirPool %s pedeMem %d\n",$batchScript,
+  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool,$pedeMem;
   printf "%3s %8s %7s %5s %4s %6s %9s %10s %10s \n",
   '###',"dir","jobid","stat","ntry","rtime","nevt","time/evt","remark";
   my $i;
