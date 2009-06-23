@@ -564,8 +564,6 @@ void HcalRecHitMonitor::fillNevents(void)
     }
 
   int ieta=0;
-  int iphi=0;
-
 
   ProblemRecHits->setBinContent(0,0,ievt_);
   for (int i=0;i<4;++i)
@@ -591,6 +589,7 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       for (int eta=0;eta<85;++eta)
 	{
+          ieta=eta-42;
 	  for (int phi=0;phi<72;++phi)
 	    {
 	      for (int mydepth=0;mydepth<4;++mydepth)
