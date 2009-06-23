@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/23 06:41:51 $
- * $Revision: 1.44 $
+ * $Date: 2009/06/23 06:45:58 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
  */
@@ -304,8 +304,6 @@ void EEIntegrityTask::endJob(void){
 }
 
 void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
-
-  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
