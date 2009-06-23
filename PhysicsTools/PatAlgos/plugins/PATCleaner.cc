@@ -1,5 +1,5 @@
 //
-// $Id: PATCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
+// $Id: PATCleaner.cc,v 1.3 2009/03/26 20:44:37 vadler Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
             The same module is used for all collections.
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
+  \version  $Id: PATCleaner.cc,v 1.3 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -121,7 +121,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
       for (boost::ptr_vector<OverlapTest>::iterator itov = overlapTests_.begin(), edov = overlapTests_.end(); itov != edov; ++itov) {
         reco::CandidatePtrVector overlaps;
         bool hasOverlap = itov->fillOverlapsForItem(obj, overlaps);
-        if (hasOverlap && itov->requireNoOvelaps()) { 
+        if (hasOverlap && itov->requireNoOverlaps()) { 
             badForOverlap = true; // mark for discarding
             break; // no point in checking the others, as this item will be discarded
         }
