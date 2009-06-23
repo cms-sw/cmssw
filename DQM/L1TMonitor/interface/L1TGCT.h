@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/06/22 15:47:04 $
- * $Revision: 1.18 $
+ * $Date: 2009/06/22 15:58:20 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.18 2009/06/22 15:47:04 tapper Exp $
+ * $Id: L1TGCT.h,v 1.19 2009/06/22 15:58:20 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.19  2009/06/22 15:58:20  tapper
+ * Added MET vs MHT correlation plots (both for magnitude and phi). Still untested!
+ *
  * Revision 1.18  2009/06/22 15:47:04  tapper
  * Removed rank difference histograms and added MHT. Untested so far!
  *
@@ -141,6 +144,7 @@ private:
   MonitorElement* l1GctIsoEmRankEtaPhi_;
   MonitorElement* l1GctNonIsoEmRankEtaPhi_;
 
+  MonitorElement* l1GctAllJetsOccEtaPhi_; 
   MonitorElement* l1GctCenJetsOccEtaPhi_;
   MonitorElement* l1GctForJetsOccEtaPhi_;  
   MonitorElement* l1GctTauJetsOccEtaPhi_;  

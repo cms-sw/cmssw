@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/05/27 21:49:26 $
- * $Revision: 1.39 $
+ * $Date: 2009/06/22 15:58:20 $
+ * $Revision: 1.41 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.41  2009/06/22 15:58:20  tapper
+ * Added MET vs MHT correlation plots (both for magnitude and phi). Still untested!
+ *
  * Revision 1.39  2009/05/27 21:49:26  jad
  * updated Total and Missing Energy histograms and added Overlow plots
  *
@@ -257,6 +260,9 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
                                            ETABINS, ETAMIN, ETAMAX,
                                            PHIBINS, PHIMIN, PHIMAX); 
+    l1GctAllJetsOccEtaPhi_ = dbe->book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY",
+					ETABINS, ETAMIN, ETAMAX,
+                                        PHIBINS, PHIMIN, PHIMAX);
     l1GctCenJetsOccEtaPhi_ = dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
 					 ETABINS, ETAMIN, ETAMAX,
                                          PHIBINS, PHIMIN, PHIMAX); 
@@ -409,6 +415,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       // only plot eta and phi maps for non-zero candidates
       if (cj->rank()) {
         l1GctAllJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
+        l1GctAllJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
         l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi(),cj->rank());
         l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().ieta(),cj->regionId().iphi());
       }
@@ -431,6 +438,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       // only plot eta and phi maps for non-zero candidates
       if (fj->rank()) {
         l1GctAllJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
+        l1GctAllJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
         l1GctForJetsEtEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi(),fj->rank());
         l1GctForJetsOccEtaPhi_->Fill(fj->regionId().ieta(),fj->regionId().iphi());
       }
