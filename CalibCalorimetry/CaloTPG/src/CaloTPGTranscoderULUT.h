@@ -6,14 +6,15 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2008/09/05 05:06:24 $
-  * $Revision: 1.12 $
+  * $Date: 2009/05/29 07:25:08 $
+  * $Revision: 1.13 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
 public:
   CaloTPGTranscoderULUT();
   CaloTPGTranscoderULUT(const std::string& hcalFile1, const std::string& hcalFile2);
+  CaloTPGTranscoderULUT(const std::vector<int>& _ietal,const std::vector<int>& _ietah,const std::vector<int>& _zs,const std::vector<int>& _lutfactor, const double& _rctlsb, const double& _nominalgain, const std::string& hcalFile1, const std::string& hcalFile2);
   virtual ~CaloTPGTranscoderULUT();
   virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
   virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
@@ -34,16 +35,16 @@ public:
   static const int NOUTLUTS = 4176;
   static const unsigned int OUTPUT_LUT_SIZE = 1024;
   static const int TPGMAX = 256;
-  // Now introduce the zero-suppression
-  static const int NR = 4;
-  static const int ietal[NR];
-  static const int ietah[NR];
-  static const int ZS[NR];
-  static const int LUTfactor[NR];
-  static const double nominal_gain;
-  static const double RCTLSB;
+  std::vector<int> ietal;
+  std::vector<int> ietah;
+  std::vector<int> ZS;
+  std::vector<int> LUTfactor;
+  double nominal_gain;
+  double RCTLSB;
+  double RCTLSB_factor;
+  int NR;
   static const bool newHFphi = true;
-//
+
   void loadHCALCompress(void); //Analytical compression tables
   void loadHCALCompress(const std::string& filename); //Compression tables from file
   void loadHCALUncompress(void) const; //Analytical decompression
@@ -59,12 +60,10 @@ public:
   typedef std::vector<double> RCTdecompression;
   mutable std::vector<RCTdecompression> hcaluncomp_;
   std::string DecompressionFile;
-};
 
-const int CaloTPGTranscoderULUT::ietal[NR] = { 1, 18, 27, 29};
-const int CaloTPGTranscoderULUT::ietah[NR] = {17, 26, 28, 32};
-const int CaloTPGTranscoderULUT::ZS[NR]    = { 4,  2,  1,  0};
-const int CaloTPGTranscoderULUT::LUTfactor[NR] = { 1,  2,  5,  0};
-const double CaloTPGTranscoderULUT::nominal_gain = 0.177;
-const double CaloTPGTranscoderULUT::RCTLSB = 0.25;
+  void setLUTGranularity( const std::vector<int>&, const std::vector<int>&, const std::vector<int>&, const std::vector<int>& );
+  void setRCTLSB(const double&);
+  void setNominalGain(const double&);
+
+};
 #endif

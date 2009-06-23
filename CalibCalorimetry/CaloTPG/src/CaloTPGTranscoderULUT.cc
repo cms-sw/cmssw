@@ -1,6 +1,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -10,15 +11,38 @@ using namespace std;
 HcalTrigTowerGeometry theTrigTowerGeometry;
 
 CaloTPGTranscoderULUT::CaloTPGTranscoderULUT() {
+  throw cms::Exception("CaloTPGTranscoderULUT") << "This constructor has been deprecated. Please modifilied your code\n";
   DecompressionFile = "";
   loadHCALCompress();
-//  loadHCALUncompress(DecompressionFile);
 }
 
-CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile1, const std::string& hcalFile2) {
-  DecompressionFile = hcalFile2;
-  loadHCALCompress(hcalFile1);
-//  loadHCALUncompress(DecompressionFile);
+CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::string& hcalFile1, const std::string& hcalFile2){
+  throw cms::Exception("CaloTPGTranscoderULUT") << "This constructor has been deprecated. Please modifilied your code\n";
+   if (hcalFile1.empty() && hcalFile2.empty()) {
+      DecompressionFile = "";
+      loadHCALCompress();
+   }
+   else {
+      DecompressionFile = hcalFile2;
+      loadHCALCompress(hcalFile1);
+   }
+}
+
+//New constructor
+CaloTPGTranscoderULUT::CaloTPGTranscoderULUT(const std::vector<int>& _ietal,const std::vector<int>& _ietah,const std::vector<int>& _zs,const std::vector<int>& _lutfactor, const double& _rctlsb, const double& _nominalgain, const std::string& hcalFile1="", const std::string& hcalFile2=""){
+
+   setLUTGranularity(_ietal, _ietah, _zs, _lutfactor);
+   setRCTLSB(_rctlsb);
+   setNominalGain(_nominalgain);
+
+   if (hcalFile1.empty() && hcalFile2.empty()) {
+      DecompressionFile = "";
+      loadHCALCompress();
+   }
+   else {
+      DecompressionFile = hcalFile2;
+      loadHCALCompress(hcalFile1);
+   }
 }
 
 CaloTPGTranscoderULUT::~CaloTPGTranscoderULUT() {
@@ -32,7 +56,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress() {
   if (OUTPUT_LUT_SIZE != (unsigned int) 0x400) std::cout << "Error: Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead" << std::endl;
   //std::cout << "Built analytical (HB/HE) and identity (HF) compression LUTs" << std::endl;
   for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
-	AnalyticalLUT[i] = int(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
+	AnalyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
 	IdentityLUT[i] = min(i,0xffu);
   }
  
@@ -169,7 +193,9 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
 	unsigned int uncompress[TPGMAX];
 	for (int j = -theTrigTowerGeometry.nTowers(); j <= theTrigTowerGeometry.nTowers(); j++) {
 		double eta_low = 0., eta_high = 0., factor = 0.;
-		theTrigTowerGeometry.towerEtaBounds(abs(j),eta_low,eta_high); // Should use j, not abs(j), once the geometry bug is fixed!
+		//theTrigTowerGeometry.towerEtaBounds(abs(j),eta_low,eta_high); // Should use j, not abs(j), once the geometry bug is fixed!
+		theTrigTowerGeometry.towerEtaBounds(j,eta_low,eta_high); 
+
 		factor = nominal_gain/cosh((eta_low + eta_high)/2.);
 		if (factor < 0) factor = -factor;
 		int ir = 0;
@@ -178,7 +204,7 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
 		if (ir >= 0 && abs(j) <= ietah[ir]) {
 			factor *= LUTfactor[ir];
 		}
-		if (abs(j) >= theTrigTowerGeometry.firstHFTower()) factor = RCTLSB;
+		if (abs(j) >= theTrigTowerGeometry.firstHFTower()) factor = RCTLSB_factor;
 		for (int iphi = 1; iphi <= 72; iphi++) {
 			int itower = GetOutputLUTId(j,iphi);
 			if (itower >= 0) {
@@ -352,4 +378,28 @@ std::vector<unsigned char> CaloTPGTranscoderULUT::getCompressionLUT(HcalTrigTowe
 	 for (unsigned int i = 0; i < OUTPUT_LUT_SIZE; i++) lut[i]=outputLUT[itower][i];
    } 
    return lut;
+}
+
+void CaloTPGTranscoderULUT::setLUTGranularity(const std::vector<int>& _ietal,const std::vector<int>& _ietah,const std::vector<int>& _zs,const std::vector<int>& _lutfactor){
+   ietal = _ietal;
+   ietah = _ietah;
+   ZS = _zs;
+   LUTfactor = _lutfactor;
+
+   NR = ietal.size();
+   if (ietah.size() != NR || ZS.size() != NR || LUTfactor.size() != NR)
+      throw cms::Exception("LUT Granularity") << "Different size of LUT granularity.\n";
+}
+
+void CaloTPGTranscoderULUT::setRCTLSB(const double& _rctlsb){
+   RCTLSB = _rctlsb;
+   if (RCTLSB != 0.25 && RCTLSB != 0.5)
+      throw cms::Exception("RCTLSB") << "RCTLSB must be 0.25 or 0.5.\n";
+
+   if (RCTLSB == 0.25) RCTLSB_factor = 1/4.;
+   else if (RCTLSB == 0.5) RCTLSB_factor = 1/8.;
+}
+
+void CaloTPGTranscoderULUT::setNominalGain(const double& _nominal_gain){
+   nominal_gain = _nominal_gain;
 }
