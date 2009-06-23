@@ -1,15 +1,15 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.17 $
-#     $Date: 2009/06/03 16:43:23 $
+#     $Revision: 1.18 $
+#     $Date: 2009/06/04 11:40:13 $
 #
 #  Setup local mps database
 #  
 #
 #  Usage:
 #
-#  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
+#  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
 #
 # class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
 #              - special CAF queues (cmscaf1nh, cmscaf8nh, cmscaf1nw)
@@ -22,6 +22,11 @@
 #              - the part before ':' defines the pool,
 #              - the part behind it the directory.
 #              (eg cmscafuser:/castor/cern.ch/cms/store/...)
+# Known options:
+#  -m          Setup pede merging job.
+#  -a          Append jobs to existing list.
+#  -M pedeMem  The allocated memory (MB) for pede (min: 512MB; def: 2560MB).
+
 
 BEGIN {
 use File::Basename;
@@ -62,6 +67,14 @@ while (@ARGV) {
       $append = 1;
       print "option sets mode to append\n";    
     }
+    elsif ($arg =~ "-M") {
+      $pedeMem = $arg;
+      $pedeMem =~ s/-M//; # Strips away the "-M"
+      if (length($pedeMem) == 0) { # The memory size must be following param
+###        $pedeMem = $ARGV[0];
+        $pedeMem = shift(ARGV);
+      }
+    }
 
     $optionstring = "$optionstring$arg";
   }
@@ -98,8 +111,10 @@ while (@ARGV) {
 if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]";
   print "\nKnown options:";
-  print "  \n -m   Setup pede merging job.";
-  print "  \n -a   Append jobs to existing list.\n";
+  print "  \n -m          Setup pede merging job.";
+  print "  \n -a          Append jobs to existing list.";
+  print "  \n -M pedeMem  The allocated memory (MB) for pede (min: 512MB; def: 2560MB).";
+  print "\n";
   exit 1;
 }
 
