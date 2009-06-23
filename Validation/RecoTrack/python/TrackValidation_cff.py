@@ -57,7 +57,7 @@ cutsRecoTracksFifthHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSe
 cutsRecoTracksFifthHp.algorithm=cms.vstring("iter5")
 cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
 
-trackValidator= Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                         cms.InputTag("cutsRecoTracksHp"),

@@ -68,6 +68,6 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     nintDz = cms.int32(100),    
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(True),
-    useLogPt=cms.bool(False),
+    useLogPt=cms.untracked.bool(False)
 
 )
