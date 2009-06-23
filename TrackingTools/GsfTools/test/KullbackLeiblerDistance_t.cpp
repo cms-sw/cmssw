@@ -12,17 +12,24 @@ int main() {
 
   Distance d;
 
+  GS gs0(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
+  GS gsP(Vector(1., 1.,1., 10.,10.),Matrix(ROOT::Math::SMatrixIdentity()));
+
   GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
 
   GS gs2(Vector(2., 2., 2., 2.,2.),ROOT::Math::SMatrixIdentity());
 
+  // make sure we load all code...
+  double res = d(gs0,gsP);
+
+
   edm::HRTimeType s= edm::hrRealTime();
-  double res = d(gs1,gs2);
+  double res2 = d(gs1,gs2);
   edm::HRTimeType e = edm::hrRealTime();
   std::cout << e-s << std::endl;
  
 
-  std:: cout << res << std::endl;
+  std:: cout << res << " " << res2 << std::endl;
 
   return 0;
 
