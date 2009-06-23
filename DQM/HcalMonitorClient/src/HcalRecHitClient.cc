@@ -841,7 +841,6 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
   // Depths are stored as:  0:  HB/HE/HF depth 1, 1:  HB/HE/HF depth 2, 2:  HE depth 3, 3:  HO
-  int mydepth[4]={0,1,2,3};
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
