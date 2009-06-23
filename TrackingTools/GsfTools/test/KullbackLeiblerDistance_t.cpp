@@ -7,13 +7,21 @@
 void st(){}
 void en(){}
 
-int main() {
-  typedef KullbackLeiblerDistance<5> Distance;
+
+  typedef DistanceBetweenComponents<5> Distance; 
+  typedef KullbackLeiblerDistance<5> KDistance;
   typedef SingleGaussianState<5> GS;
   typedef GS::Vector Vector;
   typedef GS::Matrix Matrix;
 
-  Distance d;
+  Distance const & distance() {
+      static Distance * d = new KDistance;
+      return *d;
+  }
+
+int main() {
+
+  Distance const & d = distance();
 
   GS gs0(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
   GS gsP(Vector(1., 1.,1., 10.,10.),Matrix(ROOT::Math::SMatrixIdentity()));
