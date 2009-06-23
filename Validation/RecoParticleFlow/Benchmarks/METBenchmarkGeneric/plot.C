@@ -1,5 +1,4 @@
 {
-  
   gROOT->LoadMacro("../Tools/NicePlot.C");
   InitNicePlot();
   gROOT->LoadMacro("../Tools/Comparator.C");
@@ -26,20 +25,19 @@
 		  dir2.c_str());
   comp.SetStyles(style1, style2, "Particle Flow Met", "Calo Met");
 
-
   TCanvas c0("c0", "legend", 400, 200);
   FormatPad( &c0, false ); 
   comp.Legend().Draw();
   SavePlot("legend", outdir.c_str() );
-    
+
   comp.SetAxis(10, -200,200);
   TCanvas c1a("c1a", "DeltaMET");
   FormatPad( &c1a, false); 
   comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
 //comp.Draw("DeltaEt", mode);
   SavePlot("deltaMET", outdir.c_str() );
-  comp.SetAxis(5);
 
+  comp.SetAxis(5, -400,400);
   TCanvas c1al("c1al", "DeltaMET_log");
   FormatPad( &c1al, false , false, true  ); 
   comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
@@ -62,6 +60,17 @@
   FormatPad( &c2b, false );
   comp.Draw("EyRec", mode);
   SavePlot("MEY", outdir.c_str() );
+
+  TCanvas c2c("c2c", "DeltaMEX");
+  FormatPad( &c2c, false );
+  comp.SetAxis(2,-100,100);
+  comp.Draw("DeltaEx", mode);
+  SavePlot("DeltaMEX", outdir.c_str() );
+
+  TCanvas c2d("c2d", "DeltaMEY");
+  FormatPad( &c2d, false );
+  comp.Draw("DeltaEy", mode);
+  SavePlot("DeltaMEY", outdir.c_str() );
 
   comp.SetAxis(10, -3.2,3.2);
   TCanvas c3a("c3a", "DeltaPhi");
@@ -127,5 +136,25 @@
   FormatPad( &c12, false );
   comp.DrawSlice("DeltaPhivsEt", 100., 200., mode);
   SavePlot("deltaPhi_100_200", outdir.c_str() );
+
+  mode = Comparator::NORMAL;
+
+  TCanvas c13("c13", "sigmaMET_MET");
+  FormatPad( &c13, false );
+  comp.DrawSigmaEt_Et("DeltaEtvsEt", 20., 200., mode);
+  SavePlot("sigmaMET_MET", outdir.c_str() );
+
+  TCanvas c14("c14", "sigmaPhi");
+  FormatPad( &c14, false );
+  comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
+  SavePlot("sigmaPhi", outdir.c_str() );
+
+// mode = Comparator::SCALE;
+
+//  TCanvas c14("c14", "test");
+//  FormatPad( &c14, false );
+//  comp.Draw2D_file1("DeltaEtvsEt", mode);
+//  comp.DrawSlice("DeltaEtvsEt", 40., 60., mode);
+//  SavePlot("test", outdir.c_str() );
 
 }
