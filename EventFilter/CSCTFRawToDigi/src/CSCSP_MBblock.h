@@ -10,7 +10,7 @@ private:
 	unsigned zero_2    : 3; // format specific
 	unsigned flag_     : 1; // if 1 then it is a second muon from previous bunch crossing
 	unsigned cal_      : 1; // MBy special mode flag
-	unsigned zero_3    : 3; // format specific
+	unsigned zero_3    : 2; // format specific
 	/////// word 2 ///////
 	unsigned phi_      : 12;// azimuth coordinate;
 	unsigned bxn1_     : 1; // next to the least significant bit of the MB BX number
