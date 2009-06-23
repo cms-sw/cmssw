@@ -4,8 +4,6 @@ University of Wisconsin - Madison
 bachtis@hep.wisc.edu
 */
 
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -45,17 +43,11 @@ class HLTTauDQML1Plotter  {
   //The  filters
   edm::InputTag l1ExtraTaus_;
   edm::InputTag l1ExtraJets_;
-  edm::InputTag l1ExtraLeptons_;
+  edm::InputTag l1ExtraElectrons_;
+  edm::InputTag l1ExtraMuons_;
   
-  int LeptonType_;
-
-  //Parameters(Note that the first entry is for the reference events)
-  unsigned nTriggeredTaus_;
-  unsigned nTriggeredLeptons_;
-
   bool doRefAnalysis_;
   double matchDeltaR_;
-
 
   double maxEt_;
   int binsEt_;
@@ -73,14 +65,17 @@ class HLTTauDQML1Plotter  {
   MonitorElement* l1jetEta_;
   MonitorElement* l1jetPhi_;
 
-  MonitorElement* l1leptonEt_;
-  MonitorElement* l1leptonEta_;
-  MonitorElement* l1leptonPhi_;
+  MonitorElement* l1electronEt_;
+  MonitorElement* l1electronEta_;
+  MonitorElement* l1electronPhi_;
 
-
+  MonitorElement* l1muonEt_;
+  MonitorElement* l1muonEta_;
+  MonitorElement* l1muonPhi_;
   
   //Monitor Elements for matching
   MonitorElement* inputEvents_;
+
   MonitorElement* l1tauEtRes_;
 
   MonitorElement* l1tauEtEffNum_;
@@ -101,16 +96,27 @@ class HLTTauDQML1Plotter  {
   MonitorElement* l1jetPhiEffNum_;
   MonitorElement* l1jetPhiEffDenom_;
 
-  MonitorElement* l1leptonEtEffNum_;
-  MonitorElement* l1leptonEtEffDenom_;
+  MonitorElement* l1electronEtEffNum_;
+  MonitorElement* l1electronEtEffDenom_;
 
-  MonitorElement* l1leptonEtaEffNum_;
-  MonitorElement* l1leptonEtaEffDenom_;
+  MonitorElement* l1electronEtaEffNum_;
+  MonitorElement* l1electronEtaEffDenom_;
 
-  MonitorElement* l1leptonPhiEffNum_;
-  MonitorElement* l1leptonPhiEffDenom_;
+  MonitorElement* l1electronPhiEffNum_;
+  MonitorElement* l1electronPhiEffDenom_;
 
-  MonitorElement* l1tauPath_;
+  MonitorElement* l1muonEtEffNum_;
+  MonitorElement* l1muonEtEffDenom_;
+
+  MonitorElement* l1muonEtaEffNum_;
+  MonitorElement* l1muonEtaEffDenom_;
+
+  MonitorElement* l1muonPhiEffNum_;
+  MonitorElement* l1muonPhiEffDenom_;
+
+  MonitorElement* l1doubleTauPath_;
+  MonitorElement* l1electronTauPath_;
+  MonitorElement* l1muonTauPath_;
 
 
 struct ComparePt

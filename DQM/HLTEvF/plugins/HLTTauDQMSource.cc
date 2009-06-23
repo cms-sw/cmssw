@@ -27,10 +27,6 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   refFilter_              = ps.getUntrackedParameter<std::vector<edm::InputTag> >("matchFilter");
   refID_                  = ps.getUntrackedParameter<std::vector<int> >("matchObjectID");
   ptThres_                = ps.getUntrackedParameter<std::vector<double> >("matchObjectMinPt");
-
-  //  refFilter2_             = ps.getUntrackedParameter<edm::InputTag>("secMatchFilter");
-  //  refID2_                 = ps.getUntrackedParameter<int >("secMatchObjectID");
-  //  ptThres2_                = ps.getUntrackedParameter<double>("secMatchObjectMinPt");
   prescaleEvt_            = ps.getUntrackedParameter<int>("prescaleEvt", -1);
 
   triggerEvent_           = ps.getParameter < edm::InputTag > ("TriggerEvent");
