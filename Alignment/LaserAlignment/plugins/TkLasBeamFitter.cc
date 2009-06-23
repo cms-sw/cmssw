@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id$
+           $Id: TkLasBeamFitter.cc,v 1.1 2009/05/11 10:01:28 flucke Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -47,11 +47,10 @@ public:
   explicit TkLasBeamFitter(const edm::ParameterSet &config);
   ~TkLasBeamFitter();
   
-  // virtual void beginJob(const edm::EventSetup& /*access deprecated*/) {}
+  // virtual void beginJob() {}
   virtual void produce(edm::Event &event, const edm::EventSetup &setup);
-  virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
+  //  virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
   virtual void endRun(edm::Run &run, const edm::EventSetup &setup);
-  //  virtual void endRun(edm::Event &run, const edm::EventSetup &setup);
   // virtual void endJob() {}
 
 private:
@@ -109,12 +108,6 @@ void TkLasBeamFitter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
 //---------------------------------------------------------------------------------------
 // ------------ method called at end of each run  ---------------------------------------
 void TkLasBeamFitter::endRun(edm::Run &run, const edm::EventSetup &setup)
-{
-}
-// FIXME!
-// Indeed, that should be in endRun(..) - as soon as AlignmentProducer can call
-// the algorithm's endRun correctly!
-void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
 {
   edm::Handle<TkLasBeamCollection> lasBeams;
   run.getByLabel(src_, lasBeams);
