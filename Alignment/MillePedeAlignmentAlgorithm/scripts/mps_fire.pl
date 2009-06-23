@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.12 $
-#     $Date: 2009/06/03 16:24:53 $
+#     $Revision: 1.13 $
+#     $Date: 2009/06/04 11:24:39 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -20,6 +20,10 @@ use Mpslib;
 
 $maxJobs = 1;  # by default, fire one job only
 $fireMerge = 0;
+
+$pedeMemDef = 2560; # Default memory allocated for pede: 2560MB=2.5GB
+$pedeMemMin = 1024; # Minimum memory allocated for pede: 1024MB=1GB
+
 # parse the arguments
 while (@ARGV) {
   $arg = shift(ARGV);
@@ -123,6 +127,12 @@ else {
 	$resources = "-q ".$resources;
     }
 
+# Allocate memory for pede job
+    if ($pedeMem =~ /\D/ || $pedeMem < $pedeMemMin) {
+# Non-digit character found, or too small memory allocated -> use default
+      $pedeMem = $pedeMemDef;
+    }
+    $resources = $resources." -R \"rusage[mem=".$pedeMem."]\"";
 
     # check whether all other jobs OK
     $mergeOK = 1;
