@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2008/05/11 09:35:11 $
- * $Revision: 1.13 $
+ * $Date: 2009/06/18 09:48:16 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
  */
@@ -66,7 +66,6 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDetIdCollection0_;
 edm::InputTag EEDetIdCollection1_;
 edm::InputTag EEDetIdCollection2_;

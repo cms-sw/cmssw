@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2009/06/18 09:48:15 $
- * $Revision: 1.75 $
+ * $Date: 2009/06/18 12:44:21 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
  */
@@ -308,22 +308,6 @@ void EBIntegrityTask::endJob(void){
 }
 
 void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
-
-  bool enable = false;
-
-  Handle<EcalRawDataCollection> dcchs;
-
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-    enable = true;
-
-  } else {
-
-    LogWarning("EBIntegrityTask") << EcalRawDataCollection_ << " not available";
-
-  }
-
-  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 

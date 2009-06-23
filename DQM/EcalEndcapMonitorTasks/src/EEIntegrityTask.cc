@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/18 09:48:16 $
- * $Revision: 1.42 $
+ * $Date: 2009/06/18 12:44:21 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
  */
@@ -307,20 +307,6 @@ void EEIntegrityTask::endJob(void){
 }
 
 void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
-
-  bool enable = false;
-
-  Handle<EcalRawDataCollection> dcchs;
-
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-    enable = true;
-
-  } else {
-
-    LogWarning("EEIntegrityTask") << EcalRawDataCollection_ << " not available";
-
-  }
 
   if ( ! enable ) return;
 
