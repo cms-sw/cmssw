@@ -63,6 +63,7 @@ my (
     my $milleclass_variable;
     my $pedeclass_variable;
     my $batchclass_variable;
+    my $pedemem_variable;
 # Variables for mps_fire
     my $firemerge_variable;
     my $njobsfir_variable;
@@ -393,12 +394,34 @@ $ZWIDGETS{'setuppedejob_menu'} = $MW->Optionmenu(
    -column     => 3,
    -sticky     => 'ew',
   );
+
+
+# Widget pede_mem isa Label
+$ZWIDGETS{'pede_mem'} = $MW->Label(
+   -text => 'Memory for pede job:',
+  )->grid(
+   -row        => $row_offset+2,
+   -column     => 3,
+   -sticky     => 'ew',
+  );
   
+# Widget pede_mem_entry isa Entry
+$ZWIDGETS{'pede_mem_entry'} = $MW->Entry(
+	-textvariable => \$pedemem_variable,
+        -background => 'white',
+	)->grid(
+
+   -row        => $row_offset+3,
+   -column     => 3,
+   -sticky => 'ew',
+  );
+
+
 # Widget appendmillejob_label isa Label
 $ZWIDGETS{'appendmillejob_label'} = $MW->Label(
    -text => 'Set up additional Mille jobs?',
   )->grid(
-   -row        => $row_offset+2,
+   -row        => $row_offset+4,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -408,7 +431,7 @@ $ZWIDGETS{'appendmillejob_menu'} = $MW->Optionmenu(
         -options => [[no=>2], [yes=>1]],
         -variable => \$appendmillejob_variable,
 	)->grid(
-   -row        => $row_offset+3,
+   -row        => $row_offset+5,
    -column     => 3,
    -sticky     => 'ew',
   );
@@ -736,6 +759,7 @@ sub reset_var {
   $batchclass_variable =$class;
   $milleclass_variable ="";
   $pedeclass_variable  ="";
+  $pedemem_variable = $pedeMem;
 #
   $setuppedejob_variable    ="1"; #The default is "yes".
   $appendmillejob_variable  ="2"; #The default is "no".
@@ -772,6 +796,9 @@ sub setup_cmd {
   } else {
 # Setup Mille and Pede
     $setup_opt .= " -m";
+    if (length($pedemem_variable)) {
+      $setup_opt .= " -M ".$pedemem_variable;
+    }
     $setup_cmd = sprintf "mps_setup.pl %s %s %s %s %d %s %s %s %s",$setup_opt,
       $pathmillescript_variable,$pathcfg_variable,$pathdata_variable,
       $njobs_variable,$batchclass_variable,$jobname_variable,
