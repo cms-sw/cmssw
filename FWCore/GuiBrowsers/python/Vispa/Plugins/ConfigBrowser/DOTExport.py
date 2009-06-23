@@ -245,19 +245,18 @@ class DotProducer(object):
     if self.options['legend']:
       blocks += [self.produceLegend()]
     blocks += [self.producePaths()]
+    if self.options['seqconnect']:
+      blocks += [self.connectPaths()]
+    if self.options['tagconnect']:
+      blocks += [self.connectTags()]
+    if self.options['source']:
+      blocks += [self.produceSource()]
+    if self.options['es'] or self.options['services']:
+      blocks += [self.produceServices()]
+    blocks += [self.produceNodes()]
     if self.data.process():
-      if self.options['seqconnect']:
-        blocks += [self.connectPaths()]
-      if self.options['tagconnect']:
-        blocks += [self.connectTags()]
-      if self.options['source']:
-        blocks += [self.produceSource()]
-      if self.options['es'] or self.options['services']:
-        blocks += [self.produceServices()]
-      blocks += [self.produceNodes()]
       return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
     else:
-      blocks += [self.produceNodes()]
       return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
   
   
@@ -327,8 +326,12 @@ class DotExport(FileExportPlugin):
         newdot += spaces(depth)+line+'\n'
     return newdot
   
-  def selectNode(self,dotdata,node,depth):
-    depth = int(depth)
+  def selectNode(self,dotdata,node,depth_s):
+    depth = int(depth_s)
+    backtrace=False
+    if depth<0:
+      depth = abs(depth)
+      backtrace=True
     re_link = re.compile(r'^\s*?(\w*?)->(\w*?)(?:\[.*?\])?$',re.MULTILINE)
     re_nodedef = re.compile(r'^\s*?(\w*?)(?:\[.*?\])?$',re.MULTILINE)
     re_title = re.compile(r'^label=\"(.*?)\"$',re.MULTILINE)
@@ -340,10 +343,11 @@ class DotExport(FileExportPlugin):
     links_l = re_link.findall(dotdata)
     links = {}
     for link in links_l:
-      if link[0] in links:
-        links[link[0]] += [link[1]]
-      else:
-        links[link[0]] = [link[1]]
+      if not backtrace:
+        if link[0] in links:
+          links[link[0]] += [link[1]]
+        else:
+          links[link[0]] = [link[1]]
       if link[1] in links:
           links[link[1]] += [link[0]]
       else:
@@ -382,7 +386,7 @@ class DotExport(FileExportPlugin):
     
     dotdata = re_link.sub(link_replacer(include_nodes),dotdata)
     dotdata = re_nodedef.sub(node_replacer(include_nodes),dotdata)
-    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth)+r' from node ' +node+r'"',dotdata,1)
+    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth_s)+r' from node ' +node+r'"',dotdata,1)
     dotdata = re_nodeprops.sub('\\g<1>[\\g<2>,color="red"]',dotdata,1)
     
     return dotdata
