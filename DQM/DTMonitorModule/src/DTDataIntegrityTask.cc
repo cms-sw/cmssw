@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/05/07 08:17:49 $
- * $Revision: 1.57 $
+ * $Date: 2009/05/20 16:08:49 $
+ * $Revision: 1.59 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -116,7 +116,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   stringstream dduID_s; dduID_s << code.getDDU();
   stringstream rosID_s; rosID_s << code.getROS();
   stringstream robID_s; robID_s << code.getROB();
-  int wheel = code.getDDUID() - 772;
+  int wheel = (code.getDDUID() - 770)%5 - 2;
   stringstream wheel_s; wheel_s << wheel;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -563,6 +563,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     int debugROSSummary = 0;
     int debugROSError   = 0;
     vector<int> debugBins;
+    bool hasEvIdMis = false;
+    vector<int> evIdMisBins;
 
     if ((*debug_it).debugType() == 0 ) {
       ROSDebug_BunchNumber = (*debug_it).debugMessage();
@@ -570,16 +572,15 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       ROSDebug_BcntResCntLow = (*debug_it).debugMessage();
     } else if ((*debug_it).debugType() == 2 ) {
       ROSDebug_BcntResCntHigh = (*debug_it).debugMessage();
-    } else if ((*debug_it).debugType() == 3 &&
-	       (*debug_it).dontRead() ){  
-      debugROSSummary = 11;
-      debugROSError   = 8;
-      if (!hltMode) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).dontRead(),debugBins);
-    } else if ((*debug_it).debugType() == 3 &&
-	       (*debug_it).evIdMis()){
-      debugROSSummary = 12;
-      debugROSError   =9;
-      if (!hltMode) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).evIdMis(),debugBins);
+    } else if ((*debug_it).debugType() == 3) {
+      if ((*debug_it).dontRead()){  
+	debugROSSummary = 11;
+	debugROSError   = 8;
+	if (!hltMode) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).dontRead(),debugBins);
+      } if ((*debug_it).evIdMis()){
+	hasEvIdMis = true;
+	if (!hltMode) channelsInCEROS((*debug_it).cerosIdCerosStatus(),(*debug_it).evIdMis(),evIdMisBins);
+      }
     } else if ((*debug_it).debugType() == 4 &&
 	       (*debug_it).cerosIdRosStatus()){
       debugROSSummary = 13;
@@ -588,7 +589,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     }
  
     if (debugROSSummary) {
-      ROSSummary->Fill(debugROSSummary,code.getROS());        // CB Fill it every event or set it to one in case of problems?
+      ROSSummary->Fill(debugROSSummary,code.getROS());
       if (!hltMode) {
 	vector<int>::const_iterator channelIt  = debugBins.begin();
 	vector<int>::const_iterator channelEnd = debugBins.end();
@@ -598,6 +599,17 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       }
     }
     
+    if (hasEvIdMis) {
+      ROSSummary->Fill(12,code.getROS());
+      if (!hltMode) {
+	vector<int>::const_iterator channelIt  = evIdMisBins.begin();
+	vector<int>::const_iterator channelEnd = evIdMisBins.end();
+	for (;channelIt!=channelEnd;++channelIt) {
+	  ROSError->Fill(9,(*channelIt));
+	}
+      }
+    }
+	
   }
   
   ROSDebug_BcntResCnt = (ROSDebug_BcntResCntHigh << 15) + ROSDebug_BcntResCntLow;
