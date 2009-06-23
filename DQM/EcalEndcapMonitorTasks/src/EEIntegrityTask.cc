@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2009/06/18 12:44:21 $
- * $Revision: 1.43 $
+ * $Date: 2009/06/23 06:41:51 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
  */
@@ -20,7 +20,6 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -42,8 +41,6 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
   EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
