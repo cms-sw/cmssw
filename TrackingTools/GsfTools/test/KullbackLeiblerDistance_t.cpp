@@ -4,6 +4,9 @@
 #include "FWCore/Utilities/interface/HRRealTime.h"
 #include<iostream>
 
+void st(){}
+void en(){}
+
 int main() {
   typedef KullbackLeiblerDistance<5> Distance;
   typedef SingleGaussianState<5> GS;
@@ -22,10 +25,11 @@ int main() {
   // make sure we load all code...
   double res = d(gs0,gsP);
 
-
+  st();	
   edm::HRTimeType s= edm::hrRealTime();
   double res2 = d(gs1,gs2);
   edm::HRTimeType e = edm::hrRealTime();
+  en();
   std::cout << e-s << std::endl;
  
 
