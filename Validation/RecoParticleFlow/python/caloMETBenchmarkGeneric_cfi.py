@@ -14,8 +14,8 @@ caloMETBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     OnlyTwoJets = cms.bool(False),
     BenchmarkLabel = cms.string( met ),
     InputRecoLabel = cms.InputTag( met ),
-    minDeltaEt = cms.double(-200.),
-    maxDeltaEt = cms.double(200.),
+    minDeltaEt = cms.double(-400.),
+    maxDeltaEt = cms.double(400.),
     minDeltaPhi = cms.double(-3.2),
     maxDeltaPhi = cms.double(3.2)
 )

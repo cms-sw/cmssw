@@ -17,8 +17,8 @@ pfMETBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     deltaRMax = cms.double(999),
     StartFromGen = cms.bool(True),
     OnlyTwoJets = cms.bool(False),
-    minDeltaEt = cms.double(-200.),
-    maxDeltaEt = cms.double(200.),
+    minDeltaEt = cms.double(-400.),
+    maxDeltaEt = cms.double(400.),
     minDeltaPhi = cms.double(-3.2),
     maxDeltaPhi = cms.double(3.2)                                       
 )
