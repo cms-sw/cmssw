@@ -56,7 +56,6 @@ for targzfile in targz_files:
                 if key in line and "+/-" in line:
                     #disambiguation between sigma and s
                     if key == "RooRealVar::s" and "RooRealVar::sigma" in line: continue
-                    #print line
                     value=float(line.split(" ")[2])
                     value_err=float(line.split(" ")[4])
                     histos[0].Fill(value)
@@ -64,8 +63,7 @@ for targzfile in targz_files:
                     real_val=real_val_dict[key]
                     pull=(value - real_val)/value_err
                     histos[1].Fill(pull)
-                    print line,
-                    print "Value is %s real value is %s and sigma is %s\n" %(value,real_val,value_err)
+                    #print "Value is %s real value is %s and sigma is %s\n" %(value,real_val,value_err)
 
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gStyle.SetOptStat(2211)
