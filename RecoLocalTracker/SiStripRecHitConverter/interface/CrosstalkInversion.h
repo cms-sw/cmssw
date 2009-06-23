@@ -11,10 +11,8 @@ class InverseCrosstalkMatrix {
   
  private:
   float element(const unsigned, const unsigned) const;
-  float mu(const unsigned) const;
-  const float r;
   const unsigned N;
-  float lambda1, lambda2, rmu0;    
+  const double sq, lambdaP, lambdaM, denominator;
 
  public:
   static std::vector<float> unfold(const std::vector<uint8_t>& q, const float x);
