@@ -98,7 +98,10 @@ def main():
       if len(filenamelist) < 3 : continue
       data = data.replace("INPUTFILES", filenamelist)
       data = data.replace("NUMBER",str(jobcount+1))
-      conffile = configfile_basename+str(jobcount)+".cfg"
+      if conffile_template.find('.cfg') > 0:
+        conffile = configfile_basename+str(jobcount)+".cfg"
+      else :
+        conffile = configfile_basename+str(jobcount)+"_cfg.py"
       outfile = open(conffile,"w")
       outfile.write(data)
       outfile.close
