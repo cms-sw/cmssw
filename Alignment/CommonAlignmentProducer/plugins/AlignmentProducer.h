@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.13 $
-///  last update: $Date: 2009/04/03 08:59:08 $
+///  Revision   : $Revision: 1.14 $
+///  last update: $Date: 2009/05/11 09:31:38 $
 ///  by         : $Author: flucke $
 
 #include <vector>
@@ -44,6 +44,10 @@
 
 class Alignments;
 class SurveyErrors;
+namespace edm {
+  class Run;
+  class LuminosityBlock;
+}
 
 class AlignmentProducer : public edm::ESProducerLooper
 {
@@ -78,14 +82,19 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Called at end of loop
   virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
 
-  /// (To be) Called at run start - currently as a hack within duringLoop
+  /// Called at run start and calling algorithms beginRun
   virtual void beginRun(const edm::Run &run, const edm::EventSetup &setup);
-  /// (To be) Called at run end 
-  /// (currently as a hack within duringLoop at the begin (!) of the run!)
+  /// Called at run end - currently reading TkFittedLasBeam if an InpuTag is given for that
   virtual void endRun(const edm::Run &run, const edm::EventSetup &setup);
 
+  /// Called at lumi block start, calling algorithm's beginLuminosityBlock
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
+				    const edm::EventSetup &setup);
+  /// Called at lumi block end, calling algorithm's endLuminosityBlock
+  virtual void endLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
+				  const edm::EventSetup &setup);
   /// Called at each event 
-  virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
+  virtual Status duringLoop(const edm::Event &event, const edm::EventSetup &setup);
 
  private:
 
@@ -135,7 +144,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   const Alignments *globalPositions_;
 
   int nevent_;
-  edm::RunID lastRunId_; /// hack until get a beginRun(...)
   edm::ParameterSet theParameterSet;
 
   // steering parameters
