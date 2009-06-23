@@ -42,7 +42,7 @@ public:
     const reco::BeamSpot               &beamSpot_;
   };
   
-  /// passed to endRun
+  /// define run information passed to algorithms (in endRun)
   struct EndRunInfo {
     EndRunInfo(const edm::RunID &runId, const TkFittedLasBeamCollection *tkLasBeams,
 	       const TsosVectorCollection *tkLasBeamTsoses)
@@ -78,6 +78,12 @@ public:
 
   /// called at end of run - order of arguments like in EDProducer etc.
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {};
+
+  /// called at begin of luminosity block (no lumi block info passed yet)
+  virtual void beginLuminosityBlock(const edm::EventSetup &setup) {};
+
+  /// called at end of luminosity block (no lumi block info passed yet)
+  virtual void endLuminosityBlock(const edm::EventSetup &setup) {};
 };
 
 #endif
