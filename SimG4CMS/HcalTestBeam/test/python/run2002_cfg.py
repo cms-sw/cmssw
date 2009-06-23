@@ -82,7 +82,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun   = cms.untracked.uint32(1),
+    firstEvent = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -92,8 +95,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PartID = cms.vint32(211)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False),
-    firstRun        = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -105,7 +107,7 @@ process.Tracer = cms.Service("Tracer")
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.VtxSmeared.MeanX = -420.0
 process.VtxSmeared.MeanY = 18.338

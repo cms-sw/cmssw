@@ -95,7 +95,10 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     TimeOffset      = cms.double(0.)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun   = cms.untracked.uint32(1),
+    firstEvent = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -105,8 +108,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PartID = cms.vint32(211)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False),
-    firstRun        = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
