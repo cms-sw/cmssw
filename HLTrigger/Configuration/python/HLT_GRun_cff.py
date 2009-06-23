@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/GRun_V90/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/GRun_V94/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/GRun_V90/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/GRun_V94/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -810,7 +810,7 @@ PrescaleService = cms.Service( "PrescaleService",
     'HLT2' ),
   prescaleTable = cms.VPSet( 
     cms.PSet(  pathName = cms.string( "HLT_L1Jet6U" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 20, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Jet15U" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -834,7 +834,7 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1MET20" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 2, 100, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MET35" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -846,10 +846,10 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1MuOpen" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 10, 400, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1Mu" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 5, 100, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1Mu20" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -873,7 +873,7 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1DoubleMuOpen" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1, 20, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleMu0" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -882,10 +882,10 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1SingleEG5" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 50, 5000, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1SingleEG8" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 10, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Ele10_LW_L1R" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -900,13 +900,13 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Ele15_SiStrip_L1R" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1, 50, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Ele20_LW_L1R" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_L1DoubleEG5" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 5, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_DoubleEle5_SW_L1R" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -921,10 +921,10 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Photon10_L1R" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 25, 1000, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Photon15_L1R" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1, 20, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Photon15_TrackIso_L1R" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -939,7 +939,7 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_DoublePhoton10_L1R" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1, 100, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_SingleLooseIsoTau20" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -966,13 +966,13 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_ZeroBias" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1, 5, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MinBiasHcal" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 500, 50, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MinBiasEcal" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 250, 500, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_MinBiasPixel" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -1029,7 +1029,7 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Random" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
+      prescales = cms.vuint32( 1024, 1024, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_Physics" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
@@ -2144,9 +2144,9 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
     payloadType = cms.string( "HLT" ),
-    ChannelThreshold = cms.int32( 2500 ),
-    SeedThreshold = cms.int32( 3000 ),
-    ClusterThreshold = cms.double( 5050.0 ),
+    ChannelThreshold = cms.int32( 1000 ),
+    SeedThreshold = cms.int32( 1000 ),
+    ClusterThreshold = cms.double( 3000.0 ),
     VCaltoElectronGain = cms.int32( 65 ),
     VCaltoElectronOffset = cms.int32( -414 ),
     MissCalibrate = cms.untracked.bool( True ),

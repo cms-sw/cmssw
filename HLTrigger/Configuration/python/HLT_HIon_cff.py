@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HIon_V90/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre8/HIon_V94/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V90/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V94/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1593,9 +1593,9 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
     payloadType = cms.string( "HLT" ),
-    ChannelThreshold = cms.int32( 2500 ),
-    SeedThreshold = cms.int32( 3000 ),
-    ClusterThreshold = cms.double( 5050.0 ),
+    ChannelThreshold = cms.int32( 1000 ),
+    SeedThreshold = cms.int32( 1000 ),
+    ClusterThreshold = cms.double( 3000.0 ),
     VCaltoElectronGain = cms.int32( 65 ),
     VCaltoElectronOffset = cms.int32( -414 ),
     MissCalibrate = cms.untracked.bool( True ),
