@@ -1239,7 +1239,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "           <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                   << std::endl ;
   *rocstream << "   </PART>"                                                                              << std::endl ;
 
-  // ROC LEVELS MAIN XML FILE
+  // TBM LEVELS MAIN XML FILE
   tbmfullPath << path << "/Pixel_TbmAnalogLevels_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
   std::cout << __LINE__ << "]\t" << mthn << "Writing to: " << tbmfullPath.str()  << ""                    << std::endl ;
 
