@@ -6,7 +6,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
+
 process=cms.Process("PHISYM")
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
