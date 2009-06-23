@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.27 2009/05/01 02:01:34 dmytro Exp $
+// $Id: FWGUISubviewArea.cc,v 1.28 2009/05/22 20:28:23 amraktad Exp $
 //
 
 // system include files
@@ -151,7 +151,7 @@ FWGUISubviewArea::destroy()
 void
 FWGUISubviewArea::undock()
 {
-    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindowDestroySlot()");
+    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindow()");
 }
 
 void

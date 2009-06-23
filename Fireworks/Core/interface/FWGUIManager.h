@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.66 2009/05/20 16:33:39 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.67 2009/05/22 20:28:22 amraktad Exp $
 //
 
 // system include files
@@ -140,14 +140,12 @@ public:
    static FWGUISubviewArea* getGUISubviewArea(TEveWindow*);
 
    // ---------- member functions ---------------------------
-   TEveWindowSlot* parentForNextView();
-
    //have to use the portable syntax else the reflex code will not build
    typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
    void registerViewBuilder(const std::string& iName,
                             ViewBuildFunctor& iBuilder);
 
-   void createView(const std::string& iName);
+   void createView(const std::string& iName, TEveWindowSlot* slot = 0);
 
    void enableActions(bool enable = true);
    void disablePrevious();

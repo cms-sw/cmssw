@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.126 2009/05/22 20:28:23 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.127 2009/06/08 09:25:45 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <stdexcept>
 #include <iostream>
+#include <cstdio>
 #include <sstream>
 
 #include "TGButton.h"
@@ -241,40 +242,21 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
 {
    m_nameToViewBuilder[iName]=iBuilder;
    CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
-   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
-}
-
-TEveWindowSlot*
-FWGUIManager::parentForNextView()
-{
-   TEveWindowSlot* slot = 0;
-   if (m_viewSecPack == 0) {
-      slot = m_viewPrimPack->NewSlot();
-      getGUISubviewArea(slot)->configurePrimaryView();
-      m_viewSecPack = m_viewPrimPack->NewSlot()->MakePack();
-      m_viewSecPack->SetElementName("VerticalPack");
-      m_viewSecPack->SetVertical();
-      m_viewSecPack->SetShowTitleBar(kFALSE);
-   } else {
-      slot = m_viewSecPack->NewSlot();
-   }
-   return slot;
+   TEveWindowSlot *slot = 0;
+   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName, slot));
 }
 
 void
-FWGUIManager::createView(const std::string& iName)
+FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
    assert (itFind != m_nameToViewBuilder.end());
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-
-   TEveWindowSlot* slot = parentForNextView();
+   if (slot == 0) slot =  m_viewSecPack->NewSlotWithWeight(1);
    TEveCompositeFrame *ef = slot->GetEveFrame();
-
    FWViewBase* view = itFind->second(slot);
-
    TEveWindow *ew = ef->GetEveWindow();
    ew->SetElementName(iName.c_str());
    ew->SetUserData(view);
@@ -440,21 +422,18 @@ FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 {
-   std::vector<TEveWindow*>::iterator itw = 
+   std::vector<TEveWindow*>::iterator itw =
       std::find(m_viewWindows.begin(), m_viewWindows.end(), sva->getEveWindow());
-   if (itw == m_viewWindows.end()) 
+   if (itw == m_viewWindows.end())
    {
       return;
    }
    m_viewWindows.erase(itw);
-   
-
 
    FWViewBase* v = sva->getFWView(); // get view base from user data
    std::vector<FWViewBase*>::iterator itFind = std::find(m_viewBases.begin(), m_viewBases.end(), v);
    m_viewBases.erase(itFind);
    v->destroy();
-
 }
 
 void
@@ -522,7 +501,7 @@ FWGUIManager::createList(TGSplitFrame *p)
                                            this,
                                            m_changeManager,
                                            m_colorManager);
-   
+
    listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 
    return listFrame;
@@ -554,7 +533,7 @@ FWGUIManager::updateEDI(FWEventItem* iItem) {
    createEDIFrame();
    m_ediFrame->fillEDIFrame(iItem);
 }
-  
+
 void
 FWGUIManager::showEDIFrame(int iToShow)
 {
@@ -564,7 +543,7 @@ FWGUIManager::showEDIFrame(int iToShow)
    }
    m_ediFrame->MapWindow();
 }
- 
+
 void
 FWGUIManager::showColorPopup()
 {
@@ -627,7 +606,7 @@ void FWGUIManager::createHelpPopup ()
    }
    m_helpPopup->MapWindow();
 }
- 
+
 void FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
@@ -788,96 +767,145 @@ addWindowInfoTo(const TGFrame* iMain,
    }
 }
 
+class areaInfo
+{
+   // helper class to save and restore view area
+public:
+   areaInfo (TGFrameElementPack* frameElement)
+   {
+      viewBase          = 0;
+      originalSlot      = 0;
+      undockedMainFrame = 0;
+      weight = frameElement->fWeight;
+      undocked = !frameElement->fState;
+
+      TEveCompositeFrame *eveFrame = dynamic_cast<TEveCompositeFrame*>(frameElement->fFrame);
+      assert(eveFrame);
+
+      if (undocked)
+         originalSlot = eveFrame->GetEveWindow();
+      else
+         viewBase = (FWViewBase*)((eveFrame->GetEveWindow())->GetUserData());
+   }
+
+   areaInfo () {}
+
+   Float_t     weight;
+   Bool_t      undocked;
+   FWViewBase *viewBase;
+   TGMainFrame *undockedMainFrame;// cached to help find original slot for undocked windows
+   TEveWindow  *originalSlot;
+};
+
+static
+void
+addAreaInfoTo(areaInfo* pInfo,
+              FWConfiguration& oTo)
+{
+   {
+      std::stringstream s;
+      s << pInfo->weight;
+      oTo.addKeyValue("weight", FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s<< pInfo->undocked;
+      oTo.addKeyValue("undocked", FWConfiguration(s.str()));
+   }
+
+   if (pInfo->undockedMainFrame)
+   {
+      FWConfiguration temp(oTo);
+      addWindowInfoTo(pInfo->undockedMainFrame, temp);
+      oTo.addKeyValue("UndockedWindowPos", temp);
+   }
+}
+
+//______________________________________________________________________________
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
    FWConfiguration mainWindow(1);
-   addWindowInfoTo(m_cmsShowMainFrame , mainWindow);
-   oTo.addKeyValue(kMainWindow,mainWindow,true);
-
-   // sort list of TEveWindows reading frame list from TGCompositeFrame
-   // becuse TEveElement list is not ordered
-   std::vector<TEveWindow*> wpacked;
+   addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
-      // primary pack
-      TGPack* pp = m_viewPrimPack->GetPack();
-      TGFrameElement *pel = (TGFrameElement*) pp->GetList()->First();
-      TEveCompositeFrame* pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-      if (pef)
+      // write proportions of horizontal pack (can be standalone item outside main frame)
+      TGFrameElementPack *frameEL;
+      frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1); // read every second  element, first on is splitter
+      float leftWeight = frameEL->fWeight;
+      frameEL = (TGFrameElementPack*)  m_viewPrimPack->GetPack()->GetList()->At(3);
+      float rightWeight = frameEL->fWeight;
       {
-         //  printf("eve window %s \n", pef->GetEveWindow()->GetElementName());
-         wpacked.push_back( pef->GetEveWindow());
+         std::stringstream s;
+         s<<leftWeight;
+         mainWindow.addKeyValue("leftWeight",FWConfiguration(s.str()));
       }
-
-      // secondary pack
-      TGPack* sp = m_viewSecPack->GetPack();
-      Int_t nf = sp->GetList()->GetSize();
-      TIter frame_iterator(sp->GetList());
-      for (Int_t i=0; i<nf; ++i)
       {
-         TGFrameElement *sel = (TGFrameElement*)frame_iterator();
-         TEveCompositeFrame *sef = dynamic_cast<TEveCompositeFrame*>(sel->fFrame);
-         if (sef)
-         {
-            // printf("eve window %s \n", sef->GetEveWindow()->GetElementName());
-            wpacked.push_back( sef->GetEveWindow());
-         }
-      }
-
-      // un-docked
-      for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
-      {
-         TEveWindow* ew = (*it);
-         TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
-         if (mainFrame)
-            wpacked.push_back(ew); 
+         std::stringstream s;
+         s<<rightWeight;
+         mainWindow.addKeyValue("rightWeight",FWConfiguration(s.str()));
       }
    }
+   oTo.addKeyValue(kMainWindow,mainWindow,true);
 
-   // use sorted list to write view area and FW-views configuration
+   //------------------------------------------------------------
+   // organise info about all docked frames includding hidden, which point to undocked
+   std::vector<areaInfo*> wpacked;
+   TGPack* pp = m_viewPrimPack->GetPack();
+   TGFrameElementPack *frameEL = (TGFrameElementPack*) pp->GetList()->At(1);
+   wpacked.push_back(new areaInfo(frameEL));
+   TGPack* sp = m_viewSecPack->GetPack();
+   Int_t nf = sp->GetList()->GetSize();
+   TIter frame_iterator(sp->GetList());
+   for (Int_t i=0; i<nf; ++i) {
+      TGFrameElementPack *seFE = (TGFrameElementPack*)frame_iterator();
+      if (seFE->fWeight)
+         wpacked.push_back(new areaInfo(seFE));
+   }
+
+   //  add info about undocked
+   TEveWindow* ew = 0;
+   areaInfo* pInfo = 0;
+   for(std::vector<TEveWindow*>::const_iterator wIt = m_viewWindows.begin(); wIt != m_viewWindows.end(); ++wIt)
+   {
+      ew = *wIt;
+      TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
+      if (mainFrame)
+      {
+         // search for undocked in packed view
+         for(std::vector<areaInfo*>::const_iterator pIt = wpacked.begin(); pIt != wpacked.end(); ++pIt)
+         {
+            pInfo = *pIt;
+            if (pInfo->originalSlot && mainFrame->GetOriginalSlot() == pInfo->originalSlot)
+            {
+               pInfo->viewBase = (FWViewBase*)(ew->GetUserData());
+               pInfo->undockedMainFrame = (TGMainFrame*)mainFrame;
+               // printf("found original slot for docked view %s\n", pInfo->viewBase->typeName().c_str());
+               break;
+            }// found match
+         }
+      }// end main frames
+   }
+   fflush(stdout);
+   //------------------------------------------------------------
+   // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(1);
-   for(std::vector<TEveWindow*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
+   for(std::vector<areaInfo*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
-      // FW-view-base
       FWConfiguration tempWiew(1);
-      FWViewBase* wb = (FWViewBase*)((*it)->GetUserData());
+      FWViewBase* wb = (FWViewBase*)((*it)->viewBase);
+
       wb->addTo(tempWiew);
       views.addKeyValue(wb->typeName(), tempWiew, true);
 
-      // view area
-      std::stringstream s;
-      TGFrame* frame = (*it)->GetGUIFrame();
-      int dim;
-      if (it ==  wpacked.begin())
-         dim = frame->GetWidth();
-      else
-         dim = frame->GetHeight();
-      s<< static_cast<int>(dim);
-      viewArea.addValue(s.str());
+      FWConfiguration tempArea(1);
+      addAreaInfoTo(*it, tempArea);
+      viewArea.addKeyValue(wb->typeName(), tempArea, true);
    }
    oTo.addKeyValue(kViews, views, true);
    oTo.addKeyValue(kViewArea, viewArea, true);
 
-   //remember undocked
-   FWConfiguration undocked(1);
-   {
-      
-      for(std::vector<TEveWindow*>::const_iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); ++it)
-      {
-         TEveWindow* ew = (*it);
-         TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
-         if (mainFrame)
-         {
-            FWConfiguration tempFrame(1);
-            addWindowInfoTo(mainFrame,tempFrame);
-            undocked.addKeyValue(ew->GetName(), tempFrame, true);
-            // printf("AddTo @@@ undocked %s \n", ew->GetElementName());
-         }
-      }
-   }
-   oTo.addKeyValue(kUndocked,undocked,true);
-
+   //------------------------------------------------------------
    //Remember where controllers were placed if they are open
    FWConfiguration controllers(1);
    {
@@ -902,13 +930,13 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    FWConfiguration colorControl(1);
    {
       // background
-      FWConfiguration cbg(1); 
+      FWConfiguration cbg(1);
       if(FWColorManager::kBlackIndex==m_colorManager->backgroundColorIndex()) {
          colorControl.addKeyValue(kBackgroundColor,FWConfiguration("black"));
       } else {
          colorControl.addKeyValue(kBackgroundColor,FWConfiguration("white"));
       }
-      
+
       // brightness
       FWConfiguration cbr(1);
       std::stringstream s;
@@ -918,8 +946,8 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    oTo.addKeyValue(kColorControl,colorControl,true);
 }
 
-static
-void
+//----------------------------------------------------------------
+static void
 setWindowInfoFrom(const FWConfiguration& iFrom,
                   TGMainFrame* iFrame)
 {
@@ -928,74 +956,64 @@ setWindowInfoFrom(const FWConfiguration& iFrom,
    int width = atoi(iFrom.valueForKey("width")->value().c_str());
    int height = atoi(iFrom.valueForKey("height")->value().c_str());
    iFrame->MoveResize(x,y,width,height);
-    iFrame->SetWMPosition(x, y);
+   iFrame->SetWMPosition(x, y);
 }
 
 void
-FWGUIManager::setFrom(const FWConfiguration& iFrom)
-{
+FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // main window
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
    assert(mw != 0);
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);
-
    // !! when position and size is clear map window
    m_viewPrimPack->GetGUIFrame()->Layout();
    m_cmsShowMainFrame->MapWindow();
 
-   // configure the views
-   const FWConfiguration* views = iFrom.valueForKey(kViews);
-   assert(0!=views);
-   const FWConfiguration::KeyValues* keyVals = views->keyValues();
-   assert(0!=keyVals);
+   // set from view reading area info nd view info
+   float_t leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
+   float_t rightWeight =atof(mw->valueForKey("rightWeight")->value().c_str());
+   TEveWindowSlot* primSlot = m_viewPrimPack->NewSlotWithWeight(leftWeight);
+   m_viewSecPack = m_viewPrimPack->NewSlotWithWeight(rightWeight)->MakePack();
+   m_viewSecPack->SetVertical();
+   m_viewSecPack->SetShowTitleBar(kFALSE);
+
+   // views list
+   const FWConfiguration* views = iFrom.valueForKey(kViews); assert(0!=views);
+   const FWConfiguration::KeyValues* keyVals = views->keyValues(); assert(0!=keyVals);
+   // area list
+   const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
+   const FWConfiguration::KeyValues* akv = viewArea->keyValues();
+   FWConfiguration::KeyValuesIt areaIt = akv->begin();
+   Bool_t isPrim = kTRUE;
    for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
    {
-      size_t n = m_viewBases.size();
-      createView(it->first);
-      assert(n+1 == m_viewBases.size());
-      m_viewBases.back()->setFrom(it->second);
-   }
-
-
-   // view Area
-   // currently not supported, print info for debug
-   if (1)  {
-      const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
-      // assert(0!=viewArea);
-      if (viewArea)
+      float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
+      bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
+      if (isPrim)
       {
-         const FWConfiguration::StringValues* sVals = viewArea->stringValues();
-         int idx = 0;
-         int dim;
-         for(FWConfiguration::StringValuesIt it = sVals->begin(); it != sVals->end(); ++it)
-         { 
-            std::stringstream s(*it);
-            s >> dim;
-            idx ++;
-         }
+         createView(it->first, primSlot);
+         isPrim = kFALSE;
       }
-   }
-
-   // undocked windows
-   const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
-   if(0!=undocked) {
-      const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
-      if(0!=keyVals) {
-
-         int idx = m_viewBases.size() -keyVals->size();
-         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+      else
+      {
+         createView(it->first,  m_viewSecPack->NewSlotWithWeight(weight));
+      }
+      m_viewBases.back()->setFrom(it->second);
+      TEveWindow* myw = m_viewWindows.back();
+      if (undocked)
+      {
+         myw->UndockWindow();
+         TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+         const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+         TGMainFrame* mfp = (TGMainFrame*)mf;
+         const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
+         if (mwc)
          {
-            // get pointer to the undocked viewer
-            TEveWindow* myw = m_viewWindows[idx];
-            idx++;
-
-            myw->UndockWindowDestroySlot();
-            TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
-            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-            TGMainFrame* mfp = (TGMainFrame*)mf;
-            setWindowInfoFrom(it->second, mfp);
+            // printf("found config for unocjed \n");
+            setWindowInfoFrom(*mwc, mfp);
          }
       }
+      areaIt++;
    }
 
    //handle controllers
@@ -1007,7 +1025,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
          {
             const std::string& controllerName = it->first;
-            std::cout <<"found controller "<<controllerName<<std::endl;
+            // std::cout <<"found controller "<<controllerName<<std::endl;
             if(controllerName == kCollectionController) {
                showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
@@ -1053,7 +1071,7 @@ FWGUIManager::openEveBrowserForDebugging() const
 //
 // toolbar widgets callbacks
 //
-void       
+void
 FWGUIManager::delaySliderChanged(Int_t val)
 {
    Float_t sec = val*0.001;
@@ -1082,7 +1100,7 @@ void FWGUIManager::eventFilterChanged()
    changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
 }
 
-void 
+void
 FWGUIManager::finishUpColorChange()
 {
    gEve->FullRedraw3D(kFALSE,kTRUE);
