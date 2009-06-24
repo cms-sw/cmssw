@@ -26,8 +26,7 @@ PF2PATEventContent = cms.PSet(
 
 PF2PATStudiesEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'keep *',
-    'keep recoPFJets_pfJets_*_*',
+    'keep recoPFJets_*_*_*',
     )
 )
 
