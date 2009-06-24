@@ -18,6 +18,7 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
@@ -41,7 +42,8 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalWeightXtalGroups* readEcalWeightXtalGroupsFromFile(const char *);
   EcalTBWeights* readEcalTBWeightsFromFile(const char *);
   EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char *);
-  EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *);
+  EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *, const char *);
+  EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char *, const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
   EcalChannelStatus* readEcalChannelStatusFromFile(const char *);
   void writeToLogFile(string , string, unsigned long long) ;
@@ -61,6 +63,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   std::vector< std::string > objectName_ ;
   // it can be of type: EcalWeightXtalGroups, EcalTBWeights, EcalADCToGeVConstant, EcalIntercalibConstants, EcalGainRatios
   std::vector< std::string > inpFileName_ ;
+  std::vector< std::string > inpFileNameEE_ ;
   std::string prog_name_ ;
   int sm_constr_;  // SM number from data file
   int sm_slot_;  // SM slot to map data to

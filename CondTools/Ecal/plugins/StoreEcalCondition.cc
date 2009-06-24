@@ -26,8 +26,9 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) 
     {
       inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
+      inpFileNameEE_.push_back(itToPut->getUntrackedParameter<std::string>("inputFileEE"));
       objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
-      //      since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
+      since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
     }
 
   sm_constr_ = -1;
@@ -58,6 +59,8 @@ void StoreEcalCondition::endJob() {
       }
       edm::LogInfo("StoreEcalCondition") << "Reading " << objectName_[i] 
 					 << " from file and writing to DB with newTime " << newTime << endl;
+      std::cout << "Reading " << objectName_[i] 
+					 << " from file and writing to DB with newTime " << newTime << endl;
       
       if (objectName_[i] == "EcalWeightXtalGroups") {
 	EcalWeightXtalGroups* mycali = readEcalWeightXtalGroupsFromFile(inpFileName_[i].c_str());
@@ -81,11 +84,18 @@ void StoreEcalCondition::endJob() {
 	  mydbservice->appendSinceTime<EcalADCToGeVConstant>(mycali,newTime,"EcalADCToGeVConstantRcd");
 	}
       } else if (objectName_[i]  ==  "EcalIntercalibConstants") {
-	EcalIntercalibConstants* mycali=readEcalIntercalibConstantsFromFile(inpFileName_[i].c_str());
+	EcalIntercalibConstants* mycali=readEcalIntercalibConstantsFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
 	if(!toAppend){
 	  mydbservice->createNewIOV<EcalIntercalibConstants>(mycali,newTime,mydbservice->endOfTime(),"EcalIntercalibConstantsRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalIntercalibConstants>(mycali,newTime,"EcalIntercalibConstantsRcd");
+	}
+      } else if (objectName_[i]  ==  "EcalIntercalibConstantsMC") {
+	EcalIntercalibConstantsMC* mycali=readEcalIntercalibConstantsMCFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
+	if(!toAppend){
+	  mydbservice->createNewIOV<EcalIntercalibConstantsMC>(mycali,newTime,mydbservice->endOfTime(),"EcalIntercalibConstantsMCRcd");
+	}else{
+	  mydbservice->appendSinceTime<EcalIntercalibConstantsMC>(mycali,newTime,"EcalIntercalibConstantsMCRcd");
 	}
       } else if (objectName_[i]  ==  "EcalGainRatios") {
 	EcalGainRatios* mycali=readEcalGainRatiosFromFile(inpFileName_[i].c_str());
@@ -485,7 +495,7 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
 
 //-------------------------------------------------------------
 EcalIntercalibConstants*
-StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
+StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile,const char* inputFileEE) {
 //-------------------------------------------------------------
 
   EcalIntercalibConstants* ical = new EcalIntercalibConstants();
@@ -592,6 +602,226 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile) {
     } // loop over channels 
 
     cout<<"loop on channels done" << endl;
+
+    FILE *inpFileEE; // input file
+    inpFileEE = fopen(inputFileEE,"r");
+    if(!inpFileEE) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
+
+    // dummy endcap data
+
+    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) 
+      {
+	for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) 
+	  {
+	    // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+	    if (EEDetId::validDetId(iX,iY,1)) 
+	      {
+		EEDetId eedetidpos(iX,iY,1);
+		ical->setValue( eedetidpos, 1.0 );
+	      }
+	    if (EEDetId::validDetId(iX,iY,-1)) 
+	      {
+		EEDetId eedetidneg(iX,iY,-1);
+		ical->setValue( eedetidneg, 1.0 );
+	      }
+	  }
+      }
+
+    } else {
+      cout<<"... now reading EE file ..." <<endl; 
+
+      int ii=0;
+      while(fgets(line,255,inpFileEE)) {
+	int iz,ix,iy;
+	float calibee;
+	sscanf(line, "%d %d %d %f", &iz, &ix, &iy, &calibee );
+	if(ii<=0) cout<<"crystal "<<iz<<"/"<<ix<<"/"<<iy<<" cali="<< calibee<<endl;
+
+	if (EEDetId::validDetId(ix,iy,iz)) 
+	  {
+	    EEDetId eedetid(ix,iy,iz);
+	    ical->setValue( eedetid, calibee );
+	  }
+	
+	ii++ ;
+      }
+
+
+      fclose(inpFileEE);           // close inp. file
+
+    }
+
+    cout<<"loop on EE channels done" << endl;
+
+
+
+  return ical;
+}
+
+//-------------------------------------------------------------
+EcalIntercalibConstantsMC*
+StoreEcalCondition::readEcalIntercalibConstantsMCFromFile(const char* inputFile,const char* inputFileEE) {
+//-------------------------------------------------------------
+
+  EcalIntercalibConstantsMC* ical = new EcalIntercalibConstantsMC();
+
+    
+    FILE *inpFile; // input file
+    inpFile = fopen(inputFile,"r");
+    if(!inpFile) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
+      return 0;
+    }
+
+    char line[256];
+ 
+    std::ostringstream str;
+
+    fgets(line,255,inpFile);
+    string sm_or_all=to_string(line);
+    int sm_number=0;
+    int nchan=1700;
+    sm_number=atoi(line);
+    str << "sm= " << sm_number << endl ;  
+    if(sm_number!=-1){
+      nchan=1700;
+    } else {
+      nchan=61200;
+    }
+    
+
+    fgets(line,255,inpFile);
+    //int nevents=atoi(line); // not necessary here just for online conddb
+    
+    fgets(line,255,inpFile);
+    string gen_tag=to_string(line);
+    str << "gen tag " << gen_tag << endl ;  // should I use this? 
+
+    fgets(line,255,inpFile);
+    string cali_method=to_string(line);
+    str << "cali method " << cali_method << endl ; // not important 
+
+    fgets(line,255,inpFile);
+    string cali_version=to_string(line);
+    str << "cali version " << cali_version << endl ; // not important 
+
+    fgets(line,255,inpFile);
+    string cali_type=to_string(line);
+    str << "cali type " << cali_type << endl ; // not important
+
+    edm::LogInfo("StoreEcalCondition") << "Intercalibration file " << str.str() ;
+
+    int sm_num[61200]={0};
+    int cry_num[61200]={0};
+    float calib[61200]={0};
+    float calib_rms[61200]={0};
+    int calib_nevents[61200]={0};
+    int calib_status[61200]={0};
+
+    int ii = 0;
+    if(sm_number!=-1){
+      while(fgets(line,255,inpFile)) {
+	sscanf(line, "%d %f %f %d %d", &cry_num[ii], &calib[ii], &calib_rms[ii], &calib_nevents[ii], &calib_status[ii] );
+//       if(ii<10) { // print out only the first ten channels 
+// 	cout << "cry="<<cry_num[ii]<<" calib="<<calib[ii]<<endl;
+//       }
+	sm_num[ii]=sm_number;
+	ii++ ;
+      }
+    } else {
+      // this is for the whole Barrel 
+      cout<<"mode ALL BARREL" <<endl; 
+      while(fgets(line,255,inpFile)) {
+	sscanf(line, "%d %d %f %f %d", &sm_num[ii], &cry_num[ii], &calib[ii], &calib_rms[ii], &calib_status[ii] );
+	if(ii==0) cout<<"crystal "<<cry_num[ii]<<" of sm "<<sm_num[ii]<<" cali= "<< calib[ii]<<endl;
+	ii++ ;
+      }
+    }
+
+    //    inf.close();           // close inp. file
+    fclose(inpFile);           // close inp. file
+
+    edm::LogInfo("StoreEcalCondition") << "Read intercalibrations for " << ii << " xtals " ; 
+
+    cout << " I read the calibrations for "<< ii<< " crystals " << endl;
+    if(ii!=nchan) edm::LogWarning("StoreEcalCondition") << "Some crystals missing. Missing channels will be set to 0" << endl;
+
+    // Get channel ID 
+    
+    sm_constr_ = sm_number;
+
+
+    // Set the data
+    for(int i=0; i<nchan; i++){
+    
+    // EBDetId(int index1, int index2, int mode = ETAPHIMODE)
+    // sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
+    
+      int slot_num=convertFromConstructionSMToSlot(sm_num[i],-1);
+      EBDetId ebid(slot_num,cry_num[i],EBDetId::SMCRYSTALMODE);
+
+      ical->setValue( ebid.rawId(), calib[i]  );
+
+      if(i==0) cout<<"crystal "<<cry_num[i]<<" of sm "<<sm_num[i]<< " in slot " <<slot_num<<" calib= "<< calib[i]<<endl;
+
+    } // loop over channels 
+
+    cout<<"loop on channels done" << endl;
+
+    FILE *inpFileEE; // input file
+    inpFileEE = fopen(inputFileEE,"r");
+    if(!inpFileEE) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
+
+    // dummy endcap data
+
+    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) 
+      {
+	for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) 
+	  {
+	    // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+	    if (EEDetId::validDetId(iX,iY,1)) 
+	      {
+		EEDetId eedetidpos(iX,iY,1);
+		ical->setValue( eedetidpos, 1.0 );
+	      }
+	    if (EEDetId::validDetId(iX,iY,-1)) 
+	      {
+		EEDetId eedetidneg(iX,iY,-1);
+		ical->setValue( eedetidneg, 1.0 );
+	      }
+	  }
+      }
+
+    } else {
+      cout<<"... now reading EE file ..." <<endl; 
+
+      int ii=0;
+      while(fgets(line,255,inpFileEE)) {
+	int iz,ix,iy;
+	float calibee;
+	sscanf(line, "%d %d %d %f", &iz, &ix, &iy, &calibee );
+	if(ii<=0) cout<<"crystal "<<iz<<"/"<<ix<<"/"<<iy<<" cali="<< calibee<<endl;
+
+	if (EEDetId::validDetId(ix,iy,iz)) 
+	  {
+	    EEDetId eedetid(ix,iy,iz);
+	    ical->setValue( eedetid, calibee );
+	  }
+	
+	ii++ ;
+      }
+
+
+      fclose(inpFileEE);           // close inp. file
+
+    }
+
+    cout<<"loop on EE channels done" << endl;
+
+
+
   return ical;
 }
 
@@ -863,8 +1093,29 @@ StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile)
 	      }
 	    else if (EBorEE == "EE")
 	      {
+		chStatus=1;
 		EEDetId aEEDetId=EEDetId::unhashIndex(hashedIndex);
 		status->setValue( aEEDetId, chStatus );
+	      }
+	    else if (EBorEE == "EBTT")
+	      {
+		int ism=hashedIndex;
+		int itt=chStatus;
+
+		int ixtt=(itt-1)%4;
+		int iytt=(itt-1)/4;
+		int ixmin=ixtt*5;
+		int iymin=iytt*5;
+		int ixmax=(ixtt+1)*5-1;
+		int iymax=(iytt+1)*5-1;
+		for(int ieta=iymin; ieta<=iymax; ieta++) {
+		  for(int iphi=ixmin; iphi<=ixmax; iphi++) {
+		    int ixt=ieta*20+iphi+1;
+		    std::cout<< "killing crystal "<< ism << "/" << ixt << endl;
+		    EBDetId ebid(ism,ixt,EBDetId::SMCRYSTALMODE);
+		    status->setValue( ebid, 1 );
+		  }
+		}
 	      }
 	    
 	    ii++ ;
@@ -872,5 +1123,34 @@ StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile)
 	  }
 	
         fclose(ifile);
+
+	
+	/*
+	std::cout <<"KILLING CHANNELS FOR CRAFT EB+16 AND EB+7"<<endl; 
+
+	int ism=7;
+	for(int ixt=1; ixt<=500; ixt++) {
+	  EBDetId ebid(ism,ixt,EBDetId::SMCRYSTALMODE);
+	  status->setValue( ebid, 1 );
+	}
+	for(int ixt=501; ixt<=900; ixt++) {
+	  EBDetId ebid(ism,ixt,EBDetId::SMCRYSTALMODE);
+	  if( ((ixt)%20==0) || ((ixt)%20>10) ){  
+	    status->setValue( ebid, 1 );
+	  }
+	}
+	ism=16;
+	for(int ixt=501; ixt<=900; ixt++) {
+	  EBDetId ebid(ism,ixt,EBDetId::SMCRYSTALMODE);
+	  if( ((ixt)%20==0) || ((ixt)%20>10) ){  
+	    status->setValue( ebid, 1 );
+	  }
+	}
+
+	*/
+
+
         return status;
+
+
 }
