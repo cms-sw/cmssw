@@ -66,6 +66,11 @@ offset_from_firstStrip( const std::vector<float>& Q, const uncertain_t& proj) co
   if( proj() < wc.N-2)                               return uncertain_t( wc.middle(),       wc.N*wc.N/12.);
   if( proj() > wc.maxProjection() || wc.deformed() ) return uncertain_t( wc.centroid(),             1/12.);
 
+  return geometric_position(wc, proj);
+}
+
+StripCPEgeometric::uncertain_t StripCPEgeometric::
+geometric_position(const StripCPEgeometric::WrappedCluster& wc, const StripCPEgeometric::uncertain_t& proj) const {
   const uncertain_t eta = wc.eta();
   const float sigma2 = 
     wc.N==1 ? 
@@ -74,7 +79,6 @@ offset_from_firstStrip( const std::vector<float>& Q, const uncertain_t& proj) co
 
   return uncertain_t( wc.middle() +0.5*proj()*eta(), sigma2 );
 }
-
 
 inline
 bool StripCPEgeometric::
@@ -86,8 +90,11 @@ useNMinusOne(const WrappedCluster& wc, const uncertain_t& proj) const {
   WrappedCluster wcTest(wc); wcTest.dropSmallerEdgeStrip();
   if( proj() >= wcTest.maxProjection() ) return false;
   if( wc.eta()() > 1./(wc.N-1) ) return true;
-  if( wc.N==2 || wc.N==3)  
-    return wc.smallerEdgeCharge() < noise_threshold;
+  if( wc.N==2 || wc.N==3) {
+    const uncertain_t wc_strip = geometric_position(wc,proj);
+    const int sgn = - wc.eta()()/fabs(wc.eta()());
+    return sgn* ( (wc_strip() + sgn*proj()/2) - (wc.middle() + sgn*(wc.N/2 - 1)) ) < noise_threshold * sqrt(wc_strip.err2);
+  }
   return fabs(  wcTest.dedxRatio(proj())-1 )   <   fabs(  wc.dedxRatio(proj())-1 ); 
 }
 

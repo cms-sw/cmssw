@@ -45,8 +45,9 @@ class StripCPEgeometric : public StripCPE
     float sumQ;
   };
 
-  uncertain_t offset_from_firstStrip( const std::vector<float>&, const uncertain_t&) const;
   uncertain_t find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
+  uncertain_t offset_from_firstStrip( const std::vector<float>&, const uncertain_t&) const;
+  uncertain_t geometric_position(const WrappedCluster&, const uncertain_t&) const;
   bool useNMinusOne(const WrappedCluster&, const uncertain_t&) const;
 
   std::vector<float> crosstalk;
