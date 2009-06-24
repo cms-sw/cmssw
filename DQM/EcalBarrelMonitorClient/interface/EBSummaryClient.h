@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/03/05 10:40:01 $
- * $Revision: 1.45 $
+ * $Date: 2009/06/11 20:54:50 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -86,6 +86,7 @@ std::string prefixME_;
 bool enableCleanup_;
 
 std::vector<int> superModules_;
+std::vector<int> laserWavelengths_;
 
 std::vector<EBClient*> clients_;
 
@@ -109,6 +110,27 @@ MonitorElement* meLaserL1Timing_;
 MonitorElement* meLaserL1AmplOverPN_;
 MonitorElement* meLaserL1PN_;
 MonitorElement* meLaserL1PNErr_;
+MonitorElement* meLaserL2_;
+MonitorElement* meLaserL2Err_;
+MonitorElement* meLaserL2Ampl_;
+MonitorElement* meLaserL2Timing_;
+MonitorElement* meLaserL2AmplOverPN_;
+MonitorElement* meLaserL2PN_;
+MonitorElement* meLaserL2PNErr_;
+MonitorElement* meLaserL3_;
+MonitorElement* meLaserL3Err_;
+MonitorElement* meLaserL3Ampl_;
+MonitorElement* meLaserL3Timing_;
+MonitorElement* meLaserL3AmplOverPN_;
+MonitorElement* meLaserL3PN_;
+MonitorElement* meLaserL3PNErr_;
+MonitorElement* meLaserL4_;
+MonitorElement* meLaserL4Err_;
+MonitorElement* meLaserL4Ampl_;
+MonitorElement* meLaserL4Timing_;
+MonitorElement* meLaserL4AmplOverPN_;
+MonitorElement* meLaserL4PN_;
+MonitorElement* meLaserL4PNErr_;
 MonitorElement* mePedestal_;
 MonitorElement* mePedestalErr_;
 MonitorElement* mePedestalG01_;

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/04/09 13:13:52 $
- * $Revision: 1.179 $
+ * $Date: 2009/06/11 20:54:50 $
+ * $Revision: 1.180 $
  * \author G. Della Ricca
  *
 */
@@ -61,6 +61,10 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
+  laserWavelengths_.reserve(4);
+  for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
+  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+
   // summary maps
   meIntegrity_            = 0;
   meOccupancy_            = 0;
@@ -69,11 +73,31 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   mePedestalOnlineRMSMap_ = 0;
   mePedestalOnlineMean_   = 0;
   mePedestalOnlineRMS_    = 0;
+
   meLaserL1_              = 0;
   meLaserL1PN_            = 0;
   meLaserL1Ampl_          = 0;
   meLaserL1Timing_        = 0;
   meLaserL1AmplOverPN_    = 0;
+
+  meLaserL2_              = 0;
+  meLaserL2PN_            = 0;
+  meLaserL2Ampl_          = 0;
+  meLaserL2Timing_        = 0;
+  meLaserL2AmplOverPN_    = 0;
+
+  meLaserL3_              = 0;
+  meLaserL3PN_            = 0;
+  meLaserL3Ampl_          = 0;
+  meLaserL3Timing_        = 0;
+  meLaserL3AmplOverPN_    = 0;
+
+  meLaserL4_              = 0;
+  meLaserL4PN_            = 0;
+  meLaserL4Ampl_          = 0;
+  meLaserL4Timing_        = 0;
+  meLaserL4AmplOverPN_    = 0;
+
   mePedestal_             = 0;
   mePedestalG01_          = 0;
   mePedestalG06_          = 0;
@@ -107,6 +131,12 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
+  meLaserL2Err_         = 0;
+  meLaserL2PNErr_       = 0;
+  meLaserL3Err_         = 0;
+  meLaserL3PNErr_       = 0;
+  meLaserL4Err_         = 0;
+  meLaserL4PNErr_       = 0;
   mePedestalErr_        = 0;
   mePedestalPNErr_      = 0;
   meTestPulseErr_       = 0;
@@ -287,51 +317,208 @@ void EBSummaryClient::setup(void) {
     mePedestalOnlineRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
-  sprintf(histo, "EBLT laser quality summary L1");
-  meLaserL1_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meLaserL1_->setAxisTitle("jphi", 1);
-  meLaserL1_->setAxisTitle("jeta", 2);
+  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
-  sprintf(histo, "EBLT laser quality errors summary L1");
-  meLaserL1Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
+    sprintf(histo, "EBLT laser quality summary L1");
+    meLaserL1_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meLaserL1_->setAxisTitle("jphi", 1);
+    meLaserL1_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
+    sprintf(histo, "EBLT laser quality errors summary L1");
+    meLaserL1Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
+    sprintf(histo, "EBLT PN laser quality summary L1");
+    meLaserL1PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meLaserL1PN_->setAxisTitle("jphi", 1);
+    meLaserL1PN_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
+    sprintf(histo, "EBLT PN laser quality errors summary L1");
+    meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
+    sprintf(histo, "EBLT laser L1 amplitude summary");
+    meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
+    sprintf(histo, "EBLT laser L1 timing summary");
+    meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL1Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
+    sprintf(histo, "EBLT laser L1 amplitude over PN summary");
+    meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
-  if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
-  sprintf(histo, "EBLT PN laser quality summary L1");
-  meLaserL1PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meLaserL1PN_->setAxisTitle("jphi", 1);
-  meLaserL1PN_->setAxisTitle("jeta", 2);
+  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
-  sprintf(histo, "EBLT PN laser quality errors summary L1");
-  meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    if ( meLaserL2_ ) dqmStore_->removeElement( meLaserL2_->getName() );
+    sprintf(histo, "EBLT laser quality summary L2");
+    meLaserL2_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meLaserL2_->setAxisTitle("jphi", 1);
+    meLaserL2_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
+    sprintf(histo, "EBLT laser quality errors summary L2");
+    meLaserL2Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL2Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
+    sprintf(histo, "EBLT PN laser quality summary L2");
+    meLaserL2PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meLaserL2PN_->setAxisTitle("jphi", 1);
+    meLaserL2PN_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
+    sprintf(histo, "EBLT PN laser quality errors summary L2");
+    meLaserL2PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
+    sprintf(histo, "EBLT laser L2 amplitude summary");
+    meLaserL2Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
+    sprintf(histo, "EBLT laser L2 timing summary");
+    meLaserL2Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL2Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
+    sprintf(histo, "EBLT laser L2 amplitude over PN summary");
+    meLaserL2AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
-  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
-  sprintf(histo, "EBLT laser L1 amplitude summary");
-  meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
-  for (int i = 0; i < 36; i++) {
-    meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+
+    if ( meLaserL3_ ) dqmStore_->removeElement( meLaserL3_->getName() );
+    sprintf(histo, "EBLT laser quality summary L3");
+    meLaserL3_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meLaserL3_->setAxisTitle("jphi", 1);
+    meLaserL3_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
+    sprintf(histo, "EBLT laser quality errors summary L3");
+    meLaserL3Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL3Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
+    sprintf(histo, "EBLT PN laser quality summary L3");
+    meLaserL3PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meLaserL3PN_->setAxisTitle("jphi", 1);
+    meLaserL3PN_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
+    sprintf(histo, "EBLT PN laser quality errors summary L3");
+    meLaserL3PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
+    sprintf(histo, "EBLT laser L3 amplitude summary");
+    meLaserL3Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
+    sprintf(histo, "EBLT laser L3 timing summary");
+    meLaserL3Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL3Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
+    sprintf(histo, "EBLT laser L3 amplitude over PN summary");
+    meLaserL3AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
-  if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
-  sprintf(histo, "EBLT laser L1 timing summary");
-  meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
-  for (int i = 0; i < 36; i++) {
-    meLaserL1Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-  }
+  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
-  sprintf(histo, "EBLT laser L1 amplitude over PN summary");
-  meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
-  for (int i = 0; i < 36; i++) {
-    meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    if ( meLaserL4_ ) dqmStore_->removeElement( meLaserL4_->getName() );
+    sprintf(histo, "EBLT laser quality summary L4");
+    meLaserL4_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meLaserL4_->setAxisTitle("jphi", 1);
+    meLaserL4_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
+    sprintf(histo, "EBLT laser quality errors summary L4");
+    meLaserL4Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL4Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
+    sprintf(histo, "EBLT PN laser quality summary L4");
+    meLaserL4PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meLaserL4PN_->setAxisTitle("jphi", 1);
+    meLaserL4PN_->setAxisTitle("jeta", 2);
+    
+    if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
+    sprintf(histo, "EBLT PN laser quality errors summary L4");
+    meLaserL4PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    for (int i = 0; i < 36; i++) {
+      meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
+    sprintf(histo, "EBLT laser L4 amplitude summary");
+    meLaserL4Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+    
+    if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
+    sprintf(histo, "EBLT laser L4 timing summary");
+    meLaserL4Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL4Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+    if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
+    sprintf(histo, "EBLT laser L4 amplitude over PN summary");
+    meLaserL4AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    for (int i = 0; i < 36; i++) {
+      meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
   if( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
@@ -584,6 +771,69 @@ void EBSummaryClient::cleanup(void) {
   if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   meLaserL1PNErr_ = 0;
 
+  if ( meLaserL2_ ) dqmStore_->removeElement( meLaserL2_->getName() );
+  meLaserL2_ = 0;
+
+  if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
+  meLaserL2Err_ = 0;
+
+  if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
+  meLaserL2Ampl_ = 0;
+
+  if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
+  meLaserL2Timing_ = 0;
+
+  if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
+  meLaserL2AmplOverPN_ = 0;
+
+  if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
+  meLaserL2PN_ = 0;
+
+  if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
+  meLaserL2PNErr_ = 0;
+
+  if ( meLaserL3_ ) dqmStore_->removeElement( meLaserL3_->getName() );
+  meLaserL3_ = 0;
+
+  if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
+  meLaserL3Err_ = 0;
+
+  if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
+  meLaserL3Ampl_ = 0;
+
+  if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
+  meLaserL3Timing_ = 0;
+
+  if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
+  meLaserL3AmplOverPN_ = 0;
+
+  if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
+  meLaserL3PN_ = 0;
+
+  if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
+  meLaserL3PNErr_ = 0;
+
+  if ( meLaserL4_ ) dqmStore_->removeElement( meLaserL4_->getName() );
+  meLaserL4_ = 0;
+
+  if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
+  meLaserL4Err_ = 0;
+
+  if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
+  meLaserL4Ampl_ = 0;
+
+  if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
+  meLaserL4Timing_ = 0;
+
+  if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
+  meLaserL4AmplOverPN_ = 0;
+
+  if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
+  meLaserL4PN_ = 0;
+
+  if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
+  meLaserL4PNErr_ = 0;
+
   if ( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
 
@@ -682,26 +932,28 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      meIntegrity_->setBinContent( ipx, iex, 6. );
-      meOccupancy_->setBinContent( ipx, iex, 0. );
-      meStatusFlags_->setBinContent( ipx, iex, 6. );
-      mePedestalOnline_->setBinContent( ipx, iex, 6. );
-      mePedestalOnlineRMSMap_->setBinContent( ipx, iex, -1.);
+      if ( meIntegrity_ ) meIntegrity_->setBinContent( ipx, iex, 6. );
+      if ( meOccupancy_ ) meOccupancy_->setBinContent( ipx, iex, 0. );
+      if ( meStatusFlags_ ) meStatusFlags_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalOnline_ ) mePedestalOnline_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalOnlineRMSMap_ ) mePedestalOnlineRMSMap_->setBinContent( ipx, iex, -1.);
+      if ( meLaserL1_ ) meLaserL1_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL2_ ) meLaserL2_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL3_ ) meLaserL3_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL4_ ) meLaserL4_->setBinContent( ipx, iex, 6. );
+      if ( mePedestal_ ) mePedestal_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalG01_ ) mePedestalG01_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalG06_ ) mePedestalG06_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalG12_ ) mePedestalG12_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulse_ ) meTestPulse_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulseG01_ ) meTestPulseG01_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulseG06_ ) meTestPulseG06_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulseG12_ ) meTestPulseG12_->setBinContent( ipx, iex, 6. );
 
-      meLaserL1_->setBinContent( ipx, iex, 6. );
-      mePedestal_->setBinContent( ipx, iex, 6. );
-      mePedestalG01_->setBinContent( ipx, iex, 6. );
-      mePedestalG06_->setBinContent( ipx, iex, 6. );
-      mePedestalG12_->setBinContent( ipx, iex, 6. );
-      meTestPulse_->setBinContent( ipx, iex, 6. );
-      meTestPulseG01_->setBinContent( ipx, iex, 6. );
-      meTestPulseG06_->setBinContent( ipx, iex, 6. );
-      meTestPulseG12_->setBinContent( ipx, iex, 6. );
+      if ( meCosmic_ ) meCosmic_->setBinContent( ipx, iex, 0. );
+      if ( meTiming_ ) meTiming_->setBinContent( ipx, iex, 6. );
 
-      meCosmic_->setBinContent( ipx, iex, 0. );
-      meTiming_->setBinContent( ipx, iex, 6. );
-
-      meGlobalSummary_->setBinContent( ipx, iex, 6. );
+      if ( meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
 
     }
   }
@@ -709,72 +961,100 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 20; iex++ ) {
     for ( int ipx = 1; ipx <= 90; ipx++ ) {
 
-      meLaserL1PN_->setBinContent( ipx, iex, 6. );
-      mePedestalPN_->setBinContent( ipx, iex, 6. );
-      mePedestalPNG01_->setBinContent( ipx, iex, 6. );
-      mePedestalPNG16_->setBinContent( ipx, iex, 6. );
-      meTestPulsePN_->setBinContent( ipx, iex, 6. );
-      meTestPulsePNG01_->setBinContent( ipx, iex, 6. );
-      meTestPulsePNG16_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL1PN_ ) meLaserL1PN_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL2PN_ ) meLaserL2PN_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL3PN_ ) meLaserL3PN_->setBinContent( ipx, iex, 6. );
+      if ( meLaserL4PN_ ) meLaserL4PN_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalPN_ ) mePedestalPN_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalPNG01_ ) mePedestalPNG01_->setBinContent( ipx, iex, 6. );
+      if ( mePedestalPNG16_ ) mePedestalPNG16_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulsePN_ ) meTestPulsePN_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulsePNG01_ ) meTestPulsePNG01_->setBinContent( ipx, iex, 6. );
+      if ( meTestPulsePNG16_ ) meTestPulsePNG16_->setBinContent( ipx, iex, 6. );
 
     }
   }
 
   for ( int iex = 1; iex <= 34; iex++ ) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
-      meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
-      meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
-      meTriggerTowerTiming_->setBinContent( ipx, iex, -1. );
+      if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
+      if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
+      if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setBinContent( ipx, iex, -1. );
     }
   }
 
-  meIntegrity_->setEntries( 0 );
-  meIntegrityErr_->Reset();
-  meOccupancy_->setEntries( 0 );
-  meOccupancy1D_->Reset();
-  meStatusFlags_->setEntries( 0 );
-  meStatusFlagsErr_->Reset();
-  mePedestalOnline_->setEntries( 0 );
-  mePedestalOnlineErr_->Reset();
-  mePedestalOnlineMean_->Reset();
-  mePedestalOnlineRMS_->Reset();
-  mePedestalOnlineRMSMap_->Reset();
+  if ( meIntegrity_ ) meIntegrity_->setEntries( 0 );
+  if ( meIntegrityErr_ ) meIntegrityErr_->Reset();
+  if ( meOccupancy_ ) meOccupancy_->setEntries( 0 );
+  if ( meOccupancy1D_ ) meOccupancy1D_->Reset();
+  if ( meStatusFlags_ ) meStatusFlags_->setEntries( 0 );
+  if ( meStatusFlagsErr_ ) meStatusFlagsErr_->Reset();
+  if ( mePedestalOnline_ ) mePedestalOnline_->setEntries( 0 );
+  if ( mePedestalOnlineErr_ ) mePedestalOnlineErr_->Reset();
+  if ( mePedestalOnlineMean_ ) mePedestalOnlineMean_->Reset();
+  if ( mePedestalOnlineRMS_ ) mePedestalOnlineRMS_->Reset();
+  if ( mePedestalOnlineRMSMap_ ) mePedestalOnlineRMSMap_->Reset();
 
-  meLaserL1_->setEntries( 0 );
-  meLaserL1Err_->Reset();
-  meLaserL1Ampl_->Reset();
-  meLaserL1Timing_->Reset();
-  meLaserL1AmplOverPN_->Reset();
-  meLaserL1PN_->setEntries( 0 );
-  meLaserL1PNErr_->Reset();
-  mePedestal_->setEntries( 0 );
-  mePedestalG01_->setEntries( 0 );
-  mePedestalG06_->setEntries( 0 );
-  mePedestalG12_->setEntries( 0 );
-  mePedestalErr_->Reset();
-  mePedestalPN_->setEntries( 0 );
-  mePedestalPNG01_->setEntries( 0 );
-  mePedestalPNG16_->setEntries( 0 );
-  mePedestalPNErr_->Reset();
-  meTestPulse_->setEntries( 0 );
-  meTestPulseG01_->setEntries( 0 );
-  meTestPulseG06_->setEntries( 0 );
-  meTestPulseG12_->setEntries( 0 );
-  meTestPulseErr_->Reset();
-  meTestPulsePN_->setEntries( 0 );
-  meTestPulsePNG01_->setEntries( 0 );
-  meTestPulsePNG16_->setEntries( 0 );
-  meTestPulsePNErr_->Reset();
-  meTestPulseAmplG01_->Reset();
-  meTestPulseAmplG06_->Reset();
-  meTestPulseAmplG12_->Reset();
+  if ( meLaserL1_ ) meLaserL1_->setEntries( 0 );
+  if ( meLaserL1Err_ ) meLaserL1Err_->Reset();
+  if ( meLaserL1Ampl_ ) meLaserL1Ampl_->Reset();
+  if ( meLaserL1Timing_ ) meLaserL1Timing_->Reset();
+  if ( meLaserL1AmplOverPN_ ) meLaserL1AmplOverPN_->Reset();
+  if ( meLaserL1PN_ ) meLaserL1PN_->setEntries( 0 );
+  if ( meLaserL1PNErr_ ) meLaserL1PNErr_->Reset();
 
-  meCosmic_->setEntries( 0 );
-  meTiming_->setEntries( 0 );
-  meTriggerTowerEt_->setEntries( 0 );
-  meTriggerTowerEtSpectrum_->Reset();
-  meTriggerTowerEmulError_->setEntries( 0 );
-  meTriggerTowerTiming_->setEntries( 0 );
+  if ( meLaserL2_ ) meLaserL2_->setEntries( 0 );
+  if ( meLaserL2Err_ ) meLaserL2Err_->Reset();
+  if ( meLaserL2Ampl_ ) meLaserL2Ampl_->Reset();
+  if ( meLaserL2Timing_ ) meLaserL2Timing_->Reset();
+  if ( meLaserL2AmplOverPN_ ) meLaserL2AmplOverPN_->Reset();
+  if ( meLaserL2PN_ ) meLaserL2PN_->setEntries( 0 );
+  if ( meLaserL2PNErr_ ) meLaserL2PNErr_->Reset();
+
+  if ( meLaserL3_ ) meLaserL3_->setEntries( 0 );
+  if ( meLaserL3Err_ ) meLaserL3Err_->Reset();
+  if ( meLaserL3Ampl_ ) meLaserL3Ampl_->Reset();
+  if ( meLaserL3Timing_ ) meLaserL3Timing_->Reset();
+  if ( meLaserL3AmplOverPN_ ) meLaserL3AmplOverPN_->Reset();
+  if ( meLaserL3PN_ ) meLaserL3PN_->setEntries( 0 );
+  if ( meLaserL3PNErr_ ) meLaserL3PNErr_->Reset();
+
+  if ( meLaserL4_ ) meLaserL4_->setEntries( 0 );
+  if ( meLaserL4Err_ ) meLaserL4Err_->Reset();
+  if ( meLaserL4Ampl_ ) meLaserL4Ampl_->Reset();
+  if ( meLaserL4Timing_ ) meLaserL4Timing_->Reset();
+  if ( meLaserL4AmplOverPN_ ) meLaserL4AmplOverPN_->Reset();
+  if ( meLaserL4PN_ ) meLaserL4PN_->setEntries( 0 );
+  if ( meLaserL4PNErr_ ) meLaserL4PNErr_->Reset();
+
+  if ( mePedestal_ ) mePedestal_->setEntries( 0 );
+  if ( mePedestalG01_ ) mePedestalG01_->setEntries( 0 );
+  if ( mePedestalG06_ ) mePedestalG06_->setEntries( 0 );
+  if ( mePedestalG12_ ) mePedestalG12_->setEntries( 0 );
+  if ( mePedestalErr_ ) mePedestalErr_->Reset();
+  if ( mePedestalPN_ ) mePedestalPN_->setEntries( 0 );
+  if ( mePedestalPNG01_ ) mePedestalPNG01_->setEntries( 0 );
+  if ( mePedestalPNG16_ ) mePedestalPNG16_->setEntries( 0 );
+  if ( mePedestalPNErr_ ) mePedestalPNErr_->Reset();
+  if ( meTestPulse_ ) meTestPulse_->setEntries( 0 );
+  if ( meTestPulseG01_ ) meTestPulseG01_->setEntries( 0 );
+  if ( meTestPulseG06_ ) meTestPulseG06_->setEntries( 0 );
+  if ( meTestPulseG12_ ) meTestPulseG12_->setEntries( 0 );
+  if ( meTestPulseErr_ ) meTestPulseErr_->Reset();
+  if ( meTestPulsePN_ ) meTestPulsePN_->setEntries( 0 );
+  if ( meTestPulsePNG01_ ) meTestPulsePNG01_->setEntries( 0 );
+  if ( meTestPulsePNG16_ ) meTestPulsePNG16_->setEntries( 0 );
+  if ( meTestPulsePNErr_ ) meTestPulsePNErr_->Reset();
+  if ( meTestPulseAmplG01_ ) meTestPulseAmplG01_->Reset();
+  if ( meTestPulseAmplG01_ ) meTestPulseAmplG06_->Reset();
+  if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
+
+  if ( meCosmic_ ) meCosmic_->setEntries( 0 );
+  if ( meTiming_ ) meTiming_->setEntries( 0 );
+  if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setEntries( 0 );
+  if ( meTriggerTowerEtSpectrum_ ) meTriggerTowerEtSpectrum_->Reset();
+  if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setEntries( 0 );
+  if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setEntries( 0 );
 
   meGlobalSummary_->setEntries( 0 );
 
@@ -925,29 +1205,84 @@ void EBSummaryClient::analyze(void) {
           }
           
           if ( eblc ) {
-            
-            me = eblc->meg01_[ism-1];
-            
-            if ( me ) {
 
-              int iex;
-              int ipx;
+            int iex;
+            int ipx;
+            
+            if ( ism <= 18 ) {
+              iex = 1+(85-ie);
+              ipx = ip+20*(ism-1);
+            } else {
+              iex = 85+ie;
+              ipx = 1+(20-ip)+20*(ism-19);
+            }
+            
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
               
-              if ( ism <= 18 ) {
-                iex = 1+(85-ie);
-                ipx = ip+20*(ism-1);
-              } else {
-                iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
+              me = eblc->meg01_[ism-1];
+            
+              if ( me ) {
+              
+                float xval = me->getBinContent( ie, ip );
+                
+                if ( me->getEntries() != 0 ) {
+                  meLaserL1_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL1Err_->Fill( ism );
+                }
+                
               }
               
-              float xval = me->getBinContent( ie, ip );
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
               
-              if ( me->getEntries() != 0 ) {
-                meLaserL1_->setBinContent( ipx, iex, xval );
-                if ( xval == 0 ) meLaserL1Err_->Fill( ism );
+              me = eblc->meg02_[ism-1];
+            
+              if ( me ) {
+
+                float xval = me->getBinContent( ie, ip );
+              
+                if ( me->getEntries() != 0 ) {
+                  meLaserL2_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL2Err_->Fill( ism );
+                }
+              
               }
+
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
               
+              me = eblc->meg03_[ism-1];
+            
+              if ( me ) {
+
+                float xval = me->getBinContent( ie, ip );
+              
+                if ( me->getEntries() != 0 ) {
+                  meLaserL3_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL3Err_->Fill( ism );
+                }
+              
+              }
+
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+              
+              me = eblc->meg04_[ism-1];
+            
+              if ( me ) {
+
+                float xval = me->getBinContent( ie, ip );
+                
+                if ( me->getEntries() != 0 ) {
+                  meLaserL4_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL4Err_->Fill( ism );
+                }
+              
+              }
+
             }
 
           }
@@ -1341,26 +1676,82 @@ void EBSummaryClient::analyze(void) {
 
           if ( eblc ) {
 
-            me = eblc->meg09_[ism-1];
+            int iex;
+            int ipx;
+            
+            if(ism<=18) {
+              iex = i;
+              ipx = j+5*(ism-1);
+            } else {
+              iex = i+10;
+              ipx = j+5*(ism-19);
+            }
+            
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+              
+              me = eblc->meg09_[ism-1];
+              
+              if( me ) {
+                
+                float xval = me->getBinContent(i,1);
+                
+                
+                if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                  meLaserL1PN_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
+                }
 
-            if( me ) {
-
-              float xval = me->getBinContent(i,1);
-
-              int iex;
-              int ipx;
-
-              if(ism<=18) {
-                iex = i;
-                ipx = j+5*(ism-1);
-              } else {
-                iex = i+10;
-                ipx = j+5*(ism-19);
               }
 
-              if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-                meLaserL1PN_->setBinContent( ipx, iex, xval );
-                if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+              
+              me = eblc->meg10_[ism-1];
+              
+              if( me ) {
+                
+                float xval = me->getBinContent(i,1);
+                
+                if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                  meLaserL2PN_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL2PNErr_->Fill( ism );
+                }
+
+              }
+
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+              
+              me = eblc->meg11_[ism-1];
+              
+              if( me ) {
+                
+                float xval = me->getBinContent(i,1);
+                
+                if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                  meLaserL3PN_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL3PNErr_->Fill( ism );
+                }
+
+              }
+
+            }
+
+            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+              
+              me = eblc->meg12_[ism-1];
+              
+              if( me ) {
+                
+                float xval = me->getBinContent(i,1);
+                
+                if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+                  meLaserL4PN_->setBinContent( ipx, iex, xval );
+                  if ( xval == 0 ) meLaserL4PNErr_->Fill( ism );
+                }
+
               }
 
             }
@@ -1378,40 +1769,161 @@ void EBSummaryClient::analyze(void) {
         // laser 1D summaries
         if ( eblc ) {
           
-          MonitorElement *meg = eblc->meg01_[ism-1];
+          if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-          float xval = 2;
-          if ( meg ) xval = meg->getBinContent( ie, ip );
+            MonitorElement *meg = eblc->meg01_[ism-1];
 
-          // exclude channels without laser data (yellow in the quality map)
-          if( xval != 2 && xval != 5 ) { 
+            float xval = 2;
+            if ( meg ) xval = meg->getBinContent( ie, ip );
+
+            // exclude channels without laser data (yellow in the quality map)
+            if( xval != 2 && xval != 5 ) { 
           
-            int RtHalf = 0;
-            if( ie > 5 && ip < 11 ) RtHalf = 1;
+              int RtHalf = 0;
+              if( ie > 5 && ip < 11 ) RtHalf = 1;
           
-            // L1A (L-shaped)
-            MonitorElement *mea01 = eblc->mea01_[ism-1];
-            MonitorElement *met01 = eblc->met01_[ism-1];
-            MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
+              // L1A (L-shaped)
+              MonitorElement *mea01 = eblc->mea01_[ism-1];
+              MonitorElement *met01 = eblc->met01_[ism-1];
+              MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
             
-            if( me && RtHalf == 0 ) {
-              meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
-              meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
-              meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
-            }
+              if( me && RtHalf == 0 ) {
+                meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
+                meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
+                meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
+              }
             
-            // L1B (rectangular)
-            MonitorElement *mea05 = eblc->mea05_[ism-1];
-            MonitorElement *met05 = eblc->met05_[ism-1];
-            MonitorElement *meaopn05 = eblc->meaopn05_[ism-1];
+              // L1B (rectangular)
+              MonitorElement *mea05 = eblc->mea05_[ism-1];
+              MonitorElement *met05 = eblc->met05_[ism-1];
+              MonitorElement *meaopn05 = eblc->meaopn05_[ism-1];
 
-            if ( me && RtHalf == 1 ) {
-              meLaserL1Ampl_->Fill( ism, mea05->getBinContent( chan+1 ) );
-              meLaserL1Timing_->Fill( ism, met05->getBinContent( chan+1 ) );
-              meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( chan+1 ) );
-            }
+              if ( me && RtHalf == 1 ) {
+                meLaserL1Ampl_->Fill( ism, mea05->getBinContent( chan+1 ) );
+                meLaserL1Timing_->Fill( ism, met05->getBinContent( chan+1 ) );
+                meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( chan+1 ) );
+              }
             
-          }      
+            }      
+
+          }
+
+          if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+
+            MonitorElement *meg = eblc->meg02_[ism-1];
+
+            float xval = 2;
+            if ( meg ) xval = meg->getBinContent( ie, ip );
+
+            // exclude channels without laser data (yellow in the quality map)
+            if( xval != 2 && xval != 5 ) { 
+          
+              int RtHalf = 0;
+              if( ie > 5 && ip < 11 ) RtHalf = 1;
+          
+              // L1A (L-shaped)
+              MonitorElement *mea02 = eblc->mea02_[ism-1];
+              MonitorElement *met02 = eblc->met02_[ism-1];
+              MonitorElement *meaopn02 = eblc->meaopn02_[ism-1];
+            
+              if( me && RtHalf == 0 ) {
+                meLaserL2Ampl_->Fill( ism, mea02->getBinContent( chan+1 ) );
+                meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
+                meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( chan+1 ) );
+              }
+            
+              // L1B (rectangular)
+              MonitorElement *mea06 = eblc->mea06_[ism-1];
+              MonitorElement *met06 = eblc->met06_[ism-1];
+              MonitorElement *meaopn06 = eblc->meaopn06_[ism-1];
+
+              if ( me && RtHalf == 1 ) {
+                meLaserL2Ampl_->Fill( ism, mea06->getBinContent( chan+1 ) );
+                meLaserL2Timing_->Fill( ism, met06->getBinContent( chan+1 ) );
+                meLaserL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( chan+1 ) );
+              }
+            
+            }      
+
+          }
+
+          if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+
+            MonitorElement *meg = eblc->meg03_[ism-1];
+
+            float xval = 2;
+            if ( meg ) xval = meg->getBinContent( ie, ip );
+
+            // exclude channels without laser data (yellow in the quality map)
+            if( xval != 2 && xval != 5 ) { 
+          
+              int RtHalf = 0;
+              if( ie > 5 && ip < 11 ) RtHalf = 1;
+          
+              // L1A (L-shaped)
+              MonitorElement *mea03 = eblc->mea03_[ism-1];
+              MonitorElement *met03 = eblc->met03_[ism-1];
+              MonitorElement *meaopn03 = eblc->meaopn03_[ism-1];
+            
+              if( me && RtHalf == 0 ) {
+                meLaserL3Ampl_->Fill( ism, mea03->getBinContent( chan+1 ) );
+                meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
+                meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( chan+1 ) );
+              }
+            
+              // L1B (rectangular)
+              MonitorElement *mea07 = eblc->mea07_[ism-1];
+              MonitorElement *met07 = eblc->met07_[ism-1];
+              MonitorElement *meaopn07 = eblc->meaopn07_[ism-1];
+
+              if ( me && RtHalf == 1 ) {
+                meLaserL3Ampl_->Fill( ism, mea07->getBinContent( chan+1 ) );
+                meLaserL3Timing_->Fill( ism, met07->getBinContent( chan+1 ) );
+                meLaserL3AmplOverPN_->Fill( ism, meaopn07->getBinContent( chan+1 ) );
+              }
+            
+            }      
+
+          }
+
+          if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+
+            MonitorElement *meg = eblc->meg04_[ism-1];
+
+            float xval = 2;
+            if ( meg ) xval = meg->getBinContent( ie, ip );
+
+            // exclude channels without laser data (yellow in the quality map)
+            if( xval != 2 && xval != 5 ) { 
+          
+              int RtHalf = 0;
+              if( ie > 5 && ip < 11 ) RtHalf = 1;
+          
+              // L1A (L-shaped)
+              MonitorElement *mea04 = eblc->mea04_[ism-1];
+              MonitorElement *met04 = eblc->met04_[ism-1];
+              MonitorElement *meaopn04 = eblc->meaopn04_[ism-1];
+            
+              if( me && RtHalf == 0 ) {
+                meLaserL4Ampl_->Fill( ism, mea04->getBinContent( chan+1 ) );
+                meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
+                meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( chan+1 ) );
+              }
+            
+              // L1B (rectangular)
+              MonitorElement *mea08 = eblc->mea08_[ism-1];
+              MonitorElement *met08 = eblc->met08_[ism-1];
+              MonitorElement *meaopn08 = eblc->meaopn08_[ism-1];
+
+              if ( me && RtHalf == 1 ) {
+                meLaserL4Ampl_->Fill( ism, mea08->getBinContent( chan+1 ) );
+                meLaserL4Timing_->Fill( ism, met08->getBinContent( chan+1 ) );
+                meLaserL4AmplOverPN_->Fill( ism, meaopn08->getBinContent( chan+1 ) );
+              }
+            
+            }      
+
+          }
 
         }
 
@@ -1497,12 +2009,19 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meIntegrity_ && mePedestalOnline_ && meLaserL1_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
+      // for laser, take only one of the used wavelengths, ordered as: L1, L2, L3, L4
+      MonitorElement *meLaser = 0;
+      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) meLaser = meLaserL4_;
+      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) meLaser = meLaserL3_;
+      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) meLaser = meLaserL2_;
+      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) meLaser = meLaserL1_;
+
+      if(meIntegrity_ && mePedestalOnline_ && meLaser && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
 
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        float val_ls = meLaserL1_->getBinContent(ipx,iex);
+        float val_ls = meLaser->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily

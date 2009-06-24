@@ -7,6 +7,7 @@ ecalBarrelLaserTask = cms.EDAnalyzer("EBLaserTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
-    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
+    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    laserWavelengths = cms.untracked.vint32(1)
 )
 
