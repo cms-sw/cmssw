@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.15 $
-#     $Date: 2009/01/23 15:34:40 $
+#     $Revision: 1.16 $ by $Author$
+#     $Date: 2009/01/23 17:01:51 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -126,18 +126,22 @@ for ($i=0; $i<@JOBID; ++$i) {
     }
 
     # for mille jobs checks that milleBinary file is not empty
-    if ( @JOBDIR[$i] ne "jobm" ) {
+    if ( $i < $nJobs ) { # mille job!
       $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
       $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
       if ( !($mOutSize>0) ) {
 	$emptyDatErr = 1;
       }
-    }
-
-    # additional checks for merging job
-    if (@JOBDIR[$i] eq "jobm") {
+    } else { # merge jobs 
+      # additional checks for merging job
       # if there is a pede.dump file, check it as well
       $eazeLog = "jobData/@JOBDIR[$i]/pede.dump";
+      if (-r $eazeLog.".gz") { # or is it zipped?
+	  # unzip - but clean before and tmp
+	  # FIXME: use http://perldoc.perl.org/File/Temp.html, not /tmp/pede.dump!!
+	  system "rm -f /tmp/pede.dump; gunzip -c ".$eazeLog.".gz > /tmp/pede.dump";
+	  $eazeLog="/tmp/pede.dump";
+      }
       if (-r $eazeLog) {
 	# open the input file
 	open INFILE,"$eazeLog";
@@ -147,6 +151,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	  # check if pede has reached its normal end
 	  if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
 	}
+	# clean up if needed FIXME if using proper perl File/Temp!
+	system "rm /tmp/pede.dump" if ($eazeLog eq "/tmp/pede.dump");
       } else {
 	print "mps_check.pl cannot find $eazeLog to test\n";
       }
