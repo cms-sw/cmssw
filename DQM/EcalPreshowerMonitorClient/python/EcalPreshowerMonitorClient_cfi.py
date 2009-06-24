@@ -8,6 +8,7 @@ ecalPreshowerMonitorClient = cms.EDAnalyzer('EcalPreshowerMonitorClient',
 	enableMonitorDaemon = cms.untracked.bool(False),
 	enabledClients = cms.untracked.vstring('Integrity'
 					,'Pedestal'
+					,'Summary'
 					),
 	prefixME = cms.untracked.string('EcalPreshower'),
 	clientName = cms.untracked.string('EcalPreshowerMonitorClient'),

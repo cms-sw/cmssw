@@ -18,44 +18,48 @@ class MonitorElement;
 class DQMStore;
 
 class ESPedestalClient : public ESClient{
-	public:
-		ESPedestalClient(const edm::ParameterSet& ps);
-		virtual ~ESPedestalClient();
-		void analyze(void);
-		void beginJob(DQMStore* dqmStore);
-		void endJob(void);
-		void beginRun(void);
-		void endRun(void);
-		void setup(void);
-		void cleanup(void);
-	
-//		inline int getEvtPerJob() { return EvtperJob_; }
-//		inline int getEvtPerRun() { return EvtperRun_; }
+
+   friend class ESSummaryClient;
+
+   public:
+   ESPedestalClient(const edm::ParameterSet& ps);
+   virtual ~ESPedestalClient();
+   void analyze(void);
+   void beginJob(DQMStore* dqmStore);
+   void endJob(void);
+   void beginRun(void);
+   void endRun(void);
+   void setup(void);
+   void cleanup(void);
+
+   /// Get Functions
+   inline int getEvtPerJob() { return ievt_; }
+   inline int getEvtPerRun() { return jevt_; }
 
 
-	private:
+   private:
 
-		int EvtperJob_;
-		int EvtperRun_;
-		bool enableCleanup_;
-		bool verbose_;
-		bool debug_;
+   int ievt_;
+   int jevt_;
+   bool enableCleanup_;
+   bool verbose_;
+   bool debug_;
 
-		edm::FileInPath lookup_;
-		std::string prefixME_;
+   edm::FileInPath lookup_;
+   std::string prefixME_;
 
-		DQMStore* dqmStore_;
+   DQMStore* dqmStore_;
 
-		MonitorElement *hPed_[2][2][40][40];
-		MonitorElement *hTotN_[2][2][40][40];
+   MonitorElement *hPed_[2][2][40][40];
+   MonitorElement *hTotN_[2][2][40][40];
 
-		TF1 *fg;
+   TF1 *fg;
 
-		int nLines_;
-//		int runNum_, runtype_, seqtype_, dac_, gain_, precision_;
-//		int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
+   int nLines_;
+   //		int runNum_, runtype_, seqtype_, dac_, gain_, precision_;
+   //		int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
 
-		int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
+   int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
 
 };
 

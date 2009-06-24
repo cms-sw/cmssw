@@ -14,57 +14,57 @@ class DQMOldReceiver;
 class DQMStore;
 
 class EcalPreshowerMonitorClient : public edm::EDAnalyzer{
-	public:
-		EcalPreshowerMonitorClient(const edm::ParameterSet& ps);
-		virtual ~EcalPreshowerMonitorClient();
+   public:
+      EcalPreshowerMonitorClient(const edm::ParameterSet& ps);
+      virtual ~EcalPreshowerMonitorClient();
 
 
-	private:
-		virtual void analyze(const edm::Event &, const edm::EventSetup &);
-		virtual void analyze();
+   private:
+      virtual void analyze(const edm::Event &, const edm::EventSetup &);
+      virtual void analyze();
 
-		virtual void beginJob(const edm::EventSetup & c) ;
-		virtual void endJob() ;
-		virtual void beginRun() ;
-		virtual void endRun() ;
+      virtual void beginJob(const edm::EventSetup & c) ;
+      virtual void endJob() ;
+      virtual void beginRun() ;
+      virtual void endRun() ;
 
 
-		void htmlOutput(int);
+      void htmlOutput(int);
 
-		// ----------member data ---------------------------
+      // ----------member data ---------------------------
 
-		std::string outputFile_;
-		std::string inputFile_;
-		std::string prefixME_;
+      std::string outputFile_;
+      std::string inputFile_;
+      std::string prefixME_;
 
-		bool enableMonitorDaemon_;
+      bool enableMonitorDaemon_;
 
-		std::string clientName_;
-		std::string hostName_;
-		int hostPort_;
+      std::string clientName_;
+      std::string hostName_;
+      int hostPort_;
 
-		DQMOldReceiver* mui_;
-		DQMStore* dqmStore_;
+      DQMOldReceiver* mui_;
+      DQMStore* dqmStore_;
 
-		bool begin_run_;
-		bool end_run_;
-		bool debug_;
-		bool verbose_;
+      bool begin_run_;
+      bool end_run_;
+      bool debug_;
+      bool verbose_;
 
-		int prescaleFactor_;		
-                int EvtperJob_;
-                int EvtperRun_;
+      int prescaleFactor_;		
+      int ievt_;
+      int jevt_;
 
-		std::vector<std::string> enabledClients_;
-		std::vector<ESClient*> clients_;
+      std::vector<std::string> enabledClients_;
+      std::vector<ESClient*> clients_;
 
-		int nLines_, runNum_;
-		int runtype_, seqtype_, dac_, gain_, precision_;
-		int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
+      int nLines_, runNum_;
+      int runtype_, seqtype_, dac_, gain_, precision_;
+      int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
 
-		int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
-  		int qt[40][40], qtCriteria;
-		
+      int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
+      int qt[40][40], qtCriteria;
+
 
 };
 
