@@ -78,6 +78,11 @@ MeasurementTracker.pixelClusterProducer = cms.string('siClusterTranslator')
 MeasurementTracker.StripCPE = cms.string('FastStripCPE')
 MeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
+#Making sure not to use the Seed Comparitor
+process.newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
+process.secTriplets.SeedComparitorPSet.ComponentName = 'none'
+
+
 siClusterTranslator = cms.EDProducer("SiClusterTranslator")
 
 translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*iterTracking*trackCollectionMerging*newCombinedSeeds)

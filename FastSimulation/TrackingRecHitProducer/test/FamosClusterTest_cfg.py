@@ -98,17 +98,9 @@ process.MeasurementTracker.pixelClusterProducer = cms.string('siClusterTranslato
 process.MeasurementTracker.StripCPE = cms.string('FastStripCPE')
 process.MeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
-#JeanRoch's changes
-#process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.500
-#process.newTrajectoryFilter.filterPset.minPt = 0.300
-
-#process.secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.2
-#process.secCkfTrajectoryFilter.filterPset.minPt = 0.1
-
-#process.newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
-#process.secTriplets.SeedComparitorPSet.ComponentName = 'none'
-
-#process.secStepTrkLoose.minNumberLayers =4
+#Making sure not to use the Seed Comparitor
+process.newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
+process.secTriplets.SeedComparitorPSet.ComponentName = 'none'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -122,7 +114,7 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/E60F748A-0558-DE11-99B7-001D09F251E0.root',
     #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/9E97D7CC-8E57-DE11-A84E-0019B9F70607.root',
     #'/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt10/GEN-SIM-RECO/IDEAL_31X_v1/0008/5E8E28B2-9257-DE11-90DF-001D09F2983F.root'
-
+    
     #10 GeV Pions
     #'/store/relval/CMSSW_3_1_0_pre10/RelValSinglePiPt10/GEN-SIM-RECO/IDEAL_31X_v1/0001/FC4B15EF-505A-DE11-8A8A-003048678AC0.root'
 
@@ -142,6 +134,19 @@ process.FirstSecondThirdFourthFifthTrackMerging = cms.EDFilter("QualityFilter",
                                                     recTracks = cms.InputTag("generalTracks")
                                                     )
 
+process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+                                          TrackQuality = cms.string('highPurity'),
+                                          recTracks = cms.InputTag("zeroStepTracksWithQuality")
+                                          )
+process.firstStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
+                                           )
+process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+                                           TrackQuality = cms.string('highPurity'),
+                                           recTracks = cms.InputTag("tobtecStep")
+                                           )
+
 
 process.Output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('drop *',
@@ -155,7 +160,15 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #note: Include process.mix to run on a FastSim RelVal file
 #note: Include process.famosWithTrackerHits to run straight off a FullSim file
-process.Path = cms.Path(process.famosWithTrackerHits*process.siClusterTranslator*process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.FirstSecondThirdFourthFifthTrackMerging)
+process.Path = cms.Path(process.famosWithTrackerHits*
+                        process.siClusterTranslator*
+                        process.siPixelRecHits*
+                        process.siStripMatchedRecHits*
+                        process.ckftracks*
+                        process.zeroStepHighPurity*
+                        process.firstStepHighPurity*
+                        process.fifthStepHighPurity*
+                        process.FirstSecondThirdFourthFifthTrackMerging)
 process.o = cms.EndPath(process.Output)
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 #process.FamosRecHitAnalysis.UseCMSSWPixelParametrization = False
