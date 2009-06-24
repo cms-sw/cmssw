@@ -41,8 +41,68 @@ namespace edm
 
     // For now, list all of them here.  Later, make this selectable with input parameters
     // 
+
+    // Check to see if we are working in Full or Fast Simulation
+
+    DoFastSim_ = (ps.getParameter<std::string>("IsThisFastSim")=="YES");
+
+    // Put Fast Sim Sequences here for Simplification: Fewer options!
+
+    if(DoFastSim_) {
+
     // declare the products to produce
 
+      //Ecal:
+
+      EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
+      EERecHitCollectionDM_        = ps.getParameter<std::string>("EERecHitCollectionDM");
+      ESRecHitCollectionDM_        = ps.getParameter<std::string>("ESRecHitCollectionDM");
+
+      produces< EBRecHitCollection >(EBRecHitCollectionDM_);
+      produces< EERecHitCollection >(EERecHitCollectionDM_);
+      produces< ESRecHitCollection >(ESRecHitCollectionDM_);
+
+      EMWorker_ = new DataMixingEMWorker(ps);
+
+      //Hcal:
+
+      HBHERecHitCollectionDM_ = ps.getParameter<std::string>("HBHERecHitCollectionDM");
+      HORecHitCollectionDM_   = ps.getParameter<std::string>("HORecHitCollectionDM");
+      HFRecHitCollectionDM_   = ps.getParameter<std::string>("HFRecHitCollectionDM");
+      ZDCRecHitCollectionDM_  = ps.getParameter<std::string>("ZDCRecHitCollectionDM");
+
+      produces< HBHERecHitCollection >(HBHERecHitCollectionDM_);
+      produces< HORecHitCollection >(HORecHitCollectionDM_);
+      produces< HFRecHitCollection >(HFRecHitCollectionDM_);
+      produces< ZDCRecHitCollection >(ZDCRecHitCollectionDM_);
+
+      HcalWorker_ = new DataMixingHcalWorker(ps);
+
+      //Muons:
+
+      DTDigiCollectionDM_  = ps.getParameter<std::string>("DTDigiCollectionDM");
+      RPCDigiCollectionDM_ = ps.getParameter<std::string>("RPCDigiCollectionDM");
+      CSCStripDigiCollectionDM_ = ps.getParameter<std::string>("CSCStripDigiCollectionDM");
+      CSCWireDigiCollectionDM_  = ps.getParameter<std::string>("CSCWireDigiCollectionDM");
+      CSCComparatorDigiCollectionDM_  = ps.getParameter<std::string>("CSCComparatorDigiCollectionDM");
+
+      produces< DTDigiCollection >();
+      produces< RPCDigiCollection >();
+      produces< CSCStripDigiCollection >(CSCStripDigiCollectionDM_);
+      produces< CSCWireDigiCollection >(CSCWireDigiCollectionDM_);
+      produces< CSCComparatorDigiCollection >(CSCComparatorDigiCollectionDM_);
+
+      MuonWorker_ = new DataMixingMuonWorker(ps);
+
+      //Tracks:
+
+      produces< reco::TrackCollection >();
+      GeneralTrackWorker_ = new DataMixingGeneralTrackWorker(ps);
+
+    }
+    else{  // Full Simulation options
+
+    // declare the products to produce
     // Start with EM
 
     MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")=="Digis");
@@ -143,6 +203,8 @@ namespace edm
     produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
 
     SiPixelWorker_ = new DataMixingSiPixelWorker(ps);
+
+    }
 
   }
 

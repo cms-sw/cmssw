@@ -30,6 +30,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingGeneralTrackWorker.h"
 
 #include <map>
 #include <vector>
@@ -95,6 +96,10 @@ namespace edm
       // SiPixels
       std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
 
+      // FastSimulation or not?
+
+      bool DoFastSim_;
+
       // Submodules to handle the individual detectors
 
       DataMixingEMWorker *EMWorker_ ;
@@ -121,6 +126,10 @@ namespace edm
       // Pixels
 
       DataMixingSiPixelWorker *SiPixelWorker_ ;
+
+      // Tracks
+
+      DataMixingGeneralTrackWorker *GeneralTrackWorker_;
 
       virtual void createnewEDProduct();
       virtual void getSubdetectorNames();

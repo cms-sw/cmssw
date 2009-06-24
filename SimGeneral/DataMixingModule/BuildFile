@@ -17,6 +17,7 @@
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/TrackReco>
 <use name=CondFormats/EcalObjects>
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=SimCalorimetry/HcalSimAlgos>
@@ -36,6 +37,7 @@
   <use name=DataFormats/CSCDigi>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/SiPixelDigi>
+  <use name=DataFormats/TrackReco>
   <use name=CalibFormats/HcalObjects>
   <use name=CondFormats/EcalObjects>	
   <use name=SimCalorimetry/CaloSimAlgos>
