@@ -29,13 +29,13 @@ int main(int argc, char* argv[])
   }
 
   // parse HypoClassKey
-  TtSemiLeptonicEvent::HypoClassKey hypoClassKey;
-  if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoClassKey = TtSemiLeptonicEvent::kWMassMaxSumPt; else if
-    (!strcmp(argv[3], "kMaxSumPtWMass")) hypoClassKey = TtSemiLeptonicEvent::kMaxSumPtWMass; else if
-    (!strcmp(argv[3], "kGeom"         )) hypoClassKey = TtSemiLeptonicEvent::kGeom;          else if
-    (!strcmp(argv[3], "kKinFit"       )) hypoClassKey = TtSemiLeptonicEvent::kKinFit;        else if
-    (!strcmp(argv[3], "kGenMatch"     )) hypoClassKey = TtSemiLeptonicEvent::kGenMatch;      else if
-    (!strcmp(argv[3], "kMVADisc"      )) hypoClassKey = TtSemiLeptonicEvent::kMVADisc; 
+  TtEvent::HypoClassKey hypoClassKey;
+  if     (!strcmp(argv[3], "kWMassMaxSumPt")) hypoClassKey = TtEvent::kWMassMaxSumPt;
+  else if(!strcmp(argv[3], "kMaxSumPtWMass")) hypoClassKey = TtEvent::kMaxSumPtWMass;
+  else if(!strcmp(argv[3], "kGeom"         )) hypoClassKey = TtEvent::kGeom;
+  else if(!strcmp(argv[3], "kKinFit"       )) hypoClassKey = TtEvent::kKinFit;
+  else if(!strcmp(argv[3], "kGenMatch"     )) hypoClassKey = TtEvent::kGenMatch;
+  else if(!strcmp(argv[3], "kMVADisc"      )) hypoClassKey = TtEvent::kMVADisc; 
   else{
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
@@ -69,9 +69,8 @@ int main(int argc, char* argv[])
   TH1F* lepTopPt_  = new TH1F("lepTopPt",   "p_{t} (t_{lep}) [GeV]", 100,  0., 500.);
   TH1F* lepTopMass_= new TH1F("lepTopMass", "M (t_{lep}) [GeV]",      50, 50., 250.);
 
-
   // -------------------------------------------------  
-  std::cout << "open  file: " << argv[1] << std::endl;
+  std::cout << "open file: " << argv[1] << std::endl;
   // -------------------------------------------------
   TFile* inFile = TFile::Open(argv[1]);
   TTree* events_= 0;
@@ -80,7 +79,7 @@ int main(int argc, char* argv[])
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
 	      << "Unable to retrieve TTree Events!" << std::endl
-	      << "        Eighter wrong file name or the the tree doesn't exists" << std::endl;
+	      << "        Either wrong file name or the tree doesn't exist" << std::endl;
     // -------------------------------------------------  
     return -1;
   }
@@ -109,10 +108,10 @@ int main(int argc, char* argv[])
     // set branch address
     semiLepEvt_-> SetAddress( &semiLepEvt );
     // get event
-    decay_  ->GetEntry( evt );
-    genEvt_ ->GetEntry( evt );
+    decay_     ->GetEntry( evt );
+    genEvt_    ->GetEntry( evt );
     semiLepEvt_->GetEntry( evt );
-    events_ ->GetEntry( evt, 0 );
+    events_    ->GetEntry( evt, 0 );
 
     // -------------------------------------------------  
     if(evt>0 && !(evt%10)) std::cout << "  processing event: " << evt << std::endl;
@@ -153,29 +152,34 @@ int main(int argc, char* argv[])
   // save histograms to file
   TFile outFile( "analyzeHypothesis.root", "recreate" );
   switch( hypoClassKey ){
-  case TtSemiLeptonicEvent::kGeom : 
+  case TtEvent::kGeom : 
     outFile.mkdir("analyzeGeom");
     outFile.cd("analyzeGeom");
     break;
-  case TtSemiLeptonicEvent::kWMassMaxSumPt : 
+  case TtEvent::kWMassMaxSumPt : 
     outFile.mkdir("analyzeMaxSumPtWMass");
     outFile.cd("analyzeMaxSumPtWMass");
     break;
-  case TtSemiLeptonicEvent::kMaxSumPtWMass : 
+  case TtEvent::kMaxSumPtWMass : 
     outFile.mkdir("analyzeMaxSumPtWMass");
     outFile.cd("analyzeMaxSumPtWMass");
     break;
-  case TtSemiLeptonicEvent::kKinFit : 
+  case TtEvent::kKinFit : 
     outFile.mkdir("analyzeKinFit");
     outFile.cd("analyzeKinFit");
     break;
-  case TtSemiLeptonicEvent::kGenMatch : 
+  case TtEvent::kGenMatch : 
     outFile.mkdir("analyzeGenMatch");
     outFile.cd("analyzeGenMatch");
     break;
-  case TtSemiLeptonicEvent::kMVADisc : 
+  case TtEvent::kMVADisc : 
     outFile.mkdir("analyzeMVADisc");
     outFile.cd("analyzeMVADisc");
+    break;
+  case TtEvent::kKinSolution : 
+    // Just to suppress compiler warnings...
+    // This analyzer only supports semileptonic hypo classes so far,
+    // other keys are rejected in the very first part of the analyzer.
     break;
   }
   hadWPt_    ->Write( );
