@@ -626,7 +626,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   
   
   HWProblems_->setBinContent(0,0,ievt_);
-  for (int depth=0;depth<4;++depth) HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_);
+  for (int depth=0;depth<4;++depth) 
+    HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_);
 
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
@@ -1487,8 +1488,8 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
   int etabins=0;
   int phibins=0;
   
-  HWProblems_->Reset(); // clear old values so that we can use setBinContent without complication
-
+  HWProblems_->Reset(); // clear old values so that we can use "Fill" without problems
+  HWProblems_->setBinContent(0,0,ievt_);
   for (int depth=0;depth<4;++depth)
     {
       etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
@@ -1500,7 +1501,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
 	      if (probfrac==0) continue;
 	      HWProblemsByDepth_.depth[depth]->setBinContent(eta+1,phi+1, probfrac);
-	      HWProblems_->setBinContent(eta+1,phi+1,HWProblems_->getBinContent(eta+1,phi+1)+probfrac);
+	      HWProblems_->Fill(CalcIeta(eta,depth),phi+1,probfrac);
 	    }
 	}
     }
