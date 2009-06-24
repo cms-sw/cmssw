@@ -1,13 +1,13 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.9 $
-#     $Date: 2009/01/05 14:17:31 $
+#     $Revision: 1.10 $ by $Author$
+#     $Date: 2009/02/11 17:56:05 $
 #
 #  Save output from jobs that have FETCH status
 #  
 #
-#  Usage: mps_save.pl saveDir
+#  Usage: mps_save.pl saveDir [n]
 #
 
 BEGIN {
@@ -18,6 +18,8 @@ use Mpslib;
 
 $saveDir = "undefined";
 # parse the arguments
+$i=0;
+$nMergeJob=0;
 while (@ARGV) {
   $arg = shift(ARGV);
   if ($arg =~ /\A-/) {  # check for option 
@@ -36,14 +38,17 @@ while (@ARGV) {
     $i = $i + 1;
     if ($i eq 1) {
       $saveDir = $arg;
+    } elsif ($i eq 2) {
+      $nMergeJob = $arg;
     }
   }
 }
 
 
 if ($helpwanted == 1 or $saveDir eq "undefined") {
-  print "Usage:\n  mps_save.pl destination";
+  print "Usage:\n  mps_save.pl destination [n]";
   print "\n    Saves results in directory 'destination' (that is created if needed).";
+  print "\n    If <n> is given as second argument, choose n-th merge job, otherwise the 0-th.";
   print "\n  mps_save -h\n    This help.\n";
   exit 1;
 }
@@ -60,10 +65,11 @@ else {
 read_db();
 
 # go to merge job 
-$i = (@JOBID) - 1;
-unless (@JOBDIR[$i] eq "jobm") {
-  print "Bad merge job @JOBDIR[$i]\n";
+$i = $nJobs + $nMergeJob;
+if ($i >= @JOBID) {
+  print "Bad merge job number $i.\n";
 }
+
 
 if (@JOBSTATUS[$i] eq "FETCH"
     or @JOBSTATUS[$i] eq "OK" or @JOBSTATUS[$i] eq "TIMEL") {

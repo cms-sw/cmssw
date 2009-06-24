@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.4 $
-#     $Date: 2008/07/29 17:10:40 $
+#     $Revision: 1.5 $ by $Author$
+#     $Date: 2009/01/07 18:26:31 $
 #
 #  Re-Setup failed jobs for resubmission
 #  
@@ -92,13 +92,16 @@ if ($retryMerge != 1) {
 }
 else {
     # retry only the merge job
-    $i = $nJobs;
-    if (@JOBSTATUS[$i] eq "ABEND"
-	or @JOBSTATUS[$i] eq "FAIL"
-	or @JOBSTATUS[$i] eq "TIMEL"
-	or $force == 1) {
-	reScheduleM($i,$refresh);
-	++$nDone;
+    $i = $nJobs; # first non-mille job
+    while ( $i < @JOBDIR ) {
+	if (@JOBSTATUS[$i] eq "ABEND"
+	    or @JOBSTATUS[$i] eq "FAIL"
+	    or @JOBSTATUS[$i] eq "TIMEL"
+	    or $force == 1) {
+	    reScheduleM($i,$refresh);
+	    ++$nDone;
+	}
+	++$i;
     }
 }
 
@@ -141,13 +144,13 @@ sub reScheduleM() {
     $thePwd = `pwd`;
     chomp $thePwd;
     $theJobData = "$thePwd/jobData";
-    $theJobDir = "jobm";
+    $theJobDir = @JOBDIR[$_[0]];
     $batchScriptMerge = $batchScript . "merge";
-    print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobs\n";
-    system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobs";
+    print "mps_merge.pl $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs\n";
+    system "mps_merge.pl $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs";
     # create the merge job script
-    print "mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobs\n";
-    system "mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobs";
+    print "mps_scriptm.pl $batchScriptMerge jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs\n";
+    system "mps_scriptm.pl $batchScriptMerge jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs";
   }
   print "ReSchedule @JOBDIR[$_[0]]\n";
 }
