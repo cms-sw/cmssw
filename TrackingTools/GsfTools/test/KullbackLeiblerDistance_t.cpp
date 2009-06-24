@@ -19,11 +19,12 @@ void st(){}
 void en(){}
 
 
-  typedef DistanceBetweenComponents<5> Distance; 
-  typedef KullbackLeiblerDistance<5> KDistance;
-  typedef SingleGaussianState<5> GS;
-  typedef GS::Vector Vector;
-  typedef GS::Matrix Matrix;
+typedef DistanceBetweenComponents<5> Distance; 
+typedef KullbackLeiblerDistance<5> KDistance;
+typedef SingleGaussianState<5> GS;
+typedef GS::Vector Vector;
+typedef GS::Matrix Matrix;
+typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > Matrix6;
 
   Distance const & distance() {
       static Distance * d = new KDistance;
@@ -44,7 +45,7 @@ Matrix buildCovariance() {
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
 
   JacobianLocalToCartesian jl2c(plane,tp);
-  return ROOT::Math::Similarity(ROOT::Math::Transpose(jl2c.jacobian()),Matrix(ROOT::Math::SMatrixIdentity()));
+  return ROOT::Math::Similarity(ROOT::Math::Transpose(jl2c.jacobian()),Matrix6(ROOT::Math::SMatrixIdentity()));
   // return  ROOT::Math::Transpose(jl2c.jacobian())* jl2c.jacobian();
 
 }
