@@ -6,8 +6,8 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     TauIsoEtThreshold = cms.double(1.0),
     HtJetEtThreshold = cms.double(20.0),
     MHtJetEtThreshold = cms.double(20.0),
-    RctRegionEtLSB = cms.double(0.5),
-    GctHtLSB = cms.double(0.5),
+    RctRegionEtLSB = cms.double(0.25),
+    GctHtLSB = cms.double(0.25),
     # The CalibrationStyle should be either "PowerSeries", "ORCAStyle" or "PiecewiseCubic"
     CalibrationStyle = cms.string('ORCAStyle'),
     PowerSeriesCoefficients = cms.PSet(
