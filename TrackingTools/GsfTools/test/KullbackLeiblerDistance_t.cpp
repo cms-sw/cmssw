@@ -41,8 +41,10 @@ Matrix buildCovariance() {
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
+  LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
+
   JacobianLocalToCartesian jl2c(plane,tp);
-  return  jl2c.jacobian().transpose()* jl2c.jacobian();
+  return  ROOT::Math::Transpose(jl2c.jacobian())* jl2c.jacobian();
 
 }
 
