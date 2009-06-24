@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.19 $
-#     $Date: 2009/06/23 12:31:38 $
+#     $Revision: 1.20 $
+#     $Date: 2009/06/24 10:14:39 $
 #
 #  Setup local mps database
 #  
@@ -113,7 +113,7 @@ if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "\nKnown options:";
   print "  \n -m          Setup pede merging job.";
   print "  \n -a          Append jobs to existing list.";
-  print "  \n -M pedeMem  The allocated memory (MB) for pede (min: 512MB; def: 2560MB).";
+  print "  \n -M pedeMem  The allocated memory (MB) for pede (min: 1024MB; def: 2560MB).";
   print "\n";
   exit 1;
 }
