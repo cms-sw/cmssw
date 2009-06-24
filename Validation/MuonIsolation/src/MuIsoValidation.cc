@@ -301,6 +301,15 @@ MuIsoValidation::beginJob(const edm::EventSetup&)
 void 
 MuIsoValidation::endJob() {
   
+  // check if ME still there (and not killed by MEtoEDM for memory saving)
+  if( dbe )
+    {
+      // check existence of first histo in the list
+      if (! dbe->get(dirName+"/nMuons")) return;
+    }
+  else
+    return;
+
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Total Number of Events: " << nEvents
 			   << "\nTotal Number of Muons: " << nIncMuons
