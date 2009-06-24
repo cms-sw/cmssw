@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.5 2009/06/19 17:23:53 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.6 2009/06/24 19:11:22 biery Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -2268,15 +2268,15 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of DQM events");
-  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of error events");
-  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of stale chains");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of data discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of DQM events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of DQM discards");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of stale chains");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of ignored discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2316,15 +2316,15 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->eventStats.getSampleCount(), 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount(), 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->errorEventStats.getSampleCount(), 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount(), 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->dataDiscardCount, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      maker.addText(tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount(), 0);
+      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->dqmDiscardCount, 0);
+      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      maker.addText(tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount(), 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->skippedDiscardCount, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
