@@ -1,7 +1,7 @@
 # Unit test configuration file for GroupLogStatistics(category)
-#   Tests effect of GroupLogStatistics(category) 
-#   by having 6 differently labeled modules (of two distinct classes)
-#   all of which issue LogIssue with two "grouped" categories.
+#   Tests LoggedErrorsSummary, using modues that have normal categories
+#   and also grouped categories.   The expectation is that even grouped
+#   categories will be separated by module on the per-event summary.
 
 import FWCore.ParameterSet.Config as cms
 

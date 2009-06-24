@@ -65,6 +65,7 @@ MessageLogger = cms.Service("MessageLogger",
         output = cms.untracked.string('cerr')
     ),
     infos = cms.untracked.PSet(
+        placeholder = cms.untracked.bool(True),
         optionalPSet = cms.untracked.bool(True),
         Root_NoDictionary = cms.untracked.PSet(
             optionalPSet = cms.untracked.bool(True),
