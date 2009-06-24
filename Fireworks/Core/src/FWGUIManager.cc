@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.130 2009/06/24 13:16:20 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.131 2009/06/24 15:12:14 amraktad Exp $
 //
 
 // system include files
@@ -868,7 +868,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       {
          leftWeight = 0;
          rightWeight = 1;
-         printf(";eft pack not here \n");
       }
       std::stringstream sL;
       sL<<leftWeight;
@@ -880,13 +879,14 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    oTo.addKeyValue(kMainWindow, mainWindow, true);
    fflush(stdout);
    //------------------------------------------------------------
-   // organise info about all docked frames includding hidden, which point to undocked
+   // organize info about all docked frames includding hidden, which point to undocked
    std::vector<areaInfo> wpacked;
    if (leftWeight > 0)
    {
       TGPack* pp = m_viewPrimPack->GetPack();
       TGFrameElementPack *frameEL = (TGFrameElementPack*) pp->GetList()->At(1);
-      wpacked.push_back(areaInfo(frameEL));
+      if (frameEL->fWeight > 0)
+         wpacked.push_back(areaInfo(frameEL));
    }
    TGPack* sp = m_viewSecPack->GetPack();
    Int_t nf = sp->GetList()->GetSize();
@@ -923,17 +923,18 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(cfgVersion);
+   FWViewBase* wb;
    for(std::vector<areaInfo>::iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
-      FWConfiguration tempWiew(1);
-      FWViewBase* wb = (*it).viewBase;
-
-      wb->addTo(tempWiew);
-      views.addKeyValue(wb->typeName(), tempWiew, true);
-
-      FWConfiguration tempArea(cfgVersion);
-      addAreaInfoTo((*it), tempArea);
-      viewArea.addKeyValue(wb->typeName(), tempArea, true);
+      wb = (*it).viewBase;
+      if (wb) {
+         FWConfiguration tempWiew(1);
+         wb->addTo(tempWiew);
+         views.addKeyValue(wb->typeName(), tempWiew, true);
+         FWConfiguration tempArea(cfgVersion);
+         addAreaInfoTo((*it), tempArea);
+         viewArea.addKeyValue(wb->typeName(), tempArea, true);
+      }
    }
    oTo.addKeyValue(kViews, views, true);
    oTo.addKeyValue(kViewArea, viewArea, true);
