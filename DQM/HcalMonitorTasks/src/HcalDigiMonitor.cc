@@ -193,7 +193,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiErrorSpigot -> setAxisTitle("Spigot",1);  
       DigiErrorSpigot -> setAxisTitle("DCC Id",2);
       
-      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",DIGI_NUM+500,-0.5,DIGI_NUM+500-0.5);
+      float bins_cellcount[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5,
+			      11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5,
+			      21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5,
+			      31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5,
+			      41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5,
+			      60.5, 70.5, 80.5, 90.5, 100.5, 150.5, 200.5, 250.5, 300.5,
+			      400.5, 500.5, 600.5, 700.5, 800.5, 900.5, 1000.5, 1100.5,
+			      1200.5, 1300.5, 1400.5, 1500.5, 1600.5, 1700.5, 1800.5, 1900.5,
+			      2000.5, 2100.5, 2200.5, 2300.5, 2400.5, 2500.5, 2600.5, 2700.5,
+			      2800.5, 2900.5, 3000.5, 3100.5, 3200.5, 3300.5, 3400.5, 3500.5,
+			      3600.5, 3700.5, 3800.5, 3900.5, 4000.5, 4100.5, 4200.5, 4300.5,
+			      4400.5, 4500.5, 4600.5, 4700.5, 4800.5, 4900.5, 5000.5, 5100.5,
+			      5200.5, 5300.5, 5400.5, 5500.5, 5600.5, 5700.5, 5800.5, 5900.5,
+			      6000.5, 6100.5, 6200.5, 6300.5, 6400.5, 6500.5, 6600.5, 6700.5,
+			      6800.5, 6900.5, 7000.5, 7100.5, 7200.5, 7300.5, 7400.5, 7500.5,
+			      7600.5, 7700.5, 7800.5, 7900.5, 8000.5, 8100.5, 8200.5, 8300.5,
+			      8400.5, 8500.5, 8600.5, 8700.5, 8800.5, 8900.5, 9000.5, 9100.5};
+
+      
+
+      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
       DigiBQ -> setAxisTitle("# Bad Quality Digis",1);  
       DigiBQ -> setAxisTitle("# of Events",2);
       
@@ -203,7 +223,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
 
       m_dbe->setCurrentFolder(baseFolder_+"/digi_info");
-      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM+500,-0.5,DIGI_NUM+500-0.5);
+      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
       DigiNum -> setAxisTitle("# of Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
       
