@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                ComponentName = cms.string('StripCPEgeometric'),
                TanDiffusionAngle            = cms.double(0.01),
-               NoiseThreshold               = cms.double(2),
+               NoiseThreshold               = cms.double(1.6),
                ThicknessRelativeUncertainty = cms.double(0.05),
                #---Crosstalk
                APVpeakmode             = cms.bool(False),
