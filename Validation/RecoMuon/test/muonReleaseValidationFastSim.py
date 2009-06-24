@@ -10,17 +10,19 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="True"
+FastSimUse="False"
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre9'
+NewRelease='CMSSW_3_1_0_pre10'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar']
+startupsamples= ['RelValTTbar','RelValZMM']
+#startupsamples= ['']
 
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
+idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
+#idealsamples= ['RelValSingleMuPt10']
 
 
 
@@ -41,10 +43,11 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-#Sequence='only_validation_and_TP'
-Sequence='harvesting'
+Sequence='only_validation_and_TP'
+#Sequence='harvesting'
 
 Submit=False
+#DBS=False  # Ineffective...
 DBS=True
 OneAtATime=False
 
@@ -65,8 +68,9 @@ if (FastSimUse=="True"):
 else:
     NewSelectionLabel=''
 
-WorkDirBase = '/tmp/aperrott'
+#WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
+WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/CMSSW_3_1_0_pre10/src/Validation/RecoMuon/test'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -182,7 +186,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 # if not harvesting find secondary file names
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
-                        cmd3=cmd
+                        if (FastSimUse=="True"):
+                            cmd3=cmd
+                        else:
+                            cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
                     
