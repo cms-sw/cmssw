@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.129 2009/06/24 10:25:02 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.130 2009/06/24 13:16:20 amraktad Exp $
 //
 
 // system include files
@@ -458,20 +458,44 @@ FWGUIManager::subviewUnselected(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
 {
-   // if current selected swap with current
-   if (gEve->GetWindowManager()->GetCurrentWindow())
-   {
-      sva->getEveWindow()->SwapWindowWithCurrent();
-      subviewCurrentChanged(sva->getEveWindow());
-   }
-   else
-   {
-      // swap with big view
-      TGPack* pp = m_viewPrimPack->GetPack();
-      TGFrameElement *pel = (TGFrameElement*) pp->GetList()->First();
-      TEveCompositeFrame* pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-      TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
-   }
+  // if current selected swap with current
+  if (gEve->GetWindowManager()->GetCurrentWindow())
+  {
+    sva->getEveWindow()->SwapWindowWithCurrent();
+    subviewCurrentChanged(sva->getEveWindow());
+  }
+  else
+  {
+    // swap with first docked view
+    TEveCompositeFrame* pef;
+    TGFrameElementPack *pel;
+
+    // check if there is view in prim pack
+    TGPack* pp = m_viewPrimPack->GetPack();
+    if ( pp->GetList()->GetSize() > 2)
+    {
+      pel = (TGFrameElementPack*) pp->GetList()->At(1);
+      pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+      if ( pef && pef->GetEveWindow())
+      {
+	TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
+	return;
+      }
+    }
+    // no eve window found in primary check secondary
+    TGPack* sp = m_viewSecPack->GetPack();
+    Int_t nf = sp->GetList()->GetSize();
+    TIter frame_iterator(sp->GetList());
+    for (Int_t i=0; i<nf; ++i) {
+      pel = (TGFrameElementPack*)frame_iterator();
+      pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+      if ( pef && pef->GetEveWindow())
+      {
+	TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
+	return;
+      }
+    }
+  }
 }
 
 
@@ -832,7 +856,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
       // write proportions of horizontal pack (can be standalone item outside main frame)
-      if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 3)
+      if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
       {
          TGFrameElementPack *frameEL;
          frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1); // read every second  element, first on is splitter
