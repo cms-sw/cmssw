@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+hltEventNumberFilter = cms.EDFilter( "HLTEventNumberFilter", 
+   period = cms.uint32(4096), # accept if eventNumber%period ==0
+   invert = cms.bool(true)    # if invert=true, invert this accept decision
+)
