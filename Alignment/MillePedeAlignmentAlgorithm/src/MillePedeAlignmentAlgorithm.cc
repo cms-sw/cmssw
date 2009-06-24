@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.43 $
- *  $Date: 2009/04/03 08:59:34 $
+ *  $Revision: 1.44 $
+ *  $Date: 2009/05/11 09:41:48 $
  *  (last update by $Author: flucke $)
  */
 
@@ -171,19 +171,17 @@ void MillePedeAlignmentAlgorithm::terminate()
     }
   }
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
-  bool pedeOk = true;
   if (this->isMode(myPedeRunBit)) {
-    pedeOk = thePedeSteer->runPede(masterSteer);
+    thePedeSteer->runPede(masterSteer);
   }
   
   if (this->isMode(myPedeReadBit)) {
-    if (!pedeOk || !this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true)) {
+    if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                 << "Problems running pede or reading result, but applying!";
+                                 << "Problems reading pede result, but applying!";
     }
     // FIXME: problem if what is read in does not correspond to store
     theAlignmentParameterStore->applyParameters();
-    // thePedeSteer->correctToReferenceSystem(); // Already done before, here for possible rounding reasons...??
   }
 
   if (this->isMode(myMilleBit)) { // if mille was run, we store trees with suffix _1...

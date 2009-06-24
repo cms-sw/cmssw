@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.26 $
- *  $Date: 2008/09/02 17:18:06 $
+ *  $Revision: 1.27 $
+ *  $Date: 2009/02/24 13:44:06 $
  *  (last update by $Author: flucke $)
  */
 
@@ -735,11 +735,11 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
 }
 
 //_________________________________________________________________________
-bool PedeSteerer::runPede(const std::string &masterSteer) const
+int PedeSteerer::runPede(const std::string &masterSteer) const
 {
   if (masterSteer.empty()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede" << "Empty master steer file, stop";
-    return false;
+    return 0; //false;
   }
 
   std::string command(myConfig.getUntrackedParameter<std::string>("pedeCommand"));
@@ -753,11 +753,7 @@ bool PedeSteerer::runPede(const std::string &masterSteer) const
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Start running " << command;
   // FIXME: Recommended interface to system commands?
   int shellReturn = gSystem->Exec(command.c_str());
-  if (shellReturn) {
-    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede" << "Command returns " << shellReturn;
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Command returns " << shellReturn;
-  }
+  edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Command returns " << shellReturn;
 
-  return !shellReturn;
+  return shellReturn;
 }

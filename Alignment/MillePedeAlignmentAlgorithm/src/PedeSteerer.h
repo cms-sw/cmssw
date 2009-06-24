@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2008/07/31 16:37:13 $
- * $Revision: 1.17 $
+ * $Date: 2009/02/24 13:44:06 $
+ * $Revision: 1.18 $
  * (last update by $Author: flucke $)
  */
 
@@ -49,7 +49,7 @@ class PedeSteerer
   /// construct (and return name of) master steering file from config, binaryFiles etc.
   std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
   /// run pede, masterSteer should be as returned from buildMasterSteer(...)
-  bool runPede(const std::string &masterSteer) const;
+  int runPede(const std::string &masterSteer) const;
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
