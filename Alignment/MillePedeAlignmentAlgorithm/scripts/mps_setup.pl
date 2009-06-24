@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.18 $
-#     $Date: 2009/06/04 11:40:13 $
+#     $Revision: 1.19 $
+#     $Date: 2009/06/23 12:31:38 $
 #
 #  Setup local mps database
 #  
@@ -25,7 +25,7 @@
 # Known options:
 #  -m          Setup pede merging job.
 #  -a          Append jobs to existing list.
-#  -M pedeMem  The allocated memory (MB) for pede (min: 512MB; def: 2560MB).
+#  -M pedeMem  The allocated memory (MB) for pede (min: 1024 MB; def: 2560 MB).
 
 
 BEGIN {
