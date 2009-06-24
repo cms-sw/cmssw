@@ -9,86 +9,56 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        # /RelValTTbar/CMSSW_2_2_0_IDEAL_V9_v1/GEN-SIM-RECO
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/28C21C98-18B9-DD11-A601-001617E30D00.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/6262739A-17B9-DD11-BEE0-001617E30D00.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/82E7934A-B5B9-DD11-A0A1-001617E30CA4.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/8655C9E9-14B9-DD11-B733-000423D99264.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/AA8D34FF-19B9-DD11-87E8-000423D9A212.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-RECO/IDEAL_V9_v1/0000/C660BDA3-16B9-DD11-8E6B-000423D98800.root'
-    ),
-    secondaryFileNames = cms.untracked.vstring(
-        # /RelValTTbar/CMSSW_2_2_0_IDEAL_V9_v1/GEN-SIM-DIGI-RAW-HLTDEBUG 
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/0428C69F-16B9-DD11-B9F5-000423D98868.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/0E58A24A-14B9-DD11-A323-000423D6CA42.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/1A3BB17F-18B9-DD11-BD3F-000423D99BF2.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/2C14B558-19B9-DD11-B447-000423D996C8.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/2E407C55-18B9-DD11-8F0A-000423D990CC.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/344F0EE2-16B9-DD11-A600-001617DBD224.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/4E0703FB-18B9-DD11-92AC-001617E30F4C.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/56185FE7-16B9-DD11-BF7A-000423D6B2D8.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/5C46B22D-17B9-DD11-9637-000423D98AF0.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/5E1CEC82-19B9-DD11-9353-000423D6C8E6.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/60728BF9-19B9-DD11-98F7-000423D98F98.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/621498C5-15B9-DD11-9AEC-001617C3B6C6.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/62943C76-18B9-DD11-BD84-000423D9970C.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/9C270606-15B9-DD11-AA70-000423D6B42C.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/A4DE1D04-18B9-DD11-A10E-001617DBD472.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/B2F9D18B-17B9-DD11-84D2-001617C3B5E4.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/B623AA6C-17B9-DD11-853D-000423D98B08.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/C62FC61C-1BB9-DD11-921D-000423D98F98.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/C6FE245A-14B9-DD11-B2DB-0016177CA778.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/CA28BC8E-1AB9-DD11-B7D3-000423D98BE8.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/CEB8D2D4-15B9-DD11-801A-000423D998BA.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/DAF174CB-14B9-DD11-A2AE-000423D6CA42.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/E45F5C33-16B9-DD11-BE97-000423D99E46.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/E6F99F65-7CB9-DD11-94E7-000423D996B4.root',
-        '/store/relval/CMSSW_2_2_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v1/0000/EAC854C4-18B9-DD11-B0A0-000423D94524.root'
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/EA8E93EE-5C4F-DE11-BE60-000423D6B2D8.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/E4CDBFF2-5C4F-DE11-9144-001D09F2426D.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/E0CD0BBF-524F-DE11-A748-001D09F253D4.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/CC52C9F4-5C4F-DE11-A438-000423D94700.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/94443DEF-5C4F-DE11-870F-001D09F28C1E.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/8C395EF5-5C4F-DE11-8EB1-000423D9939C.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/7A4E997D-6E4F-DE11-A72E-000423D98EC8.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/64B5F5F5-5C4F-DE11-8A33-000423D985E4.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/5C6CCBF3-5C4F-DE11-978B-0030487A1FEC.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/520DEEE9-5C4F-DE11-8DB5-001D09F253D4.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/4492E8EB-5C4F-DE11-ADD8-001D09F2503C.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/3C7C61F5-5C4F-DE11-B7C5-000423D9880C.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/2897F5F0-5C4F-DE11-A77B-001D09F2546F.root',
+        '/store/relval/CMSSW_3_1_0_pre9/RelValProdTTbar/GEN-SIM-RAW/IDEAL_31X_v1/0007/1A5915F5-5C4F-DE11-8F1F-000423D992DC.root'
     )
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( -1 )
-)
+process.maxEvents = cms.untracked.PSet(   input = cms.untracked.int32( 1000 )   )
 
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 
-# Conditions: fake or frontier
-# process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP_30X::All'
+# Which AlCa condition for what. Available from pre11
+# * DESIGN_31X_V1 - no smearing, alignment and calibration constants = 1.  No bad channels.
+# * MC_31X_V1 (was IDEAL_31X) - conditions intended for 31X physics MC production: no smearing,
+#   alignment and calibration constants = 1.  Bad channels are masked.
+# * STARTUP_31X_V1 (was STARTUP_31X) - conditions needed for HLT 8E29 menu studies: As MC_31X_V1 (including bad channels),
+#   but with alignment and calibration constants smeared according to knowledge from CRAFT.
+# * CRAFT08_31X_V1 (was CRAFT_31X) - conditions for CRAFT08 reprocessing.
+# * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
+#   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
+# Meanwhile...:
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
-process.load("Configuration.StandardSequences.L1Emulator_cff")
-# Choose a menu/prescale/mask from one of the choices
-# in L1TriggerConfig.L1GtConfigProducers.Luminosity
-#process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 
-# Run HLT
-#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.load("HLTrigger.Configuration.HLT_2E30_cff")
-#process.schedule = process.HLTSchedule
-
-#process.hltL1gtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-#    UseL1GlobalTriggerRecord = cms.bool( False ),
-#    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
-#)
-#process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-#    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
-#)
-#process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1gtTrigReport + process.hltTrigReport )
-#process.schedule.append(process.HLTAnalyzerEndpath)
+process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 
 # OpenHLT specificss
 # Define the HLT reco paths
 process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
+# Remove the PrescaleService which, in 31X, it is expected once HLT_XXX_cff is imported
+del process.PrescaleService
 
 # AlCa OpenHLT specific settings
-process.hltEcalRegionalRestFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-process.hltEcalRegionalJetsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-process.hltEcalRegionalEgammaFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-process.hltEcalRegionalMuonsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-process.hltEcalRegionalTausFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+##process.hltEcalRegionalRestFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+##process.hltEcalRegionalJetsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+##process.hltEcalRegionalEgammaFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+##process.hltEcalRegionalMuonsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
+##process.hltEcalRegionalTausFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
@@ -96,14 +66,14 @@ process.analyzeThis = cms.Path( process.hltanalysis )
 
 # Schedule the whole thing
 process.schedule = cms.Schedule( 
-    process.DoHltMuon, 
     process.DoHLTJets, 
-    process.DoHLTPhoton, 
-    process.DoHLTElectron, 
-    process.DoHLTElectronStartUpWindows, 
-    process.DoHLTElectronLargeWindows, 
-    process.DoHLTTau, 
-    process.DoHLTBTag,
-    process.DoHLTAlCaECALPhiSym,
-    process.DoHLTAlCaPi0,
+    process.DoHltMuon, 
+##    process.DoHLTPhoton, 
+##    process.DoHLTElectron, 
+##    process.DoHLTElectronStartUpWindows, 
+##    process.DoHLTElectronLargeWindows, 
+##    process.DoHLTTau, 
+##    process.DoHLTBTag,
+##    process.DoHLTAlCaECALPhiSym,
+##    process.DoHLTAlCaPi0,
     process.analyzeThis )
