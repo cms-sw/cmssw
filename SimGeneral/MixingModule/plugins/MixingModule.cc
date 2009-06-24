@@ -334,13 +334,13 @@ namespace edm
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
   }
 
-  void MixingModule::createnewEDProduct() {
+  void MixingModule::createnewEDProduct(const edm::Event &e) {
     //create playback info
     playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
 
     //and CrossingFrames
     for (unsigned int ii=0;ii<workers_.size();ii++){
-      workers_[ii]->createnewEDProduct();
+      workers_[ii]->createnewEDProduct(e);
     }  
   }
  
@@ -380,10 +380,13 @@ namespace edm
     }
     
     // we have to do the ToF transformation for PSimHits once all pileup has been added
-     for (unsigned int ii=0;ii<workers_.size();ii++) {
-      workers_[ii]->setTof();
-      workers_[ii]->put(e);
-     }
+      for (unsigned int ii=0;ii<workers_.size();ii++) {
+        //not apply setTof in Step2 mode because it was done in the Step1
+	if (!mixProdStep2_){ 
+          workers_[ii]->setTof();
+	}
+        workers_[ii]->put(e);
+      }
  }
 
   void MixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    
