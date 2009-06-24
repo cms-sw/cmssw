@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.128 2009/06/23 17:14:08 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.129 2009/06/24 10:25:02 amraktad Exp $
 //
 
 // system include files
@@ -799,24 +799,24 @@ public:
 
 static
 void
-addAreaInfoTo(areaInfo* pInfo,
+addAreaInfoTo(areaInfo& pInfo,
               FWConfiguration& oTo)
 {
    {
       std::stringstream s;
-      s << pInfo->weight;
+      s << pInfo.weight;
       oTo.addKeyValue("weight", FWConfiguration(s.str()));
    }
    {
       std::stringstream s;
-      s<< pInfo->undocked;
+      s<< pInfo.undocked;
       oTo.addKeyValue("undocked", FWConfiguration(s.str()));
    }
 
-   if (pInfo->undockedMainFrame)
+   if (pInfo.undockedMainFrame)
    {
       FWConfiguration temp(oTo);
-      addWindowInfoTo(pInfo->undockedMainFrame, temp);
+      addWindowInfoTo(pInfo.undockedMainFrame, temp);
       oTo.addKeyValue("UndockedWindowPos", temp);
    }
 }
@@ -828,45 +828,53 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    Int_t cfgVersion=2;
 
    FWConfiguration mainWindow(cfgVersion);
+   float leftWeight, rightWeight;
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
       // write proportions of horizontal pack (can be standalone item outside main frame)
-      TGFrameElementPack *frameEL;
-      frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1); // read every second  element, first on is splitter
-      float leftWeight = frameEL->fWeight;
-      frameEL = (TGFrameElementPack*)  m_viewPrimPack->GetPack()->GetList()->At(3);
-      float rightWeight = frameEL->fWeight;
+      if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 3)
       {
-         std::stringstream s;
-         s<<leftWeight;
-         mainWindow.addKeyValue("leftWeight",FWConfiguration(s.str()));
+         TGFrameElementPack *frameEL;
+         frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1); // read every second  element, first on is splitter
+         leftWeight = frameEL->fWeight;
+         frameEL = (TGFrameElementPack*)  m_viewPrimPack->GetPack()->GetList()->At(3);
+         rightWeight = frameEL->fWeight;
       }
+      else
       {
-         std::stringstream s;
-         s<<rightWeight;
-         mainWindow.addKeyValue("rightWeight",FWConfiguration(s.str()));
+         leftWeight = 0;
+         rightWeight = 1;
+         printf(";eft pack not here \n");
       }
+      std::stringstream sL;
+      sL<<leftWeight;
+      mainWindow.addKeyValue("leftWeight",FWConfiguration(sL.str()));
+      std::stringstream sR;
+      sR<<rightWeight;
+      mainWindow.addKeyValue("rightWeight",FWConfiguration(sR.str()));
    }
-   oTo.addKeyValue(kMainWindow,mainWindow,true);
-
+   oTo.addKeyValue(kMainWindow, mainWindow, true);
+   fflush(stdout);
    //------------------------------------------------------------
    // organise info about all docked frames includding hidden, which point to undocked
-   std::vector<areaInfo*> wpacked;
-   TGPack* pp = m_viewPrimPack->GetPack();
-   TGFrameElementPack *frameEL = (TGFrameElementPack*) pp->GetList()->At(1);
-   wpacked.push_back(new areaInfo(frameEL));
+   std::vector<areaInfo> wpacked;
+   if (leftWeight > 0)
+   {
+      TGPack* pp = m_viewPrimPack->GetPack();
+      TGFrameElementPack *frameEL = (TGFrameElementPack*) pp->GetList()->At(1);
+      wpacked.push_back(areaInfo(frameEL));
+   }
    TGPack* sp = m_viewSecPack->GetPack();
    Int_t nf = sp->GetList()->GetSize();
    TIter frame_iterator(sp->GetList());
    for (Int_t i=0; i<nf; ++i) {
       TGFrameElementPack *seFE = (TGFrameElementPack*)frame_iterator();
       if (seFE->fWeight)
-         wpacked.push_back(new areaInfo(seFE));
+         wpacked.push_back(areaInfo(seFE));
    }
 
    //  add info about undocked
    TEveWindow* ew = 0;
-   areaInfo* pInfo = 0;
    for(std::vector<TEveWindow*>::const_iterator wIt = m_viewWindows.begin(); wIt != m_viewWindows.end(); ++wIt)
    {
       ew = *wIt;
@@ -874,13 +882,12 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       if (mainFrame)
       {
          // search for undocked in packed view
-         for(std::vector<areaInfo*>::const_iterator pIt = wpacked.begin(); pIt != wpacked.end(); ++pIt)
+         for(std::vector<areaInfo>::iterator pIt = wpacked.begin(); pIt != wpacked.end(); ++pIt)
          {
-            pInfo = *pIt;
-            if (pInfo->originalSlot && mainFrame->GetOriginalSlot() == pInfo->originalSlot)
+            if ((*pIt).originalSlot && mainFrame->GetOriginalSlot() == (*pIt).originalSlot)
             {
-               pInfo->viewBase = (FWViewBase*)(ew->GetUserData());
-               pInfo->undockedMainFrame = (TGMainFrame*)mainFrame;
+               (*pIt).viewBase = (FWViewBase*)(ew->GetUserData());
+               (*pIt).undockedMainFrame = (TGMainFrame*)mainFrame;
                // printf("found original slot for docked view %s\n", pInfo->viewBase->typeName().c_str());
                break;
             }// found match
@@ -892,16 +899,16 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(cfgVersion);
-   for(std::vector<areaInfo*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
+   for(std::vector<areaInfo>::iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
       FWConfiguration tempWiew(1);
-      FWViewBase* wb = (FWViewBase*)((*it)->viewBase);
+      FWViewBase* wb = (*it).viewBase;
 
       wb->addTo(tempWiew);
       views.addKeyValue(wb->typeName(), tempWiew, true);
 
       FWConfiguration tempArea(cfgVersion);
-      addAreaInfoTo(*it, tempArea);
+      addAreaInfoTo((*it), tempArea);
       viewArea.addKeyValue(wb->typeName(), tempArea, true);
    }
    oTo.addKeyValue(kViews, views, true);
@@ -979,7 +986,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       rightWeight = atof(mw->valueForKey("rightWeight")->value().c_str());
    }
 
-   TEveWindowSlot* primSlot = m_viewPrimPack->NewSlotWithWeight(leftWeight);
+   TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : 0;
    m_viewSecPack = m_viewPrimPack->NewSlotWithWeight(rightWeight)->MakePack();
    m_viewSecPack->SetVertical();
    m_viewSecPack->SetShowTitleBar(kFALSE);
@@ -998,7 +1005,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
-         createView(it->first, m_viewBases.size() ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot);
+         createView(it->first, (m_viewBases.size()|| (primSlot == 0)) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot);
          m_viewBases.back()->setFrom(it->second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());

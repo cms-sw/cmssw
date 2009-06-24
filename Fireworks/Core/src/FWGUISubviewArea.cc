@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.28 2009/05/22 20:28:23 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.29 2009/06/23 17:14:08 amraktad Exp $
 //
 
 // system include files
@@ -173,13 +173,6 @@ FWGUISubviewArea::isSelected() const
 
 
 //______________________________________________________________________________
-void 
-FWGUISubviewArea::configurePrimaryView()
-{
-   m_closeButton->SetEnabled(kFALSE);
-   m_undockButton->SetEnabled(kFALSE);
-}
-
 TEveWindow*
 FWGUISubviewArea::getEveWindow()
 {
