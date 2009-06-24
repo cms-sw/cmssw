@@ -1487,6 +1487,7 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 
   int etabins=0;
   int phibins=0;
+  int filleta=-9999;
   
   HWProblems_->Reset(); // clear old values so that we can use "Fill" without problems
   HWProblems_->setBinContent(0,0,ievt_);
@@ -1501,7 +1502,10 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
 	      if (probfrac==0) continue;
 	      HWProblemsByDepth_.depth[depth]->setBinContent(eta+1,phi+1, probfrac);
-	      HWProblems_->Fill(CalcIeta(eta,depth),phi+1,probfrac);
+	      filleta=CalcIeta(eta,depth+1);
+	      if (isHF(eta,depth+1))
+		filleta<0 ? filleta-- : filleta++;
+	      HWProblems_->Fill(filleta,phi+1,probfrac);
 	    }
 	}
     }
