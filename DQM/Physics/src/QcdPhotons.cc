@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/24 11:13:00 $
+ *  $Date: 2009/06/24 14:28:37 $
  *  $Revision: 1.1 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
@@ -53,9 +53,10 @@ void QcdPhotons::beginJob(EventSetup const& iSetup) {
   theDbe = Service<DQMStore>().operator->();
  
   theDbe->setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
-  h_photon_et           = theDbe->book1D("h_photon_et",           ";E_{T}(#gamma) (GeV)", 20, 0., 200.0);
-  h_jet_et              = theDbe->book1D("h_jet_et",              ";E_{T}(jet) (GeV)",    20, 0., 200.0);
-  h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", ";#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
+  h_photon_et           = theDbe->book1D("h_photon_et",           "#gamma with highest E_{T} in Event;E_{T}(#gamma) (GeV)", 20, 0., 200.0);
+  h_jet_et              = theDbe->book1D("h_jet_et",              "Jet with highest E_{T} in Event;E_{T}(jet) (GeV)",    20, 0., 200.0);
+  h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
+  h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet",  "(E_{T}(#gamma)-E_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,jet) > 2.8;#DeltaE_{T}(#gamma,jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
 }
 
 
@@ -67,7 +68,7 @@ void QcdPhotons::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<PhotonCollection> photonCollection;
   iEvent.getByLabel(thePhotonCollectionLabel, photonCollection);
 
-  // If no photons, exit
+  // If no photon candidates, exit
   if (!photonCollection.isValid()) return;
 
   // Find the highest et "decent" photon
@@ -87,6 +88,9 @@ void QcdPhotons::analyze(const Event& iEvent, const EventSetup& iSetup) {
     break;
   }
 
+  
+  // If no decent photons, exit
+  if (photon_et < 0.0) return;
 
   // Find the highest et jet
   Handle<CaloJetCollection> caloJetCollection;
@@ -104,10 +108,14 @@ void QcdPhotons::analyze(const Event& iEvent, const EventSetup& iSetup) {
     break;
   }
 
-  // Fill histograms
-  h_photon_et->Fill(photon_et);
-  h_jet_et->Fill(jet_et);
-  h_deltaPhi_photon_jet->Fill(calcDeltaPhi(jet_phi, photon_phi));
+  // Fill histograms if a photon was found
+  if ( photon_et > 0.0 && jet_et > 0.0) {
+    h_photon_et->Fill(photon_et);
+    h_jet_et   ->Fill(jet_et);
+    float deltaPhi = calcDeltaPhi(jet_phi, photon_phi);
+    h_deltaPhi_photon_jet->Fill(deltaPhi);
+    if (deltaPhi > 2.8) h_deltaEt_photon_jet->Fill( (photon_et-jet_et)/photon_et );
+  }
 }
 
 
