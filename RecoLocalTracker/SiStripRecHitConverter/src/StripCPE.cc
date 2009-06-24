@@ -75,7 +75,7 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
   
   const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
-  p.pitch_RelErr2 = (rtop) 
+  p.pitch_rel_err2 = (rtop) 
     ? pow( 0.5 * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2) / 12.
     : 0;
   
