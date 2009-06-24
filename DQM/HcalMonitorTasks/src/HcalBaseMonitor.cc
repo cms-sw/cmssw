@@ -795,7 +795,7 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
   
 int HcalBaseMonitor::CalcIeta(int eta, int depth)
 {
-  int ieta;
+  int ieta=-9999;
   if (depth==1)
     {
       ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
