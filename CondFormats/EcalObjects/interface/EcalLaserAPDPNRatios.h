@@ -3,7 +3,7 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.h,v 1.4 2007/09/09 12:51:14 torimoto Exp $
+ * $Id: EcalLaserAPDPNRatios.h,v 1.5 2007/09/27 09:42:55 ferriff Exp $
  **/
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -14,10 +14,12 @@ class EcalLaserAPDPNRatios {
   struct EcalLaserAPDPNpair{
     float p1;
     float p2;
+    float p3;
   };
   struct EcalLaserTimeStamp{
     edm::Timestamp t1;
     edm::Timestamp t2;
+    edm::Timestamp t3;
   };
   
   typedef EcalCondObjectContainer<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;

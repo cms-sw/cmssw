@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.39 2009/04/08 13:08:19 fra Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.40 2009/05/14 09:07:11 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -45,6 +45,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   laserAPDPNTime1_ = (unsigned long)atoi( ps.getUntrackedParameter<std::string>("laserAPDPNTime1","1").c_str());
   laserAPDPNTime2_= (unsigned long)atoi( ps.getUntrackedParameter<std::string>("laserAPDPNTime2","0").c_str());
+  laserAPDPNTime3_= (unsigned long)atoi( ps.getUntrackedParameter<std::string>("laserAPDPNTime3","0").c_str());
 
   laserAPDPNRefMean_ = ps.getUntrackedParameter<double>("laserAPDPNRefMean",1.0);
   laserAPDPNRefSigma_ = ps.getUntrackedParameter<double>("laserAPDPNRefSigma",0.0);
@@ -829,6 +830,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
+	  pairAPDPN.p3 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  ical->setValue( ebid, pairAPDPN );
       }
      }
@@ -844,6 +846,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
  	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
+ 	  pairAPDPN.p3 = laserAPDPNMean_ + r*laserAPDPNSigma_;
  	  ical->setValue( eedetidpos, pairAPDPN );
        }
 
@@ -854,6 +857,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
  	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
  	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
+ 	  pairAPDPN.p3 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
  	  ical->setValue( eedetidneg, pairAPDPN );
        }
      }
@@ -868,6 +872,12 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
     } else {
       TimeStamp.t2 = laserAPDPNTime2_;
     }
+    if(laserAPDPNTime3_ == 0 ){ 
+      TimeStamp.t3 = edm::Timestamp::endOfTime().value();
+    } else {
+      TimeStamp.t3 = laserAPDPNTime3_;
+    }
+
     ical->setTime( i, TimeStamp );
   }
   
