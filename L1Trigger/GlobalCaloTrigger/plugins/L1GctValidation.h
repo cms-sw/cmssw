@@ -71,6 +71,8 @@ class L1GctValidation : public edm::EDAnalyzer {
 
       TH2F* theMissEtVsMissHt;
       TH2F* theMissEtVsMissHtAngle;
+      TH2F* theDPhiVsMissEt;
+      TH2F* theDPhiVsMissHt;
 
       TH2F* theHtVsInternalJetsSum;
       TH2F* theMissHtVsInternalJetsSum;

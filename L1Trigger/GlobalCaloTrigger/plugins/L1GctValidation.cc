@@ -16,6 +16,8 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
@@ -50,8 +52,8 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   double lsbForEt = jfPars.product()->getRgnEtLsbGeV();
   double lsbForHt = jfPars.product()->getHtLsbGeV();
 
-  double httJetThreshold = jfPars.product()->getHtJetEtThresholdGeV();
-  double htmJetThreshold = jfPars.product()->getMHtJetEtThresholdGeV();
+  unsigned httJetThreshold = static_cast<int>(jfPars.product()->getHtJetEtThresholdGeV()/lsbForHt);
+  unsigned htmJetThreshold = static_cast<int>(jfPars.product()->getMHtJetEtThresholdGeV()/lsbForHt);
 
   ESHandle< L1CaloEtScale > htMissScale ;
   iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ; // which record?
@@ -114,6 +116,7 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
+  if (etTotFromRegions-(etTot*lsbForEt) > 100.) std::cout << "Big mismatch" << std::endl;
 
   double htMissGct = 0.0;
   double htMissAng = 0.0;
@@ -134,20 +137,23 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   double hyFromJets = 0.0;
   for (L1GctInternJetDataCollection::const_iterator jet=internalJetsColl->begin(); jet!=internalJetsColl->end(); jet++) {
     if (jet->bx()==0 && !jet->empty()) {
-      double jetEt = static_cast<double>(jet->et());
+      unsigned jetEtGct = jet->et();
+      double jetEt = static_cast<double>(jetEtGct);
       int phibin = jet->regionId().iphi();
       if (phibin>=9) phibin -= 18;
       // The phi bin centres are at 0, 20, 40, ... degrees
       double jetAng = (static_cast<double>(phibin))*M_PI/9.;
-      if (jetEt>httJetThreshold) {
+      if (jetEtGct>httJetThreshold) {
 	htFromJets += jetEt;
       }
-      if (jetEt>htmJetThreshold) {
+      if (jetEtGct>htmJetThreshold) {
 	hxFromJets += jetEt*cos(jetAng);
 	hyFromJets += jetEt*sin(jetAng);
       }
     }
   }
+
+  double dPhiMetMht = deltaPhi(etMAng,htMissAng);
 
   theSumEtInLsb->Fill(etTot);
   theSumHtInLsb->Fill(etHad);
@@ -171,6 +177,8 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   theMissEtVsMissHt->Fill(etMiss*lsbForEt, htMissGeV);
   theMissEtVsMissHtAngle->Fill(etMAng, htMissAng);
+  theDPhiVsMissEt->Fill(dPhiMetMht,etMiss*lsbForEt);
+  theDPhiVsMissHt->Fill(dPhiMetMht,htMissGeV);
 
   theHtVsInternalJetsSum->Fill(etHad*lsbForHt, htFromJets*lsbForHt);
   if (htMissGct<126.5) {
@@ -250,6 +258,10 @@ L1GctValidation::beginJob(const edm::EventSetup&)
 				      100, 0., 500., 100, 0., 500.);
   theMissEtVsMissHtAngle = dir0.make<TH2F>("MissEtVsMissHtAngle", "Angle correlation Missing Et vs Missing Ht",
 					   72, -M_PI, M_PI, 72, -M_PI, M_PI);
+  theDPhiVsMissEt = dir0.make<TH2F>("theDPhiVsMissEt", "Angle difference MET-MHT vs MET magnitude",
+				    72, -M_PI, M_PI, 100, 0., 500.);
+  theDPhiVsMissHt = dir0.make<TH2F>("theDPhiVsMissHt", "Angle difference MET-MHT vs MHT magnitude",
+				    72, -M_PI, M_PI, 100, 0., 500.);
 
   theHtVsInternalJetsSum     = dir0.make<TH2F>("HtVsInternalJetsSum", "Ht vs scalar sum of jet Et values (in GeV)",
 					       128, 0., 2048., 128, 0., 2048.);

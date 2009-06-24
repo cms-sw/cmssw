@@ -36,8 +36,10 @@ void printGctValidationHistos()
   c1->cd(10); Plot(f,"l1GctValidation/L1GctEtSums/MissHtInLsb","Missing Et (L1 units)"); c1->Update();
   c1->cd(11); Plot(f,"l1GctValidation/L1GctEtSums/MissHtVector","Missing Ex (GeV)", "Missing Ey (GeV)", "col"); c1->Update();
 
-  c1->cd(6);  Plot(f,"l1GctValidation/L1GctEtSums/MissEtVsMissHt","Missing Et (GeV)", "Missing Ht (GeV)", "col"); c1->Update();
-  c1->cd(9);  Plot(f,"l1GctValidation/L1GctEtSums/MissEtVsMissHtAngle","Missing Et phi", "Missing Ht phi", "col"); c1->Update();
+  c1->cd(3);  Plot(f,"l1GctValidation/L1GctEtSums/MissEtVsMissHt","Missing Et (GeV)", "Missing Ht (GeV)", "col"); c1->Update();
+  c1->cd(6);  Plot(f,"l1GctValidation/L1GctEtSums/MissEtVsMissHtAngle","Missing Et phi", "Missing Ht phi", "col"); c1->Update();
+  c1->cd(9);  Plot(f,"l1GctValidation/L1GctEtSums/theDPhiVsMissEt","(Met phi)-(Mht phi)", "Missing Et mag", "col"); c1->Update();
+  c1->cd(12); Plot(f,"l1GctValidation/L1GctEtSums/theDPhiVsMissHt","(Met phi)-(Mht phi)", "Missing Ht mag", "col"); c1->Update();
 
   c1->Clear();
 

@@ -10,9 +10,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 startupConfig = bool(True)
-qcdData = bool(True)
+qcdData = bool(False)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('gctValidationPlots.root')
