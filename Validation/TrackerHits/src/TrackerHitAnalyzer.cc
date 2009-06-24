@@ -312,6 +312,16 @@ TrackerHitAnalyzer::~TrackerHitAnalyzer()
 
 void TrackerHitAnalyzer::endJob() 
 {
+  //before check that histos are there....
+
+  // check if ME still there (and not killed by MEtoEDM for memory saving)
+  if( fDBE )
+    {
+      // check existence of first histo in the list
+      if (! fDBE->get("TrackerHitsV/TrackerHit/tof_eta")) return;
+    }
+  else
+    return;
 
   fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
   htofeta_profile  = fDBE->bookProfile ("tof_eta_profile",htofeta->getTH2F()->ProfileX());
