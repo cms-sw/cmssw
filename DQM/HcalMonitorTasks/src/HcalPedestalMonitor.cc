@@ -101,6 +101,9 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			"ADC",0,10,200);
       setupDepthHists1D(ADCPedestalRMS_1D, "1D Pedestal Widths",
 			"ADC",0,10,200);
+
+      // Subtracted pedetals (disable for now)
+      /*
       m_dbe->setCurrentFolder(baseFolder_+"/adc/subtracted(BETA)");
       SetupEtaPhiHists(subADCPedestalMean, "Subtracted Pedestal Values Map",
 			"ADC");
@@ -110,7 +113,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			"ADC",-10,10,200);
       setupDepthHists1D(subADCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
 			"ADC",-10,10,200);
-    
+      */
+
       m_dbe->setCurrentFolder(baseFolder_+"/fc/unsubtracted");
       SetupEtaPhiHists(fCPedestalMean, "Pedestal Values Map",
 			"fC");
@@ -120,6 +124,8 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			"fC",-5,15,200);
       setupDepthHists1D(fCPedestalRMS_1D, "1D Pedestal Widths",
 			"fC",0,10,200);
+
+      /*
       m_dbe->setCurrentFolder(baseFolder_+"/fc/subtracted(BETA)");
       SetupEtaPhiHists(subfCPedestalMean, "Subtracted Pedestal Values Map",
 			"fC");
@@ -129,6 +135,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 			"fC",-10,10,200);
       setupDepthHists1D(subfCPedestalRMS_1D, "1D Subtracted Pedestal Widths",
 			"fC",-10,10,200);
+      */
 
       m_dbe->setCurrentFolder(baseFolder_+"/reference_pedestals/adc");
       SetupEtaPhiHists(ADC_PedestalFromDBByDepth, 
@@ -229,12 +236,13 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       fC_WidthFromDBByDepth.depth[i]->setBinContent(0,ievt_);
       ADCPedestalMean.depth[i]->setBinContent(0,ievt_);
       ADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
-      subADCPedestalMean.depth[i]->setBinContent(0,ievt_);
-      subADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
       fCPedestalMean.depth[i]->setBinContent(0,ievt_);
       fCPedestalRMS.depth[i]->setBinContent(0,ievt_);
-      subfCPedestalMean.depth[i]->setBinContent(0,ievt_);
-      subfCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      // Disable subtracted pedestals for now
+      //subADCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      //subADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
+      //subfCPedestalMean.depth[i]->setBinContent(0,ievt_);
+      //subfCPedestalRMS.depth[i]->setBinContent(0,ievt_);
       ProblemPedestalsByDepth.depth[i]->setBinContent(0,ievt_);
     }
 
@@ -246,12 +254,13 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       fC_1D_WidthFromDBByDepth[i]->setBinContent(0,ievt_);
       ADCPedestalMean_1D[i]->setBinContent(0,ievt_);
       ADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
-      subADCPedestalMean_1D[i]->setBinContent(0,ievt_);
-      subADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
       fCPedestalMean_1D[i]->setBinContent(0,ievt_);
       fCPedestalRMS_1D[i]->setBinContent(0,ievt_);
-      subfCPedestalMean_1D[i]->setBinContent(0,ievt_);
-      subfCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      // Disable subtracted pedestals for now
+      //subfCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      //subfCPedestalRMS_1D[i]->setBinContent(0,ievt_);
+      //subADCPedestalMean_1D[i]->setBinContent(0,ievt_);
+      //subADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
     }
   ProblemPedestals->setBinContent(0,ievt_);
 
@@ -460,11 +469,13 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
       fCPedestalMean_1D[subdet]->Reset();
       fCPedestalRMS_1D[subdet]->Reset();
   
-      //subtracted pedestals
+      //subtracted pedestals -- disable for now
+      /*
       subADCPedestalMean_1D[subdet]->Reset();
       subADCPedestalRMS_1D[subdet]->Reset();
       subfCPedestalMean_1D[subdet]->Reset();
       subfCPedestalRMS_1D[subdet]->Reset();
+      */
     }
 
   for (int eta=0;eta<85;++eta)
@@ -528,17 +539,22 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      //subtracted pedestals
 	      ADC_temp_mean = ADC_mean-ADC_PedestalFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      ADC_temp_RMS = ADC_RMS-ADC_WidthFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
+	      // disable subtracted histograms for now
+	      /* 
 	      subADCPedestalMean.depth[depth]->setBinContent(eta+1,phi+1,ADC_temp_mean);
 	      subADCPedestalRMS.depth[depth]->setBinContent(eta+1,phi+1,ADC_temp_RMS);
 	      subADCPedestalMean_1D[subdet-1]->Fill(ADC_temp_mean);
 	      subADCPedestalRMS_1D[subdet-1]->Fill(ADC_temp_RMS);
+	      */
 	      fC_temp_mean = fC_mean-fC_PedestalFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      fC_temp_RMS = fC_RMS-fC_WidthFromDBByDepth.depth[depth]->getBinContent(eta+1,phi+1);
+	      /*
 	      subfCPedestalMean.depth[depth]->setBinContent(eta+1,phi+1,fC_temp_mean);
 	      subfCPedestalRMS.depth[depth]->setBinContent(eta+1,phi+1,fC_temp_RMS);
 	      subfCPedestalMean_1D[subdet-1]->Fill(fC_temp_mean);
 	      subfCPedestalRMS_1D[subdet-1]->Fill(fC_temp_RMS);
-	      
+	      */
+
 	      // Overall plots by depth
 	      MeanMapByDepth.depth[depth]->setBinContent(eta+1,phi+1,ADC_mean);
 	      RMSMapByDepth.depth[depth]->setBinContent(eta+1,phi+1,ADC_RMS);
@@ -567,12 +583,12 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   FillUnphysicalHEHFBins(fCPedestalMean); 
   FillUnphysicalHEHFBins(fCPedestalRMS);  
   
-  //subtracted pedestals
-  FillUnphysicalHEHFBins(subADCPedestalMean);
-  FillUnphysicalHEHFBins(subADCPedestalRMS); 
+  //subtracted pedestals -- disable for now
+  //FillUnphysicalHEHFBins(subADCPedestalMean);
+  //FillUnphysicalHEHFBins(subADCPedestalRMS); 
   
-  FillUnphysicalHEHFBins(subfCPedestalMean); 
-  FillUnphysicalHEHFBins(subfCPedestalRMS);  
+  //FillUnphysicalHEHFBins(subfCPedestalMean); 
+  //FillUnphysicalHEHFBins(subfCPedestalRMS);  
 
   // Individual capid plots
 
