@@ -3,5 +3,6 @@
 <use name=DQMServices/Components>
 <use name=FWCore/PluginManager>
 <use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaReco>
 <use name=RecoMuon/TrackingTools>
 <flags EDM_PLUGIN=1>
