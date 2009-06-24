@@ -576,11 +576,11 @@ void HcalRecHitMonitor::fillNevents(void)
   // Fill Occupancy & Average Energy,Time plots
   if (ievt_>0)
     {
-      for (int eta=0;eta<85;++eta)
+      for (int mydepth=0;mydepth<4;++mydepth)
 	{
-	  for (int phi=0;phi<72;++phi)
+	  for (int eta=0;eta<OccupancyByDepth.depth[mydepth]->getNbinsX();++eta)
 	    {
-	      for (int mydepth=0;mydepth<4;++mydepth)
+	      for (int phi=0;phi<72;++phi)
 		{
 		  OccupancyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
 		  OccupancyThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_thresh_[eta][phi][mydepth]);
@@ -608,10 +608,9 @@ void HcalRecHitMonitor::fillNevents(void)
 		      TimeThreshByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, time_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
 		    }
 
-		} // for (int depth=0;depth<4;++depth)
-	    } // for (int phi=0;phi<72;++phi)
-	} // for (int eta=0;eta<85;++eta)
-
+		} // for (int phi=0;phi<72;++phi)
+	    } // for (int eta=0;eta<OccupancyByDepth...;++eta)
+	} // for (int mydepth=0;...)
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
       FillUnphysicalHEHFBins(EnergyByDepth);
