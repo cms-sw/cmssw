@@ -33,9 +33,9 @@ class ESPedestalTask : public edm::EDAnalyzer {
       DQMStore* dqmStore_;
       MonitorElement* hADC_[2][2][40][40][32];
 
-     int nLines_, runNum_, eCount_; 
-     int runtype_, seqtype_, dac_, gain_, precision_;
-     int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
+      int nLines_, runNum_, eCount_; 
+      int runtype_, seqtype_, dac_, gain_, precision_;
+      int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
 
 };
 

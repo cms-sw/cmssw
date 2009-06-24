@@ -39,7 +39,7 @@ class ESOccupancyTask : public edm::EDAnalyzer {
       MonitorElement* hE1E2_[2];
 
 
-     int runNum_, eCount_; 
+      int runNum_, eCount_; 
 
 };
 
