@@ -33,6 +33,7 @@ class StripCPEgeometric : public StripCPE
     void dropSmallerEdgeStrip();
     float middle() const;
     float centroid() const;
+    float sumQ() const;
     uncertain_t eta() const;
     bool deformed() const;
     float maxProjection() const;
@@ -42,7 +43,6 @@ class StripCPEgeometric : public StripCPE
   private:
     const float& last() const {return *(first+N-1);}
     std::vector<float>::const_iterator Qbegin, first;
-    float sumQ;
   };
 
   uncertain_t find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;

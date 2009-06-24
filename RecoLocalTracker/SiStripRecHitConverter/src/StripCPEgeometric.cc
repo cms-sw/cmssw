@@ -92,7 +92,7 @@ useNMinusOne(const WrappedCluster& wc, const uncertain_t& proj) const {
   if( wc.eta()() > 1./(wc.N-1) ) return true;
   if( wc.N==2 || wc.N==3) {
     const uncertain_t wc_strip = geometric_position(wc,proj);
-    const int sgn = - wc.eta()()/fabs(wc.eta()());
+    const int sgn = - (int)(wc.eta()()/fabs(wc.eta()()));
     return sgn* ( (wc_strip() + sgn*proj()/2) - (wc.middle() + sgn*(wc.N/2 - 1)) ) < noise_threshold * sqrt(wc_strip.err2);
   }
   return fabs(  wcTest.dedxRatio(proj())-1 )   <   fabs(  wc.dedxRatio(proj())-1 ); 
@@ -103,17 +103,15 @@ StripCPEgeometric::WrappedCluster::
 WrappedCluster(const std::vector<float>& Q) : 
   N(Q.size()),
   Qbegin(Q.begin()),
-  first(Q.begin()),
-  sumQ(accumulate(first, first+N, float(0)))
+  first(Q.begin())
   {}
 
 inline
 void StripCPEgeometric::WrappedCluster::
 dropSmallerEdgeStrip() {
-  if(*first == last())  { sumQ-= *first; first++; 
-                          sumQ-= last();          N-=2; } 
-  else if(*first<last()){ sumQ-= *first; first++; N-=1; }
-  else                  { sumQ-= last();          N-=1; }
+  if(*first == last())  { first++; N-=2; } 
+  else if(*first<last()){ first++; N-=1; }
+  else                  {          N-=1; }
 }
 
 inline
@@ -126,19 +124,24 @@ float StripCPEgeometric::WrappedCluster::
 centroid() const { 
   float sumXQ(0);
   for(std::vector<float>::const_iterator i = first; i<first+N; i++) sumXQ += (i-Qbegin)*(*i);
-  return sumXQ/sumQ + 0.5;
+  return sumXQ/sumQ() + 0.5;
 }
+
+inline
+float StripCPEgeometric::WrappedCluster::
+sumQ() const
+{ return accumulate(first, first+N, float(0));}
 
 inline
 StripCPEgeometric::uncertain_t StripCPEgeometric::WrappedCluster::
 eta() const 
-{ return uncertain_t( (last()-*first) / sumQ , 
-		      ( pow( last()-*first, 2) / sumQ + *first + last() ) / (sumQ*sumQ)  );}
+{ return uncertain_t( (last()-*first) / sumQ() , 
+		      ( pow( last()-*first, 2) / sumQ() + *first + last() ) / pow(sumQ(),2)  );}
 
 inline
 bool StripCPEgeometric::WrappedCluster::
 deformed() const 
-{  return  N>2  &&  std::max(*first,last()) > (sumQ-*first-last())/(N-2);}
+{  return  N>2  &&  std::max(*first,last()) > accumulate(first+1,first+N-1,float(0)) / (N-2);}
 
 inline
 float StripCPEgeometric::WrappedCluster::
@@ -148,10 +151,9 @@ maxProjection() const
 inline
 float StripCPEgeometric::WrappedCluster::
 dedxRatio(const float& projection) const 
-{ return ( sumQ/(*first+last()) - 1 ) * ( projection/(N-2) - 1 ); }
+{ return ( sumQ()/(*first+last()) - 1 ) * ( projection/(N-2) - 1 ); }
 
 inline
 float StripCPEgeometric::WrappedCluster::
 smallerEdgeCharge() const 
 { return (*first<last())?  *first  : last(); }
-
