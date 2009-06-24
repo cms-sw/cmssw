@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# correct computation of the GenMET, with muons
+
 genParticlesForMETAllVisible = cms.EDFilter(
     "InputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),

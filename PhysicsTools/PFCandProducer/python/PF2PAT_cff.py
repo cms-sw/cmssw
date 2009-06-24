@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.genMetTrue_cff  import *
+from PhysicsTools.PFCandProducer.GeneratorTools.genMetTrue_cff  import *
 
 from PhysicsTools.PFCandProducer.pfMET_cfi  import *
 from PhysicsTools.PFCandProducer.pfNoPileUp_cff  import *
@@ -16,6 +16,8 @@ from PhysicsTools.PFCandProducer.TopProjectors.noElectron_cfi import *
 from PhysicsTools.PFCandProducer.TopProjectors.noJet_cfi import *
 from PhysicsTools.PFCandProducer.TopProjectors.noTau_cfi import *
 
+# generator tools
+from PhysicsTools.PFCandProducer.GeneratorTools.sortGenParticles_cff import *
 
 PF2PAT = cms.Sequence(
     genMetTrueSequence + 
@@ -34,3 +36,6 @@ PF2PAT = cms.Sequence(
     )
 
 
+genForPF2PAT = cms.Sequence(
+    sortGenParticlesSequence
+    )
