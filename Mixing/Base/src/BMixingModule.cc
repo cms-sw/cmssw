@@ -108,7 +108,7 @@ namespace edm {
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup& setup) { 
 
     // Create EDProduct
-    createnewEDProduct();
+    createnewEDProduct(e);
 
     // Add signals
     if (!mixProdStep1_){ 
