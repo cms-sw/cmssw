@@ -550,33 +550,23 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("24");
+  topaaa.addValue("14");
   topaa.addKeyValue("x", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("121");
+  topaaa.addValue("56");
   topaa.addKeyValue("y", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("951");
+  topaaa.addValue("1024");
   topaa.addKeyValue("width", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("891");
+  topaaa.addValue("768");
   topaa.addKeyValue("height", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("0.786358");
-  topaa.addKeyValue("leftWeight", topaaa);
-}
-{
-  FWConfiguration topaaa(0);
-  topaaa.addValue("1.21364");
-  topaa.addKeyValue("rightWeight", topaaa);
 }
   topa.addKeyValue("main window", topaa);
 }
@@ -989,7 +979,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Compress detectors", topaaaa);
 }
 {
@@ -1004,7 +994,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.78");
+  topaaaa.addValue("0.953984");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -1069,7 +1059,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("2855");
+  topaaaa.addValue("1761.85");
   topaaa.addKeyValue("cameraMatrix12Rho Z", topaaaa);
 }
 {
@@ -1092,304 +1082,13 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaa(1);
 {
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("emEt");
-  topaaaa.addValue("emEt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("hadEt");
-  topaaaa.addValue("hadEt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("et");
-  topaaaa.addValue("Et");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("CaloTower", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("ECAL");
-  topaaaa.addValue("p4().E() * emEnergyFraction()");
-  topaaaa.addValue("1");
-  topaaaa.addValue("HCAL");
-  topaaaa.addValue("p4().E() * energyFractionHadronic()");
-  topaaaa.addValue("1");
-  topaaaa.addValue("emf");
-  topaaaa.addValue("emEnergyFraction()");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::CaloJet", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("status");
-  topaaaa.addValue("status");
-  topaaaa.addValue("0");
-  topaaaa.addValue("pdgId");
-  topaaaa.addValue("pdgId");
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("reco::GenParticle", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("q");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("E/p");
-  topaaaa.addValue("eSuperClusterOverP");
-  topaaaa.addValue("3");
-  topaaaa.addValue("H/E");
-  topaaaa.addValue("hadronicOverEm");
-  topaaaa.addValue("3");
-  topaaaa.addValue("fbrem");
-  topaaaa.addValue("(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()");
-  topaaaa.addValue("3");
-  topaaaa.addValue("dei");
-  topaaaa.addValue("deltaEtaSuperClusterTrackAtVtx()");
-  topaaaa.addValue("3");
-  topaaaa.addValue("dpi");
-  topaaaa.addValue("deltaPhiSuperClusterTrackAtVtx()");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::GsfElectron", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::Jet", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("MET");
-  topaaaa.addValue("et");
-  topaaaa.addValue("1");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("sumEt");
-  topaaaa.addValue("sumEt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("mEtSig");
-  topaaaa.addValue("mEtSig");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::MET", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("q");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("global");
-  topaaaa.addValue("isGlobalMuon");
-  topaaaa.addValue("-2");
-  topaaaa.addValue("tracker");
-  topaaaa.addValue("isTrackerMuon");
-  topaaaa.addValue("-2");
-  topaaaa.addValue("SA");
-  topaaaa.addValue("isStandAloneMuon");
-  topaaaa.addValue("-2");
-  topaaaa.addValue("calo");
-  topaaaa.addValue("isCaloMuon");
-  topaaaa.addValue("-2");
-  topaaaa.addValue("tr pt");
-  topaaaa.addValue("track().pt()");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("matches");
-  topaaaa.addValue("numberOfMatches('SegmentArbitration')");
-  topaaaa.addValue("0");
-  topaaaa.addValue("d0");
-  topaaaa.addValue("track().d0()");
-  topaaaa.addValue("3");
-  topaaaa.addValue("d0 / d0Err");
-  topaaaa.addValue("track().d0() / track().d0Error()");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::Muon", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("H/E");
-  topaaaa.addValue("hadronicOverEm");
-  topaaaa.addValue("3");
-  topaaa.addKeyValue("reco::Photon", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("q");
-  topaaaa.addValue("charge");
-  topaaaa.addValue("0");
-  topaaaa.addValue("pT");
-  topaaaa.addValue("pt");
-  topaaaa.addValue("1");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("eta");
-  topaaaa.addValue("3");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("phi");
-  topaaaa.addValue("3");
-  topaaaa.addValue("d0");
-  topaaaa.addValue("d0");
-  topaaaa.addValue("5");
-  topaaaa.addValue("d0Err");
-  topaaaa.addValue("d0Error");
-  topaaaa.addValue("5");
-  topaaaa.addValue("dz");
-  topaaaa.addValue("dz");
-  topaaaa.addValue("5");
-  topaaaa.addValue("dzErr");
-  topaaaa.addValue("dzError");
-  topaaaa.addValue("5");
-  topaaaa.addValue("vx");
-  topaaaa.addValue("vx");
-  topaaaa.addValue("5");
-  topaaaa.addValue("vy");
-  topaaaa.addValue("vy");
-  topaaaa.addValue("5");
-  topaaaa.addValue("vz");
-  topaaaa.addValue("vz");
-  topaaaa.addValue("5");
-  topaaaa.addValue("pixel hits");
-  topaaaa.addValue("hitPattern().numberOfValidPixelHits()");
-  topaaaa.addValue("0");
-  topaaaa.addValue("strip hits");
-  topaaaa.addValue("hitPattern().numberOfValidStripHits()");
-  topaaaa.addValue("0");
-  topaaaa.addValue("chi2");
-  topaaaa.addValue("chi2");
-  topaaaa.addValue("3");
-  topaaaa.addValue("ndof");
-  topaaaa.addValue("ndof");
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("reco::Track", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("x");
-  topaaaa.addValue("x");
-  topaaaa.addValue("5");
-  topaaaa.addValue("xError");
-  topaaaa.addValue("xError");
-  topaaaa.addValue("5");
-  topaaaa.addValue("y");
-  topaaaa.addValue("y");
-  topaaaa.addValue("5");
-  topaaaa.addValue("yError");
-  topaaaa.addValue("yError");
-  topaaaa.addValue("5");
-  topaaaa.addValue("z");
-  topaaaa.addValue("z");
-  topaaaa.addValue("5");
-  topaaaa.addValue("zError");
-  topaaaa.addValue("zError");
-  topaaaa.addValue("5");
-  topaaaa.addValue("tracks");
-  topaaaa.addValue("tracksSize");
-  topaaaa.addValue("0");
-  topaaaa.addValue("chi2");
-  topaaaa.addValue("chi2");
-  topaaaa.addValue("3");
-  topaaaa.addValue("ndof");
-  topaaaa.addValue("ndof");
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("reco::Vertex", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-  topaaaa.addValue("CaloTower");
-  topaaaa.addValue("reco::CaloJet");
-  topaaaa.addValue("reco::GenParticle");
-  topaaaa.addValue("reco::GsfElectron");
-  topaaaa.addValue("reco::Jet");
-  topaaaa.addValue("reco::MET");
-  topaaaa.addValue("reco::Muon");
-  topaaaa.addValue("reco::Photon");
-  topaaaa.addValue("reco::Track");
-  topaaaa.addValue("reco::Vertex");
-  topaaa.addKeyValue("typeNames", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("Jets");
-  topaaaa.addKeyValue("collection", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(4294967295);
-  topaaaa.addKeyValue("sortColumn", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(1);
-  topaaaa.addKeyValue("descendingSort", topaaaaa);
-}
-  topaaa.addKeyValue("TableView", topaaaa);
-}
-  topaa.addKeyValue("Table", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Show Muon Barrel", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("Show Muon Endcap", topaaaa);
 }
 {
@@ -1424,17 +1123,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.59862");
+  topaaaa.addValue("0.388726");
   topaaa.addKeyValue("cameraMatrix0Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.603093");
+  topaaaa.addValue("0.875171");
   topaaa.addKeyValue("cameraMatrix1Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.527193");
+  topaaaa.addValue("0.288039");
   topaaa.addKeyValue("cameraMatrix2Plain3D", topaaaa);
 }
 {
@@ -1444,12 +1143,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.709734");
+  topaaaa.addValue("-0.913904");
   topaaa.addKeyValue("cameraMatrix4Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.70447");
+  topaaaa.addValue("0.40593");
   topaaa.addKeyValue("cameraMatrix5Plain3D", topaaaa);
 }
 {
@@ -1464,17 +1163,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.371391");
+  topaaaa.addValue("-0.116924");
   topaaa.addKeyValue("cameraMatrix8Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.374167");
+  topaaaa.addValue("-0.263239");
   topaaa.addKeyValue("cameraMatrix9Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.849746");
+  topaaaa.addValue("0.957619");
   topaaa.addKeyValue("cameraMatrix10Plain3D", topaaaa);
 }
 {
@@ -1484,17 +1183,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("631.894");
+  topaaaa.addValue("1901.51");
   topaaa.addKeyValue("cameraMatrix12Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-636.615");
+  topaaaa.addValue("4281.03");
   topaaa.addKeyValue("cameraMatrix13Plain3D", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("556.496");
+  topaaaa.addValue("1408.98");
   topaaa.addKeyValue("cameraMatrix14Plain3D", topaaaa);
 }
 {
@@ -1584,12 +1283,334 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("53.1468");
+  topaaaa.addValue("5.55531");
   topaaa.addKeyValue("Plain3D FOV", topaaaa);
 }
   topaa.addKeyValue("3D", topaaa);
 }
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("emEt");
+  topaaaa.addValue("emEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("hadEt");
+  topaaaa.addValue("hadEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("et");
+  topaaaa.addValue("et");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("CaloTower", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("number of segments");
+  topaaaa.addValue("size");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("number of segments");
+  topaaaa.addValue("size");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("Pt");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ECAL");
+  topaaaa.addValue("p4().E() * emEnergyFraction()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("HCAL");
+  topaaaa.addValue("p4().E() * energyFractionHadronic()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("emf");
+  topaaaa.addValue("emEnergyFraction()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("size_eta");
+  topaaaa.addValue("sqrt(etaetaMoment)");
+  topaaaa.addValue("3");
+  topaaaa.addValue("size_phi");
+  topaaaa.addValue("sqrt(phiphiMoment)");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::CaloJet", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("status");
+  topaaaa.addValue("status");
+  topaaaa.addValue("0");
+  topaaaa.addValue("pdgId");
+  topaaaa.addValue("pdgId");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::GenParticle", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("E/p");
+  topaaaa.addValue("eSuperClusterOverP");
+  topaaaa.addValue("3");
+  topaaaa.addValue("H/E");
+  topaaaa.addValue("hadronicOverEm");
+  topaaaa.addValue("3");
+  topaaaa.addValue("fbrem");
+  topaaaa.addValue("(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("dei");
+  topaaaa.addValue("deltaEtaSuperClusterTrackAtVtx()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("dpi");
+  topaaaa.addValue("deltaPhiSuperClusterTrackAtVtx()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::GsfElectron", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::Jet", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("MET");
+  topaaaa.addValue("et");
+  topaaaa.addValue("1");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("sumEt");
+  topaaaa.addValue("sumEt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("mEtSig");
+  topaaaa.addValue("mEtSig");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::MET", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("global");
+  topaaaa.addValue("isGlobalMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("tracker");
+  topaaaa.addValue("isTrackerMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("SA");
+  topaaaa.addValue("isStandAloneMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("calo");
+  topaaaa.addValue("isCaloMuon");
+  topaaaa.addValue("-2");
+  topaaaa.addValue("tr pt");
+  topaaaa.addValue("track().pt()");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("matches");
+  topaaaa.addValue("numberOfMatches('SegmentArbitration')");
+  topaaaa.addValue("0");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("track().d0()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("d0 / d0Err");
+  topaaaa.addValue("track().d0() / track().d0Error()");
+  topaaaa.addValue("3");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::Muon", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("H/E");
+  topaaaa.addValue("hadronicOverEm");
+  topaaaa.addValue("3");
+  topaaa.addKeyValue("reco::Photon", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("pT");
+  topaaaa.addValue("pt");
+  topaaaa.addValue("1");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("eta");
+  topaaaa.addValue("3");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("phi");
+  topaaaa.addValue("3");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("d0");
+  topaaaa.addValue("5");
+  topaaaa.addValue("d0Err");
+  topaaaa.addValue("d0Error");
+  topaaaa.addValue("5");
+  topaaaa.addValue("dz");
+  topaaaa.addValue("dz");
+  topaaaa.addValue("5");
+  topaaaa.addValue("dzErr");
+  topaaaa.addValue("dzError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vx");
+  topaaaa.addValue("vx");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vy");
+  topaaaa.addValue("vy");
+  topaaaa.addValue("5");
+  topaaaa.addValue("vz");
+  topaaaa.addValue("vz");
+  topaaaa.addValue("5");
+  topaaaa.addValue("pixel hits");
+  topaaaa.addValue("hitPattern().numberOfValidPixelHits()");
+  topaaaa.addValue("0");
+  topaaaa.addValue("strip hits");
+  topaaaa.addValue("hitPattern().numberOfValidStripHits()");
+  topaaaa.addValue("0");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("0");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("charge");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::Track", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("x");
+  topaaaa.addValue("x");
+  topaaaa.addValue("5");
+  topaaaa.addValue("xError");
+  topaaaa.addValue("xError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("y");
+  topaaaa.addValue("y");
+  topaaaa.addValue("5");
+  topaaaa.addValue("yError");
+  topaaaa.addValue("yError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("z");
+  topaaaa.addValue("z");
+  topaaaa.addValue("5");
+  topaaaa.addValue("zError");
+  topaaaa.addValue("zError");
+  topaaaa.addValue("5");
+  topaaaa.addValue("tracks");
+  topaaaa.addValue("tracksSize");
+  topaaaa.addValue("0");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("chi2");
+  topaaaa.addValue("3");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("ndof");
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("reco::Vertex", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+  topaaaa.addValue("CaloTower");
+  topaaaa.addValue("edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >");
+  topaaaa.addValue("edm::RangeMap<DTChamberId,edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >");
+  topaaaa.addValue("reco::CaloJet");
+  topaaaa.addValue("reco::GenParticle");
+  topaaaa.addValue("reco::GsfElectron");
+  topaaaa.addValue("reco::Jet");
+  topaaaa.addValue("reco::MET");
+  topaaaa.addValue("reco::Muon");
+  topaaaa.addValue("reco::Photon");
+  topaaaa.addValue("reco::Track");
+  topaaaa.addValue("reco::Vertex");
+  topaaa.addKeyValue("typeNames", topaaaa);
+}
+{
+  FWConfiguration topaaaa(1);
+{
+  FWConfiguration topaaaaa(0);
+  topaaaaa.addValue("Jets");
+  topaaaa.addKeyValue("collection", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(0);
+  topaaaa.addKeyValue("sortColumn", topaaaaa);
+}
+{
+  FWConfiguration topaaaaa(1);
+  topaaaa.addKeyValue("descendingSort", topaaaaa);
+}
+  topaaa.addKeyValue("TableView", topaaaa);
+}
+  topaa.addKeyValue("Table", topaaa);
+}
   topa.addKeyValue("views", topaa);
+}
+{
+  FWConfiguration topaa(1);
+  topaa.addValue("407");
+  topaa.addValue("291");
+  topaa.addValue("287");
+  topaa.addValue("269");
+  topaa.addValue("411");
+  topa.addKeyValue("view area", topaa);
 }
 {
   FWConfiguration topaa(1);
@@ -1597,141 +1618,51 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(1);
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.786358");
-  topaaa.addKeyValue("weight", topaaaa);
+  topaaaa.addValue("1041");
+  topaaa.addKeyValue("x", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("undocked", topaaaa);
-}
-  topaa.addKeyValue("Rho Phi", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.684532");
-  topaaa.addKeyValue("weight", topaaaa);
+  topaaaa.addValue("57");
+  topaaa.addKeyValue("y", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("undocked", topaaaa);
-}
-  topaa.addKeyValue("3D Lego", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.892706");
-  topaaa.addKeyValue("weight", topaaaa);
+  topaaaa.addValue("353");
+  topaaa.addKeyValue("width", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("undocked", topaaaa);
-}
-  topaa.addKeyValue("Rho Z", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("weight", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("undocked", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1");
-  topaaaa.addKeyValue("weight", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1");
-  topaaaa.addKeyValue("undocked", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("985");
-  topaaaa.addKeyValue("x", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("589");
-  topaaaa.addKeyValue("y", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("292");
-  topaaaa.addKeyValue("width", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("423");
-  topaaaa.addKeyValue("height", topaaaaa);
-}
-  topaaa.addKeyValue("UndockedWindowPos", topaaaa);
-}
-  topaa.addKeyValue("Table", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("weight", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("undocked", topaaaa);
-}
-{
-  FWConfiguration topaaaa(1);
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1");
-  topaaaa.addKeyValue("weight", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1");
-  topaaaa.addKeyValue("undocked", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("987");
-  topaaaa.addKeyValue("x", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("123");
-  topaaaa.addKeyValue("y", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("294");
-  topaaaa.addKeyValue("width", topaaaaa);
-}
-{
-  FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("437");
-  topaaaa.addKeyValue("height", topaaaaa);
-}
-  topaaa.addKeyValue("UndockedWindowPos", topaaaa);
+  topaaaa.addValue("291");
+  topaaa.addKeyValue("height", topaaaa);
 }
   topaa.addKeyValue("3D", topaaa);
 }
-  topa.addKeyValue("view area", topaa);
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1040");
+  topaaa.addKeyValue("x", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("378");
+  topaaa.addKeyValue("y", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("351");
+  topaaa.addKeyValue("width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("433");
+  topaaa.addKeyValue("height", topaaaa);
+}
+  topaa.addKeyValue("Table", topaaa);
+}
+  topa.addKeyValue("undocked views", topaa);
 }
 {
   FWConfiguration topaa(1);
