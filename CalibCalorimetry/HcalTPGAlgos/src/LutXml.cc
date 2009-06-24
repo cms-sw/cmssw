@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.8 2009/04/14 21:19:34 kukartse Exp $
+// $Id: LutXml.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 #include <iostream>
@@ -51,7 +51,7 @@ LutXml & LutXml::operator+=( const LutXml & other)
 {
   DOMNodeList * _children = other.getDocumentConst()->getChildNodes();
   int _length = _children->getLength();
-  cout << "Children nodes:" << _length << endl;
+  cout << "Nodes added:" << _length << endl;
   DOMNode * _node;
   for(int i=0;i!=_length;i++){
     _node = _children->item(i)->cloneNode(true);
@@ -108,7 +108,7 @@ LutXml::LutXml( std::string filename ) : XMLDOMBlock( filename )
 
 LutXml::~LutXml()
 {
-  delete brickElem;
+  //delete brickElem; // belongs to document that belongs to parser???
   XMLString::release(&root);
   XMLString::release(&brick);
   delete lut_map;

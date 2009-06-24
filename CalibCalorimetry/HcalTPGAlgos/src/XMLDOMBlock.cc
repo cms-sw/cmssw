@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.9 2009/04/08 23:03:45 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
 {
   DOMNodeList * _children = other.getDocumentConst()->getDocumentElement()->getChildNodes();
   int _length = _children->getLength();
-  cout << "Children nodes:" << _length << endl;
+  //cout << "Children nodes:" << _length << endl;
   DOMNode * _node;
   int i = 0;
   for(int i=0;i!=_length;i++){
