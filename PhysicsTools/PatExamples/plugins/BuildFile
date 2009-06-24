@@ -7,6 +7,10 @@
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
   <use name=DataFormats/Common>
+  <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=DataFormats/BTauReco>
   <use name=DataFormats/PatCandidates>
   <use name=HLTrigger/HLTcore>
   <use name=PhysicsTools/PatExamples>
