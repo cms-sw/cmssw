@@ -3,8 +3,10 @@ import copy
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-from HLTrigger.Configuration.HLT_8E29_cff import *
-  
+#from HLTrigger.Configuration.HLT_8E29_cff import *
+#from HLTrigger.Configuration.HLT_1E31_cff import *
+from HLTrigger.Configuration.HLT_FULL_cff import *
+
 ### lifetime-based b-tag OpenHLT (ideal) ######################################
 # L1 filter is skipped
 # L2 reco sequence is common to all paths, and taken from the global table
