@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008 
-#     $Revision: 1.2 $
-#     $Date: 2008/04/17 16:38:47 $
+#     $Revision: 1.3 $ by $Author$
+#     $Date: 2009/01/07 18:28:58 $
 #
 #  Update local mps database with batch job status
 #  
@@ -27,10 +27,10 @@ for ($i=0; $i<@JOBID; ++$i) {
 	       or @JOBSTATUS[$i] eq "OK"
 	       or @JOBSTATUS[$i] eq "ABEND"
 	       or @JOBSTATUS[$i] eq "FAIL") {
-    @FLAG[$i] = 1;
+    @FLAG[$i] = 1; # no need to care
   }
   else {
-    @FLAG[$i] = -1;
+    @FLAG[$i] = -1; # care!
   }
 }
 
@@ -109,13 +109,19 @@ for ($i=0; $i<@JOBID; ++$i) {
     next;
   }
   # check whether job may be done
-  $theBatchDirectory = sprintf "LSFJOB\_%d",@JOBID[$i];
+  $theBatchDirectory = sprintf "LSFJOB\_%d",@JOBID[$i]; #GF: $theIndex??
   print "theBatchDirectory $theDirectory\n";
   ## if (-d "LSFJOB\_@JOBID[$i]") {
   ##  print "LSFJOB\_@JOBID[$i] exists\n";
   if (-d $theBatchDirectory) {
     print "Directory $theBatchDirectory exists\n";
     @JOBSTATUS[$theIndex] = "DONE";
+  } else {
+    if (@JOBSTATUS[$theIndex] eq "RUN") {
+      print "WARNING: Job $theIndex in state RUN, neither found by bjobs nor find LSFJOB directory!\n";
+      # FIXME: check if job not anymore in batch system
+      # might set to FAIL - but probably $theBatchDirectory is just somewhere else...
+    }
   }
 }
 
