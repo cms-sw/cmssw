@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTEventNumberFilter.cc,v 1.4 2009/05/07 16:04:43 gruen Exp $
+// $Id: HLTEventNumberFilter.cc,v 1.1 2009/06/24 14:30:01 gruen Exp $
 //
 //
 
@@ -57,12 +57,13 @@ HLTEventNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  bool accept(false);
-
-  if (period_!=0) accept = ( ( (iEvent.id().event())%period_ ) == 0 );
-
-  if (invert_) accept = !accept;
-
-  return accept;
+  if (iEvent.isRealData()) {
+    bool accept(false);
+    if (period_!=0) accept = ( ( (iEvent.id().event())%period_ ) == 0 );
+    if (invert_) accept = !accept;
+    return accept;
+  } else {
+    return true;
+  }
 
 }
