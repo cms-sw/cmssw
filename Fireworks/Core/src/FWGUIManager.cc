@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.127 2009/06/08 09:25:45 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.128 2009/06/23 17:14:08 amraktad Exp $
 //
 
 // system include files
@@ -825,7 +825,9 @@ addAreaInfoTo(areaInfo* pInfo,
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
-   FWConfiguration mainWindow(1);
+   Int_t cfgVersion=2;
+
+   FWConfiguration mainWindow(cfgVersion);
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
       // write proportions of horizontal pack (can be standalone item outside main frame)
@@ -885,11 +887,11 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          }
       }// end main frames
    }
-   fflush(stdout);
+
    //------------------------------------------------------------
    // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
-   FWConfiguration viewArea(1);
+   FWConfiguration viewArea(cfgVersion);
    for(std::vector<areaInfo*>::const_iterator it = wpacked.begin(); it != wpacked.end(); ++it)
    {
       FWConfiguration tempWiew(1);
@@ -898,7 +900,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       wb->addTo(tempWiew);
       views.addKeyValue(wb->typeName(), tempWiew, true);
 
-      FWConfiguration tempArea(1);
+      FWConfiguration tempArea(cfgVersion);
       addAreaInfoTo(*it, tempArea);
       viewArea.addKeyValue(wb->typeName(), tempArea, true);
    }
@@ -970,8 +972,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    m_cmsShowMainFrame->MapWindow();
 
    // set from view reading area info nd view info
-   float_t leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
-   float_t rightWeight =atof(mw->valueForKey("rightWeight")->value().c_str());
+   float_t leftWeight =1;
+   float_t rightWeight=1;
+   if ( mw->version() == 2 ) {
+      leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
+      rightWeight = atof(mw->valueForKey("rightWeight")->value().c_str());
+   }
+
    TEveWindowSlot* primSlot = m_viewPrimPack->NewSlotWithWeight(leftWeight);
    m_viewSecPack = m_viewPrimPack->NewSlotWithWeight(rightWeight)->MakePack();
    m_viewSecPack->SetVertical();
@@ -979,41 +986,60 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    // views list
    const FWConfiguration* views = iFrom.valueForKey(kViews); assert(0!=views);
-   const FWConfiguration::KeyValues* keyVals = views->keyValues(); assert(0!=keyVals);
-   // area list
+   const FWConfiguration::KeyValues* keyVals = views->keyValues();
    const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
-   const FWConfiguration::KeyValues* akv = viewArea->keyValues();
-   FWConfiguration::KeyValuesIt areaIt = akv->begin();
-   Bool_t isPrim = kTRUE;
-   for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
+
+   // area list (ignored in older version)
+   if ( viewArea->version() > 1)
    {
-      float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
-      bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
-      if (isPrim)
+      const FWConfiguration::KeyValues* akv = viewArea->keyValues();
+      FWConfiguration::KeyValuesIt areaIt = akv->begin();
+
+      for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
       {
-         createView(it->first, primSlot);
-         isPrim = kFALSE;
-      }
-      else
-      {
-         createView(it->first,  m_viewSecPack->NewSlotWithWeight(weight));
-      }
-      m_viewBases.back()->setFrom(it->second);
-      TEveWindow* myw = m_viewWindows.back();
-      if (undocked)
-      {
-         myw->UndockWindow();
-         TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
-         const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-         TGMainFrame* mfp = (TGMainFrame*)mf;
-         const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
-         if (mwc)
+         float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
+         createView(it->first, m_viewBases.size() ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot);
+         m_viewBases.back()->setFrom(it->second);
+
+         bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
+         TEveWindow* myw = m_viewWindows.back();
+         if (undocked)
          {
-            // printf("found config for unocjed \n");
+            myw->UndockWindow();
+            TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+            TGMainFrame* mfp = (TGMainFrame*)mf;
+            const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
             setWindowInfoFrom(*mwc, mfp);
          }
+         areaIt++;
       }
-      areaIt++;
+   }
+   else
+   {  // create views with same weight in old version
+      for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
+         createView(it->first, m_viewBases.size() ? m_viewSecPack->NewSlot() : primSlot);
+         m_viewBases.back()->setFrom(it->second);
+      }
+      // handle undocked windows in old version
+      const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
+      if(0!=undocked) {
+         const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
+         if(0!=keyVals) {
+
+            int idx = m_viewBases.size() -keyVals->size();
+            for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+            {
+               TEveWindow* myw = m_viewWindows[idx];
+               idx++;
+               myw->UndockWindow();
+               TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(myw->GetEveFrame());
+               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+               TGMainFrame* mfp = (TGMainFrame*)mf;
+               setWindowInfoFrom(it->second, mfp);
+            }
+         }
+      }
    }
 
    //handle controllers
