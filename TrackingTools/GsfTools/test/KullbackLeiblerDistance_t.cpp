@@ -57,13 +57,15 @@ int main() {
   Matrix cov = buildCovariance();
 
   GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
+  // GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
 
   GS * gs0 = new GS(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
   GS * gsP = new GS(Vector(1., 1.,1., 10.,10.),Matrix(ROOT::Math::SMatrixIdentity()));
 
 
+  // GS gs2(Vector(2., 2., 2., 2.,2.),cov);
   GS * gs2 = new GS(Vector(2., 2., 2., 2.,2.),cov);
-
+ 
   // make sure we load all code...
   edm::HRTimeType s0= edm::hrRealTime();
   double res = d(*gs0,*gsP);
