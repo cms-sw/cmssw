@@ -18,35 +18,37 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   stager_get -M $MSSDIR/milleBinaryISN.dat
   rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
+  stager_get -M $MSSDIR/treeFileISN.root
+  rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
 else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
   echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat"
   cmsStageIn $MSSCAFDIR/milleBinaryISN.dat milleBinaryISN.dat
+  echo "cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root"
+  cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
 fi
 
 # set up the CMS environment
-cd $HOME/cms/CMSSW/CMSSW_3_0_0
-eval `scramv1 runtime -sh`
+cd $HOME/cms/CMSSW/CMSSW_3_1_0
+#cd $HOME/cms/CMSSW/CMSSW_2_2_10
+eval `scram runtime -sh`
 rehash
 
 cd $BATCH_DIR
 echo Running directory changed to $(pwd).
 
-# create link for treeFile(s) in mille job $RUNDIR's
-# (comment in case your cfg is not creating treeFiles...)
-ln -s $RUNDIR/../jobISN/treeFile.root treeFileISN.root
-
 # Execute. The cfg file name will be overwritten by MPS
 time cmsRun the.cfg
 
-# clean the link created above to avoid copying later (maybe uncomment, see above)
+# clean up what has been staged in (to avoid copy mistakes...)
 rm  treeFileISN.root
 
 # Gzip one by one in case one argument cannot be expanded:
 gzip -f *.log
 gzip -f *.txt
+gzip -f *.dump
 
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
@@ -60,6 +62,7 @@ hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
 if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor.root
 fi
+
 # Macro creating millepede.his.ps with pede information hists:
 if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C ] ; then
     # Checked out version if existing:
@@ -70,15 +73,16 @@ else
 fi
 root -b -q "readPedeHists.C+(\"print nodraw\")" 
 gzip -f *.ps
+
+# now zip .his and .res:
+gzip -f millepede.*s
+# in case of diagonalisation zip this:
+gzip -f millepede.eve
+
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
-# Copy everything you need to MPS directory of your job,
-# but you might want to copy less stuff to save disk space:
+# Copy everything you need to MPS directory of your job
 # (separate cp's for each item, otherwise you loose all if one file is missing):
-cp -p *.dump $RUNDIR
-cp -p *.log.gz $RUNDIR
-cp -p *.txt.gz $RUNDIR
-cp -p *.ps.gz $RUNDIR
 cp -p *.root $RUNDIR
-cp -p millepede.*s $RUNDIR
+cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
