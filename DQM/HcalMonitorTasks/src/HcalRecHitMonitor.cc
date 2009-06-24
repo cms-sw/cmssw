@@ -78,9 +78,9 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
       ProblemRecHits=m_dbe->book2D(" ProblemRecHits",
-                                     " Problem Rec Hit Rate for all HCAL",
-                                     etaBins_,etaMin_,etaMax_,
-                                     phiBins_,phiMin_,phiMax_);
+				   " Problem Rec Hit Rate for all HCAL",
+				   85,-42.5,42.5,
+				   72,0.5,72.5);
       ProblemRecHits->setAxisTitle("i#eta",1);
       ProblemRecHits->setAxisTitle("i#phi",2);
       
@@ -563,22 +563,11 @@ void HcalRecHitMonitor::fillNevents(void)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  int ieta=0;
-
   ProblemRecHits->setBinContent(0,0,ievt_);
   for (int i=0;i<4;++i)
     ProblemRecHitsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
   // Clear contents of 1D plots
-  /*
-    for (int i=0;i<1000;++i)
-    {
-      h_HBEnergy_1D->setBinContent(i+1,0);
-      h_HEEnergy_1D->setBinContent(i+1,0);
-      h_HOEnergy_1D->setBinContent(i+1,0);
-      h_HFEnergy_1D->setBinContent(i+1,0);
-    }
-  */
   h_HBEnergy_1D->Reset();
   h_HEEnergy_1D->Reset();
   h_HOEnergy_1D->Reset();
@@ -589,7 +578,6 @@ void HcalRecHitMonitor::fillNevents(void)
     {
       for (int eta=0;eta<85;++eta)
 	{
-          ieta=eta-42;
 	  for (int phi=0;phi<72;++phi)
 	    {
 	      for (int mydepth=0;mydepth<4;++mydepth)
@@ -606,19 +594,10 @@ void HcalRecHitMonitor::fillNevents(void)
 		  // This won't work with offline DQM, since tasks get split
 		  if (occupancy_[eta][phi][mydepth]>0)
 		    {
-		      if (mydepth<2)
-			{
-			  if (abs(ieta)<17)
-			    h_HBEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-			  else if (abs(ieta)>=17 && abs(ieta)<30)
-                            h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-                          else
-			    h_HFEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-			}
-		      else if (mydepth==3)
-			h_HOEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-		      else 
-			h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      if (isHB(eta,mydepth+1)) h_HBEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      else if (isHE(eta,mydepth+1)) h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      else if (isHO(eta,mydepth+1)) h_HOEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
+		      else if (isHF(eta,mydepth+1)) h_HFEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
 
 		      EnergyByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
 		      TimeByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, time_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
@@ -629,9 +608,9 @@ void HcalRecHitMonitor::fillNevents(void)
 		      TimeThreshByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, time_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
 		    }
 
-		} // for (int depth=0;depth<6;++depth)
+		} // for (int depth=0;depth<4;++depth)
 	    } // for (int phi=0;phi<72;++phi)
-	} // for (int eta=0;eta<(etaBins_-2);++eta)
+	} // for (int eta=0;eta<85;++eta)
 
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);

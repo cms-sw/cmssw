@@ -29,6 +29,25 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
+
+  float bins_cellcount[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 
+			  11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 
+			  21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5, 
+			  31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5, 
+			  41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5, 
+			  60.5, 70.5, 80.5, 90.5, 100.5, 150.5, 200.5, 250.5, 300.5, 
+			  400.5, 500.5, 600.5, 700.5, 800.5, 900.5, 1000.5, 1100.5, 
+			  1200.5, 1300.5, 1400.5, 1500.5, 1600.5, 1700.5, 1800.5, 1900.5, 
+			  2000.5, 2100.5, 2200.5, 2300.5, 2400.5, 2500.5, 2600.5, 2700.5, 
+			  2800.5, 2900.5, 3000.5, 3100.5, 3200.5, 3300.5, 3400.5, 3500.5, 
+			  3600.5, 3700.5, 3800.5, 3900.5, 4000.5, 4100.5, 4200.5, 4300.5, 
+			  4400.5, 4500.5, 4600.5, 4700.5, 4800.5, 4900.5, 5000.5, 5100.5, 
+			  5200.5, 5300.5, 5400.5, 5500.5, 5600.5, 5700.5, 5800.5, 5900.5, 
+			  6000.5, 6100.5, 6200.5, 6300.5, 6400.5, 6500.5, 6600.5, 6700.5, 
+			  6800.5, 6900.5, 7000.5, 7100.5, 7200.5, 7300.5, 7400.5, 7500.5, 
+			  7600.5, 7700.5, 7800.5, 7900.5, 8000.5, 8100.5, 8200.5, 8300.5, 
+			  8400.5, 8500.5, 8600.5, 8700.5, 8800.5, 8900.5, 9000.5, 9100.5};
+
   baseFolder_ = rootFolder_+"DeadCellMonitor_Hcal";
   if (fVerbosity>0)
     std::cout <<"<HcalDeadCellMonitor::setup>  Setting up histograms"<<std::endl;
@@ -111,7 +130,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       // 1D plots count number of bad cells
       NumberOfDeadCells=m_dbe->book1D("Problem_TotalDeadCells_HCAL",
 				      "Total Number of Dead Hcal Cells",
-				      9091,-0.5,9090.5);
+				      148, bins_cellcount);
       NumberOfDeadCellsHB=m_dbe->book1D("Problem_TotalDeadCells_HB",
 					"Total Number of Dead HB Cells",
 					2593,-0.5,2592.5);
@@ -145,23 +164,23 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 			    "Dead Cells with No Digis Ever","");
 	  // 1D plots count number of bad cells
 	  NumberOfNeverPresentCells=m_dbe->book1D("Problem_TotalNeverPresentCells_HCAL",
-					  "Total Number of Never-Present Hcal Cells",
-					  9091,-0.5,9090.5);
+						  "Total Number of Never-Present Hcal Cells",
+						  148, bins_cellcount);
 	  NumberOfNeverPresentCellsHB=m_dbe->book1D("Problem_NeverPresentCells_HB",
-					    "Total Number of Never-Present HB Cells",
-					    2593,-0.5,2592.5);
+						    "Total Number of Never-Present HB Cells",
+						    2593,-0.5,2592.5);
 	  NumberOfNeverPresentCellsHE=m_dbe->book1D("Problem_NeverPresentCells_HE",
-					    "Total Number of Never-Present HE Cells",
-					    2593,-0.5,2592.5);
+						    "Total Number of Never-Present HE Cells",
+						    2593,-0.5,2592.5);
 	  NumberOfNeverPresentCellsHO=m_dbe->book1D("Problem_NeverPresentCells_HO",
-					    "Total Number of Never-Present HO Cells",
-					    2161,-0.5,2160.5);
+						    "Total Number of Never-Present HO Cells",
+						    2161,-0.5,2160.5);
 	  NumberOfNeverPresentCellsHF=m_dbe->book1D("Problem_NeverPresentCells_HF",
-					    "Total Number of Never-Present HF Cells",
-					    1729,-0.5,1728.5);
+						    "Total Number of Never-Present HF Cells",
+						    1729,-0.5,1728.5);
 	  NumberOfNeverPresentCellsZDC=m_dbe->book1D("Problem_NeverPresentCells_ZDC",
-					     "Total Number of Never-Present ZDC Cells",
-					     19,-0.5,18.5);
+						     "Total Number of Never-Present ZDC Cells",
+						     19,-0.5,18.5);
 	}
       if (deadmon_test_occupancy_)
 	{
@@ -192,7 +211,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  name<<"Total Number of Hcal Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCells=m_dbe->book1D("Problem_TotalUnoccupiedCells_HCAL",
 						(char*)(name.str().c_str()),
-						9091,-0.5,9090.5);
+						148, bins_cellcount);
 	  name.str("");
 	  name<<"Total Number of HB Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsHB=m_dbe->book1D("Problem_UnoccupiedCells_HB",
@@ -244,7 +263,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  name<<"Total Number of Hcal RecHits with Consistent Low Energy";
 	  NumberOfBelowEnergyCells=m_dbe->book1D("Problem_TotalBelowEnergyCells_HCAL",
 						(char*)(name.str().c_str()),
-						9091,-0.5,9090.5);
+						148, bins_cellcount);
 	  name.str("");
 	  name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsHB=m_dbe->book1D("Problem_BelowEnergyCells_HB",

@@ -277,63 +277,49 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     }
 
   // HB/HE Loop
-  try
-    {    
-      for (HBHEDigiCollection::const_iterator j=hbhe.begin(); 
-	   j!=hbhe.end(); ++j)
-	{
-	  
-	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-	  // Temporary fix to avoid channels not in calibration DB
-	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
-	  if(!checkHB_ && (HcalSubdetector)(digi.id().subdet())==HcalBarrel) continue;
-	  if(!checkHE_ && (HcalSubdetector)(digi.id().subdet())==HcalEndcap) continue;
-
-	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
-	  int iEta   = digi.id().ieta();
-	  int iPhi   = digi.id().iphi();
-	  int iDepth = digi.id().depth();
-
-	  // Offset HBHE depths 1 and 2 by +4 so they don't overlap with HF
-	  if (digi.id().subdet()==HcalEndcap && iDepth!=3)
-	    iDepth+=4;
-	
-	  channelCoder_ = cond.getHcalCoder(digi.id());
-	  HcalCoderDb coderDB(*channelCoder_, *shape_);
-	  coderDB.adc2fC(digi,tool);  // convert digi ADC counts to fC in tool
-	  	  
-	  // Now loop over digi slices
-	  for (int k=0;k<digi.size();++k)
-	    {
-	      if (k<startingTimeSlice_ || k>endingTimeSlice_)
-		continue;
-	      
-	      // Add ADC value to pedestal computation
-	      pedcounts[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]++;
-	      ADC_myval=digi.sample(k).adc();
-	      ADC_pedsum[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+= ADC_myval;
-	      ADC_pedsum2[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
-	      fC_pedsum[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+= tool[k];
-	      fC_pedsum2[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+=tool[k]*tool[k];
-
-	    } // for (int k=0;k<digi.size();++k)
-	} // loop over digis
-    } // try loop
-  catch (...)
+  for (HBHEDigiCollection::const_iterator j=hbhe.begin(); 
+       j!=hbhe.end(); ++j)
     {
-      if (fVerbosity>0)
-	std::cout <<"<HcalPedestalMonitor::processEvent>  No HBHE Digis."<<endl;
-    }
-  
+      
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      // Temporary fix to avoid channels not in calibration DB
+      if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
+      if(!checkHB_ && (HcalSubdetector)(digi.id().subdet())==HcalBarrel) continue;
+      if(!checkHE_ && (HcalSubdetector)(digi.id().subdet())==HcalEndcap) continue;
+      
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
+      int iEta   = digi.id().ieta();
+      int iPhi   = digi.id().iphi();
+      int iDepth = digi.id().depth();
+      
+      channelCoder_ = cond.getHcalCoder(digi.id());
+      HcalCoderDb coderDB(*channelCoder_, *shape_);
+      coderDB.adc2fC(digi,tool);  // convert digi ADC counts to fC in tool
+      
+      // Now loop over digi slices
+      for (int k=0;k<digi.size();++k)
+	{
+	  if (k<startingTimeSlice_ || k>endingTimeSlice_)
+	    continue;
+	  
+	  // Add ADC value to pedestal computation
+	  pedcounts[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]++;
+	  ADC_myval=digi.sample(k).adc();
+	  ADC_pedsum[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+= ADC_myval;
+	  ADC_pedsum2[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+=ADC_myval*ADC_myval;
+	  fC_pedsum[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+= tool[k];
+	  fC_pedsum2[CalcEtaBin(digi.id().subdet(),iEta,iDepth)][iPhi-1][iDepth-1]+=tool[k]*tool[k];
+	  
+	} // for (int k=0;k<digi.size();++k)
+    } // loop over digis
   
   // HO Loop
 
-  try
-    {    
+  if (checkHO_)
+    {
       for (HODigiCollection::const_iterator j=ho.begin(); 
 	   j!=ho.end(); ++j)
 	{
-	  if (!checkHO_) continue;
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  //const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
 	  // Temporary fix to avoid channels not in calibration DB
@@ -347,7 +333,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  channelCoder_ = cond.getHcalCoder(digi.id());
 	  HcalCoderDb coderDB(*channelCoder_, *shape_);
 	  coderDB.adc2fC(digi,tool);
-	  	      
+	  
 	  // Now loop over digi slices
 	  for (int k=0;k<digi.size();++k)
 	    {
@@ -364,21 +350,15 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	    } // for (int k=0;k<digi.size();++k)
 	} // loop over digis
-    } // try loop
-  catch (...)
-    {
-      if (fVerbosity > 0)
-	std::cout <<"<HcalPedestalMonitor::processEvent>  No HO Digis."<<endl;
-    }
-
+    } // if (checkHO_)
 
   // HF Loop
-  try
+  
+  if (checkHF_)
     {    
       for (HFDigiCollection::const_iterator j=hf.begin(); 
 	   j!=hf.end(); ++j)
 	{
-	  if (!checkHO_) continue;
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
 	  // Temporary fix to avoid channels not in calibration DB
 	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
@@ -411,12 +391,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	    } // for (int k=0;k<digi.size();++k)
 	} // loop over digis
-    } // try loop
-  catch (...)
-    {
-      if (fVerbosity>0)
-	std::cout <<"<HcalPedestalMonitor::processEvent>  No HF Digis."<<endl;
-    }
+    } // if (checkHF_)
 
   // Should we allow each subdetector to get filled separately?  (Fill hfHists every 1000 events, hoHists every 2000, etc.?)
 
@@ -567,6 +542,9 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 	      // Overall plots by depth
 	      MeanMapByDepth.depth[depth]->setBinContent(eta+1,phi+1,ADC_mean);
 	      RMSMapByDepth.depth[depth]->setBinContent(eta+1,phi+1,ADC_RMS);
+
+	      // Don't flag HO SiPMs as problematic yet; just skip them
+	      if (isSiPM(ieta,phi+1,depth+1)) continue;
 
 	      // Problem Cells
 	      // Problem Cells currently determined by checking ADC counts against

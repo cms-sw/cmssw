@@ -44,7 +44,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
   checkZDC_ = ps.getUntrackedParameter<bool>("checkZDC",true);
-  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100);
+  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000);
 
 
   // Minimum error rate that will caused the problem histogram to be filled
@@ -216,57 +216,8 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, cha
 
 void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units)
 {
-  stringstream name;
-  name<<Name;
-
-  stringstream unitname;
-  stringstream unittitle;
-  if (Units=="")
-    {
-      unitname<<Units;
-      unittitle<<"No Units";
-    }
-  else
-    {
-      unitname<<" "<<Units;
-      unittitle<<Units;
-    }
-
-  // Push back depth plots
-  hh.depth.push_back(m_dbe->book2D(("HB HE HF Depth 1 "+name.str()+unitname.str()).c_str(),
-		      (name.str()+" Depth 1 -- HB HE HF ("+unittitle.str().c_str()+")"),
-		      85,-42.5,42.5,
-		      72,0.5,72.5));
-  float ybins[73];
-  for (int i=0;i<=72;i++) ybins[i]=(float)(i+0.5);
-  float xbinsd2[]={-42.5,-41.5,-40.5,-39.5,-38.5,-37.5,-36.5,-35.5,-34.5,-33.5,-32.5,-31.5,-30.5,-29.5,
-		   -28.5,-27.5,-26.5,-25.5,-24.5,-23.5,-22.5,-21.5,-20.5,-19.5,-18.5,-17.5,-16.5,
-		   -15.5,-14.5,
-		   14.5, 15.5,
-		   16.5,17.5,18.5,19.5,20.5,21.5,22.5,23.5,24.5,25.5,26.5,27.5,28.5,29.5,30.5,
-		   31.5,32.5,33.5,34.5,35.5,36.5,37.5,38.5,39.5,40.5,41.5,42.5};
-  hh.depth.push_back(m_dbe->book2D(("HB HE HF Depth 2 "+name.str()+unitname.str()).c_str(),
-				   (name.str()+" Depth 2 -- HB HE HF ("+unittitle.str().c_str()+")"),
-				   57, xbinsd2, 72, ybins));
-
-  // Set up variable-sized bins for HE depth 3 (MonitorElement also requires phi bins to be entered in array format)
-  float xbins[]={-28.5,-27.5,-26.5,-16.5,-15.5,
-		 15.5,16.5,26.5,27.5,28.5};
-  
-  hh.depth.push_back(m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
-				   (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
-				   // Use variable-sized eta bins 
-				   9, xbins, 72, ybins));
-  // HO bins are fixed width, but cover a smaller eta range (-15 -> 15)
-  hh.depth.push_back(m_dbe->book2D(("HO Depth 4 "+name.str()+unitname.str()).c_str(),
-				   (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
-				   31,-15.5,15.5,
-				   72,0.5,72.5));
-  hh.setBinLabels(); // set axis titles, special bins
-  
+  hh.setup(m_dbe, Name, Units);
 }
-
-
 
 void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
 {
@@ -845,9 +796,9 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 int HcalBaseMonitor::CalcIeta(int eta, int depth)
 {
   int ieta;
-  ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
   if (depth==1)
     {
+      ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
       if (eta<14) ieta++;
       else if (eta>72) ieta--;
     }
@@ -873,6 +824,87 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
       if (abs(ieta)>15) ieta=-9999;
     }
   return ieta;
+}
+
+
+bool HcalBaseMonitor::isHB(int etabin, int depth)
+{
+  if (depth>2) return false;
+  else if (depth<1) return false;
+  else 
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+	{
+	  if (abs(ieta)<=16 ) return true;
+	  else return false;
+	}
+      else if (depth==2)
+	{
+	  if (abs(ieta)==15 || abs(ieta)==16) return true;
+	  else return false;
+	}
+    }
+  return false;
+}
+
+bool HcalBaseMonitor::isHE(int etabin, int depth)
+{
+  if (depth>3) return false;
+  else if (depth<1) return false;
+  else 
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+	{
+	  if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
+	  if (ieta==-29 && etabin==13) return true; // HE -29
+	  if (ieta==29 && etabin == 71) return true; // HE +29
+	}
+      else if (depth==2)
+	{
+	  if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
+	  if (ieta==-29 && etabin==13) return true; // HE -29
+	  if (ieta==29 && etabin == 42) return true; // HE +29
+	}
+      else if (depth==3)
+	return true;
+    }
+  return false;
+}
+
+bool HcalBaseMonitor::isHF(int etabin, int depth)
+{
+  if (depth>2) return false;
+  else if (depth<1) return false;
+  else 
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+	{
+	  if (abs(ieta)>29 ) return true;
+	  if (ieta==-29 && etabin==12) return true; // HF -29
+	  if (ieta==29 && etabin == 72) return true; // HF +29
+	}
+      else if (depth==2)
+	{
+	  if (abs(ieta)>29 ) return true;
+	  if (ieta==-29 && etabin==12) return true; // HE -29
+	  if (ieta==29 && etabin == 43) return true; // HE +29
+	}
+    }
+  return false;
+}
+
+bool HcalBaseMonitor::isHO(int etabin, int depth)
+{
+  if (depth!=4) return false;
+  int ieta=CalcIeta(etabin,depth);
+  if (ieta!=-9999) return true;
+  return false;
 }
 
 

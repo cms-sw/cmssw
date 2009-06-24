@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2008/09/05 21:10:49 $
-  * $Revision: 1.3 $
+  * $Date: 2008/11/29 12:15:16 $
+  * $Revision: 1.4 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -101,6 +101,11 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   
   const int ETA_OFFSET_HF;
   const int ETA_BOUND_HF;
+
+  static const float etaBounds[];
+  static const float area[];
+  static const float radius[];
+
 }; // class HcalBeamMonitor
 
 #endif  
