@@ -1,4 +1,4 @@
-// $Id$
+// $Id: EventDistributor.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 
@@ -25,6 +25,10 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
     // mark these events for the special SM error stream
     
     // log a warning???
+
+    DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
+      _statisticsReporter->getDataSenderMonitorCollection();
+    dataSenderMonColl.addStaleChainSample(ioc);
   }
   else
   {
@@ -131,6 +135,10 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       // Put this here or in EventDistributor::addEventToRelevantQueues?
       _sharedResources->_dqmEventQueue->enq_nowait( ioc );
       
+      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
+        _statisticsReporter->getDataSenderMonitorCollection();
+      dataSenderMonColl.addDQMEventSample(ioc);
+
       break;
     }
     
@@ -153,12 +161,24 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       runMonCollection.getLumiSectionsSeenMQ().addSample(ioc.lumiSection());
       runMonCollection.getErrorEventIDsReceivedMQ().addSample(ioc.eventNumber());
       
+      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
+        _statisticsReporter->getDataSenderMonitorCollection();
+      dataSenderMonColl.addErrorEventSample(ioc);
+
       break;
     }
     
     default:
     {
-      // Log error and/or go to failed state
+      // Log error and/or go to failed state???
+
+
+      // 24-Jun-2009, KAB - this is not really the best way to track this,
+      // but it's probably better than nothing in the short term.
+      DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
+        _statisticsReporter->getDataSenderMonitorCollection();
+      dataSenderMonColl.addStaleChainSample(ioc);
+
       break;
     }
   }

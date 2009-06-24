@@ -108,8 +108,8 @@ void testStateMachine::setUp()
   cmcptr = _sr->_statisticsReporter->getDQMConsumerMonitorCollection();
   _sr->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
 
-  _sr->_discardManager.reset(new DiscardManager(stub->getContext(),
-                                                stub->getDescriptor()));
+  _sr->_discardManager.reset(new DiscardManager(stub->getContext(), stub->getDescriptor(),
+                                                _sr->_statisticsReporter->getDataSenderMonitorCollection()));
 
   _sr->_configuration.reset(new Configuration(stub->getInfoSpace(), 0));
   _sr->_registrationCollection.reset(new RegistrationCollection());

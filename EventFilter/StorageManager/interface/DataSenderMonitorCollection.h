@@ -1,4 +1,4 @@
-// $Id$
+// $Id: DataSenderMonitorCollection.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
 #define StorageManager_DataSenderMonitorCollection_h
@@ -20,9 +20,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -130,7 +130,7 @@ namespace stor {
       MonitoredQuantity eventSize;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
-      unsigned int lastEventNumber;
+      unsigned long long lastEventNumber;
 
       explicit FilterUnitRecord(FilterUnitKey fuKey) :
         key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
@@ -146,12 +146,32 @@ namespace stor {
       std::map<FilterUnitKey, FURecordPtr> filterUnitMap;
       OutputModuleRecordMap outputModuleMap;
       MonitoredQuantity eventSize;
+      MonitoredQuantity dqmEventSize;
+      MonitoredQuantity errorEventSize;
+      MonitoredQuantity staleChainSize;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
-      unsigned int lastEventNumber;
+      unsigned long long lastEventNumber;
+
+      // 24-Jun-2009, KAB
+      // the discard counts could be MonitoredQuantities, but that
+      // seems like a lot of overhead for what we need, so we'll just
+      // make them integers for now.  However, this means that we need
+      // to do latching (similar to MonitoredQuantity.calculateStatistics)
+      // if we want any chance of getting the numbers to match between the
+      // MQs above and the corresponding discard counts.
+      unsigned long long workingDataDiscardCount;
+      unsigned long long workingDQMDiscardCount;
+      unsigned long long workingSkippedDiscardCount;
+      unsigned long long latchedDataDiscardCount;
+      unsigned long long latchedDQMDiscardCount;
+      unsigned long long latchedSkippedDiscardCount;
 
       explicit ResourceBrokerRecord(ResourceBrokerKey rbKey) :
-        key(rbKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
+        key(rbKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+        workingDataDiscardCount(0), workingDQMDiscardCount(0),
+        workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
+        latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
     };
     typedef boost::shared_ptr<ResourceBrokerRecord> RBRecordPtr;
 
@@ -179,13 +199,20 @@ namespace stor {
       unsigned int filterUnitCount;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
-      unsigned int lastEventNumber;
+      unsigned long long lastEventNumber;
+      unsigned long long dataDiscardCount;
+      unsigned long long dqmDiscardCount;
+      unsigned long long skippedDiscardCount;
       MonitoredQuantity::Stats eventStats;
+      MonitoredQuantity::Stats dqmEventStats;
+      MonitoredQuantity::Stats errorEventStats;
+      MonitoredQuantity::Stats staleChainStats;
       UniqueResourceBrokerID_t uniqueRBID;
 
       explicit ResourceBrokerResult(ResourceBrokerKey const& rbKey):
         key(rbKey), filterUnitCount(0), initMsgCount(0),
-        lastRunNumber(0), lastEventNumber(0), uniqueRBID(0) {}
+        lastRunNumber(0), lastEventNumber(0), dataDiscardCount(0),
+        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0) {}
 
       bool operator<(ResourceBrokerResult const& other) const
       {
@@ -203,7 +230,7 @@ namespace stor {
       FilterUnitKey key;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
-      unsigned int lastEventNumber;
+      unsigned long long lastEventNumber;
       MonitoredQuantity::Stats eventStats;
 
       explicit FilterUnitResult(FilterUnitKey const& fuKey):
@@ -232,6 +259,36 @@ namespace stor {
      * Adds the specified (complete) Event to the monitor collection.
      */
     void addEventSample(I2OChain const&);
+
+    /**
+     * Adds the specified (complete) DQMEvent to the monitor collection.
+     */
+    void addDQMEventSample(I2OChain const&);
+
+    /**
+     * Adds the specified (complete) ErrorEvent to the monitor collection.
+     */
+    void addErrorEventSample(I2OChain const&);
+
+    /**
+     * Adds the specified stale chain to the monitor collection.
+     */
+    void addStaleChainSample(I2OChain const&);
+
+    /**
+     * Increments the number of data discard messages tracked by the monitor collection.
+     */
+    void incrementDataDiscardCount(I2OChain const&);
+
+    /**
+     * Increments the number of DQM discard messages tracked by the monitor collection.
+     */
+    void incrementDQMDiscardCount(I2OChain const&);
+
+    /**
+     * Increments the number of skipped discard messages tracked by the monitor collection.
+     */
+    void incrementSkippedDiscardCount(I2OChain const&);
 
     /**
      * Fetches the top-level output module statistics.
@@ -276,6 +333,9 @@ namespace stor {
                               OutModRecordPtr& topLevelOutModPtr,
                               OutModRecordPtr& rbSpecificOutModPtr,
                               OutModRecordPtr& fuSpecificOutModPtr);
+
+    bool getRBRecordPointer(I2OChain const& i2oChain,
+                            RBRecordPtr& rbRecordPtr);
 
     RBRecordPtr getResourceBrokerRecord(ResourceBrokerKey const&);
     UniqueResourceBrokerID_t getUniqueResourceBrokerID(ResourceBrokerKey const&);

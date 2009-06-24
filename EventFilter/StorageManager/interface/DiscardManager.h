@@ -1,8 +1,9 @@
-// $Id$
+// $Id: DiscardManager.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
 
 #ifndef StorageManager_DiscardManager_h
 #define StorageManager_DiscardManager_h
 
+#include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/FUProxy.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 
@@ -19,9 +20,9 @@ namespace stor {
   /**
    * Handles the discard messages sent to the upstream Resource Brokers.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   class DiscardManager
@@ -39,7 +40,8 @@ namespace stor {
      * will use the specified application context to send the messages.
      */
     DiscardManager(xdaq::ApplicationContext* ctx,
-                   xdaq::ApplicationDescriptor* desc);
+                   xdaq::ApplicationDescriptor* desc,
+                   DataSenderMonitorCollection& dsmc);
 
     ~DiscardManager() {}
 
@@ -92,6 +94,8 @@ namespace stor {
     toolbox::mem::Pool* _pool;
 
     FUProxyMap _proxyCache;
+
+    DataSenderMonitorCollection& _dataSenderMonCollection;
   };
 
 } // namespace stor

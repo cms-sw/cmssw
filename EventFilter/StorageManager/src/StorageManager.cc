@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.96 2009/06/10 08:15:28 dshpakov Exp $
+// $Id: StorageManager.cc,v 1.97 2009/06/19 11:27:50 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -38,7 +38,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   reasonForFailedState_(),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.96 2009/06/10 08:15:28 dshpakov Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.97 2009/06/19 11:27:50 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -176,7 +176,9 @@ void StorageManager::initializeSharedResources()
 
   _sharedResources->
     _discardManager.reset(new DiscardManager(getApplicationContext(),
-                                             getApplicationDescriptor()));
+                                             getApplicationDescriptor(),
+                                             _sharedResources->_statisticsReporter->
+                                             getDataSenderMonitorCollection()));
 
   _sharedResources->_registrationCollection.reset( new RegistrationCollection() );
   boost::shared_ptr<ConsumerMonitorCollection>

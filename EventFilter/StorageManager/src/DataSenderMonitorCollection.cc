@@ -1,4 +1,4 @@
-// $Id$
+// $Id: DataSenderMonitorCollection.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
 
 #include <string>
 #include <sstream>
@@ -34,20 +34,24 @@ void DataSenderMonitorCollection::addFragmentSample(I2OChain const& i2oChain)
   //double fragmentSize = static_cast<double>(i2oChain.totalDataSize());
 
   // look up the monitoring records that we need
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
   FURecordPtr fuRecordPtr;
   OutModRecordPtr topLevelOutModPtr, rbSpecificOutModPtr, fuSpecificOutModPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
-                         topLevelOutModPtr, rbSpecificOutModPtr,
-                         fuSpecificOutModPtr);
+    pointersAreValid = getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
+                                            topLevelOutModPtr, rbSpecificOutModPtr,
+                                            fuSpecificOutModPtr);
   }
 
   // accumulate the data of interest
+  //if (pointersAreValid)
+  //{
   //topLevelOutModPtr->fragmentSize.addSample(fragmentSize);
   //rbSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
   //fuSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
+  //}
 }
 
 
@@ -62,27 +66,31 @@ void DataSenderMonitorCollection::addInitSample(I2OChain const& i2oChain)
   unsigned int msgSize = i2oChain.totalDataSize();
 
   // look up the monitoring records that we need
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
   FURecordPtr fuRecordPtr;
   OutModRecordPtr topLevelOutModPtr, rbSpecificOutModPtr, fuSpecificOutModPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
-                         topLevelOutModPtr, rbSpecificOutModPtr,
-                         fuSpecificOutModPtr);
+    pointersAreValid = getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
+                                            topLevelOutModPtr, rbSpecificOutModPtr,
+                                            fuSpecificOutModPtr);
   }
 
   // accumulate the data of interest
-  topLevelOutModPtr->name = outModName;
-  topLevelOutModPtr->initMsgSize = msgSize;
+  if (pointersAreValid)
+  {
+    topLevelOutModPtr->name = outModName;
+    topLevelOutModPtr->initMsgSize = msgSize;
 
-  ++rbRecordPtr->initMsgCount;
-  rbSpecificOutModPtr->name = outModName;
-  rbSpecificOutModPtr->initMsgSize = msgSize;
+    ++rbRecordPtr->initMsgCount;
+    rbSpecificOutModPtr->name = outModName;
+    rbSpecificOutModPtr->initMsgSize = msgSize;
 
-  ++fuRecordPtr->initMsgCount;
-  fuSpecificOutModPtr->name = outModName;
-  fuSpecificOutModPtr->initMsgSize = msgSize;
+    ++fuRecordPtr->initMsgCount;
+    fuSpecificOutModPtr->name = outModName;
+    fuSpecificOutModPtr->initMsgSize = msgSize;
+  }
 }
 
 
@@ -98,28 +106,157 @@ void DataSenderMonitorCollection::addEventSample(I2OChain const& i2oChain)
   unsigned int eventNumber = i2oChain.eventNumber();
 
   // look up the monitoring records that we need
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
   FURecordPtr fuRecordPtr;
   OutModRecordPtr topLevelOutModPtr, rbSpecificOutModPtr, fuSpecificOutModPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
-                         topLevelOutModPtr, rbSpecificOutModPtr,
-                         fuSpecificOutModPtr);
+    pointersAreValid = getAllNeededPointers(i2oChain, rbRecordPtr, fuRecordPtr,
+                                            topLevelOutModPtr, rbSpecificOutModPtr,
+                                            fuSpecificOutModPtr);
   }
 
   // accumulate the data of interest
-  topLevelOutModPtr->eventSize.addSample(eventSize);
+  if (pointersAreValid)
+  {
+    topLevelOutModPtr->eventSize.addSample(eventSize);
 
-  rbRecordPtr->lastRunNumber = runNumber;
-  rbRecordPtr->lastEventNumber = eventNumber;
-  rbRecordPtr->eventSize.addSample(eventSize);
-  rbSpecificOutModPtr->eventSize.addSample(eventSize);
+    rbRecordPtr->lastRunNumber = runNumber;
+    rbRecordPtr->lastEventNumber = eventNumber;
+    rbRecordPtr->eventSize.addSample(eventSize);
+    rbSpecificOutModPtr->eventSize.addSample(eventSize);
 
-  fuRecordPtr->lastRunNumber = runNumber;
-  fuRecordPtr->lastEventNumber = eventNumber;
-  fuRecordPtr->eventSize.addSample(eventSize);
-  fuSpecificOutModPtr->eventSize.addSample(eventSize);
+    fuRecordPtr->lastRunNumber = runNumber;
+    fuRecordPtr->lastEventNumber = eventNumber;
+    fuRecordPtr->eventSize.addSample(eventSize);
+    fuSpecificOutModPtr->eventSize.addSample(eventSize);
+  }
+}
+
+
+void DataSenderMonitorCollection::addDQMEventSample(I2OChain const& i2oChain)
+{
+  // sanity checks
+  if (i2oChain.messageCode() != Header::DQM_EVENT) {return;}
+  if (! i2oChain.complete()) {return;}
+
+  // fetch basic data from the I2OChain
+  double eventSize = static_cast<double>(i2oChain.totalDataSize());
+
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    rbRecordPtr->dqmEventSize.addSample(eventSize);
+  }
+}
+
+
+void DataSenderMonitorCollection::addErrorEventSample(I2OChain const& i2oChain)
+{
+  // sanity checks
+  if (i2oChain.messageCode() != Header::ERROR_EVENT) {return;}
+  if (! i2oChain.complete()) {return;}
+
+  // fetch basic data from the I2OChain
+  double eventSize = static_cast<double>(i2oChain.totalDataSize());
+
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    rbRecordPtr->errorEventSize.addSample(eventSize);
+  }
+}
+
+
+void DataSenderMonitorCollection::addStaleChainSample(I2OChain const& i2oChain)
+{
+  // fetch basic data from the I2OChain
+  double eventSize = static_cast<double>(i2oChain.totalDataSize());
+
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    rbRecordPtr->staleChainSize.addSample(eventSize);
+  }
+}
+
+
+void DataSenderMonitorCollection::incrementDataDiscardCount(I2OChain const& i2oChain)
+{
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    ++rbRecordPtr->workingDataDiscardCount;
+  }
+}
+
+
+void DataSenderMonitorCollection::incrementDQMDiscardCount(I2OChain const& i2oChain)
+{
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    ++rbRecordPtr->workingDQMDiscardCount;
+  }
+}
+
+
+void DataSenderMonitorCollection::incrementSkippedDiscardCount(I2OChain const& i2oChain)
+{
+  // look up the monitoring records that we need
+  bool pointerIsValid;
+  RBRecordPtr rbRecordPtr;
+  {
+    boost::mutex::scoped_lock sl(_collectionsMutex);
+    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+  }
+
+  // accumulate the data of interest
+  if (pointerIsValid)
+  {
+    ++rbRecordPtr->workingSkippedDiscardCount;
+  }
 }
 
 
@@ -231,7 +368,13 @@ void DataSenderMonitorCollection::do_calculateStatistics()
   for (rbMapIter=_resourceBrokerMap.begin(); rbMapIter!=rbMapEnd; ++rbMapIter)
     {
       RBRecordPtr rbRecordPtr = rbMapIter->second;
+      rbRecordPtr->latchedDataDiscardCount = rbRecordPtr->workingDataDiscardCount;
+      rbRecordPtr->latchedDQMDiscardCount = rbRecordPtr->workingDQMDiscardCount;
+      rbRecordPtr->latchedSkippedDiscardCount = rbRecordPtr->workingSkippedDiscardCount;
       rbRecordPtr->eventSize.calculateStatistics();
+      rbRecordPtr->dqmEventSize.calculateStatistics();
+      rbRecordPtr->errorEventSize.calculateStatistics();
+      rbRecordPtr->staleChainSize.calculateStatistics();
       calcStatsForOutputModules(rbRecordPtr->outputModuleMap);
 
       std::map<FilterUnitKey, FURecordPtr>::const_iterator fuMapIter;
@@ -329,6 +472,17 @@ bool DSMC::getAllNeededPointers(I2OChain const& i2oChain,
   fuSpecificOutModPtr = getOutputModuleRecord(fuRecordPtr->outputModuleMap,
                                               outModKey);
 
+  return true;
+}
+
+
+bool DSMC::getRBRecordPointer(I2OChain const& i2oChain,
+                              DSMC::RBRecordPtr& rbRecordPtr)
+{
+  ResourceBrokerKey rbKey(i2oChain);
+  if (! rbKey.isValid) {return false;}
+
+  rbRecordPtr = getResourceBrokerRecord(rbKey);
   return true;
 }
 
@@ -456,7 +610,13 @@ DSMC::buildResourceBrokerResult(DSMC::RBRecordPtr const& rbRecordPtr) const
   result->initMsgCount = rbRecordPtr->initMsgCount;
   result->lastRunNumber = rbRecordPtr->lastRunNumber;
   result->lastEventNumber = rbRecordPtr->lastEventNumber;
+  result->dataDiscardCount = rbRecordPtr->latchedDataDiscardCount;
+  result->dqmDiscardCount = rbRecordPtr->latchedDQMDiscardCount;
+  result->skippedDiscardCount = rbRecordPtr->latchedSkippedDiscardCount;
   rbRecordPtr->eventSize.getStats(result->eventStats);
+  rbRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
+  rbRecordPtr->errorEventSize.getStats(result->errorEventStats);
+  rbRecordPtr->staleChainSize.getStats(result->staleChainStats);
 
   return result;
 }
