@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.11 2009/05/19 10:21:07 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.12 2009/05/28 19:01:45 amraktad Exp $
 //
 
 // system include files
@@ -215,6 +215,7 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
 // constructors and destructor
 //
 FWColorManager::FWColorManager(FWModelChangeManager* iManager):
+m_gammaOff(0),
 m_background(kBlack),
 m_foreground(kWhite),
 m_changeManager(iManager)
