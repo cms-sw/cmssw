@@ -567,7 +567,7 @@ void HcalRecHitMonitor::fillNevents(void)
   for (int i=0;i<4;++i)
     ProblemRecHitsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
-  // Clear contents of 1D plots
+  // Clear contents of 1D plots -- can remove dummy fills of ievt_ here!
   h_HBEnergy_1D->Reset();
   h_HEEnergy_1D->Reset();
   h_HOEnergy_1D->Reset();
