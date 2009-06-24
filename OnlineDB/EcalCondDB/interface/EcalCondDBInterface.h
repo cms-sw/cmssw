@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.17 2008/11/27 10:26:23 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.18 2009/05/14 08:32:18 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -264,7 +264,8 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag) throw(std::runtime_error);
   LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,int min_run, int max_run) throw(std::runtime_error);
-  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,uint64_t min_time, int end_run) throw(std::runtime_error);
+
+  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,uint64_t min_time, int min_run,int end_run) throw(std::runtime_error);
   LMFRunList fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfruntag, int max_run, int n_runs) throw(std::runtime_error);
 
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag) throw(std::runtime_error);

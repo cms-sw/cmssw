@@ -90,7 +90,7 @@ uint64_t Tm::microsTime() const
   uint64_t result = 0;
   
   result += (uint64_t)ceil((m_tm.tm_year - 70 ) * 365.25) * 24 * 3600;
-  result += (m_tm.tm_yday-1) * 24 * 3600;
+  result += (m_tm.tm_yday) * 24 * 3600;
   result += m_tm.tm_hour * 3600;
   result += m_tm.tm_min * 60;
   result += m_tm.tm_sec;
