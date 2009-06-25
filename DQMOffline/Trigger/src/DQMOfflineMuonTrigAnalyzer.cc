@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.6 2009/05/22 09:07:41 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.7 2009/06/11 11:24:19 slaunwhj Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMOffline/Trigger/interface/HLTMuonGenericRate.h"
+#include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlot.h"
 #include "DQMOffline/Trigger/interface/HLTMuonOverlap.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -55,7 +55,7 @@ private:
   virtual void endJob() ;
 
   int theNumberOfTriggers;
-  std::vector<HLTMuonGenericRate*> theTriggerAnalyzers;
+  std::vector<HLTMuonMatchAndPlot*> theTriggerAnalyzers;
   HLTMuonOverlap *theOverlapAnalyzer;
 
 };
@@ -170,8 +170,8 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
       if ( !isValidTriggerName ) {}   
       else {
         vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-        HLTMuonGenericRate *analyzer;
-        analyzer = new HLTMuonGenericRate( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName), validTriggerNames );
+        HLTMuonMatchAndPlot *analyzer;
+        analyzer = new HLTMuonMatchAndPlot( pset, triggerNames[i], moduleNames, (*iMuonSelector), (*iName), validTriggerNames );
         theTriggerAnalyzers.push_back( analyzer );
       }
     }
@@ -188,7 +188,11 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
 
 OfflineDQMMuonTrigAnalyzer::~OfflineDQMMuonTrigAnalyzer()
 {
-  vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
+
+  LogTrace ("HLTMuonVal")
+    << "Inside OfflineDQMMuonTrigAnalyzer destructor" << endl;
+  
+  vector<HLTMuonMatchAndPlot *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
         thisAnalyzer != theTriggerAnalyzers.end(); 
 	++thisAnalyzer )
@@ -207,7 +211,10 @@ OfflineDQMMuonTrigAnalyzer::~OfflineDQMMuonTrigAnalyzer()
 void
 OfflineDQMMuonTrigAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-  vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
+  LogTrace ("HLTMuonVal")
+    << "Inside OfflineDQMMuonTrigAnalyzer analyze" << endl;
+  
+  vector<HLTMuonMatchAndPlot *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
 	thisAnalyzer != theTriggerAnalyzers.end(); ++thisAnalyzer )
     {
@@ -221,13 +228,33 @@ OfflineDQMMuonTrigAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetu
 void 
 OfflineDQMMuonTrigAnalyzer::beginJob()
 {
-  vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
+
+  LogTrace ("HLTMuonVal")
+    << "Inside OfflineDQMMuonTrigAnalyzer beginJob" << endl;
+
+  LogTrace ("HLTMuonVal")
+    << "Looking at a vector of analyzers, with size " << theTriggerAnalyzers.size() << endl;
+
+
+  vector<HLTMuonMatchAndPlot *>::iterator thisAnalyzer;
+  int nTotalAnalyzers = 0;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
         thisAnalyzer != theTriggerAnalyzers.end(); 
 	++thisAnalyzer )
     {
+
+      LogTrace ("HLTMuonVal")
+        << "Calling begin for analyzer " << nTotalAnalyzers;
+       
       (*thisAnalyzer)->begin();
-    } 
+
+      
+      nTotalAnalyzers++;
+    }
+
+  LogTrace ("HLTMuonVal")
+    << "OfflineDQMMuonTrigAnalyzer: Calling being for overlap analyzer" << endl;
+  
   theOverlapAnalyzer ->begin();
 }
 
@@ -235,7 +262,12 @@ OfflineDQMMuonTrigAnalyzer::beginJob()
 
 void 
 OfflineDQMMuonTrigAnalyzer::endJob() {
-  vector<HLTMuonGenericRate *>::iterator thisAnalyzer;
+
+  LogTrace ("HLTMuonVal")
+    << "Inside OfflineDQMMuonTrigAnalyzer endJob()" << endl;
+  
+  
+  vector<HLTMuonMatchAndPlot *>::iterator thisAnalyzer;
   for ( thisAnalyzer  = theTriggerAnalyzers.begin(); 
         thisAnalyzer != theTriggerAnalyzers.end(); 
 	++thisAnalyzer )
