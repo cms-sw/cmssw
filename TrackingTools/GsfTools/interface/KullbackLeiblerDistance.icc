@@ -31,7 +31,7 @@ namespace KullbackLeiblerDistanceDetails {
     Matrix Gsum = G1 + G2;
     
     //   double dist = (Vdiff * Gdiff).trace() + Gsum.similarity(mudiff);
-    double dist = GsfMatrixTools::trace<N>(Vdiff,Gdiff) +
+    double dist = GsfMatrixTools::trace(Vdiff,Gdiff) +
       ROOT::Math::Similarity(mudiff,Gsum);
     
   return dist;
