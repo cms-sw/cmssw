@@ -248,7 +248,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    // draw histogram
    TCanvas *canvas = FWTrackDetailView::viewCanvas();
    canvas->cd();
-   canvas->SetFillColor(kOrange-8);
+   canvas->SetFillColor(0);
 
    TPad* pads[2];
    pads[0] = new TPad("pad1","pad1",0.05,0.05,0.475,0.95);
@@ -374,6 +374,8 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
       }
       //    printf("\n");
    }
+
+   viewCanvas()->cd();
    return 0;
 }
 
