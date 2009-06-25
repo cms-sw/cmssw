@@ -1,6 +1,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetComb.h"
 
+#include "Math/VectorUtil.h"
+
 TtSemiLepJetComb::TtSemiLepJetComb()
 {
 }
@@ -101,9 +103,9 @@ double TtSemiLepJetComb::compareHadTopLepTop(JetComb::CompType comp) const
 {
   switch(comp){
   case JetComb::kDeltaM     : return top(JetComb::kHad).mass() - top(JetComb::kLep).mass();  
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(JetComb::kHad), top(JetComb::kLep));
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(JetComb::kHad), top(JetComb::kLep));
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(JetComb::kHad), top(JetComb::kLep));
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (top(JetComb::kHad), top(JetComb::kLep));
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(top(JetComb::kHad), top(JetComb::kLep)));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (top(JetComb::kHad), top(JetComb::kLep));
   };
   return -9999.;
 }
@@ -112,9 +114,9 @@ double TtSemiLepJetComb::compareHadWLepW(JetComb::CompType comp) const
 {
   switch(comp){
   case JetComb::kDeltaM     : return wBoson(JetComb::kHad).mass() - wBoson(JetComb::kLep).mass();
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(JetComb::kHad), wBoson(JetComb::kLep));
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(wBoson(JetComb::kHad), wBoson(JetComb::kLep)));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (wBoson(JetComb::kHad), wBoson(JetComb::kLep));
   };
   return -9999.;
 }
@@ -123,9 +125,9 @@ double TtSemiLepJetComb::compareHadBLepB(JetComb::CompType comp) const
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (bQuark(JetComb::kHad).p4(), bQuark(JetComb::kLep).p4());
   };
   return -9999.;
 }
@@ -134,9 +136,9 @@ double TtSemiLepJetComb::compareLightQuarks(JetComb::CompType comp) const
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (lightQ().p4(), lightQ(true).p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(lightQ().p4(), lightQ(true).p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (lightQ().p4(), lightQ(true).p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (lightQ().p4(), lightQ(true).p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(lightQ().p4(), lightQ(true).p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (lightQ().p4(), lightQ(true).p4());
   };
   return -9999.;
 }
@@ -145,9 +147,9 @@ double TtSemiLepJetComb::compareLeptonNeutrino(JetComb::CompType comp) const
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (lepton_, neutrino_.p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(lepton_, neutrino_.p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (lepton_, neutrino_.p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (lepton_, neutrino_.p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(lepton_, neutrino_.p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (lepton_, neutrino_.p4());
   };
   return -9999.;
 }
@@ -156,9 +158,9 @@ double TtSemiLepJetComb::compareTopW(JetComb::DecayType dec1, JetComb::DecayType
 {
   switch(comp){
   case JetComb::kDeltaM     : return top(dec1).mass() - wBoson(dec2).mass();
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), wBoson(dec2));
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), wBoson(dec2));
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), wBoson(dec2));
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (top(dec1), wBoson(dec2));
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(top(dec1), wBoson(dec2)));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (top(dec1), wBoson(dec2));
   };
   return -9999.;
 }
@@ -167,9 +169,9 @@ double TtSemiLepJetComb::compareTopB(JetComb::DecayType dec1, JetComb::DecayType
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (top(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(top(dec1), bQuark(dec2).p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (top(dec1), bQuark(dec2).p4());
   };
   return -9999.;
 }
@@ -178,9 +180,9 @@ double TtSemiLepJetComb::compareWB(JetComb::DecayType dec1, JetComb::DecayType d
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(dec1), bQuark(dec2).p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (wBoson(dec1), bQuark(dec2).p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(wBoson(dec1), bQuark(dec2).p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (wBoson(dec1), bQuark(dec2).p4());
   };
   return -9999.;
 }
@@ -189,9 +191,9 @@ double TtSemiLepJetComb::compareTopLepton(JetComb::DecayType decay, JetComb::Com
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(decay), lepton_);
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(decay), lepton_);
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(decay), lepton_);
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (top(decay), lepton_);
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(top(decay), lepton_));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (top(decay), lepton_);
   };
   return -9999.;
 }
@@ -200,9 +202,9 @@ double TtSemiLepJetComb::compareTopNeutrino(JetComb::DecayType decay, JetComb::C
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (top(decay), neutrino_.p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(top(decay), neutrino_.p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (top(decay), neutrino_.p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (top(decay), neutrino_.p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(top(decay), neutrino_.p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (top(decay), neutrino_.p4());
   };
   return -9999.;
 }
@@ -211,9 +213,9 @@ double TtSemiLepJetComb::compareWLepton(JetComb::DecayType decay, JetComb::CompT
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), lepton_);
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), lepton_);
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(decay), lepton_);
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), lepton_);
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), lepton_));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (wBoson(decay), lepton_);
   };
   return -9999.;
 }
@@ -222,9 +224,9 @@ double TtSemiLepJetComb::compareWNeutrino(JetComb::DecayType decay, JetComb::Com
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), neutrino_.p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), neutrino_.p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (wBoson(decay), neutrino_.p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (wBoson(decay), neutrino_.p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(wBoson(decay), neutrino_.p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (wBoson(decay), neutrino_.p4());
   };
   return -9999.;
 }
@@ -233,9 +235,9 @@ double TtSemiLepJetComb::compareBLepton(JetComb::DecayType decay, JetComb::CompT
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (bQuark(decay).p4(), lepton_);
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(bQuark(decay).p4(), lepton_);
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (bQuark(decay).p4(), lepton_);
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (bQuark(decay).p4(), lepton_);
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(bQuark(decay).p4(), lepton_));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (bQuark(decay).p4(), lepton_);
   };
   return -9999.;
 }
@@ -244,9 +246,9 @@ double TtSemiLepJetComb::compareBNeutrino(JetComb::DecayType decay, JetComb::Com
 {
   switch(comp){
   case JetComb::kDeltaM     : return -9999.;
-  case JetComb::kDeltaR     : return ROOT::Math::VectorUtil::DeltaR  (bQuark(decay).p4(), neutrino_.p4());
-  case JetComb::kDeltaPhi   : return ROOT::Math::VectorUtil::DeltaPhi(bQuark(decay).p4(), neutrino_.p4());
-  case JetComb::kDeltaTheta : return ROOT::Math::VectorUtil::Angle   (bQuark(decay).p4(), neutrino_.p4());
+  case JetComb::kDeltaR     : return      ROOT::Math::VectorUtil::DeltaR  (bQuark(decay).p4(), neutrino_.p4());
+  case JetComb::kDeltaPhi   : return fabs(ROOT::Math::VectorUtil::DeltaPhi(bQuark(decay).p4(), neutrino_.p4()));
+  case JetComb::kDeltaTheta : return      ROOT::Math::VectorUtil::Angle   (bQuark(decay).p4(), neutrino_.p4());
   };
   return -9999.;
 }

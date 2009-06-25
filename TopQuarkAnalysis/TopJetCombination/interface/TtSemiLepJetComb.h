@@ -5,7 +5,6 @@
 #include <string>
 
 #include "TMath.h"
-#include "Math/VectorUtil.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
