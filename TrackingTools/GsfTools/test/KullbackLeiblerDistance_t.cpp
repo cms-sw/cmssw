@@ -31,7 +31,7 @@ typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > Matrix6
       return *d;
   }
 
-Matrix buildCovariance() {
+Matrix buildCovariance(float y) {
 
   // build a resonable covariance matrix as JIJ
 
@@ -42,7 +42,7 @@ Matrix buildCovariance() {
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
-  LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
+  LocalTrajectoryParameters tp(1., 1., y, 0.,0.,1.);
 
   JacobianLocalToCartesian jl2c(plane,tp);
   return ROOT::Math::SimilarityT(jl2c.jacobian(),Matrix6(ROOT::Math::SMatrixIdentity()));
@@ -54,9 +54,10 @@ int main() {
 
   Distance const & d = distance();
 
-  Matrix cov = buildCovariance();
+  Matrix cov1 = buildCovariance(1.);
+  Matrix cov2 = buildCovariance(2.);
 
-  GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),cov);
+  GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),cov1);
   // GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
 
   GS * gs0 = new GS(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
@@ -64,7 +65,7 @@ int main() {
 
 
   // GS gs2(Vector(2., 2., 2., 2.,2.),cov);
-  GS * gs2 = new GS(Vector(2., 2., 2., 2.,2.),cov);
+  GS * gs2 = new GS(Vector(2., 2., 2., 2.,2.),cov2);
  
   // make sure we load all code...
   edm::HRTimeType s0= edm::hrRealTime();
