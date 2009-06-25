@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 VertexAssociatorByTracksESProducer = cms.ESProducer("VertexAssociatorByTracksESProducer",
     # Matching conditions
-    R2SMatchedSimRatio = cms.double(0.5),
+    R2SMatchedSimRatio = cms.double(0.3),
     R2SMatchedRecoRatio = cms.double(0.0),
     S2RMatchedSimRatio = cms.double(0.0),
     S2RMatchedRecoRatio = cms.double(0.3),
