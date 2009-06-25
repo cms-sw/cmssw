@@ -12,12 +12,12 @@ ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
     jets = cms.InputTag("selectedLayer1Jets"),
 
     #-------------------------------------------------
-    # algorithms: 0 = totalMinDist
-    #             1 = minSumDist
-    #             2 = ptOrderedMinDist
-    #             3 = unambiguousOnly
+    # algorithms: totalMinDist
+    #             minSumDist
+    #             ptOrderedMinDist
+    #             unambiguousOnly
     #-------------------------------------------------
-    algorithm = cms.int32(0),
+    algorithm = cms.string("totalMinDist"),
 
     #-------------------------------------------------
     # use DeltaR (eta, phi) for calculating the
@@ -49,6 +49,13 @@ ttFullHadJetPartonMatch = cms.EDProducer("TtFullHadJetPartonMatch",
     #  more than only the best combination)
     #-------------------------------------------------
     maxNComb = cms.int32(1),
+
+    #-------------------------------------------------
+    # partons to be ignored in the matching;
+    # "LightQTop", "LightQBarTop", "B",
+    # "LightQTopBar", "LightQBarTopBar", "BBar"
+    #-------------------------------------------------
+    partonsToIgnore = cms.vstring(),
 
     #-------------------------------------------------
     # verbosity level: 0: no additional printout
