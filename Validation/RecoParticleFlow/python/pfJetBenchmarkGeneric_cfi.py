@@ -17,5 +17,6 @@ pfJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     minDeltaEt = cms.double(-200.),
     maxDeltaEt = cms.double(200.),
     minDeltaPhi = cms.double(-3.2),
-    maxDeltaPhi = cms.double(3.2)                                       
+    maxDeltaPhi = cms.double(3.2),
+    doMetPlots  = cms.bool(False)
 )
