@@ -1,3 +1,10 @@
+#include "TrackingTools/GsfTools/interface/KullbackLeiblerDistance.h"
+#include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
+
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 
@@ -46,24 +53,24 @@ Matrix buildCovariance() {
 /* compute the trace of a product of two sym matrices
  *   a(i,j)*b(j,i) = a(i,j)*b(i,j) sum over i and j
  */
-template<typename T, int N>
+template<typename T, unsigned int N>
 double trace(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & a,
 	     ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & b) {
-  typedef typename ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> >::const_interator CI;
+  typedef typename ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> >::const_iterator CI;
   CI i1 = a.begin();
   CI e1 = a.end();
   CI i2 = b.begin();
-  CI e2 = b.end();
+//  CI e2 = b.end();
   
   T res =0;
   // sum of the lower triangle;
-  for (i1<e1; i1++, i2++)
+  for (;i1!=e1; i1++, i2++)
     res += (*i1)*(*i2);
   res *=2.;
   // remove the duplicated diagonal...
-  for (i=0;i<N;i++)
-    res -= a(i,i)*a(i,i);
-
+  for (unsigned int i=0;i<N;i++)
+    res -= a(i,i)*b(i,i);
+  return res;
 }
 
 
@@ -77,9 +84,10 @@ int main() {
 
   double one = trace(cov1,cov2);
 
-  double two =  GsfMatrixTools::trace<N>(cov1*cov2); 
+  double two =  GsfMatrixTools::trace<5>(cov1*cov2); 
  
-  if (one!=two) std::cout << "vincenzo was wrong!" << std::endl;
+  if (fabs(one-two)>1.e-15) std::cout << "vincenzo was wrong!" << std::endl;
+  std::cout << one << " " << two << " "<< one-two << std::endl;  
 
   return 0;
 
