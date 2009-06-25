@@ -11,7 +11,7 @@ def redoPFTauDiscriminators(process,
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
-                    pfTauLabel = cms.InputTag('pfRecoTauProducer'),
+                    pfTauLabel = cms.InputTag('fixedConePFTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
     switchMCMatch(process, pfTauLabel, caloTauLabel)
     process.allLayer1Taus.tauSource = caloTauLabel
@@ -25,6 +25,11 @@ def switchToCaloTau(process,
         process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabel)] = caloTauLabel
     else:
         process.aodSummary.candidates += [caloTauLabel]
+    process.allLayer1Taus.addDecayMode = False
+    ## Isolation is somewhat an issue, so we start just by turning it off
+    print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
+    process.allLayer1Taus.isolation   = cms.PSet()
+    process.allLayer1Taus.isoDeposits = cms.PSet()
 
 
 # internal auxiliary function to switch to **any** PFTau collection
