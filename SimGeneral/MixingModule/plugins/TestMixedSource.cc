@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id$
+// $Id: TestMixedSource.cc,v 1.1 2009/05/25 17:30:40 ebecheva Exp $
 //
 //
 
@@ -42,8 +42,6 @@
 
 #include "TestMixedSource.h"
 
-#include <iostream.h>
-#include <fstream.h>
 
 //
 // constructors and destructor
@@ -194,7 +192,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 void 
 TestMixedSource::beginJob()
 {
-   outputFile.open("test.log",ios::app);
+   outputFile.open("test.log");
    if (!outputFile.is_open())
    {
      std::cout << "Unable to open file!" << std::endl;
