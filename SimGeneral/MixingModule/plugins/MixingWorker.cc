@@ -190,6 +190,29 @@ namespace edm {
   }
   
   template <>
+  bool MixingWorker<HepMCProduct>::checkSignal(const Event &e)
+      {   
+          bool got;
+	  InputTag t;
+	  
+	  Handle<HepMCProduct>  result_t;
+	  if (mixProdStep2_){
+	     got = e.getByLabel(tagSignal_,result_t);
+	     t = InputTag(tagSignal_.label(),tagSignal_.instance());   
+	  }
+	  else{	     
+	     got = e.getByLabel(tag_,result_t);
+	     t = InputTag(tag_.label(),tag_.instance());
+	  }
+	  
+	  if (got)
+	       LogInfo("MixingModule") <<" Will create a CrossingFrame for HepMCProduct with "
+	  			       << " with InputTag= "<< t.encode();
+				       
+	  return got;
+  }
+      
+  template <>
   void MixingWorker<PSimHit>::setTof(){
     crFrame_->setTof();
   }

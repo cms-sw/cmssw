@@ -106,9 +106,13 @@ namespace edm {
 
   // Functions that get called by framework every event
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup& setup) { 
-
+    
+    // Check if the signal is present in the root file 
+    // for all the objects we want to mix
+    checkSignal(e);
+    
     // Create EDProduct
-    createnewEDProduct(e);
+    createnewEDProduct();
 
     // Add signals
     if (!mixProdStep1_){ 
@@ -116,8 +120,6 @@ namespace edm {
     }
 
     // Read the PileUp 
-    //    std::vector<EventPrincipalVector> pileup[maxNbSources_];
-    //    bool doit[maxNbSources_];
     for (unsigned int is=0;is< maxNbSources_;++is) {
       doit_[is]=false;
       pileup_[is].clear();

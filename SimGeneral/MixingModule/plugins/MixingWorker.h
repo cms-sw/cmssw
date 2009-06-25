@@ -69,30 +69,32 @@ namespace edm
 	}
       }
 
-      virtual void createnewEDProduct(const edm::Event &e){        
+
+      virtual bool checkSignal(const edm::Event &e){
           bool got;
 	  InputTag t;
-	  if (mixProdStep2_){
-	     edm::Handle<std::vector<T> >  result_t;
+	  edm::Handle<std::vector<T> >  result_t;
+	  if (mixProdStep2_){   
 	     got = e.getByLabel(tagSignal_,result_t);
-	     t = InputTag(tagSignal_.label(),tagSignal_.instance());    
+	     t = InputTag(tagSignal_.label(),tagSignal_.instance());   
 	  }
 	  else{
-	     edm::Handle<std::vector<T> >  result_t;
 	     got = e.getByLabel(tag_,result_t);
 	     t = InputTag(tag_.label(),tag_.instance());
 	  }
 	  
-	  // The CrossingFrame is created only if the signal data is present in the root file 
-	  if (got){
-	     crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
-	  }
-	  else LogInfo("MixingModule") <<" Will not create a CrossingFrame for "<< typeid(T).name() 
-	  			       << " with InputTag = "<< t.encode()<<" because there is no signal data! " 
-				       << "Please, check if the corresponding branch exists in "
-				       << "the signal data file or if it is empty!"; 
+	  if (got)
+	       LogInfo("MixingModule") <<" Will create a CrossingFrame for "<< typeid(T).name() 
+	  			       << " with InputTag= "<< t.encode();
+				       
+	  return got;
       }
-            
+      
+      
+      virtual void createnewEDProduct(){        
+          crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
+      }
+           
       virtual void setBcrOffset() {crFrame_->setBcrOffset();}
       virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
 

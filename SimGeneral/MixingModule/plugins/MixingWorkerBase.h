@@ -50,7 +50,8 @@ namespace edm
       /**Default destructor*/
       virtual ~MixingWorkerBase();
       virtual void put(edm::Event &e) =0;
-      virtual void createnewEDProduct(const edm::Event &e)=0; 
+      virtual void createnewEDProduct()=0; 
+      virtual bool checkSignal(const edm::Event &e)=0;
       virtual void addSignals(const edm::Event &e) =0;
       virtual void addPileups(const int bcr, EventPrincipal *,unsigned int EventNr,int vertexOffset=0)=0;
       virtual void setBcrOffset()=0;

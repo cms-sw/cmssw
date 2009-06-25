@@ -79,7 +79,7 @@ namespace edm
                std::string labelCF;
 	   
 	       branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	       workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 	       
 	       produces<CrossingFrame<SimTrack> >(labelCF);
 	    }	    
@@ -107,7 +107,7 @@ namespace edm
                std::string labelCF;
            
                branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	       workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	       produces<CrossingFrame<SimVertex> >(labelCF);
 	    }
@@ -136,7 +136,7 @@ namespace edm
                std::string labelCF;
 	       	      
 	       branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tagCF,labelCF);
-	       workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	       workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	       produces<CrossingFrame<HepMCProduct> >(labelCF);
 	    }
@@ -167,7 +167,7 @@ namespace edm
                  std::string labelCF;
         
 	         branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF);
-	         workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	         workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 		 produces<CrossingFrame<PCaloHit> > (labelCF);
 	      }
@@ -200,7 +200,7 @@ namespace edm
 		 else if(tags.size()>1) tagCF=tags[ii];
                  std::string labelCF;
 	         branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tagCF,labelCF); 		 	   
-		 workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  	            
+		 workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  	            
 		
 	         produces<CrossingFrame<PSimHit> > (labelCF);
 	      }
@@ -223,7 +223,7 @@ namespace edm
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	    workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	    produces<CrossingFrame<SimTrack> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -236,7 +236,7 @@ namespace edm
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
 	    
-	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	    workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 	    produces<CrossingFrame<SimVertex> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
 	    
@@ -248,7 +248,7 @@ namespace edm
             std::string label;
 
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
-	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	    workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	    produces<CrossingFrame<HepMCProduct> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -263,7 +263,7 @@ namespace edm
 	      std::string label;
 
 	      branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
-	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+	      workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -281,10 +281,10 @@ namespace edm
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 
 	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
+		workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_));  
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }else {
-		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
+		workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,checktof_,mixProdStep2_,true));  
 		// here we have to give the opposite selector too (low for high, high for low)
 		int slow=(tag.instance()).find("LowTof");
 
@@ -296,8 +296,8 @@ namespace edm
 		  productInstanceNameOpp=tag.instance().substr(0,iend-7)+"LowTof";
 		}
 		InputTag tagOpp(tag.label(),productInstanceNameOpp,tag.process());
-		workers_[workers_.size()-1]->setOppositeTag(tagOpp);
-		workers_[workers_.size()-1]->setCheckTof(checktof_);
+		workersObjects_[workersObjects_.size()-1]->setOppositeTag(tagOpp);
+		workersObjects_[workersObjects_.size()-1]->setCheckTof(checktof_);
 		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 	      }
 	      produces<CrossingFrame<PSimHit> > (label);
@@ -334,13 +334,23 @@ namespace edm
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
   }
 
-  void MixingModule::createnewEDProduct(const edm::Event &e) {
+  void MixingModule::checkSignal(const edm::Event &e){
+  
+    for (unsigned int ii=0;ii<workersObjects_.size();ii++){
+      if (workersObjects_[ii]->checkSignal(e)){
+        workers_.push_back(workersObjects_[ii]);
+      }
+    }
+  
+  }
+  
+  void MixingModule::createnewEDProduct() {
     //create playback info
     playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
 
     //and CrossingFrames
     for (unsigned int ii=0;ii<workers_.size();ii++){
-      workers_[ii]->createnewEDProduct(e);
+      workers_[ii]->createnewEDProduct();
     }  
   }
  
