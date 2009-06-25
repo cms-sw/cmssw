@@ -4,10 +4,12 @@ namespace KullbackLeiblerDistanceDetails {
 
   template <unsigned int N> double 
   compute (SingleGaussianState<N> sgs1, 
-	   SingleGaussianState<N> sgs2) const {
+	   SingleGaussianState<N> sgs2) {
     
     //ThS: That check will have to happen somewhere else for TSOS...
-    
+  typedef ROOT::Math::SVector<double, N> Vector;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > Matrix;
+     
     //   if (&tsos1.surface() != &tsos2.surface()) {
     //     cout << "Trying to calculate distance between components defined "
     // 	 << "at different surfaces - returning zero!" << endl;
