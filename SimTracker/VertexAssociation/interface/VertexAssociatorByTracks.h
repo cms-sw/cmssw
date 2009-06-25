@@ -1,9 +1,12 @@
 #ifndef VertexAssociatorByTracks_h
 #define VertexAssociatorByTracks_h
 
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
-#include "PhysicsTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
+
+#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
+
 
 class VertexAssociatorByTracks : public VertexAssociatorBase
 {
