@@ -48,13 +48,14 @@ def runBTagging(process,jetCollection,label) :
     setattr( process, 'jetProbabilityBJetTags' +label,  btag.jetProbabilityBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
-#    setattr( process, 'impactParameterMVABJetTags'+label, btag.impactParameterMVABJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-    setattr( process, 'softElectronBJetTags'+label, btag.softElectronBJetTags.clone(tagInfos = vit(seTILabel)) )
     setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
-    setattr( process, 'softMuonNoIPBJetTags'+label, btag.softMuonNoIPBJetTags.clone(tagInfos = vit(smTILabel)) )
+    setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
+    setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
+    setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
+    setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
     
     def mkseq(process, firstlabel, *otherlabels):
        seq = getattr(process, firstlabel)
@@ -67,13 +68,14 @@ def runBTagging(process,jetCollection,label) :
                                                 'jetProbabilityBJetTags',
                                                 'trackCountingHighPurBJetTags',
                                                 'trackCountingHighEffBJetTags',
- #                                               'impactParameterMVABJetTags',
                                                 'simpleSecondaryVertexBJetTags',
                                                 'combinedSecondaryVertexBJetTags',
                                                 'combinedSecondaryVertexMVABJetTags',
-                                                'softElectronBJetTags',
+                                                'softElectronByPtBJetTags',
+                                                'softElectronByIP3dBJetTags',
                                                 'softMuonBJetTags',
-                                                'softMuonNoIPBJetTags') ]
+                                                'softMuonByPtBJetTags',
+                                                'softMuonByIP3dBJetTags') ]
     }
     
     setattr( process, 'btaggingTagInfos' + label, mkseq(process, *(labels['tagInfos']) ) )
@@ -232,8 +234,7 @@ def addJetCollection(process,jetCollection,postfixLabel,
                             label      = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
                         )
                     )
-        addClone('jetCorrFactors',       jetSource           = jetCollection, 
-                                         defaultJetCorrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel))
+        addClone('jetCorrFactors',       jetSource           = jetCollection) 
         switchJECParameters( getattr(process,'jetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldalgo='IC5',oldtype='Calo' )
         fixVInputTag(l1Jets.jetCorrFactorsSource)
         if doType1MET:
