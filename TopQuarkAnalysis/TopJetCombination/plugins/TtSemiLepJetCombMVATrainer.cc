@@ -90,9 +90,11 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
     if(matching.size() < nPartons) return;
     // skip events that were affected by the outlier 
     // rejection in the jet-parton matching
-    for(unsigned int i = 0; i < matching.size(); ++i)
+    for(unsigned int i = 0; i < matching.size(); ++i) {
+      if(matching[i] == -3) continue; // -3: parton was chosen to be excluded from jet-parton matching
       if(matching[i] < 0 || matching[i] >= (int)jets->size())
 	return;
+    }
   }
   // use dummy for matching if not signal channel
   else
@@ -139,8 +141,15 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 	bool trueCombi = false;
 	// true combination only if signal channel
 	// and in agreement with matching
-	if(genEvt->semiLeptonicChannel()==leptonType_ && combi==matching)
+	if(genEvt->semiLeptonicChannel()==leptonType_) {
 	  trueCombi = true;
+	  for(unsigned int i = 0; i < matching.size(); ++i) {
+	    if(combi[i]!=matching[i] && matching[i]!=-3) {
+	      trueCombi = false;
+	      break;
+	    }
+	  }
+	}
 
 	// feed MVA input variables for this jetComb into the ValueList
 	values.add("target", trueCombi);

@@ -34,20 +34,25 @@ process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+
 ## configure ttGenEventFilters
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff")
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.electron = False
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.muon     = True
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.tau      = False
-## configure jet parton matching
+
+## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi")
+#process.ttSemiLepJetPartonMatch.partonsToIgnore = ["LepB"]
+
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSaver_cff")
 ## change maximum number of jets taken into account per event (default: 4)
-## process.ttSemiLepJetPartonMatch .maxNJets = 5
-## process.trainTtSemiLepJetCombMVA.maxNJets = process.ttSemiLepJetPartonMatch.maxNJets
+#process.ttSemiLepJetPartonMatch .maxNJets = 5
+#process.trainTtSemiLepJetCombMVA.maxNJets = process.ttSemiLepJetPartonMatch.maxNJets
 
 ## make trainer looper known to the process
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSaver_cff import looper
