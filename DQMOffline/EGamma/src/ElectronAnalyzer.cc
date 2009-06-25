@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.8 2009/02/27 10:42:15 lantonel Exp $
+// $Id: ElectronAnalyzer.cc,v 1.9 2009/06/24 14:52:32 dellaric Exp $
 //
 //
 
@@ -227,9 +227,6 @@ ElectronAnalyzer::endJob(){
       }
     }
   }
-  dbe_->removeElement("h_ele_eta_golden");
-  dbe_->removeElement("h_ele_eta_show");
-  dbe_->removeElement("h_ele_eta");
 
   h_ele_matchingObjectEta = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectEta");
   h_ele_etaEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_etaEff");
@@ -243,8 +240,6 @@ ElectronAnalyzer::endJob(){
       }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectEta_matched");
-  dbe_->removeElement("h_SC_eta");
 
   h_ele_matchingObjectPt = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectPt");
   h_ele_ptEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_ptEff");
@@ -258,8 +253,6 @@ ElectronAnalyzer::endJob(){
       }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectPt_matched");
-  dbe_->removeElement("h_SC_Pt");
 
   h_ele_matchingObjectPhi = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectPhi");
   h_ele_phiEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_phiEff");
@@ -273,8 +266,6 @@ ElectronAnalyzer::endJob(){
       }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectPhi_matched");
-  dbe_->removeElement("h_SC_phi");
 
   h_ele_matchingObjectZ = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectZ");
   h_ele_zEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_zEff");
@@ -288,8 +279,6 @@ ElectronAnalyzer::endJob(){
       }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectZ_matched");
-  dbe_->removeElement("h_SC_z");
 
 
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
