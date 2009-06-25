@@ -991,7 +991,7 @@ namespace edm {
     if(shutdown_flag) {
       std::cout << "asked to shutdown" << std::endl;
     }
-    if(shutdown_flag || child_failed && (num_children_done != childrenIds.size())) {
+    if(shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
       std::cout << "must stop children" << std::endl;
       for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
 	  it != itEnd; ++it) {
@@ -1128,8 +1128,7 @@ namespace edm {
 	while(stop_count_ == 0 &&
 	      (rc = stopper_.timed_wait(sl, timeout)) == true);
       
-      if(rc == false)
-	{
+      if(rc == false) {
 	  // timeout occurred
 	  // if(id_set_) pthread_kill(event_loop_id_, my_sig_num_);
 	  // this is a temporary hack until we get the input source
@@ -1144,14 +1143,12 @@ namespace edm {
 	    << "the event loop "
 	    << "and the event loop did not shutdown after "
 	    << timeout_seconds << " seconds\n";
-	}
-      else
-	{
+      } else {
 	  event_loop_->join();
 	  event_loop_.reset();
 	  id_set_ = false;
 	  stop_count_ = -1;
-	}
+      }
     }
     return rc == false ? epTimedOut : last_rc_;
   }
