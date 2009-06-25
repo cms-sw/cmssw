@@ -43,29 +43,29 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 ## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtFullHadJetPartonMatch_cfi")
-process.ttFullHadJetPartonMatch.verbosity  = 1      #default: 0
-#process.ttFullHadJetPartonMatch.algorithm  = 2      #default: 0
-#process.ttFullHadJetPartonMatch.useDeltaR  = True   #default: True
-#process.ttFullHadJetPartonMatch.useMaxDist = True   #default: False
-#process.ttFullHadJetPartonMatch.maxDist    = 2.5    #default: 0.3
-#process.ttFullHadJetPartonMatch.maxNJets   = 7      #default: 6
-#process.ttFullHadJetPartonMatch.maxNComb   = 1      #default: 1
+process.ttFullHadJetPartonMatch.verbosity  = 1              #default: 0
+#process.ttFullHadJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
+#process.ttFullHadJetPartonMatch.useDeltaR  = True           #default: True
+#process.ttFullHadJetPartonMatch.useMaxDist = True           #default: False
+#process.ttFullHadJetPartonMatch.maxDist    = 2.5            #default: 0.3
+#process.ttFullHadJetPartonMatch.maxNJets   = 7              #default: 6
+#process.ttFullHadJetPartonMatch.maxNComb   = 1              #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtFullLepJetPartonMatch_cfi")
-process.ttFullLepJetPartonMatch.verbosity  = 1      #default: 0
-#process.ttFullLepJetPartonMatch.algorithm  = 2      #default: 0
-#process.ttFullLepJetPartonMatch.useDeltaR  = True   #default: True
-#process.ttFullLepJetPartonMatch.useMaxDist = True   #default: False
-#process.ttFullLepJetPartonMatch.maxDist    = 2.5    #default: 0.3
-#process.ttFullLepJetPartonMatch.maxNJets   = 3      #default: 2
-#process.ttFullLepJetPartonMatch.maxNComb   = 1      #default: 1
+process.ttFullLepJetPartonMatch.verbosity  = 1              #default: 0
+#process.ttFullLepJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
+#process.ttFullLepJetPartonMatch.useDeltaR  = True           #default: True
+#process.ttFullLepJetPartonMatch.useMaxDist = True           #default: False
+#process.ttFullLepJetPartonMatch.maxDist    = 2.5            #default: 0.3
+#process.ttFullLepJetPartonMatch.maxNJets   = 3              #default: 2
+#process.ttFullLepJetPartonMatch.maxNComb   = 1              #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi")
-process.ttSemiLepJetPartonMatch.verbosity  = 1      #default: 0
-#process.ttSemiLepJetPartonMatch.algorithm  = 2      #default: 0
-#process.ttSemiLepJetPartonMatch.useDeltaR  = True   #default: True
-#process.ttSemiLepJetPartonMatch.useMaxDist = True   #default: False
-#process.ttSemiLepJetPartonMatch.maxDist    = 2.5    #default: 0.3
-#process.ttSemiLepJetPartonMatch.maxNJets   = 5      #default: 4
-#process.ttSemiLepJetPartonMatch.maxNComb   = 1      #default: 1
+process.ttSemiLepJetPartonMatch.verbosity  = 1              #default: 0
+#process.ttSemiLepJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
+#process.ttSemiLepJetPartonMatch.useDeltaR  = True           #default: True
+#process.ttSemiLepJetPartonMatch.useMaxDist = True           #default: False
+#process.ttSemiLepJetPartonMatch.maxDist    = 2.5            #default: 0.3
+#process.ttSemiLepJetPartonMatch.maxNJets   = 5              #default: 4
+#process.ttSemiLepJetPartonMatch.maxNComb   = 1              #default: 1
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
