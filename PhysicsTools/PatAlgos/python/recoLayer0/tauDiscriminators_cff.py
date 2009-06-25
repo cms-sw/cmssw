@@ -3,15 +3,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 
-## FIXME: are they already on AOD??
+## FIXME: are they already on AOD?? (yes they are)
 patPFTauDiscrimination = cms.Sequence(
-    pfRecoTauDiscriminationByIsolation +
-    pfRecoTauDiscriminationByLeadingTrackFinding +
-    pfRecoTauDiscriminationByLeadingTrackPtCut +
-    pfRecoTauDiscriminationByTrackIsolation +
-    pfRecoTauDiscriminationByECALIsolation +
-    pfRecoTauDiscriminationAgainstElectron +
-    pfRecoTauDiscriminationAgainstMuon
+    fixedConePFTauDiscriminationByIsolation +
+    fixedConePFTauDiscriminationByLeadingTrackFinding +
+    fixedConePFTauDiscriminationByLeadingTrackPtCut +
+    fixedConePFTauDiscriminationByTrackIsolation +
+    fixedConePFTauDiscriminationByECALIsolation +
+    fixedConePFTauDiscriminationAgainstElectron +
+    fixedConePFTauDiscriminationAgainstMuon
 )
 
 patCaloTauDiscrimination = cms.Sequence(

@@ -48,7 +48,7 @@ def runBTagging(process,jetCollection,label) :
     setattr( process, 'jetProbabilityBJetTags' +label,  btag.jetProbabilityBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
-    setattr( process, 'impactParameterMVABJetTags'+label, btag.impactParameterMVABJetTags.clone(tagInfos = vit(ipTILabel)) )
+#    setattr( process, 'impactParameterMVABJetTags'+label, btag.impactParameterMVABJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
@@ -67,7 +67,7 @@ def runBTagging(process,jetCollection,label) :
                                                 'jetProbabilityBJetTags',
                                                 'trackCountingHighPurBJetTags',
                                                 'trackCountingHighEffBJetTags',
-                                                'impactParameterMVABJetTags',
+ #                                               'impactParameterMVABJetTags',
                                                 'simpleSecondaryVertexBJetTags',
                                                 'combinedSecondaryVertexBJetTags',
                                                 'combinedSecondaryVertexMVABJetTags',

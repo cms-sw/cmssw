@@ -5,6 +5,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 def redoPFTauDiscriminators(process,
                             oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
                             newPFTauLabel = cms.InputTag('pfRecoTauProducer')):
+    print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
     process.patAODExtraReco += process.patPFTauDiscrimination
     massSearchReplaceParam(process.patPFTauDiscrimination, 'PFTauProducer', oldPFTauLabel, newPFTauLabel)
 
@@ -25,8 +26,12 @@ def switchToCaloTau(process,
     else:
         process.aodSummary.candidates += [caloTauLabel]
 
+
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
+
+    print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
+
     switchMCMatch(process, pfTauLabelOld, pfTauLabelNew)
     process.tauIsoDepositPFCandidates.src = pfTauLabelNew
     process.tauIsoDepositPFCandidates.ExtractorPSet.tauSource = pfTauLabelNew

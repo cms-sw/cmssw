@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1PFParticles = cms.EDProducer("PATPFParticleProducer",
     # General configurables
-    pfCandidateSource = cms.InputTag("pfTopProjection:PFCandidates"),
+    pfCandidateSource = cms.InputTag("noJet"),
 
     # MC matching configurables
     addGenMatch = cms.bool(False),

@@ -36,15 +36,15 @@ tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
 
 # compute IsoDeposits from PFChargedHadrons
 tauIsoDepositPFChargedHadrons = copy.deepcopy(tauIsoDepositPFCandidates)
-tauIsoDepositPFChargedHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAllChargedHadrons")
+tauIsoDepositPFChargedHadrons.ExtractorPSet.candidateSource = cms.InputTag("allChargedHadrons")
 
 # compute IsoDeposits from PFNeutralHadrons
 tauIsoDepositPFNeutralHadrons = copy.deepcopy(tauIsoDepositPFCandidates)
-tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAllNeutralHadrons")
+tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("allNeutralHadrons")
 
 # compute IsoDeposits from PFGammas
 tauIsoDepositPFGammas = copy.deepcopy(tauIsoDepositPFCandidates)
-tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("pfAllPhotons")
+tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("allPhotons")
 
 patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
