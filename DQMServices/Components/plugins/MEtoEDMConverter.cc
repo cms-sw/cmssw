@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/06/24 16:55:06 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/06/24 16:59:59 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -15,7 +15,7 @@
 using namespace lat;
 
 MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
-  fName(""), verbosity(0), frequency(0), deleteAfterCopy(false)
+  fName(""), verbosity(0), frequency(0), deleteAfterCopy(true)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_MEtoEDMConverter";
 
@@ -24,7 +24,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity",0);
   frequency = iPSet.getUntrackedParameter<int>("Frequency",50);
   path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");  
-  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy",false);  
+  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy",true);  
   
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -466,10 +466,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     }
     
     // remove ME after copy to EDM is done.
-    if (deleteAfterCopy) {
+    if (deleteAfterCopy)
       dbe->removeElement(me->getPathname(),me->getName());
-    }
-
+    
   } // end loop through monitor elements
 
   // produce objects to put in events
