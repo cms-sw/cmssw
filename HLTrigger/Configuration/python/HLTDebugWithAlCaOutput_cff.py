@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HLT/V90 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre10/HLT/V15 (CMSSW_3_1_X_2009-06-23-2300_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HLT/V90')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre10/HLT/V15')
 )
 
 block_hltDebugWithAlCaOutput = cms.PSet(
@@ -46,7 +46,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltSiStripRawToClustersFacility_*_*',
   'keep *_hltIsolPixelTrackProd8E29_*_*',
   'keep *_hltAlCaPhiSymStream_*_*',
-  'keep *_hltBSoftMuonL25BJetTagsByDR_*_*',
   'keep *_hltPixelMatchLargeWindowElectronsL1Iso_*_*',
   'keep *_hltL25TauPixelTracksLeadingTrackPtCutSelector_*_*',
   'keep *_hltL2TauRelaxingIsolationSelector_*_*',
@@ -86,7 +85,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL1NonIsoStartUpElectronPixelSeeds_*_*',
   'keep *_hltBLifetimeL25AssociatorStartupU_*_*',
   'keep *_hltL1IsoStartUpElectronPixelSeeds_*_*',
-  'keep *_hltBSoftMuonL3TagInfos_*_*',
   'keep *_hltHITCtfWithMaterialTracks8E29_*_*',
   'keep *_hltHybridSuperClustersL1NonIsolated_*_*',
   'keep *_hltMulti5x5SuperClustersL1NonIsolated_*_*',
@@ -109,13 +107,12 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltBSoftMuonL25TagInfosU_*_*',
   'keep *_hltCtfWithMaterialTracksMumuk_*_*',
   'keep *_hltL3TauConeIsolation_*_*',
+  'keep *_hltMCJetCorJetIcone5HF07_*_*',
   'keep *_hltL25TauJetPixelTracksAssociator_*_*',
   'keep *_hltDt1DRecHits_*_*',
   'keep *_hltHybridSuperClustersL1Isolated_*_*',
-  'keep *_hltBSoftMuonL3BJetTagsByDR_*_*',
   'keep *_hltL25TauJetPixelTracksAssociatorNoL2_*_*',
   'keep *_hltPixelMatchElectronsL1Iso_*_*',
-  'keep *_hltBSoftMuonL25Jets_*_*',
   'keep *_hltTowerMakerForMuons_*_*',
   'keep *_hltIterativeCone5CaloJetsRegional_*_*',
   'keep *_hltCorrectedHybridSuperClustersL1Isolated_*_*',
@@ -129,7 +126,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltBLifetimeRegionalCtfWithMaterialTracksStartupU_*_*',
   'keep *_hltBLifetimeL3TagInfosStartup_*_*',
   'keep *_hltSiPixelClusters_*_*',
-  'keep *_hltBSoftMuonL25TagInfos_*_*',
   'keep *_hltElectronL1IsoLargeWindowDetaDphi_*_*',
   'keep *_hltL3Muons_*_*',
   'keep *_hltBLifetimeL3JetsStartupU_*_*',
@@ -175,7 +171,6 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltMulti5x5EndcapSuperClustersWithPreshowerL1Isolated_*_*',
   'keep *_hltBLifetimeL3AssociatorStartup_*_*',
   'keep *_hltHITCtfWithMaterialTracks1E31_*_*',
-  'keep *_hltBSoftMuonL3BJetTagsByPt_*_*',
   'keep *_hltCtfL1NonIsoLargeWindowWithMaterialTracks_*_*',
   'keep *_hltCkfTrackCandidatesMumu_*_*',
   'keep *_hltMuonTauL1FilteredNoL1Tau_*_*',
