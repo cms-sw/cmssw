@@ -19,6 +19,8 @@ mixData = cms.EDFilter("DataMixingModule",
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
     checktof = cms.bool(False),
+    #
+    IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
@@ -61,11 +63,11 @@ mixData = cms.EDFilter("DataMixingModule",
     #
     # Calorimeter digis
     #
-    #EBdigiProducerSig = cms.InputTag("simEcalDigis"),
-    EBdigiProducerSig = cms.InputTag("simUnsupressedEcalDigis"),
+    EBdigiProducerSig = cms.InputTag("simEcalDigis"),
+    #EBdigiProducerSig = cms.InputTag("simUnsupressedEcalDigis"),
     EBdigiCollectionSig = cms.InputTag("ebDigis"),
-    #EEdigiProducerSig = cms.InputTag("simEcalDigis"),
-    EEdigiProducerSig = cms.InputTag("simUnsupressedEcalDigis"),
+    EEdigiProducerSig = cms.InputTag("simEcalDigis"),
+    #EEdigiProducerSig = cms.InputTag("simUnsupressedEcalDigis"),
     EEdigiCollectionSig = cms.InputTag("eeDigis"),
     ESdigiProducerSig = cms.InputTag("simEcalPreshowerDigis"),
     ESdigiCollectionSig = cms.InputTag(""),

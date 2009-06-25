@@ -199,13 +199,13 @@ namespace edm
     // Get the digis from the event
     Handle<CSCComparatorDigiCollection> pCSCComparatordigis; 
 
-    cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << endl;
+    //cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << endl;
 
     if( e.getByLabel(CSCDigiTagSig_.label(),CSCCompdigi_collectionSig_.label(), pCSCComparatordigis) ) {
    
 
-    if(pCSCComparatordigis.isValid() ) { cout << "Signal: have CSCComparatorDigis" << endl;}
-    else { cout << "Signal: NO CSCComparatorDigis" << endl;}
+      //if(pCSCComparatordigis.isValid() ) { cout << "Signal: have CSCComparatorDigis" << endl;}
+      //else { cout << "Signal: NO CSCComparatorDigis" << endl;}
     
     // Loop over digis, copying them to our own local storage
 
