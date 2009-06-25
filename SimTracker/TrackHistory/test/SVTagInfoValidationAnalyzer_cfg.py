@@ -1,8 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TrackOriginAnalyzerTest")
+process = cms.Process("SVTagInfoValidationAnalyzer")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+# import of standard configurations
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/Generator_cff')
+process.load('Configuration/StandardSequences/VtxSmearedEarly10TeVCollision_cff')
+process.load('Configuration/StandardSequences/Sim_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/EventContent/EventContent_cff')
 
 process.load("SimTracker.TrackHistory.Playback_cff")
 process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
@@ -19,7 +29,7 @@ process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer"
     svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
 )
 
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 process.svTagInfoValidationAnalyzer.enableSimToReco = cms.untracked.bool(True)
 process.svTagInfoValidationAnalyzer.vertexProducer = cms.untracked.InputTag('svTagInfoProxy')
@@ -30,34 +40,38 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/BCE77A07-AC16-DE11-80B9-000423D986A8.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/B0D94AFE-3616-DE11-BFD5-000423D9880C.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/76E8D7B2-5216-DE11-8A7A-000423D174FE.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/6ED9476F-4C16-DE11-8BFC-001617C3B76A.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/289FC85A-4216-DE11-ACEE-000423D98844.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/12C01897-4616-DE11-8AA7-000423D98B5C.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-RECO/IDEAL_30X_v1/0003/00E48100-3A16-DE11-A693-001617DBCF6A.root' ] );
 
+readFiles.extend( ( 
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/DE732988-5E4F-DE11-82ED-001D09F25208.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/82FD1C7A-6E4F-DE11-9198-0019B9F72CC2.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/82B99E83-5E4F-DE11-96FA-001D09F28EA3.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/345DA7B5-F64E-DE11-8C23-001617DBD556.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/22620711-524F-DE11-9D47-001617C3B65A.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/1C645B87-5E4F-DE11-A7BB-000423D985E4.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0007/14981583-5E4F-DE11-8A22-001D09F253C0.root'
+) );
 
-secFiles.extend( [
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/FCBB0F1B-3616-DE11-8335-0016177CA778.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/F8D0F7AB-6A16-DE11-A4A1-001617C3B76E.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/ECAD3734-4F16-DE11-93EE-00161757BF42.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/E8EBBF47-3816-DE11-BD8F-000423D98800.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/E8315265-3316-DE11-B8E8-000423D6C8EE.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/E4540FBC-3C16-DE11-B32E-001617E30D0A.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/DE76A682-4516-DE11-955D-001617DBD224.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/C4851304-4916-DE11-8FA4-001617C3B65A.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/AC245423-4916-DE11-BBA8-000423D991F0.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/A2DD0DEA-4116-DE11-BB1C-001617DBCF6A.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/98A318F4-3416-DE11-8305-000423D94AA8.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/74CF9B73-3916-DE11-9EEF-000423D985E4.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/689349B5-4616-DE11-81F4-000423D991F0.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/627B424D-4216-DE11-B135-001617C3B79A.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/580F53DC-4F16-DE11-8A58-000423D94534.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/569AE526-5316-DE11-9596-000423D944F0.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/52C2A955-3716-DE11-87D2-000423D99A8E.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/44601F6F-4A16-DE11-B830-001617E30D00.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/4250F67F-4C16-DE11-95D4-000423D98DC4.root',
-       '/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/3AA6EEA4-3B16-DE11-B35F-001617C3B654.root'] );
+secFiles.extend( (
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/EA6C6D8A-5E4F-DE11-BD34-0030487C6062.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/E8BC81A9-F64E-DE11-8727-000423D99AAA.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/E2AA7EE2-F64E-DE11-A06D-001617C3B6CE.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/C4CB7C79-5E4F-DE11-9EA2-001D09F28F0C.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/B691AE7B-5E4F-DE11-ABF5-001D09F24637.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/A4118E73-F64E-DE11-AE57-000423D6B358.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/8C610683-5E4F-DE11-817D-0030487A1FEC.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/8A108B79-5E4F-DE11-8CD7-001D09F253D4.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/7AE06281-6E4F-DE11-8C85-000423D99896.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/6A2FE089-5E4F-DE11-9BA6-000423D9863C.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/56845B82-5E4F-DE11-B375-000423D6CAF2.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/4824EE85-5E4F-DE11-8F3A-000423D98804.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/44A7AB85-5E4F-DE11-B80A-001D09F24600.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/40302A87-5E4F-DE11-A997-001D09F2AD7F.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/3CADAA7E-5E4F-DE11-B5C7-0019B9F730D2.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/3C7EC0B0-5E4F-DE11-AFB3-001D09F253D4.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/36A89B8D-F64E-DE11-91FF-001617C3B778.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/369D3C85-5E4F-DE11-A2F7-001D09F25456.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/2E42BD9B-524F-DE11-A1CF-000423D6C8EE.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/2ABD6A7A-5E4F-DE11-8F5F-001D09F242EA.root',
+       '/store/relval/CMSSW_3_1_0_pre9/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/24C60B86-5E4F-DE11-8C87-000423D6CA42.root'
+) )
+

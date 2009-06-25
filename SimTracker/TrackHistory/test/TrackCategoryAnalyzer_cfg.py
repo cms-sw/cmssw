@@ -1,8 +1,8 @@
+# Playback test file
+
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("VertexHistoryTest")
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process = cms.Process('TrackCategoryAnalyzer')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -13,25 +13,34 @@ process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
 process.load('Configuration/StandardSequences/VtxSmearedEarly10TeVCollision_cff')
 process.load('Configuration/StandardSequences/Sim_cff')
-process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.load("SimTracker.TrackHistory.Playback_cff")
-process.load("SimTracker.TrackHistory.SecondaryVertexTagInfoProxy_cff")
-process.load("SimTracker.TrackHistory.VertexClassifier_cff")
+process.load("SimTracker.TrackHistory.TrackClassifier_cff")
 
-process.vertexHistoryAnalyzer = cms.EDAnalyzer("VertexHistoryAnalyzer",
-    process.vertexClassifier
+process.add_( 
+  cms.Service("TFileService",
+      fileName = cms.string("test.root")
+  )
 )
 
-process.vertexHistoryAnalyzer.vertexProducer = 'svTagInfoProxy'
+process.trackCategoriesAnalyzer = cms.EDFilter("TrackCategoriesAnalyzer",
+    process.trackClassifier,
+    minimumNumberOfHits = cms.untracked.int32(8),
+    minimumTransverseMomentum = cms.untracked.double(1.),
+    minimumNumberOfPixelHits = cms.untracked.int32(2),
+    maximumChiSquared = cms.untracked.double(5.),
+    trackQualityClass = cms.untracked.string('loose')
+)
 
+# Other statements
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.vertexHistoryAnalyzer)
+# Path
+process.path = cms.Path(process.playback * process.trackCategoriesAnalyzer)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
