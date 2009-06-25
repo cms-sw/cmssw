@@ -38,7 +38,8 @@ GenericBenchmark::GenericBenchmark() {}
 
 GenericBenchmark::~GenericBenchmark() {}
 
-void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDeltaEt, float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi) {
+void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDeltaEt, float maxDeltaEt,
+			     float minDeltaPhi, float maxDeltaPhi, bool doMetPlots) {
 
   //std::cout << "minDeltaPhi = " << minDeltaPhi << std::endl;
 
@@ -153,6 +154,16 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   
   BOOK1D(NGen,"Number of generated objects",20,0,20);
 
+  BOOK1D(SumEt,"SumEt", 2000, 0., 2000.);
+  BOOK1D(TrueSumEt,"TrueSumEt", 2000, 0., 2000.);
+  BOOK2D(DeltaSetvsSet,"#DeltaSEt vs trueSEt",
+	 2000, 0., 2000.,
+	 1000,-1000., 1000.);
+  BOOK2D(DeltaMexvsSet,"#DeltaMEX vs trueSEt",
+	 2000, 0., 2000.,
+	 1000,-400., 400.);
+
+
   // number of truth particles found within given cone radius of reco
   //BOOK2D(NumInConeVsConeSize,NumInConeVsConeSize,100,0,1,25,0,25);
 
@@ -204,6 +215,11 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
 
   SETAXES(NGen,"Number of Gen Objects","");
   
+  SETAXES(SumEt,"SumEt [GeV]","");
+  SETAXES(TrueSumEt,"TrueSumEt [GeV]","");
+  SETAXES(DeltaSetvsSet,"TrueSumEt","#DeltaSumEt [GeV]");
+  SETAXES(DeltaMexvsSet,"TrueSumEt","#DeltaMEX [GeV]");
+
   TDirectory* oldpwd = gDirectory;
 
 
@@ -229,108 +245,12 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
     gDirectory->pwd();
   }
   
-
   oldpwd->cd();
   //gDirectory->pwd();
 
-  fillFunctionHasBeenUsed_=false;
+  doMetPlots_=doMetPlots;
 
   //   tree_ = new BenchmarkTree("genericBenchmark", "Generic Benchmark TTree");
-}
-
-
-void GenericBenchmark::fill(const edm::View<reco::Candidate> *RecoCollection, 
-			    const edm::View<reco::Candidate> *GenCollection, 
-			    bool startFromGen, 
-			    bool PlotAgainstReco, 
-			    bool onlyTwoJets, 
-			    double recPt_cut, 
-			    double minEta_cut, 
-			    double maxEta_cut, 
-			    double deltaR_cut) {
-
-  fillFunctionHasBeenUsed_=true;
-  // loop over reco particles
-
-  if( !startFromGen) {
-    int nRec = 0;
-    for (unsigned int i = 0; i < RecoCollection->size(); i++) {
-      
-      // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
-      const reco::Candidate *particle = &(*RecoCollection)[i];
-      
-      assert( particle!=NULL ); 
-      if( !accepted(particle, recPt_cut, 
-		    minEta_cut, maxEta_cut)) continue;
-
-    
-      // Count the number of jets with a larger energy
-      if( onlyTwoJets ) {
-	unsigned highJets = 0;
-	for(unsigned j=0; j<RecoCollection->size(); j++) { 
-	  const reco::Candidate *otherParticle = &(*RecoCollection)[j];
-	  if ( j != i && otherParticle->pt() > particle->pt() ) highJets++;
-	}
-	if ( highJets > 1 ) continue;
-      }		
-      nRec++;
-      
-      const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,
-								 GenCollection);
-      if(gen_particle==NULL) continue; 
-
-
-
-      // fill histograms
-      fillHistos( gen_particle, particle, deltaR_cut, PlotAgainstReco);
-    }
-
-    hNRec->Fill(nRec);
-  }
-
-  // loop over gen particles
-  
-  //   cout<<"Reco size = "<<RecoCollection->size()<<", ";
-  //   cout<<"Gen size = "<<GenCollection->size()<<endl;
-
-  int nGen = 0;
-  for (unsigned int i = 0; i < GenCollection->size(); i++) {
-
-    const reco::Candidate *gen_particle = &(*GenCollection)[i]; 
-
-    if( !accepted(gen_particle, recPt_cut, minEta_cut, maxEta_cut)) {
-      continue;
-    }
-
-    hEtaGen->Fill(gen_particle->eta() );
-    hPhiGen->Fill(gen_particle->phi() );
-    hEtGen->Fill(gen_particle->et() );
-
-    const reco::Candidate *rec_particle = algo_->matchByDeltaR(gen_particle,
-							       RecoCollection);
-    nGen++;
-    if(! rec_particle) continue; // no match
-    // must make a cut on delta R 
-
-    hEtaSeen->Fill(gen_particle->eta() );
-    hPhiSeen->Fill(gen_particle->phi() );
-    hEtSeen->Fill(gen_particle->et() );
-
-    hPhiRec->Fill(rec_particle->phi() );
-    hEtRec->Fill(rec_particle->et() );
-    hExRec->Fill(rec_particle->px() );
-    hEyRec->Fill(rec_particle->py() );
-
-  hEtRecvsEt->Fill(gen_particle->et(),rec_particle->et());
-
-
-    if( startFromGen ) 
-      fillHistos( gen_particle, rec_particle, deltaR_cut, PlotAgainstReco);
-
-    
-  }
-  hNGen->Fill(nGen);
-
 }
 
 bool GenericBenchmark::accepted(const reco::Candidate* particle,
@@ -420,16 +340,23 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
   entry.et = et;
   entry.eta = eta;
 
-  if (!fillFunctionHasBeenUsed_)
-  {   
-    hEtaGen->Fill(genParticle->eta() );
-    hPhiGen->Fill(genParticle->phi() );
-    hEtGen->Fill(genParticle->et() );
-    hPhiRec->Fill(recParticle->phi() );
-    hEtRec->Fill(recParticle->et() );
-    hExRec->Fill(recParticle->px() );
-    hEyRec->Fill(recParticle->py() );
-    hEtRecvsEt->Fill(genParticle->et(),recParticle->et());
+  if (doMetPlots_)
+  {
+    const reco::MET* met1=static_cast<const reco::MET*>(genParticle);
+    const reco::MET* met2=static_cast<const reco::MET*>(recParticle);
+    if (met1!=NULL && met2!=NULL)
+    {
+      //std::cout << "FL: met1.sumEt() = " << (*met1).sumEt() << std::endl;
+      hTrueSumEt->Fill((*met1).sumEt());
+      hSumEt->Fill((*met2).sumEt());
+      hDeltaSetvsSet->Fill((*met1).sumEt(),(*met2).sumEt()-(*met1).sumEt());
+      hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->px()-genParticle->px());
+      hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->py()-genParticle->py());
+    }
+    else
+    {
+      std::cout << "Warning : reco::MET* == NULL" << std::endl;
+    }
   }
 
   //     tree_->Fill(entry);
