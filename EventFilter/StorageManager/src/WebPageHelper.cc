@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.6 2009/06/24 19:11:22 biery Exp $
+// $Id: WebPageHelper.cc,v 1.7 2009/06/24 19:36:52 biery Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -2244,7 +2244,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   std::sort(rbResultsList.begin(), rbResultsList.end(), compareRBResultPtrValues);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "13";
+  colspanAttr[ "colspan" ] = "14";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -2259,6 +2259,8 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("th", tableRow);
   maker.addText(tableDiv, "Resource Broker URL");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "RB instance");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "RB TID");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2307,6 +2309,8 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       XHTMLMaker::Node* link = maker.addNode("a", tableDiv, linkAttr);
       maker.addText(link, rbResultsList[idx]->key.hltURL);
 
+      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      maker.addText(tableDiv, rbResultsList[idx]->key.hltInstance, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->key.hltTid, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
@@ -2421,6 +2425,42 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
   maker.addText(tableDiv, "Event Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, rbResultPtr->eventStats.getSampleCount(), 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "Error Event Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->errorEventStats.getSampleCount(), 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "Data Discard Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->dataDiscardCount, 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "DQM Event Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->dqmEventStats.getSampleCount(), 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "DQM Discard Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->dqmDiscardCount, 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "Stale Chains Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->staleChainStats.getSampleCount(), 0);
+
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "Ignored Discards Count");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addText(tableDiv, rbResultPtr->skippedDiscardCount, 0);
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
