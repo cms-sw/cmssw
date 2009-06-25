@@ -291,6 +291,7 @@ void TrackClassifier::processesAtGenerator()
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
+                    update(flags_[Jpsi], pdgid == 443);
                     update(
                         flags_[LongLivedDecay],
                         !flags_[BWeakDecay] &&
@@ -298,6 +299,7 @@ void TrackClassifier::processesAtGenerator()
                         !flags_[TauDecay] &&
                         !flags_[KsDecay] &&
                         !flags_[LambdaDecay] &&
+                        !flags_[Jpsi] && 
                         longlived
                     );
                 }
@@ -383,6 +385,7 @@ void TrackClassifier::processesAtSimulation()
                         update(flags_[TauDecay], pdgid == 15);
                         update(flags_[KsDecay], pdgid == 310);
                         update(flags_[LambdaDecay], pdgid == 3122);
+                        update(flags_[Jpsi], pdgid == 443);
                         update(
                             flags_[LongLivedDecay],
                             !flags_[BWeakDecay] &&
@@ -390,6 +393,7 @@ void TrackClassifier::processesAtSimulation()
                             !flags_[TauDecay] &&
                             !flags_[KsDecay] &&
                             !flags_[LambdaDecay] &&
+                            !flags_[Jpsi] &&
                             longlived
                         );
                     }
@@ -401,7 +405,8 @@ void TrackClassifier::processesAtSimulation()
                     !flags_[LongLivedDecay] &&
                     !flags_[TauDecay] &&
                     !flags_[KsDecay] &&
-                    !flags_[LambdaDecay]
+                    !flags_[LambdaDecay] &&
+                    !flags_[Jpsi] 
                 );
             }
             else

@@ -24,6 +24,7 @@ public:
         TauDecay,
         KsDecay,
         LambdaDecay,
+        Jpsi,
         LongLivedDecay,
         Conversion,
         Interaction,
