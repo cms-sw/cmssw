@@ -32,20 +32,16 @@ void METManager::FillHisto(std::string Name)
   }
   else
   {
-    //GenBenchmarkMap_[Name].setfile(fullname);
     GenBenchmarkMap_[Name].setfile(outfile_);
-    GenBenchmarkMap_[Name].fillHistos(&MET1_,&MET2_,999.,false);
-
+    std::vector<reco::MET> vmet1;
+    std::vector<reco::MET> vmet2;
+    vmet1.push_back(MET1_);
+    vmet2.push_back(MET2_);
+    GenBenchmarkMap_[Name].fill(&vmet2,&vmet1,true,false,false,-1.,-1.,-1.,999.);
     //std::cout << "MET1_.met = " << MET1_.pt() << std::endl;
     //std::cout << "MET1_.phi = " << MET1_.phi() << std::endl;
-
-
+    //std::cout << "MET1_.sumEt = " << MET1_.sumEt() << std::endl;
   }
-
-  //GenBenchmarkV_[0].setfile(fullname);
-  // options: deltaR_cut, plotAgainstReco
-  //GenBenchmarkV_[0].fillHistos(&MET1_,&MET2_,999.,false);
-  //if (folderName=="Calo") GenBenchmarkV_[1].fillHistos(&MET1_,&MET2_,999.,false);
   return;
 }
 
@@ -161,7 +157,7 @@ void METManager::addGenBenchmark(std::string GenBenchmarkName)
   //void setup(DQMStore *, bool PlotAgainstReco, minDeltaEt,
   //           float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi);
   GenBenchmark.setfile(outfile_);
-  GenBenchmark.setup(NULL, true, -200., 200., -3.2, 3.2);
+  GenBenchmark.setup(NULL, true, -200., 200., -3.2, 3.2, true);
 
   GenBenchmarkMap_[GenBenchmarkName]=GenBenchmark;
   //GenBenchmarkV_.push_back(GenBenchmark);
