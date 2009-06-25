@@ -1,6 +1,8 @@
 #ifndef TtFullLepEvtPartons_h
 #define TtFullLepEvtPartons_h
 
+#include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
+
 #include <vector>
 
 /**
@@ -14,7 +16,7 @@
 namespace reco { class Candidate; }
 class TtGenEvent;
 
-class TtFullLepEvtPartons {
+class TtFullLepEvtPartons : public TtEventPartons {
 
  public:
 
@@ -24,13 +26,14 @@ class TtFullLepEvtPartons {
 
  public:
 
-  /// empty constructor
-  TtFullLepEvtPartons(){};
+  /// default constructor
+  TtFullLepEvtPartons(const std::vector<std::string>& partonsToIgnore = std::vector<std::string>());
   /// default destructor
   ~TtFullLepEvtPartons(){};
 
   /// return vector of partons in the order defined in the corresponding enum
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt);
+
 };
 
 #endif

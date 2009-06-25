@@ -1,6 +1,8 @@
 #ifndef TtSemiLepEvtPartons_h
 #define TtSemiLepEvtPartons_h
 
+#include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
+
 #include <vector>
 
 /**
@@ -14,7 +16,7 @@
 namespace reco { class Candidate; }
 class TtGenEvent;
 
-class TtSemiLepEvtPartons {
+class TtSemiLepEvtPartons : public TtEventPartons {
 
  public:
 
@@ -24,13 +26,14 @@ class TtSemiLepEvtPartons {
 
  public:
 
-  /// empty constructor
-  TtSemiLepEvtPartons(){};
+  /// default constructor
+  TtSemiLepEvtPartons(const std::vector<std::string>& partonsToIgnore = std::vector<std::string>());
   /// default destructor
   ~TtSemiLepEvtPartons(){};
 
   /// return vector of partons in the order defined in the corresponding enum
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt);
+
 };
 
 #endif
