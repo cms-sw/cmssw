@@ -2,8 +2,8 @@
 /*
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2009/03/04 10:57:49 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/08 09:26:19 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -604,6 +604,16 @@ void MuonAlignment::endJob(void) {
 
     if (doSummary){
         char binLabel[15];
+
+	// check if ME still there (and not killed by MEtoEDM for memory saving)
+	if( dbe )
+	  {
+	    // check existence of first histo in the list
+	    if (! dbe->get(topFolder.str()+"/DT/hLocalPositionDT")) return;
+	  }
+	else 
+	  return;
+	
 
         for(unsigned int i=0 ; i<unitsLocalX.size() ; i++)
         {
