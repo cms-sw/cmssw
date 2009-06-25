@@ -45,7 +45,7 @@ Matrix buildCovariance() {
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
 
   JacobianLocalToCartesian jl2c(plane,tp);
-  return ROOT::Math::Similarity(ROOT::Math::Transpose(jl2c.jacobian()),Matrix6(ROOT::Math::SMatrixIdentity()));
+  return ROOT::Math::SimilarityT(jl2c.jacobian(),Matrix6(ROOT::Math::SMatrixIdentity()));
   // return  ROOT::Math::Transpose(jl2c.jacobian())* jl2c.jacobian();
 
 }
@@ -56,7 +56,7 @@ int main() {
 
   Matrix cov = buildCovariance();
 
-  GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
+  GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),cov);
   // GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
 
   GS * gs0 = new GS(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
