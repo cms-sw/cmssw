@@ -69,7 +69,7 @@ namespace edm {
       logicalFile_(logicalFileName),
       reportToken_(0),
       om_(om),
-      currentlyFastCloning_(),
+      whyNotFastClonable_(om_->whyNotFastClonable()),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       fileIndex_(),
@@ -182,7 +182,76 @@ namespace edm {
 		      branchNames); // branch names being written
   }
 
-  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
+  namespace {
+    void
+    maybeIssueWarning(int whyNotFastClonable, std::string const& ifileName, std::string const& ofileName) {
+
+      // No warning if fast cloning was deliberately disabled, or if there are no events to copy anyway.
+      whyNotFastClonable &= ~(FileBlock::DisabledInConfigFile | FileBlock::NoRootInputSource | FileBlock::NotProcessingEvents | FileBlock::NoEventsInFile);
+      if(whyNotFastClonable == FileBlock::CanFastClone) {
+	return;
+      }
+
+      std::ostringstream message;
+      message << "Fast copying of file " << ifileName << " to file " << ofileName << " is disabled because:\n";
+      if((whyNotFastClonable & FileBlock::HasSecondaryFileSequence) != 0) {
+	message << "a SecondaryFileSequence was specified.\n";
+        whyNotFastClonable &= ~(FileBlock::HasSecondaryFileSequence);
+      }
+      if((whyNotFastClonable & FileBlock::FileTooOld) != 0) {
+	message << "the input file is in an old format.\n";
+        whyNotFastClonable &= ~(FileBlock::FileTooOld);
+      }
+      if((whyNotFastClonable & FileBlock::EventsToBeSorted) != 0) {
+	message << "events need to be sorted.\n";
+        whyNotFastClonable &= ~(FileBlock::EventsToBeSorted);
+      }
+      if((whyNotFastClonable & FileBlock::EventsOrLumisSelectedByID) != 0) {
+	message << "events or lumis were selected or skipped by ID.\n";
+        whyNotFastClonable &= ~(FileBlock::EventsOrLumisSelectedByID);
+      }
+      if((whyNotFastClonable & FileBlock::InitialEventsSkipped) != 0) {
+	message << "initial events, lumis or runs were skipped.\n";
+        whyNotFastClonable &= ~(FileBlock::InitialEventsSkipped);
+      }
+      if((whyNotFastClonable & FileBlock::DuplicateEventsRemoved) != 0) {
+	message << "some events were skipped because of duplicate checking.\n";
+        whyNotFastClonable &= ~(FileBlock::DuplicateEventsRemoved);
+      }
+      if((whyNotFastClonable & FileBlock::MaxEventsTooSmall) != 0) {
+	message << "some events were not copied because of maxEvents limit.\n";
+        whyNotFastClonable &= ~(FileBlock::MaxEventsTooSmall);
+      }
+      if((whyNotFastClonable & FileBlock::MaxLumisTooSmall) != 0) {
+	message << "some events were not copied because of maxLumis limit.\n";
+        whyNotFastClonable &= ~(FileBlock::MaxLumisTooSmall);
+      }
+      if((whyNotFastClonable & FileBlock::RunNumberModified) != 0) {
+	message << "setRunNumber was specified.\n";
+        whyNotFastClonable &= ~(FileBlock::RunNumberModified);
+      }
+      if((whyNotFastClonable & FileBlock::EventSelectionUsed) != 0) {
+	message << "an EventSelector was specified.\n";
+        whyNotFastClonable &= ~(FileBlock::EventSelectionUsed);
+      }
+      if((whyNotFastClonable & FileBlock::OutputMaxEventsTooSmall) != 0) {
+	message << "some events were not copied because of maxEvents output limit.\n";
+        whyNotFastClonable &= ~(FileBlock::OutputMaxEventsTooSmall);
+      }
+      if((whyNotFastClonable & FileBlock::SplitLevelMismatch) != 0) {
+	message << "the split level or basket size of a branch or branches was modified.\n";
+        whyNotFastClonable &= ~(FileBlock::SplitLevelMismatch);
+      }
+      if((whyNotFastClonable & FileBlock::BranchMismatch) != 0) {
+	message << "The format of a data product has changed.\n";
+        whyNotFastClonable &= ~(FileBlock::BranchMismatch);
+      }
+      assert(whyNotFastClonable == FileBlock::CanFastClone);
+      LogWarning("FastCloningDisabled") << message.str();
+    }
+  }
+
+  void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {
 
     if(fb.tree() != 0) {
       // There are two different reasons (not mutually exclusive) that we might need
@@ -197,31 +266,42 @@ namespace edm {
       // or basket sizes do not match.
 
       bool throwIfDifferentSplitLevels = !om_->overrideInputFileSplitLevels() && om_->inputFileCount() > 1;
-      currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+      whyNotFastClonable_ |= fb.whyNotFastClonable();
 
-      if(throwIfDifferentSplitLevels || currentlyFastCloning_) {
-        bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
-        if(!match) {
-          if(throwIfDifferentSplitLevels) {
-            throw edm::Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
-              "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n" <<
-              "than previous files.  To allow merging in splite of this, use the configuration parameter\n" <<
-              "overrideInputFileSplitLevels=cms.untracked.bool(True)\n" <<
-	      "in every PoolOutputModule.\n";
-          } else {
-            currentlyFastCloning_ = false;
-            LogInfo("FastCloning")
-              << "Fast Cloning disabled because split levels or basket sizes do not match";
-          }
-        }
-      } 
-      if(currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkIfFastClonable(fb.tree());
+      if(remainingEvents >= 0 && remainingEvents < fb.tree()->GetEntries()) {
+        whyNotFastClonable_ |= FileBlock::OutputMaxEventsTooSmall;
+      }
+
+      bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
+      if(!match) {
+        if(throwIfDifferentSplitLevels) {
+          throw edm::Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
+	    "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n" <<
+	    "than previous files.  To allow merging in splite of this, use the configuration parameter\n" <<
+	    "overrideInputFileSplitLevels=cms.untracked.bool(True)\n" <<
+	    "in every PoolOutputModule.\n";
+	} else {
+	  whyNotFastClonable_ |= FileBlock::SplitLevelMismatch;
+	}
+      }
+
+      // Since this check can be time consuming, we do it only if we would otherwise fast clone.
+      if(whyNotFastClonable_ == FileBlock::CanFastClone) {
+	if(!eventTree_.checkIfFastClonable(fb.tree())) {
+	  whyNotFastClonable_ |= FileBlock::BranchMismatch;
+	}
+      }
     } else {
-      currentlyFastCloning_ = false;
+      whyNotFastClonable_ |= FileBlock::NoRootInputSource;
     }
 
-    eventTree_.beginInputFile(currentlyFastCloning_);
+    eventTree_.beginInputFile(whyNotFastClonable_ == FileBlock::CanFastClone);
     eventTree_.maybeFastCloneTree(fb.tree());
+
+    // Issue warning message if we haven't fast cloned, unless we disabled it deliberately or unless there are no events to copy anyway.
+    if(fb.tree() != 0 && whyNotFastClonable_ != FileBlock::CanFastClone) {
+      maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
+    }
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
@@ -503,7 +583,7 @@ namespace edm {
 
     std::vector<boost::shared_ptr<EDProduct> > dummies;
 
-    bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
+    bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
     
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 

@@ -33,7 +33,7 @@ namespace edm {
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel", 99) + 1, 99)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
+    whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning", true) ? FileBlock::CanFastClone : FileBlock::DisabledInConfigFile),
     dropMetaData_(DropNone),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     initializedFromInput_(false),
@@ -52,6 +52,10 @@ namespace edm {
             << dropMetaData << ".\n"
             << "Legal values are 'NONE', 'DROPPED', 'PRIOR', and 'ALL'.\n";
       }
+
+    if (!wantAllEvents()) {
+      whyNotFastClonable_+= FileBlock::EventSelectionUsed;
+    }
 
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
@@ -134,9 +138,7 @@ namespace edm {
 
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
     if(isFileOpen()) {
-      bool fastCloneThisOne = fastCloning_ && fb.tree() != 0 &&
-                            (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
-      rootOutputFile_->beginInputFile(fb, fastCloneThisOne);
+      rootOutputFile_->beginInputFile(fb, remainingEvents());
     }
   }
 

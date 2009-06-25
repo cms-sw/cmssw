@@ -19,19 +19,53 @@ namespace edm {
   class BranchDescription;
   class FileBlock {
   public:
+    // bit mask for reasons fast cloning can be disabled or not applicable
+    enum
+    WhyNotFastClonable {
+      CanFastClone = 0x0,
+      
+      // For entire job
+      NoRootInputSource = 0x1,
+      NotProcessingEvents = (NoRootInputSource << 1),
+      HasSecondaryFileSequence = (NotProcessingEvents << 1),
+      
+      // For a given input file
+      FileTooOld = (HasSecondaryFileSequence << 1),
+      NoEventsInFile = (FileTooOld << 1),
+      EventsToBeSorted = (NoEventsInFile << 1),
+      EventsOrLumisSelectedByID = (EventsToBeSorted << 1),
+      InitialEventsSkipped = (EventsOrLumisSelectedByID << 1),
+      MaxEventsTooSmall = (InitialEventsSkipped << 1),
+      MaxLumisTooSmall = (MaxEventsTooSmall << 1),
+      RunNumberModified = (MaxLumisTooSmall << 1),
+      DuplicateEventsRemoved = (RunNumberModified << 1),
+      
+      // The remainder of these are defined here for convenience,
+      // but never set in FileBlock, because they are output module specific.
+
+      // For a given output module
+      DisabledInConfigFile = (DuplicateEventsRemoved << 1),
+      EventSelectionUsed = (DisabledInConfigFile << 1),
+  
+      // For given input and output files
+      OutputMaxEventsTooSmall = (EventSelectionUsed << 1),
+      SplitLevelMismatch = (OutputMaxEventsTooSmall << 1),
+      BranchMismatch = (SplitLevelMismatch << 1)
+    };
+  
     FileBlock() : 
       fileFormatVersion_(),
       tree_(0), metaTree_(0),
       lumiTree_(0), lumiMetaTree_(0),
       runTree_(0), runMetaTree_(0),
-      fastCopyable_(false), fileName_(),
+      whyNotFastClonable_(NoRootInputSource), fileName_(),
       branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
 	      TTree const* ev, TTree const* meta,
 	      TTree const* lumi, TTree const* lumiMeta,
 	      TTree const* run, TTree const* runMeta,
-	      bool fastCopy,
+	      int whyNotFastClonable,
 	      std::string const& fileName,
 	      boost::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
@@ -41,7 +75,7 @@ namespace edm {
       lumiMetaTree_(const_cast<TTree *>(lumiMeta)), 
       runTree_(const_cast<TTree *>(run)), 
       runMetaTree_(const_cast<TTree *>(runMeta)), 
-      fastCopyable_(fastCopy), 
+      whyNotFastClonable_(whyNotFastClonable), 
       fileName_(fileName), 
       branchChildren_(branchChildren) {}
     
@@ -55,10 +89,12 @@ namespace edm {
     TTree * const runTree() const {return runTree_;}
     TTree * const runMetaTree() const {return runMetaTree_;}
 
-    bool fastClonable() const {return fastCopyable_;}
+    int whyNotFastClonable() const {return whyNotFastClonable_;}
     std::string const& fileName() const {return fileName_;}
 
-    void setNotFastCopyable() {fastCopyable_ = false;}
+    void setNotFastClonable(WhyNotFastClonable const& why) {
+      whyNotFastClonable_ |= why;
+    }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
     void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = 0;}
 
@@ -71,7 +107,7 @@ namespace edm {
     TTree * lumiMetaTree_;
     TTree * runTree_;
     TTree * runMetaTree_;
-    bool fastCopyable_;
+    int whyNotFastClonable_;
     std::string fileName_;
     boost::shared_ptr<BranchChildren> branchChildren_;
   };

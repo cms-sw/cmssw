@@ -97,7 +97,7 @@ namespace edm {
   PoolSource::readFile_() {
     if (secondaryFileSequence_) {
         boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
-	fb->setNotFastCopyable();
+	fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
         return fb;
     }
     return primaryFileSequence_->readFile_();

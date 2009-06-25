@@ -5,7 +5,6 @@
 //
 // Class RootOutputFile
 //
-// Oringinal Author: Luca Lista
 // Current Author: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
@@ -63,7 +62,7 @@ namespace edm {
     void writeProductDependencies();
 
     void finishEndFile();
-    void beginInputFile(FileBlock const& fb, bool fastClone);
+    void beginInputFile(FileBlock const& fb, int remainingEvents);
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
 
@@ -94,7 +93,7 @@ namespace edm {
     std::string logicalFile_;
     JobReport::Token reportToken_;
     PoolOutputModule const* om_;
-    bool currentlyFastCloning_;
+    int whyNotFastClonable_;
     boost::shared_ptr<TFile> filePtr_;
     FileID fid_;
     FileIndex fileIndex_;

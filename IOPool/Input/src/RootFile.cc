@@ -166,7 +166,7 @@ namespace edm {
       eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
       skipAnyEvents_(skipAnyEvents),
       noEventSort_(noEventSort),
-      fastClonable_(true),
+      whyNotFastClonable_(0),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -331,7 +331,9 @@ namespace edm {
 			whichLumisToSkip, whichLumisToProcess,
 			whichEventsToSkip, whichEventsToProcess);
     fileIndex_.erase(std::remove_if(fileIndex_.begin(), fileIndex_.end(), removeIt), fileIndex_.end());
-    fastClonable_ = fastClonable_ && (entries == fileIndex_.size());
+    if (entries != fileIndex_.size()) {
+      whyNotFastClonable_ += FileBlock::EventsOrLumisSelectedByID;
+    }
 
     // Remove any runs containing no lumis.
     for(FileIndex::iterator it = fileIndex_.begin(), itEnd = fileIndex_.end(); it != itEnd; ++it) {
@@ -408,7 +410,8 @@ namespace edm {
     }
 
     // Determine if this file is fast clonable.
-    fastClonable_ = fastClonable_ && setIfFastClonable(remainingEvents, remainingLumis);
+    setIfFastClonable(remainingEvents, remainingLumis);
+
     setRefCoreStreamer(true);  // backward compatibility
 
     reportOpened();
@@ -480,36 +483,54 @@ namespace edm {
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
   }
 
-  bool
-  RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
-    if(!fileFormatVersion().splitProductIDs()) return false; 
-    if(!fileIndex_.allEventsInEntryOrder()) return false; 
-    if(skipAnyEvents_) return false; 
-    if(remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
-    if(remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) return false;
-    if(processingMode_ != InputSource::RunsLumisAndEvents) return false; 
-    if(forcedRunOffset_ != 0) return false; 
+  void
+  RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) {
+    if(!fileFormatVersion().splitProductIDs()) {
+      whyNotFastClonable_ += FileBlock::FileTooOld;
+      return;
+    }
+    if(processingMode_ != InputSource::RunsLumisAndEvents) {
+      whyNotFastClonable_ += FileBlock::NotProcessingEvents;
+      return;
+    }
     // Find entry for first event in file
     FileIndex::const_iterator it = fileIndexBegin_;
     while(it != fileIndexEnd_ && it->getEntryType() != FileIndex::kEvent) {
       ++it;
     }
-    if(it == fileIndexEnd_) return false;
+    if(it == fileIndexEnd_) {
+      whyNotFastClonable_ += FileBlock::NoEventsInFile;
+      return;
+    }
+
+    // From here on, record all reasons we can't fast clone.
+    if(!fileIndex_.allEventsInEntryOrder()) {
+      whyNotFastClonable_ += FileBlock::EventsToBeSorted;
+    }
+    if(skipAnyEvents_) {
+      whyNotFastClonable_ += FileBlock::InitialEventsSkipped;
+    }
+    if(remainingEvents >= 0 && eventTree_.entries() > remainingEvents) {
+      whyNotFastClonable_ += FileBlock::MaxEventsTooSmall;
+    }
+    if(remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) {
+      whyNotFastClonable_ += FileBlock::MaxLumisTooSmall;
+    }
+    if(forcedRunOffset_ != 0) { 
+      whyNotFastClonable_ += FileBlock::RunNumberModified;
+    }
     if(duplicateChecker_.get() != 0) {
       if(!duplicateChecker_->fastCloningOK()) {
-	return false; 
+        whyNotFastClonable_ += FileBlock::DuplicateEventsRemoved;
       }
     }
-    return true;
   }
-
 
   int
   RootFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
     if(fileIndexBegin_ == fileIndexEnd_) return 0;
     int defaultOffset = (fileIndexBegin_->run_ != 0 ? 0 : 1);
     forcedRunOffset_ = (forcedRunNumber != 0U ? forcedRunNumber - fileIndexBegin_->run_ : defaultOffset);
-    fastClonable_ = fastClonable_ && (forcedRunOffset_ == 0);
     return forcedRunOffset_;
   }
 
@@ -522,7 +543,7 @@ namespace edm {
 						     lumiTree_.metaTree(),
 						     runTree_.tree(),
 						     runTree_.metaTree(),
-						     fastClonable(),
+						     whyNotFastClonable(),
 						     file_,
 						     branchChildren_));
   }

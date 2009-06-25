@@ -108,7 +108,7 @@ namespace edm {
     RootTree const& lumiTree() const {return lumiTree_;}
     RootTree const & runTree() const {return runTree_;}
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
-    bool fastClonable() const {return fastClonable_;}
+    int whyNotFastClonable() const {return whyNotFastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
       return event ? setEntryAtEvent(run, lumi, event, exact) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
@@ -139,7 +139,7 @@ namespace edm {
     }
 
   private:
-    bool setIfFastClonable(int remainingEvents, int remainingLumis) const;
+    void setIfFastClonable(int remainingEvents, int remainingLumis);
     void validateFile();
     void fillFileIndex();
     void fillEventAuxiliary();
@@ -177,7 +177,7 @@ namespace edm {
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     bool skipAnyEvents_;
     bool noEventSort_;
-    bool fastClonable_;
+    int whyNotFastClonable_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

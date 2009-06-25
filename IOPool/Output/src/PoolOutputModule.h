@@ -33,13 +33,13 @@ namespace edm {
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
-    bool const& fastCloning() const {return fastCloning_;}
     bool const& overrideInputFileSplitLevels() const {return overrideInputFileSplitLevels_;}
     DropMetaData const& dropMetaData() const {return dropMetaData_;}
     std::string const& catalog() const {return catalog_;}
     std::string const& moduleLabel() const {return moduleLabel_;}
     unsigned int const& maxFileSize() const {return maxFileSize_;}
     int const& inputFileCount() const {return inputFileCount_;}
+    int const& whyNotFastClonable() const {return whyNotFastClonable_;}
     using OutputModule::selectorConfig;
 
     struct OutputItem {
@@ -116,7 +116,7 @@ namespace edm {
     int const basketSize_;
     int const splitLevel_;
     int const treeMaxVirtualSize_;
-    bool fastCloning_;
+    int whyNotFastClonable_;
     DropMetaData dropMetaData_;
     std::string const moduleLabel_;
     bool initializedFromInput_;
