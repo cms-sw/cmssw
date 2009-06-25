@@ -128,7 +128,7 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     selePtPi0EndCap_region3_ = iConfig.getParameter<double> ("selePtPi0EndCap_region3"); 
     
     
-
+    
 
     seleS4S9GammaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEndCap");  
     seleMinvMaxPi0EndCap_ = iConfig.getParameter<double> ("seleMinvMaxPi0EndCap");  
@@ -191,8 +191,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     //    preScale_endcapEta_region1_ = iConfig.getParameter<int> ("preScale_endcapEta_region1"); 
     // preScale_endcapEta_region2_ = iConfig.getParameter<int> ("preScale_endcapEta_region2"); 
     //preScale_endcapEta_region3_ = iConfig.getParameter<int> ("preScale_endcapEta_region3"); 
-        
-
+    
+    
     seleS4S9GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS4S9GammaEtaEndCap");  
     seleS9S25GammaEtaEndCap_ = iConfig.getParameter<double> ("seleS9S25GammaEtaEndCap");  
     seleMinvMaxEtaEndCap_ = iConfig.getParameter<double> ("seleMinvMaxEtaEndCap");  
@@ -360,8 +360,7 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     produces< EERecHitCollection >(EndcapHits_);
     if( storeRecHitES_)  produces< ESRecHitCollection >(ESHits_);
   }
-  
-  
+    
   
 }
 
@@ -377,7 +376,8 @@ HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
   if(storeRecHitES_){
     delete presh_algo;
   }
-  
+    
+
   //  TimingReport::current()->dump(std::cout);
 
 }
@@ -621,7 +621,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EcalRecHitCollection *hitCollection_p = barrelRecHitsHandle.product();
 
 
-  if(debug_>=1) std::cout<<" pi0 barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
+  if(debug_>=1) std::cout<<" barrel_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_p->size()<<std::endl;
   
 
   
@@ -850,10 +850,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     nClus++;
     if (nClus == MAXCLUS) return false; 
   }
-  
-  
-  
-
+    
 
   // Selection, based on Simple clustering
   //pi0 candidates
@@ -864,9 +861,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ///do selection for pi0->gg barrel
   if(doSelForPi0Barrel_){
-
-
-
+    
 
     for(int i=0 ; i<nClus ; i++){
       for(int j=i+1 ; j<nClus ; j++){
@@ -953,6 +948,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if(debug_>=1) cout<<"npi0seleb: "<<npi0_s<<endl;
     
+    
+    
+
   }///end of selection on pi0->gg in in barrel
     
 
@@ -960,8 +958,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(doSelForEtaBarrel_){
 
     vector<int> indEtaCand; 
-    
-    
+
     vector<int> indClusPi0Candidates; 
     if( removePi0CandidatesForEta_){
       
@@ -1114,18 +1111,18 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(itdet == selectedEBDetIds.end()){
 	    selectedEBDetIds.push_back(det);
 	    selEBRecHitCollection->push_back(RecHitsCluster5x5[ind][Rec3]);
+	    
 	  }
 	
 	}
       }
     }
     
-    
   }////end of selections of eta->gg barrel
     
   
-
-  if(debug_>=1) std::cout<<" pi0 barrel_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEBRecHitCollection->size()<<std::endl;
+  
+  if(debug_>=1) std::cout<<" barrel_output_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEBRecHitCollection->size()<<std::endl;
   ///==============End of  barrel ==================///
   
   
@@ -1160,7 +1157,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   const EcalRecHitCollection *hitCollection_e = endcapRecHitsHandle.product();
-  if(debug_>=1) std::cout<<" pi0 endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<" "<<hitCollection_es->size()<<std::endl;
+  if(debug_>=1) std::cout<<" endcap_input_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hitCollection_e->size()<<" "<<hitCollection_es->size()<<std::endl;
   
   
   
@@ -1220,13 +1217,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   ///detid for each ee cluster, both in X and Y plane
   //  vector< vector<DetId> > esdetIDClusterEndCap;
-  vector<DetId> pi0_esdetid_stored;
-  vector<DetId> eta_esdetid_stored;
-
-
+  ///below are not necessary. 
+  //vector<DetId> pi0_esdetid_stored;
+  //vector<DetId> eta_esdetid_stored;
+  
   nClusEndCap=0;
-  
-  
+    
   
   
   // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
@@ -1389,6 +1385,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if(doSelForPi0Endcap_){
 
+
     for(int i=0 ; i<nClusEndCap ; i++){
       for(int j=i+1 ; j<nClusEndCap ; j++){
       
@@ -1464,11 +1461,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    for(unsigned int Rec=0;Rec<RecHitsClusterEndCap[ind].size();Rec++) {
 	      selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec]);
 	      selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec].id());
+	      
 	    }
 	    
 	    if(storeRecHitES_){
-
-
+	      
+	      
 	      ///get assosicated ES clusters of this endcap cluster
 	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
 	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
@@ -1477,28 +1475,21 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
 	      ///this is to get already done before this cluster
 	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      used_strips.clear();
 	      std::set<DetId> used_strips_before = used_strips; 
-	      
 	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.      
 	      for (int i2=0; i2<preshNclust_; i2++) {
 		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-
 		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-		
 	      } // end of cycle over ES clusters
 	      
-      
+	      
 	      std::set<DetId>::const_iterator ites = used_strips.begin();
 	      for(; ites != used_strips.end(); ++ ites ){
 		ESDetId d1 = ESDetId(*ites);
 		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
-		std::vector<DetId>::const_iterator ites3 = find(pi0_esdetid_stored.begin(),pi0_esdetid_stored.end(),d1);
-		if( (ites2 == used_strips_before.end()) && (ites3 == pi0_esdetid_stored.end()) ){
-		  
+		if( (ites2 == used_strips_before.end()) ){
 		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		  selESRecHitCollection->push_back(itmap->second);
-		  pi0_esdetid_stored.push_back(d1);
 		  
 		} 
 	      } // loop over used strips
@@ -1509,7 +1500,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } //if cluster was not stored
 	  
 	} //loop jj
-
+	
 	
 	if( storeIsoClusRecHitPi0EE_){
 	  
@@ -1523,44 +1514,36 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec3].id());
 	      }
 	      if(storeRecHitES_){
-
-
-
-	      ///get assosicated ES clusters of this endcap cluster
-	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-	      DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-	      ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-	      ///this is to get already done before this cluster
-	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      used_strips.clear();
-	      std::set<DetId> used_strips_before = used_strips; 
-	      
-	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
-	      for (int i2=0; i2<preshNclust_; i2++) {
-		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-
-		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
 		
-	      } // end of cycle over ES clusters
+		///get assosicated ES clusters of this endcap cluster
+		const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
+		DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
+		DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
+		ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
+		ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
+		///this is to get already done before this cluster
+		////the used_strips is defined with set, so the order is re-shuffled each time. 
+		std::set<DetId> used_strips_before = used_strips; 
+	      
+		// Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
+		for (int i2=0; i2<preshNclust_; i2++) {
+		  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
+		  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
+		} // end of cycle over ES clusters
 	      
       
-	      std::set<DetId>::const_iterator ites = used_strips.begin();
-	      for(; ites != used_strips.end(); ++ ites ){
-		ESDetId d1 = ESDetId(*ites);
-		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
-                std::vector<DetId>::const_iterator ites3 = find(pi0_esdetid_stored.begin(),pi0_esdetid_stored.end(),d1);
-                if( (ites2 == used_strips_before.end()) && (ites3 == pi0_esdetid_stored.end()) ){
+		std::set<DetId>::const_iterator ites = used_strips.begin();
+		for(; ites != used_strips.end(); ++ ites ){
+		  ESDetId d1 = ESDetId(*ites);
+		  std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
+		  if( (ites2 == used_strips_before.end())){
+		    std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
+		    selESRecHitCollection->push_back(itmap->second);
+		    
+		  }
 		  
-		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
-		  selESRecHitCollection->push_back(itmap->second);
-		  pi0_esdetid_stored.push_back(d1);
-		  
-		}
+		} // loop over used strips
 		
-	      } // loop over used strips
-	      
 
 	      } //if (store RecHitsES)
 	      
@@ -1576,14 +1559,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
       } // End of the "j" loop over Simple Clusters
     } // End of the "i" loop over Simple Clusters
-    
+        
+
   } ///end of selection of pi0->gg endCap
   
   
   ///selection of eta->gg endcap
   if(doSelForEtaEndcap_){
-    
-    
+
     vector<int> indEtaCand; 
     for(int i=0 ; i<nClusEndCap ; i++){
       for(int j=i+1 ; j<nClusEndCap ; j++){
@@ -1675,9 +1658,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	    
 	    if(storeRecHitES_){
-
-
-
+	      
 	      ///get assosicated ES clusters of this endcap cluster
 	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
 	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
@@ -1686,28 +1667,22 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
 	      ///this is to get already done before this cluster
 	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      used_strips.clear();
 	      std::set<DetId> used_strips_before = used_strips; 
 	      
 	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
 	      for (int i2=0; i2<preshNclust_; i2++) {
 		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-
 		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-		
 	      } // end of cycle over ES clusters
 	      
-      
+	      
 	      std::set<DetId>::const_iterator ites = used_strips.begin();
 	      for(; ites != used_strips.end(); ++ ites ){
 		ESDetId d1 = ESDetId(*ites);
 		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
-                std::vector<DetId>::const_iterator ites3 = find(eta_esdetid_stored.begin(),pi0_esdetid_stored.end(),d1);
-                if( (ites2 == used_strips_before.end()) && (ites3 == eta_esdetid_stored.end()) ){
-		  
+                if( (ites2 == used_strips_before.end())){
 		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		  selESRecHitCollection->push_back(itmap->second);
-		  eta_esdetid_stored.push_back(d1);
 		  
 		} 
 	      } // loop over used strips
@@ -1719,8 +1694,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 
 	} // loop jj
-      
-
+	
+	
 	if( storeIsoClusRecHitEtaEE_){
 	  
 	  for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
@@ -1740,50 +1715,43 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for(unsigned int Rec3=0;Rec3<RecHitsClusterEndCap[ind].size();Rec3++) {
 		selEERecHitCollection->push_back(RecHitsClusterEndCap[ind][Rec3]);
 		selectedEEDetIds.push_back(RecHitsClusterEndCap[ind][Rec3].id());
+
 	      }
 	      if(storeRecHitES_){
-
-
-	      ///get assosicated ES clusters of this endcap cluster
-	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-	      DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-	      ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-	      ///this is to get already done before this cluster
-	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      used_strips.clear();
-	      std::set<DetId> used_strips_before = used_strips; 
-	      
-	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
-	      for (int i2=0; i2<preshNclust_; i2++) {
-		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-
-		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
 		
-	      } // end of cycle over ES clusters
-	      
-      
-	      std::set<DetId>::const_iterator ites = used_strips.begin();
-	      for(; ites != used_strips.end(); ++ ites ){
-		ESDetId d1 = ESDetId(*ites);
-		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
-                std::vector<DetId>::const_iterator ites3 = find(eta_esdetid_stored.begin(),pi0_esdetid_stored.end(),d1);
-                if( (ites2 == used_strips_before.end()) && (ites3 == eta_esdetid_stored.end()) ){
-		  
-		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
-		  selESRecHitCollection->push_back(itmap->second);
-		  eta_esdetid_stored.push_back(d1);
-
-		} 
-	      } // loop over used strips
-	      
-	    } //if (store RecHitsES)
+		///get assosicated ES clusters of this endcap cluster
+		const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
+		DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
+		DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
+		ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
+		ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
+		///this is to get already done before this cluster
+		////the used_strips is defined with set, so the order is re-shuffled each time. 
+		std::set<DetId> used_strips_before = used_strips; 
+		
+		// Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
+		for (int i2=0; i2<preshNclust_; i2++) {
+		  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
+		  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
+		} // end of cycle over ES clusters
+		
+		
+		std::set<DetId>::const_iterator ites = used_strips.begin();
+		for(; ites != used_strips.end(); ++ ites ){
+		  ESDetId d1 = ESDetId(*ites);
+		  std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
+		  if( (ites2 == used_strips_before.end())){
+		    std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
+		    selESRecHitCollection->push_back(itmap->second);
+		    
+		  } 
+		} // loop over used strips
+		
+	      } //if (store RecHitsES)
+	    
+	    } //if cluster was not stored
 	    
 	    
-	  } //if cluster was not stored
-	  
-	
           } // loop over iii IsoClus
 
         } //if storeIsoClusRecHitEtaEE_
@@ -1805,14 +1773,13 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(itdet == selectedEEDetIds.end()){
 	    selectedEEDetIds.push_back(det);
 	    selEERecHitCollection->push_back(RecHitsCluster5x5EndCap[ind][Rec3]);
+	    
 	  }
 	  
 	}
       }
     }
-
-     
-    
+            
   }///end of selections eta->gg endcap
   
   
@@ -1822,9 +1789,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   ////==============End of endcap ===============///
   
-  if(debug_>=1) std::cout<<" pi0 endcap_ouput_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<" "<<selESRecHitCollection->size()<<std::endl;
+  if(debug_>=1) std::cout<<" endcap_output_size: "<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<selEERecHitCollection->size()<<" "<<selESRecHitCollection->size()<<std::endl;
   
-
+  
   //Put selected information in the event
   int collsize = int(selEBRecHitCollection->size());
   int collsizeEndCap = int(selEERecHitCollection->size());
@@ -1838,6 +1805,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
   
   
+  
+
   ////Now put into events selected rechits.
   if(doBarrel){
     iEvent.put( selEBRecHitCollection, BarrelHits_);
