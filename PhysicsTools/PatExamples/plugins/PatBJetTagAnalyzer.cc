@@ -112,8 +112,6 @@ void PatBJetTagAnalyzer::beginJob(const edm::EventSetup &es)
 	}
 }
 
-// helper function to sort the tracks by impact parameter significance
-
 void PatBJetTagAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
 {  
 	// handle to the jets collection
