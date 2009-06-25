@@ -33,7 +33,6 @@ class PatBJetTagAnalyzer : public edm::EDAnalyzer  {
 
 	double jetPtCut_;		// minimum (uncorrected) jet energy
 	double jetEtaCut_;		// maximum |eta| for jet
-	double maxDeltaR_;		// angle between jet and tracks
 
 	// jet flavour constants
 
