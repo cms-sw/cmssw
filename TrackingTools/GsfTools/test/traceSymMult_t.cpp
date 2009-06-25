@@ -34,14 +34,14 @@ Matrix buildCovariance(float y) {
 
   // build a resonable covariance matrix as JIJ
 
-  Basic3DVector<float>  axis(0.5,y,1);
+  Basic3DVector<float>  axis(0.5,1.,1);
   
   Surface::RotationType rot(axis,0.5*M_PI);
 
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
-  LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,1.);
+  LocalTrajectoryParameters tp(1., 1.,y, 0.,0.,1.);
 
   JacobianLocalToCartesian jl2c(plane,tp);
   return ROOT::Math::SimilarityT(jl2c.jacobian(),Matrix6(ROOT::Math::SMatrixIdentity()));
@@ -79,14 +79,14 @@ int main(int args, char ** argv) {
 
   // Distance const & d = distance();
 
-  Matrix cov1 = buildCovariance(0.5);
+  Matrix cov1 = buildCovariance(2.);
   Matrix cov2 = buildCovariance(1.);
 
   double one = trace(cov1,cov2);
 
   double two =  GsfMatrixTools::trace<5>(cov1*cov2); 
  
-  if (fabs(one-two)>1.e-15) std::cout << "vincenzo was wrong!" << std::endl;
+  if (fabs(one-two)>1.e-12) std::cout << "vincenzo was wrong!" << std::endl;
   std::cout << one << " " << two << " "<< one-two << std::endl;  
 
   if (args==1) {
