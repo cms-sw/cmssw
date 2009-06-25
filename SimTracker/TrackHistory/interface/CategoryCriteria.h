@@ -1,13 +1,11 @@
 #ifndef CategoryCriteria_h
 #define CategoryCriteria_h
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefTraits.h"
-
-// Uncomment for 31X
-// #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 
 
 //! Implement a selector given a track or vertex collection and track or vertex classifier.

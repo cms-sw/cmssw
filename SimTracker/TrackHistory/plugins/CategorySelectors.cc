@@ -1,3 +1,4 @@
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -6,10 +7,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-// Uncomment for running CMSSW 31X
-// #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
