@@ -110,20 +110,20 @@ public:
 template <class T>
 class scaleFunctionType3 : public scaleFunctionBase<T> {
 public:
-  scaleFunctionType3() { this->parNum_ = 2; }
+  scaleFunctionType3() { this->parNum_ = 4; }
   virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
-    return( (parScale[0] + parScale[1]*sin(phi))*pt ); 
+    return( (parScale[0] + parScale[1]*sin(parScale[2]*phi + parScale[3]))*pt ); 
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
-    double thisStep[] = {0.001, 0.01};
-    TString thisParName[] = {"Phi offset", "Phi ampl"};
+    double thisStep[] = {0.001, 0.01, 0.01, 0.01};
+    TString thisParName[] = {"Phi offset", "Phi ampl", "Phi freq", "Phi phase"};
     if( muonType == 1 ) {
-      double thisMini[] = {0.9, -0.1};
-      double thisMaxi[] = {1.1, 0.1};
+      double thisMini[] = {0.9, -0.1, -0.1, -0.1};
+      double thisMaxi[] = {1.1, 0.1, 0.1, 0.1};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.97, -0.05};
-      double thisMaxi[] = {1.03, 0.05};
+      double thisMini[] = {0.97, -0.05, 6, -3.14};
+      double thisMaxi[] = {1.03, 0.05, 0.1, 3.14};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
