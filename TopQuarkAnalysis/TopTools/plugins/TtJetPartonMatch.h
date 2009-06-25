@@ -59,19 +59,24 @@ class TtJetPartonMatch : public edm::EDProducer {
 
  private:
 
+  /// convert string for algorithm into corresponding enumerator type
+  JetPartonMatching::algorithms readAlgorithm(const std::string& str);
+
   /// event counter for internal use with the verbosity 
   /// level
   int event_;
+  /// partons
+  C partons_;
   /// jet collection input
   edm::InputTag jets_;
   /// maximal number of jets to be considered for the 
   /// matching
   int maxNJets_;
-  /// maximal number of combinationws for which the 
+  /// maximal number of combinations for which the 
   /// matching should be stored
   int maxNComb_;
-  /// choice of algorithm (defined in JetPartonMatching)
-  int algorithm_;
+  /// choice of algorithm
+  JetPartonMatching::algorithms algorithm_;
   /// switch to choose between deltaR/deltaTheta matching
   bool useDeltaR_;
   /// switch to choose whether an outlier rejection 
@@ -86,19 +91,20 @@ class TtJetPartonMatch : public edm::EDProducer {
 
 template<typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg): event_(0),
-  jets_      (cfg.getParameter<edm::InputTag>("jets"      )),
-  maxNJets_  (cfg.getParameter<int>          ("maxNJets"  )),
-  maxNComb_  (cfg.getParameter<int>          ("maxNComb"  )),
-  algorithm_ (cfg.getParameter<int>          ("algorithm" )),
-  useDeltaR_ (cfg.getParameter<bool>         ("useDeltaR" )),
-  useMaxDist_(cfg.getParameter<bool>         ("useMaxDist")),
-  maxDist_   (cfg.getParameter<double>       ("maxDist"   )),
-  verbosity_ (cfg.getParameter<int>          ("verbosity" ))
+  partons_   (cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
+  jets_      (cfg.getParameter<edm::InputTag>            ("jets"           )),
+  maxNJets_  (cfg.getParameter<int>                      ("maxNJets"       )),
+  maxNComb_  (cfg.getParameter<int>                      ("maxNComb"       )),
+  algorithm_ (readAlgorithm(cfg.getParameter<std::string>("algorithm"      ))),
+  useDeltaR_ (cfg.getParameter<bool>                     ("useDeltaR"      )),
+  useMaxDist_(cfg.getParameter<bool>                     ("useMaxDist"     )),
+  maxDist_   (cfg.getParameter<double>                   ("maxDist"        )),
+  verbosity_ (cfg.getParameter<int>                      ("verbosity"      ))
 {
   // produces a vector of jet/lepton indices in the order of
-  //  * TtSemiLepEventPartons
-  //  * TtFullHadEventPartons
-  //  * TtFullLepEventPartons
+  //  * TtSemiLepEvtPartons
+  //  * TtFullHadEvtPartons
+  //  * TtFullLepEvtPartons
   // and vectors of the corresponding quality parameters
   produces< std::vector<std::vector<int> > >();
   produces< std::vector<double> >("SumPt");
@@ -121,11 +127,10 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(jets_, topJets);
 
   // fill vector of partons in the order of
-  //  * TtFullLepEventPartons
-  //  * TtSemiLepEventPartons 
-  //  * TtFullHadEventPartons
-  C parts;
-  std::vector<const reco::Candidate*> partons = parts.vec(*genEvt);
+  //  * TtFullLepEvtPartons
+  //  * TtSemiLepEvtPartons 
+  //  * TtFullHadEvtPartons
+  std::vector<const reco::Candidate*> partons = partons_.vec(*genEvt);
 
   // prepare vector of jets
   std::vector<pat::Jet> jets;
@@ -166,13 +171,27 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   for(unsigned int ic=0; ic<jetPartonMatch.getNumberOfAvailableCombinations(); ++ic) {
     if((int)ic>=maxNComb_ && maxNComb_>=0) break;
-    match->push_back( jetPartonMatch.getMatchesForPartons(ic) );
-    sumPt->push_back( jetPartonMatch.getSumDeltaPt       (ic) );
-    sumDR->push_back( jetPartonMatch.getSumDeltaR        (ic) );
+    std::vector<int> matches = jetPartonMatch.getMatchesForPartons(ic);
+    partons_.expand(matches); // insert dummy indices for partons that were chosen to be ignored
+    match->push_back( matches );
+    sumPt->push_back( jetPartonMatch.getSumDeltaPt(ic) );
+    sumDR->push_back( jetPartonMatch.getSumDeltaR (ic) );
   }
   evt.put(match);
   evt.put(sumPt, "SumPt");
   evt.put(sumDR, "SumDR");
+}
+
+template<typename C>
+JetPartonMatching::algorithms 
+TtJetPartonMatch<C>::readAlgorithm(const std::string& str)
+{
+  if     (str == "totalMinDist"    ) return JetPartonMatching::totalMinDist;
+  else if(str == "minSumDist"      ) return JetPartonMatching::minSumDist;
+  else if(str == "ptOrderedMinDist") return JetPartonMatching::ptOrderedMinDist;
+  else if(str == "unambiguousOnly" ) return JetPartonMatching::unambiguousOnly;
+  else throw cms::Exception("Configuration")
+    << "Chosen algorithm is not supported: " << str << "\n";
 }
 
 #endif
