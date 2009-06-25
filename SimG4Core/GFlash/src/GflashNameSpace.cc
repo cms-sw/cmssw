@@ -26,9 +26,10 @@ namespace Gflash {
       if( z > Zmin[kHE] && z < Zmax[kHE] ) {
 	index = kHE;
       }
-      if( z > Zmin[kHF] && z < Zmax[kHF] ) {
-	index = kHF;
-      }
+      //HF is not in the standard Gflash implementation yet
+      //      if( z > Zmin[kHF] && z < Zmax[kHF] ) {
+      //	index = kHF;
+      //      }
     }
     return index;
   }

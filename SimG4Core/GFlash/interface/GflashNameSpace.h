@@ -21,7 +21,7 @@ namespace Gflash {
 
   //                                            EB     HB     EE     HE      HO,     HF
   const G4double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 304.5, 391.95, 0.000, 1110.0}; // in cm
-  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 6.610, 1275.0};
+  const G4double Zmax[kNumberCalorimeter]   = {317.0, 433.2, 390.0, 554.10, 661.0, 1275.0};
   const G4double Rmin[kNumberCalorimeter]   = {123.8, 177.5,  31.6,  31.6,  382.0,  12.5};
   const G4double Rmax[kNumberCalorimeter]   = {177.5, 287.7, 171.1, 263.9,  407.0, 140.0};
 
@@ -49,8 +49,11 @@ namespace Gflash {
   // The step size of showino along the helix trajectory in cm unit
   const G4double divisionStep = 1.0;
 
-  //maximum shower depth for hadronic lateral in interaction length unit
-  const G4double maxShowerDepthforR50 = 10.0;
+  //maximum shower depth for the hadronic lateral in interaction length unit
+  const G4double maxShowerDepthforR50 = 6.0;
+
+  //maximum size of the lateral arm for hadronic showers = 12 * interaction length
+  const G4double maxLateralArmforR50 = 197.0;
 
   //minimum particle energy to trigger HO parameterization in [GeV]
   const G4double MinEnergyCutOffForHO = 2.5;

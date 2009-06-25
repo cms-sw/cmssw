@@ -110,6 +110,9 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     //get energy deposition for this step 
     whichCalor = Gflash::getCalorimeterNumber(theShowino->getPosition());
+
+    if(whichCalor == Gflash::kNULL) continue;
+
     heightProfile = longitudinalProfile(showerDepth,theShowino->getPathLength());
     deltaEnergy =  heightProfile*Gflash::divisionStep*energyScale[whichCalor];    
 
@@ -286,7 +289,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 	  
 	  G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
 	  
-	  if( aSensitive == 0 || (std::fabs(spotPosition.getZ()/cm) > Gflash::Zmax[Gflash::kHE]) ) continue;
+	  if( aSensitive == 0 || (std::fabs(spotPosition.getZ()/cm) > Gflash::Zmax[Gflash::kHO]) ) continue;
 	  
 	  G4String nameCalor = aCurrentVolume->GetName();
 	  nameCalor.assign(nameCalor,0,2);
@@ -333,11 +336,13 @@ G4double GflashHadronShowerProfile::medianLateralArm(G4double showerDepthR50, Gf
     
     // Simulation of lognormal distribution
     
-    double sigmaSq  = std::log(varinanceR50/(R50*R50)+1.0);
-    double sigmaR50 = std::sqrt(sigmaSq);
-    double meanR50  = std::log(R50) - (sigmaSq/2.);
-    
-    lateralArm = std::exp(meanR50 + sigmaR50*theRandGauss->fire());
+    if(R50>0) {
+      double sigmaSq  = std::log(varinanceR50/(R50*R50)+1.0);
+      double sigmaR50 = std::sqrt(sigmaSq);
+      double meanR50  = std::log(R50) - (sigmaSq/2.);
+      
+      lateralArm = std::exp(meanR50 + sigmaR50*theRandGauss->fire());
+    }
   }
   return lateralArm;
 }
@@ -349,6 +354,9 @@ G4ThreeVector GflashHadronShowerProfile::locateSpotPosition(GflashTrajectoryPoin
   G4double rxPDF = std::sqrt(rnunif/(1.-rnunif));
   G4double rShower = lateralArm*rxPDF;
   
+  //rShower within maxLateralArmforR50
+  rShower = std::min(Gflash::maxLateralArmforR50,rShower);
+
   // Uniform smearing in phi, for 66% of lateral containm.
   G4double azimuthalAngle = twopi*G4UniformRand(); 
 
