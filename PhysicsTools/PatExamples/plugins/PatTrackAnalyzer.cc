@@ -42,7 +42,7 @@ class PatTrackAnalyzer : public edm::EDAnalyzer  {
 
 	// holder for the histograms, one set per quality flag
 	struct Plots {
-		TH1 *eta, *phi,;
+		TH1 *eta, *phi;
 		TH1 *pt, *ptErr;
 		TH1 *invPt, *invPtErr;
 		TH1 *d0, *d0Err;
