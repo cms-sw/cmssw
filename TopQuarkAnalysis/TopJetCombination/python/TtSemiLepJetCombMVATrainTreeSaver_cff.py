@@ -19,7 +19,8 @@ looper = cms.Looper("TtSemiLepJetCombMVATrainerLooper",
         saveState  = cms.untracked.bool(True),
         calibrationRecord = cms.string('ttSemiLepJetCombMVA'),
         trainDescription = cms.untracked.FileInPath(
-            'TopQuarkAnalysis/TopJetCombination/data/TtSemiLepJetCombMVATrainTreeSaver.xml')
+            'TopQuarkAnalysis/TopJetCombination/data/TtSemiLepJetCombMVATrainTreeSaver.xml'),
+        useXSLT = cms.untracked.bool(True)
     ))
 )
 
