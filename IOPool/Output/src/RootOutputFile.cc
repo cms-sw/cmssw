@@ -247,7 +247,7 @@ namespace edm {
         whyNotFastClonable &= ~(FileBlock::BranchMismatch);
       }
       assert(whyNotFastClonable == FileBlock::CanFastClone);
-      LogWarning("FastCloningDisabled") << message.str();
+      LogInfo("FastCloningDisabled") << message.str();
     }
   }
 
