@@ -6,7 +6,7 @@
 
 
 namespace TopDecayID{
-  /// identification of top dacays; used for following
+  /// identification of top decays; used for following
   /// the decay chain in TopDecaySubset
   static const int stable = 2;
   static const int unfrag = 3;
