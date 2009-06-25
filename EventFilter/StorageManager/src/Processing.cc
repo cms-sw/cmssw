@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Processing.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -48,7 +48,7 @@ void Processing::logEndRunRequest( const EndRun& request )
 void
 Processing::do_processI2OFragment( I2OChain& frag ) const
 {
-  static unsigned int noFragmentCount;
+  static unsigned int noFragmentCount = 0;
 
   bool completed = outermost_context().getFragmentStore()->addFragment(frag);
   if ( completed )
@@ -72,8 +72,9 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     // Only do the check every 100th fragment
     // TODO: shall we make this number configurable?
     ++noFragmentCount;
-    if ( noFragmentCount % 100 )
+    if ( noFragmentCount >= 100 )
     {
+      noFragmentCount = 0;
       this->noFragmentToProcess();
     }
   }
