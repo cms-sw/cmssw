@@ -13,7 +13,7 @@ namespace TtFullLepDaughter{
 // ----------------------------------------------------------------------
 // derived class for: 
 //
-//  * TtSemiLeptonicEvent
+//  * TtFullLeptonicEvent
 //
 //  the structure holds information on the leptonic decay channels, 
 //  all event hypotheses of different classes (user defined during
