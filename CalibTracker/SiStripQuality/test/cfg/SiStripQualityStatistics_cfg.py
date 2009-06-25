@@ -23,36 +23,49 @@ process.maxEvents = cms.untracked.PSet(
 #-------------------------------------------------
 # Calibration
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V3P::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect='frontier://FrontierProd/CMS_COND_21X_STRIP'
-process.poolDBESSource=cms.ESSource("PoolDBESSource",
-                                    process.CondDBCommon,
-                                    BlobStreamerName=cms.untracked.string('TBufferBlobStreamingService'),
-                                    toGet           =cms.VPSet(
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.poolDBESSource = cms.ESSource("PoolDBESSource",
+                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+                                      DBParameters = cms.PSet(
+    messageLevel = cms.untracked.int32(2),
+    authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+                                      timetype = cms.untracked.string('runnumber'),
+                                      connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_STRIP'),
+                                      toGet = cms.VPSet(
     cms.PSet(
-    record=cms.string('SiStripBadModuleRcd'),
-    tag   =cms.string('SiStripBadChannel_HotStrip_CRAFT_v1_offline')
+    record = cms.string('SiStripFedCablingRcd'),
+    tag = cms.string('SiStripFedCabling_GR09_31X_v1')
+    ),
+    cms.PSet(
+    record = cms.string('SiStripBadChannelRcd'),
+    tag = cms.string('SiStripBadChannel_GR09_31X_v1')
     )
     )
-                                    )
+                                      )
+process.es_prefer = cms.ESPrefer("PoolDBESSource", "poolDBESSource")
+
 
 # Include masking #
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
  cms.PSet(record=cms.string('SiStripDetCablingRcd'),tag=cms.string(''))
  ,cms.PSet(record=cms.string('SiStripBadChannelRcd'),tag=cms.string(''))
- ,cms.PSet(record=cms.string('SiStripBadModuleRcd' ),tag=cms.string(''))
+ #,cms.PSet(record=cms.string('SiStripBadModuleRcd' ),tag=cms.string(''))
 )
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 
-
+#-------------------------------------------------
+# Services for the TkHistoMap
+#-------------------------------------------------
+process.load("DQMServices.Core.DQMStore_cfg")
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+#-------------------------------------------------
 process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
                               dataLabel = cms.untracked.string(""),
+                              SaveTkHistoMap = cms.untracked.bool(True),
                               TkMapFileName = cms.untracked.string("TkMapBadComponents.pdf")  #available filetypes: .pdf .png .jpg .svg
                               )
 

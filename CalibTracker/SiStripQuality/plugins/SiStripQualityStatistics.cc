@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.12 2008/12/08 12:24:29 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.13 2009/02/25 10:36:04 kaussen Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -36,6 +36,7 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","")),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+  saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap",true)),
   tkMap(0),tkMapFullIOVs(0)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
@@ -55,10 +56,11 @@ void SiStripQualityStatistics::endJob(){
     filename.erase(filename.begin()+filename.find("."),filename.end());
     tkMapFullIOVs->print(false,0,0,filename.c_str());
   
-    tkhisto->save(filename+".root");
-    tkhisto->saveAsCanvas(filename+"_Canvas.root","E");
+    if(saveTkHistoMap_){
+      tkhisto->save(filename+".root");
+      tkhisto->saveAsCanvas(filename+"_Canvas.root","E");
+    }
   }
-
 }
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){

@@ -38,7 +38,7 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
   std::string dataLabel_;
   std::string TkMapFileName_;
   edm::FileInPath fp_;
-
+  bool saveTkHistoMap_;
   //Global Info
   int NTkBadComponent[4]; //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
   int NBadComponent[4][19][4];  
@@ -49,6 +49,6 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
 
   TrackerMap * tkMap, *tkMapFullIOVs;
   SiStripDetInfoFileReader* reader;
- TkHistoMap* tkhisto;
+  TkHistoMap* tkhisto;
 };
 #endif
