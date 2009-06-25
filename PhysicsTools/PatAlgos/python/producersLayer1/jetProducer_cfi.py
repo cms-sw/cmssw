@@ -43,7 +43,8 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         cms.InputTag("jetBProbabilityBJetTags"),
         cms.InputTag("jetProbabilityBJetTags"),
         cms.InputTag("simpleSecondaryVertexBJetTags"),
-        cms.InputTag("softElectronBJetTags"),
+        cms.InputTag("softElectronByPtBJetTags"),                
+        cms.InputTag("softElectronByIP3dBJetTags"),
         cms.InputTag("softMuonBJetTags"),
         cms.InputTag("softMuonByPtBJetTags"),                
         cms.InputTag("softMuonByIP3dBJetTags"),
@@ -87,7 +88,8 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     efficiencies    = cms.PSet(),
 
     # resolution
-    addResolutions = cms.bool(False)
+    addResolutions = cms.bool(False),
+    resolutions     = cms.PSet()
 )
 
 

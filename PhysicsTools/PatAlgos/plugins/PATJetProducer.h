@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.16 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATJetProducer.h,v 1.17 2009/06/08 13:51:35 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.16 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATJetProducer.h,v 1.17 2009/06/08 13:51:35 hegner Exp $
 */
 
 
@@ -30,6 +30,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -85,6 +86,7 @@ namespace pat {
       pat::helper::EfficiencyLoader efficiencyLoader_;
 
       bool                     addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;

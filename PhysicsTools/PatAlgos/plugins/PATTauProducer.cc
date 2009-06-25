@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.26 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATTauProducer.cc,v 1.27 2009/06/08 17:32:26 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -56,7 +56,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     genJetMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
   }
 
-  addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
 
   // tau ID configurables
   addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );
@@ -119,6 +118,12 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Tau>(iConfig.getParameter<edm::ParameterSet>("userData"));
@@ -148,6 +153,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
    
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
@@ -265,6 +271,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       efficiencyLoader_.setEfficiencies( aTau, tausRef );
     }
 
+    if (resolutionLoader_.enabled()) {
+      resolutionLoader_.setResolutions(aTau);
+    }
+
     if ( useUserData_ ) {
       userDataHelper_.add( aTau, iEvent, iSetup );
     }
@@ -317,7 +327,7 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<edm::InputTag>("genJetMatch", edm::InputTag("tauGenJetMatch"));
 
 
-  iDesc.add<bool>("addResolutions",false);
+  pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
   // tau ID configurables
   iDesc.add<bool>("addTauID", true)->setComment("add tau ID variables");

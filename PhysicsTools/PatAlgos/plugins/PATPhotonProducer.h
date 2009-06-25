@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.17 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATPhotonProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.17 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
 */
 
 
@@ -27,6 +27,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
@@ -64,6 +65,9 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+      
+      bool addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool          addPhotonID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;

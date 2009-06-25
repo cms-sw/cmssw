@@ -88,7 +88,8 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     efficiencies    = cms.PSet(),
 
     # resolution configurables
-    addResolutions  = cms.bool(False)
+    addResolutions  = cms.bool(False),
+    resolutions      = cms.PSet(),
 )
 
 

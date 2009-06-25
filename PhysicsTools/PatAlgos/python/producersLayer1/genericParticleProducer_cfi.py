@@ -6,6 +6,30 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
     ## Input (anything readable with View<Candidate>
     src = cms.InputTag("REPLACE_ME"),
 
+    # add user data
+    userData = cms.PSet(
+      # add custom classes here
+      userClasses = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add doubles here
+      userFloats = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add ints here
+      userInts = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add candidate ptrs here
+      userCands = cms.PSet(
+        src = cms.VInputTag('')
+      ),
+      # add "inline" functions here
+      userFunctions = cms.vstring(),
+      userFunctionLabels = cms.vstring()
+    ),
+
+
     # AOD embedding
     embedTrack          = cms.bool(False),
     embedGsfTrack       = cms.bool(False), ## whether to embed in AOD externally stored gsf track
@@ -34,6 +58,10 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
     # Efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),
+
+    # resolution
+    addResolutions  = cms.bool(False),
+    resolutions     = cms.PSet(),
 )
 
 

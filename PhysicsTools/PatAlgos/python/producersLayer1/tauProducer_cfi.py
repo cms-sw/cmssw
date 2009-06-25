@@ -91,7 +91,8 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     efficiencies    = cms.PSet(),
 
     # resolution
-    addResolutions  = cms.bool(False)
+    addResolutions  = cms.bool(False),
+    resolutions     = cms.PSet()
 )
 
 

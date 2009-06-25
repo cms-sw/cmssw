@@ -41,6 +41,7 @@ layer1METs = cms.EDProducer("PATMETProducer",
 
     # resolution
     addResolutions  = cms.bool(False),
+    resolutions     = cms.PSet(),
 )
 
 

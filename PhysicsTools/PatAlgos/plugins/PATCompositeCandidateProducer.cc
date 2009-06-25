@@ -1,5 +1,5 @@
 //
-// $Id: PATCompositeCandidateProducer.cc,v 1.1 2008/12/02 03:36:03 srappocc Exp $
+// $Id: PATCompositeCandidateProducer.cc,v 1.2 2009/03/26 20:44:37 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATCompositeCandidateProducer.h"
@@ -29,6 +29,19 @@ PATCompositeCandidateProducer::PATCompositeCandidateProducer(const ParameterSet 
     useUserData_ = true;
   }
 
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+
+
   // produces vector of particles
   produces<vector<pat::CompositeCandidate> >();
 
@@ -41,6 +54,9 @@ void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & i
   // Get the vector of CompositeCandidate's from the event
   Handle<View<reco::CompositeCandidate> > cands;
   iEvent.getByLabel(src_, cands);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
   auto_ptr<vector<pat::CompositeCandidate> > myCompositeCandidates ( new vector<pat::CompositeCandidate>() );
 
@@ -55,6 +71,9 @@ void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & i
       if ( useUserData_ ) {
 	userDataHelper_.add( cand, iEvent, iSetup );
       }
+
+      if (efficiencyLoader_.enabled()) efficiencyLoader_.setEfficiencies( cand, cands->refAt(i - cands->begin()) );
+      if (resolutionLoader_.enabled()) resolutionLoader_.setResolutions(cand);
 
       myCompositeCandidates->push_back( cand );
     }

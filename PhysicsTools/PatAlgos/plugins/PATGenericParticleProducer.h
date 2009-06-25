@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.7 2009/03/26 20:44:37 vadler Exp $
+// $Id: PATGenericParticleProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenericParticleProducer.h,v 1.7 2009/03/26 20:44:37 vadler Exp $
+  \version  $Id: PATGenericParticleProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
 */
 
 
@@ -32,7 +32,11 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 #include "PhysicsTools/PatAlgos/interface/VertexingHelper.h"
+
+#include "DataFormats/PatCandidates/interface/UserData.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 namespace pat {
 
@@ -69,8 +73,14 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+      
+      bool addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
       pat::helper::VertexingHelper vertexingHelper_;
+
+      bool useUserData_;
+      pat::PATUserDataHelper<pat::GenericParticle> userDataHelper_;
 
   };
 

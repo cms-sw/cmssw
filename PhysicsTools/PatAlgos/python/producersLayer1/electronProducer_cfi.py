@@ -84,7 +84,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     efficiencies    = cms.PSet(),
 
     # resolution configurables
-    addResolutions   = cms.bool(False)
+    addResolutions   = cms.bool(False),
+    resolutions      = cms.PSet(),
 )
 
 
