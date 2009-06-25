@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.24 2009/04/20 19:33:07 vadler Exp $
+// $Id: PATObject.h,v 1.25 2009/04/20 19:47:18 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.24 2009/04/20 19:33:07 vadler Exp $
+  \version  $Id: PATObject.h,v 1.25 2009/04/20 19:47:18 vadler Exp $
 */
 
 
@@ -33,6 +33,7 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
 namespace pat {
 
@@ -196,7 +197,69 @@ namespace pat {
       bool hasUserInt( const std::string & key ) const {
         return std::find(userIntLabels_.begin(), userIntLabels_.end(), key) != userIntLabels_.end();
       }
- 
+
+      /// Get user-defined candidate ptr
+      /// Note: it will a null pointer if the key is not found; you can check if the key exists with 'hasUserInt' method.
+      reco::CandidatePtr userCand( const std::string & key ) const;
+      /// Set user-defined int
+      void addUserCand( const std::string & label,  const reco::CandidatePtr & data );
+      /// Get list of user-defined cand names
+      const std::vector<std::string> & userCandNames() const  { return userCandLabels_; }
+      /// Return true if there is a user-defined int with a given name
+      bool hasUserCand( const std::string & key ) const {
+        return std::find(userCandLabels_.begin(), userCandLabels_.end(), key) != userCandLabels_.end();
+      }
+
+      // === New Kinematic Resolutions
+      /// Return the kinematic resolutions associated to this object, possibly specifying a label for it.
+      /// If not present, it will throw an exception.
+      const pat::CandKinResolution & getKinResolution(const std::string &label="") const ;
+
+      /// Check if the kinematic resolutions are stored into this object (possibly specifying a label for them)
+      bool hasKinResolution(const std::string &label="") const ;
+      
+      /// Add a kinematic resolution to this object (possibly with a label)
+      void setKinResolution(const pat::CandKinResolution &resol, const std::string &label="") ;
+
+      /// Resolution on eta, possibly with a label to specify which resolution to use
+      double resolEta(const std::string &label="") const { return getKinResolution(label).resolEta(this->p4()); }
+
+      /// Resolution on theta, possibly with a label to specify which resolution to use
+      double resolTheta(const std::string &label="") const { return getKinResolution(label).resolTheta(this->p4()); }
+
+      /// Resolution on phi, possibly with a label to specify which resolution to use
+      double resolPhi(const std::string &label="") const { return getKinResolution(label).resolPhi(this->p4()); }
+
+      /// Resolution on energy, possibly with a label to specify which resolution to use
+      double resolE(const std::string &label="") const { return getKinResolution(label).resolE(this->p4()); }
+
+      /// Resolution on et, possibly with a label to specify which resolution to use
+      double resolEt(const std::string &label="") const { return getKinResolution(label).resolEt(this->p4()); }
+
+      /// Resolution on p, possibly with a label to specify which resolution to use
+      double resolP(const std::string &label="") const { return getKinResolution(label).resolP(this->p4()); }
+
+      /// Resolution on pt, possibly with a label to specify which resolution to use
+      double resolPt(const std::string &label="") const { return getKinResolution(label).resolPt(this->p4()); }
+
+      /// Resolution on 1/p, possibly with a label to specify which resolution to use
+      double resolPInv(const std::string &label="") const { return getKinResolution(label).resolPInv(this->p4()); }
+
+      /// Resolution on px, possibly with a label to specify which resolution to use
+      double resolPx(const std::string &label="") const { return getKinResolution(label).resolPx(this->p4()); }
+
+      /// Resolution on py, possibly with a label to specify which resolution to use
+      double resolPy(const std::string &label="") const { return getKinResolution(label).resolPy(this->p4()); }
+
+      /// Resolution on pz, possibly with a label to specify which resolution to use
+      double resolPz(const std::string &label="") const { return getKinResolution(label).resolPz(this->p4()); }
+
+      /// Resolution on mass, possibly with a label to specify which resolution to use
+      /// Note: this will be zero if a mass-constrained parametrization is used for this object 
+      double resolM(const std::string &label="") const { return getKinResolution(label).resolM(this->p4()); }
+
+
+
     protected:
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
@@ -228,6 +291,15 @@ namespace pat {
       // User int values
       std::vector<std::string>      userIntLabels_;
       std::vector<int32_t>          userInts_;
+      // User candidate matches
+      std::vector<std::string>        userCandLabels_;
+      std::vector<reco::CandidatePtr> userCands_;
+
+      /// Kinematic resolutions.
+      std::vector<pat::CandKinResolution> kinResolutions_;
+      /// Labels for the kinematic resolutions. 
+      /// if (kinResolutions_.size() == kinResolutionLabels_.size()+1), then the first resolution has no label.
+      std::vector<std::string>            kinResolutionLabels_;
 
     private:
       const pat::UserData *  userDataObject_(const std::string &key) const ;
@@ -476,6 +548,95 @@ namespace pat {
     userIntLabels_.push_back(label);
     userInts_.push_back( data );
   }
+
+  template <class ObjectType>
+  reco::CandidatePtr PATObject<ObjectType>::userCand( const std::string & key ) const
+  {
+    std::vector<std::string>::const_iterator it = std::find(userCandLabels_.begin(), userCandLabels_.end(), key);
+    if (it != userCandLabels_.end()) {
+        return userCands_[it - userCandLabels_.begin()];
+    }
+    return reco::CandidatePtr();
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addUserCand( const std::string &label,
+					   const reco::CandidatePtr & data )
+  {
+    userCandLabels_.push_back(label);
+    userCands_.push_back( data );
+  }
+
+
+  template <class ObjectType>
+  const pat::CandKinResolution & PATObject<ObjectType>::getKinResolution(const std::string &label) const {
+    if (label.empty()) {
+        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+            return kinResolutions_[0];
+        } else {
+            throw cms::Exception("Missing Data", "This object does not contain an un-labelled kinematic resolution");
+        }
+    } else {
+        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        if (match == kinResolutionLabels_.end()) {
+            cms::Exception ex("Missing Data");
+            ex << "This object does not contain a kinematic resolution with name '" << label << "'.\n";
+            ex << "The known labels are: " ;
+            for (std::vector<std::string>::const_iterator it = kinResolutionLabels_.begin(); it != kinResolutionLabels_.end(); ++it) {
+                ex << "'" << *it << "' ";
+            }
+            ex << "\n";
+            throw ex;
+        } else {
+            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+                // skip un-labelled resolution
+                return kinResolutions_[match - kinResolutionLabels_.begin() + 1];
+            } else {
+                // all are labelled, so this is the real index
+                return kinResolutions_[match - kinResolutionLabels_.begin()];
+            }
+        }
+    }
+  }
+
+  template <class ObjectType>
+  bool PATObject<ObjectType>::hasKinResolution(const std::string &label) const {
+    if (label.empty()) {
+        return (kinResolutionLabels_.size()+1 == kinResolutions_.size());
+    } else {
+        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        return match != kinResolutionLabels_.end();
+    }
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setKinResolution(const pat::CandKinResolution &resol, const std::string &label) {
+    if (label.empty()) {
+        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+            // There is already an un-labelled object. Replace it
+            kinResolutions_[0] = resol;
+        } else {
+            // Insert. Note that the un-labelled is always the first, so we need to insert before begin()
+            // (for an empty vector, this should not cost more than push_back)
+            kinResolutions_.insert(kinResolutions_.begin(), resol);
+        }
+    } else {
+        std::vector<std::string>::iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        if (match != kinResolutionLabels_.end()) {
+            // Existing object: replace
+            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+                kinResolutions_[(match - kinResolutionLabels_.begin())+1] = resol;
+            } else {
+                kinResolutions_[(match - kinResolutionLabels_.begin())] = resol;
+            }
+        } else {
+            kinResolutionLabels_.push_back(label);
+            kinResolutions_.push_back(resol);
+        }
+    }
+  }
+
+
 
 
 }

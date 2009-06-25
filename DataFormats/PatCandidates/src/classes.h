@@ -45,6 +45,7 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
+#include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
 namespace {
   struct dictionary {
@@ -399,6 +400,11 @@ namespace {
   pat::UserHolder<math::PtEtaPhiMLorentzVector>	 p_udh_plv;
 
   edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >	 w_vm_p_lutr;
+
+  pat::CandKinResolution ckr;
+  std::vector<pat::CandKinResolution>  v_ckr;
+  pat::CandKinResolutionValueMap vm_ckr;
+  edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
 
   };
 

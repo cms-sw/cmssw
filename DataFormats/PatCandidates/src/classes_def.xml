@@ -457,6 +457,13 @@
   <class name="std::vector<pat::LookupTableRecord>" />
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
+
+  <class name="pat::CandKinResolution" >
+     <field name="covariance_" transient="true"/>
+  </class>
+  <class name="std::vector<pat::CandKinResolution>" />
+  <class name="pat::CandKinResolutionValueMap" />
+  <class name="edm::Wrapper<pat::CandKinResolutionValueMap>" />
  
  </selection>
  <exclusion>
