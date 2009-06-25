@@ -75,7 +75,7 @@ double trace(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & a,
 
 
 
-int main(args) {
+int main(int args, char ** argv) {
 
   // Distance const & d = distance();
 
