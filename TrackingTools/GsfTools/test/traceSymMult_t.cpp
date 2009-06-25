@@ -75,7 +75,7 @@ double trace(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & a,
 
 
 
-int main() {
+int main(args) {
 
   // Distance const & d = distance();
 
@@ -88,6 +88,19 @@ int main() {
  
   if (fabs(one-two)>1.e-15) std::cout << "vincenzo was wrong!" << std::endl;
   std::cout << one << " " << two << " "<< one-two << std::endl;  
+
+  if (args==1) {
+    st();	
+    one = trace(cov2,cov1);
+    en();
+  } else {
+    st();
+    two =  GsfMatrixTools::trace<5>(cov2*cov1); 
+    en();
+  }
+
+  if (fabs(one-two)>1.e-15) std::cout << "vincenzo was wrong!" << std::endl;
+
 
   return 0;
 
