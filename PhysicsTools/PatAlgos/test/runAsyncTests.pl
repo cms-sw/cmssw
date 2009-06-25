@@ -12,12 +12,13 @@ my $fake   :shared = 0;
 my $repdef :shared = "";
 
 use Getopt::Long;
-my ($help,$base,$one,$extra,$all,$shy);
+my ($help,$base,$one,$extra,$all,$shy,$obj);
 my @summary :shared;
 GetOptions( 'h|?|help' => \$help, 
             'n|dry-run' => \$fake,
             '1|one' => \$one,
             'b|base' => \$base,
+            'o|obj' => \$obj,
             'a|all' => \$all,
             'e|extra' => \$extra,
             's|summary=s' => \@summary,
@@ -30,6 +31,7 @@ if ($help) {
           "   -h or --help:    print this help\n".
           "   -1 or --one:     add patLayer1_fromAOD_full to the jobs to run\n".   
           "   -b or --base:    add base standard PAT config files to the jobs to run\n".   
+          "   -o or --obj:     add PAT config files for single physics objecs to the jobs to run\n".   
           "   -e or --extra:   add the extra standard PAT config files to the jobs to run (that is, those not in base)\n".   
           "   -a or --all:     add all standard PAT config files to the jobs to run\n". 
           "   -s or --summary: print summary table of objects (argument can be 'aod', 'allLayer1', 'selectedLayer1', ...)\n".
@@ -44,10 +46,12 @@ my @CFGs = map({$_ =~ /\.py$|\*$/ ? $_ : "*$_*"}   @ARGV);
 
 
 my @anyCFGs    = glob("pat*[._]cfg.py");
-my @baseCFGs   = grep($_ =~ /fromAOD_(full|fast)|fromSummer08AODSIM|fromScratch_fast/, @anyCFGs);
-my @extraCFGs  = grep($_ !~ /fromAOD_(full|fast)|fromSummer08AODSIM|fromScratch_fast/, @anyCFGs);
+my @baseCFGs   = grep($_ =~ /fromAOD_(full|fast|noLayer1Cleaning)|fromScratch_fast/, @anyCFGs);
+my @objCFGs   = grep($_ =~ /fromAOD_(electron|muon|tau|photon|met|jet_)/, @anyCFGs);
+my @extraCFGs  = grep($_ !~ /fromAOD_(full|fast|noLayer1Cleaning|electron|muon|tau|photon|jet_)|fromScratch_fast/, @anyCFGs);
 if ($one )  { push @CFGs, grep(m/fromAOD_full/, @anyCFGs);  }
 if ($base ) { push @CFGs, @baseCFGs;  }
+if ($obj )  { push @CFGs, @objCFGs;  }
 if ($all  ) { push @CFGs, @anyCFGs;   }
 if ($extra) { push @CFGs, @extraCFGs; }
 if (@CFGs) {
