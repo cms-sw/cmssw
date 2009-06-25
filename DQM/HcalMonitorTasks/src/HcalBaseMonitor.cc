@@ -742,25 +742,25 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	  ieta=binmapd2[eta];
 	}
       else
-	ieta=-9999; // non-physical value
+	return -9999; // non-physical value
     }
   else if (subdet==HcalForward)
     {
       if (depth==1)
 	{
 	  ieta=eta-42;
-	  if (eta<14) ieta++;
-	  else if (eta>72) ieta--;
-	  else ieta=-9999; // if outside forward range, return dummy
+	  if (eta<13) ieta++;
+	  else if (eta>71) ieta--;
+	  else return -9999; // if outside forward range, return dummy
 	}
       else if (depth==2)
 	{
 	  ieta=binmapd2[eta];
 	  if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
-	  else ieta=-9999;
+	  else return -9999;
 	}
-      else ieta=-9999;
+      else return -9999;
     }
   // add in HE depth 3, HO later
   else if (subdet==HcalEndcap)
@@ -769,25 +769,27 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
       else if (depth==2) 
 	{
 	  ieta=binmapd2[eta];
-	  if (abs(ieta)>29 || abs(ieta)<18) ieta=-9999; 
+	  if (ieta==-9999) return ieta;
+	  if (abs(ieta)>29 || abs(ieta)<18) return -9999; 
 	}
       if (depth==3)
 	{
-	  if (eta<0 || eta>8) ieta=-9999;
+	  if (eta<0 || eta>8) return -9999;
 	  else
 	    ieta=binmapd3[eta];
+	  if (ieta==-9999) return ieta;
 	}
       else if (depth==4)
-	ieta=-9999;
+	return -9999;
     } // HcalEndcap
   else if ( subdet==HcalOuter)
     {
       if (depth<4)
-	ieta=-9999;
+	return -9999;
       else
 	{
 	  ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-	  if (abs(ieta)>15) ieta=-9999;
+	  if (abs(ieta)>15) return -9999;
 	}
     } // HcalOuter
   return ieta;
@@ -799,8 +801,8 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
   if (depth==1)
     {
       ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
-      if (eta<14) ieta++;
-      else if (eta>72) ieta--;
+      if (eta<13) ieta++;
+      else if (eta>71) ieta--;
     }
   else if (depth==2)
     {
@@ -808,8 +810,9 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
       else
 	{
 	  ieta=binmapd2[eta];
-	  if (ieta<=-30) ieta++;
-	  if (ieta>=30) ieta--;
+	  if (ieta=-9999) return ieta;
+	  else if (ieta<=-30) ieta++;
+	  else if (ieta>=30) ieta--;
 	}
     }
   else if (depth==3)
