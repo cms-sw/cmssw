@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 # These are only dummy cuts
 selectedLayer1Jets = cms.EDFilter("PATJetSelector",
     src = cms.InputTag("allLayer1Jets"),
-    cut = cms.string('et > 0. & abs(eta) < 12. & nConstituents > 0')
+    cut = cms.string('et > 0. & abs(eta) < 12.')
+#   cut = cms.string('et > 0. & abs(eta) < 12. & nConstituents > 0')
 )
 
 
