@@ -30,11 +30,11 @@ typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > Matrix6
       return *d;
   }
 
-Matrix buildCovariance() {
+Matrix buildCovariance(float y) {
 
   // build a resonable covariance matrix as JIJ
 
-  Basic3DVector<float>  axis(0.5,1.,1);
+  Basic3DVector<float>  axis(0.5,y,1);
   
   Surface::RotationType rot(axis,0.5*M_PI);
 
@@ -79,8 +79,8 @@ int main(int args, char ** argv) {
 
   // Distance const & d = distance();
 
-  Matrix cov1 = buildCovariance();
-  Matrix cov2 = buildCovariance();
+  Matrix cov1 = buildCovariance(0.5);
+  Matrix cov2 = buildCovariance(1.);
 
   double one = trace(cov1,cov2);
 
