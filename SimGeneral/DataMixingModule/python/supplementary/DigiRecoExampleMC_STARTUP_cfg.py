@@ -12,7 +12,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimGeneral.DataMixingModule.ReconstructionDM_cff")
 
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.77.2.1 $'),
+        version = cms.untracked.string('$Revision: 1.1 $'),
             annotation = cms.untracked.string('datamixertest nevts:500'),
             name = cms.untracked.string('PyReleaseValidation')
         )
