@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.16 2009/06/12 20:57:15 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.17 2009/06/26 13:09:33 rekovic Exp $
 //
 //
 
@@ -795,13 +795,10 @@ void objMon<T>::monitorDenominator(FourVectorHLTriggerOffline::PathInfoCollectio
 {
 
         setPath(v);
-        //LogTrace("FourVectorHLTriggerOffline") << "setPath(" << v->getPath() << ")" << endl;
 				
-        //LogTrace("FourVectorHLTriggerOffline") << "monitorDenominator, v = " << v_->getPath() << endl;
 				
 				if(! isTriggerType(v_->getObjectType()) ) return;
 
-        //LogTrace("FourVectorHLTriggerOffline") << "calling fillMC " << endl;
 	      fillMC();
 
 	      fillOff();
@@ -865,7 +862,6 @@ void objMon<T>::fillOff()
 template <class T> 
 void objMon<T>::fillMC()
 {
- //LogTrace("FourVectorHLTriggerOffline") << "fillMC " << endl;
 
  if(GenJetsFlag_)
  {
@@ -874,7 +870,6 @@ void objMon<T>::fillMC()
   float NMc=0; 
 
   for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
-       //LogTrace("FourVectorHLTriggerOffline") << "fillMC genJet: pt = " << gjet->pt() << " eta = " << gjet->eta() << " phi = " << gjet->phi() << endl;
 
     if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
 
@@ -888,7 +883,6 @@ void objMon<T>::fillMC()
 
        v_->getMcEtMcHisto()->Fill(gjet->pt());
        v_->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
-       //LogTrace("FourVectorHLTriggerOffline") << "fillMC Filling MC histos: pt = " << gjet->pt() << " eta = " << gjet->eta() << " phi = " << gjet->phi() << endl;
 
 			 NMc++;
 
@@ -1057,7 +1051,6 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	           if ( dR < 1.0) 
 						 {
 
-              //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch Filling MC map: pt = " << gjet->pt() << " eta = " << gjet->eta() << " phi = " << gjet->phi() << " dR = " << dR << " j = " << j <<  endl;
 		          L1MCDRMatchMap.insert(pair<float,int>(dR,j));
 
 						 }
@@ -1071,9 +1064,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 
         if(! L1MCDRMatchMap.empty()) { 
 				L1MCDRMatchSet.insert(L1MCDRMatchMap);
-        //LogTrace("FourVectorHLTriggerOffline") << " monitorL1: insert L1MC map genJets" << endl;
 				}
-        //LogTrace("FourVectorHLTriggerOffline") << " monitorL1: L1MCDRMatchSet.size =  " << L1MCDRMatchSet.size() << endl;
 
 	    } // end if genJets
 	    else if ( ! GenJetsFlag_ && genParticles_.isValid())
@@ -1109,7 +1100,6 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 
         if(! L1MCDRMatchMap.empty()) { 
 				L1MCDRMatchSet.insert(L1MCDRMatchMap);
-        //LogTrace("FourVectorHLTriggerOffline") << " monitorL1: insert L1MC map genParticle" << endl;
 				}
 
 	    } // end if genParticle_
@@ -1516,11 +1506,8 @@ template <class T>
 void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
 {
 
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1OffMatch" << endl;
 
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1OffMatch: set size before cleaning = " << L1OffDRMatchSet.size() << endl;
   if(L1OffDRMatchSet.size() > 1) fv->cleanDRMatchSet(L1OffDRMatchSet);
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1OffMatch: set size after cleaning = " << L1OffDRMatchSet.size() << endl;
 
 	// clean the set L1-Off
 	// now fill histos
@@ -1567,7 +1554,6 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
 template <class T> 
 void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
 {
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch" << endl;
 
   if(GenJetsFlag_)
   {
@@ -1575,9 +1561,7 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
    if (! genJets_.isValid()) return;
 
 	 // clean the set L1-MC
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch: set size before cleaning = " << L1MCDRMatchSet.size() << endl;
 	 if(L1MCDRMatchSet.size() > 1) fv->cleanDRMatchSet(L1MCDRMatchSet);
-   //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch: set size after cleaning = " << L1MCDRMatchSet.size() << endl;
 
 	 float NL1Mc=0;
 
@@ -1592,7 +1576,6 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
 			 float dR = (*it).first;
 
        v_->getMcDRL1McHisto()->Fill(dR);
-       //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch dR = " << dR << " i = " << i << endl;
 
        if (dR > DRMatch_) continue;
 
@@ -1603,10 +1586,8 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
        v_->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
 			 NL1Mc++;
 
-       //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch Filling MC histos: pt = " << gjet->pt() << " eta = " << gjet->eta() << " phi = " << gjet->phi() << " dR = " << dR << " i = " << i << endl;
   
 	 } // end for set
-       //LogTrace("FourVectorHLTriggerOffline") << "fillL1MCMatch Filling L1MC histos " << NL1Mc << endl;
   
   } // end if GenJetsFlag_
 	else if( genParticles_.isValid()) {

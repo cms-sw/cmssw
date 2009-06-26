@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.26 2009/06/19 15:19:51 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.27 2009/06/26 13:09:34 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -355,10 +355,10 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
 { 
+    //LogTrace("FourVectorHLTriggerOffline") << " path " << v->getPath() << endl;
 	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
 				else btagMon = btagMuMon;
 
-    //LogTrace("FourVectorHLTriggerOffline") << " path " << v->getPath() << endl;
 
   int NMc = 0;
   int NOn = 0;
@@ -391,9 +391,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   if (denompassed)
   {  
 
-	    //if (v->getPath().find("HLT_BTagIP_Jet80") == std::string::npos ) continue;
-      //LogTrace("FourVectorHLTriggerOffline") << " denominator path " << v->getPath() << endl;
-
       eleMon.clearSets();
       muoMon.clearSets();
       tauMon.clearSets();
@@ -415,7 +412,6 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       const trigger::Vids & idtype = triggerObj->filterIds(l1index);
       const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
       l1accept = l1k.size() > 0;
-      //LogTrace("FourVectorHLTriggerOffline") << " triggertype = " << triggertype << " TriggerMuon  " <<  TriggerMuon << "   l1accept = " << l1accept << endl;
 
 
       eleMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
