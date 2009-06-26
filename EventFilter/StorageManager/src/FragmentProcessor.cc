@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FragmentProcessor.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include <unistd.h>
 
@@ -148,9 +148,9 @@ void FragmentProcessor::processOneFragmentIfPossible()
     // rule.  In the meantime, the ThroughputMonitorCollection busy time
     // calculation for this thread gives smoother results if we don't sleep
     // for full seconds here.  
-    if (_timeout > 0.25)
+    if (_timeout > 0.1)
     {
-      ::usleep(250000);
+      ::usleep(100000);
     }
     else
     {
