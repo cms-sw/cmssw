@@ -182,7 +182,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
       // protection against numerical problems for extremely low momenta
       const double minTan = 1.e-9;
-      if ( tan(p.Theta()) <= minTan ) continue;
+      if ( fabs(tan(p.Theta())) <= minTan ) continue;
 
       double zimpact = (theRDecLenCut-sqrt(x1*x1+y1*y1))*(1/tan(p.Theta()))+z1;
 
