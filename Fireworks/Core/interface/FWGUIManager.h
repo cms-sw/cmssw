@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.67 2009/05/22 20:28:22 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.68 2009/06/23 17:14:08 amraktad Exp $
 //
 
 // system include files
@@ -189,11 +189,11 @@ public:
    void eventFilterChanged();
    void runIdChanged();
    void eventIdChanged();
-   void subviewCurrentChanged(TEveWindow*);
+   void checkSubviewAreaIconState(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
-   void subviewSelected(FWGUISubviewArea*);
-   void subviewUnselected(FWGUISubviewArea*);
+   void subviewInfoSelected(FWGUISubviewArea*);
+   void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
@@ -205,6 +205,8 @@ private:
 
    void selectionChanged(const FWSelectionManager&);
 
+   TEveWindow* getSwapCandidate();
+
    void newItem(const FWEventItem*);
 
    void exportImageOfMainView();
@@ -213,6 +215,7 @@ private:
    void delaySliderChanged(Int_t);
 
    void finishUpColorChange();
+
    // ---------- member data --------------------------------
 
    static FWGUIManager* m_guiManager;

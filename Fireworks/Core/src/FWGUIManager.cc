@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.131 2009/06/24 15:12:14 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.132 2009/06/24 16:58:12 amraktad Exp $
 //
 
 // system include files
@@ -193,7 +193,9 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
 
-      TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "subviewCurrentChanged(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
+      TQObject::Connect(gEve->GetWindowManager(), "WindowUndocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
    }
 }
 
@@ -213,7 +215,12 @@ void
 FWGUIManager::evePreTerminate()
 {
    //gDebug = 1;
-   gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "subviewCurrentChanged(TEveWindow*)");
+
+   gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
+   gEve->GetWindowManager()->Disconnect("WindowDocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
+   gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
+ 
+
    m_cmsShowMainFrame->UnmapWindow();
 
    gEve->GetSelection()->RemoveElements();
@@ -396,13 +403,62 @@ FWGUIManager::addData()
 
 //  subview actions
 //
-void
-FWGUIManager::subviewCurrentChanged(TEveWindow*)
+
+TEveWindow*
+FWGUIManager::getSwapCandidate()
 {
+   if ( gEve->GetWindowManager()->GetCurrentWindow())
+   {
+      return gEve->GetWindowManager()->GetCurrentWindow();
+   }
+   else
+   {
+      // swap with first docked view
+      TEveCompositeFrame* pef;
+      TGFrameElementPack *pel;
+
+      // check if there is view in prim pack
+      TGPack* pp = m_viewPrimPack->GetPack();
+      if ( pp->GetList()->GetSize() > 2)
+      {
+         pel = (TGFrameElementPack*) pp->GetList()->At(1);
+         if (pel->fState)
+         {
+            pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+            if ( pef && pef->GetEveWindow())
+            {
+               return pef->GetEveWindow();
+            }
+         }
+      }
+
+      // no eve window found in primary check secondary
+      TGPack* sp = m_viewSecPack->GetPack();
+      Int_t nf = sp->GetList()->GetSize();
+      TIter frame_iterator(sp->GetList());
+      for (Int_t i=0; i<nf; ++i) {
+         pel = (TGFrameElementPack*)frame_iterator();
+         pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+         if ( pef && pef->GetEveWindow())
+         {
+            return pef->GetEveWindow() ;
+         }
+      }
+   }
+   return 0;
+}
+
+void
+FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
+{
+   // disable swap on the fisr left TEveCompositeFrame
+
+   TEveWindow* current = getSwapCandidate();
+   // printf("Swap candidate %s \n", current->GetElementName());
    for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
    {
       FWGUISubviewArea* ar = getGUISubviewArea(*it);
-      if (ar) ar->currentWindowChanged();
+      if (ar) ar->setSwapIcon(current != (*it));
    }
 }
 
@@ -437,7 +493,7 @@ FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 }
 
 void
-FWGUIManager::subviewSelected(FWGUISubviewArea* sva)
+FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
 {
    for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
    {
@@ -450,7 +506,7 @@ FWGUIManager::subviewSelected(FWGUISubviewArea* sva)
 }
 
 void
-FWGUIManager::subviewUnselected(FWGUISubviewArea* sva)
+FWGUIManager::subviewInfoUnselected(FWGUISubviewArea* sva)
 {
    if(m_viewPopup) {refillViewPopup(0, sva);}
 }
@@ -458,46 +514,14 @@ FWGUIManager::subviewUnselected(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
 {
-  // if current selected swap with current
-  if (gEve->GetWindowManager()->GetCurrentWindow())
-  {
-    sva->getEveWindow()->SwapWindowWithCurrent();
-    subviewCurrentChanged(sva->getEveWindow());
-  }
-  else
-  {
-    // swap with first docked view
-    TEveCompositeFrame* pef;
-    TGFrameElementPack *pel;
-
-    // check if there is view in prim pack
-    TGPack* pp = m_viewPrimPack->GetPack();
-    if ( pp->GetList()->GetSize() > 2)
-    {
-      pel = (TGFrameElementPack*) pp->GetList()->At(1);
-      pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-      if ( pef && pef->GetEveWindow())
-      {
-	TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
-	return;
-      }
-    }
-    // no eve window found in primary check secondary
-    TGPack* sp = m_viewSecPack->GetPack();
-    Int_t nf = sp->GetList()->GetSize();
-    TIter frame_iterator(sp->GetList());
-    for (Int_t i=0; i<nf; ++i) {
-      pel = (TGFrameElementPack*)frame_iterator();
-      pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-      if ( pef && pef->GetEveWindow())
-      {
-	TEveWindow::SwapWindows(sva->getEveWindow(), pef->GetEveWindow());
-	return;
-      }
-    }
-  }
+   TEveWindow* curr = getSwapCandidate();
+   TEveWindow* swap = sva->getEveWindow();
+   if (curr)
+   {
+      swap->SwapWindow(curr);
+   }
+   checkSubviewAreaIconState(0);
 }
-
 
 TGVerticalFrame*
 FWGUIManager::createList(TGSplitFrame *p)
@@ -1097,6 +1121,8 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
          }
       }
    }
+   // disable fist docked view
+   checkSubviewAreaIconState(0);
 
    // display colors
    const FWConfiguration* colorControl = iFrom.valueForKey(kColorControl);
