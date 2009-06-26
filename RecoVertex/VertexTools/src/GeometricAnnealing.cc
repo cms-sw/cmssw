@@ -30,7 +30,7 @@ void GeometricAnnealing::resetAnnealing()
   theT=theT0;
 }
 
-inline double GeometricAnnealing::phi( double chi2 ) const
+double GeometricAnnealing::phi( double chi2 ) const
 {
   return exp ( -.5 * chi2 / theT );
 }
