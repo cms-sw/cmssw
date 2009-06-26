@@ -257,7 +257,7 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(doRefAnalysis_)
     {
 
-      printf("Reference Taus = %d\n",refC[0].size());
+      //printf("Reference Taus = %d\n",refC[0].size());
       if(refC.size()>0)
 	if(refC[0].size()>0)
 	  for(LVColl::const_iterator i=(refC[0]).begin();i!=(refC[0]).end();++i)
