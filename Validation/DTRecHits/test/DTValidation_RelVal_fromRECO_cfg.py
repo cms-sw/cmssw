@@ -13,7 +13,11 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 # DQM services
-process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Core.DQMStore_cfg")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.dqmSaver.convention = 'RelVal'
+# FIXME: correct this
+process.dqmSaver.workflow = '/Cosmics/CMSSW_2_2_X-Testing/RECO'
 
 # Validation RecHits
 process.load("Validation.DTRecHits.DTRecHitQuality_cfi")
@@ -26,7 +30,7 @@ process.rechivalidation.doStep2 = False
 
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1)
+        input = cms.untracked.int32(100)
         )
 
 process.options = cms.untracked.PSet(
@@ -43,13 +47,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring( 
-    '/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt100/GEN-SIM-RECO/IDEAL_31X_v1/0002/A6EBBA8D-1233-DE11-9CD8-001617C3B706.root',
-    '/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt100/GEN-SIM-RECO/IDEAL_31X_v1/0002/80322C09-1933-DE11-850A-000423D99BF2.root'
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt100/GEN-SIM-RECO/IDEAL_31X_v1/0008/BADD3EA6-0458-DE11-B820-001D09F23944.root',
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt100/GEN-SIM-RECO/IDEAL_31X_v1/0008/26D81C3A-7857-DE11-9D02-001D09F29849.root'
     ),
-                            secondaryFileNames = cms.untracked.vstring( 
-    '/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/746C9E4E-D932-DE11-B1E6-001617DBCF90.root',
-    '/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/5C7FE942-1733-DE11-880D-001617C3B77C.root',
-    '/store/relval/CMSSW_3_1_0_pre6/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0002/32F159D3-D832-DE11-9A86-000423D98A44.root'
+                            secondaryFileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0008/E2CF66DF-7557-DE11-8F38-001D09F25325.root',
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0008/86023B5A-6E57-DE11-974A-000423D6C8E6.root',
+    '/store/relval/CMSSW_3_1_0_pre10/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0008/4403B0A3-0458-DE11-A53F-001D09F241D2.root'
     )
 
 )
@@ -57,5 +61,5 @@ process.source = cms.Source("PoolSource",
 
 process.analysis = cms.Sequence(process.dtLocalRecoValidation_no2D)
 
-process.p = cms.Path(process.analysis)
+process.p = cms.Path(process.analysis + process.dqmSaver)
 
