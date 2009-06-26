@@ -1,53 +1,7 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.25 2009/06/04 22:47:48 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.26 2009/06/19 15:19:51 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
-
-
-
-/*
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-*/
-
-
-
 
 #include <map>
 #include <utility>
@@ -361,24 +315,48 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   jetMon.pushL1TriggerType(TriggerL1ForJet);
   jetMon.pushL1TriggerType(TriggerL1TauJet);
 
-  // bjet Monitor - NOTICE: we use genJets for MC
+  // btag Monitor - NOTICE: we use genJets for MC
 	// -------------------------------------------
-  //objMon<reco::JetTagCollection> bjetMon;
-  objMon<reco::CaloJetCollection> bjetMon;
-  //bjetMon.setReco(bTagIPHandle);
-  bjetMon.setGenJets(true, genJets);
-  bjetMon.setBJetsFlag(true);
+  //objMon<reco::JetTagCollection> btagIPMon;
+  objMon<reco::CaloJetCollection> btagIPMon; // CaloJet will not be used, this is only place holder
+  //btagIPMon.setReco(jetHandle);
+  btagIPMon.setRecoB(bTagIPHandle);
+  btagIPMon.setMC(genParticles, 5, 3);
+  btagIPMon.setGenJets(true, genJets);
+  btagIPMon.setBJetsFlag(true);
+  btagIPMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_);
 
-  bjetMon.pushTriggerType(TriggerBJet);
+  btagIPMon.pushTriggerType(TriggerBJet);
+  btagIPMon.pushTriggerType(TriggerJet);
 
-  bjetMon.pushL1TriggerType(TriggerL1CenJet);
-  bjetMon.pushL1TriggerType(TriggerL1ForJet);
-  bjetMon.pushL1TriggerType(TriggerL1TauJet);
+  btagIPMon.pushL1TriggerType(TriggerL1CenJet);
+  btagIPMon.pushL1TriggerType(TriggerL1ForJet);
+  btagIPMon.pushL1TriggerType(TriggerL1TauJet);
+
+  //objMon<reco::JetTagCollection> btagMuMon;
+  objMon<reco::CaloJetCollection> btagMuMon; // CaloJet will not be used, this is only place holder
+  //btagMuMon.setReco(jetHandle);
+  btagMuMon.setRecoB(bTagMuHandle);
+  btagMuMon.setMC(genParticles, 5, 3);
+  btagMuMon.setGenJets(true, genJets);
+  btagMuMon.setBJetsFlag(true);
+  btagMuMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_);
+
+  btagMuMon.pushTriggerType(TriggerBJet);
+  btagMuMon.pushTriggerType(TriggerJet);
+
+  btagMuMon.pushL1TriggerType(TriggerL1CenJet);
+  btagMuMon.pushL1TriggerType(TriggerL1ForJet);
+  btagMuMon.pushL1TriggerType(TriggerL1TauJet);
 
  
+  objMon<reco::CaloJetCollection> btagMon; // Generic btagMon
+
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
 { 
+	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
+				else btagMon = btagMuMon;
 
     //LogTrace("FourVectorHLTriggerOffline") << " path " << v->getPath() << endl;
 
@@ -413,6 +391,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   if (denompassed)
   {  
 
+	    //if (v->getPath().find("HLT_BTagIP_Jet80") == std::string::npos ) continue;
       //LogTrace("FourVectorHLTriggerOffline") << " denominator path " << v->getPath() << endl;
 
       eleMon.clearSets();
@@ -420,13 +399,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       tauMon.clearSets();
       phoMon.clearSets();
       jetMon.clearSets();
-      bjetMon.clearSets();
-
-      //cout << " New hltPath  and denompassed" << endl;
-      // set to keep maps of DR matches of each L1 objects with each Off object
-      mmset eleL1OffDRMatchSet;
-      // set to keep maps of DR matches of each L1 objects with each MC object
-      mmset eleL1MCDRMatchSet;
+      btagMon.clearSets();
 
       int triggertype = 0;     
       triggertype = v->getObjectType();
@@ -443,28 +416,22 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
       l1accept = l1k.size() > 0;
       //LogTrace("FourVectorHLTriggerOffline") << " triggertype = " << triggertype << " TriggerMuon  " <<  TriggerMuon << "   l1accept = " << l1accept << endl;
-      //if (l1k.size() == 0) cout << v->getl1Path() << endl;
-      //l1accept = true;
 
-			  eleMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-			  muoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-			  tauMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-			  phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-			  jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-			  bjetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 
-  		eleMon.fillL1Match(this);
-
-  		muoMon.fillL1Match(this);
+      eleMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+  		muoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+  		tauMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+  		phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+  		jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+  		btagMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
   
+  		eleMon.fillL1Match(this);
+  		muoMon.fillL1Match(this);
   		tauMon.fillL1Match(this);
-
   		phoMon.fillL1Match(this);
-
   		jetMon.fillL1Match(this);
-
-  		bjetMon.fillL1Match(this);
-
+  		btagMon.fillL1Match(this);
+  
       v->getNMcHisto()->Fill(NMc);      
       v->getNOffHisto()->Fill(NOff);      
       v->getNL1Histo()->Fill(NL1);
@@ -472,1732 +439,113 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       v->getNL1McHisto()->Fill(NL1Mc);
       v->getNL1OffUMHisto()->Fill(NL1OffUM);
       v->getNL1McUMHisto()->Fill(NL1McUM);
+  
 
-	/*
-      // for electron triggers, loop over and fill offline 4-vectors
-      //if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1NoIsoEG || triggertype == trigger::TriggerL1IsoEG)
-			{
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 11 && p.status() == 1 && fabs(p.eta()) <= electronEtaMax_ && p.pt() >= electronEtMin_ ){
-            NMc++;
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
-	  }
-	 }
-	}
+     // did we pass the numerator path?
+     bool numpassed = false;
+     for(int i = 0; i < npath; ++i) {
 
-	 if (gsfElectrons.isValid()){
+        if (triggerNames.triggerName(i) == v->getPath() && triggerResults->accept(i)) numpassed = true;
 
-         for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
-         {
+     }
 
-	  if (fabs(gsfIter->eta()) <= electronEtaMax_ && gsfIter->pt() >= electronEtMin_ ){
+     if (numpassed)
+     { 
 
-	  NOff++;
-    LogTrace("FourVectorHLTriggerOffline") << " Filling Electron Off  ....v->getOffEtOffHisto()->Fill(gsfIter->pt()) pt = " << gsfIter->pt() << endl;
-	  //v->getOffEtOffHisto()->Fill(gsfIter->pt());
-	  //v->getOffEtaVsOffPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
-	   }
-         }
-         }
+        if (!l1accept) {
+           edm::LogInfo("FourVectorHLTriggerOffline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+        }
 
+        // fill scaler histograms
+        edm::InputTag filterTag = v->getTag();
 
-        if (l1accept)
-        {
-	
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-            if ( *idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG ) {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= electronEtaMax_ && toc[*ki].pt() >= electronEtMin_)
-            { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	    }
-
-
-	    if (gsfElectrons.isValid())
-            {
-
-              fimmap electronL1OffDRMatchMap;
-	      // keep count of iterartor steps
-	      int j=0;
-              for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
-               { 
-	        
-		float dR = reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi());
-	        if (dR < electronDRMatch_ && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ )
-                 {
-                   
-
-			//cout << "Found mathching L1-Off electron " << endl;
-			//cout << "Storing it in the map." << endl;
-
-		        electronL1OffDRMatchMap.insert(std::pair<float,int>(dR,j));
-	          //NL1Off++;
-	          //v->getOffEtL1OffHisto()->Fill((*gsfIter).pt());
-	          //v->getOffEtaVsOffPhiL1OffHisto()->Fill((*gsfIter).eta(),(*gsfIter).phi());
-	         }
-	        if (NL1==1 && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ )
-                 {
-	          NL1OffUM++;
-	          v->getOffEtL1OffUMHisto()->Fill((*gsfIter).pt());
-	          v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*gsfIter).eta(),(*gsfIter).phi());
-            LogTrace("FourVectorHLTriggerOffline") << " Filling Electron Off UM v->getOffEtOffUMHisto()->Fill(gsfIter->pt()) pt = " << gsfIter->pt() << endl;
-	         }
-
-	         j++;
-
-	       } // end for
-               if(! electronL1OffDRMatchMap.empty()) eleL1OffDRMatchSet.insert(electronL1OffDRMatchMap);
-	     }
-
-
-	    if (genParticles.isValid()){
-	      fimmap electronL1MCDRMatchMap;
-              for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 11 && p.status() == 1 && fabs(p.eta()) <= electronEtaMax_ && p.pt() >= electronEtMin_){ 
-
-	       float dR = reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi());
-	       if (dR < electronDRMatch_){
-		      electronL1MCDRMatchMap.insert(pair<float,int>(dR,i));
-	        //NL1Mc++;
-	        //v->getMcEtL1McHisto()->Fill(p.pt());
-	        //v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
-    	       }
-	      }
-             } // end for
-             if(! electronL1MCDRMatchMap.empty()) eleL1MCDRMatchSet.insert(electronL1MCDRMatchMap);
-
-	    } 
-
-	   } // if idtrigtype
-            ++idtypeiter;
-	   }
-         }
-
-      }
-
-      // for muon triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu){
-
-	if (genParticles.isValid()){
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 13 && p.status() == 1 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){
-            NMc++;
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
-	  }
-	 }
-	}
-
-	if (muonHandle.isValid()){
-         const reco::MuonCollection muonCollection = *(muonHandle.product());
-         for (reco::MuonCollection::const_iterator muonIter=muonCollection.begin(); muonIter!=muonCollection.end(); muonIter++)
-         {
-	   if (fabs((*muonIter).eta()) <= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
-	   }
-         }
-	}
-
-        if (l1accept)
-        {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1Mu)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= muonEtaMax_ && toc[*ki].pt() >= muonEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (muonHandle.isValid())
-             {
-              const reco::MuonCollection muonCollection = *(muonHandle.product());
-              for (reco::MuonCollection::const_iterator muonIter=muonCollection.begin(); muonIter!=muonCollection.end(); muonIter++)
-               { 
-	        if (reco::deltaR((*muonIter).eta(),(*muonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < muonDRMatch_ && fabs((*muonIter).eta()) <= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_ )
-                 {
-	           NL1Off++;
-	           v->getOffEtL1OffHisto()->Fill((*muonIter).pt());
-	           v->getOffEtaVsOffPhiL1OffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
-	         }
-	        if (NL1==1 && fabs((*muonIter).eta()) <= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_ )
-                 {
-	           NL1OffUM++;
-	           v->getOffEtL1OffUMHisto()->Fill((*muonIter).pt());
-	           v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
-	         }
-	       }
-	     }
-
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 13 && p.status() == 1 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){ 
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < muonDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
-    	       }
-	      }
-             }
-	    } 
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-     } 
-
-
-    
-
-      // for tau triggers, loop over and fill offline 4-vectors
-      if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet)
-	{
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 15 && p.status() == 1 && fabs(p.eta()) <= tauEtaMax_ && p.pt() >= tauEtMin_){
-            NMc++; 
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
-	  }
-	 }
-	}
-
-	  if (tauHandle.isValid()){
-	    const reco::CaloTauCollection tauCollection = *(tauHandle.product());
-         for (reco::CaloTauCollection::const_iterator tauIter=tauCollection.begin(); tauIter!=tauCollection.end(); tauIter++)
-         {
-	   if (fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
-	   }
-         }
-         }
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= tauEtaMax_ && toc[*ki].pt() >= tauEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (tauHandle.isValid())
-             {
-              const reco::CaloTauCollection tauCollection = *(tauHandle.product());
-              for (reco::CaloTauCollection::const_iterator tauIter=tauCollection.begin(); tauIter!=tauCollection.end(); tauIter++)
-               { 
-	        if (reco::deltaR((*tauIter).eta(),(*tauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < tauDRMatch_ && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ )
-                 {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*tauIter).pt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
-	         }
-	        if (NL1==1 && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ )
-                 {
-	          NL1OffUM++;
-	          v->getOffEtL1OffUMHisto()->Fill((*tauIter).pt());
-	          v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
-	         }
-	       }
-	     }
-
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 15 && p.status() == 1 && fabs(p.eta()) <= tauEtaMax_ && p.pt() >= tauEtMin_){ 
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < tauDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
-    	       }
-	      }
-             }
-	    } 
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-
-    }
-
-
-
-      // for jet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet)
-	{
-	if (genJets.isValid()){
-           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-          if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){
-            NMc++; 
-	    v->getMcEtMcHisto()->Fill(gjet->pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
-	  }
-	 }
-	}
-
-	  if (jetHandle.isValid()){
-         const reco::CaloJetCollection jetCollection = *(jetHandle.product());
-         for (reco::CaloJetCollection::const_iterator jetIter=jetCollection.begin(); jetIter!=jetCollection.end(); jetIter++)
-         {
-	   if (fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
-	   }
-         }
-         }
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= jetEtaMax_ && toc[*ki].pt() >= jetEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (jetHandle.isValid())
-             {
-              const reco::CaloJetCollection jetCollection = *(jetHandle.product());
-              for (reco::CaloJetCollection::const_iterator jetIter=jetCollection.begin(); jetIter!=jetCollection.end(); jetIter++)
-               { 
-	        if (reco::deltaR((*jetIter).eta(),(*jetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < jetDRMatch_ && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ )
-                 {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*jetIter).pt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
-	         }
-	        if (NL1==1 && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ )
-                 {
-	          NL1OffUM++;
-	          v->getOffEtL1OffUMHisto()->Fill((*jetIter).pt());
-	          v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
-	         }
-	       }
-	     }
-
-	if (genJets.isValid()){
-           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-             if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){
-	       if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < jetDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(gjet->pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(gjet->pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(gjet->eta(),gjet->phi());
-    	       }
-	      }
-             }
-	    } 
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-
-	}
-
-      // for bjet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerBJet)
-	{ 
-	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	      NOff++;
-	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	   }
-	  }
-	 }
-
-	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	      NOff++;
-	      v->getOffEtOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	   }
-	  }
-	 }
-
-	
-	 if (genJets.isValid()){
-           for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-          if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_){
-	    // now check for a b parton in the cone
-            bool bjet = false;
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 5){ 
-	       if (reco::deltaR(p.eta(),p.phi(),gjet->eta(),gjet->phi()) < 0.7){
-		 bjet = true;
-	       }
-	      }
-	     }
-	    }
-            if (bjet)
-             {
-              NMc++; 
-	      v->getMcEtMcHisto()->Fill(gjet->pt());
-	      v->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
-	     }
-	   }
-	  }
-	 }
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= bjetEtaMax_ && toc[*ki].pt() >= bjetEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
-           
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	      NL1Off++;
-	      v->getOffEtL1OffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiL1OffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   if (NL1==1){
-	      NL1OffUM++;
-	      v->getOffEtL1OffUMHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiL1OffUMHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   }
-	  }
-	 }
-
-
-	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
-           
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	      NL1Off++;
-	      v->getOffEtL1OffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiL1OffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   if (NL1==1){
-	      NL1OffUM++;
-	      v->getOffEtL1OffUMHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiL1OffUMHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   }
-	  }
-	 }
-	
-	    if (genJets.isValid()){
-               for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-              if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_ ){
-            bool bjet = false;
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 5){ 
-	       if (reco::deltaR(p.eta(),p.phi(),gjet->eta(),gjet->phi()) < 0.7){
-		 bjet = true;
-	       }
-	      }
-	     }
-	    }
-	    if (bjet){
-	       if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(gjet->pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
-    	     }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(gjet->pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(gjet->eta(),gjet->phi());
-    	     }
-	    }
-             }
-	    } 
-	   }
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-
-	}
-      // for met triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM)
-	{
-
-	  if (genMets.isValid())
-	  {
-           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
-	     if (gmet->pt() > metMin_){
-	    NMc++;
-            v->getMcEtMcHisto()->Fill(gmet->pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(0.0,gmet->phi());
-	     }
-	   }
-	  }
-
-	  if (metHandle.isValid()){
-         const reco::CaloMETCollection metCollection = *(metHandle.product());
-         for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-         {
-	   if ((*metIter).pt() >= metMin_){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*metIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
-	   }
-         }
-         }
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1ETM)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (toc[*ki].pt() >= metMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (metHandle.isValid())
-             {
-              const reco::CaloMETCollection metCollection = *(metHandle.product());
-              for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-               { 
-		 //	        if (reco::deltaR((*metIter).eta(),(*metIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && (*metIter).pt() >= metMin_)
-		 //   {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*metIter).pt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*metIter).eta(),(*metIter).phi());
-		  //   }
-	       }
-	     }
-
-
-	  if (genMets.isValid())
-	  {
-           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
-	     if (gmet->pt() > metMin_){
-	    NL1Mc++;
-            v->getMcEtL1McHisto()->Fill(gmet->pt());
-	    v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,gmet->phi());
-	     }
-	   }
-	  }
-
-	      }
-
-            ++idtypeiter;
-	   }
-         }
-
-	}
-      else if (triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT)
-	{
-
-	if (genParticles.isValid()){
-          double sumet = 0.0; //double metphi = 0.0;
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-           const GenParticle & p = (*genParticles)[i];
-          if ((abs(p.pdgId()) != 12 && abs(p.pdgId()) != 14 && abs(p.pdgId()) != 16 && abs(p.pdgId()) != 18 && abs(p.pdgId()) != 1000022 && abs(p.pdgId()) != 1000039) && p.status() == 1 && fabs(p.eta()) < 5.0){ 
-	    sumet += p.pt();
-	  }
-	 }
-            if (sumet >= sumEtMin_){
-	    NMc++;
-            v->getMcEtMcHisto()->Fill(sumet);
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(0.0,0.0);
-	    }
-	}
-
-	  if (metHandle.isValid()){
-         const reco::CaloMETCollection metCollection = *(metHandle.product());
-         for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-         {
-	   if ((*metIter).sumEt() >= sumEtMin_){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*metIter).sumEt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill(0.0,0.0);
-	   }
-         }
-         }
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1ETT)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (toc[*ki].pt() >= sumEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (metHandle.isValid())
-             {
-              const reco::CaloMETCollection metCollection = *(metHandle.product());
-              for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-               { 
-	        if ((*metIter).sumEt() >= metMin_)
-                 {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*metIter).sumEt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill(0.0,0.0);
-	         }
-	       }
-	     }
-
-
-	  if (genMets.isValid())
-	  {
-           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
-	     if (gmet->sumEt() > sumEtMin_){
-	    NL1Mc++;
-            v->getMcEtL1McHisto()->Fill(gmet->sumEt());
-	    v->getMcEtaVsMcPhiL1McHisto()->Fill(0.0,0.0);
-	     }
-	   }
-	  }
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-
-	}
-      // for photon triggers, loop over and fill offline and L1 4-vectors
-      else if (triggertype == trigger::TriggerPhoton)
-	{
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 22 && p.status() == 1 && fabs(p.eta()) <= photonEtaMax_ && p.pt() >= photonEtMin_){
-            NMc++; 
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
-	  }
-	 }
-	}
-
-	  if (photonHandle.isValid()){
-          const reco::PhotonCollection photonCollection = *(photonHandle.product());
-         for (reco::PhotonCollection::const_iterator photonIter=photonCollection.begin(); photonIter!=photonCollection.end(); photonIter++)
-         {
-	   if (fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
-	   }
-         }
-	  }
-
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= photonEtaMax_ && toc[*ki].pt() >= photonEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (photonHandle.isValid())
-             {
-              const reco::PhotonCollection photonCollection = *(photonHandle.product());
-              for (reco::PhotonCollection::const_iterator photonIter=photonCollection.begin(); photonIter!=photonCollection.end(); photonIter++)
-               { 
-	        if (reco::deltaR((*photonIter).eta(),(*photonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < photonDRMatch_ && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ )
-                 {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*photonIter).pt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
-	         }
-	        if (NL1==1 && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ )
-                 {
-	          NL1OffUM++;
-	          v->getOffEtL1OffUMHisto()->Fill((*photonIter).pt());
-	          v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
-	         }
-	       }
-	     }
-
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 22 && p.status() == 1 && fabs(p.eta()) <= photonEtaMax_ && p.pt() >= photonEtMin_ ){
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < photonDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
-    	       }
-	      }
-             }
-	    } 
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-	}
-
-      // for IsoTrack triggers, loop over and fill offline and L1 4-vectors
-      else if (triggertype == trigger::TriggerTrack)
-	{
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.charge()) > 0 && p.status() == 1 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_){
-            NMc++; 
-	    v->getMcEtMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
-	  }
-	 }
-	}
-
-	  if (trackHandle.isValid()){
-          const reco::TrackCollection trackCollection = *(trackHandle.product());
-         for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
-         {
-	   if (fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ ){
-	  NOff++;
-	  v->getOffEtOffHisto()->Fill((*trackIter).pt());
-	  v->getOffEtaVsOffPhiOffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
-	   }
-         }
-	  }
-
-
-
-        if (l1accept)
-         {
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator ki = l1k.begin(); ki !=l1k.end(); ++ki ) {
-	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
-	      {
-	    //	cout << v->getl1Path() << "\t" << *idtypeiter << "\t" << toc[*ki].pt() << "\t" << toc[*ki].eta() << "\t" << toc[*ki].phi() << endl;
-  	    if (fabs(toc[*ki].eta()) <= trackEtaMax_ && toc[*ki].pt() >= trackEtMin_)
-             { 
-	      NL1++;    
-              v->getL1EtL1Histo()->Fill(toc[*ki].pt());
-	      v->getL1EtaVsL1PhiL1Histo()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	     }
-
-	    if (trackHandle.isValid())
-             {
-              const reco::TrackCollection trackCollection = *(trackHandle.product());
-              for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
-               { 
-	        if (reco::deltaR((*trackIter).eta(),(*trackIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < trackDRMatch_ && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ )
-                 {
-	          NL1Off++;
-	          v->getOffEtL1OffHisto()->Fill((*trackIter).pt());
-	          v->getOffEtaVsOffPhiL1OffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
-	         }
-	        if (NL1==1 && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ )
-                 {
-	          NL1OffUM++;
-	          v->getOffEtL1OffUMHisto()->Fill((*trackIter).pt());
-	          v->getOffEtaVsOffPhiL1OffUMHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
-	         }
-	       }
-	     }
-
-
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.charge()) > 0 && p.status() == 1 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_ ){
-	       if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < trackDRMatch_){
-	        NL1Mc++;
-	        v->getMcEtL1McHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-    	       }
-	       if (NL1==1){
-	        NL1McUM++;
-	        v->getMcEtL1McUMHisto()->Fill(p.pt());
-	        v->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
-    	       }
-	      }
-             }
-	    } 
-
-	   }
-            ++idtypeiter;
-	   }
-         }
-
-	}
-	   */
-
-    // did we pass the numerator path?
-  bool numpassed = false;
-  for(int i = 0; i < npath; ++i) {
-     if (triggerNames.triggerName(i) == v->getPath() && triggerResults->accept(i)) numpassed = true;
-  }
-
-  if (numpassed)
-    { 
-
-			/*
-      // set to keep maps of DR matches of each On objects with each Off object
-      mmset eleOnOffDRMatchSet;
-      // set to keep maps of DR matches of each On objects with each L1 object
-      mmset eleOnL1DRMatchSet;
-      // set to keep maps of DR matches of each On objects with each MC object
-      mmset eleOnMCDRMatchSet;
-			*/
-
- 
-      if (!l1accept) {
-            edm::LogInfo("FourVectorHLTriggerOffline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
-      }
-    // ok plot On, L1On, OnOff, and OnMc objects
-
-    // fill scaler histograms
-      edm::InputTag filterTag = v->getTag();
-
-	// loop through indices and see if the filter is on the list of filters used by this path
+	      // loop through indices and see if the filter is on the list of filters used by this path
       
-    if (v->getLabel() == "dummy"){
+        if (v->getLabel() == "dummy"){
         const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
-	//loop over labels
+	      //loop over labels
         for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++)          
-	 {
-	   //cout << v->getPath() << "\t" << *labelIter << endl;
-           // last match wins...
-	   edm::InputTag testTag(*labelIter,"",processname_);
-	   //           cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
-           int testindex = triggerObj->filterIndex(testTag);
-           if ( !(testindex >= triggerObj->sizeFilters()) ) {
-	     //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
+	      {
+
+	        //cout << v->getPath() << "\t" << *labelIter << endl;
+          // last match wins...
+	        edm::InputTag testTag(*labelIter,"",processname_);
+          int testindex = triggerObj->filterIndex(testTag);
+          if ( !(testindex >= triggerObj->sizeFilters()) ) {
+
+	          //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
             filterTag = testTag; v->setLabel(*labelIter);}
-	 }
-         }
+	        }
+        }
 	
-      const int index = triggerObj->filterIndex(filterTag);
-      if ( index >= triggerObj->sizeFilters() ) {
-	//        cout << "WTF no index "<< index << " of that name "
-	//	     << filterTag << endl;
-	continue; // not in this event
-      }
-      //LogDebug("FourVectorHLTriggerOffline") << "filling ... " ;
-      const trigger::Keys & k = triggerObj->filterKeys(index);
-      //      const trigger::Vids & idtype = triggerObj->filterIds(index);
-      // assume for now the first object type is the same as all objects in the collection
-      //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
-      //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
-      //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
-
-
-
-      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-
-        eleMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-
-        muoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-
-        tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-
-        phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-
-        jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-
-        bjetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-			/*
-         
-        double tocEtaMax = 2.5;
-        double tocEtMin = 3.0;
-        if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu) 
-	  {
-	    tocEtaMax = muonEtaMax_; tocEtMin = muonEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1NoIsoEG || triggertype == trigger::TriggerL1IsoEG )
-	  {
-	    tocEtaMax = electronEtaMax_; tocEtMin = electronEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet )
-	  {
-	    tocEtaMax = tauEtaMax_; tocEtMin = tauEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet )
-	  {
-	    tocEtaMax = jetEtaMax_; tocEtMin = jetEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerBJet)
-	  {
-	    tocEtaMax = bjetEtaMax_; tocEtMin = bjetEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM )
-	  {
-	    tocEtaMax = 999.0; tocEtMin = metMin_;
-	  }
-        else if (triggertype == trigger::TriggerPhoton)
-	  {
-	    tocEtaMax = photonEtaMax_; tocEtMin = photonEtMin_;
-	  }
-        else if (triggertype == trigger::TriggerTrack)
-	  {
-	    tocEtaMax = trackEtaMax_; tocEtMin = trackEtMin_;
-	  }
-
-        if (fabs(toc[*ki].eta()) <= tocEtaMax && toc[*ki].pt() >= tocEtMin)
-	  {
-	NOn++;    
-        //v->getOnEtOnHisto()->Fill(toc[*ki].pt());
-	//v->getOnEtaVsOnPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-	  }
-	//	  cout << "pdgId "<<toc[*ki].id() << endl;
-      // for electron triggers, loop over and fill offline 4-vectors
-			
-  if (triggertype == trigger::TriggerElectron || triggertype == trigger::TriggerL1IsoEG || triggertype == trigger::TriggerL1NoIsoEG )
-	{
-	  //	  std::cout << "Electron trigger" << std::endl;
-
-	  if (gsfElectrons.isValid()){
-          fimmap electronOnOffDRMatchMap;
-	  int j=0;
-         for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
-         {
-           float dR = reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi());
-	   if (dR < electronDRMatch_ && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ )
-	   //if (reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < electronDRMatch_ && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ )
-	   {
-	  //NOnOff++;
-	  //v->getOffEtOnOffHisto()->Fill(gsfIter->pt());
-	  //v->getOffEtaVsOffPhiOnOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
-	  electronOnOffDRMatchMap.insert(std::pair<float,int>(dR,j));
-	   }
-	   if (NOn==1 && fabs((*gsfIter).eta()) <= electronEtaMax_ && (*gsfIter).pt() >= electronEtMin_ ){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill(gsfIter->pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill(gsfIter->eta(), gsfIter->phi());
-	   }
-
-	   j++;
-         }
-         if(! electronOnOffDRMatchMap.empty()) eleOnOffDRMatchSet.insert(electronOnOffDRMatchMap);
-
-         }
-
-          fimmap electronOnL1DRMatchMap;
-	  int j=0;
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	   if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
-	      {
-           float dR = reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi());
-	   if (dR < electronDRMatch_ && fabs(toc[*l1ki].eta()) <= electronEtaMax_ && toc[*l1ki].pt() >= electronEtMin_ )
-            {
-	     //NL1On++;
-	     //v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     //v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	     electronOnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= electronEtaMax_ && toc[*l1ki].pt() >= electronEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	    j++;
-	  }
-          if(! electronOnL1DRMatchMap.empty()) eleOnL1DRMatchSet.insert(electronOnL1DRMatchMap);
-
-
-	if (genParticles.isValid()){
-
-          fimmap electronOnMCDRMatchMap;
-          for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 11 && p.status() == 1 && fabs(p.eta()) <= electronEtaMax_ && p.pt() >= electronEtMin_ ){ 
-	   float dR = reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi());
-	   if (dR < electronDRMatch_){
-
-	    //NOnMc++;
-	    //v->getMcEtOnMcHisto()->Fill(p.pt());
-	    //v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-	    electronOnMCDRMatchMap.insert(std::pair<float,int>(dR,i));
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
-	   }
-	  }
-	 }
-         if(! electronOnMCDRMatchMap.empty()) eleOnMCDRMatchSet.insert(electronOnMCDRMatchMap);
-	}
-
- }
-
-      // for muon triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerMuon || triggertype == trigger::TriggerL1Mu)
-	{
-
-	  if (muonHandle.isValid()){
-         const reco::MuonCollection muonCollection = *(muonHandle.product());
-         for (reco::MuonCollection::const_iterator muonIter=muonCollection.begin(); muonIter!=muonCollection.end(); muonIter++)
-         {
-	   if (reco::deltaR((*muonIter).eta(),(*muonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < muonDRMatch_ && fabs((*muonIter).eta())<= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
-	   }
-	   if (NOn==1 && fabs((*muonIter).eta())<= muonEtaMax_ && (*muonIter).pt() >= muonEtMin_){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill((*muonIter).pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
-	   }
-         }
-
-	}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1Mu)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < muonDRMatch_ && fabs(toc[*l1ki].eta()) <= muonEtaMax_ && toc[*l1ki].pt() >= muonEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= muonEtaMax_ && toc[*l1ki].pt() >= muonEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 13 && p.status() == 1 && fabs(p.eta()) <= muonEtaMax_ && p.pt() >= muonEtMin_){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < muonDRMatch_){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
-	   }
-	  }
-	 }
-	}
-
-
-      }
-
-
-
-      // for tau triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerTau || triggertype == trigger::TriggerL1TauJet)
-	{
-
-	  if (tauHandle.isValid()){
-	    const reco::CaloTauCollection tauCollection = *(tauHandle.product());
-         for (reco::CaloTauCollection::const_iterator tauIter=tauCollection.begin(); tauIter!=tauCollection.end(); tauIter++)
-         {
-	   if (reco::deltaR((*tauIter).eta(),(*tauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < tauDRMatch_ && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
-	   }
-	   if (NOn==1 && fabs((*tauIter).eta()) <= tauEtaMax_ && (*tauIter).pt() >= tauEtMin_ ){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill((*tauIter).pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
-	   }
-         }}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < tauDRMatch_ && fabs(toc[*l1ki].eta()) <= tauEtaMax_ && toc[*l1ki].pt() >= tauEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= tauEtaMax_ && toc[*l1ki].pt() >= tauEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 15 && p.status() == 1 && fabs(p.eta()) <= tauEtaMax_ && p.pt() >= tauEtMin_ ){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < tauDRMatch_ ){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
-	   }
-	  }
-	 }
-	}
-
-      }
-
-
-      // for jet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerJet || triggertype == trigger::TriggerL1CenJet || triggertype == trigger::TriggerL1ForJet )
-	{
-
-	  if (jetHandle.isValid()){
-         const reco::CaloJetCollection jetCollection = *(jetHandle.product());
-         for (reco::CaloJetCollection::const_iterator jetIter=jetCollection.begin(); jetIter!=jetCollection.end(); jetIter++)
-         {
-	   if (reco::deltaR((*jetIter).eta(),(*jetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < jetDRMatch_ && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
-	   }
-	   if (NOn==1 && fabs((*jetIter).eta()) <= jetEtaMax_ && (*jetIter).pt() >= jetEtMin_ ){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill((*jetIter).pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
-	   }
-         }}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1TauJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < jetDRMatch_ && fabs(toc[*l1ki].eta()) <= jetEtaMax_ && toc[*l1ki].pt() >= jetEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= jetEtaMax_ && toc[*l1ki].pt() >= jetEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genJets.isValid()){
-          for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-          if (fabs(gjet->eta()) <= jetEtaMax_ && gjet->pt() >= jetEtMin_ ){ 
-	   if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < jetDRMatch_){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(gjet->pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(gjet->eta(),gjet->phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(gjet->pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(gjet->eta(),gjet->phi());
-	   }
-	  }
-	 }
-	}
-
-      }
-
-      // for bjet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerBJet)
-	{
-
-	  if (v->getPath().find("BTagIP") != std::string::npos && bTagIPHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagIPHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
-           
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	      NOnOff++;
-	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   if (NOn==1){
-	      NOnOffUM++;
-	      v->getOffEtOnOffUMHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOnOffUMHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   }
-	  }
-	}
-
-
-	  if (v->getPath().find("BTagMu") != std::string::npos && bTagMuHandle.isValid()){
-          const reco::JetTagCollection & bTags = *(bTagMuHandle.product());
-          for (size_t i = 0; i != bTags.size(); ++i) {
-           edm::RefToBase<reco::Jet>  BRefJet=bTags[i].first;
-           
- 	   if (fabs(BRefJet->eta()) <= bjetEtaMax_ && BRefJet->pt() >= bjetEtMin_ ){
-	   if (reco::deltaR(BRefJet->eta(),BRefJet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	      NOnOff++;
-	      v->getOffEtOnOffHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOnOffHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   if (NOn==1){
-	      NOnOffUM++;
-	      v->getOffEtOnOffUMHisto()->Fill(BRefJet->pt());
-	      v->getOffEtaVsOffPhiOnOffUMHisto()->Fill(BRefJet->eta(),BRefJet->phi());
-	    }
-	   }
-	  }
-	}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1CenJet)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_ && fabs(toc[*l1ki].eta()) <= bjetEtaMax_ && toc[*l1ki].pt() >= bjetEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= bjetEtaMax_ && toc[*l1ki].pt() >= bjetEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genJets.isValid()){
-          for(GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-          if (fabs(gjet->eta()) <= bjetEtaMax_ && gjet->pt() >= bjetEtMin_ ){
-            bool bjet = false;
-	    if (genParticles.isValid()){
-               for(size_t i = 0; i < genParticles->size(); ++ i) {
-              const GenParticle & p = (*genParticles)[i];
-              if (abs(p.pdgId()) == 5){ 
-	       if (reco::deltaR(p.eta(),p.phi(),gjet->eta(),gjet->phi()) < 0.7){
-		 bjet = true;
-	       }
-	      }
-	     }
-	    }
-	    if (bjet){ 
-	   if (reco::deltaR(gjet->eta(),gjet->phi(),toc[*ki].eta(),toc[*ki].phi()) < bjetDRMatch_){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(gjet->pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(gjet->eta(),gjet->phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(gjet->pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(gjet->eta(),gjet->phi());
-	   }
-	  }
-	 }
-	}
-       }
-
-	}
-      // for met triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerMET || triggertype == trigger::TriggerL1ETM )
-	{
-
-	  if (metHandle.isValid()){
-         const reco::CaloMETCollection metCollection = *(metHandle.product());
-         for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-         {
-	   //   if (reco::deltaR((*metIter).eta(),(*metIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && (*metIter).pt() >= metMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*metIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
-	  //   }
-         }}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1ETM)
-	      {
-		//   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3 && toc[*l1ki].pt() >= metMin_ )
-		// {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	     // }
-              }
-	    ++idtypeiter;
-	  }
-
-	  if (genMets.isValid())
-	  {
-           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
-	     if (gmet->pt() > metMin_){
-	    NOnMc++;
-            v->getMcEtOnMcHisto()->Fill(gmet->pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,gmet->phi());
-	     }
-	   }
-	  }
-
-      }
-      // for sumet triggers, loop over and fill offline 4-vectors
-      else if (triggertype == trigger::TriggerTET || triggertype == trigger::TriggerL1ETT )
-	{
-
-	  if (metHandle.isValid()){
-         const reco::CaloMETCollection metCollection = *(metHandle.product());
-         for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
-         {
-	   if ((*metIter).sumEt() >= sumEtMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*metIter).sumEt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill(0.0,0.0);
-	   }
-         }}
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1ETT)
-	      {
-	   if (toc[*l1ki].pt() >= sumEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-
-
-	  if (genMets.isValid())
-	  {
-           for(GenMETCollection::const_iterator gmet=genMets->begin(); gmet!=genMets->end(); gmet++) {
-	     if (gmet->sumEt() > sumEtMin_){
-	    NOnMc++;
-            v->getMcEtOnMcHisto()->Fill(gmet->sumEt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(0.0,0.0);
-	     }
-	   }
-	  }
-
-      }
-
-
-      // for photon triggers, loop over and fill offline and L1 4-vectors
-      else if (triggertype == trigger::TriggerPhoton)
-	{
-
-	  if (photonHandle.isValid()){
-          const reco::PhotonCollection photonCollection = *(photonHandle.product());
-         for (reco::PhotonCollection::const_iterator photonIter=photonCollection.begin(); photonIter!=photonCollection.end(); photonIter++)
-         {
-	   if (reco::deltaR((*photonIter).eta(),(*photonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < photonDRMatch_ && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
-	   }
-	   if (NOn==1 && fabs((*photonIter).eta()) <= photonEtaMax_ && (*photonIter).pt() >= photonEtMin_ ){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill((*photonIter).pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
-	   }
-         }}
-	
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1IsoEG || *idtypeiter == trigger::TriggerL1NoIsoEG)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < photonDRMatch_ && fabs(toc[*l1ki].eta()) <= photonEtaMax_ && toc[*l1ki].pt() >= photonEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= photonEtaMax_ && toc[*l1ki].pt() >= photonEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.pdgId()) == 22 && p.status() == 1 && fabs(p.eta()) <= photonEtaMax_ && p.pt() >= photonEtMin_ ){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < photonDRMatch_){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
-	   }
-	  }
-	 }
-	}
-       
-
-	}// photon trigger type
-
-
-      // for track triggers, loop over and fill offline and L1 4-vectors
-      else if (triggertype == trigger::TriggerTrack)
-	{
-
-	  if (trackHandle.isValid()){
-          const reco::TrackCollection trackCollection = *(trackHandle.product());
-         for (reco::TrackCollection::const_iterator trackIter=trackCollection.begin(); trackIter!=trackCollection.end(); trackIter++)
-         {
-	   if (reco::deltaR((*trackIter).eta(),(*trackIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < trackDRMatch_ && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ ){
-	  NOnOff++;
-	  v->getOffEtOnOffHisto()->Fill((*trackIter).pt());
-	  v->getOffEtaVsOffPhiOnOffHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
-	   }
-	   if (NOn==1 && fabs((*trackIter).eta()) <= trackEtaMax_ && (*trackIter).pt() >= trackEtMin_ ){
-	  NOnOffUM++;
-	  v->getOffEtOnOffUMHisto()->Fill((*trackIter).pt());
-	  v->getOffEtaVsOffPhiOnOffUMHisto()->Fill((*trackIter).eta(),(*trackIter).phi());
-	   }
-         }}
-	
-
-          trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
-          for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
-	    if (*idtypeiter == trigger::TriggerL1CenJet || *idtypeiter == trigger::TriggerL1ForJet || *idtypeiter == trigger::TriggerL1TauJet)
-	      {
-	   if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < trackDRMatch_ && fabs(toc[*l1ki].eta()) <= trackEtaMax_ && toc[*l1ki].pt() >= trackEtMin_ )
-            {
-	     NL1On++;
-	     v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-	   if (NOn==1 && fabs(toc[*l1ki].eta()) <= trackEtaMax_ && toc[*l1ki].pt() >= trackEtMin_ )
-            {
-	     NL1OnUM++;
-	     v->getL1EtL1OnUMHisto()->Fill(toc[*l1ki].pt());
-	     v->getL1EtaVsL1PhiL1OnUMHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-	    }
-              }
-	    ++idtypeiter;
-	  }
-
-	if (genParticles.isValid()){
-           for(size_t i = 0; i < genParticles->size(); ++ i) {
-          const GenParticle & p = (*genParticles)[i];
-          if (abs(p.charge()) > 0 && p.status() == 1 && fabs(p.eta()) <= trackEtaMax_ && p.pt() >= trackEtMin_ ){ 
-	   if (reco::deltaR(p.eta(),p.phi(),toc[*ki].eta(),toc[*ki].phi()) < trackDRMatch_){
-	    NOnMc++;
-	    v->getMcEtOnMcHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-	   }
-	   if (NOn==1){
-	    NOnMcUM++;
-	    v->getMcEtOnMcUMHisto()->Fill(p.pt());
-	    v->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
-	   }
-	  }
-	 }
-	}
-       
-
-	}// track trigger type
-
-    */
-      } //online object loop
-
-      eleMon.fillOnlineMatch(this, l1k, toc);
-
-      muoMon.fillOnlineMatch(this, l1k, toc);
-
-      tauMon.fillOnlineMatch(this, l1k, toc);
-
-      phoMon.fillOnlineMatch(this, l1k, toc);
-
-      jetMon.fillOnlineMatch(this, l1k, toc);
-
-      bjetMon.fillOnlineMatch(this, l1k, toc);
-
-
-  		eleMon.monitorOffline(this);
-
-  		muoMon.monitorOffline(this);
+        const int index = triggerObj->filterIndex(filterTag);
+        if ( index >= triggerObj->sizeFilters() ) {
+
+	        //        cout << "WTF no index "<< index << " of that name "
+	        //	     << filterTag << endl;
+	        continue; // not in this event
+
+        }
+
+        //LogDebug("FourVectorHLTriggerOffline") << "filling ... " ;
+        const trigger::Keys & k = triggerObj->filterKeys(index);
+        //      const trigger::Vids & idtype = triggerObj->filterIds(index);
+        // assume for now the first object type is the same as all objects in the collection
+        //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
+        //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
+        //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
+
+
+
+        for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+
+          eleMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+          muoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+          tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+          phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+          jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+          btagMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+
+        } //online object loop
+
+        eleMon.fillOnlineMatch(this, l1k, toc);
+        muoMon.fillOnlineMatch(this, l1k, toc);
+        tauMon.fillOnlineMatch(this, l1k, toc);
+        phoMon.fillOnlineMatch(this, l1k, toc);
+        jetMon.fillOnlineMatch(this, l1k, toc);
+        btagMon.fillOnlineMatch(this, l1k, toc);
+
+      	eleMon.monitorOffline(this);
+      	muoMon.monitorOffline(this);
+      	tauMon.monitorOffline(this);
+      	phoMon.monitorOffline(this);
+      	jetMon.monitorOffline(this);
+      	btagMon.monitorOffline(this);
+
+      	eleMon.fillOffMatch(this);
+      	muoMon.fillOffMatch(this);
+      	tauMon.fillOffMatch(this);
+      	phoMon.fillOffMatch(this);
+      	jetMon.fillOffMatch(this);
+      	btagMon.fillOffMatch(this);
+
+        v->getNOnHisto()->Fill(NOn);      
+        v->getNL1OnHisto()->Fill(NL1On);      
+        v->getNOnOffHisto()->Fill(NOnOff);
+        v->getNOffMcHisto()->Fill(NOffMc);
+        v->getNOnMcHisto()->Fill(NOnMc);
+        v->getNL1OnUMHisto()->Fill(NL1OnUM);      
+        v->getNOnOffUMHisto()->Fill(NOnOffUM);
+        v->getNOffMcUMHisto()->Fill(NOffMcUM);
+        v->getNOnMcUMHisto()->Fill(NOnMcUM);
   
-  		tauMon.monitorOffline(this);
 
-  		phoMon.monitorOffline(this);
+     } //numpassed
 
-  		jetMon.monitorOffline(this);
-
-  		bjetMon.monitorOffline(this);
-
-
-  		eleMon.fillOffMatch(this);
-
-  		muoMon.fillOffMatch(this);
-  
-  		tauMon.fillOffMatch(this);
-
-  		phoMon.fillOffMatch(this);
-
-  		jetMon.fillOffMatch(this);
-
-  		bjetMon.fillOffMatch(this);
-
-	/*
-	// clean the set On-Off
-	if(eleOnOffDRMatchSet.size() > 1) cleanDRMatchSet(eleOnOffDRMatchSet);
-
-	// now fill histos
-        for ( mmset::iterator setIter = eleOnOffDRMatchSet.begin( ); setIter != eleOnOffDRMatchSet.end( ); setIter++ ) 
-        {
-
-         fimmap tempMap = *setIter;
-           
-         fimmap::iterator it = tempMap.begin(); 
-         int i  = (*it).second ;
-
-         reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
-         for (int count = 0; count < i; count++) gsfIter++;
-         //LogTrace("FourVectorHLTriggerOffline") << " Filling Electron OnOff   electronOnOffDRMatchMap.insert(std::pair<float,int>(dR,j)): pt = " << gsfIter->pt() << endl;
-
-	 NOnOff++;
-	 v->getOffEtOnOffHisto()->Fill(gsfIter->pt());
-	 v->getOffEtaVsOffPhiOnOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
-
-	}
-
-	// clean the set On-L1
-	if(eleOnL1DRMatchSet.size() > 1) cleanDRMatchSet(eleOnL1DRMatchSet);
-	// now fill histos
-        for ( mmset::iterator setIter = eleOnL1DRMatchSet.begin( ); setIter != eleOnL1DRMatchSet.end( ); setIter++ ) 
-        {
-
-         fimmap tempMap = *setIter;
-           
-         fimmap::iterator it = tempMap.begin(); 
-         int i  = (*it).second ;
-         trigger::Keys::const_iterator l1ki = l1k.begin();
-         for (int count = 0; count < i; count++) l1ki++;
-
-	  NL1On++;
-	  v->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
-	  v->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
-
-	}
-
-	// clean the set On-MC
-	if(eleOnMCDRMatchSet.size() > 1) cleanDRMatchSet(eleOnMCDRMatchSet);
-	// now fill histos
-        for ( mmset::iterator setIter = eleOnMCDRMatchSet.begin( ); setIter != eleOnMCDRMatchSet.end( ); setIter++ ) 
-        {
-
-         fimmap tempMap = *setIter;
-           
-         fimmap::iterator it = tempMap.begin(); 
-         int i  = (*it).second ;
-              
-         const GenParticle & p = (*genParticles)[i];
-         NOnMc++;
-         v->getMcEtOnMcHisto()->Fill(p.pt());
-         v->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
-
-	}
-	*/
-
-
-      v->getNOnHisto()->Fill(NOn);      
-      v->getNL1OnHisto()->Fill(NL1On);      
-      v->getNOnOffHisto()->Fill(NOnOff);
-      v->getNOffMcHisto()->Fill(NOffMc);
-      v->getNOnMcHisto()->Fill(NOnMc);
-      v->getNL1OnUMHisto()->Fill(NL1OnUM);      
-      v->getNOnOffUMHisto()->Fill(NOnOffUM);
-      v->getNOffMcUMHisto()->Fill(NOffMcUM);
-      v->getNOnMcUMHisto()->Fill(NOnMcUM);
-  
-			/*
-			*/
-
-    } //numpassed
-
-		/*
-		// Lets try it
-	  if(eleMon.L1OffDRMatchSet.size() > 1) cleanDRMatchSet(eleMon.L1OffDRMatchSet);
-
-	  eleL1OffDRMatchSet = eleMon.L1OffDRMatchSet;
-	  // clean the set L1-Off
-	  if(eleL1OffDRMatchSet.size() > 1) cleanDRMatchSet(eleL1OffDRMatchSet);
-	  // now fill histos
-    for ( mmset::iterator setIter = eleL1OffDRMatchSet.begin( ); setIter != eleL1OffDRMatchSet.end( ); setIter++ ) 
-    {
-
-         fimmap tempMap = *setIter;
-           
-         fimmap::iterator it = tempMap.begin(); 
-         int i  = (*it).second ;
-
-         reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
-         for (int count = 0; count < i; count++) gsfIter++;
-
-         //LogTrace("FourVectorHLTriggerOffline") << " Filling Electron L1Off   electronL1OffDRMatchMap.insert(std::pair<float,int>(dR,j)): pt = " << gsfIter->pt() << endl;
-
-	       NL1Off++;
-	       v->getOffEtL1OffHisto()->Fill((*gsfIter).pt());
-	       v->getOffEtaVsOffPhiL1OffHisto()->Fill((*gsfIter).eta(),(*gsfIter).phi());
-
-	    }
-
-	    eleL1MCDRMatchSet = eleMon.L1MCDRMatchSet;
-	    // clean the set L1-MC
-	    if(eleL1MCDRMatchSet.size() > 1) cleanDRMatchSet(eleL1MCDRMatchSet);
-	    // now fill histos
-      for ( mmset::iterator setIter = eleL1MCDRMatchSet.begin( ); setIter != eleL1MCDRMatchSet.end( ); setIter++ ) 
-      {
-
-         fimmap tempMap = *setIter;
-           
-         fimmap::iterator it = tempMap.begin(); 
-         int i  = (*it).second ;
-              
-         const GenParticle & p = (*genParticles)[i];
-	       NL1Mc++;
-	       v->getMcEtL1McHisto()->Fill(p.pt());
-	       v->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
-
-	    }
-			*/
     
 
-    } //denompassed
+   } //denompassed
 
-		/*
-		if(v->getPath() == "HLT_Ele10_SW_L1R")
-		{
-	   
-		 //LogTrace("FourVectorHLTriggerOffline") << "HLT_Ele10_SW_L1R Et, content bin 14:  Off = " << v->getOffEtOffHisto()->getTH1()->GetBinContent(14) << " OnOff = " << v->getOffEtOnOffHisto()->getTH1()->GetBinContent(14) << endl;
-		 //LogTrace("FourVectorHLTriggerOffline") << "                     content bin 15:  Off = " << v->getOffEtOffHisto()->getTH1()->GetBinContent(15) << " OnOff = " << v->getOffEtOnOffHisto()->getTH1()->GetBinContent(15) << endl;
-		 LogTrace("FourVectorHLTriggerOffline") << "HLT_Ele10_SW_L1R Et, content bin 12:  Off = " << v->getOffEtOffHisto()->getTH1()->GetBinContent(12) << " L1OffUM = " << v->getOffEtL1OffUMHisto()->getTH1()->GetBinContent(12) << endl;
-		 LogTrace("FourVectorHLTriggerOffline") << "                     content bin 13:  Off = " << v->getOffEtOffHisto()->getTH1()->GetBinContent(13) << " L1OffUM = " << v->getOffEtL1OffUMHisto()->getTH1()->GetBinContent(13) << endl;
-
-		}
-		*/
   } //pathinfo loop
 
 }
@@ -2279,10 +627,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BTag") != std::string::npos) 
-      objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos &&
-	 	    pathname.find("BTag") == std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos)
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
@@ -2292,6 +637,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTau;    
     if (pathname.find("IsoTrack") != std::string::npos) 
       objectType = trigger::TriggerTrack;    
+    if (pathname.find("BTag") != std::string::npos)
+      objectType = trigger::TriggerBJet;    
 
     //parse denompathname to guess denomobject type
     if (denompathname.find("MET") != std::string::npos) 
@@ -2302,10 +649,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerTET;    
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
-    if (denompathname.find("BTag") != std::string::npos) 
-      denomobjectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos &&
-	 	    pathname.find("BTag") == std::string::npos) 
+    if (denompathname.find("Mu") != std::string::npos)
       denomobjectType = trigger::TriggerMuon;    
     if (denompathname.find("Ele") != std::string::npos) 
       denomobjectType = trigger::TriggerElectron;    
@@ -2315,6 +659,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerTau;    
     if (denompathname.find("IsoTrack") != std::string::npos) 
       denomobjectType = trigger::TriggerTrack;    
+    if (denompathname.find("BTag") != std::string::npos) 
+      denomobjectType = trigger::TriggerBJet;    
 
     // find L1 condition for numpath with numpath objecttype 
 
@@ -2333,11 +679,9 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
                   l1pathname = *numpathmodule; 
                   break; 
 		}
-    	} 
+  } 
    
     
-
-
 
     std::string filtername("dummy");
     float ptMin = 0.0;
@@ -2367,10 +711,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BTag") != std::string::npos) 
-      objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos &&
-	 	    pathname.find("BTag") == std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos)
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
@@ -2380,6 +721,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTau;    
     if (pathname.find("IsoTrack") != std::string::npos) 
       objectType = trigger::TriggerTrack;    
+    if (pathname.find("BTag") != std::string::npos) 
+      objectType = trigger::TriggerBJet;    
 
     //parse denompathname to guess denomobject type
     if (denompathname.find("MET") != std::string::npos) 
@@ -2390,10 +733,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerTET;    
     if (denompathname.find("Jet") != std::string::npos) 
       denomobjectType = trigger::TriggerJet;    
-    if (denompathname.find("BTag") != std::string::npos) 
-      denomobjectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos &&
-	 	    pathname.find("BTag") == std::string::npos) 
+    if (denompathname.find("Mu") != std::string::npos)
       denomobjectType = trigger::TriggerMuon;    
     if (denompathname.find("Ele") != std::string::npos) 
       denomobjectType = trigger::TriggerElectron;    
@@ -2403,6 +743,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       denomobjectType = trigger::TriggerTau;    
     if (denompathname.find("IsoTrack") != std::string::npos) 
       denomobjectType = trigger::TriggerTrack;    
+    if (denompathname.find("BTag") != std::string::npos) 
+      denomobjectType = trigger::TriggerBJet;    
     // find L1 condition for numpath with numpath objecttype 
 
     // find PSet for L1 global seed for numpath, 
@@ -2485,10 +827,7 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTET;    
     if (pathname.find("Jet") != std::string::npos) 
       objectType = trigger::TriggerJet;    
-    if (pathname.find("BTag") != std::string::npos) 
-      objectType = trigger::TriggerBJet;    
-    if (pathname.find("Mu") != std::string::npos &&
-	 	    pathname.find("BTag") == std::string::npos) 
+    if (pathname.find("Mu") != std::string::npos)
       objectType = trigger::TriggerMuon;    
     if (pathname.find("Ele") != std::string::npos) 
       objectType = trigger::TriggerElectron;    
@@ -2498,6 +837,8 @@ void FourVectorHLTriggerOffline::beginRun(const edm::Run& run, const edm::EventS
       objectType = trigger::TriggerTau;    
     if (pathname.find("IsoTrack") != std::string::npos) 
       objectType = trigger::TriggerTrack;    
+    if (pathname.find("BTag") != std::string::npos)
+      objectType = trigger::TriggerBJet;    
     // find L1 condition for numpath with numpath objecttype 
 
     // find PSet for L1 global seed for numpath, 
