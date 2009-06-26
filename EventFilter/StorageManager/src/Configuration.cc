@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: Configuration.cc,v 1.3 2009/06/18 16:35:16 biery Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -147,7 +147,7 @@ namespace stor
   {
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
-    _diskWriteParamCopy._filePath = "/scratch2/cheung";
+    _diskWriteParamCopy._filePath = "/tmp";
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
@@ -209,7 +209,7 @@ namespace stor
     _queueConfigParamCopy._dqmEventQueueSize = 3072;
     _queueConfigParamCopy._fragmentQueueSize = 1024;
     _queueConfigParamCopy._registrationQueueSize = 128;
-    _queueConfigParamCopy._streamQueueSize = 512;
+    _queueConfigParamCopy._streamQueueSize = 2048;
   }
 
   void Configuration::setWorkerThreadDefaults()
