@@ -1,4 +1,4 @@
-// @(#)root/smatrix:$Id$
+// @(#)root/smatrix:$Id: SingleGaussianState.icc,v 1.3 2009/06/26 13:14:50 innocent Exp $
 // Author: M. Schiller    2009
 
 #ifndef ROOT_Math_CholeskyDecomp
@@ -724,9 +724,10 @@ const typename SingleGaussianState<N>::Matrix&
 SingleGaussianState<N>::weightMatrix () const {
   if ( !theHasWeightMatrix ) {
     ROOT::Math::CholeskyDecomp<double,N> decomp(theCovariance);
-    if (!decomp)
-      theWeightMatrix = theCovariance.Inverse();
-    else
+    if (!decomp) {
+      int i;
+      theWeightMatrix = theCovariance.Inverse(i);
+    } else
       decomp.Invert(theWeightMatrix);
   }
   theHasWeightMatrix = true;
