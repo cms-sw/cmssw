@@ -21,7 +21,8 @@ class MuonSeedPtExtractor {
   /// Destructor
   virtual ~MuonSeedPtExtractor();
 
-
+  /// If firstHit and secondHit are the same, it calculates the pT 
+  /// from the phi bend of the single segment
   virtual std::vector<double> pT_extract(MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstHit,
                                  MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const;
 
