@@ -3,4 +3,16 @@
 <use name=DQMServices/Components>
 <use name=FWCore/PluginManager>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/HcalDetId>
+<use name=Geometry/CaloEventSetup>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/DetId>
+<use name=DataFormats/RecoCandidate>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloGeometry>
+
+
+
 <flags EDM_PLUGIN=1>
