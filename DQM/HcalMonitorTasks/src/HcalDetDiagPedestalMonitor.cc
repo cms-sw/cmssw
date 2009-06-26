@@ -95,7 +95,6 @@ int  eta,phi,depth,nTS;
  
 // kill this all for now, until we see what the problem with including lmap is
 
-/*
    if(emap==0) emap=cond.getHcalMapping();
    if(!m_dbe) return; 
    bool PedestalEvent=false;
@@ -174,7 +173,6 @@ int  eta,phi,depth,nTS;
        CheckStatus(); 
    }
 
-*/
    return;
 }
 

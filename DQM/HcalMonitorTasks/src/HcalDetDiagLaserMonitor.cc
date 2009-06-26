@@ -76,7 +76,7 @@ void HcalDetDiagLaserMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 void HcalDetDiagLaserMonitor::processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond){
 int  eta,phi,depth,nTS;
-/*
+
    if(emap==0) emap=cond.getHcalMapping();
    if(!m_dbe) return; 
    bool LaserEvent=false;
@@ -145,7 +145,7 @@ int  eta,phi,depth,nTS;
    if(((ievt_)%100)==0){
        fillHistos();
    }
-*/
+
    return;
 }
 
