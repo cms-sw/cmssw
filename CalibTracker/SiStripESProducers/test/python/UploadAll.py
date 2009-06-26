@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# This script creates all the tags required in the "tagList"
+# The tagList needs: tag name, tag type (e.g. Ideal, StartUp, ...) and possible additional
+# sed commands where the " are escaped as \".
+
 import os
 
 class Tag:
@@ -55,7 +59,7 @@ tagList = [
 os.system("rm dbfile.db")
 os.system("$CMSSW_RELEASE_BASE/src/CondTools/SiStrip/scripts/CreatingTables.sh sqlite_file:dbfile.db a a")
 
-
+# Loop on all the tags in the tagList and fill the destination
 for tag in tagList:
     print "--------------------------------------------------"
     print "Creating tag "+tag.tagName+" of type "+tag.tagType,
@@ -66,13 +70,18 @@ for tag in tagList:
     print "--------------------------------------------------"
     # print "cat DummyCondDBWriter_"+tag.tagName+"_cfg.py | sed -e \"s@"+oldDest+"@"+newDest+"@\" -e \"s@"+oldTag+"@"+newTag+"@\" "+tag.replaceStrings+" > DummyCondDBWriter_tmp_cfg.py"
     fileName = "DummyCondDBWriter_"+tag.tagName+"_cfg.py"
-    os.system("cat "+fileName+" | sed -e \"s@"+oldDest+"@"+newDest+"@\" -e \"s@"+oldTag+"@"+newTag+"@\" "+tag.replaceStrings+" > DummyCondDBWriter_tmp_cfg.py")
-    returnValue = os.system("cmsRun "+fileName)
+    os.system("cat "+fileName+" | sed -e \"s@"+oldDest+"@"+newDest+"@\" -e \"s@Ideal_"+oldTag+"@"+tag.tagType+"_"+newTag+"@\" "+tag.replaceStrings+" > DummyCondDBWriter_tmp_cfg.py")
+    returnValue = os.system("cmsRun DummyCondDBWriter_tmp_cfg.py")
+    # For some jobs it outputs: exit code = 65.
+    # From here https://twiki.cern.ch/twiki/bin/view/CMS/JobExitCodes
+    # you see that 65: End of job from user application (CMSSW)
     # returnValue = 0
-    if( returnValue != 0 ):
+    signal = returnValue & 0xFF
+    exitCode = (returnValue >> 8) & 0xFF
+    if( exitCode == 65 ):
+        print "Exit code = 65"
+    if( exitCode != 0 and exitCode != 65 ):
         print "Error: return value = ", returnValue
-        signal = returnValue & 0xFF
-        exitCode = (returnValue >> 8) & 0xFF
         print "signal = ",
         print signal,
         print "exit code = ",
