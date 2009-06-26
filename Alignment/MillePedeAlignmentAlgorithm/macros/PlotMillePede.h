@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:39 $
+// last change    : $Date: 2009/02/25 17:35:52 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -86,6 +86,7 @@ class PlotMillePede : public MillePedeTrees
   PlotMillePede(const char *fileName, Int_t iter, Int_t hieraLevel, const char *treeNameAdd);
   virtual ~PlotMillePede();
 
+  void SetTitle(const char *title) {fTitle = title;}
   GFHistManager* GetHistManager() { return fHistManager;}
 
   void DrawAll(Option_t *opt = "rogpmeh"); // r=ParamResult,o=OrigParam,g=GlobCorr,p=Pull,m=MisVsLocation,e=ErrorVsHit,h=HitMaps
@@ -138,6 +139,7 @@ class PlotMillePede : public MillePedeTrees
  private: 
   Int_t PrepareAdd(bool addPlots);
 
+  TString        fTitle; // added to hist titles
   GFHistManager *fHistManager;
   Int_t          fHieraLevel; // which hierarchical level to require (-1: all)
   bool           fUseDiff; // true: result is diff between MisParT() and ParT()

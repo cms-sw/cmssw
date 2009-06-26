@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:39 $
+// last change    : $Date: 2009/02/25 17:35:52 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1015,8 +1015,9 @@ void PlotMillePede::DrawXyArrow(Double_t factor, Option_t *option)
   minY *= (minY > 0 ? 0.9 : 1.1);
   TH1 *hFrame = new TH2F(this->Unique("frame"),
 			 Form("scale %g%s;x [cm];y [cm]", factor, this->TitleAdd().Data()),
-			 1, minX, maxX, 1, minY, maxY);
+			 10, minX, maxX, 10, minY, maxY);
   hFrame->SetOption("AXIS");
+  hFrame->SetEntries(size); // entries shows number of plotted arrows
   fHistManager->AddHist(hFrame, layer);
 
   // copy arrays from TTree:
@@ -1236,7 +1237,13 @@ TString PlotMillePede::TitleAdd() const
     result += fAdditionalSelTitle;
   }
 
+  if (fTitle.Length()) {
+    if (result.Length()) result.Prepend(fTitle + ", ");
+    else result.Prepend(fTitle);
+  }
+
   if (result.Length()) result.Prepend(": ");  
+
   return result;
 }
 
