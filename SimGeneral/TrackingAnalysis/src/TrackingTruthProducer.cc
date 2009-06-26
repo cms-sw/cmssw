@@ -31,6 +31,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
 {
     distanceCut_           = config.getParameter<double>("vertexDistanceCut");
     dataLabels_            = config.getParameter<vector<string> >("HepMCDataLabels");
+    simHitLabel_           = config.getParameter<string>("simHitLabel");
     hitLabelsVector_       = config.getParameter<vector<string> >("TrackerHitLabels");
     volumeRadius_          = config.getParameter<double>("volumeRadius");
     volumeZ_               = config.getParameter<double>("volumeZ");
