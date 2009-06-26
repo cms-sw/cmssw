@@ -1,4 +1,4 @@
-// $Id$
+// $Id: I2OChain.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include <algorithm>
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -48,6 +48,7 @@ namespace stor
       bool empty() const;
       bool complete() const;
       bool faulty() const;
+      unsigned int faultyBits() const;
       bool parsable() const;
       void addToChain(ChainData const& newpart);
       void markComplete();
@@ -66,6 +67,10 @@ namespace stor
       unsigned int fuGuid() const {return _fuGuid;}
       double creationTime() const {return _creationTime;}
       double lastFragmentTime() const {return _lastFragmentTime;}
+      double staleWindowStartTime() const {return _staleWindowStartTime;}
+      void resetStaleWindowStartTime() {
+        _staleWindowStartTime = utils::getCurrentTime();
+      }
       unsigned long totalDataSize() const;
       unsigned long dataSize(int fragmentIndex) const;
       unsigned char* dataLocation(int fragmentIndex) const;
@@ -130,6 +135,7 @@ namespace stor
 
       double _creationTime;
       double _lastFragmentTime;
+      double _staleWindowStartTime;
 
       bool validateDataLocation(toolbox::mem::Reference* ref,
                                 BitMasksForFaulty maskToUse);
@@ -187,7 +193,8 @@ namespace stor
       _fuProcessId(0),
       _fuGuid(0),
       _creationTime(-1),
-      _lastFragmentTime(-1)
+      _lastFragmentTime(-1),
+      _staleWindowStartTime(-1)
     {
       // Avoid the situation in which all unparsable chains
       // have the same fragment key.  We do this by providing a 
@@ -205,6 +212,7 @@ namespace stor
         {
           _creationTime = utils::getCurrentTime();
           _lastFragmentTime = _creationTime;
+          _staleWindowStartTime = _creationTime;
 
           // first fragment in Reference chain
           ++_fragmentCount;
@@ -274,6 +282,11 @@ namespace stor
       return (_faultyBits != 0);
     }
 
+    inline unsigned int ChainData::faultyBits() const
+    {
+      return _faultyBits;
+    }
+
     inline bool ChainData::parsable() const
     {
       return (_ref) && ((_faultyBits & INVALID_INITIAL_REFERENCE) == 0) &&
@@ -309,6 +322,7 @@ namespace stor
 
           // update the time stamps
           _lastFragmentTime = utils::getCurrentTime();
+          _staleWindowStartTime = _lastFragmentTime;
           if (newpart.creationTime() < _creationTime)
           {
             _creationTime = newpart.creationTime();
@@ -425,6 +439,7 @@ namespace stor
 
       // update the time stamps
       _lastFragmentTime = utils::getCurrentTime();
+      _staleWindowStartTime = _lastFragmentTime;
       if (newpart.creationTime() < _creationTime)
       {
         _creationTime = newpart.creationTime();
@@ -472,6 +487,7 @@ namespace stor
       std::swap(_expectedNumberOfFragments, other._expectedNumberOfFragments);
       std::swap(_creationTime, other._creationTime);
       std::swap(_lastFragmentTime, other._lastFragmentTime);
+      std::swap(_staleWindowStartTime, other._staleWindowStartTime);
     }
 
     unsigned long ChainData::totalDataSize() const
@@ -1972,6 +1988,13 @@ namespace stor
   }
 
 
+  unsigned int I2OChain::faultyBits() const
+  {
+    if (!_data) return 0;
+    return _data->faultyBits();
+  }
+
+
   void I2OChain::addToChain(I2OChain &newpart)
   {
     // fragments can not be added to empty, complete, or faulty chains.
@@ -2127,6 +2150,18 @@ namespace stor
   {
     if (!_data) return -1;
     return _data->lastFragmentTime();
+  }
+
+  double I2OChain::staleWindowStartTime() const
+  {
+    if (!_data) return -1;
+    return _data->staleWindowStartTime();
+  }
+
+  void I2OChain::resetStaleWindowStartTime()
+  {
+    if (!_data) return;
+    return _data->resetStaleWindowStartTime();
   }
 
   void I2OChain::tagForStream(StreamID streamId)

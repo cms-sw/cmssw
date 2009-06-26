@@ -1,4 +1,4 @@
-// $Id$
+// $Id: I2OChain.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef StorageManager_I2OChain_h
 #define StorageManager_I2OChain_h
@@ -31,9 +31,9 @@ namespace stor {
    * assures that the corresponding release methods are called when 
    * the last instance of I2OChain goes out of scope.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
 
 
@@ -109,6 +109,11 @@ namespace stor {
     bool faulty() const;
 
     /**
+     * Returns a bitmask containing the faulty bits.
+     */
+    unsigned int faultyBits() const;
+
+    /**
        Adds fragments from another chain to the current chain taking
        care that all fragments are chained in the right order. This
        destructively modifies newpart so that it no longer is part of
@@ -172,6 +177,22 @@ namespace stor {
        the time from the operating system.
      */
     double lastFragmentTime() const;
+
+    /**
+       Returns the stale window start time.  This is the time that
+       should be used when checking if a chain has become stale.
+
+       The value corresponds to the number of seconds since the epoch
+       (including a fractional part good to the microsecond level).
+       A negative value indicates that an error occurred when fetching 
+       the time from the operating system.
+     */
+    double staleWindowStartTime() const;
+
+    /**
+       Sets the stale window start time to "now".
+     */
+    void resetStaleWindowStartTime();
 
     /**
        Tags the chain with the specified disk writing stream ID.  This
