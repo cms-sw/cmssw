@@ -70,7 +70,11 @@ class HcalBaseClient{
 
   void getEtaPhiHists( char* dir, char* name, TH2F* h[4], char* units="");
   int CalcIeta(int hist_eta, int depth);
-
+  bool isHB(int etabin, int depth);
+  bool isHE(int etabin, int depth);
+  bool isHO(int etabin, int depth);
+  bool isHF(int etabin, int depth);
+ 
  protected:
 
   int ievt_;

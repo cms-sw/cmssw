@@ -1045,6 +1045,7 @@ bool HcalHotCellClient::hasErrors_Temp()
     {
       int etabins  = ProblemHotCells->GetNbinsX();
       int phibins  = ProblemHotCells->GetNbinsY();
+
       for (int hist_eta=0;hist_eta<etabins;++hist_eta)
         {
           for (int hist_phi=0; hist_phi<phibins;++hist_phi)

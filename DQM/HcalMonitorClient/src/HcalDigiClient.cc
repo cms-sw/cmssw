@@ -896,12 +896,12 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
   // Depths are stored as:  0:  HB/HE/HF depth 1, 1:  HB/HE/HF depth 2, 2:  HE depth 3, 3:  HO
-  int mydepth[4]={0,1,2,3};
+  
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,ProblemDigisByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ProblemDigisByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemDigisByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemDigisByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
 
@@ -919,8 +919,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiOccupancyByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiOccupancyByDepth[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiOccupancyByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiOccupancyByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -946,8 +946,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiErrorsBadDigiSize[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiErrorsBadDigiSize[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadDigiSize[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadDigiSize[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -969,8 +969,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiErrorsBadCapID[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiErrorsBadCapID[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadCapID[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadCapID[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -985,8 +985,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiErrorsBadADCSum[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiErrorsBadADCSum[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadADCSum[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsBadADCSum[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -1001,8 +1001,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiErrorsDVErr[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiErrorsDVErr[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsDVErr[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsDVErr[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -1024,8 +1024,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiErrorsNoDigi[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiErrorsNoDigi[mydepth[2*i+1]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsNoDigi[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsNoDigi[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -1559,38 +1559,25 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       if (debug_>0) std::cout <<"<HcalDigiClient::htmlOutput>  ERROR: can't find Problem Rec Hit plot!"<<std::endl;
       return;
     }
-  int etabins  = ProblemDigis->GetNbinsX();
-  int phibins  = ProblemDigis->GetNbinsY();
-  float etaMin = ProblemDigis->GetXaxis()->GetXmin();
-  float phiMin = ProblemDigis->GetYaxis()->GetXmin();
 
-  int eta,phi;
+  int ieta,iphi;
 
   ostringstream name;
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      for (int eta=0;eta<ProblemDigisByDepth[depth]->GetNbinsX();++eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+	  ieta=CalcIeta(eta,depth+1);
+          for (int phi=0;phi<ProblemDigisByDepth[depth]->GetNbinsY();++phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
+	      iphi=phi+1;
 	      if (abs(eta)>20 && phi%2!=1) continue;
 	      if (abs(eta)>39 && phi%4!=3) continue;
-	      int mydepth=depth+1;
-	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemDigisByDepth[depth]==0)
-		{
 		  continue;
-		}
-	      if (ProblemDigisByDepth[depth]->GetBinContent(ieta,iphi)>0)
+	      if (ProblemDigisByDepth[depth]->GetBinContent(eta+1,phi+1)>0)
 		{
-		  if (depth<2)
-		    (fabs(eta)<29) ? name<<"HB" : name<<"HF";
-		  else if (depth==3)
-		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
-		  else name <<"HE";
-		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemDigisByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
+		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemDigisByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
 
 		  name.str("");
 		}

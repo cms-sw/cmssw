@@ -302,35 +302,122 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[4], char* units
 
 int HcalBaseClient::CalcIeta(int eta, int depth)
 {
-  int ieta;
-  ieta=-9999; // default value is nonsensical
+  // returns ieta value give an eta counter.
+  // eta runs from 0...X  (X depends on depth)
+  int ieta=-9999;
+  if (eta<0) return ieta;
   if (depth==1)
     {
-      ieta=eta-42;
-      if (eta<14) ieta++;
-      else if (eta>72) ieta--;
+      ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
+      if (eta<13) ieta++;
+      else if (eta>71) ieta--;
+      return ieta;
     }
   else if (depth==2)
     {
-      if (eta<0 || eta>57) ieta=-9999;
+      if (eta>57) return -9999;
       else
 	{
 	  ieta=binmapd2[eta];
-	  if (ieta<=-30) ieta++;
+	  if (ieta==-9999) return ieta;
+	  else if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
-	  else ieta=-9999;
+	  return ieta;
 	}
     }
   else if (depth==3)
     {
-      if (eta<0 || eta>8) ieta=-9999;
+      if (eta>8) return -9999;
       else
-          ieta=binmapd3[eta];
+	ieta=binmapd3[eta];
+      return ieta;
     }
   else if (depth==4)
     {
       ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-      if (abs(ieta)>15) ieta=-9999;
+      if (abs(ieta)>15) return -9999;
     }
+  if (ieta==0) ieta=-9999; // default value for non-physical regions
   return ieta;
+}
+
+
+bool HcalBaseClient::isHB(int etabin, int depth)
+{
+  if (depth>2) return false;
+  else if (depth<1) return false;
+  else
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+        {
+          if (abs(ieta)<=16 ) return true;
+          else return false;
+        }
+      else if (depth==2)
+        {
+          if (abs(ieta)==15 || abs(ieta)==16) return true;
+          else return false;
+        }
+    }
+  return false;
+}
+
+bool HcalBaseClient::isHE(int etabin, int depth)
+{
+  if (depth>3) return false;
+  else if (depth<1) return false;
+  else
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+        {
+          if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
+          if (ieta==-29 && etabin==13) return true; // HE -29
+          if (ieta==29 && etabin == 71) return true; // HE +29
+        }
+      else if (depth==2)
+        {
+          if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
+          if (ieta==-29 && etabin==13) return true; // HE -29
+          if (ieta==29 && etabin == 43) return true; // HE +29
+        }
+      else if (depth==3)
+        return true;
+    }
+  return false;
+}
+
+bool HcalBaseClient::isHF(int etabin, int depth)
+{
+  if (depth>2) return false;
+  else if (depth<1) return false;
+  else
+    {
+      int ieta=CalcIeta(etabin,depth);
+      if (ieta==-9999) return false;
+      if (depth==1)
+        {
+          if (ieta==-29 && etabin==13) return false; // HE -29
+          else if (ieta==29 && etabin == 71) return false; // HE +29
+          else if (abs(ieta)>=29 ) return true;
+        }
+      else if (depth==2)
+        {
+          if (ieta==-29 && etabin==13) return false; // HE -29
+          else if (ieta==29 && etabin==43) return false; // HE +29
+          else if (abs(ieta)>=29 ) return true;
+        }
+    }
+  return false;
+}
+
+bool HcalBaseClient::isHO(int etabin, int depth)
+{
+  if (depth!=4) return false;
+  int ieta=CalcIeta(etabin,depth);
+  if (ieta!=-9999) return true;
+  return false;
 }
