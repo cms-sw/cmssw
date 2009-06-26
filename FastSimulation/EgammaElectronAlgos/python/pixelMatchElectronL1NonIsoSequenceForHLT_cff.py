@@ -45,12 +45,13 @@ hltCkfL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkfL1NonIsoTrackCandidates.SeedCleaning = True
 hltCkfL1NonIsoTrackCandidates.SplitHits = False
 
-hltCkfL1NonIsoStartUpTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkfL1NonIsoStartUpTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
-hltCkfL1NonIsoStartUpTrackCandidates.TrackProducers = []
-hltCkfL1NonIsoStartUpTrackCandidates.MaxNumberOfCrossedLayers = 999
-hltCkfL1NonIsoStartUpTrackCandidates.SeedCleaning = True
-hltCkfL1NonIsoStartUpTrackCandidates.SplitHits = False
+#not needed 
+#hltCkfL1NonIsoStartUpTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+#hltCkfL1NonIsoStartUpTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
+#hltCkfL1NonIsoStartUpTrackCandidates.TrackProducers = []
+#hltCkfL1NonIsoStartUpTrackCandidates.MaxNumberOfCrossedLayers = 999
+#hltCkfL1NonIsoStartUpTrackCandidates.SeedCleaning = True
+#hltCkfL1NonIsoStartUpTrackCandidates.SplitHits = False
 
 # CTF track fit with material
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
@@ -61,17 +62,18 @@ hltCtfL1NonIsoWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
 hltCtfL1NonIsoWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
 hltCtfL1NonIsoWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 
-hltCtfL1NonIsoStartUpWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-hltCtfL1NonIsoStartUpWithMaterialTracks.src = 'hltCkfL1NonIsoStartUpTrackCandidates'
-hltCtfL1NonIsoStartUpWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-hltCtfL1NonIsoStartUpWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
-hltCtfL1NonIsoStartUpWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+#not needed
+#hltCtfL1NonIsoStartUpWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+#hltCtfL1NonIsoStartUpWithMaterialTracks.src = 'hltCkfL1NonIsoStartUpTrackCandidates'
+#hltCtfL1NonIsoStartUpWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+#hltCtfL1NonIsoStartUpWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
+#hltCtfL1NonIsoStartUpWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 
 #Sequence
-#HLTPixelMatchElectronL1NonIsoTrackingSequence = cms.Sequence(globalPixelTracking +
-#                                                             hltCkfL1NonIsoTrackCandidates+
-#                                                             hltCtfL1NonIsoWithMaterialTracks+
-#                                                             cms.SequencePlaceholder("hltPixelMatchElectronsL1NonIso"))
+HLTPixelMatchElectronL1NonIsoTrackingSequence = cms.Sequence(globalPixelTracking +
+                                                             hltCkfL1NonIsoTrackCandidates+
+                                                             hltCtfL1NonIsoWithMaterialTracks+
+                                                             cms.SequencePlaceholder("hltPixelMatchElectronsL1NonIso"))
 
 #for debugging
 #from FWCore.Modules.printContent_cfi import *
