@@ -9,8 +9,11 @@ import FWCore.ParameterSet.Config as cms
 # modules to make seeds, tracks and electrons
 
 # Cluster-seeded pixel pairs
-import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
-from FastSimulation.Configuration.blockHLT_8E29_cff import *
+#import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
+#from FastSimulation.Configuration.blockHLT_8E29_cff import *
+
+# (Not-so) Regional Tracking - needed because the ElectronSeedProducer needs the seeds 
+from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
 #hltL1IsoElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
 #hltL1IsoElectronPixelSeeds.SeedConfiguration = cms.PSet(
@@ -19,12 +22,12 @@ from FastSimulation.Configuration.blockHLT_8E29_cff import *
 #hltL1IsoElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
 #hltL1IsoElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated'
 
-hltL1IsoStartUpElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
-hltL1IsoStartUpElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    block_hltL1IsoStartUpElectronPixelSeeds
-)
-hltL1IsoStartUpElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
-hltL1IsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated'
+#hltL1IsoStartUpElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
+#hltL1IsoStartUpElectronPixelSeeds.SeedConfiguration = cms.PSet(
+#    block_hltL1IsoStartUpElectronPixelSeeds
+#)
+#hltL1IsoStartUpElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
+#hltL1IsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated'
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -60,3 +63,14 @@ hltCtfL1IsoStartUpWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
 hltCtfL1IsoStartUpWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 
 
+#HLTPixelMatchElectronL1IsoTrackingSequence = cms.Sequence(globalPixelTracking+
+#                                                          hltCkfL1IsoTrackCandidates+
+#                                                          hltCtfL1IsoWithMaterialTracks+
+#                                                          cms.SequencePlaceholder("hltPixelMatchElectronsL1Iso"))
+
+#for debugging 
+#from FWCore.Modules.printContent_cfi import *
+
+hltL1IsoStartUpElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+
+#                                                         printContent+
+                                                         cms.SequencePlaceholder("hltL1IsoStartUpElectronPixelSeeds"))
