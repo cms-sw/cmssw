@@ -21,47 +21,47 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    # Define the cuts for your muon selections
    customCollection = cms.VPSet(
 
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("dqmBarrelMuons3"),
-	  # The track collection is just a switch, not a true collection name
-	  trackCollection = cms.untracked.string ("outerTrack"),
-	  requiredTriggers = cms.untracked.vstring(""),
-	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
-	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
-	),
+## 	cms.untracked.PSet(
+## 	  collectionName = cms.untracked.string ("dqmBarrelMuons3"),
+## 	  # The track collection is just a switch, not a true collection name
+## 	  trackCollection = cms.untracked.string ("outerTrack"),
+## 	  requiredTriggers = cms.untracked.vstring(""),
+## 	  d0cut = cms.untracked.double(2.0),
+## 	  z0cut = cms.untracked.double(25.0),
+## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
+## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
+## 	),
 
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("dqmBarrelMuons3_L1Mu"),
-	  # The track collection is just a switch, not a true collection name
-	  trackCollection = cms.untracked.string ("outerTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
-	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
-	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
-	),
+## 	cms.untracked.PSet(
+## 	  collectionName = cms.untracked.string ("dqmBarrelMuons3_L1Mu"),
+## 	  # The track collection is just a switch, not a true collection name
+## 	  trackCollection = cms.untracked.string ("outerTrack"),
+## 	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
+## 	  d0cut = cms.untracked.double(2.0),
+## 	  z0cut = cms.untracked.double(25.0),
+## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
+## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
+## 	),
 
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("endcapMuons3"),
-	  trackCollection = cms.untracked.string ("outerTrack"),
-	  requiredTriggers = cms.untracked.vstring(""),
-	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0), # 3 meters
-	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
-	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
-	),
+## 	cms.untracked.PSet(
+## 	  collectionName = cms.untracked.string ("endcapMuons3"),
+## 	  trackCollection = cms.untracked.string ("outerTrack"),
+## 	  requiredTriggers = cms.untracked.vstring(""),
+## 	  d0cut = cms.untracked.double(2.0),
+## 	  z0cut = cms.untracked.double(25.0), # 3 meters
+## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
+## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
+## 	),
 
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("endcapMuons3_L1Mu"),
-	  trackCollection = cms.untracked.string ("outerTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
-	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0), # 3 meters
-	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
-	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
-	),
+## 	cms.untracked.PSet(
+## 	  collectionName = cms.untracked.string ("endcapMuons3_L1Mu"),
+## 	  trackCollection = cms.untracked.string ("outerTrack"),
+## 	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
+## 	  d0cut = cms.untracked.double(2.0),
+## 	  z0cut = cms.untracked.double(25.0), # 3 meters
+## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
+## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
+## 	),
 
 
 	cms.untracked.PSet(
