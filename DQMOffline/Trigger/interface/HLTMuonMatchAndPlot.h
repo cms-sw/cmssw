@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/06/25 19:30:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/26 20:59:13 $
+ *  $Revision: 1.2 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -314,7 +314,7 @@ private:
   //std::vector <MonitorElement*> fakeHltCandD0Rec;
   //std::vector <MonitorElement*> fakeHltCandZ0Rec;
 
-  std::vector <MonitorElement*> fakeHltCandEtaPhi;
+  //std::vector <MonitorElement*> fakeHltCandEtaPhi;
   //std::vector <MonitorElement*> fakeHltCandDeltaR;
 
   // RAW histograms

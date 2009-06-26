@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/06/25 19:29:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/26 20:59:05 $
+ *  $Revision: 1.2 $
  */
 
 
@@ -143,9 +143,9 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
          iNum++){
       
       // if this is the # of bins, then
-      // double the number of bins.
+      // halve the number of bins.
       if (iNum == theMaxPtParameters.begin()){
-        theMaxPtParameters2d.push_back((*iNum));
+        theMaxPtParameters2d.push_back(floor((*iNum)/2));
       } else {
         theMaxPtParameters2d.push_back((*iNum));
       }
@@ -157,9 +157,9 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
     for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
          iNum != theEtaParameters.end();
          iNum++){
-      // if this is the nBins param, double it
+      // if this is the nBins param, halve it
       if (iNum ==  theEtaParameters.begin()){
-        theEtaParameters2d.push_back((*iNum));      
+        theEtaParameters2d.push_back(floor((*iNum)/2));      
       } else {
         theEtaParameters2d.push_back(*iNum);                   
       }
@@ -167,7 +167,13 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
       // also fill the eta/phi plot parameters
       // but don't worry about doubleing bins
       if (i < 1){
-        thePhiEtaParameters2d.push_back(*iNum);      
+        if (iNum ==  theEtaParameters.begin()){
+          thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+        } else {
+          thePhiEtaParameters2d.push_back(*iNum);      
+          
+        } 
+        
       }
     }
   }
@@ -179,13 +185,20 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
          iNum++){
 
       if (iNum == thePhiParameters.begin()) {
-        thePhiParameters2d.push_back(2*(*iNum));
+        thePhiParameters2d.push_back(floor((*iNum)/2));
       } else {
         thePhiParameters2d.push_back(*iNum);
       }
 
       if (i < 1){
-        thePhiEtaParameters2d.push_back(*iNum);
+
+        if (iNum ==  theEtaParameters.begin()){
+          thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+        } else {
+          thePhiEtaParameters2d.push_back(*iNum);      
+          
+        } 
+        
       }
     }
   }
@@ -1308,7 +1321,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         fakeHltCandPt[iHltModule]->Fill(candVect.pt());
         fakeHltCandEta[iHltModule]->Fill(candVect.eta());
         fakeHltCandPhi[iHltModule]->Fill(candVect.phi());
-        fakeHltCandEtaPhi[iHltModule]->Fill(candVect.eta(), candVect.phi());
+        //fakeHltCandEtaPhi[iHltModule]->Fill(candVect.eta(), candVect.phi());
       }
       
     }
@@ -1858,7 +1871,7 @@ void HLTMuonMatchAndPlot::begin()
         fakeHltCandEta.push_back( bookIt("fakeHltCandEta_" + myLabel, "Eta of fake HLT Muon Cands, for HLT " + myLabel, theEtaParameters));         
         fakeHltCandPhi.push_back( bookIt("fakeHltCandPhi_" + myLabel, "Phi of fake HLT Muon Cands, for HLT " + myLabel, thePhiParameters));    
                 
-        fakeHltCandEtaPhi.push_back(bookIt("fakeHltCandPhiVsEta_" + myLabel, " AOD #phi vs  #eta for fake HLT Muon Cands, for HLT  " +myLabel, thePhiEtaParameters2d));
+        //fakeHltCandEtaPhi.push_back(bookIt("fakeHltCandPhiVsEta_" + myLabel, " AOD #phi vs  #eta for fake HLT Muon Cands, for HLT  " +myLabel, thePhiEtaParameters2d));
 
         // raw histograms
 
