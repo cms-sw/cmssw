@@ -207,10 +207,11 @@ void TrackingTruthProducer::associator(
     
     // Create a association from simtracks to overall index in the mix collection
     for (std::vector<std::pair<PSimHit,int> >::const_iterator iterator = pSimHits.begin(); iterator != pSimHits.end(); ++iterator)
-    {
-        EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(iterator->first.eventId(), iterator->first.trackId());
-        association.insert( make_pair(objectId, iterator->second-1) );
-    }
+        if ( DetId(iterator->first.detUnitId()).det() == DetId::Tracker )
+        {      
+            EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(iterator->first.eventId(), iterator->first.trackId());
+            association.insert( make_pair(objectId, iterator->second-1) );
+        }
 }
 
 
