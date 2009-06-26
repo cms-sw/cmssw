@@ -39,8 +39,8 @@ namespace KullbackLeiblerDistanceDetails {
 }
 
 template <unsigned int N> double 
-KullbackLeiblerDistance<N>::operator() (const SingleGaussianState<N>& sgs1, 
-					const SingleGaussianState<N>& sgs2) const {
+KullbackLeiblerDistance<N>::operator() (const SingleGaussianState<N> sgs1, 
+					const SingleGaussianState<N> sgs2) const {
   // compute inverse here (if not yet done)
   sgs1.weightMatrix();
   sgs2.weightMatrix();
