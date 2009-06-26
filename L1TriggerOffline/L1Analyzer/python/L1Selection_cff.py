@@ -12,6 +12,7 @@ SelectL1Muons = cms.EDFilter("PtMinCandSelector",
     ptMin = cms.double(20.0)
 )
 
+
 # Iso EM
 # Clone L1 isolated EM
 CloneL1ExtraIsoEm = cms.EDProducer("L1EmParticleShallowCloneProducer",
@@ -46,6 +47,7 @@ SelectL1Em = cms.EDFilter("PtMinCandSelector",
     src = cms.InputTag("MergeL1Em"),
     ptMin = cms.double(10.0)
 ) 
+
 
 # Cen Jets
 # Clone L1 central jets
@@ -84,12 +86,12 @@ SelectL1TauJets = cms.EDFilter("PtMinCandSelector",
 )
 
 #Merge L1 tau jets and L1 central jets
-MergeL1ExtraJets = cms.EDProducer("CandViewMerger",
-    src = cms.VInputTag("CloneL1ExtraTauJets","CloneL1ExtraCenJets","CloneL1ExtraForJets")
+MergeL1CenTauJets = cms.EDProducer("CandViewMerger",
+    src = cms.VInputTag("CloneL1ExtraTauJets","CloneL1ExtraCenJets")
 )
 
-SelectMergedL1ExtraJets = cms.EDFilter("PtMinCandSelector",
-    src = cms.InputTag("MergeL1ExtraJets"),
+SelectL1CenTauJets = cms.EDFilter("PtMinCandSelector",
+    src = cms.InputTag("MergeL1CenTauJets"),
     ptMin = cms.double(10.0)
 )                                       
 
@@ -137,9 +139,10 @@ L1EmSelection = cms.Sequence(CloneL1ExtraIsoEm*CloneL1ExtraNonIsoEm*MergeL1Em*Se
 L1CenJetSelection = cms.Sequence(CloneL1ExtraCenJets*SelectL1CenJets)
 L1ForJetSelection = cms.Sequence(CloneL1ExtraForJets*SelectL1ForJets)
 L1TauJetSelection = cms.Sequence(CloneL1ExtraTauJets*SelectL1TauJets)
-L1MergedJetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*CloneL1ExtraForJets*MergeL1ExtraJets*SelectMergedL1ExtraJets)
+L1CenTauJetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*MergeL1CenTauJets*SelectL1CenTauJets)
+L1JetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*CloneL1ExtraForJets*MergeL1Jets*SelectL1Jets)
 
 L1MetSelection = cms.Sequence(CloneL1ExtraMet*SelectL1Met)
 L1MHtSelection = cms.Sequence(CloneL1ExtraMHt*SelectL1MHt)
 
-L1JetSelection = cms.Sequence(CloneL1ExtraTauJets*CloneL1ExtraCenJets*CloneL1ExtraForJets*MergeL1Jets*SelectL1Jets)
+
