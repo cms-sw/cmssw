@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/03 12:17:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -40,7 +40,6 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
    // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug;
-  rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
   // the name of the 2D rec hit collection

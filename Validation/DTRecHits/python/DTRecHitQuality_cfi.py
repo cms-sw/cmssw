@@ -9,7 +9,6 @@ rechivalidation = cms.EDFilter("DTRecHitQuality",
     doStep3 = cms.untracked.bool(True),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     segment2DLabel = cms.untracked.InputTag('dt2DSegments'),
-    rootFileName = cms.untracked.string(''),
     debug = cms.untracked.bool(False),
     segment4DLabel = cms.untracked.InputTag('dt4DSegments')
 )
@@ -18,7 +17,6 @@ seg2dvalidation = cms.EDFilter("DTSegment2DQuality",
     sigmaResPos = cms.double(0.013),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     segment2DLabel = cms.untracked.InputTag('dt2DSegments'),
-    rootFileName = cms.untracked.string(''),
     debug = cms.untracked.bool(False),
     sigmaResAngle = cms.double(0.008)
 )
@@ -27,7 +25,6 @@ seg2dsuperphivalidation = cms.EDFilter("DTSegment2DSLPhiQuality",
     sigmaResPos = cms.double(0.013),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     sigmaResAngle = cms.double(0.008),
-    rootFileName = cms.untracked.string(''),
     debug = cms.untracked.bool(False),
     segment4DLabel = cms.untracked.InputTag('dt4DSegments')
 )
@@ -37,7 +34,7 @@ seg4dvalidation = cms.EDFilter("DTSegment4DQuality",
     sigmaResAlpha = cms.double(0.001),
     sigmaResBeta = cms.double(0.007),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
-    rootFileName = cms.untracked.string('DTSegmentQuality.root'),
+    rootFileName = cms.untracked.string(''),
     debug = cms.untracked.bool(False),
     #resolution on position
     sigmaResX = cms.double(0.01),

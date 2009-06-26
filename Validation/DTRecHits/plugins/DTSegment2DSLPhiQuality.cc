@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -42,7 +42,6 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   debug = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug;
 
-  rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
   // the name of the 4D rec hit collection

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -43,7 +43,6 @@ using namespace edm;
 DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
-  rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
   // the name of the 1D rec hit collection
