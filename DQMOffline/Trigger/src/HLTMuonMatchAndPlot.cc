@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/05/22 09:07:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/06/25 19:29:51 $
+ *  $Revision: 1.1 $
  */
 
 
@@ -145,7 +145,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
       // if this is the # of bins, then
       // double the number of bins.
       if (iNum == theMaxPtParameters.begin()){
-        theMaxPtParameters2d.push_back(2*(*iNum));
+        theMaxPtParameters2d.push_back((*iNum));
       } else {
         theMaxPtParameters2d.push_back((*iNum));
       }
@@ -159,7 +159,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
          iNum++){
       // if this is the nBins param, double it
       if (iNum ==  theEtaParameters.begin()){
-        theEtaParameters2d.push_back(3*(*iNum));      
+        theEtaParameters2d.push_back((*iNum));      
       } else {
         theEtaParameters2d.push_back(*iNum);                   
       }
@@ -1143,13 +1143,13 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
       
       hDeltaRMatched[0]->Fill(deltaR);
       hPassMatchPtRec[0]->Fill(pt);
-      hPtMatchVsPtRec[0]->Fill(l1pt, pt);
-      hEtaMatchVsEtaRec[0]->Fill(l1eta, eta);
-      hPhiMatchVsPhiRec[0]->Fill(l1phi, phi);
+      //hPtMatchVsPtRec[0]->Fill(l1pt, pt);
+      //hEtaMatchVsEtaRec[0]->Fill(l1eta, eta);
+      //hPhiMatchVsPhiRec[0]->Fill(l1phi, phi);
       hMatchedDeltaPhi[0]->Fill(deltaPhi);
-      hDeltaPhiVsPhi[0]->Fill(phi, deltaPhi);
-      hDeltaPhiVsZ0[0]->Fill(z0, deltaPhi);
-      hDeltaPhiVsD0[0]->Fill(d0, deltaPhi);
+      //hDeltaPhiVsPhi[0]->Fill(phi, deltaPhi);
+      //hDeltaPhiVsZ0[0]->Fill(z0, deltaPhi);
+      //hDeltaPhiVsD0[0]->Fill(d0, deltaPhi);
       // Resolution histos must have hlt matches
       
       hResoPtAodRec[0]->Fill((pt - l1pt)/pt);
@@ -1214,13 +1214,13 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
         hDeltaRMatched[j+1]->Fill(deltaR);
         hPassMatchPtRec[j+1]->Fill(pt);
-        hPtMatchVsPtRec[j+1]->Fill(hltCand_pt, pt);
-        hEtaMatchVsEtaRec[j+1]->Fill(hltCand_eta, eta);
-        hPhiMatchVsPhiRec[j+1]->Fill(hltCand_phi, phi);
+        //hPtMatchVsPtRec[j+1]->Fill(hltCand_pt, pt);
+        //hEtaMatchVsEtaRec[j+1]->Fill(hltCand_eta, eta);
+        //hPhiMatchVsPhiRec[j+1]->Fill(hltCand_phi, phi);
         hMatchedDeltaPhi[j+1]->Fill(deltaPhi);
-        hDeltaPhiVsPhi[j+1]->Fill(phi, deltaPhi);
-        hDeltaPhiVsZ0[j+1]->Fill(z0, deltaPhi);
-        hDeltaPhiVsD0[j+1]->Fill(d0, deltaPhi);
+        //hDeltaPhiVsPhi[j+1]->Fill(phi, deltaPhi);
+        //hDeltaPhiVsZ0[j+1]->Fill(z0, deltaPhi);
+        //hDeltaPhiVsD0[j+1]->Fill(d0, deltaPhi);
         
 
         LogTrace ("HLTMuonVal") << "The pdg id is (hlt [" << j << "]) "
@@ -1760,9 +1760,9 @@ void HLTMuonMatchAndPlot::begin()
       hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
 
       hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
-      hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
-      hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
-      hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
+      //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
+      //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
+      //hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
       
       hResoPtAodRec.push_back ( bookIt ("recResoPt_" + myLabel, "TrigSumAOD to RECO P_T resolution", theResParameters));
       hResoEtaAodRec.push_back ( bookIt ("recResoEta_" + myLabel, "TrigSumAOD to RECO #eta resolution", theResParameters));
@@ -1770,9 +1770,9 @@ void HLTMuonMatchAndPlot::begin()
 
       // Cosmic debugging histos
       hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );
-      hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "#Delta #phi (reco,hlt) vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
-      hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT z0  " + myLabel, theDeltaPhiVsZ0Parameters) );
-      hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
+      //hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "#Delta #phi (reco,hlt) vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
+      //hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT z0  " + myLabel, theDeltaPhiVsZ0Parameters) );
+      //hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
       
       ////////////////////////////////////////////////
       //  RAW Histograms 
@@ -1830,9 +1830,9 @@ void HLTMuonMatchAndPlot::begin()
         // Match histos only have numHltLabels indices
         hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
 
-        hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
-        hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
-        hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
+        //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
+        //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
+        //hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
 
         hResoPtAodRec.push_back ( bookIt ("recResoPt_" + myLabel, "TrigSumAOD to RECO P_T resolution", theResParameters));
         hResoEtaAodRec.push_back ( bookIt ("recResoEta_" + myLabel, "TrigSumAOD to RECO #eta resolution", theResParameters));
@@ -1844,9 +1844,9 @@ void HLTMuonMatchAndPlot::begin()
         // cosmic plots
 
         hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );  
-        hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
-        hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsZ0Parameters) );
-        hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
+        //hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
+        //hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, theDeltaPhiVsZ0Parameters) );
+        //hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
 
         // these candidates are indexed by the number
         // of hlt labels

@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/05/22 09:07:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/06/25 19:30:59 $
+ *  $Revision: 1.1 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -273,9 +273,9 @@ private:
   std::vector <MonitorElement*> hPassPhiRec;
   std::vector <MonitorElement*> hPassMatchPtRec;
   std::vector <MonitorElement*> hPassExaclyOneMuonMaxPtRec;
-  std::vector <MonitorElement*> hPtMatchVsPtRec;
-  std::vector <MonitorElement*> hEtaMatchVsEtaRec;
-  std::vector <MonitorElement*> hPhiMatchVsPhiRec;
+  //std::vector <MonitorElement*> hPtMatchVsPtRec;
+  //std::vector <MonitorElement*> hEtaMatchVsEtaRec;
+  //std::vector <MonitorElement*> hPhiMatchVsPhiRec;
   std::vector <MonitorElement*> hPhiVsEtaRec;
   std::vector <MonitorElement*> hPassPtRec;
   std::vector <MonitorElement*> hPassPtRecExactlyOne;
@@ -291,9 +291,9 @@ private:
 
   // studies for cosmics
   std::vector <MonitorElement*> hMatchedDeltaPhi;
-  std::vector <MonitorElement*> hDeltaPhiVsPhi;
-  std::vector <MonitorElement*> hDeltaPhiVsZ0;
-  std::vector <MonitorElement*> hDeltaPhiVsD0;
+  //std::vector <MonitorElement*> hDeltaPhiVsPhi;
+  //std::vector <MonitorElement*> hDeltaPhiVsZ0;
+  //std::vector <MonitorElement*> hDeltaPhiVsD0;
   
   
 
