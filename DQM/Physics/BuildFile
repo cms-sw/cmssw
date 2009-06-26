@@ -5,4 +5,5 @@
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaReco>
 <use name=RecoMuon/TrackingTools>
+<use name=HLTrigger/HLTcore>
 <flags EDM_PLUGIN=1>
