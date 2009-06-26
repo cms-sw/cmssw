@@ -55,16 +55,20 @@ class PFClusterAlgo {
   
   /// set barrel threshold
   void setThreshBarrel(double thresh) {threshBarrel_ = thresh;}
+  void setThreshPtBarrel(double thresh) {threshPtBarrel_ = thresh;}
 
   /// set barrel seed threshold
   void setThreshSeedBarrel(double thresh) {threshSeedBarrel_ = thresh;}
+  void setThreshPtSeedBarrel(double thresh) {threshPtSeedBarrel_ = thresh;}
 
 
   /// set  endcap threshold
   void setThreshEndcap(double thresh) {threshEndcap_ = thresh;}
+  void setThreshPtEndcap(double thresh) {threshPtEndcap_ = thresh;}
 
   /// set  endcap seed threshold
   void setThreshSeedEndcap(double thresh) {threshSeedEndcap_ = thresh;}
+  void setThreshPtSeedEndcap(double thresh) {threshPtSeedEndcap_ = thresh;}
 
 
   /// set number of neighbours for  
@@ -143,7 +147,9 @@ class PFClusterAlgo {
   /// for a given zone (endcap, barrel, VFCAL ??)
 
   enum Parameter { THRESH, 
-		   SEED_THRESH };
+		   SEED_THRESH,
+		   PT_THRESH,
+		   SEED_PT_THRESH};
   
 
   /// \return the value of a parameter of a given type, see enum Parameter,
@@ -229,15 +235,19 @@ class PFClusterAlgo {
   
   ///  barrel threshold
   double threshBarrel_;
+  double threshPtBarrel_;
 
   ///  barrel seed threshold
   double threshSeedBarrel_;
+  double threshPtSeedBarrel_;
 
   ///  endcap threshold 
   double threshEndcap_;
+  double threshPtEndcap_;
 
   ///  endcap seed threshold
   double threshSeedEndcap_;
+  double threshPtSeedEndcap_;
 
   ///  number of neighbours
   int    nNeighbours_;

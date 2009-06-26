@@ -31,10 +31,20 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   double threshSeedBarrel = 
     iConfig.getParameter<double>("thresh_Seed_Barrel");
 
+  double threshPtBarrel = 
+    iConfig.getParameter<double>("thresh_Pt_Barrel");
+  double threshPtSeedBarrel = 
+    iConfig.getParameter<double>("thresh_Pt_Seed_Barrel");
+
   double threshEndcap = 
     iConfig.getParameter<double>("thresh_Endcap");
   double threshSeedEndcap = 
     iConfig.getParameter<double>("thresh_Seed_Endcap");
+
+  double threshPtEndcap = 
+    iConfig.getParameter<double>("thresh_Pt_Endcap");
+  double threshPtSeedEndcap = 
+    iConfig.getParameter<double>("thresh_Pt_Seed_Endcap");
 
 
   int nNeighbours = 
@@ -53,8 +63,14 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setThreshBarrel( threshBarrel );
   clusterAlgo_.setThreshSeedBarrel( threshSeedBarrel );
   
+  clusterAlgo_.setThreshPtBarrel( threshPtBarrel );
+  clusterAlgo_.setThreshPtSeedBarrel( threshPtSeedBarrel );
+  
   clusterAlgo_.setThreshEndcap( threshEndcap );
   clusterAlgo_.setThreshSeedEndcap( threshSeedEndcap );
+
+  clusterAlgo_.setThreshPtEndcap( threshPtEndcap );
+  clusterAlgo_.setThreshPtSeedEndcap( threshPtSeedEndcap );
 
   clusterAlgo_.setNNeighbours( nNeighbours );
 
