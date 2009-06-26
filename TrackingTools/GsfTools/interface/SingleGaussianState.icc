@@ -2,10 +2,13 @@ template <unsigned int N>
 const typename SingleGaussianState<N>::Matrix&
 SingleGaussianState<N>::weightMatrix () const {
   if ( !theHasWeightMatrix ) {
-    theWeightMatrix = theCovariance;
-    theWeightMatrix.Invert();
-    theHasWeightMatrix = true;
-//     ++constructsWeightMatrix_;
+    ROOT::Math::CholeskyDecomp<double,N> decomp(theCovariance);
+    if (!decomp)
+      theWeightMatrix = theCovariance.Inverse();
+    else
+      decomp.Invert(theWeightMatrix);
   }
+  theHasWeightMatrix = true;
+  //     ++constructsWeightMatrix_;
   return theWeightMatrix;
 }
