@@ -6,8 +6,8 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2009/06/10 12:07:47 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/06/18 15:32:53 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -45,7 +45,6 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   DQMStore* theDbe;
-  MuonServiceProxy *theService;
   // Switch for verbosity
   std::string metname;
 

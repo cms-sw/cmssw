@@ -5,7 +5,7 @@ process = cms.Process("oniaDQM")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.dqmSaver.workflow = cms.untracked.string('/Physics/BPhysics/Onia')
+process.dqmSaver.workflow = cms.untracked.string('/workflow/for/mytest')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/10 12:07:47 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/06/18 15:32:55 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -17,7 +17,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -37,10 +36,18 @@ using namespace reco;
 BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
 
   // the services
-  //theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  theDbe = NULL;
   
   // Muon Collection Label
   theMuonCollectionLabel = parameters.getParameter<InputTag>("MuonCollection");
+  global_background = NULL;
+  diMuonMass_global = NULL;
+  tracker_background = NULL;
+  diMuonMass_tracker = NULL;
+  standalone_background = NULL;
+  diMuonMass_standalone = NULL;
+    
+  
 }
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() { 
@@ -55,15 +62,15 @@ void BPhysicsOniaDQM::beginJob(EventSetup const& iSetup) {
 
   LogTrace(metname)<<"[BPhysicsOniaDQM] Parameters initialization";
   theDbe = Service<DQMStore>().operator->();
- 
-  theDbe->setCurrentFolder("Physics/BPhysics");  // Use folder with name of PAG
-  global_background = theDbe->book1D("global_background", "global background", 750, 0, 15);
-  diMuonMass_global = theDbe->book1D("diMuonMass_global", "dimuon mass", 750, 0, 15);
-  tracker_background = theDbe->book1D("tracker_background", "tracker background", 750, 0, 15);
-  diMuonMass_tracker = theDbe->book1D("diMuonMass_tracker", "dimuon mass", 750, 0, 15);
-  standalone_background = theDbe->book1D("standalone_background", "standalone background", 500, 0, 15);
-  diMuonMass_standalone = theDbe->book1D("diMuonMass_standalone", "dimuon mass", 500, 0, 15);
-
+  if(theDbe!=NULL){
+    theDbe->setCurrentFolder("Physics/BPhysics");  // Use folder with name of PAG
+    global_background = theDbe->book1D("global_background", "global background", 750, 0, 15);
+    diMuonMass_global = theDbe->book1D("diMuonMass_global", "dimuon mass", 750, 0, 15);
+    tracker_background = theDbe->book1D("tracker_background", "tracker background", 750, 0, 15);
+    diMuonMass_tracker = theDbe->book1D("diMuonMass_tracker", "dimuon mass", 750, 0, 15);
+    standalone_background = theDbe->book1D("standalone_background", "standalone background", 500, 0, 15);
+    diMuonMass_standalone = theDbe->book1D("diMuonMass_standalone", "dimuon mass", 500, 0, 15);
+  }
 
 }
 
@@ -72,18 +79,14 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   LogTrace(metname)<<"[BPhysicsOniaDQM] Analysis of event # ";
   
-  // theService->update(iSetup);
-
   // Take the STA muon container
   Handle<MuonCollection> muons;
   iEvent.getByLabel(theMuonCollectionLabel,muons);
 
   if(muons.isValid()){
-    pair<Muon,Muon> bestMassMuons;
     for (MuonCollection::const_iterator recoMu1 = muons->begin(); recoMu1!=muons->end(); ++recoMu1){
       
       // only loop over the remaining muons if recoMu1 is one of the following
-      
       if(recoMu1->isGlobalMuon() || recoMu1->isTrackerMuon() || recoMu1->isStandAloneMuon()){
 	for (MuonCollection::const_iterator recoMu2 = recoMu1+1; recoMu2!=muons->end(); ++recoMu2){
 	  
@@ -96,9 +99,13 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    
 	    // if opposite charges, fill _global, else fill _background
 	    if (((*recoMu1).charge()*(*recoMu2).charge())<0) {
-	      diMuonMass_global->Fill(massJPsi);
+	      if(diMuonMass_global!=NULL){
+		diMuonMass_global->Fill(massJPsi);
+	      }
 	    } else {
-	      global_background->Fill (massJPsi);
+	      if(global_background!=NULL){
+		global_background->Fill (massJPsi);
+	      }
 	    }
 
 	  }
@@ -109,9 +116,13 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    
 	    // if opposite charges, fill _standalone, else fill _background
 	    if (((*recoMu1).charge()*(*recoMu2).charge())<0) {
-	      diMuonMass_standalone->Fill(massJPsi);
+	      if(diMuonMass_standalone!=NULL){
+		diMuonMass_standalone->Fill(massJPsi);
+	      }
 	    } else {
-	      standalone_background->Fill (massJPsi);
+	      if(standalone_background!=NULL){
+		standalone_background->Fill (massJPsi);
+	      }
 	    }
 	  }
 	  if(recoMu1->isTrackerMuon() && recoMu2->isTrackerMuon()){
@@ -121,9 +132,13 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    
 	    // if opposite charges, fill _tracker, else fill _background
 	    if (((*recoMu1).charge()*(*recoMu2).charge())<0) {
-	      diMuonMass_tracker->Fill(massJPsi);
+	      if(diMuonMass_tracker!=NULL){
+		diMuonMass_tracker->Fill(massJPsi);
+	      }
 	    } else {
-	      tracker_background->Fill (massJPsi);
+	      if(tracker_background!=NULL){
+		tracker_background->Fill (massJPsi);
+	      }
 	    }
 	  }
 	}
@@ -136,19 +151,30 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 
 void BPhysicsOniaDQM::endJob(void) {
-  LogTrace(metname)<<"[BPhysicsOniaDQM] Saving the histos";
+  LogTrace(metname)<<"[BPhysicsOniaDQM] EndJob";
 }
 
 
 float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,const math::XYZVector &vec2){
   // mass of muon
   float massMu = 0.10566;
-  float eMu1 = sqrt(massMu*massMu + vec1.Mag2());
-  float eMu2 = sqrt(massMu*massMu + vec2.Mag2());
-  float pJPsi = sqrt((vec1+vec2).Mag2());
+  float eMu1 = -999;
+  if(massMu*massMu + vec1.Mag2()>0)
+    eMu1 = sqrt(massMu*massMu + vec1.Mag2());
+  float eMu2 = -999;
+  if(massMu*massMu + vec2.Mag2()>0)
+    eMu2 = sqrt(massMu*massMu + vec2.Mag2());
+
+  float pJPsi = -999;
+  if((vec1+vec2).Mag2()>0)
+    pJPsi = sqrt((vec1+vec2).Mag2());
   float eJPsi = eMu1 + eMu2;
-  float massJPsi = sqrt(eJPsi*eJPsi - pJPsi*pJPsi);
-  return massJPsi;
+
+  float massJPsi = -999;
+  if((eJPsi*eJPsi - pJPsi*pJPsi) > 0)
+    massJPsi = sqrt(eJPsi*eJPsi - pJPsi*pJPsi);
+ 
+ return massJPsi;
 }
 
 
