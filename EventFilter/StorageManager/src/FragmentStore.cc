@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FragmentStore.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -31,6 +31,8 @@ const bool FragmentStore::addFragment(I2OChain &chain)
   }
   else
   {
+    chain.resetStaleWindowStartTime();
+
     // The key does not exist in the map, add it to the map
     // Use pos as a hint to insert, so it can avoid another lookup
     _store.insert(pos, fragmentMap::value_type(newKey, chain));
@@ -50,7 +52,7 @@ const bool FragmentStore::getStaleEvent(I2OChain &chain, double timeout)
   fragmentMap::iterator pos = _store.begin();
   fragmentMap::iterator end = _store.end();
 
-  while ( (pos != end) && (pos->second.lastFragmentTime() > cutOffTime ) )
+  while ( (pos != end) && (pos->second.staleWindowStartTime() > cutOffTime ) )
   {
     ++pos;
   }
