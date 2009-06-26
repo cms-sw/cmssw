@@ -78,9 +78,19 @@ class Alignment:
             raise StandardError, "section %s not found. Please define the alignment!"%section
         self.mode = config.get(section, "mode").split()
         self.dbpath = config.get(section, "dbpath")
-        self.__testDbExist()
+        self.__testDbExist( self.dbpath )
+ 
+        self.errordbpath = "frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"
+        self.errortag = "TrackerIdealGeometryErrors210_mc"
+        if config.has_option(section,"errordbpath") and config.has_option(section,"errortag"):
+            self.errordbpath = config.get(section, "errordbpath")
+            self.__testDbExist( self.errordbpath )
+            self.errortag = config.get(section,"errortag")
+        else:
+            if config.has_option(section,"errordbpath") or config.has_option(section,"errortag"):
+                raise StandardError, "in alignment:%s you have to provide either both errordbpath _and_ errortag or none of both."%name
         self.tag = config.get(section,"tag")
-        self.errortag = config.get(section,"errortag")
+        
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
         self.compareTo = {}
@@ -96,14 +106,14 @@ class Alignment:
                 "IDEAL":["Tracker","SubDets"]
                 }       
 
-    def __testDbExist(self):
+    def __testDbExist(self, dbpath):
         #FIXME delete return to end train debuging
         return
-        if not self.dbpath.startswith("sqlite_file:"):
-            print "WARNING: could not check existence for",self.dbpath
+        if not dbpath.startswith("sqlite_file:"):
+            print "WARNING: could not check existence for",dbpath
         else:
-            if not os.path.exists( self.dbpath.split("sqlite_file:")[1] ):
-                raise "could not find file: '%s'"%self.dbpath.split("sqlite_file:")[1]
+            if not os.path.exists( dbpath.split("sqlite_file:")[1] ):
+                raise "could not find file: '%s'"%dbpath.split("sqlite_file:")[1]
  
     def restrictTo( self, restriction ):
         result = []
@@ -117,6 +127,7 @@ class Alignment:
         result = {
             "name": self.name,
             "dbpath": self.dbpath,
+            "errordbpath": self.errordbpath,
             "tag": self.tag,
             "errortag": self.errortag,
             "color": self.color,
@@ -278,6 +289,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         repMap.update({"comparedGeometry": ".oO[workdir]Oo./.oO[alignmentName]Oo.ROOTGeometry.root",
                        "referenceGeometry": "IDEAL",#will be replaced later if not compared to IDEAL
                        "reference": referenceName,
+                       "APE": configTemplates.APETemplate
                        })
         if not referenceName == "IDEAL":
             repMap["referenceGeometry"] = ".oO[workdir]Oo./.oO[reference]Oo.ROOTGeometry.root"
@@ -361,6 +373,7 @@ class OfflineValidation(GenericValidation):
         repMap = self.getRepMap()
           
         cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
+        print repMap["errordbpath"]
         self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["resultFile"] 
         GenericValidation.createConfiguration(self, cfgs, path)
         
@@ -381,7 +394,7 @@ class OfflineValidation(GenericValidation):
                 "OfflineTreeBaseDir": self.__OfflineTreeBaseDir,
                 "DMRMethod":self.__DMRMethod,
                 "DMRMinimum":self.__DMRMinimum,
-                "zeroAPE": configTemplates.zeroAPETemplate,
+                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap )
                 })
@@ -416,7 +429,7 @@ class MonteCarloValidation(GenericValidation):
         cfgName = "TkAlMcValidation.%s_cfg.py"%( self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap.update({
-                "zeroAPE": configTemplates.zeroAPETemplate,
+                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./McValidation_.oO[name]Oo..root", repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
@@ -445,7 +458,7 @@ class TrackSplittingValidation(GenericValidation):
         cfgName = "TkAlTrackSplitting.%s_cfg.py"%( self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap.update({
-                "zeroAPE": configTemplates.zeroAPETemplate,
+                "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./TrackSplitting_.oO[name]Oo..root", repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
@@ -620,7 +633,6 @@ def main(argv = None):
         for iniFile in options.config:
             result.append( os.path.abspath(iniFile) )
         options.config = result
-    
     config = BetterConfigParser()
     config.read( options.config )
 

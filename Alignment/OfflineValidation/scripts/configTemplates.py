@@ -160,7 +160,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
  ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
-.oO[zeroAPE]Oo.
+.oO[APE]Oo.
 
 .oO[dbLoad]Oo.
 
@@ -253,19 +253,24 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 ) 
 
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('.oO[tag]Oo.')
-    ), 
-        cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('.oO[errortag]Oo.')
-        )),
-    connect = cms.string('.oO[dbpath]Oo.')
-)
+.oO[APE]Oo.
+
+.oO[dbLoad]Oo.
+
+#---- delete used in22X---
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#    process.CondDBSetup,
+#    timetype = cms.string('runnumber'),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('TrackerAlignmentRcd'),
+#        tag = cms.string('.oO[tag]Oo.')
+#    ), 
+#        cms.PSet(
+#            record = cms.string('TrackerAlignmentErrorRcd'),
+#            tag = cms.string('.oO[errortag]Oo.')
+#        )),
+#    connect = cms.string('.oO[dbpath]Oo.')
+#)
 
 process.source = cms.Source("EmptySource")
 
@@ -348,19 +353,18 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 """
 
-
-zeroAPETemplate="""
+APETemplate="""
 from CondCore.DBCommon.CondDBSetup_cfi import *
-process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
+process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                        connect = cms.string('.oO[errordbpath]Oo.'),
                                         timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                                                   tag = cms.string('.oO[errortag]Oo.')
                                                                    ))
                                         )
-process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
+process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
 """
+
 
 
 #batch job execution
@@ -585,7 +589,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 ## tracker alignment for craft...............................................................
 .oO[dbLoad]Oo.
 
-.oO[zeroAPE]Oo.
+.oO[APE]Oo.
 
 ## track hit filter.............................................................
 
@@ -843,7 +847,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
  ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
-.oO[zeroAPE]Oo.
+.oO[APE]Oo.
 
 .oO[dbLoad]Oo.
 
@@ -919,4 +923,17 @@ process.TrackerOfflineValidation.TH1YResPixelModules = cms.PSet(
 process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
                      *process.TrackRefitter2*process.AlignmentTrackSelector*process.TrackerOfflineValidation)
 
+"""
+
+zeroAPETemplate="""
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                        connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
+                                        timetype = cms.string("runnumber"),
+                                        toGet = cms.VPSet(
+                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
+                                                                   ))
+                                        )
+process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
 """
