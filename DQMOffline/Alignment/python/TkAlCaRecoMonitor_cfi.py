@@ -52,7 +52,7 @@ TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    #
                                    daughterMass = cms.double(0.10565836),#Gev
                                    FolderName = cms.string("TkAlCaRecoMonitor"),
-                                   OutputMEsInRootFile = cms.bool(True),
+                                   OutputMEsInRootFile = cms.bool(False),
                                    OutputFileName = cms.string("TkAlCaRecoDQM.root")
                                    )
                                    
