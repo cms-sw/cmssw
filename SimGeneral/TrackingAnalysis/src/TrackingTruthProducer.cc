@@ -31,7 +31,6 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
 {
     distanceCut_           = config.getParameter<double>("vertexDistanceCut");
     dataLabels_            = config.getParameter<vector<string> >("HepMCDataLabels");
-    simHitLabel_           = config.getParameter<string>("simHitLabel");
     hitLabelsVector_       = config.getParameter<vector<string> >("TrackerHitLabels");
     volumeRadius_          = config.getParameter<double>("volumeRadius");
     volumeZ_               = config.getParameter<double>("volumeZ");
@@ -146,6 +145,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
         setup.get<SiStripDetCablingRcd>().get( detCabling );
         detCabling->addConnected(theDetIdList);
         associator(
+            pSimHits_,
             SimHitSelectorFromDB().getSimHit(pSimHits_, theDetIdList),
             trackIdToHits_
         );
@@ -184,12 +184,26 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 
 
 void TrackingTruthProducer::associator(
+    std::auto_ptr<MixCollection<PSimHit> > const & mixCollection,
     std::vector<std::pair<PSimHit,int> > const & pSimHits,
     EncodedTruthIdToIndexes & association
 )
 {
     // Clear the association map
     association.clear();
+    
+    unsigned int index = 0;
+    
+    // Create a association from simtracks to overall index in the mix collection (only for non tracker psimhits)
+    for (MixCollection<PSimHit>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
+    {
+    	if (DetId(iterator->detUnitId()).det() != DetId::Tracker)
+    	{
+            EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(iterator->eventId(), iterator->trackId());
+            association.insert( make_pair(objectId, index) );
+    	}
+    }
+    
     // Create a association from simtracks to overall index in the mix collection
     for (std::vector<std::pair<PSimHit,int> >::const_iterator iterator = pSimHits.begin(); iterator != pSimHits.end(); ++iterator)
     {
