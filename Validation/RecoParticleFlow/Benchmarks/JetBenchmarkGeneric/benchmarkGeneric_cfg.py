@@ -11,21 +11,21 @@ process.source = cms.Source (
     "PoolSource",    
     fileNames = cms.untracked.vstring(
     # Fast
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_0.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_1.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_2.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_3.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_4.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_5.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_6.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_7.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_8.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_9.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Fast_10.root'
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_0.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_1.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_2.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_3.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_4.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_5.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_6.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_7.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_8.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_9.root',
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Fast_10.root'
     # Full
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Full_001.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Full_002.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre10/aod_QCDForPF_Full_003.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Full_001.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Full_002.root',
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW310pre11/aod_QCDForPF_Full_003.root',
        #'file:aod.root'
        ),
     secondaryFileNames = cms.untracked.vstring(),
