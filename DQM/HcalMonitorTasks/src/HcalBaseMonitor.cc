@@ -624,10 +624,10 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(EtaPhiHists &hh)
     {
       for (int eta=0;eta<hh.depth[d]->getNbinsX();++eta)
 	{
+	  ieta=CalcIeta(eta,d+1);
+	  if (ieta==-9999 || abs(ieta)<21) continue;
 	  for (int phi=0;phi<hh.depth[d]->getNbinsY();++phi)
 	    {
-	      ieta=CalcIeta(eta,d+1);
-	      if (ieta==-9999 || abs(ieta)<21) continue;
 	      iphi=phi+1;
 	      if (iphi%2==1 && abs(ieta)<40 && iphi<73)
 		{
@@ -652,29 +652,29 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(EtaPhiHists &hh)
 
 void HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
 {
-  // This fills in the regions of the eta-phi map where the HCAL phi segmentation is greater than 5 degrees.
-  // This version does the fill for only a single MonitorElement
-  // Do we want to be more careful here in the future, summing over the individual problem cells?
-
+  // Fills unphysical HE/HF bins for Summary Histogram
+  // Summary Histogram is binned with the same binning as the Depth 1 EtaPhiHists
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<(etaBins_-2);++eta)
+  for (int eta=0;eta<hh->getNbinsX();++eta) // loop over eta bins
     {
-      ieta=eta-int((etaBins_-2)/2);
-      if (abs(ieta)<21)
-	continue;
-      for (int phi=0;phi<72;++phi)
+      ieta=CalcIeta(eta,1);
+      if (ieta==-9999 || abs(ieta)<21) continue;  // ignore etas that don't exist, or that have 5 degree phi binning
+
+      for (int phi=0;phi<hh->getNbinsY();++phi)
         {
 	  iphi=phi+1;
-	  if (iphi%2==1 && abs(ieta)<40 && iphi<75 && iphi>0)
+	  if (iphi%2==1 && abs(ieta)<40 && iphi<73) // 10 degree phi binning condition
 	    {
-	      hh->setBinContent(eta+2,phi+3,hh->getBinContent(eta+2,phi+2));
-	    } // if (iphi%2==1...)
-	  else if (abs(ieta)>39 && iphi%4==3 && iphi<75)
+	      hh->setBinContent(eta+1,phi+1,hh->getBinContent(eta+1,iphi));
+	    } // if (iphi%2==1...) 
+	  else if (abs(ieta)>39 && iphi%4==3 && iphi<73) // 20 degree phi binning condition
 	    {
 	      // Set last two eta strips where each cell spans 20 degrees in phi
 	      // Set next phi cell above iphi, and 2 cells below the actual cell 
-	      hh->setBinContent(eta+2,phi+3,hh->getBinContent(eta+2,phi+2));
+	      hh->setBinContent(eta+1, iphi+1, hh->getBinContent(eta+1,iphi));
+	      hh->setBinContent(eta+1, iphi-1, hh->getBinContent(eta+1,iphi));
+	      hh->setBinContent(eta+1, iphi-2, hh->getBinContent(eta+1,iphi));
 	    } // else if (abs(ieta)>39 ...)
 	} // for (int phi=0;phi<72;++phi)
 
@@ -732,8 +732,9 @@ int HcalBaseMonitor::CalcEtaBin(int subdet, int ieta, int depth)
 
 int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 {
-  int ieta;
-  ieta=-9999; // default value is nonsensical
+  // returns ieta value give an eta counter.
+  // eta runs from 0...X  (X depends on depth)
+  int ieta=-9999; // default value is nonsensical
   if (subdet==HcalBarrel)
     {
       if (depth==1) ieta=eta-42;
@@ -752,6 +753,7 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	  if (eta<13) ieta++;
 	  else if (eta>71) ieta--;
 	  else return -9999; // if outside forward range, return dummy
+	  return ieta;
 	}
       else if (depth==2)
 	{
@@ -759,32 +761,33 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	  if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
 	  else return -9999;
+	  return ieta;
 	}
       else return -9999;
     }
   // add in HE depth 3, HO later
   else if (subdet==HcalEndcap)
     {
-      if (depth==1) ieta=eta-42;
+      if (depth==1) 
+	ieta=eta-42;
       else if (depth==2) 
 	{
 	  ieta=binmapd2[eta];
-	  if (ieta==-9999) return ieta;
-	  if (abs(ieta)>29 || abs(ieta)<18) return -9999; 
+	  if (abs(ieta)>29 || abs(ieta)<18) return -9999; // outside HE
+	  return ieta;
 	}
-      if (depth==3)
+      else if (depth==3)
 	{
 	  if (eta<0 || eta>8) return -9999;
 	  else
 	    ieta=binmapd3[eta];
-	  if (ieta==-9999) return ieta;
+	  return ieta;
 	}
-      else if (depth==4)
-	return -9999;
+      else return -9999;
     } // HcalEndcap
   else if ( subdet==HcalOuter)
     {
-      if (depth<4)
+      if (depth!=4)
 	return -9999;
       else
 	{
@@ -792,40 +795,48 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	  if (abs(ieta)>15) return -9999;
 	}
     } // HcalOuter
+  if (ieta==0) return -9999;
   return ieta;
 }
   
 int HcalBaseMonitor::CalcIeta(int eta, int depth)
 {
+  // returns ieta value give an eta counter.
+  // eta runs from 0...X  (X depends on depth)
   int ieta=-9999;
+  if (eta<0) return ieta;
   if (depth==1)
     {
       ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
       if (eta<13) ieta++;
       else if (eta>71) ieta--;
+      return ieta;
     }
   else if (depth==2)
     {
-      if (eta<0 || eta>57) ieta=-9999;
+      if (eta>57) return -9999;
       else
 	{
 	  ieta=binmapd2[eta];
-	  if (ieta=-9999) return ieta;
+	  if (ieta==-9999) return ieta;
 	  else if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
+	  return ieta;
 	}
     }
   else if (depth==3)
     {
-      if (eta<0 || eta>8) ieta=-9999;
+      if (eta>8) return -9999;
       else
 	ieta=binmapd3[eta];
+      return ieta;
     }
   else if (depth==4)
     {
       ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-      if (abs(ieta)>15) ieta=-9999;
+      if (abs(ieta)>15) return -9999;
     }
+  if (ieta==0) ieta=-9999; // default value for non-physical regions
   return ieta;
 }
 
@@ -870,7 +881,7 @@ bool HcalBaseMonitor::isHE(int etabin, int depth)
 	{
 	  if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
 	  if (ieta==-29 && etabin==13) return true; // HE -29
-	  if (ieta==29 && etabin == 42) return true; // HE +29
+	  if (ieta==29 && etabin == 43) return true; // HE +29
 	}
       else if (depth==3)
 	return true;
@@ -888,15 +899,15 @@ bool HcalBaseMonitor::isHF(int etabin, int depth)
       if (ieta==-9999) return false;
       if (depth==1)
 	{
-	  if (abs(ieta)>29 ) return true;
-	  if (ieta==-29 && etabin==12) return true; // HF -29
-	  if (ieta==29 && etabin == 72) return true; // HF +29
+	  if (ieta==-29 && etabin==13) return false; // HE -29
+	  else if (ieta==29 && etabin == 71) return false; // HE +29
+	  else if (abs(ieta)>=29 ) return true;
 	}
       else if (depth==2)
 	{
-	  if (abs(ieta)>29 ) return true;
-	  if (ieta==-29 && etabin==12) return true; // HE -29
-	  if (ieta==29 && etabin == 43) return true; // HE +29
+	  if (ieta==-29 && etabin==13) return false; // HE -29
+	  else if (ieta==29 && etabin==43) return false; // HE +29
+	  else if (abs(ieta)>=29 ) return true;
 	}
     }
   return false;

@@ -313,7 +313,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int depth = id.depth();
       HcalSubdetector subdet = id.subdet();
       int calcEta = CalcEtaBin(subdet,ieta,depth);
-
       if (subdet==HcalBarrel)
 	{
 	  HBpresent_=true;
@@ -611,6 +610,7 @@ void HcalRecHitMonitor::fillNevents(void)
 		} // for (int phi=0;phi<72;++phi)
 	    } // for (int eta=0;eta<OccupancyByDepth...;++eta)
 	} // for (int mydepth=0;...)
+
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
       FillUnphysicalHEHFBins(EnergyByDepth);

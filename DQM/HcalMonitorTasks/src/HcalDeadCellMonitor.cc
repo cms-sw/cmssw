@@ -1187,20 +1187,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 	{
 	  for (int phi=0;phi<ProblemDeadCellsByDepth.depth[d]->getNbinsY();++phi)
 	    {
-	      iphi=phi+1;
-	      
-	      ieta=CalcIeta(eta,d+1);
-	      if (ieta==-9999) continue;
-	      if (d==0)
-		{
-		  if (eta<13) ieta--;
-		  else if (eta > 71 ) ieta++;
-		}
-	      else if (d==1)
-		{
-		  if (eta<13) ieta--;
-		  else if (eta > 43) ieta++;
-		}
 	      problemvalue=0;
 	      if (deadmon_test_neverpresent_)
 		{
@@ -1214,7 +1200,17 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		{
 		  problemvalue+=BelowEnergyThresholdCellsByDepth.depth[d]->getBinContent(eta+1,phi+1);
 		}
+	      if (problemvalue==0) continue;
 	      problemvalue = min((double)ievt_,problemvalue);
+	      iphi=phi+1;
+	      
+	      ieta=CalcIeta(eta,d+1);
+ 	      if (ieta==-9999) continue;
+	      if (d<2) // shift ieta down for HF in first two depths
+		{
+		  if (isHF(eta,d+1))
+		    ieta<0 ? ieta-- : ieta++;
+		}
 	      ProblemDeadCellsByDepth.depth[d]->Fill(ieta,iphi,problemvalue);
 	      ProblemDeadCells->Fill(ieta,iphi,problemvalue);
 	    } // loop on phi

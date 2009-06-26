@@ -1714,10 +1714,6 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	{
 	  for (int phi=0;phi<ProblemHotCellsByDepth.depth[depth]->getNbinsY();++phi)
 	    {
-	      iphi=phi+1;
-	      
-	      ieta=CalcIeta(eta,depth+1);
-	      if (ieta==-9999) continue;
 	      		  
 	      // Get bad number of events from each problem type
 	      problemvalue=0;
@@ -1738,6 +1734,13 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 		  problemvalue+=AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
 	      problemvalue = min((double)ievt_, problemvalue);
+	      if (problemvalue==0) continue;
+	      iphi=phi+1;
+	      ieta=CalcIeta(eta,depth+1);
+	      if (ieta==-9999) continue;
+
+	      if (isHF(eta,depth+1))
+		ieta<0 ? ieta-- : ieta++;
 	      if (problemvalue>hotmon_minErrorFlag_*ievt_)
 		{
 		  ProblemHotCellsByDepth.depth[depth]->Fill(ieta,iphi,problemvalue);
@@ -1757,7 +1760,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	}
     }
   
-  FillUnphysicalHEHFBins(ProblemHotCells);
+  //FillUnphysicalHEHFBins(ProblemHotCells);
   FillUnphysicalHEHFBins(ProblemHotCellsByDepth);
   
   if (showTiming)
