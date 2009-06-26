@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.v2.py -c defaultCRAFTValidation.ini,latestObjects.ini -n -N brot
+#test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
 import os
 import sys
 import ConfigParser
@@ -78,6 +78,7 @@ class Alignment:
             raise StandardError, "section %s not found. Please define the alignment!"%section
         self.mode = config.get(section, "mode").split()
         self.dbpath = config.get(section, "dbpath")
+        self.__testDbExist()
         self.tag = config.get(section,"tag")
         self.errortag = config.get(section,"errortag")
         self.color = config.get(section,"color")
@@ -95,6 +96,15 @@ class Alignment:
                 "IDEAL":["Tracker","SubDets"]
                 }       
 
+    def __testDbExist(self):
+        #FIXME delete return to end train debuging
+        return
+        if not self.dbpath.startswith("sqlite_file:"):
+            print "WARNING: could not check existence for",self.dbpath
+        else:
+            if not os.path.exists( self.dbpath.split("sqlite_file:")[1] ):
+                raise "could not find file: '%s'"%self.dbpath.split("sqlite_file:")[1]
+ 
     def restrictTo( self, restriction ):
         result = []
         if not restriction == None:
@@ -144,11 +154,15 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                 result.append( OfflineValidation( self, config ) )
             elif validationName == "mcValidate":
                 result.append( MonteCarloValidation( self, config ) )
+            elif validationName == "split":
+                result.append( TrackSplittingValidation( self, config ) )
             else:
                 raise StandardError, "unknown validation mode '%s'"%validationName
         return result
 
 class GenericValidation:
+    defaultReferenceName = "DEFAULT"
+
     def __init__(self, alignment, config):
         self.alignmentToValidate = alignment
         self.__general = readGeneral( config )
@@ -163,31 +177,41 @@ class GenericValidation:
         result.update({
                 "nEvents": str(self.__general["maxevents"]),
                 "dataset": str(self.__general["dataset"]),
+                "superPointingDataset": str(self.__general["superPointingDataset"]),
                 "RelValSample": self.__general["relvalsample"],
                 "TrackCollection": str(self.__general["trackcollection"]),
                 "workdir": str(self.__general["workdir"]),
                 "datadir": str(self.__general["datadir"]),
                 "logdir": str(self.__general["logdir"]),
-                "dbLoad": self.alignmentToValidate.getLoadTemplate(),
+                "dbLoad": alignment.getLoadTemplate(),
                 "CommandLineTemplate": """#run configfile and post-proccess it
 cmsRun %(cfgFile)s
 %(postProcess)s """,
                 "GlobalTag": self.__general["globaltag"],
                 "CMSSW_BASE": os.environ['CMSSW_BASE'],
-                "alignmentName":self.alignmentToValidate.name,
+                "alignmentName": alignment.name,
                 "offlineModuleLevelHistsTransient":  self.__general["offlineModuleLevelHistsTransient"]
                 })
+        #TODO catch missing delcalration of i.e. dataset or relvalsample here and rethrow to be catched by 
+        #     individual validation.
         return result
 
-    def getCompareStrings( self ):
+    def getCompareStrings( self, requestId = None ):
         result = {}
         repMap = self.alignmentToValidate.getRepMap()
         for validationId in self.filesToCompare:
             repMap["file"] = self.filesToCompare[ validationId ]
-            if repMap["file"][0:8] == "/castor/":
-                repMap["file"] = "rfio:%s"%repMap["file"]
+            if repMap["file"].startswith( "/castor/" ):
+                repMap["file"] = "rfio:%(file)s"%repMap
             result[ validationId ]=  "%(file)s=%(name)s|%(color)s|%(style)s"%repMap 
-        return result
+        if requestId == None:
+            return result
+        else:
+            if not "." in requestId:
+                requestId += ".%s"%GenericValidation.defaultReferenceName
+            if not requestId.split(".")[-1] in result:
+                raise StandardError, "could not find %s in reference Objects!"%requestId.split(".")[-1]
+            return result[ requestId.split(".")[-1] ]
 
     def createFiles( self, fileContents, path ):
         result = []
@@ -231,11 +255,11 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         self.referenceAlignment = referenceAlignment
         self.__compares = {}
         allCompares = readCompare(config)
-        #test if all compare sections are present
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
             referenceName = self.referenceAlignment.name
-        
+
+        #test if all compare sections are present
         for compareName in self.alignmentToValidate.compareTo[ referenceName ]:
             if compareName in allCompares:
                 self.__compares[compareName] = allCompares[compareName]
@@ -260,17 +284,16 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         repMap["name"] += "_vs_.oO[reference]Oo."
         return repMap
 
-
     def createConfiguration(self, path ):
         # self.__compares
         repMap = self.getRepMap()
-        
         cfgs = {"TkAlCompareToNTuple.%s_cfg.py"%self.alignmentToValidate.name:
                     replaceByMap( configTemplates.intoNTuplesTemplate, repMap)}
         if not self.referenceAlignment == "IDEAL":
             referenceRepMap = self.getRepMap( self.referenceAlignment )
             cfgFileName = "TkAlCompareToNTuple.%s_cfg.py"%self.referenceAlignment.name
             cfgs[ cfgFileName ] = replaceByMap( configTemplates.intoNTuplesTemplate, referenceRepMap)
+
         cfgSchedule = cfgs.keys()
         for common in self.__compares:
             repMap.update({"common": common,
@@ -282,7 +305,6 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
             else:
                 repMap["dbOutputService"] = ""
             cfgName = replaceByMap("TkAlCompareCommon.oO[common]Oo...oO[name]Oo._cfg.py",repMap)
-            print self.alignmentToValidate.name, cfgName
             cfgs[ cfgName ] = replaceByMap(configTemplates.compareTemplate, repMap)
             
             cfgSchedule.append( cfgName )
@@ -298,6 +320,11 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
                 if  self.copyImages:
                    repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images\n"
                    repMap["runComparisonScripts"] += "find .oO[workdir]Oo. -maxdepth 1 -name \"plot*.eps\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/\" \n"
+                   repMap["runComparisonScripts"] += "rfmkdir -p .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\n"
+                   repMap["runComparisonScripts"] += "root -b -q 'makeArrowPlots.C(\".oO[workdir]Oo./.oO[name]Oo..Comparison_common"+name+".root\",\".oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots\")'\n"
+                   repMap["runComparisonScripts"] += "rfmkdir -p .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/ArrowPlots\n"
+                   repMap["runComparisonScripts"] += "find .oO[workdir]Oo./.oO[name]Oo.."+name+"_ArrowPlots -maxdepth 1 -name \"*.png\" -print | xargs -I {} bash -c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/ArrowPlots\"\n"
+                   
                 resultingFile = replaceByMap(".oO[datadir]Oo./compared%s_.oO[name]Oo..root"%name,repMap)
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
@@ -318,30 +345,23 @@ cd .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/
 .oO[runComparisonScripts]Oo.
 cd .oO[workdir]Oo.
 """
-        
-
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }  
         return GenericValidation.createScript(self, scripts, path)
         
 class OfflineValidation(GenericValidation):
     def __init__(self, alignment,config):
         GenericValidation.__init__(self, alignment, config)
+        general = readGeneral( config )
+        self.__DMRMethod = general["DMRMethod"]
+        self.__DMRMinimum = general["DMRMinimum"]
+        self.__OfflineTreeBaseDir = general["OfflineTreeBaseDir"]
     
     def createConfiguration(self, path ):
         cfgName = "TkAlOfflineValidation.%s_cfg.py"%( self.alignmentToValidate.name )
-        repMap = GenericValidation.getRepMap(self)
-        repMap.update({
-                "zeroAPE": configTemplates.zeroAPETemplate,
-                "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
-                "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap )
-                })
-        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
-        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
-        repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
-        
+        repMap = self.getRepMap()
+          
         cfgs = {cfgName:replaceByMap( configTemplates.offlineTemplate, repMap)}
-        self.filesToCompare["DEFAULT"] = repMap["resultFile"] 
+        self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["resultFile"] 
         GenericValidation.createConfiguration(self, cfgs, path)
         
     def createScript(self, path):
@@ -354,6 +374,39 @@ class OfflineValidation(GenericValidation):
                                                   }
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
         return GenericValidation.createScript(self, scripts, path)
+
+    def getRepMap(self, alignment = None):
+        repMap = GenericValidation.getRepMap(self, alignment) 
+        repMap.update({
+                "OfflineTreeBaseDir": self.__OfflineTreeBaseDir,
+                "DMRMethod":self.__DMRMethod,
+                "DMRMinimum":self.__DMRMinimum,
+                "zeroAPE": configTemplates.zeroAPETemplate,
+                "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
+                "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap )
+                })
+        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
+        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
+        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
+        repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
+        
+        return repMap
+
+    
+    def appendToExtendedValidation( self, validationsSoFar = "" ):
+        """
+        if no argument ore "" is passed a string with an instantiation is returned, 
+        else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        if validationsSoFar == "":
+            validationsSoFar = 'PlotAlignmentValidation p("%(resultFile)s", "%(name)s", %(color)s, %(style)s);\n'%repMap
+        else:
+            validationsSoFar +='p.loadFileList("%(resultFile)s", "%(name)s", %(color)s, %(style)s);\n'%repMap
+
+#          PlotAlignmentValidation p(".oO[firstFile]Oo.",".oO[firstLegendEntry]Oo.");
+#  p.loadFileList("rfio:/castor/cern.ch/user/j/jdraeger/Validation/MCfromCRAFT/new/Validation_MC_Adun1_CosmicTF.root","Brot ist lecker2");
+        return validationsSoFar
 
 class MonteCarloValidation(GenericValidation):
     def __init__(self, alignment, config):
@@ -369,11 +422,40 @@ class MonteCarloValidation(GenericValidation):
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         cfgs = {cfgName:replaceByMap( configTemplates.mcValidateTemplate, repMap)}
-        self.filesToCompare["DEFAULT"] = repMap["outputFile"]
+        self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["outputFile"]
         GenericValidation.createConfiguration(self, cfgs, path)
 
     def createScript(self, path):
         scriptName = "TkAlMcValidate.%s.sh"%( self.alignmentToValidate.name )
+        repMap = GenericValidation.getRepMap(self)
+        repMap["CommandLine"]=""
+        for cfg in self.configFiles:
+            repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
+                                                  "postProcess":""
+                                                  }
+
+        scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
+        return GenericValidation.createScript(self, scripts, path)
+
+class TrackSplittingValidation(GenericValidation):
+    def __init__(self, alignment, config):
+        GenericValidation.__init__(self, alignment, config)
+
+    def createConfiguration(self, path ):
+        cfgName = "TkAlTrackSplitting.%s_cfg.py"%( self.alignmentToValidate.name )
+        repMap = GenericValidation.getRepMap(self)
+        repMap.update({
+                "zeroAPE": configTemplates.zeroAPETemplate,
+                "outputFile": replaceByMap( ".oO[workdir]Oo./TrackSplitting_.oO[name]Oo..root", repMap )
+                })
+        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
+        repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
+        cfgs = {cfgName:replaceByMap( configTemplates.TrackSplittingTemplate, repMap)}
+        self.filesToCompare[ GenericValidation.defaultReferenceName ] = repMap["outputFile"]
+        GenericValidation.createConfiguration(self, cfgs, path)
+
+    def createScript(self, path):
+        scriptName = "TkAlTrackSplitting.%s.sh"%( self.alignmentToValidate.name )
         repMap = GenericValidation.getRepMap(self)
         repMap["CommandLine"]=""
         for cfg in self.configFiles:
@@ -402,20 +484,21 @@ def readCompare( config ):
     return result
 
 def readGeneral( config ):
-    result = {}
+    result = {
+        "jobmode":"interactive",
+        "superPointingDataset":"",# see remark about rethroughung missing entries in general. this is needed to be backward compatible
+        "workdir":os.getcwd(),
+        "datadir":os.getcwd(),
+        "logdir":os.getcwd(),
+        "offlineModuleLevelHistsTransient":"False",
+        "OfflineTreeBaseDir":"TrackHitFilter",
+        "DMRMethod":"medianX",
+        "DMRMinimum":"30"
+        }
     try:
        for option in config.options("general"):
           result[option] = config.get("general",option)
-       if not "jobmode" in result:
-          result["jobmode"] = "interactive"
-       if not "workdir" in result:
-          result["workdir"] = os.getcwd()
-       if not "logdir" in result:
-          result["logdir"] = os.getcwd()
-       if not "datadir" in result:
-          result["datadir"] = os.path.join(os.getcwd(),"resultingData")
-       if not "offlinemodulelevelhiststransient" in result:
-          result["offlinemodulelevelhiststransient"] = "True"
+           
        if "localGeneral" in config.sections():
           for option in result:
              if option in [item[0] for item in config.items("localGeneral")]:
@@ -441,32 +524,52 @@ def runJob(jobName, script, config):
         log+=getCommandOutput2("bsub %(commands)s -J %(jobName)s -o %(logDir)s/%(jobName)s.stdout -e %(logDir)s/%(jobName)s.stderr %(script)s"%repMap)     
     return log
 
+def createExtendedValidationScript(offlineValidationList, outFilePath):
+    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in offlineValidationList:
+        repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
+    
+    theFile = open( outFilePath, "w" )
+    theFile.write( replaceByMap( configTemplates.extendedVaidationTemplate ,repMap ) )
+    theFile.close()
+    
 def createMergeScript( path, validations ):
     if( len(validations) == 0 ):
         raise StandardError, "cowardly refusing to merge nothing!"
-    compareStrings = {}
-    for validation in validations:
-        validationName = "%s"%(validation.__class__.__name__)
-        rawStrings = validation.getCompareStrings()
-        for compareId in rawStrings:
-            if compareId == "DEFAULT":
-                validationId = validationName
-            else:
-                validationId = "%s.%s"%(validationName, compareId)
-            if not validationId in compareStrings:
-                compareStrings[ validationId ] = []
-                
-            compareStrings[ validationId ].append(rawStrings[ compareId ])
-    
-    repMap = validations[0].getRepMap()
+
+    repMap = validations[0].getRepMap() #FIXME - not nice this way
     repMap.update({
             "DownloadData":"",
-            "CompareAllignments":""
+            "CompareAllignments":"",
+            "RunExtendedOfflineValidation":""
             })
-    for validationId in compareStrings:
-        repMap["CompareAllignments"] += "#merge for %s\n"%validationId
-        repMap["CompareAllignments"] += "root -q -b '.oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc+(\"%s\")'\n"%(" , ".join( compareStrings[validationId] ) )
-        repMap["CompareAllignments"] += "mv result.root %s_result.root\n"%validationId
+
+    comparisonLists = {} # directory of lists containing the validations that are comparable
+    for validation in validations:
+        for referenceName in validation.filesToCompare:    
+            validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
+            validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
+            if validationName in comparisonLists:
+                comparisonLists[ validationName ].append( validation )
+            else:
+                comparisonLists[ validationName ] = [ validation ]
+
+    if "OfflineValidation" in comparisonLists:
+        repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
+        createExtendedValidationScript( comparisonLists["OfflineValidation"], repMap["extendeValScriptPath"] )
+        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedVaidationExecution, repMap)
+
+    repMap["CompareAllignments"] = "#run comparisons"
+    for validationId in comparisonLists:
+        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
+            
+        repMap.update({"validationId": validationId,
+                       "compareStrings": " , ".join(compareStrings) })
+        
+        repMap["CompareAllignments"] += replaceByMap( configTemplates.compareAlignmentsExecution, repMap )
+      
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
@@ -475,6 +578,12 @@ def createMergeScript( path, validations ):
     
     return filePath
     
+def loadTemplates( config ):
+    if config.has_section("alternateTemplates"):
+        for templateName in config.options("alternateTemplates"):
+            newTemplateName = config.get("alternateTemplates", templateName )
+            #print "replacing default %s template by %s"%( templateName, newTemplateName)
+            configTemplates.alternateTemplate(templateName, newTemplateName)
     
 ####################--- Main ---############################
 def main(argv = None):
@@ -526,7 +635,10 @@ def main(argv = None):
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
-        raise "the file %s is in the way rename the Job or move it away"%outPath
+        raise StandardError,"the file %s is in the way rename the Job or move it away"%outPath
+
+    #replace default templates by the once specified in the "alternateTemplates" section
+    loadTemplates( config )
 
     log = ""
     alignments = readAlignments( config )
@@ -541,6 +653,10 @@ def main(argv = None):
         scripts.extend( validation.createScript( outPath ) )
     
     createMergeScript( outPath, validations )
+
+    #save backup configuration file
+    backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
+    config.write( backupConfigFile )
 
     for script in scripts:
         name = os.path.splitext( os.path.basename( script ) )[0]
