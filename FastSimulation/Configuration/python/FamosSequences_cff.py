@@ -175,7 +175,7 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
 
 # Electron reconstruction
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
-from FastSimulation.EgammaElectronAlgos.ecalDrivenElectronSeeds_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
 from FastSimulation.EgammaElectronAlgos.electronGSGsfTrackCandidates_cff import *
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
