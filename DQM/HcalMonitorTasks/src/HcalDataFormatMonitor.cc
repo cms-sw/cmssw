@@ -995,8 +995,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (  FoundT  )meDCCSummariesOfHTRs_->Fill(dccid,20);
 
   //Fake a problem with each DCC a unique number of times
-  //if ((dcc_+1)>= ievt_)
-  //  mapDCCproblem(dcc_); 
+  // if ((dcc_+1)>= ievt_)
+  //   mapDCCproblem(dcc_); 
 
   // walk through the HTR data...
   HcalHTRData htr;  
@@ -1495,31 +1495,19 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
     {
       etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
       phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+      HWProblemsByDepth_.depth[depth]->Reset(); // clear depth histograms
+      HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_); // set underflow bin to event count
       for (int eta=0;eta<etabins;++eta)
 	{
 	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
 	      if (probfrac==0) continue;
-	      HWProblemsByDepth_.depth[depth]->setBinContent(eta+1,phi+1, probfrac);
-	      if (depth+1 == 1)    
-		if      (eta<14)   filleta=eta-42;
-		else if (eta<42)   filleta=eta-41;
-		else if (eta<71)   filleta=eta-40;
-		else               filleta=eta-39;
-	      else if (depth+1 == 2) 
-		if      (eta<14)   filleta=eta-42;
-		else if (eta<28)   filleta=eta-41;
-		else if (eta<43)   filleta=eta-12;
-		else               filleta=eta-11;
-	      else if (depth+1 == 3) 
-		if      (eta < 3)  filleta=eta-27; 
-		else if (eta < 5)  filleta=eta-18;
-		else if (eta < 7)  filleta=eta+13;
-		else               filleta=eta+22;
-	      else
-		if      (eta<15)   filleta=eta-14;
-		else               filleta=eta-13;
+	      filleta=CalcIeta(eta,depth+1); // calculate ieta from eta counter
+	      // Offset true ieta for HF plotting
+	      if (isHF(eta,depth+1))
+		filleta<0 ? filleta-- : filleta++;
+	      HWProblemsByDepth_.depth[depth]->Fill(filleta,phi+1,probfrac);
 	      HWProblems_->Fill(filleta,phi+1,probfrac);
 	    }
 	}
