@@ -45,7 +45,7 @@ void en(){}
 int main(int argc, char * arg[]) {
 
   if (argc<2) {
-    srd::cerr << "give parameter file as first argument" << std::endl;
+    std::cerr << "give parameter file as first argument" << std::endl;
     return 1;
   }
 
