@@ -61,15 +61,15 @@ int main(int argc, char * arg[]) {
 
   Surface::PositionType pos( 0., 0., 0.);
 
-  BoundPlane plane(pos,rot, RectangularPlaneBounds(1.,1.,1));
-  plane.setMediumProperties(MediumProperties(0.1,0.3));
+  BoundPlanePointer plane build(pos,rot, RectangularPlaneBounds(1.,1.,1));
+  plane->setMediumProperties(MediumProperties(0.1,0.3));
 
   LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,0.);
   
   M5T const m; 
   
   
-  TrajectoryStateOnSurface tsos(tp,plane, &m, SurfaceSideDefinition::beforeSurface);
+  TrajectoryStateOnSurface tsos(tp,*plane, &m, SurfaceSideDefinition::beforeSurface);
   
   st();
   meu->updateState(tsos,alongMomentum);
