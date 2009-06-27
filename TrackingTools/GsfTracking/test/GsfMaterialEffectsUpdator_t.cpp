@@ -52,7 +52,7 @@ int main(int argc, char * arg[]) {
 
   GsfBetheHeitlerUpdator bhu(arg[1],0); 
   
-  GsfMaterialEffectsUpdator * meu = bhu;
+  GsfMaterialEffectsUpdator * meu = &bhu;
 
 
   Basic3DVector<float>  axis(0.5,1.,1);
@@ -72,7 +72,7 @@ int main(int argc, char * arg[]) {
   TrajectoryStateOnSurface tsos(tp,plane, &m);
   
   st();
-  meu->compute(tsos,alongMomentum);
+  meu->updateState(tsos,alongMomentum);
   en();
 
   return 0;
