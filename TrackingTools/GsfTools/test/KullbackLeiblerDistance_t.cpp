@@ -14,6 +14,8 @@
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
 #include<iostream>
+#include<vector>
+
 
 void st(){}
 void en(){}
@@ -50,7 +52,7 @@ Matrix buildCovariance(float y) {
 
 }
 
-int main() {
+int main(int argc, char * argv[]) {
 
   Distance const & d = distance();
 
@@ -67,19 +69,37 @@ int main() {
   // GS gs2(Vector(2., 2., 2., 2.,2.),cov);
   GS * gs2 = new GS(Vector(2., 2., 2., 2.,2.),cov2);
  
+  std::vector<GS> vgs(10000);
+  vgs.front() = *gs1;
+  vgs.back() = *gs2;
+
+
   // make sure we load all code...
   edm::HRTimeType s0= edm::hrRealTime();
   double res = d(*gs0,*gsP);
   edm::HRTimeType e0 = edm::hrRealTime();
   std::cout << e0-s0 << std::endl;
 
-  st();	
-  edm::HRTimeType s= edm::hrRealTime();
-  double res2 = d(*gs1,*gs2);
-  edm::HRTimeType e = edm::hrRealTime();
-  en();
-  std::cout << e-s << std::endl;
- 
+  double res2=0;
+
+  if (argc<2) return 1;
+
+  if (argv[1][0]='a') { 
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    res2 = d(*gs1,*gs2);
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  } 
+  else if (argv[1][0]='b') { 
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    res2 = d(vgs.front(),vgs.back());
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  } 
 
   std:: cout << res << " " << res2 << std::endl;
 
