@@ -1,13 +1,13 @@
-#ifndef QcdPhotonsPhotonJetDQM_H
-#define QcdPhotonsPhotonJetDQM_H
+#ifndef QcdPhotonsDQM_H
+#define QcdPhotonsDQM_H
 
 
-/** \class QcdPhotonsPhotonJetDQM
+/** \class QcdPhotonsDQM
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/06/26 13:54:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/26 15:24:31 $
+ *  $Revision: 1.1 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -20,14 +20,14 @@
 class DQMStore;
 class MonitorElement;
 
-class QcdPhotonsPhotonJetDQM : public edm::EDAnalyzer {
+class QcdPhotonsDQM : public edm::EDAnalyzer {
  public:
 
   /// Constructor
-  QcdPhotonsPhotonJetDQM(const edm::ParameterSet&);
+  QcdPhotonsDQM(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~QcdPhotonsPhotonJetDQM();
+  virtual ~QcdPhotonsDQM();
   
   /// Inizialize parameters for histo binning
   void beginJob(edm::EventSetup const& iSetup);

@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 13:54:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/26 15:24:28 $
+ *  $Revision: 1.1 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
-#include "DQM/Physics/src/QcdPhotonsPhotonJetDQM.h"
+#include "DQM/Physics/src/QcdPhotonsDQM.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -40,7 +40,7 @@ using namespace reco;
 
 
 
-QcdPhotonsPhotonJetDQM::QcdPhotonsPhotonJetDQM(const ParameterSet& parameters) {
+QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // Get parameters from configuration file
   theTriggerPathToPass        = parameters.getParameter<string>("triggerPathToPass");
   theTriggerResultsCollection = parameters.getParameter<InputTag>("triggerResultsCollection");
@@ -48,18 +48,18 @@ QcdPhotonsPhotonJetDQM::QcdPhotonsPhotonJetDQM(const ParameterSet& parameters) {
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
 }
 
-QcdPhotonsPhotonJetDQM::~QcdPhotonsPhotonJetDQM() { 
+QcdPhotonsDQM::~QcdPhotonsDQM() { 
 }
 
 
-void QcdPhotonsPhotonJetDQM::beginJob(EventSetup const& iSetup) {
+void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
  
   logTraceName = "QcdPhotonAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
   theDbe = Service<DQMStore>().operator->();
  
-  theDbe->setCurrentFolder("Physics/QcdPhotonsPhotonJetDQM");  // Use folder with name of PAG
+  theDbe->setCurrentFolder("Physics/QcdPhotonsDQM");  // Use folder with name of PAG
   h_photon_et           = theDbe->book1D("h_photon_et",           "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
   h_jet_et              = theDbe->book1D("h_jet_et",              "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
@@ -69,7 +69,7 @@ void QcdPhotonsPhotonJetDQM::beginJob(EventSetup const& iSetup) {
 }
 
 
-void QcdPhotonsPhotonJetDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
+void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   LogTrace(logTraceName)<<"Analysis of event # ";
 
@@ -152,11 +152,11 @@ void QcdPhotonsPhotonJetDQM::analyze(const Event& iEvent, const EventSetup& iSet
 }
 
 
-void QcdPhotonsPhotonJetDQM::endJob(void) {}
+void QcdPhotonsDQM::endJob(void) {}
 
 
 // This always returns only a positive deltaPhi
-double QcdPhotonsPhotonJetDQM::calcDeltaPhi(double phi1, double phi2) {
+double QcdPhotonsDQM::calcDeltaPhi(double phi1, double phi2) {
 
   double deltaPhi = phi1 - phi2;
 

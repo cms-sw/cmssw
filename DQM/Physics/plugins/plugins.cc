@@ -3,8 +3,8 @@
 
 
 #include "DQM/Physics/src/BPhysicsOniaDQM.h"
-#include "DQM/Physics/src/QcdPhotonsPhotonJetDQM.h"
+#include "DQM/Physics/src/QcdPhotonsDQM.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(BPhysicsOniaDQM);
-DEFINE_ANOTHER_FWK_MODULE(QcdPhotonsPhotonJetDQM);
+DEFINE_ANOTHER_FWK_MODULE(QcdPhotonsDQM);
