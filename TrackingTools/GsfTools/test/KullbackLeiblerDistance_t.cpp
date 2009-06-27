@@ -84,7 +84,7 @@ int main(int argc, char * argv[]) {
 
   if (argc<2) return 1;
 
-  if (argv[1][0]='a') { 
+  if (argv[1][0]=='a') { 
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     res2 = d(*gs1,*gs2);
@@ -92,7 +92,7 @@ int main(int argc, char * argv[]) {
     en();
     std::cout << e-s << std::endl;
   } 
-  else if (argv[1][0]='b') { 
+  else if (argv[1][0]=='b') { 
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     res2 = d(vgs.front(),vgs.back());
