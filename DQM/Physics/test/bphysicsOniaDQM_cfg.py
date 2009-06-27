@@ -4,6 +4,7 @@ process = cms.Process("oniaDQM")
 
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.DQM.collectorHost = ''
 
 process.dqmSaver.workflow = cms.untracked.string('/workflow/for/mytest')
 
