@@ -69,7 +69,7 @@ int main(int argc, char * arg[]) {
   M5T const m; 
   
   
-  TrajectoryStateOnSurface tsos(tp,plane, &m);
+  TrajectoryStateOnSurface tsos(tp,plane, &m, SurfaceSideDefinition::beforeSurface);
   
   st();
   meu->updateState(tsos,alongMomentum);
