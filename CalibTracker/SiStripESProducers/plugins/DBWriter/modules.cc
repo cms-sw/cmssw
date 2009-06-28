@@ -91,11 +91,18 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesDummyPrinter);
 typedef DummyCondObjPrinter<SiStripThreshold,SiStripThresholdRcd> SiStripThresholdDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdDummyPrinter);
 
+typedef DummyCondObjPrinter<SiStripThreshold,SiStripThresholdRcd> SiStripClusterThresholdDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripClusterThresholdDummyPrinter);
+
 typedef DummyCondObjPrinter<SiStripLorentzAngle,SiStripLorentzAngleRcd> SiStripLorentzAngleDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripLorentzAngleDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripPedestals,SiStripPedestalsRcd> SiStripPedestalsDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsDummyPrinter);
+
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+typedef DummyCondObjPrinter<SiStripApvGain,SiStripApvGainRcd> SiStripApvGainDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripApvGainDummyPrinter);
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 typedef DummyCondObjPrinter<SiStripGain,SiStripGainRcd> SiStripGainDummyPrinter;
@@ -111,3 +118,15 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyPrinter);
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 typedef DummyCondObjPrinter<SiStripDetCabling,SiStripDetCablingRcd> SiStripDetCablingDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripDetCablingDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripBadStrip,SiStripBadStripRcd> SiStripBadStripDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripBadStrip,SiStripBadModuleRcd> SiStripBadModuleDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadModuleDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripBadStrip,SiStripBadFiberRcd> SiStripBadFiberDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadFiberDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripBadStrip,SiStripBadChannelRcd> SiStripBadChannelDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripBadChannelDummyPrinter);
