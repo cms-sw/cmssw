@@ -85,8 +85,11 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyDBWriter);
 
 #include "CalibTracker/SiStripESProducers/plugins/DBWriter/DummyCondObjPrinter.h"
 
-typedef DummyCondObjPrinter<SiStripNoises,SiStripNoisesRcd> SiStripNoisesDummyPrinter;
-DEFINE_ANOTHER_FWK_MODULE(SiStripNoisesDummyPrinter);
+typedef DummyCondObjPrinter<SiStripNoises,SiStripNoisesRcd> SiStripNoises_DecModeDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripNoises_DecModeDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripNoises,SiStripNoisesRcd> SiStripNoises_PeakModeDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripNoises_PeakModeDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripThreshold,SiStripThresholdRcd> SiStripThresholdDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdDummyPrinter);
@@ -118,6 +121,9 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyPrinter);
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 typedef DummyCondObjPrinter<SiStripDetCabling,SiStripDetCablingRcd> SiStripDetCablingDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripDetCablingDummyPrinter);
+
+typedef DummyCondObjPrinter<SiStripFedCabling,SiStripFedCablingRcd> SiStripFedCablingDummyPrinter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripFedCablingDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripBadStrip,SiStripBadStripRcd> SiStripBadStripDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripBadStripDummyPrinter);
