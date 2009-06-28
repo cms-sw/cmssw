@@ -16,32 +16,35 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.7 2009/04/13 16:12:44 chrjones Exp $
+// $Id: CmsShowViewPopup.h,v 1.8 2009/05/22 20:28:22 amraktad Exp $
 //
 
 // system include files
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <sigc++/sigc++.h>
+
 #include "TGFrame.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 // forward declarations
-class FWViewBase;
 class TGLabel;
 class TGTextButton;
 class TGButton;
 class TGFrame;
+class TEveWindow;
+
 class FWParameterSetterBase;
+class FWViewBase;
 class FWColorManager;
-class FWGUISubviewArea;
 
 class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
 
 public:
-   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 0, UInt_t h = 0, FWColorManager* cm=0, FWViewBase* v = 0, FWGUISubviewArea *sva = 0);
+   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, TEveWindow* ew = 0);
    virtual ~CmsShowViewPopup();
 
    // ---------- const member functions ---------------------
@@ -50,13 +53,22 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void CloseWindow();
+   virtual void MapWindow();
+   virtual void UnmapWindow();
 
-   void reset(FWViewBase* iView, FWGUISubviewArea* sva);
+   bool mapped() { return m_mapped; }
+
+   void reset(TEveWindow* ew);
    void removeView();
 
    void saveImage();
    void changeBackground();
    void backgroundColorWasChanged();
+
+   TEveWindow* GetEveWindow() const { return m_eveWindow; }
+
+   sigc::signal<void> closed_;
+
 private:
    CmsShowViewPopup(const CmsShowViewPopup&);    // stop default
 
@@ -68,11 +80,11 @@ private:
    TGCompositeFrame* m_viewContentFrame;
    TGButton* m_saveImageButton;
    TGTextButton* m_changeBackground;
-   FWViewBase* m_view;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;
+   TEveWindow* m_eveWindow;
 
-   FWGUISubviewArea* m_viewArea;
+   bool  m_mapped;
 };
 
 

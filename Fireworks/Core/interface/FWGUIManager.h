@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.68 2009/06/23 17:14:08 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.69 2009/06/26 21:06:33 amraktad Exp $
 //
 
 // system include files
@@ -37,27 +37,17 @@ class TGPictureButton;
 class TGComboBox;
 class TGTextButton;
 class TGTextEntry;
-class FWSelectionManager;
 class TGFrame;
 class TGSplitFrame;
 class TGVerticalFrame;
-class CmsShowMainFrame;
 class TGMainFrame;
 class TGTab;
 class TGCompositeFrame;
 class TGCheckButton;
-class FWGUISubviewArea;
-
-class FWEventItemsManager;
-class FWEventItem;
-class FWListEventItem;
-class FWViewBase;
-
-class FWListModel;
+class TGPopupMenu;
 
 class TGListTreeItem;
 class TGListTree;
-//class TEveGedEditor;
 class TEveElementList;
 class TEveElement;
 class TEveWindowPack;
@@ -65,11 +55,19 @@ class TEveWindowSlot;
 class TEveCompositeFrame;
 class TEveWindow;
 
+class CmsShowMainFrame;
+class FWSelectionManager;
+class FWEventItemsManager;
+class FWEventItem;
+class FWListEventItem;
+class FWViewBase;
+class FWListModel;
+class FWGUISubviewArea;
+
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWModelChangeManager;
 
-class TGPopupMenu;
 class CSGAction;
 class CSGContinuousAction;
 
@@ -120,10 +118,8 @@ public:
 
    void createModelPopup();
    void showModelPopup();
-
-   void createViewPopup();
-   void refillViewPopup(FWViewBase* iView, FWGUISubviewArea* sva);
    void showViewPopup();
+   void popupViewClosed();
 
    // help
    void createHelpPopup ();
@@ -147,6 +143,7 @@ public:
 
    void createView(const std::string& iName, TEveWindowSlot* slot = 0);
 
+   void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
    void disablePrevious();
    void disableNext();
@@ -215,6 +212,8 @@ private:
    void delaySliderChanged(Int_t);
 
    void finishUpColorChange();
+
+   void setViewPopup(TEveWindow*);
 
    // ---------- member data --------------------------------
 

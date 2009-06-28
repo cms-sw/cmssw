@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.9 2009/04/13 16:12:44 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.10 2009/05/22 20:28:23 amraktad Exp $
 //
 
 // system include files
@@ -19,13 +19,13 @@
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TG3DLine.h"
+#include "TEveWindow.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 //
 // constants, enums and typedefs
@@ -38,17 +38,21 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, FWViewBase* v, FWGUISubviewArea* va) :
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColorManager* iCMgr, TEveWindow* ew) :
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
-   m_colorManager(iCMgr)
+   m_colorManager(iCMgr),
+   m_eveWindow(0),
+   m_mapped(kFALSE)
 {
-   m_view = v;
-   m_viewArea = va;
+
+   m_eveWindow = ew;
+   FWViewBase* viewBase = ew ? (FWViewBase*)ew->GetUserData() : 0;
+
    SetCleanup(kDeepCleanup);
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&CmsShowViewPopup::backgroundColorWasChanged,this));
-   
+
    TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
-   m_viewLabel = new TGLabel(viewFrame, v->typeName().c_str());
+   m_viewLabel = new TGLabel(viewFrame, viewBase->typeName().c_str());
    TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
    m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
    m_viewLabel->SetTextJustify(kTextLeft);
@@ -69,7 +73,7 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_changeBackground->Connect("Clicked()","CmsShowViewPopup",this,"changeBackground()");
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
    AddFrame(m_saveImageButton);
-   if(!m_view) {
+   if(!viewBase) {
       m_saveImageButton->SetEnabled(kFALSE);
    }
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
@@ -77,7 +81,7 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_viewContentFrame = new TGCompositeFrame(this);
    m_setters.clear();
-   for(FWParameterizable::const_iterator itP = v->begin(), itPEnd = v->end();
+   for(FWParameterizable::const_iterator itP = viewBase->begin(), itPEnd = viewBase->end();
        itP != itPEnd;
        ++itP) {
       boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
@@ -124,20 +128,31 @@ void
 CmsShowViewPopup::CloseWindow()
 {
    UnmapWindow();
-   if (m_viewArea)
-   {
-      m_viewArea->setInfoButton(false);
-   }
+   closed_.emit();
+}
+
+void
+CmsShowViewPopup::MapWindow()
+{
+   TGWindow::MapWindow();
+   m_mapped = true;
+}
+
+void
+CmsShowViewPopup::UnmapWindow()
+{
+   TGWindow::UnmapWindow();
+   m_mapped = false;
 }
 
 
 void
-CmsShowViewPopup::reset(FWViewBase* iView, FWGUISubviewArea* sva) {
+CmsShowViewPopup::reset(TEveWindow* ew) {
 
-   //  m_viewContentFrame->RemoveFrame(m_view->frame());
+   //  m_viewContentFrame->RemoveFrame(viewBase->frame());
    //  m_viewContentFrame->AddFrame(iView->frame());
-   m_view = iView;
-   m_viewArea = sva;
+   m_eveWindow = ew;
+   FWViewBase* viewBase = ew ? (FWViewBase*)ew->GetUserData() : 0;
 
    m_viewContentFrame->UnmapWindow();
    RemoveFrame(m_viewContentFrame);
@@ -146,11 +161,11 @@ CmsShowViewPopup::reset(FWViewBase* iView, FWGUISubviewArea* sva) {
 
    m_viewContentFrame = new TGCompositeFrame(this);
    m_setters.clear();
-   if(iView) {
+   if(viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
 
-      m_viewLabel->SetText(iView->typeName().c_str());
-      for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
+      m_viewLabel->SetText(viewBase->typeName().c_str());
+      for(FWParameterizable::const_iterator itP = viewBase->begin(), itPEnd = viewBase->end();
           itP != itPEnd;
           ++itP) {
          boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
@@ -179,16 +194,17 @@ CmsShowViewPopup::removeView() {
 void
 CmsShowViewPopup::saveImage()
 {
-   if(m_view) {
-      m_view->promptForSaveImageTo(this);
+   if(m_eveWindow) {
+      FWViewBase* viewBase = (FWViewBase*)m_eveWindow;
+      viewBase->promptForSaveImageTo(this);
    }
 }
 
-void 
+void
 CmsShowViewPopup::changeBackground()
 {
    m_colorManager->setBackgroundColorIndex( FWColorManager::kBlackIndex == m_colorManager->backgroundColorIndex()?
-                                            FWColorManager::kWhiteIndex: 
+                                            FWColorManager::kWhiteIndex:
                                             FWColorManager::kBlackIndex);
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.132 2009/06/24 16:58:12 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.133 2009/06/26 21:06:33 amraktad Exp $
 //
 
 // system include files
@@ -199,6 +199,14 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    }
 }
 
+void FWGUIManager::connectSubviewAreaSignals(FWGUISubviewArea* a)
+{
+   a->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed, this, _1));
+   a->selected_.connect(boost::bind(&FWGUIManager::subviewInfoSelected, this, _1));
+   a->unselected_.connect(boost::bind(&FWGUIManager::subviewInfoUnselected, this, _1));
+   a->swap_.connect(boost::bind(&FWGUIManager::subviewSwapped, this, _1));
+}
+
 //
 // Destructor
 //
@@ -219,7 +227,7 @@ FWGUIManager::evePreTerminate()
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowDocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
- 
+
 
    m_cmsShowMainFrame->UnmapWindow();
 
@@ -407,9 +415,11 @@ FWGUIManager::addData()
 TEveWindow*
 FWGUIManager::getSwapCandidate()
 {
+   TEveWindow* swapCandidate =0;
+
    if ( gEve->GetWindowManager()->GetCurrentWindow())
    {
-      return gEve->GetWindowManager()->GetCurrentWindow();
+      swapCandidate = gEve->GetWindowManager()->GetCurrentWindow();
    }
    else
    {
@@ -422,43 +432,51 @@ FWGUIManager::getSwapCandidate()
       if ( pp->GetList()->GetSize() > 2)
       {
          pel = (TGFrameElementPack*) pp->GetList()->At(1);
-         if (pel->fState)
+         if (pel->fState) // is first undocked
          {
             pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
             if ( pef && pef->GetEveWindow())
+               swapCandidate = pef->GetEveWindow();
+         }
+      }
+      if (swapCandidate == 0)
+      {
+         // no eve window found in primary check secondary
+         TGPack* sp = m_viewSecPack->GetPack();
+         Int_t nf = sp->GetList()->GetSize();
+         TIter frame_iterator(sp->GetList());
+         for (Int_t i=0; i<nf; ++i) {
+            pel = (TGFrameElementPack*)frame_iterator();
+            pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
+            if ( pef && pef->GetEveWindow())
             {
-               return pef->GetEveWindow();
+               swapCandidate =  pef->GetEveWindow() ;
+               break;
             }
          }
       }
-
-      // no eve window found in primary check secondary
-      TGPack* sp = m_viewSecPack->GetPack();
-      Int_t nf = sp->GetList()->GetSize();
-      TIter frame_iterator(sp->GetList());
-      for (Int_t i=0; i<nf; ++i) {
-         pel = (TGFrameElementPack*)frame_iterator();
-         pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-         if ( pef && pef->GetEveWindow())
-         {
-            return pef->GetEveWindow() ;
-         }
-      }
    }
-   return 0;
+
+   return swapCandidate;
 }
 
 void
 FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 {
-   // disable swap on the fisr left TEveCompositeFrame
+   // First argumet is needed for signals/slot symetry
 
+   // disable swap on the first left TEveCompositeFrame
+   // check info button
    TEveWindow* current = getSwapCandidate();
-   // printf("Swap candidate %s \n", current->GetElementName());
+   bool checkInfoBtn =  m_viewPopup ? m_viewPopup->mapped() : 0;
+   TEveWindow* selected = m_viewPopup ?  m_viewPopup->GetEveWindow() : 0;
+
    for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
    {
       FWGUISubviewArea* ar = getGUISubviewArea(*it);
-      if (ar) ar->setSwapIcon(current != (*it));
+      ar->setSwapIcon(current != (*it));
+      if (checkInfoBtn && selected)
+         ar->setInfoButton(selected == (*it));
    }
 }
 
@@ -466,7 +484,7 @@ void
 FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 {
    if(sva->isSelected()) {
-      if(0!= m_viewPopup) {refillViewPopup(0, 0);}
+      setViewPopup(0);
    }
 
    CmsShowTaskExecutor::TaskFunctor f;
@@ -495,20 +513,21 @@ FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
 {
-   for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
+   // release button on previously selected
+   if (m_viewPopup && m_viewPopup->GetEveWindow())
    {
-      FWGUISubviewArea* ar = getGUISubviewArea(*it);
-      ar->setInfoButton(ar == sva);
+      std::cout << "info view " << m_viewPopup->GetEveWindow()->GetElementName() << std::endl;
+      FWGUISubviewArea* ar = getGUISubviewArea(m_viewPopup->GetEveWindow());
+      ar->setInfoButton(kFALSE);
    }
 
-   showViewPopup();
-   refillViewPopup(sva->getFWView(), sva);
+   setViewPopup(sva->getEveWindow());
 }
 
 void
 FWGUIManager::subviewInfoUnselected(FWGUISubviewArea* sva)
 {
-   if(m_viewPopup) {refillViewPopup(0, sva);}
+   setViewPopup(0);
 }
 
 void
@@ -516,10 +535,8 @@ FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
 {
    TEveWindow* curr = getSwapCandidate();
    TEveWindow* swap = sva->getEveWindow();
-   if (curr)
-   {
-      swap->SwapWindow(curr);
-   }
+   if (curr) swap->SwapWindow(curr);
+
    checkSubviewAreaIconState(0);
 }
 
@@ -618,31 +635,35 @@ FWGUIManager::showModelPopup()
 }
 
 void
-FWGUIManager::createViewPopup() {
-   if (m_viewPopup == 0) {
-      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, m_viewBases[0]);
-      m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
-   }
-   /* seems to work but a small scale test caused seg faults
-      Int_t x,y;
-      UInt_t w,h;
-      gVirtualX->GetWindowSize(m_viewPopup->GetId(),
-                          x,y,w,h);
-      m_viewPopup->SetWMPosition(x,y);
-      std::cout <<x<<" "<< y<<std::endl;
-    */
-}
-
-void
-FWGUIManager::refillViewPopup(FWViewBase* iView, FWGUISubviewArea* sva) {
-   m_viewPopup->reset(iView, sva);
+FWGUIManager::popupViewClosed()
+{
+  FWGUISubviewArea* sa = getGUISubviewArea(m_viewPopup->GetEveWindow());
+  sa->setInfoButton(kFALSE);
 }
 
 void
 FWGUIManager::showViewPopup() {
-   createViewPopup();
+   // CSG action .
+   setViewPopup(0);
+}
+
+void
+FWGUIManager::setViewPopup(TEveWindow* ew) {
+   //create if not exist
+   if (m_viewPopup == 0)
+   {
+      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, ew);
+      m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
+      m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+   }
+   else
+   {
+      m_viewPopup->reset(ew);
+   }
+
    m_viewPopup->MapWindow();
 }
+
 
 void FWGUIManager::createHelpPopup ()
 {
@@ -1112,7 +1133,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
                showEDIFrame();
                setWindowInfoFrom(it->second,m_ediFrame);
             } else if (controllerName == kViewController) {
-               showViewPopup();
+               setViewPopup(0);
                setWindowInfoFrom(it->second, m_viewPopup);
             } else if (controllerName == kObjectController) {
                showModelPopup();
@@ -1189,6 +1210,8 @@ FWGUIManager::finishUpColorChange()
 {
    gEve->FullRedraw3D(kFALSE,kTRUE);
 }
+
+
 
 //
 // static member functions

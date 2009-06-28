@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.30 2009/06/24 13:16:20 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.31 2009/06/26 21:06:33 amraktad Exp $
 //
 
 // system include files
@@ -91,12 +91,7 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    AddFrame(m_closeButton, new TGLayoutHints(lh));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
 
-   // gui manager callbacks
-   FWGUIManager* mng = FWGUIManager::getGUIManager();
-   goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,mng,_1));
-   selected_.connect(boost::bind(&FWGUIManager::subviewInfoSelected,mng,_1));
-   unselected_.connect(boost::bind(&FWGUIManager::subviewInfoUnselected,mng,_1));
-   swap_.connect(boost::bind(&FWGUIManager::subviewSwapped,mng,_1));
+   FWGUIManager::getGUIManager()->connectSubviewAreaSignals(this);
 }
 
 FWGUISubviewArea::~FWGUISubviewArea()
@@ -324,5 +319,5 @@ FWGUISubviewArea::infoDisabledIcon()
 void
 FWGUISubviewArea::setInfoButton(bool downp)
 {
-   m_infoButton->SetState(downp ? kButtonDown : kButtonUp, true);
+   m_infoButton->SetState(downp ? kButtonEngaged : kButtonUp, false);
 }
