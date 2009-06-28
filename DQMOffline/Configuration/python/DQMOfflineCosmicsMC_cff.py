@@ -13,6 +13,5 @@ ecalEndcapHltTask.FEDRawDataCollection = 'rawDataCollector'
 ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
 dtDataIntegrityUnpacker.inputLabel = 'rawDataCollector'
 hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag('rawDataCollector')
-
-DQMOfflineCosmics.remove(l1tfed)
+l1tfed.rawTag = 'rawDataCollector'
 
