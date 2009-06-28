@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.17 2009/06/26 13:09:33 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.18 2009/06/26 14:56:47 rekovic Exp $
 //
 //
 
@@ -675,7 +675,6 @@ public:
     void fillMC();
     void fillOff();
 		void monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection & toc);
-		//void monitorL1(const Vids & idtype, const Keys & l1k, const TriggerObjectCollection & toc);
     void monitorDenominator(FourVectorHLTriggerOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc);
 
 		void fillL1OffMatch(FourVectorHLTriggerOffline* fv);
@@ -686,7 +685,7 @@ public:
 		  fillL1MCMatch(fv);
 		}
 
-		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, int & NOn);
+		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc);
     void monitorOffline(FourVectorHLTriggerOffline* fv);
 		void fillOnOffMatch(FourVectorHLTriggerOffline* fv);
 		void fillOnMCMatch(FourVectorHLTriggerOffline* fv);
@@ -796,7 +795,6 @@ void objMon<T>::monitorDenominator(FourVectorHLTriggerOffline::PathInfoCollectio
 
         setPath(v);
 				
-				
 				if(! isTriggerType(v_->getObjectType()) ) return;
 
 	      fillMC();
@@ -812,7 +810,8 @@ template <class T>
 void objMon<T>::fillOff()
 {
 
- int NOff = 0;
+ unsigned int NOff = 0;
+
  if( offCollB_.isValid()) {
   typedef typename reco::JetTagCollection::const_iterator const_iterator;
   for( const_iterator iter = offCollB_->begin(), iend = offCollB_->end(); iter != iend; ++iter )
@@ -822,12 +821,11 @@ void objMon<T>::fillOff()
 	  float recoPhi = (*iter).first->phi();
 	  float recoPt = (*iter).first->pt();
 
-	  NOff++;
 
     if (fabs(recoEta) <= EtaMax_ && recoPt >=  EtMin_ )
     {
 	   
-
+	     NOff++;
        v_->getOffEtOffHisto()->Fill(recoPt);
        v_->getOffEtaVsOffPhiOffHisto()->Fill(recoEta, recoPhi);
 
@@ -842,11 +840,11 @@ void objMon<T>::fillOff()
   for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
   {
 
-	 NOff++;
 
    if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
    {
-	   
+
+	   NOff++;
      v_->getOffEtOffHisto()->Fill(iter->pt());
      v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
 
@@ -854,8 +852,9 @@ void objMon<T>::fillOff()
 
   }
 
- }
- return;
+ } // end else if
+
+ v_->getNOffHisto()->Fill(NOff);
 
 }
 
@@ -863,11 +862,12 @@ template <class T>
 void objMon<T>::fillMC()
 {
 
+ float NMc=0; 
+
  if(GenJetsFlag_)
  {
 
 	if (! genJets_.isValid()) return;
-  float NMc=0; 
 
   for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
 
@@ -881,28 +881,25 @@ void objMon<T>::fillMC()
 
        }
 
+			 NMc++;
        v_->getMcEtMcHisto()->Fill(gjet->pt());
        v_->getMcEtaVsMcPhiMcHisto()->Fill(gjet->eta(),gjet->phi());
 
-			 NMc++;
 
     } // end if Eta , Et
 
   } // end for
 
-	return;
 
  } // end if GenJetsFlag_
-
-
- if(! genParticles_.isValid()) return;
+ else if( genParticles_.isValid()) {
 
  for(size_t i = 0; i < genParticles_->size(); ++ i) {
 
    const GenParticle & p = (*genParticles_)[i];
    if (abs(p.pdgId()) == pdgId_ && p.status() == pdgStatus_ && fabs(p.eta()) <= EtaMax_ && p.pt() >= EtMin_ ){
     
-		//   NMc++;
+		NMc++;
     v_->getMcEtMcHisto()->Fill(p.pt());
     v_->getMcEtaVsMcPhiMcHisto()->Fill(p.eta(),p.phi());
 
@@ -910,7 +907,9 @@ void objMon<T>::fillMC()
 
  } // end for
 
- return;
+ } // end if
+
+ v_->getNMcHisto()->Fill(NMc);
 
 }
 
@@ -918,7 +917,10 @@ template <class T>
 void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc)
 {
 
- int NL1=0;
+ unsigned int NL1=0;
+ unsigned int NL1McUM=0;
+ unsigned int NL1OffUM=0;
+
  trigger::Vids::const_iterator idtypeiter = idtype.begin(); 
  for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
 
@@ -926,12 +928,12 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	 if(isL1TriggerType(*idtypeiter))
 	 {
 
-			NL1++;
 
 
       if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
-		  
+
+			  NL1++;
         v_->getL1EtL1Histo()->Fill(l1FV.pt());
 	      v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
@@ -956,6 +958,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 				    // fill UM histos (no matching required)
 				    if(NL1 == 1) {
 
+							NL1OffUM++;
 	            v_->getOffEtL1OffUMHisto()->Fill(recoPt);
 	            v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
 
@@ -990,6 +993,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 				    // fill UM histos (no matching required)
 				    if(NL1 == 1) {
 
+							NL1OffUM++;
 	            v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
 	            v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
 
@@ -1041,6 +1045,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 				     // fill UM histos (no matching required)
 				     if(NL1 == 1) {
 
+							 NL1McUM++;
 	             v_->getMcEtL1McUMHisto()->Fill(gjet->pt());
 	             v_->getMcEtaVsMcPhiL1McUMHisto()->Fill(gjet->eta(),gjet->phi());
 						
@@ -1081,6 +1086,7 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 				     // fill UM histos (no matching required)
 				     if(NL1 == 1) {
 
+							 NL1McUM++;
 	             v_->getMcEtL1McUMHisto()->Fill(p.pt());
 	             v_->getMcEtaVsMcPhiL1McUMHisto()->Fill(p.eta(),p.phi());
 
@@ -1107,23 +1113,32 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	   } // end if isL1TriggerType
      ++idtypeiter;
 
-	 } // end for l1ki
+ } // end for l1ki
+
+ v_->getNL1Histo()->Fill(NL1);
+ v_->getNL1OffUMHisto()->Fill(NL1OffUM);
+ v_->getNL1McUMHisto()->Fill(NL1McUM);
 
 }
 
 template <class T> 
-void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, int & NOn)
+void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc)
 {
+
+		 unsigned int NOn=0;
+		 unsigned int NOnOffUM=0;
+		 unsigned int NOnMcUM=0;
+		 unsigned int NOnL1UM=0;
 
 		 if(! isTriggerType(v_->getObjectType()) ) return;
 
 		 trigger::TriggerObject onlineFV = toc[*ki];
 
-	   NOn++;    
 
      if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
      { 
 
+	     NOn++;    
        v_->getOnEtOnHisto()->Fill(onlineFV.pt());
 	     v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 
@@ -1149,6 +1164,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 				    // fill UM histos (no matching required)
 				    if(NOn == 1) {
 
+							NOnOffUM++;
 	            v_->getOffEtOnOffUMHisto()->Fill(recoPt);
 	            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(recoEta,recoPhi);
 
@@ -1184,6 +1200,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 				    // fill UM histos (no matching required)
 				    if(NOn == 1) {
 
+							NOnOffUM++;
 	            v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
 	            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
 
@@ -1230,6 +1247,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 				      // fill UM histos (no matching required)
 				      if(NOn == 1) {
 
+							 NOnL1UM++;
 	             v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
 	             v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
 
@@ -1283,6 +1301,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 				     // fill UM histos (no matching required)
 				     if(NOn == 1) {
 
+							 NOnMcUM++;
 	             v_->getMcEtOnMcUMHisto()->Fill(gjet->pt());
 	             v_->getMcEtaVsMcPhiOnMcUMHisto()->Fill(gjet->eta(),gjet->phi());
 						
@@ -1306,8 +1325,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
         if(! OnMCDRMatchMap.empty()) OnMCDRMatchSet.insert(OnMCDRMatchMap);
 
 	    } // end if genJets
-
-	    if (!GenJetsFlag_ && genParticles_.isValid())
+	    else if (!GenJetsFlag_ && genParticles_.isValid())
 			{
 
 	      fimmap OnMCDRMatchMap;
@@ -1321,6 +1339,7 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 				     // fill UM histos (no matching required)
 				     if(NOn == 1) {
 
+							 NOnMcUM++;
 	             v_->getMcEtOnMcUMHisto()->Fill(p.pt());
 	             v_->getMcEtaVsMcPhiOnMcUMHisto()->Fill(p.eta(),p.phi());
 
@@ -1332,7 +1351,6 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 						 {
 
 		          OnMCDRMatchMap.insert(pair<float,int>(dR,i));
-	            //NOnMc++;
 
 						 }
 	         } // end if
@@ -1342,23 +1360,29 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 
 	    } 
 
+			v_->getNOnHisto()->Fill(NOn);
+			v_->getNOnOffUMHisto()->Fill(NOnOffUM);
+			v_->getNL1OnUMHisto()->Fill(NOnL1UM);
+			v_->getNOnMcUMHisto()->Fill(NOnMcUM);
+
 }
 
 template <class T> 
 void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 {
 
+ unsigned int NOff=0;
+ unsigned int NOffMcUM=0;
 
  if(! isTriggerType(v_->getObjectType()) ) return;
 
- int numNOff = 0;
  if(offCollB_.isValid()) {
 
    typedef typename reco::JetTagCollection::const_iterator const_iterator;
    for( const_iterator iter = offCollB_->begin(), iend = offCollB_->end(); iter != iend; ++iter )
    {
 
-					numNOff++;
+					NOff++;
 
 	        if (GenJetsFlag_ && genJets_.isValid())
 		      {
@@ -1374,8 +1398,9 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 									 
             
 		       	     // fill UM histos (no matching required)
- 	               if(numNOff == 1) {
+ 	               if(NOff == 1) {
 
+									 NOffMcUM++;
                    v_->getMcEtOffMcUMHisto()->Fill(gjet->pt());
                    v_->getMcEtaVsMcPhiOffMcUMHisto()->Fill(gjet->eta(),gjet->phi());
 		       			
@@ -1411,7 +1436,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
    for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
    {
 
-					numNOff++;
+					NOff++;
 
 	        if (GenJetsFlag_ && genJets_.isValid())
 		      {
@@ -1436,8 +1461,9 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 						     }
 
 		       	     // fill UM histos (no matching required)
- 	               if(numNOff == 1) {
+ 	               if(NOff == 1) {
 
+									 NOffMcUM++;
                    v_->getMcEtOffMcUMHisto()->Fill(gjet->pt());
                    v_->getMcEtaVsMcPhiOffMcUMHisto()->Fill(gjet->eta(),gjet->phi());
 		       			
@@ -1462,7 +1488,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 
 	        } // end if genJets
 
-          if (!GenJetsFlag_ && genParticles_.isValid())
+          else if (!GenJetsFlag_ && genParticles_.isValid())
  	        {
 
             fimmap OffMCDRMatchMap;
@@ -1474,8 +1500,9 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
  	         	 { 
 
  	              // fill UM histos (no matching required)
- 	              if(numNOff == 1) {
+ 	              if(NOff == 1) {
 
+									 NOffMcUM++;
                    v_->getMcEtOffMcUMHisto()->Fill(p.pt());
                    v_->getMcEtaVsMcPhiOffMcUMHisto()->Fill(p.eta(),p.phi());
 
@@ -1501,11 +1528,16 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 
  } // end else if
 
+ v_->getNOffHisto()->Fill(NOff);
+ v_->getNOffMcUMHisto()->Fill(NOffMcUM);
+
 }
+
 template <class T> 
 void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
 {
 
+  float NL1Off=0;
 
   if(L1OffDRMatchSet.size() > 1) fv->cleanDRMatchSet(L1OffDRMatchSet);
 
@@ -1529,9 +1561,10 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
          for (int count = 0; count < i; count++) iter++;
 
 
-	       //NL1Off++;
+	       NL1Off++;
 	       v_->getOffEtL1OffHisto()->Fill((*iter).first->pt());
 	       v_->getOffEtaVsOffPhiL1OffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
+
 
 			}
       else if( offColl_.isValid()) {
@@ -1541,7 +1574,7 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
          for (int count = 0; count < i; count++) iter++;
 
 
-	       //NL1Off++;
+	       NL1Off++;
 	       v_->getOffEtL1OffHisto()->Fill(iter->pt());
 	       v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
 
@@ -1549,11 +1582,15 @@ void objMon<T>::fillL1OffMatch(FourVectorHLTriggerOffline* fv)
 
 	}
 
+	v_->getNL1OffHisto()->Fill(NL1Off);
+
 }
 
 template <class T> 
 void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
 {
+
+	unsigned int NL1Mc=0;
 
   if(GenJetsFlag_)
   {
@@ -1582,9 +1619,9 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
        GenJetCollection::const_iterator gjet=genJets_->begin(); 
        for (int count = 0; count < i; count++) gjet++;
   
+			 NL1Mc++;
        v_->getMcEtL1McHisto()->Fill(gjet->pt());
        v_->getMcEtaVsMcPhiL1McHisto()->Fill(gjet->eta(),gjet->phi());
-			 NL1Mc++;
 
   
 	 } // end for set
@@ -1610,7 +1647,8 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
        if (dR > DRMatch_) continue;
   
        const GenParticle & p = (*genParticles_)[i];
-  	   //NL1Mc++;
+
+  	   NL1Mc++;
   	   v_->getMcEtL1McHisto()->Fill(p.pt());
   	   v_->getMcEtaVsMcPhiL1McHisto()->Fill(p.eta(),p.phi());
   
@@ -1618,11 +1656,15 @@ void objMon<T>::fillL1MCMatch(FourVectorHLTriggerOffline* fv)
 
  } // end else if
 
+ v_->getNL1McHisto()->Fill(NL1Mc);
+
 }
 
 template <class T> 
 void objMon<T>::fillOnOffMatch(FourVectorHLTriggerOffline* fv)
 {
+
+  unsigned int NOnOff=0;
 
 	// clean the set L1-Off
   if(OnOffDRMatchSet.size() > 1) fv->cleanDRMatchSet(OnOffDRMatchSet);
@@ -1649,7 +1691,7 @@ void objMon<T>::fillOnOffMatch(FourVectorHLTriggerOffline* fv)
          for (int count = 0; count < i; count++) iter++;
 
 
-	       //NL1Off++;
+	       NOnOff++;
 	       v_->getOffEtOnOffHisto()->Fill((*iter).first->pt());
 	       v_->getOffEtaVsOffPhiOnOffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
@@ -1660,7 +1702,7 @@ void objMon<T>::fillOnOffMatch(FourVectorHLTriggerOffline* fv)
 			   const_iterator iter = offColl_->begin();
          for (int count = 0; count < i; count++) iter++;
 
-	       //NL1Off++;
+	       NOnOff++;
 	       v_->getOffEtOnOffHisto()->Fill(iter->pt());
 	       v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
@@ -1668,11 +1710,16 @@ void objMon<T>::fillOnOffMatch(FourVectorHLTriggerOffline* fv)
 
 	}
 
+	v_->getNOnOffHisto()->Fill(NOnOff);
+
 }
 
 template <class T> 
 void objMon<T>::fillOnMCMatch(FourVectorHLTriggerOffline* fv)
 {
+
+  unsigned int NOnMc=0;
+
   if(GenJetsFlag_)
   {
   
@@ -1698,18 +1745,14 @@ void objMon<T>::fillOnMCMatch(FourVectorHLTriggerOffline* fv)
        for (int count = 0; count < i; count++) gjet++;
   
   
-       //NMc++; 
+       NOnMc++; 
        v_->getMcEtOnMcHisto()->Fill(gjet->pt());
        v_->getMcEtaVsMcPhiOnMcHisto()->Fill(gjet->eta(),gjet->phi());
   
 	 } // end for set
-
-	 return;
   
   } // end if GenJetsFlag_
-
-
-	if(! genParticles_.isValid()) return;
+	else if( genParticles_.isValid()) {
 
 	// clean the set L1-MC
 	if(OnMCDRMatchSet.size() > 1) fv->cleanDRMatchSet(OnMCDRMatchSet);
@@ -1728,17 +1771,24 @@ void objMon<T>::fillOnMCMatch(FourVectorHLTriggerOffline* fv)
      if (dR > DRMatch_) continue;
           
      const GenParticle & p = (*genParticles_)[i];
-	   //NL1Mc++;
+
+	   NOnMc++;
 	   v_->getMcEtOnMcHisto()->Fill(p.pt());
 	   v_->getMcEtaVsMcPhiOnMcHisto()->Fill(p.eta(),p.phi());
 
 	}
+
+ }
+
+ v_->getNOnMcHisto()->Fill(NOnMc);
 
 }
 
 template <class T> 
 void objMon<T>::fillOffMCMatch(FourVectorHLTriggerOffline* fv)
 {
+
+  unsigned int NOffMc=0;
 
   if(GenJetsFlag_)
   {
@@ -1764,21 +1814,14 @@ void objMon<T>::fillOffMCMatch(FourVectorHLTriggerOffline* fv)
        GenJetCollection::const_iterator gjet=genJets_->begin(); 
        for (int count = 0; count < i; count++) gjet++;
   
-       //NMc++; 
+       NOffMc++; 
        v_->getMcEtOffMcHisto()->Fill(gjet->pt());
        v_->getMcEtaVsMcPhiOffMcHisto()->Fill(gjet->eta(),gjet->phi());
   
 	 } // end for set
 
-	 return;
-  
   } // end if GenJetsFlag_
-
-
-
-	if(! genParticles_.isValid()) return;
-
-  if(! offColl_.isValid()) return;
+	else if( genParticles_.isValid() && offColl_.isValid()) {
 
 	// clean the set L1-MC
 	if(OffMCDRMatchSet.size() > 1) fv->cleanDRMatchSet(OffMCDRMatchSet);
@@ -1797,17 +1840,24 @@ void objMon<T>::fillOffMCMatch(FourVectorHLTriggerOffline* fv)
      if (dR > DRMatch_) continue;
           
      const GenParticle & p = (*genParticles_)[i];
-	   //NL1Mc++;
+
+	   NOffMc++;
 	   v_->getMcEtOffMcHisto()->Fill(p.pt());
 	   v_->getMcEtaVsMcPhiOffMcHisto()->Fill(p.eta(),p.phi());
 
 	}
+
+ }
+
+ v_->getNOffMcHisto()->Fill(NOffMc);
 
 }
 
 template <class T> 
 void objMon<T>::fillOnL1Match(FourVectorHLTriggerOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
 {
+
+  unsigned int NOnL1=0;
 
 	// clean the set On-L1
 	if(OnL1DRMatchSet.size() > 1) fv->cleanDRMatchSet(OnL1DRMatchSet);
@@ -1827,12 +1877,13 @@ void objMon<T>::fillOnL1Match(FourVectorHLTriggerOffline* fv, const trigger::Key
     trigger::Keys::const_iterator l1ki = l1k.begin();
     for (int count = 0; count < i; count++) l1ki++;
 
-	  //NL1On++;
+	  NOnL1++;
 	  v_->getL1EtL1OnHisto()->Fill(toc[*l1ki].pt());
 	  v_->getL1EtaVsL1PhiL1OnHisto()->Fill(toc[*l1ki].eta(),toc[*l1ki].phi());
 
 	}
 
+  v_->getNL1OnHisto()->Fill(NOnL1);
 
 }
 
