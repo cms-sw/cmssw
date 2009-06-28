@@ -14,12 +14,12 @@ bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > &
   } else 
     decomp.Invert(m);
   return true;
+
 }
 
 template<typename T,unsigned int N>
 bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & mIn,
-ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & mOut) {
-{
+			ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & mOut) {
   
   ROOT::Math::CholeskyDecomp<T,N> decomp(mIn);
   if (!decomp) {
@@ -27,8 +27,9 @@ ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & mOut) {
     mOut=mIn;
     return mOut.Invert();
   } else 
-    decomp.Invert(Mout);
+    decomp.Invert(mOut);
   return true;
+
 }
 
 

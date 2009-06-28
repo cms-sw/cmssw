@@ -718,19 +718,3 @@ namespace CholeskyDecompHelpers {
 
 #endif // ROOT_Math_CHOLESKYDECOMP
 
-
-template <unsigned int N>
-const typename SingleGaussianState<N>::Matrix&
-SingleGaussianState<N>::weightMatrix () const {
-  if ( !theHasWeightMatrix ) {
-    ROOT::Math::CholeskyDecomp<double,N> decomp(theCovariance);
-    if (!decomp) {
-      int i;
-      theWeightMatrix = theCovariance.Inverse(i);
-    } else
-      decomp.Invert(theWeightMatrix);
-  }
-  theHasWeightMatrix = true;
-  //     ++constructsWeightMatrix_;
-  return theWeightMatrix;
-}
