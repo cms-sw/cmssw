@@ -1,5 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
 bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   // put in SiStripBadStrip::v_badstrips of DetId
@@ -40,4 +41,32 @@ void SiStripBadStrip::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
+void SiStripBadStrip::printSummary(std::stringstream & ss) const {
+  SiStripDetSummary summaryBadModules;
+  SiStripDetSummary summaryBadStrips;
 
+  // Loop on the vector<DetRegistry> and take the bad modules and bad strips
+  Registry::const_iterator it = indexes.begin();
+  for( ; it!=indexes.end(); ++it ) {
+    summaryBadModules.add(it->detid);
+    summaryBadStrips.add(it->iend - it->ibegin);
+  }
+  ss << "Summary of bad modules in detector:" << endl;
+  summaryBadModules.print(ss, false);
+  ss << "Summary of bad strip in detectors:" << endl;
+  summaryBadStrips.print(ss, false);
+}
+
+void SiStripBadStrip::printDebug(std::stringstream & ss) const {
+  ss << "Printing all bad strips for all DetIds" << std::endl;
+  // Loop on the vector<DetRegistry> and take the bad modules and bad strips
+  Registry::const_iterator it = indexes.begin();
+  for( ; it!=indexes.end(); ++it ) {
+    ss << "For DetId = " << it->detid << std::endl;
+    SiStripBadStrip::Range range(getRange(it->detid));
+    for( std::vector<unsigned int>::const_iterator badStrip = range.first;
+         badStrip != range.second; ++badStrip ) {
+      ss << "strip: " << *badStrip << std::endl;
+    }
+  }
+}
