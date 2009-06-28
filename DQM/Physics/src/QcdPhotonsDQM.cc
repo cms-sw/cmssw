@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 15:24:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/28 09:46:43 $
+ *  $Revision: 1.2 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -59,7 +59,7 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   LogTrace(logTraceName)<<"Parameters initialization";
   theDbe = Service<DQMStore>().operator->();
  
-  theDbe->setCurrentFolder("Physics/QcdPhotonsDQM");  // Use folder with name of PAG
+  theDbe->setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
 
   // Keep the number of plots and number of bins to a minimum!
   h_photon_et           = theDbe->book1D("h_photon_et",           "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
