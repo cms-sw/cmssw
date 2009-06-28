@@ -9,7 +9,7 @@
 
 /**
  * Holds the list of bad components. <br>
- * The bad components can be filled with tw put methods, that receive a DetId and
+ * The bad components can be filled with two put methods, that receive a DetId and
  * either a range of bad strips or a vector of bad strips. <br>
  * The information is stored in two vectors: <br>
  * - a vector<unsigned int> holding the bad strips <br>
