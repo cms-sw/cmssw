@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("oniaDQM")
+process.load("DQM.Physics.bphysicsOniaDQM_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -17,10 +18,5 @@ process.source = cms.Source("PoolSource",
                            )
                             )
 
-# DQM monitor module for BPhysics: onia resonances
-process.oniaAnalyzer = cms.EDAnalyzer("BPhysicsOniaDQM",
-                                      MuonCollection = cms.InputTag("muons"),
-)
-
-process.p = cms.Path(process.oniaAnalyzer+process.dqmSaver)
+process.p = cms.Path(process.bphysicsOniaDQM+process.dqmSaver)
 
