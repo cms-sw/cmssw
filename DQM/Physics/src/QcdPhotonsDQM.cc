@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/28 09:46:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/28 13:54:18 $
+ *  $Revision: 1.3 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -82,7 +82,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
   unsigned int triggerIndex = hltConfig.triggerIndex(theTriggerPathToPass);
-  bool passed_HLT = HLTresults->accept(triggerIndex);
+  bool passed_HLT = true ; 
+  // passed_HLT = HLTresults->accept(triggerIndex);
   if (!passed_HLT) return;
 
 
