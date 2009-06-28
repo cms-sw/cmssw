@@ -1177,7 +1177,7 @@ FedChannelConnection SiStripFedCabling::fedConnection( uint16_t fed_id,
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripFedCabling::print( std::stringstream& ss ) const {
+void SiStripFedCabling::printDebug( std::stringstream& ss ) const {
 
   uint16_t total = 0;
   uint16_t nfeds = 0;
@@ -1304,8 +1304,8 @@ void SiStripFedCabling::terse( std::stringstream& ss ) const {
 }
 
 // -----------------------------------------------------------------------------
-// 
-void SiStripFedCabling::summary( std::stringstream& ss ) const {
+//
+void SiStripFedCabling::printSummary( std::stringstream& ss ) const {
 
   ss << "[SiStripFedCabling::" << __func__ << "]";
   

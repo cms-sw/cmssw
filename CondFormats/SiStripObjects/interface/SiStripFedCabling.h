@@ -419,13 +419,22 @@ class SiStripFedCabling {
   void buildFedCabling( ConnsConstIterRange connections );
   
   /** Prints all connection information for this FED cabling object. */
-  void print( std::stringstream& ) const;
+  void printDebug( std::stringstream& ) const;
+
+  /// LEFT FOR COMPATIBILITY. SHOULD BE REPLACED BY PRINTDEBUG
+  void print( std::stringstream& ss ) const {
+    printDebug(ss);
+  }
   
   /** Prints terse information for this FED cabling object. */
   void terse( std::stringstream& ) const;
   
   /** Prints summary information for this FED cabling object. */
-  void summary( std::stringstream& ) const;
+  void printSummary( std::stringstream& ) const;
+  /// LEFT FOR COMPATIBILITY. SHOULD BE REPLACED BY PRINTSUMMARY
+  void summary( std::stringstream& ss ) const {
+    printSummary(ss);
+  }
 
   /// Builds range of iterators from pair of offsets
   class ConnsRange {
