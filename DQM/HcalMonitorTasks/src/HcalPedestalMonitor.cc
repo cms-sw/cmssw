@@ -43,7 +43,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     std::cout <<"<HcalPedestalMonitor::setup>  Setting up histograms"<<endl;
 
   stringstream name;
-  baseFolder_ = rootFolder_+"PedestalMonitor_Hcal";
+  baseFolder_ = rootFolder_+"BaselineMonitor_Hcal";
 
   // Pedestal Monitor - specific cfg variables
 
@@ -84,11 +84,13 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       
       ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
 				     " Problem Pedestal Rate for all HCAL",
-				     etaBins_,etaMin_,etaMax_,
-				     phiBins_,phiMin_,phiMax_);
+				     85,-42.5,42.5,
+				     72,0.5,72.5);
+      
       ProblemPedestals->setAxisTitle("i#eta",1);
       ProblemPedestals->setAxisTitle("i#phi",2);
-      
+      SetEtaPhiLabels(ProblemPedestals);
+
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
@@ -478,19 +480,28 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
       */
     }
 
-  for (int eta=0;eta<85;++eta)
+  ProblemPedestals->Reset();
+  ProblemPedestals->setBinContent(0,0,ievt_);
+  int etabins=0;
+  int phibins=0;
+  int zside=0;
+  for (int depth=0;depth<4;++depth)
     {
-      for (int phi=0;phi<72;++phi)
+      ProblemPedestalsByDepth.depth[depth]->Reset();
+      ProblemPedestalsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+      subdet=depth+1;
+      etabins=ProblemPedestalsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemPedestalsByDepth.depth[depth]->getNbinsY();
+      for (int eta=0;eta<etabins;++eta)
 	{
-	  for (int depth=0;depth<4;++depth) // this is one unit less "true" depth (for indexing purposes) 
+	  ieta=CalcIeta(eta,depth+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      // Skip events that don't contain required number of events
 	      if (pedcounts[eta][phi][depth] < minEntriesPerPed_) continue;
 	      if (pedcounts[eta][phi][depth]==0) continue;
 
-	      subdet=depth+1;
-	      ieta=CalcIeta(eta,depth+1);
-	      if (ieta==-9999) continue;
 	      if (depth<2)
 		{
 		  if (depth==1)
@@ -502,13 +513,13 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 		  else if (depth==2)
 		    {
 		      if (abs(ieta)<13) subdet=1;
-		      else if (eta<14 || eta>43) subdet=4;
+		      else if (eta<13 || eta>43) subdet=4;
 		      else subdet=2;
 		    }
 		}
-	      else if (depth==3) // depth=3; HO
+	      else if (depth==3) // "true" depth=4; HO
 		subdet=3;
-	      else subdet=2; //depth==2; HE 
+	      else subdet=2; //"true" depth=3; HE 
 	      // fillvalue = fraction of events used for pedestal determination
 	      // a small fillvalue causes the problem plots to get filled with a smaller value than a large fillvalue
 	      if ((endingTimeSlice_-startingTimeSlice_+1)*ievt_==0) continue;
@@ -561,7 +572,12 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 
 	      // Don't flag HO SiPMs as problematic yet; just skip them
 	      if (isSiPM(ieta,phi+1,depth+1)) continue;
-
+	      zside=0;
+	      if (depth<2)
+		{
+		  if (isHF(eta,depth+1))
+		    ieta<0 ? zside = -1 : zside = 1;
+		}
 	      // Problem Cells
 	      // Problem Cells currently determined by checking ADC counts against
 	      // nominal expectations of (mean=3 ADC counts, RMS = 1 count)
@@ -570,13 +586,23 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 		   && (fabs(ADC_mean-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
 		       || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
 		{
-		  ProblemPedestals->setBinContent(eta+1,phi+1,fillvalue);
-		  ProblemPedestalsByDepth.depth[depth]->setBinContent(eta+1,phi+1,fillvalue);
+		  ProblemPedestals->Fill(ieta+zside,phi+1,fillvalue);
+		  ProblemPedestalsByDepth.depth[depth]->Fill(ieta+zside,phi+1,fillvalue);
 		}
-	    } // for (int depth)
-	} // for (int phi)
-    } // for (int eta)
+	    } // for (int phi)
+	} // for (int eta)
+    } // for (int depth...)
   
+  etabins=ProblemPedestals->getNbinsX();
+  phibins=ProblemPedestals->getNbinsY();
+
+  for (int eta=0;eta<etabins;++eta)
+    {
+      for (int phi=0;phi<phibins;++phi)
+	if (ProblemPedestals->getBinContent(eta+1,phi+1)>ievt_)
+	  ProblemPedestals->setBinContent(eta+1,phi+1,ievt_);
+    }
+
   // Fill unphysical cells
   FillUnphysicalHEHFBins(ADCPedestalMean);
   FillUnphysicalHEHFBins(ADCPedestalRMS);

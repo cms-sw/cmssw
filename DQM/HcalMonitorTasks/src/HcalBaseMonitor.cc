@@ -656,17 +656,21 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
   // Summary Histogram is binned with the same binning as the Depth 1 EtaPhiHists
   int ieta=0;
   int iphi=0;
-  for (int eta=0;eta<hh->getNbinsX();++eta) // loop over eta bins
+  int etabins = hh->getNbinsX();
+  int phibins = hh->getNbinsY();
+  float binval=0;
+  for (int eta=0;eta<etabins;++eta) // loop over eta bins
     {
       ieta=CalcIeta(eta,1);
       if (ieta==-9999 || abs(ieta)<21) continue;  // ignore etas that don't exist, or that have 5 degree phi binning
 
-      for (int phi=0;phi<hh->getNbinsY();++phi)
+      for (int phi=0;phi<phibins;++phi)
         {
 	  iphi=phi+1;
 	  if (iphi%2==1 && abs(ieta)<40 && iphi<73) // 10 degree phi binning condition
 	    {
-	      hh->setBinContent(eta+1,phi+1,hh->getBinContent(eta+1,iphi));
+	      binval=hh->getBinContent(eta+1,iphi);
+	      hh->setBinContent(eta+1,iphi+1,binval);
 	    } // if (iphi%2==1...) 
 	  else if (abs(ieta)>39 && iphi%4==3 && iphi<73) // 20 degree phi binning condition
 	    {

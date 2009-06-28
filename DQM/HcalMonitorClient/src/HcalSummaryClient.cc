@@ -47,7 +47,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   dataFormatMon_.baseProblemName  = "DataFormatMonitor/ HardwareWatchCells"; // untested
   digiMon_.baseProblemName        = "DigiMonitor_Hcal/ ProblemDigis";
   recHitMon_.baseProblemName      = "RecHitMonitor_Hcal/ ProblemRecHits";
-  pedestalMon_.baseProblemName    = "PedestalMonitor_Hcal/ ProblemPedestals";
+  pedestalMon_.baseProblemName    = "BaselineMonitor_Hcal/ ProblemPedestals";
   ledMon_.baseProblemName         = "";
   hotCellMon_.baseProblemName     = "HotCellMonitor_Hcal/ ProblemHotCells";
   deadCellMon_.baseProblemName    = "DeadCellMonitor_Hcal/ ProblemDeadCells";
@@ -67,7 +67,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   dataFormatMon_.problemDir   = "DataFormatMonitor";
   digiMon_.problemDir         = "DigiMonitor_Hcal/problem_digis";
   recHitMon_.problemDir       = "RecHitMonitor_Hcal/problem_rechits";
-  pedestalMon_.problemDir     = "PedestalMonitor_Hcal/problem_pedestals";
+  pedestalMon_.problemDir     = "BaselineMonitor_Hcal/problem_pedestals";
   ledMon_.problemDir          = "";
   hotCellMon_.problemDir      = "HotCellMonitor_Hcal/problem_hotcells";
   deadCellMon_.problemDir     = "DeadCellMonitor_Hcal/problem_deadcells";
@@ -77,7 +77,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   dataFormatMon_.ievtName   = "DataFormatMonitor/Data Format Task Event Number";
   digiMon_.ievtName         = "DigiMonitor_Hcal/Digi Task Event Number";
   recHitMon_.ievtName       = "RecHitMonitor_Hcal/RecHit Task Event Number";
-  pedestalMon_.ievtName     = "PedestalMonitor_Hcal/Pedestal Task Event Number";
+  pedestalMon_.ievtName     = "BaselineMonitor_Hcal/Pedestal Task Event Number";
   ledMon_.ievtName          = "";
   hotCellMon_.ievtName      = "HotCellMonitor_Hcal/Hot Cell Task Event Number";
   deadCellMon_.ievtName     = "DeadCellMonitor_Hcal/Dead Cell Task Event Number";

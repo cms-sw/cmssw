@@ -60,16 +60,7 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
     for (int x=0; x<CIX; x++)
       for (int y=0; y<CIY; y++)      
 	Chann_DataIntegrityCheck_  [f][x][y]=0;
-
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
-      for (unsigned int depth =0 ; depth < 4; depth++) {
-	problemcount[eta][phi][depth] = 0;   
-	problemfound[eta][phi][depth] = false;   
-      }
-    }
-  }
-
+  
 } // HcalDataFormatMonitor::HcalDataFormatMonitor()
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
@@ -119,6 +110,23 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     SetEtaPhiLabels(HWProblems_);
     SetupEtaPhiHists(HWProblemsByDepth_," Hardware Watch Cells", "");
     
+    unsigned int etabins=0;
+    unsigned int phibins=0;
+    for (unsigned int depth=0; depth<4; ++depth)
+      {
+	etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
+	phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+	for (unsigned int eta=0; eta<etabins;++eta)
+	  {
+	    for (unsigned int phi=0;phi<phibins;++phi)
+	      {
+		problemcount[eta][phi][depth]=0;
+		problemfound[eta][phi][depth]=false;
+	      }
+	  }
+      }
+    
+
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);    
 
@@ -661,24 +669,38 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   }
 
   // Any problem worth mapping, anywhere?
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
-      for (unsigned int depth =0 ; depth < 4; depth++) {
-	if (problemfound[eta][phi][depth]) 
-	  ++problemcount[eta][phi][depth];   
-      }
+  unsigned int etabins=0;
+  unsigned int phibins=0;
+  for (unsigned int depth=0; depth<4; ++depth)
+    {
+      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
+      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+      for (unsigned int eta=0; eta<etabins;++eta)
+	{
+	  for (unsigned int phi=0;phi<phibins;++phi)
+	    {
+	      if (problemfound[eta][phi][depth])
+		++problemcount[eta][phi][depth];
+	    }
+	}
     }
-  }
+
   if (0== (ievt_ % dfmon_checkNevents))
     UpdateMEs();
   //Transfer this event's problem info to 
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
-      for (unsigned int depth =0 ; depth < 4; depth++) {
-	problemfound[eta][phi][depth] = false;   
-      }
+  
+  for (unsigned int depth=0; depth<4; ++depth)
+    {
+      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
+      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+      for (unsigned int eta=0; eta<etabins;++eta)
+	{
+	  for (unsigned int phi=0;phi<phibins;++phi)
+	    {
+	      problemfound[eta][phi][depth]=false;		
+	    }
+	}
     }
-  }
 
   for(unsigned int i=0; i<report.getFedsError().size(); i++){
     // Take the ith entry in the vector of FED IDs
@@ -995,8 +1017,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (  FoundT  )meDCCSummariesOfHTRs_->Fill(dccid,20);
 
   //Fake a problem with each DCC a unique number of times
-  // if ((dcc_+1)>= ievt_)
-  //   mapDCCproblem(dcc_); 
+  //if ((dcc_+1)>= ievt_)
+  //  mapDCCproblem(dcc_); 
 
   // walk through the HTR data...
   HcalHTRData htr;  
@@ -1082,7 +1104,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
 
     //Fake a problem with each HTR a unique number of times.
-    // if ( (spigot+1) >= ievt_ ) 
+    //if ( (spigot+1) >= ievt_ ) 
     //  mapHTRproblem(dccid,spigot); 
 
 
@@ -1513,13 +1535,17 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	}
     }
   // Make sure problem rate (summed over depths) doesn't exceed 100%
-  for (int eta=0;eta<HWProblems_->getNbinsX();++eta)
+  etabins=HWProblems_->getNbinsX();
+  phibins=HWProblems_->getNbinsY();
+  for (int eta=0;eta<etabins;++eta)
     {
-      for (int phi=0;phi<HWProblems_->getNbinsY();++phi)
+      for (int phi=0;phi<phibins;++phi)
 	{
 	  if (HWProblems_->getBinContent(eta+1,phi+1)>ievt_)
 	    HWProblems_->setBinContent(eta+1,phi+1,ievt_);
 	}
     }
 
+ FillUnphysicalHEHFBins(HWProblems_);
+ FillUnphysicalHEHFBins(HWProblemsByDepth_);
 } //UpdateMEs
