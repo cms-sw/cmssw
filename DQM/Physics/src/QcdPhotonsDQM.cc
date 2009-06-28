@@ -60,12 +60,15 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   theDbe = Service<DQMStore>().operator->();
  
   theDbe->setCurrentFolder("Physics/QcdPhotonsDQM");  // Use folder with name of PAG
+
+  // Keep the number of plots and number of bins to a minimum!
   h_photon_et           = theDbe->book1D("h_photon_et",           "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
   h_jet_et              = theDbe->book1D("h_jet_et",              "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
   h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet",  "(E_{T}(#gamma)-E_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,jet) > 2.8;#DeltaE_{T}(#gamma,jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
-  h_jet_count           = theDbe->book1D("h_jet_count",           "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 5, -0.5, 4.5);
+  h_jet_count           = theDbe->book1D("h_jet_count",           "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
   h_jet2_etOverPhotonEt = theDbe->book1D("h_jet2_etOverPhotonEt", "E_{T}(2nd highest jet) / E_{T}(#gamma);E_{T}(2nd Jet)/E_{T}(#gamma)", 20, 0.0, 4.0);
+  h_deltaPhi_photon_jet2 = theDbe->book1D("h_deltaPhi_photon_jet2","#Delta#phi between Highest E_{T} #gamma and 2nd highest jet;#Delta#phi(#gamma,2nd jet)", 20, 0, 3.1415926);;
 }
 
 
@@ -115,11 +118,13 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<CaloJetCollection> caloJetCollection;
   iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
 
-  float jet_et    = -9.0;
-  float jet_eta   = -9.0;
-  float jet_phi   = -9.0;
+  float jet_et    = -8.0;
+  float jet_eta   = -8.0;
+  float jet_phi   = -8.0;
   int   jet_count = 0;
   float jet2_et   = -9.0;
+  float jet2_eta  = -9.0;
+  float jet2_phi  = -9.0;
   for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); i_calojet++) {
 
     float jet_current_et = i_calojet->et();
@@ -131,11 +136,16 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
     jet_count++;
     if (jet_current_et > jet_et) {
-      jet_et  = i_calojet->et();
-      jet_eta = i_calojet->eta();
-      jet_phi = i_calojet->phi();
+      jet2_et  = jet_et;  // 2nd highest jet get's et from current highest
+      jet2_eta = jet_eta;
+      jet2_phi = jet_phi;
+      jet_et   = i_calojet->et(); // current highest jet gets et from the new highest
+      jet_eta  = i_calojet->eta();
+      jet_phi  = i_calojet->phi();
     } else if (jet_current_et > jet2_et) {
-      jet2_et = i_calojet->et();
+      jet2_et  = i_calojet->et();
+      jet2_eta = i_calojet->eta();
+      jet2_phi = i_calojet->phi();
     }
   }
 
@@ -147,7 +157,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     float deltaPhi = calcDeltaPhi(jet_phi, photon_phi);
     h_deltaPhi_photon_jet->Fill(deltaPhi);
     if (deltaPhi > 2.8) h_deltaEt_photon_jet->Fill( (photon_et-jet_et)/photon_et );
-    if (jet2_et  > 0.0) h_jet2_etOverPhotonEt->Fill( jet2_et/photon_et );
+    if (jet2_et  > 0.0) {
+      h_jet2_etOverPhotonEt->Fill( jet2_et/photon_et );
+      h_deltaPhi_photon_jet2->Fill(calcDeltaPhi(jet2_phi, photon_phi));
+    }
   }
 }
 

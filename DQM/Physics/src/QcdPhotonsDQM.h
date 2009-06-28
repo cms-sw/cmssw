@@ -63,5 +63,6 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_deltaPhi_photon_jet;
   MonitorElement* h_deltaEt_photon_jet;
   MonitorElement* h_jet2_etOverPhotonEt;
+  MonitorElement* h_deltaPhi_photon_jet2;
 };
 #endif
