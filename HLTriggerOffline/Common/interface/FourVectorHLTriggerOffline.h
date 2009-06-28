@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.18 2009/06/26 14:56:47 rekovic Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.19 2009/06/28 09:08:14 rekovic Exp $
 //
 //
 
@@ -685,7 +685,7 @@ public:
 		  fillL1MCMatch(fv);
 		}
 
-		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc);
+		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn);
     void monitorOffline(FourVectorHLTriggerOffline* fv);
 		void fillOnOffMatch(FourVectorHLTriggerOffline* fv);
 		void fillOnMCMatch(FourVectorHLTriggerOffline* fv);
@@ -928,12 +928,12 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 	 if(isL1TriggerType(*idtypeiter))
 	 {
 
+			NL1++;
 
 
       if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
 
-			  NL1++;
         v_->getL1EtL1Histo()->Fill(l1FV.pt());
 	      v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
@@ -1122,10 +1122,10 @@ void objMon<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys & l1
 }
 
 template <class T> 
-void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc)
+void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn)
 {
 
-		 unsigned int NOn=0;
+
 		 unsigned int NOnOffUM=0;
 		 unsigned int NOnMcUM=0;
 		 unsigned int NOnL1UM=0;
@@ -1134,11 +1134,11 @@ void objMon<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys 
 
 		 trigger::TriggerObject onlineFV = toc[*ki];
 
+	   NOn++;    
 
      if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
      { 
 
-	     NOn++;    
        v_->getOnEtOnHisto()->Fill(onlineFV.pt());
 	     v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 
@@ -1376,13 +1376,14 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 
  if(! isTriggerType(v_->getObjectType()) ) return;
 
+
  if(offCollB_.isValid()) {
 
    typedef typename reco::JetTagCollection::const_iterator const_iterator;
    for( const_iterator iter = offCollB_->begin(), iend = offCollB_->end(); iter != iend; ++iter )
    {
 
-					NOff++;
+          NOff++;
 
 	        if (GenJetsFlag_ && genJets_.isValid())
 		      {
@@ -1391,6 +1392,7 @@ void objMon<T>::monitorOffline(FourVectorHLTriggerOffline* fv)
 	           int j=0;
 
              for(GenJetCollection::const_iterator gjet=genJets_->begin(); gjet!=genJets_->end(); gjet++) {
+
             
                if (fabs(gjet->eta()) <= EtaMax_ && gjet->pt() >= EtMin_ ){
 

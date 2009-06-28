@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.23 2009/06/26 14:54:04 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.24 2009/06/28 09:04:56 rekovic Exp $
 //
 //
 
@@ -676,7 +676,7 @@ public:
 		  fillL1OffMatch(fv);
 		}
 
-		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc);
+		void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn);
 		void fillOnOffMatch(FourVectorHLTOffline* fv);
 		void fillOnL1Match(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc);
 		void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc)
@@ -849,12 +849,12 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
 	 if(isL1TriggerType(*idtypeiter))
 	 {
 
+			NL1++;
 
 
       if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
       { 
 
-			  NL1++;
         v_->getL1EtL1Histo()->Fill(l1FV.pt());
 	      v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
@@ -950,10 +950,9 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
 }
 
 template <class T> 
-void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc)
+void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn)
 {
 
-		 unsigned int NOn=0;
 		 unsigned int NOnOffUM=0;
 		 unsigned int NOnL1UM=0;
 
@@ -961,11 +960,11 @@ void objMonData<T>::monitorOnline(const trigger::Vids & idtype, const trigger::K
 
 		 trigger::TriggerObject onlineFV = toc[*ki];
 
+	   NOn++;    
 
      if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
      { 
 
-	     NOn++;    
        v_->getOnEtOnHisto()->Fill(onlineFV.pt());
 	     v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 

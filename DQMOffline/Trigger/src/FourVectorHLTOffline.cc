@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.35 2009/06/26 14:54:04 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.36 2009/06/28 09:04:57 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -463,15 +463,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
 
 
+      unsigned int NOn=0;
 
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 
-        eleMon.monitorOnline(idtype, l1k, ki, toc);
-        muoMon.monitorOnline(idtype, l1k, ki, toc);
-        tauMon.monitorOnline(idtype, l1k, ki, toc);
-        phoMon.monitorOnline(idtype, l1k, ki, toc);
-        jetMon.monitorOnline(idtype, l1k, ki, toc);
-        btagMon.monitorOnline(idtype, l1k, ki, toc);
+        eleMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        muoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        btagMon.monitorOnline(idtype, l1k, ki, toc, NOn);
 
       } //online object loop
 
