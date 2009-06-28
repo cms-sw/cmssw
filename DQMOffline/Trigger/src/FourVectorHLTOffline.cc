@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.34 2009/06/10 13:30:59 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.35 2009/06/26 14:54:04 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -351,23 +351,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
 				else btagMon = btagMuMon;
 
-  int NMc = 0;
-  int NOn = 0;
-  int NOff = 0;
-  int NL1 = 0;
-  int NL1Mc = 0;
-  int NOffMc = 0;
-  int NOnMc = 0;
-  int NOnOff = 0;
-  int NL1On = 0;
-  int NL1Off = 0;
-  int NL1McUM = 0;
-  int NOffMcUM = 0;
-  int NOnMcUM = 0;
-  int NOnOffUM = 0;
-  int NL1OnUM = 0;
-  int NL1OffUM = 0;
-
 
   // did we pass the denomPath?
   bool denompassed = false;  
@@ -429,14 +412,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   		jetMon.fillL1Match(this);
   		btagMon.fillL1Match(this);
 
-      v->getNMcHisto()->Fill(NMc);      
-      v->getNOffHisto()->Fill(NOff);      
-      v->getNL1Histo()->Fill(NL1);
-      v->getNL1OffHisto()->Fill(NL1Off);
-      v->getNL1McHisto()->Fill(NL1Mc);
-      v->getNL1OffUMHisto()->Fill(NL1OffUM);
-      v->getNL1McUMHisto()->Fill(NL1McUM);
-
 
     // did we pass the numerator path?
   bool numpassed = false;
@@ -491,12 +466,12 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 
-        eleMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        muoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        btagMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        eleMon.monitorOnline(idtype, l1k, ki, toc);
+        muoMon.monitorOnline(idtype, l1k, ki, toc);
+        tauMon.monitorOnline(idtype, l1k, ki, toc);
+        phoMon.monitorOnline(idtype, l1k, ki, toc);
+        jetMon.monitorOnline(idtype, l1k, ki, toc);
+        btagMon.monitorOnline(idtype, l1k, ki, toc);
 
       } //online object loop
 
@@ -526,17 +501,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			*/
 
 
-
-      v->getNOnHisto()->Fill(NOn);      
-      v->getNL1OnHisto()->Fill(NL1On);      
-      v->getNOnOffHisto()->Fill(NOnOff);
-      v->getNOffMcHisto()->Fill(NOffMc);
-      v->getNOnMcHisto()->Fill(NOnMc);
-      v->getNL1OnUMHisto()->Fill(NL1OnUM);      
-      v->getNOnOffUMHisto()->Fill(NOnOffUM);
-      v->getNOffMcUMHisto()->Fill(NOffMcUM);
-      v->getNOnMcUMHisto()->Fill(NOnMcUM);
-  
 
     } //numpassed
 
