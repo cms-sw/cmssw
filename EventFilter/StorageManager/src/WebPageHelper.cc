@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.7 2009/06/24 19:36:52 biery Exp $
+// $Id: WebPageHelper.cc,v 1.8 2009/06/25 11:53:58 mommsen Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -885,6 +885,12 @@ void WebPageHelper::addDOMforSMLinks
 
   XHTMLMaker::AttrMap linkAttr;
   XHTMLMaker::Node *link;
+
+  maker.addNode("hr", parent);
+
+  linkAttr[ "href" ] = url;
+  link = maker.addNode("a", parent, linkAttr);
+  maker.addText(link, "Main web page");
 
   maker.addNode("hr", parent);
 
