@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistorySelectorUtil.h"
 
@@ -113,7 +113,7 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
 
   // To select bb->1 events from matrix element... Path 7
   bb_me_comp_ = new FlavorHistorySelectorUtil( 5,
-					       1,
+					       2,
 					       me_ids,
 					       dr0,
 					       dr1,
@@ -121,7 +121,7 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
 
   // To select cc->1 events from matrix element... Path 8 
   cc_me_comp_ = new FlavorHistorySelectorUtil( 4,
-					       1,
+					       2,
 					       me_ids,
 					       dr0,
 					       dr1,
