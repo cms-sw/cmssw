@@ -2,7 +2,7 @@
 
 castorDir=/castor/cern.ch/user/g/gennai/CMSSW_310pre11/
 
-cmsswDir=/afs/cern.ch/user/g/gennai/scratch.0/CMSSW_3_1_0_pre11/src/
+cmsswDir=/afs/cern.ch/user/g/gennai/scratch.0/Validation/CMSSW_3_1_0_pre11/src/
 
 for ((job=1;job<=30;job++));
   do
