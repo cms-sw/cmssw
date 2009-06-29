@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/06/11 20:54:50 $
- * $Revision: 1.180 $
+ * $Date: 2009/06/24 16:11:47 $
+ * $Revision: 1.181 $
  * \author G. Della Ricca
  *
 */
@@ -2009,23 +2009,38 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      // for laser, take only one of the used wavelengths, ordered as: L1, L2, L3, L4
-      MonitorElement *meLaser = 0;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) meLaser = meLaserL4_;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) meLaser = meLaserL3_;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) meLaser = meLaserL2_;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) meLaser = meLaserL1_;
-
-      if(meIntegrity_ && mePedestalOnline_ && meLaser && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
 
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        float val_ls = meLaser->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
 	float val_ee = 1;
+
+        // combine all the available wavelenghts in unique laser status
+        // for each laser turn dark color and yellow into bright green
+        float val_ls_1=2, val_ls_2=2, val_ls_3=2, val_ls_4=2;
+        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+          if ( meLaserL1_ ) val_ls_1 = meLaserL1_->getBinContent(ipx,iex);
+          if(val_ls_1==2 || val_ls_1==3 || val_ls_1==4 || val_ls_1==5) val_ls_1=1;
+        }
+        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+          if ( meLaserL2_ ) val_ls_2 = meLaserL2_->getBinContent(ipx,iex);
+          if(val_ls_2==2 || val_ls_2==3 || val_ls_2==4 || val_ls_2==5) val_ls_2=1;
+        }
+        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+          if ( meLaserL3_ ) val_ls_3 = meLaserL3_->getBinContent(ipx,iex);
+          if(val_ls_3==2 || val_ls_3==3 || val_ls_3==4 || val_ls_3==5) val_ls_3=1;
+        }
+        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+          if ( meLaserL4_ ) val_ls_4 = meLaserL4_->getBinContent(ipx,iex);
+          if(val_ls_4==2 || val_ls_4==3 || val_ls_4==4 || val_ls_4==5) val_ls_4=1;
+        }
+        
+        float val_ls = 1;
+        if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
@@ -2038,7 +2053,6 @@ void EBSummaryClient::analyze(void) {
 
         if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
         if(val_po==2 || val_po==3 || val_po==4 || val_po==5) val_po=1;
-        if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
         if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
         if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
         if(val_ee==2 || val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
