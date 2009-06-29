@@ -7,7 +7,7 @@ void compare() {
   gROOT->LoadMacro("../Tools/Comparator.C");
   gStyle->SetOptStat(1111);
   
-  Style* style1 = sback;
+  Style* style1 = spred;
   Style* style2 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
@@ -17,7 +17,7 @@ void compare() {
 	       "benchmark_1.root",
 	       "DQMData/PFTask/Benchmarks/PFlowTaus_barrel/Gen"
 	       );
-  comp.SetStyles(style1, style2, "ZTT_SignalCone 0.15 (Barrel)", "ZTT_Isolated SignalCone 0.15 (Barrel)");
+  comp.SetStyles(style1, style2, "CMSSW_3_1_0_pre10", "CMSSW_3_1_0_pre11");
 
  TCanvas c0("c0", "legend", 400, 200);
   FormatPad( &c0, false ); 
