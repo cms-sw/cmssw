@@ -26,8 +26,7 @@ objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5GenJets)
 objectTypeSelectedTauValDenominator.src = cms.InputTag("selectElectronsForGenJets")
 
 produceDenominator = cms.Sequence(
-      genParticles
-      +selectElectrons
+      selectElectrons
       +selectElectronsForGenJets
       +objectTypeSelectedTauValDenominator
       +kinematicSelectedTauValDenominator

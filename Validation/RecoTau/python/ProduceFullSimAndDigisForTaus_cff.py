@@ -9,5 +9,6 @@ from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.DigiToRaw_cff import *
 from Configuration.StandardSequences.VtxSmearedEarly10TeVCollision_cff import *
+from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 
-simAndDigitizeForTaus = cms.Sequence(cms.SequencePlaceholder("ProductionFilterSequence")*pgen*psim*pdigi)
+simAndDigitizeForTaus = cms.Sequence(cms.SequencePlaceholder("ProductionFilterSequence")*pgen*psim*pdigi*genParticles)

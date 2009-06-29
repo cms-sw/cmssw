@@ -9,8 +9,7 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5GenJets)
 
 produceDenominator = cms.Sequence(
-      genParticles
-      *genParticlesForJets
+      genParticlesForJets
       *objectTypeSelectedTauValDenominator
       *kinematicSelectedTauValDenominator
       )

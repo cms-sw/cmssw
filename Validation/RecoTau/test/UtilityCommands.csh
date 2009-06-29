@@ -5,6 +5,7 @@ setenv VALTEST $CMSSW_BASE/src/Validation/RecoTau/test
 setenv PFVALTOOLS $CMSSW_RELEASE_BASE/src/Validation/RecoParticleFlow/Benchmarks/Tools
 setenv PYTHONPATH $PFVALTOOLS:$PYTHONPATH
 setenv PATH $VALTOOLS:$PATH
+setenv PastResults /afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-pfvalidation/Releases/
 
 cmsenv
 

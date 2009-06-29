@@ -13,8 +13,7 @@ objectTypeSelectedTauValDenominator = cms.EDFilter("TauGenJetDecayModeSelector",
 )
 
 produceDenominator = cms.Sequence(
-      genParticles
-      +tauGenJets
+      tauGenJets
       +objectTypeSelectedTauValDenominator
       +kinematicSelectedTauValDenominator
       )
