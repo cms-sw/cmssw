@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2009/06/09 15:36:37 $
- * $Revision: 1.30 $
+ * $Date: 2009/06/18 12:27:01 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -85,6 +85,7 @@ std::string prefixME_;
 bool enableCleanup_;
 
 std::vector<int> superModules_;
+std::vector<int> laserWavelengths_;
 
 DQMStore* dqmStore_;
 
