@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.120 $"
+__version__ = "$Revision: 1.123 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -179,11 +179,12 @@ class ConfigBuilder(object):
         # no fast sim   
         else:
             # load the pile up file
-            try: 
-                self.loadAndRemember(self.PileupCFF)
-            except ImportError:
-                print "Pile up option",self._options.pileup,"unknown."
-                raise
+	    if not self.PileupCFF == '': 
+		    try: 
+  		        self.loadAndRemember(self.PileupCFF)
+		    except ImportError:
+			print "Pile up option",self._options.pileup,"unknown."
+			raise
 
             # load the geometry file
             try:
@@ -355,8 +356,11 @@ class ConfigBuilder(object):
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
 	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
-	self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
-
+	if self._options.isMC==True:
+ 	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+        else:
+	    self.PileupCFF=''
+	    
 	#beamspot
 	if self._options.beamspot != None:
 	    self.beamspot=self._options.beamspot
@@ -671,7 +675,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.120 $"),
+              (version=cms.untracked.string("$Revision: 1.123 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
