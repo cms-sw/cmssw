@@ -11,6 +11,7 @@
 #include <HiggsAnalysis/Skimming/interface/HeavyChHiggsToTauNuSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsTo2GammaSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToTauTauLeptonTauSkim.h>
+#include <HiggsAnalysis/Skimming/interface/LightChHiggsToTauNuSkim.h>
 
 
 DEFINE_SEAL_MODULE();
@@ -24,4 +25,5 @@ DEFINE_ANOTHER_FWK_MODULE(HiggsToWW2LeptonsSkim);
 DEFINE_ANOTHER_FWK_MODULE(HeavyChHiggsToTauNuSkim);
 DEFINE_ANOTHER_FWK_MODULE(HiggsTo2GammaSkim);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauLeptonTauSkim);
+DEFINE_ANOTHER_FWK_MODULE(LightChHiggsToTauNuSkim);
 
