@@ -95,10 +95,7 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     TimeOffset      = cms.double(0.)
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun   = cms.untracked.uint32(1),
-    firstEvent = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -108,7 +105,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PartID = cms.vint32(211)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -120,12 +118,55 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
+process.common_maximum_timex = cms.PSet(
+    MaxTrackTime  = cms.double(1000.0),
+    MaxTimeNames  = cms.vstring(),
+    MaxTrackTimes = cms.vdouble()
+)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
+process.g4SimHits.Physics.Region = 'HcalRegion'
+process.g4SimHits.Physics.DefaultCutValue = 1.
+
+process.g4SimHits.ECalSD.UseBirkLaw = True
+process.g4SimHits.ECalSD.BirkL3Parametrization = True
+process.g4SimHits.ECalSD.BirkC1 = 0.033
+process.g4SimHits.ECalSD.BirkC2 = 0.0
+process.g4SimHits.ECalSD.SlopeLightYield = 0.05
+process.g4SimHits.HCalSD.UseBirkLaw = True
+process.g4SimHits.HCalSD.BirkC1 = 0.0052
+process.g4SimHits.HCalSD.BirkC2 = 0.142
+process.g4SimHits.HCalSD.BirkC3 = 1.75
+process.g4SimHits.HCalSD.UseLayerWt = False
+process.g4SimHits.HCalSD.WtFile     = ' '
+process.g4SimHits.HCalSD.UseShowerLibrary = False
+process.g4SimHits.HCalSD.TestNumberingScheme = True
+process.g4SimHits.HCalSD.UseHF   = False
+process.g4SimHits.HCalSD.ForTBH2 = True
+process.g4SimHits.StackingAction = cms.PSet(
+    process.common_heavy_suppression1,
+    process.common_maximum_timex,
+    TrackNeutrino = cms.bool(False),
+    KillHeavy     = cms.bool(False),
+    SaveFirstLevelSecondary = cms.untracked.bool(False),
+    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(False),
+    SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
+    SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False)
+)
+process.g4SimHits.SteppingAction = cms.PSet(
+    process.common_maximum_timex,
+    KillBeamPipe            = cms.bool(True),
+    CriticalEnergyForVacuum = cms.double(2.0),
+    CriticalDensity         = cms.double(1e-15),
+    EkinNames               = cms.vstring(),
+    EkinThresholds          = cms.vdouble(),
+    EkinParticles           = cms.vstring(),
+    Verbosity = cms.untracked.int32(0)
+)
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
-    process.common_heavy_suppression,
+    process.common_heavy_suppression1,
     EminTrack      = cms.double(1.0),
     TmaxHit        = cms.double(1000.0),
     EminHits       = cms.vdouble(0.0),
@@ -138,18 +179,6 @@ process.g4SimHits.CaloSD = cms.PSet(
     DetailedTiming = cms.untracked.bool(False),
     CorrectTOFBeam = cms.bool(False)
 )
-process.g4SimHits.ECalSD.UseBirkLaw = False
-process.g4SimHits.ECalSD.BirkC1 = 0.33333
-process.g4SimHits.ECalSD.BirkC2 = 0.0
-process.g4SimHits.ECalSD.BirkL3Parametrization = True
-process.g4SimHits.ECalSD.SlopeLightYield = 0.05
-process.g4SimHits.HCalSD.UseBirkLaw = False
-process.g4SimHits.HCalSD.BirkC1 = 0.013
-process.g4SimHits.HCalSD.BirkC2 = '9.6e-6'
-process.g4SimHits.HCalSD.UseShowerLibrary = False
-process.g4SimHits.HCalSD.TestNumberingScheme = True
-process.g4SimHits.HCalSD.UseHF = False
-process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB04Analysis = cms.PSet(
