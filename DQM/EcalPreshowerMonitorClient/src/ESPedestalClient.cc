@@ -27,6 +27,8 @@ ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps){
    lookup_		= ps.getUntrackedParameter<FileInPath>("LookupTable");
    enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+   fitPedestal_ = ps.getUntrackedParameter<bool>("fitPedestal", false);
+
 
 
 
@@ -155,7 +157,6 @@ void ESPedestalClient::cleanup(void) {
 
 void ESPedestalClient::analyze()
 {
-
    ievt_++;
    jevt_++;
 
@@ -163,22 +164,43 @@ void ESPedestalClient::analyze()
    char hname[300];
    MonitorElement *me;
    int iz = 0;
-   for (int i=0; i<nLines_; ++i) {
-      iz = (senZ_[i]==1) ? 0:1; 
-      for (int is=0; is<32; ++is) {
+   if(fitPedestal_){
+      if ( verbose_ ) cout<<"ESPedestalClient: Fit Pedestal"<<endl;
+      for (int i=0; i<nLines_; ++i) {
+	 iz = (senZ_[i]==1) ? 0:1; 
+	 for (int is=0; is<32; ++is) {
 
-	 string dirname = prefixME_ + "/ESPedestalTask/";
-	 sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
-	 me = dqmStore_->get(dirname+hname);
+	    string dirname = prefixME_ + "/ESPedestalTask/";
+	    sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
+	    me = dqmStore_->get(dirname+hname);
 
-	 if (me==0) continue;
-	 TH1F *rootHisto = me->getTH1F();
-	 rootHisto->Fit("fg", "Q", "", 500, 1800);
-	 rootHisto->Fit("fg", "RQ", "", fg->GetParameter(1)-2.*fg->GetParameter(2),fg->GetParameter(1)+2.*fg->GetParameter(2));
+	    if (me==0) continue;
+	    TH1F *rootHisto = me->getTH1F();
+	    rootHisto->Fit("fg", "Q", "", 500, 1800);
+	    rootHisto->Fit("fg", "RQ", "", fg->GetParameter(1)-2.*fg->GetParameter(2),fg->GetParameter(1)+2.*fg->GetParameter(2));
+	    hPed_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, (int)(fg->GetParameter(1)+0.5));
+	    hTotN_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, fg->GetParameter(2));
 
-	 hPed_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, (int)(fg->GetParameter(1)+0.5));
-	 hTotN_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, fg->GetParameter(2));
+	 }
       } 
    }
-}
 
+   else{
+      if ( verbose_ ) cout<<"ESPedestalClient: Use Histogram Mean"<<endl;
+      for (int i=0; i<nLines_; ++i) {
+	 iz = (senZ_[i]==1) ? 0:1; 
+	 for (int is=0; is<32; ++is) {
+
+	    string dirname = prefixME_ + "/ESPedestalTask/";
+	    sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
+	    me = dqmStore_->get(dirname+hname);
+
+	    if (me==0) continue;
+	    TH1F *rootHisto = me->getTH1F();
+	    hPed_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, (int)(rootHisto->GetMean()+0.5));
+	    hTotN_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, rootHisto->GetRMS());
+
+	 } 
+      }
+   }
+}

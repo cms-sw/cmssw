@@ -16,6 +16,7 @@ ecalPreshowerMonitorClient = cms.EDAnalyzer('EcalPreshowerMonitorClient',
 	hostPort = cms.untracked.int32(9090),
 	prescaleFactor = cms.untracked.int32(1),
 	verbose = cms.untracked.bool(True),
-	debug = cms.untracked.bool(False)
+	debug = cms.untracked.bool(False),
+	fitPedestal = cms.untracked.bool(True)
 
 	)

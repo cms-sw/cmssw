@@ -44,6 +44,8 @@ class ESPedestalClient : public ESClient{
    bool enableCleanup_;
    bool verbose_;
    bool debug_;
+   bool fitPedestal_;
+
 
    edm::FileInPath lookup_;
    std::string prefixME_;
