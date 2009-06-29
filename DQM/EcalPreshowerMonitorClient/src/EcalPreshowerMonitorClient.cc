@@ -48,7 +48,7 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
    enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);	
 
    if ( verbose_ ) {
-      cout << " Enabled Clients:" << endl;
+      cout << " Enabled Clients:";
       for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
 	 cout << " " << enabledClients_[i];
       }
@@ -80,7 +80,7 @@ EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& 
    }
 
    if(debug_){
-      cout<<"PSFactor = "<<prescaleFactor_<<endl; 
+      cout<<"PrescaleFactor = "<<prescaleFactor_<<endl; 
    }
 }
 
@@ -101,7 +101,7 @@ EcalPreshowerMonitorClient::~EcalPreshowerMonitorClient()
 void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
 
    if(debug_){ 
-      cout<<"beginJob() is called"<<endl;
+      cout<<"EcalPreshowerMonitorClient: beginJob"<<endl;
    }
 
    ievt_ = 0;
@@ -143,7 +143,7 @@ void EcalPreshowerMonitorClient::beginJob(const EventSetup &c){
 void EcalPreshowerMonitorClient::beginRun(void){
 
    if(debug_){ 
-      cout << "EcalBarrelMonitorClient: beginRun" << endl;
+      cout << "EcalPreshowerMonitorClient: beginRun" << endl;
    }
 
    jevt_ = 0;
@@ -198,7 +198,7 @@ void EcalPreshowerMonitorClient::analyze(void){
    if ( enableMonitorDaemon_ ) mui_->doMonitoring();
 
    if(debug_){ 
-      cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+      cout << "EcalPreshowerMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
    }
 
    for ( unsigned int i=0; i<clients_.size(); i++ ) {
