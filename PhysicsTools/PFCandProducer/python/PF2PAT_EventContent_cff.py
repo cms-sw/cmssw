@@ -12,6 +12,7 @@ PF2PATEventContent = cms.PSet(
     # isolated electrons and muons
     'keep *_isolatedElectrons_*_*',
     'keep *_isolatedMuons_*_*',
+    'keep *_noJet_*_*',
     'keep recoIsoDepositedmValueMap_*_*_*',
     # jets
     'keep recoPFJets_noTau_*_*',
@@ -27,7 +28,10 @@ PF2PATEventContent = cms.PSet(
 PF2PATStudiesEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep recoPFJets_*_*_*',
-    'keep *_decaysFromZs_*_*'
+    'keep *_decaysFromZs_*_*',
+    'keep recoPFCandidates_*_*_PF2PAT',
+    'keep recoPFCandidates_*_*_PAT',    
+    'keep recoPFCandidates_particleFlow_*_*'
     )
 )
 
