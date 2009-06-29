@@ -48,8 +48,8 @@ uint16_t L1GctHtMissLut::value (const uint16_t lutAddress) const
     static const int angleMask     = (1<<kHtMissAngleNBits)     - 1;
 
     // Extract the bits corresponding to hx and hy components
-    int hxCompGct = static_cast<int>(lutAddress) & componentMask;
-    int hyCompGct = static_cast<int>(lutAddress>>kHxOrHyMissComponentNBits) & componentMask;
+    int hxCompGct = static_cast<int>(lutAddress>>kHxOrHyMissComponentNBits) & componentMask;
+    int hyCompGct = static_cast<int>(lutAddress) & componentMask;
 
     // These are twos-complement integers - if the MSB is set, the value is negative
     if (hxCompGct >= maxComponent/2) hxCompGct -= maxComponent;
@@ -69,7 +69,7 @@ uint16_t L1GctHtMissLut::value (const uint16_t lutAddress) const
     int htMissAngBits = static_cast<int>(htMissAng*9.0/M_PI) & angleMask;
 
     // Form the lut output
-    result = htMissMagBits | (htMissAngBits << kHtMissMagnitudeNBits) ;
+    result = (htMissMagBits << kHtMissAngleNBits) | htMissAngBits ;
   }
 
   return result;

@@ -182,12 +182,12 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
     int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
     int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
 
-    uint16_t lutAddress = static_cast<uint16_t> ( hxCompBits | (hyCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) );
+    uint16_t lutAddress = static_cast<uint16_t> ( (hxCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) | hyCompBits );
 
     uint16_t lutData = m_htMissLut->lutValue(lutAddress);
 
-    result.mag = static_cast<unsigned>(lutData) & resultMagMask;
-    result.phi = static_cast<unsigned>(lutData>>L1GctHtMissLut::kHtMissMagnitudeNBits) & resultPhiMask;
+    result.mag = static_cast<unsigned>(lutData>>L1GctHtMissLut::kHtMissAngleNBits) & resultMagMask;
+    result.phi = static_cast<unsigned>(lutData) & resultPhiMask;
 
   }
 
