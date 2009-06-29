@@ -39,6 +39,7 @@ private:
   edm::InputTag hORecHitsLabel_;
   bool debug_;
   bool finebinning_;
+  std::string FolderName_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
   virtual void BookHistos();

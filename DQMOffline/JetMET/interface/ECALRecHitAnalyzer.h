@@ -102,6 +102,7 @@ public:
   edm::InputTag EERecHitsLabel_;
   bool debug_;
   bool finebinning_;
+  std::string FolderName_;
   int CurrentEvent;
 };
 
