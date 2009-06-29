@@ -1,4 +1,4 @@
-#include "Validation/RecoMET/interface/HCALRecHitAnalyzer.h"
+#include "DQMOffline/JetMET/interface/HCALRecHitAnalyzer.h"
 // author: Bobby Scurlock, University of Florida
 // first version 12/7/2006
 // modified: Mike Schmitt
@@ -57,7 +57,7 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   debug_             = iConfig.getParameter<bool>("Debug");
   finebinning_ = iConfig.getUntrackedParameter<bool>("FineBinning");
-  
+  FolderName_ = iConfig.getUntrackedParameter<std::string>("FolderName");
 
 }
 
@@ -76,9 +76,7 @@ void HCALRecHitAnalyzer::BookHistos(){
 
   if (dbe_) {
 
-    //    dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/HCAL/geometry");
-    //dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_HCAL/geometry");
-    dbe_->setCurrentFolder("RecoMETV/MET_HCAL/geometry");
+    dbe_->setCurrentFolder(FolderName_+"/geometry");
     me["hHCAL_ieta_iphi_HBMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HEMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
     me["hHCAL_ieta_iphi_HFMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
@@ -107,9 +105,8 @@ void HCALRecHitAnalyzer::BookHistos(){
 
     }
   
-    //dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/HCAL/data");
-    //dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_HCAL/data");
-    dbe_->setCurrentFolder("RecoMETV/MET_HCAL/data");
+    //    dbe_->setCurrentFolder("RecoMETV/MET_HCAL/data");
+    dbe_->setCurrentFolder(FolderName_);
     //--Store number of events used
     me["hHCAL_Nevents"]          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by HCAL(ieta,iphi) 
