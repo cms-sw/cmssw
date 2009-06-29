@@ -13,7 +13,7 @@ process.load("RecoParticleFlow.Configuration.source_singleTau_cfi")
 process.generator.PGunParameters.MinEta = -3.0
 process.generator.PGunParameters.MaxEta = 3.0
 process.generator.PGunParameters.MinPt = 50.0
-process.generator.PGunParameters.MinPt = 50.1
+process.generator.PGunParameters.MinPt = 51.0
 
 
 

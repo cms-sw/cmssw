@@ -35,8 +35,8 @@ cat >> job_${name}.sh << EOF
 cmsRun TEST_cfg.py >& log
 
 #rfcp display.root $castorDir$displayfilename
-rfcp aod.root $castorDir$aodfilename
-#rfcp reco.root $castorDir$recofilename
+#rfcp aod.root $castorDir$aodfilename
+rfcp reco.root $castorDir$recofilename
 
 EOF
 chmod 755 job_${name}.sh

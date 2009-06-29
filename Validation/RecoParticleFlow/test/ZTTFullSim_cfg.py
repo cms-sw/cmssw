@@ -108,7 +108,7 @@ process.p3 = cms.Path(process.L1Emulator)
 process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+process.particleFlowSimParticle)
-process.outpath = cms.EndPath(process.aod)
+process.outpath = cms.EndPath(process.reco)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
 
