@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FragmentStore.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef StorageManager_FragmentStore_h
 #define StorageManager_FragmentStore_h
@@ -17,9 +17,9 @@ namespace stor {
    *
    * Uses a map of I2OChains to store incomplete events.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
   
   class FragmentStore
@@ -35,6 +35,13 @@ namespace stor {
      * Otherwise, it returns false and the I2OChain is empty.
      */
     const bool addFragment(I2OChain&);
+
+
+    /**
+     * Resets the stale window start time for all I2OChains hold by
+     * the store.
+     */
+    void resetStaleEventTimes();
 
 
     /**
