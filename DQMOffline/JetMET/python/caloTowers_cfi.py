@@ -9,13 +9,15 @@ towerSchemeBAnalyzer = cms.EDAnalyzer(
     "CaloTowerAnalyzer",
     Debug = cms.bool(False),
     CaloTowersLabel = cms.InputTag("towerMaker"),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("JetMET/CaloTowers/SchemeB")
     )
 
 towerOptAnalyzer = cms.EDAnalyzer(
     "CaloTowerAnalyzer",
     Debug = cms.bool(False),
     CaloTowersLabel = cms.InputTag("calotoweroptmaker"),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("JetMET/CaloTowers/Optimized")
 )
 
