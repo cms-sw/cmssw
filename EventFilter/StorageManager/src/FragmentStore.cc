@@ -1,4 +1,4 @@
-// $Id: FragmentStore.cc,v 1.3 2009/06/26 21:14:18 biery Exp $
+// $Id: FragmentStore.cc,v 1.4 2009/06/29 11:03:00 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -43,6 +43,18 @@ const bool FragmentStore::addFragment(I2OChain &chain)
   }
 
   return false;
+}
+
+void FragmentStore::addToStaleEventTimes(const utils::duration_t duration)
+{
+  for (
+    fragmentMap::iterator it = _store.begin(), itEnd = _store.end();
+    it != itEnd;
+    ++it
+  )
+  {
+    it->second.addToStaleWindowStartTime(duration);
+  }
 }
 
 void FragmentStore::resetStaleEventTimes()
