@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: FragmentProcessor.cc,v 1.3 2009/06/26 08:19:24 mommsen Exp $
 
 #include <unistd.h>
 
@@ -159,6 +159,8 @@ void FragmentProcessor::processOneFragmentIfPossible()
 
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addFragmentProcessorIdleSample(elapsedTime);
+
+    _fragmentStore.resetStaleEventTimes();
   }
   else 
     processOneFragment();
