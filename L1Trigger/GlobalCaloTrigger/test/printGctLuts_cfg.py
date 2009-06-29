@@ -11,7 +11,15 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Generator.SingleElectronPt10_cfi")
 
 # include L1 emulator configuration
-process.load("L1Trigger.Configuration.L1StartupConfig_cff")
+startupConfig = bool(True)
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+if startupConfig:
+    process.GlobalTag.globaltag = 'STARTUP_31X::All'
+else:
+    process.GlobalTag.globaltag = 'IDEAL_31X::All'
+
+# process.load("L1Trigger.Configuration.L1StartupConfig_cff")
 # but only part of it since I can't get a working set of tags
 # that includes all the muon stuff
 # L1 Calo configuration
