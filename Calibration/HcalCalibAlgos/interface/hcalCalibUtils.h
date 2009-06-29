@@ -7,7 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "TCell.h"
+#include "Calibration/HcalCalibAlgos/src/TCell.h"
 
 void sumDepths(std::vector<TCell> &selectCells);   // replaces original collection
 

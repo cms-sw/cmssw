@@ -35,7 +35,7 @@
 #include "TRefArray.h"
 #include "TLorentzVector.h"
 
-#include "TCell.h"
+#include "Calibration/HcalCalibAlgos/src/TCell.h"
 
 
 //

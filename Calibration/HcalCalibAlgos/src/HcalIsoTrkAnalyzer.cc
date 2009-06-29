@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.11 2008/11/13 14:03:53 kodolova Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.12 2009/03/16 10:45:51 kodolova Exp $
 //
 //
 
@@ -78,7 +78,7 @@
 #include "TRefArray.h"
 #include "TLorentzVector.h"
 
-#include "TCell.h"
+#include "Calibration/HcalCalibAlgos/src/TCell.h"
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"

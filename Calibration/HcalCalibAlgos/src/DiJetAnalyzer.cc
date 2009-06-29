@@ -30,8 +30,6 @@
 #include "TRefArray.h"
 #include "TLorentzVector.h"
 
-#include "Calibration/HcalCalibAlgos/interface/TCell.h"
-
 
 
 namespace cms
