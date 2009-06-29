@@ -37,6 +37,8 @@ namespace edm {
     unknownDescDefined_(false)
   { }
 
+  ConfigurationDescriptions::~ConfigurationDescriptions() {} 
+
   void
   ConfigurationDescriptions::setComment(std::string const & value)
   { comment_ = value; }
