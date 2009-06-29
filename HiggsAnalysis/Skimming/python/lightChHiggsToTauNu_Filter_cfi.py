@@ -8,7 +8,7 @@ lightChHiggsToTauNuFilter = cms.EDFilter("LightChHiggsToTauNuSkim",
     # Collection to be accessed
     jetsTag       = cms.InputTag("sisCone5CaloJets"),
     muonsTag      = cms.InputTag("globalMuons"),
-    electronsTag  = cms.InputTag("pixelMatchGsfElectrons")
+    electronsTag  = cms.InputTag("pixelMatchGsfElectrons"),
 
 
     # Lepton Thresholds
