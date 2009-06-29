@@ -129,59 +129,91 @@ AS SELECT  "RUN_NUMBER",
 	   "SAFE99_STATUS",
 	   "DELETED_STATUS" 
 FROM ( SELECT TO_CHAR ( RUN ) AS RUN_NUMBER,
-	      TO_CHAR ( MIN( START_WRITE_TIME ), 'dd.mm.yyyy hh24:mi:ss' ) AS START_TIME,
-	      TO_CHAR ( MAX(a.LAST_UPDATE_TIME), 'dd.mm.yyyy hh24:mi:ss' ) AS UPDATE_TIME,
-	      TO_CHAR ( MAX(a.setupLabel) ) AS SETUPLABEL,
-	      TO_CHAR ( MAX(a.APP_VERSION) ) AS APP_VERSION,
-	      TO_CHAR ( MAX(a.M_INSTANCE) + 1 ) AS M_INSTANCE,
-	      TO_CHAR ( ROUND (SUM(NVL(a.s_filesize,0))/1073741824, 2) ) AS TOTAL_SIZE,
-	      TO_CHAR ( SUM(NVL(a.s_Created, 0)) ) AS NFILES,
-	     (CASE SUM(NVL(a.s_injected,0))
+	      TO_CHAR ( MIN( startwt ), 'dd.mm.yyyy hh24:mi:ss' ) AS START_TIME,
+	      TO_CHAR ( MAX( lut ), 'dd.mm.yyyy hh24:mi:ss' ) AS UPDATE_TIME,
+	      TO_CHAR ( MAX( setup ) ) AS SETUPLABEL,
+	      TO_CHAR ( MAX( app_v ) ) AS APP_VERSION,
+	      TO_CHAR ( MAX( inst ) + 1 ) AS M_INSTANCE,
+	      TO_CHAR ( ROUND (SUM(NVL(fsize,0))/1073741824, 2) ) AS TOTAL_SIZE,
+	      TO_CHAR ( SUM(NVL(created, 0)) ) AS NFILES,
+	     (CASE SUM(NVL(injected,0))
 		WHEN 0 THEN TO_CHAR(0)
-		ELSE TO_CHAR ( ROUND ((SUM(NVL(a.s_filesize2D,0)) / 1048576) / (GREATEST(time_diff( MAX(a.STOP_WRITE_TIME), MIN(a.START_WRITE_TIME)),1)), 2))
+		ELSE TO_CHAR ( ROUND ((SUM(NVL(size2D,0)) / 1048576) / (GREATEST(time_diff( MAX(stopwt), MIN(startwt)),1)), 2))
 	      END) AS RATE2D_AVG,  
-	     (CASE SUM(NVL(a.s_copied,0))
+	     (CASE SUM(NVL(copied,0))
 		WHEN 0 THEN TO_CHAR(0)
-		ELSE TO_CHAR ( ROUND ((SUM(NVL(a.s_filesize2T0,0)) / 1048576) / (GREATEST(time_diff( MAX(stop), MIN(a.START_TRANS_TIME)),1)), 2))
+		ELSE TO_CHAR ( ROUND ((SUM(NVL(size2T0,0)) / 1048576) / (GREATEST(time_diff( MAX(stoptt), MIN(starttt)),1)), 2))
 	      END) AS RATE2T_AVG,	      
-	      TO_CHAR ( SUM(NVL(a.s_NEvents,0)) ) AS NEVTS, 
-	      TO_CHAR ( SUM(NVL(a.s_Created,0) ) - SUM( NVL(a.s_Injected,0) ) ) AS N_OPEN, 
-	      TO_CHAR ( SUM(NVL(a.s_Injected, 0) ) ) AS N_CLOSED, 
-	      TO_CHAR ( SUM(NVL(a.s_New, 0) ) ) AS N_SAFE0, 
-	      TO_CHAR ( SUM(NVL(a.s_Checked, 0) ) ) AS N_SAFE99,
-	      TO_CHAR ( SUM(NVL(a.s_Deleted, 0) ) ) AS N_DELETED, 
-	      TO_CHAR ( SUM(NVL(a.s_Repacked, 0) ) ) AS N_REPACKED,
-	      TO_CHAR ( MAX(a.HLTKEY) ) AS HLTKEY,
+	      TO_CHAR ( SUM(NVL(events,0)) ) AS NEVTS, 
+	      TO_CHAR ( SUM(NVL(created,0) ) - SUM( NVL(Injected,0) ) ) AS N_OPEN, 
+	      TO_CHAR ( SUM(NVL(injected, 0) ) ) AS N_CLOSED, 
+	      TO_CHAR ( SUM(NVL(new, 0) ) ) AS N_SAFE0, 
+	      TO_CHAR ( SUM(NVL(checked, 0) ) ) AS N_SAFE99,
+	      TO_CHAR ( MAX(NVL(safe99,0)) ) AS MAX_SAFE99_INSTANCE,
+	      TO_CHAR ( MIN(NVL(safe99,0)) ) AS MIN_SAFE99_INSTANCE,
+	      TO_CHAR ( SUM(NVL(deleted, 0) ) ) AS N_DELETED, 
+	      TO_CHAR ( SUM(NVL(repacked, 0) ) ) AS N_REPACKED,
+	      TO_CHAR ( MAX(HLT) ) AS HLTKEY,
              (CASE
-                WHEN MAX(a.setupLabel) LIKE '%TransferTest%' THEN TO_CHAR(2)
+                WHEN MAX(setup) LIKE '%TransferTest%' THEN TO_CHAR(2)
                 ELSE TO_CHAR(0)
               END) AS SETUP_STATUS,
-	      TO_CHAR ( OPEN_STATUS(MAX(a.STOP_WRITE_TIME), SUM(NVL(a.S_CREATED,0)), SUM(NVL(a.S_INJECTED,0))) ) AS N_OPEN_STATUS,
+	      TO_CHAR ( OPEN_STATUS(MAX(stopwt), SUM(NVL(CREATED,0)), SUM(NVL(INJECTED,0))) ) AS N_OPEN_STATUS,
 	     (CASE 
-		WHEN (CASE SUM(NVL(a.s_injected, 0))
+		WHEN (CASE SUM(NVL(injected, 0))
 		        WHEN 0 THEN 0
-		        ELSE ROUND ((SUM(NVL(a.s_filesize2D,0)) / 1048576) / (GREATEST(time_diff( MAX(a.STOP_WRITE_TIME), MIN(a.START_WRITE_TIME)),1)), 2)
+		        ELSE ROUND ((SUM(NVL(size2D,0)) / 1048576) / (GREATEST(time_diff( MAX(stopwt), MIN(startwt)),1)), 2)
 	              END) < 2000 THEN TO_CHAR(0)
 	        ELSE TO_CHAR(1)
 	      END) AS WRITE_STATUS,
-	      TO_CHAR ( TRANS_RATE_CHECK(MAX(a.STOP_WRITE_TIME),
-		                        (CASE SUM(NVL(a.s_injected,0))
+	      TO_CHAR ( TRANS_RATE_CHECK(MAX(stopwt),
+		                        (CASE SUM(NVL(injected,0))
 		                         WHEN 0 THEN 0
-		                         ELSE ROUND ((SUM(NVL(a.s_filesize2D,0)) / 1048576) / (GREATEST(time_diff( MAX(a.STOP_WRITE_TIME), MIN(a.START_WRITE_TIME)),1)), 2)
+		                         ELSE ROUND ((SUM(NVL(size2D,0)) / 1048576) / (GREATEST(time_diff( MAX(stopwt), MIN(startwt)),1)), 2)
 	                                 END),
-		                        (CASE SUM(NVL(a.s_copied,0))
+		                        (CASE SUM(NVL(copied,0))
 		                         WHEN 0 THEN 0
-		                         ELSE ROUND ((SUM(NVL(a.s_filesize2T0,0)) / 1048576) / (GREATEST(time_diff( MAX(stop), MIN(a.START_TRANS_TIME)),1)), 2)
+		                         ELSE ROUND ((SUM(NVL(size2T0,0)) / 1048576) / (GREATEST(time_diff( MAX(stoptt), MIN(starttt)),1)), 2)
 	                                 END),
-					 MIN(a.START_WRITE_TIME),
-					 ROUND (SUM(NVL(a.s_filesize,0))/1073741824, 2))) AS TRANS_STATUS,
-	      TO_CHAR ( SAFE0_CHECK(SUM(NVL(a.s_NEW,0)), SUM(NVL(a.s_injected,0))) ) AS SAFE0_STATUS,
-	      TO_CHAR ( SAFE99_CHECK(MAX(a.STOP_WRITE_TIME), MAX(stop)) ) AS SAFE99_STATUS,
-	      TO_CHAR ( DELETED_CHECK(MIN(a.START_WRITE_TIME), SUM(NVL(a.s_Deleted, 0)), SUM(NVL(a.s_Checked, 0)), MAX(stop)) ) AS DELETED_STATUS
-FROM (SELECT a.RUNNUMBER, a.STREAM, a.SETUPLABEL, a.APP_VERSION, a.S_LUMISECTION, a.S_FILESIZE, a.S_FILESIZE2D, a.S_FILESIZE2T0, a.S_NEVENTS, a.S_CREATED, a.S_INJECTED, a.S_NEW, a.S_COPIED, a.S_CHECKED, a.S_INSERTED, a.S_REPACKED, a.S_DELETED, a.M_INSTANCE, a.START_WRITE_TIME, a.STOP_WRITE_TIME, a.START_TRANS_TIME, a.STOP_TRANS_TIME as stop, a.START_REPACK_TIME, a.STOP_REPACK_TIME, a.HLTKEY, a.LAST_UPDATE_TIME, b.RUNNUMBER, b.INSTANCE, b.N_SAFE99, DENSE_RANK() OVER (ORDER BY a.RUNNUMBER DESC NULLS LAST) as runRank 
-FROM SM_SUMMARY a JOIN SM_INSTANCES b ON a.RUNNUMBER=b.RUNNUMBER
-GROUP BY a.RUNNUMBER)
-WHERE runRank <= 120)
+					 MIN(startwt),
+					 ROUND (SUM(NVL(fsize,0))/1073741824, 2))) AS TRANS_STATUS,
+	      TO_CHAR ( SAFE0_CHECK(SUM(NVL(NEW,0)), SUM(NVL(injected,0))) ) AS SAFE0_STATUS,
+	      TO_CHAR ( SAFE99_CHECK(MAX(stopwt), MAX(stoptt)) ) AS SAFE99_STATUS,
+	      TO_CHAR ( DELETED_CHECK(MIN(startwt), SUM(NVL(Deleted, 0)), SUM(NVL(Checked, 0)), MAX(stoptt)) ) AS DELETED_STATUS
+FROM (SELECT    a.RUNNUMBER as run, 
+		a.STREAM as str, 
+		a.SETUPLABEL as setup, 
+		a.APP_VERSION as app_v, 
+		a.S_LUMISECTION as lumi, 
+		a.S_FILESIZE as fsize, 
+		a.S_FILESIZE2D as size2D, 
+		a.S_FILESIZE2T0 as size2T0, 
+		a.S_NEVENTS as events, 
+		a.S_CREATED as created, 
+		a.S_INJECTED as injected, 
+		a.S_NEW as new, 
+		a.S_COPIED as copied, 
+		a.S_CHECKED as checked,  
+		a.S_INSERTED as inserted, 
+		a.S_REPACKED as repacked, 
+		a.S_DELETED as deleted, 
+		a.M_INSTANCE as inst, 
+		a.START_WRITE_TIME as startwt, 
+		a.STOP_WRITE_TIME as stopwt, 
+		a.START_TRANS_TIME as starttt, 
+		a.STOP_TRANS_TIME as stoptt, 
+		a.START_REPACK_TIME as startrt, 
+		a.STOP_REPACK_TIME as stoprt, 
+		a.HLTKEY as hlt, 
+		a.LAST_UPDATE_TIME as lut, 
+		b.RUNNUMBER, 
+		b.INSTANCE, 
+		b.N_CHECKED as safe99, 
+		DENSE_RANK() OVER (ORDER BY a.RUNNUMBER DESC NULLS LAST) as runRank 
+FROM SM_SUMMARY a FULL OUTER JOIN SM_INSTANCES b ON a.RUNNUMBER=b.RUNNUMBER)
+WHERE runRank <= 120
+GROUP BY run
+)
 ORDER BY 1 DESC;
 
 
