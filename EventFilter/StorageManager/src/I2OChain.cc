@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: I2OChain.cc,v 1.3 2009/06/26 21:10:30 biery Exp $
 
 #include <algorithm>
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -65,9 +65,12 @@ namespace stor
       unsigned int hltTid() const {return _hltTid;}
       unsigned int fuProcessId() const {return _fuProcessId;}
       unsigned int fuGuid() const {return _fuGuid;}
-      double creationTime() const {return _creationTime;}
-      double lastFragmentTime() const {return _lastFragmentTime;}
-      double staleWindowStartTime() const {return _staleWindowStartTime;}
+      utils::time_point_t creationTime() const {return _creationTime;}
+      utils::time_point_t lastFragmentTime() const {return _lastFragmentTime;}
+      utils::time_point_t staleWindowStartTime() const {return _staleWindowStartTime;}
+      void addToStaleWindowStartTime(const utils::duration_t duration) {
+        _staleWindowStartTime += duration;
+      }
       void resetStaleWindowStartTime() {
         _staleWindowStartTime = utils::getCurrentTime();
       }
@@ -133,9 +136,9 @@ namespace stor
       unsigned int _fuProcessId;
       unsigned int _fuGuid;
 
-      double _creationTime;
-      double _lastFragmentTime;
-      double _staleWindowStartTime;
+      utils::time_point_t _creationTime;
+      utils::time_point_t _lastFragmentTime;
+      utils::time_point_t _staleWindowStartTime;
 
       bool validateDataLocation(toolbox::mem::Reference* ref,
                                 BitMasksForFaulty maskToUse);
@@ -2158,10 +2161,16 @@ namespace stor
     return _data->staleWindowStartTime();
   }
 
+  void I2OChain::addToStaleWindowStartTime(const utils::duration_t duration)
+  {
+    if (!_data) return;
+    _data->addToStaleWindowStartTime(duration);
+  }
+
   void I2OChain::resetStaleWindowStartTime()
   {
     if (!_data) return;
-    return _data->resetStaleWindowStartTime();
+    _data->resetStaleWindowStartTime();
   }
 
   void I2OChain::tagForStream(StreamID streamId)

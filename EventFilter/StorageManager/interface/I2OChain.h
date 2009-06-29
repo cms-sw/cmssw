@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: I2OChain.h,v 1.3 2009/06/26 21:10:30 biery Exp $
 
 #ifndef StorageManager_I2OChain_h
 #define StorageManager_I2OChain_h
@@ -13,6 +13,7 @@
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StreamID.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 namespace toolbox
 {
@@ -31,9 +32,9 @@ namespace stor {
    * assures that the corresponding release methods are called when 
    * the last instance of I2OChain goes out of scope.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: biery $
+   * $Revision: 1.3 $
+   * $Date: 2009/06/26 21:10:30 $
    */
 
 
@@ -166,7 +167,7 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    double creationTime() const;
+    utils::time_point_t creationTime() const;
 
     /**
        Returns the time when the last fragment was added to the I2OChain.
@@ -176,7 +177,7 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    double lastFragmentTime() const;
+    utils::time_point_t lastFragmentTime() const;
 
     /**
        Returns the stale window start time.  This is the time that
@@ -187,7 +188,12 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    double staleWindowStartTime() const;
+    utils::time_point_t staleWindowStartTime() const;
+
+    /**
+       Add the duration_t in seconds to the stale window start time 
+     */
+    void addToStaleWindowStartTime(const utils::duration_t);
 
     /**
        Sets the stale window start time to "now".
