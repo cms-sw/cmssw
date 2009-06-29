@@ -22,6 +22,13 @@ options.register( 'usesLegacyProdNames',
                   "Set to 1 if the reference files contains old (eg pfRecoTauProducer) PFTau product names"
                  ) 
 
+options.register( 'scale',
+                  'linear',
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Set scale of yaxis on plots (linear/log)"
+                  )
+
 options.parseArguments()
 
 process = cms.Process('MakingPlots')
@@ -59,6 +66,8 @@ if not os.path.exists(PlotOutputDir):
 
 # Load plotting sequences
 process.load("Validation.RecoTau.RecoTauValidation_cfi")
+#set scale
+process.standardDrawingStuff.yAxes.efficiency.yScale = cms.string(options.scale)
 
 # Get helper functions
 from Validation.RecoTau.RecoTauValidation_cfi import SetTestFileToPlot

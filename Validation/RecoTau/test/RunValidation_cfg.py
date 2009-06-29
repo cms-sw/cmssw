@@ -15,7 +15,7 @@ if not calledBycmsRun():
    print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
-   sys.exit()
+   #sys.exit()
 
 # Make sure we dont' clobber another directory! Skip in batch mode (runs from an LSF machine)
 if not CMSSWEnvironmentIsCurrent() and options.batchNumber == -1:
@@ -110,11 +110,10 @@ if options.dataSource.find('recoFiles') != -1:
    LoadDataCffFile(myFile)
    # check if we want to rerun PFTau
    if options.dataSource.find('PFTau') != -1:
-      process.load("Configuration.StandardSequences.FakeConditions_cff")
       process.load("Configuration.StandardSequences.Geometry_cff")
+      process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
       process.load("Configuration.StandardSequences.MagneticField_cff")
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-      process.load("RecoTauTag.TauTagTools.TancConditions_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
 
