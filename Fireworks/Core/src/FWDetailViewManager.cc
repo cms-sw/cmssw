@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.34 2009/06/18 16:03:50 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.35 2009/06/22 14:32:26 amraktad Exp $
 //
 
 // system include files
@@ -191,6 +191,7 @@ FWDetailViewManager::createDetailViewFrame()
 
    // text view
    m_textCanvas = new TRootEmbeddedCanvas("Embeddedcanvas", m_pack);
+   m_textCanvas->GetCanvas()->SetHighLightColor(-1);
    m_pack->AddFrameWithWeight(m_textCanvas, 0, 1);
 
    // viewer
@@ -208,6 +209,7 @@ FWDetailViewManager::createDetailViewFrame()
 
    // 2D canvas
    m_viewCanvas   = new TRootEmbeddedCanvas("Embeddedcanvas", m_pack);
+   m_viewCanvas->GetCanvas()->SetHighLightColor(-1);
    m_pack->AddFrameWithWeight(m_viewCanvas, 0, 3);
    m_pack->HideFrame(m_viewCanvas);
    m_modeGL = true;
