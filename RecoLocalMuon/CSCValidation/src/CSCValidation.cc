@@ -142,13 +142,13 @@ CSCValidation::~CSCValidation(){
   histos->insertPlot(hWireSTE2,"hWireSTE2","Efficiency");
 
   //moving this to post job macros
-  //histos->insertPlot(hSEff,"hSEff","Efficiency");
-  //histos->insertPlot(hRHEff,"hRHEff","Efficiency");
+  histos->insertPlot(hSEff,"hSEff","Efficiency");
+  histos->insertPlot(hRHEff,"hRHEff","Efficiency");
 
-  //histos->insertPlot(hSEff2,"hSEff2","Efficiency");
-  //histos->insertPlot(hRHEff2,"hRHEff2","Efficiency");
-  //histos->insertPlot(hStripEff2,"hStripff2","Efficiency");
-  //histos->insertPlot(hWireEff2,"hWireff2","Efficiency");
+  histos->insertPlot(hSEff2,"hSEff2","Efficiency");
+  histos->insertPlot(hRHEff2,"hRHEff2","Efficiency");
+  histos->insertPlot(hStripEff2,"hStripff2","Efficiency");
+  histos->insertPlot(hWireEff2,"hWireff2","Efficiency");
   
   histos->insertPlot(hSensitiveAreaEvt,"","Efficiency");
 
