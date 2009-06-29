@@ -1,4 +1,4 @@
-#include "Validation/RecoMET/interface/CaloTowerAnalyzer.h"
+#include "DQMOffline/JetMET/interface/CaloTowerAnalyzer.h"
 // author: Bobby Scurlock, University of Florida
 // first version 12/18/2006
 // modified: Mike Schmitt
@@ -10,11 +10,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-//#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -64,11 +62,10 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
- 
+  FolderName_            = iConfig.getUntrackedParameter<string>("FolderName");
 }
 
-//void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
-//void CaloTowerAnalyzer::beginJob()
+
 void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   Nevents = 0;
@@ -77,13 +74,8 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
   if (dbe_) {
  
-    //TString dirName = "JetMET/EventInfo/CertificationSummary/MET_CaloTowers/";
-    TString dirName = "RecoMETV/MET_CaloTowers/";
-    TString label(caloTowersLabel_.label()); 
-    if(label=="towerMaker") dirName += "SchemeB";
-    else if(label=="calotoweroptmaker") dirName += "Optimized";
-    else dirName += label;
-    dbe_->setCurrentFolder((string)dirName); 
+    //TString dirName = "RecoMETV/MET_CaloTowers/";
+    dbe_->setCurrentFolder(FolderName_); 
     
     //--Store number of events used
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  

@@ -38,7 +38,7 @@ private:
   bool debug_;
   double energyThreshold_;
   bool finebinning_;
-
+  std::string FolderName_;
   int Nevents;
 };
 

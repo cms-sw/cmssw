@@ -1,4 +1,4 @@
-#include "Validation/RecoMET/interface/ECALRecHitAnalyzer.h"
+#include "DQMOffline/JetMET/interface/ECALRecHitAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -13,7 +13,7 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   // Retrieve Information from the Configuration File
   EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
   EERecHitsLabel_    = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
-
+  FolderName_           = iConfig.getParameter<std::string>("FolderName");
   debug_             = iConfig.getParameter<bool>("Debug");
 
 
@@ -27,7 +27,6 @@ void ECALRecHitAnalyzer::endJob() {
 void ECALRecHitAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   CurrentEvent = -1;
   // Book the Histograms
-  //  BookHistos();
   // Fill the geometry histograms
   BookHistos();
   FillGeometry(iSetup);
@@ -41,10 +40,8 @@ void ECALRecHitAnalyzer::BookHistos()
   if (dbe_) {
 
   // Book Geometry Histograms
-    //dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/geometry");
-    //    dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/geometry");
-    dbe_->setCurrentFolder("RecoMETV/MET_ECAL/geometry");
-  // ECAL barrel
+    dbe_->setCurrentFolder(FolderName_+"/geometry");
+    // ECAL barrel
   me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_detaMap"] = dbe_->book1D("hEB_ieta_detaMap","", 171, -85, 86);
@@ -95,9 +92,7 @@ void ECALRecHitAnalyzer::BookHistos()
     }
 
   // Book Data Histograms
-  //  dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/data");
-  //  dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummary/MET_ECAL/data/");
-  dbe_->setCurrentFolder("RecoMETV/MET_ECAL/data/");
+  dbe_->setCurrentFolder(FolderName_);
   // Energy Histograms by logical index
   me["hEEpZ_energy_ix_iy"] = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
   me["hEEmZ_energy_ix_iy"] = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
