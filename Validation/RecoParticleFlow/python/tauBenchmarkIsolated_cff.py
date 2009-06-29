@@ -22,8 +22,7 @@ def equalRange( bench1, bench2 ):
     bench2.maxDeltaPhi = bench1.maxDeltaPhi                                
 
 
-#fromTaus = True
-fromTaus = False
+fromTaus = True
 
 # taking the jets, reconstructed from the large jet cone
 # and as a reference the closest genjet (reconstructed with the same cone)
@@ -42,7 +41,7 @@ trueTaus = cms.Sequence(
 if( fromTaus==True):
     # taking the taus, reconstructed from the signal cone elements
     # and as a reference the tau genjets
-    pfsource = 'shrinkingConePFTauProducer'
+    pfsource = 'isolatedTaus'
     gensource = 'tauGenJetsSelectorAllHadrons'
     trueTaus = cms.Sequence(
         tauGenJets + 
