@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.4 2009/06/29 11:03:54 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.5 2009/06/29 12:30:25 dshpakov Exp $
 
 #include <unistd.h>
 
@@ -84,20 +84,16 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
   {
     LOG4CPLUS_ERROR(_app->getApplicationLogger(), e.message());
 
-    #ifndef STOR_BYPASS_SENTINEL
     _app->notifyQualified("error", e);
-    #endif
   }
   catch(xcept::Exception &e)
   {
     LOG4CPLUS_FATAL(_app->getApplicationLogger(),
       errorMsg << xcept::stdformat_exception_history(e));
 
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE_NESTED(stor::exception::FragmentProcessing,
       sentinelException, errorMsg, e);
     _app->notifyQualified("fatal", sentinelException);
-    #endif
 
     _sharedResources->moveToFailedState();
   }
@@ -108,16 +104,19 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     LOG4CPLUS_FATAL(_app->getApplicationLogger(),
       errorMsg);
     
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
-    #endif
 
     _sharedResources->moveToFailedState();
 
-    _actionIsActive = false;
-
+    // Ugly hack to stop the FragmentProcessor thread *after* it moved to Failed
+    // state if another std::exception is thrown. This should avoid the flood
+    // of error messages due to the 'std::badcast' problem.
+    const StateMachineMonitorCollection& smc =
+      _sharedResources->_statisticsReporter->getStateMachineMonitorCollection();
+    if (smc.externallyVisibleState() == "Failed")
+      _actionIsActive = false;
   }
   catch(...)
   {
@@ -126,11 +125,9 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     LOG4CPLUS_FATAL(_app->getApplicationLogger(),
       errorMsg);
     
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
-    #endif
 
     _sharedResources->moveToFailedState();
   }
@@ -194,7 +191,6 @@ void FragmentProcessor::processOneFragment()
 
 void FragmentProcessor::processAllCommands()
 {
-
   boost::shared_ptr<CommandQueue> cq = _sharedResources->_commandQueue;
   stor::event_ptr evt;
   bool gotCommand = false;
@@ -213,7 +209,6 @@ void FragmentProcessor::processAllCommands()
         _sharedResources->_configuration->getWorkerThreadParams();
       _timeout = (unsigned int) workerParams._FPdeqWaitTime;
     }
-
 }
 
 
