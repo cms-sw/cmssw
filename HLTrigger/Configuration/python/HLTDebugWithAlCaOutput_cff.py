@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre10/HLT/V15 (CMSSW_3_1_X_2009-06-23-2300_HLT1)
+# /dev/CMSSW_3_1_0/pre10/HLT/V30 (CMSSW_3_1_X_2009-06-23-2300_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre10/HLT/V15')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre10/HLT/V30')
 )
 
 block_hltDebugWithAlCaOutput = cms.PSet(
@@ -145,6 +145,7 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep *_hltL3TauJetTracksAssociator_*_*',
   'keep *_hltL3TrajectorySeedOI_*_*',
   'keep *_hltMuonTauIsoL2IsoFiltered_*_*',
+  'keep *_hltSelector4JetsRegional_*_*',
   'keep *_hltL3TkTracksFromL2_*_*',
   'keep *_hltAlCaEtaRegRecHitsCosmics_*_*',
   'keep *_hltL1IsoElectronTrackIsol_*_*',
