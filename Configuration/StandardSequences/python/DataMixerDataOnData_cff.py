@@ -13,34 +13,34 @@ from SimGeneral.DataMixingModule.mixOne_data_on_data_cfi import *
 #
 # clone these sequences:
 
-DM_EcalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
-DM_EcalDigis = simEcalDigis.clone()
+DMEcalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
+DMEcalDigis = simEcalDigis.clone()
 
 # Re-define inputs to point at DataMixer output
-DM_EcalTriggerPrimitiveDigis.Label = cms.string('mixData')
-DM_EcalTriggerPrimitiveDigis.InstanceEB = cms.string('EBDigiCollectionDM')
-DM_EcalTriggerPrimitiveDigis.InstanceEE = cms.string('EEDigiCollectionDM')
+DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
+DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('EBDigiCollectionDM')
+DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('EEDigiCollectionDM')
 #
-DM_EcalDigis.digiProducer = cms.string('mixData')
-DM_EcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
-DM_EcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
+DMEcalDigis.digiProducer = cms.string('mixData')
+DMEcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
+DMEcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
 
-ecalDigiSequenceDM = cms.Sequence(DM_EcalTriggerPrimitiveDigis*DM_EcalDigis)
+ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis)
 
 # same for Hcal:
 
 # clone these sequences:
 
-DM_HcalTriggerPrimitiveDigis = simHcalTriggerPrimitiveDigis.clone()
-DM_HcalDigis = simHcalDigis.clone()
+DMHcalTriggerPrimitiveDigis = simHcalTriggerPrimitiveDigis.clone()
+DMHcalDigis = simHcalDigis.clone()
 
 # Re-define inputs to point at DataMixer output
-DM_HcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'),cms.InputTag('mixData'))
-DM_HcalDigis.digiLabel = cms.InputTag("mixData")
+DMHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'),cms.InputTag('mixData'))
+DMHcalDigis.digiLabel = cms.InputTag("mixData")
 
-hcalDigiSequenceDM = cms.Sequence(DM_HcalTriggerPrimitiveDigis+DM_HcalDigis)
+hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis)
 
-postDM_Digi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
+postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 
-pdatamix = cms.Sequence(mixData+postDM_Digi)
+pdatamix = cms.Sequence(mixData+postDMDigi)
 
