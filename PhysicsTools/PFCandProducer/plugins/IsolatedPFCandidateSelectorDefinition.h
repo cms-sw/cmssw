@@ -3,7 +3,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "PhysicsTools/PFCandProducer/interface/PFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/plugins/PFCandidateSelectorDefinition.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
 

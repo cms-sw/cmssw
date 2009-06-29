@@ -1,6 +1,6 @@
 
 // user include files
-#include "PhysicsTools/PFCandProducer/interface/Type1PFMET.h"
+#include "PhysicsTools/PFCandProducer/plugins/Type1PFMET.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"

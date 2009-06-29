@@ -1,5 +1,4 @@
-#include "PhysicsTools/PFCandProducer/interface/PFMET.h"
-#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
+#include "PhysicsTools/PFCandProducer/plugins/PFMET.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
@@ -60,9 +59,7 @@ void PFMET::produce(Event& iEvent,
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  pfpat::fetchCollection(pfCandidates, 
-			 inputTagPFCandidates_, 
-			 iEvent );
+  iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
   
   auto_ptr< METCollection > 
     pOutput( new METCollection() ); 

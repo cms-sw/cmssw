@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-noMuon = cms.EDProducer(
+pfNoMuon = cms.EDProducer(
     "TPPFCandidatesOnPFCandidates",
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("noMuon"),
-    topCollection = cms.InputTag("isolatedMuons"),
-    bottomCollection = cms.InputTag("noPileUp"),
+    topCollection = cms.InputTag("pfIsolatedMuons"),
+    bottomCollection = cms.InputTag("pfNoPileUp"),
 )

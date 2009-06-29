@@ -1,5 +1,4 @@
-#include "PhysicsTools/PFCandProducer/interface/PFPileUp.h"
-#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
+#include "PhysicsTools/PFCandProducer/plugins/PFPileUp.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
@@ -56,17 +55,14 @@ void PFPileUp::produce(Event& iEvent,
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  pfpat::fetchCollection(pfCandidates, 
-			 inputTagPFCandidates_, 
-			 iEvent );
+  iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
 
   
   // get vertices 
 
   Handle<VertexCollection> vertices;
-  pfpat::fetchCollection(vertices, 
-			 inputTagVertices_, 
-			 iEvent );
+  iEvent.getByLabel( inputTagVertices_, vertices);
+
   
   auto_ptr< reco::PileUpPFCandidateCollection > 
     pOutput( new reco::PileUpPFCandidateCollection ); 

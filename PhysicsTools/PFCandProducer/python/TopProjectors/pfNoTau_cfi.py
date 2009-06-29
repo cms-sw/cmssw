@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-noTau = cms.EDProducer(
+pfNoTau = cms.EDProducer(
     "TPPFTausOnPFJets",
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("noTau"),

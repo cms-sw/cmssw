@@ -6,7 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/PFCandProducer/interface/IsolatedPFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/plugins/IsolatedPFCandidateSelectorDefinition.h"
 
 typedef ObjectSelector<IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
 

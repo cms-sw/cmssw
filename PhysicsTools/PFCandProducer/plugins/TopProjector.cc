@@ -1,4 +1,4 @@
-#include "PhysicsTools/PFCandProducer/interface/TopProjector.h"
+#include "PhysicsTools/PFCandProducer/plugins/TopProjector.h"
 
 
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"

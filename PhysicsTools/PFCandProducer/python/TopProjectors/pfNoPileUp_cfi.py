@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-noPileUp = cms.EDProducer(
+pfNoPileUp = cms.EDProducer(
     "TPPileUpPFCandidatesOnPFCandidates",
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("pileUpOnPFCandidates"),

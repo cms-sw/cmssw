@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFTopProjector_
-#define PhysicsTools_PFCandProducer_PFTopProjector_
+#ifndef PhysicsTools_PFCandProducer_TopProjector_
+#define PhysicsTools_PFCandProducer_TopProjector_
 
 // system include files
 #include <iostream>
@@ -23,9 +23,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 
-#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
-
-/**\class PFTopProjector 
+/**\class TopProjector 
 \brief 
 
 \author Colin Bernet
@@ -38,7 +36,7 @@
 using namespace std;
 
 template< class Top, class Bottom>
-class PFTopProjector : public edm::EDProducer {
+class TopProjector : public edm::EDProducer {
 
  public:
 
@@ -48,9 +46,9 @@ class PFTopProjector : public edm::EDProducer {
   typedef edm::Handle< std::vector<Bottom> > BottomHandle;
   typedef edm::Ptr<Bottom> BottomPtr; 
 
-  PFTopProjector(const edm::ParameterSet&);
+  TopProjector(const edm::ParameterSet&);
 
-  ~PFTopProjector() {};
+  ~TopProjector() {};
 
   
   void produce(edm::Event&, const edm::EventSetup&);
@@ -98,7 +96,7 @@ class PFTopProjector : public edm::EDProducer {
 
 
 template< class Top, class Bottom>
-PFTopProjector< Top, Bottom >::PFTopProjector(const edm::ParameterSet& iConfig) {
+TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) {
 
   using namespace edm;
 
@@ -114,7 +112,7 @@ PFTopProjector< Top, Bottom >::PFTopProjector(const edm::ParameterSet& iConfig) 
 
 
 template< class Top, class Bottom >
-void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
+void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 					    const edm::EventSetup& iSetup) {
   
   using namespace std;
@@ -210,7 +208,7 @@ void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
 
 template< class Top, class Bottom > 
-void PFTopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vector<Top> >& tops,
+void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vector<Top> >& tops,
 					const edm::Handle< std::vector<Bottom> >& bottoms ,
 					std::vector<bool>& masked,
 					const char* objectName) const {
@@ -253,7 +251,7 @@ void PFTopProjector< Top, Bottom >::processCollection( const edm::Handle< std::v
 
 
 template< class Top, class Bottom >
-void  PFTopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector& ancestors,
+void  TopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector& ancestors,
 				      const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const {
   
 
@@ -275,7 +273,7 @@ void  PFTopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector
 
 template< class Top, class Bottom >
 void
-PFTopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
+TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 			       reco::CandidatePtrVector& ancestors,
 			       const edm::ProductID& ancestorsID ) const {
 
@@ -311,7 +309,7 @@ PFTopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 
 
 template< class Top, class Bottom >
-void PFTopProjector<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
+void TopProjector<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
 					 std::vector<bool>& masked ) const {
   
   using namespace std;
