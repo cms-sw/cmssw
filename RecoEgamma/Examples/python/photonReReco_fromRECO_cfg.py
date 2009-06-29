@@ -7,7 +7,7 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/EventContent/EventContent_cff')
-process.load("RecoEgamma.Configuration.RecoEgamma_cff")
+process.load('Configuration/StandardSequences/Reconstruction_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
@@ -44,7 +44,7 @@ process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.photonReReco,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.conversionReReco,process.photonReReco,process.endjob_step,process.out_step)
 
 
 
