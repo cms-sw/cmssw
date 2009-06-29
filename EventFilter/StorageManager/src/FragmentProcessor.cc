@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.3 2009/06/26 08:19:24 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.4 2009/06/29 11:03:54 mommsen Exp $
 
 #include <unistd.h>
 
@@ -115,6 +115,9 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     #endif
 
     _sharedResources->moveToFailedState();
+
+    _actionIsActive = false;
+
   }
   catch(...)
   {
