@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StatisticsReporter.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include <string>
 #include <sstream>
@@ -117,11 +117,9 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_ERROR(_app->getApplicationLogger(),
       errorMsg << xcept::stdformat_exception_history(e));
 
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE_NESTED(stor::exception::Monitoring,
       sentinelException, errorMsg, e);
     _app->notifyQualified("error", sentinelException);
-    #endif
   }
   catch(std::exception &e)
   {
@@ -131,11 +129,9 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_ERROR(_app->getApplicationLogger(),
       errorMsg);
     
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE(stor::exception::Monitoring,
       sentinelException, errorMsg);
     _app->notifyQualified("error", sentinelException);
-    #endif
   }
   catch(...)
   {
@@ -144,11 +140,9 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_ERROR(_app->getApplicationLogger(),
       errorMsg);
     
-    #ifndef STOR_BYPASS_SENTINEL
     XCEPT_DECLARE(stor::exception::Monitoring,
       sentinelException, errorMsg);
     _app->notifyQualified("error", sentinelException);
-    #endif
   }
 
   return _doMonitoring;
