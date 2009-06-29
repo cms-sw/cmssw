@@ -1,10 +1,10 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/g/gennai/CMSSW_310pre8/
+castorDir=/castor/cern.ch/user/g/gennai/CMSSW_310pre11/
 
-cmsswDir=/afs/cern.ch/user/g/gennai/scratch0/CMSSW_3_1_0_pre8/src/
+cmsswDir=/afs/cern.ch/user/g/gennai/scratch0/CMSSW_3_1_0_pre11/src/
 
-for ((job=1;job<=50;job++));
+for ((job=1;job<=30;job++));
   do
   echo "JOB "$job
   name="ZTT_Full_"${job}
