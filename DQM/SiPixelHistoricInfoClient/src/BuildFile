@@ -1,0 +1,23 @@
+<use name=FWCore/Framework>
+<use name=CondCore/DBCommon>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/Utilities>
+
+<use name=CondFormats/DQMObjects>
+
+
+<use name=root>
+<use name=rootgraphics>
+<use name=rootrflx>
+<use name=rootminuit>
+<use name=rootminuit2>
+<use name=rootcintex>
+
+<use name=boost>
+
+
+<library name="SiPixelHistoricDQM" file="*.cc">
+</library>
+
+
