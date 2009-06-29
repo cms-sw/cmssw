@@ -9,7 +9,7 @@ void runExtendedOfflineValidationPlots()
 
 
   ///CRAFT////
-  ///add file that you want to overlay using following the syntax below
+  ///add file that you want to overlay following the syntax below
   ///(std::string "fileName", std::string legName="", int color=1, int style=1)
      PlotAlignmentValidation p("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/CRAFT_Note/draft0_27may2009/data/FinalIdeal.root","Design",1,1);
      p.loadFileList("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/CRAFT_Note/draft0_27may2009/data/FinalHIP.root","HIP",3,1);
@@ -18,5 +18,5 @@ void runExtendedOfflineValidationPlots()
 
   p.setOutputDir("$TMPDIR");
   //  p.setTreeBaseDir("TrackHitFilter");
-  p.plotDMR("medianY",30);
+  p.plotDMR("medianX",30);
 }
