@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/05/12 18:10:58 $ 
- **  $Revision: 1.18 $
+ **  $Date: 2009/06/22 14:11:46 $ 
+ **  $Revision: 1.19 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -308,6 +308,9 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h2_eResVsEta_[3];
   MonitorElement* p_eResVsEta_[3];
+  MonitorElement* h2_eResVsEt_[3][3];
+  MonitorElement* p_eResVsEt_[3][3];
+
   MonitorElement* h2_eResVsR9_[3];
   MonitorElement* p_eResVsR9_[3];
   MonitorElement* h2_sceResVsR9_[3];
@@ -380,6 +383,7 @@ class PhotonValidator : public edm::EDAnalyzer
   
 
   MonitorElement* h_convVtxRvsZ_[3];
+  MonitorElement* h_convVtxYvsX_;
   MonitorElement* h_convVtxdX_;
   MonitorElement* h_convVtxdY_;
   MonitorElement* h_convVtxdZ_;
