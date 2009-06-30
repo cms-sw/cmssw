@@ -51,13 +51,12 @@ hltTauValDefMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
         ),
         cms.PSet(
-            DQMFolder              = cms.string('HLT/TauOffline/PFTaus/L1'),
+            DQMFolder              = cms.string('HLT/TauRelVal/MC_Default/L1'),
             L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
             L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
             L1Electrons            = cms.InputTag("hltL1extraParticles","Isolated"),
-            L1Muons                = cms.InputTag("hltL1extraParticles"),
+            L1Muons                = cms.InputTag("hltL1extraParticles")
         ),
-
 
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauRelVal/MC_Default/L2'),
