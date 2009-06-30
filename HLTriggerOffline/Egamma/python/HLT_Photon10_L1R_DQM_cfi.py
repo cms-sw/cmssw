@@ -53,7 +53,7 @@ HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt5","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.int32(-83),
+            theHLTOutputTypes = cms.int32(-82),
             HLTCollectionHumanName = cms.untracked.string("Level 1")
         ),
         ##########################################################
