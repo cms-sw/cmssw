@@ -26,14 +26,9 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # the task
-#process.load("DQMOffline.JetMET.jetMETAnalyzer_cff")
 process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet98154_log7.root')
-
-# added caloTower-layer plots (now included in jetMETDQMOfflineSource_cff)
-#process.load("DQMOffline.JetMET.caloTowers_cff")
-#process.load("Validation.RecoMET.caloTowers_cff")
+process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet98154.root')
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -88,9 +83,6 @@ process.options = cms.untracked.PSet(
 
 )
 
-#process.p = cms.Path(process.jetMETAnalyzer*process.analyzecaloTowers)
-#process.p = cms.Path(process.jetMETAnalyzer*process.towerSchemeBAnalyzer)
-#process.p = cms.Path(process.jetMETAnalyzer*process.towerSchemeBAnalyzer)
 process.p = cms.Path(process.jetMETDQMOfflineSource*process.dqmStoreStats)
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
