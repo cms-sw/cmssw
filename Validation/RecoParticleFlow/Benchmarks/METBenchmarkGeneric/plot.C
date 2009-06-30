@@ -30,7 +30,7 @@
   comp.Legend().Draw();
   SavePlot("legend", outdir.c_str() );
 
-  comp.SetAxis(10, -200,200);
+  comp.SetAxis(5, -200,200);
   TCanvas c1a("c1a", "DeltaMET");
   FormatPad( &c1a, false); 
   comp.DrawSlice("DeltaEtvsEt", 20., 10000., mode);
@@ -91,7 +91,7 @@
 
   TCanvas c5("c5", "MET response");
   FormatPad( &c5, false );
-  comp.DrawResp("DeltaEtOverEtvsEt", 0, 200, mode);
+  comp.DrawResp("DeltaEtOverEtvsEt", 0, 200, mode, -0.4, 0.4);
   SavePlot("MET_Response", outdir.c_str() );
 
   TCanvas c6("c6", "genMET");
@@ -149,12 +149,12 @@
   comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
   SavePlot("sigmaPhi", outdir.c_str() );
 
-// mode = Comparator::SCALE;
-
-//  TCanvas c14("c14", "test");
-//  FormatPad( &c14, false );
-//  comp.Draw2D_file1("DeltaEtvsEt", mode);
-//  comp.DrawSlice("DeltaEtvsEt", 40., 60., mode);
-//  SavePlot("test", outdir.c_str() );
+//// mode = Comparator::SCALE;
+//
+////  TCanvas c14("c14", "test");
+////  FormatPad( &c14, false );
+////  comp.Draw2D_file1("DeltaEtvsEt", mode);
+////  comp.DrawSlice("DeltaEtvsEt", 40., 60., mode);
+////  SavePlot("test", outdir.c_str() );
 
 }
