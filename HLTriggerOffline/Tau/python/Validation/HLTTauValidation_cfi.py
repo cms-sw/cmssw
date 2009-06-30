@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauValidationProcess = "HLT"
 
-hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauValDefMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC/DoubleTau'),
+            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC_Default/DoubleTau'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltL1sDoubleLooseIsoTau15","",hltTauValidationProcess), 
                                         cms.InputTag("hltFilterL2EtCutDoubleLooseIsoTau15","",hltTauValidationProcess),
@@ -21,7 +21,7 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
 
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauValidationProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC/Summary'),
+            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC_Default/Summary'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltFilterL2EcalIsolationDoubleLooseIsoTau15","",hltTauValidationProcess),
                                         cms.InputTag("hltFilterL2EcalIsolationSingleIsoTau20","",hltTauValidationProcess)
@@ -38,7 +38,7 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
         
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC/SingleTau'),
+            DQMFolder             = cms.untracked.string('HLT/TauRelVal/MC_Default/SingleTau'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltL1sSingleLooseIsoTau20","",hltTauValidationProcess), 
                                         cms.InputTag("hltFilterL2EtCutSingleLooseIsoTau20","",hltTauValidationProcess),
@@ -51,17 +51,16 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
         ),
         cms.PSet(
-            DQMFolder              = cms.string('HLT/TauRelVal/MC/L1'),
+            DQMFolder              = cms.string('HLT/TauOffline/PFTaus/L1'),
             L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
             L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
-            L1Leptons              = cms.InputTag("none"),
-            LeptonType             = cms.int32(0),
-            NTriggeredTaus         = cms.uint32(2),
-            NTriggeredLeptons      = cms.uint32(0)
+            L1Electrons            = cms.InputTag("hltL1extraParticles","Isolated"),
+            L1Muons                = cms.InputTag("hltL1extraParticles"),
         ),
 
+
         cms.PSet(
-            DQMFolder              = cms.string('HLT/TauRelVal/MC/L2'),
+            DQMFolder              = cms.string('HLT/TauRelVal/MC_Default/L2'),
             L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         ),
@@ -82,5 +81,5 @@ hltTauValidationMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
 )
 
 
-HLTTauValidationSequence = cms.Sequence(hltTauValidationMonitor)
+hltTauValDefault = cms.Sequence(hltTauValDefMonitor)
 
