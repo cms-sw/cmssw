@@ -5,7 +5,7 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_with_suppres
 
 # esmodule creating  conditions 
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG.txt.gz')
+    DatabaseFile = cms.untracked.string('TPG_startup.txt.gz')
 )
 
 tpparams = cms.ESSource("EmptyESSource",

@@ -11,6 +11,9 @@ At the main level, only the following PSets are allowed:
   A category, as listed in the vstring categories or messageIDs
   One of the following keywords, which are valid as PSets at the main level
 	default  
+	Note:  The meaning of default as a PSet at the main level is that
+	of a DESTINATION PSet, not a category PSet.  However, for the 
+	default desitnation, 
 
 At the main level, only the following vstrings are allowed:
     categories		vstring
@@ -62,9 +65,32 @@ Within a destination PSet, only the following non-PSets are allowed:
     filename		string
     extension		string
 
+Within a default PSet at the main level (which behaves much like a destination
+PSet), only the following PSets are allowed:
+  A category, as listed in the vstring categories or messageIDs
+  One of the following keywords, which are valid as PSets at this level
+   	ERROR
+    	WARNING
+   	INFO
+    	DEBUG
+	(Note that default is NOT present here)
+  	 
+Within a default PSet at the main level, only the following non-PSets are 
+allowed:
+    placeholder		bool	forbids others (because it will just return)!
+    threshold		string	only certain values
+    noLineBreaks	bool
+    lineLength   	int
+    noTimeStamps	bool
+  And the following, which stem from being able to establish defaults 
+  for categories: 
+    limit		int
+    reportEvery		int
+    timespan		int
+
 Within a statistics PSet, only the following (all non-PSets) are allowed:
     placeholder		bool
-    filename		output
+    output		string
     filename		string
     extension		string
     reset		bool
@@ -81,7 +107,8 @@ destination PSet,only the following are allowed:
     limit		int
     reportEvery		int
     timespan		int
-
+    threshold	        int
+    
 Within a category PSet, whether or not this is the default category PSet,
 and whether or not it is in the main or nested in a destination PSet,  
 only the following are allowed:
@@ -92,7 +119,7 @@ only the following are allowed:
 
 Not allowed:
 
-Use of filename or extension of cerr or cout.
+Use of filename or extension of cerr or cout.  (But output can be cerr or cout.)
 
 In the destinations vstring, duplicate names.
 
@@ -111,9 +138,10 @@ allowed.
 
 Anything tracked is not allowed.
 
-The followoing is strongly discouraged unless the intent is to redirect
+The following is strongly discouraged unless the intent is to redirect
 cout and cerr into different files:
-In the destinations vstring, presence of both cerr and cout.
+	In the destinations vstring, presence of both cerr and cout.
+However, this is NOT flagged as a flaw because it can be legit.
 
 
 

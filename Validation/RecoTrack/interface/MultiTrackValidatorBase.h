@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/03/16 18:10:54 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/06/15 18:33:58 $
+ *  $Revision: 1.22 $
  *  \author cerati
  */
 
@@ -82,7 +82,8 @@ class MultiTrackValidatorBase {
     dxyRes_nbin(pset.getParameter<int>("dxyRes_nbin")),
     dzRes_nbin(pset.getParameter<int>("dzRes_nbin")),
     ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false)),
-    skipHistoFit(pset.getUntrackedParameter<bool>("skipHistoFit",false))
+    skipHistoFit(pset.getUntrackedParameter<bool>("skipHistoFit",false)),
+    useLogPt(pset.getUntrackedParameter<bool>("useLogPt",false))
     //
     {
       dbe_ = edm::Service<DQMStore>().operator->();
@@ -140,6 +141,25 @@ class MultiTrackValidatorBase {
     }
   }
 
+  void BinLogX(TH1*h)
+  {
+    
+    TAxis *axis = h->GetXaxis();
+    int bins = axis->GetNbins();
+    
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    float *new_bins = new float[bins + 1];
+    
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+      
+    }
+    axis->Set(bins, new_bins);
+    delete[] new_bins;
+  }
+
   void setUpVectors() {
     std::vector<double> etaintervalsv;
     std::vector<double> phiintervalsv;
@@ -174,7 +194,9 @@ class MultiTrackValidatorBase {
     double steppT = (maxpT-minpT)/nintpT;
     pTintervalsv.push_back(minpT);
     for (int k=1;k<nintpT+1;k++) {
-      double d=minpT+k*steppT;
+      double d=0;
+      if(useLogPt)d=pow(10,minpT+k*steppT);
+      else d=minpT+k*steppT;
       pTintervalsv.push_back(d);
       totSIMvpT.push_back(0);
       totASSvpT.push_back(0);
@@ -282,6 +304,7 @@ class MultiTrackValidatorBase {
   int ptRes_nbin, cotThetaRes_nbin, phiRes_nbin, dxyRes_nbin, dzRes_nbin;
   bool ignoremissingtkcollection_;
   bool skipHistoFit;
+  bool useLogPt;
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;

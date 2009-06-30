@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.2 2008/11/04 10:57:03 ntran Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.1 2008/02/27 17:33:54 ebutz Exp $
 //
 //
 
@@ -157,13 +157,13 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	for (std::vector<AlignTransform>::const_iterator i = theAlignments->m_align.begin(); i != theAlignments->m_align.end(); ++i){
 		
 		m_rawid = i->rawId();
-		CLHEP::Hep3Vector translation = i->translation();
+		Hep3Vector translation = i->translation();
 		m_x = translation.x();
 		m_y = translation.y();
 		m_z = translation.z();
 		
 	
-		CLHEP::HepRotation rotation = i->rotation();
+		HepRotation rotation = i->rotation();
 		m_alpha = rotation.getPhi();
 		m_beta = rotation.getTheta();
 		m_gamma = rotation.getPsi();
@@ -175,7 +175,7 @@ void TrackerGeometryIntoNtuples::beginJob(const edm::EventSetup& iSetup)
 	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 
 		m_rawid = i->rawId();
-		CLHEP::HepSymMatrix errMatrix = i->matrix();
+		HepSymMatrix errMatrix = i->matrix();
 		DetId detid(m_rawid);
 		m_subdetid = detid.subdetId();
 		m_xx = errMatrix[0][0];

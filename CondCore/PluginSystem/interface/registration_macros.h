@@ -16,30 +16,23 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Jul 25 06:47:37 EDT 2005
+// $Id: registration_macros.h,v 1.6 2007/04/12 21:18:00 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
-#include "CondCore/PluginSystem/interface/OldDataProxy.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 
 // forward declarations
 
 // macros
-#define INSTANTIATE_PROXY(record_, type_) template class OldDataProxy<record_, type_>;template class DataProxyWrapper<record_, type_>;
+#define INSTANTIATE_PROXY(record_, type_) template class DataProxy<record_, type_>;
 
 #define ONLY_REGISTER_PLUGIN(record_,type_)\
-typedef OldDataProxy<record_, type_> EDM_PLUGIN_SYM(OldProxy , __LINE__ ); \
-typedef DataProxyWrapper<record_, type_> EDM_PLUGIN_SYM(Proxy , __LINE__ ); \
-DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
-
-
-// chhose one of the two
-//DEFINE_EDM_PLUGIN( oldcond::ProxyFactory, EDM_PLUGIN_SYM(OldProxy , __LINE__ ), #record_ "@" #type_ "@Proxy")
-
-// DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@NewProxy")
+typedef DataProxy<record_, type_> EDM_PLUGIN_SYM(Proxy , __LINE__ ); \
+DEFINE_EDM_PLUGIN( cond::ProxyFactory, EDM_PLUGIN_SYM(Proxy , __LINE__ ), #record_ "@" #type_ "@Proxy")
 
 #define REGISTER_PLUGIN(record_, type_ ) \
 INSTANTIATE_PROXY(record_, type_ ) \

@@ -585,8 +585,21 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 }
 
 
-HcalRecHitsValidation::~HcalRecHitsValidation() {
+HcalRecHitsValidation::~HcalRecHitsValidation() { }
 
+void HcalRecHitsValidation::endJob() { 
+  //before check that histos are there....
+
+  // check if ME still there (and not killed by MEtoEDM for memory saving)
+  if( dbe_ )
+    {
+      // check existence of first histo in the list
+      if (! dbe_->get("HcalRecHitsV/HcalRecHitTask/N_HB")) return;
+    }
+  else
+    return;
+  
+  //======================================
 
    if (hcalselector_ == "ZS"  ) {
 
@@ -854,10 +867,8 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
   }
    
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-  
 }
 
-void HcalRecHitsValidation::endJob() { }
 
 void HcalRecHitsValidation::beginJob(){ }
 

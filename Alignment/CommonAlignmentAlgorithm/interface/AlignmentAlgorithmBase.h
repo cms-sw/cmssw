@@ -14,12 +14,8 @@ class AlignableTracker;
 class AlignableMuon;
 class AlignmentParameterStore;
 class Trajectory;
-// class TkFittedLasBeamCollection; // Makes trouble since it's a typedef, so include...
-// class TsosVectorCollection;      // Dito.
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
-#include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
-namespace edm { class EventID; class RunID; class EventSetup; class ParameterSet; }
+namespace edm { class EventID; class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
 
 class AlignmentAlgorithmBase
@@ -40,16 +36,6 @@ public:
     const edm::EventID                 &eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
-  };
-  
-  /// passed to endRun
-  struct EndRunInfo {
-    EndRunInfo(const edm::RunID &runId, const TkFittedLasBeamCollection *tkLasBeams,
-	       const TsosVectorCollection *tkLasBeamTsoses)
-      : runId_(runId), tkLasBeams_(tkLasBeams), tkLasBeamTsoses_(tkLasBeamTsoses) {}
-    const edm::RunID &runId_;
-    const TkFittedLasBeamCollection *tkLasBeams_; /// might be null!
-    const TsosVectorCollection *tkLasBeamTsoses_; /// might be null!
   };
   
   /// Constructor
@@ -73,11 +59,6 @@ public:
   /// Run the algorithm (must be implemented in derived class)
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
 
-  /// called at begin of run
-  virtual void beginRun(const edm::EventSetup &setup) {};
-
-  /// called at end of run - order of arguments like in EDProducer etc.
-  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {};
 };
 
 #endif

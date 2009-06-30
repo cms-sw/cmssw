@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.7 2008/09/17 19:39:34 nancy Exp $
+// $Id: ElectronAnalyzer.cc,v 1.9 2009/06/24 14:52:32 dellaric Exp $
 //
 //
 
@@ -204,60 +204,81 @@ void ElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 void
 ElectronAnalyzer::endJob(){
 
+  h_ele_eta = dbe_->get("Egamma/ElectronAnalyzer/h_ele_etaEff");
+  h_ele_eta_golden = dbe_->get("Egamma/ElectronAnalyzer/h_ele_eta_golden");
+  h_ele_eta_shower = dbe_->get("Egamma/ElectronAnalyzer/h_ele_eta_shower");
+  h_ele_eta_goldenFrac = dbe_->get("Egamma/ElectronAnalyzer/h_ele_eta_goldenFrac");
+  h_ele_eta_showerFrac = dbe_->get("Egamma/ElectronAnalyzer/h_ele_eta_showerFrac");
+
   dbe_->setCurrentFolder("Egamma/ElectronAnalyzer");
-  int nbins=h_ele_eta->getNbinsX();
-  for (int nb=0;nb<nbins;++nb) {
-    float content=h_ele_eta->getBinContent(nb);
-    if (content>0.) {
-      float contgold =( h_ele_eta_golden->getBinContent(nb))/content;
-      float contshow =( h_ele_eta_shower->getBinContent(nb))/content;
-      h_ele_eta_goldenFrac ->setBinContent(nb,contgold);
-      h_ele_eta_showerFrac ->setBinContent(nb,contshow);
+  if (h_ele_eta) {
+    int nbins=h_ele_eta->getNbinsX();
+    for (int nb=0;nb<nbins;++nb) {
+      float content=h_ele_eta->getBinContent(nb);
+      if (content>0.) {
+        if (h_ele_eta_golden) {
+          float contgold =( h_ele_eta_golden->getBinContent(nb))/content;
+          if (h_ele_eta_shower) {
+            float contshow =( h_ele_eta_shower->getBinContent(nb))/content;
+            if (h_ele_eta_goldenFrac) h_ele_eta_goldenFrac ->setBinContent(nb,contgold);
+            if (h_ele_eta_showerFrac) h_ele_eta_showerFrac ->setBinContent(nb,contshow);
+          }
+        }
+      }
     }
   }
-  dbe_->removeElement("h_ele_eta_golden");
-  dbe_->removeElement("h_ele_eta_show");
-  dbe_->removeElement("h_ele_eta");
 
-  nbins=h_ele_matchingObjectEta->getNbinsX();
-  for (int nb=0;nb<nbins;++nb) {
-    float content=h_ele_matchingObjectEta->getBinContent(nb);
-    if (content>0.) {
-      h_ele_etaEff ->setBinContent(nb,h_ele_matchingObjectEta_matched->getBinContent(nb)/content);
-    }
-  }
-  dbe_->removeElement("h_ele_matchingObjectEta_matched");
-  dbe_->removeElement("h_SC_eta");
+  h_ele_matchingObjectEta = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectEta");
+  h_ele_etaEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_etaEff");
 
-  nbins=h_ele_matchingObjectPt->getNbinsX();
-  for (int nb=0;nb<nbins;++nb) {
-    float content=h_ele_matchingObjectPt->getBinContent(nb);
-    if (content>0.) {
-      h_ele_ptEff ->setBinContent(nb,h_ele_matchingObjectPt_matched->getBinContent(nb)/content);
+  if (h_ele_matchingObjectEta) {
+    int nbins=h_ele_matchingObjectEta->getNbinsX();
+    for (int nb=0;nb<nbins;++nb) {
+      float content=h_ele_matchingObjectEta->getBinContent(nb);
+      if (content>0.) {
+        if (h_ele_etaEff) h_ele_etaEff ->setBinContent(nb,h_ele_matchingObjectEta_matched->getBinContent(nb)/content);
+      }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectPt_matched");
-  dbe_->removeElement("h_SC_Pt");
 
-  nbins=h_ele_matchingObjectPhi->getNbinsX();
-  for (int nb=0;nb<nbins;++nb) {
-    float content=h_ele_matchingObjectPhi->getBinContent(nb);
-    if (content>0.) {
-      h_ele_phiEff ->setBinContent(nb,h_ele_matchingObjectPhi_matched->getBinContent(nb)/content);
-    }
-  }
-  dbe_->removeElement("h_ele_matchingObjectPhi_matched");
-  dbe_->removeElement("h_SC_phi");
+  h_ele_matchingObjectPt = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectPt");
+  h_ele_ptEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_ptEff");
 
-  nbins=h_ele_matchingObjectZ->getNbinsX();
-  for (int nb=0;nb<nbins;++nb) {
-    float content=h_ele_matchingObjectZ->getBinContent(nb);
-    if (content>0.) {
-      h_ele_zEff ->setBinContent(nb,h_ele_matchingObjectZ_matched->getBinContent(nb)/content);
+  if (h_ele_matchingObjectPt) {
+    int nbins=h_ele_matchingObjectPt->getNbinsX();
+    for (int nb=0;nb<nbins;++nb) {
+      float content=h_ele_matchingObjectPt->getBinContent(nb);
+      if (content>0.) {
+        if (h_ele_ptEff) h_ele_ptEff ->setBinContent(nb,h_ele_matchingObjectPt_matched->getBinContent(nb)/content);
+      }
     }
   }
-  dbe_->removeElement("h_ele_matchingObjectZ_matched");
-  dbe_->removeElement("h_SC_z");
+
+  h_ele_matchingObjectPhi = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectPhi");
+  h_ele_phiEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_phiEff");
+
+  if (h_ele_matchingObjectPhi) {
+    int nbins=h_ele_matchingObjectPhi->getNbinsX();
+    for (int nb=0;nb<nbins;++nb) {
+      float content=h_ele_matchingObjectPhi->getBinContent(nb);
+      if (content>0.) {
+        if (h_ele_phiEff) h_ele_phiEff ->setBinContent(nb,h_ele_matchingObjectPhi_matched->getBinContent(nb)/content);
+      }
+    }
+  }
+
+  h_ele_matchingObjectZ = dbe_->get("Egamma/ElectronAnalyzer/h_ele_matchingObjectZ");
+  h_ele_zEff = dbe_->get("Egamma/ElectronAnalyzer/h_ele_zEff");
+
+  if (h_ele_matchingObjectZ) {
+    int nbins=h_ele_matchingObjectZ->getNbinsX();
+    for (int nb=0;nb<nbins;++nb) {
+      float content=h_ele_matchingObjectZ->getBinContent(nb);
+      if (content>0.) {
+        if (h_ele_zEff) h_ele_zEff ->setBinContent(nb,h_ele_matchingObjectZ_matched->getBinContent(nb)/content);
+      }
+    }
+  }
 
 
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");

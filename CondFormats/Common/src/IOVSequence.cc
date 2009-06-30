@@ -1,5 +1,4 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
-#include "CondFormats/Common/interface/Time.h"
 #include <algorithm>
 #include <boost/bind.hpp>
 
@@ -9,12 +8,6 @@ namespace cond {
   
   IOVSequence::IOVSequence() : m_notOrdered(false), m_sorted(0) {}
   
-  IOVSequence::IOVSequence(cond::TimeType ttype) :
-    m_timetype(ttype), m_lastTill(timeTypeSpecs[ttype].endValue),
-    m_notOrdered(false), m_metadata(" "),  m_sorted(0) {}
-    
-
-
   IOVSequence::IOVSequence(int type, cond::Time_t till, 
 			   std::string const& imetadata) :
     m_timetype(type), m_lastTill(till),m_notOrdered(false),
@@ -43,12 +36,6 @@ namespace cond {
     return *this;
   }
 
-
-  void IOVSequence::loadAll() const {
-    m_provenance.get();
-    m_description.get();
-    m_userMetadata.get();
-  }
   
   IOVSequence::Container const & IOVSequence::iovs() const {
     if (m_sorted) return *m_sorted;
@@ -75,16 +62,8 @@ namespace cond {
     return piovs().size()-1;
   }
   
-  size_t IOVSequence::truncate() {
-    if (m_notOrdered) disorder();
-    piovs().pop_back();
-    return piovs().size()-1;
-  }
   
-
-
   IOVSequence::const_iterator IOVSequence::find(cond::Time_t time) const {
-    if (time>=lastTill()) return iovs().end();
     IOVSequence::const_iterator p = std::upper_bound(iovs().begin(),iovs().end(),Item(time),
 			    boost::bind(std::less<cond::Time_t>(),
 					boost::bind(&Item::sinceTime,_1),

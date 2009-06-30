@@ -2,16 +2,11 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a better way to do this, once I discover the difference between import and load
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
+
+maxevents=100
+checkNevents=100
+
 process = cms.Process("HCALDQM")
-
-process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter", 
-   InputLabel    = cms.string( "source" ),
-   CalibTypes    = cms.vint32( 0,1,2,3,4,5 ),
-   FilterSummary = cms.untracked.bool( False ) 
-)
-
-
-
 #----------------------------
 # Event Source
 #-----------------------------
@@ -19,7 +14,7 @@ process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
 #####################  SET THE NUMBER OF EVENTS OVER WHICH TO RUN HERE #################################
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(maxevents)
     )
 
 ##################### SET YOUR FILE TO CHECK HERE #####################################################
@@ -92,9 +87,14 @@ process.dqmSaver.saveByRun = 1
 #-----------------------------
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
+
+#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_ALL_V11::All'  # update GlobalTag as neceesary
+process.GlobalTag.globaltag = "CRAFT_30X::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
+
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -116,7 +116,7 @@ process.hcalMonitor.debug = 0
 #process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked -- why was this done in the first place?  What was the problem with a threshold of 0?  -- Jeff. Yes, forgive me, I was young. -- Jason.
 process.hcalMonitor.pedestalsInFC   = True
 process.hcalMonitor.showTiming      = False
-process.hcalMonitor.checkNevents    = 500
+process.hcalMonitor.checkNevents    = checkNevents
 process.hcalMonitor.dump2database   = False
 process.hcalMonitor.AnalyzeOrbitGap = False
 
@@ -139,6 +139,11 @@ process.hcalMonitor.HcalAnalysis        = False
 setHcalTaskValues(process.hcalMonitor)
 
 # Set individual Task values here (otherwise they will remain set to the values specified for the hcalMonitor.)
+process.hcalMonitor.DeadCellMonitor_pedestal_Nsigma     = 0
+process.hcalMonitor.DeadCellMonitor_makeDiagnosticPlots = True
+process.hcalMonitor.DeadCellMonitor_test_pedestal       = True
+process.hcalMonitor.DeadCellMonitor_test_occupancy      = True
+process.hcalMonitor.DeadCellMonitor_test_neighbor       = False
 
 process.hcalMonitor.HotCellMonitor_makeDiagnosticPlots  = True
 process.hcalMonitor.HotCellMonitor_test_neighbor        = True
@@ -167,7 +172,7 @@ process.options = cms.untracked.PSet(
         'TooManyProducts', 
         'TooFewProducts')
 )
-process.p = cms.Path(process.hltHcalCalibTypeFilter*process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 
 #-----------------------------
 # Quality Tester 

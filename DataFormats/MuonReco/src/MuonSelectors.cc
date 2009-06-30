@@ -2,7 +2,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace muon {
-SelectionType selectionTypeFromString( std::string &label )
+SelectionType selectionTypeFromString( const std::string &label )
 {
    static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
@@ -32,7 +32,7 @@ SelectionType selectionTypeFromString( std::string &label )
       }
 
    // in case of unrecognized selection type
-   if (! found) throw cms::Exception("ConfigurationError") << label << " is not a recognized SelectionType";
+   if (! found) throw cms::Exception("MuonSelectorError") << label << " is not a recognized SelectionType";
    return value;
 }
 }
@@ -519,7 +519,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
 	return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
       case muon::GlobalMuonPromptTight:
-	return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10.;
+	return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. && muon.outerTrack()->numberOfValidHits() >0;
 	break;
    // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
    // 9999 as before.  We do this because the muon methods return 999999 (note

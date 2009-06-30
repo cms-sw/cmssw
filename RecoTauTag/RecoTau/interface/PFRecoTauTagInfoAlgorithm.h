@@ -30,9 +30,9 @@ class  PFRecoTauTagInfoAlgorithm  {
   double ChargedHadrCand_tkmaxChi2_;
   double ChargedHadrCand_tkPVmaxDZ_;
   // 
-  double NeutrHadrCand_HcalclusminE_;
+  double NeutrHadrCand_HcalclusMinEt_;
   // 
-  double GammaCand_EcalclusminE_;
+  double GammaCand_EcalclusMinEt_;
   double ChargedHadronsAssociationCone_;
   // 
   double tkminPt_;

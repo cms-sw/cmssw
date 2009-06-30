@@ -8,6 +8,7 @@
 #include "HLTrigger/special/interface/HLTHcalPhiSymFilter.h"
 #include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
+#include "HLTrigger/special/interface/HLTEventNumberFilter.h"
 
 #include "HLTrigger/special/interface/HLTPi0RecHitsFilter.h"
 #include "HLTrigger/special/interface/HLTCSCOverlapFilter.h"
@@ -32,6 +33,7 @@ DEFINE_FWK_MODULE(HLTEcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalCalibTypeFilter);
+DEFINE_FWK_MODULE(HLTEventNumberFilter);
 
 
 DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);
@@ -50,4 +52,3 @@ typedef HLTCountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrack);
 DEFINE_FWK_MODULE(HLTTrackWithHits);
 DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
-

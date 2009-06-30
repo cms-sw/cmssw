@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.33 $
-///  last update: $Date: 2009/05/11 09:31:37 $
+///  Revision   : $Revision: 1.31 $
+///  last update: $Date: 2009/01/19 11:04:05 $
 ///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -51,10 +50,8 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
-// Tracking and LAS
+// Tracking 	 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
-#include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
@@ -70,7 +67,7 @@
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theAlignmentAlgo(0), theAlignmentParameterStore(0),
   theAlignableTracker(0), theAlignableMuon(0), globalPositions_(0),
-  nevent_(0), lastRunId_(), theParameterSet(iConfig),
+  nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift_(iConfig.getParameter<double>("randomShift")),
@@ -83,8 +80,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
   useSurvey_( iConfig.getParameter<bool>("useSurvey") ),
   tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
-  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
-  tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag"))
+  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag"))
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
@@ -373,14 +369,6 @@ edm::EDLooper::Status
 AlignmentProducer::duringLoop( const edm::Event& event, 
   const edm::EventSetup& setup )
 {
-  // hack to call beginRun/endRun as long as not yet done by framework
-  if (lastRunId_ != event.getRun().id()) {
-    lastRunId_ = event.getRun().id();
-    this->beginRun(event.getRun(), setup);
-    // FIXME: At run start! But no idea how to do it otherwise as long as not
-    //        called by framework...
-    this->endRun(event.getRun(), setup);
-  }
   nevent_++;
 
   // reading in survey records
@@ -421,31 +409,6 @@ AlignmentProducer::duringLoop( const edm::Event& event,
   
 
   return kContinue;
-}
-
-// ----------------------------------------------------------------------------
-void AlignmentProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
-{
-  theAlignmentAlgo->beginRun(setup); // do not forward edm::Run...
-}
-
-// ----------------------------------------------------------------------------
-void AlignmentProducer::endRun(const edm::Run &run, const edm::EventSetup &setup)
-{
-  // call with or without las beam info...
-  typedef AlignmentAlgorithmBase::EndRunInfo EndRunInfo;
-  if (tkLasBeamTag_.encode().size()) { // non-empty InputTag
-    edm::Handle<TkFittedLasBeamCollection> lasBeams;
-    edm::Handle<TsosVectorCollection> tsoses;
-    run.getByLabel(tkLasBeamTag_, lasBeams);
-    run.getByLabel(tkLasBeamTag_, tsoses);
-    
-    theAlignmentAlgo->endRun(EndRunInfo(run.id(), &(*lasBeams), &(*tsoses)), setup);
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endRun"
-			      << "No Tk LAS beams to forward to algorithm.";
-    theAlignmentAlgo->endRun(EndRunInfo(run.id(), 0, 0), setup);
-  }
 }
 
 // ----------------------------------------------------------------------------

@@ -152,7 +152,9 @@ public:
   // ---------------------- Public deleting ---------------------------------
   void				rmdir(const std::string &fullpath);
   void				removeContents(void);
+  void				removeContents(const std::string &dir);
   void				removeElement(const std::string &name);
+  void				removeElement(const std::string &dir, const std::string &name, bool warning = true);
 
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
@@ -246,10 +248,6 @@ private:
   static void			collate3D(MonitorElement *me, TH3F *h);
   static void			collateProfile(MonitorElement *me, TProfile *h);
   static void			collateProfile2D(MonitorElement *me, TProfile2D *h);
-
-  /// -------------------- Unsubscribing/Removing --------------------
-  void				removeElement(const std::string &dir, const std::string &name, bool warning = true);
-  void				removeContents(const std::string &dir);
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void				setAccumulate(MonitorElement *me, bool flag);

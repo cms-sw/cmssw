@@ -13,7 +13,6 @@
 #include <cstdlib>
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 int gContinue=1;
 bool Connected = false;
@@ -31,7 +30,7 @@ int main(){
   using std::endl;
 
   int servSock;
-  int clntSock = -1;
+  int clntSock;
 
   unsigned int runCount = 1;
   unsigned int orbitCount = 0;

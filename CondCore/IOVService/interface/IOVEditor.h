@@ -15,21 +15,14 @@
 //
 namespace cond{
   class IOVElement;
-  class IOVSequence;
 
   class IOVEditor{
   public:
     /// Destructor
     virtual ~IOVEditor(){}
 
-    // create empty default sequence
-    virtual void create(cond::TimeType timetype) = 0;
+    virtual void create(cond::TimeType timetype,cond::Time_t lastTill) = 0;
 
-    // create empty sequence with fixed time boundary
-    virtual void create(cond::TimeType timetype, cond::Time_t lastTill) = 0;
-
-    // return the current sequence
-    virtual IOVSequence & iov() =0;
 
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
@@ -58,11 +51,7 @@ namespace cond{
 
     /// Update the closure of the iov sequence
     virtual void updateClosure( cond::Time_t newtillTime ) = 0;
-    // remove last entry
-    virtual unsigned int truncate(bool withPayload=false)=0;
-    // delete all entries
-    virtual void deleteEntries( bool withPayload=false) = 0;
-    // 
+    virtual void deleteEntries( bool withPayload=false ) = 0;
     virtual void import( const std::string& sourceIOVtoken ) = 0;
     /// Returns the token of the iov sequence associated with this editor
     virtual std::string token() const = 0;

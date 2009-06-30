@@ -1,5 +1,6 @@
 <lcgdict>
  <class name="edm::ErrorSummaryEntry"/>
+ <class name="edm::ELseverityLevel"/>
  <class name="std::vector<edm::ErrorSummaryEntry>"/>
 </lcgdict>
  

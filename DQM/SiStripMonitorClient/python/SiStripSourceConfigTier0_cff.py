@@ -33,6 +33,7 @@ from DQM.TrackingMonitor.TrackingMonitor_cfi import *
 TrackMon.TrackProducer = 'generalTracks'
 TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'Tracking/TrackParameters'
+TrackMon.doSeedParameterHistos = True
 
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",

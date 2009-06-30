@@ -29,7 +29,7 @@
 #define FED_HCTRLID    0x50000000
 #define FED_TCTRLID    0xa0000000
 #define REAL_SOID_MASK 0x0003FF00
-#define FED_RBIT_MASK  0x0000C004
+#define FED_RBIT_MASK  0x00000004
 
 
 using namespace std;
@@ -45,7 +45,6 @@ bool FUResource::doFedIdCheck_ = true;
 bool FUResource::useEvmBoard_ = true;
 unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
 unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
-unsigned int FUResource::gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -664,10 +663,8 @@ void FUResource::findFEDs() throw (evf::Exception)
     //if gtp EVM block is available set cell event number to global partition-independent trigger number
     //daq block partition-independent event number is left as an option in case of problems
 
-    if(fedId == gtpeId_)
-      if(evf::evtn::gtpe_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::gtpe_get(fedHeaderAddr));
     if(useEvmBoard_ && (fedId == gtpEvmId_))
-      if(evf::evtn::evm_board_sense(fedHeaderAddr,fedSize)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
+      if(evf::evtn::evm_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
     if(!useEvmBoard_ && (fedId == gtpDaqId_))
       if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
     // crc check

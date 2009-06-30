@@ -538,7 +538,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
   PixelConfigBase(" "," "," ")
 {
 
-  std::string mthn = "]\t[PixelFEDCard::PixelFEDCard()]\t\t\t\t    " ;
+  std::string mthn = "[PixelFEDCard::PixelFEDCard()]\t\t\t\t    " ;
   //const bool localDEBUG = true;
   const bool localDEBUG = false;
   
@@ -548,7 +548,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
   //cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
   if (infile == NULL) {
-    cout<< __LINE__ << mthn << "No parameter file:"<<fileName<<endl; 
+    cout<< __LINE__ << "]\t" << mthn << "No parameter file:"<<fileName<<endl; 
     return;
   }
   
@@ -558,11 +558,9 @@ PixelFEDCard::PixelFEDCard(string fileName):
   fscanf(infile,"FEDID Number                             :%lx\n",
          &fedNumber);
 
-//  if(localDEBUG) cout << __LINE__ << mthn << "FED Base address, FED # : " << std::hex << FEDBASE_0 << std::dec << std::endl ;
-//  if(localDEBUG) printf("FED Base address, FED # :%lx\n",FEDBASE_0);
+  printf("FED Base address, FED # :%lx\n",FEDBASE_0);
   //if(FEDBASE != FEDBASE_0) cout<< __LINE__ << "]\t" << mthn << " Inconsistent FED base address?"<<endl;
-//  if(localDEBUG) cout << __LINE__ << mthn << "FEDID #                 : " << std::hex << fedNumber << std::dec << std::endl ;
-//  if(localDEBUG) printf("FEDID # :%lx\n",fedNumber);
+  printf("FEDID # :%lx\n",fedNumber);
  
   // Number of ROCs
   int ijx=0;
@@ -587,12 +585,12 @@ PixelFEDCard::PixelFEDCard(string fileName):
     printf("Optical reciever 1  Capacitor Adjust(0-3):%d\n",opt_cap[0]);
     printf("Optical reciever 2  Capacitor Adjust(0-3):%d\n",opt_cap[1]);
     printf("Optical reciever 3  Capacitor Adjust(0-3):%d\n",opt_cap[2]);
-    printf("Optical reciever 1  Input Offset (0-15)  :%d\n",opt_inadj[0]);
-    printf("Optical reciever 2  Input Offset (0-15)  :%d\n",opt_inadj[1]);
-    printf("Optical reciever 3  Input Offset (0-15)  :%d\n",opt_inadj[2]);
-    printf("Optical reciever 1 Output Offset (0-3)   :%d\n",opt_ouadj[0]);
-    printf("Optical reciever 2 Output Offset (0-3)   :%d\n",opt_ouadj[1]);
-    printf("Optical reciever 3 Output Offset (0-3)   :%d\n",opt_ouadj[2]);
+    printf("Optical reciever 1  Input Offset (0-15)   :%d\n",opt_inadj[0]);
+    printf("Optical reciever 2  Input Offset (0-15)   :%d\n",opt_inadj[1]);
+    printf("Optical reciever 3  Input Offset (0-15)   :%d\n",opt_inadj[2]);
+    printf("Optical reciever 1 Output Offset (0-3)  :%d\n",opt_ouadj[0]);
+    printf("Optical reciever 2 Output Offset (0-3)  :%d\n",opt_ouadj[1]);
+    printf("Optical reciever 3 Output Offset (0-3)  :%d\n",opt_ouadj[2]);
   }
 
   //input offset dac
@@ -706,9 +704,9 @@ PixelFEDCard::PixelFEDCard(string fileName):
   
   // Control register
   fscanf(infile,"Center Chip Control Reg:%x\n",&Ccntrl);
-  if(localDEBUG)printf("Control Reg:0x%x\n",Ccntrl);
+  printf("Control Reg:0x%x\n",Ccntrl);
   fscanf(infile,"Initial Slink DAQ mode:%d\n",&modeRegister);
-  if(localDEBUG)printf("Mode Reg:%d\n",modeRegister);
+  printf("Mode Reg:%d\n",modeRegister);
   
    //These bits set ADC Gain/Range 1Vpp(0) and 2Vpp(1) for channels
   fscanf(infile,"Channel ADC Gain bits chnls  1-12(1Vpp = 0):%x\n",
@@ -1180,7 +1178,6 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	          << std::endl ;
   *fedstream << ""                                                                                        << std::endl ; 
   *fedstream << " <HEADER>"                                                                               << std::endl ; 
-  *fedstream << "  <HINTS mode='load-as-group' /> "                                                       << std::endl ;   
   *fedstream << "  <TYPE>"                                                                                << std::endl ; 
   *fedstream << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"                       << std::endl ; 
   *fedstream << "   <NAME>Pixel FED Configuration</NAME>"                                                 << std::endl ; 
@@ -1189,15 +1186,16 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *fedstream << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"                                         << std::endl ; 
   *fedstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *fedstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *fedstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *fedstream << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                   << std::endl ; 
+  *fedstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *fedstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *fedstream << "  </RUN>"                                                                                << std::endl ; 
   *fedstream << " </HEADER>"                                                                              << std::endl ; 
   *fedstream << ""                                                                                        << std::endl ; 
   *fedstream << " <DATA_SET>"                                                                             << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
-  *fedstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *fedstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *fedstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			  << std::endl ;
+  *fedstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
+  *fedstream << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                    << std::endl ;
   *fedstream << ""                                                                                        << std::endl ;
   *fedstream << "  <PART>"                                                                                << std::endl ;
   *fedstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      
@@ -1215,7 +1213,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *rocstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *rocstream << ""                                                                                        << std::endl ;
   *rocstream << " <HEADER>"                                                                               << std::endl ;
-  *rocstream << "  <HINTS mode='only-det-root,load-as-group'/>"                                           << std::endl ;
+  *rocstream << "  <HINTS mode='only-de-root'/>"                                                          << std::endl ;
   *rocstream << "  <TYPE>"                                                                                << std::endl ;
   *rocstream << "   <EXTENSION_TABLE_NAME>ROC_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *rocstream << "   <NAME>ROC Analog Levels</NAME>"                                                       << std::endl ;
@@ -1250,7 +1248,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key,
   *tbmstream << "<ROOT xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"                          << std::endl ;
   *tbmstream << ""                                                                                        << std::endl ;
   *tbmstream << " <HEADER>"                                                                               << std::endl ;
-  *tbmstream << "  <HINTS mode='only-det-root,load-as-group' />"                                          << std::endl ;
+  *tbmstream << "  <HINTS mode='only-det-root' />"                                                        << std::endl ;
   *tbmstream << "  <TYPE>"                                                                                << std::endl ;
   *tbmstream << "   <EXTENSION_TABLE_NAME>TBM_ANALOG_LEVELS</EXTENSION_TABLE_NAME>"                       << std::endl ;
   *tbmstream << "   <NAME>TBM Analog Levels</NAME>"                                                       << std::endl ;

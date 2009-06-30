@@ -10,11 +10,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -27,10 +22,6 @@
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -46,7 +37,7 @@ using namespace std;
 using namespace edm;
 using namespace trigger;
 
-HaloTrigger::HaloTrigger(const ParameterSet& ps)
+HaloTrigger::HaloTrigger(const ParameterSet& ps) 
 {
 //	dbe = NULL;
 //	if( ps.getUntrackedParameter<bool>("DQMStore", false) )
@@ -61,7 +52,23 @@ HaloTrigger::HaloTrigger(const ParameterSet& ps)
 	HLTriggerTag = ps.getParameter< edm::InputTag >("HLTriggerTag");
 	GMTInputTag = ps.getParameter< edm::InputTag >("GMTInputTag");
 	lctProducer = ps.getParameter< edm::InputTag >("LCTInputTag");
-	cscRecHitLabel = ps.getParameter< edm::InputTag >("RecInputTag");
+	
+	bzero(srLUTs_,sizeof(srLUTs_));
+  	int endcap=1, sector=1; // assume SR LUTs are all same for every sector in either of endcaps
+  	bool TMB07=true; // specific TMB firmware
+  	// Create a dumy pset for SR LUTs
+  	edm::ParameterSet srLUTset;
+  	srLUTset.addUntrackedParameter<bool>("ReadLUTs", false);
+  	srLUTset.addUntrackedParameter<bool>("Binary",   false);
+  	srLUTset.addUntrackedParameter<std::string>("LUTPath", "./");
+  	for(int station=1,fpga=0; station<=4 && fpga<5; station++)
+	{
+    	if(station==1)
+        	for(int subSector=0; subSector<2 && fpga<5; subSector++)
+           		srLUTs_[fpga++] = new CSCSectorReceiverLUT(endcap, sector, subSector+1, station, srLUTset, TMB07);
+     	else
+			srLUTs_[fpga++] = new CSCSectorReceiverLUT(endcap, sector, 0, station, srLUTset, TMB07);
+  	}
 
 }
 
@@ -90,166 +97,52 @@ void HaloTrigger::beginJob(const EventSetup& es)
 		//////////////////////////////////////////
 		// Define Monitor Elements a.k.a. Plots //
 		//////////////////////////////////////////
-		PlusMe1BeamHaloOcc = dbe->book2D("PlusMe1BeamHaloOcc","Positive Endcap, Me1 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		PlusMe1BeamHaloOccRing1 = dbe->book2D("PlusMe1BeamHaloOccRing1","Positive Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		PlusMe1BeamHaloOccRing2 = dbe->book2D("PlusMe1BeamHaloOccRing2","Positive Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		PlusMe1BeamHaloOccRing2or3 = dbe->book2D("PlusMe1BeamHaloOccRing2or3","Positive Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-		PlusMe1BeamHaloOccRad = dbe->book1D("PlusMe1BeamHaloOccRad","Positive Endcap, Me1 Beam Halo Radial Occupancy",750,0,750);
-	
-		PlusMe2BeamHaloOcc = dbe->book2D("PlusMe2BeamHaloOcc","Positive Endcap, Me2 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		PlusMe2BeamHaloOccRing1 = dbe->book2D("PlusMe2BeamHaloOccRing1","Positive Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		PlusMe2BeamHaloOccRing2 = dbe->book2D("PlusMe2BeamHaloOccRing2","Positive Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		PlusMe2BeamHaloOccRing2or3 = dbe->book2D("PlusMe2BeamHaloOccRing2or3","Positive Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-	
-		PlusMe3BeamHaloOcc = dbe->book2D("PlusMe3BeamHaloOcc","Positive Endcap, Me3 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		PlusMe3BeamHaloOccRing1 = dbe->book2D("PlusMe3BeamHaloOccRing1","Positive Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		PlusMe3BeamHaloOccRing2 = dbe->book2D("PlusMe3BeamHaloOccRing2","Positive Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		PlusMe3BeamHaloOccRing2or3 = dbe->book2D("PlusMe3BeamHaloOccRing2or3","Positive Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-	
-		PlusMe4BeamHaloOcc = dbe->book2D("PlusMe4BeamHaloOcc","Positive Endcap, Me4 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		PlusMe4BeamHaloOccRing1 = dbe->book2D("PlusMe4BeamHaloOccRing1","Positive Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		PlusMe4BeamHaloOccRing2 = dbe->book2D("PlusMe4BeamHaloOccRing2","Positive Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		PlusMe4BeamHaloOccRing2or3 = dbe->book2D("PlusMe4BeamHaloOccRing2or3","Positive Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-	
-		MinusMe1BeamHaloOcc = dbe->book2D("MinusMe1Me1BeamHaloOcc","Negative Endcap, Me1 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		MinusMe1BeamHaloOccRing1 = dbe->book2D("MinusBeamHaloOccRing1","Negative Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		MinusMe1BeamHaloOccRing2 = dbe->book2D("MinusMe1BeamHaloOccRing2","Negative Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		MinusMe1BeamHaloOccRing2or3 = dbe->book2D("MinusMe1BeamHaloOccRing2or3","Negative Endcap, Me1 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-		MinusMe1BeamHaloOccRad = dbe->book1D("MinusMe1BeamHaloOccRad","Minus Endcap, Me1 Beam Halo Radial Occupancy",750,0,750);
+		TriggerChainEff = dbe->book1D("HltL1CscTrue","Event Count of various triggers",9,-0.5,8.5);
+		TriggerChainEff->setAxisTitle("Trigger Type",1);
+		TriggerChainEff->setAxisTitle("Efficiency given GMT Halo Trigger",2);
+		TriggerChainEff->setBinLabel(2,"HLT_CSCBeamHalo",   1);
+		TriggerChainEff->setBinLabel(4,"HLT_CSCBeamHaloOverlapRing1",1);
+		TriggerChainEff->setBinLabel(6,"HLT_CSCBeamHaloOverlapRing2", 1);
+		TriggerChainEff->setBinLabel(8,"HLT_CSCBeamHaloRing2or3",1);
 		
-		MinusMe2BeamHaloOcc = dbe->book2D("MinusMe2BeamHaloOcc","Negative Endcap, Me2 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		MinusMe2BeamHaloOccRing1 = dbe->book2D("MinusMe2BeamHaloOccRing1","Negative Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		MinusMe2BeamHaloOccRing2 = dbe->book2D("MinusMe2BeamHaloOccRing2","Negative Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		MinusMe2BeamHaloOccRing2or3 = dbe->book2D("MinusMe2BeamHaloOccRing2or3","Negative Endcap, Me2 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-		
-		MinusMe3BeamHaloOcc = dbe->book2D("MinusMe3BeamHaloOcc","Negative Endcap, Me3 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		MinusMe3BeamHaloOccRing1 = dbe->book2D("MinusMe3BeamHaloOccRing1","Negative Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring1",1000,-500,500,1000,-500,500);
-		MinusMe3BeamHaloOccRing2 = dbe->book2D("MinusMe3BeamHaloOccRing2","Negative Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		MinusMe3BeamHaloOccRing2or3 = dbe->book2D("MinusMe3BeamHaloOccRing2or3","Negative Endcap, Me3 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-		
-		MinusMe4BeamHaloOcc = dbe->book2D("MinusMe4BeamHaloOcc","Negative Endcap, Me4 Beam Halo Occupancy",1000,-500,500,1000,-500,500);
-		MinusMe4BeamHaloOccRing1 = dbe->book2D("MinusMe4BeamHaloOccRing1","Negative Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring1",1000,-500.,500.,1000,-500.,500.);
-		MinusMe4BeamHaloOccRing2 = dbe->book2D("MinusMe4BeamHaloOccRing2","Negative Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring2",1000,-500,500,1000,-500,500);
-		MinusMe4BeamHaloOccRing2or3 = dbe->book2D("MinusMe4BeamHaloOccRing2or3","Negative Endcap, Me4 Beam Halo Occupancy, HLT Trig Ring 2 or 3",1000,-500,500,1000,-500,500);
-	
-		MinusMe3BeamHaloOccRing2Unfold = dbe->book2D("MinusMe3BeamHaloOccRing2Unfold","Negative Endcap Me3, Ring 2 Unfolded",120,-1,11,500,-2.4,-0.9);
-		MinusMe2BeamHaloOccRing2Unfold = dbe->book2D("MinusMe2BeamHaloOccRing2Unfold","Negative Endcap Me2, Ring 2 Unfolded",120,-1,11,500,-2.4,-0.9);
-		PlusMe3BeamHaloOccRing2Unfold = dbe->book2D("PlusMe3BeamHaloOccRing2Unfold","Negative Endcap Me3, Ring 2 Unfolded",120,-1,11,500,0.9,2.4);
-		PlusMe2BeamHaloOccRing2Unfold = dbe->book2D("PlusMe2BeamHaloOccRing2Unfold","Negative Endcap Me2, Ring 2 Unfolded",120,-1,11,500,0.9,2.4);
-		
-		MinusMe3BeamHaloOccRing1Unfold = dbe->book2D("MinusMe3BeamHaloOccRing1Unfold","Negative Endcap Me3, Ring 1 Unfolded",120,-1,11,500,-2.5,-0.9);
-		MinusMe2BeamHaloOccRing1Unfold = dbe->book2D("MinusMe2BeamHaloOccRing1Unfold","Negative Endcap Me2, Ring 1 Unfolded",120,-1,11,500,-2.5,-0.9);
-		PlusMe3BeamHaloOccRing1Unfold = dbe->book2D("PlusMe3BeamHaloOccRing1Unfold","Negative Endcap Me3, Ring 1 Unfolded",120,-1,11,500,0.9,2.5);
-		PlusMe2BeamHaloOccRing1Unfold = dbe->book2D("PlusMe2BeamHaloOccRing1Unfold","Negative Endcap Me2, Ring 1 Unfolded",120,-1,11,500,0.9,2.5);
-	
-		MinusEff = dbe->bookProfile("MinusEff", "Minus Endcap Efficiency by Vertex",50,0,750,50,0,1);
-		MinusEff->setAxisTitle("Radius",1);
-		MinusEff->setAxisTitle("Efficiency",2);
-		//MinusEffProj3 = dbe->bookProfile("MinusEffProj3", "Minus Endcap Efficiency Projected to statoin 3",50,0,750,50,0,1);
-		MinusEffProj3 = dbe->book1D("MinusEffProj3","Minus Endcap Efficiency by projection",50,0,750);
-		MinusEffProj3->setBinLabel(1,"0",1);
-		MinusEffProj3->setBinLabel(10,"150",1);
-		MinusEffProj3->setBinLabel(20,"300",1);
-		MinusEffProj3->setBinLabel(30,"450",1);
-		MinusEffProj3->setBinLabel(40,"600",1);
-		MinusEffProj3->setBinLabel(50,"750",1);
-		MinusEffProj3->setAxisTitle("Radius",1);
-		MinusEffProj3->setAxisTitle("Efficiency",2);
-		MinusEffNum = dbe->book1D("MinusEffNum", "Minus Endcap numerator",50,0,750);
-		MinusEffDen = dbe->book1D("MinusEffDen", "Minus Endcap denomenator", 50, 0, 750);
-		PlusEff  = dbe->bookProfile("PlusEff",  "Plus Endcap Efficiency by Vertex",50,0,750,50,0,1);
-		PlusEff->setAxisTitle("Radius",1);
-		PlusEff->setAxisTitle("Efficiency",2);
-		//PlusEffProj3  = dbe->bookProfile("PlusEffProj3",  "Plus Endcap Efficiency Projected to station 3",50,0,750,50,0,1);
-		PlusEffProj3 = dbe->book1D("PlusEffProj3","Plus Endcap Efficiency by projection",50,0,750);
-		PlusEffProj3->setAxisTitle("Radius",1);
-		PlusEffProj3->setAxisTitle("Efficiency",2);
-		PlusEffProj3->setBinLabel(1,"0",1);
-		PlusEffProj3->setBinLabel(10,"150",1);
-		PlusEffProj3->setBinLabel(20,"300",1);
-		PlusEffProj3->setBinLabel(30,"450",1);
-		PlusEffProj3->setBinLabel(40,"600",1);
-		PlusEffProj3->setBinLabel(50,"750",1);
-		PlusEffNum = dbe->book1D("PlusEffNum", "Plus Endcap numerator",50,0,750);
-		PlusEffDen = dbe->book1D("PlusEffDen", "Plus Endcap denomenator", 50, 0, 750);
-	}
-	
-	es.get<MuonGeometryRecord>().get(m_cscGeometry);
-	for( int i=0; i<50; ++i)
-	{
-		numCountPlus[i] = 0;
-		denCountPlus[i] = 0;
-		numCountMinus[i] = 0;
-		denCountMinus[i] = 0;
+		haloDelEta23 = dbe->book1D("Halo_Eta23","Change in station 3 to station 2 Eta for Halo Muons", 40, -0.20,0.30);
+		haloDelPhi23 = dbe->book1D("Halo_Phi23","Change in station 3 to station 2 Phi for Halo Muons", 320, -16.0, 16.0);
 	}
 }
 
 void HaloTrigger::endJob(void)
 {
-	for(int j=1;j<51;j++)
+	float b;
+
+	if(CscHalo_Gmt != 0)
 	{
-		if(denCountPlus[j] != 0)
-		{
-			float fillValuePlus = numCountPlus[j]/denCountPlus[j];
-			PlusEffProj3->setBinContent(j,fillValuePlus);
-		}
-		
-		if(denCountMinus[j] != 0)
-		{
-			float fillValueMinus = numCountMinus[j]/denCountMinus[j];
-			MinusEffProj3->setBinContent(j,fillValueMinus);
-		}
+		b =	(hltHaloTriggers*1.0)/(CscHalo_Gmt*1.0);
+		TriggerChainEff->setBinContent(2,b);
+		TriggerChainEff->setBinLabel(2,"HLT_CSCHalo",1);
+		b =	(hltHaloOver1*1.0)/(CscHalo_Gmt*1.0);
+		TriggerChainEff->setBinContent(4,b);
+		TriggerChainEff->setBinLabel(4,"HLT_CSCHaloOverlap1",1);
+		b =	(hltHaloOver2*1.0)/(CscHalo_Gmt*1.0);
+		TriggerChainEff->setBinContent(6,b);
+		TriggerChainEff->setBinLabel(6,"HLT_CSCHaloOverlap2",1);
+		b =	(hltHaloRing23*1.0)/(CscHalo_Gmt*1.0);
+		TriggerChainEff->setBinContent(8,b);
+		TriggerChainEff->setBinLabel(8,"HLT_CSCHaloRing2or3",1);
 	}
 		
-
-
 	dbe->save(outFile);	
 	return;
 }
 
 void HaloTrigger::analyze(const Event& e, const EventSetup& es)
-{
-	edm::Handle<edm::SimVertexContainer> simvertices_handle;
-	e.getByLabel("g4SimHits",simvertices_handle);
-    edm::SimVertexContainer const* simvertices = simvertices_handle.product();
- 
-    edm::Handle<edm::SimTrackContainer> simtracks_handle;
-    e.getByLabel("g4SimHits",simtracks_handle);
-    edm::SimTrackContainer const* simtracks = simtracks_handle.product();
-
-	float vtxArray[6];
-	vtxArray[1] = 0;
-	vtxArray[6] = 0;
-    edm::SimTrackContainer::const_iterator isimtr;
-	for(isimtr=simtracks->begin(); isimtr!=simtracks->end(); isimtr++) {
-		if( (*simvertices)[(*isimtr).vertIndex()].position().z() > 2299 ){
-			vtxArray[1] = 1;
-			vtxArray[2] = (*simvertices)[(*isimtr).vertIndex()].position().x();
-			vtxArray[3] = (*simvertices)[(*isimtr).vertIndex()].position().y();
-			vtxArray[4] = (*isimtr).momentum().px();
-			vtxArray[5] = (*isimtr).momentum().py();
-			vtxArray[6] = (*isimtr).momentum().pz();
-		}
-		
-		if( (*simvertices)[(*isimtr).vertIndex()].position().z() < -2299 ){
-			vtxArray[1] = -1;
-			vtxArray[2] = (*simvertices)[(*isimtr).vertIndex()].position().x();
-			vtxArray[3] = (*simvertices)[(*isimtr).vertIndex()].position().y();
-			vtxArray[4] = (*isimtr).momentum().px();
-			vtxArray[5] = (*isimtr).momentum().py();
-			vtxArray[6] = (*isimtr).momentum().pz();
-		}
-	}
-
+{	
+	bool haloTriggerAny = false;	
 	if( HLTriggerTag.label() != "null" )
 	{
 		edm::Handle<TriggerResults> trh;
 		e.getByLabel(HLTriggerTag,trh);
 		edm::TriggerNames names;
 		
-		//////////////////////////
-		// Initialize HLT Paths //
-		//////////////////////////
 		if (!first)
 		{
 			first = true;
@@ -275,215 +168,132 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
 			}// loop over all trigger indices searching for HLT of interest
 		}
 		
-		//////////////////////
-		// ID Halo Triggers //
-		//////////////////////
-		bool haloTriggerAny = false;
-		bool halo0 = false, halo1 = false, halo2 = false, halo3 = false;
 		const unsigned int n(Namen.size());
-		for( unsigned int j=0; j!=n; ++j)
-		{
+		for( unsigned int j=0; j!=n; ++j){
 			if( (j == majikNumber0) && (trh->accept(j)) )
 			{
-				halo0 = true;
+				hltHaloTriggers += 1;
 				haloTriggerAny = true;
 			}
 			
 			if( (j == majikNumber1) && (trh->accept(j)) )
 			{
-				halo1 = true;
+				hltHaloOver1 += 1;
 				haloTriggerAny = true;
 			}
 			
 			if( (j == majikNumber2) && (trh->accept(j)) )
 			{
-				halo2 = true;
+				hltHaloOver2 += 1;
 				haloTriggerAny = true;
 			}
 			
 			if( (j == majikNumber3) && (trh->accept(j)) )
 			{
-				halo3 = true;
+				hltHaloRing23 += 1;
 				haloTriggerAny = true;
 			}
 		}// loop over all triggers in every event, check if path was run
-		
-		float radius = sqrt( vtxArray[2]*vtxArray[2] + vtxArray[3]*vtxArray[3] );
-		
-		if( vtxArray[1] == 1){
-			float projX = ((vtxArray[4]/vtxArray[6])*(-1375)) + vtxArray[2];
-			float projY = ((vtxArray[5]/vtxArray[6])*(-1375)) + vtxArray[3];
-			float projRad = sqrt(projX*projX + projY*projY);
-			int radInd = 0;
-			for(int j=0; j<50; j++)
-			{ 
-				if((projRad >= (j)*15.0) && (projRad < (j+1)*15)) radInd = j;
-			}
-			PlusEffDen->Fill(radius);
-			if(haloTriggerAny == true){
-				PlusEff->Fill(radius,1);
-				PlusEffNum->Fill(radius);
-				if((vtxArray[6] < 10) && (radInd != 0))
-				{
-					numCountPlus[radInd]+=1.0;
-					denCountPlus[radInd]+=1.0;
-				}
-			} else {
-				PlusEff->Fill(radius,0);
-				if((vtxArray[6] < 50) && (radInd !=0))
-				{
-					denCountPlus[radInd]+=1.0;
-				}
-			}
-		}
-		
-		if( vtxArray[1] == -1){
-			float projX = ((vtxArray[4]/vtxArray[6])*(1375)) + vtxArray[2];
-			float projY = ((vtxArray[5]/vtxArray[6])*(1375)) + vtxArray[3];
-			float projRad = sqrt(projX*projX + projY*projY);
-			int radInd = 0;
-			for(int j=0; j<50; j++) 
-				if((projRad >= (j)*15.0) && (projRad < (j+1)*15)) radInd = j;
-			MinusEffDen->Fill(radius);
-			if(haloTriggerAny == true){
-				MinusEff->Fill(radius,1);
-				if((vtxArray[6] > 50) && (radInd != 0)){
-					numCountMinus[radInd]+=1.0;
-					denCountMinus[radInd]+=1.0;
-				}
-				MinusEffNum->Fill(radius);
-			} else {
-				MinusEff->Fill(radius,0);
-				if((vtxArray[6] > 10) && (radInd != 0))
-				{
-					denCountMinus[radInd]+=1.0;
-				}
-			}
-		}
-		
-		//////////////////
-		// Rec Hit Info //
-		//////////////////
-		if( haloTriggerAny == true )
-		{
-			float cscHit[9][8];
-			for(int j = 1; j < 9; j++) cscHit[j][1] = 0;
-			
-			edm::Handle<CSCRecHit2DCollection> cscRecHits;
-			e.getByLabel(cscRecHitLabel, cscRecHits);
-			CSCRecHit2DCollection::const_iterator hit = cscRecHits->begin();
-			for(; hit != cscRecHits->end(); hit++)
-			{
-				LocalPoint p = hit->localPosition();
-				CSCDetId id((hit)->geographicalId().rawId());
-				GlobalPoint gP = m_cscGeometry->idToDet(id)->toGlobal(hit->localPosition());
-				int hitIndex = id.station() + 5*(id.endcap() - 1);
-				if( cscHit[hitIndex][1] == 0 )
-				{
-					cscHit[hitIndex][1] = 1;
-					cscHit[hitIndex][2] = gP.x();
-					cscHit[hitIndex][3] = gP.y();
-					cscHit[hitIndex][4] = gP.z();
-					cscHit[hitIndex][5] = sqrt( gP.x()*gP.x() + gP.y()*gP.y() );
-					float joe1 = ((gP.phi()+3.2)*180*100/(3.14));
-					int joe2 = int(joe1) % 1000;
-					float joe3 = (1.0*joe2)/100;
-					cscHit[hitIndex][6] = joe3;
-					cscHit[hitIndex][7] = gP.eta();
-				}//cscHit[x][1] == 0
-			}//2d rec hit loop
-			
-			/////////////////////
-			// Fill Histograms //
-			/////////////////////
-			if(halo0 == true)
-			{
-				if(cscHit[1][1] == 1)
-				{ 
-					PlusMe1BeamHaloOcc->Fill(cscHit[1][2],cscHit[1][3]);
-					PlusMe1BeamHaloOccRad->Fill(cscHit[1][5]);
-				}
-				if(cscHit[2][1] == 1) PlusMe2BeamHaloOcc->Fill(cscHit[2][2],cscHit[2][3]);
-				if(cscHit[3][1] == 1) PlusMe3BeamHaloOcc->Fill(cscHit[3][2],cscHit[3][3]);
-				if(cscHit[4][1] == 1) PlusMe4BeamHaloOcc->Fill(cscHit[4][2],cscHit[4][3]);
-				if(cscHit[5][1] == 1)
-				{
-					MinusMe1BeamHaloOcc->Fill(cscHit[5][2],cscHit[5][3]);
-					MinusMe1BeamHaloOccRad->Fill(cscHit[5][5]);
-				}
-				if(cscHit[6][1] == 1) MinusMe2BeamHaloOcc->Fill(cscHit[6][2],cscHit[6][3]);
-				if(cscHit[7][1] == 1) MinusMe3BeamHaloOcc->Fill(cscHit[7][2],cscHit[7][3]);
-				if(cscHit[8][1] == 1) MinusMe4BeamHaloOcc->Fill(cscHit[8][2],cscHit[8][3]); 
-		
-			}//HLT_CSCBeamHalo
-			
-			if(halo1 == true)
-			{
-				if(cscHit[1][1] == 1) PlusMe1BeamHaloOccRing1->Fill(cscHit[1][2],cscHit[1][3]);
-				if(cscHit[2][1] == 1)
-				{
-					PlusMe2BeamHaloOccRing1->Fill(cscHit[2][2],cscHit[2][3]);
-					PlusMe2BeamHaloOccRing1Unfold->Fill(cscHit[2][6],cscHit[2][7]);
-				}
-				if(cscHit[3][1] == 1)
-				{
-					PlusMe3BeamHaloOccRing1->Fill(cscHit[3][2],cscHit[3][3]);
-					PlusMe3BeamHaloOccRing1Unfold->Fill(cscHit[3][6],cscHit[3][7]);
-				}
-				if(cscHit[4][1] == 1) PlusMe4BeamHaloOccRing1->Fill(cscHit[4][2],cscHit[4][3]);
-				if(cscHit[5][1] == 1) MinusMe1BeamHaloOccRing1->Fill(cscHit[5][2],cscHit[5][3]);
-				if(cscHit[6][1] == 1)
-				{
-					MinusMe2BeamHaloOccRing1->Fill(cscHit[6][2],cscHit[6][3]);
-					MinusMe2BeamHaloOccRing1Unfold->Fill(cscHit[6][6],cscHit[6][7]);
-				}
-				if(cscHit[7][1] == 1)
-				{
-					MinusMe3BeamHaloOccRing1->Fill(cscHit[7][2],cscHit[7][3]);
-					MinusMe3BeamHaloOccRing1Unfold->Fill(cscHit[7][6],cscHit[7][7]);
-				}
-				if(cscHit[8][1] == 1) MinusMe4BeamHaloOccRing1->Fill(cscHit[8][2],cscHit[8][3]);
-			}//HLT_CSCBeamHalo
-			
-			if(halo2 == true)
-			{
-				if(cscHit[1][1] == 1) PlusMe1BeamHaloOccRing2->Fill(cscHit[1][2],cscHit[1][3]);
-				if(cscHit[2][1] == 1) 
-				{
-					PlusMe2BeamHaloOccRing2->Fill(cscHit[2][2],cscHit[2][3]);
-					PlusMe2BeamHaloOccRing2Unfold->Fill(cscHit[2][6],cscHit[2][7]);
-				}
-				if(cscHit[3][1] == 1)
-				{
-					PlusMe3BeamHaloOccRing2->Fill(cscHit[3][2],cscHit[3][3]);
-					PlusMe3BeamHaloOccRing2Unfold->Fill(cscHit[2][6],cscHit[2][7]);
-				}
-				if(cscHit[4][1] == 1) PlusMe4BeamHaloOccRing2->Fill(cscHit[4][2],cscHit[4][3]);
-				if(cscHit[5][1] == 1) MinusMe1BeamHaloOccRing2->Fill(cscHit[5][2],cscHit[5][3]);
-				if(cscHit[6][1] == 1)
-				{
-					MinusMe2BeamHaloOccRing2->Fill(cscHit[6][2],cscHit[6][3]);
-					MinusMe2BeamHaloOccRing2Unfold->Fill(cscHit[6][6],cscHit[6][7]);
-				}
-				if(cscHit[7][1] == 1)
-				{
-					MinusMe3BeamHaloOccRing2->Fill(cscHit[7][2],cscHit[7][3]);
-					MinusMe3BeamHaloOccRing2Unfold->Fill(cscHit[7][6],cscHit[7][7]);
-				}
-				if(cscHit[8][1] == 1) MinusMe4BeamHaloOccRing2->Fill(cscHit[8][2],cscHit[8][3]);
-			}//HLT_CSCBeamHalo
-			
-			if(halo3 == true)
-			{
-				if(cscHit[1][1] == 1) PlusMe1BeamHaloOccRing2or3->Fill(cscHit[1][2],cscHit[1][3]);
-				if(cscHit[2][1] == 1) PlusMe2BeamHaloOccRing2or3->Fill(cscHit[2][2],cscHit[2][3]);
-				if(cscHit[3][1] == 1) PlusMe3BeamHaloOccRing2or3->Fill(cscHit[3][2],cscHit[3][3]);
-				if(cscHit[4][1] == 1) PlusMe4BeamHaloOccRing2or3->Fill(cscHit[4][2],cscHit[4][3]);
-				if(cscHit[5][1] == 1) MinusMe1BeamHaloOccRing2or3->Fill(cscHit[5][2],cscHit[5][3]);
-				if(cscHit[6][1] == 1) MinusMe2BeamHaloOccRing2or3->Fill(cscHit[6][2],cscHit[6][3]);
-				if(cscHit[7][1] == 1) MinusMe3BeamHaloOccRing2or3->Fill(cscHit[7][2],cscHit[7][3]);
-				if(cscHit[8][1] == 1) MinusMe4BeamHaloOccRing2or3->Fill(cscHit[8][2],cscHit[8][3]);
-			}//HLT_CSCBeamHalo
-		}//haloTrigger true
 	}//HLTriggerTag != null
+	
+	if(haloTriggerAny == true)
+	{
+		double haloVals[4][4];
+		for( int i = 0; i < 4; i++)
+		{
+			haloVals[i][0] = 0;
+		}		
+		
+		if( lctProducer.label() != "null" )
+		{
+			edm::ESHandle<CSCGeometry> pDD;
+			es.get<MuonGeometryRecord>().get( pDD );
+			CSCTriggerGeometry::setGeometry(pDD);
+			
+			edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
+			e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+			for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
+			{
+				CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
+				for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++)
+				{
+					int endcap  = (*csc).first.endcap()-1;
+					int station = (*csc).first.station()-1;
+					int sector  = (*csc).first.triggerSector()-1;
+					int cscId   = (*csc).first.triggerCscId()-1;
+					int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+					int fpga    = ( subSector ? subSector-1 : station+1 );
+
+					std::cout << "Station, sector: " << station << ", " << sector << std::endl;
+
+					if( (station == 1) || (station == 2) )
+					{
+						int modEnd = 0;
+						if( endcap == 0 ) modEnd = -1;
+						if( endcap == 1 ) modEnd = 1;
+						int indexHalo = modEnd + station;
+						if(haloVals[indexHalo][0] == 1.0) haloVals[indexHalo][3] = 1.0;
+						if(haloVals[indexHalo][0] == 0) haloVals[indexHalo][0] = 1.0;
+						haloVals[indexHalo][1] = sector*1.0;
+						
+						lclphidat lclPhi;
+						lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend() );
+						
+						gblphidat gblPhi;
+						gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+						
+						gbletadat gblEta;
+						gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+						
+						haloVals[indexHalo][2] = gblEta.global_eta/127. * 1.5 + 0.9;
+						haloVals[indexHalo][3] = gblPhi.global_phi/4096 * 62;
+					} //station1 or 2
+				
+					if( (haloVals[0][0] == 1.) && (haloVals[1][0] == 1.) && (haloVals[0][3] != 1.) && (haloVals[1][3] != 1.)  ){
+						if( haloVals[0][1] == haloVals[1][1] ){
+							double delEta23 = haloVals[1][2] - haloVals[0][2];
+							double delPhi23 = haloVals[1][3] - haloVals[0][3];
+							haloDelEta23->Fill( delEta23 );
+							haloDelPhi23->Fill( delPhi23 );
+						}
+					}
+				
+					if( (haloVals[2][0] == 1.) && (haloVals[3][0] == 1.) && (haloVals[2][3] != 1.) && (haloVals[3][3] != 1.)  ){
+						if( haloVals[2][1] == haloVals[3][1] ){
+							double delEta23 = haloVals[3][2] - haloVals[2][2];
+							double delPhi23 = haloVals[3][3] - haloVals[2][3];
+							haloDelEta23->Fill( delEta23 );
+							haloDelPhi23->Fill( delPhi23 );
+						}
+					}
+				}//LCT Range iter
+			}//CSCCorrelatedLCT
+		}//if lct!=null
+	}//if halo trigger
+			
+	
+	edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
+	e.getByLabel(GMTInputTag, gmtrc_handle);
+	L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
+	
+	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+	std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;	
+	
+	for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
+		std::vector<L1MuRegionalCand>::const_iterator iter1;
+		std::vector<L1MuRegionalCand> rmc;
+		
+		int ihalo = 0;
+		
+		rmc = igmtrr->getCSCCands();
+		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
+			if ( !(*iter1).empty() ) {
+				if((*iter1).isFineHalo()) {
+					ihalo++;
+				}
+			}
+		}
+		if(igmtrr->getBxInEvent()==0 && ihalo>0) CscHalo_Gmt += 1;
+	}
+
 }

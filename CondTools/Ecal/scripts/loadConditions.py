@@ -1,4 +1,4 @@
-# $Id: loadConditions.py,v 1.4 2008/12/19 11:02:21 argiro Exp $
+# $Id$
 #
 # Author: Stefano Argiro'
 #
@@ -8,50 +8,34 @@
 #
 
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 from   elementtree.ElementTree import parse
-import sys,os
+import sys,os,getopt
 
 
+##############################################################################
+# User Defined parameters to be modified
+# This will not be needed as soon as we will be able to pass arguments
+# to cmsRun
+#
 
+
+#file from which we are reading the conditions to load
+filename_  = '/tmp/EcalChannelStatus.xml'
+
+#record type, without 'Rcd'
+record_    = 'EcalChannelStatus'
+
+#db parameters, dbconnect can be 'sqlite_file:bla' 
+dbconnect_    = 'sqlite_file:testEcalChannelStatus.db'
+
+#
+# End User Defined parameters
+#############################################################################
 
 def usage():
 
-   print "Usage: cmsRun loadConditions.py file=FILENAME record=RECORD db=CONNECTSTRING"
-   print "   file=FILE"
-   print "       specify xml file to load to DB"
-   print
-   print "   record=RECORD"
-   print "       specify record to be loaded (EcalChannelStatus, etc)"
-   print 
-   print "   db=CONNECTSTRING"
-   print "       specify connection string, e.g. sqlite_file=file.db"
-   print 
-
-
-usage()
-
-
-options = VarParsing.VarParsing ()
-options.register ('file',
-                  "", # default value
-                  VarParsing.VarParsing.multiplicity.singleton, 
-                  VarParsing.VarParsing.varType.string,     
-                  "xml file to load")
-
-options.register ('record',
-                  "", # default value
-                  VarParsing.VarParsing.multiplicity.singleton, 
-                  VarParsing.VarParsing.varType.string,     
-                  "record type to load")
-
-options.register ('db',
-                  "", # default value
-                  VarParsing.VarParsing.multiplicity.singleton, 
-                  VarParsing.VarParsing.varType.string,     
-                  "db connection string")
-
-options.parseArguments()
+   print "Usage: cmsRun loadConditions.py "
+   sys.exit(2)
 
 
 def readTagAndSince(filename, headertag='EcalCondHeader'):
@@ -64,7 +48,7 @@ def readTagAndSince(filename, headertag='EcalCondHeader'):
     return tag,since
 
 
-tag_ , since_ = readTagAndSince(options.file)
+tag_ , since_ = readTagAndSince(filename_)
 
 #which analyzer to use for each record name
 analyzer_ =   {'EcalGainRatios':'EcalGainRatiosAnalyzer',             \
@@ -74,10 +58,37 @@ analyzer_ =   {'EcalGainRatios':'EcalGainRatiosAnalyzer',             \
                'EcalChannelStatus':'EcalChannelStatusAnalyzer',       \
                'EcalTBWeights':'EcalTBWeightsAnalyzer',               \
                'EcalIntercalibConstants':'EcalIntercalibConstantsAnalyzer', \
-               'EcalIntercalibConstantsMC':'EcalIntercalibConstantsMCAnalyzer', \ 
-               'EcalIntercalibErrors':'EcalIntercalibErrorsAnalyzer'
-               }
+               'EcalIntercalibErrors':'EcalIntercalibErrorsAnalyzer'}
 
+
+
+
+## def main():
+
+##    try:
+##       opts, args = getopt.getopt(sys.argv[1:], "f:d", ["file=","dryrun"])
+
+##    except getopt.GetoptError:
+##       #print help information and exit
+##       usage()
+##       sys.exit(2)
+
+##    file  = ''
+##    dryrun= False
+   
+##    for opt, arg in opts:   
+##      if opt in ("-f", "--file"):
+##          file = arg
+##          if (not os.path.exists(file)) :
+##             print sys.argv[0]+" File not found: "+file
+##             sys.exit(2)
+
+##    if file=='':
+##        usage()
+##        exit(2)
+   
+##    tag,since = readTagAndSince(file)
+##    print tag,since
 
 
 process = cms.Process("LoadEcalConditions")
@@ -91,26 +102,26 @@ process.source = cms.Source("EmptyIOVSource",
 
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string(options.db)
+process.CondDBCommon.connect = cms.string(dbconnect_)
 process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string(options.record+'Rcd'),
+        record = cms.string(record_+'Rcd'),
         tag = cms.string(tag_)
          )),
         logconnect= cms.untracked.string('sqlite_file:log.db')                                  
 )
 
 
-process.popconAnalyzer = cms.EDAnalyzer(analyzer_[options.record],
-    record = cms.string(options.record+'Rcd'),
+process.popconAnalyzer = cms.EDAnalyzer(analyzer_[record_],
+    record = cms.string(record_+'Rcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-    xmlFile = cms.untracked.string(options.file),
+    xmlFile = cms.untracked.string(filename_),
     since = cms.untracked.int64(int(since_)) #python will make the int as
                                              #long as needed
     )                            
@@ -118,5 +129,3 @@ process.popconAnalyzer = cms.EDAnalyzer(analyzer_[options.record],
 
 
 process.p = cms.Path(process.popconAnalyzer)
-
-

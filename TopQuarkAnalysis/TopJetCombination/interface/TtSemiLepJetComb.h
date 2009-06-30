@@ -19,8 +19,8 @@ namespace JetComb{
   /// supported comparison types 
   enum CompType  {kDeltaM, kDeltaR, kDeltaPhi, kDeltaTheta};
   /// b-tagging algorithms
-  enum BTagAlgo  {kTrackCountHighEff, kTrackCountHighPur, kSoftMuon, kSoftMuonByPt, kSofMuonByIP3d, 
-	          kSoftElec, kBProbability, kProbability, kSimpleSecondVtx, kCombSecondVtx, kCombSecondVtxMVA};
+  enum BTagAlgo  {kTrkCntHighEff, kTrkCntHighPur, kSoftMuon,
+		  kSimpSecondVtx, kCombSecondVtx, kImpactParaMVA};
   /// operators for combining variables
   enum Operator  {kAdd, kMult};
 }

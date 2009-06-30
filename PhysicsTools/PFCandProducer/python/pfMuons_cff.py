@@ -1,16 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.pfAllMuons_cfi  import *
-from PhysicsTools.PFCandProducer.pfMuonsPtGt5_cfi import *
-#from PhysicsTools.PFCandProducer.pfMuons_cfi import *
-from PhysicsTools.PFCandProducer.pfNoMuons_cfi import *
-from PhysicsTools.PFCandProducer.pfMuonIsolation_cff import *
+from PhysicsTools.PFCandProducer.pfPileUp_cff  import *
+from PhysicsTools.PFCandProducer.ParticleSelectors.pfAllMuons_cfi  import *
+from PhysicsTools.PFCandProducer.ParticleSelectors.pfMuonsPtGt5_cfi import *
+from PhysicsTools.PFCandProducer.Isolation.muonIsolation_cff import *
+from PhysicsTools.PFCandProducer.ParticleSelectors.isolatedMuons_cfi import *
+
+
 
 pfMuonSequence = cms.Sequence(
     pfAllMuons +
     pfMuonsPtGt5 +
-    #pfMuons
-    pfMuonIsol
+    # computing isolation variables:
+    muonIsolationSequence +
+    # selecting isolated electrons:
+    isolatedMuons 
     )
 
 

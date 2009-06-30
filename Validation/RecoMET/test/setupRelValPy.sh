@@ -61,17 +61,9 @@ process.load(\"Validation.RecoMET.PFMET_cff\")
 
 process.load(\"Validation.RecoMET.TCMET_cff\")
 
-process.load(\"Validation.RecoMET.MuonCorrectedCaloMET_cff\")
-
 process.load(\"Configuration.StandardSequences.Geometry_cff\")
 
 process.load(\"Configuration.StandardSequences.MagneticField_cff\")
-
-process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
-
-process.GlobalTag.globaltag = cms.string(\"IDEAL_31X::All\")
-
-process.load(\"RecoLocalCalo.Configuration.hcalLocalReco_cff\")
 
 process.DQMStore = cms.Service(\"DQMStore\")
 
@@ -103,9 +95,7 @@ process.p = cms.Path(process.fileSaver*
                      process.analyzeHTMET*
                      process.analyzeCaloMET*
                      process.analyzePFMET*
-                     process.analyzeTCMET*
-                     process.analyzeMuonCorrectedCaloMET
-)
+                     process.analyzeTCMET)
 process.schedule = cms.Schedule(process.p)
 
 " > ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py

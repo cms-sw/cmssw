@@ -1,9 +1,9 @@
-// $Id: RBCChamberORLogic.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCChamberORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCChamberORLogic.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCChamberORLogic
@@ -15,7 +15,7 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RBCChamberORLogic::RBCChamberORLogic(  ) {
-  
+
   m_rbname.push_back(std::string("RB1InFw"));
   m_rbname.push_back(std::string("RB1OutFw"));
   m_rbname.push_back(std::string("RB22Fw"));
@@ -40,20 +40,16 @@ RBCChamberORLogic::RBCChamberORLogic(  ) {
 
   m_maxcb    = 13;
   m_maxlevel = 3; // 1 <= m <= 6
-
-  m_layersignal = new std::bitset<6>[2];
-  m_layersignal[0].reset();
-  m_layersignal[1].reset();
   
 }
-
 //=============================================================================
 // Destructor
 //=============================================================================
 RBCChamberORLogic::~RBCChamberORLogic() {
   
-  if ( m_layersignal ) delete[] m_layersignal;
   
+  
+
 } 
 
 //=============================================================================
@@ -61,20 +57,15 @@ RBCChamberORLogic::~RBCChamberORLogic() {
 void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _decision ) 
 {
   
+  std::cout << "RBCChamberORLogic> Working with chambers OR logic ..." << '\n';
   bool status(false);
-  //std::cout << "RBCChamberORLogic> Working with chambers OR logic ..." << '\n';
 
-  m_layersignal[0].reset();
-  m_layersignal[1].reset();
-  
+
   for (int k=0; k < 2; ++k ) 
   {
     
-    if( _input.needmapping )
-      this->createmap( _input.input_sec[k] );
-    else
-      this->copymap  ( _input.input_sec[k] );
-    
+    this->createmap( _input.input_sec[k] );
+  
     status = this->evaluateLayerOR( "RB1InFw"  , "RB1InBk" );
     m_layersignal[k].set( 0 , status);
     
@@ -105,32 +96,6 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
   }
 
   //...all done!
-  
-}
-
-void RBCChamberORLogic::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs )
-{
-  
-  m_maxlevel = specs.m_MayorityLevel;
-    
-}
-
-void RBCChamberORLogic::copymap( const std::bitset<15> & _input ) 
-{
-  
-  m_chamber[m_rbname[0]]  = _input[0];
-  m_chamber[m_rbname[1]]  = _input[1];
-  m_chamber[m_rbname[2]]  = _input[2];
-  m_chamber[m_rbname[3]]  = _input[3];
-  m_chamber[m_rbname[4]]  = _input[4];
-  m_chamber[m_rbname[5]]  = _input[5];
-  m_chamber[m_rbname[6]]  = _input[6];
-  m_chamber[m_rbname[7]]  = _input[7];
-  m_chamber[m_rbname[8]]  = _input[8];
-  m_chamber[m_rbname[9]]  = _input[9];
-  m_chamber[m_rbname[10]] = _input[10];
-  m_chamber[m_rbname[11]] = _input[11];
-  m_chamber[m_rbname[12]] = _input[12];
   
 }
 
@@ -167,9 +132,6 @@ void RBCChamberORLogic::reset()
     ++itr;
   }
   
-  //m_layersignal[0].reset();
-  //m_layersignal[1].reset();
-  
 }
 
 bool RBCChamberORLogic::evaluateLayerOR(const char * _chA, const char *_chB )
@@ -179,9 +141,9 @@ bool RBCChamberORLogic::evaluateLayerOR(const char * _chA, const char *_chB )
   itr2chambers ptr2 = m_chamber.find( std::string(_chB) );
   
   if ( ptr1 == m_chamber.end() || ptr2 == m_chamber.end() ) {
-    //handle error...
+    //handle error...little the user can do
     std::cout << "RBCChamberORLogic> Cannot find a chamber name" << '\n';
-    return false;
+    return 0;
   }
   
   return ( ptr1->second || ptr2->second );

@@ -1,8 +1,8 @@
 /// RatioFinderResults: The results of the SM production cross sections.
 /**
 \class RatioFinderResults
-$Revision: 1.4 $
-$Date: 2009/04/15 12:24:24 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Collect the info out of a RatioFinder instance.
@@ -16,21 +16,9 @@ Collect the info out of a RatioFinder instance.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalMethod.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlockArray.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RatioFinderPlot.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RatioFinderPlot.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderPlot.h"
 
 
 class RatioFinderResults : public StatisticalMethod {
@@ -107,10 +95,6 @@ class RatioFinderResults : public StatisticalMethod {
 
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(RatioFinderResults,1)
-#endif
  };
 
 #endif

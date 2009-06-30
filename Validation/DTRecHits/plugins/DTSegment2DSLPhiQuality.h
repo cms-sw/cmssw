@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/08 15:50:31 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -51,8 +51,8 @@ private:
   // Root file name
   std::string rootFileName;
   //Labels to read from event
-  edm::InputTag simHitLabel;
-  edm::InputTag segment4DLabel;
+  std::string simHitLabel;
+  std::string segment4DLabel;
   //Sigma resolution on position
   double sigmaResPos;
   //Sigma resolution on angle

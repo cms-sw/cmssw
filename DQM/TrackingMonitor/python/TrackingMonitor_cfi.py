@@ -20,6 +20,8 @@ TrackMon = cms.EDFilter("TrackingMonitor",
 
     doTrackerSpecific = cms.bool(True),
     doAllPlots = cms.bool(False),                    
+    doSeedParameterHistos = cms.bool(False),
+
     TkSizeBin = cms.int32(500),
     TkSizeMin = cms.double(-0.5),
     TkSizeMax = cms.double(499.5),

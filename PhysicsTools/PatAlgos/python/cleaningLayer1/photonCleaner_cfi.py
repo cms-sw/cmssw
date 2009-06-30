@@ -12,7 +12,7 @@ cleanLayer1Photons = cms.EDFilter("PATPhotonCleaner",
         electrons = cms.PSet(
            src       = cms.InputTag("cleanLayer1Electrons"),
            algorithm = cms.string("bySuperClusterSeed"),
-           requireNoOvelaps = cms.bool(True), # DISCARD photons that overlap!
+           requireNoOverlaps = cms.bool(True), # DISCARD photons that overlap!
         ),
     ),
 

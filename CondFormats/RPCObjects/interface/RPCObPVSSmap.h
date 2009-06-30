@@ -7,15 +7,15 @@
 class RPCObPVSSmap {
     public:
       struct Item {
-        int since;
+        std::string since;
         int dpid;
-        int region;
-        int ring;
-        int station;
-        int sector;
-        int layer;
-        int subsector;
-        int suptype;
+        std::string region;
+        std::string ring;
+        std::string station;
+        std::string sector;
+        std::string layer;
+        std::string subsector;
+        std::string suptype;
     };
     RPCObPVSSmap(){}
     virtual ~RPCObPVSSmap(){}

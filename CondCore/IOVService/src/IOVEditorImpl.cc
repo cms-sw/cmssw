@@ -13,23 +13,6 @@ namespace cond {
 				  m_isActive(false){
   }
   
-  IOVSequence & IOVEditorImpl::iov(){ return *m_iov;}
-
-  // create empty default sequence
-  void IOVEditorImpl::create(cond::TimeType timetype) {
-    if(!m_token.empty()){
-      // problem??
-      throw cond::Exception("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
-    }
-
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence(timetype));
-					    
-    m_iov.markWrite(cond::IOVNames::container());
-    m_token=m_iov.token();
-    m_isActive=true;
-
-  }
-
   void IOVEditorImpl::create(cond::TimeType timetype,cond::Time_t lastTill) {
 
     if(!m_token.empty()){
@@ -56,6 +39,7 @@ namespace cond {
     if(m_token.empty()){
       // problem?
       throw cond::Exception("cond::IOVEditorImpl::init cannot init w/o token change");
+      
     }
     
     m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb, m_token); 
@@ -245,22 +229,6 @@ namespace cond {
   }
 
 
-  // remove last entry
-  unsigned int IOVEditorImpl::truncate(bool withPayload) {
-    if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV sequence");
-    if(!m_isActive) this->init();
-    if (m_iov->piovs().empty()) return 0;
-    if(withPayload){
-      std::string tokenStr = m_iov->piovs().back().wrapperToken();
-      cond::GenericRef ref(*m_pooldb,tokenStr);
-      ref.markDelete();
-      ref.reset();
-    }
-    m_iov.markUpdate();
-    return m_iov->truncate();
-    
-  }
-
 
   void 
   IOVEditorImpl::deleteEntries(bool withPayload){
@@ -269,8 +237,8 @@ namespace cond {
     if(withPayload){
       std::string tokenStr;
       IOVSequence::const_iterator payloadIt;
-      IOVSequence::const_iterator payloadItEnd=m_iov->piovs().end();
-      for(payloadIt=m_iov->piovs().begin();payloadIt!=payloadItEnd;++payloadIt){
+      IOVSequence::const_iterator payloadItEnd=m_iov->iovs().end();
+      for(payloadIt=m_iov->iovs().begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->wrapperToken();
 	cond::GenericRef ref(*m_pooldb,tokenStr);
 	ref.markDelete();

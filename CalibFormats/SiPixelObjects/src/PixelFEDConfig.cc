@@ -58,7 +58,6 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	     }
 	 }
      }//end for
-   /*
    for(unsigned int n=0; n<colNames.size(); n++)
      {
        if(colM.find(colNames[n]) == colM.end())
@@ -67,8 +66,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	   assert(0);
 	 }
      }
-   */
-
+   
    std::string fedname = "";
    unsigned int fednum = 0;
    fedconfig_.clear();
@@ -136,7 +134,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 PixelFEDConfig::PixelFEDConfig(std::string filename):
   PixelConfigBase(" "," "," "){
 
-    std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t    " ;
+    std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t\t    " ;
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
@@ -305,29 +303,29 @@ void PixelFEDConfig::writeXMLHeader(pos::PixelConfigKey key,
   cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     << endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             << endl ;
-  *outstream << " <HEADER>"								         	     << endl ;
-  *outstream << "  <TYPE>"								         	     << endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>FED_CRATE_CONFIG</EXTENSION_TABLE_NAME>"          	             << endl ;
-  *outstream << "   <NAME>Pixel FED Crate Configuration</NAME>"				         	     << endl ;
-  *outstream << "  </TYPE>"								         	     << endl ;
-  *outstream << "  <RUN>"								         	     << endl ;
-  *outstream << "   <RUN_NAME>Pixel FED Crate Configuration</RUN_NAME>" 		                     << endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << endl ; 
-  *outstream << "  </RUN>"								         	     << endl ;
-  *outstream << " </HEADER>"								         	     << endl ;
-  *outstream << "  "								         	             << endl ;
-  *outstream << " <DATA_SET>"								         	     << endl ;
-  *outstream << "  <PART>"                                                                                   << endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
-  *outstream << "  </PART>"                                                                                  << endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"				     << endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			     << endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			     << endl ;
-  *outstream << "  "								         	             << endl ;
+  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     	     << endl ;
+  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             	     << endl ;
+  *outstream << " <HEADER>"								         	     	     << endl ;
+  *outstream << "  <TYPE>"								         	     	     << endl ;
+  *outstream << "   <EXTENSION_TABLE_NAME>FED_CRATE_CONFIG</EXTENSION_TABLE_NAME>"          	             	     << endl ;
+  *outstream << "   <NAME>Pixel FED Crate Configuration</NAME>"				         	     	     << endl ;
+  *outstream << "  </TYPE>"								         	     	     << endl ;
+  *outstream << "  <RUN>"								         	     	     << endl ;
+  *outstream << "   <RUN_NAME>Pixel FED Crate Configuration</RUN_NAME>" 		                     	     << endl ;
+  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" 	     << endl ;
+  *outstream << "   <COMMENT_DESCRIPTION>Pixel FED Crate Configuration</COMMENT_DESCRIPTION>"      	     	     << endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     	     << endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     	     << endl ;
+  *outstream << "  </RUN>"								         	     	     << endl ;
+  *outstream << " </HEADER>"								         	     	     << endl ;
+  *outstream << "  "								         	             	     << endl ;
+  *outstream << " <DATA_SET>"								         	     	     << endl ;
+  *outstream << "  <PART>"                                                                                   	     << endl ;
+  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 	     << endl ;
+  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              	     << endl ;
+  *outstream << "  </PART>"                                                                                  	     << endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     	     << endl ;
+  *outstream << "  "								         	             	     << endl ;
 }  
 
 //=============================================================================================

@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id:  $
+// $Id: MessageServicePSetValidation.cc,v 1.1 2009/06/14 23:45:25 fischler Exp $
 //
 // Change log
 //
@@ -72,11 +72,12 @@ messageLoggerPSet (ParameterSet const & pset)
   // Nested PSets
 
   destinationPSets(pset);
+  defaultPSet(pset);
   statisticsPSets(pset);
   fwkJobReportPSets(pset);
   categoryPSets(pset, "MessageLogger");  
 
-  // No other PSets
+  // No other PSets -- unless they contain optionalPSet or placeholder=True 
 
   noOtherPsets (pset); 
 
@@ -85,6 +86,8 @@ messageLoggerPSet (ParameterSet const & pset)
   noneExcept <int> (pset, "MessageLogger", "int");
   noneExcept <unsigned int> (pset, "MessageLogger", "unsigned int");
   noneExcept <bool> (pset, "MessageLogger","bool","messageSummaryToJobReport");
+  	// Note - at this, the upper MessageLogger PSet level, the use of 
+	// optionalPSet makes no sense, so we are OK letting that be a flaw
   noneExcept <float> (pset, "MessageLogger","float");
   noneExcept <double> (pset, "MessageLogger","double");
   noneExcept <std::string> (pset, "MessageLogger","string", 
@@ -352,6 +355,7 @@ keywordCheck(std::string const & word)
   if (word == "filename") 	return false;
   if (word == "extension") 	return false;
   if (word == "reset") 		return false;
+  if (word == "optionalPSet")	return false;
   return true;
 } // keywordCheck
 
@@ -418,6 +422,18 @@ noOtherPsets(ParameterSet const & pset)
     if ( lookForMatch (categories, *i) ) 	continue;
     if ( lookForMatch (messageIDs, *i) ) 	continue;
     if ( (*i) == "default" ) 			continue;
+    ParameterSet empty_PSet;
+    bool ok_optionalPSet = false; 
+    try {
+      ParameterSet culprit = 
+                    pset.getUntrackedParameter<ParameterSet>((*i),empty_PSet);
+      ok_optionalPSet = 
+          culprit.getUntrackedParameter<bool>("placeholder",  ok_optionalPSet);
+      ok_optionalPSet = 
+          culprit.getUntrackedParameter<bool>("optionalPSet", ok_optionalPSet);
+    } catch (cms::Exception& e) { 
+    }
+    if (ok_optionalPSet) continue; 
     flaws << "MessageLogger " << " PSet: \n"
 	  << *i << " is an unrecognized name for a PSet\n";
   }
@@ -462,7 +478,7 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
 
   categoryPSets (pset, psetName);
      
-  // No other PSets
+  // No other PSets -- unless they contain optionalPSet or placeholder=True 
   
   noNoncategoryPsets (pset, psetName);
   
@@ -484,11 +500,7 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
     flaws << psetName << " PSet: \n"
 	 << s << " is not allowed as a value of extension \n";
   }
-  s = check<std::string> ( pset, "psetName", "output" );  // deprecated
-  if ( (s == "cerr") || (s == "cout") ) {
-    flaws << psetName << " PSet: \n"
-	 << s << " is not allowed as a value of output \n";
-  }
+  s = check<std::string> ( pset, "psetName", "output" );  
   
   // No other parameters
 
@@ -496,6 +508,7 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
 
   vString okbool;
   okbool.push_back ("placeholder");
+  okbool.push_back ("optionalPSet");
   okbool.push_back ("noLineBreaks");
   okbool.push_back ("noTimeStamps");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
@@ -506,7 +519,59 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
   okstring.push_back ("extension");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
-} // destinationPSets
+} // destinationPSet
+
+void
+edm::service::MessageServicePSetValidation::  
+defaultPSet(ParameterSet const & main_pset)
+{
+  ParameterSet empty_PSet;
+  ParameterSet pset = main_pset.getUntrackedParameter<ParameterSet>
+  							("default",empty_PSet);
+  std::string psetName = "default (at MessageLogger main level)";
+  
+  // Category PSets
+
+  categoryPSets (pset, psetName);
+     
+  // No other PSets -- unless they contain optionalPSet or placeholder=True 
+  
+  noNoncategoryPsets (pset, psetName);
+  
+  // Parameters applying to the default category
+  
+  catInts ( pset, psetName, "default" );
+
+  // General parameters
+  
+  check <bool> ( pset, psetName, "placeholder" );
+  std::string thresh = check<std::string> ( pset, "psetName", "threshold" );
+  if (!thresh.empty()) validateThreshold(thresh, psetName);
+  check <bool> ( pset, psetName, "noLineBreaks" );
+  check <int>  ( pset, psetName, "limit" );   
+  check <int>  ( pset, psetName, "reportEvery" );   
+  check <int>  ( pset, psetName, "timespan" );   
+  check <int>  ( pset, psetName, "lineLength" );   
+  check <bool> ( pset, psetName, "noTimeStamps" );
+  
+  // No other parameters
+  vString okint;
+  okint.push_back("limit");
+  okint.push_back("reportEvery");
+  okint.push_back("timespan");
+  okint.push_back("lineLength");
+  noneExcept <int> (pset, psetName, "int", okint); 
+  vString okbool;
+  okbool.push_back ("placeholder");
+  okbool.push_back ("optionalPSet");
+  okbool.push_back ("noLineBreaks");
+  okbool.push_back ("noTimeStamps");
+  noneExcept <bool> (pset, psetName, "bool", okbool);   
+  vString okstring;
+  okstring.push_back ("threshold");
+  noneExcept <std::string> (pset, psetName, "string", okstring);   
+  
+} // defaultPSet
 
 void
 edm::service::MessageServicePSetValidation::  
@@ -530,12 +595,14 @@ statisticsPSet(ParameterSet const & pset, std::string const & psetName)
   
   categoryPSets (pset, psetName);
      
-  // No other PSets
+  // No other PSets -- unless they contain optionalPSet or placeholder=True 
   
   noNoncategoryPsets (pset, psetName);
   
   // General parameters
   
+  std::string thresh = check<std::string> ( pset, "psetName", "threshold" );
+  if (!thresh.empty()) validateThreshold(thresh, psetName);
   check <bool> ( pset, psetName, "placeholder" );
   check <bool> ( pset, psetName, "reset" );
   std::string s = check<std::string> ( pset, "psetName", "filename" );
@@ -548,11 +615,7 @@ statisticsPSet(ParameterSet const & pset, std::string const & psetName)
     flaws << psetName << " PSet: \n"
 	 << s << " is not allowed as a value of extension \n";
   }
-  s = check<std::string> ( pset, "psetName", "output" );  // deprecated
-  if ( (s == "cerr") || (s == "cout") ) {
-    flaws << psetName << " PSet: \n"
-	 << s << " is not allowed as a value of output \n";
-  }
+  s = check<std::string> ( pset, "psetName", "output" );  
   
   // No other parameters
 
@@ -560,12 +623,14 @@ statisticsPSet(ParameterSet const & pset, std::string const & psetName)
 
   vString okbool;
   okbool.push_back ("placeholder");
+  okbool.push_back ("optionalPSet");
   okbool.push_back ("reset");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
   okstring.push_back ("output");
   okstring.push_back ("filename");
   okstring.push_back ("extension");
+  okstring.push_back ("threshold");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
 } // statisticsPSet
@@ -591,7 +656,7 @@ fwkJobReportPSet(ParameterSet const & pset, std::string const & psetName)
   
   categoryPSets (pset, psetName);
      
-  // No other PSets
+  // No other PSets -- unless they contain optionalPSet or placeholder=True 
   
   noNoncategoryPsets (pset, psetName);
   
@@ -608,18 +673,15 @@ fwkJobReportPSet(ParameterSet const & pset, std::string const & psetName)
     flaws << psetName << " PSet: \n"
 	 << s << " is not allowed as a value of extension \n";
   }
-  s = check<std::string> ( pset, "psetName", "output" );  // deprecated
-  if ( (s == "cerr") || (s == "cout") ) {
-    flaws << psetName << " PSet: \n"
-	 << s << " is not allowed as a value of output \n";
-  }
-  
+  s = check<std::string> ( pset, "psetName", "output" );  
+    
   // No other parameters
 
   noneExcept <int> (pset, psetName, "int"); 
 
   vString okbool;
   okbool.push_back ("placeholder");
+  okbool.push_back ("optionalPSet");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
   okstring.push_back ("output");
@@ -644,6 +706,18 @@ noNoncategoryPsets(ParameterSet const & pset,std::string const & psetName)
     if ( (*i) == "WARNING" ) 			continue;
     if ( (*i) == "INFO" ) 			continue;
     if ( (*i) == "DEBUG" ) 			continue;
+    ParameterSet empty_PSet;
+    bool ok_optionalPSet = false; 
+    try {
+      ParameterSet culprit = 
+                    pset.getUntrackedParameter<ParameterSet>((*i),empty_PSet);
+      ok_optionalPSet = 
+          culprit.getUntrackedParameter<bool>("placeholder",  ok_optionalPSet);
+      ok_optionalPSet = 
+          culprit.getUntrackedParameter<bool>("optionalPSet", ok_optionalPSet);
+    } catch (cms::Exception& e) { 
+    }
+    if (ok_optionalPSet) continue; 
     flaws << psetName << " PSet: \n"
 	  << *i << " is an unrecognized name for a PSet in this context \n";
   }
@@ -662,11 +736,13 @@ void
 edm::service::MessageServicePSetValidation::  
 categoryPSets(ParameterSet const & pset, std::string const & psetName ) 
 {
-  categoryPSet (pset, psetName, "default");
   categoryPSet (pset, psetName, "ERROR"  );
   categoryPSet (pset, psetName, "WARNING");
   categoryPSet (pset, psetName, "INFO"   ) ;
   categoryPSet (pset, psetName, "DEBUG"  );
+  if (psetName != "MessageLogger") categoryPSet (pset, psetName, "default");
+  // The above conditional is because default in the main level is treated
+  // as a set of defaults differnt from those of a simple category. 
   std::vector<std::string>::const_iterator end = categories.end();
   for (std::vector<std::string>::const_iterator i = categories.begin(); 
        i != end; ++i) {
@@ -691,7 +767,7 @@ categoryPSet (ParameterSet const & pset,
   std::string const & psetName(OuterPsetName);
   catInts   			( c, psetName, categoryName );
   catNone <unsigned int> 	( c, psetName, categoryName, "unsigned int" );
-  catNone <bool> 		( c, psetName, categoryName, "bool" );
+  catBoolRestriction 		( c, psetName, categoryName, "bool" );
   catNone <float> 		( c, psetName, categoryName, "float" );
   catNone <double> 		( c, psetName, categoryName, "double" );
   catNone <std::string> 	( c, psetName, categoryName, "string" );
@@ -753,6 +829,34 @@ catNoPSets (ParameterSet const & pset,
     }
   }
 } // catNoPSets
+
+void
+edm::service::MessageServicePSetValidation::  
+catBoolRestriction (ParameterSet const & pset, 
+  		    std::string  const & psetName, 
+  		    std::string  const & categoryName,
+		    std::string  const & type)  
+{
+  vString x = pset.getParameterNamesForType <bool> (false);
+  vString::const_iterator end = x.end();
+  for ( vString::const_iterator i = x.begin(); i != end; ++i ) {
+    if ( ((*i) == "placeholder") || ((*i) == "optionalPSet") ) continue;
+    flaws << categoryName << " category PSet nested in "
+      	  << psetName << " PSet: \n"
+	  << (*i) << " is used as a " << type << "\n"
+	  << "Usage of " << type << " is not recognized here\n"; 
+  }
+  x = pset.getParameterNamesForType <bool> (true);
+  end = x.end();
+  for ( vString::const_iterator i = x.begin(); i != end; ++i ) {
+    flaws << categoryName << " category PSet nested in "
+      	  << psetName << " PSet: \n"
+	  << (*i) << " is used as a tracked " << type << "\n"
+	  << "Tracked parameters not allowed here, "
+	  <<" and even untracked it would not be recognized\n";
+  }
+} // catBoolRestriction()
+
 
 } // end of namespace service  
 } // end of namespace edm  

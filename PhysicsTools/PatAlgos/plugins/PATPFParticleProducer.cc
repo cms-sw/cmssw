@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.3 2008/11/28 22:05:56 lowette Exp $
+// $Id: PATPFParticleProducer.cc,v 1.4 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
@@ -38,6 +38,19 @@ PATPFParticleProducer::PATPFParticleProducer(const edm::ParameterSet & iConfig) 
       }
   }
 
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+
+
 
   // produces vector of muons
   produces<std::vector<PFParticle> >();
@@ -67,6 +80,9 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
         }
   }
 
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
+
   // loop over PFCandidates
   std::vector<PFParticle> * patPFParticles = new std::vector<PFParticle>();
   for (edm::View<reco::PFCandidate>::const_iterator 
@@ -86,6 +102,14 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
           aPFParticle.addGenParticleRef(genPFParticle);
       }
       if (embedGenMatch_) aPFParticle.embedGenParticle();
+    }
+      
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( aPFParticle, pfCandidatesRef );
+    }
+
+    if (resolutionLoader_.enabled()) {
+        resolutionLoader_.setResolutions(aPFParticle);
     }
 
     // add sel to selected

@@ -1,5 +1,0 @@
-/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0052/529AA4E7-08CC-DD11-A489-001D0967D21A.root
-/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0053/EAFF3754-15CC-DD11-B13F-0019B9E7EA91.root
-/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0059/9C14A736-C5CC-DD11-B8FC-001D0967DA53.root
-/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0067/F2C9A193-93CD-DD11-9C12-001D0967D616.root
-/store/data/Commissioning08/Cosmics/ALCARECO/CRAFT_ALL_V4_StreamALCARECOTkAlCosmics0T_step3_AlcaReco-v2/0078/30A3C1BF-5CCE-DD11-81EB-0019B9E47C71.root

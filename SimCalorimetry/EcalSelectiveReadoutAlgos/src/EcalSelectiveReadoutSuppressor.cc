@@ -65,10 +65,6 @@ void EcalSelectiveReadoutSuppressor::setTriggerMap(const EcalTrigTowerConstituen
   ecalSelectiveReadout->setTriggerMap(map);
 }
 
-void EcalSelectiveReadoutSuppressor::setElecMap(const EcalElectronicsMapping * map){
-  ecalSelectiveReadout->setElecMap(map);
-}
-
 
 void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeometry) 
 {
@@ -296,7 +292,6 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     EcalScDetId id;
     for(int iX = 1; iX <= 20; ++iX){
       for(int iY = 1; iY <= 20; ++iY){
-
 	if (EcalScDetId::validDetId(iX, iY, iZ))
 	  id = EcalScDetId(iX, iY, iZ);
 	else
@@ -304,16 +299,15 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
 	
 	EcalSelectiveReadout::towerInterest_t interest
 	  = ecalSelectiveReadout->getSuperCrystalInterest(id);
-	
 	if(interest>=0){//negative no SC at (iX,iY) coordinates
 	  int flag;
 	  if(interest==EcalSelectiveReadout::FORCED_RO){
 	    flag = EcalSrFlag::SRF_FORCED_MASK | EcalSrFlag::SRF_FULL;
 	  } else{
-	    flag = srFlags[ENDCAP][interest];
+	    flag = srFlags[BARREL][interest];
 	  }
 	  eeSrFlags.push_back(EESrFlag(id, flag));
-	} else if(iX < 9 || iX > 12 || iY < 9 || iY >12){ //not an inner partial SC
+	} else{
 	  cout << __FILE__ << ":" << __LINE__ << ": "
 	       <<  "negative interest in EE for SC "
 	       << id << "\n";

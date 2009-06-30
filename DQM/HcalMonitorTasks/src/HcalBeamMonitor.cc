@@ -82,21 +82,21 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       m_dbe->setCurrentFolder(baseFolder_);
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
 				   "Center Of Energy radius",
-				   200,0,1);
+				   50,0,1);
       
       CenterOfEnergyRadius->setAxisTitle("(normalized) radius",1);
 
       CenterOfEnergy = m_dbe->book2D("CenterOfEnergy",
 				     "Center of Energy",
-				     200,-1,1,
-				     200,-1,1);
+				     50,-1,1,
+				     50,-1,1);
       CenterOfEnergy->setAxisTitle("normalized x coordinate",1);
       CenterOfEnergy->setAxisTitle("normalized y coordinate",2);
 
       COEradiusVSeta = m_dbe->bookProfile("COEradiusVSeta",
 					  "Center of Energy radius vs i#eta",
 					  172,-43,43,
-					  200,0,1);
+					  50,0,1);
       COEradiusVSeta->setAxisTitle("i#eta",1);
       COEradiusVSeta->setAxisTitle("(normalized) radius",2);
       
@@ -105,11 +105,11 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       m_dbe->setCurrentFolder(baseFolder_+"/HB");
       HBCenterOfEnergyRadius = m_dbe->book1D("HBCenterOfEnergyRadius",
 					     "HB Center Of Energy radius",
-					     200,0,1);
+					     50,0,1);
       HBCenterOfEnergy = m_dbe->book2D("HBCenterOfEnergy",
 				       "HB Center of Energy",
-				       200,-1,1,
-				       200,-1,1);
+				       50,-1,1,
+				       50,-1,1);
       if (beammon_makeDiagnostics_)
 	{
 	  for (int i=-16;i<=16;++i)
@@ -121,17 +121,17 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	      histtitle<<"HB Center Of Energy ieta = "<<i;
 	      HB_CenterOfEnergyRadius[i+ETA_OFFSET_HB]=m_dbe->book1D(histname.str().c_str(),
 							  histtitle.str().c_str(),
-							  200,0,1);
+							  50,0,1);
 	    } // end of HB loop
 	}
       m_dbe->setCurrentFolder(baseFolder_+"/HE");
       HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
 					     "HE Center Of Energy radius",
-					     200,0,1);
+					     50,0,1);
       HECenterOfEnergy = m_dbe->book2D("HECenterOfEnergy",
 				       "HE Center of Energy",
-				       200,-1,1,
-				       200,-1,1);
+				       50,-1,1,
+				       50,-1,1);
       if (beammon_makeDiagnostics_)
 	{
 	  for (int i=-29;i<=29;++i)
@@ -143,17 +143,17 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	      histtitle<<"HE Center Of Energy ieta = "<<i;
 	      HE_CenterOfEnergyRadius[i+ETA_OFFSET_HE]=m_dbe->book1D(histname.str().c_str(),
 							  histtitle.str().c_str(),
-							  200,0,1);
+							  50,0,1);
 	    } // end of HE loop
 	}
       m_dbe->setCurrentFolder(baseFolder_+"/HO");
       HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
 					     "HO Center Of Energy radius",
-					     200,0,1);
+					     50,0,1);
       HOCenterOfEnergy = m_dbe->book2D("HOCenterOfEnergy",
 				       "HO Center of Energy",
-				       200,-1,1,
-				       200,-1,1);
+				       50,-1,1,
+				       50,-1,1);
       if (beammon_makeDiagnostics_)
 	{
 	  for (int i=-15;i<=15;++i)
@@ -165,17 +165,17 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	      histtitle<<"HO Center Of Energy radius ieta = "<<i;
 	      HO_CenterOfEnergyRadius[i+ETA_OFFSET_HO]=m_dbe->book1D(histname.str().c_str(),
 								     histtitle.str().c_str(),
-								     200,0,1);
+								     50,0,1);
 	    } // end of HO loop
 	}
       m_dbe->setCurrentFolder(baseFolder_+"/HF");
       HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
 					     "HF Center Of Energy radius",
-					     200,0,1);
+					     50,0,1);
       HFCenterOfEnergy = m_dbe->book2D("HFCenterOfEnergy",
 				       "HF Center of Energy",
-				       200,-1,1,
-				       200,-1,1);
+				       50,-1,1,
+				       50,-1,1);
       if (beammon_makeDiagnostics_)
 	{
 	  for (int i=-41;i<=41;++i)
@@ -187,36 +187,36 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	      histtitle<<"HF Center Of Energy radius ieta = "<<i;
 	      HF_CenterOfEnergyRadius[i+ETA_OFFSET_HF]=m_dbe->book1D(histname.str().c_str(),
 								     histtitle.str().c_str(),
-								     200,0,1);
+								     50,0,1);
 	    } // end of HF loop
 	}
       
       m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
       // Wenhan's 
-      Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",120,-6,6,200,0,2000);
-      Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",120,-4,4,200,0,2000);
-      Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",100,-4,4,200,0,2000);
-      Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",100,-4,4,200,0,2000);
+      Etsum_eta_L=m_dbe->bookProfile("Et Sum vs Eta Long Fiber","Et Sum per Area vs Eta Long Fiber",120,-6,6,50,0,2000);
+      Etsum_eta_S=m_dbe->bookProfile("Et Sum vs Eta Short Fiber","Et Sum per Area vs Eta Short Fiber",120,-4,4,50,0,2000);
+      Etsum_phi_L=m_dbe->bookProfile("Et Sum vs Phi Long Fiber","Et Sum per Area vs Phi Long Fiber",100,-4,4,50,0,2000);
+      Etsum_phi_S=m_dbe->bookProfile("Et Sum vs Phi Short Fiber","Et Sum per Area crossing vs Phi Short Fiber",100,-4,4,50,0,2000);
       Etsum_ratio_p=m_dbe->book1D("Occ vs fm HF+","Energy difference of Long and Short Fiber HF+",105,-1.05,1.05);
-      Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",200,0,2000);
+      Energy_Occ=m_dbe->book1D("Occ vs Energy","Occupancy vs Energy",100,0,2000);
       Etsum_ratio_m=m_dbe->book1D("Occ vs fm HF-","Energy difference of Long and Short Fiber HF-",105,-1.05,1.05);
-      Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",120,-6,6,100,-4,4);
-      Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",120,-6,6,100,-4,4);
-      Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",100,0,1500,100,-4,4);
-      Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",100,0,1500,100,-4,4);
+      Etsum_map_L=m_dbe->book2D("EtSum 2D phi and eta Long Fiber","Et Sum 2D phi and eta Long Fiber",120,-6,6,50,-4,4);
+      Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",120,-6,6,50,-4,4);
+      Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",100,0,1500,50,-4,4);
+      Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",100,0,1500,50,-4,4);
       Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",84,-42,42,72,0,72);
       
-      Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",100,0,1500,100,-4,4);
-      Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",100,0,1500,100,-4,4);
-      Occ_eta_S=m_dbe->bookProfile("Occ vs Eta Short Fiber","Occ per Bunch crossing vs Eta Short Fiber",120,-6,6,200,0,2000);
-      Occ_eta_L=m_dbe->bookProfile("Occ vs Eta Long Fiber","Occ per Bunch crossing vs Eta Long Fiber",120,-6,6,200,0,2000);
+      Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",100,0,1500,50,-4,4);
+      Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",100,0,1500,50,-4,4);
+      Occ_eta_S=m_dbe->bookProfile("Occ vs Eta Short Fiber","Occ per Bunch crossing vs Eta Short Fiber",120,-6,6,50,0,2000);
+      Occ_eta_L=m_dbe->bookProfile("Occ vs Eta Long Fiber","Occ per Bunch crossing vs Eta Long Fiber",120,-6,6,50,0,2000);
       
-      Occ_phi_L=m_dbe->bookProfile("Occ vs Phi Long Fiber","Occ per Bunch crossing vs Phi Long Fiber",100,-4,4,200,0,2000);
+      Occ_phi_L=m_dbe->bookProfile("Occ vs Phi Long Fiber","Occ per Bunch crossing vs Phi Long Fiber",100,-4,4,50,0,2000);
       
-      Occ_phi_S=m_dbe->bookProfile("Occ vs Phi Short Fiber","Occ per Bunch crossing vs Phi Short Fiber",100,-4,4,200,0,2000);
+      Occ_phi_S=m_dbe->bookProfile("Occ vs Phi Short Fiber","Occ per Bunch crossing vs Phi Short Fiber",100,-4,4,50,0,2000);
       
-      Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber",120,-6,6,100,-4,4);
-      Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber",120,-6,6,100,-4,4);
+      Occ_map_L=m_dbe->book2D("Occ_map Long Fiber","Occ Map long Fiber",120,-6,6,50,-4,4);
+      Occ_map_S=m_dbe->book2D("Occ_map Short Fiber","Occ Map Short Fiber",120,-6,6,50,-4,4);
       
       //HFlumi plots
       HFlumi_ETsum_perwedge =  m_dbe->book1D("HF lumi ET-sum per wedge","HF lumi ET-sum per wedge",36,1,37);

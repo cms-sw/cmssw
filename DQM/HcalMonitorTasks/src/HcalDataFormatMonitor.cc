@@ -314,7 +314,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCErrorAndWarnConditions_->setBinLabel(25, "TTC_DoubEr", 2);
 
     type = "DCC Ev Fragment Size Distribution";
-    meFEDRawDataSizes_=m_dbe->book1D(type,type,12000,-0.5,12000.5);
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,120,-0.5,12000.5);
     meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
     meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",2);
 
@@ -362,7 +362,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
     type = "All Evt Frag Sizes";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 2000,0,12000);
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 100,0,12000);
 
     type = "Num Event Frags by FED";
     meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5); //Show over & underflow stats.

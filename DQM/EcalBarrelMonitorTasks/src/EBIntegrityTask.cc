@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2009/06/18 09:48:15 $
- * $Revision: 1.75 $
+ * $Date: 2009/06/23 06:41:50 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
  */
@@ -20,7 +20,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -42,8 +41,6 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
-
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
@@ -308,22 +305,6 @@ void EBIntegrityTask::endJob(void){
 }
 
 void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
-
-  bool enable = false;
-
-  Handle<EcalRawDataCollection> dcchs;
-
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-    enable = true;
-
-  } else {
-
-    LogWarning("EBIntegrityTask") << EcalRawDataCollection_ << " not available";
-
-  }
-
-  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 

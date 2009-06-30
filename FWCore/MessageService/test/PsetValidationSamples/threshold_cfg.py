@@ -12,11 +12,11 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
 
-#enable one of the following -- the first four should pass, the rest fail
-#    threshold = cms.untracked.string('DEBUG'),
+# enable one of the following -- the first four should pass, the rest fail
+    threshold = cms.untracked.string('DEBUG'),
 #  threshold = cms.untracked.string('INFO'),
 #    threshold = cms.untracked.string('WARNING'),
-   threshold = cms.untracked.string('ERROR'),
+#   threshold = cms.untracked.string('ERROR'),
 #    threshold = cms.string('ERROR'),
 #    threshold = cms.untracked.int32('ERROR'),
 #    threshold = cms.untracked.string('error'),

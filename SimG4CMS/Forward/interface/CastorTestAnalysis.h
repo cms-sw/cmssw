@@ -97,8 +97,7 @@ private:
   TNtuple* castorstepntuple;
   TNtuple* castoreventntuple;
 
-  int eventIndex, det, zside, sector, zmodule;
-
+  int eventIndex;
   int stepIndex;
 
   Float_t castorsteparray[14];

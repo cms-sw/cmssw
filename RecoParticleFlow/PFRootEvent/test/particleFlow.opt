@@ -170,17 +170,20 @@ clustering findRecHitNeighbours 0
 
 // threshold on ECAL barrel rechits. Note that a threshold might have
 // been applied already, see RecoParticleFlow/PFProducer/data/particleFlow.cff
-
 clustering thresh_Ecal_Barrel           0.08
+clustering thresh_Pt_Ecal_Barrel        0.00
 
 // seed threshold for ECAL barrel rechits
 clustering thresh_Seed_Ecal_Barrel     	0.23
+clustering thresh_Pt_Seed_Ecal_Barrel   0.00
 
 // threshold on ECAL endcap rechits.
-clustering thresh_Ecal_Endcap           0.3
+clustering thresh_Ecal_Endcap           0.30
+clustering thresh_Pt_Ecal_Endcap        0.00
 
 // seed threshold for ECAL endcap rechits
-clustering thresh_Seed_Ecal_Endcap      0.6
+clustering thresh_Seed_Ecal_Endcap      0.60
+clustering thresh_Pt_Seed_Ecal_Endcap   0.15
 
 // number of neighbours to be considered for seed finding in ECAL. 
 // 4 means that it is checked that the 4 direct neighbours 
@@ -212,12 +215,16 @@ clustering depthCor_B_preshower   4.0
 
 // threshold on HCAL barrel rechits
 clustering thresh_Hcal_Barrel           0.8
+clustering thresh_Pt_Hcal_Barrel        0.0
 // seed threshold for HCAL barrel rechits
 clustering thresh_Seed_Hcal_Barrel      0.8
+clustering thresh_Pt_Seed_Hcal_Barrel   0.0
 // threshold on HCAL endcap rechits
 clustering thresh_Hcal_Endcap           0.8
+clustering thresh_Pt_Hcal_Endcap        0.0
 // seed threshold for HCAL endcap rechits
 clustering thresh_Seed_Hcal_Endcap      1.1
+clustering thresh_Pt_Seed_Hcal_Endcap   0.0
 
 // number of neighbours to be considered for seed finding in HCAL. 
 // 4 means that it is checked that the 4 direct neighbours 
@@ -234,10 +241,11 @@ clustering shower_Sigma_Hcal	       10
 // ------------ clustering HFEM ----------------------------
 //COLIN: all parameters to be checked and tuned.
 //COLIN: check that parameters are correctly read!
-// threshold on preshower rechits
+// threshold on forward EM rechits
 clustering thresh_HFEM			0.8
-// seed threshold for preshower rechits
 clustering thresh_Seed_HFEM		1.4
+clustering thresh_Pt_HFEM		0.0
+clustering thresh_Pt_Seed_HFEM		0.0
 clustering shower_Sigma_HFEM		10
 clustering neighbours_HFEM		8
 clustering posCalc_nCrystal_HFEM        5
@@ -246,10 +254,11 @@ clustering posCalc_p1_HFEM		0
 // ------------ clustering HFHAD ----------------------------
 //COLIN: all parameters to be checked and tuned.
 //COLIN: check that parameters are correctly read!
-// threshold on preshower rechits
+// threshold on forward HAD rechits
 clustering thresh_HFHAD			0.8
-// seed threshold for preshower rechits
 clustering thresh_Seed_HFHAD		1.4
+clustering thresh_Pt_HFHAD		0.0
+clustering thresh_Pt_Seed_HFHAD		0.0
 clustering shower_Sigma_HFHAD		10
 clustering neighbours_HFHAD		8
 clustering posCalc_nCrystal_HFHAD        5
@@ -259,8 +268,10 @@ clustering posCalc_p1_HFHAD		0
 
 // threshold on preshower rechits
 clustering thresh_PS			0.00006
+clustering thresh_Pt_PS			0.00000
 // seed threshold for preshower rechits
 clustering thresh_Seed_PS		0.00012
+clustering thresh_Pt_Seed_PS		0.00000
 
 clustering posCalc_p1_PS                0
 

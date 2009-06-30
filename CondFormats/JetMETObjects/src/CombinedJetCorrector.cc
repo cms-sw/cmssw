@@ -4,7 +4,6 @@
 // Email:  kkousour@fnal.gov
 
 #include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL2RelativeCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL3AbsoluteCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleL3PFAbsoluteCorrector.h"
@@ -22,7 +21,6 @@ using namespace edm;
 ////////////////////////////////////////////////////////////////////////////////
 CombinedJetCorrector::CombinedJetCorrector()
 {
-  mL1Corrector   = new SimpleL1OffsetCorrector();
   mL2Corrector   = new SimpleL2RelativeCorrector();
   mL3Corrector   = new SimpleL3AbsoluteCorrector();
   mL3PFCorrector = new SimpleL3PFAbsoluteCorrector(); 
@@ -67,9 +65,7 @@ void CombinedJetCorrector::initCorrectors(std::string CorrectionLevels, std::str
   //---- Create instances of the requested sub-correctors.
   for(unsigned int i=0;i<mLevels.size();i++)
     {
-      if (mLevels[i]=="L1")
-        mL1Corrector = new SimpleL1OffsetCorrector(DataFiles[i]);
-      else if (mLevels[i]=="L2")
+      if (mLevels[i]=="L2")
         mL2Corrector = new SimpleL2RelativeCorrector(DataFiles[i]);
       else if (mLevels[i]=="L3" && ((int)Tags[i].find("Calo")>=0 || (int)Tags[i].find("JPT")>=0))
         {
@@ -124,7 +120,6 @@ void CombinedJetCorrector::checkConsistency(std::vector<std::string> Levels, std
 ////////////////////////////////////////////////////////////////////////////////
 CombinedJetCorrector::~CombinedJetCorrector()
 {
-  delete mL1Corrector;
   delete mL2Corrector;
   delete mL3Corrector;
   delete mL3PFCorrector; 
@@ -200,16 +195,14 @@ string CombinedJetCorrector::removeSpaces(string ss)
   return result; 
 }
 ////////////////////////////////////////////////////////////////////////////////
-double CombinedJetCorrector::getCorrection(double pt, double eta, double energy)
+double CombinedJetCorrector::getCorrection(double pt, double eta)
 {
   double corPt,scale,factor;
   corPt = pt;
   factor = 1.;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      if (mLevels[i]== "L1")
-        scale = mL1Corrector->correctionEnEta(energy,eta);
-      else if (mLevels[i]== "L2")
+      if (mLevels[i]== "L2")
         scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
         scale = mL3Corrector->correctionPtEta(corPt,eta); 
@@ -229,16 +222,14 @@ double CombinedJetCorrector::getCorrection(double pt, double eta, double energy)
   return factor; 
 }
 ////////////////////////////////////////////////////////////////////////////////
-double CombinedJetCorrector::getCorrection(double pt, double eta, double energy, double emf)
+double CombinedJetCorrector::getCorrection(double pt, double eta, double emf)
 {
   double corPt,scale,factor;
   corPt = pt;
   factor = 1.;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      if (mLevels[i]== "L1")
-        scale = mL1Corrector->correctionEnEta(energy,eta);
-      else if (mLevels[i]== "L2")
+      if (mLevels[i]== "L2")
         scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
         scale = mL3Corrector->correctionPtEta(corPt,eta); 
@@ -259,7 +250,7 @@ double CombinedJetCorrector::getCorrection(double pt, double eta, double energy,
 }
 ////////////////////////////////////////////////////////////////////////////////
 //returns a vector with the correction factors UP to the given level/////
-vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, double energy)
+vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta)
 {
   double corPt,scale,factor;
   vector<double> factors;
@@ -267,9 +258,7 @@ vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, do
   factor = 1;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      if (mLevels[i]== "L1")
-        scale = mL1Corrector->correctionEnEta(energy,eta);
-      else if (mLevels[i]== "L2")
+      if (mLevels[i]== "L2")
         scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
         scale = mL3Corrector->correctionPtEta(corPt,eta); 
@@ -291,7 +280,7 @@ vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, do
 }
 ////////////////////////////////////////////////////////////////////////////////
 //returns a vector with the correction factors UP to the given level/////
-vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, double energy, double emf)
+vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, double emf)
 {
   double corPt,scale,factor;
   vector<double> factors;
@@ -299,9 +288,7 @@ vector<double> CombinedJetCorrector::getSubCorrections(double pt, double eta, do
   factor = 1;
   for(unsigned int i=0;i<mLevels.size();i++)
     { 
-      if (mLevels[i]== "L1")
-        scale = mL1Corrector->correctionEnEta(energy,eta);
-      else if (mLevels[i]== "L2")
+      if (mLevels[i]== "L2")
         scale = mL2Corrector->correctionPtEta(corPt,eta);
       else if (mLevels[i] == "L3" && mL3Option == "Calo")
         scale = mL3Corrector->correctionPtEta(corPt,eta); 

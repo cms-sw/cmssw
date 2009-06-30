@@ -27,8 +27,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
-
 #include <iostream>
 
 // Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
@@ -37,8 +35,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/06/12 19:07:47 $
-  * $Revision: 1.23 $
+  * $Date: 2009/05/01 14:06:09 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -63,14 +61,6 @@ public:
   // 2-D histograms with eta-phi binning assumed
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
-  void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, char* Name, char* Units);
-  void SetupEtaPhiHists(EtaPhiHists &hh, char* Name, char* Units);
-
-  int CalcEtaBin(int subdet, int ieta, int depth);
-  int CalcIeta(int subdet, int eta, int depth);  
-  int CalcIeta(int eta, int depth);
-  bool isSiPM(int ieta, int iphi, int depth);
- 
   // Generic 2-D histograms
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,
 			 int nbinsx, int lowboundx, int highboundx,
@@ -88,7 +78,6 @@ public:
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
   void FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh);
   void FillUnphysicalHEHFBins(MonitorElement* hh);
-  void FillUnphysicalHEHFBins(EtaPhiHists &hh);
 
 protected:
   

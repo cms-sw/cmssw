@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.17 2009/03/16 08:14:28 wehrlilu Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.19 2009/06/19 09:30:00 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -55,6 +55,7 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   twoDimOn( conf_.getUntrackedParameter<bool>("twoDimOn",true) ),
+  reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
@@ -120,16 +121,19 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     uint32_t TheID = (*struct_iter).first;
 
-    SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(TheID);
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
+    SiPixelRecHitCollection::const_iterator match = recHitColl->find(TheID);
     
-    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-    SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
-
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
       int rechit_count = 0;
+
+      if (match != recHitColl->end()) {
+	SiPixelRecHitCollection::DetSet pixelrechitRange = *match;
+	SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.begin();
+	SiPixelRecHitCollection::DetSet::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.end();
+	SiPixelRecHitCollection::DetSet::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+
        for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	 {
 	  
@@ -148,9 +152,15 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  LocalError lerr = pixeliter->localPositionError();
 	  float lerr_x = sqrt(lerr.xx());
 	  float lerr_y = sqrt(lerr.yy());
-	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY, lerr_x, lerr_y, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn);
+	  //std::cout << "errors " << lerr_x << " " << lerr_y << std::endl;
+	  //cout << "hh" << endl;
+	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY, lerr_x, lerr_y, 
+	                              modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, 
+				      twoDimOn, reducedSet);
+	  //cout << "ii" << endl;
 	
 	}
+      }
       if(rechit_count > 0) (*struct_iter).second->nfill(rechit_count, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
@@ -240,7 +250,7 @@ void SiPixelRecHitSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn);
+	(*struct_iter).second->book( conf_,0,twoDimOn, reducedSet);
       } else {
 	if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
@@ -248,42 +258,42 @@ void SiPixelRecHitSource::bookMEs(){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1,twoDimOn);
+	(*struct_iter).second->book( conf_,1,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn);
+	(*struct_iter).second->book( conf_,2,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3,twoDimOn);
+	(*struct_iter).second->book( conf_,3,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4,twoDimOn);
+	(*struct_iter).second->book( conf_,4,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn);
+	(*struct_iter).second->book( conf_,5,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6,twoDimOn);
+	(*struct_iter).second->book( conf_,6,twoDimOn, reducedSet);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

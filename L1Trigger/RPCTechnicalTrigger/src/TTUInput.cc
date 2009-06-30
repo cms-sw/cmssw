@@ -1,11 +1,10 @@
-// $Id: TTUInput.cc,v 1.5 2009/06/01 12:57:20 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
-#include <iostream>
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUInput
@@ -17,40 +16,27 @@
 // Standard constructor, initializes variables
 //=============================================================================
 TTUInput::TTUInput(  ) {
-
-  m_bx = 0;
-  m_hasHits = false;
-  input_sec = new std::bitset<6>[12];
-  m_rbcDecision.reset();
   
-  for(int i=0; i < 12; ++i)
-    input_sec[i].reset();
-  
-  m_debug = false;
-
+  for(int i=0; i < 12; ++i) {
+    for (int j=0; j < 6; ++j ) {
+      input_sec[i].set(j,false);
+    }
+  }
 }
 //=============================================================================
 // Destructor
 //=============================================================================
-TTUInput::~TTUInput() {
+TTUInput::~TTUInput() {} 
 
-  m_hasHits = false;
-  if ( input_sec ) delete[] input_sec;
-
-} 
 //=============================================================================
 
 void TTUInput::reset() 
 {
-  
-  m_bx = 0;
-  m_hasHits = false;
-  
-  for(int i=0; i < 12; ++i)
-    input_sec[i].reset();
-
-  m_rbcDecision.reset();
-    
+  for(int i=0; i < 12; ++i) {
+    for (int j=0; j < 6; ++j ) {
+      input_sec[i].set(j,false);
+    }
+  }
 }
 
 void TTUInput::mask( const std::vector<int> & maskvec )
@@ -67,7 +53,7 @@ void TTUInput::mask( const std::vector<int> & maskvec )
 void TTUInput::force( const std::vector<int> & forcevec )
 {
   
-  //if( m_debug ) std::cout << forcevec.size() << std::endl;
+  //std::cout << forcevec.size() << std::endl;
   
   //std::bitset<15> tmp;
   

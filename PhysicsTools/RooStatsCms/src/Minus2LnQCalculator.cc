@@ -1,21 +1,13 @@
-// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.4 2009/04/15 11:57:25 dpiparo Exp $
+// @(#)root/hist:$Id: Minus2LnQCalculator.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
 #include "assert.h"
 #include <iostream>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "Minus2LnQCalculator.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(Minus2LnQCalculator)
-#endif
 /*----------------------------------------------------------------------------*/
 
 Minus2LnQCalculator::Minus2LnQCalculator (RooAbsPdf& sb_model_pdf,

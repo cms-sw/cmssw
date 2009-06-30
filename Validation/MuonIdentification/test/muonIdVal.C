@@ -23,11 +23,8 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
       return;
    }
    TDirectoryFile* d1 = (TDirectoryFile*)f1->FindObjectAny("MuonIdVal");
-   if (! d1)
-      if (f1->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
-         d1 = (TDirectoryFile*)gDirectory;
    if (! d1) {
-      std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename1 << std::endl;
+      std::cout << "Error: MuonIdVal not found in " << filename1 << std::endl;
       return;
    }
 
@@ -40,11 +37,8 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
          return;
       }
       d2 = (TDirectoryFile*)f2->FindObjectAny("MuonIdVal");
-      if (! d2)
-         if (f2->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
-            d2 = (TDirectoryFile*)gDirectory;
       if (! d2) {
-         std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename2 << std::endl;
+         std::cout << "Error: MuonIdVal not found in " << filename2 << std::endl;
          return;
       }
    }
@@ -113,8 +107,6 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
          }
 
          if (obj1->InheritsFrom(TH1::Class()) || (obj1->InheritsFrom(TH2::Class()) && make2DPlots)) {
-            ((TH1*)obj1)->Sumw2();
-            if (obj2) ((TH1*)obj2)->Sumw2();
             // If there are two TH1Fs better normalize them
             // If just one don't bother
             if (obj2 && obj1->InheritsFrom(TH1F::Class())) {
@@ -130,8 +122,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
 
             ((TH1*)obj1)->SetLineColor(4);
             ((TH1*)obj1)->SetMarkerColor(4);
-            ((TH1*)obj1)->Draw("hist");
-            ((TH1*)obj1)->Draw("funcsame");
+            ((TH1*)obj1)->Draw();
             c1->Update();
             s1 = (TPaveStats*)obj1->FindObject("stats");
             s1->SetTextColor(4);
@@ -140,8 +131,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
             if (obj2) {
                ((TH1*)obj2)->SetLineColor(2);
                ((TH1*)obj2)->SetMarkerColor(2);
-               ((TH1*)obj2)->Draw("histsame");
-               ((TH1*)obj2)->Draw("funcsames");
+               ((TH1*)obj2)->Draw("sames");
                c1->Update();
 
                s2 = (TPaveStats*)obj2->FindObject("stats");

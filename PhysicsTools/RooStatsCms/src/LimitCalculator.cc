@@ -1,19 +1,11 @@
-// @(#)root/hist:$Id: LimitCalculator.cc,v 1.4 2009/04/15 11:57:39 dpiparo Exp $
+// @(#)root/hist:$Id: LimitCalculator.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include <iostream>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "LimitCalculator.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "Minus2LnQCalculator.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/Minus2LnQCalculator.h"
 
 #include "RooDataHist.h"
 #include "RooDataSet.h"
@@ -21,17 +13,9 @@
 
 #include "RooRandom.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "Rsc.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/Rsc.h" // the Rsc Namespace
-#endif
+#include "PhysicsTools/RooStatsCms/interface/Rsc.h" // the Rsc Namespace
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(LimitCalculator)
-#endif
 /*----------------------------------------------------------------------------*/
 
 LimitCalculator::LimitCalculator(const char* name,

@@ -113,8 +113,8 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
 
 
 // takes hcal and ecal digi input, including HF
-void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
-		      const HcalTrigPrimDigiCollection& hcalCollection)
+void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
+		      HcalTrigPrimDigiCollection hcalCollection)
 {
   // fills input vectors with 0's in case ecal or hcal collection not used
   for (int i = 0; i < 18; i++)
@@ -185,7 +185,6 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
     }
     tower = rctLookupTables_->rctParameters()->calcTower(iphi, absIeta);
 
-
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
@@ -203,7 +202,6 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
       }
       else { std::cout << "L1RCT: hf out of range!  region = " << tower << std::endl; }
     }
-
   }
   
   input();

@@ -41,6 +41,7 @@ public:
   float maxDeltaEt_;
   float minDeltaPhi_;
   float maxDeltaPhi_;
+  bool doMetPlots_;
 };
 
 #endif // GENERICBENCHMARKANALYZER_H

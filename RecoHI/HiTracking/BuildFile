@@ -17,7 +17,9 @@
 <use name=TrackingTools/Records>
 <use name=RecoLocalTracker/Records>
 <use name=MagneticField/Records>
+<use name=RecoPixelVertexing/PixelLowPtUtilities>
 <export>
+ <lib name=RecoPixelVertexingPixelLowPtUtilities>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/PluginManager>

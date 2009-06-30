@@ -13,260 +13,235 @@
 // Include files
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RPCTechnicalTrigger.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/ProcessTestSignal.h"
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCProcessRPCDigis.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RPCTechnicalTrigger.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RPCProcessTestSignal.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RPCProcessDigiSignal.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
+//Data Formats
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
 
-RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
+RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig)
+{
   
-  //...........................................................................
+  //register your products
+  /* Examples
+     produces<ExampleData2>();
+     
+     //if do put with a label
+     produces<ExampleData2>("label");
+  */
+  //now do what ever other initialization is needed
   
-  m_configFile   = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
+  edm::Service<TFileService> fs;
   
-  m_verbosity    = iConfig.getUntrackedParameter<int>("Verbosity", 0);
-  m_rpcDigiLabel = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
-  m_ttBits       = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
-  m_ttNames      = iConfig.getParameter< std::vector<std::string> >("BitNames");
-  m_useDatabase  = iConfig.getUntrackedParameter<int>("UseDatabase", 1);
+  m_debugmode    = iConfig.getUntrackedParameter<int>("RPCTTDebugMode",0);
   
-  if ( m_verbosity ) {
-    LogTrace("RPCTechnicalTrigger")
-      << m_rpcDigiLabel << '\n'
-      << std::endl;
+  m_validation   = iConfig.getUntrackedParameter<int>("RPCTTValidationMode", 0);
+  
+  m_rbclogictype = iConfig.getUntrackedParameter<std::string>("RBCLogicType",
+                                                              std::string("TestLogic"));
+  
+  m_ttulogictype = iConfig.getUntrackedParameter<std::string>("TTULogicType",
+                                                              std::string("TrackingAlg"));
+  
+  m_GMTLabel     = iConfig.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
+  
+  //... Debug mode:
+  // 0 - no debug
+  // 1 - human readable debug
+  // 2 - technical debug  
+  
+  if ( m_debugmode != 1 && m_debugmode != 2) m_debugmode = 0;
+  
+  //...............................................................
+  
+  if ( m_debugmode == 1 ) {
+    
+    //. Read RBC input for an ascii file
+    std::string tmpfile = iConfig.getUntrackedParameter<std::string>("TmpDataFile",
+                                                                     std::string("testdata.txt"));
+    
+    m_signal  = dynamic_cast<ProcessInputSignal*>(new RPCProcessTestSignal( tmpfile.c_str()) );
+    
   }
   
-  //...........................................................................
-  //... There are three Technical Trigger Units Boards: 1 can handle 2 Wheels
-  //... n_Wheels sets the number of wheels attached to board with index boardIndex
+  //... There are three Technical Trigger Units: 1 per 2 Wheels
+
+  m_ttu[0] = new TTUEmulator( 1 , 2 );
+  m_ttu[1] = new TTUEmulator( 2 , 1 );
+  m_ttu[2] = new TTUEmulator( 3 , 2 );
   
-  m_boardIndex[0] = 1;
-  m_boardIndex[1] = 2;
-  m_boardIndex[2] = 3;
+  //... histograms
   
-  m_nWheels[0]    = 2;
-  m_nWheels[1]    = 1;
-  m_nWheels[2]    = 2;
-  
-  m_ttu[0] = new TTUEmulator( m_boardIndex[0] , m_nWheels[0] );
-  m_ttu[1] = new TTUEmulator( m_boardIndex[1] , m_nWheels[1] );
-  m_ttu[2] = new TTUEmulator( m_boardIndex[2] , m_nWheels[2] );
+  m_houtput = new HistoOutput( fs , "Plots");
   
   //...........................................................................
   
   m_ievt = 0;
   m_cand = 0;
-  m_maxTtuBoards = 3;
-  m_maxBits = 5;
-  m_hasConfig = false;
-  m_readConfig = NULL;
-  produces<L1GtTechnicalTriggerRecord>();
-  
+
 }
 
 
 RPCTechnicalTrigger::~RPCTechnicalTrigger()
 {
   
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger: object starts deletion" << std::endl;
-
-  if ( m_hasConfig ) {
-    
-    delete m_ttu[0];
-    delete m_ttu[1];
-    delete m_ttu[2];
-    
-    if ( m_readConfig )
-      delete m_readConfig;
-    
+  std::cout << "RPCTechnicalTrigger: object starts deletion" << std::endl;
+  
+  delete m_ttu[0];
+  delete m_ttu[1];
+  delete m_ttu[2];
+  
+  if ( m_debugmode == 1) {
+    if (m_signal) delete m_signal;
   }
   
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger: object deleted" << '\n';
+  if ( m_houtput ) delete m_houtput;
   
+  std::cout << "RPCTechnicalTrigger: object deleted" << std::endl;
+    
 }
 
 //=============================================================================
 void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-
-  bool status(false);
   
+  /* This is an event example
+  //Read 'ExampleData' from the Event
+  Handle<ExampleData> pIn;
+  iEvent.getByLabel("example",pIn);
+  
+  //Use the ExampleData to create an ExampleData2 which 
+  // is put into the Event
+  std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+  iEvent.put(pOut);
+  */
+  
+  /* this is an EventSetup example
+  //Read SetupData from the SetupRecord in the EventSetup
+  ESHandle<SetupData> pSetup;
+  iSetup.get<SetupRecord>().get(pSetup);
+  */
+    
   edm::Handle<RPCDigiCollection> pIn;
-  
-  std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
-  
-  iEvent.getByLabel(m_rpcDigiLabel, pIn);
-
-  if ( ! m_hasConfig ) {
-    edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
-    iEvent.put(output);
+  try {
+    iEvent.getByLabel("muonRPCDigis", pIn);
+  }
+  catch (...) {
+    edm::LogInfo("RPCTechnicalTrigger::analyze") << "can't find L1MuGMTReadoutCollection with label" << '\n';
     return;
   }
   
-  if ( !pIn.isValid() ) {
-    edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
-                                         << m_rpcDigiLabel << '\n';
-    iEvent.put(output);
-    return;
+  if ( m_debugmode != 1){
+    edm::LogInfo("RPCTechnicalTrigger::analyze") << "setting up a new signal object" << '\n';
+    m_signal  = dynamic_cast<ProcessInputSignal*>(new RPCProcessDigiSignal( m_rpcGeometry, pIn ));
+    std::cout << "RPCTechnicalTrigger::" << std::endl;
   }
   
-  
-  LogDebug("RPCTechnicalTrigger") << "Trigger mode 0: Ttu only" << '\n';
-
-  m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCDigis( m_rpcGeometry, pIn ));
-  
-  LogDebug("RPCTechnicalTrigger") << "signal object created" << '\n';
-  
+  bool status(false);
   status = m_signal->next();
-  
-  if ( !status)  { 
-    delete m_signal;
-    iEvent.put(output);
-    return;
-  }
+  if ( !status) return;
   
   RPCInputSignal * input = m_signal->retrievedata();
-  
-  std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
   
   //. distribute data to different TTU emulators and process it
   
   m_triggerbits.reset();
   
-  int indx(0);
+  int indx=0;
   
-  std::vector<TTUEmulator::TriggerResponse*>::const_iterator outItr;
-  
-  for(int k=0; k < m_maxTtuBoards; ++k) {
+  for(int k=0; k<3; ++k) {
     
     indx=k*2;
     
-    m_ttu[k]->processTtu( input );
+    if ( m_debugmode == 1 ) {
+      m_ttu[k]->processlocal( input );
+      m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
+      m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
+      continue;
+    } 
     
-    for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
-      m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
-    m_ttu[k]->clearTriggerResponse();
-    
-  }
-  
-  //.. write results to technical trigger bits
-  int bx(0);
-  int infoSize(0);
-  
-  infoSize = m_serializedInfo.size();
-  std::sort( m_serializedInfo.begin(), m_serializedInfo.end(), sortByBx() );
-  
-  for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
-    
-    m_triggerbits.set(0, m_serializedInfo[k]->m_trigWheel1);
-    m_triggerbits.set(1, m_serializedInfo[k]->m_trigWheel2);
-    m_triggerbits.set(2, m_serializedInfo[k+1]->m_trigWheel1);
-    m_triggerbits.set(3, m_serializedInfo[k+2]->m_trigWheel1);
-    m_triggerbits.set(4, m_serializedInfo[k+2]->m_trigWheel2);
-    
-    bx = m_serializedInfo[k]->m_bx;
-    
-    for(int i = 0; i < m_maxBits; ++i) {
-      ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, m_triggerbits[i] ) ;
-    }
-    
-    m_triggerbits.reset();
+    m_ttu[k]->processglobal( input );
+    m_triggerbits.set( indx   , m_ttu[k]->m_trigger[0] );
+    m_triggerbits.set( indx+1 , m_ttu[k]->m_trigger[1] );
     
   }
   
-  output->setGtTechnicalTrigger(ttVec);    
-  iEvent.put(output);
+  //.. analyse results from emulation
   
+  int flag=0;
+  m_trigger.reset();
+  
+  for(int k=0; k<6; ++k) {
+    bool tmp = m_triggerbits[k];
+    m_trigger[0] = ( m_trigger[0] || tmp );
+  }
+  
+  if ( m_validation == 1 )
+    validate ( iEvent, iSetup, flag );
+    
   //... reset data map for next event
-
+  
   input->clear();
-
-  m_triggerbits.reset();
   
-  std::vector<TTUResults*>::iterator itrRes;
-
-  for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
-    delete (*itrRes);
-
-  m_serializedInfo.clear();
-
-  delete m_signal;
+  //...
   
-  //.... all done
+  if( m_debugmode != 1 ){
+    delete m_signal;
+  }
   
   ++m_ievt;
-
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
+  
+  std::cout << "RPCTechnicalTrigger: end of analyze" << std::endl;
   
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSetup)
+void RPCTechnicalTrigger::beginJob(const edm::EventSetup& _evtSetup)
 {
   
   bool status(false);
   
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::beginRun> starts" << std::endl;
+  std::cout << "RPCTechnicalTrigger::beginJob>" << std::endl;
   
   //.   Set up RPC geometry
   
-  evtSetup.get<MuonGeometryRecord>().get( m_rpcGeometry );
+  _evtSetup.get<MuonGeometryRecord>().get( m_rpcGeometry );
   
   //..  Get Board Specifications (hardware configuration)
   
-  if ( m_useDatabase >= 1 ) {
-    
-    edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
-    evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
-
-    edm::ESHandle<TTUBoardSpecs> pTTUSpecs;
-    evtSetup.get<TTUBoardSpecsRcd>().get(pTTUSpecs);
-    
-    if ( !pRBCSpecs.isValid() ||  !pTTUSpecs.isValid() ) {
-      edm::LogError("RPCTechnicalTrigger") << "can't find RBC/TTU BoardSpecsRcd" << '\n';
-      m_hasConfig = false;
-    }
-    else  {
-      m_rbcspecs = pRBCSpecs.product();
-      m_ttuspecs = pTTUSpecs.product();
-      m_hasConfig = true;
-    }
-    
-  } else {
-    
-    // read hardware configuration from file
-    m_readConfig = new TTUConfigurator( m_configFile.c_str() );
-    
-    if ( m_readConfig->m_hasConfig ) {
-      m_readConfig->process();
-      m_rbcspecs = m_readConfig->getRbcSpecs();
-      m_ttuspecs = m_readConfig->getTtuSpecs();
-      m_hasConfig = true;
-    }
-    
-    else m_hasConfig = false;
-    
-  }
+  edm::ESHandle<RBCBoardSpecs> pRBCSpecs;
+  _evtSetup.get<RBCBoardSpecsRcd>().get(pRBCSpecs);
+  m_rbcspecs = pRBCSpecs.product();
   
-  if ( m_hasConfig ) {
-    
-
-    for (int k=0; k < m_maxTtuBoards; ++k )
-      m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
-    
-    //... Initialize all
-    
-    for (int k=0; k < m_maxTtuBoards; ++k )
-      status = m_ttu[k]->initialise();
-    
-  }
+  edm::ESHandle<TTUBoardSpecs> pTTUSpecs;
+  _evtSetup.get<TTUBoardSpecsRcd>().get(pTTUSpecs);
   
+  m_ttuspecs = pTTUSpecs.product();
+    
+  for (int k=0; k < 3; ++k )
+    m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
+  
+  //... Initialize all
+  
+  for (int k=0; k < 3; ++k )
+    status = m_ttu[k]->initialise();
+  
+  //..........
+  
+  std::cout << "RPCTechnicalTrigger::beginJob> pointers to specs " 
+            <<  &pRBCSpecs << " " << m_rbcspecs << std::endl;
+  
+  std::cout << "RPCTechnicalTrigger::beginJob> pointers to specs " 
+            <<  &pTTUSpecs << " " << m_ttuspecs << std::endl;
+  
+  //..........
   
 }
 
@@ -275,17 +250,145 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
 void RPCTechnicalTrigger::endJob() 
 {
   
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::endJob>" << std::endl;
+  std::cout << "RPCTechnicalTrigger::endJob>" << std::endl;
   
 }
 
 void RPCTechnicalTrigger::printinfo()
 {
-
-  LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::Printing TTU emulators info>" << std::endl;
   
-  for (int k=0; k < m_maxTtuBoards; ++k )
+  for (int k=0; k < 3; ++k )
     m_ttu[k]->printinfo();
+  
+}
+
+// .......................................................................................
+
+void RPCTechnicalTrigger::validate( const edm::Event& iEvent, const edm::EventSetup& iSetup, int & outflag )
+{
+  
+  //.
+  int nmucand = discriminateGMT( iEvent, iSetup );
+  m_houtput->hnumGMTmuons->Fill( nmucand );
+  
+  m_valflag = 0;
+  
+  //..
+  if ( nmucand > 0 ) {
+    
+    if ( m_gmtfilter[3] && m_trigger[0] ) m_valflag = 2;
+    else if ( m_gmtfilter[3] && ! m_trigger[0] ) m_valflag = 4;
+    else if ( ! m_gmtfilter[3] && m_trigger[0] ) m_valflag = 6;
+    else m_valflag = 8;
+    
+  }
+  
+  m_houtput->hcompflag->Fill( m_valflag );
+  
+  //...
+  
+  
+}
+
+int RPCTechnicalTrigger::discriminateGMT( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+{
+  
+  //...this a GMT trigger filter based on Anna Cimmino's DQMOffline/src/RPCTriggerFilter code
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+  try {
+    iEvent.getByLabel(m_GMTLabel.label(),pCollection); }
+  catch (...) {
+    edm::LogInfo("discriminateGMT") << "can't find L1MuGMTReadoutCollection with label "
+                                    << m_GMTLabel.label() ;
+    return -1; }
+  
+  bool rpcBarFlag  = false;
+  bool rpcFwdFlag  = false;
+  bool dtFlag      = false;
+  bool cscFlag     = false;
+  
+  // get GMT readout collection
+  const L1MuGMTReadoutCollection * gmtrc = pCollection.product();
+  // get record vector
+  std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  // loop over records of individual bx's
+  std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  
+  int nmuons=0;
+  
+  edm::LogInfo("DiscriminateGMT") << "nRecords: " << gmt_records.size() << '\n';
+  
+  for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ) {
+    
+    std::vector<L1MuGMTExtendedCand> GMTCands   = RRItr->getGMTCands();
+    
+    int BxInEvent = RRItr->getBxInEvent();
+    if(BxInEvent!=0) continue;
+    
+    //loop over GMT candidates in each record 
+    std::vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
+    
+    for( GMTItr = GMTCands.begin(); GMTItr != GMTCands.end(); ++GMTItr ) {
+      ++nmuons;
+      ++m_cand;
+      
+      if(GMTItr->empty()) continue;
+      
+      if (GMTItr->isRPC()&& !GMTItr->isFwd()) rpcBarFlag= true;
+      else if (GMTItr->isRPC()) rpcFwdFlag=true;
+      else if (!GMTItr->isFwd())dtFlag=true;
+      else cscFlag=true;
+      
+    }
+  }
+  
+  edm::LogInfo ("DiscriminateGMT") << "Number of GMT muons: " << nmuons;
+  
+  bool test(false);
+  m_gmtfilter.reset();
+  
+  test = (rpcBarFlag || rpcFwdFlag) && !dtFlag && !cscFlag;  // rpc Event
+  m_gmtfilter.set(0,test);
+  test = !rpcFwdFlag && rpcBarFlag  && !dtFlag && !cscFlag;  // rpc Event in barrel
+  m_gmtfilter.set(1,test);
+  test = !rpcBarFlag && rpcFwdFlag  && !dtFlag && !cscFlag;  // rpc event in endcaps
+  m_gmtfilter.set(2,test);
+  test = !rpcFwdFlag && !rpcBarFlag && dtFlag  && !cscFlag;  // dt  event
+  m_gmtfilter.set(3,test);
+  test = !rpcFwdFlag && !rpcBarFlag && !dtFlag && cscFlag;   // csc event
+  m_gmtfilter.set(4,test);
+  test = !rpcFwdFlag && rpcBarFlag  && dtFlag  && !cscFlag;  // rpc & dt  event
+  m_gmtfilter.set(5,test);
+  test = rpcFwdFlag  && !rpcBarFlag && !dtFlag && cscFlag;   // rpc & csc event
+  m_gmtfilter.set(6,test);
+  test = !rpcFwdFlag && !rpcBarFlag && dtFlag  && cscFlag;   // dt  & csc event
+  m_gmtfilter.set(7,test);
+  test = (rpcFwdFlag || rpcBarFlag) && dtFlag  && cscFlag;   // rpc & dt & csc event
+
+  //.
+  makeGMTFilterDist( );
+    
+  return nmuons;
+  
+}
+
+void RPCTechnicalTrigger::makeGMTFilterDist( )
+{
+  
+  //.
+  if ( !m_gmtfilter.any() ) return;
+  
+  for(int i=0; i< 8; ++i){
+    if ( m_gmtfilter[i] ) {
+      
+      m_houtput->htrigdecision->Fill( (2*i)+ 1 );
+      
+      if ( m_cand < 100 )
+        m_houtput->hhtrgperevent->Fill( m_cand, (2*i)+ 1 );
+      
+    }
+    
+  }
   
 }
 

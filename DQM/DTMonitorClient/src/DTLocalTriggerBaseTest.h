@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.3 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -64,13 +64,13 @@ protected:
   virtual void runClientDiagnostic() = 0;
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos( int wheel, int sector, std::string hTag, std::string folder="" );
+  void bookSectorHistos( int wheel, int sector, std::string folder, std::string hTag );
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos( int wheel, std::string hTag, std::string folder="" );
+  void bookWheelHistos( int wheel, std::string folder, std::string hTag );
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos( std::string hTag, std::string folder="" );
+  void bookCmsHistos( std::string hTag );
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
@@ -91,13 +91,13 @@ protected:
   std::string fullName(std::string htype);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId& chambid);
+  std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
 
   /// Perform begin lumiblock operations
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   
   /// Get top folder name
-  inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;
+  inline std::string & topFolder() { return baseFolder; } ;
   
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
@@ -116,14 +116,14 @@ protected:
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;
-  std::string baseFolderDCC;
-  std::string baseFolderDDU;
+  std::string baseFolder;
   std::string trigSource;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> > secME;
   std::map<int,std::map<std::string,MonitorElement*> > whME;
   std::map<std::string,MonitorElement*> cmsME;
+
 
 };
 

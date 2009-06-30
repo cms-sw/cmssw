@@ -2,7 +2,6 @@ void testFWLiteTrainer()
 {
 	using namespace PhysicsTools;
 
-//	MVATrainer trainer("testSave.xml");
 	MVATrainer trainer("testMVATrainer.xml");
 	trainer.setMonitoring(true);	// ROOT file with histograms
 

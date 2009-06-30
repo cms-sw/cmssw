@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2009/03/04 19:10:14 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/12/15 16:38:08 $
+ *  $Revision: 1.22 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -23,8 +23,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include<string>
 #include<map>
@@ -58,7 +56,10 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	int counter;
 	/// DQM store 
 	DQMStore * dbe;
-
+        //MonitorElement * GlobalZYHitCoordinates;
+        //MonitorElement * GlobalZXHitCoordinates;
+        //MonitorElement * GlobalZPhiHitCoordinates;
+        
 	MonitorElement * NumberOfDigis_for_Barrel;
 	MonitorElement * NumberOfDigis_for_EndcapPositive;
 	MonitorElement * NumberOfDigis_for_EndcapNegative;
@@ -99,14 +100,6 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	bool dqmsuperexpert;
 	std::string GlobalHistogramsFolder;
 	std::map<uint32_t,bool> foundHitsInChamber;
-
-
-	edm::ESHandle<RPCGeometry> rpcGeo;
-
-
-
-
-
 };
 
 #endif

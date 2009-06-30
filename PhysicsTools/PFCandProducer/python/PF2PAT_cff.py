@@ -1,23 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PFCandProducer.pfIsol_cff import *
+from PhysicsTools.PFCandProducer.genMetTrue_cff  import *
+
 from PhysicsTools.PFCandProducer.pfMET_cfi  import *
-from PhysicsTools.PFCandProducer.pfPileUp_cff  import *
+from PhysicsTools.PFCandProducer.pfNoPileUp_cff  import *
 from PhysicsTools.PFCandProducer.pfElectrons_cff import *
 from PhysicsTools.PFCandProducer.pfMuons_cff import *
 from PhysicsTools.PFCandProducer.pfJets_cff import *
 from PhysicsTools.PFCandProducer.pfTaus_cff import *
-from PhysicsTools.PFCandProducer.pfTopProjection_cfi import *
+
+# sequential top projection cleaning
+from PhysicsTools.PFCandProducer.ParticleSelectors.sortByType_cff import *
+from PhysicsTools.PFCandProducer.TopProjectors.noMuon_cfi import * 
+from PhysicsTools.PFCandProducer.TopProjectors.noElectron_cfi import * 
+from PhysicsTools.PFCandProducer.TopProjectors.noJet_cfi import *
+from PhysicsTools.PFCandProducer.TopProjectors.noTau_cfi import *
+
 
 PF2PAT = cms.Sequence(
-    pfIsol +
+    genMetTrueSequence + 
     pfMET +
-    pfPileUpSequence + 
+    pfNoPileUpSequence + 
+    sortByTypeSequence +
     pfElectronSequence +
     pfMuonSequence + 
-    pfJetSequence + 
-    pfTauSequence +  
-    pfTopProjection
+    noMuon +
+#    noElectron + 
+# when uncommenting, change the source of the jet clustering
+    pfJetSequence +
+    noJet + 
+    pfTauSequence +
+    noTau
     )
 
 

@@ -22,19 +22,10 @@
 #include "OHltMenu.h"
 #include "OHltRateCounter.h"
 
-#include "L1GtLogicParser.h"
-
-#include "TH1.h"
-#include "TH2.h"
-
 class OHltTree {
 public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
-
-  // logic parser for m_l1SeedsLogicalExpression
-  std::vector<L1GtLogicParser*> m_l1AlgoLogicParser;
-  void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression);
 
   // Declaration of leaf types
   Int_t           NrecoJetCal;
@@ -152,9 +143,6 @@ public :
   Float_t         ohPhotTiso[8000];   //[NohPhot]
   Int_t           ohPhotL1iso[8000];   //[NohPhot]
   Int_t           NohEle;
-  Float_t         ohEleClusShap[8000];   //[NohEle]
-  Float_t         ohEleDeta[8000];   //[NohEle]
-  Float_t         ohEleDphi[8000];   //[NohEle]
   Float_t         ohEleEt[8000];   //[NohEle]
   Float_t         ohEleEta[8000];   //[NohEle]
   Float_t         ohElePhi[8000];   //[NohEle]
@@ -166,9 +154,6 @@ public :
   Int_t           ohElePixelSeeds[8000];   //[NohEle]
   Int_t           ohEleNewSC[8000];   //[NohEle]
   Int_t           NohEleLW;
-  Float_t         ohEleClusShapLW[8000];   //[NohEle]
-  Float_t         ohEleDetaLW[8000];   //[NohEle]
-  Float_t         ohEleDphiLW[8000];   //[NohEle]
   Float_t         ohEleEtLW[11000];   //[NohEleLW]
   Float_t         ohEleEtaLW[11000];   //[NohEleLW]
   Float_t         ohElePhiLW[11000];   //[NohEleLW]
@@ -287,27 +272,18 @@ public :
   bool ohPhotL1Dupl[8000]; 
 
   //L1's
-  /* For 8E29 Menu */
-  Int_t           L1_DoubleEG05_TopBottom;
-  Int_t           L1_DoubleMuTopBottom; 
-  Int_t           L1_Mu3QE8_Jet6;  
-  Int_t           L1_Mu5QE8_Jet6; 
-  Int_t           L1_IsoEG10_Jet6_ForJet6; 
-
-  Int_t           L1_SingleJet20; 
-  Int_t           L1_SingleJet40; 
-  Int_t           L1_SingleJet60; 
-  Int_t           L1_DoubleJet30;  
-  Int_t           L1_SingleTauJet10; 
-  Int_t           L1_SingleTauJet20; 
-  Int_t           L1_SingleTauJet50; 
-  Int_t           L1_DoubleTauJet14; 
-
-  /*  
+  /*
   Int_t           L1_DoubleEG10; 
   Int_t           L1_DoubleEG1; 
   Int_t           L1_DoubleEG5; 
   Int_t           L1_DoubleForJet20; 
+  Int_t           L1_DoubleHfBitCountsRing1_P1N1; 
+  Int_t           L1_DoubleHfBitCountsRing2_P1N1; 
+  Int_t           L1_DoubleHfRingEtSumsRing1_P200N200; 
+  Int_t           L1_DoubleHfRingEtSumsRing1_P4N4; 
+  Int_t           L1_DoubleHfRingEtSumsRing2_P200N200; 
+  Int_t           L1_DoubleHfRingEtSumsRing2_P4N4; 
+  Int_t           L1_DoubleIsoEG05_TopBottom; 
   Int_t           L1_DoubleIsoEG05_TopBottomCen; 
   Int_t           L1_DoubleIsoEG10; 
   Int_t           L1_DoubleIsoEG8; 
@@ -362,6 +338,12 @@ public :
   Int_t           L1_SingleEG8; 
   Int_t           L1_SingleForJet10; 
   Int_t           L1_SingleForJet6; 
+  Int_t           L1_SingleHfBitCountsRing1_1; 
+  Int_t           L1_SingleHfBitCountsRing2_1; 
+  Int_t           L1_SingleHfRingEtSumsRing1_200; 
+  Int_t           L1_SingleHfRingEtSumsRing1_4; 
+  Int_t           L1_SingleHfRingEtSumsRing2_200; 
+  Int_t           L1_SingleHfRingEtSumsRing2_4; 
   Int_t           L1_SingleIsoEG10; 
   Int_t           L1_SingleIsoEG12; 
   Int_t           L1_SingleIsoEG15; 
@@ -413,10 +395,6 @@ public :
   Int_t           L1_SingleJet6;  
   Int_t           L1_ETM30;  
 
-  Int_t           L1_QuadJet6; 
-  Int_t           L1_TripleJet14; 
-
-  
   Int_t           L1_DoubleEG1; 
   Int_t           L1_DoubleEG5; 
   Int_t           L1_DoubleHfBitCountsRing1_P1N1; 
@@ -487,8 +465,6 @@ public :
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
   Int_t           OpenL1_Mu3EG5; 
-  Int_t           OpenL1_EG5_HTT100; 
-  Int_t           OpenL1_SingleMu30;  
 
   // JH - 1E31 MC menu
   Int_t           HLTriggerFirstPath; 
@@ -996,9 +972,6 @@ public :
   TBranch        *b_ohPhotTiso;   //!
   TBranch        *b_ohPhotL1iso;   //!
   TBranch        *b_NohEle;   //!
-  TBranch        *b_ohEleClusShap;   //!
-  TBranch        *b_ohEleDeta;   //!
-  TBranch        *b_ohEleDphi;   //!
   TBranch        *b_ohEleEt;   //!
   TBranch        *b_ohEleEta;   //!
   TBranch        *b_ohElePhi;   //!
@@ -1010,9 +983,6 @@ public :
   TBranch        *b_ohElePixelSeeds;   //!
   TBranch        *b_ohEleNewSC;   //!
   TBranch        *b_NohEleLW;   //!
-  TBranch        *b_ohEleClusShapLW;   //!
-  TBranch        *b_ohEleDetaLW;   //!
-  TBranch        *b_ohEleDphiLW;   //!
   TBranch        *b_ohEleEtLW;   //!
   TBranch        *b_ohEleEtaLW;   //!
   TBranch        *b_ohElePhiLW;   //!
@@ -1126,18 +1096,6 @@ public :
   TBranch        *b_Run;   //!
   TBranch        *b_Event;   //!
 
-  TBranch        *b_L1_DoubleMuTopBottom;   //! 
-  TBranch        *b_L1_DoubleEG05_TopBottom;   //! 
-  TBranch           *b_L1_SingleJet20; 
-  TBranch           *b_L1_SingleJet40; 
-  TBranch           *b_L1_SingleJet60; 
-  TBranch           *b_L1_DoubleJet30;  
-  TBranch           *b_L1_SingleTauJet10; 
-  TBranch           *b_L1_SingleTauJet20; 
-  TBranch           *b_L1_SingleTauJet50; 
-  TBranch           *b_L1_DoubleTauJet14; 
-  TBranch        *b_L1_IsoEG10_Jet6_ForJet6;   //! 
-
   //L1's
   /*
   TBranch        *b_L1_DoubleEG10;   //! 
@@ -1159,6 +1117,7 @@ public :
   TBranch        *b_L1_DoubleJet60;   //! 
   TBranch        *b_L1_DoubleMu3;   //! 
   TBranch        *b_L1_DoubleMuOpen;   //! 
+  TBranch        *b_L1_DoubleMuTopBottom;   //! 
   TBranch        *b_L1_DoubleEG05_TopBottom;   //!  
   TBranch        *b_L1_DoubleNoIsoEG05_TopBottom;   //! 
   TBranch        *b_L1_DoubleNoIsoEG05_TopBottomCen;   //! 
@@ -1259,8 +1218,6 @@ public :
   TBranch        *b_L1_EG5_TripleJet6; //!   
   TBranch        *b_L1_SingleJet6; //!  
   TBranch        *b_L1_ETM30; //!  
-  TBranch        *b_L1_QuadJet6;   //! 
-  TBranch        *b_L1_TripleJet14;   //!  
 
   TBranch        *b_L1_DoubleEG1;   //! 
   TBranch        *b_L1_DoubleEG5;   //! 
@@ -1288,8 +1245,6 @@ public :
   TBranch        *b_L1_Mu3QE8_EG5;   //!
   TBranch        *b_L1_Mu3QE8_Jet15;   //!  
   TBranch        *b_L1_Mu5QE8_Jet15;   //! 
-  TBranch        *b_L1_Mu3QE8_Jet6;   //!  
-  TBranch        *b_L1_Mu5QE8_Jet6;   //! 
   TBranch        *b_L1_QuadJet15;   //! 
   TBranch        *b_L1_SingleEG1;   //! 
   TBranch        *b_L1_SingleEG10;   //! 
@@ -1767,15 +1722,13 @@ public :
   inline Long64_t  LoadTree(Long64_t entry);
   inline void	   SetMapL1BitOfStandardHLTPath(OHltMenu *menu);
   inline void	   SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu);
-  inline void      SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int nentry);
   inline void ApplyL1Prescales(OHltMenu *menu);
   inline void RemoveEGOverlaps();
   inline void SetL1MuonQuality();
   inline void SetOpenL1Bits();
 
-  void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
+  void Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int pID);
 
-  void PlotOHltEffCurves(TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
   void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it);
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
@@ -1785,26 +1738,19 @@ public :
 					 float tauEt,float tauL25Tpt, int tauL25Tiso, float tauL3Tpt, int tauL3Tiso);
   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
   int OpenHlt1LWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
-  int OpenHlt1EleIdLWElectronPassed(float Et,int L1iso,float Tiso,float Hiso); 
-  int OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hiso); 
   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
   int OpenHlt1PhotonVeryLooseEcalIsoPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC); 
-  int OpenHlt2PhotonMassWinPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC,float massLow, float massHigh);
-  int OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, float massLow, float massHigh); 
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  
   int OpenHlt1JetPassed(double pt);
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
-  int OpenHltFwdCorJetPassed(double esum);
   int OpenHltDiJetAvePassed(double pt);
   int OpenHltCorDiJetAvePassed(double pt);
   int OpenHltQuadJetPassed(double pt);
-  int OpenHltQuadCorJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
-  int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
 
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
@@ -1822,12 +1768,9 @@ private:
   std::map<TString,int> map_L1BitOfStandardHLTPath;
 
   std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
-  std::map<TString, std::vector<int> > map_RpnTokenIdOfStandardHLTPath; // mapping to algo token
 
   TRandom3 random; // for random prescale method
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
-
-  int nMissingTriggerWarnings;
 
   enum e_objType {muon,electron,tau,photon,jet};
 
@@ -1836,8 +1779,6 @@ private:
 #ifdef OHltTree_cxx
 OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 {
-  random.SetSeed(0);
-  
   cout<<"Initialising OHltTree."<<endl;
   if (tree == 0) {
     cerr<<"Error initialising tree!"<<endl;
@@ -1848,8 +1789,6 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
     return;
   }
   Init(tree);
-
-  nMissingTriggerWarnings = 0;
   
   nTrig = menu->GetTriggerSize();
   nL1Trig = menu->GetL1TriggerSize();
@@ -1874,7 +1813,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
 
-  //SetMapL1SeedsOfStandardHLTPath(menu);
+  SetMapL1SeedsOfStandardHLTPath(menu);
 
   cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<endl;
 }
@@ -2038,9 +1977,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohPhotTiso", ohPhotTiso, &b_ohPhotTiso);
   fChain->SetBranchAddress("ohPhotL1iso", ohPhotL1iso, &b_ohPhotL1iso);
   fChain->SetBranchAddress("NohEle", &NohEle, &b_NohEle);
-  fChain->SetBranchAddress("ohEleClusShap", ohEleClusShap, &b_ohEleClusShap);
-  fChain->SetBranchAddress("ohEleDeta", ohEleDeta, &b_ohEleDeta);
-  fChain->SetBranchAddress("ohEleDphi", ohEleDphi, &b_ohEleDphi);
   fChain->SetBranchAddress("ohEleEt", ohEleEt, &b_ohEleEt);
   fChain->SetBranchAddress("ohEleEta", ohEleEta, &b_ohEleEta);
   fChain->SetBranchAddress("ohElePhi", ohElePhi, &b_ohElePhi);
@@ -2052,9 +1988,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("ohElePixelSeeds", ohElePixelSeeds, &b_ohElePixelSeeds);
   fChain->SetBranchAddress("ohEleNewSC", ohEleNewSC, &b_ohEleNewSC);
   fChain->SetBranchAddress("NohEleLW", &NohEleLW, &b_NohEleLW);
-  fChain->SetBranchAddress("ohEleClusShapLW", ohEleClusShapLW, &b_ohEleClusShapLW);
-  fChain->SetBranchAddress("ohEleDetaLW", ohEleDetaLW, &b_ohEleDetaLW);
-  fChain->SetBranchAddress("ohEleDphiLW", ohEleDphiLW, &b_ohEleDphiLW);
   fChain->SetBranchAddress("ohEleEtLW", ohEleEtLW, &b_ohEleEtLW);
   fChain->SetBranchAddress("ohEleEtaLW", ohEleEtaLW, &b_ohEleEtaLW);
   fChain->SetBranchAddress("ohElePhiLW", ohElePhiLW, &b_ohElePhiLW);
@@ -2169,22 +2102,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("Event", &Event, &b_Event);
   //20X
 
-  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 
-  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &L1_DoubleEG05_TopBottom, &b_L1_DoubleEG05_TopBottom); 
-  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &L1_IsoEG10_Jet6_ForJet6, &b_L1_IsoEG10_Jet6_ForJet6); 
-
-
-  fChain->SetBranchAddress("L1_SingleJet20", &L1_SingleJet20, &b_L1_SingleJet20); 
-  fChain->SetBranchAddress("L1_SingleJet40", &L1_SingleJet40, &b_L1_SingleJet40); 
-  fChain->SetBranchAddress("L1_SingleJet60", &L1_SingleJet60, &b_L1_SingleJet60); 
-  fChain->SetBranchAddress("L1_SingleTauJet10", &L1_SingleTauJet10, &b_L1_SingleTauJet10); 
-  fChain->SetBranchAddress("L1_SingleTauJet20", &L1_SingleTauJet20, &b_L1_SingleTauJet20); 
-  fChain->SetBranchAddress("L1_SingleTauJet50", &L1_SingleTauJet50, &b_L1_SingleTauJet50); 
-  fChain->SetBranchAddress("L1_DoubleJet30", &L1_DoubleJet30, &b_L1_DoubleJet30);   
-
-
-
-  
   //L1's
   /*
   fChain->SetBranchAddress("L1_DoubleEG10", &L1_DoubleEG10, &b_L1_DoubleEG10); 
@@ -2206,6 +2123,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_DoubleJet60", &L1_DoubleJet60, &b_L1_DoubleJet60); 
   fChain->SetBranchAddress("L1_DoubleMu3", &L1_DoubleMu3, &b_L1_DoubleMu3); 
   fChain->SetBranchAddress("L1_DoubleMuOpen", &L1_DoubleMuOpen, &b_L1_DoubleMuOpen); 
+  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &L1_DoubleEG05_TopBottom, &b_L1_DoubleEG05_TopBottom);  
   fChain->SetBranchAddress("L1_DoubleNoIsoEG05_TopBottom", &L1_DoubleNoIsoEG05_TopBottom, &b_L1_DoubleNoIsoEG05_TopBottom); 
   fChain->SetBranchAddress("L1_DoubleNoIsoEG05_TopBottomCen", &L1_DoubleNoIsoEG05_TopBottomCen, &b_L1_DoubleNoIsoEG05_TopBottomCen); 
@@ -2297,12 +2215,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet8_Barrel", &L1_SingleTauJet8_Barrel, &b_L1_SingleTauJet8_Barrel); 
   fChain->SetBranchAddress("L1_TauJet10_ETM30", &L1_TauJet10_ETM30, &b_L1_TauJet10_ETM30); 
   fChain->SetBranchAddress("L1_TauJet10_ETM40", &L1_TauJet10_ETM40, &b_L1_TauJet10_ETM40); 
+  fChain->SetBranchAddress("L1_TripleJet14", &L1_TripleJet14, &b_L1_TripleJet14);  
   fChain->SetBranchAddress("L1_TripleJet30", &L1_TripleJet30, &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_TripleMu3", &L1_TripleMu3, &b_L1_TripleMu3); 
   */
-
-  fChain->SetBranchAddress("L1_TripleJet14", &L1_TripleJet14, &b_L1_TripleJet14);  
-  fChain->SetBranchAddress("L1_QuadJet6", &L1_QuadJet6, &b_L1_QuadJet6); 
 
   fChain->SetBranchAddress("L1_Mu5_Jet6", &L1_Mu5_Jet6, &b_L1_Mu5_Jet6);
   fChain->SetBranchAddress("L1_EG5_TripleJet6", &L1_EG5_TripleJet6, &b_L1_EG5_TripleJet6);
@@ -2335,8 +2251,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &L1_Mu3QE8_EG5, &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &L1_Mu3QE8_Jet15, &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &L1_Mu5QE8_Jet15, &b_L1_Mu5QE8_Jet15); 
-  fChain->SetBranchAddress("L1_Mu3QE8_Jet6", &L1_Mu3QE8_Jet6, &b_L1_Mu3QE8_Jet6);  
-  fChain->SetBranchAddress("L1_Mu5QE8_Jet6", &L1_Mu5QE8_Jet6, &b_L1_Mu5QE8_Jet6); 
   fChain->SetBranchAddress("L1_QuadJet15", &L1_QuadJet15, &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &L1_SingleEG1, &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &L1_SingleEG10, &b_L1_SingleEG10); 
@@ -2802,8 +2716,6 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &map_BitOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15); 
-  fChain->SetBranchAddress("L1_Mu3QE8_Jet6", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet6"], &b_L1_Mu3QE8_Jet6);  
-  fChain->SetBranchAddress("L1_Mu5QE8_Jet6", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet6"], &b_L1_Mu5QE8_Jet6); 
   fChain->SetBranchAddress("L1_QuadJet15", &map_BitOfStandardHLTPath["L1_QuadJet15"], &b_L1_QuadJet15); 
   fChain->SetBranchAddress("L1_SingleEG1", &map_BitOfStandardHLTPath["L1_SingleEG1"], &b_L1_SingleEG1); 
   fChain->SetBranchAddress("L1_SingleEG10", &map_BitOfStandardHLTPath["L1_SingleEG10"], &b_L1_SingleEG10); 
@@ -2838,29 +2750,13 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleMu7", &map_BitOfStandardHLTPath["L1_SingleMu7"], &b_L1_SingleMu7); 
   fChain->SetBranchAddress("L1_SingleMuBeamHalo", &map_BitOfStandardHLTPath["L1_SingleMuBeamHalo"], &b_L1_SingleMuBeamHalo); 
   fChain->SetBranchAddress("L1_SingleMuOpen", &map_BitOfStandardHLTPath["L1_SingleMuOpen"], &b_L1_SingleMuOpen); 
+  fChain->SetBranchAddress("L1_SingleTauJet30", &map_BitOfStandardHLTPath["L1_SingleTauJet30"], &b_L1_SingleTauJet30); 
   fChain->SetBranchAddress("L1_SingleTauJet40", &map_BitOfStandardHLTPath["L1_SingleTauJet40"], &b_L1_SingleTauJet40); 
   fChain->SetBranchAddress("L1_SingleTauJet60", &map_BitOfStandardHLTPath["L1_SingleTauJet60"], &b_L1_SingleTauJet60); 
   fChain->SetBranchAddress("L1_SingleTauJet80", &map_BitOfStandardHLTPath["L1_SingleTauJet80"], &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &map_BitOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30); 
 
-  fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
-  fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
 
-
-  fChain->SetBranchAddress("L1_SingleJet20", &map_BitOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20); 
-  fChain->SetBranchAddress("L1_SingleJet40", &map_BitOfStandardHLTPath["L1_SingleJet40"], &b_L1_SingleJet40); 
-  fChain->SetBranchAddress("L1_SingleJet60", &map_BitOfStandardHLTPath["L1_SingleJet60"], &b_L1_SingleJet60); 
-  fChain->SetBranchAddress("L1_SingleTauJet10", &map_BitOfStandardHLTPath["L1_SingleTauJet10"], &b_L1_SingleTauJet10); 
-  fChain->SetBranchAddress("L1_SingleTauJet20", &map_BitOfStandardHLTPath["L1_SingleTauJet20"], &b_L1_SingleTauJet20); 
-  fChain->SetBranchAddress("L1_SingleTauJet30", &map_BitOfStandardHLTPath["L1_SingleTauJet30"], &b_L1_SingleTauJet30); 
-  fChain->SetBranchAddress("L1_SingleTauJet50", &map_BitOfStandardHLTPath["L1_SingleTauJet50"], &b_L1_SingleTauJet50); 
-  fChain->SetBranchAddress("L1_DoubleJet30", &map_BitOfStandardHLTPath["L1_DoubleJet30"], &b_L1_DoubleJet30);  
-  fChain->SetBranchAddress("L1_DoubleTauJet14", &map_BitOfStandardHLTPath["L1_DoubleTauJet14"], &b_L1_DoubleTauJet14); 
-  fChain->SetBranchAddress("L1_TripleJet14", &map_BitOfStandardHLTPath["L1_TripleJet14"], &b_L1_TripleJet14);  
-  fChain->SetBranchAddress("L1_QuadJet6", &map_BitOfStandardHLTPath["L1_QuadJet6"], &b_L1_QuadJet6); 
-  fChain->SetBranchAddress("L1_IsoEG10_Jet6_ForJet6", &map_BitOfStandardHLTPath["L1_IsoEG10_Jet6_ForJet6"], &b_L1_IsoEG10_Jet6_ForJet6); 
-
-  
   /*
   fChain->SetBranchAddress("L1_DoubleEG10", &map_BitOfStandardHLTPath["L1_DoubleEG10"], &b_L1_DoubleEG10); 
   fChain->SetBranchAddress("L1_DoubleEG1", &map_BitOfStandardHLTPath["L1_DoubleEG1"], &b_L1_DoubleEG1); 
@@ -3424,21 +3320,6 @@ void OHltTree::RemoveEGOverlaps()
     }
   }
 
-  for(int i=0;i<NohEleLW ;i++){
-    if (ohEleL1isoLW[i] == 1){ohEleLWL1Dupl[i]=false;}
-    else{
-      float  dist = 1000;
-      for(int j=0;j<NohEleLW ;j++){
-	if(ohEleL1isoLW[j]==1){
-	  float distTemp = fabs(ohEleEtaLW[i]-ohEleEtaLW[j])+fabs(ohEleELW[i]-ohEleELW[j]);
-	  if(distTemp < dist){dist=distTemp;}
-	}
-      }//loop over j
-      if (dist < 0.01){ohEleLWL1Dupl[i]=true;}
-      else {ohEleLWL1Dupl[i]=false;}
-    }
-  }
-
   for(int i=0;i<NohPhot ;i++){ 
     if (ohPhotL1iso[i] == 1){ohPhotL1Dupl[i]=false;} 
     else{ 
@@ -3460,8 +3341,8 @@ void OHltTree::SetL1MuonQuality()
 {
   // Cut on muon quality
   // init
-  NL1OpenMu = 0;
   for (int i=0;i<10;i++) {
+    NL1OpenMu = 0;
     L1OpenMuPt[i] = -999.;
     L1OpenMuE[i] = -999.;
     L1OpenMuEta[i] = -999.;
@@ -3488,8 +3369,8 @@ void OHltTree::SetL1MuonQuality()
     }
   }
   // init
-  NL1GoodSingleMu = 0;
   for (int i=0;i<10;i++) {
+    NL1GoodSingleMu = 0;
     L1GoodSingleMuPt[i] = -999.;
     L1GoodSingleMuE[i] = -999.;
     L1GoodSingleMuEta[i] = -999.;
@@ -3517,8 +3398,8 @@ void OHltTree::SetL1MuonQuality()
   }
 
   // init
-  NL1GoodDoubleMu = 0;
   for (int i=0;i<10;i++) {
+    NL1GoodDoubleMu = 0;
     L1GoodDoubleMuPt[i] = -999.;
     L1GoodDoubleMuE[i] = -999.;
     L1GoodDoubleMuEta[i] = -999.;
@@ -3556,130 +3437,8 @@ void OHltTree::SetOpenL1Bits()
   else 
     OpenL1_Mu3EG5 = 0; 
 
-  if((map_BitOfStandardHLTPath.find("L1_SingleEG5")->second == 1) && 
-     (map_BitOfStandardHLTPath.find("L1_HTT100")->second == 1))  
-    OpenL1_EG5_HTT100 = 1; 
-  else 
-    OpenL1_EG5_HTT100 = 0; 
- 
-  map_BitOfStandardHLTPath["OpenL1_EG5_HTT100"] = OpenL1_EG5_HTT100;  
- 
-  if(L1OpenMuPt[0] > 30.0)  
-    OpenL1_SingleMu30 = 1; 
-  else 
-    OpenL1_SingleMu30 = 0;  
-   
-  map_BitOfStandardHLTPath["OpenL1_SingleMu30"] = OpenL1_SingleMu30;   
-
 }
 
-
-void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int nentry) {
-  typedef vector<TString> myvec;
-  typedef pair< TString, vector<TString> > mypair;
-  typedef pair< TString, vector<int> > mypair2;
-  myvec vtmp;  
-  vector<int> vtokentmp;
-  
-  TString st, l1st, seeds;
-  unsigned ts = menu->GetTriggerSize();
-  unsigned l1ts = menu->GetL1TriggerSize();
-  //std::cout<<"########################### \n";
-  //std::cout <<  "@@@ Level1GTSeedResult\n";
-  
-  if (nentry == 0) { // do this only for first event - speed up code!
-    for (unsigned int i=0;i<ts;i++) {
-      vtmp.clear(); 
-      vtokentmp.clear(); 
-      st = menu->GetTriggerName(i);
-      seeds = menu->GetSeedCondition(st);
-
-      //if (seeds != "") continue; // if no seeds skip to avoid error messages
-
-      SetLogicParser((std::string) seeds);
-      
-      //std::cout << "Trigger name: " << st << std::endl;
-      //std::cout << "Seed condition: " << seeds << std::endl;
-
-      std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
-	(m_l1AlgoLogicParser[i])->operandTokenVector();
-      
-      //std::cout<<"@@@@@@@@@@@@ "<<st<<std::endl;
-
-      for (unsigned int j=0;j<l1ts;j++) {
-	l1st = menu->GetL1TriggerName(j);
-	
-	for (size_t k = 0; k < algOpTokenVector.size(); ++k) {
-	  bool iResult = false;
-	  //std::cout << "Token name: " << (algOpTokenVector[k]).tokenName << std::endl;
-	  if (l1st.CompareTo((algOpTokenVector[k]).tokenName) == 0) {         
-	    if (map_BitOfStandardHLTPath.find(l1st)->second==1)
-	      iResult = true;
-	    else
-	      iResult = false;
-	    
-	    //std::cout << "Token result: " << map_BitOfStandardHLTPath.find(l1st)->second << std::endl;
-	    //std::cout << "Token result: " << iResult << std::endl;
-	    (algOpTokenVector[k]).tokenResult = iResult;
-	    vtmp.push_back(l1st);
-	    vtokentmp.push_back((int)k);
-	    //std::cout<<" "<<l1st<<" "<<k<<std::endl;
-	  }
-	}
-      }    
-      map_L1SeedsOfStandardHLTPath.insert(mypair(st, vtmp)); 
-      map_RpnTokenIdOfStandardHLTPath.insert(mypair2(st, vtokentmp));
-      
-      bool seedsResult = (m_l1AlgoLogicParser[i])->expressionResult();
-      
-      //std::cout << "Expression result: " << seedsResult << std::endl;
-      
-      if (seedsResult)
-	map_L1BitOfStandardHLTPath[st] = 1;
-      else
-	map_L1BitOfStandardHLTPath[st] = 0;
-    }
-  } else {
-    
-    for (unsigned int i=0;i<ts;i++) {
-      st = menu->GetTriggerName(i);
-      seeds = menu->GetSeedCondition(st);
-
-      if (seeds == "") continue; // 
-      
-      std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
-	(m_l1AlgoLogicParser[i])->operandTokenVector();
-
-      //std::cout << "************** " << st << " " << nentry << std::endl;
-      
-      map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
-
-      if (it != map_L1SeedsOfStandardHLTPath.end()) {
-	unsigned ts2 = it->second.size();
-	//std::cout << "########## " << ts2 << std::endl;
-	for (unsigned int j=0;j<ts2;j++) {
-	  //std::cout << "               " << it->second[j] << std::endl;
-	  bool iResult = false;
-	  if ((map_BitOfStandardHLTPath.find(it->second[j])->second)==1)
-	    iResult = true;
-	  else
-	    iResult = false;
-	  
-	  (algOpTokenVector[ (map_RpnTokenIdOfStandardHLTPath.find(st))->second[j] ]).tokenResult = iResult;
-
-	}
-      }
-      
-      bool seedsResult = (m_l1AlgoLogicParser[i])->expressionResult();
-     
-      if (seedsResult)
-	map_L1BitOfStandardHLTPath[st] = 1;
-      else
-	map_L1BitOfStandardHLTPath[st] = 0;
-    }
-  }
-  
-}
 
 Bool_t OHltTree::Notify()
 {

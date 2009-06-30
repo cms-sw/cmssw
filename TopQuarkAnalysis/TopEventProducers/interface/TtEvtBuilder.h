@@ -41,7 +41,9 @@ class TtEvtBuilder : public edm::EDProducer {
 
  private:
 
-  /// vebosity level (0 and 1 are supported)
+  /// internal event counter for verbosity switch
+  int event_;
+  /// determine vebosity level (0 or >0 are supported)
   int verbosity_;
   /// vector of hypothesis class names
   std::vector<std::string> hyps_;
@@ -57,11 +59,6 @@ class TtEvtBuilder : public edm::EDProducer {
   edm::ParameterSet kinFit_;
   edm::InputTag fitChi2_;
   edm::InputTag fitProb_;
-  /// input parameters for the kKinSolution
-  /// hypothesis class extras
-  edm::ParameterSet kinSolution_;
-  edm::InputTag solWeight_;  
-  edm::InputTag wrongCharge_;   
   /// input parameters for the kGenMatch
   /// hypothesis class extras 
   edm::ParameterSet genMatch_;
@@ -75,7 +72,7 @@ class TtEvtBuilder : public edm::EDProducer {
 };
 
 template <typename C>
-TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
+TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) : event_(0),
   verbosity_   (cfg.getParameter<int>                      ("verbosity"    )),
   hyps_        (cfg.getParameter<std::vector<std::string> >("hypotheses"   )),
   genEvt_      (cfg.getParameter<edm::InputTag>            ("genEvent"     )),
@@ -88,12 +85,6 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
     fitChi2_ = kinFit_.getParameter<edm::InputTag>("chi2");
     fitProb_ = kinFit_.getParameter<edm::InputTag>("prob");
   }
-  // parameter subsets for kKinSolution
-  if( cfg.exists("kinSolution") ) {
-    kinSolution_  = cfg.getParameter<edm::ParameterSet>("kinSolution");
-    solWeight_    = kinSolution_.getParameter<edm::InputTag>("solWeight");
-    wrongCharge_  = kinSolution_.getParameter<edm::InputTag>("wrongCharge");
-  }  
   // parameter subsets for kGenMatch
   if( cfg.exists("genMatch") ) {
     genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
@@ -155,17 +146,6 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     event.setFitProb( *fitProb );
   }
 
-  // set kKinSolution extras  
-  if( event.isHypoAvailable(TtEvent::kKinSolution) ) {
-    edm::Handle<std::vector<double> > solWeight;
-    evt.getByLabel(solWeight_, solWeight);
-    event.setSolWeight( *solWeight );
-    
-    edm::Handle<bool> wrongCharge;
-    evt.getByLabel(wrongCharge_, wrongCharge);
-    event.setWrongCharge( *wrongCharge );   
-  } 
-
   // set kGenMatch extras
   if( event.isHypoAvailable(TtEvent::kGenMatch) ) {
     edm::Handle<std::vector<double> > sumPt;
@@ -188,9 +168,11 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     event.setMvaDiscriminators( *disc );
   }
 
-  // print summary via MessageLogger if verbosity_>0
-  if(verbosity_ > 0)
+  // print summary via MessageLogger for up
+  // to verbosity events if verbosity_>0
+  if(verbosity_ > 0 && event_<verbosity_){ 
     event.print();
+  }
 
   // write object to root file 
   std::auto_ptr<C> pOut(new C);

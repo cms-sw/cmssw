@@ -297,19 +297,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   os="Efficiency_Roll_vs_Sector_Wheel_+2";                                      
   Wheel2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
 
-  os="Efficiency_Roll_vs_Segment_Disk_-3";
-  Diskm3Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  os="Efficiency_Roll_vs_Segment_Disk_-2";
-  Diskm2Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  os="Efficiency_Roll_vs_Segment_Disk_-1";
-  Diskm1Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  os="Efficiency_Roll_vs_Segment_Disk_1";
-  Disk1Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  os="Efficiency_Roll_vs_Segment_Disk_2";
-  Disk2Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  os="Efficiency_Roll_vs_Segment_Disk_3";
-  Disk3Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
-  
+
   //Azimutal Histograms
 
   dbe->setCurrentFolder("RPC/RPCEfficiency/Azimutal/");
@@ -524,61 +512,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     Wheel1Summary->setBinLabel(i,binLabel.str(),1);
     Wheel2Summary->setBinLabel(i,binLabel.str(),1);
   }
-  binLabel.str("");
-
-  if(debug) std::cout<<"Default -1 for Barrel GUI"<<std::endl;
-  
-  for(int x = 1;x<=12;x++){
-    for(int y = 1;y<=21;y++){
-      Wheelm2Summary->setBinContent(x,y,-1);
-      Wheelm1Summary->setBinContent(x,y,-1);
-      Wheel0Summary->setBinContent(x,y,-1);
-      Wheel1Summary->setBinContent(x,y,-1);
-      Wheel2Summary->setBinContent(x,y,-1);
-    }
-  }
-  
-  for(int i=1;i<=36;i++){
-    binLabel.str("");
-    binLabel<<i;
-    //if(debug) std::cout<<"Labeling EndCaps"<<binLabel.str()<<std::endl;
-    Diskm3Summary->setBinLabel(i,binLabel.str(),1);
-    Diskm2Summary->setBinLabel(i,binLabel.str(),1);
-    Diskm1Summary->setBinLabel(i,binLabel.str(),1);
-    Disk1Summary->setBinLabel(i,binLabel.str(),1);
-    Disk2Summary->setBinLabel(i,binLabel.str(),1);
-    Disk3Summary->setBinLabel(i,binLabel.str(),1);
-  }
-  
-  for(int ri=2;ri<=3;ri++){
-    for(int roll=1;roll<=3;roll++){
-      binLabel.str("");
-      if(roll==3) binLabel<<"Ring "<<ri<<" A";
-      else if(roll==2) binLabel<<"Ring "<<ri<<" B";
-      else if(roll==1) binLabel<<"Ring "<<ri<<" C";
-      //if(debug) std::cout<<"Labeling EndCaps "<<binLabel.str()<<std::endl;
-      Diskm3Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-      Diskm2Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-      Diskm1Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-      Disk1Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-      Disk2Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-      Disk3Summary->setBinLabel((ri-2)*3+roll,binLabel.str(),2);
-    }
-  }
-
-  if(debug) std::cout<<"Default -1 for EndCap GUI"<<std::endl;
-
-  for(int x = 1;x<=36;x++){
-    for(int y = 1;y<=6;y++){
-      Diskm3Summary->setBinContent(x,y,-1);
-      Diskm2Summary->setBinContent(x,y,-1);
-      Diskm1Summary->setBinContent(x,y,-1);
-      Disk1Summary->setBinContent(x,y,-1);
-      Disk2Summary->setBinContent(x,y,-1);
-      Disk3Summary->setBinContent(x,y,-1);
-    }
-  }
-
   binLabel.str("");
 
   std::vector<std::string> rollNamesInter (22);
@@ -835,29 +768,34 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
 
-	  //Efficiency for Pigis Histos
+	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
+	  std::cout<<"ef="<<ef<<" +/- er="<<er<<std::endl;
+	  std::cout<<"averageeff="<<averageeff<<" +/- averageerr="<<averageerr<<std::endl;
+	  std::cout<<"maskedratio="<<maskedratio<<std::endl;
+	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
+	  */
+
+	  //Label in Pigis Histos
 
 	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
 			     <<(*r)->id()<<std::endl;
 	  
-	  if(p > 100){//We need at least 100 predictions to fill the summary plot
-	    if(abs((*r)->id().ring())==2){
-	      if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
-				 <<"--"<<rpcsrv.shortname()
-				 <<" "<<rpcsrv.name()
-				 <<" averageEff"<<averageeff<<std::endl;
-	      if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
-	      else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
-	    }else{
-	      if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
-				 <<"--"<<rpcsrv.shortname()
-				 <<" "<<rpcsrv.name()
-				 <<" averageEff"<<averageeff<<std::endl;
+	  if(abs((*r)->id().ring())==2){
+	    if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesExter)
+			       <<"--"<<rpcsrv.shortname()
+			       <<" "<<rpcsrv.name()
+			       <<" averageEff"<<averageeff<<std::endl;
+	    if((*r)->id().ring()==2) Wheel2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+	    else Wheelm2Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesExter),averageeff);
+	  }else{
+	    if(debug) std::cout<<rollY(rpcsrv.shortname(),rollNamesInter)
+			       <<"--"<<rpcsrv.shortname()
+			       <<" "<<rpcsrv.name()
+			       <<" averageEff"<<averageeff<<std::endl;
 	    
-	      if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
-	      else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
-	      else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
-	    }
+	    if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
+	    else if((*r)->id().ring()==0) Wheel0Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
+	    else if((*r)->id().ring()==1) Wheel1Summary->setBinContent((*r)->id().sector(),rollY(rpcsrv.shortname(),rollNamesInter),averageeff);
 	  }
  	  
 	  //Near Side
@@ -1191,27 +1129,12 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
 	  
-
-	  //Efficiency for Pigis Histos
-
-	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
-			     <<(*r)->id()<<std::endl;
-
-
-
-	  if(p > 100){ //We need at least 100 predictions to fill the summary plot
-	    int rollY = (*r)->id().roll();
-	    if(rollY==1) rollY=3;
-	    else if(rollY==3) rollY ==1;
-	    int Y=((*r)->id().ring()-2)*3+rollY;
-	    if(Disk==-3) Diskm3Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	    else if(Disk==-2) Diskm2Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	    else if(Disk==-1) Diskm1Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	    else if(Disk==1) Disk1Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	    else if(Disk==2) Disk2Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	    else if(Disk==3) Disk3Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
-	  }
-
+	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
+	  std::cout<<"ef="<<ef<<" +/- er="<<er<<std::endl;
+	  std::cout<<"averageeff="<<averageeff<<" +/- averageerr="<<averageerr<<std::endl;
+	  std::cout<<"maskedratio="<<maskedratio<<std::endl;
+	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
+	  */
  	  //Near Side
 
 	  float maskedratio =0;

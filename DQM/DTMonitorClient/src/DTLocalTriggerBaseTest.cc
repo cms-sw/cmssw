@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/05 11:39:46 $
+ *  $Revision: 1.8 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -90,7 +90,7 @@ void DTLocalTriggerBaseTest::endJob(){
   if (!runOnline) {
     LogVerbatim(category()) << "[" << testName << "Test] Client called in offline mode, performing client operations";
 
-    if (dbe->dirExists(topFolder(0)) || dbe->dirExists(topFolder(1))) {
+    if (dbe->dirExists(topFolder())) {
       //dbe->showDirStructure();
       runClientDiagnostic();
     }
@@ -141,10 +141,10 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
-  bool isDCC = hwSource=="DCC"; 
+  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
 
   string folderName = 
-    topFolder(isDCC) + "Wheel" +  wheel.str() +
+    topFolder() + hwFolder + "Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/" + subfolder + "/";  
 
@@ -182,13 +182,13 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
 // }
 
 
-void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,string folder) {
+void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder, string hTag) {
   
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  bool isDCC = hwSource=="DCC" ;
-  string basedir = topFolder(isDCC)+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
+  string basedir = topFolder()+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/";
   if (folder!="") {
     basedir += folder +"/";
   }
@@ -197,32 +197,7 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,s
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
-  if (hTag.find("BXDistribPhi") != string::npos){    
-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),25,-4.5,20.5,4,0.5,4.5);
-    me->setBinLabel(1,"MB1",2);
-    me->setBinLabel(2,"MB2",2);
-    me->setBinLabel(3,"MB3",2);
-    me->setBinLabel(4,"MB4",2);
-    secME[sectorid][fullTag] = me;
-    return;
-  }
-  else if (hTag.find("QualDistribPhi") != string::npos){    
-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),7,-0.5,6.5,4,0.5,4.5);
-    me->setBinLabel(1,"MB1",2);
-    me->setBinLabel(2,"MB2",2);
-    me->setBinLabel(3,"MB3",2);
-    me->setBinLabel(4,"MB4",2);
-    me->setBinLabel(1,"LI",1);
-    me->setBinLabel(2,"LO",1);
-    me->setBinLabel(3,"HI",1);
-    me->setBinLabel(4,"HO",1);
-    me->setBinLabel(5,"LL",1);
-    me->setBinLabel(6,"HL",1);
-    me->setBinLabel(7,"HH",1);
-    secME[sectorid][fullTag] = me;
-    return;
-  }
-  else if (hTag.find("Phi") != string::npos || 
+  if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
     me->setBinLabel(1,"MB1",1);
@@ -244,39 +219,36 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,s
   
 }
 
-void DTLocalTriggerBaseTest::bookCmsHistos(string hTag,string folder) {
+void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
 
-  bool isDCC = hwSource == "DCC"; 
-  string basedir = topFolder(isDCC);
-  if (folder != "") {
-    basedir += folder +"/" ;
-  }
+  string basedir = topFolder();
+   if(hwSource == "DCC") 
+      basedir += hwSource + "/";
   dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
 
-  MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
-  me->setAxisTitle("Sector",1);
-  me->setAxisTitle("Wheel",2);
-  cmsME[hname] = me;
+    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
+    me->setAxisTitle("Sector",1);
+    me->setAxisTitle("Wheel",2);
+    cmsME[hname] = me;
 
 }
 
-void DTLocalTriggerBaseTest::bookWheelHistos(int wheel,string hTag,string folder) {
+void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hTag) {
   
   stringstream wh; wh << wheel;
   string basedir;  
-  bool isDCC = hwSource=="DCC" ;  
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
+    basedir = topFolder() + hwFolder;   //Book summary histo outside wheel directories
   } else {
-    basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
-    
-  }
-  if (folder != "") {
-    basedir += folder +"/" ;
+    basedir = topFolder() + hwFolder + "Wheel" + wh.str() + "/" ;
+    if (folder != "") {
+      basedir += folder +"/" ;
+    }
   }
   dbe->setCurrentFolder(basedir);
 

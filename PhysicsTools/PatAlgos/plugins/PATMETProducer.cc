@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.12 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATMETProducer.cc,v 1.13 2009/06/08 17:32:26 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -31,6 +31,12 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"));
@@ -54,6 +60,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   if (mets->size() != 1) throw cms::Exception("Corrupt Data") << "The input MET collection " << metSrc_.encode() << " has size " << mets->size() << " instead of 1 as it should.\n";
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
   // Get the vector of generated met from the event if needed
   edm::Handle<edm::View<reco::GenMET> > genMETs;
@@ -74,6 +81,10 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (efficiencyLoader_.enabled()) {
         efficiencyLoader_.setEfficiencies( amet, metsRef );
+    }
+
+    if (resolutionLoader_.enabled()) {
+        resolutionLoader_.setResolutions(amet);
     }
 
 
@@ -109,7 +120,7 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<bool>("addGenMET", false);
   iDesc.add<edm::InputTag>("genMETSource", edm::InputTag("genMetCalo"));
 
-  iDesc.add<bool>("addResolutions",false);
+  pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;

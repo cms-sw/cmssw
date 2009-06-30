@@ -23,9 +23,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       SummaryOnLayerLevel_On  = cms.bool(True),
       GrandSummary_On         = cms.bool(True),
       StripQualityLabel       = cms.string(''),
-
-      ActiveDetIds_On         =  cms.bool(True),
-      TkMap_On                =  cms.bool(False),
         
       #  exclude OR include a set of modules
       restrictModules         = cms.bool(False),
@@ -41,10 +38,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
                                   
 
     SiStripCablingDQM_PSet = cms.PSet(
-
-    ActiveDetIds_On         =  cms.bool(True),
-    TkMap_On                =  cms.bool(False),
-
+    
     CondObj_fillId       = cms.string('ProfileAndCumul'),
     CondObj_name         = cms.string('fedcabling')
     ),    
@@ -53,10 +47,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     SiStripPedestalsDQM_PSet = cms.PSet(
 
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
-      TkMapName               = cms.string('PedestalTkMap.png'),
-      
       CondObj_fillId       = cms.string('onlyProfile'),
       CondObj_name         = cms.string('pedestal'),
 
@@ -84,10 +74,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     # -----
     SiStripNoisesDQM_PSet = cms.PSet(
-
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
-      TkMapName               = cms.string('NoiseTkMap.png'),
 
       CondObj_fillId    = cms.string('onlyCumul'),
       CondObj_name      = cms.string('noise'),
@@ -134,9 +120,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     # -----
     SiStripQualityDQM_PSet = cms.PSet(
 
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
-
       CondObj_name   = cms.string('quality'),
       CondObj_fillId = cms.string('onlyProfile'),
       
@@ -179,10 +162,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     # -----
     SiStripApvGainsDQM_PSet = cms.PSet(
-
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
-
+    
       CondObj_name   = cms.string('apvgain'),
       CondObj_fillId = cms.string('ProfileAndCumul'),
 
@@ -218,9 +198,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     # -----
     SiStripLorentzAngleDQM_PSet = cms.PSet(
 
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
-
       CondObj_name = cms.string('lorentzangle'),
       CondObj_fillId = cms.string('none'),
       
@@ -243,9 +220,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     ),
 
       SiStripLowThresholdDQM_PSet = cms.PSet(
-
-      ActiveDetIds_On         =  cms.bool(False),
-      TkMap_On                =  cms.bool(False),
 
         WhichThreshold= cms.string('Low'),
 
@@ -277,9 +251,6 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 	Summary_HighY         = cms.double(10)
 ),
         SiStripHighThresholdDQM_PSet = cms.PSet(
-
-        ActiveDetIds_On         =  cms.bool(False),
-        TkMap_On                =  cms.bool(False),
 
         WhichThreshold= cms.string('High'),
 

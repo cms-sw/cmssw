@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iomanip>
 #include <stdlib.h>
 
 #include <RVersion.h>
@@ -91,12 +90,12 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 	SetStyle();
 	style->cd();
 
-	main->AddButton("Input Variables", "ShowMenu(\"input\")",
-	                "plot input variables for variable processors",
+	main->AddButton("input variables", "ShowMenu(\"input\")",
+	                "plots input variables for variable processors",
 	                "button");
 
-	main->AddButton("Discriminator && Performance", "ShowOutput()",
-	                "plot discriminator output & efficiency/purity curve",
+	main->AddButton("discriminator && performance", "ShowOutput()",
+	                "plots discriminator output & efficiency/purity curve",
 	                "button");
 
 	main->AddButton("ProcNormalize", "ShowMenu(\"ProcNormalize\")",
@@ -111,29 +110,14 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 	main->AddButton("ProcMatrix", "ShowMenu(\"ProcMatrix\")",
 	                "show correlation matrix", "button");
 
-	main->AddButton("Draw All", "DrawAll()",
-	                "draw all plots", "button");
-
-	main->AddButton("Options", "ShowMenu(\"options\")",
-	                "set options for output", "button");
-
-	main->AddButton("Quit", ".q",
-	                "quit", "button");
-
 	main->Show();
 }
-
-bool printPS  = true;
-bool printEPS = false;
-bool printPDF = false;
-bool printPNG = false;
 
 void DrawInputs(TDirectory *dir);
 void DrawOutput(TDirectory *dir);
 void DrawProcNormalize(TDirectory *dir);
 void DrawProcLikelihood(TDirectory *dir, int mode);
 void DrawProcMatrix(TDirectory *dir);
-void DrawAll();
 
 void ShowOutput()
 {
@@ -142,51 +126,27 @@ void ShowOutput()
 
 SelectMenu::SelectMenu(TString what, int idx) : mode(what), index(idx)
 {
-	if (what == "options") {
+	AddLabel(what + " plots");
+	AddSeparator();
 
-	        AddLabel("output options");
-	        AddSeparator();
+	unsigned int n = 0;
+	TIter iter(file->GetListOfKeys());
+	TObject *obj = 0;
+	while((obj = iter.Next()) != 0) {
+		TString name = obj->GetName();
+		if (!name.BeginsWith(what + "_"))
+			continue;
 
-        	unsigned int n = 0;
-		entries.Add(new TObjString("common ps-file"));
-		AddEntry("common ps-file", n++);
-		if ( printPS ) CheckEntry(n-1);
-		entries.Add(new TObjString("individual eps-files"));
-		AddEntry("individual eps-files", n++);
-		if ( printEPS ) CheckEntry(n-1);
-		entries.Add(new TObjString("individual pdf-files"));
-		AddEntry("individual pdf-files", n++);
-		if ( printPDF ) CheckEntry(n-1);
-		entries.Add(new TObjString("individual png-files"));
-		AddEntry("individual png-files",n++);
-		if ( printPNG ) CheckEntry(n-1);
+		entries.Add(new TObjString(name));
 
+		Int_t len = what.Length();
+		name = name(len + 1, name.Length() - (len + 1));
+
+		AddEntry(name, n++);
 	}
-	else {
 
-        	AddLabel(what + " plots");
-        	AddSeparator();
-        
-        	unsigned int n = 0;
-        	TIter iter(file->GetListOfKeys());
-        	TObject *obj = 0;
-        	while((obj = iter.Next()) != 0) {
-        		TString name = obj->GetName();
-        		if (!name.BeginsWith(what + "_"))
-        			continue;
-        
-        		entries.Add(new TObjString(name));
-        
-        		Int_t len = what.Length();
-        		name = name(len + 1, name.Length() - (len + 1));
-        
-        		AddEntry(name, n++);
-        	}
-        
-        	if (!n)
-        		AddEntry("no entry", -1);
-
-	}
+	if (!n)
+		AddEntry("no entry", -1);
 
 	Connect("Activated(Int_t)", "SelectMenu", this, "HandleMenu(Int_t)");
 }
@@ -217,32 +177,15 @@ void SelectMenu::HandleMenu(Int_t id)
 
 	TString name = ((TObjString*)entries.At(id))->GetString();
 
-	if (mode == "options") {
-
-	          if (name == "common ps-file")
-		          printPS = !printPS;
-	          else if (name == "individual eps-files")
-		          printEPS = !printEPS;
-	          else if (name == "individual pdf-files")
-		          printPDF = !printPDF;
-	          else if (name == "individual png-files")
-		          printPNG = !printPNG;
-	          break;
-
-	}
-	else {
-
-        	TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-        	if (mode == "input")
-        		DrawInputs(dir);
-        	else if (mode == "ProcNormalize")
-        		DrawProcNormalize(dir);
-        	else if (mode == "ProcLikelihood")
-        		DrawProcLikelihood(dir, index);
-        	else if (mode == "ProcMatrix")
-        		DrawProcMatrix(dir);
-
-	}
+	TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
+	if (mode == "input")
+		DrawInputs(dir);
+	else if (mode == "ProcNormalize")
+		DrawProcNormalize(dir);
+	else if (mode == "ProcLikelihood")
+		DrawProcLikelihood(dir, index);
+	else if (mode == "ProcMatrix")
+		DrawProcMatrix(dir);
 }
 
 class PadService {
@@ -251,8 +194,6 @@ class PadService {
 	~PadService();
 
 	TVirtualPad *Next();
-
-        TList canvases;
 
     private:
 	TCanvas	*last;
@@ -297,12 +238,12 @@ TVirtualPad *PadService::Next()
 		                        ++count),
 		                   title, count * 50 + 200, count * 20,
 		                   width, height);
-		canvases.Add(last);
 		last->SetBorderSize(2);
 		last->SetFrameFillColor(0);
 		last->SetHighLightColor(0);
 		last->Divide(nPadsX, nPadsY);
 		index = 0;
+		count++;
 	}
 
 	last->cd(++index);
@@ -321,22 +262,9 @@ void Save(TVirtualPad *pad, TDirectory *dir, TString name = "")
 	if (name.Length())
 		baseName += "_" + name;
 
-	if ( printEPS )
-                pad->Print(baseName + ".eps");
-	if ( printPDF )
-	        pad->Print(baseName + ".pdf");
-	if ( printPNG )
-	        pad->Print(baseName + ".png");
-}
-
-void Save(PadService &padService)
-{
-        if ( !printPS ) return;
-
-	gSystem->mkdir("plots");
-
-	for(unsigned int i = 0; i < padService.canvases.GetEntries(); i++)
-	      padService.canvases.At(i)->Print("plots/summary.ps");
+	pad->Print(baseName + ".eps");
+	pad->Print(baseName + ".pdf");
+	pad->Print(baseName + ".png");
 }
 
 void DrawInputs(TDirectory *dir)
@@ -415,8 +343,6 @@ void DrawInputs(TDirectory *dir)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
-
-	Save(pads);
 }
 
 static void FindRange(TH1 *histo, Int_t &b1, Int_t &b2,
@@ -475,13 +401,11 @@ void DrawOutput(TDirectory *dir)
 
 	TH1 *bkg_ = (TH1*)bkg->Clone(name + "_tmpO1");
 	bkg_->Rebin(8);
-	if (bkg_->Integral("width") != 0.)
-	        bkg_->SetNormFactor(bkg_->Integral() / bkg_->Integral("width"));
+	bkg_->SetNormFactor(bkg_->Integral() / bkg_->Integral("width"));
 
 	TH1 *sig_ = (TH1*)sig->Clone(name + "_tmpO2");
 	sig_->Rebin(8);
-	if (sig_->Integral("width") != 0.)
-	        sig_->SetNormFactor(sig_->Integral() / sig_->Integral("width"));
+	sig_->SetNormFactor(sig_->Integral() / sig_->Integral("width"));
 
 	Double_t y = Max(bkg_->GetMaximum(), sig_->GetMaximum());
 	bkg_->SetStats(0);
@@ -675,8 +599,6 @@ void DrawOutput(TDirectory *dir)
 
 	pad->RedrawAxis();
 	Save(pad, dir, name + "_effsigbkg");
-	
-	Save(pads);
 }
 
 void DrawProcNormalize(TDirectory *dir)
@@ -702,8 +624,7 @@ void DrawProcNormalize(TDirectory *dir)
 
 		pdf = (TH1*)pdf->Clone(name + "_tmpPN1");
 		pdf->SetXTitle(name);
-		if (pdf->Integral("width") != 0.)
-		        pdf->SetNormFactor(pdf->Integral() / pdf->Integral("width"));
+		pdf->SetNormFactor(pdf->Integral() / pdf->Integral("width"));
 		pdf->SetStats(0);
 		pdf->SetFillColor(4);
 		pdf->SetLineColor(4);
@@ -719,8 +640,6 @@ void DrawProcNormalize(TDirectory *dir)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
-
-	Save(pads);
 }
 
 void DrawProcLikelihood(TDirectory *dir, int mode)
@@ -843,8 +762,6 @@ void DrawProcLikelihood(TDirectory *dir, int mode)
 		pad->RedrawAxis();
 		Save(pad, dir, name);
 	}
-
-	Save(pads);
 }
 
 void DrawProcMatrix(TDirectory *dir)
@@ -853,227 +770,23 @@ void DrawProcMatrix(TDirectory *dir)
 	name = name(11, name.Length() - 11);
 
 	PadService pads(dir->GetName(),
-	                "\"" + name + "\" correlation matrix", 2);
+	                "\"" + name + "\" correlation matrix", 1);
 
 	TVirtualPad *pad = pads.Next();
-	pad->SetLeftMargin(0.05);
-
-	const unsigned int showNbins = 10;
-	TH1 *rank = dynamic_cast<TH1*>(dir->Get("Ranking"));
-	TString *labels;
-	if (rank) {
-		labels = new TString[rank->GetNbinsX()];
-		for(unsigned int i = 1; i <= rank->GetNbinsX(); i++) {
-			labels[i - 1] = rank->GetXaxis()->GetBinLabel(i);
-			rank->GetXaxis()->SetBinLabel(i,
-				Form("%d.", rank->GetNbinsX() - i + 1));
-		}
-		rank->SetStats(0);
-		rank->SetFillColor(kGreen);
-		if (rank->GetNbinsX() > showNbins)
-		        rank->GetXaxis()->SetRange(rank->GetNbinsX() - showNbins + 1, rank->GetNbinsX());
-		rank->Draw("hbar2");
-		std::cout << std::endl
-			  << "====================================================" << std::endl
-			  << "             Result of Variable Ranking             " << std::endl
-			  << "----------------------------------------------------" << std::endl;
-		for(unsigned int i = rank->GetNbinsX(); i >= 1; i--) {
-			double v = fabs(rank->GetBinContent(i + 1) -
-			                rank->GetBinContent(i));
-			TString text = labels[i - 1] +
-			               Form(": %+1.2f%%", v * 100.0);
-			double off = rank->GetMaximum() * 0.1;
-			TText *t = new TText(off, i - 0.5, text);
-			if ((int) i >= rank->GetNbinsX() - (int) showNbins + 1)
-			        t->Draw();
-			std::cout << std::setw(4) << rank->GetXaxis()->GetBinLabel(i) << " "
-				  << std::setw(38) << std::setiosflags(ios::left) << labels[i - 1]
-				  << std::setiosflags(ios::right) << " +" 
-				  << std::setw(5) << std::setprecision(2) << std::setiosflags(ios::fixed)
-				  << (v * 100.0) << "%" << std::endl;
-		}
-		std::cout << "====================================================" << std::endl;
-		Save(pad, dir, "ranking");
-		pad = pads.Next();
-	}
 
 	pad->SetLeftMargin(0.15);
 	pad->SetRightMargin(0.13);
 	pad->SetTopMargin(0.13);
 
-	TH2 *matrixTmp = dynamic_cast<TH2*>(dir->Get("CorrMatrix"));
-	matrixTmp = (TH2*)matrixTmp->Clone(name + "_tmpPM");
-
-	TH2 *matrix = matrixTmp;
-	if (rank && rank->GetNbinsX() > showNbins) {
-		unsigned int iSave[showNbins];
-		for(unsigned int i = 0; i < showNbins; i++) {
-		        unsigned int iS = 1;
-		        for(; iS <= matrixTmp->GetNbinsX(); iS++) {
-		                if (matrixTmp->GetXaxis()->GetBinLabel(iS) == labels[rank->GetNbinsX() - i - 1]) {
-		                        iSave[i] = iS;
-		                        break;
-		                }
-		        }
-		}
-	        matrix = new TH2F(matrixTmp->GetName(), matrixTmp->GetTitle(),
-				  showNbins + 1, 0., showNbins + 1., showNbins + 1, 0., showNbins + 1.);
-		matrix->SetMinimum(-1.0);
-		matrix->SetMaximum(+1.0);
-		for(unsigned int i = 1; i <= showNbins; i++) {
-		        matrix->GetXaxis()->SetBinLabel(i, Form("%d.", i));
-		        matrix->GetYaxis()->SetBinLabel(i, Form("%d.", i));
-		        for(unsigned int j = i + 1; j <= showNbins; j++) {
-		                matrix->SetBinContent(i, j, matrixTmp->GetBinContent(iSave[i-1], iSave[j-1]));
-		                matrix->SetBinContent(j, i, matrixTmp->GetBinContent(iSave[i-1], iSave[j-1]));
-		        }
-		        matrix->SetBinContent(i, showNbins + 1, matrixTmp->GetBinContent(iSave[i-1], matrixTmp->GetNbinsX()));
-		        matrix->SetBinContent(showNbins + 1, i, matrixTmp->GetBinContent(iSave[i-1], matrixTmp->GetNbinsX()));
-		}
-		matrix->GetXaxis()->SetBinLabel(showNbins + 1, "target");
-		matrix->GetYaxis()->SetBinLabel(showNbins + 1, "target");
-	}
-
+	TH2 *matrix = dynamic_cast<TH2*>(dir->Get("CorrMatrix"));
+	matrix = (TH2*)matrix->Clone(name + "_tmpPM");
 	matrix->SetStats(0);
 	matrix->SetLabelOffset(0.011);
 	matrix->LabelsOption("d");
 	matrix->GetXaxis()->SetLabelSize(0.04);
 	matrix->GetYaxis()->SetLabelSize(0.04);
 	matrix->Draw("colz");
-	TBox box;
-	TLine line;
-	box.SetFillColor(kBlack);
-	line.SetLineColor(kBlack);
-	for(unsigned int i = 0; i < matrix->GetNbinsX(); i++)
-		box.DrawBox(i, i, i + 1, i + 1);
-	line.DrawLine(matrix->GetNbinsX() - 1, 0,
-	              matrix->GetNbinsX() - 1, matrix->GetNbinsX());
-	line.DrawLine(0, matrix->GetNbinsX() - 1,
-	              matrix->GetNbinsX(), matrix->GetNbinsX() - 1);
 
 	pad->RedrawAxis();
-	Save(pad, dir, "corrMatrix");
-
-	Save(pads);
-
-	delete[] labels;
-}
-
-void DrawAll()
-{
-
-        TCanvas *dummyCanvas = new TCanvas("dummyCanvas", "MVA Trainer Monitoring Summary", 0, 0, 800, 440);
-
-	TPaveText paveText(0.1, 0.6, 0.9, 0.9);
-	paveText.SetFillColor(0);
-	paveText.SetBorderSize(0);
-
-        gSystem->mkdir("plots");
-
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps[", "Landscape");
-
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("discriminator output & efficiency/purity curve");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	DrawOutput((TDirectory*)file->Get("output"));
-
-	paveText.Clear();
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("input variables for variable processors");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-	  TString name = obj->GetName();
-	  if (!name.BeginsWith("input_"))
-	    continue;
-
-	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	    DrawInputs(dir);
-	}
-
-	paveText.Clear();
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("normalizer PDF distributions");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-	  TString name = obj->GetName();
-	  if (!name.BeginsWith("ProcNormalize_"))
-	    continue;
-
-	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	    DrawProcNormalize(dir);
-	}
-
-	paveText.Clear();
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("correlation matrix");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-	  TString name = obj->GetName();
-	  if (!name.BeginsWith("ProcMatrix_"))
-	    continue;
-
-	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	    DrawProcMatrix(dir);
-	}
-
-	paveText.Clear();
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("likelihood ratio PDF distributions");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-	  TString name = obj->GetName();
-	  if (!name.BeginsWith("ProcLikelihood_"))
-	    continue;
-
-	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	    DrawProcLikelihood(dir, 1);
-	}
-
-	paveText.Clear();
-	paveText.AddText("MVA Trainer Monitoring:");
-	paveText.AddText("likelihood ratio S/(S+B) distributions");
-	paveText.Draw();
-	if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps");
-
-	TIter iter(file->GetListOfKeys());
-	TObject *obj = 0;
-	while((obj = iter.Next()) != 0) {
-	  TString name = obj->GetName();
-	  if (!name.BeginsWith("ProcLikelihood_"))
-	    continue;
-
-	    TDirectory *dir = dynamic_cast<TDirectory*>(file->Get(name));
-	    DrawProcLikelihood(dir, 0);
-	}
-
-        if ( printPS )
-	        dummyCanvas->Print("plots/summary.ps]");
-
-	dummyCanvas->Close();
-
+	Save(pad, dir);
 }

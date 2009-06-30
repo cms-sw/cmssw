@@ -79,6 +79,11 @@ namespace edm {
       findLumiOrRunPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const;
 
       bool
+      containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
+	return event ? containsEvent(run, lumi, event, exact) : (lumi ? containsLumi(run, lumi, exact) : containsRun(run, exact));
+      }
+
+      bool
       containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
 	return findEventPosition(run, lumi, event, exact) != entries_.end();
       }

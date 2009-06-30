@@ -31,7 +31,7 @@ namespace edm {
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 7)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
-    splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
+    splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel", 99) + 1, 99)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),

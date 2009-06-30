@@ -22,9 +22,6 @@
 #include "HepMC/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "SimDataFormats/Forward/interface/LHCTransportLink.h"
-#include <vector>
-
 // SimpleConfigurable replacement
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -33,7 +30,6 @@
 #include "H_RecRPObject.h"
 #include "H_BeamParticle.h"
 #include <string>
-#include <map>
 
 #include "TRandom3.h"
 
@@ -68,8 +64,6 @@ class Hector {
     //    bool isCharged(const HepMC::GenParticle * p);
     
     HepMC::GenEvent * addPartToHepMC( HepMC::GenEvent * event );
-
-    std::vector<LHCTransportLink> & getCorrespondenceMap() { return theCorrespondenceMap; }
     
     /*  
 	private:
@@ -94,6 +88,7 @@ class Hector {
     float m_rpp420_b;
     float m_rppzdc;
     float m_rppd1;
+    
     
     edm::ESHandle < ParticleDataTable > pdt;
     
@@ -132,9 +127,7 @@ class Hector {
     bool m_FP420Transport;
     bool m_ZDCTransport;
 
-    std::vector<LHCTransportLink> theCorrespondenceMap;
-
     TRandom3* rootEngine_;
-
+    
 };
 #endif

@@ -113,3 +113,12 @@ L1CaloRegionDetId L1GctJetCand::regionId() const {
 
 }
 
+/// get rank bits
+unsigned L1GctJetCand::rank() const { return m_data & 0x3f; }
+
+/// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
+unsigned L1GctJetCand::etaIndex() const { return (m_data>>6) & 0xf; }
+  
+/// get phi index (0-17)
+unsigned L1GctJetCand::phiIndex() const { return (m_data>>10) & 0x1f; }
+

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/04/06 16:51:05 $
- * $Revision: 1.63 $
+ * $Date: 2009/04/28 10:35:59 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -160,6 +160,12 @@ void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
 void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
 
   if ( debug_ ) cout << "EcalEndcapMonitorModule: endRun" << endl;
+
+  // end-of-run
+  if ( meStatus_ ) meStatus_->Fill(2);
+
+  if ( meRun_ ) meRun_->Fill(runNumber_);
+  if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
 }
 
@@ -341,6 +347,12 @@ void EcalEndcapMonitorModule::cleanup(void){
 void EcalEndcapMonitorModule::endJob(void) {
 
   if ( debug_ ) cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << endl;
+
+  if ( dqmStore_ ) {
+    meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
+    meRun_ = dqmStore_->get(prefixME_ + "/EventInfo/RUN");
+    meEvt_ = dqmStore_->get(prefixME_ + "/EventInfo/EVT");
+  }
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);

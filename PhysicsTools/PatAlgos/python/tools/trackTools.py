@@ -54,6 +54,10 @@ def makePATTrackCandidates(process,
     process.cleanLayer1Summary.candidates += [ cms.InputTag("cleanLayer1"+label) ]
     
     # Isolation: start with empty config
+    if isolation or isodeposits:
+        process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
+        process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
+        process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
     isoModules = []
     runIsoDeps = { 'tracker':False, 'caloTowers':False }
     for (source,deltaR) in isolation.items():

@@ -29,7 +29,7 @@ int main() {
       DummySimHit * simHit = new DummySimHit(pSimHit, 0., 1);
       hits.push_back(writer.makePSimHit(simHit, layer));
     }
-    writer.writeCluster(detType, hits);
+    writer.writeEvent(detType, hits);
   }
 
   AsciiNeutronHitReader reader("NeutronsME", 11);

@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id$
+// $Id: EventStreamHttpReader.h,v 1.17 2007/11/28 18:03:32 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -62,9 +62,3 @@ namespace edm
 }
 #endif
 
-/// emacs configuration
-/// Local Variables: -
-/// mode: c++ -
-/// c-basic-offset: 2 -
-/// indent-tabs-mode: nil -
-/// End: -

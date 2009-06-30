@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.30 2009/05/04 20:47:41 biery Exp $
+// $Id: SMProxyServer.cc,v 1.26 2009/01/26 21:34:27 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -8,6 +8,9 @@
 
 #include "EventFilter/SMProxyServer/interface/SMProxyServer.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
+#include "EventFilter/StorageManager/interface/ProgressMarker.h"
+//#include "EventFilter/StorageManager/interface/Configurator.h"
+//#include "EventFilter/StorageManager/interface/Parameter.h"
 
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 
@@ -65,7 +68,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   sentEvents_(0),
   sentDQMEvents_(0), 
   storedVolume_(0.),
-  progressMarker_("Idle")
+  progressMarker_(ProgressMarker::instance()->idle())
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making SMProxyServer");
 
@@ -120,6 +123,19 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   // calls to add the RCMS vars to the application infospace.
   fsm_.findRcmsStateListener();
 
+  //ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
+
+  //boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+  //closeFileScript_    = smParameter_ -> closeFileScript();
+  //notifyTier0Script_  = smParameter_ -> notifyTier0Script();
+  //insertFileScript_   = smParameter_ -> insertFileScript();  
+  //fileCatalog_        = smParameter_ -> fileCatalog(); 
+
+  //ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
+  //ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
+  //ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
+  //ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
+
   // added for Event Server
   maxESEventRate_ = 100.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
@@ -144,10 +160,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
-  esSelectedHLTOutputModule_ = "hltOutputDQM";
+  esSelectedHLTOutputModule_ = "out4DQM";
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
-  allowMissingSM_ = false;
-  ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
 
   // for performance measurements
   ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
@@ -1191,6 +1205,8 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
     Strings selectionRequest =
       EventSelector::getEventSelectionVString(requestParamSet);
+    Strings modifiedRequest =
+      eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
     // pull the rate request out of the consumer parameter set, too
     double maxEventRequestRate =
@@ -1207,7 +1223,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               selectionRequest, maxEventRequestRate,
+                               modifiedRequest, maxEventRequestRate,
                                hltOMLabel,
                                consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
@@ -2945,7 +2961,6 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
-  is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
@@ -2992,7 +3007,6 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
-  is->addItemRetrieveListener("allowMissingSM",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
@@ -3015,8 +3029,8 @@ void SMProxyServer::actionPerformed(xdata::Event& e)
         storedVolume_   = dpm_->totalvolumemb();
       else
         storedVolume_   = 0;
-    //else if (item == "progressMarker")
-    //  progressMarker_ = ProgressMarker::instance()->status();
+    else if (item == "progressMarker")
+      progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
   } 
 }
@@ -3076,7 +3090,6 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     try {
       dpm_.reset(new stor::DataProcessManager());
       dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
-      dpm_->setAllowMissingSM(allowMissingSM_);
       
       boost::shared_ptr<EventServer>
         eventServer(new EventServer(maxESEventRate_, maxESDataRate_,

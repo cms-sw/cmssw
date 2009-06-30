@@ -15,7 +15,7 @@ generator = cms.EDFilter("ExhumeGeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     ExhumeProcess = cms.PSet(
        ProcessType = cms.string('GG'),
-       ThetaMin = cms.double(0.30),
+       ThetaMin = cms.double(0.95),
        MassRangeLow = cms.double(100.0),
        MassRangeHigh = cms.double(9999.0)
     )

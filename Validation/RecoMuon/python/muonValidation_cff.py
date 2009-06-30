@@ -6,43 +6,43 @@ from Validation.RecoMuon.associators_cff import *
 # Configurations for MultiTrackValidators
 import Validation.RecoMuon.MultiTrackValidator_cfi
 
-trkMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+trkMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociation'
 trkMuonTrackVTrackAssoc.associators = ('TrackAssociatorByHits',)
 trkMuonTrackVTrackAssoc.label = ('generalTracks',)
 
-staMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+staMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 staMuonTrackVTrackAssoc.associatormap = 'tpToStaTrackAssociation'
 staMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
 staMuonTrackVTrackAssoc.label = ('standAloneMuons',)
 
-staUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+staUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 staUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaUpdTrackAssociation'
 staUpdMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
 staUpdMuonTrackVTrackAssoc.label = ('standAloneMuons:UpdatedAtVtx',)
 
-glbMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+glbMuonTrackVTrackAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 glbMuonTrackVTrackAssoc.associatormap = 'tpToGlbTrackAssociation'
 glbMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
 glbMuonTrackVTrackAssoc.label = ('globalMuons',)
 
-staMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+staMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 staMuonTrackVMuonAssoc.associatormap = 'tpToStaMuonAssociation'
 staMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 staMuonTrackVMuonAssoc.label = ('standAloneMuons',)
 
-staUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+staUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaUpdMuonAssociation'
 staUpdMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 staUpdMuonTrackVMuonAssoc.label = ('standAloneMuons:UpdatedAtVtx',)
 
-glbMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.multiTrackValidator.clone()
+glbMuonTrackVMuonAssoc = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
 
 glbMuonTrackVMuonAssoc.associatormap = 'tpToGlbMuonAssociation'
 glbMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)

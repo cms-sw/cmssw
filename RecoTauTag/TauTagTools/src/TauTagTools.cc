@@ -152,12 +152,12 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     return filteredPFChargedHadrCands;
   }
   
-  PFCandidateRefVector filteredPFNeutrHadrCands(PFCandidateRefVector theInitialPFCands,double NeutrHadrCand_HcalclusminE){
+  PFCandidateRefVector filteredPFNeutrHadrCands(PFCandidateRefVector theInitialPFCands,double NeutrHadrCand_HcalclusMinEt){
     PFCandidateRefVector filteredPFNeutrHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h0){
 	// *** Whether the neutral hadron candidate will be selected or not depends on its rec. HCAL cluster properties. 
-	if ((**iPFCand).energy()>=NeutrHadrCand_HcalclusminE){
+	if ((**iPFCand).et()>=NeutrHadrCand_HcalclusMinEt){
 	  filteredPFNeutrHadrCands.push_back(*iPFCand);
 	}
       }
@@ -165,12 +165,12 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     return filteredPFNeutrHadrCands;
   }
   
-  PFCandidateRefVector filteredPFGammaCands(PFCandidateRefVector theInitialPFCands,double GammaCand_EcalclusminE){
+  PFCandidateRefVector filteredPFGammaCands(PFCandidateRefVector theInitialPFCands,double GammaCand_EcalclusMinEt){
     PFCandidateRefVector filteredPFGammaCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::gamma){
 	// *** Whether the gamma candidate will be selected or not depends on its rec. ECAL cluster properties. 
-	if ((**iPFCand).energy()>=GammaCand_EcalclusminE){
+	if ((**iPFCand).et()>=GammaCand_EcalclusMinEt){
 	  filteredPFGammaCands.push_back(*iPFCand);
 	}
       }

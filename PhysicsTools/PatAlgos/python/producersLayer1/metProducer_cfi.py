@@ -18,6 +18,10 @@ layer1METs = cms.EDProducer("PATMETProducer",
       userInts = cms.PSet(
         src = cms.VInputTag('')
       ),
+      # add candidate ptrs here
+      userCands = cms.PSet(
+        src = cms.VInputTag('')
+      ),
       # add "inline" functions here
       userFunctions = cms.vstring(),
       userFunctionLabels = cms.vstring()
@@ -37,6 +41,7 @@ layer1METs = cms.EDProducer("PATMETProducer",
 
     # resolution
     addResolutions  = cms.bool(False),
+    resolutions     = cms.PSet(),
 )
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.23 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATPhotonProducer.cc,v 1.24 2009/06/08 17:32:26 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -70,6 +70,12 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   
 
 
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+ 
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Photon>(iConfig.getParameter<edm::ParameterSet>("userData"));
@@ -115,6 +121,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
   
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
   
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
@@ -154,6 +161,10 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
     if (efficiencyLoader_.enabled()) {
         efficiencyLoader_.setEfficiencies( aPhoton, photonRef );
+    }
+
+    if (resolutionLoader_.enabled()) {
+        resolutionLoader_.setResolutions(aPhoton);
     }
 
     // here comes the extra functionality
@@ -217,7 +228,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
                  edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
 	       )->setComment("input with MC match information");
 
-  iDesc.add<bool>("addResolutions",false);
+  pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
   // photon ID configurables
   iDesc.add<bool>("addPhotonID",true)->setComment("add photon ID variables");

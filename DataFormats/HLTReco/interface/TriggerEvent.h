@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2008/05/19 13:16:46 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/02/09 19:46:44 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/traits.h"
 #include <string>
 #include <vector>
 
@@ -23,7 +24,7 @@ namespace trigger
 {
 
   /// The single EDProduct to be saved for each event (AOD case)
-  class TriggerEvent {
+  class TriggerEvent : public edm::DoNotRecordParents {
 
   public:
 

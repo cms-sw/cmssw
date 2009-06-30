@@ -50,7 +50,6 @@ int  HcalDetDiagLaserClient::SummaryStatus(){
 }
 
 void HcalDetDiagLaserClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-  /*
   if (debug_>0) cout << "<HcalDetDiagLaserClient::htmlOutput> Preparing  html output ..." << endl;
   if(!dbe_) return;
   string client = "HcalDetDiagLaserClient";
@@ -123,6 +122,5 @@ void HcalDetDiagLaserClient::htmlOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
-  */
 } 
 

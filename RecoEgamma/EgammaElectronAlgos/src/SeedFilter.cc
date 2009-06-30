@@ -101,7 +101,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   if (e.getByLabel(vertexSrc_, h_vertices)) {
     vertices = *(h_vertices.product());
   } else {
-    edm::LogWarning("SeedFilter") << "SeedFilter::seeds"
+	  LogDebug("SeedFilter") << "SeedFilter::seeds"
 				  << "No vertex collection found: using beam-spot";
   }
 

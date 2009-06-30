@@ -31,9 +31,6 @@ process.load("CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cf
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripApvGainDummyDBWriter_cfi")
 process.SiStripApvGainGenerator.MeanGain=1.0
 process.SiStripApvGainGenerator.SigmaGain=0.0
-# default = ApvGain fixed to 1
-# gaussian = gaussian smearing with mean = MeanGain and sigma = SigmaGain
-process.SiStripApvGainGenerator.genMode = cms.string("default")
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -49,8 +46,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-
-process.siStripApvGainDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 
 process.p1 = cms.Path(process.siStripApvGainDummyDBWriter)
 

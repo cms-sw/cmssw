@@ -10,6 +10,7 @@ def adaptPFMuons(process,module):
     module.isolation   = cms.PSet()
     module.isoDeposits = cms.PSet()
     pass
+
 def adaptPFElectrons(process,module):
     module.useParticleFlow = True
     print "Temporarily switching off isolation & isoDeposits for PF Electrons"
@@ -27,8 +28,10 @@ def adaptPFElectrons(process,module):
     if module.embedSuperCluster.value(): 
         module.embedSuperCluster = False
         print "Temporarily switching off electron supercluster embedding"
+
 def adaptPFPhotons(process,module):
     raise RuntimeError, "Photons are not supported yet"
+
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
 
@@ -57,12 +60,24 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1' + patLabel))
 
 def switchToPFMET(process,input=cms.InputTag('pfMET')):
+    print 'MET: using ', input
     oldMETSource = process.layer1METs.metSource
     switchMCMatch(process,oldMETSource,input)
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
     #process.patJetMETCorrections.remove(process.patMETCorrections)
     process.patAODExtraReco.remove(process.patMETCorrections)
+
+def switchToPFJets(process,input=cms.InputTag('noTau')):
+    print 'Jets: using ', input
+    switchJetCollection(process,
+                        input,
+                        doJTA=True,
+                        doBTagging=True,
+                        jetCorrLabel=None, 
+                        doType1MET=False)  
+    adaptPFJets(process, process.allLayer1Jets)
+    process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
 
 def usePF2PAT(process,runPF2PAT=True):
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
@@ -76,13 +91,13 @@ def usePF2PAT(process,runPF2PAT=True):
     
     # -------- OBJECTS ------------
     # Muons
-    process.allLayer1Muons.pfMuonSource = cms.InputTag("pfMuons")
+    process.allLayer1Muons.pfMuonSource = cms.InputTag("isolatedMuons")
     adaptPFMuons(process,process.allLayer1Muons)
     switchMCMatch(process,process.allLayer1Muons.muonSource,process.allLayer1Muons.pfMuonSource)
     process.aodSummary.candidates.append(process.allLayer1Muons.pfMuonSource)
     
     # Electrons
-#    process.allLayer1Electrons.pfElectronSource = cms.InputTag("pfElectrons")
+#    process.allLayer1Electrons.pfElectronSource = cms.InputTag("isolatedElectrons")
 #    adaptPFElectrons(process,process.allLayer1Electrons)
 #    switchMCMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
 #    process.aodSummary.candidates.append(process.allLayer1Electrons.pfElectronSource)
@@ -102,23 +117,18 @@ def usePF2PAT(process,runPF2PAT=True):
     process.patAODExtraReco.remove(process.patPhotonIsolation)
     
     # Jets
-    switchJetCollection(process, cms.InputTag('pfTopProjection','PFJets'),
-        doJTA=True,
-        doBTagging=True,
-        jetCorrLabel=None, # You may want to apply jet energy corrections
-        doType1MET=False)  # You don't want CaloMET with PFJets, do you?
-    adaptPFJets(process, process.allLayer1Jets)
-    process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
-
+    switchToPFJets( process, 'noTau' )
+    
     # Taus
-    oldTaus = process.allLayer1Taus.tauSource
-    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
-    redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
-    process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
+    removeSpecificPATObject(process,'Taus')
+#    oldTaus = process.allLayer1Taus.tauSource
+#    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+#    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
+#    redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
+#    process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))
     
     # Unmasked PFCandidates
-    addPFCandidates(process,cms.InputTag('pfTopProjection','PFCandidates'),patLabel='PFParticles',cut="")
+    addPFCandidates(process,cms.InputTag('noJet'),patLabel='PFParticles',cut="")

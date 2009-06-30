@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/06/09 12:25:07 $ 
+ **  $Date: 2009/06/17 13:15:31 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -92,81 +92,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
 
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
 
-  std::vector<MonitorElement*> p_nTrackIsolSolidVsEta_isol_;
-  std::vector<MonitorElement*> p_trackPtSumSolidVsEta_isol_;
-  std::vector<MonitorElement*> p_nTrackIsolHollowVsEta_isol_;
-  std::vector<MonitorElement*> p_trackPtSumHollowVsEta_isol_;
-  std::vector<MonitorElement*> p_ecalSumVsEta_isol_;
-  std::vector<MonitorElement*> p_hcalSumVsEta_isol_;
 
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
-  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEta_;
-  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEta_;
 
-  std::vector<MonitorElement*> p_nTrackIsolSolidVsEt_isol_;
-  std::vector<MonitorElement*> p_trackPtSumSolidVsEt_isol_;
-  std::vector<MonitorElement*> p_nTrackIsolHollowVsEt_isol_;
-  std::vector<MonitorElement*> p_trackPtSumHollowVsEt_isol_;
-  std::vector<MonitorElement*> p_ecalSumVsEt_isol_;
-  std::vector<MonitorElement*> p_hcalSumVsEt_isol_;
-
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEt_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
-  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
-  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
-  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEt_;
-  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEt_;
-
-  std::vector<MonitorElement*> p_r9VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
-
-  std::vector<MonitorElement*> p_e1x5VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_e1x5VsEt_;
-
-  std::vector<MonitorElement*> p_r9VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
-
-  std::vector<MonitorElement*> p_e1x5VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_e1x5VsEta_;
-
-  std::vector<MonitorElement*> p_e2x5VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_e2x5VsEt_;
-
-  std::vector<MonitorElement*> p_e2x5VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_e2x5VsEta_;
-
-  std::vector<MonitorElement*> p_r1x5VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r1x5VsEt_;
-
-  std::vector<MonitorElement*> p_r1x5VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r1x5VsEta_;
-
-  std::vector<MonitorElement*> p_r2x5VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r2x5VsEt_;
-
-  std::vector<MonitorElement*> p_r2x5VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r2x5VsEta_;
-
-  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
-
-  std::vector<MonitorElement*> p_sigmaEtaEtaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_sigmaEtaEtaVsEta_;
-
-  std::vector<MonitorElement*> p_nHitsVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
-
-  std::vector<MonitorElement*> p_tkChi2VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_tkChi2VsEta_;
-
-  std::vector<MonitorElement*> p_dCotTracksVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > p_dCotTracksVsEta_;
-
-  void doProfileX(TH2 * th2, MonitorElement* me);
-  void doProfileX(MonitorElement * th2m, MonitorElement* me);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
       

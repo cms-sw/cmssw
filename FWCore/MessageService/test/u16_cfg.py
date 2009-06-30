@@ -18,7 +18,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     # produce file u16_statistics.mslog
     u16_statistics = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True),
         extension = cms.untracked.string('mslog')
     ),
     # produce file u16_job_report.mmxml

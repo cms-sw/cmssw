@@ -4,9 +4,7 @@
 <use name=DQMServices/Core>
 <use name=root>
 <use name=PhysicsTools/UtilAlgos>
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/TauReco>
-<use name=DataFormats/MuonReco>
+
 <library file="*.cc" name=ValidationRecoTauPlugin>
   <flags EDM_PLUGIN=1>
 </library>

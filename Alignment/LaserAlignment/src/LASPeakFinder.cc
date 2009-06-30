@@ -6,9 +6,6 @@
 ///
 ///
 LASPeakFinder::LASPeakFinder() {
-
-  amplitudeThreshold = 0.; // default
-
 }
 
 
@@ -20,13 +17,10 @@ LASPeakFinder::LASPeakFinder() {
 /// the pair<> will return mean/meanError (in strips);
 /// offset is necessary for tob modules which are hit off-center
 ///
-bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<double,double>& result, TH1D* histogram, const double offset ) {
+bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<double,double>& result, const double offset ) {
 
-  // this function will be propagated to the histo output file,
-  // therefore we do some cosmetics already here
-  TF1 fitFunction( "fitFunction", "gaus" );
-  fitFunction.SetLineColor( 2 );
-  fitFunction.SetLineWidth( 2 );
+  TH1D* histogram = new TH1D( "bufferHistogram", "bufferHistogram", 512, 0, 512 );
+  TF1* fitFunction = new TF1( "fitFunction", "gaus" );
 
   std::pair<int,double> largestAmplitude( 0, 0. ); // strip, amplitude
   double anAmplitude = 0.;
@@ -77,42 +71,29 @@ bool LASPeakFinder::FindPeakIn( const LASModuleProfile& aProfile, std::pair<doub
   }
 
   // no reasonable peak?
-  if( largestAmplitude.second < amplitudeThreshold * noise ) {
+  if( largestAmplitude.second < 10. * noise ) {
     std::cerr << " [LASPeakFinder::FindPeakIn] ** WARNING: No reasonably large peak." << std::endl;
     return false;
   }
 
   // prepare fit function: starting values..
-  fitFunction.SetParameter( 0, largestAmplitude.second ); // amp
-  fitFunction.SetParameter( 1, largestAmplitude.first ); // mean
-  fitFunction.SetParameter( 2, 3. ); // width
+  fitFunction->SetParameter( 0, largestAmplitude.second ); // amp
+  fitFunction->SetParameter( 1, largestAmplitude.first ); // mean
+  fitFunction->SetParameter( 2, 3. ); // width
 
   // ..and parameter limits
-  fitFunction.SetParLimits( 0, largestAmplitude.second * 0.3, largestAmplitude.second * 1.8 ); // amp of the order of the peak height
-  fitFunction.SetParLimits( 1, largestAmplitude.first - 12, largestAmplitude.first + 12 ); // mean around the peak maximum
-  fitFunction.SetParLimits( 2, 0.5, 8. ); // reasonable width
+  fitFunction->SetParLimits( 0, largestAmplitude.second * 0.3, largestAmplitude.second * 1.8 ); // amp of the order of the peak height
+  fitFunction->SetParLimits( 1, largestAmplitude.first - 12, largestAmplitude.first + 12 ); // mean around the peak maximum
+  fitFunction->SetParLimits( 2, 0.5, 8. ); // reasonable width
   
 
-  // fit options: Quiet / all Weights=1 / better Errors / enable fix&Bounds on parameters
-  histogram->Fit( &fitFunction, "QWEB", "", largestAmplitude.first - 12, largestAmplitude.first + 12 );
+  // and go
+  histogram->Fit( fitFunction, "QWB", "", largestAmplitude.first - 12, largestAmplitude.first + 12 );
 
   // prepare output
-  result.first = fitFunction.GetParameter( 1 );
-  result.second = fitFunction.GetParError( 1 );
+  result.first = fitFunction->GetParameter( 1 );
+  result.second = fitFunction->GetParError( 1 );
 
   return true;
-
-}
-
-
-
-
-
-///
-///
-///
-void LASPeakFinder::SetAmplitudeThreshold( double aThreshold ) {
-
-  amplitudeThreshold = aThreshold;
 
 }

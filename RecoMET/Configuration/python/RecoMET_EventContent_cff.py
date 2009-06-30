@@ -11,7 +11,8 @@ RecoMETFEVT = cms.PSet(
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
-                                           #'keep recoCaloMETSignifs_*_*_*'
+                                           'keep recoHcalNoiseRBXs_*_*_*',
+                                           'keep HcalNoiseSummary_*_*_*'
                                            )
     )
 RecoGenMETFEVT = cms.PSet(
@@ -28,8 +29,9 @@ RecoMETRECO = cms.PSet(
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
-                                           #'keep recoCaloMETSignifs_*_*_*'
-                                           )
+                                           'keep recoHcalNoiseRBXs_*_*_*',
+                                           'keep HcalNoiseSummary_*_*_*'
+                                                                                      )
     )
 RecoGenMETRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoGenMETs_*_*_*')
@@ -45,7 +47,8 @@ RecoMETAOD = cms.PSet(
                                            'keep recoMETs_*_*_*',
                                            'keep recoPFMETs_*_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_*_*_*',
-                                           #'keep recoCaloMETSignifs_*_*_*'
+                                           'drop recoHcalNoiseRBXs_*_*_*',
+                                           'keep HcalNoiseSummary_*_*_*'
                                            )
     )
 RecoGenMETAOD = cms.PSet(

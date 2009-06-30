@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
+// $Id: TriggerFilter.h,v 1.3 2009/04/27 20:45:16 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.3 2009/04/27 20:45:16 vadler Exp $
 */
 
 
@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefVectorIterator.h"
 
 namespace pat {
 
@@ -67,13 +68,15 @@ namespace pat {
   
 
   /// collection of TriggerFilter
-  typedef std::vector< TriggerFilter >              TriggerFilterCollection;
+  typedef std::vector< TriggerFilter >                      TriggerFilterCollection;
   /// persistent reference to an item in a TriggerFilterCollection
-  typedef edm::Ref< TriggerFilterCollection >       TriggerFilterRef;
+  typedef edm::Ref< TriggerFilterCollection >               TriggerFilterRef;
   /// persistent reference to a TriggerFilterCollection product
-  typedef edm::RefProd< TriggerFilterCollection >   TriggerFilterRefProd;
+  typedef edm::RefProd< TriggerFilterCollection >           TriggerFilterRefProd;
   /// vector of persistent references to items in the same TriggerFilterCollection
-  typedef edm::RefVector< TriggerFilterCollection > TriggerFilterRefVector;
+  typedef edm::RefVector< TriggerFilterCollection >         TriggerFilterRefVector;
+  /// const iterator over vector of persistent references to items in the same TriggerFilterCollection
+  typedef edm::RefVectorIterator< TriggerFilterCollection > TriggerFilterRefVectorIterator;
 
 }
 

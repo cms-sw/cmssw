@@ -1,7 +1,6 @@
-#!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.35 2009/05/12 06:56:29 loizides Exp $
+#!/usr/bin/perl -w
+# $Id: InjectWorker.pl,v 1.30 2008/10/09 02:23:05 loizides Exp $
 
-use warnings;
 use strict;
 use DBI;
 use Getopt::Long;
@@ -10,15 +9,10 @@ use Cwd;
 use Cwd 'abs_path';
 
 ############################################################################################################
-my $debug       = 0;  # toggled by SM_DEBUG
-my $nodbint     = 0;  # toggled by SM_DONTACCESSDB
-my $justnoti    = 0;  # toggled by SM_JUSTNOTI (only if SM_DONTACCESSDB)
-my $nofilecheck = 0;  # toggled by SM_NOFILECHECK
+my $debug=0;     # must switch by hand
+my $justnoti=0;  # toggled by SM_JUSTNOTI  
 ############################################################################################################
-
-# global vars
-my $endflag = 0; 
-my $host    = ""; 
+my $endflag=0; 
 
 # printout syntax and die
 sub printsyntax()
@@ -190,34 +184,27 @@ sub inject($$)
         print "Error in obtained parameters\n";
         return -1;
     }
-
+    
     # index file name and size
     my $indfile     = $filename;
     $indfile =~ s/\.dat$/\.ind/;
     my $indfilesize = -1;
-    if ($host eq $hostname) {
-        if (-e "$pathname/$indfile") {
-            $indfilesize = -s "$pathname/$indfile";
-        }
-
-        if ($nofilecheck==0) {
-            if (not -e "$pathname/$indfile") {
-                $indfile = '';
-            }
-        }
+    if (-e "$pathname/$indfile") {
+        $indfilesize = -s "$pathname/$indfile";
+    } else {
+        $indfile     = '';
     }
-    
+
     # fix a left over bug from CMSSW_2_0_4
     $appversion=$1 if $appversion =~ /\"(.*)'/; #'for emacs syntax highlighting
     $appversion=$1 if $appversion =~ /\"(.*)\"/;
 
-    # redirect setuplabel/streams to different destinations according to 
-    # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
-    return 0 if ($stream eq 'EcalCalibration' || $stream =~ '_EcalNFS$'); #skip EcalCalibration
-
-    if ($setuplabel =~ 'TransferTest' || $stream =~ '_TransferTest$') {
+    # redirect setuplabel/streams to different destinations
+    if($setuplabel =~ 'TransferTest' || $stream     =~ 'TransferTest' || $stream eq 'DQM') {
 	$destination = 'TransferTest'; # transfer but delete after
-    } elsif ($stream =~ '_NoRepack$'|| $stream eq 'Error') {
+    }
+
+    if($stream eq 'Random' || lc $stream eq 'error' ) {
 	$destination = 'GlobalNoRepacking'; # do not repack 
         $indfile     = '';
         $indfilesize = -1;
@@ -298,7 +285,7 @@ sub inject($$)
         print "Error in DB access when executing, DB returned $sth->errstr\n";
         return -1;
     }
-    
+
     if ($rows!=1) {
         print "Strange error related to DB access when executing , DB returned rows=$rows\n";
         if ($doNotify) {
@@ -308,7 +295,7 @@ sub inject($$)
     }
 
     if ($doNotify) {
-	if ($debug) {print "Executing notification: $TIERZERO\n";}
+	if($debug) {print "Executing notification: $TIERZERO\n";}
         system($TIERZERO);
     }
     return 0;
@@ -317,23 +304,6 @@ sub inject($$)
 ############################################################################################################
 # Main starts here                                                                                         #
 ############################################################################################################
-
-# get options from environment
-if (defined $ENV{'SM_DEBUG'}) { 
-    $debug=1;
-}
-
-if (defined $ENV{'SM_NOFILECHECK'}) { 
-    $nofilecheck=1;
-}
-
-if (defined $ENV{'SM_DONTACCESSDB'}) { 
-    $nodbint=1;
-    
-    if (defined $ENV{'SM_JUSTNOTI'}) { 
-        $justnoti=1;
-    }
-}
 
 # redirect signals
 $SIG{ABRT} = \&TERMINATE;
@@ -394,7 +364,7 @@ my $outfile;
 my $thedate  = getdatestr();
 my $hostname = `hostname -f`;
 my @harray   = split(/\./,$hostname);
-$host        = $harray[0];
+my $host     = $harray[0];
 
 my $waiting = -1;
 if ($fileflag==0) {
@@ -435,7 +405,7 @@ while (!(-e "$infile") && !$endflag) {
 }
 
 # if told to exit while waiting for input, we exit here
-if ($endflag) {
+if($endflag) {
     system("rm -f $lockfile");
     open(STDOUT,">>/dev/null");
     open(STDERR,">>/dev/null");
@@ -495,7 +465,7 @@ my $hltHandle;    #for HLT key queries
 my $SQLh;
 my %hltkeys;      #cache hlt keys
 
-if ($nodbint==0) { 
+if (!defined $ENV{'SM_DONTACCESSDB'}) { 
 
     if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     my $retry = 0;
@@ -543,10 +513,14 @@ if ($nodbint==0) {
         "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
     $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
 
-} else { # no DB interaction
+} else { 
     if ($debug) {
         print "Don't access DB flag set \n".
             "Following commands would have been processed: \n";
+    }
+    
+    if (defined $ENV{'SM_JUSTNOTI'}) { 
+        $justnoti=1; # just do the notification
     }
 }
 
@@ -629,7 +603,6 @@ while(!$endflag) {
                         }
                     }
                 }
-                $hltHandle->finish;
             }
 	}
 
@@ -669,14 +642,14 @@ while(!$endflag) {
         $waiting=0; #start the waiting counter
     } elsif ($waiting>=0) {
         $waiting++;
-        if ($waiting>50) {
+        if ($waiting>10) {
             $endflag=1;
             last;
         }
     }
 
     # sleep a little bit
-    sleep(20);
+    sleep(10);
 
     # seek nowhere in file to reset EOF flag
     seek(INDATA,0,1);
@@ -729,7 +702,7 @@ if (defined $dbhlt) {
     my $timestr = gettimestr();
     print "$timestr: Disconnect from DB connection for HLT key retrieval\n";
     $dbhlt->disconnect or 
-        warn "Warning: Disconnect from Oracle for HLT failed: $DBI::errstr\n";
+        warn "Warning: Disconnection from Oracle for HLT failed: $DBI::errstr\n";
 }
 
 # close files

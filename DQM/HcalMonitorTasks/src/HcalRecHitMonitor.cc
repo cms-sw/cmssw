@@ -19,7 +19,7 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 /* ------------------------------------ */ 
 
 void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
-			      DQMStore* dbe)
+				DQMStore* dbe)
 {
   HcalBaseMonitor::setup(ps,dbe);
 
@@ -72,7 +72,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
       m_dbe->setCurrentFolder(baseFolder_);
-      meEVT_ = m_dbe->bookInt("RecHit Task Event Number");
+      meEVT_ = m_dbe->bookInt("RecHit Event Number");
       meEVT_->Fill(ievt_);
 
       // Create problem cell plots
@@ -281,27 +281,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   double  hbenergythresh=0;
   double  heenergythresh=0;
   int HEbindepth=0;
-
-
-  // Fill dummy values into histograms; not yet sure if this fixes 
-  // problem seen in online DQM where plots don't update
-  h_HBEnergy_1D->setBinContent(0, ievt_);
-  h_HEEnergy_1D->setBinContent(0, ievt_);
-  h_HOEnergy_1D->setBinContent(0, ievt_);
-  h_HFEnergy_1D->setBinContent(0, ievt_);
-
-  for (unsigned int i=0;i<OccupancyByDepth.size();++i)
-    {
-      OccupancyByDepth[i]->setBinContent(0,0,ievt_);
-      EnergyByDepth[i]->setBinContent(0,0,ievt_);
-      TimeByDepth[i]->setBinContent(0,0,ievt_);
-      OccupancyThreshByDepth[i]->setBinContent(0,0,ievt_);
-      EnergyThreshByDepth[i]->setBinContent(0,0,ievt_);
-      TimeThreshByDepth[i]->setBinContent(0,0,ievt_);
-      SumEnergyByDepth[i]->setBinContent(0,0,ievt_);
-      SumTimeByDepth[i]->setBinContent(0,0,ievt_);
-    }
-  
 
   for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
     { // loop over all hits

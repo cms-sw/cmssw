@@ -11,24 +11,19 @@
 #include "Alignment/LaserAlignment/src/LASGlobalData.cc" //template
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h" 
 #include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
-#include "Alignment/LaserAlignment/src/LASConstants.h"
 
 
 class LASGeometryUpdater {
   
  public:
-  LASGeometryUpdater( LASGlobalData<LASCoordinateSet>&, LASConstants& );
-  void ApplyBeamKinkCorrections( LASGlobalData<LASCoordinateSet>& ) const;
+  LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& );
   void EndcapUpdate( LASEndcapAlignmentParameterSet&, LASGlobalData<LASCoordinateSet>& );
   void TrackerUpdate( LASEndcapAlignmentParameterSet&, LASBarrelAlignmentParameterSet&, AlignableTracker& );
   void SetReverseDirection( bool );
-  void SetMisalignmentFromRefGeometry( bool );
 
  private:
   LASGlobalData<LASCoordinateSet> nominalCoordinates;
-  LASConstants lasConstants;
   bool isReverseDirection;
-  bool isMisalignmentFromRefGeometry;
 
 };
 

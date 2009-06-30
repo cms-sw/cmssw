@@ -38,9 +38,8 @@ public:
     double properTime() const                       { return properTime_; }
     const G4VProcess * creatorProcess() const       { return creatorProcess_; }
     double weight() const                           { return weight_; }
-    void setTrackID(int i)  			            { trackID_ = i; }
-    void setParentID(int i)			                { parentID_ = i; }
-    void setGenParticleID(int i)                    { genParticleID_ = i; }
+    void setTrackID(int i)  			    { trackID_ = i; }
+    void setParentID(int i)			    { parentID_ = i; }
     bool storeTrack() const                         { return storeTrack_; }
     bool saved() const                              { return saved_; }
     /** Internal consistency check (optional).

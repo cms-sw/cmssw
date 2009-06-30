@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.17 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATTauProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.17 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATTauProducer.h,v 1.18 2009/06/08 13:51:35 hegner Exp $
 */
 
 
@@ -28,6 +28,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
@@ -69,7 +70,6 @@ namespace pat {
       bool          addGenJetMatch_;
       bool          embedGenJetMatch_;
       edm::InputTag genJetMatchSrc_;
-      bool          addResolutions_;
       bool          addTauID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> tauIDSrcs_;
@@ -83,6 +83,9 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+      
+      bool addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Tau>      userDataHelper_;

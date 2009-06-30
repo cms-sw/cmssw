@@ -17,280 +17,155 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
 
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-
+using namespace reco;
+using namespace edm;
+using namespace std;
 
 /* Constructor */
-VertexAssociatorByTracks::VertexAssociatorByTracks (const edm::ParameterSet & config) : config_(config)
-{
-    R2SMatchedSimRatio_ = config.getParameter<double>("R2SMatchedSimRatio");
-    R2SMatchedRecoRatio_ = config.getParameter<double>("R2SMatchedRecoRatio");
-    S2RMatchedSimRatio_ = config.getParameter<double>("S2RMatchedSimRatio");
-    S2RMatchedRecoRatio_ = config.getParameter<double>("S2RMatchedRecoRatio");
-
-    std::string trackQualityType = config.getParameter<std::string>("trackQuality");
-    trackQuality_ = reco::TrackBase::qualityByName(trackQualityType);
-
-    edm::ParameterSet param = config.getParameter<edm::ParameterSet>("trackingParticleSelector");
-
-    selector_ = TrackingParticleSelector(
-                    param.getParameter<double>("ptMinTP"),
-                    param.getParameter<double>("minRapidityTP"),
-                    param.getParameter<double>("maxRapidityTP"),
-                    param.getParameter<double>("tipTP"),
-                    param.getParameter<double>("lipTP"),
-                    param.getParameter<int>("minHitTP"),
-                    param.getParameter<bool>("signalOnlyTP"),
-                    param.getParameter<bool>("chargedOnlyTP"),
-                    param.getParameter<std::vector<int> >("pdgIdTP")
-                );
-}
+VertexAssociatorByTracks::VertexAssociatorByTracks (const edm::ParameterSet& conf) :
+  conf_(conf) {}
 
 
 /* Destructor */
-VertexAssociatorByTracks::~VertexAssociatorByTracks()
-{
-    //do cleanup here
+VertexAssociatorByTracks::~VertexAssociatorByTracks() {
+  //do cleanup here
+}
+
+//
+//---member functions
+//
+
+VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
+    edm::Handle<reco::VertexCollection>& vertexCollectionH,
+    edm::Handle<TrackingVertexCollection>&  TVCollectionH,
+    const edm::Event& event,
+    reco::RecoToSimCollection& trackAssocResult) const {
+
+//  const double minHitFraction = theMinHitFraction;
+//  int nshared =0;
+//  float fraction=0;
+//  std::vector<unsigned int> SimTrackIds;
+//  std::vector<unsigned int> matchedIds;
+
+  using reco::VertexRef;
+
+  VertexRecoToSimCollection  outputCollection;
+
+  const TrackingVertexCollection tVC = *(TVCollectionH.product());
+  const   reco::VertexCollection  vC = *(vertexCollectionH.product());
+
+//  double minFraction = 0.01;
+//  double fraction = 0.8;
+
+  std::map<TrackingVertexRef,int> tVCount;
+
+  int iv = 0;
+
+  // Loop over reco::Vertex
+
+  for (reco::VertexCollection::const_iterator vertex = vC.begin();
+       vertex != vC.end(); ++vertex, ++iv) {
+    tVCount.clear();
+    VertexRef rVertexR = VertexRef(vertexCollectionH,iv);
+    double nRecoTracks = vertex->tracksSize();
+
+    // Loop over daughter tracks of reco::Vertex
+
+    for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
+         recoDaughter != vertex->tracks_end(); ++recoDaughter) {
+      RefToBase<reco::Track>  tr = *recoDaughter;
+      if (trackAssocResult.numberOfAssociations(tr) > 0 && trackAssocResult[tr].size() > 0) {
+        std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
+
+        // Loop over TrackingParticles associated with reco::Track
+
+        for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator match = tpV.begin();
+             match != tpV.end(); ++match) {
+          // ... and keep count of it's parent vertex
+          TrackingParticleRef tp = match->first;
+//          double trackFraction = match->second;
+          TrackingVertexRef   tv = tp->parentVertex();
+          ++tVCount[tv]; // Count matches to this reco:Vertex for this TrackingVertex
+        }
+      }
+    }
+
+    // Loop over map, set score, add to outputCollection
+
+    for (std::map<TrackingVertexRef,int>::const_iterator match = tVCount.begin();
+         match != tVCount.end(); ++match) {
+      TrackingVertexRef tV = match->first;
+      double nMatches      = match->second;
+      outputCollection.insert(rVertexR,std::make_pair(tV,nMatches/nRecoTracks));
+    }
+  } // Loop on reco::Vertex
+
+  return outputCollection;
 }
 
 
-reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
-    edm::Handle<reco::VertexCollection> & recoVertexes,
-    edm::Handle<TrackingVertexCollection> & trackingVertexes,
-    const edm::Event& event,
-    reco::RecoToSimCollection & associator
-) const
-{
-    reco::VertexRecoToSimCollection  outputCollection;
+VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
+    edm::Handle<reco::VertexCollection>&   vertexCollectionH,
+    edm::Handle<TrackingVertexCollection>& TVCollectionH,
+    const edm::Event& e,
+    reco::SimToRecoCollection& trackAssocResult) const {
 
-    std::map<TrackingVertexRef,std::pair<double, std::size_t> > matches;
+  const TrackingVertexCollection tVC = *(TVCollectionH.product());
+  const   reco::VertexCollection  vC = *(vertexCollectionH.product());
 
-    std::cout << "reco::VertexCollection size = " << recoVertexes->size();
-    std::cout << " ; TrackingVertexCollection size = " << trackingVertexes->size() << std::endl << std::endl;
+  VertexSimToRecoCollection  outputCollection; // return value
 
-    // Loop over RecoVertex
-    for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
-    {
-        reco::VertexRef recoVertex(recoVertexes, recoIndex);
+  // Loop over TrackingVertexes
 
-        matches.clear();
+  std::map<VertexRef,int> vCount;
+  int iTV = 0;
+  for (TrackingVertexCollection::const_iterator tV = tVC.begin();
+       tV != tVC.end(); ++tV, ++iTV) {
+    vCount.clear();
+    TrackingVertexRef tVertexR = TrackingVertexRef(TVCollectionH,iTV);
+    double nSimTracks = (tV->daughterTracks()).size();
 
-        double recoDaughterWeight = 0.;
+    // Loop over daughter tracks of TrackingVertex
+    for (TrackingVertex::tp_iterator simDaughter = tV->daughterTracks_begin();
+         simDaughter != tV->daughterTracks_end(); ++simDaughter) {
+      TrackingParticleRef tp = *simDaughter;
 
-        // Loop over daughter tracks of RecoVertex
-        for (
-            reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-            recoDaughter != recoVertex->tracks_end();
-            ++recoDaughter
-        )
-        {
-            // Check the quality of the RecoDoughters
-            if ( !(*recoDaughter)->quality(trackQuality_) ) continue;
+      SimToRecoCollection::const_iterator daughterPosition = trackAssocResult.find(*simDaughter);
+      if (daughterPosition != trackAssocResult.end()) {
+        std::vector<std::pair<RefToBase<reco::Track> , double> > recoTracks = trackAssocResult[*simDaughter];
 
-            // Check for association for the given RecoDaughter
-            if ( associator.numberOfAssociations(*recoDaughter) > 0 )
-            {
-                std::vector<std::pair<TrackingParticleRef,double> > associations = associator[*recoDaughter];
+       // Loop over reco::Tracks associated with TrackingParticle
+        for (std::vector<std::pair<RefToBase<reco::Track> , double> >::const_iterator match = recoTracks.begin();
+             match != recoTracks.end(); ++match) {
+          // ... and keep count of it's parent vertex
 
-                // Loop over TrackingParticles associated with RecoDaughter
-                for (
-                    std::vector<std::pair<TrackingParticleRef,double> >::const_iterator association = associations.begin();
-                    association != associations.end();
-                    ++association
-                )
-                {
-                    // Get a reference to parent vertex of TrackingParticle associated to the RecoDaughter
-                    TrackingVertexRef trackingVertex = association->first->parentVertex();
-                    // Store matched RecoDaughter to the trackingVertex
-                    matches[trackingVertex].first += recoVertex->trackWeight(*recoDaughter);
-                    matches[trackingVertex].second++;
-                }
+          TrackBaseRef track(match->first);
+//          double   trackQuality = match->second;
+
+          // Find vertex if any where this track comes from
+          int iv = 0;
+          for (reco::VertexCollection::const_iterator vertex = vC.begin();
+              vertex != vC.end(); ++vertex,++iv) {
+            VertexRef rVertexR = VertexRef(vertexCollectionH,iv);
+            for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
+                 recoDaughter != vertex->tracks_end(); ++recoDaughter) {
+              if (*recoDaughter == track) {
+                ++vCount[rVertexR]; // Count matches to this TrackingVertex for this reco:Vertex
+              }
             }
-
-            recoDaughterWeight += recoVertex->trackWeight(*recoDaughter);
-        } //loop over daughter tracks of RecoVertex
-
-        std::size_t assoIndex = 0;
-
-        // Loop over map between TrackingVertexes and matched RecoDaugther
-        for (
-            std::map<TrackingVertexRef,std::pair<double, std::size_t> >::const_iterator match = matches.begin();
-            match != matches.end();
-            ++match
-        )
-        {
-            // Getting the TrackingVertex information
-            TrackingVertexRef trackingVertex = match->first;
-            double matchedDaughterWeight = match->second.first;
-            std::size_t matchedDaughterCounter = match->second.second;
-
-            // Count for only reconstructible SimDaughters           
-            std::size_t simDaughterCounter = 0;
-
-            for (
-                TrackingVertex::tp_iterator simDaughter = trackingVertex->daughterTracks_begin();
-                simDaughter != trackingVertex->daughterTracks_end();
-                ++simDaughter
-            )
-                if ( selector_(**simDaughter) ) simDaughterCounter++;
-
-            // Sanity condition in case that reconstructable condition is too tight
-            if ( simDaughterCounter < matchedDaughterCounter )
-                simDaughterCounter = matchedDaughterCounter;
-
-            // Condition over S2RMatchedSimRatio
-            if ( (double)matchedDaughterCounter/simDaughterCounter < R2SMatchedSimRatio_ ) continue;
-
-            double quality = (double)matchedDaughterWeight/recoDaughterWeight;
-
-            // Condition over R2SMatchedRecoRatio
-            if (quality < R2SMatchedRecoRatio_) continue;
-
-            outputCollection.insert(recoVertex, std::make_pair(trackingVertex, quality));
-
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
-
-            assoIndex++;
+          }
         }
-    } // Loop on RecoVertex
+      }
+    }
 
-    std::cout << std::endl;
-    std::cout << "RecoToSim OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
+    // Loop over map, set score, add to outputCollection
+    for (std::map<VertexRef,int>::const_iterator match = vCount.begin(); match != vCount.end(); ++match) {
+      VertexRef v = match->first;
+      double nMatches      = match->second;
+      outputCollection.insert(tVertexR,std::make_pair(v,nMatches/nSimTracks));
+    }
+  }
 
-    return outputCollection;
-}
-
-
-
-reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
-    edm::Handle<reco::VertexCollection> & recoVertexes,
-    edm::Handle<TrackingVertexCollection> & trackingVertexes,
-    const edm::Event& event,
-    reco::SimToRecoCollection & associator
-) const
-{
-    reco::VertexSimToRecoCollection  outputCollection;
-
-    // Loop over TrackingVertexes
-    std::map<reco::VertexRef,std::pair<double, std::size_t> > matches;
-
-    // Loop over TrackingVertexes
-    for (std::size_t simIndex = 0; simIndex < trackingVertexes->size(); ++simIndex)
-    {
-        TrackingVertexRef trackingVertex(trackingVertexes, simIndex);
-
-        matches.clear();
-
-        std::size_t simDaughterCounter = 0;
-
-        // Loop over daughter tracks of TrackingVertex
-        for (
-            TrackingVertex::tp_iterator simDaughter = trackingVertex->daughterTracks_begin();
-            simDaughter != trackingVertex->daughterTracks_end();
-            ++simDaughter
-        )
-        {
-            // Select only reconstructible SimDaughters
-            if ( !selector_(**simDaughter) ) continue;
-
-            // Check for association for the given RecoDaughter
-            if ( associator.numberOfAssociations(*simDaughter) > 0 )
-            {
-                std::vector<std::pair<reco::TrackBaseRef, double> > associations = associator[*simDaughter];
-
-                // Loop over RecoTracks associated with TrackingParticle
-                for (
-                    std::vector<std::pair<reco::TrackBaseRef,double> >::const_iterator association = associations.begin();
-                    association != associations.end();
-                    ++association
-                )
-                {
-                    reco::TrackBaseRef recoTrack = association->first;
-
-                    for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
-                    {
-                        reco::VertexRef recoVertex(recoVertexes, recoIndex);
-
-                        for (
-                            reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-                            recoDaughter != recoVertex->tracks_end();
-                            ++recoDaughter
-                        )
-                        {
-                            // Store matched RecoDaughter to the RecoVertex
-                            if (
-                                recoDaughter->id() == recoTrack.id() &&
-                                recoDaughter->key() == recoTrack.key()
-                            )
-                            {
-                                matches[recoVertex].first += recoVertex->trackWeight(*recoDaughter);
-                                matches[recoVertex].second++; 
-                            }
-                        }
-                    }
-                } // loop a recotracks
-            }
-
-            simDaughterCounter++;
-        } // loop a simDaughter
-
-        std::size_t assoIndex = 0;
-
-        // Loop over map, set score, add to outputCollection
-        for (
-            std::map<reco::VertexRef,std::pair<double,std::size_t> >::const_iterator match = matches.begin();
-            match != matches.end();
-            ++match
-        )
-        {
-            // Getting the TrackingVertex information
-            reco::VertexRef recoVertex = match->first;
-            double matchedDaughterWeight = match->second.first;
-            std::size_t matchedDaughterCounter = match->second.second;
-
-            double recoDaughterWeight = 0.;
-
-            // Weighted count of those tracks with a given quality of the RecoDoughters
-            for (
-                reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-                recoDaughter != recoVertex->tracks_end();
-                ++recoDaughter
-            )
-                if ( (*recoDaughter)->quality(trackQuality_) ) 
-                    recoDaughterWeight += recoVertex->trackWeight(*recoDaughter);
-
-            // Sanity condition in case that track quality condition is too tight
-            if ( recoDaughterWeight < matchedDaughterWeight )
-                recoDaughterWeight = matchedDaughterWeight;
-
-            // Condition over S2RMatchedRecoRatio
-            if ( matchedDaughterWeight/recoDaughterWeight < S2RMatchedRecoRatio_ ) continue;
-
-            double quality = (double)matchedDaughterCounter/simDaughterCounter;
-
-            // Condition over S2RMatchedSimRatio
-            if (quality < S2RMatchedSimRatio_) continue;
-
-            outputCollection.insert(trackingVertex, std::make_pair(recoVertex, quality));
-
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
-
-            assoIndex++;
-        }
-    } // loop over TrackingVertexes
-
-    std::cout << "SimToReco OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
-
-    return outputCollection;
+  return outputCollection;
 }
 

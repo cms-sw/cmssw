@@ -13,6 +13,9 @@ namespace edm {
 
   ProductID
   HandleBase::id() const {
+    if (whyFailed_) {
+      throw *whyFailed_;
+    }
     return prov_->productID();
   }
 }

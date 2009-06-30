@@ -63,7 +63,7 @@ MessageSender::~MessageSender()
            errorobj_p->xid().severity >= ELwarning ) 
       {				
 	ELextendedID const & xid = errorobj_p->xid();
-        ErrorSummaryMapKey key (xid.id, xid.module);
+        ErrorSummaryMapKey key (xid.id, xid.module, xid.severity);
 	ErrorSummaryMapIterator i = errorSummaryMap.find(key);
 	if (i != errorSummaryMap.end()) {
 	  ++(i->second);  // same as ++errorSummaryMap[key]

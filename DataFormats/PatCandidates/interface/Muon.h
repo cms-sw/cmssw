@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.23 2009/03/26 15:19:29 tucker Exp $
+// $Id: Muon.h,v 1.24 2009/03/26 22:36:54 hegner Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,12 +16,13 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.23 2009/03/26 15:19:29 tucker Exp $
+  \version  $Id: Muon.h,v 1.24 2009/03/26 22:36:54 hegner Exp $
 */
 
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
@@ -103,6 +104,18 @@ namespace pat {
       } 
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
+
+      // ---- methods for accessing muon identification ----
+      /// accessor for the various muon id algorithms currently defined
+      /// in DataFormats/MuonReco/interface/MuonSelectors.h
+      /// e.g. bool result = patmuon.muonID("TMLastStationLoose")
+      bool muonID (const std::string& name) const;
+      /// wrapper for the muonID method to maintain backwards compatibility
+      /// with when the reco::Muon::isGood method existed
+      bool isGood (const std::string& name) const { return muonID(name); }
+      /// if muon id results are ever extracted from muon id value maps
+      /// then the isMuonIDAvailable method will be defined
+      //bool isMuonIDAvailable(const std::string& name) const;
 
     protected:
 

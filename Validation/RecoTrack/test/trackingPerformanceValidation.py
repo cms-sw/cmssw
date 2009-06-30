@@ -11,27 +11,28 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_1_0_pre7'
+RefRelease='CMSSW_3_1_0_pre10'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_1_0_pre7'
+NewRelease='CMSSW_3_1_0_pre10'
 
 # startup and ideal sample list
 
 #This are the standard relvals (startup)
-startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
+#startupsamples= ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500']
 
 #This is pileup sample
 #startupsamples= ['RelValTTbar_Tauola']
 
-
+startupsamples= []
 
 #This are the standard relvals (ideal)
-idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
+#idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 
 #This is pileup sample
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
 
+idealsamples= ['RelValTTbar']
 
 
 
@@ -54,8 +55,8 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-#Sequence='only_validation'
-Sequence='harvesting'
+Sequence='only_validation'
+#Sequence='harvesting'
 
 # Ideal and Statup tags
 IdealTag='IDEAL_31X'
@@ -65,22 +66,24 @@ StartupTag='STARTUP_31X'
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_31X_'+PileUp
-StartupReferenceSelection='STARTUP_31X_'+PileUp
+ReferenceSelection='IDEAL_31X_test'+PileUp
+StartupReferenceSelection='STARTUP_31X_test'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
+#NewSelectionLabel='test2_logpt'
 
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/test'
 
 #Default Nevents
 defaultNevents ='-1'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={}
+#Events={'RelValTTbar':'100'}
 
 # template file names. Usually should not be changed.
 cfg='trackingPerformanceValidation_cfg.py'
@@ -144,7 +147,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
-	cfgFileName=sample
+	cfgFileName=sample+GlobalTag
         #check if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
             #if the job is harvesting check if the file is already harvested
@@ -257,14 +260,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 		
 			referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
 			if os.path.isfile(referenceSample ):
-				replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+				replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 		
 				if(os.path.exists(RefRelease+'/'+RefSelection)==False):
 					os.makedirs(RefRelease+'/'+RefSelection)
 				os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
 			else:
 				print "No reference file found at: ", RefRelease+'/'+RefSelection
-                                replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+                                replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 		
 		
 			macroFile = open(cfgFileName+'.C' , 'w' )

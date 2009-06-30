@@ -67,6 +67,7 @@ TrackMon_cosmicTk = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.Tracke
 TrackMon_cosmicTk.TrackProducer                    = 'cosmictrackfinderP5'
 TrackMon_cosmicTk.AlgoName                         = 'CosmicTk'
 TrackMon_cosmicTk.FolderName                       = 'Tracking/TrackParameters'
+TrackMon_cosmicTk.doSeedParameterHistos            = True
 
 # Clone for CKF Tracks
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
@@ -74,6 +75,7 @@ TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosm
 TrackMon_ckf.TrackProducer                         = 'ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName                              = 'CKFTk'
 TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
+TrackMon_ckf.doSeedParameterHistos                 = True
 
 # Clone for Road Search  Tracks
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
@@ -81,6 +83,7 @@ TrackMon_rs = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmi
 TrackMon_rs.TrackProducer                          = 'rsWithMaterialTracksP5'
 TrackMon_rs.AlgoName                               = 'RSTk'
 TrackMon_rs.FolderName                             = 'Tracking/TrackParameters'
+TrackMon_rs.doSeedParameterHistos                  = True
 
 # Clone for Beam Halo Muon Tracks
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
@@ -88,6 +91,7 @@ TrackMon_bhmuon = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerC
 TrackMon_bhmuon.TrackProducer                      = 'ctfWithMaterialTracksBeamHaloMuon'
 TrackMon_bhmuon.AlgoName                           = 'BHMuonTk'
 TrackMon_bhmuon.FolderName                         = 'Tracking/TrackParameters'
+TrackMon_bhmuon.doSeedParameterHistos              = True
 
 # Tracking Efficiency
 # Clone for Cosmic Tracks

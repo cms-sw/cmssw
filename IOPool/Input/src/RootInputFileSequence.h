@@ -55,10 +55,10 @@ namespace edm {
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, LuminosityBlockNumber_t lumi = 0U, bool exact = false);
     boost::shared_ptr<LuminosityBlockPrincipal> readIt(LuminosityBlockID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
-    void skip(int offset);
+    bool skipEvents(int offset);
+    bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record);
     void rewind_();
     void readMany_(int number, EventPrincipalVector& result);
     void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
@@ -70,6 +70,7 @@ namespace edm {
     bool nextFile();
     bool previousFile();
     void rewindFile();
+    void setSkipInfo();
     std::auto_ptr<EventPrincipal> readCurrentEvent();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
@@ -118,7 +119,6 @@ namespace edm {
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
     bool primarySequence_;
-    bool randomAccess_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
   }; // class RootInputFileSequence

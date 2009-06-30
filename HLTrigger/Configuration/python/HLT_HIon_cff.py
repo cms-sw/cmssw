@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/HIon_V36/V2 (CMSSW_3_1_X_2009-06-05-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre10/HIon_V30/V2 (CMSSW_3_1_X_2009-06-23-2300_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/HIon_V36/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre10/HIon_V30/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -23,6 +23,16 @@ L2RelativeCorrectionService = cms.ESSource( "L2RelativeCorrectionService",
   appendToDataLabel = cms.string( "" ),
   tagName = cms.string( "Summer08_L2Relative_IC5Calo" ),
   label = cms.string( "L2RelativeJetCorrector" )
+)
+MCJetCorrectorIcone5HF07 = cms.ESSource( "L2RelativeCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  tagName = cms.string( "HLT_L2Relative" ),
+  label = cms.string( "MCJetCorrectorIcone5HF07" )
+)
+MCJetCorrectorIcone5Unit = cms.ESSource( "L2RelativeCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  tagName = cms.string( "HLT_L2RelativeFlat" ),
+  label = cms.string( "MCJetCorrectorIcone5Unit" )
 )
 L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
   appendToDataLabel = cms.string( "" ),
@@ -838,16 +848,21 @@ UpdaterService = cms.Service( "UpdaterService",
 hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 1 )
 )
+hltEventNumber = cms.EDFilter( "HLTEventNumberFilter",
+    period = cms.uint32( 4096 ),
+    invert = cms.bool( True )
+)
 hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
     DaqGtFedId = cms.untracked.int32( 813 ),
-    ActiveBoardsMask = cms.uint32( 0x101 ),
+    ActiveBoardsMask = cms.uint32( 0xffff ),
     UnpackBxInEvent = cms.int32( 1 )
 )
 hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
     hltMode = cms.bool( True ),
+    unpackSharedRegions = cms.bool( False ),
     unpackerVersion = cms.uint32( 0 )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
@@ -1592,9 +1607,9 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
     payloadType = cms.string( "HLT" ),
-    ChannelThreshold = cms.int32( 2500 ),
-    SeedThreshold = cms.int32( 3000 ),
-    ClusterThreshold = cms.double( 5050.0 ),
+    ChannelThreshold = cms.int32( 1000 ),
+    SeedThreshold = cms.int32( 1000 ),
+    ClusterThreshold = cms.double( 3000.0 ),
     VCaltoElectronGain = cms.int32( 65 ),
     VCaltoElectronOffset = cms.int32( -414 ),
     MissCalibrate = cms.untracked.bool( True ),
@@ -1696,13 +1711,14 @@ hltBoolFinalPath = cms.EDFilter( "HLTBool",
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
     L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
+    PrintVerbosity = cms.untracked.int32( 0 ),
     PrintOutput = cms.untracked.int32( 2 )
 )
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
-HLTBeginSequence = cms.Sequence( hltTriggerType + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
+HLTBeginSequence = cms.Sequence( hltTriggerType + hltEventNumber + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
 HLTDoCaloSequence = cms.Sequence( hltESRawToRecHitFacility + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForAll )
 HLTDoHIJetRecoSequence = cms.Sequence( HLTDoCaloSequence + hltIterativeCone5PileupSubtractionCaloJets + hltMCJetCorJetIcone5PU )

@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/10/15 13:44:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/06/19 18:59:00 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -32,6 +32,9 @@ class MEtoEDM
 {
  public:
   MEtoEDM() {}
+  explicit MEtoEDM(size_t reservedSize) {
+    MEtoEdmObject.reserve(reservedSize);
+  }
   virtual ~MEtoEDM() {}
 
   typedef std::vector<uint32_t> TagList;
@@ -48,22 +51,21 @@ class MEtoEDM
 
   typedef std::vector<MEtoEDMObject> MEtoEdmObjectVector;
 
-  void putMEtoEdmObject(const std::vector<std::string> &name,
-			const std::vector<TagList> &tags,
-			const std::vector<T> &object,
-			const std::vector<std::string> &release,
-			const std::vector<int> &run,
-			const std::vector<std::string> &datatier)
+  void putMEtoEdmObject(const std::string &name,
+			const TagList &tags,
+			const T &object,
+			const std::string &release,
+			const int run,
+			const std::string &datatier)
     {
-      MEtoEdmObject.resize(name.size());
-      for (unsigned int i = 0; i < name.size(); ++i) {
-	MEtoEdmObject[i].name = name[i];
-	MEtoEdmObject[i].tags = tags[i];
-	MEtoEdmObject[i].object = object[i];
-	MEtoEdmObject[i].release = release[i];
-	MEtoEdmObject[i].run = run[i];
-	MEtoEdmObject[i].datatier = datatier[i];
-      }
+      typename MEtoEdmObjectVector::value_type temp;
+      temp.name = name;
+      temp.tags = tags;
+      temp.object = object;
+      temp.release = release;
+      temp.run = run;
+      temp.datatier = datatier;
+      MEtoEdmObject.push_back(temp);
     }
 
   const MEtoEdmObjectVector & getMEtoEdmObject() const
@@ -119,6 +121,9 @@ class MEtoEDM
     return true;
   }
 
+  void swap(MEtoEDM<T>& iOther) {
+    MEtoEdmObject.swap(iOther.MEtoEdmObject);
+  }
  private:
 
   MEtoEdmObjectVector MEtoEdmObject;

@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2008/10/11 13:13:57 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/04/08 16:39:24 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -17,7 +17,7 @@
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DataFormats/Common/interface/traits.h"
 #include <string>
 #include <vector>
 
@@ -27,7 +27,8 @@ namespace trigger
   /// The single EDProduct to be saved in addition for each event
   /// - but only in the "RAW" case: for a fraction of all events
 
-  class TriggerEventWithRefs : public TriggerRefsCollections {
+  class TriggerEventWithRefs : public TriggerRefsCollections, 
+                               public edm::DoNotRecordParents {
 
   public:
 

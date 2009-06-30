@@ -9,13 +9,11 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.8 2009/05/11 16:01:16 saout Exp $
+// $Id: VarProcessor.h,v 1.6 2007/12/08 16:11:11 saout Exp $
 //
 
 #include <algorithm>
 #include <vector>
-
-#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
 #include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
@@ -104,20 +102,12 @@ class VarProcessor :
 		eval(iter, nInputVars);
 	}
 
-	/// run the processor evaluation pass on this processor and compute derivatives
-	void deriv(double *input, int *conf, double *output, int *outConf,
-	           int *loop, unsigned int offset, unsigned int in,
-	           unsigned int out, std::vector<double> &deriv) const;
-
 	enum LoopStatus { kStop, kNext, kReset, kSkip };
 
 	virtual LoopStatus loop(double *output, int *outConf,
 	                        unsigned int nOutput,
 	                        unsigned int &nOffset) const
 	{ return kStop; }
-
-	struct Dummy {};
-	typedef edmplugin::PluginFactory<Dummy*()> PluginFactory;
 
     protected:
 	/** \class ConfIterator
@@ -288,11 +278,6 @@ class VarProcessor :
 	/// virtual evaluation method, implemented in actual processor
 	virtual void eval(ValueIterator iter, unsigned int n) const = 0;
 
-	/// virtual derivative evaluation method, implemented in actual processor
-	virtual std::vector<double> deriv(ValueIterator iter,
-	                                  unsigned int n) const
-	{ return std::vector<double>(); }
-
     protected:
 	const MVAComputer	*computer;
 
@@ -302,16 +287,6 @@ class VarProcessor :
 	unsigned int		nInputVars;
 };
 
-template<>
-VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
-                              const MVAComputer>::Factory::create(
-	const char*, const Calibration::VarProcessor*, const MVAComputer*);
-
 } // namespace PhysicsTools
-
-#define MVA_COMPUTER_DEFINE_PLUGIN(T) \
-	DEFINE_EDM_PLUGIN(::PhysicsTools::VarProcessor::PluginFactory, \
-	                  ::PhysicsTools::VarProcessor::Dummy, \
-	                  "VarProcessor/" #T)
 
 #endif // PhysicsTools_MVAComputer_VarProcessor_h

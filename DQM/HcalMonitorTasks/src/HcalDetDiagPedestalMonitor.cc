@@ -53,18 +53,18 @@ void HcalDetDiagPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* db
      m_dbe->setCurrentFolder(baseFolder_);   
      meEVT_ = m_dbe->bookInt("HcalDetDiagPedestalMonitor Event Number");
      m_dbe->setCurrentFolder(baseFolder_+"/Summary Plots");
-     name="HB Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="HB Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="HB Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HBref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HE Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HEref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HO Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HOref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HF Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HFref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HB Pedestal Distribution (average over 4 caps)";           PedestalsAve4HB = m_dbe->book1D(name,name,200,0,6);
+     name="HE Pedestal Distribution (average over 4 caps)";           PedestalsAve4HE = m_dbe->book1D(name,name,200,0,6);
+     name="HO Pedestal Distribution (average over 4 caps)";           PedestalsAve4HO = m_dbe->book1D(name,name,200,0,6);
+     name="HF Pedestal Distribution (average over 4 caps)";           PedestalsAve4HF = m_dbe->book1D(name,name,200,0,6);
+     name="HB Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HB = m_dbe->book1D(name,name,200,0,6);
+     name="HE Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HE = m_dbe->book1D(name,name,200,0,6);
+     name="HO Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HO = m_dbe->book1D(name,name,200,0,6);
+     name="HF Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HF = m_dbe->book1D(name,name,200,0,6);
+     name="HB Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HBref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HE Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HEref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HO Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HOref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HF Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HFref= m_dbe->book1D(name,name,1500,-3,3);
     
      name="HB Pedestal RMS Distribution (individual cap)";            PedestalsRmsHB = m_dbe->book1D(name,name,200,0,2);
      name="HE Pedestal RMS Distribution (individual cap)";            PedestalsRmsHE = m_dbe->book1D(name,name,200,0,2);
@@ -92,10 +92,6 @@ void HcalDetDiagPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* db
 
 void HcalDetDiagPedestalMonitor::processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond){
 int  eta,phi,depth,nTS;
- 
-// kill this all for now, until we see what the problem with including lmap is
-
-/*
    if(emap==0) emap=cond.getHcalMapping();
    if(!m_dbe) return; 
    bool PedestalEvent=false;
@@ -173,8 +169,6 @@ int  eta,phi,depth,nTS;
        fillHistos();
        CheckStatus(); 
    }
-
-*/
    return;
 }
 

@@ -395,7 +395,7 @@ C3TF, C4TF - for third release of CASTOR
 
 	   if(poissNCherPhot < 0) poissNCherPhot = 0; 
 
-	   NCherPhot = poissNCherPhot * 0.25 * d_qz;
+	   NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
 
 
 
@@ -467,7 +467,6 @@ C3TF, C4TF - for third release of CASTOR
        return NCherPhot;
     }
   } 
-return true;
 }
 
 //=======================================================================================
