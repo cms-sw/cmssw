@@ -88,9 +88,9 @@ hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
    doMatching = cms.bool(False),
 
    matchFilter         = cms.untracked.VInputTag(cms.InputTag("","",hltTauDQMProcess) ),
-   matchObjectID       = cms.untracked.vint32(92),
+   matchObjectID       = cms.untracked.vint32(0),
    matchObjectMinPt    = cms.untracked.vdouble(15),
-   TriggerEvent = cms.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess )                          
+   TriggerEvent = cms.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess )                          
 )
 
 
@@ -178,10 +178,10 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
     ),
     
    doMatching = cms.bool(True),
-   matchFilter       = cms.untracked.VInputTag(cms.InputTag("hltL1NonIsoHLTNonIsoDoubleElectronEt5HcalIsolFilter","",hltTauDQMProcess) ),
-   matchObjectID       = cms.untracked.vint32(82),
-   matchObjectMinPt    = cms.untracked.vdouble(5),
-   TriggerEvent = cms.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess )                          
+   matchFilter       = cms.untracked.VInputTag(cms.InputTag("hltL1NonIsoHLTNonIsoDoublePhotonEt10HcalIsolFilter","",hltTauDQMProcess) ),
+   matchObjectID       = cms.untracked.vint32(0),
+   matchObjectMinPt    = cms.untracked.vdouble(10),
+   TriggerEvent = cms.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess )                          
 )
 
 hltMonTauReco =cms.Sequence(hltTauMonitor+hltTauElectronMonitor)
