@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.3 2009/06/24 19:11:21 biery Exp $
 
 #include <string>
 #include <sstream>
@@ -145,17 +145,23 @@ void DataSenderMonitorCollection::addDQMEventSample(I2OChain const& i2oChain)
   double eventSize = static_cast<double>(i2oChain.totalDataSize());
 
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     rbRecordPtr->dqmEventSize.addSample(eventSize);
+    fuRecordPtr->dqmEventSize.addSample(eventSize);
   }
 }
 
@@ -170,17 +176,23 @@ void DataSenderMonitorCollection::addErrorEventSample(I2OChain const& i2oChain)
   double eventSize = static_cast<double>(i2oChain.totalDataSize());
 
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     rbRecordPtr->errorEventSize.addSample(eventSize);
+    fuRecordPtr->errorEventSize.addSample(eventSize);
   }
 }
 
@@ -191,17 +203,23 @@ void DataSenderMonitorCollection::addStaleChainSample(I2OChain const& i2oChain)
   double eventSize = static_cast<double>(i2oChain.totalDataSize());
 
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     rbRecordPtr->staleChainSize.addSample(eventSize);
+    fuRecordPtr->staleChainSize.addSample(eventSize);
   }
 }
 
@@ -209,17 +227,23 @@ void DataSenderMonitorCollection::addStaleChainSample(I2OChain const& i2oChain)
 void DataSenderMonitorCollection::incrementDataDiscardCount(I2OChain const& i2oChain)
 {
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     ++rbRecordPtr->workingDataDiscardCount;
+    ++fuRecordPtr->workingDataDiscardCount;
   }
 }
 
@@ -227,17 +251,23 @@ void DataSenderMonitorCollection::incrementDataDiscardCount(I2OChain const& i2oC
 void DataSenderMonitorCollection::incrementDQMDiscardCount(I2OChain const& i2oChain)
 {
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     ++rbRecordPtr->workingDQMDiscardCount;
+    ++fuRecordPtr->workingDQMDiscardCount;
   }
 }
 
@@ -245,17 +275,23 @@ void DataSenderMonitorCollection::incrementDQMDiscardCount(I2OChain const& i2oCh
 void DataSenderMonitorCollection::incrementSkippedDiscardCount(I2OChain const& i2oChain)
 {
   // look up the monitoring records that we need
-  bool pointerIsValid;
+  bool pointersAreValid;
   RBRecordPtr rbRecordPtr;
+  FURecordPtr fuRecordPtr;
   {
     boost::mutex::scoped_lock sl(_collectionsMutex);
-    pointerIsValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    pointersAreValid = getRBRecordPointer(i2oChain, rbRecordPtr);
+    if (pointersAreValid)
+    {
+      pointersAreValid = getFURecordPointer(i2oChain, rbRecordPtr, fuRecordPtr);
+    }
   }
 
   // accumulate the data of interest
-  if (pointerIsValid)
+  if (pointersAreValid)
   {
     ++rbRecordPtr->workingSkippedDiscardCount;
+    ++fuRecordPtr->workingSkippedDiscardCount;
   }
 }
 
@@ -349,7 +385,13 @@ DataSenderMonitorCollection::getFilterUnitResultsForRB(UniqueResourceBrokerID_t 
           result->initMsgCount = fuRecordPtr->initMsgCount;
           result->lastRunNumber = fuRecordPtr->lastRunNumber;
           result->lastEventNumber = fuRecordPtr->lastEventNumber;
+          result->dataDiscardCount = fuRecordPtr->latchedDataDiscardCount;
+          result->dqmDiscardCount = fuRecordPtr->latchedDQMDiscardCount;
+          result->skippedDiscardCount = fuRecordPtr->latchedSkippedDiscardCount;
           fuRecordPtr->eventSize.getStats(result->eventStats);
+          fuRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
+          fuRecordPtr->errorEventSize.getStats(result->errorEventStats);
+          fuRecordPtr->staleChainSize.getStats(result->staleChainStats);
           resultsList.push_back(result);
         }
     }
@@ -384,7 +426,13 @@ void DataSenderMonitorCollection::do_calculateStatistics()
            fuMapIter != fuMapEnd; ++fuMapIter)
         {
           FURecordPtr fuRecordPtr = fuMapIter->second;
+          fuRecordPtr->latchedDataDiscardCount = fuRecordPtr->workingDataDiscardCount;
+          fuRecordPtr->latchedDQMDiscardCount = fuRecordPtr->workingDQMDiscardCount;
+          fuRecordPtr->latchedSkippedDiscardCount=fuRecordPtr->workingSkippedDiscardCount;
           fuRecordPtr->eventSize.calculateStatistics();
+          fuRecordPtr->dqmEventSize.calculateStatistics();
+          fuRecordPtr->errorEventSize.calculateStatistics();
+          fuRecordPtr->staleChainSize.calculateStatistics();
           calcStatsForOutputModules(fuRecordPtr->outputModuleMap);
         }
     }
@@ -483,6 +531,18 @@ bool DSMC::getRBRecordPointer(I2OChain const& i2oChain,
   if (! rbKey.isValid) {return false;}
 
   rbRecordPtr = getResourceBrokerRecord(rbKey);
+  return true;
+}
+
+
+bool DSMC::getFURecordPointer(I2OChain const& i2oChain,
+                              DSMC::RBRecordPtr& rbRecordPtr,
+                              DSMC::FURecordPtr& fuRecordPtr)
+{
+  FilterUnitKey fuKey(i2oChain);
+  if (! fuKey.isValid) {return false;}
+
+  fuRecordPtr = getFilterUnitRecord(rbRecordPtr, fuKey);
   return true;
 }
 

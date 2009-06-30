@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.3 2009/06/24 19:11:21 biery Exp $
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
 #define StorageManager_DataSenderMonitorCollection_h
@@ -20,9 +20,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: biery $
+   * $Revision: 1.3 $
+   * $Date: 2009/06/24 19:11:21 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -95,8 +95,14 @@ namespace stor {
       bool operator<(FilterUnitKey const& other) const
       {
         if (isValid != other.isValid) return isValid < other.isValid;
-        if (fuProcessId != other.fuProcessId) return fuProcessId < other.fuProcessId;
-        return fuGuid < other.fuGuid;
+
+        // 30-Jun-2009, KAB - we want to keep stats for each filter unit without
+        // separating out the output modules.  So, we should only use the process ID
+        // in the key.  (The GUID is different for each output module.)
+        //if (fuProcessId != other.fuProcessId) return fuProcessId < other.fuProcessId;
+        //return fuGuid < other.fuGuid;
+
+        return fuProcessId < other.fuProcessId;
       }
     };
 
@@ -128,12 +134,26 @@ namespace stor {
       FilterUnitKey key;
       OutputModuleRecordMap outputModuleMap;
       MonitoredQuantity eventSize;
+      MonitoredQuantity dqmEventSize;
+      MonitoredQuantity errorEventSize;
+      MonitoredQuantity staleChainSize;
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
 
+      // see note for ResourceBrokerRecord discard counts
+      unsigned long long workingDataDiscardCount;
+      unsigned long long workingDQMDiscardCount;
+      unsigned long long workingSkippedDiscardCount;
+      unsigned long long latchedDataDiscardCount;
+      unsigned long long latchedDQMDiscardCount;
+      unsigned long long latchedSkippedDiscardCount;
+
       explicit FilterUnitRecord(FilterUnitKey fuKey) :
-        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
+        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+        workingDataDiscardCount(0), workingDQMDiscardCount(0),
+        workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
+        latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
     };
     typedef boost::shared_ptr<FilterUnitRecord> FURecordPtr;
 
@@ -231,10 +251,17 @@ namespace stor {
       unsigned int initMsgCount;
       unsigned int lastRunNumber;
       unsigned long long lastEventNumber;
+      unsigned long long dataDiscardCount;
+      unsigned long long dqmDiscardCount;
+      unsigned long long skippedDiscardCount;
       MonitoredQuantity::Stats eventStats;
+      MonitoredQuantity::Stats dqmEventStats;
+      MonitoredQuantity::Stats errorEventStats;
+      MonitoredQuantity::Stats staleChainStats;
 
       explicit FilterUnitResult(FilterUnitKey const& fuKey):
-        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
+        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0) {}
     };
     typedef boost::shared_ptr<FilterUnitResult> FUResultPtr;
     typedef std::vector<FUResultPtr> FilterUnitResultsList;
@@ -336,6 +363,10 @@ namespace stor {
 
     bool getRBRecordPointer(I2OChain const& i2oChain,
                             RBRecordPtr& rbRecordPtr);
+
+    bool getFURecordPointer(I2OChain const& i2oChain,
+                            RBRecordPtr& rbRecordPtr,
+                            FURecordPtr& fuRecordPtr);
 
     RBRecordPtr getResourceBrokerRecord(ResourceBrokerKey const&);
     UniqueResourceBrokerID_t getUniqueResourceBrokerID(ResourceBrokerKey const&);
