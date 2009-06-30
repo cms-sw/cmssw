@@ -748,7 +748,7 @@ public:
     TH2F *h2 = (TH2*) dir->Get(key);
     //h2->Draw("colz");
 
-    const unsigned int nbin=10;
+    const unsigned int nbin=15;
 
     double y[nbin];
     double ey[nbin];
@@ -815,11 +815,14 @@ public:
       //std::cout << "binxminc = " << binxminc << std::endl;
       //std::cout << "binxmaxc = " << binxmaxc << std::endl;
   
+      //TH1D *h0_slice = new TH1D("h0_slice","titre",3000,-100.,100.);
+      //h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
       TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
       //h0_slice->Sumw2();
-      h0_slice->Rebin(5);
-      //if (nbinc<5) h0_slice->Rebin(5);
-      //else h0_slice->Rebin(2);
+      //if (nbinc<10) h0_slice->Rebin(5);
+      //else h0_slice->Rebin(10);
+      h0_slice->Rebin(10);
+      h0_slice->GetXaxis()->SetRangeUser(-120.,120.);
       h0_slice->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
@@ -834,6 +837,7 @@ public:
       std::ostringstream oss;
       oss << nbinc;
       const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".eps";
+      //const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".C";
       gPad->SaveAs( plotfitname.c_str() );
   
       const double sigmaG=fitFcng->GetParameter(0);
@@ -854,7 +858,7 @@ public:
     gr->SetMinimum(0.0);
     gr->SetMarkerStyle(21);
     gr->SetMarkerColor(4);
-    gr->SetTitle("Sigma(DeltaSET)");
+    gr->SetTitle("Sigma(DeltaMEX)");
     gr->GetXaxis()->SetTitle("trueSET");
     gr->Draw("AP");
   
@@ -935,9 +939,9 @@ public:
   
       TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
       //h0_slice->Sumw2();
-      h0_slicebg->Rebin(5);
-      //if (nbinc<5) h0_slice->Rebin(5);
-      //else h0_slice->Rebin(2);
+      h0_slicebg->Rebin(10);
+      //if (nbinc<10) h0_slicebg->Rebin(5);
+      //else h0_slicebg->Rebin(10);
       //h0_slicebg->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
