@@ -110,8 +110,10 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1TauPhi",l1exttauphi,"L1TauPhi[NL1Tau]/F");
   HltTree->Branch("L1Met",&met,"L1Met/F");
   HltTree->Branch("L1MetPhi",&metphi,"L1MetPhi/F");
-  HltTree->Branch("L1MetTot",&mettot,"L1MetTot/F");
-  HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
+  HltTree->Branch("L1EtTot",&ettot,"L1EtTot/F");
+  HltTree->Branch("L1Mht",&mht,"L1Mht/F");
+  HltTree->Branch("L1MhtPhi",&mhtphi,"L1MhtPhi/F");
+  HltTree->Branch("L1EtHad",&ethad,"L1EtHad/F");
 
   // L1GctJetCounts
   HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/I");
@@ -134,6 +136,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
                       const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJetF,
                       const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtTau,
                       const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMet,
+                      const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMht,
                       const edm::Handle<L1GlobalTriggerReadoutRecord>        & L1GTRR,
                       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & L1GTOMRec,
 		      const edm::Handle<L1GctHFBitCountsCollection>          & gctBitCounts,
@@ -347,13 +350,21 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
   }
 
   if (L1ExtMet.isValid()) {
-    met    = L1ExtMet->begin()->energy();
+    met    = L1ExtMet->begin()->etMiss();
     metphi = L1ExtMet->begin()->phi();
-    mettot = L1ExtMet->begin()->etTotal();
-    //    methad = L1ExtMet->begin()->etHad();
+    ettot  = L1ExtMet->begin()->etTotal();
   }
   else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;
+  }
+
+  if (L1ExtMht.isValid()) {
+    mht    = L1ExtMht->begin()->etMiss();
+    mhtphi = L1ExtMht->begin()->phi();
+    ethad  = L1ExtMht->begin()->etTotal();
+  }
+  else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 MHT object" << std::endl;
   }
 
   TString algoBitToName[128];

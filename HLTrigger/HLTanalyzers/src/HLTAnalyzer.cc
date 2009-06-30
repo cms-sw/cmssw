@@ -58,6 +58,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
   m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
   m_l1extramet      = edm::InputTag(l1extramc_, "MET");
+  m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
 
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
@@ -174,7 +175,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
   edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
-  edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet;
+  edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
   edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
   edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
@@ -283,6 +284,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
   getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
   getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
+  getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
   getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
   getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
   getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
@@ -450,6 +452,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1extjetf,
     l1exttaujet,
     l1extmet,
+    l1extmht,
     l1GtRR,
     l1GtOMRec,
     gctBitCounts,

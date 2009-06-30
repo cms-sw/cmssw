@@ -17,6 +17,7 @@ const char * kL1extjetc                   = "L1 central jet objects";
 const char * kL1extjetf                   = "L1 forward jet objects";
 const char * kL1exttaujet                 = "L1 tau jet objects";
 const char * kL1extmet                    = "L1 EtMiss object";
+const char * kL1extmht                    = "L1 HtMiss object";
 const char * kL1GtRR                      = "L1 GT readout record";
 const char * kL1GtOMRec                   = "L1 GT object map";
 const char * kL1GctBitCounts              = "L1 GCT HF bit counts";

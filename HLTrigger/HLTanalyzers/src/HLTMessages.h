@@ -17,6 +17,7 @@ extern const char * kL1extjetc;
 extern const char * kL1extjetf;
 extern const char * kL1exttaujet;
 extern const char * kL1extmet;
+extern const char * kL1extmht;
 extern const char * kL1GtRR;
 extern const char * kL1GtOMRec;
 extern const char * kL1GctBitCounts;
