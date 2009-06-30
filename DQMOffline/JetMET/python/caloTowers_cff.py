@@ -10,4 +10,5 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.JetMET.caloTowers_cfi import *
 from RecoMET.Configuration.CaloTowersOptForMET_cff import *
 analyzecaloTowers = cms.Sequence(caloTowersMETOptRec*towerOptAnalyzer*towerSchemeBAnalyzer)
+analyzecaloTowersDQM = cms.Sequence(towerSchemeBAnalyzer)
 
