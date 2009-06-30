@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.26 2009/05/20 08:13:26 borrell Exp $
+// $Id: SiStripMonitorCluster.h,v 1.27 2009/06/05 18:24:03 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -70,6 +70,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
     MonitorElement* SubDetTotClusterProf;
     MonitorElement* SubDetClusterApvProf;
     MonitorElement* SubDetTotClusterTH1;
+    MonitorElement* SubDetClusterApvTH2;
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -150,6 +151,7 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool moduleswitchnrclusterizedstrip;
   bool subdetswitchtotclusterprofon;
   bool subdetswitchclusterapvprofon;
+  bool subdetswitchapvcycleth2on;
   bool subdetswitchtotclusterth1on;
 
   bool clustertkhistomapon;

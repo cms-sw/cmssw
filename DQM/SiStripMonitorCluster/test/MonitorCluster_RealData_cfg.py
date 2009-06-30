@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 #-------------------------------------------------
@@ -67,6 +67,7 @@ process.SiStripMonitorCluster.SelectAllDetectors = True
 process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
+process.SiStripMonitorCluster.TH2ClustersApvCycle.subdetswitchon = True
 process.SiStripMonitorCluster.OutputMEsInRootFile = True
 process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
 
