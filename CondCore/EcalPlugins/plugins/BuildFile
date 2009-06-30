@@ -17,9 +17,12 @@
 <flags EDM_PLUGIN=1>
 </library>
 
+
+
 <library file="EcalWeightXtalGroupsPyWrapper.cc" name=EcalWeightXtalGroupsPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -30,6 +33,7 @@
 <library file="EcalTBWeightsPyWrapper.cc" name=EcalTBWeightsPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -39,6 +43,7 @@
 
 <library file="EcalGainRatiosPyWrapper.cc" name=EcalGainRatiosPyInterface>
 <use name=CondCore/Utilities>
+<use name=CondTools/Ecal>
 <use name=CondFormats/EcalObjects>
 <use name=boost>
 <use name=boost_filesystem>
@@ -47,29 +52,12 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/EcalObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
 
-<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/EcalObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
 
 <library file="EcalADCToGeVConstantPyWrapper.cc" name=EcalADCToGeVConstantPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -77,15 +65,7 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/EcalObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
+
 
 <library file="EcalLaserAPDPNRatiosPyWrapper.cc" name=EcalLaserAPDPNRatiosPyInterface>
 <use name=CondCore/Utilities>
@@ -97,9 +77,11 @@
 <flags EDM_PLUGIN=1>
 </library>
 
+
 <library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -107,9 +89,11 @@
 <flags EDM_PLUGIN=1>
 </library>
 
+
 <library file="EcalChannelStatusPyWrapper.cc" name=EcalChannelStatusPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>

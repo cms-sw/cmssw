@@ -1,6 +1,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-
+#include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
@@ -39,7 +39,9 @@ namespace cond {
   
   template<>
   std::string PayLoadInspector<EcalTBWeights>::summary() const {
-    std::stringstream ss;
+    std::stringstream ss; 
+    EcalCondHeader h;
+    ss<< EcalTBWeightsXMLTranslator::dumpXML(h,object());
     return ss.str();
   }
   

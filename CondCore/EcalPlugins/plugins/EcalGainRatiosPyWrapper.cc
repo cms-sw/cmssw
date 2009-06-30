@@ -1,5 +1,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
@@ -32,14 +34,19 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalGainRatios>::dump() const {
-    std::stringstream ss;
-    return ss.str();
     
+
+    std::stringstream ss;    
+    EcalCondHeader header;
+    ss<<EcalGainRatiosXMLTranslator::dumpXML(header,object());
+    return ss.str();
+
   }
   
   template<>
   std::string PayLoadInspector<EcalGainRatios>::summary() const {
-    std::stringstream ss;
+
+    std::stringstream ss;   
     return ss.str();
   }
   

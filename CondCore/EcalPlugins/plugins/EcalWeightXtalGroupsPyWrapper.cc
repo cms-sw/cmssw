@@ -1,6 +1,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-
+#include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
@@ -33,6 +33,8 @@ namespace cond {
   std::string
   PayLoadInspector<EcalWeightXtalGroups>::dump() const {
     std::stringstream ss;
+    EcalCondHeader h;
+    ss<<EcalWeightGroupXMLTranslator::dumpXML(h,object());
     return ss.str();
     
   }

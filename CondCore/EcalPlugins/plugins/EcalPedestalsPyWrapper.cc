@@ -49,7 +49,7 @@ namespace cond {
     }
 
     void extractSingleChannel(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
-      for (int i=0; i<which.size();i++) {
+      for (unsigned int i=0; i<which.size();i++) {
 	// absolutely arbitraty
 	if (which[i]<  peds.barrelItems().size())
 	  result.push_back( peds.barrelItems()[which[i]].mean(q));
@@ -127,6 +127,7 @@ namespace cond {
 
    template<>
    std::string PayLoadInspector<EcalPedestals>::summary() const {
+     std::cout << "***************************************"<< std::endl;
      std::stringstream ss;
      ss << "sizes="
 	<< object().barrelItems().size() <<","

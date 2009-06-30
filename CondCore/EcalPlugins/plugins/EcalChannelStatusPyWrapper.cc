@@ -1,6 +1,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-
+#include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
@@ -52,7 +52,7 @@ namespace cond {
     
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
-      for (int i=0; i<which.size();i++) {
+      for (unsigned int i=0; i<which.size();i++) {
 	result.push_back(cont[which[i]].getStatusCode());
       }
     }
@@ -121,6 +121,8 @@ namespace cond {
   std::string
   PayLoadInspector<EcalChannelStatus>::dump() const {
     std::stringstream ss;
+    EcalCondHeader h;
+    EcalChannelStatusXMLTranslator::dumpXML(h,object());
     return ss.str();
     
   }
