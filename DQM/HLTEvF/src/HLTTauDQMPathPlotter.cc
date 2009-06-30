@@ -73,41 +73,44 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(doRefAnalysis_)
     {
       //Tau reference
-	if(refC[0].size()<nTriggeredTaus_[0])
-	  {
-	    tau_ok = false;
-	  }
-	else
-	  {
-	    double et=0.;
-	    double eta=0.;
+      if(refC.size()>0)
+	{
+	  if(refC[0].size()<nTriggeredTaus_[0])
+	    {
+	      tau_ok = false;
+	    }
+	  else
+	    {
+	      double et=0.;
+	      double eta=0.;
 	    
-	    for(size_t j = 0;j<refC.size();++j)
-	      {
-		if((refC[0])[j].Et()>et)
-		  {
-		    et=(refC[0])[j].Et();
-		    eta = (refC[0])[j].Eta();
-		  }
+	      for(size_t j = 0;j<refC.size();++j)
+		{
+		  if((refC[0])[j].Et()>et)
+		    {
+		      et=(refC[0])[j].Et();
+		      eta = (refC[0])[j].Eta();
+		    }
 		
-	      }
+		}
 	 
-	}
+	    }
   
-      //lepton reference
-	if(refC[1].size()<nTriggeredLeptons_[0])
-	  {
-	    lepton_ok = false;
-	  }
+	  //lepton reference
+	  if(refC.size()>1)
+	    if(refC[1].size()<nTriggeredLeptons_[0])
+	      {
+		lepton_ok = false;
+	      }
     
       
-      if(lepton_ok&&tau_ok)
-	{
-	  accepted_events_matched->Fill(0.5);
-	  isGoodReferenceEvent=true;
+	  if(lepton_ok&&tau_ok)
+	    {
+	      accepted_events_matched->Fill(0.5);
+	      isGoodReferenceEvent=true;
+	    }
 	}
     }
-
 
   //get The triggerEvent
 
