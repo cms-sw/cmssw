@@ -196,7 +196,6 @@ HLTTauDQMSource::getFilterCollection(size_t index,int id,const trigger::TriggerE
 	    {
 	      const TriggerObject& TO(TOC[KEYS[i]]);
 	      LV a(TO.px(),TO.py(),TO.pz(),sqrt(TO.px()*TO.px()+TO.py()*TO.py()+TO.pz()*TO.pz()));
-	      printf("ID=%d\n",TO.id());
 	      if(abs(TO.id()) == id)
 		if(a.pt()>ptCut)
 		  out.push_back(a);
