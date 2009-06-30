@@ -47,16 +47,16 @@ class TtSemiLeptonicEvent: public TtEvent {
   const reco::Candidate* leptonicB  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicTop(key,cmb)->daughter(TtSemiLepDaughter::LepB  ); };
   /// get leptonic W of the given hypothesis
   const reco::Candidate* leptonicW  (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicTop(key,cmb)->daughter(TtSemiLepDaughter::LepW  ); };
-  /// get leptonic light quark of the given hypothesis
+  /// get neutrino of the given hypothesis
   const reco::Candidate* neutrino   (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicW  (key,cmb)->daughter(TtSemiLepDaughter::Nu    ); };
-  /// get leptonic light quark of the given hypothesis
+  /// get lepton of the given hypothesis
   const reco::Candidate* lepton     (const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicW  (key,cmb)->daughter(TtSemiLepDaughter::Lep   ); };
 
   /// get hadronic top of the TtGenEvent
   const reco::GenParticle* genHadronicTop() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayTop()); };
-  /// get hadronic b of the TtGenEvent
-  const reco::GenParticle* genHadronicW()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayW()); };
   /// get hadronic W of the TtGenEvent
+  const reco::GenParticle* genHadronicW()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayW()); };
+  /// get hadronic b of the TtGenEvent
   const reco::GenParticle* genHadronicB()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayB()); };
   /// get hadronic light quark of the TtGenEvent
   const reco::GenParticle* genHadronicP()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuark()); };
@@ -64,11 +64,11 @@ class TtSemiLeptonicEvent: public TtEvent {
   const reco::GenParticle* genHadronicQ()   const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuarkBar()); };
   /// get leptonic top of the TtGenEvent
   const reco::GenParticle* genLeptonicTop() const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayTop()); };
-  /// get leptonic b of the TtGenEvent
-  const reco::GenParticle* genLeptonicW()   const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayW()); };
   /// get leptonic W of the TtGenEvent
+  const reco::GenParticle* genLeptonicW()   const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayW()); };
+  /// get leptonic b of the TtGenEvent
   const reco::GenParticle* genLeptonicB()   const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayB()); };
-  /// get lepton top of the TtGenEvent
+  /// get lepton of the TtGenEvent
   const reco::GenParticle* genLepton()      const { return (!genEvt_ ? 0 : this->genEvent()->singleLepton());   };
   /// get neutrino of the TtGenEvent
   const reco::GenParticle* genNeutrino()    const { return (!genEvt_ ? 0 : this->genEvent()->singleNeutrino()); };
