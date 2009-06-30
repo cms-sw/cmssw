@@ -273,11 +273,13 @@ public:
   
       TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
       //h0_slice->Sumw2();
+      h0_slice->Rebin(5);
       h0_slice->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
       TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
-      fitFcng->SetParameters(50.,0.1,100.);
+      //fitFcng->SetParameters(50.,0.1,100.);
+      fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
       fitFcng->SetLineColor(2);
       h0_slice->Fit("fitFcng","0R");
       fitFcng->Draw("same");
@@ -385,12 +387,14 @@ public:
       //std::cout << "binxmaxc = " << binxmaxc << std::endl;
   
       TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
+      h0_slicebg->Rebin(5);
       //h0_slice->Sumw2();
       //h0_slicebg->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
       TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-100.,100.,3);
-      fitFcngbg->SetParameters(50.,0.1,100.);
+      //fitFcngbg->SetParameters(50.,0.1,100.);
+      fitFcngbg->SetParameters(h0_slicebg->GetRMS(1),0.1,100.);
       fitFcngbg->SetLineColor(2);
       h0_slicebg->Fit("fitFcngbg","0R");
       //fitFcng->Draw("same");
@@ -542,7 +546,7 @@ public:
   
       TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
       //h0_slice->Sumw2();
-      h0_slice->Rebin(5);
+      h0_slice->Rebin(10);
       h0_slice->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
@@ -550,6 +554,7 @@ public:
       //TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
       //fitFcng->SetParameters(1.,0.1,100.);
       fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
+      fitFcng->SetParLimits(0, 0.0, 999.);
       fitFcng->SetLineColor(2);
       h0_slice->Fit("fitFcng","0R");
       fitFcng->Draw("same");
@@ -658,7 +663,7 @@ public:
   
       TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
       //h0_slice->Sumw2();
-      h0_slicebg->Rebin(5);
+      h0_slicebg->Rebin(10);
       //h0_slicebg->Draw();
       //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
   
@@ -683,7 +688,7 @@ public:
       //std::cout << "FL: ybg[" << nbinc << "] = " << ybg[nbinc] << std::endl;
   
   //    // calcul des incertitudes:
-      eybg[nbinc]=fitFcng->GetParError(0);
+      eybg[nbinc]=fitFcngbg->GetParError(0);
   //    //ey[nbinc]=0.0;
       //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
       delete h0_slicebg;
