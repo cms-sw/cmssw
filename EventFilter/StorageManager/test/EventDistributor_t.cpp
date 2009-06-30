@@ -52,15 +52,24 @@ private:
   std::string getSampleStreamConfig();
   void initEventDistributor();
 
-  boost::shared_ptr<SharedResources> _sharedResources;
-  boost::shared_ptr<EventDistributor> _eventDistributor;
+  static boost::shared_ptr<SharedResources> _sharedResources;
+  static boost::shared_ptr<EventDistributor> _eventDistributor;
 };
+
+// 30-Jun-2009, KAB - It turns out that CPPUNIT creates a new instance
+// of the test class for each test. So, if we are going to gain
+// any value from reusing a single EventDistributor, etc., then we need
+// to make those attributes static.  Worse, some XDAQ elements are 
+// effectively singletons (such as an infospace with a given name),
+// so we need to ensure that only a single instance of the SharedResources
+// class gets created.  (Yet another reason to make these static attributes.)
+boost::shared_ptr<SharedResources> testEventDistributor::_sharedResources;
+boost::shared_ptr<EventDistributor> testEventDistributor::_eventDistributor;
 
 void testEventDistributor::initEventDistributor()
 {
   if (_eventDistributor.get() == 0)
     {
-
       MockApplicationStub* stub(new MockApplicationStub());
       MockApplication* app(new MockApplication(stub)); // stub is owned now by xdaq::Application
       _sharedResources.reset(new SharedResources());

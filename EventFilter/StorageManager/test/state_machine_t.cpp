@@ -77,42 +77,50 @@ private:
   void checkSignals( const EventList& elist, const string& expected);
   bool checkHistory( const TransitionList& steps );
 
-  MockApplication* _app;
+  static MockApplication* _app;
   EventDistributor* _ed;
   FragmentStore* _fs;
   MockNotifier* _mn;
 
   StateMachine *_machine;
-  SharedResourcesPtr _sr;
+  static SharedResourcesPtr _sr;
 };
 
+MockApplication* testStateMachine::_app;
+SharedResourcesPtr testStateMachine::_sr;
 
 void testStateMachine::setUp()
 {
-  MockApplicationStub* stub(new MockApplicationStub());
-  _app = new MockApplication(stub); // stub is owned now by xdaq::Application
+  // 30-Jun-2009, KAB - to avoid the problem in which we try to re-declare infospace
+  // variables to the MockApplication infospace for each test, we need to create just
+  // one mock application and one shared resources instance for all tests.
+  if ( _sr.get() == 0 )
+  {
+    MockApplicationStub* stub(new MockApplicationStub());
+    _app = new MockApplication(stub); // stub is owned now by xdaq::Application
 
-  _sr.reset(new SharedResources());
-  _sr->_initMsgCollection.reset(new InitMsgCollection());
-  _sr->_diskWriterResources.reset(new MockDiskWriterResources());
-  _sr->_dqmEventProcessorResources.reset(new MockDQMEventProcessorResources());
-  _sr->_commandQueue.reset(new CommandQueue(32));
-  _sr->_fragmentQueue.reset(new FragmentQueue(32));
-  _sr->_registrationQueue.reset(new RegistrationQueue(32));
-  _sr->_streamQueue.reset(new StreamQueue(32));
-  _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
-  _sr->_statisticsReporter.reset( new StatisticsReporter( _app ) );
-  boost::shared_ptr<ConsumerMonitorCollection>
-    cmcptr( _sr->_statisticsReporter->getEventConsumerMonitorCollection() );
-  _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
-  cmcptr = _sr->_statisticsReporter->getDQMConsumerMonitorCollection();
-  _sr->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
+    _sr.reset(new SharedResources());
+    _sr->_initMsgCollection.reset(new InitMsgCollection());
+    _sr->_diskWriterResources.reset(new MockDiskWriterResources());
+    _sr->_dqmEventProcessorResources.reset(new MockDQMEventProcessorResources());
+    _sr->_commandQueue.reset(new CommandQueue(32));
+    _sr->_fragmentQueue.reset(new FragmentQueue(32));
+    _sr->_registrationQueue.reset(new RegistrationQueue(32));
+    _sr->_streamQueue.reset(new StreamQueue(32));
+    _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
+    _sr->_statisticsReporter.reset( new StatisticsReporter( _app ) );
+    boost::shared_ptr<ConsumerMonitorCollection>
+      cmcptr( _sr->_statisticsReporter->getEventConsumerMonitorCollection() );
+    _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
+    cmcptr = _sr->_statisticsReporter->getDQMConsumerMonitorCollection();
+    _sr->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
 
-  _sr->_discardManager.reset(new DiscardManager(stub->getContext(), stub->getDescriptor(),
-                                                _sr->_statisticsReporter->getDataSenderMonitorCollection()));
+    _sr->_discardManager.reset(new DiscardManager(stub->getContext(), stub->getDescriptor(),
+                                                  _sr->_statisticsReporter->getDataSenderMonitorCollection()));
 
-  _sr->_configuration.reset(new Configuration(stub->getInfoSpace(), 0));
-  _sr->_registrationCollection.reset(new RegistrationCollection());
+    _sr->_configuration.reset(new Configuration(stub->getInfoSpace(), 0));
+    _sr->_registrationCollection.reset(new RegistrationCollection());
+  }
 
   _ed = new EventDistributor(_sr);
   _fs = new FragmentStore();
@@ -123,7 +131,7 @@ void testStateMachine::setUp()
 
 void testStateMachine::tearDown()
 {
-  delete _app;
+  delete _machine;
 }
 
 void testStateMachine::resetStateMachine()
