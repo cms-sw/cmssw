@@ -32,7 +32,7 @@ hltTauValDefMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
                                         ),
             NTriggeredTaus        = cms.untracked.vuint32(2,1), 
             NTriggeredLeptons     = cms.untracked.vuint32(0,0), 
-            TauType               = cms.untracked.vint32(15,15),
+            TauType               = cms.untracked.vint32(0,0),
             LeptonType            = cms.untracked.vint32(0,0)                            
         ),
         
@@ -75,7 +75,10 @@ hltTauValDefMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
-      cms.InputTag("TauMCProducer","HadronicTauOneAndThreeProng")
+          cms.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
+          cms.InputTag("TauMCProducer","LeptonicTauElectrons"),
+          cms.InputTag("TauMCProducer","LeptonicTauMuons")
+      
      )
 )
 

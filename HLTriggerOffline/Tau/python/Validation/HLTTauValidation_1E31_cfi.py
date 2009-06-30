@@ -91,7 +91,9 @@ hltTauValIdealMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
-      cms.InputTag("TauMCProducer","HadronicTauOneAndThreeProng")
+          cms.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
+          cms.InputTag("TauMCProducer","LeptonicTauElectrons"),
+          cms.InputTag("TauMCProducer","LeptonicTauMuons")
      )
 )
 
