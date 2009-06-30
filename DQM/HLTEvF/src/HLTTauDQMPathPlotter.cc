@@ -84,7 +84,7 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      double et=0.;
 	      double eta=0.;
 	    
-	      for(size_t j = 0;j<refC.size();++j)
+	      for(size_t j = 0;j<refC[0].size();++j)
 		{
 		  if((refC[0])[j].Et()>et)
 		    {
