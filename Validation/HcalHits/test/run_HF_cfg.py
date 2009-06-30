@@ -35,7 +35,7 @@ process.source = cms.Source("PoolSource",
     debugVebosity = cms.untracked.uint32(11),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/1_4_x/mc_pi50_etaphi-344.root', 'file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/1_4_x/mc_pi50_etaphi+344.root')
+     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_etaphi-344.root', 'file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_etaphi+344.root')
 )
 
 process.Timing = cms.Service("Timing")
