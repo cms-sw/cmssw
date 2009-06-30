@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.19 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATMuonProducer.h,v 1.20 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.19 2009/06/08 13:51:35 hegner Exp $
+  \version  $Id: PATMuonProducer.h,v 1.20 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 
@@ -53,6 +53,7 @@ namespace pat {
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
       typedef edm::RefToBase<reco::Muon> MuonBaseRef;
+      typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -94,7 +95,8 @@ namespace pat {
       void fillMuon( Muon& aMuon, 
 		     const MuonBaseRef& muonRef,
 		     const reco::CandidateBaseRef& baseRef,
-		     const GenAssociations& genMatches) const;
+		     const GenAssociations& genMatches, 
+		     const IsoDepositMaps& deposits) const;
 
      
 

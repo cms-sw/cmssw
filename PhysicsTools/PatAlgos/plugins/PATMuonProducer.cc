@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.26 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATMuonProducer.cc,v 1.27 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -52,10 +52,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   embedPickyMuon_      = iConfig.getParameter<bool>         ( "embedPickyMuon" );
   embedTpfmsMuon_      = iConfig.getParameter<bool>         ( "embedTpfmsMuon" );
 
- 
-
-  
-
   
   //pflow specific
   pfMuonSrc_           = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
@@ -70,8 +66,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     pickySrc_ = iConfig.getParameter<edm::InputTag>("pickySrc");
     tpfmsSrc_ = iConfig.getParameter<edm::InputTag>("tpfmsSrc");
   }
-
-
 
 
   // MC matching configurables
@@ -99,17 +93,15 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   }
 
   if (iConfig.exists("isoDeposits")) {
+    cout<<"deposits configuration ok"<<endl;
      edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
      if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
      if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
      if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
-
-     if (depconf.exists("particle"))           isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("particle")));
-     if (depconf.exists("chargedparticle"))    isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("chargedparticle")));
-     if (depconf.exists("neutralparticle")) isoDepositLabels_.push_back(std::make_pair(NeutralParticleIso,depconf.getParameter<edm::InputTag>("neutralparticle")));
-     if (depconf.exists("gammaparticle"))    isoDepositLabels_.push_back(std::make_pair(GammaParticleIso, depconf.getParameter<edm::InputTag>("gammaparticle")));
-
-
+     if (depconf.exists("chargedHadrons"))  {
+       cout<<"adding label "<<depconf.getParameter<edm::InputTag>("chargedHadrons")<<endl;
+       isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("chargedHadrons")));
+     }
      if (depconf.exists("user")) {
         std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
         std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
@@ -119,6 +111,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
         }
      }
   }
+
 
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
@@ -136,7 +129,7 @@ PATMuonProducer::~PATMuonProducer() {
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   
-edm::Handle<edm::View<reco::Muon> > muons;
+  edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByLabel(muonSrc_, muons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
@@ -144,8 +137,9 @@ edm::Handle<edm::View<reco::Muon> > muons;
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
-  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+  IsoDepositMaps deposits(isoDepositLabels_.size());
+  for (size_t j = 0, nd = isoDepositLabels_.size(); j < nd; ++j) {
+    cout<<"reading isoDeposits / "<<isoDepositLabels_[j].second<<endl;
     iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
   }
 
@@ -160,13 +154,20 @@ edm::Handle<edm::View<reco::Muon> > muons;
 
   std::vector<Muon> * patMuons = new std::vector<Muon>();
 
-  // loop over muons
-  // Get the collection of muons from the event
-  
 
   if( useParticleFlow_ ) {
+
+    // get the muons 
     edm::Handle< reco::PFCandidateCollection >  pfMuons;
     iEvent.getByLabel(pfMuonSrc_, pfMuons);
+    
+    // get the isolation maps connecting the muons to the 
+    // isolation value 
+    typedef  edm::ValueMap<double> IsoMap;
+    edm::Handle<IsoMap> isolations;
+    iEvent.getByLabel("pfMuonIsolationFromDeposits", isolations);
+
+
     unsigned index=0;
     for( reco::PFCandidateConstIterator i = pfMuons->begin(); 
 	 i != pfMuons->end(); ++i, ++index) {
@@ -187,15 +188,17 @@ edm::Handle<edm::View<reco::Muon> > muons;
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);
       reco::CandidateBaseRef pfBaseRef( pfRef ); 
 
-      
-
-      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches);
+      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits);
       
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
 
-      patMuons->push_back(aMuon);
-      
+      // isolations
+
+      cout<<(*isolations)[pfmu.sourceCandidatePtr(0)]<<endl;
+      aMuon.setIsolation(ChargedParticleIso, (*isolations)[pfmu.sourceCandidatePtr(0)]);
+           
+      patMuons->push_back(aMuon); 
     } 
   }
   else {
@@ -218,7 +221,7 @@ edm::Handle<edm::View<reco::Muon> > muons;
       
       Muon aMuon(muonRef);
       
-      fillMuon( aMuon, muonRef, muonBaseRef, genMatches );
+      fillMuon( aMuon, muonRef, muonBaseRef, genMatches, deposits);
 
       // store the TeV refit track refs (only available for globalMuons)
       if (addTeVRefits_ && itMuon->isGlobalMuon()) {
@@ -252,10 +255,10 @@ edm::Handle<edm::View<reco::Muon> > muons;
 	}
       }
       
-      for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-	aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
-			    (*deposits[j])[muonRef]);
-      }
+//       for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+// 	aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
+// 			    (*deposits[j])[muonRef]);
+//       }
 
       // add sel to selected
       edm::Ptr<reco::Muon> muonsPtr = muons->ptrAt(idx);
@@ -281,7 +284,8 @@ edm::Handle<edm::View<reco::Muon> > muons;
 void PATMuonProducer::fillMuon( Muon& aMuon, 
 				const MuonBaseRef& muonRef,
 				const reco::CandidateBaseRef& baseRef,
-				const GenAssociations& genMatches ) const {
+				const GenAssociations& genMatches, 
+				const IsoDepositMaps& deposits ) const {
   
 
   if (embedTrack_) aMuon.embedTrack();
@@ -301,9 +305,16 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
   }
   
+  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+    cout<<"setting deposit "<<j<<" "<<isoDepositLabels_[j].first<<endl;
+    aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
+			(*deposits[j])[muonRef]);
+  }
+
   if (resolutionLoader_.enabled()) {
     resolutionLoader_.setResolutions(aMuon);
   }
+
 
 }
 
@@ -350,9 +361,9 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isoDepositsPSet.addOptional<edm::InputTag>("ecal");
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
   isoDepositsPSet.addOptional<edm::InputTag>("particle");
-  isoDepositsPSet.addOptional<edm::InputTag>("chargedparticle");
-  isoDepositsPSet.addOptional<edm::InputTag>("neutralparticle");
-  isoDepositsPSet.addOptional<edm::InputTag>("gammaparticle");
+  isoDepositsPSet.addOptional<edm::InputTag>("chargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("neutralHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("photons");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
   iDesc.addOptional("isoDeposits", isoDepositsPSet);
 
