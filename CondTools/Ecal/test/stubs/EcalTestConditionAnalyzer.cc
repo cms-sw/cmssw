@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.3 2009/04/08 15:20:24 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.4 2009/06/30 14:40:09 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -12,7 +12,30 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+
+#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
+
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+
 #include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
@@ -23,35 +46,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 
-#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-
-#include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalWeightSetXMLTranslator.h"
-
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-
-#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
-#include "CondTools/Ecal/interface/EcalCondHeader.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-
-#include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
-#include <string>
-
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.3 2009/04/08 15:20:24 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.4 2009/06/30 14:40:09 argiro Exp $";
 
 /**
  *

@@ -13,6 +13,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 
 #include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
@@ -114,7 +115,7 @@ int main(){
   } 
 
 
-  
+ 
   EcalIntercalibConstantsXMLTranslator::writeXML(intercalibfile,header,
 						 intercalib_constants);
   
@@ -123,6 +124,7 @@ int main(){
 
   EcalIntercalibConstants intercalib_constants2;
   EcalIntercalibErrors    intercalib_errors2;
+
 
   EcalIntercalibConstantsXMLTranslator::readXML(intercalibfile,header2,
 						intercalib_constants2);
@@ -232,7 +234,6 @@ int main(){
   EcalChannelStatusXMLTranslator transChannelStatus;
   
   EcalChannelStatus channelstatus;
-
 
 
   for (int cellid = 0; 

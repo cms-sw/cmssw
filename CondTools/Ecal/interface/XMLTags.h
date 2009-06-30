@@ -57,7 +57,7 @@ namespace xuti{
 
 
   const  std::string Value_tag("Value");
-  const  std::string EcalFloatCondObjectContatiner_tag("EcalFloatCondObjectContainer");
+  const  std::string EcalFloatCondObjectContainer_tag("EcalFloatCondObjectContainer");
 
 }
 
