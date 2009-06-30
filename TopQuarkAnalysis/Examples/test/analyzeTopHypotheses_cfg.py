@@ -7,15 +7,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
 process.MessageLogger.categories = cms.untracked.vstring('TEST')
 process.MessageLogger.categories.append('TtSemiLeptonicEvent')
-process.MessageLogger.cerr.INFO = cms.untracked.PSet(
-    default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
-    TtSemiLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
 )
 
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre6/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0002/50D4BADB-FA32-DE11-BA01-000423D98DC4.root'
+    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
      ),
      skipEvents = cms.untracked.uint32(0)                            
 )
@@ -34,7 +33,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
