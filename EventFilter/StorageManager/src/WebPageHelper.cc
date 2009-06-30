@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.8 2009/06/25 11:53:58 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.9 2009/06/29 15:44:33 mommsen Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -2255,6 +2255,9 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
 
+  XHTMLMaker::AttrMap tableSuspiciousValueAttr = _tableValueAttr;
+  tableSuspiciousValueAttr[ "style" ] = "background-color: yellow;";
+
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
 
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
@@ -2278,11 +2281,11 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of error events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of data discards");
+  maker.addText(tableDiv, "# of outstanding data discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of DQM events");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "# of DQM discards");
+  maker.addText(tableDiv, "# of outstanding DQM discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of stale chains");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2304,6 +2307,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
   }
   else
   {
+    int discardCount = 0;
     for (unsigned int idx = 0; idx < rbResultsList.size(); ++idx)
     {
       tableRow = maker.addNode("tr", table, _rowAttr);
@@ -2327,16 +2331,56 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       maker.addText(tableDiv, rbResultsList[idx]->eventStats.getSampleCount(), 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->errorEventStats.getSampleCount(), 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->dataDiscardCount, 0);
+
+      discardCount = rbResultsList[idx]->initMsgCount +
+        rbResultsList[idx]->eventStats.getSampleCount() +
+        rbResultsList[idx]->errorEventStats.getSampleCount() -
+        rbResultsList[idx]->dataDiscardCount;
+      if (discardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, discardCount, 0);
+
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount(), 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->dqmDiscardCount, 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+
+      discardCount = rbResultsList[idx]->dqmEventStats.getSampleCount() -
+        rbResultsList[idx]->dqmDiscardCount;
+      if (discardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, discardCount, 0);
+
+      if (rbResultsList[idx]->staleChainStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
       maker.addText(tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount(), 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+
+      if (rbResultsList[idx]->skippedDiscardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
       maker.addText(tableDiv, rbResultsList[idx]->skippedDiscardCount, 0);
+
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, rbResultsList[idx]->eventStats.
                     getSampleRate(MonitoredQuantity::RECENT));
@@ -2509,10 +2553,13 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
     dsmc.getFilterUnitResultsForRB(uniqueRBID);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "7";
+  colspanAttr[ "colspan" ] = "12";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
+
+  XHTMLMaker::AttrMap tableSuspiciousValueAttr = _tableValueAttr;
+  tableSuspiciousValueAttr[ "style" ] = "background-color: yellow;";
 
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
 
@@ -2525,11 +2572,21 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow);
   maker.addText(tableDiv, "Process ID");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "GUID");
-  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of INIT messages");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# of events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of error events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of outstanding data discards");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of DQM events");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of outstanding DQM discards");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of stale chains");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "# of ignored discards");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Recent event rate (Hz)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2549,6 +2606,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
   }
   else
   {
+    int discardCount = 0;
     for (unsigned int idx = 0; idx < fuResultsList.size(); ++idx)
     {
       tableRow = maker.addNode("tr", table, _rowAttr);
@@ -2556,11 +2614,61 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow);
       maker.addText(tableDiv, fuResultsList[idx]->key.fuProcessId, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->key.fuGuid, 0);
-      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->initMsgCount, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->eventStats.getSampleCount(), 0);
+      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      maker.addText(tableDiv, fuResultsList[idx]->errorEventStats.getSampleCount(), 0);
+
+      discardCount = fuResultsList[idx]->initMsgCount +
+        fuResultsList[idx]->eventStats.getSampleCount() +
+        fuResultsList[idx]->errorEventStats.getSampleCount() -
+        fuResultsList[idx]->dataDiscardCount;
+      if (discardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, discardCount, 0);
+
+      tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      maker.addText(tableDiv, fuResultsList[idx]->dqmEventStats.getSampleCount(), 0);
+
+      discardCount = fuResultsList[idx]->dqmEventStats.getSampleCount() -
+        fuResultsList[idx]->dqmDiscardCount;
+      if (discardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, discardCount, 0);
+
+      if (fuResultsList[idx]->staleChainStats.getSampleCount() != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, fuResultsList[idx]->staleChainStats.getSampleCount(), 0);
+
+      if (fuResultsList[idx]->skippedDiscardCount != 0)
+      {
+        tableDiv = maker.addNode("td", tableRow, tableSuspiciousValueAttr);
+      }
+      else
+      {
+        tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+      }
+      maker.addText(tableDiv, fuResultsList[idx]->skippedDiscardCount, 0);
+
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->eventStats.
                     getSampleRate(MonitoredQuantity::RECENT));
