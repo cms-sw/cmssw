@@ -1,5 +1,5 @@
 
-<use name=RecoEgamma/EgammaElectronProducers>
+#<use name=RecoEgamma/EgammaElectronProducers>
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoEgamma/EgammaMCTools>
 <use name=RecoEcal/EgammaCoreTools>
@@ -22,7 +22,7 @@
 <use name=root>
 
 <export>
-   <use name=RecoEgamma/EgammaElectronProducers>
+   #<use name=RecoEgamma/EgammaElectronProducers>
    <use name=RecoEgamma/EgammaElectronAlgos>
    <use name=RecoEgamma/EgammaMCTools>
    <use name=MagneticField/Engine>
