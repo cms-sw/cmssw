@@ -16,13 +16,6 @@
 #include <map>
 #include <functional>
 
-// #define DBG_GS1D
-// #define DRAW_GS1D
-#ifdef DRAW_GS1D
-#include "TCanvas.h"
-#include "TGraph.h"
-#include "TPolyMarker.h"
-#endif
 
 double
 GaussianSumUtilities1D::quantile (const double q) const
@@ -104,76 +97,6 @@ GaussianSumUtilities1D::computeMode () const
 //   TimerStack tstack;
 //   tstack.benchmark("GSU1D::benchmark",100000);
 //   FastTimerStackPush(tstack,"GaussianSumUtilities1D::computeMode");
-#ifdef DRAW_GS1D
-  {
-  gPad->Clear();
-  std::cout << "gPad = " << gPad << std::endl;
-  std::multimap<double,double> drawMap;
-  const int npDraw(1024);
-  double xpDraw[npDraw];
-  double ypDraw[npDraw];
-  for ( unsigned int i=0; i<size(); i++ ) {
-    double ave = mean(i);
-    double sig = standardDeviation(i);
-    for ( double xi=-3.; xi<3.; ) {
-      double x = ave + xi*sig;
-      drawMap.insert(std::make_pair(x,pdf(x)));
-      xi += 0.2;
-    }
-  }
-  int np(0);
-  double xMin(std::numeric_limits<float>::max());
-  double xMax(-std::numeric_limits<float>::max());
-  double yMax(-std::numeric_limits<float>::max());
-  for ( std::multimap<double,double>::const_iterator im=drawMap.begin();
-	im!=drawMap.end(); ++im,++np ) {
-    if ( np>=1024 )  break;
-    xpDraw[np] = (*im).first;
-    ypDraw[np] = (*im).second;
-    if ( xMin>(*im).first )  xMin = (*im).first;
-    if ( xMax<(*im).first )  xMax = (*im).first;
-    if ( yMax<(*im).second )  yMax = (*im).second;
-  }
-//   for ( int i=0; i<np; ++i )
-//     std::cout << i << " " << xpDraw[i] << " " << ypDraw[i] << std::endl;
-  gPad->DrawFrame(xMin,0.,xMax,1.05*yMax);  
-  TGraph* g = new TGraph(np,xpDraw,ypDraw);
-  g->SetLineWidth(2);
-  g->Draw("C");
-  TGraph* gc = new TGraph();
-  gc->SetLineStyle(2);
-  int np2(0);
-  double xpDraw2[1024];
-  double ypDraw2[1024];
-  for ( unsigned int i=0; i<size(); i++ ) {
-    double ave = mean(i);
-    double sig = standardDeviation(i);
-    SingleGaussianState1D sgs(ave,variance(i),weight(i));
-    std::vector<SingleGaussianState1D> sgsv(1,sgs);
-    MultiGaussianState1D mgs(sgsv);
-    GaussianSumUtilities1D gsu(mgs);
-    np2 = 0;
-    for ( double xi=-3.; xi<3.; ) {
-      double x = ave + xi*sig;
-      xpDraw2[np2] = x;
-      ypDraw2[np2] = gsu.pdf(x);
-      ++np2;
-      xi += 0.2;
-    }
-//    for ( int i=0; i<np2; ++i )
-//      std::cout << i << " " << xpDraw2[i] << " " << ypDraw2[i] << std::endl;
-//     std::cout << "np2 = " << np2 
-// 	 << " ave = " << ave 
-// 	 << " sig = " << sig 
-// 	 << " weight = " << weight(i)
-// 	 << " pdf = " << gsu.pdf(ave) << std::endl;
-    if ( np2>0 )  gc->DrawGraph(np2,xpDraw2,ypDraw2);
-//     break;
-  }
-  gPad->Modified();
-  gPad->Update();
-  }
-#endif
   theModeStatus = NotValid;
   //
   // Use means of individual components as start values.
@@ -187,22 +110,11 @@ GaussianSumUtilities1D::computeMode () const
   //
   // Now try with each start value
   //
-#ifdef DRAW_GS1D
-  int ind(0);
-#endif
   int iRes(-1);     // index of start component for current estimate
   double xRes(mean((*xStart.begin()).second)); // current estimate of mode
   double yRes(-1.); // pdf at current estimate of mode
 //   std::pair<double,double> result(-1.,mean((*xStart.begin()).second));
   for ( StartMap::const_iterator i=xStart.begin(); i!=xStart.end(); i++ ) {
-#ifdef DRAW_GS1D
-    double xp[2];
-    double yp[2];
-    TPolyMarker* g = new TPolyMarker();
-    g->SetMarkerStyle(20+ind/4);
-    g->SetMarkerColor(1+ind%4);
-    ++ind;
-#endif
     //
     // Convergence radius for a single Gaussian = 1 sigma: don't try
     // start values within 1 sigma of the current solution
@@ -230,10 +142,6 @@ GaussianSumUtilities1D::computeMode () const
       // update result only for significant changes in pdf(solution)
       //
       if ( yRes<0. || (y-yRes)/(y+yRes)>1.e-10 ) {
-#ifdef DBG_GS1D
-      if ( iRes>=0 ) 
-	std::cout << "dxStart = " << (xRes-mean((*i).second))/standardDeviation(iRes) << std::endl;
-#endif
       iRes = (*i).second;               // store index
       theModeStatus = Valid;            // update status
       xRes = x;                         // current solution
@@ -241,25 +149,11 @@ GaussianSumUtilities1D::computeMode () const
 //       result = std::make_pair(y,x);     // store solution and pdf(solution)
       }
     } //...
-#ifdef DRAW_GS1D
-    xp[0] = xp[1] = mean((*i).second);
-    yp[0] = yp[1] = (*i).first;
-    if ( valid ) {
-      xp[1] = x;
-      yp[1] = y;
-    }
-    g->DrawPolyMarker(2,xp,yp);
-    ++ind; //...
-#endif
   } 
   //
   // check (existance of) solution
   //
   if ( theModeStatus== Valid ) {
-#ifdef DBG_GS1D
-    std::cout << "Ratio of pdfs at  first / real maximum = " << iRes << " " << mean(iRes) << " "
-	 << pdf(mean(iRes))/(*xStart.begin()).first << std::endl;
-#endif
     //
     // Construct single Gaussian state with 
     //  mean = mode
@@ -297,36 +191,6 @@ GaussianSumUtilities1D::computeMode () const
     }
     theMode = SingleGaussianState1D(components()[icMax]);
   }
-#ifdef DRAW_GS1D
-  gPad->Modified();
-  gPad->Update();
-#endif
-#ifdef DRAW_GS1D
-  {
-    TGraph* gm = new TGraph();
-    gm->SetLineColor(2);
-    int np(0);
-    double xp[1024];
-    double yp[1024];
-    double mode = theMode.mean();
-    double var = theMode.variance();
-    double sig = sqrt(var);
-    SingleGaussianState1D sgs(mode,var,pdf(mode)*sqrt(2*M_PI)*sig);
-    std::vector<SingleGaussianState1D> sgsv(1,sgs);
-    MultiGaussianState1D mgs(sgsv);
-    GaussianSumUtilities1D gsu(mgs);
-    for ( double xi=-3.; xi<3.; ) {
-      double x = mode + xi*sig;
-      xp[np] = x;
-      yp[np] = gsu.pdf(x);
-      ++np;
-      xi += 0.2;
-    }
-    gm->DrawGraph(np,xp,yp);
-    gPad->Modified();
-    gPad->Update();
-  }
-#endif
   
 }
 
@@ -358,10 +222,6 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   int nLoop(0);
   while ( nLoop++<20 ) {
-#ifdef DBG_GS1D
-    std::cout << "Loop " << nLoop << " " << yd2 << " "
-	      << (yd*scale) << " " << (y2-y1)/(y2+y1) << std::endl;
-#endif
     if ( nLoop>1 && yd2<0. &&  
  	 ( fabs(yd*scale)<1.e-10 || fabs(y2-y1)/(y2+y1)<1.e-14 ) ) {
       result = true;
@@ -373,9 +233,6 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
     x1 = x2;
     y1 = y2;
     x2 += dx;
-#ifdef DBG_GS1D
-    std::cout << yd << " " << yd2 << " " << x2 << " " << xmin << " " << xmax << std::endl;
-#endif
     if ( yd2>0. && (x2<xmin||x2>xmax) )  return false;
 
     pdfs = pdfComponents(x2);
@@ -390,11 +247,6 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
     xMode = x2;
     yMode = y2;
   }
-#ifdef DBG_GS1D
-  std::cout << "Started from " << xStart << " " << pdf(xStart)
-	    << " ; ended at " << xMode << " " << yMode << " after " 
-	    << nLoop << " iterations " << result << std::endl;
-#endif
   return result;
 }
 
