@@ -103,7 +103,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         xmax = cms.double(69.5),
         Nbinsy = cms.int32(200),
         ymin = cms.double(0.0),
-        ymax = cms.double(1000.0),
+        yfactor = cms.double(0.2),
         subdetswitchon = cms.bool(False)
     ),
 

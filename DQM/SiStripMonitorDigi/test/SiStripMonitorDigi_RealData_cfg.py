@@ -67,6 +67,7 @@ process.SiStripMonitorDigi.OutputMEsInRootFile = True
 process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
+process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
 process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 process.SiStripMonitorDigi.SelectAllDetectors = True
 
