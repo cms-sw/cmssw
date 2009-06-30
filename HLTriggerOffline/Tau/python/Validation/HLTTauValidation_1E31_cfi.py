@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTauValidationProcess_IDEAL = "HLT1E31"
+hltTauValidationProcess_IDEAL = "HLT"
 
 hltTauValIdealMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
@@ -65,14 +65,28 @@ hltTauValIdealMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
             L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         ),
-
+        cms.PSet(
+            DQMFolder              = cms.string('HLT/TauRelVal/MC_1E31/L25'),
+            ConeIsolation          = cms.InputTag("hltL25TauConeIsolation"),
+            IsolatedJets           = cms.InputTag("hltL25TauLeadingTrackPtCutSelector"),
+            Type                   = cms.string('L25')
+        ),
+        cms.PSet(
+            DQMFolder              = cms.string('HLT/TauRelVal/MC_1E31/L3'),
+            ConeIsolation          = cms.InputTag("hltL3TauConeIsolation"),
+            IsolatedJets           = cms.InputTag("hltL3TauIsolationSelector"),
+            Type                   = cms.string('L3')
+      )
+        
    ),
     ConfigType = cms.vstring(
         "Path",
         "LitePath",
         "Path",
         "L1",
-        "Calo"
+        "Calo",
+        "Track",
+        "Track"
     ),
     
    doMatching = cms.bool(True),

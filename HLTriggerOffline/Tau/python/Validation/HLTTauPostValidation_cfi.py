@@ -14,6 +14,8 @@ HLTTauValPostAnalysis = cms.EDFilter("HLTTauPostProcessor",
 
     ),
     trackDirs               = cms.vstring(
+    "HLT/TauRelVal/MC_1E31/L25",
+    "HLT/TauRelVal/MC_1E31/L3",
     ),
     pathDirs                = cms.vstring(
     "HLT/TauRelVal/MC_Default/DoubleTau",
@@ -22,7 +24,6 @@ HLTTauValPostAnalysis = cms.EDFilter("HLTTauPostProcessor",
     "HLT/TauRelVal/MC_Default/SingleTau",
     "HLT/TauRelVal/MC_8E29/SingleTau",
     "HLT/TauRelVal/MC_1E31/SingleTau"
-
     ),
     pathSummaryDirs         = cms.vstring(
     'HLT/TauRelVal/MC_Default/Summary',
