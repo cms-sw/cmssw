@@ -44,7 +44,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     embedTpfmsMuon      = cms.bool(True),  ## embed in AOD externally stored TeV-refit TPFMS muon track
     embedPFCandidate    = cms.bool(False), ## embed in AOD externally stored particle flow candidate
 
-    # isolation
+    # define IsoDeposits to recompute isolation values on the fly in the producer.
     isolation = cms.PSet(
         hcal = cms.PSet(
             src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
@@ -67,16 +67,19 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
             deltaR = cms.double(0.3)
         )
     ),
+                                
     # embed IsoDeposits
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("muIsoDepositTk"),
         ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
         hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+        chargedHadrons = cms.InputTag("isoMuonWithCharged"),
         user    = cms.VInputTag(
                      cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"), 
                      cms.InputTag("muIsoDepositJets")
                   ),
     ),
+    
 
     # mc matching
     addGenMatch   = cms.bool(True),

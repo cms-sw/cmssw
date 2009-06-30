@@ -6,9 +6,10 @@ from PhysicsTools.PatAlgos.tools.tauTools import *
 
 def adaptPFMuons(process,module):
     module.useParticleFlow = True
-    print "Temporarily switching off isolation & isoDeposits for PF Muons"
-    module.isolation   = cms.PSet()
-    module.isoDeposits = cms.PSet()
+#    print "Temporarily switching off isolation & isoDeposits for PF Muons"
+#    module.isolation   = cms.PSet()
+#    module.isoDeposits = cms.PSet()
+
     pass
 
 def adaptPFElectrons(process,module):
@@ -80,7 +81,12 @@ def switchToPFJets(process,input=cms.InputTag('noTau')):
     process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
 
 def usePF2PAT(process,runPF2PAT=True):
+
+    print "use PF2PAT"
+    
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
+    print "argk"
+
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
@@ -91,8 +97,8 @@ def usePF2PAT(process,runPF2PAT=True):
     
     # -------- OBJECTS ------------
     # Muons
-    process.allLayer1Muons.pfMuonSource = cms.InputTag("isolatedMuons")
-    adaptPFMuons(process,process.allLayer1Muons)
+    process.allLayer1Muons.pfMuonSource = cms.InputTag("pfIsolatedMuons")
+#    adaptPFMuons(process,process.allLayer1Muons)
     switchMCMatch(process,process.allLayer1Muons.muonSource,process.allLayer1Muons.pfMuonSource)
     process.aodSummary.candidates.append(process.allLayer1Muons.pfMuonSource)
     
@@ -117,7 +123,7 @@ def usePF2PAT(process,runPF2PAT=True):
     process.patAODExtraReco.remove(process.patPhotonIsolation)
     
     # Jets
-    switchToPFJets( process, 'noTau' )
+    switchToPFJets( process, 'pfNoTau' )
     
     # Taus
     removeSpecificPATObject(process,'Taus')
@@ -131,4 +137,4 @@ def usePF2PAT(process,runPF2PAT=True):
     switchToPFMET(process, cms.InputTag('pfMET'))
     
     # Unmasked PFCandidates
-    addPFCandidates(process,cms.InputTag('noJet'),patLabel='PFParticles',cut="")
+    addPFCandidates(process,cms.InputTag('pfNoJet'),patLabel='PFParticles',cut="")
