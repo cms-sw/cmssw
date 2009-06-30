@@ -723,5 +723,5 @@ SVTagInfoValidationAnalyzer::endJob() {
  
 } 
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+
 DEFINE_ANOTHER_FWK_MODULE(SVTagInfoValidationAnalyzer);
