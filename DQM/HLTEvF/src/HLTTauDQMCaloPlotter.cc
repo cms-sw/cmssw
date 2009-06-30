@@ -22,6 +22,8 @@ HLTTauDQMCaloPlotter::HLTTauDQMCaloPlotter(const edm::ParameterSet& iConfig,int 
       //Create the histograms
       store->setCurrentFolder(triggerTag_);
       jetEt= store->book1D("L2TauEt","L2 #tau E_{t}",NPtBins_,0,EtMax_);
+      jetEtRes= store->book1D("L2TauEtResol","L2 #tau E_{t} resolution",40,-2,2);
+
       jetEta= store->book1D("L2TauEta","L2 #tau #eta",NEtaBins_,-2.5,2.5);
       jetPhi= store->book1D("L2TauPhi","L2 #tau #phi",NPhiBins_,-3.2,3.2);
 
@@ -119,6 +121,9 @@ HLTTauDQMCaloPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		     refLV = m.second;
 		   else
 		     refLV = jet.p4();
+		   
+		   if(doRef_)
+		     jetEtRes->Fill((jet.pt()-refLV.pt())/refLV.pt());
 
 		   EtEffDenom->Fill(refLV.pt());
 		   EtaEffDenom->Fill(refLV.eta());

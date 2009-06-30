@@ -67,6 +67,7 @@ class HLTTauDQMCaloPlotter {
       MonitorElement* jetEt;
       MonitorElement* jetEta;
       MonitorElement* jetPhi;
+      MonitorElement* jetEtRes;
 
       MonitorElement* isoJetEt;
       MonitorElement* isoJetEta;

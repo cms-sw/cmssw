@@ -46,7 +46,7 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,int etbins,in
       
       if(doRefAnalysis_)
 	{
-	  l1tauEtRes_      = store->book1D("L1TauEtResol","L1 #tau E_{t} resolution",20,-2,2);
+	  l1tauEtRes_      = store->book1D("L1TauEtResol","L1 #tau E_{t} resolution",40,-2,2);
 	  
 	  l1tauEtEffNum_   = store->book1D("L1TauEtEffNum","L1 #tau E_{t} Efficiency",binsEt_,0,maxEt_);
 	  l1tauEtEffNum_->getTH1F()->Sumw2();
