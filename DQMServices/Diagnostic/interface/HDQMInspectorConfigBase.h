@@ -1,3 +1,7 @@
+#ifndef GUARD_HDQMInspectorConfigBase_h
+#define GUARD_HDQMInspectorConfigBase_h
+
+
 #include <string>
 #include <vector>
 
@@ -24,15 +28,46 @@
  * to the HDQMInspector.
  */
 
-using namespace std;
 
 class HDQMInspectorConfigBase
 {
  public:
+   HDQMInspectorConfigBase () {};
+   virtual ~HDQMInspectorConfigBase () {};
   /// pure virtual method that convert a DetId to a string
-  virtual string translateDetId( const uint32_t detId ) const = 0;
+  virtual std::string translateDetId( const uint32_t ) const = 0;
   /// fills a vector<pair<string, string> > associating values with the corresponding errors
-  virtual bool valueErrorMap(vector<pair<string, string> > & valueErrorVector) const {return false;}
+  virtual bool valueErrorMap(std::vector<std::pair<std::string, std::string> > & valueErrorVector) const {return false;}
   /// fills the list of names of quantities for which a summation over the runs is required
-  virtual bool computeIntegralList(vector<string> & computeIntegralVector) const {return false;}
+  virtual bool computeIntegralList(std::vector<std::string> & computeIntegralVector) const {return false;}
+
+  std::string getErrorForQuantity(std::string const& QuantityName)
+  {
+    // Return the error name for a quantity name given.  This is designed to be used for the
+    // "user" input quantities
+
+    for (std::map<std::string, std::string>::iterator It = fErrorMap.begin(); It != fErrorMap.end(); ++It) {
+      if (QuantityName.find( It->first ) != std::string::npos) {
+        return It->second;
+      }
+    }
+
+    return "";
+  }
+
+ private:
+  std::map<std::string, std::string> fErrorMap;
 };
+
+
+/*
+ * valueErrorMap: don't I need a way to access what is input here in the HDQMI code??
+ *  map should be vlist=>error right?
+ *
+ * computeIntegralList: need a way to access that as well.
+ *
+ */
+
+
+
+#endif
