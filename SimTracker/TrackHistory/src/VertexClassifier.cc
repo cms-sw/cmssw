@@ -308,8 +308,6 @@ void VertexClassifier::vertexInformation()
     // Get the generated history of the tracks
     VertexHistory::GenVertexTrail & genVertexTrail = const_cast<VertexHistory::GenVertexTrail &> (tracer_.genVertexTrail());
 
-    std::cout << genpvs_.empty() << std::endl; 
-
     // Unit transformation from mm to cm
     double const mm = 0.1;
 
