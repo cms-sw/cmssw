@@ -111,7 +111,7 @@ class HTMLExport(FileExportPlugin):
                   list_html += elem('li',vv,'pset-list-item param-value-%s'%item_class)
             pset_items_html+=elem('tr',
               elem('td',k,'param-name')
-             +elem('td',v.pythonTypeName(),'param-class')
+             +elem('td','%s[%s]'%(v.pythonTypeName(),len(v)),'param-class')
              +elem('td',elem('ol',list_html,'pset-list')),
              'pset-item'
             )
@@ -120,7 +120,7 @@ class HTMLExport(FileExportPlugin):
       return elem('table',pset_items_html,'pset')
       
     def htmlModule(mod):
-      mod_label_html = div(elem('a',data.label(mod),'title',name=data.label(mod)),'module_label '+data.type(mod),onClick='return toggleVisible(\'%s\')'%('mod_%s'%(data.label(mod))))
+      mod_label_html = div(elem('a',data.label(mod),'title',name=data.label(mod)),'module_label '+data.type(mod),onClick='return toggleModuleVisible(\'%s\')'%('mod_%s'%(data.label(mod))))
       
       mod_table = elem('table',
         elem('tr',elem('td','Type','label')+elem('td',data.type(mod)))
@@ -140,7 +140,7 @@ class HTMLExport(FileExportPlugin):
           seq_name='Path'
         if isinstance(p,sqt.EndPath):
           seq_name='EndPath'
-        seq_label_html = div('%s %s'%(seq_name,elem('span',data.label(p),'title')),'sequence_label',onClick='return toggleVisible(\'%s\')'%'seq_%s'%data.label(p))
+        seq_label_html = div(seq_name+' '+elem('span',data.label(p),'title')+' '+elem('span','[%s children hidden]'%len(children),'hidden',id='seq_hidden_%s'%data.label(p)),'sequence_label',onClick='return toggleSequenceVisible(\'%s\')'%data.label(p),id='seq_label_%s'%data.label(p))
         seq_inner_content_html = ''.join([htmlPathRecursive(c) for c in children])
         seq_content_html = div(seq_inner_content_html,'sequence_area',id='seq_%s'%data.label(p))
         return div(seq_label_html+seq_content_html,'sequence')
@@ -159,7 +159,7 @@ class HTMLExport(FileExportPlugin):
         path_html += div(htmlPathRecursive(path),'path')
     
     header_html = div('Config File Visualisation','header')
-    file_html = div(elem('span','Process:','label')
+    file_html = div(elem('span','Process:')
                    +elem('span',data.process().name_(),'title')
                    +elem('span',data._filename,'right'),
                 'file')
@@ -174,19 +174,20 @@ class HTMLExport(FileExportPlugin):
     .header{position:fixed;top:0px;left:0px;width:100%;background:#33cc00;font-weight:bold;font-size:120%}
     .footer{position:fixed;bottom:0px;left:0px;width:100%;background:#33cc00;text-align:right}
     .canvas{padding:40px 10px 40px 10px}
-    .file{position:relative;background:#bbb;width:100%}
+    .file{position:relative;background:#bbb;width:100%;padding-left:5px}
     .right{position:absolute;right:5px}
-    .sequence{padding:1px 1px 1px 5px;border:1px solid #aaa}
+    .sequence{border:1px solid #aaa}
     .sequence:hover{border 1px solid #00ffff}
-    .sequence_label{background:lightskyblue}
+    .sequence_label{background:lightskyblue;padding-left:5px}
     .sequence_label:hover{background:#fff}
-    .sequence_area{display:block;padding:5px 0px 5px 5px}
+    .sequence_label_hidden{background:grey;padding-left:5px}
+    .sequence_area{padding:5px 0px 5px 5px}
     .edproducer{border:1px solid red;background-image:url('edproducer.png');background-position:center left;background-repeat:no-repeat;padding:0px 0px 0px 40px}
     .edfilter{border:1px solid green;background-image:url('edfilter.png');background-position:center left;background-repeat:no-repeat;padding:0px 0px 0px 40px}
     .edanalyzer{border:1px solid blue;background-image:url('edanalyzer.png');background-position:center left;background-repeat:no-repeat;padding:0px 0px 0px 40px}
     .outputmodule{border:1px solid green;background-image:url('outputmodule.png');background-position:center left;background-repeat:no-repeat;padding:0px 0px 0px 40px}
     .module{}
-    .module_label:hover{background:#ccc}
+    .module_label:hover{background:#ccc;position:relative}
     .module_area{display:none;padding:5px 0px 15px 15px;background:beige}
     .pset{border-spacing:10px 1px;border:1px solid black}
     .pset-item{}
@@ -201,17 +202,33 @@ class HTMLExport(FileExportPlugin):
     .param-value-inputtag{font-family:courier;color:red}
     .param-value-other{font-family:courier}
     .path{}
+    .hidden{display:none}
     """,
     type='text/css')
     
     script_html = elem('script',
     """
-    function toggleVisible(id) {
+    function toggleModuleVisible(id) {
       var elem = document.getElementById(id);
       if (elem.style.display=='block') {
         elem.style.display='none';
       } else {
         elem.style.display='block';      
+      }
+    }
+    
+    function toggleSequenceVisible(id) {
+      var area_elem = document.getElementById('seq_'+id);
+      var hidden_elem = document.getElementById('seq_hidden_'+id);
+      var label_elem = document.getElementById('seq_label_'+id);
+      if (area_elem.style.display=='none') {
+        area_elem.style.display='block';      
+        hidden_elem.style.display='none';
+        label_elem.className = 'sequence_label';
+      } else {
+        area_elem.style.display='none';
+        hidden_elem.style.display='block';
+        label_elem.className = 'sequence_label_hidden';
       }
     }
     """,
