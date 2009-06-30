@@ -50,16 +50,16 @@ public:
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
-  unsigned rank() const { return m_data & 0x3f; }
+  unsigned rank() const;
 
   /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const { return (m_data>>6) & 0xf; }
+  unsigned etaIndex() const;
 
   /// get eta sign bit (1 for -ve Z, 0 for +ve Z)
   unsigned etaSign() const { return (m_data>>9) & 0x1; }
   
   /// get phi index (0-17)
-  unsigned phiIndex() const { return (m_data>>10) & 0x1f; }
+  unsigned phiIndex() const;
 
   /// check if this is a central jet
   bool isCentral() const { return (!m_isTau) && (!m_isFor); }
