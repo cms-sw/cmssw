@@ -8,31 +8,18 @@ from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 from HLTriggerOffline.special.hltAlCaVal_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
 
+# offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-from DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi import *
-
-# These are what you need for Online DQM
+#from DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi import *
+# online dqm:
 from DQM.HLTEvF.HLTMonTau_cfi import *
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
-    +HLTTopVal
-    +HLTFourVector
-    +heavyFlavorValidationSequence
-    +HLTJetMETValSeq
-    +HLTAlCaVal
-    +HLTSusyExoValSeq
-    )
-
-#Muon offline DQM not ready yet.  Tag is in preparation
-hltvalidation_withDQM = cms.Sequence(
-     HLTMuonVal
-    +HLTTauVal+hltMonTauReco+HLTTauDQMOffline
-    +egammaValidationSequence+egHLTOffDQMSource
     +HLTTopVal
     +HLTFourVector
     +heavyFlavorValidationSequence
@@ -53,17 +40,6 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTSusyExoValSeq_FastSim
     )
 
-hltvalidation_pu = cms.Sequence(
-     HLTMuonVal
-    +HLTTauVal
-    +egammaValidationSequence
-    +HLTTopVal
-    +HLTFourVector
-    +heavyFlavorValidationSequence
-    +HLTJetMETValSeq
-    +HLTAlCaVal
-    +HLTSusyExoValSeq
-    )
 hltvalidation_prod = cms.Sequence(
   HLTTauVal
   +HLTTopVal
@@ -72,3 +48,13 @@ hltvalidation_prod = cms.Sequence(
   +HLTSusyExoValSeq
   )
 
+
+trigdqm_forValidation = cms.Sequence(
+    hltMonTauReco+HLTTauDQMOffline
+    +egHLTOffDQMSource
+    )
+
+hltvalidation_withDQM = cms.Sequence(
+    hltvalidation
+    +trigdqm_forValidation
+    )
