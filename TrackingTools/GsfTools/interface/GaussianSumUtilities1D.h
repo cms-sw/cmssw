@@ -36,7 +36,8 @@ public:
   inline double mean (unsigned int i) const {return components()[i].mean();}
   /// standard deviation of a component
   inline double standardDeviation (unsigned int i) const {
-    return sqrt(components()[i].variance());
+//     return sqrt(components()[i].variance());
+    return components()[i].standardDeviation();
   }
   /// variance of a component
   inline double variance (unsigned int i) const {return components()[i].variance();}

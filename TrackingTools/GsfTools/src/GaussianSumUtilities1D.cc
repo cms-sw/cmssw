@@ -4,8 +4,11 @@
 // #include "Utilities/Timing/interface/TimingReport.h"
 // #include "Utilities/Timing/interface/TimerStack.h"
 
-#include "TROOT.h"
-#include "TMath.h"
+// #include "TROOT.h"
+// #include "TMath.h"
+#include "Math/ProbFuncMathCore.h"
+#include "Math/PdfFuncMathCore.h"
+#include "Math/QuantFuncMathCore.h"
 
 #include <iostream>
 #include <cmath>
@@ -24,54 +27,61 @@
 double
 GaussianSumUtilities1D::quantile (const double q) const
 {
-  //
-  // mean and sigma of highest weight component
-  //
-  int iwMax(-1);
-  float wMax(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
-    if ( weight(i)>wMax ) {
-      iwMax = i;
-      wMax = weight(i);
-    }
-  }
-  //
-  // Find start values: begin with mean and
-  // go towards f(x)=0 until two points on
-  // either side are found (assumes monotonously
-  // increasing function)
-  //
-  double x1(mean(iwMax));
-  double y1(cdf(x1)-q);
-  double dx = y1>0. ? -standardDeviation(iwMax) : standardDeviation(iwMax);
-  double x2(x1+dx);
-  double y2(cdf(x2)-q);
-  while ( y1*y2>0. ) {
-    x1 = x2;
-    y1 = y2;
-    x2 += dx;
-    y2 = cdf(x2) - q;
-  }
-  //
-  // now use bisection to find final value
-  //
-  double x(0.);
-  while ( true ) {
-    // use linear interpolation
-    x = -(x2*y1-x1*y2)/(y2-y1);
-    double y = cdf(x) - q;
-    if ( fabs(y)<1.e-6 )  break;
-    if ( y*y1>0. ) {
-      y1 = y;
-      x1 = x;
-    }
-    else {
-      y2 = y;
-      x2 = x;
-    }
-  }
-  return x;
+  return ROOT::Math::gaussian_quantile(q,1.);
 }
+
+
+// double
+// GaussianSumUtilities1D::quantile (const double q) const
+// {
+//   //
+//   // mean and sigma of highest weight component
+//   //
+//   int iwMax(-1);
+//   float wMax(0.);
+//   for ( unsigned int i=0; i<size(); i++ ) {
+//     if ( weight(i)>wMax ) {
+//       iwMax = i;
+//       wMax = weight(i);
+//     }
+//   }
+//   //
+//   // Find start values: begin with mean and
+//   // go towards f(x)=0 until two points on
+//   // either side are found (assumes monotonously
+//   // increasing function)
+//   //
+//   double x1(mean(iwMax));
+//   double y1(cdf(x1)-q);
+//   double dx = y1>0. ? -standardDeviation(iwMax) : standardDeviation(iwMax);
+//   double x2(x1+dx);
+//   double y2(cdf(x2)-q);
+//   while ( y1*y2>0. ) {
+//     x1 = x2;
+//     y1 = y2;
+//     x2 += dx;
+//     y2 = cdf(x2) - q;
+//   }
+//   //
+//   // now use bisection to find final value
+//   //
+//   double x(0.);
+//   while ( true ) {
+//     // use linear interpolation
+//     x = -(x2*y1-x1*y2)/(y2-y1);
+//     double y = cdf(x) - q;
+//     if ( fabs(y)<1.e-6 )  break;
+//     if ( y*y1>0. ) {
+//       y1 = y;
+//       x1 = x;
+//     }
+//     else {
+//       y2 = y;
+//       x2 = x;
+//     }
+//   }
+//   return x;
+// }
 
 bool
 GaussianSumUtilities1D::modeIsValid () const
@@ -112,9 +122,9 @@ GaussianSumUtilities1D::computeMode () const
     }
   }
   int np(0);
-  double xMin(FLT_MAX);
-  double xMax(-FLT_MAX);
-  double yMax(-FLT_MAX);
+  double xMin(std::numeric_limits<float>::max());
+  double xMax(-std::numeric_limits<float>::max());
+  double yMax(-std::numeric_limits<float>::max());
   for ( std::multimap<double,double>::const_iterator im=drawMap.begin();
 	im!=drawMap.end(); ++im,++np ) {
     if ( np>=1024 )  break;
@@ -259,7 +269,7 @@ GaussianSumUtilities1D::computeMode () const
     //
     double mode = xRes;
     double varMode = localVariance(mode);
-    double wgtMode = pdf(mode)*sqrt(2*TMath::Pi()*varMode);
+    double wgtMode = pdf(mode)*sqrt(2*M_PI*varMode);
     theMode = SingleGaussianState1D(mode,varMode,wgtMode);
   }
   else {
@@ -301,7 +311,7 @@ GaussianSumUtilities1D::computeMode () const
     double mode = theMode.mean();
     double var = theMode.variance();
     double sig = sqrt(var);
-    SingleGaussianState1D sgs(mode,var,pdf(mode)*sqrt(2*TMath::Pi())*sig);
+    SingleGaussianState1D sgs(mode,var,pdf(mode)*sqrt(2*M_PI)*sig);
     std::vector<SingleGaussianState1D> sgsv(1,sgs);
     MultiGaussianState1D mgs(sgsv);
     GaussianSumUtilities1D gsu(mgs);
@@ -357,7 +367,8 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
       result = true;
       break;
     }
-    if ( fabs(yd2)<FLT_MIN )  yd2 = yd2>0. ? FLT_MIN : -FLT_MIN;
+    if ( fabs(yd2)<std::numeric_limits<float>::min() )  
+      yd2 = yd2>0. ? std::numeric_limits<float>::min() : -std::numeric_limits<float>::min();
     double dx = -yd/yd2;
     x1 = x2;
     y1 = y2;
@@ -495,8 +506,8 @@ double
 GaussianSumUtilities1D::lnPdf (const double& x, const std::vector<double>& pdfs) const
 {
   double f(pdf(x,pdfs));
-  double result(-FLT_MAX);
-  if ( result>DBL_MIN )  result = log(f);
+  double result(-std::numeric_limits<float>::max());
+  if ( result>std::numeric_limits<double>::min() )  result = log(f);
   return result;
 }
 
@@ -506,7 +517,7 @@ GaussianSumUtilities1D::d1LnPdf (const double& x, const std::vector<double>& pdf
 
   double f = pdf(x,pdfs);
   double result(d1Pdf(x,pdfs));
-  if ( f>DBL_MIN )  result /= f;
+  if ( f>std::numeric_limits<double>::min() )  result /= f;
   else  result = 0.;
   return result;
 }
@@ -518,7 +529,7 @@ GaussianSumUtilities1D::d2LnPdf (const double& x, const std::vector<double>& pdf
   double f = pdf(x,pdfs);
   double df = d1LnPdf(x,pdfs);
   double result(-df*df);
-  if ( f>DBL_MIN )  result += d2Pdf(x,pdfs)/f;
+  if ( f>std::numeric_limits<double>::min() )  result += d2Pdf(x,pdfs)/f;
   return result;
 }
 
@@ -526,20 +537,21 @@ double
 GaussianSumUtilities1D::gauss (const double& x, const double& mean,
 			       const double& sigma) const 
 {
-  const double fNorm(1./sqrt(2*TMath::Pi()));
-  double result(0.);
+//   const double fNorm(1./sqrt(2*M_PI));
+//   double result(0.);
 
-  double d((x-mean)/sigma);
-  if ( fabs(d)<20. )  result = exp(-d*d/2.);
-  result *= fNorm/sigma;
-  return result;
+//   double d((x-mean)/sigma);
+//   if ( fabs(d)<20. )  result = exp(-d*d/2.);
+//   result *= fNorm/sigma;
+//   return result;
+  return ROOT::Math::gaussian_pdf(x,sigma,mean);
 }
 
 double 
 GaussianSumUtilities1D::gaussInt (const double& x, const double& mean,
-		       const double& sigma) const 
+				  const double& sigma) const 
 {
-  return TMath::Freq((x-mean)/sigma);
+  return ROOT::Math::normal_cdf(x,sigma,mean);
 }
 
 double
