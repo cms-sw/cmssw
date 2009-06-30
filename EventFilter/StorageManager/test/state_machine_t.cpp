@@ -123,8 +123,6 @@ void testStateMachine::setUp()
 
 void testStateMachine::tearDown()
 {
-  _machine->terminate();
-  delete _machine;
   delete _app;
 }
 
