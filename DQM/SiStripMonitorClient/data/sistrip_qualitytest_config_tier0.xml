@@ -36,7 +36,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoDigi">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
-        <PARAM name="maxMean">0.4</PARAM>
+        <PARAM name="maxMean">0.8</PARAM>
         <PARAM name="minRMS">0</PARAM>
         <PARAM name="maxRMS">0</PARAM>
         <PARAM name="toleranceMean">-1</PARAM>
