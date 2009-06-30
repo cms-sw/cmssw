@@ -25,7 +25,7 @@ genMetTrueAnalyzer.FineBinning = cms.untracked.bool(False)
 genMetCaloAnalyzer.FineBinning = cms.untracked.bool(False)
 genMetCaloAndNonPromptAnalyzer.FineBinning = cms.untracked.bool(False)
 
-from Validation.RecoMET.caloTowers_cfi import *
+from DQMOffline.JetMET.caloTowers_cfi import *
 towerSchemeBAnalyzer.FineBinning = cms.untracked.bool(False)
 
 METRelValSequence = cms.Sequence(
