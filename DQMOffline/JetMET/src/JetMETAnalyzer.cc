@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/12 00:21:01 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/30 16:47:28 $
+ *  $Revision: 1.20 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
 
-#include "DQMOffline/JetMET/src/JetMETAnalyzer.h"
+#include "DQMOffline/JetMET/interface/JetMETAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

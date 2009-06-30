@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/12 00:21:11 $
+ *  $Date: 2009/03/30 17:09:17 $
  *  $Revision: 1.1 $
  *  \author K. Hatakeyama - Rockefeller University
  */
 
-#include "DQMOffline/JetMET/src/HTMHTAnalyzer.h"
+#include "DQMOffline/JetMET/interface/HTMHTAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -19,7 +19,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "DataFormats/Math/interface/LorentzVector.h" // Added temporarily by KH
+#include "DataFormats/Math/interface/LorentzVector.h" 
 
 #include "TVector2.h"
 
@@ -61,7 +61,7 @@ void HTMHTAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   hMHy     = dbe->book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
   hMHT     = dbe->book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
   hMHTPhi  = dbe->book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
-  hHT      = dbe->book1D("METTask_HT",        "METTask_HT",        1000,0,2000);
+  hHT      = dbe->book1D("METTask_HT",        "METTask_HT",        500,0,2000);
 
 }
 

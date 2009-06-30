@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/30 17:03:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/05/28 14:52:03 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
-#include "DQMOffline/JetMET/src/PFJetAnalyzer.h"
+#include "DQMOffline/JetMET/interface/PFJetAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"

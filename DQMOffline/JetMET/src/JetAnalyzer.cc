@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/30 16:51:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/05/28 14:52:03 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 
-#include "DQMOffline/JetMET/src/JetAnalyzer.h"
+#include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
