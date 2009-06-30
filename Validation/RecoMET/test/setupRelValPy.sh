@@ -9,14 +9,15 @@ FullSimRootFileDirectory=${current_area}/FullSim/
 mkdir $FullSimRootFileDirectory -p
 
 #======= Define list of samples that you will be validating ========#
-dirlist="QCD_80-120 QCD_3000-3500 Wjets_80-120 Wjets_3000-3500 LM1_sfts ttbar"
+dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
 
 
 echo "Run path = {" $RunPath "}"
-
+cmssw_version="3_1_0_pre11"
+condition="MC_31X_V1-v1"
 
 #==========================================#
 cd $current_area
@@ -53,9 +54,9 @@ process.load(\"Validation.RecoMET.HTMET_cff\")
 
 process.load(\"Validation.RecoMET.GenMETFromGenJets_cff\")
 
-process.load(\"Validation.RecoMET.caloTowers_cff\")
+process.load(\"DQMOffline.JetMET.caloTowers_cff\")
 
-process.load(\"Validation.RecoMET.RecHits_cff\")
+process.load(\"DQMOffline.JetMET.RecHits_cff\")
 
 process.load(\"Validation.RecoMET.PFMET_cff\")
 
@@ -69,7 +70,7 @@ process.load(\"Configuration.StandardSequences.MagneticField_cff\")
 
 process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
 
-process.GlobalTag.globaltag = cms.string(\"IDEAL_31X::All\")
+process.GlobalTag.globaltag = cms.string(\"MC_31X_V1::All\")
 
 process.load(\"RecoLocalCalo.Configuration.hcalLocalReco_cff\")
 
@@ -79,16 +80,21 @@ process.source = cms.Source(\"PoolSource\",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
+"> ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py
 
 
-
+ds=/RelVal$i/CMSSW_$cmssw_version-$condition/GEN-SIM-RECO
+./DDSearchCLI.py --verbose=0 --limit=-1 --input="find file where  dataset=$ds" | grep "root" | sed "s/^/'/g" | sed "s/$/',/g">dd
+cat dd >> ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py
+rm -f dd
+echo "
     )
 
 
 )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(8000) )
 
 
 process.fileSaver = cms.EDFilter(\"METFileSaver\",
@@ -108,7 +114,7 @@ process.p = cms.Path(process.fileSaver*
 )
 process.schedule = cms.Schedule(process.p)
 
-" > ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py
+" >> ${FullSimRootFileDirectory}/RunAnalyzers-${i}_cfg.py
 #============================================#
 cd $current_area
 done
