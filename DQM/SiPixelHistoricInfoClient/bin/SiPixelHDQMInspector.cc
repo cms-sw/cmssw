@@ -29,36 +29,37 @@ void SiPixelHDQMInspector (int const NRuns) {
 
   //A.setBlackList("68286");
 
-  A.createTrendLastRuns("1@SUMOFF_ClustX@ymean", "1ClusterXsize_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ClustX@entries", "1ClusterXsize_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ClustY@ymean", "1ClusterYsize_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ClustY@entries", "1ClusterYsize_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_adc@ymean", "adc_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_adc@entries", "adc_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_charge@ymean", "charge_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_charge@entries", "charge_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nRecHits@ymean", "nRecHits_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nRecHits@entries", "nRecHits_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nclusters@ymean", "nclusters_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nclusters@entries", "nclusters_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ndigis@ymean", "ndigis_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ndigis@entries", "ndigis_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeX@ymean", "sizeX_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeX@entries", "sizeX_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeY@ymean", "sizeY_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeY@entries", "sizeY_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_x@ymean", "x_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_x@entries", "x_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_y@ymean", "y_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_y@entries", "y_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxrow@ymean", "maxrow_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxrow@entries", "maxrow_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_minrow@ymean", "minrow_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_minrow@entries", "minrow_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxcol@ymean", "maxcol_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxcol@entries", "maxcol_entries.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_mincol@ymean", "mincol_ymean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_mincol@entries", "mincol_entries.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_ClustX@yMean", "1ClusterXsize_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_ClustY@yMean", "1ClusterYsize_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_charge@yMean", "charge_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_nclusters@yMean", "nclusters_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_sizeX@yMean", "sizeX_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_sizeY@yMean", "sizeY_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_x@yMean", "x_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_y@yMean", "y_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_maxrow@yMean", "maxrow_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_minrow@yMean", "minrow_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_maxcol@yMean", "maxcol_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("1@SUMOFF_mincol@yMean", "mincol_yMean.gif", 0, "", NRuns);
+
+  A.createTrendLastRuns("2@SUMOFF_ClustX@yMean", "1ClusterXsize_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_ClustY@yMean", "1ClusterYsize_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_charge@yMean", "charge_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_nclusters@yMean", "nclusters_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_sizeX@yMean", "sizeX_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_sizeY@yMean", "sizeY_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_x@yMean", "x_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_y@yMean", "y_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_maxrow@yMean", "maxrow_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_minrow@yMean", "minrow_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_maxcol@yMean", "maxcol_yMean.gif", 0, "", NRuns);
+  A.createTrendLastRuns("2@SUMOFF_mincol@yMean", "mincol_yMean.gif", 0, "", NRuns);
 
   A.closeFile();
 

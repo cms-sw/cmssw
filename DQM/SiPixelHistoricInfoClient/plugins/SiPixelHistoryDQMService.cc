@@ -59,8 +59,8 @@ uint32_t SiPixelHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 
 //Example on how to define an user function for the statistic extraction
 bool SiPixelHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){
-  userDBContent.push_back(keyName+std::string("@")+std::string("entries"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("ymean"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("yMean"));
+  userDBContent.push_back(keyName+std::string("@")+std::string("yError"));
   return true;
 }
 bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  ){
@@ -68,9 +68,12 @@ bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::
   Hist->Fit("pol0");
   TF1* Fit = Hist->GetFunction("pol0");
   float FitValue = Fit ? Fit->GetParameter(0) : 0;
+  float FitError = Fit ? Fit->GetParError(0) : 0;
+  std::cout << "FITERROR: " << FitError << std::endl;
 
-  values.push_back( (*iterMes)->getEntries() );
   values.push_back( FitValue );
+  values.push_back( 1.0 );
+  //values.push_back( FitError );
   return true;
 }
 
