@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.59 2009/06/05 18:24:04 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.60 2009/06/30 08:18:52 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -683,7 +683,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     if(subdetswitchapvcycleth2on){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ClustersApvCycle");
       dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Cluster_vs_ApvCycle_2D" + label;
+      HistoName = "Cluster_vs_ApvCycle_2D_" + label;
       subdetMEs.SubDetClusterApvTH2=dqmStore_->book2D(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
 					      Parameters.getParameter<double>("xmin"),
