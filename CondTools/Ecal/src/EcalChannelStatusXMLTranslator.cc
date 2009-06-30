@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -84,11 +85,18 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
   int EcalChannelStatusXMLTranslator::writeXML(const std::string& filename, 
 					       const EcalCondHeader& header,
 					       const EcalChannelStatus& record){
-  
-  
+    std::fstream fs(filename.c_str(),ios::out);
+    fs<< dumpXML(header,record);
+    return 0;
+  }
 
 
-    XMLPlatformUtils::Initialize();
+std::string EcalChannelStatusXMLTranslator::dumpXML(
+					     const EcalCondHeader& header,
+			                     const EcalChannelStatus& record){
+ 
+
+   XMLPlatformUtils::Initialize();
 
     DOMImplementation*  impl =
       DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
@@ -152,14 +160,10 @@ int  EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
       }
     
 
-    LocalFileFormatTarget file(filename.c_str());
- 
-    writer->writeNode(&file, *root);
- 
-    doc->release();
+    std::string dump= toNative(writer->writeToString(*root)); 
+     doc->release();
     //   XMLPlatformUtils::Terminate();
 
-    return 0;
-  }
+    return dump;
 
-
+}

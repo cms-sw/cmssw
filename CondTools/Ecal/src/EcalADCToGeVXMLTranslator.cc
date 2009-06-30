@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -71,7 +72,15 @@ int  EcalADCToGeVXMLTranslator::readXML(const std::string& filename,
 int EcalADCToGeVXMLTranslator::writeXML(const std::string& filename, 
 					const EcalCondHeader& header,
 					const EcalADCToGeVConstant& record){
-  
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
+  return 0;  
+ 
+}
+
+std::string EcalADCToGeVXMLTranslator::dumpXML(const EcalCondHeader& header,
+					  const EcalADCToGeVConstant& record){
+
   XMLPlatformUtils::Initialize();
   
   DOMImplementation*  impl =
@@ -96,14 +105,11 @@ int EcalADCToGeVXMLTranslator::writeXML(const std::string& filename,
   xuti::WriteNodeWithValue(root,Barrel_tag,record.getEBValue());
   xuti::WriteNodeWithValue(root,Endcap_tag,record.getEEValue());
 
-  LocalFileFormatTarget file(filename.c_str());
- 
-  writer->writeNode(&file, *root);
- 
+  std::string dump= toNative(writer->writeToString(*root)); 
   doc->release();
+
   //   XMLPlatformUtils::Terminate();
 
-  return 0;
+  return dump;
 }
-
 

@@ -7,7 +7,7 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
-
+#include <fstream>
 
 using namespace xercesc;
 using namespace std;
@@ -85,56 +85,9 @@ int EcalTBWeightsXMLTranslator::readXML(const std::string& filename,
 int EcalTBWeightsXMLTranslator::writeXML(const  std::string& filename,
 					 const  EcalCondHeader& header,
 					 const  EcalTBWeights&  record){
-
-  XMLPlatformUtils::Initialize();
-  
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-  
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-  
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(EcalTBWeights_tag).c_str(), doctype );
-  
-  
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
-  
-  
-  DOMElement* root = doc->getDocumentElement();
-  xuti::writeHeader(root, header);
-
-
-  const EcalTBWeights::EcalTBWeightMap wmap= record.getMap();
-
-  EcalTBWeights::EcalTBWeightMap::const_iterator it ;
-  for (it =wmap.begin(); it!=wmap.end(); ++it){
-   
-    DOMElement * tbweight= doc->createElement(fromNative(EcalTBWeight_tag).c_str());
-    root->appendChild(tbweight);
-
-    EcalXtalGroupId          gid = it->first.first;
-    EcalTBWeights::EcalTDCId tid = it->first.second;
-    EcalWeightSet            ws  = it->second;
-
-    WriteNodeWithValue(tbweight,EcalXtalGroupId_tag, gid);
-    WriteNodeWithValue(tbweight,EcalTDCId_tag, tid);
-    writeWeightSet(tbweight,ws);
-
-     
-  } //
-
-  LocalFileFormatTarget file(filename.c_str());
-  
-  writer->writeNode(&file, *root);
-  doc->release();
-  
-  //   XMLPlatformUtils::Terminate();
-
-  return 0;
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
+  return 0;  
 }
 
 
@@ -394,4 +347,58 @@ EcalTBWeightsXMLTranslator::writeChi2WeightMatrix(xercesc::DOMNode* node,
     }//for loop on col
 
   
+}
+
+
+std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
+						const EcalTBWeights& record){
+
+
+ XMLPlatformUtils::Initialize();
+  
+  DOMImplementation*  impl =
+    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  
+  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
+  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  
+  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocument *    doc = 
+    impl->createDocument( 0, fromNative(EcalTBWeights_tag).c_str(), doctype );
+  
+  
+  doc->setEncoding(fromNative("UTF-8").c_str() );
+  doc->setStandalone(true);
+  doc->setVersion(fromNative("1.0").c_str() );
+  
+  
+  DOMElement* root = doc->getDocumentElement();
+  xuti::writeHeader(root, header);
+
+
+  const EcalTBWeights::EcalTBWeightMap wmap= record.getMap();
+
+  EcalTBWeights::EcalTBWeightMap::const_iterator it ;
+  for (it =wmap.begin(); it!=wmap.end(); ++it){
+   
+    DOMElement * tbweight= doc->createElement(fromNative(EcalTBWeight_tag).c_str());
+    root->appendChild(tbweight);
+
+    EcalXtalGroupId          gid = it->first.first;
+    EcalTBWeights::EcalTDCId tid = it->first.second;
+    EcalWeightSet            ws  = it->second;
+
+    WriteNodeWithValue(tbweight,EcalXtalGroupId_tag, gid);
+    WriteNodeWithValue(tbweight,EcalTDCId_tag, tid);
+    writeWeightSet(tbweight,ws);
+
+     
+  } //
+
+  std::string dump= toNative(writer->writeToString(*root)); 
+  doc->release();
+  
+  //   XMLPlatformUtils::Terminate();
+
+  return dump;
 }

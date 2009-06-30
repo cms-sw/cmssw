@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalTBWeightsXMLTranslator.h,v 1.4 2008/11/06 15:30:16 argiro Exp $
+   \version $Id: EcalTBWeightsXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
    \date 21 Aug 2008
 */
 
@@ -32,6 +32,8 @@ class EcalTBWeightsXMLTranslator {
 	       const  EcalCondHeader& header,
 	       const  EcalTBWeights&  record);
 
+  static std::string dumpXML(const EcalCondHeader& header,
+			     const EcalTBWeights& record);
  private:
   
   static void readWeightSet(xercesc::DOMNode* parentNode, 

@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $
+   \version $Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -13,13 +13,14 @@
 
 #include "CondTools/Ecal/interface/XercesString.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <string>
 
 
 static const char CVSId__EcalWeightSetXMLTranslator[] = 
-"$Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $";
+"$Id: EcalWeightSetXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
 
 
 
@@ -29,18 +30,22 @@ public:
   
   EcalWeightSetXMLTranslator(){};
 
-  int readXML  (const std::string& filename, 
-		 EcalWeightSet& record);
+  static int readXML  (const std::string& filename, 
+		       EcalCondHeader& header,
+		       EcalWeightSet& record);
 
-  int writeXML (const std::string& filename, 
-		const EcalWeightSet& record);
+  static int writeXML (const std::string& filename,
+		       const EcalCondHeader& header, 
+		       const EcalWeightSet& record);
   
-  void write10x10(xercesc::DOMElement* node,const EcalWeightSet& record);
-  void write3x10(xercesc::DOMElement* node,const EcalWeightSet& record);
+  static std::string dumpXML(const EcalCondHeader& header,
+			     const EcalWeightSet&  record);  
 
 
 private:
   
+  static void write10x10(xercesc::DOMElement* node,const EcalWeightSet& record);
+  static void write3x10(xercesc::DOMElement* node,const EcalWeightSet& record);
  
 };
 

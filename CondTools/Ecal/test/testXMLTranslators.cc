@@ -1,11 +1,15 @@
 #include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalIntercalibErrorsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -74,6 +78,7 @@ int main(){
   EcalIntercalibErrors    intercalib_errors;
 
   std::string intercalibfile("/tmp/EcalIntercalibConstants.xml");
+  std::string intercaliberrfile("/tmp/EcalIntercalibErrors.xml");
   std::string intercalibfiledb("/tmp/EcalIntercalibConstantsDB.xml");
 
   for (int cellid = 0; 
@@ -110,28 +115,30 @@ int main(){
 
 
   
-  transIntercalib.writeXML(intercalibfile,header,
-			   intercalib_constants, 
-			   intercalib_errors);
+  EcalIntercalibConstantsXMLTranslator::writeXML(intercalibfile,header,
+						 intercalib_constants);
   
-  transIntercalib.writeXML(intercalibfiledb,header,
-			   intercalib_constants, 
-			   intercalib_errors);
+  EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header,
+                                              intercalib_errors);
 
   EcalIntercalibConstants intercalib_constants2;
   EcalIntercalibErrors    intercalib_errors2;
 
-  transIntercalib.readXML(intercalibfile,header2,
-			  intercalib_constants2, 
-			  intercalib_errors2);
+  EcalIntercalibConstantsXMLTranslator::readXML(intercalibfile,header2,
+						intercalib_constants2);
 
+  EcalIntercalibErrorsXMLTranslator::readXML(intercaliberrfile,header,
+					     intercalib_errors2);
 
   std::string intercalibfile2("/tmp/intercalibfile-2.xml");
+  std::string intercaliberrfile2("/tmp/intercaliberrfile-2.xml");
 
-  transIntercalib.writeXML(intercalibfile2,
+  EcalIntercalibConstantsXMLTranslator::writeXML(intercalibfile2,
 			   header2,
-			   intercalib_constants2, 
-			   intercalib_errors2);
+			   intercalib_constants2);
+
+  EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header,
+					     intercalib_errors2);
 
   // test xtalgroup
   

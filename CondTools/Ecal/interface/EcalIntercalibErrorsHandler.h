@@ -3,50 +3,16 @@
    Declaration of class IntercalibErrorsHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalIntercalibErrorsHandler.h,v 1.3 2008/11/06 15:23:51 argiro Exp $
+   \version $Id: EcalIntercalibErrorsHandler.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
    \date 09 Sep 2008
 */
 
 #ifndef _CondToolsEcal_EcalIntercalibErrorsHandler_h_
 #define _CondToolsEcal_EcalIntercalibErrorsHandler_h_
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
-#include <string>
+#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerHandler.h"
 
-static const char CVSId_CondToolsEcal_EcalIntercalibErrorsHandler[] = 
-"$Id: EcalIntercalibErrorsHandler.h,v 1.3 2008/11/06 15:23:51 argiro Exp $";
-
-  /**
-     \class EcalIntercalibErrorsHandler EcalIntercalibErrorsHandler.h "/EcalIntercalibErrorsHandler.h"
-
-     \brief popcon application to store IntercalibConstants Records
-            using XML tools
-
-     \author Stefano ARGIRO
-     \date 09 Sep 2008
-  */
-  class EcalIntercalibErrorsHandler:
-        public popcon::PopConSourceHandler<EcalIntercalibErrors> {
-
-  public:
-    EcalIntercalibErrorsHandler(const edm::ParameterSet & ps);
-    virtual ~EcalIntercalibErrorsHandler();
-    virtual void getNewObjects();
-    virtual std::string id() const ;
-
-  private:
-
-    std::string xmlFileSource_;
-    boost::int64_t since_;
-    EcalIntercalibConstantsXMLTranslator translator_;
-    EcalCondHeader header_;
-    
-
-  }; // EcalIntercalibErrorsHandler
-
+typedef EcalFloatCondObjectContainerHandler EcalIntercalibErrorsHandler;
 
 #endif // _CondToolsEcal_EcalIntercalibErrorsHandler_h_
 

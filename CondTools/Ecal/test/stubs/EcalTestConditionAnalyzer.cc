@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.3 2009/04/08 15:20:24 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -19,7 +19,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -49,7 +51,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include <string>
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.3 2009/04/08 15:20:24 argiro Exp $";
 
 /**
  *
@@ -124,9 +126,7 @@ void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
    EcalChannelStatusXMLTranslator::writeXML(ChStatusfile,header,*chstatus);
    EcalGainRatiosXMLTranslator::writeXML(Grfile,header,*gainratios);
    EcalIntercalibConstantsXMLTranslator::writeXML(InterFile,header,
-						  *intercalib,*intercaliberr);
-   EcalIntercalibConstantsXMLTranslator::writeXML(InterMCFile,header,
-						 *intercalibmc,*intercaliberr);
+						  *intercalib);
    EcalTBWeightsXMLTranslator::writeXML(WFile,header,*tbweights);
    EcalWeightGroupXMLTranslator::writeXML(WGFile,header,*wgroup);
 

@@ -2,7 +2,7 @@
    Translates a EcalGainRatio record to XML
    and vice versa   
    \author Francesco RUBBO
-   \version $Id: EcalGainRatiosXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $
+   \version $Id: EcalGainRatiosXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
    \date 29 Jul 2008
 */
 
@@ -17,7 +17,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 
 static const char CVSId__EcalGainRatiosXMLTranslator[] = 
-"$Id: EcalGainRatiosXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $";
+"$Id: EcalGainRatiosXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
 
 
 //class EcalGainRatios;
@@ -34,6 +34,9 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalGainRatios& record);
+
+  static std::string dumpXML(const EcalCondHeader& header,
+			     const EcalGainRatios& record);
   
 
 };

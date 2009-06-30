@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -84,10 +85,16 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 
 
 
-  int EcalGainRatiosXMLTranslator::writeXML(const std::string& filename, 
-					    const EcalCondHeader& header,
-					    const EcalGainRatios& record){
-    
+int EcalGainRatiosXMLTranslator::writeXML(const std::string& filename, 
+					  const EcalCondHeader& header,
+					  const EcalGainRatios& record){
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
+  return 0;  
+}
+
+
+std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalGainRatios& record){
 
     XMLPlatformUtils::Initialize();
 
@@ -112,7 +119,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 
 
     xuti::writeHeader(root,header);
-    if (!record.barrelItems().size()) return -1;
+    if (!record.barrelItems().size()) return std::string();
     for(int cellid = EBDetId::MIN_HASH;
 	cellid < EBDetId::kSizeForDenseIndexing;
 	++cellid)
@@ -132,7 +139,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 	WriteNodeWithValue(cellnode,Gain6Over1_tag,record[rawid].gain6Over1());
       }
 
-    if (!record.endcapItems().size()) return -1;
+    if (!record.endcapItems().size()) return std::string();
     for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid)
@@ -155,14 +162,8 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 	  
       }
 
-    LocalFileFormatTarget file(filename.c_str());
-
-    writer->writeNode(&file, *root);
  
-    doc->release();
-    //    XMLPlatformUtils::Terminate();
-
-    return 0;
-  }
-
-
+    std::string dump= toNative(writer->writeToString(*root)); 
+    doc->release(); 
+    return dump;
+}

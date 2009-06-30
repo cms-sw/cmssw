@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -85,10 +86,18 @@ int  EcalWeightGroupXMLTranslator::readXML(const std::string& filename,
 int EcalWeightGroupXMLTranslator::writeXML(const std::string& filename, 
 					   const EcalCondHeader& header,
 					   const EcalWeightXtalGroups& record){
-    
-
-
+  std::fstream fs(filename.c_str(),ios::out);
+  fs<< dumpXML(header,record);
+  return 0; 
   
+}
+
+
+
+std::string 
+EcalWeightGroupXMLTranslator::dumpXML(const EcalCondHeader& header,
+				      const EcalWeightXtalGroups& record){
+
   XMLPlatformUtils::Initialize();
   
   DOMImplementation*  impl =
@@ -149,15 +158,10 @@ int EcalWeightGroupXMLTranslator::writeXML(const std::string& filename,
   } // loop on EE cells
   
   
-  
-  LocalFileFormatTarget file(filename.c_str());
-  
-  writer->writeNode(&file, *root);
-  
+  std::string dump= toNative(writer->writeToString(*root));
   doc->release();
   //   XMLPlatformUtils::Terminate();
   
-  return 0;
+  return dump;
+
 }
-
-

@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalWeightGroupXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $
+   \version $Id: EcalWeightGroupXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -19,7 +19,7 @@
 
 
 static const char CVSId__EcalWeightGroupXMLTranslator[] = 
-"$Id: EcalWeightGroupXMLTranslator.h,v 1.1 2008/11/06 08:36:18 argiro Exp $";
+"$Id: EcalWeightGroupXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
 
 
 
@@ -27,7 +27,6 @@ class EcalWeightGroupXMLTranslator {
 
 public:
   
-  EcalWeightGroupXMLTranslator(){};
 
   static int readXML  (const std::string& filename, 
 		       EcalCondHeader& header,
@@ -36,7 +35,9 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const EcalWeightXtalGroups& record);
-  
+
+  static std::string dumpXML (const EcalCondHeader& header,
+			      const EcalWeightXtalGroups& record);
 
 };
 
