@@ -10,23 +10,24 @@ pat::helper::ResolutionHelper::rescaleForKinFitter(pat::CandKinResolution::Param
         AlgebraicSymMatrix44 &covariance, 
         const math::XYZTLorentzVector &initialP4)
 {
+    double inv;
     switch (parametrization) {
         case pat::CandKinResolution::Cart:         
         case pat::CandKinResolution::Spher:  
             // for us parameter[3] = mass, for KinFitter parameter[3] = mass/initialP4.mass();
-            double m0inv = 1.0/initialP4.mass();
+            inv = 1.0/initialP4.mass();
             for (int i = 0; i < 4; i++) {
-                covariance(3,i) *= m0inv;
+                covariance(3,i) *= inv;
             }
-            covariance(3,3) *= m0inv; 
+            covariance(3,3) *= inv; 
             break;
         case pat::CandKinResolution::ESpher:       
              // for us parameter[3] = energy, for KinFitter parameter[3] = energy/initialP4.energy();
-            double e0inv = 1.0/initialP4.energy();
+            inv = 1.0/initialP4.energy();
             for (int i = 0; i < 4; i++) {
-                covariance(3,i) *= e0inv;
+                covariance(3,i) *= inv;
             }
-            covariance(3,3) *= e0inv; 
+            covariance(3,3) *= inv; 
             break;
        default:
             ;// nothing to do
@@ -533,11 +534,11 @@ double pat::helper::ResolutionHelper::getResolTheta(pat::CandKinResolution::Para
 double pat::helper::ResolutionHelper::getResolPhi(pat::CandKinResolution::Parametrization parametrization,
         const AlgebraicSymMatrix44 &covariance, const pat::CandKinResolution::LorentzVector &p4)  
 {
+    double pt2 = p4.Perp2();
     switch (parametrization) {
         case pat::CandKinResolution::Cart:         
         case pat::CandKinResolution::ECart:        
         case pat::CandKinResolution::MCCart:
-            double pt2 = p4.Perp2();
             return sqrt( ROOT::Math::Square(p4.Px()) * covariance(1,1) +
                          ROOT::Math::Square(p4.Py()) * covariance(0,0) +
                          -2*p4.Px()*p4.Py()          * covariance(0,1)
