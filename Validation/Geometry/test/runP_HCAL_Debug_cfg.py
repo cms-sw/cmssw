@@ -39,21 +39,23 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
-        MinEta = cms.double(2.65),
-        MaxEta = cms.double(3.00),
+        MinEta = cms.double(2.0),
+        MaxEta = cms.double(2.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        MinE   = cms.double(9.99),
-        MaxE   = cms.double(10.01)
+        MinE   = cms.double(10.0),
+        MaxE   = cms.double(10.0)
     ),
     AddAntiParticle = cms.bool(False),
-    Verbosity       = cms.untracked.int32(0),
-    firstRun        = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -65,7 +67,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p1 = cms.Path(process.generator*process.g4SimHits)
-process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True

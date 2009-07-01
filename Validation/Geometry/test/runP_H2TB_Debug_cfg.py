@@ -42,18 +42,20 @@ process.common_beam_direction_parameters = cms.PSet(
     BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         PartID = cms.vint32(14),
-        MinE   = cms.double(9.99),
-        MaxE   = cms.double(10.01)
+        MinE   = cms.double(10.0),
+        MaxE   = cms.double(10.0)
     ),
     AddAntiParticle = cms.bool(False),
-    Verbosity       = cms.untracked.int32(0),
-    firstRun        = cms.untracked.uint32(1)
+    Verbosity       = cms.untracked.int32(0)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
@@ -81,7 +83,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
-process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
