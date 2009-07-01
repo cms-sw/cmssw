@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalHitCorrection::HcalHitCorrection(const CaloVSimParameterMap * parameterMap)
-  : theParameterMap(parameterMap),theRandGauss(0) 
+  : theParameterMap(parameterMap),theRandGaussQ(0) 
 {
 }
 
@@ -83,10 +83,10 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
       }
     // now, the smearing
     const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
-    if (params.doTimeSmear() && theRandGauss!=0) {
+    if (params.doTimeSmear() && theRandGaussQ!=0) {
       double rms=params.timeSmearRMS(charge(hit));
       
-      double smearns=theRandGauss->fire()*rms;
+      double smearns=theRandGaussQ->fire()*rms;
 
       LogDebug("HcalHitCorrection") << "TimeSmear charge " << charge(hit) << " rms " << rms << " delay " << delay << " smearns " << smearns;
 
@@ -139,7 +139,7 @@ double HcalHitCorrection::timeOfFlight(const DetId & detId) const
 
 
 void HcalHitCorrection::setRandomEngine(CLHEP::HepRandomEngine & engine) {
-  if (theRandGauss==0) {
-    theRandGauss=new CLHEP::RandGauss(engine);
+  if (theRandGaussQ==0) {
+    theRandGaussQ=new CLHEP::RandGaussQ(engine);
   }
 }

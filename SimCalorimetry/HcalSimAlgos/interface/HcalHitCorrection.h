@@ -12,7 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include <map>
 
 class HcalHitCorrection : public CaloVHitCorrection
@@ -50,7 +50,7 @@ private:
 
   ChargeSumsByChannel theChargeSumsForTimeBin[10];
 
-  CLHEP::RandGauss* theRandGauss;
+  CLHEP::RandGaussQ* theRandGaussQ;
 
 };
 
