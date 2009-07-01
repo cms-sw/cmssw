@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: WrapperNotifier.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: WrapperNotifier.h,v 1.3 2009/07/01 11:38:38 dshpakov Exp $
 
 #ifndef WRAPPERNOTIFIER_H
 #define WRAPPERNOTIFIER_H
@@ -24,6 +24,11 @@ namespace stor
     
     void reportNewState( const std::string& stateName );
     Logger& getLogger() { return _app->getApplicationLogger(); }
+    void tellSentinel( const std::string& level,
+                       xcept::Exception& e )
+    {
+      _app->notifyQualified( level, e );
+    }
 
   private:
 

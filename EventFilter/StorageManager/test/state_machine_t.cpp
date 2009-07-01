@@ -124,7 +124,7 @@ void testStateMachine::setUp()
 
   _ed = new EventDistributor(_sr);
   _fs = new FragmentStore();
-  _mn = new MockNotifier();
+  _mn = new MockNotifier( _app );
 
   _machine = new StateMachine( _ed, _fs, _mn, _sr );
 }
