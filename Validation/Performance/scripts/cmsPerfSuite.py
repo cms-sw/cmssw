@@ -638,15 +638,20 @@ class PerfSuite:
         cmd = self.Commands[cpu][3]
         redirect = ""
         if large:
-            redirect = " -large >& "    
+            redirect = " -large >>"    
         else:
-            redirect = " >& "
+            redirect = " >>"
     
         for i in range(bencher):
-            command= cmd + redirect + os.path.join(pfdir,os.path.basename(name))        
-            self.printFlush(command + " [%s/%s]" % (i+1,bencher))
-            self.runcmd(command)
-            self.logh.flush()
+           #Check first for the existence of the file so that we can append:
+           if not os.path.exists(os.path.join(pfdir,os.path.basename(name))):
+              #Equivalent of touch to make sure the file exist to be able to append to it.
+              open(os.path.join(pfdir,os.path.basename(name)))
+              
+           command= cmd + redirect + os.path.join(pfdir,os.path.basename(name))        
+           self.printFlush(command + " [%s/%s]" % (i+1,bencher))
+           self.runcmd(command)
+           self.logh.flush()
     
     ##################
     # This function is a wrapper around cmsRelvalreport
