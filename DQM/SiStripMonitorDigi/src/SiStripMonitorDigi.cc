@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.47 2009/06/30 08:33:31 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.48 2009/06/30 10:31:55 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -610,10 +610,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
       // Adjusting the scale for 2D histogram
       double h2ymax = 9999.0;
       double yfact = Parameters.getParameter<double>("yfactor");
-      if(label.find("TIB")) h2ymax = (6984*256)*yfact;
-      else if (label.find("TID")) h2ymax = (2208*256)*yfact;
-      else if (label.find("TOB")) h2ymax = (12906*256)*yfact;
-      else if (label.find("TEC")) h2ymax = (7552*2*256)*yfact;
+      if(label == "TIB") h2ymax = (6984.*256.)*yfact;
+      else if (label == "TID") h2ymax = (2208.*256.)*yfact;
+      else if (label == "TOB") h2ymax = (12906.*256.)*yfact;
+      else if (label == "TEC") h2ymax = (7552.*2.*256.)*yfact;
       subdetMEs.SubDetDigiApvTH2=dqmStore_->book2D(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
 					      Parameters.getParameter<double>("xmin"),
