@@ -23,7 +23,7 @@ public:
   // construct
   LocalTrajectoryError();
   // destruct
-  ~LocalTrajectoryError()l
+  ~LocalTrajectoryError();
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
@@ -67,7 +67,7 @@ public:
   LocalTrajectoryError & operator *= (double factor) {
     theCovarianceMatrix *= factor;
     if ((theWeightMatrixPtr.get() != 0) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
-    return self;
+    return *this;
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local
