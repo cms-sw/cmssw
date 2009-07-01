@@ -95,11 +95,8 @@ void
 HiEgammaIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
-   // I need to define a type for which we don't have a dictionary in CMSSW. I hope this is crazy enough.
-   typedef std::pair<std::map<std::string,pat::Photon>, std::vector<math::XYZVector> > CrazyDataType;
-
    using namespace std;
+
    Handle<View<reco::Photon> > recoPhotons;
    iEvent.getByLabel(photons_, recoPhotons);
    std::cout << "Got " << recoPhotons->size() << " photons" << std::endl;
