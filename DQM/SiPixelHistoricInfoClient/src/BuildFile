@@ -17,7 +17,7 @@
 <use name=boost>
 
 
-<library name="SiPixelHistoricDQM" file="*.cc">
+<library name="DQMSiPixelHistoricInfoClient" file="*.cc">
 </library>
 
 
