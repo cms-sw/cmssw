@@ -81,8 +81,9 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       if (st > NUMB_STRIP)	{ch=1; st=1;}
       
       // adding channel following the last valid
-      pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
-      (*invalidChIds_)->push_back(*pDetId_);
+      //pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+      //(*invalidChIds_)->push_back(*pDetId_);
+      fillEcalElectronicsError(invalidZSXtalIds_); 
 
       errorOnXtal = true;
 
@@ -116,8 +117,9 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  if (st >  NUMB_STRIP)	{ch=1; st=1;}
 	  
 	  // adding channel following the last valid
-	  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
-	  (*invalidChIds_)->push_back(*pDetId_);
+	  //pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+	  //(*invalidChIds_)->push_back(*pDetId_);
+          fillEcalElectronicsError(invalidZSXtalIds_); 
 	  
 	  errorOnXtal = true;
 	  lastStripId_ = st;

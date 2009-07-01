@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2008/07/14 11:22:44 $
- * $Revision: 1.21 $
+ * $Date: 2008/12/11 18:05:56 $
+ * $Revision: 1.1 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -106,6 +106,9 @@ public :
   void setInvalidTTIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>         * x )
   { invalidTTIds_           = x; }
 
+  void setInvalidZSXtalIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>     * x )
+  { invalidZSXtalIds_           = x; }
+
   void setInvalidBlockLengthsCollection( std::auto_ptr<EcalElectronicsIdCollection>  * x )
   { invalidBlockLengths_    = x; }
  
@@ -171,7 +174,10 @@ public :
   //EE
 
   std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
-  { return invalidTTIds_;          }  
+  { return invalidTTIds_;          }
+
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidZSXtalIdsCollection()
+  { return invalidZSXtalIds_;          }  
   
   std::auto_ptr< EcalElectronicsIdCollection> * invalidBlockLengthsCollection()
   { return invalidBlockLengths_;   }
@@ -223,6 +229,7 @@ protected :
   std::auto_ptr<EBSrFlagCollection>          * ebSrFlags_;
   std::auto_ptr<EESrFlagCollection>          * eeSrFlags_;
   std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
+  std::auto_ptr<EcalElectronicsIdCollection> * invalidZSXtalIds_;
   std::auto_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_; 
   
   std::auto_ptr<EcalElectronicsIdCollection> * invalidMemTtIds_ ;
