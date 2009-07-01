@@ -15,8 +15,10 @@ public:
   histos(TFile * inputFile)
   {
     mass         = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
-    massProb     = dynamic_cast<TProfile*>(inputFile->Get("Mass_P"));
-    massFineProb = dynamic_cast<TProfile*>(inputFile->Get("Mass_fine_P"));
+    TDirectory * MassPdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_P"));
+    massProb     = dynamic_cast<TProfile*>(MassPdir->Get("Mass_PProf"));
+    TDirectory * massFinePdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_fine_P"));
+    massFineProb = dynamic_cast<TProfile*>(massFinePdir->Get("Mass_fine_PProf"));
     likePt       = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
     likePhi      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
     likeEta      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
