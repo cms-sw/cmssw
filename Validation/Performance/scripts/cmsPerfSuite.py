@@ -913,7 +913,7 @@ class PerfSuite:
             self.Commands = {}
             AllScripts = self.Scripts + self.AuxiliaryScripts
     
-            for cpu in range(cores):
+            for cpu in range(cmsCpuInfo.get_NumOfCores()): #FIXME use the actual number of cores of the machine here!
                 self.Commands[cpu] = []
 
             #Information for the log:
@@ -925,7 +925,7 @@ class PerfSuite:
                 whichstdout=os.popen4(which)[1].read()
                 self.logh.write(whichstdout) # + "\n") No need of the extra \n!
                 if script in self.Scripts:
-                    for cpu in range(cores):
+                    for cpu in range(cmsCpuInfo.get_NumOfCores()):#FIXME use the actual number of cores of the machine here!
                         command="taskset -c %s %s" % (cpu,script)
                         self.Commands[cpu].append(command)
                         
@@ -1033,7 +1033,12 @@ class PerfSuite:
                 self.printFlush(os.popen4(stopcmd)[1].read())
 
             #From here on we can use all available cores to speed up the performance suite remaining tests:
-            AvailableCores=range(cmsCpuInfo.get_NumOfCores())
+            if cores==0: #When specifying the cpu to run the suite on, one has to set cores to 0 to avoid threading of PerfSuite itself...
+                                          #So we need to catch this case for the IB tests case where we assign the test to a specific cpu.
+                AvailableCores=cpus
+            else:
+                AvailableCores=range(cores)
+            #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
             print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
             print AvailableCores
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
