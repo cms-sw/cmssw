@@ -17,7 +17,11 @@ photons.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperCluster
 photons.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters") # use island for the moment
 hiPhotonSequence = cms.Sequence(photons)
 
+# HI Egamma Isolation
+from RecoHI.HiEgammaAlgos.HiEgammaIsolation_cff import *
+
 # HI Ecal reconstruction
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence * hiPhotonSequence)
+hiEcalClustersIsolation = cms.Sequence(hiEcalClusters * hiEgammaIsolationSequence)
 
 # Test
