@@ -26,7 +26,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # the task
-process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
+process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet98154.root')
 
@@ -42,7 +42,7 @@ process.IgProfService = cms.Service("IgProfService",
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/CRUZET09/Calo/RECO/v1/000/098/154/EADF3BE3-BE4F-DE11-8BB8-000423D9870C.root'
+     '/store/data/CRUZET09/Calo/RECO/v1/000/098/154/EADF3BE3-BE4F-DE11-8BB8-000423D9870C.root'
     )
 )
 
@@ -83,7 +83,7 @@ process.options = cms.untracked.PSet(
 
 )
 
-process.p = cms.Path(process.jetMETDQMOfflineSource*process.dqmStoreStats)
+process.p = cms.Path(process.jetMETDQMOfflineSourceCosmic * process.dqmStoreStats)
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 
