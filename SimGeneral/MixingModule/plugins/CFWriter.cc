@@ -155,13 +155,15 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool gotTracks;  
     edm::Handle<CrossingFrame<SimTrack> > cf_simtrack;
     gotTracks = iEvent.getByLabel("mix","g4SimHits",cf_simtrack);
-    if (!gotTracks) LogInfo("MixingModule") << " Please, check if the object <SimTrack> has been mixed by the MixingModule!";
     
-    PCrossingFrame<SimTrack> * PCFbis = new PCrossingFrame<SimTrack>(*cf_simtrack.product());
-    
-    std::auto_ptr<PCrossingFrame<SimTrack> > pOutTrack(PCFbis);    
-    iEvent.put(pOutTrack,"g4SimHits");
-
+    if (gotTracks){ 
+       PCrossingFrame<SimTrack> * PCFbis = new PCrossingFrame<SimTrack>(*cf_simtrack.product());
+       std::auto_ptr<PCrossingFrame<SimTrack> > pOutTrack(PCFbis);    
+       iEvent.put(pOutTrack,"g4SimHits");
+    }
+    else{
+       LogInfo("MixingModule") << " Please, check if the object <SimTrack> has been mixed by the MixingModule!";  
+    }
   }//end if flagSimTrack_
   
     //SimVertex
@@ -169,12 +171,15 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool gotSimVertex;
     edm::Handle<CrossingFrame<SimVertex> > cf_simvtx;
     gotSimVertex=iEvent.getByLabel("mix","g4SimHits",cf_simvtx);
-    if (!gotSimVertex) LogInfo("MixingModule") << " Please, check if the object <SimVertex> has been mixed by the MixingModule!";
- 
-    PCrossingFrame<SimVertex> * PCFvtx = new PCrossingFrame<SimVertex>(*cf_simvtx.product());
     
-    std::auto_ptr<PCrossingFrame<SimVertex> > pOutVertex(PCFvtx);    
-    iEvent.put(pOutVertex,"g4SimHits");
+    if (gotSimVertex){ 
+       PCrossingFrame<SimVertex> * PCFvtx = new PCrossingFrame<SimVertex>(*cf_simvtx.product());
+       std::auto_ptr<PCrossingFrame<SimVertex> > pOutVertex(PCFvtx);    
+       iEvent.put(pOutVertex,"g4SimHits");
+    }
+    else{
+       LogInfo("MixingModule") << " Please, check if the object <SimVertex> has been mixed by the MixingModule!";
+    }
   }
    
   // PCaloHit
@@ -184,12 +189,15 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool gotPCaloHit;
       edm::Handle<CrossingFrame<PCaloHit> > cf_calohit;
       gotPCaloHit=iEvent.getByLabel("mix",labCaloHit[ii],cf_calohit);
-      if (!gotPCaloHit) LogInfo("MixingModule") << " Please, check if the object <PCaloHit> " << labCaloHit[ii] << " has been mixed by the MixingModule!";
       
-      PCrossingFrame<PCaloHit> * PCFPhCaloHit = new PCrossingFrame<PCaloHit>(*cf_calohit.product()); 
-      std::auto_ptr<PCrossingFrame<PCaloHit> > pOutHCalo(PCFPhCaloHit);
-      
-      iEvent.put(pOutHCalo,labCaloHit[ii]); 
+      if (gotPCaloHit){   
+        PCrossingFrame<PCaloHit> * PCFPhCaloHit = new PCrossingFrame<PCaloHit>(*cf_calohit.product()); 
+        std::auto_ptr<PCrossingFrame<PCaloHit> > pOutHCalo(PCFPhCaloHit);
+	iEvent.put(pOutHCalo,labCaloHit[ii]); 
+      }
+      else{
+        LogInfo("MixingModule") << " Please, check if the object <PCaloHit> " << labCaloHit[ii] << " has been mixed by the MixingModule!";
+      }
     }
   
   }
@@ -200,12 +208,16 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool gotPSimHit;
       edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
       gotPSimHit=iEvent.getByLabel("mix",labSimHit[ii],cf_simhit);
-      if (!gotPSimHit) LogInfo("MixingModule") << " Please, check if the object <PSimHit> " << labSimHit[ii] << " has been mixed by the MixingModule!";
-
-      PCrossingFrame<PSimHit> * PCFSimHit = new PCrossingFrame<PSimHit>(*cf_simhit.product());
-      std::auto_ptr<PCrossingFrame<PSimHit> > pOutSimHit(PCFSimHit);
       
-      iEvent.put(pOutSimHit,labSimHit[ii]);           
+      if (gotPSimHit){ 
+        PCrossingFrame<PSimHit> * PCFSimHit = new PCrossingFrame<PSimHit>(*cf_simhit.product());
+        std::auto_ptr<PCrossingFrame<PSimHit> > pOutSimHit(PCFSimHit);
+	iEvent.put(pOutSimHit,labSimHit[ii]); 
+      }
+      else{	      
+        LogInfo("MixingModule") << " Please, check if the object <PSimHit> " << labSimHit[ii] << " has been mixed by the MixingModule!";
+      }
+                      
     }    
   }
   
@@ -215,11 +227,15 @@ void CFWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool gotHepMCProduct;
     edm::Handle<CrossingFrame<edm::HepMCProduct> > cf_hepmc;
     gotHepMCProduct=iEvent.getByLabel("mix","generator",cf_hepmc);
-    if (!gotHepMCProduct) LogInfo("MixingModule") << " Please, check if the object <HepMCProduct> has been mixed by the MixingModule!";
+    if (gotHepMCProduct){ 
+       PCrossingFrame<edm::HepMCProduct> * PCFHepMC = new PCrossingFrame<edm::HepMCProduct>(*cf_hepmc.product());
+       std::auto_ptr<PCrossingFrame<edm::HepMCProduct> > pOuthepmcpr(PCFHepMC);
+       iEvent.put(pOuthepmcpr,"generator");
+    }
+    else{
+       LogInfo("MixingModule") << " Please, check if the object <HepMCProduct> has been mixed by the MixingModule!";
+    }
 
-    PCrossingFrame<edm::HepMCProduct> * PCFHepMC = new PCrossingFrame<edm::HepMCProduct>(*cf_hepmc.product());
-    std::auto_ptr<PCrossingFrame<edm::HepMCProduct> > pOuthepmcpr(PCFHepMC);
-    iEvent.put(pOuthepmcpr,"generator");
   }// end if flagHepMCProduct_
             
 }
