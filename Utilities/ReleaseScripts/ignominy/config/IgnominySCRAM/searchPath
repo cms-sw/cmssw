@@ -58,6 +58,7 @@ if((!defined $outdir) || ($outdir eq "")){$outdir=$CURDIR;}
 my $toolver="${outdir}/tool-versions.conf";
 my $verdep="${outdir}/versions-deps.conf";
 my $vers="${outdir}/versions";
+my $prodmap="${outdir}/products.txt";
 my $exclude_metrics="${outdir}/exclude-metrics";
 my $exclude_bins="";
 
@@ -122,8 +123,8 @@ sub parse_project ()
   my $projectcache;
 
   my $APP="$project_name $project_ver";
-  system("rm -f $toolver $verdep $vers");
-  system("touch $toolver $verdep $vers");
+  system("rm -f $toolver $verdep $vers $prodmap");
+  system("touch $toolver $verdep $vers $prodmap");
   &printToFile ($verdep, "################################################################################");
   &printToFile ($verdep, "# Direct version dependencies");
   &printToFile ($verdep, "");
@@ -223,6 +224,25 @@ sub addProjectInfo ()
   else{print "#Project \"$tool1\" type unknown.\n";}
 }
 
+
+sub addProductMap()
+{
+  my $tool=shift;
+  if ($tool ne "self"){return;}
+  my $class=shift;
+  my $type=shift;
+  if ($class=~/(PACKAGE|SUBSYSTEM|PYTHON|DATA_INSTALL)/){return;}
+  my $dir=shift;
+  my $name=shift;
+  if ($type=~/^LIBRARY$/)
+  {
+    my $file=shift;
+    if ($file=~/\/plugin${name}\.so$/){$type="PLUGINS";}
+  }
+  if ($class eq "CLASSLIB"){$class="LIBRARY"; $type="LIBRARY";}
+  &printToFile ($prodmap, "$class:$type:$dir:$name");
+}
+
 sub addCMSProjectInfo ()
 {
   my $tool=shift || return;
@@ -302,6 +322,7 @@ sub addCMSProjectInfo ()
 	    {
 	      my $libpath="${d}/${libname}";
 	      $libpath=&getActualPath ($libpath);
+	      &addProductMap($tool,$class,$class,$dir,$name,$libpath);
 	      my $libpathq=quotemeta($libpath);
 	      if ($tool eq "self"){print "scan libs $libpath\n";}
 	      if($system){print "match ^".$libpathq."\$:\'${system}/${parent}\'\n";}
@@ -327,6 +348,7 @@ sub addCMSProjectInfo ()
 	  {
 	    my $libpath="${d}/${lib_prefix}${libname}.so";
 	    $libpath=&getActualPath ($libpath);
+	    &addProductMap($tool,$class,$class,$dir,$name,$libpath);
 	    my $libpathq=quotemeta($libpath);
 	    if ($tool eq "self"){print "scan libs $libpath\n";}
 	    if($system){print "match ^".$libpathq."\$:\'${system}/${parent}/python\'\n";}
@@ -359,6 +381,7 @@ sub addCMSProjectInfo ()
 		  {
 		    $found=1;
 		    $bin=&getActualPath ($bin);
+		    &addProductMap($tool,$class,$type,$dir,$name,$bin);
 		    my $binq=quotemeta($bin);
 		    print "scan bins $bin\n";
 		    print "match ^$binq\$:\'${parent}_${name}\'\n";
@@ -399,7 +422,8 @@ sub addCMSProjectInfo ()
 	            if (-f "$libpath")
 	            {
 	              $libpath=&getActualPath ($libpath);
-	              my $libpathq=quotemeta($libpath);
+	              &addProductMap($tool,$class,$type,$dir,$name,$libpath);
+		      my $libpathq=quotemeta($libpath);
 	              print "scan libs $libpath\n";
 	              if($system){print "match ^".$libpathq."\$:\'${system}/${parent}_${name}\'\n";}
 	              else{print "match ^".$libpathq."\$:\'${parent}_${name}\'\n";}
@@ -444,6 +468,7 @@ sub addCMSProjectInfo ()
 		  {
 		    $found=1;
 		    $bin=&getActualPath ($bin);
+		    &addProductMap($tool,$class,$type,$dir,$name,$bin);
 		    my $binq=quotemeta($bin);
 		    print "scan bins $bin\n";
 		    print "match ^$binq\$:\'${parent}_${name}\'\n";
@@ -484,6 +509,7 @@ sub addCMSProjectInfo ()
 	            if (-f "$libpath")
 	            {
 	              $libpath=&getActualPath ($libpath);
+		      &addProductMap($tool,$class,$type,$dir,$name,$libpath);
 	              my $libpathq=quotemeta($libpath);
 	              print "scan libs $libpath\n";
 	              if($system){print "match ^".$libpathq."\$:\'${system}/${parent}_${name}\'\n";}
