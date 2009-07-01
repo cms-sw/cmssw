@@ -28,8 +28,9 @@ enum globalFieds{
   CH_SUPPRESS          = 7,
   CH_IFIFOFULL         = 8,
   CH_L1AIFIFOFULL      = 0xC,
+  CH_FORCEDZS1         = 0xF,
 
-  SRP_NREAD            = 0,
+
   SRP_NUMBFLAGS        = 68,
   SRP_BLOCKLENGTH      = 6,
   SRP_EB_NUMBFLAGS     = 68,
@@ -187,7 +188,10 @@ enum tccFields{
 
 
 enum srpFields{
-  
+
+   SRP_NREAD           = 0,
+   SRP_FULLREADOUT     = 3,
+
    SRP_ID_MASK         = 0xFF,
  
    SRP_BX_MASK         = 0xFFF,

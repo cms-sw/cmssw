@@ -256,6 +256,10 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // create the collection for invalid TTIds
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);
+
+   // create the collection for invalid Xtal ids
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidZSXtalIds(new EcalElectronicsIdCollection);
+  theUnpacker_->setInvalidZSXtalIdsCollection(&productInvalidZSXtalIds);
   
   // create the collection for invalid BlockLengths
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths(new EcalElectronicsIdCollection);
@@ -339,6 +343,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       e.put(productInvalidEEChIds, "EcalIntegrityChIdErrors");
       // EE
       e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
+      e.put(productInvalidZSXtalIds,"EcalIntegrityZSXtalIdErrors");
       e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
       e.put(productPnDiodeDigis);
     }
