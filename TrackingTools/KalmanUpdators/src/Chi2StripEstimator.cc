@@ -48,9 +48,9 @@ Chi2StripEstimator::estimate(const TrajectoryStateOnSurface& state,
   C(1,1) = me.vv();
 
   AlgebraicVector2 r(m - x);
-  AlgebraicSymMatrix22 R(V+C)
-  int ierr = ! invertPosDefMatrix(R);
-  if (ierr != 0) {
+  AlgebraicSymMatrix22 R(V+C);
+  bool ierr =  !invertPosDefMatrix(R);
+  if (ierr) {
     edm::LogError("Chi2StripEstimator")<<" could not invert matrix:\n"<<(V+C);
     return returnIt( 0.0 );
   }

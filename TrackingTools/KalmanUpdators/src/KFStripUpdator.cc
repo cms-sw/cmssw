@@ -1,5 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFStripUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/StripMeasurementTransformator.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
+
 
 TrajectoryStateOnSurface 
 KFStripUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const {

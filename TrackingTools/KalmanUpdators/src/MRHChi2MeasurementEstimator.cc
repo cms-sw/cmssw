@@ -3,6 +3,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 std::pair<bool,double>
 MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
