@@ -7,9 +7,9 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi impor
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import * #cluster parameter estimator producer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 
-### pixel triplets
-import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
-pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
+### pixel triplets for vertexing
+import RecoHI.HiTracking.PixelProtoTracks_cfi
+pixel3ProtoTracks = RecoHI.HiTracking.PixelProtoTracks_cfi.hiProtoTracks.clone()
 pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
