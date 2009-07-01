@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 #    Track isolation is required, with 1 or 0 tracks in the isolation cone. 
 
 #  HLT_Photon15_TrackIso_L1R = { HLTBeginSequence &
-#                                hltL1sRelaxedSingleEgammaEt10 &
+#                                hltL1sRelaxedSingleEgammaEt8 &
 #                                hltPrePhoton15HTIL1R &
 #                                HLTSinglePhoton15L1NonIsolatedHLTHTISequence &
 #                                HLTEndSequence }
@@ -43,7 +43,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
     triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),
-    genEtAcc = cms.double(10.0),
+    genEtAcc = cms.double(8.0),
     reqNum = cms.uint32(1),
     PtMax = cms.untracked.double(200.0),
     useHumanReadableHistTitles = cms.untracked.bool(False),
@@ -55,7 +55,7 @@ HLT_Photon15_TrackIso_L1R_DQM = cms.EDFilter("EmDQM",
         ##########################################################
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt10","","HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt8","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(-82),
             HLTCollectionHumanName = cms.untracked.string("Level 1")
