@@ -357,8 +357,8 @@ namespace edm
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() { 
-    for (unsigned int ii=0;ii<workers_.size();ii++){ 
-      delete workers_[ii];}
+    for (unsigned int ii=0;ii<workersObjects_.size();ii++){ 
+      delete workersObjects_[ii];}
     delete sel_;  
   }  
 
