@@ -22,6 +22,10 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
       userInts = cms.PSet(
         src = cms.VInputTag('')
       ),
+      # add candidate ptrs here
+      userCands = cms.PSet(
+        src = cms.VInputTag('')
+      ),
       # add "inline" functions here
       userFunctions = cms.vstring(),
       userFunctionLabels = cms.vstring()
@@ -80,7 +84,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     efficiencies    = cms.PSet(),
 
     # resolution configurables
-    addResolutions   = cms.bool(False)
+    addResolutions   = cms.bool(False),
+    resolutions      = cms.PSet(),
 )
 
 

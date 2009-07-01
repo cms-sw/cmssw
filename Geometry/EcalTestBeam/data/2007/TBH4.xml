@@ -98,7 +98,8 @@
  <PosPart copyNumber="1">
    <rParent name="TBH4:CMSSE"/>
    <rChild name="TBH4:CALO"/>
-   <Translation x="0*mm" y="0*mm" z="[eecon:EEzMagF]"/>
+   <Translation x="0*mm" y="0*mm" z="-[eecon:EEzMagF]"/>
+  <rRotation name="rotations:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBH4:CALO"/>

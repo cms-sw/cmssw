@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.11 2009/04/13 17:50:44 biery Exp $
+// $Id: DataProcessManager.h,v 1.10 2008/10/14 15:02:18 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -60,9 +60,6 @@ namespace stor
     void setMaxDQMEventRequestRate(double rate);
 
     void updateMinEventRequestInterval();
-
-    void setAllowMissingSM(bool allowMissingSM)
-    { allowMissingSM_ = allowMissingSM; }
 
     void setCollateDQM(bool collateDQM)
     { dqmServiceManager_->setCollateDQM(collateDQM); }
@@ -144,9 +141,7 @@ namespace stor
     bool getOneDQMEventFromSM(std::string smURL, double& time2wait);
 
     bool registerWithAllSM();
-    bool registerWithAnySM();
     bool registerWithAllDQMSM();
-    bool registerWithAnyDQMSM();
     int registerWithSM(std::string smURL);
     int registerWithDQMSM(std::string smURL);
     bool getAnyHeaderFromSM();
@@ -156,10 +151,8 @@ namespace stor
 
     edm::EventBuffer* cmd_q_;
 
-    bool fullyRegistered_;
-    bool partiallyRegistered_;
-    bool fullyRegisteredDQM_;
-    bool partiallyRegisteredDQM_;
+    bool alreadyRegistered_;
+    bool alreadyRegisteredDQM_;
     bool headerRefetchRequested_;
     std::vector<unsigned char> buf_;
 
@@ -190,7 +183,6 @@ namespace stor
     std::string DQMconsumerPriority_;
     std::string consumerTopFolderName_;
     std::string hltOutputModule_;
-    bool allowMissingSM_;
 
     //std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
     boost::shared_ptr<stor::DQMServiceManager> dqmServiceManager_;

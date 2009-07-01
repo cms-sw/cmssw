@@ -4,19 +4,22 @@
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
 #include <map>
 
 // Change log
 //
-//  1  mf 8/25/08	error summary information for
-//			LoggedErrorsSummary()
+//  1  mf 8/25/08	error summary information for LoggedErrorsSummary()
+//
+//  2  mf 6/22/09	add severity to LoggedErrorsSummary by using 
+//			ErrorSummaryEntry as map key
 //			
 
 namespace edm
 {
 
-typedef std::pair<std::string, std::string> ErrorSummaryMapKey;
+typedef ErrorSummaryEntry ErrorSummaryMapKey;
 typedef std::map<ErrorSummaryMapKey, unsigned int>::iterator 
 						ErrorSummaryMapIterator;
 

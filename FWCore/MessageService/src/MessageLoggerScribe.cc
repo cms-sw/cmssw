@@ -975,7 +975,8 @@ void
         LogError("duplicateDestination")			// change log 35
         <<"Duplicate name for a MessageLogger Destination: " 
         << actual_filename
-        << "\n";
+        << "\n" << "Only the first configuration instructions are used";
+	continue;
       } else {
         LogWarning("duplicateDestination")
         <<"Duplicate name for a MessageLogger Destination: " 

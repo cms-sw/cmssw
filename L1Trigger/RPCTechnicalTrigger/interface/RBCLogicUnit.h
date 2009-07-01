@@ -1,9 +1,9 @@
-// $Id: RBCLogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
+// $Id: $
 #ifndef RBCLOGICUNIT_H 
 #define RBCLOGICUNIT_H 1
 
 // Include files
-#include "L1Trigger/RPCTechnicalTrigger/interface/LogicTool.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/LogicTool.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCLogicUnit.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h"
@@ -29,8 +29,6 @@ public:
   bool initialise();
   
   void setlogic( const char * );
-
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
   
   void run( const RBCInput & , std::bitset<2> & );
   
@@ -51,8 +49,6 @@ private:
   RBCLogic            * m_logic;
   
   LogicTool<RBCLogic> * m_logtool;
-
-  bool m_debug;
-    
+  
 };
 #endif // RBCLOGICUNIT_H

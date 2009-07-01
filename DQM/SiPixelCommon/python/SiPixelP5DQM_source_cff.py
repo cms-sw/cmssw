@@ -44,6 +44,7 @@ SiPixelRawDataErrorSource.ringOn = False
 #Digi
 SiPixelDigiSource.modOn = True
 SiPixelDigiSource.twoDimOn = True
+SiPixelDigiSource.reducedSet = False
 SiPixelDigiSource.hiRes = True
 SiPixelDigiSource.ladOn = False
 SiPixelDigiSource.layOn = False
@@ -64,6 +65,7 @@ SiPixelClusterSource.ringOn = False
 #RecHit
 SiPixelRecHitSource.modOn = True
 SiPixelRecHitSource.twoDimOn = True
+SiPixelRecHitSource.reducedSet = True
 SiPixelRecHitSource.ladOn = False
 SiPixelRecHitSource.layOn = False
 SiPixelRecHitSource.phiOn = False	

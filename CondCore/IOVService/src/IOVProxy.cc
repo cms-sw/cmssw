@@ -1,14 +1,10 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "DataSvc/Ref.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 
-#include "POOLCore/Token.h"
 
 
 
@@ -16,49 +12,35 @@ namespace cond {
 
   namespace impl {
     struct IOVImpl {
-      IOVImpl(cond::Connection& conn,
+      IOVImpl(cond::PoolTransaction& db,
 	      const std::string & token,
-	      bool nolib,
-	      bool keepOpen) :
-	connection(conn){
-	pooldb().start(true);
-	pool::Ref<cond::IOVSequence> temp(&(pooldb().poolDataSvc()),token);
-	iov.copyShallow(temp);
-	pooldb().commit();   
-	if (!iov->iovs().empty() && !nolib) {
-	  // load dict (change: use IOV metadata....)
-	  std::string ptok = iov->iovs().front().wrapperToken();
-	  cond::reflexTypeByToken(ptok);
-	}
-	if (keepOpen) pooldb().start(true);
+	      bool nolib) :
+	pooldb(db){
+	db.start(true);
+	iov = cond::TypedRef<cond::IOVSequence>(db,token);
+	if (iov->iovs().empty() || nolib) return;
+	// load dict (change: use IOV metadata....)
+	std::string ptok = iov->iovs().front().wrapperToken();
+	db.commit();   
+	cond::reflexTypeByToken(ptok);
+	db.start(true);
+	iov = cond::TypedRef<cond::IOVSequence>(db,token);
       }
       ~IOVImpl(){
-	pooldb().commit();
+	pooldb.commit();
       }
-      cond::PoolTransaction& pooldb() { return connection.poolTransaction();}
-
-
-      cond::Connection & connection;
-      pool::Ref<cond::IOVSequence> iov;
+      cond::PoolTransaction & pooldb;
+      cond::TypedRef<cond::IOVSequence> iov;
     };
 
   }
 
 
-  PoolTransaction *  IOVElementProxy::db() const {
-    return connection() ? &connection()->poolTransaction() : (PoolTransaction *)(0);
-  }
-
-
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
-    iov(*impl.iov), elem(&impl.connection){}
+    iov(*impl.iov), elem(&impl.pooldb){}
   
 
   void IOVElementProxy::set(IOVSequence const & v, int i) {
-    if (i==v.iovs().size()) {
-      set(cond::invalidTime, cond::invalidTime,"");
-      return;
-    }
     m_since =  v.iovs()[i].sinceTime();
     m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iovs()[i+1].sinceTime()-1;
     m_token = v.iovs()[i].wrapperToken();
@@ -70,9 +52,9 @@ namespace cond {
  
   IOVProxy::~IOVProxy() {}
 
-  IOVProxy::IOVProxy(cond::Connection& conn,
-		     const std::string & token, bool nolib, bool keepOpen) :
-    m_iov(new impl::IOVImpl(conn,token,nolib,keepOpen)), m_low(0), m_high(size()){}
+  IOVProxy::IOVProxy(cond::PoolTransaction& db,
+		     const std::string & token, bool nolib) :
+    m_iov(new impl::IOVImpl(db,token,nolib)), m_low(0), m_high(size()){}
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
@@ -81,8 +63,6 @@ namespace cond {
     m_high=std::min(m_high+1,size());
   }
 
-
-  //FIXME cannot be done twice....
   void IOVProxy::head(int n) const {
     m_high = std::min(m_low+n,m_high);
   }
@@ -91,14 +71,6 @@ namespace cond {
     m_low = std::max(m_high-n,m_low);
   }
 
-
-  IOVProxy::const_iterator IOVProxy::find(cond::Time_t time) const {
-    int n = iov().find(time)-iov().iovs().begin();
-    return (n<m_low || m_high<n ) ? 
-      end() :  
-      boost::make_transform_iterator(boost::counting_iterator<int>(n),
-				     IterHelp(*m_iov));
-  }
 
 
   int IOVProxy::size() const {
@@ -112,30 +84,5 @@ namespace cond {
   TimeType IOVProxy::timetype() const {
     return iov().timeType();     
   }
-
-  
-  std::string 
-  IOVProxy::payloadContainerName() const{
-    // FIXME move to metadata
-    std::string payloadtokstr=iov().iovs().front().wrapperToken();
-    pool::Token theTok;
-    theTok.fromString(payloadtokstr);
-    return theTok.contID();
-  }
-
-  std::string 
-  IOVProxy::comment() const{
-    return iov().comment();
-  }
-
-  int 
-  IOVProxy::revision() const{
-    return iov().revision();
-  }
-
-  cond::PoolTransaction & IOVProxy::db() const {
-    m_iov->pooldb();
-  }
-
 
 }

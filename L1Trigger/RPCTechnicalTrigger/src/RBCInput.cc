@@ -1,4 +1,4 @@
-// $Id: RBCInput.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: $
 // Include files 
 
 // local
@@ -21,7 +21,6 @@ std::istream& operator>>(std::istream &istr , RBCInput & rhs) {
     rhs.input_sec[_ks].set(i-(15*_ks), rhs.input[i]);
   }
   return istr;
-
 }
 
 std::ostream& operator<<(std::ostream &ostr , RBCInput & rhs) {
@@ -53,7 +52,7 @@ void RBCInput::mask( const std::vector<int> & maskvec )
 void RBCInput::force( const std::vector<int> & forcevec )
 {
   
-  if( m_debug ) std::cout << forcevec.size() << std::endl;
+  std::cout << forcevec.size() << std::endl;
 
   std::bitset<15> tmp;
   

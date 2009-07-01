@@ -3,9 +3,6 @@
 <use name=DQMServices/ClientConfig>
 <use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/CSCGeometryBuilder>
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>

@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/22 18:42:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/04/22 14:19:05 $
+ *  $Revision: 1.6 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -245,10 +245,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     newEfficMEName.erase(0, shiftPos+1);
   }
   theDQM->setCurrentFolder(efficDir);
-
-  TH1F* efficHist = (TH1F*)hSim->Clone(newEfficMEName.c_str());
-  efficHist->SetTitle(efficMETitle.c_str());
-  ME* efficME = theDQM->book1D(newEfficMEName, efficHist);
+  ME* efficME = theDQM->book1D(newEfficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax()); 
 
   if ( !efficME ) {
     LogWarning("DQMGenericClient") << "computeEfficiency() : "

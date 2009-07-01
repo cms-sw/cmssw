@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.5 2008/06/26 08:36:32 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.6 2008/08/08 14:26:21 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -78,7 +78,8 @@
        std::map<uint32_t,int> rechit_count;
        bool modOn; 
        bool twoDimOn;
-       //barrel:
+       bool reducedSet;
+        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
        bool ringOn, bladeOn, diskOn; 

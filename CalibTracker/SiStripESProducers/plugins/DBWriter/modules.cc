@@ -107,7 +107,3 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripGainSimDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripDetVOff,SiStripDetVOffRcd> SiStripDetVOffDummyPrinter;
 DEFINE_ANOTHER_FWK_MODULE(SiStripDetVOffDummyPrinter);
-
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-typedef DummyCondObjPrinter<SiStripDetCabling,SiStripDetCablingRcd> SiStripDetCablingDummyPrinter;
-DEFINE_ANOTHER_FWK_MODULE(SiStripDetCablingDummyPrinter);

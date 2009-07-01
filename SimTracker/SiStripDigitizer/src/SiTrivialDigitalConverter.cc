@@ -60,10 +60,10 @@ int SiTrivialDigitalConverter::truncate(float in_adc) {
   //Rounding the ADC number instead of truncating it
   int adc = int(in_adc+0.5);
   /*
-    254 ADC: 254<= raw charge < 511
-    255 ADC: 512<= raw charge < 1023
+    254 ADC: 254  <= raw charge < 1023
+    255 ADC: raw charge >= 1023
   */
-  if (adc > 511 ) return 255;
+  if (adc > 1022 ) return 255;
   if (adc > 253) return 254;
   //Protection
   if (adc < 0) return 0;

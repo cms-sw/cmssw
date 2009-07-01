@@ -592,12 +592,19 @@ CSCOfflineMonitor::~CSCOfflineMonitor(){
 
 void CSCOfflineMonitor::endJob(void) {
 
-  histoEfficiency(hRHSTE,hRHEff);
-  histoEfficiency(hSSTE,hSEff);
-  hSEff2->getTH2F()->Divide(hSSTE2,hEffDenominator,1.,1.,"B");
-  hRHEff2->getTH2F()->Divide(hRHSTE2,hEffDenominator,1.,1.,"B");
-  hStripEff2->getTH2F()->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
-  hWireEff2->getTH2F()->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
+  hRHEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff");
+  hSEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff");
+  hSEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff2");
+  hRHEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff2");
+  hStripEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripEff2");
+  hWireEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hWireEff2");
+
+  if (hRHEff) histoEfficiency(hRHSTE,hRHEff);
+  if (hSEff) histoEfficiency(hSSTE,hSEff);
+  if (hSEff2) hSEff2->getTH2F()->Divide(hSSTE2,hEffDenominator,1.,1.,"B");
+  if (hRHEff2) hRHEff2->getTH2F()->Divide(hRHSTE2,hEffDenominator,1.,1.,"B");
+  if (hStripEff2) hStripEff2->getTH2F()->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
+  if (hWireEff2) hWireEff2->getTH2F()->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
 
   bool saveHistos = param.getParameter<bool>("saveHistos");
   string outputFileName = param.getParameter<string>("outputFileName");

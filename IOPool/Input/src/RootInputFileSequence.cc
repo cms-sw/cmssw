@@ -53,7 +53,7 @@ namespace edm {
     skippedToRun_(0U),
     skippedToLumi_(0U),
     skippedToEvent_(0U),
-    skippedToEntry_(-1LL),
+    skippedToEntry_(FileIndex::Element::invalidEntry),
     skipEvents_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
     whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToSkip", std::vector<LuminosityBlockRange>())),
     whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
@@ -67,7 +67,6 @@ namespace edm {
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
-    randomAccess_(false),
     duplicateChecker_(),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
 
@@ -112,7 +111,7 @@ namespace edm {
 	if(primarySequence_) {
           BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
 	  if(skipEvents_ != 0) {
-	    skip(skipEvents_);
+	    skipEvents(skipEvents_);
 	  }
 	}
       }
@@ -324,127 +323,6 @@ namespace edm {
 				       rootFile_->productRegistry()); 
   }
 
-  std::auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
-    randomAccess_ = true;
-    // Attempt to find event in currently open input file.
-    bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-    if(!found) {
-      // If only one input file, give up now, to save time.
-      if(fileIndexes_.size() == 1) {
-	return std::auto_ptr<EventPrincipal>(0);
-      }
-      // Look for event in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
-          // We found it. Close the currently open file, and open the correct one.
-	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-	  // Now get the event from the correct file.
-          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-	  assert (found);
-	  std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
-          skip(1);
-	  return ep;
-	}
-      }
-      // Look for event in files not yet opened.
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(!*it) {
-	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
-	  if(found) {
-	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
-            skip(1);
-	    return ep;
-	  }
-	}
-      }
-      // Not found
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    std::auto_ptr<EventPrincipal> eptr = readCurrentEvent();
-    skip(1);
-    return eptr;
-  }
-
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootInputFileSequence::readIt(LuminosityBlockID const& id) {
-
-    // Attempt to find lumi in currently open input file.
-    bool found = rootFile_->setEntryAtLumi(id);
-    if(found) {
-      return readLuminosityBlock_();
-    }
-
-    if(fileIndexes_.size() > 1) {
-      // Look for lumi in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(*it && (*it)->containsLumi(id.run(), id.luminosityBlock(), true)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-	  // Now get the lumi from the correct file.
-          found = rootFile_->setEntryAtLumi(id);
-	  assert (found);
-          return readLuminosityBlock_();
-	}
-      }
-      // Look for lumi in files not yet opened.
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-          found = rootFile_->setEntryAtLumi(id);
-	  if(found) {
-            return readLuminosityBlock_();
-	  }
-	}
-      }
-    }
-    return boost::shared_ptr<LuminosityBlockPrincipal>();
-  }
-
-  boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readIt(RunID const& id) {
-
-    // Attempt to find run in currently open input file.
-    bool found = rootFile_->setEntryAtRun(id);
-    if(found) {
-      return readRun_();
-    }
-    if(fileIndexes_.size() > 1) {
-      // Look for run in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(*it && (*it)->containsRun(id.run(), true)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-	  // Now get the event from the correct file.
-          found = rootFile_->setEntryAtRun(id);
-	  assert (found);
-          return readRun_();
-	}
-      }
-      // Look for run in files not yet opened.
-      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if(!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-	  initFile(false);
-          found = rootFile_->setEntryAtRun(id);
-	  if(found) {
-            return readRun_();
-	  }
-	}
-      }
-    }
-    return boost::shared_ptr<RunPrincipal>();
-  }
-
   InputSource::ItemType
   RootInputFileSequence::getNextItemType() {
     if(fileIter_ == fileIterEnd_) {
@@ -454,22 +332,16 @@ namespace edm {
       return InputSource::IsFile;
     }
     if(rootFile_) {
-      if(randomAccess_) {
-        skip(0);
-        if(fileIter_== fileIterEnd_) {
-          return InputSource::IsStop;
-        }
-      }
       if(skippedToRun_) {
-	rootFile_->setEntryAtRun(RunID(skippedToRun_));
-	skippedToRun_ = 0;
+	rootFile_->setEntryAtRun(skippedToRun_);
+	skippedToRun_ = 0U;
       } else if(skippedToLumi_) {
-	rootFile_->setEntryAtLumi(LuminosityBlockID(rootFile_->runNumber(), skippedToLumi_));
-	skippedToLumi_ = 0;
+	rootFile_->setEntryAtLumi(rootFile_->runNumber(), skippedToLumi_);
+	skippedToLumi_ = 0U;
       } else if(skippedToEvent_) {
 	rootFile_->setEntryAtEventEntry(rootFile_->runNumber(), rootFile_->luminosityBlockNumber(), skippedToEvent_, skippedToEntry_, true);
 	skippedToEvent_ = 0U;
-	skippedToEntry_ = -1LL;
+	skippedToEntry_ = FileIndex::Element::invalidEntry;
       }
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if(entryType == FileIndex::kEvent) {
@@ -490,13 +362,12 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    randomAccess_ = false;
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
     currentRun_ = skippedToRun_ = 0U;
     currentLumi_ = skippedToLumi_ = 0U;
     skippedToEvent_ = 0U;
-    skippedToEntry_ = -1LL;
+    skippedToEntry_ = FileIndex::Element::invalidEntry;
   }
 
   // Rewind to the beginning of the current file
@@ -506,40 +377,93 @@ namespace edm {
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
-  void
-  RootInputFileSequence::skip(int offset) {
+  bool
+  RootInputFileSequence::skipEvents(int offset) {
     assert (skipEvents_ == 0 || skipEvents_ == offset);
     skipEvents_ = offset;
     while(skipEvents_ != 0) {
       skipEvents_ = rootFile_->skipEvents(skipEvents_);
       if(skipEvents_ > 0 && !nextFile()) {
 	skipEvents_ = 0;
-	return;
+	return false;
       }
       if(skipEvents_ < 0 && !previousFile()) {
 	skipEvents_ = 0;
-        return;
+        return false;
       }
     }
     rootFile_->skipEvents(0);
-    RunNumber_t skippedToRun = rootFile_->runNumber();
-    LuminosityBlockNumber_t skippedToLumi = rootFile_->luminosityBlockNumber();
-    if(skippedToRun != currentRun_) {
-      skippedToRun_ = skippedToRun;
-      skippedToLumi_ = skippedToLumi;
+    setSkipInfo();
+    return true;
+  }
+
+  void
+  RootInputFileSequence::setSkipInfo() {
+    if(rootFile_->runNumber() != currentRun_) {
+      // Skipped to different run
+      // Save info to provide run and lumi transitions.
+      skippedToRun_ = rootFile_->runNumber();
+      skippedToLumi_ = rootFile_->luminosityBlockNumber();
       skippedToEvent_ = rootFile_->eventNumber();
       skippedToEntry_ = rootFile_->entryNumber();
-    } else if(skippedToLumi != currentLumi_) {
+    } else if(rootFile_->luminosityBlockNumber() != currentLumi_) {
+      // Skipped to different lumi in same run
+      // Save info to provide lumi transition.
       skippedToRun_ = 0U;
-      skippedToLumi_ = skippedToLumi;
+      skippedToLumi_ = rootFile_->luminosityBlockNumber();
       skippedToEvent_ = rootFile_->eventNumber();
       skippedToEntry_ = rootFile_->entryNumber();
     } else {
+      // Skipped to event in same lumi.  No need to save anything. 
       skippedToRun_ = 0U;
       skippedToLumi_ = 0U;
       skippedToEvent_ = 0U;
-      skippedToEntry_ = -1LL;
+      skippedToEntry_ = FileIndex::Element::invalidEntry;
     }
+  }
+  
+
+  bool
+  RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record) {
+    // Note: 'exact' argumet is ignored unless the item is an event.
+    // Attempt to find item in currently open input file.
+    bool found = rootFile_->setEntryAtItem(run, lumi, event, exact);
+    if(!found) {
+      // If only one input file, give up now, to save time.
+      if(fileIndexes_.size() == 1) {
+	return false;
+      }
+      // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
+      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(*it && (*it)->containsItem(run, lumi, event, exact)) {
+          // We found it. Close the currently open file, and open the correct one.
+	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+	  // Now get the item from the correct file.
+          found = rootFile_->setEntryAtItem(run, lumi, event, exact);
+	  assert (found);
+	  if (record) setSkipInfo();	  
+	  return true;
+	}
+      }
+      // Look for item in files not yet opened.
+      for(Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
+	if(!*it) {
+	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+	  initFile(false);
+          found = rootFile_->setEntryAtItem(run, lumi, event, exact);
+	  if(found) {
+	    if (record) setSkipInfo();	  
+	    return true;
+	  }
+	}
+      }
+      // Not found
+      return false;
+    }
+    if (record) setSkipInfo();	  
+    return true;
   }
 
   bool const

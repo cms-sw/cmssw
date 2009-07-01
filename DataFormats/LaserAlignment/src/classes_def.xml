@@ -2,14 +2,10 @@
 
   <!-- this is the new section, the rest is obsolete -->
   <class name="SiStripLaserRecHit2D"/>
-  <class name="std::vector<SiStripLaserRecHit2D>"/>
   <class name="TkLasBeam"/>
   <class name="TkLasBeamCollection"/>
+  <class name="std::vector<SiStripLaserRecHit2D>"/>
   <class name="edm::Wrapper<TkLasBeamCollection>"/>
-
-  <class name="TkFittedLasBeam"/>
-  <class name="TkFittedLasBeamCollection"/>
-  <class name="edm::Wrapper<TkFittedLasBeamCollection>"/>
   <!-- end of new section -->
 
   <class name="LASBeamProfileFit"/>

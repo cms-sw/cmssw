@@ -64,14 +64,14 @@ induce(SiChargeCollectionDrifter::collection_type collection_points,
     double chargePosition = topology.strip(signalpoint->position());
     double chargeSpread = signalpoint->sigma() / topology.localPitch(signalpoint->position());
     
-    size_t fromStrip = std::max( 0,         int(   std::floor( chargePosition - Nsigma*chargeSpread) ));
-    size_t untilStrip = std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) ));
+    size_t fromStrip  = size_t(std::max( 0,          int(std::floor( chargePosition - Nsigma*chargeSpread))));
+    size_t untilStrip = size_t(std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) )));
     for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
 
       double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude(), chargeSpread, chargePosition);
 
-      size_t affectedFromStrip = std::max( size_t(0),  size_t(strip - coupling.size() + 1) );
-      size_t affectedUntilStrip = std::min( size_t(Nstrips),  size_t(strip + coupling.size()) );  
+      size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
+      size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
       for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
 	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
       }

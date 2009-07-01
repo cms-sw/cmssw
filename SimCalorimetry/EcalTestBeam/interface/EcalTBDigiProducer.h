@@ -1,5 +1,5 @@
-#ifndef ECALTBDIGIPRODUCER_H
-#define ECALTBDIGIPRODUCER_H
+#ifndef ECALTBDDIGIPRODUCER_H
+#define ECALTBDDIGIPRODUCER_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,28 +10,22 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
-//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
-//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
-//TB#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
-//TB#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "DataFormats/Math/interface/Error.h"
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-
-//For TB ----------------------------
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
+
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 #include "RecoTBCalo/EcalTBTDCReconstructor/interface/EcalTBTDCRecInfoAlgo.h"
-//For TB ----------------------------
+
+#include <string>
 
 class EcalTBDigiProducer : public edm::EDProducer
 {
@@ -44,13 +38,13 @@ public:
   virtual ~EcalTBDigiProducer();
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
 private:
 
-//TB  void checkGeometry(const edm::EventSetup & eventSetup);
+  void checkGeometry(const edm::EventSetup & eventSetup);
 
-//TB  void updateGeometry();
+  void updateGeometry();
 
   void checkCalibrations(const edm::EventSetup & eventSetup);
 
@@ -60,42 +54,22 @@ private:
 
   /** Reconstruction algorithm*/
   typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
-  typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
-//TB  typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
+  //typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
 
   EBDigitizer * theBarrelDigitizer;
-  EEDigitizer * theEndcapDigitizer;
-//TB  ESDigitizer * theESDigitizer;
-//TB  ESFastTDigitizer * theESDigitizerFast;
 
   const EcalSimParameterMap * theParameterMap;
   const CaloVShape * theEcalShape;
-//TB  const ESShape * theESShape;
 
   CaloHitResponse * theEcalResponse;
-//TB  CaloHitResponse * theESResponse;
 
   CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;
   EcalCorrelatedNoiseMatrix * theNoiseMatrix;
 
   EcalElectronicsSim * theElectronicsSim;
-//TB  ESElectronicsSim * theESElectronicsSim;
-//TB  ESElectronicsSimFast * theESElectronicsSimFast;
   EcalCoder * theCoder;
 
-  std::string EBdigiCollection_;
-  std::string EEdigiCollection_;
-//TB  std::string ESdigiCollection_;
-
-//TB  std::string hitsProducer_;
-
-  double EBs25notCont;
-  double EEs25notCont;
-
-//For TB -------------------------------------------
-
-      std::string m_barrelHitsName ;
-      std::string m_endcapHitsName ;
+  const CaloGeometry * theGeometry;
 
   const EcalTrigTowerConstituentsMap * theTTmap;
 
@@ -112,12 +86,12 @@ private:
   bool use2004OffsetConvention_;
 
   double tunePhaseShift;
-//For TB ---------------------
 
-//TB  bool cosmicsPhase;
-//TB  double cosmicsShift;
+  std::string EBdigiCollection_;
+  std::string hitsProducer_;
 
-//TB  bool doFast; 
+  double EBs25notCont;
+  double EEs25notCont;  
 };
 
 #endif 

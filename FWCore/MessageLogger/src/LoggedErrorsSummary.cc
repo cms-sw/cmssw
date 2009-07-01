@@ -5,8 +5,8 @@
 //
 //  1  mf 8/25/08	First implementation
 //			
-
-
+//  2  mf 6/22/09	Change to use severity in the key by using entry as key
+//			Also, LoggedErrorsOnlySummary()
 namespace edm {
 
 bool EnableLoggedErrorsSummary() {
@@ -31,10 +31,26 @@ std::vector<ErrorSummaryEntry> LoggedErrorsSummary() {
   ErrorSummaryMapIterator end = MessageSender::errorSummaryMap.end();
   for (ErrorSummaryMapIterator i = MessageSender::errorSummaryMap.begin();
   	i != end; ++i) {
-    e.category = (i->first).first;
-    e.module   = (i->first).second;
-    e.count    = (i->second);
+    e       = i->first;    // sets category, module and severity ChangeLog 2
+    e.count = (i->second); // count is 0 in key; set it to correct value
     v.push_back(e);
+  }
+  MessageSender::freshError = false;
+  MessageSender::errorSummaryMap.clear();
+  return v;
+}
+
+std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary() {    //  ChangeLog 2
+  std::vector<ErrorSummaryEntry> v;
+  ErrorSummaryEntry e;
+  ErrorSummaryMapIterator end = MessageSender::errorSummaryMap.end();
+  for (ErrorSummaryMapIterator i = MessageSender::errorSummaryMap.begin();
+  	i != end; ++i) {
+    e = i->first;    
+    if (e.severity >= edm::ELerror) {
+      e.count = (i->second); 
+      v.push_back(e);
+    }
   }
   MessageSender::freshError = false;
   MessageSender::errorSummaryMap.clear();

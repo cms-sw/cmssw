@@ -10,12 +10,16 @@ particleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     #----all thresholds are in GeV
     # seed threshold in preshower
     thresh_Seed_Barrel = cms.double(1.2e-4),
+    thresh_Pt_Seed_Barrel = cms.double(0.0),
     # cell threshold in preshower
     thresh_Barrel = cms.double(6e-05),                                       
+    thresh_Pt_Barrel = cms.double(0.0),                                       
     # for the preshower, endcap values are not used
     thresh_Seed_Endcap = cms.double(1.2e-4),
+    thresh_Pt_Seed_Endcap = cms.double(0.0),
     # for the preshower, endcap values are not used 
     thresh_Endcap = cms.double(6e-05),
+    thresh_Pt_Endcap = cms.double(0.0),
     # n neighbours in PS 
     nNeighbours = cms.int32(8),                                       
     # sigma of the shower in preshower     

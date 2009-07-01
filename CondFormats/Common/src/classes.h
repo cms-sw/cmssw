@@ -1,9 +1,6 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "CondFormats/Common/interface/PayloadWrapper.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
-
-#include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondFormats/Common/interface/IOVKeysDescription.h"
+#include "CondFormats/Common/interface/Summary.h"
 
 #include <vector>
 
@@ -17,11 +14,8 @@ namespace {
       std::vector<int> vid;
       std::vector<float> vfd;
       std::vector<double> vdd;
-      std::vector<unsigned long long> vll;
       cond::DataWrapper<std::vector<int> > dummyI;
       cond::DataWrapper<std::vector<double> >dummyD;
-      cond::DataWrapper<std::vector<unsigned long long> >dummyLL;
-      cond::DataWrapper<cond::BaseKeyed>dummyBK;
     };
 
   }

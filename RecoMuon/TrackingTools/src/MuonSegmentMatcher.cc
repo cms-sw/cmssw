@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.6 2009/06/16 06:51:38 slava77 Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.7 2009/06/16 16:04:54 ptraczyk Exp $
 //
 //
 
@@ -71,6 +71,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
   // Loop and select DT recHits
   for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
+    if ( !(*hit)->isValid()) continue; 
     if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
     if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
     if (!(*hit)->isValid()) continue; 
@@ -84,6 +85,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
   
+    if ( !rechit->isValid()) continue; 
+
     double nhitsPhi = 0;
     double nhitsZ = 0;
 	  
@@ -101,6 +104,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       // Loop over muon recHits
       for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
+	if ( !(*hit)->isValid()) continue; 
+	
 	DetId idT = (*hit)->geographicalId();
 	DTChamberId dtDetIdHitT(idT.rawId());
 	DTSuperLayerId dtDetLayerIdHitT(idT.rawId());
@@ -110,6 +115,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 	if ((chamberSegIdT==dtDetIdHitT) && (dtDetLayerIdHitT.superlayer()==2)) countMuonDTHits++;
 
         for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+
+	  if ( !hiti->isValid()) continue; 
 
 	  // Pick the one in the same DT Layer as the 1D hit
 	  if(!(hiti->geographicalId().rawId()==idT.rawId())) continue; 
@@ -141,6 +148,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       // Loop over muon recHits
       for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
+	if ( !(*hit)->isValid()) continue; 
+
 	DetId idT = (*hit)->geographicalId();
 	DTChamberId dtDetIdHitT(idT.rawId());
 	DTSuperLayerId dtDetLayerIdHitT(idT.rawId());
@@ -151,6 +160,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 	  countMuonDTHits++;
 
 	for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+
+	  if ( !hiti->isValid()) continue; 
 
 	  // Pick the one in the same DT Layer as the 1D hit
 	  if(!(hiti->geographicalId().rawId()==idT.rawId())) continue; 
@@ -208,6 +219,8 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
   for(CSCSegmentCollection::const_iterator segmentCSC = allSegmentsCSC->begin(); segmentCSC != allSegmentsCSC->end(); segmentCSC++) {
     double CSCcountAgreeingHits=0;
 
+    if ( !segmentCSC->isValid()) continue; 
+
     numCSC++;
     double CSCnhits = segmentCSC->recHits().size();
     const vector<CSCRecHit2D>& CSCRechits2D = segmentCSC->specificRecHits();
@@ -215,6 +228,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
 
     for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
+      if ( !(*hitC)->isValid()) continue; 
       if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
       if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
       if(!(*hitC)->isValid()) continue;
@@ -234,6 +248,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
 	
       for (vector<CSCRecHit2D>::const_iterator hiti=CSCRechits2D.begin(); hiti!=CSCRechits2D.end(); hiti++) {
 
+	if ( !hiti->isValid()) continue; 
 	CSCDetId cscDetId((hiti->geographicalId()).rawId());
 		
 	if ((*hitC)->geographicalId().rawId()!=(hiti->geographicalId()).rawId()) continue;

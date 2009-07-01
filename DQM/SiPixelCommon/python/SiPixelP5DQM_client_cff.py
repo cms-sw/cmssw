@@ -6,7 +6,8 @@ sipixelEDAClientP5 = cms.EDFilter("SiPixelEDAClient",
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(True),
-    NoiseRateCutValue = cms.untracked.double(0.001),
+    NoiseRateCutValue = cms.untracked.double(0.0001),
+    NEventsForNoiseCalculation = cms.untracked.int32(2000),
     UseOfflineXMLFile = cms.untracked.bool(False),
     Tier0Flag = cms.untracked.bool(False)
 )

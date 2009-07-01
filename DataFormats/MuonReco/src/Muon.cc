@@ -671,3 +671,11 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
    isolationR05_ = isoR05;
    isolationValid_ = true; 
 }
+
+void Muon::setOuterTrack( const TrackRef & t ) { outerTrack_ = t; }
+void Muon::setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
+void Muon::setTrack( const TrackRef & t ) { setInnerTrack(t); }
+void Muon::setStandAlone( const TrackRef & t ) { setOuterTrack(t); }
+void Muon::setGlobalTrack( const TrackRef & t ) { globalTrack_ = t; }
+void Muon::setCombined( const TrackRef & t ) { setGlobalTrack(t); }
+

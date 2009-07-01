@@ -60,17 +60,17 @@ process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True),
     testInEventloop = cms.untracked.bool(False),
-    qtestOnEndRun = cms.untracked.bool(False),
-    qtestOnEndJob = cms.untracked.bool(False),
+    qtestOnEndRun = cms.untracked.bool(True),
+    qtestOnEndJob = cms.untracked.bool(True),
     qtestOnEndLumi = cms.untracked.bool(True),
     verboseQT = cms.untracked.bool(False)
 )
 
 ##----## Pixel DQM P5/OFFLINE:
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
 ## the following sequences are declared therein:
 ## siPixelOfflineDQM_source, siPixelOfflineDQM_cosmics_source, siPixelOfflineDQM_source_woTrack
 ## PixelOfflineDQMClient, PixelOfflineDQMClientWithDataCertification
@@ -159,7 +159,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(20000)
 )
 
 ##----## Sequences and Paths:
@@ -185,7 +185,8 @@ process.CERTmodules = cms.Sequence(process.sipixelDaqInfo*process.sipixelDcsInfo
 #process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 #process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
-#process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
+process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.PixelP5DQMClient*process.dqmSaver)
 
-process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelDigiSource*process.PixelP5DQMClient*process.dqmSaver)
+#process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelDigiSource*process.PixelP5DQMClient*process.dqmSaver)
+#process.p = cms.Path(process.siPixelDigis*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)

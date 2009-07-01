@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.36 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATJetProducer.cc,v 1.37 2009/06/08 17:32:26 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -58,7 +58,6 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
   addJetCorrFactors_       = iConfig.getParameter<bool>                       ( "addJetCorrFactors" );
   jetCorrFactorsSrc_       = iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" );
-  addResolutions_          = iConfig.getParameter<bool> 		      ( "addResolutions" );
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
   addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
   discriminatorTags_       = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
@@ -73,6 +72,12 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
 
 
@@ -125,6 +130,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(jetsSrc_, jets);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
   // for jet flavour
   edm::Handle<reco::JetFlavourMatchingCollection> jetFlavMatch;
@@ -235,6 +241,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         efficiencyLoader_.setEfficiencies( ajet, jetRef );
     }
 
+    // IMPORTANT: DO THIS AFTER JES CORRECTIONS
+    if (resolutionLoader_.enabled()) {
+        resolutionLoader_.setResolutions(ajet);
+    }
+
     // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching
     if (addPartonJetMatch_) {
     }
@@ -336,7 +347,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<bool>("getJetMCFlavour", true);
   iDesc.add<edm::InputTag>("JetPartonMapSource", edm::InputTag("jetFlavourAssociation"));
 
-  iDesc.add<bool>("addResolutions",false);
+  pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;

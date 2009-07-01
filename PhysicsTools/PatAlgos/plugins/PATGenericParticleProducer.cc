@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.8 2008/11/04 15:42:03 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.9 2009/04/20 19:49:14 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -10,7 +10,8 @@
 using namespace pat;
 
 PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false),
+  userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
   // initialize the configurables
   src_ = iConfig.getParameter<edm::InputTag>( "src" );
@@ -63,8 +64,20 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
+  // Resolution configurables
+  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
+  if (addResolutions_) {
+     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+
   if (iConfig.exists("vertexing")) {
      vertexingHelper_ = pat::helper::VertexingHelper(iConfig.getParameter<edm::ParameterSet>("vertexing")); 
+  }
+
+  // Check to see if the user wants to add user data
+  useUserData_ = false;
+  if ( iConfig.exists("userData") ) {
+    useUserData_ = true;
   }
 }
 
@@ -80,6 +93,7 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
   if (vertexingHelper_.enabled())  vertexingHelper_.newEvent(iEvent,iSetup);
 
   // prepare IsoDeposits
@@ -151,8 +165,16 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
         efficiencyLoader_.setEfficiencies( aGenericParticle, candRef );
     }
 
+    if (resolutionLoader_.enabled()) {
+        resolutionLoader_.setResolutions(aGenericParticle);
+    }
+
     if (vertexingHelper_.enabled()) {
         aGenericParticle.setVertexAssociation( vertexingHelper_(candRef) );
+    }
+
+    if ( useUserData_ ) {
+        userDataHelper_.add( aGenericParticle, iEvent, iSetup );
     }
 
     // PATGenericParticles->push_back(aGenericParticle); // NOOOOO!!!!

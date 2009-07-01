@@ -291,16 +291,30 @@ void PFRootEventManager::readOptions(const char* file,
   double threshEcalBarrel = 0.1;
   options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel);
   
+  double threshPtEcalBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Ecal_Barrel", threshPtEcalBarrel);
+  
   double threshSeedEcalBarrel = 0.3;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Barrel", 
                    threshSeedEcalBarrel);
 
+  double threshPtSeedEcalBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_Ecal_Barrel", 
+                   threshPtSeedEcalBarrel);
+
   double threshEcalEndcap = 0.2;
   options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap);
+
+  double threshPtEcalEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Ecal_Endcap", threshPtEcalEndcap);
 
   double threshSeedEcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Endcap",
                    threshSeedEcalEndcap);
+
+  double threshPtSeedEcalEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_Ecal_Endcap",
+                   threshPtSeedEcalEndcap);
 
   double showerSigmaEcal = 3;  
   options_->GetOpt("clustering", "shower_Sigma_Ecal",
@@ -322,8 +336,14 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoECAL_.setThreshBarrel( threshEcalBarrel );
   clusterAlgoECAL_.setThreshSeedBarrel( threshSeedEcalBarrel );
   
+  clusterAlgoECAL_.setThreshPtBarrel( threshPtEcalBarrel );
+  clusterAlgoECAL_.setThreshPtSeedBarrel( threshPtSeedEcalBarrel );
+  
   clusterAlgoECAL_.setThreshEndcap( threshEcalEndcap );
   clusterAlgoECAL_.setThreshSeedEndcap( threshSeedEcalEndcap );
+
+  clusterAlgoECAL_.setThreshPtEndcap( threshPtEcalEndcap );
+  clusterAlgoECAL_.setThreshPtSeedEndcap( threshPtSeedEcalEndcap );
 
   clusterAlgoECAL_.setNNeighbours( nNeighboursEcal );
   clusterAlgoECAL_.setShowerSigma( showerSigmaEcal );
@@ -369,16 +389,30 @@ void PFRootEventManager::readOptions(const char* file,
   double threshHcalBarrel = 0.8;
   options_->GetOpt("clustering", "thresh_Hcal_Barrel", threshHcalBarrel);
   
+  double threshPtHcalBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Hcal_Barrel", threshPtHcalBarrel);
+  
   double threshSeedHcalBarrel = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Barrel", 
                    threshSeedHcalBarrel);
 
+  double threshPtSeedHcalBarrel = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_Hcal_Barrel", 
+                   threshPtSeedHcalBarrel);
+
   double threshHcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Hcal_Endcap", threshHcalEndcap);
+
+  double threshPtHcalEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Hcal_Endcap", threshPtHcalEndcap);
 
   double threshSeedHcalEndcap = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Endcap",
                    threshSeedHcalEndcap);
+
+  double threshPtSeedHcalEndcap = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_Hcal_Endcap",
+                   threshPtSeedHcalEndcap);
 
   double showerSigmaHcal    = 15;
   options_->GetOpt("clustering", "shower_Sigma_Hcal",
@@ -402,8 +436,14 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.setThreshBarrel( threshHcalBarrel );
   clusterAlgoHCAL_.setThreshSeedBarrel( threshSeedHcalBarrel );
   
+  clusterAlgoHCAL_.setThreshPtBarrel( threshPtHcalBarrel );
+  clusterAlgoHCAL_.setThreshPtSeedBarrel( threshPtSeedHcalBarrel );
+  
   clusterAlgoHCAL_.setThreshEndcap( threshHcalEndcap );
   clusterAlgoHCAL_.setThreshSeedEndcap( threshSeedHcalEndcap );
+
+  clusterAlgoHCAL_.setThreshPtEndcap( threshPtHcalEndcap );
+  clusterAlgoHCAL_.setThreshPtSeedEndcap( threshPtSeedHcalEndcap );
 
   clusterAlgoHCAL_.setNNeighbours( nNeighboursHcal );
   clusterAlgoHCAL_.setShowerSigma( showerSigmaHcal );
@@ -419,9 +459,16 @@ void PFRootEventManager::readOptions(const char* file,
   double threshHFEM = 0.;
   options_->GetOpt("clustering", "thresh_HFEM", threshHFEM);
   
+  double threshPtHFEM = 0.;
+  options_->GetOpt("clustering", "thresh_Pt_HFEM", threshPtHFEM);
+  
   double threshSeedHFEM = 0.001;
   options_->GetOpt("clustering", "thresh_Seed_HFEM", 
                    threshSeedHFEM);
+  
+  double threshPtSeedHFEM = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_HFEM", 
+                   threshPtSeedHFEM);
   
   double showerSigmaHFEM    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_HFEM",
@@ -442,6 +489,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHFEM_.setThreshEndcap( threshHFEM );
   clusterAlgoHFEM_.setThreshSeedEndcap( threshSeedHFEM );
 
+  clusterAlgoHFEM_.setThreshPtEndcap( threshPtHFEM );
+  clusterAlgoHFEM_.setThreshPtSeedEndcap( threshPtSeedHFEM );
+
   clusterAlgoHFEM_.setNNeighbours( nNeighboursHFEM );
   clusterAlgoHFEM_.setShowerSigma( showerSigmaHFEM );
 
@@ -456,9 +506,16 @@ void PFRootEventManager::readOptions(const char* file,
   double threshHFHAD = 0.;
   options_->GetOpt("clustering", "thresh_HFHAD", threshHFHAD);
   
+  double threshPtHFHAD = 0.;
+  options_->GetOpt("clustering", "thresh_Pt_HFHAD", threshPtHFHAD);
+  
   double threshSeedHFHAD = 0.001;
   options_->GetOpt("clustering", "thresh_Seed_HFHAD", 
                    threshSeedHFHAD);
+  
+  double threshPtSeedHFHAD = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_HFHAD", 
+                   threshPtSeedHFHAD);
   
   double showerSigmaHFHAD    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_HFHAD",
@@ -479,6 +536,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHFHAD_.setThreshEndcap( threshHFHAD );
   clusterAlgoHFHAD_.setThreshSeedEndcap( threshSeedHFHAD );
 
+  clusterAlgoHFHAD_.setThreshPtEndcap( threshPtHFHAD );
+  clusterAlgoHFHAD_.setThreshPtSeedEndcap( threshPtSeedHFHAD );
+
   clusterAlgoHFHAD_.setNNeighbours( nNeighboursHFHAD );
   clusterAlgoHFHAD_.setShowerSigma( showerSigmaHFHAD );
 
@@ -495,16 +555,29 @@ void PFRootEventManager::readOptions(const char* file,
   double threshPS = 0.0001;
   options_->GetOpt("clustering", "thresh_PS", threshPS);
   
+  double threshPtPS = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_PS", threshPtPS);
+  
   double threshSeedPS = 0.001;
   options_->GetOpt("clustering", "thresh_Seed_PS", 
                    threshSeedPS);
+  
+  double threshPtSeedPS = 0.0;
+  options_->GetOpt("clustering", "thresh_Pt_Seed_PS", 
+                   threshPtSeedPS);
   
   //Comment Michel: PSBarrel shall be removed?
   double threshPSBarrel     = threshPS;
   double threshSeedPSBarrel = threshSeedPS;
 
+  double threshPtPSBarrel     = threshPtPS;
+  double threshPtSeedPSBarrel = threshPtSeedPS;
+
   double threshPSEndcap     = threshPS;
   double threshSeedPSEndcap = threshSeedPS;
+
+  double threshPtPSEndcap     = threshPtPS;
+  double threshPtSeedPSEndcap = threshPtSeedPS;
 
   double showerSigmaPS    = 0.1;
   options_->GetOpt("clustering", "shower_Sigma_PS",
@@ -527,8 +600,14 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoPS_.setThreshBarrel( threshPSBarrel );
   clusterAlgoPS_.setThreshSeedBarrel( threshSeedPSBarrel );
   
+  clusterAlgoPS_.setThreshPtBarrel( threshPtPSBarrel );
+  clusterAlgoPS_.setThreshPtSeedBarrel( threshPtSeedPSBarrel );
+  
   clusterAlgoPS_.setThreshEndcap( threshPSEndcap );
   clusterAlgoPS_.setThreshSeedEndcap( threshSeedPSEndcap );
+
+  clusterAlgoPS_.setThreshPtEndcap( threshPtPSEndcap );
+  clusterAlgoPS_.setThreshPtSeedEndcap( threshPtSeedPSEndcap );
 
   clusterAlgoPS_.setNNeighbours( nNeighboursPS );
   clusterAlgoPS_.setShowerSigma( showerSigmaPS );

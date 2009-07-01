@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.16 2009/05/29 12:58:18 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.14 2008/07/09 16:28:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -26,9 +26,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -71,9 +69,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -114,9 +110,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb()
     detInfo_(),
     disabled_(),
     uploadAnal_(false),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -191,7 +185,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " TEST! No analysis descriptions will be uploaded to DB...";
+      << " TEST only! No analysis descriptions will be uploaded to DB...";
   }
 
   }

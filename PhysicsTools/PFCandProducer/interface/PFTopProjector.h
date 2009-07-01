@@ -18,9 +18,12 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+
+#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
 
 /**\class PFTopProjector 
 \brief 
@@ -34,16 +37,23 @@
 
 using namespace std;
 
+template< class Top, class Bottom>
 class PFTopProjector : public edm::EDProducer {
+
  public:
 
-  explicit PFTopProjector(const edm::ParameterSet&);
+  typedef std::vector<Top> TopCollection;
+  typedef edm::Handle< std::vector<Top> > TopHandle;
+  typedef std::vector<Bottom> BottomCollection;
+  typedef edm::Handle< std::vector<Bottom> > BottomHandle;
+  typedef edm::Ptr<Bottom> BottomPtr; 
 
-  ~PFTopProjector();
+  PFTopProjector(const edm::ParameterSet&);
+
+  ~PFTopProjector() {};
+
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginJob(const edm::EventSetup & c);
+  void produce(edm::Event&, const edm::EventSetup&);
 
 
  private:
@@ -62,71 +72,167 @@ class PFTopProjector : public edm::EDProducer {
   void maskAncestors( const reco::CandidatePtrVector& ancestors,
 		      std::vector<bool>& masked ) const;
     
-
-  template< class T, class U> 
-    void processCollection( const edm::Handle< std::vector<T> >& handle,
-			    const edm::Handle< std::vector<U> >& allPFCandidates ,
-			    std::vector<bool>& masked,
-			    const char* objectName  ) const; 
-
-  template< class T >
-    void  printAncestors( const reco::CandidatePtrVector& ancestors,
-			  const edm::Handle< std::vector<T> >& allPFCandidates ) const;
-
-  /// ancestor PFCandidates
-  edm::InputTag   inputTagPFCandidates_;
- 
-  /// optional collection of PileUpPFCandidates
-  edm::InputTag   inputTagPileUpPFCandidates_;
-
-  /// optional collection of electrons
-  edm::InputTag   inputTagIsolatedElectrons_;
   
-  /// optional collection of muons
-  edm::InputTag   inputTagIsolatedMuons_;
-  
-  /// optional collection of jets
-  edm::InputTag   inputTagPFJets_;
+  void processCollection( const edm::Handle< std::vector<Top> >& handle,
+			  const edm::Handle< std::vector<Bottom> >& allPFCandidates ,
+			  std::vector<bool>& masked,
+			  const char* objectName  ) const; 
 
-  /// optional collection of taus
-  edm::InputTag   inputTagPFTaus_;
-  
+  void  printAncestors( const reco::CandidatePtrVector& ancestors,
+			const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const;
+
+
   /// verbose ?
-  bool   verbose_;
+  bool            verbose_;
 
-  /// label for output PFJet collection
-  static const char* pfJetsOutLabel_;
+  string          name_;
+ 
+  /// input tag for the top (masking) collection
+  edm::InputTag   inputTagTop_;
 
-  /// label for output PFCandidates collection
-  static const char* pfCandidatesOutLabel_;
-  
-
+  /// input tag for the masked collection. 
+  edm::InputTag   inputTagBottom_;
 };
 
-template< class T, class U > 
-void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& handle,
-					const edm::Handle< std::vector<U> >& allPFCandidates ,
+
+
+
+template< class Top, class Bottom>
+PFTopProjector< Top, Bottom >::PFTopProjector(const edm::ParameterSet& iConfig) {
+
+  using namespace edm;
+
+  verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
+  name_ = iConfig.getUntrackedParameter<string>("name","No Name");
+  inputTagTop_ = iConfig.getParameter<InputTag>("topCollection");
+  inputTagBottom_ = iConfig.getParameter<InputTag>("bottomCollection");
+
+  // will produce a collection of the unmasked candidates in the 
+  // bottom collection 
+  produces< std::vector<Bottom> >();
+}
+
+
+template< class Top, class Bottom >
+void PFTopProjector< Top, Bottom >::produce(edm::Event& iEvent,
+					    const edm::EventSetup& iSetup) {
+  
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  
+  if( verbose_)
+    cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
+  
+  // get the various collections
+
+  // Access the masking collection
+  TopHandle tops;
+  iEvent.getByLabel(  inputTagTop_, tops );
+
+
+/*   if( !tops.isValid() ) { */
+/*     std::ostringstream  err; */
+/*     err<<"The top collection must be supplied."<<endl */
+/*        <<"It is now set to : "<<inputTagTop_<<endl; */
+/*     edm::LogError("PFPAT")<<err.str(); */
+/*     throw cms::Exception( "MissingProduct", err.str()); */
+/*   } */
+
+  edm::ProductID topsID = tops.id();
+
+  
+
+  // Access the collection to
+  // be masked by the other ones
+  BottomHandle bottoms;
+  iEvent.getByLabel(  inputTagBottom_, bottoms );
+
+/*   if( !bottoms.isValid() ) { */
+/*     std::ostringstream  err; */
+/*     err<<"The bottom collection must be supplied."<<endl */
+/*        <<"It is now set to : "<<inputTagBottom_<<endl; */
+/*     edm::LogError("PFPAT")<<err.str(); */
+/*     throw cms::Exception( "MissingProduct", err.str()); */
+/*   } */
+
+  edm::ProductID bottomsID = bottoms.id();
+
+ 
+  if(verbose_) {
+    cout<<"Top projector: event "<<iEvent.id().event()<<endl;
+    cout<<"Inputs --------------------"<<endl;
+    cout<<"Top      :  "<<tops.id()<<"\t"<<tops->size()<<endl
+	<<"Bottom   :  "<<bottoms.id()<<"\t"<<bottoms->size()<<endl;
+  }
+
+
+  // output collection of objects,
+  // selected from the Bottom collection
+
+  auto_ptr< BottomCollection >
+    pBottomOutput( new BottomCollection );
+  
+  // mask for each bottom object.
+  // at the beginning, all bottom objects are unmasked.
+  vector<bool> masked( bottoms->size(), false);
+    
+
+
+  processCollection( tops, bottoms, masked, name_.c_str() );
+
+
+  const BottomCollection& inCands = *bottoms;
+
+  if(verbose_)
+    cout<<" Remaining candidates in the bottom collection ------ "<<endl;
+  
+  for(unsigned i=0; i<inCands.size(); i++) {
+    
+    if(masked[i]) {
+      if(verbose_)
+	cout<<"X "<<i<<" "<<inCands[i]<<endl;
+      continue;
+    }
+    else {
+      if(verbose_)
+	cout<<"O "<<i<<" "<<inCands[i]<<endl;
+
+      pBottomOutput->push_back( inCands[i] );
+      BottomPtr motherPtr( bottoms, i );
+      pBottomOutput->back().setSourceCandidatePtr(motherPtr); 
+    }
+  }
+
+  iEvent.put( pBottomOutput );
+}
+
+
+
+template< class Top, class Bottom > 
+void PFTopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vector<Top> >& tops,
+					const edm::Handle< std::vector<Bottom> >& bottoms ,
 					std::vector<bool>& masked,
 					const char* objectName) const {
 
-  if( handle.isValid() && allPFCandidates.isValid() ) {
-    const std::vector<T>& collection = *handle;
+  if( tops.isValid() && bottoms.isValid() ) {
+    const std::vector<Top>& topCollection = *tops;
     
     if(verbose_) 
-      std::cout<<" Collection: "<<objectName
-	       <<" size = "<<collection.size()<<std::endl;
+      std::cout<<" processing: "<<objectName
+	       <<" size = "<<topCollection.size()<<std::endl;
     
-    for(unsigned i=0; i<collection.size(); i++) {
+    for(unsigned i=0; i<topCollection.size(); i++) {
       
       
-      edm::Ptr<T>   ptr( handle, i);
+      edm::Ptr<Top>   ptr( tops, i);
       reco::CandidatePtr basePtr( ptr );
  
       
       reco::CandidatePtrVector ancestors;
       ptrToAncestor( basePtr,
 		     ancestors,
-		     allPFCandidates.id() );
+		     bottoms.id() );
       
       if(verbose_) {
 /* 	std::cout<<"\t"<<objectName<<" "<<i */
@@ -135,8 +241,8 @@ void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& han
 /* 		 <<basePtr->eta()<<"," */
 /* 		 <<basePtr->phi()<<std::endl; */
 	
-	std::cout<<"\t"<<collection[i]<<std::endl;
-	printAncestors( ancestors, allPFCandidates );
+	std::cout<<"\t"<<topCollection[i]<<std::endl;
+	printAncestors( ancestors, bottoms );
       }
   
       maskAncestors( ancestors, masked );
@@ -146,11 +252,12 @@ void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& han
 }
 
 
-template< class T >
-void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
-				      const edm::Handle< std::vector<T> >& allPFCandidates ) const {
+template< class Top, class Bottom >
+void  PFTopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector& ancestors,
+				      const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const {
   
-  std::vector<T> pfs = *allPFCandidates;
+
+  std::vector<Bottom> pfs = *allPFCandidates;
 
   for(unsigned i=0; i<ancestors.size(); i++) {
 
@@ -165,6 +272,63 @@ void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
 }
 
 
+
+template< class Top, class Bottom >
+void
+PFTopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
+			       reco::CandidatePtrVector& ancestors,
+			       const edm::ProductID& ancestorsID ) const {
+
+  
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+
+
+  unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
+
+//   cout<<"going down from "<<candPtr.id()
+//       <<"/"<<candPtr.key()<<" #mothers "<<nSources
+//       <<" ancestor id "<<ancestorsID<<endl;
+  
+  for(unsigned i=0; i<nSources; i++) {
+    
+    CandidatePtr mother = candPtr->sourceCandidatePtr(i);
+//     cout<<"  mother id "<<mother.id()<<endl;
+    
+    if(  mother.id() != ancestorsID ) {
+      // the mother is not yet at lowest level
+      ptrToAncestor( mother, ancestors, ancestorsID);
+    }
+    else {
+      // adding mother to the list of ancestors
+      ancestors.push_back( mother ); 
+    }
+  }
+}
+
+
+
+
+template< class Top, class Bottom >
+void PFTopProjector<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
+					 std::vector<bool>& masked ) const {
+  
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  
+  for(unsigned i=0; i<ancestors.size(); i++) {
+    unsigned index = ancestors[i].key();
+    assert( index<masked.size() );
+    
+    //     if(verbose_) {
+    //       ProductID id = ancestors[i].id();
+    //       cout<<"\tmasking "<<index<<", ancestor "<<id<<"/"<<index<<endl;
+    //     }
+    masked[index] = true;
+  }
+}
 
 
 #endif

@@ -1,10 +1,11 @@
-// $Id: RPCWheel.cc,v 1.7 2009/06/07 21:18:51 aosorio Exp $
-// Include files
+// $Id: $
+// Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RPCWheel.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RPCWheel.h"
+
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RPCWheel
@@ -15,88 +16,48 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCWheel::RPCWheel() {
+RPCWheel::RPCWheel( int _wid ) {
   
-  m_id = 0; 
+  m_id = _wid; 
+  int _bisector[2];
   
-  m_maxrbc     = 6;
-  m_maxlayers  = 6;
-  m_maxsectors = 12;
-  
-  m_debug = false;
-  
-  m_sec1id.push_back(1);
-  m_sec2id.push_back(12);
-  m_sec1id.push_back(2);
-  m_sec2id.push_back(3);
-  m_sec1id.push_back(4);
-  m_sec2id.push_back(5);
-  m_sec1id.push_back(6);
-  m_sec2id.push_back(7);
-  m_sec1id.push_back(8);
-  m_sec2id.push_back(9);
-  m_sec1id.push_back(10);
-  m_sec2id.push_back(11);
-
-  m_wheelmap = new std::bitset<6>[12];
-    
-}
-
-void RPCWheel::setProperties( int wid ) {
-  
-  m_id = wid;
-  
-  int bisector[2];
-  
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
   {
-    bisector[0]= m_sec1id[k];
-    bisector[1]= m_sec2id[k];
-    m_RBCE.push_back( new RBCEmulator( ) ); 
-    m_RBCE[k]->setid( wid, bisector );
+    _bisector[0]= (k*2)+1;
+    _bisector[1]= (k*2)+2;
+    m_RBCE[k] = new RBCEmulator( ); 
+    m_RBCE[k]->setid( _wid, _bisector );
   }
-
-  for( int k=0; k < m_maxsectors; ++k)
-    m_wheelmap[k].reset();
   
 }
 
-
-void RPCWheel::setProperties( int wid, const char * logic_type) {
+RPCWheel::RPCWheel( int _wid, const char * logic_type) {
   
-  m_id = wid;
+  m_id = _wid; 
+  int _bisector[2];
   
-  int bisector[2];
-  
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
   {
-    bisector[0]= m_sec1id[k];
-    bisector[1]= m_sec2id[k];
-    m_RBCE.push_back( new RBCEmulator( logic_type ) ); 
-    m_RBCE[k]->setid( wid, bisector );
+    _bisector[0]= (k*2)+1;
+    _bisector[1]= (k*2)+2;
+    m_RBCE[k] = new RBCEmulator( logic_type ); 
+    m_RBCE[k]->setid( _wid, _bisector );
   }
-
-  for( int k=0; k < m_maxsectors; ++k)
-    m_wheelmap[k].reset();
   
 }
 
-void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_type) {
+RPCWheel::RPCWheel( int _wid, const char * f_name, const char * logic_type) {
   
-  m_id = wid; 
+  m_id = _wid; 
+  int _bisector[2];
   
-  int bisector[2];
-  
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
   {
-    bisector[0]= (k*2)+1;
-    bisector[1]= (k*2)+2;
-    m_RBCE.push_back( new RBCEmulator( f_name, logic_type ) ); 
-    m_RBCE[k]->setid( wid, bisector );
+    _bisector[0]= (k*2)+1;
+    _bisector[1]= (k*2)+2;
+    m_RBCE[k] = new RBCEmulator( f_name, logic_type ); 
+    m_RBCE[k]->setid( _wid, _bisector );
   }
-  
-  for( int k=0; k < m_maxsectors; ++k)
-    m_wheelmap[k].reset();
   
 }
 
@@ -106,23 +67,16 @@ void RPCWheel::setProperties( int wid, const char * f_name, const char * logic_t
 RPCWheel::~RPCWheel() {
   
   //destroy all rbc objects associated
-  std::vector<RBCEmulator*>::iterator itr;
-  for( itr = m_RBCE.begin(); itr != m_RBCE.end(); ++itr)
-    if ( (*itr) ) delete (*itr);
+  if ( m_RBCE )
+    for( int k=0; k < 6; ++k ) delete m_RBCE[k];
   
-  m_RBCE.clear();
-  m_sec1id.clear();
-  m_sec2id.clear();
-
-  if ( m_wheelmap ) delete[] m_wheelmap;
-    
 } 
 
 //=============================================================================
 void RPCWheel::setSpecifications( const RBCBoardSpecs * rbcspecs )
 {
   
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
     m_RBCE[k]->setSpecifications( rbcspecs ); 
   
 }
@@ -131,7 +85,7 @@ bool RPCWheel::initialise()
 {
 
   bool status(false);
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
     status = m_RBCE[k]->initialise();
   return status;
   
@@ -140,92 +94,65 @@ bool RPCWheel::initialise()
 void RPCWheel::emulate() 
 {
   //This is a test emulation
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
   {
     m_RBCE[k]->emulate();
   }
-  
 }
 
-bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
+bool RPCWheel::process( const std::map<int,RBCInput*> & _data )
 {
   
-  int bxsign(1);
   bool status(false);
   
   std::map<int,RBCInput*>::const_iterator itr;
   
-  if ( bx != 0 ) bxsign = ( bx / abs(bx) );
-  else bxsign = 1;
-  
-  for(int k=0; k < m_maxrbc; ++k) {
+  for(int k=0; k < 6; ++k) {
     
-    m_RBCE[k]->reset();
+    int _pos = m_RBCE[k]->m_rbcinfo->wheel()*10000 
+      + m_RBCE[k]->m_rbcinfo->sector(0)*100
+      + m_RBCE[k]->m_rbcinfo->sector(1);
+
+    itr = _data.find( _pos );
     
-    int key = bxsign*( 1000000 * abs(bx)
-                       + m_RBCE[k]->m_rbcinfo->wheelIdx()*10000 
-                       + m_RBCE[k]->m_rbcinfo->sector(0)*100
-                       + m_RBCE[k]->m_rbcinfo->sector(1) );
-    
-    itr = data.find( key );
-    
-    if ( itr != data.end() )  {
-      
-      if ( ! (*itr).second->hasData )  { 
-        status |= false;
-        continue;
-      } else {
-        if( m_debug ) std::cout << "RPCWheel::process> found data at: " 
-                                <<  key << '\t' 
-                                << ( itr->second ) << std::endl;
-        m_RBCE[k]->emulate( ( itr->second ) );
-        status |= true;
-      }
-      
+    if ( itr != _data.end() )  {
+      m_RBCE[k]->emulate( ( itr->second ) );
+      status = true;
     } else {
-      if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
-      status |= false;
+      std::cout << "RPCWheel::process> position not found: " 
+                <<  _pos << std::endl;
+      // handle error
+      status = false;
     }
-    
   }
   
   return status;
   
 }
 
-bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
+bool RPCWheel::process( const std::map<int,TTUInput*> & _data )
 {
   
-  int bxsign(1);
   bool status(false);
-  
+  int _pos = m_id*10000;
   std::map<int,TTUInput*>::const_iterator itr;
   
-  if ( bx != 0 ) bxsign = ( bx / abs(bx) );
-  else bxsign = 1;
+  std::cout << "RPCWheel::process> " << _data.size() << std::endl;
   
-  int key = bxsign*( 1000000 * abs(bx) + (m_id+2)*10000 );
+  itr = _data.find( _pos );
   
-  itr = data.find( key );
-  
-  if ( itr != data.end() )  {
-    if( m_debug ) std::cout << "RPCWheel::process> found data at: " <<  key << '\t' 
-                            << ( itr->second ) << std::endl;
-
-    if ( ! (*itr).second->m_hasHits ) return false;
-    
-    for( int k=0; k < m_maxsectors; ++k ) {
-      m_wheelmap[k]     = (*itr).second->input_sec[k];
+  if ( itr != _data.end() )  {
+    for( int k=0; k < 12; ++k ) {
+      m_wheelmap[k]     = & (*itr).second->input_sec[k];
       status = true;
     }
-
   } else {
-    if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
+    std::cout << "RPCWheel::process> position not found: " <<  _pos << std::endl;
     status = false;
   }
   
   return status;
-  
+    
 }
 
 
@@ -234,79 +161,58 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
 void RPCWheel::createWheelMap()
 {
   
-  m_rbcDecision.reset();
+  std::bitset<6> * m_layersignal;
   
-  std::bitset<6> layersignal;
-  
-  layersignal       = * m_RBCE[0]->getlayersignal( 0 );
-  m_wheelmap[0]     = layersignal;
-  
-  m_rbcDecision.set( 0 , m_RBCE[0]->getdecision( 0 ) );
-  
-  for( int k=0; k < (m_maxrbc-1); ++k )
+  for( int k=0; k < 6; ++k )
   {
-    layersignal             = * m_RBCE[k+1]->getlayersignal( 0 );
-    m_wheelmap[(k*2)+1]     = layersignal;
-    layersignal             = * m_RBCE[k+1]->getlayersignal( 1 );
-    m_wheelmap[(k*2)+2]     = layersignal;
-    
-    m_rbcDecision.set( (k*2)+1  , m_RBCE[k+1]->getdecision( 0 ) );
-    m_rbcDecision.set( (k*2)+2  , m_RBCE[k+1]->getdecision( 1 ) );
-    
+    m_layersignal       = m_RBCE[k]->getlayersignal( 0 );
+    m_wheelmap[k*2]     = m_layersignal;
+    m_layersignal       = m_RBCE[k]->getlayersignal( 1 );
+    m_wheelmap[(k*2)+1] = m_layersignal;
   }
-  
-  layersignal       = * m_RBCE[0]->getlayersignal( 1 );
-  m_wheelmap[11]     = layersignal;
-  
-  m_rbcDecision.set( 11 , m_RBCE[0]->getdecision( 1 ) );
-  
-  if( m_debug ) std::cout << "RPCWheel::createWheelMap done" << std::endl;
   
 }
 
-void RPCWheel::retrieveWheelMap( TTUInput & output ) 
+void RPCWheel::retrieveWheelMap( TTUInput & _output ) 
 {
   
-  if( m_debug ) std::cout << "RPCWheel::retrieveWheelMap starts" << std::endl;
-  output.reset();
+  _output.reset();
   
-  for(int i=0; i < m_maxsectors; ++i ) {
-    for( int j=0; j < m_maxlayers; ++j ) 
+  for(int i=0; i < 12; ++i ) {
+    for( int j=0; j < 6; ++j ) 
     {
-      output.input_sec[i].set(j, m_wheelmap[i][j]);
+      _output.input_sec[i].set(j, (*m_wheelmap[i])[j]);
     }
   }
   
-  output.m_rbcDecision = m_rbcDecision;
-  
-  if( m_debug ) print_wheel( output );
-  if( m_debug ) std::cout << "RPCWheel::retrieveWheelMap done" << std::endl;
+  print_wheel( _output );
   
 }
 
-//=============================================================================
-
+//.............................................................................
 
 void RPCWheel::printinfo() 
 {
   
   std::cout << "Wheel -> " << m_id << '\n';
-  for( int k=0; k < m_maxrbc; ++k )
+  for( int k=0; k < 6; ++k )
+  {
     m_RBCE[k]->printinfo();
+  }
   
 }
 
-void RPCWheel::print_wheel(const TTUInput & wmap )
-{
+//=============================================================================
 
-  for( int i=0; i < m_maxsectors; ++i) std::cout << '\t' << (i+1);
+void print_wheel (const TTUInput & _wmap )
+{
+  for( int i=0; i < 12; ++i) std::cout << '\t' << (i+1);
   std::cout << std::endl;
-  
-  for( int k=0; k < m_maxlayers; ++k )
+  for( int k=5; k >= 0; --k )
   {
     std::cout << (k+1) << '\t';
-    for( int j=0; j < m_maxsectors; ++j)
-      std::cout << wmap.input_sec[j][k] << '\t';
+    for( int j=0; j < 12; ++j)
+      std::cout << _wmap.input_sec[j][k] << '\t';
     std::cout << std::endl;
   }
   

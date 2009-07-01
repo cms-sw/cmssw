@@ -2,8 +2,8 @@
 
 /**
 \class RatioFinder
-$Revision: 1.7 $
-$Date: 2009/06/02 11:44:33 $
+$Revision: 1.4 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -17,21 +17,10 @@ term called "ratio" appears.
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#include "TObjArray.h"
-
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalMethod.h"
-   #include "ConstrBlockArray.h"
-   #include "LimitCalculator.h"
-   #include "RatioFinderResults.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
-   #include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
-   #include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
-#endif
-
-
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlockArray.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitCalculator.h"
+#include "PhysicsTools/RooStatsCms/interface/RatioFinderResults.h"
 
 
 class RatioFinder : public StatisticalMethod {
@@ -68,46 +57,11 @@ class RatioFinder : public StatisticalMethod {
     /// Get the number of bins
     int getNbins(){return m_nbins;}
 
-    /// Switch dumping intermediate results to pngs on or off
-    void setDumpPlots(bool dump) { m_dump_plots = dump; }
-
-    /// Get whether or not intermediate results are dumped to pngs
-    bool getDumpPlots() { return m_dump_plots; }
-
-    /// Save the intermediate results
-    void saveIntermediateResultsIn(TObjArray *a) { m_results = a; }
 
   private:
 
-    /// The pdf of the signal+background model
-    RooAbsPdf* m_sb_model;
-
-    /// The pdf of the background model
-    RooAbsPdf* m_b_model;
-
-    /// The Array of the constraints
-    ConstrBlockArray* m_c_array;
-
-    /// Switch to toggle dumping intermediate results to pngs
-    bool m_dump_plots;
-
-    /// The flag to decide if it is a lumi study
-    bool m_is_lumi;
-
-    /// The maximum number of attempts in the Ratio finding
-    int m_max_attempts;
-
-    /// The number of bins in the -2lnQ plot
-    int m_nbins;
-
-    /// Array to store intermediate results
-    TObjArray *m_results;
-
     /// Get the Cls value
-    double m_get_CLs(double ratio,
-                     unsigned int n_toys,
-                     double& m2lnQ,
-                     double n_sigma);
+    double m_get_CLs(double ratio, unsigned int n_toys, double& m2lnQ);
 
     /// Get the result of LimitCalculator
     LimitResults* m_get_LimitResults(unsigned int n_toys);
@@ -118,8 +72,26 @@ class RatioFinder : public StatisticalMethod {
                               double l_val,
                               double l_weight);
 
+    /// The pdf of the signal+background model
+    RooAbsPdf* m_sb_model;
+
+    /// The pdf of the background model
+    RooAbsPdf* m_b_model;
+
     /// Collection of the variables of the model
     RooArgList m_variables;
+
+    /// The Array of the constraints
+    ConstrBlockArray* m_c_array;
+
+    /// The flag to decide if it is a lumi study
+    bool m_is_lumi;
+
+    /// The maximum number of attempts in the Ratio finding
+    int m_max_attempts;
+
+    /// The number of bins in the -2lnQ plot
+    int m_nbins;
 
     /// The epsilon between the 2 ratios
     double m_delta_ratios_min;
@@ -128,10 +100,8 @@ class RatioFinder : public StatisticalMethod {
     RooRealVar* m_ratio;
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(RatioFinder,1)
-#endif
+
+
  };
 
 #endif

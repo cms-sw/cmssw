@@ -193,7 +193,8 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   int trigger_BX = 200;
   int dccFactor = 3;
   
-   for (int id= FEDNumbering::MINRPCFEDID; id<=FEDNumbering::MAXRPCFEDID; ++id){
+   pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
+   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
      dccFactor--;
 
 //    RPCRecordFormatter formatter(id, readoutMapping.product()) ;

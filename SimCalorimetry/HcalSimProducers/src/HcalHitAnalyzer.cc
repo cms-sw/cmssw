@@ -5,7 +5,8 @@
 
 
 HcalHitAnalyzer::HcalHitAnalyzer(edm::ParameterSet const& conf) 
-: simParameterMap_(conf),
+  : hitReadoutName_("HcalHits"),
+  simParameterMap_(),
   hbheFilter_(),
   hoFilter_(),
   hfFilter_(true),
@@ -33,15 +34,15 @@ namespace HcalHitAnalyzerImpl {
 void HcalHitAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
    // Step A: Get Inputs
   edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
-  e.getByLabel("mix", "g4SimHitsHcalHits",cf);
+  e.getByLabel("mix", "HcalHits",cf);
   //e.getByLabel("mix", "ZDCHits", zdccf);
 
   // test access to SimHits for HcalHits and ZDC hits
   std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(cf.product()));
   //std::auto_ptr<MixCollection<PCaloHit> > zdcHits(new MixCollection<PCaloHit>(zdccf.product()));
-  hbheAnalyzer_.fillHits(*hits); 
-  //hoAnalyzer_.fillHits(*hits);
-  //hfAnalyzer_.fillHits(*hits);
+ 
+  hoAnalyzer_.fillHits(*hits);
+  hfAnalyzer_.fillHits(*hits);
   //zdcAnalyzer_.fillHits(*hits);
   HcalHitAnalyzerImpl::analyze<HBHERecHitCollection>(e, hbheAnalyzer_);
   HcalHitAnalyzerImpl::analyze<HORecHitCollection>(e, hoAnalyzer_);

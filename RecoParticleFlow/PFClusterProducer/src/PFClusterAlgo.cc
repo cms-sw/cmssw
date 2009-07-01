@@ -16,9 +16,13 @@ unsigned PFClusterAlgo::prodNum_ = 1;
 PFClusterAlgo::PFClusterAlgo() :
   pfClusters_( new vector<reco::PFCluster> ),
   threshBarrel_(0.),
+  threshPtBarrel_(0.),
   threshSeedBarrel_(0.2),
+  threshPtSeedBarrel_(0.),
   threshEndcap_(0.),
+  threshPtEndcap_(0.),
   threshSeedEndcap_(0.6),
+  threshPtSeedEndcap_(0.),
   nNeighbours_(4),
   posCalcNCrystal_(-1),
   posCalcP1_(-1),
@@ -108,6 +112,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
     case SEED_THRESH:
       value = threshSeedBarrel_;
       break;
+    case PT_THRESH:
+      value = threshPtBarrel_;
+      break;
+    case SEED_PT_THRESH:
+      value = threshPtSeedBarrel_;
+      break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
 	  <<paramtype<<endl;
@@ -127,6 +137,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
       break;
     case SEED_THRESH:
       value = threshSeedEndcap_;
+      break;
+    case PT_THRESH:
+      value = threshPtEndcap_;
+      break;
+    case SEED_PT_THRESH:
+      value = threshPtSeedEndcap_;
       break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
@@ -174,6 +190,8 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     int layer = wannaBeSeed.layer();
     double seedThresh = parameter( SEED_THRESH, 
 				   static_cast<PFLayer::Layer>(layer) );
+    double seedPtThresh = parameter( SEED_PT_THRESH, 
+				     static_cast<PFLayer::Layer>(layer) );
 
 
 #ifdef PFLOW_DEBUG
@@ -182,7 +200,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 #endif
 
 
-    if( rhenergy < seedThresh ) {
+    if( rhenergy < seedThresh || (seedPtThresh>0. && wannaBeSeed.pt2() < seedPtThresh*seedPtThresh )) {
       seedStates_[rhi] = NO; 
       continue;
     } 
@@ -322,9 +340,11 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
   
   double thresh = parameter( THRESH, 
 			     static_cast<PFLayer::Layer>(layer) );
+  double ptThresh = parameter( PT_THRESH, 
+			       static_cast<PFLayer::Layer>(layer) );
 
 
-  if( e < thresh ) {
+  if( e < thresh ||  ptThresh > 0. && rh.pt2() < ptThresh*ptThresh ) {
 #ifdef PFLOW_DEBUG
     if(debug_)
       cout<<"return : "<<e<<"<"<<thresh<<endl; 

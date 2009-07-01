@@ -16,11 +16,11 @@ namespace pat { namespace helper {
 // Base class for a test for overlaps
 class OverlapTest {
     public:
-        /// constructor: reads 'src' and 'requireNoOvelaps' parameters
+        /// constructor: reads 'src' and 'requireNoOverlaps' parameters
         OverlapTest(const std::string &name, const edm::ParameterSet &iConfig) :
             src_(iConfig.getParameter<edm::InputTag>("src")),
             name_(name),
-            requireNoOvelaps_(iConfig.getParameter<bool>("requireNoOvelaps")) {}
+            requireNoOverlaps_(iConfig.getParameter<bool>("requireNoOverlaps")) {}
         /// destructor, does nothing
         virtual ~OverlapTest() {}
         /// initializer for each event. to be implemented in child classes.
@@ -33,11 +33,11 @@ class OverlapTest {
         // -- basic getters ---
        
         const std::string & name() const { return name_; }
-        bool requireNoOvelaps() const { return requireNoOvelaps_; } 
+        bool requireNoOverlaps() const { return requireNoOverlaps_; } 
     protected:
         edm::InputTag src_;
         std::string   name_;
-        bool          requireNoOvelaps_;
+        bool          requireNoOverlaps_;
 };
 
 class BasicOverlapTest : public OverlapTest {

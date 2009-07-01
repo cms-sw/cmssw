@@ -288,15 +288,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 	}
       else
 	{
-	  if (nLUT < 4)
-	    {
-	      iAbsEta = (card/2)*8 + nLUT + 1;
-	    }
-	  else
-	    {
-	      iAbsEta = (card/2)*8 + (3 - (nLUT%4) ) + 1;	      
-	    }
-	  //std::cout << "LUT is " << nLUT << " iAbsEta is " << iAbsEta << std::endl;
+	  iAbsEta = (card/2)*8 + (nLUT%4) + 1;
 	}
 
 

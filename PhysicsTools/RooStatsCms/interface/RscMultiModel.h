@@ -3,16 +3,12 @@
 
 #include <iostream>
 #include "RooArgList.h"
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscAbsPdfBuilder.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/RscAbsPdfBuilder.h"
 
 /**
 \class RscMultiMOdel
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author G. Schott (gregory.Schott<at>cern.ch) - Universitaet Karlsruhe
 **/
 
@@ -44,10 +40,6 @@ private:
 
   #ifndef SWIG
   #endif /*SWIG */
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(RscMultiModel,1)
-#endif
 };
 
 #endif

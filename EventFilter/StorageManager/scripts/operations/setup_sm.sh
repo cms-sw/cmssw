@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.37 2009/05/12 07:58:25 loizides Exp $
+# $Id: setup_sm.sh,v 1.27 2008/11/14 07:02:16 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -30,6 +30,9 @@ case $hname in
     srv-C2D05-02)
         nname=node_cmsdisk1
         ;;
+    srv-c2c06-* | srv-C2C06-*)
+        nname="nottobeused"
+        ;;
     *)
         ;;
 esac
@@ -56,61 +59,19 @@ modifykparams () {
 #    echo 1 > /proc/sys/fs/xfs/error_level
 }
 
-startcopyworker () {
-    local local_file="/opt/copyworker/TransferSystem_Cessy.cfg"
-    local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
-
-    if test -r "$reference_file"; then
-        local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
-        local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
-        if test $reference_time -gt $local_time; then
-            logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
-            logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
-            mv $local_file $local_file.old.$local_time
-            cp $reference_file $local_file
-            sed -i "1i# File copied from $reference_file on `date`" $local_file
-            chmod 644 $local_file
-            chown cmsprod.root $local_file
-        fi
-    else
-        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
-    fi
-    
-    su - cmsprod -c "$t0control stop" >/dev/null 2>&1
-    su - cmsprod -c "NCOPYWORKER=4 $t0control start"
+stopunwantedservices () {
+    /etc/init.d/cups     stop >/dev/null 2>&1
+    /etc/init.d/squid    stop >/dev/null 2>&1
+    /etc/init.d/xfs      stop >/dev/null 2>&1
+    /etc/init.d/sendmail stop >/dev/null 2>&1
+    /etc/init.d/gpm      stop >/dev/null 2>&1
 }
 
-startinjectworker () {
-    local local_file="/opt/injectworker/.db.conf"
-    local reference_file="/nfshome0/smpro/configuration/db.conf"
-
-    if test -f "$reference_file"; then
-        if test -f "$local_file"; then
-            local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
-            local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
-            if test $reference_time -gt $local_time; then
-                logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
-                logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
-                mv $local_file $local_file.old.$local_time
-                su - smpro -c "cp $reference_file $local_file"
-                sed -i "1i# File copied from $reference_file on `date`" $local_file
-                chmod 400 $local_file
-                chown smpro.smpro $local_file
-            fi
-        else
-            logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
-            su - smpro -c "cp $reference_file $local_file"
-            sed -i "1i# File copied from $reference_file on `date`" $local_file
-            chmod 400 $local_file
-            chown smpro.smpro $local_file
-        fi
-    else
-        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
+startwantedservices () {
+    ms="~smpro/sm_scripts_cvs/operations/monitoringSar.sh";
+    if test -e $ms; then 
+        $ms >> /var/log/monitoringSar.log &
     fi
-
-    su - smpro -c "$t0inject stop" >/dev/null 2>&1
-    rm -f /tmp/.20*-${hname}-*.log.lock
-    su - smpro -c "$t0inject start"
 }
 
 start () {
@@ -131,6 +92,7 @@ start () {
             done
             ;;
         srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+            stopunwantedservices
 
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
@@ -150,7 +112,9 @@ start () {
                 /sbin/multipath -F
             fi
 
+            startwantedservices
             modifykparams
+            #mount -oro,remount /dev/sda1 /boot/
             ;;
         *)
             echo "Unknown host: $hname"
@@ -176,13 +140,18 @@ start () {
         fi
     fi
 
-    startcopyworker
-    startinjectworker
+    su - cmsprod -c "$t0control stop" >/dev/null 2>&1
+    su - cmsprod -c "NCOPYWORKER=2 $t0control start"
+    su - smpro -c "$t0inject stop" >/dev/null 2>&1
+    rm -f /tmp/.20*-${hname}-*.log.lock
+    su - smpro -c "$t0inject start"
 
     return 0;
 }
 
-stopcopyworker () {
+stopworkers () {
+    su - smpro -c "$t0inject stop"
+    rm -f /tmp/.20*-${hname}-*.log.lock
     su - cmsprod -c "$t0control stop"
 
     counter=1;
@@ -196,16 +165,6 @@ stopcopyworker () {
     done
 
     killall -q rfcp
-}
-
-stopinjectworker () {
-    su - smpro -c "$t0inject stop"
-    rm -f /tmp/.20*-${hname}-*.log.lock
-}
-
-stopworkers () {
-    stopinjectworker
-    stopcopyworker
 }
 
 stop () {
@@ -229,6 +188,7 @@ stop () {
             ;;
         srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
             stopworkers
+            killall -5 monitoringSar.sh
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
                 if test -n "`mount | grep $sn`"; then
@@ -322,44 +282,8 @@ case "$1" in
 	status
 	RETVAL=$?
 	;;
-    startall)
-	start
-	RETVAL=$?
-	;;
-    stopall)
-	stop
-	RETVAL=$?
-	;;
-    statusall)
-	status
-	RETVAL=$?
-	;;
-    startinject)
-	startinjectworker
-	RETVAL=$?
-	;;
-    stopinject)
-	stopinjectworker
-	RETVAL=$?
-	;;
-    statusinject)
-        su - smpro -c "$t0inject status"
-	RETVAL=$?
-	;;
-    startcopy)
-	startcopyworker
-	RETVAL=$?
-	;;
-    stopcopy)
-	stopcopyworker
-	RETVAL=$?
-	;;
-    statuscopy)
-        su - cmsprod -c "$t0control status"
-	RETVAL=$?
-	;;
     *)
-	echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy}"
+	echo $"Usage: $0 {start|stop|status}"
 	RETVAL=1
 	;;
 esac

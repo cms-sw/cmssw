@@ -77,7 +77,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/09 12:24:15 $ 
+ **  $Date: 2009/06/17 13:15:26 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -162,13 +162,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int nEvt_;
   int nEntry_;
 
+  std::vector<std::string> triggerLabels;
    
   //////////
 
   MonitorElement*  h_filters_;
-  MonitorElement*  h_deltaR_;
-  MonitorElement*  h_failedPhoEta_;
-  MonitorElement*  h_failedPhoEt_;
 
   MonitorElement* h_phoEta_Loose_;
   MonitorElement* h_phoEta_Tight_;
@@ -188,7 +186,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_invMassTwoWithTracks_;
   MonitorElement* h_invMassOneWithTracks_;
   MonitorElement* h_invMassZeroWithTracks_;
-
+  MonitorElement* h_invMassAllPhotons_;
 
  ////////2D vectors of histograms
 
@@ -233,6 +231,86 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_trackPtSumHollow_;
   std::vector<std::vector<MonitorElement*> > h_ecalSum_;
   std::vector<std::vector<MonitorElement*> > h_hcalSum_;
+
+
+
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEta_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEta_isol_;
+  std::vector<MonitorElement*> p_ecalSumVsEta_isol_;
+  std::vector<MonitorElement*> p_hcalSumVsEta_isol_;
+
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEta_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEta_;
+
+  std::vector<MonitorElement*> p_nTrackIsolSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumSolidVsEt_isol_;
+  std::vector<MonitorElement*> p_nTrackIsolHollowVsEt_isol_;
+  std::vector<MonitorElement*> p_trackPtSumHollowVsEt_isol_;
+
+
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
+  std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
+
+
+  std::vector<MonitorElement*> p_ecalSumVsEt_part_;
+  std::vector<MonitorElement*> p_hcalSumVsEt_part_;
+
+  std::vector<std::vector<MonitorElement*> > p_ecalSumVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hcalSumVsEt_isol_;
+
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_ecalSumVsEt_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > p_hcalSumVsEt_;
+
+
+  std::vector<MonitorElement*> p_r9VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
+
+  std::vector<MonitorElement*> p_e1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEt_;
+
+  std::vector<MonitorElement*> p_r9VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
+
+  std::vector<MonitorElement*> p_e1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e1x5VsEta_;
+
+  std::vector<MonitorElement*> p_e2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEt_;
+
+  std::vector<MonitorElement*> p_e2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_e2x5VsEta_;
+
+  std::vector<MonitorElement*> p_r1x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEt_;
+
+  std::vector<MonitorElement*> p_r1x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r1x5VsEta_;
+
+  std::vector<MonitorElement*> p_r2x5VsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEt_;
+
+  std::vector<MonitorElement*> p_r2x5VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_r2x5VsEta_;
+
+  std::vector<MonitorElement*> p_sigmaIetaIetaVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_sigmaIetaIetaVsEta_;
+
+  std::vector<MonitorElement*> p_dCotTracksVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_dCotTracksVsEta_;
+
+
+  std::vector<MonitorElement*> p_hOverEVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hOverEVsEta_;
+  std::vector<MonitorElement*> p_hOverEVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_hOverEVsEt_;
 
 
   std::vector<MonitorElement*> h_phoEta_isol_;
@@ -307,15 +385,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::vector<MonitorElement*> h_phoSigmaIetaIeta_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoSigmaIetaIeta_;
-
-  std::vector<MonitorElement*> h_phoSigmaEtaEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoSigmaEtaEta_;
-
+ 
   std::vector<MonitorElement*> h_sigmaIetaIetaVsEta_isol_;
   std::vector<std::vector<MonitorElement*> > h_sigmaIetaIetaVsEta_;
-
-  std::vector<MonitorElement*> h_sigmaEtaEtaVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_sigmaEtaEtaVsEta_;
 
 
   std::vector<MonitorElement*> h_tkChi2_isol_;
@@ -324,14 +396,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<MonitorElement*> h_vertexChi2_isol_;
   std::vector<std::vector<MonitorElement*> > h_vertexChi2_;
 
-  std::vector<MonitorElement*> h_nHitsVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_nHitsVsEta_;
+  std::vector<MonitorElement*> p_nHitsVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_nHitsVsEta_;
 
-  std::vector<MonitorElement*> h_tkChi2VsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_tkChi2VsEta_;
-
-  std::vector<MonitorElement*> h_dCotTracksVsEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_dCotTracksVsEta_;
+  std::vector<MonitorElement*> p_tkChi2VsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_tkChi2VsEta_;
 
 
   ////////3D vectors of histograms

@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 l1CaloScales = cms.ESProducer("L1ScalesTrivialProducer",
 
-    L1CaloEmEtScaleLSB = cms.double(0.5),
+    L1CaloEmEtScaleLSB = cms.double(0.25),
 
-    L1CaloRegionEtScaleLSB = cms.double(0.5),
+    L1CaloRegionEtScaleLSB = cms.double(0.25),
 
     L1CaloEmThresholds = cms.vdouble(
       0.0, 1.0, 2.0, 3.0, 4.0, 

@@ -22,13 +22,13 @@ using namespace std;
 // to retrieve trigger information (local runs only)
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
-//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/05/07 09:09:14 $
-  * $Revision: 1.1.2.3 $
+  * $Date: 2009/05/06 16:02:00 $
+  * $Revision: 1.1.2.2 $
   * \author D. Vishnevskiy
   */
 

@@ -102,6 +102,14 @@ namespace reco {
     /// rechit energy
     double energy() const { return energy_; }
 
+    /// rechit momentum transverse to the beam, squared.
+    double pt2() const { return energy_ * energy_ *
+			   ( position_.X()*position_.X() + 
+			     position_.Y()*position_.Y() ) / 
+			   ( position_.X()*position_.X() +
+			     position_.Y()*position_.Y() + 
+			     position_.Z()*position_.Z()) ; }
+
     //C remove cause I want to be able to run on const rechits
     /// \return seed state (-1:unknown, 0:no, 1 yes)
     // int  seedState() const { return seedState_; }

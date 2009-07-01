@@ -41,9 +41,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     critical = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
-    ),
     fwkJobReports = cms.untracked.vstring('anotherfile'),
     debugModules = cms.untracked.vstring('sendSomeMessages'),
     categories = cms.untracked.vstring('postBeginJob'),

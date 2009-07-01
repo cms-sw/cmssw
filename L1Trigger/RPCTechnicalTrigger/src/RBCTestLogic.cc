@@ -1,10 +1,10 @@
-// $Id: RBCTestLogic.cc,v 1.2 2009/05/16 19:43:32 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCTestLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCTestLogic.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCTestLogic
@@ -50,14 +50,5 @@ void RBCTestLogic::process( const RBCInput & _input, std::bitset<2> & _decision)
   
   
   //....
-  
-}
-
-void RBCTestLogic::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs)
-{
-  
-  
-  
-  
   
 }

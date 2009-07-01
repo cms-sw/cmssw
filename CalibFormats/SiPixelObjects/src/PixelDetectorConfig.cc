@@ -51,15 +51,13 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
     }
   }//end for
-
-  /*
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
       std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
       assert(0);
     }
   }
-  */
+  
 
   modules_.clear();
   rocs_.clear() ;
@@ -81,6 +79,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
       rocs_[roc]=rocstatus;
       if (!rocstatus.get(PixelROCStatus::noInit)){
+
         PixelModuleName module(tableMat[r][colM["ROC_NAME"]]);
         if (!containsModule(module)) {
           modules_.push_back(module);
@@ -88,7 +87,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
       }
   }//end for r
 
-//   std::cout << __LINE__ << mthn << "Number of Modules in Detector Configuration Class: " << getNModules() << std::endl;
+  std::cout << __LINE__ << mthn << "Number of Modules in Detector Configuration Class: " << getNModules() << std::endl;
 
 }//end constructor
 
@@ -372,18 +371,13 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
                                          std::ofstream *out1stream,
                                          std::ofstream *out2stream)  const
 {
-  std::string mthn = "]\t[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
+  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::writeXMLHeader()]\t\t\t    " ;
+  std::string mthn = s.str() ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_DetectorConfig_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << __LINE__ << mthn << "Writing to: " << fullPath.str() << endl ;
+  cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
   
   outstream->open(fullPath.str().c_str()) ;
-  
-  if( !outstream->good() )
-    {
-      cout << __LINE__ << mthn << "FATAL: could not open file " << fullPath.str() << endl ;
-      assert(0) ;
-    }
   
   *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"                                    << std::endl ;
   *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>"                               << std::endl ;
@@ -399,15 +393,15 @@ void PixelDetectorConfig::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>Pixel Detector Configuration test</RUN_TYPE>"                                  << std::endl ;
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                              << std::endl ;
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                            << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"                   << std::endl ;
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                           << std::endl ;
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                    << std::endl ;
   *outstream << "  </RUN>"                                                                                   << std::endl ;
   *outstream << " </HEADER>"                                                                                 << std::endl ;
   *outstream << ""                                                                                           << std::endl ;
   *outstream << "  <DATA_SET>"                                                                               << std::endl ;
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <VERSION>" << version << "</VERSION>"                                                    << std::endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"                       << std::endl ;
-  *outstream << "   <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"                         << std::endl ; 
   *outstream << " "                                                                                          << std::endl ;
   *outstream << "   <PART>"                                                                                  << std::endl ;
   *outstream << "    <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                << std::endl ;

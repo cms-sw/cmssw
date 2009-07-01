@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.HLTEvF.HLTEventInfoClient_cff import *
-from DQM.HLTEvF.HLTMonMuonClient_cff import *
 
 # MVA remove until bug fixes
 # from DQM.HLTEvF.HLTMonMuonClient_cff import *
@@ -11,7 +10,7 @@ from DQM.HLTEvF.HLTMonMuonClient_cff import *
 #from DQMServices.Components.DQMEnvironment_cfi import *
 
 # hltmonitorClient = cms.Path(hltmonmuonseqClient*hltEventInfoseqClient)
-hltmonitorClient = cms.Path(hltmonmuonClient*hltEventInfoseqClient)
+hltmonitorClient = cms.Path(hltEventInfoseqClient)
 
 
 

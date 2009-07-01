@@ -53,12 +53,13 @@ void SiPixelCertification::beginLuminosityBlock(const LuminosityBlock& lumiBlock
 void SiPixelCertification::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::endLuminosityBlock ";
 
-// Compute and fill overall certification bits, for now use smallest single value:
+  // Compute and fill overall certification bits, for now use smallest single value:
   float dcsFrac = (dbe_->get("Pixel/EventInfo/DCSContents/PixelDcsFraction"))->getFloatValue();
   float daqFrac = (dbe_->get("Pixel/EventInfo/DAQContents/PixelDaqFraction"))->getFloatValue();
   float dqmFrac = (dbe_->get("Pixel/EventInfo/reportSummaryContents/PixelDqmFraction"))->getFloatValue();
   float pixel_all = std::min(dcsFrac,daqFrac);
   pixel_all = std::min(pixel_all,dqmFrac);
+//std::cout<<"Pixel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_all<<std::endl;
   CertificationPixel = dbe_->get("Pixel/EventInfo/CertificationContents/PixelFraction");
   if(CertificationPixel) CertificationPixel->Fill(pixel_all);
 
@@ -67,6 +68,7 @@ void SiPixelCertification::endLuminosityBlock(const edm::LuminosityBlock&  lumiB
   dqmFrac = (dbe_->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelDqmFraction"))->getFloatValue();
   float pixel_barrel = std::min(dcsFrac,daqFrac);
   pixel_barrel = std::min(pixel_barrel,dqmFrac);
+//std::cout<<"Barrel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_barrel<<std::endl;
   CertificationBarrel = dbe_->get("Pixel/EventInfo/CertificationContents/PixelBarrelFraction");
   if(CertificationBarrel) CertificationBarrel->Fill(pixel_barrel);
 
@@ -75,6 +77,7 @@ void SiPixelCertification::endLuminosityBlock(const edm::LuminosityBlock&  lumiB
   dqmFrac = (dbe_->get("Pixel/EventInfo/reportSummaryContents/PixelEndcapDqmFraction"))->getFloatValue();
   float pixel_endcap = std::min(dcsFrac,daqFrac);
   pixel_endcap = std::min(pixel_endcap,dqmFrac);
+//std::cout<<"Endcap numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_endcap<<std::endl;
   CertificationEndcap = dbe_->get("Pixel/EventInfo/CertificationContents/PixelEndcapFraction");
   if(CertificationEndcap) CertificationEndcap->Fill(pixel_endcap);
 

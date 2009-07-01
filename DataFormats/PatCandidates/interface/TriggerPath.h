@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.1.2.10 2009/03/15 11:29:38 vadler Exp $
+// $Id: TriggerPath.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.1.2.10 2009/03/15 11:29:38 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.2 2009/03/26 21:49:08 vadler Exp $
 */
 
 
@@ -28,6 +28,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefVectorIterator.h"
 
 
 namespace pat {
@@ -78,13 +79,15 @@ namespace pat {
   
 
   /// collection of TriggerPath
-  typedef std::vector< TriggerPath >              TriggerPathCollection;
+  typedef std::vector< TriggerPath >                      TriggerPathCollection;
   /// persistent reference to an item in a TriggerPathCollection
-  typedef edm::Ref< TriggerPathCollection >       TriggerPathRef;
+  typedef edm::Ref< TriggerPathCollection >               TriggerPathRef;
   /// persistent reference to a TriggerPathCollection product
-  typedef edm::RefProd< TriggerPathCollection >   TriggerPathRefProd;
+  typedef edm::RefProd< TriggerPathCollection >           TriggerPathRefProd;
   /// vector of persistent references to items in the same TriggerPathCollection
-  typedef edm::RefVector< TriggerPathCollection > TriggerPathRefVector;
+  typedef edm::RefVector< TriggerPathCollection >         TriggerPathRefVector;
+  /// const iterator over vector of persistent references to items in the same TriggerPathCollection
+  typedef edm::RefVectorIterator< TriggerPathCollection > TriggerPathRefVectorIterator;
 
 }
 

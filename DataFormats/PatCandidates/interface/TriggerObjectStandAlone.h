@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.1.2.1 2009/03/27 21:34:45 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.2 2009/04/01 10:45:51 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -19,21 +19,11 @@
    - [to be filled]
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.1.2.1 2009/03/27 21:34:45 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.2 2009/04/01 10:45:51 vadler Exp $
 */
 
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
-
-#include <map>
-#include <string>
-#include <vector>
-
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Association.h"
 
 
 namespace pat {
@@ -74,6 +64,8 @@ namespace pat {
   typedef edm::RefProd< TriggerObjectStandAloneCollection >            TriggerObjectStandAloneRefProd;
   /// vector of persistent references to items in the same TriggerObjectStandAloneCollection
   typedef edm::RefVector< TriggerObjectStandAloneCollection >          TriggerObjectStandAloneRefVector;
+  /// const iterator over vector of persistent references to items in the same TriggerObjectStandAloneCollection
+  typedef edm::RefVectorIterator< TriggerObjectStandAloneCollection >  TriggerObjectStandAloneRefVectorIterator;
   /// association of TriggerObjectStandAlones to store matches to Candidates
   typedef edm::Association< TriggerObjectStandAloneCollection >        TriggerObjectStandAloneMatch;
 

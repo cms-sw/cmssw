@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATMETProducer.h,v 1.9 2009/06/08 13:51:35 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.8 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATMETProducer.h,v 1.9 2009/06/08 13:51:35 hegner Exp $
 */
 
 
@@ -25,6 +25,7 @@
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
@@ -51,6 +52,7 @@ namespace pat {
       bool          addGenMET_;
       edm::InputTag genMETSrc_;
       bool          addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
       bool          addMuonCorr_;
       edm::InputTag muonSrc_;
       // tools

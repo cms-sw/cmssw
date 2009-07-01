@@ -49,9 +49,4 @@ secStep = cms.EDFilter("FastTrackMerger",
                                                      cms.InputTag("secStepTrk"))
 )
 
-secfilter = cms.EDFilter("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("secStep")
-)
-
-iterativeSecondTrackFiltering = cms.Sequence(secStepVtx*secStepTrk*secStep*secfilter)
+iterativeSecondTrackFiltering = cms.Sequence(secStepVtx*secStepTrk*secStep)

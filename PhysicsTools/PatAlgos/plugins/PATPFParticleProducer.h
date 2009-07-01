@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.4 2009/03/26 05:02:42 hegner Exp $
+// $Id: PATPFParticleProducer.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.4 2009/03/26 05:02:42 hegner Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
 */
 
 
@@ -29,6 +29,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include <string>
 
@@ -61,6 +62,11 @@ namespace pat {
       // tools
       GreaterByPt<PFParticle>      pTComparator_;
 
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
+      
+      bool addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
  
   };

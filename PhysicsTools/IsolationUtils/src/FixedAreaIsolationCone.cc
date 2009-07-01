@@ -18,7 +18,7 @@
 //
 // Original Author: Christian Veelken, UC Davis
 //         Created: Wed May 16 13:47:40 CST 2007
-// $Id: FixedAreaIsolationCone.cc,v 1.1 2007/05/23 20:21:38 veelken Exp $
+// $Id: FixedAreaIsolationCone.cc,v 1.0 2006/11/30 17:07:28 veelken Exp $
 //
 //
 
@@ -63,15 +63,8 @@ double FixedAreaIsolationCone::operator() (double coneAxisTheta, double coneAxis
   areaRootFunctionIsolationCone_.SetParameterTheta0(coneAxisTheta);
   areaRootFunctionIsolationCone_.SetParameterPhi0(coneAxisPhi);
   areaRootFunctionIsolationCone_.SetParameterConeArea(areaIsolationCone + areaSignalCone);
-  const double epsilon = 1.e-3;
-//
-// WARNING: need to call SetMethod before SetFunction;
-//          otherwise the pointer fFunction of data-member fSolver of ROOT::Math::RootFinder remains uninitialized,
-//          causing a segmentation violation !!
-//
-  areaRootFinderIsolationCone_.SetMethod(ROOT::Math::RootFinder::kBRENT);  
-  areaRootFinderIsolationCone_.SetFunction(areaRootFunctionIsolationCone_, 0. + epsilon , TMath::Pi() - epsilon);
-  areaRootFinderIsolationCone_.Solve();
+  areaRootFinderIsolationCone_.SetFunction(areaRootFunctionIsolationCone_, 0. , TMath::Pi());
+  int statusIsolationCone = areaRootFinderIsolationCone_.Solve();
   double openingAngleIsolationCone = areaRootFinderIsolationCone_.Root();
 
   if ( debugLevel_ > 0 ) {
@@ -80,14 +73,10 @@ double FixedAreaIsolationCone::operator() (double coneAxisTheta, double coneAxis
     edm::LogVerbatim(category) << "areaSignalCone = " << areaSignalCone << std::endl;
     edm::LogVerbatim(category) << "areaIsolationCone = " << areaIsolationCone << std::endl;
     edm::LogVerbatim(category) << "openingAngleIsolationCone = " << openingAngleIsolationCone << std::endl;
+    edm::LogVerbatim(category) << "statusIsolationCone = " << statusIsolationCone << std::endl;
   }
 
-//--- check if isolationConeSize value found by ROOT::Math::RootFinder is indeed a root,
-//    i.e. does solve the equation:
-//
-//        ConeAreaFunction(isolationConeSize) = (areaIsolationCone + areaSignalCone)
-//
-  if ( TMath::Abs(areaRootFunctionIsolationCone_(openingAngleIsolationCone)) < epsilon ) {
+  if ( statusIsolationCone == 0 ) { 
     error = 0;
     return openingAngleIsolationCone;
   } else {

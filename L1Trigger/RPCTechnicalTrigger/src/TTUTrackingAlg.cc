@@ -1,10 +1,10 @@
-// $Id: TTUTrackingAlg.cc,v 1.4 2009/06/01 12:57:20 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/TTUTrackingAlg.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/TTUTrackingAlg.h"
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
@@ -29,9 +29,8 @@ TTUTrackingAlg::TTUTrackingAlg(  ) {
   }
   
   m_triggersignal = false;
-  m_mintrklength = 4;
-
-  m_debug = false;
+  
+  m_mintrklength = 3;
   
 }
 //=============================================================================
@@ -53,24 +52,17 @@ TTUTrackingAlg::~TTUTrackingAlg() {
 } 
 
 //=============================================================================
-void TTUTrackingAlg::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
+bool TTUTrackingAlg::process( const TTUInput & _inmap )
 {
   
-  m_mintrklength = boardspecs.m_TrackLength;
-  
-}
-
-bool TTUTrackingAlg::process( const TTUInput & inmap )
-{
-  
-  if( m_debug) std::cout << "TTUTrackingAlg::process starts" << std::endl;
+  std::cout << "TTUTrackingAlg::process starts" << std::endl;
 
   m_triggersignal = false;
   
   Track * _initTrk = new Track();
   
   //.
-  runSeedBuster( inmap );
+  runSeedBuster( _inmap );
   
   if ( m_initialseeds.size() > 0 ) 
     _initTrk->add( m_initialseeds[0] );
@@ -101,15 +93,13 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
     }
     
   }
-
-  TracksItr itr;
   
-  if( m_debug) { 
-    std::cout << "Total tracks: " << m_tracks.size() << std::endl;
-    for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr)
-      std::cout << (*itr)->length() << '\t';
-    std::cout << std::endl;
-  }
+  std::cout << "Total tracks: " << m_tracks.size() << std::endl;
+  
+  TracksItr itr;
+  for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr)
+    std::cout << (*itr)->length() << '\t';
+  std::cout << std::endl;
   
   //...
   alignTracks();
@@ -123,11 +113,9 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   if ( tracklen >= m_mintrklength )
     m_triggersignal = true;
   
-  if( m_debug ) {
-    std::cout << "TTUTrackingAlg " 
-              << tracklen << '\t' 
-              << m_triggersignal << std::endl;
-  }
+  std::cout << "TTUTrackingAlg " 
+            << tracklen << '\t' 
+            << m_triggersignal << std::endl;
   
   //..... Clean up for next run
   
@@ -135,13 +123,13 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
     
   //.......................................................
   
-  if( m_debug ) std::cout << "TTUTrackingAlg>process ends" << std::endl;
-  
-  return true;
+  std::cout << "TTUTrackingAlg>process ends" << std::endl;
+
+  return false;
   
 }
 
-void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
+void TTUTrackingAlg::runSeedBuster( const TTUInput & _inmap )
 {
   
   int _idx(0);
@@ -150,7 +138,7 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
   for(int i=0; i < 12; ++i) 
   {
     _idx = (m_SEscanorder[i] - 1);
-    std::bitset<6> _station = inmap.input_sec[_idx];
+    std::bitset<6> _station = _inmap.input_sec[_idx];
     
     if ( ! _station.any() ) continue;
     
@@ -176,7 +164,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk,
                                     std::vector<Seed*> & _neighbors)
 {
   
-  if ( m_debug ) std::cout << "executeTracker: " << _neighbors.size() << std::endl;
+  std::cout << "executeTracker: " << _neighbors.size() << std::endl;
   
   //...
   
@@ -228,7 +216,7 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed,
   int _xo = _seed->m_sectorId;
   int _yo = _seed->m_stationId;
 
-  if( m_debug ) std::cout << "X: " << _xo+1 << " Y: " << _yo+1 << std::endl;
+  std::cout << "X: " << _xo+1 << " Y: " << _yo+1 << std::endl;
   
   SeedsItr _itr = m_initialseeds.begin();
   
@@ -276,11 +264,10 @@ void TTUTrackingAlg::alignTracks()
   std::sort( m_tracks.begin(), m_tracks.end(), compare );
   std::reverse( m_tracks.begin(), m_tracks.end() );
   
-  if( m_debug ) {
-    for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr )
-      std::cout << (*itr)->length() << " ";
-    std::cout << std::endl;
-  }
+  for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr )
+    std::cout << (*itr)->length() << " ";
+  
+  std::cout << std::endl;
   
 }
 

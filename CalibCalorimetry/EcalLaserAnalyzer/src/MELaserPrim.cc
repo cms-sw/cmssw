@@ -5,17 +5,15 @@
 #include <cassert>
 #include <cstdlib>
 
-TString MELaserPrim::apdpn_arrayName[MELaserPrim::iSizeArray_apdpn] = {"APD", "APDoPN", "APDoPNA", "APDoPNB","APDoAPD","APDoAPDA", "APDoAPDB", "Time"};
+TString MELaserPrim::apdpn_arrayName[MELaserPrim::iSizeArray_apdpn] = {"APD", "APDoPN", "APDoPNA", "APDoPNB", "Time"};
 TString MELaserPrim::apdpn_varName[MELaserPrim::iSize_apdpn] = { "Mean", "RMS", "M3", "Nevt", "Min", "Max"};
 TString MELaserPrim::apdpn_varUnit[MELaserPrim::iSizeArray_apdpn][MELaserPrim::iSize_apdpn] = 
- 
   { { " (ADC Counts)", " (ADC Counts)", " (ADC Counts)" ,"", " (ADC Counts)", " (ADC Counts)"},
     {"", "", "", "", "", ""},
     {"", "", "", "", "", ""},
     {"", "", "", "", "", ""},
-    {"", "", "", "", "", ""},
-    {"", "", "", "", "", ""},
     {" (25 ns)", " (25 ns)", " (25 ns)", "", " (25 ns)", " (25 ns)"} };
+
 TString MELaserPrim::apdpn_extraVarName[MELaserPrim::iSizeExtra_apdpn] = { "ShapeCor" };
 TString MELaserPrim::apdpn_extraVarUnit[MELaserPrim::iSizeExtra_apdpn] = { "" };
 TString MELaserPrim::ab_varName[MELaserPrim::iSize_ab] = { "alpha", "beta", "width", "chi2" };
@@ -402,12 +400,6 @@ MELaserPrim::bookHistograms()
       bookHistoF( _primStr, "APD_OVER_PN_MEAN" );
       bookHistoF( _primStr, "APD_OVER_PN_RMS" );
       bookHistoF( _primStr, "APD_OVER_PN_M3" );
-      bookHistoF( _primStr, "APD_OVER_APDA_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_APDA_RMS" );
-      bookHistoF( _primStr, "APD_OVER_APDA_M3" );
-      bookHistoF( _primStr, "APD_OVER_APDB_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_APDB_RMS" );
-      bookHistoF( _primStr, "APD_OVER_APDB_M3" );
       bookHistoF( _primStr, "SHAPE_COR" );
       bookHistoF( _primStr, "ALPHA" );
       bookHistoF( _primStr, "BETA" );
@@ -534,8 +526,7 @@ MELaserPrim::fillHistograms()
 
 	  if( apdpn_iphi<0 ) continue;      
 
-	  // fixme remove until coordinated are fine
-	  //if(ab_tree) assert( apdpn_ieta==ab_ieta && apdpn_iphi==ab_iphi );
+	  if(ab_tree) assert( apdpn_ieta==ab_ieta && apdpn_iphi==ab_iphi );
       
 	  int ix(0);
 	  int iy(0);
@@ -580,17 +571,6 @@ MELaserPrim::fillHistograms()
 	  setVal( "APD_OVER_PN_MEAN",   ix, iy,  apdpn_apdpn[iAPDoPN][iMean] );
 	  setVal( "APD_OVER_PN_RMS",    ix, iy,  apdpn_apdpn[iAPDoPN][iRMS] );
 	  setVal( "APD_OVER_PN_M3",     ix, iy,  apdpn_apdpn[iAPDoPN][iM3] );  // fixme
-	  // JM
-	  setVal( "APD_OVER_APD_MEAN",  ix, iy,  apdpn_apdpn[iAPDoAPDA][iMean] );
-	  setVal( "APD_OVER_APD_RMS",   ix, iy,  apdpn_apdpn[iAPDoAPDA][iRMS] );
-	  setVal( "APD_OVER_APD_M3",    ix, iy,  apdpn_apdpn[iAPDoAPDA][iM3] );  // fixme
-	  setVal( "APD_OVER_APDA_MEAN",  ix, iy,  apdpn_apdpn[iAPDoAPDA][iMean] );
-	  setVal( "APD_OVER_APDA_RMS",   ix, iy,  apdpn_apdpn[iAPDoAPDA][iRMS] );
-	  setVal( "APD_OVER_APDA_M3",    ix, iy,  apdpn_apdpn[iAPDoAPDA][iM3] );  // fixme
-	  setVal( "APD_OVER_APDB_MEAN",  ix, iy,  apdpn_apdpn[iAPDoAPDB][iMean] );
-	  setVal( "APD_OVER_APDB_RMS",   ix, iy,  apdpn_apdpn[iAPDoAPDB][iRMS] );
-	  setVal( "APD_OVER_APDB_M3",    ix, iy,  apdpn_apdpn[iAPDoAPDB][iM3] );  // fixme
-	  // JM
 	  setVal( "SHAPE_COR",          ix, iy,  apdpn_ShapeCor );
 	  if(ab_tree){
 	    setVal( "ALPHA",              ix, iy,  ab_ab[iAlpha] );

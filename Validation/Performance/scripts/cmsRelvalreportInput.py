@@ -728,7 +728,7 @@ def writeCommands(simcandles,
                                InputFileOption,
                                OutputFileOption,
                                CustomiseFragment['DIGI'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
-                               cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
+                               cmsDriverOptions #For FASTSIM PU need the whole cmsDriverOptions! [:cmsDriverOptions.index('--pileup')] 
                            ))
                     else:
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (

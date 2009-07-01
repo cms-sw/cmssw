@@ -76,8 +76,6 @@ public:
     }
 protected:
     G4Event * generateEvent( edm::Event& inpevt );
-
-    void resetGenParticleId( edm::Event& inpevt ); 
 private:
 
     // static RunManager * me;

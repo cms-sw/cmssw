@@ -3,19 +3,16 @@
 
 #include <string>
 #include <memory>
-#include <iosfwd>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/sax/InputSource.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 
 class XMLDocument {
     public:
 	XMLDocument(const std::string &fileName, bool write = false);
-	XMLDocument(const std::string &fileName, const std::string &command);
 	~XMLDocument();
 
 	inline XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
@@ -60,11 +57,10 @@ class XMLDocument {
 		static unsigned int instances;
 	};
 
-	void openForRead(std::auto_ptr<std::istream> &inputStream);
+	void openForRead(const std::string &fileName);
 	void openForWrite(const std::string &fileName);
 
 	std::auto_ptr<XercesPlatform>					platform;
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	inputSource;
 
 	std::string							fileName;
 	bool								write;

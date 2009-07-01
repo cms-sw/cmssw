@@ -155,49 +155,12 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    */
   void Utility::regexReplace(const std::string& expression, std::string& message, const std::string replace) {
-    Utility::regexReplace(TPRegexp(expression), message, replace);
-  }
-
-  /**
-   * @brief  Replace string part that matches RegExp expression with some
-   * string
-   * @param  re_expression RegExp expression to match
-   * @param  message value to check
-   * @param  replace string to replace matched part 
-   */
-  void Utility::regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace) {
     TString s(message); 
-    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
-    re->Substitute(s, replace);
+    TPRegexp(expression).Substitute(s, replace);
     message = s;
   }
 
-  /**
-   * @brief  Replace string part that matches RegExp expression with some
-   * string
-   * @param  expression RegExp expression in string to match
-   * @param  message value to check
-   * @param  replace string to replace matched part 
-   * @return modified string
-   */
-  std::string Utility::regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace) {
-    return regexReplaceStr(TPRegexp(expression), message, replace);
-  }
 
-  /**
-   * @brief  Replace string part that matches RegExp expression with some
-   * string
-   * @param  re_expression RegExp expression to match
-   * @param  message value to check
-   * @param  replace string to replace matched part 
-   * @return modified string
-   */
-  std::string Utility::regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace) {
-    TString s(message); 
-    TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
-    re->Substitute(s, replace);
-    return s.Data();
-  }
 
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
@@ -256,101 +219,6 @@ namespace cscdqm {
     hash += hash >> 6;
 
     return hash;
-  }
-
-  
-  /**
-   * @brief  Check the hypothesis that observed events (n) value is too low or too high comparing with the expected N 
-   * @param  N Expected number of events
-   * @param  n Actual (observed) number of events
-   * @param  low_threshold Rate of lower boundary of tolerance (< 1)
-   * @param  high_threshold Rate of higher boundary of tolerance (> 1)
-   * @param  low_sigfail Significance threshold for low value
-   * @param  high_sigfail Significance threshold for high value
-   * @return check outcome: 1 - observed number of events too high wrt expected
-   * (HOT), -1 - observed number of events too low wrt expected (COLD), 0 -
-   * observed number of events is fine wrt expected
-   */
-  short Utility::checkOccupancy(const unsigned int N, const unsigned int n, const double low_threshold, const double high_threshold, const double low_sigfail, const double high_sigfail) {
-    if (N > 0) {
-      double eps_meas = (1.0 * n) / (1.0 * N);
-      if (eps_meas < low_threshold) {
-        double S = Utility::SignificanceLevelLow(N, n, low_threshold);
-        if (S > low_sigfail) return -1;
-      } else 
-      if (eps_meas > high_threshold) {
-        double S = Utility::SignificanceLevelHigh(N, n);
-        if (S > high_sigfail) return 1;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * @brief  Check the hypothesis that error events (n) value above threshold comparing with the expected 0 and statistics is enough
-   * @param  N Number of total events
-   * @param  n Actual (observed) number of events errors
-   * @param  threshold Rate of tolerance (<1)
-   * @param  sigfail Significance threshold for low value
-   * @return check result: true - error is significant, false - otherwise
-   */
-  bool Utility::checkError(const unsigned int N, const unsigned int n, const double threshold, const double sigfail) {
-    if (N > 0) {
-      const double eps_meas = (1.0 * n) / (1.0 * N);
-      if (eps_meas > threshold) {
-        if (Utility::SignificanceLevelLow(N, n, threshold) > sigfail) {
-          return true;
-        }
-      } 
-    }
-    return false;
-  }
-
-  /**
-   * @brief  Calculate error significance alpha for the given number of errors 
-   * based on reference number of errors for "cold" elements: actual number of 
-   * events have to be less then the reference.
-   * @param  N Number of events
-   * @param  n Number of errors
-   * @param  eps Rate of tolerance
-   * @return Significance level
-   */
-  double Utility::SignificanceLevelLow(const unsigned int N, const unsigned int n, const double eps) {
-  
-    /** std::cout << "N = " << N << ", n = " << n << ", eps = " << eps << "\n"; */
-  
-    double l_eps = eps;
-    if (l_eps <= 0.0) l_eps = 0.000001;
-    if (l_eps >= 1.0) l_eps = 0.999999;
-  
-    double eps_meas = (1.0 * n) / (1.0 * N);
-    double a = 1.0, b = 1.0;
-  
-    if (n > 0) {
-      for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
-    }
-  
-    if (n < N) {
-      for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
-    }
-  
-    return sqrt(2.0 * log(a * b));
-  
-  }
-  
-  /**
-   * @brief  Calculate error significance alpha for the given number of events
-   * based on reference number of errors for "hot" elements: actual number of
-   * events have to be larger then the reference.
-   * @param  N number of reference events
-   * @param  n number of actual events
-   * @return error significance
-   */
-  double Utility::SignificanceLevelHigh(const unsigned int N, const unsigned int n) {
-    if (N > n) return 0.0;
-    /**  no - n observed, ne - n expected */
-    double no = 1.0 * n, ne = 1.0 * N;
-    return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
   }
 
 }

@@ -12,7 +12,7 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     u7_job_report = cms.untracked.PSet(
-        noTimeStamps = cms.untracked.bool(True)
+	extension = cms.untracked.string("mxml")
     ),
     u7_restrict = cms.untracked.PSet(
         default = cms.untracked.PSet(
@@ -32,9 +32,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('u7_log', 
         'u7_restrict'),
     categories = cms.untracked.vstring('FwkJob', 
-        'special', 
-        'FwkJob'),
-    fwkJobReports = cms.untracked.vstring('u7_job_report.mxml')
+        'special'),
+    fwkJobReports = cms.untracked.vstring('u7_job_report')
 )
 
 process.maxEvents = cms.untracked.PSet(

@@ -1,15 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_cff import *
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Configuration.StandardSequences.MagneticField_cff import *
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
-from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 
-maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
 
 DQMStore = cms.Service("DQMStore")
 

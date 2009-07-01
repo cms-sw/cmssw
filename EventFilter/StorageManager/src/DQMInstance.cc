@@ -18,7 +18,6 @@
 #include "sys/stat.h"
 #include "classlib/utils/Regexp.h"
 #include "boost/lexical_cast.hpp"
-#include <cstdio>
 
 // 15-Jul-2008, KAB: copied from DQMStore
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
@@ -199,9 +198,9 @@ bool DQMInstance::isStale(int currentTime)
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
 }
 
-double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
+int DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
 {
-  double size = 0;
+  int reply = 0;
   char fileName[1024];
   TTimeStamp now;
   now.Set();
@@ -225,7 +224,6 @@ double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
     if (( file != NULL ) && file->IsOpen())
     {
       int ctr=0;
-      double originalFileSize = file->GetSize();
 
       // First create directories inside the root file
       TString token("/");
@@ -294,19 +292,19 @@ double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
 	  if ( object != NULL ) 
 	  {
 	    object->Write();
+	    reply++;
 	    ctr++;
 	  }
 	}
       }
       file->Close();
-      size += file->GetSize() - originalFileSize;
       delete(file);
       chmod(fileName,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
       FDEBUG(1) << "Wrote file " << fileName << " " << ctr << " objects"
 		<< std::endl; 
     }
   }
-  return(size);
+  return(reply);
 }
 
 DQMGroup * DQMInstance::getDQMGroup(std::string groupName)

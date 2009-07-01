@@ -1,13 +1,12 @@
-#!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.2 2009/03/03 13:43:43 jserrano Exp $
+#!/usr/bin/perl -w
+# $Id: smCleanupFiles.pl,v 1.8 2008/10/12 14:28:32 loizides Exp $
 
 use strict;
-use warnings;
 use DBI;
 use Getopt::Long;
 use File::Basename;
 
-my ($help, $debug, $nothing, $force, $execute, $maxfiles, $fileagemin);
+my ($help, $debug, $nothing, $force, $execute, $maxfiles);
 my ($hostname, $filename, $dataset, $stream, $config);
 my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode, );
 my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
@@ -62,9 +61,8 @@ $hostname   = '';
 $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
-$fileagemin = 60;
 $force      = 0;
-$config     = "/opt/injectworker/.db.conf";
+$config     = "/nfshome0/smpro/configuration/db.conf";
 
 $hostname   = `hostname -s`;
 chomp($hostname);
@@ -82,8 +80,7 @@ GetOptions(
 	   "filename=s"	   => \$filename,
 	   "dataset=s"	   => \$dataset,
            "stream=s"      => \$stream,
-           "maxfiles=i"    => \$maxfiles,
-           "fileagemin=i"  => \$fileagemin
+           "maxfiles=i"    => \$maxfiles
 	  );
 
 $help && usage;
@@ -160,19 +157,16 @@ while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) {
     # remove file
     my $CHMODCOMMAND = "sudo chmod 666 $row[0]/$row[1]";
     my $RMCOMMAND    = "rm -f $row[0]/$row[1]";
-    my $FILEAGEMIN   =  (time - (stat("$row[0]/$row[1]"))[9])/60;
-
-    $debug   && print "$FILEAGEMIN $fileagemin\n";
-    $debug   && print "$RMCOMMAND \n";
+    $debug   && print "$RMCOMMAND \n";;
 
     $rmexitcode = 9998;
 
-    if ($execute && -e "$row[0]/$row[1]" && $FILEAGEMIN > $fileagemin)
+    if ($execute && -e "$row[0]/$row[1]")
     {
 	$chmodexitcode = system($CHMODCOMMAND);
 	$rmexitcode    = system($RMCOMMAND);	
 	$debug  && print "   ===> rm dat file successful?: $rmexitcode \n";
-    } elsif (!$execute && -e "$row[0]/$row[1]" && $FILEAGEMIN > $fileagemin) {
+    } elsif (!$execute && -e "$row[0]/$row[1]") {
 	#if we're not executing anything want to fake 
 	print "Pretending to remove $row[0]/$row[1] \n";
 	$rmexitcode = 0;
@@ -180,15 +174,12 @@ while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) {
         if ($force) {
             print "File $row[0]/$row[1] does not exist, but force=1, so continue \n";
             $rmexitcode = 0;
-        } elsif ($FILEAGEMIN < $fileagemin)  {
-            print "File $row[0]/$row[1] too young to die\n";
         } else {
             print "File $row[0]/$row[1] does not exist \n";
-            $rmexitcode =0;
         }
     }
     $debug && print "\n";
-    #$rmexitcode =0;
+    $rmexitcode =0;
     # check file was really removed
     if ($rmexitcode != 0)
     {  

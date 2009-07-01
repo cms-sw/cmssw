@@ -42,7 +42,7 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   inputRecoLabel_              = iConfig.getParameter<edm::InputTag>("InputRecoLabel");
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_              = iConfig.getParameter<std::string>("BenchmarkLabel"); 
-  startFromGen_   = iConfig.getParameter<bool>("StartFromGen");
+  startFromGen_                = iConfig.getParameter<bool>("StartFromGen");
   plotAgainstRecoQuantities_   = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
   onlyTwoJets_                 = iConfig.getParameter<bool>("OnlyTwoJets");
   recPt_cut                    = iConfig.getParameter<double>("recPt");
@@ -54,6 +54,7 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
   maxDeltaEt_                   = iConfig.getParameter<double>("maxDeltaEt");
   minDeltaPhi_                  = iConfig.getParameter<double>("minDeltaPhi");
   maxDeltaPhi_                  = iConfig.getParameter<double>("maxDeltaPhi");
+  doMetPlots_                   = iConfig.getParameter<bool>("doMetPlots");
 
   if (outputFile_.size() > 0)
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
@@ -75,7 +76,7 @@ GenericBenchmarkAnalyzer::beginJob()
     string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
     dbe_->setCurrentFolder(path.c_str());
-    setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_);
+    setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_, doMetPlots_);
 
   }
 
@@ -136,9 +137,8 @@ GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   // ==========================================================
 
   fill(reco_candidates,truth_candidates,
-       startFromGen_, plotAgainstRecoQuantities_, 
-       onlyTwoJets_, recPt_cut,  minEta_cut, maxEta_cut, deltaR_cut);
-
+      startFromGen_, plotAgainstRecoQuantities_, 
+      onlyTwoJets_, recPt_cut,  minEta_cut, maxEta_cut, deltaR_cut);
 }
 
 void GenericBenchmarkAnalyzer::endJob() 

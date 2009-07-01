@@ -78,7 +78,6 @@ private:
   CSCNeutronReader       * theNeutronReader;
   const CSCGeometry      * theCSCGeometry;
   CSCStripConditions     * theConditions;
-  bool doBadChambers_;
 };
 
 #endif

@@ -17,27 +17,26 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegrandThetaFunction.h,v 1.2 2009/01/14 10:53:14 hegner Exp $
+// $Id: IntegrandThetaFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
 // ROOT include files
-#include <Math/IFunction.h>
-#include <Math/IFunctionfwd.h>
+#include <Math/ParamFunction.h>
+#include <Math/Integrator.h>
 
-// CMSSW include files
-#include "PhysicsTools/IsolationUtils/interface/IntegralOverPhiFunction.h"
+class IntegralOverPhiFunction;
 
 //
 // class declaration
 //
 
-class IntegrandThetaFunction : public ROOT::Math::IGenFunction
+class IntegrandThetaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
 {
  public:
   IntegrandThetaFunction();
   IntegrandThetaFunction(const IntegrandThetaFunction& bluePrint);
-  virtual ~IntegrandThetaFunction();
+  ~IntegrandThetaFunction();
 
   IntegrandThetaFunction& operator=(const IntegrandThetaFunction& bluePrint);
   
@@ -48,13 +47,19 @@ class IntegrandThetaFunction : public ROOT::Math::IGenFunction
   virtual ROOT::Math::IGenFunction* Clone () const { return new IntegrandThetaFunction(*this); }
 
  private:
+  void SetParameters(double* param);
+
   double DoEval(double x) const;
+  virtual double DoEvalPar(double, const double*) const;
+  double DoDerivative(double x) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
+  void DoParameterGradient(double x, double* paramGradient) const;
 
-  double theta0_; // polar angle of cone axis
-  double phi0_; // azimuth angle of cone axis
-  double alpha_; // opening angle of cone (measured from cone axis)
+  mutable double theta0_; // polar angle of cone axis
+  mutable double phi0_; // azimuth angle of cone axis
+  mutable double alpha_; // opening angle of cone (measured from cone axis)
 
-  mutable IntegralOverPhiFunction fPhi_;
+  mutable IntegralOverPhiFunction* fPhi_;
 
   static const unsigned int debugLevel_ = 0;
 };

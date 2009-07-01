@@ -5,9 +5,6 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 
@@ -83,9 +80,6 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   // get jet-parton matching if signal channel
   if(genEvt->semiLeptonicChannel() == leptonType_) {
     evt.getByLabel(matching_, matchingHandle);
-    if( matchingHandle->empty() )
-      throw cms::Exception("EmptyProduct")
-	<< "Empty vector from jet-parton matching. This should not happen! \n";
     matching = *(matchingHandle->begin());
     if(matching.size() < nPartons) return;
     // skip events that were affected by the outlier 

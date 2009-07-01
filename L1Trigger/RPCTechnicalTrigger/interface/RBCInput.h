@@ -1,4 +1,4 @@
-// $Id: RBCInput.h,v 1.3 2009/05/10 00:33:18 aosorio Exp $
+// $Id: $
 #ifndef INTERFACE_RBCINPUT_H 
 #define INTERFACE_RBCINPUT_H 1
 
@@ -22,36 +22,21 @@
 class RBCInput {
 public: 
   /// Standard constructor
-  RBCInput( ) { 
-    input_sec = new std::bitset<15>[2];
-    needmapping = false; 
-    m_debug = false; 
-    hasData = false;
-  }; 
+  RBCInput( ) { }; 
   
-  virtual ~RBCInput( ) {
-    if ( input_sec ) delete[] input_sec;
-  }; ///< Destructor
+  virtual ~RBCInput( ) { }; ///< Destructor
   
-  RBCInput( const RBCInput & in )
+  RBCInput( const RBCInput & _in )
   {
-    for(int i=0; i < 30; ++i) input[i] = in.input[i];
-    for(int i=0; i <  2; ++i) input_sec[i] = in.input_sec[i];
-    needmapping = in.needmapping;
-    m_debug = in.m_debug;
-    hasData = in.hasData;
+    for(int i=0; i < 30; ++i) input[i] = _in.input[i];
+    for(int i=0; i <  2; ++i) input_sec[i] = _in.input_sec[i];
   };
   
   RBCInput & operator=(const RBCInput & rhs) 
   {
-    if (this == &rhs) {
-      std::cout << "RBCInput:(this=rhs)" << '\n'; return (*this);
-    };
+    if (this == &rhs) return (*this);
     for(int i=0; i < 30; ++i) (*this).input[i]     = rhs.input[i];
     for(int i=0; i <  2; ++i) (*this).input_sec[i] = rhs.input_sec[i];
-    (*this).needmapping = rhs.needmapping;
-    (*this).m_debug = rhs.m_debug;
-    (*this).hasData = rhs.hasData;
     return (*this);
   };
   
@@ -60,7 +45,7 @@ public:
   friend std::ostream& operator<<(std::ostream &ostr, RBCInput &);
   
   bool input[30];
-  std::bitset<15>  * input_sec;
+  std::bitset<15> input_sec[2];
   
   void printinfo() {
     std::cout << "RBCInput: " << (*this);
@@ -69,13 +54,10 @@ public:
   void mask ( const std::vector<int> & );
   
   void force( const std::vector<int> & );
-
-  bool hasData;
-  bool needmapping;
+  
+protected:
   
 private:
-  
-  bool m_debug;
-  
+
 };
 #endif // INTERFACE_RBCINPUT_H

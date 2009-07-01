@@ -119,3 +119,8 @@ ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   return s;
 }
 
+unsigned L1GctEmCand::phiIndex() const { return (m_data>>10) & 0x1f; } 
+unsigned L1GctEmCand::etaIndex() const { return (m_data>>6) & 0xf; } 
+unsigned L1GctEmCand::rank() const { return m_data & 0x3f; }
+
+

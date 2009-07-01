@@ -39,7 +39,7 @@ localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFl
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+muonreco_plus_isolation_plus_SET+electronGsfTracking)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+muonrecoComplete+electronGsfTracking)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)

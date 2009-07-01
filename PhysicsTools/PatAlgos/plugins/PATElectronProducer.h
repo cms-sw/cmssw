@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.16 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATElectronProducer.h,v 1.17 2009/06/08 11:09:44 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.16 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATElectronProducer.h,v 1.17 2009/06/08 11:09:44 hegner Exp $
 */
 
 
@@ -29,6 +29,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -69,8 +70,6 @@ namespace pat {
       bool          addGenMatch_;
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;
-      bool          addResolutions_;
-      bool          addElecID_;
 
       /// pflow specific
       bool          useParticleFlow_;
@@ -85,6 +84,7 @@ namespace pat {
 			const GenAssociations& genMatches) const;
   
 
+      bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> elecIDSrcs_;
 
@@ -97,6 +97,9 @@ namespace pat {
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
+      
+      bool addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;

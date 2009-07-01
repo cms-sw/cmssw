@@ -68,6 +68,7 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
   mutable std::auto_ptr<EESrFlagCollection> productEESrFlags;
   mutable std::auto_ptr<EcalTrigPrimDigiCollection> productTps;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds;
+  mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidZSXtalIds;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths;
   mutable std::auto_ptr<EcalPnDiodeDigiCollection> productPnDiodeDigis;
   mutable std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemTtIds;

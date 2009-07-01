@@ -110,10 +110,13 @@ namespace edm {
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
+    bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
+      return event ? setEntryAtEvent(run, lumi, event, exact) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
+    }
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact);
     bool setEntryAtEventEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, FileIndex::EntryNumber_t entry, bool exact);
-    bool setEntryAtLumi(LuminosityBlockID const& lumi);
-    bool setEntryAtRun(RunID const& run);
+    bool setEntryAtLumi(RunNumber_t run, LuminosityBlockNumber_t lumi);
+    bool setEntryAtRun(RunNumber_t run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;

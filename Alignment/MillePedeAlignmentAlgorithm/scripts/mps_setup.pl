@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.17 $
-#     $Date: 2009/06/03 16:43:23 $
+#     $Revision: 1.15 $
+#     $Date: 2009/03/09 11:21:09 $
 #
 #  Setup local mps database
 #  
@@ -12,8 +12,7 @@
 #  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
 #
 # class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
-#              - special CAF queues (cmscaf1nh, cmscaf8nh, cmscaf1nw)
-#              - special CAF queues, for pede job (cmscafspec1nh, cmscafspec8nh, cmscafspec1nw). E.g. cmscafspec1nh corresponds to "-q cmscaf1nh -R cmscafspec"
+#              - special CAF queues (cmscaf,cmscafspec - the latter for pede job!)
 # If class contains a ':', it will be split:
 #              - the part before the ':' defines the class for Mille jobs,
 #              - the part behind the class for the Pede job.
@@ -21,7 +20,7 @@
 # If mssDir contains a ':', it will be split:
 #              - the part before ':' defines the pool,
 #              - the part behind it the directory.
-#              (eg cmscafuser:/castor/cern.ch/cms/store/...)
+#              (eg cmscaf:/castor/cern.ch/cms/store/...)
 
 BEGIN {
 use File::Basename;
@@ -115,11 +114,11 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
+unless (index("lxplus cmscaf cmscafspec 8nm 1nh 8nh 1nd 2nd 1nw 2nw",get_class("mille"))>-1) {
   print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("pede")." ")>-1) {
+unless (index("lxplus cmscaf cmscafspec 8nm 1nh 8nh 1nd 2nd 1nw 2nw",get_class("pede"))>-1) {
   print "Bad job class for pede in class '$class'\n";
   exit 1;
 }
@@ -134,6 +133,7 @@ if ($driver eq "merge") {
   }
 }
 
+$mssDirOrig = $mssDir; # First store the original value of $mssDir
 if ($mssDir ne "") {
   if ($mssDir =~ /:/) { # ':' as delimeter also used in mpedegui.pl
     $mssDirPool = $mssDir;
@@ -302,7 +302,6 @@ system "rm -rf jobData/$ScriptCfg";
 
 
 # Write to DB
-
 write_db();
 read_db();
 print_memdb();

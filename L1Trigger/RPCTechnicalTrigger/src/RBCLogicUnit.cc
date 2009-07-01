@@ -1,4 +1,4 @@
-// $Id: RBCLogicUnit.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: $
 // Include files 
 
 
@@ -18,7 +18,6 @@
 RBCLogicUnit::RBCLogicUnit( ) : RPCLogicUnit() {
   
   m_logtool = new LogicTool<RBCLogic>();
-  m_debug = false;
   
 }
 
@@ -26,8 +25,7 @@ RBCLogicUnit::RBCLogicUnit( const char * logic_type ) : RPCLogicUnit() {
   
   m_logtool = new LogicTool<RBCLogic>();
   m_logtype = std::string( logic_type );
-  m_debug = false;
-
+ 
 }
 //=============================================================================
 // Destructor
@@ -49,13 +47,13 @@ bool RBCLogicUnit::initialise()
   
   status = m_logtool->initialise();
   if ( !status ) { 
-    if( m_debug ) std::cout << "RBCLogicUnit> Problem initialising LogicTool \n"; 
+    std::cout << "RBCLogicUnit> Problem initialising LogicTool \n"; 
     return 0; };
   
   m_logic  = dynamic_cast<RBCLogic*> ( m_logtool->retrieve(m_logtype) );
   
   if ( ! m_logic ) { 
-    if( m_debug ) std::cout << "RBCLogicUnit> No logic found \n"; 
+    std::cout << "RBCLogicUnit> No logic found \n"; 
     return 0; };
   
   return 1;
@@ -67,12 +65,6 @@ void RBCLogicUnit::setlogic( const char * _logic )
   m_logtype = std::string(_logic);
 }
 
-void RBCLogicUnit::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs)
-{
-
-  m_logic->setBoardSpecs( specs );
-  
-}
 
 void RBCLogicUnit::run( const RBCInput & _input , std::bitset<2> & _decision )
 {
@@ -80,5 +72,5 @@ void RBCLogicUnit::run( const RBCInput & _input , std::bitset<2> & _decision )
   m_logic->process( _input , _decision );
   m_layersignal[0] = m_logic->getlayersignal( 0 );
   m_layersignal[1] = m_logic->getlayersignal( 1 );
-  
+ 
 }

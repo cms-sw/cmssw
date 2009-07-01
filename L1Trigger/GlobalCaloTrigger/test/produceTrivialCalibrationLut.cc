@@ -1,18 +1,15 @@
 #include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
 
-#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
-
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 #include <math.h>
 
 produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
-  m_htScaleLSB(0.5),
+  m_htScaleLSB(1.0),
   m_jetCalibFunc(L1GctJetFinderParams::NUMBER_ETA_VALUES),
   m_tauCalibFunc(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES),
   m_jetEtScaleInputLsb(0.5),
-  m_corrFunType(1),
-  m_jfPars(new L1GctJetFinderParams())
+  m_corrFunType(1)
 {
   const double jetThresholds[64]={
 	0.,	10.,	12.,	14.,	15.,	18.,	20.,	22.,	24.,	25.,
@@ -26,9 +23,6 @@ produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
   for (unsigned i=0; i<64; i++) {
     m_jetEtThresholds.push_back(jetThresholds[i]);
   }
-
-  setupJfPars();
-
 }
 
 produceTrivialCalibrationLut::~produceTrivialCalibrationLut()
@@ -44,7 +38,6 @@ void produceTrivialCalibrationLut::setPowerSeriesCorrectionType()
   for (unsigned i=0; i<m_tauCalibFunc.size(); i++) {
     m_tauCalibFunc.at(i).clear();
   }
-  setupJfPars();
 }
 
 void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
@@ -81,37 +74,33 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
     m_tauCalibFunc.at(i).push_back(C[i]);
   }
   setOrcaStyleParams();
-  setupJfPars();
 }
 
-const produceTrivialCalibrationLut::lutPtrVector produceTrivialCalibrationLut::produce() const
+produceTrivialCalibrationLut::lutPtrVector produceTrivialCalibrationLut::produce()
 {
   L1CaloEtScale* jetScale = new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds);
+  L1GctJetFinderParams* calibFun = new L1GctJetFinderParams();
+
+  calibFun->setRegionEtLsb(m_jetEtScaleInputLsb);
+
+  calibFun->setJetEtCalibrationParams(m_corrFunType,
+				      m_jetCalibFunc,
+				      m_tauCalibFunc);
+
+  calibFun->setHtSumParams(m_htScaleLSB, 0.0, 0.0);
 
   lutPtrVector lutVector;
   lutPtr nextLut( new L1GctJetEtCalibrationLut() );
 
   for (unsigned ieta=0; ieta<L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
     nextLut->setEtaBin(ieta);
-    nextLut->setFunction(m_jfPars);
+    nextLut->setFunction(calibFun);
     nextLut->setOutputEtScale(jetScale);
     lutVector.push_back(nextLut);
     nextLut.reset ( new L1GctJetEtCalibrationLut() );
   }
 
   return lutVector;
-}
-
-void produceTrivialCalibrationLut::setupJfPars() {
-
-  m_jfPars->setRegionEtLsb(m_jetEtScaleInputLsb);
-
-  m_jfPars->setJetEtCalibrationParams(m_corrFunType,
-				      m_jetCalibFunc,
-				      m_tauCalibFunc);
-
-  m_jfPars->setHtSumParams(m_htScaleLSB, 0.0, 0.0);
-
 }
 
 //--------------------------------------------------------------------------

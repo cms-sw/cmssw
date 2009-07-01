@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.18 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATMuonProducer.h,v 1.19 2009/06/08 13:51:35 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.18 2009/04/20 19:49:14 vadler Exp $
+  \version  $Id: PATMuonProducer.h,v 1.19 2009/06/08 13:51:35 hegner Exp $
 */
 
 
@@ -29,6 +29,7 @@
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
+#include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -77,6 +78,7 @@ namespace pat {
       bool          embedGenMatch_;
       std::vector<edm::InputTag> genMatchSrc_;
       bool          addResolutions_;
+      pat::helper::KinResolutionsLoader resolutionLoader_;
       bool          addLRValues_;
 
 

@@ -4,8 +4,8 @@
 
 /**
 \class LimitResults
-$Revision: 1.6 $
-$Date: 2009/06/02 11:37:57 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The objects of this class store and access with lightweight methods the 
@@ -24,16 +24,8 @@ TConfidenceLevel class (http://root.cern.ch/root/html/TConfidenceLevel.html).
 #include "TH1F.h"
 #include "TLatex.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalMethod.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "LimitPlot.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/LimitPlot.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
+#include "PhysicsTools/RooStatsCms/interface/LimitPlot.h"
 
 class LimitResults : public StatisticalMethod {
 
@@ -48,9 +40,6 @@ class LimitResults : public StatisticalMethod {
 
     /// Default Constructor 
     LimitResults();
-
-    /// Copy Constructor
-    LimitResults(LimitResults& other);
 
     /// Destructor
     ~LimitResults();
@@ -96,18 +85,17 @@ class LimitResults : public StatisticalMethod {
     /// The cached Clb Val
     double m_CLb;
 
-    /// -2lnQ values for sb model
-    std::vector<float> m_m2lnQ_sb;
-
-    /// -2lnQ values for b model
-    std::vector<float> m_m2lnQ_b;
-
-
     /// Build CLb
     void m_build_CLb();
 
     /// Build CLsb
     void m_build_CLsb();
+
+    /// -2lnQ values for sb model
+    std::vector<float> m_m2lnQ_sb;
+
+    /// -2lnQ values for b model
+    std::vector<float> m_m2lnQ_b;
 
 /*
     /// Sorting flag
@@ -126,10 +114,6 @@ class LimitResults : public StatisticalMethod {
     double m_getRMS(std::vector<float>& vals);
 */
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(LimitResults,1)
-#endif
 };
 
 #endif

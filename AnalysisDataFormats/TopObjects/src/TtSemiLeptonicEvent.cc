@@ -1,6 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 
 // print info via MessageLogger
 void

@@ -8,7 +8,6 @@
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloRecHit>
 <use name=Geometry/CaloGeometry>
-<use name=SimDataFormats/GeneratorProducts>
 
 <export>
   <lib name=ValidationCaloTowers>
@@ -21,7 +20,6 @@
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>	 
   <use name=Geometry/CaloGeometry>
-  <use name=SimDataFormats/GeneratorProducts>
 
 </export>
 

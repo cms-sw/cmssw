@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.4 2009/04/28 19:34:19 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.5 2009/05/26 14:21:23 vadler Exp $
 //
 
 
@@ -153,7 +153,7 @@ TriggerFilterRefVector TriggerEvent::pathFilters( const std::string & namePath )
 bool TriggerEvent::filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath ) const
 {
   TriggerFilterRefVector theFilters = pathFilters( namePath );
-  for ( TriggerFilterRefVector::const_iterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
+  for ( TriggerFilterRefVectorIterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
     if ( filterRef == *iFilter ) {
       return true;
     }
@@ -230,10 +230,10 @@ TriggerObjectRefVector TriggerEvent::pathObjects( const std::string & namePath )
 {
   TriggerObjectRefVector thePathObjects;
   TriggerFilterRefVector theFilters = pathFilters( namePath );
-  for ( TriggerFilterRefVector::const_iterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
+  for ( TriggerFilterRefVectorIterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
     const std::string labelFilter( ( *iFilter )->label() );
     TriggerObjectRefVector theObjects = filterObjects( labelFilter );
-    for ( TriggerObjectRefVector::const_iterator iObject = theObjects.begin(); iObject != theObjects.end(); ++iObject ) {
+    for ( TriggerObjectRefVectorIterator iObject = theObjects.begin(); iObject != theObjects.end(); ++iObject ) {
       thePathObjects.push_back( *iObject );
     }
   }
@@ -243,7 +243,7 @@ TriggerObjectRefVector TriggerEvent::pathObjects( const std::string & namePath )
 bool TriggerEvent::objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const
 {
   TriggerFilterRefVector theFilters = pathFilters( namePath );
-  for ( TriggerFilterRefVector::const_iterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
+  for ( TriggerFilterRefVectorIterator iFilter = theFilters.begin(); iFilter != theFilters.end(); ++iFilter ) {
     if ( objectInFilter( objectRef, ( *iFilter )->label() ) ) {
       return true;
     }

@@ -118,7 +118,6 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-/*
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
    if(ind==0){
      file << "<tr>";
@@ -168,14 +167,12 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
 }
-*/
 static void printTableTail(ofstream& file){
      file << "</table>"<< endl;
      file << "</body>"<< endl;
      file << "</html>"<< endl;
 }
 void HcalDetDiagPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-  /*
 int  MissingCnt=0;
 int  UnstableCnt=0;
 int  BadCnt=0; 
@@ -647,6 +644,5 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
-  */
 } 
 

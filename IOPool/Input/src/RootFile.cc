@@ -1000,16 +1000,16 @@ namespace edm {
   }
 
   bool
-  RootFile::setEntryAtLumi(LuminosityBlockID const& lumi) {
-    fileIndexIter_ = fileIndex_.findLumiPosition(lumi.run(), lumi.luminosityBlock(), true);
+  RootFile::setEntryAtLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
+    fileIndexIter_ = fileIndex_.findLumiPosition(run, lumi, true);
     if(fileIndexIter_ == fileIndexEnd_) return false;
     lumiTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
   }
 
   bool
-  RootFile::setEntryAtRun(RunID const& run) {
-    fileIndexIter_ = fileIndex_.findRunPosition(run.run(), true);
+  RootFile::setEntryAtRun(RunNumber_t run) {
+    fileIndexIter_ = fileIndex_.findRunPosition(run, true);
     if(fileIndexIter_ == fileIndexEnd_) return false;
     runTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;

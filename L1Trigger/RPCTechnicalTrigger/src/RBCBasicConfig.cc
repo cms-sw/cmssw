@@ -1,10 +1,10 @@
-// $Id: RBCBasicConfig.cc,v 1.3 2009/05/16 19:43:31 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCBasicConfig.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCBasicConfig.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCBasicConfig
@@ -21,9 +21,7 @@ RBCBasicConfig::RBCBasicConfig( const RBCBoardSpecs * rbcspecs , RBCId * info )
   m_rbcboardspecs  = rbcspecs;
   m_rbclogic       = new RBCLogicUnit();
   m_rbcinfo        = new RBCId( *info );
-
-  m_debug = false;
-    
+  
 }
 
 RBCBasicConfig::RBCBasicConfig( const char * _logic ) {
@@ -59,15 +57,13 @@ bool RBCBasicConfig::initialise()
   m_rbclogic->setlogic( (*itr).m_LogicType.c_str() );
   status = m_rbclogic->initialise();
   
-  m_rbclogic->setBoardSpecs( (*itr) );
-  
   // get mask and force vectors
   
   m_vecmask.assign( (*itr).m_MaskedOrInput.begin(), (*itr).m_MaskedOrInput.end() );
   m_vecforce.assign( (*itr).m_ForcedOrInput.begin(), (*itr).m_ForcedOrInput.end() );
   
   if ( !status ) { 
-    if( m_debug ) std::cout << "RBCConfiguration> Problem initialising the logic unit\n"; 
+    std::cout << "RBCConfiguration> Problem initialising the logic unit\n"; 
     return 0; };
   
   return 1;
@@ -77,11 +73,11 @@ bool RBCBasicConfig::initialise()
 void RBCBasicConfig::preprocess( RBCInput & input )
 {
   
-  if( m_debug ) std::cout << "RBCBasicConfig::preprocess> starts here" << std::endl;
+  std::cout << "RBCBasicConfig::preprocess> starts here" << std::endl;
 
   input.mask( m_vecmask );
   input.force( m_vecforce );
   
-  if( m_debug ) std::cout << "RBCBasicConfig::preprocess> done" << std::endl;
+  std::cout << "RBCBasicConfig::preprocess> done" << std::endl;
   
 }

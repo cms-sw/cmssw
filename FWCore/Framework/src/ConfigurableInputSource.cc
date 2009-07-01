@@ -257,15 +257,15 @@ namespace edm {
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
         // new lumi
         ++luminosityBlock_;
-        numberEventsInThisLumi_=0;
+        numberEventsInThisLumi_ = 1;
       } else {
         ++numberEventsInThisLumi_;
       }
     } else {
       // new run
       eventID_ = eventID_.nextRunFirstEvent();
-      numberEventsInThisLumi_=1;
-      numberEventsInThisRun_=1;
+      numberEventsInThisLumi_ = 1;
+      numberEventsInThisRun_ = 1;
       luminosityBlock_ = origLuminosityBlockNumber_t_;
     }
     presentTime_ += timeBetweenEvents_;
@@ -280,7 +280,7 @@ namespace edm {
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ > 0)) {
         // new lumi
         --luminosityBlock_;
-        numberEventsInThisLumi_=numberEventsInLumi_;
+        numberEventsInThisLumi_ = numberEventsInLumi_;
       } else {
         --numberEventsInThisLumi_;
       }
@@ -288,18 +288,18 @@ namespace edm {
       // new run
       eventID_ = eventID_.previousRunLastEvent();
       eventID_ = EventID(numberEventsInRun_,eventID_.run());
-      numberEventsInThisLumi_=numberEventsInLumi_;
-      numberEventsInThisRun_=numberEventsInRun_;
-      luminosityBlock_ = origLuminosityBlockNumber_t_+numberEventsInRun_/numberEventsInLumi_;
+      numberEventsInThisLumi_ = numberEventsInLumi_;
+      numberEventsInThisRun_ = numberEventsInRun_;
+      luminosityBlock_ = origLuminosityBlockNumber_t_ + numberEventsInRun_/numberEventsInLumi_;
     }
     presentTime_ -= timeBetweenEvents_;
   }
   
   void
   ConfigurableInputSource::setRunAndEventInfo() {
-    if(0 != numberOfEventsInBigSkip_ && 0==--numberOfEventsBeforeBigSkip_) {
+    if(0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
       skip(numberOfEventsInBigSkip_);
-      numberOfEventsBeforeBigSkip_=numberOfSequentialEvents_;
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
     }
     advanceToNext();
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}

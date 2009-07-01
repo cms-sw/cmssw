@@ -13,7 +13,7 @@ patJetCorrections = cms.Sequence(jetCorrFactors)
 from JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff import *
 from JetMETCorrections.Type1MET.MetMuonCorrections_cff import corMetGlobalMuons
 metJESCorIC5CaloJetMuons = corMetGlobalMuons.clone(uncorMETInputTag = cms.InputTag('metJESCorIC5CaloJet'))
-patMETCorrections = cms.Sequence(metJESCorIC5CaloJet * muonMETValueMapProducer * metJESCorIC5CaloJetMuons)
+patMETCorrections = cms.Sequence(metJESCorIC5CaloJet * metJESCorIC5CaloJetMuons)
 
 # default PAT sequence for JetMET corrections before cleaners
 patJetMETCorrections = cms.Sequence(patJetCorrections + patMETCorrections)

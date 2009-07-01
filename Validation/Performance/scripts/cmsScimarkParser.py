@@ -30,6 +30,9 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     # open file and read it and fill the structure!
     logfile=open(logfile_name,'r')
     logfile_lines=logfile.readlines()
+    if not logfile_lines:
+        print "The logfile %s is empty! Exiting now."%logfile_name
+        sys.exit()
     logfile.close()
 
     # we get the info we need!

@@ -17,5 +17,6 @@ caloJetBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
     minDeltaEt = cms.double(-100.),
     maxDeltaEt = cms.double(50.),
     minDeltaPhi = cms.double(-0.5),
-    maxDeltaPhi = cms.double(0.5)       
+    maxDeltaPhi = cms.double(0.5),
+    doMetPlots  = cms.bool(False)
 )

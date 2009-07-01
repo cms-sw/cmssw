@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/11 18:15:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/12 09:59:50 $
+ *  $Revision: 1.3 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -88,18 +88,19 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "NumberOfSeeds_";
   NumberOfSeeds = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
 
-  histname = "SeedEta_";
-  SeedEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
-  SeedEta->setAxisTitle("Seed pseudorapidity");
-  
-  histname = "SeedPhi_";
-  SeedPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax);
-  SeedPhi->setAxisTitle("Seed azimuthal angle");
-  
-  histname = "SeedTheta_";
-  SeedTheta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
-  SeedTheta->setAxisTitle("Seed polar angle");
-  
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+    histname = "SeedEta_";
+    SeedEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
+    SeedEta->setAxisTitle("Seed pseudorapidity");
+    
+    histname = "SeedPhi_";
+    SeedPhi = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, PhiBin, PhiMin, PhiMax);
+    SeedPhi->setAxisTitle("Seed azimuthal angle");
+    
+    histname = "SeedTheta_";
+    SeedTheta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
+    SeedTheta->setAxisTitle("Seed polar angle");
+  }
   histname = "NumberOfTrackCandidates_";
   NumberOfTrackCandidates = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
 
@@ -124,7 +125,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   using namespace edm;
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
-  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
   InputTag trackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
   InputTag seedProducer = conf_.getParameter<edm::InputTag>("SeedProducer");
@@ -134,14 +134,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(trackProducer, trackCollection);
   if (!trackCollection.isValid()) return;
 
-   Handle<edm::View<TrajectorySeed> > seedCollection;
-   iEvent.getByLabel(seedProducer, seedCollection);
+  Handle<edm::View<TrajectorySeed> > seedCollection;
+  iEvent.getByLabel(seedProducer, seedCollection);
   if (!seedCollection.isValid()) return;
-
-    Handle<TrackCandidateCollection> theTCCollection;
-    iEvent.getByLabel(tcProducer, theTCCollection ); 
-   if (!theTCCollection.isValid()) return;
-
+  
+  Handle<TrackCandidateCollection> theTCCollection;
+  iEvent.getByLabel(tcProducer, theTCCollection ); 
+  if (!theTCCollection.isValid()) return;
+  
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
@@ -151,27 +151,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   NumberOfSeeds->Fill(seedCollection->size());
   NumberOfTrackCandidates->Fill(theTCCollection->size());
       
-TrajectoryStateTransform tsTransform;
-TSCBLBuilderNoMaterial tscblBuilder;
+  TrajectoryStateTransform tsTransform;
+  TSCBLBuilderNoMaterial tscblBuilder;
 
-for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
-edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
-TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
-TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
-if (!state.isValid()) continue;
-TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);
-if (!tsAtClosestApproachSeed.isValid()) continue;
-
-GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
-
-double etaSeed = state.globalMomentum().eta();
-SeedEta->Fill(etaSeed);
-double phiSeed  = pSeed.phi();
-SeedPhi->Fill(phiSeed);
-double thetaSeed  = pSeed.theta();
-SeedTheta->Fill(thetaSeed);
-
-}
   int totalRecHits = 0, totalLayers = 0;
   for (reco::TrackCollection::const_iterator track = trackCollection->begin(); track!=trackCollection->end(); ++track) {
   
@@ -189,6 +171,28 @@ SeedTheta->Fill(thetaSeed);
   }
   NumberOfMeanRecHitsPerTrack->Fill(meanrechits);
   NumberOfMeanLayersPerTrack->Fill(meanlayers);
+
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+    iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+    for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
+      edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
+      TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
+      TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
+      if (!state.isValid()) continue;
+      TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);
+      if (!tsAtClosestApproachSeed.isValid()) continue;
+      
+      GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
+      
+      double etaSeed = state.globalMomentum().eta();
+      SeedEta->Fill(etaSeed);
+      double phiSeed  = pSeed.phi();
+      SeedPhi->Fill(phiSeed);
+      double thetaSeed  = pSeed.theta();
+      SeedTheta->Fill(thetaSeed);
+      
+    }
+  }
 }
 
 

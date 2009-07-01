@@ -19,8 +19,6 @@ class RunTPGConfigDat : public IDataItem {
 
   inline std::string getConfigTag() const { return m_config; }
   inline void setConfigTag(std::string x) { m_config = x; }
-  inline int getVersion() const { return m_version; }
-  inline void setVersion(int x) { m_version = x; }
 
 
  private:
@@ -34,7 +32,7 @@ class RunTPGConfigDat : public IDataItem {
      throw(std::runtime_error);
 
   // User data
-  int m_version;
+
   std::string m_config;
 
 };

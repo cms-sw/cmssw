@@ -219,9 +219,14 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_ && chNumber<=68)
 	{
-	  if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
-	    STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
+          bool applyZS(true);
+          if( chStatus != CH_FORCEDZS1
+            && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
+          
+          if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
+	    STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
 	  }
+          
 	}
       
       

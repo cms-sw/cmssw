@@ -45,6 +45,7 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
+#include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
 namespace {
   struct dictionary {
@@ -336,6 +337,7 @@ namespace {
   pat::TriggerObjectRefProd rp_p_to;
   edm::Wrapper<pat::TriggerObjectRefProd> w_rp_p_to;
   pat::TriggerObjectRefVector rv_p_to;
+  pat::TriggerObjectRefVectorIterator rv_p_to_i;
   pat::TriggerObjectMatch a_p_to;
   edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectRef> h_p_to;
   edm::reftobase::RefHolder<pat::TriggerObjectRef> rh_p_to;
@@ -355,6 +357,7 @@ namespace {
   pat::TriggerObjectStandAloneRefProd rp_p_tosa;
   edm::Wrapper<pat::TriggerObjectStandAloneRefProd> w_rp_p_tosa;
   pat::TriggerObjectStandAloneRefVector rv_p_tosa;
+  pat::TriggerObjectStandAloneRefVectorIterator rv_p_tosa_i;
   pat::TriggerObjectStandAloneMatch a_p_tosa;
   edm::reftobase::Holder<reco::Candidate, pat::TriggerObjectStandAloneRef> h_p_tosa;
   edm::reftobase::RefHolder<pat::TriggerObjectStandAloneRef> rh_p_tosa;
@@ -369,6 +372,7 @@ namespace {
   pat::TriggerFilterRefProd rp_p_tf;
   edm::Wrapper<pat::TriggerFilterRefProd> w_rp_p_tf;
   pat::TriggerFilterRefVector rv_p_tf;
+  pat::TriggerFilterRefVectorIterator rv_p_tf_i;
 
   pat::TriggerPathCollection v_p_tp;
   pat::TriggerPathCollection::const_iterator v_p_tp_ci;
@@ -377,6 +381,7 @@ namespace {
   pat::TriggerPathRefProd rp_p_tp;
   edm::Wrapper<pat::TriggerPathRefProd> w_rp_p_tp;
   pat::TriggerPathRefVector rv_p_tp;
+  pat::TriggerPathRefVectorIterator rv_p_tp_i;
   
   edm::Wrapper<pat::TriggerEvent> w_p_te;
 
@@ -395,6 +400,11 @@ namespace {
   pat::UserHolder<math::PtEtaPhiMLorentzVector>	 p_udh_plv;
 
   edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >	 w_vm_p_lutr;
+
+  pat::CandKinResolution ckr;
+  std::vector<pat::CandKinResolution>  v_ckr;
+  pat::CandKinResolutionValueMap vm_ckr;
+  edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
 
   };
 

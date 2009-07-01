@@ -11,6 +11,8 @@ ecalBarrelHltTask.FEDRawDataCollection = 'rawDataCollector'
 ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
 ecalEndcapHltTask.FEDRawDataCollection = 'rawDataCollector'
 ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = 'rawDataCollector'
-dtDataIntegrityUnpacker.inputLabel = cms.untracked.InputTag('rawDataCollector')
+dtDataIntegrityUnpacker.inputLabel = 'rawDataCollector'
 hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag('rawDataCollector')
+
+DQMOffline.remove(l1tfed)
 

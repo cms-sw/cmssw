@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.2 2008/11/11 19:52:33 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -19,7 +19,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -45,11 +44,10 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 #include <string>
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.2 2008/11/11 19:52:33 argiro Exp $";
 
 /**
  *
@@ -97,9 +95,6 @@ void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
    edm::ESHandle<EcalIntercalibConstants> intercalib;
    iSetup.get<EcalIntercalibConstantsRcd>().get(intercalib);
 
-   edm::ESHandle<EcalIntercalibConstantsMC> intercalibmc;
-   iSetup.get<EcalIntercalibConstantsMCRcd>().get(intercalibmc);
-
    edm::ESHandle<EcalIntercalibErrors> intercaliberr;
    iSetup.get<EcalIntercalibErrorsRcd>().get(intercaliberr);
 
@@ -112,21 +107,18 @@ void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
 
    std::cout << "Got all records " << std::endl;
    
-   string ADCfile      = "EcalADCToGeVConstant.xml";
-   string ChStatusfile = "EcalChannelStatus.xml";
-   string Grfile       = "EcalGainRatios.xml";
-   string InterFile    = "EcalIntercalibConstants.xml";
-   string InterMCFile  = "EcalIntercalibConstantsMC.xml";
-   string WFile        = "EcalTBWeights.xml";
-   string WGFile       = "EcalWeightXtalGroups.xml";
+   string ADCfile      = "/tmp/sub/EcalADCToGeVConstant.xml";
+   string ChStatusfile = "/tmp/sub/EcalChannelStatus.xml";
+   string Grfile       = "/tmp/sub/EcalGainRatios.xml";
+   string InterFile    = "/tmp/sub/EcalIntercalibConstants.xml";
+   string WFile        = "/tmp/sub/EcalTBWeights.xml";
+   string WGFile       = "/tmp/sub/EcalWeightXtalGroups.xml";
 
    EcalADCToGeVXMLTranslator::writeXML(ADCfile,header,*adctogev); 
    EcalChannelStatusXMLTranslator::writeXML(ChStatusfile,header,*chstatus);
    EcalGainRatiosXMLTranslator::writeXML(Grfile,header,*gainratios);
    EcalIntercalibConstantsXMLTranslator::writeXML(InterFile,header,
 						  *intercalib,*intercaliberr);
-   EcalIntercalibConstantsXMLTranslator::writeXML(InterMCFile,header,
-						 *intercalibmc,*intercaliberr);
    EcalTBWeightsXMLTranslator::writeXML(WFile,header,*tbweights);
    EcalWeightGroupXMLTranslator::writeXML(WGFile,header,*wgroup);
 

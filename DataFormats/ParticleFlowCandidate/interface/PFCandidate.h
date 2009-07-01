@@ -74,7 +74,7 @@ namespace reco {
 /*       return  CandidateBaseRef(sourceRef_); */
 /*     } */
 
-    void setSourcePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
+    void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
 
     size_t numberOfSourceCandidatePtrs() const { 
       return 1;

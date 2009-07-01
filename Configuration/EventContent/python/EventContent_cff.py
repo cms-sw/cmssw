@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.11 2009/05/28 17:18:04 futyand Exp $
+#  $Id: EventContent_cff.py,v 1.15 2009/06/22 17:35:09 arizzi Exp $
 #
 #
 #
@@ -100,7 +100,8 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 RAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep  FEDRawDataCollection_rawDataCollector_*_*',
-        'keep  FEDRawDataCollection_source_*_*')
+        'keep  FEDRawDataCollection_source_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -109,7 +110,8 @@ RAWEventContent = cms.PSet(
 #
 RECOEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-	'keep *_logErrorHarvester_*_*')
+	'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -126,7 +128,8 @@ AODEventContent = cms.PSet(
 #
 #
 RAWSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -135,7 +138,8 @@ RAWSIMEventContent = cms.PSet(
 #
 RECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -153,8 +157,14 @@ AODSIMEventContent = cms.PSet(
 #
 FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
+FEVTHLTALLEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
+)
+
 #
 #
 # FEVTSIM Data Tier definition
@@ -162,7 +172,8 @@ FEVTEventContent = cms.PSet(
 #
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -171,7 +182,8 @@ FEVTSIMEventContent = cms.PSet(
 #
 RAWDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -180,7 +192,8 @@ RAWDEBUGEventContent = cms.PSet(
 #
 RAWDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 #
 #
@@ -189,7 +202,8 @@ RAWDEBUGHLTEventContent = cms.PSet(
 #
 FEVTDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 
@@ -200,7 +214,8 @@ FEVTDEBUGEventContent = cms.PSet(
 #
 FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -210,7 +225,8 @@ FEVTDEBUGHLTEventContent = cms.PSet(
 #
 RECODEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -219,7 +235,8 @@ RECODEBUGEventContent = cms.PSet(
 #
 #
 ALCARECOEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
 )
 
 #
@@ -230,7 +247,8 @@ HLTDEBUGEventContent = cms.PSet(
     #outputCommands = cms.untracked.vstring('drop *',
     #        'keep *_hlt*_*_*')
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_logErrorHarvester_*_*')
+        'keep *_logErrorHarvester_*_*'),
+    splitLevel = cms.untracked.int32(0)
 )
 HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
 
@@ -333,6 +351,10 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+
+FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
+FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
+
 
 FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)

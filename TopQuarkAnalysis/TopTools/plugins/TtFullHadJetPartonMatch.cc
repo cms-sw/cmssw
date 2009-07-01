@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TopQuarkAnalysis/TopTools/plugins/TtJetPartonMatch.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
 
-typedef TtJetPartonMatch< TtFullHadEvtPartons > TtFullHadJetPartonMatch;
+typedef TtJetPartonMatch< TtFullHadEventPartons > TtFullHadJetPartonMatch;
 DEFINE_FWK_MODULE(TtFullHadJetPartonMatch);
