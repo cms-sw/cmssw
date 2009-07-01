@@ -13,10 +13,6 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Geometry/DTGeometry>
-<use name=Geometry/DTGeometryBuilder>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/CSCGeometryBuilder>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
