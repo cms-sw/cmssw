@@ -1,0 +1,358 @@
+#! /usr/bin/env python
+#pylint: disable-msg=W0403
+"""
+BuildSet - utilizes dependency discovery mechanism for Partial Releases.
+
+30 April 2008 - created test_dependencies_txt development branch
+                to try dependencies.txt mapping format
+
+1 July 2008   - with -n option (test mode) does not reuse or save cached data
+              - products dependencies are now taken into consideration
+"""
+#
+# FIXME:
+#              - external tools dependencies have (CMSSW) suffix: only in this
+#                dependencies.txt based version.
+#
+#              - python sort seems to work differently than unix sort.
+#                Output needs to be re-sorted.
+#
+
+__revision__ = "$Id: BuildSet,v 1.12.2.2 2008/07/01 22:27:20 natasha Exp $"
+__version__ = "$Revision: 1.12.2.2 $"
+
+import os
+import sys
+import getopt
+import string
+import urllib
+import re
+import pickle
+import commands
+
+programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
+programName = os.path.basename( sys.argv[0] )
+dataVarName = 'IGNOMINY_DATA_HOME'
+
+global verbose
+verbose               = 2 # Shows both error and info output 
+packageListInFile     = 0
+dependencyAnalysisDir = "http://cern.ch/cms-sdt/ignominy"
+cmsswSOURCES          = "http://cmsrep.cern.ch/cms/cpt/Software/download/cms/SOURCES/cms/cmssw/"
+#afspath               = "/afs/cern.ch/cms/sdt/web/ignominy"
+afspath               = "/afs/cern.ch/user/m/muzaffar/public/online/results"
+
+# Read from afs directory if available (much faster):
+if os.path.exists (afspath):
+    dependencyAnalysisDir = afspath
+
+# Allow environment variable to override the default. 
+# The env. variable value can still be overriden with -d option. 
+
+if dataVarName in os.environ.keys():
+    ignominyDataHome = os.environ[dataVarName]
+    if os.path.exists (ignominyDataHome):
+        dependencyAnalysisDir = ignominyDataHome
+    else:
+        sys.stderr.write ("="*60+"\n                WARNING \n"+
+                          dataVarName+" variable is set to:\n   "
+                          +ignominyDataHome
+                          +"\nBut this directory does not exist. "
+                          +"Using default:\n   "
+                          +dependencyAnalysisDir+"\n"
+                          +"To suppress this warning, unset "+dataVarName+"\n"
+                          +"="*60+"\n")
+
+
+dependencies          = {}
+outputFormats         = ("packages", "tools", "dependencies")
+outputFormat          = None
+packages              = {}
+dropPluginDeps        = 0
+
+##############################################################
+# Internal utility functions:
+
+def usage():
+    """
+    Prints out usage help
+    """
+    # Require minimum arguments and use options only to
+    # override the defaults
+    if verbose:
+        print """
+USAGE:
+    """ + programName + """ [OPTIONS] <release name>  [<package>]+
+OPTIONS:
+   -d dir     - get dependency information from directory dir,
+                also supports urls.
+                Default:   http://cern.ch/cms-sdt/ignominy 
+                Use environment variable IGNOMINY_DATA_HOME to
+                override the default.
+   -f file    - read list of packages from file.
+   -h         - print this help and exit.
+   -v         - display version number.
+   -q         - run quietly, suppressing info output.
+   -Q         - really quiet: suppress both info and error output.
+   -p         - drop plugins dependency too
+   -o format  - format = [""" + "|".join(outputFormats) + """ ]
+                print out formatted output (e.g. only packages, or
+                only tools, one per line).
+"""
+
+def usageError ( message, programName) :
+    """
+    usageError:
+      Call it to quit in case of usage error
+    """
+    if verbose:
+        print "Usage error: ", message, \
+              "\nTry \'" + programName + " -h\' for help"
+    sys.exit ( 2 )
+
+    
+def infoOut(infoString):
+    """
+    Informative printout with verbosity control.
+    """
+    if verbose > 1 :
+        print "##", programName, "info: ", infoString
+
+##############################################################
+# Interface functions:
+def readPackageFromFile(line, list):
+    """
+      Reads package name in the line (from file object) and adds it
+      to the packages list.
+      Ignores comments started with hash (#).
+      More checks (e.g. validate package names) could be added.
+    """
+    # Discard comments
+    line = re.sub('\t*#.*', '', line)
+    blankLine = re.compile('(\t*\n)')
+    # Skip blank lines
+    result = blankLine.match(line)
+    if result:
+        return 0
+    else:
+	list[line.strip()]=1
+
+def excludeProducts(BuildFilesDir,dirtype,resultMaps):
+    pname =re.compile("^\s*<(library|bin)\s+", re.IGNORECASE)
+    for root, dirs, files in os.walk(BuildFilesDir):
+        if dirtype in dirs:
+	    bfname = root+"/" + dirtype + "/BuildFile.xml"
+	    if not os.path.exists(bfname):
+	        bfname = root+"/" + dirtype + "/BuildFile"
+		if not os.path.exists(bfname):
+		    continue
+	    bf=open(bfname)
+            for line in bf.readlines():
+		if not pname.match(line):
+		    continue
+		pk = re.compile("^.*\s+name\s*=\s*(\"|\')*(.+?)(\"|\')*(\s+|/>|>)", re.IGNORECASE)
+		result=pk.match(line)
+		if result:
+                    resultMaps.append(result.group(2))
+            bf.close()
+
+def addDependency(p,cache):
+    if cache.has_key(p):
+        return
+    cache[p]=1
+    if dependencies.has_key(p):
+	for d in dependencies[p].keys():
+	    addDependency(d,cache)
+
+###############################################################
+# Here real action starts:
+
+# Handle options and arguments:
+try:
+    opts, args = getopt.getopt( sys.argv[1:], "hqpQvf:d:o:" )
+
+except getopt.error:
+    usageError( sys.exc_info()[1], programName)
+
+# process verbosity options separately before anything else. 
+
+for o, a in opts:
+    if o == "-q":
+        # runa quietly suppressing any info output
+        verbose = 1  # quiet
+    if o == "-Q":
+        # suppress both info and error output
+        verbose = 0  # really quiet
+
+for o, a in opts:
+    if o == "-v":
+        print 'TEST: '+__version__
+        sys.exit()
+    if o == "-h":
+        usage()
+        sys.exit()
+    if o == "-f":
+        packageListInFile = a
+        if not os.path.isfile(a):
+            usageError( "file " + a + " does not exist!", programName)
+    if o == "-o":
+        outputFormat = a
+        if not a in outputFormats:
+            usageError( "unknown output format: " + a + ".", programName)        
+        verbose = 1  # switch off extra output
+    if o == "-d":
+        # Skip check if url: 
+        if ( a[:7] != 'http://' and not os.path.isdir(a)):
+            usageError( "directory " + a + " does not exist!", programName)
+        dependencyAnalysisDir = a
+    if o == "-p":
+        dropPluginDeps = 1
+    
+# Require at least one argument:
+if not args:    
+    usageError("Please specify an argument: release name .  ", programName)
+
+release = args[0];
+for p in args[1:]:
+    packages[p]=1
+
+# Add packages from file: 
+if (packageListInFile):
+    f = open(packageListInFile,'r')
+    for line in f.readlines():
+        readPackageFromFile(line, packages)
+    f.close()
+
+sourceDownload=os.path.join(cmsswSOURCES, release, "src.tar.gz")
+s = urllib.urlopen(sourceDownload)
+
+# Using BuildFile information, we can map plugins to the type: src/plugins/test
+# according to in which directory they were built.  
+releaseBuildFiles = os.path.join (dependencyAnalysisDir, release, 'BuildFiles')
+if not os.path.exists(releaseBuildFiles):
+    usageError("Could not find release BuildFiles in "
+               +releaseBuildFiles
+               +"\nCopy BuildFiles manually, or extend a script to do it for you.", programName)
+
+infoOut( "Running " + programName)
+infoOut( "Release: " + release)
+infoOut( "Packages: " + str(packages))
+infoOut( "Dependency dir: " + dependencyAnalysisDir)
+infoOut( "BuildFiles dir: " + releaseBuildFiles)
+
+
+# Exclude All test products
+droppedProducts=[]
+excludeProducts(releaseBuildFiles,"test",droppedProducts)
+
+if dropPluginDeps:
+    excludeProducts(releaseBuildFiles,"plugins",droppedProducts)
+
+# Get dependency info:
+# Assume the directory structure as produced by Ignominy,
+# which dependency information is to be extracted:
+# New Method of extracting ignominy dependencies results:
+
+depFile = os.path.join(dependencyAnalysisDir, release, "dependencies.txt")
+
+# Get dependencies from the original ignominy depFile:
+f = urllib.urlopen(depFile)
+inBlock    = 0
+inPackage  = 0
+skipProduct = 0
+pname          = re.compile("^(.*?)_(.*)")
+beginBlock     = re.compile('# Direct binary dependencies')
+endBlock       = re.compile('^######################*')
+packageEntry   = re.compile('^(\S+)(\s+.+|):')
+requiresEntry  = re.compile('^\s+(\S+)\s*$')
+tools          = re.compile('^(tools|System)/(.+)\s*$',re.IGNORECASE)
+lcgProject     = re.compile('^(CORAL|SEAL|POOL)/.+',re.IGNORECASE)
+myTools        = {}
+for line in f.readlines():
+    if inBlock:
+        if endBlock.match(line):
+            inBlock = 0
+        else:
+            if inPackage:
+                result=requiresEntry.match(line)
+                if result:
+		    if not skipProduct:
+		        requires=result.group(0).strip()
+			if lcgProject.match(requires):
+			    continue
+			if pname.match(requires):
+			    continue
+                        res = tools.match (requires)
+			if res:
+			    requires = res.group(2).lower()
+			    myTools[requires]=1
+			dependencies[currentPackage][requires]=1
+                else:
+                    inPackage=0                        
+            else:
+                result = packageEntry.match(line)
+                if result:
+                    tool = 0
+		    inPackage = 1
+		    skipProduct = 0
+		    currentPackage = result.group(1)
+		    if lcgProject.match(currentPackage):
+		        skipProduct = 1
+			continue
+		    res = tools.match (currentPackage)
+		    if res:
+		        currentPackage = res.group(2).lower()
+			tool = 1
+			myTools[currentPackage]=1
+		    if not tool:
+		        if currentPackage == "(UNKNOWN)":
+		            skipProduct = 1
+		        res = pname.match(currentPackage)
+		        if res:
+		            currentPackage = res.group(1)
+			    prodname = res.group(2)
+			    if prodname in droppedProducts:
+			        skipProduct = 1
+		    if not skipProduct:
+		        if not dependencies.has_key(currentPackage):
+			    dependencies[currentPackage]={}
+    else:
+        if beginBlock.match(line):
+            inBlock = 1
+f.close()
+    
+# Add required package products before processing dependencies:
+# FIXME: to check with Liz: additional products should be added
+# recursively i.e. all packages induced by additions should come
+# with their own products, and so on.
+
+# First get all required CMSSW packages: 
+
+myPackages={}
+for p in packages.keys():
+    addDependency(p,myPackages)
+    
+# Print output and finish:
+
+if outputFormat == "packages":
+    pkg = myPackages.keys()
+    pkg.sort()
+    for p in pkg:
+        if not p in myTools:
+            print p
+    sys.exit()
+
+if outputFormat == "tools":
+    pkg = myPackages.keys()
+    pkg.sort()
+    for p in pkg:
+        if p in myTools:
+            print p
+    sys.exit()
+
+if outputFormat == "dependencies":
+    pkg = myPackages.keys()
+    pkg.sort()
+    for p in pkg:
+        print p
+    sys.exit()
