@@ -4,29 +4,39 @@ namespace reco {
 
 std::vector<stats_t<float> > InverseCrosstalkMatrix::
 unfold(const std::vector<uint8_t>& q, const float x) {
+  const stats_t<float> saturated(254,400*400);
+  #define STATS(value) ( (value<254) ? stats_t<float>(value) : saturated )
+
   const unsigned N=q.size();
   std::vector<stats_t<float> > Q(N,stats_t<float>(0));
 
   if(N==1)                                 //optimize N==1
-    Q[0] = stats_t<float>( q[0] )/(1-2*x);  
+    Q[0] = STATS(q[0])/(1-2*x);  
   else if(N==2) {                          //optimize N==2
     const double A=1-2*x; 
-    Q[0] = ( A*stats_t<float>(q[0]) -x*stats_t<float>(q[1]) ) / (A*A-x*x);
-    Q[1] = ( A*stats_t<float>(q[1]) -x*stats_t<float>(q[0]) ) / (A*A-x*x);
+    const stats_t<float> q0 = STATS(q[0]);
+    const stats_t<float> q1 = STATS(q[1]);
+    Q[0] = ( A*q0 -x*q1 ) / (A*A-x*x);
+    Q[1] = ( A*q1 -x*q0 ) / (A*A-x*x);
   } 
   else {                                   //general case
     InverseCrosstalkMatrix inverse(N,x);  
     for(unsigned i=0; i<(N+1)/2; i++) {
       for(unsigned j=i; j<N-i; j++) {
 	const float Cij = inverse(i+1,j+1);
-	Q[  i  ] += Cij * stats_t<float>( q[  j  ] ) ;  if( i!=j)   
-	Q[  j  ] += Cij * stats_t<float>( q[  i  ] ) ;  if( N!=i+j+1) {
-	Q[N-i-1] += Cij * stats_t<float>( q[N-j-1] ) ;  if( i!=j)
-	Q[N-j-1] += Cij * stats_t<float>( q[N-i-1] ) ;
+	const stats_t<float> q_j  = (q[  j  ]<254) ? stats_t<float>(q[  j  ]) : saturated;
+	const stats_t<float> q_i  = (q[  i  ]<254) ? stats_t<float>(q[  i  ]) : saturated;
+	const stats_t<float> qNj1 = (q[N-j-1]<254) ? stats_t<float>(q[N-j-1]) : saturated;
+	const stats_t<float> qNi1 = (q[N-i-1]<254) ? stats_t<float>(q[N-i-1]) : saturated;
+	Q[  i  ] += Cij * STATS(q[  j  ]) ;  if( i!=j)   
+	Q[  j  ] += Cij * STATS(q[  i  ]) ;  if( N!=i+j+1) {
+	Q[N-i-1] += Cij * STATS(q[N-j-1]) ;  if( i!=j)
+	Q[N-j-1] += Cij * STATS(q[N-i-1]) ;
 	}
       }
     }
   }
+  #undef STATS
   return Q;
 }
 

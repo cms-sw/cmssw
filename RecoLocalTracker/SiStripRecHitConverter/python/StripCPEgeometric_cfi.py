@@ -5,7 +5,7 @@ StripCPEgeometricESProducer =cms.ESProducer("StripCPEESProducer",
                TanDiffusionAngle            = cms.double(0.01),
                ThicknessRelativeUncertainty = cms.double(0.02),
                NoiseThreshold               = cms.double(2.7),
-               UncertaintyScaling           = cms.double(1.4),
+               UncertaintyScaling           = cms.double(1.42),
                #---Crosstalk
                APVpeakmode             = cms.bool(False),
                # Deconvolution Mode
