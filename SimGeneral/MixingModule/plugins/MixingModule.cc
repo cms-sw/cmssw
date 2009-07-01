@@ -335,13 +335,13 @@ namespace edm
   }
 
   void MixingModule::checkSignal(const edm::Event &e){
-  
-    for (unsigned int ii=0;ii<workersObjects_.size();ii++){
-      if (workersObjects_[ii]->checkSignal(e)){
-        workers_.push_back(workersObjects_[ii]);
+    if (workers_.size()==0){
+      for (unsigned int ii=0;ii<workersObjects_.size();ii++){
+        if (workersObjects_[ii]->checkSignal(e)){
+          workers_.push_back(workersObjects_[ii]);
+        }
       }
     }
-  
   }
   
   void MixingModule::createnewEDProduct() {
