@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/06/22 14:11:56 $ 
- **  $Revision: 1.31 $
+ **  $Date: 2009/06/29 15:25:49 $ 
+ **  $Revision: 1.32 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1277,8 +1277,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     
-    //    if ( ! (  fabs(mcEta_) <= BARL || ( fabs(mcEta_) >= END_LO && fabs(mcEta_) <=END_HI ) ) ) 
-    // continue;  // all ecal fiducial region
+    if ( ! (  fabs(mcEta_) <= BARL || ( fabs(mcEta_) >= END_LO && fabs(mcEta_) <=END_HI ) ) ) 
+      continue;  // all ecal fiducial region
 
 
     nSimPho_[0]++;
@@ -1900,7 +1900,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      if ( aConv->conversionVertex().isValid() ) {
 		if ( trkProvenance==3 ) std::cout << " PhotonValidator provenance of tracks is mixed and vertex is valid " << std::endl;
                 totMatchedConvEtaTwoTracksWithVtx_[f]++;
-		float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(),  aConv->conversionVertex().ndof() );
+		float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
                 if (   chi2Prob > 0)                
 		  totMatchedConvEtaTwoTracksWithVtxProbGT0_[f]++;
                 if (   chi2Prob > 0.005)                
@@ -2027,7 +2027,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 	  if ( aConv->conversionVertex().isValid() ) {
-	    float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(),  aConv->conversionVertex().ndof() );
+	    float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
 	    
             h2_etaVsRreco_[0]->Fill (aConv->caloCluster()[0]->eta(),sqrt(aConv->conversionVertex().position().perp2()) );         
 	    h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
