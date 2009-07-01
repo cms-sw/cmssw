@@ -17,6 +17,7 @@ class PerigeeTrajectoryError
 public:
 
   PerigeeTrajectoryError() {}
+  ~PerigeeTrajectoryError() {}
 
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
     thePerigeeError(asSMatrix<5>(aPerigeeError)), weightIsAvailable(false) {}
@@ -56,11 +57,7 @@ public:
     return thePerigeeWeight;
   }
 
-  void calculateWeightMatrix() const
-  {
-    thePerigeeWeight = thePerigeeError.Inverse(inverseError);
-    weightIsAvailable = true;
-  }
+  void calculateWeightMatrix() const;
 
   double transverseCurvatureError() const {return sqrt(thePerigeeError(0,0));}
 

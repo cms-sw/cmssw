@@ -1,4 +1,16 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
+
+LocalTrajectoryError::LocalTrajectoryError() {}
+
+LocalTrajectoryError::~LocalTrajectoryError() {}
+
+LocalTrajectoryError::LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+  theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+
+LocalTrajectoryError::LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
+  theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
+
 
 LocalTrajectoryError::
 LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
@@ -11,16 +23,11 @@ LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
   theCovarianceMatrix(0,0) = dpinv*dpinv;
   
 }
-/*LocalTrajectoryError::
-LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
-		      float dpinv)
-{
-  AlgebraicSymMatrix55 em;
-  em(3,3) = dx*dx;
-  em(4,4) = dy*dy;
-  em(1,1) = dxdir*dxdir;
-  em(2,2) = dydir*dydir;
-  em(0,0) = dpinv*dpinv;
-  
-  theCovarianceMatrix = em;
-}*/
+
+const AlgebraicSymMatrix55 &weightMatrix() const {
+  if (theWeightMatrixPtr.get() == 0) {
+    theWeightMatrixPtr.reset(new AlgebraicSymMatrix55());
+    invertPosDefMatrix(theCovarianceMatrix,*theWeightMatrixPtr);
+  }
+  return *theWeightMatrixPtr;
+}
