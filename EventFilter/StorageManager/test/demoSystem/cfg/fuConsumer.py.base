@@ -13,8 +13,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('FATAL')),
-                                    log4cplus = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
                                     )
 
 process.source = cms.Source("EventStreamHttpReader",
