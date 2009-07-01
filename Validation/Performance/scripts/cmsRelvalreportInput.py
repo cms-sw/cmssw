@@ -74,7 +74,7 @@ def checkSteps(steps):
     If they are not, prints a warning and exits.
     No return value.'''
     
-    print steps
+    #print steps
     #if ":" in steps:
     #    steps.split(
     idx = -2
@@ -108,7 +108,7 @@ def getSteps(userSteps):
     Handle the exceptional cases of GEN-, GEN-SIM and GEN-FASTSIM (GEN is never profiled by itself).
     Returns a list of steps <steps>.'''
     #Add handling of ":" in steps
-    print userSteps
+    #print userSteps
     # Then split the user steps into "steps"
     gsreg = re.compile('GEN-SIM')
     greg = re.compile('GEN') #Add a second hack (due to the first) to handle the step 1 case GEN-HLT
@@ -128,7 +128,7 @@ def getSteps(userSteps):
             astep = greg.sub(r"GEN,SIM", astep)
             
             
-        print astep
+        #print astep
         # Finally collect all the steps into the steps list:
 
         steps.append(astep)
@@ -318,7 +318,7 @@ def setupProgramParameters(options,args):
         print 'ALL standard simulation candles will be PROCESSED:'
     else:
         Candle = [WhichCandles]
-        print 'ONLY %s will be PROCESSED' % Candle[0]
+        print 'Candle %s will be PROCESSED' % Candle[0]
 
     # For now the two steps are built in, this can be added as an argument later
     # Added the argument option so now this will only be defined if it was not defined already:
@@ -408,7 +408,7 @@ def getProfileArray(ProfileCode):
 def writeStepHead(simcandles,acandle,step):
     simcandles.write('#%s\n' % FileName[acandle])
     simcandles.write('#Step %s\n' % step)
-    print step
+    #print step
 
 
 def determineNewProfile(step,Profile,SavedProfile):
@@ -546,7 +546,7 @@ def writeCommands(simcandles,
     fstROOTfileStr = ""
 
     #Handling the case of the first user step not being the first step (GEN,SIM):
-    print "Steps passed to writeCommands %s",steps
+    #print "Steps passed to writeCommands %s",steps
     #Special case for FASTSIM:
     if (steps[0] == "GEN,FASTSIM"):
         start=-1
@@ -593,7 +593,7 @@ def writeCommands(simcandles,
             else:
                 
                 stopIndex = AllSteps.index(steps[-1].split(":")[0]) + 1
-                print "LAst step is %s and stopIndex is %s"%(steps[-1],stopIndex)
+                #print "Last step is %s and stopIndex is %s"%(steps[-1],stopIndex)
         steps = AllSteps
             
     unprofiledSteps = []
@@ -632,8 +632,8 @@ def writeCommands(simcandles,
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
                 hypsteps    = expandHyphens(hypMatch[0])
-                print hypsteps
-                print hypMatch[0]
+                #print hypsteps
+                #print hypMatch[0]
                 stepToWrite = ",".join(hypsteps)
                 befStep     = hypsteps[0]
                 #Kludge to avoid running HLT in composite steps if the -b option is chosen
@@ -746,7 +746,7 @@ def writeCommands(simcandles,
                     simcandles.write("%s @@@ None @@@ None\n" % Command)
                 else:
                     stepLabel=stepToWrite
-                    print "stepLabel is %s"%stepLabel
+                    #print "stepLabel is %s"%stepLabel
                     if '--pileup' in cmsDriverOptions and not "_PILEUP" in stepToWrite:
                         stepLabel = stepToWrite+"_PILEUP"
                     #Add kludge here to make the IGPROF ANALYSE work:
@@ -853,7 +853,7 @@ def main(argv=sys.argv):
     #
 
     (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, bypasshlt, userInputFile ) = setupProgramParameters(options,args)
-    print setupProgramParameters(options,args)
+    #print setupProgramParameters(options,args)
 
     ######################
     # Initialize a few variables
@@ -878,6 +878,8 @@ def main(argv=sys.argv):
     #
 
     writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt,userInputFile)
+
+    print "Written out cmsRelvalreport.py input file at:\n%s"%os.path.abspath('./'+simcandles.name)
                 
     simcandles.close()
 

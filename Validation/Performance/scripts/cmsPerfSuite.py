@@ -25,7 +25,7 @@ class PerfThread(threading.Thread):
         #print type(self.args)
         #print self.args
         self.suite.runPerfSuite(**(self.args))#self.args)
-
+      
 class ValgrindThread(threading.Thread):
     def __init__(self,valgrindArgs): #valgrindArgs should be selecting CallGrind/MemCheck, Candle, NumOfEvent
         self.valgrindArgs=valgrindArgs
@@ -59,19 +59,56 @@ class PerfSuite:
         self.Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
         self.AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.py"]
     
+    #Threading the execution of IgProf, Memcheck and Callgrind using the same model used to thread the whole performance suite:
+    #1-Define a class simpleGenReportThread() that has relevant methods needed to handle PerfTest()
+    #2-Instantiate one with the necessary arguments to run simpleGenReport on core N
+    #3-Execute its "run" method by starting the thread
+    #Simplest way maybe is to keep 2 global lists:
+    #AvailableCores
+    #TestsToDo
+    #PerfSuite will fill the TestsToDo list with dictionaries, to be used as keyword arguments to instantiate a relevant thread.
+    #Once all the TestsToDo are "scheduled" into the list (FirstInLastOut buffer since we use pop()) PerfSuite will look into the
+    #AvailableCores list and start popping cores onto which to instantiate the relevant threads, then it will start the thread,
+    #appending it to the activePerfTestThread{},a dictionary with core as key and thread object as value, to facilitate bookkeeping.
+    #An infinite loop will take care of checking for AvailableCores as long as there are TestsToDo and keep submitting.
+    #In the same loop the activePerfTestThread{} will be checked for finished threads and it will re-append the relevant cpu back
+    #to the AvailableCores list.
+    #In the same loop a check for the case of all cores being back into AvailableCores with no more TestsToDo will break the infinite loop
+    #and declare the end of all tests.As else to this if a sleep statement of 5 seconds will delay the repetition of the loop.
+ 
+    class simpleGenReportThread(threading.Thread):
+       def __init__(self,cpu,perfsuiteinstance,**simpleGenReportArgs): #Passing around the perfsuite object to be able to access simpleGenReport
+          self.cpu=cpu
+          self.simpleGenReportArgs=simpleGenReportArgs
+          self.perfsuiteinstance=perfsuiteinstance
+          threading.Thread.__init__(self)
+       def run(self):
+          self.PerfTest=self.perfsuiteinstance.PerfTest(self.cpu,self.perfsuiteinstance,**(self.simpleGenReportArgs))
+          self.PerfTest.runPerfTest()
     
+    class PerfTest:
+       def __init__(self,cpu,perfsuiteinstance,**simpleGenReportArgs):
+          self.cpu=cpu
+          self.simpleGenReportArgs=simpleGenReportArgs
+          self.perfsuiteinstance=perfsuiteinstance
+       def runPerfTest(self):
+          if "--pileup" in self.simpleGenReportArgs['cmsdriverOptions']:
+             print "Launching the PILE UP %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']) 
+          else:
+             print "Launching the %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']) 
+          #Cut and paste in bulk, should see if this works...
+          self.perfsuiteinstance.printDate()
+          self.perfsuiteinstance.logh.flush()
+          return self.perfsuiteinstance.simpleGenReport([self.cpu],**(self.simpleGenReportArgs)) #Returning ReportExit code
+          
+          
     #Options handling
     def optionParse(self,argslist=None):
         parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
            
     Examples:
-    cmsPerfSuite.py
-    (this will run with the default options)
-    OR
-    cmsPerfSuite.py -a "/castor/cern.ch/user/y/yourusername/yourdirectory/"
-    (this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)
-    OR
-    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
+    
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--conditions FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
     (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP for all TTbar tests defined, i.e. 5 TimeSize, 2 IgProf, 1 Callgrind, 5 Memcheck. The file /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root will be copied locally as INPUT_PILEUP_EVENTS.root and it will be used as the input file for the MixingModule pile up events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once)
     OR
     cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
@@ -80,14 +117,14 @@ class PerfSuite:
     cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
     (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP on TTbar but only for 5 TimeSize events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once. It will also add the options "--eventcontent RAWSIM --conditions FrontierConditions_GlobalTag,IDEAL_V9::All" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
     
-    Legal entries for individual candles (--candle option):
+    Legal entries for individual candles (--RunTimeSize, --RunIgProf, --RunCallgrind, --RunMemcheck options):
     %s
     ''' % ("\n".join(Candles)))
     
-        parser.set_defaults(TimeSizeEvents   = 100        ,
-                            IgProfEvents     = 5          ,
-                            CallgrindEvents  = 1          ,
-                            MemcheckEvents   = 5          ,
+        parser.set_defaults(TimeSizeEvents   = 0        ,
+                            IgProfEvents     = 0          ,
+                            CallgrindEvents  = 0          ,
+                            MemcheckEvents   = 0          ,
                             cmsScimark       = 10         ,
                             cmsScimarkLarge  = 10         ,  
                             cmsdriverOptions = "--eventcontent FEVTDEBUGHLT", # Decided to avoid using the automatic parsing of cmsDriver_highstats_hlt.txt: cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
@@ -692,12 +729,15 @@ class PerfSuite:
     ##############
     # Prepares the profiling directory and runs all the selected profiles (if this is not a unit test)
     #
-    def simpleGenReport(self,cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,Name,profilers,bypasshlt,userInputRootFiles):
+    #Making parameters named to facilitate the handling of arguments (especially with the threading use case)
+    def simpleGenReport(self,cpus,perfdir=os.getcwd(),NumEvents=1,candles=['MinBias'],cmsdriverOptions='',stepOptions='',Name='',profilers='',bypasshlt='',userInputRootFiles=''):
         callgrind = Name == "Callgrind"
         memcheck  = Name == "Memcheck"
     
         profCodes = {"TimeSize" : "0123",
                      "IgProf"   : "4567",
+                     "IgProf_Perf":"4",
+                     "IgProf_Mem":"567",
                      "Callgrind": "8",
                      "Memcheck" : "9",
                      None       : "-1"} 
@@ -716,10 +756,10 @@ class PerfSuite:
                 #Create the directory for cmsRelvalreport.py running (e.g. MinBias_TimeSize, etc)
                 #Catch the case of PILE UP:
                 if "--pileup" in cmsdriverOptions:
-                    adir=self.mkCandleDir(pfdir,"%s_PU"%candle,Name)
-                    #print "PUPUPU %s"%adir
+                   candlename=candle+"_PU"
                 else:
-                    adir=self.mkCandleDir(pfdir,candle,Name)       
+                   candlename=candle
+                adir=self.mkCandleDir(pfdir,candlename,Name)
                 if self._unittest:
                     # Run cmsDriver.py
                     if userInputRootFiles:
@@ -751,9 +791,9 @@ class PerfSuite:
                         pass
                     else:
                         ExitCode=self.runCmsReport(cpu,adir,candle)
-                        print "Individual Relvalreport.py ExitCode %s"%ExitCode
+                        print "Individual cmsRelvalreport.py ExitCode %s"%ExitCode
                         RelvalreportExitCode=RelvalreportExitCode+ExitCode
-                        print "Summed Relvalreport.py ExitCode %s"%RelvalreportExitCode
+                        print "Summed cmsRelvalreport.py ExitCode %s"%RelvalreportExitCode
                     
                     #for proflog in proflogs:
                     #With the change from 2>1&|tee to >& to preserve exit codes, we need now to check all logs...
@@ -868,7 +908,7 @@ class PerfSuite:
             self.Commands = {}
             AllScripts = self.Scripts + self.AuxiliaryScripts
     
-            for cpu in cpus:
+            for cpu in range(cores):
                 self.Commands[cpu] = []
 
             #Information for the log:
@@ -880,7 +920,7 @@ class PerfSuite:
                 whichstdout=os.popen4(which)[1].read()
                 self.logh.write(whichstdout) # + "\n") No need of the extra \n!
                 if script in self.Scripts:
-                    for cpu in cpus:
+                    for cpu in range(cores):
                         command="taskset -c %s %s" % (cpu,script)
                         self.Commands[cpu].append(command)
                         
@@ -976,22 +1016,7 @@ class PerfSuite:
                     self.logh.flush()
                     ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizePUCandles,cmsdriverPUOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
                     FinalExitCode=FinalExitCode+ReportExit
-                
-            #IgProf tests:
-            if IgProfEvents > 0:
-                self.logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
-                self.printDate()
-                self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
-                FinalExitCode=FinalExitCode+ReportExit
-                #Launch eventual Digi Pile Up IgProf too:
-                if IgProfPUCandles:
-                    self.logh.write("Launching the PILE UP IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each\n" % IgProfEvents)
-                    self.printDate()
-                    self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfPUCandles,cmsdriverPUOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
-                    FinalExitCode=FinalExitCode+ReportExit
-            
+
             #Stopping all cmsScimark jobs and analysing automatically the logfiles
             #No need to waste CPU while the load does not affect Valgrind measurements!
             if not (self._unittest or self._noexec):
@@ -1001,60 +1026,257 @@ class PerfSuite:
                 self.printFlush(stopcmd)
                 #os.popen(stopcmd)
                 self.printFlush(os.popen4(stopcmd)[1].read())
-            
+
+            #From here on we can use all available cores to speed up the performance suite remaining tests:
+            AvailableCores=range(cmsCpuInfo.get_NumOfCores())
+            print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
+            print AvailableCores
+            #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
+            TestsToDo=[]
+            #IgProf tests:
+            if IgProfEvents > 0:
+                print "Preparing IgProf tests"
+                #Special case for IgProf: user could pick with the option --profilers to run only IgProf perf or Mem (or Mem_Total alone etc)
+                #So in general we want to be able to split the perf and mem tests...
+                #For the case of --profiler option we will run only 1 test (i.e. it will get one core slot until it is done with whatever profiling choosen)
+                if profilers:
+                   print "Special profiler option for IgProf was indicated by the user: %s"%profilers
+                   #Prepare the simpleGenReport arguments for this test:
+                   IgProfProfilerArgs={
+                      'perfdir':perfsuitedir,
+                      'NumEvents':IgProfEvents,
+                      'candles':IgProfCandles,
+                      'cmsdriverOptions':cmsdriverOptions,
+                      'stepOptions':stepOptions,
+                      'Name':"IgProf",
+                      'profilers':profilers,
+                      'bypasshlt':bypasshlt,
+                      'userInputRootFiles':userInputFile
+                      }
+                   #Append the test to the TestsToDo list:
+                   TestsToDo.append(IgProfProfilerArgs)
+                   print "Appended IgProf test with profiler option %s to the TestsToDo list"%profilers 
+                #For the default case (4,5,6,7) we split the tests into 2 jobs since they naturally are 2 cmsRun jobs and for machines with many cores this will
+                #make the performance suite run faster.
+                else:
+                   print "Splitting the IgProf tests into Perf and Mem to parallelize the cmsRun execution as much as possible:"
+                   ##PERF##
+                   #Prepare the simpleGenReport arguments for this test:
+                   IgProfPerfArgs={
+                      'perfdir':perfsuitedir,
+                      'NumEvents':IgProfEvents,
+                      'candles':IgProfCandles,
+                      'cmsdriverOptions':cmsdriverOptions,
+                      'stepOptions':stepOptions,
+                      'Name':"IgProf_Perf",
+                      'profilers':profilers,
+                      'bypasshlt':bypasshlt,
+                      'userInputRootFiles':userInputFile
+                      }
+                   #Append the test to the TestsToDo list:
+                   TestsToDo.append(IgProfPerfArgs)
+                   print "Appended IgProf PERF test to the TestsToDo list"
+                   ##MEM##
+                   #Prepare the simpleGenReport arguments for this test:
+                   IgProfMemArgs={
+                      'perfdir':perfsuitedir,
+                      'NumEvents':IgProfEvents,
+                      'candles':IgProfCandles,
+                      'cmsdriverOptions':cmsdriverOptions,
+                      'stepOptions':stepOptions,
+                      'Name':"IgProf_Mem",
+                      'profilers':profilers,
+                      'bypasshlt':bypasshlt,
+                      'userInputRootFiles':userInputFile
+                      }
+                   #Append the test to the TestsToDo list:
+                   TestsToDo.append(IgProfMemArgs)
+                   print "Appended IgProf MEM test to the TestsToDo list"
+                #The following will be handled in the while loop that handles the starting of the threads:
+                #ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
+                #FinalExitCode=FinalExitCode+ReportExit
+                #Launch eventual Digi Pile Up IgProf too:
+                if IgProfPUCandles:
+                   print "Preparing IgProf PileUp tests"
+                   #Special case for IgProf: user could pick with the option --profilers to run only IgProf perf or Mem (or Mem_Total alone etc)
+                   #So in general we want to be able to split the perf and mem tests...
+                   #For the case of --profiler option we will run only 1 test (i.e. it will get one core slot until it is done with whatever profiling choosen)
+                   if profilers:
+                      print "Special profiler option for IgProf was indicated by the user: %s"%profilers
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfProfilerPUArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfPUCandles,
+                         'cmsdriverOptions':cmsdriverPUOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfProfilerPUArgs)
+                      print "Appended IgProf PileUp test with profiler option %s to the TestsToDo list"%profilers
+                   else:
+                      print "Splitting the IgProf tests into Perf and Mem to parallelize the cmsRun execution as much as possible:"
+                      ##PERF##
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfPerfPUArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfPUCandles,
+                         'cmsdriverOptions':cmsdriverPUOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf_Perf",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfPerfPUArgs)
+                      print "Appended IgProf MEM PileUp test to the TestsToDo list"
+                      ##MEM##
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfMemPUArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfPUCandles,
+                         'cmsdriverOptions':cmsdriverPUOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf_Mem",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfMemPUArgs)
+                      print "Appended IgProf MEM PileUp test to the TestsToDo list"
+                    
             #Valgrind tests:
             if CallgrindEvents > 0:
-                #FIXME
-                       
-                #1-Could launch different tests on different cores to parallelize:
-                #  a-Callgrind on QCD_80_120 on one core (unprofiled GEN,SIM, profile DIGI)
-                #  b-Callgrind on SingleMu on another core
-                #  c-Memcheck on QCD_80_120 on another core
-                #  d-Memcheck on SingleMu on another core
-                #  This could become a problem if one wants to launch the whole suite
-                #  as a separate thread on a certain core: catch this in the options.
-                #  if the --cpu is specified then no "parallelizing" of the valgrind part, this should be enough
-                #  Cannot be done! --cpu 1 is the default... to either one catches this in the parsing of the arguments, or a new argument --valgringThreading is added, or we assume valgrind is never run when threading the whole suite... for now let's do this last option:
-                
-                self.logh.write("Launching the Valgrind Callgrind (FCE) tests with %s events each\n" % CallgrindEvents)
-                self.printDate()
-                self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindCandles,cmsdriverOptions,stepOptions,"Callgrind",profilers,bypasshlt,userInputFile)
-                FinalExitCode=FinalExitCode+ReportExit
-                #Launch eventual Digi Pile Up Callgrind too:
-                if CallgrindPUCandles:
-                    self.logh.write("Launching the PILE UP Valgrind Callgrind (FCE) tests with %s events each\n" % CallgrindEvents)
-                    self.printDate()
-                    self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,CallgrindEvents,CallgrindPUCandles,cmsdriverPUOptions,stepOptions,"Callgrind",profilers,bypasshlt,userInputFile)
-                    FinalExitCode=FinalExitCode+ReportExit
-                
+               print "Preparing Callgrind tests"
+               CallgrindArgs={
+                  'perfdir':perfsuitedir,
+                  'NumEvents':CallgrindEvents,
+                  'candles':CallgrindCandles,
+                  'cmsdriverOptions':cmsdriverOptions,
+                  'stepOptions':stepOptions,
+                  'Name':"Callgrind",
+                  'profilers':profilers,
+                  'bypasshlt':bypasshlt,
+                  'userInputRootFiles':userInputFile
+                  }
+               #Append the test to the TestsToDo list:
+               TestsToDo.append(CallgrindArgs)
+               print "Appended Callgrind test to the TestsToDo list"
+               #Launch eventual Digi Pile Up Callgrind too:
+               if CallgrindPUCandles:
+                  print "Preparing Callgrind PileUp tests"
+                  CallgrindPUArgs={
+                     'perfdir':perfsuitedir,
+                     'NumEvents':CallgrindEvents,
+                     'candles':CallgrindPUCandles,
+                     'cmsdriverOptions':cmsdriverPUOptions,
+                     'stepOptions':stepOptions,
+                     'Name':"Callgrind",
+                     'profilers':profilers,
+                     'bypasshlt':bypasshlt,
+                     'userInputRootFiles':userInputFile
+                     }
+                  #Append the test to the TestsToDo list:
+                  TestsToDo.append(CallgrindPUArgs)
+                  print "Appended Callgrind PileUp test to the TestsToDo list"
             if MemcheckEvents > 0:
-                
-                #FIXME
-                #1-Could launch different tests on different cores to parallelize:
-                #  a-Callgrind on QCD_80_120 on one core (unprofiled GEN,SIM, profile DIGI)
-                #  b-Callgrind on SingleMu on another core
-                #  c-Memcheck on QCD_80_120 on another core
-                #  d-Memcheck on SingleMu on another core
-                #  This could become a problem if one wants to launch the whole suite
-                #  as a separate thread on a certain core: catch this in the options.
-                #  if the --cpu is specified then no "parallelizing" of the valgrind part, this should be enough
-                #  Cannot be done! --cpu 1 is the default... to either one catches this in the parsing of the arguments, or a new argument --valgringThreading is added,
-                #  or we assume valgrind is never run when threading the whole suite...\for now let's do this last option:
-                self.logh.write("Launching the Valgrind Memcheck tests with %s events each\n" % CallgrindEvents)
-                self.printDate()
-                self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckCandles,cmsdriverOptions,stepOptions,"Memcheck",profilers,bypasshlt,userInputFile)
-                FinalExitCode=FinalExitCode+ReportExit
-                #Launch eventual Digi Pile Up Memcheck too:
-                if MemcheckPUCandles:
-                    self.logh.write("Launching the PILE UP Valgrind Memcheck tests with %s events each\n" % CallgrindEvents)
-                    self.printDate()
-                    self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,MemcheckEvents,MemcheckPUCandles,cmsdriverPUOptions,stepOptions,"Memcheck",profilers,bypasshlt,userInputFile)
-                    FinalExitCode=FinalExitCode+ReportExit
-                
+               print "Preparing Memcheck tests"
+               MemcheckArgs={
+                  'perfdir':perfsuitedir,
+                  'NumEvents':MemcheckEvents,
+                  'candles':MemcheckCandles,
+                  'cmsdriverOptions':cmsdriverOptions,
+                  'stepOptions':stepOptions,
+                  'Name':"Memcheck",
+                  'profilers':profilers,
+                  'bypasshlt':bypasshlt,
+                  'userInputRootFiles':userInputFile
+                  }
+               #Append the test to the TestsToDo list:
+               TestsToDo.append(MemcheckArgs)
+               print "Appended Memcheck test to the TestsToDo list"
+               #Launch eventual Digi Pile Up Memcheck too:
+               if MemcheckPUCandles:
+                  print "Preparing Memcheck PileUp tests"
+                  MemcheckPUArgs={
+                     'perfdir':perfsuitedir,
+                     'NumEvents':MemcheckEvents,
+                     'candles':MemcheckPUCandles,
+                     'cmsdriverOptions':cmsdriverPUOptions,
+                     'stepOptions':stepOptions,
+                     'Name':"Memcheck",
+                     'profilers':profilers,
+                     'bypasshlt':bypasshlt,
+                     'userInputRootFiles':userInputFile
+                     }
+                  #Append the test to the TestsToDo list:
+                  TestsToDo.append(MemcheckPUArgs)  
+                  print "Appended Memcheck PileUp test to the TestsToDo list"
+            #Here run the infinite loop that submits the PerfTest() threads on the available cores:
+            #Create a dictionaty to keep track of running threads on the various cores:
+            activePerfTestThreads={}
+            #Flag for waiting messages:
+            Waiting=False
+            while 1:
+               #Check if there are tests to run:
+               if TestsToDo:
+                  #Using the Waiting flag to avoid writing this message every 5 seconds in the case
+                  #of having more tests to do than available cores...
+                  if not Waiting:
+                     print "Currently %s tests are scheduled to be run:"%len(TestsToDo)
+                     print TestsToDo
+                  #Check the available cores:
+                  if AvailableCores:
+                     #Set waiting flag to False since we'll be doing something
+                     Waiting=False
+                     print "There is/are %s core(s) available"%len(AvailableCores)
+                     cpu=AvailableCores.pop()
+                     print "Let's use cpu %s"%cpu
+                     simpleGenReportArgs=TestsToDo.pop()
+                     print "Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu)
+                     threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
+                     print "Starting thread %s"%threadToDo
+                     ReportExitCode=threadToDo.start()
+                     print "Adding thread %s to the list of active threads"%threadToDo
+                     activePerfTestThreads[cpu]=threadToDo
+                  #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
+                  else:
+                     pass
+               #Test activePerfThreads:
+               for cpu in activePerfTestThreads.keys():
+                  if activePerfTestThreads[cpu].isAlive():
+                     pass
+                  elif cpu not in AvailableCores:
+                     #Set waiting flag to False since we'll be doing something
+                     Waiting=False
+                     print time.ctime()
+                     print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
+                     print "About to append cpu %s to AvailableCores list"%cpu
+                     AvailableCores.append(cpu)
+               if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
+                  print "WHEW! We're done... all TestsToDo are done..."
+                  print AvailableCores
+                  print TestsToDo
+                  break
+               else:
+                  #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
+                  time.sleep(5)
+                  #Use Waiting flag to writing 1 waiting message while waiting and avoid having 1 message every 5 seconds...
+                  if not Waiting:
+                     print time.ctime()
+                     print "Waiting for tests to be done..."
+                     sys.stdout.flush()
+                     Waiting=True
+                  
+                  
             if benching and not (self._unittest or self._noexec):
                 #Ending the performance suite with the cmsScimark benchmarks again:
                 for cpu in cpus:
@@ -1126,8 +1348,9 @@ def main(argv=[__name__]): #argv is a list of arguments.
     #Let's instatiate the class:
     suite=PerfSuite()
 
-    print suite
-    print suite.optionParse(argv)
+    #print suite
+    #Uncomment this for tests with main() in inteactive python:
+    #print suite.optionParse(argv)
     
     PerfSuiteArgs={}
     (PerfSuiteArgs['castordir'],
@@ -1223,29 +1446,6 @@ def main(argv=[__name__]): #argv is a list of arguments.
            except (KeyboardInterrupt, SystemExit):
               raise
         print "All PerfSuite threads have completed!"
-        
-           
-        #print suitethread
-        #FIXME Do somthing to kill the cmsScimarks after all threads are done...
-        #Fix the cmsScimarkLAunch and Stop into being python and threaded themselves?
-        #while True:
-        #    threadsdone=0
-        #    for cpu in suitethread.keys():
-        #        if suitethread[cpu].isAlive:
-        #            print "%s is ALIVE!"%suitethread[cpu]
-        #            sys.stdout.flush()
-        #            continue
-        #        else:
-        #            threadsdone=threadsdone+1
-        #            print threadsdone
-        #            sys.stdout.flush()
-        #            
-        #    if threadsdone == len(suitethread.keys()):
-        #        for core in cmsScimarkLaunch_pslist.keys():
-        #            kill=subprocess.Popen("kill %s"%cmsScimarkLaunch_pslist[core].pid,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        #            print kill.stdout.read()
-        #        sys.exit()
-        #    time.sleep(10)
 
     else: #No threading, just run the performance suite on the cpu core selected
         suite.runPerfSuite(**PerfSuiteArgs)
