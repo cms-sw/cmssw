@@ -7,17 +7,13 @@ MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
               - products dependencies are now taken into consideration
 """
 
-__revision__ = "$Id: MakeBuildSet,v 1.2 2009/07/01 14:19:33 muzaffar Exp $"
-__version__ = "$Revision: 1.2 $"
+__revision__ = "$Id: MakeBuildSet,v 1.3 2009/07/01 14:49:00 muzaffar Exp $"
+__version__ = "$Revision: 1.3 $"
 
 import os
 import sys
 import getopt
-import string
-import urllib
 import re
-import pickle
-import commands
 
 programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
 programName = os.path.basename( sys.argv[0] )
@@ -25,6 +21,7 @@ programName = os.path.basename( sys.argv[0] )
 packageListInFile     = 0
 dependencyAnalysisDir = ""
 dependencies          = {}
+myTools               = {}
 outputFormats         = ("packages", "tools", "all")
 outputFormat          = "packages"
 packages              = {}
@@ -118,7 +115,71 @@ def addDependency(p,cache):
     if dependencies.has_key(p):
 	for d in dependencies[p].keys():
 	    addDependency(d,cache)
-
+	    
+def readIgnominyDependencyDB(igFile,myTools,dependencies,droppedProducts):
+    inBlock    = 0
+    inPackage  = 0
+    skipProduct = 0
+    pname          = re.compile("^(.*?)_(.*)")
+    beginBlock     = re.compile('^# Direct binary dependencies')
+    endBlock       = re.compile('^############################*')
+    packageEntry   = re.compile('^(\S+)(\s+.+|):')
+    requiresEntry  = re.compile('^\s+(\S+)\s*$')
+    tools          = re.compile('^(tools|System)/(.+)\s*$',re.IGNORECASE)
+    lcgProject     = re.compile('^(CORAL|SEAL|POOL)/.+',re.IGNORECASE)
+    f = open(igFile)
+    for line in f.readlines():
+        if inBlock:
+            if endBlock.match(line):
+                inBlock = 0
+		return
+            else:
+                if inPackage:
+                    result=requiresEntry.match(line)
+                    if result:
+		        if not skipProduct:
+		            requires=result.group(0).strip()
+			    if lcgProject.match(requires):
+			        continue
+			    if pname.match(requires):
+			        continue
+                            res = tools.match (requires)
+			    if res:
+			        requires = res.group(2).lower()
+			        myTools[requires]=1
+			    dependencies[currentPackage][requires]=1
+                    else:
+                        inPackage=0
+                else:
+                    result = packageEntry.match(line)
+                    if result:
+		        inPackage = 1
+		        skipProduct = 0
+		        currentPackage = result.group(1)
+		        if currentPackage == "(UNKNOWN)" or lcgProject.match(currentPackage):
+		            skipProduct = 1
+			    continue
+		        res = tools.match (currentPackage)
+		        if res:
+		            currentPackage = res.group(2).lower()
+			    myTools[currentPackage]=1
+			    skipProduct = 1
+			    continue
+		        prodname=currentPackage.replace("/","")
+		        res = pname.match(currentPackage)
+		        if res:
+		            currentPackage = res.group(1)
+			    prodname = res.group(2)
+		        if droppedProducts.has_key(prodname):
+		            skipProduct = 1
+			    continue
+		        if not dependencies.has_key(currentPackage):
+			    dependencies[currentPackage]={}
+        else:
+            if beginBlock.match(line):
+                inBlock = 1
+    f.close()
+        
 ###############################################################
 # Here real action starts:
 
@@ -181,6 +242,7 @@ readProductsInfo(os.path.join(dependencyAnalysisDir, "products.txt"),productCach
 droppedProducts={}
 excludeProductsFrom("TEST",productCache,droppedProducts)
 
+# Exclude plugins if requested via command-line
 if dropAllPluginDeps:
     excludeProductsFrom("PLUGINS",productCache,droppedProducts)
     excludeProductsType("PLUGINS",productCache,droppedProducts)
@@ -188,91 +250,14 @@ elif dropPluginDeps:
     excludeProductsFrom("PLUGINS",productCache,droppedProducts)
     
 # Get dependency info:
-# Assume the directory structure as produced by Ignominy,
-# which dependency information is to be extracted:
-# New Method of extracting ignominy dependencies results:
-
-# Get dependencies from the original ignominy depFile:
-inBlock    = 0
-inPackage  = 0
-skipProduct = 0
-pname          = re.compile("^(.*?)_(.*)")
-beginBlock     = re.compile('^# Direct binary dependencies')
-endBlock       = re.compile('^############################*')
-packageEntry   = re.compile('^(\S+)(\s+.+|):')
-requiresEntry  = re.compile('^\s+(\S+)\s*$')
-tools          = re.compile('^(tools|System)/(.+)\s*$',re.IGNORECASE)
-lcgProject     = re.compile('^(CORAL|SEAL|POOL)/.+',re.IGNORECASE)
-myTools        = {}
-f = open(os.path.join(dependencyAnalysisDir,"dependencies.txt"))
-for line in f.readlines():
-    if inBlock:
-        if endBlock.match(line):
-            inBlock = 0
-        else:
-            if inPackage:
-                result=requiresEntry.match(line)
-                if result:
-		    if not skipProduct:
-		        requires=result.group(0).strip()
-			if lcgProject.match(requires):
-			    continue
-			if pname.match(requires):
-			    continue
-                        res = tools.match (requires)
-			if res:
-			    requires = res.group(2).lower()
-			    myTools[requires]=1
-			dependencies[currentPackage][requires]=1
-                else:
-                    inPackage=0
-            else:
-                result = packageEntry.match(line)
-                if result:
-                    tool = 0
-		    inPackage = 1
-		    skipProduct = 0
-		    currentPackage = result.group(1)
-		    if lcgProject.match(currentPackage):
-		        skipProduct = 1
-			continue
-		    res = tools.match (currentPackage)
-		    if res:
-		        skipProduct = 1
-			continue
-		        currentPackage = res.group(2).lower()
-			tool = 1
-			myTools[currentPackage]=1
-		    if not tool:
-		        if currentPackage == "(UNKNOWN)":
-		            skipProduct = 1
-		        res = pname.match(currentPackage)
-		        if res:
-		            currentPackage = res.group(1)
-			    prodname = res.group(2)
-			    if droppedProducts.has_key(prodname):
-			        skipProduct = 1
-		    if not skipProduct:
-		        if not dependencies.has_key(currentPackage):
-			    dependencies[currentPackage]={}
-    else:
-        if beginBlock.match(line):
-            inBlock = 1
-f.close()
-    
-# Add required package products before processing dependencies:
-# FIXME: to check with Liz: additional products should be added
-# recursively i.e. all packages induced by additions should come
-# with their own products, and so on.
-
-# First get all required CMSSW packages: 
+readIgnominyDependencyDB(os.path.join(dependencyAnalysisDir,"dependencies.txt"),myTools,dependencies,droppedProducts)
+droppedProducts={}
 
 myPackages={}
 for p in packages.keys():
     addDependency(p,myPackages)
     
 # Print output and finish:
-
 if outputFormat == "packages":
     pkg = myPackages.keys()
     pkg.sort()
