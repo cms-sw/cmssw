@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Processing.cc,v 1.3 2009/06/25 16:51:23 biery Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -84,9 +84,13 @@ void
 Processing::do_noFragmentToProcess() const
 {
   I2OChain staleEvent;
+
+  WorkerThreadParams workerParams =
+    outermost_context().getSharedResources()->_configuration->getWorkerThreadParams();
   bool gotStaleEvent = 
-    outermost_context().getFragmentStore()->getStaleEvent(staleEvent, 5);
-    // TODO: make the timeout configurable
+    outermost_context().getFragmentStore()->
+    getStaleEvent(staleEvent, workerParams._staleFragmentTimeOut);
+
   if ( gotStaleEvent )
   {
     outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(staleEvent);
