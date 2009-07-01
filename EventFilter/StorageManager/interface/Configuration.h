@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Configuration.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
 
 
 #ifndef EventFilter_StorageManager_Configuration_h
@@ -102,6 +102,7 @@ namespace stor
     double _FPdeqWaitTime;
     double _DWdeqWaitTime;
     double _DQMEPdeqWaitTime;
+    double _staleFragmentTimeOut;
   };
 
   /**
@@ -117,9 +118,9 @@ namespace stor
    * and providing local copies of that information that are updated
    * only at requested times.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -314,7 +315,7 @@ namespace stor
     xdata::Double _FPdeqWaitTime;
     xdata::Double _DWdeqWaitTime;
     xdata::Double _DQMEPdeqWaitTime;
-
+    xdata::Double _staleFragmentTimeOut;
 
     mutable boost::mutex _evtStrCfgMutex;
     mutable boost::mutex _errStrCfgMutex;
