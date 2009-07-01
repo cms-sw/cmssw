@@ -420,6 +420,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
      if (histo_Counter==1&&plotVar=="meanX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="meanY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="medianX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
+     else if (histo_Counter==1&&plotVar=="medianY")(*it)->getTree()->Draw( (plotVar+=">>myhisto(50,-0.005,0.005)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="meanNormX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,-2,2)").c_str(),subdet,"goff");
      else if (histo_Counter==1&&plotVar=="rmsX")(*it)->getTree()->Draw( (plotVar+=">>myhisto(100,0.,0.1)").c_str(),subdet,"goff");
      else if (histo_Counter!=1)(*it)->getTree()->Draw( (plotVar+=binning).c_str(),subdet,"goff");
@@ -483,6 +484,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 
      std::string histName="D";
      if (variable=="medianX") histName+="medianR_";
+     else if (variable=="medianY") histName+="mediaYR_";
      else if (variable=="meanX") histName+="meanR_";
      else if (variable=="meanY") histName+="meanYR_";
      else if (variable=="rmsX") histName+="rmsR_";
@@ -618,9 +620,11 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
  if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
     std::string histTitel="";
     if (titelXAxis.Contains("medianX")) histTitel="Distribution of the median of the residuals in ";
+    if (titelXAxis.Contains("medianY")) histTitel="Distribution of the median of the y residuals in ";
     if (titelXAxis.Contains("meanX")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("meanY")) histTitel="Distribution of the mean of the residuals in ";
     if (titelXAxis.Contains("rmsX")) histTitel="Distribution of the rms of the residuals in ";
+
       switch (subDetId) {
 	case 1: histTitel+="TPB";break;
 	case 2: histTitel+="TPE";break;
@@ -665,7 +669,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   else if( titelXAxis.Contains("meanNormLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}/#sigma#GT[cm]";
   else if( titelXAxis.Contains("rmsNormLocalX") )titel_Xaxis<<"RMS(x_{pred}-x_{hit}/#sigma)[cm]";
   else if( titelXAxis.Contains("medianX") )titel_Xaxis<<"median(x'_{pred}-x'_{hit})[cm]";
-
+  else if( titelXAxis.Contains("medianY") )titel_Xaxis<<"median(y'_{pred}-y'_{hit})[cm]";
   else titel_Xaxis<<titleX<<"[cm]";
   
   if (hist.IsA()->InheritsFrom( TH1F::Class() ) )hist.SetLineColor(color);
