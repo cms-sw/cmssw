@@ -9,7 +9,6 @@ bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > &
   
   ROOT::Math::CholeskyDecomp<T,N> decomp(m);
   if (!decomp) {
-    int i=0;
     return m.Invert();
   } else 
     decomp.Invert(m);
@@ -23,7 +22,6 @@ bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > c
   
   ROOT::Math::CholeskyDecomp<T,N> decomp(mIn);
   if (!decomp) {
-    int i=0;
     mOut=mIn;
     return mOut.Invert();
   } else 
