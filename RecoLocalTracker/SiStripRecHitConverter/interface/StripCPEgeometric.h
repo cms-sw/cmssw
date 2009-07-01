@@ -31,6 +31,7 @@ class StripCPEgeometric : public StripCPE
     stats_t<float> eta() const;
     bool deformed() const;
     stats_t<float> maxProjection() const;
+    stats_t<float> smallerEdgeStrip() const;
     stats_t<float> dedxRatio(const stats_t<float>&) const;
     int sign() const;
     uint16_t N;
@@ -45,7 +46,7 @@ class StripCPEgeometric : public StripCPE
   bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
 
   std::vector<float> crosstalk;
-  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold;
+  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, scaling_squared;
 
 };
 

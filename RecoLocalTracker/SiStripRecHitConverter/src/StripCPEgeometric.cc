@@ -10,7 +10,8 @@ StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf,
   : StripCPE(conf, mag, geom, LorentzAngle ),
     tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
     thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
-    noise_threshold(conf.getParameter<double>("NoiseThreshold"))
+    noise_threshold(conf.getParameter<double>("NoiseThreshold")),
+    scaling_squared(pow(conf.getParameter<double>("UncertaintyScaling"), 2))
 {
   std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
   crosstalk.resize(7,0);
@@ -71,25 +72,26 @@ offset_from_firstStrip( const std::vector<stats_t<float> >& Q, const stats_t<flo
 
 stats_t<float> StripCPEgeometric::
 geometric_position(const StripCPEgeometric::WrappedCluster& wc, const stats_t<float>& proj) const {
+  const stats_t<float> x = wc.middle()  +  0.5 * proj * wc.eta();
   return wc.N==1 
-    ?  stats_t<float>( wc.middle(), pow( 1-0.82*proj(), 2 ) / 12 ) 
-    :  wc.middle()  +  0.5 * proj * wc.eta() ;
+    ?  stats_t<float>( x(), pow( 1-0.82*proj(), 2 ) / 12 ) 
+    :  stats_t<float>( x(), scaling_squared * x.error2() ) ;
 }
 
 inline
 bool StripCPEgeometric::
 useNMinusOne(const WrappedCluster& wc, const stats_t<float>& proj) const {
-  if( proj() > wc.N-1 || 
-      proj() < wc.N-5) return false;
+  if( proj() > wc.N-1) return false;
+  if( wc.smallerEdgeStrip() < 0) return true;
+  if( proj() < wc.N-5) return false;
   if( proj() < wc.N-2) return true;
 
   WrappedCluster wcTest(wc); wcTest.dropSmallerEdgeStrip();
   if( proj >= wcTest.maxProjection() || 
-      3 > wc.eta().sigmaFrom(0) ) return false;
+      wc.eta().sigmaFrom(0) < 3 ) return false;
   if( wc.sign()*wc.eta()() > 1./(wc.N-1) ) return true;
   if( wc.N==2 || wc.N==3) {
-    const stats_t<float> projInSmallEdge =  0.5*proj*(wc.eta()-wc.sign()) + wc.sign()*(wc.N/2.-1) ;
-    return projInSmallEdge.sigmaFrom(0) < noise_threshold;
+    return wc.smallerEdgeStrip().sigmaFrom(0) < noise_threshold;
   }
   return  wcTest.dedxRatio(proj).sigmaFrom(1) < wc.dedxRatio(proj).sigmaFrom(1) ; 
 }
@@ -142,6 +144,11 @@ inline
 stats_t<float> StripCPEgeometric::WrappedCluster::
 maxProjection() const
 { return N * (1 + sign()*eta() ).inverse(); }
+
+inline
+stats_t<float> StripCPEgeometric::WrappedCluster::
+smallerEdgeStrip() const
+{ return std::min(*first, last()); }
 
 inline
 stats_t<float> StripCPEgeometric::WrappedCluster::
