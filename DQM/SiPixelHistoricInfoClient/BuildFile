@@ -1,5 +1,10 @@
 <use name=boost>
 <use name=root>
+<use name=rootgraphics>
+<use name=rootrflx>
+<use name=rootminuit>
+<use name=rootminuit2>
+<use name=rootcintex>
 <use name=xerces-c>
 <use name=oracle>
 <use name=FWCore/Framework>
@@ -11,11 +16,25 @@
 <use name=DQM/SiPixelCommon>
 <use name=DQMServices/Core>
 <use name=DQMServices/Components>
-<flags EDM_PLUGIN=1>
+<use name=CondCore/DBCommon>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/Utilities>
+
+<use name=CondFormats/DQMObjects>
 <export>
-  <lib name=DQMSiPixelHistoricInfoClient>
+  <use name=CondCore/DBCommon>
+  <use name=CondCore/IOVService>
+  <use name=CondCore/MetaDataService>
+  <use name=CondCore/Utilities>
+  <use name=CondFormats/DQMObjects>
   <use name=boost>
   <use name=root>
+  <use name=rootgraphics>
+  <use name=rootrflx>
+  <use name=rootminuit>
+  <use name=rootminuit2>
+  <use name=rootcintex>
   <use name=xerces-c>
   <use name=oracle>
   <use name=FWCore/Framework>
@@ -27,4 +46,6 @@
   <use name=DQM/SiPixelCommon>
   <use name=DQMServices/Core>
   <use name=DQMServices/Components>
+  <lib name=DQMSiPixelHistoricInfoClient>
 </export>
+
