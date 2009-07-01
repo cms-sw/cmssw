@@ -18,7 +18,7 @@ PhotonMCTruthFinder::PhotonMCTruthFinder( ) {
 }
 
 std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSimTracks, std::vector<SimVertex> theSimVertices ) {
-  //std::cout << "  PhotonMCTruthFinder::find " << std::endl;
+  //  std::cout << "  PhotonMCTruthFinder::find " << std::endl;
 
   std::vector<PhotonMCTruth> result;
 
@@ -43,11 +43,11 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   std::vector<ElectronMCTruth> electronsFromConversions;
   SimVertex primVtx;   
 
-
-
   
   fill(theSimTracks,  theSimVertices);
 
+  //  std::cout << " After fill " << theSimTracks.size() << " " << theSimVertices.size() << std::endl;
+  if (    theSimTracks.size() != 0 ) {
   
   int iPV=-1;   
   int partType1=0;
@@ -62,17 +62,19 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     
     
     partType1 = (*iFirstSimTk).type();
-    //std::cout <<  " Primary vertex id " << iPV << " first track type " << (*iFirstSimTk).type() << std::endl;  
+    //    std::cout <<  " Primary vertex id " << iPV << " first track type " << (*iFirstSimTk).type() << std::endl;  
   } else {
     //std::cout << " First track has no vertex " << std::endl;
     
   }
   
-  // CLHEP::HepLorentzVector primVtxPos= primVtx.position();
+
+
   math::XYZTLorentzVectorD primVtxPos(primVtx.position().x(),
                                        primVtx.position().y(),
                                        primVtx.position().z(),
                                        primVtx.position().e());           
+ 
 
   // Look at a second track
   iFirstSimTk++;
@@ -80,10 +82,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     
     if (  (*iFirstSimTk).vertIndex() == iPV) {
       partType2 = (*iFirstSimTk).type();  
-      //std::cout <<  " second track type " << (*iFirstSimTk).type() << " vertex " <<  (*iFirstSimTk).vertIndex() << std::endl;  
+      //      std::cout <<  " second track type " << (*iFirstSimTk).type() << " vertex " <<  (*iFirstSimTk).vertIndex() << std::endl;  
       
     } else {
-      //std::cout << " Only one kine track from Primary Vertex " << std::endl;
+      // std::cout << " Only one kine track from Primary Vertex " << std::endl;
     }
   }
   
@@ -402,14 +404,14 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 
 
    //std::cout << "  PhotonMCTruthFinder photon size " << result.size() << std::endl;
-
+  }
 
    return result;
 
 }
 
 void PhotonMCTruthFinder::fill(std::vector<SimTrack>& simTracks, std::vector<SimVertex>& simVertices ) {
-  //std::cout << "  PhotonMCTruthFinder::fill " << std::endl;
+  //  std::cout << "  PhotonMCTruthFinder::fill " << std::endl;
 
 
 
@@ -418,6 +420,8 @@ void PhotonMCTruthFinder::fill(std::vector<SimTrack>& simTracks, std::vector<Sim
   unsigned nVtx = simVertices.size();
   unsigned nTks = simTracks.size();
 
+  //  std::cout << "  PhotonMCTruthFinder::fill " << nVtx << " " << nTks << std::endl;
+
   // Empty event, do nothin'
   if ( nVtx == 0 ) return;
 
@@ -425,7 +429,7 @@ void PhotonMCTruthFinder::fill(std::vector<SimTrack>& simTracks, std::vector<Sim
   // event SimTrack vector
   for( unsigned it=0; it<nTks; ++it ) {
     geantToIndex_[ simTracks[it].trackId() ] = it;
-    //std::cout << " PhotonMCTruthFinder::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << std::endl;
+    //    std::cout << " PhotonMCTruthFinder::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << std::endl;
  
   }  
 
