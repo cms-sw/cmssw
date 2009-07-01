@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalIntercalibErrorsXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalIntercalibErrorsXMLTranslator.h,v 1.3 2009/06/30 16:15:16 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -12,6 +12,12 @@
 
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 
-typedef EcalFloatCondObjectContainerXMLTranslator EcalIntercalibErrorsXMLTranslator
+typedef EcalFloatCondObjectContainerXMLTranslator  EcalIntercalibErrorsXMLTranslator;
 
-#endif
+#endif // __EcalIntercalibErrorsXMLTranslator_h_
+
+// Configure (x)emacs for this file ...
+// Local Variables:
+// mode:c++
+// compile-command: "cd ..; scram b"
+// End:
