@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id$
+// $Id: WrapperNotifier.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 
 #ifndef WRAPPERNOTIFIER_H
 #define WRAPPERNOTIFIER_H
@@ -23,11 +23,12 @@ namespace stor
     WrapperNotifier( xdaq::Application* app );
     
     void reportNewState( const std::string& stateName );
-
+    Logger& getLogger() { return _app->getApplicationLogger(); }
 
   private:
 
     xdaq2rc::RcmsStateNotifier _rcms_notifier;
+    xdaq::Application* _app;
 
   };
 

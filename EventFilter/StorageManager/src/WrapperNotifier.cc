@@ -1,4 +1,4 @@
-// $Id$
+// $Id: WrapperNotifier.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/WrapperNotifier.h"
 
@@ -8,13 +8,11 @@
 using namespace stor;
 
 WrapperNotifier::WrapperNotifier( xdaq::Application* app ):
-_rcms_notifier(
-  xdaq2rc::RcmsStateNotifier(
-    app->getApplicationLogger(),
-    app->getApplicationDescriptor(),
-    app->getApplicationContext()
-  ) 
-)
+  _rcms_notifier( xdaq2rc::RcmsStateNotifier( app->getApplicationLogger(),
+                                              app->getApplicationDescriptor(),
+                                              app->getApplicationContext() )
+                  ),
+  _app( app )
 {
   xdata::InfoSpace *ispace = app->getApplicationInfoSpace();
   
