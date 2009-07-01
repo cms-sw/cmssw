@@ -40,6 +40,7 @@ namespace pat {
       edm::InputTag triggerEvent_;
       edm::InputTag muons_;
       std::string   muonMatch_;
+      unsigned      muonID_;
 
       // histograms
       std::map< std::string, TH1D* > histos1D_;
@@ -58,6 +59,7 @@ TriggerAnalyzer::TriggerAnalyzer( const edm::ParameterSet & iConfig ) :
   triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
   muons_( iConfig.getParameter< edm::InputTag >( "muons" ) ),
   muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) ),
+  muonID_( iConfig.getParameter< unsigned >( "muonID" ) ),
   histos1D_(),
   histos2D_()
 {
@@ -83,6 +85,10 @@ void TriggerAnalyzer::beginJob( const edm::EventSetup & iSetup )
   histos1D_[ "ptTrig" ]->SetXTitle( "p_{T} (GeV)" );
   histos1D_[ "ptTrig" ]->SetYTitle( "trigger objects" );
   histos1D_[ "ptTrig" ]->SetLineColor( kRed );
+  histos1D_[ "ptTrigAll" ] = fileService->make< TH1D >( "ptTrigAll", "all trigger object p_{T} (GeV)", 20, 0., 20. );
+  histos1D_[ "ptTrigAll" ]->SetXTitle( "p_{T} (GeV)" );
+  histos1D_[ "ptTrigAll" ]->SetYTitle( "all trigger objects" );
+  histos1D_[ "ptTrigAll" ]->SetLineColor( kBlue );
 }
 
 
@@ -100,17 +106,21 @@ void TriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup 
   const TriggerMatchHelper matchHelper;
 
   // filling histograms
-  const TriggerObjectMatch * triggerMatch( /* initialize */ );           // <== missing piece
+  const TriggerObjectMatch * triggerMatch(  );                           // <== missing piece
   for ( size_t iMuon = 0; iMuon < muons->size(); ++iMuon ) {
     const reco::CandidateBaseRef candBaseRef( MuonRef( muons, iMuon ) );
-    const TriggerObjectRef trigRef( /* initialize */ );                  // <== missing piece
+    const TriggerObjectRef trigRef(  );                                  // <== missing piece
     // fill histograms
     if ( trigRef.isAvailable() ) { // check references (necessary!)
-      histos2D_[ "ptMatch" ]->Fill( /**/ );                              // <== missing piece
-      histos1D_[ "ptCand" ]->Fill( /**/ );                               // <== missing piece
-      histos1D_[ "ptTrig" ]->Fill( /**/ );                               // <== missing piece
+      histos2D_[ "ptMatch" ]->Fill(  );                                  // <== missing piece
+      histos1D_[ "ptCand" ]->Fill(  );                                   // <== missing piece
+      histos1D_[ "ptTrig" ]->Fill(  );                                   // <== missing piece
     }
   } // iMuon
+  const TriggerObjectRefVector trigRefVector(  );                        // <== missing piece
+  for ( TriggerObjectRefVector::const_iterator iTrig = trigRefVector.begin(); iTrig != trigRefVector.end(); ++iTrig ) {
+    histos1D_[ "ptTrigAll" ]->Fill(  );                                  // <== missing piece
+  }
   
 }
 
