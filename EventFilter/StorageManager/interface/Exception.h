@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Exception.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
 
 #ifndef _storagemanager_Exception_h_
 #define _storagemanager_Exception_h_
@@ -8,23 +8,22 @@
 
 // The following macro is defined in newer xdaq versions
 #ifndef XCEPT_DEFINE_EXCEPTION
-#define XCEPT_DEFINE_EXCEPTION(NAMESPACE1, EXCEPTION_NAME) \
-namespace NAMESPACE1 { \
-namespace exception { \
-class EXCEPTION_NAME: public xcept::Exception \
-{\
-        public: \
+#define XCEPT_DEFINE_EXCEPTION(NAMESPACE1, EXCEPTION_NAME)      \
+  namespace NAMESPACE1 {                                        \
+    namespace exception {                                       \
+      class EXCEPTION_NAME: public xcept::Exception             \
+      {                                                         \
+      public:                                                           \
         EXCEPTION_NAME( std::string name, std::string message, std::string module, int line, std::string function ): \
-                xcept::Exception(name, message, module, line, function) \
-        {} \
+          xcept::Exception(name, message, module, line, function)       \
+        {}                                                              \
         EXCEPTION_NAME( std::string name, std::string message, std::string module, int line, std::string function, xcept::Exception & e ): \
-                xcept::Exception(name, message, module, line, function,e) \
-        {} \
-}; \
-} \
-}
+          xcept::Exception(name, message, module, line, function,e)     \
+        {}                                                              \
+      };                                                                \
+    }                                                                   \
+  }
 #endif
-
 
 
 /**
@@ -128,6 +127,11 @@ XCEPT_DEFINE_EXCEPTION( stor, DQMConsumerRegistration )
  */
 XCEPT_DEFINE_EXCEPTION( stor, DiskSpaceAlarm )
 
+
+/**
+ * State transition error
+ */
+XCEPT_DEFINE_EXCEPTION( stor, StateTransition )
 
 #endif // _storagemanager_Exception_h_
 

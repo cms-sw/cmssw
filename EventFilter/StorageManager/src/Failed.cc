@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: Failed.cc,v 1.3 2009/07/01 13:08:18 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -38,9 +38,9 @@ Failed::Failed( my_context c ): my_base(c)
     {
       try
         {
-          LOG4CPLUS_ERROR( outermost_context().getNotifier()->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::Exception, sentinelException, msg );
-          outermost_context().getNotifier()->tellSentinel( "error", sentinelException );
+          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(), msg );
+          XCEPT_DECLARE( stor::exception::StateTransition, sentinelException, msg );
+          outermost_context().getNotifier()->tellSentinel( "fatal", sentinelException );
         }
       catch(...)
         {
