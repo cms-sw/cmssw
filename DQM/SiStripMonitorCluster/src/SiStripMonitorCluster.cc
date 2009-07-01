@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.61 2009/06/30 08:40:33 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.62 2009/06/30 10:26:28 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -680,10 +680,10 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
       // Adjusting the scale for 2D histogram
       double h2ymax = 9999.0;     
       double yfact = Parameters.getParameter<double>("yfactor");
-      if(label.find("TIB")) h2ymax = (6984*256)*yfact;
-      else if (label.find("TID")) h2ymax = (2208*256)*yfact;
-      else if (label.find("TOB")) h2ymax = (12906*256)*yfact;
-      else if (label.find("TEC")) h2ymax = (7552*2*256)*yfact;
+      if(label == "TIB") h2ymax = (6984.*256.)*yfact;
+      else if (label == "TID") h2ymax = (2208.*256.)*yfact;
+      else if (label == "TOB") h2ymax = (12906.*256.)*yfact;
+      else if (label == "TEC") h2ymax = (7552.*2.*256.)*yfact;
 
       subdetMEs.SubDetClusterApvTH2=dqmStore_->book2D(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
