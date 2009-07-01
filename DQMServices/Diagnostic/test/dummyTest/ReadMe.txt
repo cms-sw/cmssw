@@ -35,3 +35,4 @@ cmsRun test_SiStripHistoryDQMService_cfg_69572.py
 #Create Trends
 #***************
 
+root test_Inspector.cc
