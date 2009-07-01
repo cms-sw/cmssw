@@ -58,7 +58,7 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const std::string& filename,
     DetId detid= readCellId(cellnode);
        
     // read value
-    DOMNode * c_node = getChildNode(cellnode,EcalFloatCondObjectContainer_tag);
+    DOMNode * c_node = getChildNode(cellnode,Value_tag);
     GetNodeData(c_node,val);
 
     // fill record
