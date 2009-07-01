@@ -2,6 +2,7 @@
 #define RecoLocalTracker_SiStripRecHitConverter_StripCPEgeometric_H
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/ErrorPropogationTypes.h"
 
 class StripCPEgeometric : public StripCPE 
 {
@@ -19,36 +20,29 @@ class StripCPEgeometric : public StripCPE
 		     const TrackerGeometry* geom, 
 		     const SiStripLorentzAngle* LorentzAngle);
  private:
-  
-  struct uncertain_t {
-    uncertain_t(float v, float e2) : v(v), err2(e2) {}
-    float v, err2;
-    float operator()() const {return v;}
-    static uncertain_t from_relative_uncertainty2(float v, float r2) {return uncertain_t(v, v*v*r2);}
-  };
-  
+
   class WrappedCluster {
   public:
-    WrappedCluster(const std::vector<float>&);
+    WrappedCluster(const std::vector<stats_t<float> >&);
     void dropSmallerEdgeStrip();
     float middle() const;
-    float centroid() const;
-    float sumQ() const;
-    uncertain_t eta() const;
+    stats_t<float> centroid() const;
+    stats_t<float> sumQ() const;
+    stats_t<float> eta() const;
     bool deformed() const;
-    float maxProjection() const;
-    float dedxRatio(const float&) const;
-    float smallerEdgeCharge() const;
+    stats_t<float> maxProjection() const;
+    stats_t<float> dedxRatio(const stats_t<float>&) const;
+    int sign() const;
     uint16_t N;
   private:
-    const float& last() const {return *(first+N-1);}
-    std::vector<float>::const_iterator Qbegin, first;
+    const stats_t<float>& last() const {return *(first+N-1);}
+    std::vector<stats_t<float> >::const_iterator Qbegin, first;
   };
 
-  uncertain_t find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
-  uncertain_t offset_from_firstStrip( const std::vector<float>&, const uncertain_t&) const;
-  uncertain_t geometric_position(const WrappedCluster&, const uncertain_t&) const;
-  bool useNMinusOne(const WrappedCluster&, const uncertain_t&) const;
+  stats_t<float> find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
+  stats_t<float> offset_from_firstStrip( const std::vector<stats_t<float> >&, const stats_t<float>&) const;
+  stats_t<float> geometric_position(const WrappedCluster&, const stats_t<float>&) const;
+  bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
 
   std::vector<float> crosstalk;
   const float tan_diffusion_angle, thickness_rel_err2, noise_threshold;

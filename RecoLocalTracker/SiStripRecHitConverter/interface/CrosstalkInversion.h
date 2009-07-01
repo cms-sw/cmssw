@@ -3,19 +3,23 @@
 
 #include <vector>
 #include <cmath>
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/ErrorPropogationTypes.h"
 
-class InverseCrosstalkMatrix {
- public:
-  InverseCrosstalkMatrix(const unsigned N, const float x);
-  float operator()(const unsigned i, const unsigned j) const;
-  
- private:
-  float element(const unsigned, const unsigned) const;
-  const unsigned N;
-  const double sq, lambdaP, lambdaM, denominator;
+namespace reco {
 
- public:
-  static std::vector<float> unfold(const std::vector<uint8_t>& q, const float x);
-
-};
+  class InverseCrosstalkMatrix {
+  public:
+    InverseCrosstalkMatrix(const unsigned N, const float x);
+    float operator()(const unsigned i, const unsigned j) const;
+    
+  private:
+    float element(const unsigned, const unsigned) const;
+    const unsigned N;
+    const double sq, lambdaP, lambdaM, denominator;
+    
+  public:
+    static std::vector<stats_t<float> > unfold(const std::vector<uint8_t>& q, const float x);
+    
+  };
+}
 #endif
