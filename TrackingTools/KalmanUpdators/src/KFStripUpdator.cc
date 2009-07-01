@@ -21,7 +21,7 @@ KFStripUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) c
 
   AlgebraicSymMatrix22 R(V + pC);
   //int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
-  R.Invert();
+  invertPosDefMatrix(R);
   
   // Compute Kalman gain matrix
   //  AlgebraicMatrix Hm2l(myTrafo.measurement2LocalProj());
