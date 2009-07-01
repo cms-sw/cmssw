@@ -29,7 +29,6 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   //...........................................................................
   
   m_configFile   = iConfig.getUntrackedParameter<std::string>("ConfigFile", std::string("hardware-pseudoconfig.txt"));
-  
   m_verbosity    = iConfig.getUntrackedParameter<int>("Verbosity", 0);
   m_rpcDigiLabel = iConfig.getParameter<edm::InputTag>("RPCDigiLabel");
   m_ttBits       = iConfig.getParameter< std::vector<unsigned> >("BitNumbers");
@@ -57,6 +56,11 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_ttu[0] = new TTUEmulator( m_boardIndex[0] , m_nWheels[0] );
   m_ttu[1] = new TTUEmulator( m_boardIndex[1] , m_nWheels[1] );
   m_ttu[2] = new TTUEmulator( m_boardIndex[2] , m_nWheels[2] );
+
+  //... This is second line that delivers in parallel a second trigger
+  m_ttuRbcLine[0] = new TTUEmulator( m_boardIndex[0] , m_nWheels[0] );
+  m_ttuRbcLine[1] = new TTUEmulator( m_boardIndex[1] , m_nWheels[1] );
+  m_ttuRbcLine[2] = new TTUEmulator( m_boardIndex[2] , m_nWheels[2] );
   
   //...........................................................................
   
@@ -81,6 +85,10 @@ RPCTechnicalTrigger::~RPCTechnicalTrigger()
     delete m_ttu[0];
     delete m_ttu[1];
     delete m_ttu[2];
+    
+    delete m_ttuRbcLine[0];
+    delete m_ttuRbcLine[1];
+    delete m_ttuRbcLine[2];
     
     if ( m_readConfig )
       delete m_readConfig;
@@ -109,7 +117,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     return;
   }
   
-  if ( !pIn.isValid() ) {
+  if ( ! pIn.isValid() ) {
     edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
                                          << m_rpcDigiLabel << '\n';
     iEvent.put(output);
@@ -130,12 +138,12 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.put(output);
     return;
   }
-  
-  RPCInputSignal * input = m_signal->retrievedata();
+
+  m_input = m_signal->retrievedata();
   
   std::vector<L1GtTechnicalTrigger> ttVec( m_ttBits.size() );
   
-  //. distribute data to different TTU emulators and process it
+  //. distribute data to different TTU emulator instances and process it
   
   m_triggerbits.reset();
   
@@ -147,11 +155,19 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     indx=k*2;
     
-    m_ttu[k]->processTtu( input );
+    m_ttu[k]->processTtu( m_input );
     
+    m_ttuRbcLine[k]->processTtu( m_input );
+    
+    //...for trigger 1
     for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
-      m_serializedInfo.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+      m_serializedInfoLine1.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
     m_ttu[k]->clearTriggerResponse();
+
+    //...for trigger 2
+    for( outItr  = m_ttuRbcLine[k]->m_triggerBxVec.begin(); outItr != m_ttuRbcLine[k]->m_triggerBxVec.end(); ++outItr )
+      m_serializedInfoLine2.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+    m_ttuRbcLine[k]->clearTriggerResponse();
     
   }
   
@@ -159,50 +175,124 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   int bx(0);
   int infoSize(0);
   
-  infoSize = m_serializedInfo.size();
-  std::sort( m_serializedInfo.begin(), m_serializedInfo.end(), sortByBx() );
+  infoSize = m_serializedInfoLine1.size();
+
+  std::vector<RPCTechnicalTrigger::TTUResults*>::const_iterator ttuItr;
+  
+  std::sort( m_serializedInfoLine1.begin(), m_serializedInfoLine1.end(), sortByBx() );
+  
+  for( ttuItr = m_serializedInfoLine1.begin(); ttuItr != m_serializedInfoLine1.end(); ++ttuItr ) {
+    if ( m_verbosity ) std::cout << (*ttuItr)->m_ttuidx << '\t'
+                                 << (*ttuItr)->m_bx << '\t'
+                                 << (*ttuItr)->m_trigWheel1 << '\t'
+                                 << (*ttuItr)->m_trigWheel2 << '\n';
+  }
+  
+  bool has_bx0 = false;
   
   for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
     
-    m_triggerbits.set(0, m_serializedInfo[k]->m_trigWheel1);
-    m_triggerbits.set(1, m_serializedInfo[k]->m_trigWheel2);
-    m_triggerbits.set(2, m_serializedInfo[k+1]->m_trigWheel1);
-    m_triggerbits.set(3, m_serializedInfo[k+2]->m_trigWheel1);
-    m_triggerbits.set(4, m_serializedInfo[k+2]->m_trigWheel2);
+    bx = m_serializedInfoLine1[k]->m_bx;
     
-    bx = m_serializedInfo[k]->m_bx;
+    if ( bx == 0 ) {
+      
+      m_triggerbits.set(0, m_serializedInfoLine1[k]->m_trigWheel1);
+      m_triggerbits.set(1, m_serializedInfoLine1[k]->m_trigWheel2);
+      
+      m_triggerbits.set(2, m_serializedInfoLine1[k+1]->m_trigWheel1);
+      
+      m_triggerbits.set(3, m_serializedInfoLine1[k+2]->m_trigWheel1);
+      m_triggerbits.set(4, m_serializedInfoLine1[k+2]->m_trigWheel2);
+      
+      bool five_wheels_OR = m_triggerbits.any();
+      
+      ttVec.at(0)=L1GtTechnicalTrigger(m_ttNames.at(0), m_ttBits.at(0), bx, five_wheels_OR ) ; // bit 24 = Or 5 wheels in TTU mode
+      ttVec.at(2)=L1GtTechnicalTrigger(m_ttNames.at(2), m_ttBits.at(2), bx, five_wheels_OR ) ; // bit 26 = 24
+      ttVec.at(3)=L1GtTechnicalTrigger(m_ttNames.at(3), m_ttBits.at(3), bx, five_wheels_OR ) ; // bit 27 = 24
+      ttVec.at(4)=L1GtTechnicalTrigger(m_ttNames.at(4), m_ttBits.at(4), bx, five_wheels_OR ) ; // bit 28 = 24
+      
+      m_triggerbits.reset();
+  
+      has_bx0 = true;
+      
+      break;
+      
+    } else continue;
     
-    for(int i = 0; i < m_maxBits; ++i) {
-      ttVec.at(i)=L1GtTechnicalTrigger(m_ttNames.at(i), m_ttBits.at(i), bx, m_triggerbits[i] ) ;
-    }
+  }
+  
+  infoSize = m_serializedInfoLine2.size();
+  std::sort( m_serializedInfoLine2.begin(), m_serializedInfoLine2.end(), sortByBx() );
+  
+  for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
+  
+    bx = m_serializedInfoLine2[k]->m_bx;
+
+    if ( bx == 0 ) {
+
+      m_triggerbits.set(0, m_serializedInfoLine2[k]->m_trigWheel1);
+      m_triggerbits.set(1, m_serializedInfoLine2[k]->m_trigWheel2);
+      
+      m_triggerbits.set(2, m_serializedInfoLine2[k+1]->m_trigWheel1);
+      
+      m_triggerbits.set(3, m_serializedInfoLine2[k+2]->m_trigWheel1);
+      m_triggerbits.set(4, m_serializedInfoLine2[k+2]->m_trigWheel2);
+      
+      bool five_wheels_OR = m_triggerbits.any();
+      
+      ttVec.at(1)=L1GtTechnicalTrigger(m_ttNames.at(1), m_ttBits.at(1), bx, five_wheels_OR ) ; // bit 25 = Or 5 wheels in RBC mode
+      
+      m_triggerbits.reset();
+      
+      break;
+      
+    } else continue;
+         
     
-    m_triggerbits.reset();
+  }
+  
+  
+  //...check that data appeared at bx=0
+  
+  if ( ! has_bx0 ) {
+    iEvent.put(output);
+    status = Reset();
+    ++m_ievt;
+    LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
+    return;
     
   }
   
   output->setGtTechnicalTrigger(ttVec);    
   iEvent.put(output);
   
-  //... reset data map for next event
-
-  input->clear();
-
-  m_triggerbits.reset();
-  
-  std::vector<TTUResults*>::iterator itrRes;
-
-  for( itrRes=m_serializedInfo.begin(); itrRes!=m_serializedInfo.end(); ++itrRes)
-    delete (*itrRes);
-
-  m_serializedInfo.clear();
-
-  delete m_signal;
-  
   //.... all done
   
+  status = Reset();
   ++m_ievt;
-
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
+  
+}
+
+bool RPCTechnicalTrigger::Reset()
+{
+  
+  m_input->clear();
+  m_triggerbits.reset();
+  std::vector<TTUResults*>::iterator itrRes;
+  
+  for( itrRes=m_serializedInfoLine1.begin(); itrRes!=m_serializedInfoLine1.end(); ++itrRes)
+    delete (*itrRes);
+  
+  for( itrRes=m_serializedInfoLine2.begin(); itrRes!=m_serializedInfoLine2.end(); ++itrRes)
+    delete (*itrRes);
+  
+  m_serializedInfoLine1.clear();
+  m_serializedInfoLine2.clear();
+  
+  delete m_signal; 
+  
+  return true;
   
 }
 
@@ -256,17 +346,25 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
   
   if ( m_hasConfig ) {
     
-
-    for (int k=0; k < m_maxTtuBoards; ++k )
-      m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
-    
     //... Initialize all
     
-    for (int k=0; k < m_maxTtuBoards; ++k )
+    for (int k=0; k < m_maxTtuBoards; ++k ) {
+
+      m_ttu[k]->SetLineId ( 1 );
+      m_ttuRbcLine[k]->SetLineId( 2 );
+      
+      m_ttu[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
+      m_ttuRbcLine[k]->setSpecifications( m_ttuspecs, m_rbcspecs );
+      
       status = m_ttu[k]->initialise();
-    
+      status = m_ttuRbcLine[k]->initialise();
+      
+      
+    }
+  
   }
   
+    
   
 }
 
@@ -281,12 +379,15 @@ void RPCTechnicalTrigger::endJob()
 
 void RPCTechnicalTrigger::printinfo()
 {
-
+  
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger::Printing TTU emulators info>" << std::endl;
   
-  for (int k=0; k < m_maxTtuBoards; ++k )
+  for (int k=0; k < m_maxTtuBoards; ++k ) {
     m_ttu[k]->printinfo();
+    m_ttuRbcLine[k]->printinfo();
+  }
   
+    
 }
 
 

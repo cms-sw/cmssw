@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.7 2009/06/07 21:18:51 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.8 2009/06/17 15:27:24 aosorio Exp $
 // Include files
 
 
@@ -25,8 +25,8 @@ RPCWheel::RPCWheel() {
   
   m_debug = false;
   
-  m_sec1id.push_back(1);
-  m_sec2id.push_back(12);
+  m_sec1id.push_back(12);
+  m_sec2id.push_back(1);
   m_sec1id.push_back(2);
   m_sec2id.push_back(3);
   m_sec1id.push_back(4);

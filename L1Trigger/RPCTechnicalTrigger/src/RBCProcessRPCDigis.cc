@@ -1,4 +1,4 @@
-// $Id: RBCProcessRPCDigis.cc,v 1.7 2009/06/07 21:18:50 aosorio Exp $
+// $Id: RBCProcessRPCDigis.cc,v 1.1 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 
@@ -33,8 +33,8 @@ RBCProcessRPCDigis::RBCProcessRPCDigis(  const edm::ESHandle<RPCGeometry> & rpcG
   m_wheelid.push_back( 1); //+1
   m_wheelid.push_back( 2); //+2
   
-  m_sec1id.push_back(1);
-  m_sec2id.push_back(12);
+  m_sec1id.push_back(12);
+  m_sec2id.push_back(1);
   m_sec1id.push_back(2);
   m_sec2id.push_back(3);
   m_sec1id.push_back(4);
@@ -48,26 +48,27 @@ RBCProcessRPCDigis::RBCProcessRPCDigis(  const edm::ESHandle<RPCGeometry> & rpcG
   
   m_layermap[113]     = 0;  //RB1InFw
   m_layermap[123]     = 1;  //RB1OutFw
+  
+  m_layermap[20213]   = 2;  //RB22Fw
+  m_layermap[20223]   = 2;  //RB22Fw
+  m_layermap[30223]   = 3;  //RB23Fw
+  m_layermap[30213]   = 3;  //RB23Fw
+  m_layermap[30212]   = 4;  //RB23M
+  m_layermap[30222]   = 4;  //RB23M
+  
   m_layermap[313]     = 5;  //RB3Fw
   m_layermap[413]     = 6;  //RB4Fw
   m_layermap[111]     = 7;  //RB1InBk
   m_layermap[121]     = 8;  //RB1OutBk
-  m_layermap[311]     = 11; //RB3Bk
-  m_layermap[411]     = 12; //RB4Bk
   
-  m_layermap[30212]   = 4;  //RB23M
-  m_layermap[30222]   = 4;  //RB23M
-  
-  m_layermap[20213]   = 2;  //RB22Fw
   m_layermap[20211]   = 9;  //RB22Bw
-  m_layermap[30213]   = 3;  //RB23Fw
-  m_layermap[30211]   = 10; //RB23Bw
-  
-  m_layermap[20223]   = 2;  //RB22Fw
   m_layermap[20221]   = 9;  //RB22Bw
-  m_layermap[30223]   = 3;  //RB23Fw
+  m_layermap[30211]   = 10; //RB23Bw
   m_layermap[30221]   = 10; //RB23Bw
   
+  m_layermap[311]     = 11; //RB3Bk
+  m_layermap[411]     = 12; //RB4Bk
+    
   m_maxBxWindow = 3;
 
 }
@@ -84,6 +85,8 @@ RBCProcessRPCDigis::~RBCProcessRPCDigis() {
   m_wheelid.clear();
   m_layermap.clear();
 
+  reset();
+  
 } 
 
 //=============================================================================
@@ -103,7 +106,7 @@ int RBCProcessRPCDigis::next() {
     m_digiItr = (*m_detUnitItr ).second.first;
     int bx = (*m_digiItr).bx();
     
-    if ( abs(bx) > m_maxBxWindow ) {
+    if ( abs(bx) >= m_maxBxWindow ) {
       if ( m_debug )  std::cout << "RBCProcessRPCDigis> found a bx bigger than max allowed: "
                                 << bx << std::endl;
       continue;
@@ -118,7 +121,7 @@ int RBCProcessRPCDigis::next() {
     }
     
     int wheel   = roll->id().ring();                    // -2,-1,0,+1,+2
-    int sector  = roll->id().sector();                  // 1 to 12 -> fix me: there is a different convention w.r.t. GlobalSignal
+    int sector  = roll->id().sector();                  // 1 to 12 
     int layer   = roll->id().layer();                   // 1,2
     int station = roll->id().station();                 // 1-4
     int blayer  = getBarrelLayer( layer, station );     // 1 to 6

@@ -1,4 +1,4 @@
-// $Id: TTUBasicConfig.cc,v 1.3 2009/05/16 19:43:32 aosorio Exp $
+// $Id: TTUBasicConfig.cc,v 1.4 2009/06/04 11:52:59 aosorio Exp $
 // Include files 
 
 
@@ -45,7 +45,7 @@ TTUBasicConfig::~TTUBasicConfig() {
 } 
 
 //=============================================================================
-bool TTUBasicConfig::initialise()
+bool TTUBasicConfig::initialise( int line )
 {
   
   bool status(false);
@@ -54,9 +54,21 @@ bool TTUBasicConfig::initialise()
   
   std::vector<TTUBoardSpecs::TTUBoardConfig>::const_iterator itr;
   itr = m_ttuboardspecs->m_boardspecs.begin();
-  
+ 
   // initialise logic unit
-  m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
+  
+  if ( line == 2 ) {
+    
+    // itr+=3; // <- ideally one would select the next three specifications
+    //temporary fix
+    
+    m_ttulogic->setlogic( "SectorORLogic" );
+    
+  } else {
+    
+    m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
+    
+  }
   
   status = m_ttulogic->initialise();
   

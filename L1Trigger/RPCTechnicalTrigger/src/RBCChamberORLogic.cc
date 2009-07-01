@@ -1,4 +1,4 @@
-// $Id: RBCChamberORLogic.cc,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RBCChamberORLogic.cc,v 1.5 2009/06/07 21:18:50 aosorio Exp $
 // Include files 
 
 
@@ -81,11 +81,22 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
     status = this->evaluateLayerOR( "RB1OutFw" , "RB1OutBk" );
     m_layersignal[k].set( 1 , status);
     
+    //... RB2
+
     status = this->evaluateLayerOR( "RB22Fw"   , "RB22Bk" );
     m_layersignal[k].set( 2 , status);
     
-    status = this->evaluateLayerOR( "RB23Fw"   , "RB23Bk" );
-    m_layersignal[k].set( 3 , status);
+    bool rb23FB = this->evaluateLayerOR( "RB23Fw"   , "RB23Bk" );
+
+    bool rb23MF = this->evaluateLayerOR( "RB23Fw"   , "RB23M" );
+    
+    bool rb23MB = this->evaluateLayerOR( "RB23M"    , "RB23Bk" );
+    
+    status = rb23FB || rb23MF || rb23MB;
+    
+    m_layersignal[k].set( 3 , status );
+
+    //.......
     
     status = this->evaluateLayerOR( "RB3Fw"    , "RB3Bk" );
     m_layersignal[k].set( 4 , status);

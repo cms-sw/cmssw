@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.4 2009/06/01 12:57:20 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.5 2009/06/04 11:52:59 aosorio Exp $
 // Include files 
 
 
@@ -63,40 +63,41 @@ void TTUTrackingAlg::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boards
 bool TTUTrackingAlg::process( const TTUInput & inmap )
 {
   
-  if( m_debug) std::cout << "TTUTrackingAlg::process starts" << std::endl;
+  if( m_debug) std::cout << "TTUTrackingAlg>process() starts + bx= " << inmap.m_bx << std::endl;
 
   m_triggersignal = false;
   
-  Track * _initTrk = new Track();
+  Track * initTrk = new Track();
   
   //.
   runSeedBuster( inmap );
   
   if ( m_initialseeds.size() > 0 ) 
-    _initTrk->add( m_initialseeds[0] );
+    initTrk->add( m_initialseeds[0] );
   else {
-    _initTrk->addnone();
+    initTrk->addnone();
+    if( m_debug) std::cout << "TTUTrackingAlg>process() ends: no initialseeds" << std::endl;
     return false;
   }
   
-  m_tracks.push_back( _initTrk );
+  m_tracks.push_back( initTrk );
   
   //..
   SeedsItr _seed = m_initialseeds.begin();
-  std::vector<Seed*> _neighbors;
+  std::vector<Seed*> neighbors;
   
   while ( _seed != m_initialseeds.end() ) {
   
-    findNeighbors( (*_seed) , _neighbors );
-    filter( _initTrk, _neighbors );
-    executeTracker( _initTrk, _neighbors );
+    findNeighbors( (*_seed) , neighbors );
+    filter( initTrk, neighbors );
+    executeTracker( initTrk, neighbors );
     
     ++_seed;
     
     if ( _seed != m_initialseeds.end() ) {
-      _initTrk = new Track();
-      _initTrk->add((*_seed));
-      m_tracks.push_back( _initTrk );
+      initTrk = new Track();
+      initTrk->add((*_seed));
+      m_tracks.push_back( initTrk );
       
     }
     
@@ -107,7 +108,7 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   if( m_debug) { 
     std::cout << "Total tracks: " << m_tracks.size() << std::endl;
     for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr)
-      std::cout << (*itr)->length() << '\t';
+      std::cout << "length: " << (*itr)->length() << '\t';
     std::cout << std::endl;
   }
   
@@ -124,8 +125,8 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
     m_triggersignal = true;
   
   if( m_debug ) {
-    std::cout << "TTUTrackingAlg " 
-              << tracklen << '\t' 
+    std::cout << "TTUTrackingAlg> trk len= " 
+              << tracklen << '\t' << "triggered: "
               << m_triggersignal << std::endl;
   }
   
@@ -144,23 +145,23 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
 void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
 {
   
-  int _idx(0);
-  int _idy(0);
+  int idx(0);
+  int idy(0);
 
   for(int i=0; i < 12; ++i) 
   {
-    _idx = (m_SEscanorder[i] - 1);
-    std::bitset<6> _station = inmap.input_sec[_idx];
+    idx = (m_SEscanorder[i] - 1);
+    std::bitset<6> station = inmap.input_sec[idx];
     
-    if ( ! _station.any() ) continue;
+    if ( ! station.any() ) continue;
     
     for(int k=0; k < 6; ++k ) {
       
-      _idy = (m_STscanorder[k] - 1);
-      bool _hit = _station[_idy];
+      idy = (m_STscanorder[k] - 1);
+      bool _hit = station[idy];
       
       if ( _hit ) {
-        Seed *_seed = new Seed( _idx, _idy, 0 );
+        Seed *_seed = new Seed( idx, idy, 0 );
         m_initialseeds.push_back(_seed);
       }
     }
@@ -173,16 +174,16 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
 }
 
 int TTUTrackingAlg::executeTracker( Track * _trk, 
-                                    std::vector<Seed*> & _neighbors)
+                                    std::vector<Seed*> & neighbors)
 {
   
-  if ( m_debug ) std::cout << "executeTracker: " << _neighbors.size() << std::endl;
+  if ( m_debug ) std::cout << "executeTracker: " << neighbors.size() << std::endl;
   
   //...
   
-  SeedsItr _itr = _neighbors.begin();
+  SeedsItr _itr = neighbors.begin();
   
-  while( _itr != _neighbors.end() ) {
+  while( _itr != neighbors.end() ) {
   
     _trk->add( (*_itr) );
   
@@ -196,7 +197,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk,
       executeTracker( _trk, _nextneighbors );
     
     //... bifurcation not considered at the moment
-    // if ( _itr != _neighbors.end() ) 
+    // if ( _itr != neighbors.end() ) 
     //     {
     //       std::cout << "executeTracker> found a bifurcation" << std::endl;
     //       _trk = new Track( (*_trk) );
@@ -220,10 +221,10 @@ int TTUTrackingAlg::executeTracker( Track * _trk,
 }
 
 void TTUTrackingAlg::findNeighbors( Seed  * _seed, 
-                                    std::vector<Seed*> & _neighbors)
+                                    std::vector<Seed*> & neighbors)
 {
   
-  _neighbors.clear();
+  neighbors.clear();
   
   int _xo = _seed->m_sectorId;
   int _yo = _seed->m_stationId;
@@ -243,7 +244,7 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed,
          (_difx == 1) && (_dify == 0) ||
          (_difx == 0) && (_dify == 1)   ) 
       
-      _neighbors.push_back( (*_itr) );
+      neighbors.push_back( (*_itr) );
     
     ++_itr;
   }
@@ -278,7 +279,7 @@ void TTUTrackingAlg::alignTracks()
   
   if( m_debug ) {
     for( itr = m_tracks.begin(); itr != m_tracks.end(); ++itr )
-      std::cout << (*itr)->length() << " ";
+      std::cout << "Align tracks> trk len: " << (*itr)->length() << " ";
     std::cout << std::endl;
   }
   

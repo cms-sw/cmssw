@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.9 2009/06/07 21:18:51 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.10 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 
@@ -39,7 +39,9 @@ TTUEmulator::TTUEmulator( int id, int mxw  )
   m_mode = 1;
   
   m_debug = false;
-    
+
+  m_line = 1;
+  
 }
 
 
@@ -66,6 +68,8 @@ TTUEmulator::TTUEmulator( int id, const char * rbclogic_type, const char * ttulo
   m_mode = 1;
 
   m_debug = false;
+
+  m_line = 1;
   
 }
 
@@ -93,6 +97,8 @@ TTUEmulator::TTUEmulator( int id, const char * f_name, const char * rbclogic_typ
   m_mode = 1;
   
   m_debug = false;
+
+  m_line = 1;
   
 }
 
@@ -130,7 +136,7 @@ bool TTUEmulator::initialise()
   for( int k=0; k < m_maxWheels; ++k)
     status = m_Wheels[k].initialise( );
   
-  status = m_ttuconf->initialise();
+  status = m_ttuconf->initialise( m_line );
   
   if ( !status ) { 
     if( m_debug ) std::cout << "TTUEmulator> Problem initialising the Configuration \n"; 
@@ -138,6 +144,13 @@ bool TTUEmulator::initialise()
   
   return status;
   
+}
+
+void TTUEmulator::SetLineId( int line )
+{
+  
+  m_line = line;
+    
 }
 
 void TTUEmulator::emulate() 
@@ -205,14 +218,17 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
                                 << " response: "    << trg << std::endl;
         
       }
+
       
     }
+
     
-    triggerResponse->setTriggerBits( bx , m_trigger );
+    triggerResponse->setTriggerBits( (*bxItr) , m_trigger );
     m_triggerBxVec.push_back( triggerResponse );
-    m_triggerBx[bx] = m_trigger;
+    m_triggerBx[ (*bxItr) ] = m_trigger;
     
   }
+  
   
   if( m_debug ) std::cout << "TTUEmulator::processTtu> size of trigger map " 
                           << m_triggerBx.size() << std::endl;

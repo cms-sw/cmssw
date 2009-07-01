@@ -82,8 +82,12 @@ private:
   //...........................................................................
   
   void printinfo();
-  
+
+  bool Reset();
+    
   TTUEmulator * m_ttu[3];
+
+  TTUEmulator * m_ttuRbcLine[3];
   
   RPCInputSignal * m_input;
   
@@ -100,7 +104,7 @@ private:
   std::vector<std::string> m_ttNames;
   edm::InputTag m_rpcDigiLabel;
   
-  TTUConfigurator * m_readConfig;
+  TTUConfigurator     * m_readConfig;
   const TTUBoardSpecs * m_ttuspecs;
   const RBCBoardSpecs * m_rbcspecs;
   
@@ -144,7 +148,8 @@ private:
     }
   };
   
-  std::vector<TTUResults*> m_serializedInfo;
+  std::vector<TTUResults*> m_serializedInfoLine1;
+  std::vector<TTUResults*> m_serializedInfoLine2;
   
   
 };

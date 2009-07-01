@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUConfiguration.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef INTERFACE_TTUCONFIGURATION_H 
 #define INTERFACE_TTUCONFIGURATION_H 1
 
@@ -21,10 +21,10 @@
 class TTUConfiguration {
 public: 
 
-  virtual bool initialise()=0;
+  virtual bool initialise( int )=0;
   
   virtual void preprocess(TTUInput &)=0;
-
+  
   TTULogicUnit  * m_ttulogic;
 
   const TTUBoardSpecs * m_ttuboardspecs;
