@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.4 2009/06/30 14:40:09 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $
    \date 05 Nov 2008
 */
 
@@ -19,6 +19,7 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
 
 
@@ -42,11 +43,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.4 2009/06/30 14:40:09 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $";
 
 /**
  *

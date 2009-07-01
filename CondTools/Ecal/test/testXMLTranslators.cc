@@ -73,7 +73,6 @@ int main(){
 
   // Test Intercalibration
   
-  EcalIntercalibConstantsXMLTranslator transIntercalib;
   
   EcalIntercalibConstants intercalib_constants;
   EcalIntercalibErrors    intercalib_errors;
