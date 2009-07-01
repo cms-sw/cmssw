@@ -7,8 +7,8 @@ MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
               - products dependencies are now taken into consideration
 """
 
-__revision__ = "$Id: MakeBuildSet,v 1.1 2009/07/01 12:06:35 muzaffar Exp $"
-__version__ = "$Revision: 1.1 $"
+__revision__ = "$Id: MakeBuildSet,v 1.2 2009/07/01 14:19:33 muzaffar Exp $"
+__version__ = "$Revision: 1.2 $"
 
 import os
 import sys
@@ -22,12 +22,10 @@ import commands
 programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
 programName = os.path.basename( sys.argv[0] )
 
-global verbose
-verbose               = 2 # Shows both error and info output 
 packageListInFile     = 0
 dependencyAnalysisDir = ""
 dependencies          = {}
-outputFormats         = ("packages", "tools", "dependencies")
+outputFormats         = ("packages", "tools", "all")
 outputFormat          = "packages"
 packages              = {}
 dropPluginDeps        = 0
@@ -42,25 +40,22 @@ def usage():
     """
     # Require minimum arguments and use options only to
     # override the defaults
-    if verbose:
-        print """
+    print """
 USAGE:
     """ + programName + """ [OPTIONS] [<package>]+
 OPTIONS:
    -d dir     - Required: get dependency information from directory dir,
 		There should be at least dependencies.txt and products.txt
 		files exist under this directory
-   -f file    - read list of packages from file.
+   -f file    - Optional: read list of packages from file.
    -h         - Optional: print this help and exit.
    -v         - Optional: display version number.
-   -q         - Optional: run quietly, suppressing info output.
-   -Q         - Optional: really quiet: suppress both info and error output.
    -p         - Optional: drop plugins dependency too
    -P         - Optional: drop all plugins even generated from
                 <subsystem>/<package>/src area
-   -o format  - Optional: format = [""" + "|".join(outputFormats) + """ ]
-                print out formatted output (e.g. only packages, or
-                only tools, one per line). Default value is packages.
+   -o format  - Optional: format = [""" + "|".join(outputFormats) + """]
+                print out formatted output (e.g. only packages,
+		only tools or both) one per line. Default value is packages.
 """
 
 def usageError ( message, programName) :
@@ -68,19 +63,11 @@ def usageError ( message, programName) :
     usageError:
       Call it to quit in case of usage error
     """
-    if verbose:
-        print "Usage error: ", message, \
-              "\nTry \'" + programName + " -h\' for help"
+    print "Usage error: ", message, \
+          "\nTry \'" + programName + " -h\' for help"
     sys.exit ( 2 )
 
     
-def infoOut(infoString):
-    """
-    Informative printout with verbosity control.
-    """
-    if verbose > 1 :
-        print "##", programName, "info: ", infoString
-
 ##############################################################
 # Interface functions:
 def readPackageFromFile(pkfile, list):
@@ -137,20 +124,12 @@ def addDependency(p,cache):
 
 # Handle options and arguments:
 try:
-    opts, args = getopt.getopt( sys.argv[1:], "hqpPQvf:d:o:" )
+    opts, args = getopt.getopt( sys.argv[1:], "hpPvf:d:o:" )
 
 except getopt.error:
     usageError( sys.exc_info()[1], programName)
 
 # process verbosity options separately before anything else. 
-
-for o, a in opts:
-    if o == "-q":
-        # runa quietly suppressing any info output
-        verbose = 1  # quiet
-    if o == "-Q":
-        # suppress both info and error output
-        verbose = 0  # really quiet
 
 for o, a in opts:
     if o == "-v":
@@ -167,7 +146,6 @@ for o, a in opts:
         outputFormat = a
         if not a in outputFormats:
             usageError( "unknown output format: " + a + ".", programName)        
-        verbose = 1  # switch off extra output
     if o == "-d":
         if not os.path.isdir(a):
 	    usageError( "directory " + a + " does not exist!", programName)
@@ -188,9 +166,13 @@ for p in args[0:]:
 if (packageListInFile):
     readPackageFromFile(packageListInFile,packages)
 
-infoOut( "Running " + programName)
-infoOut( "Packages: " + str(packages))
-infoOut( "Dependency dir: " + dependencyAnalysisDir)
+if not len(packages.keys()):
+    print """
+ERROR: You should use either '-f <file>' command-line option
+       to provide the list of packages to look for OR provide
+       a <space> separated list of package at the end of command-line
+"""
+    sys.exit(2)
 
 productCache={}
 readProductsInfo(os.path.join(dependencyAnalysisDir, "products.txt"),productCache)
@@ -211,7 +193,6 @@ elif dropPluginDeps:
 # New Method of extracting ignominy dependencies results:
 
 # Get dependencies from the original ignominy depFile:
-f = open(os.path.join(dependencyAnalysisDir,"dependencies.txt"))
 inBlock    = 0
 inPackage  = 0
 skipProduct = 0
@@ -223,6 +204,7 @@ requiresEntry  = re.compile('^\s+(\S+)\s*$')
 tools          = re.compile('^(tools|System)/(.+)\s*$',re.IGNORECASE)
 lcgProject     = re.compile('^(CORAL|SEAL|POOL)/.+',re.IGNORECASE)
 myTools        = {}
+f = open(os.path.join(dependencyAnalysisDir,"dependencies.txt"))
 for line in f.readlines():
     if inBlock:
         if endBlock.match(line):
@@ -297,19 +279,14 @@ if outputFormat == "packages":
     for p in pkg:
         if not p in myTools:
             print p
-    sys.exit()
-
-if outputFormat == "tools":
+elif outputFormat == "tools":
     pkg = myPackages.keys()
     pkg.sort()
     for p in pkg:
         if p in myTools:
             print p
-    sys.exit()
-
-if outputFormat == "dependencies":
+else:
     pkg = myPackages.keys()
     pkg.sort()
     for p in pkg:
         print p
-    sys.exit()
