@@ -82,3 +82,9 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
   #Min = cms.untracked.double(0),
   #Max = cms.untracked.double(441)
 )
+siStripFEDMonitor.nBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(1000),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(1000)
+)

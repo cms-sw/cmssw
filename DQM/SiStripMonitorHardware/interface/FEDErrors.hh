@@ -41,6 +41,7 @@ public:
     unsigned int nFEDsWithFEOverflows;
     unsigned int nFEDsWithFEBadMajorityAddresses;
     unsigned int nFEDsWithMissingFEs;
+    unsigned int nTotalBadChannels;
   };
 
   struct FECounters {
@@ -112,14 +113,14 @@ public:
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
-		     const bool aPrintDebug
+		     const unsigned int aPrintDebug
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 			 bool & aFullDebug,
-			 const bool aPrintDebug
+			 const unsigned int aPrintDebug
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer

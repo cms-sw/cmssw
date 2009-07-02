@@ -7,8 +7,10 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedMonitoringSummary'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
-  #Whether to dump buffer info and raw data if any error is found
-  PrintDebugMessages = cms.untracked.bool(False),
+  #Whether to dump buffer info and raw data if any error is found: 
+  #1=minimum info, 2=full debug with printing of the data buffer of each FED per event.
+  PrintDebugMessages = cms.untracked.uint32(0),
+  #PrintDebugMessages = cms.untracked.bool(False),
   #Whether to write the DQM store to a file at the end of the run and the file name
   WriteDQMStore = cms.untracked.bool(False),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
@@ -92,5 +94,11 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     NBins = cms.untracked.uint32(441),
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(441)
+  ),
+  nBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(1000)
   )
 )

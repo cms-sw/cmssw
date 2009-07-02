@@ -25,6 +25,7 @@ FEDErrors::FEDErrors()
   lFedCounter.nFEDsWithFEOverflows = 0;
   lFedCounter.nFEDsWithFEBadMajorityAddresses = 0;
   lFedCounter.nFEDsWithMissingFEs = 0;
+  lFedCounter.nTotalBadChannels = 0;
 
   feCounter_.nFEOverflows = 0; 
   feCounter_.nFEBadMajorityAddresses = 0; 
@@ -150,7 +151,7 @@ bool FEDErrors::failUnpackerFEDCheck(const FEDRawData & fedData)
 
 bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData, 
 			      bool & aFullDebug,
-			      const bool aPrintDebug
+			      const unsigned int aPrintDebug
 			      )
 {
   //try to construct the basic buffer object (do not check payload)
@@ -225,7 +226,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   }
 
    
-  if (printDebug() && aPrintDebug) {
+  if (printDebug() && aPrintDebug>1) {
     const sistrip::FEDBufferBase* debugBuffer = NULL;
 
     if (buffer.get()) debugBuffer = buffer.get();
@@ -235,13 +236,13 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
       std::ostringstream debugStream;
       if (lChVec.size()) {
 	std::sort(lChVec.begin(),lChVec.end());
-        debugStream << "Cabled channels which had errors: ";
+        debugStream << "[FEDErrors] Cabled channels which had errors: ";
 	
         for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
           print(lChVec.at(iBadCh),debugStream);
         }
         debugStream << std::endl;
-        debugStream << "Active (have been unlocked in at least one event) cabled channels which had errors: ";
+        debugStream << "[FEDErrors] Active (have been unlocked in at least one event) cabled channels which had errors: ";
 	for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
           if ((lChVec.at(iBadCh)).IsActive) print(lChVec.at(iBadCh),debugStream);
         }
@@ -250,7 +251,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
       debugStream << (*debugBuffer) << std::endl;
       debugBuffer->dump(debugStream);
       debugStream << std::endl;
-      edm::LogInfo("SiStripMonitorHardware") << "Errors found in FED " << fedID_;
+      edm::LogInfo("SiStripMonitorHardware") << "[FEDErrors] Errors found in FED " << fedID_;
       edm::LogVerbatim("SiStripMonitorHardware") << debugStream.str();
     }
   }
@@ -307,7 +308,7 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
 
 bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer, 
 				  bool & aFullDebug,
-				  const bool aPrintDebug
+				  const unsigned int aPrintDebug
 				  )
 {
   bool foundError = false;
@@ -395,18 +396,18 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
     if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck && aPrintDebug) {
       std::ostringstream debugStream;
-      debugStream << " ------ WARNING: FED " << fedID_ << ", channel " << iCh 
+      debugStream << "[FEDErrors] ------ WARNING: FED " << fedID_ << ", channel " << iCh 
 		  << ", isConnected = " << connected_[iCh] << std::endl 
-	       << " --------- Monitoring Channel check " ;
+	       << "[FEDErrors] --------- Monitoring Channel check " ;
       if (lFailMonitoringChannelCheck) debugStream << "failed." << std::endl;
       else debugStream << "passed." << std::endl ;
-      debugStream << " --------- Unpacker Channel check " ;
+      debugStream << "[FEDErrors] --------- Unpacker Channel check " ;
       if (lFailUnpackerChannelCheck) debugStream << "failed." << std::endl;
       else debugStream << "passed." << std::endl;
-      debugStream << " --------- fegood = " 
+      debugStream << "[FEDErrors] --------- fegood = " 
 		  << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT)) 
 		  << std::endl
-		  << " --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
+		  << "[FEDErrors] --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
       edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
     }
 
@@ -463,6 +464,7 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
     }
 
   }//loop on channels
+
 
   //if (nBadChans>0) std::cout << "-------- FED " << fedId << ", " << nBadChans << " bad channels." << std::endl;
 
@@ -653,18 +655,19 @@ void FEDErrors::print(const FEDErrors::FEDCounters & aFEDCounter, std::ostream &
 {
 
   aOs << std::endl;
-  aOs << "============================================" << std::endl
-      << "==== Printing FEDCounters information : ====" << std::endl
-      << "============================================" << std::endl
-      << "======== nFEDErrors = " << aFEDCounter.nFEDErrors << std::endl
-      << "======== nDAQProblems = " << aFEDCounter.nDAQProblems << std::endl
-      << "======== nFEDsWithFEProblems = " << aFEDCounter.nFEDsWithFEProblems << std::endl
-      << "======== nCorruptBuffers = " << aFEDCounter.nCorruptBuffers << std::endl
-      << "======== nBadActiveChannels = " << aFEDCounter.nBadActiveChannels << std::endl
-      << "======== nFEDsWithFEOverflows = " << aFEDCounter.nFEDsWithFEOverflows << std::endl
-      << "======== nFEDsWithFEBadMajorityAddresses = " << aFEDCounter.nFEDsWithFEBadMajorityAddresses << std::endl
-      << "======== nFEDsWithMissingFEs = " << aFEDCounter.nFEDsWithMissingFEs << std::endl
-      << "============================================" << std::endl;
+  aOs << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]==== Printing FEDCounters information : ====" << std::endl
+      << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]======== nFEDErrors = " << aFEDCounter.nFEDErrors << std::endl
+      << "[FEDErrors]======== nDAQProblems = " << aFEDCounter.nDAQProblems << std::endl
+      << "[FEDErrors]======== nFEDsWithFEProblems = " << aFEDCounter.nFEDsWithFEProblems << std::endl
+      << "[FEDErrors]======== nCorruptBuffers = " << aFEDCounter.nCorruptBuffers << std::endl
+      << "[FEDErrors]======== nBadActiveChannels = " << aFEDCounter.nBadActiveChannels << std::endl
+      << "[FEDErrors]======== nFEDsWithFEOverflows = " << aFEDCounter.nFEDsWithFEOverflows << std::endl
+      << "[FEDErrors]======== nFEDsWithFEBadMajorityAddresses = " << aFEDCounter.nFEDsWithFEBadMajorityAddresses << std::endl
+      << "[FEDErrors]======== nFEDsWithMissingFEs = " << aFEDCounter.nFEDsWithMissingFEs << std::endl
+      << "[FEDErrors]======== nTotalBadChannels = " << aFEDCounter.nTotalBadChannels << std::endl
+      << "[FEDErrors]============================================" << std::endl;
     
 
 }
@@ -673,13 +676,13 @@ void FEDErrors::print(const FEDErrors::FECounters & aFECounter, std::ostream & a
 {
 
   aOs << std::endl;
-  aOs << "============================================" << std::endl
-      << "==== Printing FECounters information :  ====" << std::endl
-      << "============================================" << std::endl
-      << "======== nFEOverflows = " << aFECounter.nFEOverflows << std::endl
-      << "======== nFEBadMajorityAddresses = " << aFECounter.nFEBadMajorityAddresses << std::endl
-      << "======== nFEMissing = " << aFECounter.nFEMissing << std::endl
-      << "============================================" << std::endl;
+  aOs << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]==== Printing FECounters information :  ====" << std::endl
+      << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]======== nFEOverflows = " << aFECounter.nFEOverflows << std::endl
+      << "[FEDErrors]======== nFEBadMajorityAddresses = " << aFECounter.nFEBadMajorityAddresses << std::endl
+      << "[FEDErrors]======== nFEMissing = " << aFECounter.nFEMissing << std::endl
+      << "[FEDErrors]============================================" << std::endl;
     
 
 }
@@ -688,22 +691,22 @@ void FEDErrors::print(const FEDErrors::FEDLevelErrors & aFEDErr, std::ostream & 
 {
 
   aOs << std::endl;
-  aOs << "============================================" << std::endl
-      << "==== Printing FED errors information :  ====" << std::endl
-      << "============================================" << std::endl
-      << "======== HasCabledChannels = " << aFEDErr.HasCabledChannels << std::endl
-      << "======== DataPresent = " << aFEDErr.DataPresent << std::endl
-      << "======== DataMissing = " << aFEDErr.DataMissing << std::endl
-      << "======== InvalidBuffers = " << aFEDErr.InvalidBuffers << std::endl
-      << "======== BadFEDCRCs = " << aFEDErr.BadFEDCRCs << std::endl
-      << "======== BadDAQCRCs = " << aFEDErr.BadDAQCRCs << std::endl
-      << "======== BadIDs = " << aFEDErr.BadIDs << std::endl
-      << "======== BadDAQPacket = " << aFEDErr.BadDAQPacket << std::endl
-      << "======== CorruptBuffer = " << aFEDErr.CorruptBuffer << std::endl
-      << "======== FEOverflows = " << aFEDErr.FEsOverflow << std::endl
-      << "======== FEMissing = " << aFEDErr.FEsMissing << std::endl
-      << "======== BadMajorityAddresses = " << aFEDErr.FEsBadMajorityAddress << std::endl
-      << "============================================" << std::endl;
+  aOs << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]==== Printing FED errors information :  ====" << std::endl
+      << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]======== HasCabledChannels = " << aFEDErr.HasCabledChannels << std::endl
+      << "[FEDErrors]======== DataPresent = " << aFEDErr.DataPresent << std::endl
+      << "[FEDErrors]======== DataMissing = " << aFEDErr.DataMissing << std::endl
+      << "[FEDErrors]======== InvalidBuffers = " << aFEDErr.InvalidBuffers << std::endl
+      << "[FEDErrors]======== BadFEDCRCs = " << aFEDErr.BadFEDCRCs << std::endl
+      << "[FEDErrors]======== BadDAQCRCs = " << aFEDErr.BadDAQCRCs << std::endl
+      << "[FEDErrors]======== BadIDs = " << aFEDErr.BadIDs << std::endl
+      << "[FEDErrors]======== BadDAQPacket = " << aFEDErr.BadDAQPacket << std::endl
+      << "[FEDErrors]======== CorruptBuffer = " << aFEDErr.CorruptBuffer << std::endl
+      << "[FEDErrors]======== FEOverflows = " << aFEDErr.FEsOverflow << std::endl
+      << "[FEDErrors]======== FEMissing = " << aFEDErr.FEsMissing << std::endl
+      << "[FEDErrors]======== BadMajorityAddresses = " << aFEDErr.FEsBadMajorityAddress << std::endl
+      << "[FEDErrors]============================================" << std::endl;
 
 }
 
@@ -711,44 +714,44 @@ void FEDErrors::print(const FEDErrors::FELevelErrors & aErr, std::ostream & aOs)
 {
 
   aOs << std::endl;
-  aOs << "============================================" << std::endl
-      << "==== Printing FE errors information :   ====" << std::endl
-      << "============================================" << std::endl
-      << "======== FE #" << aErr.FeID << std::endl
-      << "======== FEOverflow = " << aErr.Overflow << std::endl
-      << "======== FEMissing = " << aErr.Missing << std::endl
-      << "======== BadMajorityAddresses = " << aErr.BadMajorityAddress << std::endl
-      << "============================================" << std::endl;
+  aOs << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]==== Printing FE errors information :   ====" << std::endl
+      << "[FEDErrors]============================================" << std::endl
+      << "[FEDErrors]======== FE #" << aErr.FeID << std::endl
+      << "[FEDErrors]======== FEOverflow = " << aErr.Overflow << std::endl
+      << "[FEDErrors]======== FEMissing = " << aErr.Missing << std::endl
+      << "[FEDErrors]======== BadMajorityAddresses = " << aErr.BadMajorityAddress << std::endl
+      << "[FEDErrors]============================================" << std::endl;
 
 }
 
 void FEDErrors::print(const FEDErrors::ChannelLevelErrors & aErr, std::ostream & aOs)
 {
   aOs << std::endl;
-  aOs << "=================================================" << std::endl
-      << "==== Printing channel errors information :   ====" << std::endl
-      << "=================================================" << std::endl
-      << "============ Channel #" << aErr.ChannelID  << std::endl
-      << "============ isActive  = " << aErr.IsActive << std::endl
-      << "============ statusBit = " << aErr.Unlocked << std::endl
-      << "============ statusBit = " << aErr.OutOfSync << std::endl
-      << "=================================================" << std::endl;
+  aOs << "[FEDErrors]=================================================" << std::endl
+      << "[FEDErrors]==== Printing channel errors information :   ====" << std::endl
+      << "[FEDErrors]=================================================" << std::endl
+      << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
+      << "[FEDErrors]============ statusBit = " << aErr.Unlocked << std::endl
+      << "[FEDErrors]============ statusBit = " << aErr.OutOfSync << std::endl
+      << "[FEDErrors]=================================================" << std::endl;
 }
 
 
 void FEDErrors::print(const FEDErrors::APVLevelErrors & aErr, std::ostream & aOs)
 {
   aOs << std::endl;
-  aOs << "=================================================" << std::endl
-      << "==== Printing APV errors information :       ====" << std::endl
-      << "=================================================" << std::endl
-      << "============ APV #" << aErr.APVID  << std::endl
-      << "============ Channel #" << aErr.ChannelID  << std::endl
-      << "============ isActive  = " << aErr.IsActive << std::endl
-      << "============ statusBit = " << aErr.APVStatusBit << std::endl
-      << "============ statusBit = " << aErr.APVError << std::endl
-      << "============ statusBit = " << aErr.APVAddressError << std::endl
-      << "=================================================" << std::endl;
+  aOs << "[FEDErrors]=================================================" << std::endl
+      << "[FEDErrors]==== Printing APV errors information :       ====" << std::endl
+      << "[FEDErrors]=================================================" << std::endl
+      << "[FEDErrors]============ APV #" << aErr.APVID  << std::endl
+      << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
+      << "[FEDErrors]============ statusBit = " << aErr.APVStatusBit << std::endl
+      << "[FEDErrors]============ statusBit = " << aErr.APVError << std::endl
+      << "[FEDErrors]============ statusBit = " << aErr.APVAddressError << std::endl
+      << "[FEDErrors]=================================================" << std::endl;
 }
 
 

@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.16 2009/05/22 16:17:25 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.17 2009/05/25 12:02:38 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -75,8 +75,9 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
-  //print debug messages when problems are found
-  bool printDebug_;
+  //print debug messages when problems are found: 1=light debug, 2=full debug
+  unsigned int printDebug_;
+  //bool printDebug_;
   //write the DQMStore to a root file at the end of the job
   bool writeDQMStore_;
   std::string dqmStoreFileName_;
@@ -89,6 +90,8 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
 
+  unsigned int nEvt_;
+
 };
 
 
@@ -100,7 +103,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
-    printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
+    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",0)),
+    //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
     cablingCacheId_(0)
@@ -108,13 +112,13 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   //print config to debug log
   std::ostringstream debugStream;
   if (printDebug_) {
-    debugStream << "Configuration for SiStripFEDMonitorPlugin: " << std::endl
-                << "\tRawDataTag: " << rawDataTag_ << std::endl
-                << "\tHistogramFolderName: " << folderName_ << std::endl
-                << "\tFillAllDetailedHistograms? " << (fillAllDetailedHistograms_ ? "yes" : "no") << std::endl
-                << "\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl
-                << "\tWriteDQMStore? " << (writeDQMStore_ ? "yes" : "no") << std::endl;
-    if (writeDQMStore_) debugStream << "\tDQMStoreFileName: " << dqmStoreFileName_ << std::endl;
+    debugStream << "[SiStripFEDMonitorPlugin]Configuration for SiStripFEDMonitorPlugin: " << std::endl
+                << "[SiStripFEDMonitorPlugin]\tRawDataTag: " << rawDataTag_ << std::endl
+                << "[SiStripFEDMonitorPlugin]\tHistogramFolderName: " << folderName_ << std::endl
+                << "[SiStripFEDMonitorPlugin]\tFillAllDetailedHistograms? " << (fillAllDetailedHistograms_ ? "yes" : "no") << std::endl
+                << "[SiStripFEDMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl
+                << "[SiStripFEDMonitorPlugin]\tWriteDQMStore? " << (writeDQMStore_ ? "yes" : "no") << std::endl;
+    if (writeDQMStore_) debugStream << "[SiStripFEDMonitorPlugin]\tDQMStoreFileName: " << dqmStoreFileName_ << std::endl;
   }
   
   //don;t generate debug mesages if debug is disabled
@@ -126,6 +130,9 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 
 
   if (printDebug_) LogTrace("SiStripMonitorHardware") << debugStream.str();
+
+  nEvt_ = 0;
+
 }
 
 SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin()
@@ -231,28 +238,30 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_) {
     std::ostringstream debugStream;
-    debugStream << " --- Total number of bad feds = " 
+    debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = " 
 		<< lNTotBadFeds << std::endl
-		<< " --- Total number of bad channels = " 
+		<< "[SiStripFEDMonitorPlugin] --- Total number of bad channels = " 
 		<< lNTotBadChannels << std::endl;
-    LogTrace("SiStripMonitorHardware") << debugStream.str();
+    edm::LogVerbatim("SiStripMonitorHardware") << debugStream.str();
   }
 
   if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
     std::ostringstream debugStream;
     debugStream
-      << "-------------------------------------------------------------------------" << std::endl 
-      << "-------------------------------------------------------------------------" << std::endl 
-      << "-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
-      << " ---- Number of times monitoring fails but not unpacking = " << lNMonitoring << std::endl 
-      << " ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
-      << "-------------------------------------------------------------------------" << std::endl 
-      << "-------------------------------------------------------------------------" << std::endl ;
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
+      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
+      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNMonitoring << std::endl 
+      << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl ;
     edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
 
   }
 
-  fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters());
+  FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+
+  fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
 
 
   //match fedId/channel with detid
@@ -279,6 +288,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   }//if TkHistoMap is enabled
 
+  nEvt_++;
+
 }//analyze method
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -293,6 +304,8 @@ SiStripFEDMonitorPlugin::beginJob(const edm::EventSetup&)
   fedHists_.bookTopLevelHistograms(dqm_);
   
   if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms();
+
+  nEvt_ = 0;
 
   //const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   //const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;

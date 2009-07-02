@@ -57,20 +57,22 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("nFEDsWithMissingFEs",iConfig,pDebugStream);
   getConfigForHistogram("nFEDsWithFEBadMajorityAddresses",iConfig,pDebugStream);
 
+  getConfigForHistogram("nBadChannelsvsEvtNum",iConfig,pDebugStream);
+
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
 
 
 }
 
-void FEDHistograms::fillHistogram(MonitorElement* histogram, double value)
+void FEDHistograms::fillHistogram(MonitorElement* histogram, double value, double weight)
 {
-  if (histogram) histogram->Fill(value);
+  if (histogram) histogram->Fill(value,weight);
 }
 
 
 
-void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters )
+void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, const unsigned int aEvtNum )
 {
   fillHistogram(nFEDErrors_,fedLevelCounters.nFEDErrors);
   fillHistogram(nFEDDAQProblems_,fedLevelCounters.nDAQProblems);
@@ -81,6 +83,8 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
   fillHistogram(nFEDsWithMissingFEs_,fedLevelCounters.nFEDsWithMissingFEs);
   fillHistogram(nBadActiveChannelStatusBits_,fedLevelCounters.nBadActiveChannels);
   
+  fillHistogram(nBadChannelsvsEvtNum_,aEvtNum,fedLevelCounters.nTotalBadChannels);
+
 }
 
 void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, bool lFullDebug)
@@ -262,6 +266,26 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs","nFEDsWithMissingFEs",
                                        "Number of FEDs with missing FE unit payloads per event","");
 
+  //nBadChannelsvsEvtNum_ = bookHistogram("nBadChannelsvsEvtNum","nBadChannelsvsEvtNum",
+  //					"Number of active channels with any error vs event number","");
+
+  if (histogramConfig_["nBadChannelsvsEvtNum"].enabled) {
+    nBadChannelsvsEvtNum_ = dqm_->bookProfile("nBadChannelsvsEvtNum",
+					      "Number of active channels with any error vs event number",
+					      histogramConfig_["nBadChannelsvsEvtNum"].nBins,
+					      histogramConfig_["nBadChannelsvsEvtNum"].min,
+					      histogramConfig_["nBadChannelsvsEvtNum"].max,
+					      0,
+					      42240 //total number of channels
+					      );
+
+    nBadChannelsvsEvtNum_->setAxisTitle("",1);
+    //automatically set the axis range: will accomodate new values keeping the same number of bins.
+    nBadChannelsvsEvtNum_->getTProfile()->SetBit(TH1::kCanRebin);
+  } else {
+    nBadChannelsvsEvtNum_ = NULL;
+  }
+
 
   //book map after, as it creates a new folder...
   if (histogramConfig_[tkMapConfigName_].enabled){
@@ -366,22 +390,22 @@ void FEDHistograms::getConfigForHistogram(const std::string& configName,
       config.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
       config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 0);
       if (config.nBins) {
-        if (pDebugStream) (*pDebugStream) << "\tHistogram: " << configName << "\tEnabled"
+        if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tEnabled"
                                           << "\tNBins: " << config.nBins << "\tMin: " << config.min << "\tMax: " << config.max << std::endl;
       } else {
-        if (pDebugStream) (*pDebugStream) << "\tHistogram: " << configName << "\tEnabled" << std::endl;
+        if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tEnabled" << std::endl;
       }
     } else {
       config.enabled = false;
       config.nBins = 0;
       config.min = config.max = 0.;
-      if (pDebugStream) (*pDebugStream) << "\tHistogram: " << configName << "\tDisabled" << std::endl;
+      if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tDisabled" << std::endl;
     }
   } else {
     config.enabled = false;
     config.nBins = 0;
     config.min = config.max = 0.;
-    if (pDebugStream) (*pDebugStream) << "\tHistogram: " << configName << "\tDisabled" << std::endl;
+    if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tDisabled" << std::endl;
   }
   histogramConfig_[configName] = config;
 
