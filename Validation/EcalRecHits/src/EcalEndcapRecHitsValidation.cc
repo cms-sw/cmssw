@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2008/02/29 20:48:32 $
+ * $Date: 2008/10/29 10:56:43 $
  * \author C. Rovelli
  *
  */
@@ -204,7 +204,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
         EcalPedestalsMap::const_iterator it=myped->getMap().find( EEid );
         if( it != myped->getMap().end() ){
           
-          if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 ){ //only real signal RecHit
+          if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0 ){ //only real signal RecHit
             
             if ( meEEUncalibRecHitMaxSampleRatio_ )
               { meEEUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
