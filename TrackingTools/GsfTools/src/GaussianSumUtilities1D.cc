@@ -211,7 +211,7 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   double x1(0.);
   double y1(0.);
-  FinderState  state(size);
+  FinderState  state(size());
   update(state,xStart);
 
   double xmin(xStart-1.*scale);
