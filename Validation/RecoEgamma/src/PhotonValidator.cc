@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/06/29 15:25:49 $ 
- **  $Revision: 1.32 $
+ **  $Date: 2009/07/01 09:38:32 $ 
+ **  $Revision: 1.33 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -2419,8 +2419,6 @@ void PhotonValidator::endJob()
   fillPlotFromVectors(convFakeRateEtTwoTracks_,totRecAssConvEtTwoTracks_,totMatchedRecConvEtTwoTracks_,"fakerate");
 
 
-
-  dbe_->showDirStructure();
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
