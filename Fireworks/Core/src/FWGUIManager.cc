@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.134 2009/06/28 19:54:45 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.135 2009/07/02 18:35:25 amraktad Exp $
 //
 
 // system include files
@@ -222,22 +222,29 @@ FWGUIManager::~FWGUIManager()
 void
 FWGUIManager::evePreTerminate()
 {
-   //gDebug = 1;
+   //gDebug = 1;// ROOT debug
 
    gEve->GetWindowManager()->Disconnect("WindowSelected(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowDocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
    gEve->GetWindowManager()->Disconnect("WindowUndocked(TEveWindow*)", this, "checkSubviewAreaIconState(TEveWindow*)");
 
-
+   // unmap main frames not to watch dying
    m_cmsShowMainFrame->UnmapWindow();
+   for(std::vector<TEveWindow*>::const_iterator wIt = m_viewWindows.begin(); wIt != m_viewWindows.end(); ++wIt)
+   {
+      TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>((*wIt)->GetEveFrame());
+      if (mainFrame) mainFrame->UnmapWindow();
+   }
 
+   // avoid emit signals at end
    gEve->GetSelection()->RemoveElements();
 
+   // destroy views
    for(std::vector<FWViewBase* >::iterator it = m_viewBases.begin(), itEnd = m_viewBases.end();
-        it != itEnd;
-        ++it) {
-       (*it)->destroy();
-    }
+       it != itEnd;
+       ++it) {
+      (*it)->destroy();
+   }
 }
 
 //______________________________________________________________________________
@@ -1043,8 +1050,10 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
    assert(mw != 0);
    setWindowInfoFrom(*mw, m_cmsShowMainFrame);
+
    // !! when position and size is clear map window
-   m_viewPrimPack->GetGUIFrame()->Layout();
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
    m_cmsShowMainFrame->MapWindow();
 
    // set from view reading area info nd view info

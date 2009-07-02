@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.51 2009/05/17 06:15:43 jmuelmen Exp $
+// $Id: CmsShowMainFrame.cc,v 1.52 2009/06/06 12:59:29 amraktad Exp $
 //
 // hacks
 #define private public
@@ -205,10 +205,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
-   MapSubwindows();
-   Layout();
-   MapWindow();
-
 
    /**************************************************************************/
    // controls
@@ -384,13 +380,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
    SetWindowName("cmsShow");
-   MapSubwindows();
-   //   printf("Default main frame size: %d, %d\n", this->GetDefaultSize().fWidth, this->GetDefaultSize().fHeight);
-   //   printf("Main frame size: %d, %d\n", this->GetWidth(), this->GetHeight());
-   //   Resize(this->GetDefaultSize());
-   Layout();
-   MapWindow();
-
    m_delaySliderListener =  new FWIntValueListener();
    TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 }
