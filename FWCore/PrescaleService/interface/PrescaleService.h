@@ -40,8 +40,8 @@ namespace edm {
       unsigned int getPrescale(unsigned int lvl1Index,
 			       std::string const& prescaledPath);
       unsigned int getPrescale(std::string const& prescaledPath);
-      
-      
+
+      void setIndex(unsigned int lvl1Index){iLvl1IndexDefault_ = lvl1Index;}      
       void postBeginJob();
       void postEndJob() {}
       void preEventProcessing(EventID const&, Timestamp const&) {}
