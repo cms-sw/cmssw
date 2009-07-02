@@ -18,10 +18,11 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.11 2008/12/10 14:24:27 wmtan Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.12 2009/05/08 13:46:36 biery Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
+#include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -155,6 +156,16 @@ FUShmDQMOutputService::~FUShmDQMOutputService(void)
 void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
                                            const edm::EventSetup &eventSetup)
 {
+  std::string dqm = "DQM";
+  evf::MicroStateService *mss = 0;
+  try{
+    mss = edm::Service<evf::MicroStateService>().operator->();
+  }
+  catch(...) { 
+    edm::LogError("FUShmDQMOutputService")<< "exception when trying to get service MicroStateService";
+  }
+  mss->setMicroState(dqm);
+
   // fake the luminosity section if we don't want to use the real one
   unsigned int thisLumiSection = 0;
   if(lumiSectionInterval_ == 0)
