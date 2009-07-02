@@ -313,7 +313,7 @@ GaussianSumUtilities1D::pdfComponents (const double& x) const
   return result;
 }
 
-void pdfComponents (double x, std::vector<double> & result) const {
+void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & result) const {
   size_t s = size();
   result.resize(s);
   for ( unsigned int i=0; i<s; i++ )
