@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/04/22 12:59:07 $
- * $Revision: 1.446 $
+ * $Date: 2009/07/02 12:21:04 $
+ * $Revision: 1.447 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1571,6 +1571,8 @@ void EcalBarrelMonitorClient::analyze(void) {
       }
 
     }
+
+  }
 
   // 'end-of-run' state without a previous 'begin-of-run' or 'running' state
 

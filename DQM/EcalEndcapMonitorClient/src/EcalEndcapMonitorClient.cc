@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/04/22 12:59:07 $
- * $Revision: 1.205 $
+ * $Date: 2009/07/02 12:21:04 $
+ * $Revision: 1.206 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1611,6 +1611,8 @@ void EcalEndcapMonitorClient::analyze(void) {
       }
 
     }
+
+  }
 
   // 'end-of-run' state without a previous 'begin-of-run' or 'running' state
 
