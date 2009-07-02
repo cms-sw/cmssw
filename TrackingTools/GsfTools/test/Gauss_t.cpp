@@ -26,7 +26,7 @@ int main(int argc, char * argv[]) {
   // call once to inizialite compiler stuff
   {
     GaussianSumUtilities1D gsu1(mgs);
-    gsu1.mode();
+    std::cout << gsu1.mode().mean() << std::endl;
   }
 
   GaussianSumUtilities1D gsu(mgs);
