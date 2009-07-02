@@ -8,6 +8,9 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
+
 process.load("RecoJets.Configuration.CaloTowersRec_cff")                                                           
 process.towerMaker.ecalInputs = ['DiJProd:DiJetsEcalRecHitCollection']
 process.towerMaker.hbheInput = 'HitsReCalibration:DiJetsHBHEReRecHitCollection'
@@ -29,7 +32,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre3/RelValQCD_Pt_80_120/ALCARECO/STARTUP_30X_StreamALCARECOHcalCalDijets_v1/0001/D43D0349-800A-DE11-8751-000423D6006E.root')
+cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre11/RelValQCD_Pt_50_80/ALCARECO/STARTUP31X_V1_StreamALCARECOHcalCalDijets-v1/0001/6ACE7BCE-0565-DE11-976B-001731AF66A7.root')
 )
 
 process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
