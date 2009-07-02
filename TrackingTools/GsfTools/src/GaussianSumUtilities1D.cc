@@ -18,6 +18,12 @@
 #include <numeric>
 #include <algorithm>
 
+
+double GaussianSumUtilities1D::pdf(unsigned int i)  const {
+  return weight(i)*gauss(x,mean(i),standardDeviation(i));
+}
+
+
 double
 GaussianSumUtilities1D::quantile (const double q) const
 {
@@ -253,9 +259,13 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
 }
 
 double
-GaussianSumUtilities1D::pdf (const double& x) const
+GaussianSumUtilities1D::pdf (double x) const
 {
-  return pdf(x,pdfComponents(x));
+  double result(0.);
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ )
+    result += pdf(i);
+  return result;
 }
 
 double
@@ -318,7 +328,7 @@ void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & resu
   size_t s = size();
   if (s!=result.size()) result.resize(s);
   for ( unsigned int i=0; i<s; i++ )
-    result[i]=weight(i)*gauss(x,mean(i),standardDeviation(i));
+    result[i]=pdf(i);
 }
 
 

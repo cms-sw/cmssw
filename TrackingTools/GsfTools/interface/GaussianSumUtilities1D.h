@@ -41,6 +41,8 @@ public:
   }
   /// variance of a component
   inline double variance (unsigned int i) const {return components()[i].variance();}
+  /// pdf of a single component at x
+  double pdf(unsigned int i)  const;
   /// Quantile (i.e. x for a given value of the c.d.f.)
   double quantile (const double) const;
   /// mode status
@@ -49,7 +51,7 @@ public:
    *  weight chosen to have pdf(mode) equal to the one of the mixture */
   const SingleGaussianState1D& mode () const;
   /// value of the p.d.f.
-  double pdf (const double&) const;
+  double pdf (double) const;
   /// value of the c.d.f.
   double cdf (const double&) const;
   /// first derivative of the p.d.f.
