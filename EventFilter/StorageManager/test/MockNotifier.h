@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockNotifier.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
+// $Id: MockNotifier.h,v 1.3 2009/07/01 13:08:18 dshpakov Exp $
 
 #ifndef MOCKNOTIFIER_H
 #define MOCKNOTIFIER_H
@@ -32,6 +32,8 @@ namespace stor
   private:
 
     xdaq::Application* _app;
+
+    unsigned long instanceNumber() const { return 0; }
 
   };
 

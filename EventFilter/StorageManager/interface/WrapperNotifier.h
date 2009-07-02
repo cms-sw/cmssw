@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: WrapperNotifier.h,v 1.3 2009/07/01 11:38:38 dshpakov Exp $
+// $Id: WrapperNotifier.h,v 1.4 2009/07/01 13:08:17 dshpakov Exp $
 
 #ifndef WRAPPERNOTIFIER_H
 #define WRAPPERNOTIFIER_H
@@ -34,6 +34,11 @@ namespace stor
 
     xdaq2rc::RcmsStateNotifier _rcms_notifier;
     xdaq::Application* _app;
+
+    unsigned long instanceNumber() const
+    {
+      return _app->getApplicationDescriptor()->getInstance();
+    }
 
   };
 

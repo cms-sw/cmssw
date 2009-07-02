@@ -1,5 +1,5 @@
 // -*- c++ -*-                                                                              
-// $Id: Notifier.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: Notifier.h,v 1.3 2009/07/01 13:08:17 dshpakov Exp $
 
 #ifndef NOTIFIER_H
 #define NOTIFIER_H
@@ -26,6 +26,12 @@ namespace stor
     virtual void reportNewState( const std::string& stateName ) = 0;
     virtual Logger& getLogger() = 0;
     virtual void tellSentinel( const std::string& level, xcept::Exception& e ) = 0;
+
+    void localDebug( const std::string& message ) const;
+
+  protected:
+
+    virtual unsigned long instanceNumber() const = 0;
 
   };
 

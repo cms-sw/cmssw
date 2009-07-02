@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.4 2009/07/01 13:48:49 dshpakov Exp $
+// $Id: Failed.cc,v 1.5 2009/07/02 10:56:42 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -13,6 +13,7 @@ using namespace stor;
 
 Failed::Failed( my_context c ): my_base(c)
 {
+  const string unknown = "unknown exception";
   string msg = "Error going into Failed state: ";
   try
     {
@@ -34,7 +35,7 @@ Failed::Failed( my_context c ): my_base(c)
         }
       catch(...)
         {
-          sm_debug( "", "Exception in constructor of Failed" );
+          outermost_context().getNotifier()->localDebug( unknown );
         }
     }
   catch( std::exception& e )
@@ -50,7 +51,7 @@ Failed::Failed( my_context c ): my_base(c)
         }
       catch(...)
         {
-          sm_debug( "", "Exception in constructor of Failed" );
+          outermost_context().getNotifier()->localDebug( unknown );
         }
     }
   catch(...)
@@ -66,7 +67,7 @@ Failed::Failed( my_context c ): my_base(c)
         }
       catch(...)
         {
-          sm_debug( "", "Exception in constructor of Failed" );
+          outermost_context().getNotifier()->localDebug( unknown );
         }
     }
 }
