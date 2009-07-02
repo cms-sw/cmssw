@@ -132,6 +132,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   // Integrity Errors
   produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityXtalIdErrors");
   produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
  
   // Mem channels' integrity
