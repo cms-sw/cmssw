@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:29 EDT 2006
-// $Id: L1CaloGeometry.h,v 1.3 2007/08/13 05:01:35 wsun Exp $
+// $Id: L1CaloGeometry.h,v 1.1 2008/04/16 23:20:48 wsun Exp $
 //
 
 // system include files
@@ -89,15 +89,22 @@ class L1CaloGeometry
       double etSumPhiBinLowEdge( unsigned int phiIndex ) const ;
       double etSumPhiBinHighEdge( unsigned int phiIndex ) const ;
 
+      double htSumPhiBinCenter( unsigned int phiIndex ) const ;
+      double htSumPhiBinLowEdge( unsigned int phiIndex ) const ;
+      double htSumPhiBinHighEdge( unsigned int phiIndex ) const ;
+
       unsigned int etaIndex( const double& etaValue ) const ; // 0-6 or 0-3
       unsigned int globalEtaIndex( const double& etaValue ) const ; // 0-21
       unsigned int emJetPhiIndex( const double& phiValue ) const ;
       unsigned int etSumPhiIndex( const double& phiValue ) const ;
+      unsigned int htSumPhiIndex( const double& phiValue ) const ;
 
       unsigned int numberGctEmJetPhiBins() const
       { return m_numberGctEmJetPhiBins ; }
       unsigned int numberGctEtSumPhiBins() const
       { return m_numberGctEtSumPhiBins ; }
+      unsigned int numberGctHtSumPhiBins() const
+      { return m_numberGctEtSumPhiBins / 4 ; }
       unsigned int numberGctCentralEtaBinsPerHalf() const
       { return m_numberGctCentralEtaBinsPerHalf ; }
       unsigned int numberGctForwardEtaBinsPerHalf() const

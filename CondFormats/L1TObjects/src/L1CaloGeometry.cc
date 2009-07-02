@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:36 EDT 2006
-// $Id: L1CaloGeometry.cc,v 1.5 2007/08/13 05:01:49 wsun Exp $
+// $Id: L1CaloGeometry.cc,v 1.1 2008/04/16 23:20:48 wsun Exp $
 //
 
 // system include files
@@ -291,6 +291,27 @@ L1CaloGeometry::etSumPhiBinHighEdge( unsigned int phiIndex ) const
       m_gctEtSumPhiOffset ;
 }
 
+double
+L1CaloGeometry::htSumPhiBinCenter( unsigned int phiIndex ) const
+{
+   return ( ( double ) phiIndex + 0.5 ) * m_gctEtSumPhiBinWidth * 4. +
+      m_gctEtSumPhiOffset ;
+}
+
+double
+L1CaloGeometry::htSumPhiBinLowEdge( unsigned int phiIndex ) const
+{
+   return ( ( double ) phiIndex ) * m_gctEtSumPhiBinWidth * 4. +
+      m_gctEtSumPhiOffset ;
+}
+
+double
+L1CaloGeometry::htSumPhiBinHighEdge( unsigned int phiIndex ) const
+{
+   return ( ( double ) phiIndex + 1. ) * m_gctEtSumPhiBinWidth * 4. +
+      m_gctEtSumPhiOffset ;
+}
+
 unsigned int
 L1CaloGeometry::etaIndex( const double& etaValue ) const
 {
@@ -400,6 +421,32 @@ L1CaloGeometry::etSumPhiIndex( const double& phiValue ) const
    }
 
    return ( ( int ) ( phiAdjusted / m_gctEtSumPhiBinWidth ) ) ;
+}
+
+unsigned int
+L1CaloGeometry::htSumPhiIndex( const double& phiValue ) const
+{
+   double phiAdjusted = phiValue - m_gctEtSumPhiOffset ;
+
+   // Check phiValue is between m_gctEtSumPhiOffset and m_gctEtSumPhiOffset+2pi
+   if( phiAdjusted < 0. )
+   {
+      do
+      {
+         phiAdjusted += 2. * M_PI ;
+      }
+      while( phiAdjusted < 0. ) ;
+   }
+   else if( phiAdjusted > 2. * M_PI )
+   {
+      do
+      {
+         phiAdjusted -= 2. * M_PI ;
+      }
+      while( phiAdjusted > 2. * M_PI ) ;
+   }
+
+   return ( ( int ) ( phiAdjusted / ( m_gctEtSumPhiBinWidth * 4. ) ) ) ;
 }
 
 //
