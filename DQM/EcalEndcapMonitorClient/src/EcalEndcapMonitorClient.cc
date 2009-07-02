@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/04/17 07:17:33 $
- * $Revision: 1.204 $
+ * $Date: 2009/04/22 12:59:07 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1590,6 +1590,31 @@ void EcalEndcapMonitorClient::analyze(void) {
   // 'running' state without a previous 'begin-of-run' state
 
   if ( strcmp(status_.c_str(), "running") == 0 ) {
+
+    if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+
+      if ( ! forced_status_ ) {
+
+        if ( ! begin_run_ ) {
+
+          if ( verbose_ ) {
+            cout << endl;
+            cout << "Forcing beginRun() ... NOW !" << endl;
+            cout << endl;
+          }
+
+          forced_status_ = true;
+          this->beginRun();
+
+        }
+
+      }
+
+    }
+
+  // 'end-of-run' state without a previous 'begin-of-run' or 'running' state
+
+  if ( strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
