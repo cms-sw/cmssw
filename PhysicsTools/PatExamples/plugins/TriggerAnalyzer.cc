@@ -106,20 +106,20 @@ void TriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup 
   const TriggerMatchHelper matchHelper;
 
   // filling histograms
-  const TriggerObjectMatch * triggerMatch(  );                           // <== missing piece
+  const TriggerObjectMatch * triggerMatch( triggerEvent->triggerObjectMatchResult( muonMatch_ ) );                           // <== missing piece
   for ( size_t iMuon = 0; iMuon < muons->size(); ++iMuon ) {
     const reco::CandidateBaseRef candBaseRef( MuonRef( muons, iMuon ) );
-    const TriggerObjectRef trigRef(  );                                  // <== missing piece
+    const TriggerObjectRef trigRef( matchHelper.triggerMatchObject( candBaseRef, triggerMatch, iEvent, *triggerEvent ) );                                  // <== missing piece
     // fill histograms
     if ( trigRef.isAvailable() ) { // check references (necessary!)
-      histos2D_[ "ptMatch" ]->Fill(  );                                  // <== missing piece
-      histos1D_[ "ptCand" ]->Fill(  );                                   // <== missing piece
-      histos1D_[ "ptTrig" ]->Fill(  );                                   // <== missing piece
+      histos2D_[ "ptMatch" ]->Fill( candBaseRef->pt(), trigRef->pt() );                                  // <== missing piece
+      histos1D_[ "ptCand" ]->Fill( candBaseRef->pt() );                                   // <== missing piece
+      histos1D_[ "ptTrig" ]->Fill( trigRef->pt() );                                   // <== missing piece
     }
   } // iMuon
-  const TriggerObjectRefVector trigRefVector(  );                        // <== missing piece
+  const TriggerObjectRefVector trigRefVector( triggerEvent->objects( muonID_ ) );                        // <== missing piece
   for ( TriggerObjectRefVector::const_iterator iTrig = trigRefVector.begin(); iTrig != trigRefVector.end(); ++iTrig ) {
-    histos1D_[ "ptTrigAll" ]->Fill(  );                                  // <== missing piece
+    histos1D_[ "ptTrigAll" ]->Fill( ( *iTrig )->pt() );                                  // <== missing piece
   }
   
 }
