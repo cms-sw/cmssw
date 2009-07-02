@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.13 2009/03/25 16:20:31 alinn Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.14 2009/04/16 12:15:30 alinn Exp $
+// Latest tag:  $Name: V03-02-05 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -81,6 +81,7 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
     output  << "@ "
 	<< " Partition " << partition.partitionName() 
 	<< " CabVer "    << partition.cabVersion().first << "." << partition.cabVersion().second
+        << " MaskVer "   << partition.maskVersion().first << "." << partition.maskVersion().second
       ;
     if (label!="Cabling")
       output << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;
