@@ -9,14 +9,7 @@
  */
 
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile RootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer RootBuffer;
-#endif
 
 #include "boost/shared_ptr.hpp"
 
@@ -105,7 +98,7 @@ namespace edm {
 
     TClass* tc_;
     std::vector<unsigned char> dest_;
-    RootBuffer xbuf_;
+    TBufferFile xbuf_;
     bool runEndingFlag_;
     ProductGetter productGetter_;
 

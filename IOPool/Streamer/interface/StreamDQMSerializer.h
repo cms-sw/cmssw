@@ -8,14 +8,7 @@
  * into streamer message objects.
  */
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile RootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer RootBuffer;
-#endif
 
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include <vector>
@@ -56,7 +49,7 @@ namespace edm
     std::vector<unsigned char> comp_buf_; // space for compressed data
     unsigned int curr_event_size_;
     unsigned int curr_space_used_; // less than curr_event_size_ if compressed
-    RootBuffer rootbuf_;
+    TBufferFile rootbuf_;
     unsigned char* ptr_; // set to the place where the last event stored
 
   };

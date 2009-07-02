@@ -7,14 +7,7 @@
 //  Streamer package.
 //
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile RootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer RootBuffer;
-#endif
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -42,7 +35,7 @@ namespace edm
 
   private:
     TClass* desc_;
-    RootBuffer buf_;
+    TBufferFile buf_;
   };
 
   // ------------------------------------------------------------

@@ -9,14 +9,7 @@
  */
 
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile RootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer RootBuffer;
-#endif
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include <vector>
@@ -33,7 +26,7 @@ namespace edm {
 
   private:
     std::vector<unsigned char> decompressBuffer_;
-    RootBuffer workTBuffer_;
+    TBufferFile workTBuffer_;
   };
 
 }
