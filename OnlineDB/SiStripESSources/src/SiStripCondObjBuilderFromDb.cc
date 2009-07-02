@@ -30,8 +30,14 @@ using namespace sistrip;
                                    
 // -----------------------------------------------------------------------------
 /** */
-SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet&,
-							 const edm::ActivityRegistry&) 
+SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet& pset,
+							 const edm::ActivityRegistry&):
+  m_gaincalibrationfactor(static_cast<float>(pset.getUntrackedParameter<double>("GainNormalizationFactor",640.))), 
+  m_defaultpedestalvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultPedestal",0.))), 
+  m_defaultnoisevalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultNoise",0.))), 
+  m_defaultthresholdhighvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdHigh",0.))), 
+  m_defaultthresholdlowvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdLow",0.))), 
+  m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",640.))) 
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -263,16 +269,15 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  << " Writing default values" << std::endl;
 	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
 	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
-	threshold_->setData( istrip, 0., 0., inputThreshold );
+	threshold_->setData( istrip, m_defaultthresholdlowvalue, m_defaultthresholdlowvalue, inputThreshold );
 	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
-	  pedestals_->setData( 0.,inputPedestals );
-	  noises_->setData( 0., inputNoises );
+	  pedestals_->setData(m_defaultpedestalvalue,inputPedestals );
+	  noises_->setData(m_defaultnoisevalue ,inputNoises );
 	}
 	
 	if(IsTiming){
-	  float defaultTickHeight_ = 666.6;
-	  inputApvGain.push_back(defaultTickHeight_); // APV0
-	  inputApvGain.push_back(defaultTickHeight_); // APV1
+	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
+	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
 	}
 	continue;
       }
@@ -292,22 +297,21 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 
       if(IsTiming){
 	TimingAnalysisDescription *anal=0;
-	float defaultTickHeight=888.8;
 	if ( iii != jjj ) { anal = dynamic_cast<TimingAnalysisDescription*>(*iii); }
 	if ( anal ) {
-	  float tick_height = anal->getHeight();
+	  float tick_height = (anal->getHeight() / m_gaincalibrationfactor);
 	  //float tick_base = anal->getBase();
 	  //float tick_top = anal->getPeak();
 	  inputApvGain.push_back( tick_height ); // APV0
 	  inputApvGain.push_back( tick_height); // APV1
 	} else {
-	  inputApvGain.push_back(defaultTickHeight); // APV0
-	  inputApvGain.push_back(defaultTickHeight); // APV1
+	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV0
+	  inputApvGain.push_back(m_defaulttickheightvalue/m_gaincalibrationfactor); // APV1
 	  ssMessage
 	    << "\n "
 	    << " Unable to find Timing Analysis Description"
 	    << " Writing default values for DetId: " << *det_id
-	    << " Value: " << defaultTickHeight << std::endl;
+	    << " Value: " << m_defaulttickheightvalue/m_gaincalibrationfactor << std::endl;
 	}
       }
           
@@ -326,10 +330,10 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	ssMessage<< std::endl;
 	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
 	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
-	threshold_->setData( istrip, 0., 0., inputThreshold );
+	threshold_->setData( istrip, m_defaultthresholdlowvalue, m_defaultthresholdlowvalue, inputThreshold );
 	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
-	  pedestals_->setData( 0.,inputPedestals );
-	  noises_->setData( 0., inputNoises );
+	  pedestals_->setData( m_defaultpedestalvalue,inputPedestals );
+	  noises_->setData( m_defaultnoisevalue, inputNoises );
 	}
 	continue; 
       }
