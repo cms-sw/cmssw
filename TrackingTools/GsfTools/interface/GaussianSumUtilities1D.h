@@ -96,7 +96,7 @@ private:
   void computeMode () const;
   /** Local variance from Hessian matrix. 
    *  Only valid if x corresponds to a (local) maximum! */
-  double localVariance (const double& x) const;
+  double localVariance (double x) const;
 
   // the state of the mode finder
   struct FinderState {

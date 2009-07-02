@@ -444,9 +444,11 @@ GaussianSumUtilities1D::combinedMean () const
 }
 
 double
-GaussianSumUtilities1D::localVariance (const double& x) const
+GaussianSumUtilities1D::localVariance (double x) const
 {
-  double result = -pdf(x)/d2Pdf(x);
+  std::vector<double> pdfs;
+  pdfComponents(x,pdfs);
+  double result = -pdf(x,pdfs)/d2Pdf(x,pdfs);
   // FIXME: wrong curvature seems to be non-existant but should add a proper recovery
   if ( result<0. )
     edm::LogWarning("GaussianSumUtilities") << "1D variance at mode < 0";    
