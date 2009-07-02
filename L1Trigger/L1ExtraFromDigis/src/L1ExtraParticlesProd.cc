@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.28 2009/03/29 02:26:19 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.29 2009/04/22 19:07:21 wsun Exp $
 //
 //
 
@@ -710,7 +710,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 		   // protect against roundoff.
 
 		   phi =
-		     caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
+		     caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
 		   p4 = math::PtEtaPhiMLorentzVector( htMiss,
 						      0.,
@@ -778,7 +778,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 		  // protect against roundoff.
 
 		  double phi =
-		    caloGeom->etSumPhiBinCenter( hwHtMissItr->phi() ) ;
+		    caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
 		  math::PtEtaPhiMLorentzVector p4( htMiss,
 						   0.,
