@@ -24,6 +24,8 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+template <class T>
+class PCrossingFrame;
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
@@ -67,8 +69,8 @@ class CrossingFrame
   void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;}
   void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;}
   // used in the Step2 to set the PCrossingFrame
-  //void setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
-
+  void setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
+  
   void print(int level=0) const ;
 
   void setBcrOffset() {
@@ -164,7 +166,9 @@ class CrossingFrame
   std::vector<const T *>  pileups_; 
   boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtrPileups_; 
   boost::shared_ptr<edm::Wrapper<T> const> shPtrPileups2_;   // fore HepMCProduct
-
+  boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtrPileupsPCF_;
+//  boost::shared_ptr<edm::Wrapper<PCrossingFrame<edm::HepMCProduct> const> shPtrPileupsHepMCProductPCF_;
+  
   // these are informations stored in order to be able to have information
   // as a function of the position of an object in the pileups_ vector
   std::vector<unsigned int> pileupOffsetsBcr_;
@@ -269,6 +273,11 @@ std::ostream &operator<<(std::ostream& o, const CrossingFrame<T>& cf)
   return o;
 }
 
+#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
+template <class T>
+void CrossingFrame<T>::setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr) {shPtrPileupsPCF_=shPtr;}
+
+
 //==================== template specializations  ===========================================
 template <class T>
 void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset,bool checkTof,bool high) {
@@ -316,5 +325,6 @@ void CrossingFrame<T>::setTof() {;}
 
 template <>
 void CrossingFrame<PSimHit>::setTof();
+
 
 #endif 
