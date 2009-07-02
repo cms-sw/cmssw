@@ -7,8 +7,8 @@ MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
               - products dependencies are now taken into consideration
 """
 
-__revision__ = "$Id: MakeBuildSet,v 1.4 2009/07/01 15:59:11 muzaffar Exp $"
-__version__ = "$Revision: 1.4 $"
+__revision__ = "$Id: MakeBuildSet,v 1.5 2009/07/02 16:29:04 muzaffar Exp $"
+__version__ = "$Revision: 1.5 $"
 
 import os
 import sys
@@ -285,6 +285,7 @@ if dependencyAnalysisDir == "":
      usageError( "missing ignominy analysis directory which should contain at least products.txt and dependencies.txt files.", programName)
 
 # Add packages from file: 
+packages = {}
 if (packageListInFile):
     packages = readPackageFromFile(packageListInFile)
 # Add extra packages passed via command-line
