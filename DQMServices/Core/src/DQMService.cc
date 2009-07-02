@@ -1,6 +1,5 @@
 #if !WITHOUT_CMS_FRAMEWORK
 # include "DQMServices/Core/src/DQMService.h"
-# include "DQMServices/Core/src/DQMRootBuffer.h"
 # include "DQMServices/Core/interface/DQMNet.h"
 # include "DQMServices/Core/interface/DQMStore.h"
 # include "DQMServices/Core/interface/DQMScope.h"
@@ -12,6 +11,7 @@
 # include <iostream>
 # include <string>
 # include <memory>
+#include "TBufferFile.h"
 
 // -------------------------------------------------------------------
 static pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -142,7 +142,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       o.flags = me.data_.flags;
       o.lastreq = 0;
 
-      DQMRootBuffer buffer (DQMRootBuffer::kWrite);
+      TBufferFile buffer (TBufferFile::kWrite);
       buffer.WriteObject(me.data_.object);
       if (me.data_.reference)
 	buffer.WriteObject(me.data_.reference);

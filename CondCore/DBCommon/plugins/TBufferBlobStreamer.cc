@@ -3,14 +3,7 @@
 #include <string>
 #include <cstring>
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile CONDRootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer CONDRootBuffer;
-#endif
 
 #include "Reflex/Reflex.h"
 #include "Cintex/Cintex.h"
@@ -119,7 +112,7 @@ const coral::Blob &cond::TBufferBlobWriter::write(const void *addr)
     throw cond::Exception("TBufferBlobWriter::write object to stream is "
                           "not of actual class.");
 
-  CONDRootBuffer buffer(CONDRootBuffer::kWrite);
+  TBufferFile buffer(TBufferFile::kWrite);
   buffer.InitMap();
 
   if (m_type.m_arraySize && !m_type.m_class)
@@ -156,7 +149,7 @@ void cond::TBufferBlobReader::read(const coral::Blob &blobData,
   if (!size)
     return;
 
-  CONDRootBuffer buffer(CONDRootBuffer::kRead, size,
+  TBufferFile buffer(TBufferFile::kRead, size,
                  const_cast<void*>(startingAddress), kFALSE);
 
   buffer.InitMap();

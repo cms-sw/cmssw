@@ -4,14 +4,7 @@
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile RootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer RootBuffer;
-#endif
 
 #include <string>
 #include <cstddef>
@@ -38,7 +31,7 @@ std::vector<unsigned long> TRandomAdaptor::put () const {
   int32_t itemSize = sizeof(unsigned long);
   std::vector<unsigned long> v;
   v.push_back (CLHEP::engineIDulong<TRandomAdaptor>());
-  RootBuffer buffer(TBuffer::kWrite,1024*itemSize);
+  TBufferFile buffer(TBuffer::kWrite,1024*itemSize);
   trand_->Streamer(buffer);
   buffer.SetReadMode();
   char* bufferPtr = buffer.Buffer();
@@ -64,7 +57,7 @@ bool TRandomAdaptor::get (std::vector<unsigned long> const& v) {
   if(v[0] != CLHEP::engineIDulong<TRandomAdaptor>()) return false;
   int32_t numItems = v.size()-1;
   int32_t itemSize = sizeof(unsigned long);
-  RootBuffer buffer(TBuffer::kRead,numItems*itemSize+1024);
+  TBufferFile buffer(TBuffer::kRead,numItems*itemSize+1024);
   char* bufferPtr = buffer.Buffer();
   for(int i=0; i<(int)numItems; ++i) {
     *(unsigned long*)(bufferPtr+i*itemSize) = v[i+1];
