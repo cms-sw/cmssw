@@ -95,7 +95,8 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       dephist[bunch_it->detid.depth()-1]->Fill(bunch_it->detid.ieta(),bunch_it->detid.iphi(),
                 (bunch_it->cap[0]+bunch_it->cap[1]+bunch_it->cap[2]+bunch_it->cap[3])/4);
 
-      const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
+      const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3],
+                              bunch_it->sig[0][0], bunch_it->sig[1][1], bunch_it->sig[2][2], bunch_it->sig[3][3]);
       rawPedsItem->addValues(item);
       HcalPedestalWidth widthsp(bunch_it->detid);
       widthsp.setSigma(0,0,bunch_it->sig[0][0]);
@@ -110,8 +111,8 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthsp.setSigma(3,3,bunch_it->sig[3][3]);
       rawWidthsItem->addValues(widthsp);
 
-      const HcalPedestal itemfc(bunch_it->detid, bunch_it->capfc[0], bunch_it->capfc[1],
-                                   bunch_it->capfc[2], bunch_it->capfc[3]);
+      const HcalPedestal itemfc(bunch_it->detid, bunch_it->capfc[0], bunch_it->capfc[1], bunch_it->capfc[2], bunch_it->capfc[3],
+                              bunch_it->sigfc[0][0], bunch_it->sigfc[1][1], bunch_it->sigfc[2][2], bunch_it->sigfc[3][3]);
       rawPedsItemfc->addValues(itemfc);
       HcalPedestalWidth widthspfc(bunch_it->detid);
       widthspfc.setSigma(0,0,bunch_it->sigfc[0][0]);
@@ -142,7 +143,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 
     if(dumpXML){
        std::ofstream outStream5(XMLfilename.c_str());
-       HcalCondXML::dumpObject (outStream5, runnum, 0, 2147483647, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
+       HcalCondXML::dumpObject (outStream5, runnum, runnum, runnum, XMLtag, 1, (*rawPedsItem), (*rawWidthsItem)); 
     }
 
     if(hiSaveFlag){
