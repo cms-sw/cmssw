@@ -77,6 +77,7 @@ class PFElectronAlgo {
   std::vector<double> BDToutput_;
   std::vector<bool> lockExtraKf_;
   std::vector<bool> GsfTrackSingleEcal_;
+  std::vector< std::pair <unsigned int, unsigned int> > fifthStepKfTrack_;
 
   double mvaEleCut_;
   TMVA::Reader    *tmvaReader_;

@@ -57,7 +57,7 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
   elCandidate_.clear();
   allElCandidate_.clear();
   photonCandidates_.clear();
-
+  fifthStepKfTrack_.clear();
   // SetLinks finds all the elements (kf,ecal,ps,hcal,brems) 
   // associated to each gsf track
   bool blockHasGSF = SetLinks(blockRef,associatedToGsf,
@@ -201,7 +201,20 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      }
 	    }
 	    if(isGsfLinked == false) {
-	      localactive[ecalKf_index] = false;
+	      // add protection against energy loss because
+	      // of the tracking fifth step
+	      const reco::PFBlockElementTrack * kfEle =  
+		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
+	      reco::TrackRef refKf = kfEle->trackRef();
+	      unsigned int Algo = 0;
+	      if (refKf.isNonnull()) 
+		Algo = refKf->algo(); 
+	      if(Algo < 9) {
+		localactive[ecalKf_index] = false;
+	      }
+	      else {
+		fifthStepKfTrack_.push_back(make_pair(ecalKf_index,trackIs[iEle]));
+	      }
 	    }
 	  }
 	}
@@ -1673,7 +1686,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
        igsf != associatedToGsf_.end(); igsf++,cgsf++) {
 
     // lock only the elements that pass the BDT cut
-    if(BDToutput_[cgsf] < mvaEleCut_) continue; 
+    if(BDToutput_[cgsf] < mvaEleCut_) continue;
 
     unsigned int gsf_index =  igsf->first;
     active[gsf_index] = false;  // lock the gsf
@@ -1684,6 +1697,16 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
       active[(assogsf_index[ielegsf])] = false;  
       if (assoele_type == reco::PFBlockElement::ECAL) {
 	unsigned int keyecalgsf = assogsf_index[ielegsf];
+
+	// add protection against fifth step
+	if(fifthStepKfTrack_.size() > 0) {
+	  for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
+	    if(fifthStepKfTrack_[itr].first == keyecalgsf) {
+	      active[(fifthStepKfTrack_[itr].second)] = false;
+	    }
+	  }
+	}
+
 	vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(keyecalgsf)->second;
 	for(unsigned int ips =0; ips<assoecalgsf_index.size();ips++) {
 	  // lock the elements associated to ECAL: PS1,PS2, for the moment not HCAL
@@ -1706,6 +1729,16 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 	    unsigned int keyecalbrem = assobrem_index[ibrem];
 	    // lock the ecal cluster associated to the brem
 	    active[(assobrem_index[ibrem])] = false;
+
+	    // add protection against fifth step
+	    if(fifthStepKfTrack_.size() > 0) {
+	      for(unsigned int itr = 0; itr < fifthStepKfTrack_.size(); itr++) {
+		if(fifthStepKfTrack_[itr].first == keyecalbrem) {
+		  active[(fifthStepKfTrack_[itr].second)] = false;
+		}
+	      }
+	    }
+
 	    vector<unsigned int> assoelebrem_index = associatedToEcal_.find(keyecalbrem)->second;
 	    // lock the elements associated to ECAL: PS1,PS2, for the moment not HCAL
 	    for (unsigned int ielebrem=0; ielebrem<assoelebrem_index.size();ielebrem++) {
