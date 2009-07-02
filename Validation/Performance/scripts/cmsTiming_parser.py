@@ -64,11 +64,11 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     # Set fancy limits
     min_val=get_min(data,1)
     max_val=get_max(data,1)
-    interval=int(max_val-min_val)
+    interval=max_val-min_val
     
     min_val=min_val-interval*0.2
     max_val=max_val+interval*0.2
-    interval=int(max_val-min_val)
+    interval=max_val-min_val
     
     nbins=int(interval/secsperbin)
     
