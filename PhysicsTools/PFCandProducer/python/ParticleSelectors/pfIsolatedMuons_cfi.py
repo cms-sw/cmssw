@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-pfIsolatedMuons  = cms.EDFilter(
+pfIsolatedMuons  = cms.EDProducer(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfMuonsPtGt5"),
-    IsoDeposit = cms.InputTag("pfMuonIsolationFromDeposits"),
-    IsolationCut = cms.double(2.5),
+    isolationValueMaps = cms.VInputTag(
+       cms.InputTag("pfMuonIsolationFromDepositsChargedHadrons"),
+       cms.InputTag("pfMuonIsolationFromDepositsNeutralHadrons"),
+       cms.InputTag("pfMuonIsolationFromDepositsPhotons")
+       ),
+    isolationCuts = cms.vdouble(4, 2, 999.)
     )

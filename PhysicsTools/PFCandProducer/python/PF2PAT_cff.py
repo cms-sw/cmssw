@@ -20,11 +20,10 @@ from PhysicsTools.PFCandProducer.TopProjectors.pfNoTau_cfi import *
 from PhysicsTools.PFCandProducer.GeneratorTools.sortGenParticles_cff import *
 
 PF2PAT = cms.Sequence(
-    genMetTrueSequence + 
     pfMET +
     pfNoPileUpSequence + 
     pfSortByTypeSequence +
-    pfElectronSequence +
+#    pfElectronSequence +
     pfMuonSequence + 
     pfNoMuon +
 #    noElectron + 
@@ -37,5 +36,6 @@ PF2PAT = cms.Sequence(
 
 
 genForPF2PAT = cms.Sequence(
+    genMetTrueSequence + 
     sortGenParticlesSequence
     )

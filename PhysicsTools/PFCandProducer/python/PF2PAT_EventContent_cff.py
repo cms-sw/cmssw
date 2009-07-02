@@ -15,7 +15,7 @@ PF2PATEventContent = cms.PSet(
     'keep *_pfNoJet_*_*',
     'keep recoIsoDepositedmValueMap_*_*_*',
     # jets
-    'keep pfRecoPFJets_noTau_*_*',
+    'keep pfRecoPFJets_pfNoTau_*_*',
     # taus 
     'keep *_allLayer0Taus_*_*',
     'keep recoPFTauDiscriminator_*_*_*',
@@ -32,6 +32,7 @@ PF2PATStudiesEventContent = cms.PSet(
     'keep recoPFCandidates_*_*_PF2PAT',
     'keep recoPFCandidates_*_*_PAT',    
     'keep recoPFCandidates_particleFlow_*_*',
+    'keep recoMuons_*_*_*',
     'keep *_pf*_*_*'
     )
 )

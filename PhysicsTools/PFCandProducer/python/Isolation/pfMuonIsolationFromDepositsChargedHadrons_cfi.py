@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfMuonIsolationFromDeposits = cms.EDProducer(
+pfMuonIsolationFromDepositsChargedHadrons = cms.EDProducer(
     "CandIsolatorFromDeposits",
     deposits = cms.VPSet(
     cms.PSet(
