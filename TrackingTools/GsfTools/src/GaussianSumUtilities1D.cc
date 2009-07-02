@@ -15,7 +15,8 @@
 
 #include <map>
 #include <functional>
-
+#include <numeric>
+#include <algorithm>
 
 double
 GaussianSumUtilities1D::quantile (const double q) const
@@ -322,13 +323,9 @@ void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & resu
 
 
 double
-GaussianSumUtilities1D::pdf (double x, const std::vector<double>& pdfs)
+GaussianSumUtilities1D::pdf (double, const std::vector<double>& pdfs)
 {
-  double result(0.);
-  size_t s=pdfs.ize();
-  for ( unsigned int i=0; i<s; i++ )
-    result += pdfs[i];
-  return result;
+  return std::accumulate(pdfs.begin(),pdfs.end());
 }
 
 double
