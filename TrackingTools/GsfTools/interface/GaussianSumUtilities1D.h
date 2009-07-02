@@ -98,6 +98,20 @@ private:
    *  Only valid if x corresponds to a (local) maximum! */
   double localVariance (const double& x) const;
 
+  // the state of the mode finder
+  struct FinderState {
+    FinderState(){}
+    FinderState(size_t n): pdfs(n){}
+    double x;
+    double y;
+    double yd; // d1LnPdf
+    double yd2; // d2LnPdf
+    std::vector<double> pdfs;
+  };
+
+  // update tre state at x
+  void update(FinderState & state, double x) const;
+
   /// pdf components
   std::vector<double> pdfComponents (const double&) const;
   /// pdf components

@@ -211,52 +211,58 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   double x1(0.);
   double y1(0.);
-  std::vector<double> pdfs(size());
-  pdfComponents(xStart,pdfs);
-  double x2(xStart);
-  double y2(pdf(xStart,pdfs));
-  double yd(d1LnPdf(xStart,pdfs));
-  double yd2(d2LnPdf(xStart,pdfs));
+  FinderState  state;
+  update(state,xStart);
+
   double xmin(xStart-1.*scale);
   double xmax(xStart+1.*scale);
   //
   // preset result
   //
   bool result(false);
-  xMode = x2;
-  yMode = y2;
+  xMode = state.x;
+  yMode = state.y;
   //
   // Iterate
   //
   int nLoop(0);
   while ( nLoop++<20 ) {
-    if ( nLoop>1 && yd2<0. &&  
- 	 ( fabs(yd*scale)<1.e-10 || fabs(y2-y1)/(y2+y1)<1.e-14 ) ) {
+    if ( nLoop>1 && state.yd2<0. &&  
+ 	 ( fabs(state.yd*scale)<1.e-10 || fabs(state.y-y1)/(state.y+y1)<1.e-14 ) ) {
       result = true;
       break;
     }
-    if ( fabs(yd2)<std::numeric_limits<float>::min() )  
-      yd2 = yd2>0. ? std::numeric_limits<float>::min() : -std::numeric_limits<float>::min();
-    double dx = -yd/yd2;
-    x1 = x2;
-    y1 = y2;
-    x2 += dx;
-    if ( yd2>0. && (x2<xmin||x2>xmax) )  return false;
-
-    pdfComponents(x2, pdfs);
-    y2 = pdf(x2,pdfs);
-    yd = d1LnPdf(x2,pdfs);
-    yd2 = d2LnPdf(x2,pdfs);
+    if ( fabs(state.yd2)<std::numeric_limits<float>::min() )  
+      state.yd2 = state.yd2>0. ? std::numeric_limits<float>::min() : -std::numeric_limits<float>::min();
+    double dx = -state.yd/state.yd2;
+    x1 = state.x;
+    y1 = state.y;
+    double x2 = x1 + dx;
+    if ( state.yd2>0. && (x2<xmin||x2>xmax) )  return false;
+    update(state,x2);
   }
   //
   // result
   //
   if ( result ) {
-    xMode = x2;
-    yMode = y2;
+    xMode = state.x;
+    yMode = state.y;
   }
   return result;
 }
+
+
+void GaussianSumUtilities1D::update(FinderState & state, double x) const {
+  state.x = x;
+
+  pdfComponents(state.x, state.pdfs);
+  state.y = pdf(state.x, state.pdfs);
+  state.yd = 0;
+  if (state.y>std::numeric_limits<double>::min()) state.yd= d1Pdf(state.x,state.pdfs)/state.y;
+  state.yd2 = -state.yd*state.yd;
+  if (state.y > std::numeric_limits<double>::min()) state.yd2 += d2Pdf(state.x,state.pdfs)/state.y;
+}
+
 
 double
 GaussianSumUtilities1D::pdf (double x) const
