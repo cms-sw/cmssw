@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/30 08:29:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/02 18:10:02 $
+ *  $Revision: 1.6 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -75,7 +75,7 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   h_jet_et              = theDbe->book1D("h_jet_et",        "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
   h_jet_eta             = theDbe->book1D("h_jet_eta",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(jet)", 20, -5.0, 5.0);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
-  h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet_etaCut2",  "(E_{T}(#gamma)-E_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,jet) > 2.8 && |#eta(jet)|<1;#DeltaE_{T}(#gamma,jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
+  h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet",  "(E_{T}(#gamma)-E_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,jet) > 2.8 && |#eta(jet)|<1;#DeltaE_{T}(#gamma,jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
   h_jet_count           = theDbe->book1D("h_jet_count",           "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > "+aString+" GeV);Number of Jets", 8, -0.5, 7.5);
   h_jet2_et             = theDbe->book1D("h_jet2_et",        "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
   h_jet2_eta            = theDbe->book1D("h_jet2_eta", "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(2^{nd} jet)", 20, -5.0, 5.0);
