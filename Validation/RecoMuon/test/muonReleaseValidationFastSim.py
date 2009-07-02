@@ -13,7 +13,7 @@ import string
 FastSimUse="False"
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre10'
+NewRelease='CMSSW_3_1_0_pre11'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
@@ -43,8 +43,8 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-Sequence='only_validation_and_TP'
-#Sequence='harvesting'
+#Sequence='only_validation_and_TP'
+Sequence='harvesting'
 
 Submit=False
 #DBS=False  # Ineffective...
@@ -52,14 +52,14 @@ DBS=True
 OneAtATime=False
 
 # Ideal and Statup tags
-IdealTag='IDEAL'
+IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='IDEAL_31X'
-StartupTagUse='STARTUP_31X'
+IdealTagUse='MC_31X_V1'
+StartupTagUse='STARTUP31X_V1'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_31X_noPU'
+ReferenceSelection='IDEAL_31X__noPU'
 StartupReferenceSelection='STARTUP_31X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
@@ -70,7 +70,7 @@ else:
 
 #WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
-WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/CMSSW_3_1_0_pre10/src/Validation/RecoMuon/test'
+WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/'+NewRelease+'/src/Validation/RecoMuon/test'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
