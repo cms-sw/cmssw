@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.9 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FW3DView.h,v 1.10 2009/04/07 14:09:01 chrjones Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void setFrom(const FWConfiguration&);
-   void makeGeometry( const DetIdToMatrix* geom );
+   void setGeometry( const DetIdToMatrix* geom );
    void setBackgroundColor(Color_t);
 
 private:
@@ -86,12 +86,15 @@ private:
    TGLMatrix* m_cameraMatrixBase;
    Double_t*  m_cameraFOV;
 
-   TEveElement*      m_muonBarrelElements;
-   TEveElement*      m_muonEndcapElements;
-   TEveElement*      m_pixelBarrelElements;
-   TEveElement*      m_pixelEndcapElements;
-   TEveElement*      m_trackerBarrelElements;
-   TEveElement*      m_trackerEndcapElements;
+   DetIdToMatrix*     m_geometry;
+
+   TEveElementList*   m_muonBarrelElements;
+   TEveElementList*   m_muonEndcapElements;
+   TEveElementList*   m_pixelBarrelElements;
+   TEveElementList*   m_pixelEndcapElements;
+   TEveElementList*   m_trackerBarrelElements;
+   TEveElementList*   m_trackerEndcapElements;
+
    FWBoolParameter m_showMuonBarrel;
    FWBoolParameter m_showMuonEndcap;
    FWBoolParameter m_showPixelBarrel;
