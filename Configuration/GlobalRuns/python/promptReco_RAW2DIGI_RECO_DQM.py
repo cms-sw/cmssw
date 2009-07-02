@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.123 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -29,12 +29,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound')
+    Rethrow = cms.untracked.vstring('ProductNotFound'),
+    wantSummary = cms.untracked.bool(True)
 )
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/data/Commissioning09/Cosmics/RAW/v2/000/101/725/FA919C5D-FC65-DE11-B8F3-001617C3B6CE.root')
+'/store/backfill/2/data/T0TEST_31XReplayTesting_TEMPORARYFORVALIDATIONONLY/MinimumBias/RAW/v1/000/100/880/B298B113-9066-DE11-9B56-000423D99F3E.root')
 )
 
 # Output definition
@@ -53,8 +54,10 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.GlobalTag.globaltag = 'GR09_31X_V1P::All'
 
 # Path and EndPath definitions
+process.load("FWCore.Modules.logErrorHarvester_cfi")
+
 process.raw2digi_step = cms.Path(process.RawToDigi)
-process.reconstruction_step = cms.Path(process.reconstructionCosmics)
+process.reconstruction_step = cms.Path(process.reconstructionCosmics*process.logErrorHarvester)
 process.dqmoffline_step = cms.Path(process.DQMOfflineCosmics)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.FEVT)
