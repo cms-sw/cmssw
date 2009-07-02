@@ -235,9 +235,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<HFRecHitCollection>             hfrechits;   
   
   // new stuff for the egamma EleId
-//   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-//   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-//   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
+   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
 
   edm::ESHandle<MagneticField>                theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
@@ -386,36 +386,36 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     //    mulinks,
     HltTree);
   
-//   elm_analysis_.analyze(
-//     electrons,
-//     photons,
-//     electronIsoHandle,
-//     electronIsoHandleLW,
-//     electronNonIsoHandle,
-//     electronNonIsoHandleLW,
-//     NonIsoTrackEleIsolMap,
-//     NonIsoTrackEleIsolMapLW,
-//     TrackEleIsolMap,
-//     TrackEleIsolMapLW,
-//     L1IsoPixelSeedsMap,
-//     L1IsoPixelSeedsMapLW,
-//     L1NonIsoPixelSeedsMap,
-//     L1NonIsoPixelSeedsMapLW,
-//     recoIsolecalcands,
-//     recoNonIsolecalcands,
-//     EcalIsolMap,
-//     EcalNonIsolMap,
-//     HcalEleIsolMap,
-//     HcalEleNonIsolMap,
-//     HcalIsolMap,
-//     HcalNonIsolMap,
-//     TrackIsolMap,
-//     TrackNonIsolMap,
-//     lazyTools,
-//     theMagField,
-//     BSPosition,
-//     eIDValueMap,
-//     HltTree);
+   elm_analysis_.analyze(
+     electrons,
+     photons,
+     electronIsoHandle,
+     electronIsoHandleLW,
+     electronNonIsoHandle,
+     electronNonIsoHandleLW,
+     NonIsoTrackEleIsolMap,
+     NonIsoTrackEleIsolMapLW,
+     TrackEleIsolMap,
+     TrackEleIsolMapLW,
+     L1IsoPixelSeedsMap,
+     L1IsoPixelSeedsMapLW,
+     L1NonIsoPixelSeedsMap,
+     L1NonIsoPixelSeedsMapLW,
+     recoIsolecalcands,
+     recoNonIsolecalcands,
+     EcalIsolMap,
+     EcalNonIsolMap,
+     HcalEleIsolMap,
+     HcalEleNonIsolMap,
+     HcalIsolMap,
+     HcalNonIsolMap,
+     TrackIsolMap,
+     TrackNonIsolMap,
+     lazyTools,
+     theMagField,
+     BSPosition,
+     eIDValueMap,
+     HltTree);
 
   mct_analysis_.analyze(
     mctruth,

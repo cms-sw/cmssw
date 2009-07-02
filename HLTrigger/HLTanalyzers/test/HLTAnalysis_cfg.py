@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.maxEvents = cms.untracked.PSet(   input = cms.untracked.int32( 1000 )   )
+process.maxEvents = cms.untracked.PSet(   input = cms.untracked.int32( 100 )   )
 
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
@@ -68,10 +68,10 @@ process.analyzeThis = cms.Path( process.hltanalysis )
 process.schedule = cms.Schedule( 
     process.DoHLTJets, 
     process.DoHltMuon, 
-##    process.DoHLTPhoton, 
+    process.DoHLTPhoton, 
 ##    process.DoHLTElectron, 
-##    process.DoHLTElectronStartUpWindows, 
-##    process.DoHLTElectronLargeWindows, 
+    process.DoHLTElectronStartUpWindows, 
+    process.DoHLTElectronLargeWindows, 
 ##    process.DoHLTTau, 
 ##    process.DoHLTBTag,
 ##    process.DoHLTAlCaECALPhiSym,
