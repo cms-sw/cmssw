@@ -31,7 +31,7 @@ int main(int argc, char * argv[]) {
 
   GaussianSumUtilities1D gsu(mgs);
   st();
-  const SingleGaussianState1D sg1 & = gsu.mode();
+  const SingleGaussianState1D & sg1 = gsu.mode();
   en();
 
   std::cout << sg1.mean() 
