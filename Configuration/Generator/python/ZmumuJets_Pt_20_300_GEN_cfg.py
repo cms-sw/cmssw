@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("EmptySource")
 
-from Configuration.GenProduction.PythiaUESettings_cfi import *
+from Configuration.Generator.PythiaUESettings_cfi import *
 # Input source
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -47,7 +47,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Generator/python/ZmumuJets_Pt_20_300_GEN_cfg.py,v $'),
     annotation = cms.untracked.string('ZmumuJets pt hat 20-300')
 )
