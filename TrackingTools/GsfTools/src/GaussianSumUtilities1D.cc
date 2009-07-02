@@ -322,10 +322,10 @@ void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & resu
 
 
 double
-GaussianSumUtilities1D::pdf (double x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::pdf (double x, const std::vector<double>& pdfs)
 {
   double result(0.);
-  size_t s=size();
+  size_t s=pdfs.ize();
   for ( unsigned int i=0; i<s; i++ )
     result += pdfs[i];
   return result;
@@ -369,11 +369,11 @@ GaussianSumUtilities1D::d3Pdf (double x, const std::vector<double>& pdfs) const
 }
 
 double
-GaussianSumUtilities1D::lnPdf (double x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::lnPdf (double x, const std::vector<double>& pdfs)
 {
   double f(pdf(x,pdfs));
   double result(-std::numeric_limits<float>::max());
-  if ( result>std::numeric_limits<double>::min() )  result = log(f);
+  if ( f>std::numeric_limits<double>::min() )  result = log(f);
   return result;
 }
 
@@ -400,8 +400,7 @@ GaussianSumUtilities1D::d2LnPdf (double x, const std::vector<double>& pdfs) cons
 }
 
 double 
-GaussianSumUtilities1D::gauss (const double& x, const double& mean,
-			       const double& sigma) const 
+GaussianSumUtilities1D::gauss (double x, double mean, double sigma) const 
 {
 //   const double fNorm(1./sqrt(2*M_PI));
 //   double result(0.);
@@ -414,8 +413,7 @@ GaussianSumUtilities1D::gauss (const double& x, const double& mean,
 }
 
 double 
-GaussianSumUtilities1D::gaussInt (const double& x, const double& mean,
-				  const double& sigma) const 
+GaussianSumUtilities1D::gaussInt (double x, double mean, double sigma) const 
 {
   return ROOT::Math::normal_cdf(x,sigma,mean);
 }

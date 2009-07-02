@@ -85,9 +85,9 @@ private:
   bool findMode (double& mode, double& pdfAtMode, 
 		 const double& xStart, const double& scale) const;
   /// Value of gaussian distribution
-  double gauss (const double&, const double&, const double&) const;
+  double gauss (double, double, double) const;
   /// Integrated value of gaussian distribution
-  double gaussInt (const double&, const double&, const double&) const;
+  double gaussInt (double, double, double) const;
   /// Mean value of combined state
   double combinedMean() const;
   /// calculation of mode
@@ -101,7 +101,7 @@ private:
   /// pdf components
   void pdfComponents (double, std::vector<double> & ) const;
   /// value of the p.d.f. using the pdf components at the evaluation point
-  double pdf (double, const std::vector<double>&) const;
+  static double pdf (double, const std::vector<double>&);
   /// first derivative of the p.d.f. using the pdf components at the evaluation point
   double d1Pdf (double, const std::vector<double>&) const;
   /// second derivative of the p.d.f. using the pdf components at the evaluation point
@@ -109,7 +109,7 @@ private:
   /// third derivative of the p.d.f. using the pdf components at the evaluation point
   double d3Pdf (double, const std::vector<double>&) const;
   /// ln(pdf) using the pdf components at the evaluation point
-  double lnPdf (double, const std::vector<double>&) const;
+  static double lnPdf (double, const std::vector<double>&);
   /// first derivative of ln(pdf) using the pdf components at the evaluation point
   double d1LnPdf (double, const std::vector<double>&) const;
   /// second derivative of ln(pdf) using the pdf components at the evaluation point
