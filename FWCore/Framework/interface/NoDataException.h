@@ -81,16 +81,16 @@ public:
   NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
                         const DataKey& iDataKey,
                         const char* category_name = "NoDataException") ;
-  NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
-                        const DataKey& iDataKey,
-                        const char* category_name ,
-                        const std::string& iExtraInfo );
   virtual ~NoDataExceptionBase() throw();
   const DataKey& dataKey() const;
 protected:
-  static std::string standardMessage(const EventSetupRecordKey& iKey);
-  const std::string &beginDataTypeMessage() const;
-  void endDataTypeMessage() const;
+  static std::string providerButNoDataMessage(const EventSetupRecordKey& iKey);
+  static std::string noProxyMessage();
+  void constructMessage(const char* iClassName, const std::string& iExtraInfo);
+private:
+  void beginDataTypeMessage(std::string&) const;
+  void endDataTypeMessage(std::string&) const;
+  
   // ---------- Constructors and destructor ----------------
   //NoDataExceptionBase(const NoDataExceptionBase&) ; //allow default
   //const NoDataExceptionBase& operator=(const NoDataExceptionBase&); // allow default
@@ -98,7 +98,6 @@ protected:
   // ---------- data members -------------------------------
   EventSetupRecordKey record_;
   DataKey dataKey_;
-  mutable std::string dataTypeMessage_;
 };
 
 template <class T>
@@ -110,29 +109,20 @@ public:
                   const char* category_name = "NoDataException") :
   NoDataExceptionBase(iRecordKey, iDataKey, category_name)
   {
-    this->append(dataTypeMessage()+std::string("\n "));
-    this->append(standardMessage(iRecordKey));
+    constructMessage(heterocontainer::HCTypeTagTemplate<T,DataKey>::className(),
+                     providerButNoDataMessage(iRecordKey));
   }
 
   NoDataException(const EventSetupRecordKey& iRecordKey,
                   const DataKey& iDataKey,
                   const char* category_name ,
                   const std::string& iExtraInfo ) :
-  NoDataExceptionBase(iRecordKey, iDataKey, category_name, iExtraInfo)  
+  NoDataExceptionBase(iRecordKey, iDataKey, category_name)  
   {
-    this->append(dataTypeMessage()+std::string("\n "));
-    this->append(iExtraInfo);
+    constructMessage(heterocontainer::HCTypeTagTemplate<T,DataKey>::className(),
+                     iExtraInfo);
   }
 
-protected:
-  const std::string& dataTypeMessage () const {
-       if(this->dataTypeMessage_.size() == 0) {
-	  this->beginDataTypeMessage() 
-             + heterocontainer::HCTypeTagTemplate<T,DataKey>::className();
-         this->endDataTypeMessage();
-       }
-       return this->dataTypeMessage_;
-   }
 };
 
    }
