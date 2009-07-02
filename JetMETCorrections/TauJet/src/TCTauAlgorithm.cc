@@ -1,4 +1,4 @@
-#include "JetMETCorrections/TauJet/interface/HardTauAlgorithm.h"
+#include "JetMETCorrections/TauJet/interface/TCTauAlgorithm.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -10,18 +10,18 @@
 #include "Math/VectorUtil.h"
 using namespace ROOT::Math;
 
-HardTauAlgorithm::HardTauAlgorithm(){
+TCTauAlgorithm::TCTauAlgorithm(){
 	init();
 }
 
-HardTauAlgorithm::HardTauAlgorithm(const edm::ParameterSet& iConfig){
+TCTauAlgorithm::TCTauAlgorithm(const edm::ParameterSet& iConfig){
         init();
 	inputConfig(iConfig);
 }
 
-HardTauAlgorithm::~HardTauAlgorithm(){}
+TCTauAlgorithm::~TCTauAlgorithm(){}
 
-void HardTauAlgorithm::init(){
+void TCTauAlgorithm::init(){
 
 	etCaloOverTrackMin = -0.9;
 	etCaloOverTrackMax = 0.0;
@@ -52,7 +52,7 @@ void HardTauAlgorithm::init(){
 	prongs = -1;
 }
 
-void HardTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
+void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 
 	etCaloOverTrackMin = iConfig.getUntrackedParameter<double>("EtCaloOverTrackMin",etCaloOverTrackMin);
 	etCaloOverTrackMax = iConfig.getUntrackedParameter<double>("EtCaloOverTrackMax",etCaloOverTrackMax);
@@ -81,12 +81,12 @@ void HardTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 }
 
 
-double HardTauAlgorithm::efficiency(){
+double TCTauAlgorithm::efficiency(){
 	return double(passed)/all;
 }
 
 
-void HardTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	edm::ESHandle<TransientTrackBuilder> builder;
         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
         transientTrackBuilder = builder.product();
@@ -118,7 +118,7 @@ void HardTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup
 }
 
 
-TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
+TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
 
 	const TrackRef& leadTk = jet.leadTrack();
 
@@ -131,7 +131,7 @@ TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
 	return recalculateEnergy(caloJet,leadTk,associatedTracks);
 }
 
-TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
+TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet){
 
 	TrackRef leadTk;
         TrackRefVector associatedTracks;
@@ -172,9 +172,9 @@ TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet)
 	return TLorentzVector(0,0,0,0);
 }
 
-TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
+TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
 
-	cout << "HardTauAlgorithm::recalculateEnergy(const reco::Jet&) "
+	cout << "TCTauAlgorithm::recalculateEnergy(const reco::Jet&) "
              << "is not working. " << endl;
 	cout << "Please use CaloJet or CaloTau instead. Exiting..." << endl;
 	exit(0);
@@ -186,7 +186,7 @@ TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::Jet& tau){
         return recalculateEnergy(caloJet);
 }
 
-TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo& tau){
+TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInfo& tau){
 
 	const TrackRef& leadTk = tau.leadingSignalTrack(matchingCone,tkptmin);
 
@@ -199,7 +199,7 @@ TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::IsolatedTauTagInf
         return recalculateEnergy(caloJet,leadTk,associatedTracks);
 }
 
-TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
+TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
 
         all++;
 
@@ -264,7 +264,7 @@ TLorentzVector HardTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,
 }
 
 
-XYZVector HardTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack,const CaloJet& caloJet){
+XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack,const CaloJet& caloJet){
 
 
         GlobalPoint ecalHitPosition(0,0,0);
@@ -296,7 +296,7 @@ XYZVector HardTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTra
         return ecalHitPoint;
 }
 
-pair<XYZVector,XYZVector> HardTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
+pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
 
         XYZVector ecalCluster(0,0,0);
         XYZVector hcalCluster(0,0,0);
@@ -396,7 +396,7 @@ pair<XYZVector,XYZVector> HardTauAlgorithm::getClusterEnergy(const CaloJet& calo
         return pair<XYZVector,XYZVector> (ecalCluster,hcalCluster);
 }
 
-XYZVector HardTauAlgorithm::getCellMomentum(const CaloCellGeometry* cell,double& energy){
+XYZVector TCTauAlgorithm::getCellMomentum(const CaloCellGeometry* cell,double& energy){
         XYZVector momentum(0,0,0);
         if(cell){
                 GlobalPoint hitPosition = cell->getPosition();

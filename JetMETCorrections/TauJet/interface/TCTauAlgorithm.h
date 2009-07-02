@@ -1,5 +1,15 @@
-#ifndef HardTauAlgorithm_H
-#define HardTauAlgorithm_H
+#ifndef TCTauAlgorithm_H
+#define TCTauAlgorithm_H
+
+/** \class TCTauAlgo
+ *
+ * Calculates TCTau based on detector response to charged particles
+ * using the tracker 
+ *
+ * \authors    R.Kinnunen, S.Lehti, A.Nikitenko
+ *
+ * \version   1st Version July 2, 2009
+ ************************************************************/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -34,12 +44,12 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class HardTauAlgorithm {
+class TCTauAlgorithm {
 
     public:
-        HardTauAlgorithm();
-	HardTauAlgorithm(const edm::ParameterSet&);
-        ~HardTauAlgorithm();
+        TCTauAlgorithm();
+	TCTauAlgorithm(const edm::ParameterSet&);
+        ~TCTauAlgorithm();
 
 	TLorentzVector recalculateEnergy(const reco::CaloTau&);
         TLorentzVector recalculateEnergy(const reco::CaloJet&);

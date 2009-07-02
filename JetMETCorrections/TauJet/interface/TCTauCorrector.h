@@ -1,7 +1,7 @@
-#ifndef HardTauCorrector_h
-#define HardTauCorrector_h
+#ifndef TCTauCorrector_h
+#define TCTauCorrector_h
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/TauJet/interface/HardTauAlgorithm.h"
+#include "JetMETCorrections/TauJet/interface/TCTauAlgorithm.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,11 +22,11 @@ using namespace edm;
 /// 16.4.2008/S.Lehti
 
 
-class HardTauCorrector :  public JetCorrector {
+class TCTauCorrector :  public JetCorrector {
     public:
-	HardTauCorrector();
-        HardTauCorrector(const edm::ParameterSet& fParameters);
-	virtual ~HardTauCorrector();
+	TCTauCorrector();
+        TCTauCorrector(const edm::ParameterSet& fParameters);
+	virtual ~TCTauCorrector();
 
 	virtual double correction(const reco::Jet&,const edm::Event&,const edm::EventSetup&) const;
 	virtual double correction(const math::XYZTLorentzVector&) const;
@@ -43,6 +43,6 @@ class HardTauCorrector :  public JetCorrector {
     private:
         void init();
 
-	HardTauAlgorithm* hardTauAlgorithm;
+	TCTauAlgorithm* tcTauAlgorithm;
 };
 #endif
