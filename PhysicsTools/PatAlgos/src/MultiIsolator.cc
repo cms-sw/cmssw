@@ -18,11 +18,7 @@ MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, bool cuts) {
             "as the 'calo' isolation flag is just the logical OR of 'ecal' and 'hcal'.\n";                            
     }
     
-    if (conf.exists("pfAllParticles"))  addIsolator(conf.getParameter<edm::ParameterSet>("pfAllParticles"), cuts,Flags::Isolation::Calo, pat::ParticleIso);
-    if (conf.exists("pfChargedHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfChargedHadron"), cuts,Flags::Isolation::Calo, pat::ChargedParticleIso);
-    if (conf.exists("pfNeutralHadron")) addIsolator(conf.getParameter<edm::ParameterSet>("pfNeutralHadron"), cuts,Flags::Isolation::Calo, pat::NeutralParticleIso);
-    if (conf.exists("pfGamma"))         addIsolator(conf.getParameter<edm::ParameterSet>("pfGamma"), cuts,Flags::Isolation::Calo, pat::GammaParticleIso);
-    
+
     if (conf.exists("user")) {
    
         std::vector<edm::ParameterSet> psets = conf.getParameter<std::vector<edm::ParameterSet> >("user");

@@ -4,13 +4,38 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
-def adaptPFMuons(process,module):
-    module.useParticleFlow = True
-#    print "Temporarily switching off isolation & isoDeposits for PF Muons"
-#    module.isolation   = cms.PSet()
-#    module.isoDeposits = cms.PSet()
+def warningIsolation():
+    print "WARNING: particle based isolation must be studied"
 
-    pass
+def adaptPFMuons(process,module):
+
+    
+    print "Adapting PF Muons "
+    print "***************** "
+    warningIsolation()
+    print 
+    module.useParticleFlow = True
+    module.isolation   = cms.PSet()
+    module.isoDeposits = cms.PSet(
+        pfChargedHadrons = cms.InputTag("isoMuonWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoMuonWithNeutral"),
+        pfPhotons = cms.InputTag("isoMuonWithPhotons")
+        )
+    module.isolationValues = cms.PSet(
+        pfChargedHadrons = cms.InputTag("pfMuonIsolationFromDepositsChargedHadrons"),
+        pfNeutralHadrons = cms.InputTag("pfMuonIsolationFromDepositsNeutralHadrons"),
+        pfPhotons = cms.InputTag("pfMuonIsolationFromDepositsPhotons")
+        )
+    # matching the pfMuons, not the standard muons.
+    switchMCMatch(process,module.muonSource,module.pfMuonSource)
+    process.aodSummary.candidates.append(module.pfMuonSource)
+    print " muon source:", module.pfMuonSource
+    print " isolation  :",
+    print module.isolationValues
+    print " isodeposits: "
+    print module.isoDeposits
+    print 
+    
 
 def adaptPFElectrons(process,module):
     module.useParticleFlow = True
@@ -69,7 +94,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     #process.patJetMETCorrections.remove(process.patMETCorrections)
     process.patAODExtraReco.remove(process.patMETCorrections)
 
-def switchToPFJets(process,input=cms.InputTag('noTau')):
+def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
     switchJetCollection(process,
                         input,
@@ -82,25 +107,21 @@ def switchToPFJets(process,input=cms.InputTag('noTau')):
 
 def usePF2PAT(process,runPF2PAT=True):
 
-    print "use PF2PAT"
-    
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
-    print "argk"
 
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
         process.patAODCoreReco += process.PF2PAT
         # note: I can't just replace it, because other people could have added stuff here (e.g. btagging)
+
     removeCleaning(process)
     process.aodSummary.candidates = cms.VInputTag();
     
     # -------- OBJECTS ------------
     # Muons
-    process.allLayer1Muons.pfMuonSource = cms.InputTag("pfIsolatedMuons")
-#    adaptPFMuons(process,process.allLayer1Muons)
-    switchMCMatch(process,process.allLayer1Muons.muonSource,process.allLayer1Muons.pfMuonSource)
-    process.aodSummary.candidates.append(process.allLayer1Muons.pfMuonSource)
+    adaptPFMuons(process,process.allLayer1Muons)
+
     
     # Electrons
 #    process.allLayer1Electrons.pfElectronSource = cms.InputTag("isolatedElectrons")
@@ -126,6 +147,7 @@ def usePF2PAT(process,runPF2PAT=True):
     switchToPFJets( process, 'pfNoTau' )
     
     # Taus
+    #COLIN try to re-enable taus
     removeSpecificPATObject(process,'Taus')
 #    oldTaus = process.allLayer1Taus.tauSource
 #    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")

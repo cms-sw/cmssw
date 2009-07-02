@@ -6,7 +6,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
 
     # use particle flow instead of std reco                                
     useParticleFlow =  cms.bool( False ),
-    pfMuonSource    = cms.InputTag("pfMuons"),          
+    pfMuonSource    = cms.InputTag("pfIsolatedMuons"),          
 
     # add TeV refit tracks
     addTeVRefits    = cms.bool(True),
@@ -45,6 +45,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     embedPFCandidate    = cms.bool(False), ## embed in AOD externally stored particle flow candidate
 
     # define IsoDeposits to recompute isolation values on the fly in the producer.
+    # not used in the case of PF2PAT
     isolation = cms.PSet(
         hcal = cms.PSet(
             src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
@@ -67,13 +68,13 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
             deltaR = cms.double(0.3)
         )
     ),
-                                
+
+    
     # embed IsoDeposits
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("muIsoDepositTk"),
         ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
         hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
-        chargedHadrons = cms.InputTag("isoMuonWithCharged"),
         user    = cms.VInputTag(
                      cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"), 
                      cms.InputTag("muIsoDepositJets")

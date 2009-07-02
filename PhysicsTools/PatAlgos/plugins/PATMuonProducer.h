@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.20 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.21 2009/06/30 22:00:54 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.20 2009/06/25 23:49:35 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.21 2009/06/30 22:00:54 cbern Exp $
 */
 
 
@@ -52,9 +52,6 @@ namespace pat {
       ~PATMuonProducer();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-      typedef edm::RefToBase<reco::Muon> MuonBaseRef;
-      typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
-
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
@@ -83,29 +80,45 @@ namespace pat {
       bool          addLRValues_;
 
 
-      // pflow specific
+      /// Use PF2PAT?
       bool          useParticleFlow_;
+
+      /// for the input collection of PFCandidates, to be transformed into pat::Muons
       edm::InputTag pfMuonSrc_;
+
       bool          embedPFCandidate_;
 
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
-
+      typedef edm::RefToBase<reco::Muon> MuonBaseRef;
+      typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
+      typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
       
+      /// common muon filling, for both the standard and PF2PAT case
       void fillMuon( Muon& aMuon, 
 		     const MuonBaseRef& muonRef,
 		     const reco::CandidateBaseRef& baseRef,
 		     const GenAssociations& genMatches, 
-		     const IsoDepositMaps& deposits) const;
+		     const IsoDepositMaps& deposits, 
+		     const IsolationValueMaps& isolationValues) const;
 
-     
+      typedef std::pair<pat::IsolationKeys,edm::InputTag> IsolationLabel;
+      typedef std::vector<IsolationLabel> IsolationLabels;
 
+      /// fill the labels vector from the contents of the parameter set, 
+      /// for the isodeposit or isolation values embedding
+      void readIsolationLabels( const edm::ParameterSet & iConfig,
+				const char* psetName, 
+				IsolationLabels& labels); 
+	
       // tools
       GreaterByPt<Muon>      pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      IsolationLabels isoDepositLabels_;
+      IsolationLabels isolationValueLabels_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
