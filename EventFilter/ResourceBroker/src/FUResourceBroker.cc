@@ -863,6 +863,37 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
 	  <<tr()<<endl;
     }
     *out<<table()<<endl;
+    *out<<"<br><br>"<<endl;
+
+    vector<string> dqmstates      = resourceTable_->dqmCellStates();
+
+    *out<<table().set("frame","void").set("rules","rows")
+                 .set("class","modules").set("width","500")<<endl
+	<<tr()<<th("Shared Memory DQM Cells").set("colspan","6")<<tr()<<endl
+	<<tr()
+	<<th("cell").set("align","left")
+	<<th("state").set("align","center")
+	<<tr()
+	<<endl;
+    for (UInt_t i=0;i<dqmstates.size();i++) {
+      string state=dqmstates[i];
+      
+      string bg_state = "#ffffff";
+      if (state=="WRITING"||state=="WRITTEN")
+	bg_state="#99CCff";
+      else if (state=="SENDING")
+	bg_state="#00FF33";
+      else if (state=="SENT")
+	bg_state="#006633";
+      else if (state=="DISCARDING")
+	bg_state="#FFFF00";
+      
+      *out<<tr()
+	  <<td(state).set("align","center").set("bgcolor",bg_state)
+	  <<tr()<<endl;
+    }
+    *out<<table()<<endl;
+
 
     
   }

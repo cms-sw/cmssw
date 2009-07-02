@@ -50,6 +50,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , wlDiscard_(0)
   , asDiscard_(0)
   , shmBuffer_(0)
+  , nbDqmCells_(nbDqmCells)
   , acceptSMDataDiscard_(0)
   , acceptSMDqmDiscard_(0)
   , doCrcCheck_(1)
@@ -495,11 +496,12 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   UInt_t dqmIndex=msg->rbBufferID;
 
   if (acceptSMDqmDiscard_[dqmIndex]) {
+    acceptSMDqmDiscard_[dqmIndex] = false;
     if (!isHalting_) {
       shmBuffer_->discardDqmCell(dqmIndex);
       bufRef->release();
     }
-    acceptSMDqmDiscard_[dqmIndex] = false;
+
   }
   else {
     LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
@@ -687,6 +689,26 @@ vector<string> FUResourceTable::cellStates() const
       else if (state==evt::SENDING)    result.push_back("SENDING");
       else if (state==evt::SENT)       result.push_back("SENT");
       else if (state==evt::DISCARDING) result.push_back("DISCARDING");
+    }
+    shmBuffer_->unlock();
+  }
+  return result;
+}
+
+vector<string> FUResourceTable::dqmCellStates() const
+{
+  vector<string> result;
+  if (0!=shmBuffer_) {
+    UInt_t n=nbDqmCells_;
+    shmBuffer_->lock();
+    for (UInt_t i=0;i<n;i++) {
+      dqm::State_t state=shmBuffer_->dqmState(i);
+      if      (state==dqm::EMPTY)      result.push_back("EMPTY");
+      else if (state==dqm::WRITING) result.push_back("WRITING");
+      else if (state==dqm::WRITTEN) result.push_back("WRITTEN");
+      else if (state==dqm::SENDING)    result.push_back("SENDING");
+      else if (state==dqm::SENT)       result.push_back("SENT");
+      else if (state==dqm::DISCARDING) result.push_back("DISCARDING");
     }
     shmBuffer_->unlock();
   }

@@ -130,6 +130,7 @@ namespace evf {
     std::vector<pid_t>       clientPrcIds()                        const;
     std::string              clientPrcIdsAsString()                const;
     std::vector<std::string> cellStates()                          const;
+    std::vector<std::string> dqmCellStates()                       const;
     std::vector<UInt_t>      cellEvtNumbers()                      const;
     std::vector<pid_t>       cellPrcIds()                          const;
     std::vector<time_t>      cellTimeStamps()                      const;
@@ -206,6 +207,7 @@ namespace evf {
 
     FUShmBuffer       *shmBuffer_;
     FUResourceVec_t    resources_;
+    UInt_t             nbDqmCells_;
     std::queue<UInt_t> freeResourceIds_;
     
     bool              *acceptSMDataDiscard_;
