@@ -25,5 +25,9 @@ import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltEcalRegionalJetsRecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
 import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
 hltEcalRecHitAll = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
+import FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi
+hltESRegionalEgammaRecHit = FastSimulation.CaloRecHitsProducer.CaloRecHitCopy_cfi.caloRecHitCopy.clone()
 
-
+hltESRegionalEgammaRecHit.InputRecHitCollectionTypes = [1]
+hltESRegionalEgammaRecHit.OutputRecHitCollections = ['EcalRecHitsES']
+hltESRegionalEgammaRecHit.InputRecHitCollections = cms.VInputTag(cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"))
