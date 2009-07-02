@@ -61,8 +61,7 @@ namespace edm {
 	// high/low treatment, it was done in the Step1, when producing the mixed source 
 	boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
         if (shPtr) { 
-	  boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
-	
+          crFrame_->setPileupPtr(shPtr);
       	  secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtr->product());
 	  LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
 
@@ -90,6 +89,7 @@ namespace edm {
 	boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr = getProductByTag<PCrossingFrame<SimTrack> >(*ep, tag_);
 
 	if (shPtr){
+	  crFrame_->setPileupPtr(shPtr);
 	  secSourceCF_ = const_cast<PCrossingFrame<SimTrack> * >(shPtr->product());
           LogDebug("MixingModule") << "Add PCrossingFrame<SimTrack>,  eventNr " << secSourceCF_->getEventID();
 		
@@ -122,7 +122,7 @@ namespace edm {
       boost::shared_ptr<Wrapper<PCrossingFrame<SimVertex> > const> shPtr = getProductByTag<PCrossingFrame<SimVertex> >(*ep, tag_);
       
       if (shPtr){
-      	      	
+      	crFrame_->setPileupPtr(shPtr);      	
         secSourceCF_ = const_cast<PCrossingFrame<SimVertex> * >(shPtr->product());
         LogDebug("MixingModule") << "Add PCrossingFrame<SimVertex>,  eventNr " << secSourceCF_->getEventID();    
 	
@@ -136,7 +136,6 @@ namespace edm {
   template <>
   void MixingWorker<HepMCProduct>::addPileups(const int bcr, EventPrincipal *ep,unsigned int eventNr,int vertexoffset)
   {
-  
     if (!mixProdStep2_){ 
       // default version
       // HepMCProduct does not come as a vector....
@@ -152,6 +151,7 @@ namespace edm {
       boost::shared_ptr<Wrapper<PCrossingFrame<HepMCProduct> > const> shPtr = getProductByTag<PCrossingFrame<HepMCProduct> >(*ep, tag_);
 
       if (shPtr){	
+        crFrame_->setPileupPtr(shPtr);
         secSourceCF_ = const_cast<PCrossingFrame<HepMCProduct> * >(shPtr->product());
         LogDebug("MixingModule") << "Add PCrossingFrame<HepMCProduct>,  eventNr " << secSourceCF_->getEventID();
 	
