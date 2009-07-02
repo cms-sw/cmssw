@@ -37,6 +37,8 @@ namespace evf {
       
       void preModule(const edm::ModuleDescription&);
       void postModule(const edm::ModuleDescription&);
+
+      void setMicroState(std::string &);
       
     private:
 
