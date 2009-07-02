@@ -89,9 +89,6 @@ PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
    using namespace edm;
 
-   // I need to define a type for which we don't have a dictionary in CMSSW. I hope this is crazy enough.
-   typedef std::pair<std::map<std::string,pat::Photon>, std::vector<math::XYZVector> > CrazyDataType;
-
    edm::Handle<edm::View<pat::Photon> > photons;
    iEvent.getByLabel(photons_,photons);
 
