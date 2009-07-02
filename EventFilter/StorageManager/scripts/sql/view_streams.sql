@@ -72,7 +72,7 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 		                         ELSE ROUND ((s_filesize2T0 / 1048576) / (GREATEST(time_diff( STOP_TRANS_TIME, START_TRANS_TIME),1)), 2)
 	                                 END),
 					 START_WRITE_TIME,
-					 ROUND (s_filesize/1073741824, 2))) AS TRANS_STATUS,
+					 ROUND (s_filesize/1073741824, 2), 2)) AS TRANS_STATUS,
 	      TO_CHAR ( SAFE0_CHECK(s_NEW, s_injected) ) AS SAFE0_STATUS,
 	      TO_CHAR ( SAFE99_CHECK(STOP_WRITE_TIME, STOP_TRANS_TIME) ) AS SAFE99_STATUS,
 	      TO_CHAR ( DELETED_CHECK(START_WRITE_TIME, NVL(s_Deleted, 0), NVL(s_Checked, 0), STOP_TRANS_TIME) ) AS DELETED_STATUS
