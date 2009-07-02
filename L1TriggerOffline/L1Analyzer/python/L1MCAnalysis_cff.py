@@ -14,13 +14,13 @@ from L1TriggerOffline.L1Analyzer.L1TauJetMCAnalysis_cff import *
 from L1TriggerOffline.L1Analyzer.L1MetMCAnalysis_cff import *
 
 L1MCAnalysis = cms.Sequence(
-    L1MuonMCAnalysis,
-    +L1EmMCAnalysis,
-    +L1IsoEmMCAnalysis,
-    +L1NonIsoEmMCAnalysis,
-    +L1JetMCAnalysis,
-    +L1CenTauJetMCAnalysis,
-    +L1ForJetMCAnalysis,
-    +L1TauJetMCAnalysis,
+    L1MuonMCAnalysis
+    +L1EmMCAnalysis
+    +L1IsoEmMCAnalysis
+    +L1NonIsoEmMCAnalysis
+    +L1JetMCAnalysis
+    +L1CenTauJetMCAnalysis
+    +L1ForJetMCAnalysis
+    +L1TauJetMCAnalysis
     +L1MetMCAnalysis
 )

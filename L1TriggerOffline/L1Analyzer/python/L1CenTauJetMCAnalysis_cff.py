@@ -9,7 +9,7 @@ from L1TriggerOffline.L1Analyzer.HistoLimits_cfi import *
 from L1TriggerOffline.L1Analyzer.TFile_cfi import *
 
 # Match generator and L1 jets 
-MatchCenJetsMc = cms.EDFilter("TrivialDeltaRMatcher",
+MatchCenTauJetsMc = cms.EDFilter("TrivialDeltaRMatcher",
     src = cms.InputTag("SelectL1CenTauJets"),
     distMin = cms.double(0.5),
     matched = cms.InputTag("SelectGenCenJets")
