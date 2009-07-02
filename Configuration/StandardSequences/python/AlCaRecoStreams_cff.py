@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2009/03/27 15:55:57 $ by $Author: argiro $
+# last update: $Date: 2009/03/28 14:03:36 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -133,7 +133,7 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlMinBias',
+	name = 'TkAlMinBias',
 	paths  = (pathALCARECOTkAlMinBias),
 	content = OutALCARECOTkAlMinBias.outputCommands,
 	selectEvents = OutALCARECOTkAlMinBias.SelectEvents,
@@ -142,7 +142,7 @@ ALCARECOStreamTkAlMinBias = cms.FilteredStream(
 
 ALCARECOStreamTkAlMuonIsolated = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlMuonIsolated',
+	name = 'TkAlMuonIsolated',
 	paths  = (pathALCARECOTkAlMuonIsolated),
 	content = OutALCARECOTkAlMuonIsolated.outputCommands,
 	selectEvents = OutALCARECOTkAlMuonIsolated.SelectEvents,
@@ -151,7 +151,7 @@ ALCARECOStreamTkAlMuonIsolated = cms.FilteredStream(
 
 ALCARECOStreamTkAlZMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlZMuMu',
+	name = 'TkAlZMuMu',
 	paths  = (pathALCARECOTkAlZMuMu),
 	content = OutALCARECOTkAlZMuMu.outputCommands,
 	selectEvents = OutALCARECOTkAlZMuMu.SelectEvents,
@@ -160,7 +160,7 @@ ALCARECOStreamTkAlZMuMu = cms.FilteredStream(
 
 ALCARECOStreamTkAlJpsiMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlJpsiMuMu',
+	name = 'TkAlJpsiMuMu',
 	paths  = (pathALCARECOTkAlJpsiMuMu),
 	content = OutALCARECOTkAlJpsiMuMu.outputCommands,
 	selectEvents = OutALCARECOTkAlJpsiMuMu.SelectEvents,
@@ -169,7 +169,7 @@ ALCARECOStreamTkAlJpsiMuMu = cms.FilteredStream(
 
 ALCARECOStreamTkAlUpsilonMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlUpsilonMuMu',
+	name = 'TkAlUpsilonMuMu',
 	paths  = (pathALCARECOTkAlUpsilonMuMu),
 	content = OutALCARECOTkAlUpsilonMuMu.outputCommands,
 	selectEvents = OutALCARECOTkAlUpsilonMuMu.SelectEvents,
@@ -178,7 +178,7 @@ ALCARECOStreamTkAlUpsilonMuMu = cms.FilteredStream(
 
 ALCARECOStreamSiPixelLorentzAngle = cms.FilteredStream(
 	responsible = 'Lotte Wilke',
-	name = 'ALCARECOSiPixelLorentzAngle',
+	name = 'SiPixelLorentzAngle',
 	paths  = (pathALCARECOSiPixelLorentzAngle),
 	content = OutALCARECOSiPixelLorentzAngle.outputCommands,
 	selectEvents = OutALCARECOSiPixelLorentzAngle.SelectEvents,
@@ -187,7 +187,7 @@ ALCARECOStreamSiPixelLorentzAngle = cms.FilteredStream(
 
 ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	responsible = 'Vitaliano Ciulli',
-	name = 'ALCARECOSiStripCalMinBias',
+	name = 'SiStripCalMinBias',
 	paths  = (pathALCARECOSiStripCalMinBias),
 	content = OutALCARECOSiStripCalMinBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents,
@@ -196,7 +196,7 @@ ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 
 ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	responsible = 'Gordon Kaussen',
-	name = 'ALCARECOSiStripCalZeroBias',
+	name = 'SiStripCalZeroBias',
 	paths  = (pathALCARECOSiStripCalZeroBias),
 	content = OutALCARECOSiStripCalZeroBias.outputCommands,
 	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
@@ -205,7 +205,7 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 
 ALCARECOStreamEcalCalElectron = cms.FilteredStream(
 	responsible = 'Pietro Govoni',
-	name = 'ALCARECOEcalCalElectron',
+	name = 'EcalCalElectron',
 	paths  = (pathALCARECOEcalCalElectron),
 	content = OutALCARECOEcalCalElectron.outputCommands,
 	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
@@ -214,7 +214,7 @@ ALCARECOStreamEcalCalElectron = cms.FilteredStream(
 
 ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalDijets',
+	name = 'HcalCalDijets',
 	paths  = (pathALCARECOHcalCalDijets),
 	content = OutALCARECOHcalCalDijets.outputCommands,
 	selectEvents = OutALCARECOHcalCalDijets.SelectEvents,
@@ -223,7 +223,7 @@ ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 
 ALCARECOStreamHcalCalGammaJet = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalGammaJet',
+	name = 'HcalCalGammaJet',
 	paths  = (pathALCARECOHcalCalGammaJet),
 	content = OutALCARECOHcalCalGammaJet.outputCommands,
 	selectEvents = OutALCARECOHcalCalGammaJet.SelectEvents,
@@ -232,7 +232,7 @@ ALCARECOStreamHcalCalGammaJet = cms.FilteredStream(
 
 ALCARECOStreamHcalCalHO = cms.FilteredStream(
 	responsible = 'Gobinda Majumder',
-	name = 'ALCARECOHcalCalHO',
+	name = 'HcalCalHO',
 	paths  = (pathALCARECOHcalCalHO),
 	content = OutALCARECOHcalCalHO.outputCommands,
 	selectEvents = OutALCARECOHcalCalHO.SelectEvents,
@@ -241,7 +241,7 @@ ALCARECOStreamHcalCalHO = cms.FilteredStream(
 
 ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
 	responsible = 'Gobinda Majumder',
-	name = 'ALCARECOHcalCalHOCosmics',
+	name = 'HcalCalHOCosmics',
 	paths  = (pathALCARECOHcalCalHOCosmics),
 	content = OutALCARECOHcalCalHOCosmics.outputCommands,
 	selectEvents = OutALCARECOHcalCalHOCosmics.SelectEvents,
@@ -250,7 +250,7 @@ ALCARECOStreamHcalCalHOCosmics = cms.FilteredStream(
 
 ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalIsoTrk',
+	name = 'HcalCalIsoTrk',
 	paths  = (pathALCARECOHcalCalIsoTrk),
 	content = OutALCARECOHcalCalIsoTrk.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
@@ -259,7 +259,7 @@ ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 
 ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalNoise',
+	name = 'HcalCalNoise',
 	paths  = (pathALCARECOHcalCalNoise),
 	content = OutALCARECOHcalCalNoise.outputCommands,
 	selectEvents = OutALCARECOHcalCalNoise.SelectEvents,
@@ -269,7 +269,7 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
-	name = 'ALCARECOMuAlCalIsolatedMu',
+	name = 'MuAlCalIsolatedMu',
 	paths  = (pathALCARECOMuAlCalIsolatedMu),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
 	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
@@ -278,7 +278,7 @@ ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 
 ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',
-	name = 'ALCARECOMuAlZMuMu',
+	name = 'MuAlZMuMu',
 	paths  = (pathALCARECOMuAlZMuMu),
 	content = OutALCARECOMuAlZMuMu.outputCommands,
 	selectEvents = OutALCARECOMuAlZMuMu.SelectEvents,
@@ -287,7 +287,7 @@ ALCARECOStreamMuAlZMuMu = cms.FilteredStream(
 
 ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuAlOverlaps',
+	name = 'MuAlOverlaps',
 	paths  = (pathALCARECOMuAlOverlaps),
 	content = OutALCARECOMuAlOverlaps.outputCommands,
 	selectEvents = OutALCARECOMuAlOverlaps.SelectEvents,
@@ -296,7 +296,7 @@ ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
 
 ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	responsible = 'Marcello Maggi',
-	name = 'ALCARECORpcCalHLT',
+	name = 'RpcCalHLT',
 	paths  = (pathALCARECORpcCalHLT),
 	content = OutALCARECORpcCalHLT.outputCommands,
 	selectEvents = OutALCARECORpcCalHLT.SelectEvents,
@@ -305,7 +305,7 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 
 ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlCosmics',
+	name = 'TkAlCosmics',
 	paths  = (pathALCARECOTkAlCosmicsCTF,pathALCARECOTkAlCosmicsCosmicTF,pathALCARECOTkAlCosmicsRS),
 	content = OutALCARECOTkAlCosmics.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics.SelectEvents,
@@ -314,7 +314,7 @@ ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 
 ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlCosmicsHLT',
+	name = 'TkAlCosmicsHLT',
 	paths  = (pathALCARECOTkAlCosmicsCTFHLT,pathALCARECOTkAlCosmicsCosmicTFHLT,pathALCARECOTkAlCosmicsRSHLT),
 	content = OutALCARECOTkAlCosmicsHLT.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmicsHLT.SelectEvents,
@@ -323,7 +323,7 @@ ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 
 ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlCosmics0T',
+	name = 'TkAlCosmics0T',
 	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRS0T),
 	content = OutALCARECOTkAlCosmics0T.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0T.SelectEvents,
@@ -332,7 +332,7 @@ ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 
 ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlCosmics0THLT',
+	name = 'TkAlCosmics0THLT',
 	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT,pathALCARECOTkAlCosmicsRS0THLT),
 	content = OutALCARECOTkAlCosmics0THLT.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0THLT.SelectEvents,
@@ -341,7 +341,7 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 
 ALCARECOStreamMuAlStandAloneCosmics = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuAlStandAloneCosmics',
+	name = 'MuAlStandAloneCosmics',
 	paths  = (pathALCARECOMuAlStandAloneCosmics),
 	content = OutALCARECOMuAlStandAloneCosmics.outputCommands,
 	selectEvents = OutALCARECOMuAlStandAloneCosmics.SelectEvents,
@@ -350,7 +350,7 @@ ALCARECOStreamMuAlStandAloneCosmics = cms.FilteredStream(
 
 ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuAlGlobalCosmics',
+	name = 'MuAlGlobalCosmics',
 	paths  = (pathALCARECOMuAlGlobalCosmics),
 	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
 	selectEvents = OutALCARECOMuAlGlobalCosmics.SelectEvents,
@@ -359,7 +359,7 @@ ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
 
 ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 	responsible = 'Gero Flucke',
-	name = 'ALCARECOTkAlBeamHalo',
+	name = 'TkAlBeamHalo',
 	paths  = (pathALCARECOTkAlBeamHalo),
 	content = OutALCARECOTkAlBeamHalo.outputCommands,
 	selectEvents = OutALCARECOTkAlBeamHalo.SelectEvents,
@@ -368,7 +368,7 @@ ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 
 ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuAlBeamHalo',
+	name = 'MuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
 	content = OutALCARECOMuAlBeamHalo.outputCommands,
 	selectEvents = OutALCARECOMuAlBeamHalo.SelectEvents,
@@ -377,7 +377,7 @@ ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 
 ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuAlBeamHaloOverlaps',
+	name = 'MuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
 	content = OutALCARECOMuAlBeamHaloOverlaps.outputCommands,
 	selectEvents = OutALCARECOMuAlBeamHaloOverlaps.SelectEvents,
@@ -386,9 +386,14 @@ ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
 
 ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	responsible = 'Jan Olzem',
-	name = 'ALCARECOTkAlLAS',
+	name = 'TkAlLAS',
 	paths  = (pathALCARECOTkAlLAS),
 	content = OutALCARECOTkAlLAS.outputCommands,
 	selectEvents = OutALCARECOTkAlLAS.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+from Configuration.StandardSequences.AlCaRecoStream_EcalCalEtaCalib_cff import *
+from Configuration.StandardSequences.AlCaRecoStream_EcalCalPhiSym_cff import *
+from Configuration.StandardSequences.AlCaRecoStream_EcalCalPi0Calib_cff import *
+from Configuration.StandardSequences.AlCaRecoStream_HcalCalMinBias_cff import *
