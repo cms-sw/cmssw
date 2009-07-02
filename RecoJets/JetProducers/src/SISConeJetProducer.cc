@@ -1,7 +1,7 @@
 // File: SISConeJetProducer.cc
 // Description:  see SISConeJetProducer.h
 // Author:  Fedor Ratnikov, Maryland, June 30, 2007
-// $Id: SISConeJetProducer.cc,v 1.1 2007/06/30 17:24:07 fedor Exp $
+// $Id: SISConeJetProducer.cc,v 1.2 2007/08/02 17:42:58 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -31,6 +31,12 @@ namespace cms
   // run algorithm itself
   bool SISConeJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
 		     JetReco::OutputCollection* fOutput) {
+     //do not run algorithm for more than 1000 input elements
+    if(fInput.size() > 1000) {
+      edm::LogError("SISConeNotRun") << "Too many calo tower in the event, sisCone collection will be empty";
+      return false;
+    }
+    
     alg_.run (fInput, fOutput);
     return true;
   }
