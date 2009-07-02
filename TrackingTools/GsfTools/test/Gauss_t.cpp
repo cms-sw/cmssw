@@ -6,9 +6,28 @@
 #include<iostream>
 #include<vector>
 
+namespace {
+  struct LocalTimer {
+    ~LocalTimer() {
+      std::cout << "elapsed time " << t << std::endl;
+		   }
+    edm::HRTimeType t;
+  };
 
-void st(){}
-void en(){}
+  LocalTimer timer;
+
+}
+
+void st(){
+  timer.t = edm::hrRealTime();
+}
+
+void en(){
+  timer.t =  edm::hrRealTime() - timer.t;
+}
+
+
+
 
 int main(int argc, char * argv[]) {
 
