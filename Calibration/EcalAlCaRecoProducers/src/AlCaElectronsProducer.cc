@@ -27,13 +27,10 @@ AlCaElectronsProducer::AlCaElectronsProducer(const edm::ParameterSet& iConfig)
   if ( phiSize_ % 2 == 0 ||  etaSize_ % 2 == 0)
     edm::LogError("AlCaElectronsProducerError") << "Size of eta/phi should be odd numbers";
  
-  weight_= iConfig.getParameter<double> ("eventWeight");
- 
-  
    //register your products
   produces< EBRecHitCollection > (alcaBarrelHitsCollection_) ;
   produces< EERecHitCollection > (alcaEndcapHitsCollection_) ;
-  produces< double > ("weight") ;
+  
 }
 
 
@@ -92,9 +89,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
 
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > miniEBRecHitCollection (new EBRecHitCollection) ;
-  std::auto_ptr< EERecHitCollection > miniEERecHitCollection (new EERecHitCollection) ;  
-  std::auto_ptr< double > weight (new double(1));
-  (*weight) = weight_;
+  std::auto_ptr< EERecHitCollection > miniEERecHitCollection (new EERecHitCollection) ;
 
 //  loop on SiStrip Electrons
   
@@ -237,5 +232,4 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
   //Put selected information in the event
   iEvent.put( miniEBRecHitCollection,alcaBarrelHitsCollection_ );
   iEvent.put( miniEERecHitCollection,alcaEndcapHitsCollection_ );     
-  iEvent.put( weight, "weight");     
 }

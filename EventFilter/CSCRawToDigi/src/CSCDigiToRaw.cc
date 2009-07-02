@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/07 23:27:45 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/08/30 00:33:02 $
+ *  $Revision: 1.32 $
  *  \author A. Tumanov - Rice
  */
 
@@ -112,9 +112,20 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
+      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
       BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
         {
-          cscData.add(digi, cscDetId.layer() );
+	  // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
+	  // been done already.
+	  if (me1a && digi.getStrip() <= 16) {
+	    CSCComparatorDigi digi_corr(64+digi.getStrip(),
+					digi.getComparator(),
+					digi.getTimeBinWord());
+	    cscData.add(digi_corr, cscDetId.layer());
+	  }
+	  else {
+	    cscData.add(digi, cscDetId.layer());
+	  }
         }
     }
 }

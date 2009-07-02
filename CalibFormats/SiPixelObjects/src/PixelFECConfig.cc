@@ -5,9 +5,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfig.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
-#include <sstream>
 #include <map>
 #include <assert.h>
 
@@ -21,29 +19,25 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
  std::map<std::string , int > colM;
  std::vector<std::string > colNames;
  /**
- 
-   EXTENSION_TABLE_NAME:  (VIEW: )
-   
-   CONFIG_KEY				     NOT NULL VARCHAR2(80)
-   KEY_TYPE				     NOT NULL VARCHAR2(80)
-   KEY_ALIAS				     NOT NULL VARCHAR2(80)
-   VERSION					      VARCHAR2(40)
-   KIND_OF_COND 			     NOT NULL VARCHAR2(40)
-   PIXFEC_NAME  			     NOT NULL VARCHAR2(200)
-   CRATE_NUMBER 			     NOT NULL NUMBER(38)
-   SLOT_NUMBER  				      NUMBER(38)
-   VME_ADDR				     NOT NULL VARCHAR2(200)
+    CONFIG_KEY_ID                             NOT NULL NUMBER(38)
+    CONFIG_KEY                                NOT NULL VARCHAR2(80)
+    VERSION                                            VARCHAR2(40)
+    KIND_OF_COND                              NOT NULL VARCHAR2(40)
+    PIXEL_FEC                                 NOT NULL VARCHAR2(200)
+    CRATE                                     NOT NULL NUMBER(38)
+    SLOT_NUMBER                               NOT NULL NUMBER(38)
+    VME_ADDRS_HEX                                      VARCHAR2(17)
  */
 
- colNames.push_back("CONFIG_KEY"   );	    
- colNames.push_back("KEY_TYPE"     );	    
- colNames.push_back("KEY_ALIAS"    );	    
- colNames.push_back("VERSION"	   );	    
- colNames.push_back("KIND_OF_COND" ); 
- colNames.push_back("PIXFEC_NAME"  ); 
- colNames.push_back("CRATE_NUMBER" ); 
- colNames.push_back("SLOT_NUMBER"  ); 
- colNames.push_back("VME_ADDR"     );	    
+ colNames.push_back("CONFIG_KEY_ID"  );
+ colNames.push_back("CONFIG_KEY"     );
+ colNames.push_back("VERSION"        );
+ colNames.push_back("KIND_OF_COND"   );
+ colNames.push_back("PIXEL_FEC"      );
+ colNames.push_back("CRATE"          );
+ colNames.push_back("SLOT_NUMBER"    );
+ colNames.push_back("VME_ADDRS_HEX"  );
+
 
  for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
    {
@@ -72,11 +66,11 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
      
 //      01234567890123
 //      BPix_Pxl_FEC_1
-//     string fullFECName = tableMat[r][colM["PIXEL_FEC"]] ;
-//     fullFECName.replace(0,13,"") ;
-     fecnumber = atoi(tableMat[r][colM["PIXFEC_NAME"]].c_str()) ;
-     crate     = atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) ;
-     string hexVMEAddr = tableMat[r][colM["VME_ADDR"]] ;
+     string fullFECName = tableMat[r][colM["PIXEL_FEC"]] ;
+     fullFECName.replace(0,13,"") ;
+     fecnumber = atoi(fullFECName.c_str()) ;
+     crate     = atoi(tableMat[r][colM["CRATE"]].c_str()) ;
+     string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
      sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
      PixelFECParameters tmp;
      
@@ -205,7 +199,6 @@ unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber)
 
 }
 
-//=============================================================================================
 void PixelFECConfig::writeASCII(std::string dir) const {
 
   if (dir!="") dir+="/";
@@ -222,77 +215,3 @@ void PixelFECConfig::writeASCII(std::string dir) const {
   }
 
 }
-
-//=============================================================================================
-void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key, 
-                                    int version, 
-                                    std::string path, 
-                                    std::ofstream *outstream,
-                                    std::ofstream *out1stream,
-                                    std::ofstream *out2stream) const
-{
-  std::string mthn = "[PixelFECConfig::writeXMLHeader()]\t\t\t    " ;
-  std::stringstream fullPath ;
-  fullPath << path << "/Pixel_PixelFecParameters_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
-  cout << mthn << "Writing to: " << fullPath.str() << endl ;
-  
-  outstream->open(fullPath.str().c_str()) ;
-  
-  *outstream << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	     << endl ;
-  *outstream << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	             << endl ;
-  *outstream << " <HEADER>"								         	     << endl ;
-  *outstream << "  <TYPE>"								         	     << endl ;
-  *outstream << "   <EXTENSION_TABLE_NAME>PIXEL_FEC_PARAMETERS</EXTENSION_TABLE_NAME>"          	     << endl ;
-  *outstream << "   <NAME>Pixel FEC Parameters</NAME>"				         	             << endl ;
-  *outstream << "  </TYPE>"								         	     << endl ;
-  *outstream << "  <RUN>"								         	     << endl ;
-  *outstream << "   <RUN_TYPE>Pixel FEC Parameters</RUN_TYPE>" 		                                     << endl ;
-  *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	             << endl ;
-  *outstream << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  *outstream << "   <COMMENT_DESCRIPTION>Pixel FEC Parameters</COMMENT_DESCRIPTION>"      	             << endl ;
-  *outstream << "   <LOCATION>CERN TAC</LOCATION>"					         	     << endl ;
-  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	     << endl ;
-  *outstream << "  </RUN>"								         	     << endl ;
-  *outstream << " </HEADER>"								         	     << endl ;
-  *outstream << ""										 	     << endl ;
-  *outstream << " <DATA_SET>"								         	     << endl ;
-  *outstream << "  <PART>"                                                                                   << endl ;
-  *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                                 << endl ;
-  *outstream << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                                              << endl ;
-  *outstream << "  </PART>"                                                                                  << endl ;
-  *outstream << "  <VERSION>" << version << "</VERSION>"				         	     << endl ;
-}
-
-//=============================================================================================
-void PixelFECConfig::writeXML( std::ofstream *outstream,
-                               std::ofstream *out1stream,
-                               std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelFECConfig::writeXML()]\t\t\t    " ;
-
-  std::vector< PixelFECParameters >::const_iterator i=fecconfig_.begin();
-
-  for(;i!=fecconfig_.end();++i){
-   *outstream << ""                                                                           	             << endl ;
-   *outstream << "  <DATA>"                                                                           	     << endl ;
-   *outstream << "   <PIXFEC_NAME>"            << i->getFECNumber() 		<< "</PIXFEC_NAME>" 	     << endl ;
-   *outstream << "   <CRATE_NUMBER>"           << i->getCrate()     		<< "</CRATE_NUMBER>" 	     << endl ;
-   *outstream << "   <VME_ADDR>0x" << hex << i->getVMEBaseAddress() << dec      << "</VME_ADDR>" 	     << endl ;
-   *outstream << "  </DATA>"                                                                          	     << endl ;
-  }
-}
-
-//=============================================================================================
-void PixelFECConfig::writeXMLTrailer(std::ofstream *outstream,
-                                     std::ofstream *out1stream,
-                                     std::ofstream *out2stream) const 
-{
-  std::string mthn = "[PixelFECConfig::writeXMLTrailer()]\t\t\t    " ;
-  
-  *outstream << "" 						    	 	              	             << endl ;
-  *outstream << " </DATA_SET>" 						    	 	              	     << endl ;
-  *outstream << "</ROOT> "								              	     << endl ;
-
-  outstream->close() ;
-}
-

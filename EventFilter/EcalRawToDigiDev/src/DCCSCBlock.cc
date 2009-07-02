@@ -87,8 +87,9 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       if (st > NUMB_STRIP)	{ch=1; st=1;}
 
       // adding channel following the last valid
-      pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
-      (*invalidChIds_)->push_back(*pDetId_);
+      // pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+      // (*invalidChIds_)->push_back(*pDetId_);
+       fillEcalElectronicsError(invalidZSXtalIds_); 
 
       errorOnXtal = true;
 
@@ -119,8 +120,10 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  if (st > NUMB_STRIP)	{ch=1; st=1;}
 	  
 	  // adding channel following the last valid
-           pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-	   (*invalidChIds_)->push_back(*pDetId_);
+          //pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+	  // (*invalidChIds_)->push_back(*pDetId_);
+           
+           fillEcalElectronicsError(invalidZSXtalIds_); 
 	   
 	   errorOnXtal = true;
 	   lastStripId_ = st;
@@ -227,6 +230,26 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 }
 
 
+
+
+void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection){
+
+  int activeDCC = mapper_->getActiveSM();
+
+  if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
+         (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) ){
+     EcalElectronicsId  *  eleTp = mapper_->getSCElectronicsPointer(activeDCC,expTowerID_);
+     (*errorColection)->push_back(*eleTp);
+  }else{
+     if( ! DCCDataUnpacker::silentMode_ ){
+       edm::LogWarning("EcalRawToDigiDevChId")
+         <<"\n For event "<<event_->l1A()<<" there's fed: "<< activeDCC
+         <<" activeDcc: "<<mapper_->getActiveSM()
+         <<" but that activeDcc is not valid in EE.";
+     }
+  }
+
+}
 
 
 

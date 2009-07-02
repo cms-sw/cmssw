@@ -5,8 +5,8 @@
  * *
  *  Handles quality tests (configuring, attaching to ME's, 
  *
- *  $Date: 2007/12/17 18:32:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/24 20:07:27 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
   
@@ -28,7 +28,7 @@ public:
   ///Parses Config File and configures the quality tests
   bool configureTests(const std::string &configFile, DQMStore *bei);
   ///Attaches the quality tests to the MonitorElement
-  void attachTests(DQMStore * bei);
+  void attachTests(DQMStore * bei, bool verboseQT=true);
   ///Checks global status of Quality Tests
   std::pair<std::string,std::string> checkGlobalQTStatus(DQMStore *bei) const;
   ///Checks alarms for single MonitorElements

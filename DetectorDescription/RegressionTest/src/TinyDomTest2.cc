@@ -1,5 +1,7 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest2.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom2.h"
 #include "DetectorDescription/Core/interface/adjgraph.h"
+#include <vector>
 #include <iostream>
 
 using std::vector;

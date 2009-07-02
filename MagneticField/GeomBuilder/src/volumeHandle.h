@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2008/04/16 16:28:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/25 16:20:08 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -104,6 +104,12 @@ public:
 
   bool toExpand() const {return expand;}
 
+  /// Temporary hack to pass information on material. Will eventually be replaced!
+  bool isIron() const{return isIronFlag;}
+
+  /// The sector for which an interpolator for this class of volumes should be built
+  int masterSector;
+
 private:
   // Disallow Default/copy ctor & assignment op.
   // (we want to handle only pointers!!!)
@@ -157,6 +163,10 @@ private:
   // Flag this as a master volume out of wich a 2pi volume should be built 
   // (e.g. central cylinder); this is taken into account by sides().
   bool expand;
+
+  // Temporary hack to keep information on material. Will eventually be replaced!  
+  bool isIronFlag;
+
 };
 
 

@@ -12,6 +12,8 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "TH1D.h"
+#include "TFile.h"
 
 ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& iConfig){
 	outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");

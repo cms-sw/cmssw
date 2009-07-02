@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.5 2007/10/08 19:54:32 frazier Exp $
+// $Id: GctDigiToRaw.h,v 1.7 2009/04/07 10:51:08 frazier Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockPacker.h"
+#include "EventFilter/GctRawToDigi/src/GctFormatTranslateMCLegacy.h"
 
 //
 // class decleration
@@ -71,7 +71,7 @@ class GctDigiToRaw : public edm::EDProducer {
   int counter_;          
   
   // digi to block converter
-  GctBlockPacker blockPacker_;
+  GctFormatTranslateMCLegacy formatTranslator_;
 
 };
 

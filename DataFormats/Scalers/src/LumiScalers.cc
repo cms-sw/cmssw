@@ -54,7 +54,7 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
   version_ = raw->version;
-  if ( version_ == 1 )
+  if ( version_ >= 1 )
   {
     collectionTime_.tv_sec  = raw->lumi.collectionTime.tv_sec;
     collectionTime_.tv_nsec = raw->lumi.collectionTime.tv_nsec;

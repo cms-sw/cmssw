@@ -68,7 +68,7 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctCounts_;
 
-  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;//,MuLinkTag_;
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_,MuLinkTag_;
   edm::InputTag HLTTau_;
 
   // btag OpenHLT input collections

@@ -39,7 +39,7 @@
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
 namespace { 
-  namespace {
+  struct dictionary {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
@@ -116,5 +116,5 @@ namespace {
     edm::reftobase::RefHolder< edm::Ref<reco::ConvBremSeedCollection> > dummy47;
 
 
-  }
+  };
 }

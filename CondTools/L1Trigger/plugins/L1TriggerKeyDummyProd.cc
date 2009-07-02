@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 01:08:46 CET 2008
-// $Id: L1TriggerKeyDummyProd.cc,v 1.2 2008/09/19 19:26:37 wsun Exp $
+// $Id$
 //
 //
 
@@ -42,44 +42,22 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-
-  // Label should be empty, "SubsystemKeysOnly" or any subsystem label expected
-  // by L1TriggerKeyOnlineProd.
-  std::string label = iConfig.getParameter< std::string >( "label" ) ;
-  setWhatProduced(this, label);
+   setWhatProduced(this);
 
    //now do what ever other initialization is needed
    m_key.setTSCKey( iConfig.getParameter< std::string >( "tscKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kCSCTF,
-			  iConfig.getParameter< std::string >( "csctfKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kDTTF,
-			  iConfig.getParameter< std::string >( "dttfKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kRPC,
-			  iConfig.getParameter< std::string >( "rpcKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kGMT,
-			  iConfig.getParameter< std::string >( "gmtKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kRCT,
-			  iConfig.getParameter< std::string >( "rctKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kGCT,
-			  iConfig.getParameter< std::string >( "gctKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kGT,
-			  iConfig.getParameter< std::string >( "gtKey" ) ) ;
-   m_key.setSubsystemKey( L1TriggerKey::kTSP0,
-			  iConfig.getParameter< std::string >( "tsp0Key" ) ) ;
 
-   if( label != "SubsystemKeysOnly" )
+   typedef std::vector< edm::ParameterSet > SubsystemKeys;
+   SubsystemKeys keys =
+     iConfig.getParameter< SubsystemKeys >( "subsystemKeys" ) ;
+
+   for( SubsystemKeys::const_iterator it = keys.begin ();
+	it != keys.end() ;
+	++it )
      {
-       typedef std::vector< edm::ParameterSet > ObjectKeys;
-       ObjectKeys keys = iConfig.getParameter< ObjectKeys >( "objectKeys" ) ;
-
-       for( ObjectKeys::const_iterator it = keys.begin ();
-	    it != keys.end() ;
-	    ++it )
-	 {
-	   m_key.add( it->getParameter< std::string >( "record" ),
-		      it->getParameter< std::string >( "type" ),
-		      it->getParameter< std::string >( "key" ) ) ;
-	 }
+       m_key.add( it->getParameter< std::string >( "record" ),
+		  it->getParameter< std::string >( "type" ),
+		  it->getParameter< std::string >( "key" ) ) ;
      }
 }
 

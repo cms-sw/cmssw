@@ -5,7 +5,8 @@ process = cms.Process("LHE")
 
 process.source = cms.Source("MCDBSource",
 	articleID = cms.uint32(120),
-	supportedProtocols = cms.vstring('gsiftp')
+	supportedProtocols = cms.vstring('rfio')
+	#filter = cms.untracked.string('\\.lhe$')
 )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))

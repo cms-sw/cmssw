@@ -10,9 +10,11 @@
 <use name=PhysicsTools/Utilities>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/TauReco>
 <export>
   <lib name=PhysicsToolsIsolationAlgos>
   <use name=DataFormats/RecoCandidate>
+  <use name=DataFormats/TauReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/IsolationUtils>

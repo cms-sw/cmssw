@@ -2,13 +2,13 @@
  *
  * Digi for CSC anode wires.
  *
- * $Date: 2007/07/23 12:08:20 $
- * $Revision: 1.8 $
+ * $Date: 2007/04/03 20:13:05 $
+ * $Revision: 1.7 $
  */
 
-#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
+#include <DataFormats/CSCDigi/interface/CSCWireDigi.h>
 
-#include <iostream>
+using namespace std;
 
   /// Constructors
 
@@ -62,13 +62,3 @@ void CSCWireDigi::print() const {
   for(unsigned int i=0; i<tbins.size();i++) std::cout<<tbins[i]<<" ";
   std::cout<<std::endl; 
 }
-
-std::ostream & operator<<(std::ostream & o, const CSCWireDigi& digi) {
-  o << " CSC Wire " << digi.getWireGroup()
-           << " CSC Wire First Time Bin On " << digi.getTimeBin()
-           << " CSC Time Bins On ";
-  for (unsigned int i = 0; i<digi.getTimeBinsOn().size(); ++i ){
-    o <<" " <<digi.getTimeBinsOn()[i]; }
-  return o;
-}
-

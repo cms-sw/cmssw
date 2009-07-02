@@ -2,13 +2,11 @@
 #define CutBasedPhotonIDAlgo_H
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 class CutBasedPhotonIDAlgo : PhotonIDAlgo {
 
@@ -19,30 +17,20 @@ public:
   virtual ~CutBasedPhotonIDAlgo(){};
 
   void setup(const edm::ParameterSet& conf);
-  void calculate(const reco::Photon*, 
-		 const edm::Event&, const edm::EventSetup& es,
-		 PhotonFiducialFlags& phofid, 
-		 PhotonIsolationVariables& phoisolR03, 
-		 PhotonIsolationVariables& phoisolR04, 
-		 CutBasedPhotonID &phoid);
-  void decideEB(PhotonFiducialFlags phofid, 
-		PhotonIsolationVariables &phoIsolR04, 
-		const reco::Photon* pho, 
-		CutBasedPhotonID&  phID );
-  void decideEE(PhotonFiducialFlags phofid, 
-		PhotonIsolationVariables &phoIsolR04, 
-		const reco::Photon* pho, 
-		CutBasedPhotonID&  phID );
+  reco::PhotonID calculate(const reco::Photon*, const edm::Event&, const edm::EventSetup& es);
+  void decideEB(reco::PhotonID &phID, const reco::Photon* pho);
+  void decideEE(reco::PhotonID &phID, const reco::Photon* pho);
  private:
   
   //Which cuts to do?
   bool dophotonBCIsolationCut_;
   bool dophotonEcalRecHitIsolationCut_;
-  bool dophotonHcalTowerIsolationCut_;
+  bool dophotonHcalRecHitIsolationCut_;
   bool dophotonHCTrkIsolationCut_;
   bool dophotonSCTrkIsolationCut_;
   bool dophotonHCNTrkCut_;
   bool dophotonSCNTrkCut_;
+  bool dorequireNotElectron_;
   bool dorequireFiducial_;
   bool dophotonHadOverEMCut_;
   bool dophotonsigmaeeCut_;
@@ -50,7 +38,7 @@ public:
 
   //Actual cut values
   double looseEMEcalRecHitIsolationCutEB_;
-  double looseEMHcalTowerIsolationCutEB_;
+  double looseEMHcalRecHitIsolationCutEB_;
   double looseEMHollowConeTrkIsolationCutEB_;
   double looseEMSolidConeTrkIsolationCutEB_;
   int looseEMSolidConeNTrkCutEB_;
@@ -60,7 +48,7 @@ public:
   double looseEMR9CutEB_;
 
   double loosephotonEcalRecHitIsolationCutEB_;
-  double loosephotonHcalTowerIsolationCutEB_;
+  double loosephotonHcalRecHitIsolationCutEB_;
   double loosephotonHollowConeTrkIsolationCutEB_;
   double loosephotonSolidConeTrkIsolationCutEB_;
   int loosephotonSolidConeNTrkCutEB_;
@@ -70,7 +58,7 @@ public:
   double loosephotonR9CutEB_;
 
   double tightphotonEcalRecHitIsolationCutEB_;
-  double tightphotonHcalTowerIsolationCutEB_;
+  double tightphotonHcalRecHitIsolationCutEB_;
   double tightphotonHollowConeTrkIsolationCutEB_;
   double tightphotonSolidConeTrkIsolationCutEB_;
   int tightphotonSolidConeNTrkCutEB_;
@@ -80,7 +68,7 @@ public:
   double tightphotonR9CutEB_;
 
   double looseEMEcalRecHitIsolationCutEE_;
-  double looseEMHcalTowerIsolationCutEE_;
+  double looseEMHcalRecHitIsolationCutEE_;
   double looseEMHollowConeTrkIsolationCutEE_;
   double looseEMSolidConeTrkIsolationCutEE_;
   int looseEMSolidConeNTrkCutEE_;
@@ -90,7 +78,7 @@ public:
   double looseEMR9CutEE_;
 
   double loosephotonEcalRecHitIsolationCutEE_;
-  double loosephotonHcalTowerIsolationCutEE_;
+  double loosephotonHcalRecHitIsolationCutEE_;
   double loosephotonHollowConeTrkIsolationCutEE_;
   double loosephotonSolidConeTrkIsolationCutEE_;
   int loosephotonSolidConeNTrkCutEE_;
@@ -100,7 +88,7 @@ public:
   double loosephotonR9CutEE_;
 
   double tightphotonEcalRecHitIsolationCutEE_;
-  double tightphotonHcalTowerIsolationCutEE_;
+  double tightphotonHcalRecHitIsolationCutEE_;
   double tightphotonHollowConeTrkIsolationCutEE_;
   double tightphotonSolidConeTrkIsolationCutEE_;
   int tightphotonSolidConeNTrkCutEE_;
@@ -110,29 +98,17 @@ public:
   double tightphotonR9CutEE_;
 
   //Isolation parameters
-  double photonEcalRecHitConeInnerRadiusA_;
-  double photonEcalRecHitConeOuterRadiusA_;
-  double photonEcalRecHitEtaSliceA_;
-  double photonEcalRecHitThreshEA_;
-  double photonEcalRecHitThreshEtA_;
-  double photonHcalTowerConeInnerRadiusA_;
-  double photonHcalTowerConeOuterRadiusA_;
-  double photonHcalTowerThreshEA_;
-  double trackConeOuterRadiusA_;
-  double trackConeInnerRadiusA_;
-  double isolationtrackThresholdA_;
-
-  double photonEcalRecHitConeInnerRadiusB_;
-  double photonEcalRecHitConeOuterRadiusB_;
-  double photonEcalRecHitEtaSliceB_;
-  double photonEcalRecHitThreshEB_;
-  double photonEcalRecHitThreshEtB_;
-  double photonHcalTowerConeInnerRadiusB_;
-  double photonHcalTowerConeOuterRadiusB_;
-  double photonHcalTowerThreshEB_;
-  double trackConeOuterRadiusB_;
-  double trackConeInnerRadiusB_;
-  double isolationtrackThresholdB_;
+  double photonEcalRecHitConeInnerRadius_;
+  double photonEcalRecHitConeOuterRadius_;
+  double photonEcalRecHitEtaSlice_;
+  double photonEcalRecHitThresh_;
+  double photonHcalRecHitConeInnerRadius_;
+  double photonHcalRecHitConeOuterRadius_;
+  double photonHcalRecHitEtaSlice_;
+  double photonHcalRecHitThresh_;
+  double trackConeOuterRadius_;
+  double trackConeInnerRadius_;
+  double isolationtrackThreshold_;
  
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/04/08 15:35:12 $
- * $Revision: 1.84 $
+ * $Date: 2008/12/03 15:03:16 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  *
 */
@@ -266,7 +266,7 @@ void EBPedestalTask::endJob(void){
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
+  int runType[36] = { -1 };
 
   Handle<EcalRawDataCollection> dcchs;
 
@@ -274,19 +274,14 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-      int ism = Numbers::iSM( dcch, EcalBarrel );
+      runType[ism-1] = dcchItr->getRunType();
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
-      if ( i != dccMap.end() ) continue;
-
-      dccMap[ ism ] = dcch;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
-           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
 
     }
 
@@ -327,8 +322,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EBDetId id = digiItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -339,33 +333,31 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EBPedestalTask") << " det id = " << id;
       LogDebug("EBPedestalTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
+      EBDataFrame dataframe = (*digiItr);
+
       for (int i = 0; i < 10; i++) {
 
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
+        int adc = dataframe.sample(i).adc();
 
         MonitorElement* mePedMap = 0;
 
-        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-        if ( sample.gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
-        if ( sample.gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
+        if ( dataframe.sample(i).gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( dataframe.sample(i).gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
+        if ( dataframe.sample(i).gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
 
         float xval = float(adc);
 
         if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
 
-        if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
-        if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
+        if ( dataframe.sample(i).gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
 
       }
 
@@ -457,33 +449,26 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-      EcalPnDiodeDigi pn = (*pnItr);
-      EcalPnDiodeDetId id = pn.id();
+      if ( Numbers::subDet( pnItr->id() ) != EcalBarrel ) continue;
 
-      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
+      int ism = Numbers::iSM( pnItr->id() );
 
-      int ism = Numbers::iSM( id );
+      int num = pnItr->id().iPnId();
 
-      int num = id.iPnId();
+      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-      if ( i == dccMap.end() ) continue;
-
-      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EBPedestalTask") << " det id = " << id;
+      LogDebug("EBPedestalTask") << " det id = " << pnItr->id();
       LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
 
       for (int i = 0; i < 50; i++) {
 
-        EcalFEMSample sample = pn.sample(i);
-        int adc = sample.adc();
+        int adc = pnItr->sample(i).adc();
 
         MonitorElement* mePNPed = 0;
 
-        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        if ( pnItr->sample(i).gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( pnItr->sample(i).gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
         float xval = float(adc);
 

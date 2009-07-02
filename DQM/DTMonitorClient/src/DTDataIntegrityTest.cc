@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/07/02 14:19:27 $
- * $Revision: 1.22 $
+ * $Date: 2008/10/09 09:39:51 $
+ * $Revision: 1.23 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -88,7 +88,8 @@ void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 
   nevents++;
-  LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: "<<nevents<<" events";
+  if(nevents%1000 == 0)
+    LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]: "<<nevents<<" events";
 
 }
 
@@ -130,7 +131,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   counter++;
 
   //Loop on FED id
-  for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<=FEDNumbering::getDTFEDIds().second; ++dduId){
+  for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<FEDNumbering::getDTFEDIds().second; ++dduId){
     LogVerbatim ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
@@ -259,7 +260,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
      string wheelSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
      MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
      // Get the histos for FED integrity
-     string fedIntegrityFolder = "DT/FEDIntegrity/";
+     string fedIntegrityFolder = "DT/FEDIntegrity_SM/";
      MonitorElement * hFEDEntry = dbe->get(fedIntegrityFolder+"FEDEntries");
      MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
      MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");

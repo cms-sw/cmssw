@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.73 2008/10/06 15:43:10 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.71 2008/07/01 15:48:06 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -53,6 +53,7 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   // Set DB connection parameters
   dbParams_.reset();
   dbParams_.pset( pset );
+  //edm::LogVerbatim(mlConfigDb_) << dbParams_; 
 
   // Open connection
   openDbConnection();
@@ -125,10 +126,9 @@ void SiStripConfigDb::openDbConnection() {
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Database connection parameters: "
-     << std::endl;
-  print(ss); 
+     << std::endl << dbParams_;
   edm::LogVerbatim(mlConfigDb_) << ss.str();
-  
+
   // Clear local caches
   clearLocalCache();
 
@@ -1066,125 +1066,4 @@ void SiStripConfigDb::partitions( std::list<std::string>& partitions ) const {
   
 }
 
-// -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::Run SiStripConfigDb::nextPhysicsRun( const std::string& partition_name,
-						      uint32_t run_number ) const {
-
-
   
-  // Retrieve all runs
-  Runs in;
-  runs( in );
-
-  // Organise only physics runs
-  RunsByPartition out;
-  runs( in, out, sistrip::PHYSICS );
-  
-  // Return value
-  Run temp;
-  temp.type_      = sistrip::UNKNOWN_RUN_TYPE;
-  temp.partition_ = "UNKNOWN_PARTITION";
-  temp.number_    = sistrip::invalid32_;
-  
-  // Find "next run"
-  RunsByPartition::const_iterator ipartition = out.find( partition_name );
-  RunsByPartition::const_iterator jpartition = out.end();
-  if ( ipartition != jpartition ) {
-    Runs::const_reverse_iterator irun = ipartition->second.rbegin(); //@@ want runs in ascending order 
-    Runs::const_reverse_iterator jrun = ipartition->second.rend(); //@@ want runs in ascending order 
-    for ( ; irun != jrun; ++irun ) {
-      if ( irun->number_ < temp.number_ &&
-	   irun->number_ >= run_number ) {
-	// Copy run details to return value
-	temp.type_      = irun->type_;
-	temp.partition_ = irun->partition_;
-	temp.number_    = irun->number_;
-      }
-    }
-  }
-  
-  return temp;
-  
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripConfigDb::Run SiStripConfigDb::nextCommissioningRun( const std::string& partition_name,
-							    uint32_t run_number ) const {
-  
-  // Retrieve all runs
-  Runs in;
-  runs( in );
-
-  // Organise runs by type for given partition
-  RunsByType out;
-  runs( in, out, partition_name );
-  
-  // Return value
-  Run temp;
-  temp.type_      = sistrip::UNKNOWN_RUN_TYPE;
-  temp.partition_ = "UNKNOWN_PARTITION";
-  temp.number_    = sistrip::invalid32_;
-  
-  // Find "next run"
-  RunsByType::const_iterator itype = out.begin();
-  RunsByType::const_iterator jtype = out.end();
-  for ( ; itype != jtype; ++itype ) {
-    if ( itype->first == sistrip::PHYSICS ) { continue; }
-    Runs::const_reverse_iterator irun = itype->second.rbegin(); //@@ want runs in ascending order 
-    Runs::const_reverse_iterator jrun = itype->second.rend(); //@@ want runs in ascending order 
-    for ( ; irun != jrun; ++irun ) {
-      if ( irun->number_ < temp.number_ &&
-	   irun->number_ >= run_number ) {
-	// Copy run details to return value
-	temp.type_      = irun->type_;
-	temp.partition_ = irun->partition_;
-	temp.number_    = irun->number_;
-      }
-    }
-  }
-  
-  return temp;
-  
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::print( std::stringstream& ss ) const {
-
-  ss << dbParams_;
-  
-  // Retrieve physics runs
-  Runs in;
-  RunsByPartition out;
-  runs( in );
-  runs( in, out, sistrip::PHYSICS );
-  
-  // Print run numbers
-  std::vector<std::string> pp = dbParams_.partitionNames();
-  std::vector<std::string>::const_iterator ip = pp.begin();
-  std::vector<std::string>::const_iterator jp = pp.end();
-  for ( ; ip != jp; ++ip ) {
-    Runs rr = out[*ip];
-    if ( rr.empty() ) { ss << "  No physics runs found for partition \"" << *ip << "\"!" << std::endl; }
-    else {
-      uint16_t nr = rr.size() < 10 ? rr.size() : 10;
-      ss << " List of last (" << nr << ") physics runs for partition \"" << *ip << "\": ";
-      for ( uint16_t ir = 0; ir < nr; ++ir ) { ss << rr[ir].number_ << " "; }
-      ss << std::endl;
-//       ss << " Next physics run: " 
-// 	 << ( nextPhysicsRun( *ip, rr.back().number_ ) ).number_ 
-// 	 << std::endl;
-//       ss << " Next commissioning run/type: " 
-// 	 << ( nextCommissioningRun( *ip, rr.back().number_ ) ).number_
-// 	 << "/"
-// 	 << SiStripEnumsAndStrings::runType( ( nextCommissioningRun( *ip, rr.back().number_ ) ).type_ )
-// 	 << std::endl;
-//       ss << " Next unknown run: " 
-// 	 << ( nextPhysicsRun( *ip, 0xFFFFFFFE ) ).number_ 
-// 	 << std::endl;
-    }
-  }
-
-}

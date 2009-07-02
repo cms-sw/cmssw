@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 20:10:36 CET 2008
-// $Id: L1CondDBIOVWriter.h,v 1.1 2008/03/03 21:52:18 wsun Exp $
+// $Id$
 //
 
 // system include files
@@ -50,18 +50,10 @@ class L1CondDBIOVWriter : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       l1t::DataWriter m_writer ;
       l1t::DataReader m_reader ;
-      std::string m_tscKey ;
       std::string m_keyTag ;
 
       // Map of records to tags
-      std::map<std::string, std::string > m_recordTypeToTagMap ;
-
-      // When true, set IOVs for objects not tied to the TSC key.  The records
-      // and objects to be updated are given in the toPut parameter, and
-      // m_tscKey is taken to be a common key for all the toPut objects, not
-      // the TSC key.  The IOV for L1TriggerKey is not updated when
-      // m_ignoreTriggerKey = true.
-      bool m_ignoreTriggerKey ;
+      std::map<std::string, std::string > m_recordToTagMap ;
 };
 
 

@@ -5,16 +5,15 @@
  *
  * Digi for CSC DCC/DDU Format status.
  *  
- *  $Date: 2007/07/23 12:08:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/17 17:45:11 $
+ *  $Revision: 1.2 $
  *
  * \author N. Terentiev, CMU
  *
  */
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
-#include <iosfwd>
 
 class CSCDCCFormatStatusDigi{
 
@@ -70,6 +69,17 @@ private:
   std::vector<CSCDetId> cscid_;
 };
 
-std::ostream & operator<<(std::ostream & o, const CSCDCCFormatStatusDigi& digi);
+#include<iostream>
+            /// needed by COBRA
+inline std::ostream & operator<<(std::ostream & o, const CSCDCCFormatStatusDigi& digi) {
+  o << " " <<digi.getDCCNmb()<<" "<<digi.getDDUNmb()<<" "
+           <<digi.getCSCDCCExaminerInfo()<<" "
+           << digi.getUnpackerInfo()<<" "<<digi.getErInfo()<<"\n";
+  for (size_t i = 0; i<digi.getCSCId().size(); ++i ){
+    o <<" " <<(digi.getCSCId())[i]; }
+  o<<"\n";
+
+  return o;
+}
 
 #endif

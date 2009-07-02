@@ -66,12 +66,15 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
     {
       char* type;
       
-      cout <<"SET TO HCAL/FEDIntegrity"<<endl;
+      if (fVerbosity)
+	cout <<"SET TO HCAL/FEDIntegrity"<<endl;
       m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
       type="FEDEntries";
-      fedEntries_ = m_dbe->book1D(type,"# entries per HCAL FED",32,699.5,731.5);
+      fedEntries_ = m_dbe->book1D(type,"# entries per HCAL FED",32,700,732);
       type="FEDFatal";
-      fedFatal_ = m_dbe->book1D(type,"# fatal errors HCAL FED",32,699.5,731.5);
+      fedFatal_ = m_dbe->book1D(type,"# fatal errors HCAL FED",32,700,732);
+      type="FEDNonFatal";
+      fedNonFatal_ = m_dbe->book1D(type,"# non-fatal errors HCAL FED",32,700,732);
     } // if (m_dbe)
 
 

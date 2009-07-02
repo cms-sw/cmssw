@@ -1,10 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.HepMCCandAlgos.goodMuonMCMatch_cfi import *
-goodMuonMCMatch.src = 'selectedLayer1Muons'
 from PhysicsTools.HepMCCandAlgos.goodTrackMCMatch_cfi import *
-goodTrackMCMatch.src = 'selectedLayer1TrackCands'
-
 from ElectroWeakAnalysis.ZReco.dimuonsMCMatch_cfi import *
 from ElectroWeakAnalysis.ZReco.dimuonsOneTrackMCMatch_cfi import *
 allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
@@ -12,4 +9,5 @@ allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
 )
 
 mcTruthForDimuons = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+dimuonsMCMatch+dimuonsOneTrackMCMatch+allDimuonsMCMatch)
+goodMuonMCMatch.src = 'selectedLayer1Muons'
 

@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef LUMISCALERS_H
-#define LUMISCALERS_H
+#ifndef DATAFORMATS_SCALERS_LUMISCALERS_H
+#define DATAFORMATS_SCALERS_LUMISCALERS_H
 
 #include <ostream>
 #include <vector>

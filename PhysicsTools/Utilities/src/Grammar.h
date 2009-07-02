@@ -7,11 +7,12 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.19 $
  *
  */
 #include "boost/spirit/core.hpp"
 #include "boost/spirit/utility/grammar_def.hpp"
+#include "boost/spirit/utility/chset.hpp"
 #include <functional>
 #include "PhysicsTools/Utilities/src/ExpressionNumberSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionVarSetter.h"
@@ -154,9 +155,9 @@ namespace reco {
                     ( ch_p('"' ) >> *(~ch_p('"' ))  >> ch_p('"' ) ) [ methodArg_s ] |
                     ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
 	  var = 
-	    (alpha_p >> * alnum_p >> 
+	    (alpha_p >> * chset<>("a-zA-Z0-9_")  >> 
 	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
-	    ( (alpha_p >> * alnum_p) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
+	    ( (alpha_p >> * chset<>("a-zA-Z0-9_")) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
 	  method = 
 	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
 	  function1 = 
@@ -178,9 +179,10 @@ namespace reco {
 	    factor >> * (('^' >> expect(factor)) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    (function1 >> expect(ch_p('(')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> expect(ch_p('(')) >> expect(expression) >> 
+	    (function1 >> ch_p('(') >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function2 >> ch_p('(') >> expect(expression) >> 
 	     expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+            //NOTE: no expect around the first ch_p('(') otherwise it can't parse a method that starts like a function name (i.e. maxSomething)
 	    method | 
 	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase
 	    //       "(a"

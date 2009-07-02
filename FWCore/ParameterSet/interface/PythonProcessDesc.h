@@ -1,9 +1,9 @@
-#ifndef PythonProcessDesc_h
-#define PythonProcessDesc_h
+#ifndef FWCore_ParameterSet_PythonProcessDesc_h
+#define FWCore_ParameterSet_PythonProcessDesc_h
 
+#include "FWCore/ParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include <boost/python.hpp>
 
 class PythonProcessDesc
 {
@@ -16,25 +16,30 @@ public:
     It decides whether it's a file or string by seeing if
     it ends in '.py'
   */
-  PythonProcessDesc(const std::string & config);
+  PythonProcessDesc(std::string const& config);
 
-  void addService(const PythonParameterSet & pset) {theServices.push_back(pset);}
+  PythonProcessDesc(std::string const& config, int argc, char * argv[]);
+
+  void addService(PythonParameterSet& pset) {theServices.push_back(pset);}
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
   std::string dump() const;
 
   // makes a new (copy) of the ProcessDesc
-  boost::shared_ptr<edm::ProcessDesc> processDesc() const;
+  boost::shared_ptr<edm::ProcessDesc> processDesc();
 
 private:
-  void readFile(const std::string & fileName, boost::python::object & main_namespace);
-  void readString(const std::string & pyConfig, boost::python::object & main_namespace);
+  void prepareToRead();
+  void read(std::string const& config);
+  void readFile(std::string const& fileName);
+  void readString(std::string const& pyConfig);
 
   static bool initialized_;
   PythonParameterSet theProcessPSet;
   std::vector<PythonParameterSet> theServices;
-
+  boost::python::object theMainModule;
+  boost::python::object theMainNamespace;
 };
 
 #endif

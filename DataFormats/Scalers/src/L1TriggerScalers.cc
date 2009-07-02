@@ -56,7 +56,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
   version_ = raw->version;
-  if ( version_ == 1 )
+  if ( version_ >= 1 )
   {
     collectionTimeSpecial_.tv_sec 
       = raw->trig.collectionTimeSpecial.tv_sec;

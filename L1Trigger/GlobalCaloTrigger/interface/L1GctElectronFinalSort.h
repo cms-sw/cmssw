@@ -37,7 +37,7 @@ public:
   L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
                                    L1GctEmLeafCard* negEtaCard);
   ///
-  /// destrcutor
+  /// destructor
   ~L1GctElectronFinalSort();
   ///
   /// get input data from sources
@@ -57,6 +57,9 @@ public:
   ///
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
+  ///
+  /// check setup
+  bool setupOk() const { return m_setupOk; }
   
  protected:
 
@@ -82,6 +85,8 @@ public:
   /// output data
   Pipeline<L1GctEmCand> m_outputCands;
   
+  /// Check the setup
+  bool m_setupOk;
 };
 
 std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 

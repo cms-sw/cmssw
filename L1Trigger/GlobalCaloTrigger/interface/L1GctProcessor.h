@@ -23,7 +23,7 @@ class L1GctProcessor {
 
  public:
 
-  L1GctProcessor() : m_bx(0), m_bxStart(0), m_numOfBx(1) {};
+  L1GctProcessor() : m_verbose(false), m_bx(0), m_bxStart(0), m_numOfBx(1) {};
   virtual ~L1GctProcessor() {};
   
   /// complete reset of processor
@@ -59,6 +59,13 @@ class L1GctProcessor {
     resetProcessor();
     setupObjects();
   }
+
+  /// Method to check the setup for this processor. Returns true by default.
+  bool setupOk() const { return true; }
+
+  /// control output messages
+  void setVerbose() { m_verbose = true; }
+  void setTerse() { m_verbose = false; }
 
  protected:
 
@@ -105,6 +112,9 @@ class L1GctProcessor {
 	}
       }
     };
+
+  /// Flag to control output messages
+  bool m_verbose;
 
  private:
   /// Support for multiple beam crossing operation

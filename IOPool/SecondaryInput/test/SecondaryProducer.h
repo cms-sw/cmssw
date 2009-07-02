@@ -29,6 +29,8 @@ namespace edm {
 
     virtual void put(edm::Event &) {}
 
+    virtual void endJob() {secInput_->doEndJob();}
+
     boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
     boost::shared_ptr<VectorInputSource> secInput_;

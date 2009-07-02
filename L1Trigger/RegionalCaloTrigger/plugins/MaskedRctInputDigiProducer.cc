@@ -259,7 +259,7 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        //		      << ", iphi is " << iphi << endl;}
 
        EcalTriggerPrimitiveDigi
-	 ecalDigi(EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta, iphi));
+	 ecalDigi(EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta,iphi));
        ecalDigi.setSize(nEcalSamples);
 
        for (int nSample = 0; nSample < nEcalSamples; nSample++)

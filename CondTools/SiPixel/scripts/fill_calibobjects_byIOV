@@ -14,7 +14,7 @@ oldrunnumber=PIXELRUNNUMBER  # these should be identical to definition in inputf
 oldname=PIXELFILENAME  #these should be identical to definition in inputfile
 oldpixeltag=PIXELTAG #these should be identical to definition in inputfile
 inputfile=${CMSSW_BASE}/src/CondTools/SiPixel/test/calibconfiguration_write_template_cfg.py
-outputfile=`echo "dbinput_"$calibtype"_"$runnumber"_scripted_iov__cfg.py"`
+outputfile=`echo "dbinput_"$calibtype"_"$runnumber"_scripted_iov_cfg.py"`
 rm -rf $outputfile
 cat $inputfile | replace $oldname $filename $oldrunnumber $runnumber $oldpixeltag $pixeltag >$outputfile
 echo "****** THIS IS THE INPUT FILE:"

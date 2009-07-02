@@ -1,27 +1,24 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2007/10/08 14:38:16 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/07/12 15:08:28 $
+ *  $Revision: 1.15 $
 
 */
 
-// This class's header should be first:
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 
+// This class's header
 
-using namespace AlignmentParametersFactory;
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
+
 
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker) :
@@ -42,8 +39,9 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
                                                      const edm::ParameterSet &pSet) :
   theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(0)
 {
-  this->addAllSelections(pSet);
+  this->addSelections(pSet.getParameter<edm::ParameterSet>("Selector"));
 }
+
 
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
@@ -51,33 +49,13 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
                                                      const edm::ParameterSet &pSet) :
   theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(alignableMuon)
 {
-  this->addAllSelections(pSet);
+  this->addSelections(pSet.getParameter<edm::ParameterSet>("Selector"));
 }
 
-//__________________________________________________________________________________________________
-void AlignmentParameterBuilder::addAllSelections(const edm::ParameterSet &pSet)
-{
-  AlignmentParameterSelector selector(0);
-  std::vector<std::string> selsTypes(pSet.getParameter<std::vector<std::string> >("parameterTypes"));
-  
-  for (unsigned int i = 0; i < selsTypes.size(); ++i) {
-    std::vector<std::string> selSetType(selector.decompose(selsTypes[i], ','));
-    if (selSetType.size() != 2) {
-      throw cms::Exception("BadConfig") << "AlignmentParameterBuilder"
-					<< "parameterTypes should contain 2 comma separated strings"
-					<< ", but found '" << selsTypes[i] << "'.";
-    }
-    this->addSelections(pSet.getParameter<edm::ParameterSet>(selSetType[0]),
-			AlignmentParametersFactory::parametersType(selSetType[1]));
-  }
-}
 
 //__________________________________________________________________________________________________
-unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pSet,
-						      ParametersType parType)
+unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &pSet)
 {
-
-  const unsigned int oldAliSize = theAlignables.size();
 
   AlignmentParameterSelector selector( theAlignableTracker, theAlignableMuon );
   const unsigned int addedSets = selector.addSelections(pSet);
@@ -92,7 +70,7 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
   while (iAli != alignables.end() && iParamSel != paramSels.end()) {
     std::vector<bool> boolParSel;
     bool charSelIsGeneral = this->decodeParamSel(*iParamSel, boolParSel);
-    if (this->add(*iAli, parType, boolParSel)) ++nHigherLevel;
+    if (this->add(*iAli, boolParSel)) ++nHigherLevel;
     if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), *iParamSel);
 
     ++iAli;
@@ -101,19 +79,21 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterBuilder::addSelections"
                             << " Added " << addedSets << " set(s) of alignables with "
-                            << theAlignables.size() - oldAliSize << " alignables in total,"
-                            << " of which " << nHigherLevel << " are higher level "
-			    << "(using " << parametersTypeName(parType) << "AlignmentParameters).";
+                            << theAlignables.size() << " alignables in total,"
+                            << " of which " << nHigherLevel << " are higher level.";
    
   return addedSets;
 }
 
 //__________________________________________________________________________________________________
-bool AlignmentParameterBuilder::add(Alignable *alignable,
-				    ParametersType parType,
-				    const std::vector<bool> &sel)
+bool AlignmentParameterBuilder::add(Alignable *alignable, const std::vector<bool> &sel)
 { 
-  AlignmentParameters *paras = AlignmentParametersFactory::createParameters(alignable, parType, sel);
+
+  const AlgebraicVector par(RigidBodyAlignmentParameters::N_PARAM, 0);
+  const AlgebraicSymMatrix cov(RigidBodyAlignmentParameters::N_PARAM, 0);
+
+  // Which kind of AlignmentParameters must be selectable once we have other parametrisations:
+  AlignmentParameters *paras = new RigidBodyAlignmentParameters(alignable, par, cov, sel);
   alignable->setAlignmentParameters(paras);
   theAlignables.push_back(alignable);
 
@@ -126,14 +106,14 @@ bool AlignmentParameterBuilder::add(Alignable *alignable,
 
 //__________________________________________________________________________________________________
 unsigned int AlignmentParameterBuilder::add(const align::Alignables &alignables,
-					    ParametersType parType, const std::vector<bool> &sel)
+                                            const std::vector<bool> &sel)
 {
 
   unsigned int nHigherLevel = 0;
 
   for (align::Alignables::const_iterator iAli = alignables.begin();
        iAli != alignables.end(); ++iAli) {
-    if (this->add(*iAli, parType, sel)) ++nHigherLevel;
+    if (this->add(*iAli, sel)) ++nHigherLevel;
   }
 
   return nHigherLevel;

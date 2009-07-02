@@ -55,9 +55,10 @@ protected:
     trackingRecHit_ = other.hit()->clone();
   }
 
+private:
+
   TrackingRecHit * trackingRecHit_;
 
- private:
   
   // should not have assignment operator (?)
   GenericTransientTrackingRecHit & operator= (const GenericTransientTrackingRecHit & t) {

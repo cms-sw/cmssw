@@ -12,18 +12,16 @@
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
-#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
 #include "TH1.h" 
 #include "TObject.h" 
+#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTWheel.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
@@ -51,7 +49,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       ~AlignmentMonitorMuonHIP() {};
 
       void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
@@ -74,7 +72,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       bool m_book_wxresid, m_book_wxresidwide, m_book_wyresid;
       bool m_book_wxresid_vsx, m_book_wxresid_vsy, m_book_wyresid_vsx, m_book_wyresid_vsy;
       bool m_book_xpull, m_book_ypull;
-      bool m_book_before, m_book_after, m_book_ntuple;
+      bool m_book_before, m_book_after;
       
       bool m_createPythonGeometry;
 
@@ -99,10 +97,6 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       Int_t m_after_rawid, m_after_level;
       Float_t m_after_x, m_after_y, m_after_z, m_after_phix, m_after_phiy, m_after_phiz;
       Float_t m_after_xerr, m_after_yerr, m_after_zerr, m_after_phixerr, m_after_phiyerr, m_after_phizerr;      
-
-      TTree *m_ntuple;
-      Int_t m_ntuple_rawid, m_ntuple_chamberid;
-      Float_t m_ntuple_resx, m_ntuple_resy, m_ntuple_errxx, m_ntuple_errxy, m_ntuple_erryy, m_ntuple_posx, m_ntuple_posy;
 
       // Private functions
       void createPythonGeometry();
@@ -197,7 +191,6 @@ AlignmentMonitorMuonHIP::AlignmentMonitorMuonHIP(const edm::ParameterSet& cfg)
    m_book_ypull = m_book.getParameter<bool>("ypull");
    m_book_before = m_book.getParameter<bool>("before");
    m_book_after = m_book.getParameter<bool>("after");
-   m_book_ntuple = m_book.getParameter<bool>("ntuple");
 }
 
 //
@@ -451,22 +444,6 @@ void AlignmentMonitorMuonHIP::book() {
       m_after = NULL;
    }
 
-   if (m_book_ntuple) {
-      m_ntuple = directory("/iterN/")->make<TTree>("ntuple", "some extra stuff");
-      m_ntuple->Branch("rawid", &m_ntuple_rawid, "rawid/I");
-      m_ntuple->Branch("chamberid", &m_ntuple_chamberid, "chamberid/I");
-      m_ntuple->Branch("resx", &m_ntuple_resx, "resx/F");
-      m_ntuple->Branch("resy", &m_ntuple_resy, "resy/F");
-      m_ntuple->Branch("errxx", &m_ntuple_errxx, "errxx/F");
-      m_ntuple->Branch("errxy", &m_ntuple_errxy, "errxy/F");
-      m_ntuple->Branch("erryy", &m_ntuple_erryy, "erryy/F");
-      m_ntuple->Branch("posx", &m_ntuple_posx, "posx/F");
-      m_ntuple->Branch("posy", &m_ntuple_posy, "posy/F");
-   }
-   else {
-      m_ntuple = NULL;
-   }
-
    for (std::vector<Alignable*>::const_iterator aliiter = alignables.begin();  aliiter != alignables.end();  ++aliiter) {
       for (Alignable *ali = *aliiter;  ali != NULL;  ali = ali->mother()) {
 	 std::map<Alignable*, unsigned int>::const_iterator disk = m_disk_index.find(ali);
@@ -535,7 +512,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
 
    char dir[256], name[256], title[256], chambername[256];
 
-   if (strcmp(level, "chamber") == 0) {
+   if (m_book_mode == std::string("chamber")) {
       if (dt) {
 	 DTChamberId dtId(rawid);
 	 sprintf(chambername, "MB%d/%d (%d)", dtId.wheel(), dtId.station(), dtId.sector());
@@ -744,7 +721,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
 // event()
 //////////////////////////////////////////////////////////////////////
 
-void AlignmentMonitorMuonHIP::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorMuonHIP::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    TrajectoryStateCombiner tsoscomb;
 
    for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin();  it != tracks.end();  ++it) {
@@ -782,7 +759,6 @@ void AlignmentMonitorMuonHIP::event(const edm::Event &iEvent, const edm::EventSe
 	    double y_residual = trackPos.y() - hitPos.y();
 	    double x_reserr2 = trackErr.xx() + hitErr.xx();
 	    double y_reserr2 = trackErr.yy() + hitErr.yy();
-	    double xy_reserr2 = trackErr.xy() + hitErr.xy();
 	    double xpos = trackPos.x();
 	    double ypos = trackPos.y();
 
@@ -796,28 +772,6 @@ void AlignmentMonitorMuonHIP::event(const edm::Event &iEvent, const edm::EventSe
 	       }
 	       if (layer != m_layer_index.end()) {
 		  fill(layer->second, x_residual, y_residual, x_reserr2, y_reserr2, xpos, ypos, y_valid);
-	       }
-
-	       m_ntuple_chamberid = 0;
-	       if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
-		  DTChamberId dtId(id.rawId());
-		  m_ntuple_chamberid = dtId.sector();
-	       }
-	       else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-		  CSCDetId cscId(id.rawId());
-		  m_ntuple_chamberid = cscId.chamber();
-	       }
-
-	       if (m_ntuple_chamberid != 0) {
-		  m_ntuple_rawid = id.rawId();
-		  m_ntuple_resx = x_residual;
-		  m_ntuple_resy = y_residual;
-		  m_ntuple_errxx = x_reserr2;
-		  m_ntuple_errxy = xy_reserr2;
-		  m_ntuple_erryy = y_reserr2;
-		  m_ntuple_posx = xpos;
-		  m_ntuple_posy = ypos;
-		  m_ntuple->Fill();
 	       }
 
 	    } // end if we're plotting this hit

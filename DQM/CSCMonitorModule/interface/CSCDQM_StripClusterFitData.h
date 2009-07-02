@@ -5,6 +5,10 @@
 
 namespace cscdqm {
 
+  /**
+   * @class StripClusterFitData
+   * @brief Strip Cluster Fit Data Object
+   */
 class StripClusterFitData {
  public:
   int channel()  {return channel_;}

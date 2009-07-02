@@ -1,6 +1,4 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
- 
-#include "FWCore/Utilities/interface/Exception.h"  
 
 using namespace std;
 
@@ -42,9 +40,11 @@ void L1GctTdrJetFinder::fetchInput()
 
 void L1GctTdrJetFinder::process() 
 {
-  findJets();
-  sortJets();
-  doEnergySums();
+  if (setupOk()) {
+    findJets();
+    sortJets();
+    doEnergySums();
+  }
 }
 
 /// HERE IS THE JETFINDER CODE

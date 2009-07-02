@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # (using old values from TQAF, january 2008)
 #
 electronMatch = cms.EDFilter("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src     = cms.InputTag("allLayer0Electrons"), # RECO objects to match
+    src     = cms.InputTag("pixelMatchGsfElectrons"), # RECO objects to match
     matched = cms.InputTag("genParticles"),       # mc-truth particle collection
     mcPdgId     = cms.vint32(11), # one or more PDG ID (11 = electron); absolute values (see below)
     checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge

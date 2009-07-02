@@ -6,7 +6,7 @@ singleElectronDQM = cms.EDFilter("EmDQM",
     reqNum = cms.uint32(1),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1seedSingleEgamma","","HLT"),
+        HLTCollectionLabels = cms.InputTag("hltL1sSingleEgamma","","HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(83)
     ), 

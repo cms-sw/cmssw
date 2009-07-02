@@ -42,6 +42,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
   protected :
 	 
     virtual int unpackXtalData(uint stripID, uint xtalID){      return BLOCK_UNPACKED;};
+    virtual void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * ){};
     
     
     bool zs_;
@@ -63,6 +64,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     
     short * xtalGains_;
     std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
+    std::auto_ptr<EcalElectronicsIdCollection> * invalidZSXtalIds_;
     std::auto_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_;
 
 };

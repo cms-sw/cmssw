@@ -101,6 +101,9 @@ class ProcTMVA : public TrainProcessor {
 	bool				needCleanup;
 	unsigned long			nSignal;
 	unsigned long			nBackground;
+	bool				doUserTreeSetup;
+	std::string			setupCuts;	// cut applied by TMVA to signal and background trees
+	std::string			setupOptions;	// training/test tree TMVA setup options
 };
 
 static ProcTMVA::Registry registry("ProcTMVA");
@@ -108,7 +111,8 @@ static ProcTMVA::Registry registry("ProcTMVA");
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false)
+	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false),
+	doUserTreeSetup(false), setupOptions("SplitMode = Block:!V")
 {
 }
 
@@ -145,26 +149,46 @@ void ProcTMVA::configure(DOMElement *elem)
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
 
-		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
-		                "method") != 0)
+		bool isMethod = !std::strcmp(XMLSimpleStr(node->getNodeName()), "method");
+		bool isSetup  = !std::strcmp(XMLSimpleStr(node->getNodeName()), "setup");
+
+		if (!isMethod && !isSetup)
 			throw cms::Exception("ProcTMVA")
-				<< "Expected method tag in config section."
+				<< "Expected method or setup tag in config section."
 				<< std::endl;
 
 		elem = static_cast<DOMElement*>(node);
 
-		Method method;
-		method.type = TMVA::Types::Instance().GetMethodType(
-			XMLDocument::readAttribute<std::string>(elem,
-		                                        "type").c_str());
+		if (isMethod) {
+			Method method;
+			method.type = TMVA::Types::Instance().GetMethodType(
+				XMLDocument::readAttribute<std::string>(
+							elem, "type").c_str());
 
-		method.name =
-			XMLDocument::readAttribute<std::string>(elem, "name");
+			method.name =
+				XMLDocument::readAttribute<std::string>(
+							elem, "name");
 
-		method.description =
-			(const char*)XMLSimpleStr(node->getTextContent());
+			method.description =
+				(const char*)XMLSimpleStr(node->getTextContent());
 
-		methods.push_back(method);
+			methods.push_back(method);
+		} else if (isSetup) {
+			if (doUserTreeSetup)
+				throw cms::Exception("ProcTMVA")
+					<< "Multiple appeareances of setup "
+					   "tag in config section."
+					<< std::endl;
+
+			doUserTreeSetup = true;
+
+			setupCuts = 
+				XMLDocument::readAttribute<std::string>(
+							elem, "cuts");
+			setupOptions =
+				XMLDocument::readAttribute<std::string>(
+							elem, "options");
+		}
 	}
 
 	if (!methods.size())
@@ -306,7 +330,8 @@ void ProcTMVA::runTMVATrainer()
 	if (nSignal < 1 || nBackground < 1)
 		throw cms::Exception("ProcTMVA")
 			<< "Not going to run TMVA: "
-			   "No signal or background events!" << std::endl;
+			   "No signal (" << nSignal << ") or background ("
+			<< nBackground << ") events!" << std::endl;
 
 	std::auto_ptr<TFile> file(TFile::Open(
 		trainer->trainFileName(this, "root", "output").c_str(),
@@ -329,14 +354,21 @@ void ProcTMVA::runTMVATrainer()
 
 	factory->SetWeightExpression("__WEIGHT__");
 
-	factory->PrepareTrainingAndTestTree("", nSignal, nBackground, 1, 1,
-	                                    "SplitMode=Block:!V");
+	if (doUserTreeSetup)
+		factory->PrepareTrainingAndTestTree(
+					setupCuts.c_str(), setupOptions);
+	else
+		factory->PrepareTrainingAndTestTree(
+				"", nSignal, nBackground, 1, 1,
+				"SplitMode=Block:!V");
 
 	for(std::vector<Method>::const_iterator iter = methods.begin();
 	    iter != methods.end(); ++iter)
 		factory->BookMethod(iter->type, iter->name, iter->description);
 
 	factory->TrainAllMethods();
+	factory->TestAllMethods();
+	factory->EvaluateAllMethods();
 
 	factory.release(); // ROOT seems to take care of destruction?!
 

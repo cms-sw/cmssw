@@ -20,7 +20,8 @@ class TreeReader {
     public:
 	TreeReader();
 	TreeReader(const TreeReader &orig);
-	TreeReader(TTree *tree);
+	TreeReader(TTree *tree, bool skipTarget = false,
+	           bool skipWeight = false);
 	virtual ~TreeReader();
 
 	TreeReader &operator = (const TreeReader &orig);
@@ -40,7 +41,7 @@ class TreeReader {
 	void addTypeSingle(AtomicId name, const void *value, char type, bool opt);
 	void addTypeMulti(AtomicId name, const void *value, char type);
 
-	void automaticAdd();
+	void automaticAdd(bool skipTarget = false, bool skipWeight = false);
 
 	void reset();
 	void update();
