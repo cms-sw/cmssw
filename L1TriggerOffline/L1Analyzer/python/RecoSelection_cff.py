@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Jets
 # Correct Reco jets
-from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
+from JetMETCorrections.Configuration.JetCorrectionsHLT_cff import *
 #Muons
 # Clone Reco muons
 CloneRecoMuons = cms.EDProducer("MuonShallowCloneProducer",
