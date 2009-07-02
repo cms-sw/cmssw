@@ -98,20 +98,22 @@ private:
 
   /// pdf components
   std::vector<double> pdfComponents (const double&) const;
+  /// pdf components
+  void pdfComponents (double, std::vector<double> & ) const;
   /// value of the p.d.f. using the pdf components at the evaluation point
-  double pdf (const double&, const std::vector<double>&) const;
+  double pdf (double, const std::vector<double>&) const;
   /// first derivative of the p.d.f. using the pdf components at the evaluation point
-  double d1Pdf (const double&, const std::vector<double>&) const;
+  double d1Pdf (double, const std::vector<double>&) const;
   /// second derivative of the p.d.f. using the pdf components at the evaluation point
-  double d2Pdf (const double&, const std::vector<double>&) const;
+  double d2Pdf (double, const std::vector<double>&) const;
   /// third derivative of the p.d.f. using the pdf components at the evaluation point
-  double d3Pdf (const double&, const std::vector<double>&) const;
+  double d3Pdf (double, const std::vector<double>&) const;
   /// ln(pdf) using the pdf components at the evaluation point
-  double lnPdf (const double&, const std::vector<double>&) const;
+  double lnPdf (double, const std::vector<double>&) const;
   /// first derivative of ln(pdf) using the pdf components at the evaluation point
-  double d1LnPdf (const double&, const std::vector<double>&) const;
+  double d1LnPdf (double, const std::vector<double>&) const;
   /// second derivative of ln(pdf) using the pdf components at the evaluation point
-  double d2LnPdf (const double&, const std::vector<double>&) const;
+  double d2LnPdf (double, const std::vector<double>&) const;
 
 private:
   const MultiGaussianState1D& theState;

@@ -204,7 +204,8 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   double x1(0.);
   double y1(0.);
-  std::vector<double> pdfs(pdfComponents(xStart));
+  std::vector<double> pdfs(size());
+  pdfComponents(xStart,pdfs);
   double x2(xStart);
   double y2(pdf(xStart,pdfs));
   double yd(d1LnPdf(xStart,pdfs));
@@ -235,7 +236,7 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
     x2 += dx;
     if ( yd2>0. && (x2<xmin||x2>xmax) )  return false;
 
-    pdfs = pdfComponents(x2);
+    pdfComponents(x2, pdfs);
     y2 = pdf(x2,pdfs);
     yd = d1LnPdf(x2,pdfs);
     yd2 = d2LnPdf(x2,pdfs);
@@ -260,7 +261,8 @@ double
 GaussianSumUtilities1D::cdf (const double& x) const
 {
   double result(0.);
-  for ( unsigned int i=0; i<size(); i++ )
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ )
     result += weight(i)*gaussInt(x,mean(i),standardDeviation(i));
   return result;
 }
@@ -311,20 +313,30 @@ GaussianSumUtilities1D::pdfComponents (const double& x) const
   return result;
 }
 
+void pdfComponents (double x, std::vector<double> & result) const {
+  size_t s = size();
+  result.resize(s);
+  for ( unsigned int i=0; i<s; i++ )
+    result[i]=weight(i)*gauss(x,mean(i),standardDeviation(i));
+}
+
+
 double
-GaussianSumUtilities1D::pdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::pdf (double x, const std::vector<double>& pdfs) const
 {
   double result(0.);
-  for ( unsigned int i=0; i<size(); i++ )
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ )
     result += pdfs[i];
   return result;
 }
 
 double
-GaussianSumUtilities1D::d1Pdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::d1Pdf (double x, const std::vector<double>& pdfs) const
 {
   double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ ) {
     double dx = (x-mean(i))/standardDeviation(i);
     result += -pdfs[i]*dx/standardDeviation(i);
   }
@@ -332,10 +344,11 @@ GaussianSumUtilities1D::d1Pdf (const double& x, const std::vector<double>& pdfs)
 }
 
 double
-GaussianSumUtilities1D::d2Pdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::d2Pdf (double x, const std::vector<double>& pdfs) const
 {
   double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ ) {
     double dx = (x-mean(i))/standardDeviation(i);
     result += pdfs[i]/standardDeviation(i)/standardDeviation(i)*(dx*dx-1);
   }
@@ -343,10 +356,11 @@ GaussianSumUtilities1D::d2Pdf (const double& x, const std::vector<double>& pdfs)
 }
 
 double
-GaussianSumUtilities1D::d3Pdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::d3Pdf (double x, const std::vector<double>& pdfs) const
 {
   double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
+  size_t s=size();
+  for ( unsigned int i=0; i<s; i++ ) {
     double dx = (x-mean(i))/standardDeviation(i);
     result += pdfs[i]/standardDeviation(i)/standardDeviation(i)/standardDeviation(i)*
       (-dx*dx+3)*dx;
@@ -355,7 +369,7 @@ GaussianSumUtilities1D::d3Pdf (const double& x, const std::vector<double>& pdfs)
 }
 
 double
-GaussianSumUtilities1D::lnPdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::lnPdf (double x, const std::vector<double>& pdfs) const
 {
   double f(pdf(x,pdfs));
   double result(-std::numeric_limits<float>::max());
@@ -364,7 +378,7 @@ GaussianSumUtilities1D::lnPdf (const double& x, const std::vector<double>& pdfs)
 }
 
 double
-GaussianSumUtilities1D::d1LnPdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::d1LnPdf (double x, const std::vector<double>& pdfs) const
 {
 
   double f = pdf(x,pdfs);
@@ -375,7 +389,7 @@ GaussianSumUtilities1D::d1LnPdf (const double& x, const std::vector<double>& pdf
 }
 
 double
-GaussianSumUtilities1D::d2LnPdf (const double& x, const std::vector<double>& pdfs) const
+GaussianSumUtilities1D::d2LnPdf (double x, const std::vector<double>& pdfs) const
 {
 
   double f = pdf(x,pdfs);
