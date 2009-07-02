@@ -20,6 +20,7 @@ process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
 
 process.DQMStore = cms.Service("DQMStore");
+process.load("DQMServices.Components.DQMStoreStats_cfi")
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
