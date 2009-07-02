@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.10 2008/04/06 14:33:01 jandrea Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.11 2009/06/03 11:22:46 jandrea Exp $
 //
 //
 // system include files
@@ -40,20 +40,11 @@
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 
-#include <TClass.h>
+#include "TClass.h"
 
-
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile MyTBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer MyTBuffer;
-#endif
 
-
-#include <TBufferXML.h>
+#include "TBufferXML.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -412,7 +403,7 @@ ImpactParameterCalibration::endJob() {
     if(maxLoop == 1 ){
       
       std::ofstream ofile("2d.dat");
-      MyTBuffer buffer(TBuffer::kWrite);
+      TBufferFile buffer(TBuffer::kWrite);
       buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
 			  TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size = buffer.Length();
@@ -421,7 +412,7 @@ ImpactParameterCalibration::endJob() {
     }
     if(minLoop == 0 ){
       std::ofstream ofile3("3d.dat");
-      MyTBuffer buffer3(TBuffer::kWrite);
+      TBufferFile buffer3(TBuffer::kWrite);
       buffer3.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
 			   TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size3 = buffer3.Length();
