@@ -31,8 +31,8 @@ int main(int argc, char * argv[]) {
 
   GaussianSumUtilities1D gsu(mgs);
   st();
-  const SingleGaussianState1D sg1 & gsumode();
-  end();
+  const SingleGaussianState1D sg1 & = gsu.mode();
+  en();
 
   std::cout << sg1.mean() 
 	    << " "<< sg1.standardDeviation() 
