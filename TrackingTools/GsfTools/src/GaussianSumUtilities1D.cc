@@ -325,7 +325,7 @@ void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & resu
 double
 GaussianSumUtilities1D::pdf (double, const std::vector<double>& pdfs)
 {
-  return std::accumulate(pdfs.begin(),pdfs.end());
+  return std::accumulate(pdfs.begin(),pdfs.end(),0);
 }
 
 double
