@@ -25,7 +25,7 @@ class HICTkOuterStartingLayerFinder {
 public:
   typedef std::vector<DetLayer*>                              LayerContainer;
   
-  HICTkOuterStartingLayerFinder(int&,const MagneticField * mf, const GeometricSearchTracker* th, const HICConst* );
+  HICTkOuterStartingLayerFinder(int&, const MagneticField * mf, const GeometricSearchTracker* th, const HICConst* );
 
   ~HICTkOuterStartingLayerFinder(){};
     

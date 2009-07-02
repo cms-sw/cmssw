@@ -291,7 +291,7 @@ double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, c
 	cout<<"radius of track="<<rc<<endl;
 	cout<<"acharge="<<acharge<<endl;
 	cout<<"psi="<<psi<<endl;
-	cout<<"phic="<<phic<<" pi="<<pi<<" pi2="<<pi2<<endl;
+	cout<<"phic="<<phic<<" pi="<<pi<<" pi2="<<twopi<<endl;
 #endif
      
      return phic;

@@ -7,6 +7,7 @@ using namespace std;
 using namespace cms;
 
 //#define DEBUG
+
 std::pair<bool,double> 
 HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TransientTrackingRecHit& aRecHit) const {
@@ -139,12 +140,12 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
      vector<double> theCuts;
      const DetLayer* a = traj.data().back().layer();
      const DetLayer* first = traj.data().front().layer();
-     const DetLayer* last = traj.data().front().layer();
+//     const DetLayer* last = traj.data().front().layer();
      thePhiWinMean = 0.;
      theZWinMean = 0.;
      thePhiWin = 0.;
      theZWin = 0.;
-     theNewCut = 10.; // change 5->10 03.07.2008
+     theNewCut = 11.; // change 5->10 03.07.2008 //10-11 23.06.09
      theNewCutB = 5.;
      
      thePhiWinMeanB = 0.002;
@@ -234,7 +235,7 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
 	}
 	
         thePhiWinMeanB = 0.004;
-        thePhiWinB = 0.04;
+        thePhiWinB = 0.05;
 
 
 	theCuts.push_back(thePhiWin); theCuts.push_back(theZWin);

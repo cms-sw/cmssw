@@ -1,5 +1,5 @@
 #include "RecoHIMuon/HiMuPropagator/interface/FastMuPropagator.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

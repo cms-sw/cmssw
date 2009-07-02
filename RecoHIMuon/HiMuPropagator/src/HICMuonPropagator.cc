@@ -5,7 +5,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
  
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <cmath>

@@ -51,7 +51,7 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
   //  cout<<" Point 0 "<<endl;
 					    
     std::map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> seedMap;
-    SeedContainer seedContainer;
+//    SeedContainer seedContainer;
     
     bl = theTracker->barrelLayers();
     fpos = theTracker->posForwardLayers();
@@ -78,6 +78,10 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
     
     for( vector<DetLayer* >::const_iterator ml=theDetLayer->begin(); ml != theDetLayer->end(); ml++)
     {
+//
+// For each layer, we have its own seed container
+//
+     SeedContainer seedContainer;
 
      const BarrelDetLayer* bl = dynamic_cast<const BarrelDetLayer*>(*ml);
      const ForwardDetLayer* fl = dynamic_cast<const ForwardDetLayer*>(*ml);

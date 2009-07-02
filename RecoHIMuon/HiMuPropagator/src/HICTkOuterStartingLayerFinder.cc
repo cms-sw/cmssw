@@ -30,7 +30,7 @@ HICTkOuterStartingLayerFinder::HICTkOuterStartingLayerFinder(int& numberOfSigmas
     theBarrelLayers = theTracker->barrelLayers();
     forwardPosLayers = theTracker->posForwardLayers();
     forwardNegLayers = theTracker->negForwardLayers();
-//    cout<<" HICTkOuterStartingLayerFinder::zvert "<<theHICConst->zvert<<endl;
+    //cout<<" HICTkOuterStartingLayerFinder::zvert "<<theHICConst->zvert<<endl;
 }
 
 HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::startingLayers(FreeTrajectoryState& fts)
@@ -139,7 +139,7 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
   std::cout<<"HICTkOuterStartingLayerFinder::findForwardLayers::2 zseed "<<zseed<<" dz "<<dz<<" "<<(fls.back())->surface().position().z()<<std::endl;
 #endif
 
-    newzmin=abs(outrad/a1)-3.*dz; //ok 6*dz now 3*dz
+    newzmin=abs(outrad/a1)-3.*dz; //ok 6*dz now 3*dz 
 //    newzmin = fabs(zseed)-30.; // ok 16.06.08
     newzmax=fabs((fls.back())->surface().position().z())+dz;
     }
@@ -198,13 +198,13 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::fin
  // double zdetlast=(fls.front())->surface().position().z();
 
   double zdetlast = length+10.;
-  double zseed=fts.parameters().position().z();  
-  double rseed=fts.parameters().position().perp();
-  double dz = NumberOfSigm*fts.curvilinearError().matrix()(5,5);
-  double atrack=tan(fts.parameters().momentum().theta());
-  double btrack=rseed-atrack*zseed;
+  //double zseed=fts.parameters().position().z();  
+  //double rseed=fts.parameters().position().perp();
+  //double dz = NumberOfSigm*fts.curvilinearError().matrix()(5,5);
+  //double atrack=tan(fts.parameters().momentum().theta());
+  //double btrack=rseed-atrack*zseed;
 //  double zvert=-btrack/atrack;
-  double r,rmin,rmax,a2;   
+  double r,rmin,rmax;   
   
   BoundSurface* surc = (BoundSurface*)&((theBarrelLayers.back())->surface());
   double zbarrel=surc->bounds().length()/2.;
@@ -238,6 +238,9 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::fin
             
     if(r>rmin&&r<=rmax){
       seedlayers.push_back(&(**blayer));
+#ifdef DEBUG
+  std::cout<<"HICTkOuterStartingLayerFinder::findBarrelLayers::add "<<r<<std::endl;
+#endif
     }
   }//blayer barrel  
   return seedlayers;
