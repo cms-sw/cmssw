@@ -31,7 +31,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(2)
+        input = cms.untracked.int32(1)
         )
 process.source = cms.Source("EmptySource")
 
