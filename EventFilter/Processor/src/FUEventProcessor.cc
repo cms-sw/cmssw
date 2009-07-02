@@ -399,6 +399,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
     xdata::Serializable *psid = ispace->find("prescaleSetIndex");
     if(psid) {
       ps = ((xdata::UnsignedInteger32*)(psid))->value_;
+      if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
       it->setField("psid",*psid);
     }
   }
@@ -868,7 +869,9 @@ void FUEventProcessor::initEventProcessor()
 	  i++;
 	}
     }
-  unsigned int modcount = 0;
+  modmap_["DQM"]=outcount+1;
+  oss2 << outcount+1 << "=DQMHistograms ";
+  unsigned int modcount = 1;
   for(i = 0; i < descs_.size(); i++)
     {
       if(descs_[i]->moduleName() != "ShmStreamConsumer")
@@ -1566,7 +1569,7 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
 	if(psid != 0)
 	  {
 	    *out << "    <td>"
-		 << prescaleSvc_->getPrescale(((xdata::UnsignedInteger32*)psid)->value_,tr.trigPathSummaries[i].name) 
+		 << prescaleSvc_->getPrescale(tr.trigPathSummaries[i].name) 
 		 << "</td>"		<< endl;
 	  }
 	else 	*out << "    <td>N/A</td>"		                        << endl;
