@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.133 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.134 2009/06/28 19:54:45 amraktad Exp $
 //
 
 // system include files
@@ -516,7 +516,6 @@ FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
    // release button on previously selected
    if (m_viewPopup && m_viewPopup->GetEveWindow())
    {
-      std::cout << "info view " << m_viewPopup->GetEveWindow()->GetElementName() << std::endl;
       FWGUISubviewArea* ar = getGUISubviewArea(m_viewPopup->GetEveWindow());
       ar->setInfoButton(kFALSE);
    }
