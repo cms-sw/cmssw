@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.35 2009/06/22 14:32:26 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.36 2009/06/29 19:54:57 amraktad Exp $
 //
 
 // system include files
@@ -171,7 +171,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    }
    //  m_textCanvas->GetCanvas()->SetEditable(kFALSE);
 
-   //   m_mainFrame->Layout();
+   m_textCanvas->GetCanvas()->Update();
+
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
    m_mainFrame->MapSubwindows();
    m_mainFrame->MapWindow();
