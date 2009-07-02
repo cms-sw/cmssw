@@ -42,11 +42,11 @@ process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)
 process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
-multiTrackValidator.useLogPt=cms.untracked.bool(True)
-multiTrackValidator.minpT = cms.double(-1)
-multiTrackValidator.maxpT = cms.double(3)
-multiTrackValidator.nintpT = cms.int32(40)
-multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
+process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
+process.multiTrackValidator.minpT = cms.double(-1)
+process.multiTrackValidator.maxpT = cms.double(3)
+process.multiTrackValidator.nintpT = cms.int32(40)
+process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 
 process.multiTrackValidator.label = ['TRACKS']
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
