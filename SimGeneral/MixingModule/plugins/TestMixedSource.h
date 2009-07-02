@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id$
+// $Id: TestMixedSource.h,v 1.1 2009/05/25 17:30:40 ebecheva Exp $
 //
 //
 
@@ -31,6 +31,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "TH1I.h"
+#include "TFile.h"
 
 #include <iostream>
 #include <fstream>
@@ -53,6 +56,24 @@ class TestMixedSource : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
       ofstream outputFile;
+      std::string fileName_;
+      int bunchcr_;
+      int minbunch_;
+      int maxbunch_;
+      TH1I * histTrack_bunchPileups_;
+      TH1I * histTrack_bunchSignal_;
+      TH1I * histVertex_bunch_;
+      TH1I * histPCaloHit_bunch_;
+      TH1I * histPSimHit_bunchSignal_TrackerHitsTECHighTof_;
+      TH1I * histPSimHit_bunchPileups_TrackerHitsTECHighTof_;
+      TH1I * tofhist_;
+      TH1I * tofhist_sig_;
+      TH1I * histPSimHit_bunchSignal_MuonCSCHits_;
+      TH1I * histPSimHit_bunchPileups_MuonCSCHits_;
+      TH1I * histHepMCProduct_bunch_;
+      TFile *histFile_;
+       
+
 };
 }//edm
 #endif
