@@ -19,7 +19,7 @@
 #include <algorithm>
 
 
-double GaussianSumUtilities1D::pdf(unsigned int i)  const {
+double GaussianSumUtilities1D::pdf(unsigned int i, double x)  const {
   return weight(i)*gauss(x,mean(i),standardDeviation(i));
 }
 
@@ -264,7 +264,7 @@ GaussianSumUtilities1D::pdf (double x) const
   double result(0.);
   size_t s=size();
   for ( unsigned int i=0; i<s; i++ )
-    result += pdf(i);
+    result += pdf(i,x);
   return result;
 }
 
@@ -328,7 +328,7 @@ void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & resu
   size_t s = size();
   if (s!=result.size()) result.resize(s);
   for ( unsigned int i=0; i<s; i++ )
-    result[i]=pdf(i);
+    result[i]=pdf(i,x);
 }
 
 

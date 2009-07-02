@@ -42,7 +42,7 @@ public:
   /// variance of a component
   inline double variance (unsigned int i) const {return components()[i].variance();}
   /// pdf of a single component at x
-  double pdf(unsigned int i)  const;
+  double pdf(unsigned int i, double x)  const;
   /// Quantile (i.e. x for a given value of the c.d.f.)
   double quantile (const double) const;
   /// mode status
