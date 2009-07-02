@@ -33,8 +33,7 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-//#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
-#include "CalibCalorimetry/HcalStandardModules/interface/HcalDbXmlTwo.h"
+#include "CalibCalorimetry/HcalStandardModules/interface/HcalCondXML.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
