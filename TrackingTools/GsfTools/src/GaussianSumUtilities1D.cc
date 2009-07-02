@@ -413,7 +413,7 @@ GaussianSumUtilities1D::d2LnPdf (double x, const std::vector<double>& pdfs) cons
 }
 
 double 
-GaussianSumUtilities1D::gauss (double x, double mean, double sigma) const 
+GaussianSumUtilities1D::gauss (double x, double mean, double sigma) 
 {
 //   const double fNorm(1./sqrt(2*M_PI));
 //   double result(0.);
@@ -426,7 +426,7 @@ GaussianSumUtilities1D::gauss (double x, double mean, double sigma) const
 }
 
 double 
-GaussianSumUtilities1D::gaussInt (double x, double mean, double sigma) const 
+GaussianSumUtilities1D::gaussInt (double x, double mean, double sigma) 
 {
   return ROOT::Math::normal_cdf(x,sigma,mean);
 }

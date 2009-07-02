@@ -87,9 +87,9 @@ private:
   bool findMode (double& mode, double& pdfAtMode, 
 		 const double& xStart, const double& scale) const;
   /// Value of gaussian distribution
-  double gauss (double, double, double) const;
+  static double gauss (double, double, double);
   /// Integrated value of gaussian distribution
-  double gaussInt (double, double, double) const;
+  static double gaussInt (double, double, double);
   /// Mean value of combined state
   double combinedMean() const;
   /// calculation of mode
