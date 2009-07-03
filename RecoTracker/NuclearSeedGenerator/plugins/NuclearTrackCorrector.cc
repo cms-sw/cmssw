@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.9 2008/08/13 21:02:45 roberfro Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.10 2009/03/04 13:34:27 vlimant Exp $
 //
 //
 
@@ -79,7 +79,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Load Reccord
   // --------------------------------------------------------------------------------------------------
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-  iSetup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
+  iSetup.get<TrajectoryFitter::Record>().get(fitterName,theFitter);
 
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);

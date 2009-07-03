@@ -12,6 +12,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
@@ -44,7 +45,7 @@ void TestHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(fname, fit);
+  iSetup.get<TrajectoryFitter::Record>().get(fname, fit);
  
   file = new TFile("testhits.root","recreate");
   for (int i=0; i!=6; i++)
