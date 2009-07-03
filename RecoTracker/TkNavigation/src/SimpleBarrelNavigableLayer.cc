@@ -18,7 +18,6 @@
 
 using namespace std;
 
-//#define BarrelNavLayDBG
 
 SimpleBarrelNavigableLayer::
 SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
@@ -189,14 +188,11 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ((dir == oppositeToMomentum) && !isInOutTrackBarrel);
   bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ((dir == oppositeToMomentum) && !isInOutTrackFWD);
 
-#ifdef BarrelNavLayDBG
-  bool pippo = dir == alongMomentum;
-  cout << "is alongMomentum? " << pippo << endl;
-  cout << "isInOutTrackBarrel: " << isInOutTrackBarrel << endl;
-  cout << "isInOutTrackFWD: " << isInOutTrackFWD << endl;
-  cout << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl;
-  cout << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
-#endif
+  LogDebug("SimpleBarrelNavigableLayer") << "is alongMomentum? " << (dir == alongMomentum) << endl
+					 << "isInOutTrackBarrel: " << isInOutTrackBarrel << endl
+					 << "isInOutTrackFWD: " << isInOutTrackFWD << endl
+					 << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl
+					 << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
 
   bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
 			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
@@ -237,9 +233,9 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   }
 
   bool goingIntoTheBarrel = (!isInOutTrackBarrel && dir==alongMomentum) || (isInOutTrackBarrel && dir==oppositeToMomentum) ;
-#ifdef BarrelNavLayDBG
-  cout << "goingIntoTheBarrel: " << goingIntoTheBarrel << endl;
-#endif  
+
+  LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
+
 
   if (theSelfSearch && result.size()==0){
     if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
@@ -309,8 +305,9 @@ SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
 					      PropagationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
-    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+    return SimpleNavigableLayer::compatibleLayers(fts,dir);
+    //    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
+    //    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
   }
 
   vector<const DetLayer*> result;

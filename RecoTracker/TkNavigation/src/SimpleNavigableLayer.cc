@@ -5,56 +5,65 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include <set>
 
 using namespace std;
+
+TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajectoryState& fts,
+							     PropagationDirection dir) const{
+  TSOS propState;
+  //self propagating. step one: go close to the center
+  GlobalPoint initialPoint = fts.position();
+  TransverseImpactPointExtrapolator middle;
+  GlobalPoint center(0,0,0);
+  propState = middle.extrapolate(fts, center, propagator(dir));
+  if ( !propState.isValid()) return TrajectoryStateOnSurface();
+  
+  FreeTrajectoryState & dest = *propState.freeState();
+  GlobalPoint middlePoint = dest.position();
+  const double toCloseToEachOther=1e-4;
+  if ( (middlePoint-initialPoint).mag() < toCloseToEachOther){
+    LogDebug("SimpleNavigableLayer")<<"initial state and PCA are identical. Things are bound to fail. Do not add the link.";
+    return TrajectoryStateOnSurface();
+  }
+  
+  std::string dirS;
+  if (dir==alongMomentum) dirS = "alongMomentum";
+  else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
+  else dirS = "anyDirection";
+  
+  LogDebug("SimpleNavigableLayer")<<"self propagating("<< dir <<") from:\n"
+				  <<fts<<"\n"
+				  <<dest<<"\n"
+				  <<" and the direction is: "<<dir<<" = "<<dirS;
+  
+  //second propagation to go on the other side of the barrel
+  //propState = propagator(dir).propagate( dest, detLayer()->specificSurface());
+  propState = propagator(dir).propagate( dest, detLayer()->surface());
+  if ( !propState.isValid()) return TrajectoryStateOnSurface();
+  
+  FreeTrajectoryState & dest2 = *propState.freeState();
+  GlobalPoint finalPoint = dest2.position();
+  LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
+				  <<dest2;
+  double finalDot = (middlePoint - initialPoint).basicVector().dot((finalPoint-middlePoint).basicVector());
+  if (finalDot<0){ // check that before and after are in different side.
+    LogDebug("SimpleNavigableLayer")<<"switch side back: ABORT.";
+    return TrajectoryStateOnSurface();
+  }
+  return propState;
+}
 
 bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 				       PropagationDirection dir,
 				       const BarrelDetLayer* bl,
 				       DLC& result) const
 {
-  //TSOS propState = propagator(dir).propagate( fts, bl->specificSurface());
   TSOS propState ;
 
   if (bl==detLayer()){
-    //self propagating. step one: go close to the center
-    GlobalPoint initialPoint = fts.position();
-    TransverseImpactPointExtrapolator middle;
-    GlobalPoint center(0,0,0);
-    propState = middle.extrapolate(fts, center, propagator(dir));
-    if ( !propState.isValid()) return false;
-
-    FreeTrajectoryState & dest = *propState.freeState();
-    GlobalPoint middlePoint = dest.position();
-    const double toCloseToEachOther=1e-4;
-    if ( (middlePoint-initialPoint).mag() < toCloseToEachOther){
-      LogDebug("SimpleNavigableLayer")<<"initial state and PCA are identical. Things are bound to fail. Do not add the link.";
-      return false;
-    }
-
-    std::string dirS;
-    if (dir==alongMomentum) dirS = "alongMomentum";
-    else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
-    else dirS = "anyDirection";
-
-    LogDebug("SimpleNavigableLayer")<<"self propagating("<< dir <<") from:\n"
-				    <<fts<<"\n"
-				    <<dest<<"\n"
-				    <<" and the direction is: "<<dir<<" = "<<dirS;
-    
-    //second propagation to go on the other side of the barrel
-    propState = propagator(dir).propagate( dest, bl->specificSurface());
-    if ( !propState.isValid()) return false;
-
-    FreeTrajectoryState & dest2 = *propState.freeState();
-    GlobalPoint finalPoint = dest2.position();
-    LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
-				    <<dest2;
-    double finalDot = (middlePoint - initialPoint).basicVector().dot((finalPoint-middlePoint).basicVector());
-    if (finalDot<0){ // check that before and after are in different side.
-      LogDebug("SimpleNavigableLayer")<<"switch side back: ABORT.";
-      return false;
-    }
+    propState = crossingState(fts,dir);
+    if (!propState.isValid()) return false;
   }else{
     propState= propagator(dir).propagate( fts, bl->specificSurface());
   }
@@ -234,3 +243,33 @@ void SimpleNavigableLayer::pushResult( DLC& result, const FDLC& tmp) const
   }
 }
 
+std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, PropagationDirection timeDirection) const{
+  std::vector< const DetLayer * > result;
+  result.reserve(15); //that's a max
+
+  set<const DetLayer *> collect; //a container of unique instances. to avoid duplicates
+  
+  std::vector<const DetLayer *> someLayers = nextLayers(fts,timeDirection);
+  //recursive implementation
+  for (uint iL=0;iL!=someLayers.size();++iL){
+    //for each of the nextLayers. collect
+    collect.insert(someLayers[iL]);//yes you can add yourself
+    
+    //then collect their compatible layers too
+    if (someLayers[iL] == detLayer()){
+      TrajectoryStateOnSurface otherSide = crossingState(fts,timeDirection);
+      if (!otherSide.isValid()) continue;
+      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(*otherSide.freeTrajectoryState(), timeDirection));
+      collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());      
+    }
+    else
+    {
+      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(fts, timeDirection));
+      collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());
+    }  
+  }//looping the layers next to this one
+  
+  result.insert(result.begin(),collect.begin(),collect.end()); //cannot do a swap it seems
+  LogDebug("SimpleNavigableLayer")<<"Number of compatible layers: "<<result.size();
+  return result;
+}
