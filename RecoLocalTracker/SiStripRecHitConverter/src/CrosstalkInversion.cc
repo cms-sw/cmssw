@@ -20,7 +20,7 @@ unfold(const std::vector<uint8_t>& q, const float x) {
     Q[1] = ( A*q1 -x*q0 ) / (A*A-x*x);
   } 
   else {                                   //general case
-    InverseCrosstalkMatrix inverse(N,x);  
+    const InverseCrosstalkMatrix inverse(N,x);  
     for(unsigned i=0; i<(N+1)/2; i++) {
       for(unsigned j=i; j<N-i; j++) {
 	const float Cij = inverse(i+1,j+1);
