@@ -71,6 +71,12 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(441)
   ),
+  nBadChannelStatusBitsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(38001),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(38001)
+  ),
   nBadActiveChannelStatusBitsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(38001),
@@ -95,7 +101,13 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(441)
   ),
-  nBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(1000)
+  ),
+  nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(1000),
     Min = cms.untracked.double(0),

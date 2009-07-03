@@ -130,12 +130,14 @@ private:
     *nFEDDAQProblems_, 
     *nFEDsWithFEProblems_, 
     *nFEDCorruptBuffers_, 
+    *nBadChannelStatusBits_,
     *nBadActiveChannelStatusBits_,
     *nFEDsWithFEOverflows_, 
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
 
-  MonitorElement *nBadChannelsvsEvtNum_;
+  MonitorElement *nTotalBadChannelsvsEvtNum_;
+  MonitorElement *nTotalBadActiveChannelsvsEvtNum_;
 
   //top level histograms
   MonitorElement *anyFEDErrors_, 

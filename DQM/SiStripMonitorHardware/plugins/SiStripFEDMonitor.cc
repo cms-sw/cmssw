@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.17 2009/05/25 12:02:38 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.18 2009/07/02 10:17:27 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -131,6 +131,13 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 
   if (printDebug_) LogTrace("SiStripMonitorHardware") << debugStream.str();
 
+  debugStream.str("");
+
+  debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
+	      << " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
+
+  edm::LogError("SiStripMonitorHardware") << debugStream.str();
+
   nEvt_ = 0;
 
 }
@@ -168,6 +175,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   unsigned int lNTotBadFeds = 0;
   unsigned int lNTotBadChannels = 0;
+  unsigned int lNTotBadActiveChannels = 0;
 
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
@@ -220,7 +228,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
       if (lFailMonitoringFEDcheck) lNMonitoring++;
       else if (lFailUnpackerFEDcheck) lNUnpacker++;
-      edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
+      edm::LogError("SiStripMonitorHardware") << debugStream.str();
 
     }
 
@@ -231,7 +239,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       //true means have an entry for all channels (good = 0), 
       //so that tkHistoMap knows which channels should be there.
 
-      lFedErrors.fillBadChannelList(badChannelFraction,cabling_,lNTotBadChannels,true);
+      lFedErrors.fillBadChannelList(badChannelFraction,cabling_,lNTotBadChannels,lNTotBadActiveChannels,true);
 
     }//if TkHistMap is enabled
   }//loop over FED IDs
@@ -241,8 +249,10 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = " 
 		<< lNTotBadFeds << std::endl
 		<< "[SiStripFEDMonitorPlugin] --- Total number of bad channels = " 
-		<< lNTotBadChannels << std::endl;
-    edm::LogVerbatim("SiStripMonitorHardware") << debugStream.str();
+		<< lNTotBadChannels << std::endl
+		<< "[SiStripFEDMonitorPlugin] --- Total number of bad active channels = " 
+		<< lNTotBadActiveChannels << std::endl;
+    edm::LogInfo("SiStripMonitorHardware") << debugStream.str();
   }
 
   if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
@@ -255,11 +265,12 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl ;
-    edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
+    edm::LogError("SiStripMonitorHardware") << debugStream.str();
 
   }
 
   FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+  FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
   fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
 

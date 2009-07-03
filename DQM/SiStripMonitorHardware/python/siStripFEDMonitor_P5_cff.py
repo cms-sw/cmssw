@@ -58,11 +58,17 @@ siStripFEDMonitor.nFEDCorruptBuffersHistogramConfig = cms.untracked.PSet(
   Max = cms.untracked.double(441)
 )
 #bins size number of FE Units/10, max is n channels
+siStripFEDMonitor.nBadChannelStatusBitsHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(353),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(42241)
+)
 siStripFEDMonitor.nBadActiveChannelStatusBitsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(353),
   Min = cms.untracked.double(0),
-  Max = cms.untracked.double(422401)
+  Max = cms.untracked.double(42241)
 )
 siStripFEDMonitor.nFEDsWithFEOverflowsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
@@ -82,7 +88,13 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
   Min = cms.untracked.double(0),
   Max = cms.untracked.double(441)
 )
-siStripFEDMonitor.nBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+siStripFEDMonitor.nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(1000),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(1000)
+)
+siStripFEDMonitor.nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(1000),
   Min = cms.untracked.double(0),

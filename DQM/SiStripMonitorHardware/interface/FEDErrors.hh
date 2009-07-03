@@ -37,11 +37,13 @@ public:
     unsigned int nDAQProblems;
     unsigned int nFEDsWithFEProblems;
     unsigned int nCorruptBuffers;
+    unsigned int nBadChannels;
     unsigned int nBadActiveChannels;
     unsigned int nFEDsWithFEOverflows;
     unsigned int nFEDsWithFEBadMajorityAddresses;
     unsigned int nFEDsWithMissingFEs;
     unsigned int nTotalBadChannels;
+    unsigned int nTotalBadActiveChannels;
   };
 
   struct FECounters {
@@ -128,6 +130,7 @@ public:
   void fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
 			  const SiStripFedCabling* aCabling,
 			  unsigned int & aNBadChannels,
+			  unsigned int & aNBadActiveChannels,
 			  const bool aFillAll);
 
   //bool foundFEDErrors();

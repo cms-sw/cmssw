@@ -21,11 +21,13 @@ FEDErrors::FEDErrors()
   lFedCounter.nDAQProblems = 0;
   lFedCounter.nFEDsWithFEProblems = 0;
   lFedCounter.nCorruptBuffers = 0;
+  lFedCounter.nBadChannels = 0;
   lFedCounter.nBadActiveChannels = 0;
   lFedCounter.nFEDsWithFEOverflows = 0;
   lFedCounter.nFEDsWithFEBadMajorityAddresses = 0;
   lFedCounter.nFEDsWithMissingFEs = 0;
   lFedCounter.nTotalBadChannels = 0;
+  lFedCounter.nTotalBadActiveChannels = 0;
 
   feCounter_.nFEOverflows = 0; 
   feCounter_.nFEBadMajorityAddresses = 0; 
@@ -408,7 +410,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 		  << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT)) 
 		  << std::endl
 		  << "[FEDErrors] --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
-      edm::LogProblem("SiStripMonitorHardware") << debugStream.str();
+      edm::LogError("SiStripMonitorHardware") << debugStream.str();
     }
 
   }//loop on channels
@@ -419,6 +421,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
 				   const SiStripFedCabling* aCabling,
 				   unsigned int & aNBadChannels,
+				   unsigned int & aNBadActiveChannels,
 				   const bool aFillAll)
 {
 
@@ -442,8 +445,10 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
     }
 
     bool isBadChan = false;
+    bool isActiveChan = false;
     for (unsigned int badCh(0); badCh<chErrors_.size(); badCh++) {
       if (chErrors_.at(badCh).first == iCh) {
+	if (chErrors_.at(badCh).second) isActiveChan = true;
 	isBadChan = true;
 	break;
       }
@@ -458,6 +463,7 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
       if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
       //nBadChans++;
       aNBadChannels++;
+      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || isBadFE) aNBadActiveChannels++;
     }
     else {
       if (aFillAll) alreadyThere = aMap.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,0)));
@@ -586,6 +592,7 @@ void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors & aAPV, bool & aFirst)
   apvErrors_.push_back(aAPV);
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
+    (FEDErrors::getFEDErrorsCounters().nBadChannels)++;
     chErrors_.push_back(std::pair<unsigned int, bool>(aAPV.ChannelID,aAPV.IsActive));
     if (aAPV.IsActive) {
       //print(aAPV);
@@ -662,11 +669,13 @@ void FEDErrors::print(const FEDErrors::FEDCounters & aFEDCounter, std::ostream &
       << "[FEDErrors]======== nDAQProblems = " << aFEDCounter.nDAQProblems << std::endl
       << "[FEDErrors]======== nFEDsWithFEProblems = " << aFEDCounter.nFEDsWithFEProblems << std::endl
       << "[FEDErrors]======== nCorruptBuffers = " << aFEDCounter.nCorruptBuffers << std::endl
+      << "[FEDErrors]======== nBadChannels = " << aFEDCounter.nBadChannels << std::endl
       << "[FEDErrors]======== nBadActiveChannels = " << aFEDCounter.nBadActiveChannels << std::endl
       << "[FEDErrors]======== nFEDsWithFEOverflows = " << aFEDCounter.nFEDsWithFEOverflows << std::endl
       << "[FEDErrors]======== nFEDsWithFEBadMajorityAddresses = " << aFEDCounter.nFEDsWithFEBadMajorityAddresses << std::endl
       << "[FEDErrors]======== nFEDsWithMissingFEs = " << aFEDCounter.nFEDsWithMissingFEs << std::endl
       << "[FEDErrors]======== nTotalBadChannels = " << aFEDCounter.nTotalBadChannels << std::endl
+      << "[FEDErrors]======== nTotalBadActiveChannels = " << aFEDCounter.nTotalBadActiveChannels << std::endl
       << "[FEDErrors]============================================" << std::endl;
     
 
