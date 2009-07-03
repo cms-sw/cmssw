@@ -28,7 +28,7 @@ using namespace std;
 RPCChamberQuality::RPCChamberQuality(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
   
-  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 1);
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 9);
   prefixDir_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
 }
@@ -147,7 +147,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
    
   
   //check some statements and prescale Factor
-  if(nLumBlock_%prescaleFactor_ == 0) {
+  if(numLumBlock_%prescaleFactor_ == 0) {
     
     ESHandle<RPCGeometry> rpcGeo;
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
