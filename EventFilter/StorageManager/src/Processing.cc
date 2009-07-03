@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.4 2009/07/01 09:51:06 mommsen Exp $
+// $Id: Processing.cc,v 1.5 2009/07/02 13:46:38 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -115,7 +115,7 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     catch(stor::exception::RunNumberMismatch &e)
     {
       outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
-      XCEPT_RETHROW(stor::exception::RunNumberMismatch, "Run number mismatch", e);
+      XCEPT_RETHROW(stor::exception::RunNumberMismatch, e.message(), e);
     }
     outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
   }
