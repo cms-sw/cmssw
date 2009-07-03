@@ -5,8 +5,8 @@
  *  A Standard Kalman smoother. The forward fit is not redone,
  *  only the backward smoothing. Ported from ORCA
  *
- *  $Date: 2007/10/08 22:22:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/15 09:06:48 $
+ *  $Revision: 1.7 $
  *  \author todorov, cerati
  */
 
@@ -17,6 +17,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 class KFTrajectorySmoother : public TrajectorySmoother {
 
@@ -37,19 +38,26 @@ public:
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
     theErrorRescaling(errorRescaling),
-    minHits_(minHits){}
+    minHits_(minHits),
+    theGeometry(0){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
+      if(!theGeometry) theGeometry = &dummyGeometry;
+    }
 
 
   KFTrajectorySmoother(const Propagator* aPropagator,
 		       const TrajectoryStateUpdator* aUpdator, 
 		       const MeasurementEstimator* aEstimator,
 		       float errorRescaling = 100.f,
-		       int minHits = 3) :
+		       int minHits = 3,
+		       const DetLayerGeometry* detLayerGeometry=0) :
     thePropagator(aPropagator->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()),
     theErrorRescaling(errorRescaling),
-    minHits_(minHits){}
+    minHits_(minHits),
+    theGeometry(detLayerGeometry){
+      if(!theGeometry) theGeometry = &dummyGeometry;
+    }
 
   virtual ~KFTrajectorySmoother();
 
@@ -60,16 +68,17 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
   virtual KFTrajectorySmoother* clone() const{
-    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_);
+    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry);
   }
 
 private:
-
+  const DetLayerGeometry dummyGeometry;
   Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   float theErrorRescaling;
   int minHits_;
+  const DetLayerGeometry* theGeometry;
 };
 
 #endif //CD_KFTrajectorySmoother_H_
