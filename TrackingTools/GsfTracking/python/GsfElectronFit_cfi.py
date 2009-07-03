@@ -9,7 +9,9 @@ GsfGlobalElectronTest = cms.EDProducer("GsfTrackProducer",
     TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
     Propagator = cms.string('fwdElectronPropagator'),
-    NavigationSchool = cms.string('SimpleNavigationSchool')                                 
+    NavigationSchool = cms.string('')  
+    # cannot set the secondary hitPatterns until the DetLayer* 
+    # are made available in the GsfFitters                           
 )
 
 
