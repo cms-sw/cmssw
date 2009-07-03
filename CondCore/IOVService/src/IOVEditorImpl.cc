@@ -18,7 +18,7 @@ namespace cond {
   IOVSequence & IOVEditorImpl::iov(){ return *m_iov;}
 
 
-  void IOVEditorImpl::debugInfo(ostream & co) const {
+  void IOVEditorImpl::debugInfo(std::ostream & co) const {
     co << "IOVEditor: ";
     co << "db " << m_pooldb->parentConnection().connectStr();
     if(m_token.empty()) {

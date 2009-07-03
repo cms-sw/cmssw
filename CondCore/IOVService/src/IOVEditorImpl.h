@@ -73,6 +73,8 @@ namespace cond{
     bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
 
+    void debugInfo(ostream & co) const;
+
     cond::PoolTransaction* m_pooldb;
     std::string m_token;
     bool m_isActive;
