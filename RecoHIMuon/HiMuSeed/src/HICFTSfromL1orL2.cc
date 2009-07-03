@@ -48,7 +48,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const RecoChargedC
 
   RecoChargedCandidateCollection::const_iterator recmuon = recmuons.begin();
 
-  int nrec = recmuons.size();
+//  int nrec = recmuons.size();
 #ifdef DEBUG
   cout << "Number of muons found by the L2 TRIGGER : "
        << nrec << endl;
@@ -73,7 +73,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromStandAlone(const Trac
 
   TrackCollection::const_iterator recmuon = recmuons.begin();
 
-  int nrec = recmuons.size();
+ // int nrec = recmuons.size();
 #ifdef DEBUG
   cout << "Number of muons found by the StandAlone : "
        << nrec << endl;
@@ -97,7 +97,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const TrackCollect
 
   TrackCollection::const_iterator recmuon = recmuons.begin();
 
-  int nrec = recmuons.size();
+//  int nrec = recmuons.size();
 #ifdef DEBUG
   cout << "Number of muons found by the StandAlone : "
        << nrec << endl;
@@ -130,21 +130,21 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     
     for(vector<FreeTrajectoryState>::iterator tl1 = ftsL1.begin(); tl1 != ftsL1.end(); tl1++)
     { 
-         float ptL1    =  (*tl1).parameters().momentum().perp();
+   //      float ptL1    =  (*tl1).parameters().momentum().perp();
          float etaL1   =  (*tl1).parameters().momentum().eta();
          float phiL1   =  (*tl1).parameters().momentum().phi();
 	 if( phiL1 < 0.) phiL1 = twopi + phiL1;
-         int chargeL1  =  (*tl1).charge();
+    //     int chargeL1  =  (*tl1).charge();
 	 int L2 = 0;  // there is no L2 muon.
 	 	 
        for(vector<FreeTrajectoryState>::iterator tl2 = ftsL2.begin(); tl2 != ftsL2.end(); tl2++)
        {
          itused = find(used.begin(),used.end(),&(*tl2));
-         float ptL2    =  (*tl2).parameters().momentum().perp();
+ //        float ptL2    =  (*tl2).parameters().momentum().perp();
          float etaL2   =  (*tl2).parameters().momentum().eta();
          float phiL2   =  (*tl2).parameters().momentum().phi();
 	 if( phiL2 < 0.) phiL2 = twopi + phiL2;
-         int chargeL2  =  (*tl2).charge();
+  //       int chargeL2  =  (*tl2).charge();
          float dphi = abs(phiL1-phiL2);
 	 if( dphi > pi ) dphi = twopi - dphi; 
 	 float dr = sqrt((etaL1 - etaL2)*(etaL1 - etaL2)+dphi*dphi);

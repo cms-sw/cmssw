@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.12 2009/06/22 16:33:53 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.13 2009/07/02 16:37:06 kodolova Exp $
 //
 //
  
@@ -54,8 +54,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -124,7 +124,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
        
     double theChiSquareCut = 500.;
     double nsig = 3.;
-    int theLowMult = 1;
+//    int theLowMult = 1;
     theEstimator = new HICMeasurementEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
     std::string updatorName = "KFUpdator";
     std::string propagatorAlongName    = "PropagatorWithMaterial";
@@ -415,7 +415,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
            }
 
        if((**it).location() == GeomDetEnumerators::endcap) {
-       for(int j=13; j<theNavigationSchoolV.size();j++){
+       for(unsigned int j=13; j<theNavigationSchoolV.size();j++){
        NavigationSetter setter( *(theNavigationSchoolV[j]));
        for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();
                                                            iseed!=seeds.end();iseed++)
@@ -551,7 +551,11 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
             innertsos = im->lastMeasurement().updatedState();
           }
 
-         TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+
+         // CMSSW31X
+          TSCBLBuilderNoMaterial tscblBuilder;
+         // CMSSW22X
+         //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
          TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
          if (tscbl.isValid()==false) {
@@ -599,7 +603,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
             innertsos = im->lastMeasurement().updatedState();
           }
 
-         TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+         TSCBLBuilderNoMaterial  tscblBuilder;
          TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
          if (tscbl.isValid()==false) {

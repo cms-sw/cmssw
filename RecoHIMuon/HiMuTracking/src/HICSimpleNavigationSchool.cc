@@ -50,7 +50,7 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
 
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
   for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    if((*i)->specificSurface().outerRadius()>60.&& (*i)->specificSurface().innerRadius()>20.|| (*i)->specificSurface().innerRadius()<10.) {
+    if(((*i)->specificSurface().outerRadius()>60.&& (*i)->specificSurface().innerRadius()>20.)|| (*i)->specificSurface().innerRadius()<10.) {
  //     cout<<" Endcap surface "<<(*i)->specificSurface().outerRadius()<<" "<<(*i)->specificSurface().innerRadius()<<endl;
       theForwardLayers.push_back( (*i) );
       theDetLayers.push_back( (*i) );
@@ -114,8 +114,8 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
   for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) 
   {
-    if((*i)->specificSurface().outerRadius()>60.&& 
-                  (*i)->specificSurface().innerRadius()>20.|| (*i)->specificSurface().innerRadius()<10.) 
+    if(((*i)->specificSurface().outerRadius()>60.&& 
+                  (*i)->specificSurface().innerRadius()>20.)|| (*i)->specificSurface().innerRadius()<10.) 
     {
       cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
        if(kk != excludedForwardLayer && kk != excludedForwardLayer + 14) 
@@ -133,8 +133,8 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
   for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) 
   {
-    if((*i)->specificSurface().outerRadius()>60.&& 
-                  (*i)->specificSurface().innerRadius()>20.|| (*i)->specificSurface().innerRadius()<10.) 
+    if(((*i)->specificSurface().outerRadius()>60.&& 
+                  (*i)->specificSurface().innerRadius()>20.)|| (*i)->specificSurface().innerRadius()<10.) 
     {
       cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
         //cout<<"Excluded layer "<<endl;
@@ -213,8 +213,8 @@ void HICSimpleNavigationSchool::linkNextForwardLayer( BarrelDetLayer* bl,
 						   FDLC& rightFL)
 {
   // find first forward layer with larger Z and larger outer radius
-  float length = bl->surface().bounds().length() / 2.;
-  float radius = bl->specificSurface().radius();
+ // float length = bl->surface().bounds().length() / 2.;
+//  float radius = bl->specificSurface().radius();
   for ( FDLI fli = theRightLayers.begin();
 	fli != theRightLayers.end(); fli++) {
    // if ( length < (**fli).position().z() &&
@@ -310,7 +310,7 @@ void HICSimpleNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
 {
   if ( fl->position().z() > barrelLength()) return;
 
-  float outerRadius = fl->specificSurface().outerRadius();
+ // float outerRadius = fl->specificSurface().outerRadius();
   float zpos        = fl->position().z();
   for ( BDLI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
 //    if ( outerRadius < (**bli).specificSurface().radius() &&

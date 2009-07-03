@@ -34,8 +34,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 using namespace std;
 using namespace cms;
@@ -259,7 +259,7 @@ std::vector<TrajectoryMeasurement>
 HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 {
   std::vector<TrajectoryMeasurement> result;
-  TrajectoryStateTransform tsTransform;
+//  TrajectoryStateTransform tsTransform;
 
 #ifdef DEBUG 
   cout<<" HICTrajectoryBuilder::seedMeasurements number of TM "<<dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements().size()<<endl;
@@ -342,7 +342,7 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       
     }
 
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
@@ -475,7 +475,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 {
   //cout<<" HICTrajectoryBuilder::FindCompatibleMeasurement start "<<traj.empty()<<endl; 
   vector<TM> result;
-  int invalidHits = 0;
+ // int invalidHits = 0;
   int theLowMult = 1; 
 
   TSOS currentState( traj.lastMeasurement().updatedState());

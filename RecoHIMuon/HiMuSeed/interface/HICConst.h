@@ -39,23 +39,23 @@ float forwparam[2];
 int numbargroup[3];
 int numfrwgroup[10];
 int barlay[5][9][8];
-int frwlay[10][10][11];
+int frwlay[11][11][11];
 int mxtlay[5];
 int nofirstpixel;
 //
 // roads
 //
 // barrel phi
-float phiwinbar[12][12][12];
-float phicutbar[12][12][12];
+float phiwinbar[13][13][13];
+float phicutbar[13][13][13];
 float phiwinbfrw[14][14][14];
 float phicutbfrw[14][14][14];
 float phiwinfbb[14][14][14];
 float phicutfbb[14][14][14];
 
 // barrel z
-float zwinbar[12][12][12];
-float zcutbar[12][12][12];
+float zwinbar[13][13][13];
+float zcutbar[13][13][13];
 float zwinbfrw[14][14][14];
 float zcutbfrw[14][14][14];
 float zwinfbb[14][14][14];
@@ -79,8 +79,8 @@ float zcut[13];
 float phism[13];
 float zsm[13];
 
-float phiro[13];
-float tetro[13];
+float phiro[14];
+float tetro[14];
 
 float phiwinf[14];
 float zwinf[14];

@@ -23,7 +23,7 @@ TrajectoryStateOnSurface
 	GlobalPoint gdet=det->position();
 	double rdet=gdet.perp();
 	double phidet=gdet.phi();
-	double zdet=gdet.z();
+	//double zdet=gdet.z();
 	if(phidet<0.) phidet=phidet+twopi;
 	double zpoint,a,b; 
 	
@@ -268,7 +268,7 @@ TrajectoryStateOnSurface
 
 double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDet* det) const{
         double pi=4.*atan(1.);
-        double twopi=8.*atan(1.);
+        //double twopi=8.*atan(1.);
 
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();

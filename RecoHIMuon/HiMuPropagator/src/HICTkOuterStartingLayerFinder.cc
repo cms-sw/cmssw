@@ -42,7 +42,7 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::sta
   
   length=surc->bounds().length()/2.;
   
-  double maxcoor=fabs(fts.parameters().position().z())+NumberOfSigm*fts.curvilinearError().matrix()(5,5);
+  double maxcoor=fabs(fts.parameters().position().z())+NumberOfSigm*fts.curvilinearError().matrix()(4,4);
   
   //
   //  barrel part (muon and tracker)
@@ -50,7 +50,7 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::sta
   
 #ifdef DEBUG
   std::cout<<"HICTkOuterStartingLayerFinder::startingLayers::maxcoor "<<fabs(fts.parameters().position().z())<<" "<<
-  NumberOfSigm<<" "<<fts.curvilinearError().matrix()(5,5)<<" maxcoor "<<maxcoor<<" length "<<length<<std::endl;
+  NumberOfSigm<<" "<<fts.curvilinearError().matrix()(4,4)<<" maxcoor "<<maxcoor<<" length "<<length<<std::endl;
 #endif
   
   if(maxcoor<length) {
@@ -95,7 +95,7 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
   double dz, dr, a1, zdet, newzmin, newzmax;  
   std::vector<ForwardDetLayer*>::const_iterator flayer; 
   double mincoor=fabs(fts.parameters().position().z())-
-                                                      NumberOfSigm*fts.curvilinearError().matrix()(5,5);
+                                                      NumberOfSigm*fts.curvilinearError().matrix()(4,4);
 						      
 //  double zdetlast=(fls.front())->surface().position().z();
   double zdetlast=length;
@@ -103,8 +103,8 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
   
   zseed=fts.parameters().position().z();  
   rseed=fts.parameters().position().perp();
-  dz = 3.*NumberOfSigm*fts.curvilinearError().matrix()(5,5); // ok
-  dr = NumberOfSigm*fts.curvilinearError().matrix()(5,5);
+  dz = 3.*NumberOfSigm*fts.curvilinearError().matrix()(4,4); // ok
+  dr = NumberOfSigm*fts.curvilinearError().matrix()(4,4);
   
   theta=fts.parameters().momentum().theta();
   atrack=tan(theta);

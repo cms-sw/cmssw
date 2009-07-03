@@ -18,21 +18,17 @@ DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
                                                const GeometricSearchTracker* theTracker0, 
                                                const HICConst* hh,
                                                const string bb,
-					       int aMult = 1):
-					       TTRHbuilder(0),
-                                               builderName(bb), 
-					       rphirecHitsTag(rphirecHitsTag0),
-					       magfield(magfield0),
-					       theTracker(theTracker0),
-                                               theHICConst(hh),
-					       theLowMult(aMult)
-
+					       int aMult = 1)
 {
   
 // initialization
 
   thePropagator=new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
-   
+  theTracker = theTracker0;
+  theHICConst = hh;
+  theLowMult = aMult;
+  magfield = magfield0;
+  rphirecHitsTag = rphirecHitsTag0;
   
 }
 
@@ -57,14 +53,14 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
     fpos = theTracker->posForwardLayers();
     fneg = theTracker->negForwardLayers();
 
-  if(TTRHbuilder == 0){
-    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
+//  if(TTRHbuilder == 0){
+//    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
 //    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
-    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
-    TTRHbuilder = theBuilderHandle.product();
-  }
-  //  cout<<" Point 1 "<<endl;   
-    int npair=0;
+//    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
+//    TTRHbuilder = theBuilderHandle.product();
+//  }
+//  cout<<" Point 1 "<<endl;   
+//    int npair=0;
 //
 //  For each fts do a cycle on possible layers.
 //
@@ -74,7 +70,7 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
    
    // cout<<" Point 2 "<<endl;
  
-    double phipred, zpred, phiupd, zupd;
+    double phipred=0.; double zpred=0.; double phiupd=0.;double zupd=0.;
     
     for( vector<DetLayer* >::const_iterator ml=theDetLayer->begin(); ml != theDetLayer->end(); ml++)
     {
@@ -119,7 +115,7 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
        std::cout<<" DiMuonSeedGenerator::Size of compatible TM found by measurements "<<vTM.size()<<std::endl;
 #endif
        
-        int measnum = 0;
+//        int measnum = 0;
 
        for(std::vector<TrajectoryMeasurement>::iterator it=vTM.begin(); it!=vTM.end(); it++)
        {
@@ -312,11 +308,11 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
 
 	GlobalVector pnew0(ptnew*cos(alfnew),ptnew*sin(alfnew),ptnew/tan(theta));
 
-	AlgebraicSymMatrix m(5,0);
-	m(1,1) = 0.5*ptnew; m(2,2) = theHICConst->phiro[12];
-	m(3,3) = theHICConst->tetro[12];
-	m(4,4) = theHICConst->phiro[12]; 
-	m(5,5) = theHICConst->tetro[12];
+	AlgebraicSymMatrix55 m;
+	m(0,0) = 0.5*ptnew; m(1,1) = theHICConst->phiro[12];
+	m(2,2) = theHICConst->tetro[12];
+	m(3,3) = theHICConst->phiro[12]; 
+	m(4,4) = theHICConst->tetro[12];
 	   
 	TrajectoryStateOnSurface updatedTsosOnDet=TrajectoryStateOnSurface
 	  ( GlobalTrajectoryParameters( xnew0, pnew0, (int)aCharge, &(*magfield) ),
@@ -366,8 +362,8 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
   double aCharge = FTS.parameters().charge();
   AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
   double pt = FTS.parameters().momentum().perp();
-  double pz = FTS.parameters().momentum().z();
-  double dpt = 0.6*pt;
+ // double pz = FTS.parameters().momentum().z();
+ // double dpt = 0.6*pt;
   
 //  std::cout<<" Point 0 "<<std::endl;
   double pi=4.*atan(1.);
@@ -540,11 +536,12 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 #ifdef DEBUG
           cout<<" Create new TM "<<endl;
 #endif	
-	AlgebraicSymMatrix m(5,0);        
-	m(1,1) = fabs(0.5*pznew); m(2,2) = theHICConst->phiro[13]; 
-	m(3,3) = theHICConst->tetro[13];
-	m(4,4) = theHICConst->phiro[13]; 
-	m(5,5) = theHICConst->tetro[13];
+	AlgebraicSymMatrix55 m;        
+	m(0,0) = fabs(0.5*pznew); 
+	m(1,1) = theHICConst->phiro[13]; 
+	m(2,2) = theHICConst->tetro[13];
+	m(3,3) = theHICConst->phiro[13]; 
+	m(4,4) = theHICConst->tetro[13];
 	
 	TrajectoryStateOnSurface updatedTsosOnDet=TrajectoryStateOnSurface
 	  (GlobalTrajectoryParameters( xnew0, pnew0, (int)aCharge, &(*magfield) ),

@@ -132,13 +132,13 @@ TrajectoryStateOnSurface
     // =======================================================================    
     
     GlobalTrajectoryParameters gtp(aX,aP,charge,field);
-    AlgebraicSymMatrix m(5,0);
+    AlgebraicSymMatrix55 m;
     int iwin;
     float awin,bwin,phbound;
     
     if(pt>40.) {
       iwin=8;
-      phbound=theFmpConst->phiwinb[8];
+      phbound=theFmpConst->phiwinb[7];
     }else{
       iwin=(int)(pt/theFmpConst->ptstep);
       awin=(theFmpConst->phiwinb[iwin+1]-theFmpConst->phiwinb[iwin])
@@ -153,9 +153,9 @@ TrajectoryStateOnSurface
             <<" "<<theFmpConst->ptwmin[iwin]<<
       " "<<theFmpConst->ptwmax[iwin]<<" awin="<<awin<<" bwin="<<bwin<<endl;
 #endif    
-    m(1,1)=(ptmax-ptmin)/6.; m(2,2)=phbound/theFmpConst->sigf;
-         m(3,3)=theFmpConst->zwin/theFmpConst->sigz;
-    m(4,4)=phbound/(2.*theFmpConst->sigf);m(5,5)=theFmpConst->zwin/(2.*theFmpConst->sigz); 
+    m(0,0)=(ptmax-ptmin)/6.; m(1,1)=phbound/theFmpConst->sigf;
+         m(2,2)=theFmpConst->zwin/theFmpConst->sigz;
+    m(3,3)=phbound/(2.*theFmpConst->sigf);m(4,4)=theFmpConst->zwin/(2.*theFmpConst->sigz); 
     
     CurvilinearTrajectoryError cte(m);
 
@@ -238,10 +238,10 @@ TrajectoryStateOnSurface
 
     int iwin;
     float awin,bwin,phbound;
-    AlgebraicSymMatrix m(5,0);
+    AlgebraicSymMatrix55 m;
       
     if(pt>40.) {
-      phbound=theFmpConst->phiwinf[8];
+      phbound=theFmpConst->phiwinf[7];
     }else{ // r < bound
       iwin=(int)(pt/theFmpConst->ptstep);
       awin=(theFmpConst->phiwinf[iwin+1]-theFmpConst->phiwinf[iwin])
@@ -252,9 +252,9 @@ TrajectoryStateOnSurface
 #ifdef PROPAGATOR_DB
     cout<<"Forward::Size of window in phi="<<phbound<<endl;
 #endif    
-    m(1,1)=abs(plmax-plmin)/6.; m(2,2)=phbound/theFmpConst->sigf;
-          m(3,3)=theFmpConst->zwin/theFmpConst->sigz;
-    m(4,4)=phbound/(2.*theFmpConst->sigf);m(5,5)=theFmpConst->zwin/(2.*theFmpConst->sigz); 
+    m(0,0)=abs(plmax-plmin)/6.; m(1,1)=phbound/theFmpConst->sigf;
+          m(2,2)=theFmpConst->zwin/theFmpConst->sigz;
+    m(3,3)=phbound/(2.*theFmpConst->sigf);m(4,4)=theFmpConst->zwin/(2.*theFmpConst->sigz); 
     
     GlobalPoint aX(r*cos(phnext),r*sin(phnext),z);
     
