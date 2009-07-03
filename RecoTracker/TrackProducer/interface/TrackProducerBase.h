@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2008/02/18 17:16:12 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/22 11:13:58 $
+ *  $Revision: 1.16 $
  *  \author cerati
  */
 
@@ -30,6 +30,7 @@ class MeasurementEstimator;
 class TrackerGeometry;
 class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
+class NavigationSchool;
 
 template <class T>
 class TrackProducerBase {
@@ -80,6 +81,8 @@ public:
     clusterRemovalInfo_ = clusterRemovalInfo;
   }
 
+  void setSecondHitPattern(Trajectory* traj, T& track);
+
   const edm::ParameterSet& getConf() const {return conf_;}
  private:
   edm::ParameterSet conf_;
@@ -92,6 +95,9 @@ public:
 
   bool rekeyClusterRefs_;
   edm::InputTag clusterRemovalInfo_;
+
+  edm::ESHandle<NavigationSchool> theSchool;
+
 };
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.icc"

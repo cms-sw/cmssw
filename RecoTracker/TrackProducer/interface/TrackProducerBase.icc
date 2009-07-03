@@ -10,12 +10,17 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
+
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 //destructor
 template <class T>
@@ -47,7 +52,7 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   //
   LogDebug("TrackProducer") << "get the fitter from the ES" << "\n";
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-  setup.get<TrackingComponentsRecord>().get(fitterName,theFitter);
+  setup.get<TrajectoryFitter::Record>().get(fitterName,theFitter);
   //
   // get also the propagator
   //
@@ -61,7 +66,14 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   setup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
-  
+  LogDebug("TrackProducer") << "get a navigation school";
+  std::string theNavigationSchool ="";
+  if (conf_.exists("NavigationSchool")) theNavigationSchool= conf_.getParameter<std::string>("NavigationSchool");
+  else edm::LogWarning("TrackProducerBase")<<" NavigationSchool parameter not set. secondary hit pattern will not be filled.";
+  if (theNavigationSchool!="")
+	setup.get<NavigationSchoolRecord>().get(theNavigationSchool, theSchool);
+  else
+	theSchool = edm::ESHandle<NavigationSchool>(); //put an invalid handle
 
 }
 
@@ -96,4 +108,82 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
   theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
   bs = *recoBeamSpotHandle;
 }
+
+#include <TrackingTools/DetLayers/interface/DetLayer.h>
+#include <DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h>
+
+template <class T> void
+TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
+  using namespace std;
+  //cout << endl << "===== traj #measurements: " << traj->measurements().size() << endl;
+
+  // Nota Bene: At the moment the trajectories has the measurements with reversed sorting after the track smoothing. 
+  // Therefore the lastMeasurement is the inner one (for LHC-like tracks)
+  if(traj->firstMeasurement().updatedState().isValid() &&
+     traj->lastMeasurement().updatedState().isValid()){
+    FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
+    FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState();    
+    const DetLayer* outerLayer = traj->firstMeasurement().layer();
+    const DetLayer* innerLayer = traj->lastMeasurement().layer();
+
+    if (!outerLayer || !innerLayer){
+      //means  that the trajectory was fit/smoothed in a special case: not setting those pointers
+	edm::LogError("TrackProducer") << "the trajectory was fit/smoothed in a special case: not setting those pointers.\n"
+			<<" Filling the secondary hit patterns was requested. So I will bail out.";
+	throw cms::Exception("TrackProducerBase")<<"the trajectory was fit/smoothed in a special case: not setting those pointers.\n"
+			<<" Filling the secondary hit patterns was requested. So I will bail out.";
+    }
+    
+    //    LogDebug("TrackProducer") << "-- calling compLayer for inner..";
+    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,oppositeToMomentum);
+    //    LogDebug("TrackProducer") << "-- calling compLayer for outer..";
+    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,alongMomentum);
+
+    LogDebug("TrackProducer")
+      << "inner DetLayer  sub: " 
+      << innerLayer->subDetector() <<"\n"
+      << "outer DetLayer  sub: " 
+      << outerLayer->subDetector() << "\n"
+      << "innerstate position rho: " << innerState->position().perp() << " z: "<< innerState->position().z()<<"\n"
+      << "innerstate state pT: " << innerState->momentum().perp() << " pz: "<< innerState->momentum().z()<<"\n"
+      << "outerstate position rho: " << outerState->position().perp() << " z: "<< outerState->position().z()<<"\n"
+      << "outerstate state pT: " << outerState->momentum().perp() << " pz: "<< outerState->momentum().z()<<"\n"
+
+      << "innerLayers: " << innerCompLayers.size() << "\n"
+      << "outerLayers: " << outerCompLayers.size() << "\n";
+
+    int counter = 0;
+    for(vector<const DetLayer *>::const_iterator it=innerCompLayers.begin(); it!=innerCompLayers.end();
+	++it,++counter){
+      if ((*it)->basicComponents().empty()) {
+	//this should never happen. but better protect for it
+	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
+	continue;
+      }
+      InvalidTrackingRecHit  tmpHit((*it)->basicComponents().front()->geographicalId(),TrackingRecHit::missing);
+      track.setTrackerExpectedHitsInner(tmpHit,counter); 
+      //      LogDebug("TrackProducer")<< "counter: " << counter;
+    }
+    
+    counter=0;
+    for(vector<const DetLayer *>::const_iterator it=outerCompLayers.begin(); it!=outerCompLayers.end();
+	++it,++counter){
+      if ((*it)->basicComponents().empty()){
+	//this should never happen. but better protect for it
+	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
+	continue;
+      }
+      InvalidTrackingRecHit  tmpHit((*it)->basicComponents().front()->geographicalId(),TrackingRecHit::missing);
+      track.setTrackerExpectedHitsOuter(tmpHit,counter); 
+      //      LogDebug("TrackProducer")<< "counter: " << counter;
+    }
+  }else{
+    cout << "inner or outer state was invalid" << endl;
+  }
+
+
+  //DetLayer* layer = traj.lastLayer();
+
+}
+
 

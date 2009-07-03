@@ -94,6 +94,13 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::Track & track = selTracks->back();
     track.setExtra( teref );
     
+    //======= I want to set the second hitPattern here =============
+    if (theSchool.isValid())
+      {
+	NavigationSetter setter( *theSchool );
+	setSecondHitPattern(theTraj,track);
+      }
+    //==============================================================
     
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
@@ -174,3 +181,81 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     evt.put( trajTrackMap );
   }
 }
+
+#ifdef MOVEAROUND
+
+#include <TrackingTools/DetLayers/interface/DetLayer.h>
+#include <DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h>
+void KfTrackProducerBase::setSecondHitPattern(Trajectory* traj,
+					      reco::Track& track){
+  using namespace std;
+  //cout << endl << "===== traj #measurements: " << traj->measurements().size() << endl;
+
+  // Nota Bene: At the moment the trajectories has the measurements with reversed sorting after the track smoothing. 
+  // Therefore the lastMeasurement is the inner one (for LHC-like tracks)
+  if(traj->firstMeasurement().updatedState().isValid() &&
+     traj->lastMeasurement().updatedState().isValid()){
+    FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
+    FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState();    
+    const DetLayer* outerLayer = traj->firstMeasurement().layer();
+    const DetLayer* innerLayer = traj->lastMeasurement().layer();
+
+    if (!outerLayer || !innerLayer){
+      //means  that the trajectory was fit/smoothed in a special case: not setting those pointers
+      LogDebug("TrackProducer") << "the trajectory was fit/smoothed in a special case: not setting those pointers";
+      return;
+    }
+    
+    //    LogDebug("TrackProducer") << "-- calling compLayer for inner..";
+    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,oppositeToMomentum);
+    //    LogDebug("TrackProducer") << "-- calling compLayer for outer..";
+    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,alongMomentum);
+
+    LogDebug("TrackProducer")
+      << "inner DetLayer  sub: " 
+      << innerLayer->subDetector() <<"\n"
+      << "outer DetLayer  sub: " 
+      << outerLayer->subDetector() << "\n"
+      << "innerstate position rho: " << innerState->position().perp() << " z: "<< innerState->position().z()<<"\n"
+      << "innerstate state pT: " << innerState->momentum().perp() << " pz: "<< innerState->momentum().z()<<"\n"
+      << "outerstate position rho: " << outerState->position().perp() << " z: "<< outerState->position().z()<<"\n"
+      << "outerstate state pT: " << outerState->momentum().perp() << " pz: "<< outerState->momentum().z()<<"\n"
+
+      << "innerLayers: " << innerCompLayers.size() << "\n"
+      << "outerLayers: " << outerCompLayers.size() << "\n";
+
+    int counter = 0;
+    for(vector<const DetLayer *>::const_iterator it=innerCompLayers.begin(); it!=innerCompLayers.end();
+	++it,++counter){
+      if ((*it)->basicComponents().empty()) {
+	//this should never happen. but better protect for it
+	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
+	continue;
+      }
+      InvalidTrackingRecHit  tmpHit((*it)->basicComponents().front()->geographicalId(),TrackingRecHit::missing);
+      track.setTrackerExpectedHitsInner(tmpHit,counter); 
+      //      LogDebug("TrackProducer")<< "counter: " << counter;
+    }
+    
+    counter=0;
+    for(vector<const DetLayer *>::const_iterator it=outerCompLayers.begin(); it!=outerCompLayers.end();
+	++it,++counter){
+      if ((*it)->basicComponents().empty()){
+	//this should never happen. but better protect for it
+	edm::LogWarning("TrackProducer")<<"a detlayer with no components: I cannot figure out a DetId from this layer. please investigate.";
+	continue;
+      }
+      InvalidTrackingRecHit  tmpHit((*it)->basicComponents().front()->geographicalId(),TrackingRecHit::missing);
+      track.setTrackerExpectedHitsOuter(tmpHit,counter); 
+      //      LogDebug("TrackProducer")<< "counter: " << counter;
+    }
+  }else{
+    cout << "inner or outer state was invalid" << endl;
+  }
+
+
+  //DetLayer* layer = traj.lastLayer();
+
+}
+
+#endif

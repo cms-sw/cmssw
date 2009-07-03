@@ -99,6 +99,13 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::GsfTrack & track = selTracks->back();
     track.setExtra( teref );
     
+    //======= I want to set the second hitPattern here =============
+    if (theSchool.isValid())
+      {
+	NavigationSetter setter( *theSchool );
+	setSecondHitPattern(theTraj,track);
+      }
+    //==============================================================
     
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
