@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockNotifier.h,v 1.3 2009/07/01 13:08:18 dshpakov Exp $
+// $Id: MockNotifier.h,v 1.4 2009/07/02 12:55:28 dshpakov Exp $
 
 #ifndef MOCKNOTIFIER_H
 #define MOCKNOTIFIER_H
@@ -7,6 +7,7 @@
 // Notifier implementation to be used by the state machine unit test
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/test/MockApplication.h"
 
 #include "xdaq/Application.h"
 
@@ -19,7 +20,7 @@ namespace stor
 
   public:
 
-    MockNotifier( xdaq::Application* app ):
+    MockNotifier( MockApplication* app ):
       _app( app )
     {}
     
@@ -31,7 +32,7 @@ namespace stor
 
   private:
 
-    xdaq::Application* _app;
+    MockApplication* _app;
 
     unsigned long instanceNumber() const { return 0; }
 

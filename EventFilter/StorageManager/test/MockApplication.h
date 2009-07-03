@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id$
+// $Id: MockApplication.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H
@@ -28,7 +28,7 @@ namespace stor
   public:
 
     MockApplicationStub() :
-    _logger( Logger::getRoot() ),
+    _logger( Logger::getRoot() ), //place holder, overwritten below
     _appContext( new xdaq::ApplicationContextImpl(_logger) ),
     _appDescriptor( new xdaq::ApplicationDescriptorImpl(
         new xdaq::ContextDescriptor( "none" ),
@@ -36,6 +36,11 @@ namespace stor
       )
     )
     {
+      log4cplus::BasicConfigurator config;
+      config.configure();
+      _logger = Logger::getInstance("main");
+      LOG4CPLUS_FATAL(_logger, "test");
+
       _ispace = new xdata::InfoSpace("MockApplication");
     }
 
@@ -47,6 +52,7 @@ namespace stor
     xdaq::ApplicationContext* getContext() { return _appContext; }
     xdaq::ApplicationDescriptor* getDescriptor() { return _appDescriptor; }
     xdata::InfoSpace* getInfoSpace() { return _ispace; }
+    Logger& getLogger() { return _logger; }
 
   private:
 
@@ -63,16 +69,19 @@ namespace stor
     
   public:
     
-    MockApplication(xdaq::ApplicationStub* s) :
-    Application(s)
+    MockApplication(MockApplicationStub* s) :
+    Application(s),
+    _stub(s)
     {}
 
     ~MockApplication() {};
 
     void notifyQualified(std::string severity, xcept::Exception&) {}
+    Logger& getApplicationLogger() { return _stub->getLogger(); }
 
   private:
 
+    MockApplicationStub* _stub;
   };
 
 }
