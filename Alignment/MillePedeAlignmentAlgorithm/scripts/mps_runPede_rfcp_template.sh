@@ -16,6 +16,7 @@ echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 # stage and copy the binary file(s), first set castor pool for binary files in $MSSDIR area
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
+  export STAGE_SVCCLASS=$MSSDIRPOOL
   stager_get -M $MSSDIR/milleBinaryISN.dat
   rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
   stager_get -M $MSSDIR/treeFileISN.root
