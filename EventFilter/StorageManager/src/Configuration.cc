@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.4 2009/06/26 08:19:52 mommsen Exp $
+// $Id: Configuration.cc,v 1.5 2009/07/01 09:50:47 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
@@ -154,8 +154,10 @@ namespace stor
     _diskWriteParamCopy._maxFileSizeMB = 0;
     _diskWriteParamCopy._highWaterMark = 0.9;
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
+    _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._exactFileSizeTest = false;
+    _diskWriteParamCopy._useIndexFiles = true;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -247,9 +249,11 @@ namespace stor
     _maxFileSize = _diskWriteParamCopy._maxFileSizeMB;
     _highWaterMark = _diskWriteParamCopy._highWaterMark;
     _lumiSectionTimeOut = _diskWriteParamCopy._lumiSectionTimeOut;
+    _errorEventsTimeOut = _diskWriteParamCopy._errorEventsTimeOut;
     _fileClosingTestInterval =
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
+    _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
@@ -261,9 +265,11 @@ namespace stor
     infoSpace->fireItemAvailable("maxFileSize", &_maxFileSize);
     infoSpace->fireItemAvailable("highWaterMark", &_highWaterMark);
     infoSpace->fireItemAvailable("lumiSectionTimeOut", &_lumiSectionTimeOut);
+    infoSpace->fireItemAvailable("errorEventsTimeOut", &_errorEventsTimeOut);
     infoSpace->fireItemAvailable("fileClosingTestInterval",
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
+    infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -386,8 +392,10 @@ namespace stor
     _diskWriteParamCopy._maxFileSizeMB = _maxFileSize;
     _diskWriteParamCopy._highWaterMark = _highWaterMark;
     _diskWriteParamCopy._lumiSectionTimeOut = _lumiSectionTimeOut;
+    _diskWriteParamCopy._errorEventsTimeOut = _errorEventsTimeOut;
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
+    _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
 
     _streamConfigurationChanged = false;
   }

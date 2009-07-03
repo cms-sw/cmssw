@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: Configuration.h,v 1.3 2009/07/01 09:51:13 mommsen Exp $
 
 
 #ifndef EventFilter_StorageManager_Configuration_h
@@ -34,8 +34,10 @@ namespace stor
     int _maxFileSizeMB;
     double _highWaterMark;
     utils::duration_t _lumiSectionTimeOut;
+    utils::duration_t _errorEventsTimeOut;
     utils::duration_t _fileClosingTestInterval;
     bool _exactFileSizeTest;
+    bool _useIndexFiles;  // not yet used
 
     // not mapped to infospace params
     std::string _smInstanceString;
@@ -118,9 +120,9 @@ namespace stor
    * and providing local copies of that information that are updated
    * only at requested times.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/01 09:51:13 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -281,8 +283,10 @@ namespace stor
     xdata::Integer _maxFileSize;
     xdata::Double _highWaterMark;
     xdata::Double _lumiSectionTimeOut;
+    xdata::Double _errorEventsTimeOut;
     xdata::Integer _fileClosingTestInterval;
     xdata::Boolean _exactFileSizeTest;
+    xdata::Boolean _useIndexFiles;
 
     xdata::Boolean _pushmode2proxy;
     xdata::Double _maxESEventRate;  // hertz
