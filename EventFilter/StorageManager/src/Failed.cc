@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.6 2009/07/02 12:55:27 dshpakov Exp $
+// $Id: Failed.cc,v 1.7 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -37,6 +37,12 @@ string Failed::do_stateName() const
 {
   return string( "Failed" );
 }
+
+void Failed::do_moveToFailedState() const
+{
+  // nothing can be done here
+}
+
 
 /// emacs configuration
 /// Local Variables: -

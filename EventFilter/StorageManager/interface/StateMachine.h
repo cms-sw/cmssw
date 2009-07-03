@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: StateMachine.h,v 1.3 2009/07/03 14:13:03 dshpakov Exp $
 
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
@@ -21,9 +21,6 @@ namespace bsc = boost::statechart;
 
 namespace stor
 {
-
-  // Simple file-based debugging. Will remove when no longer needed.
-  void sm_debug( const std::string& file_name_suffix, const std::string& message );
 
   class I2OChain;
   class DiskWriter;
@@ -92,6 +89,8 @@ namespace stor
 
     std::string stateName() const;
 
+    void moveToFailedState() const;
+
   protected:
 
     virtual void do_processI2OFragment( I2OChain& frag ) const;
@@ -99,6 +98,8 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
 
     virtual std::string do_stateName() const = 0;
+
+    virtual void do_moveToFailedState() const = 0;
 
     void safeEntryAction( Notifier* );
     virtual void do_entryActionWork() = 0;
@@ -136,9 +137,6 @@ namespace stor
 
     void unconsumed_event( bsc::event_base const& );
 
-    // Remi May 14, 2009: not clear why we originally introduced the _initialized
-    // void declareInitialized() { _initialized = true; }
-
     void setExternallyVisibleState( const std::string& );
 
   private:
@@ -148,9 +146,6 @@ namespace stor
     FragmentStore* _fragmentStore;
     Notifier* _notifier;
     SharedResourcesPtr _sharedResources;
-
-    // Remi May 14, 2009: not clear why we originally introduced the _initialized
-    // bool _initialized; // to control access to state name
 
   };
 
@@ -172,6 +167,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -192,6 +188,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -212,6 +209,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -233,6 +231,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -253,6 +252,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -278,6 +278,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -305,6 +306,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
     bool workerThreadsConfigured() const;
 
@@ -331,6 +333,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
     bool destructionIsDone() const;
 
@@ -357,6 +360,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
     bool destructionIsDone() const;
 
@@ -386,6 +390,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -413,6 +418,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
   };
 
@@ -438,6 +444,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
     bool allQueuesAndWorkersAreEmpty() const;
     void processStaleFragments() const;
@@ -465,6 +472,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
+    virtual void do_moveToFailedState() const;
 
     bool endOfRunProcessingIsDone() const;
 

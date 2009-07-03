@@ -1,4 +1,4 @@
-// $Id: FinishingDQM.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: FinishingDQM.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -44,6 +44,11 @@ void FinishingDQM::do_exitActionWork()
 string FinishingDQM::do_stateName() const
 {
   return string( "FinishingDQM" );
+}
+
+void FinishingDQM::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 void FinishingDQM::logStopRequest( const Stop& request )

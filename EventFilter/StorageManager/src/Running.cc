@@ -1,4 +1,4 @@
-// $Id: Running.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Running.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -82,6 +82,11 @@ void Running::do_exitActionWork()
 string Running::do_stateName() const
 {
   return string( "Running" );
+}
+
+void Running::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 void Running::logStopDoneRequest( const StopDone& request )

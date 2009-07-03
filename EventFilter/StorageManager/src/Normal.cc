@@ -1,4 +1,4 @@
-// $Id: Normal.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Normal.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
@@ -33,6 +33,11 @@ Normal::~Normal()
 string Normal::do_stateName() const
 {
   return string( "Normal" );
+}
+
+void Normal::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 /// emacs configuration

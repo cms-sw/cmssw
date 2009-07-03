@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.3 2009/06/17 09:40:50 dshpakov Exp $
+// $Id: Ready.cc,v 1.4 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -84,6 +84,11 @@ void Ready::do_exitActionWork()
 string Ready::do_stateName() const
 {
   return string( "Ready" );
+}
+
+void Ready::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 

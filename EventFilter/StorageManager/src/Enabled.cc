@@ -1,4 +1,4 @@
-// $Id: Enabled.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: Enabled.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -53,6 +53,11 @@ void Enabled::do_exitActionWork()
 string Enabled::do_stateName() const
 {
   return string( "Enabled" );
+}
+
+void Enabled::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 void Enabled::logReconfigureRequest( const Reconfigure& request )

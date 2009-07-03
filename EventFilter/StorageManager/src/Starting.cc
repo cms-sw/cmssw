@@ -1,4 +1,4 @@
-// $Id: Starting.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+// $Id: Starting.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -60,6 +60,11 @@ void Starting::do_exitActionWork()
 string Starting::do_stateName() const
 {
   return string( "Starting" );
+}
+
+void Starting::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 void Starting::logStopDoneRequest( const StopDone& request )

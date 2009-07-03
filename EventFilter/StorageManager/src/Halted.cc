@@ -1,4 +1,4 @@
-// $Id: Halted.cc,v 1.3 2009/07/02 13:46:38 dshpakov Exp $
+// $Id: Halted.cc,v 1.4 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -38,6 +38,11 @@ Halted::~Halted()
 string Halted::do_stateName() const
 {
   return string( "Halted" );
+}
+
+void Halted::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.6 2009/07/03 09:43:20 mommsen Exp $
+// $Id: Processing.cc,v 1.7 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -42,6 +42,11 @@ void Processing::do_exitActionWork()
 string Processing::do_stateName() const
 {
   return string( "Processing" );
+}
+
+void Processing::do_moveToFailedState() const
+{
+  outermost_context().getSharedResources()->moveToFailedState();
 }
 
 void Processing::logQueuesEmptyRequest( const QueuesEmpty& request )
