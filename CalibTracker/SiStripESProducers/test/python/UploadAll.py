@@ -84,7 +84,7 @@ newTag = "31X"
 # Additional commands must have the " character escaped as \"
 # The fourth field is used to specify the rcd name for the DummyPrinter in case it is different from the tag name
 tagList = [
-    #  # ApvGain
+    # ApvGain
     Tag("SiStripApvGain", "Ideal"),
     Tag("SiStripApvGain", "IdealSim"),
     Tag("SiStripApvGain", "StartUp", "-e \"s@SigmaGain=0.0@SigmaGain=0.10@\" -e \"s@default@gaussian@\""),
@@ -99,8 +99,8 @@ tagList = [
     Tag("SiStripFedCabling", "Ideal"),
     # LorentzAngle
     Tag("SiStripLorentzAngle", "Ideal"),
-    Tag("SiStripLorentzAngle", "IdealSim", "-e \"s@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(0.)@\" -e \"s@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(0.)@\""),
-    Tag("SiStripLorentzAngle", "StartUp", "-e \"s@TIB_PerCent_Err=cms.double(0.)@TIB_PerCent_Err=cms.double(20.)@\" -e \"s@TOB_PerCent_Err=cms.double(0.)@TOB_PerCent_Err=cms.double(20.)@\""),
+    Tag("SiStripLorentzAngle", "IdealSim"),
+    Tag("SiStripLorentzAngle", "StartUp", "-e \"s@TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)@TIB_PerCent_Errs=cms.vdouble(20.,20.,20.,20.)@\" -e \"s@TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)@TOB_PerCent_Errs=cms.vdouble(20.,20.,20.,20.,20.,20.)@\""),
     # Voltages from DCS
     Tag("SiStripDetVOff", "Ideal"),
     # Tag("ModuleHV", "Ideal"),
