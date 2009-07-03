@@ -12,15 +12,11 @@
 
 
 cond::IOVSequence const & cond::IOVServiceImpl::iovSeq(const std::string& iovToken) const {
-  std::map< std::string,cond::IOVSequence const * >::const_iterator it=m_iovcache.find(iovToken);
-  cond::IOVSequence const * iov=0;
-  if(it==m_iovcache.end()){
-    iov = new cond::IOVSequence(*cond::TypedRef<cond::IOVSequence>(*m_pooldb,iovToken));
-    const_cast<cond::IOVServiceImpl*>(this)->m_iovcache.insert(std::make_pair(iovToken,iov));
-  } else {
-    iov = it->second;
-  }
-  return *iov;
+  Cache::const_iterator it=m_iovcache.find(iovToken);
+  if(it!=m_iovcache.end()) return *(*it).second;
+    pool::Ref<cond::IOVSequence> temp(&(m_pooldb->poolDataSvc()),iovtoken);
+    m_iovcache[iovtoken].copyShallow(temp);
+    return *temp;
 }
 
 
@@ -29,10 +25,7 @@ cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) :
 }
 
 cond::IOVServiceImpl::~IOVServiceImpl(){
-  for(std::map< std::string, cond::IOVSequence const* >::const_iterator iter= m_iovcache.begin();
-      iter!=m_iovcache.end();++iter) delete const_cast<cond::IOVSequence*>(iter->second);
-  
-}
+ }
 
 std::string 
 cond::IOVServiceImpl::payloadToken( const std::string& iovToken,
@@ -164,7 +157,8 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     throw cond::Exception("IOVServiceImpl::exportIOVRangeWithPayload Error: empty input range");
   
   
-  since = ifirstTill->sinceTime();
+  // since > ifirstTill->sinceTime() used to overwrite the actual time
+  //since = ifirstTill->sinceTime();
   
   cond::TypedRef<cond::IOVSequence> newiovref;
   //FIXME more option and eventually ability to resume (roll back is difficult)
@@ -192,14 +186,17 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 
 
   int n=0;
-  for( IOVSequence::const_iterator it=ifirstTill;
-       it!=isecondTill; ++it){
+  cond::Time_t lsince = since;
+  for(  IOVSequence::const_iterator it=ifirstTill;
+	it!=isecondTill; ++it, lsince=it->sinceTime()){
+    // first since overwritten by global since...
+    
     // FIXME need option to load Ptr unconditionally....
     cond::TypedRef<cond::PayloadWrapper> payloadTRef(*m_pooldb,it->wrapperToken());
     if(payloadTRef.ptr()) payloadTRef->loadAll();
     cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
     std::string newPtoken=payloadRef.exportTo(destDB);
-    newiovref->add(it->sinceTime(), newPtoken);
+    newiovref->add(lsince, newPtoken);
     /// commit to avoid HUGE memory footprint
     n++;
     if (n==100) {
