@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.19 2009/07/03 15:11:53 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.20 2009/07/03 15:32:53 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -75,7 +75,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
-  //print debug messages when problems are found: 1=light debug, 2=full debug
+  //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
   //bool printDebug_;
   //write the DQMStore to a root file at the end of the job
@@ -103,7 +103,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
-    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",0)),
+    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
     //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
@@ -111,7 +111,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 {
   //print config to debug log
   std::ostringstream debugStream;
-  if (printDebug_) {
+  if (printDebug_>1) {
     debugStream << "[SiStripFEDMonitorPlugin]Configuration for SiStripFEDMonitorPlugin: " << std::endl
                 << "[SiStripFEDMonitorPlugin]\tRawDataTag: " << rawDataTag_ << std::endl
                 << "[SiStripFEDMonitorPlugin]\tHistogramFolderName: " << folderName_ << std::endl
@@ -122,7 +122,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   }
   
   //don;t generate debug mesages if debug is disabled
-  std::ostringstream* pDebugStream = (printDebug_ ? &debugStream : NULL);
+  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
   
   fedHists_.initialise(iConfig,pDebugStream);
 
@@ -246,7 +246,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     }//if TkHistMap is enabled
   }//loop over FED IDs
 
-  if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_) {
+  if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_>1) {
     std::ostringstream debugStream;
     debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = " 
 		<< lNTotBadFeds << std::endl

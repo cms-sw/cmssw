@@ -228,7 +228,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   }
 
    
-  if (printDebug() && aPrintDebug>1) {
+  if (printDebug() && aPrintDebug>2) {
     const sistrip::FEDBufferBase* debugBuffer = NULL;
 
     if (buffer.get()) debugBuffer = buffer.get();

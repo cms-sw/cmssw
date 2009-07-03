@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi import *
 
+#disable error output: only in P5 configuration.
+siStripFEDMonitor.PrintDebugMessages = 0
 #Global/summary histograms
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True
