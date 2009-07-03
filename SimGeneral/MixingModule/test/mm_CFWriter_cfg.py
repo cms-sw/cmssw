@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.mixObjects_cfi import *
 
 process = cms.Process("PRODMIXNEW")
-process.load("SimGeneral.MixingModule.mixLowLumPU_cfi")
+process.load("SimGeneral.MixingModule.mixLowLumPU_mixProdStep1_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
@@ -16,11 +16,11 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/becheva/MixingModule/dataFiles/relval/02C5A172-8203-DE11-86D7-001617C3B5D8TTBar.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre11/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V1-v1/0001/FEAEE71D-D664-DE11-88EA-003048767E51.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 process.CFWriter = cms.EDProducer("CFWriter",
@@ -49,7 +49,7 @@ process.CFWriter = cms.EDProducer("CFWriter",
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *_*_*_*', 
         'keep *_*_*_PRODMIXNEW'),
-    fileName = cms.untracked.string('file:/tmp/ebecheva/PCFwriter22.root')
+    fileName = cms.untracked.string('file:/tmp/ebecheva/PCFwriterMixCollTest.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
