@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.5 2009/07/02 13:46:38 dshpakov Exp $
+// $Id: Processing.cc,v 1.6 2009/07/03 09:43:20 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -17,66 +17,23 @@ using namespace stor;
 
 Processing::Processing( my_context c ): my_base(c)
 {
-  const string unknown = "unknown exception";
-  string msg = "Error going into Processing state: ";
-  try
-    {
-      TransitionRecord tr( stateName(), true );
-      outermost_context().updateHistory( tr );
-      outermost_context().setExternallyVisibleState( "Enabled" );
-      outermost_context().getNotifier()->reportNewState( "Enabled" );
-    }
-  catch( xcept::Exception& e )
-    {
-      try
-        {
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(),
-                           msg << xcept::stdformat_exception_history(e) );
-          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
-                                sentinelException, msg, e );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
-  catch( std::exception& e )
-    {
-      try
-        {
-          msg += e.what();
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
-  catch(...)
-    {
-      msg += "unknown exception";
-      try
-        {
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void Processing::do_entryActionWork()
+{
+  TransitionRecord tr( stateName(), true );
+  outermost_context().updateHistory( tr );
+  outermost_context().setExternallyVisibleState( "Enabled" );
+  outermost_context().getNotifier()->reportNewState( "Enabled" );
 }
 
 Processing::~Processing()
+{
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void Processing::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );

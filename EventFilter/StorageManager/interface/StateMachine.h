@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StateMachine.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
@@ -100,6 +100,12 @@ namespace stor
 
     virtual std::string do_stateName() const = 0;
 
+    void safeEntryAction( Notifier* );
+    virtual void do_entryActionWork() = 0;
+
+    void safeExitAction( Notifier* );
+    virtual void do_exitActionWork() = 0; 
+
   };
 
 
@@ -164,6 +170,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -182,6 +190,9 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
+
   };
 
   // Halted:
@@ -199,6 +210,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -218,6 +231,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -236,6 +251,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -259,6 +276,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -284,6 +303,8 @@ namespace stor
 
     virtual std::string do_stateName() const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
     bool workerThreadsConfigured() const;
 
@@ -308,6 +329,8 @@ namespace stor
 
     virtual std::string do_stateName() const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
     bool destructionIsDone() const;
 
@@ -332,6 +355,8 @@ namespace stor
 
     virtual std::string do_stateName() const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
     bool destructionIsDone() const;
 
@@ -359,6 +384,8 @@ namespace stor
   private:
 
     virtual std::string do_stateName() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -384,6 +411,8 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_processI2OFragment( I2OChain& frag ) const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
   };
 
@@ -407,6 +436,8 @@ namespace stor
   private:
     virtual std::string do_stateName() const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
     bool allQueuesAndWorkersAreEmpty() const;
     void processStaleFragments() const;
@@ -432,6 +463,8 @@ namespace stor
 
     virtual std::string do_stateName() const;
     virtual void do_noFragmentToProcess() const;
+    virtual void do_entryActionWork();
+    virtual void do_exitActionWork();
 
     bool endOfRunProcessingIsDone() const;
 

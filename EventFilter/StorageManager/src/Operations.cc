@@ -1,11 +1,14 @@
-// $Id$
+// $Id: Operations.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 
 #include <boost/statechart/event_base.hpp>
+
+#include "xcept/tools.h"
 
 using namespace std;
 using namespace stor;
@@ -62,6 +65,120 @@ Operations::do_processI2OFragment( I2OChain& frag ) const
   //  {
   //    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
   //  }
+}
+
+
+void Operations::safeEntryAction( Notifier* n )
+{
+  const string unknown = "unknown exception";
+  string msg = "Error going into " + stateName() + " state: ";
+  try
+    {
+      do_entryActionWork();
+    }
+  catch( xcept::Exception& e )
+    {
+      try
+        {
+          LOG4CPLUS_FATAL( n->getLogger(),
+                           msg << xcept::stdformat_exception_history(e) );
+          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
+                                sentinelException, msg, e );
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg + unknown );
+        }
+    }
+  catch( std::exception& e )
+    {
+      try
+        {
+          msg += e.what();
+          LOG4CPLUS_FATAL( n->getLogger(), msg );
+          XCEPT_DECLARE( stor::exception::StateTransition,
+                         sentinelException, msg );
+
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg + unknown );
+        }
+    }
+  catch(...)
+    {
+      msg += "unknown exception";
+      try
+        {
+          LOG4CPLUS_FATAL( n->getLogger(), msg );
+          XCEPT_DECLARE( stor::exception::StateTransition,
+                         sentinelException, msg );
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg );
+        }
+    }
+}
+
+
+void Operations::safeExitAction( Notifier* n )
+{
+  const string unknown = "unknown exception";
+  string msg = "Error leaving " + stateName() + " state: ";
+  try
+    {
+      do_exitActionWork();
+    }
+  catch( xcept::Exception& e )
+    {
+      try
+        {
+          LOG4CPLUS_FATAL( n->getLogger(),
+                           msg << xcept::stdformat_exception_history(e) );
+          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
+                                sentinelException, msg, e );
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg + unknown );
+        }
+    }
+  catch( std::exception& e )
+    {
+      try
+        {
+          msg += e.what();
+          LOG4CPLUS_FATAL( n->getLogger(), msg );
+          XCEPT_DECLARE( stor::exception::StateTransition,
+                         sentinelException, msg );
+
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg + unknown );
+        }
+    }
+  catch(...)
+    {
+      msg += "unknown exception";
+      try
+        {
+          LOG4CPLUS_FATAL( n->getLogger(), msg );
+          XCEPT_DECLARE( stor::exception::StateTransition,
+                         sentinelException, msg );
+          n->tellSentinel( "fatal", sentinelException );
+        }
+      catch(...)
+        {
+          n->localDebug( msg );
+        }
+    }
 }
 
 

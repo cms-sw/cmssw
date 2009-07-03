@@ -1,8 +1,9 @@
-// $Id$
+// $Id: FinishingDQM.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -12,6 +13,12 @@ using namespace stor;
 
 FinishingDQM::FinishingDQM( my_context c ): my_base(c)
 {
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void FinishingDQM::do_entryActionWork()
+{
+
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
 
@@ -20,9 +27,15 @@ FinishingDQM::FinishingDQM( my_context c ): my_base(c)
 
   // request end-of-run processing in DQMEventProcessor
   sharedResources->_dqmEventProcessorResources->requestEndOfRun();
+
 }
 
 FinishingDQM::~FinishingDQM()
+{
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void FinishingDQM::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );

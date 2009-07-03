@@ -1,7 +1,8 @@
-// $Id: Halted.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Halted.cc,v 1.3 2009/07/02 13:46:38 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 
@@ -10,71 +11,28 @@
 using namespace std;
 using namespace stor;
 
+void Halted::do_entryActionWork()
+{
+  TransitionRecord tr( stateName(), true );
+  outermost_context().updateHistory( tr );
+  outermost_context().setExternallyVisibleState( "Halted" );
+  outermost_context().getNotifier()->reportNewState( "Halted" );
+}
+
 Halted::Halted( my_context c ): my_base(c)
 {
-  const string unknown = "unknown exception";
-  string msg = "Error going into Halted state: ";
-  try
-    {
-      TransitionRecord tr( stateName(), true );
-      outermost_context().updateHistory( tr );
-      outermost_context().setExternallyVisibleState( "Halted" );
-      outermost_context().getNotifier()->reportNewState( "Halted" );
-    }
-  catch( xcept::Exception& e )
-    {
-      try
-        {
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(),
-                           msg << xcept::stdformat_exception_history(e) );
-          XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
-                                sentinelException, msg, e );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
-  catch( std::exception& e )
-    {
-      try
-        {
-          msg += e.what();
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
-  catch(...)
-    {
-      msg += "unknown exception";
-      try
-        {
-          LOG4CPLUS_FATAL( outermost_context().getNotifier()->getLogger(), msg );
-          XCEPT_DECLARE( stor::exception::StateTransition,
-                         sentinelException, msg );
-          outermost_context().getNotifier()->tellSentinel( "fatal",
-                                                           sentinelException );
-        }
-      catch(...)
-        {
-          outermost_context().getNotifier()->localDebug( unknown );
-        }
-    }
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void Halted::do_exitActionWork()
+{
+  TransitionRecord tr( stateName(), false );
+  outermost_context().updateHistory( tr );
 }
 
 Halted::~Halted()
 {
-  TransitionRecord tr( stateName(), false );
-  outermost_context().updateHistory( tr );
+  safeExitAction( outermost_context().getNotifier() );
 }
 
 string Halted::do_stateName() const

@@ -1,4 +1,4 @@
-// $Id$
+// $Id: DrainingQueues.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -7,6 +7,7 @@
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -16,11 +17,21 @@ using namespace stor;
 
 DrainingQueues::DrainingQueues( my_context c ): my_base(c)
 {
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void DrainingQueues::do_entryActionWork()
+{
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
 }
 
 DrainingQueues::~DrainingQueues()
+{
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void DrainingQueues::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );

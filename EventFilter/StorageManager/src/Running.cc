@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Running.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -6,6 +6,7 @@
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -15,6 +16,12 @@ using namespace stor;
 
 Running::Running( my_context c ): my_base(c)
 {
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void Running::do_entryActionWork()
+{
+
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
 
@@ -42,6 +49,12 @@ Running::Running( my_context c ): my_base(c)
 
 Running::~Running()
 {
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void Running::do_exitActionWork()
+{
+
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );
 

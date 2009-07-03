@@ -1,10 +1,11 @@
-// $Id: Ready.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Ready.cc,v 1.3 2009/06/17 09:40:50 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 
@@ -12,6 +13,11 @@ using namespace std;
 using namespace stor;
 
 Ready::Ready( my_context c ): my_base(c)
+{
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void Ready::do_entryActionWork()
 {
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
@@ -65,6 +71,11 @@ Ready::Ready( my_context c ): my_base(c)
 }
 
 Ready::~Ready()
+{
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void Ready::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );

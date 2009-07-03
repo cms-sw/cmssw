@@ -1,8 +1,9 @@
-// $Id$
+// $Id: Stopping.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -12,6 +13,12 @@ using namespace stor;
 
 Stopping::Stopping( my_context c ): my_base(c)
 {
+  safeEntryAction( outermost_context().getNotifier() );
+}
+
+void Stopping::do_entryActionWork()
+{
+
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
 
@@ -28,6 +35,11 @@ Stopping::Stopping( my_context c ): my_base(c)
 }
 
 Stopping::~Stopping()
+{
+  safeExitAction( outermost_context().getNotifier() );
+}
+
+void Stopping::do_exitActionWork()
 {
   TransitionRecord tr( stateName(), false );
   outermost_context().updateHistory( tr );
