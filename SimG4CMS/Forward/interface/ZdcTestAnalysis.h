@@ -103,7 +103,7 @@ private:
   int stepIndex;
 
   Float_t zdcsteparray[18];
-  Float_t zdceventarray[15];
+  Float_t zdceventarray[16];
 
 };
 
