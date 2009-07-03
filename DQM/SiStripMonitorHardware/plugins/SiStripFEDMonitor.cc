@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.18 2009/07/02 10:17:27 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.19 2009/07/03 15:11:53 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -129,14 +129,16 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   doTkHistoMap_ = fedHists_.isTkHistoMapEnabled();
 
 
-  if (printDebug_) LogTrace("SiStripMonitorHardware") << debugStream.str();
+  if (printDebug_) {
+    LogTrace("SiStripMonitorHardware") << debugStream.str();
 
-  debugStream.str("");
+    debugStream.str("");
 
-  debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
-	      << " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
+    debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
+		<< " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
 
-  edm::LogError("SiStripMonitorHardware") << debugStream.str();
+    edm::LogError("SiStripMonitorHardware") << debugStream.str();
+  }
 
   nEvt_ = 0;
 
