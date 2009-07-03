@@ -2,13 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("rpctest")
 
-
-#process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-#    log = cms.untracked.PSet( threshold = cms.untracked.string("DEBUG") ),
-#    debugModules = cms.untracked.vstring("rpcTriggerDigis"),
     destinations = cms.untracked.vstring('cout')
-    #destinations = cms.untracked.vstring('cout/dev/null')
 )
 
 # rpc geometry
@@ -16,17 +11,19 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
 # emulation
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeSource_cfi")
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfigSource_cfi")
-process.load("L1Trigger.RPCTrigger.rpcTriggerDigis_cfi")
+process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
 
-# one config to rule them all
-#process.load("L1Trigger.RPCTrigger.rpcTriggerDigis_cff")
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
+process.load("L1Trigger/RPCTrigger/rpcTriggerDigis_cff")
+process.rpcTriggerDigis.label = cms.string('simMuonRPCDigis')
+
 
 # should I test globalTag?
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi")
-process.rpcconf.filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/D30/')
+#process.load("L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi")
+#process.rpcconf.filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/D30/')
 
 #process.rpcTriggerDigis.buildOwnLinkSystem = cms.bool(True)
 process.rpcTriggerDigis.label = cms.string('simMuonRPCDigis')
