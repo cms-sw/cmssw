@@ -35,7 +35,7 @@ void SiStripThresholdDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
 //=====================================================================================
 
-/*
+
 // -----
 void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
    
@@ -51,7 +51,7 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 }    
 // -----
 
-*/
+
 
 //======================================================================================
 // -----
@@ -71,7 +71,7 @@ void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     getModMEs(selModME_,selDetId_);
 
 
-    /*
+    
   for( int istrip=0;istrip<nStrip;++istrip){
     try{      
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
@@ -92,14 +92,14 @@ void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     }
   }// istrip
   
-    */
+    
 } 
 
    
 // -----
 
 
-/*
+
 //=======================================================================================
 // -----
 void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
@@ -112,7 +112,7 @@ void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
   
 }    
 // -----
-*/
+
 
 //=======================================================================================
 // -----

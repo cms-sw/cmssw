@@ -7,6 +7,10 @@ SiStripQualityDQM::SiStripQualityDQM(const edm::EventSetup & eSetup,
                                          edm::ParameterSet const& hPSet,
                                          edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
   qualityLabel_ = fPSet.getParameter<std::string>("StripQualityLabel");
+
+  // Build the Histo_TkMap:
+  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","Quality_TkMap",0.);
+
 }
 // -----
 
@@ -54,12 +58,6 @@ void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     try{      
          selModME_.ProfileDistr->Fill(istrip+1,qualityHandle_->IsStripBad(qualityRange,istrip)?0.:1.);
 
-    // Fill the TkMap
-    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, qualityHandle_->IsStripBad(qualityRange,istrip)?0.:1.);
-    }
-
-
     } 
     catch(cms::Exception& e){
       edm::LogError("SiStripQualityDQM")          
@@ -70,6 +68,9 @@ void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 	<< " :  " 
 	<< e.what() ;
     }
+
+
+
   }// istrip
   
 }    
@@ -158,7 +159,7 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
     
     for( int istrip=0;istrip<nStrip;++istrip){
       if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
-    }
+   }
     
     try{ 
       float fr=100*float(numberOfBadStrips)/nStrip;
@@ -168,6 +169,15 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 	sprintf(c,"%d",sameLayerDetIds_[i]);
 	selME_.SummaryDistr->getTH1()->GetXaxis()->SetBinLabel(i+1,c);
       }
+
+   // Fill the TkHistoMap with Quality output :
+      if(HistoMaps_On_ ) Tk_HM_->setBinContent(selDetId_, fr);
+
+    // Fill the TkMap
+    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+      fillTkMap(selDetId_, fr);
+   }
+
     }
     catch(cms::Exception& e){
       edm::LogError("SiStripQualityDQM")
@@ -176,6 +186,12 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 	<< " :  "
 	<< e.what() ;
     } 
+
+
+
+
+
+
   } 
   }//if Fill ...  
 }  

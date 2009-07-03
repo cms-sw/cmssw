@@ -3,8 +3,23 @@
 
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
+
+/* #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h" */
+
+/* #include "CondFormats/SiStripObjects/interface/SiStripNoises.h" */
+/* #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h" */
+/* #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" */
+/* #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h" */
+
+/* #include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h" */
+/* #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h" */
+
+/* #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h" */
+
+
+/* #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h" */
+/* #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h" */
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"

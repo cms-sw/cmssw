@@ -17,9 +17,9 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
-      OutputSummaryAtLayerLevelAsImage           = cms.bool(False),
-      OutputSummaryProfileAtLayerLevelAsImage    = cms.bool(False),
-      OutputCumulativeSummaryAtLayerLevelAsImage = cms.bool(False),
+      OutputSummaryAtLayerLevelAsImage           = cms.bool(True),
+      OutputSummaryProfileAtLayerLevelAsImage    = cms.bool(True),
+      OutputCumulativeSummaryAtLayerLevelAsImage = cms.bool(True),
       Mod_On                  = cms.bool(False),
       HistoMaps_On            = cms.bool(True),
       SummaryOnStringLevel_On = cms.bool(False),
@@ -150,12 +150,13 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     # -----
     SiStripQualityDQM_PSet = cms.PSet(
 
-      ActiveDetIds_On         =  cms.bool(False),
-      
+      ActiveDetIds_On         =  cms.bool(True),
+    
       TkMap_On                =  cms.bool(True),
-      TkMapName               =  cms.string('QualityTkMap.png'),
+      TkMapName               =  cms.string('QualityTkMap.svg'),
       minValue               =  cms.double(0.),
-      maxValue               =  cms.double(1.),  
+      maxValue               =  cms.double(100.), 
+      
 
       CondObj_name   = cms.string('quality'),
       CondObj_fillId = cms.string('onlyProfile'),
