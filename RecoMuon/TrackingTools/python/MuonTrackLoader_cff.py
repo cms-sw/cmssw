@@ -9,7 +9,8 @@ Chi2EstimatorForMuonTrackLoader = cms.ESProducer("Chi2MeasurementEstimatorESProd
     MaxChi2 = cms.double(100000.0)
 )
 
-KFSmootherForMuonTrackLoader = cms.ESProducer("KFTrajectorySmootherESProducer",
+import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
+KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),
     minHits = cms.int32(3),
     ComponentName = cms.string('KFSmootherForMuonTrackLoader'),
@@ -18,7 +19,7 @@ KFSmootherForMuonTrackLoader = cms.ESProducer("KFTrajectorySmootherESProducer",
     Propagator = cms.string('SmartPropagatorAnyRK')
 )
 
-KFSmootherForMuonTrackLoaderL3 = cms.ESProducer("KFTrajectorySmootherESProducer",
+KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),
     minHits = cms.int32(3),
     ComponentName = cms.string('KFSmootherForMuonTrackLoaderL3'),

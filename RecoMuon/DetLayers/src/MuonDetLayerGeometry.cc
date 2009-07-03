@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/23 16:01:33 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/04/11 01:02:44 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - CERN
  */
 
@@ -214,7 +214,7 @@ MuonDetLayerGeometry::allBackwardLayers() const {
     return allBackward;    
 }    
 
-const DetLayer* MuonDetLayerGeometry::idToLayer(DetId &detId) const{
+const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
 
   DetId id;
   

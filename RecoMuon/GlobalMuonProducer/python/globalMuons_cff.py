@@ -18,7 +18,9 @@ Chi2EstimatorForMuRefit = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
     MaxChi2 = cms.double(100000.0)
 )
 
-GlbMuKFFitter = cms.ESProducer("KFTrajectoryFitterESProducer",
+
+from TrackingTools.TrackFitters.TrackFitters_cff import *
+GlbMuKFFitter = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone(
     ComponentName = cms.string('GlbMuKFFitter'),
     Estimator = cms.string('Chi2EstimatorForMuRefit'),
     Propagator = cms.string('SmartPropagatorAnyRK'),

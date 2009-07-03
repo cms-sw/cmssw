@@ -5,18 +5,19 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2006/10/19 13:36:32 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/04/11 01:02:38 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 #include <vector>
 #include <map>
 
 class DetLayer;
 
-class MuonDetLayerGeometry {
+class MuonDetLayerGeometry : public DetLayerGeometry{
  public:
 
   /// Constructor
@@ -70,7 +71,7 @@ class MuonDetLayerGeometry {
   const std::vector<DetLayer*>& allBackwardLayers() const;
   
   /// return the DetLayer which correspond to a certain DetId
-  const DetLayer* idToLayer(DetId &detId) const;
+  virtual const DetLayer* idToLayer(const DetId& detId) const;
 
  private:
   /// Add CSC layers 

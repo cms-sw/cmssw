@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2009/02/10 14:52:39 $
- *  $Revision: 1.48 $
+ *  $Date: 2009/03/17 11:22:03 $
+ *  $Revision: 1.49 $
  *  \authors R. Bellan - INFN Torino <riccardo.bellan@cern.ch>,
  *           D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
@@ -41,7 +41,7 @@ StandAloneMuonRefitter::~StandAloneMuonRefitter() {
 /// Refit
 StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Trajectory& trajectory) {
   
-  theService->eventSetup().get<TrackingComponentsRecord>().get(theFitterName, theFitter);
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName, theFitter);
 
   vector<Trajectory> refitted;
 

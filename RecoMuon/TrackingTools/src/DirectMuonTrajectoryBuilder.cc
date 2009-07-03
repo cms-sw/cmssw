@@ -1,8 +1,8 @@
 /** \class DirectMuonTrajectoryBuilder
  *  Class which takes a trajectory seed and fit its hits, returning a Trajectory container
  *
- *  $Date: 2008/10/06 13:09:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/05 07:39:51 $
+ *  $Revision: 1.2 $
  *  \author
  */
 
@@ -61,7 +61,7 @@ DirectMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 // 				  const TransientTrackingRecHit::ConstRecHitContainer & trajRH,
 // 				  const TrajectoryStateOnSurface & firstTsos) {
 //   // get the actual fitter - Kalman fit
-//   theService->eventSetup().get<TrackingComponentsRecord>().get(theBWLightFitterName, theBWLightFitter);
+//   theService->eventSetup().get<TrajectoryFitter::Record>().get(theBWLightFitterName, theBWLightFitter);
 //   vector<Trajectory> refitted;
 //   Trajectory trajectory;
 //   // the actual Kalman Fit

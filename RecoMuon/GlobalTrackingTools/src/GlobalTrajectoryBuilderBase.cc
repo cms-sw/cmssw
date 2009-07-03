@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/06/01 20:17:06 $
- *  $Revision: 1.33 $
- *  $Date: 2009/06/01 20:17:06 $
- *  $Revision: 1.33 $
+ *  $Date: 2009/06/02 18:26:35 $
+ *  $Revision: 1.34 $
+ *  $Date: 2009/06/02 18:26:35 $
+ *  $Revision: 1.34 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -156,7 +156,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   
   theEvent = &event;
   theLayerMeasurements->setEvent(event);  
-  theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
+  theService->eventSetup().get<TrajectoryFitter::Record>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
   theRegionBuilder->setEvent(event);
 
