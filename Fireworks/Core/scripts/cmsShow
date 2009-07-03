@@ -19,7 +19,7 @@ if [ ! -n "$CMSSW_BASE" ] ; then
   DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib
   export DYLD_LIBRARY_PATH
   cat $CMSSW_BASE/src/Fireworks/Core/standalone_build/version.txt
-  PATH=${ROOTSYS}/bin:/usr/local/bin:/usr/bin:/bin
+  PATH=${ROOTSYS}/bin:/usr/local/bin:/usr/bin/X11:/usr/bin:/bin
   export PATH
 fi
 if [ "`echo $@ | awk '/\-\-soft/'`" != "" ] ; then
