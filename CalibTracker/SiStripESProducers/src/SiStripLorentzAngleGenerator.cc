@@ -9,6 +9,15 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include<cmath>
+#include<algorithm>
+#include<numeric>
+
+// Defined inside a nameless namespace so that it is local to this file
+namespace {
+  double computeSigma(const double & value, const double & perCentError) {
+    return (perCentError/100)*value;
+  }
+}
 
 SiStripLorentzAngleGenerator::SiStripLorentzAngleGenerator(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
   SiStripCondObjBuilderBase<SiStripLorentzAngle>::SiStripCondObjBuilderBase(iConfig)
@@ -21,83 +30,104 @@ SiStripLorentzAngleGenerator::~SiStripLorentzAngleGenerator() {
   edm::LogInfo("SiStripLorentzAngleGenerator") <<  "[SiStripLorentzAngleGenerator::~SiStripLorentzAngleGenerator]";
 }
 
+void SiStripLorentzAngleGenerator::setHallMobility(const double & meanMin, const double & meanMax, const double & sigma, const bool uniform) {
+  if( uniform ) hallMobility_ = CLHEP::RandFlat::shoot(meanMin, meanMax);
+  else if( sigma>0 ) hallMobility_ = CLHEP::RandGauss::shoot(meanMin, sigma);
+  else hallMobility_ = meanMin;
+}
 
-void SiStripLorentzAngleGenerator::createObject(){
-    
+void SiStripLorentzAngleGenerator::setUniform(const vector<double> & TIB_EstimatedValuesMin, const vector<double> & TIB_EstimatedValuesMax, vector<bool> & uniformTIB) {
+  if( TIB_EstimatedValuesMax.size() != 0 ) {
+    vector<double>::const_iterator min = TIB_EstimatedValuesMin.begin();
+    vector<double>::const_iterator max = TIB_EstimatedValuesMax.begin();
+    vector<bool>::iterator uniform = uniformTIB.begin();
+    for( ; min != TIB_EstimatedValuesMin.end(); ++min, ++max ) {
+      if( *min != *max ) *uniform = true;
+    }
+  }
+}
+
+void SiStripLorentzAngleGenerator::createObject() {
+
   obj_ = new SiStripLorentzAngle();
 
 
-  edm::FileInPath fp_                     = _pset.getParameter<edm::FileInPath>("file");
-  vector<double> TIB_EstimatedValueMinMax = _pset.getParameter<vector<double> >("TIB_EstimatedValueMinMax");
-  vector<double> TOB_EstimatedValueMinMax = _pset.getParameter<vector<double> >("TOB_EstimatedValueMinMax");
-  double TIB_PerCent_Err                  = _pset.getParameter<double>("TIB_PerCent_Err");
-  double TOB_PerCent_Err                  = _pset.getParameter<double>("TOB_PerCent_Err");
+  edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
 
-  if( TIB_EstimatedValueMinMax.size() > 2 || TIB_EstimatedValueMinMax.size() == 0 ||
-      TOB_EstimatedValueMinMax.size() > 2 || TOB_EstimatedValueMinMax.size() == 0 ) {
-    cout << "ERROR: provide exactly one or two values for TIB_EstimatedValueMinMax and TOB_EstimatedValueMinMax" << endl;
-    cout << "TIB_EstimatedValueMinMax.size() = " << TIB_EstimatedValueMinMax.size() << endl;
-    cout << "TOB_EstimatedValueMinMax.size() = " << TOB_EstimatedValueMinMax.size() << endl;
+  vector<double> TIB_EstimatedValuesMin(_pset.getParameter<vector<double> >("TIB_EstimatedValuesMin"));
+  vector<double> TIB_EstimatedValuesMax(_pset.getParameter<vector<double> >("TIB_EstimatedValuesMax"));
+  vector<double> TOB_EstimatedValuesMin(_pset.getParameter<vector<double> >("TOB_EstimatedValuesMin"));
+  vector<double> TOB_EstimatedValuesMax(_pset.getParameter<vector<double> >("TOB_EstimatedValuesMax"));
+  vector<double> TIB_PerCent_Errs(_pset.getParameter<vector<double> >("TIB_PerCent_Errs"));
+  vector<double> TOB_PerCent_Errs(_pset.getParameter<vector<double> >("TOB_PerCent_Errs"));
+
+  // If max values are passed they must be equal in number to the min values.
+  if( TIB_EstimatedValuesMax.size() != 0 && (TIB_EstimatedValuesMin.size() != TIB_EstimatedValuesMax.size()) ||
+      TOB_EstimatedValuesMax.size() != 0 && (TOB_EstimatedValuesMin.size() != TOB_EstimatedValuesMax.size()) ) {
+    cout << "ERROR: size of min and max values is different" << endl;
+    cout << "TIB_EstimatedValuesMin.size() = " << TIB_EstimatedValuesMin.size() << ", TIB_EstimatedValuesMax.size() " << TIB_EstimatedValuesMax.size() << endl;
+    cout << "TOB_EstimatedValuesMin.size() = " << TOB_EstimatedValuesMin.size() << ", TOB_EstimatedValuesMax.size() " << TOB_EstimatedValuesMax.size() << endl;
   }
+  vector<bool> uniformTIB(TIB_EstimatedValuesMin.size(), false);
+  vector<bool> uniformTOB(TOB_EstimatedValuesMin.size(), false);
 
+  setUniform(TIB_EstimatedValuesMin, TIB_EstimatedValuesMax, uniformTIB);
+  setUniform(TOB_EstimatedValuesMin, TOB_EstimatedValuesMax, uniformTOB);
+  
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
-  double TIB_EstimatedValues[2] = {0., 0.};
-  double TOB_EstimatedValues[2] = {0., 0.};
-  bool uniformTIB = setEstimatedValues(TIB_EstimatedValueMinMax, TIB_EstimatedValues);
-  bool uniformTOB = setEstimatedValues(TOB_EstimatedValueMinMax, TOB_EstimatedValues);
+  // Compute standard deviations
+  vector<double> StdDevs_TIB(TIB_EstimatedValuesMin.size(), 0);
+  vector<double> StdDevs_TOB(TOB_EstimatedValuesMin.size(), 0);
+  transform(TIB_EstimatedValuesMin.begin(), TIB_EstimatedValuesMin.end(), TIB_PerCent_Errs.begin(), StdDevs_TIB.begin(), computeSigma);
+  transform(TOB_EstimatedValuesMin.begin(), TOB_EstimatedValuesMin.end(), TOB_PerCent_Errs.begin(), StdDevs_TOB.begin(), computeSigma);
+
+  // Compute mean values to be used with TID and TEC
+  double TIBmeanValueMin = accumulate( TIB_EstimatedValuesMin.begin(), TIB_EstimatedValuesMin.end(), 0.)/double(TIB_EstimatedValuesMin.size());
+  double TIBmeanValueMax = accumulate( TIB_EstimatedValuesMax.begin(), TIB_EstimatedValuesMax.end(), 0.)/double(TIB_EstimatedValuesMax.size());
+  double TOBmeanValueMin = accumulate( TOB_EstimatedValuesMin.begin(), TOB_EstimatedValuesMin.end(), 0.)/double(TOB_EstimatedValuesMin.size());
+  double TOBmeanValueMax = accumulate( TOB_EstimatedValuesMax.begin(), TOB_EstimatedValuesMax.end(), 0.)/double(TOB_EstimatedValuesMax.size());
+  double TIBmeanPerCentError = accumulate( TIB_PerCent_Errs.begin(), TIB_PerCent_Errs.end(), 0.)/double(TIB_PerCent_Errs.size());
+  double TOBmeanPerCentError = accumulate( TOB_PerCent_Errs.begin(), TOB_PerCent_Errs.end(), 0.)/double(TOB_PerCent_Errs.size());
+  double TIBmeanStdDev = (TIBmeanPerCentError/100)*TIBmeanValueMin;
+  double TOBmeanStdDev = (TOBmeanPerCentError/100)*TOBmeanValueMin;
 
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
-  double StdDev_TIB = (TIB_PerCent_Err/100)*TIB_EstimatedValues[0];
-  double StdDev_TOB = (TOB_PerCent_Err/100)*TOB_EstimatedValues[0];
+  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++){
+    
+    hallMobility_ = 0;
 
-  for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++) {
-
-    hallMobility_ = 0.;
     StripSubdetector subid(*detit);
 
-    if( subid.subdetId() == int(StripSubdetector::TIB) ) {
-      setHallMobility(TIB_EstimatedValues, StdDev_TIB, uniformTIB);
-    }
-    else if( subid.subdetId() == int(StripSubdetector::TOB) ) {
-      setHallMobility(TOB_EstimatedValues, StdDev_TOB, uniformTOB);
-    }
-    else if( subid.subdetId() == int(StripSubdetector::TID) ) {
-      setHallMobility(TIB_EstimatedValues, StdDev_TIB, uniformTIB);
-    }
-    else if( subid.subdetId() == int(StripSubdetector::TEC) ) {
-      TECDetId TECid = TECDetId(*detit); 
-      if( TECid.ringNumber()<5 ) {
-        setHallMobility(TIB_EstimatedValues, StdDev_TIB, uniformTIB);
-      }
-      else {
-        setHallMobility(TOB_EstimatedValues, StdDev_TOB, uniformTOB);
-      }
-    }
+    int layerId = 0;
 
-    if ( !obj_->putLorentzAngle(*detit, hallMobility_) ) {
+    if(subid.subdetId() == int (StripSubdetector::TIB)) {
+      TIBDetId theTIBDetId(*detit);
+      layerId = theTIBDetId.layer() - 1;
+      setHallMobility( TIB_EstimatedValuesMin[layerId], TIB_EstimatedValuesMax[layerId], StdDevs_TIB[layerId], uniformTIB[layerId] );
+    }
+    else if(subid.subdetId() == int (StripSubdetector::TOB)) {
+      TOBDetId theTOBDetId(*detit);
+      layerId = theTOBDetId.layer() - 1;
+      setHallMobility( TOB_EstimatedValuesMin[layerId], TOB_EstimatedValuesMax[layerId], StdDevs_TOB[layerId], uniformTOB[layerId] );
+    }
+    else if(subid.subdetId() == int (StripSubdetector::TID)) {
+      // ATTENTION: as of now the uniform generation for TID is decided by the setting for layer 0 of TIB
+      setHallMobility( TIBmeanValueMin, TIBmeanValueMax, TIBmeanStdDev, uniformTIB[0] );
+    }
+    if(subid.subdetId() == int (StripSubdetector::TEC)){
+      TECDetId TECid = TECDetId(*detit); 
+      if(TECid.ringNumber()<5){
+        // ATTENTION: as of now the uniform generation for TEC is decided by the setting for layer 0 of TIB
+        setHallMobility( TIBmeanValueMin, TIBmeanValueMax, TIBmeanStdDev, uniformTIB[0] );
+      }else{
+        // ATTENTION: as of now the uniform generation for TEC is decided by the setting for layer 0 of TOB
+        setHallMobility( TOBmeanValueMin, TOBmeanValueMax, TOBmeanStdDev, uniformTOB[0] );
+      }
+    }
+      
+    if ( ! obj_->putLorentzAngle(*detit, hallMobility_) ) {
       edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
     }
   }
-}
-
-bool SiStripLorentzAngleGenerator::setEstimatedValues(const vector<double> & estimatedValueMinMax, double * estimatedValues) const
-{
-  bool uniform = false;
-  if( estimatedValueMinMax.size() == 1 || estimatedValueMinMax[0] == estimatedValueMinMax[1] ) {
-    estimatedValues[0] = estimatedValueMinMax[0];
-  }
-  else {
-    estimatedValues[0] = estimatedValueMinMax[0];
-    estimatedValues[1] = estimatedValueMinMax[1];
-    uniform = true;
-  }
-  return uniform;
-}
-
-void SiStripLorentzAngleGenerator::setHallMobility(const double * estimatedValue, const double & stdDev, const bool uniform)
-{
-  if( uniform ) hallMobility_ = CLHEP::RandFlat::shoot(estimatedValue[0], estimatedValue[1]);
-  else if( stdDev > 0 ) hallMobility_ = CLHEP::RandGauss::shoot(estimatedValue[0], stdDev);
-  else hallMobility_ = estimatedValue[0];
 }
