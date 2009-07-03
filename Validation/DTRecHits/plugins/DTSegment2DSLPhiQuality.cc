@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/19 12:03:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/06/26 13:06:00 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -116,6 +116,12 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
   // Get the 4D rechits from the event
   Handle<DTRecSegment4DCollection> segment4Ds;
   event.getByLabel(segment4DLabel, segment4Ds);
+
+  if(!segment4Ds.isValid()) {
+    if(debug) cout << "[DTSegment2DSLPhiQuality]**Warning: no 4D Segments with label: " << segment4DLabel
+   << " in this event, skipping!" << endl;
+    return;
+  }
     
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;

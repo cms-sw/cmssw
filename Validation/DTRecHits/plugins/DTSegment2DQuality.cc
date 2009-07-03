@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/19 12:03:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/26 13:06:00 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -143,7 +143,13 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> segment2Ds;
   event.getByLabel(segment2DLabel, segment2Ds);
-    
+
+  if(!segment2Ds.isValid()) {
+    if(debug) cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel
+		   << " in this event, skipping!" << endl;
+    return;
+  }    
+
   // Loop over all superlayers containing a segment
   DTRecSegment2DCollection::id_iterator slId;
   for (slId = segment2Ds->id_begin();

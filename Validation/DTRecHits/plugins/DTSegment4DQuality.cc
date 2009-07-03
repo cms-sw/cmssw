@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -110,7 +110,7 @@ void DTSegment4DQuality::endJob() {
   //hEff_W0->Write();
   //hEff_W1->Write();
   //hEff_W2->Write();
-  if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
+  //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
 
   //theFile->Close();
 } 
@@ -140,6 +140,12 @@ void DTSegment4DQuality::endJob() {
     // Get the 4D rechits from the event
     Handle<DTRecSegment4DCollection> segment4Ds;
     event.getByLabel(segment4DLabel, segment4Ds);
+
+    if(!segment4Ds.isValid()) {
+      if(debug) cout << "[DTSegment4DQuality]**Warning: no 4D Segments with label: " <<segment4DLabel
+                << " in this event, skipping!" << endl;
+      return;
+    }    
 
     // Loop over all chambers containing a segment
     DTRecSegment4DCollection::id_iterator chamberId;
