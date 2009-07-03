@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.15 2008/09/02 13:52:17 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.16 2009/06/18 10:27:42 zablocki Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -189,7 +189,6 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelClusterSource::bookMEs(){
   
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
-  theDMBE->setVerbose(0);
     
   SiPixelFolderOrganizer theSiPixelFolder;
   
