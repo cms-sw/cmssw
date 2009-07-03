@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.4 2009/06/29 15:46:09 mommsen Exp $
+// $Id: I2OChain.cc,v 1.5 2009/07/03 10:01:44 mommsen Exp $
 
 #include <algorithm>
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -1772,7 +1772,6 @@ namespace stor
     {
       if ( do_runNumber() != runNumber )
       {
-        _runNumber = runNumber;
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
           << " of error event " << do_eventNumber() <<
@@ -1781,6 +1780,7 @@ namespace stor
           " does not match the run number " << runNumber << 
           " used to configure the StorageManager." <<
           " Enforce usage of configured run number.";
+        _runNumber = runNumber;
         XCEPT_RAISE(stor::exception::RunNumberMismatch, errorMsg.str());
       }
     }
