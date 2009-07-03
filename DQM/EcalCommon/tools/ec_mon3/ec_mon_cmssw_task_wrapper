@@ -355,6 +355,8 @@ process.ecalBarrelMonitorClient.dbPassword = dbPassword
 process.ecalBarrelMonitorClient.dbTagName = 'CMSSW'
 process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'P5_Co'
+process.ecalBarrelMonitorClient.laserWavelengths = [ 1 ]
+process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
 process.ecalEndcapMonitorClient.dbName = dbName
 process.ecalEndcapMonitorClient.dbHostName = dbHostName
@@ -364,9 +366,8 @@ process.ecalEndcapMonitorClient.dbPassword = dbPassword
 process.ecalEndcapMonitorClient.dbTagName = 'CMSSW'
 process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'P5_Co'
-
-process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
-
+process.ecalEndcapMonitorClient.laserWavelengths = [ 1 ]
+process.ecalEndcapMonitorClient.ledWavelengths = [ 1 ]
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Led', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
 process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
