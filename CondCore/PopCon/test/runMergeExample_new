@@ -82,6 +82,10 @@ cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop
 cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db -o
 
 cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db  -l sqlite_file:log.db
+
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
+
+echo "import starting from 64"
 cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -l sqlite_file:log.db
 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
@@ -92,6 +96,7 @@ cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 95  -l 
 echo "duplicate errors"
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 98  -l sqlite_file:log.db
 cmscond_duplicate_iov -c sqlite_file:pop_test.db -t Example_tag -f 45 -s 11  -l sqlite_file:log.db
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
 
 echo "rename"
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag > Example_tag.dump
