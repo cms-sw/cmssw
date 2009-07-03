@@ -5,7 +5,7 @@
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbReflex.h"
 #include<ostream>
-#incude<sstream>
+#include<sstream>
 
 namespace cond {
 
@@ -24,15 +24,15 @@ namespace cond {
     if(m_token.empty()) {
       co << " no token"; return;
     }
-    if (!m_iov )  {
+    if (m_iov.isValid() )  {
       co << " no iov for token " << m_token;
       return;
     }
     co << "iov token " << m_token;
-    co << "\nStamp: " << iov().comment()
-       << "; time " << iov().timestamp()
-       << "; revision " << iov().revision();
-    co <<". TimeType " << cond::timeTypeSpecs[iov().timetype()].name;
+    co << "\nStamp: " <<  m_iov->comment()
+       << "; time " <<  m_iov->timestamp()
+       << "; revision " <<  m_iov->revision();
+    co <<". TimeType " << cond::timeTypeSpecs[ m_iov->timetype()].name;
     if(  m_iov->iovs().empty() ) 
       co << ". empty";
     else
