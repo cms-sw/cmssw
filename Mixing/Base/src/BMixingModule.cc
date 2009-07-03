@@ -109,7 +109,7 @@ namespace edm {
     
     // Check if the signal is present in the root file 
     // for all the objects we want to mix
-    checkSignal(e);
+    //checkSignal(e);
     
     // Create EDProduct
     createnewEDProduct();
