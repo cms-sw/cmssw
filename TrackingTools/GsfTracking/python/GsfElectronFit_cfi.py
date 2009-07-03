@@ -8,7 +8,8 @@ GsfGlobalElectronTest = cms.EDProducer("GsfTrackProducer",
     useHitsSplitting = cms.bool(False),
     TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    Propagator = cms.string('fwdElectronPropagator')
+    Propagator = cms.string('fwdElectronPropagator'),
+    NavigationSchool = cms.string('SimpleNavigationSchool')                                 
 )
 
 
