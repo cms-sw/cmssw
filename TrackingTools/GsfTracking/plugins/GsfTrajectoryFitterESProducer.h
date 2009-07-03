@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include <boost/shared_ptr.hpp>
 
@@ -13,7 +14,7 @@ class  GsfTrajectoryFitterESProducer: public edm::ESProducer{
  public:
   GsfTrajectoryFitterESProducer(const edm::ParameterSet & p);
   virtual ~GsfTrajectoryFitterESProducer(); 
-  boost::shared_ptr<TrajectoryFitter> produce(const TrackingComponentsRecord &);
+  boost::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;
 };

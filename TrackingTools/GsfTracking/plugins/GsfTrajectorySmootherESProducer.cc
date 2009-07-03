@@ -28,19 +28,19 @@ GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::Para
 GsfTrajectorySmootherESProducer::~GsfTrajectorySmootherESProducer() {}
 
 boost::shared_ptr<TrajectorySmoother> 
-GsfTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord){ 
+GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
   //
   // material effects
   //
   std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
   edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.get(matName,matProducer);
+  iRecord.getRecord<TrackingComponentsRecord>().get(matName,matProducer);
   //
   // propagator
   //
   std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
   edm::ESHandle<Propagator> geomProducer;
-  iRecord.get(geomName,geomProducer);
+  iRecord.getRecord<TrackingComponentsRecord>().get(geomName,geomProducer);
   GsfPropagatorWithMaterial propagator(*geomProducer.product(),*matProducer.product());
   //
   // merger
@@ -49,7 +49,7 @@ GsfTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecor
 //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
 //   iRecord.get(mergerName,mergerProducer);
   edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.get(mergerName,mergerProducer);
+  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName,mergerProducer);
   MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
