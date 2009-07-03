@@ -24,7 +24,7 @@ namespace cond {
     if(m_token.empty()) {
       co << " no token"; return;
     }
-    if (m_iov.isValid() )  {
+    if (!m_iov.ptr() )  {
       co << " no iov for token " << m_token;
       return;
     }
