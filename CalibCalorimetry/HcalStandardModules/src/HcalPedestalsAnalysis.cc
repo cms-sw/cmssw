@@ -45,27 +45,41 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->capfc[2] /= bunch_it->num[2][2];
       bunch_it->capfc[3] /= bunch_it->num[3][3];
       //widths are the covariance matrix--assumed symmetric
-      bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0])*(bunch_it->cap[0]);
-      bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1])*(bunch_it->cap[1]);
-      bunch_it->sig[2][2] = (bunch_it->prod[2][2]/bunch_it->num[2][2])-(bunch_it->cap[2])*(bunch_it->cap[2]);
-      bunch_it->sig[3][3] = (bunch_it->prod[3][3]/bunch_it->num[3][3])-(bunch_it->cap[3])*(bunch_it->cap[3]);
-      bunch_it->sig[0][1] = (bunch_it->prod[0][1])/(bunch_it->num[0][1])-(bunch_it->cap[0]*bunch_it->cap[1]);
-      bunch_it->sig[0][2] = (bunch_it->prod[0][2])/(bunch_it->num[0][2])-(bunch_it->cap[0]*bunch_it->cap[2]);
-      bunch_it->sig[0][3] = (bunch_it->prod[0][3])/(bunch_it->num[0][3])-(bunch_it->cap[0]*bunch_it->cap[3]);
-      bunch_it->sig[1][2] = (bunch_it->prod[1][2])/(bunch_it->num[1][2])-(bunch_it->cap[1]*bunch_it->cap[2]);
-      bunch_it->sig[1][3] = (bunch_it->prod[1][3])/(bunch_it->num[1][3])-(bunch_it->cap[1]*bunch_it->cap[3]);
-      bunch_it->sig[2][3] = (bunch_it->prod[2][3])/(bunch_it->num[2][3])-(bunch_it->cap[2]*bunch_it->cap[3]);
+      bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0]*bunch_it->cap[0]);
+      bunch_it->sig[0][1] = (bunch_it->prod[0][1]/bunch_it->num[0][1])-(bunch_it->cap[0]*bunch_it->cap[1]);
+      bunch_it->sig[0][2] = (bunch_it->prod[0][2]/bunch_it->num[0][2])-(bunch_it->cap[0]*bunch_it->cap[2]);
+      bunch_it->sig[0][3] = (bunch_it->prod[0][3]/bunch_it->num[0][3])-(bunch_it->cap[0]*bunch_it->cap[3]);
+      bunch_it->sig[1][0] = (bunch_it->prod[1][0]/bunch_it->num[1][0])-(bunch_it->cap[1]*bunch_it->cap[0]);
+      bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1]*bunch_it->cap[1]);
+      bunch_it->sig[1][2] = (bunch_it->prod[1][2]/bunch_it->num[1][2])-(bunch_it->cap[1]*bunch_it->cap[2]);
+      bunch_it->sig[1][3] = (bunch_it->prod[1][3]/bunch_it->num[1][3])-(bunch_it->cap[1]*bunch_it->cap[3]);
+      bunch_it->sig[2][0] = (bunch_it->prod[2][0]/bunch_it->num[2][0])-(bunch_it->cap[2]*bunch_it->cap[0]);
+      bunch_it->sig[2][1] = (bunch_it->prod[2][1]/bunch_it->num[2][1])-(bunch_it->cap[2]*bunch_it->cap[1]);
+      bunch_it->sig[2][2] = (bunch_it->prod[2][2]/bunch_it->num[2][2])-(bunch_it->cap[2]*bunch_it->cap[2]);
+      bunch_it->sig[2][3] = (bunch_it->prod[2][3]/bunch_it->num[2][3])-(bunch_it->cap[2]*bunch_it->cap[3]);
+      bunch_it->sig[3][0] = (bunch_it->prod[3][0]/bunch_it->num[3][0])-(bunch_it->cap[3]*bunch_it->cap[0]);
+      bunch_it->sig[3][1] = (bunch_it->prod[3][1]/bunch_it->num[3][1])-(bunch_it->cap[3]*bunch_it->cap[1]);
+      bunch_it->sig[3][2] = (bunch_it->prod[3][2]/bunch_it->num[3][2])-(bunch_it->cap[3]*bunch_it->cap[2]);
+      bunch_it->sig[3][3] = (bunch_it->prod[3][3]/bunch_it->num[3][3])-(bunch_it->cap[3]*bunch_it->cap[3]);
 
-      bunch_it->sigfc[0][0] = (bunch_it->prodfc[0][0]/bunch_it->num[0][0])-(bunch_it->capfc[0])*(bunch_it->capfc[0]);
-      bunch_it->sigfc[1][1] = (bunch_it->prodfc[1][1]/bunch_it->num[1][1])-(bunch_it->capfc[1])*(bunch_it->capfc[1]);
-      bunch_it->sigfc[2][2] = (bunch_it->prodfc[2][2]/bunch_it->num[2][2])-(bunch_it->capfc[2])*(bunch_it->capfc[2]);
-      bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3])*(bunch_it->capfc[3]);
-      bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/(bunch_it->num[0][1]))-(bunch_it->capfc[0]*bunch_it->capfc[1]);
-      bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/(bunch_it->num[0][2]))-(bunch_it->capfc[0]*bunch_it->capfc[2]);
-      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/(bunch_it->num[0][3]))-(bunch_it->capfc[0]*bunch_it->capfc[3]);
-      bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/(bunch_it->num[1][2]))-(bunch_it->capfc[1]*bunch_it->capfc[2]);
-      bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
-      bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
+      bunch_it->sigfc[0][0] = (bunch_it->prodfc[0][0]/bunch_it->num[0][0])-(bunch_it->capfc[0]*bunch_it->capfc[0]);
+      bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/bunch_it->num[0][1])-(bunch_it->capfc[0]*bunch_it->capfc[1]);
+      bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/bunch_it->num[0][2])-(bunch_it->capfc[0]*bunch_it->capfc[2]);
+      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/bunch_it->num[0][3])-(bunch_it->capfc[0]*bunch_it->capfc[3]);
+      bunch_it->sigfc[1][0] = (bunch_it->prodfc[1][0]/bunch_it->num[1][0])-(bunch_it->capfc[1]*bunch_it->capfc[0]);
+      bunch_it->sigfc[1][1] = (bunch_it->prodfc[1][1]/bunch_it->num[1][1])-(bunch_it->capfc[1]*bunch_it->capfc[1]);
+      bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/bunch_it->num[1][2])-(bunch_it->capfc[1]*bunch_it->capfc[2]);
+      bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/bunch_it->num[1][3])-(bunch_it->capfc[1]*bunch_it->capfc[3]);
+      bunch_it->sigfc[2][0] = (bunch_it->prodfc[2][0]/bunch_it->num[2][0])-(bunch_it->capfc[2]*bunch_it->capfc[0]);
+      bunch_it->sigfc[2][1] = (bunch_it->prodfc[2][1]/bunch_it->num[2][1])-(bunch_it->capfc[2]*bunch_it->capfc[1]);
+      bunch_it->sigfc[2][2] = (bunch_it->prodfc[2][2]/bunch_it->num[2][2])-(bunch_it->capfc[2]*bunch_it->capfc[2]);
+      bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/bunch_it->num[2][3])-(bunch_it->capfc[2]*bunch_it->capfc[3]);
+      bunch_it->sigfc[3][0] = (bunch_it->prodfc[3][0]/bunch_it->num[3][0])-(bunch_it->capfc[3]*bunch_it->capfc[0]);
+      bunch_it->sigfc[3][1] = (bunch_it->prodfc[3][1]/bunch_it->num[3][1])-(bunch_it->capfc[3]*bunch_it->capfc[1]);
+      bunch_it->sigfc[3][2] = (bunch_it->prodfc[3][2]/bunch_it->num[3][2])-(bunch_it->capfc[3]*bunch_it->capfc[2]);
+      bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3]*bunch_it->capfc[3]);
+
+
 
       if(bunch_it->detid.subdet() == 1){
          for(int i = 0; i != 3; i++){
