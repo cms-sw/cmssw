@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.19 2009/06/19 09:30:00 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.20 2009/06/19 10:45:01 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -241,7 +241,6 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelRecHitSource::bookMEs(){
   
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
-  theDMBE->setVerbose(0);
     
   SiPixelFolderOrganizer theSiPixelFolder;
   

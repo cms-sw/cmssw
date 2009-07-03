@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.6 2009/03/24 13:43:09 wehrlilu Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.7 2009/03/27 11:05:27 wehrlilu Exp $
 
 
 #include <iostream>
@@ -104,8 +104,6 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
-
-  dbe_->setVerbose(0);
 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder;

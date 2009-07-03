@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.26 2008/09/02 12:13:14 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.27 2009/06/18 10:24:06 zablocki Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -193,7 +193,6 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelDigiSource::bookMEs(){
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
-  theDMBE->setVerbose(0);
  
   SiPixelFolderOrganizer theSiPixelFolder;
 
