@@ -11,10 +11,12 @@ class TrajectoryStateOnSurface;
  *  Trajectories out of a seed and/or collection of RecHits.
  */
 
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 
 class TrajectoryFitter {
 public:
-
+  
+  typedef TrajectoryFitterRecord Record;
   typedef Trajectory::RecHitContainer      RecHitContainer;
 
   virtual ~TrajectoryFitter() {}
