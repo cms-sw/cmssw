@@ -921,8 +921,49 @@ void compareEffGif(std::string histoname, TFile* f1, TFile* f2, std::string hist
 
   TCanvas *c = new TCanvas("c","my canvas",1);
 
+  TH1F *hn1 = new TH1F("tmp1",histotitle.c_str(),20,0.5,20.5);
+  TH1F *hn2 = new TH1F("tmp2",histotitle.c_str(),20,0.5,20.5);
+
 
   if (h1 && h2){
+    
+    float Num = 1;
+    float Den = 1;
+    for (int i=0;i<20;i++){
+      Num = h1->GetBinContent(i+1);
+      Den = h1->GetBinContent(i+21);
+      //getEfficiency(Num, Den, eff);
+      float Eff = 0.;
+      float EffE = 0.;
+      if(fabs(Den)>0.000000001){
+        Eff = Num/Den;
+        if(Num<Den){
+          EffE = sqrt( (1.-Eff)*Eff/Den );
+        }
+      }
+      hn1->SetBinContent(i+1, Eff);
+      hn1->SetBinError(i+1, EffE);
+    }
+
+    float Num = 1;
+    float Den = 1;
+    for (int i=0;i<20;i++){
+      Num = h2->GetBinContent(i+1);
+      Den = h2->GetBinContent(i+21);
+      //getEfficiency(Num, Den, eff);
+      float Eff = 0.;
+      float EffE = 0.;
+      if(fabs(Den)>0.000000001){
+        Eff = Num/Den;
+        if(Num<Den){
+          EffE = sqrt( (1.-Eff)*Eff/Den );
+        }
+      }
+      hn2->SetBinContent(i+1, Eff);
+      hn2->SetBinError(i+1, EffE);
+    }
+
+
     gStyle->SetOptStat(kFALSE);
     gStyle->SetHistFillColor(92);
     gStyle->SetFrameFillColor(4000);
@@ -932,51 +973,53 @@ void compareEffGif(std::string histoname, TFile* f1, TFile* f2, std::string hist
     gStyle->SetStatColor(0);
     gStyle->SetTitleFillColor(0);
     c->SetFillStyle(4000);
-    h1->UseCurrentStyle();
+    hn1->UseCurrentStyle();
 
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.7);
-    h1->GetXaxis()->SetTitleSize(0.06);
-    h1->GetXaxis()->SetNdivisions(208,kTRUE);
-    h1->GetYaxis()->SetRangeUser(0.5,1.1);
-    h1->SetMarkerStyle(6);
-    h1->SetMarkerColor(kBlue);
-    h2->SetMarkerStyle(6);
-    h2->SetMarkerColor(kRed);
-    h1->GetXaxis()->SetBinLabel(1,"ME +1/1b");
-    h1->GetXaxis()->SetBinLabel(2,"ME +1/2");
-    h1->GetXaxis()->SetBinLabel(3,"ME +1/3");
-    h1->GetXaxis()->SetBinLabel(4,"ME +1/1a");
-    h1->GetXaxis()->SetBinLabel(5,"ME +2/1");
-    h1->GetXaxis()->SetBinLabel(6,"ME +2/2");
-    h1->GetXaxis()->SetBinLabel(7,"ME +3/1");
-    h1->GetXaxis()->SetBinLabel(8,"ME +3/2");
-    h1->GetXaxis()->SetBinLabel(9,"ME +4/1");
-    h1->GetXaxis()->SetBinLabel(10,"ME +4/2");
-    h1->GetXaxis()->SetBinLabel(11,"ME -1/1b");
-    h1->GetXaxis()->SetBinLabel(12,"ME -1/2");
-    h1->GetXaxis()->SetBinLabel(13,"ME -1/3");
-    h1->GetXaxis()->SetBinLabel(14,"ME -1/1a");
-    h1->GetXaxis()->SetBinLabel(15,"ME -2/1");
-    h1->GetXaxis()->SetBinLabel(16,"ME -2/2");
-    h1->GetXaxis()->SetBinLabel(17,"ME -3/1");
-    h1->GetXaxis()->SetBinLabel(18,"ME -3/2");
-    h1->GetXaxis()->SetBinLabel(19,"ME -4/1");
-    h1->GetXaxis()->SetBinLabel(20,"ME -4/2");
+    hn1->SetTitle(histotitle.c_str());
+    hn1->GetXaxis()->SetLabelSize(0.04);
+    hn1->GetYaxis()->SetLabelSize(0.04);
+    hn1->GetXaxis()->SetTitleOffset(0.7);
+    hn1->GetXaxis()->SetTitleSize(0.06);
+    hn1->GetXaxis()->SetNdivisions(208,kTRUE);
+    hn1->GetYaxis()->SetRangeUser(0.5,1.1);
+    hn1->SetMarkerStyle(6);
+    hn1->SetMarkerColor(kBlue);
+    hn2->SetMarkerStyle(6);
+    hn2->SetMarkerColor(kRed);
+    hn1->GetXaxis()->SetBinLabel(1,"ME +1/1b");
+    hn1->GetXaxis()->SetBinLabel(2,"ME +1/2");
+    hn1->GetXaxis()->SetBinLabel(3,"ME +1/3");
+    hn1->GetXaxis()->SetBinLabel(4,"ME +1/1a");
+    hn1->GetXaxis()->SetBinLabel(5,"ME +2/1");
+    hn1->GetXaxis()->SetBinLabel(6,"ME +2/2");
+    hn1->GetXaxis()->SetBinLabel(7,"ME +3/1");
+    hn1->GetXaxis()->SetBinLabel(8,"ME +3/2");
+    hn1->GetXaxis()->SetBinLabel(9,"ME +4/1");
+    hn1->GetXaxis()->SetBinLabel(10,"ME +4/2");
+    hn1->GetXaxis()->SetBinLabel(11,"ME -1/1b");
+    hn1->GetXaxis()->SetBinLabel(12,"ME -1/2");
+    hn1->GetXaxis()->SetBinLabel(13,"ME -1/3");
+    hn1->GetXaxis()->SetBinLabel(14,"ME -1/1a");
+    hn1->GetXaxis()->SetBinLabel(15,"ME -2/1");
+    hn1->GetXaxis()->SetBinLabel(16,"ME -2/2");
+    hn1->GetXaxis()->SetBinLabel(17,"ME -3/1");
+    hn1->GetXaxis()->SetBinLabel(18,"ME -3/2");
+    hn1->GetXaxis()->SetBinLabel(19,"ME -4/1");
+    hn1->GetXaxis()->SetBinLabel(20,"ME -4/2");
 
     TLegend *leg = new TLegend(0.79,0.79,0.89,0.89);
-    leg->AddEntry(h1,"new","p");
-    leg->AddEntry(h2,"ref","p");
+    leg->AddEntry(hn1,"new","p");
+    leg->AddEntry(hn2,"ref","p");
 
-    h1->Draw();
-    h2->Draw("same");
+    hn1->Draw();
+    hn2->Draw("same");
     leg->Draw();
     c->Update();
     c->Print(savename.c_str(),"png");
   }
   delete c;
+  delete hn1;
+  delete hn2;
 
 }
 
