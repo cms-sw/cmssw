@@ -12,7 +12,6 @@ import FWCore.ParameterSet.Config as cms
 # Addition of HCAL noise by JP Chou
 # Date:  3/26/09
 
-import FWCore.ParameterSet.Config as cms
 from RecoMET.Configuration.RecoMET_cff import *
 
 tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
