@@ -32,7 +32,7 @@ namespace cond {
     co << "\nStamp: " <<  m_iov->comment()
        << "; time " <<  m_iov->timestamp()
        << "; revision " <<  m_iov->revision();
-    co <<". TimeType " << cond::timeTypeSpecs[ m_iov->timetype()].name;
+    co <<". TimeType " << cond::timeTypeSpecs[ m_iov->timeType()].name;
     if(  m_iov->iovs().empty() ) 
       co << ". empty";
     else
@@ -188,7 +188,7 @@ namespace cond {
     cond::Time_t   lastTime = values.back().sinceTime();
 
     if(!validTime(firstTime))
-      reportError("cond::IOVEditorImpl::bulkInsert first time not in global range",firstTiime);
+      reportError("cond::IOVEditorImpl::bulkInsert first time not in global range",firstTime);
 
     if(!validTime(lastTime))
       reportError("cond::IOVEditorImpl::bulkInsert last time not in global range",lastTime);
