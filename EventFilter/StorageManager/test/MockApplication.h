@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockApplication.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
+// $Id: MockApplication.h,v 1.3 2009/07/03 18:39:40 mommsen Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H
@@ -39,7 +39,6 @@ namespace stor
       log4cplus::BasicConfigurator config;
       config.configure();
       _logger = Logger::getInstance("main");
-      LOG4CPLUS_FATAL(_logger, "test");
 
       _ispace = new xdata::InfoSpace("MockApplication");
     }
