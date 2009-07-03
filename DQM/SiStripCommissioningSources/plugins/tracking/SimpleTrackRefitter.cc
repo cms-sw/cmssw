@@ -75,7 +75,7 @@ void SimpleTrackRefitter::setServices(const edm::EventSetup& es)
   edm::ESHandle<TrajectoryFitter> fitter;
   LogDebug("SimpleTrackRefitter") << "get the fitter from the ES" << "\n";
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-  es.get<TrackingComponentsRecord>().get(fitterName,fitter);
+  es.get<TrajectoryFitter::Record>().get(fitterName,fitter);
   theFitter=&(*fitter);
   // get the propagator
   edm::ESHandle<Propagator> propagator;
