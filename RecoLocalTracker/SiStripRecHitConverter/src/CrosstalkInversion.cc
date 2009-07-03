@@ -4,7 +4,7 @@ namespace reco {
 
 std::vector<stats_t<float> > InverseCrosstalkMatrix::
 unfold(const std::vector<uint8_t>& q, const float x) {
-  const stats_t<float> saturated(254,400*400);
+  const stats_t<float> saturated(254,400);
   #define STATS(value) ( (value<254) ? stats_t<float>(value) : saturated )
 
   const unsigned N=q.size();
