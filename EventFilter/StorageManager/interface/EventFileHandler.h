@@ -1,4 +1,4 @@
-// $Id$
+// $Id: EventFileHandler.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
 
 #ifndef StorageManager_EventFileHandler_h
 #define StorageManager_EventFileHandler_h
@@ -14,9 +14,9 @@ namespace stor {
   /**
    * Represents a file holding event data
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
   
   class EventFileHandler : public FileHandler
@@ -37,8 +37,12 @@ namespace stor {
      */
     virtual void writeEvent(const I2OChain&);
  
-    //      void   report(std::ostream &os, int indentation) const;
-    
+   /**
+     *  Returns true if the file has not seen any recent events
+     */
+    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
+  
+
   private:
     
     /**

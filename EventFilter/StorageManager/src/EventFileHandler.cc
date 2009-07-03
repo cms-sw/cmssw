@@ -1,4 +1,4 @@
-// $Id$
+// $Id: EventFileHandler.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
 #include <IOPool/Streamer/interface/EventMessage.h>
@@ -63,6 +63,21 @@ void EventFileHandler::writeEvent(const I2OChain& event)
   _fileRecord->fileSize += event.totalDataSize();
   ++_fileRecord->eventCount;
   _lastEntry = utils::getCurrentTime();
+}
+
+
+const bool EventFileHandler::tooOld(utils::time_point_t currentTime)
+{
+  if (_diskWritingParams._lumiSectionTimeOut > 0 && 
+    (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
+  {
+    _closingReason = FilesMonitorCollection::FileRecord::timeout;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 

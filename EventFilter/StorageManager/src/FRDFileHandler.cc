@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FRDFileHandler.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
 #include <IOPool/Streamer/interface/FRDEventMessage.h>
@@ -37,6 +37,21 @@ void FRDFileHandler::writeEvent(const I2OChain& chain)
   _fileRecord->fileSize += chain.totalDataSize();
   ++_fileRecord->eventCount;
   _lastEntry = utils::getCurrentTime();
+}
+
+
+const bool FRDFileHandler::tooOld(utils::time_point_t currentTime)
+{
+  if (_diskWritingParams._errorEventsTimeOut > 0 &&
+    (currentTime - _lastEntry) > _diskWritingParams._errorEventsTimeOut)
+  {
+    _closingReason = FilesMonitorCollection::FileRecord::timeout;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 

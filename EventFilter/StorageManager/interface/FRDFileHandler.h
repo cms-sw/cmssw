@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FRDFileHandler.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
 
 #ifndef StorageManager_FRDFileHandler_h
 #define StorageManager_FRDFileHandler_h
@@ -12,9 +12,9 @@ namespace stor {
    * Represents a file holding HLT error events in the
    * FED Raw Data (FRD) format.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -35,12 +35,10 @@ namespace stor {
     virtual void writeEvent(const I2OChain&);
 
     /**
-     * Error events are never too old
+     *  Returns true if the file has not seen any recent events
      */
-    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime())
-    { return false; }
-    
-    //      void   report(std::ostream &os, int indentation) const;
+    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
+
     
   private:
     

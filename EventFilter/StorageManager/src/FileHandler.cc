@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FileHandler.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
 
 #include <EventFilter/StorageManager/interface/Exception.h>
 #include <EventFilter/StorageManager/interface/FileHandler.h>
@@ -126,20 +126,6 @@ void FileHandler::insertFileInDatabase() const
   ofstream of(_logFile.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << oss.str().c_str();
   of.close();
-}
-
-
-const bool FileHandler::tooOld(utils::time_point_t currentTime)
-{
-  if ((currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
-  {
-    _closingReason = FilesMonitorCollection::FileRecord::timeout;
-    return true;
-  }
-  else
-  {
-    return false;
-  }
 }
 
 
