@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.3 2009/04/05 23:21:40 nuno Exp $
+// $Id: TopValidation.cc,v 1.4 2009/06/22 13:23:37 lobelle Exp $
 //
 //
 
@@ -216,7 +216,8 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int n_jets_20=0;
     
       for (jet = jets->begin(); jet != jets->end(); jet++){        
-        if (fabs(jet->eta()) <2.4 && jet->et() > 20) n_jets_20++;     
+       // if (fabs(jet->eta()) <2.4 && jet->et() > 20) n_jets_20++; 
+       if (fabs(jet->eta()) <2.4 && jet->et() > 13) n_jets_20++;    
       } 
     
 
@@ -235,9 +236,9 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool offline_emu      = false;
     
     
-    if ( selected_muons.size()>0 && muon1.pt()>20 && n_jets_20>3)         offline_mu=true;
+    if ( selected_muons.size()>0 && muon1.pt()>20 && n_jets_20>1)         offline_mu=true;
     if ( TwoMuonsAccepted && n_jets_20>1)                                 offline_dimu=true;
-    if ( selected_electrons.size()>0 && electron1.pt()>20 && n_jets_20>3)  offline_el=true;
+    if ( selected_electrons.size()>0 && electron1.pt()>20 && n_jets_20>1)  offline_el=true;
     if ( TwoElectronsAccepted && n_jets_20>1)                             offline_diel=true;
     if ( selected_muons.size()>0 && selected_electrons.size()>0 && (muon1.pt()>20 || electron1.pt()>20) && (muon1.charge()!= electron1.charge()) && n_jets_20>1) offline_emu=true;
     
