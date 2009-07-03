@@ -24,10 +24,6 @@ unfold(const std::vector<uint8_t>& q, const float x) {
     for(unsigned i=0; i<(N+1)/2; i++) {
       for(unsigned j=i; j<N-i; j++) {
 	const float Cij = inverse(i+1,j+1);
-	const stats_t<float> q_j  = (q[  j  ]<254) ? stats_t<float>(q[  j  ]) : saturated;
-	const stats_t<float> q_i  = (q[  i  ]<254) ? stats_t<float>(q[  i  ]) : saturated;
-	const stats_t<float> qNj1 = (q[N-j-1]<254) ? stats_t<float>(q[N-j-1]) : saturated;
-	const stats_t<float> qNi1 = (q[N-i-1]<254) ? stats_t<float>(q[N-i-1]) : saturated;
 	Q[  i  ] += Cij * STATS(q[  j  ]) ;  if( i!=j)   
 	Q[  j  ] += Cij * STATS(q[  i  ]) ;  if( N!=i+j+1) {
 	Q[N-i-1] += Cij * STATS(q[N-j-1]) ;  if( i!=j)
