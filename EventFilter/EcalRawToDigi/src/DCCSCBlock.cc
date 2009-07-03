@@ -53,7 +53,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     
     // using expected cry_di to raise warning about xtal_id problem
     pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
-    (*invalidChIds_)->push_back(*pDetId_);
+    if(pDetId_) {  (*invalidChIds_)->push_back(*pDetId_); }
     
     stripId = expStripID;
     xtalId  = expXtalID;
