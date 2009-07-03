@@ -532,7 +532,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
 
     edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
     string fitterName = confSetup.getUntrackedParameter< string >( "Fitter", "KFFittingSmoother" );
-    setup.get< TrackingComponentsRecord >().get( fitterName, aTrajectoryFitter );
+    setup.get<TrajectoryFitter::Record>().get( fitterName, aTrajectoryFitter );
 
     double outlierEstimateCut = 5.;
 
