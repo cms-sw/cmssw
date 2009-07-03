@@ -472,6 +472,7 @@ void rateVsTower(TEffMap & effMap,int ptCodeCut){
 double rate(double x){
 
 
+   /*
    double ret = 0;
    double a = -0.235801;
    double b = -2.82346;
@@ -480,9 +481,25 @@ double rate(double x){
    //f1(x) =  x**(a*log(x)) *(x**b)*exp(c)
   //ret = std::pow( x,a*std::log(x) ) * std::pow(x,b)*std::exp(c)l
    ret = std::pow( x,a*std::log(x) ) * std::pow(x,b)*std::exp(c);
-
-
    return ret;
+*/
+
+
+ const double lum = 2.0e33; //defoult is 1.0e34;
+ const double dabseta = 1.0;
+ const double dpt = 1.0;
+ const double afactor = 1.0e-34*lum*dabseta*dpt;
+ const double a  = 2*1.3084E6;
+ const double mu=-0.725;
+ const double sigma=0.4333;
+ const double s2=2*sigma*sigma; 
+ double ptlog10;
+ ptlog10 = std::log10(x);
+ double ex = (ptlog10-mu)*(ptlog10-mu)/s2;
+ double rate = (a * exp(-ex) * afactor); 
+
+ return rate;
+
 }
 /*************************************************
 *
@@ -503,7 +520,8 @@ double binRate(double pt1, double pt2, int tower){
    double etaTowerSize = etas[tower+1]-etas[tower];
    double detEta = 2.1;
 
-   double ret = rate(pt2)-rate(pt1);
+   //double ret = rate(pt2)-rate(pt1);
+   double ret =( rate(pt2)-rate(pt1) ) /2/(pt2-pt1) ;
    
    if (ret<0){
       ret = -ret;
@@ -522,7 +540,7 @@ double binRate(double pt1, double pt2, int tower){
 **************************************************/
 int  getBinNo(double pt){
    
-   return getPtCode(pt);
+   //return getPtCode(pt);
    
    int ret = 0;
    int nbins = 1000;
@@ -554,6 +572,7 @@ int  getBinNo(double pt){
 **************************************************/
 void getBinBounds(int binNo, double & pt1, double & pt2){
 
+   /*
    pt1 = getPt(binNo);
    if(binNo == 31) 
       pt2 = 200.;
@@ -561,7 +580,8 @@ void getBinBounds(int binNo, double & pt1, double & pt2){
       pt2 = getPt(binNo+1);
          
    return;      
-   
+   */
+
    int nbins = 1000;
    //int nbins = 200;
    double ptLow = 1.49;
