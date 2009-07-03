@@ -74,6 +74,7 @@ lumi::HLTScalerDBReader::fill(int startRun,
     std::set<std::string> listoftabs;
     listoftabs=transaction.nominalSchema().listTables();
     std::string tabname("HLT_SUPERVISOR_LUMISECTIONS_V2");
+    std::string maptabname("HLT_SUPERVISOR_SCALAR_MAP");
     for( std::set<std::string>::iterator it=listoftabs.begin(); it!=listoftabs.end();++it ){
       std::cout<<"tab: "<<*it<<std::endl;
     }
@@ -107,13 +108,16 @@ lumi::HLTScalerDBReader::fill(int startRun,
 	delete query0;
       }
       //queries per run
-      coral::IQuery* query1 = transaction.nominalSchema().tableHandle(tabname).newQuery();
-      query1->addToOutputList("LSNUMBER","lsnumber");
-      query1->addToOutputList("PATHNAME","pathname");
-      query1->addToOutputList("L1PASS","hltinput");
-      query1->addToOutputList("PACCEPT","hltratecounter");
-      query1->setCondition("RUNNR =:runnumber",bindVariableList);
-      query1->addToOrderList("LSNUMBER");
+      coral::IQuery* query1 = transaction.nominalSchema().newQuery();
+      query1->addToTableList(tabname,"l");
+      query1->addToTableList(maptabname,"m");
+      query1->addToOutputList("l.LSNUMBER","lsnumber");
+      query1->addToOutputList("l.PATHNAME","pathname");
+      query1->addToOutputList("l.L1PASS","hltinput");
+      query1->addToOutputList("l.PACCEPT","hltratecounter");
+      query1->addToOutputList("m.PSVALUE","prescale");
+      query1->setCondition("l.RUNNR=m.RUNNR AND l.PSINDEX=m.PSINDEX AND l.PATHNAME=m.PATHNAME AND l.RUNNR =:runnumber",bindVariableList);
+      query1->addToOrderList("l.LSNUMBER");
       query1->setRowCacheSize( 10692 );
       coral::ICursor& cursor1 = query1->execute();
 
@@ -126,17 +130,12 @@ lumi::HLTScalerDBReader::fill(int startRun,
 	currentLumiSection=(int)row["lsnumber"].data<long long>();//updateLumiSection
 	std::cout<<"current run "<<currentRun<<std::endl;
 	std::cout<<"currentLumiSection "<<currentLumiSection<<std::endl;
-	std::cout<<"current path number "<<currentPath<<std::endl;
-	int hltinput=-99;
-	if( !row["hltinput"].isNull() ){
-	  hltinput=(int)row["hltinput"].data<long long>();
-	}
-	int hltratecounter=-99;
-	if( !row["hltratecounter"].isNull() ){
-	  hltratecounter=(int)row["hltratecounter"].data<long long>();
-	}
+	std::cout<<"current path number"<<currentPath<<std::endl;
+	int hltinput=(int)row["hltinput"].data<long long>();
+	int hltratecounter=(int)row["hltratecounter"].data<long long>();
 	std::string pathname=row["pathname"].data<std::string>();
-	lumi::HLTInfo hltinfo(pathname,hltinput,hltratecounter,-99);	  
+	int prescale=(int)row["prescale"].data<long long>();
+	lumi::HLTInfo hltinfo(pathname,hltinput,hltratecounter,prescale);	  
 	hltinfoPerLumi.push_back( hltinfo );
 	if(currentPath==npath){
 	  lumi::HLTScaler* h=new lumi::HLTScaler;
