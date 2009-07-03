@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.3 2009/06/26 21:10:30 biery Exp $
+// $Id: I2OChain.cc,v 1.4 2009/06/29 15:46:09 mommsen Exp $
 
 #include <algorithm>
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -1347,7 +1347,8 @@ namespace stor
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
           << " of event " << do_eventNumber() <<
-          " received from " << hltURL() << 
+          " received from " << hltURL() <<
+          " (FU process id " << fuProcessId() << ")" <<
           " does not match the run number " << runNumber << 
           " used to configure the StorageManager.";
         XCEPT_RAISE(stor::exception::RunNumberMismatch, errorMsg.str());
@@ -1570,6 +1571,7 @@ namespace stor
         errorMsg << "Run number " << do_runNumber() 
           << " of DQM event " << do_eventNumber() <<
           " received from " << hltURL() << 
+          " (FU process id " << fuProcessId() << ")" <<
           " does not match the run number " << runNumber << 
           " used to configure the StorageManager.";
         XCEPT_RAISE(stor::exception::RunNumberMismatch, errorMsg.str());
@@ -1775,6 +1777,7 @@ namespace stor
         errorMsg << "Run number " << do_runNumber() 
           << " of error event " << do_eventNumber() <<
           " received from " << hltURL() << 
+          " (FU process id " << fuProcessId() << ")" <<
           " does not match the run number " << runNumber << 
           " used to configure the StorageManager." <<
           " Enforce usage of configured run number.";
