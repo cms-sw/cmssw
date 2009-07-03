@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.RecoGeometry.RecoGeometries_cff import *
 from TrackingTools.TrackFitters.MRHFittingSmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.MRHTrajectoryFitterESProducer_cfi import *
 from TrackingTools.TrackFitters.MRHTrajectorySmootherESProducer_cfi import *

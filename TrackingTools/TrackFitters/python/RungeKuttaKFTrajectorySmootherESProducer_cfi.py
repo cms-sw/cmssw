@@ -6,7 +6,9 @@ RKTrajectorySmoother = cms.ESProducer("KFTrajectorySmootherESProducer",
     ComponentName = cms.string('RKSmoother'),
     Estimator = cms.string('Chi2'),
     Updator = cms.string('KFUpdator'),
+    RecoGeometry = cms.string('GlobalDetLayerGeometry'),                                
     Propagator = cms.string('RungeKuttaTrackerPropagator')
+
 )
 
 

@@ -5,6 +5,7 @@ RKTrajectoryFitter = cms.ESProducer("KFTrajectoryFitterESProducer",
     Estimator = cms.string('Chi2'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
     Updator = cms.string('KFUpdator'),
+    RecoGeometry = cms.string('GlobalDetLayerGeometry'),                                
     minHits = cms.int32(3)
 )
 
