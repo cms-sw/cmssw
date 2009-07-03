@@ -11,8 +11,8 @@ TrackProducer = cms.EDProducer("TrackProducer",
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
-    #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)                               
-    NavigationSchool = cms.string('')                              
+    #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)    
+    NavigationSchool = cms.string('SimpleNavigationSchool')                              
 )
 
 
