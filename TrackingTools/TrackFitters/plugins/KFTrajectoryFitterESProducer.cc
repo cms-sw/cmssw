@@ -27,25 +27,29 @@ KFTrajectoryFitterESProducer::KFTrajectoryFitterESProducer(const edm::ParameterS
 KFTrajectoryFitterESProducer::~KFTrajectoryFitterESProducer() {}
 
 boost::shared_ptr<TrajectoryFitter> 
-KFTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord){ 
+KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
 
   std::string pname = pset_.getParameter<std::string>("Propagator");
   std::string uname = pset_.getParameter<std::string>("Updator");
   std::string ename = pset_.getParameter<std::string>("Estimator");
+  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
   int minHits = pset_.getParameter<int>("minHits");
 
   edm::ESHandle<Propagator> prop;
   edm::ESHandle<TrajectoryStateUpdator> upd;
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
+  edm::ESHandle<DetLayerGeometry> geo;
 
-  iRecord.get(pname, prop);
-  iRecord.get(uname, upd);
-  iRecord.get(ename, est);
+  iRecord.getRecord<TrackingComponentsRecord>().get(pname, prop);
+  iRecord.getRecord<TrackingComponentsRecord>().get(uname, upd);
+  iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
+  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
 
   _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(prop.product(),
 									upd.product(),
 									est.product(),
-									minHits));
+									minHits,
+  									geo.product() ));
   return _fitter;
 }
 
