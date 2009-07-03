@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre11/HLT/V7 (CMSSW_3_1_0)
+# /dev/CMSSW_3_1_0/pre11/HLT/V8 (CMSSW_3_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HLT/V7')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HLT/V8')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -189,7 +189,9 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   NoInvalidHitsBeginEnd = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
+GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "GroupedCkfTrajectoryBuilder" ),
   updator = cms.string( "KFUpdator" ),
@@ -1781,7 +1783,7 @@ hltEcalRegionalJetsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     JetJobPSet = cms.VPSet( 
       cms.PSet(  regionEtaMargin = cms.double( 1.0 ),
         regionPhiMargin = cms.double( 1.0 ),
-        Ptmin = cms.double( 20.0 ),
+        Ptmin = cms.double( 14.0 ),
         Source = cms.InputTag( 'hltL1extraParticles','Central' )
       ),
       cms.PSet(  regionEtaMargin = cms.double( 1.0 ),
@@ -1791,7 +1793,7 @@ hltEcalRegionalJetsFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
       ),
       cms.PSet(  regionEtaMargin = cms.double( 1.0 ),
         regionPhiMargin = cms.double( 1.0 ),
-        Ptmin = cms.double( 20.0 ),
+        Ptmin = cms.double( 14.0 ),
         Source = cms.InputTag( 'hltL1extraParticles','Tau' )
       )
     ),

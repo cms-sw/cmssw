@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre11/HIon_V7/V2 (CMSSW_3_1_0)
+# /dev/CMSSW_3_1_0/pre11/HIon_V8/V2 (CMSSW_3_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HIon_V7/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HIon_V8/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -189,7 +189,9 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   NoInvalidHitsBeginEnd = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
 )
-GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
+GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "GroupedCkfTrajectoryBuilder" ),
   updator = cms.string( "KFUpdator" ),
