@@ -14,9 +14,9 @@
 cond::IOVSequence const & cond::IOVServiceImpl::iovSeq(const std::string& iovToken) const {
   Cache::const_iterator it=m_iovcache.find(iovToken);
   if(it!=m_iovcache.end()) return *(*it).second;
-    pool::Ref<cond::IOVSequence> temp(&(m_pooldb->poolDataSvc()),iovtoken);
-    m_iovcache[iovtoken].copyShallow(temp);
-    return *temp;
+  pool::Ref<cond::IOVSequence> temp(&(m_pooldb->poolDataSvc()),iovToken);
+  m_iovcache[iovToken].copyShallow(temp);
+  return *temp;
 }
 
 
