@@ -23,11 +23,18 @@ DetIdToMatrix::~DetIdToMatrix()
 TFile* DetIdToMatrix::findFile(const char* fileName)
 {
    TString file;
-   if ( const char* cmspath = gSystem->Getenv("CMSSW_BASE") ) {
-      file += cmspath;
-      file += "/";
+   if ( fileName[0] == '/')
+   {
+      file= fileName;
    }
-   file += fileName;
+   else
+   {
+      if ( const char* cmspath = gSystem->Getenv("CMSSW_BASE") ) {
+         file += cmspath;
+         file += "/";
+      }
+      file += fileName;
+   }
    if ( ! gSystem->AccessPathName(file.Data()) ) {
       return TFile::Open(fileName);
    } 
@@ -42,7 +49,7 @@ TFile* DetIdToMatrix::findFile(const char* fileName)
       fullFileName += "/Fireworks/Geometry/data/";
       fullFileName += fileName;
       if ( ! gSystem->AccessPathName(fullFileName.Data()) )
-	return TFile::Open(fullFileName.Data());
+         return TFile::Open(fullFileName.Data());
    }
    return 0;
 }
