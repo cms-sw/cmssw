@@ -120,6 +120,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HBHERecHitTag_            = conf.getParameter<edm::InputTag> ("HBHERecHits");  
   HORecHitTag_              = conf.getParameter<edm::InputTag> ("HORecHits");  
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
+  IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
 
   m_file = 0;   // set to null
   errCnt = 0;
@@ -144,6 +145,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   elm_analysis_.setup(conf, HltTree);
   muon_analysis_.setup(conf, HltTree);
   alca_analysis_.setup(conf, HltTree); 
+  track_analysis_.setup(conf, HltTree);
   mct_analysis_.setup(conf, HltTree);
   hlt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
@@ -233,7 +235,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<HBHERecHitCollection>           hbherechits;   
   edm::Handle<HORecHitCollection>             horechits;   
   edm::Handle<HFRecHitCollection>             hfrechits;   
-  
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL3; 
+
   // new stuff for the egamma EleId
    edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
    edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
@@ -352,6 +355,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             kHBHErechits );   
   getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
+  getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -442,6 +446,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     pTopology, 
     l1CaloGeom,
     HltTree);  
+
+  track_analysis_.analyze( 
+    isopixeltracksL3, 
+    HltTree); 
 
   hlt_analysis_.analyze(
     hltresults,

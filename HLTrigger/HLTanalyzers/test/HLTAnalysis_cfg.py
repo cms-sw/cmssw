@@ -54,11 +54,6 @@ process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 del process.PrescaleService
 
 # AlCa OpenHLT specific settings
-##process.hltEcalRegionalRestFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-##process.hltEcalRegionalJetsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-##process.hltEcalRegionalEgammaFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-##process.hltEcalRegionalMuonsFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
-##process.hltEcalRegionalTausFEDs.Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs")
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
@@ -75,5 +70,6 @@ process.schedule = cms.Schedule(
 ##    process.DoHLTTau, 
 ##    process.DoHLTBTag,
 ##    process.DoHLTAlCaECALPhiSym,
-##    process.DoHLTAlCaPi0,
+    process.DoHLTAlCaPi0Eta1E31,
+    process.DoHLTIsoTrack,
     process.analyzeThis )

@@ -66,5 +66,6 @@ extern const char * kHOrechits;
 extern const char * kHFrechits;  
 extern const char * kpi0EErechits; 
 extern const char * kpi0EBrechits;  
+extern const char * kIsoPixelTracksL3; 
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

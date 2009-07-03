@@ -7,6 +7,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTAlCa.h"  
+#include "HLTrigger/HLTanalyzers/interface/HLTTrack.h"
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -42,6 +43,8 @@ public:
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   virtual void endJob();
 
+  //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
+
   // Analysis tree to be filled
   TTree *HltTree;
 
@@ -57,6 +60,7 @@ private:
   HLTEgamma   elm_analysis_;
   HLTMCtruth  mct_analysis_;
   HLTAlCa     alca_analysis_; 
+  HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
@@ -124,6 +128,7 @@ private:
   edm::InputTag HBHERecHitTag_;   
   edm::InputTag HORecHitTag_;   
   edm::InputTag HFRecHitTag_;   
+  edm::InputTag IsoPixelTrackTagL3_; 
 
   int errCnt;
   const int errMax(){return 100;}

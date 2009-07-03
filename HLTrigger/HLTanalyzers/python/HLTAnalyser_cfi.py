@@ -80,11 +80,12 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### AlCa OpenHLT related objects
     EERecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEE"),
     EBRecHits                   = cms.InputTag("hltEcalRecHit","EcalRecHitsEB"),
-    pi0EBRecHits                = cms.InputTag("hltEcalRegionalPi0RecHit","EcalRecHitsEB"),
-    pi0EERecHits                = cms.InputTag("hltEcalRegionalPi0RecHit","EcalRecHitsEE"),
+    pi0EBRecHits                = cms.InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEB"),
+    pi0EERecHits                = cms.InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEE"),
     HBHERecHits                 = cms.InputTag("hltHbhereco"),
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
+    IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
 
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),

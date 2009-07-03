@@ -346,71 +346,22 @@ DoHLTElectronLargeWindows = cms.Path(
 ##    HLTEndSequence )
 
 
-# create special ECAL rechits for the AlCa Pi0 path.
-##hltEcalRegionalPi0FEDs = cms.EDProducer( "EcalListOfFEDSProducer",
-##                                         debug = cms.untracked.bool( False ),
-##                                         Pi0ListToIgnore =  cms.InputTag("hltEcalRegionalPi0FEDs"),                                              \
-##                                         EGamma = cms.untracked.bool( True ),
-##                                         EM_l1TagIsolated = cms.untracked.InputTag( 'hltL1extraParticles','Isolated' ),
-##                                         EM_l1TagNonIsolated = cms.untracked.InputTag( 'hltL1extraParticles','NonIsolated' ),
-##                                         Ptmin_iso = cms.untracked.double( 2.0 ),
-##                                         Ptmin_noniso = cms.untracked.double( 2.0 ),
-##                                         OutputLabel = cms.untracked.string( "" )
-##                                         )
+DoHLTAlCaPi0Eta1E31 = cms.Path(
+    HLTBeginSequence +
+    hltL1sAlCaEcalPi0Eta1E31 +
+    hltPreAlCaEcalPi01E31 +
+    HLTDoRegionalPi0EtaESSequence +
+    HLTDoRegionalPi0EtaEcalSequence +
+    HLTEndSequence )
 
-##hltEcalRegionalPi0Digis = cms.EDProducer( "EcalRawToDigi",
-##                                          syncCheck = cms.untracked.bool( False ),
-##                                          eventPut = cms.untracked.bool( True ),
-##                                          InputLabel = cms.untracked.string( "rawDataCollector" ),
-##                                          DoRegional = cms.untracked.bool( True ),
-##                                          FedLabel = cms.untracked.InputTag( "hltEcalRegionalPi0FEDs" ),
-##                                          silentMode = cms.untracked.bool( True ),
-##                                          orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-##                                          orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
-##                                          )
+DoHLTAlCaPi0Eta8E29 = cms.Path(
+    HLTBeginSequence +
+    hltL1sAlCaEcalPi0Eta8E29 +
+    hltPreAlCaEcalPi08E29 +
+    HLTDoRegionalPi0EtaESSequence +
+    HLTDoRegionalPi0EtaEcalSequence +
+    HLTEndSequence )
 
-##hltEcalRegionalPi0WeightUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
-##                                                        EBdigiCollection = cms.InputTag( 'hltEcalRegionalPi0Digis','ebDigis' ),
-##                                                        EEdigiCollection = cms.InputTag( 'hltEcalRegionalPi0Digis','eeDigis' ),
-##                                                        EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-##                                                        EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-##                                                        algo = cms.string("EcalUncalibRecHitWorkerWeights")
-##                                                        )
-
-##hltEcalRegionalPi0RecHitTmp = cms.EDProducer( "EcalRecHitProducer",
-##                                              EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalPi0WeightUncalibRecHit','EcalUncalibRecHitsEB'),
-##                                              EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalPi0WeightUncalibRecHit','EcalUncalibRecHitsEE'),
-##                                              EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-##                                              EErechitCollection = cms.string( "EcalRecHitsEE" ),
-##                                              ChannelStatusToBeExcluded = cms.vint32(  ),
-##                                              algo = cms.string("EcalRecHitWorkerSimple")
-##                                              )
-
-##hltEcalRegionalPi0RecHit = cms.EDProducer( "EcalRecHitsMerger",
-##                                           debug = cms.untracked.bool( False ),
-##                                           EgammaSource_EB = cms.untracked.InputTag( 'hltEcalRegionalEgammaRecHitTmp','EcalRecHitsEB' ),
-##                                           MuonsSource_EB = cms.untracked.InputTag( 'hltEcalRegionalMuonsRecHitTmp','EcalRecHitsEB' ),
-##                                           TausSource_EB = cms.untracked.InputTag( 'hltEcalRegionalTausRecHitTmp','EcalRecHitsEB' ),
-##                                           JetsSource_EB = cms.untracked.InputTag( 'hltEcalRegionalJetsRecHitTmp','EcalRecHitsEB' ),
-##                                           RestSource_EB = cms.untracked.InputTag( 'hltEcalRegionalRestRecHitTmp','EcalRecHitsEB' ),
-##                                           Pi0Source_EB =  cms.untracked.InputTag( 'hltEcalRegionalPi0RecHitTmp','EcalRecHitsEB'),
-##                                           EgammaSource_EE = cms.untracked.InputTag( 'hltEcalRegionalEgammaRecHitTmp','EcalRecHitsEE' ),
-##                                           MuonsSource_EE = cms.untracked.InputTag( 'hltEcalRegionalMuonsRecHitTmp','EcalRecHitsEE' ),
-##                                           TausSource_EE = cms.untracked.InputTag( 'hltEcalRegionalTausRecHitTmp','EcalRecHitsEE' ),
-##                                           JetsSource_EE = cms.untracked.InputTag( 'hltEcalRegionalJetsRecHitTmp','EcalRecHitsEE' ),
-##                                           RestSource_EE = cms.untracked.InputTag( 'hltEcalRegionalRestRecHitTmp','EcalRecHitsEE' ),
-##                                           Pi0Source_EE =  cms.untracked.InputTag( 'hltEcalRegionalPi0RecHitTmp','EcalRecHitsEE' ),
-##                                           OutputLabel_EB = cms.untracked.string( "EcalRecHitsEB" ),
-##                                           OutputLabel_EE = cms.untracked.string( "EcalRecHitsEE" ),
-##                                           EcalRecHitCollectionEB = cms.untracked.string( "EcalRecHitsEB" ),
-##                                           EcalRecHitCollectionEE = cms.untracked.string( "EcalRecHitsEE" )
-##                                           )
-
-##HLTDoRegionalPi0EcalSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRegionalPi0FEDs + hltEcalRegionalPi0Digis + hltEcalRegionalPi0WeightUncalibRecHit + hltEcalRegionalPi0RecHitTmp + hltEcalRegionalPi0RecHit + hltEcalPreshowerRecHit )
-
-##DoHLTAlCaPi0 = cms.Path(
-##    HLTDoRegionalPi0EcalSequence
-##    )
 
 ##DoHLTAlCaECALPhiSym = cms.Path(
 ##    HLTBeginSequence +
@@ -423,3 +374,20 @@ DoHLTElectronLargeWindows = cms.Path(
 ##    HLTDoLocalHcalSequence +
 ##    HLTEndSequence
 ##    )
+
+DoHLTIsoTrack = cms.Path(
+    HLTBeginSequence +
+    hltL1sIsoTrack1E31 +
+    hltPreIsoTrack1E31 +
+    HLTL2HcalIsolTrackSequence +
+    hltIsolPixelTrackProd1E31 +
+    hltIsolPixelTrackL2Filter1E31 +
+    HLTDoLocalStripSequence +
+    hltHITPixelPairSeedGenerator1E31 +
+    hltHITPixelTripletSeedGenerator1E31 +
+    hltHITSeedCombiner1E31 +
+    hltHITCkfTrackCandidates1E31 +
+    hltHITCtfWithMaterialTracks1E31 +
+    hltHITIPTCorrector1E31 +
+    HLTEndSequence)
+
