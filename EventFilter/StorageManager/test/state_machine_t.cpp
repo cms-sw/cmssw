@@ -131,7 +131,7 @@ void testStateMachine::setUp()
 
 void testStateMachine::tearDown()
 {
-  delete _machine;
+  //delete _machine;
 }
 
 void testStateMachine::resetStateMachine()
