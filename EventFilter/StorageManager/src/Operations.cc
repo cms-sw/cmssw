@@ -1,4 +1,4 @@
-// $Id: Operations.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: Operations.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -109,9 +109,9 @@ void Operations::safeEntryAction( Notifier* n )
     }
   catch(...)
     {
-      msg += "unknown exception";
       try
         {
+          msg += "unknown exception";
           LOG4CPLUS_FATAL( n->getLogger(), msg );
           XCEPT_DECLARE( stor::exception::StateTransition,
                          sentinelException, msg );
@@ -166,9 +166,9 @@ void Operations::safeExitAction( Notifier* n )
     }
   catch(...)
     {
-      msg += "unknown exception";
       try
         {
+          msg += "unknown exception";
           LOG4CPLUS_FATAL( n->getLogger(), msg );
           XCEPT_DECLARE( stor::exception::StateTransition,
                          sentinelException, msg );
