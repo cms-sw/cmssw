@@ -2,6 +2,7 @@
 #define CondCore_IOVService_IOVEditorImpl_h
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
+#include<iosfwd>
 
 namespace cond{
   class PoolTransaction;
@@ -73,7 +74,9 @@ namespace cond{
     bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
 
-    void debugInfo(ostream & co) const;
+    void debugInfo(std::ostream & co) const;
+    void reportError(std::string message) const;
+    void reportError(std::string message, cond::Time_t time) const;
 
     cond::PoolTransaction* m_pooldb;
     std::string m_token;

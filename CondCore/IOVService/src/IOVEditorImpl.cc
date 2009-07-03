@@ -40,14 +40,14 @@ namespace cond {
 	 << "; last since" << m_iov->iovs().back().sinceTime();
   }
 
-  void reportError(std::string message) const {
+  void IOVEditorImpl::reportError(std::string message) const {
     std::ostringstream out;
     out << "Error in";
     debugInfo(out);
     throw cond::Exception(out.str());
   }
 
-  void reportError(std::string message, cond::Time_t time) const {
+  void IOVEditorImpl::reportError(std::string message, cond::Time_t time) const {
     std::ostringstream out;
     out << "Error in";
     debugInfo(out);
