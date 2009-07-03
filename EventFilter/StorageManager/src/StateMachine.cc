@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StateMachine.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
@@ -13,17 +13,6 @@
 using namespace stor;
 using namespace std;
 
-void stor::sm_debug( const std::string& file_name_suffix, const std::string& message )
-{
-  const std::string fname = std::string( "/tmp/storage_manager_debug_" ) + file_name_suffix;
-  std::ofstream f( fname.c_str() );
-  if( f.is_open() )
-    {
-      f << message << std::endl;
-      f.close();
-    }
-}
-
 
 StateMachine::StateMachine
 ( 
@@ -36,8 +25,6 @@ _eventDistributor(ed),
 _fragmentStore(fs),
 _notifier(n),
 _sharedResources(sr)
-// Remi May 14, 2009: not clear why we originally introduced the _initialized
-// _initialized( false )
 {
 }
 
@@ -74,15 +61,8 @@ void StateMachine::unconsumed_event( bsc::event_base const &event )
 
 void StateMachine::setExternallyVisibleState( const std::string& s )
 {
-// Remi May 14, 2009: not clear why we originally introduced the _initialized
-//   if( _initialized )
-//     {
-//       if( _sharedResources->_statisticsReporter.get() != 0 )
-//         {
-          _sharedResources->_statisticsReporter->
-            getStateMachineMonitorCollection().setExternallyVisibleState( s );
-//         }
-//     }
+  _sharedResources->_statisticsReporter->
+    getStateMachineMonitorCollection().setExternallyVisibleState( s );
 }
 
 
