@@ -3,7 +3,7 @@
 #
 #  it assumes that all magic and incantations are done...
 #
-
+import time
 import pluginCondDBPyInterface as CondDB
 
 class WhatDescription :
@@ -104,8 +104,25 @@ class Iov :
                p.extract(ex)
                v = [i for i in ex.values()]
                ret.append((elem.since(),elem.till(),v))
-           return ret  
-       
+           return ret
+    
+       def trendinrange(self, what, head, tail) :
+           if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
+           exec('import '+self.__modName+' as Plug')
+           ret = []
+           w = setWhat(Plug.What(),what)
+           ex = Plug.Extractor(w)
+
+           for elem in self.__me.elements :
+                  since = elem.since()>>32
+                  till = elem.till()>>32
+                  if (head < since < tail) or (since < head < till) or (since < tail < till):
+                         p = Plug.Object(elem)
+                         p.extract(ex)
+                         v = [i for i in ex.values()]
+                         ret.append((elem.since(),elem.till(),v))
+           return ret
+    
        def timetype(self):
            return  self.__me.timetype()
        def comment(self):
