@@ -10,7 +10,6 @@
 #include "HiggsAnalysis/Skimming/interface/HiggsToTauTauLeptonTauSkim.h"
 
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
