@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.5 2009/06/04 11:52:59 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.6 2009/07/01 22:52:06 aosorio Exp $
 // Include files 
 
 
@@ -173,8 +173,7 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
   
 }
 
-int TTUTrackingAlg::executeTracker( Track * _trk, 
-                                    std::vector<Seed*> & neighbors)
+int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors)
 {
   
   if ( m_debug ) std::cout << "executeTracker: " << neighbors.size() << std::endl;
@@ -237,6 +236,8 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed,
     
     int _difx    = std::abs( _xo - (*_itr)->m_sectorId );
     int _dify    = std::abs( _yo - (*_itr)->m_stationId );
+    
+    //if (m_debug) std::cout << "difference (x,y): " << _difx << "," << _dify << std::endl;
     
     if ( _difx == 11 ) _difx = 1;
     

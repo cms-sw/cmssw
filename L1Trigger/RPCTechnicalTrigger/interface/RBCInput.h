@@ -1,4 +1,4 @@
-// $Id: RBCInput.h,v 1.3 2009/05/10 00:33:18 aosorio Exp $
+// $Id: RBCInput.h,v 1.4 2009/05/24 21:45:39 aosorio Exp $
 #ifndef INTERFACE_RBCINPUT_H 
 #define INTERFACE_RBCINPUT_H 1
 
@@ -40,6 +40,7 @@ public:
     needmapping = in.needmapping;
     m_debug = in.m_debug;
     hasData = in.hasData;
+    m_wheelId = in.m_wheelId;
   };
   
   RBCInput & operator=(const RBCInput & rhs) 
@@ -52,6 +53,7 @@ public:
     (*this).needmapping = rhs.needmapping;
     (*this).m_debug = rhs.m_debug;
     (*this).hasData = rhs.hasData;
+    (*this).m_wheelId = rhs.m_wheelId;
     return (*this);
   };
   
@@ -73,9 +75,20 @@ public:
   bool hasData;
   bool needmapping;
   
+  void setWheelId( int wid ) { 
+    m_wheelId = wid;
+  };
+  
+  int wheelId() const {
+    return m_wheelId;
+  };
+  
+  
 private:
   
   bool m_debug;
-  
+
+  int m_wheelId;
+    
 };
 #endif // INTERFACE_RBCINPUT_H

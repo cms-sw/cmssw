@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.cc,v 1.9 2009/06/07 21:18:50 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.10 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 // local
@@ -144,6 +144,8 @@ void RBCEmulator::emulate( RBCInput * in )
   if( m_debug ) std::cout << "RBCEmulator> starting emulation" << std::endl;
   
   std::bitset<2> decision;
+  
+  in->setWheelId( m_rbcinfo->wheel() );
   
   (*m_input) =  (*in);
   

@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.8 2009/06/17 15:27:24 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.9 2009/07/01 22:52:06 aosorio Exp $
 // Include files
 
 
@@ -24,7 +24,7 @@ RPCWheel::RPCWheel() {
   m_maxsectors = 12;
   
   m_debug = false;
-  
+
   m_sec1id.push_back(12);
   m_sec2id.push_back(1);
   m_sec1id.push_back(2);
@@ -239,9 +239,9 @@ void RPCWheel::createWheelMap()
   std::bitset<6> layersignal;
   
   layersignal       = * m_RBCE[0]->getlayersignal( 0 );
-  m_wheelmap[0]     = layersignal;
+  m_wheelmap[11]     = layersignal;
   
-  m_rbcDecision.set( 0 , m_RBCE[0]->getdecision( 0 ) );
+  m_rbcDecision.set( 11 , m_RBCE[0]->getdecision( 0 ) );
   
   for( int k=0; k < (m_maxrbc-1); ++k )
   {
@@ -256,9 +256,9 @@ void RPCWheel::createWheelMap()
   }
   
   layersignal       = * m_RBCE[0]->getlayersignal( 1 );
-  m_wheelmap[11]     = layersignal;
+  m_wheelmap[0]     = layersignal;
   
-  m_rbcDecision.set( 11 , m_RBCE[0]->getdecision( 1 ) );
+  m_rbcDecision.set( 0 , m_RBCE[0]->getdecision( 1 ) );
   
   if( m_debug ) std::cout << "RPCWheel::createWheelMap done" << std::endl;
   

@@ -1,4 +1,4 @@
-// $Id: RBCChamberORLogic.cc,v 1.5 2009/06/07 21:18:50 aosorio Exp $
+// $Id: RBCChamberORLogic.cc,v 1.6 2009/07/01 22:52:06 aosorio Exp $
 // Include files 
 
 
@@ -66,7 +66,7 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
 
   m_layersignal[0].reset();
   m_layersignal[1].reset();
-  
+
   for (int k=0; k < 2; ++k ) 
   {
     
@@ -82,20 +82,37 @@ void RBCChamberORLogic::process( const RBCInput & _input, std::bitset<2> & _deci
     m_layersignal[k].set( 1 , status);
     
     //... RB2
+    //... wheel -2,+2 RB2IN divided in 2 eta partitions, RB2OUT in 3 eta
+    //... wheel -1, 0, +1 RB2IN divided in 3 eta partitions, RB2OUT in 2 eta
 
-    status = this->evaluateLayerOR( "RB22Fw"   , "RB22Bk" );
-    m_layersignal[k].set( 2 , status);
+    if ( abs( _input.wheelId() ) >= 2 ) {
+      
+      status = this->evaluateLayerOR( "RB22Fw"   , "RB22Bk" );
+      m_layersignal[k].set( 2 , status);
+      
+      bool rb23FB = this->evaluateLayerOR( "RB23Fw"   , "RB23Bk" );
+      bool rb23MF = this->evaluateLayerOR( "RB23Fw"   , "RB23M" );
+      bool rb23MB = this->evaluateLayerOR( "RB23M"    , "RB23Bk" );
+      
+      status = rb23FB || rb23MF || rb23MB;
     
-    bool rb23FB = this->evaluateLayerOR( "RB23Fw"   , "RB23Bk" );
-
-    bool rb23MF = this->evaluateLayerOR( "RB23Fw"   , "RB23M" );
+      m_layersignal[k].set( 3 , status );
+      
+    } else {
+      
+      status = this->evaluateLayerOR( "RB22Fw"   , "RB22Bk" );
+      m_layersignal[k].set( 3 , status);
+      
+      bool rb23FB = this->evaluateLayerOR( "RB23Fw"   , "RB23Bk" );
+      bool rb23MF = this->evaluateLayerOR( "RB23Fw"   , "RB23M" );
+      bool rb23MB = this->evaluateLayerOR( "RB23M"    , "RB23Bk" );
+      
+      status = rb23FB || rb23MF || rb23MB;
     
-    bool rb23MB = this->evaluateLayerOR( "RB23M"    , "RB23Bk" );
+      m_layersignal[k].set( 2 , status );
+      
+    }
     
-    status = rb23FB || rb23MF || rb23MB;
-    
-    m_layersignal[k].set( 3 , status );
-
     //.......
     
     status = this->evaluateLayerOR( "RB3Fw"    , "RB3Bk" );

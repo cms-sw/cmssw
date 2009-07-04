@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.10 2009/06/17 15:27:24 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.11 2009/07/01 22:52:06 aosorio Exp $
 // Include files 
 
 
@@ -39,7 +39,7 @@ TTUEmulator::TTUEmulator( int id, int mxw  )
   m_mode = 1;
   
   m_debug = false;
-
+  
   m_line = 1;
   
 }
