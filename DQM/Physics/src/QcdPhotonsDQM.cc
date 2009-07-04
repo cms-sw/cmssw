@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/02 18:33:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/02 19:39:12 $
+ *  $Revision: 1.8 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -117,9 +117,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     if ( fabs(recoPhoton->eta()) > 2.5 || recoPhoton->et() < theMinPhotonEt) continue;
 
     // Require potential photon to pass some basic cuts
-    if ( recoPhoton->ecalRecHitSumEtConeDR03() > 5+0.015*recoPhoton->et() ||
-         recoPhoton->hcalTowerSumEtConeDR03()  > 10                       ||
-         recoPhoton->hadronicOverEm()          > 0.5) continue;
+    if ( recoPhoton->trkSumPtHollowConeDR03()  > 9                        ||
+         recoPhoton->ecalRecHitSumEtConeDR03() > 5+0.015*recoPhoton->et() ||
+         recoPhoton->hcalTowerSumEtConeDR03()  > 7                        ||
+         recoPhoton->hadronicOverEm()          > 0.1) continue;
 
     // Good photon found, store it
     photon_et  = recoPhoton->et();
