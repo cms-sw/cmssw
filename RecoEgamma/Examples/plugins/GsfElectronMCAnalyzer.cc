@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.24 2009/06/17 21:39:02 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.25 2009/06/20 18:14:28 charlot Exp $
 //
 //
 
@@ -74,6 +74,8 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   dphimatchmax=conf.getParameter<double>("Dphimatchmax");
   fhitsmax=conf.getParameter<double>("Fhitsmax");
   lhitsmax=conf.getParameter<double>("Lhitsmax");
+  poptruemin=conf.getParameter<double>("Poptruemin");
+  poptruemax=conf.getParameter<double>("Poptruemax");
   nbineta=conf.getParameter<int>("Nbineta");
   nbineta2D=conf.getParameter<int>("Nbineta2D");
   nbinp=conf.getParameter<int>("Nbinp");
@@ -94,6 +96,7 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
+  nbinpoptrue= conf.getParameter<int>("Nbinpoptrue");
 
 }
 
@@ -205,15 +208,29 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele transverse impact parameter (wrt gen vtx) vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
   h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele transverse impact parameter (wrt gen vtx) vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
   h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele transverse impact parameter (wrt gen vtx) vs transverse momentum", nbinpt2D,0.,ptmax,45,0.,0.15);
-  h_ele_PoPtrue        = new TH1F( "h_ele_PoPtrue",        "ele momentum / gen momentum", 75,0.,1.5);
+  h_ele_PoPtrue        = new TH1F( "h_ele_PoPtrue",        "ele momentum / gen momentum", nbinpoptrue,poptruemin,poptruemax);
   h_ele_PoPtrue->Sumw2();
-  h_ele_PoPtrueVsEta   = new TH2F( "h_ele_PoPtrueVsEta",        "ele momentum / gen momentum vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
-  h_ele_PoPtrueVsPhi   = new TH2F( "h_ele_PoPtrueVsPhi",        "ele momentum / gen momentum vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
-  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele momentum / gen momentum vs eta", nbinpt2D,0.,ptmax,50,0.,1.5);
-  h_ele_PoPtrue_barrel         = new TH1F( "h_ele_PoPtrue_barrel",        "ele momentum / gen momentum, barrel",75,0.,1.5);
+  h_ele_PtoPttrue        = new TH1F( "h_ele_PtoPttrue",        "ele transverse momentum / gen transverse momentum", nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPttrue->Sumw2();
+  h_ele_PoPtrueVsEta   = new TH2F( "h_ele_PoPtrueVsEta",        "ele momentum / gen momentum vs eta", nbineta2D,etamin,etamax,50,poptruemin,poptruemax);
+  h_ele_PoPtrueVsPhi   = new TH2F( "h_ele_PoPtrueVsPhi",        "ele momentum / gen momentum vs phi", nbinphi2D,phimin,phimax,50,poptruemin,poptruemax);
+  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele momentum / gen momentum vs eta", nbinpt2D,0.,ptmax,50,poptruemin,poptruemax);
+  h_ele_PoPtrue_barrel         = new TH1F( "h_ele_PoPtrue_barrel",        "ele momentum / gen momentum, barrel",nbinpoptrue,poptruemin,poptruemax);
   h_ele_PoPtrue_barrel->Sumw2();
-  h_ele_PoPtrue_endcaps        = new TH1F( "h_ele_PoPtrue_endcaps",        "ele momentum / gen momentum, endcaps",75,0.,1.5);
+  h_ele_PoPtrue_endcaps        = new TH1F( "h_ele_PoPtrue_endcaps",        "ele momentum / gen momentum, endcaps",nbinpoptrue,poptruemin,poptruemax);
   h_ele_PoPtrue_endcaps->Sumw2();
+  h_ele_PoPtrue_golden_barrel         = new TH1F( "h_ele_PoPtrue_golden_barrel",        "ele momentum / gen momentum, golden, barrel",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPtrue_golden_barrel->Sumw2();
+  h_ele_PoPtrue_golden_endcaps        = new TH1F( "h_ele_PoPtrue_golden_endcaps",        "ele momentum / gen momentum, golden, endcaps",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPtrue_golden_endcaps->Sumw2();
+  h_ele_PoPtrue_showering_barrel         = new TH1F( "h_ele_PoPtrue_showering_barrel",        "ele momentum / gen momentum, showering, barrel",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPtrue_showering_barrel->Sumw2();
+  h_ele_PoPtrue_showering_endcaps        = new TH1F( "h_ele_PoPtrue_showering_endcaps",        "ele momentum / gen momentum, showering, endcaps",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPtrue_showering_endcaps->Sumw2();
+  h_ele_PtoPttrue_barrel         = new TH1F( "h_ele_PtoPttrue_barrel",        "ele transverse momentum / gen transverse momentum, barrel",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPttrue_barrel->Sumw2();
+  h_ele_PtoPttrue_endcaps        = new TH1F( "h_ele_PtoPttrue_endcaps",        "ele transverse momentum / gen transverse momentum, endcaps",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPttrue_endcaps->Sumw2();
   h_ele_EtaMnEtaTrue   = new TH1F( "h_ele_EtaMnEtaTrue",   "ele momentum  eta - gen  eta",nbindeta,detamin,detamax);
   h_ele_EtaMnEtaTrueVsEta   = new TH2F( "h_ele_EtaMnEtaTrueVsEta",   "ele momentum  eta - gen  eta vs eta",nbineta2D,etamin,etamax,nbindeta/2,detamin,detamax);
   h_ele_EtaMnEtaTrueVsPhi   = new TH2F( "h_ele_EtaMnEtaTrueVsPhi",   "ele momentum  eta - gen  eta vs phi",nbinphi2D,phimin,phimax,nbindeta/2,detamin,detamax);
@@ -246,6 +263,24 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrue_endcaps_deegap->Sumw2();
   histSclEoEtrue_endcaps_ringgap = new TH1F("h_scl_EoEtrue_endcaps_ringgap","ele supercluster energy / gen energy, endcaps, ringgap",50,0.2,1.2);
   histSclEoEtrue_endcaps_ringgap->Sumw2();
+  histSclEoEtrue_barrel_new = new TH1F("h_scl_EoEtrue_barrel_new","ele supercluster energy / gen energy, barrel",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_barrel_new->Sumw2();
+  histSclEoEtrue_barrel_eg_new = new TH1F("h_scl_EoEtrue_barrel_eg_new","ele supercluster energy / gen energy, barrel, ecal driven",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_barrel_eg_new->Sumw2();
+  histSclEoEtrue_barrel_etagap_new = new TH1F("h_scl_EoEtrue_barrel_etagap_new","ele supercluster energy / gen energy, barrel, etagap",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_barrel_etagap_new->Sumw2();
+  histSclEoEtrue_barrel_phigap_new = new TH1F("h_scl_EoEtrue_barrel_phigap_new","ele supercluster energy / gen energy, barrel, phigap",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_barrel_phigap_new->Sumw2();
+  histSclEoEtrue_ebeegap_new = new TH1F("h_scl_EoEtrue_ebeegap_new","ele supercluster energy / gen energy, ebeegap",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_ebeegap_new->Sumw2();
+  histSclEoEtrue_endcaps_new = new TH1F("h_scl_EoEtrue_endcaps_new","ele supercluster energy / gen energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_endcaps_new->Sumw2();
+  histSclEoEtrue_endcaps_eg_new = new TH1F("h_scl_EoEtrue_endcaps_eg_new","ele supercluster energy / gen energy, endcaps, ecal driven",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_endcaps_eg_new->Sumw2();
+  histSclEoEtrue_endcaps_deegap_new = new TH1F("h_scl_EoEtrue_endcaps_deegap_new","ele supercluster energy / gen energy, endcaps, deegap",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_endcaps_deegap_new->Sumw2();
+  histSclEoEtrue_endcaps_ringgap_new = new TH1F("h_scl_EoEtrue_endcaps_ringgap_new","ele supercluster energy / gen energy, endcaps, ringgap",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEtrue_endcaps_ringgap_new->Sumw2();
   histSclEt_ = new TH1F("h_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax);
   histSclEt_->Sumw2();
   histSclEtVsEta_ = new TH2F("h_scl_etVsEta","ele supercluster transverse energy vs eta",nbineta2D,etamin,etamax,nbinpt,0.,ptmax);
@@ -440,13 +475,13 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_PtinVsPtoutShowering_mode = new TH2F( "h_ele_PtinVsPtoutShowering_mode",      "ele track inner pt vs outer pt vs eta, showering, mode of GSF components" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
   h_ele_PtinVsPtoutGolden_mean = new TH2F( "h_ele_PtinVsPtoutGolden_mean",      "ele track inner pt vs outer pt vs eta, golden, mean of GSF components" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
   h_ele_PtinVsPtoutShowering_mean = new TH2F( "h_ele_PtinVsPtoutShowering_mean",      "ele track inner pt vs outer pt vs eta, showering, mean of GSF components" ,nbinpt2D,0.,ptmax,50,0.,ptmax);
-  histSclEoEtrueGolden_barrel = new TH1F("h_scl_EoEtrue golden, barrel","ele supercluster energy / gen energy, golden, barrel",100,0.2,1.2);
+  histSclEoEtrueGolden_barrel = new TH1F("h_scl_EoEtrue_golden_barrel","ele supercluster energy / gen energy, golden, barrel",nbinpoptrue,poptruemin,poptruemax);
   histSclEoEtrueGolden_barrel->Sumw2();
-  histSclEoEtrueGolden_endcaps = new TH1F("h_scl_EoEtrue golden, endcaps","ele supercluster energy / gen energy, golden, endcaps",100,0.2,1.2);
+  histSclEoEtrueGolden_endcaps = new TH1F("h_scl_EoEtrue_golden_endcaps","ele supercluster energy / gen energy, golden, endcaps",nbinpoptrue,poptruemin,poptruemax);
   histSclEoEtrueGolden_endcaps->Sumw2();
-  histSclEoEtrueShowering_barrel = new TH1F("h_scl_EoEtrue showering, barrel","ele supercluster energy / gen energy, showering, barrel",100,0.2,1.2);
+  histSclEoEtrueShowering_barrel = new TH1F("h_scl_EoEtrue_showering_barrel","ele supercluster energy / gen energy, showering, barrel",nbinpoptrue,poptruemin,poptruemax);
   histSclEoEtrueShowering_barrel->Sumw2();
-  histSclEoEtrueShowering_endcaps = new TH1F("h_scl_EoEtrue showering, endcaps","ele supercluster energy / gen energy, showering, endcaps",100,0.2,1.2);
+  histSclEoEtrueShowering_endcaps = new TH1F("h_scl_EoEtrue_showering_endcaps","ele supercluster energy / gen energy, showering, endcaps",nbinpoptrue,poptruemin,poptruemax);
   histSclEoEtrueShowering_endcaps->Sumw2();
     
   // isolation  
@@ -518,10 +553,24 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_PoPtrue_barrel        -> GetYaxis()-> SetTitle("Events");
   h_ele_PoPtrue_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen}");
   h_ele_PoPtrue_endcaps        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PoPtrue_golden_barrel        -> GetXaxis()-> SetTitle("P/P_{gen}");
+  h_ele_PoPtrue_showering_barrel        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PoPtrue_golden_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen}");
+  h_ele_PoPtrue_showering_endcaps        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPttrue        -> GetXaxis()-> SetTitle("P_{T}/P_{T}^{gen}");
+  h_ele_PtoPttrue        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPttrue_barrel        -> GetXaxis()-> SetTitle("P_{T}/P_{T}^{gen}");
+  h_ele_PtoPttrue_barrel        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPttrue_endcaps        -> GetXaxis()-> SetTitle("P_{T}/P_{T}^{gen}");
+  h_ele_PtoPttrue_endcaps        -> GetYaxis()-> SetTitle("Events");
   histSclEoEtrue_barrel -> GetXaxis()-> SetTitle("E/E_{gen}") ;
   histSclEoEtrue_barrel -> GetYaxis()-> SetTitle("Events") ;
   histSclEoEtrue_endcaps -> GetXaxis()-> SetTitle("E/E_{gen}") ;
   histSclEoEtrue_endcaps -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrueGolden_barrel -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrueShowering_barrel -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrueGolden_endcaps -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrueShowering_endcaps -> GetYaxis()-> SetTitle("Events") ;
   histSclEoEtrue_barrel_etagap -> GetXaxis()-> SetTitle("E/E_{gen}");
   histSclEoEtrue_barrel_etagap -> GetYaxis()-> SetTitle("Events");
   histSclEoEtrue_barrel_phigap -> GetXaxis()-> SetTitle("E/E_{gen}");
@@ -532,6 +581,20 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrue_endcaps_deegap -> GetYaxis()-> SetTitle("Events");
   histSclEoEtrue_endcaps_ringgap -> GetXaxis()-> SetTitle("E/E_{gen}");
   histSclEoEtrue_endcaps_ringgap -> GetYaxis()-> SetTitle("Events");
+  histSclEoEtrue_barrel_new -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrue_barrel_new -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrue_endcaps_new -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrue_endcaps_new -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrue_barrel_etagap_new -> GetXaxis()-> SetTitle("E/E_{gen}");
+  histSclEoEtrue_barrel_etagap_new -> GetYaxis()-> SetTitle("Events");
+  histSclEoEtrue_barrel_phigap_new -> GetXaxis()-> SetTitle("E/E_{gen}");
+  histSclEoEtrue_barrel_phigap_new -> GetYaxis()-> SetTitle("Events");
+  histSclEoEtrue_ebeegap_new -> GetXaxis()-> SetTitle("E/E_{gen}");
+  histSclEoEtrue_ebeegap_new -> GetYaxis()-> SetTitle("Events");
+  histSclEoEtrue_endcaps_deegap_new -> GetXaxis()-> SetTitle("E/E_{gen}");
+  histSclEoEtrue_endcaps_deegap_new -> GetYaxis()-> SetTitle("Events");
+  histSclEoEtrue_endcaps_ringgap_new -> GetXaxis()-> SetTitle("E/E_{gen}");
+  histSclEoEtrue_endcaps_ringgap_new -> GetYaxis()-> SetTitle("Events");
   histSclSigEtaEta_-> GetXaxis()-> SetTitle("#sigma_{#eta #eta}") ;
   histSclSigEtaEta_-> GetYaxis()-> SetTitle("Events") ;
   histSclSigIEtaIEtabarrel_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
@@ -957,6 +1020,13 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_PoPtrueVsPt->Write();
   h_ele_PoPtrue_barrel ->Write();
   h_ele_PoPtrue_endcaps->Write();
+  h_ele_PoPtrue_golden_barrel ->Write();
+  h_ele_PoPtrue_golden_endcaps->Write();
+  h_ele_PoPtrue_showering_barrel ->Write();
+  h_ele_PoPtrue_showering_endcaps->Write();
+  h_ele_PtoPttrue->Write();
+  h_ele_PtoPttrue_barrel ->Write();
+  h_ele_PtoPttrue_endcaps->Write();
   h_ele_ChargeMnChargeTrue->Write();
   h_ele_EtaMnEtaTrue->Write();
   h_ele_EtaMnEtaTrueVsEta ->Write();
@@ -980,6 +1050,17 @@ GsfElectronMCAnalyzer::endJob(){
   histSclEoEtrue_endcaps->Write();
   histSclEoEtrue_endcaps_deegap->Write();
   histSclEoEtrue_endcaps_ringgap->Write();
+  histSclEoEtruePfVsEg->Write();
+  histSclEoEtrue_barrel_new->Write();
+  histSclEoEtrue_endcaps_new->Write();
+  histSclEoEtrue_barrel_eg_new->Write();
+  histSclEoEtrue_endcaps_eg_new->Write();
+  histSclEoEtrue_barrel_etagap_new->Write();
+  histSclEoEtrue_barrel_phigap_new->Write();
+  histSclEoEtrue_ebeegap_new->Write();
+  histSclEoEtrue_endcaps_new->Write();
+  histSclEoEtrue_endcaps_deegap_new->Write();
+  histSclEoEtrue_endcaps_ringgap_new->Write();
   histSclEoEtruePfVsEg->Write();
   histSclEt_->Write();
   histSclEtVsEta_->Write();
@@ -1442,11 +1523,18 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_PhiMnPhiTrueVsPhi  -> Fill( bestGsfElectron.phi(), bestGsfElectron.phi()-pAssSim.phi());
 	h_ele_PhiMnPhiTrueVsPt  -> Fill( bestGsfElectron.pt(), bestGsfElectron.phi()-pAssSim.phi());
 	h_ele_PoPtrue       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	h_ele_PtoPttrue       -> Fill( bestGsfElectron.pt()/pAssSim.perp());
 	h_ele_PoPtrueVsEta       -> Fill( bestGsfElectron.eta(), bestGsfElectron.p()/pAssSim.t());
 	h_ele_PoPtrueVsPhi       -> Fill( bestGsfElectron.phi(), bestGsfElectron.p()/pAssSim.t());
 	h_ele_PoPtrueVsPt       -> Fill( bestGsfElectron.py(), bestGsfElectron.p()/pAssSim.t());
 	if (bestGsfElectron.isEB()) h_ele_PoPtrue_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
 	if (bestGsfElectron.isEE()) h_ele_PoPtrue_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PoPtrue_golden_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_PoPtrue_golden_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_PoPtrue_showering_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_PoPtrue_showering_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
+	if (bestGsfElectron.isEB()) h_ele_PtoPttrue_barrel       -> Fill( bestGsfElectron.pt()/pAssSim.perp());
+	if (bestGsfElectron.isEE()) h_ele_PtoPttrue_endcaps       -> Fill( bestGsfElectron.pt()/pAssSim.perp());
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
@@ -1467,6 +1555,16 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  histSclEoEtrue_endcaps_deegap->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  histSclEoEtrue_endcaps_ringgap->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB())  histSclEoEtrue_barrel_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB() && bestGsfElectron.isEcalDriven())  histSclEoEtrue_barrel_eg_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE() && bestGsfElectron.isEcalDriven())  histSclEoEtrue_endcaps_eg_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  histSclEoEtrue_barrel_etagap_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  histSclEoEtrue_barrel_phigap_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEBEEGap())  histSclEoEtrue_ebeegap_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE())  histSclEoEtrue_endcaps_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  histSclEoEtrue_endcaps_deegap_new->Fill(sclRef->energy()/pAssSim.t());
+        if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  histSclEoEtrue_endcaps_ringgap_new->Fill(sclRef->energy()/pAssSim.t());
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());

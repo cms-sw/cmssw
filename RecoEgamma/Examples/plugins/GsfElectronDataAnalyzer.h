@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.9 2009/06/10 20:31:29 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.10 2009/06/20 18:14:28 charlot Exp $
 //
 //
 
@@ -102,6 +102,8 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEn_ ;
   TH1F *histSclEoEmatchingObject_barrel;
   TH1F *histSclEoEmatchingObject_endcaps;
+  TH1F *histSclEoEmatchingObject_barrel_new;
+  TH1F *histSclEoEmatchingObject_endcaps_new;
   TH1F *histSclEt_ ;
   TH2F *histSclEtVsEta_ ;
   TH2F *histSclEtVsPhi_ ;
@@ -132,12 +134,15 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
 
+  TH1F *h_ele_PtoPtmatchingObject;
   TH1F *h_ele_PoPmatchingObject;
   TH2F *h_ele_PoPmatchingObjectVsEta;
   TH2F *h_ele_PoPmatchingObjectVsPhi;
   TH2F *h_ele_PoPmatchingObjectVsPt;
   TH1F *h_ele_PoPmatchingObject_barrel;
   TH1F *h_ele_PoPmatchingObject_endcaps;
+  TH1F *h_ele_PtoPtmatchingObject_barrel;
+  TH1F *h_ele_PtoPtmatchingObject_endcaps;
   TH1F *h_ele_EtaMnEtamatchingObject;
   TH2F *h_ele_EtaMnEtamatchingObjectVsEta;
   TH2F *h_ele_EtaMnEtamatchingObjectVsPhi;
@@ -320,6 +325,8 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   double dphimatchmax;
   double fhitsmax;
   double lhitsmax;
+  double poptruemin;
+  double poptruemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -340,6 +347,7 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   int nbindphimatch;
   int nbindetamatch2D;
   int nbindphimatch2D;
+  int nbinpoptrue;
 
  };
 

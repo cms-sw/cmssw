@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.19 2009/06/10 23:09:50 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.20 2009/06/20 18:14:28 charlot Exp $
 //
 //
 
@@ -110,6 +110,8 @@ GsfElectronDataAnalyzer::GsfElectronDataAnalyzer(const edm::ParameterSet& conf)
   dphimatchmax=conf.getParameter<double>("Dphimatchmax");
   fhitsmax=conf.getParameter<double>("Fhitsmax");
   lhitsmax=conf.getParameter<double>("Lhitsmax");
+  poptruemin=conf.getParameter<double>("Poptruemin");
+  poptruemax=conf.getParameter<double>("Poptruemax");
   nbineta=conf.getParameter<int>("Nbineta");
   nbineta2D=conf.getParameter<int>("Nbineta2D");
   nbinp=conf.getParameter<int>("Nbinp");
@@ -130,6 +132,8 @@ GsfElectronDataAnalyzer::GsfElectronDataAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
+  nbinpoptrue= conf.getParameter<int>("Nbinpoptrue");
+
 }
 
 GsfElectronDataAnalyzer::~GsfElectronDataAnalyzer()
@@ -211,12 +215,15 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele transverse impact parameter (wrt bs) vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
   h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele transverse impact parameter (wrt bs) vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
   h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele transverse impact parameter (wrt bs) vs transverse momentum", nbinpt2D,0.,ptmax,45,0.,0.15);
-  h_ele_PoPmatchingObject        = new TH1F( "h_ele_PoPmatchingObject",        "ele momentum / matching SC energy", 75,0.,1.5);
-  h_ele_PoPmatchingObjectVsEta   = new TH2F( "h_ele_PoPmatchingObjectVsEta",        "ele momentum / matching SC energy vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
-  h_ele_PoPmatchingObjectVsPhi   = new TH2F( "h_ele_PoPmatchingObjectVsPhi",        "ele momentum / matching SC energy vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
-  h_ele_PoPmatchingObjectVsPt   = new TH2F( "h_ele_PoPmatchingObjectVsPt",        "ele momentum / matching SC energy vs eta", nbinpt2D,0.,ptmax,50,0.,1.5);
-  h_ele_PoPmatchingObject_barrel         = new TH1F( "h_ele_PoPmatchingObject_barrel",        "ele momentum / matching SC energy, barrel",75,0.,1.5);
-  h_ele_PoPmatchingObject_endcaps        = new TH1F( "h_ele_PoPmatchingObject_endcaps",        "ele momentum / matching SC energy, endcaps",75,0.,1.5);
+  h_ele_PoPmatchingObject        = new TH1F( "h_ele_PoPmatchingObject",        "ele momentum / matching SC energy", nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPtmatchingObject        = new TH1F( "h_ele_PtoPtmatchingObject",        "ele trans momentum / matching SC trans energy", nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPmatchingObjectVsEta   = new TH2F( "h_ele_PoPmatchingObjectVsEta",        "ele momentum / matching SC energy vs eta", nbineta2D,etamin,etamax,50,poptruemin,poptruemax);
+  h_ele_PoPmatchingObjectVsPhi   = new TH2F( "h_ele_PoPmatchingObjectVsPhi",        "ele momentum / matching SC energy vs phi", nbinphi2D,phimin,phimax,50,poptruemin,poptruemax);
+  h_ele_PoPmatchingObjectVsPt   = new TH2F( "h_ele_PoPmatchingObjectVsPt",        "ele momentum / matching SC energy vs eta", nbinpt2D,0.,ptmax,50,poptruemin,poptruemax);
+  h_ele_PoPmatchingObject_barrel         = new TH1F( "h_ele_PoPmatchingObject_barrel",        "ele momentum / matching SC energy, barrel",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PoPmatchingObject_endcaps        = new TH1F( "h_ele_PoPmatchingObject_endcaps",        "ele momentum / matching SC energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPtmatchingObject_barrel         = new TH1F( "h_ele_PtoPmatchingObject_barrel",        "ele trans momentum / matching SC trans energy, barrel",nbinpoptrue,poptruemin,poptruemax);
+  h_ele_PtoPtmatchingObject_endcaps        = new TH1F( "h_ele_PtoPmatchingObject_endcaps",        "ele trans momentum / matching SC trans energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
   h_ele_EtaMnEtamatchingObject   = new TH1F( "h_ele_EtaMnEtamatchingObject",   "ele momentum eta - matching SC eta",nbindeta,detamin,detamax);
   h_ele_EtaMnEtamatchingObjectVsEta   = new TH2F( "h_ele_EtaMnEtamatchingObjectVsEta",   "ele momentum eta - matching SC eta vs eta",nbineta2D,etamin,etamax,nbindeta/2,detamin,detamax);
   h_ele_EtaMnEtamatchingObjectVsPhi   = new TH2F( "h_ele_EtaMnEtamatchingObjectVsPhi",   "ele momentum eta - matching SC eta vs phi",nbinphi2D,phimin,phimax,nbindeta/2,detamin,detamax);
@@ -231,6 +238,8 @@ void GsfElectronDataAnalyzer::beginJob(){
   histSclEn_ = new TH1F("h_scl_energy","ele supercluster energy",nbinp,0.,pmax);
   histSclEoEmatchingObject_barrel = new TH1F("h_scl_EoEmatchingObject_barrel","ele supercluster energy / matching SC energy, barrel",50,0.2,1.2);
   histSclEoEmatchingObject_endcaps = new TH1F("h_scl_EoEmatchingObject_endcaps","ele supercluster energy / matching SC energy, endcaps",50,0.2,1.2);
+  histSclEoEmatchingObject_barrel_new = new TH1F("h_scl_EoEmatchingObject_barrel_new","ele supercluster energy / matching SC energy, barrel",nbinpoptrue,poptruemin,poptruemax);
+  histSclEoEmatchingObject_endcaps_new = new TH1F("h_scl_EoEmatchingObject_endcaps_new","ele supercluster energy / matching SC energy, endcaps",nbinpoptrue,poptruemin,poptruemax);
   histSclEt_ = new TH1F("h_scl_et","ele supercluster transverse energy",nbinpt,0.,ptmax);
   histSclEtVsEta_ = new TH2F("h_scl_etVsEta","ele supercluster transverse energy vs eta",nbineta2D,etamin,etamax,nbinpt,0.,ptmax);
   histSclEtVsPhi_ = new TH2F("h_scl_etVsPhi","ele supercluster transverse energy vs phi",nbinphi2D,phimin,phimax,nbinpt,0.,ptmax);
@@ -404,6 +413,12 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_PoPmatchingObject_barrel        -> GetYaxis()-> SetTitle("Events");
   h_ele_PoPmatchingObject_endcaps        -> GetXaxis()-> SetTitle("P/E_{SC}");
   h_ele_PoPmatchingObject_endcaps        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPtmatchingObject        -> GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
+  h_ele_PtoPtmatchingObject        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPtmatchingObject_barrel        -> GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
+  h_ele_PtoPtmatchingObject_barrel        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PtoPtmatchingObject_endcaps        -> GetXaxis()-> SetTitle("P_{T}/E_{T}^{SC}");
+  h_ele_PtoPtmatchingObject_endcaps        -> GetYaxis()-> SetTitle("Events");
   histSclSigEtaEta_-> GetXaxis()-> SetTitle("#sigma_{#eta #eta}") ;
   histSclSigEtaEta_-> GetYaxis()-> SetTitle("Events") ;
   histSclSigIEtaIEtabarrel_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
@@ -717,11 +732,14 @@ GsfElectronDataAnalyzer::endJob(){
   h_ele_vertexTIPVsPhi->Write();
   h_ele_vertexTIPVsPt->Write();
   h_ele_PoPmatchingObject->Write();
+  h_ele_PtoPtmatchingObject->Write();
   h_ele_PoPmatchingObjectVsEta ->Write();
   h_ele_PoPmatchingObjectVsPhi->Write();
   h_ele_PoPmatchingObjectVsPt->Write();
   h_ele_PoPmatchingObject_barrel ->Write();
   h_ele_PoPmatchingObject_endcaps->Write();
+  h_ele_PtoPtmatchingObject_barrel ->Write();
+  h_ele_PtoPtmatchingObject_endcaps->Write();
   h_ele_EtaMnEtamatchingObject->Write();
   h_ele_EtaMnEtamatchingObjectVsEta ->Write();
   h_ele_EtaMnEtamatchingObjectVsPhi->Write();
@@ -736,6 +754,8 @@ GsfElectronDataAnalyzer::endJob(){
   histSclEn_->Write();
   histSclEoEmatchingObject_barrel->Write();
   histSclEoEmatchingObject_endcaps->Write();
+  histSclEoEmatchingObject_barrel_new->Write();
+  histSclEoEmatchingObject_endcaps_new->Write();
   histSclEt_->Write();
   histSclEtVsEta_->Write();
   histSclEtVsPhi_->Write();
@@ -947,7 +967,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    gsfIter!=gsfElectrons->end(); gsfIter++){
 
 	// select electrons
-	if (gsfIter->superCluster()->energy()/cosh(gsfIter->superCluster()->eta())>minEt_) continue;
+	if (gsfIter->superCluster()->energy()/cosh(gsfIter->superCluster()->eta())<minEt_) continue;
 	if (fabs(gsfIter->eta())>maxAbsEta_) continue;
 	if (gsfIter->pt()<minPt_) continue;
 
@@ -1252,15 +1272,20 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	h_ele_PhiMnPhimatchingObjectVsPhi  -> Fill( bestGsfElectron.phi(), bestGsfElectron.phi()-moIter->phi());
 	h_ele_PhiMnPhimatchingObjectVsPt  -> Fill( bestGsfElectron.pt(), bestGsfElectron.phi()-moIter->phi());
 	h_ele_PoPmatchingObject       -> Fill( bestGsfElectron.p()/moIter->energy());
+	h_ele_PtoPtmatchingObject       -> Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
 	h_ele_PoPmatchingObjectVsEta       -> Fill( bestGsfElectron.eta(), bestGsfElectron.p()/moIter->energy());
 	h_ele_PoPmatchingObjectVsPhi       -> Fill( bestGsfElectron.phi(), bestGsfElectron.p()/moIter->energy());
 	h_ele_PoPmatchingObjectVsPt       -> Fill( bestGsfElectron.py(), bestGsfElectron.p()/moIter->energy());
 	if (bestGsfElectron.isEB()) h_ele_PoPmatchingObject_barrel       -> Fill( bestGsfElectron.p()/moIter->energy());
 	if (bestGsfElectron.isEE()) h_ele_PoPmatchingObject_endcaps       -> Fill( bestGsfElectron.p()/moIter->energy());
+	if (bestGsfElectron.isEB()) h_ele_PtoPtmatchingObject_barrel       -> Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
+	if (bestGsfElectron.isEE()) h_ele_PtoPtmatchingObject_endcaps       -> Fill( bestGsfElectron.pt()/moIter->energy()/cosh(moIter->eta()));
 
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
         if (bestGsfElectron.isEB())  histSclEoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
         if (bestGsfElectron.isEE())  histSclEoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
+        if (bestGsfElectron.isEB())  histSclEoEmatchingObject_barrel_new->Fill(sclRef->energy()/moIter->energy());
+        if (bestGsfElectron.isEE())  histSclEoEmatchingObject_endcaps_new->Fill(sclRef->energy()/moIter->energy());
 
 
 
