@@ -44,4 +44,23 @@ int main() {
   cout << v1 << endl;
   cout << g1 << endl;
 
+  double a[3];
+  double v[3] = { dgv.x(), dgv.y(), dgv.z() };
+  double r[9] = { r.xx(), r.xy(), r.xz(),
+		  r.yx(), r.yy(), r.yz(),
+		  r.zx(), r.zy(), r.zz()
+  };
+
+  st();
+  for (int i=0; i<3; i++) {
+    int j=3*i;
+    a[i] = r[j]*v[0] + r[j+1]*v[1] + r[j+2]*v[2];
+  }
+  en();
+
+  Vector3DBase<double, LocalTag>  v2(a[0],a[1],a[2]);
+  cout << v2 << endl;
+   
+
+
 }
