@@ -12,7 +12,7 @@ int main() {
 
   RectangularPlaneBounds bound(1.,1.,1);
 
-  Local3DPoint q(10.,10.,10.);
+  Local3DPoint a(10.,10.,10.);
 
   Local3DPoint in(0.,0.,0.);
 
