@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/02 19:39:12 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/04 18:11:21 $
+ *  $Revision: 1.9 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -71,7 +71,7 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   // Keep the number of plots and number of bins to a minimum!
   h_photon_et           = theDbe->book1D("h_photon_et",     "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
   h_photon_eta          = theDbe->book1D("h_photon_eta",    "#gamma with highest E_{T};#eta(#gamma)", 40, -5.0, 5.0);
-  h_photon_phiMod       = theDbe->book1D("h_photon_phiMod", "#gamma with highest E_{T};#phi_{mod}=#phi#bullet180/#pi mod 20 - 10", 42, (-1.-1./20)*0.1745329, (1.+1./20.)*0.1745329 );
+  h_photon_phiMod       = theDbe->book1D("h_photon_phiMod", "#gamma with highest E_{T} (Barrel only);#phi_{mod}=#phi#bullet180/#pi mod 20 - 10", 42, (-1.-1./20)*0.1745329, (1.+1./20.)*0.1745329 );
   h_jet_et              = theDbe->book1D("h_jet_et",        "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
   h_jet_eta             = theDbe->book1D("h_jet_eta",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(jet)", 20, -5.0, 5.0);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,jet)", 20, 0, 3.1415926);
@@ -174,7 +174,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if ( photon_et > 0.0 && jet_et > 0.0) {
     h_photon_et    ->Fill( photon_et  );
     h_photon_eta   ->Fill( photon_eta );
-    h_photon_phiMod->Fill( fmod(photon_phi+3.14159,20.0*3.141592/180.0)-10.0*3.141592/180.0 );
+    // Only fill phiMod plot with barrel photons
+    if (fabs(photon_eta)<1.5) h_photon_phiMod->Fill( fmod(photon_phi+3.14159,20.0*3.141592/180.0)-10.0*3.141592/180.0 );
     h_jet_et       ->Fill( jet_et     );
     h_jet_eta      ->Fill( jet_eta    );
     h_jet_count    ->Fill( jet_count  );
