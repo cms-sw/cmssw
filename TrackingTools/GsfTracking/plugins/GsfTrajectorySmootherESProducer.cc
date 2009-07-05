@@ -58,6 +58,10 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
   double chi2Cut(100.);
   GsfChi2MeasurementEstimator estimator(chi2Cut);
   //
+  // geometry
+  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
+  edm::ESHandle<DetLayerGeometry> geo;
+  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
   // create algorithm
   //
   //   bool matBefUpd = pset_.getParameter<bool>("MaterialBeforeUpdate");
@@ -66,5 +70,7 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
 									 GsfMultiStateUpdator(), 
 									 estimator,merger,
 // 									 matBefUpd,
-									 scale));
+									 scale,
+									 true,//BM should this be taken from parameterSet?
+									 geo.product()));
 }

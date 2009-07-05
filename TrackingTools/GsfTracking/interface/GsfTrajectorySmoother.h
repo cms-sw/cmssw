@@ -10,6 +10,7 @@
 #include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTracking/interface/FullConvolutionWithMaterial.h"
+#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 class MultiTrajectoryStateMerger;
 
@@ -34,7 +35,8 @@ public:
 			const MeasurementEstimator& aEstimator,
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
-			const bool materialBeforeUpdate = true);
+			const bool materialBeforeUpdate = true,
+			const DetLayerGeometry* detLayerGeometry=0);
 
   virtual ~GsfTrajectorySmoother();
 
@@ -52,7 +54,7 @@ public:
   virtual GsfTrajectorySmoother* clone() const
   {
     return new GsfTrajectorySmoother(*thePropagator,*theUpdator,*theEstimator,
-				     *theMerger,theErrorRescaling,theMatBeforeUpdate);
+				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
 private:
@@ -66,6 +68,10 @@ private:
   bool theTiming;
   bool theMatBeforeUpdate;
   float theErrorRescaling;
+
+  const DetLayerGeometry dummyGeometry;
+  const DetLayerGeometry* theGeometry;
+
 };
 
 #endif //TR_GsfTrajectorySmoother_H_

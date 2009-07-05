@@ -59,10 +59,16 @@ GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){
   //   double chi2Cut = pset_.getParameter<double>("ChiSquarCut");
   double chi2Cut(100.);
   GsfChi2MeasurementEstimator estimator(chi2Cut);
+
+  // geometry
+  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
+  edm::ESHandle<DetLayerGeometry> geo;
+  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
   //
   // create algorithm
   //
   return boost::shared_ptr<TrajectoryFitter>(new GsfTrajectoryFitter(propagator,
 								     GsfMultiStateUpdator(), 
-								     estimator,merger));
+								     estimator,merger,
+								     geo.product()));
 }

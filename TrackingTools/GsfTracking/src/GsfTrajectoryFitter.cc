@@ -12,12 +12,15 @@
 GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
 					 const TrajectoryStateUpdator& aUpdator,
 					 const MeasurementEstimator& aEstimator,
-					 const MultiTrajectoryStateMerger& aMerger) :
+					 const MultiTrajectoryStateMerger& aMerger,
+					 const DetLayerGeometry* detLayerGeometry) :
   thePropagator(aPropagator.clone()),
   theUpdator(aUpdator.clone()),
   theEstimator(aEstimator.clone()),
-  theMerger(aMerger.clone())
+  theMerger(aMerger.clone()),
+  theGeometry(detLayerGeometry)
 {
+  if(!theGeometry) theGeometry = &dummyGeometry;
   //   static SimpleConfigurable<bool> timeConf(false,"GsfTrajectoryFitter:activateTiming");
   //   theTiming = timeConf.value();
 }
@@ -80,11 +83,11 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       //       TimeMe t(*updateTimer,false);
       currTsos = updator()->update(predTsos, *preciseHit);
     }
-    myTraj.push(TM(predTsos, currTsos, preciseHit),
+    myTraj.push(TM(predTsos, currTsos, preciseHit, 0., theGeometry->idToLayer(preciseHit->geographicalId() )),
 		estimator()->estimate(predTsos, *preciseHit).second);
   } else {
     currTsos = predTsos;
-    myTraj.push(TM(predTsos, *hits.begin()));
+    myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
   }
   
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; 
@@ -143,10 +146,11 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	currTsos = updator()->update(predTsos, *preciseHit);
       }
       myTraj.push(TM(predTsos, currTsos, preciseHit,
-		     estimator()->estimate(predTsos, *preciseHit).second));
+		     estimator()->estimate(predTsos, *preciseHit).second,
+		     theGeometry->idToLayer(preciseHit->geographicalId() )));
     } else {
       currTsos = predTsos;
-      myTraj.push(TM(predTsos, *ihit));
+      myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
   }
   return std::vector<Trajectory>(1, myTraj);
