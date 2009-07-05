@@ -34,7 +34,7 @@ simSiStripDigis.CosmicDelayShift = cms.untracked.double(31)
 
 simEcalUnsuppressedDigis.cosmicsPhase = cms.bool(True)
 simEcalUnsuppressedDigis.cosmicsShift = cms.double(1.)
-EcalTrigPrimESProducer.DatabaseFile = cms.untracked.string("TPG_cosmics_ZS.txt.gz")
+
 simEcalDigis.ebDccAdcToGeV = cms.double(0.00875)
 simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(0.0153125)
 
