@@ -7,6 +7,10 @@
 <Constant name="eta"        value="2.06"/>
 <Constant name="phi"        value="0.46"/>
 
+<Constant name="xtran"       value="0.0*cm"/>
+<Constant name="ytran"       value="0.0*cm"/>
+<Constant name="ztran"       value="0.0*cm"/>
+
 
 <Constant name="theta"     value="2*atan(exp(-[tbrot:eta]))"/>
 

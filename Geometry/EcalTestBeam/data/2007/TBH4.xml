@@ -112,9 +112,9 @@
    <rParent name="TBH4:CMSSE"/>
    <rChild name="TBH4:TBH4BeamLine"/>
   <Translation
-   x="[ebcon:blShift]*sin([tbrot:theta])*cos([tbrot:phi])"
-   y="[ebcon:blShift]*sin([tbrot:theta])*sin([tbrot:phi])"
-   z="[ebcon:blShift]*cos([tbrot:theta])"                    />
+   x="[ebcon:blShift]*sin([tbrot:theta])*cos([tbrot:phi]) + [tbrot:xtran]"
+   y="[ebcon:blShift]*sin([tbrot:theta])*sin([tbrot:phi]) + [tbrot:ytran]"
+   z="[ebcon:blShift]*cos([tbrot:theta])                  + [tbrot:ztran]" />
   <rRotation name="TBH4:blRot"/>
  </PosPart>
 </PosPartSection>
