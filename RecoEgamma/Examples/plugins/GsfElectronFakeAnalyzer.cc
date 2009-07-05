@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.18 2009/07/04 21:29:17 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.19 2009/07/04 21:38:29 charlot Exp $
 //
 //
 
@@ -97,6 +97,10 @@ GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
+  nbinmee= conf.getParameter<int>("Nbinmee");
+  meemin=conf.getParameter<double>("Meemin");
+  meemax=conf.getParameter<double>("Meemax");
+  
 }
 
 GsfElectronFakeAnalyzer::~GsfElectronFakeAnalyzer()
@@ -160,7 +164,8 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "ele eta, all reco electrons",    nbineta,etamin,etamax);
   h_ele_vertexEta_all->Sumw2();
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
-  h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", 100, 0., 150. );
+  h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", nbinmee, meemin, meemax );
+  h_ele_mee_os      = new TH1F( "h_ele_mee_os", "ele pairs invariant mass, opp. sign", nbinmee, meemin, meemax );
 
   // matched electrons
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);
@@ -482,6 +487,8 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_HoE_all-> GetYaxis()-> SetTitle("Events");
   h_ele_mee_all-> GetXaxis()-> SetTitle("m_{ee} (GeV/c^{2})");
   h_ele_mee_all-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os-> GetYaxis()-> SetTitle("Events");
   histNum_-> GetXaxis()-> SetTitle("N_{ele}");
   histNum_-> GetYaxis()-> SetTitle("Events");
   h_ele_fbremVsEta_mode-> GetXaxis()-> SetTitle("#eta");
@@ -716,6 +723,7 @@ GsfElectronFakeAnalyzer::endJob(){
   h_ele_vertexPt_all->Write();
   h_ele_vertexEta_all->Write();
   h_ele_mee_all->Write();
+  h_ele_mee_os->Write();
 
   // matched electrons
   h_ele_charge->Write();
@@ -993,6 +1001,7 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
              math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
         float mee2 = p12.Dot(p12);
 	h_ele_mee_all -> Fill(sqrt(mee2));
+	if (gsfIter->charge()*gsfIter2->charge()<0.) h_ele_mee_os -> Fill(sqrt(mee2));
     }
   }
 

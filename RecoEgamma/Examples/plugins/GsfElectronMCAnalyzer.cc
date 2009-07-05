@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.26 2009/07/04 23:06:38 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.27 2009/07/05 09:47:02 charlot Exp $
 //
 //
 
@@ -74,8 +74,6 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   dphimatchmax=conf.getParameter<double>("Dphimatchmax");
   fhitsmax=conf.getParameter<double>("Fhitsmax");
   lhitsmax=conf.getParameter<double>("Lhitsmax");
-  poptruemin=conf.getParameter<double>("Poptruemin");
-  poptruemax=conf.getParameter<double>("Poptruemax");
   nbineta=conf.getParameter<int>("Nbineta");
   nbineta2D=conf.getParameter<int>("Nbineta2D");
   nbinp=conf.getParameter<int>("Nbinp");
@@ -97,6 +95,11 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
   nbinpoptrue= conf.getParameter<int>("Nbinpoptrue");
+  poptruemin=conf.getParameter<double>("Poptruemin");
+  poptruemax=conf.getParameter<double>("Poptruemax");
+  nbinmee= conf.getParameter<int>("Nbinmee");
+  meemin=conf.getParameter<double>("Meemin");
+  meemax=conf.getParameter<double>("Meemax");
 
 }
 
@@ -154,8 +157,22 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexEta_all->Sumw2();
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
   h_ele_TIP_all->Sumw2();
-  h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", 100, 0., 150. );
+  h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", nbinmee, meemin, meemax );
   h_ele_mee_all->Sumw2();
+  h_ele_mee_os      = new TH1F( "h_ele_mee_os", "ele pairs invariant mass, opp. sign", nbinmee, meemin, meemax );
+  h_ele_mee_os->Sumw2();
+  h_ele_mee_os_ebeb      = new TH1F( "h_ele_mee_os_ebeb", "ele pairs invariant mass, opp. sign, EB-EB", nbinmee, meemin, meemax );
+  h_ele_mee_os_ebeb->Sumw2();
+  h_ele_mee_os_ebee      = new TH1F( "h_ele_mee_os_ebee", "ele pairs invariant mass, opp. sign, EB-EE", nbinmee, meemin, meemax );
+  h_ele_mee_os_ebee->Sumw2();
+  h_ele_mee_os_eeee      = new TH1F( "h_ele_mee_os_eeee", "ele pairs invariant mass, opp. sign, EE-EE", nbinmee, meemin, meemax );
+  h_ele_mee_os_eeee->Sumw2();
+  h_ele_mee_os_gg      = new TH1F( "h_ele_mee_os_gg", "ele pairs invariant mass, opp. sign, good-good", nbinmee, meemin, meemax );
+  h_ele_mee_os_gg->Sumw2();
+  h_ele_mee_os_gb      = new TH1F( "h_ele_mee_os_gb", "ele pairs invariant mass, opp. sign, good-bad", nbinmee, meemin, meemax );
+  h_ele_mee_os_gb->Sumw2();
+  h_ele_mee_os_bb      = new TH1F( "h_ele_mee_os_bb", "ele pairs invariant mass, opp. sign, bad-bad", nbinmee, meemin, meemax );
+  h_ele_mee_os_bb->Sumw2();
 
   // charge ID
   h_ele_ChargeMnChargeTrue   = new TH1F( "h_ele_ChargeMnChargeTrue",   "ele charge - gen charge ",5,-1.,4.);
@@ -705,6 +722,20 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_HoE_all-> GetYaxis()-> SetTitle("Events");
   h_ele_mee_all-> GetXaxis()-> SetTitle("m_{ee} (GeV/c^{2})");
   h_ele_mee_all-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_ebeb-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_ebeb-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_ebee-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_ebee-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_eeee-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_eeee-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_gg-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_gg-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_gb-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_gb-> GetYaxis()-> SetTitle("Events");
+  h_ele_mee_os_bb-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_mee_os_bb-> GetYaxis()-> SetTitle("Events");
   histNum_-> GetXaxis()-> SetTitle("N_{ele}");
   histNum_-> GetYaxis()-> SetTitle("Events");
   h_ele_fbremVsEta_mode-> GetXaxis()-> SetTitle("#eta");
@@ -999,6 +1030,13 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_vertexPt_all->Write();
   h_ele_vertexEta_all->Write();
   h_ele_mee_all->Write();
+  h_ele_mee_os->Write();
+  h_ele_mee_os_ebeb->Write();
+  h_ele_mee_os_ebee->Write();
+  h_ele_mee_os_eeee->Write();
+  h_ele_mee_os_gg->Write();
+  h_ele_mee_os_gb->Write();
+  h_ele_mee_os_bb->Write();
 
   // charge ID
   h_ele_charge->Write();
@@ -1341,6 +1379,30 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
         float mee2 = p12.Dot(p12);
 	h_ele_mee_all -> Fill(sqrt(mee2));
+	if (gsfIter->charge()*gsfIter2->charge()<0.) {
+	  h_ele_mee_os -> Fill(sqrt(mee2));
+	  if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));	
+	  if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
+	  if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));	
+	  if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) || 
+	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) || 
+	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) || 
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) || 
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) || 
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) || 
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) || 
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) || 
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW)) 
+	   { h_ele_mee_os_gg -> Fill(sqrt(mee2));} 
+	  else if (
+	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) || 
+	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->isGap()) || 
+	     (gsfIter->isGap() && gsfIter2->classification()==GsfElectron::SHOWERING) || 
+	     (gsfIter->isGap() && gsfIter2->isGap())) 
+	   { h_ele_mee_os_bb -> Fill(sqrt(mee2));}
+	  else
+	   { h_ele_mee_os_gb -> Fill(sqrt(mee2));}  
+        }  
     }
   }
   

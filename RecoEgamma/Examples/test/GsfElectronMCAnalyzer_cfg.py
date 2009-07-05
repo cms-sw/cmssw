@@ -44,8 +44,6 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     Detamatchmax = cms.double(0.05),
     Fhitsmax = cms.double(20.0),
     Lhitsmax = cms.double(10.0),
-    Poptruemin = cms.double(0.0),
-    Poptruemax = cms.double(1.5),
     Nbinxyz = cms.int32(50),
     Nbineop2D = cms.int32(30),
     Nbinp = cms.int32(50),
@@ -67,6 +65,11 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     Nbindphi = cms.int32(100),
     Nbineop = cms.int32(50)
     Nbinpoptrue = cms.int32(75)
+    Poptruemin = cms.double(0.0),
+    Poptruemax = cms.double(1.5),
+    Nbinmee = cms.int32(100)
+    Meemin = cms.double(0.0),
+    Meemax = cms.double(150.),
 )
 
 process.p = cms.Path(process.gsfElectronAnalysis)

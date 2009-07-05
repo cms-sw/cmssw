@@ -63,7 +63,10 @@ process.gsfElectronFakeAnalysis = cms.EDAnalyzer("GsfElectronFakeAnalyzer",
     Nbinpt = cms.int32(50),
     Nbindphimatch2D = cms.int32(50),
     Nbindphi = cms.int32(100),
-    Nbineop = cms.int32(50)
+    Nbineop = cms.int32(50),
+    Nbinmee = cms.int32(100),
+    Meemin = cms.double(0.0),
+    Meemax = cms.double(150.)
 )
 
 process.p = cms.Path(process.gsfElectronFakeAnalysis)

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.h,v 1.8 2009/03/28 22:29:09 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.h,v 1.9 2009/06/10 23:09:50 charlot Exp $
 //
 //
 
@@ -86,6 +86,7 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
   TH1F *h_ele_mee_all;
+  TH1F *h_ele_mee_os;
 
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
@@ -294,6 +295,8 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
   double dphimatchmax;
   double fhitsmax;
   double lhitsmax;
+  double meemin;
+  double meemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -314,6 +317,7 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
   int nbindphimatch;
   int nbindetamatch2D;
   int nbindphimatch2D;
+  int nbinmee;
 
  };
 

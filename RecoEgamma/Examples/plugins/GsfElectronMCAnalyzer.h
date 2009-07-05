@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.11 2009/06/10 16:21:37 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.12 2009/07/04 23:06:38 charlot Exp $
 //
 //
 
@@ -94,6 +94,13 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
   TH1F *h_ele_mee_all;
+  TH1F *h_ele_mee_os;
+  TH1F *h_ele_mee_os_ebeb;
+  TH1F *h_ele_mee_os_ebee;
+  TH1F *h_ele_mee_os_eeee;
+  TH1F *h_ele_mee_os_gg;
+  TH1F *h_ele_mee_os_gb;
+  TH1F *h_ele_mee_os_bb;
 
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
@@ -349,6 +356,8 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   double lhitsmax;
   double poptruemin;
   double poptruemax;
+  double meemin;
+  double meemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -370,6 +379,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   int nbindetamatch2D;
   int nbindphimatch2D;
   int nbinpoptrue;
+  int nbinmee;
 
  };
 
