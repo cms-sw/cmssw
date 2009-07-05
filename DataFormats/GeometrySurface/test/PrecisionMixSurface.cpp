@@ -46,9 +46,9 @@ int main() {
 
   double a[3];
   double v[3] = { dgv.x(), dgv.y(), dgv.z() };
-  double r[9] = { r.xx(), r.xy(), r.xz(),
-		  r.yx(), r.yy(), r.yz(),
-		  r.zx(), r.zy(), r.zz()
+  double r[9] = { rot.xx(), rot.xy(), rot.xz(),
+		  rot.yx(), rot.yy(), rot.yz(),
+		  rot.zx(), rot.zy(), rot.zz()
   };
 
   st();
