@@ -191,7 +191,7 @@ GaussianSumUtilities1D::computeMode () const
     for ( unsigned int ic=0; ic<size(); ++ic ) {
       double w = weight(ic);
       double ySq = w*w/variance(ic);
-      if ( ic==0 || ySqMax ) {
+      if ( ic==0 || ySq>ySqMax ) {
 	icMax = ic;
 	ySqMax = ySq;
       }

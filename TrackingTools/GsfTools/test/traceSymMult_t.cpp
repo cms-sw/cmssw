@@ -22,10 +22,10 @@ void en(){}
 
 typedef DistanceBetweenComponents<5> Distance; 
 typedef KullbackLeiblerDistance<5> KDistance;
-typedef SingleGaussianState<5> GS;
-typedef GS::Vector Vector;
-typedef GS::Matrix Matrix;
-typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > Matrix6;
+typedef SingleGaussianState<5>  __attribute__ ((aligned (16))) GS;
+typedef GS::Vector  __attribute__ ((aligned (16))) Vector;
+typedef GS::Matrix  __attribute__ ((aligned (16))) Matrix;
+typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> >  __attribute__ ((aligned (16))) Matrix6;
 
   Distance const & distance() {
       static Distance * d = new KDistance;
