@@ -1,4 +1,4 @@
-//$Id: SprBoxFilter.cc,v 1.4 2007/05/17 23:31:37 narsky Exp $
+//$Id: SprBoxFilter.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBoxFilter.hh"
@@ -74,7 +74,7 @@ bool SprBoxFilter::setBox(const std::vector<SprInterval>& box)
     cerr << "Unable to reset SprBoxFilter." << endl;
     return false;
   }
-  for( int d=0;d<box.size();d++ )
+  for( unsigned int d=0;d<box.size();d++ )
     box_.insert(pair<const unsigned,SprInterval>(d,box[d]));
   return true;
 }

@@ -1,4 +1,4 @@
-//$Id: SprClass.cc,v 1.5 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprClass.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClass.hh"
@@ -12,12 +12,12 @@ using namespace std;
 bool SprClass::operator==(int cls) const 
 {
   if( negate_ ) {
-    for( int i=0;i<classes_.size();i++ )
+    for( unsigned int i=0;i<classes_.size();i++ )
       if( cls == classes_[i] ) return false;
     return true;
   }
   else {
-    for( int i=0;i<classes_.size();i++ )
+    for( unsigned int i=0;i<classes_.size();i++ )
       if( cls == classes_[i] ) return true;
     return false;
   }
@@ -29,11 +29,11 @@ bool SprClass::operator==(const SprClass& other) const
 {
   if( negate_ != other.negate_ ) return false;
   if( classes_.size() != other.classes_.size() ) return false;
-  for( int i=0;i<classes_.size();i++ ) {
+  for( unsigned int i=0;i<classes_.size();i++ ) {
     if( find(other.classes_.begin(),other.classes_.end(),classes_[i]) 
 	== other.classes_.end() ) return false;
   }
-  for( int i=0;i<other.classes_.size();i++ ) {
+  for( unsigned int i=0;i<other.classes_.size();i++ ) {
     if( find(classes_.begin(),classes_.end(),other.classes_[i]) 
 	== classes_.end() ) return false;
   }
@@ -57,11 +57,11 @@ bool SprClass::checkClasses() const
 int SprClass::overlap(const SprClass& other) const
 {
   if( negate_ || other.negate_ ) return -1;
-  for( int i=0;i<classes_.size();i++ ) {
+  for( unsigned int i=0;i<classes_.size();i++ ) {
     if( find(other.classes_.begin(),other.classes_.end(),classes_[i]) 
 	!= other.classes_.end() ) return 1;
   }
-  for( int i=0;i<other.classes_.size();i++ ) {
+  for( unsigned int i=0;i<other.classes_.size();i++ ) {
     if( find(classes_.begin(),classes_.end(),other.classes_[i]) 
 	!= classes_.end() ) return 1;
   }

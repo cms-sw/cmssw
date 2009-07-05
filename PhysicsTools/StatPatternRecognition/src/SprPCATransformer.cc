@@ -1,4 +1,4 @@
-//$Id: SprPCATransformer.cc,v 1.1 2007/11/07 00:56:14 narsky Exp $
+//$Id: SprPCATransformer.cc,v 1.1 2007/11/12 06:19:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPCATransformer.hh"
@@ -59,7 +59,7 @@ bool SprPCATransformer::train(const SprAbsFilter* data, int verbose)
   assert( dim == oldVars_.size() );
   newVars_.clear();
   newVars_.resize(dim);
-  for( int d=0;d<dim;d++ ) {
+  for( unsigned int d=0;d<dim;d++ ) {
     ostringstream os;
     os << "pc" << d;
     newVars_[d] = os.str();
@@ -76,7 +76,7 @@ bool SprPCATransformer::train(const SprAbsFilter* data, int verbose)
 
   // diagonalize
   SprMatrix U = cov.diagonalize().T();
-  if( U.num_row()!=dim || U.num_col()!=dim ) {
+  if( U.num_row()!=static_cast<int>(dim) || U.num_col()!=static_cast<int>(dim) ) {
     cerr << "Dimensionality of the PCA transformation matrix does not match." 
 	 << endl;
     return false;
@@ -84,20 +84,20 @@ bool SprPCATransformer::train(const SprAbsFilter* data, int verbose)
 
   // sort eigenvalues
   eigenValues_.resize(dim);
-  for( int d=0;d<dim;d++ ) 
+  for( unsigned int d=0;d<dim;d++ ) 
     eigenValues_[d] = pair<double,int>(cov[d][d],d);
   stable_sort(eigenValues_.begin(),eigenValues_.end(),PCACmpPairDIFirst());
   if( verbose > 0 ) {
     cout << "PCA eigenvalues: ";
-    for( int d=0;d<dim;d++ ) cout << eigenValues_[d].first << " ";
+    for( unsigned int d=0;d<dim;d++ ) cout << eigenValues_[d].first << " ";
     cout << endl;
   }
 
   // sort rows of the transformation matrix
   U_ = U;
-  for( int iold=0;iold<dim;iold++ ) {
-    int inew = eigenValues_[iold].second;
-    for( int j=0;j<dim;j++ )
+  for( unsigned int iold=0;iold<dim;iold++ ) {
+    unsigned int inew = eigenValues_[iold].second;
+    for( unsigned int j=0;j<dim;j++ )
       U_[inew][j] = U[iold][j];
   }
 
@@ -109,7 +109,7 @@ bool SprPCATransformer::train(const SprAbsFilter* data, int verbose)
 void SprPCATransformer::transform(const std::vector<double>& in, 
 				  std::vector<double>& out) const
 {
-  int dim = U_.num_row();
+  unsigned int dim = U_.num_row();
   assert( in.size() == dim );
   SprVector v(in);
   out = (U_*v).std();
@@ -119,7 +119,7 @@ void SprPCATransformer::transform(const std::vector<double>& in,
 void SprPCATransformer::inverse(const std::vector<double>& in, 
 				std::vector<double>& out) const
 {
-  int dim = U_.num_row();
+  unsigned int dim = U_.num_row();
   assert( in.size() == dim );
   SprVector v(in);
   out = (U_.T()*v).std();

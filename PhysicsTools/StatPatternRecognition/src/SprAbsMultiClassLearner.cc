@@ -1,4 +1,4 @@
-//$Id: SprAbsMultiClassLearner.cc,v 1.1 2007/05/14 18:08:08 narsky Exp $
+//$Id: SprAbsMultiClassLearner.cc,v 1.1 2007/09/21 22:32:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsMultiClassLearner.hh"
@@ -30,7 +30,7 @@ bool SprAbsMultiClassLearner::store(const char* filename) const
   assert( vars.size() == data_->dim() );
   os << "==================================================" << endl;
   os << "Dimensions:" << endl;
-  for( int i=0;i<vars.size();i++ ) {
+  for( unsigned int i=0;i<vars.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,vars[i].c_str());
     os << s << endl;

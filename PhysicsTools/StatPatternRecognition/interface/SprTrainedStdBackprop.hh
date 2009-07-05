@@ -1,4 +1,4 @@
-//$Id: SprTrainedStdBackprop.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
+//$Id: SprTrainedStdBackprop.hh,v 1.2 2007/09/21 22:32:04 narsky Exp $
 //--------------------------------------------------------------------------
 //
 //      Class SprTrainedStdBackprop:
@@ -63,8 +63,8 @@ public:
 private:
   double activate(double x, SprNNDefs::ActFun f) const;
 
-  int     nNodes_; // Total number of nodes (input+hidden+output)
-  int     nLinks_; // Total number of connections between nodes
+  unsigned int     nNodes_; // Total number of nodes (input+hidden+output)
+  unsigned int     nLinks_; // Total number of connections between nodes
 
   std::string structure_;
   std::vector<SprNNDefs::NodeType>   nodeType_;

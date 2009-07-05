@@ -1,4 +1,4 @@
-//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.12 2007/11/12 04:41:16 narsky Exp $
+//$Id: SprAdaBoostDecisionTreeApp.cc,v 1.5 2007/11/12 06:19:11 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -279,7 +279,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -300,7 +300,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -325,8 +325,8 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
-    cout << " \"" << vars[i].c_str() << "\"";
+  for( unsigned int i=0;i<vars.size();i++ ) 
+   cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
 
@@ -340,7 +340,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -382,7 +382,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -411,7 +411,7 @@ int main(int argc, char ** argv)
     valFilter->vars(valVars);
     cout << "Read validation data from file " << valFile.c_str() 
 	 << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -428,7 +428,7 @@ int main(int argc, char ** argv)
     }
     valFilter->classes(inputClasses);
     cout << "Validation data filtered by class." << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << valFilter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -554,7 +554,7 @@ int main(int argc, char ** argv)
 
   // make bootstrap for resampling input features
   auto_ptr<SprIntegerBootstrap> bootstrap;
-  if( nFeaturesToSample > filter->dim() ) 
+  if( nFeaturesToSample > (int)filter->dim() ) 
     nFeaturesToSample = filter->dim();
   if( nFeaturesToSample > 0 ) {
     bootstrap.reset(new SprIntegerBootstrap(filter->dim(),nFeaturesToSample));
@@ -596,7 +596,7 @@ int main(int argc, char ** argv)
     }
     else {
       cout << "Will cross-validate for trees with minimal node sizes: ";
-      for( int i=0;i<nodeMinSize[0].size();i++ )
+      for( unsigned int i=0;i<nodeMinSize[0].size();i++ )
 	cout << nodeMinSize[0][i] << " ";
       cout << endl;
     }
@@ -604,7 +604,7 @@ int main(int argc, char ** argv)
     // loop over nodes to prepare classifiers
     vector<SprDecisionTree*> trees(nodeMinSize[0].size());
     vector<SprAbsClassifier*> classifiers(nodeMinSize[0].size());
-    for( int i=0;i<nodeMinSize[0].size();i++ ) {
+    for( unsigned int i=0;i<nodeMinSize[0].size();i++ ) {
       SprDecisionTree* tree1 = 0;
       if( useTopdown )
 	tree1 = 
@@ -624,7 +624,7 @@ int main(int argc, char ** argv)
       ab1->setEpsilon(epsilon);
       if( !ab1->addTrainable(tree1,SprUtils::lowerBound(0.5)) ) {
 	cerr << "Unable to add decision tree to AdaBoost for CV." << endl;
-	for( int j=0;j<trees.size();j++ ) {
+	for( unsigned int j=0;j<trees.size();j++ ) {
 	  delete trees[j];
 	  delete classifiers[j];
 	}
@@ -641,7 +641,7 @@ int main(int argc, char ** argv)
 		     inputClasses[0],inputClasses[1],
 		     SprUtils::lowerBound(0.5),cvFom,verbose) ) {
       cerr << "Unable to cross-validate." << endl;
-      for( int j=0;j<trees.size();j++ ) {
+      for( unsigned int j=0;j<trees.size();j++ ) {
 	delete trees[j];
 	delete classifiers[j];
       }
@@ -649,14 +649,14 @@ int main(int argc, char ** argv)
     }
     else {
       cout << "Cross-validated FOMs:" << endl;
-      for( int i=0;i<cvFom.size();i++ ) {
+      for( unsigned int i=0;i<cvFom.size();i++ ) {
 	cout << "Node size=" << setw(8) << nodeMinSize[0][i] 
 	     << "      FOM=" << setw(10) << cvFom[i] << endl;
       }
     }
 
     // cleanup
-    for( int j=0;j<trees.size();j++ ) {
+    for( unsigned int j=0;j<trees.size();j++ ) {
       delete trees[j];
       delete classifiers[j];
     }
@@ -757,7 +757,7 @@ int main(int argc, char ** argv)
   vector<vector<string> > varsDoNotFeed;
   SprStringParser::parseToStrings(stringVarsDoNotFeed.c_str(),varsDoNotFeed);
   vector<unsigned> mapper;
-  for( int d=0;d<vars.size();d++ ) {
+  for( unsigned int d=0;d<vars.size();d++ ) {
     if( varsDoNotFeed.empty() ||
         (find(varsDoNotFeed[0].begin(),varsDoNotFeed[0].end(),vars[d])
 	 ==varsDoNotFeed[0].end()) ) {

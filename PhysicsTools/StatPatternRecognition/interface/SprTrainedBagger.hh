@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedBagger.hh,v 1.6 2007/10/25 22:11:08 narsky Exp $
+//      $Id: SprTrainedBagger.hh,v 1.3 2007/10/30 18:56:12 narsky Exp $
 //
 // Description:
 //      Class SprTrainedBagger :
@@ -73,7 +73,7 @@ public:
     Local accessors.
   */
   const SprAbsTrainedClassifier* classifier(int i) const {
-    if( i>=0 && i<trained_.size() )
+    if( i>=0 && i<(int)trained_.size() )
       return trained_[i].first;
     return 0;
   }
@@ -82,7 +82,7 @@ public:
     const {
     classifiers.clear();
     classifiers.resize(trained_.size());
-    for( int i=0;i<trained_.size();i++ )
+    for( unsigned int i=0;i<trained_.size();i++ )
       classifiers[i] = trained_[i].first;
   }
 

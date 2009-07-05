@@ -1,4 +1,4 @@
-// $Id: SprAbsVarTransformer.cc,v 1.1 2007/11/07 00:56:14 narsky Exp $
+// $Id: SprAbsVarTransformer.cc,v 1.1 2007/11/12 06:19:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsVarTransformer.hh"
@@ -27,7 +27,7 @@ bool SprAbsVarTransformer::store(const char* filename) const
   // store old variables
   os << "==================================================" << endl;
   os << "Old Variables:" << endl;
-  for( int i=0;i<oldVars_.size();i++ ) {
+  for( unsigned int i=0;i<oldVars_.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,oldVars_[i].c_str());
     os << s << endl;
@@ -37,7 +37,7 @@ bool SprAbsVarTransformer::store(const char* filename) const
   // store new variables
   os << "==================================================" << endl;
   os << "New Variables:" << endl;
-  for( int i=0;i<newVars_.size();i++ ) {
+  for( unsigned int i=0;i<newVars_.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,newVars_[i].c_str());
     os << s << endl;

@@ -1,4 +1,4 @@
-//$Id: SprCombiner.cc,v 1.2 2007/05/25 17:59:17 narsky Exp $
+//$Id: SprCombiner.cc,v 1.1 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCombiner.hh"
@@ -18,11 +18,11 @@ using namespace std;
 SprCombiner::~SprCombiner() 
 { 
   delete features_; 
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     if( trained_[i].second )
       delete trained_[i].first;
   }
-  for( int i=0;i<inputDataMappers_.size();i++ )
+  for( unsigned int i=0;i<inputDataMappers_.size();i++ )
     delete inputDataMappers_[i];
 }
 
@@ -79,7 +79,7 @@ bool SprCombiner::setData(SprAbsFilter* data)
   delete features_;
 
   // size
-  int nClassifiers = trained_.size();
+  unsigned int nClassifiers = trained_.size();
   if( nClassifiers == 0 ) {
     cerr << "No classifiers have been specified for Combiner." << endl;
     return false;
@@ -100,12 +100,12 @@ bool SprCombiner::setData(SprAbsFilter* data)
   labels_.clear();
   constraints_.clear();
   defaultValues_.clear();
-  for( int i=0;i<inputDataMappers_.size();i++ )
+  for( unsigned int i=0;i<inputDataMappers_.size();i++ )
     delete inputDataMappers_[i];
   inputDataMappers_.clear();
 
   // re-make
-  for( int i=0;i<nClassifiers;i++ ) {
+  for( unsigned int i=0;i<nClassifiers;i++ ) {
     if( !this->addTrained(trained[i].first,
 			  labels[i].c_str(),
 			  SprAllowedStringMap(),
@@ -137,7 +137,7 @@ void SprCombiner::print(std::ostream& os) const
   os << "Sub-classifiers: " << trained_.size() << endl;
 
   // loop over sub-classfiers
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Sub-classifier: " << i 
        << " Name: " << labels_[i] 
        << " Default: " << defaultValues_[i] << endl;
@@ -146,7 +146,7 @@ void SprCombiner::print(std::ostream& os) const
     vector<string> vars;
     trained_[i].first->vars(vars);
     os << "Variables: " << vars.size() << endl;
-    for( int j=0;j<vars.size();j++ )
+    for( unsigned int j=0;j<vars.size();j++ )
       os << vars[j].c_str() << " ";
     os << endl;
 
@@ -154,7 +154,7 @@ void SprCombiner::print(std::ostream& os) const
     vector<unsigned> mapper;
     inputDataMappers_[i]->mapper(mapper);
     os << "Mappers: " << mapper.size() << endl;
-    for( int j=0;j<mapper.size();j++ )
+    for( unsigned int j=0;j<mapper.size();j++ )
       os << mapper[j] << " ";
     os << endl;
 
@@ -163,7 +163,7 @@ void SprCombiner::print(std::ostream& os) const
     for( LocalIndexMap::const_iterator 
 	   iter=constraints_[i].begin();iter!=constraints_[i].end();iter++ ) {
       os << iter->first << " " << iter->second.size() << " ";
-      for( int k=0;k<iter->second.size();k++ )
+      for( unsigned int k=0;k<iter->second.size();k++ )
 	os << iter->second[k].first << " " << iter->second[k].second << " ";
       os << endl;
     }
@@ -179,7 +179,7 @@ void SprCombiner::print(std::ostream& os) const
   os << "Features: " << features_->dim() << endl;
   vector<string> fVars;
   features_->vars(fVars);
-  for( int d=0;d<features_->dim();d++ )
+  for( unsigned int d=0;d<features_->dim();d++ )
     os << fVars[d] << " ";
   os << endl;
 }
@@ -243,7 +243,7 @@ bool SprCombiner::addTrained(const SprAbsTrainedClassifier* c,
 bool SprCombiner::makeFeatures()
 {
   // size
-  int nClassifiers = trained_.size();
+  unsigned int nClassifiers = trained_.size();
   if( nClassifiers == 0 ) {
     cerr << "No classifiers have been specified for Combiner." << endl;
     return false;
@@ -257,12 +257,12 @@ bool SprCombiner::makeFeatures()
   SprData* features = new SprData("features",labels_);
 
   // loop over data points
-  for( int ip=0;ip<data_->size();ip++ ) {
+  for( unsigned int ip=0;ip<data_->size();ip++ ) {
     const SprPoint* p = (*data_)[ip];
 
     // loop over classifiers
     vector<double> resp(nClassifiers);
-    for( int ic=0;ic<nClassifiers;ic++ ) {
+    for( unsigned int ic=0;ic<nClassifiers;ic++ ) {
 
       // map this point onto classifier variables
       const SprPoint* pResp 
@@ -278,7 +278,7 @@ bool SprCombiner::makeFeatures()
 	bool accept = true;
 	const SprCut& cut = found->second;
 	if( !cut.empty() ) accept = false;
-	for( int k=0;k<cut.size();k++ ) {
+	for( unsigned int k=0;k<cut.size();k++ ) {
 	  if( x>cut[k].first && x<cut[k].second ) {
 	    accept = true;
 	    break;
@@ -334,14 +334,14 @@ SprTrainedCombiner* SprCombiner::makeTrained() const
 
   // clone sub-classifiers
   vector<pair<const SprAbsTrainedClassifier*,bool> > trained;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     SprAbsTrainedClassifier* c = trained_[i].first->clone();
     trained.push_back(pair<const SprAbsTrainedClassifier*,bool>(c,true));
   }
 
   // clone coordinate mappers
   vector<SprCoordinateMapper*> inputDataMappers(inputDataMappers_.size());
-  for( int i=0;i<inputDataMappers_.size();i++ )
+  for( unsigned int i=0;i<inputDataMappers_.size();i++ )
     inputDataMappers.push_back(inputDataMappers_[i]->clone());
 
   // make trained combiner

@@ -1,4 +1,4 @@
-//$Id: SprOutputWriterApp.cc,v 1.10 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprOutputWriterApp.cc,v 1.6 2007/12/01 01:29:41 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -65,7 +65,7 @@ void help(const char* prog)
 
 
 void cleanup(vector<SprAbsTrainedClassifier*>& trained) {
-  for( int i=0;i<trained.size();i++ ) delete trained[i];
+  for( unsigned int i=0;i<trained.size();i++ ) delete trained[i];
 }
 
 
@@ -184,7 +184,7 @@ int main(int argc, char ** argv)
 	 << configFileList.c_str() << endl;
     return 1;
   }
-  int nTrained = configFiles[0].size();
+  unsigned int nTrained = configFiles[0].size();
   bool useClassifierNames 
     = (!classifierNames.empty() && !classifierNames[0].empty());
   if( useClassifierNames && (classifierNames[0].size()!=nTrained) ) {
@@ -204,7 +204,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -225,7 +225,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -249,7 +249,7 @@ int main(int argc, char ** argv)
   vector<string> vars;
   filter->vars(vars);
   cout << "Read data from file " << dataFile.c_str() << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -264,7 +264,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -311,7 +311,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   "
            << valFilter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -323,7 +323,7 @@ int main(int argc, char ** argv)
   // read classifier configuration
   vector<SprAbsTrainedClassifier*> trained(nTrained);
   vector<SprCoordinateMapper*> specificMappers(nTrained);
-  for( int i=0;i<nTrained;i++ ) {
+  for( unsigned int i=0;i<nTrained;i++ ) {
 
     // read classifier
     trained[i] 
@@ -342,7 +342,7 @@ int main(int argc, char ** argv)
     trained[i]->vars(trainedVars);
     if( verbose > 0 ) {
       cout << "Variables:      " << endl;
-      for( int j=0;j<trainedVars.size();j++ ) 
+      for( unsigned int j=0;j<trainedVars.size();j++ ) 
 	cout << trainedVars[j].c_str() << " ";
       cout << endl;
     }
@@ -389,7 +389,7 @@ int main(int argc, char ** argv)
   vector<vector<string> > varsDoNotFeed;
   SprStringParser::parseToStrings(stringVarsDoNotFeed.c_str(),varsDoNotFeed);
   vector<unsigned> mapper;
-  for( int d=0;d<vars.size();d++ ) {
+  for( unsigned int d=0;d<vars.size();d++ ) {
     if( varsDoNotFeed.empty() ||
         (find(varsDoNotFeed[0].begin(),varsDoNotFeed[0].end(),vars[d])
 	 ==varsDoNotFeed[0].end()) ) {
@@ -408,7 +408,7 @@ int main(int argc, char ** argv)
 
   // feed data into tuple
   SprDataFeeder feeder(valFilter.get(),tuple.get(),mapper);
-  for( int i=0;i<nTrained;i++ ) {
+  for( unsigned int i=0;i<nTrained;i++ ) {
     string useName;
     if( useClassifierNames ) 
       useName = classifierNames[0][i];

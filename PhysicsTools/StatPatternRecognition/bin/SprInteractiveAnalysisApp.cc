@@ -1,4 +1,4 @@
-//$Id: SprInteractiveAnalysisApp.cc,v 1.11 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprInteractiveAnalysisApp.cc,v 1.4 2007/11/12 06:19:11 narsky Exp $
 /*
   This executable is intended for interactive analysis of small samples.
   The user can interactively add and remove various classifiers with
@@ -122,9 +122,9 @@ int prepareExit(const map<string,SprAbsClassifier*>& classifiers,
   for( map<string,SprAbsClassifier*>::const_iterator 
 	 i=classifiers.begin();i!=classifiers.end();i++ )
     delete i->second;
-  for( int i=0;i<cToClean.size();i++ )
+  for( unsigned int i=0;i<cToClean.size();i++ )
     delete cToClean[i];
-  for( int i=0;i<bootstraps.size();i++ )
+  for( unsigned int i=0;i<bootstraps.size();i++ )
     delete bootstraps[i];
   return status;
 }
@@ -275,7 +275,7 @@ bool storeNewCache(const string& prefix, const char* cacheName,
 
   // store values
   int j = 0;
-  for( int i=0;i<v.size();i++ ) {
+  for( unsigned int i=0;i<v.size();i++ ) {
     file << v[i].cls << " " << v[i].weight << " " << v[i].response << " #   ";
     if( ++j == 10 ) {
       j = 0;
@@ -316,7 +316,7 @@ bool storeEffCache(const string& prefix, const char* cacheName,
   }
 
   // store values
-  for( int i=0;i<v.size();i++ )
+  for( unsigned int i=0;i<v.size();i++ )
     file << v[i] << " ";
   file << endl;
 
@@ -334,9 +334,9 @@ unsigned readCache(ifstream& file, vector<SIAResponse>& v)
   while( getline(file,line) ) {
     istringstream str(line);
     unsigned n = 0;
-    for( int i=0;i<line.size();i++ )
+    for( unsigned int i=0;i<line.size();i++ )
       if( line[i]=='#' ) n++;
-    for( int i=0;i<n;i++ ) {
+    for( unsigned int i=0;i<n;i++ ) {
       str >> cls >> weight >> resp >> dummy;
       v.push_back(SIAResponse(cls,weight,resp));
     }
@@ -463,7 +463,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -484,7 +484,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -509,7 +509,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -524,7 +524,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -556,7 +556,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -585,7 +585,7 @@ int main(int argc, char ** argv)
     valFilter->vars(valVars);
     cout << "Read validation data from file " << valFile.c_str() 
 	 << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -599,7 +599,7 @@ int main(int argc, char ** argv)
   }
   valFilter->classes(inputClasses);
   cout << "Validation data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << valFilter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -773,7 +773,7 @@ int main(int argc, char ** argv)
 	if( initToZero == 0 ) {
 	  SprVector dummy(filter->dim());
 	  beta = dummy;
-	  for( int i=0;i<filter->dim();i++ ) beta[i] = 0;
+	  for( unsigned int i=0;i<filter->dim();i++ ) beta[i] = 0;
 	}
 	SprLogitR* logit = new SprLogitR(filter.get(),beta0,beta,
 					 eps,updateFactor);
@@ -820,7 +820,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
       
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "DT_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -914,7 +914,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
 
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "STDNN_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -1021,7 +1021,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
 
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "BNN_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -1210,7 +1210,7 @@ int main(int argc, char ** argv)
 					  useStandardAB,
 					  SprTrainedAdaBoost::Discrete);
 	classifiers.insert(pair<const string,SprAbsClassifier*>("BDS",ab));
-	for( int i=0;i<filter->dim();i++ ) {
+	for( unsigned int i=0;i<filter->dim();i++ ) {
 	  SprBinarySplit* s = new SprBinarySplit(filter.get(),&idfrac,i);
 	  cToClean.push_back(s);
 	  if( !ab->addTrainable(s,SprUtils::lowerBound(0.5)) ) {
@@ -1257,7 +1257,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
 
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "BDT_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -1417,7 +1417,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
       
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "RF_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -1527,7 +1527,7 @@ int main(int argc, char ** argv)
 	return prepareExit(classifiers,cToClean,bootstraps,3);
       
       // loop over instances
-      for( int instance=0;instance<ninstance;instance++ ) {
+      for( unsigned int instance=0;instance<ninstance;instance++ ) {
 	string name = "AX4_";
 	char s [200];
 	sprintf(s,"%i",instance);
@@ -1635,7 +1635,7 @@ int main(int argc, char ** argv)
 	map<string,vector<SIAResponse> >::iterator found =
 	  validated.find(iter->first);
 	assert( found != validated.end() );
-	for( int i=0;i<valFilter->size();i++ ) {
+	for( unsigned int i=0;i<valFilter->size();i++ ) {
 	  const SprPoint* p = (*(valFilter.get()))[i];
 	  found->second.push_back(SIAResponse(int(inputClasses[1]==p->class_),
 					   valFilter->w(i),
@@ -1694,7 +1694,7 @@ int main(int argc, char ** argv)
     effInput.close();
     cout << "Input signal efficiency values for which background "
 	 << "will be estimated [ ";
-    for( int i=0;i<effS.size();i++ ) 
+    for( unsigned int i=0;i<effS.size();i++ ) 
       cout << effS[i] << " ";
     cout << "] ";
     string line;
@@ -1732,7 +1732,7 @@ int main(int argc, char ** argv)
       vector<pair<double,double> > bgrnd;
       
       // fill them
-      for( int i=0;i<iter->second.size();i++ ) {
+      for( unsigned int i=0;i<iter->second.size();i++ ) {
 	if(      iter->second[i].cls == 0 ) {
 	  bgrnd.push_back(pair<double,double>(iter->second[i].response,
 					      iter->second[i].weight));
@@ -1750,8 +1750,8 @@ int main(int argc, char ** argv)
       // find dividing point in classifier response
       vector<double> cuts(effS.size());
       double w = 0;
-      int divider = 0;
-      int i = 0;
+      unsigned int divider = 0;
+      unsigned int i = 0;
       while( i<signal.size() && divider<effS.size() ) {
 	w += signal[i].second;
 	if( (w/wsig) > effS[divider] ) {
@@ -1803,7 +1803,7 @@ int main(int argc, char ** argv)
     }
     cout << endl;
     cout << temp.c_str() << endl;
-    for( int i=0;i<effS.size();i++ ) {
+    for( unsigned int i=0;i<effS.size();i++ ) {
       sprintf(s,"          %6.4f         |",effS[i]);
       cout << s;
       vector<string> names;
@@ -1813,8 +1813,8 @@ int main(int argc, char ** argv)
 	names.push_back(iter->first);
 	values.push_back(iter->second[i]);
       }
-      int foundMin = min_element(values.begin(),values.end()) - values.begin();
-      for( int j=0;j<names.size();j++ ) {
+      unsigned int foundMin = min_element(values.begin(),values.end()) - values.begin();
+      for( unsigned int j=0;j<names.size();j++ ) {
 	if( j == foundMin )
 	  sprintf(s," *%7.5f |",values[j]);
 	else
@@ -1855,7 +1855,7 @@ int main(int argc, char ** argv)
       }
 
       // feed
-      for( int i=0;i<valFilter->size();i++ ) {
+      for( unsigned int i=0;i<valFilter->size();i++ ) {
 	const SprPoint* p = (*(valFilter.get()))[i];
 	double w = valFilter->w(i);
 	vector<double> f;

@@ -1,4 +1,4 @@
-//$Id: SprFisherLogitApp.cc,v 1.8 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprFisherLogitApp.cc,v 1.4 2007/11/12 06:19:11 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprFisher.hh"
@@ -201,7 +201,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -222,7 +222,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -247,7 +247,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -262,7 +262,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -293,7 +293,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -321,7 +321,7 @@ int main(int argc, char ** argv)
     valFilter->vars(valVars);
     cout << "Read validation data from file " << valFile.c_str() 
 	 << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -336,7 +336,7 @@ int main(int argc, char ** argv)
     }
     valFilter->classes(inputClasses);
     cout << "Validation data filtered by class." << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << valFilter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -437,7 +437,7 @@ int main(int argc, char ** argv)
     // init
     if( initToZero ) {
       SprVector beta(filter->dim());
-      for( int i=0;i<filter->dim();i++ ) beta[i] = 0;
+      for( unsigned int i=0;i<filter->dim();i++ ) beta[i] = 0;
       logit.reset(new SprLogitR(filter.get(),0,beta,eps,updateFactor));
     }
     else {

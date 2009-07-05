@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprPoint.hh,v 1.3 2006/11/13 19:09:39 narsky Exp $
+//      $Id: SprPoint.hh,v 1.2 2007/09/21 22:32:02 narsky Exp $
 //
 // Description:
 //      Class SprPoint :
@@ -81,7 +81,7 @@ struct SprPoint
 
 inline double SprPoint::at(int i) const 
 {
-  if( i>=0 && i<x_.size() ) return x_[i];
+  if( i>=0 && i<(int)x_.size() ) return x_[i];
   std::cerr << "Index out of range for vector " << i << " " 
 	    << x_.size() << std::endl;
   return 0;

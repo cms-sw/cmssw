@@ -1,4 +1,4 @@
-//$Id: SprRootAdapter.cc,v 1.9 2007/12/01 01:12:13 narsky Exp $
+//$Id: SprRootAdapter.cc,v 1.4 2007/12/01 01:29:46 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootAdapter.hh"
@@ -105,9 +105,9 @@ SprRootAdapter::SprRootAdapter()
   mapper_(),
   mcMapper_(),
   trans_(0),
+  showCrit_(0),
   plotter_(0),
   mcPlotter_(0),
-  showCrit_(0),
   crit_(),
   bootstrap_(),
   aux_(),
@@ -242,7 +242,7 @@ bool SprRootAdapter::vars(char vars[][200]) const
   vector<string> svars;
   trainData_->vars(svars);
   assert( svars.size() == trainData_->dim() );
-  for( int i=0;i<svars.size();i++ )
+  for( unsigned int i=0;i<svars.size();i++ )
     strcpy(vars[i],svars[i].c_str());
   return true;
 }
@@ -292,7 +292,7 @@ bool SprRootAdapter::classifierVars(const char* classifierName,
     }
     found->second->vars(cVars);
   }
-  for( int i=0;i<cVars.size();i++ )
+  for( unsigned int i=0;i<cVars.size();i++ )
     strcpy(vars[i],cVars[i].c_str());
   return true;
 }
@@ -619,16 +619,16 @@ void SprRootAdapter::clearClassifiers()
 	 i=mapper_.begin();i!=mapper_.end();i++ )
     delete i->second;
   mapper_.clear();
-  for( int i=0;i<crit_.size();i++ )
+  for( unsigned int i=0;i<crit_.size();i++ )
     delete crit_[i];
   crit_.clear();
-  for( int i=0;i<bootstrap_.size();i++ )
+  for( unsigned int i=0;i<bootstrap_.size();i++ )
     delete bootstrap_[i];
   bootstrap_.clear();  
   for( set<SprAbsClassifier*>::const_iterator 
 	 i=aux_.begin();i!=aux_.end();i++ ) delete *i;
   aux_.clear();
-  for( int i=0;i<loss_.size();i++ )
+  for( unsigned int i=0;i<loss_.size();i++ )
     delete loss_[i];
   loss_.clear();
 
@@ -668,7 +668,7 @@ bool SprRootAdapter::showDataInClasses(char classes[][200],
   }
 
   // get events and weights
-  for( int i=0;i<found.size();i++ ) {
+  for( unsigned int i=0;i<found.size();i++ ) {
     strcpy(classes[i],found[i].toString().c_str());
     events[i] = data->ptsInClass(found[i]);
     weights[i] = data->weightInClass(found[i]);
@@ -934,7 +934,7 @@ SprAbsClassifier* SprRootAdapter::addBoostedDecisionTree(
   // make a decision tree
   const SprAbsTwoClassCriterion* crit = new SprTwoClassGiniIndex;
   crit_.push_back(crit);
-  bool doMerge = false;
+  // bool doMerge = false;
   bool discrete = true;
   SprTopdownTree* tree = new SprTopdownTree(trainData_,crit,leafSize,
 					    discrete,0);
@@ -993,7 +993,7 @@ SprAbsClassifier* SprRootAdapter::addBoostedBinarySplits(
   // add splits to AdaBoost
   const SprAbsTwoClassCriterion* crit = new SprTwoClassIDFraction;
   crit_.push_back(crit);
-  for( int i=0;i<trainData_->dim();i++ ) {
+  for( unsigned int i=0;i<trainData_->dim();i++ ) {
     SprBinarySplit* split = new SprBinarySplit(trainData_,crit,i);
     aux_.insert(split);
     if( !c->addTrainable(split,SprUtils::lowerBound(0.5)) ) {
@@ -1027,7 +1027,7 @@ SprAbsClassifier* SprRootAdapter::addRandomForest(const char* classifierName,
     bs = new SprIntegerBootstrap(trainData_->dim(),nFeaturesToSample);
     bootstrap_.push_back(bs);
   }
-  bool doMerge = false;
+  //bool doMerge = false;
   bool discrete = false;
   SprTopdownTree* tree = new SprTopdownTree(trainData_,crit,leafSize,
 					    discrete,bs);
@@ -1433,10 +1433,10 @@ bool SprRootAdapter::effCurve(const char* classifierName,
 	 << sclassifier.c_str() << endl;
     return false;
   }
-  assert( vBgrndEff.size() == npts );
+  assert(static_cast<int>(vBgrndEff.size()) == npts );
 
   // convert the vector into arrays
-  double bgrW = plotter_->bgrndWeight();
+  // double bgrW = plotter_->bgrndWeight();
   for( int i=0;i<npts;i++ ) {
     bgrndEff[i] = vBgrndEff[i].bgrWeight;
     bgrndErr[i] = ( vBgrndEff[i].bgrNevts==0 ? 0 
@@ -1500,7 +1500,7 @@ bool SprRootAdapter::correlation(int cls, double* corr, const char* datatype)
   // check classes
   vector<SprClass> classes;
   tempData.classes(classes);
-  if( (cls+1) > classes.size() ) {
+  if( (cls+1) > (int)classes.size() ) {
     cerr << "Class " << cls << " is not found in data." << endl;
     return false;
   }
@@ -1583,7 +1583,7 @@ bool SprRootAdapter::correlationClassLabel(const char* mode,
   vector<string> dataVars;
   data->vars(dataVars);
   assert( dataVars.size() == dim );
-  for( int d=0;d<dim;d++ )
+  for( unsigned int d=0;d<dim;d++ )
     strcpy(vars[d],dataVars[d].c_str());
 
   // compute correlation
@@ -1591,11 +1591,11 @@ bool SprRootAdapter::correlationClassLabel(const char* mode,
   string smode = mode;
   double mean(0), var(0);
   if(      smode == "normal" ) {
-    for( int d=0;d<dim;d++ )
+    for( unsigned int d=0;d<dim;d++ )
       corr[d] = moms.correlClassLabel(d,mean,var);
   }
   else if( smode == "abs" ) {
-    for( int d=0;d<dim;d++ )
+    for( unsigned int d=0;d<dim;d++ )
       corr[d] = moms.absCorrelClassLabel(d,mean,var);
   }
   else {
@@ -1665,7 +1665,7 @@ bool SprRootAdapter::variableImportance(const char* classifierName,
   }
 
   // convert result into arrays
-  for( int d=0;d<lossIncrease.size();d++ ) {
+  for( unsigned int d=0;d<lossIncrease.size();d++ ) {
     strcpy(vars[d],lossIncrease[d].first.c_str());
     importance[d] = lossIncrease[d].second.first;
     error[d] = lossIncrease[d].second.second;
@@ -1737,7 +1737,7 @@ bool SprRootAdapter::variableInteraction(const char* classifierName,
   }
 
   // convert result into arrays
-  for( int d=0;d<varInteraction.size();d++ ) {
+  for( unsigned int d=0;d<varInteraction.size();d++ ) {
     strcpy(vars[d],varInteraction[d].first.c_str());
     interaction[d] = varInteraction[d].second.first;
     error[d] = varInteraction[d].second.second;
@@ -1862,9 +1862,9 @@ bool SprRootAdapter::multiClassTable(int nClass,
   // call mutliclass plotter
   map<int,vector<double> > mcClassificationTable;
   map<int,double> weightInClass;
-  double loss = mcPlotter_->multiClassTable(vclasses,
-					    mcClassificationTable,
-					    weightInClass);
+  //double loss = mcPlotter_->multiClassTable(vclasses,
+  //					    mcClassificationTable,
+  //					    weightInClass);
 
   // convert the map into an array
   for( int ic=0;ic<nClass;ic++ ) {
@@ -1875,7 +1875,7 @@ bool SprRootAdapter::multiClassTable(int nClass,
 	classificationTable[j+ic*nClass] = 0;
     }
     else {
-      assert( found->second.size() == nClass );
+      assert( static_cast<int>(found->second.size()) == nClass );
       for( int j=0;j<nClass;j++ )
 	classificationTable[j+ic*nClass] = (found->second)[j];
     }

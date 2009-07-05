@@ -1,4 +1,4 @@
-//$Id: SprStringParser.cc,v 1.3 2006/11/26 02:04:31 narsky Exp $
+//$Id: SprStringParser.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStringParser.hh"
@@ -30,7 +30,7 @@ void SprStringParser::parseToStrings(const char* input,
 
   // split each element of subvectors using "," as separator
   output.resize(v.size());
-  for( int i=0;i<v.size();i++ ) {
+  for( unsigned int i=0;i<v.size();i++ ) {
     s = v[i];
     while( !s.empty() ) {
       string::size_type pos = s.find_first_of(',');
@@ -54,9 +54,9 @@ void SprStringParser::parseToInts(const char* input,
   vector<vector<string> > str_output;
   SprStringParser::parseToStrings(input,str_output);
   output.resize(str_output.size());
-  for( int i=0;i<str_output.size();i++ ) {
+  for( unsigned int i=0;i<str_output.size();i++ ) {
     output[i].resize(str_output[i].size());
-    for( int j=0;j<str_output[i].size();j++ ) {
+    for( unsigned int j=0;j<str_output[i].size();j++ ) {
       output[i][j] = atoi(str_output[i][j].c_str());
     }
   }
@@ -70,9 +70,9 @@ void SprStringParser::parseToDoubles(const char* input,
   vector<vector<string> > str_output;
   SprStringParser::parseToStrings(input,str_output);
   output.resize(str_output.size());
-  for( int i=0;i<str_output.size();i++ ) {
+  for( unsigned int i=0;i<str_output.size();i++ ) {
     output[i].resize(str_output[i].size());
-    for( int j=0;j<str_output[i].size();j++ ) {
+    for( unsigned int j=0;j<str_output[i].size();j++ ) {
       output[i][j] = atof(str_output[i][j].c_str());
     }
   }

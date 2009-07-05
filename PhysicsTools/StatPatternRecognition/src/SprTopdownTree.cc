@@ -1,4 +1,4 @@
-//$Id: SprTopdownTree.cc,v 1.6 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprTopdownTree.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTopdownTree.hh"
@@ -56,7 +56,7 @@ bool SprTopdownTree::makeTrainedNodes(std::vector<const SprTrainedNode*>&
 
   // copy all nodes into the map
   map<int,SprTrainedNode*> copy;
-  for( int i=0;i<fullNodeList_.size();i++ ) {
+  for( unsigned int i=0;i<fullNodeList_.size();i++ ) {
     SprTrainedNode* node = fullNodeList_[i]->makeTrained();
     copy.insert(pair<const int,SprTrainedNode*>(node->id_,node));
   }
@@ -68,7 +68,7 @@ bool SprTopdownTree::makeTrainedNodes(std::vector<const SprTrainedNode*>&
   }
 
   // resolve mother/daughter references
-  for( int i=0;i<fullNodeList_.size();i++ ) {
+  for( unsigned int i=0;i<fullNodeList_.size();i++ ) {
     const SprTreeNode* old = fullNodeList_[i];
     map<int,SprTrainedNode*>::iterator iter = copy.find(old->id_);
     assert( iter != copy.end() );

@@ -1,4 +1,4 @@
-//$Id: SprMultiClassLearner.cc,v 1.7 2007/08/13 16:49:21 narsky Exp $
+//$Id: SprMultiClassLearner.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassLearner.hh"
@@ -52,8 +52,8 @@ bool SprMultiClassLearner::setClasses()
   }
 
   // make sure all classes are distinct
-  for( int i=0;i<mapper_.size();i++ ) {
-    for( int j=i+1;j<mapper_.size();j++ ) {
+  for( unsigned int i=0;i<mapper_.size();i++ ) {
+    for( unsigned int j=i+1;j<mapper_.size();j++ ) {
       if( mapper_[i] == mapper_[j] ) {
 	cerr << "Elements " << i << " and " << j 
 	     << " of the input vector of classes are equal." << endl;
@@ -64,7 +64,7 @@ bool SprMultiClassLearner::setClasses()
 
   // check indicator matrix
   if( mode_ == User ) {
-    if( indicator_.num_row() != mapper_.size() ) {
+    if( indicator_.num_row() != static_cast<int>(mapper_.size()) ) {
       cerr << "Number of rows of the indicator matrix is not equal " 
 	   << "to the specified number of classes."<< endl;
       return false;
@@ -76,10 +76,10 @@ bool SprMultiClassLearner::setClasses()
     unsigned n = mapper_.size();
     SprMatrix mat(n,n,0);
     indicator_ = mat;
-    for( int i=0;i<n;i++ ) { 
-      for( int j=0;j<n;j++ ) indicator_[i][j] = -1;
+    for( unsigned int i=0;i<n;i++ ) { 
+      for( unsigned int j=0;j<n;j++ ) indicator_[i][j] = -1;
     }
-    for( int i=0;i<n;i++ ) indicator_[i][i] = 1;
+    for( unsigned int i=0;i<n;i++ ) indicator_[i][i] = 1;
   }
   else if( mode_ == OneVsOne ) {
     unsigned n = mapper_.size();
@@ -88,12 +88,12 @@ bool SprMultiClassLearner::setClasses()
     indicator_ = mat;
     int jstart = 0;
     int jend = 0;
-    for( int i=0;i<n;i++ ) {
+    for( unsigned int i=0;i<n;i++ ) {
       jstart = jend;
       jend += n-1-i;
       for( int j=jstart;j<jend;j++ ) indicator_[i][j] = 1;
       int j = jstart;
-      for( int k=i+1;k<n;k++ ) indicator_[k][j++] = -1;
+      for( unsigned int k=i+1;k<n;k++ ) indicator_[k][j++] = -1;
     }
   }
 
@@ -113,7 +113,7 @@ bool SprMultiClassLearner::train(int verbose)
 
   // build a map of classes
   map<int,unsigned> mapper;
-  for( int i=0;i<mapper_.size();i++ )
+  for( unsigned int i=0;i<mapper_.size();i++ )
     mapper.insert(pair<const int,unsigned>(mapper_[i],i));
 
   // loop thru columns of the indicator matrix
@@ -181,7 +181,7 @@ bool SprMultiClassLearner::reset()
 
 void SprMultiClassLearner::destroy()
 {
-  for( int i=0;i<trained_.size();i++ )
+  for( unsigned int i=0;i<trained_.size();i++ )
     if( trained_[i].second )
       delete trained_[i].first;
   trained_.clear();
@@ -208,7 +208,7 @@ void SprMultiClassLearner::print(std::ostream& os) const
   this->printIndicatorMatrix(os);
 
   // print classifiers
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Multi class learner classifier: " << i << endl;
     trained_[i].first->print(os);
   }
@@ -219,7 +219,7 @@ SprTrainedMultiClassLearner* SprMultiClassLearner::makeTrained() const
 {
   // make
   vector<pair<const SprAbsTrainedClassifier*,bool> > trained(trained_.size());
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     trained[i] 
       = pair<const SprAbsTrainedClassifier*,bool>(trained_[i].first->clone(),
 						  true);
@@ -262,8 +262,8 @@ void SprMultiClassLearner::setTrained(const SprMatrix& indicator,
   indicator_ = indicator;
   mapper_ = classes;
   trained_ = trained;
-  assert( mapper_.size() == indicator_.num_row() );
-  assert( trained_.size() == indicator_.num_col() );
+  assert( static_cast<int>(mapper_.size()) == indicator_.num_row() );
+  assert( static_cast<int>(trained_.size()) == indicator_.num_col() );
   assert( !mapper_.empty() );
   assert( !trained_.empty() );
   mode_ = User;

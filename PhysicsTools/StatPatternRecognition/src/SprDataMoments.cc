@@ -1,4 +1,4 @@
-//$Id: SprDataMoments.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprDataMoments.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataMoments.hh"
@@ -15,7 +15,7 @@ using namespace std;
 
 double SprDataMoments::mean(int i) const
 {
-  if( i >= data_->dim() ) {
+  if( i >= (int)data_->dim() ) {
     cerr << "Index is out of data dimensions " << i 
 	 << " " << data_->dim() << endl;
     return 0;
@@ -23,7 +23,7 @@ double SprDataMoments::mean(int i) const
   double sum = 0;
   double size = 0;
   double w = 0;
-  for( int n=0;n<data_->size();n++ ) {
+  for( unsigned int n=0;n<data_->size();n++ ) {
     w = data_->w(n);
     sum += w * (*((*data_)[n]))[i];
     size += w;
@@ -36,7 +36,7 @@ double SprDataMoments::mean(int i) const
 
 double SprDataMoments::variance(int i, double& mean) const
 {
-  if( i >= data_->dim() ) {
+  if( i >= (int)data_->dim() ) {
     cerr << "Index is out of data dimensions " << i 
 	 << " " << data_->dim() << endl;
     return 0;
@@ -45,7 +45,7 @@ double SprDataMoments::variance(int i, double& mean) const
   mean = this->mean(i);
   double size = 0;
   double w = 0;
-  for( int n=0;n<data_->size();n++ ) {
+  for( unsigned int n=0;n<data_->size();n++ ) {
     w = data_->w(n);
     r = (*((*data_)[n]))[i] - mean;
     sum += w * r*r;
@@ -61,12 +61,12 @@ double SprDataMoments::correl(int i, int j,
 			      double& mean1, double& mean2, 
 			      double& var1, double& var2) const
 {
-  if( i >= data_->dim() ) {
+  if( i >= (int)data_->dim() ) {
     cerr << "Index is out of data dimensions " << i 
 	 << " " << data_->dim() << endl;
     return 0;
   }
-  if( j >= data_->dim() ) {
+  if( j >= (int)data_->dim() ) {
     cerr << "Index is out of data dimensions " << j 
 	 << " " << data_->dim() << endl;
     return 0;
@@ -77,7 +77,7 @@ double SprDataMoments::correl(int i, int j,
   assert( var1>0 && var2>0 );
   double size = 0;
   double w = 0;
-  for( int n=0;n<data_->size();n++ ) {
+  for( unsigned int n=0;n<data_->size();n++ ) {
     w = data_->w(n);
     r1 = (*((*data_)[n]))[i] - mean1;
     r2 = (*((*data_)[n]))[j] - mean2;
@@ -98,24 +98,24 @@ bool SprDataMoments::covariance(SprSymMatrix& cov, SprVector& mean) const
   cov = SprSymMatrix(dim);
 
   // be paranoid and fill with zeros
-  for( int i=0;i<dim;i++ ) {
+  for( unsigned int i=0;i<dim;i++ ) {
     mean[i] = 0;
-    for( int j=i;j<dim;j++ )
+    for( unsigned int j=i;j<dim;j++ )
       cov[i][j] = 0;
   }
 
   // loop through points to compute mean vectors and covariance matrices
-  int size = data_->size();
+  unsigned int size = data_->size();
   double wtot = 0;
   double w = 0;
   double r = 0;
 
   // mean
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     w = data_->w(i);
     wtot += w;
-    for( int j=0;j<dim;j++ )
+    for( unsigned int j=0;j<dim;j++ )
       mean[j] += w*(p->x_)[j];
   }
   if( wtot < SprUtils::eps() ) {
@@ -125,12 +125,12 @@ bool SprDataMoments::covariance(SprSymMatrix& cov, SprVector& mean) const
   mean /= wtot;
 
   // covariance
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     w = data_->w(i);
-    for( int j=0;j<dim;j++ ) {
+    for( unsigned int j=0;j<dim;j++ ) {
       r = w * ((p->x_)[j]-mean[j]);
-      for( int k=j;k<dim;k++ )
+      for( unsigned int k=j;k<dim;k++ )
 	cov[j][k] += r * ((p->x_)[k]-mean[k]);
     }
   }
@@ -160,14 +160,14 @@ double SprDataMoments::kurtosis(SprSymMatrix& cov, SprVector& mean) const
   // loop through events
   double kur = 0;
   unsigned dim = data_->dim();
-  int size = data_->size();
+  unsigned int size = data_->size();
   assert( dim>0 && size>0 );
   SprVector v(dim);
   double w(0), wtot(0);
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     w = data_->w(i);
-    for( int j=0;j<dim;j++ ) 
+    for( unsigned int j=0;j<dim;j++ ) 
       v[j] = (p->x_)[j] - mean[j];
     kur += w * pow(dot(v,invcov*v),2);
     wtot += w;
@@ -202,11 +202,11 @@ double SprDataMoments::zeroCorrCL(double corrij, double kurtosis) const
 
 double SprDataMoments::zeroCorrCL(int i, int j) const
 {
-  if( i<0 || i>=data_->dim() ) {
+  if( i<0 || i>=static_cast<int>(data_->dim()) ) {
     cerr << "Index out of limits: " << i << " " << data_->dim() << endl;
     return 0;
   }
-  if( j<0 || j>=data_->dim() ) {
+  if( j<0 || j>=static_cast<int>(data_->dim()) ) {
     cerr << "Index out of limits: " << j << " " << data_->dim() << endl;
     return 0;
   }
@@ -262,7 +262,7 @@ double SprDataMoments::correl(const char* name1, const char* name2,
 double SprDataMoments::correlClassLabel(int d, double& mean, double& var) const
 {
   // sanity check
-  if( d<0 || d>=data_->dim() ) {
+  if( d<0 || d>=static_cast<int>(data_->dim()) ) {
     cerr << "Index out of limits: " << d << " " << data_->dim() << endl;
     return 0;
   }
@@ -271,10 +271,10 @@ double SprDataMoments::correlClassLabel(int d, double& mean, double& var) const
   mean = this->mean(d);
 
   // compute class mean
-  int size = data_->size();
+  unsigned int size = data_->size();
   double wtot = 0;
   double cmean(0);
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     double w = data_->w(i);
     wtot += w;
@@ -291,7 +291,7 @@ double SprDataMoments::correlClassLabel(int d, double& mean, double& var) const
   var = 0;
   double cvar = 0;
   double corr = 0;
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     double w = data_->w(i);
     var += w * pow((p->x_)[d]-mean,2);
@@ -322,7 +322,7 @@ double SprDataMoments::correlClassLabel(int d, double& mean, double& var) const
 
 double SprDataMoments::absMean(int i) const
 {
-  if( i >= data_->dim() ) {
+  if( i >= static_cast<int>(data_->dim()) ) {
     cerr << "Index is out of data dimensions " << i 
 	 << " " << data_->dim() << endl;
     return 0;
@@ -330,7 +330,7 @@ double SprDataMoments::absMean(int i) const
   double sum = 0;
   double size = 0;
   double w = 0;
-  for( int n=0;n<data_->size();n++ ) {
+  for( unsigned int n=0;n<data_->size();n++ ) {
     w = data_->w(n);
     sum += w * fabs((*((*data_)[n]))[i]);
     size += w;
@@ -345,7 +345,7 @@ double SprDataMoments::absCorrelClassLabel(int d, double& mean, double& var)
   const
 {
   // sanity check
-  if( d<0 || d>=data_->dim() ) {
+  if( d<0 || d>=static_cast<int>(data_->dim()) ) {
     cerr << "Index out of limits: " << d << " " << data_->dim() << endl;
     return 0;
   }
@@ -354,10 +354,10 @@ double SprDataMoments::absCorrelClassLabel(int d, double& mean, double& var)
   mean = this->absMean(d);
 
   // compute class mean
-  int size = data_->size();
+  unsigned int size = data_->size();
   double wtot = 0;
   double cmean(0);
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     double w = data_->w(i);
     wtot += w;
@@ -374,7 +374,7 @@ double SprDataMoments::absCorrelClassLabel(int d, double& mean, double& var)
   var = 0;
   double cvar = 0;
   double corr = 0;
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
     double w = data_->w(i);
     double r = fabs((p->x_)[d]);

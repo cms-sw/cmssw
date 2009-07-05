@@ -1,4 +1,4 @@
-//$Id: SprTrainedCombiner.cc,v 1.2 2007/06/10 23:32:31 narsky Exp $
+//$Id: SprTrainedCombiner.cc,v 1.1 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedCombiner.hh"
@@ -13,10 +13,10 @@ using namespace std;
 SprTrainedCombiner::~SprTrainedCombiner()
 {
   if( ownOverall_ ) delete overall_;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     if( trained_[i].second ) delete trained_[i].first;
   }
-  for( int i=0;i<inputDataMappers_.size();i++ )
+  for( unsigned int i=0;i<inputDataMappers_.size();i++ )
     delete inputDataMappers_[i];
 }
 
@@ -39,7 +39,7 @@ SprTrainedCombiner::SprTrainedCombiner(
   ownOverall_(ownOverall)
 {
   assert( overall_ != 0 );
-  int nClassifiers = trained_.size();
+  unsigned int nClassifiers = trained_.size();
   assert( nClassifiers == labels_.size() );
   assert( nClassifiers == constraints_.size() );
   assert( nClassifiers == inputDataMappers_.size() );
@@ -60,12 +60,12 @@ SprTrainedCombiner::SprTrainedCombiner(const SprTrainedCombiner& other)
 {
   overall_ = other.overall_->clone();
   ownOverall_ = true;
-  for( int i=0;i<other.trained_.size();i++ )
+  for( unsigned int i=0;i<other.trained_.size();i++ )
     trained_.push_back(pair<const SprAbsTrainedClassifier*,bool>
                        (other.trained_[i].first->clone(),true));
-  for( int i=0;i<other.inputDataMappers_.size();i++ )
+  for( unsigned int i=0;i<other.inputDataMappers_.size();i++ )
     inputDataMappers_.push_back(other.inputDataMappers_[i]->clone());
-  int nClassifiers = trained_.size();
+  unsigned int nClassifiers = trained_.size();
   assert( nClassifiers == labels_.size() );
   assert( nClassifiers == constraints_.size() );
   assert( nClassifiers == inputDataMappers_.size() );
@@ -77,10 +77,10 @@ SprTrainedCombiner::SprTrainedCombiner(const SprTrainedCombiner& other)
 double SprTrainedCombiner::response(const std::vector<double>& v) const
 {
   // loop over classifiers
-  int nClassifiers = trained_.size();
+  unsigned int nClassifiers = trained_.size();
   vector<double> cResp(nClassifiers);
   vector<double>* casted = 0;
-  for( int ic=0;ic<nClassifiers;ic++ ) {
+  for( unsigned int ic=0;ic<nClassifiers;ic++ ) {
 
     // map this point onto classifier variables
     vector<double>* vResp = 0;
@@ -99,14 +99,14 @@ double SprTrainedCombiner::response(const std::vector<double>& v) const
     // does this point satisfy constraints?
     bool overall = true;
     const SprAllowedIndexMap& indexMap = constraints_[ic];
-    for( int d=0;d<vResp->size();d++ ) {
+    for( unsigned int d=0;d<vResp->size();d++ ) {
       double x = (*vResp)[d];
       SprAllowedIndexMap::const_iterator found = indexMap.find(d);
       if( found == indexMap.end() ) continue;
       bool accept = true;
       const SprCut& cut = found->second;
       if( !cut.empty() ) accept = false;
-      for( int k=0;k<cut.size();k++ ) {
+      for( unsigned int k=0;k<cut.size();k++ ) {
 	if( x>cut[k].first && x<cut[k].second ) {
 	  accept = true;
 	  break;
@@ -139,7 +139,7 @@ void SprTrainedCombiner::print(std::ostream& os) const
   os << "Sub-classifiers: " << trained_.size() << endl;
 
   // loop over sub-classfiers
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Sub-classifier: " << i 
        << " Name: " << labels_[i] 
        << " Default: " << defaultValues_[i] << endl;
@@ -148,7 +148,7 @@ void SprTrainedCombiner::print(std::ostream& os) const
     vector<string> vars;
     trained_[i].first->vars(vars);
     os << "Variables: " << vars.size() << endl;
-    for( int j=0;j<vars.size();j++ )
+    for( unsigned int j=0;j<vars.size();j++ )
       os << vars[j].c_str() << " ";
     os << endl;
 
@@ -156,7 +156,7 @@ void SprTrainedCombiner::print(std::ostream& os) const
     vector<unsigned> mapper;
     inputDataMappers_[i]->mapper(mapper);
     os << "Mappers: " << mapper.size() << endl;
-    for( int j=0;j<mapper.size();j++ )
+    for( unsigned int j=0;j<mapper.size();j++ )
       os << mapper[j] << " ";
     os << endl;
 
@@ -165,7 +165,7 @@ void SprTrainedCombiner::print(std::ostream& os) const
     for( SprAllowedIndexMap::const_iterator 
 	   iter=constraints_[i].begin();iter!=constraints_[i].end();iter++ ) {
       os << iter->first << " " << iter->second.size() << " ";
-      for( int k=0;k<iter->second.size();k++ )
+      for( unsigned int k=0;k<iter->second.size();k++ )
 	os << iter->second[k].first << " " << iter->second[k].second << " ";
       os << endl;
     }
@@ -181,7 +181,7 @@ void SprTrainedCombiner::print(std::ostream& os) const
   vector<string> fVars;
   overall_->vars(fVars);
   os << "Features: " << fVars.size() << endl;
-  for( int d=0;d<fVars.size();d++ )
+  for( unsigned int d=0;d<fVars.size();d++ )
     os << fVars[d] << " ";
   os << endl;
 }

@@ -1,4 +1,4 @@
-//$Id: SprMultiClassReader.cc,v 1.3 2007/07/11 19:52:13 narsky Exp $
+//$Id: SprMultiClassReader.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassReader.hh"
@@ -17,7 +17,7 @@ using namespace std;
 
 SprMultiClassReader::~SprMultiClassReader()
 {
-  for( int i=0;i<classifiers_.size();i++ ) {
+  for( unsigned int i=0;i<classifiers_.size();i++ ) {
     if( classifiers_[i].second )
       delete classifiers_[i].first;
   }
@@ -52,7 +52,7 @@ bool SprMultiClassReader::read(std::istream& input)
   // read indicator matrix
   string line;
   unsigned nLine = 0;
-  for( int i=0;i<2;i++ ) {
+  for( unsigned int i=0;i<2;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -90,7 +90,7 @@ bool SprMultiClassReader::read(std::istream& input)
   mapper_.resize(nClasses);
   SprMatrix mat(nClasses,nClassifiers,0);
   indicator_ = mat;
-  for( int i=0;i<nClasses;i++ ) {
+  for( unsigned int i=0;i<nClasses;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -115,7 +115,7 @@ bool SprMultiClassReader::read(std::istream& input)
     }
     istringstream istclass(sclass), istrow(srow);
     istclass >> mapper_[i];
-    for( int j=0;j<nClassifiers;j++ )
+    for( unsigned int j=0;j<nClassifiers;j++ )
       istrow >> indicator_[i][j];
   }
   nLine++;
@@ -127,7 +127,7 @@ bool SprMultiClassReader::read(std::istream& input)
   // read trained classifiers
   classifiers_.clear();
   classifiers_.resize(nClassifiers);
-  for( int n=0;n<nClassifiers;n++ ) {
+  for( unsigned int n=0;n<nClassifiers;n++ ) {
     // read index of the current classifier
     nLine++;
     if( !getline(input,line) ) {
@@ -241,20 +241,20 @@ bool SprMultiClassReader::readIndicatorMatrix(const char* filename,
 
   // read the matrix itself
   SprMatrix temp(N,M,0);
-  for( int n=0;n<N;n++ ) {
+  for( unsigned int n=0;n<N;n++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Unable to read line " << nLine << endl;
       return false;
     }
     istringstream ist(line);
-    for( int m=0;m<M;m++ ) ist >> temp[n][m];
+    for( unsigned int m=0;m<M;m++ ) ist >> temp[n][m];
   }
 
   // check columns of indicator matrix
-  for( int m=0;m<M;m++ ) {
+  for( unsigned int m=0;m<M;m++ ) {
     unsigned countPlus(0), countMinus(0);
-    for( int n=0;n<N;n++ ) {
+    for( unsigned int n=0;n<N;n++ ) {
       int elem = int(temp[n][m]);
       if(      elem == -1 )
 	countMinus++;
@@ -274,9 +274,9 @@ bool SprMultiClassReader::readIndicatorMatrix(const char* filename,
   }
 
   // check rows
-  for( int n=0;n<N;n++ ) {
+  for( unsigned int n=0;n<N;n++ ) {
     unsigned sum = 0;
-    for( int m=0;m<M;m++ )
+    for( unsigned int m=0;m<M;m++ )
       sum += abs(int(temp[n][m]));
     if( sum == 0 ) {
       cerr << "Row " << n+1 << " of the indicator matrix has nothing "

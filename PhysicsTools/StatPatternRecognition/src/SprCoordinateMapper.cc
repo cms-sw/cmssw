@@ -1,4 +1,4 @@
-//$Id: SprCoordinateMapper.cc,v 1.1 2007/05/23 21:18:59 narsky Exp $
+//$Id: SprCoordinateMapper.cc,v 1.1 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCoordinateMapper.hh"
@@ -15,7 +15,7 @@ SprCoordinateMapper* SprCoordinateMapper::createMapper(
 				      const std::vector<std::string>& to)
 {
   vector<unsigned> mapper(from.size());
-  for( int i=0;i<from.size();i++ ) {
+  for( unsigned int i=0;i<from.size();i++ ) {
     vector<string>::const_iterator found = find(to.begin(),to.end(),from[i]);
     if( found == to.end() ) {
       cerr << "Unable to find variable " << from[i].c_str()
@@ -54,7 +54,7 @@ void SprCoordinateMapper::map(const std::vector<double>& in,
 			      std::vector<double>& out) const
 {
   out.clear();
-  for( int i=0;i<mapper_.size();i++ ) {
+  for( unsigned int i=0;i<mapper_.size();i++ ) {
     unsigned d = mapper_[i];
     assert( d < in.size() );
     out.push_back(in[d]);
@@ -64,6 +64,6 @@ void SprCoordinateMapper::map(const std::vector<double>& in,
 
 void SprCoordinateMapper::clear() 
 {
-  for( int i=0;i<toDelete_.size();i++ ) delete toDelete_[i];
+  for( unsigned int i=0;i<toDelete_.size();i++ ) delete toDelete_[i];
   toDelete_.clear();
 }

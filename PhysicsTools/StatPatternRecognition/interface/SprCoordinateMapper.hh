@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprCoordinateMapper.hh,v 1.3 2007/10/29 22:10:40 narsky Exp $
+//      $Id: SprCoordinateMapper.hh,v 1.2 2007/10/30 18:56:12 narsky Exp $
 //
 // Description:
 //      Class SprCoordinateMapper
@@ -60,7 +60,7 @@ public:
 
   // return mapped index
   int mappedIndex(int d) const {
-    if( d<0 || d>=mapper_.size() ) return -1;
+    if( d<0 || d>=static_cast<int>(mapper_.size()) ) return -1;
     return mapper_[d];
   }
 

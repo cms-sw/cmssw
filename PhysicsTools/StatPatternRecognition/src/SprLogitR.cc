@@ -1,4 +1,4 @@
-//$Id: SprLogitR.cc,v 1.7 2007/05/25 17:59:18 narsky Exp $
+//$Id: SprLogitR.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprLogitR.hh"
@@ -88,7 +88,7 @@ SprTrainedLogitR* SprLogitR::makeTrained() const
 bool SprLogitR::train(int verbose)
 {
   // initialize to user-supplied values
-  if( dim_ == betaSupplied_.num_row() ) {
+  if( (int)dim_ == betaSupplied_.num_row() ) {
     beta0_ = beta0Supplied_;
     beta_ = betaSupplied_;
   }
@@ -115,7 +115,7 @@ bool SprLogitR::train(int verbose)
     }
 
   }// end of LDA
-  assert( beta_.num_row() == dim_ );
+  assert( beta_.num_row() == (int)dim_ );
 
   //
   // prepare matrices
@@ -131,7 +131,7 @@ bool SprLogitR::train(int verbose)
   assert( w0>0 && w1>0 );
   double wFactor = double(N)/(w0+w1); 
   SprVector weights(N);
-  for( int i=0;i<N;i++ )
+  for( unsigned int i=0;i<N;i++ )
     weights[i] = wFactor*data_->w(i);
 
   // vector of fitted beta
@@ -145,15 +145,15 @@ bool SprLogitR::train(int verbose)
 
   // input data matrix
   SprMatrix X(N,dim_+1);
-  for( int i=0;i<N;i++ ) {
+  for( unsigned int i=0;i<N;i++ ) {
     X[i][0] = 1;
     const SprPoint* p = (*data_)[i]; 
-    for( int j=1;j<dim_+1;j++ ) X[i][j] = (p->x_)[j-1];
+    for( unsigned int j=1;j<dim_+1;j++ ) X[i][j] = (p->x_)[j-1];
   }
 
   // vector of classes
   SprVector y(N);
-  for( int i=0;i<N;i++ ) {
+  for( unsigned int i=0;i<N;i++ ) {
     const SprPoint* p = (*data_)[i]; 
     if(      p->class_ == cls0_ )
       y[i] = 0;
@@ -165,7 +165,7 @@ bool SprLogitR::train(int verbose)
   // minimize
   //
   double eps = 1;
-  int iter = 0;
+  unsigned int iter = 0;
   while( true ) {
     if( ++iter > nIterAllowed_ ) {
       cerr << "Logit exiting because number of alowed iterations exceeded: " 
@@ -205,7 +205,7 @@ bool SprLogitR::iterate(const SprVector& y,
   // compute probabilities
   SprVector pold(N);
   if( prob.num_row() == 0 ) {
-    for( int i=0;i<N;i++ )
+    for( unsigned int i=0;i<N;i++ )
       pold[i] = SprTransformation::logit(dot(X.sub(i+1,i+1,1,D).T(),betafit));
   }
   else
@@ -213,7 +213,7 @@ bool SprLogitR::iterate(const SprVector& y,
 
   // fill out W vector
   SprVector W(N);
-  for( int i=0;i<N;i++ ) {
+  for( unsigned int i=0;i<N;i++ ) {
     W[i] = weights[i]*pold[i]*(1.-pold[i]);
     if( W[i] < 0 ) W[i] = 0;
     if( W[i] > 1 ) W[i] = 1;
@@ -221,10 +221,10 @@ bool SprLogitR::iterate(const SprVector& y,
 
   // iterate
   SprSymMatrix XTWX(D);
-  for( int i=0;i<D;i++ ) {
-    for( int j=i;j<D;j++ ) {
+  for( unsigned int i=0;i<D;i++ ) {
+    for( unsigned int j=i;j<D;j++ ) {
       double res = 0;
-      for( int n=0;n<N;n++ )
+      for( unsigned int n=0;n<N;n++ )
 	res += W[n]*X[n][i]*X[n][j];
       XTWX[i][j] = res;
     }
@@ -239,12 +239,12 @@ bool SprLogitR::iterate(const SprVector& y,
 
   // update probabilities
   SprVector pnew(N);
-  for( int i=0;i<N;i++ )
+  for( unsigned int i=0;i<N;i++ )
     pnew[i] = SprTransformation::logit(dot(X.sub(i+1,i+1,1,D).T(),betafit));
   
   // compute eps per event
   eps = 0;
-  for( int i=0;i<N;i++ )
+  for( unsigned int i=0;i<N;i++ )
     eps += fabs(pnew[i]-pold[i]);
   eps /= N;
 

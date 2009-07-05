@@ -1,4 +1,4 @@
-//$Id: exampleUserCuts.cc,v 1.3 2007/10/30 18:56:14 narsky Exp $
+//$Id: exampleUserCuts.cc,v 1.4 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -154,7 +154,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -169,12 +169,12 @@ int main(int argc, char ** argv)
     return 3;
   }
   vector<string> axes;
-  for( int i=0;i<vars.size();i++ ) axes.push_back(vars[i].c_str());
+  for( unsigned int i=0;i<vars.size();i++ ) axes.push_back(vars[i].c_str());
   tuple->setAxes(axes);
 
   // write filtered data
   vector<double> emp;
-  for( int i=0;i<filter->size();i++ )
+  for( unsigned int i=0;i<filter->size();i++ )
     tuple->write(1.,(*(filter.get()))[i],emp);
 
   // close writer

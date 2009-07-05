@@ -1,4 +1,4 @@
-//$Id: SprVariableImportanceApp.cc,v 1.5 2007/11/30 20:13:36 narsky Exp $
+//$Id: SprVariableImportanceApp.cc,v 1.5 2007/12/01 01:29:41 narsky Exp $
 //
 // An executable to estimate the relative importance of variables.
 // See notes in README (Variable Selection).
@@ -190,7 +190,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -211,7 +211,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -235,7 +235,7 @@ int main(int argc, char ** argv)
   vector<string> vars;
   filter->vars(vars);
   cout << "Read data from file " << dataFile.c_str() << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -250,7 +250,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -278,7 +278,7 @@ int main(int argc, char ** argv)
       filter.reset(new SprEmptyFilter(splitted,weights,ownData));
     }
     cout << "Input data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -342,7 +342,7 @@ int main(int argc, char ** argv)
     mcTrained->vars(trainedVars);
   if( verbose > 0 ) {
     cout << "Variables:      " << endl;
-    for( int j=0;j<trainedVars.size();j++ ) 
+    for( unsigned int j=0;j<trainedVars.size();j++ ) 
       cout << trainedVars[j].c_str() << " ";
     cout << endl;
   }
@@ -396,7 +396,7 @@ int main(int argc, char ** argv)
   sprintf(t,"%35s        %15s                      %15s","Variable",
 	  "Change in loss","Interaction");
   cout << t << endl;
-  for( int d=0;d<lossIncrease.size();d++ ) {
+  for( unsigned int d=0;d<lossIncrease.size();d++ ) {
     char s [200];
     sprintf(s,"%35s      %15.10f +- %15.10f      %15.10f +- %15.10f",
 	    lossIncrease[d].first.c_str(),

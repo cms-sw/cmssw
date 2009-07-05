@@ -1,4 +1,4 @@
-//$Id: SprCombinerApp.cc,v 1.5 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprCombinerApp.cc,v 1.3 2007/11/12 06:19:11 narsky Exp $
 
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
@@ -69,9 +69,9 @@ void prepareExit(vector<SprAbsTwoClassCriterion*>& criteria,
                  vector<SprIntegerBootstrap*>& bstraps,
 		 vector<SprAbsClassifier*>& classifiers)
 {
-  for( int i=0;i<criteria.size();i++ ) delete criteria[i];
-  for( int i=0;i<classifiers.size();i++ ) delete classifiers[i];
-  for( int i=0;i<bstraps.size();i++ ) delete bstraps[i];
+  for( unsigned int i=0;i<criteria.size();i++ ) delete criteria[i];
+  for( unsigned int i=0;i<classifiers.size();i++ ) delete classifiers[i];
+  for( unsigned int i=0;i<bstraps.size();i++ ) delete bstraps[i];
 }
 
 
@@ -88,7 +88,7 @@ int main(int argc, char ** argv)
   int verbose = 0;
   bool scaleWeights = false;
   double sW = 1.;
-  bool useStandard = false;
+  // bool useStandard = false;
   string inputClassesString;
   string valFile;
   unsigned valPrint = 0;
@@ -198,7 +198,7 @@ int main(int argc, char ** argv)
   vector<string> vars;
   filter->vars(vars);
   cout << "Read data from file " << trainFile.c_str() << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -213,7 +213,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -244,7 +244,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -263,7 +263,7 @@ int main(int argc, char ** argv)
     vector<string> valVars;
     valFilter->vars(valVars);
     cout << "Read data from file " << valFile.c_str() << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -277,7 +277,7 @@ int main(int argc, char ** argv)
     valFilter->classes(inputClasses);
     assert( inputClasses.size() > 1 );
     cout << "Validation data filtered by class." << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << valFilter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -400,7 +400,7 @@ int main(int argc, char ** argv)
 
     // read constraints
     map<string,SprCut> constraints;
-    for( int j=0;j<nConstraints;j++ ) {
+    for( unsigned int j=0;j<nConstraints;j++ ) {
       nLine++;
       if( !getline(file,line) ) {
 	cerr << "Cannot read line " << nLine 
@@ -423,7 +423,7 @@ int main(int argc, char ** argv)
       }
       cout << "Applying constraint on variable " << varName.c_str()
 	   << " for classifier " << ic << " : ";
-      for( int k=0;k<cut.size();k++ ) 
+      for( unsigned int k=0;k<cut.size();k++ ) 
 	cout << cut[k].first << " " << cut[k].second << "   | ";
       cout << endl;
       constraints.insert(pair<const string,SprCut>(varName,cut));
@@ -444,7 +444,7 @@ int main(int argc, char ** argv)
     vector<string> trainedVars;
     trained->vars(trainedVars);
     cout << "Variables:      " << endl;
-    for( int j=0;j<trainedVars.size();j++ ) 
+    for( unsigned int j=0;j<trainedVars.size();j++ ) 
       cout << trainedVars[j].c_str() << " ";
     cout << endl;
 

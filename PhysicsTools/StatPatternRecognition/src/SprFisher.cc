@@ -1,4 +1,4 @@
-//$Id: SprFisher.cc,v 1.8 2007/05/25 17:59:17 narsky Exp $
+//$Id: SprFisher.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprFisher.hh"
@@ -66,10 +66,10 @@ bool SprFisher::train(int verbose)
   SprSymMatrix cov0(dim_), cov1(dim_);
 
   // be paranoid and fill with zeros
-  for( int i=0;i<dim_;i++ ) {
+  for( unsigned int i=0;i<dim_;i++ ) {
     mean0[i] = 0;
     mean1[i] = 0;
-    for( int j=i;j<dim_;j++ ) {
+    for( unsigned int j=i;j<dim_;j++ ) {
       cov0[i][j] = 0;
       cov1[i][j] = 0;
     }
@@ -84,9 +84,9 @@ bool SprFisher::train(int verbose)
   double size0(0), size1(0);
   double w = 0;
   double r1(0), r2(0);
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
-    int cls = p->class_;
+    unsigned int cls = p->class_;
     if( cls==cls0_ || cls==cls1_ ) {
       w = data_->w(i);
       // increment weights
@@ -95,13 +95,13 @@ bool SprFisher::train(int verbose)
       else if( cls == cls1_ )
 	size1 += w;
       // loop through dimensions
-      for( int j=0;j<dim_;j++ ) {
+      for( unsigned int j=0;j<dim_;j++ ) {
 	r1 = w * (p->x_)[j];
 	if(      cls == cls0_ )
 	  mean0[j] += r1;
 	else if( cls == cls1_ )
 	  mean1[j] += r1;
-	for( int k=j;k<dim_;k++ ) {
+	for( unsigned int k=j;k<dim_;k++ ) {
 	  r2 = r1*((p->x_)[k]);
 	  if(      cls == cls0_ )
 	    cov0[j][k] += r2;
@@ -134,20 +134,20 @@ bool SprFisher::train(int verbose)
   // print out
   if( verbose > 1 ) {
     cout << "Sample means:" << endl;
-    for( int i=0;i<dim_;i++ )
+    for( unsigned int i=0;i<dim_;i++ )
       cout << i << ": " << mean0[i] << " " << mean1[i] << endl;
     cout << "Sample covariance matrices:" << endl;
     if( mode_ == 2 )
       cout << "Class " << cls0_ << endl;
-    for( int i=0;i<dim_;i++ ) {
-      for( int j=0;j<dim_;j++ )
+    for( unsigned int i=0;i<dim_;i++ ) {
+      for( unsigned int j=0;j<dim_;j++ )
 	cout << " " << cov0[i][j];
       cout << endl;
     }
     if( mode_ == 2 ) {
       cout << "Class " << cls1_ << endl;
-      for( int i=0;i<dim_;i++ ) {
-	for( int j=0;j<dim_;j++ )
+      for( unsigned int i=0;i<dim_;i++ ) {
+	for( unsigned int j=0;j<dim_;j++ )
 	  cout << " " << cov1[i][j];
 	cout << endl;
       }
@@ -165,8 +165,8 @@ bool SprFisher::train(int verbose)
     cout << "Inverse matrices:" << endl;
     if( mode_ == 2 )
       cout << "Class " << cls0_ << endl;
-    for( int i=0;i<dim_;i++ ) {
-      for( int j=0;j<dim_;j++ )
+    for( unsigned int i=0;i<dim_;i++ ) {
+      for( unsigned int j=0;j<dim_;j++ )
 	cout << " " << cov0[i][j];
       cout << endl;
     }
@@ -179,8 +179,8 @@ bool SprFisher::train(int verbose)
     }
     if( verbose > 1 ) {
       cout << "Class " << cls1_ << endl;
-      for( int i=0;i<dim_;i++ ) {
-	for( int j=0;j<dim_;j++ )
+      for( unsigned int i=0;i<dim_;i++ ) {
+	for( unsigned int j=0;j<dim_;j++ )
 	  cout << " " << cov1[i][j];
 	cout << endl;
       }

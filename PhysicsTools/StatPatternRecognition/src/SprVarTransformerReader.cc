@@ -1,4 +1,4 @@
-// $Id: SprVarTransformerReader.cc,v 1.1 2007/11/07 00:56:14 narsky Exp $
+// $Id: SprVarTransformerReader.cc,v 1.1 2007/11/12 06:19:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprVarTransformerReader.hh"
@@ -111,7 +111,7 @@ bool SprVarTransformerReader::readVars(std::istream& is, unsigned& nLine,
     int index = -1;
     string var;
     ist >> index >> var;
-    if( index != oldVars.size() ) {
+    if( index != static_cast<int>(oldVars.size()) ) {
       cerr << "Incorrect VarTransformer variable index on line " 
 	   << nLine << endl;
       return false;
@@ -151,7 +151,7 @@ bool SprVarTransformerReader::readVars(std::istream& is, unsigned& nLine,
     int index = -1;
     string var;
     ist >> index >> var;
-    if( index != newVars.size() ) {
+    if( index != static_cast<int>(newVars.size()) ) {
       cerr << "Incorrect VarTransformer variable index on line " 
 	   << nLine << endl;
       return false;

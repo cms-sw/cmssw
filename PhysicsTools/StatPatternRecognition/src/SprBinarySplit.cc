@@ -1,4 +1,4 @@
-//$Id: SprBinarySplit.cc,v 1.7 2007/05/25 17:59:17 narsky Exp $
+//$Id: SprBinarySplit.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBinarySplit.hh"
@@ -90,21 +90,21 @@ bool SprBinarySplit::train(int verbose)
   // init weights
   double wcor0(0), wmis1(0);
   double wmis0(0), wcor1(0);
-  for( int j=0;j<sorted0_.size();j++ )
+  for( unsigned int j=0;j<sorted0_.size();j++ )
     wmis0 += data_->w(sorted0_[j]);
-  for( int j=0;j<sorted1_.size();j++ )
+  for( unsigned int j=0;j<sorted1_.size();j++ )
     wcor1 += data_->w(sorted1_[j]);
   assert( wmis0>0 && wcor1>0 );
 
   // prepare vars
-  int i0start(0), i0split(0);
-  int i1start(0), i1split(0);
-  int ndiv = division_.size();
+  unsigned int i0start(0), i0split(0);
+  unsigned int i1start(0), i1split(0);
+  unsigned int ndiv = division_.size();
   vector<double> flo(ndiv), fhi(ndiv);
   bool lbreak = false;// found breaking point
 
   // loop through divisions
-  for( int k=0;k<ndiv;k++ ) {
+  for( unsigned int k=0;k<ndiv;k++ ) {
     double z = division_[k];
     lbreak = false;
     for( i0split=i0start;i0split<sorted0_.size();i0split++ ) {
@@ -122,12 +122,12 @@ bool SprBinarySplit::train(int verbose)
       }
     }
     if( !lbreak ) i1split = sorted1_.size();
-    for( int i=i0start;i<i0split;i++ ) {
+    for( unsigned int i=i0start;i<i0split;i++ ) {
       double w = data_->w(sorted0_[i]);
       wcor0 += w;
       wmis0 -= w;
     }
-    for( int i=i1start;i<i1split;i++ ) {
+    for( unsigned int i=i1start;i<i1split;i++ ) {
       double w = data_->w(sorted1_[i]);
       wmis1 += w;
       wcor1 -= w;
@@ -171,7 +171,7 @@ void SprBinarySplit::print(std::ostream& os) const
   os << "Trained BinarySplit " << SprVersion << endl;
   os << "Dimension: " << d_ << endl;
   os << "Cut: " << cut_.size() << endl;
-  for( int i=0;i<cut_.size();i++ ) {
+  for( unsigned int i=0;i<cut_.size();i++ ) {
     char s [200];
     sprintf(s,"%10g %10g",cut_[i].first,cut_[i].second);
     os << s << endl;
@@ -182,13 +182,13 @@ void SprBinarySplit::print(std::ostream& os) const
 bool SprBinarySplit::sort()
 {
   // check
-  if( nSorted_ == data_->size() )
+  if( nSorted_ == static_cast<int>(data_->size()) )
     return true;
 
   // dump points into vectors
   vector<pair<double,int> > r0, r1;
   vector<double> r(data_->size());
-  for( int j=0;j<data_->size();j++ ) {
+  for( unsigned int j=0;j<data_->size();j++ ) {
     const SprPoint* p = (*data_)[j];
     r[j] = (p->x_)[d_];
     if(      p->class_ == cls0_ )
@@ -213,16 +213,16 @@ bool SprBinarySplit::sort()
   sorted1_.clear();
   sorted0_.resize(r0.size());
   sorted1_.resize(r1.size());
-  for( int i=0;i<r0.size();i++ )
+  for( unsigned int i=0;i<r0.size();i++ )
     sorted0_[i] = r0[i].second;
-  for( int i=0;i<r1.size();i++ )
+  for( unsigned int i=0;i<r1.size();i++ )
     sorted1_[i] = r1[i].second;
 
   // fill out divisions
   division_.clear();
   division_.push_back(SprUtils::min());
   double xprev = r[0];
-  for( int k=1;k<r.size();k++ ) {
+  for( unsigned int k=1;k<r.size();k++ ) {
     double xcurr = r[k];
     if( (xcurr-xprev) > SprUtils::eps() ) {
       division_.push_back(0.5*(xcurr+xprev));

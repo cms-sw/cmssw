@@ -1,4 +1,4 @@
-//$Id: SprRootWriter.cc,v 1.4 2007/10/10 20:21:31 narsky Exp $
+//$Id: SprRootWriter.cc,v 1.3 2007/10/12 19:25:01 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootWriter.hh"
@@ -65,7 +65,7 @@ int SprRootWriter::SetBranches()
 
   // make axis names
   TString values = "index/F:classification/F:weight/F";
-  for(int i = 0; i < axes_.size(); i++) {
+  for(unsigned int i = 0; i < axes_.size(); i++) {
     values += ":";
     string temp = axes_[i];
     replace(temp.begin(),temp.end(),'/','_');
@@ -95,7 +95,7 @@ bool SprRootWriter::write(int cls, unsigned index, double weight,
     SetBranches();
 
   // check vector sizes
-  int check = v.size() + f.size();
+  unsigned int check = v.size() + f.size();
   if(check != axes_.size()){
     cerr << "Dimensionality of input vector unequal to dimensionality " 
 	 << "of tuple: " << v.size() << " " << f.size()
@@ -107,9 +107,9 @@ bool SprRootWriter::write(int cls, unsigned index, double weight,
   data_[0] = index;
   data_[1] = cls;
   data_[2] = weight;
-  for(int i = 0; i < v.size(); i++)
+  for(unsigned int i = 0; i < v.size(); i++)
       data_[i+3] = (Float_t) v[i];
-  for(int i = 0; i < f.size(); i++)
+  for(unsigned int i = 0; i < f.size(); i++)
     data_[i+3+v.size()] = (Float_t) f[i];
 
   // fill and save the root tree

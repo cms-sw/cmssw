@@ -1,4 +1,4 @@
-//$Id: SprTransformerFilter.cc,v 1.1 2007/11/12 06:19:18 narsky Exp $
+//$Id: SprTransformerFilter.cc,v 1.2 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTransformerFilter.hh"
@@ -48,7 +48,7 @@ bool SprTransformerFilter::transform(const SprAbsVarTransformer* trans,
   // prepare a list of data vars with transformed vars excluded
   vector<string> newDataVars;
   vector<int> useVars;
-  for( int i=0;i<dataVars.size();i++ ) {
+  for( unsigned int i=0;i<dataVars.size();i++ ) {
     if( ::find(transVars.begin(),transVars.end(),dataVars[i])
 	== transVars.end() ) {
       newDataVars.push_back(dataVars[i]);
@@ -64,11 +64,11 @@ bool SprTransformerFilter::transform(const SprAbsVarTransformer* trans,
     copy = data_->emptyCopy();
 
   // loop over points
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     SprPoint* p = (*data_)[i];
     vector<double>& oldV = p->x_;
     vector<double> newV;
-    for( int d=0;d<useVars.size();d++ )
+    for( unsigned int d=0;d<useVars.size();d++ )
       newV.push_back(oldV[useVars[d]]);
     vector<double> oldExtraV;
     mapper->map(oldV,oldExtraV);

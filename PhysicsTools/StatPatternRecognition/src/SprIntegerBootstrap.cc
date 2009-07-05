@@ -1,4 +1,4 @@
-//$Id: SprIntegerBootstrap.cc,v 1.3 2006/11/13 19:09:42 narsky Exp $
+//$Id: SprIntegerBootstrap.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprIntegerBootstrap.hh"
@@ -27,7 +27,7 @@ bool SprIntegerBootstrap::replica(std::vector<unsigned>& v, int npts)
   delete [] r;
 
   // exit
-  return (v.size()==npts);
+  return (static_cast<int>(v.size())==npts);
 }
 
 

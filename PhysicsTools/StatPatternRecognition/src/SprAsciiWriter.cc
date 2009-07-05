@@ -1,4 +1,4 @@
-//$Id: SprAsciiWriter.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprAsciiWriter.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAsciiWriter.hh"
@@ -50,8 +50,8 @@ bool SprAsciiWriter::write(int cls, unsigned index, double weight,
 			   const std::vector<double>& f)
 {
   // sanity check
-  int vdim = v.size();
-  int fdim = f.size();
+  unsigned int vdim = v.size();
+  unsigned int fdim = f.size();
   if( (vdim+fdim) != axes_.size() ) {
     cerr << "Dimensionality of input vector unequal to dimensionality " 
 	 << "of tuple: " << vdim << " " << fdim
@@ -77,7 +77,7 @@ bool SprAsciiWriter::write(int cls, unsigned index, double weight,
       sprintf(s," %10s ","w");
       outfile_ << s;
     }
-    for( int i=0;i<axes_.size();i++ ) {
+    for( unsigned int i=0;i<axes_.size();i++ ) {
       char s [200];
       sprintf(s," %20s ",axes_[i].c_str());
       outfile_ << s;
@@ -101,12 +101,12 @@ bool SprAsciiWriter::write(int cls, unsigned index, double weight,
     sprintf(s," %10g ",weight);
     outfile_ << s;
   }
-  for( int i=0;i<vdim;i++ ) {
+  for( unsigned int i=0;i<vdim;i++ ) {
     char s [200];
     sprintf(s,"           %10g ",v[i]);
     outfile_ << s;
   }
-  for( int i=0;i<fdim;i++ ) {
+  for( unsigned int i=0;i<fdim;i++ ) {
     char s [200];
     sprintf(s,"           %10g ",f[i]);
     outfile_ << s;

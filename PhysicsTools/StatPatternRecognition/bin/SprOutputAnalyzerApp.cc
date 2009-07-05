@@ -1,4 +1,4 @@
-//$Id: SprOutputAnalyzerApp.cc,v 1.13 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprOutputAnalyzerApp.cc,v 1.4 2007/12/01 01:29:41 narsky Exp $
 /*
   This executable for analysis of output ascii files produced by 
   a classifier. It lets the user quickly estimate fractions of 
@@ -355,10 +355,10 @@ int main(int argc, char ** argv)
     SprPlotter::Response response(cls,weight);
     unsigned istart = 4;
     double fread = 0;
-    for( int i=0;i<position.size();i++ ) {
+    for( unsigned int i=0;i<position.size();i++ ) {
       unsigned nRead = position[i].first;
       string classifier = position[i].second;
-      for( int ipos=istart;ipos<nRead;ipos++ ) event >> fread;// rewind forward
+      for( unsigned int ipos=istart;ipos<nRead;ipos++ ) event >> fread;// rewind forward
       event >> fread;
       response.set(classifier.c_str(),fread);
       istart = nRead + 1;
@@ -427,7 +427,7 @@ int main(int argc, char ** argv)
       cout << "Input signal efficiency values for which background "
 	   << "will be estimated [ ";
     }
-    for( int i=0;i<effS.size();i++ )
+    for( unsigned int i=0;i<effS.size();i++ )
       cout << effS[i] << " ";
     cout << "] ";
     string line;
@@ -449,7 +449,7 @@ int main(int argc, char ** argv)
     //
     map<string,vector<SprPlotter::FigureOfMerit> > effB;
     
-    for( int iclassifier=0;iclassifier<position.size();iclassifier++ ) {
+    for( unsigned int iclassifier=0;iclassifier<position.size();iclassifier++ ) {
       const string classifier = position[iclassifier].second;
       
       // insert into map
@@ -497,7 +497,7 @@ int main(int argc, char ** argv)
     }
     cout << endl;
     cout << temp.c_str() << endl;
-    for( int i=0;i<effS.size();i++ ) {
+    for( unsigned int i=0;i<effS.size();i++ ) {
       sprintf(s,"          %10.4f         |",effS[i]);
       cout << s;
       vector<string> names;
@@ -515,9 +515,9 @@ int main(int argc, char ** argv)
 	errors.push_back(( nevts>0 ? value/sqrt(double(nevts)) : 0 ));
 	fom.push_back(iter->second[i].fom);
       }
-      int foundMin 
+      unsigned int foundMin 
 	= min_element(values.begin(),values.end()) - values.begin();
-      for( int j=0;j<names.size();j++ ) {
+      for( unsigned int j=0;j<names.size();j++ ) {
 	if( showCutAndFOM ) {
 	  if( j == foundMin )
 	    sprintf(s," *%12.5f +- %12.5f (Cut=%12.5f FOM=%12.5f) |",

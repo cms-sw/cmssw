@@ -1,4 +1,4 @@
-//$Id: SprTrainedTopdownTree.cc,v 1.6 2007/07/11 19:52:13 narsky Exp $
+//$Id: SprTrainedTopdownTree.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedTopdownTree.hh"
@@ -13,7 +13,7 @@ using namespace std;
 SprTrainedTopdownTree::~SprTrainedTopdownTree()
 {
   if( ownTree_ ) {
-    for( int i=0;i<nodes_.size();i++ ) delete nodes_[i];
+    for( unsigned int i=0;i<nodes_.size();i++ ) delete nodes_[i];
     ownTree_ = false;
   }
 }
@@ -23,7 +23,7 @@ double SprTrainedTopdownTree::response(const std::vector<double>& v) const
 {
   const SprTrainedNode* node = nodes_[0];
   while( node->d_ >= 0 ) {
-    assert( node->d_ < v.size() );
+    assert( node->d_ < static_cast<int>(v.size()) );
     if( v[node->d_] < node->cut_ )
       node = node->toDau1_;
     else
@@ -37,7 +37,7 @@ void SprTrainedTopdownTree::print(std::ostream& os) const
 {
   os << "Trained TopdownTree " << SprVersion << endl;
   os << "Nodes: " << nodes_.size() << " nodes." << endl;
-  for( int i=0;i<nodes_.size();i++ ) {
+  for( unsigned int i=0;i<nodes_.size();i++ ) {
     const SprTrainedNode* node = nodes_[i];
     os << "Id: "         << node->id_
        << " Score: "     << node->score_
@@ -55,7 +55,7 @@ bool SprTrainedTopdownTree::replicate(const std::vector<
 {
   // copy all nodes into the map
   map<int,SprTrainedNode*> copy;
-  for( int i=0;i<nodes.size();i++ ) {
+  for( unsigned int i=0;i<nodes.size();i++ ) {
     SprTrainedNode* node = new SprTrainedNode(*nodes[i]);
     copy.insert(pair<const int,SprTrainedNode*>(node->id_,node));
   }
@@ -67,7 +67,7 @@ bool SprTrainedTopdownTree::replicate(const std::vector<
   }
 
   // resolve mother/daughter references
-  for( int i=0;i<nodes.size();i++ ) {
+  for( unsigned int i=0;i<nodes.size();i++ ) {
     const SprTrainedNode* old = nodes[i];
     map<int,SprTrainedNode*>::iterator iter = copy.find(old->id_);
     assert( iter != copy.end() );

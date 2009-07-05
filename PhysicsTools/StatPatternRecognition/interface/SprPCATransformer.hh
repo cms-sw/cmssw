@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprPCATransformer.hh,v 1.1 2007/11/07 00:56:14 narsky Exp $
+//      $Id: SprPCATransformer.hh,v 1.1 2007/11/12 06:19:15 narsky Exp $
 //
 // Description:
 //      Class SprPCATransformer :
@@ -58,7 +58,7 @@ public:
 
   // Status of the transformer - if returns true, ready to transform.
   bool ready() const {
-    return (!oldVars_.empty() && oldVars_.size()==U_.num_row());
+    return (!oldVars_.empty() && (int)oldVars_.size()==U_.num_row());
   }
 
   // Output

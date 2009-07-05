@@ -1,4 +1,4 @@
-//$Id: SprStdBackprop.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
+//$Id: SprStdBackprop.cc,v 1.3 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprStdBackprop.hh"
@@ -194,13 +194,13 @@ bool SprStdBackprop::createNet()
 	 << " for structure " << structure_.c_str() << endl;
     return false;
   }
-  if( layers[0].size()!=1 || layers[0][0]!=data_->dim() ) {
+  if( layers[0].size()!=1 || layers[0][0]!=static_cast<int>(data_->dim()) ) {
     cerr << "Size of the input layer " << layers[0][0]
 	 << " must be equal to the dimensionality of input data " 
 	 << data_->dim() << endl;
     return false;
   }
-  for( int i=1;i<layers.size()-1;i++ ) {
+  for( unsigned int i=1;i<layers.size()-1;i++ ) {
     if( layers[i].size()!=1 || layers[i][0]<=0 ) {
       cerr << "Error in specifying hidden layer " << i << endl;
       return false;
@@ -214,7 +214,7 @@ bool SprStdBackprop::createNet()
 
   // create net
   nNodes_ = 0;
-  for( int i=0;i<layers.size();i++ ) nNodes_ += layers[i][0];
+  for( unsigned int i=0;i<layers.size();i++ ) nNodes_ += layers[i][0];
   nodeType_.clear(); nodeType_.resize(nNodes_,SprNNDefs::INPUT);
   nodeActFun_.clear(); nodeActFun_.resize(nNodes_,SprNNDefs::ID);
   nodeAct_.clear(); nodeAct_.resize(nNodes_,0);
@@ -228,7 +228,7 @@ bool SprStdBackprop::createNet()
   // keep this commented out - this is just for clarity but in fact
   //   this code does nothing
   /*
-  for( int i=0;i<layers[0][0];i++ ) {
+  for( unsigned int i=0;i<layers[0][0];i++ ) {
     nodeType_[index]           = SprNNDefs::INPUT;
     nodeActFun_[index]         = SprNNDefs::ID;
     nodeNInputLinks_[index]    = 0; 
@@ -242,7 +242,7 @@ bool SprStdBackprop::createNet()
   int firstLink = 0;
   linkSource_.clear();
   int nstart(0), nend(0);// flat node indices for the previous layer
-  for( int i=1;i<layers.size()-1;i++ ) {
+  for( unsigned int i=1;i<layers.size()-1;i++ ) {
     nstart = nend;
     nend += layers[i-1][0];
     for( int j=0;j<layers[i][0];j++ ) {
@@ -361,7 +361,7 @@ bool SprStdBackprop::doTrain(unsigned nPoints, unsigned nCycles,
   }
 
   // train
-  for( int ncycle=1;ncycle<=nCycles;ncycle++ ) {
+  for( unsigned int ncycle=1;ncycle<=nCycles;ncycle++ ) {
     // message
     if( verbose > 0 ) {
       if( ncycle%10 == 0 )
@@ -369,7 +369,7 @@ bool SprStdBackprop::doTrain(unsigned nPoints, unsigned nCycles,
     }
 
     // do two passes of propagation
-    for( int i=0;i<nPoints;i++ ) {
+    for( unsigned int i=0;i<nPoints;i++ ) {
       unsigned ipt = indices[i];
       const SprPoint* p = (*data_)[ipt];
       int cls = -1;
@@ -460,7 +460,7 @@ bool SprStdBackprop::backward(int cls, double output,
   nodeBias_[nNodes_-1] += etaV[nLinks_] * nodeGradient[nNodes_-1];
 
   // propagate backwards thru hidden nodes
-  for( int target=nNodes_-1;target>=0;target-- ) {
+  for( unsigned int target=nNodes_-1;target>=0;target-- ) {
     if( nodeNInputLinks_[target] > 0 ) {
       for( int link=nodeFirstInputLink_[target];
 	   link<nodeFirstInputLink_[target]+nodeNInputLinks_[target];
@@ -509,12 +509,12 @@ void SprStdBackprop::print(std::ostream& os) const
      << structure_.c_str() << " " << SprVersion << endl; 
   os << "Activation functions: Identity=1, Logistic=2" << endl;
   os << "Cut: " << cut_.size();
-  for( int i=0;i<cut_.size();i++ )
+  for( unsigned int i=0;i<cut_.size();i++ )
     os << "      " << cut_[i].first << " " << cut_[i].second;
   os << endl;
   os << "Nodes: " << nNodes_ << endl;
   for( int i=0;i<nNodes_;i++ ) {
-    char nodeType;
+    char nodeType = 0;
     switch( nodeType_[i] )
       {
       case SprNNDefs::INPUT :
@@ -598,7 +598,7 @@ bool SprStdBackprop::printValidation(unsigned cycle)
   SprTrainedStdBackprop* t = this->makeTrained();
 
   // loop through validation data
-  for( int i=0;i<valData_->size();i++ ) {
+  for( unsigned int i=0;i<valData_->size();i++ ) {
     const SprPoint* p = (*valData_)[i];
     double r = t->response(p->x_);
     double w = valData_->w(i);
@@ -752,7 +752,7 @@ bool SprStdBackprop::readSNNS(const char* netfile)
     return false;
   }
   // skip 3 lines
-  for( int i=0;i<3;i++ ) {
+  for( unsigned int i=0;i<3;i++ ) {
     nLine++;
     if( !getline(file,line) ) {
       cerr << "Cannot read from " << nfile.c_str() 
@@ -827,7 +827,7 @@ bool SprStdBackprop::readSNNS(const char* netfile)
     return false;
   }
   // skip 3 lines
-  for( int i=0;i<3;i++ ) {
+  for( unsigned int i=0;i<3;i++ ) {
     nLine++;
     if( !getline(file,line) ) {
       cerr << "Cannot read from " << nfile.c_str() 
@@ -882,7 +882,7 @@ bool SprStdBackprop::readSNNS(const char* netfile)
       sources_str.erase(0,comma_pos+1);
     }
     sources.push_back(sources_str);// leftover to get the last source
-    for( int i=0;i<sources.size();i++ ) {
+    for( unsigned int i=0;i<sources.size();i++ ) {
       string current_source = sources[i];
       size_t doubledot_pos = current_source.find(':');
       if( doubledot_pos == string::npos ) {
@@ -953,7 +953,7 @@ bool SprStdBackprop::resumeReadSPR(const char* netfile,
 
   // read header
   string line;
-  for( int i=0;i<2;i++ ) {
+  for( unsigned int i=0;i<2;i++ ) {
     nLine++;
     if( !getline(file,line) ) {
       cerr << "Unable to read line " << nLine 

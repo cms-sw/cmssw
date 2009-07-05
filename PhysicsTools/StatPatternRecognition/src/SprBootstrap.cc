@@ -1,4 +1,4 @@
-//$Id: SprBootstrap.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprBootstrap.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBootstrap.hh"
@@ -39,7 +39,7 @@ SprEmptyFilter* SprBootstrap::plainReplica(int npts)
   delete [] r;
 
   // sanity check
-  if( replica->size()!=npts || weights.size()!=npts ) {
+  if( static_cast<int>(replica->size())!=npts || static_cast<int>(weights.size())!=npts ) {
     delete replica;
     return 0;
   }
@@ -56,9 +56,9 @@ SprEmptyFilter* SprBootstrap::plainReplica(int npts)
 SprEmptyFilter* SprBootstrap::weightedReplica(int npts)
 {
   // init
-  int size = data_->size();
+  unsigned int size = data_->size();
   if( size == 0 ) return 0;
-  if( npts<=0 || npts>size ) npts = size;
+  if( npts<=0 || npts>static_cast<int>(size) ) npts = size;
   SprData* replica = data_->emptyCopy();
 
   // init weights
@@ -66,10 +66,10 @@ SprEmptyFilter* SprBootstrap::weightedReplica(int npts)
   vector<double> w;
   data_->weights(w);
   assert( w.size() == size );
-  for( int i=0;i<size;i++ ) wtot += w[i];
+  for( unsigned int i=0;i<size;i++ ) wtot += w[i];
   assert( wtot > 0 );
   w[0] /= wtot;
-  for( int i=1;i<size;i++ )
+  for( unsigned int i=1;i<size;i++ )
     w[i] = w[i-1] + w[i]/wtot;
 
   // make array of uniform random numbers on [0,1]
@@ -78,14 +78,14 @@ SprEmptyFilter* SprBootstrap::weightedReplica(int npts)
   for( int i=0;i<npts;i++ ) {
     vector<double>::iterator iter = find_if(w.begin(),w.end(),
 					    bind2nd(greater<double>(),r[i]));
-    int iuse = iter - w.begin();
+    unsigned int iuse = iter - w.begin();
     iuse = ( iuse<size ? iuse : size-1 );
     replica->uncheckedInsert((*data_)[iuse]);
   }
   delete [] r;
 
   // sanity check
-  if( replica->size() != npts ) {
+  if( static_cast<int>(replica->size()) != npts ) {
     delete replica;
     return 0;
   }

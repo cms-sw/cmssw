@@ -1,4 +1,4 @@
-//$Id: SprAbsTrainedMultiClassLearner.cc,v 1.1 2007/05/14 18:08:08 narsky Exp $
+//$Id: SprAbsTrainedMultiClassLearner.cc,v 1.1 2007/09/21 22:32:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedMultiClassLearner.hh"
@@ -24,7 +24,7 @@ bool SprAbsTrainedMultiClassLearner::store(const char* filename) const
   // store variables
   os << "==================================================" << endl;
   os << "Dimensions:" << endl;
-  for( int i=0;i<vars_.size();i++ ) {
+  for( unsigned int i=0;i<vars_.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,vars_[i].c_str());
     os << s << endl;
