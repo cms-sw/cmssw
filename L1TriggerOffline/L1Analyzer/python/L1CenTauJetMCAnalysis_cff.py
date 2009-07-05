@@ -25,12 +25,16 @@ MatchMcCenTauJets = cms.EDFilter("TrivialDeltaRMatcher",
 # Analyzer
 L1AnalyzerCenTauJetsMC = cms.EDAnalyzer("L1Analyzer",
     histoLimits,
-    EffMatchMapSource = cms.untracked.InputTag("MatchMcCenJets"),
+    EffMatchMapSource = cms.untracked.InputTag("MatchMcCenTauJets"),
     ReferenceSource = cms.untracked.InputTag("SelectGenCenJets"),
-    CandidateSource = cms.untracked.InputTag("SelectL1CenJets"),
-    ResMatchMapSource = cms.untracked.InputTag("MatchCenJetsMc")
+    CandidateSource = cms.untracked.InputTag("SelectL1CenTauJets"),
+    ResMatchMapSource = cms.untracked.InputTag("MatchCenTauJetsMc")
 )
 
 # Define analysis sequence
-L1CenTauJetMCAnalysis = cms.Sequence(L1CenTauJetSelection+GenCenJetSelection*MatchCenTauJetsMc+MatchMcCenTauJets*L1AnalyzerCenTauJetsMC)
+L1CenTauJetMCAnalysis = cms.Sequence(L1CenTauJetSelection
+                                     +GenCenJetSelection
+                                     *MatchCenTauJetsMc
+                                     +MatchMcCenTauJets
+                                     *L1AnalyzerCenTauJetsMC)
 

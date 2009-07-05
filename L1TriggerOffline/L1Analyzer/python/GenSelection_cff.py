@@ -59,7 +59,7 @@ CloneGenMet = cms.EDProducer("GenMETShallowCloneProducer",
 
 # Select generator Met
 SelectGenMet = cms.EDFilter("PtMinCandSelector",
-    src = cms.InputTag("CloneGenJets"),
+    src = cms.InputTag("CloneGenMet"),
     ptMin = cms.double(10.0)
 )
 
