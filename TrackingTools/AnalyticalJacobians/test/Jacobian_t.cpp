@@ -24,6 +24,11 @@ namespace {
 }
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
+void st(){}
+void en(){}
+
+
+
 int main() {
 
 
@@ -66,16 +71,20 @@ int main() {
 
   {
     edm::HRTimeType s= edm::hrRealTime();
+    st();	
     JacobianLocalToCartesian jl2c(plane,tp);
+    en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
   }
 
   {
-    M5T const m; 
+    M5T const m;
     edm::HRTimeType s= edm::hrRealTime();
+    st();	
     JacobianLocalToCurvilinear jl2c(plane,tp,m);
+    en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
     std::cout << jl2c.jacobian() << std::endl;
