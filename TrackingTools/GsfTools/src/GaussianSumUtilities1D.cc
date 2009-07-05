@@ -186,12 +186,13 @@ GaussianSumUtilities1D::computeMode () const
     //
     // look for component with highest value at mean
     //
-    unsigned int icMax(0);
+    int icMax(0);
     double ySqMax(0.);
-    for ( unsigned int ic=0; ic<size(); ++ic ) {
+    int s = size();
+    for (int ic=0; ic<s; ++ic ) {
       double w = weight(ic);
       double ySq = w*w/variance(ic);
-      if ( ic==0 || ySq>ySqMax ) {
+      if ( ySq>ySqMax ) {
 	icMax = ic;
 	ySqMax = ySq;
       }
@@ -330,13 +331,31 @@ GaussianSumUtilities1D::pdfComponents (const double& x) const
   return result;
 }
 
+namespace {
+  struct PDF {
+  PDF(double ix) : x(ix){}
+    double x;
+    double operator()(SingleGaussianState1D const & sg) const {
+       return sg.weight()*ROOT::Math::gaussian_pdf(x,sg.standardDeviation(),sg.mean());
+    }
+  };
+}
 void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & result) const {
   size_t s = size();
-  if (s!=result.size()) result.resize(s);
-  for ( unsigned int i=0; i<s; i++ )
-    result[i]=pdf(i,x);
+  if (s!=result.size()) result.resize(s);  
+  std::transform(components().begin(),components().end(),result.begin(),PDF(x));
 }
-
+/*
+void GaussianSumUtilities1D::pdfComponents (double x, std::vector<double> & result) const {
+   size_t s = size();
+  if (s!=result.size()) result.resize(s);
+  double* __restrict__ v = &result.front();
+  SingleGaussianState1D const * __restrict__ sgv = &components().front();
+  for ( unsigned int i=0; i<s; i++ )
+    v[i]= sgv[i].weight()*gauss(x,sgv[i].mean(),sgv[i].standardDeviation());
+//    result[i]=pdf(i,x);
+}
+*/
 
 double
 GaussianSumUtilities1D::pdf (double, const std::vector<double>& pdfs)
@@ -436,10 +455,12 @@ GaussianSumUtilities1D::combinedMean () const
 {
   double s0(0.);
   double s1(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
-    s0 += weight(i);
-    s1 += weight(i)*mean(i);
-  }
+  int s = size();
+  SingleGaussianState1D const * __restrict__ sgv = &components().front();
+  for (int i=0; i<s; i++ )
+    s0 += sgv[i].weight();
+  for (int i=0; i<s; i++ )
+    s1 += sgv[i].weight()*sgv[i].mean();
   return s1/s0;
 }
 

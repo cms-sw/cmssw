@@ -13,7 +13,7 @@
  <use name="TrackingTools/TrajectoryState">
  <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
-<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse">
+<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations">
 </export>
 
  <use name="FWCore/Framework">
@@ -30,5 +30,5 @@
  <use name="TrackingTools/PatternTools">
  <use name="DataFormats/GsfTrackReco">
  <use name="DataFormats/TrackReco">
-<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse">
+<Flags CXXFLAGS="-O3 -msse3 -mfpmath=sse -fassociative-math -funsafe-math-optimizations -ftree-vectorizer-verbose=7">
 
