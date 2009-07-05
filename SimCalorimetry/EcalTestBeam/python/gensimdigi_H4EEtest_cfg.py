@@ -38,7 +38,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(50)
 )
 
 #Geometry
@@ -113,7 +113,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('EcalTBH4Trigger'),
     verbose = cms.untracked.bool(False),
     #IMPORTANT    #    #    #    #    #    #    #    # NUMBER OF EVENTS TO BE TRIGGERED 
-    trigEvents = cms.untracked.int32(5)
+    trigEvents = cms.untracked.int32(25)
 ))
 
 
@@ -189,7 +189,7 @@ process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
                                                        ,'BeamProfileVtxGenerator'
                                                        )
 
-process.MessageLogger.debugModule = cms.vstring('g4SimHits','VtxSmeared')
+process.MessageLogger.debugModules = cms.untracked.vstring('g4SimHits','VtxSmeared')
 
 #Configuring the G4msg.log output
 process.MessageLogger.G4msg =  cms.untracked.PSet(
