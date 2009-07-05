@@ -6,7 +6,6 @@
 <use name=DataFormats/GeometrySurface>
 <use name=MagneticField/Engine>
 <use name=TrackingTools/AnalyticalJacobians>
-<use name=TrackingTools/DetLayers>
 <use name=TrackingTools/TrajectoryState>
 <export>
   <use name=DataFormats/TrajectorySeed>
