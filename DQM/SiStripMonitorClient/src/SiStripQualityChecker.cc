@@ -64,12 +64,21 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 
   if (!bookedStripStatus_) {
     dqm_store->cd();
-    string mdir = "MechanicalView";
-    if (SiStripUtility::goToDir(dqm_store, mdir)) {
-      
-      string strip_dir = dqm_store->pwd(); 
-      strip_dir = strip_dir.substr(0, strip_dir.find(mdir)-1);
-      
+    string top_dir = "SiStrip";
+    string strip_dir = ""; 
+    if (dqm_store->dirExists(top_dir)) {
+      dqm_store->cd(top_dir);
+      strip_dir = dqm_store->pwd();
+    } else {
+      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
+	string mdir = "MechanicalView";
+	if (SiStripUtility::goToDir(dqm_store, mdir)) {
+	  strip_dir = dqm_store->pwd(); 
+	  strip_dir = strip_dir.substr(0, strip_dir.find(mdir)-1);
+        }
+      }	
+    }
+    if (strip_dir.size() > 0) {
       dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
       
       string hname, htitle;
@@ -92,7 +101,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       
       SummaryReportGlobal = dqm_store->bookFloat("reportSummary");
       int ibin = 0;
-
+      
       for (map<string, string>::const_iterator it = SubDetFolderMap.begin(); 
 	   it != SubDetFolderMap.end(); it++) {
 	ibin++;
@@ -120,18 +129,29 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     }
   }  
   if (!bookedTrackingStatus_) {
+    
     dqm_store->cd();
-    string tkpdir = "TrackParameters";
-    if (SiStripUtility::goToDir(dqm_store, tkpdir)) {
-      
-      string tk_dir = dqm_store->pwd();
-      tk_dir = tk_dir.substr(0, tk_dir.find(tkpdir)-1);
-      
-      
-      dqm_store->setCurrentFolder(tk_dir+"/EventInfo"); 
+    string top_dir = "Tracking";
+    string tracking_dir = ""; 
+    if (dqm_store->dirExists(top_dir)) {
+      dqm_store->cd(top_dir);
+      tracking_dir = dqm_store->pwd();
+    } else {
+      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
+	string tdir = "TrackParameters";
+	if (SiStripUtility::goToDir(dqm_store, tdir)) {
+	  tracking_dir = dqm_store->pwd(); 
+	  tracking_dir = tracking_dir.substr(0, tracking_dir.find(tdir)-1);
+        }
+      }	
+    }
+    if (tracking_dir.size() > 0) {
+      dqm_store->setCurrentFolder(tracking_dir+"/EventInfo"); 
+
+      dqm_store->setCurrentFolder(tracking_dir+"/EventInfo"); 
       TrackSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
 
-      dqm_store->setCurrentFolder(tk_dir+"/EventInfo/reportSummaryContents");  
+      dqm_store->setCurrentFolder(tracking_dir+"/EventInfo/reportSummaryContents");  
       ReportTrackRate = dqm_store->bookFloat("TrackRate");     
 
       bookedTrackingStatus_ = true;
