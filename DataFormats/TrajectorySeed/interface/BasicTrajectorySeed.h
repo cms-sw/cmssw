@@ -3,7 +3,6 @@
 
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-typedef TrajectorySeed BasicTrajectorySeed;
 
 
 #endif
