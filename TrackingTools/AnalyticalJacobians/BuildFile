@@ -11,3 +11,4 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=DataFormats/TrajectoryState>
 <use name=clhep>
+<Flags CXXFLAGS="-O3 -msse4 -mfpmath=sse -ftree-vectorize -fassociative-math -funsafe-math-optimizations  -ftree-vectorizer-verbose=7">
