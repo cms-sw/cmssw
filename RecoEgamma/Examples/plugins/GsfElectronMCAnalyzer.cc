@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.25 2009/06/20 18:14:28 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.26 2009/07/04 23:06:38 charlot Exp $
 //
 //
 
@@ -554,8 +554,12 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_PoPtrue_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen}");
   h_ele_PoPtrue_endcaps        -> GetYaxis()-> SetTitle("Events");
   h_ele_PoPtrue_golden_barrel        -> GetXaxis()-> SetTitle("P/P_{gen}");
+  h_ele_PoPtrue_golden_barrel        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PoPtrue_showering_barrel        -> GetXaxis()-> SetTitle("P/P_{gen}");
   h_ele_PoPtrue_showering_barrel        -> GetYaxis()-> SetTitle("Events");
   h_ele_PoPtrue_golden_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen}");
+  h_ele_PoPtrue_golden_endcaps        -> GetYaxis()-> SetTitle("Events");
+  h_ele_PoPtrue_showering_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen}");
   h_ele_PoPtrue_showering_endcaps        -> GetYaxis()-> SetTitle("Events");
   h_ele_PtoPttrue        -> GetXaxis()-> SetTitle("P_{T}/P_{T}^{gen}");
   h_ele_PtoPttrue        -> GetYaxis()-> SetTitle("Events");
@@ -568,8 +572,12 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrue_endcaps -> GetXaxis()-> SetTitle("E/E_{gen}") ;
   histSclEoEtrue_endcaps -> GetYaxis()-> SetTitle("Events") ;
   histSclEoEtrueGolden_barrel -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrueGolden_barrel -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrueShowering_barrel -> GetXaxis()-> SetTitle("E/E_{gen}") ;
   histSclEoEtrueShowering_barrel -> GetYaxis()-> SetTitle("Events") ;
   histSclEoEtrueGolden_endcaps -> GetXaxis()-> SetTitle("E/E_{gen}") ;
+  histSclEoEtrueGolden_endcaps -> GetYaxis()-> SetTitle("Events") ;
+  histSclEoEtrueShowering_endcaps -> GetXaxis()-> SetTitle("E/E_{gen}") ;
   histSclEoEtrueShowering_endcaps -> GetYaxis()-> SetTitle("Events") ;
   histSclEoEtrue_barrel_etagap -> GetXaxis()-> SetTitle("E/E_{gen}");
   histSclEoEtrue_barrel_etagap -> GetYaxis()-> SetTitle("Events");
