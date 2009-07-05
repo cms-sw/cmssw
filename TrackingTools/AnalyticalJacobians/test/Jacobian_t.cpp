@@ -72,7 +72,7 @@ int main() {
   {
     edm::HRTimeType s= edm::hrRealTime();
     st();	
-    JacobianLocalToCartesian jl2c(plane,tp);
+    JacobianLocalToCartesian  __attribute__ ((aligned (16))) jl2c(plane,tp);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
@@ -83,7 +83,7 @@ int main() {
     M5T const m;
     edm::HRTimeType s= edm::hrRealTime();
     st();	
-    JacobianLocalToCurvilinear jl2c(plane,tp,m);
+    JacobianLocalToCurvilinear  __attribute__ ((aligned (16))) jl2c(plane,tp,m);
     en();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
