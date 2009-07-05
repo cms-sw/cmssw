@@ -7,6 +7,10 @@
 
 using namespace std;
 
+void st(){}
+void en(){}
+
+
 int main() {
   Surface::RotationType rot;
   Surface::PositionType pos( 1, 2, 3);
@@ -31,8 +35,13 @@ int main() {
   Vector3DBase< double, GlobalTag> dgv( 0.1, 0.2, 0.3);
   Vector3DBase< double, LocalTag> dlv( 0.1, 0.2, 0.3);
 
-  cout << plane.toLocal(dgp) << endl;
-  cout << plane.toLocal(dgv) << endl;
-  cout << plane.toGlobal(dlv) << endl;
+  st();
+  Point3DBase<double, LocalTag>   p1 =  plane.toLocal(dgp);
+  Vector3DBase<double, LocalTag>  v1 = plane.toLocal(dgv);
+  Vector3DBase<double, GlobalTag> g1 = plane.toGlobal(dlv);
+  en();
+  cout << p1 << endl;
+  cout << v1 << endl;
+  cout << g1 << endl;
 
 }
