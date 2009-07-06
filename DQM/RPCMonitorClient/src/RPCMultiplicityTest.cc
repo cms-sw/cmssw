@@ -22,7 +22,7 @@ RPCMultiplicityTest::RPCMultiplicityTest(const ParameterSet& ps ){
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-
+  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCMultiplicityTest::~RPCMultiplicityTest(){
@@ -89,11 +89,11 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
     if ( 0!=me) {
       dbe_->removeElement(me->getName());
     }
-    MULTDisk[i+offset]   = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 6, 0.5, 6.5, 54, 0.5, 54.5);
-    
-    rpcUtils.labelXAxisSector(MULTDisk[i+offset] );
-    rpcUtils.labelYAxisRoll(MULTDisk[i+offset], 1, i);
-
+    MULTDisk[i+offset]   = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+     
+    rpcUtils.labelXAxisSegment(MULTDisk[i+offset]);
+    rpcUtils.labelYAxisRing(MULTDisk[i+offset], numberOfRings_);
+  
     histoName.str("");
     histoName<<"NumberOfDigi_Mean_Distribution_Disk"<<i;
     me = 0;
@@ -171,14 +171,14 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe)
     MULT = MULTWheel[detId.ring()+2];
     MULTD = MULTDWheel[detId.ring()+2];
   }else{
-    if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
+    if(-detId.station() + numberOfDisks_ >= 0 ){
     
       if(detId.region()<0){
-      MULT = MULTDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-      MULTD = MULTDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+      MULT = MULTDisk[-detId.station() + numberOfDisks_];
+      MULTD = MULTDDisk[detId.station()+ numberOfDisks_];
       }else{
-	MULT = MULTDisk[(detId.station() * detId.region() ) + numberOfDisks_ -1];
-	MULTD = MULTDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	MULT = MULTDisk[detId.station()+ numberOfDisks_ -1];
+	MULTD = MULTDDisk[detId.station()+ numberOfDisks_-1];
       }
     }
   }
@@ -186,11 +186,21 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe)
 
   if ( MULT && MULTD ){
 
-  rpcdqm::utils rollNumber;
-  int nr = rollNumber.detId2RollNr(detId);
-  MULT->setBinContent(detId.sector(),nr, myMe->getMean() );
-
-  MULTD->Fill(myMe->getMean());
+   int xBin,yBin;
+   if(detId.region()==0){//Barrel
+     xBin= detId.sector();
+     rpcdqm::utils rollNumber;
+     yBin = rollNumber.detId2RollNr(detId);
+   }else{//Endcap
+     //get segment number
+     RPCGeomServ RPCServ(detId);
+     xBin = RPCServ.segment();
+     (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+   }
+   
+   float mean = myMe->getMean();
+   MULT->setBinContent(xBin,yBin, mean );
+   MULTD->Fill(mean);
   }
 
 }

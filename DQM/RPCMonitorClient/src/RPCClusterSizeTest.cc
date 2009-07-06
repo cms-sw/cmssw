@@ -16,6 +16,7 @@ RPCClusterSizeTest::RPCClusterSizeTest(const ParameterSet& ps ){
   prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
@@ -99,9 +100,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
       dbe_->removeElement(me->getName());
     }
     
-    CLSDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
-    rpcUtils.labelXAxisSector(  CLSDisk[w+offset]);
-    rpcUtils.labelYAxisRoll(   CLSDisk[w+offset], 1, w);
+    CLSDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5 );
+    rpcUtils.labelXAxisSegment(CLSDisk[w+offset]);
+    rpcUtils.labelYAxisRing(CLSDisk[w+offset], numberOfRings_);
     
     histoName.str("");
     histoName<<"ClusterSizeIn1Bin_Distribution_Disk"<<w;       //  ClusterSize in first bin, distribution
@@ -121,9 +122,9 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
       dbe_->removeElement(me->getName());
     }
     
-    MEANDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);    
-    rpcUtils.labelXAxisSector(  MEANDisk[w+offset]);
-    rpcUtils.labelYAxisRoll(MEANDisk[w+offset], 1, w);
+    MEANDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);    
+    rpcUtils.labelXAxisSegment(MEANDisk[w+offset]);
+    rpcUtils.labelYAxisRing(MEANDisk[w+offset], numberOfRings_);
     
     histoName.str("");
     histoName<<"ClusterSizeMean_Distribution_Disk"<<w;       //  Avarage ClusterSize Distribution
@@ -198,7 +199,7 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   
   //Loop on chambers
   for (unsigned int  i = 0 ; i<myClusterMe_.size();i++){
-    
+
     myMe = myClusterMe_[i];
     if (!myMe)continue;
 
@@ -214,39 +215,48 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       MEAND=MEANDWheel[detId.ring()+2];
     }else {
       
-      if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
+      if((-detId.station() + numberOfDisks_) >= 0 ){
 	
 	if(detId.region()<0){
-	  CLS=CLSDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  CLSD = CLSDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  MEAN=  MEANDisk[(detId.station() * detId.region() ) + numberOfDisks_];
-	  MEAND= MEANDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	  CLS=CLSDisk[-detId.station() + numberOfDisks_];
+	  CLSD = CLSDDisk[-detId.station() + numberOfDisks_];
+	  MEAN=  MEANDisk[-detId.station() + numberOfDisks_];
+	  MEAND= MEANDDisk[-detId.station() + numberOfDisks_];
 	}else{
-	  CLS=CLSDisk[(detId.station() * detId.region() ) + numberOfDisks_ -1];
-	  CLSD = CLSDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	  MEAN= MEANDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	  MEAND= MEANDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
-	}
+	  CLS=CLSDisk[detId.station() + numberOfDisks_ -1];
+	  CLSD = CLSDDisk[detId.station()+ numberOfDisks_-1];
+	  MEAN= MEANDisk[detId.station() + numberOfDisks_-1];
+	  MEAND= MEANDDisk[detId.station()+ numberOfDisks_-1];
+        }
       }
-      
+    }
+    int xBin,yBin;
+
+    if (detId.region()==0){//Barrel
+
+      rpcdqm::utils rollNumber;
+      yBin = rollNumber.detId2RollNr(detId);
+      xBin = detId.sector();
+    }else {//Endcap
+
+      //get segment number
+      RPCGeomServ RPCServ(detId);
+      xBin = RPCServ.segment();
+      (numberOfRings_ == 2 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
     }
 
-    
-    
-    rpcdqm::utils rollNumber;
-    int nr = rollNumber.detId2RollNr(detId);
-    
-    float NormCLS = myMe->getBinContent(1)/myMe->getEntries(); // Normalization -> # of Entries in first Bin normalaized by total Entries
+  // Normalization -> # of Entries in first Bin normalaized by total Entries
+    float NormCLS = myMe->getBinContent(1)/myMe->getEntries();
     float meanCLS = myMe->getMean();
-    
-    if (CLS)  CLS -> setBinContent(detId.sector(), nr, NormCLS);
-    
-    if(MEAN)   MEAN -> setBinContent(detId.sector(), nr, meanCLS);
-    
+      
+    if (CLS)  CLS -> setBinContent(xBin,yBin, NormCLS);
+    if(MEAN)   MEAN -> setBinContent(xBin, yBin, meanCLS);
+  
     if(MEAND) MEAND->Fill(meanCLS);
     if(CLSD)   CLSD->Fill(NormCLS);
-  }
-} 
+  }//End loop on chambers
+}
+ 
 
 void  RPCClusterSizeTest::endJob(void) {}
 void  RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c) {}

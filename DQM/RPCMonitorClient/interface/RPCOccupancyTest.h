@@ -36,7 +36,7 @@ public:
   int prescaleFactor_;
  
   DQMStore* dbe_;
-  int numberOfDisks_;
+  int numberOfDisks_, numberOfRings_;
  
   float rpcevents_;
 

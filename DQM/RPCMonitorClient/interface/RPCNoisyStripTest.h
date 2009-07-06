@@ -52,7 +52,7 @@ public:
   MonitorElement * NOISEDisk[10];
   MonitorElement * NOISEDDisk[10];
   MonitorElement * DEVDDisk[10]; 
-  int numberOfDisks_;
+  int numberOfDisks_, numberOfRings_;
   
 };
 
