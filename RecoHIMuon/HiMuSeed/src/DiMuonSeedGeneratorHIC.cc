@@ -23,12 +23,15 @@ DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
   
 // initialization
 
-  thePropagator=new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
   theTracker = theTracker0;
   theHICConst = hh;
   theLowMult = aMult;
   magfield = magfield0;
   rphirecHitsTag = rphirecHitsTag0;
+  TTRHbuilder = 0;
+  builderName = bb; 
+  
+  thePropagator=new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
   
 }
 
@@ -53,12 +56,12 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
     fpos = theTracker->posForwardLayers();
     fneg = theTracker->negForwardLayers();
 
-//  if(TTRHbuilder == 0){
-//    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
-//    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
-//    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
-//    TTRHbuilder = theBuilderHandle.product();
-//  }
+  if(TTRHbuilder == 0){
+    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
+    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
+    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
+    TTRHbuilder = theBuilderHandle.product();
+  }
 //  cout<<" Point 1 "<<endl;   
 //    int npair=0;
 //
@@ -453,7 +456,7 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 #ifdef DEBUG	
 	std::cout<<" Paramters of algorithm "<<df<<" "<<theHICConst->forwparam[1]<<" "<<theHICConst->forwparam[0]<<std::endl;
         std::cout<<" dfinv  "<<dfinv<<" ptmax "<<ptmax<<" ptmin "<<ptmin<<std::endl;
-	std::cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<std::endl;
+//	std::cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<std::endl;
 #endif
         }
         //

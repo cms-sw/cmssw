@@ -34,8 +34,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 using namespace std;
 using namespace cms;
@@ -342,7 +342,9 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       
     }
 
-    TSCBLBuilderNoMaterial tscblBuilder;
+//    TSCBLBuilderNoMaterial tscblBuilder;
+
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
@@ -568,7 +570,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
         TSOS predictedState = tm.predictedState();
 	TM::ConstRecHitPointer  hit = tm.recHit();
 	TSOS updateState = traj0.lastMeasurement().updatedState();
-
+#ifdef DEBUG
 	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<
                    " valid updated state "<< updateState.isValid()<<" Predicted state is valid "
                     <<predictedState.isValid()<<
@@ -579,6 +581,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
                    " phi  "<<predictedState.freeTrajectoryState()->parameters().position().phi()<<
                    " z  "<<predictedState.freeTrajectoryState()->parameters().position().z()<<
 	 std::endl;        
+#endif
      }
 #ifdef DEBUG
   std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward::end "<<std::endl;

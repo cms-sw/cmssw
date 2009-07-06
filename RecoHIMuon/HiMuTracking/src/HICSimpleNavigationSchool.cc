@@ -95,14 +95,14 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
 
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
     if((*i)->specificSurface().radius()<20. || (*i)->specificSurface().radius()>65.) {
-     cout<<"Barrel surface "<<kk<<" "<<(*i)->specificSurface().radius()<<" "<<excludedBarrelLayer<<endl;
+//     cout<<"Barrel surface "<<kk<<" "<<(*i)->specificSurface().radius()<<" "<<excludedBarrelLayer<<endl;
      if(kk != excludedBarrelLayer ) {
       //cout<<"Included layer "<<endl;  
       theBarrelLayers.push_back( (*i) );
       theDetLayers.push_back( (*i) );
      }
        else {
-        cout<<"Excluded layer "<<endl;
+  //      cout<<"Excluded layer "<<endl;
        }
     }
     kk++; 
@@ -117,14 +117,14 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
     if(((*i)->specificSurface().outerRadius()>60.&& 
                   (*i)->specificSurface().innerRadius()>20.)|| (*i)->specificSurface().innerRadius()<10.) 
     {
-      cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
+//      cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
        if(kk != excludedForwardLayer && kk != excludedForwardLayer + 14) 
        {
         //cout<<"Excluded layer "<<endl;
         theForwardLayers.push_back( (*i) );
         theDetLayers.push_back( (*i) );
        } else {
-         cout<<"Excluded layer "<<endl; 
+  //       cout<<"Excluded layer "<<endl; 
        }
      } // radius
       kk++;
@@ -136,7 +136,7 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
     if(((*i)->specificSurface().outerRadius()>60.&& 
                   (*i)->specificSurface().innerRadius()>20.)|| (*i)->specificSurface().innerRadius()<10.) 
     {
-      cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
+//      cout<<" Endcap surface "<<kk<<" "<<(*i)->specificSurface().position().z()<<endl;
         //cout<<"Excluded layer "<<endl;
         theForwardLayers.push_back( (*i) );
         theDetLayers.push_back( (*i) );

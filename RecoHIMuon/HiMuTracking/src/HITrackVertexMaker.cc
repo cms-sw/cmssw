@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.13 2009/07/02 16:37:06 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.14 2009/07/03 13:08:58 kodolova Exp $
 //
 //
  
@@ -54,8 +54,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -179,9 +179,14 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
 #endif
 
-   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
+//   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
 
    if(vertexcands->size()<1) return dimuon;
+
+#ifdef DEBUG_COUNT
+   cout<<" Accepted for L3 propagation  "<<endl;  
+#endif
+   
 
    for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
    {
@@ -537,7 +542,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
         vector<reco::Track> secondTrack;
         vector<reco::TransientTrack> secondTransTracks;
         vector<reco::TrackRef> secondTrackRefs;
-
+	
     for(vector<FreeTrajectoryState*>::iterator it = theFoundFts.begin(); it!= theFoundFts.end(); it++)
     {
         vector<Trajectory> first = (*theMapFtsTraj.find(*it)).second;
@@ -553,9 +558,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 
 
          // CMSSW31X
-          TSCBLBuilderNoMaterial tscblBuilder;
+         // TSCBLBuilderNoMaterial tscblBuilder;
          // CMSSW22X
-         //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+         TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
          TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
          if (tscbl.isValid()==false) {
@@ -603,7 +608,8 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
             innertsos = im->lastMeasurement().updatedState();
           }
 
-         TSCBLBuilderNoMaterial  tscblBuilder;
+         //TSCBLBuilderNoMaterial  tscblBuilder;
+         TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
          TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
          if (tscbl.isValid()==false) {
@@ -635,6 +641,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
         }
         if( secondTrack.size() == 0 ) continue;
         cout<<" Number of tracks first "<<firstTrack.size()<<" second "<<secondTrack.size()<<endl;
+// Try to reconstruct vertex
+
+
 
     } // FTS
   } // FTS 
@@ -647,6 +656,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      return dimuon; 
    }
 
+
    bool useRefTrax=true;
    KalmanVertexFitter theFitter(useRefTrax);
    TransientVertex theRecoVertex;
@@ -655,7 +665,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 //
    vector<reco::TransientTrack> theTwoTransTracks;
 
-//   vector<TransientVertex> theVertexContainer;
+   vector<TransientVertex> theVertexContainer;
 
    for(vector<reco::TransientTrack>::iterator iplus = firstTransTracks.begin(); 
                                               iplus != firstTransTracks.end(); iplus++)
@@ -671,10 +681,10 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
         continue;
       } 
       
-//        cout<<" Vertex is found "<<endl;
-//        cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
-//	          " r= "<<theRecoVertex.position().perp()<<
-//		  " z= "<<theRecoVertex.position().z()<<endl;
+        cout<<" Vertex is found "<<endl;
+        cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
+	          " r= "<<theRecoVertex.position().perp()<<
+		  " z= "<<theRecoVertex.position().z()<<endl;
 
 // Additional cuts       
      if ( theRecoVertex.totalChiSquared() > 0.0002 ) {
@@ -691,10 +701,11 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      }
      double quality = theRecoVertex.normalisedChiSquared();
      std::vector<reco::TransientTrack> tracks = theRecoVertex.originalTracks();
-     vector<TransientTrack> refittedTrax;
-     if( theRecoVertex.hasRefittedTracks() ) {
-          refittedTrax = theRecoVertex.refittedTracks();
-     }
+     
+//     vector<TransientTrack> refittedTrax;
+//     if( theRecoVertex.hasRefittedTracks() ) {
+//          refittedTrax = theRecoVertex.refittedTracks();
+//     }
 
      for (std::vector<reco::TransientTrack>::iterator ivb = tracks.begin(); ivb != tracks.end(); ivb++)
      {
@@ -704,15 +715,16 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
             //    cout<<" Vertex failed quality cut "<<quality<<endl; 
 		continue;
       }
-//      theVertexContainer.push_back(theRecoVertex);
+      theVertexContainer.push_back(theRecoVertex);
       
       dimuon = true;
-      return dimuon;
-
+      break;
      } // iminus
+      if(dimuon) break; 
   } // iplus
 
-/*  
+       
+/*
        if( theVertexContainer.size() < 1 ) { 
 #ifdef DEBUG
         std::cout<<" No vertex found in event "<<std::endl; 
