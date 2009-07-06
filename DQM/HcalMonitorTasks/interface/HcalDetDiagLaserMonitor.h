@@ -27,8 +27,8 @@ using namespace std;
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/07/01 06:09:31 $
-  * $Revision: 1.1.2.6 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.4 $
   * \author D. Vishnevskiy
   */
 
@@ -96,13 +96,16 @@ private:
              return Energy;
           }
    double GetTime(double *data,int n=10){
-             int MaxI=-100; double Time,SumT=0,MaxT=-10;
+             int MaxI=-100; double Time=-9999,SumT=0,MaxT=-10;
              for(int j=0;j<n;++j) if(MaxT<data[j]){ MaxT=data[j]; MaxI=j; }
-             Time=MaxI*data[MaxI];
-             SumT=data[MaxI];
-             if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
-             if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
-	     Time=Time/SumT;
+	     if (MaxI>=0) // dummy protection so that compiler doesn't think MaxI=-100
+	       {
+		 Time=MaxI*data[MaxI];
+		 SumT=data[MaxI];
+		 if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
+		 if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
+		 Time=Time/SumT;
+	       }
              return Time;
          }      
    int   overflow;

@@ -104,10 +104,9 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   
   if (m_dbe)
     {
-      char* type;
+      std::string type;
       m_dbe->setCurrentFolder(baseFolder_);
-      type = "EEUSMonitor Event Number";
-      meEVT_ = m_dbe->bookInt(type); // store event number
+      meEVT_ = m_dbe->bookInt("EEUSMonitor Event Number"); // store event number
 
       char label[10];
       //Francesco

@@ -66,7 +66,7 @@ void HcalDetDiagLaserMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
  
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"HcalDetDiagLaserMonitor";
-  char *name;
+  std::string name;
   if(m_dbe!=NULL){    
      m_dbe->setCurrentFolder(baseFolder_);   
      meEVT_ = m_dbe->bookInt("HcalDetDiagLaserMonitor Event Number");
@@ -232,7 +232,10 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=2;depth++){
          if(hb_data[eta+42][phi-1][depth-1].get_statistics()>10){
-            double ave,rms,time,time_rms;
+	    double ave=0;
+	    double rms=0;
+	    double time=0; 
+	    double time_rms=0;
 	    hb_data[eta+42][phi-1][depth-1].get_average_amp(&ave,&rms);
 	    hb_data[eta+42][phi-1][depth-1].get_average_time(&time,&time_rms);
 	    hbheEnergy->Fill(ave);
@@ -249,7 +252,7 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=3;depth++){
          if(he_data[eta+42][phi-1][depth-1].get_statistics()>10){
-            double ave,rms,time,time_rms;
+            double ave=0; double rms=0; double time=0; double time_rms=0;
 	    he_data[eta+42][phi-1][depth-1].get_average_amp(&ave,&rms);
 	    he_data[eta+42][phi-1][depth-1].get_average_time(&time,&time_rms);
 	    hbheEnergy->Fill(ave);
@@ -267,7 +270,7 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=2;depth++){
          if(hf_data[eta+42][phi-1][depth-1].get_statistics()>10){
-            double ave,rms,time,time_rms;
+            double ave=0; double rms=0; double time=0; double time_rms=0;
 	    hf_data[eta+42][phi-1][depth-1].get_average_amp(&ave,&rms);
 	    hf_data[eta+42][phi-1][depth-1].get_average_time(&time,&time_rms);
 	    hfEnergy->Fill(ave);
@@ -285,7 +288,7 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=4;depth<=4;depth++){
          if(ho_data[eta+42][phi-1][depth-1].get_statistics()>10){
-            double ave,rms,time,time_rms;
+            double ave=0; double rms=0; double time=0; double time_rms=0;
 	    ho_data[eta+42][phi-1][depth-1].get_average_amp(&ave,&rms);
 	    ho_data[eta+42][phi-1][depth-1].get_average_time(&time,&time_rms);
 	    hoEnergy->Fill(ave);
@@ -303,8 +306,8 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=2;depth++){
          if(hb_data[eta+42][phi-1][depth-1].get_statistics()>10){
-	   double val,rms,time,time_rms;
-	   double VAL,RMS,TIME,TIME_RMS;
+	   double val=0,rms=0,time=0,time_rms=0;
+	   double VAL=0,RMS=0,TIME=0,TIME_RMS=0;
 	   if(!hb_data[eta+42][phi-1][depth-1].get_reference(&val,&rms,&time,&time_rms)) continue;
            if(!hb_data[eta+42][phi-1][depth-1].get_average_amp(&VAL,&RMS)) continue;
 	   if(!hb_data[eta+42][phi-1][depth-1].get_average_time(&TIME,&TIME_RMS)) continue;
@@ -319,8 +322,8 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=3;depth++){
          if(he_data[eta+42][phi-1][depth-1].get_statistics()>10){
-	   double val,rms,time,time_rms;
-	   double VAL,RMS,TIME,TIME_RMS;
+	   double val=0,rms=0,time=0,time_rms=0;
+	   double VAL=0,RMS=0,TIME=0,TIME_RMS=0;
 	   if(!he_data[eta+42][phi-1][depth-1].get_reference(&val,&rms,&time,&time_rms)) continue;
            if(!he_data[eta+42][phi-1][depth-1].get_average_amp(&VAL,&RMS)) continue;
 	   if(!he_data[eta+42][phi-1][depth-1].get_average_time(&TIME,&TIME_RMS)) continue;
@@ -337,8 +340,8 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=1;depth<=2;depth++){
          if(hf_data[eta+42][phi-1][depth-1].get_statistics()>10){
-	   double val,rms,time,time_rms;
-	   double VAL,RMS,TIME,TIME_RMS;
+	   double val=0,rms=0,time=0,time_rms=0;
+	   double VAL=0,RMS=0,TIME=0,TIME_RMS=0;
 	   if(!hf_data[eta+42][phi-1][depth-1].get_reference(&val,&rms,&time,&time_rms)) continue;
            if(!hf_data[eta+42][phi-1][depth-1].get_average_amp(&VAL,&RMS)) continue;
 	   if(!hf_data[eta+42][phi-1][depth-1].get_average_time(&TIME,&TIME_RMS)) continue;
@@ -355,8 +358,8 @@ void HcalDetDiagLaserMonitor::fillHistos(){
       double T=0,nT=0,E=0,nE=0;
       for(int depth=4;depth<=4;depth++){
          if(ho_data[eta+42][phi-1][depth-1].get_statistics()>10){
-	   double val,rms,time,time_rms;
-	   double VAL,RMS,TIME,TIME_RMS;
+	   double val=0,rms=0,time=0,time_rms=0;
+	   double VAL=0,RMS=0,TIME=0,TIME_RMS=0;
 	   if(!ho_data[eta+42][phi-1][depth-1].get_reference(&val,&rms,&time,&time_rms)) continue;
            if(!ho_data[eta+42][phi-1][depth-1].get_average_amp(&VAL,&RMS)) continue;
 	   if(!ho_data[eta+42][phi-1][depth-1].get_average_time(&TIME,&TIME_RMS)) continue;

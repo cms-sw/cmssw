@@ -68,9 +68,7 @@ void HcalExpertMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   if (m_dbe)
     {
       m_dbe->setCurrentFolder(baseFolder_);
-      char* type;
-      type = "ExpertMonitor Event Number";
-      meEVT_ = m_dbe->bookInt(type); // store event number
+      meEVT_ = m_dbe->bookInt("ExpertMonitor Event Number"); // store event number
     
       // Book Sample histogram
       SampleHist= m_dbe->book1D("sample1Dhist", "sample 1D histogram:  RecHit Energy vs. eta",90,-45,45);

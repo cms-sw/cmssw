@@ -51,29 +51,29 @@ void HcalDetDiagPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* db
  
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"HcalDetDiagPedestalMonitor";
-  char *name;
+  std::string name;
   if(m_dbe!=NULL){    
      m_dbe->setCurrentFolder(baseFolder_);   
      meEVT_ = m_dbe->bookInt("HcalDetDiagPedestalMonitor Event Number");
      
      m_dbe->setCurrentFolder(baseFolder_+"/Summary Plots");
-     name="HB Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Distribution (avarage over 4 caps)";           PedestalsAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="SIPM Pedestal Distribution (avarage over 4 caps)";         PedestalsAve4Simp = m_dbe->book1D(name,name,200,5,15);
-     name="ZDC Pedestal Distribution (avarage over 4 caps)";          PedestalsAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
-     name="HB Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="SIPM Pedestal Reference Distribution (avarage over 4 caps)"; PedestalsRefAve4Simp = m_dbe->book1D(name,name,200,5,15);
-     name="ZDC Pedestal Reference Distribution (avarage over 4 caps)";  PedestalsRefAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
+     name="HB Pedestal Distribution (average over 4 caps)";           PedestalsAve4HB = m_dbe->book1D(name,name,200,0,6);
+     name="HE Pedestal Distribution (average over 4 caps)";           PedestalsAve4HE = m_dbe->book1D(name,name,200,0,6);
+     name="HO Pedestal Distribution (average over 4 caps)";           PedestalsAve4HO = m_dbe->book1D(name,name,200,0,6);
+     name="HF Pedestal Distribution (average over 4 caps)";           PedestalsAve4HF = m_dbe->book1D(name,name,200,0,6);
+     name="SIPM Pedestal Distribution (average over 4 caps)";         PedestalsAve4Simp = m_dbe->book1D(name,name,200,5,15);
+     name="ZDC Pedestal Distribution (average over 4 caps)";          PedestalsAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
+     name="HB Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HB = m_dbe->book1D(name,name,200,0,6);
+     name="HE Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HE = m_dbe->book1D(name,name,200,0,6);
+     name="HO Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HO = m_dbe->book1D(name,name,200,0,6);
+     name="HF Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HF = m_dbe->book1D(name,name,200,0,6);
+     name="SIPM Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4Simp = m_dbe->book1D(name,name,200,5,15);
+     name="ZDC Pedestal Reference Distribution (average over 4 caps)";  PedestalsRefAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
      
-     name="HB Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HBref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HE Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HEref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HO Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HOref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HF Pedestal-Reference Distribution (avarage over 4 caps)"; PedestalsAve4HFref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HB Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HBref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HE Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HEref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HO Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HOref= m_dbe->book1D(name,name,1500,-3,3);
+     name="HF Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HFref= m_dbe->book1D(name,name,1500,-3,3);
     
      name="HB Pedestal RMS Distribution (individual cap)";            PedestalsRmsHB = m_dbe->book1D(name,name,200,0,2);
      name="HE Pedestal RMS Distribution (individual cap)";            PedestalsRmsHE = m_dbe->book1D(name,name,200,0,2);
@@ -283,7 +283,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    Pedestals2DHO->Reset();
    // HBHEHF summary map
    for(int eta=-42;eta<=42;eta++) for(int phi=1;phi<=72;phi++){ 
-      double PED=0,RMS=0,nped=0,nrms=0,ave,rms;
+      double PED=0,RMS=0,nped=0,nrms=0,ave=0,rms=0;
       for(int depth=1;depth<=3;depth++){
          if(hb_data[eta+42][phi-1][depth-1][0].get_statistics()>100){
 	    hb_data[eta+42][phi-1][depth-1][0].get_average(&ave,&rms); PED+=ave; nped++; RMS+=rms; nrms++;
@@ -751,12 +751,12 @@ void HcalDetDiagPedestalMonitor::CheckStatus(){
    }
 }
 
-void HcalDetDiagPedestalMonitor::fill_channel_status(char *subdet,int eta,int phi,int depth,int type,double status){
+void HcalDetDiagPedestalMonitor::fill_channel_status(std::string subdet,int eta,int phi,int depth,int type,double status){
    int ind=-1;
    if(eta>42 || eta<-42 || eta==0) return;
-   if(strcmp(subdet,"HB")==0 || strcmp(subdet,"HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(strcmp(subdet,"HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(strcmp(subdet,"HO")==0) ind=3; 
+   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
+   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
+   else if(subdet.compare("HO")==0) ind=3; 
    if(ind==-1) return;
    if(type==1) ChannelStatusMissingChannels[ind] ->setBinContent(eta+42,phi+1,status);
    if(type==2) ChannelStatusUnstableChannels[ind]->setBinContent(eta+42,phi+1,status);
