@@ -46,6 +46,13 @@ RPCRunIOV::getImon() {
   std::cout << "    size " << mycond.size() << std::endl;
   
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+
+  if (mycond.size() == 0) {
+    min_I = 0;
+    max_I = 0;
+    return mycond;
+  }
+
   std::vector<RPCObImon::I_Item>::iterator first;
   first = mycond.begin();
   min_I = this->toUNIX(first->day, first->time);
@@ -80,6 +87,13 @@ RPCRunIOV::getVmon() {
   std::cout << "    size " << mycond.size() << std::endl;
   
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+
+  if (mycond.size() == 0) {
+    min_I = 0;
+    max_I = 0;
+    return mycond;
+  }
+
   std::vector<RPCObVmon::V_Item>::iterator first;
   first = mycond.begin();
   min_V = this->toUNIX(first->day, first->time);
@@ -114,6 +128,13 @@ RPCRunIOV::getTemp() {
   std::cout << "    size " << mycond.size() << std::endl;
 
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
+  
+  if (mycond.size() == 0) {
+    min_I = 0;
+    max_I = 0;
+    return mycond;
+  }
+  
   std::vector<RPCObTemp::T_Item>::iterator first;
   first = mycond.begin();
   min_T = this->toUNIX(first->day, first->time);
@@ -126,6 +147,8 @@ RPCRunIOV::getTemp() {
   }
   return mycond;
 }
+
+
 
 
 
