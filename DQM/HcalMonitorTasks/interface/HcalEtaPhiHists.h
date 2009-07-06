@@ -22,7 +22,8 @@ class EtaPhiHists{
 
       std::stringstream unitname;
       std::stringstream unittitle;
-      if (Units=="")
+      std::string s(Units);
+      if (s.empty())
 	{
 	  unitname<<Units;
 	  unittitle<<"No Units";
