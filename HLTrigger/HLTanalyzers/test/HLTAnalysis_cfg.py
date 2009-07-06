@@ -4,7 +4,7 @@ process = cms.Process("ANALYSIS")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(False)
 )
 
 process.source = cms.Source("PoolSource",
@@ -73,8 +73,8 @@ process.schedule = cms.Schedule(
 ##    process.DoHLTElectron, 
     process.DoHLTElectronStartUpWindows, 
     process.DoHLTElectronLargeWindows, 
-##    process.DoHLTTau, 
-##    process.DoHLTBTag,
+    process.DoHLTTau, 
+    process.DoHLTBTag,
 ##    process.DoHLTAlCaECALPhiSym,
     process.DoHLTAlCaPi0Eta1E31,
     process.DoHLTIsoTrack,
