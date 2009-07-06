@@ -25,7 +25,7 @@ class CSCCFEBData {
 
   unsigned adcCounts(unsigned layer, unsigned channel, unsigned timeBin) const;
   unsigned adcOverflow(unsigned layer, unsigned channel, unsigned timeBin) const;
-  unsigned controllerData(unsigned layer, unsigned channel, unsigned timeBin) const;
+  unsigned controllerData(unsigned uglay, unsigned ugchan, unsigned timeBin) const;
   unsigned overlappedSampleFlag(unsigned layer, unsigned channel, unsigned timeBin) const;
   unsigned errorstat(unsigned layer, unsigned channel, unsigned timeBin) const;
   
