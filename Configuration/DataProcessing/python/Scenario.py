@@ -23,6 +23,15 @@ class Scenario(object):
         pass
 
 
+    def dropOutputModule(self, processRef, moduleName):
+        """
+        _dropOutputModule_
+
+        Util to prune an unwanted output module
+
+        """
+        del process._Process__outputmodules[moduleName]
+        return
 
 
 
@@ -43,7 +52,7 @@ class Scenario(object):
 
 
 
-    def alcaReco(self, process, *skims):
+    def alcaReco(self, *skims):
         """
         _alcaReco_
 
@@ -80,7 +89,7 @@ class Scenario(object):
 
 
 
-    def expressProcessing(self, process):
+    def expressProcessing(self):
         """
         _expressProcessing_
 
