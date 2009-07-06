@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.4 2009/03/27 18:07:38 ferriff Exp $
-  *  $Date: 2009/03/27 18:07:38 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.5 2009/04/09 13:37:59 ferriff Exp $
+  *  $Date: 2009/04/09 13:37:59 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -47,13 +47,13 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     float energy = uncalibRH.amplitude()*adcToGeVConstant_*intercalibConstant;
     float time   = uncalibRH.jitter() * clockToNsConstant + timeIntercalib;
     uint32_t recoFlag = flags;
-    if (uncalibRH.isSaturated()) recoFlag = EcalUncalibratedRecHit::kSaturated;
+    if (uncalibRH.isSaturated()) recoFlag = EcalRecHit::kSaturated;
 
     EcalRecHit rh( uncalibRH.id(), energy, time );
     rh.setRecoFlag( recoFlag );
     rh.setChi2Prob( TMath::Prob( uncalibRH.chi2(), EcalDataFrame::MAXSAMPLES ) );
     if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
-            rh.setOutOfTimeEnergy( rh.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant );
+            rh.setOutOfTimeEnergy( uncalibRH.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant );
             rh.setRecoFlag( EcalRecHit::kOutOfTime );
     }
     return rh;
