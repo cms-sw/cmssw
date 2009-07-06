@@ -134,10 +134,10 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
 			<<" Filling the secondary hit patterns was requested. So I will bail out.";
     }
     
-    //    LogDebug("TrackProducer") << "-- calling compLayer for inner..";
-    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,oppositeToMomentum);
-    //    LogDebug("TrackProducer") << "-- calling compLayer for outer..";
-    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,alongMomentum);
+    PropagationDirection dirForInnerLayers = traj->direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
+    PropagationDirection dirForOuterLayers = traj->direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
+    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,dirForInnerLayers);
+    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,dirForOuterLayers);
 
     LogDebug("TrackProducer")
       << "inner DetLayer  sub: " 
