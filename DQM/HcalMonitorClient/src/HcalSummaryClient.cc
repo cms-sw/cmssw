@@ -272,7 +272,8 @@ void HcalSummaryClient::cleanup(void)
 
   MonitorElement* me;
 
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) 
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary"); 
+  if (me)
     {
       dqmStore_->removeElement(me->getName());
     }
@@ -494,28 +495,34 @@ void HcalSummaryClient::analyze(void)
     }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HB") )
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HB");
+  if (me)
     {
       me->Fill(status_HB_);
       simpleMap->setBinContent(1,1,status_HB_);
     }
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HE") )
+  
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HE");
+  if (me)
     {
       me->Fill(status_HE_);
       simpleMap->setBinContent(2,1,status_HE_);
     }
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HO") )
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HO");
+  if (me)
     {
       me->Fill(status_HO_);
       simpleMap->setBinContent(3,1,status_HO_);
     }
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HF") )
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HF");
+  if (me)
     {
       me->Fill(status_HF_);
       simpleMap->setBinContent(4,1,status_HF_);
     }
   // test for ZDC info
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_ZDC") )
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_ZDC");
+  if (me)
     {
       me->Fill(status_ZDC_);
       simpleMap->setBinContent(5,1,status_ZDC_);

@@ -65,10 +65,10 @@ class HcalBaseClient{
 
   bool validDetId(HcalSubdetector sd, int ies, int ip, int dp);
   
-  void getSJ6histos( char* dir, char* name, TH2F* h[6], char* units="");
-  void getSJ6histos( char* dir, char* name, TH1F* h[4], char* units="");
+  void getSJ6histos( std::string dir, std::string name, TH2F* h[6], std::string units="");
+  void getSJ6histos( std::string dir, std::string name, TH1F* h[4], std::string units="");
 
-  void getEtaPhiHists( char* dir, char* name, TH2F* h[4], char* units="");
+  void getEtaPhiHists( std::string dir, std::string name, TH2F* h[4], std::string units="");
   int CalcIeta(int hist_eta, int depth);
   bool isHB(int etabin, int depth);
   bool isHE(int etabin, int depth);
