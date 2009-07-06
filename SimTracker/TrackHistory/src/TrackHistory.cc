@@ -24,6 +24,8 @@ TrackHistory::TrackHistory (
 
     // Enable SimToReco association
     enableSimToReco_ = config.getUntrackedParameter<bool> ( "enableSimToReco" );
+
+    quality_ = 0.;
 }
 
 
@@ -58,7 +60,10 @@ bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
 {
     if ( !enableRecoToSim_ ) return false;
 
-    TrackingParticleRef tpr( match(tr, recoToSim_, bestMatchByMaxValue_) );
+    std::pair<TrackingParticleRef, double> result =  match(tr, recoToSim_, bestMatchByMaxValue_); 
+
+    TrackingParticleRef tpr( result.first );
+    quality_ = result.second;
 
     if ( !tpr.isNull() )
     {
@@ -71,3 +76,5 @@ bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
 
     return false;
 }
+
+

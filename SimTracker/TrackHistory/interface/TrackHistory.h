@@ -38,9 +38,16 @@ public:
     */
     bool evaluate(TrackingParticleRef tpr)
     {
-        if ( enableSimToReco_ ) recotrack_ = match(tpr, simToReco_, bestMatchByMaxValue_);
-        return HistoryBase::evaluate(tpr);
+      if ( enableSimToReco_ ) {
+
+         std::pair<reco::TrackBaseRef, double> result =  match(tpr, simToReco_, bestMatchByMaxValue_); 
+         recotrack_ = result.first;
+         quality_ =  result.second;
+
+      }
+      return HistoryBase::evaluate(tpr);
     }
+
 
     //! Evaluate reco::Track history using a given association.
     /* Return false when the track association is not possible (fake track).
@@ -56,6 +63,11 @@ public:
         return recotrack_;
     }
 
+    double quality() const
+    {
+        return quality_;
+    }
+
 private:
 
     bool newEvent_;
@@ -63,6 +75,8 @@ private:
     bool bestMatchByMaxValue_;
 
     bool enableRecoToSim_, enableSimToReco_;
+
+    double quality_;
 
     edm::InputTag trackProducer_;
 
