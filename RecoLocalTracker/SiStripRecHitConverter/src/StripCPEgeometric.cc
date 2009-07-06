@@ -158,4 +158,4 @@ dedxRatio(const stats_t<float>& projection) const
 inline
 int StripCPEgeometric::WrappedCluster::
 sign() const
-{ return ( *first < last() ) ? -1  : 1; }
+{ return ( *first < last() ) ? 1  : -1; }
