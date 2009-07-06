@@ -81,21 +81,15 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
     me["hCT_et_ieta_iphi"]          = dbe_->book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
-    //    me["hCT_Minet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Minet_ieta_iphi","",83,-41,42, 72,1,73);  
-    //   me["hCT_Maxet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Maxet_ieta_iphi","",83,-41,42, 72,1,73);  
-    for (int i = 1; i<=83; i++)
-      for (int j = 1; j<=73; j++)
-	{
-	  //	  me["hCT_Minet_ieta_iphi"]->setBinContent(i,j,14E3);
-	  //	  me["hCT_Maxet_ieta_iphi"]->setBinContent(i,j,-999);
-	}
 
     me["hCT_emEt_ieta_iphi"]        = dbe_->book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_hadEt_ieta_iphi"]       = dbe_->book2D("METTask_CT_hadEt_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_energy_ieta_iphi"]      = dbe_->book2D("METTask_CT_energy_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_outerEnergy_ieta_iphi"] = dbe_->book2D("METTask_CT_outerEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_hadEnergy_ieta_iphi"]   = dbe_->book2D("METTask_CT_hadEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
-    me["hCT_emEnergy_ieta_iphi"]    = dbe_->book2D("METTask_CT_emEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
+    me["hCT_Et_ieta_iphi"]      = dbe_->book2D("METTask_CT_Et_ieta_iphi","",83,-41,42, 72,1,73);  
+    me["hCT_outerEt_ieta_iphi"] = dbe_->book2D("METTask_CT_outerEt_ieta_iphi","",83,-41,42, 72,1,73);  
+    //me["hCT_energy_ieta_iphi"]      = dbe_->book2D("METTask_CT_energy_ieta_iphi","",83,-41,42, 72,1,73);  
+    //me["hCT_outerEnergy_ieta_iphi"] = dbe_->book2D("METTask_CT_outerEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
+    //me["hCT_hadEnergy_ieta_iphi"]   = dbe_->book2D("METTask_CT_hadEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
+    //me["hCT_emEnergy_ieta_iphi"]    = dbe_->book2D("METTask_CT_emEnergy_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_Occ_ieta_iphi"]         = dbe_->book2D("METTask_CT_Occ_ieta_iphi","",83,-41,42, 72,1,73);  
     //--Data over eta-rings
 
@@ -107,10 +101,11 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 	me["hCT_Maxetvsieta"]       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 10001,0,1001);  
 	me["hCT_emEtvsieta"]        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 10001,0,1001);  
 	me["hCT_hadEtvsieta"]       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 10001,0,1001);  
-	me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 10001,0,1001);  
-	me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 10001,0,1001);  
-	me["hCT_hadEnergyvsieta"]   = dbe_->book2D("METTask_CT_hadEnergyvsieta","",83,-41,42, 10001,0,1001);  
-	me["hCT_emEnergyvsieta"]    = dbe_->book2D("METTask_CT_emEnergyvsieta","",83,-41,42, 10001,0,1001);  
+	me["hCT_outerEtvsieta"] = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 10001,0,1001);  
+	//me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 10001,0,1001);  
+	//me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 10001,0,1001);  
+	//me["hCT_hadEnergyvsieta"]   = dbe_->book2D("METTask_CT_hadEnergyvsieta","",83,-41,42, 10001,0,1001);  
+	//me["hCT_emEnergyvsieta"]    = dbe_->book2D("METTask_CT_emEnergyvsieta","",83,-41,42, 10001,0,1001);  
 
 	// Integrated over phi
 	me["hCT_Occvsieta"]         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 84,0,84);  
@@ -128,18 +123,20 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
         me["hCT_Maxetvsieta"]       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 200,-0.5,999.5);
         me["hCT_emEtvsieta"]        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 200,-0.5,999.5);
         me["hCT_hadEtvsieta"]       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 200,-0.5,999.5);
-        me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 200,-0.5,999.5);
-        me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 80,-0.5,399.5);
-        me["hCT_hadEnergyvsieta"]   = dbe_->book2D("METTask_CT_hadEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
-        me["hCT_emEnergyvsieta"]    = dbe_->book2D("METTask_CT_emEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
+        me["hCT_outerEtvsieta"] = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 80,-0.5,399.5);
+
+        //me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 200,-0.5,999.5);
+        //me["hCT_outerEnergyvsieta"] = dbe_->book2D("METTask_CT_outerEnergyvsieta","",83,-41,42, 80,-0.5,399.5);
+        //me["hCT_hadEnergyvsieta"]   = dbe_->book2D("METTask_CT_hadEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
+        //me["hCT_emEnergyvsieta"]    = dbe_->book2D("METTask_CT_emEnergyvsieta","",83,-41,42, 200,-0.5,999.5);
 
         // Integrated over phi                                                                                                                                                                                 
         me["hCT_Occvsieta"]         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 73,-0.5,72.5);
-        me["hCT_SETvsieta"]         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 1000,-0.5,1999.5);
-        me["hCT_METvsieta"]         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 1000,-0.5,1999.5);
+        me["hCT_SETvsieta"]         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 200,-0.5,1999.5);
+        me["hCT_METvsieta"]         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 200,-0.5,1999.5);
         me["hCT_METPhivsieta"]      = dbe_->book2D("METTask_CT_METPhivsieta","",83,-41,42, 80,-4,4);
-        me["hCT_MExvsieta"]         = dbe_->book2D("METTask_CT_MExvsieta","",83,-41,42, 500,-499.5,499.5);
-        me["hCT_MEyvsieta"]         = dbe_->book2D("METTask_CT_MEyvsieta","",83,-41,42, 500,-499.5,499.5);
+        me["hCT_MExvsieta"]         = dbe_->book2D("METTask_CT_MExvsieta","",83,-41,42, 100,-499.5,499.5);
+        me["hCT_MEyvsieta"]         = dbe_->book2D("METTask_CT_MEyvsieta","",83,-41,42, 100,-499.5,499.5);
 	
       }
   }
@@ -195,12 +192,12 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if (calotower){
 	  //math::RhoEtaPhiVector Momentum = calotower->momentum();
 	  double Tower_ET = calotower->et();
-	  double Tower_Energy  = calotower->energy();
+	  //double Tower_Energy  = calotower->energy();
 	  //	  double Tower_Eta = calotower->eta();
 	  double Tower_Phi = calotower->phi();
-	  double Tower_EMEnergy = calotower->emEnergy();
-	  double Tower_HadEnergy = calotower->hadEnergy();
-	  double Tower_OuterEnergy = calotower->outerEnergy();
+	  //double Tower_EMEnergy = calotower->emEnergy();
+	  //double Tower_HadEnergy = calotower->hadEnergy();
+	  double Tower_OuterEt = calotower->outerEt();
 	  double Tower_EMEt = calotower->emEt();
 	  double Tower_HadEt = calotower->hadEt();
 	  //int Tower_EMLV1 = calotower->emLvl1();
@@ -221,18 +218,21 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  me["hCT_et_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_ET);
 	  me["hCT_emEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEt);
 	  me["hCT_hadEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEt);
-	  me["hCT_energy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_Energy);
-	  me["hCT_outerEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_OuterEnergy);
-	  me["hCT_hadEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEnergy);
-	  me["hCT_emEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEnergy);
+	  me["hCT_outerEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_OuterEt);
+
+	  //me["hCT_energy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_Energy);
+	  //me["hCT_outerEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_OuterEnergy);
+	  //me["hCT_hadEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEnergy);
+	  //me["hCT_emEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEnergy);
 	  
 	  me["hCT_etvsieta"]->Fill(Tower_ieta, Tower_ET);
 	  me["hCT_emEtvsieta"]->Fill(Tower_ieta, Tower_EMEt);
 	  me["hCT_hadEtvsieta"]->Fill(Tower_ieta,Tower_HadEt);
-	  me["hCT_energyvsieta"]->Fill(Tower_ieta,Tower_Energy);
-	  me["hCT_outerEnergyvsieta"]->Fill(Tower_ieta,Tower_OuterEnergy);
-	  me["hCT_hadEnergyvsieta"]->Fill(Tower_ieta ,Tower_HadEnergy);
-	  me["hCT_emEnergyvsieta"]->Fill(Tower_ieta,Tower_EMEnergy);
+	  me["hCT_outerEtvsieta"]->Fill(Tower_ieta,Tower_OuterEt);
+	  //me["hCT_energyvsieta"]->Fill(Tower_ieta,Tower_Energy);
+	  //me["hCT_outerEnergyvsieta"]->Fill(Tower_ieta,Tower_OuterEnergy);
+	  //me["hCT_hadEnergyvsieta"]->Fill(Tower_ieta ,Tower_HadEnergy);
+	  //me["hCT_emEnergyvsieta"]->Fill(Tower_ieta,Tower_EMEnergy);
 
 	  if (Tower_ET > MaxEt_EtaRing[EtaRing])
 	    MaxEt_EtaRing[EtaRing] = Tower_ET;
