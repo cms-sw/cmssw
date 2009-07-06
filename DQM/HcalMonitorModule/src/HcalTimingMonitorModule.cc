@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.2 2009/03/24 20:57:40 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.3.2.3 2009/05/06 12:13:19 temple Exp $
 //
 //
 

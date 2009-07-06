@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 die "*** Usage: ./rocProcessFile.perl <RunNo> <fileType> <filePath> *** " if ($#ARGV<2);
 

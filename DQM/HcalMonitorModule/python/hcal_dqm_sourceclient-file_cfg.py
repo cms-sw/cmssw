@@ -2,19 +2,11 @@ import FWCore.ParameterSet.Config as cms
 from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a better way to do this, once I discover the difference between import and load
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
-maxevents=1000
-checkNevents=1000
+
+maxevents=100
+checkNevents=100
 
 process = cms.Process("HCALDQM")
-
-process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter", 
-   InputLabel    = cms.string( "source" ),
-   CalibTypes    = cms.vint32( 0,1,2,3,4,5 ),
-   FilterSummary = cms.untracked.bool( False ) 
-)
-
-
-
 #----------------------------
 # Event Source
 #-----------------------------
@@ -33,10 +25,10 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring
                             (
-    # cosmics run with known hot cell in HF
-    '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
+    # recent cosmics run with known hot cell in HF
+    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
     # NON-ZERO-SUPPRESSED RUN
-    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
+    '/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/904/02944F1F-EB9E-DD11-8D88-001D09F2A465.root',
     # ZERO-SUPPRESSED RUN
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/042/0A36AA7D-978F-DD11-BA36-000423D6C8E6.root'
@@ -95,10 +87,14 @@ process.dqmSaver.saveByRun = 1
 #-----------------------------
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
+
+#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'CRAFT_ALL_V12::All'  # update GlobalTag as neceesary
+process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
+
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
@@ -115,8 +111,8 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
 # hcalMonitor configurable values -----------------------
-process.hcalMonitor.debug = 0 # larger values dump out more debug information
-
+process.hcalMonitor.debug = 0
+process.hcalMonitor.pedestalsInFC   = True
 process.hcalMonitor.showTiming      = False
 process.hcalMonitor.checkNevents    = checkNevents
 process.hcalMonitor.dump2database   = False
@@ -166,11 +162,7 @@ process.options = cms.untracked.PSet(
         'TooManyProducts', 
         'TooFewProducts')
 )
-
-# specify which analyzers should be run
-process.p = cms.Path(
-    #process.hltHcalCalibTypeFilter #use for calibration filter; don't apply this for default testing
-                     *process.hcalDigis
+process.p = cms.Path(process.hcalDigis
                      *process.horeco
                      *process.hfreco
                      *process.hbhereco

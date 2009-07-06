@@ -4,9 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
-
- * $Date: 2009/07/06 09:12:23 $
- * $Revision: 1.116 $
+ * $Date: 2009/06/24 15:00:36 $
+ * $Revision: 1.102.2.9 $
 
  * \author W Fisher
  * \author J Temple
@@ -500,6 +499,7 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
 
 //--------------------------------------------------------
 void HcalMonitorModule::endJob(void) {
+
   if ( dbe_ != NULL ){
     meStatus_  = dbe_->get(rootFolder_+"DQM Job Status/STATUS");
   }
