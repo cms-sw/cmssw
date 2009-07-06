@@ -188,7 +188,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  //units<<"("<<deadmon_checkNevents_<<" consec. events)";
 	  name<<"Dead Cells with No Digis";
 	  SetupEtaPhiHists(UnoccupiedDeadCellsByDepth,
-			    (char*)(name.str().c_str()),
+			   name.str(),
 			    "");
 	  name.str("");
 	  name<<"HB HE HF Depth 1 Dead Cells with No Digis for "<<deadmon_checkNevents_<<" Consecutive Events";
@@ -210,32 +210,32 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  // 1D plots count number of bad cells
 	  name<<"Total Number of Hcal Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCells=m_dbe->book1D("Problem_TotalUnoccupiedCells_HCAL",
-						(char*)(name.str().c_str()),
+						name.str(),
 						148, bins_cellcount);
 	  name.str("");
 	  name<<"Total Number of HB Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsHB=m_dbe->book1D("Problem_UnoccupiedCells_HB",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2593,-0.5,2592.5);
 	  name.str("");
 	  name<<"Total Number of HE Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsHE=m_dbe->book1D("Problem_UnoccupiedCells_HE",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2593,-0.5,2592.5);
 	  name.str("");
 	  name<<"Total Number of HO Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsHO=m_dbe->book1D("Problem_UnoccupiedCells_HO",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2161,-0.5,2160.5);
 	  name.str("");
 	  name<<"Total Number of HF Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsHF=m_dbe->book1D("Problem_UnoccupiedCells_HF",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  1729,-0.5,1728.5);
 	  name.str("");
 	  name<<"Total Number of ZDC Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
 	  NumberOfUnoccupiedCellsZDC=m_dbe->book1D("Problem_UnoccupiedCells_ZDC",
-						   (char*)(name.str().c_str()),
+						   name.str(),
 						   19,-0.5,18.5);
 	}
       
@@ -262,32 +262,32 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  // 1D plots count number of bad cells
 	  name<<"Total Number of Hcal RecHits with Consistent Low Energy";
 	  NumberOfBelowEnergyCells=m_dbe->book1D("Problem_TotalBelowEnergyCells_HCAL",
-						(char*)(name.str().c_str()),
+						name.str(),
 						148, bins_cellcount);
 	  name.str("");
 	  name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsHB=m_dbe->book1D("Problem_BelowEnergyCells_HB",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2593,-0.5,2592.5);
 	  name.str("");
 	  name<<"Total Number of HE RecHits with Consistent Low Energy < "<<HEenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsHE=m_dbe->book1D("Problem_BelowEnergyCells_HE",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2593,-0.5,2592.5);
 	  name.str("");
 	  name<<"Total Number of HO RecHits with Consistent Low Energy < "<<HOenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsHO=m_dbe->book1D("Problem_BelowEnergyCells_HO",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  2161,-0.5,2160.5);
 	  name.str("");
 	  name<<"Total Number of HF RecHits with Consistent Low Energy < "<<HFenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsHF=m_dbe->book1D("Problem_BelowEnergyCells_HF",
-						  (char*)(name.str().c_str()),
+						  name.str(),
 						  1729,-0.5,1728.5);
 	  name.str("");
 	  name<<"Total Number of ZDC RecHits with Consistent Low Energy < "<<ZDCenergyThreshold_<<" GeV";
 	  NumberOfBelowEnergyCellsZDC=m_dbe->book1D("Problem_BelowEnergyCells_ZDC",
-						   (char*)(name.str().c_str()),
+						   name.str(),
 						   19,-0.5,18.5);
 	}
 
@@ -299,7 +299,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 /* --------------------------- */
 void HcalDeadCellMonitor::setupNeighborParams(const edm::ParameterSet& ps,
 					      neighborParams& N,
-					      char* type)
+					      std::string type)
 {
   // This is no longer used -- can remove at some point, after further testing
   // sets up parameters for neighboring-cell algorithm for each subdetector
@@ -363,7 +363,7 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   float binval;
 
   int subdet;
-  char* subdetname;
+  std::string subdetname;
   if (fVerbosity>1)
     { 
       std::cout <<"<HcalDeadCellMonitor>  Summary of Dead Cells in Run: "<<std::endl;
@@ -451,21 +451,25 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      if (binval>deadmon_minErrorFlag_)
 		value=1;
 	  
-	      if (value==1)
-		if (myqual.find(myid)==myqual.end())
-		  {
-		    myqual[myid]=(value<<BITSHIFT);  // deadcell shifted to bit 5
-		  }
-		else
-		  {
-		    int mask=(1<<BITSHIFT);
-		    if (value==1)
-		      myqual[myid] |=mask;
+	      // Case 1:  did not find any quality bit info;
+	      // Make new myqual entry that contains only dead cell info
+	      if (myqual.find(myid)==myqual.end())
+		{
+		  myqual[myid]=(value<<BITSHIFT);  // deadcell shifted to bit 5
+		}
+	      // Case 2: found bit; combine dead cell info with other information
+	      else
+		{
+		  int mask=(1<<BITSHIFT);
+		  // Case 1a:  cell is dead; make the "OR" of dead cell bit with other info
+		  if (value==1)
+		    myqual[myid] |=mask;
+		  // Case 2a:  cell is not dead; make the "AND" of other info with inverse (~mask) of dead cell info
+		  else
+		    myqual[myid] &=~mask;
 		
-		    else
-		      myqual[myid] &=~mask;
-		    if (value==1 && fVerbosity>1) std::cout <<"myqual = "<<std::hex<<myqual[myid]<<std::dec<<"  MASK = "<<std::hex<<mask<<std::dec<<std::endl;
-		  }
+		  if (value==1 && fVerbosity>1) std::cout <<"myqual = "<<std::hex<<myqual[myid]<<std::dec<<"  MASK = "<<std::hex<<mask<<std::dec<<std::endl;
+		}
 	      /*
 		sprintf(buffer, "  %15i %15i %15i %15s %8X %10X \n",ieta,iphi,d+1,subdetname,(value<<BITSHIFT),int(myid.rawId()));
 		fOutput<<buffer;
@@ -1125,8 +1129,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 
 		  // now check which dead cell tests failed; increment counter if any failed
 		  if ((deadmon_test_neverpresent_ && present[eta][phi][depth]==0) ||
-		      (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0) ||
-		      (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0  && (ievt_%deadmon_checkNevents_)==0))
+		      (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_==0)) ||
+		      (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0  && (ievt_%deadmon_checkNevents_==0)))
 		    {
 		      if (subdet==HcalBarrel)       ++deadHB;
 		      else if (subdet==HcalEndcap)  ++deadHE;
@@ -1140,14 +1144,14 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		      else if (subdet==HcalOuter) ++neverpresentHO;
 		      else if (subdet==HcalForward) ++neverpresentHF;
 		    }
-		  if ((deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0))
+		  if (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_==0))
 		    {
 		      if (subdet==HcalBarrel) ++unoccupiedHB;
 		      else if (subdet==HcalEndcap) ++unoccupiedHE;
 		      else if (subdet==HcalOuter) ++unoccupiedHO;
 		      else if (subdet==HcalForward) ++unoccupiedHF;
 		    }
-		  if ((deadmon_test_energy_ & aboveenergy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_)==0))
+		  if (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_==0))
 		    {
 		      if (subdet==HcalBarrel) ++belowenergyHB;
 		      else if (subdet==HcalEndcap) ++belowenergyHE;

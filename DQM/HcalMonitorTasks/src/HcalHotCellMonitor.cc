@@ -257,7 +257,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 /* --------------------------- */
 void HcalHotCellMonitor::setupNeighborParams(const edm::ParameterSet& ps,
 					      hotNeighborParams& N,
-					      char* type)
+					      std::string type)
 {
   // sets up parameters for neighboring-cell algorithm for each subdetector
   ostringstream myname;
@@ -409,7 +409,7 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   float binval;
 
   int subdet;
-  char* subdetname;
+  std::string subdetname;
   if (fVerbosity>1)
     {
       std::cout <<"<HcalHotCellMonitor>  Summary of Hot Cells in Run: "<<std::endl;

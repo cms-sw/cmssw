@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.24.2.4 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.29 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -38,7 +38,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   ~HcalDeadCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void setupNeighborParams(const edm::ParameterSet& ps, neighborParams& N, char* type);
+  void setupNeighborParams(const edm::ParameterSet& ps, neighborParams& N, std::string type);
   void done(std::map<HcalDetId, unsigned int>& myqual); // overrides base class function
   void clearME(); // overrides base class function
   void reset();

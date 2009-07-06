@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.23.4.5 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.28 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -37,7 +37,7 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   ~HcalHotCellMonitor();
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void setupNeighborParams(const edm::ParameterSet& ps, hotNeighborParams& N, char* type);
+  void setupNeighborParams(const edm::ParameterSet& ps, hotNeighborParams& N, std::string type);
   void done(std::map<HcalDetId, unsigned int>& myqual); 
   void clearME(); // overrides base class function
   void reset();

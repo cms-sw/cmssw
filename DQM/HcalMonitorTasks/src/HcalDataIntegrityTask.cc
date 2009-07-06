@@ -49,7 +49,7 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"HcalDataIntegrityTask";
 
   if(fVerbosity) 
-    cout << "About to pushback fedUnpackList_" << endl;
+    std::cout << "About to pushback fedUnpackList_" << std::endl;
 
   // Use this in CMSSW_2_2_X
   firstFED_ = FEDNumbering::getHcalFEDIds().first;   
@@ -63,7 +63,7 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
      ++i)
   */ 
     {
-      if(fVerbosity) cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<endl;
+      if(fVerbosity) std::cout << "[DFMon:]Pushback for fedUnpackList_: " << i <<std::endl;
       fedUnpackList_.push_back(i);
     }
 
@@ -71,17 +71,13 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
 
   if ( m_dbe ) 
     {
-      char* type;
       
       if (fVerbosity)
-	cout <<"SET TO HCAL/FEDIntegrity"<<endl;
+	cout <<"SET TO HCAL/FEDIntegrity"<<std::endl;
       m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
-      type="FEDEntries";
-      fedEntries_ = m_dbe->book1D(type,"# entries per HCAL FED",32,700,732);
-      type="FEDFatal";
-      fedFatal_ = m_dbe->book1D(type,"# fatal errors HCAL FED",32,700,732);
-      type="FEDNonFatal";
-      fedNonFatal_ = m_dbe->book1D(type,"# non-fatal errors HCAL FED",32,700,732);
+      fedEntries_ = m_dbe->book1D("FEDEntries","# entries per HCAL FED",32,700,732);
+      fedFatal_ = m_dbe->book1D("FEDFatal","# fatal errors HCAL FED",32,700,732);
+      fedNonFatal_ = m_dbe->book1D("FEDNonFatal","# non-fatal errors HCAL FED",32,700,732);
     } // if (m_dbe)
 
 
@@ -94,7 +90,7 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
   
   if(!m_dbe) 
     { 
-      cout<<"HcalDataIntegrityTask::processEvent DQMStore not instantiated!!!"<<endl;  
+      std::cout<<"HcalDataIntegrityTask::processEvent DQMStore not instantiated!!!"<<std::endl;  
       return;
     }
   
