@@ -16,6 +16,13 @@
 #include<iostream>
 #include<vector>
 
+bool isAligned(void* data, long alignment)
+{
+ // check that the alignment is a power of two
+ assert((alignment & (alignment-1)) == 0); 
+ return ((long)data & (alignment-1)) == 0;
+}
+
 
 void st(){}
 void en(){}
@@ -71,8 +78,16 @@ int main(int argc, char * argv[]) {
   GS * gs1 = new GS(Vector(1., 1.,1., 1.,1.),cov1);
   // GS gs1(Vector(1., 1.,1., 1.,1.),Matrix(ROOT::Math::SMatrixIdentity()));
 
+
+
   GS * gs0 = new GS(Vector(1., 1.,1., 0.,0.),Matrix(ROOT::Math::SMatrixIdentity()));
   GS * gsP = new GS(Vector(1., 1.,1., 10.,10.),Matrix(ROOT::Math::SMatrixIdentity()));
+
+ std::cout << "GS " << ((isAligned(gs0,16)) ? "a " : "n ") << std::endl;	
+ std::cout << "cov " << ((isAligned(&gs0->covariance(),16)) ? "a " : "n ") << std::endl;	
+ std::cout << "mean " << (((&gs0->mean(),16)) ? "a " : "n ") << std::endl;	
+ std::cout << "weightM " << (((&gs0->weightMatrix(),16)) ? "a " : "n ") << std::endl;	
+
 
 
   // GS gs2(Vector(2., 2., 2., 2.,2.),cov);
