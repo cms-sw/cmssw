@@ -41,8 +41,9 @@ public:
   //  The phi interval ( phiMin, phiMax) defined as the signed path along the 
   //  trigonometric circle from the point at phiMin to the point at phiMax
   //  must be positive and smaller than pi.
+  //  At least one of phiMin, phiMax must be in (-pi,pi) range.
   //  Examples of correct intervals: (-3,-2), (-4,-3), (3.1,3.2), (3,-3).
-  //  Examples of WRONG intervals: (3,2), (4,3), (3.2,3.1), (-3,3).
+  //  Examples of WRONG intervals: (-5,-4),(3,2), (4,3), (3.2,3.1), (-3,3), (4,5).
   //  Example of use: myHits = recHitsSortedInPhi( phi-deltaPhi, phi+deltaPhi);
   //
   std::vector<Hit> hits( float phiMin, float phiMax) const;

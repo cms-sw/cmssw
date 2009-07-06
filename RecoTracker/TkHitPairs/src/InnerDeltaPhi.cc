@@ -19,7 +19,6 @@ template <class T> T sqr( T t) {return t*t;}
 inline double cropped_asin(double x) {
     return abs(x) <= 1 ? asin(x) : (x > 0 ? M_PI/2 : -M_PI/2);
 }
-//#define asin(X) cropped_asin(X)
 double checked_asin(double x, const char *expr, const char *file, int line) {
     if (fabs(x) >= 1.0) throw cms::Exception("CorruptData") <<  "asin(x) called with x = " << expr << " = " << x << "\n\tat " << file << ":" << line << "\n";
     return asin(x);
@@ -29,10 +28,11 @@ double checked_asin(double x, const char *expr, const char *file, int line) {
 InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
                  const TrackingRegion & region,
                  const edm::EventSetup& iSetup,
-                 bool precise)
+                 bool precise, float extraTolerance)
   : theROrigin(region.originRBound()),
     theRLayer(0),
     theThickness(0),
+    theExtraTolerance(extraTolerance),
     theA(0),
     theB(0),
     theVtx(region.origin().x(),region.origin().y()),
@@ -63,7 +63,6 @@ void InnerDeltaPhi::initBarrelLayer( const DetLayer& layer)
   // the maximal delta phi will be for the innermost hits
   theThickness = layer.surface().bounds().thickness();
   theRLayer = rLayer - theThickness/2;
-  theHitError = TrackingRegionBase::hitErrRPhi( &bl);
   theRDefined = true;
 }
 
@@ -78,40 +77,8 @@ void InnerDeltaPhi::initForwardLayer( const DetLayer& layer,
   theB = layerZ > 0 ? zMaxOrigin : zMinOrigin;
   theA = layerZmin - theB;
   theRDefined = false;
-  theHitError = TrackingRegionBase::hitErrRPhi(&fl);
 }
 
-/////////////////////////////////// AK //////////////////////////////
-/////////////////////////////////////////////////////////////////////
-float InnerDeltaPhi::innerRadius( float  hitX, float hitY, float hitZ) const
-{
-  float theVtxX = theVtx.x();
-  float theVtxY = theVtx.y();
-// cout <<"--------------------------------"<<endl;
-// cout <<"HIT (x,y,z) :"<<" ("<<hitX<<", "<<hitY<<", "<<hitZ<<") "<<endl;
-  if (theRDefined) {
-//     cout <<" return defined R layer!"<<theRLayer<<endl;
-     return theRLayer;
-  }
-  else {
-   float t = theA/(hitZ-theB);
-   float layer_X = theVtxX + (hitX-theVtxX)*t;
-   float layer_Y = theVtxY + (hitY-theVtxY)*t;
-
-//   cout <<"  t from line:"<<t<<endl;
-
-   float layer_R = sqrt( sqr(layer_X)+ sqr(layer_Y) );
-   
-   
-//   cout << " crossing in TR: "<<" (x,y):"<<layer_X<<","<<layer_Y <<" radius: "<<layer_R<< endl;
-   return std::max(layer_R, theRLayer);
-
-//   float hitR = sqrt( sqr(hitX)+sqr(hitY)); 
-//   float invRmin = (hitZ-theB)/theA/(hitR-theVtxR);
-//        << " result2: " <<1./invRmin+theVtxR << endl;
-//   return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
-  }
-}
 
 
 PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,float errRPhi) const
@@ -194,7 +161,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
         deltaPhiOrig *= (dLayer/rLayer/cosCross);
 
   // inner hit error taken as constant
-  double deltaPhiHit = theHitError / rLayer;
+  double deltaPhiHit = theExtraTolerance / rLayer;
 
   // outer hit error
 //   double deltaPhiHitOuter = errRPhi/rLayer; 
@@ -232,7 +199,7 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
   float deltaPhiOrig = asin( theROrigin * (rHit-rMin) / (rHit*rMin));
 
   // hit error taken as constant
-  float deltaPhiHit = theHitError / rMin;
+  float deltaPhiHit = theExtraTolerance / rMin;
 
   if (!thePrecise) {
     return deltaPhi+deltaPhiOrig+deltaPhiHit;
@@ -247,4 +214,24 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
   }
 
 }
+
+PixelRecoRange<float> InnerDeltaPhi::operator()( 
+    float rHit, float phiHit, float zHit, float errRPhi) const
+{
+//     float phiM =  operator()( rHit,zHit,errRPhi);
+//     return PixelRecoRange<float>(phiHit-phiM,phiHit+phiM);
+
+       Point2D hitXY( rHit*cos(phiHit), rHit*sin(phiHit));
+       return phiRange(hitXY,zHit,errRPhi);
+}
+
+float InnerDeltaPhi::minRadius( float hitR, float hitZ) const 
+{
+  if (theRDefined) return theRLayer;
+  else {
+    float invRmin = (hitZ-theB)/theA/hitR;
+    return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
+  }
+}
+
 
