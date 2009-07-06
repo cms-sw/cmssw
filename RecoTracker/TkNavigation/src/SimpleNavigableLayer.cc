@@ -244,9 +244,14 @@ void SimpleNavigableLayer::pushResult( DLC& result, const FDLC& tmp) const
 }
 
 std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, PropagationDirection timeDirection) const{
+  static int depth = 0;
+  depth++;
+  if(depth>50) {
+    edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() called recursively more than 50 times!!! Bailing out..";
+    return std::vector<const DetLayer*>();
+  }
   std::vector< const DetLayer * > result;
   result.reserve(15); //that's a max
-
   set<const DetLayer *> collect; //a container of unique instances. to avoid duplicates
   
   std::vector<const DetLayer *> someLayers = nextLayers(fts,timeDirection);
@@ -271,5 +276,6 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
   
   result.insert(result.begin(),collect.begin(),collect.end()); //cannot do a swap it seems
   LogDebug("SimpleNavigableLayer")<<"Number of compatible layers: "<<result.size();
+  depth--;
   return result;
 }
