@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2008/12/03 12:17:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -34,6 +34,7 @@ class HRes1DHit{
       // Position, sigma, residual, pull
       //sprintf (histo_n, "1D_%s_hDist",N); sprintf(histo_t, "1D RHit distance from wire");
       //      hDist=0; hDist = dbe_->book1D(histo_n, histo_t, 100, 0,2.5);
+      dbe_->setCurrentFolder("/DT/1DRecHits/");
       hDist=0; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
       //hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
       hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residua", 300, -1.5,1.5);
@@ -144,7 +145,7 @@ class HEff1DHit{
     HEff1DHit(std::string name_,DQMStore *dbe_){
       std::string pre ="1D_";
       pre += name_;
-
+      dbe_->setCurrentFolder("/DT/1DRecHits/");
       hEtaMuSimHit=0; hEtaMuSimHit = dbe_->book1D(pre+"_hEtaMuSimHit", "SimHit Eta distribution",100, -1.5, 1.5);
       hEtaRecHit=0; hEtaRecHit = dbe_->book1D(pre+"_hEtaRecHit", "SimHit Eta distribution with 1D RecHit",100, -1.5, 1.5);
       hEffVsEta = 0;
@@ -311,7 +312,7 @@ class HRes2DHit{
 
       std::string pre ="2D_";
       pre += name_;
-
+      dbe_->setCurrentFolder("/DT/2DSegments/");
       hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -3.5, 3.5);
       hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -3.5, 3.5);
       hRecVsSimAngle=0;hRecVsSimAngle = dbe_->book2D (pre+"_hRecVsSimAngle", "Rec angle vs sim angle;angle (rad)",100, -3.5, 3.5, 100, -3.5, 3.5);
@@ -427,7 +428,7 @@ class HEff2DHit{
     HEff2DHit(std::string name_, DQMStore * dbe_){
       std::string pre ="2D_";
       pre += name_;
-
+      dbe_->setCurrentFolder("/DT/2DSegments/");
       hEtaSimSegm=0;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=0;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit",
                                  100, -1.5, 1.5);
@@ -641,7 +642,7 @@ class HRes4DHit{
       pre += name_;
       
 
-      
+        dbe_->setCurrentFolder("/DT/4DSegments/");    
       hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
       hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
 
@@ -1086,7 +1087,7 @@ class HEff4DHit{
     HEff4DHit(std::string name_,DQMStore *dbe_){
       std::string pre ="4D_";
       pre += name_;
- 
+      dbe_->setCurrentFolder("/DT/4DSegments/");     
       hEtaSimSegm=0;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=0;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
                                  100, -1.5, 1.5);
