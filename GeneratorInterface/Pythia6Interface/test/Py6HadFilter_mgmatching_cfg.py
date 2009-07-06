@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.GenProduction.PythiaUESettings_cfi import *
+from Configuration.Generator.PythiaUESettings_cfi import *
 
 process = cms.Process("TEST")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
