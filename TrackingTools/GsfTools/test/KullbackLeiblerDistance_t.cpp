@@ -54,6 +54,15 @@ Matrix buildCovariance(float y) {
 
 int main(int argc, char * argv[]) {
 
+
+  std::cout << "size of  SingleGaussianState<5>" << sizeof(GS)
+	    << std::endl;
+  std::cout << "size of  Matrix" << sizeof(Matrix)
+	    << std::endl;
+  std::cout << "size of  Vector" << sizeof(Vector)
+	    << std::endl;
+
+
   Distance const & d = distance();
 
   Matrix cov1 = buildCovariance(1.);
