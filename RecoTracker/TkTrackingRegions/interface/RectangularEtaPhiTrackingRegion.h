@@ -112,8 +112,8 @@ public:
 
   virtual HitRZCompatibility* checkRZ(
       const DetLayer* layer, 
-      const TrackingRecHit*  outerHit,
-      const edm::EventSetup& iSetup) const;
+      const Hit &  outerHit,
+      const edm::EventSetup& iSetup) const { return checkRZOld(layer,outerHit->hit(),iSetup); }
 
   virtual RectangularEtaPhiTrackingRegion* clone() const { 
     return new RectangularEtaPhiTrackingRegion(*this);
@@ -123,6 +123,10 @@ public:
   virtual std::string print() const;
 
 private:
+  HitRZCompatibility* checkRZOld(
+      const DetLayer* layer, 
+      const TrackingRecHit*  outerHit,
+      const edm::EventSetup& iSetup) const;
 
   OuterEstimator * estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const;
   OuterEstimator * estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const;

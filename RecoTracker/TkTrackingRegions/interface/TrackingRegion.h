@@ -12,7 +12,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +20,6 @@
 #include <vector>
 
 class DetLayer;
-class TrackingRecHit;
 class HitRZCompatibility;
 namespace edm { class Event; class EventSetup; }
 
@@ -29,7 +27,8 @@ class TrackingRegion{
 public:
 
   typedef PixelRecoRange<float> Range;
-  typedef std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
+  typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+  typedef std::vector<Hit> Hits;
 
   /// the direction around which region is constructed 
   virtual GlobalVector direction() const = 0;
@@ -58,7 +57,7 @@ public:
    /// utility to check eta/theta hit compatibility with region constraints 
    /// and outer hit constraint  */
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-				       const TrackingRecHit*  outerHit,
+				       const Hit & outerHit,
 				       const edm::EventSetup& iSetup) const = 0;
 
   /// new region with updated vertex position 

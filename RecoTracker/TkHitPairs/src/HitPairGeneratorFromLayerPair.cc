@@ -65,23 +65,24 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), (*oh)->hit(), iSetup);
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), *oh, iSetup);
     if(!checkRZ) continue;
 
     vector<Hit> innerHits;
     innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
     for (IT ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
       GlobalPoint innPos = (*ih)->globalPosition();
+      float r_reduced = sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
       Range allowed;
       Range hitRZ;
       if (theInnerLayer.detLayer()->location() == barrel) {
-      allowed = checkRZ->range(innPos.perp());
+        allowed = checkRZ->range(r_reduced);
         float zErr = nSigmaRZ * (*ih)->errorGlobalZ();
         hitRZ = Range(innPos.z()-zErr, innPos.z()+zErr);
       } else {
-      allowed = checkRZ->range(innPos.z());
+        allowed = checkRZ->range(innPos.z());
         float rErr = nSigmaRZ * (*ih)->errorGlobalR();
-        hitRZ = Range(innPos.perp()-rErr, innPos.perp()+rErr);
+        hitRZ = Range(r_reduced-rErr, r_reduced+rErr);
       }
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {

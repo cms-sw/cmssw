@@ -60,12 +60,10 @@ public:
 
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
-/*   virtual HitRZCompatibility * checkRZ( */
-/*       const DetLayer* layer,  SiPixelRecHit  outerHit) const = 0; */
-
     virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-					 const TrackingRecHit*  outerHit,
+					 const Hit & outerHit,
 					 const edm::EventSetup& iSetup) const = 0;
+
   /// clone region with new vertex position
   virtual TrackingRegionBase* restrictedRegion( const GlobalPoint &  originPos,
       const float & originRBound, const float & originZBound) const {
@@ -77,40 +75,6 @@ public:
   } 
 
   virtual TrackingRegionBase* clone() const = 0;
-
-  static float hitErrZ(const DetLayer *l) {
-    // FIXME - pixel vs silicon!
-    //MP 
-    //    static float err =
-    //  SimpleConfigurable<float>(0.0060f,"TkTrackingRegions:HitErrorZ").value();
-
-    static float err =0.0060f;
-    return err;
-  }
-  static float hitErrR(const DetLayer *l) {
-  // FIXME - pixel vs silicon!
-    //MP 
-/*     static float err = */
-/*       SimpleConfigurable<float>(0.0036f,"TkTrackingRegions:HitErrorR").value(); */
-    static float err =0.0036f;
-    return err;
-  }
-  static float hitErrRPhi(const BarrelDetLayer *l) {
-  // FIXME - pixel vs silicon!
-    //MP 
-/*     static float err = SimpleConfigurable<float>(0.0027f, */
-/*        "TkTrackingRegions:hitRPhiBarrelError").value();  */
-    static float err =0.0027f;
-    return err;
-  }
-  static float hitErrRPhi(const ForwardDetLayer *l) {
-  // FIXME - pixel vs silicon!
-    //MP 
- /*    static float err = SimpleConfigurable<float>(0.0051f, */
-/*         "TkTrackingRegions:hitRPhiForwardError").value(); */
-    static float err = 0.0051f;
-    return err;
-  }
 
   virtual std::string print() const {
     std::ostringstream str;
