@@ -318,48 +318,43 @@ DoHLTElectronLargeWindows = cms.Path(
     DoLWTracking
     )
 
-# create the tau HLT reco path
-##from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
-##DoHLTTau = cms.Path(HLTBeginSequence +
-##                    hltTauPrescaler +
-##                    OpenHLTCaloTausCreatorSequence +
-##                    hltL2TauJets +
-##                    hltL2TauIsolationProducer +
-##                    hltL2TauRelaxingIsolationSelector +
-##                    HLTDoLocalPixelSequence +
-##                    HLTRecopixelvertexingSequence +
-##                    HLTL25TauTrackReconstructionSequence +
-##                    HLTL25TauTrackIsolation +
-##                    TauOpenHLT+
-##                    HLTEndSequence)
+## create the tau HLT reco path
+#from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
+#DoHLTTau = cms.Path(HLTBeginSequence +
+#                    hltTauPrescaler +
+#                    OpenHLTL2TauEcalIsolationNoCutSequence +
+#                    OpenHLTL25TauPixelTracksIsolationNoL2 +
+#                    HLTEndSequence)
 
 # create the b-jet HLT paths
-##from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
-##DoHLTBTag = cms.Path(
-##    HLTBeginSequence +
-##    HLTBCommonL2recoSequence +
-##    OpenHLTBLifetimeL25recoSequence +
-##    OpenHLTBSoftmuonL25recoSequence +
-##    OpenHLTBLifetimeL3recoSequence +
-##    OpenHLTBLifetimeL3recoSequenceRelaxed +
-##    OpenHLTBSoftmuonL3recoSequence +
-##    HLTEndSequence )
+#from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
+#DoHLTBTag = cms.Path(
+#    HLTBeginSequence +
+#    HLTBCommonL2recoSequence +
+#    OpenHLTBLifetimeL25recoSequence +
+#    OpenHLTBSoftmuonL25recoSequence +
+#    OpenHLTBLifetimeL3recoSequence +
+#    OpenHLTBLifetimeL3recoSequenceStartup +
+#    OpenHLTBSoftmuonL3recoSequence +
+#    HLTEndSequence )
 
 
 DoHLTAlCaPi0Eta1E31 = cms.Path(
     HLTBeginSequence +
     hltL1sAlCaEcalPi0Eta1E31 +
     hltPreAlCaEcalPi01E31 +
-    HLTDoRegionalPi0EtaESSequence +
-    HLTDoRegionalPi0EtaEcalSequence +
+    #HLTDoRegionalPi0EtaESSequence +
+    #HLTDoRegionalPi0EtaEcalSequence +
+    HLTDoRegionalPi0EtaSequence +
     HLTEndSequence )
 
 DoHLTAlCaPi0Eta8E29 = cms.Path(
     HLTBeginSequence +
     hltL1sAlCaEcalPi0Eta8E29 +
     hltPreAlCaEcalPi08E29 +
-    HLTDoRegionalPi0EtaESSequence +
-    HLTDoRegionalPi0EtaEcalSequence +
+    #HLTDoRegionalPi0EtaESSequence +
+    #HLTDoRegionalPi0EtaEcalSequence +
+    HLTDoRegionalPi0EtaSequence +
     HLTEndSequence )
 
 

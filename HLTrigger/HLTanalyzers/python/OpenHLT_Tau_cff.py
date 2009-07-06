@@ -287,7 +287,13 @@ TauOpenHLT = cms.EDProducer("HLTTauProducer",
     IsolationCone = cms.double(0.5)
 )
 
-OpenHLTDoCaloSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalJetsFEDs + hltEcalRegionalJetsRecHit + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForJets)
-OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
-HLTL25TauTrackReconstructionSequence = cms.Sequence( HLTDoLocalStripSequence + hltL25TauPixelSeeds + hltL25TauCkfTrackCandidates + hltL25TauCtfWithMaterialTracks )
-HLTL25TauTrackIsolation = cms.Sequence( hltL25TauJetTracksAssociator + hltL25TauConeIsolation )
+#OpenHLTDoCaloSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalJetsFEDs + hltEcalRegionalJetsRecHit + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForJets)
+#OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
+#HLTL25TauTrackReconstructionSequence = cms.Sequence( HLTDoLocalStripSequence + hltL25TauPixelSeeds + hltL25TauCkfTrackCandidates + hltL25TauCtfWithMaterialTracks )
+#HLTL25TauTrackIsolation = cms.Sequence( hltL25TauJetTracksAssociator + hltL25TauConeIsolation )
+
+OpenHLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
+OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1 + hltIcone5Tau1 + hltCaloTowersTau2 + hltIcone5Tau2 + hltCaloTowersTau3 + hltIcone5Tau3 + hltCaloTowersTau4 + hltIcone5Tau4 + hltCaloTowersCentral1 + hltIcone5Central1 + hltCaloTowersCentral2 + hltIcone5Central2 + hltCaloTowersCentral3 + hltIcone5Central3 + hltCaloTowersCentral4 + hltIcone5Central4 )
+OpenHLTL2TauEcalIsolationNoCutSequence = cms.Sequence( OpenHLTCaloTausCreatorSequence + hltL2TauJets + hltL2TauIsolationProducer + hltL2TauIsolationSelectorNoCut )
+OpenHLTL25TauPixelTracksIsolationNoL2 = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltL25TauJetPixelTracksAssociatorNoL2 + hltL25TauPixelTracksConeIsolationNoL2 + hltL25TauPixelTracksIsolationSelectorNoL2 + hltL25TauPixelTracksLeadingTrackPtCutSelectorNoL2 )
+
