@@ -127,12 +127,20 @@ unsigned CSCCFEBData::adcOverflow(unsigned layer, unsigned channel, unsigned tim
   if(slice) result = slice->timeSample(layer, channel)->adcOverflow;
   return result;
 }
-unsigned CSCCFEBData::controllerData(unsigned layer, unsigned channel, unsigned timeBin) const 
+
+unsigned CSCCFEBData::controllerData(unsigned uglay, unsigned ugchan, unsigned timeBin) const 
 {
+
+// The argument notation is
+// uglay = un-Gray Coded layer index 1-6
+// ugchan = un-Gray Coded channel index 1-16
+// The point being that the SCAC is serially encoded directly in the data stream (without Gray Coding)
+// so the layer and channel indexes here are just the direct ordering into the data stream.
+
   unsigned result = 0;
   const CSCCFEBTimeSlice * slice = timeSlice(timeBin);
   // zero is returned for bad slices
-  if(slice) result = slice->timeSample(layer, channel)->controllerData;
+  if(slice) result = slice->timeSample( (ugchan-1)*6+uglay-1 )->controllerData;
   return result;
 }
 
@@ -195,7 +203,15 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 {
   
   // assert(layer>0 && layer <= 6);
+
+  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples in CSCCFEBData::digis = " << nTimeSamples();
+  if (nTimeSamples()==0) {
+     LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
+     return;
+  }
+
   result.reserve(16);
+
   std::vector<int> sca(nTimeSamples());
   std::vector<uint16_t> overflow(nTimeSamples());
   std::vector<uint16_t> overlap(nTimeSamples());
@@ -207,13 +223,22 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
   
   unsigned layer = CSCDetId::layer(idlayer);
 
+  std::vector<uint16_t> l1a_phase(nTimeSamples());
+  for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
+    l1a_phase[itime] = controllerData(layer, 13, itime); // will be zero if timeslice bad
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " l1a_phase = " << controllerData(layer, 13, itime);
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " lct_phase = " << controllerData(layer, 14, itime);
+    LogTrace("CSCCFEBData|CSCRawToDigi") << CSCDetId(idlayer) << " time sample " << itime+1 << " # samples = " << controllerData(layer, 16, itime);
+  };
+
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel)
     {
-      if (nTimeSamples()==0)
-	{
-	  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
-	  break;
-	}
+      // What is the point of testing here? Move it outside this loop
+      //      if (nTimeSamples()==0)
+      //	{
+      //	  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
+      //	  break;
+      //	}
       
       for(unsigned itime = 0; itime < nTimeSamples(); ++itime)
 	{
@@ -228,6 +253,10 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 		  overflow[itime] = word->adcOverflow;
 		  overlap[itime] = word->overlappedSampleFlag;
 		  errorfl[itime] = word->errorstat;
+
+		  // Stick the l1a_phase bit into 'overlap' too (so we can store it in CSCStripDigi
+		  // without changing CSCStripDigi format)
+                  overlap[itime] = (( l1a_phase[itime] & 0x1 ) >> 16 ) | ( word->overlappedSampleFlag & 0x1 );
 		}
 	    }
 	}
