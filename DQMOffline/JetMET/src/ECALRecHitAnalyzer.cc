@@ -13,7 +13,7 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   // Retrieve Information from the Configuration File
   EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
   EERecHitsLabel_    = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
-  FolderName_           = iConfig.getParameter<std::string>("FolderName");
+  FolderName_           = iConfig.getUntrackedParameter<std::string>("FolderName");
   debug_             = iConfig.getParameter<bool>("Debug");
 
 
