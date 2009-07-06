@@ -117,11 +117,17 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthsp.setSigma(0,1,bunch_it->sig[0][1]);
       widthsp.setSigma(0,2,bunch_it->sig[0][2]);
       widthsp.setSigma(0,3,bunch_it->sig[0][3]);
+      widthsp.setSigma(1,0,bunch_it->sig[1][0]);
       widthsp.setSigma(1,1,bunch_it->sig[1][1]);
       widthsp.setSigma(1,2,bunch_it->sig[1][2]);
       widthsp.setSigma(1,3,bunch_it->sig[1][3]);
+      widthsp.setSigma(2,0,bunch_it->sig[2][0]);
+      widthsp.setSigma(2,1,bunch_it->sig[2][1]);
       widthsp.setSigma(2,2,bunch_it->sig[2][2]);
       widthsp.setSigma(2,3,bunch_it->sig[2][3]);
+      widthsp.setSigma(3,0,bunch_it->sig[3][0]);
+      widthsp.setSigma(3,1,bunch_it->sig[3][1]);
+      widthsp.setSigma(3,2,bunch_it->sig[3][2]);
       widthsp.setSigma(3,3,bunch_it->sig[3][3]);
       rawWidthsItem->addValues(widthsp);
 
@@ -133,11 +139,17 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthspfc.setSigma(0,1,bunch_it->sigfc[0][1]);
       widthspfc.setSigma(0,2,bunch_it->sigfc[0][2]);
       widthspfc.setSigma(0,3,bunch_it->sigfc[0][3]);
+      widthspfc.setSigma(1,0,bunch_it->sigfc[1][0]);      
       widthspfc.setSigma(1,1,bunch_it->sigfc[1][1]);
       widthspfc.setSigma(1,2,bunch_it->sigfc[1][2]);
       widthspfc.setSigma(1,3,bunch_it->sigfc[1][3]);
+      widthspfc.setSigma(2,0,bunch_it->sigfc[2][0]);
+      widthspfc.setSigma(2,1,bunch_it->sigfc[2][1]);
       widthspfc.setSigma(2,2,bunch_it->sigfc[2][2]);
       widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
+      widthspfc.setSigma(3,0,bunch_it->sigfc[3][0]);
+      widthspfc.setSigma(3,1,bunch_it->sigfc[3][1]);
+      widthspfc.setSigma(3,2,bunch_it->sigfc[3][2]);
       widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
       rawWidthsItemfc->addValues(widthspfc);
 
