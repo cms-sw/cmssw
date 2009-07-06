@@ -12,9 +12,6 @@ class ConfDBHandler(urllib2.BaseHandler):
   confdb_gateway = 'http://cms-project-confdb-hltdev.web.cern.ch/cms-project-confdb-hltdev/get.jsp'
   confdb_data    = { 'format' : 'python', 'dbName' : 'hltdev', 'configName' : '' }
 
-  def __init__(self):
-    pass
-
   def confdb_open(self, req):
     if isinstance(req, urllib2.Request):
       url = req.get_selector()
@@ -27,15 +24,6 @@ class ConfDBHandler(urllib2.BaseHandler):
     else:
       data['configName'] = url
     return self.parent.open(self.confdb_gateway, urllib.urlencode(data))
-
-
-def extract_process(buffer):
-  local = locals()
-  exec buffer in globals(), local
-  if 'process' in local:
-    return local['process']
-  else:
-    raise Exception('No "process" object defined in the configuration')
 
 
 def read_config(url):
@@ -51,6 +39,15 @@ def read_config(url):
     raise IOError('Could not read the configuration %s' % url)
   input.close()
   return config
+
+
+def extract_process(buffer):
+  local = locals()
+  exec buffer in globals(), local
+  if 'process' in local:
+    return local['process']
+  else:
+    raise Exception('No "process" object defined in the configuration')
 
 
 url = sys.argv[1]
