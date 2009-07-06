@@ -32,17 +32,18 @@ class EwkPdfWeightProducer : public edm::EDProducer {
 };
 
 
-#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+//#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "TSystem.h"
 #include "LHAPDF/LHAPDF.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
-EwkPdfWeightProducer::EwkPdfWeightProducer(const edm::ParameterSet& pset) : 
-  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("genEventPdfInfo"))), 
-  pdfSetName_(pset.getUntrackedParameter<std::string> ("PdfSetName", "cteq65.LHgrid"))
+EwkPdfWeightProducer::EwkPdfWeightProducer(const edm::ParameterSet& pset) :
+ pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
+ pdfSetName_(pset.getUntrackedParameter<std::string> ("PdfSetName", "cteq65.LHgrid"))
 {
-      produces<std::vector<double> >();
-}
+     produces<std::vector<double> >();
+} 
 
 /////////////////////////////////////////////////////////////////////////////////////
 EwkPdfWeightProducer::~EwkPdfWeightProducer(){}
@@ -72,18 +73,18 @@ void EwkPdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       if (iEvent.isRealData()) return;
 
-      edm::Handle<reco::PdfInfo> pdfstuff;
+      edm::Handle<GenEventInfoProduct> pdfstuff;
       if (!iEvent.getByLabel(pdfInfoTag_, pdfstuff)) return;
 
-      float Q = pdfstuff->scalePDF;
+      float Q = pdfstuff->pdf()->scalePDF;
 
-      int id1 = (int)pdfstuff->id1;
-      double x1 = pdfstuff->x1;
-      double pdf1 = pdfstuff->pdf1;
+      int id1 = pdfstuff->pdf()->id.first;
+      double x1 = pdfstuff->pdf()->x.first;
+      double pdf1 = pdfstuff->pdf()->xPDF.first;
 
-      int id2 = (int)pdfstuff->id2;
-      double x2 = pdfstuff->x2;
-      double pdf2 = pdfstuff->pdf2;
+      int id2 = pdfstuff->pdf()->id.second;
+      double x2 = pdfstuff->pdf()->x.second;
+      double pdf2 = pdfstuff->pdf()->xPDF.second; 
 
       // Put PDF weights in the event
       std::auto_ptr<std::vector<double> > weights (new std::vector<double>);
