@@ -55,10 +55,20 @@ def dump_l1seeds(process):
     modules = []
     visitor = ModuleNodeVisitor(modules)
     path.visit(visitor)  
-   
-    seeds = [ module.L1SeedsLogicalExpression for module in modules if module.type_() == 'HLTLevel1GTSeed' ]
+ 
+    seeds = None 
+    for module in filter(lambda module: module.type_() == 'HLTLevel1GTSeed', modules):
+      seeds = module.L1SeedsLogicalExpression.value()
+      tech  = module.L1TechTriggerSeeding.value()
+      alias = module.L1UseAliasesForSeeding.value()
+      break
     if seeds:
-      print '%-32s\t%s' % (name, seeds[0].value()) 
+      if tech:
+        print '%-32s\t  L1 Technical Bits: %s' % (name, seeds) 
+      elif alias:
+        print '%-32s\t* %s' % (name, seeds) 
+      else:
+        print '%-32s\t  %s' % (name, seeds) 
 
 
 def main():
