@@ -71,9 +71,10 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         if ( uflag == EcalUncalibratedRecHit::kLeadingEdgeRecovered ) {
                 recoFlag = EcalRecHit::kLeadingEdgeRecovered;
         } else if ( uflag == EcalUncalibratedRecHit::kSaturated ) {
-                // leading edge recovery failed
-                recoFlag = EcalRecHit::kDead;
-                // and at some point try the recovery with the neighbours
+                // leading edge recovery failed - still keep the information
+                // about the saturation and do not flag as dead
+                recoFlag = EcalRecHit::kSaturated;
+                // and at some point may try the recovery with the neighbours
         }
 
         const EcalIntercalibConstantMap& icalMap = ical->getMap();  
@@ -110,7 +111,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         }
 
         // make the rechit and put in the output collection
-        if ( recoFlag <= EcalRecHit::kSaturated || !killDeadChannels_ ) {
+        if ( recoFlag <= EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_ ) {
                 result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst, recoFlag) ));
         }
         return true;

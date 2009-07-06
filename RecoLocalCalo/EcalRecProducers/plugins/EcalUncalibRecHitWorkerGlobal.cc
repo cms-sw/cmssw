@@ -110,39 +110,46 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         }
 
         if ( leadingSample >= 0 ) { // saturation
-                // compute the right bin of the pulse shape using time calibration constants
-                // -- for the moment this is not used
-                EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
-                EcalTimeCalibConstant itimeconst = 0;
-                if( it != itime->end() ) {
-                        itimeconst = (*it);
+                if ( leadingSample != 4 ) {
+                        // all samples different from the fifth are not reliable for the amplitude estimation
+                        // put by default the energy at the saturation threshold and flag as saturated
+                        uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12, 0, 0, 0);
+                        uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kSaturated );
                 } else {
-                        edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
-                                << detid.rawId()
-                                << "! something wrong with EcalTimeCalibConstants in your DB? ";
-                }
-                // float clockToNsConstant = 25.;
-                // reconstruct the rechit
-                if (detid.subdetId()==EcalEndcap) {
-                        leadingEdgeMethod_endcap_.setPulseShape( eePulseShape_ );
-                        // float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
-                        // bin (or some analogous mapping) will be used instead of the leadingSample
-                        //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
-                        // bin is not uset for the moment
-                        leadingEdgeMethod_endcap_.setLeadingEdgeSample( leadingSample );
-                        uncalibRecHit = leadingEdgeMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                        uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
-                        leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
-                } else {
-                        leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
-                        // float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
-                        // bin (or some analogous mapping) will be used instead of the leadingSample
-                        //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
-                        // bin is not uset for the moment
-                        leadingEdgeMethod_barrel_.setLeadingEdgeSample( leadingSample );
-                        uncalibRecHit = leadingEdgeMethod_barrel_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                        uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
-                        leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
+                        // compute the right bin of the pulse shape using time calibration constants
+                        // -- for the moment this is not used
+                        EcalTimeCalibConstantMap::const_iterator it = itime->find( detid );
+                        EcalTimeCalibConstant itimeconst = 0;
+                        if( it != itime->end() ) {
+                                itimeconst = (*it);
+                        } else {
+                                edm::LogError("EcalRecHitError") << "No time intercalib const found for xtal "
+                                        << detid.rawId()
+                                        << "! something wrong with EcalTimeCalibConstants in your DB? ";
+                        }
+                        // float clockToNsConstant = 25.;
+                        // reconstruct the rechit
+                        if (detid.subdetId()==EcalEndcap) {
+                                leadingEdgeMethod_endcap_.setPulseShape( eePulseShape_ );
+                                // float mult = (float)eePulseShape_.size() / (float)(*itdg).size();
+                                // bin (or some analogous mapping) will be used instead of the leadingSample
+                                //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
+                                // bin is not uset for the moment
+                                leadingEdgeMethod_endcap_.setLeadingEdgeSample( leadingSample );
+                                uncalibRecHit = leadingEdgeMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
+                                uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
+                                leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
+                        } else {
+                                leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
+                                // float mult = (float)ebPulseShape_.size() / (float)(*itdg).size();
+                                // bin (or some analogous mapping) will be used instead of the leadingSample
+                                //int bin  = (int)(( (mult * leadingSample + mult/2) * clockToNsConstant + itimeconst ) / clockToNsConstant);
+                                // bin is not uset for the moment
+                                leadingEdgeMethod_barrel_.setLeadingEdgeSample( leadingSample );
+                                uncalibRecHit = leadingEdgeMethod_barrel_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
+                                uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
+                                leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
+                        }
                 }
         } else {
                 // weights method
