@@ -20,7 +20,6 @@ const float HcalBeamMonitor::etaBounds[] = { 2.853, 2.964, 3.139, 3.314, 3.489, 
 const float HcalBeamMonitor::area[]={0.111,0.175,0.175,0.175,0.175,0.175,0.174,0.178,0.172,0.175,0.178,0.346,0.604};
 const float HcalBeamMonitor::radius[]={1300,1162,975,818,686,576,483,406,340,286,240,201,169};
 
-
 // constructor
 HcalBeamMonitor::HcalBeamMonitor():
   ETA_OFFSET_HB(16),
@@ -62,9 +61,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   if (m_dbe)
     {
       m_dbe->setCurrentFolder(baseFolder_);
-      char* type;
-      type = "BeamMonitor Event Number";
-      meEVT_ = m_dbe->bookInt(type);
+      meEVT_ = m_dbe->bookInt("BeamMonitor Event Number");
     
       // Basic Problem Cells
       ProblemBeamCells=m_dbe->book2D(" ProblemBeamCells",
@@ -85,11 +82,11 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       //jason's
       m_dbe->setCurrentFolder(baseFolder_);
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
-				   "Center Of Energy radius",
-				   200,0,1);
+					   "Center Of Energy radius",
+					   200,0,1);
       
       CenterOfEnergyRadius->setAxisTitle("(normalized) radius",1);
-
+      
       CenterOfEnergy = m_dbe->book2D("CenterOfEnergy",
 				     "Center of Energy",
 				     40,-1,1,
