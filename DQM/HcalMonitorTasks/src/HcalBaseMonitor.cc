@@ -186,7 +186,7 @@ bool HcalBaseMonitor::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 // *********************************************************** //
 
-void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, char* Name, char* Units)
+void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std::string Name, std::string Units)
 {
   stringstream name;
   name<<Name;
@@ -215,12 +215,12 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, cha
   SetupEtaPhiHists(hh, Name, Units);
 }
 
-void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units)
+void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, std::string Name, std::string Units)
 {
   hh.setup(m_dbe, Name, Units);
 }
 
-void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 {
   /* Code makes overall 2D MonitorElement histogram,
      and the vector of 2D MonitorElements for each individual depth.
@@ -265,12 +265,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
     }
   */
   return;
-} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 
 
 // *************************************** //
 
-void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 {
   /* Code makes vector of 2D MonitorElements for all 6 depths
      (4 depths, + 2 for separate HE histograms).
@@ -337,12 +337,12 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
     }
   */
   return;
-} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 
 
 // *************************************************************** //
 
-void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, 
+void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, 
 					int nbinsx, int lowboundx, int highboundx, 
 					int nbinsy, int lowboundy, int highboundy)
 {
@@ -387,12 +387,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
       cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
   return;
-} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int nbinsx...)
+} // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int nbinsx...)
 
 // *************************************************************** //
 
 
-void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units,
+void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 					int nbinsx, int lowboundx, int highboundx,
 					int nbinsy, int lowboundy, int highboundy)
 {
@@ -455,11 +455,11 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
     }
 
   return;
-} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units)
+} // void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 
 // ****************************************** //
 
-void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
 {
   // Makes an overall 1D Monitor Element (for summing over depths) for h, and creates individual depth Monitor Elements for hh
   if (showTiming)
@@ -499,11 +499,11 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
     }
    return;
 
-} //void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
+} //void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 
 
 
-void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
 {
   // Makes histograms just for the vector of Monitor Elements
   if (showTiming)
@@ -552,7 +552,7 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* 
     }
 
   return;
-} // void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins)
+} // void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
 
 
 void HcalBaseMonitor::setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max)

@@ -15,7 +15,7 @@ class EtaPhiHists{
   EtaPhiHists(){};
   ~EtaPhiHists(){};
 
-  void setup(DQMStore* &m_dbe,char* Name, char* Units="")
+  void setup(DQMStore* &m_dbe,std::string Name, std::string Units="")
     {
       std::stringstream name;
       name<<Name;

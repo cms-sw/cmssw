@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.19.2.3 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.27 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -61,10 +61,10 @@ public:
   
   // Set up vectors of Monitors for individual depths
   // 2-D histograms with eta-phi binning assumed
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units);
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units);
-  void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, char* Name, char* Units);
-  void SetupEtaPhiHists(EtaPhiHists &hh, char* Name, char* Units);
+  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
+  void setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
+  void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, std::string Name, std::string Units);
+  void SetupEtaPhiHists(EtaPhiHists &hh, std::string Name, std::string Units);
   void SetEtaPhiLabels(MonitorElement* &h);
 
   int CalcEtaBin(int subdet, int ieta, int depth);
@@ -77,11 +77,11 @@ public:
   bool isHF(int etabins, int depth);
 
   // Generic 2-D histograms
-  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units,
+  void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
   
-  void setupDepthHists2D(std::vector<MonitorElement*> &hh, char* Name, char* Units,
+  void setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 			 int nbinsx, int lowboundx, int highboundx,
 			 int nbinsy, int lowboundy, int highboundy);
 
@@ -90,8 +90,8 @@ public:
 
 
   // 1-D histograms
-  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
-  void setupDepthHists1D(std::vector<MonitorElement*> &hh, char* Name, char* Units, int lowbound, int highbound, int Nbins);
+  void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
+  void setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
   void FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh);
   void FillUnphysicalHEHFBins(MonitorElement* hh);

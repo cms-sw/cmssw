@@ -98,7 +98,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   dfmon_checkNevents = ps.getUntrackedParameter<int>("DataFormatMonitor_checkNevents",checkNevents_);
 
   if ( m_dbe ) {
-    char* type;
+    std::string type;
     m_dbe->setCurrentFolder(baseFolder_);
 
     HWProblems_=m_dbe->book2D(" HardwareWatchCells",
@@ -893,9 +893,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meDCCEventFormatError_->Fill(dccid,2);
   /* 3 */ //Check that there are zeros following the HTR Status words.
   int SpigotPad = HcalDCCHeader::SPIGOT_COUNT;
-  if (  ((uint64_t) dccHeader->getSpigotSummary(SpigotPad)  ) 
+  if (  (((uint64_t) dccHeader->getSpigotSummary(SpigotPad)  ) 
 	| ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
-	| ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2))  != 0)
+	| ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)))  != 0)
     meDCCEventFormatError_->Fill(dccid,3);
   /* 4 */ //Check that there are zeros following the HTR Payloads, if needed.
   int nHTR32BitWords=0;
