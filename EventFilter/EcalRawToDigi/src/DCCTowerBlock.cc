@@ -148,7 +148,7 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   EBDataFrame df( (*digis_)->back() );
   addedFrame=true;
   bool wrongGain(false);
-  
+
   //set samples in the data frame
   for(uint i =0; i< nTSamples_ ;i++){ // loop on samples 
     xData_++;
@@ -162,6 +162,7 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     df.setSample(i,data);
   }// loop on samples	
 
+  bool isSaturation(true);
   if(wrongGain){
     
     // check whether the gain==0 has features of saturation or not
@@ -181,7 +182,6 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     
     // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
     uint plateauEnd = min(nTSamples_,(uint)(firstGainZeroSampID+5));
-    bool isSaturation(true);
     for (uint s=firstGainZeroSampID; s<plateauEnd; s++) 
       {
 	if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
@@ -211,6 +211,10 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	//make special collection for gain0 data frames when due to saturation
 	return BLOCK_UNPACKED;
       }//end isSaturation 
+    else {
+	data_ += numbDWInXtalBlock_;
+	return BLOCK_UNPACKED;
+    }
 
     }//end WrongGain
   
@@ -236,7 +240,6 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }
     
     (*invalidGainsSwitch_)->push_back(*pDetId_);
-    
     errorOnXtal = true;
   } 
   
