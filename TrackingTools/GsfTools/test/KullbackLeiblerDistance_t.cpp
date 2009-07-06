@@ -16,7 +16,7 @@
 #include<iostream>
 #include<vector>
 
-bool isAligned(void* data, long alignment)
+bool isAligned(const void* data, long alignment)
 {
  // check that the alignment is a power of two
  assert((alignment & (alignment-1)) == 0); 
