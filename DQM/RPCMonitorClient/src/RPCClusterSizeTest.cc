@@ -242,7 +242,7 @@ void RPCClusterSizeTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       //get segment number
       RPCGeomServ RPCServ(detId);
       xBin = RPCServ.segment();
-      (numberOfRings_ == 2 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
+      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
     }
 
   // Normalization -> # of Entries in first Bin normalaized by total Entries
