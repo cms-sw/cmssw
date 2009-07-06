@@ -61,12 +61,12 @@ public:
 
 // protected:
 private:
-  double theWeight;
-  Vector theMean;
   Matrix theCovariance;
+  Vector theMean;
+  double theWeight;
 
-  mutable bool theHasWeightMatrix;
   mutable Matrix theWeightMatrix;
+  mutable bool theHasWeightMatrix;
 
 // public:
 //   static int instances_;
