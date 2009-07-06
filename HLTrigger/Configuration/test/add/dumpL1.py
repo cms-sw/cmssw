@@ -50,15 +50,23 @@ def extract_process(buffer):
     raise Exception('No "process" object defined in the configuration')
 
 
-url = sys.argv[1]
-config = read_config(url)
-process = extract_process(config)
+def dump_l1seeds(process):
+  for (name,path) in process.paths.iteritems():
+    modules = []
+    visitor = ModuleNodeVisitor(modules)
+    path.visit(visitor)  
+   
+    seeds = [ module.L1SeedsLogicalExpression for module in modules if module.type_() == 'HLTLevel1GTSeed' ]
+    if seeds:
+      print '%-32s\t%s' % (name, seeds[0].value()) 
 
-for (name,path) in process.paths.iteritems():
-  modules = []
-  visitor = ModuleNodeVisitor(modules)
-  path.visit(visitor)  
- 
-  seeds = [ module.L1SeedsLogicalExpression for module in modules if module.type_() == 'HLTLevel1GTSeed' ]
-  if seeds:
-    print '%-32s\t%s' % (name, seeds[0].value()) 
+
+def main():
+  url = sys.argv[1]
+  config = read_config(url)
+  process = extract_process(config)
+  dump_l1seeds(process)
+
+
+if __name__ == "__main__":
+  main()
