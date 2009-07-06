@@ -4,9 +4,8 @@
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 class HcalDetDiagLEDClient : public HcalBaseClient {
 public:
@@ -39,10 +38,16 @@ public:
   void createTests(); 
 private:
   int status;
+  string ref_run;
+  
   TH1F *Energy;
   TH1F *Timing;
   TH1F *EnergyRMS;
   TH1F *TimingRMS;
+  TH1F *EnergyHF;
+  TH1F *TimingHF;
+  TH1F *EnergyRMSHF;
+  TH1F *TimingRMSHF;
   TH1F *EnergyCorr;
   TH2F *Time2Dhbhehf;
   TH2F *Time2Dho;
@@ -55,6 +60,11 @@ private:
   TH2F *HEMphi;
   TH2F *HFPphi;
   TH2F *HFMphi;
+  TH2F *HO0phi;
+  TH2F *HO1Pphi;
+  TH2F *HO2Pphi;
+  TH2F *HO1Mphi;
+  TH2F *HO2Mphi;
   
   TH2F* ChannelsLEDEnergy[6];
   TH2F* ChannelsLEDEnergyRef[6];

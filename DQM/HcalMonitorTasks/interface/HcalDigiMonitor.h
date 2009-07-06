@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/05/01 14:06:09 $
-  * $Revision: 1.39 $
+  * $Date: 2009/06/28 21:01:17 $
+  * $Revision: 1.35.2.4 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */

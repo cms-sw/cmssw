@@ -3,6 +3,37 @@
 #include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 #include <TPaveStats.h>
 
+static int IsKnownBadChannel(char *subdet,int eta,int phi,int depth){
+   if(strcmp(subdet,"HO")==0 && eta==5    && phi==35 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==6    && phi==35 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==5    && phi==36 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==6    && phi==36 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-4   && phi==37 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==5    && phi==37 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==6    && phi==37 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==38 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==38 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-4   && phi==38 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==39 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==39 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==40 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==40 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==41 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==42 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==43 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-3   && phi==59 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-2   && phi==59 && depth==4) return 1;
+   if(strcmp(subdet,"HO")==0 && eta==-1   && phi==59 && depth==4) return 1;
+
+   if(strcmp(subdet,"HO")==0 && eta==1   && phi==4 && depth==4) return 3;
+   if(strcmp(subdet,"HO")==0 && eta==3   && phi==4 && depth==4) return 3;
+   if(strcmp(subdet,"HO")==0 && eta==15  && phi==24 && depth==4) return 3;
+   
+   if(strcmp(subdet,"HF")==0 && eta==41  && phi==47 && depth==2) return 3;
+   if(strcmp(subdet,"HF")==0 && eta==29  && phi==71 && depth==1) return 3;
+   return 0;
+}
+
 HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(){}
 HcalDetDiagPedestalClient::~HcalDetDiagPedestalClient(){}
 void HcalDetDiagPedestalClient::beginJob(){}
@@ -23,23 +54,40 @@ void HcalDetDiagPedestalClient::init(const ParameterSet& ps, DQMStore* dbe, stri
 
 void HcalDetDiagPedestalClient::getHistograms(){
   std::string folder="HcalDetDiagPedestalMonitor/Summary Plots/";
-  PedestalsAve4HB=getHisto(folder+"HB Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HE=getHisto(folder+"HE Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HO=getHisto(folder+"HO Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HF=getHisto(folder+"HF Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
   
-  PedestalsRefAve4HB=getHisto(folder+"HB Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HE=getHisto(folder+"HE Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HO=getHisto(folder+"HO Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HF=getHisto(folder+"HF Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
+  Pedestals2DRmsHBHEHF  =getHisto2(folder+"HBHEHF pedestal rms map",      process_, dbe_, debug_,cloneME_);
+  Pedestals2DRmsHO      =getHisto2(folder+"HO pedestal rms map",          process_, dbe_, debug_,cloneME_);
+  Pedestals2DHBHEHF     =getHisto2(folder+"HBHEHF pedestal mean map",     process_, dbe_, debug_,cloneME_);
+  Pedestals2DHO         =getHisto2(folder+"HO pedestal mean map",         process_, dbe_, debug_,cloneME_);
+  Pedestals2DErrorHBHEHF=getHisto2(folder+"HBHEHF pedestal problems map", process_, dbe_, debug_,cloneME_);
+  Pedestals2DErrorHO    =getHisto2(folder+"HO pedestal problems map",     process_, dbe_, debug_,cloneME_);
+
+  PedestalsAve4HB  =new TH1F(*getHisto(folder+"HB Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4HE  =new TH1F(*getHisto(folder+"HE Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4HO  =new TH1F(*getHisto(folder+"HO Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4HF  =new TH1F(*getHisto(folder+"HF Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4Simp=new TH1F(*getHisto(folder+"SIPM Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4ZDC =new TH1F(*getHisto(folder+"ZDC Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  
+  PedestalsRefAve4HB  =new TH1F(*getHisto(folder+"HB Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsRefAve4HE  =new TH1F(*getHisto(folder+"HE Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsRefAve4HO  =new TH1F(*getHisto(folder+"HO Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsRefAve4HF  =new TH1F(*getHisto(folder+"HF Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsRefAve4Simp=new TH1F(*getHisto(folder+"SIPM Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsRefAve4ZDC =new TH1F(*getHisto(folder+"ZDC Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  
   PedestalsRefAve4HB->SetLineColor(kGreen);
   PedestalsRefAve4HE->SetLineColor(kGreen);
   PedestalsRefAve4HO->SetLineColor(kGreen);
   PedestalsRefAve4HF->SetLineColor(kGreen);
+  PedestalsRefAve4Simp->SetLineColor(kGreen);
+  PedestalsRefAve4ZDC->SetLineColor(kGreen);
   PedestalsRefAve4HB->SetLineWidth(3);
   PedestalsRefAve4HE->SetLineWidth(3);
   PedestalsRefAve4HO->SetLineWidth(3);
   PedestalsRefAve4HF->SetLineWidth(3);
+  PedestalsRefAve4Simp->SetLineWidth(3);
+  PedestalsRefAve4ZDC->SetLineWidth(3);
   
   PedestalsAve4HBref=getHisto(folder+"HB Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
   PedestalsAve4HEref=getHisto(folder+"HE Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
@@ -50,19 +98,27 @@ void HcalDetDiagPedestalClient::getHistograms(){
   PedestalsRmsHE=getHisto(folder+"HE Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHO=getHisto(folder+"HO Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHF=getHisto(folder+"HF Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
+  PedestalsRmsSimp=getHisto(folder+"SIPM Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
+  PedestalsRmsZDC =getHisto(folder+"ZDC Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   
   PedestalsRmsRefHB=getHisto(folder+"HB Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsRefHE=getHisto(folder+"HE Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsRefHO=getHisto(folder+"HO Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsRefHF=getHisto(folder+"HF Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
+  PedestalsRmsRefSimp=getHisto(folder+"SIPM Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
+  PedestalsRmsRefZDC=getHisto(folder+"ZDC Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsRefHB->SetLineColor(kGreen);
   PedestalsRmsRefHE->SetLineColor(kGreen);
   PedestalsRmsRefHO->SetLineColor(kGreen);
   PedestalsRmsRefHF->SetLineColor(kGreen);
+  PedestalsRmsRefSimp->SetLineColor(kGreen);
+  PedestalsRmsRefZDC->SetLineColor(kGreen);
   PedestalsRmsRefHB->SetLineWidth(3);
   PedestalsRmsRefHE->SetLineWidth(3);
   PedestalsRmsRefHO->SetLineWidth(3);
   PedestalsRmsRefHF->SetLineWidth(3);
+  PedestalsRmsRefSimp->SetLineWidth(3);
+  PedestalsRmsRefZDC->SetLineWidth(3);
  
   PedestalsRmsHBref=getHisto(folder+"HB Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHEref=getHisto(folder+"HE Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
@@ -80,6 +136,13 @@ void HcalDetDiagPedestalClient::getHistograms(){
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
+  me = dbe_->get("Hcal/HcalDetDiagPedestalMonitor/HcalDetDiagPedestalMonitor Reference Run");
+  if(me) {
+    string s=me->valueString();
+    char str[200]; 
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
+    ref_run=str;
+  }
 } 
 bool HcalDetDiagPedestalClient::haveOutput(){
     getHistograms();
@@ -87,7 +150,9 @@ bool HcalDetDiagPedestalClient::haveOutput(){
     return false; 
 }
 int  HcalDetDiagPedestalClient::SummaryStatus(){
-    return status;
+    if(status==0) return 0;
+    if(status==1) return 1;
+    return 2;
 }
 double HcalDetDiagPedestalClient::get_channel_status(char *subdet,int eta,int phi,int depth,int type){
    int ind=-1;
@@ -118,7 +183,6 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-/*
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
    if(ind==0){
      file << "<tr>";
@@ -168,14 +232,12 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
 }
-*/
 static void printTableTail(ofstream& file){
      file << "</table>"<< endl;
      file << "</body>"<< endl;
      file << "</html>"<< endl;
 }
 void HcalDetDiagPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-  /*
 int  MissingCnt=0;
 int  UnstableCnt=0;
 int  BadCnt=0; 
@@ -186,6 +248,13 @@ int  HEM[4]={0,0,0,0};
 int  HFP[4]={0,0,0,0}; 
 int  HFM[4]={0,0,0,0}; 
 int  HO[4] ={0,0,0,0}; 
+int  newHBP[4]={0,0,0,0}; 
+int  newHBM[4]={0,0,0,0}; 
+int  newHEP[4]={0,0,0,0}; 
+int  newHEM[4]={0,0,0,0}; 
+int  newHFP[4]={0,0,0,0}; 
+int  newHFM[4]={0,0,0,0}; 
+int  newHO[4] ={0,0,0,0}; 
 char *subdet[4]={"HB","HE","HO","HF"};
 
   HcalLogicalMapGenerator gen;
@@ -208,10 +277,13 @@ char *subdet[4]={"HB","HE","HO","HF"};
         problem[3] =get_channel_status(subdet[sd],eta,phi,depth,4);
         for(int i=0;i<4;i++){
            if(problem[i]>0){
-	      if(sd==0)  if(eta>0) HBP[i]++; else HBM[i]++; 
-	      if(sd==1)  if(eta>0) HEP[i]++; else HEM[i]++; 
-	      if(sd==2)  HO[i]++; 
-	      if(sd==3)  if(eta>0) HFP[i]++; else HFM[i]++; 
+	      if(sd==0)if(eta>0){ HBP[i]++; if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBP[i]++;}
+	                    else{ HBM[i]++; if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBM[i]++;} 
+	      if(sd==1)if(eta>0){ HEP[i]++; if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEP[i]++;}
+	                    else{ HEM[i]++; if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEM[i]++;}
+	      if(sd==2)         { HO[i]++;  if(IsKnownBadChannel("HO",eta,phi,depth)!=(i+1)) newHO[i]++; }
+	      if(sd==3)if(eta>0){ HFP[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFP[i]++;}
+	                    else{ HFM[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFM[i]++;}
            }
         }
      }
@@ -236,6 +308,8 @@ char *subdet[4]={"HB","HE","HO","HF"};
       for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
          if(sd==3 && eta>-29 && eta<29) continue;
          double missing =get_channel_status(subdet[sd],eta,phi,depth,1);
+	 char *comm="   ";
+	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==1) comm="KNOWN PROBLEM";
          if(missing>0){
             try{
 	       HcalDetId *detid=0;
@@ -245,7 +319,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
                if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
 	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
-	       printTableLine(Missing,cnt++,*detid,lmap_entry,emap_entry); MissingCnt++;
+	       printTableLine(Missing,cnt++,*detid,lmap_entry,emap_entry,comm); MissingCnt++;
 	       delete detid;
 	    }catch(...){ continue;}
          }
@@ -275,7 +349,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
          double unstable =get_channel_status(subdet[sd],eta,phi,depth,2);
          if(unstable>0){
             try{
-	       char comment[100]; sprintf(comment,"%.3f%%\n",(1.0-unstable)*100.0);
+	       char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-unstable)*100.0);
 	       HcalDetId *detid=0;
                if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
@@ -312,12 +386,14 @@ char *subdet[4]={"HB","HE","HO","HF"};
          if(sd==3 && eta>-29 && eta<29) continue;
          double bad1 =get_channel_status(subdet[sd],eta,phi,depth,3);
          double bad2 =get_channel_status(subdet[sd],eta,phi,depth,4);
+	 char *comm="";
+	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==2 || IsKnownBadChannel(subdet[sd],eta,phi,depth)==3) comm=", KNOWN PROBLEM";
          if(bad1>0 || bad2>0){
             try{
 	       char comment[100]; 
-	       if(bad1>0) sprintf(comment,"|Ped-Ref|>%.2f\n",bad1);
-	       if(bad2>0) sprintf(comment,"|Rms-Ref|>%.2f\n",bad2);
-	       if(bad1>0 && bad2>0) sprintf(comment,"|Ped-Ref|>%.2f,|Ped-Ref|>%.2f\n",bad1,bad2);
+	       if(bad1>0) sprintf(comment,"|Ped-Ref|=%.2f%s\n",bad1,comm);
+	       if(bad2>0) sprintf(comment,"|Rms-Ref|=%.2f%s\n",bad2,comm);
+	       if(bad1>0 && bad2>0) sprintf(comment,"|Ped-Ref|=%.2f,|Rms-Ref|=%.2f%s\n",bad1,bad2,comm);
 	       HcalDetId *detid=0;
                if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
@@ -342,6 +418,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
   gStyle->SetCanvasColor(0);
   gStyle->SetPadColor(0);
   gStyle->SetOptStat(111110);
+  gStyle->SetPalette(1);
   TPaveStats *ptstats;
   TCanvas *can=new TCanvas("HcalDetDiagPedestalClient","HcalDetDiagPedestalClient",0,0,500,350);
   can->cd();
@@ -389,12 +466,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr><tr>" << endl;
   int ind1=0,ind2=0,ind3=0,ind4=0;
   htmlFile << "<td class=\"s1\" align=\"center\">HB+</td>" << endl;
-  ind1=3; if(HBP[0]==0) ind1=2; if(HBP[0]>0 && HBP[0]<=12) ind1=1; if(HBP[0]>=12 && HBP[0]<1296) ind1=0; 
-  ind2=3; if(HBP[1]==0) ind2=2; if(HBP[1]>0)  ind2=1; if(HBP[1]>21)  ind2=0; 
-  ind3=3; if(HBP[2]==0) ind3=2; if(HBP[2]>0)  ind3=1; if(HBP[2]>21)  ind3=0;
-  ind4=3; if(HBP[3]==0) ind4=2; if(HBP[3]>0)  ind4=1; if(HBP[3]>21)  ind4=0;
+  ind1=3; if(newHBP[0]==0) ind1=2; if(newHBP[0]>0 && newHBP[0]<=12) ind1=1; if(newHBP[0]>=12 && newHBP[0]<1296) ind1=0; 
+  ind2=3; if(newHBP[1]==0) ind2=2; if(newHBP[1]>0)  ind2=1; if(newHBP[1]>21)  ind2=0; 
+  ind3=3; if(newHBP[2]==0) ind3=2; if(newHBP[2]>0)  ind3=1; if(newHBP[2]>21)  ind3=0;
+  ind4=3; if(newHBP[3]==0) ind4=2; if(newHBP[3]>0)  ind4=1; if(newHBP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;  
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HBP[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HBP[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HBP[2] <<"</td>" << endl;
@@ -402,12 +479,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HB-</td>" << endl;
-  ind1=3; if(HBM[0]==0) ind1=2; if(HBM[0]>0 && HBM[0]<=12) ind1=1; if(HBM[0]>=12 && HBM[0]<1296) ind1=0; 
-  ind2=3; if(HBM[1]==0) ind2=2; if(HBM[1]>0)  ind2=1; if(HBM[1]>21)  ind2=0; 
-  ind3=3; if(HBM[2]==0) ind3=2; if(HBM[2]>0)  ind3=1; if(HBM[2]>21)  ind3=0;
-  ind4=3; if(HBM[3]==0) ind4=2; if(HBM[3]>0)  ind4=1; if(HBM[3]>21)  ind4=0;
+  ind1=3; if(newHBM[0]==0) ind1=2; if(newHBM[0]>0 && newHBM[0]<=12) ind1=1; if(newHBM[0]>=12 && newHBM[0]<1296) ind1=0; 
+  ind2=3; if(newHBM[1]==0) ind2=2; if(newHBM[1]>0)  ind2=1; if(newHBM[1]>21)  ind2=0; 
+  ind3=3; if(newHBM[2]==0) ind3=2; if(newHBM[2]>0)  ind3=1; if(newHBM[2]>21)  ind3=0;
+  ind4=3; if(newHBM[3]==0) ind4=2; if(newHBM[3]>0)  ind4=1; if(newHBM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HBM[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HBM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HBM[2] <<"</td>" << endl;
@@ -415,12 +492,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HE+</td>" << endl;
-  ind1=3; if(HEP[0]==0) ind1=2; if(HEP[0]>0 && HEP[0]<=12) ind1=1; if(HEP[0]>=12 && HEP[0]<1296) ind1=0; 
-  ind2=3; if(HEP[1]==0) ind2=2; if(HEP[1]>0)  ind2=1; if(HEP[1]>21)  ind2=0; 
-  ind3=3; if(HEP[2]==0) ind3=2; if(HEP[2]>0)  ind3=1; if(HEP[2]>21)  ind3=0;
-  ind4=3; if(HEP[3]==0) ind4=2; if(HEP[3]>0)  ind4=1; if(HEP[3]>21)  ind4=0;
+  ind1=3; if(newHEP[0]==0) ind1=2; if(newHEP[0]>0 && newHEP[0]<=12) ind1=1; if(newHEP[0]>=12 && newHEP[0]<1296) ind1=0; 
+  ind2=3; if(newHEP[1]==0) ind2=2; if(newHEP[1]>0)  ind2=1; if(newHEP[1]>21)  ind2=0; 
+  ind3=3; if(newHEP[2]==0) ind3=2; if(newHEP[2]>0)  ind3=1; if(newHEP[2]>21)  ind3=0;
+  ind4=3; if(newHEP[3]==0) ind4=2; if(newHEP[3]>0)  ind4=1; if(newHEP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HEP[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HEP[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HEP[2] <<"</td>" << endl;
@@ -428,12 +505,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HE-</td>" << endl;
-  ind1=3; if(HEM[0]==0) ind1=2; if(HEM[0]>0 && HEM[0]<=12) ind1=1; if(HEM[0]>=12 && HEM[0]<1296) ind1=0; 
-  ind2=3; if(HEM[1]==0) ind2=2; if(HEM[1]>0)  ind2=1; if(HEM[1]>21)  ind2=0; 
-  ind3=3; if(HEM[2]==0) ind3=2; if(HEM[2]>0)  ind3=1; if(HEM[2]>21)  ind3=0;
-  ind4=3; if(HEM[3]==0) ind4=2; if(HEM[3]>0)  ind4=1; if(HEM[3]>21)  ind4=0;
+  ind1=3; if(newHEM[0]==0) ind1=2; if(newHEM[0]>0 && newHEM[0]<=12) ind1=1; if(newHEM[0]>=12 && newHEM[0]<1296) ind1=0; 
+  ind2=3; if(newHEM[1]==0) ind2=2; if(newHEM[1]>0)  ind2=1; if(newHEM[1]>21)  ind2=0; 
+  ind3=3; if(newHEM[2]==0) ind3=2; if(newHEM[2]>0)  ind3=1; if(newHEM[2]>21)  ind3=0;
+  ind4=3; if(newHEM[3]==0) ind4=2; if(newHEM[3]>0)  ind4=1; if(newHEM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HEM[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HEM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HEM[2] <<"</td>" << endl;
@@ -441,12 +518,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HF+</td>" << endl;
-  ind1=3; if(HFP[0]==0) ind1=2; if(HFP[0]>0 && HFP[0]<=12) ind1=1; if(HFP[0]>=12 && HFP[0]<864) ind1=0; 
-  ind2=3; if(HFP[1]==0) ind2=2; if(HFP[1]>0)  ind2=1; if(HFP[1]>21)  ind2=0; 
-  ind3=3; if(HFP[2]==0) ind3=2; if(HFP[2]>0)  ind3=1; if(HFP[2]>21)  ind3=0;
-  ind4=3; if(HFP[3]==0) ind4=2; if(HFP[3]>0)  ind4=1; if(HFP[3]>21)  ind4=0;
+  ind1=3; if(newHFP[0]==0) ind1=2; if(newHFP[0]>0 && newHFP[0]<=12) ind1=1; if(newHFP[0]>=12 && newHFP[0]<864) ind1=0; 
+  ind2=3; if(newHFP[1]==0) ind2=2; if(newHFP[1]>0)  ind2=1; if(newHFP[1]>21)  ind2=0; 
+  ind3=3; if(newHFP[2]==0) ind3=2; if(newHFP[2]>0)  ind3=1; if(newHFP[2]>21)  ind3=0;
+  ind4=3; if(newHFP[3]==0) ind4=2; if(newHFP[3]>0)  ind4=1; if(newHFP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HFP[0] <<" (864)</td>" << endl;
   htmlFile << state[ind2] << HFP[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HFP[2] <<"</td>" << endl;
@@ -454,12 +531,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HF-</td>" << endl;
-  ind1=3; if(HFM[0]==0) ind1=2; if(HFM[0]>0 && HFM[0]<=12) ind1=1; if(HFM[0]>=12 && HFM[0]<864) ind1=0; 
-  ind2=3; if(HFM[1]==0) ind2=2; if(HFM[1]>0)  ind2=1; if(HFM[1]>21)  ind2=0; 
-  ind3=3; if(HFM[2]==0) ind3=2; if(HFM[2]>0)  ind3=1; if(HFM[2]>21)  ind3=0;
-  ind4=3; if(HFM[3]==0) ind4=2; if(HFM[3]>0)  ind4=1; if(HFM[3]>21)  ind4=0;
+  ind1=3; if(newHFM[0]==0) ind1=2; if(newHFM[0]>0 && newHFM[0]<=12) ind1=1; if(newHFM[0]>=12 && newHFM[0]<864) ind1=0; 
+  ind2=3; if(newHFM[1]==0) ind2=2; if(newHFM[1]>0)  ind2=1; if(newHFM[1]>21)  ind2=0; 
+  ind3=3; if(newHFM[2]==0) ind3=2; if(newHFM[2]>0)  ind3=1; if(newHFM[2]>21)  ind3=0;
+  ind4=3; if(newHFM[3]==0) ind4=2; if(newHFM[3]>0)  ind4=1; if(newHFM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HFM[0] <<" (864)</td>" << endl;
   htmlFile << state[ind2] << HFM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HFM[2] <<"</td>" << endl;
@@ -467,12 +544,12 @@ char *subdet[4]={"HB","HE","HO","HF"};
   
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HO</td>" << endl;
-  ind1=3; if(HO[0]==0) ind1=2; if(HO[0]>0 && HO[0]<=12) ind1=1; if(HO[0]>=12 && HO[0]<2160) ind1=0; 
-  ind2=3; if(HO[1]==0) ind2=2; if(HO[1]>0)  ind2=1; if(HO[1]>21)  ind2=0; 
-  ind3=3; if(HO[2]==0) ind3=2; if(HO[2]>0)  ind3=1; if(HO[2]>21)  ind3=0;
-  ind4=3; if(HO[3]==0) ind4=2; if(HO[3]>0)  ind4=1; if(HO[3]>21)  ind4=0;
+  ind1=3; if(newHO[0]==0) ind1=2; if(newHO[0]>0 && newHO[0]<=12) ind1=1; if(newHO[0]>=12 && newHO[0]<2160) ind1=0; 
+  ind2=3; if(newHO[1]==0) ind2=2; if(newHO[1]>0)  ind2=1; if(newHO[1]>21)  ind2=0; 
+  ind3=3; if(newHO[2]==0) ind3=2; if(newHO[2]>0)  ind3=1; if(newHO[2]>21)  ind3=0;
+  ind4=3; if(newHO[3]==0) ind4=2; if(newHO[3]>0)  ind4=1; if(newHO[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
   htmlFile << state[ind1] << HO[0] <<" (2160)</td>" << endl;
   htmlFile << state[ind2] << HO[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HO[2] <<"</td>" << endl;
@@ -488,8 +565,60 @@ char *subdet[4]={"HB","HE","HO","HF"};
       if(BadCnt>0)      htmlFile << "<td><a href=\"" << ("Bad_"+htmlName).c_str() <<"\">list of bad pedestal/rms channels</a></td>";
       htmlFile << "</tr></table>" << endl;
   }
+  can->SetGridy();
+  can->SetGridx();
+  can->SetLogy(0); 
+  
+  /////////////////////////////////////////// 
+  htmlFile << "<h2 align=\"center\">Summary plots</h2>" << endl;
+  htmlFile << "<table width=100% border=0><tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  Pedestals2DHBHEHF->SetStats(0);
+  Pedestals2DHBHEHF->SetMaximum(5);
+  Pedestals2DHBHEHF->SetNdivisions(36,"Y");
+  Pedestals2DHBHEHF->Draw("COLZ");
+  can->SaveAs((htmlDir + "hbhehf_pedestal_map.gif").c_str());
+  htmlFile << "<td><img src=\"hbhehf_pedestal_map.gif\" alt=\"hbhehf pedestal mean map\">   </td>" << endl;
+  Pedestals2DHO->SetStats(0);
+  Pedestals2DHO->SetMaximum(5);
+  Pedestals2DHO->SetNdivisions(36,"Y");
+  Pedestals2DHO->Draw("COLZ");
+  can->SaveAs((htmlDir + "ho_pedestal_map.gif").c_str());
+  htmlFile << "<td><img src=\"ho_pedestal_map.gif\" alt=\"ho pedestal mean map\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;
+  Pedestals2DRmsHBHEHF->SetStats(0);
+  Pedestals2DRmsHBHEHF->SetMaximum(2);
+  Pedestals2DRmsHBHEHF->SetNdivisions(36,"Y");
+  Pedestals2DRmsHBHEHF->Draw("COLZ");
+  can->SaveAs((htmlDir + "hbhehf_rms_map.gif").c_str());
+  htmlFile << "<td><img src=\"hbhehf_rms_map.gif\" alt=\"hbhehf pedestal rms map\">   </td>" << endl;
+  Pedestals2DRmsHO->SetStats(0);
+  Pedestals2DRmsHO->SetMaximum(2);
+  Pedestals2DRmsHO->SetNdivisions(36,"Y");
+  Pedestals2DRmsHO->Draw("COLZ");
+  can->SaveAs((htmlDir + "ho_rms_map.gif").c_str());
+  htmlFile << "<td><img src=\"ho_rms_map.gif\" alt=\"ho pedestal rms map\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;
+  Pedestals2DErrorHBHEHF->SetStats(0);
+  Pedestals2DErrorHBHEHF->SetNdivisions(36,"Y");
+  Pedestals2DErrorHBHEHF->Draw("COLZ");
+  can->SaveAs((htmlDir + "hbhehf_error_map.gif").c_str());
+  htmlFile << "<td><img src=\"hbhehf_error_map.gif\" alt=\"hbhehf pedestal error map\">   </td>" << endl;
+  Pedestals2DErrorHO->SetStats(0);
+  Pedestals2DErrorHO->SetNdivisions(36,"Y");
+  Pedestals2DErrorHO->Draw("COLZ");
+  can->SaveAs((htmlDir + "ho_error_map.gif").c_str());
+  htmlFile << "<td><img src=\"ho_error_map.gif\" alt=\"ho pedestal error map\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<hr>" << endl;
+  
   ///////////////////////////////////////////   
-  htmlFile << "<h2 align=\"center\">HB Pedestal plots</h2>" << endl;
+  htmlFile << "<h2 align=\"center\">HB Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   if(PedestalsRefAve4HB->GetMaximum()>0 && PedestalsAve4HB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
@@ -528,7 +657,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">HE Pedestal plots</h2>" << endl;
+  htmlFile << "<h2 align=\"center\">HE Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   if(PedestalsRefAve4HE->GetMaximum()>0 && PedestalsAve4HE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0);  
@@ -567,7 +696,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">HO Pedestal plots</h2>" << endl;
+  htmlFile << "<h2 align=\"center\">HO Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   if(PedestalsRefAve4HO->GetMaximum()>0 && PedestalsAve4HO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
@@ -592,7 +721,32 @@ char *subdet[4]={"HB","HE","HO","HF"};
   can->SaveAs((htmlDir + "ho_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"ho_pedestal_rms_distribution.gif\" alt=\"ho pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
-  
+  // SIMP
+   htmlFile << "<tr align=\"left\">" << endl;
+  if(PedestalsRefAve4Simp->GetMaximum()>0 && PedestalsAve4Simp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
+  ptstats->SetTextColor(kBlack);
+  PedestalsAve4Simp->GetListOfFunctions()->Add(ptstats);
+  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
+  ptstats->SetTextColor(kGreen);
+  PedestalsRefAve4Simp->GetListOfFunctions()->Add(ptstats);
+  PedestalsRefAve4Simp->Draw();
+  PedestalsAve4Simp->Draw("Sames");
+  can->SaveAs((htmlDir + "sipm_pedestal_distribution.gif").c_str());
+  htmlFile << "<td><img src=\"sipm_pedestal_distribution.gif\" alt=\"sipm pedestal mean\">   </td>" << endl;
+  if(PedestalsRmsRefSimp->GetMaximum()>0 && PedestalsRmsSimp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
+  ptstats->SetTextColor(kBlack);
+  PedestalsRmsSimp->GetListOfFunctions()->Add(ptstats);
+  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
+  ptstats->SetTextColor(kGreen);
+  PedestalsRmsRefSimp->GetListOfFunctions()->Add(ptstats); 
+  PedestalsRmsRefSimp->Draw();
+  PedestalsRmsSimp->Draw("Sames");
+  can->SaveAs((htmlDir + "simp_pedestal_rms_distribution.gif").c_str());
+  htmlFile << "<td><img src=\"simp_pedestal_rms_distribution.gif\" alt=\"sipm pedestal rms mean\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  // SIMP
   htmlFile << "<tr align=\"left\">" << endl;
   if(PedestalsAve4HOref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HOref->Draw();
@@ -605,7 +759,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">HF Pedestal plots</h2>" << endl;
+  htmlFile << "<h2 align=\"center\">HF Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   if(PedestalsRefAve4HF->GetMaximum()>0 && PedestalsAve4HF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
@@ -625,7 +779,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
   PedestalsRmsHF->GetListOfFunctions()->Add(ptstats);
   ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
   ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefHF->GetListOfFunctions()->Add(ptstats);  PedestalsRmsRefHO->Draw();
+  PedestalsRmsRefHF->GetListOfFunctions()->Add(ptstats);  
   PedestalsRmsRefHF->Draw();
   PedestalsRmsHF->Draw("Sames");
   can->SaveAs((htmlDir + "hf_pedestal_rms_distribution.gif").c_str());
@@ -643,10 +797,42 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<td><img src=\"hf_pedestal_rms_ref_distribution.gif\" alt=\"hf pedestal rms-reference mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
-
+  
+  /////////////////////////////////////////// 
+  htmlFile << "<h2 align=\"center\">ZDC Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
+  htmlFile << "<table width=100% border=0><tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  
+  if(PedestalsRefAve4ZDC->GetMaximum()>0 && PedestalsAve4ZDC->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+//   ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
+//   ptstats->SetTextColor(kBlack);
+//   PedestalsAve4ZDC->GetListOfFunctions()->Add(ptstats);
+//   ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
+//   ptstats->SetTextColor(kGreen);
+//   PedestalsRefAve4ZDC->GetListOfFunctions()->Add(ptstats);
+//   PedestalsRefAve4ZDC->Draw();
+//   PedestalsAve4ZDC->Draw("Sames");
+  PedestalsAve4ZDC->Draw();
+  can->SaveAs((htmlDir + "zdc_pedestal_distribution.gif").c_str());
+  htmlFile << "<td><img src=\"zdc_pedestal_distribution.gif\" alt=\"zdc pedestal mean\">   </td>" << endl;
+  if(PedestalsRmsRefZDC->GetMaximum()>0 && PedestalsRmsZDC->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+//   ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
+//   ptstats->SetTextColor(kBlack);
+//   PedestalsRmsZDC->GetListOfFunctions()->Add(ptstats);
+//   ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
+//   ptstats->SetTextColor(kGreen);
+//   PedestalsRmsRefZDC->GetListOfFunctions()->Add(ptstats); 
+//   PedestalsRmsRefZDC->Draw();
+//   PedestalsRmsZDC->Draw("Sames");
+  PedestalsRmsZDC->Draw();
+  can->SaveAs((htmlDir + "zdc_pedestal_rms_distribution.gif").c_str());
+  htmlFile << "<td><img src=\"zdc_pedestal_rms_distribution.gif\" alt=\"zdc pedestal rms mean\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
-  */
 } 
+
 

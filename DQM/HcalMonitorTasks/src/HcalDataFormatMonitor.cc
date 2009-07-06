@@ -183,7 +183,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCC_DataIntegrityCheck_->setBinLabel(16,"     OW",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(15,"     BZ",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(14,"Num Mis",2); //Num Mis	 
-    meDCC_DataIntegrityCheck_->setBinLabel(13,"    EvN",2) 		 ;
+    meDCC_DataIntegrityCheck_->setBinLabel(13,"    EvN",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(12,"    BcN",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(11,"    OrN",2); 		 
     meDCC_DataIntegrityCheck_->setBinLabel(10,"DataLos",2); //Data Lost  

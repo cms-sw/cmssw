@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/06/22 19:31:43 $
-  * $Revision: 1.25 $
+  * $Date: 2009/06/28 21:01:17 $
+  * $Revision: 1.19.2.3 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {

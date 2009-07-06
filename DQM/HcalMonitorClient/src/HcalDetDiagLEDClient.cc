@@ -19,26 +19,35 @@ void HcalDetDiagLEDClient::loadHistograms(TFile* infile){}
 void HcalDetDiagLEDClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
   HcalBaseClient::init(ps,dbe,clientName);
   status=0;
-  HBPphi=new TH2F("HB+ Average over HPD LED/Ref","HB+ Average over HPD LED/Ref",73,1,73,200,0,2);
-  HBMphi=new TH2F("HB- Average over HPD LED/Ref","HB- Average over HPD LED/Ref",73,1,73,200,0,2);
-  HEPphi=new TH2F("HE+ Average over HPD LED/Ref","HE+ Average over HPD LED/Ref",73,1,73,200,0,2);
-  HEMphi=new TH2F("HE- Average over HPD LED/Ref","HE- Average over HPD LED/Ref",73,1,73,200,0,2);
-  HFPphi=new TH2F("HF+ Average over RoBox LED/Ref","HF+ Average over RoBox LED/Ref",73,1,73,200,0,2);
-  HFMphi=new TH2F("HF- Average over RoBox LED/Ref","HF- Average over RoBox LED/Ref",73,1,73,200,0,2);
 } 
 
 void HcalDetDiagLEDClient::getHistograms(){
   std::string folder="HcalDetDiagLEDMonitor/Summary Plots/";
-  Energy        =getHisto(folder+"LED Energy Distribution",              process_, dbe_, debug_,cloneME_);
-  Timing        =getHisto(folder+"LED Timing Distribution",              process_, dbe_, debug_,cloneME_);
-  EnergyRMS     =getHisto(folder+"LED Energy RMS/Energy Distribution",   process_, dbe_, debug_,cloneME_);
-  TimingRMS     =getHisto(folder+"LED Timing RMS Distribution",          process_, dbe_, debug_,cloneME_);
+  Energy        =getHisto(folder+"HBHEHO LED Energy Distribution",              process_, dbe_, debug_,cloneME_);
+  Timing        =getHisto(folder+"HBHEHO LED Timing Distribution",              process_, dbe_, debug_,cloneME_);
+  EnergyRMS     =getHisto(folder+"HBHEHO LED Energy RMS/Energy Distribution",   process_, dbe_, debug_,cloneME_);
+  TimingRMS     =getHisto(folder+"HBHEHO LED Timing RMS Distribution",          process_, dbe_, debug_,cloneME_);
+  EnergyHF      =getHisto(folder+"HF LED Energy Distribution",              process_, dbe_, debug_,cloneME_);
+  TimingHF      =getHisto(folder+"HF LED Timing Distribution",              process_, dbe_, debug_,cloneME_);
+  EnergyRMSHF   =getHisto(folder+"HF LED Energy RMS/Energy Distribution",   process_, dbe_, debug_,cloneME_);
+  TimingRMSHF   =getHisto(folder+"HF LED Timing RMS Distribution",          process_, dbe_, debug_,cloneME_);
   EnergyCorr    =getHisto(folder+"LED Energy Corr(PinDiod) Distribution",process_, dbe_, debug_,cloneME_);
   Time2Dhbhehf  =getHisto2(folder+"LED Timing HBHEHF",                   process_, dbe_, debug_,cloneME_);
   Time2Dho      =getHisto2(folder+"LED Timing HO",                       process_, dbe_, debug_,cloneME_);
   Energy2Dhbhehf=getHisto2(folder+"LED Energy HBHEHF",                   process_, dbe_, debug_,cloneME_);
   Energy2Dho    =getHisto2(folder+"LED Energy HO",                       process_, dbe_, debug_,cloneME_);
-  
+  HBPphi        =getHisto2(folder+"HBP Average over HPD LED Ref",        process_, dbe_, debug_,cloneME_);
+  HBMphi        =getHisto2(folder+"HBM Average over HPD LED Ref",        process_, dbe_, debug_,cloneME_);
+  HEPphi        =getHisto2(folder+"HEP Average over HPD LED Ref",        process_, dbe_, debug_,cloneME_);
+  HEMphi        =getHisto2(folder+"HEM Average over HPD LED Ref",        process_, dbe_, debug_,cloneME_);
+  HFPphi        =getHisto2(folder+"HFP Average over RM LED Ref",      process_, dbe_, debug_,cloneME_);
+  HFMphi        =getHisto2(folder+"HFM Average over RM LED Ref",      process_, dbe_, debug_,cloneME_);
+  HO0phi        =getHisto2(folder+"HO0 Average over HPD LED Ref",        process_, dbe_, debug_,cloneME_);
+  HO1Pphi       =getHisto2(folder+"HO1P Average over HPD LED Ref",       process_, dbe_, debug_,cloneME_);
+  HO2Pphi       =getHisto2(folder+"HO2P Average over HPD LED Ref",       process_, dbe_, debug_,cloneME_);
+  HO1Mphi       =getHisto2(folder+"HO1M Average over HPD LED Ref",       process_, dbe_, debug_,cloneME_);
+  HO2Mphi       =getHisto2(folder+"HO2M Average over HPD LED Ref",       process_, dbe_, debug_,cloneME_);
+ 
   getSJ6histos("HcalDetDiagLEDMonitor/Summary Plots/","Channel LED Energy", ChannelsLEDEnergy);
   getSJ6histos("HcalDetDiagLEDMonitor/Summary Plots/","Channel LED Energy Reference", ChannelsLEDEnergyRef);
     
@@ -55,6 +64,13 @@ void HcalDetDiagLEDClient::getHistograms(){
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
+  me = dbe_->get("Hcal/HcalDetDiagLEDMonitor/HcalDetDiagLEDMonitor Reference Run");
+  if(me) {
+    string s=me->valueString();
+    char str[200]; 
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
+    ref_run=str;
   }
 } 
 bool HcalDetDiagLEDClient::haveOutput(){
@@ -92,7 +108,6 @@ double HcalDetDiagLEDClient::get_energy(char *subdet,int eta,int phi,int depth,i
 }
 
 static void printTableHeader(ofstream& file,char * header){
-
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      file << "<head>"<< endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
@@ -108,7 +123,6 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-/*
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
    if(ind==0){
      file << "<tr>";
@@ -158,14 +172,12 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
 }
-*/
 static void printTableTail(ofstream& file){
      file << "</table>"<< endl;
      file << "</body>"<< endl;
      file << "</html>"<< endl;
 }
 void HcalDetDiagLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-  /*
 int  MissingCnt=0;
 int  UnstableCnt=0;
 int  UnstableLEDCnt=0;
@@ -183,52 +195,6 @@ char *subdet[4]={"HB","HE","HO","HF"};
   HcalLogicalMapGenerator gen;
   HcalLogicalMap lmap(gen.createMap());
   HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
-  
-  //fill RM histograms: this part is incomplete, will be modefied later 
-  double hbp[18][4],nhbp[18][4],hbm[18][4],nhbm[18][4];
-  double hep[18][4],nhep[18][4],hem[18][4],nhem[18][4];
-  double hfp[18][4],nhfp[18][4],hfm[18][4],nhfm[18][4];
-  for(int i=0;i<18;i++) for(int j=0;j<4;j++)
-   hbp[i][j]=nhbp[i][j]=hbm[i][j]=nhbm[i][j]=hep[i][j]=nhep[i][j]=hem[i][j]=nhem[i][j]=hfp[i][j]=nhfp[i][j]=hfm[i][j]=nhfm[i][j]=0;
-  for(int sd=0;sd<4;sd++){
-      int feta=0,teta=0,fdepth=0,tdepth=0;
-      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2;}
-      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3;} 
-      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4;} 
-      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2;} 
-      for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
-         if(sd==3 && eta>-29 && eta<29) continue;
-	 if(sd==2) continue;
-         double ave =get_energy(subdet[sd],eta,phi,depth,1);
-         double ref =get_energy(subdet[sd],eta,phi,depth,2);
-         try{
-	    HcalDetId *detid=0;
-            if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
-            if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
-            //if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
-            if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	    HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
-	    int rbx; sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
-	    if(ave>0 && ref>0){
-	       if(sd==0 && eta>0){ hbp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbp[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==0 && eta<0){ hbm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhbm[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==1 && eta>0){ hep[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhep[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==1 && eta<0){ hem[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhem[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==3 && eta>0){ hfp[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfp[rbx-1][lmap_entry.rm()-1]++; }
-	       if(sd==3 && eta<0){ hfm[rbx-1][lmap_entry.rm()-1]+=ave/ref; nhfm[rbx-1][lmap_entry.rm()-1]++; }
-	    }
-	 }catch(...){ continue;}
-      }	
-  }  
-  for(int i=0;i<18;i++)for(int j=0;j<4;j++){
-     int phi=i*4+j+1; 
-     if(nhbp[i]) HBPphi->Fill(phi+0.5,hbp[i][j]/nhbp[i][j]);
-     if(nhbm[i]) HBMphi->Fill(phi+0.5,hbm[i][j]/nhbm[i][j]);
-     if(nhep[i]) HEPphi->Fill(phi+0.5,hep[i][j]/nhep[i][j]);
-     if(nhem[i]) HEMphi->Fill(phi+0.5,hem[i][j]/nhem[i][j]);
-     if(nhfp[i]) HFPphi->Fill(phi+0.5,hfp[i][j]/nhfp[i][j]);
-     if(nhfm[i]) HFMphi->Fill(phi+0.5,hfm[i][j]/nhfm[i][j]);
-  }
   
   // check how many problems we have:
   for(int sd=0;sd<4;sd++){
@@ -412,9 +378,10 @@ char *subdet[4]={"HB","HE","HO","HF"};
   gStyle->SetPadColor(0);
   gStyle->SetOptStat(111110);
   gStyle->SetPalette(1);
-  //TPaveStats *ptstats;
+ 
   TCanvas *can=new TCanvas("HcalDetDiagLEDClient","HcalDetDiagLEDClient",0,0,500,350);
   can->cd();
+  can->SetGridy();
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
   // html page header
@@ -578,6 +545,10 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<h2 align=\"center\">Summary LED plots</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
+  Time2Dhbhehf->SetMaximum(6);
+  Time2Dho->SetMaximum(6);
+  Time2Dhbhehf->SetNdivisions(36,"Y");
+  Time2Dho->SetNdivisions(36,"Y");
   Time2Dhbhehf->SetStats(0);
   Time2Dho->SetStats(0);
   Time2Dhbhehf->Draw("COLZ");    can->SaveAs((htmlDir + "led_timing_hbhehf.gif").c_str());
@@ -589,12 +560,15 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<tr align=\"left\">" << endl;
   Energy2Dhbhehf->SetStats(0);
   Energy2Dho->SetStats(0);
+  Energy2Dhbhehf->SetNdivisions(36,"Y");
+  Energy2Dho->SetNdivisions(36,"Y");
   Energy2Dhbhehf->Draw("COLZ");    can->SaveAs((htmlDir + "led_energy_hbhehf.gif").c_str());
   Energy2Dho->Draw("COLZ");        can->SaveAs((htmlDir + "led_energy_ho.gif").c_str());
   htmlFile << "<td align=\"center\"><img src=\"led_energy_hbhehf.gif\" alt=\"led energy distribution\">   </td>" << endl;
   htmlFile << "<td align=\"center\"><img src=\"led_energy_ho.gif\" alt=\"led energy distribution\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
   
+  can->SetGridy(false);
   htmlFile << "<tr align=\"left\">" << endl;  
   Energy->Draw();    can->SaveAs((htmlDir + "led_energy_distribution.gif").c_str());
   EnergyRMS->Draw(); can->SaveAs((htmlDir + "led_energy_rms_distribution.gif").c_str());
@@ -607,12 +581,31 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<td align=\"center\"><img src=\"led_timing_distribution.gif\" alt=\"led timing distribution\">   </td>" << endl;
   htmlFile << "<td align=\"center\"><img src=\"led_timing_rms_distribution.gif\" alt=\"led timing rms distribution\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;  
+  EnergyHF->Draw();    can->SaveAs((htmlDir + "led_energyhf_distribution.gif").c_str());
+  EnergyRMSHF->Draw(); can->SaveAs((htmlDir + "led_energyhf_rms_distribution.gif").c_str());
+  htmlFile << "<td align=\"center\"><img src=\"led_energyhf_distribution.gif\" alt=\"hf led energy distribution\">   </td>" << endl;
+  htmlFile << "<td align=\"center\"><img src=\"led_energyhf_rms_distribution.gif\" alt=\"hf led energy rms distribution\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  TimingHF->Draw();    can->SaveAs((htmlDir + "led_timinghf_distribution.gif").c_str());
+  TimingRMSHF->Draw(); can->SaveAs((htmlDir + "led_timinghf_rms_distribution.gif").c_str());
+  htmlFile << "<td align=\"center\"><img src=\"led_timinghf_distribution.gif\" alt=\"hf led timing distribution\">   </td>" << endl;
+  htmlFile << "<td align=\"center\"><img src=\"led_timinghf_rms_distribution.gif\" alt=\"hf led timing rms distribution\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   
-  ///////////////////////////////////////////   
-  htmlFile << "<h2 align=\"center\">Stability LED plots</h2>" << endl;
+  ///////////////////////////////////////////  
+  can->SetGridy(); 
+  can->SetGridx(); 
+  htmlFile << "<h2 align=\"center\">Stability LED plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
+  HBPphi->GetXaxis()->SetNdivisions(418,kFALSE);
+  HBMphi->GetXaxis()->SetNdivisions(418,kFALSE);
+  HEPphi->GetXaxis()->SetNdivisions(418,kFALSE);
+  HEMphi->GetXaxis()->SetNdivisions(418,kFALSE);
+  
   HBPphi->SetMarkerColor(kRed);
   HBPphi->SetMarkerStyle(23);
   HBPphi->SetXTitle("HPD Index = RBX*4+RM");
@@ -641,22 +634,64 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<tr align=\"left\">" << endl;
   HFPphi->SetMarkerColor(kRed);
   HFPphi->SetMarkerStyle(23);
-  HFPphi->SetXTitle("RoBox Index");
+  HFPphi->SetXTitle("RM Index = RoBox*3+RM");
   HFMphi->SetMarkerColor(kRed);
   HFMphi->SetMarkerStyle(23);
-  HFMphi->SetXTitle("RoBox Index");
+  HFPphi->GetXaxis()->SetNdivisions(312,kFALSE);
+  HFMphi->GetXaxis()->SetNdivisions(312,kFALSE);
+
+  HFMphi->SetXTitle("RM Index = RoBox*3+RM");
   HFPphi->Draw();    can->SaveAs((htmlDir + "led_hfp_distribution.gif").c_str());
   HFMphi->Draw();    can->SaveAs((htmlDir + "led_hfm_distribution.gif").c_str());
   htmlFile << "<td align=\"center\"><img src=\"led_hfp_distribution.gif\" alt=\"led hfp distribution\">   </td>" << endl;
   htmlFile << "<td align=\"center\"><img src=\"led_hfm_distribution.gif\" alt=\"led hfm distribution\">   </td>" << endl;
   htmlFile << "</tr>" << endl;  
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  HO1Pphi->SetMarkerColor(kRed);
+  HO1Pphi->SetMarkerStyle(23);
+  HO1Pphi->SetXTitle("HPD Index = RBX*4+RM");
+  HO1Mphi->SetMarkerColor(kRed);
+  HO1Mphi->SetMarkerStyle(23);
+  HO1Mphi->GetXaxis()->SetNdivisions(412,kFALSE);
+  HO1Pphi->GetXaxis()->SetNdivisions(412,kFALSE);
+
+  HO1Mphi->SetXTitle("HPD Index = RBX*4+RM");
+  HO1Pphi->Draw();    can->SaveAs((htmlDir + "led_ho1p_distribution.gif").c_str());
+  HO1Mphi->Draw();    can->SaveAs((htmlDir + "led_ho1m_distribution.gif").c_str());
+  htmlFile << "<td align=\"center\"><img src=\"led_ho1p_distribution.gif\" alt=\"led ho1p distribution\">   </td>" << endl;
+  htmlFile << "<td align=\"center\"><img src=\"led_ho1m_distribution.gif\" alt=\"led ho1m distribution\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;  
    
+  htmlFile << "<tr align=\"left\">" << endl;
+  HO2Pphi->SetMarkerColor(kRed);
+  HO2Pphi->SetMarkerStyle(23);
+  HO2Pphi->SetXTitle("HPD Index = RBX*4+RM");
+  HO2Mphi->SetMarkerColor(kRed);
+  HO2Mphi->SetMarkerStyle(23);
+  HO2Mphi->GetXaxis()->SetNdivisions(412,kFALSE);
+  HO2Pphi->GetXaxis()->SetNdivisions(412,kFALSE);
+
+  HO2Mphi->SetXTitle("HPD Index = RBX*4+RM");
+  HO2Pphi->Draw();    can->SaveAs((htmlDir + "led_ho2p_distribution.gif").c_str());
+  HO2Mphi->Draw();    can->SaveAs((htmlDir + "led_ho2m_distribution.gif").c_str());
+  htmlFile << "<td align=\"center\"><img src=\"led_ho2p_distribution.gif\" alt=\"led ho2p distribution\">   </td>" << endl;
+  htmlFile << "<td align=\"center\"><img src=\"led_ho2m_distribution.gif\" alt=\"led ho2m distribution\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;  
+  
+  htmlFile << "<tr align=\"left\">" << endl;
+  HO0phi->SetMarkerColor(kRed);
+  HO0phi->SetMarkerStyle(23);
+  HO0phi->SetXTitle("HPD Index = RBX*4+RM");
+  HO0phi->GetXaxis()->SetNdivisions(412,kFALSE);
+  HO0phi->Draw();    can->SaveAs((htmlDir + "led_ho0_distribution.gif").c_str());
+  htmlFile << "<td align=\"center\"><img src=\"led_ho0_distribution.gif\" alt=\"led ho0 distribution\">   </td>" << endl;
+  htmlFile << "</tr>" << endl;  
   
   htmlFile << "</table>" << endl;
   
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
-  */
 } 
 

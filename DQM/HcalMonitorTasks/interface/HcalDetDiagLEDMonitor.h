@@ -19,20 +19,20 @@ using namespace edm;
 using namespace std;
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-// to retrieve trigger information (local runs only)
+// to retrive trigger information (local runs only)
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
-// to retrieve GMT information, for cosmic runs muon triggers can be used as pedestal (global runs only)
+// to retrive GMT information, for cosmic runs muon triggers can be used as pedestal (global runs only)
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-// to retrieve trigger decision words, to select pedestal (from hcal point of view) triggers (global runs only)
+// to retrive trigger desition words, to select pedestal (from hcal point of view) triggers (global runs only)
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-//#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-//#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/05/07 09:09:14 $
-  * $Revision: 1.1.2.3 $
+  * $Date: 2009/07/01 06:09:21 $
+  * $Revision: 1.1.2.6 $
   * \author D. Vishnevskiy
   */
 
@@ -129,7 +129,9 @@ public:
   void fillHistos();
   int  GetStatistics(){ return ievt_; }
 private:
-  const HcalElectronicsMap  *emap;
+  HcalLogicalMapGenerator gen;
+  HcalElectronicsMap      emap;
+  HcalLogicalMap          *lmap;
   // in principle functions below shold use DB interface (will be modefied when DB will be ready...)  
   void SaveReference();
   void LoadReference();
@@ -155,7 +157,7 @@ private:
 	         if(phi==71 ||phi==72 || (phi>=1 && phi<=10)) PHI=71; else PHI=((phi-11)/12)*12+11;
              }
 	  }else if(SD==4){
-             if(eta>0) ETA=1; else eta=-1;
+             if(eta>0) ETA=1; else ETA=-1;
 	     if(phi>=1  && phi<=18) PHI=1;
 	     if(phi>=19 && phi<=36) PHI=19;
 	     if(phi>=37 && phi<=54) PHI=37;
@@ -173,19 +175,36 @@ private:
   bool        UseDB;
    
   std::string ReferenceData;
+  std::string ReferenceRun;
   std::string OutputFilePath;
 
   MonitorElement *meEVT_;
+  MonitorElement *RefRun_;
   MonitorElement *Energy;
   MonitorElement *Time;
+  MonitorElement *EnergyHF;
+  MonitorElement *TimeHF;
   MonitorElement *Time2Dhbhehf;
   MonitorElement *Time2Dho;
   MonitorElement *Energy2Dhbhehf;
   MonitorElement *Energy2Dho;
   MonitorElement *EnergyRMS;
   MonitorElement *TimeRMS;
+  MonitorElement *EnergyRMSHF;
+  MonitorElement *TimeRMSHF;
   MonitorElement *EnergyCorr;
-  
+  MonitorElement *HBPphi;
+  MonitorElement *HBMphi;
+  MonitorElement *HEPphi;
+  MonitorElement *HEMphi;
+  MonitorElement *HFPphi;
+  MonitorElement *HFMphi;
+  MonitorElement *HO0phi;
+  MonitorElement *HO1Pphi;
+  MonitorElement *HO2Pphi;
+  MonitorElement *HO1Mphi;
+  MonitorElement *HO2Mphi;
+
   HcalDetDiagLEDData hb_data[85][72][4];
   HcalDetDiagLEDData he_data[85][72][4];
   HcalDetDiagLEDData ho_data[85][72][4];
@@ -205,7 +224,8 @@ private:
   std::vector<MonitorElement*> ChannelStatusTimeRMS;
  
   void fill_channel_status(char *subdet,int eta,int phi,int depth,int type,double status);
-  void fill_energy(char *subdet,int eta,int phi,int depth,double e,int type);
+  void   fill_energy(char *subdet,int eta,int phi,int depth,double e,int type);
+  double get_energy(char *subdet,int eta,int phi,int depth,int type);
 };
 
 #endif

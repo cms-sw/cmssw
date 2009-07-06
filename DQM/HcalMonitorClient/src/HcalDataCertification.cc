@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.1.2.4 2009/03/28 14:03:10 temple Exp $
+// $Id: HcalDataCertification.cc,v 1.1.2.6 2009/06/28 20:24:09 temple Exp $
 //
 //
 

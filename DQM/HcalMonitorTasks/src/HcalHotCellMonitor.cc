@@ -1154,8 +1154,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
       depth=digi.id().depth();
       HcalDetId myid = digi.id();
       if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
-      cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
-      //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
+      //cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
+      const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
       calibs = cond.getHcalCalibrations(digi.id());
 
@@ -1233,8 +1233,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  HcalDetId myid = digi.id();
 	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
 
-	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
+	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
+	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 	  
@@ -1307,8 +1307,8 @@ void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedi
 	  HcalDetId myid = digi.id();
 	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
 
-	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  //const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
+	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
+	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
 
 	  calibs = cond.getHcalCalibrations(digi.id());
 
