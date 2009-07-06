@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.4 2009/07/06 09:42:23 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.5 2009/07/06 19:56:38 temple Exp $
 //
 //
 
@@ -88,7 +88,7 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
       virtual void endJob() ;
       
       double GetTime(double *data,int n){
-             int MaxI=-100; double Time,SumT=0,MaxT=-10;
+             int MaxI=-100; double Time=0,SumT=0,MaxT=-10;
              for(int j=0;j<n;++j) if(MaxT<data[j]){ MaxT=data[j]; MaxI=j; }
 	     if (MaxI>=0)
 	       {
