@@ -33,7 +33,6 @@ class EwkPdfWeightProducer : public edm::EDProducer {
 
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-//#include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
 #include "TSystem.h"
 #include "LHAPDF/LHAPDF.h"
 
