@@ -86,7 +86,7 @@ private:
   TH2F *Pedestals2DErrorHO;
    
   // Channel status
-  double get_channel_status(char *subdet,int eta,int phi,int depth,int type);
+  double get_channel_status(std::string subdet,int eta,int phi,int depth,int type);
   TH2F* ChannelStatusMissingChannels[6];
   TH2F* ChannelStatusUnstableChannels[6];
   TH2F* ChannelStatusBadPedestalMean[6];

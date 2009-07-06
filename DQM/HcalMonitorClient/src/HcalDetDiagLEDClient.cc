@@ -81,11 +81,11 @@ bool HcalDetDiagLEDClient::haveOutput(){
 int  HcalDetDiagLEDClient::SummaryStatus(){
     return status;
 }
-double HcalDetDiagLEDClient::get_channel_status(char *subdet,int eta,int phi,int depth,int type){
+double HcalDetDiagLEDClient::get_channel_status(std::string subdet,int eta,int phi,int depth,int type){
    int ind=-1;
-   if(strcmp(subdet,"HB")==0 || strcmp(subdet,"HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(strcmp(subdet,"HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(strcmp(subdet,"HO")==0) ind=3; 
+   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
+   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
+   else if(subdet.compare("HO")==0) ind=3; 
    if(ind==-1) return -1.0;
    if(type==1) return ChannelStatusMissingChannels[ind]  ->GetBinContent(eta+42,phi+1);
    if(type==2) return ChannelStatusUnstableChannels[ind] ->GetBinContent(eta+42,phi+1);
@@ -96,18 +96,18 @@ double HcalDetDiagLEDClient::get_channel_status(char *subdet,int eta,int phi,int
    if(type==7) return ChannelStatusTimeRMS[ind]          ->GetBinContent(eta+42,phi+1);
    return -1.0;
 }
-double HcalDetDiagLEDClient::get_energy(char *subdet,int eta,int phi,int depth,int type){
+double HcalDetDiagLEDClient::get_energy(std::string subdet,int eta,int phi,int depth,int type){
    int ind=-1;
-   if(strcmp(subdet,"HB")==0 || strcmp(subdet,"HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(strcmp(subdet,"HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(strcmp(subdet,"HO")==0) ind=3; 
+   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
+   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
+   else if(subdet.compare("HO")==0) ind=3; 
    if(ind==-1) return -1.0;
    if(type==1) return ChannelsLEDEnergy[ind]  ->GetBinContent(eta+42,phi+1);
    if(type==2) return ChannelsLEDEnergyRef[ind] ->GetBinContent(eta+42,phi+1);
    return -1.0;
 }
 
-static void printTableHeader(ofstream& file,char * header){
+static void printTableHeader(ofstream& file,std::string header){
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      file << "<head>"<< endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
@@ -123,7 +123,7 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
+static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
      file << "<td class=\"s4\" align=\"center\">#</td>"    << endl;
@@ -146,7 +146,7 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
      if(comment[0]!=0) file << "<td class=\"s1\" align=\"center\">Comment</td>"   << endl;
      file << "</tr>"   << endl;
    }
-   char *raw_class;
+   std::string raw_class;
    file << "<tr>"<< endl;
    if((ind%2)==1){
       raw_class="<td class=\"s2\" align=\"center\">";
@@ -190,7 +190,7 @@ int  HEM[7]={0,0,0,0,0,0,0};
 int  HFP[7]={0,0,0,0,0,0,0}; 
 int  HFM[7]={0,0,0,0,0,0,0}; 
 int  HO[7] ={0,0,0,0,0,0,0};  
-char *subdet[4]={"HB","HE","HO","HF"};
+std::string subdet[4]={"HB","HE","HO","HF"};
 
   HcalLogicalMapGenerator gen;
   HcalLogicalMap lmap(gen.createMap());
@@ -209,10 +209,10 @@ char *subdet[4]={"HB","HE","HO","HF"};
         for(int i=0;i<6;i++){
 	   problem[i] =get_channel_status(subdet[sd],eta,phi,depth,i+1);
            if(problem[i]!=0){
-	      if(sd==0)  if(eta>0) HBP[i]++; else HBM[i]++; 
-	      if(sd==1)  if(eta>0) HEP[i]++; else HEM[i]++; 
+	      if(sd==0)  {if(eta>0) HBP[i]++; else HBM[i]++;} 
+	      if(sd==1)  {if(eta>0) HEP[i]++; else HEM[i]++;} 
 	      if(sd==2)  HO[i]++; 
-	      if(sd==3)  if(eta>0) HFP[i]++; else HFM[i]++; 
+	      if(sd==3)  {if(eta>0) HFP[i]++; else HFM[i]++;} 
            }
         }
      }
@@ -400,10 +400,10 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: yellow; }"<< endl;
   htmlFile << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: green; }"<< endl;
   htmlFile << "   td.s5 { font-family: arial, arial ce, helvetica; background-color: silver; }"<< endl;
-  char *state[4]={"<td class=\"s2\" align=\"center\">",
-                  "<td class=\"s3\" align=\"center\">",
-		  "<td class=\"s4\" align=\"center\">",
-		  "<td class=\"s5\" align=\"center\">"};
+  std::string state[4]={"<td class=\"s2\" align=\"center\">",
+			"<td class=\"s3\" align=\"center\">",
+			"<td class=\"s4\" align=\"center\">",
+			"<td class=\"s5\" align=\"center\">"};
   htmlFile << "</style>"<< endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;

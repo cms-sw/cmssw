@@ -68,9 +68,9 @@ private:
   
   TH2F* ChannelsLEDEnergy[6];
   TH2F* ChannelsLEDEnergyRef[6];
-  double get_energy(char *subdet,int eta,int phi,int depth,int type);
+  double get_energy(std::string subdet,int eta,int phi,int depth,int type);
   // Channel status
-  double get_channel_status(char *subdet,int eta,int phi,int depth,int type);
+  double get_channel_status(std::string subdet,int eta,int phi,int depth,int type);
   TH2F* ChannelStatusMissingChannels[6];
   TH2F* ChannelStatusUnstableChannels[6];
   TH2F* ChannelStatusUnstableLEDsignal[6];

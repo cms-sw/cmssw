@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.3.2.3 2009/05/06 12:13:19 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.4 2009/07/06 09:42:23 temple Exp $
 //
 //
 
@@ -90,11 +90,14 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
       double GetTime(double *data,int n){
              int MaxI=-100; double Time,SumT=0,MaxT=-10;
              for(int j=0;j<n;++j) if(MaxT<data[j]){ MaxT=data[j]; MaxI=j; }
-             Time=MaxI*data[MaxI];
-             SumT=data[MaxI];
-             if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
-             if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
-             Time=Time/SumT;
+	     if (MaxI>=0)
+	       {
+		 Time=MaxI*data[MaxI];
+		 SumT=data[MaxI];
+		 if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
+		 if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
+		 Time=Time/SumT;
+	       }
              return Time;
       }
       bool isSignal(double *data,int n){
@@ -253,7 +256,7 @@ void HcalTimingMonitorModule::beginJob(const edm::EventSetup&){}
 void HcalTimingMonitorModule::endJob(){}
 
 void HcalTimingMonitorModule::initialize(){
-char *str;
+  std::string str;
   dbe_->setCurrentFolder(monitorName_+"DebugPlots");
   str="L1MuGMTReadoutRecord_getDTBXCands";   DTcand  =dbe_->book1D(str,str,5,-0.5,4.5);
   str="L1MuGMTReadoutRecord_getBrlRPCCands"; RPCbcand=dbe_->book1D(str,str,5,-0.5,4.5);
