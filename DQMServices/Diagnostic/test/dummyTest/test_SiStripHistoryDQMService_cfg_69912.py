@@ -73,7 +73,7 @@ process.siStripDQMHistoryPopCon = cms.EDAnalyzer("SiStripDQMHistoryPopCon",
 process.SiStripHistoryDQMService = cms.Service("SiStripHistoryDQMService",
                                                RunNb = cms.uint32(69912),
                                                accessDQMFile = cms.bool(True),
-                                               FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Cosmics__Commissioning08_CRAFT_ALL_V9_225-v2__RECO/69912/DQM_V0001_R000069912__Cosmics__Commissioning08_CRAFT_ALL_V9_225-v2__RECO_1.root"),
+                                               FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/Cosmics__Commissioning08_CRAFT_ALL_V11_227_Tosca090216_ReReco_FromTrackerPointing_v2__RAW-RECO/69912/DQM_V0001_R000069912__Cosmics__Commissioning08_CRAFT_ALL_V11_227_Tosca090216_ReReco_FromTrackerPointing_v2__RAW-RECO_1.root"),
                                                ME_DIR = cms.untracked.string("Run 69912/SiStrip"),
                                                histoList = cms.VPSet(
     

@@ -30,7 +30,9 @@ cmsRun test_SiStripHistoryDQMService_cfg_70416.py
 #*** This is to check that an already uploaded run will be not uploaded anymore
 cmsRun test_SiStripHistoryDQMService_cfg_69572.py
 
-
+#*** Upload summaries for pixels
+cmsRun test_SiPixelpHistoryDQMService_cfg_69912.py
+ 
 #****************
 #Create Trends
 #***************
