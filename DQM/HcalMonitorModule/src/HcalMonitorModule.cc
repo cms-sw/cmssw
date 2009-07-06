@@ -5,11 +5,11 @@
  * \file HcalMonitorModule.cc
  * 
 <<<<<<< HcalMonitorModule.cc
- * $Date: 2009/05/01 18:46:40 $
- * $Revision: 1.114 $
+ * $Date: 2009/05/05 15:41:29 $
+ * $Revision: 1.115 $
 =======
- * $Date: 2009/05/01 18:46:40 $
- * $Revision: 1.114 $
+ * $Date: 2009/05/05 15:41:29 $
+ * $Revision: 1.115 $
 >>>>>>> 1.111.4.2
  * \author W Fisher
  * \author J Temple
@@ -503,6 +503,9 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
 
 //--------------------------------------------------------
 void HcalMonitorModule::endJob(void) {
+  if ( dbe_ != NULL ){
+    meStatus_  = dbe_->get(rootFolder_+"DQM Job Status/STATUS");
+  }
   
   if ( meStatus_ ) meStatus_->Fill(2);
 
