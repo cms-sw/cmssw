@@ -46,7 +46,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   if ( m_dbe !=NULL ) {    
 
-    char* type;
+    std::string type;
     //    char name[128];
     m_dbe->setCurrentFolder(baseFolder_);
 
