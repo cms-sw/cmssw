@@ -115,9 +115,8 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
 template <class T> void
 TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
   using namespace std;
-  //cout << endl << "===== traj #measurements: " << traj->measurements().size() << endl;
 
-  // Nota Bene: At the moment the trajectories has the measurements with reversed sorting after the track smoothing. 
+  // WARNING: At the moment the trajectories has the measurements with reversed sorting after the track smoothing. 
   // Therefore the lastMeasurement is the inner one (for LHC-like tracks)
   if(traj->firstMeasurement().updatedState().isValid() &&
      traj->lastMeasurement().updatedState().isValid()){
@@ -134,9 +133,19 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
 			<<" Filling the secondary hit patterns was requested. So I will bail out.";
     }
     
-    PropagationDirection dirForInnerLayers = traj->direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
-    PropagationDirection dirForOuterLayers = traj->direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
+    //WARNING: we are assuming that the hits were originally sorted along momentum (and therefore oppositeToMomentum after smoothing)
+    if(traj->direction() != oppositeToMomentum){
+      throw cms::Exception("TrackProducer") 
+	<< "ERROR in setSecondHitPattern() logic. Trajectory direction (after smoothing) was not oppositeToMomentum. Bailing out.." << std::endl;
+    }
+    PropagationDirection dirForInnerLayers = oppositeToMomentum;
+    PropagationDirection dirForOuterLayers = alongMomentum;
+    // ----------- this previous block of code is not very safe. It should rely less on the sorting of the trajectory measurements -----
+
+   
+    LogDebug("TrackProducer") << "calling inner compLayers()...";
     std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,dirForInnerLayers);
+    LogDebug("TrackProducer") << "calling outer compLayers()...";
     std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,dirForOuterLayers);
 
     LogDebug("TrackProducer")
@@ -180,9 +189,6 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
   }else{
     cout << "inner or outer state was invalid" << endl;
   }
-
-
-  //DetLayer* layer = traj.lastLayer();
 
 }
 
