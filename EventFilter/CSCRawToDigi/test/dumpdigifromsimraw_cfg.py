@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCSimRawToDigiDump")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+process.GlobalTag.globaltag = 'MC_31X_V2::All'
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
@@ -20,12 +20,12 @@ process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNam
 # You must supply an appropriate data set containing simulated 'raw' data.
 # (The 'relval' samples do tell you what they contain.)
 
-# This is for 310p7 relval samples 20.05.2009
+# This is for 310 relval samples 05.07.2009
 
 readFiles.extend([
- '/store/relval/CMSSW_3_1_0_pre7/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0004/EE15A7EC-E641-DE11-A279-001D09F29321.root',
- '/store/relval/CMSSW_3_1_0_pre7/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0003/AA3C9C4E-4441-DE11-BC27-001617C3B76A.root',
- '/store/relval/CMSSW_3_1_0_pre7/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0003/40989E55-4441-DE11-B896-000423D98868.root'
+       '/store/relval/CMSSW_3_1_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0001/9AEF7C70-6066-DE11-B4C9-001D09F2516D.root',
+       '/store/relval/CMSSW_3_1_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0001/74CB8381-6066-DE11-8C1F-001D09F241F0.root',
+       '/store/relval/CMSSW_3_1_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0001/38770B61-DE66-DE11-BBF2-001D09F2545B.root'
 ])
 secFiles.extend([
 ])
@@ -40,18 +40,20 @@ process.dump = cms.EDFilter("CSCDigiDump",
 )
 
 # Activate the following code to turn on LogDebug/LogTrace messages from CSCRawToDigi
-##process.load("FWCore.MessageLogger.MessageLogger_cfi")
-##process.MessageLogger.debugModules.append('muonCSCDigis')
-##process.MessageLogger.categories.append('CSCRawToDigi')
-##process.MessageLogger.cout = cms.untracked.PSet(
-##  threshold     = cms.untracked.string('DEBUG'),
-##  default       = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-##  FwkReport     = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-##  CSCRawToDigi  = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
-##)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.debugModules.append('muonCSCDigis')
+process.MessageLogger.categories.append('CSCRawToDigi')
+process.MessageLogger.categories.append('CSCCFEBData')
+process.MessageLogger.cout = cms.untracked.PSet(
+  threshold     = cms.untracked.string('DEBUG'),
+  default       = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+  FwkReport     = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+##  CSCRawToDigi  = cms.untracked.PSet( limit = cms.untracked.int32(-1),
+  CSCCFEBData  = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+)
 
-# Only dump 100 events
-process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(100) )
+# Only dump 10 events
+process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(10) )
 
 process.muonCSCDigis.InputObjects = "rawDataCollector"
 process.muonCSCDigis.Debug = True
