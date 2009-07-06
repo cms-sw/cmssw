@@ -1230,62 +1230,65 @@ class PerfSuite:
                   #Append the test to the TestsToDo list:
                   TestsToDo.append(MemcheckPUArgs)  
                   print "Appended Memcheck PileUp test to the TestsToDo list"
-            #Here run the infinite loop that submits the PerfTest() threads on the available cores:
-            #Create a dictionaty to keep track of running threads on the various cores:
-            activePerfTestThreads={}
-            #Flag for waiting messages:
-            Waiting=False
-            while 1:
-               #Check if there are tests to run:
-               if TestsToDo:
-                  #Using the Waiting flag to avoid writing this message every 5 seconds in the case
-                  #of having more tests to do than available cores...
-                  if not Waiting:
-                     print "Currently %s tests are scheduled to be run:"%len(TestsToDo)
+            #Here if there are any IgProf, Callgrind or MemcheckEvents to be run,
+            #run the infinite loop that submits the PerfTest() threads on the available cores:
+            if IgProfEvents or CallgrindEvents or MemcheckEvents:
+               
+               #Create a dictionaty to keep track of running threads on the various cores:
+               activePerfTestThreads={}
+               #Flag for waiting messages:
+               Waiting=False
+               while 1:
+                  #Check if there are tests to run:
+                  if TestsToDo:
+                     #Using the Waiting flag to avoid writing this message every 5 seconds in the case
+                     #of having more tests to do than available cores...
+                     if not Waiting:
+                        print "Currently %s tests are scheduled to be run:"%len(TestsToDo)
+                        print TestsToDo
+                     #Check the available cores:
+                     if AvailableCores:
+                        #Set waiting flag to False since we'll be doing something
+                        Waiting=False
+                        print "There is/are %s core(s) available"%len(AvailableCores)
+                        cpu=AvailableCores.pop()
+                        print "Let's use cpu %s"%cpu
+                        simpleGenReportArgs=TestsToDo.pop()
+                        print "Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu)
+                        threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
+                        print "Starting thread %s"%threadToDo
+                        ReportExitCode=threadToDo.start()
+                        print "Adding thread %s to the list of active threads"%threadToDo
+                        activePerfTestThreads[cpu]=threadToDo
+                     #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
+                     else:
+                        pass
+                  #Test activePerfThreads:
+                  for cpu in activePerfTestThreads.keys():
+                     if activePerfTestThreads[cpu].isAlive():
+                        pass
+                     elif cpu not in AvailableCores:
+                        #Set waiting flag to False since we'll be doing something
+                        Waiting=False
+                        print time.ctime()
+                        print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
+                        print "About to append cpu %s to AvailableCores list"%cpu
+                        AvailableCores.append(cpu)
+                  if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
+                     print "WHEW! We're done... all TestsToDo are done..."
+                     print AvailableCores
                      print TestsToDo
-                  #Check the available cores:
-                  if AvailableCores:
-                     #Set waiting flag to False since we'll be doing something
-                     Waiting=False
-                     print "There is/are %s core(s) available"%len(AvailableCores)
-                     cpu=AvailableCores.pop()
-                     print "Let's use cpu %s"%cpu
-                     simpleGenReportArgs=TestsToDo.pop()
-                     print "Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu)
-                     threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
-                     print "Starting thread %s"%threadToDo
-                     ReportExitCode=threadToDo.start()
-                     print "Adding thread %s to the list of active threads"%threadToDo
-                     activePerfTestThreads[cpu]=threadToDo
-                  #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
+                     break
                   else:
-                     pass
-               #Test activePerfThreads:
-               for cpu in activePerfTestThreads.keys():
-                  if activePerfTestThreads[cpu].isAlive():
-                     pass
-                  elif cpu not in AvailableCores:
-                     #Set waiting flag to False since we'll be doing something
-                     Waiting=False
-                     print time.ctime()
-                     print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
-                     print "About to append cpu %s to AvailableCores list"%cpu
-                     AvailableCores.append(cpu)
-               if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
-                  print "WHEW! We're done... all TestsToDo are done..."
-                  print AvailableCores
-                  print TestsToDo
-                  break
-               else:
-                  #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
-                  time.sleep(5)
-                  #Use Waiting flag to writing 1 waiting message while waiting and avoid having 1 message every 5 seconds...
-                  if not Waiting:
-                     print time.ctime()
-                     print "Waiting for tests to be done..."
-                     sys.stdout.flush()
-                     Waiting=True
-                  
+                     #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
+                     time.sleep(5)
+                     #Use Waiting flag to writing 1 waiting message while waiting and avoid having 1 message every 5 seconds...
+                     if not Waiting:
+                        print time.ctime()
+                        print "Waiting for tests to be done..."
+                        sys.stdout.flush()
+                        Waiting=True
+            #End of the if for IgProf, Callgrind, Memcheck tests      
                   
             if benching and not (self._unittest or self._noexec):
                 #Ending the performance suite with the cmsScimark benchmarks again:

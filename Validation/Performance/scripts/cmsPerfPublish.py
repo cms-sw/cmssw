@@ -34,12 +34,16 @@ MemcheckNumOfEvents = -9999
 
 DirName=( #These need to match the candle directory names ending (depending on the type of profiling)
           "TimeSize",
-          "IgProf",          
+          "IgProf",
+          "IgProf_Perf",
+          "IgProf_Mem",
           "Callgrind",
          "Memcheck",
           #Adding the extra PU directories:
           "PU_TimeSize",
-          "PU_IgProf",          
+          "PU_IgProf",
+          "PU_IgProf_Perf",
+          "PU_IgProf_Mem",
           "PU_Callgrind",
           "PU_Memcheck"
           )
