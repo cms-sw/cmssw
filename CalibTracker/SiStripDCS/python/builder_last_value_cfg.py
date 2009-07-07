@@ -1,30 +1,37 @@
-# Import configurations
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("test")
+process = cms.Process("testbuilder")
 
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_nolb'),
+    ConfDb = cms.untracked.string('username/passwd@cms_omds_nolb'),
     TNS_ADMIN = cms.untracked.string('.'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
         TPDD = cms.untracked.PSet(
             PartitionName = cms.untracked.string('TP_08-AUG-2008_1'),
-            ForceCurrentState = cms.untracked.bool(True)
+            ForceVersions = cms.untracked.bool(True),
+            FecVersion    = cms.untracked.vuint32(430,2),
+            DcuDetIdsVersion = cms.untracked.vuint32(9,0)
         ),
         TMDD = cms.untracked.PSet(
             PartitionName = cms.untracked.string('TM_08-AUG-2008_1'),
-            ForceCurrentState = cms.untracked.bool(True)
+            ForceVersions = cms.untracked.bool(True),
+            FecVersion    = cms.untracked.vuint32(428,1),
+            DcuDetIdsVersion = cms.untracked.vuint32(9,0)
         ),
         TIDD = cms.untracked.PSet(
             PartitionName = cms.untracked.string('TI_08-AUG-2008_1'),
-            ForceCurrentState = cms.untracked.bool(True)
+            ForceVersions = cms.untracked.bool(True),
+            FecVersion    = cms.untracked.vuint32(427,1),
+            DcuDetIdsVersion = cms.untracked.vuint32(9,0)
         ),
         TODD = cms.untracked.PSet(
             PartitionName = cms.untracked.string('TO_08-AUG-2008_1'),
-            ForceCurrentState = cms.untracked.bool(True)
+            ForceVersions = cms.untracked.bool(True),
+            FecVersion    = cms.untracked.vuint32(415,3),
+            DcuDetIdsVersion = cms.untracked.vuint32(9,0)
         ),
         TEPD2 = cms.untracked.PSet(
             PartitionName = cms.untracked.string('TE_27-JUN-2008_2'),
@@ -104,54 +111,31 @@ process.SiStripConfigDb = cms.Service("SiStripConfigDb",
     )
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
-)
-process.source = cms.Source("EmptySource",
-    numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(1)
-)
+process.load("IORawData.SiStripInputSources.EmptySource_cff")
+process.maxEvents.input = 2
+
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND')
+process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/username')
 
 process.SiStripModuleHVBuilder = cms.Service("SiStripModuleHVBuilder",
-    onlineDB = cms.untracked.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND'),
+    onlineDB = cms.untracked.string('oracle://cms_omds_nolb/username'),
     authPath = cms.untracked.string('.'),
-# Format for date/time vector:  year, month, day, hour, minute, second, nanosecond
-    Tmin = cms.untracked.vint32(2008, 10, 16, 6, 0, 0, 0),
-    Tmax = cms.untracked.vint32(2008, 10, 18, 23, 0, 0, 0),
+# Format for date/time vector:  year, month, day, hour, minute, second, nanosecond                              
+    Tmin = cms.untracked.vint32(2008, 10, 13, 1, 0, 0, 0),
+    Tmax = cms.untracked.vint32(2008, 10, 13, 12, 0, 0, 0),
+# Do NOT change this unless you know what you are doing!
+    TSetMin = cms.untracked.vint32(2007, 11, 26, 0, 0, 0, 0),                                             
 # queryType can be either STATUSCHANGE or LASTVALUE                              
-    queryType = cms.untracked.string('STATUSCHANGE'),
+    queryType = cms.untracked.string('LASTVALUE'),
 # if reading lastValue from file put insert file name here                              
     lastValueFile = cms.untracked.string(''),
 # flag to show if you are reading from file for lastValue or not                              
-    lastValueFromFile = cms.untracked.bool(False)
+    lastValueFromFile = cms.untracked.bool(False),
+#
+    debugModeOn = cms.untracked.bool(False)
 )
 
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(2),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    timetype = cms.untracked.string('timestamp'),
-    connect = cms.string('sqlite_file:dbfile.db'),
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripModuleHVRcd'),
-        tag = cms.string('SiStripModuleHV_Fake_30X')
-    )),
-    logconnect = cms.untracked.string('sqlite_file:logfile.db')
-)
+process.test = cms.EDAnalyzer("testbuilding")
 
-process.siStripPopConModuleHV = cms.EDAnalyzer("SiStripPopConModuleHV",
-    record = cms.string('SiStripModuleHVRcd'),
-    loggingOn= cms.untracked.bool(True),
-    SinceAppendMode=cms.bool(True),
-    Source = cms.PSet(
-        name = cms.untracked.string('default')
-    )                                        
-)
-
-process.p = cms.Path(process.siStripPopConModuleHV)
-    
+process.p = cms.Path(process.test)

@@ -5,18 +5,100 @@ process = cms.Process("testbuilder")
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string(''),
-    TNS_ADMIN = cms.untracked.string(''),
+    ConfDb = cms.untracked.string('cms_trk_tkcc/fjrEipnl88@cms_omds_nolb'),
+    TNS_ADMIN = cms.untracked.string('.'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
-        DCUDETID = cms.untracked.PSet(
-            PartitionName = cms.untracked.string(''),
+        TPDD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TP_08-AUG-2008_1'),
             ForceCurrentState = cms.untracked.bool(True)
         ),
-        DCUPSU = cms.untracked.PSet(
-            PartitionName = cms.untracked.string(''),
+        TMDD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TM_08-AUG-2008_1'),
+            ForceCurrentState = cms.untracked.bool(True)
+        ),
+        TIDD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_08-AUG-2008_1'),
+            ForceCurrentState = cms.untracked.bool(True)
+        ),
+        TODD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TO_08-AUG-2008_1'),
+            ForceCurrentState = cms.untracked.bool(True)
+        ),
+        TEPD2 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_27-JUN-2008_2'),
             ForceVersions = cms.untracked.bool(True),
-            DcuPsuMapVersion = cms.untracked.vuint32(0, 0)
+            DcuPsuMapVersion = cms.untracked.vuint32(211, 2)
+        ),
+        TMPD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_17-JUN-2008_12'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(163, 1)
+        ),
+        TEPD1 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_24-JUN-2008_2'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(204, 1)
+        ),
+        TEPD4 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_30-JUN-2008_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(229, 1)
+        ),
+        TEPD3 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_27-JUN-2008_4'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(214, 1)
+        ),
+        TPPD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TE_17-JUN-2008_11'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(162, 1)
+        ),
+        TIPD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_17-JUN-2008_2'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(157, 1)
+        ),
+        TIPD2 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_18-JUN-2008_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(165, 1)
+        ),
+        TIPD3 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_18-JUN-2008_10'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(179, 1)
+        ),
+        TIPD4 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_20-JUN-2008_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(192, 1)
+        ),
+        TIPD5 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_27-JUN-2008_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(212, 1)
+        ),
+        TIPD6 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TI_27-JUN-2008_3'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(218, 1)
+        ),
+        TOPD = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TO_18-JUN-2008_1_TEST_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(177, 1)
+        ),
+        TOPD2 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TO_18-JUN-2008_2'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(178, 1)
+        ),
+        TOPD3 = cms.untracked.PSet(
+            PartitionName = cms.untracked.string('TO_30-JUN-2008_1'),
+            ForceVersions = cms.untracked.bool(True),
+            DcuPsuMapVersion = cms.untracked.vuint32(228, 1)
         )
     )
 )
@@ -26,14 +108,14 @@ process.maxEvents.input = 2
 
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('')
+process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND')
 
 process.SiStripModuleHVBuilder = cms.Service("SiStripModuleHVBuilder",
-    onlineDB = cms.untracked.string(''),
-    authPath = cms.untracked.string(''),
+    onlineDB = cms.untracked.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND'),
+    authPath = cms.untracked.string('.'),
 # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond                              
-    Tmin = cms.untracked.vint32(0, 0, 0, 0, 0, 0, 0),
-    Tmax = cms.untracked.vint32(0, 0, 0, 0, 0, 0, 0),
+    Tmin = cms.untracked.vint32(2008, 10, 16, 6, 0, 0, 0),
+    Tmax = cms.untracked.vint32(2008, 10, 18, 23, 0, 0, 0),
 # queryType can be either STATUSCHANGE or LASTVALUE                              
     queryType = cms.untracked.string('STATUSCHANGE'),
 # if reading lastValue from file put insert file name here                              
