@@ -16,7 +16,7 @@ RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyz
 
 
 echo "Run path = {" $RunPath "}"
-cmssw_version="3_1_0_pre11"
+cmssw_version="3_1_0"
 condition="MC_31X_V1-v1"
 
 #==========================================#
@@ -53,10 +53,19 @@ process.load(\"Validation.RecoMET.GenMET_cff\")
 process.load(\"Validation.RecoMET.HTMET_cff\")
 
 process.load(\"Validation.RecoMET.GenMETFromGenJets_cff\")
-
 process.load(\"DQMOffline.JetMET.caloTowers_cff\")
+process.towerSchemeBAnalyzer.FineBinning = True
+process.towerSchemeBAnalyzer.FolderName = \"RecoMETV/MET_CaloTowers/SchemeB\"
+process.towerOptAnalyzer.FineBinning = True
+process.towerOptAnalyzer.FolderName = \"RecoMETV/MET_CaloTowers/Optimized\"
+
 
 process.load(\"DQMOffline.JetMET.RecHits_cff\")
+process.ECALAnalyzer.FineBinning = True
+process.ECALAnalyzer.FolderName = \"RecoMETV/MET_ECAL/data\"
+process.HCALAnalyzer.FineBinning = True
+process.HCALAnalyzer.FolderName = \"RecoMETV/MET_HCAL/data\"
+
 
 process.load(\"Validation.RecoMET.PFMET_cff\")
 
