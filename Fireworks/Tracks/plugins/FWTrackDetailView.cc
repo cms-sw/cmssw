@@ -136,13 +136,20 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    assert(detIdToGeo != 0);
    nhits=hitpat.numberOfHits();
    for (int i = 0; i < nhits; ++i) {
+//   	printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
+//   	       nhits, track->recHitsEnd() - track->recHitsBegin(), (*(track->recHitsBegin() + i))->geographicalId().rawId());
       hittype[i] = 0x3 & hitpat.getHitPattern(i);
       stereo[i] = 0x1 & hitpat.getHitPattern(i) >> 2;
       subsubstruct[i] = 0xf & hitpat.getHitPattern(i) >> 3;
       substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
       detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
-//       res[0][i] = getSignedResidual(detIdToGeo, residuals.residualX(i, hitpat));
-      res[0][i] = residuals.residualX(i, hitpat);
+      if ((*(track->recHitsBegin() + i))->isValid()) {
+	   res[0][i] = getSignedResidual(detIdToGeo, 
+					 (*(track->recHitsBegin() + i))->geographicalId().rawId(),
+					 residuals.residualX(i, hitpat));
+      } else {
+	   res[0][i] = 0;
+      }
       res[1][i] = residuals.residualY(i, hitpat);
       if (debug) printf("%s, %i\n",det_tracker_str[substruct[i]-1],subsubstruct[i]);
    }
