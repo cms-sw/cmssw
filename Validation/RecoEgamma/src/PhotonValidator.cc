@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/01 09:38:32 $ 
- **  $Revision: 1.33 $
+ **  $Date: 2009/07/02 17:43:44 $ 
+ **  $Revision: 1.34 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -138,128 +138,6 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
 PhotonValidator::~PhotonValidator() {}
 
 
-
-
-void PhotonValidator::initVectors() { 
-
-
-
-  double etaMin = parameters_.getParameter<double>("etaMin");
-  double etaMax = parameters_.getParameter<double>("etaMax");
-  int etaBin = parameters_.getParameter<int>("etaBin");
-  int etaBin2 = parameters_.getParameter<int>("etaBin2");
-
-
- 
-  double phiMin = parameters_.getParameter<double>("phiMin");
-  double phiMax = parameters_.getParameter<double>("phiMax");
-  int    phiBin = parameters_.getParameter<int>("phiBin");
-
-
-
-  double rMin = parameters_.getParameter<double>("rMin");
-  double rMax = parameters_.getParameter<double>("rMax");
-  int    rBin = parameters_.getParameter<int>("rBin");
-
-  double zMin = parameters_.getParameter<double>("zMin");
-  double zMax = parameters_.getParameter<double>("zMax");
-  int    zBin = parameters_.getParameter<int>("zBin");
- 
-
-  double etMin = parameters_.getParameter<double>("etMin");
-  double etMax = parameters_.getParameter<double>("etMax");
-  int etBin = parameters_.getParameter<int>("etBin");
-
- 
-  double step=(etaMax-etaMin)/etaBin;
-  etaintervals_.push_back(etaMin);
-    for (int k=1;k<etaBin+1;k++) {
-      double d=etaMin+k*step;
-      etaintervals_.push_back(d);
-      totSimPhoEta_.push_back(0);     
-      totMatchedSimPhoEta_.push_back(0);     
-    }   
-
-    step=(etaMax-etaMin)/etaBin2;
-    etaintervalslarge_.push_back(etaMin);
-    for (int k=1;k<etaBin2+1;k++) {
-      double d=etaMin+k*step;
-      etaintervalslarge_.push_back(d);
-      totSimConvEta_.push_back(0);     
-      totMatchedSimPhoEtaSmallR9_.push_back(0);
-      totMatchedSimConvEtaTwoTracks_.push_back(0); 
-      totMatchedConvEtaTwoTracksWithVtx_.push_back(0);
-      totMatchedConvEtaTwoTracksWithVtxProbGT0_.push_back(0);
-      totMatchedConvEtaTwoTracksWithVtxProbGT005_.push_back(0);
-      totMatchedConvEtaTwoTracksWithVtxProbGT01_.push_back(0);
-      totMatchedSimConvEtaAllTwoTracks_.push_back(0);
-      totMatchedRecConvEtaTwoTracks_.push_back(0);     
-      totRecAssConvEtaTwoTracks_.push_back(0);     
-      
-      totMatchedSimConvEtaOneTrack_.push_back(0);      
-    }   
-    
-
-
-
-    step=(phiMax-phiMin)/phiBin;
-    phiintervals_.push_back(phiMin);
-    for (int k=1;k<phiBin+1;k++) {
-      double d=phiMin+k*step;
-      phiintervals_.push_back(d);
-      totSimPhoPhi_.push_back(0);     
-      totMatchedSimPhoPhi_.push_back(0);     
-      //
-      totSimConvPhi_.push_back(0);     
-      totMatchedSimConvPhiTwoTracks_.push_back(0);     
-      totMatchedRecConvPhiTwoTracks_.push_back(0);     
-      totRecAssConvPhiTwoTracks_.push_back(0);     
-    }   
-    step=(rMax-rMin)/rBin;
-    rintervals_.push_back(rMin);
-    for (int k=1;k<rBin+1;k++) {
-      double d=rMin+k*step;
-      rintervals_.push_back(d);
-      totSimConvR_.push_back(0);     
-      totMatchedSimConvRTwoTracks_.push_back(0);    
-      totMatchedSimConvRAllTwoTracks_.push_back(0);    
-      totMatchedRecConvRTwoTracks_.push_back(0);     
-      totRecAssConvRTwoTracks_.push_back(0);     
-      
-      totMatchedSimConvROneTrack_.push_back(0);      
-    }
-
-   
-    step=(zMax-zMin)/zBin;
-    zintervals_.push_back(zMin);
-    for (int k=1;k<zBin+1;k++) {
-      double d=zMin+k*step;
-      zintervals_.push_back(d);
-      totSimConvZ_.push_back(0);     
-      totMatchedSimConvZTwoTracks_.push_back(0);  
-      totMatchedRecConvZTwoTracks_.push_back(0);     
-      totRecAssConvZTwoTracks_.push_back(0);     
-    
-    }   
-
-    step=(etMax-etMin)/etBin;
-    etintervals_.push_back(etMin);
-    for (int k=1;k<etBin+1;k++) {
-      double d=etMin+k*step;
-      etintervals_.push_back(d);
-      totSimPhoEt_.push_back(0);     
-      totMatchedSimPhoEt_.push_back(0);     
-      totSimConvEt_.push_back(0);     
-      totMatchedSimConvEtTwoTracks_.push_back(0);  
-      totMatchedRecConvEtTwoTracks_.push_back(0);     
-      totRecAssConvEtTwoTracks_.push_back(0); 
-      totMatchedSimConvEtOneTrack_.push_back(0); 
-    }   
-    
-
-
-
-}
 
 
 void  PhotonValidator::beginJob() {
@@ -361,10 +239,6 @@ void  PhotonValidator::beginJob() {
   int    zBin2ForXray = parameters_.getParameter<int>("zBin2ForXray");
 
 
-  //////// set up vectors
-  initVectors();
-
-
 
   if (dbe_) {  
     //// All MC photons
@@ -372,78 +246,132 @@ void  PhotonValidator::beginJob() {
 
     dbe_->setCurrentFolder("Egamma/PhotonValidator/SimulationInfo");
     //
-  // simulation information about all MC photons found 
+    // simulation information about all MC photons found
     std::string histname = "nOfSimPhotons";    
-    h_nSimPho_[0] = dbe_->book1D(histname,"# of Sim photons per event ",20,-0.5,19.5);
-    histname = "SimPhoE";    
-    h_SimPhoE_[0] = dbe_->book1D(histname,"Sim photon energy spectrum",eBin,eMin,eMax);
-    histname = "SimPhoEt";    
-    h_SimPhoEt_[0] = dbe_->book1D(histname,"Sim photon tranverse energy spectrum",etBin,etMin,etMax);
-    h_SimPhoEta_[0] = dbe_->book1D("SimPhoEta"," Sim Photon Eta ",etaBin,etaMin, etaMax) ;
-    
-    h_SimPhoPhi_[0] = dbe_->book1D("SimPhoPhi"," Sim Photon  Phi ",phiBin,phiMin,phiMax) ;
+    h_nSimPho_[0] = dbe_->book1D(histname,"# of Sim photons per event ",20,-0.5,19.5); 
     histname = "SimPhoMotherEt";    
     h_SimPhoMotherEt_[0] = dbe_->book1D(histname,"Sim photon Mother tranverse energy spectrum",etBin,etMin,etMax);
     h_SimPhoMotherEta_[0] = dbe_->book1D("SimPhoMotherEta"," Sim Photon Mother Eta ",etaBin,etaMin, etaMax) ;
-
-    // simulation information about those MC photons matched by a reco Photon 
-    histname = "nOfSimPhotonsMatched";    
-    h_nSimPho_[1] = dbe_->book1D(histname,"# of Sim photons matched by a reco Photon per event ",20,-0.5,19.5);
-    histname = "SimPhoEMatched";    
-    h_SimPhoE_[1] = dbe_->book1D(histname,"Sim photon matched by a reco Photon: energy spectrum",eBin,eMin,eMax);
-    histname = "SimPhoEtMatched";    
-    h_SimPhoEt_[1] = dbe_->book1D(histname,"Sim photon matched by a reco Photon: tranverse energy spectrum",etBin,etMin,etMax);
-    h_SimPhoEta_[1] = dbe_->book1D("SimPhoEtaMatched"," Sim Photon matched by a reco Photon: Eta ",etaBin,etaMin, etaMax) ;
-    
-    h_SimPhoPhi_[1] = dbe_->book1D("SimPhoPhiMatched"," Sim Photon  matched by a reco Photon: Phi ",phiBin,phiMin,phiMax) ;
     histname = "SimPhoMotherEtMatched";    
     h_SimPhoMotherEt_[1] = dbe_->book1D(histname,"Sim photon  matched by a reco Photon: Mother tranverse energy spectrum",etBin,etMin,etMax);
     h_SimPhoMotherEta_[1] = dbe_->book1D("SimPhoMotherEtaMatched"," Sim Photon matched by a reco Photon:  Mother Eta ",etaBin,etaMin, etaMax) ;
-
-
     //
+    histname = "h_SimPhoEta";
+    h_SimPho_[0] =  dbe_->book1D(histname," All photons simulated #eta",etaBin,etaMin, etaMax);
+    histname = "h_SimPhoPhi";
+    h_SimPho_[1] =  dbe_->book1D(histname," All photons simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimPhoEt";
+    h_SimPho_[2] =  dbe_->book1D(histname," All photons simulated Et",etBin,etMin, etMax);
+    // Numerators
+    histname = "nOfSimPhotonsMatched";    
+    h_nSimPho_[1] = dbe_->book1D(histname,"# of Sim photons matched by a reco Photon per event ",20,-0.5,19.5);
+    histname = "h_MatchedSimPhoEta";
+    h_MatchedSimPho_[0] =  dbe_->book1D(histname," Matching photons simulated #eta",etaBin,etaMin, etaMax);
+    histname = "h_MatchedSimPhoPhi";
+    h_MatchedSimPho_[1] =  dbe_->book1D(histname," Matching photons simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_MatchedSimPhoEt";
+    h_MatchedSimPho_[2] =  dbe_->book1D(histname," Matching photons simulated Et",etBin,etMin, etMax);
+    /// Histograms for efficiencies
     histname = "nOfSimConversions";    
     h_nSimConv_[0] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
-    histname = "SimConvE";    
-    h_SimConvE_[0]= dbe_->book1D(histname,"Sim conversions energy spectrum",eBin,eMin,eMax);
-    histname = "SimConvEt";    
-    h_SimConvEt_[0] = dbe_->book1D(histname,"Sim conversion tranverse energy spectrum",etBin,etMin,etMax);
-    h_SimConvEta_[0] = dbe_->book1D("SimConvEta"," Sim Conversion Eta ",etaBin,etaMin, etaMax) ;
-
-
-
-    h_SimConvPhi_[0] = dbe_->book1D("SimConvPhi"," Sim Conversion  Phi ",phiBin,phiMin,phiMax) ;
-    h_SimConvR_[0] = dbe_->book1D("SimConvR"," Sim Conversion Radius ",rBin,rMin,rMax) ;
-    h_SimConvZ_[0] = dbe_->book1D("SimConvZ"," Sim Conversion Z ",zBin,zMin,zMax) ;
-    //   
+    /// Denominators
+    histname = "h_AllSimConvEta";
+    h_AllSimConv_[0] =  dbe_->book1D(histname," All conversions: simulated #eta",etaBin2,etaMin,etaMax);
+    histname = "h_AllSimConvPhi";
+    h_AllSimConv_[1] =  dbe_->book1D(histname," All conversions: simulated #phi",phiBin,phiMin,phiMax);
+    histname = "h_AllSimConvR";
+    h_AllSimConv_[2] =  dbe_->book1D(histname," All conversions: simulated R",rBin,rMin,rMax);
+    histname = "h_AllSimConvZ";
+    h_AllSimConv_[3] =  dbe_->book1D(histname," All conversions: simulated Z",zBin,zMin,zMax);
+    histname = "h_AllSimConvEt";
+    h_AllSimConv_[4] =  dbe_->book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
+    //
     histname = "nOfVisSimConversions";    
     h_nSimConv_[1] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
-    histname = "VisSimConvE";    
-    h_SimConvE_[1]= dbe_->book1D(histname,"Sim conversions energy spectrum",eBin,eMin,eMax);
-    histname = "VisSimConvEt";    
-    h_SimConvEt_[1] = dbe_->book1D(histname,"Visible Sim conversion tranverse energy spectrum",etBin,etMin,etMax);
-    h_SimConvEta_[1] = dbe_->book1D("VisSimConvEta"," Visible Sim Conversion Eta ",etaBin,etaMin, etaMax) ;
+    histname = "h_VisSimConvEta";
+    h_VisSimConv_[0] =  dbe_->book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_VisSimConvPhi";
+    h_VisSimConv_[1] =  dbe_->book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_VisSimConvR";
+    h_VisSimConv_[2] =  dbe_->book1D(histname," All vis conversions: simulated R",rBin,rMin,rMax);
+    histname = "h_VisSimConvZ";
+    h_VisSimConv_[3] =  dbe_->book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
+    histname = "h_VisSimConvEt";
+    h_VisSimConv_[4] =  dbe_->book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
+    /// Numerators 
+    histname = "h_SimConvOneTracksEta";
+    h_SimConvOneTracks_[0] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvOneTracksPhi";
+    h_SimConvOneTracks_[1] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvOneTracksR";
+    h_SimConvOneTracks_[2] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvOneTracksZ";
+    h_SimConvOneTracks_[3] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvOneTracksEt";
+    h_SimConvOneTracks_[4] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated Et",etBin,etMin, etMax);
+    //
+    histname = "h_SimConvTwoMTracksEta";
+    h_SimConvTwoMTracks_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvTwoMTracksPhi";
+    h_SimConvTwoMTracks_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvTwoMTracksR";
+    h_SimConvTwoMTracks_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvTwoMTracksZ";
+    h_SimConvTwoMTracks_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvTwoMTracksEt";
+    h_SimConvTwoMTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+    //
+    histname = "h_SimConvTwoTracksEta";
+    h_SimConvTwoTracks_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvTwoTracksPhi";
+    h_SimConvTwoTracks_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvTwoTracksR";
+    h_SimConvTwoTracks_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvTwoTracksZ";
+    h_SimConvTwoTracks_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvTwoTracksEt";
+    h_SimConvTwoTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
+    // 
+    histname = "h_SimConvOneMTracksEta";
+    h_SimConvOneMTracks_[0] =  dbe_->book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvOneMTracksPhi";
+    h_SimConvOneMTracks_[1] =  dbe_->book1D(histname," All vis conversions with 1 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvOneMTracksR";
+    h_SimConvOneMTracks_[2] =  dbe_->book1D(histname," All vis conversions with 1 reco-matching tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvOneMTracksZ";
+    h_SimConvOneMTracks_[3] =  dbe_->book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvOneMTracksEt";
+    h_SimConvOneMTracks_[4] =  dbe_->book1D(histname," All vis conversions with 1 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+    //
+    histname = "h_SimConvTwoMTracksEtaAndVtxPGT0";
+    h_SimConvTwoMTracksAndVtxPGT0_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvTwoMTracksPhiAndVtxPGT0";
+    h_SimConvTwoMTracksAndVtxPGT0_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvTwoMTracksRAndVtxPGT0";
+    h_SimConvTwoMTracksAndVtxPGT0_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvTwoMTracksZAndVtxPGT0";
+    h_SimConvTwoMTracksAndVtxPGT0_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
+    h_SimConvTwoMTracksAndVtxPGT0_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+    // 
+    histname = "h_SimConvTwoMTracksEtaAndVtxPGT005";
+    h_SimConvTwoMTracksAndVtxPGT005_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_SimConvTwoMTracksPhiAndVtxPGT005";
+    h_SimConvTwoMTracksAndVtxPGT005_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_SimConvTwoMTracksRAndVtxPGT005";
+    h_SimConvTwoMTracksAndVtxPGT005_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+    histname = "h_SimConvTwoMTracksZAndVtxPGT005";
+    h_SimConvTwoMTracksAndVtxPGT005_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+    histname = "h_SimConvTwoMTracksEtAndVtxPGT005";
+    h_SimConvTwoMTracksAndVtxPGT005_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+
 
     h_SimConvEtaPix_[0] = dbe_->book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
-
-
-    h_SimConvPhi_[1] = dbe_->book1D("VisSimConvPhi"," Visible Sim Conversion  Phi ",phiBin,phiMin,phiMax) ;
-    h_SimConvR_[1] = dbe_->book1D("VisSimConvR"," Visible Sim Conversion Radius ",rBin,rMin,rMax) ;
-    h_SimConvZ_[1] = dbe_->book1D("VisSimConvZ"," Visible Sim Conversion Z ",zBin,zMin,zMax) ;
     h_simTkPt_ = dbe_->book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
     h_simTkEta_ = dbe_->book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
    
 
     dbe_->setCurrentFolder("Egamma/PhotonValidator/Photons");
-
-    //// Reconstructed photons
-    histname = "recoEffVsEta";
-    phoEffEta_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated #eta",etaBin,etaMin, etaMax);
-    histname = "recoEffVsPhi";
-    phoEffPhi_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated #phi",phiBin,phiMin, phiMax);
-    histname = "recoEffVsEt";
-    phoEffEt_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated Et",etBin,etMin, etMax) ;
-
 
     h_phoEta_[0] = dbe_->book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoPhi_[0] = dbe_->book1D("phoPhi"," Photon  Phi ",phiBin,phiMin,phiMax) ;
@@ -629,8 +557,8 @@ void  PhotonValidator::beginJob() {
     h2_eResVsEta_[1] = dbe_->book2D(histname+"Unconv"," Unconv photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
 
     histname="pEResVsEta";
-    p_eResVsEta_[0] = dbe_->book1D(histname+"All"," All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
-    p_eResVsEta_[1] = dbe_->book1D(histname+"Unconv"," Unconv photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
+    p_eResVsEta_[0] = dbe_->bookProfile(histname+"All","All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+    p_eResVsEta_[1] = dbe_->bookProfile(histname+"Unconv","Unconv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
 
 
     histname="eResVsEt";
@@ -644,17 +572,15 @@ void  PhotonValidator::beginJob() {
     h2_eResVsEt_[2][1] = dbe_->book2D(histname+"unconvEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
     h2_eResVsEt_[2][2] = dbe_->book2D(histname+"convEndcap"," All photons E/Etrue vs true Et: Endcap ",etBin,etMin, etMax,100, 0.9, 1.1);
     histname="pEResVsEt";
-    p_eResVsEt_[0][0] = dbe_->book1D(histname+"All"," All photons  E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax);
-    p_eResVsEt_[0][1] = dbe_->book1D(histname+"unconv"," All photons  E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax);
-    p_eResVsEt_[0][2] = dbe_->book1D(histname+"conv"," All photons  E/Etrue vs true Et: all Ecal ",etBin,etMin, etMax);
-    p_eResVsEt_[1][0] = dbe_->book1D(histname+"Barrel"," All photons  E/Etrue vs true Et: Barrel ",etBin,etMin, etMax);
-    p_eResVsEt_[1][1] = dbe_->book1D(histname+"unconvBarrel"," All photons  E/Etrue vs true Et: Barrel ",etBin,etMin, etMax);
-    p_eResVsEt_[1][2] = dbe_->book1D(histname+"convBarrel"," All photons  E/Etrue vs true Et: Barrel ",etBin,etMin, etMax);
-    p_eResVsEt_[2][0] = dbe_->book1D(histname+"Endcap"," All photons  E/Etrue vs true Et: Endcap ",etBin,etMin, etMax);
-    p_eResVsEt_[2][1] = dbe_->book1D(histname+"unconvEndcap"," All photons  E/Etrue vs true Et: Endcap ",etBin,etMin, etMax);
-    p_eResVsEt_[2][2] = dbe_->book1D(histname+"convEndcap"," All photons  E/Etrue vs true Et: Endcap ",etBin,etMin, etMax);
-
-
+    p_eResVsEt_[0][0] = dbe_->bookProfile(histname+"All","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[0][1] = dbe_->bookProfile(histname+"unconv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[0][2] = dbe_->bookProfile(histname+"conv","All photons  E/Etrue vs Et: all Ecal ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[1][0] = dbe_->bookProfile(histname+"Barrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[1][1] = dbe_->bookProfile(histname+"unconvBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[1][2] = dbe_->bookProfile(histname+"convBarrel","All photons  E/Etrue vs Et: Barrel ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[2][0] = dbe_->bookProfile(histname+"Endcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[2][1] = dbe_->bookProfile(histname+"unconvEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+    p_eResVsEt_[2][2] = dbe_->bookProfile(histname+"convEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
 
 
     histname="eResVsR9";
@@ -662,17 +588,17 @@ void  PhotonValidator::beginJob() {
     h2_eResVsR9_[1] = dbe_->book2D(histname+"Barrel"," All photons E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
     h2_eResVsR9_[2] = dbe_->book2D(histname+"Endcap"," All photons E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
     histname="pEResVsR9";
-    p_eResVsR9_[0] = dbe_->book1D(histname+"All"," All photons  E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max);
-    p_eResVsR9_[1] = dbe_->book1D(histname+"Barrel"," All photons  E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max);
-    p_eResVsR9_[2] = dbe_->book1D(histname+"Endcap"," All photons  E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max);
+    p_eResVsR9_[0] = dbe_->bookProfile(histname+"All"," All photons  E/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+    p_eResVsR9_[1] = dbe_->bookProfile(histname+"Barrel"," All photons  E/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+    p_eResVsR9_[2] = dbe_->bookProfile(histname+"Endcap"," All photons  E/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
     histname="sceResVsR9";
     h2_sceResVsR9_[0] = dbe_->book2D(histname+"All"," All photons scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,100, 0., 2.5);
     h2_sceResVsR9_[1] = dbe_->book2D(histname+"Barrel"," All photons scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,100, 0.,2.5);
     h2_sceResVsR9_[2] = dbe_->book2D(histname+"Endcap"," All photons scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,100, 0., 2.5);
     histname="scpEResVsR9";
-    p_sceResVsR9_[0] = dbe_->book1D(histname+"All"," All photons  scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max);
-    p_sceResVsR9_[1] = dbe_->book1D(histname+"Barrel"," All photons  scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max);
-    p_sceResVsR9_[2] = dbe_->book1D(histname+"Endcap"," All photons  scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max);
+    p_sceResVsR9_[0] = dbe_->bookProfile(histname+"All"," All photons  scE/Etrue vs R9: all Ecal ",r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,""); 
+    p_sceResVsR9_[1] = dbe_->bookProfile(histname+"Barrel"," All photons  scE/Etrue vs R9: Barrel ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
+    p_sceResVsR9_[2] = dbe_->bookProfile(histname+"Endcap"," All photons  scE/Etrue vs R9: Endcap ",  r9Bin*2,r9Min, r9Max,resBin,resMin, resMax,"");
  
 
 
@@ -694,53 +620,6 @@ void  PhotonValidator::beginJob() {
 
 
     dbe_->setCurrentFolder("Egamma/PhotonValidator/ConversionInfo");
-
-    histname = "convEffVsEtaTwoTracks";
-    convEffEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convEffVsEtaAllTwoTracks";
-    convEffEtaAllTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-
-    histname = "convEffVsEtaTwoTracksAndVtx";
-    convEffEtaTwoTracksAndVtx_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convEffVsEtaTwoTracksAndVtx2";
-    convEffEtaTwoTracksAndVtx2_ =  dbe_->book1D(histname,"Conversion vertex fitting efficiency vs #eta",etaBin2,etaMin, etaMax);
-    histname = "convEffVsEtaTwoTracksAndVtxProbGT0";
-    convEffEtaTwoTracksAndVtxProbGT0_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convEffVsEtaTwoTracksAndVtxProbGT005";
-    convEffEtaTwoTracksAndVtxProbGT005_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convEffVsEtaTwoTracksAndVtxProbGT01";
-    convEffEtaTwoTracksAndVtxProbGT01_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-
-
-    histname = "convEffVsEtTwoTracks";
-    convEffEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
-    histname = "convEffVsPhiTwoTracks";
-    convEffPhiTwoTracks_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
-    histname = "convEffVsRTwoTracks";
-    convEffRTwoTracks_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
-    histname = "convEffVsRAllTwoTracks";
-    convEffRAllTwoTracks_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
-    histname = "convEffVsZTwoTracks";
-    convEffZTwoTracks_ =  dbe_->book1D(histname,histname,zBin,zMin,zMax);
-
-    histname = "convEffVsEtaOneTrack";
-    convEffEtaOneTrack_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convEffVsROneTrack";
-    convEffROneTrack_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
-    histname = "convEffVsEtOneTrack";
-    convEffEtOneTrack_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
-
-
-    histname = "convFakeRateVsEtaTwoTracks";
-    convFakeRateEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-    histname = "convFakeRateVsPhiTwoTracks";
-    convFakeRatePhiTwoTracks_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
-    histname = "convFakeRateVsRTwoTracks";
-    convFakeRateRTwoTracks_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
-    histname = "convFakeRateVsZTwoTracks";
-    convFakeRateZTwoTracks_ =  dbe_->book1D(histname,histname,zBin,zMin,zMax);
-    histname = "convFakeRateVsEtTwoTracks";
-    convFakeRateEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
 
 
     histname="nConv";
@@ -805,35 +684,36 @@ void  PhotonValidator::beginJob() {
     histname="EoverEtrueVsEta";
     h2_EoverEtrueVsEta_[0] = dbe_->book2D(histname+"All"," photons conversion with 2 (associated) reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
     histname="pEoverEtrueVsEta";
-    p_EoverEtrueVsEta_[0] = dbe_->book1D(histname+"All"," photons conversion with 2 (associated) reco tracks E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
+    p_EoverEtrueVsEta_[0] = dbe_->bookProfile(histname+"All"," photons conversion with 2 (associated) reco tracks E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100,0.,2.5,"");
+
 
     histname="EoverEtrueVsEta";
     h2_EoverEtrueVsEta_[1] = dbe_->book2D(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
     histname="pEoverEtrueVsEta";
-    p_EoverEtrueVsEta_[1] = dbe_->book1D(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
+    p_EoverEtrueVsEta_[1] = dbe_->bookProfile(histname+"All2"," photons conversion  2 reco tracks  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5,"");
 
 
     histname="EoverEtrueVsR";
     h2_EoverEtrueVsR_[0] = dbe_->book2D(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin, rMax,100, 0., 2.5);
     histname="pEoverEtrueVsR";
-    p_EoverEtrueVsR_[0] = dbe_->book1D(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax);
+    p_EoverEtrueVsR_[0] = dbe_->bookProfile(histname+"All"," photons conversion E/Etrue vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 2.5, "");
 
 
 
     histname="PoverPtrueVsEta";
     h2_PoverPtrueVsEta_[0] = dbe_->book2D(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
     histname="pPoverPtrueVsEta";
-    p_PoverPtrueVsEta_[0] = dbe_->book1D(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
+    p_PoverPtrueVsEta_[0] = dbe_->bookProfile(histname+"All"," photons conversion P/Ptrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.,""); 
 
     histname="EoverPVsEta";
     h2_EoverPVsEta_[0] = dbe_->book2D(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 5.);
     histname="pEoverPVsEta";
-    p_EoverPVsEta_[0] = dbe_->book1D(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax);
+    p_EoverPVsEta_[0] = dbe_->bookProfile(histname+"All"," photons conversion E/P vs #eta: all Ecal ",etaBin2,etaMin, etaMax, 100, 0., 5.,"");
 
     histname="EoverPVsR";
     h2_EoverPVsR_[0] = dbe_->book2D(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin, rMax,100, 0., 5.);
     histname="pEoverPVsR";
-    p_EoverPVsR_[0] = dbe_->book1D(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin,rMax);
+    p_EoverPVsR_[0] = dbe_->bookProfile(histname+"All"," photons conversion E/P vs R: all Ecal ",rBin,rMin,rMax, 100, 0., 5.,"");
 
     histname="etaVsRsim";
     h2_etaVsRsim_[0] = dbe_->book2D(histname+"All"," eta(sim) vs R (sim) for associated conversions: all Ecal ",etaBin, etaMin, etaMax,rBin,rMin, rMax);
@@ -859,12 +739,12 @@ void  PhotonValidator::beginJob() {
     histname="hDPhiTracksAtVtxVsEta";
     h2_DPhiTracksAtVtxVsEta_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta",etaBin2,etaMin, etaMax,100, -0.5, 0.5);
     histname="pDPhiTracksAtVtxVsEta";
-    p_DPhiTracksAtVtxVsEta_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax);
+    p_DPhiTracksAtVtxVsEta_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax, 100, -0.5, 0.5,"");
 
     histname="hDPhiTracksAtVtxVsR";
     h2_DPhiTracksAtVtxVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
     histname="pDPhiTracksAtVtxVsR";
-    p_DPhiTracksAtVtxVsR_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax);
+    p_DPhiTracksAtVtxVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,""); 
 
 
     histname="hDCotTracks";
@@ -876,20 +756,18 @@ void  PhotonValidator::beginJob() {
     histname="hDCotTracksVsEta";
     h2_DCotTracksVsEta_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta",etaBin2,etaMin, etaMax,100, -0.2, 0.2);
     histname="pDCotTracksVsEta";
-    p_DCotTracksVsEta_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax);
+    p_DCotTracksVsEta_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax, 100, -0.2, 0.2,"");
 
     histname="hDCotTracksVsR";
     h2_DCotTracksVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
     histname="pDCotTracksVsR";
-    p_DCotTracksVsR_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax);
+    p_DCotTracksVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,""); 
 
 
     histname="hDistMinAppTracks";
     h_distMinAppTracks_[1][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",dEtaTracksBin,-0.1,0.6); 
     h_distMinAppTracks_[1][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",dEtaTracksBin,-0.1,0.6); 
     h_distMinAppTracks_[1][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",dEtaTracksBin,-0.1,0.6); 
-
-
 
     histname="hDPhiTracksAtEcal";
     h_DPhiTracksAtEcal_[1][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal : all Ecal ",dPhiTracksBin,0.,dPhiTracksMax); 
@@ -898,12 +776,12 @@ void  PhotonValidator::beginJob() {
     histname="h2_DPhiTracksAtEcalVsR";
     h2_DPhiTracksAtEcalVsR_= dbe_->book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs R : all Ecal ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax);
     histname="pDPhiTracksAtEcalVsR";
-    p_DPhiTracksAtEcalVsR_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs R ",rBin,rMin, rMax);
+    p_DPhiTracksAtEcalVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs R ",rBin,rMin, rMax, dPhiTracksBin,0.,dPhiTracksMax,"");
 
     histname="h2_DPhiTracksAtEcalVsEta";
     h2_DPhiTracksAtEcalVsEta_= dbe_->book2D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal vs #eta : all Ecal ",etaBin2,etaMin, etaMax, dPhiTracksBin,0.,dPhiTracksMax);
     histname="pDPhiTracksAtEcalVsEta";
-    p_DPhiTracksAtEcalVsEta_ = dbe_->book1D(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs #eta ",etaBin2,etaMin, etaMax);
+    p_DPhiTracksAtEcalVsEta_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta#phi at Ecal  vs #eta ",etaBin2,etaMin, etaMax,dPhiTracksBin,0.,dPhiTracksMax,""); 
 
 
 
@@ -925,9 +803,9 @@ void  PhotonValidator::beginJob() {
     h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -20.,20.);
 
     h2_convVtxdRVsR_ =  dbe_->book2D("h2ConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
-    p_convVtxdRVsR_ =  dbe_->book1D("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax);
+    p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
     h2_convVtxdRVsEta_ =  dbe_->book2D("h2ConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
-    p_convVtxdRVsEta_ =  dbe_->book1D("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax);
+    p_convVtxdRVsEta_ =  dbe_->bookProfile("pConvVtxdRVsEta","Photon Reco conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
     
     h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
 
@@ -943,26 +821,25 @@ void  PhotonValidator::beginJob() {
     h_zPVFromTracks_[1] =  dbe_->book1D("zPVFromTracks"," Photons: PV z from conversion tracks",100, -25., 25.);
     h_dzPVFromTracks_[1] =  dbe_->book1D("dzPVFromTracks"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
     h2_dzPVVsR_ =  dbe_->book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
-    p_dzPVVsR_ =  dbe_->book1D("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax);
-
+    p_dzPVVsR_ =  dbe_->bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
 
 
     //////////////////// plots per track
     histname="nHitsVsEta";
     nHitsVsEta_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,25,0., 25.);
     histname="h_nHitsVsEta";
-    h_nHitsVsEta_[0] =  dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax);
+    p_nHitsVsEta_[0] =  dbe_->bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
 
     histname="nHitsVsEta";
     nHitsVsEta_[1] =  dbe_->book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax,25,0., 25.);
     histname="h_nHitsVsEta";
-    h_nHitsVsEta_[1] =  dbe_->book1D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax);
+    p_nHitsVsEta_[1] =  dbe_->bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs #eta associated tracks",etaBin,etaMin, etaMax, 25,-0.5, 24.5,"");
 
 
     histname="nHitsVsR";
     nHitsVsR_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,25,0.,25);
     histname="h_nHitsVsR";
-    h_nHitsVsR_[0] =  dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax);
+    p_nHitsVsR_[0] =  dbe_->bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
     histname="tkChi2";
     h_tkChi2_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);  
     histname="tkChi2Large";
@@ -971,7 +848,7 @@ void  PhotonValidator::beginJob() {
     histname="nHitsVsR";
     nHitsVsR_[1] =  dbe_->book2D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks" ,rBin,rMin, rMax,25,0.,25);
     histname="h_nHitsVsR";
-    h_nHitsVsR_[1] =  dbe_->book1D(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks",rBin,rMin, rMax);
+    p_nHitsVsR_[1] =  dbe_->bookProfile(histname+"AssTracks","Photons:Tracks from conversions: # of hits vs radius associated tracks",rBin,rMin, rMax, 25,-0.5, 24.5,"");
 
     histname="tkChi2";
     h_tkChi2_[1] = dbe_->book1D(histname+"AssTracks","Photons:Tracks from conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max); 
@@ -981,13 +858,13 @@ void  PhotonValidator::beginJob() {
     histname="h2Chi2VsEta";
     h2_Chi2VsEta_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max); 
     histname="pChi2VsEta";
-    p_Chi2VsEta_[0]=dbe_->book1D(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax);
+    p_Chi2VsEta_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,""); 
 
 
     histname="h2Chi2VsR";
     h2_Chi2VsR_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
     histname="pChi2VsR";
-    p_Chi2VsR_[0]=dbe_->book1D(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax);
+    p_Chi2VsR_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
 
 
 
@@ -1008,7 +885,7 @@ void  PhotonValidator::beginJob() {
     histname="h2TkPtPullEta";
     h2_TkPtPull_[0]=dbe_->book2D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax,100, -10., 10.);
     histname="pTkPtPullEta";
-    p_TkPtPull_[0]=dbe_->book1D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax);
+    p_TkPtPull_[0]=dbe_->bookProfile(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax, 100, -10., 10., " ");
 
 
     histname="PtRecVsPtSim";
@@ -1033,7 +910,33 @@ void  PhotonValidator::beginJob() {
     h_trkProv_[0] = dbe_->book1D("allTrkProv"," Track pair provenance ",4, 0., 4.);
     h_trkProv_[1] = dbe_->book1D("assTrkProv"," Track pair provenance ",4, 0., 4.);
 
-  }
+    // histos for fake rate
+    histname = "h_RecoConvTwoTracksEta";
+    h_RecoConvTwoTracks_[0] =  dbe_->book1D(histname," All reco conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_RecoConvTwoTracksPhi";
+    h_RecoConvTwoTracks_[1] =  dbe_->book1D(histname," All reco conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_RecoConvTwoTracksR";
+    h_RecoConvTwoTracks_[2] =  dbe_->book1D(histname," All reco conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_RecoConvTwoTracksZ";
+    h_RecoConvTwoTracks_[3] =  dbe_->book1D(histname," All reco conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_RecoConvTwoTracksEt";
+    h_RecoConvTwoTracks_[4] =  dbe_->book1D(histname," All reco conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
+    //
+    histname = "h_RecoConvTwoMTracksEta";
+    h_RecoConvTwoMTracks_[0] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_RecoConvTwoMTracksPhi";
+    h_RecoConvTwoMTracks_[1] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated #phi",phiBin,phiMin, phiMax);
+    histname = "h_RecoConvTwoMTracksR";
+    h_RecoConvTwoMTracks_[2] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated R",rBin,rMin, rMax);
+    histname = "h_RecoConvTwoMTracksZ";
+    h_RecoConvTwoMTracks_[3] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Z",zBin,zMin, zMax);
+    histname = "h_RecoConvTwoMTracksEt";
+    h_RecoConvTwoMTracks_[4] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Et",etBin,etMin, etMax);
+
+
+
+
+  } // if DQM 
 
 
 
@@ -1069,14 +972,13 @@ void  PhotonValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetu
 
 
 
-void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup )
-{
+void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {
   
   
   using namespace edm;
-  const float etaPhiDistance=0.01;
+  //  const float etaPhiDistance=0.01;
   // Fiducial region
-  const float TRK_BARL =0.9;
+  // const float TRK_BARL =0.9;
   const float BARL = 1.4442; // DAQ TDR p.290
   const float END_LO = 1.566;
   const float END_HI = 2.5;
@@ -1086,20 +988,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   nEvt_++;  
   LogInfo("PhotonValidator") << "PhotonValidator Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
-  //  LogDebug("PhotonValidator") << "PhotonValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
-  std::cout << "PhotonValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
+  //std::cout << "PhotonValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
-
-  // get the  calo topology  from the event setup:
-  edm::ESHandle<CaloTopology> pTopology;
-  esup.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloTopology *topology = theCaloTopo_.product();
 
   // get the geometry from the event setup:
   esup.get<CaloGeometryRecord>().get(theCaloGeom_);
 
 
- // Transform Track into TransientTrack (needed by the Vertex fitter)
+  // Transform Track into TransientTrack (needed by the Vertex fitter)
   edm::ESHandle<TransientTrackBuilder> theTTB;
   esup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTB);
 
@@ -1126,12 +1022,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   
 
 
- // Loop over Out In Tracks 
+  // Loop over Out In Tracks 
   int iTrk=0;
   int nHits=0;
   for( View<reco::Track>::const_iterator    iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
-    std::cout  << " Barrel  Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2() ) << "\n";  
-    std::cout  << " Barrel Out In Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) <<  " inner position R " <<  sqrt( iTk->innerPosition().Perp2() ) << "\n";  
+    //    std::cout  << " Barrel  Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2() ) << "\n";  
+    // std::cout  << " Barrel Out In Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) <<  " inner position R " <<  sqrt( iTk->innerPosition().Perp2() ) << "\n";  
     h_OIinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );
     for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
       if ( (*itHits)->isValid() ) {
@@ -1147,11 +1043,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     
   }
   
-// Loop over In Out Tracks Barrel
+  // Loop over In Out Tracks Barrel
   iTrk=0;
   for( View<reco::Track>::const_iterator    iTk =  (*inOutTrkHandle).begin(); iTk !=  (*inOutTrkHandle).end(); iTk++) {
-    std::cout  << " Barrel In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2())  << "\n";  
-    std::cout   << " Barrel In Out  Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) << "\n"; 
+    //std::cout  << " Barrel In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2())  << "\n";  
+    // std::cout   << " Barrel In Out  Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) << "\n"; 
     h_IOinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );  
     nHits=0;
     for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
@@ -1259,10 +1155,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   }
   
 
-  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
+  //cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
     if ( signal_ ) if ( (*mcPho).motherType() != -1 ) continue;
+    
 
     float mcPhi= (*mcPho).fourMomentum().phi();
     mcPhi_= phiNormalization(mcPhi);
@@ -1282,33 +1179,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     nSimPho_[0]++;
-    h_SimPhoE_[0]->Fill(  (*mcPho).fourMomentum().e());
-    h_SimPhoEt_[0]->Fill(  (*mcPho).fourMomentum().et());
-    h_SimPhoEta_[0]->Fill( mcEta_ ) ;
-    h_SimPhoPhi_[0]->Fill( mcPhi_ );
-
     h_SimPhoMotherEt_[0]->Fill(  (*mcPho).motherMomentum().et()  );
     h_SimPhoMotherEta_[0]->Fill(  (*mcPho).motherMomentum().pseudoRapidity());
 
-    for (unsigned int f=0; f<etaintervals_.size()-1; f++){
-      if (mcEta_>etaintervals_[f]&&
-	  mcEta_<etaintervals_[f+1]) {
-	totSimPhoEta_[f]++;
-      }
-    }
-    for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-      if (mcPhi_>phiintervals_[f]&&
-	  mcPhi_<phiintervals_[f+1]) {
-	totSimPhoPhi_[f]++;
-      }
-    }
-    for (unsigned int f=0; f<etintervals_.size()-1; f++){
-      if ((*mcPho).fourMomentum().et() >etintervals_[f]&&
-	  (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
-	totSimPhoEt_[f]++;
-      }
-    }
+    h_SimPho_[0]->Fill ( mcEta_);
+    h_SimPho_[1]->Fill ( mcPhi_);
+    h_SimPho_[2]->Fill ( (*mcPho).motherMomentum().et()   );
 
+
+    
 
     ////////////////////////////////// extract info about simulated conversions 
     
@@ -1317,15 +1196,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     bool visibleConversionsWithTwoSimTracks=false;
     if (  (*mcPho).isAConversion() == 1 ) {
       nSimConv_[0]++;
-      h_SimConvE_[0]->Fill(  (*mcPho).fourMomentum().e());
-      h_SimConvEt_[0]->Fill(  (*mcPho).fourMomentum().et());
-      h_SimConvEta_[0]->Fill( mcEta_ ) ;
-
+      h_AllSimConv_[0]->Fill( mcEta_ ) ;
+      h_AllSimConv_[1]->Fill( mcPhi_ );
+      h_AllSimConv_[2]->Fill( mcConvR_ );
+      h_AllSimConv_[3]->Fill( mcConvZ_ );
+      h_AllSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
+      
       if ( mcConvR_ <15) h_SimConvEtaPix_[0]->Fill( mcEta_ ) ;
-
-      h_SimConvPhi_[0]->Fill( mcPhi_ );
-      h_SimConvR_[0]->Fill( mcConvR_ );
-      h_SimConvZ_[0]->Fill( mcConvZ_ );
 
       if ( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  || 
            ( fabs(mcEta_) > BARL && fabs(mcEta_) <=END_HI && fabs( (*mcPho).vertex().z() ) < 210 )  ) visibleConversion=true;
@@ -1333,7 +1210,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       theConvTP_.clear(); 
-      std::cout << " PhotonValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
+      //std::cout << " PhotonValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       for(size_t i = 0; i < trackingParticles.size(); ++i){
 	TrackingParticleRef tp (ElectronTPHandle,i);
 	//std::cout << "  Electron pt " << tp -> pt() << " charge " << tp -> charge() << " pdgId " << tp->pdgId() << " Hits for this track: " << tp -> trackPSimHit().size() << std::endl;      
@@ -1358,12 +1235,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if (   visibleConversion && visibleConversionsWithTwoSimTracks )  goodSimConversion=true;
       if ( goodSimConversion ) {
 	nSimConv_[1]++;	
-	h_SimConvE_[1]->Fill(  (*mcPho).fourMomentum().e());
-	h_SimConvEt_[1]->Fill(  (*mcPho).fourMomentum().et());
-	h_SimConvEta_[1]->Fill( mcEta_ ) ;
-	h_SimConvPhi_[1]->Fill( mcPhi_ );
-	h_SimConvR_[1]->Fill( mcConvR_ );
-	h_SimConvZ_[1]->Fill( mcConvZ_ );
+	h_VisSimConv_[0]->Fill( mcEta_ ) ;
+	h_VisSimConv_[1]->Fill( mcPhi_ );
+	h_VisSimConv_[2]->Fill( mcConvR_ );
+	h_VisSimConv_[3]->Fill( mcConvZ_ );
+	h_VisSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
+	
 	
         if ( useTP ) { 
 	  for ( vector<TrackingParticleRef>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
@@ -1371,43 +1248,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    h_simTkEta_ -> Fill ( (*iTrk)->eta() );
 	  }
 	}
-
-	////////// Denominators for conversion efficiencies
-	for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	  if (mcEta_>etaintervalslarge_[f]&&
-	      mcEta_<etaintervalslarge_[f+1]) {
-	    totSimConvEta_[f]++;
-	  }
-	}
-	for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-	  if (mcPhi_>phiintervals_[f]&&
-	      mcPhi_<phiintervals_[f+1]) {
-	    totSimConvPhi_[f]++;
-	  }
-	}
-	for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	  if (mcConvR_>rintervals_[f]&&
-	      mcConvR_<rintervals_[f+1]) {
-	    totSimConvR_[f]++;
-	  }
-	}
-	for (unsigned int f=0; f<zintervals_.size()-1; f++){
-	  if (mcConvZ_>zintervals_[f]&&
-	      mcConvZ_<zintervals_[f+1]) {
-	    totSimConvZ_[f]++;
-	  }
-	}
-	for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	  if ((*mcPho).fourMomentum().et() >etintervals_[f]&&
-	      (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
-	    totSimConvEt_[f]++;
-	  }
-	}
-
-
-      
       }
-      
     }  ////////////// End of info from sim conversions //////////////////////////////////////////////////
 
 
@@ -1441,36 +1282,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   
     if ( matched ) {
-      for (unsigned int f=0; f<etaintervals_.size()-1; f++){
-	if (mcEta_>etaintervals_[f]&&
-	    mcEta_<etaintervals_[f+1]) {
-	  totMatchedSimPhoEta_[f]++;
-	}
-      }
-      for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-	if (mcPhi_>phiintervals_[f]&&
-	    mcPhi_<phiintervals_[f+1]) {
-	  totMatchedSimPhoPhi_[f]++;
-	}
-      }
-      for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	if ((*mcPho).fourMomentum().et()>etintervals_[f]&&
-	    (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
-	  totMatchedSimPhoEt_[f]++;
-	}
-      }
-
-
-
       nSimPho_[1]++;
-      h_SimPhoE_[1]->Fill(  (*mcPho).fourMomentum().e());
-      h_SimPhoEt_[1]->Fill(  (*mcPho).fourMomentum().et());
-      h_SimPhoEta_[1]->Fill( mcEta_ ) ;
-      h_SimPhoPhi_[1]->Fill( mcPhi_ );
-      
+
       h_SimPhoMotherEt_[1]->Fill(  (*mcPho).motherMomentum().et()  );
       h_SimPhoMotherEta_[1]->Fill(  (*mcPho).motherMomentum().pseudoRapidity());
 
+      h_MatchedSimPho_[0]->Fill( mcEta_ ) ;
+      h_MatchedSimPho_[1]->Fill( mcPhi_ );
+      h_MatchedSimPho_[2]->Fill(  (*mcPho).fourMomentum().et());
+      
     }
 
 
@@ -1510,6 +1330,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       
     }
 
+   
+
     int type=0;
     const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
     float photonE = matchingPho.energy();
@@ -1523,6 +1345,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     float hcalIso = matchingPho.hcalTowerSumEtConeDR04();
     float trkIso =  matchingPho.trkSumPtSolidConeDR04();
     float nIsoTrk   =  matchingPho.nTrkSolidConeDR04();
+
+    
   
     h_scEta_[type]->Fill( matchingPho.superCluster()->eta() );
     h_scPhi_[type]->Fill( matchingPho.superCluster()->phi() );
@@ -1577,12 +1401,19 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     //
     h_phoERes_[0][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
     h2_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
+    p_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
+
     h2_eResVsEt_[0][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+    p_eResVsEt_[0][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+
     h2_eResVsR9_[0]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
     h2_sceResVsR9_[0]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+    p_eResVsR9_[0]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
+    p_sceResVsR9_[0]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
     //
     if (  (*mcPho).isAConversion() == 0 ) {
       h2_eResVsEta_[1]->Fill (mcEta_, photonE/ (*mcPho).fourMomentum().e()  ) ;
+      p_eResVsEta_[1]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
 
 
       h2_r9VsEta_[1] -> Fill (mcEta_, r9);
@@ -1613,7 +1444,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }
 
 
-
+    
  
     if ( photonE/(*mcPho).fourMomentum().e()  < 0.3 &&   photonE/(*mcPho).fourMomentum().e() > 0.1 ) {
       //      std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho.superCluster()->eta() << " pho eta " << matchingPho.eta() << std::endl;
@@ -1624,11 +1455,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     if ( r9 > 0.93 )  {
       h_phoERes_[1][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
       h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
-      
+      p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;      
+
     } else if ( r9 <= 0.93 ) {  
       h_phoERes_[2][0]->Fill(photonE / (*mcPho).fourMomentum().e() );
       h2_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+      p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
     }
+
+    
           
     if ( phoIsInBarrel ) {
       h_scE_[type][1]->Fill( matchingPho.superCluster()->energy() );
@@ -1645,23 +1480,31 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_isoTrkSolidConeDR04_[type][1]->Fill( trkIso );
       h_nTrkSolidConeDR04_[type][1]->Fill( nIsoTrk );
 
+      
       h_phoE_[type][1]->Fill( photonE );
       h_phoEt_[type][1]->Fill( photonEt );
       h_nConv_[type][1]->Fill(float( matchingPho.conversions().size()));
       
+      
       h_phoERes_[0][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
       h2_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
       h2_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+      p_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
+      p_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 
       h2_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+      p_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 
+      
       if ( r9 > 0.93 ) {  
 	h_phoERes_[1][1]->Fill(  photonE  / (*mcPho).fourMomentum().e() );
 	h2_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+	p_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
       }
       if ( r9 <= 0.93 )  { 
 	h_phoERes_[2][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	h2_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+	p_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
       }
     }
     if ( phoIsInEndcap ) {
@@ -1684,32 +1527,35 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_phoERes_[0][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
       h2_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;     
       h2_sceResVsR9_[2]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+      p_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;     
+      p_sceResVsR9_[2]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 
       h2_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+      p_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 
       if ( r9 > 0.93 ) {  
 
 	h_phoERes_[1][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	h2_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+	p_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
       }
       if ( r9 <= 0.93 ) {
 	h_phoERes_[2][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
-	h2_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
+	h2_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
       }
     }
       
 
 
-
-    
+        
     if ( ! (visibleConversion &&  visibleConversionsWithTwoSimTracks ) ) continue;
     h_r9_[1][0]->Fill( r9 );
     if ( phoIsInBarrel ) h_r9_[1][1]->Fill( r9 );
     if ( phoIsInEndcap ) h_r9_[1][2]->Fill( r9 );
     
-    
     h_nConv_[type][0]->Fill(float( matchingPho.conversions().size()));          
-    
+
     
     ////////////////// plot quantitied related to conversions
     reco::ConversionRefVector conversions = matchingPho.conversions();
@@ -1718,6 +1564,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
  
       
       h2_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+      p_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
       
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
@@ -1769,17 +1616,19 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //     
       
       int nAssT2=0;
-      int nAssT1=0;
+      // unused      int nAssT1=0;
       float px=0;
       float py=0;
       float pz=0;
       float e=0;
-      std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
+      // std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
       for (unsigned int i=0; i<tracks.size(); i++) {
 
         type =0;
-	nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
-	nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
+	nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits())-0.0001 );
+	nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits())-0.0001 );
+	p_nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
+	p_nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
 	h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() ); 
 
         px+= tracks[i]->innerMomentum().x();
@@ -1800,7 +1649,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	  if( q.find(myTk ) != q.end() ) {
 	    std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
-	    for (int itp=0; itp<tp.size(); itp++) {
+	    for (unsigned int itp=0; itp<tp.size(); itp++) {
 	      myTP=tp[itp].first;
 	      //      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
 	      myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
@@ -1827,54 +1676,31 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       ////////// Numerators for conversion absolute efficiency 
       if ( tracks.size() ==1  ) {
-	for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	  if (mcEta_>etaintervalslarge_[f]&&
-	      mcEta_<etaintervalslarge_[f+1]) {
-	    totMatchedSimConvEtaOneTrack_[f]++;
-	    
-	  }
-	}
-	
-	for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	  if (mcConvR_>rintervals_[f]&&
-	      mcConvR_<rintervals_[f+1]) {
-	    totMatchedSimConvROneTrack_[f]++;
-	  }
-	}
-	
-	for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	  if ((*mcPho).fourMomentum().et()>etintervals_[f]&&
-	      (*mcPho).fourMomentum().et()<etintervals_[f+1]) {
-	    totMatchedSimConvEtOneTrack_[f]++;
-	  }
-	}
-      }
+	h_SimConvOneTracks_[0]->Fill( mcEta_ ) ;
+	h_SimConvOneTracks_[1]->Fill( mcPhi_ );
+	h_SimConvOneTracks_[2]->Fill( mcConvR_ );
+	h_SimConvOneTracks_[3]->Fill( mcConvZ_ );
+	h_SimConvOneTracks_[4]->Fill(  (*mcPho).fourMomentum().et());
 
 
+      } else if ( tracks.size() ==2 ) {
 
+	h_SimConvTwoTracks_[0]->Fill( mcEta_ ) ;
+	h_SimConvTwoTracks_[1]->Fill( mcPhi_ );
+	h_SimConvTwoTracks_[2]->Fill( mcConvR_ );
+	h_SimConvTwoTracks_[3]->Fill( mcConvZ_ );
+	h_SimConvTwoTracks_[4]->Fill(  (*mcPho).fourMomentum().et());
 
-      if ( tracks.size() ==2 ) {
-	h_convEta_[1]->Fill( aConv->caloCluster()[0]->eta() );	
-	
-	for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	  if (mcEta_>etaintervalslarge_[f]&&
-	      mcEta_<etaintervalslarge_[f+1]) {
-	    totMatchedSimConvEtaAllTwoTracks_[f]++;
-	  }
-	}
-	for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	  if (mcConvR_>rintervals_[f]&&
-	      mcConvR_<rintervals_[f+1]) {
-	    totMatchedSimConvRAllTwoTracks_[f]++;
-	  }
-	}
-	
+	h_convEta_[1]->Fill( aConv->caloCluster()[0]->eta() );		
+
 	float trkProvenance=3;
 	if ( tracks[0]->algoName() == "outInEcalSeededConv"  &&  tracks[1]->algoName() == "outInEcalSeededConv" ) trkProvenance=0;
 	if ( tracks[0]->algoName() == "inOutEcalSeededConv"  &&  tracks[1]->algoName() == "inOutEcalSeededConv" ) trkProvenance=1;
 	if ( ( tracks[0]->algoName() == "outInEcalSeededConv"  &&  tracks[1]->algoName() == "inOutEcalSeededConv") || 
 	     ( tracks[1]->algoName() == "outInEcalSeededConv"  &&  tracks[0]->algoName() == "inOutEcalSeededConv") ) trkProvenance=2;
-	if ( trkProvenance==3 ) std::cout << " PhotonValidator provenance of tracks is " << tracks[0]->algoName() << " and " << tracks[1]->algoName() << std::endl;
+	if ( trkProvenance==3 ) {
+	  // std::cout << " PhotonValidator provenance of tracks is " << tracks[0]->algoName() << " and " << tracks[1]->algoName() << std::endl;
+	}
 	h_trkProv_[0]->Fill( trkProvenance );
 	
 	
@@ -1892,57 +1718,40 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h_convEta_[2]->Fill( aConv->caloCluster()[0]->eta() );	
 
 	  nRecConvAss_++;
-	
-	  for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	    if (mcEta_>etaintervalslarge_[f]&&
-		mcEta_<etaintervalslarge_[f+1]) {
-	      totMatchedSimConvEtaTwoTracks_[f]++;
-	      if ( aConv->conversionVertex().isValid() ) {
-		if ( trkProvenance==3 ) std::cout << " PhotonValidator provenance of tracks is mixed and vertex is valid " << std::endl;
-                totMatchedConvEtaTwoTracksWithVtx_[f]++;
-		float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
-                if (   chi2Prob > 0)                
-		  totMatchedConvEtaTwoTracksWithVtxProbGT0_[f]++;
-                if (   chi2Prob > 0.005)                
-		  totMatchedConvEtaTwoTracksWithVtxProbGT005_[f]++;
-                if (   chi2Prob > 0.01)                
-		  totMatchedConvEtaTwoTracksWithVtxProbGT01_[f]++;
-		
-	      }   
-	    }
-	  }
-	  for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-	    if (mcPhi_>phiintervals_[f]&&
-		mcPhi_<phiintervals_[f+1]) {
-	      totMatchedSimConvPhiTwoTracks_[f]++;
-	    }
-	  }
-	  for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	    if (mcConvR_>rintervals_[f]&&
-		mcConvR_<rintervals_[f+1]) {
-	      totMatchedSimConvRTwoTracks_[f]++;
-	    }
-	  }
-	  for (unsigned int f=0; f<zintervals_.size()-1; f++){
-	    if (mcConvZ_>zintervals_[f]&&
-		mcConvZ_<zintervals_[f+1]) {
-	      totMatchedSimConvZTwoTracks_[f]++;
-	    }
-	  }
-	  for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	    if ((*mcPho).fourMomentum().et()>etintervals_[f]&&
-		(*mcPho).fourMomentum().et()<etintervals_[f+1]) {
-	      totMatchedSimConvEtTwoTracks_[f]++;
-	    }
-	  }
 
+
+	  h_SimConvTwoMTracks_[0]->Fill( mcEta_ ) ;
+	  h_SimConvTwoMTracks_[1]->Fill( mcPhi_ );
+	  h_SimConvTwoMTracks_[2]->Fill( mcConvR_ );
+	  h_SimConvTwoMTracks_[3]->Fill( mcConvZ_ );
+	  h_SimConvTwoMTracks_[4]->Fill(  (*mcPho).fourMomentum().et());
+	  
+	  if ( aConv->conversionVertex().isValid() ) {
+	    if ( trkProvenance==3 ) std::cout << " PhotonValidator provenance of tracks is mixed and vertex is valid " << std::endl;
+	    float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
+	    if (   chi2Prob > 0) {
+	      h_SimConvTwoMTracksAndVtxPGT0_[0]->Fill( mcEta_ ) ;
+	      h_SimConvTwoMTracksAndVtxPGT0_[1]->Fill( mcPhi_ );
+	      h_SimConvTwoMTracksAndVtxPGT0_[2]->Fill( mcConvR_ ); 
+	      h_SimConvTwoMTracksAndVtxPGT0_[3]->Fill( mcConvZ_ );
+	      h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill(  (*mcPho).fourMomentum().et()); 
+	      
+	    } else if (   chi2Prob > 0.005) {
+	      h_SimConvTwoMTracksAndVtxPGT005_[0]->Fill( mcEta_ ) ;
+	      h_SimConvTwoMTracksAndVtxPGT005_[1]->Fill( mcPhi_ );
+	      h_SimConvTwoMTracksAndVtxPGT005_[2]->Fill( mcConvR_ ); 
+	      h_SimConvTwoMTracksAndVtxPGT005_[3]->Fill( mcConvZ_ );
+	      h_SimConvTwoMTracksAndVtxPGT005_[4]->Fill(  (*mcPho).fourMomentum().et()); 
+	      
+	    }
+	  }	
 
 	  ///////////  Quantities per conversion
 	  type =1;
 
 	  h_trkProv_[1]->Fill( trkProvenance );
 
-
+	  
 	  float eoverp= aConv->EoverP();
 
 	  h_invMass_[type][0] ->Fill( invM);
@@ -1953,12 +1762,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h2_EoverEtrueVsEoverP_[0] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 	  h2_PoverPtrueVsEoverP_[0] ->Fill( eoverp, totP/ (*mcPho).fourMomentum().e()  ) ;
 	  h2_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	  p_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 	  h2_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	  p_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 
 	  h2_PoverPtrueVsEta_[0]->Fill (mcEta_,totP/ (*mcPho).fourMomentum().e()  ) ;
+	  p_PoverPtrueVsEta_[0]->Fill (mcEta_,totP/ (*mcPho).fourMomentum().e()  ) ;
 
 	  h2_EoverPVsEta_[0]->Fill (mcEta_, eoverp);
 	  h2_EoverPVsR_[0]->Fill (mcConvR_, eoverp);
+	  p_EoverPVsEta_[0]->Fill (mcEta_, eoverp);
+	  p_EoverPVsR_[0]->Fill (mcConvR_, eoverp);
 
 
           h2_etaVsRsim_[0]->Fill (mcEta_,mcConvR_);         
@@ -1987,11 +1801,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h_DPhiTracksAtVtx_[type][0]->Fill( dPhiTracksAtVtx);
 	  h2_DPhiTracksAtVtxVsEta_->Fill( mcEta_, dPhiTracksAtVtx);
 	  h2_DPhiTracksAtVtxVsR_->Fill( mcConvR_, dPhiTracksAtVtx);
+	  p_DPhiTracksAtVtxVsEta_->Fill( mcEta_, dPhiTracksAtVtx);
+	  p_DPhiTracksAtVtxVsR_->Fill( mcConvR_, dPhiTracksAtVtx);
 
 
 	  h_DCotTracks_[type][0] ->Fill ( aConv->pairCotThetaSeparation() );
 	  h2_DCotTracksVsEta_->Fill( mcEta_, aConv->pairCotThetaSeparation() );
 	  h2_DCotTracksVsR_->Fill( mcConvR_, aConv->pairCotThetaSeparation() );
+	  p_DCotTracksVsEta_->Fill( mcEta_, aConv->pairCotThetaSeparation() );
+	  p_DCotTracksVsR_->Fill( mcConvR_, aConv->pairCotThetaSeparation() );
 
 
 
@@ -2037,6 +1855,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    h_convVtxdR_ ->Fill ( sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_);
 	    h2_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 	    h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
+	    p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
+	    p_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 	    h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
 
 	    if ( fabs(matchingPho.superCluster()->position().eta() ) <= 1.) {
@@ -2063,6 +1883,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h_zPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
 	  h_dzPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
 	  h2_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
+	  p_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
 
 
 	  float  dPhiTracksAtEcal=-99;
@@ -2075,8 +1896,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    float recoEta2 = aConv->ecalImpactPosition()[1].eta();
 	    float bcPhi1 = aConv->bcMatchingWithTracks()[0]->phi();
 	    float bcPhi2 = aConv->bcMatchingWithTracks()[1]->phi();
-	    float bcEta1 = aConv->bcMatchingWithTracks()[0]->eta();
-	    float bcEta2 = aConv->bcMatchingWithTracks()[1]->eta();
+	    // unused	float bcEta1 = aConv->bcMatchingWithTracks()[0]->eta();
+	    // unused   float bcEta2 = aConv->bcMatchingWithTracks()[1]->eta();
 	    recoPhi1 = phiNormalization(recoPhi1);
 	    recoPhi2 = phiNormalization(recoPhi2);
 	    bcPhi1 = phiNormalization(bcPhi1);
@@ -2089,6 +1910,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    h_DPhiTracksAtEcal_[type][0]->Fill( fabs(dPhiTracksAtEcal));
 	    h2_DPhiTracksAtEcalVsR_ ->Fill (mcConvR_, fabs(dPhiTracksAtEcal));
 	    h2_DPhiTracksAtEcalVsEta_ ->Fill (mcEta_, fabs(dPhiTracksAtEcal));
+	    p_DPhiTracksAtEcalVsR_ ->Fill (mcConvR_, fabs(dPhiTracksAtEcal));
+	    p_DPhiTracksAtEcalVsEta_ ->Fill (mcEta_, fabs(dPhiTracksAtEcal));
 
 	    h_DEtaTracksAtEcal_[type][0]->Fill( dEtaTracksAtEcal);
 
@@ -2120,10 +1943,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	    nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
 	    nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
+	    p_nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) -0.0001);
+	    p_nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) -0.0001);
 	    h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() ); 
 	    h_tkChi2Large_[type] ->Fill (tracks[i]->normalizedChi2() ); 
 	    h2_Chi2VsEta_[0] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
 	    h2_Chi2VsR_[0] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
+	    p_Chi2VsEta_[0] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
+	    p_Chi2VsR_[0] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
 
 	  
 
@@ -2165,19 +1992,22 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       
     } // loop over conversions
   } // End loop over simulated Photons
+
+
+ 
  
   h_nSimPho_[0]->Fill(float(nSimPho_[0]));
   h_nSimPho_[1]->Fill(float(nSimPho_[1]));
   h_nSimConv_[0]->Fill(float(nSimConv_[0]));
   h_nSimConv_[1]->Fill(float(nSimConv_[1]));
   
-
+ 
 
 
   ///////////////////  Measure fake rate
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
     reco::Photon aPho = reco::Photon(*iPho);
-    float et= aPho.superCluster()->energy()/cosh( aPho.superCluster()->eta()) ;    
+    //    float et= aPho.superCluster()->energy()/cosh( aPho.superCluster()->eta()) ;    
     reco::ConversionRefVector conversions = aPho.conversions();
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
     
@@ -2194,42 +2024,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
 
+      h_RecoConvTwoTracks_[0]->Fill( aPho.eta() ) ;
+      h_RecoConvTwoTracks_[1]->Fill( aPho.phi() );
+      if (  aConv->conversionVertex().isValid() ) h_RecoConvTwoTracks_[2]->Fill(  aConv->conversionVertex().position().perp2() );
+      h_RecoConvTwoTracks_[3]->Fill( aConv->conversionVertex().position().z() );
+      h_RecoConvTwoTracks_[4]->Fill( aPho.et() ) ;
       
-      for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	if (aPho.eta()>etaintervalslarge_[f]&&
-	    aPho.eta()<etaintervalslarge_[f+1]) {
-	  totMatchedRecConvEtaTwoTracks_[f]++;
- 	}
-
-      }
-      for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-	if (aPho.phi()>phiintervals_[f]&&
-	    aPho.phi()<phiintervals_[f+1]) {
-	  totMatchedRecConvPhiTwoTracks_[f]++;
-	}
-      }
-
-      for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	if (mcConvR_>rintervals_[f]&&
-	    mcConvR_<rintervals_[f+1]) {
-	  totMatchedRecConvRTwoTracks_[f]++;
-	}
-      }
-      for (unsigned int f=0; f<zintervals_.size()-1; f++){
-	if (mcConvZ_>zintervals_[f]&&
-	    mcConvZ_<zintervals_[f+1]) {
-	  totMatchedRecConvZTwoTracks_[f]++;
-	}
-      }
-
-      for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	if ( et >etintervals_[f]&&
-	     et <etintervals_[f+1]) {
-	  totMatchedRecConvEtTwoTracks_[f]++;
-	}
-      }
-
-      
+            
       
       int  nAssT2=0;
 
@@ -2244,7 +2045,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	  if( q.find(myTk ) != q.end() ) {
 	    std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
-	    for (int itp=0; itp<tp.size(); itp++) {
+	    for (unsigned int itp=0; itp<tp.size(); itp++) {
 	      myTP=tp[itp].first;
 	      //	      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
 	      myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
@@ -2254,169 +2055,25 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	}
 	
 	if ( nAssT2 == 2) {
-	  
-	  for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
-	    if (aPho.eta()>etaintervalslarge_[f]&&
-		aPho.eta()<etaintervalslarge_[f+1]) {
-	      totRecAssConvEtaTwoTracks_[f]++;
-	    }
-
-	  }
-	  for (unsigned int f=0; f<phiintervals_.size()-1; f++){
-	    if (aPho.phi()>phiintervals_[f]&&
-		aPho.phi()<phiintervals_[f+1]) {
-	      totRecAssConvPhiTwoTracks_[f]++;
-	    }
-	  }
-	  
-	  for (unsigned int f=0; f<rintervals_.size()-1; f++){
-	    if (mcConvR_>rintervals_[f]&&
-		mcConvR_<rintervals_[f+1]) {
-	      totRecAssConvRTwoTracks_[f]++;
-	    }
-	  }
-	  for (unsigned int f=0; f<zintervals_.size()-1; f++){
-	    if (mcConvZ_>zintervals_[f]&&
-		mcConvZ_<zintervals_[f+1]) {
-	      totRecAssConvZTwoTracks_[f]++;
-	    }
-	  }
-	  for (unsigned int f=0; f<etintervals_.size()-1; f++){
-	    if ( et >etintervals_[f]&&
-		 et <etintervals_[f+1]) {
-	      totRecAssConvEtTwoTracks_[f]++;
-	    }
-	  }
 
 
-	  
+	  h_RecoConvTwoMTracks_[0]->Fill( aPho.eta() ) ;
+	  h_RecoConvTwoMTracks_[1]->Fill( aPho.phi() );
+	  if (  aConv->conversionVertex().isValid() ) h_RecoConvTwoMTracks_[2]->Fill(  aConv->conversionVertex().position().perp2() );
+	  h_RecoConvTwoMTracks_[3]->Fill( aConv->conversionVertex().position().z() );
+	  h_RecoConvTwoMTracks_[4]->Fill( aPho.et() ) ;
 	  
 	}
       }
     }
   }
-  
-
-
-
-
 }
 
 
 
- void  PhotonValidator::fillPlotFromVectors(MonitorElement* h, std::vector<int>& numerator, std::vector<int>& denominator,std::string type){
-    double value,err;
-    for (unsigned int j=0; j<numerator.size(); j++){
-      if (denominator[j]!=0){
-	if (type=="effic")
-	  value = ((double) numerator[j])/((double) denominator[j]);
-	else if (type=="fakerate")
-	  value = 1-((double) numerator[j])/((double) denominator[j]);
-	else return;
-	err = sqrt( value*(1-value)/(double) denominator[j] );
-	h->setBinContent(j+1, value);
-	h->setBinError(j+1,err);
-      }
-      else {
-	h->setBinContent(j+1, 0);
-      }
-    }
-  }
 
 
-void PhotonValidator::endJob()
-{
-
-
-  for (int i=0; i<2; i++) {
-    doProfileX( nHitsVsEta_[i], h_nHitsVsEta_[i]);
-    doProfileX( nHitsVsR_[i], h_nHitsVsR_[i]);
-  }
-
- 
-  doProfileX( h2_TkPtPull_[0],p_TkPtPull_[0]);
- 
-
-
-  doProfileX( h2_eResVsEta_[0], p_eResVsEta_[0] );
-  doProfileX( h2_eResVsEta_[1], p_eResVsEta_[1] );
-
-  doProfileX( h2_eResVsEt_[0][0], p_eResVsEt_[0][0] );
-  doProfileX( h2_eResVsEt_[0][1], p_eResVsEt_[0][1] );
-  doProfileX( h2_eResVsEt_[0][2], p_eResVsEt_[0][2] );
-
-  doProfileX( h2_eResVsEt_[1][0], p_eResVsEt_[1][0] );
-  doProfileX( h2_eResVsEt_[1][1], p_eResVsEt_[1][1] );
-  doProfileX( h2_eResVsEt_[1][2], p_eResVsEt_[1][2] );
-
-  doProfileX( h2_eResVsEt_[2][0], p_eResVsEt_[2][0] );
-  doProfileX( h2_eResVsEt_[2][1], p_eResVsEt_[2][1] );
-  doProfileX( h2_eResVsEt_[2][2], p_eResVsEt_[2][2] );
-
-
-
-  doProfileX( h2_eResVsR9_[0], p_eResVsR9_[0] );
-  doProfileX( h2_eResVsR9_[1], p_eResVsR9_[1] );
-  doProfileX( h2_eResVsR9_[2], p_eResVsR9_[2] );
-
-  doProfileX( h2_sceResVsR9_[0], p_sceResVsR9_[0] );
-  doProfileX( h2_sceResVsR9_[1], p_sceResVsR9_[1] );
-  doProfileX( h2_sceResVsR9_[2], p_sceResVsR9_[2] );
-
-
-
-  doProfileX( h2_EoverEtrueVsEta_[0], p_EoverEtrueVsEta_[0] );
-  doProfileX( h2_EoverEtrueVsEta_[1], p_EoverEtrueVsEta_[1] );
-
-  doProfileX( h2_EoverEtrueVsR_[0], p_EoverEtrueVsR_[0] );
-  doProfileX( h2_PoverPtrueVsEta_[0], p_PoverPtrueVsEta_[0] );
-  doProfileX( h2_EoverPVsEta_[0], p_EoverPVsEta_[0] );
-  doProfileX( h2_EoverPVsR_[0], p_EoverPVsR_[0] );
-
-
-  doProfileX( h2_Chi2VsEta_[0], p_Chi2VsEta_[0] ); 
-  doProfileX( h2_Chi2VsR_[0], p_Chi2VsR_[0] ); 
-  doProfileX( h2_DPhiTracksAtVtxVsEta_,p_DPhiTracksAtVtxVsEta_);
-  doProfileX( h2_DPhiTracksAtVtxVsR_,p_DPhiTracksAtVtxVsR_);
-  doProfileX( h2_DCotTracksVsEta_,p_DCotTracksVsEta_);
-  doProfileX( h2_DCotTracksVsR_,p_DCotTracksVsR_);
-
-  doProfileX( h2_DPhiTracksAtEcalVsR_, p_DPhiTracksAtEcalVsR_);
-  doProfileX( h2_DPhiTracksAtEcalVsEta_, p_DPhiTracksAtEcalVsEta_);
-
-  doProfileX( h2_convVtxdRVsR_,  p_convVtxdRVsR_);
-  doProfileX( h2_convVtxdRVsEta_,  p_convVtxdRVsEta_);
-  doProfileX( h2_dzPVVsR_, p_dzPVVsR_); 
-
-
- 
-  fillPlotFromVectors(phoEffEta_,totMatchedSimPhoEta_,totSimPhoEta_,"effic");
-  fillPlotFromVectors(phoEffPhi_,totMatchedSimPhoPhi_,totSimPhoPhi_,"effic");
-  fillPlotFromVectors(phoEffEt_,totMatchedSimPhoEt_,totSimPhoEt_,"effic"); 
-  //
-  fillPlotFromVectors(convEffEtaOneTrack_,totMatchedSimConvEtaOneTrack_,totSimConvEta_,"effic");
-  fillPlotFromVectors(convEffROneTrack_,totMatchedSimConvROneTrack_,totSimConvR_,"effic");
-  fillPlotFromVectors(convEffEtOneTrack_,totMatchedSimConvEtOneTrack_,totSimConvEt_,"effic");
-  //
-  fillPlotFromVectors(convEffEtaTwoTracks_,totMatchedSimConvEtaTwoTracks_,totSimConvEta_,"effic");
-  fillPlotFromVectors(convEffEtaTwoTracksAndVtx_,totMatchedConvEtaTwoTracksWithVtx_,totSimConvEta_,"effic");
-  fillPlotFromVectors(convEffEtaTwoTracksAndVtx2_,totMatchedConvEtaTwoTracksWithVtx_,totMatchedSimConvEtaTwoTracks_,"effic"); 
-  fillPlotFromVectors(convEffEtaTwoTracksAndVtxProbGT0_,totMatchedConvEtaTwoTracksWithVtxProbGT0_,totMatchedSimConvEtaTwoTracks_,"effic"); 
-  fillPlotFromVectors(convEffEtaTwoTracksAndVtxProbGT005_,totMatchedConvEtaTwoTracksWithVtxProbGT005_,totMatchedSimConvEtaTwoTracks_,"effic"); 
-  fillPlotFromVectors(convEffEtaTwoTracksAndVtxProbGT01_,totMatchedConvEtaTwoTracksWithVtxProbGT01_,totMatchedSimConvEtaTwoTracks_,"effic"); 
-  fillPlotFromVectors(convEffEtaAllTwoTracks_,totMatchedSimConvEtaAllTwoTracks_,totSimConvEta_,"effic");
-
-  fillPlotFromVectors(convEffPhiTwoTracks_,totMatchedSimConvPhiTwoTracks_,totSimConvPhi_,"effic");
-  fillPlotFromVectors(convEffRTwoTracks_,totMatchedSimConvRTwoTracks_,totSimConvR_,"effic");
-  fillPlotFromVectors(convEffRAllTwoTracks_,totMatchedSimConvRAllTwoTracks_,totSimConvR_,"effic");
-  fillPlotFromVectors(convEffZTwoTracks_,totMatchedSimConvZTwoTracks_,totSimConvZ_,"effic");
-  fillPlotFromVectors(convEffEtTwoTracks_,totMatchedSimConvEtTwoTracks_,totSimConvEt_,"effic");  
-
-  fillPlotFromVectors(convFakeRateEtaTwoTracks_,totRecAssConvEtaTwoTracks_,totMatchedRecConvEtaTwoTracks_,"fakerate");
-  fillPlotFromVectors(convFakeRatePhiTwoTracks_,totRecAssConvPhiTwoTracks_,totMatchedRecConvPhiTwoTracks_,"fakerate");
-  fillPlotFromVectors(convFakeRateRTwoTracks_, totRecAssConvRTwoTracks_,totMatchedRecConvRTwoTracks_,"fakerate");
-  fillPlotFromVectors(convFakeRateZTwoTracks_,totRecAssConvZTwoTracks_,totMatchedRecConvZTwoTracks_,"fakerate");
-  fillPlotFromVectors(convFakeRateEtTwoTracks_,totRecAssConvEtTwoTracks_,totMatchedRecConvEtTwoTracks_,"fakerate");
+void PhotonValidator::endJob() {
 
 
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
@@ -2454,7 +2111,6 @@ float PhotonValidator::etaTransformation(  float EtaParticle , float Zvertex)  {
 
   //---Definitions
   const float PI    = 3.1415927;
-  const float TWOPI = 2.0*PI;
 
   //---Definitions for ECAL
   const float R_ECAL           = 136.5;
@@ -2486,83 +2142,3 @@ float PhotonValidator::etaTransformation(  float EtaParticle , float Zvertex)  {
 }
 
 
-  std::vector<float> PhotonValidator::errors( TH1* histo1, TH1* histo2 ) {
-  std::vector<float>  nEntryNum, nEntryDen;
-  std::vector<float> ratio; 
-  std::vector<float> erro;
-
-  ///// calculate statistical errors
- 
- 
-  const int nBin1=histo1->GetNbinsX();
-  const int nBin2=histo2->GetNbinsX();
-   
-  //  std::cout << " histo 1 has " << nBin1 << " bins " << std::endl;
-  // std::cout << " histo 2 has " << nBin2 << " bins " << std::endl;
-   
-  static const int sega1=nBin1;  
-  static const int sega2=nBin2;  
-
-  
-  nEntryNum.clear();
-  nEntryDen.clear();
-  ratio.clear();
-  erro.clear();
- 
-  //  cout << " sizes after clear " << nEntryNum.size() << " " << erro.size() << endl;
-
-  for ( int i=1; i<=nBin1; i++) {
-    //    cout << " Bin # " << i << " has " << histo1->GetBinContent(i) << " entries " << endl; 
-    // nEntryNum[i]=histo1->GetBinContent(i);
-    nEntryNum.push_back( histo1->GetBinContent(i) ) ;
-  }
-  for ( int i=1; i<=nBin1; i++) {
-    // cout << " Bin # " << i << " has " << histo2->GetBinContent(i) << " entries " << endl; 
-    //  nEntryDen[i]=histo2->GetBinContent(i);
-   nEntryDen.push_back( histo2->GetBinContent(i) ) ; 
-
-  }
-  
-  //  cout << " nEntryNum size " << nEntryNum.size() << " nEntryDen size " << nEntryDen.size() << " erro size " << erro.size() << endl;
- 
-  float val, delta;
-  for ( int i=0; i<nEntryNum.size() ; i++) { 
-    //   cout << " nEntryNum " << nEntryNum[i] << " nEntryDen " << nEntryDen[i] << endl;
-    val = 0, delta=0;
-    if ( nEntryDen[i] !=0 ) {
-      val= nEntryNum[i]/nEntryDen[i];
-      delta= sqrt ( val*(1.-val)/ nEntryDen[i]   );
-      if (delta==0) delta=0.0003; 
-     
-    } 
-
-    
-
-    ratio.push_back( val  ) ;
-    erro.push_back(delta);
-    //    cout << " ratio " << ratio[i] << " erro " << erro[i] << endl; 
-  }
-
-
-  return erro;
-
-
- }
-
-
- void PhotonValidator::doProfileX(TH2 * th2, MonitorElement* me){
-    if (th2->GetNbinsX()==me->getNbinsX()){
-      TH1F * h1 = (TH1F*) th2->ProfileX();
-      for (int bin=0;bin!=h1->GetNbinsX();bin++){
-	me->setBinContent(bin+1,h1->GetBinContent(bin+1));
-	me->setBinError(bin+1,h1->GetBinError(bin+1));
-      }
-      delete h1;
-    } else {
-      throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
-    }
-  }
-
-  void PhotonValidator::doProfileX(MonitorElement * th2m, MonitorElement* me) {
-    doProfileX(th2m->getTH2F(), me);
-  }
