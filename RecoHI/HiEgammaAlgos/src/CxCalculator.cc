@@ -301,7 +301,7 @@ double CxCalculator::getCCxRemoveSC(const reco::SuperClusterRef cluster, double 
 
 bool CxCalculator::checkUsed(const reco::SuperClusterRef sc, const reco::BasicCluster* bc)
 {
-   reco::basicCluster_iterator theEclust = sc->clustersBegin();
+   reco::CaloCluster_iterator theEclust = sc->clustersBegin();
 
    // Loop over the basicClusters inside the target superCluster
    for(;theEclust != sc->clustersEnd(); theEclust++) {
@@ -312,7 +312,7 @@ bool CxCalculator::checkUsed(const reco::SuperClusterRef sc, const reco::BasicCl
 
 double CxCalculator::getBCMax(const reco::SuperClusterRef cluster,int i)
 {
-   reco::basicCluster_iterator theEclust = cluster->clustersBegin();
+   reco::CaloCluster_iterator theEclust = cluster->clustersBegin();
 
    double energyMax=0,energySecond=0;
    // Loop over the basicClusters inside the target superCluster
@@ -371,7 +371,7 @@ double CxCalculator::getCorrection(const reco::SuperClusterRef cluster, double x
          double e = clu->energy();
          if (e<threshold) e=0;
          TotalEnergy += e;
-         if (e!=0) TotalBC+=clu->getHitsByDetId().size();  // number of crystals
+         if (e!=0) TotalBC+=clu->size();  // number of crystals
    
       } 
    }
@@ -392,7 +392,7 @@ double CxCalculator::getCorrection(const reco::SuperClusterRef cluster, double x
          double e = clu->energy();
          if (e<threshold) e=0;
          TotalEnergy += e;
-         if (e!=0) TotalBC += clu->getHitsByDetId().size(); // number of crystals
+         if (e!=0) TotalBC += clu->size(); // number of crystals
       } 
    }
 
