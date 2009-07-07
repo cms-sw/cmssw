@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.98 2009/06/24 19:11:22 biery Exp $
+// $Id: StorageManager.cc,v 1.99 2009/06/29 13:07:49 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -38,7 +38,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   reasonForFailedState_(),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.98 2009/06/24 19:11:22 biery Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.99 2009/06/29 13:07:49 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -718,6 +718,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
 
   // Get consumer ID if registration is allowed:
   ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+
   if( !cid.isValid() )
     {
       writeNotReady( out );
@@ -887,6 +888,7 @@ StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Outp
 
   // Get consumer ID if registration is allowed:
   ConsumerID cid = _sharedResources->_registrationCollection->getConsumerID();
+
   if( !cid.isValid() )
     {
       writeNotReady( out );
@@ -976,6 +978,7 @@ StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Outp
 
   // Reply to consumer:
   writeConsumerRegistration( out, cid );
+
 }
 
 

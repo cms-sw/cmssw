@@ -1,4 +1,4 @@
-// $Id$
+// $Id: RegistrationCollection.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 
@@ -9,7 +9,7 @@ using namespace stor;
 RegistrationCollection::RegistrationCollection()
 {
   boost::mutex::scoped_lock sl( _lock );
-  _nextConsumerID = ConsumerID(1);
+  _nextConsumerID = ConsumerID(0);
   _registrationAllowed = false;
 }
 
