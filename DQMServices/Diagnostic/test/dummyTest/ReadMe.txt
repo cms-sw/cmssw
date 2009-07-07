@@ -7,7 +7,8 @@ Instruction about how to install and run a simple HDQM test
 
 #*** Version currently used: CMSSW_3_1_0
 
-#*** No tag needed
+#*** needed tags
+cvs co -r V03-00-00      DQM/SiPixelHistoricInfoClient                    
 
 
 #****************
