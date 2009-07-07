@@ -775,8 +775,8 @@ void FEDErrors::print(const FEDErrors::ChannelLevelErrors & aErr, std::ostream &
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
       << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.Unlocked << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.OutOfSync << std::endl
+      << "[FEDErrors]============ Unlocked = " << aErr.Unlocked << std::endl
+      << "[FEDErrors]============ OutOfSync = " << aErr.OutOfSync << std::endl
       << "[FEDErrors]=================================================" << std::endl;
 }
 
@@ -791,9 +791,9 @@ void FEDErrors::print(const FEDErrors::APVLevelErrors & aErr, std::ostream & aOs
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
       << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVStatusBit << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVError << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVAddressError << std::endl
+      << "[FEDErrors]============ APVStatusBit = " << aErr.APVStatusBit << std::endl
+      << "[FEDErrors]============ APVError = " << aErr.APVError << std::endl
+      << "[FEDErrors]============ APVAddressError = " << aErr.APVAddressError << std::endl
       << "[FEDErrors]=================================================" << std::endl;
 }
 
