@@ -98,6 +98,8 @@ public:
   /// cluster probability, overloaded by pixel rechits.
   virtual float clusterProbability() const { return 1; }
 
+  inline void invalidateHit() { setType(bad); }
+
 private:
   void setPositionErrors() const;
   
