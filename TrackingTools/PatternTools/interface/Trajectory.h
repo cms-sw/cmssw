@@ -49,7 +49,7 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  Trajectory() :  theChiSquared(0), theValid(true),
+  Trajectory() :  theChiSquared(0), theChiSquaredBad(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
     theSeed(), seedRef_()  
@@ -63,7 +63,7 @@ public:
    */
     
   Trajectory( const TrajectorySeed& seed) : 
-    theChiSquared(0), theValid(true),
+    theChiSquared(0), theChiSquaredBad(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
     theSeed( new TrajectorySeed(seed) ), seedRef_()
@@ -74,7 +74,7 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theChiSquared(0), theValid(true),
+    theChiSquared(0), theChiSquaredBad(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
     theSeed( new TrajectorySeed(seed) ), seedRef_()
@@ -85,7 +85,7 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
-    theChiSquared(0), theValid(true),
+    theChiSquared(0), theChiSquaredBad(0), theValid(true),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
     theSeed( seed ), seedRef_()
@@ -171,8 +171,13 @@ public:
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
 
-  /// Value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
-  double chiSquared() const { return theChiSquared;}
+  /// - Trajectories with at least 1 valid hit:
+  ///     value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
+  ///     (evaluated using only valid hits)
+  /// - Trajectories with only invalid hits:
+  ///     raw Chi2 (not norm.) of invalid hits w.r.t. the "default" trajectory
+  ///     (traj. containing only the seed information)
+  double chiSquared() const { return (theNumberOfFoundHits ? theChiSquared : theChiSquaredBad);}
 
   /// Number of dof of the trajectory. The method accepts a bool in order to properly 
   /// take into account the presence of magnetic field in the dof computation.
@@ -207,6 +212,11 @@ public:
    *  This definition is also used by the TrajectoryBuilder.
    */
   static bool lost( const TransientTrackingRecHit& hit);
+
+  /** Returns true if the hit type is TrackingRecHit::bad
+   *  Used in stand-alone trajectory construction
+   */
+  static bool isBad( const TransientTrackingRecHit& hit);
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
@@ -248,6 +258,7 @@ private:
 
   DataContainer theData;
   double theChiSquared;
+  double theChiSquaredBad;
   bool theValid;
 
   int theNumberOfFoundHits;
