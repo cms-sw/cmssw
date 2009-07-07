@@ -1,8 +1,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2009/04/27 17:59:20 $
- *  $Revision: 1.4.2.2 $
+ *  $Date: 2009/05/11 10:15:03 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
@@ -17,15 +17,13 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitByValue.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -367,10 +365,11 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
     if( !(*itm).recHit()->isValid() )
       defTraj.push( *itm, (*itm).estimate() );
     else {
-      InvalidTrackingRecHit invRh( (*itm).recHit()->geographicalId(), TrackingRecHit::bad );
-      TransientTrackingRecHit::RecHitPointer invRhPtr = TransientTrackingRecHitByValue<InvalidTrackingRecHit>::build( (*itm).recHit()->det(), &invRh);
+      MuonTransientTrackingRecHit::RecHitPointer invRhPtr = MuonTransientTrackingRecHit::build( (*itm).recHit()->det(), &(*(*itm).recHit()) );
+      invRhPtr->invalidateHit();
       TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr, (*itm).estimate(), (*itm).layer() );
       defTraj.push( invRhMeas, (*itm).estimate() );	  
     }
-  }
+
+  } // end for
 }

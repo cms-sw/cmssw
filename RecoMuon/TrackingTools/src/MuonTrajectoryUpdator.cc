@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/05/11 10:12:27 $
- *  $Revision: 1.29 $
+ *  $Date: 2009/05/15 14:51:54 $
+ *  $Revision: 1.30 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -27,8 +27,6 @@
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitByValue.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -171,13 +169,12 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	else if(useInvalidHits) {
           LogTrace(metname) << "  Compatible RecHit with too large chi2"
 			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
-	  //	  const TrackingRecHit *invalidRH = new TrackingRecHit( (*recHit)->geographicalId(), TrackingRecHit::bad );
-	  InvalidTrackingRecHit invrh( (*recHit)->geographicalId(), TrackingRecHit::bad );
-	  TransientTrackingRecHit::RecHitPointer invalidRhPtr = TransientTrackingRecHitByValue<InvalidTrackingRecHit>::build( (*recHit)->det(), &invrh);
 
-	  TrajectoryMeasurement invalidRHMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr, thisChi2.second, detLayer);
+	  MuonTransientTrackingRecHit::RecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::build( (*recHit)->det(), (*recHit).get() );
+	  invalidRhPtr->invalidateHit();
+	  TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr, thisChi2.second, detLayer);
+	  trajectory.push(invalidRhMeasurement, thisChi2.second);	  
 
-	  trajectory.push(invalidRHMeasurement, thisChi2.second);	  
 	}
       }
     }
