@@ -31,7 +31,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet( ## but FwkJob category - those unlimitted
-
             limit = cms.untracked.int32(-1)
         )
     ),
@@ -39,16 +38,15 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.source = cms.Source("MCFileSource",
-    # The HepMC test File
-    fileNames = cms.untracked.vstring('file:single_neutrino.random.dat')
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 process.p1 = cms.Path(process.g4SimHits)
-process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True

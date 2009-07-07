@@ -31,8 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         FwkJob = cms.untracked.PSet( ## but FwkJob category - those unlimitted
-
-            limit = cms.untracked.int32(-1)
+           limit = cms.untracked.int32(-1)
         )
     ),
     categories = cms.untracked.vstring('FwkJob'),
@@ -47,8 +46,8 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 process.p1 = cms.Path(process.g4SimHits)
-process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.TrackerSD.EnergyThresholdForPersistencyInGeV = 0.01
 process.g4SimHits.TrackerSD.EnergyThresholdForHistoryInGeV = 0.001
 process.g4SimHits.SteppingAction.KillBeamPipe = False

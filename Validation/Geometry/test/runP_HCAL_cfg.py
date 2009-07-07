@@ -19,12 +19,13 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
         g4SimHits = cms.untracked.uint32(9876)
     )
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('MaterialBudget'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -32,39 +33,22 @@ process.MessageLogger = cms.Service("MessageLogger",
         MaterialBudget = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('MaterialBudget'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun        = cms.untracked.uint32(1),
-    firstEvent      = cms.untracked.uint32(1)
-)
-
-process.generator = cms.EDProducer("FlatRandomEGunProducer",
-    PGunParameters = cms.PSet(
-        PartID = cms.vint32(14),
-        MinEta = cms.double(-5.5),
-        MaxEta = cms.double(5.5),
-        MinPhi = cms.double(-3.14159265359),
-        MaxPhi = cms.double(3.14159265359),
-        MinE   = cms.double(10.0),
-        MaxE   = cms.double(10.0)
-    ),
-    AddAntiParticle = cms.bool(False),
-    Verbosity       = cms.untracked.int32(0)
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000)
+    input = cms.untracked.int32(-1)
 )
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('matbdg_HCAL2.root')
 )
 
-process.p1 = cms.Path(process.generator*process.g4SimHits)
+process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
