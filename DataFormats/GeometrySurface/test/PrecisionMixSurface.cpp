@@ -18,7 +18,7 @@ int main() {
 
   BoundPlane plane( pos, rot);
 
- std::cout << "size of Frame " << sizeof(Surface) << std::endl;
+ std::cout << "size of Frame " << sizeof(Frame) << std::endl;
  std::cout << "size of Surface " << sizeof(Surface) << std::endl;
  std::cout << "size of Plane " << sizeof(Plane) << std::endl;
  std::cout << "size of BoundPlane " << sizeof(BoundPlane) << std::endl;
