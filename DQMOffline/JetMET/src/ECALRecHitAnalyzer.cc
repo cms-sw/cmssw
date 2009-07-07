@@ -38,9 +38,11 @@ void ECALRecHitAnalyzer::BookHistos()
   dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
-
-  // Book Geometry Histograms
+    
+    // Book Geometry Histograms
     dbe_->setCurrentFolder(FolderName_+"/geometry");
+    
+
     // ECAL barrel
   me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
@@ -93,6 +95,10 @@ void ECALRecHitAnalyzer::BookHistos()
 
   // Book Data Histograms
   dbe_->setCurrentFolder(FolderName_);
+
+  me["hECAL_Nevents"]          = dbe_->book1D("hECAL_Nevents","",1,0,1); 
+  
+
   // Energy Histograms by logical index
   me["hEEpZ_energy_ix_iy"] = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
   me["hEEmZ_energy_ix_iy"] = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
@@ -325,6 +331,7 @@ void ECALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   CurrentEvent++;
   DEBUG( "Event: " << CurrentEvent);
   WriteECALRecHits( iEvent, iSetup );
+  me["hECAL_Nevents"]->Fill(0.5);
 }
 
 void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::EventSetup& iSetup)
