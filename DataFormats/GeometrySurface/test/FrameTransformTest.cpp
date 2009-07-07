@@ -86,7 +86,7 @@ int  go() {
     return 0;
 }
 
-int main {
+int main() {
 
   go<float>();
   std::cout << std::endl;
