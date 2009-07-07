@@ -25,10 +25,12 @@ process.hltL1extraParticles.hfRingEtSumsSource = cms.InputTag("simGctDigis")
 process.hltL1extraParticles.hfRingBitCountsSource = cms.InputTag("simGctDigis")
 
 process.load("L1TriggerOffline.L1Analyzer.L1MCAnalysis_cff")
+
+process.load("L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi")
+
 process.p = cms.Path(
-    process.pdigi
-    +process.SimL1Emulator
-    +process.hltL1ExtraParticles
+    process.SimL1Emulator
+    +process.hltL1extraParticles
     +process.L1MCAnalysis
 )
 
