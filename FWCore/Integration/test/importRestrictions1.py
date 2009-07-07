@@ -1,3 +1,5 @@
+# This succeeds because it is importing "restricted" at the top level
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")

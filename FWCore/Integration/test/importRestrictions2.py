@@ -1,3 +1,5 @@
+# This fails because forbidden is not allowed to import "restricted"
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")
