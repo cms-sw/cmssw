@@ -243,12 +243,14 @@ void SimpleNavigableLayer::pushResult( DLC& result, const FDLC& tmp) const
   }
 }
 
-std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, PropagationDirection timeDirection) const{
-  static int depth = 0;
-  depth++;
-  if(depth>50) {
-    edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() called recursively more than 50 times!!! Bailing out..";
-    return std::vector<const DetLayer*>();
+std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, 
+									PropagationDirection timeDirection,
+									int& counter) const {
+  counter ++;
+  std::vector<const DetLayer*> empty;
+  if(counter>150 || counter == -1) {
+    edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() called recursively more than 150 times!!! Bailing out..";
+    counter = -1;return empty;
   }
   std::vector< const DetLayer * > result;
   result.reserve(15); //that's a max
@@ -264,18 +266,23 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
     if (someLayers[iL] == detLayer()){
       TrajectoryStateOnSurface otherSide = crossingState(fts,timeDirection);
       if (!otherSide.isValid()) continue;
-      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(*otherSide.freeTrajectoryState(), timeDirection));
+      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(*otherSide.freeTrajectoryState(),
+											  timeDirection,
+											  counter));
+      if(counter == -1){return empty;} 
       collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());      
     }
     else
     {
-      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(fts, timeDirection));
+      std::vector<const DetLayer *> someCompatibleLayers(someLayers[iL]->compatibleLayers(fts,
+											  timeDirection,
+											  counter));
+      if(counter == -1){return empty;} 
       collect.insert(someCompatibleLayers.begin(),someCompatibleLayers.end());
     }  
   }//looping the layers next to this one
   
   result.insert(result.begin(),collect.begin(),collect.end()); //cannot do a swap it seems
   LogDebug("SimpleNavigableLayer")<<"Number of compatible layers: "<<result.size();
-  depth--;
   return result;
 }

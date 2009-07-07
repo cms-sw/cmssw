@@ -35,7 +35,9 @@ public:
 
   bool theSelfSearch;
 
-  virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, PropagationDirection timeDirection) const;
+  virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
+							    PropagationDirection timeDirection,
+							    int& counter)const ;
 
 protected:
 
