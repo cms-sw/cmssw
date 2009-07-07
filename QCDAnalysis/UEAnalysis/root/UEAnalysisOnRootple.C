@@ -20,9 +20,9 @@ vector<string> nameList;
 UEAnalysisOnRootple::UEAnalysisOnRootple()
 {
   //SampleType = "CSA08";
-  SampleType = "Summer08:Herwig";
+  //  SampleType = "Summer08:Herwig";
   //SampleType = "Pythia8:10TeV";
-  //SampleType = "Pythia6:10TeV";
+  SampleType = "Pythia6:10TeV";
   cout << "UEAnalysisOnRootple constructor running on " << SampleType <<endl;
 
   if ( SampleType == "CSA08" )
@@ -45,12 +45,12 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
   else
     {
       ///
-      /// Summer08 HLT names
+      /// Summer09 HLT names
       ///
       HLTBitNames[0]  = "HLT_MinBiasPixel";
       HLTBitNames[1]  = "HLT_MinBiasHcal";
       HLTBitNames[2]  = "HLT_MinBiasEcal";
-      HLTBitNames[3]  = "HLT_MinBias";
+      HLTBitNames[3]  = "HLT_MinBiasPixel_Trk5";
       HLTBitNames[4]  = "HLT_ZeroBias";
       HLTBitNames[5]  = "HLT_Jet30";
       HLTBitNames[6]  = "HLT_Jet50";
@@ -58,6 +58,7 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
       HLTBitNames[8]  = "HLT_Jet110";
       HLTBitNames[9]  = "HLT_Jet180";
       HLTBitNames[10] = "HLT_Jet250";
+
     }
 
   nameList.reserve(20);
