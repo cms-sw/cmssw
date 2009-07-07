@@ -12,10 +12,16 @@ void en(){}
 
 
 int main() {
+  typedef GloballyPositioned<float>           Frame;
   Surface::RotationType rot;
   Surface::PositionType pos( 1, 2, 3);
 
   BoundPlane plane( pos, rot);
+
+ std::cout << "size of Frame " << sizeof(Surface) << std::endl;
+ std::cout << "size of Surface " << sizeof(Surface) << std::endl;
+ std::cout << "size of Plane " << sizeof(Plane) << std::endl;
+ std::cout << "size of BoundPlane " << sizeof(BoundPlane) << std::endl;
 
   LocalPoint lp(0,0,0);
   cout << plane.toGlobal(lp)  << ", delta = " << plane.toGlobal(lp)-pos << endl;
