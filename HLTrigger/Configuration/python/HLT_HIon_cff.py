@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre11/HIon_V8/V2 (CMSSW_3_1_0)
+# /dev/CMSSW_3_1_0/pre11/HIon_V10/V2 (CMSSW_3_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HIon_V8/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HIon_V10/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1700,9 +1700,7 @@ hltBoolFinalPath = cms.EDFilter( "HLTBool",
 )
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
-    PrintVerbosity = cms.untracked.int32( 0 ),
-    PrintOutput = cms.untracked.int32( 2 )
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
 )
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
