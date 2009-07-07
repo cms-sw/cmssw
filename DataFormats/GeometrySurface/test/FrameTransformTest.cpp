@@ -12,11 +12,11 @@ int  go() {
 
     typedef TkRotation<T>                   Rotation;
     typedef GloballyPositioned<T>           Frame;
-    typedef Frame::PositionType             Position;
-    typedef Frame::GlobalVector             GlobalVector;
-    typedef Frame::GlobalPoint              GlobalPoint;
-    typedef Frame::LocalVector              LocalVector;
-    typedef Frame::LocalPoint               LocalPoint;
+    typedef typename Frame::PositionType             Position;
+    typedef typename Frame::GlobalVector             GlobalVector;
+    typedef typename Frame::GlobalPoint              GlobalPoint;
+    typedef typename Frame::LocalVector              LocalVector;
+    typedef typename Frame::LocalPoint               LocalPoint;
 
     std::cout << "size of Rot     " << sizeof(Rotation) << std::endl;
     std::cout << "size of Pos     " << sizeof(Position) << std::endl;
