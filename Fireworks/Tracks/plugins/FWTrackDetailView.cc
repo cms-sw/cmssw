@@ -7,6 +7,8 @@
 #include "TEveBoxSet.h"
 #include "TEveTrackPropagator.h"
 #include "TGLViewer.h"
+#include "TGeoMatrix.h"
+#include "TVector3.h"
 #include "TGLUtil.h"
 #include <TH2.h>
 #include <TBox.h>
@@ -49,6 +51,7 @@ protected:
       vars[1] = rotationCenter()[1];
       vars[2] = rotationCenter()[2];
    }
+   double getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX);
 
 private:
    FWTrackDetailView(const FWTrackDetailView&); // stop default
@@ -70,6 +73,22 @@ FWTrackDetailView::FWTrackDetailView ()
 
 FWTrackDetailView::~FWTrackDetailView ()
 {
+}
+
+double FWTrackDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX)
+{
+     double local1[3] = { 0, 0, 0 };
+     double local2[3] = { resX, 0, 0 };
+     double global1[3], global2[3];
+     const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+     assert(m != 0);
+     m->MasterToLocal(local1, global1);
+     m->MasterToLocal(local2, global2);
+     TVector3 g1 = global1;
+     TVector3 g2 = global2;
+     if (g2.DeltaPhi(g1) > 0)
+	  return resX;
+     else return -resX;
 }
 
 TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* track)
@@ -113,6 +132,8 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    HitPattern hitpat = track->hitPattern();
    TrackResiduals residuals = track->residuals();
 
+   const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+   assert(detIdToGeo != 0);
    nhits=hitpat.numberOfHits();
    for (int i = 0; i < nhits; ++i) {
       hittype[i] = 0x3 & hitpat.getHitPattern(i);
@@ -120,6 +141,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
       subsubstruct[i] = 0xf & hitpat.getHitPattern(i) >> 3;
       substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
       detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
+//       res[0][i] = getSignedResidual(detIdToGeo, residuals.residualX(i, hitpat));
       res[0][i] = residuals.residualX(i, hitpat);
       res[1][i] = residuals.residualY(i, hitpat);
       if (debug) printf("%s, %i\n",det_tracker_str[substruct[i]-1],subsubstruct[i]);
