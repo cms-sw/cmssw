@@ -11,6 +11,7 @@ StripCPEgeometric::StripCPEgeometric( edm::ParameterSet& conf,
     tan_diffusion_angle(conf.getParameter<double>("TanDiffusionAngle")),    
     thickness_rel_err2(pow(conf.getParameter<double>("ThicknessRelativeUncertainty"), 2)),
     noise_threshold(conf.getParameter<double>("NoiseThreshold")),
+    maybe_noise_threshold(conf.getParameter<double>("MaybeNoiseThreshold")),
     scaling_squared(pow(conf.getParameter<double>("UncertaintyScaling"), 2))
 {
   std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
@@ -64,9 +65,18 @@ offset_from_firstStrip( const std::vector<stats_t<float> >& Q, const stats_t<flo
   while( useNMinusOne( wc, proj) ) 
     wc.dropSmallerEdgeStrip();
 
-  if( proj() < wc.N-2)                             return stats_t<float>( wc.middle(),   wc.N * wc.N / 12.);
-  if( proj > wc.maxProjection() || wc.deformed() ) return stats_t<float>( wc.centroid()(),         1 / 12.);
+  if( proj() < wc.N-2 || wc.deformed() )                             
+    return stats_t<float>( wc.middle(),   wc.N * wc.N / 12.);
 
+  if( proj > wc.maxProjection() ) 
+    return stats_t<float>( wc.centroid()(),         1 / 12.);
+
+  if( wc.N > 1 && wc.smallerEdgeStrip().sigmaFrom(0) < maybe_noise_threshold ) {
+    WrappedCluster wc2(wc); 
+    wc2.dropSmallerEdgeStrip();
+    return between_positions( geometric_position( wc, proj), 
+			      geometric_position( wc2, proj) );
+  }
   return geometric_position(wc, proj);
 }
 
@@ -79,12 +89,22 @@ geometric_position(const StripCPEgeometric::WrappedCluster& wc, const stats_t<fl
 }
 
 inline
+stats_t<float> StripCPEgeometric::
+between_positions(const stats_t<float>& one, const stats_t<float>& two) const {
+  const float position = ( one() + two() ) / 2;
+  const float error = fabs(position-one()) + std::max(one.error(), two.error());
+  return stats_t<float>( position, error*error );
+}
+
+inline
 bool StripCPEgeometric::
 useNMinusOne(const WrappedCluster& wc, const stats_t<float>& proj) const {
-  if( proj() > wc.N-1) return false;
-  if( wc.smallerEdgeStrip() < 0) return true;
-  if( proj() < wc.N-5) return false;
-  if( proj() < wc.N-2) return true;
+  if( proj() > wc.N-1 ||
+      wc.smallerEdgeStrip().sigmaFrom(0) > maybe_noise_threshold )  
+    return false;
+  if( wc.smallerEdgeStrip() < 0 ||
+      proj() < wc.N-2) 
+    return true;
 
   WrappedCluster wcTest(wc); wcTest.dropSmallerEdgeStrip();
   if( proj >= wcTest.maxProjection() || 

@@ -43,10 +43,11 @@ class StripCPEgeometric : public StripCPE
   stats_t<float> find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
   stats_t<float> offset_from_firstStrip( const std::vector<stats_t<float> >&, const stats_t<float>&) const;
   stats_t<float> geometric_position(const WrappedCluster&, const stats_t<float>&) const;
+  stats_t<float> between_positions(const stats_t<float>&, const stats_t<float>&) const;
   bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
 
   std::vector<float> crosstalk;
-  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, scaling_squared;
+  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, maybe_noise_threshold, scaling_squared;
 
 };
 
