@@ -35,7 +35,7 @@ int  go() {
     cout << "f1.rotation() " << endl << f1.rotation() << endl;
 
     Rotation r2( GlobalVector( 0, 1 ,0), GlobalVector( 0, 0, 1));
-    Frame f2(Frame::PositionType(5,6,7), r2);
+    Frame f2(Position(5,6,7), r2);
     cout << "f2.position() " << f2.position() << endl;
     cout << "f2.rotation() " << endl << f2.rotation() << endl;
 
