@@ -2,6 +2,8 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
 <use name=RecoMuon/TrackingTools>
 <use name=HLTrigger/HLTcore>
 <export>
