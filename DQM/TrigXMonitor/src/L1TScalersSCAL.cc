@@ -99,9 +99,28 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
         
     
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/L1AcceptBunchCrossing");
-    orbitNumL1A = dbe_->book1D("Orbit Number L1A","OrbitNumber L1A",200,0,10E8);       
-    bunchCrossingL1A = dbe_->book1D("Bunch Crossing L1A", "Bunch Crossing L1A", 3564, -0.5, 3563.5);    
-    eventType = dbe_->book1D("Event Type", "Event Type", 8, -0.5, 7.5);
+   
+    
+    for(int i=0; i<4; i++){
+
+      sprintf(hname, "Orbit_Number_L1A_%d", i+1);
+      sprintf(mename, "Orbit_Number_L1A_%d", i+1);
+      orbitNumL1A[i] = dbe_->book1D(hname,mename,200,0,10E8);          
+
+      sprintf(hname, "Bunch_Crossing_L1A_%d", i+1);
+      sprintf(mename, "Bunch_Crossing_L1A_%d", i+1);
+      bunchCrossingL1A[i]= dbe_->book1D(hname, mename, 3564, -0.5, 3563.5);
+    }
+    orbitNumL1A[0]->setAxisTitle("Current BX",1);
+    orbitNumL1A[1]->setAxisTitle("Previous BX",1);
+    orbitNumL1A[2]->setAxisTitle("Second Previous BX",1);
+    orbitNumL1A[3]->setAxisTitle("Third Previous BX",1);
+
+    bunchCrossingL1A[0]->setAxisTitle("Current BX",1);
+    bunchCrossingL1A[1]->setAxisTitle("Previous BX",1);
+    bunchCrossingL1A[2]->setAxisTitle("Second Previous BX",1);
+    bunchCrossingL1A[3]->setAxisTitle("Third Previous BX",1);
+    //eventType = dbe_->book1D("Event Type", "Event Type", 8, -0.5, 7.5);
 
 
     for(int j=0; j<3; j++) {
@@ -110,10 +129,29 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
       bunchCrossingCorr[j] = dbe_->book2D(hname, mename, 99,-0.5,3563.5, 99,-0.5,3563.5);
       bunchCrossingCorr[j]->setAxisTitle("Current Event", 1);
+
+      sprintf(hname, "Bunch_Crossing_Diff_%d", j+1);
+      sprintf(mename, "Bunch_Crossing_Diff_%d", j+1);
+      
+      bunchCrossingDiff[j] = dbe_->book1D(hname, mename, 1000,0,1E6);
+
+      sprintf(hname, "Bunch_Crossing_Diff_small_%d", j+1);
+      sprintf(mename, "Bunch_Crossing_Diff_small_%d", j+1);
+      
+      bunchCrossingDiff_small[j] = dbe_->book1D(hname, mename, 1000,0,1000);
+
     }    				     
     bunchCrossingCorr[0]->setAxisTitle("Previous Event" , 2);
     bunchCrossingCorr[1]->setAxisTitle("Second Previous Event" , 2);
     bunchCrossingCorr[2]->setAxisTitle("Third Previous Event" , 2);
+
+    bunchCrossingDiff[0]->setAxisTitle("BX_Current - BX_Previous" , 1);
+    bunchCrossingDiff[1]->setAxisTitle("BX_Current - BX_SecondPrevious" , 1);
+    bunchCrossingDiff[2]->setAxisTitle("BX_Current - BX_ThirdPrevious" , 1);
+
+    bunchCrossingDiff_small[0]->setAxisTitle("BX_Current - BX_Previous" , 1);
+    bunchCrossingDiff_small[1]->setAxisTitle("BX_Current - BX_SecondPrevious" , 1);
+    bunchCrossingDiff_small[2]->setAxisTitle("BX_Current - BX_ThirdPrevious" , 1);
 
   }    
 
@@ -167,7 +205,6 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        //++it){
        
        unsigned int lumisection = it->luminositySection();
-//         std::cout << "lumisection " << lumisection << std::endl; 
 
        if(lumisection){
 	 orbitNum ->Fill(it->orbitNumber());        
@@ -177,7 +214,8 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 randTrig ->Fill(it->randomTriggers());
 	 numberResets ->Fill(it->numberResets());
 	 deadTime ->Fill(it->deadTime());
-	   //           std::cout <<"dead time " << it->deadTime() << std::endl;
+	 
+	 //cout <<"orbitnumber = " << it->orbitNumber() << endl;
 
 	 lostFinalTriggers ->Fill(it->lostFinalTriggers());                                    
 
@@ -273,7 +311,8 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      //     L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin();
      //if(bunchCrossings->size()){
      //int counttest=0;
-     int l1accept, bx0 = -1;
+     int l1accept; 
+     unsigned int bx_current = 0, orbitnumber_current = 0, bxdiff = 0;
 
      for(L1AcceptBunchCrossingCollection::const_iterator it4 = bunchCrossings->begin();
 	 it4 != bunchCrossings->end();
@@ -285,15 +324,27 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        l1accept = abs(it4->l1AcceptOffset());   
 
+       //cout << "l1a orbit number = " << it4->orbitNumber() << endl;
+       //cout << "l1a bunch crossing = " << it4->bunchCrossing() << endl;
+
        if(l1accept == 0){
-	 orbitNumL1A->Fill(it4->orbitNumber());
+	 orbitnumber_current = it4->orbitNumber();
+	 orbitNumL1A[l1accept]->Fill(orbitnumber_current);
 
-	 bx0 = it4->bunchCrossing();
-	 bunchCrossingL1A->Fill(bx0);
+	 bx_current = it4->bunchCrossing();
+	 bunchCrossingL1A[l1accept]->Fill(bx_current);
 
-	 eventType->Fill(it4->eventType());
+	 //eventType->Fill(it4->eventType());
        }
-       else bunchCrossingCorr[l1accept-1]->Fill(bx0, it4->bunchCrossing());
+       else {
+	 orbitNumL1A[l1accept]->Fill(it4->orbitNumber());
+	 bunchCrossingL1A[l1accept]->Fill(it4->bunchCrossing());
+
+	 bunchCrossingCorr[l1accept-1]->Fill(bx_current, it4->bunchCrossing());
+	 bxdiff = 3564*(orbitnumber_current-it4->orbitNumber()) + bx_current - it4->bunchCrossing();
+	 bunchCrossingDiff[l1accept-1]->Fill(bxdiff);
+	 bunchCrossingDiff_small[l1accept-1]->Fill(bxdiff);
+       }
 
      }
    

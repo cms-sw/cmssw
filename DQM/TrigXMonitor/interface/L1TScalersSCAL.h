@@ -90,11 +90,12 @@ private:
   MonitorElement *  numOrbits;   
 
  
-  MonitorElement *  orbitNumL1A;
-  MonitorElement *  bunchCrossingL1A;
-  MonitorElement *  eventType;
+  MonitorElement *  orbitNumL1A[4];
+  MonitorElement *  bunchCrossingL1A[4];
+  //MonitorElement *  eventType;
   MonitorElement *  bunchCrossingCorr[3];
-
+  MonitorElement *  bunchCrossingDiff[3];
+  MonitorElement *  bunchCrossingDiff_small[3];
 
 
 };
