@@ -25,8 +25,8 @@ void TCTauAlgorithm::init(){
 
 	etCaloOverTrackMin = -0.9;
 	etCaloOverTrackMax = 0.0;
-	etHcalOverTrackMin = -0.5;
-	etHcalOverTrackMax = 0.5;
+	etHcalOverTrackMin = -0.3;
+	etHcalOverTrackMax = 1.0;
 
         signalCone         = 0.2;
 	ecalCone           = 0.5;
