@@ -130,5 +130,35 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     NBins = cms.untracked.uint32(1000),
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(100000)
+  ),
+  nAPVStatusBitvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(100000)
+  ),
+  nAPVErrorvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(100000)
+  ),
+  nAPVAddressErrorvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(100000)
+  ),
+  nUnlockedvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(100000)
+  ),
+  nOutOfSyncvsEvtNumHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(100000)
   )
 )

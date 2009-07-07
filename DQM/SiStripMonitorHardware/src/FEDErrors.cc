@@ -29,6 +29,13 @@ FEDErrors::FEDErrors()
   lFedCounter.nTotalBadChannels = 0;
   lFedCounter.nTotalBadActiveChannels = 0;
 
+  ChannelCounters & lChCounter = FEDErrors::getChannelErrorsCounters();
+  lChCounter.nUnlocked = 0;
+  lChCounter.nOutOfSync = 0;
+  lChCounter.nAPVStatusBit = 0;
+  lChCounter.nAPVError = 0;
+  lChCounter.nAPVAddressError = 0;
+
   feCounter_.nFEOverflows = 0; 
   feCounter_.nFEBadMajorityAddresses = 0; 
   feCounter_.nFEMissing = 0;
@@ -346,6 +353,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
     FEDErrors::ChannelLevelErrors lChErr;
     lChErr.ChannelID = iCh;
+    lChErr.Connected = connected_[iCh];
     lChErr.IsActive = activeChannel;
     lChErr.Unlocked = false;
     lChErr.OutOfSync = false;
@@ -358,6 +366,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
       FEDErrors::APVLevelErrors lAPVErr;
       lAPVErr.APVID = 2*iCh+iAPV;
       lAPVErr.ChannelID = iCh;
+      lAPVErr.Connected = connected_[iCh];
       lAPVErr.IsActive = activeChannel;
       lAPVErr.APVStatusBit = false;
       lAPVErr.APVError = false;
@@ -534,6 +543,12 @@ FEDErrors::FEDCounters & FEDErrors::getFEDErrorsCounters()
   return lFedCounter;
 }
 
+FEDErrors::ChannelCounters & FEDErrors::getChannelErrorsCounters()
+{
+  static ChannelCounters lChCounter;
+  return lChCounter;
+}
+
 FEDErrors::FECounters & FEDErrors::getFEErrorsCounters()
 {
   return feCounter_;
@@ -585,11 +600,13 @@ void FEDErrors::addBadFE(const FEDErrors::FELevelErrors & aFE)
 void FEDErrors::addBadChannel(const FEDErrors::ChannelLevelErrors & aChannel)
 {
   chErrorsDetailed_.push_back(aChannel);
+  incrementChannelCounters(aChannel);
 }
 
 void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors & aAPV, bool & aFirst)
 {
   apvErrors_.push_back(aAPV);
+  incrementAPVCounters(aAPV);
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
     (FEDErrors::getFEDErrorsCounters().nBadChannels)++;
@@ -643,6 +660,21 @@ void FEDErrors::incrementFEDCounters()
 
 }
 
+
+void FEDErrors::incrementChannelCounters(const FEDErrors::ChannelLevelErrors & aChannel)
+{
+  if (aChannel.Unlocked && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nUnlocked)++; 
+  if (aChannel.OutOfSync && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nOutOfSync)++; 
+}
+
+void FEDErrors::incrementAPVCounters(const FEDErrors::APVLevelErrors & aAPV)
+{
+  if (aAPV.Connected && aAPV.IsActive){
+    if (aAPV.APVStatusBit) (FEDErrors::getChannelErrorsCounters().nAPVStatusBit)++; 
+    if (aAPV.APVAddressError) (FEDErrors::getChannelErrorsCounters().nAPVAddressError)++; 
+    if (aAPV.APVError) (FEDErrors::getChannelErrorsCounters().nAPVError)++; 
+  }
+}
 
 
 bool FEDErrors::ChannelLevelErrors::operator <(const FEDErrors::ChannelLevelErrors & aErr) const{
@@ -741,6 +773,7 @@ void FEDErrors::print(const FEDErrors::ChannelLevelErrors & aErr, std::ostream &
       << "[FEDErrors]==== Printing channel errors information :   ====" << std::endl
       << "[FEDErrors]=================================================" << std::endl
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
       << "[FEDErrors]============ statusBit = " << aErr.Unlocked << std::endl
       << "[FEDErrors]============ statusBit = " << aErr.OutOfSync << std::endl
@@ -756,6 +789,7 @@ void FEDErrors::print(const FEDErrors::APVLevelErrors & aErr, std::ostream & aOs
       << "[FEDErrors]=================================================" << std::endl
       << "[FEDErrors]============ APV #" << aErr.APVID  << std::endl
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
       << "[FEDErrors]============ statusBit = " << aErr.APVStatusBit << std::endl
       << "[FEDErrors]============ statusBit = " << aErr.APVError << std::endl

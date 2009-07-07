@@ -54,7 +54,9 @@ public:
 		     double weight=1.
 		     );
 
-  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, const unsigned int aEvtNum);
+  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
+			      const FEDErrors::ChannelCounters & aChLevelCounters, 
+			      const unsigned int aEvtNum);
 
   void fillFEDHistograms(FEDErrors & aFedError, 
 			 bool lFullDebug
@@ -148,6 +150,12 @@ private:
   MonitorElement *nFEDCorruptBuffersvsEvtNum_;
   MonitorElement *nFEDsWithFEProblemsvsEvtNum_;
 
+  MonitorElement *nAPVStatusBitvsEvtNum_;
+  MonitorElement *nAPVErrorvsEvtNum_;
+  MonitorElement *nAPVAddressErrorvsEvtNum_;
+  MonitorElement *nUnlockedvsEvtNum_;
+  MonitorElement *nOutOfSyncvsEvtNum_;
+
   //top level histograms
   MonitorElement *anyFEDErrors_, 
     *anyDAQProblems_, 
@@ -175,12 +183,8 @@ private:
     apvErrorDetailed_, 
     apvAddressErrorDetailed_, 
     unlockedDetailed_, 
-    outOfSyncDetailed_,
-    badStatusBitsvsEvtNumDetailed_,
-    apvErrorvsEvtNumDetailed_,
-    apvAddressErrorvsEvtNumDetailed_,
-    unlockedvsEvtNumDetailed_,
-    outOfSyncvsEvtNumDetailed_;
+    outOfSyncDetailed_;
+
 
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 

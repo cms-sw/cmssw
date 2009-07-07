@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.21 2009/07/03 15:58:55 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.22 2009/07/07 13:32:29 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -275,7 +275,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
   //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
-  fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), iEvent.id().event());
+  fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.id().event());
 
   //match fedId/channel with detid
 

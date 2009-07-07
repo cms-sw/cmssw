@@ -65,54 +65,30 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("nFEDCorruptBuffersvsEvtNum",iConfig,pDebugStream);
   getConfigForHistogram("nFEDsWithFEProblemsvsEvtNum",iConfig,pDebugStream);
 
+  getConfigForHistogram("nAPVStatusBitvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVErrorvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVAddressErrorvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nUnlockedvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nOutOfSyncvsEvtNum",iConfig,pDebugStream);
+
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
 
 
 }
 
-void FEDHistograms::fillHistogram(MonitorElement* histogram, double value, double weight)
+void FEDHistograms::fillHistogram(MonitorElement* histogram, 
+				  double value, 
+				  double weight)
 {
   if (histogram) histogram->Fill(value,weight);
-//   if (weight > 1.0001 || weight < 0.9999) {
-//     if (histogram->getName().find("nTotalBadChannelsvsEvtNum")!= histogram->getName().npos){
-//       static bool lFirst = true;
-//       if (lFirst) {
-// 	minAxis_ = value;
-// 	lFirst = false;
-// 	nTotalBadChannelsvsEvtNum_->getTProfile()
-// 	  ->GetXaxis()
-// 	  ->Set(nTotalBadChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
-// 		minAxis_,
-// 		nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax()
-// 		);
-// 	nTotalBadActiveChannelsvsEvtNum_->getTProfile()
-// 	  ->GetXaxis()
-// 	  ->Set(nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
-// 		minAxis_,
-// 		nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax()
-// 		);
-// 	std::cout << "Minimum found for histo " << histogram->getName() << " at " << minAxis_ << ", changing histo." << std::endl;
-//       }
-//       if (value < minAxis_) {
-// 	minAxis_ = value;
-// 	nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()
-// 	  ->Set(nTotalBadChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
-// 		minAxis_,
-// 		nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax());
-// 	nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()
-// 	  ->Set(nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
-// 		minAxis_,
-// 		nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax());
-//       std::cout << "Minimum found for histo " << histogram->getName() << " at " << minAxis_ << ", changing histo." << std::endl;
-//       }
-//     }
-//   }
 }
 
 
 
-void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, const unsigned int aEvtNum )
+void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
+					   const FEDErrors::ChannelCounters & chLevelCounters, 
+					   const unsigned int aEvtNum )
 {
   fillHistogram(nFEDErrors_,fedLevelCounters.nFEDErrors);
   fillHistogram(nFEDDAQProblems_,fedLevelCounters.nDAQProblems);
@@ -130,9 +106,17 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
   fillHistogram(nFEDErrorsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDErrors);
   fillHistogram(nFEDCorruptBuffersvsEvtNum_,aEvtNum,fedLevelCounters.nCorruptBuffers);
   fillHistogram(nFEDsWithFEProblemsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDsWithFEProblems);
+
+  fillHistogram(nAPVStatusBitvsEvtNum_,aEvtNum,chLevelCounters.nAPVStatusBit);
+  fillHistogram(nAPVErrorvsEvtNum_,aEvtNum,chLevelCounters.nAPVError);
+  fillHistogram(nAPVAddressErrorvsEvtNum_,aEvtNum,chLevelCounters.nAPVAddressError);
+  fillHistogram(nUnlockedvsEvtNum_,aEvtNum,chLevelCounters.nUnlocked);
+  fillHistogram(nOutOfSyncvsEvtNum_,aEvtNum,chLevelCounters.nOutOfSync);
+
 }
 
-void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, bool lFullDebug)
+void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, 
+				      bool lFullDebug)
 {
   const FEDErrors::FEDLevelErrors & lFedLevelErrors = aFedErr.getFEDLevelErrors();
   const unsigned int lFedId = aFedErr.fedID();
@@ -178,7 +162,8 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, bool lFullDebug)
 }
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
-void FEDHistograms::fillFEHistograms(const unsigned int aFedId, const FEDErrors::FELevelErrors & aFeLevelErrors)
+void FEDHistograms::fillFEHistograms(const unsigned int aFedId, 
+				     const FEDErrors::FELevelErrors & aFeLevelErrors)
 {
   const unsigned short lFeId = aFeLevelErrors.FeID;
   bookFEDHistograms(aFedId);
@@ -188,7 +173,9 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId, const FEDErrors:
 }
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
-void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, const FEDErrors::ChannelLevelErrors & aChErr, bool fullDebug)
+void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, 
+					   const FEDErrors::ChannelLevelErrors & aChErr, 
+					   bool fullDebug)
 {
   unsigned int lChId = aChErr.ChannelID;
   bookFEDHistograms(aFedId,fullDebug);
@@ -202,7 +189,9 @@ void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, const FEDE
 }
 
 
-void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId, const FEDErrors::APVLevelErrors & aAPVErr, bool fullDebug)
+void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId, 
+				       const FEDErrors::APVLevelErrors & aAPVErr, 
+				       bool fullDebug)
 {
   unsigned int lChId = aAPVErr.APVID;
   bookFEDHistograms(aFedId,fullDebug);
@@ -340,6 +329,26 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   nFEDsWithFEProblemsvsEvtNum_ = bookProfile("nFEDsWithFEProblemsvsEvtNum",
 					     "nFEDsWithFEProblemsvsEvtNum",
 					     "Number of FEDs with any FE error vs event number");
+
+  nAPVStatusBitvsEvtNum_ = bookProfile("nAPVStatusBitvsEvtNum",
+				       "nAPVStatusBitvsEvtNum",
+				       "Number of channels with APVStatusBit error vs event number");
+
+  nAPVErrorvsEvtNum_ = bookProfile("nAPVErrorvsEvtNum",
+				   "nAPVErrorvsEvtNum",
+				   "Number of channels with APVError vs event number");
+
+  nAPVAddressErrorvsEvtNum_ = bookProfile("nAPVAddressErrorvsEvtNum",
+					  "nAPVAddressErrorvsEvtNum",
+					  "Number of channels with APVAddressError vs event number");
+
+  nUnlockedvsEvtNum_ = bookProfile("nUnlockedvsEvtNum",
+				   "nUnlockedvsEvtNum",
+				   "Number of channels Unlocked vs event number");
+
+  nOutOfSyncvsEvtNum_ = bookProfile("nOutOfSyncvsEvtNum",
+				    "nOutOfSyncvsEvtNum",
+				    "Number of channels OutOfSync vs event number");
 
 
   //book map after, as it creates a new folder...
