@@ -192,7 +192,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 
 #process.p1 = cms.Path(process.photonValidation)
-process.p1 = cms.Path(process.tpSelection*process.photonValidation)
+process.p1 = cms.Path(process.tpSelection*process.photonValidation*process.dqmStoreStats)
 #process.p1 = cms.Path(process.mix*process.trackingParticles*process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
