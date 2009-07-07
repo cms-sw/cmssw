@@ -7,7 +7,8 @@
 
 
 FEDHistograms::FEDHistograms():
-  dqm_(0)
+  dqm_(0),
+  minAxis_(0)
 {
 
 }
@@ -60,6 +61,9 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram("nTotalBadChannelsvsEvtNum",iConfig,pDebugStream);
   getConfigForHistogram("nTotalBadActiveChannelsvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDErrorsvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDCorruptBuffersvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDsWithFEProblemsvsEvtNum",iConfig,pDebugStream);
 
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
@@ -70,6 +74,40 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 void FEDHistograms::fillHistogram(MonitorElement* histogram, double value, double weight)
 {
   if (histogram) histogram->Fill(value,weight);
+//   if (weight > 1.0001 || weight < 0.9999) {
+//     if (histogram->getName().find("nTotalBadChannelsvsEvtNum")!= histogram->getName().npos){
+//       static bool lFirst = true;
+//       if (lFirst) {
+// 	minAxis_ = value;
+// 	lFirst = false;
+// 	nTotalBadChannelsvsEvtNum_->getTProfile()
+// 	  ->GetXaxis()
+// 	  ->Set(nTotalBadChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
+// 		minAxis_,
+// 		nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax()
+// 		);
+// 	nTotalBadActiveChannelsvsEvtNum_->getTProfile()
+// 	  ->GetXaxis()
+// 	  ->Set(nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
+// 		minAxis_,
+// 		nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax()
+// 		);
+// 	std::cout << "Minimum found for histo " << histogram->getName() << " at " << minAxis_ << ", changing histo." << std::endl;
+//       }
+//       if (value < minAxis_) {
+// 	minAxis_ = value;
+// 	nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()
+// 	  ->Set(nTotalBadChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
+// 		minAxis_,
+// 		nTotalBadChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax());
+// 	nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()
+// 	  ->Set(nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetNbinsX(),
+// 		minAxis_,
+// 		nTotalBadActiveChannelsvsEvtNum_->getTProfile()->GetXaxis()->GetXmax());
+//       std::cout << "Minimum found for histo " << histogram->getName() << " at " << minAxis_ << ", changing histo." << std::endl;
+//       }
+//     }
+//   }
 }
 
 
@@ -89,6 +127,9 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
   fillHistogram(nTotalBadChannelsvsEvtNum_,aEvtNum,fedLevelCounters.nTotalBadChannels);
   fillHistogram(nTotalBadActiveChannelsvsEvtNum_,aEvtNum,fedLevelCounters.nTotalBadActiveChannels);
 
+  fillHistogram(nFEDErrorsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDErrors);
+  fillHistogram(nFEDCorruptBuffersvsEvtNum_,aEvtNum,fedLevelCounters.nCorruptBuffers);
+  fillHistogram(nFEDsWithFEProblemsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDsWithFEProblems);
 }
 
 void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, bool lFullDebug)
@@ -151,8 +192,13 @@ void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, const FEDE
 {
   unsigned int lChId = aChErr.ChannelID;
   bookFEDHistograms(aFedId,fullDebug);
-  if (aChErr.Unlocked) fillHistogram(unlockedDetailed_[aFedId],lChId);
-  if (aChErr.OutOfSync) fillHistogram(outOfSyncDetailed_[aFedId],lChId);
+  if (aChErr.Unlocked) {
+    fillHistogram(unlockedDetailed_[aFedId],lChId);
+  }
+  if (aChErr.OutOfSync) {
+    fillHistogram(outOfSyncDetailed_[aFedId],lChId);
+
+  }
 }
 
 
@@ -272,40 +318,28 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs","nFEDsWithMissingFEs",
                                        "Number of FEDs with missing FE unit payloads per event","");
 
- 
-  if (histogramConfig_["nTotalBadChannelsvsEvtNum"].enabled) {
-    nTotalBadChannelsvsEvtNum_ = dqm_->bookProfile("nTotalBadChannelsvsEvtNum",
-						   "Number of channels with any error vs event number",
-						   histogramConfig_["nTotalBadChannelsvsEvtNum"].nBins,
-						   histogramConfig_["nTotalBadChannelsvsEvtNum"].min,
-						   histogramConfig_["nTotalBadChannelsvsEvtNum"].max,
-						   0,
-						   42241 //total number of channels
-						   );
 
-    nTotalBadChannelsvsEvtNum_->setAxisTitle("",1);
-    //automatically set the axis range: will accomodate new values keeping the same number of bins.
-    nTotalBadChannelsvsEvtNum_->getTProfile()->SetBit(TH1::kCanRebin);
-  } else {
-    nTotalBadChannelsvsEvtNum_ = NULL;
-  }
+  nTotalBadChannelsvsEvtNum_ = bookProfile("nTotalBadChannelsvsEvtNum",
+					   "nTotalBadChannelsvsEvtNum",
+					   "Number of channels with any error vs event number");
 
-  if (histogramConfig_["nTotalBadActiveChannelsvsEvtNum"].enabled) {
-    nTotalBadActiveChannelsvsEvtNum_ = dqm_->bookProfile("nTotalBadActiveChannelsvsEvtNum",
-							 "Number of active channels with any error vs event number",
-							 histogramConfig_["nTotalBadActiveChannelsvsEvtNum"].nBins,
-							 histogramConfig_["nTotalBadActiveChannelsvsEvtNum"].min,
-							 histogramConfig_["nTotalBadActiveChannelsvsEvtNum"].max,
-							 0,
-							 42241 //total number of channels
-							 );
 
-    nTotalBadActiveChannelsvsEvtNum_->setAxisTitle("",1);
-    //automatically set the axis range: will accomodate new values keeping the same number of bins.
-    nTotalBadActiveChannelsvsEvtNum_->getTProfile()->SetBit(TH1::kCanRebin);
-  } else {
-    nTotalBadActiveChannelsvsEvtNum_ = NULL;
-  }
+  nTotalBadActiveChannelsvsEvtNum_  = bookProfile("nTotalBadActiveChannelsvsEvtNum",
+						  "nTotalBadActiveChannelsvsEvtNum",
+						  "Number of active channels with any error vs event number");
+
+
+  nFEDErrorsvsEvtNum_ = bookProfile("nFEDErrorsvsEvtNum",
+				    "nFEDErrorsvsEvtNum",
+				    "Number of FEDs with any error vs event number");
+
+  nFEDCorruptBuffersvsEvtNum_ = bookProfile("nFEDCorruptBuffersvsEvtNum",
+					    "nFEDCorruptBuffersvsEvtNum",
+					   "Number of FEDs with corrupt buffer vs event number");
+
+  nFEDsWithFEProblemsvsEvtNum_ = bookProfile("nFEDsWithFEProblemsvsEvtNum",
+					     "nFEDsWithFEProblemsvsEvtNum",
+					     "Number of FEDs with any FE error vs event number");
 
 
   //book map after, as it creates a new folder...
@@ -461,5 +495,31 @@ MonitorElement* FEDHistograms::bookHistogram(const std::string& configName,
 {
   return bookHistogram(configName,name,title,histogramConfig_[configName].nBins,histogramConfig_[configName].min,histogramConfig_[configName].max,xAxisTitle);
 
+}
+ 
+
+MonitorElement* FEDHistograms::bookProfile(const std::string& configName,
+					   const std::string& name,
+					   const std::string& title
+					   )
+{
+ 
+  if (histogramConfig_[configName].enabled) {
+    MonitorElement* histo = dqm_->bookProfile(name,
+					      title,
+					      histogramConfig_[configName].nBins,
+					      histogramConfig_[configName].min,
+					      histogramConfig_[configName].max,
+					      0,
+					      42241 //total number of channels
+					      );
+
+    histo->setAxisTitle("",1);
+    //automatically set the axis range: will accomodate new values keeping the same number of bins.
+    histo->getTProfile()->SetBit(TH1::kCanRebin);
+    return histo;
+  } else {
+    return NULL;
+  }
 }
  

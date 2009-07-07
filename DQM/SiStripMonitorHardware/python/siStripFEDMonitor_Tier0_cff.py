@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi import *
 
-#disable error output: only in P5 configuration.
+#disable error output: enabled in P5 configuration.
 siStripFEDMonitor.PrintDebugMessages = 0
 #Global/summary histograms
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
@@ -97,6 +97,26 @@ siStripFEDMonitor.nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
   #Max = cms.untracked.double(1000)
 )
 siStripFEDMonitor.nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(1000),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(1000)
+)
+siStripFEDMonitor.nFEDErrorsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(1000),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(1000)
+)
+
+siStripFEDMonitor.nFEDCorruptBuffersvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(1000),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(1000)
+)
+
+siStripFEDMonitor.nFEDsWithFEProblemsvsEvtNumHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
   #NBins = cms.untracked.uint32(1000),
   #Min = cms.untracked.double(0),

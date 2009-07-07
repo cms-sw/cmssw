@@ -115,7 +115,12 @@ public:
 				const std::string& title, 
 				const std::string& xAxisTitle
 				);
-  
+
+  MonitorElement* bookProfile(const std::string& configName,
+			      const std::string& name,
+			      const std::string& title
+			      );
+
 protected:
   
 private:
@@ -138,6 +143,10 @@ private:
 
   MonitorElement *nTotalBadChannelsvsEvtNum_;
   MonitorElement *nTotalBadActiveChannelsvsEvtNum_;
+
+  MonitorElement *nFEDErrorsvsEvtNum_;
+  MonitorElement *nFEDCorruptBuffersvsEvtNum_;
+  MonitorElement *nFEDsWithFEProblemsvsEvtNum_;
 
   //top level histograms
   MonitorElement *anyFEDErrors_, 
@@ -166,7 +175,12 @@ private:
     apvErrorDetailed_, 
     apvAddressErrorDetailed_, 
     unlockedDetailed_, 
-    outOfSyncDetailed_;
+    outOfSyncDetailed_,
+    badStatusBitsvsEvtNumDetailed_,
+    apvErrorvsEvtNumDetailed_,
+    apvAddressErrorvsEvtNumDetailed_,
+    unlockedvsEvtNumDetailed_,
+    outOfSyncvsEvtNumDetailed_;
 
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 
@@ -175,6 +189,8 @@ private:
   std::string tkMapConfigName_;
   TkHistoMap *tkmapFED_;
 
+
+  double minAxis_;
 
 
 };//class

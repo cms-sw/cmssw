@@ -92,11 +92,29 @@ siStripFEDMonitor.nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(1000),
   Min = cms.untracked.double(0),
-  Max = cms.untracked.double(1000)
+  Max = cms.untracked.double(100000)
 )
 siStripFEDMonitor.nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(1000),
   Min = cms.untracked.double(0),
-  Max = cms.untracked.double(1000)
+  Max = cms.untracked.double(100000)
+)
+siStripFEDMonitor.nFEDErrorsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(1000),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(100000)
+)
+siStripFEDMonitor.nFEDCorruptBuffersvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(1000),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(100000)
+)
+siStripFEDMonitor.nFEDsWithFEProblemsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(1000),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(100000)
 )
