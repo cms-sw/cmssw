@@ -7,16 +7,21 @@
 #include <cmath>
 
 using namespace std;
+template<T>
+int  go() {
 
-int main() {
-
-    typedef TkRotation<double>              Rotation;
-    typedef GloballyPositioned<double>      Frame;
+    typedef TkRotation<T>                   Rotation;
+    typedef GloballyPositioned<T>           Frame;
     typedef Frame::PositionType             Position;
     typedef Frame::GlobalVector             GlobalVector;
     typedef Frame::GlobalPoint              GlobalPoint;
     typedef Frame::LocalVector              LocalVector;
     typedef Frame::LocalPoint               LocalPoint;
+
+    std::cout << "size of Rot     " << sizeof(Rotation) << std::endl;
+    std::cout << "size of Pos     " << sizeof(Position) << std::endl;
+    std::cout << "size of Point   " << sizeof(GlobalPoint) << std::endl;
+    std::cout << "size of Frame   " << sizeof(Frame) << std::endl;
 
     double a = 0.01;
     double ca = cos(a);
@@ -74,5 +79,14 @@ int main() {
     LocalPoint p_in3p = pp->toLocal( GlobalPoint(p_in1.basicVector()));
     cout << "p_in2p " << p_in2p << endl;
     cout << "p_in3p " << p_in3p << endl;
+
+    return 0;
+}
+
+int main {
+
+  go<float>();
+  std::cout << std::endl;
+  go<double>();
 
 }
