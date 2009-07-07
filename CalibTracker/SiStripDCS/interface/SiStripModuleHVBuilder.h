@@ -12,7 +12,8 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CoralBase/TimeStamp.h"
-#include "CondCore/DBCommon/interface/Time.h"
+//#include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormats/Common/interface/Time.h"
 #include "boost/cstdint.hpp"
 
 /**	

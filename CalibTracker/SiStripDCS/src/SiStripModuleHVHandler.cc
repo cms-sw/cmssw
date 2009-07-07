@@ -98,9 +98,9 @@ void popcon::SiStripModuleHVHandler::setForTransfer() {
 	this->m_to_transfer.push_back(resultVec[i]);
       }
     }
-
+    
     LogTrace("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " << ss.str();
-
+    
   } else {
     edm::LogError("SiStripModuleHVHandler") << "[SiStripModuleHVHandler::" << __func__ << "] " 
 					    << m_name << "  : NULL pointer reported by SiStripModuleHVBuilder"

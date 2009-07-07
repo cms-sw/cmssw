@@ -28,10 +28,12 @@ void SiStripPsuDetIdMap::BuildMap() {
   pgMap.clear();
   detectorLocations.clear();
   dcuIds.clear();
-  dcuDeviceAddr_.clear();
   cgDcuIds.clear();
+  ccuDcuIds.clear();
+
   // first = DCU ID, second = pointer to TkDcuInfo object
   SiStripConfigDb::DcuDetIdsV dcu_detid_vector;
+  dcu_device_addr_vector.clear();
   // pointer to TkDcuPsuMap objects
   DcuPsuVector powerGroup, controlGroup;
   
@@ -54,12 +56,14 @@ void SiStripPsuDetIdMap::BuildMap() {
 	}
       }
       
-      if (iter->second.dcuVersion().first > 0) {
+      if (iter->second.dcuVersion().first > 0 && iter->second.fecVersion().first > 0) {
 	SiStripConfigDb::DcuDetIdsRange range = db_->getDcuDetIds(iter->second.partitionName());
 	if (!range.empty()) {
 	  SiStripConfigDb::DcuDetIdsV nextVec( range.begin(), range.end() );
 	  dcu_detid_vector.insert( dcu_detid_vector.end(), nextVec.begin(), nextVec.end() );
 	}
+	std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
+	dcu_device_addr_vector.insert( dcu_device_addr_vector.end(), nextControlVector.begin(), nextControlVector.end() );
 	retrieveDcuDeviceAddresses(iter->second.partitionName());
       }
     }
@@ -110,35 +114,42 @@ void SiStripPsuDetIdMap::BuildMap() {
   if (!controlGroup.empty() && !dcu_detid_vector.empty()) {
     for (unsigned int cg = 0; cg < controlGroup.size(); cg++) {
       std::vector<uint32_t> dcuids = findDcuIdFromDeviceAddress(controlGroup[cg]->getDcuHardId());
+      
       for (unsigned int d = 0; d < dcuids.size(); d++) {
 	SiStripConfigDb::DcuDetIdsV::iterator iter = SiStripConfigDb::findDcuDetId( dcu_detid_vector.begin(), dcu_detid_vector.end(), dcuids[d] );
 	if (iter != dcu_detid_vector.end()) {
 	  bool presentInMap = false, multiEntry = false;
-	  unsigned int locInMap = 0;
+	  unsigned int locInMap = 0, locOfCopy = 0;
 	  for (unsigned int ch = 0; ch < cgMap.size(); ch++) {
-	    if (cgMap[ch].first == iter->second->getDetId() && cgMap[ch].second == controlGroup[cg]->getDatapointName()) {presentInMap = true;}
+	    if (cgMap[ch].first == iter->second->getDetId() && cgMap[ch].second == controlGroup[cg]->getDatapointName()) {
+	      presentInMap = true;
+	      locOfCopy = ch;
+	    }
 	    if (cgMap[ch].first == iter->second->getDetId() && cgMap[ch].second != controlGroup[cg]->getDatapointName()) {
 	      multiEntry = true;
 	      locInMap = ch;
 	    }
 	  }
-
+	  
 	  if (!presentInMap && !multiEntry) {
 	    cgMap.push_back( std::make_pair(iter->second->getDetId(), controlGroup[cg]->getDatapointName()) );
 	    controlLocations.push_back( controlGroup[cg]->getPVSSName() );
 	    cgDcuIds.push_back( dcuids[d] );
+	    ccuDcuIds.push_back( controlGroup[cg]->getDcuHardId() );
 	  }
 	  if (multiEntry) {
 	    cgMap[locInMap].first = iter->second->getDetId();
 	    cgMap[locInMap].second = controlGroup[cg]->getDatapointName();
 	    controlLocations[locInMap] = controlGroup[cg]->getPVSSName();
 	    cgDcuIds[locInMap] = dcuids[d];
+	    ccuDcuIds[locInMap] = controlGroup[cg]->getDcuHardId();
 	  }
 	}
       }
     }
-  }
-  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "]: Size of PSU-DetID map is: " << pgMap.size();
+  }  
+  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "]: Size of power group PSU-DetID map is: " << pgMap.size();
+  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "]: Size of control group PSU-DetID map is: " << cgMap.size();
 }
 
 // Extract DCU-PSU map from DB
@@ -226,32 +237,83 @@ void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange
   pRange = PGrange;
 }
 
+std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string pvss) {
+  std::vector<uint32_t> detids;
+  
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    if (iter->first && iter->second == pvss) {
+      detids.push_back(iter->first);
+    }
+  }
+  
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+
+  return detids;
+}
+
+std::vector<uint32_t> SiStripPsuDetIdMap::getHvDetID(std::string pvss) {
+  std::vector<uint32_t> detids;
+  std::string inputBoard = pvss;
+  std::string::size_type loc = inputBoard.size()-3;
+  inputBoard.erase(loc,3);
+  
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    std::string board = iter->second;
+    std::string::size_type loca = board.size()-3;
+    board.erase(loca,3);
+    if (iter->first && inputBoard == board) {
+      detids.push_back(iter->first);
+    }
+  }
+  
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+  
+  return detids;
+}
+
 // This method needs to be updated once HV channel mapping is known
 // Currently, channel number is ignored for mapping purposes
 // check both PG and CG as the channels should be unique
 std::vector<uint32_t> SiStripPsuDetIdMap::getDetID(std::string pvss) {
-  PsuDetIdMap::iterator iter;
   std::vector<uint32_t> detids;
   
   std::string inputBoard = pvss;
   std::string::size_type loc = inputBoard.size()-3;
   inputBoard.erase(loc,3);
   
-  for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
     std::string board = iter->second;
     std::string::size_type loca = board.size()-3;
     board.erase(loca,3);
-    if (iter->first && inputBoard == board) {detids.push_back(iter->first);}
-  }
-  if (detids.empty()) {
-    LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] PSU channel not found in PGs ... Searching CGs!";
-    for (iter = cgMap.begin(); iter != cgMap.end(); iter++) {
-      std::string board = iter->second;
-      std::string::size_type loca = board.size()-3;
-      board.erase(loca,3);
-      if (iter->first && inputBoard == board) {detids.push_back(iter->first);}
+    if (inputBoard == board) {
+      detids.push_back(iter->first);
     }
   }
+  // 12/6/09 (JEC)  Remove control groups because O2O is power groups ONLY
+  /*
+    if (detids.empty()) {
+    LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] PSU channel not found in PGs ... Searching CGs!";
+    for (PsuDetIdMap::iterator iter = cgMap.begin(); iter != cgMap.end(); iter++) {
+    std::string board = iter->second;
+    // control groups are ONLY LV
+    std::string::size_type loca = board.size()-3;
+    board.erase(loca,3);
+    if (iter->first && inputBoard == board) {detids.push_back(iter->first);}
+    }
+    }
+  */
+  
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+  
   return detids;
 }
 
@@ -426,10 +488,12 @@ void SiStripPsuDetIdMap::checkMapInputValues(SiStripConfigDb::DcuDetIdsV dcuDetI
   std::cout << "Size of detectorLocations:          " << detectorLocations.size() << std::endl;
 }
 
-void SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
+std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
   // get the DB parameters
   SiStripDbParams dbParams_ = db_->dbParams();
   SiStripDbParams::SiStripPartitions::const_iterator iter;
+  
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > resultVec;
   
   SiStripConfigDb::DeviceDescriptionsV dcuDevices_;
   SiStripConfigDb::DeviceType device_ = DCU;
@@ -437,39 +501,49 @@ void SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
   for (iter = dbParams_.partitions().begin(); iter != dbParams_.partitions().end(); ++iter) {
     if ( partition == "" || partition == iter->second.partitionName() ) {
       if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
-      if (iter->second.dcuVersion().first > 0) {
+      if (iter->second.dcuVersion().first > 0 && iter->second.fecVersion().first > 0) {
 	SiStripConfigDb::DeviceDescriptionsRange range = db_->getDeviceDescriptions(device_,iter->second.partitionName());
 	if (!range.empty()) {
 	  SiStripConfigDb::DeviceDescriptionsV nextVec( range.begin(), range.end() );
 	  for (unsigned int i = 0; i < nextVec.size(); i++) {
 	    dcuDescription * desc = dynamic_cast<dcuDescription *>(nextVec[i]);
-	    dcuDeviceAddr_.push_back( std::make_pair( desc->getDcuHardId(), db_->deviceAddress(*(nextVec[i])) ) );
+	    resultVec.push_back( std::make_pair( desc->getDcuHardId(), db_->deviceAddress(*(nextVec[i])) ) );
 	  }
 	}
       }
     }
   }
+  return resultVec;
 }
 
 std::vector<uint32_t> SiStripPsuDetIdMap::findDcuIdFromDeviceAddress(uint32_t dcuid_) {
   // find the dcu id
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator jter = dcuDeviceAddr_.begin();
-  for ( ; jter != dcuDeviceAddr_.end(); jter++) {
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator jter = dcu_device_addr_vector.begin();
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator res_iter = dcu_device_addr_vector.end();
+  for ( ; jter != dcu_device_addr_vector.end(); jter++) {
     if (jter->first == dcuid_) {
-      break;
+      if (res_iter == dcu_device_addr_vector.end()) {
+	res_iter = jter;
+      }
     }
   }
   
   // identify other DCUs associated to this FEC
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator dter = dcuDeviceAddr_.begin();
   std::vector<uint32_t> pgDcu;
-  for ( ; dter != dcuDeviceAddr_.end(); dter++) {
-    if (jter->second.fecCrate_ == dter->second.fecCrate_ &&
-	jter->second.fecSlot_ == dter->second.fecSlot_ &&
-	jter->second.fecRing_ == dter->second.fecRing_) {
-      pgDcu.push_back(dter->first);
+  
+  if (res_iter != dcu_device_addr_vector.end()) {
+    std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator dter = dcu_device_addr_vector.begin();
+    for ( ; dter != dcu_device_addr_vector.end(); dter++) {
+      if (res_iter->second.fecCrate_ == dter->second.fecCrate_ &&
+	  res_iter->second.fecSlot_ == dter->second.fecSlot_ &&
+	  res_iter->second.fecRing_ == dter->second.fecRing_) {
+	pgDcu.push_back(dter->first);
+      }
     }
+  } else {
+    edm::LogError("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] Did not find FEC information for DCU ID " << dcuid_;
   }
   return pgDcu;
 }
+
 

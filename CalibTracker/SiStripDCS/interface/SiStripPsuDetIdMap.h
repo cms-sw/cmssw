@@ -38,6 +38,9 @@ class SiStripPsuDetIdMap
   /** Destructor */
   ~SiStripPsuDetIdMap();
 
+  std::vector<uint32_t> getLvDetID(std::string pvss);
+  std::vector<uint32_t> getHvDetID(std::string pvss);
+
   /** Returns the DetIDs associate to the specified PSU channel. */
   std::vector<uint32_t> getDetID(std::string pvss);
   /** Returns the PSU channel name for the specified Det ID, for power groups only. */
@@ -65,9 +68,11 @@ class SiStripPsuDetIdMap
   std::vector< std::pair<uint32_t, std::string> > getControlPsuDetIdMap() {return cgMap;}
   /** Return the CG detector locations as a vector - one-to-one correspondance with the contents of the PSU-DetID map vector. */
   std::vector<std::string> getControlDetectorLocations() {return controlLocations;}
-  /** Return the DCU IDs associated to the CG map. */
+  /** Return the module DCU IDs associated to the CG map. */
   std::vector<uint32_t> getCgDcuIds() {return cgDcuIds;}
-
+  /** Return the CCU DCU IDs associated to the CG map. */
+  std::vector<uint32_t> getCcuDcuIds() {return ccuDcuIds;}
+  
   /** Produces a formatted printout of the PSU-DETID map. */
   void printMap();
   /** Produces a formatted printout of the control PSU-DETID map. */
@@ -88,7 +93,7 @@ class SiStripPsuDetIdMap
   /** Extracts the DCU-PSU map from the DB. */
   void getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition);
   /** Extracts the DCU device descriptions and stores them for further use. Only used for control groups. */
-  void retrieveDcuDeviceAddresses(std::string partition);
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >  retrieveDcuDeviceAddresses(std::string partition);
   /** Searches the DCU device descriptions for the specified DCU ID. Needed for control groups. */
   std::vector<uint32_t>  findDcuIdFromDeviceAddress(uint32_t dcuid_);
   /** Utility to clone a DCU-PSU map. */
@@ -101,9 +106,8 @@ class SiStripPsuDetIdMap
   edm::Service<SiStripConfigDb> db_;
   PsuDetIdMap pgMap, cgMap;
   std::vector<std::string> detectorLocations, controlLocations;
-  std::vector<uint32_t> dcuIds, cgDcuIds;
+  std::vector<uint32_t> dcuIds, cgDcuIds, ccuDcuIds;
   DcuPsus DcuPsuMapPG_, DcuPsuMapCG_;
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > dcuDeviceAddr_;
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > dcu_device_addr_vector;
 };
 #endif
-

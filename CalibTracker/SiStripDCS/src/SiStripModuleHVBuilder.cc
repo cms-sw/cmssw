@@ -163,7 +163,9 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	int setting = findSetting(dpid[j],changeDate[j],settingDpid,settingDate);
 	if (setting >= 0) {
 	  if (actualValue[j] > (0.97*settingValue[setting])) {actualStatus[j] = 1;}
-	  else {actualStatus[j] = 0;}
+	  else {
+	    actualStatus[j] = 0;
+	  }
 	  dpname[j] = settingDpname[setting];
 	} else {
 	  actualStatus[j] = -1;
@@ -201,9 +203,13 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
   // no need to check for duplicates, as put method for SiStripModuleHV checks for you!
   DetIdTimeStampVector detidV;
   std::vector<bool> StatusGood;
-  std::vector<unsigned int> isHV;  
+  std::vector<unsigned int> isHV;
   unsigned int notMatched = 0;
+  std::vector<std::string> psuName;
   
+  unsigned int ch0bad = 0, ch1bad = 0, ch2bad = 0, ch3bad = 0;
+  std::vector<unsigned int> numLvBad, numHvBad;
+
   for (unsigned int dp = 0; dp < dpname.size(); dp++) {
     if (dpname[dp] != "UNKNOWN") {
       // figure out the channel
@@ -213,16 +219,29 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       // now store!
       std::vector<uint32_t> ids = map_.getDetID(dpname[dp]);
       if (!ids.empty()) {
-	if (board == "channel000" || board == "channel001") {
+	// DCU-PSU maps only channel000 and channel000 and channel001 switch on and off together
+	// so check only channel000
+	//	if (board == "channel000" || board == "channel001") {
+	if (board == "channel000") {
 	  detidV.push_back( std::make_pair(ids,changeDate[dp]) );
-	  if (actualStatus[dp] != 1) {StatusGood.push_back(false);}
-	  else {StatusGood.push_back(true);}
+	  if (actualStatus[dp] != 1) {
+	    if (board == "channel000") {ch0bad++;}
+	    if (board == "channel001") {ch1bad++;}
+	    StatusGood.push_back(false);
+	    numLvBad.insert(numLvBad.end(),ids.begin(),ids.end());
+	  } else {StatusGood.push_back(true);}
 	  isHV.push_back(0);
+	  psuName.push_back( dpname[dp] );
 	} else if (board == "channel002" || board == "channel003") {
 	  detidV.push_back( std::make_pair(ids,changeDate[dp]) );
-	  if (actualStatus[dp] != 1) {StatusGood.push_back(false);}
-	  else {StatusGood.push_back(true);}
+	  if (actualStatus[dp] != 1) {
+	    if (board == "channel002") {ch2bad++;}
+	    if (board == "channel003") {ch3bad++;}
+	    StatusGood.push_back(false);
+	    numHvBad.insert(numHvBad.end(),ids.begin(),ids.end());
+	  } else {StatusGood.push_back(true);}
 	  isHV.push_back(1);
+	  psuName.push_back( dpname[dp] );
 	} else {
 	  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
 	}
@@ -231,22 +250,28 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
       notMatched++;
     }
   }
+
+  removeDuplicates(numLvBad);
+  removeDuplicates(numHvBad);
+
+  // useful debugging stuff!
+  /*
+  std::cout << "Bad 000 = " << ch0bad << " Bad 001 = " << ch1bad << std::endl;
+  std::cout << "Bad 002 = " << ch0bad << " Bad 003 = " << ch1bad << std::endl;
+  std::cout << "Number of bad LV detIDs = " << numLvBad.size() << std::endl;
+  std::cout << "Number of bad HV detIDs = " << numHvBad.size() << std::endl;
+  
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with map information    " << detidV.size();
   LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "]: Number of PSUs retrieved from DB with no map information " << notMatched;
-
-  /*
-  if (debug_) {
-    std::cout << "Unprocessed data from DB..." << std::endl;
-    for (unsigned int pp = 0; pp < detidV.size(); pp++) {
-      std::cout << "Index = " << pp << " LV or HV = " << isHV[pp] << " Status = " << StatusGood[pp] << " Time = " << getIOVTime(detidV[pp].second) << std::endl;
-      std::vector<uint32_t> detids = detidV[pp].first;
-      for (unsigned int rr = 0; rr < detids.size(); rr++) {
-	std::cout << detids[rr] << std::endl;
-      }
-    }
-  }
-  */
   
+  unsigned int dupCount = 0;
+  for (unsigned int t = 0; t < numLvBad.size(); t++) {
+    std::vector<unsigned int>::iterator iter = std::find(numHvBad.begin(),numHvBad.end(),numLvBad[t]);
+    if (iter != numHvBad.end()) {dupCount++;}
+  }
+  std::cout << "Number of channels with LV & HV bad = " << dupCount << std::endl;
+  */
+
   // initialize variables
   modulesOff.clear();
   cond::Time_t saveIovTime = 0;
@@ -255,52 +280,80 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
   if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
     modulesOff.push_back( lastStoredCondObj );
     saveIovTime = lastStoredCondObj.second;
+    std::vector<uint32_t> pStats(3,0);
+    pStats[0] = 0;
+    pStats[1] = 0;
+    pStats[2] = 0;
+    payloadStats.push_back(pStats);
   }
-  
+
   for (unsigned int i = 0; i < detidV.size(); i++) {
     std::vector<uint32_t> detids = detidV[i].first;
     removeDuplicates(detids);
+    // set the condition time for the transfer
     cond::Time_t iovtime = 0;
     if (whichTable == "LASTVALUE") {iovtime = latestTime;}
     else {iovtime = getIOVTime((detidV[i]).second);}
-
+    
+    // decide how to initialize modV
     SiStripDetVOff *modV = 0;
     if (iovtime != saveIovTime) { // time is different, so create new object
-      if (i == 0 && modulesOff.empty()) {modV = new SiStripDetVOff();} // create completely new object
+      if (modulesOff.empty()) {modV = new SiStripDetVOff();} // create completely new object
       else {modV = new SiStripDetVOff( *(modulesOff.back().first) );} // start from copy of previous object
     } else {
       modV = (modulesOff.back()).first; // modify previous object
     }
     
+    // extract the detID vector before modifying for stats calculation
     std::vector<uint32_t> beforeV;
     modV->getDetIds(beforeV);
-    
+
+    // set the LV and HV off flags ready for storing
     int lv_off = -1, hv_off = -1;
     if (isHV[i] == 0) {lv_off = !StatusGood[i];}
-    if (isHV[i] == 1) {hv_off = !StatusGood[i];}
-    for (unsigned int j = 0; j < detids.size(); j++) {
-      modV->put(detids[j],hv_off,lv_off);
+    if (isHV[i] == 1) {
+      hv_off = !StatusGood[i];
+      // temporary fix to handle the fact that we don't know which HV channel the detIDs are associated to
+      if (i > 0) {
+	std::string iChannel = psuName[i].substr( (psuName[i].size()-3) );
+	std::string iPsu = psuName[i].substr(0, (psuName[i].size()-3) );
+	if (iChannel == "002" || iChannel == "003") {
+	  for (unsigned int j = 0; j < i; j++) {
+	    std::string jPsu = psuName[j].substr(0, (psuName[j].size()-3) );
+	    std::string jChannel = psuName[j].substr( (psuName[j].size()-3) );
+	    if (iPsu == jPsu && iChannel != jChannel && (jChannel == "002" || jChannel == "003")) {
+	      if (StatusGood[i] != StatusGood[j]) {hv_off = 1;}
+	    }
+	  }
+	}
+      }
     }
     
+    // store the det IDs in the conditions object
+    for (unsigned int j = 0; j < detids.size(); j++) {modV->put(detids[j],hv_off,lv_off);}
+    
+    // calculate the stats for storage
     unsigned int numAdded = 0, numRemoved = 0;
-    if (iovtime == saveIovTime) {  // time is the same so we are modifying an existing object
+    if (iovtime == saveIovTime) {
       std::vector<uint32_t> oldStats = payloadStats.back();
       numAdded = oldStats[1];
       numRemoved = oldStats[2];
     }
     std::vector<uint32_t> afterV;
     modV->getDetIds(afterV);
-
-    if (afterV.size() > beforeV.size()) {
-      numAdded += (afterV.size() - beforeV.size());
-    } else if (afterV.size() < beforeV.size()) {
-      numRemoved += (beforeV.size() - afterV.size());
+    
+    if ((afterV.size() - beforeV.size()) > 0) {
+      numAdded += afterV.size() - beforeV.size();
+    } else if ((beforeV.size() - afterV.size()) > 0) {
+      numRemoved += beforeV.size() - afterV.size();
     }
     
     // store the object if it's a new object
     if (iovtime != saveIovTime) {
-      if (i == 0 || !( *modV == *(modulesOff.back().first) )) {
-	modulesOff.push_back( std::make_pair(modV,iovtime) );
+      SiStripDetVOff * testV = 0;
+      if (!modulesOff.empty()) {testV = modulesOff.back().first;}
+      if (modulesOff.empty() ||  !(*modV == *testV) ) {
+      	modulesOff.push_back( std::make_pair(modV,iovtime) );
 	// save the time of the object
 	saveIovTime = iovtime;
 	// save stats
@@ -309,14 +362,14 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	stats[1] = numAdded;
 	stats[2] = numRemoved;
 	payloadStats.push_back(stats);
-      }
+      } 
     } else {
       (payloadStats.back())[0] = afterV.size();
       (payloadStats.back())[1] = numAdded;
       (payloadStats.back())[2] = numRemoved;
     }
   }
-  
+
   // compare the first element and the last from previous transfer
   if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
     if ( lastStoredCondObj.second == modulesOff[0].second &&
@@ -410,8 +463,8 @@ void SiStripModuleHVBuilder::readLastValueFromFile(std::vector<uint32_t> &dpIDs,
 
   std::string line;
   // remove the first line as it is the title line
-  std::getline(lastValueFile,line);
-  line.clear();
+  //  std::getline(lastValueFile,line);
+  //  line.clear();
   // now extract data
   while( std::getline(lastValueFile,line) ) {
     std::istringstream ss(line);

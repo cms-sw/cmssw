@@ -27,17 +27,37 @@ void testbuilding::beginRun( const edm::Run& run, const edm::EventSetup& setup )
   std::cout << "Size of resultHV = " << resultVector.size() << std::endl;
   std::cout << "Size of stats    = " << stats.size() << std::endl << std::endl;
   for (unsigned int i = 0; i < resultVector.size(); i++) {
-    std::cout << "Time is " << resultVector[i].second << std::endl;
+    std::cout << "Time is " << resultVector[i].second << " Index = " << i << std::endl;
     std::cout << "Number of bad det ids = " << stats[i][0] << std::endl;
     std::cout << "Number added          = " << stats[i][1] << std::endl;
     std::cout << "Number removed        = " << stats[i][2] << std::endl;
     std::vector<uint32_t> retVec;
     (resultVector[i].first)->getDetIds(retVec);
+    std::vector<uint32_t> fullVec;
+    (resultVector[i].first)->getVoff(fullVec);
     std::cout << "Number of detids = " << retVec.size() << std::endl;
+    
+    unsigned int LVbad = 0, HVbad = 0, allBad = 0;
     for (unsigned int j = 0; j < retVec.size(); j++) {
-      std::cout << "id = " << retVec[j] << " LV = " << (resultVector[i].first)->IsModuleLVOff(retVec[j]) << " HV = " << (resultVector[i].first)->IsModuleHVOff(retVec[j]) << std::endl;
+      if ((resultVector[i].first)->IsModuleLVOff(retVec[j]) && !((resultVector[i].first)->IsModuleHVOff(retVec[j])))  {LVbad++;}
+      if (!((resultVector[i].first)->IsModuleLVOff(retVec[j])) && (resultVector[i].first)->IsModuleHVOff(retVec[j]))  {HVbad++;}
+      if ((resultVector[i].first)->IsModuleLVOff(retVec[j]) && (resultVector[i].first)->IsModuleHVOff(retVec[j]))  {allBad++;}
+    }
+
+    std::cout << "Number LV bad         = " << LVbad << std::endl;
+    std::cout << "Number HV bad         = " << HVbad << std::endl;
+    std::cout << "Number both bad       = " << allBad << std::endl;
+
+    if (i > 0) {
+      SiStripDetVOff *currentV = resultVector[i].first;
+      SiStripDetVOff *lastV = resultVector[i-1].first;
+      std::vector<uint32_t> testDetID;
+      currentV->getVoff(testDetID);
+      std::vector<uint32_t> lastDetID;
+      lastV->getVoff(lastDetID);
+      if (testDetID == lastDetID) {std::cout << "vector for index = " << i << " matches the last one!" << std::endl;}
+      if (*currentV == *lastV) {std::cout << "Value at end of pointer also match!" << std::endl;}
     }
   }
-  
 }
 

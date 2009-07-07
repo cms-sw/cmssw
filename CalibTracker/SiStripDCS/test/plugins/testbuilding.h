@@ -17,7 +17,7 @@ class testbuilding : public edm::EDAnalyzer {
  private:
   void beginRun(const edm::Run&, const edm::EventSetup& );
   void analyze( const edm::Event&, const edm::EventSetup& ) {;}
-  
+
   //  SiStripModuleHVBuilder *hvBuilder;
   edm::Service<SiStripModuleHVBuilder> hvBuilder;
 };
