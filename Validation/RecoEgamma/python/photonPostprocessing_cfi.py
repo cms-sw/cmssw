@@ -34,7 +34,7 @@ photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
 
                                       
                                      
-    InputFileName = cms.untracked.string("DQMOfflinePhotonsBatch.root"),
+    InputFileName = cms.untracked.string("inputPhotonValidation.root"),
                                      
-    OutputFileName = cms.string('DQMOfflinePhotonsStandAlone.root'),
+    OutputFileName = cms.string('standaloneOutputValidation.root'),
 )
