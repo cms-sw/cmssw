@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("corMetGlobalMuons"),
-    METType = cms.untracked.string('CaloMET'),
+    METType = cms.untracked.string('MuonCorrectedCaloMET'),
     FineBinning = cms.untracked.bool(True)
     ) 
 
