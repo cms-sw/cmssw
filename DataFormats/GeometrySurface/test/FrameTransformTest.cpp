@@ -7,7 +7,7 @@
 #include <cmath>
 
 using namespace std;
-template<T>
+template<typename T>
 int  go() {
 
     typedef TkRotation<T>                   Rotation;
