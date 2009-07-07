@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
-
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
@@ -24,7 +22,8 @@ process.MessageLogger = cms.Service("MessageLogger")
 
 process.rpcHSCP = cms.EDFilter("RPCHSCP",
     rootFileName = cms.untracked.string('hscp.root'),
-    fileMatrixname = cms.untracked.string('matrix.txt')
+    fileMatrixname = cms.untracked.string('matrix.txt'),
+    partLabel = cms.untracked.string('genParticles')
 )
 
 process.p = cms.Path(process.rpcHSCP)
