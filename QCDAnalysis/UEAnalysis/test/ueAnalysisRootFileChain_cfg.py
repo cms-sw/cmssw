@@ -12,14 +12,10 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    cerr = cms.untracked.PSet(
-    default = cms.untracked.PSet(
-    limit = cms.untracked.int32(10)
-    )
-    ),
+                               
                                     cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('ERROR')
-    # threshold = cms.untracked.string('DEBUG')
+    #threshold = cms.untracked.string('ERROR')
+     threshold = cms.untracked.string('DEBUG')
     ),
                                     destinations = cms.untracked.vstring('cout')
                                     )
@@ -28,7 +24,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
     )
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:/rdata2/uhh-cms013/data/bechtel/Summer08/CMSSW_2_1_9/src/RelValQCD_Pt_80_120-Ideal-000AD2A4-6E86-DD11-AA99-000423D9863C.root')
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre11/RelValMinBias_2M_PROD/GEN-SIM-RECO/MC_31X_V1-v1/0000/E49ABFE2-EE64-DE11-A43C-000423D991D4.root',
+        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias_2M_PROD/GEN-SIM-RECO/MC_31X_V1-v1/0000/D497326B-C564-DE11-AE6A-000423D95030.root',
+        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias_2M_PROD/GEN-SIM-RECO/MC_31X_V1-v1/0000/A65659E9-C664-DE11-847D-001D09F295A1.root'
+)
                             )
 
 #process.EventAnalyzer = cms.EDAnalyzer("EventContentAnalyzer")

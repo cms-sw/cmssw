@@ -10,14 +10,26 @@ process.load("QCDAnalysis.UEAnalysis.UEAnalysisJets_cfi")
 process.load("QCDAnalysis.UEAnalysis.UEAnalysisRootpleOnlyMC_cfi")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('MBUEAnalysisRootFileOnlyMC.root')
+    fileName = cms.string('/tmp/lucaroni/MBUEAnalysisRootFileOnlyMC.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/CSA08/JetET20/RECO/STARTUP_V2_v1/0017/FE817C29-8A1B-DD11-835D-000423D992DC.root')
+    fileNames = cms.untracked.vstring(
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_1.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_2.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_3.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_4.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_5.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_6.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_7.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_8.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_9.root',
+     'rfio:///?svcClass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/lucaroni/D6T/PYTHIA6_MinBias_10TeV_cff_py_GEN_10.root'
+    )
+
 )
 
 process.p1 = cms.Path(process.UEAnalysisParticles*process.UEAnalysisJetsOnlyMC*process.UEAnalysisOnlyMC)
