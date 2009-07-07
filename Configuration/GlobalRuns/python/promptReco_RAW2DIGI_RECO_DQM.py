@@ -12,7 +12,7 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 #process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-process.load('Configuration/StandardSequences/MagneticField_0T_cff')
+process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 process.load('Configuration/StandardSequences/ReconstructionCosmics_cff')
 process.load('DQMOffline/Configuration/DQMOfflineCosmics_cff')
@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
