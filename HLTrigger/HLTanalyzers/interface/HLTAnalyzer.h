@@ -115,10 +115,16 @@ private:
   edm::InputTag NonIsoElectronLW_;
   edm::InputTag IsoEleTrackIsolLW_;
   edm::InputTag NonIsoEleTrackIsolLW_;
+  edm::InputTag IsoElectronSS_;
+  edm::InputTag NonIsoElectronSS_;
+  edm::InputTag IsoEleTrackIsolSS_;
+  edm::InputTag NonIsoEleTrackIsolSS_;
   edm::InputTag L1IsoPixelSeeds_;
   edm::InputTag L1NonIsoPixelSeeds_;
   edm::InputTag L1IsoPixelSeedsLW_;
   edm::InputTag L1NonIsoPixelSeedsLW_;
+  edm::InputTag L1IsoPixelSeedsSS_;
+  edm::InputTag L1NonIsoPixelSeedsSS_;
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 

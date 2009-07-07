@@ -72,16 +72,22 @@ public:
       const edm::Handle<reco::PhotonCollection>              & photons,
       const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
       const edm::Handle<reco::ElectronCollection>            & electronIsoHandleLW,
+      const edm::Handle<reco::ElectronCollection>            & electronIsoHandleSS,
       const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
       const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandleLW,
+      const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandleSS,
       const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMap,
       const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapLW,
+      const edm::Handle<reco::ElectronIsolationMap>          & NonIsoTrackEleIsolMapSS,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapLW,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMapLW,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMapSS,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1IsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1IsoPixelSeedsMapSS,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1NonIsoPixelSeedsMapLW,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1NonIsoPixelSeedsMapSS,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & EcalIsolMap,
@@ -123,7 +129,7 @@ private:
       const edm::Handle<reco::ElectronCollection>            & electronIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1IsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1IsoPixelSeedsMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap,
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
@@ -134,7 +140,7 @@ private:
       const edm::Handle<reco::ElectronCollection>            & electronNonIsoHandle,
       const edm::Handle<reco::RecoEcalCandidateCollection>   & recoNonIsolecalcands,
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & HcalEleIsolMap,
-      const edm::Handle<reco::ElectronSeedCollection>   & L1NonIsoPixelSeedsMap,
+      const edm::Handle<reco::ElectronSeedCollection>        & L1NonIsoPixelSeedsMap,
       const edm::Handle<reco::ElectronIsolationMap>          & TrackEleIsolMap, 
       EcalClusterLazyTools& lazyTools,
       const edm::ESHandle<MagneticField>& theMagField,
@@ -153,11 +159,12 @@ void CalculateDetaDphi(
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso;
   float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso;
   float *heleetLW, *heleetaLW, *helephiLW, *heleELW, *helepLW, *helehisoLW, *heletisoLW;
-  float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi, *heleClusShapLW, *heleDetaLW, *heleDphiLW;
-  int *hphotl1iso, *helel1iso, *helePixelSeeds, *helel1isoLW, *helePixelSeedsLW;
+  float *heleetSS, *heleetaSS, *helephiSS, *heleESS, *helepSS, *helehisoSS, *heletisoSS;
+  float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi, *heleClusShapLW, *heleDetaLW, *heleDphiLW, *heleClusShapSS, *heleDetaSS, *heleDphiSS;
+  int *hphotl1iso, *helel1iso, *helePixelSeeds, *helel1isoLW, *helePixelSeedsLW, *helel1isoSS, *helePixelSeedsSS;
   int *eleId;// RL  + 2*RT + 4*L +  4*T 
-  int *heleNewSC, *heleNewSCLW;
-  int nele, nphoton, nhltgam, nhltele, nhlteleLW;
+  int *heleNewSC, *heleNewSCLW, *heleNewSCSS;
+  int nele, nphoton, nhltgam, nhltele, nhlteleLW, nhlteleSS;
 
   struct OpenHLTPhoton {
     float Et;

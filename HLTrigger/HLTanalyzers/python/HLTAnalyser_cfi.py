@@ -61,6 +61,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PixelSeedL1NonIsoLargeWindows   = cms.InputTag("hltL1NonIsoLargeWindowElectronPixelSeeds"),
     IsoEleTrackIsolLargeWindows     = cms.InputTag("hltL1IsoLWEleTrackIsol"),
     NonIsoEleTrackIsolLargeWindows  = cms.InputTag("hltL1NonIsoLWEleTrackIsol"),
+    ### egamma - SiStrip
+    IsoElectronsSiStrip             = cms.InputTag("hltPixelMatchElectronsL1IsoSS"),
+    NonIsoElectronsSiStrip          = cms.InputTag("hltPixelMatchElectronsL1NonIsoSS"),
+    PixelSeedL1IsoSiStrip           = cms.InputTag("hltL1IsoSiStripElectronPixelSeeds"),
+    PixelSeedL1NonIsoSiStrip        = cms.InputTag("hltL1NonIsoSiStripElectronPixelSeeds"),
+    IsoEleTrackIsolSiStrip          = cms.InputTag("hltL1IsoSSEleTrackIsol"),
+    NonIsoEleTrackIsolSiStrip       = cms.InputTag("hltL1NonIsoSSEleTrackIsol"),
 
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),

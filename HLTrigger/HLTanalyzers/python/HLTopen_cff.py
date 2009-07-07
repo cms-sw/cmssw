@@ -113,6 +113,39 @@ hltPixelMatchElectronsL1IsoLW = cms.EDProducer( "EgammaHLTPixelMatchElectronProd
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
 )
 
+## SiStrip ele RECO L1ISO
+hltCkfL1IsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltL1IsoSiStripElectronPixelSeeds" ),
+    TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    useHitsSplitting = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False )
+)
+
+hltCtfL1IsoSS = cms.EDProducer( "TrackProducer",
+    TrajectoryInEvent = cms.bool( True ),
+    useHitsSplitting = cms.bool( False ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    alias = cms.untracked.string( "hltCtfL1IsoSS" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
+    src = cms.InputTag( "hltCkfL1IsoSSTC" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    AlgorithmName = cms.string( "undefAlgorithm" )
+)
+hltPixelMatchElectronsL1IsoSS = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
+    TrackProducer = cms.InputTag( "hltCtfL1IsoSS" ),
+    BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
+)
+
 ## LW ele RECO L1NonISO
 hltCkfL1NonIsoLWTC = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1NonIsoLargeWindowElectronPixelSeeds" ),
@@ -146,9 +179,40 @@ hltPixelMatchElectronsL1NonIsoLW = cms.EDProducer( "EgammaHLTPixelMatchElectronP
     BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
 )
 
+## SiStrip ele RECO L1NonISO
+hltCkfL1NonIsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltL1NonIsoSiStripElectronPixelSeeds" ),
+    TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    useHitsSplitting = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False )
+)
+
+hltCtfL1NonIsoSS = cms.EDProducer( "TrackProducer",
+    TrajectoryInEvent = cms.bool( True ),
+    useHitsSplitting = cms.bool( False ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    alias = cms.untracked.string( "hltCtfL1NonIsoSS" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
+    src = cms.InputTag( "hltCkfL1NonIsoSSTC" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    AlgorithmName = cms.string( "undefAlgorithm" )
+)
+hltPixelMatchElectronsL1NonIsoSS = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
+    TrackProducer = cms.InputTag( "hltCtfL1NonIsoSS" ),
+    BSProducer = cms.InputTag( "hltOfflineBeamSpot" )
+)
+
 ## LW ele TrackIso L1Iso
-
-
 hltL1IsoLWEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
     ptMin = cms.double( 1.5 ),
     vertexZ = cms.double( 0.0 ),
@@ -180,6 +244,7 @@ hltL1IsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
+
 hltL1IsoLWEleRegioCTF = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( False ),
     useHitsSplitting = cms.bool( False ),
@@ -193,6 +258,51 @@ hltL1IsoLWEleRegioCTF = cms.EDProducer( "TrackProducer",
     AlgorithmName = cms.string( "undefAlgorithm" )
 )
 
+## SiStrip ele TrackIso L1Iso
+hltL1IsoSSEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
+    ptMin = cms.double( 1.5 ),
+    vertexZ = cms.double( 0.0 ),
+    originRadius = cms.double( 0.02 ),
+    originHalfLength = cms.double( 0.5 ),
+    deltaEtaRegion = cms.double( 0.3 ),
+    deltaPhiRegion = cms.double( 0.3 ),
+    candTag = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
+    candTagEle = cms.InputTag( "hltPixelMatchElectronsL1IsoSS" ),
+    UseZInVertex = cms.bool( True ),
+    BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
+    OrderedHitsFactoryPSet = cms.PSet( 
+      ComponentName = cms.string( "StandardHitPairGenerator" ),
+      SeedingLayers = cms.string( "MixedLayerPairs" )
+    )
+)
+
+hltL1IsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltL1IsoSSEleRegPSG" ),
+    TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    useHitsSplitting = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False )
+)
+
+hltL1IsoSSEleRegioCTF = cms.EDProducer( "TrackProducer",
+    TrajectoryInEvent = cms.bool( False ),
+    useHitsSplitting = cms.bool( False ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    alias = cms.untracked.string( "hltL1IsoSSEleRegioCTF" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
+    src = cms.InputTag( "hltL1IsoSSEleRegioCkfTC" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    AlgorithmName = cms.string( "undefAlgorithm" )
+)
 
 ## LW ele TrackIso L1NonIso
 hltL1NonIsoLWEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
@@ -211,8 +321,6 @@ hltL1NonIsoLWEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorPro
       SeedingLayers = cms.string( "MixedLayerPairs" )
     )
 )
-
-
 hltL1NonIsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltL1NonIsoLWEleRegPSG" ),
     TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
@@ -240,6 +348,49 @@ hltL1NonIsoLWEleRegioCTF = cms.EDProducer( "TrackProducer",
     AlgorithmName = cms.string( "undefAlgorithm" )
 )
 
+## SiStrip ele TrackIso L1NonIso
+hltL1NonIsoSSEleRegPSG = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
+    ptMin = cms.double( 1.5 ),
+    vertexZ = cms.double( 0.0 ),
+    originRadius = cms.double( 0.02 ),
+    originHalfLength = cms.double( 0.5 ),
+    deltaEtaRegion = cms.double( 0.3 ),
+    deltaPhiRegion = cms.double( 0.3 ),
+    candTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
+    candTagEle = cms.InputTag( "hltPixelMatchElectronsL1NonIsoSS" ),
+    UseZInVertex = cms.bool( True ),
+    BSProducer = cms.InputTag( "hltOfflineBeamSpot" ),
+    OrderedHitsFactoryPSet = cms.PSet( 
+      ComponentName = cms.string( "StandardHitPairGenerator" ),
+      SeedingLayers = cms.string( "MixedLayerPairs" )
+    )
+)
+hltL1NonIsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltL1NonIsoSSEleRegPSG" ),
+    TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    useHitsSplitting = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    cleanTrajectoryAfterInOut = cms.bool( False )
+)
+hltL1NonIsoSSEleRegioCTF = cms.EDProducer( "TrackProducer",
+    TrajectoryInEvent = cms.bool( False ),
+    useHitsSplitting = cms.bool( False ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    alias = cms.untracked.string( "hltL1NonIsoSSEleRegioCTF" ),
+    Fitter = cms.string( "hltKFFittingSmoother" ),
+    Propagator = cms.string( "PropagatorWithMaterial" ),
+    src = cms.InputTag( "hltL1NonIsoSSEleRegioCkfTC" ),
+    beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+    TTRHBuilder = cms.string( "WithTrackAngle" ),
+    AlgorithmName = cms.string( "undefAlgorithm" )
+)
 
 ## track iso for LW
 hltL1IsoLWEleTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
@@ -262,6 +413,26 @@ hltL1NonIsoLWEleTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProd
     egTrkIsoVetoConeSize = cms.double( 0.02 )
 )
 
+## track iso for SiStrip
+hltL1IsoSSEleTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1IsoSS" ),
+    trackProducer = cms.InputTag( "hltL1IsoSSEleRegioCTF" ),
+    egTrkIsoPtMin = cms.double( 1.5 ),
+    egTrkIsoConeSize = cms.double( 0.2 ),
+    egTrkIsoZSpan = cms.double( 0.1 ),
+    egTrkIsoRSpan = cms.double( 999999.0 ),
+    egTrkIsoVetoConeSize = cms.double( 0.02 )
+)
+
+hltL1NonIsoSSEleTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
+    electronProducer = cms.InputTag( "hltPixelMatchElectronsL1NonIsoSS" ),
+    trackProducer = cms.InputTag( "hltL1NonIsoSSEleRegioCTF" ),
+    egTrkIsoPtMin = cms.double( 1.5 ),
+    egTrkIsoConeSize = cms.double( 0.2 ),
+    egTrkIsoZSpan = cms.double( 0.1 ),
+    egTrkIsoRSpan = cms.double( 999999.0 ),
+    egTrkIsoVetoConeSize = cms.double( 0.02 )
+)
 
 DoLWTracking = cms.Sequence(
     hltCkfL1IsoLWTC +
@@ -278,6 +449,23 @@ DoLWTracking = cms.Sequence(
     hltL1NonIsoLWEleRegioCkfTC +
     hltL1NonIsoLWEleRegioCTF +
     hltL1NonIsoLWEleTrackIsol     
+    )
+
+DoSSTracking = cms.Sequence(
+    hltCkfL1IsoSSTC +
+    hltCtfL1IsoSS +
+    hltPixelMatchElectronsL1IsoSS +
+    hltCkfL1NonIsoSSTC +
+    hltCtfL1NonIsoSS +
+    hltPixelMatchElectronsL1NonIsoSS +
+    hltL1IsoSSEleRegPSG +
+    hltL1IsoSSEleRegioCkfTC +
+    hltL1IsoSSEleRegioCTF +
+    hltL1IsoSSEleTrackIsol +
+    hltL1NonIsoSSEleRegPSG +
+    hltL1NonIsoSSEleRegioCkfTC +
+    hltL1NonIsoSSEleRegioCTF +
+    hltL1NonIsoSSEleTrackIsol     
     )
 
 DoHLTElectronStartUpWindows = cms.Path( 
@@ -316,6 +504,23 @@ DoHLTElectronLargeWindows = cms.Path(
     hltL1IsoLargeWindowElectronPixelSeeds +
     hltL1NonIsoLargeWindowElectronPixelSeeds +
     DoLWTracking
+    )
+
+DoHLTElectronSiStrip = cms.Path( 
+    HLTBeginSequence + 
+    HLTDoRegionalEgammaEcalSequence + 
+    HLTL1IsolatedEcalClustersSequence + 
+    HLTL1NonIsolatedEcalClustersSequence + 
+    hltL1IsoRecoEcalCandidate + 
+    hltL1NonIsoRecoEcalCandidate + 
+    HLTDoLocalHcalWithoutHOSequence + 
+    hltL1IsolatedElectronHcalIsol + 
+    hltL1NonIsolatedElectronHcalIsol + 
+    HLTDoLocalPixelSequence + 
+    HLTDoLocalStripSequence +
+    hltL1IsoSiStripElectronPixelSeeds +
+    hltL1NonIsoSiStripElectronPixelSeeds +
+    DoSSTracking
     )
 
 # create the tau HLT reco path
