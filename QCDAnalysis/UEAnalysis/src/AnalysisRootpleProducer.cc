@@ -1,6 +1,7 @@
 // Authors: F. Ambroglini, L. Fano', F. Bechtel
 #include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h>
- 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -117,9 +118,16 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   /// Herwig: genEventScaleTag = "genEventKTValue"
   ///
 
-  if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+  // if ( e.getByLabel( genEventScaleTag, genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
 
-  // access trigger bits by TriggerEvent
+  Handle<GenEventInfoProduct> hEventInfo;
+  e.getByLabel(genEventScaleTag , hEventInfo);
+ if (hEventInfo->binningValues().size() > 0)
+   { 
+    genEventScale = hEventInfo->binningValues()[0];
+   }  
+
+// access trigger bits by TriggerEvent
   //   acceptedTriggers->Clear();
   //   unsigned int iAcceptedTriggers( 0 );
   //   if (e.getByLabel( triggerEventTag, triggerEvent ) )
