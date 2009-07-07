@@ -11,8 +11,8 @@
  *  NavigationSchool and activated with a NavigationSetter before they 
  *  can be used.
  *
- *  $Date: 2007/07/14 08:25:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/08/21 20:48:47 $
+ *  $Revision: 1.11 $
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
@@ -68,6 +68,15 @@ class DetLayer : public  virtual GeometricSearchDet {
   std::vector<const DetLayer*> 
   compatibleLayers(const FreeTrajectoryState& fts, 
 		   PropagationDirection timeDirection) const;
+
+
+  /// Returns all layers compatible with the specified FreeTrajectoryState
+  /// and PropagationDirection. the counter is used to count how many levels the recursive call was depth;
+  /// counter = -1 is returned in case of error.
+  std::vector<const DetLayer*> 
+  compatibleLayers(const FreeTrajectoryState& fts, 
+		   PropagationDirection timeDirection,
+		   int& counter) const;
 
   
  private:
