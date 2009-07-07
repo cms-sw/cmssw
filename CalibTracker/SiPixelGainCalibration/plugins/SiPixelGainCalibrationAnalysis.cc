@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.37 2009/02/26 10:27:36 argiro Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.38 2009/04/30 13:19:07 rougny Exp $
 //
 //
 
@@ -60,10 +60,10 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   recordName_(conf_.getParameter<std::string>("record")),
 
   appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
-  theGainCalibrationDbInput_(0),
+  /*theGainCalibrationDbInput_(0),
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
-  theGainCalibrationDbInputService_(iConfig),
+  theGainCalibrationDbInputService_(iConfig),*/
   gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(0.),
   useVcalHigh_(conf_.getParameter<bool>("useVCALHIGH")),
   scalarVcalHigh_VcalLow_(conf_.getParameter<double>("vcalHighToLowConversionFac"))
