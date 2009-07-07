@@ -70,16 +70,19 @@ int  go() {
     cout << "p_in1_from3 + " << p_in1_from3 << endl;
 
     BoundPlane plane(f2.position(), f2.rotation());
+
 //     FrameChanger<double> changer;
 //     FrameChanger<double>::PlanePtr pp = changer.toFrame( plane, f1);
+
+/*
     FrameChanger changer;
     FrameChanger::PlanePtr pp = changer.transformPlane( plane, f1);
-
+    
     LocalPoint p_in2p = plane.toLocal( gp);
     LocalPoint p_in3p = pp->toLocal( GlobalPoint(p_in1.basicVector()));
     cout << "p_in2p " << p_in2p << endl;
     cout << "p_in3p " << p_in3p << endl;
-
+*/
     return 0;
 }
 
