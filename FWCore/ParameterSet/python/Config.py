@@ -9,7 +9,7 @@ options = Options()
 import sys
 from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from Mixins import *
-from Types import * 
+from Types import *
 from Modules import *
 from Modules import _Module
 from SequenceTypes import *
@@ -18,6 +18,60 @@ from SequenceVisitors import PathValidator, EndPathValidator
 import DictTypes
 
 from ExceptionHandling import *
+
+def checkImportPermission(minLevel = 2, allowedPatterns = []):
+    """
+    Raise an exception if called by special config files. This checks
+    the call or import stack for the importing file. An exception is raised if
+    the importing module is not in allowedPatterns and if it is called too deeply:
+    minLevel = 2: inclusion by top lvel cfg only
+    minLevel = 1: No inclusion allowed
+    allowedPatterns = ['Module1','Module2/SubModule1'] allows import
+    by any module in Module1 or Submodule1
+    """
+
+    import inspect
+    import os
+
+    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>']
+    CMSSWPath = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
+
+    # Filter the stack to things in CMSSWPath and not in ignorePatterns
+    trueStack = []
+    for item in inspect.stack():
+        inPath = False
+        ignore = False
+
+        for pattern in CMSSWPath:
+            if item[1].find(pattern) != -1:
+                inPath = True
+                break
+        if item[1].find('/') == -1: # The base file, no path
+            inPath = True
+
+        for pattern in ignorePatterns:
+            if item[1].find(pattern) != -1:
+                ignore = True
+                break
+
+        if inPath and not ignore:
+            trueStack.append(item[1])
+
+    importedFile = trueStack[0]
+    importedBy   = ''
+    if len(trueStack) > 1:
+        importedBy = trueStack[1]
+
+    for pattern in allowedPatterns:
+        if importedBy.find(pattern) > -1:
+            return True
+
+    if len(trueStack) <= minLevel: # Imported directly
+        return True
+
+    raise ImportError("Inclusion of %s is allowed only by cfg or specified cfi files."
+                      % importedFile)
+
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
     class Temp(object):
@@ -33,7 +87,7 @@ def findProcess(module):
             process = module.process
         else:
             raise RuntimeError("The attribute named 'process' does not inherit from the Process class")
-    else:        
+    else:
         raise RuntimeError("no 'process' attribute found in the module, please add one")
     return process
 
@@ -66,7 +120,7 @@ class Process(object):
 
     def setStrict(self, value):
         self.__isStrict = value
-        _Module.__isStrict__ = True 
+        _Module.__isStrict__ = True
 
     # some user-friendly methods for command-line browsing
     def producerNames(self):
@@ -85,16 +139,16 @@ class Process(object):
         Since cloneToObjectDict stores a hash of objects by their
         id() it needs to be updated when unpickling to use the
         new object id values instantiated during the unpickle.
-        
+
         """
         self.__dict__.update(pkldict)
         tmpDict = {}
         for value in self._cloneToObjectDict.values():
             tmpDict[id(value)] = value
         self.__dict__['_cloneToObjectDict'] = tmpDict
-        
 
-        
+
+
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__filters)
@@ -146,7 +200,7 @@ class Process(object):
     def setPartialSchedule_(self,sch,label):
         if label == "schedule":
             self.setSchedule_(sch)
-        else:     
+        else:
             self._place(label, sch, self.__partialschedules)
     def setSchedule_(self,sch):
         self.__dict__['_Process__schedule'] = sch
@@ -176,11 +230,11 @@ class Process(object):
         return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
     def __setattr__(self,name,value):
-        # check if the name is well-formed (only _ and alphanumerics are allowed)  
+        # check if the name is well-formed (only _ and alphanumerics are allowed)
         if not name.replace('_','').isalnum():
             raise ValueError('The label '+name+' contains forbiden characters')
-        
-        # private variable exempt from all this 
+
+        # private variable exempt from all this
         if name.startswith('_Process__'):
             self.__dict__[name]=value
             return
@@ -200,7 +254,7 @@ class Process(object):
             try:
               newValue._filename = value._filename
             except:
-              pass  
+              pass
             value.setIsFrozen()
         else:
             newValue =value
@@ -209,13 +263,13 @@ class Process(object):
             msg += "\n new object defined in: "+value._filename
             msg += "\n existing object defined in: "+getattr(self,name)._filename
             raise ValueError(msg)
-        # remove the old object of the name (if there is one) 
+        # remove the old object of the name (if there is one)
         if hasattr(self,name) and not (getattr(self,name)==newValue):
             # Allow items in sequences from load() statements to have
             # degeneratate names, but if the user overwrites a name in the
             # main config, replace it everywhere
             if not self.__InExtendCall and isinstance(newValue, _Sequenceable):
-                self._replaceInSequences(name, newValue)            
+                self._replaceInSequences(name, newValue)
             self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -224,14 +278,14 @@ class Process(object):
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
-        
+
     def __delattr__(self,name):
         if not hasattr(self,name):
             raise KeyError('process does not know about '+name)
         elif name.startswith('_Process__'):
             raise ValueError('this attribute cannot be deleted')
-        else: 
-            # we have to remove it from all dictionaries/registries   
+        else:
+            # we have to remove it from all dictionaries/registries
             dicts = [item for item in self.__dict__.values() if (type(item)==dict or type(item)==DictTypes.SortedKeysDict)]
             for reg in dicts:
                 if reg.has_key(name): del reg[name]
@@ -241,10 +295,10 @@ class Process(object):
                 getattr(self,name).setLabel(None)
             # now remove it from the process itself
             try:
-                del self.__dict__[name]    
+                del self.__dict__[name]
             except:
                 pass
-            
+
     def add_(self,value):
         """Allows addition of components which do not have to have a label, e.g. Services"""
         if not isinstance(value,_ConfigureComponent):
@@ -259,10 +313,10 @@ class Process(object):
         else:
             newValue =value
         newValue._place('',self)
-        
+
     def _okToPlace(self, name, mod, d):
-        if not self.__InExtendCall:  
-            # if going     
+        if not self.__InExtendCall:
+            # if going
             return True
         elif not self.__isStrict:
             return True
@@ -306,7 +360,7 @@ class Process(object):
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         self._validateSequence(mod, name)
-        try: 
+        try:
             self._place(name, mod, self.__endpaths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
@@ -371,7 +425,7 @@ class Process(object):
                 self.__setattr__(name,item)
             elif isinstance(item,_Unlabelable):
                 self.add_(item)
-                
+
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
             seq = seqs[name]
@@ -395,7 +449,7 @@ class Process(object):
         returnValue = ''
         for name,item in items:
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
-        return returnValue    
+        return returnValue
     def _dumpConfigUnnamedList(self,items,typeName,options):
         returnValue = ''
         for name,item in items:
@@ -456,7 +510,7 @@ class Process(object):
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
-            
+
 #        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
 #                                  'VPSet',
 #                                  options)
@@ -557,7 +611,7 @@ class Process(object):
         if not hasattr(self,label):
             raise LookupError("process has no item of label "+label)
         self._replaceInSequences(label, new)
-        setattr(self,label,new)    
+        setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
             value.insertInto(parameterSet, name)
@@ -620,7 +674,7 @@ class Process(object):
         # all the placeholders should be resolved now, so...
         if self.schedule_() != None:
             self.schedule_().enforceDependencies()
-        
+
     def prune(self):
         """ Remove clutter from the process which we think is unnecessary:
         PSets, and unused modules.  Not working yet, because I need to remove
@@ -646,7 +700,7 @@ class Process(object):
         #junk = sequenceNames - scheduledSequenceNames
         #for name in junk:
         #    delattr(self, name)
-        
+
     def pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
@@ -681,7 +735,7 @@ class Process(object):
 
     def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
-           either be an object label, e.g., 
+           either be an object label, e.g.,
              process.prefer(process.juicerProducer) (not supported yet)
            or a name of an ESSource or ESProducer
              process.prefer("juicer")
@@ -693,10 +747,10 @@ class Process(object):
               #prefer all data in record 'OrangeRecord' from 'juicer'
               process.prefer("juicer", OrangeRecord=cms.vstring())
            or
-              #prefer only "Orange" data in "OrangeRecord" from "juicer" 
+              #prefer only "Orange" data in "OrangeRecord" from "juicer"
               process.prefer("juicer", OrangeRecord=cms.vstring("Orange"))
-           or 
-              #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer" 
+           or
+              #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer"
               ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("Orange/ExtraPulp"))
         """
         # see if this refers to a named ESProducer
@@ -727,7 +781,7 @@ class Process(object):
                   found = True
                   self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
-         
+
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
     from FWCore.ParameterSet.parseConfig import importConfig
@@ -834,7 +888,7 @@ if __name__=="__main__":
             p.out = OutputModule("Outer")
             self.assertEqual(p.out.type_(), 'Outer')
             self.assert_( 'out' in p.outputModules_() )
-            
+
             p.geom = ESSource("GeomProd")
             self.assert_('geom' in p.es_sources_())
             p.add_(ESSource("ConfigDB"))
@@ -845,7 +899,7 @@ if __name__=="__main__":
                 def __init__(self,*arg,**args):
                     for name in args.iterkeys():
                         self.__dict__[name]=args[name]
-            
+
             a=EDAnalyzer("MyAnalyzer")
             s1 = Sequence(a)
             s2 = Sequence(s1)
@@ -880,7 +934,7 @@ if __name__=="__main__":
             d=p.dumpConfig()
             self.assertEqual(d,
 """process test = {
-    module a = MyAnalyzer { 
+    module a = MyAnalyzer {
     }
     sequence s = {a}
     sequence r = {s}
@@ -923,7 +977,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             d=p.dumpConfig()
             self.assertEqual(d,
 """process test = {
-    module a = MyAnalyzer { 
+    module a = MyAnalyzer {
     }
     sequence s = {r}
     sequence r = {a}
@@ -954,7 +1008,7 @@ process.p2 = cms.Path(process.r)
 
 
 process.schedule = cms.Schedule(process.p2,process.p)
-""")            
+""")
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
@@ -969,7 +1023,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.p = Path(p.c+p.s+p.a)
             new = EDAnalyzer("NewAnalyzer")
             p.globalReplace("a",new)
-                                                                                                                        
+
         def testSequence(self):
             p = Process('test')
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1002,7 +1056,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assertEqual(str(path),'a+b*c')
             path = Path(p.a*(p.b+p.c))
             self.assertEqual(str(path),'a*(b+c)')
-            path = Path(p.a*(p.b+~p.c)) 
+            path = Path(p.a*(p.b+~p.c))
             self.assertEqual(str(path),'a*(b+~c)')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
@@ -1010,19 +1064,19 @@ process.schedule = cms.Schedule(process.p2,process.p)
         def testCloneSequence(self):
             p = Process("test")
             a = EDAnalyzer("MyAnalyzer")
-            p.a = a 
+            p.a = a
             a.setLabel("a")
             b = EDAnalyzer("YOurAnalyzer")
             p.b = b
             b.setLabel("b")
             path = Path(a * b)
-            p.path = Path(p.a*p.b) 
+            p.path = Path(p.a*p.b)
             lookuptable = {id(a): p.a, id(b): p.b}
             #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
             #lookuptable = p._cloneToObjectDict
             #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
             self.assertEqual(str(path),str(p.path))
-            
+
         def testSchedule(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1030,7 +1084,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.c = EDAnalyzer("OurAnalyzer")
             p.path1 = Path(p.a)
             p.path2 = Path(p.b)
-            
+
             s = Schedule(p.path1,p.path2)
             self.assertEqual(s[0],p.path1)
             self.assertEqual(s[1],p.path2)
@@ -1098,7 +1152,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             ps2 = PSet(a = int32(2))
             self.assertRaises(ValueError, EDProducer, 'C', ps1, ps2)
             self.assertRaises(ValueError, EDProducer, 'C', ps1, a=int32(3))
-            
+
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
@@ -1119,26 +1173,26 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.prefer("juicer")
             self.assertEqual(p.dumpConfig(),
 """process Test = {
-    es_module juicer = JuicerProducer { 
+    es_module juicer = JuicerProducer {
     }
-    es_source  = ForceSource { 
+    es_source  = ForceSource {
     }
-    es_prefer  = ForceSource { 
+    es_prefer  = ForceSource {
     }
-    es_prefer juicer = JuicerProducer { 
+    es_prefer juicer = JuicerProducer {
     }
 }
 """)
             p.prefer("juicer",fooRcd=vstring("Foo"))
             self.assertEqual(p.dumpConfig(),
 """process Test = {
-    es_module juicer = JuicerProducer { 
+    es_module juicer = JuicerProducer {
     }
-    es_source  = ForceSource { 
+    es_source  = ForceSource {
     }
-    es_prefer  = ForceSource { 
+    es_prefer  = ForceSource {
     }
-    es_prefer juicer = JuicerProducer { 
+    es_prefer juicer = JuicerProducer {
         vstring fooRcd = {
             'Foo'
         }
@@ -1164,7 +1218,7 @@ process.prefer("juicer",
 )
 
 """)
-        
+
         def testFindDependencies(self):
             p = Process("test")
             p.a = EDProducer("MyProd")
@@ -1177,7 +1231,7 @@ process.prefer("juicer",
             self.assertEqual(deps['a'],set())
             self.assertEqual(deps['b'],set(['a']))
             self.assertEqual(deps['c'],set())
-            
+
             path *=p.a
             self.assertRaises(RuntimeError,path.moduleDependencies)
             path = Path(p.a*(p.b+p.c))
@@ -1214,5 +1268,5 @@ process.prefer("juicer",
             m2.p.i = 6
             m2.j = 8
 
-                               
+
     unittest.main()
