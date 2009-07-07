@@ -40,11 +40,12 @@ class Cosmics(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,RECO'
+        options.step = 'RAW2DIGI,RECO,DQM'
         options.isMC = False
         options.isData = True
         options.beamspot = None
         options.eventcontent = None
+        options.magField = 'AutoFromDBCurrent'
         
         cb = ConfigBuilder(options, process = process)
         cb.addStandardSequences()
@@ -114,7 +115,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.120 $'),
+            version = cms.untracked.string('$Revision: 1.2 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -258,7 +259,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.120 $'),
+            version = cms.untracked.string('$Revision: 1.2 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
