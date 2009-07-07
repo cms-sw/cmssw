@@ -1,4 +1,4 @@
-//$Id: SprBagger.cc,v 1.3 2007/10/30 18:56:14 narsky Exp $
+//$Id: SprBagger.cc,v 1.4 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBagger.hh"
@@ -84,7 +84,7 @@ SprBagger::SprBagger(SprAbsFilter* data, unsigned cycles, bool discrete)
 
 void SprBagger::destroy()
 {
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     if( trained_[i].second )
       delete trained_[i].first;
   }
@@ -122,7 +122,7 @@ bool SprBagger::setData(SprAbsFilter* data)
   data_ = data;
 
   // reset data supplied to trainable classifiers
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     if( !trainable_[i]->setData(data_) ) {
       cerr << "Cannot reset data for trainable classifier " << i << endl;
       return false;
@@ -169,17 +169,17 @@ bool SprBagger::train(int verbose)
   if( valData_ != 0 ) {
     // compute cumulative beta weights for validation points
     valBeta_.clear();
-    int vsize = valData_->size();
+    unsigned int vsize = valData_->size();
     valBeta_.resize(vsize,0);
-    int tsize = trained_.size();
-    for( int i=0;i<vsize;i++ ) {
+    unsigned int tsize = trained_.size();
+    for( unsigned int i=0;i<vsize;i++ ) {
       const SprPoint* p = (*valData_)[i];
       if( discrete_ ) {
-	for( int j=0;j<tsize;j++ )
+	for( unsigned int j=0;j<tsize;j++ )
 	  valBeta_[i] += ( trained_[j].first->accept(p) ? 1 : -1 );
       }
       else {
-	for( int j=0;j<tsize;j++ )
+	for( unsigned int j=0;j<tsize;j++ )
 	  valBeta_[i] += trained_[j].first->response(p);
       }
       if( tsize > 0 ) valBeta_[i] /= tsize;
@@ -198,7 +198,7 @@ bool SprBagger::train(int verbose)
   unsigned nCycle = 0;
   unsigned nFailed = 0;
   while( nCycle < cycles_ ) {
-    for( int i=0;i<trainable_.size();i++ ) {
+    for( unsigned int i=0;i<trainable_.size();i++ ) {
       // check cycles
       if( nCycle++ >= cycles_ ) return this->prepareExit((this->nTrained()>0));
 
@@ -252,7 +252,7 @@ bool SprBagger::train(int verbose)
       if( valData_ != 0 ) {
 	// update votes
 	int tsize = trained_.size();
-	for( int i=0;i<valData_->size();i++ ) {
+	for( unsigned int i=0;i<valData_->size();i++ ) {
 	  const SprPoint* p = (*valData_)[i];
 	  if( discrete_ ) {
 	    if( t->accept(p) ) 
@@ -287,7 +287,7 @@ SprTrainedBagger* SprBagger::makeTrained() const
 
   // prepare a vector of trained classifiers
   vector<pair<const SprAbsTrainedClassifier*,bool> > trained;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     SprAbsTrainedClassifier* c = trained_[i].first->clone();
     trained.push_back(pair<const SprAbsTrainedClassifier*,bool>(c,true));
   }
@@ -309,7 +309,7 @@ void SprBagger::print(std::ostream& os) const
 {
   os << "Trained Bagger " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Classifier " << i 
        << " " << trained_[i].first->name().c_str() << endl;
     trained_[i].first->print(os);
@@ -366,9 +366,9 @@ bool SprBagger::printValidation(unsigned cycle)
   if( loss_ != 0 ) loss_->reset();
 
   // loop through validation data
-  int vsize = valData_->size();
+  unsigned int vsize = valData_->size();
   double wcor0(0), wcor1(0), wmis0(0), wmis1(0);
-  for( int i=0;i<vsize;i++ ) {
+  for( unsigned int i=0;i<vsize;i++ ) {
     const SprPoint* p = (*valData_)[i];
     double w = valData_->w(i);
     if( p->class_!=cls0_ && p->class_!=cls1_ ) w = 0;
@@ -411,7 +411,7 @@ bool SprBagger::printValidation(unsigned cycle)
 bool SprBagger::prepareExit(bool status)
 {
   // restore the original data supplied to the classifiers
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     SprAbsClassifier* c = trainable_[i];
     if( !c->setData(data_) )
       cerr << "Unable to restore original data for classifier " << i << endl;
@@ -424,7 +424,7 @@ bool SprBagger::prepareExit(bool status)
 
 bool SprBagger::setClasses(const SprClass& cls0, const SprClass& cls1) 
 {
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     if( !trainable_[i]->setClasses(cls0,cls1) ) {
       cerr << "Bagger unable to reset classes for classifier " << i << endl;
       return false;

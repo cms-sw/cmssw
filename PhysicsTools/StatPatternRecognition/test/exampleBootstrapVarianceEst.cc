@@ -1,4 +1,4 @@
-//$Id: exampleBootstrapVarianceEst.cc,v 1.3 2007/10/07 21:03:09 narsky Exp $
+//$Id: exampleBootstrapVarianceEst.cc,v 1.4 2008/11/26 22:59:20 elmer Exp $
 /*
   This example estimates RMS of the correlation coefficient estimator obtained 
   for 20 points drawn from a bivariate Gaussian density with covariance matrix 
@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
   // split data into chunks of n points
   int n = 20;
   int nrep = 100;// number of Bootstrap replicas for each sample
-  int imin(0), imax(0);
+  unsigned int imin(0), imax(0);
   vector<double> v(2), emp;
   while( imin < f1.size() ) {
     imax = imin + n;

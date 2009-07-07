@@ -5,7 +5,6 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.4 2009/02/13 02:43:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iosfwd>
@@ -40,6 +39,8 @@ namespace edm {
 		      std::string const& modName,
 		      std::string const& modLabel,
 		      boost::shared_ptr<ProcessConfiguration> procConfig);
+
+    ~ModuleDescription();
 
     void write(std::ostream& os) const;
 

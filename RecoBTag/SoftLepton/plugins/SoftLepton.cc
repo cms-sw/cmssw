@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.30 2009/05/20 16:33:09 kellerjd Exp $
+// $Id: SoftLepton.cc,v 1.31 2009/05/20 18:24:03 fwyzard Exp $
 
 
 #include <memory>
@@ -40,6 +40,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -60,7 +61,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SoftLepton.h"
 
 enum AxisType {

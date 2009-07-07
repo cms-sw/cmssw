@@ -74,6 +74,7 @@ public:
 	       const edm::Handle<l1extra::L1JetParticleCollection>    & l1extjetf,
 	       const edm::Handle<l1extra::L1JetParticleCollection>    & l1exttaujet,
 	       const edm::Handle<l1extra::L1EtMissParticleCollection> & l1extmet,
+	       const edm::Handle<l1extra::L1EtMissParticleCollection> & l1extmht,
 //	       const edm::Handle<l1extra::L1ParticleMapCollection>    & l1mapcoll,
 	       const edm::Handle<L1GlobalTriggerReadoutRecord>        & l1GTRR,
 	       const edm::Handle<L1GlobalTriggerObjectMapRecord>      & l1GTOMRec,
@@ -91,7 +92,8 @@ private:
   float *l1extjtcet, *l1extjtce, *l1extjtceta, *l1extjtcphi;
   float *l1extjtfet, *l1extjtfe, *l1extjtfeta, *l1extjtfphi;
   float *l1exttauet, *l1exttaue, *l1exttaueta, *l1exttauphi;
-  float met, metphi, mettot, methad;
+  float met, metphi, ettot;
+  float mht, mhtphi, ethad;
   int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
   int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc, *l1extmuqul;
   int l1hfRing1EtSumNegativeEta,l1hfRing2EtSumNegativeEta;

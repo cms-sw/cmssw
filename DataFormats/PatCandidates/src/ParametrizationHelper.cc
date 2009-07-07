@@ -67,6 +67,7 @@ pat::helper::ParametrizationHelper::polarP4fromParameters(pat::CandKinResolution
             const math::PtEtaPhiMLorentzVector &initialP4) {
     math::PtEtaPhiMLorentzVector  ret;
     ROOT::Math::CylindricalEta3D<double> converter;
+    double m2;
     switch (parametrization) {
         // ======= CARTESIAN ==========
         case pat::CandKinResolution::Cart:
@@ -99,7 +100,7 @@ pat::helper::ParametrizationHelper::polarP4fromParameters(pat::CandKinResolution
             break;
         case pat::CandKinResolution::ESpher:        //  
             converter = ROOT::Math::Polar3D<double>(parameters[0], parameters[1], 0); 
-            double m2 = - parameters[0]*parameters[0] + parameters[3]*parameters[3];
+            m2 = - parameters[0]*parameters[0] + parameters[3]*parameters[3];
             ret.SetCoordinates(converter.Rho(),converter.Eta(),parameters[2],(m2 > 0 ? sqrt(m2) : 0.0));
             break;
         case pat::CandKinResolution::MCPInvSpher:   //  

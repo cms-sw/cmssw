@@ -9,8 +9,6 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
@@ -45,7 +43,7 @@ class TrainProcessor : public Source,
 	virtual ~TrainProcessor();
 
 	virtual Variable::Flags getDefaultFlags() const
-	{ return Variable::FLAG_ALL; }
+	{ return Variable::FLAG_NONE; }
 
 	virtual void
 	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
@@ -65,9 +63,6 @@ class TrainProcessor : public Source,
 	virtual void cleanup() {}
 
 	inline const char *getId() const { return name.c_str(); }
-
-	struct Dummy {};
-	typedef edmplugin::PluginFactory<Dummy*()> PluginFactory;
 
     protected:
 	virtual void trainBegin() {}
@@ -102,16 +97,6 @@ class TrainProcessor : public Source,
 	Monitoring		*monModule;
 };
 
-template<>
-TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
-                                MVATrainer>::Factory::create(
-			const char*, const AtomicId*, MVATrainer*);
-
 } // namespace PhysicsTools
-
-#define MVA_TRAINER_DEFINE_PLUGIN(T) \
-	DEFINE_EDM_PLUGIN(::PhysicsTools::TrainProcessor::PluginFactory, \
-	                  ::PhysicsTools::TrainProcessor::Dummy, \
-	                  "TrainProcessor/" #T)
 
 #endif // PhysicsTools_MVATrainer_TrainProcessor_h

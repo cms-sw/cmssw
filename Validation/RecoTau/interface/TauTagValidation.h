@@ -74,14 +74,12 @@ private:
   bool saveoutputhistograms_;
 
  // Reference Collection
-  edm::InputTag refCollectionInputTag_;
-  std::string refCollection_;
+  edm::InputTag refCollection_;
 
   // In case you need to distinguish the output file
   std::string extensionName_;
 
   // Reconstructed product of interest
-  edm::InputTag TauProducerInputTag_;
   std::string TauProducer_;
 
   // std::vector<std::string> TauProducerDiscriminators_; 

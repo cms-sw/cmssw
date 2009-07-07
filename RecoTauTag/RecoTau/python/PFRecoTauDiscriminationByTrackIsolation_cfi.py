@@ -9,9 +9,7 @@ pfRecoTauDiscriminationByTrackIsolation = cms.EDFilter("PFRecoTauDiscriminationB
     ApplyDiscriminationByTrackerIsolation      = cms.bool(True),
     maxChargedPt                               = cms.double(1.0),
     TrackerIsolAnnulus_Candsmaxn               = cms.int32(0),
-    ECALIsolAnnulus_Candsmaxn                  = cms.int32(0),
-    TrackIsolationOverTauPt                    = cms.bool(False),
-    SumOverCandidates                          = cms.bool(False)                                              
+    ECALIsolAnnulus_Candsmaxn                  = cms.int32(0)
 )
 
 

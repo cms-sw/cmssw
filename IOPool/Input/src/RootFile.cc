@@ -858,6 +858,7 @@ namespace edm {
     assert(ep.get() != 0);
     assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
     assert(eventAux_.luminosityBlock() == fileIndexIter_->lumi_);
+    assert(eventAux_.event() == fileIndexIter_->event_);
 
     // report event read from file
     Service<JobReport> reportSvc;

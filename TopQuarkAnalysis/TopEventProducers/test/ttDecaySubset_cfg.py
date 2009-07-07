@@ -4,22 +4,15 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-## add categories
-## process.MessageLogger.categories.append('TopDecaySubset_printSource')
 process.MessageLogger.categories.append('TopDecaySubset_printTarget')
-## configure cout
-process.MessageLogger.cout = cms.untracked.PSet(
- INFO = cms.untracked.PSet(
-   limit = cms.untracked.int32(0),
-## TopDecaySubset_printSource       = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
-   TopDecaySubset_printTarget       = cms.untracked.PSet( limit = cms.untracked.int32(10) )
-  )
+process.MessageLogger.cerr.TopDecaySubset_printTarget = cms.untracked.PSet(
+    limit = cms.untracked.int32(10)
 )
 
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre6/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0002/50D4BADB-FA32-DE11-BA01-000423D98DC4.root'
+    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
     )
 )
 ## define maximal number of events to loop over
@@ -35,7 +28,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
 
 ## produce decaySubset
 process.load("TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi")

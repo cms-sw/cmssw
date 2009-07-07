@@ -61,9 +61,9 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
       for (int y=0; y<CIY; y++)      
 	Chann_DataIntegrityCheck_  [f][x][y]=0;
 
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
-      for (unsigned int depth =0 ; depth < 4; depth++) {
+  for (unsigned int eta =0 ; eta < ETABINS; eta++) {
+    for (unsigned int phi =0 ; phi < PHIBINS; phi++) {
+      for (unsigned int depth =0 ; depth < DEPTHBINS; depth++) {
 	problemcount[eta][phi][depth] = 0;   
 	problemfound[eta][phi][depth] = false;   
       }
@@ -112,12 +112,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     HWProblems_=m_dbe->book2D(" HardwareWatchCells",
 			      " Hardware Watch Cells for HCAL",
-			      85,-42.5,45.5,
-			      72,0.5,72.5);
+			      etaBins_, etaMin_,etaMax_,
+			      phiBins_,phiMin_,phiMax_);
     HWProblems_->setAxisTitle("i#eta",1);
     HWProblems_->setAxisTitle("i#phi",2);
-    SetEtaPhiLabels(HWProblems_);
-    SetupEtaPhiHists(HWProblemsByDepth_," Hardware Watch Cells", "");
+    setupDepthHists2D(HWProblemsByDepth_," Hardware Watch Cells", "");
     
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);    
@@ -315,7 +314,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCErrorAndWarnConditions_->setBinLabel(25, "TTC_DoubEr", 2);
 
     type = "DCC Ev Fragment Size Distribution";
-    meFEDRawDataSizes_=m_dbe->book1D(type,type,1200,-0.5,12000.5);
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,120,-0.5,12000.5);
     meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
     meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",2);
 
@@ -363,7 +362,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
     type = "All Evt Frag Sizes";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 240,0,12000);
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 100,0,12000);
 
     type = "Num Event Frags by FED";
     meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5); //Show over & underflow stats.
@@ -623,11 +622,6 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   
   ievt_++;
   meEVT_->Fill(ievt_);
-  
-  
-  HWProblems_->setBinContent(0,0,ievt_);
-  for (int depth=0;depth<4;++depth) 
-    HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_);
 
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
@@ -661,8 +655,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   }
 
   // Any problem worth mapping, anywhere?
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
+  for (unsigned int eta =0 ; eta < ETABINS; eta++) {
+    for (unsigned int phi =0 ; phi < PHIBINS; phi++) {
       for (unsigned int depth =0 ; depth < 4; depth++) {
 	if (problemfound[eta][phi][depth]) 
 	  ++problemcount[eta][phi][depth];   
@@ -672,8 +666,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   if (0== (ievt_ % dfmon_checkNevents))
     UpdateMEs();
   //Transfer this event's problem info to 
-  for (unsigned int eta =0 ; eta < 85; eta++) {
-    for (unsigned int phi =0 ; phi < 72; phi++) {
+  for (unsigned int eta =0 ; eta < ETABINS; eta++) {
+    for (unsigned int phi =0 ; phi < PHIBINS; phi++) {
       for (unsigned int depth =0 ; depth < 4; depth++) {
 	problemfound[eta][phi][depth] = false;   
       }
@@ -995,8 +989,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (  FoundT  )meDCCSummariesOfHTRs_->Fill(dccid,20);
 
   //Fake a problem with each DCC a unique number of times
-  //if ((dcc_+1)>= ievt_)
-  //  mapDCCproblem(dcc_); 
+  // if ((dcc_+1)>= ievt_)
+  //   mapDCCproblem(dcc_); 
 
   // walk through the HTR data...
   HcalHTRData htr;  
@@ -1437,27 +1431,35 @@ void HcalDataFormatMonitor::fillzoos(int bin, int dccid) {
 }
 
 void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
-  int myeta = 0;
+  int mydepth,myeta = 0;
   //dcc, spigot pair for finding this spigot's HcalDetIds
   pair <int,int> thishtr = pair <int,int> (dcc, spigot);
 
   //Light up all affected cells.
   for (std::vector<HcalDetId>::iterator thishdi = HTRtoCell[thishtr].begin(); 
-       thishdi != HTRtoCell[thishtr].end(); thishdi++) 
-    {
-      myeta=CalcEtaBin(thishdi->subdet(),thishdi->ieta(),thishdi->depth());
-      problemfound[myeta][thishdi->iphi()-1][thishdi->depth()-1] = true;
-    }
-}   // void HcalDataFormatMonitor::mapHTRproblem(...)
+       thishdi != HTRtoCell[thishtr].end(); thishdi++) {
+    mydepth = thishdi->depth() - 1; //Array indexes in mydepth, cells are labeled in depth. Sigh....
+
+    if (thishdi->subdet() == HcalForward) {
+      if (thishdi->zside() < 0)  myeta   = thishdi->ieta()+int((etaBins_-2)/2)-1;
+      else                       myeta   = thishdi->ieta()+int((etaBins_-2)/2)+1;
+    } else {                     myeta   = thishdi->ieta()+int((etaBins_-2)/2); }
+    problemfound[myeta][thishdi->iphi()-1][mydepth] = true;
+  }
+}   
 
 void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
-  int myeta = 0;
+  int mydepth,myeta = 0;
  
   //Light up all affected cells.
   for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc].begin(); 
        thishdi != DCCtoCell[dcc].end(); thishdi++) {
-    myeta=CalcEtaBin(thishdi->subdet(),thishdi->ieta(),thishdi->depth());
-    problemfound[myeta][thishdi->iphi()-1][thishdi->depth()-1] = true;
+    mydepth = thishdi->depth() - 1; //Array indexes in mydepth, cells are labeled in depth. Sigh....
+    if ( (thishdi->subdet() == HcalForward )   ) {
+      if (thishdi->zside() < 0)  myeta   = thishdi->ieta()+int((etaBins_-2)/2)-1;
+      else                       myeta   = thishdi->ieta()+int((etaBins_-2)/2)+1;
+    } else {                     myeta   = thishdi->ieta()+int((etaBins_-2)/2); }
+    problemfound[myeta][thishdi->iphi()-1][mydepth] = true;
   }
 }
 
@@ -1484,54 +1486,42 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	  meChann_DataIntegrityCheck_[f]->Fill(x,y,Chann_DataIntegrityCheck_ [f][x][y]);
 
   uint64_t probfrac=0;
+  uint64_t totalfrac=0;
+  int ieta=0;
+  int iphi=0;
 
-  int etabins=0;
-  int phibins=0;
-  int filleta=-9999;
-  
-  HWProblems_->Reset(); // clear old values so that we can use "Fill" without problems
-  HWProblems_->setBinContent(0,0,ievt_);
-  for (int depth=0;depth<4;++depth)
-    {
-      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
-      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
-      for (int eta=0;eta<etabins;++eta)
-	{
-	  for (int phi=0;phi<phibins;++phi)
-	    {
-	      probfrac=((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);
-	      if (probfrac==0) continue;
-	      HWProblemsByDepth_.depth[depth]->setBinContent(eta+1,phi+1, probfrac);
-	      if (depth+1 == 1)    
-		if      (eta<14)   filleta=eta-42;
-		else if (eta<42)   filleta=eta-41;
-		else if (eta<71)   filleta=eta-40;
-		else               filleta=eta-39;
-	      else if (depth+1 == 2) 
-		if      (eta<14)   filleta=eta-42;
-		else if (eta<28)   filleta=eta-41;
-		else if (eta<43)   filleta=eta-12;
-		else               filleta=eta-11;
-	      else if (depth+1 == 3) 
-		if      (eta < 3)  filleta=eta-27; 
-		else if (eta < 5)  filleta=eta-18;
-		else if (eta < 7)  filleta=eta+13;
-		else               filleta=eta+22;
-	      else
-		if      (eta<15)   filleta=eta-14;
-		else               filleta=eta-13;
-	      HWProblems_->Fill(filleta,phi+1,probfrac);
-	    }
+  for (int eta=0;eta<(etaBins_-2);eta++) {
+    ieta=eta-(int)ceil((etaBins_-2)/2);
+    for (int phi=0;phi<PHIBINS;++phi) {
+      iphi=phi+1;
+      totalfrac=0;
+      for (int depth=0;depth<DEPTHBINS;++depth) {// this is one unit less "true" depth (for indexing purposes)
+	if (0 == problemcount[eta][phi][depth]) 
+	  continue;
+	// remember that HF's elements are stored in towers farther forward than "true"
+	if ( ((depth==0)||(depth==1)) &&
+	     (abs(ieta)>29)              ) { 
+	  if (eta<int((etaBins_-2)/2)) ieta=eta-int((etaBins_-2)/2)+1;
+	  else                         ieta=eta-int((etaBins_-2)/2)-1;
+	} // else Not HcalForward
+	probfrac = ((uint64_t) problemcount[eta][phi][depth] ); // / (uint64_t) ievt_);   
+	if (probfrac==0) continue;
+	totalfrac+=probfrac;
+	//Select HcalEndcap d1,2 while sidestepping HcalForward
+	if ( ( (depth==0) || (depth==1) )               &&
+	     ( abs(eta-(int)ceil((etaBins_-2)/2)) <=29) &&  
+	     ( abs(eta-(int)ceil((etaBins_-2)/2)) >=17)    ) {
+	  //Bump apart HEd1,2 for the StJ6
+	  HWProblemsByDepth_[depth+4]->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, probfrac);
+	  HWProblemsByDepth_[depth+4]->setBinContent(0,0,ievt_);
+	} else{
+	  HWProblemsByDepth_[depth  ]->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, probfrac);
+	  HWProblemsByDepth_[depth  ]->setBinContent(0,0,ievt_);
 	}
-    }
-  // Make sure problem rate (summed over depths) doesn't exceed 100%
-  for (int eta=0;eta<HWProblems_->getNbinsX();++eta)
-    {
-      for (int phi=0;phi<HWProblems_->getNbinsY();++phi)
-	{
-	  if (HWProblems_->getBinContent(eta+1,phi+1)>ievt_)
-	    HWProblems_->setBinContent(eta+1,phi+1,ievt_);
-	}
-    }
-
+      } //depth
+      if (totalfrac>0)
+	HWProblems_->setBinContent(ieta+((etaBins_-2)/2)+2, iphi+1, totalfrac);
+      HWProblems_->setBinContent(0,0,ievt_);
+    } //phi
+  } //eta
 } //UpdateMEs

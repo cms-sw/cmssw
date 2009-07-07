@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedAdaBoost.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprTrainedAdaBoost.hh,v 1.2 2007/09/21 22:32:04 narsky Exp $
 //
 // Description:
 //      Class SprTrainedAdaBoost :
@@ -82,7 +82,7 @@ public:
     Local accessors.
   */
   const SprAbsTrainedClassifier* classifier(int i) const {
-    if( i>=0 && i<trained_.size() )
+    if( i>=0 && i<(int)trained_.size() )
       return trained_[i].first;
     return 0;
   }
@@ -91,7 +91,7 @@ public:
     const {
     classifiers.clear();
     classifiers.resize(trained_.size());
-    for( int i=0;i<trained_.size();i++ )
+    for( unsigned int i=0;i<trained_.size();i++ )
       classifiers[i] = trained_[i].first;
   }
 

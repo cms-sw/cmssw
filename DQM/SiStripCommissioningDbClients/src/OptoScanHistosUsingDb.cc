@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.18 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.17 2008/07/01 14:36:41 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -11,17 +11,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMOldReceiver* mui,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                             mui,
-                             sistrip::OPTO_SCAN ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::OPTO_SCAN ),
-    OptoScanHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                        mui )
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
+    CommissioningHistosUsingDb( db, mui, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -30,13 +24,10 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMStore* bei,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
-                                sistrip::OPTO_SCAN ),
-    OptoScanHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                        bei )
+  : CommissioningHistosUsingDb( db, sistrip::OPTO_SCAN ),
+    OptoScanHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"

@@ -1,27 +1,15 @@
-// @(#)root/hist:$Id: ConstrBlock3.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: ConstrBlock3.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 
 #include "RooFormulaVar.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlock3.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlock3.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlock2.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock3.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
 
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(ConstrBlock3)
-#endif
 /*----------------------------------------------------------------------------*/
 
 /**

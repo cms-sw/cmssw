@@ -25,6 +25,9 @@ class ProcForeach : public TrainProcessor {
 	            MVATrainer *trainer);
 	virtual ~ProcForeach();
 
+	virtual Variable::Flags getDefaultFlags() const
+	{ return Variable::FLAG_ALL; }
+
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalibration() const;
 

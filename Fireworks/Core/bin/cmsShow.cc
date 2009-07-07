@@ -20,7 +20,11 @@ void run_app(TApplication &app, int argc, char **argv)
    pMain.reset();
 
    TEveManager::Terminate();
-   app.Terminate();
+
+   //the handler has a pointer back to TApplication so must be removed
+   TFileHandler* handler = gSystem->RemoveFileHandler(gXDisplay);
+   if(0!=handler) {gXDisplay=0;}
+   delete handler;
 }
 
 int main (int argc, char **argv)

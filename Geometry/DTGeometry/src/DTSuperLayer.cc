@@ -1,7 +1,7 @@
 /** \file 
  *  
  *  $date   : 13/01/2006 11:46:51 CET $
- *  $Revision: 1.5 $
+ *  $Revision: 1.4 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -28,8 +28,6 @@ DTSuperLayer::DTSuperLayer(DTSuperLayerId id,
 
 /* Destructor */ 
 DTSuperLayer::~DTSuperLayer() {
-  for (std::vector<const DTLayer*>::const_iterator il=theLayers.begin();
-       il!=theLayers.end(); ++il) delete (*il);
 }
 
 /* Operations */ 

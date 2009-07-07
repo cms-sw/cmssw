@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.50 2009/03/27 02:35:08 ptraczyk Exp $
+ * \version $Id: Muon.h,v 1.51 2009/03/27 15:45:23 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -43,14 +43,14 @@ namespace reco {
     virtual TrackRef globalTrack() const { return globalTrack_; }
     virtual TrackRef combinedMuon() const { return globalTrack(); }
     /// set reference to Track
-    virtual void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
-    virtual void setTrack( const TrackRef & t ) { setInnerTrack(t); }
+    virtual void setInnerTrack( const TrackRef & t );
+    virtual void setTrack( const TrackRef & t );
     /// set reference to Track
-    virtual void setOuterTrack( const TrackRef & t ) { outerTrack_ = t; }
-    virtual void setStandAlone( const TrackRef & t ) { setOuterTrack(t); }
+    virtual void setOuterTrack( const TrackRef & t );
+    virtual void setStandAlone( const TrackRef & t );
     /// set reference to Track
-    virtual void setGlobalTrack( const TrackRef & t ) { globalTrack_ = t; }
-    virtual void setCombined( const TrackRef & t ) { setGlobalTrack(t); }
+    virtual void setGlobalTrack( const TrackRef & t );
+    virtual void setCombined( const TrackRef & t );
     
     ///
     /// ====================== ENERGY BLOCK ===========================

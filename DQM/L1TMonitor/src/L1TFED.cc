@@ -21,7 +21,7 @@ L1TFED::L1TFED(const ParameterSet& ps)
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-
+  rawl_  = ps.getParameter< InputTag >("rawTag");
   if(verbose_) cout << "L1TFED: constructor...." << endl;
 
 
@@ -79,7 +79,7 @@ void L1TFED::beginJob(const EventSetup& c)
     fedfatal = dbe->book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
     fednonfatal = dbe->book1D("FEDNonFatal", "Fed corrupted data ", l1feds_.size(), 0.,l1feds_.size() );
     hfedprof = dbe->bookProfile("fedprofile","FED Size by ID", l1feds_.size(), 0., l1feds_.size(),0,0.,5000.);
-    for(unsigned int i=0;i<l1feds_.size();i++){
+    for(int i=0;i<l1feds_.size();i++){
        ostringstream sfed;
        sfed << l1feds_[i];
        fedentries->setBinLabel(i+1,"FED "+ sfed.str());
@@ -112,17 +112,17 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1T FED Integrity: analyze...." << endl;
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  bool t = e.getByType(rawdata);
+  bool t = e.getByLabel(rawl_,rawdata);
   
   if ( ! t ) {
-     LogDebug("Product") << "can't find FEDRawDataCollection ";
+    if(verbose_) cout << "can't find FEDRawDataCollection "<< endl;
   }
   
   else {
 
      if(verbose_) cout << "fedlist size = " << l1feds_.size() << endl;
 
-     for (unsigned int i = 0; i<l1feds_.size(); i++){
+     for (int i = 0; i<l1feds_.size(); i++){
         int fedId = l1feds_[i];
         if(verbose_) cout << "fedId = " << fedId << endl;
        

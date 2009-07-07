@@ -47,14 +47,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.siStripLorentzAngleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
-
-# Three possible generations:
-# - give two values = (min,max)                     -> uniform distribution
-# - give one value and PerCent_Err != 0             -> gaussian distribution
-# - either give two equal values or a single value  -> fixed value
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValueMinMax = cms.vdouble(0.014, 0.024)
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValueMinMax = cms.vdouble(0.021, 0.027)
+process.SiStripLorentzAngleGenerator.TIB_EstimatedValue = cms.double(0.01784)
+process.SiStripLorentzAngleGenerator.TOB_EstimatedValue = cms.double(0.02315)
 process.SiStripLorentzAngleGenerator.TIB_PerCent_Err=cms.double(0.)
 process.SiStripLorentzAngleGenerator.TOB_PerCent_Err=cms.double(0.)
 

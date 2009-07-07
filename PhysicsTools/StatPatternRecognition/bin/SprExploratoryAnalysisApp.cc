@@ -1,4 +1,4 @@
-//$Id: SprExploratoryAnalysisApp.cc,v 1.7 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprExploratoryAnalysisApp.cc,v 1.4 2007/11/12 06:19:11 narsky Exp $
 /*
   This executable is intended for exploratory analysis of data.
 
@@ -68,7 +68,7 @@ struct SEACmpPairFirst
 
 void cleanup(vector<const SprTrainedDecisionTree*>& trained)
 {
-  for( int i=0;i<trained.size();i++ )
+  for( unsigned int i=0;i<trained.size();i++ )
     delete trained[i];
 }
 
@@ -183,7 +183,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -204,7 +204,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -229,7 +229,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -244,7 +244,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -253,7 +253,7 @@ int main(int argc, char ** argv)
   assert( vars.size() == filter->dim() );
   cout << "=================================" << endl;
   cout << "Input variables:" << endl;
-  for( int i=0;i<vars.size();i++ )
+  for( unsigned int i=0;i<vars.size();i++ )
     cout << i << " " << vars[i] << endl;
   cout << "=================================" << endl;
 
@@ -348,14 +348,14 @@ int main(int argc, char ** argv)
     return 4;
   }
   cout << "Variables with zero variance:    ";
-  for( int i=0;i<vars.size();i++ ) {
+  for( unsigned int i=0;i<vars.size();i++ ) {
     if( cov[i][i] < SprUtils::eps() ) 
       cout << vars[i].c_str() << ",";
   }
   cout << endl;
 
   // do background and signal
-  for( int c=0;c<2;c++ ) {
+  for( unsigned int c=0;c<2;c++ ) {
     vector<SprClass> classes(1);
     classes[0] = inputClasses[c];
     filter->chooseClasses(classes);
@@ -374,16 +374,16 @@ int main(int argc, char ** argv)
 	 << filter->ptsInClass(classes[0]) << " events." << endl;
     cout << "Input variable correlations in class " << c << ":" << endl;
     cout << "Column  ";
-    for( int i=0;i<filter->dim();i++ )
+    for( unsigned int i=0;i<filter->dim();i++ )
       cout << setw(10) << i << " ";
     cout << endl;
     cout << "--------";
-    for( int i=0;i<filter->dim();i++ )
+    for( unsigned int i=0;i<filter->dim();i++ )
       cout << setw(10) << "----------" << "-";
     cout << endl;
-    for( int i=0;i<filter->dim();i++ ) {
+    for( unsigned int i=0;i<filter->dim();i++ ) {
       cout << "Row " << i << " |    ";
-      for( int j=0;j<filter->dim();j++ )
+      for( unsigned int j=0;j<filter->dim();j++ )
 	cout << setw(10) << cov[i][j]/sqrt(cov[i][i])/sqrt(cov[j][j]) << " ";
       cout << endl;
     }
@@ -395,14 +395,14 @@ int main(int argc, char ** argv)
   vector<double> corrLabel(filter->dim()); 
   vector<pair<double,int> > absCorrLabel(filter->dim());
   double meani(0), vari(0);
-  for( int i=0;i<filter->dim();i++ ) {
+  for( unsigned int i=0;i<filter->dim();i++ ) {
     corrLabel[i] = moms.correlClassLabel(i,meani,vari);
     absCorrLabel[i] = pair<double,int>(fabs(corrLabel[i]),i);
   }
   stable_sort(absCorrLabel.begin(),absCorrLabel.end(),not2(SEACmpPairFirst()));
   cout << "===============================================" << endl;
   cout << "Correlations with class label:" << endl;
-  for( int i=0;i<filter->dim();i++ ) {
+  for( unsigned int i=0;i<filter->dim();i++ ) {
     int k = absCorrLabel[i].second;
     cout << setw(40) << vars[k] << " " << setw(10) << corrLabel[k] << endl;
   }
@@ -412,7 +412,7 @@ int main(int argc, char ** argv)
   vector<double> corrLabel2(filter->dim()); 
   vector<pair<double,int> > absCorrLabel2(filter->dim());
   double meani2(0), vari2(0);
-  for( int i=0;i<filter->dim();i++ ) {
+  for( unsigned int i=0;i<filter->dim();i++ ) {
     corrLabel2[i] = moms.absCorrelClassLabel(i,meani2,vari2);
     absCorrLabel2[i] = pair<double,int>(fabs(corrLabel2[i]),i);
   }
@@ -420,7 +420,7 @@ int main(int argc, char ** argv)
 	      not2(SEACmpPairFirst()));
   cout << "===============================================" << endl;
   cout << "Correlations of absolute values with class label:" << endl;
-  for( int i=0;i<filter->dim();i++ ) {
+  for( unsigned int i=0;i<filter->dim();i++ ) {
     int k = absCorrLabel2[i].second;
     cout << setw(40) << vars[k] << " " << setw(10) << corrLabel2[k] << endl;
   }
@@ -434,7 +434,7 @@ int main(int argc, char ** argv)
   // prepare dummy 1D data
   SprData tempData("myDummy1Ddata",vector<string>(1,"dummy"));
   vector<double> x(1);
-  for( int j=0;j<filter->size();j++ ) {
+  for( unsigned int j=0;j<filter->size();j++ ) {
     const SprPoint* p = (*filter.get())[j];
     x[0] = p->x_[0];
     tempData.insert(p->index_,p->class_,x);
@@ -446,9 +446,9 @@ int main(int argc, char ** argv)
   SprEmptyFilter tempFilter(&tempData,weights);
   tempFilter.chooseClasses(inputClasses);
   // loop through dimensions
-  for( int d=0;d<filter->dim();d++ ) {
+  for( unsigned int d=0;d<filter->dim();d++ ) {
     if( d != 0 ) {
-      for( int j=0;j<filter->size();j++ )
+      for( unsigned int j=0;j<filter->size();j++ )
 	tempFilter[j]->x_[0] = (*filter.get())[j]->x_[d];
     }
     // make new hunter
@@ -462,7 +462,7 @@ int main(int argc, char ** argv)
     trained[d] = t;
     // count accepted and rejected events
     double wmis0(0), wcor0(0), wmis1(0), wcor1(0);
-    for( int j=0;j<filter->size();j++ ) {
+    for( unsigned int j=0;j<filter->size();j++ ) {
       const SprPoint* p = tempFilter[j];
       double w = tempFilter.w(j);
       if(      p->class_ == inputClasses[0] ) {
@@ -492,7 +492,7 @@ int main(int argc, char ** argv)
   double fmin = crit->fom(0,w0,w1,0);
   double fmax = crit->fom(0,0,w1,0);
   cout << "Possible FOM range: " << fmin << " " << fmax << endl;
-  for( int i=0;i<filter->dim();i++ ) {
+  for( unsigned int i=0;i<filter->dim();i++ ) {
     SprBox limits;
     int k = fom[i].second;
     if( k>=0 && trained[k]!=0 ) trained[k]->box(0,limits);
@@ -510,7 +510,7 @@ int main(int argc, char ** argv)
   // compute correlations
   if( computeCorr ) {
     SprSymMatrix corr(filter->dim());
-    for( int i=0;i<filter->dim();i++ ) {
+    for( unsigned int i=0;i<filter->dim();i++ ) {
       int c1 = fom[i].second;
       if( c1<0 || trained[c1]==0 ) {
 	cerr << "Unable to compute correlations: "
@@ -518,7 +518,7 @@ int main(int argc, char ** argv)
 	cleanup(trained);
 	return 5;
       }
-      for( int j=i+1;j<filter->dim();j++ ) {
+      for( unsigned int j=i+1;j<filter->dim();j++ ) {
 	int c2 = fom[j].second;
 	if( c2<0 || trained[c2]==0 ) {
 	  cerr << "Unable to compute correlations: "
@@ -527,7 +527,7 @@ int main(int argc, char ** argv)
 	  return 5;
 	}
 	double a(0), b(0), c(0), d(0);
-	for( int k=0;k<filter->size();k++ ) {
+	for( unsigned int k=0;k<filter->size();k++ ) {
 	  const SprPoint* p = (*filter.get())[k];
 	  double w = filter->w(k);
 	  vector<double> x1(1), x2(1);
@@ -576,16 +576,16 @@ int main(int argc, char ** argv)
     // output
     cout << "Interval correlations: " << endl;
     cout << "Column  ";
-    for( int i=0;i<filter->dim();i++ )
+    for( unsigned int i=0;i<filter->dim();i++ )
       cout << setw(10) << i << " ";
     cout << endl;
     cout << "--------";
-    for( int i=0;i<filter->dim();i++ )
+    for( unsigned int i=0;i<filter->dim();i++ )
       cout << setw(10) << "----------" << "-";
     cout << endl;
-    for( int i=0;i<filter->dim();i++ ) {
+    for( unsigned int i=0;i<filter->dim();i++ ) {
       cout << "Row " << i << " |    ";
-      for( int j=0;j<filter->dim();j++ )
+      for( unsigned int j=0;j<filter->dim();j++ )
 	cout << setw(10) << corr[i][j] << " ";
       cout << endl;
     }

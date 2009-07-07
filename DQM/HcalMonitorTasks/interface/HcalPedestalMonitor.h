@@ -65,61 +65,99 @@ private:
   int ievt_;
   
   // Store means, RMS of pedestals by depth
-  EtaPhiHists MeanMapByDepth;
-  EtaPhiHists RMSMapByDepth;
+  std::vector<MonitorElement*> MeanMapByDepth;
+  std::vector<MonitorElement*> RMSMapByDepth;
 
   // Original pedestal read info from database
   MonitorElement* ADC_PedestalFromDB;
-  EtaPhiHists ADC_PedestalFromDBByDepth;
+  std::vector<MonitorElement*> ADC_PedestalFromDBByDepth;
   MonitorElement* ADC_WidthFromDB;
-  EtaPhiHists ADC_WidthFromDBByDepth;
+  std::vector<MonitorElement*> ADC_WidthFromDBByDepth;
   MonitorElement* fC_PedestalFromDB;
-  EtaPhiHists fC_PedestalFromDBByDepth;
+  std::vector<MonitorElement*> fC_PedestalFromDBByDepth;
   MonitorElement* fC_WidthFromDB;
-  EtaPhiHists fC_WidthFromDBByDepth;
+  std::vector<MonitorElement*> fC_WidthFromDBByDepth;
   std::vector<MonitorElement*> ADC_1D_PedestalFromDBByDepth;
   std::vector<MonitorElement*> ADC_1D_WidthFromDBByDepth;
   std::vector<MonitorElement*> fC_1D_PedestalFromDBByDepth;
   std::vector<MonitorElement*> fC_1D_WidthFromDBByDepth;
+  // Reference Pedestal info by capid
+  std::vector<std::vector<MonitorElement*> > ADC_PedestalFromDBByDepth_bycapid;
+  std::vector<std::vector<MonitorElement*> > ADC_WidthFromDBByDepth_bycapid;
+  std::vector<std::vector<MonitorElement*> > fC_PedestalFromDBByDepth_bycapid;
+  std::vector<std::vector<MonitorElement*> > fC_WidthFromDBByDepth_bycapid;
+  std::vector<std::vector<MonitorElement*> > ADC_PedestalFromDBByDepth_1D_bycapid;
+  std::vector<std::vector<MonitorElement*> > ADC_WidthFromDBByDepth_1D_bycapid;
+  std::vector<std::vector<MonitorElement*> > fC_PedestalFromDBByDepth_1D_bycapid;
+  std::vector<std::vector<MonitorElement*> > fC_WidthFromDBByDepth_1D_bycapid;
 
   
-  EtaPhiHists PedestalOcc;
+  std::vector<MonitorElement*> PedestalOcc;
 
   // "raw" pedestal plots in ADC
-  EtaPhiHists ADCPedestalMean;
-  EtaPhiHists ADCPedestalRMS;
+  std::vector<MonitorElement*> ADCPedestalMean;
+  std::vector<MonitorElement*> ADCPedestalRMS;
   std::vector<MonitorElement*> ADCPedestalMean_1D;
   std::vector<MonitorElement*> ADCPedestalRMS_1D;
 
+  std::vector <std::vector<MonitorElement*> >  ADCPedestalMean_bycapid;
+  std::vector <std::vector<MonitorElement*> >  ADCPedestalRMS_bycapid;
+  std::vector <std::vector<MonitorElement*> >  ADCPedestalMean_1D_bycapid;
+  std::vector <std::vector<MonitorElement*> >  ADCPedestalRMS_1D_bycapid;
+
+
   // subtracted ADC pedestal plots
-  EtaPhiHists subADCPedestalMean;
-  EtaPhiHists subADCPedestalRMS;
+  std::vector<MonitorElement*> subADCPedestalMean;
+  std::vector<MonitorElement*> subADCPedestalRMS;
   std::vector<MonitorElement*> subADCPedestalMean_1D;
   std::vector<MonitorElement*> subADCPedestalRMS_1D;
 
+  std::vector <std::vector<MonitorElement*> >  subADCPedestalMean_bycapid;
+  std::vector <std::vector<MonitorElement*> >  subADCPedestalRMS_bycapid;
+  std::vector <std::vector<MonitorElement*> >  subADCPedestalMean_1D_bycapid;
+  std::vector <std::vector<MonitorElement*> >  subADCPedestalRMS_1D_bycapid;
+
+
   //  pedestal plots in femtocoulombs
-  EtaPhiHists fCPedestalMean;
-  EtaPhiHists fCPedestalRMS;
+  std::vector<MonitorElement*> fCPedestalMean;
+  std::vector<MonitorElement*> fCPedestalRMS;
   std::vector<MonitorElement*> fCPedestalMean_1D;
   std::vector<MonitorElement*> fCPedestalRMS_1D;
 
+  std::vector <std::vector<MonitorElement*> > fCPedestalMean_bycapid;
+  std::vector <std::vector<MonitorElement*> > fCPedestalRMS_bycapid;
+  std::vector <std::vector<MonitorElement*> > fCPedestalMean_1D_bycapid;
+  std::vector <std::vector<MonitorElement*> > fCPedestalRMS_1D_bycapid;
+
   // subtracted pedestal plots in femtocoulombs
-  EtaPhiHists subfCPedestalMean;
-  EtaPhiHists subfCPedestalRMS;
+  std::vector<MonitorElement*> subfCPedestalMean;
+  std::vector<MonitorElement*> subfCPedestalRMS;
   std::vector<MonitorElement*> subfCPedestalMean_1D;
   std::vector<MonitorElement*> subfCPedestalRMS_1D;
 
+  std::vector <std::vector<MonitorElement*> > subfCPedestalMean_bycapid;
+  std::vector <std::vector<MonitorElement*> > subfCPedestalRMS_bycapid;
+  std::vector <std::vector<MonitorElement*> > subfCPedestalMean_1D_bycapid;
+  std::vector <std::vector<MonitorElement*> > subfCPedestalRMS_1D_bycapid;
+
   // Problem Histograms 
   MonitorElement* ProblemPedestals;
-  EtaPhiHists ProblemPedestalsByDepth;
+  std::vector<MonitorElement*> ProblemPedestalsByDepth;
 
 
   //Quick pedestal arrays -- these store the values that are used to compute pedestals
-  unsigned int pedcounts[85][72][4];
-  float ADC_pedsum[85][72][4];
-  float ADC_pedsum2[85][72][4];
-  float fC_pedsum[85][72][4];
-  float fC_pedsum2[85][72][4];
+  unsigned int pedcounts[ETABINS][PHIBINS][6];
+  unsigned int pedcounts_bycapid[ETABINS][PHIBINS][6][4];
+  float ADC_pedsum[ETABINS][PHIBINS][6];
+  float ADC_pedsum2[ETABINS][PHIBINS][6];
+  float fC_pedsum[ETABINS][PHIBINS][6];
+  float fC_pedsum2[ETABINS][PHIBINS][6];
+
+  float ADC_pedsum_bycapid[ETABINS][PHIBINS][6][4];
+  float ADC_pedsum2_bycapid[ETABINS][PHIBINS][6][4];
+  float fC_pedsum_bycapid[ETABINS][PHIBINS][6][4];
+  float fC_pedsum2_bycapid[ETABINS][PHIBINS][6][4];
+
 
   // ZDC pedestals
   std::vector<MonitorElement*> zdc_pedestals;

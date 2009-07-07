@@ -6,12 +6,11 @@ generalTracks = cms.EDFilter("FastTrackMerger",
     # set new quality for confirmed tracks
     promoteTrackQuality = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(
-       cms.InputTag("zeroStepFilter"),
        cms.InputTag("firstfilter"),
-       cms.InputTag("secfilter"),
-       cms.InputTag("thfilter"),
-       cms.InputTag("foufilter"),
-       cms.InputTag("fifthfilter"),
+       cms.InputTag("secStep"),
+       cms.InputTag("thStep"),
+       cms.InputTag("fouStep"),
+       cms.InputTag("fifthStep"),
     )
 )
 

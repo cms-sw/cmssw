@@ -17,8 +17,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
-
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -72,11 +70,6 @@ class  PFRecoTauAlgorithm  {
   double   HCALIsolConeSize_min_;
   double   HCALIsolConeSize_max_;
   double   AreaMetric_recoElements_maxabsEta_;
-  // parameters for Ellipse ... EELL
-  double Rphi_;
-  double MaxEtInEllipse_;
-  bool AddEllipseGammas_;
-  // EELL
 
   uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
   uint32_t Track_IsolAnnulus_minNhits_;

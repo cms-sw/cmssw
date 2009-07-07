@@ -1,4 +1,4 @@
-//$Id: SprPreFilter.cc,v 1.5 2007/10/22 21:23:41 narsky Exp $
+//$Id: SprPreFilter.cc,v 1.2 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPreFilter.hh"
@@ -175,10 +175,10 @@ bool SprPreFilter::pass(int icls, const std::vector<double>& input) const
       == userClasses_.end() ) return false;
 
   // get vector of matched coordinates
-  int nVars = selectionVarToIndex_.size();
+  unsigned int nVars = selectionVarToIndex_.size();
   vector<double> v(nVars);
-  for( int i=0;i<nVars;i++ ) {
-    int index = selectionVarToIndex_[i];
+  for( unsigned int i=0;i<nVars;i++ ) {
+    int unsigned index = selectionVarToIndex_[i];
     assert( index < input.size() );
     v[i] = input[index];
   }
@@ -198,7 +198,7 @@ bool SprPreFilter::transformCoords(const std::vector<double>& input,
   int nVars = transformVarToIndex_.size();
   vector<double> v(nVars);
   for( int i=0;i<nVars;i++ ) {
-    int index = transformVarToIndex_[i];
+    unsigned int index = transformVarToIndex_[i];
     assert( index < input.size() );
     v[i] = input[index];
   }
@@ -217,7 +217,7 @@ bool SprPreFilter::transformCoords(const std::vector<double>& input,
   int jstart = 0;
   output.clear();
   for( int i=0;i<nVars;i++ ) {
-    for( int j=jstart;j<input.size();j++ ) {
+    for( int j=jstart;j< static_cast<int>(input.size()) ;j++ ) {
       if( j == transformVarToIndex_[i] ) {
 	jstart = j+1;
 	break;
@@ -247,7 +247,7 @@ bool SprPreFilter::transformVars(const std::vector<std::string>& input,
   int jstart = 0;
   output.clear();
   for( int i=0;i<nVars;i++ ) {
-    for( int j=jstart;j<input.size();j++ ) {
+    for( int j=jstart; j < static_cast<int>(input.size());j++ ) {
       if( j == transformVarToIndex_[i] ) {
 	jstart = j+1;
 	break;
@@ -277,7 +277,7 @@ std::pair<int,bool> SprPreFilter::computeClass(
   int nVars = classVarToIndex_.size();
   vector<double> v(nVars);
   for( int i=0;i<nVars;i++ ) {
-    int index = classVarToIndex_[i];
+    unsigned int index = classVarToIndex_[i];
     assert( index < input.size() );
     v[i] = input[index];
   }

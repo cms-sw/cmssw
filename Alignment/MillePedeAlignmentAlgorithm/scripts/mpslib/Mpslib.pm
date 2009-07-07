@@ -1,6 +1,6 @@
 package Mpslib;  # assumes Some/Module.pm
 
-# $Revision: 1.14 $ by $Author$
+
 #
 # Meaning of the database variables:
 #
@@ -20,10 +20,10 @@ package Mpslib;  # assumes Some/Module.pm
 #  $updateTimeHuman - time of last update (human readable)
 #  $elapsedTime - seconds since last update
 #  $mssDirPool - pool for $mssDir (e.g. cmscaf/cmscafuser)
-#  $pedeMem - Memory allocated for pede
 #  $spare1
 #  $spare2
 #  $spare3
+#  $spare4
 #
 # (2) Job-level variables
 #  
@@ -54,13 +54,13 @@ package Mpslib;  # assumes Some/Module.pm
 		    @JOBID
 		    $header 
 		    $batchScript $cfgTemplate $infiList $class $addFiles $driver $nJobs
-                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $pedeMem $spare1 $spare2 $spare3
+                    $mergeScript $mssDir $updateTime $updateTimeHuman $elapsedTime $mssDirPool $spare1 $spare2 $spare3 $spare4
 		    @JOBDIR 
 		    @JOBSTATUS @JOBNTRY @JOBRUNTIME @JOBNEVT @JOBHOST @JOBINCR @JOBREMARK @JOBSP1 @JOBSP2 @JOBSP3
                    );
 
 sub write_db() {
-  $header = "mps database schema 3.2 R. Mankel 2-Aug-2007 (update by A. Parenti, 23-June-2009)" ;
+  $header = "mps database schema 3.1 R. Mankel 2-Aug-2007, updated by G. Flucke, 13-May-2009";
   $currentTime = `date +%s`;
   chomp $currentTime;
   $elapsedTime = 0;
@@ -71,6 +71,8 @@ sub write_db() {
   $spare1 = "-- unused --";
   $spare2 = "-- unused --";
   $spare3 = "-- unused --";
+  $spare4 = "-- unused --";
+  $spare5 = "-- unused --";
 
   system "[[ -a mps.db ]] && cp -p mps.db mps.db~"; # GF: backup if exists (in case of interupt during write)
   open DBFILE,">mps.db";
@@ -87,10 +89,10 @@ sub write_db() {
   printf DBFILE "%s\n",$updateTimeHuman;
   printf DBFILE "%d\n",$elapsedTime;
   printf DBFILE "%s\n",$mssDirPool;
-  printf DBFILE "%d\n",$pedeMem;
   printf DBFILE "%s\n",$spare1;
   printf DBFILE "%s\n",$spare2;
   printf DBFILE "%s\n",$spare3;
+  printf DBFILE "%s\n",$spare4;
   my $i;
   for ($i = 0; $i < @JOBID; ++$i) {
     printf DBFILE "%03d:%s:%05d:%s:%d:%d:%d:%s:%d:%s:%s:%s:%s\n",
@@ -128,10 +130,10 @@ sub read_db() {
   $updateTimeHuman = <DBFILE>;
   $elapsedTime = <DBFILE>;
   $mssDirPool = <DBFILE>;
-  $pedeMem = <DBFILE>;
   $spare1 = <DBFILE>;
   $spare2 = <DBFILE>;
   $spare3 = <DBFILE>;
+  $spare4 = <DBFILE>;
   chomp $header;
   chomp $batchScript;
   chomp $cfgTemplate;
@@ -145,35 +147,34 @@ sub read_db() {
   chomp $updateTimeHuman;
   chomp $elapsedTime;
   chomp $mssDirPool;
-  chomp $pedeMem;
   chomp $spare1;
   chomp $spare2;
   chomp $spare3;
-
-  my $nMilleJobs = 0;
+  chomp $spare4;
   $nJobs = 0; 
-  while (<DBFILE>) { # loop through all jobs to read
+  while (<DBFILE>) {
     chomp $_;
     my $line;
     ($line,@JOBDIR[$nJobs],@JOBID[$nJobs],@JOBSTATUS[$nJobs],
     @JOBNTRY[$nJobs],@JOBRUNTIME[$nJobs],@JOBNEVT[$nJobs],@JOBHOST[$nJobs],@JOBINCR[$nJobs],
     @JOBREMARK[$nJobs],@JOBSP1[$nJobs],@JOBSP2[$nJobs],@JOBSP3[$nJobs])
       = split(":",$_);
-    unless (@JOBDIR[$nJobs] =~ m/jobm/) { # count mille jobs
-	++$nMilleJobs;
-    }
     ++$nJobs;
   }
-  $nJobs=$nMilleJobs;
+  # check if last job is a merge job
+  if (@JOBDIR[$nJobs-1] eq "jobm") {
+      # reduce nJobs since we should not count merge job
+      --$nJobs;
+  }
   close DBFILE;
 }
 
 sub print_memdb() {
   print "=== mps database printout ===\n";
   print "$header\n";
-  printf "Script %s card %s infi %s class %s files %s driver %s mergeScript %s mssDir %s updateTime %s elapsed %d mssDirPool %s pedeMem %d\n",$batchScript,
-  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool,$pedeMem;
-  printf "%3s %8s %8s %5s %4s %6s %9s %10s %10s \n",
+  printf "Script %s card %s infi %s class %s files %s driver %s mergeScript %s mssDir %s updateTime %s elapsed %d mssDirPool %s\n",$batchScript,
+  $cfgTemplate,$infiList,$class,$addFiles,$driver,$mergeScript,$mssDir,$updateTimeHuman,$elapsedTime,$mssDirPool;
+  printf "%3s %8s %7s %5s %4s %6s %9s %10s %10s \n",
   '###',"dir","jobid","stat","ntry","rtime","nevt","time/evt","remark";
   my $i;
   my $totEvt = 0;
@@ -185,7 +186,7 @@ sub print_memdb() {
     if (@JOBRUNTIME[$i]>0 and @JOBNEVT[$i]>0) {
       $cpuPerEvt = $thisCpu / @JOBNEVT[$i];
     }
-    printf "%03d %8s %08d %5s %4d %6d %9d %10.3f %10s\n",
+    printf "%03d %8s %07d %5s %4d %6d %9d %10.3f %10s\n",
     $i+1,@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
       $thisCpu,@JOBNEVT[$i],$cpuPerEvt,@JOBHOST[$i];
     if (@JOBNEVT[$i] > 0) {
@@ -194,17 +195,14 @@ sub print_memdb() {
     $totCpu = $totCpu + $thisCpu;
   }
   
-  # if merge mode, print merge job(s) as well
+  # if merge mode, print merge job as well
   if ($driver eq "merge") {
       $i = $nJobs;
-      while ($i < @JOBID) {
-        $cpuFactor = get_cpufactor(@JOBHOST[$i]);
-        $thisCpu = @JOBRUNTIME[$i] * $cpuFactor;
-        printf "%3s %8s %08d %5s %4d %6d %9d %10.3f %10s\n",
-      "MMM",@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
-        $thisCpu,@JOBNEVT[$i],0,@JOBHOST[$i];
-	++$i;
-      }
+      $cpuFactor = get_cpufactor(@JOBHOST[$i]);
+      $thisCpu = @JOBRUNTIME[$i] * $cpuFactor;
+      printf "%3s %6s   %07d %5s %4d %6d %9d %10.3f %10s\n",
+    "MMM",@JOBDIR[$i],@JOBID[$i],@JOBSTATUS[$i],@JOBNTRY[$i],
+      $thisCpu,@JOBNEVT[$i],0,@JOBHOST[$i];
   }
 
   my $meanCpuPerEvt = 0;

@@ -48,10 +48,10 @@ namespace edm {
       bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      virtual void checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
       void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c);
       virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
       virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker,const edm::EventSetup& ES){;}
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
       virtual void setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
       virtual void put(edm::Event &e,const edm::EventSetup& c) {;}
@@ -67,9 +67,7 @@ namespace edm {
       bool checktof_;
       int const minBunch_;
       int const maxBunch_;
-      bool const mixProdStep1_;	       	
-      bool const mixProdStep2_;
-      	
+
       // playback info
       bool playback_;
       std::vector<edm::EventID> eventIDs_;

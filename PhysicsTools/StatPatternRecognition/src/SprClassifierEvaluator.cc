@@ -1,4 +1,4 @@
-// $Id: SprClassifierEvaluator.cc,v 1.2 2007/11/30 20:13:35 narsky Exp $
+// $Id: SprClassifierEvaluator.cc,v 1.2 2007/12/01 01:29:46 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierEvaluator.hh"
@@ -97,11 +97,11 @@ bool SprClassifierEvaluator::variableImportance(
     mcTrained->vars(testVars);
   else
     trained->vars(testVars);
-  int N = data->size();
+  unsigned int N = data->size();
   SprIntegerPermutator permu(N);
 
   // make first pass without permutations
-  for( int n=0;n<N;n++ ) {
+  for( unsigned int n=0;n<N;n++ ) {
     const SprPoint* p = (*data)[n];
     const SprPoint* mappedP = p;
     int icls = p->class_;
@@ -130,22 +130,22 @@ bool SprClassifierEvaluator::variableImportance(
   // loop over permutations
   //
   cout << "Will perform " << nPerm << " permutations per variable." << endl;
-  int nVars = testVars.size();
+  unsigned int nVars = testVars.size();
   lossIncrease.clear();
   lossIncrease.resize(nVars);
-  for( int d=0;d<nVars;d++ ) {
+  for( unsigned int d=0;d<nVars;d++ ) {
     cout << "Permuting variable " << testVars[d].c_str() << endl;
 
     // map this var
     int mappedD = d;
     if( mapper != 0 )
       mappedD = mapper->mappedIndex(d);
-    assert( mappedD>=0 && mappedD<data->dim() );
+    assert( mappedD>=0 && mappedD<static_cast<int>(data->dim()) );
 
     // pass through all points permuting them
     vector<double> losses(nPerm);
     double aveLoss = 0;
-    for( int i=0;i<nPerm;i++ ) {
+    for( unsigned int i=0;i<nPerm;i++ ) {
 
       // permute this variable
       vector<unsigned> seq;
@@ -156,7 +156,7 @@ bool SprClassifierEvaluator::variableImportance(
 
       // pass through points
       loss->reset();
-      for( int n=0;n<N;n++ ) {
+      for( unsigned int n=0;n<N;n++ ) {
         SprPoint p(*(*data)[n]);
         p.x_[mappedD] = (*data)[seq[n]]->x_[mappedD];
         const SprPoint* mappedP = &p;
@@ -189,7 +189,7 @@ bool SprClassifierEvaluator::variableImportance(
     // compute error
     aveLoss /= nPerm;
     double err = 0;
-    for( int i=0;i<nPerm;i++ )
+    for( unsigned int i=0;i<nPerm;i++ )
       err += (losses[i]-aveLoss)*(losses[i]-aveLoss);
     if( nPerm > 1 )
       err /= (nPerm-1);
@@ -236,7 +236,7 @@ bool SprClassifierEvaluator::variableInteraction(
   }
 
   // set number of points and passes
-  int nPass = 2;
+  unsigned int nPass = 2;
   if( nPoints == 0 ) {
     nPoints = data->size();
     nPass = 1;
@@ -267,7 +267,7 @@ bool SprClassifierEvaluator::variableInteraction(
 
   // map subset vars onto classifier vars
   vector<int> subsetIndex(dim_subset,-1);
-  for( int d=0;d<dim_subset;d++ ) {
+  for( unsigned int d=0;d<dim_subset;d++ ) {
     vector<string>::const_iterator found 
       = find(testVars.begin(),testVars.end(),svars[d]);
     if( found == testVars.end() ) {
@@ -281,7 +281,7 @@ bool SprClassifierEvaluator::variableInteraction(
 
   // find classifier vars not included in subset vars
   map<string,int> analyzeVarIndex;
-  for( int d=0;d<dim;d++ ) {
+  for( unsigned int d=0;d<dim;d++ ) {
     if( find(svars.begin(),svars.end(),testVars[d]) == svars.end() ) {
       if( !analyzeVarIndex.insert(pair<string,int>(testVars[d],d)).second ) {
 	cerr << "Unable to insert into analyzeVarIndex." << endl;
@@ -322,7 +322,7 @@ bool SprClassifierEvaluator::variableInteraction(
   // two passes to get a rough error estimate
   //
   vector<vector<double> > pass(nPass,vector<double>(dim));
-  for( int ipass=0;ipass<nPass;ipass++ ) {
+  for( unsigned int ipass=0;ipass<nPass;ipass++ ) {
 
     // permute indices
     vector<unsigned> indices;
@@ -331,7 +331,7 @@ bool SprClassifierEvaluator::variableInteraction(
     return false;
     }
     double wtot = 0;
-    for( int i=0;i<nPoints;i++ )
+    for( unsigned int i=0;i<nPoints;i++ )
       wtot += data->w(indices[i]);
 
     //
@@ -341,7 +341,7 @@ bool SprClassifierEvaluator::variableInteraction(
 	 iter!=analyzeVarIndex.end();iter++ ) {
 
       // get var index in the classifier list
-      int d = iter->second;
+      unsigned int d = iter->second;
       assert( d < dim );
       if( verbose > 0 ) {
 	cout << "Computing interaction for variable "
@@ -352,7 +352,7 @@ bool SprClassifierEvaluator::variableInteraction(
       if( svars.empty() ) {
 	dim_subset = dim-1;
 	subsetIndex.clear();
-	for( int k=0;k<dim;k++ ) {
+	for( unsigned int k=0;k<dim;k++ ) {
 	  if( k == d ) continue;
 	  subsetIndex.push_back(k);
 	}
@@ -360,20 +360,20 @@ bool SprClassifierEvaluator::variableInteraction(
       
       // compute mean Fd and FS at each point
       vector<double> FS(nPoints,0), Fd(nPoints,0);
-      for( int i=0;i<nPoints;i++ ) {
+      for( unsigned int i=0;i<nPoints;i++ ) {
 	if( verbose>1 && (i+1)%1000==0 )
 	  cout << "Processing point " << i+1 << endl;
 	int ii = indices[i];
-	double wi = data->w(ii);
+	//double wi = data->w(ii);
 	const SprPoint* pi = (*data)[ii];
 	const SprPoint* mappedPi = pi;
 	if( mapper != 0 ) mappedPi = mapper->output(pi);
 	const vector<double>& xi = mappedPi->x_;
 	vector<double> xi_subset(dim_subset);
-	for( int k=0;k<dim_subset;k++ )
+	for( unsigned int k=0;k<dim_subset;k++ )
 	  xi_subset[k] = xi[subsetIndex[k]];
 	
-	for( int j=0;j<nPoints;j++ ) {
+	for( unsigned int j=0;j<nPoints;j++ ) {
 	  int jj = indices[j];
 	  const SprPoint* pj = (*data)[jj];
 	  vector<double> x_S(pj->x_), x_d(pj->x_);
@@ -381,7 +381,7 @@ bool SprClassifierEvaluator::variableInteraction(
 	  if( mapper != 0 ) mapper->map(pj->x_,x_S);
 	  if( mapper != 0 ) mapper->map(pj->x_,x_d);
 	  x_d[d] = xi[d];
-	  for( int k=0;k<dim_subset;k++ )
+	  for( unsigned int k=0;k<dim_subset;k++ )
 	    x_S[subsetIndex[k]] = xi_subset[k];
 	  if(      trained != 0 ) {
 	    Fd[i] += wj * trained->response(x_d);
@@ -401,7 +401,7 @@ bool SprClassifierEvaluator::variableInteraction(
       
       // compute correlation between FS and Fd
       double FS_mean(0), Fd_mean(0);
-      for( int i=0;i<nPoints;i++ ) {
+      for( unsigned int i=0;i<nPoints;i++ ) {
 	int ii = indices[i];
 	double wi = data->w(ii);
 	Fd_mean += wi*Fd[i];
@@ -410,7 +410,7 @@ bool SprClassifierEvaluator::variableInteraction(
       Fd_mean /= wtot;
       FS_mean /= wtot;
       double var_S(0), var_d(0), cov(0);
-      for( int i=0;i<nPoints;i++ ) {
+      for( unsigned int i=0;i<nPoints;i++ ) {
 	int ii = indices[i];
 	double wi = data->w(ii);
 	var_d += wi*pow(Fd[i]-Fd_mean,2);
@@ -440,11 +440,11 @@ bool SprClassifierEvaluator::variableInteraction(
        iter!=analyzeVarIndex.end();iter++ ) {
     int d = iter->second;
     double mean = 0;
-    for( int ipass=0;ipass<nPass;ipass++ )
+    for( unsigned int ipass=0;ipass<nPass;ipass++ )
       mean += pass[ipass][d];
     mean /= nPass;
     double var = 0;
-    for( int ipass=0;ipass<nPass;ipass++ )
+    for( unsigned int ipass=0;ipass<nPass;ipass++ )
       var += pow(pass[ipass][d]-mean,2);
     if( nPass > 1 )
       var /= (nPass-1);

@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2008/05/11 09:35:08 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/08 15:32:08 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,6 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
-std::vector<int> laserWavelengths_;
 
 MonitorElement* meShapeMapL1A_[36];
 MonitorElement* meAmplMapL1A_[36];

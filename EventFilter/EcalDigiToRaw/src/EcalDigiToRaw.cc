@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.11 2009/05/26 17:31:38 franzoni Exp $
+// $Id: EcalDigiToRaw.cc,v 1.8 2008/01/22 19:10:41 muzaffar Exp $
 //
 //
 
@@ -58,7 +58,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    doEndCap_ = iConfig.getUntrackedParameter<bool>("DoEndCap");
 
    listDCCId_ = iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId");
-   dccFOV_ = iConfig.getParameter<int32_t>("dccFOV");
+   
    label_= iConfig.getParameter<string>("Label");
    instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
@@ -125,6 +125,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto_ptr<FEDRawDataCollection> productRawData(new FEDRawDataCollection);
 
 
+  pair<int,int> EcalFEDIds=FEDNumbering::getEcalFEDIds();
+
   Headerblockformatter_ -> DigiToRaw(productRawData.get());
 
 
@@ -142,7 +144,6 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // iEvent.getByType(ecalTrigPrim);
 	iEvent.getByLabel(labelTT_, ecalTrigPrim);
 
-     // loop on TP's and add one by one to the block
      for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
 			   it != ecalTrigPrim -> end(); it++) {
 
@@ -153,11 +154,10 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if ( (detid.subDet() == EcalEndcap) && (! doEndCap_) ) continue;
 
 	   int iDCC = TheMapping -> DCCid(detid);
-           int FEDid = FEDNumbering::MINECALFEDID + iDCC;
+           int FEDid = EcalFEDIds.first + iDCC;
 
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-	   
-	   // adding the primitive to the block
+
 	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping);
 
      }   // end loop on ecalTrigPrim
@@ -181,7 +181,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		EcalTrigTowerDetId id = srflag.id();
 		int Dccid = TheMapping -> DCCid(id);
 		int DCC_Channel = TheMapping -> iTT(id);
-		int FEDid = FEDNumbering::MINECALFEDID + Dccid;
+		int FEDid = EcalFEDIds.first + Dccid;
 		// if (Dccid == 10) cout << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
 		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
@@ -205,7 +205,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int Dccid = ind.first;
 		int DCC_Channel = ind.second;
 
-                int FEDid = FEDNumbering::MINECALFEDID + Dccid;
+                int FEDid = EcalFEDIds.first + Dccid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
            }
@@ -229,7 +229,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const EBDataFrame& dataframe = *it;
                 const EBDetId& ebdetid = it -> id();
 		int DCCid = TheMapping -> DCCid(ebdetid);
-        	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
+        	int FEDid = EcalFEDIds.first + DCCid ;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
         }
@@ -245,7 +245,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const EEDetId& eedetid = it -> id();
 		EcalElectronicsId elid = TheMapping -> getElectronicsId(eedetid);
                 int DCCid = elid.dccId() ;   
-                int FEDid = FEDNumbering::MINECALFEDID + DCCid;
+                int FEDid = EcalFEDIds.first + DCCid;
                 FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
                 Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
         }

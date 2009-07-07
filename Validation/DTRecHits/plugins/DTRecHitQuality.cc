@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -17,13 +17,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "Histograms.h"
 
@@ -45,13 +38,13 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   debug = pset.getUntrackedParameter<bool>("debug");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
   // the name of the 1D rec hit collection
-  recHitLabel = pset.getUntrackedParameter<InputTag>("recHitLabel");
+  recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "DTRecHit1DProducer");
   // the name of the 2D rec hit collection
-  segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
+  segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
   // the name of the 4D rec hit collection
-  segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
+  segment4DLabel = pset.getUntrackedParameter<string>("segment4DLabel");
 
   // Switches for analysis at various steps
   doStep1 = pset.getUntrackedParameter<bool>("doStep1", false);
@@ -59,64 +52,49 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
 
   // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
 
 
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if ( debug ) dbe_->showDirStructure();
-  }
+  hRes_S1RPhi= new HRes1DHit("S1RPhi");     // RecHits, 1. step, RPhi
+  hRes_S2RPhi= new HRes1DHit("S2RPhi");     // RecHits, 2. step, RPhi
+  hRes_S3RPhi= new HRes1DHit("S3RPhi");     // RecHits, 3. step, RPhi
 
-  hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_);    // RecHits, 1. step, RPhi
-  hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
-  hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
+  hRes_S1RZ= new HRes1DHit("S1RZ");         // RecHits, 1. step, RZ
+  hRes_S2RZ= new HRes1DHit("S2RZ");	    // RecHits, 2. step, RZ
+  hRes_S3RZ= new HRes1DHit("S3RZ");	    // RecHits, 3. step, RZ
 
-  hRes_S1RZ= new HRes1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
-  hRes_S2RZ= new HRes1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
-  hRes_S3RZ= new HRes1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
+  hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0");   // RecHits, 1. step, RZ, wheel 0
+  hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0");   // RecHits, 2. step, RZ, wheel 0
+  hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0");   // RecHits, 3. step, RZ, wheel 0
 
-  hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
-  hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
-  hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
+  hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1");   // RecHits, 1. step, RZ, wheel +-1
+  hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1");   // RecHits, 2. step, RZ, wheel +-1
+  hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1");   // RecHits, 3. step, RZ, wheel +-1
 
-  hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
-  hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
-  hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
+  hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2");   // RecHits, 1. step, RZ, wheel +-2
+  hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2");   // RecHits, 2. step, RZ, wheel +-2
+  hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2");   // RecHits, 3. step, RZ, wheel +-2
 
-  hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
-  hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
-  hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+  hEff_S1RPhi= new HEff1DHit("S1RPhi");     // RecHits, 1. step, RPhi
+  hEff_S2RPhi= new HEff1DHit("S2RPhi");     // RecHits, 2. step, RPhi
+  hEff_S3RPhi= new HEff1DHit("S3RPhi");     // RecHits, 3. step, RPhi
 
-  hEff_S1RPhi= new HEff1DHit("S1RPhi",dbe_);     // RecHits, 1. step, RPhi
-  hEff_S2RPhi= new HEff1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
-  hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
+  hEff_S1RZ= new HEff1DHit("S1RZ");         // RecHits, 1. step, RZ
+  hEff_S2RZ= new HEff1DHit("S2RZ");	    // RecHits, 2. step, RZ
+  hEff_S3RZ= new HEff1DHit("S3RZ");	    // RecHits, 3. step, RZ
 
-  hEff_S1RZ= new HEff1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
-  hEff_S2RZ= new HEff1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
-  hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
+  hEff_S1RZ_W0= new HEff1DHit("S1RZ_W0");   // RecHits, 1. step, RZ, wheel 0
+  hEff_S2RZ_W0= new HEff1DHit("S2RZ_W0");   // RecHits, 2. step, RZ, wheel 0
+  hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0");   // RecHits, 3. step, RZ, wheel 0
 
-  hEff_S1RZ_W0= new HEff1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
-  hEff_S2RZ_W0= new HEff1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
-  hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
+  hEff_S1RZ_W1= new HEff1DHit("S1RZ_W1");   // RecHits, 1. step, RZ, wheel +-1
+  hEff_S2RZ_W1= new HEff1DHit("S2RZ_W1");   // RecHits, 2. step, RZ, wheel +-1
+  hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1");   // RecHits, 3. step, RZ, wheel +-1
 
-  hEff_S1RZ_W1= new HEff1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
-  hEff_S2RZ_W1= new HEff1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
-  hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
-
-  hEff_S1RZ_W2= new HEff1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
-  hEff_S2RZ_W2= new HEff1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
-  hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+  hEff_S1RZ_W2= new HEff1DHit("S1RZ_W2");   // RecHits, 1. step, RZ, wheel +-2
+  hEff_S2RZ_W2= new HEff1DHit("S2RZ_W2");   // RecHits, 2. step, RZ, wheel +-2
+  hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2");   // RecHits, 3. step, RZ, wheel +-2
 }
 
 
@@ -129,6 +107,8 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
 
 void DTRecHitQuality::endJob() {
   // Write the histos to file
+  theFile->cd();
+
   hEff_S1RPhi->ComputeEfficiency();
   hEff_S2RPhi->ComputeEfficiency();
   hEff_S3RPhi->ComputeEfficiency();
@@ -148,10 +128,9 @@ void DTRecHitQuality::endJob() {
   hEff_S1RZ_W2->ComputeEfficiency();
   hEff_S2RZ_W2->ComputeEfficiency();
   hEff_S3RZ_W2->ComputeEfficiency();
-  //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
 
   // Write histos to file
-  /*hRes_S1RPhi->Write();
+  hRes_S1RPhi->Write();
   hRes_S2RPhi->Write();
   hRes_S3RPhi->Write();
 
@@ -190,9 +169,9 @@ void DTRecHitQuality::endJob() {
 
   hEff_S1RZ_W2->Write();
   hEff_S2RZ_W2->Write();
-  hEff_S3RZ_W2->Write();*/
+  hEff_S3RZ_W2->Write();
 
-  //theFile->Close();
+  theFile->Close();
 }
 
 // The real analysis
@@ -200,7 +179,7 @@ void DTRecHitQuality::endJob() {
     if(debug)
       cout << "--- [DTRecHitQuality] Analysing Event: #Run: " << event.id().run()
         << " #Event: " << event.id().event() << endl;
-    //theFile->cd();
+    theFile->cd();
     // Get the DT Geometry
     ESHandle<DTGeometry> dtGeom;
     eventSetup.get<MuonGeometryRecord>().get(dtGeom);
@@ -208,7 +187,7 @@ void DTRecHitQuality::endJob() {
 
     // Get the SimHit collection from the event
     Handle<PSimHitContainer> simHits;
-    event.getByLabel(simHitLabel, simHits);
+    event.getByLabel(simHitLabel, "MuonDTHits", simHits);
 
     // Map simhits per wire
     map<DTWireId, PSimHitContainer > simHitsPerWire =
@@ -532,7 +511,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if(hResTot != 0)
         hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                       simHitGlobalPos.phi(),recHitErr);
-      
+
     }
 
     // Fill Efficiencies

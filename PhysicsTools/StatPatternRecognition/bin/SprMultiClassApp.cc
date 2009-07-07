@@ -1,4 +1,4 @@
-//$Id: SprMultiClassApp.cc,v 1.11 2007/11/12 04:41:17 narsky Exp $
+//$Id: SprMultiClassApp.cc,v 1.5 2007/11/12 06:19:11 narsky Exp $
 /*
   Note: "-y" option has a different meaning for this executable than
   for other executables in the package. Instead of specifying what
@@ -94,9 +94,9 @@ void prepareExit(vector<SprAbsTwoClassCriterion*>& criteria,
 		 vector<SprAbsClassifier*>& classifiers,
 		 vector<SprIntegerBootstrap*>& bstraps) 
 {
-  for( int i=0;i<criteria.size();i++ ) delete criteria[i];
-  for( int i=0;i<classifiers.size();i++ ) delete classifiers[i];
-  for( int i=0;i<bstraps.size();i++ ) delete bstraps[i];
+  for( unsigned int i=0;i<criteria.size();i++ ) delete criteria[i];
+  for( unsigned int i=0;i<classifiers.size();i++ ) delete classifiers[i];
+  for( unsigned int i=0;i<bstraps.size();i++ ) delete bstraps[i];
 }
 
 
@@ -240,7 +240,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -261,7 +261,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -286,7 +286,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -303,7 +303,7 @@ int main(int argc, char ** argv)
     return 2;
   }
   vector<SprClass> inputClasses(inputIntClasses[0].size());
-  for( int i=0;i<inputIntClasses[0].size();i++ )
+  for( unsigned int i=0;i<inputIntClasses[0].size();i++ )
     inputClasses[i] = inputIntClasses[0][i];
 
   // filter training data by class
@@ -313,7 +313,7 @@ int main(int argc, char ** argv)
     return 2;
   }
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int i=0;i<inputClasses.size();i++ ) {
     unsigned npts = filter->ptsInClass(inputClasses[i]);
     if( npts == 0 ) {
       cerr << "Error!!! No points in class " << inputClasses[i] << endl;
@@ -353,7 +353,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -382,7 +382,7 @@ int main(int argc, char ** argv)
     valFilter->vars(valVars);
     cout << "Read validation data from file " << valFile.c_str() 
 	 << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -396,7 +396,7 @@ int main(int argc, char ** argv)
       return 2;
     }
     cout << "Validation data filtered by class." << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int i=0;i<inputClasses.size();i++ ) {
      unsigned npts = valFilter->ptsInClass(inputClasses[i]);
      if( npts == 0 )
        cerr << "Warning!!! No points in class " << inputClasses[i] << endl;
@@ -602,7 +602,7 @@ int main(int argc, char ** argv)
 
     // compute response
     vector<SprMultiClassPlotter::Response> responses(valFilter->size());
-    for( int i=0;i<valFilter->size();i++ ) {
+    for( unsigned int i=0;i<valFilter->size();i++ ) {
       if( ((i+1)%1000) == 0 )
 	cout << "Computing response for validation point " << i+1 << endl;
 
@@ -635,7 +635,7 @@ int main(int argc, char ** argv)
     sprintf(s,"True Class \\ Classification |");
     string temp = "------------------------------";
     cout << s;
-    for( int i=0;i<classes.size();i++ ) {
+    for( unsigned int i=0;i<classes.size();i++ ) {
       sprintf(s," %5i      |",classes[i]);
       cout << s;
       temp += "-------------";
@@ -648,7 +648,7 @@ int main(int argc, char ** argv)
 	   i=lossTable.begin();i!=lossTable.end();i++ ) {
       sprintf(s,"%5i                       |",i->first);
       cout << s;
-      for( int j=0;j<i->second.size();j++ ) {
+      for( unsigned int j=0;j<i->second.size();j++ ) {
 	sprintf(s," %10.4f |",i->second[j]);
 	cout << s;
       }
@@ -678,7 +678,7 @@ int main(int argc, char ** argv)
   vector<vector<string> > varsDoNotFeed;
   SprStringParser::parseToStrings(stringVarsDoNotFeed.c_str(),varsDoNotFeed);
   vector<unsigned> mapper;
-  for( int d=0;d<vars.size();d++ ) {
+  for( unsigned int d=0;d<vars.size();d++ ) {
     if( varsDoNotFeed.empty() ||
         (find(varsDoNotFeed[0].begin(),varsDoNotFeed[0].end(),vars[d])
 	 ==varsDoNotFeed[0].end()) ) {

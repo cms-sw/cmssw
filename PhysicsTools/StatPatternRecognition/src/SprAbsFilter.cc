@@ -1,4 +1,4 @@
-//$Id: SprAbsFilter.cc,v 1.11 2007/11/30 20:13:35 narsky Exp $
+//$Id: SprAbsFilter.cc,v 1.4 2007/12/01 01:29:46 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -180,12 +180,12 @@ bool SprAbsFilter::filter()
   SprData* copy = data_->emptyCopy();
 
   // find index range
-  int istart = ( imin_<0 ? 0 : imin_ );
-  int iend = ( (imax_>data_->size()||imax_==0) ? data_->size() : imax_ );
+  unsigned int istart = ( imin_<0 ? 0 : imin_ );
+  unsigned int iend = ( (imax_>data_->size()||imax_==0) ? data_->size() : imax_ );
 
   // loop through points and accept
   copyWeights_.clear();
-  for( int i=istart;i<iend;i++ ) {
+  for( unsigned int i=istart;i<iend;i++ ) {
     SprPoint* p = (*data_)[i];
     if( this->category(p) && this->pass(p) ) {
       copy->uncheckedInsert(p);
@@ -226,7 +226,7 @@ bool SprAbsFilter::irreversibleFilter()
 
 bool SprAbsFilter::setW(int i, double w)
 {
-  if( i<0 || i>=copyWeights_.size() ) return false;
+  if( i<0 || i>=(int)copyWeights_.size() ) return false;
   copyWeights_[i] = w;
   return true;
 }
@@ -251,13 +251,13 @@ bool SprAbsFilter::normalizeWeights(const std::vector<SprClass>& classes,
   classes_ = classes;
 
   // get size
-  int size = copy_->size();
+  unsigned int size = copy_->size();
   if( size == 0 ) return true;
   assert( size == copyWeights_.size() );
 
   // sum weights in the chosen classes
   double sum = 0;
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     if( this->category((*copy_)[i]) )
       sum += copyWeights_[i];
   }
@@ -268,7 +268,7 @@ bool SprAbsFilter::normalizeWeights(const std::vector<SprClass>& classes,
 
   // normalize
   double factor = totalWeight/sum;
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     if( this->category((*copy_)[i]) )
       copyWeights_[i] *= factor;
   }
@@ -320,10 +320,10 @@ bool SprAbsFilter::resetWeights()
   int jstart = 0;
 
   // loop over points
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     const SprPoint* p = (*copy_)[i];
     bool matched = false;
-    for( int j=jstart;j<data_->size();j++ ) {
+    for( unsigned int j=jstart;j<data_->size();j++ ) {
       if( p == (*data_)[j] ) {
 	matched = true;
 	jstart = j;
@@ -358,7 +358,7 @@ bool SprAbsFilter::remove(const SprData* data)
 
   // loop through points and accept
   vector<double> copyWeights;
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     SprPoint* p = (*copy_)[i];
     if( data->find(p->index_) == 0 ) {
       copy->uncheckedInsert(p);
@@ -392,8 +392,8 @@ bool SprAbsFilter::fastRemove(const SprData* data)
   vector<double> copyWeights;
 
   // loop through points and accept
-  int isplit(0), istart(0);
-  for( int i=0;i<data->size();i++ ) {
+  unsigned int isplit(0), istart(0);
+  for( unsigned int i=0;i<data->size();i++ ) {
     SprPoint* pToRemove = (*data)[i];
     for( isplit=istart;isplit<copy_->size();isplit++ ) {
       SprPoint* p = (*copy_)[isplit];
@@ -423,7 +423,7 @@ double SprAbsFilter::weightInClass(const SprClass& cls) const
 {
   assert( copy_ != 0 );
   double w = 0;
-  for( int i=0;i<copy_->size();i++ )
+  for( unsigned int i=0;i<copy_->size();i++ )
     if( (*copy_)[i]->class_ == cls ) w += copyWeights_[i];
   return w;
 }
@@ -437,7 +437,7 @@ void SprAbsFilter::scaleWeights(const SprClass& cls, double w)
     return;
   }
   assert( data_->size() == dataWeights_.size() );
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     if( (*data_)[i]->class_ == cls )
       dataWeights_[i] *= w;
   }
@@ -452,14 +452,14 @@ void SprAbsFilter::print(std::ostream& os) const
   vector<string> vars;
   copy_->vars(vars);
   assert( vars.size() == copy_->dim() );
-  for( int d=0;d<vars.size();d++ )
+  for( unsigned int d=0;d<vars.size();d++ )
     os << vars[d].c_str() << " ";
   os << endl;
   assert( copyWeights_.size() == copy_->size() );
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     os << "# " << i << endl;
     const SprPoint* p = (*copy_)[i];
-    for( int d=0;d<copy_->dim();d++ )
+    for( unsigned int d=0;d<copy_->dim();d++ )
       os << p->x_[d] << " ";
     os << copyWeights_[i] << " " << p->class_ << endl;
   }
@@ -480,7 +480,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
   median_.resize(copy->dim());
 
   // loop thru dimensions
-  for( int d=0;d<copy->dim();d++ ) {
+  for( unsigned int d=0;d<copy->dim();d++ ) {
     // vector of valid values used for median computation
     // first number in a pair is coordinate, 2nd number is weight
     vector<pair<double,double> > in;
@@ -492,11 +492,11 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
       cout << "Replacing missing values for dimension " << d << endl;
 
     // split data into points with and without missing values
-    for( int i=0;i<copy->size();i++ ) {
+    for( unsigned int i=0;i<copy->size();i++ ) {
       SprPoint* p = (*copy)[i];
       bool valid = false;
       double r = (p->x_)[d];
-      for( int j=0;j<validRange.size();j++ ) {
+      for( unsigned int j=0;j<validRange.size();j++ ) {
 	if( r>validRange[j].first && r<validRange[j].second ) {
 	  valid = true;
 	  break;
@@ -509,7 +509,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
     }
 
     // sort valid values
-    int validSize = in.size();
+    unsigned int validSize = in.size();
     if( validSize < 2 ) {
       cerr << "Less than 2 points with valid values found in dimension " 
 	   << d << endl;
@@ -520,7 +520,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
     // compute cumulative weights
     double wtot = 0;
     vector<double> w(validSize);
-    for( int i=0;i<validSize;i++ ) {
+    for( unsigned int i=0;i<validSize;i++ ) {
       w[i] = in[i].second;
       wtot += w[i];
     }
@@ -532,7 +532,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
       medIndex = 0;
     }
     else {
-      for( int i=1;i<validSize;i++ ) {
+      for( unsigned int i=1;i<validSize;i++ ) {
 	w[i] = w[i-1] + w[i]/wtot;
 	if( w[i] > 0.5 ) {
 	  medIndex = i;
@@ -540,7 +540,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
 	}
       }
     }
-    if( medIndex<0 || medIndex>(validSize-1)) {
+    if( medIndex<0 || (unsigned int) medIndex>(validSize-1)) {
       cerr << "Unable to find median index." << endl;
       return false;
     }
@@ -556,7 +556,7 @@ bool SprAbsFilter::replaceMissing(const SprCut& validRange, int verbose)
     median_[d] = med;
       
     // assign median to all missing points
-    for( int i=0;i<out.size();i++ )
+    for( unsigned int i=0;i<out.size();i++ )
       (out[i]->x_)[d] = med;
   }// end loop thru dimensions
 
@@ -591,7 +591,7 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
   }
 
   // Sanity check for dots and sizes.
-  for( int i=0;i<members.size();i++ ) {
+  for( unsigned int i=0;i<members.size();i++ ) {
     if( members[i].empty() ) {
       cerr << "Class " << i << " is empty in string " 
 	   << inputClassString << endl;
@@ -613,7 +613,7 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
       return false;
     }
     classes.resize(members[0].size());
-    for( int i=0;i<members[0].size();i++ )
+    for( unsigned int i=0;i<members[0].size();i++ )
       classes[i] = atoi(members[0][i].c_str());
     return true;
   }
@@ -623,7 +623,7 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
   // Make sure the dot is used only once.
   int ndot = 0;
   int dottedClass = -1;
-  for( int i=0;i<members.size();i++ ) {
+  for( unsigned int i=0;i<members.size();i++ ) {
     if( members[i][0] == "." ) {
       ndot++;
       dottedClass = i;
@@ -636,9 +636,9 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
 
   // record all classes found in the expression
   vector<int> allButDot;
-  for( int i=0;i<members.size();i++ ) {
-    if( i != dottedClass ) {
-      for( int j=0;j<members[i].size();j++ ) {
+  for( unsigned int i=0;i<members.size();i++ ) {
+    if( (int)i != dottedClass ) {
+      for( unsigned int j=0;j<members[i].size();j++ ) {
 	allButDot.push_back(atoi(members[i][j].c_str()));
       }
     }
@@ -646,13 +646,13 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
 
   // fill out classes
   classes.resize(members.size());
-  for( int i=0;i<members.size();i++ ) {
-    if( i == dottedClass ) {
+  for( unsigned int i=0;i<members.size();i++ ) {
+    if( static_cast<int>(i) == dottedClass ) {
       classes[i] = SprClass(allButDot,true);// negate
     }
     else {
       vector<int> cls(members[i].size());
-      for( int j=0;j<members[i].size();j++ ) {
+      for( unsigned int j=0;j<members[i].size();j++ ) {
 	cls[j] = atoi(members[i][j].c_str());
       }
       classes[i] = SprClass(cls,false);
@@ -660,8 +660,8 @@ bool SprAbsFilter::decodeClassString(const char* inputClassString,
   }
 
   // make sure the two class vectors do not contain the same class
-  for( int i=0;i<classes.size()-1;i++ ) {
-    for( int j=i+1;j<classes.size();j++ ) {
+  for( unsigned int i=0;i<classes.size()-1;i++ ) {
+    for( unsigned int j=i+1;j<classes.size();j++ ) {
       if( classes[i].overlap(classes[j]) == 1 ) {
 	cerr << "Classes " << i << " and " << j << " overlap." << endl;
 	return false;
@@ -685,7 +685,7 @@ bool SprAbsFilter::filterByClass(const char* inputClassString)
 
   // loop through points and accept
   vector<double> copyWeights;
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     SprPoint* p = (*copy_)[i];
     if( this->category(p) ) {
       copy->uncheckedInsert(p);
@@ -749,7 +749,7 @@ bool SprAbsFilter::flatten(const SprClass& cls,
     cerr << "No intervals are specified for flattening." << endl;
     return false;
   }
-  for( int i=1;i<intervals.size();i++ ) {
+  for( unsigned int i=1;i<intervals.size();i++ ) {
     if( intervals[i] <= intervals[i-1] ) {
       cerr << "Intervals are incorrectly specified for flattening: " 
 	   << (i-1) << "-" << i
@@ -776,7 +776,7 @@ bool SprAbsFilter::flatten(const SprClass& cls,
 
   // make an array of values in this variable
   vector<pair<double,int> > values(copy_->size());
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     if( (*copy_)[i]->class_ == cls )
       values[i] = pair<double,int>((*copy_)[i]->x_[d],i);
   }
@@ -811,7 +811,7 @@ bool SprAbsFilter::flatten(const SprClass& cls,
   vector<double> binWeights(intervals.size()-1,0);
   int ibin0 = 0;
   for( int i=firstPoint;i<=lastPoint;i++ ) {
-    int ibin = ibin0;
+    unsigned int ibin = ibin0;
     while( ibin < binWeights.size() ) {
       if( values[i].first>=intervals[ibin] 
 	  && values[i].first<intervals[ibin+1] ) {
@@ -829,7 +829,7 @@ bool SprAbsFilter::flatten(const SprClass& cls,
   double length = intervals[intervals.size()-1] - intervals[0];
   assert( length > 0 );
   averageW /= length;
-  for( int i=0;i<binWeights.size();i++ ) {
+  for( unsigned int i=0;i<binWeights.size();i++ ) {
     double binLength = intervals[i+1] - intervals[i];
     if( binWeights[i]>0 && binLength>0 ) {
       binWeights[i] /= (binLength*averageW);
@@ -840,7 +840,7 @@ bool SprAbsFilter::flatten(const SprClass& cls,
   // adjust weights
   ibin0 = 0;
   for( int i=firstPoint;i<=lastPoint;i++ ) {
-    int ibin = ibin0;
+    unsigned int ibin = ibin0;
     while( ibin < binWeights.size() ) {
       if( values[i].first>=intervals[ibin] 
 	  && values[i].first<intervals[ibin+1] ) {
@@ -863,7 +863,7 @@ void SprAbsFilter::allClasses(std::vector<SprClass>& classes) const
   classes.clear();
   // This algorithm is inefficient - one would need to use std::set.
   // But I want to avoid defining operator< for SprClass.
-  for( int i=0;i<copy_->size();i++ ) {
+  for( unsigned int i=0;i<copy_->size();i++ ) {
     const SprPoint* p = (*copy_)[i];
     if( ::find(classes.begin(),classes.end(),p->class_) == classes.end() )
       classes.push_back(SprClass(p->class_));

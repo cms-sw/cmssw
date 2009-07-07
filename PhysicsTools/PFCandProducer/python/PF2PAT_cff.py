@@ -10,32 +10,32 @@ from PhysicsTools.PFCandProducer.pfJets_cff import *
 from PhysicsTools.PFCandProducer.pfTaus_cff import *
 
 # sequential top projection cleaning
-from PhysicsTools.PFCandProducer.ParticleSelectors.sortByType_cff import *
-from PhysicsTools.PFCandProducer.TopProjectors.noMuon_cfi import * 
-from PhysicsTools.PFCandProducer.TopProjectors.noElectron_cfi import * 
-from PhysicsTools.PFCandProducer.TopProjectors.noJet_cfi import *
-from PhysicsTools.PFCandProducer.TopProjectors.noTau_cfi import *
+from PhysicsTools.PFCandProducer.ParticleSelectors.pfSortByType_cff import *
+from PhysicsTools.PFCandProducer.TopProjectors.pfNoMuon_cfi import * 
+from PhysicsTools.PFCandProducer.TopProjectors.pfNoElectron_cfi import * 
+from PhysicsTools.PFCandProducer.TopProjectors.pfNoJet_cfi import *
+from PhysicsTools.PFCandProducer.TopProjectors.pfNoTau_cfi import *
 
 # generator tools
 from PhysicsTools.PFCandProducer.GeneratorTools.sortGenParticles_cff import *
 
 PF2PAT = cms.Sequence(
-    genMetTrueSequence + 
     pfMET +
     pfNoPileUpSequence + 
-    sortByTypeSequence +
-    pfElectronSequence +
+    pfSortByTypeSequence +
+#    pfElectronSequence +
     pfMuonSequence + 
-    noMuon +
+    pfNoMuon +
 #    noElectron + 
 # when uncommenting, change the source of the jet clustering
     pfJetSequence +
-    noJet + 
+    pfNoJet + 
     pfTauSequence +
-    noTau
+    pfNoTau
     )
 
 
 genForPF2PAT = cms.Sequence(
+    genMetTrueSequence + 
     sortGenParticlesSequence
     )

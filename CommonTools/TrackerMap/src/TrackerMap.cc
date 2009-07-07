@@ -153,7 +153,7 @@ void TrackerMap::init() {
   minvalue=0.; maxvalue=minvalue;
   posrel=true;
   palette = 1;
-  printflag=true;
+  printflag=false;
   temporary_file=false;
   gminvalue=0.; gmaxvalue=0.;//default global range for online rendering
 

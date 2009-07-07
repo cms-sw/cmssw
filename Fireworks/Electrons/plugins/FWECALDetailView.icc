@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.6 2009/06/05 20:00:33 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.5 2009/05/20 05:24:52 jmuelmen Exp $
 
 // system include files
 #include "TLatex.h"
@@ -198,15 +198,15 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      gEve->AddElement(lego, tList);
 
    
-     // overlay lego  (only a debug info == axis at the corner)     
-       
+     // overlay lego  (only a debug info == axis at the corner)       
      TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
      overlay->SetShowPlane(kFALSE);
      overlay->SetShowPerspective(kFALSE);
      overlay->SetCaloLego(lego);
-     FWDetailViewBase::viewer()->AddOverlayElement(overlay);
+     FWDetailViewBase::viewer()->AddOverlayElement(overlay);  
+     tList->AddElement(overlay);
      m_overlays.push_back(overlay);
-     
+
      // set event handler, flip to top view at beginning
      {
 	  TGLViewer* v =  FWDetailViewBase::viewer();

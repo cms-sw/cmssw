@@ -4,14 +4,6 @@
 #include <math.h>
 #include <iostream>
 
-const int HcalBaseClient::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,
-				       -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
-				       -16,-15, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
-				       30,31,32,33,34,35,36,37,38,39,40,41,42};
-
-
-const int HcalBaseClient::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
-
 HcalBaseClient::HcalBaseClient()
 {
   dbe_ =NULL;
@@ -188,41 +180,6 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 
-void HcalBaseClient::getEtaPhiHists(char* dir, char* name, TH2F* h[4], char* units)
-{
-  if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
-  TH2F* dummy = new TH2F();
-  ostringstream hname;
-
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
-  if (units!="") hname<<" "<<units;
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
-  if (units!="") hname<<" "<<units;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  if (units!="") hname<<" "<<units;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
-  if (units!="") hname<<" "<<units;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  if (debug_>2) std::cout <<"Finished with getEtaPhiHists(2D)"<<std::endl;
-  return;
-} // void HcalBaseClient::getEtaPhiHists(...)
-
-
 
 void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units)
 {
@@ -272,65 +229,44 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units
 
 
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[4], char* units)
+
+void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[6], char* units)
 {
   TH1F* dummy = new TH1F();
   ostringstream hname;
 
-  hname <<process_.c_str()<<dir<<"HB "<<name;
+  hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
   if (units!="") hname << " "<<units;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HE "<<name;
+  hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
   if (units!="") hname << " "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HO "<<name;
+  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
   if (units!="") hname << " "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HF "<<name;
+  hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
   if (units!="") hname << " "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
+  if (units!="") hname << " "<<units;
+  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
+  if (units!="") hname << " "<<units;
+  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
   return;
 } // void HcalBaseClient::getSJ6histos(1D)
 
 
-int HcalBaseClient::CalcIeta(int eta, int depth)
-{
-  int ieta;
-  ieta=-9999; // default value is nonsensical
-  if (depth==1)
-    {
-      ieta=eta-42;
-      if (eta<14) ieta++;
-      else if (eta>72) ieta--;
-    }
-  else if (depth==2)
-    {
-      if (eta<0 || eta>57) ieta=-9999;
-      else
-	{
-	  ieta=binmapd2[eta];
-	  if (ieta<=-30) ieta++;
-	  else if (ieta>=30) ieta--;
-	  else ieta=-9999;
-	}
-    }
-  else if (depth==3)
-    {
-      if (eta<0 || eta>8) ieta=-9999;
-      else
-          ieta=binmapd3[eta];
-    }
-  else if (depth==4)
-    {
-      ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-      if (abs(ieta)>15) ieta=-9999;
-    }
-  return ieta;
-}
+
+

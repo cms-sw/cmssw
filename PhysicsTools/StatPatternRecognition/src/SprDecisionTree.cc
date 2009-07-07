@@ -1,4 +1,4 @@
-//$Id: SprDecisionTree.cc,v 1.10 2007/08/11 22:08:10 narsky Exp $
+//$Id: SprDecisionTree.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDecisionTree.hh"
@@ -112,7 +112,7 @@ SprTrainedDecisionTree* SprDecisionTree::makeTrained() const
   vector<SprBox> nodes1(nodes1_.size());
 
   // copy box limits
-  for( int i=0;i<nodes1_.size();i++ )
+  for( unsigned int i=0;i<nodes1_.size();i++ )
     nodes1[i] = nodes1_[i]->limits_;
 
   // make tree
@@ -164,7 +164,7 @@ bool SprDecisionTree::train(int verbose)
   // train the tree
   fullNodeList_.clear();
   fullNodeList_.push_back(root_);
-  int splitIndex = 0;
+  unsigned int splitIndex = 0;
   while( splitIndex < fullNodeList_.size() ) {
     SprTreeNode* node = fullNodeList_[splitIndex];
     if( !node->split(fullNodeList_,splits_,verbose) ) {
@@ -243,18 +243,18 @@ bool SprDecisionTree::merge(int category, bool doMerge,
       cerr << "No leaf nodes found for category " << category << endl;
     return true;
   }
-  int size = collect.size();
+  unsigned int size = collect.size();
   if( verbose > 1 ) {
     cout << "Found " << size << " leaf nodes in category " 
 	 << category << ":     ";
-    for( int i=0;i<size;i++ )
+    for( unsigned int i=0;i<size;i++ )
       cout << collect[i]->id() << " ";
     cout << endl;
   }
 
   // sort leaf nodes by purity
   vector<pair<double,const SprTreeNode*> > purity(size);
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprTreeNode* node = collect[i];
     double w0 = node->w0();
     double w1 = node->w1();
@@ -268,12 +268,12 @@ bool SprDecisionTree::merge(int category, bool doMerge,
       purity[i] = pair<double,const SprTreeNode*>(w0/(w1+w0),node);
   }
   stable_sort(purity.begin(),purity.end(),not2(SDTCmpPairFirst()));
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     collect[i] = purity[i].second;
   }
   if( verbose > 1 ) {
     cout << "Nodes sorted by purity: " << endl;
-    for( int i=0;i<size;i++ )
+    for( unsigned int i=0;i<size;i++ )
       cout << collect[i]->id() << " ";
     cout << endl;
   }
@@ -283,7 +283,7 @@ bool SprDecisionTree::merge(int category, bool doMerge,
   vector<unsigned> n0Vec(size), n1Vec(size);
   double w0(0), w1(0);
   unsigned n0(0), n1(0);
-  for( int j=0;j<size;j++ ) {
+  for( unsigned int j=0;j<size;j++ ) {
     const SprTreeNode* node = collect[j];
     double w0add = node->w0();
     double w1add = node->w1();
@@ -338,7 +338,7 @@ bool SprDecisionTree::merge(int category, bool doMerge,
   }
   if( verbose > 1 ) {
     cout << "Node list: ";
-    for( int i=0;i<nodes.size();i++ ) cout << nodes[i]->id() << " ";
+    for( unsigned int i=0;i<nodes.size();i++ ) cout << nodes[i]->id() << " ";
     cout << endl;
   }
 
@@ -370,7 +370,7 @@ void SprDecisionTree::print(std::ostream& os) const
   os << "-------------------------------------------------------" << endl;
   os << "Signal nodes:" << endl;
   os << "-------------------------------------------------------" << endl;
-  for( int i=0;i<nodes1_.size();i++ ) {
+  for( unsigned int i=0;i<nodes1_.size();i++ ) {
     const SprBox& limits = nodes1_[i]->limits_;
     int size = limits.size();
     char s [200];
@@ -393,7 +393,7 @@ void SprDecisionTree::print(std::ostream& os) const
     os << "-------------------------------------------------------" << endl;
     os << "Background nodes:" << endl;
     os << "-------------------------------------------------------" << endl;
-    for( int i=0;i<nodes0_.size();i++ ) {
+    for( unsigned int i=0;i<nodes0_.size();i++ ) {
       const SprBox& limits = nodes0_[i]->limits_;
       int size = limits.size();
       char s [200];
@@ -429,7 +429,7 @@ void SprDecisionTree::printSplitCounter(std::ostream& os) const
   data_->vars(vars);
   assert( vars.size() == dim );
   os << "Tree splits on variables:" << endl;
-  for( int i=0;i<dim;i++ ) {
+  for( unsigned int i=0;i<dim;i++ ) {
     char s [200];
     sprintf(s,"Variable %30s    Splits  %10i    Delta FOM  %10.5f",
 	    vars[i].c_str(),splits_[i].first,splits_[i].second);

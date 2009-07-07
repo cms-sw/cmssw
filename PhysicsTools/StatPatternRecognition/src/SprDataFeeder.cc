@@ -1,4 +1,4 @@
-//$Id: SprDataFeeder.cc,v 1.5 2007/05/23 21:18:59 narsky Exp $
+//$Id: SprDataFeeder.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprDataFeeder.hh"
@@ -20,9 +20,9 @@ using namespace std;
 SprDataFeeder::~SprDataFeeder()
 {
   delete mapper_;
-  for( int i=0;i<specificMappers_.size();i++ ) 
+  for( unsigned int i=0;i<specificMappers_.size();i++ ) 
     delete specificMappers_[i];
-  for( int i=0;i<multiSpecificMappers_.size();i++ ) 
+  for( unsigned int i=0;i<multiSpecificMappers_.size();i++ ) 
     delete multiSpecificMappers_[i];
 }
 
@@ -109,7 +109,7 @@ bool SprDataFeeder::addMultiClassLearner(const SprTrainedMultiClassLearner* c,
     multiSpecificMappers_.push_back(mapper);
     vector<int> classes;
     c->classes(classes);
-    for( int i=0;i<classes.size();i++ ) {
+    for( unsigned int i=0;i<classes.size();i++ ) {
       string axis = name;
       char s [200];
       sprintf(s,"%i",classes[i]);
@@ -135,7 +135,7 @@ bool SprDataFeeder::feed(int nout) const
   }
 
   // loop through data
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     // message
     if( nout>0 && (i%nout)==0 ) {
       cout << "Feeder storing point " << i 
@@ -148,7 +148,7 @@ bool SprDataFeeder::feed(int nout) const
 
     // add classifiers
     vector<double> f;
-    for( int j=0;j<classifiers_.size();j++ ) {
+    for( unsigned int j=0;j<classifiers_.size();j++ ) {
       const SprPoint* pSpecific = 0;
       if( specificMappers_[j] != 0 ) 
 	pSpecific = specificMappers_[j]->output(pTuple);
@@ -160,7 +160,7 @@ bool SprDataFeeder::feed(int nout) const
     }
 
     // add multi class learners
-    for( int j=0;j<multiclass_.size();j++ ) {
+    for( unsigned int j=0;j<multiclass_.size();j++ ) {
       map<int,double> resp;
       const SprPoint* pSpecific = 0;
       if( multiSpecificMappers_[j] != 0 ) 

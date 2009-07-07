@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprAbsCombiner.hh,v 1.3 2006/11/13 19:09:38 narsky Exp $
+//      $Id: SprAbsCombiner.hh,v 1.1 2007/05/23 04:16:05 rpw Exp $
 //
 // Description:
 //      Class SprAbsCombiner :
@@ -54,7 +54,7 @@ public:
 
   // return trained classifier
   const SprAbsTrainedClassifier* classifier(int i) const {
-    if( i<0 || i>=classifiers_.size() ) return 0;
+    if( i<0 || i>=(int)classifiers_.size() ) return 0;
     return classifiers_[i];
   }
 

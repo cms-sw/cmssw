@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.3 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.2 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
@@ -12,17 +12,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                        DQMOldReceiver* mui,
+NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
 					SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                             mui,
-                             sistrip::NOISE ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                sistrip::NOISE ),
-    NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                     mui )
+  : CommissioningHistograms( mui, sistrip::NOISE ),
+    CommissioningHistosUsingDb( db, mui, sistrip::NOISE ),
+    NoiseHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[NoiseHistosUsingDb::" << __func__ << "]"
@@ -31,13 +25,10 @@ NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( const edm::ParameterSet & pset,
-                                        DQMStore* bei,
+NoiseHistosUsingDb::NoiseHistosUsingDb( DQMStore* bei,
 					SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db,
-                                sistrip::NOISE ),
-    NoiseHistograms( pset.getParameter<edm::ParameterSet>("NoiseParameters"),
-                     bei )
+  : CommissioningHistosUsingDb( db, sistrip::NOISE ),
+    NoiseHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[NoiseHistosUsingDb::" << __func__ << "]"

@@ -2,7 +2,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <math.h>
 #include <iostream>
 
@@ -35,7 +34,7 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
   
   // Set histograms to NULL
   ProblemHotCells=0;
-  for (int i=0;i<4;++i)
+  for (int i=0;i<6;++i)
     {
       // Set each array's pointers to NULL
       ProblemHotCellsByDepth[i]               =0;
@@ -84,7 +83,7 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
 
 HcalHotCellClient::~HcalHotCellClient()
 {
-  //this->cleanup();
+  this->cleanup();
 } // destructor
 
 
@@ -136,97 +135,79 @@ void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 
   if (dump2database_==true) // don't do anything special unless specifically asked to dump db file
     {
+      int eta,phi;
       float binval;
-      int ieta=0;
-      int iphi=0;
-      int etabins=0;
-      int phibins=0;
+      int mydepth;
 
-      int subdet=0;
+      int subdet;
       char* subdetname;
       if (debug_>1)
 	{
 	  std::cout <<"<HcalHotCellClient>  Summary of Hot Cells in Run: "<<std::endl;
 	  std::cout <<"(Error rate must be >= "<<minErrorFlag_*100.<<"% )"<<std::endl;  
 	}
-      for (int d=0;d<4;++d)
+
+      float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+      float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+      int etabins  = ProblemHotCells->GetNbinsX();
+      int phibins  = ProblemHotCells->GetNbinsY();
+      for (int ieta=1;ieta<=etabins;++ieta)
 	{
-	  etabins=ProblemHotCellsByDepth[d]->GetNbinsX();
-	  phibins=ProblemHotCellsByDepth[d]->GetNbinsY();
-	  for (int hist_eta=1;ieta<=etabins;++hist_eta)
+	  for (int iphi=1;iphi<=phibins;++iphi)
 	    {
-	      ieta=CalcIeta(hist_eta,d+1);
-	      if (ieta==-9999) continue;
-	      for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
+	      eta=ieta+int(etaMin)-1;
+	      phi=iphi+int(phiMin)-1;
+	      
+	      for (int d=0;d<6;++d)
 		{
-		  iphi=hist_phi;
-		 
 		  // ProblemHotCells have already been normalized
 		  binval=ProblemHotCellsByDepth[d]->GetBinContent(ieta,iphi);
 		  
 		  // Set subdetector labels for output
-		  if (d==0) // HB/HE/HF
+		  if (d<2) // HB/HF
 		    {
-		      if (hist_eta<14)
-			{
-			  subdetname="HF";
-			  subdet=4;
-			}
-		      else if (hist_eta>72)
-			{
-			  subdetname="HF";
-			  subdet=4;
-			}
-		      else if (abs(ieta)<=16)
+		      if (abs(eta)<29)
 			{
 			  subdetname="HB";
 			  subdet=1;
 			}
 		      else
 			{
-			  subdetname="HE";
-			  subdet=2;
-			}
-		    }
-		  
-		  else if (d==1)
-		    {
-		      if (hist_eta<14 || hist_eta >44)
-			{
 			  subdetname="HF";
 			  subdet=4;
 			}
-		      else if (abs(ieta)<17)
+		    }
+		  else if (d==3)
+		    {
+		      if (abs(eta)==43)
 			{
-			  subdetname="HB";
-			  subdet=1;
+			  subdetname="ZDC";
+			  subdet=7; // correct value??
 			}
 		      else
 			{
-			  subdetname="HE";
-			  subdet=2;
+			  subdetname="HO";
+			  subdet=3;
 			}
 		    }
-		  else if (d==2)
+		  else
 		    {
 		      subdetname="HE";
 		      subdet=2;
 		    }
-		  else if (d==3)
-		    {
-		      subdetname="HO";
-		      subdet=3;
-		    }
 		  // Set correct depth label
-
-		  HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
+		  if (d>3)
+		    mydepth=d-3;
+		  else
+		    mydepth=d+1;
+		  HcalDetId myid((HcalSubdetector)(subdet), eta, phi, mydepth);
 		  // Need this to keep from flagging non-existent HE/HF cells
-		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
+		  if (!validDetId((HcalSubdetector)(subdet), eta, phi, mydepth))
 		    continue;
 		  if (binval<=minErrorFlag_)
 		    continue;
 		  if (debug_>0)
-		    std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+		    std::cout <<"Hot Cell "<<subdet<<"("<<eta<<", "<<phi<<", "<<mydepth<<"):  "<<binval*100.<<"%"<<std::endl;
 
 		  // if we've reached here, hot cell condition was met
 		  int value=1;
@@ -244,12 +225,11 @@ void HcalHotCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 		      else
 			myqual[myid] &=~mask;
 		    }
-		
-		} // for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
-	    } // for (int hist_eta=1;hist_eta<=etabins;++hist_eta)
-	} // for (int d=0;d<4;++d)
+		} // for (int d=0;d<6;++d) // loop over depth histograms
+	    } // for (int iphi=1;iphi<=phibins;++iphi)
+	} // for (int ieta=1;ieta<=etabins;++ieta)
     } // if (dump2database_==true)
-  //this->cleanup();
+  this->cleanup();
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient ENDJOB -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -267,7 +247,7 @@ void HcalHotCellClient::endRun(void)
     }
 
   // write to DB here as well?
-  //this->cleanup();
+  this->cleanup();
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient ENDRUN -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -285,13 +265,89 @@ void HcalHotCellClient::setup(void)
 
 void HcalHotCellClient::cleanup(void) 
 {
-  // seems to cause crashes; remove?
-  return;
   if (showTiming_)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
 
+  // leave deletes to framework
+  if(1<0 && cloneME_)
+    {
+      // delete individual histogram pointers
+      if (ProblemHotCells) delete ProblemHotCells;
+      
+      for (int i=0;i<6;++i)
+	{
+	  // delete pointers within arrays of histograms
+	  if (ProblemHotCellsByDepth[i])               delete ProblemHotCellsByDepth[i];
+
+	  if (AbovePersistentThresholdCellsByDepth[i]) delete AbovePersistentThresholdCellsByDepth[i];
+	  if (AbovePedestalHotCellsByDepth[i])         delete AbovePedestalHotCellsByDepth[i];
+	  if (AboveNeighborsHotCellsByDepth[i])        delete AboveNeighborsHotCellsByDepth[i];
+	  if (AboveEnergyThresholdCellsByDepth[i])     delete AboveEnergyThresholdCellsByDepth[i];
+	  if (d_avgrechitenergymap[i])                 delete d_avgrechitenergymap[i];
+	  if (d_avgrechitoccupancymap[i])              delete d_avgrechitoccupancymap[i];
+	}
+      
+      if (hotclient_makeDiagnostics_)
+	{
+	  if (d_HBnormped)          delete d_HBnormped;
+	  if (d_HBrechitenergy)     delete d_HBrechitenergy;
+	  if (d_HBenergyVsNeighbor) delete d_HBenergyVsNeighbor;
+	  if (d_HEnormped)          delete d_HEnormped;
+	  if (d_HErechitenergy)     delete d_HErechitenergy;
+	  if (d_HEenergyVsNeighbor) delete d_HEenergyVsNeighbor;
+	  if (d_HOnormped)          delete d_HOnormped;
+	  if (d_HOrechitenergy)     delete d_HOrechitenergy;
+	  if (d_HOenergyVsNeighbor) delete d_HOenergyVsNeighbor;
+	  if (d_HFnormped)          delete d_HFnormped;
+	  if (d_HFrechitenergy)     delete d_HFrechitenergy;
+	  if (d_HFenergyVsNeighbor) delete d_HFenergyVsNeighbor;
+	  if (d_ZDCnormped)         delete d_ZDCnormped;
+	  if (d_ZDCrechitenergy)    delete d_ZDCrechitenergy;
+	  if (d_ZDCenergyVsNeighbor)delete d_ZDCenergyVsNeighbor;
+
+	} // if (hotclient_makeDiagnostics_)
+      
+
+    }
+
+  // Set individual pointers to NULL
+  /*
+  ProblemHotCells = 0;
+
+  for (int i=0;i<6;++i)
+    {
+      // Set each array's pointers to NULL
+      ProblemHotCellsByDepth[i]               =0;
+      AbovePersistentThresholdCellsByDepth[i] =0;
+      AbovePedestalHotCellsByDepth[i]         =0;
+      AboveNeighborsHotCellsByDepth[i]        =0;
+      AboveEnergyThresholdCellsByDepth[i]     =0;
+      d_avgrechitenergymap[i]                 =0;
+      d_avgrechitoccupancymap[i]              =0;
+    }
+  
+  if (hotclient_makeDiagnostics_)
+    {
+      d_HBnormped=0;
+      d_HBrechitenergy=0;
+      d_HBenergyVsNeighbor=0;
+      d_HEnormped=0;
+      d_HErechitenergy=0;
+      d_HEenergyVsNeighbor=0;
+      d_HOnormped=0;
+      d_HOrechitenergy=0;
+      d_HOenergyVsNeighbor=0;
+      d_HFnormped=0;
+      d_HFrechitenergy=0;
+      d_HFenergyVsNeighbor=0;
+      d_ZDCnormped=0;
+      d_ZDCrechitenergy=0;
+      d_ZDCenergyVsNeighbor=0;
+
+    } // if (hotclient_makeDiagnostics_)
+  */
   dqmReportMapErr_.clear(); 
   dqmReportMapWarn_.clear(); 
   dqmReportMapOther_.clear();
@@ -362,16 +418,16 @@ void HcalHotCellClient::getHistograms()
       ProblemHotCells->SetMinimum(0);
       ProblemHotCells->SetMaximum(1);
     }
-  getEtaPhiHists("HotCellMonitor_Hcal/problem_hotcells/", " Problem Hot Cell Rate", ProblemHotCellsByDepth);
+  getSJ6histos("HotCellMonitor_Hcal/problem_hotcells/", " Problem Hot Cell Rate", ProblemHotCellsByDepth);
   
 
-  if (hotclient_test_persistent_) getEtaPhiHists("HotCellMonitor_Hcal/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
-  if (hotclient_test_pedestal_)  getEtaPhiHists("HotCellMonitor_Hcal/hot_pedestaltest/", "Hot Cells Above Pedestal", AbovePedestalHotCellsByDepth);
-  if (hotclient_test_neighbor_)  getEtaPhiHists("HotCellMonitor_Hcal/hot_neighbortest/", "Hot Cells Failing Neighbor Test", AboveNeighborsHotCellsByDepth);
-  if (hotclient_test_energy_)    getEtaPhiHists("HotCellMonitor_Hcal/hot_rechit_above_threshold/",   "Hot Cells Above Energy Threshold", AboveEnergyThresholdCellsByDepth);
+  if (hotclient_test_persistent_) getSJ6histos("HotCellMonitor_Hcal/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
+  if (hotclient_test_pedestal_)  getSJ6histos("HotCellMonitor_Hcal/hot_pedestaltest/", "Hot Cells Above Pedestal", AbovePedestalHotCellsByDepth);
+  if (hotclient_test_neighbor_)  getSJ6histos("HotCellMonitor_Hcal/hot_neighbortest/", "Hot Cells Failing Neighbor Test", AboveNeighborsHotCellsByDepth);
+  if (hotclient_test_energy_)    getSJ6histos("HotCellMonitor_Hcal/hot_rechit_above_threshold/",   "Hot Cells Above Energy Threshold", AboveEnergyThresholdCellsByDepth);
   if (ievt_>0)
     {
-      for (int i=0;i<4;++i)
+      for (int i=0;i<6;++i)
 	{
 	  if (ProblemHotCellsByDepth[i]) 
 	    {
@@ -408,11 +464,11 @@ void HcalHotCellClient::getHistograms()
 
   if (hotclient_makeDiagnostics_)
     {
-      getEtaPhiHists("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit energy per cell",d_avgrechitenergymap);
-      getEtaPhiHists("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit occupancy per cell",d_avgrechitoccupancymap);
+      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit energy per cell",d_avgrechitenergymap);
+      getSJ6histos("HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit occupancy per cell",d_avgrechitoccupancymap);
       /*
 	// Doing the division here doesn't affect the ME's!
-      for (int i=0;i<4;++i)
+      for (int i=0;i<6;++i)
 	d_avgrechitenergymap[i]->Divide(d_avgrechitoccupancymap[i]);
       */
       // At some point, clean these up so that histograms are only retrieved if corresponding process ran in Task
@@ -437,7 +493,7 @@ void HcalHotCellClient::getHistograms()
       ProblemHotCells->SetMaximum(1);
       ProblemHotCells->SetMinimum(0);
     }
-  for (int i=0;i<4;++i)
+  for (int i=0;i<6;++i)
     {
       if (ProblemHotCellsByDepth[i])
 	{
@@ -446,13 +502,12 @@ void HcalHotCellClient::getHistograms()
 	}
       name.str("");
 
-    } // for (int i=0;i<4;++i)
+    } // for (int i=0;i<6;++i)
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient GETHISTOGRAMS -> "<<cpu_timer.cpuTime()<<std::endl;
     }
-  delete dummy2D;
-  delete dummy1D;
+
   return;
 } //void HcalHotCellClient::getHistograms()
 
@@ -469,6 +524,7 @@ void HcalHotCellClient::analyze(void)
     {
       if ( debug_>1 ) std::cout << "<HcalHotCellClient::analyze>  Running analyze "<<std::endl;
     }
+  //getHistograms(); 
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient ANALYZE -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -502,7 +558,7 @@ void HcalHotCellClient::resetAllME()
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
-  for (int i=0;i<4;++i)
+  for (int i=0;i<6;++i)
     {
       // Reset arrays of histograms
       // Problem Pedestal Plots
@@ -549,7 +605,7 @@ void HcalHotCellClient::resetAllME()
 	  resetME((process_+"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor").c_str(),dbe_);
 	} // if (hotclient_makeDiagnostics_)
       
-    } // for (int i=0;i<4;++i)
+    } // for (int i=0;i<6;++i)
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient RESETALLME -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -632,43 +688,38 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       if (debug_) std::cout <<"<HcalHotCellClient::htmlOutput>  ERROR: can't find Problem Hot Cell plot!"<<std::endl;
       return;
     }
-  int ieta,iphi;
+  int etabins  = ProblemHotCells->GetNbinsX();
+  int phibins  = ProblemHotCells->GetNbinsY();
+  float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+
+  int eta,phi;
 
   ostringstream name;
-  for (int depth=0;depth<4; ++depth)
+  for (int depth=0;depth<6; ++depth)
     {
-      int etabins  = ProblemHotCellsByDepth[depth]->GetNbinsX();
-      int phibins  = ProblemHotCellsByDepth[depth]->GetNbinsY();
-      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+      for (int ieta=1;ieta<=etabins;++ieta)
         {
-          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+          for (int iphi=1; iphi<=phibins;++iphi)
             {
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      if (abs(eta)>20 && phi%2!=1) continue;
+	      if (abs(eta)>39 && phi%4!=3) continue;
 	      int mydepth=depth+1;
-              ieta=CalcIeta(hist_eta,mydepth);
-              iphi=hist_phi;
-	      if (abs(ieta)>20 && iphi%2!=1) continue;
-	      if (abs(ieta)>39 && iphi%4!=3) continue;
-	      
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemHotCellsByDepth[depth]==0)
-		continue;
-
-	      if (ProblemHotCellsByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)>minErrorFlag_)
 		{
-		  if (depth==0)
-		    {
-		      if (abs(ieta)<17) name<<"HB";
-		      else if (hist_eta<14 || hist_eta>72) name <<"HF";
-		      else name <<"HE";
-		    }
-		  else if (depth==1)
-		    {
-		      if (abs(ieta)<16) name <<"HB";
-		      else if (hist_eta<14 || hist_eta>44) name <<"HF";
-		      else name <<"HE";
-		    }
-		  else if (depth==2) name<<"HE";
-		  else if (depth==3) name<<"HO";
-		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<ieta<<", "<<iphi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemHotCellsByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)*100.<<"</td></tr>"<<std::endl;
+		  continue;
+		}
+	      if (ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+		{
+		  if (depth<2)
+		    (fabs(eta)<29) ? name<<"HB" : name<<"HF";
+		  else if (depth==3)
+		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
+		  else name <<"HE";
+		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
 
 		  name.str("");
 		}
@@ -696,7 +747,6 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
 void HcalHotCellClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName)
 {
-
   if (showTiming_)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -754,12 +804,14 @@ ofstream htmlFile;
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
+  // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
   // remap so that HE depths are plotted consecutively
-  for (int i=0;i<2;++i)
+  int mydepth[6]={0,1,4,5,2,3};
+  for (int i=0;i<3;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,ProblemHotCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ProblemHotCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemHotCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemHotCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
 
@@ -776,11 +828,11 @@ ofstream htmlFile;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
       htmlFile << "cellpadding=\"10\"> " << std::endl;
       gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
-      for (int i=0;i<2;++i)
+      for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,AbovePedestalHotCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,AbovePedestalHotCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AbovePedestalHotCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AbovePedestalHotCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
       if (hotclient_makeDiagnostics_)
@@ -807,11 +859,11 @@ ofstream htmlFile;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
       htmlFile << "cellpadding=\"10\"> " << std::endl;
       gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
-      for (int i=0;i<2;++i)
+      for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,AboveEnergyThresholdCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,AboveEnergyThresholdCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AboveEnergyThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AboveEnergyThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
       if (hotclient_makeDiagnostics_)
@@ -839,11 +891,11 @@ ofstream htmlFile;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
       htmlFile << "cellpadding=\"10\"> " << std::endl;
       gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
-      for (int i=0;i<2;++i)
+      for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
-	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
+	  htmlAnyHisto(runNo,AbovePersistentThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir,0,0);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
       htmlFile <<"</table>"<<std::endl;
@@ -860,11 +912,11 @@ ofstream htmlFile;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
       htmlFile << "cellpadding=\"10\"> " << std::endl;
       gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
-      for (int i=0;i<2;++i)
+      for (int i=0;i<3;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,AboveNeighborsHotCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,AboveNeighborsHotCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AboveNeighborsHotCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,AboveNeighborsHotCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
       if (hotclient_makeDiagnostics_)
@@ -930,7 +982,7 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
     }
   name.str("");
   
-  for (int i=0;i<4;++i)
+  for (int i=0;i<6;++i)
     {
       // Grab arrays of histograms
       name<<process_.c_str()<<"HotCellMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
@@ -967,11 +1019,11 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
 	  name.str("");
 	}
 
-    } //for (int i=0;i<4;++i)
+    } //for (int i=0;i<6;++i)
 
   if (hotclient_makeDiagnostics_)
     {
-      for (int i=0;i<4;++i)
+      for (int i=0;i<6;++i)
 	{
 	  name<<process_.c_str()<<"HotCellMonitor_Hcal/diagnostics/rechitenergy/Rec hit energy per cell";
 	  d_avgrechitenergymap[i] = (TH2F*)infile->Get(name.str().c_str());
@@ -1039,28 +1091,33 @@ void HcalHotCellClient::loadHistograms(TFile* infile)
 bool HcalHotCellClient::hasErrors_Temp()
 {
   int problemcount=0;
-  int ieta;
 
-  for (int depth=0;depth<4; ++depth)
+  int etabins  = ProblemHotCells->GetNbinsX();
+  int phibins  = ProblemHotCells->GetNbinsY();
+  float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+  int eta,phi;
+
+  for (int depth=0;depth<6; ++depth)
     {
-      int etabins  = ProblemHotCells->GetNbinsX();
-      int phibins  = ProblemHotCells->GetNbinsY();
-      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+      for (int ieta=1;ieta<=etabins;++ieta)
         {
-          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+          for (int iphi=1; iphi<=phibins;++iphi)
             {
-              ieta=CalcIeta(hist_eta,depth+1);
-	      if (ieta==-9999) continue;
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemHotCellsByDepth[depth]==0)
 		{
 		  continue;
 		}
-	      if (ProblemHotCellsByDepth[depth]->GetBinContent(hist_eta,hist_phi)>minErrorFlag_)
+	      if (ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
 		{
 		  problemcount++;
 		}
-	    } // for (int hist_phi=1;...)
-	} // for (int hist_eta=1;...)
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
     } // for (int depth=0;...)
 
   if (problemcount>=100) return true;
@@ -1071,28 +1128,33 @@ bool HcalHotCellClient::hasErrors_Temp()
 bool HcalHotCellClient::hasWarnings_Temp()
 {
   int problemcount=0;
-  int ieta=0;
+
+  int etabins  = ProblemHotCells->GetNbinsX();
+  int phibins  = ProblemHotCells->GetNbinsY();
+  float etaMin = ProblemHotCells->GetXaxis()->GetXmin();
+  float phiMin = ProblemHotCells->GetYaxis()->GetXmin();
+  int eta,phi;
  
-  for (int depth=0;depth<4; ++depth)
+  for (int depth=0;depth<6; ++depth)
     {
-      int etabins  = ProblemHotCells->GetNbinsX();
-      int phibins  = ProblemHotCells->GetNbinsY();
-      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+      for (int ieta=1;ieta<=etabins;++ieta)
         {
-          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+          for (int iphi=1; iphi<=phibins;++iphi)
             {
-              ieta=CalcIeta(hist_eta,depth+1);
-	      if (ieta==-9999) continue;
+              eta=ieta+int(etaMin)-1;
+              phi=iphi+int(phiMin)-1;
+	      int mydepth=depth+1;
+	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
 	      if (ProblemHotCellsByDepth[depth]==0)
 		{
 		  continue;
 		}
-	      if (ProblemHotCellsByDepth[depth]->GetBinContent(hist_eta,hist_phi)>minErrorFlag_)
+	      if (ProblemHotCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
 		{
 		  problemcount++;
 		}
-	    } // for (int hist_phi=1;...)
-	} // for (int hist_eta=1;...)
+	    } // for (int iphi=1;...)
+	} // for (int ieta=1;...)
     } // for (int depth=0;...)
 
   if (problemcount>0) return true;

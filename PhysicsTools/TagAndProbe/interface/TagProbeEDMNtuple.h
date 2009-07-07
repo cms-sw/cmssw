@@ -16,18 +16,33 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.7 2009/03/24 19:32:37 ahunt Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.6 2008/11/24 15:38:46 haupt Exp $
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
 
+// system include files
+#include <memory>
+#include <string>
+
+// user include files
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
 //
 // class decleration
 //
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"  // reco::CandidateView
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"  // reco::GenParticleRef
 
 class TagProbeEDMNtuple : public edm::EDProducer 
 {

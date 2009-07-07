@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.10 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.9 2009/02/10 21:45:55 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -17,19 +17,12 @@ std::string getBasePath (const std::string &path)
   return path.substr(0,path.find(std::string(sistrip::root_) + "/")+sizeof(sistrip::root_) );
 }
 
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & pset,
-                                                    DQMOldReceiver* mui,
+CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
 						    SiStripConfigDb* const db,
 						    const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                             mui,
-                             task ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                task ),
-    CalibrationHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                           mui,
-                           task )
+  : CommissioningHistograms( mui, task ),
+    CommissioningHistosUsingDb( db, mui, task),
+    CalibrationHistograms( mui, task )
 {
   LogTrace(mlDqmClient_) 
     << "[CalibrationHistosUsingDb::" << __func__ << "]"
@@ -67,15 +60,11 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & ps
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( const edm::ParameterSet & pset,
-                                                    DQMStore* bei,
+CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
 						    SiStripConfigDb* const db,
 						    const sistrip::RunType& task ) 
-  : CommissioningHistosUsingDb( db,
-                                task ),
-    CalibrationHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                           bei,
-                           task )
+  : CommissioningHistosUsingDb( db, task ),
+    CalibrationHistograms( bei, task )
 {
   LogTrace(mlDqmClient_) 
     << "[CalibrationHistosUsingDb::" << __func__ << "]"

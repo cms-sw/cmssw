@@ -1,4 +1,4 @@
-//$Id: SprBaggerApp.cc,v 1.6 2007/11/12 04:41:16 narsky Exp $
+//$Id: SprBaggerApp.cc,v 1.5 2007/11/12 06:19:11 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsFilter.hh"
@@ -77,9 +77,9 @@ void prepareExit(vector<SprAbsTwoClassCriterion*>& criteria,
 		 vector<SprAbsClassifier*>& classifiers,
 		 vector<SprIntegerBootstrap*>& bstraps) 
 {
-  for( int i=0;i<criteria.size();i++ ) delete criteria[i];
-  for( int i=0;i<classifiers.size();i++ ) delete classifiers[i];
-  for( int i=0;i<bstraps.size();i++ ) delete bstraps[i];
+  for( unsigned int  i=0;i<criteria.size();i++ ) delete criteria[i];
+  for( unsigned int  i=0;i<classifiers.size();i++ ) delete classifiers[i];
+  for( unsigned int  i=0;i<bstraps.size();i++ ) delete bstraps[i];
 }
 
 
@@ -214,7 +214,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int  i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -235,7 +235,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int  i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -259,7 +259,7 @@ int main(int argc, char ** argv)
   vector<string> vars;
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int  i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -274,7 +274,7 @@ int main(int argc, char ** argv)
   filter->classes(inputClasses);
   assert( inputClasses.size() > 1 );
   cout << "Training data filtered by class." << endl;
-  for( int i=0;i<inputClasses.size();i++ ) {
+  for( unsigned int  i=0;i<inputClasses.size();i++ ) {
     cout << "Points in class " << inputClasses[i] << ":   " 
 	 << filter->ptsInClass(inputClasses[i]) << endl;
   }
@@ -316,7 +316,7 @@ int main(int argc, char ** argv)
     bool ownData = true;
     valFilter.reset(new SprEmptyFilter(splitted,weights,ownData));
     cout << "Training data re-filtered:" << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int  i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << filter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -345,7 +345,7 @@ int main(int argc, char ** argv)
     valFilter->vars(valVars);
     cout << "Read validation data from file " << valFile.c_str() 
 	 << " for variables";
-    for( int i=0;i<valVars.size();i++ ) 
+    for( unsigned int  i=0;i<valVars.size();i++ ) 
       cout << " \"" << valVars[i].c_str() << "\"";
     cout << endl;
     cout << "Total number of points read: " << valFilter->size() << endl;
@@ -362,7 +362,7 @@ int main(int argc, char ** argv)
     }
     valFilter->classes(inputClasses);
     cout << "Validation data filtered by class." << endl;
-    for( int i=0;i<inputClasses.size();i++ ) {
+    for( unsigned int  i=0;i<inputClasses.size();i++ ) {
       cout << "Points in class " << inputClasses[i] << ":   " 
 	   << valFilter->ptsInClass(inputClasses[i]) << endl;
     }
@@ -498,7 +498,7 @@ int main(int argc, char ** argv)
   }
 
   // add trainable classifiers
-  for( int i=0;i<useC.size();i++ ) {
+  for( unsigned int  i=0;i<useC.size();i++ ) {
     if( !bagger->addTrainable(useC[i].first) ) {
       cerr << "Unable to add classifier " << i << " of type " 
 	   << useC[i].first->name() << " to Bagger." << endl;

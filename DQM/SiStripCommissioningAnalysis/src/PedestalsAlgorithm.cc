@@ -13,20 +13,11 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-PedestalsAlgorithm::PedestalsAlgorithm( const edm::ParameterSet & pset, PedestalsAnalysis* const anal ) 
+PedestalsAlgorithm::PedestalsAlgorithm( PedestalsAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     hPeds_(0,""),
-    hNoise_(0,""),
-    deadStripMax_(pset.getParameter<double>("DeadStripMax")),
-    noisyStripMin_(pset.getParameter<double>("NoisyStripMin"))
-{
-  edm::LogInfo(mlCommissioning_)
-    << "[PedestalsAlgorithm::" << __func__ << "]"
-    << " Set maximum noise deviation for dead strip determination to: " << deadStripMax_;
-  edm::LogInfo(mlCommissioning_)
-    << "[PedestalsAlgorithm::" << __func__ << "]"
-    << " Set minimal noise deviation for dead strip determination to: " << noisyStripMin_;
-}
+    hNoise_(0,"")
+{;}
 
 // ----------------------------------------------------------------------------
 // 
@@ -223,11 +214,11 @@ void PedestalsAlgorithm::analyse() {
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
       if ( anal->noiseMin_[iapv] > sistrip::maximum_ ||
 	   anal->noiseMax_[iapv] > sistrip::maximum_ ) { continue; }
-      if ( anal->noise_[iapv][istr] < ( anal->noiseMean_[iapv] - deadStripMax_ * anal->noiseSpread_[iapv] ) ) {
-	anal->dead_[iapv].push_back(istr);
+      if ( anal->noise_[iapv][istr] < ( anal->noiseMean_[iapv] - 5. * anal->noiseSpread_[iapv] ) ) {
+	anal->dead_[iapv].push_back(istr); //@@ valid threshold???
       } 
-      else if ( anal->noise_[iapv][istr] > ( anal->noiseMean_[iapv] + noisyStripMin_ * anal->noiseSpread_[iapv] ) ) {
-	anal->noisy_[iapv].push_back(istr);
+      else if ( anal->noise_[iapv][istr] > ( anal->noiseMean_[iapv] + 5. * anal->noiseSpread_[iapv] ) ) {
+	anal->noisy_[iapv].push_back(istr); //@@ valid threshold???
       }
     }
     

@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.14 $
-///  last update: $Date: 2009/05/11 09:31:38 $
+///  Revision   : $Revision: 1.12 $
+///  last update: $Date: 2008/12/17 08:27:50 $
 ///  by         : $Author: flucke $
 
 #include <vector>
@@ -17,8 +17,6 @@
 #include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-
-#include "DataFormats/Provenance/interface/RunID.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -44,10 +42,6 @@
 
 class Alignments;
 class SurveyErrors;
-namespace edm {
-  class Run;
-  class LuminosityBlock;
-}
 
 class AlignmentProducer : public edm::ESProducerLooper
 {
@@ -82,19 +76,8 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Called at end of loop
   virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
 
-  /// Called at run start and calling algorithms beginRun
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup &setup);
-  /// Called at run end - currently reading TkFittedLasBeam if an InpuTag is given for that
-  virtual void endRun(const edm::Run &run, const edm::EventSetup &setup);
-
-  /// Called at lumi block start, calling algorithm's beginLuminosityBlock
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
-				    const edm::EventSetup &setup);
-  /// Called at lumi block end, calling algorithm's endLuminosityBlock
-  virtual void endLuminosityBlock(const edm::LuminosityBlock &lumiBlock,
-				  const edm::EventSetup &setup);
   /// Called at each event 
-  virtual Status duringLoop(const edm::Event &event, const edm::EventSetup &setup);
+  virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
 
  private:
 
@@ -144,6 +127,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   const Alignments *globalPositions_;
 
   int nevent_;
+
   edm::ParameterSet theParameterSet;
 
   // steering parameters
@@ -159,7 +143,6 @@ class AlignmentProducer : public edm::ESProducerLooper
   // event input tags
   const edm::InputTag tjTkAssociationMapTag_; // map with tracks/trajectories
   const edm::InputTag beamSpotTag_;           // beam spot
-  const edm::InputTag tkLasBeamTag_;          // LAS beams in edm::Run (ignore if empty)
 
   // ESWatcher
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;

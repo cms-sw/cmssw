@@ -1,4 +1,4 @@
-//$Id: SprTrainedRBF.cc,v 1.6 2007/05/14 18:08:08 narsky Exp $
+//$Id: SprTrainedRBF.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedRBF.hh"
@@ -126,7 +126,7 @@ bool SprTrainedRBF::readNet(const char* netfile)
   }
   else {
     nline++;
-    for( int i=0;i<5;i++ )
+    for( unsigned int i=0;i<5;i++ )
       line.erase( 0, line.find_first_of('|')+1 );
     string act = line.substr( 0, line.find_first_of('|') );
     string out = line.substr( line.find_first_of('|')+1 );
@@ -163,7 +163,7 @@ bool SprTrainedRBF::readNet(const char* netfile)
   }
 
   // read units section
-  for( int i=0;i<nnodes;i++ ) {
+  for( unsigned int i=0;i<nnodes;i++ ) {
     //    cout << "Reading node " << (i+1) << endl;
     if( !getline(file,line) ) {
       cerr << "Error on line " << nline << " in " << fname.c_str() << endl;
@@ -179,7 +179,7 @@ bool SprTrainedRBF::readNet(const char* netfile)
       stindex >> index;
       assert( index != 0 );
       // read activation
-      for( int j=0;j<2;j++ )
+      for( unsigned int j=0;j<2;j++ )
 	line.erase( 0, line.find_first_of('|')+1 );
       piece = line.substr( 0, line.find_first_of('|') );
       line.erase( 0, line.find_first_of('|')+1 );
@@ -351,7 +351,7 @@ bool SprTrainedRBF::readNet(const char* netfile)
 void SprTrainedRBF::printNet(std::ostream& os) const
 {
   os << "Nodes of RBF network:" << endl;
-  for( int i=0;i<nodes_.size();i++ ) {
+  for( unsigned int i=0;i<nodes_.size();i++ ) {
     const Node* node = nodes_[i];
     os << node->index_ 
        << " Type " << int(node->type_)
@@ -363,7 +363,7 @@ void SprTrainedRBF::printNet(std::ostream& os) const
        << endl;
   }
   os << "Links of RBF network:" << endl;
-  for( int i=0;i<links_.size();i++ ) {
+  for( unsigned int i=0;i<links_.size();i++ ) {
     const Link* link = links_[i];
     os << " Source " << link->source_->index_
        << " Target " << link->target_->index_
@@ -377,7 +377,7 @@ double SprTrainedRBF::response(const std::vector<double>& v) const
 {
   // loop over hidden nodes and compute RBF values
   map<unsigned,double> hidden;// RBF values at hidden nodes
-  for( int i=0;i<nodes_.size();i++ ) {
+  for( unsigned int i=0;i<nodes_.size();i++ ) {
     const Node* node = nodes_[i];
     if( node->type_ == SprNNDefs::HIDDEN ) {
       /*
@@ -386,7 +386,7 @@ double SprTrainedRBF::response(const std::vector<double>& v) const
       */
       assert( node->incoming_.size() == v.size() );
       double r2 = 0;// r squared
-      for( int j=0;j<node->incoming_.size();j++ ) {
+      for( unsigned int j=0;j<node->incoming_.size();j++ ) {
 	const Link* link = node->incoming_[j];
 	assert( link->source_->type_ == SprNNDefs::INPUT );
 	double x_t = v[link->source_->index_-1] - link->weight_;
@@ -401,12 +401,12 @@ double SprTrainedRBF::response(const std::vector<double>& v) const
   // loop over output nodes and sum linear contributions from input nodes
   // and RBF contributions from hidden nodes
   vector<double> output;
-  for( int i=0;i<nodes_.size();i++ ) {
+  for( unsigned int i=0;i<nodes_.size();i++ ) {
     const Node* node = nodes_[i];
     if( node->type_ == SprNNDefs::OUTPUT ) {
       output.push_back(0);
       int imax = output.size()-1;
-      for( int j=0;j<node->incoming_.size();j++ ) {
+      for( unsigned int j=0;j<node->incoming_.size();j++ ) {
 	const Link* link = node->incoming_[j];
 	if(      link->source_->type_ == SprNNDefs::INPUT )
 	  output[imax] += v[link->source_->index_-1] * (link->weight_);
@@ -426,9 +426,9 @@ double SprTrainedRBF::response(const std::vector<double>& v) const
 
 void SprTrainedRBF::destroy()
 {
-  for( int i=0;i<nodes_.size();i++ )
+  for( unsigned int i=0;i<nodes_.size();i++ )
     delete nodes_[i];
-  for( int i=0;i<links_.size();i++ )
+  for( unsigned int i=0;i<links_.size();i++ )
     delete links_[i];
 }
 
@@ -437,7 +437,7 @@ void SprTrainedRBF::correspondence(const SprTrainedRBF& other)
 {
   // links
   map<Link*,Link*> ltol;
-  for( int i=0;i<other.links_.size();i++ ) {
+  for( unsigned int i=0;i<other.links_.size();i++ ) {
     Link* old = other.links_[i];
     Link* link = new Link(*old);
     links_.push_back(link);
@@ -446,7 +446,7 @@ void SprTrainedRBF::correspondence(const SprTrainedRBF& other)
 
   // nodes
   map<Node*,Node*> nton;
-  for( int i=0;i<other.nodes_.size();i++ ) {
+  for( unsigned int i=0;i<other.nodes_.size();i++ ) {
     Node* old = other.nodes_[i];
     Node* node = new Node(*old);
     nodes_.push_back(node);
@@ -454,16 +454,16 @@ void SprTrainedRBF::correspondence(const SprTrainedRBF& other)
   }
 
   // adjust links
-  for( int i=0;i<nodes_.size();i++ ) {
+  for( unsigned int i=0;i<nodes_.size();i++ ) {
     Node* node = nodes_[i];
-    for( int j=0;j<(node->incoming_).size();j++ )
+    for( unsigned int j=0;j<(node->incoming_).size();j++ )
       (node->incoming_)[j] = ltol[(node->incoming_)[j]];
-    for( int j=0;j<(node->outgoing_).size();j++ )
+    for( unsigned int j=0;j<(node->outgoing_).size();j++ )
       (node->outgoing_)[j] = ltol[(node->outgoing_)[j]];
   }
 
   // adjust nodes
-  for( int i=0;i<links_.size();i++ ) {
+  for( unsigned int i=0;i<links_.size();i++ ) {
     Link* link = links_[i];
     link->source_ = nton[link->source_];
     link->target_ = nton[link->target_];

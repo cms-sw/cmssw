@@ -45,7 +45,7 @@ void SoftPFElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(gsfElectronTag_, gsfCandidates);
 
   // this will throw if the input collection is not present
-  reco::GsfElectronCollection gsfCollection = (*(gsfCandidates.product()));
+  const reco::GsfElectronCollection & gsfCollection = *(gsfCandidates.product());
 
   for (unsigned int i = 0 ; i != gsfCollection.size(); ++i)
   {

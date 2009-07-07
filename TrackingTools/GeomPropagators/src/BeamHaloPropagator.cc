@@ -16,7 +16,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include <DataFormats/GeometrySurface/interface/BoundCylinder.h>
+
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

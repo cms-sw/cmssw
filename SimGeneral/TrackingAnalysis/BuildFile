@@ -1,35 +1,29 @@
-<use name=clhep>
-<use name=CalibFormats/SiStripObjects>
-<use name=CalibTracker/Records>
-<use name=DataFormats/DetId>
-<use name=DataFormats/SiStripDetId>
-<use name=DataFormats/SiPixelDetId>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=DataFormats/DetId>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiPixelDetId>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
-<use name=SimTracker/Common>
+<use name=clhep>
 
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=SimGeneralTrackingAnalysis>
-   <use name=clhep>
-   <use name=CalibFormats/SiStripObjects>
-   <use name=CalibTracker/Records>
-   <use name=DataFormats/DetId>
-   <use name=DataFormats/SiStripDetId>
-   <use name=DataFormats/SiPixelDetId>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=FWCore/ParameterSet>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/SiStripDetId>
+   <use name=DataFormats/SiPixelDetId>
    <use name=SimDataFormats/GeneratorProducts>
    <use name=SimDataFormats/Track>
    <use name=SimDataFormats/TrackingAnalysis>
    <use name=SimDataFormats/Vertex>
    <use name=SimDataFormats/TrackingHit>
-   <use name=SimTracker/Common>
+   <use name=clhep>
 </export>

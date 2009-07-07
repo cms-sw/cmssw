@@ -6,9 +6,6 @@
 */
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
-#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
-
 #include <iostream>
 
 #include <unistd.h>
@@ -471,7 +468,15 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 
     HCAL_HLX::LUMI_SECTION L;
     GenerateFakeData(L);
-    return !(memcmp(&L, &localSection, sizeof(L)));
+    int result;
+
+    result = memcmp(&L, &localSection, sizeof(L));
+
+    if(result = 0){
+      return true;
+    }else{
+      return false;
+    }
   }
 
 }

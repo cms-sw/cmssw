@@ -21,7 +21,7 @@ void DCCFEBlock::updateCollectors(){
 
   invalidBlockLengths_    = unpacker_->invalidBlockLengthsCollection();
   invalidTTIds_           = unpacker_->invalidTTIdsCollection();
-
+  invalidZSXtalIds_       = unpacker_->invalidZSXtalIdsCollection();
 }
 
 

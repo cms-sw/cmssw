@@ -2,7 +2,6 @@
 
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "TCanvas.h"
 
 // -----
 SiStripApvGainsDQM::SiStripApvGainsDQM(const edm::EventSetup & eSetup,
@@ -25,6 +24,7 @@ void SiStripApvGainsDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
   getConditionObject(eSetup);
   gainHandle_->getDetIds(activeDetIds);
+  selectModules(activeDetIds);
 
 }
 // -----
@@ -64,12 +64,6 @@ void SiStripApvGainsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
       if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
         selModME_.CumulDistr  ->Fill(gainHandle_->getApvGain(iapv,gainRange));
       }
-
-    // Fill the TkMap
-    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, gainHandle_->getApvGain(iapv,gainRange));
-    }
-
     } 
     catch(cms::Exception& e){
       edm::LogError("SiStripApvGainsDQM")          
@@ -89,31 +83,8 @@ void SiStripApvGainsDQM::fillSummaryMEs(const std::vector<uint32_t>  & selectedD
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
     fillMEsForLayer(SummaryMEsMap_, *detIter_);
-  }
-
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
-
-    ModMEs selME;
-    selME = iter->second;
-
-    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
-
-      TCanvas c1("c1");
-      selME.SummaryOfProfileDistr->getTProfile()->Draw();
-      std::string name (selME.SummaryOfProfileDistr->getTProfile()->GetTitle());
-      name+=".png";
-      c1.Print(name.c_str());
-    }
-    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")){
-
-      TCanvas c1("c1");
-      selME.SummaryDistr->getTH1()->Draw();
-      std::string name (selME.SummaryDistr->getTH1()->GetTitle());
-      name+=".png";
-      c1.Print(name.c_str());
-    }
-  }
-
+    
+  } 
 }  
 
 // -----
@@ -137,8 +108,6 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
   
   SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
   int nApv =  reader->getNumberOfApvsAndStripLength(selDetId_).first;
-  
-  float meanApvGain=0;
 
   SiStripHistoId hidmanager;
 
@@ -151,12 +120,12 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     std::string hSummaryOfProfile_name; 
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
 							 "layer", 
-							 getLayerNameAndId(selDetId_).first, "") ;
+							 getLayerNameAndId(selDetId_).first, 
+							 "") ;
   
     for( int iapv=0;iapv<nApv;++iapv){
     
       try{ 
-	meanApvGain = meanApvGain +gainHandle_ ->getApvGain(iapv,gainRange);
 	selME_.SummaryOfProfileDistr->Fill(iapv+1,gainHandle_->getApvGain(iapv,gainRange));
       } 
       catch(cms::Exception& e){
@@ -168,19 +137,7 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
 	  << " :  " 
 	  << e.what() ;
       }
-
-    // Fill the TkMap
-    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, gainHandle_->getApvGain(iapv,gainRange));
-    }
-
-    }// iapv
-
-    meanApvGain  = meanApvGain/nApv;
-
-    // Fill the TkHistoMap with meanApvgain:
-    if(HistoMaps_On_ ) Tk_HM_->setBinContent(selDetId_, meanApvGain);
-
+    }// istrip
   }//if Fill ...
 
 
@@ -210,6 +167,8 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
       if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
     }
 
+    float meanApvGain=0;
+    
     for( int iapv=0;iapv<nApv;++iapv){
       try{
 	meanApvGain = meanApvGain +gainHandle_ ->getApvGain(iapv,gainRange);
@@ -227,8 +186,12 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     }//iapv
     meanApvGain  = meanApvGain/nApv;
 
-    // Fill the TkHistoMap with meanApvgain:
-    //    if(HistoMaps_On_ ) Tk_HM_->setBinContent(selDetId_, meanApvGain);
+  
+    // -----
+
+
+    // Fill the Histo_TkMap with the mean ApvGain:
+        if(HistoMaps_On_ ) Tk_HM_->fill(selDetId_, meanApvGain);
 
   }//if Fill ...
 }  

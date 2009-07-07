@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre8/8E29_V90/V2 (CMSSW_3_1_X_2009-06-19-0700_HLT1)
+# /dev/CMSSW_3_1_0/pre11/8E29_V2/V2 (CMSSW_3_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre8/8E29_V90/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/8E29_V2/V2')
 )
 
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
@@ -37,7 +37,7 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   SizeWindowENeg = cms.double( 0.675 ),
   rMaxI = cms.double( 0.2 ),
   PhiMax2 = cms.double( 0.01 ),
-  preFilteredSeeds = cms.bool( False ),
+  preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.3 ),
   pPhiMin1 = cms.double( -0.03 ),
   initialSeeds = cms.InputTag( "noSeedsHere" ),
@@ -45,7 +45,7 @@ block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   hbheModule = cms.string( "hbhereco" ),
   SCEtCut = cms.double( 3.0 ),
   z2MaxB = cms.double( 0.2 ),
-  fromTrackerSeeds = cms.bool( False ),
+  fromTrackerSeeds = cms.bool( True ),
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.2 ),
   hbheInstance = cms.string( "" ),
@@ -85,7 +85,7 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   SizeWindowENeg = cms.double( 0.675 ),
   rMaxI = cms.double( 0.2 ),
   PhiMax2 = cms.double( 0.01 ),
-  preFilteredSeeds = cms.bool( False ),
+  preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.3 ),
   pPhiMin1 = cms.double( -0.03 ),
   initialSeeds = cms.InputTag( "noSeedsHere" ),
@@ -93,7 +93,7 @@ block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
   hbheModule = cms.string( "hbhereco" ),
   SCEtCut = cms.double( 3.0 ),
   z2MaxB = cms.double( 0.2 ),
-  fromTrackerSeeds = cms.bool( False ),
+  fromTrackerSeeds = cms.bool( True ),
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.2 ),
   hbheInstance = cms.string( "" ),
@@ -133,7 +133,7 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   SizeWindowENeg = cms.double( 0.675 ),
   rMaxI = cms.double( 0.11 ),
   PhiMax2 = cms.double( 0.0050 ),
-  preFilteredSeeds = cms.bool( False ),
+  preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.08 ),
   pPhiMin1 = cms.double( -0.025 ),
   initialSeeds = cms.InputTag( "noSeedsHere" ),
@@ -141,7 +141,7 @@ block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
   hbheModule = cms.string( "hbhereco" ),
   SCEtCut = cms.double( 3.0 ),
   z2MaxB = cms.double( 0.05 ),
-  fromTrackerSeeds = cms.bool( False ),
+  fromTrackerSeeds = cms.bool( True ),
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.05 ),
   hbheInstance = cms.string( "" ),
@@ -181,7 +181,7 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   SizeWindowENeg = cms.double( 0.675 ),
   rMaxI = cms.double( 0.11 ),
   PhiMax2 = cms.double( 0.0050 ),
-  preFilteredSeeds = cms.bool( False ),
+  preFilteredSeeds = cms.bool( True ),
   r2MaxF = cms.double( 0.08 ),
   pPhiMin1 = cms.double( -0.025 ),
   initialSeeds = cms.InputTag( "noSeedsHere" ),
@@ -189,7 +189,7 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   hbheModule = cms.string( "hbhereco" ),
   SCEtCut = cms.double( 3.0 ),
   z2MaxB = cms.double( 0.05 ),
-  fromTrackerSeeds = cms.bool( False ),
+  fromTrackerSeeds = cms.bool( True ),
   hcalRecHits = cms.InputTag( "hltHbhereco" ),
   z2MinB = cms.double( -0.05 ),
   hbheInstance = cms.string( "" ),

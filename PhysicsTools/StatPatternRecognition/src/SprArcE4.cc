@@ -1,4 +1,4 @@
-//$Id: SprArcE4.cc,v 1.2 2007/09/21 22:32:08 narsky Exp $
+//$Id: SprArcE4.cc,v 1.3 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprArcE4.hh"
@@ -64,9 +64,9 @@ bool SprArcE4::train(int verbose)
 
   // update responses
   assert( data_->size() == response_.size() );
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     const SprPoint* p = (*data_)[i];
-    for( int j=0;j<trained_.size();j++ ) {
+    for( unsigned int j=0;j<trained_.size();j++ ) {
       double& resp = response_[i].first;
       double& wresp = response_[i].second;
       resp = wresp*resp + trained_[j].first->response(p);
@@ -108,7 +108,7 @@ bool SprArcE4::train(int verbose)
   unsigned nCycle = 0;
   unsigned nFailed = 0;
   while( nCycle < cycles_ ) {
-    for( int i=0;i<trainable_.size();i++ ) {
+    for( unsigned int i=0;i<trainable_.size();i++ ) {
       // check cycles
       if( nCycle++ >= cycles_ ) return this->prepareExit((this->nTrained()>0));
 
@@ -170,7 +170,7 @@ bool SprArcE4::train(int verbose)
       if( valData_ != 0 ) {
 	// update votes
 	int tsize = trained_.size();
-	for( int i=0;i<valData_->size();i++ ) {
+	for( unsigned int i=0;i<valData_->size();i++ ) {
 	  const SprPoint* p = (*valData_)[i];
 	  if( discrete_ ) {
 	    if( t->accept(p) ) 
@@ -213,7 +213,7 @@ void SprArcE4::reweight(const SprAbsTrainedClassifier* t)
   unsigned size = data_->size();
   assert( size == initialDataWeights_.size() );
   assert( size == response_.size() );
-  for( int i=0;i<size;i++ ) {
+  for( unsigned int i=0;i<size;i++ ) {
     const SprPoint* p = (*data_)[i];
 
     // update response

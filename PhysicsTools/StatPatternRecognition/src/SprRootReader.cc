@@ -1,4 +1,4 @@
-// $Id: SprRootReader.cc,v 1.11 2007/10/29 22:10:40 narsky Exp $
+// $Id: SprRootReader.cc,v 1.5 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprRootReader.hh"
@@ -75,7 +75,7 @@ SprAbsFilter* SprRootReader::read(const char* filename)
     }
     else if (lineFields.at(0) == "TreeClass:") {
       assert( treeClasses_.empty() );
-      for( int i=1;i<lineFields.size();i++ )
+      for( unsigned int i=1;i<lineFields.size();i++ )
 	treeClasses_.push_back(atoi(lineFields[i].c_str()));
       if( treeNames_.size() != treeClasses_.size() ) {
 	cerr << "If you supply TreeClass, you must supply as many " 
@@ -168,7 +168,7 @@ SprAbsFilter* SprRootReader::read(const char* filename)
   if(weightLeafNames_.size()){
     cout<<"A variable determined weight has been chosen, the value"
 	<<" assigned to ";
-    for(int i = 0; i < weightLeafNames_.size(); i++){
+    for(unsigned int i = 0; i < weightLeafNames_.size(); i++){
       if(i%5 == 0) cout<<"\n\t";
       if(i == 0)  cout<<weightLeafNames_[i];
       else cout<<" * "<<weightLeafNames_[i];
@@ -279,7 +279,7 @@ SprAbsFilter* SprRootReader::readRootObjects(bool needToCalcWeights)
 	}
     
 	float assignedWeight = fileIter->weight;
-	for (int i = 0; i < weightLeafNames_.size(); i++) {   
+	for (unsigned int i = 0; i < weightLeafNames_.size(); i++) {   
 	  TLeaf* tempLeaf = tree->GetLeaf(weightLeafNames_[i].c_str());
 	  if(tempLeaf == 0){
 	    cerr<<"No Leaf associated with variable "

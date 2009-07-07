@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <vector>
 
@@ -17,7 +16,7 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const );
+  DaqScopeModeAlgorithm( DaqScopeModeAnalysis* const );
 
   virtual ~DaqScopeModeAlgorithm() {;}
   

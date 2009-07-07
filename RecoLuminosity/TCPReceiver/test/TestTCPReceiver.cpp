@@ -5,11 +5,12 @@
 */
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
-
 #include <iostream>
 #include <signal.h>
 #include <cstdlib>
+
+using std::cout;
+using std::endl;
 
 int gContinue=1;
 
@@ -26,24 +27,24 @@ int main(){
   int errorCode;
   
   errorCode = HT.SetMode(0);
-  std::cout << "SetMode: " << errorCode << std::endl;
+  cout << "SetMode: " << errorCode << endl;
   if(errorCode != 1)
     exit(1);
   errorCode = HT.SetPort(50002);
-  std::cout << "SetPort: " << errorCode << std::endl;
+  cout << "SetPort: " << errorCode << endl;
    if(errorCode != 1)
     exit(1);
  
   while(gContinue){
     if(!HT.IsConnected()){
       errorCode = HT.Connect();
-      std::cout << "Connect: " << errorCode << std::endl;
+      cout << "Connect: " << errorCode << endl;
       if(errorCode != 1)
 	exit(1);
     }
 
     errorCode = HT.ReceiveLumiSection(L);
-    std::cout << "ReceiveLumiSection(): " << errorCode << std::endl;
+    cout << "ReceiveLumiSection(): " << errorCode << endl;
     
     HT.VerifyFakeData(L);
 

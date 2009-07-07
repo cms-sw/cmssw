@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/18 15:29:13 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,10 +19,6 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "Histograms.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 
 #include <vector>
 #include <map>
@@ -61,15 +57,15 @@ private:
 
 
   // The file which will store the histos
-  //TFile *theFile;
+  TFile *theFile;
   // Switch for debug output
   bool debug;
   // Root file name
   std::string rootFileName;
-  edm::InputTag simHitLabel;
-  edm::InputTag recHitLabel;
-  edm::InputTag segment2DLabel;
-  edm::InputTag segment4DLabel;
+  std::string simHitLabel;
+  std::string recHitLabel;
+  std::string segment2DLabel;
+  std::string segment4DLabel;
 
   // Switches for analysis at various steps
   bool doStep1;
@@ -135,7 +131,7 @@ private:
 	       std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
 	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
 	       int step);
-  //HRes1DHit * hRes_S1RPhi;
+
   HRes1DHit *hRes_S1RPhi;  // RecHits, 1. step, RPh
   HRes1DHit *hRes_S2RPhi;     // RecHits, 2. step, RPhi
   HRes1DHit *hRes_S3RPhi;     // RecHits, 3. step, RPhi
@@ -176,7 +172,6 @@ private:
   HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
-  DQMStore* dbe_;
 };
 #endif
 

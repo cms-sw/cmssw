@@ -762,9 +762,8 @@ void BscTest::update(const EndOfEvent * evt) {
 	themap[unitID] += losenergy;
 	totallosenergy += losenergy;
 
-	int zside, sector;
+	int det, zside, sector;
 	BscNumberingScheme::unpackBscIndex(unitID);
-    zside = (unitID&32)>>5;
 
 	//
 	//=======================================

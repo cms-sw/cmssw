@@ -1459,7 +1459,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  double trackPt = elements[it->second.first].trackRef()->pt();
 	  double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
 	  double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
+	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  if ( staPt < 20. && muonPt < 20. && trackPt < 20. ) continue;	  
+	  if ( !isTrack && muonPt < 20. ) continue;
 	  // Add the muon to the PF candidate list
 	  unsigned tmpi = reconstructTrack( elements[iTrack] );
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
@@ -1471,9 +1473,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  double muonPtError = elements[it->second.first].muonRef()->combinedMuon()->ptError();
 	  double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
 	  double globalCorr = 1;
-	  if ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) 
+	  if ( !isTrack || 
+	       ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
 	    globalCorr = muonMomentum/trackMomentum;
-	  if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
+	  else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
 	    globalCorr = staMomentum/trackMomentum;
 	  (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
 	  if (debug_) std::cout << "\tElement  " << elements[iTrack] << std::endl 

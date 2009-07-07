@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprAbsFilter.hh,v 1.11 2007/11/30 20:13:29 narsky Exp $
+//      $Id: SprAbsFilter.hh,v 1.4 2007/12/01 01:29:45 narsky Exp $
 //
 // Description:
 //      Class SprAbsFilter :
@@ -242,14 +242,14 @@ protected:
   std::vector<double> dataWeights_;
   std::vector<double> copyWeights_;
   std::vector<SprClass> classes_;
-  int imin_;
-  int imax_;
+  unsigned int imin_;
+  unsigned int imax_;
   std::vector<double> median_;
 };
 
 inline double SprAbsFilter::atw(int i) const
 {
-  if( i>=0 && i<copyWeights_.size() ) return copyWeights_[i];
+  if( i>=0 && i<(int)copyWeights_.size() ) return copyWeights_[i];
   std::cerr << "Index out of range for weights " << i << " " 
 	    << copyWeights_.size() << std::endl;
   return 0;

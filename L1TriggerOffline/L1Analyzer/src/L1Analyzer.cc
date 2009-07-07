@@ -13,7 +13,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Nov 30 20:57:38 CET 2006
-// $Id: L1Analyzer.cc,v 1.3 2007/11/13 21:11:35 tapper Exp $
+// $Id: L1Analyzer.cc,v 1.2 2007/07/08 08:14:05 elmer Exp $
 //
 //
 
@@ -119,7 +119,8 @@ void L1Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 
-DEFINE_FWK_MODULE(L1Analyzer);
+
+
 
 
 

@@ -16,12 +16,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
-                                              DQMStore* bei,
-                                              const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                             bei,
-                             task ),
+CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunType& task ) 
+  : CommissioningHistograms( bei, task ),
     calchan_(0),
     isha_(-1),
     vfs_(-1)
@@ -47,12 +43,8 @@ CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
   if(vfsElement) vfs_ = vfsElement->getIntValue() ;
 }
 
-CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
-                                              DQMOldReceiver* mui,
-                                              const sistrip::RunType& task )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("CalibrationParameters"),
-                             mui,
-                             task ),
+CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip::RunType& task ) 
+  : CommissioningHistograms( mui, task ),
     calchan_(0),
     isha_(-1),
     vfs_(-1)
@@ -118,7 +110,7 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
     } 
     // Perform histo analysis 
     CalibrationAnalysis* anal = new CalibrationAnalysis( iter->first, (task()==sistrip::CALIBRATION_DECO), calchan_ );
-    CalibrationAlgorithm algo( this->pset(), anal );
+    CalibrationAlgorithm algo( anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     

@@ -13,7 +13,6 @@
 <use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/JetReco>
-<use name=DataFormats/L1GlobalTrigger>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/DataRecord>
@@ -23,7 +22,6 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=root>
 <use name=boost>
-<use name=PhysicsTools/UtilAlgos>
 <flags EDM_PLUGIN=1>
 <export>
   <lib name=HLTriggerOfflineCommon>
@@ -49,7 +47,6 @@
   <use name=heppdt>
   <use name=clhep>
   <use name=DataFormats/HepMCCandidate>
-  <use name=PhysicsTools/UtilAlgos>
   <use name=root>
   <use name=boost>
 </export>

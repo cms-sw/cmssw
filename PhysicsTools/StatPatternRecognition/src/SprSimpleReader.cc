@@ -1,4 +1,4 @@
-//$Id: SprSimpleReader.cc,v 1.4 2007/12/01 01:29:46 narsky Exp $
+//$Id: SprSimpleReader.cc,v 1.5 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprSimpleReader.hh"
@@ -101,7 +101,7 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
     else {// all variable names are on one line
       ind.clear();
       ind.resize(dim,-1);
-      for( int i=0;i<dim;i++ ) {
+      for( unsigned int i=0;i<dim;i++ ) {
 	ist >> varName;
 	if( exclude_.find(varName)==exclude_.end() &&
 	    (include_.empty() || include_.find(varName)!=include_.end()) ) {
@@ -167,7 +167,7 @@ SprAbsFilter* SprSimpleReader::read(const char* filename)
       assert( pointIndex >= 0 );
     }
     if( !readcls ) {
-      for( int i=0;i<dim;i++ ) {
+      for( unsigned int i=0;i<dim;i++ ) {
 	double r = 0;
 	ist >> r;
 	int index = ind[i];

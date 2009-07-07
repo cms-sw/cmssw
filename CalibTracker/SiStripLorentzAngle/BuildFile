@@ -29,8 +29,6 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=clhep>
 <use name=rootcore>
-<use name=root>
-<use name=rootminuit>
 <flags EDM_PLUGIN="1">
 <export>
   <use name=DQMServices/Core>

@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedDecisionTree.hh,v 1.5 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprTrainedDecisionTree.hh,v 1.2 2007/09/21 22:32:04 narsky Exp $
 //
 // Description:
 //      Class SprTrainedDecisionTree :
@@ -99,7 +99,7 @@ public:
 
   // return box for the i-th node
   void box(int i, SprBox& limits) const {
-    if( i<0 || i>=nodes1_.size() )
+    if( i<0 || i>=(int)nodes1_.size() )
       limits.clear();
     else
       limits = nodes1_[i];

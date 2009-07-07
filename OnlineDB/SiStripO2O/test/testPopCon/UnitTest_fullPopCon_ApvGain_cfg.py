@@ -62,7 +62,9 @@ process.CommonSiStripPopConParams = cms.PSet(
     loggingOn = cms.untracked.bool(True)
 )
 
+process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.siStripPopConApvGain = cms.EDAnalyzer("SiStripPopConApvGain",
+    process.SiStripO2OCalibrationFactors,
     process.CommonSiStripPopConParams,
     record = cms.string('SiStripApvGainRcd')
 )

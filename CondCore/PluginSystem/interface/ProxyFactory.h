@@ -16,31 +16,22 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
+// $Id: ProxyFactory.h,v 1.8 2007/04/12 21:18:00 chrjones Exp $
 //
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include<string>
 
-namespace cond {
-  class DataProxyWrapperBase;
-  class Connection;
-
-  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::Connection&, std::pair< std::string, std::string> const & ) > ProxyFactory;
-
-   const char* pluginCategory();
-}
-
-// compatibility mode
-#include<map>
 namespace edm {
   namespace eventsetup {
     class DataProxy;
   }
 }
-namespace oldcond {
+
+namespace cond {
+  class Connection;
 
 typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::Connection*, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
 
-  // const char* pluginCategory();
+   const char* pluginCategory();
 }
 
 #endif /* CONDCORE_PLUGINSYSTEM_PROXYFACTORY_H */

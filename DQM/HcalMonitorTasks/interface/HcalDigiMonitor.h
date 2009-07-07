@@ -93,28 +93,28 @@ private:
   // Monitoring elements
   MonitorElement* meEVT_;
   MonitorElement* ProblemDigis;
-  EtaPhiHists ProblemDigisByDepth;
-  EtaPhiHists DigiErrorsBadCapID;
-  EtaPhiHists DigiErrorsBadDigiSize;
-  EtaPhiHists DigiErrorsBadADCSum;
-  EtaPhiHists DigiErrorsDVErr;
+  std::vector<MonitorElement*> ProblemDigisByDepth;
+  std::vector<MonitorElement*> DigiErrorsBadCapID;
+  std::vector<MonitorElement*> DigiErrorsBadDigiSize;
+  std::vector<MonitorElement*> DigiErrorsBadADCSum;
+  std::vector<MonitorElement*> DigiErrorsDVErr;
   MonitorElement* DigiSize;
-  int problemdigis[85][72][4];
-  int badcapID[85][72][4];
-  int baddigisize[85][72][4];
-  int badADCsum[85][72][4];
+  int problemdigis[87][72][6];
+  int badcapID[87][72][6];
+  int baddigisize[87][72][6];
+  int badADCsum[87][72][6];
   int digisize[20][4];
-  int digierrorsdverr[85][72][4];
+  int digierrorsdverr[87][72][6];
 
-  EtaPhiHists DigiOccupancyByDepth;
+  std::vector<MonitorElement*> DigiOccupancyByDepth;
   MonitorElement* DigiOccupancyEta;
   MonitorElement* DigiOccupancyPhi;
   MonitorElement* DigiOccupancyVME;
   MonitorElement* DigiOccupancySpigot;
   
   
-  int occupancyEtaPhi[85][72][4];
-  int occupancyEta[85];
+  int occupancyEtaPhi[87][72][6];
+  int occupancyEta[87];
   int occupancyPhi[72];
   int occupancyVME[40][18];
   int occupancySpigot[40][36];

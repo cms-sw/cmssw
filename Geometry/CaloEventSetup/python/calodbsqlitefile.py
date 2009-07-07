@@ -1,11 +1,8 @@
 
 import FWCore.ParameterSet.Config as cms
- 
-idealGeometryRecord = cms.ESSource("EmptyESSource",
-                                   recordName = cms.string('IdealGeometryRecord'),
-                                   iovIsRunNotTime = cms.bool(True),
-                                   firstValid = cms.vuint32(1)
-                                   )
+
+from Geometry.CaloEventSetup.CaloGeometryDBReader_cfi import *
+
 
 from CondCore.DBCommon.CondDBCommon_cfi import *
 
@@ -29,7 +26,7 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
               tag = cms.string('CASTORRECO_Geometry_Test01'))
     ),
                               BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                              timetype = cms.untracked.string('runnumber')
+                              timetype = cms.untracked.string('runnumber'),
+                              connect = cms.string('sqlite_file:calofile.db')
                               )
 
-PoolDBESSource.connect = cms.string('sqlite_file:calofile.db')

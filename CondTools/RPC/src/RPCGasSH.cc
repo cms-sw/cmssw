@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2009/02/13 11:40:19 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/12/12 20:20:52 $
+ *  $Revision: 1.9 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -19,8 +19,7 @@ popcon::RpcObGasData::RpcObGasData(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
-  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
 }
 
 popcon::RpcObGasData::~RpcObGasData()
@@ -30,7 +29,7 @@ popcon::RpcObGasData::~RpcObGasData()
 void popcon::RpcObGasData::getNewObjects() {
 
   std::cout << "------- " << m_name << " - > getNewObjects\n" 
-	    << "got offlineInfo "<< tagInfo().name 
+	    << "got offlineInfo"<< tagInfo().name 
 	    << ", size " << tagInfo().size << ", last object valid since " 
 	    << tagInfo().lastInterval.first << " token "   
             << tagInfo().lastPayloadToken << std::endl;
@@ -39,52 +38,60 @@ void popcon::RpcObGasData::getNewObjects() {
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
   
-  //  snc = tagInfo().lastInterval.first;
+  snc = tagInfo().lastInterval.first;
 
-   std::cout << std::endl << "=============================================" << std::endl;
-   std::cout << std::endl << "===================  GAS   ==================" << std::endl;
-   std::cout << std::endl << "=============================================" << std::endl << std::endl;
-   snc = m_since;
-   std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
-   std::cout << std::endl << "=============================================" << std::endl << std::endl;
-   
-   RPCFw caen ( host, user, passw );
-   std::vector<RPCObGas::Item> Gascheck;
-   
-   Gascheck = caen.createGAS(snc, m_till);
-   Gasdata = new RPCObGas();
-   RPCObGas::Item Ifill;
-   std::vector<RPCObGas::Item>::iterator Iit;
-   for(Iit = Gascheck.begin(); Iit != Gascheck.end(); Iit++)
-     {
-       Ifill = *(Iit);
-       Gasdata->ObGas_rpc.push_back(Ifill);
-     }
-   std::cout << " >> Final object size: " << Gasdata->ObGas_rpc.size() << std::endl;
-   
-   
-   if (Gasdata->ObGas_rpc.size() > 0) {
-     niov = snc;
-   } else {
-     niov = snc;
-     std::cout << "NO DATA TO BE STORED" << std::endl;
-   }
-   
-   ::timeval tv;
-   tv.tv_sec = niov;
-   tv.tv_usec = 0;
-   edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
-   std::cout << "UNIX time = " << tmstamp.value() << std::endl;
 
-   edm::TimeValue_t daqtime=0LL;
-   daqtime=tv.tv_sec;
-   daqtime=(daqtime<<32)+tv.tv_usec;
-   edm::Timestamp daqstamp(daqtime);
-   edm::TimeValue_t dtime = daqstamp.value();
-   std::cout<<"DAQ time = " << dtime <<std::endl;
+  //--------------------------IOV
+  ::timeval tv;
+  gettimeofday(&tv,0);
+  edm::Timestamp tstamp((unsigned long long)tv.tv_usec);
+  std::cout << "Now ==> UNIX TIME = " << tstamp.value() << std::endl;
+  utime = tstamp.value();
+  //-----------------------------
 
-   niov = dtime;
 
-   std::cout << "===> New IOV: since is = " << niov << std::endl;
-   m_to_transfer.push_back(std::make_pair((RPCObGas*)Gasdata,niov));
+  if (snc > 0) { niov = utime;} else { snc = m_since; niov = utime; }
+
+  std::cout << "New IOV: since is = " << niov << std::endl;
+
+  
+  RPCFw caen ( host, user, passw );
+
+  std::vector<RPCObGas::Item> Gascheck;
+
+
+  Gascheck = caen.createGAS(snc);
+
+
+  Gasdata = new RPCObGas();
+  RPCObGas::Item Ifill;
+  std::vector<RPCObGas::Item>::iterator Iit;
+  for(Iit = Gascheck.begin(); Iit != Gascheck.end(); Iit++)
+    {
+      Ifill = *(Iit);
+      Gasdata->ObGas_rpc.push_back(Ifill);
+    }
+  std::cout << " >> Final object size: " << Gasdata->ObGas_rpc.size() << std::endl;
+
+
+
+
+
+/*
+  Gasdata = new RPCObGas();
+  RPCObGas::Item Ifill;
+
+  for (int i = 0; i < 5; i++) {
+  Ifill.dpid = niov*10+i;
+  Ifill.flowin = niov*10+2*i;
+  Ifill.flowout = niov*10+3*i;
+  Ifill.day = niov*10+4*i;
+  Ifill.time = niov*10+5*i;
+
+  Gasdata->ObGas_rpc.push_back(Ifill);
+  }
+  std::cout << " >> Final object size: " << Gasdata->ObGas_rpc.size() << std::endl;
+*/
+
+  m_to_transfer.push_back(std::make_pair((RPCObGas*)Gasdata,niov));
 }

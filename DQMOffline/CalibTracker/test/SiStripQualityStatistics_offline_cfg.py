@@ -26,7 +26,7 @@ process.a = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
-        tag = cms.string('inputTag')
+        tag = cms.string('SiStripBadChannel_v1')
     )),
     connect = cms.string('sqlite_file:dbfile.db')
 )

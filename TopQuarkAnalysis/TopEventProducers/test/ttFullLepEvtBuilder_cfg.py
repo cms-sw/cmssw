@@ -8,13 +8,11 @@ process = cms.Process("TEST2")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.categories.append('TtFullLeptonicEvent')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-
-process.MessageLogger.cerr.INFO = cms.untracked.PSet(
-    default             = cms.untracked.PSet( limit = cms.untracked.int32( 0) ),
-    TtFullLeptonicEvent = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.TtFullLeptonicEvent = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
 )
 
 #-------------------------------------------------
@@ -24,7 +22,7 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre6/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0002/50D4BADB-FA32-DE11-BA01-000423D98DC4.root'    
+    '/store/relval/CMSSW_3_1_0_pre10/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0008/CC80B73A-CA57-DE11-BC2F-000423D99896.root'
     )
 )
 
@@ -43,7 +41,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('IDEAL_31X::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V1::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")

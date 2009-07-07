@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.12 2009/01/05 11:59:41 snaumann Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.13 2009/04/29 13:29:12 snaumann Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -143,7 +143,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 2 " << Obs2 << endl;
 
   //obs3: delta R between lep b and lepton 
-  double Obs3 = -10;
+  double Obs3 = -999;
   if (solution.getDecay() == "muon")     Obs3 = ROOT::Math::VectorUtil::DeltaR( solution.getLepb().p4(),solution.getRecLepm().p4() );
   if (solution.getDecay() == "electron") Obs3 = ROOT::Math::VectorUtil::DeltaR( solution.getLepb().p4(),solution.getRecLepe().p4() );
   evtselectVarVal.push_back(IntDblPair(3,Obs3));
@@ -354,7 +354,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 31 " << Obs31 << endl;
   
   //obs32
-  double Obs32;   
+  double Obs32 = -999.;
   if (solution.getDecay() == "muon") Obs32 = solution.getRecLepm().p4().pt(); 
   if (solution.getDecay() == "electron") Obs32 = solution.getRecLepe().p4().pt(); 
   evtselectVarVal.push_back(IntDblPair(32,Obs32));
@@ -363,7 +363,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 32 " << Obs32 << endl;
    
   //obs33
-  double Obs33;
+  double Obs33 = -999.;
   if (solution.getDecay() == "muon") Obs33 = fabs(solution.getRecLepm().p4().eta());
   if (solution.getDecay() == "electron") Obs33 = fabs(solution.getRecLepe().p4().eta());
   evtselectVarVal.push_back(IntDblPair(33,Obs33));
@@ -372,7 +372,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 33 " << Obs33 << endl;
  
   //obs34
-  double Obs34;
+  double Obs34 = -999.;
   if (solution.getDecay() == "muon") Obs34 = fabs(solution.getRecLepm().p4().theta());
   if (solution.getDecay() == "electron") Obs34 = fabs(solution.getRecLepe().p4().theta()); 
   evtselectVarVal.push_back(IntDblPair(34,Obs34));
@@ -553,7 +553,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 57 " << Obs57 << endl;
   
   //obs58
-  double Obs58;
+  double Obs58 = -999.;
   if (solution.getDecay() == "muon") Obs58  = fabs(solution.getRecLepm().p4().phi()- solution.getRecLepn().p4().phi()); 
   if (solution.getDecay() == "electron") Obs58 = fabs(solution.getRecLepe().p4().phi()- solution.getRecLepn().p4().phi()); 
   if (Obs58 > 3.1415927)  Obs58 =  2*3.1415927 - Obs58;
@@ -564,7 +564,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 58 " << Obs58 << endl;
  
   //obs59
-  double Obs59;
+  double Obs59 = -999.;
   if (solution.getDecay() == "muon") Obs59 = fabs(solution.getRecLepm().p4().eta()- solution.getRecLepn().p4().eta()); 
   if (solution.getDecay() == "electron") Obs59 = fabs(solution.getRecLepe().p4().eta()- solution.getRecLepn().p4().eta());  
   evtselectVarVal.push_back(IntDblPair(59,Obs59));
@@ -573,7 +573,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 59 " << Obs59 << endl;
   
   //obs60
-  double Obs60;
+  double Obs60 = -999.;
   if (solution.getDecay() == "muon") Obs60  = fabs(solution.getRecLepm().p4().theta()- solution.getRecLepn().p4().theta());
   if (solution.getDecay() == "electron") Obs60  = fabs(solution.getRecLepe().p4().theta()- solution.getRecLepn().p4().theta());
   evtselectVarVal.push_back(IntDblPair(60,Obs60));
@@ -582,7 +582,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) cout << "== observable 60 " << Obs60 << endl;
   
   //obs61 
-  double Obs61; 
+  double Obs61 = -999.; 
   if (solution.getDecay() == "muon") Obs61 = ROOT::Math::VectorUtil::DeltaR(solution.getRecLepm().p4(), solution.getRecLepn().p4());
   if (solution.getDecay() == "electron") Obs61 = ROOT::Math::VectorUtil::DeltaR(solution.getRecLepe().p4(), solution.getRecLepn().p4());
   evtselectVarVal.push_back(IntDblPair(61,Obs61));

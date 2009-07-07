@@ -1,4 +1,4 @@
-//$Id: SprGoFDecisionTreeApp.cc,v 1.5 2007/10/05 20:03:09 narsky Exp $
+//$Id: SprGoFDecisionTreeApp.cc,v 1.3 2007/10/07 21:03:02 narsky Exp $
 
 /*
   This executable evaluates consistency between two multivariate samples
@@ -215,7 +215,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > includeVars;
     SprStringParser::parseToStrings(includeList.c_str(),includeVars);
     assert( !includeVars.empty() );
-    for( int i=0;i<includeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<includeVars[0].size();i++ ) 
       includeSet.insert(includeVars[0][i]);
     if( !reader->chooseVars(includeSet) ) {
       cerr << "Unable to include variables in training set." << endl;
@@ -236,7 +236,7 @@ int main(int argc, char ** argv)
     vector<vector<string> > excludeVars;
     SprStringParser::parseToStrings(excludeList.c_str(),excludeVars);
     assert( !excludeVars.empty() );
-    for( int i=0;i<excludeVars[0].size();i++ ) 
+    for( unsigned int i=0;i<excludeVars[0].size();i++ ) 
       excludeSet.insert(excludeVars[0][i]);
     if( !reader->chooseAllBut(excludeSet) ) {
       cerr << "Unable to exclude variables from training set." << endl;
@@ -261,7 +261,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;
@@ -293,7 +293,7 @@ int main(int argc, char ** argv)
 
   // save original class labels
   vector<pair<SprPoint*,int> > origLabels(filter->size());
-  for( int i=0;i<filter->size();i++ ) {
+  for( unsigned int i=0;i<filter->size();i++ ) {
     SprPoint* p = (*filter.get())[i];
     origLabels[i] = pair<SprPoint*,int>(p,p->class_);
   }
@@ -304,7 +304,7 @@ int main(int argc, char ** argv)
   vector<double> fom;
   SprIntegerPermutator permu(filter->size(),seed);
   assert( (n0+n1) == filter->size() );
-  for( int ic=0;ic<cycles;ic++ ) {
+  for( unsigned int ic=0;ic<cycles;ic++ ) {
     // print out
     if( (ic%10) == 0 ) 
       cout << "Performing toy experiment " << ic << endl;
@@ -312,11 +312,11 @@ int main(int argc, char ** argv)
     // permute labels
     vector<unsigned> labels;
     permu.sequence(labels);
-    for( int i=0;i<n0;i++ ) {
+    for( unsigned int i=0;i<n0;i++ ) {
       unsigned ip = labels[i];
       (*filter.get())[ip]->class_ = 0;
     }
-    for( int i=n0;i<n0+n1;i++ ) {
+    for( unsigned int i=n0;i<n0+n1;i++ ) {
       unsigned ip = labels[i];
       (*filter.get())[ip]->class_ = 1;
     }
@@ -342,7 +342,7 @@ int main(int argc, char ** argv)
   // restore original class labels and weights
   // Not necessary here - just to remember that this needs to be done
   //  if data will be used in the future.
-  for( int i=0;i<origLabels.size();i++ )
+  for( unsigned int i=0;i<origLabels.size();i++ )
     origLabels[i].first->class_ = origLabels[i].second;
   if( scaleWeights ) filter->setPermanentWeights(origWeights);
 

@@ -1,4 +1,4 @@
-//$Id: SprPlotter.cc,v 1.5 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprPlotter.cc,v 1.1 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprPlotter.hh"
@@ -58,7 +58,7 @@ bool SprPlotter::init()
   bgrW_ = 0;
   sigN_ = 0;
   bgrN_ = 0;
-  for( int i=0;i<responses_.size();i++ ) {
+  for( unsigned int i=0;i<responses_.size();i++ ) {
     if(      responses_[i].cls == 0 ) {
       bgrN_++;
       bgrW_ += responses_[i].weight;
@@ -152,7 +152,7 @@ bool SprPlotter::backgroundCurve(const std::vector<double>& signalEff,
   vector<double> cuts(maxsize,signal[0].first);
   double w = 0;
   int startDivider = 0;
-  int i = 0;
+  unsigned int i = 0;
   while( i<signal.size() && startDivider<maxsize ) {
     w += signal[i].second;
     for( int divider=startDivider;divider<maxsize;divider++ ) {
@@ -218,7 +218,7 @@ bool SprPlotter::fillSandB(const std::string& sclassifier,
   bgrnd.clear();
 
   // fill them
-  for( int i=0;i<responses_.size();i++ ) {
+  for( unsigned int i=0;i<responses_.size();i++ ) {
     // check if classifier is present
     map<string,double>::const_iterator found = 
       responses_[i].response.find(sclassifier);
@@ -282,7 +282,7 @@ int SprPlotter::histogram(const char* classifier,
   if( !signal.empty() ) {
     if( signal[0].first < xlo ) {
       bool lbreak = false;
-      for( int j=0;j<signal.size();j++ ) {
+      for( unsigned int j=0;j<signal.size();j++ ) {
 	if( signal[j].first >= xlo ) {
 	  jsig = j;
 	  lbreak = true;
@@ -295,7 +295,7 @@ int SprPlotter::histogram(const char* classifier,
   if( !bgrnd.empty() ) {
     if( bgrnd[jbgr].first < xlo ) {
       bool lbreak = false;
-      for( int j=jbgr;j<bgrnd.size();j++ ) {
+      for( unsigned int j=jbgr;j<bgrnd.size();j++ ) {
 	if( bgrnd[j].first >= xlo ) {
 	  jbgr = j;
 	  lbreak = true;
@@ -315,7 +315,7 @@ int SprPlotter::histogram(const char* classifier,
     double wsig = 0;
     unsigned nsig = 0;
     bool lbreak = false;
-    for( int j=jsig;j<signal.size();j++ ) {
+    for( unsigned int j=jsig;j<signal.size();j++ ) {
       if( signal[j].first >= xb ) {
 	jsig = j;
 	lbreak = true;
@@ -332,7 +332,7 @@ int SprPlotter::histogram(const char* classifier,
     double wbgr = 0;
     unsigned nbgr = 0;
     lbreak = false;
-    for( int j=jbgr;j<bgrnd.size();j++ ) {
+    for( unsigned int j=jbgr;j<bgrnd.size();j++ ) {
       if( bgrnd[j].first >= xb ) {
 	jbgr = j;
 	lbreak = true;

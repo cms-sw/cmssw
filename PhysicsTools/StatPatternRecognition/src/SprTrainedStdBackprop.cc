@@ -1,4 +1,4 @@
-//$Id: SprTrainedStdBackprop.cc,v 1.6 2007/05/14 18:08:08 narsky Exp $
+//$Id: SprTrainedStdBackprop.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedStdBackprop.hh"
@@ -106,12 +106,12 @@ void SprTrainedStdBackprop::print(std::ostream& os) const
      << structure_.c_str() << " " << SprVersion << endl; 
   os << "Activation functions: Identity=1, Logistic=2" << endl;
   os << "Cut: " << cut_.size();
-  for( int i=0;i<cut_.size();i++ )
+  for( unsigned int i=0;i<cut_.size();i++ )
     os << "      " << cut_[i].first << " " << cut_[i].second;
   os << endl;
   os << "Nodes: " << nNodes_ << endl;
-  for( int i=0;i<nNodes_;i++ ) {
-    char nodeType;
+  for( unsigned int i=0;i<nNodes_;i++ ) {
+    char nodeType = 0;
     switch( nodeType_[i] )
       {
       case SprNNDefs::INPUT :
@@ -143,7 +143,7 @@ void SprTrainedStdBackprop::print(std::ostream& os) const
        << endl;
   }
   os << "Links: " << nLinks_ << endl;
-  for( int i=0;i<nLinks_;i++ ) {
+  for( unsigned int i=0;i<nLinks_;i++ ) {
     os << setw(6) << i
        << "    Source: " << setw(6) << linkSource_[i]
        << "    Weight: " << linkWeight_[i]
@@ -156,8 +156,8 @@ double SprTrainedStdBackprop::response(const std::vector<double>& v) const
 {
   // Initialize and process input nodes
   vector<double> nodeOut(nNodes_,0);
-  int d = 0;
-  for( int i=0;i<nNodes_;i++ ) {
+  unsigned int d = 0;
+  for( unsigned int i=0;i<nNodes_;i++ ) {
     if( nodeType_[i] == SprNNDefs::INPUT ) {
       assert( d < v.size() );
       nodeOut[i] = v[d++];
@@ -168,7 +168,7 @@ double SprTrainedStdBackprop::response(const std::vector<double>& v) const
   assert( d == v.size() );
 
   // Process hidden and output nodes
-  for( int i=0;i<nNodes_;i++ ) {
+  for( unsigned int i=0;i<nNodes_;i++ ) {
     double nodeAct = 0;
     if( nodeNInputLinks_[i] > 0 ) {
       for( int j=nodeFirstInputLink_[i];

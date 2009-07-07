@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 
-mixData = cms.EDFilter("DataMixingModule",
-          hcalSimBlock,
+mix = cms.EDFilter("DataMixingModule",
     input = cms.SecSource("PoolRASource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
@@ -17,8 +15,6 @@ mixData = cms.EDFilter("DataMixingModule",
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
     checktof = cms.bool(False), 
-    #
-    IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
@@ -31,7 +27,8 @@ mixData = cms.EDFilter("DataMixingModule",
                    #
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #
-    SiStripPileInputTag = cms.InputTag("ZeroSuppressed","simSiStripDigis"),
+    SistripLabelPile = cms.InputTag("ZeroSuppressed"),
+    SistripdigiCollectionPile = cms.InputTag("simSiStripDigis"),
                    #
     pixeldigiCollectionPile = cms.InputTag("simSiPixelDigis"),
                    #
@@ -50,15 +47,20 @@ mixData = cms.EDFilter("DataMixingModule",
     HFrechitCollectionSig = cms.InputTag("HFRecHitCollection"),                   
     ZDCrechitCollectionSig = cms.InputTag("ZDCRecHitCollection"),
     #
-    #
-    EBPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    EEPileRecHitInputTag = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
-    ESPileRecHitInputTag = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES"),                  
-    #
-    HBHEPileRecHitInputTag = cms.InputTag("hbhereco", "HBHERecHitCollection"),
-    HOPileRecHitInputTag = cms.InputTag("horeco", "HORecHitCollection"),                   
-    HFPileRecHitInputTag = cms.InputTag("hfreco", "HFRecHitCollection"),
-    ZDCPileRecHitInputTag = cms.InputTag("","ZDCRecHitCollection"),
+    EBProducerPile = cms.InputTag("ecalRecHit"),
+    EBrechitCollectionPile = cms.InputTag("EcalRecHitsEB"),                   
+    EEProducerPile = cms.InputTag("ecalRecHit"),                   
+    EErechitCollectionPile = cms.InputTag("EcalRecHitsEE"),
+    ESProducerPile = cms.InputTag("ecalPreshowerRecHit"),
+    ESrechitCollectionPile = cms.InputTag("EcalRecHitsES"),                   
+                   #
+    HBHEProducerPile = cms.InputTag("hbhereco"),
+    HBHErechitCollectionPile = cms.InputTag("HBHERecHitCollection"),
+    HOProducerPile = cms.InputTag("horeco"),                   
+    HOrechitCollectionPile = cms.InputTag("HORecHitCollection"),
+    HFProducerPile = cms.InputTag("hfreco"),
+    HFrechitCollectionPile = cms.InputTag("HFRecHitCollection"),                   
+    ZDCrechitCollectionPile = cms.InputTag("ZDCRecHitCollection"),
     #
     # Calorimeter digis
     #
@@ -73,31 +75,39 @@ mixData = cms.EDFilter("DataMixingModule",
     HFdigiCollectionSig    = cms.InputTag("simHcalDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("ZDCdigiCollection"),          
     #
-    EBPileInputTag = cms.InputTag("simEcalDigis","ebDigis"),
-    EEPileInputTag = cms.InputTag("simEcalDigis","eeDigis"),
-    ESPileInputTag = cms.InputTag("simEcalPreshowerDigis",""),
-    HBHEPileInputTag = cms.InputTag("simHcalDigis"),                  
-    HOPileInputTag   = cms.InputTag("simHcalDigis"),                  
-    HFPileInputTag   = cms.InputTag("simHcalDigis"),                  
-    ZDCPileInputTag  = cms.InputTag("ZDCdigiCollection"),          
+    EBdigiProducerPile = cms.InputTag("simEcalDigis"),
+    EBdigiCollectionPile = cms.InputTag("ebDigis"),
+    EEdigiProducerPile = cms.InputTag("simEcalDigis"),
+    EEdigiCollectionPile = cms.InputTag("eeDigis"),
+    ESdigiProducerPile = cms.InputTag("simEcalPreshowerDigis"),
+    ESdigiCollectionPile = cms.InputTag(""),
+    HBHEdigiCollectionPile  = cms.InputTag("simHcalDigis"),
+    HOdigiCollectionPile    = cms.InputTag("simHcalDigis"),
+    HFdigiCollectionPile    = cms.InputTag("simHcalDigis"),
+    ZDCdigiCollectionPile   = cms.InputTag("ZDCdigiCollection"),          
+#ESDataFramesSorted "simEcalPreshowerDigis" "" "HLT"
+                   #HODataFramesSorted "simHcalDigis" "" "HLT"
+                   #HFDataFramesSorted "simHcalDigis" "" "HLT"
+                   #HBHEDataFramesSorted "simHcalDigis" "" "HLT"
 
     #  Signal
                    #
     CSCDigiTagSig = cms.InputTag("simMuonCSCDigis"),
-    CSCwiredigiCollectionSig = cms.InputTag("MuonCSCWireDigi"),
-    CSCstripdigiCollectionSig = cms.InputTag("MuonCSCStripDigi"),
-    CSCCompdigiCollectionSig = cms.InputTag("MuonCSCComparatorDigi"),
+    CSCwiredigiCollectionSig = cms.InputTag("muonCSCWireDigi"),
+    CSCstripdigiCollectionSig = cms.InputTag("muonCSCStripDigi"),
     RPCDigiTagSig = cms.InputTag("simMuonRPCDigis"),                   
     RPCdigiCollectionSig = cms.InputTag("simMuonRPCDigis"),
     DTDigiTagSig = cms.InputTag("simMuonDTDigis"),
     DTdigiCollectionSig = cms.InputTag("simMuonDTDigis"),
     #  Pileup
                    #                   
-    DTPileInputTag        = cms.InputTag("simMuonDTDigis","MuonDTDigis"),
-    RPCPileInputTag       = cms.InputTag("simMuonRPCDigis","MuonRPCDigis"),
-    CSCWirePileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    CSCStripPileInputTag  = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    CSCCompPileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
+    CSCDigiTagPile = cms.InputTag("simMuonCSCDigis"),
+    CSCwiredigiCollectionPile = cms.InputTag("muonCSCWireDigi"),
+    CSCstripdigiCollectionPile = cms.InputTag("muonCSCStripDigi"),
+    RPCDigiTagPile = cms.InputTag("simMuonRPCDigis"),                   
+    RPCdigiCollectionPile = cms.InputTag("simMuonRPCDigis"),
+    DTDigiTagPile = cms.InputTag("simMuonDTDigis"),
+    DTdigiCollectionPile = cms.InputTag("simMuonDTDigis"),
                    #
     #
     #  Outputs
@@ -114,7 +124,6 @@ mixData = cms.EDFilter("DataMixingModule",
     DTDigiCollectionDM = cms.string('muonDTDigisDM'),
     CSCWireDigiCollectionDM = cms.string('MuonCSCWireDigisDM'),
     CSCStripDigiCollectionDM = cms.string('MuonCSCStripDigisDM'),
-    CSCComparatorDigiCollectionDM = cms.string('MuonCSCComparatorDigisDM'),
     RPCDigiCollectionDM = cms.string('muonRPCDigisDM'),
     #
     #  Calorimeter Digis

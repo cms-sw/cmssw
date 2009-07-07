@@ -6,8 +6,8 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: 2007/03/07 16:28:42 $
- * $Revision: 1.5 $
+ * $Date: 2007/03/07 16:46:17 $
+ * $Revision: 1.6 $
  *
  * Modification:
  *
@@ -21,7 +21,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include <DataFormats/GeometrySurface/interface/BoundCylinder.h>
+
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

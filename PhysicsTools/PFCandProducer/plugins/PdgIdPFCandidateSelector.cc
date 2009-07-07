@@ -6,7 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/PFCandProducer/interface/PdgIdPFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/plugins/PdgIdPFCandidateSelectorDefinition.h"
 
 typedef ObjectSelector<PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
 

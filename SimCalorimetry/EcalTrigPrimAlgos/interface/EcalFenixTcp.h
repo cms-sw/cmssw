@@ -24,7 +24,6 @@ class EcalTPGLutIdMap;
 class EcalTPGFineGrainEBIdMap;
 class EcalTPGFineGrainTowerEE;
 class EcalTrigTowerDetId;
-class EcalTPGTowerStatus;
 
 /** 
     \class EcalFenixTcp
@@ -57,15 +56,13 @@ class EcalFenixTcp {
 		     const EcalTPGLutGroup * ecaltpgLutGroup,
 		     const EcalTPGLutIdMap * ecaltpgLut,
 		     const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
-		     const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE,
-		     const EcalTPGTowerStatus * ecaltpgBadTT)
+		     const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE)
     {
       ecaltpgFgEBGroup_=ecaltpgFgEBGroup;
       ecaltpgLutGroup_=ecaltpgLutGroup;
       ecaltpgLut_=ecaltpgLut;
       ecaltpgFineGrainEB_=ecaltpgFineGrainEB;
-      ecaltpgFineGrainTowerEE_=ecaltpgFineGrainTowerEE;
-      ecaltpgBadTT_=ecaltpgBadTT;
+      ecaltpgFineGrainTowerEE_= ecaltpgFineGrainTowerEE;
    }
   // end temporary, for timing tests
 
@@ -92,7 +89,6 @@ class EcalFenixTcp {
 			     const EcalTPGLutGroup*ecaltpgLutGroup,
 			     const EcalTPGLutIdMap *ecaltpgLut,
 			     const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
-			     const EcalTPGTowerStatus *ecaltpgBadTT,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow2,
 			     EcalTrigTowerDetId towid);
@@ -101,7 +97,6 @@ class EcalFenixTcp {
 			     const EcalTPGLutGroup *ecaltpgLutGroup,
 			     const EcalTPGLutIdMap *ecaltpgLut,
 			     const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
-			     const EcalTPGTowerStatus *ecaltpgBadTT,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow2,bool isInInnerRings,      
 			     EcalTrigTowerDetId towid);
@@ -119,7 +114,6 @@ class EcalFenixTcp {
   const EcalTPGLutIdMap * ecaltpgLut_;
   const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB_;
   const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE_;
-  const EcalTPGTowerStatus * ecaltpgBadTT_;
 };
 
 

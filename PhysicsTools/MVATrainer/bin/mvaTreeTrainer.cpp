@@ -12,8 +12,6 @@
 #include <Cintex/Cintex.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
 
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
@@ -35,7 +33,7 @@ TTree *getTree(const std::string &arg)
 	TFile *file = TFile::Open(fileName.c_str());
 	if (!file) {
 		std::cerr << "ROOT file \"" << fileName << "\" could not be "
-		             "opened for reading." << std::endl;
+		             " opened for reading." << std::endl;
 		return 0;
 	}
 
@@ -43,11 +41,10 @@ TTree *getTree(const std::string &arg)
 	if (pos == std::string::npos) {
 		TIter next(file->GetListOfKeys());
 		TObject *obj;
-		TString treeName;
 		while((obj = next())) {
 			TString name = static_cast<TKey*>(obj)->GetName();
 			TTree *cur = dynamic_cast<TTree*>(file->Get(name));
-			if (!cur || name == treeName)
+			if (!cur)
 				continue;
 
 			if (tree) {
@@ -59,7 +56,6 @@ TTree *getTree(const std::string &arg)
 			}
 
 			tree = cur;
-			treeName = name;
 		}
 	} else {
 		TString name(arg.substr(0, pos).c_str());
@@ -78,20 +74,10 @@ TTree *getTree(const std::string &arg)
 
 int main(int argc, char **argv)
 {
-	try {
-		edmplugin::PluginManager::configure(
-				edmplugin::standard::config());
-	} catch(cms::Exception &e) {
-		std::cerr << e.what() << std::endl;
-		return 1;
-	}
-
 	bool load = false;
 	bool save = true;
 	bool monitoring = true;
 	bool weights = true;
-	bool useXSLT = false;
-	const char *styleSheet = 0;
 	char **args = argv + 1;
 	argc--;
 	while(argc > 0 && **args == '-') {
@@ -107,12 +93,6 @@ int main(int argc, char **argv)
 		else if (!std::strcmp(*args, "-w") || 
 		         !std::strcmp(*args, "--no-weights"))
 			weights = false;
-		else if (!std::strncmp(*args, "--xslt=", 7)) {
-			useXSLT = true;
-			styleSheet = *args + 7;
-		} else if (!std::strcmp(*args, "-x") || 
-		         !std::strcmp(*args, "--xslt"))
-			useXSLT = true;
 		else
 			std::cerr << "Unsupported option " << *args
 			          << "." << std::endl;
@@ -129,8 +109,7 @@ int main(int argc, char **argv)
 		             "\t-l / --load\t\tLoad existing training data.\n"
 		             "\t-s / --no-save\t\tDon't save training data.\n"
 		             "\t-m / --no-monitoring\tDon't write monitoring plots.\n"
-		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n"
-		             "\t-x / --xslt\t\tUse MVATrainer XSLT parsing.\n\n";
+		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n\n";
 		std::cerr << "Trees can be selected as "
 		             "(<tree name>@)<file name>" << std::endl;
 		return 1;
@@ -146,8 +125,6 @@ int main(int argc, char **argv)
 		unsigned int nTarget = 0;
 		for(int i = 2; i < argc; i++) {
 			TTree *tree = getTree(args[i]);
-			if (!tree)
-				return 1;
 			trees.push_back(tree);
 			if (tree->GetBranch("__TARGET__"))
 				nTarget++;
@@ -169,7 +146,7 @@ int main(int argc, char **argv)
 			             "signal and background tree has to be "
 			             "specified." << std::endl;
                             
-		MVATrainer trainer(args[0], useXSLT, styleSheet);
+		MVATrainer trainer(args[0]);
 		trainer.setMonitoring(monitoring);
 		trainer.setAutoSave(save);
 		if (load)
@@ -181,7 +158,7 @@ int main(int argc, char **argv)
 						trainer.getCalibration());
 
 		MVAComputer::writeCalibration(args[1], calib.get());
-	} catch(const cms::Exception &e) {
+	} catch(cms::Exception e) {
 		std::cerr << e.what() << std::endl;
 	}
 

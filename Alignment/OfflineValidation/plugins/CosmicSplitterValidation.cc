@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.4 2009/02/27 17:54:36 flucke Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.5 2009/03/03 09:20:18 ntran Exp $
 //
 //
 
@@ -22,28 +22,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-
 #include <algorithm>
-#include "TTree.h"
-#include "TFile.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -78,19 +61,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h" 
-#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-
-#include <TFile.h>
-#include <TH1D.h>
 #include <TTree.h>
-#include <TMath.h>
-#include <TNtuple.h>
 
 //
 // class decleration
@@ -122,13 +94,6 @@ private:
 	int twoTracksCtr;
 	int goldenPlusTwoTracksCtr;
 	int _passesTracksPlusMuonsCuts;
-	edm::ESHandle<TrackerGeometry> theGeometry;
-	edm::ESHandle<MagneticField>   theMagField;
-	edm::ESHandle<DTGeometry>             dtGeometry;
-	edm::ESHandle<CSCGeometry>            cscGeometry;
-	edm::ESHandle<RPCGeometry>            rpcGeometry;
-	
-	
 	
 	edm::Service<TFileService> tfile;
 	// ----------member data ---------------------------
@@ -235,14 +200,6 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 	bool isGolden = true;
 	if (checkIfGolden_) isGolden = is_gold_muon( iEvent );
 
-	// set up geometries and magnetic field
-	iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-	iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-	iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-	iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-	iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
-	
-	
 	// grab collections
 	edm::Handle<std::vector<reco::Track> > tracks;
 	edm::Handle<reco::MuonCollection> globalMuons;

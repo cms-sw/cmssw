@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.5 2008/09/29 13:20:28 bainbrid Exp $
-// Latest tag:  $Name: V03-01-02 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.6 2009/01/28 18:19:37 alinn Exp $
+// Latest tag:  $Name: V03-02-05 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -79,6 +79,15 @@ class SiStripCondObjBuilderFromDb {
   SiStripThreshold   *threshold_;  
   SiStripQuality     *quality_;  
   SiStripApvGain* gain_;
+
+    // needed params
+  float m_gaincalibrationfactor;
+  float m_defaultthresholdhighvalue;
+  float m_defaultthresholdlowvalue;
+  float m_defaultpedestalvalue;
+  float m_defaultnoisevalue;
+  float m_defaulttickheightvalue;
+
   
 };
 

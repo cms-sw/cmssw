@@ -1,4 +1,4 @@
-//$Id: SprRBFNetApp.cc,v 1.4 2007/10/05 20:03:10 narsky Exp $
+//$Id: SprRBFNetApp.cc,v 1.3 2007/10/07 21:03:02 narsky Exp $
 /*
   Reads RBF net and stores its output into an output tuple.
 */
@@ -95,7 +95,7 @@ int main(int argc, char ** argv)
   filter->vars(vars);
   cout << "Read data from file " << trFile.c_str() 
        << " for variables";
-  for( int i=0;i<vars.size();i++ ) 
+  for( unsigned int i=0;i<vars.size();i++ ) 
     cout << " \"" << vars[i].c_str() << "\"";
   cout << endl;
   cout << "Total number of points read: " << filter->size() << endl;

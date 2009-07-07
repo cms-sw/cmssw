@@ -1,4 +1,4 @@
-//$Id: SprData.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprData.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprData.hh"
@@ -22,7 +22,7 @@ SprData::~SprData()
 void SprData::clear()
 {
   if( ownPoints_ ) {
-    for( int i=0;i<data_.size();i++ )
+    for( unsigned int i=0;i<data_.size();i++ )
       delete data_[i];
   }
   data_.clear();

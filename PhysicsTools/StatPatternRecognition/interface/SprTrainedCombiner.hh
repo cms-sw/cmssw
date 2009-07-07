@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprTrainedCombiner.hh,v 1.2 2007/07/11 19:52:09 narsky Exp $
+//      $Id: SprTrainedCombiner.hh,v 1.1 2007/09/21 22:32:04 narsky Exp $
 //
 // Description:
 //      Class SprTrainedCombiner :
@@ -67,12 +67,12 @@ public:
     Local accessors.
   */
   const SprAbsTrainedClassifier* classifier(int i) const {
-    if( i>=0 && i<trained_.size() ) return trained_[i].first;
+    if( i>=0 && i<(int)trained_.size() ) return trained_[i].first;
     return 0;
   }
 
   std::string label(int i) const {
-    if( i>=0 && i<labels_.size() ) return "";
+    if( i>=0 && i<(int)labels_.size() ) return "";
     return labels_[i];
   }
 
@@ -80,7 +80,7 @@ public:
     const {
     classifiers.clear();
     classifiers.resize(trained_.size());
-    for( int i=0;i<trained_.size();i++ )
+    for( int i=0;i<(int)trained_.size();i++ )
       classifiers[i] = trained_[i].first;
   }
 

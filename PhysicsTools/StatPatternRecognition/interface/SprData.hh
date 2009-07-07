@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprData.hh,v 1.4 2007/11/07 00:56:14 narsky Exp $
+//      $Id: SprData.hh,v 1.3 2007/11/12 06:19:15 narsky Exp $
 //
 // Description:
 //      Class SprData :
@@ -91,7 +91,7 @@ private:
 };
 
 inline SprPoint* SprData::at(int i) const {
-  if( i>=0 && i<data_.size() ) return data_[i];
+  if( i>=0 && i<(int)data_.size() ) return data_[i];
   std::cerr << "Index out of range for data " << i << " " 
 	    << data_.size() << std::endl;
   return 0;

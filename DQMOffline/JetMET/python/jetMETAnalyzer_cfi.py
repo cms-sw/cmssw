@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
-from JetMETCorrections.Configuration.ZSPJetCorrections152_cff import *
 
-jetMETAnalyze = cms.EDAnalyzer("JetMETAnalyzer",
+jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # Output files
@@ -168,7 +166,5 @@ jetMETAnalyze = cms.EDAnalyzer("JetMETAnalyzer",
 
 
 )
-# no JPT :
-jetMETAnalyzer = cms.Sequence(jetMETAnalyze)
-# with JPT take this sequence:
-#jetMETAnalyzer = cms.Sequence(ZSPJetCorrections*JetPlusTrackCorrections*jetMETAnalyze)
+
+

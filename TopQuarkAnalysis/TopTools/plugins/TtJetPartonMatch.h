@@ -62,9 +62,6 @@ class TtJetPartonMatch : public edm::EDProducer {
   /// convert string for algorithm into corresponding enumerator type
   JetPartonMatching::algorithms readAlgorithm(const std::string& str);
 
-  /// event counter for internal use with the verbosity 
-  /// level
-  int event_;
   /// partons
   C partons_;
   /// jet collection input
@@ -85,12 +82,12 @@ class TtJetPartonMatch : public edm::EDProducer {
   /// threshold for outliers in the case that useMaxDist_
   /// =true
   double maxDist_;
-  /// verbolity level
+  /// verbosity level
   int verbosity_;
 };
 
 template<typename C>
-TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg): event_(0),
+TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   partons_   (cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
   jets_      (cfg.getParameter<edm::InputTag>            ("jets"           )),
   maxNJets_  (cfg.getParameter<int>                      ("maxNJets"       )),
@@ -155,10 +152,8 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // print some info for each event
   // if corresponding verbosity level set
-  if(verbosity_>0 && event_<verbosity_){
-    ++event_;
+  if(verbosity_>0)
     jetPartonMatch.print();
-  }
 
   // write 
   // * parton match 

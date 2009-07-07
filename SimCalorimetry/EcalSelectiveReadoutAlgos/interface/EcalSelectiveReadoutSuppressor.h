@@ -6,7 +6,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,12 +30,6 @@ public:
    */
   void setTriggerMap(const EcalTrigTowerConstituentsMap * map);
 
-  /** Set the ECAL electronics mapping
-   * @param map the ECAL electronics map
-   */
-  void setElecMap(const EcalElectronicsMapping * map);
-
-  
   /** Sets the geometry of the calorimeters
    */
   void setGeometry(const CaloGeometry * caloGeometry);
@@ -58,23 +51,19 @@ public:
    * @param trigPrims the ECAL trigger primitives used as input to the SR.
    * @param barrelDigis the input EB digi collection
    * @param endcapDigis the input EE digi collection
-   * @param selectedBarrelDigis [out] the EB digi passing the SR. Pointer to
-   *        the collection to fill. If null, no collection is filled.
-   * @param selectedEndcapDigis [out] the EE digi passing the SR. Pointer to
-   *        the collection to fill. If null, no collection is filled.
-   * @param ebSrFlags [out] the computed SR flags for EB. Pointer to
-   *        the collection to fill. If null, no collection is filled.
-   * @param eeSrFlags [out] the computed SR flags for EE. Pointer to
-   *        the collection to fill. If null, no collection is filled.
+   * @param selectedBarrelDigis [out] the EB digi passing the SR
+   * @param selectedEndcapDigis [out] the EE digi passing the SR
+   * @param ebSrFlags [out] the computed SR flags for EB
+   * @param eeSrFlags [out] the computed SR flags for EE
    */
   void run(const edm::EventSetup& eventSetup,
 	   const EcalTrigPrimDigiCollection & trigPrims,
            const EBDigiCollection & barrelDigis,
            const EEDigiCollection & endcapDigis,
-           EBDigiCollection* selectedBarrelDigis,
-           EEDigiCollection* selectedEndcapDigis,
-	   EBSrFlagCollection* ebSrFlags,
-	   EESrFlagCollection* eeSrFlags);
+           EBDigiCollection & selectedBarrelDigis,
+           EEDigiCollection & selectedEndcapDigis,
+	   EBSrFlagCollection& ebSrFlags,
+	   EESrFlagCollection& eeSrFlags);
 
   /** For debugging purposes.
    */

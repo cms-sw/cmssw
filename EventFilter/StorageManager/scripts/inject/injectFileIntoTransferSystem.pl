@@ -1,5 +1,5 @@
-#!/usr/bin/env perl
-# $Id: injectFileIntoTransferSystem.pl,v 1.42 2009/06/09 16:32:59 loizides Exp $
+#!/usr/bin/perl -w
+# $Id: injectFileIntoTransferSystem.pl,v 1.37 2008/10/09 02:28:43 loizides Exp $
 
 use strict;
 use DBI;
@@ -35,8 +35,6 @@ sub usage
   transmitted files and therefore does not allow you to transmit the same file twice.
   You therefore must be sure about all options before you run this script.
 
-  PLEASE DO NOT COPY THIS SCRIPT TO ANY OTHER LOCATION. YOU WILL MISS IMPORTANT UPDATES.
-
   Required parameters for injecting files to be transferred:
   $0 --filename file --path path 
      --type type --config file [--destination default] [--filesize size] [--hostname host]
@@ -44,14 +42,13 @@ sub usage
   Filename and path to file on the given host point to the file to be transferred.
 
   Type is the type of file, which requires extra parameters to be specified
-  Current supported types: streamer, edm, lumi, dqm, pixdmp:
+  Current supported types: streamer, edm, lumi:
     - Streamers require runnumber, lumisection, numevents, appname, appversion, stream, 
       setuplabel, and index.
     - EDM files require runnumber, lumisection, numevents, appname, appversion and setuplabel.
       (EDM type can be choses also for general ROOT files)
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
-    - PIXDMP files require runnumber.
 
   Config file has to specify a user and password for the cms_rcms online database. At best
   see the example in ~tier0/.tier0trans.conf.
@@ -342,7 +339,6 @@ unless($hostname eq 'srv-C2D05-03'      ||
        $hostname eq 'csc-C2D07-08'      || #csc
        $hostname eq 'vmepcS2B18-39'     || #tracker
        $hostname eq 'srv-C2D05-19'      || #dqm
-       $hostname =~ 'srv-C2C06-'        || 
        $hostname =~ 'srv-C2C07-') { 
     print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, csc-daq00, srv-C2D05-19 or vmepcS2B18-39.\n";
     usageShort();
@@ -393,7 +389,7 @@ if($type eq "streamer") {
     }
 } elsif($type eq "edm") {
     unless($runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $setuplabel ne 'default') {
-	print "Error: For edm files need runnumber, lumisection, numevents, appname, appversion and setuplabel specified\n";
+	print "Error: For edm files need runnumber, lumisection, numevents, appname, appversion, setuplabel, and stream specified\n";
         usageShort();
     }
 } elsif(($type eq "lumi") || ($type eq "lumi-sa") || ($type eq "lumi-vdm")) {
@@ -408,13 +404,6 @@ if($type eq "streamer") {
 	print "Error: For dqm files need runnumber, lumisection, appname, and appversion specified.\n";
         usageShort();
     }
-} elsif($type eq "pixdmp") {
-    $setuplabel = 'PixelCalib' if ($setuplabel eq 'default');
-    $destination = 'pixdmp' if ($destination eq 'default');
-    unless($runnumber && $nevents) {
-	print "Error: For pixdmp files need runnumber and numevents to be specified\n";
-        usageShort();
-    }
 } else {
     print "Error: File type not a recognized type.\n" .
           "Recognized types are streamer, edm, and lumi";
@@ -426,7 +415,7 @@ if($type eq "streamer") {
 # will just use time now as creation and injection if no other time specified.
 if(!$ctime) {
     $ctime =time;
-    $debug && print "No creation time specified, using current time \n";
+    $debug && print "No creation time specified, using curren time \n";
 }
 $createtime = gettimestamp($ctime);
 

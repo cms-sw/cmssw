@@ -53,7 +53,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     
     // using expected cry_di to raise warning about xtal_id problem
     pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
-    (*invalidChIds_)->push_back(*pDetId_);
+    if(pDetId_) {  (*invalidChIds_)->push_back(*pDetId_); }
     
     stripId = expStripID;
     xtalId  = expXtalID;
@@ -87,9 +87,9 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       if (st > NUMB_STRIP)	{ch=1; st=1;}
 
       // adding channel following the last valid
-      pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
-      (*invalidChIds_)->push_back(*pDetId_);
-
+      //pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+      //(*invalidChIds_)->push_back(*pDetId_);
+      fillEcalElectronicsError(invalidZSXtalIds_); 
       errorOnXtal = true;
 
       lastStripId_ = st;
@@ -119,8 +119,9 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  if (st > NUMB_STRIP)	{ch=1; st=1;}
 	  
 	  // adding channel following the last valid
-           pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-	   (*invalidChIds_)->push_back(*pDetId_);
+          //pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+	  //(*invalidChIds_)->push_back(*pDetId_);
+          fillEcalElectronicsError(invalidZSXtalIds_); 
 	   
 	   errorOnXtal = true;
 	   lastStripId_ = st;

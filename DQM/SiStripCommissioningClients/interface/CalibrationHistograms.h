@@ -10,12 +10,8 @@ class CalibrationHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  CalibrationHistograms( const edm::ParameterSet& pset,
-                         DQMOldReceiver*,
-                         const sistrip::RunType& task = sistrip::CALIBRATION );
-  CalibrationHistograms( const edm::ParameterSet& pset,
-                         DQMStore*,
-                         const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( DQMOldReceiver*, const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( DQMStore*,const sistrip::RunType& task = sistrip::CALIBRATION );
   virtual ~CalibrationHistograms();
   
   void histoAnalysis( bool debug );

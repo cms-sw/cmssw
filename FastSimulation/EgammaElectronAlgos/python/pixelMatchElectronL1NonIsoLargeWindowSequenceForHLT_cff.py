@@ -10,26 +10,29 @@ import FWCore.ParameterSet.Config as cms
 # modules to make seeds, tracks and electrons
 
 # Cluster-seeded pixel pairs
-import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
+#import FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi
 
 
-from FastSimulation.Configuration.blockHLT_1E31_cff import *
+#from FastSimulation.Configuration.blockHLT_1E31_cff import *
 
 ###new path from XXXX_49
-hltL1NonIsoLargeElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
-hltL1NonIsoLargeElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    block_hltL1NonIsoLargeElectronPixelSeeds
-)
-hltL1NonIsoLargeElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
-hltL1NonIsoLargeElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
+#hltL1NonIsoLargeElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
+#hltL1NonIsoLargeElectronPixelSeeds.SeedConfiguration = cms.PSet(
+#    block_hltL1NonIsoLargeElectronPixelSeeds
+#)
+#hltL1NonIsoLargeElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
+#hltL1NonIsoLargeElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
+#
+#
+#hltL1NonIsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
+#hltL1NonIsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
+#    block_hltL1NonIsoLargeWindowElectronPixelSeeds
+#)
+#hltL1NonIsoLargeWindowElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
+#hltL1NonIsoLargeWindowElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
 
-
-hltL1NonIsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.fastElectronSeeds_cfi.fastElectronSeeds.clone()
-hltL1NonIsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    block_hltL1NonIsoLargeWindowElectronPixelSeeds
-)
-hltL1NonIsoLargeWindowElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
-hltL1NonIsoLargeWindowElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolated'
+# (Not-so) Regional Tracking
+from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
 # Track candidate
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -64,3 +67,5 @@ HLTPixelMatchLargeWindowElectronL1NonIsoTrackingSequence = cms.Sequence(hltCkfL1
                                                                         hltCtfL1NonIsoLargeWindowWithMaterialTracks+
                                                                         cms.SequencePlaceholder("hltPixelMatchLargeWindowElectronsL1NonIso"))
 
+hltL1NonIsoLargeWindowElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+
+                                                                cms.SequencePlaceholder("hltL1NonIsoLargeWindowElectronPixelSeeds"))

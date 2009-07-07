@@ -1,4 +1,4 @@
-//$Id: SprClassifierReader.cc,v 1.9 2007/10/25 22:11:09 narsky Exp $
+//$Id: SprClassifierReader.cc,v 1.3 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprClassifierReader.hh"
@@ -455,8 +455,8 @@ bool SprClassifierReader::readStdBackprop(std::istream& input,
 
   // init
   string structure = "Unknown";
-  bool configured = false;
-  bool initialized = false;
+  //bool configured = false;
+  //bool initialized = false;
 
   // read header
   string line;
@@ -475,11 +475,11 @@ bool SprClassifierReader::readStdBackprop(std::istream& input,
   }
   istringstream istcut(line);
   istcut >> dummy;
-  int nCut = 0;
+  unsigned int nCut = 0;
   istcut >> nCut;
   SprCut cut;
   double low(0), high(0);
-  for( int i=0;i<nCut;i++ ) {
+  for( unsigned int i=0;i<nCut;i++ ) {
     istcut >> low >> high;
     cut.push_back(pair<double,double>(low,high));
   }
@@ -703,7 +703,7 @@ bool SprClassifierReader::readAdaBoost(std::istream& input,
   vector<double> beta(nClassifiers,0);
   string dummy;
   unsigned index;
-  for( int i=0;i<nClassifiers;i++ ) {
+  for( unsigned int i=0;i<nClassifiers;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read line " << nLine << endl;
@@ -736,7 +736,7 @@ bool SprClassifierReader::readAdaBoost(std::istream& input,
  
   // read weak classifiers
   vector<pair<const SprAbsTrainedClassifier*,bool> > weak(nClassifiers);
-  for( int i=0;i<nClassifiers;i++ ) {
+  for( unsigned int i=0;i<nClassifiers;i++ ) {
     // read index
     nLine++;
     if( !getline(input,line) ) {
@@ -748,7 +748,7 @@ bool SprClassifierReader::readAdaBoost(std::istream& input,
     string dummy;
     istindex >> dummy;
     istindex >> index;
-    if( index != i ) {
+    if( index != (int)i ) {
       cerr << "Wrong classifier index " << index 
 	   << " " << i << " line " << nLine << endl;
       return false;
@@ -813,7 +813,7 @@ SprTrainedTopdownTree* SprClassifierReader::readTopdownTree(
   // loop over nodes
   SprTopdownNodeMap mapped;
   string dummy;
-  for( int j=0;j<nNodes;j++ ) {
+  for( unsigned int j=0;j<nNodes;j++ ) {
     // reset
     dummy.clear();
 
@@ -962,7 +962,7 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
 
   // loop over nodes
   string dummy;
-  for( int j=0;j<nNodes;j++ ) {
+  for( unsigned int j=0;j<nNodes;j++ ) {
     dummy.clear();
     // read node index and dimensionality
     nLine++;
@@ -974,7 +974,7 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
     istnode >> dummy;
     int nodeIndex = 0;
     istnode >> nodeIndex;
-    if( nodeIndex != j ) {
+    if( nodeIndex != (int)j ) {
       cerr << "Wrong node index " << nodeIndex << " at line " << nLine 
 	   << ".  Must be " << j << endl;
       return 0;
@@ -985,7 +985,7 @@ SprTrainedDecisionTree* SprClassifierReader::readDecisionTree(
     if( dim == 0 ) continue;
     SprBox node;
     // read node bounds
-    for( int k=0;k<dim;k++ ) {
+    for( unsigned int k=0;k<dim;k++ ) {
       nLine++;
       if( !getline(input,line) ) {
 	cerr << "Cannot read from line " << nLine << endl;
@@ -1042,7 +1042,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::istream& input,
   }
 
   // skip 2 lines
-  for( int i=0;i<2;i++ ) {
+  for( unsigned int i=0;i<2;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -1101,7 +1101,7 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::istream& input,
   }
   istringstream istlinear(line);
   SprVector linear(dim);
-  for( int d=0;d<dim;d++ )
+  for( unsigned int d=0;d<dim;d++ )
     istlinear >> linear[d];
 
   // if LDA, make Fisher
@@ -1119,14 +1119,14 @@ SprTrainedFisher* SprClassifierReader::readFisher(std::istream& input,
 
     // read quadratic part
     SprSymMatrix quadr(dim);
-    for( int i=0;i<dim;i++ ) {
+    for( unsigned int i=0;i<dim;i++ ) {
       nLine++;
       if( !getline(input,line) ) {
 	cerr << "Cannot read from line " << nLine << endl;
 	return 0;
       }
       istringstream istrow(line);
-      for( int j=0;j<dim;j++ )
+      for( unsigned int j=0;j<dim;j++ )
 	istrow >> quadr[i][j];
     }
 
@@ -1165,7 +1165,7 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::istream& input,
   }
 
   // skip 2 lines
-  for( int i=0;i<2;i++ ) {
+  for( unsigned int i=0;i<2;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -1204,7 +1204,7 @@ SprTrainedLogitR* SprClassifierReader::readLogitR(std::istream& input,
   }
   istringstream istbeta(line);
   SprVector beta(dim);
-  for( int i=0;i<dim;i++ ) istbeta >> beta[i];
+  for( unsigned int i=0;i<dim;i++ ) istbeta >> beta[i];
 
   // exit
   return new SprTrainedLogitR(beta0,beta);
@@ -1241,7 +1241,7 @@ bool SprClassifierReader::readBagger(std::istream& input,
       
   // read weak classifiers
   vector<pair<const SprAbsTrainedClassifier*,bool> > weak(nClassifiers);
-  for( int i=0;i<nClassifiers;i++ ) {
+  for( unsigned int i=0;i<nClassifiers;i++ ) {
     // read index
     nLine++;
     if( !getline(input,line) ) {
@@ -1253,7 +1253,7 @@ bool SprClassifierReader::readBagger(std::istream& input,
     string dummy;
     istindex >> dummy;
     istindex >> index;
-    if( index != i ) {
+    if( index != (int)i ) {
       cerr << "Wrong classifier index " << index 
 	   << " " << i << " line " << nLine << endl;
       return false;
@@ -1326,7 +1326,7 @@ SprTrainedBinarySplit* SprClassifierReader::readBinarySplit(
   unsigned nCut = 0;
   istcut >> nCut;
   SprCut cut(nCut);
-  for( int j=0;j<nCut;j++ ) {
+  for( unsigned int j=0;j<nCut;j++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -1370,7 +1370,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
   vector<double> defaultValues(nSub);
 
   // read sub-classifiers
-  for( int is=0;is<nSub;is++ ) {
+  for( unsigned int is=0;is<nSub;is++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Cannot read from line " << nLine << endl;
@@ -1380,7 +1380,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
     int index = -1;
     istsub >> dummy >> index >> dummy 
 	   >> labels[is] >> dummy >> defaultValues[is];
-    if( index != is ) {
+    if( index != (int)is ) {
       cerr << "Wrong classifier index on line " << nLine
 	   << " : " << index << " Expected: " << is << endl;
       return 0;
@@ -1410,7 +1410,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
     }
     istringstream istvar(line);
     vector<string> vars(nVars);
-    for( int iv=0;iv<nVars;iv++ ) {
+    for( unsigned int iv=0;iv<nVars;iv++ ) {
       istvar >> vars[iv];
       if( vars[iv].empty() ) {
 	cerr << "Cannot read variable name " << iv 
@@ -1434,7 +1434,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
     }
     istringstream istmap(line);
     vector<unsigned> mapper(nMap);
-    for( int im=0;im<nMap;im++ )
+    for( unsigned int im=0;im<nMap;im++ )
       istmap >> mapper[im];
     inputDataMappers[is] = SprCoordinateMapper::createMapper(mapper);
     if( inputDataMappers[is] == 0 ) {
@@ -1451,7 +1451,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
     istringstream istnconstr(line);
     unsigned nConstr = 0;
     istnconstr >> dummy >> nConstr;
-    for( int j=0;j<nConstr;j++ ) {
+    for( unsigned int j=0;j<nConstr;j++ ) {
       nLine++;
       if( !getline(input,line) ) {
 	cerr << "Cannot read from line " << nLine << endl;
@@ -1462,13 +1462,13 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
       unsigned nCut = 0;
       SprCut cut;
       istconstr >> ivar >> nCut;
-      if( ivar<0 || ivar>=vars.size() ) {
+      if( ivar<0 || ivar>=static_cast<int>(vars.size()) ) {
 	cerr << "Wrong variable index on line " << nLine 
 	     << " : " << ivar << endl;
 	return 0;
       }
       double xa(0), xb(0);
-      for( int k=0;k<nCut;k++ ) {
+      for( unsigned int k=0;k<nCut;k++ ) {
 	istconstr >> xa >> xb;
 	cut.push_back(SprInterval(xa,xb));
       }
@@ -1518,7 +1518,7 @@ SprTrainedCombiner* SprClassifierReader::readCombiner(std::istream& input,
   }
   istringstream istfeat(line);
   vector<string> fVars(nFeat);
-  for( int d=0;d<nFeat;d++ )
+  for( unsigned int d=0;d<nFeat;d++ )
     istfeat >> fVars[d];
   overall->setVars(fVars);
 
@@ -1686,7 +1686,7 @@ bool SprClassifierReader::readTrainableConfig(
       }
 
       // add trainable classifiers to AdaBoost
-      for( int i=0;i<abTrainablePairs.size();i++ ) {
+      for( unsigned int i=0;i<abTrainablePairs.size();i++ ) {
 	if( !ab->addTrainable(abTrainablePairs[i].first,
 			      abTrainablePairs[i].second) ) {
 	  cerr << "Unable to add classifier " << i << " of type " 
@@ -1742,7 +1742,7 @@ bool SprClassifierReader::readTrainableConfig(
       }
 
       // add trainable classifiers to Bagger
-      for( int i=0;i<baggerTrainablePairs.size();i++ ) {
+      for( unsigned int i=0;i<baggerTrainablePairs.size();i++ ) {
 	if( !bagger->addTrainable(baggerTrainablePairs[i].first) ) {
 	  cerr << "Unable to add classifier " << i << " of type " 
 	       << baggerTrainablePairs[i].first->name() 
@@ -1834,7 +1834,7 @@ bool SprClassifierReader::readTrainableConfig(
       if( initToZero == 0 ) {
 	SprVector dummy(data->dim());
 	beta = dummy;
-	for( int i=0;i<data->dim();i++ ) beta[i] = 0;
+	for( unsigned int i=0;i<data->dim();i++ ) beta[i] = 0;
       }
       SprLogitR* logit = new SprLogitR(data,beta0,beta,
 				       eps,updateFactor);
@@ -1855,7 +1855,7 @@ bool SprClassifierReader::readTrainableConfig(
       criteria.push_back(crit);
 
       // make splits
-      for( int d=0;d<data->dim();d++ ) {
+      for( unsigned int d=0;d<data->dim();d++ ) {
 	SprBinarySplit* split = new SprBinarySplit(data,crit,d);
 	classifiers.push_back(split);
 	cout << "Adding binary split on dimension " << d << endl;
@@ -1886,7 +1886,7 @@ bool SprClassifierReader::readVars(std::istream& input,
 
   // skip 2 lines
   string line;
-  for( int i=0;i<2;i++ ) {
+  for( unsigned int i=0;i<2;i++ ) {
     nLine++;
     if( !getline(input,line) ) {
       cerr << "Unable to read from line " << nLine << endl;
@@ -1914,7 +1914,7 @@ bool SprClassifierReader::readVars(std::istream& input,
     int index = -1;
     string var;
     ist >> index >> var;
-    if( index != vars.size() ) {
+    if( index != static_cast<int>(vars.size()) ) {
       cerr << "Incorrect variable index on line " << nLine << endl;
       return false;
     }

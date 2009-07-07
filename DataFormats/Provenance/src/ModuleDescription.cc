@@ -7,8 +7,6 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.4 2009/02/13 02:43:47 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -54,6 +52,8 @@ namespace edm {
 			moduleName_(modName),
 			moduleLabel_(modLabel),
 			processConfigurationPtr_(procConfig) {}
+
+  ModuleDescription::~ModuleDescription() {}
 
   ProcessConfiguration const&
   ModuleDescription::processConfiguration() const {

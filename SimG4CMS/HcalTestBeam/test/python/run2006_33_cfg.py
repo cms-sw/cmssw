@@ -64,10 +64,7 @@ process.common_beam_direction_parameters = cms.PSet(
     BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun   = cms.untracked.uint32(1),
-    firstEvent = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -77,7 +74,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PartID = cms.vint32(211)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -122,8 +120,7 @@ process.common_maximum_timex = cms.PSet(
 )
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
-process.g4SimHits.Physics.Region = 'HcalRegion'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
 process.g4SimHits.ECalSD.UseBirkLaw = False
 process.g4SimHits.ECalSD.BirkC1 = 0.0046
 process.g4SimHits.ECalSD.BirkC2 = 0.0

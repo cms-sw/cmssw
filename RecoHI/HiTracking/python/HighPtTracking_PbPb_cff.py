@@ -5,7 +5,6 @@ from TrackingTools.Configuration.TrackingTools_cff import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import * #also includes global tracking geometry
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import * #StripCPE = 'Fake'
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import * #cluster parameter estimator producer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 
 ### pixel triplets
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
@@ -18,7 +17,7 @@ pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 #from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *  #divisive vertex finder
 from RecoHI.HiTracking.PixelVertices_cfi import *  #median vertex producer
-pixel3Vertices.TrackCollection = 'pixel3ProtoTracks'
+pixelVertices.TrackCollection = 'pixel3ProtoTracks'
 
 ### pixel triplets with vertex
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
@@ -32,7 +31,7 @@ pixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.checkClusterShape = False 
 ### pixel seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 primSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-primSeeds.InputCollection = 'pixel3PrimTracks'
+primSeeds.tripletList = ['pixel3PrimTracks']
 
 ### base trajectory filter
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import * #also includes both trajectory builders
@@ -70,7 +69,7 @@ globalPrimTracks.useHitsSplitting = True #Vasu's modification
 globalPrimTracks.Fitter = 'KFFittingSmoother' #Vasu's modification
 
 ### paths
-heavyIonTracking = cms.Sequence(pixel3ProtoTracks*pixel3Vertices*pixel3PrimTracks*primSeeds*primTrackCandidates*globalPrimTracks)
+heavyIonTracking = cms.Sequence(pixel3ProtoTracks*pixelVertices*pixel3PrimTracks*primSeeds*primTrackCandidates*globalPrimTracks)
 
 
 

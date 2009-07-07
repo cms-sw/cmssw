@@ -537,11 +537,11 @@ void TrackClassifier::genPrimaryVertices()
     {
         int idx = 0;
 
-        bool hasParentVertex = false;
-
         // Loop over the different GenVertex
         for ( HepMC::GenEvent::vertex_const_iterator ivertex = event->vertices_begin(); ivertex != event->vertices_end(); ++ivertex )
         {
+            bool hasParentVertex = false;
+
             // Loop over the parents looking to see if they are coming from a production vertex
             for (
                 HepMC::GenVertex::particle_iterator iparent = (*ivertex)->particles_begin(HepMC::parents);
@@ -559,9 +559,6 @@ void TrackClassifier::genPrimaryVertices()
 
             // Get the position of the vertex
             HepMC::FourVector pos = (*ivertex)->position();
-
-            // It has to be in time
-            if (pos.t()>0) continue;
 
             double const mm = 0.1;
 

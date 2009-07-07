@@ -1,4 +1,4 @@
-//$Id: SprCrossValidator.cc,v 1.4 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprCrossValidator.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprCrossValidator.hh"
@@ -20,7 +20,7 @@ using namespace std;
 
 SprCrossValidator::~SprCrossValidator()
 {
-  for( int i=0;i<samples_.size();i++ )
+  for( unsigned int i=0;i<samples_.size();i++ )
     delete samples_[i];
 }
 
@@ -94,7 +94,7 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
   if( verbose > 0 ) {
     cout << "Will cross-validate using " 
 	 << samples_.size() << " subsamples: " << endl;
-    for( int i=0;i<samples_.size();i++ ) {
+    for( unsigned int i=0;i<samples_.size();i++ ) {
       cout << "Subsample " << i 
 	   << "  W1=" << samples_[i]->weightInClass(cls1)
 	   << "  W0=" << samples_[i]->weightInClass(cls0)
@@ -114,7 +114,7 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
   crossFom.resize(classifiers.size());
 
   // loop over classifiers
-  for( int ic=0;ic<classifiers.size();ic++ ) {
+  for( unsigned int ic=0;ic<classifiers.size();ic++ ) {
     SprAbsClassifier* c = classifiers[ic];
     assert( c != 0 );
 
@@ -125,7 +125,7 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
     vector<double> fom;
 
     // loop over subsamples
-    for( int i=0;i<samples_.size();i++ ) {
+    for( unsigned int i=0;i<samples_.size();i++ ) {
       // message
       cout << "Cross-validator processing sub-sample " << i 
 	   << " for classifier " << ic << endl;
@@ -181,14 +181,14 @@ bool SprCrossValidator::validate(const SprAbsTwoClassCriterion* crit,
 
     // compute average FOM
     double ave = 0;
-    for( int i=0;i<fom.size();i++ )
+    for( unsigned int i=0;i<fom.size();i++ )
       ave += fom[i];
     ave /= fom.size();
 
     // print out
     if( verbose > 0 ) {
       cout << "Computed FOMs for subsamples:" << endl;
-      for( int i=0;i<fom.size();i++ )
+      for( unsigned int i=0;i<fom.size();i++ )
 	cout << i << "   FOM=" << fom[i] << endl;
     }
 

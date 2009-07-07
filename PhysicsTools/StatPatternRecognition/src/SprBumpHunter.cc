@@ -1,4 +1,4 @@
-//$Id: SprBumpHunter.cc,v 1.9 2007/05/29 19:38:06 narsky Exp $
+//$Id: SprBumpHunter.cc,v 1.2 2007/09/21 22:32:09 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprBumpHunter.hh"
@@ -105,7 +105,7 @@ bool SprBumpHunter::train(int verbose)
     // exclude the found box
     if( fom_.size() < nbump_ ) {
       SprData forRemoval(false);
-      for( int i=0;i<box_->size();i++ ) {
+      for( unsigned int i=0;i<box_->size();i++ ) {
 	forRemoval.insert((*box_)[i]);
       }
       if( verbose > 0 ) {
@@ -113,12 +113,12 @@ bool SprBumpHunter::train(int verbose)
 	     << " points for the found box." << endl;
       }
       box_->clear();
-      int beforeRemoval = box_->size();
+      unsigned int beforeRemoval = box_->size();
       if( !box_->fastRemove(&forRemoval) ) {
 	cerr << "Cannot remove data from box." << endl;
 	return false;
       }
-      int afterRemoval = box_->size();
+      unsigned int afterRemoval = box_->size();
       if( verbose > 0 ) {
 	cout << "Sample has been reduced from " 
 	     << beforeRemoval << " to " << afterRemoval << " points." << endl;
@@ -167,7 +167,7 @@ void SprBumpHunter::print(std::ostream& os) const
   os << "-------------------------------------------------------" << endl;
   vector<string> vars;
   box_->vars(vars);
-  for( int i=0;i<boxes_.size();i++ ) {
+  for( unsigned int i=0;i<boxes_.size();i++ ) {
     int size = boxes_[i].size();
     char s [200];
     sprintf(s,"Bump %6i    Size %-4i    FOM=%-10g W0=%-10g W1=%-10g N0=%-10i N1=%-10i",i,size,fom_[i],w0_[i],w1_[i],n0_[i],n1_[i]);
@@ -204,7 +204,7 @@ bool SprBumpHunter::sort(int dsort,
 			 std::vector<std::vector<double> >& division) const
 {
   // sanity check
-  int size = box_->size();
+  unsigned int size = box_->size();
   if( size == 0 ) {
     cerr << "Unable to sort an empty box." << endl;
     return false;
@@ -218,15 +218,15 @@ bool SprBumpHunter::sort(int dsort,
   division.resize(dim);
 
   // loop through dimensions
-  for( int d=0;d<dim;d++ ) {
+  for( unsigned int d=0;d<dim;d++ ) {
     // check dim
-    if( dsort>=0 && d!=dsort ) continue;
+    if( dsort>=0 && static_cast<int>(d)!=dsort ) continue;
 
     // make vector
     vector<pair<double,int> > r(size);
 
     // loop through points
-    for( int j=0;j<size;j++ )
+    for( unsigned int j=0;j<size;j++ )
       r[j] = pair<double,int>((*box_)[j]->x_[d],j);
     
     // sort
@@ -236,7 +236,7 @@ bool SprBumpHunter::sort(int dsort,
     division[d].push_back(SprUtils::min());
     double xprev = r[0].first;
     sorted[d][0] = r[0].second;
-    for( int j=1;j<size;j++ ) {
+    for( unsigned int j=1;j<size;j++ ) {
       sorted[d][j] = r[j].second;
       double xcurr = r[j].first;
       if( (xcurr-xprev) > SprUtils::eps() ) {
@@ -265,7 +265,7 @@ int SprBumpHunter::shrink(SprBox& limits,
   }
 
   // save initial number of events
-  int initSize = box_->size();
+  unsigned int initSize = box_->size();
 
   // sort
   vector<vector<int> > sorted;
@@ -287,7 +287,7 @@ int SprBumpHunter::shrink(SprBox& limits,
   // check number of events
   n0 = box_->ptsInClass(cls0_);
   n1 = box_->ptsInClass(cls1_);
-  int ntot = n0 + n1;
+  unsigned int ntot = n0 + n1;
   if( ntot < nmin_ ) {
     if( verbose > 1 ) {
       cout << "Split failed - not enough events." << endl;
@@ -322,7 +322,7 @@ int SprBumpHunter::shrink(SprBox& limits,
   SprBox savedBox;
 
   // loop through dimensions
-  for( int d=0;d<dim;d++ ) {
+  for( unsigned int d=0;d<dim;d++ ) {
 
     // check divisions
     if( division[d].empty() ) continue;
@@ -334,14 +334,14 @@ int SprBumpHunter::shrink(SprBox& limits,
     double wmis0 = w0;
     double wcor1 = w1;
     double wmis1(0), wcor0(0);
-    int nmis0 = n0;
-    int ncor1 = n1;
-    int nmis1(0), ncor0(0);
+    unsigned int nmis0 = n0;
+    unsigned int ncor1 = n1;
+    unsigned int nmis1(0), ncor0(0);
     int istart(0), isplit(0);
-    for( int k=0;k<division[d].size();k++ ) {
+    for( unsigned int k=0;k<division[d].size();k++ ) {
       double z = division[d][k];
       bool lbreak = false;
-      for( isplit=istart;isplit<sorted[d].size();isplit++ ) {
+      for( isplit=istart;isplit<static_cast<int>(sorted[d].size());isplit++ ) {
 	if( ((*box_)[sorted[d][isplit]])->x_[d] > z ) {
 	  lbreak = true;
 	  break;
@@ -349,7 +349,7 @@ int SprBumpHunter::shrink(SprBox& limits,
       }
       if( !lbreak ) isplit = sorted[d].size();
       for( int i=istart;i<isplit;i++ ) {
-	int index = sorted[d][i];
+	unsigned int index = sorted[d][i];
 	const SprPoint* p = (*box_)[index];
 	double w = box_->w(index);
 	if(      p->class_ == cls0_ ) {
@@ -383,10 +383,10 @@ int SprBumpHunter::shrink(SprBox& limits,
     nmis0 = n0; ncor1 = n1;
     nmis1 = 0; ncor0 = 0;
     istart = sorted[d].size()-1;
-    for( int k=division[d].size()-1;k>-1;k-- ) {
+    for( unsigned int k=division[d].size()-1;k>=0;k-- ) {
       double z = division[d][k];
       bool lbreak = false;
-      for( isplit=istart;isplit>-1;isplit-- ) {
+      for( isplit=istart;isplit>=0;isplit-- ) {
 	if( ((*box_)[sorted[d][isplit]])->x_[d] < z ) {
 	  lbreak = true;
 	  break;
@@ -437,14 +437,14 @@ int SprBumpHunter::shrink(SprBox& limits,
       khi = ihi - fhi.begin();
       hfom = *ihi;
     }
-    if( lfom>hfom && klo!=0 && klo!=(division[d].size()-1) ) {
+    if( lfom>hfom && klo!=0 && klo!=((int)division[d].size()-1) ) {
       if( !savedBox.insert(pair<const unsigned,SprInterval>(d,(SprUtils::lowerBound(division[d][klo]))[0])).second ) {
 	cerr << "Unable to insert interval for dimension " << d << endl;
 	return -1;
       }
       fom[d] = lfom;
     }
-    else if( khi!=0 && khi!=(division[d].size()-1) ) {
+    else if( khi!=0 && khi!=(static_cast<int>(division[d].size())-1) ) {
       if( !savedBox.insert(pair<const unsigned,SprInterval>(d,(SprUtils::upperBound(division[d][division[d].size()-1-khi]))[0])).second ) {
 	cerr << "Unable to insert interval for dimension " << d << endl;
 	return -1;
@@ -546,7 +546,7 @@ int SprBumpHunter::expand(SprBox& limits,
   }
 
   // save initial number of events
-  int initSize = box_->size();
+  unsigned int initSize = box_->size();
 
   // get total weights, fom and node type
   w0 = box_->weightInClass(cls0_);
@@ -583,7 +583,7 @@ int SprBumpHunter::expand(SprBox& limits,
   }
 
   // loop through dimensions
-  for( int d=0;d<dim;d++ ) {
+  for( unsigned int d=0;d<dim;d++ ) {
     // reset limits
     box_->setBox(limits);
 
@@ -674,10 +674,10 @@ int SprBumpHunter::expand(SprBox& limits,
       // loop through points and find cuts
       if(      side < 0 ) {// lower cut
 	int istart(0), isplit(0);
-	for( int k=0;k<division[d].size();k++ ) {
+	for( unsigned int k=0;k<division[d].size();k++ ) {
 	  double z = division[d][k];
 	  bool lbreak = false;
-	  for( isplit=istart;isplit<sorted[d].size();isplit++ ) {
+	  for( isplit=istart;isplit<(int)sorted[d].size();isplit++ ) {
 	    if( ((*box_)[sorted[d][isplit]])->x_[d] > z ) {
 	      lbreak = true;
 	      break;

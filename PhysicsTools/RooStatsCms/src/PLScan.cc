@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: PLScan.cc,v 1.4 2009/05/15 09:55:59 dpiparo Exp $
+// @(#)root/hist:$Id: PLScan.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -10,17 +10,9 @@
 
 #include "TIterator.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "PLScan.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/PLScan.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/PLScan.h"
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(PLScan)
-#endif
 /*----------------------------------------------------------------------------*/
 
 PLScan::PLScan(const char* name,
@@ -113,12 +105,14 @@ PLScanResults* PLScan::doScan(bool profile){
     // Acquire the parameter to scan_min
     RooRealVar *par;
     TIterator* par_it = m_nll->getVariables()->createIterator();
+    par=(RooRealVar*) par_it->Next();
     bool found=false;
-    while(par=(RooRealVar*) par_it->Next()){
+    while(par_it!=NULL){
         if (m_scanned_parameter_name.Contains(par->GetName())){
             found = true;
             break;
             }
+        par=(RooRealVar*) par_it->Next();
         }
 
     if (not found){

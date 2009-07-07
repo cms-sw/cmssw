@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/29 14:50:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/30 11:12:13 $
+ *  $Revision: 1.2 $
  *  \author C. Botta, G. Mila - INFN Torino
  */
 
@@ -76,6 +76,9 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 
   //loop over recHit
   for(trackingRecHit_iterator recHit =  Track.recHitsBegin(); recHit != Track.recHitsEnd(); ++recHit){
+
+    if(!(*recHit)->isValid()) continue;
+
     
     numRecHit++;
  

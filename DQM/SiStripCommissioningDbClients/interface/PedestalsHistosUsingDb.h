@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.9 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.8 2008/03/17 17:40:54 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
@@ -10,12 +10,10 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
   
  public:
   
-  PedestalsHistosUsingDb( const edm::ParameterSet & pset,
-                          DQMOldReceiver*,
+  PedestalsHistosUsingDb( DQMOldReceiver*,
 			  SiStripConfigDb* const );
   
-  PedestalsHistosUsingDb( const edm::ParameterSet & pset,
-                          DQMStore*,
+  PedestalsHistosUsingDb( DQMStore*,
 			  SiStripConfigDb* const );
   
   virtual ~PedestalsHistosUsingDb();
@@ -27,10 +25,6 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
   void update( SiStripConfigDb::FedDescriptionsRange );
 
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
-
-  // parameters - ideally these would be set on the anlaysis level
-  float highThreshold_;
-  float lowThreshold_;
 
 };
 

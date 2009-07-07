@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.26 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATMuonProducer.cc,v 1.28 2009/06/30 22:00:54 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -52,10 +52,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   embedPickyMuon_      = iConfig.getParameter<bool>         ( "embedPickyMuon" );
   embedTpfmsMuon_      = iConfig.getParameter<bool>         ( "embedTpfmsMuon" );
 
- 
-
-  
-
   
   //pflow specific
   pfMuonSrc_           = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
@@ -72,54 +68,36 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   }
 
 
-
-
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
   if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
+    embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+      genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+    } else {
+      genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+    }
   }
   
   
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+    efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
 
-  if (iConfig.exists("isoDeposits")) {
-     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+  // read isoDeposit labels, for direct embedding
+  readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_);
 
-     if (depconf.exists("particle"))           isoDepositLabels_.push_back(std::make_pair(ParticleIso, depconf.getParameter<edm::InputTag>("particle")));
-     if (depconf.exists("chargedparticle"))    isoDepositLabels_.push_back(std::make_pair(ChargedParticleIso, depconf.getParameter<edm::InputTag>("chargedparticle")));
-     if (depconf.exists("neutralparticle")) isoDepositLabels_.push_back(std::make_pair(NeutralParticleIso,depconf.getParameter<edm::InputTag>("neutralparticle")));
-     if (depconf.exists("gammaparticle"))    isoDepositLabels_.push_back(std::make_pair(GammaParticleIso, depconf.getParameter<edm::InputTag>("gammaparticle")));
-
-
-     if (depconf.exists("user")) {
-        std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-        std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-        int key = UserBaseIso;
-        for ( ; it != ed; ++it, ++key) {
-            isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
-        }
-     }
-  }
-
+  // read isolation value labels, for direct embedding
+  readIsolationLabels(iConfig, "isolationValues", isolationValueLabels_);
+  
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Muon>(iConfig.getParameter<edm::ParameterSet>("userData"));
@@ -136,7 +114,7 @@ PATMuonProducer::~PATMuonProducer() {
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   
-edm::Handle<edm::View<reco::Muon> > muons;
+  edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByLabel(muonSrc_, muons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
@@ -144,10 +122,16 @@ edm::Handle<edm::View<reco::Muon> > muons;
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
-  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+  IsoDepositMaps deposits(isoDepositLabels_.size());
+  for (size_t j = 0; j<isoDepositLabels_.size(); ++j) {
     iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
   }
+
+  IsolationValueMaps isolationValues(isolationValueLabels_.size());
+  for (size_t j = 0; j<isolationValueLabels_.size(); ++j) {
+    iEvent.getByLabel(isolationValueLabels_[j].second, isolationValues[j]);
+  }  
+  
 
   // prepare the MC matching
   GenAssociations  genMatches(genMatchSrc_.size());
@@ -156,17 +140,16 @@ edm::Handle<edm::View<reco::Muon> > muons;
       iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
     }
   }
-  
 
   std::vector<Muon> * patMuons = new std::vector<Muon>();
 
-  // loop over muons
-  // Get the collection of muons from the event
-  
 
   if( useParticleFlow_ ) {
+
+    // get the PFCandidates of type muons 
     edm::Handle< reco::PFCandidateCollection >  pfMuons;
     iEvent.getByLabel(pfMuonSrc_, pfMuons);
+
     unsigned index=0;
     for( reco::PFCandidateConstIterator i = pfMuons->begin(); 
 	 i != pfMuons->end(); ++i, ++index) {
@@ -187,18 +170,17 @@ edm::Handle<edm::View<reco::Muon> > muons;
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);
       reco::CandidateBaseRef pfBaseRef( pfRef ); 
 
-      
-
-      fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches);
-      
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
 
-      patMuons->push_back(aMuon);
-      
+      fillMuon( aMuon, muonBaseRef, pfBaseRef, 
+		genMatches, deposits, isolationValues );
+     
+      patMuons->push_back(aMuon); 
     } 
   }
   else {
+
     edm::Handle<edm::View<reco::Muon> > muons;
     iEvent.getByLabel(muonSrc_, muons);
 
@@ -218,7 +200,8 @@ edm::Handle<edm::View<reco::Muon> > muons;
       
       Muon aMuon(muonRef);
       
-      fillMuon( aMuon, muonRef, muonBaseRef, genMatches );
+      fillMuon( aMuon, muonRef, muonBaseRef, 
+		genMatches, deposits, isolationValues);
 
       // store the TeV refit track refs (only available for globalMuons)
       if (addTeVRefits_ && itMuon->isGlobalMuon()) {
@@ -251,11 +234,11 @@ edm::Handle<edm::View<reco::Muon> > muons;
 	  aMuon.setIsolation(it->first, it->second);
 	}
       }
-      
-      for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-	aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
-			    (*deposits[j])[muonRef]);
-      }
+ 
+      //       for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+      // 	aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
+      // 			    (*deposits[j])[muonRef]);
+      //       }
 
       // add sel to selected
       edm::Ptr<reco::Muon> muonsPtr = muons->ptrAt(idx);
@@ -281,8 +264,17 @@ edm::Handle<edm::View<reco::Muon> > muons;
 void PATMuonProducer::fillMuon( Muon& aMuon, 
 				const MuonBaseRef& muonRef,
 				const reco::CandidateBaseRef& baseRef,
-				const GenAssociations& genMatches ) const {
-  
+				const GenAssociations& genMatches, 
+				const IsoDepositMaps& deposits,
+				const IsolationValueMaps& isolationValues ) const {
+
+  // in the particle flow algorithm, 
+  // the muon momentum is recomputed. 
+  // the new value is stored as the momentum of the 
+  // resulting PFCandidate of type Muon, and choosen 
+  // as the pat::Muon momentum
+  if (useParticleFlow_) 
+    aMuon.setP4( aMuon.pfCandidateRef()->p4() );
 
   if (embedTrack_) aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
@@ -300,10 +292,35 @@ void PATMuonProducer::fillMuon( Muon& aMuon,
   if (efficiencyLoader_.enabled()) {
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
   }
-  
+
+  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+    if(useParticleFlow_) {
+      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
+      aMuon.setIsoDeposit(isoDepositLabels_[j].first, 
+			  (*deposits[j])[source]);
+    }
+    else
+      aMuon.setIsoDeposit(isoDepositLabels_[j].first,
+                          (*deposits[j])[muonRef]);
+  }
+
+  for (size_t j = 0; j<isolationValues.size(); ++j) {
+    if(useParticleFlow_) {
+      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
+      aMuon.setIsolation(isolationValueLabels_[j].first, 
+			 (*isolationValues[j])[source]);
+    }
+    else
+      aMuon.setIsolation(isolationValueLabels_[j].first,
+                          (*isolationValues[j])[muonRef]);
+  }
+
+
+
   if (resolutionLoader_.enabled()) {
     resolutionLoader_.setResolutions(aMuon);
   }
+
 
 }
 
@@ -330,9 +347,9 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 
   // TeV refit 
   iDesc.ifValue( edm::ParameterDescription<bool>("addTeVRefits", true, true),
-                   true >> (edm::ParameterDescription<edm::InputTag>("pickySrc", edm::InputTag(), true) and
-                            edm::ParameterDescription<edm::InputTag>("tpfmsSrc", edm::InputTag(), true)) 
-		   )->setComment("If TeV refits are added, their sources need to be specified");
+		 true >> (edm::ParameterDescription<edm::InputTag>("pickySrc", edm::InputTag(), true) and
+			  edm::ParameterDescription<edm::InputTag>("tpfmsSrc", edm::InputTag(), true)) 
+		 )->setComment("If TeV refits are added, their sources need to be specified");
 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
@@ -340,7 +357,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   std::vector<edm::InputTag> emptySourceVector;
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor 
                  edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
-               )->setComment("input with MC match information");
+		 )->setComment("input with MC match information");
 
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 
@@ -350,11 +367,25 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isoDepositsPSet.addOptional<edm::InputTag>("ecal");
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
   isoDepositsPSet.addOptional<edm::InputTag>("particle");
-  isoDepositsPSet.addOptional<edm::InputTag>("chargedparticle");
-  isoDepositsPSet.addOptional<edm::InputTag>("neutralparticle");
-  isoDepositsPSet.addOptional<edm::InputTag>("gammaparticle");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfPhotons");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
   iDesc.addOptional("isoDeposits", isoDepositsPSet);
+
+
+  // isolation values configurables
+  edm::ParameterSetDescription isolationValuesPSet;
+  isolationValuesPSet.addOptional<edm::InputTag>("tracker"); 
+  isolationValuesPSet.addOptional<edm::InputTag>("ecal");
+  isolationValuesPSet.addOptional<edm::InputTag>("hcal");
+  isolationValuesPSet.addOptional<edm::InputTag>("particle");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
+  iDesc.addOptional("isolationValues", isolationValuesPSet);
+
+
 
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;
@@ -374,6 +405,46 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   descriptions.add("PATMuonProducer", iDesc);
 
 }
+
+
+void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
+					   const char* psetName, 
+					   IsolationLabels& labels) {
+  
+  labels.clear();
+  
+  if (iConfig.exists( psetName )) {
+    edm::ParameterSet depconf 
+      = iConfig.getParameter<edm::ParameterSet>(psetName);
+
+    if (depconf.exists("tracker")) labels.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if (depconf.exists("pfAllParticles"))  {
+      labels.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+    }
+    if (depconf.exists("pfChargedHadrons"))  {
+      labels.push_back(std::make_pair(ChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+    }
+    if (depconf.exists("pfNeutralHadrons"))  {
+      labels.push_back(std::make_pair(NeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+    }
+    if (depconf.exists("pfPhotons")) {
+      labels.push_back(std::make_pair(PhotonIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+    }
+    if (depconf.exists("user")) {
+      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      int key = UserBaseIso;
+      for ( ; it != ed; ++it, ++key) {
+	labels.push_back(std::make_pair(IsolationKeys(key), *it));
+      }
+    }
+  }  
+  
+
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

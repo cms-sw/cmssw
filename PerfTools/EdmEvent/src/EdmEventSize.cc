@@ -22,15 +22,7 @@
 #include "Riostream.h"
 // #include "FWCore/FWLite/src/AutoLibraryLoader.h"
 
-// Workaround to ease migration past ROOT TBuffer changes in ROOT 5.16
-#include "RVersion.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
-typedef TBufferFile PerfRootBuffer;
-#else
-#include "TBuffer.h"
-typedef TBuffer PerfRootBuffer;
-#endif
 
 namespace {
 
@@ -64,7 +56,7 @@ namespace {
 
 
   size_type getTotalSize( TBranch * br) {
-    PerfRootBuffer buf( TBuffer::kWrite, 10000 );
+    TBufferFile buf( TBuffer::kWrite, 10000 );
     TBranch::Class()->WriteBuffer( buf, br );
     size_type size = getBasketSize(br);
     if ( br->GetZipBytes() > 0 )

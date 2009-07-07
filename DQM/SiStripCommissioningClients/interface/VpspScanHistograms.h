@@ -10,8 +10,8 @@ class VpspScanHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  VpspScanHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
-  VpspScanHistograms( const edm::ParameterSet& pset, DQMStore* );
+  VpspScanHistograms( DQMOldReceiver* );
+  VpspScanHistograms( DQMStore* );
   virtual ~VpspScanHistograms();
   
   void histoAnalysis( bool debug );

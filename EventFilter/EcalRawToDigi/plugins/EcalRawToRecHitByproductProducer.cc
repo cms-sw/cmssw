@@ -28,6 +28,7 @@ EcalRawToRecHitByproductProducer::EcalRawToRecHitByproductProducer(const edm::Pa
 
   // Integrity Errors
   produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors");
+  produces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors");
   produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors");
  
   // Mem channels' integrity
@@ -95,7 +96,10 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   // create the collection for invalid TTIds
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidTTIds(worker->productInvalidTTIds);
-  
+ 
+  // create the collection for invalid XtalIds
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidZSXtalIds(worker->productInvalidZSXtalIds);
+ 
   // create the collection for invalid BlockLengths
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidBlockLengths(worker->productInvalidBlockLengths);
   
@@ -129,6 +133,7 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.put(productInvalidEEChIds, "EcalIntegrityChIdErrors");
   // EE
   iEvent.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
+  iEvent.put(productInvalidZSXtalIds,"EcalIntegrityZSXtalIdErrors");
   iEvent.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
   iEvent.put(productPnDiodeDigis);
   // errors  

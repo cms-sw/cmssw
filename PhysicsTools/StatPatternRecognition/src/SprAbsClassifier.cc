@@ -1,4 +1,4 @@
-//$Id: SprAbsClassifier.cc,v 1.3 2007/02/05 21:49:45 narsky Exp $
+//$Id: SprAbsClassifier.cc,v 1.2 2007/09/21 22:32:08 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsClassifier.hh"
@@ -30,7 +30,7 @@ bool SprAbsClassifier::store(const char* filename) const
   assert( vars.size() == data_->dim() );
   os << "==================================================" << endl;
   os << "Dimensions:" << endl;
-  for( int i=0;i<vars.size();i++ ) {
+  for( unsigned int i=0;i<vars.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,vars[i].c_str());
     os << s << endl;

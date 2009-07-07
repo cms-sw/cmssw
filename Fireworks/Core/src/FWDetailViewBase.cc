@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.4 2009/06/18 16:03:50 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.2 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -30,10 +30,6 @@
 // constructors and destructor
 //
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
-   m_useGL(kTRUE),
-   m_viewer(0),
-   m_viewCanvas(0),
-   m_textCanvas(0),
    m_helper(iInfo)
 {
 }

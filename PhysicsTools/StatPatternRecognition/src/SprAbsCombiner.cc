@@ -1,4 +1,4 @@
-//$Id: SprAbsCombiner.cc,v 1.3 2006/11/13 19:09:41 narsky Exp $
+//$Id: SprAbsCombiner.cc,v 1.1 2007/05/23 04:16:44 rpw Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsCombiner.hh"
@@ -41,16 +41,16 @@ SprAbsCombiner::SprAbsCombiner(SprAbsFilter* data,
 bool SprAbsCombiner::makeFeatures()
 {
   // size
-  int nClassifiers = classifiers_.size();
+  unsigned int nClassifiers = classifiers_.size();
   if( nClassifiers == 0 ) return false;
   assert( nClassifiers == classifierLabels_.size() );
 
   // make data
   SprData* features = new SprData("features",classifierLabels_);
   vector<double> r(nClassifiers);
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     const SprPoint* p = (*data_)[i];
-    for( int j=0;j<nClassifiers;j++ )
+    for( unsigned int j=0;j<nClassifiers;j++ )
       r[j] = classifiers_[j]->response(p);
     features->insert(p->class_,r);
   }

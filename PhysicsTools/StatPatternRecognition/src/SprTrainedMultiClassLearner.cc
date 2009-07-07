@@ -1,4 +1,4 @@
-//$Id: SprTrainedMultiClassLearner.cc,v 1.6 2007/08/30 17:54:42 narsky Exp $
+//$Id: SprTrainedMultiClassLearner.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedMultiClassLearner.hh"
@@ -40,13 +40,13 @@ SprTrainedMultiClassLearner::SprTrainedMultiClassLearner(
 {
   assert( !classifiers_.empty() );
   assert( indicator_.num_row() > 0 );
-  assert( indicator_.num_col() == classifiers_.size() );
+  assert( indicator_.num_col() == static_cast<int>(classifiers_.size()) );
   if( mapper_.empty() ) {
     unsigned n = indicator_.num_row();
     mapper_.resize(n);
-    for( int i=0;i<n;i++ ) mapper_[i] = i;
+    for( unsigned int i=0;i<n;i++ ) mapper_[i] = i;
   }
-  assert( mapper_.size() == indicator_.num_row() );
+  assert( static_cast<int>(mapper_.size()) == indicator_.num_row() );
   // set default loss
   this->setLoss(&SprLoss::quadratic,
 		&SprTransformation::zeroOneToMinusPlusOne);
@@ -65,17 +65,17 @@ SprTrainedMultiClassLearner::SprTrainedMultiClassLearner(
   loss_(other.loss_),
   trans_(other.trans_)
 {
-  for( int i=0;i<other.classifiers_.size();i++ ) {
+  for( unsigned int i=0;i<other.classifiers_.size();i++ ) {
     const SprAbsTrainedClassifier* t = other.classifiers_[i].first->clone();
     classifiers_.push_back(pair<const SprAbsTrainedClassifier*,bool>(t,true));
   }
-  assert( indicator_.num_col() == classifiers_.size() );
+  assert( indicator_.num_col() == static_cast<int>(classifiers_.size()) );
 }
 
 
 void SprTrainedMultiClassLearner::destroy()
 {
-  for( int i=0;i<classifiers_.size();i++ ) {
+  for( unsigned int i=0;i<classifiers_.size();i++ ) {
     if( classifiers_[i].second )
       delete classifiers_[i].first;
   }
@@ -90,7 +90,7 @@ int SprTrainedMultiClassLearner::response(const std::vector<double>& input,
 
   // compute vector of responses
   vector<double> response(classifiers_.size());
-  for( int i=0;i<classifiers_.size();i++ ) {
+  for( unsigned int i=0;i<classifiers_.size();i++ ) {
     double r = classifiers_[i].first->response(input);
     response[i] = ( trans_==0 ? r : trans_(r) );
   }
@@ -100,7 +100,7 @@ int SprTrainedMultiClassLearner::response(const std::vector<double>& input,
   unsigned ncol = indicator_.num_col();
   for( int i=0;i<indicator_.num_row();i++ ) {
     double rowLoss = 0;
-    for( int j=0;j<ncol;j++ )
+    for( unsigned int j=0;j<ncol;j++ )
       rowLoss += loss_(int(indicator_[i][j]),response[j]);
     rowLoss /= ncol;
     output.insert(pair<const int,double>(mapper_[i],rowLoss));
@@ -121,8 +121,8 @@ void SprTrainedMultiClassLearner::print(std::ostream& os) const
   this->printIndicatorMatrix(os);
 
   // print classifiers
-  assert( indicator_.num_col() == classifiers_.size() );
-  for( int j=0;j<classifiers_.size();j++ ) {
+  assert( indicator_.num_col() == static_cast<int>(classifiers_.size()) );
+  for( unsigned int j=0;j<classifiers_.size();j++ ) {
     os << "Multi class learner subclassifier: " << j << endl;
     classifiers_[j].first->print(os);
   }

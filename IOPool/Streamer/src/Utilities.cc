@@ -70,7 +70,7 @@ namespace edm
     // This "SetBuffer" stuff does not appear to work or I don't understand
     // what needs to be done to actually make it go. (JBK)
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
-    RootBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
+    TBufferFile xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
     std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
 

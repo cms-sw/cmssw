@@ -22,21 +22,14 @@ public:
   
   HICSimpleNavigationSchool() : theField(0),theTracker(0){};
   HICSimpleNavigationSchool(const GeometricSearchTracker* theTracker,
-			    const MagneticField* field);
-  HICSimpleNavigationSchool(const GeometricSearchTracker* theTracker,
-			    const MagneticField* field,int j);
-
-  void setExcludedBarrelLayer(int& j){excludedBarrelLayer=j;}; 
-
-  int getExcludedBarrelLayer() {return excludedBarrelLayer;};
-
+			 const MagneticField* field);
+  
   // from base class
   virtual StateType navigableLayers() const;
 
 //private:
 protected:
 
-  int                                             excludedBarrelLayer;
   typedef std::vector<const DetLayer*>              DLC;
 //  typedef std::vector<DetLayer*>                    theDetLayers; 
   typedef std::vector<BarrelDetLayer*>              BDLC;

@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 hltmonmuonClient = cms.EDFilter("HLTMonMuonClient",
-    input_dir = cms.untracked.string('HLT/HLTMonMuon/Summary'),
+    input_dir = cms.untracked.string('HLT/HLTMonMuon'),
     prescaleLS = cms.untracked.int32(-1),
-    output_dir = cms.untracked.string('HLT/HLTMonMuon/Client'),
+    output_dir = cms.untracked.string('HLT/HLTMonMuon/Tests'),
     prescaleEvt = cms.untracked.int32(1)
 )
 

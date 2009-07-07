@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 HLTTauValPostAnalysis = cms.EDFilter("HLTTauPostProcessor",
   Harvester = cms.PSet(
     L1Dirs                  = cms.vstring(

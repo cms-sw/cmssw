@@ -1,4 +1,4 @@
-//$Id: SprTrainedAdaBoost.cc,v 1.8 2007/07/11 19:52:13 narsky Exp $
+//$Id: SprTrainedAdaBoost.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedAdaBoost.hh"
@@ -41,7 +41,7 @@ SprTrainedAdaBoost::SprTrainedAdaBoost(const SprTrainedAdaBoost& other)
   standard_(other.standard_),
   epsilon_(other.epsilon_)
 {
-  for( int i=0;i<other.trained_.size();i++ )
+  for( unsigned int i=0;i<other.trained_.size();i++ )
     trained_.push_back(pair<const SprAbsTrainedClassifier*,bool>
 		       (other.trained_[i].first->clone(),true));
 }
@@ -52,14 +52,14 @@ double SprTrainedAdaBoost::response(const std::vector<double>& v) const
   // compute output
   double result = 0;
   if(      mode_==Discrete || mode_==Epsilon ) {
-    for( int i=0;i<beta_.size();i++ ) {
+    for( unsigned int i=0;i<beta_.size();i++ ) {
       int out = ( trained_[i].first->accept(v) ? 1 : -1 );
       result += out*beta_[i];
     }
   }
   else if( mode_==Real ) {
     double resp = 0;
-    for( int i=0;i<beta_.size();i++ ) {
+    for( unsigned int i=0;i<beta_.size();i++ ) {
       resp = trained_[i].first->response(v);
       resp += (1.-2.*resp)*epsilon_;
       if( resp < SprUtils::eps() ) {
@@ -89,7 +89,7 @@ double SprTrainedAdaBoost::response(const std::vector<double>& v) const
 
 void SprTrainedAdaBoost::destroy()
 {
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     if( trained_[i].second )
       delete trained_[i].first;
   }
@@ -102,14 +102,14 @@ void SprTrainedAdaBoost::print(std::ostream& os) const
   os << "Trained AdaBoost " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   os << "Mode: " << int(mode_) << "   Epsilon: " << epsilon_ << endl;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     char s [200];
     sprintf(s,"Classifier %6i %s Beta: %12.10f",
 	    i,trained_[i].first->name().c_str(),beta_[i]);
     os << s << endl;
   }
   os << "Classifiers:" << endl;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Classifier " << i 
        << " " << trained_[i].first->name().c_str() << endl;
     trained_[i].first->print(os);
@@ -120,7 +120,7 @@ void SprTrainedAdaBoost::print(std::ostream& os) const
 bool SprTrainedAdaBoost::generateCode(std::ostream& os) const 
 { 
   // generate weak classifiers
-  for( int i=0;i<trained_.size();i++ ) { 
+  for( unsigned int i=0;i<trained_.size();i++ ) { 
     string name = trained_[i].first->name();
     os << " // Classifier " << i  
        << " \"" << name.c_str() << "\"" << endl; 

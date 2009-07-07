@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/21 10:52:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/25 11:58:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -22,8 +22,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Histograms.h"
 
@@ -46,9 +44,9 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
   // the name of the 4D rec hit collection
-  segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
+  segment4DLabel = pset.getUntrackedParameter<string>("segment4DLabel");
 
   //sigma resolution on position
   sigmaResX = pset.getParameter<double>("sigmaResX");
@@ -57,34 +55,19 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   sigmaResAlpha = pset.getParameter<double>("sigmaResAlpha");
   sigmaResBeta = pset.getParameter<double>("sigmaResBeta");
 
-
   // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-// ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if ( debug ) dbe_->showDirStructure();
-  }
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
 
-  h4DHit= new HRes4DHit ("All",dbe_);
-  h4DHit_W0= new HRes4DHit ("W0",dbe_);
-  h4DHit_W1= new HRes4DHit ("W1",dbe_);
-  h4DHit_W2= new HRes4DHit ("W2",dbe_);
+  h4DHit= new HRes4DHit ("All");
+  h4DHit_W0= new HRes4DHit ("W0");
+  h4DHit_W1= new HRes4DHit ("W1");
+  h4DHit_W2= new HRes4DHit ("W2");
 
-  hEff_All= new HEff4DHit ("All",dbe_);
-  hEff_W0= new HEff4DHit ("W0",dbe_);
-  hEff_W1= new HEff4DHit ("W1",dbe_);
-  hEff_W2= new HEff4DHit ("W2",dbe_);
+  hEff_All= new HEff4DHit ("All");
+  hEff_W0= new HEff4DHit ("W0");
+  hEff_W1= new HEff4DHit ("W1");
+  hEff_W2= new HEff4DHit ("W2");
 }
 
 // Destructor
@@ -94,30 +77,29 @@ DTSegment4DQuality::~DTSegment4DQuality(){
 
 void DTSegment4DQuality::endJob() {
   // Write the histos to file
-  //theFile->cd();
+  theFile->cd();
 
-  //h4DHit->Write();
-  //h4DHit_W0->Write();
-  //h4DHit_W1->Write();
-  //h4DHit_W2->Write();
+  h4DHit->Write();
+  h4DHit_W0->Write();
+  h4DHit_W1->Write();
+  h4DHit_W2->Write();
 
   hEff_All->ComputeEfficiency();
   hEff_W0->ComputeEfficiency();
   hEff_W1->ComputeEfficiency();
   hEff_W2->ComputeEfficiency();
 
-  //hEff_All->Write();
-  //hEff_W0->Write();
-  //hEff_W1->Write();
-  //hEff_W2->Write();
-  if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
+  hEff_All->Write();
+  hEff_W0->Write();
+  hEff_W1->Write();
+  hEff_W2->Write();
 
-  //theFile->Close();
+  theFile->Close();
 } 
 
 // The real analysis
   void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSetup){
-    //theFile->cd();
+    theFile->cd();
 
     // Get the DT Geometry
     ESHandle<DTGeometry> dtGeom;
@@ -125,7 +107,7 @@ void DTSegment4DQuality::endJob() {
 
     // Get the SimHit collection from the event
     edm::Handle<PSimHitContainer> simHits;
-    event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+    event.getByLabel(simHitLabel, "MuonDTHits", simHits); //FIXME: second string to be removed
 
     //Map simHits by chamber
     map<DTChamberId, PSimHitContainer > simHitsPerCh;

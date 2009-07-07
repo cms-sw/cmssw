@@ -4,8 +4,8 @@
 /*
  * \file L1TFED.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.2 $
+ * $Date: 2008/10/06 13:17:00 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
 */
@@ -80,7 +80,9 @@ private:
   bool monitorDaemon_;
   std::vector<int> l1feds_;
   ofstream logFile_;
-  edm::InputTag fedSource_;
+  edm::InputTag fedSource_;  
+  edm::InputTag rawl_;
+
 };
 
 #endif

@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.11 2009/06/22 15:54:33 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.9 2009/02/20 08:48:19 kodolova Exp $
 //
 //
  
@@ -54,8 +54,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -107,7 +106,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
    L2candTag_          = ps1.getParameter< edm::InputTag > ("L2CandTag");
    rphirecHitsTag      = ps1.getParameter< edm::InputTag > ("rphiRecHits");
-   builderName         = ps1.getParameter< std::string >   ("TTRHBuilder");
+   builderName         = ps1.getParameter< std::string > ("TTRHBuilder");
    primaryVertexTag    = ps1.getParameter< edm::InputTag > ("PrimaryVertexTag");
 
 #ifdef DEBUG
@@ -142,13 +141,6 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
                                                      recHitBuilderHandle.product(),
                                                      measurementTrackerHandle.product(),
                                                      theMinPtFilter);
-// Fill vector of navigation schools for barrel
-   int lost=-1;
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost));  
-   for(int i=11;i>-1;i--) {
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), i));
-   }     
-
 #ifdef DEBUG
     std::cout<<" HICTrajectoryBuilder constructed "<<std::endl;
 #endif
@@ -170,12 +162,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    e1.getByLabel (primaryVertexTag,vertexcands);
    int iv = 0;
 
-#ifdef DEBUG   
-   cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
-   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
-#endif
-
-   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
+//   cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
 
    if(vertexcands->size()<1) return dimuon;
 
@@ -186,7 +173,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      iv++;
    } 
 
-//   cout << " Vertex is set to (found by pixel finder)"<<theHICConst->zvert<<endl;
+//   cout << " Vertex is set to "<<theHICConst->zvert<<endl;
  
 //
 // Get recHit builder
@@ -210,34 +197,73 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG
   std::cout<<" After first tracker update "<<std::endl;
 #endif
+//
+// Get L1 muon info
+//
 
-//   edm::Handle<RecoChargedCandidateCollection> L2mucands;
-   edm::Handle<TrackCollection> L2mucands;
+  vector<L1MuGMTExtendedCand> excall;
+
+/*  
+try{  
+edm::Handle<L1MuGMTReadoutCollection> gmtrc1_handle;
+e1.getByLabel("gmtDigis",gmtrc1_handle);
+
+L1MuGMTReadoutCollection const* gmtrc1 = gmtrc1_handle.product();
+
+
+vector<L1MuGMTReadoutRecord> gmtrecords = gmtrc1->getRecords();
+vector<L1MuGMTReadoutRecord>::const_iterator igmtrr1;
+std::cout<<" Number of :L1 "<<gmtrecords.size()<<std::endl;
+
+
+for(igmtrr1=gmtrecords.begin(); igmtrr1!=gmtrecords.end(); igmtrr1++)
+{
+
+vector<L1MuRegionalCand>::const_iterator iter11;
+vector<L1MuRegionalCand> rmc1;
+
+vector<L1MuGMTExtendedCand>::const_iterator gmt_iter1; 
+vector<L1MuGMTExtendedCand> exc1 = igmtrr1->getGMTCands();
+
+std::cout<<" Number of :L1MuGMTExtendedCand "<<exc1.size()<<std::endl;
+int igmt1 = 0;
+for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
+	{
+	double etal1=(*gmt_iter1).etaValue();
+	double phil1=(*gmt_iter1).phiValue();
+	int chargel1=(*gmt_iter1).charge();
+	double ptl1=(*gmt_iter1).ptValue();
+	cout<<"etal1= "<<etal1<<"phil1= "<<phil1<<"ptl1= "<<ptl1<<"chargel1= "<<chargel1<<endl;
+	igmt1++;
+        excall.push_back(*gmt_iter1);
+
+	} 
+}
+
+} 
+        catch (cms::Exception& e) { // can't find it!
+              throw e;
+       }
+
+*/
+
+   edm::Handle<RecoChargedCandidateCollection> L2mucands;
+   //edm::Handle<TrackCollection> L2mucands;
    e1.getByLabel (L2candTag_,L2mucands);
-//   RecoChargedCandidateCollection::const_iterator L2cand1;
-//   RecoChargedCandidateCollection::const_iterator L2cand2;
+   RecoChargedCandidateCollection::const_iterator L2cand1;
+   RecoChargedCandidateCollection::const_iterator L2cand2;
       
 #ifdef DEBUG
    cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
-   if( L2mucands->size() < 2 ) cout<<"L2 muon failed"<<endl;
 #endif
 
    if( L2mucands->size() < 2 ) return dimuon;
-
-#ifdef DEBUG
-   cout<<"L2 muon accepted"<<endl;
-#endif
-
-   cout<<"L2 muon accepted"<<endl;
-
+   
 // For trajectory builder   
    int  theLowMult = 1;
    theEstimator->setHICConst(theHICConst);
    theEstimator->setMult(theLowMult);
-//   int lost=-1;
-//   theNavigationSchool = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
-//   lost=10;
-//   theNavigationSchooln = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
+   theNavigationSchool = new HICSimpleNavigationSchool(&(*tracker), &(*magfield));
    theTrajectoryBuilder->settracker(measurementTrackerHandle.product());
 //============================   
     FastMuPropagator* theFmp = new FastMuPropagator(&(*magfield),theFmpConst); 
@@ -276,15 +302,12 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    vector<Trajectory> allTraj;
    
    int numofseeds = 0; 
-   int iseedp=0;
-   int iseedm=0;
    for(vector<FreeTrajectoryState>::iterator ifts=theFts.begin(); ifts!=theFts.end(); ifts++)
    {
 #ifdef DEBUG
      cout<<" cycle on Muon Trajectory State " <<(*ifts).parameters().position().perp()<<
                                           " " <<(*ifts).parameters().position().z()   <<endl;
 #endif
-
      tsos=state((*ifts));
      
      int iseedn = 0; 
@@ -299,148 +322,77 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 
 // Start to find starting layers
 	FreeTrajectoryState* ftsnew=tsos.freeTrajectoryState();
-        vector<DetLayer*> seedlayers = TkOSLF.startingLayers((*ftsnew));
 	
+	vector<DetLayer*> seedlayers = TkOSLF.startingLayers((*ftsnew));
+
 #ifdef DEBUG
 	std::cout<<" The size of the starting layers "<<seedlayers.size()<<std::endl;
-        if( seedlayers.size() == 0 ) cout<<" Starting layers failed for muon candidate "<<endl;
 #endif
 
 	if( seedlayers.size() == 0 ) continue;
 
-        map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, 
-                                                          (*ftsnew), tsos, (*ifts), 
-	                                                   recHitBuilderHandle.product(),
-                                                           measurementTrackerHandle.product(), 
-                                                           &seedlayers);
-
-       vector<Trajectory> theTmpTrajectories0;	
- 
-       int ilnum = 0;
-       for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
-       {
-       ilnum++;
-       vector<Trajectory> theTmpTrajectories0;
-       DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
-
+        map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
+	                                       recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);
+	
+	int ilnum = 0;
+	  for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
+	  {
+	    ilnum++;
+	    vector<Trajectory> theTmpTrajectories0;
+	    DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
+    // set the correct navigation
+            NavigationSetter setter( *theNavigationSchool);
 #ifdef DEBUG
        std::cout<<" Layer "<<ilnum<<" Number of seeds in layer "<<seeds.size()<<std::endl;	    
-#endif
-
-  if(seeds.size() == 0) {
-#ifdef DEBUG
-    std::cout<<" No seeds are found: do not continue with this Detlayer "<<std::endl;   
-#endif
-    continue;
-  }
-    // set the first navigation (all layers without gap)
-       
-       NavigationSetter setter( *(theNavigationSchoolV[0]));
-    
+#endif	    
+	    if(seeds.size() > 0) {
        for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();iseed!=seeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-
 #ifdef DEBUG
-         std::cout<< "Layer " <<ilnum<<" Seed number "<<iseedn<<"position r "<<
-         theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
-         theV[0].recHit()->globalPosition().z()<<" momentum "<<
-         theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
+         std::cout<< "Layer " <<ilnum<<" Seed number "<<iseedn<<"position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
+         theV[0].recHit()->globalPosition().z()<<" momentum "<<theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
-//
-// Look if it is positive or negative track (for debugging only): in future change for any sign
-//
-         if(theV[0].updatedState().freeTrajectoryState()->charge()>0) iseedp++;
-         if(theV[0].updatedState().freeTrajectoryState()->charge()<0) iseedm++; 
 #endif
-
-	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed); 
-    
+	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);   
 #ifdef DEBUG
         cout<<" Number of found trajectories "<<theTmpTrajectories.size()<<endl;	 
 #endif
         if(theTmpTrajectories.size()>0) {
-	allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-        theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+	                                    allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+					    theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+	                                }
+	if(theTmpTrajectories0.size() > 0) { 
 #ifdef DEBUG
-        std::cout<<"We found trajectories for at least one seed "<<std::endl; 
+          std::cout<<"We found trajectories for at least one seed "<<std::endl; 
 #endif
-        break;
-        }  // There are trajectories
+          break;
+        }
+					
+        iseedn++;
+	    
        } // seeds 	    
-
-    if( theTmpTrajectories0.size() > 0 ) break;  
-
-   } // seedlayer
-
-    if( theTmpTrajectories0.size() > 0 ) continue;
-
-// No trajectories found for this Muon FTS although seeds exist. 
-// Try to allow another trajectory map with lost 1 layer (only for barrel layers)
-
-//#ifdef DEBUG
-//       cout<<" Look for excluded layer "<<
-//       dynamic_cast<HICSimpleNavigationSchool*>(theNavigationSchoolV[0])->getExcludedBarrelLayer()<<" "<<
-//       dynamic_cast<HICSimpleNavigationSchool*>(theNavigationSchoolV[1])->getExcludedBarrelLayer()<<" "<<      
-//       dynamic_cast<HICSimpleNavigationSchool*>(theNavigationSchoolV[2])->getExcludedBarrelLayer()<<
-//       endl;
-//#endif
-
-       for(int j=1; j<theNavigationSchoolV.size();j++){
-       NavigationSetter setter( *(theNavigationSchoolV[j]));
-//       cout<<" Start new iterations ? "<<endl;
-       for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
-       {
-       if((**it).location() == GeomDetEnumerators::endcap) continue;
-       vector<Trajectory> theTmpTrajectories0;
-       DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
-       if(seeds.size() == 0) {
-#ifdef DEBUG
-    std::cout<<" Second path: No seeds are found: do not continue with this Detlayer "<<std::endl;   
-#endif
-        continue;
-       }
-       for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();iseed!=seeds.end();iseed++)
-       {
-         std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
-         if(theTmpTrajectories.size()>0) {
-	 allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-         theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-#ifdef DEBUG
-         std::cout<<"Second path: We found trajectories for at least one seed "<<std::endl; 
-#endif
-        break;
-        }  // There are trajectories
-       } // seeds
-         if( theTmpTrajectories0.size() > 0 ) break; 
-     } // seedlayer
-         if( theTmpTrajectories0.size() > 0 ) break; 
-    } // navigation maps
-
-   } // tsos. isvalid
- } // Muon Free trajectory state
+	    } // there are seeds/layer
+	    
+//	    std::cout<<" Size of seed container "<<seeds.size()<<" size of trajectories "<<theTmpTrajectories0.size()<<std::endl;  
+	    
+	    if( theTmpTrajectories0.size() > 0 ) break;
+	    
+	  } // Detlayer cycle  
+	
+     } // tsos. isvalid
+     if(iseedn > 0) numofseeds++;
+   } // Muon Free trajectory state
 
 #ifdef DEBUG
-   if(iseedp<0 || iseedm<0) cout<<" Seeding is failed "<<endl;
+   cout<<" Number of muons trajectories in MUON "<<theFts.size()<<" Number of seeds "<<numofseeds+1<<endl;
 #endif
         
 //
 // start fitting procedure
 //
 #ifdef DEBUG
-
     if(allTraj.size()>0 ) {std::cout<<" Event reconstruction finished with "<<allTraj.size()<<std::endl;} else {std::cout<<" Event reconstruction::no tracks found"<<std::endl;}
-    int iplusnum=0;
-    int iminnum=0; 
-    for(vector<Trajectory>::iterator it = allTraj.begin(); it!= allTraj.end(); it++)
-    {
-      if((*it).geometricalInnermostState().freeTrajectoryState()->charge()>0) iplusnum++;
-      if((*it).geometricalInnermostState().freeTrajectoryState()->charge()<0) iminnum++;
-    }
-    if((iseedp>0 && iseedm>0)&&(iplusnum < 1 || iminnum < 1) ) cout<<"Seeding is ok but Plus or minus are failed"<<iplusnum<<" "<<iminnum<<endl;
-    if(allTraj.size()<2) cout<<"Less then 2 trajectories "<<endl;
-
 #endif
     if(allTraj.size()<2)  return dimuon;
 
@@ -525,9 +477,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
       
     }
    //  cout<<" Position of the innermost point "<<innertsos.freeTrajectoryState()->position().perp()<<" "<<innertsos.freeTrajectoryState()->position().z()<<endl;
-//    TSCBLBuilderNoMaterial tscblBuilder;
-
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {

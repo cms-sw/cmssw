@@ -16,7 +16,6 @@
 
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 
 
 namespace pos{
@@ -57,29 +56,24 @@ namespace pos{
 				  std::string path, 
 				  std::ofstream *out,
 				  std::ofstream *out1,
-				  std::ofstream *out2)  const {;}
+				  std::ofstream *out2) const {;}
     virtual void writeXML( 	  std::ofstream *out,
 			   	  std::ofstream *out1,
 			   	  std::ofstream *out2 ) const {;}
     virtual void writeXMLTrailer( std::ofstream *out,
 				  std::ofstream *ou1, 
-				  std::ofstream *out2)  const {;}
+				  std::ofstream *out2) const {;}
     virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
     virtual void writeXML(                                                              std::ofstream *out) const {;}
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
-
-    void setAuthor (std::string author)  {creator_ = author ;} 
-    void setComment(std::string comment) {comment_ = comment;} 
-    std::string getAuthor()const         {return creator_   ;}
-    std::string getComment()const        {return base64_encode((unsigned char *)comment_.c_str(), comment_.length()) ;}
     
   private:
 
     std::string description_;
-    std::string creator_ ;
-    std::string date_    ;
-    std::string comment_ ;
+    std::string creator_;
+    std::string date_;
+     
 
   };
 

@@ -1,4 +1,4 @@
-//$Id: SprAbsTrainedClassifier.cc,v 1.7 2007/11/07 00:56:14 narsky Exp $
+//$Id: SprAbsTrainedClassifier.cc,v 1.3 2007/11/12 06:19:18 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAbsTrainedClassifier.hh"
@@ -18,7 +18,7 @@ bool SprAbsTrainedClassifier::accept(const std::vector<double>& v,
   response = this->response(v);
   if( cut_.empty() ) return true;
   bool passed = false;
-  for( int i=0;i<cut_.size();i++ ) {
+  for( unsigned int i=0;i<cut_.size();i++ ) {
     const pair<double,double>& lims = cut_[i];
     if( response>lims.first && response<lims.second ) {
       passed = true;
@@ -45,7 +45,7 @@ bool SprAbsTrainedClassifier::store(const char* filename) const
   // store variables
   os << "==================================================" << endl;
   os << "Dimensions:" << endl;
-  for( int i=0;i<vars_.size();i++ ) {
+  for( unsigned int i=0;i<vars_.size();i++ ) {
     char s [200];
     sprintf(s,"%5i %40s",i,vars_[i].c_str());
     os << s << endl;

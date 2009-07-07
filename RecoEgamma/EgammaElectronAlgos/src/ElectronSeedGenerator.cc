@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.2 2009/06/17 08:08:13 charlot Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.3 2009/06/17 17:19:42 charlot Exp $
 //
 //
 
@@ -134,7 +134,7 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
     theNavigationSchool = nav.product();
   }
 
-  if (cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
+  if (!fromTrackerSeeds_ && cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
     edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
     setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
     cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
@@ -169,14 +169,15 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
   // get the beamspot from the Event:
   e.getByType(theBeamSpot);
 
-  // define 1st z window 
+  // define 1st z window
   double sigmaZ=theBeamSpot->sigmaZ();
   double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
   zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
   zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
 
-  theMeasurementTracker->update(e);
+  if (!fromTrackerSeeds_)
+   { theMeasurementTracker->update(e) ; }
 
   for  (unsigned int i=0;i<sclRefs.size();++i) {
     // Find the seeds

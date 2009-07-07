@@ -5,8 +5,8 @@
  * \class RPCImonSH
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2009/06/05 14:36:44 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/12 20:02:50 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -36,7 +36,6 @@ namespace popcon{
     RPCObImon* Idata;
 
     unsigned long long snc;
-    unsigned long long tll;
     unsigned long long niov;	    
     unsigned long long utime;
   private:
@@ -45,7 +44,7 @@ namespace popcon{
     std::string user;
     std::string passw;
     unsigned long long m_since;
-    unsigned long long m_till;
+
   };
 }
 #endif

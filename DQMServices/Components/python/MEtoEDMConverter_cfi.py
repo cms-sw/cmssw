@@ -6,7 +6,6 @@ MEtoEDMConverter = cms.EDFilter("MEtoEDMConverter",
                                         # 1 provides basic output
                                         # 2 provide more detailed output
     Frequency = cms.untracked.int32(50),
-    MEPathToSave = cms.untracked.string(''),
-    deleteAfterCopy = cms.untracked.bool(True)
+    MEPathToSave = cms.untracked.string('')
 )
 

@@ -1115,6 +1115,13 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(
     size_t jSeed = 0;
     size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
 
+    // clear the content from the previous menu for the vector of RPN vectors m_l1AlgoSeedsRpn
+    // and for the the vector of object-type vectors m_l1AlgoSeedsObjType
+    m_l1AlgoSeedsRpn.clear();
+    m_l1AlgoSeedsObjType.clear();
+
+    //
+
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
 
         CItAlgo itAlgo = algorithmMap.find((algOpTokenVector[i]).tokenName);
@@ -1170,8 +1177,11 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(
         else {
 
             throw cms::Exception("FailModule") << "\nAlgorithm  "
-                    << ( algOpTokenVector[i] ).tokenName << " not found in the trigger menu "
-                    << l1GtMenu->gtTriggerMenuName() << "\n" << std::endl;
+                    << ( algOpTokenVector[i] ).tokenName
+                    << ", requested as seed by a HLT path, not found in the L1 trigger menu\n   "
+                    << l1GtMenu->gtTriggerMenuName()
+                    << "\nIncompatible L1 and HLT menus.\n"
+                    << std::endl;
 
         }
 

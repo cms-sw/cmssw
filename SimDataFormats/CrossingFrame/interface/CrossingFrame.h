@@ -14,6 +14,7 @@
  ************************************************************/
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+//#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -24,14 +25,12 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include "boost/shared_ptr.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <utility>
 #include <algorithm>
-
 
 template <class T> 
 class CrossingFrame 
@@ -66,8 +65,6 @@ class CrossingFrame
   // because of HepMCProduct, we need 2 versions...
   void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;}
   void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;}
-  // used in the Step2 to set the PCrossingFrame
-  //void setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
 
   void print(int level=0) const ;
 
@@ -122,20 +119,6 @@ class CrossingFrame
   }  
 
 
-  // setters needed for step2 when using mixed secondary source  
-  void setEventID(edm::EventID evId) { id_ = evId; }
-  void setPileups(std::vector<const T *> p) { pileups_ = p; } 
-  void setBunchSpace(int bSpace) { bunchSpace_ = bSpace; } 
-  void setMaxNbSources(unsigned int mNbS) { maxNbSources_ = mNbS; } 
-  void setSubDet(std::string det) { subdet_ = det; } 
-  void setPileupFileNr(unsigned int pFileNr) { pileupFileNr_ = pFileNr;} 
-  void setIdFirstPileup(edm::EventID idFP) {idFirstPileup_ = idFP;}
-  void setPileupOffsetsBcr(std::vector<unsigned int> pOffsetsBcr) { pileupOffsetsBcr_ = pOffsetsBcr;}  
-  void setPileupOffsetsSource(std::vector< std::vector<unsigned int> > pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
-  void setBunchRange(std::pair<int,int> bunchRange) { firstCrossing_ = bunchRange.first;
-  						      lastCrossing_ = bunchRange.second;} 
-
-  
 // limits for tof to be considered for trackers
   static const int lowTrackTof; //nsec
   static const int highTrackTof;

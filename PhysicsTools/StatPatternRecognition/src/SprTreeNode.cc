@@ -1,4 +1,4 @@
-//$Id: SprTreeNode.cc,v 1.10 2007/08/13 16:49:21 narsky Exp $
+//$Id: SprTreeNode.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTreeNode.hh"
@@ -72,7 +72,7 @@ SprTreeNode::SprTreeNode(const SprAbsTwoClassCriterion* crit,
   bootstrap_(bootstrap)
 {
   assert( crit_ != 0 );
-  assert( data_->size() > nmin_ );
+  assert( static_cast<int>(data_->size()) > nmin_ );
   counter_ = 0;// if no parent specified, starting a new tree from scratch
 }
 
@@ -204,7 +204,7 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
   }
 
   // check if minimal number of events
-  if( (n0_+n1_) == nmin_ ) {
+  if( (int)(n0_+n1_) == nmin_ ) {
     if( verbose > 3 ) {
       cout << "Node " << id_ << " has minimal number of events." 
 	   << " Will exit without splitting." << endl;
@@ -223,7 +223,7 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
   // select features
   set<unsigned> dims;
   if(      bootstrap_ == 0 ) {
-    for( int d=0;d<data_->dim();d++ ) dims.insert(d);
+    for( unsigned int d=0;d<data_->dim();d++ ) dims.insert(d);
   }
   else if( !bootstrap_->replica(dims) ) {
     cerr << "Unable to select features." << endl;
@@ -283,7 +283,7 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
 
     // loop through points
     int ndiv = division.size();
-    int istart(0), isplit(0);
+    unsigned int istart(0), isplit(0);
     bool lbreak = true;
     for( int k=0;k<ndiv;k++ ) {
       double z = division[k];
@@ -295,7 +295,7 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
 	}
       }
       if( !lbreak ) isplit = sorted.size();
-      for( int i=istart;i<isplit;i++ ) {
+      for( unsigned int i=istart;i<isplit;i++ ) {
 	const SprPoint* p = (*data_)[sorted[i]];
 	double w = data_->w(sorted[i]);
 	if(      p->class_ == cls0_ ) {
@@ -371,7 +371,7 @@ bool SprTreeNode::split(std::vector<SprTreeNode*>& nodesToSplit,
     if( verbose > 3 ) {
       double w0l(0), w0r(0), w1l(0), w1r(0);
       int n0l(0), n0r(0), n1l(0), n1r(0);
-      for( int i=0;i<data_->size();i++ ) {
+      for( unsigned int i=0;i<data_->size();i++ ) {
 	const SprPoint* p = (*data_)[i];
 	double w = data_->w(i);
 	if(      p->class_ == cls0_ ) {

@@ -93,14 +93,11 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
 
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripBadAPVAlgorithmFromClusterOccupancy"<<std::endl;
 
-    theIdentifier2 = new SiStripBadAPVAlgorithmFromClusterOccupancy(conf_);
+    theIdentifier2 = new SiStripBadAPVAlgorithmFromClusterOccupancy();
     theIdentifier2->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
     theIdentifier2->setHighOccupancyThreshold(parameters.getUntrackedParameter<double>("HighOccupancyThreshold",10));
     theIdentifier2->setAbsoluteLowThreshold(parameters.getUntrackedParameter<double>("AbsoluteLowThreshold",0));
     theIdentifier2->setNumberIterations(parameters.getUntrackedParameter<uint32_t>("NumberIterations",2));
-    theIdentifier2->setAbsoluteOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
-    theIdentifier2->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
-    theIdentifier2->setMinNumOfEvents();
     theIdentifier2->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
     theIdentifier2->setTrackerGeometry(_tracker);
 
@@ -171,30 +168,21 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
 
   edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   bool gotNentries=true;
-  double TotNumberOfEvents;
   if( parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)==0 && parameters.getUntrackedParameter<double>("OccupancyThreshold",0)!=0)
     gotNentries=false;
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries 
 						      << " number of " << parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)
-						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)
-						      << " OccupancyHisto" << parameters.getUntrackedParameter<std::string>("OccupancyHisto") << std::endl;
+						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)<< std::endl;
   
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     
-    if (!gotNentries && strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL ){
-
-      TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
-      edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "Total Number of Events: " << TotNumberOfEvents << std::endl;
-
-      if (parameters.getParameter<std::string>("AlgoName")=="SiStripHotStripAlgorithmFromClusterOccupancy") {theIdentifier->setNumberOfEvents(TotNumberOfEvents);}
-      if (parameters.getParameter<std::string>("AlgoName")=="SiStripBadAPVAlgorithmFromClusterOccupancy")   {theIdentifier2->setNumberOfEvents(TotNumberOfEvents); theIdentifier2->setMinNumOfEvents();}
-
+    if (!gotNentries && strstr(me_name.c_str(),"NumberOfClusterProfile__T")!=NULL && strstr(me_name.c_str(),"Total")==NULL ){
+      theIdentifier->setNumberOfEvents( (int) ((TProfile*)(*iter)->getTProfile())->GetBinEntries(1) );
       gotNentries=true;
-      edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries << std::endl;
     }
 
-    if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
+    if (strstr(me_name.c_str(),"ClusterPosition__det__")==NULL)
       continue;
 
     unsigned int detid;

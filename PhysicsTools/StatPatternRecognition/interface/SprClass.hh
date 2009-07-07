@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprClass.hh,v 1.6 2007/10/25 22:11:08 narsky Exp $
+//      $Id: SprClass.hh,v 1.3 2007/10/30 18:56:12 narsky Exp $
 //
 // Description:
 //      Class SprClass :
@@ -119,7 +119,7 @@ inline std::ostream& operator<<(std::ostream& os, const SprClass& cls) {
   std::vector<int> classes;
   bool negate = cls.value(classes);
   if( !classes.empty() ) {
-    for( int i=0;i<classes.size()-1;i++ )
+    for( unsigned int i=0;i<classes.size()-1;i++ )
       os << classes[i] << ",";
     os << classes[classes.size()-1];
   }

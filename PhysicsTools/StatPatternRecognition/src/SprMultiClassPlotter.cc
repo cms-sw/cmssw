@@ -1,4 +1,4 @@
-//$Id: SprMultiClassPlotter.cc,v 1.1 2007/10/22 21:23:41 narsky Exp $
+//$Id: SprMultiClassPlotter.cc,v 1.1 2007/10/30 18:56:14 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprMultiClassPlotter.hh"
@@ -35,7 +35,7 @@ double SprMultiClassPlotter::multiClassTable(const std::vector<int>& classes,
   assert( nClasses > 0 );
 
   // loop over responses
-  for( int i=0;i<responses_.size();i++ ) {
+  for( unsigned int i=0;i<responses_.size();i++ ) {
 
     // true class
     int cls = responses_[i].cls;
@@ -84,7 +84,7 @@ double SprMultiClassPlotter::multiClassTable(const std::vector<int>& classes,
       double wtot = weightInClass[cls];
       assert( wtot > 0 );
       vector<double>& w = i->second;
-      for( int j=0;j<w.size();j++ ) w[j] /= wtot;
+      for( unsigned int j=0;j<w.size();j++ ) w[j] /= wtot;
     }
   }
 

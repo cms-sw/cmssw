@@ -70,10 +70,6 @@ private:
   static Bool_t isDataFlag; // Should we initiate Pdfs with blind variables ?
   static Bool_t isVerboseFlag;
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(RscAbsPdfBuilder,1)
-#endif
 };
 
 #endif
@@ -87,10 +83,6 @@ char* ConfigHandler(const char*);
 \mainpage .
 
 \image html logobello.png 
-
-RooStatsCms has a new twiki documentation on the CMS pages. A lot of 
-information can be found 
-<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideRooStatsCms">there</a>.
 
 \section intro_sec Introduction
 RooStatsCms (RSC), based on the 
@@ -123,7 +115,7 @@ RooStatsCms depends only on
 <a href="http://root.cern.ch/" target="blank">ROOT</a> 5.22. 
 This version of the package has been 
 developed and tested with Scientific Linux 4 (Intel(R) Xeon(R) CPU 5150, gcc 
-3.1.4 ) and Debian lenny (amd64 gcc 4.1.2).
+3.1.4 ) and Debian 4.0 Etch (amd64 gcc 4.1.2).
 
 \section getting_started_sec Getting started
 
@@ -135,11 +127,11 @@ To check it out type (bash users):
 \verbatim
 export CVSROOT=<yourusername>@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
 export CVS_RSH=ssh
-cvs co -r V01-01-07 PhysicsTools/RooStatsCms
+cvs co -r V00-05-11_standalone PhysicsTools/RooStatsCms
 \endverbatim
-You can have the package as a tarball <a href="http://cmssw.cvs.cern.ch/cgi-bin/
-cmssw.cgi/CMSSW/PhysicsTools/RooStatsCms.tar.gz?view=tar&pathrev=V01-01-07">
-here</a>.
+You can have the package as a tarball <a href="http://cmssw.cvs.cern.ch/
+cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/
+RooStatsCms.tar.gz?view=tar&pathrev=V00-05-11_standalone">here</a>.
 
 The head is available also as a tarball <a href="http://cmssw.cvs.cern.ch/
 cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/RooStatsCms.tar.gz?view=tar" 
@@ -164,6 +156,7 @@ setenv ROOTSYS /afs/cern.ch/sw/lcg/app/releases/ROOT/5.22.00/slc4_ia32_gcc34/roo
 setenv LD_LIBRARY_PATH $ROOTSYS/lib
 set path=($path $ROOTSYS/bin)
 \endverbatim
+
 
 \subsection compile_sec Compile the package
 Just enter the directory RooStatsCms after the checkout or unrolling the 
@@ -275,6 +268,13 @@ file and a png image of the evolution of the scan is dumped.
 Useful to answer questions like:
  - I want to do a green/yellow plot "a la Tevatron" where I exclude a certain R factor on the SM cross section
  - I want to know how much lumi I need for a CLs of X percent
+
+
+\section more_material More material
+More documentaion and material can be found in the Twiki of RooStatsCms:
+https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWGRooStatsCms
+Many presentations are on Indico as well (bottom of the link above).
+
 
 Authors:
 

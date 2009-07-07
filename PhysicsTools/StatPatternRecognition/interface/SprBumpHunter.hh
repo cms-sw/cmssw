@@ -1,5 +1,5 @@
 // File and Version Information:
-//      $Id: SprBumpHunter.hh,v 1.7 2007/05/25 17:59:17 narsky Exp $
+//      $Id: SprBumpHunter.hh,v 1.2 2007/09/21 22:32:01 narsky Exp $
 //
 // Description:
 //      Class SprBumpHunter :
@@ -112,8 +112,8 @@ private:
 	     double& w0, double& w1, double& fom0, int verbose);
 
   const SprAbsTwoClassCriterion* crit_;
-  int nbump_;
-  int nmin_;
+  unsigned int nbump_;
+  unsigned int nmin_;
   double apeel_;
   SprBoxFilter* box_;
   std::vector<SprBox> boxes_;

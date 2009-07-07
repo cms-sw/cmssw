@@ -57,13 +57,15 @@ namespace edm
     EBProducerSig_ = ps.getParameter<edm::InputTag>("EBdigiProducerSig");
     EEProducerSig_ = ps.getParameter<edm::InputTag>("EEdigiProducerSig");
     ESProducerSig_ = ps.getParameter<edm::InputTag>("ESdigiProducerSig");
+    EBProducerPile_ = ps.getParameter<edm::InputTag>("EBdigiProducerPile");
+    EEProducerPile_ = ps.getParameter<edm::InputTag>("EEdigiProducerPile");
+    ESProducerPile_ = ps.getParameter<edm::InputTag>("ESdigiProducerPile");
     EBdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EBdigiCollectionSig");
     EEdigiCollectionSig_ = ps.getParameter<edm::InputTag>("EEdigiCollectionSig");
     ESdigiCollectionSig_ = ps.getParameter<edm::InputTag>("ESdigiCollectionSig");
-
-    EBPileInputTag_ = ps.getParameter<edm::InputTag>("EBPileInputTag");
-    EEPileInputTag_ = ps.getParameter<edm::InputTag>("EEPileInputTag");
-    ESPileInputTag_ = ps.getParameter<edm::InputTag>("ESPileInputTag");
+    EBdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EBdigiCollectionPile");
+    EEdigiCollectionPile_ = ps.getParameter<edm::InputTag>("EEdigiCollectionPile");
+    ESdigiCollectionPile_ = ps.getParameter<edm::InputTag>("ESdigiCollectionPile");
 
     EBDigiCollectionDM_        = ps.getParameter<std::string>("EBDigiCollectionDM");
     EEDigiCollectionDM_        = ps.getParameter<std::string>("EEDigiCollectionDM");
@@ -184,86 +186,100 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingEMDigiWorker::addEMPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr, const edm::EventSetup& ES) {
+  void DataMixingEMDigiWorker::addEMPileups(const int bcr, Event *e, unsigned int eventNr, const edm::EventSetup& ES) {
   
-    LogInfo("DataMixingEMDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+    LogInfo("DataMixingEMDigiWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // EB first
 
-    boost::shared_ptr<Wrapper<EBDigiCollection>  const> EBDigisPTR = 
-          getProductByTag<EBDigiCollection>(*ep, EBPileInputTag_ );
- 
-   if(EBDigisPTR ) {
+   Handle< EBDigiCollection > pEBDigis;
+   const EBDigiCollection*  EBDigis = 0;
 
-     const EBDigiCollection*  EBDigis = const_cast< EBDigiCollection * >(EBDigisPTR->product());
-
+  
+   if( e->getByLabel(EBProducerPile_.label(),EBdigiCollectionPile_.label(), pEBDigis) ){
+     EBDigis = pEBDigis.product(); // get a ptr to the product
+#ifdef DEBUG
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
-
-       // loop over digis, adding these to the existing maps
-     for(EBDigiCollection::const_iterator it  = EBDigis->begin();
-	 it != EBDigis->end(); ++it) {
-
-       	 EBDigiStorage_.insert(EBDigiMap::value_type( (it->id()), *it ));
-	 
-#ifdef DEBUG	 
-       	 LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
-       		      << it->id().rawId() << "\n"
-       		      << " digi energy: " << it->energy();
 #endif
-      }
-    }
+   } 
+   
+ 
+   if (EBDigis)
+     {
+       // loop over digis, adding these to the existing maps
+       for(EBDigiCollection::const_iterator it  = EBDigis->begin();
+	   it != EBDigis->end(); ++it) {
 
-    // EE Next
-
-    boost::shared_ptr<Wrapper<EEDigiCollection>  const> EEDigisPTR =
-          getProductByTag<EEDigiCollection>(*ep, EEPileInputTag_ );
-
-    if(EEDigisPTR ) {
-
-     const EEDigiCollection*  EEDigis = const_cast< EEDigiCollection * >(EEDigisPTR->product()); 
-
-     LogDebug("DataMixingEMDigiWorker") << "total # EE digis: " << EEDigis->size();
-
-     for(EEDigiCollection::const_iterator it  = EEDigis->begin();
-	 it != EEDigis->end(); ++it) {
-
-       EEDigiStorage_.insert(EEDigiMap::value_type( (it->id()), *it ));
+	 EBDigiStorage_.insert(EBDigiMap::value_type( (it->id()), *it ));
 	 
 #ifdef DEBUG	 
-       LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
+	 LogDebug("DataMixingEMDigiWorker") << "processed EBDigi with rawId: "
 				      << it->id().rawId() << "\n"
 				      << " digi energy: " << it->energy();
 #endif
+       }
      }
+    // EE Next
+
+   Handle< EEDigiCollection > pEEDigis;
+   const EEDigiCollection*  EEDigis = 0;
+
+   
+   if( e->getByLabel( EEProducerPile_.label(),EEdigiCollectionPile_.label(), pEEDigis) ){
+     EEDigis = pEEDigis.product(); // get a ptr to the product
+#ifdef DEBUG
+     LogDebug("DataMixingEMDigiWorker") << "total # EE digis: " << EEDigis->size();
+#endif
    }
+   
+ 
+   if (EEDigis)
+     {
+       // loop over digis, adding these to the existing maps
+       for(EEDigiCollection::const_iterator it  = EEDigis->begin();
+	   it != EEDigis->end(); ++it) {
+
+	 EEDigiStorage_.insert(EEDigiMap::value_type( (it->id()), *it ));
+	 
+#ifdef DEBUG	 
+	 LogDebug("DataMixingEMDigiWorker") << "processed EEDigi with rawId: "
+				      << it->id().rawId() << "\n"
+				      << " digi energy: " << it->energy();
+#endif
+       }
+     }
     // ES Next
 
-    boost::shared_ptr<Wrapper<ESDigiCollection>  const> ESDigisPTR =
-      getProductByTag<ESDigiCollection>(*ep, ESPileInputTag_ );
+   Handle< ESDigiCollection > pESDigis;
+   const ESDigiCollection*  ESDigis = 0;
 
-    if(ESDigisPTR ) {
-
-      const ESDigiCollection*  ESDigis = const_cast< ESDigiCollection * >(ESDigisPTR->product());
-
-      LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();
-
-      for(ESDigiCollection::const_iterator it  = ESDigis->begin();
-	  it != ESDigis->end(); ++it) {
-
-	ESDigiStorage_.insert(ESDigiMap::value_type( (it->id()), *it ));
-
+   
+   if( e->getByLabel( ESProducerPile_.label(),ESdigiCollectionPile_.label(), pESDigis) ){
+     ESDigis = pESDigis.product(); // get a ptr to the product
 #ifdef DEBUG
-	LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
-					   << it->id().rawId() << "\n"
-					   << " digi energy: " << it->energy();
+     LogDebug("DataMixingEMDigiWorker") << "total # ES digis: " << ESDigis->size();
 #endif
-      }
-    }
+   } 
+   
  
-  
- 
+   if (ESDigis)
+     {
+       // loop over digis, adding these to the existing maps
+       for(ESDigiCollection::const_iterator it  = ESDigis->begin();
+	   it != ESDigis->end(); ++it) {
+
+	 ESDigiStorage_.insert(ESDigiMap::value_type( (it->id()), *it ));
+	 
+#ifdef DEBUG	 
+	 LogDebug("DataMixingEMDigiWorker") << "processed ESDigi with rawId: "
+				      << it->id().rawId() << "\n"
+				      << " digi energy: " << it->energy();
+#endif
+       }
+     }
+
   }
  
   void DataMixingEMDigiWorker::putEM(edm::Event &e, const edm::EventSetup& ES) {

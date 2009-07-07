@@ -8,8 +8,7 @@
 <lib name=RooStats>
 
 <export>
-    <lib name=PhysicsToolsRooStatsCms>
-    <use name=rootmath>
+    <lib name=PhysicsTools/RooStatsCms>
     <use name=root>
 </export>
 

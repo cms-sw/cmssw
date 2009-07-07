@@ -1,6 +1,0 @@
-#
-# Hcal  calibrations from Frontier
-#
-#include "CalibCalorimetry/HcalPlugins/data/Hcal_FrontierConditions.cfi"
-include "CalibCalorimetry/HcalPlugins/data/Hcal_FrontierConditions.cff"
-replace es_pool.connect="frontier://FrontierDev/CMS_COND_HCAL"

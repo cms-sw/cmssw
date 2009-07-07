@@ -48,8 +48,9 @@ private:
     std::vector<std::string> hitLabelsVector_;
     double                   volumeRadius_;
     double                   volumeZ_;
-    bool					 mergedBremsstrahlung_;
-    bool                     removeDeadModules_;
+    //    bool                     discardOutVolume_;
+    bool					   mergedBremsstrahlung_;
+    bool                     discardHitsFromDeltas_;
     std::string              simHitLabel_;
 
     std::string MessageCategory_;
@@ -89,19 +90,13 @@ private:
         Associator &
     );
 
-    void associator(
-        std::auto_ptr<MixCollection<PSimHit> > const &,
-        std::vector<std::pair<PSimHit,int> > const &,
-        EncodedTruthIdToIndexes &
-    );
-
     void mergeBremsstrahlung();
 
     bool isBremsstrahlungVertex(
-        TrackingVertex const & vertex,
-        auto_ptr<TrackingParticleCollection> & tPC
+      TrackingVertex const & vertex,
+      auto_ptr<TrackingParticleCollection> & tPC
     );
-
+    
     void createTrackingTruth();
 
     bool setTrackingParticle(
@@ -124,7 +119,7 @@ void TrackingTruthProducer::associator(
     Associator & association
 )
 {
-    int index = 0;
+	int index = 0;
     // Clear the association map
     association.clear();
     // Create a association from simtracks to overall index in the mix collection

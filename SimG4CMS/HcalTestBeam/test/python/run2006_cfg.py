@@ -85,10 +85,7 @@ process.common_beam_direction_parameters = cms.PSet(
     BeamPosition = cms.double(-800.0)
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun   = cms.untracked.uint32(1),
-    firstEvent = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -98,7 +95,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         PartID = cms.vint32(211)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

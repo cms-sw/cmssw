@@ -32,6 +32,7 @@ class BlockFormatter {
 	void PrintSizes(FEDRawDataCollection* productRawData);
 
  protected :
+	std::pair<int,int> EcalFEDIds;
         bool debug_;
 
 	bool doBarrel_;
@@ -46,7 +47,6 @@ class BlockFormatter {
 	int* porbit_number_;
 	int* pbx_;
 	int* plv1_;
-	int* dccFOV_;
 	int* prunnumber_;
 
 

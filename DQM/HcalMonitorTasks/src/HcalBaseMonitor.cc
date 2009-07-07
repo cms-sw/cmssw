@@ -6,13 +6,6 @@
 #define PHIMAX 73.5
 #define PHIMIN -0.5
 
-const int HcalBaseMonitor::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,
-				       -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
-				       -16,-15,-9999, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
-				       30,31,32,33,34,35,36,37,38,39,40,41,42};
-
-const int HcalBaseMonitor::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
-
 HcalBaseMonitor::HcalBaseMonitor() {
   fVerbosity = 0;
   hotCells_.clear();
@@ -44,7 +37,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
   checkZDC_ = ps.getUntrackedParameter<bool>("checkZDC",true);
-  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000);
+  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100);
 
 
   // Minimum error rate that will caused the problem histogram to be filled
@@ -56,17 +49,17 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     
   if (etaMax_ > 44.5)
     {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
-      std::cout <<"                      Value being set back to 44.5."<<endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<endl;
+      cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
+      cout <<"                      Value being set back to 44.5."<<endl;
+      cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<endl;
       etaMax_ = 44.5;
     }
 
   if (etaMin_ < ETAMIN)
     {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
-      std::cout <<"                      Value being set back to -44.5."<<endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<endl;
+      cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
+      cout <<"                      Value being set back to -44.5."<<endl;
+      cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<endl;
       etaMin_ = -44.5;
     }
 
@@ -75,7 +68,6 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", PHIMAX);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", PHIMIN);
   phiBins_ = (int)(phiMax_ - phiMin_);
-
 
   return;
 } //void HcalBaseMonitor::setup()
@@ -186,38 +178,6 @@ bool HcalBaseMonitor::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 // *********************************************************** //
 
-void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, char* Name, char* Units)
-{
-  stringstream name;
-  name<<Name;
-  stringstream unitname;
-  stringstream unittitle;
-  if (Units=="")
-    {
-      unitname<<Units;
-      unittitle<<"No Units";
-    }
-  else
-    {
-      unitname<<" "<<Units;
-      unittitle<<Units;
-    }
-
-  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
-		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
-		  85,-42.5,42.5,
-		  72,0.5,72.5);
-
-  h->setAxisTitle("i#eta",1);
-  h->setAxisTitle("i#phi",2);
-  
-  SetupEtaPhiHists(hh, Name, Units);
-}
-
-void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, char* Name, char* Units)
-{
-  hh.setup(m_dbe, Name, Units);
-}
 
 void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units)
 {
@@ -259,7 +219,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   /*
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
   */
   return;
@@ -330,7 +290,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
   /* 
   if (showTiming)
     {
-     cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
   */
   return;
@@ -380,7 +340,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
 
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, char* Name, char* Units, int nbinsx...)
@@ -446,7 +406,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, char* 
  
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
 
   return;
@@ -489,7 +449,7 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
 
    if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
    return;
 
@@ -521,18 +481,24 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* 
     }
 
   // Push back depth plots
-  hh.push_back(m_dbe->book1D(("HB "+name.str()+unitname.str()).c_str(),
-			     (name.str()+" HB ("+unittitle.str().c_str()+")"),
+  hh.push_back(m_dbe->book1D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			     Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HE "+name.str()+unitname.str()).c_str(),
-			      (name.str()+" HE ("+unittitle.str().c_str()+")"),
+  hh.push_back( m_dbe->book1D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HO "+name.str()+unitname.str()).c_str(),
-			      (name.str()+" HO ("+unittitle.str().c_str()+")"),
+  hh.push_back( m_dbe->book1D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HF "+name.str()+unitname.str()).c_str(),
-			      (name.str()+" HF ("+unittitle.str().c_str()+")"),
+  hh.push_back( m_dbe->book1D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
+  hh.push_back(m_dbe->book1D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
+			     Nbins,lowbound,highbound));
+  hh.push_back(m_dbe->book1D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
+			     Nbins,lowbound,highbound));
 
   for (unsigned int i=0;i<hh.size();++i)
     {
@@ -541,7 +507,7 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, char* 
  
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
     }
 
   return;
@@ -580,14 +546,13 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
   int ieta=0;
   int iphi=0;
-
   for (int eta=0;eta<(etaBins_-2);++eta)
     {
       ieta=eta-int((etaBins_-2)/2);
       if (abs(ieta)<21)
 	continue;
       for (int phi=0;phi<72;++phi)
-	{
+        {
 	  iphi=phi+1;
 	  if (iphi%2==1 && abs(ieta)<40 && iphi<75 && iphi>0)
 	    {
@@ -605,48 +570,16 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 	      hh[0]->setBinContent(eta+2,phi+1,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[0]->setBinContent(eta+2,phi,hh[0]->getBinContent(eta+2,phi+2));
 	      hh[1]->setBinContent(eta+2,phi+3,hh[1]->getBinContent(eta+2,phi+2));
-	      hh[1]->setBinContent(eta+2,phi+1,hh[1]->getBinContent(eta+2,phi+2));
-	      hh[1]->setBinContent(eta+2,phi,hh[1]->getBinContent(eta+2,phi+2));
-	      
+              hh[1]->setBinContent(eta+2,phi+1,hh[1]->getBinContent(eta+2,phi+2));
+              hh[1]->setBinContent(eta+2,phi,hh[1]->getBinContent(eta+2,phi+2));
+
 	    } // else if (abs(ieta)>39 ...)
 	} // for (int phi=0;phi<72;++phi)
-      
-    } // for (int eta=0; eta< (etaBins_-2);++eta)
-  return;
-} // void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
-void HcalBaseMonitor::FillUnphysicalHEHFBins(EtaPhiHists &hh)
-{
-  int ieta=0;
-  int iphi=0;
-  // First 2 depths have 5-10-20 degree corrections
-  for (unsigned int d=0;d<3;++d)
-    {
-      for (int eta=0;eta<hh.depth[d]->getNbinsX();++eta)
-	{
-	  for (int phi=0;phi<hh.depth[d]->getNbinsY();++phi)
-	    {
-	      ieta=CalcIeta(eta,d+1);
-	      if (ieta==-9999 || abs(ieta)<21) continue;
-	      iphi=phi+1;
-	      if (iphi%2==1 && abs(ieta)<40 && iphi<73)
-		{
-		  hh.depth[d]->setBinContent(eta+1,iphi+1,hh.depth[d]->getBinContent(eta+1,iphi));
-		}
-	      // last two eta strips span 20 degrees in phi
-	      // Fill the phi cell above iphi, and the 2 below it
-	      else  if (abs(ieta)>39 && iphi%4==3 && iphi<73)
-		{
-		  hh.depth[d]->setBinContent(eta+1,iphi+1, hh.depth[d]->getBinContent(eta+1,iphi));
-		  hh.depth[d]->setBinContent(eta+1,iphi-1, hh.depth[d]->getBinContent(eta+1,iphi));
-		  hh.depth[d]->setBinContent(eta+1,iphi-2, hh.depth[d]->getBinContent(eta+1,iphi));
-		}
-	    } // for (int phi...)
-	} // for (int eta...)
-    } // for (int d=0;...)
-  // no corrections needed for HO (depth 4)
+    } // for (int eta=0; eta< (etaBins_-2);++eta)
+
   return;
-} // HcalBaseMonitor::HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
+} // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
 
 
@@ -684,268 +617,3 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(MonitorElement* hh)
 } // HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
 
 
-int HcalBaseMonitor::CalcEtaBin(int subdet, int ieta, int depth)
-{
-  // This takes the eta value from a subdetector and return an eta counter value as used by eta-phi histograms
-  // (ieta=-41 corresponds to bin 0, +41 to bin 85 -- there are two offsets to deal with the overlap at |ieta|=29).
-  // For HO, ieta = -15 corresponds to bin 0, and ieta=15 is bin 30
-  // For HE depth 3, things are more complicated, but feeding the ieta value will give back the corresponding counter eta value
-  int etabin=-9999; 
-  if (depth==1)
-    {
-      etabin=ieta+42;
-      if (subdet==HcalForward)
-	{
-	  ieta < 0 ? etabin-- : etabin++;
-	}
-    }
-  else if (depth==2)
-    {
-      if (ieta<-14)
-	{
-	  etabin=ieta+42;
-	  if (subdet==HcalForward) etabin--;
-	}
-      else if (ieta>14)
-	{
-	  etabin=ieta+14;
-	  if (subdet==HcalForward) etabin++;
-	}
-      
-    }
-  else if (subdet==HcalOuter && abs(ieta)<16)
-    etabin=ieta+15;
-  else if (subdet==HcalEndcap)
-    {
-      if (depth==3)
-	{
-	  if (ieta==-28) etabin=0;
-	  else if (ieta==-27) etabin=1;
-	  else if (ieta==-16) etabin=3;
-	  else if (ieta==16)  etabin=5;
-	  else if (ieta==27)  etabin=7;
-	  else if (ieta==28)  etabin=8;
-	}
-    }
-  return etabin;
-}
-
-int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
-{
-  int ieta;
-  ieta=-9999; // default value is nonsensical
-  if (subdet==HcalBarrel)
-    {
-      if (depth==1) ieta=eta-42;
-      else if (depth==2)
-	{
-	  ieta=binmapd2[eta];
-	}
-      else
-	return -9999; // non-physical value
-    }
-  else if (subdet==HcalForward)
-    {
-      if (depth==1)
-	{
-	  ieta=eta-42;
-	  if (eta<13) ieta++;
-	  else if (eta>71) ieta--;
-	  else return -9999; // if outside forward range, return dummy
-	}
-      else if (depth==2)
-	{
-	  ieta=binmapd2[eta];
-	  if (ieta<=-30) ieta++;
-	  else if (ieta>=30) ieta--;
-	  else return -9999;
-	}
-      else return -9999;
-    }
-  // add in HE depth 3, HO later
-  else if (subdet==HcalEndcap)
-    {
-      if (depth==1) ieta=eta-42;
-      else if (depth==2) 
-	{
-	  ieta=binmapd2[eta];
-	  if (ieta==-9999) return ieta;
-	  if (abs(ieta)>29 || abs(ieta)<18) return -9999; 
-	}
-      if (depth==3)
-	{
-	  if (eta<0 || eta>8) return -9999;
-	  else
-	    ieta=binmapd3[eta];
-	  if (ieta==-9999) return ieta;
-	}
-      else if (depth==4)
-	return -9999;
-    } // HcalEndcap
-  else if ( subdet==HcalOuter)
-    {
-      if (depth<4)
-	return -9999;
-      else
-	{
-	  ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-	  if (abs(ieta)>15) return -9999;
-	}
-    } // HcalOuter
-  return ieta;
-}
-  
-int HcalBaseMonitor::CalcIeta(int eta, int depth)
-{
-  int ieta=-9999;
-  if (depth==1)
-    {
-      ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
-      if (eta<13) ieta++;
-      else if (eta>71) ieta--;
-    }
-  else if (depth==2)
-    {
-      if (eta<0 || eta>57) ieta=-9999;
-      else
-	{
-	  ieta=binmapd2[eta];
-	  if (ieta=-9999) return ieta;
-	  else if (ieta<=-30) ieta++;
-	  else if (ieta>=30) ieta--;
-	}
-    }
-  else if (depth==3)
-    {
-      if (eta<0 || eta>8) ieta=-9999;
-      else
-	ieta=binmapd3[eta];
-    }
-  else if (depth==4)
-    {
-      ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
-      if (abs(ieta)>15) ieta=-9999;
-    }
-  return ieta;
-}
-
-
-bool HcalBaseMonitor::isHB(int etabin, int depth)
-{
-  if (depth>2) return false;
-  else if (depth<1) return false;
-  else 
-    {
-      int ieta=CalcIeta(etabin,depth);
-      if (ieta==-9999) return false;
-      if (depth==1)
-	{
-	  if (abs(ieta)<=16 ) return true;
-	  else return false;
-	}
-      else if (depth==2)
-	{
-	  if (abs(ieta)==15 || abs(ieta)==16) return true;
-	  else return false;
-	}
-    }
-  return false;
-}
-
-bool HcalBaseMonitor::isHE(int etabin, int depth)
-{
-  if (depth>3) return false;
-  else if (depth<1) return false;
-  else 
-    {
-      int ieta=CalcIeta(etabin,depth);
-      if (ieta==-9999) return false;
-      if (depth==1)
-	{
-	  if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
-	  if (ieta==-29 && etabin==13) return true; // HE -29
-	  if (ieta==29 && etabin == 71) return true; // HE +29
-	}
-      else if (depth==2)
-	{
-	  if (abs(ieta)>=17 && abs(ieta)<=28 ) return true;
-	  if (ieta==-29 && etabin==13) return true; // HE -29
-	  if (ieta==29 && etabin == 42) return true; // HE +29
-	}
-      else if (depth==3)
-	return true;
-    }
-  return false;
-}
-
-bool HcalBaseMonitor::isHF(int etabin, int depth)
-{
-  if (depth>2) return false;
-  else if (depth<1) return false;
-  else 
-    {
-      int ieta=CalcIeta(etabin,depth);
-      if (ieta==-9999) return false;
-      if (depth==1)
-	{
-	  if (abs(ieta)>29 ) return true;
-	  if (ieta==-29 && etabin==12) return true; // HF -29
-	  if (ieta==29 && etabin == 72) return true; // HF +29
-	}
-      else if (depth==2)
-	{
-	  if (abs(ieta)>29 ) return true;
-	  if (ieta==-29 && etabin==12) return true; // HE -29
-	  if (ieta==29 && etabin == 43) return true; // HE +29
-	}
-    }
-  return false;
-}
-
-bool HcalBaseMonitor::isHO(int etabin, int depth)
-{
-  if (depth!=4) return false;
-  int ieta=CalcIeta(etabin,depth);
-  if (ieta!=-9999) return true;
-  return false;
-}
-
-
-bool HcalBaseMonitor::isSiPM(int ieta, int iphi, int depth)
-{
-  if (depth!=4) return false;
-  // HOP1
-  if (ieta>=5 && ieta <=10 && iphi>=47 && iphi<=58) return true;  
-  // HOP2
-  if (ieta>=11 && ieta<=15 && iphi>=59 && iphi<=70) return true;
-  return false;
-}  // bool isSiPM
-
-
-void HcalBaseMonitor::SetEtaPhiLabels(MonitorElement* &h)
-{
-  std::stringstream label;
-  for (int i=-41;i<=-29;i=i+2)
-    {
-      label<<i;
-      h->setBinLabel(i+42,label.str().c_str());
-      label.str("");
-    }
-  h->setBinLabel(14,"-29HE");
-    
-  // offset by one for HE
-  for (int i=-27;i<=27;i=i+2)
-    {
-      label<<i;
-      h->setBinLabel(i+43,label.str().c_str());
-      label.str("");
-    }
-  h->setBinLabel(72,"29HE");
-  for (int i=29;i<=41;i=i+2)
-    {
-      label<<i;
-      h->setBinLabel(i+44,label.str().c_str());
-      label.str("");
-    }
-
-}

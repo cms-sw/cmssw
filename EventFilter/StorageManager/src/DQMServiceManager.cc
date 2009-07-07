@@ -3,10 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id$
-//
-// Note: this class is no longer used in the StorageManager, but is still
-// required by the SMProxyServer (Remi Mommsen, May 5, 2009)
+// $Id: DQMServiceManager.cc,v 1.6.4.1 2008/10/29 19:24:20 biery Exp $
 //
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -183,18 +180,6 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
     }
     delete(descriptor);
   }
-}
-
-void DQMServiceManager::setParameters(DQMProcessingParams const& dqmParams)
-{
-  useCompression_ = dqmParams._useCompressionDQM;
-  compressionLevel_ = dqmParams._compressionLevelDQM;
-  collateDQM_ = dqmParams._collateDQM;
-  archiveDQM_ = dqmParams._archiveDQM;
-  archiveInterval_ = static_cast<int>(dqmParams._archiveIntervalDQM);
-  filePrefix_ = dqmParams._filePrefixDQM;
-  purgeTime_ = static_cast<int>(dqmParams._purgeTimeDQM);
-  readyTime_ = static_cast<int>(dqmParams._readyTimeDQM);
 }
 
 DQMInstance * DQMServiceManager::findDQMInstance(int runNumber, 

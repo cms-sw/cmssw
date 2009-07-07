@@ -1,19 +1,11 @@
-// @(#)root/hist:$Id: PdfCombiner.cc,v 1.4 2009/04/15 12:42:44 dpiparo Exp $
+// @(#)root/hist:$Id: PdfCombiner.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "PdfCombiner.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/PdfCombiner.h"
 #include "TIterator.h"
 
 /// For the Cint dictionaries
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(PdfCombiner)
-#endif
 /*----------------------------------------------------------------------------*/
 
 /// Default Constructor

@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.8 2005/11/12 16:18:04 chrjones Exp $
+// $Id: NoProxyException.h,v 1.9 2007/06/14 17:52:15 wmtan Exp $
 //
 //
 
@@ -40,18 +40,14 @@ class NoProxyException : public NoDataException<T>
       // ---------- Constructors and destructor ----------------
       NoProxyException(const EventSetupRecord& iRecord,
 			  const DataKey& iDataKey) :
-	NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException",standardMessage()) 
+       NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException",NoDataExceptionBase::noProxyMessage()) 
        {
        }
-      virtual ~NoProxyException() throw() {}
 
       // ---------- member functions ---------------------------
 
    private:
       // ---------- const member functions ---------------------
-      std::string standardMessage()const throw() { 
-         return std::string("Please add an ESSource or ESProducer to your job which can deliver this data.\n");
-      }
 
       // ---------- static member functions --------------------
 

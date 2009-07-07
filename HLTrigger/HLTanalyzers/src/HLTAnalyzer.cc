@@ -58,6 +58,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
   m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
   m_l1extramet      = edm::InputTag(l1extramc_, "MET");
+  m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
 
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
@@ -119,6 +120,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HBHERecHitTag_            = conf.getParameter<edm::InputTag> ("HBHERecHits");  
   HORecHitTag_              = conf.getParameter<edm::InputTag> ("HORecHits");  
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
+  IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
 
   m_file = 0;   // set to null
   errCnt = 0;
@@ -143,6 +145,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   elm_analysis_.setup(conf, HltTree);
   muon_analysis_.setup(conf, HltTree);
   alca_analysis_.setup(conf, HltTree); 
+  track_analysis_.setup(conf, HltTree);
   mct_analysis_.setup(conf, HltTree);
   hlt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
@@ -174,7 +177,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
   edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
-  edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet;
+  edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
   edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
   edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
@@ -232,11 +235,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<HBHERecHitCollection>           hbherechits;   
   edm::Handle<HORecHitCollection>             horechits;   
   edm::Handle<HFRecHitCollection>             hfrechits;   
-  
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL3; 
+
   // new stuff for the egamma EleId
-//   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-//   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-//   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
+   edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+   edm::InputTag ecalRechitEETag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
 
   edm::ESHandle<MagneticField>                theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
@@ -283,6 +287,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
   getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
   getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
+  getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
   getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
   getCollection( iEvent, missing, l1GtOMRec,       gtObjectMap_,       kL1GtOMRec );
   getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
@@ -350,6 +355,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             kHBHErechits );   
   getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
+  getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -384,36 +390,36 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     //    mulinks,
     HltTree);
   
-//   elm_analysis_.analyze(
-//     electrons,
-//     photons,
-//     electronIsoHandle,
-//     electronIsoHandleLW,
-//     electronNonIsoHandle,
-//     electronNonIsoHandleLW,
-//     NonIsoTrackEleIsolMap,
-//     NonIsoTrackEleIsolMapLW,
-//     TrackEleIsolMap,
-//     TrackEleIsolMapLW,
-//     L1IsoPixelSeedsMap,
-//     L1IsoPixelSeedsMapLW,
-//     L1NonIsoPixelSeedsMap,
-//     L1NonIsoPixelSeedsMapLW,
-//     recoIsolecalcands,
-//     recoNonIsolecalcands,
-//     EcalIsolMap,
-//     EcalNonIsolMap,
-//     HcalEleIsolMap,
-//     HcalEleNonIsolMap,
-//     HcalIsolMap,
-//     HcalNonIsolMap,
-//     TrackIsolMap,
-//     TrackNonIsolMap,
-//     lazyTools,
-//     theMagField,
-//     BSPosition,
-//     eIDValueMap,
-//     HltTree);
+   elm_analysis_.analyze(
+     electrons,
+     photons,
+     electronIsoHandle,
+     electronIsoHandleLW,
+     electronNonIsoHandle,
+     electronNonIsoHandleLW,
+     NonIsoTrackEleIsolMap,
+     NonIsoTrackEleIsolMapLW,
+     TrackEleIsolMap,
+     TrackEleIsolMapLW,
+     L1IsoPixelSeedsMap,
+     L1IsoPixelSeedsMapLW,
+     L1NonIsoPixelSeedsMap,
+     L1NonIsoPixelSeedsMapLW,
+     recoIsolecalcands,
+     recoNonIsolecalcands,
+     EcalIsolMap,
+     EcalNonIsolMap,
+     HcalEleIsolMap,
+     HcalEleNonIsolMap,
+     HcalIsolMap,
+     HcalNonIsolMap,
+     TrackIsolMap,
+     TrackNonIsolMap,
+     lazyTools,
+     theMagField,
+     BSPosition,
+     eIDValueMap,
+     HltTree);
 
   mct_analysis_.analyze(
     mctruth,
@@ -441,6 +447,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1CaloGeom,
     HltTree);  
 
+  track_analysis_.analyze( 
+    isopixeltracksL3, 
+    HltTree); 
+
   hlt_analysis_.analyze(
     hltresults,
     l1extemi,
@@ -450,6 +460,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     l1extjetf,
     l1exttaujet,
     l1extmet,
+    l1extmht,
     l1GtRR,
     l1GtOMRec,
     gctBitCounts,

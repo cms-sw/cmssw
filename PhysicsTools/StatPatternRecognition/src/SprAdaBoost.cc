@@ -1,4 +1,4 @@
-//$Id: SprAdaBoost.cc,v 1.2 2007/09/21 22:32:08 narsky Exp $
+//$Id: SprAdaBoost.cc,v 1.3 2008/11/26 22:59:20 elmer Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprAdaBoost.hh"
@@ -138,7 +138,7 @@ bool SprAdaBoost::reset()
 
 void SprAdaBoost::destroy()
 {
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     if( trained_[i].second )
       delete trained_[i].first;
   }
@@ -179,7 +179,7 @@ bool SprAdaBoost::setData(SprAbsFilter* data)
 {
   assert( data != 0 );
   data_ = data;
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     if( !trainable_[i].first->setData(data) ) {
       cerr << "Cannot reset data for trainable classifier " << i << endl;
       return false;
@@ -207,7 +207,7 @@ int SprAdaBoost::reweight(const SprAbsTrainedClassifier* c, double& beta,
   }
 
   // init
-  int size = data_->size();
+  unsigned int size = data_->size();
   double error = 0;
 
   // reweight events
@@ -217,7 +217,7 @@ int SprAdaBoost::reweight(const SprAbsTrainedClassifier* c, double& beta,
     unsigned ncor0(0), ncor1(0), nmis0(0), nmis1(0);
     double wmis(0), wcor(0);
     vector<int> out(size);
-    for( int i=0;i<size;i++ ) {
+    for( unsigned int i=0;i<size;i++ ) {
       const SprPoint* p = (*data_)[i];
       double w = data_->w(i);
       if( c->accept(p) ) {
@@ -270,7 +270,7 @@ int SprAdaBoost::reweight(const SprAbsTrainedClassifier* c, double& beta,
     }
     
     // adjust weights
-    for( int i=0;i<size;i++ ) {
+    for( unsigned int i=0;i<size;i++ ) {
       if(      out[i] == 0 )
 	data_->uncheckedSetW(i,0.5*(data_->w(i))/error);
       else if( out[i] == 1 )
@@ -288,7 +288,7 @@ int SprAdaBoost::reweight(const SprAbsTrainedClassifier* c, double& beta,
 
     // loop through training data and compute responses
     double eps = SprUtils::eps();
-    for( int i=0;i<size;i++ ) {
+    for( unsigned int i=0;i<size;i++ ) {
       const SprPoint* p = (*data_)[i];
       double r = c->response(p);
       if( r<0. || r>1. ) {
@@ -332,7 +332,7 @@ int SprAdaBoost::reweight(const SprAbsTrainedClassifier* c, double& beta,
 
     // loop through training data and classify points
     double wFactor = exp(2.*epsilon_);
-    for( int i=0;i<size;i++ ) {
+    for( unsigned int i=0;i<size;i++ ) {
       const SprPoint* p = (*data_)[i];
       double w = data_->w(i);
       if( c->accept(p) ) {
@@ -372,7 +372,7 @@ bool SprAdaBoost::train(int verbose)
   // loop through trained classifiers first
   double beta = 0;
   unsigned nCycle = 0;
-  int nTrained = trained_.size();
+  unsigned int nTrained = trained_.size();
   if( nTrained > 0 ) {
     //
     // fill betas and reweight events
@@ -385,7 +385,7 @@ bool SprAdaBoost::train(int verbose)
 	     << "classifiers..." << endl;
       }
       else {
-	for( int i=0;i<beta_.size();i++ ) {
+	for( unsigned int i=0;i<beta_.size();i++ ) {
 	  assert( beta_[i] > 0 );
 	  beta = beta_[i];
 	  if( this->reweight(trained_[i].first,beta,true,verbose) != 0 ) {
@@ -403,7 +403,7 @@ bool SprAdaBoost::train(int verbose)
     //
     // if betas are not filled for all trained classifiers, fill the rest
     //
-    for( int i=beta_.size();i<nTrained;i++ ) {
+    for( unsigned int i=beta_.size();i<nTrained;i++ ) {
       if( this->reweight(trained_[i].first,beta,false,verbose) != 0 ) {
 	cerr << "Unable to compute beta for trained classifier " << i << endl;
 	return this->prepareExit(false);
@@ -430,10 +430,10 @@ bool SprAdaBoost::train(int verbose)
     // compute cumulative beta weights for validation points
     valBeta_.clear();
     valBeta_.resize(valData_->size(),0);
-    for( int i=0;i<valData_->size();i++ ) {
+    for( unsigned int i=0;i<valData_->size();i++ ) {
       const SprPoint* p = (*valData_)[i];
       double resp = 0;
-      for( int j=0;j<trained_.size();j++ ) {
+      for( unsigned int j=0;j<trained_.size();j++ ) {
 	int out = ( trained_[j].first->accept(p,resp) ? 1 : -1 );
 	if(      mode_==SprTrainedAdaBoost::Discrete 
 		 || mode_==SprTrainedAdaBoost::Epsilon )
@@ -466,7 +466,7 @@ bool SprAdaBoost::train(int verbose)
   unsigned nMax = cycles_+nTrained;
   unsigned nFailed = 0;
   while( nCycle < nMax ) {
-    for( int i=0;i<trainable_.size();i++ ) {
+    for( unsigned int i=0;i<trainable_.size();i++ ) {
       // exit if enough cycles are made
       if( nCycle++ >= nMax ) return this->prepareExit((this->nTrained()>0));
 
@@ -534,7 +534,7 @@ bool SprAdaBoost::train(int verbose)
 
       // check for perfect separation
       if( status == 1 ) {
-	for( int k=0;k<beta_.size();k++ ) beta_[k] = 0;
+	for( unsigned int k=0;k<beta_.size();k++ ) beta_[k] = 0;
 	trained_.push_back(pair<const SprAbsTrainedClassifier*,bool>(t,true));
 	beta_.push_back(1);
 	cout << "AdaBoost exiting since perfect separation is achieved." 
@@ -565,7 +565,7 @@ bool SprAdaBoost::train(int verbose)
       if( valData_ != 0 ) {
 	// update beta weights
 	if( beta > 0 ) {
-	  for( int j=0;j<valData_->size();j++ ) {
+	  for( unsigned int j=0;j<valData_->size();j++ ) {
 	    const SprPoint* p = (*valData_)[j];
 	    double resp = 0;
 	    int out = ( t->accept(p,resp) ? 1 : -1 );
@@ -640,7 +640,7 @@ bool SprAdaBoost::prepareExit(bool status)
   initialDataWeights_.clear();
 
   // restore the original data supplied to the classifiers
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     SprAbsClassifier* c = trainable_[i].first;
     if( !c->setData(data_) )
       cerr << "Unable to restore original data for classifier " << i << endl;
@@ -657,14 +657,14 @@ void SprAdaBoost::print(std::ostream& os) const
   os << "Trained AdaBoost " << SprVersion << endl;
   os << "Classifiers: " << trained_.size() << endl;
   os << "Mode: " << int(mode_) << "   Epsilon: " << epsilon_ << endl;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     char s [200];
     sprintf(s,"Classifier %6i %s Beta: %12.10f",
 	    i,trained_[i].first->name().c_str(),beta_[i]);
     os << s << endl;
   }
   os << "Classifiers:" << endl;
-  for( int i=0;i<trained_.size();i++ ) {
+  for( unsigned int i=0;i<trained_.size();i++ ) {
     os << "Classifier " << i 
        << " " << trained_[i].first->name().c_str() << endl;
     trained_[i].first->print(os);
@@ -685,7 +685,7 @@ SprCut SprAdaBoost::optimizeCut(const SprAbsTrainedClassifier* c,
   // store classifier output
   vector<pair<double,double> > r0, r1;
   vector<double> r(data_->size());
-  for( int i=0;i<data_->size();i++ ) {
+  for( unsigned int i=0;i<data_->size();i++ ) {
     const SprPoint* p = (*data_)[i];
     double rsp = c->response(p);
     r[i] = rsp;
@@ -698,10 +698,10 @@ SprCut SprAdaBoost::optimizeCut(const SprAbsTrainedClassifier* c,
   // init weights
   double wcor0(0), wmis1(0);
   double wmis0 = 0;
-  for( int i=0;i<r0.size();i++ )
+  for( unsigned int i=0;i<r0.size();i++ )
     wmis0 += r0[i].second;
   double wcor1 = 0;
-  for( int i=0;i<r1.size();i++ )
+  for( unsigned int i=0;i<r1.size();i++ )
     wcor1 += r1[i].second;
   assert( wmis0>0 && wcor1>0 );
   double wtot = wmis0+wcor1;
@@ -731,7 +731,7 @@ SprCut SprAdaBoost::optimizeCut(const SprAbsTrainedClassifier* c,
   vector<double> division;
   division.push_back(SprUtils::min());
   double xprev = r[0];
-  for( int k=1;k<r.size();k++ ) {
+  for( unsigned int k=1;k<r.size();k++ ) {
     double xcurr = r[k];
     if( (xcurr-xprev) > SprUtils::eps() ) {
       division.push_back(0.5*(xcurr+xprev));
@@ -816,7 +816,7 @@ bool SprAdaBoost::printValidation(unsigned cycle)
   loss_->reset();
 
   // loop through validation data
-  for( int i=0;i<valData_->size();i++ ) {
+  for( unsigned int i=0;i<valData_->size();i++ ) {
     const SprPoint* p = (*valData_)[i];
     double w = valData_->w(i);
     if( p->class_!=cls0_ && p->class_!=cls1_ ) w = 0;
@@ -851,7 +851,7 @@ bool SprAdaBoost::storeData(const char* filename) const
 
 bool SprAdaBoost::setClasses(const SprClass& cls0, const SprClass& cls1) 
 {
-  for( int i=0;i<trainable_.size();i++ ) {
+  for( unsigned int i=0;i<trainable_.size();i++ ) {
     if( !trainable_[i].first->setClasses(cls0,cls1) ) {
       cerr << "AdaBoost unable to reset classes for classifier " << i << endl;
       return false;

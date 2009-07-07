@@ -43,7 +43,7 @@ namespace evf{
     else if (webheading==in.substr(0,webheading.size()))
       {
 	string hostname = getHostString(in);
-	SquidNet sn(3128,"http://localhost:8000/RELEASE-NOTES.txt");	
+	SquidNet sn(3128,"http://frontier1.cms:8000/RELEASE-NOTES.txt");	
 	edm::LogInfo("psetRetriever")<<"Using cfg from " << in;
 	CURL* han = curl_easy_init();
 	if(han==0)
@@ -59,9 +59,6 @@ namespace evf{
 	  curl_easy_setopt(han, CURLOPT_PROXY, "localhost:3128");
 
 	curl_easy_setopt(han, CURLOPT_URL, hostname.c_str());
-	curl_easy_setopt(han, CURLOPT_VERBOSE);
-	curl_easy_setopt(han, CURLOPT_NOSIGNAL);
-	//	curl_easy_setopt(han, CURLOPT_TIMEOUT, 60.0L);
 
 	curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data);
 	curl_easy_setopt(han, CURLOPT_WRITEDATA, &pset);
@@ -73,8 +70,7 @@ namespace evf{
 	if(success != 0)
 	  {
 	    ostringstream msg;
-	    msg <<  "could not get config from url " << in << " error #" 
-		<< success << " " << error;
+	    msg <<  "could not get config from url " << in << " error " << error;
 	    XCEPT_RAISE(evf::Exception,msg.str().c_str());
 	  }
 

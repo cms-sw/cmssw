@@ -15,15 +15,8 @@ namespace cond{
     /// Destructor
     virtual ~IOVEditorImpl();
 
-     // create empty default sequence
-    virtual void create(cond::TimeType timetype);
-
-    // create empty sequence with fixed time boundary
-    virtual void create(cond::TimeType timetype, cond::Time_t lastTill);
-
-    // return the current sequence
-    virtual IOVSequence & iov();
-
+    /// create a new IOV
+    void create(cond::TimeType timetype,cond::Time_t lastTill);
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     virtual unsigned int insert( cond::Time_t tillTime,
@@ -52,10 +45,6 @@ namespace cond{
 	       );
 
     virtual void deleteEntries( bool withPayload=false );
-
-    // remove last entry
-    virtual unsigned int truncate(bool withPayload);
-
 
     virtual void import( const std::string& sourceIOVtoken );
 

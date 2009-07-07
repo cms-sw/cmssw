@@ -7,9 +7,10 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.21 $
-///  $Date: 2009/05/11 09:41:47 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.19 $
+///  $Date: 2008/11/10 14:48:42 $
+///  (last update by $Author: henderle $)
+
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -45,10 +46,6 @@ class PedeLabeler;
 class Mille;
 class TrajectoryFactoryBase;
 
-// already from base class - and forward declaration does not work since typedef!
-/* class TkFittedLasBeamCollection; */
-/* class TsosVectorCollection; */
-
 class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 {
  public:
@@ -67,13 +64,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
-
-/*   virtual void beginRun(const edm::EventSetup &setup) {} */
-  /// Run on run products, e.g. TkLAS
-  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
-
-/*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
-/*   virtual void endLuminosityBlock(const edm::EventSetup &setup) {} */
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
@@ -120,12 +110,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
   void buildUserVariables(const std::vector<Alignable*> &alignables) const;
 
-  void addLaserData(const TkFittedLasBeamCollection &tkLasBeams,
-		    const TsosVectorCollection &tkLasBeamTsoses);
-
-  //--------------------------------------------------------
-  // Data members
-  //--------------------------------------------------------
   enum EModeBit {myMilleBit = 1 << 0, myPedeRunBit = 1 << 1, myPedeSteerBit = 1 << 2,
 		 myPedeReadBit = 1 << 3};
   unsigned int decodeMode(const std::string &mode) const;

@@ -1,4 +1,4 @@
-// $Id: SprTrainedDecisionTree.cc,v 1.5 2007/05/14 18:08:08 narsky Exp $
+// $Id: SprTrainedDecisionTree.cc,v 1.2 2007/09/21 22:32:10 narsky Exp $
 
 #include "PhysicsTools/StatPatternRecognition/interface/SprExperiment.hh"
 #include "PhysicsTools/StatPatternRecognition/interface/SprTrainedDecisionTree.hh"
@@ -12,7 +12,7 @@ using namespace std;
 double SprTrainedDecisionTree::response(const std::vector<double>& v) const
 {
   // go through signal nodes
-  for( int i=0;i<nodes1_.size();i++ ) {
+  for( unsigned int i=0;i<nodes1_.size();i++ ) {
     bool accepted = true;
     for( SprBox::const_iterator iter=nodes1_[i].begin();
 	 iter!=nodes1_[i].end();iter++ ) {
@@ -32,7 +32,7 @@ double SprTrainedDecisionTree::response(const std::vector<double>& v) const
 int SprTrainedDecisionTree::nBox(const std::vector<double>& v) const
 {
   // go through signal nodes
-  for( int i=0;i<nodes1_.size();i++ ) {
+  for( unsigned int i=0;i<nodes1_.size();i++ ) {
     bool accepted = true;
     for( SprBox::const_iterator iter=nodes1_[i].begin();
 	 iter!=nodes1_[i].end();iter++ ) {
@@ -53,7 +53,7 @@ void SprTrainedDecisionTree::print(std::ostream& os) const
 {
   os << "Trained DecisionTree " << SprVersion << endl;
   os << "Nodes: " << nodes1_.size() << " nodes." << endl;
-  for( int i=0;i<nodes1_.size();i++ ) {
+  for( unsigned int i=0;i<nodes1_.size();i++ ) {
     const SprBox& limits = nodes1_[i];
     int size = limits.size();
     os << "Node " << i << " Size " << size << endl;

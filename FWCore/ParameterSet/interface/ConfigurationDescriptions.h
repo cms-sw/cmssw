@@ -29,6 +29,8 @@ namespace edm {
 
     ConfigurationDescriptions();
 
+    ~ConfigurationDescriptions();
+
     // ---------------------------------------------------------
     // These functions are used by module developers to create
     // a description for a module.

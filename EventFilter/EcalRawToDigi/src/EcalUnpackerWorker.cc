@@ -63,7 +63,8 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   unpacker_->setEBSrFlagsCollection(&productEBSrFlags);
   unpacker_->setEESrFlagsCollection(&productEESrFlags);
   unpacker_->setEcalTpsCollection(&productTps);
-  unpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);
+  unpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);  
+  unpacker_->setInvalidZSXtalIdsCollection(&productInvalidZSXtalIds);
   unpacker_->setInvalidBlockLengthsCollection(&productInvalidBlockLengths);
   unpacker_->setPnDiodeDigisCollection(&productPnDiodeDigis);
   unpacker_->setInvalidMemTtIdsCollection(& productInvalidMemTtIds);
@@ -127,6 +128,7 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
   productEESrFlags.reset(new EESrFlagCollection);
   productTps.reset(new EcalTrigPrimDigiCollection);
   productInvalidTTIds.reset(new EcalElectronicsIdCollection);
+  productInvalidZSXtalIds.reset(new EcalElectronicsIdCollection);
   productInvalidBlockLengths.reset(new EcalElectronicsIdCollection);
   productPnDiodeDigis.reset(new EcalPnDiodeDigiCollection);
   productInvalidMemTtIds.reset(new EcalElectronicsIdCollection);
