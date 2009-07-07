@@ -12,8 +12,17 @@ using namespace std;
 
 void Trajectory::pop() {
   if (!empty()) {
-    if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;
-    else if(lost(* (theData.back().recHit()) )) theNumberOfLostHits--;
+    if(theData.back().recHit()->isValid()) {
+      theNumberOfFoundHits--;
+      theChiSquared -= theData.back().estimate();
+    }
+    else if(lost(* (theData.back().recHit()) )) {
+      theNumberOfLostHits--;
+    }
+    else if(isBad(* (theData.back().recHit()) ) && theData.back().recHit()->geographicalId().det()==DetId::Muon ) {
+      theChiSquaredBad -= theData.back().estimate();
+    }
+
     theData.pop_back();
   }
 }
@@ -55,14 +64,18 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
 {
   theData.push_back(tm);
   if ( tm.recHit()->isValid()) {
+    theChiSquared += chi2Increment;
     theNumberOfFoundHits++;
-   }
-  //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
-  else if (lost( *(tm.recHit()) ) )   theNumberOfLostHits++;
-  
+  }
+  // else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
+  else if (lost( *(tm.recHit()) ) ) {
+    theNumberOfLostHits++;
+  }
  
-  theChiSquared += chi2Increment;
-
+  else if (isBad( *(tm.recHit()) ) && tm.recHit()->geographicalId().det()==DetId::Muon ) {
+    theChiSquaredBad += chi2Increment;
+  }
+ 
   // in case of a Trajectory constructed without direction, 
   // determine direction from the radii of the first two measurements
 
@@ -86,13 +99,31 @@ int Trajectory::ndof(bool bon) const {
   const Trajectory::RecHitContainer transRecHits = recHits();
   
   int dof = 0;
+  int dofBad = 0;
   
   for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin();
-      rechit != transRecHits.end(); ++rechit)
-    if ((*rechit)->isValid()) dof += (*rechit)->dimension();
-  
-  int constr = bon ? 5 : 4;
-  return std::max(dof - constr, 0); 
+      rechit != transRecHits.end(); ++rechit) {
+    if((*rechit)->isValid())
+      dof += (*rechit)->dimension();
+    else if( isBad(**rechit) && (*rechit)->geographicalId().det()==DetId::Muon )
+      dofBad += (*rechit)->dimension();
+  }
+
+  // If dof!=0 (there is at least 1 valid hit),
+  //    return ndof=ndof(fit)
+  // If dof=0 (all rec hits are invalid, only for STA trajectories),
+  //    return ndof=ndof(invalid hits)
+  if(dof) {
+    int constr = bon ? 5 : 4;
+    return std::max(dof - constr, 0);
+  }
+  else {
+    // A STA can have < 5 (invalid) hits
+    // if this is the case ==> ndof = 1
+    // (to avoid divisions by 0)
+    int constr = bon ? 5 : 4;
+    return std::max(dofBad - constr, 1);
+  }
 }
 
 
@@ -173,6 +204,17 @@ bool Trajectory::lost( const TransientTrackingRecHit& hit)
     if(hit.geographicalId().rawId() == 0) {return false;}
     else{
       return hit.getType() == TrackingRecHit::missing;
+    }
+  }
+}
+
+bool Trajectory::isBad( const TransientTrackingRecHit& hit)
+{
+  if ( hit.isValid()) return false;
+  else {
+    if(hit.geographicalId().rawId() == 0) {return false;}
+    else{
+      return hit.getType() == TrackingRecHit::bad;
     }
   }
 }
