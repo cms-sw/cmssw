@@ -36,7 +36,7 @@ TFile* DetIdToMatrix::findFile(const char* fileName)
       file += fileName;
    }
    if ( ! gSystem->AccessPathName(file.Data()) ) {
-      return TFile::Open(fileName);
+      return TFile::Open(file);
    } 
    
    const char* searchpath = gSystem->Getenv("CMSSW_SEARCH_PATH");
