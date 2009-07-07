@@ -38,14 +38,15 @@ public:
     */
     bool evaluate(TrackingParticleRef tpr)
     {
-      if ( enableSimToReco_ ) {
+        if ( enableSimToReco_ )
+        {
 
-         std::pair<reco::TrackBaseRef, double> result =  match(tpr, simToReco_, bestMatchByMaxValue_); 
-         recotrack_ = result.first;
-         quality_ =  result.second;
+            std::pair<reco::TrackBaseRef, double> result =  match(tpr, simToReco_, bestMatchByMaxValue_);
+            recotrack_ = result.first;
+            quality_ =  result.second;
 
-      }
-      return HistoryBase::evaluate(tpr);
+        }
+        return HistoryBase::evaluate(tpr);
     }
 
 

@@ -119,7 +119,7 @@ TrackClassifier const & TrackClassifier::evaluate (TrackingParticleRef const & t
     if ( recotrack.isNonnull() )
     {
         flags_[Reconstructed] = true;
-        // Classify all the tracks by their association and reconstruction information        
+        // Classify all the tracks by their association and reconstruction information
         reconstructionInformation(recotrack);
         // Analyse the track reconstruction quality
         qualityInformation(recotrack);
@@ -299,7 +299,7 @@ void TrackClassifier::processesAtGenerator()
                         !flags_[TauDecay] &&
                         !flags_[KsDecay] &&
                         !flags_[LambdaDecay] &&
-                        !flags_[Jpsi] && 
+                        !flags_[Jpsi] &&
                         longlived
                     );
                 }
@@ -406,7 +406,7 @@ void TrackClassifier::processesAtSimulation()
                     !flags_[TauDecay] &&
                     !flags_[KsDecay] &&
                     !flags_[LambdaDecay] &&
-                    !flags_[Jpsi] 
+                    !flags_[Jpsi]
                 );
             }
             else

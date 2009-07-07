@@ -3,7 +3,7 @@
 
 //! Generic matching function
 template<typename Reference, typename Association>
-  std::pair<typename Association::data_type::first_type, double> match (Reference key, Association association, bool bestMatchByMaxValue)
+std::pair<typename Association::data_type::first_type, double> match (Reference key, Association association, bool bestMatchByMaxValue)
 {
     typename Association::data_type::first_type value;
 

@@ -39,15 +39,16 @@ public:
     */
     bool evaluate(TrackingVertexRef tvr)
     {
-      if ( enableSimToReco_ ) {
-        
-	std::pair<reco::VertexRef, double> result =  match(tvr, simToReco_, bestMatchByMaxValue_); 
-         recovertex_ = result.first;
-         quality_ =  result.second;
-      }
-      return HistoryBase::evaluate(tvr);    
+        if ( enableSimToReco_ )
+        {
+
+            std::pair<reco::VertexRef, double> result =  match(tvr, simToReco_, bestMatchByMaxValue_);
+            recovertex_ = result.first;
+            quality_ =  result.second;
+        }
+        return HistoryBase::evaluate(tvr);
     }
-    
+
 
     //! Evaluate reco::Vertex history using a given association.
     /* Return false when the track association is not possible (fake track).

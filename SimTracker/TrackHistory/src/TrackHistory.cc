@@ -60,7 +60,7 @@ bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
 {
     if ( !enableRecoToSim_ ) return false;
 
-    std::pair<TrackingParticleRef, double> result =  match(tr, recoToSim_, bestMatchByMaxValue_); 
+    std::pair<TrackingParticleRef, double> result =  match(tr, recoToSim_, bestMatchByMaxValue_);
 
     TrackingParticleRef tpr( result.first );
     quality_ = result.second;

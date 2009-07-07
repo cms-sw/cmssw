@@ -24,14 +24,14 @@ VertexHistory::VertexHistory (
 
     // Association by max. value
     bestMatchByMaxValue_ = config.getUntrackedParameter<bool> ( "bestMatchByMaxValue" );
-    
+
     // Enable RecoToSim association
     enableRecoToSim_ = config.getUntrackedParameter<bool> ( "enableRecoToSim" );
 
     // Enable SimToReco association
-    enableSimToReco_ = config.getUntrackedParameter<bool> ( "enableSimToReco" ); 
+    enableSimToReco_ = config.getUntrackedParameter<bool> ( "enableSimToReco" );
 
-    quality_ = 0.;   
+    quality_ = 0.;
 }
 
 
@@ -95,7 +95,7 @@ bool VertexHistory::evaluate ( reco::VertexRef tv )
 
     if ( !enableRecoToSim_ ) return false;
 
-    std::pair<TrackingVertexRef, double> result =  match(tv, recoToSim_, bestMatchByMaxValue_); 
+    std::pair<TrackingVertexRef, double> result =  match(tv, recoToSim_, bestMatchByMaxValue_);
 
     TrackingVertexRef tvr( result.first );
     quality_ = result.second;

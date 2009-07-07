@@ -32,8 +32,8 @@ public:
     //! Classify the TrackingVertex in categories.
     VertexClassifierByProxy<Collection> const & evaluate (TrackingVertexRef const & vertex)
     {
-    	VertexClassifier::evaluate(vertex);
-    	return *this;
+        VertexClassifier::evaluate(vertex);
+        return *this;
     }
 
     //! Classify any vertexes in categories.

@@ -454,7 +454,7 @@ void VertexClassifier::genPrimaryVertices()
         // Loop over the different GenVertex
         for ( HepMC::GenEvent::vertex_const_iterator ivertex = event->vertices_begin(); ivertex != event->vertices_end(); ++ivertex )
         {
-            bool hasParentVertex = false;            
+            bool hasParentVertex = false;
 
             // Loop over the parents looking to see if they are coming from a production vertex
             for (

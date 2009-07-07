@@ -32,8 +32,8 @@ public:
     //! Classify the TrackingVertex in categories.
     TrackClassifierByProxy<Collection> const & evaluate (TrackingParticleRef const & track)
     {
-    	TrackClassifier::evaluate(track);
-    	return *this;
+        TrackClassifier::evaluate(track);
+        return *this;
     }
 
     //! Classify any Tracks in categories.
