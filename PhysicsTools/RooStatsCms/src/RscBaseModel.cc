@@ -705,6 +705,7 @@ void RscBaseModel::readDataCard() {
 		      _name,
 		      getDataCard(),
 		      frac,0);
+    }
     if (model=="CBShape_BreitWigner") {
 	readParameter(_name+"_m0",
 		      "m0",
@@ -741,7 +742,6 @@ void RscBaseModel::readDataCard() {
 		      _name,
 		      getDataCard(),
 		      frac,0);
-
     }
   }
 }
