@@ -9,8 +9,8 @@
  *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2007/12/08 17:09:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/05 15:48:33 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include<string>
 
 //
