@@ -30,7 +30,8 @@ private:
   double isoCut03_;
   double massTMin_;
   double massTMax_;
-  double ptThrForZCount_;
+  double ptThrForZ1_;
+  double ptThrForZ2_;
   double acopCut_;
   double eJetMin_;
   int nJetMax_;
@@ -69,7 +70,7 @@ using namespace reco;
 WMuNuAnalyzer::WMuNuAnalyzer(const ParameterSet& pset) :
       muonTag_(pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(pset.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      jetTag_(pset.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("iterativeCone5CaloJets"))),
+      jetTag_(pset.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
       useOnlyGlobalMuons_(pset.getUntrackedParameter<bool>("UseOnlyGlobalMuons", true)),
       ptCut_(pset.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(pset.getUntrackedParameter<double>("EtaCut", 2.1)),
@@ -77,7 +78,8 @@ WMuNuAnalyzer::WMuNuAnalyzer(const ParameterSet& pset) :
       isoCut03_(pset.getUntrackedParameter<double>("IsoCut03", 0.1)),
       massTMin_(pset.getUntrackedParameter<double>("MassTMin", 50.)),
       massTMax_(pset.getUntrackedParameter<double>("MassTMax", 200.)),
-      ptThrForZCount_(pset.getUntrackedParameter<double>("PtThrForZCount", 20.)),
+      ptThrForZ1_(pset.getUntrackedParameter<double>("PtThrForZ1", 20.)),
+      ptThrForZ2_(pset.getUntrackedParameter<double>("PtThrForZ2", 10.)),
       acopCut_(pset.getUntrackedParameter<double>("AcopCut", 999999.)),
       eJetMin_(pset.getUntrackedParameter<double>("EJetMin", 999999.)),
       nJetMax_(pset.getUntrackedParameter<int>("NJetMax", 999999))
@@ -202,7 +204,8 @@ bool WMuNuAnalyzer::filter(Event & event, const EventSetup& eventSetup){
    if (njets>nJetMax_) event_sel = false;
 
    unsigned int nmuons = 0;
-   unsigned int nmuonsForZ = 0;
+   unsigned int nmuonsForZ1 = 0;
+   unsigned int nmuonsForZ2 = 0;
 
    h1_["NMU"]->Fill(muonCollection->size());
    float max_pt = -9999.;
@@ -218,7 +221,8 @@ bool WMuNuAnalyzer::filter(Event & event, const EventSetup& eventSetup){
       h1_["PTMU"]->Fill(pt);
       LogTrace("") << "\t... pt= " << pt << " GeV";
 
-      if (pt>ptThrForZCount_) nmuonsForZ++;
+      if (pt>ptThrForZ1_) nmuonsForZ1++;
+      if (pt>ptThrForZ2_) nmuonsForZ2++;
       if (pt<ptCut_) muon_sel = false;
 // eta
       double eta = mu->eta();
@@ -271,8 +275,8 @@ bool WMuNuAnalyzer::filter(Event & event, const EventSetup& eventSetup){
    }
 
 
-      LogTrace("") << "> Muon counts to reject Z= " << nmuonsForZ;
-      if (nmuonsForZ>=2) {
+      LogTrace("") << "> Muon counts to reject Z= " << nmuonsForZ1 << ", " << nmuonsForZ2;
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {
             LogTrace("") << ">>>> Event REJECTED";
             event_sel = false;
       }
