@@ -24,6 +24,7 @@
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"
+#include "TPRegexp.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -65,7 +66,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
       return;
     }
   
-          
+    std::vector<string> HLTPathsByNameAfterWildCard;          
     if (validTriggerNames.size()!=0){
       bool goodToGo = false;
       //remove all path names that are not valid
@@ -74,8 +75,31 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
 	for (std::vector<std::string>::iterator j=HLTPathsByName_.begin();j!=HLTPathsByName_.end();++j){
 	  bool goodOne = false;
 	  //check if trigger name is valid
-	  for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
-	    if (validTriggerNames[i]==(*j)){ goodOne = true; break; }
+	  //use of wildcard
+	  if (j->find("+")!=std::string::npos){
+	    TPRegexp wildCard(*j);
+	    //cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << endl;
+	    for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
+	      if (TString(validTriggerNames[i]).Contains(wildCard)){ 
+		goodOne = true;
+		if (find(HLTPathsByNameAfterWildCard.begin(),
+			 HLTPathsByNameAfterWildCard.end(), 
+			 validTriggerNames[i])==HLTPathsByNameAfterWildCard.end()){
+		  //cout << "wildcard trigger = " << validTriggerNames[i] << endl;
+		  HLTPathsByNameAfterWildCard.push_back( validTriggerNames[i] ); //add it after duplicate check.
+		}
+	      }
+	    }
+	  }// there was a "*" in the trigger name specification
+	  else{
+	    for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
+	      if (validTriggerNames[i]==(*j)){ 
+		goodOne = true;
+		//cout << "nonwildcard trigger = " << validTriggerNames[i] << endl;
+		HLTPathsByNameAfterWildCard.push_back( validTriggerNames[i] );
+		break; 
+	      }
+	    }
 	  }
 	  if (!goodOne){
 	    goodToGo = false;
@@ -87,7 +111,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
       }
       LogDebug("HLTMonBitSummary|BitStatus")<<buffer.str();
     }
-    
+    HLTPathsByName_.swap(HLTPathsByNameAfterWildCard);
     
     count_.resize(HLTPathsByName_.size());
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
