@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.8 2009/07/08 18:03:18 jmuelmen Exp $
+// $Id: FWECALDetailView.icc,v 1.9 2009/07/08 18:47:22 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -186,7 +186,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 	       const double phi = i->superCluster()->seed()->position().phi() -  
 		    i->deltaPhiSeedClusterTrackAtCalo();
 	       data->AddTower(eta -eps, eta +eps, phi -eps, phi +eps);
-	       data->FillSlice(2, 10);
+	       data->FillSlice(2, 0);
 	  } else if (subdetId == EcalEndcap) {
 	       const double eta = i->superCluster()->seed()->position().eta() -  
 		    i->deltaEtaSeedClusterTrackAtCalo();
@@ -200,7 +200,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 	       const double y = pos.Y() * 0.01;
  	       data->AddTower(x, x, y, y);
  	       data->AddTower(x -eps, x +eps, y -eps, y +eps);
- 	       data->FillSlice(2, 10);
+ 	       data->FillSlice(2, 0);
 	  }
      }
 #endif
