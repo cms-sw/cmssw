@@ -18,7 +18,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 
 #include <iostream>
