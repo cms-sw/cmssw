@@ -20,7 +20,5 @@ photonValidation.rBin = 48
 photonValidation.eoverpMin = 0.
 photonValidation.eoverpMax = 5.
 #
-photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'photonValidation.root'
 photonValidationSequence = cms.Sequence(tpSelection*photonValidation)
 
