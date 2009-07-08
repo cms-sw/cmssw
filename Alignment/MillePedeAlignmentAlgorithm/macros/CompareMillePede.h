@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2008/08/13 08:30:24 $
+// last change    : $Date: 2009/01/20 20:21:38 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H
@@ -37,6 +37,7 @@ class CompareMillePede
   void AddSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC
   void SetAlignableTypeId(Int_t alignableTypeId);//detunit=1,det=2,rod=3,etc. from AlignableObjectIdType (-1: all)
   void SetHieraLevel(Int_t hieraLevel); // select hierarchical level (-1: all)
+  TString TitleAdd() const;
 
   PlotMillePede* GetPlotMillePede1() {return fPlotMp1;}
   PlotMillePede* GetPlotMillePede2() {return fPlotMp2;}

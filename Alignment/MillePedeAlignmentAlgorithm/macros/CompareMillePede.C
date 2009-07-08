@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/01/20 20:21:38 $
+// last change    : $Date: 2009/02/24 13:37:58 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -53,6 +53,7 @@ void CompareMillePede::DrawPedeParam(Option_t *option)
   const TString opt(option);
 
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -70,7 +71,7 @@ void CompareMillePede::DrawPedeParam(Option_t *option)
     if (0. == h->GetEntries()) continue;
 
     const TString diff(Form("%s_{2}-%s_{1}", m->Name(iPar).Data(), m->Name(iPar).Data()));
-    h->SetTitle(diff + ";" + diff + m->Unit(iPar) +=";#parameters");
+    h->SetTitle(diff + titleAdd + ";" + diff + m->Unit(iPar) +=";#parameters");
 
     fHistManager->AddHist(h, layer);
 
@@ -86,6 +87,7 @@ void CompareMillePede::DrawPedeParamVsLocation(Option_t *option)
 
   const TString opt(option);
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -144,10 +146,12 @@ void CompareMillePede::DrawPedeParamVsLocation(Option_t *option)
 
     const TString diff(Form("%s_{2}-%s_{1}", m->Name(iPar).Data(), m->Name(iPar).Data()));
 
-    hDr->SetTitle(m->DelName(iPar) += " vs r;r[cm];" + diff + ' ' + m->Unit(iPar));
-    hDphi->SetTitle(m->DelName(iPar) += " vs #phi;#phi;" + diff + ' ' + m->Unit(iPar));
-    hDz->SetTitle(m->DelName(iPar) += " vs z;z[cm];" + diff + ' ' + m->Unit(iPar));
-    hDhit->SetTitle(m->DelName(iPar) += " vs #hits;#hits_{x};" + diff + ' ' + m->Unit(iPar));
+    hDr->SetTitle(m->DelName(iPar) += " vs r" + titleAdd + ";r[cm];" + diff + ' ' + m->Unit(iPar));
+    hDphi->SetTitle(m->DelName(iPar) += " vs #phi" + titleAdd + ";#phi;" + diff + ' '
+		    + m->Unit(iPar));
+    hDz->SetTitle(m->DelName(iPar) += " vs z" + titleAdd + ";z[cm];" + diff + ' ' + m->Unit(iPar));
+    hDhit->SetTitle(m->DelName(iPar) += " vs #hits" + titleAdd + ";#hits_{x};" + diff + ' '
+		    + m->Unit(iPar));
 
     fHistManager->AddHist(hDr, layer + nPlot);
     fHistManager->AddHist(hDphi, layer + nPlot);
@@ -194,6 +198,7 @@ void CompareMillePede::DrawParam(Option_t *option)
   const TString opt(option);
 
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -222,8 +227,8 @@ void CompareMillePede::DrawParam(Option_t *option)
     TH1 *hDs2 = fPlotMp1->CreateHist(deltaBySi2, sel2Ok, deltaBySiName2);
 
     const TString diff(Form("%s_{2}-%s_{1}", m->Name(iPar).Data(), m->Name(iPar).Data()));
-    hD->SetTitle(m->DelName(iPar) += ";" + diff + ' ' + m->Unit(iPar) +=";#parameters");
-    hDs1->SetTitle(m->DelName(iPar) += "/#sigma;(" + diff + ")/#sigma;#parameters");
+    hD->SetTitle(m->DelName(iPar) += titleAdd + ";" + diff + ' ' + m->Unit(iPar) +=";#parameters");
+    hDs1->SetTitle(m->DelName(iPar) += "/#sigma" + titleAdd + ";(" + diff +")/#sigma;#parameters");
 
     fHistManager->AddHist(hD, layer);
     if (hDs1->GetEntries()) {
@@ -245,6 +250,7 @@ void CompareMillePede::DrawParamVsLocation(Option_t *option)
 
   const TString opt(option);
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -295,12 +301,6 @@ void CompareMillePede::DrawParamVsLocation(Option_t *option)
     TH2 *hDzS2 = fPlotMp1->CreateHist2D(fPlotMp2->OrgPosT() += fPlotMp2->ZPos(),
                                         deltaBySi2, sel2Ok, deltaBySiName2Z, "BOX");
 
-    const TString titleAdd = fPlotMp1->TitleAdd();
-    if (titleAdd != fPlotMp2->TitleAdd()) {
-      ::Warning("", "Different title add for 1 and 2: % vs %s", titleAdd.Data(),
-                fPlotMp2->TitleAdd().Data());
-    }
-
     const TString diff(Form("%s_{2}-%s_{1}", m->Name(iPar).Data(), m->Name(iPar).Data()));
 
     hDr->SetTitle(m->DelName(iPar) += " vs r" + titleAdd + ";r[cm];" + diff +' '+ m->Unit(iPar));
@@ -312,9 +312,10 @@ void CompareMillePede::DrawParamVsLocation(Option_t *option)
     fHistManager->AddHist(hDz, layer + nPlot);
 
     if (hDrS1->GetEntries()) {
-      hDrS1->SetTitle(m->DelName(iPar) += "/#sigma vs r;r[cm];(" + diff + ")/#sigma");
-      hDphiS1->SetTitle(m->DelName(iPar) += "/#sigma vs #phi;#phi;(" + diff + ")/#sigma"); 
-      hDzS1->SetTitle(m->DelName(iPar) += "/#sigma vs z;z[cm];(" + diff + ")/#sigma"); 
+      hDrS1->SetTitle(m->DelName(iPar) += "/#sigma vs r" +titleAdd+ ";r[cm];(" + diff + ")/#sigma");
+      hDphiS1->SetTitle(m->DelName(iPar) += "/#sigma vs #phi" + titleAdd + ";#phi;("
+			+ diff + ")/#sigma");
+      hDzS1->SetTitle(m->DelName(iPar) += "/#sigma vs z" +titleAdd+ ";z[cm];(" + diff + ")/#sigma");
       fHistManager->AddHist(hDrS1, layer + nPlot + 1, "by #sigma_{1}", "f");
       fHistManager->AddHist(hDphiS1, layer + nPlot + 1, "by #sigma_{1}", "f");
       fHistManager->AddHist(hDzS1, layer + nPlot + 1, "by #sigma_{1}", "f");
@@ -350,6 +351,7 @@ void CompareMillePede::DrawParamDeltaMis(Option_t *option)
   const TString opt(option);
 
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -378,13 +380,13 @@ void CompareMillePede::DrawParamDeltaMis(Option_t *option)
     TH1 *hDs2 = fPlotMp1->CreateHist(deltaMisBySi2, sel2Ok, deltaBySiName2);
     
     const TString dlNm = m->DelName(iPar);
-    hD->SetTitle(m->Name(iPar)
-		 += Form(": difference in misalignment;|%s_{2}|-|%s_{1}| ",
-			 dlNm.Data(), dlNm.Data()) + m->Unit(iPar) += ";#parameters");
+    hD->SetTitle(m->Name(iPar) += titleAdd
+		 + Form(";|%s_{2}|-|%s_{1}| ",dlNm.Data(), dlNm.Data())
+		 + m->Unit(iPar) += ";#parameters");
 
-    hDs1->SetTitle(m->Name(iPar)
-		   += Form(": relative difference in misalignment;(|%s_{2}|-|%s_{1}|)/#sigma%s",
-			   dlNm.Data(), dlNm.Data(), ";#parameters"));
+    hDs1->SetTitle(m->Name(iPar) += titleAdd
+		   + Form(";(|%s_{2}|-|%s_{1}|)/#sigma%s", dlNm.Data(), dlNm.Data(),
+			  ";#parameters"));
 
     fHistManager->AddHist(hD, layer);
     if (hDs1->GetEntries()) {
@@ -407,6 +409,7 @@ void CompareMillePede::DrawParamDeltaMisVsLoc(Option_t *option)
 
   const TString opt(option);
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
   UInt_t nPlot = 0;
@@ -460,18 +463,22 @@ void CompareMillePede::DrawParamDeltaMisVsLoc(Option_t *option)
 
     const TString diff(Form("|%s_{2}|-|%s_{1}|",m->DelName(iPar).Data(),m->DelName(iPar).Data()));
 
-    hDr->SetTitle(m->DelName(iPar) += " vs r;r[cm];" + diff + ' ' + m->Unit(iPar));
-    hDphi->SetTitle(m->DelName(iPar) += " vs #phi;#phi;" + diff + ' ' + m->Unit(iPar));
-    hDz->SetTitle(m->DelName(iPar) += " vs z;z[cm];" + diff + ' ' + m->Unit(iPar));
+    hDr->SetTitle(m->DelName(iPar) += " vs r" + titleAdd + ";r[cm];" + diff + ' ' + m->Unit(iPar));
+    hDphi->SetTitle(m->DelName(iPar) += " vs #phi" + titleAdd + ";#phi;" + diff + ' '
+		    + m->Unit(iPar));
+    hDz->SetTitle(m->DelName(iPar) += " vs z" + titleAdd + ";z[cm];" + diff + ' ' + m->Unit(iPar));
 
     fHistManager->AddHist(hDr, layer + nPlot);
     fHistManager->AddHist(hDphi, layer + nPlot);
     fHistManager->AddHist(hDz, layer + nPlot);
 
     if (hDrS1->GetEntries()) {
-      hDrS1->SetTitle(m->DelName(iPar) += "/#sigma vs r;r[cm];(" + diff + ")/#sigma");
-      hDphiS1->SetTitle(m->DelName(iPar) += "/#sigma vs #phi;#phi;(" + diff + ")/#sigma"); 
-      hDzS1->SetTitle(m->DelName(iPar) += "/#sigma vs z;z[cm];(" + diff + ")/#sigma"); 
+      hDrS1->SetTitle(m->DelName(iPar) += "/#sigma vs r" + titleAdd + ";r[cm];(" + diff
+		      + ")/#sigma");
+      hDphiS1->SetTitle(m->DelName(iPar) += "/#sigma vs #phi" + titleAdd + ";#phi;(" + diff
+			+ ")/#sigma"); 
+      hDzS1->SetTitle(m->DelName(iPar) += "/#sigma vs z" + titleAdd + ";z[cm];(" + diff
+		      + ")/#sigma");
       fHistManager->AddHist(hDrS1, layer + nPlot + 1, "by #sigma_{1}", "f");
       fHistManager->AddHist(hDphiS1, layer + nPlot + 1, "by #sigma_{1}", "f");
       fHistManager->AddHist(hDzS1, layer + nPlot + 1, "by #sigma_{1}", "f");
@@ -505,6 +512,7 @@ void CompareMillePede::DrawNumHits(Option_t *option)
 {
   const TString opt(option);
   const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const TString titleAdd = this->TitleAdd();
 
   const PlotMillePede *m = fPlotMp1;
 
@@ -513,10 +521,10 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   fPlotMp2->AddBasicSelection(sel);
 
   const TString nX1vs2(m->Unique("hitsX1vs2"));
-  TH2 *hX1vs2 = fPlotMp1->CreateHist2D(fPlotMp1->HitsX(), fPlotMp2->HitsX(), sel, nX1vs2);
+  TH2 *hX1vs2 = fPlotMp1->CreateHist2D(fPlotMp1->HitsX(), fPlotMp2->HitsX(), sel, nX1vs2, "BOX");
 
   const TString nY1vs2(m->Unique("hitsY1vs2"));
-  TH2 *hY1vs2 = fPlotMp1->CreateHist2D(fPlotMp1->HitsY(), fPlotMp2->HitsY(), sel, nY1vs2);
+  TH2 *hY1vs2 = fPlotMp1->CreateHist2D(fPlotMp1->HitsY(), fPlotMp2->HitsY(), sel, nY1vs2, "BOX");
 
   const TString nDiffX(m->Unique("deltaHitsX"));
   const TString diffX(m->Parenth(fPlotMp2->HitsX() += m->Min() += fPlotMp1->HitsX()));
@@ -527,10 +535,10 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   TH1 *hDiffY = fPlotMp1->CreateHist(diffY, sel, nDiffY);
 
   const TString nDiffXvs1(m->Unique("deltaHitsXvs1"));
-  TH2 *hDiffXvs1 = fPlotMp1->CreateHist2D(diffX, fPlotMp1->HitsX(), sel, nDiffXvs1);
+  TH2 *hDiffXvs1 = fPlotMp1->CreateHist2D(diffX, fPlotMp1->HitsX(), sel, nDiffXvs1, "BOX");
 
   const TString nDiffYvs1(m->Unique("deltaHitsYvs1"));
-  TH2 *hDiffYvs1 = fPlotMp1->CreateHist2D(diffY, fPlotMp1->HitsY(), sel, nDiffXvs1);
+  TH2 *hDiffYvs1 = fPlotMp1->CreateHist2D(diffY, fPlotMp1->HitsY(), sel, nDiffXvs1, "BOX");
 
   const TString nDiffXvsR(m->Unique("deltaHitsXvsR"));
   TH2 *hDiffXvsR = fPlotMp1->CreateHist2D(diffX, fPlotMp1->RPos(fPlotMp1->OrgPosT()),
@@ -542,17 +550,19 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   TH2 *hDiffXvsZ = fPlotMp1->CreateHist2D(diffX, fPlotMp1->OrgPosT() += fPlotMp1->ZPos(),
                                           sel, nDiffXvsZ, "BOX");
   
-  hX1vs2->SetTitle("#hits_{x};N_{hit,x}^{1};N_{hit,x}^{2}");
-  hY1vs2->SetTitle("#hits_{y};N_{hit,y}^{1};N_{hit,y}^{2}");
+  hX1vs2->SetTitle("#hits_{x}" + titleAdd + ";N_{hit,x}^{1};N_{hit,x}^{2}");
+  hY1vs2->SetTitle("#hits_{y}" + titleAdd + ";N_{hit,y}^{1};N_{hit,y}^{2}");
 
-  hDiffX->SetTitle("#Delta#hits_{x};N_{hit,x}^{2} - N_{hit,x}^{1};#alignables");
-  hDiffY->SetTitle("#Delta#hits_{y};N_{hit,y}^{2} - N_{hit,y}^{1};#alignables");
-  hDiffXvs1->SetTitle("#Delta#hits_{x} vs #hits_{x}^{1};N_{hit,x}^{2} - N_{hit,x}^{1};N_{hit,x}^{1}");
-  hDiffYvs1->SetTitle("#Delta#hits_{y} vs #hits_{y}^{1};N_{hit,y}^{2} - N_{hit,y}^{1};N_{hit,y}^{1}");
+  hDiffX->SetTitle("#Delta#hits_{x}" + titleAdd + ";N_{hit,x}^{2} - N_{hit,x}^{1};#alignables");
+  hDiffY->SetTitle("#Delta#hits_{y}" + titleAdd + ";N_{hit,y}^{2} - N_{hit,y}^{1};#alignables");
+  hDiffXvs1->SetTitle("#Delta#hits_{x} vs #hits_{x}^{1}" + titleAdd
+		      + ";N_{hit,x}^{2} - N_{hit,x}^{1};N_{hit,x}^{1}");
+  hDiffYvs1->SetTitle("#Delta#hits_{y} vs #hits_{y}^{1}" + titleAdd
+		      + ";N_{hit,y}^{2} - N_{hit,y}^{1};N_{hit,y}^{1}");
 
-  hDiffXvsR->SetTitle("#Delta#hits_{x} vs r;N_{hit,x}^{2} - N_{hit,x}^{1};r[cm]");
-  hDiffXvsPhi->SetTitle("#Delta#hits_{x} vs #phi;N_{hit,x}^{2} - N_{hit,x}^{1};#phi");
-  hDiffXvsZ->SetTitle("#Delta#hits_{x} vs z;N_{hit,x}^{2} - N_{hit,x}^{1};z[cm]");
+  hDiffXvsR->SetTitle("#Delta#hits_{x} vs r" + titleAdd + ";N_{hit,x}^{2} - N_{hit,x}^{1};r[cm]");
+  hDiffXvsPhi->SetTitle("#Delta#hits_{x} vs #phi" +titleAdd+ ";N_{hit,x}^{2} - N_{hit,x}^{1};#phi");
+  hDiffXvsZ->SetTitle("#Delta#hits_{x} vs z" + titleAdd + ";N_{hit,x}^{2} - N_{hit,x}^{1};z[cm]");
 
   fHistManager->AddHist(hX1vs2, layer);
   fHistManager->AddHist(hDiffX, layer);
@@ -686,4 +696,16 @@ Int_t CompareMillePede::PrepareAdd(bool addPlots)
     fHistManager->Clear();
     return 0;
   }
+}
+
+//_________________________________________________________________________________________________
+TString CompareMillePede::TitleAdd() const
+{
+  const TString titleAdd = fPlotMp1->TitleAdd();
+  if (titleAdd != fPlotMp2->TitleAdd()) {
+    ::Warning("CompareMillePede::TitleAdd", "Different title add for 1 and 2: % vs %s",
+	      titleAdd.Data(), fPlotMp2->TitleAdd().Data());
+  }
+
+  return titleAdd;
 }
