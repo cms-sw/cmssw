@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.6 2009/06/29 13:09:12 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.7 2009/06/29 15:47:29 mommsen Exp $
 
 #include <unistd.h>
 
@@ -109,14 +109,6 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     _app->notifyQualified("fatal", sentinelException);
 
     _sharedResources->moveToFailedState();
-
-    // Ugly hack to stop the FragmentProcessor thread *after* it moved to Failed
-    // state if another std::exception is thrown. This should avoid the flood
-    // of error messages due to the 'std::badcast' problem.
-    const StateMachineMonitorCollection& smc =
-      _sharedResources->_statisticsReporter->getStateMachineMonitorCollection();
-    if (smc.externallyVisibleState() == "Failed")
-      _actionIsActive = false;
   }
   catch(...)
   {
