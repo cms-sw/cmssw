@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.1 2009/06/14 23:45:25 fischler Exp $
+// $Id: MessageServicePSetValidation.cc,v 1.2 2009/06/22 20:35:18 fischler Exp $
 //
 // Change log
 //
@@ -92,6 +92,15 @@ messageLoggerPSet (ParameterSet const & pset)
   noneExcept <double> (pset, "MessageLogger","double");
   noneExcept <std::string> (pset, "MessageLogger","string", 
   		            "threshold", "generate_preconfiguration_message");
+
+  // Append explanatory information if flaws were found
+  
+  if (!flaws.str().empty()) {
+    flaws << "\nThe above are from MessageLogger configuration validation.\n"
+    << "In most cases, these involve lines that the logger configuration code\n"
+    << "would not process, but which the cfg creator obviously meant to have "
+    << "effect.\n";
+  }
      
 } // messageLoggerPSet
 

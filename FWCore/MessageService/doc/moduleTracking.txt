@@ -122,6 +122,8 @@ and EDLooper has a slightly different set:
 
 Appendix B:  The service activities
 
+These are discerned from 
+
 The following activities have no arguments by the time the module-specific code 
 is reached: 
 :
@@ -143,11 +145,11 @@ watchPostCloseFile // after the source closes a file
 The following activities have one argument by the time the module-specific code 
 is reached. In each of these cases, that is a string const&.
 
-watchPrePathBeginRun // before starting to process a Path for beginRun         
-watchPrePathEndRun   // before starting to process a Path for endRun         
+watchPrePathBeginRun  // before starting to process a Path for beginRun         
+watchPrePathEndRun    // before starting to process a Path for endRun         
 watchPrePathBeginLumi // before starting to process a Path for beginLumi         
 watchPrePathEndLumi   // before starting to process a Path for endLumi         
-
+watchPreProcessPath   // before starting to process a Path for an event
 
 The following activities have one argument by the time the module-specific code 
 is reached. In each of these cases, that is a  ModuleDescription const&.
@@ -213,86 +215,73 @@ watchPostPathEndLumi   // after all modules have finished for the Path for endLu
 
 Appendix C:  Which service activities are currently dealt with in logger?
 
+Items marked * are dealt with thus far
 :
-watchPostBeginJob  *  "", Run/Event = BeforeEvents
+Activities having no arguments in call: 
+
+watchPostBeginJob  *  "AfterBeginJob", Run/Event = BeforeEvents
 watchPostEndJob    *  ---, triggers MSqSUM
-watchJobFailure    
-watchPreSource     *  kSource = "main_input:source" debug enabled based on
-		      "source"
+watchJobFailure    *  "jobFailure" triggers MSqSUM
+watchPreSource     *  module label "source"; debug enabled based on "source"
 watchPostSource    *  "PostSource"; 
-watchPreSourceLumi 
-watchPostSourceLumi
-watchPreSourceRun  
-watchPostSourceRun 
-watchPreOpenFile   
-watchPostOpenFile  
-watchPreCloseFile  
-watchPostCloseFile 
+watchPreSourceLumi *  module label "source"; debug enabled based on "source"
+watchPostSourceLumi*  "PostSource"; 
+watchPreSourceRun  *  module label "source"; debug enabled based on "source"
+watchPostSourceRun *  "PostSource"; 
+watchPreOpenFile   *  "file_open"; debug enabled based on "file_open"
+watchPostOpenFile  *  AfterFile
+watchPreCloseFile  *  "file_close"; debug enabled based on "file_close" 
+watchPostCloseFile *  AfterFile
  
-The following activities have one argument by the time the module-specific code 
-is reached. In each of these cases, that is a string const&.
+Activities having one argument in call, which is a string const& and is not
+the module name.  These need to leave RunEvent alone
 
-watchPrePathBeginRun // before starting to process a Path for beginRun         
-watchPrePathEndRun   // before starting to process a Path for endRun         
-watchPrePathBeginLumi // before starting to process a Path for beginLumi         
-watchPrePathEndLumi   // before starting to process a Path for endLumi         
+watchPrePathBeginRun  * RPath: the string         
+watchPrePathEndRun    * RPathEnd: the string        
+watchPrePathBeginLumi * LPath: the string    	    
+watchPrePathEndLumi   * LPathEnd: the string 	   
+watchPreProcessPath   * PreProcessPath: the string   
 
 
-The following activities have one argument by the time the module-specific code 
+Activities having one argument by the time the module-specific code 
 is reached. In each of these cases, that is a  ModuleDescription const&.
 
-watchPreModuleConstruction  * nominal + "ctor"
-watchPostModuleConstruction 
-watchPreModuleBeginJob	    
-watchPostModuleBeginJob	    
-watchPreModuleEndJob	    
-watchPostModuleEndJob	    
+watchPreModuleConstruction  * nominal + "ctor" (also validation check)
+watchPostModuleConstruction * "AfterModConstruction"
+watchPreModuleBeginJob	    * nominal + "@beginJob"    
+watchPostModuleBeginJob	    * "AfterModBeginJob"
+watchPreModuleEndJob	    * nominal + "@endJob"  
+watchPostModuleEndJob	    * "AfterModEndJob"
 watchPreModule		    * nominal
-watchPostModule		    * kPostModule = "PostModule"	    
-watchPreModuleBeginRun      
-watchPostModuleBeginRun     
-watchPreModuleEndRun        
-watchPostModuleEndRun       
-watchPreModuleBeginLumi     
-watchPostModuleBeginLumi    
-watchPreModuleEndLumi       
-watchPostModuleEndLumi      
-watchPreSourceConstruction  *  nominal   
+watchPostModule		    * "PostModule"	    
+watchPreModuleBeginRun      * nominal + "@beginRun"   
+watchPostModuleBeginRun     * "AfterModBeginRun"
+watchPreModuleEndRun        * nominal + "@endRun"  
+watchPostModuleEndRun       * "AfterModEndRun"
+watchPreModuleBeginLumi     * nominal + "@beginLumi" 
+watchPostModuleBeginLumi    * "AfterModBeginLumi"
+watchPreModuleEndLumi       * nominal + "@endLumi"  
+watchPostModuleEndLumi      * "AfterModEndLumi"
+watchPreSourceConstruction  *  nominal  (also validation check) 
 watchPostSourceConstruction * "AfterSourceConstruction";       
 
 :
-The following activities have two arguments by the time the module-specific code 
+Activities having two arguments by the time the module-specific code 
 is reached.  In each of these cases, we describe the 2 arguments:
 
-watchPreProcessEvent   * (preEventProcessing) sets Run/Event, nothing with
-			  module
-watchPostProcessEvent  * (postEventProcessing) ---
-watchPreBeginRun       // after the Run has been created by the InputSource 
-		       // but before any modules have seen the Run
-     		       // (RunID const&, Timestamp const&)
-watchPostBeginRun      //  after all modules have finished processing beginRun
-		       // (Run const&, EventSetup const&)
-watchPreEndRun         // before the endRun is processed 
-     		       // (RunID const&, Timestamp const&)
-watchPostEndRun        // after all modules have finished processing the Run
-		       // (Run const&, EventSetup const&)
-watchPreBeginLumi      // after the Lumi has been created by the InputSource 
-		       // but before any modules have seen the Lumi
-     		       // (LumionsityBlockID const&, Timestamp const&)
-watchPostBeginLumi     //  after all modules have finished processing beginLumi
-		       // (LumionsityBlock const&, EventSetup const&)
-watchPreEndLumi        // before the endLumi is processed 
-     		       // (LumionsityBlockID const&, Timestamp const&)
-watchPostEndLumi       // after all modules have finished processing the Lumi
-		       // (Run const&, EventSetup const&)
-watchPostProcessPath   // after all modules have finished for the Path for an event		       
-		       // (string const&, HLTPathStatus const&)
-watchPostPathBeginRun  // after all modules have finished for the Path for beginRun		       
-		       // (string const&, HLTPathStatus const&)
-watchPostPathEndRun    // after all modules have finished for the Path for endRun		       
-		       // (string const&, HLTPathStatus const&)		     
-watchPostPathBeginLumi // after all modules have finished for the Path for beginLumi		       
-		       // (string const&, HLTPathStatus const&)
-watchPostPathEndLumi   // after all modules have finished for the Path for endLumi		       
-		       // (string const&, HLTPathStatus const&)
+watchPreProcessEvent   * (preEventProcessing) sets Run/Event per EventID
+watchPostProcessEvent  * (postEventProcessing) Run/event = PostProcessEvents
+watchPreBeginRun       * sets Run/Event per RunID without any event
+watchPostBeginRun      * Run/event = PostBeginRun  
+watchPreEndRun         * Run/event just run per RunID
+watchPostEndRun        * Run/event = PostEndRun
+watchPreBeginLumi      * sets Run/Event per iID with Lumi instead of event 
+watchPostBeginLumi     * moduleName = PostBeginLumi
+watchPreEndLumi        * sets Run/Event per iID with Lumi instead of event 
+watchPostEndLumi       * Run/event = PostEndLumi
+watchPostProcessPath   * moduleName = PostProcessPath
+watchPostPathBeginRun  * Run/event = PostPathBeginRun 		       
+watchPostPathEndRun    * Run/event = PostPathEndRun	     
+watchPostPathBeginLumi * Run/event = PostPathBeginLumi
+watchPostPathEndLumi   * Run/event = PostPathEndLumi
 		     

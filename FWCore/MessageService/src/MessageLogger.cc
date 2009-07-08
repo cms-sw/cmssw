@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.29 2009/03/24 20:17:38 fischler Exp $
+// $Id: MessageLogger.cc,v 1.30 2009/06/14 23:45:25 fischler Exp $
 //
 // Change log
 //
@@ -45,6 +45,12 @@
 //
 //13 mf   5/26/09	Get parameters without throwing since validation 
 //			will point out any problems and throw at that point
+//
+//14 mf   7/1/09	Establish module name and set up enables/suppresses
+//			for all possible calls supplying module descriptor
+//
+//14 mf   7/1/09	Establish pseudo-module name and set up 
+//			enables/suppresses for other calls from framework
 
 // system include files
 // user include files
@@ -67,9 +73,6 @@
 #include <string>
 #include <map>
 
-static const std::string kPostModule("PostModule");
-static const std::string kSource("main_input:source");
-
 using namespace edm;
 using namespace edm::service;
 
@@ -91,6 +94,9 @@ MessageLogger( ParameterSet const & iPS
         , debugEnabled_(false)
 	, messageServicePSetHasBeenValidated_(false)
 	, messageServicePSetValidatationResults_() 
+	, nonModule_debugEnabled(false)
+	, nonModule_infoEnabled(true)
+	, nonModule_warningEnabled(true)
 {
   // prepare cfg validation string for later use
   MessageServicePSetValidation validator;
@@ -179,6 +185,7 @@ MessageLogger( ParameterSet const & iPS
 
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
+  iRegistry.watchJobFailure(this,&MessageLogger::jobFailure);	// change log 14
 
   iRegistry.watchPreModuleConstruction(this,&MessageLogger::preModuleConstruction);
   iRegistry.watchPostModuleConstruction(this,&MessageLogger::postModuleConstruction);
@@ -188,170 +195,74 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPostSourceConstruction(this,&MessageLogger::postSourceConstruction);
 								// change log 3
 
-  iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
-  iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
-
   iRegistry.watchPreModule(this,&MessageLogger::preModule);
   iRegistry.watchPostModule(this,&MessageLogger::postModule);
 
   iRegistry.watchPreSource(this,&MessageLogger::preSource);
   iRegistry.watchPostSource(this,&MessageLogger::postSource);
-								// change log 3
-}
-
-// edm::service::
-// MessageLogger::MessageLogger(const MessageLogger& rhs)
-// {
-//    // do actual copying here;
-// }
-
-// edm::service::
-// MessageLogger::~MessageLogger()
-//{
-//}
-
-//
-// assignment operators
-//
-// const // edm::service::MessageLogger& MessageLogger::operator=(const MessageLogger& rhs)
-// {
-//   //An exception safe implementation is
-//   MessageLogger temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-void
-MessageLogger::postBeginJob()
-{
-  MessageDrop::instance()->runEvent = "BeforeEvents";  
-  MessageDrop::instance()->moduleName = "";  
-}
-
-void
-MessageLogger::postEndJob()
-{
-  SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
-  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 9
-}
-
-void
-MessageLogger::preEventProcessing( const edm::EventID& iID
-                                 , const edm::Timestamp& iTime
-                                 )
-{
-  std::ostringstream ost;
-  curr_event_ = iID;
-  ost << "Run: " << curr_event_.run() 
-      << " Event: " << curr_event_.event();    			// change log 2
-  edm::MessageDrop::instance()->runEvent = ost.str();  
-}
-void
-MessageLogger::postEventProcessing(const Event&, const EventSetup&)
-{
-  // MessageDrop::instance()->runEvent = "BetweenEvents";  	// change log 4
-}
-
-void
-MessageLogger::preSourceConstruction(const ModuleDescription& desc)
-{
-  if (!messageServicePSetHasBeenValidated_) {			// change log 12
-    if (!messageServicePSetValidatationResults_.empty() ) {
-      // LogSystem ("configuration") << messageServicePSetValidatationResults_;     
-      //std::cerr << "Flaw noted in preSourceConstruction\n";   // TODO - remove
-      throw ( edm::Exception 
-                   ( edm::errors::Configuration
-                   , messageServicePSetValidatationResults_ 
-	           )                                         );
-    }
-    messageServicePSetHasBeenValidated_ = true;
-  } 
-  curr_module_ = desc.moduleName();
-  curr_module_ += ":";
-  curr_module_ += desc.moduleLabel();
-  MessageDrop::instance()->moduleName = curr_module_ + "{*ctor*}";  
-  if (!anyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = false;
-  } else if (everyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = true;
-  } else {
-    MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel());
-  }
-}
-
-void
-MessageLogger::preSource()
-{
-  MessageDrop* messageDrop = MessageDrop::instance();
-  curr_module_ = kSource;
-  //curr_module_ += ":";
-  //curr_module_ += "source";
-  messageDrop->moduleName = curr_module_;  
-  if (!anyDebugEnabled_) {
-    messageDrop->debugEnabled = false;
-  } else if (everyDebugEnabled_) {
-    messageDrop->debugEnabled = true;
-  } else {
-    messageDrop->debugEnabled = 
-    		debugEnabledModules_.count("source");	// change log 8
-  }
-  std::map<const std::string,ELseverityLevel>::const_iterator it =
-       suppression_levels_.find("source");		// change log 8
-  if ( it != suppression_levels_.end() ) {
-    messageDrop->debugEnabled  = messageDrop->debugEnabled
-                                           && (it->second < ELseverityLevel::ELsev_success );
-    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
-    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
-  } else {
-    messageDrop->infoEnabled    = true;
-    messageDrop->warningEnabled = true;
-  }
-
-}
-
-
-void
-MessageLogger::preModuleConstruction(const ModuleDescription& desc)
-{
-  if (!messageServicePSetHasBeenValidated_) {			// change log 12
-    if (!messageServicePSetValidatationResults_.empty() ) {
-      // LogSystem ("configuration") << messageServicePSetValidatationResults_;     
-      //std::cerr << "Flaw noted in preModuleConstruction\n";  // TODO - remove
-      throw ( edm::Exception 
-                   ( edm::errors::Configuration
-                   , messageServicePSetValidatationResults_ 
-	           )                                         );
-    }
-    messageServicePSetHasBeenValidated_ = true;
-  } 
-  // LogInfo("preModule") << "Module:" << desc.moduleLabel();
-  curr_module_ = desc.moduleName();
-  curr_module_ += ":";
-  curr_module_ += desc.moduleLabel();
+							// change log 14:
+  iRegistry.watchPreSourceRun(this,&MessageLogger::preSource);
+  iRegistry.watchPostSourceRun(this,&MessageLogger::postSource);
+  iRegistry.watchPreSourceLumi(this,&MessageLogger::preSource);
+  iRegistry.watchPostSourceLumi(this,&MessageLogger::postSource);
+  iRegistry.watchPreOpenFile(this,&MessageLogger::preFile);
+  iRegistry.watchPostOpenFile(this,&MessageLogger::postFile);
+  iRegistry.watchPreCloseFile(this,&MessageLogger::preFileClose);
+  iRegistry.watchPostCloseFile(this,&MessageLogger::postFile);
   
-  MessageDrop::instance()->moduleName = curr_module_ + "{ctor}";  
-  if (!anyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = false;
-  } else if (everyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = true;
-  } else {
-    MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel());
-  }
-}
+							// change log 13:
+  iRegistry.watchPreModuleBeginJob(this,&MessageLogger::preModuleBeginJob);
+  iRegistry.watchPostModuleBeginJob(this,&MessageLogger::preModuleBeginJob);
+  iRegistry.watchPreModuleEndJob(this,&MessageLogger::preModuleBeginJob);
+  iRegistry.watchPostModuleEndJob(this,&MessageLogger::preModuleBeginJob);
+  iRegistry.watchPreModuleBeginRun(this,&MessageLogger::preModuleBeginRun);
+  iRegistry.watchPostModuleBeginRun(this,&MessageLogger::preModuleBeginRun);
+  iRegistry.watchPreModuleEndRun(this,&MessageLogger::preModuleBeginRun);
+  iRegistry.watchPostModuleEndRun(this,&MessageLogger::preModuleBeginRun);
+  iRegistry.watchPreModuleBeginLumi(this,&MessageLogger::preModuleBeginLumi);
+  iRegistry.watchPostModuleBeginLumi(this,&MessageLogger::preModuleBeginLumi);
+  iRegistry.watchPreModuleEndLumi(this,&MessageLogger::preModuleBeginLumi);
+  iRegistry.watchPostModuleEndLumi(this,&MessageLogger::preModuleBeginLumi);
+
+  iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
+  iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
+							// change log 14:
+  iRegistry.watchPreBeginRun(this,&MessageLogger::preBeginRun);
+  iRegistry.watchPostBeginRun(this,&MessageLogger::postBeginRun);
+  iRegistry.watchPreEndRun(this,&MessageLogger::preBeginRun);
+  iRegistry.watchPostEndRun(this,&MessageLogger::postEndRun);
+  iRegistry.watchPreBeginLumi(this,&MessageLogger::preBeginLumi);
+  iRegistry.watchPostBeginLumi(this,&MessageLogger::postBeginLumi);
+  iRegistry.watchPreEndLumi(this,&MessageLogger::preEndLumi);
+  iRegistry.watchPostEndLumi(this,&MessageLogger::postEndLumi);
+
+  iRegistry.watchPrePathBeginRun(this,&MessageLogger::prePathBeginRun);
+  iRegistry.watchPostPathBeginRun(this,&MessageLogger::postPathBeginRun);
+  iRegistry.watchPrePathEndRun(this,&MessageLogger::prePathEndRun);
+  iRegistry.watchPostPathEndRun(this,&MessageLogger::postPathEndRun);
+  iRegistry.watchPrePathBeginLumi(this,&MessageLogger::prePathBeginLumi);
+  iRegistry.watchPostPathBeginLumi(this,&MessageLogger::postPathBeginLumi);
+  iRegistry.watchPrePathEndLumi(this,&MessageLogger::prePathEndLumi);
+  iRegistry.watchPostPathEndLumi(this,&MessageLogger::postPathEndLumi);
+  iRegistry.watchPreProcessPath(this,&MessageLogger::preProcessPath);
+  iRegistry.watchPostProcessPath(this,&MessageLogger::postProcessPath);
+
+} // ctor
+
+//
+// Shared helper routines for establishing module name and enabling behavior
+//
 
 void
-MessageLogger::preModule(const ModuleDescription& desc)
+MessageLogger::establishModule(ModuleDescription const & desc, 
+			       std::string const & whichPhase)	// ChangeLog 13
 {
-  // LogInfo("preModule") << "Module:" << desc.moduleLabel();
-  //cache the value to improve performance based on profiling studies
   MessageDrop* messageDrop = MessageDrop::instance();
+  nonModule_debugEnabled   = messageDrop->debugEnabled;
+  nonModule_infoEnabled    = messageDrop->infoEnabled;
+  nonModule_warningEnabled = messageDrop->warningEnabled;
+
+  //cache the value to improve performance based on profiling studies
   std::map<const ModuleDescription*,std::string>::const_iterator itFind = descToCalcName_.find(&desc);
   if ( itFind == descToCalcName_.end()) {
     curr_module_ = desc.moduleName();
@@ -359,11 +270,10 @@ MessageLogger::preModule(const ModuleDescription& desc)
     curr_module_ += desc.moduleLabel();
     //cache this value to improve performance based on profiling studies
     descToCalcName_[&desc]=curr_module_;
-    messageDrop->moduleName = curr_module_;  
+    messageDrop->moduleName = curr_module_ + whichPhase;  
   } else {
-    messageDrop->moduleName = itFind->second;
+    messageDrop->moduleName = itFind->second + whichPhase;
   }
-
   if (!anyDebugEnabled_) {
     messageDrop->debugEnabled = false;
   } else if (everyDebugEnabled_) {
@@ -384,44 +294,307 @@ MessageLogger::preModule(const ModuleDescription& desc)
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
   }
+} // establishModule
+
+void
+MessageLogger::unEstablishModule(ModuleDescription const & desc, 
+			         std::string const & state)
+{
+  MessageDrop* messageDrop = MessageDrop::instance();
+  messageDrop->moduleName = state;
+  messageDrop->debugEnabled   = nonModule_debugEnabled;
+  messageDrop->infoEnabled    = nonModule_infoEnabled;
+  messageDrop->warningEnabled = nonModule_warningEnabled;
 }
 
 void
-MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
+MessageLogger::establish(std::string const & state)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel();
-  //                      << " finished";
-  curr_module_ = "AfterSourceConstruction";
-  MessageDrop::instance()->moduleName = curr_module_;  
+  MessageDrop* messageDrop = MessageDrop::instance();
+  curr_module_ = state;
+  messageDrop->moduleName = curr_module_;  
+   if (!anyDebugEnabled_) {
+    messageDrop->debugEnabled = false;
+  } else if (everyDebugEnabled_) {
+    messageDrop->debugEnabled = true;
+  } else {
+    messageDrop->debugEnabled = 
+    		debugEnabledModules_.count(state);	// change log 8
+  }
+  std::map<const std::string,ELseverityLevel>::const_iterator it =
+       suppression_levels_.find(state);		// change log 8
+  if ( it != suppression_levels_.end() ) {
+    messageDrop->debugEnabled  = messageDrop->debugEnabled
+                                           && (it->second < ELseverityLevel::ELsev_success );
+    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+  } else {
+    messageDrop->infoEnabled    = true;
+    messageDrop->warningEnabled = true;
+  }
 }
 
 void
-MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
+MessageLogger::unEstablish(std::string const & state)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
-  //                      << " finished";
-  curr_module_ = "AfterModuleConstruction";
-  MessageDrop::instance()->moduleName = curr_module_;  
+  MessageDrop::instance()->moduleName = state;  
+}
+
+
+
+
+//
+// callbacks that need to establish the module, and their counterparts
+//
+
+void
+MessageLogger::preModuleConstruction(const ModuleDescription& desc)
+{
+  if (!messageServicePSetHasBeenValidated_) {			// change log 12
+    if (!messageServicePSetValidatationResults_.empty() ) {
+      throw ( edm::Exception 
+                   ( edm::errors::Configuration
+                   , messageServicePSetValidatationResults_ 
+	           )                                         );
+    }
+    messageServicePSetHasBeenValidated_ = true;
+  } 
+  establishModule (desc,"@ctor");				// ChangeLog 13
+}
+void MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModConstruction"); }
+
+void
+MessageLogger::preModuleBeginJob(const ModuleDescription& desc)
+{
+  establishModule (desc,"@beginJob");				// ChangeLog 13
+}
+void MessageLogger::postModuleBeginJob(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModBeginJob"); }
+
+void
+MessageLogger::preSourceConstruction(const ModuleDescription& desc)
+{
+  if (!messageServicePSetHasBeenValidated_) {			// change log 12
+    if (!messageServicePSetValidatationResults_.empty() ) {
+      throw ( edm::Exception 
+                   ( edm::errors::Configuration
+                   , messageServicePSetValidatationResults_ 
+	           )                                         );
+    }
+    messageServicePSetHasBeenValidated_ = true;
+  } 
+  establishModule (desc,"@sourceConstruction");			// ChangeLog 13
+}
+void MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterSourceConstruction"); }
+
+void
+MessageLogger::preModuleBeginRun(const ModuleDescription& desc)
+{
+  establishModule (desc,"@beginRun");				// ChangeLog 13
+}
+void MessageLogger::postModuleBeginRun(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModBeginRun"); }
+
+void
+MessageLogger::preModuleBeginLumi(const ModuleDescription& desc)
+{
+  establishModule (desc,"@beginLumi");				// ChangeLog 13
+}
+void MessageLogger::postModuleBeginLumi(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModBeginLumi"); }
+
+void
+MessageLogger::preModule(const ModuleDescription& desc)
+{
+  establishModule (desc,"");					// ChangeLog 13
+}
+void MessageLogger::postModule(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "PostModule"); }
+
+void
+MessageLogger::preModuleEndLumi(const ModuleDescription& desc)
+{
+  establishModule (desc,"@endLumi");				// ChangeLog 13
+}
+void MessageLogger::postModuleEndLumi(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModEndLumi"); }
+
+void
+MessageLogger::preModuleEndRun(const ModuleDescription& desc)
+{
+  establishModule (desc,"@endRun");				// ChangeLog 13
+}
+void MessageLogger::postModuleEndRun(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModEndRun"); }
+
+void
+MessageLogger::preModuleEndJob(const ModuleDescription& desc)
+{
+  establishModule (desc,"@endJob");				// ChangeLog 13
+}
+void MessageLogger::postModuleEndJob(const ModuleDescription& iDescription)
+{ unEstablishModule (iDescription, "AfterModEndJob"); }
+
+//
+// callbacks that don't know about the module
+//
+
+void
+MessageLogger::postBeginJob()
+{
+  MessageDrop::instance()->runEvent = "BeforeEvents";  
+  MessageDrop::instance()->moduleName = "AfterBeginJob";  
 }
 
 void
-MessageLogger::postSource()
+MessageLogger::preSource()
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
-  //                      << " finished";
-  curr_module_ = "PostSource";
-  MessageDrop::instance()->moduleName = curr_module_;  
+  establish("source");
+}
+void MessageLogger::postSource()
+{ unEstablish("AfterSource"); }
+
+void MessageLogger::preFile()
+{  establish("file_open"); }
+void MessageLogger::preFileClose()
+{  establish("file_close"); }
+void MessageLogger::postFile()
+{ unEstablish("AfterFile"); }
+
+
+void
+MessageLogger::preEventProcessing( const edm::EventID& iID
+                                 , const edm::Timestamp& iTime )
+{
+  std::ostringstream ost;
+  curr_event_ = iID;
+  ost << "Run: " << curr_event_.run() 
+      << " Event: " << curr_event_.event();    			// change log 2
+  edm::MessageDrop::instance()->runEvent = ost.str();  
 }
 
 void
-MessageLogger::postModule(const ModuleDescription& iDescription)
+MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 {
-  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel()
-  //                      << " finished";
-  //curr_module_ = kPostModule;
-  //MessageDrop::instance()->moduleName = curr_module_;  
-  MessageDrop::instance()->moduleName = kPostModule;
+  edm::MessageDrop::instance()->runEvent = "PostProcessEvent";  
 }
+
+void
+MessageLogger::preBeginRun( const edm::RunID& iID
+                          , const edm::Timestamp& iTime )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "Run: " << iID.run();
+  edm::MessageDrop::instance()->runEvent = ost.str();  
+}
+void MessageLogger::postBeginRun(const Run&, const EventSetup&)
+{ edm::MessageDrop::instance()->runEvent = "PostBeginRun"; }
+
+void
+MessageLogger::prePathBeginRun( const std::string & pathname )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "RPath: " << pathname;
+  edm::MessageDrop::instance()->moduleName = ost.str();  
+}
+void MessageLogger::postPathBeginRun(std::string const&,HLTPathStatus const&)
+{ edm::MessageDrop::instance()->moduleName = "PostPathBeginRun"; }
+
+void
+MessageLogger::prePathEndRun( const std::string & pathname )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "RPathEnd: " << pathname;
+  edm::MessageDrop::instance()->moduleName = ost.str();  
+}
+void MessageLogger::postPathEndRun(std::string const&,HLTPathStatus const&)
+{ edm::MessageDrop::instance()->moduleName = "PostPathEndRun"; }
+
+void
+MessageLogger::prePathBeginLumi( const std::string & pathname )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "LPath: " << pathname;
+  edm::MessageDrop::instance()->moduleName = ost.str();  
+}
+void MessageLogger::postPathBeginLumi(std::string const&,HLTPathStatus const&)
+{ edm::MessageDrop::instance()->moduleName = "PostPathBeginLumi"; }
+
+void
+MessageLogger::prePathEndLumi( const std::string & pathname )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "LPathEnd: " << pathname;
+  edm::MessageDrop::instance()->moduleName = ost.str();  
+}
+void MessageLogger::postPathEndLumi(std::string const&,HLTPathStatus const&)
+{ edm::MessageDrop::instance()->moduleName = "PostPathEndLumi"; }
+
+void
+MessageLogger::preProcessPath( const std::string & pathname )	// change log 14
+{
+  std::ostringstream ost;
+  ost << "PreProcPath " << pathname;
+  edm::MessageDrop::instance()->moduleName = ost.str();  
+}
+void MessageLogger::postProcessPath(std::string const&,HLTPathStatus const&)
+{ edm::MessageDrop::instance()->moduleName = "PostProcessPath"; }
+
+void
+MessageLogger::preEndRun( const edm::RunID& iID
+                        , const edm::Timestamp& iTime )
+{
+  std::ostringstream ost;
+  ost << "End Run: " << iID.run();
+  edm::MessageDrop::instance()->runEvent = ost.str();  
+}
+void MessageLogger::postEndRun(const Run&, const EventSetup&)
+{ edm::MessageDrop::instance()->runEvent = "PostEndRun"; }
+
+void
+MessageLogger::preBeginLumi( const edm::LuminosityBlockID& iID
+                          , const edm::Timestamp& iTime )
+{
+  std::ostringstream ost;
+  ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
+  edm::MessageDrop::instance()->runEvent = ost.str();  
+}
+void MessageLogger::postBeginLumi(const LuminosityBlock&, const EventSetup&)
+{ edm::MessageDrop::instance()->runEvent = "PostBeginLumi"; }
+
+void
+MessageLogger::preEndLumi( const edm::LuminosityBlockID& iID
+                        , const edm::Timestamp& iTime )
+{
+  std::ostringstream ost;
+  ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
+  edm::MessageDrop::instance()->runEvent = ost.str();  
+}
+void MessageLogger::postEndLumi(const LuminosityBlock&, const EventSetup&)
+{ edm::MessageDrop::instance()->runEvent = "PostEndLumi"; }
+
+void
+MessageLogger::postEndJob()
+{
+  SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
+  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 9
+}
+
+void
+MessageLogger::jobFailure()
+{
+  MessageDrop* messageDrop = MessageDrop::instance();
+  messageDrop->moduleName = "jobFailure";
+  SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
+  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 9
+}
+
+
+//
+// Other methods
+//
 
 void
 MessageLogger::SummarizeInJobReport() {

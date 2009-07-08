@@ -4,11 +4,11 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -f u31_infos.log 
+rm -f u33_all.log
 
-cmsRun -t -p $LOCAL_TEST_DIR/u31_cfg.py
+cmsRun -t  -p $LOCAL_TEST_DIR/u33_cfg.py
  
-for file in u31_infos.log 
+for file in u33_all.log   
 do
   sed -i -r -f $LOCAL_TEST_DIR/filter-timestamps.sed $file
   diff $LOCAL_TEST_DIR/unit_test_outputs/$file $LOCAL_TMP_DIR/$file  

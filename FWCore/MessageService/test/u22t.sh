@@ -4,9 +4,9 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -t -f  u22_warnings.log
+rm -f  u22_warnings.log
 
-cmsRun -p $LOCAL_TEST_DIR/u22_cfg.py 
+cmsRun -t -p $LOCAL_TEST_DIR/u22_cfg.py 
  
 for file in u22_warnings.log  
 do

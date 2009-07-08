@@ -18,11 +18,16 @@ process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring('u17_all'),
     categories = cms.untracked.vstring('cat_P', 
         'cat_S', 
-        'FwkJob'),
+        'FwkJob',
+	'FwkReport'),
     u17_all = cms.untracked.PSet(
+	threshold = cms.untracked.string('INFO'),
         noTimeStamps = cms.untracked.bool(True),
         FwkJob = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+        ),
+        FwkReport = cms.untracked.PSet(
+            limit = cms.untracked.int32(110)
         ),
         cat_P = cms.untracked.PSet(
             limit = cms.untracked.int32(2)
