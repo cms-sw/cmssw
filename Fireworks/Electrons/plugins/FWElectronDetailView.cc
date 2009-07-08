@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.23 2009/06/05 20:00:33 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.24 2009/06/22 14:32:26 amraktad Exp $
 //
 
 // system include files
@@ -96,15 +96,16 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    m_item = id.item();
 
    
+   if (0)
+   {
+      TGLOverlayButton *tgo = 
+         new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
+                              10, 10, 200, 16);
+      //  tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
+      //             this, "showInterestingHits(TGLViewerBase*)");
    
-   TGLOverlayButton *tgo = 
-      new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
-                           10, 10, 200, 16);
-   //  tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
-   //             this, "showInterestingHits(TGLViewerBase*)");
-   
-   m_overlays.push_back(tgo);
-
+      m_overlays.push_back(tgo);
+   }
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
    gEve->AddElement(tList);
@@ -145,7 +146,7 @@ class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron
 {
    textCanvas()->cd();
    TLatex* latex = new TLatex(0.02, 0.970, "");
-   latex->SetTextSize(0.07);
+   latex->SetTextSize(0.06);
  
    float_t x = 0.02;
    float_t x2 = 0.52;
