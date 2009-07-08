@@ -739,7 +739,7 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 		  ADC_1D_WidthFromDBByDepth[subdet-1]->Fill(ADC_width);
 		  fC_1D_WidthFromDBByDepth[subdet-1]->Fill(fC_width);
 
-		  if (fVerbosity>-1)
+		  if (fVerbosity>1)
 		    {
 		      std::cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<iphi<<", "<<depth<<")"<<endl;
 		      std::cout <<"\tADC pedestal = "<<ADC_ped<<" +/- "<<ADC_width<<endl;
