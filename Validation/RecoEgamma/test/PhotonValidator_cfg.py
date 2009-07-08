@@ -27,9 +27,15 @@ input = cms.untracked.int32(10)
 )
 
 
-from Validation.RecoEgamma.photonValidationSequence_cff import *
-photonValidation.OutputFileName = 'prova.root'
 
+from Validation.RecoEgamma.photonValidationSequence_cff import *
+photonValidation.OutputMEsInRootFile = True
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaPt10.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaPt35.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaFlatPt10_100.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal310_H130GGgluonfusion.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310_GammaJets_Pt_80_120.root'
+#photonValidation.OutputFileName = 'PhotonValidationRelVal310_QCD_Pt_50_80.root'
 
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
