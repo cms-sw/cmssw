@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.79 2009/05/27 14:08:53 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.80 2009/07/07 14:14:50 amraktad Exp $
 //
 
 // system include files
@@ -139,6 +139,7 @@ static char const* const kHelpCommandOpt = "help,h";
 // static char const* const kSoftOpt = "soft";
 static char const* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
+static char const* const kPlainRootCommandOpt = "root";
 static char const* const kRootInteractiveCommandOpt = "root-interactive,r";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
@@ -175,7 +176,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
               (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
               (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
-              (kRootInteractiveCommandOpt,                               "Enable root interactive prompt.")
+              (kPlainRootCommandOpt,                              "Plain ROOT without event display")
+              (kRootInteractiveCommandOpt,                        "Enable root interactive prompt.")
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
               (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
@@ -194,6 +196,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if(vm.count(kHelpOpt)) {
          std::cout << desc <<std::endl;
          exit(0);
+      }
+      if(vm.count(kPlainRootCommandOpt)) {
+         std::cout << "Plain ROOT prompt requested" <<std::endl;
+	 return;
       }
 
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");

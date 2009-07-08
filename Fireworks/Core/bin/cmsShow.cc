@@ -31,10 +31,10 @@ int main (int argc, char **argv)
 
    // check root interactive promp
    bool isri = false;
-   const char* ropt = "-r";
    for (Int_t i =0; i<argc; i++)
    {
-      if (strncmp(argv[i], ropt, 2) == 0)
+      if (strncmp(argv[i], "-r", 2) == 0||
+	  strncmp(argv[i], "--root", 6) == 0)
       {
          isri=true;
          break;
