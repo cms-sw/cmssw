@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.3 2009/05/04 13:48:57 fwyzard Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.4 2009/05/07 16:04:43 gruen Exp $
 //
 //
 
@@ -78,8 +78,8 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
   std::vector<int> calibTypeCounter(8,0) ; 
-  for (int i=FEDNumbering::getHcalFEDIds().first; 
-       i<=FEDNumbering::getHcalFEDIds().second; i++) {
+  for (int i=FEDNumbering::MINHCALFEDID;
+       i<=FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
       if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
       if ( fedData.size() < 24 ) continue ; 
@@ -87,7 +87,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
   }
   int maxCount = 0 ;
-  int numberOfFEDIds = FEDNumbering::getHcalFEDIds().second - FEDNumbering::getHcalFEDIds().first + 1 ; 
+  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ; 
   for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
       if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
       if ( maxCount == numberOfFEDIds ) break ;
