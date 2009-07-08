@@ -54,8 +54,10 @@ RscBaseModel::RscBaseModel(TString theName, RooRealVar& theVar, RooArgSet* discV
   model.defineType("BifurGauss");
   model.defineType("Poly4_DblGauss");
   model.defineType("BifurGauss_BifurGauss");
+  model.defineType("BifurGauss_BifurGauss_BifurGauss");
+  model.defineType("BifurGauss_BifurGauss_Gauss");
   model.defineType("Landau_BifurGauss");
-
+  model.defineType("CBShape_BreitWigner");
   model.setLabel("none");
 
   readDataCard();
@@ -115,6 +117,20 @@ void RscBaseModel::buildPdf() {
       RooBifurGauss* bg2 = new RooBifurGauss(_name+"_bg2","BifurGauss",*x,*mean2,*sigmaL2,*sigmaR2);
       _thePdf = new RooAddPdf(_name,"BifurGauss+BifurGauss",*bg1,*bg2,*frac);
   }
+  else if (model=="BifurGauss_BifurGauss_Gauss") {
+      RooBifurGauss* bg1 = new RooBifurGauss(_name+"_bg1","BifurGauss",*x,*mean,*sigmaL,*sigmaR);
+      RooBifurGauss* bg2 = new RooBifurGauss(_name+"_bg2","BifurGauss",*x,*mean2,*sigmaL2,*sigmaR2);
+      RooGaussian* gaussian = new RooGaussian(_name+"_gaussian","Gaussian",*x,*gmean,*gsigma);
+      RooAddPdf* bgsum = new RooAddPdf(_name+"_bgsum","BifurGauss+BifurGauss",*bg1,*bg2,*frac);
+      _thePdf = new RooAddPdf(_name,"BifurGauss+BifurGauss",*bgsum,*gaussian,*frac2);
+  }
+  else if (model=="BifurGauss_BifurGauss_BifurGauss") {
+      RooBifurGauss* bg1 = new RooBifurGauss(_name+"_bg1","BifurGauss",*x,*mean,*sigmaL,*sigmaR);
+      RooBifurGauss* bg2 = new RooBifurGauss(_name+"_bg2","BifurGauss",*x,*mean2,*sigmaL2,*sigmaR2);
+      RooBifurGauss* bg3 = new RooBifurGauss(_name+"_bg3","Gaussian",*x,*mean3,*sigmaL3,*sigmaR3);
+      RooAddPdf* bgsum = new RooAddPdf(_name+"_bgsum","BifurGauss+BifurGauss",*bg1,*bg2,*frac);
+      _thePdf = new RooAddPdf(_name,"BifurGauss+BifurGauss",*bgsum,*bg3,*frac2);
+  }
   else if (model=="gauss") {
     _thePdf = new RooGaussian(_name,"gaussian",*x,*mean,*sigma);
   }
@@ -146,7 +162,11 @@ void RscBaseModel::buildPdf() {
   }
   else if(model=="exponential")
     _thePdf = new RooExponential(_name,"exponential",*x,*slope);    
-
+  else if(model=="CBShape_BreitWigner") {
+    RooCBShape* cbshape = new RooCBShape(_name+"_cbshape","CBShape",*x,*m0,*sigma,*alpha,*n);
+    RooBreitWigner* bwshape = new RooBreitWigner(_name+"_bwshape","BreitWigner",*x,*mean,*width);
+     _thePdf = new RooAddPdf(_name,"CBShape_BreitWigner",*cbshape,*bwshape,*frac);
+  }
   else if (model=="poly7"){
     RooArgList* coef_list = new RooArgList(*coef_0,
                                            *coef_1,
@@ -540,6 +560,115 @@ void RscBaseModel::readDataCard() {
 		      getDataCard(),
 		      frac,0);
     }
+    if (model=="BifurGauss_BifurGauss_BifurGauss") {
+	readParameter(_name+"_mean",
+		      "mean",
+		      _name,
+		      getDataCard(),
+		      mean,0);
+    	readParameter(_name+"_sigmaL",
+		      "sigmaL",
+		      _name,
+		      getDataCard(),
+		      sigmaL,0);
+    	readParameter(_name+"_sigmaR",
+		      "sigmaR",
+		      _name,
+		      getDataCard(),
+		      sigmaR,0);
+	readParameter(_name+"_mean2",
+		      "mean2",
+		      _name,
+		      getDataCard(),
+		      mean2,0);
+    	readParameter(_name+"_sigmaL2",
+		      "sigmaL2",
+		      _name,
+		      getDataCard(),
+		      sigmaL2,0);
+    	readParameter(_name+"_sigmaR2",
+		      "sigmaR2",
+		      _name,
+		      getDataCard(),
+		      sigmaR2,0);
+	readParameter(_name+"_frac",
+		      "frac",
+		      _name,
+		      getDataCard(),
+		      frac,0);
+	readParameter(_name+"_mean3",
+		      "mean3",
+		      _name,
+		      getDataCard(),
+		      mean3,0);
+    	readParameter(_name+"_sigmaL3",
+		      "sigmaL3",
+		      _name,
+		      getDataCard(),
+		      sigmaL3,0);
+    	readParameter(_name+"_sigmaR3",
+		      "sigmaR3",
+		      _name,
+		      getDataCard(),
+		      sigmaR3,0);
+	readParameter(_name+"_frac2",
+		      "frac2",
+		      _name,
+		      getDataCard(),
+		      frac2,0);
+    }
+    if (model=="BifurGauss_BifurGauss_Gauss") {
+	readParameter(_name+"_mean",
+		      "mean",
+		      _name,
+		      getDataCard(),
+		      mean,0);
+    	readParameter(_name+"_sigmaL",
+		      "sigmaL",
+		      _name,
+		      getDataCard(),
+		      sigmaL,0);
+    	readParameter(_name+"_sigmaR",
+		      "sigmaR",
+		      _name,
+		      getDataCard(),
+		      sigmaR,0);
+	readParameter(_name+"_mean2",
+		      "mean2",
+		      _name,
+		      getDataCard(),
+		      mean2,0);
+    	readParameter(_name+"_sigmaL2",
+		      "sigmaL2",
+		      _name,
+		      getDataCard(),
+		      sigmaL2,0);
+    	readParameter(_name+"_sigmaR2",
+		      "sigmaR2",
+		      _name,
+		      getDataCard(),
+		      sigmaR2,0);
+	readParameter(_name+"_frac",
+		      "frac",
+		      _name,
+		      getDataCard(),
+		      frac,0);
+	readParameter(_name+"_gmean",
+		      "gmean",
+		      _name,
+		      getDataCard(),
+		      gmean,0);
+	readParameter(_name+"_gsigma",
+		      "gsigma",
+		      _name,
+		      getDataCard(),
+		      gsigma,0);
+	readParameter(_name+"_frac2",
+		      "frac2",
+		      _name,
+		      getDataCard(),
+		      frac2,0);
+    }
     if (model=="CBShapeGaussian") {
 	readParameter(_name+"_m0",
 		      "m0",
@@ -576,6 +705,43 @@ void RscBaseModel::readDataCard() {
 		      _name,
 		      getDataCard(),
 		      frac,0);
+    if (model=="CBShape_BreitWigner") {
+	readParameter(_name+"_m0",
+		      "m0",
+		      _name,
+		      getDataCard(),
+		      m0,0);
+	readParameter(_name+"_sigma",
+		      "sigma",
+		      _name,
+		      getDataCard(),
+		      sigma,0);
+	readParameter(_name+"_alpha",
+		      "alpha",
+		      _name,
+		      getDataCard(),
+		      alpha,0);
+	readParameter(_name+"_n",
+		      "n",
+		      _name,
+		      getDataCard(),
+		      n,0);
+	readParameter(_name+"_mean",
+		      "mean",
+		      _name,
+		      getDataCard(),
+		      mean,0);
+	readParameter(_name+"_width",
+		      "width",
+		      _name,
+		      getDataCard(),
+		      width,0);
+	readParameter(_name+"_frac",
+		      "frac",
+		      _name,
+		      getDataCard(),
+		      frac,0);
+
     }
   }
 }
@@ -624,8 +790,25 @@ void RscBaseModel::writeDataCard(ostream& out) {
     if (model=="BifurGauss_BifurGauss") RooArgSet(*mean,*sigmaL,*sigmaR,*mean2,*sigmaL2,*sigmaR2,*frac)
 			     .writeToStream(out,false);
 
+ 
+    if (model=="BifurGauss_BifurGauss_BifurGauss") {
+      RooArgSet(*mean,*sigmaL,*sigmaR,*mean2,*sigmaL2,*sigmaR2,*frac)
+	.writeToStream(out,false);
+      RooArgSet(*mean3,*sigmaL3,*sigmaR3,*frac2)
+	.writeToStream(out,false);
+    }
+
+    if (model=="BifurGauss_BifurGauss_Gauss") {
+      RooArgSet(*mean,*sigmaL,*sigmaR,*mean2,*sigmaL2,*sigmaR2,*frac)
+	.writeToStream(out,false);
+      RooArgSet(*gmean,*gsigma,*frac2)
+	.writeToStream(out,false);
+    }
+
     if (model=="exponential") RooArgSet(*slope)
 				.writeToStream(out,false);
+
+    if (model=="CBShape_BreitWigner")  RooArgSet(*m0,*sigma,*alpha,*n,*mean,*width,*frac).writeToStream(out,false);
 
     if (model=="poly7") 
       RooArgSet(*coef_0,
