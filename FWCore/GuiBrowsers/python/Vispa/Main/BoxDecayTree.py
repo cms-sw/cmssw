@@ -314,14 +314,19 @@ class BoxDecayTree(WidgetView):
             QCoreApplication.instance().processEvents()
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
-                return None
-            if len(self._dataAccessor.motherRelations(object)) == 0:
+                return ()
+            globalMother=True
+            for mother in self._dataAccessor.allMotherRelations(object):
+                if mother in unsortedObjects:
+                    globalMother=False
+                    break
+            if globalMother:
                 unsortedObjects.remove(object)
                 sortedObjects.insert(0, object)
                 i = 0
                 for child in self._dataAccessor.allDaughterRelations(object):
-                    i += 1
                     if child in unsortedObjects:
+                        i += 1
                         unsortedObjects.remove(child)
                         sortedObjects.insert(i, child)
         sortedObjects += unsortedObjects

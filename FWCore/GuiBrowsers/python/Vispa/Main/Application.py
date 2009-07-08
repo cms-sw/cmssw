@@ -976,6 +976,9 @@ class Application(QApplication):
     def setProgress(self, progress):
         angle = int(progress * 360.0 / 100.0)
         pixmap = QPixmap(":/resources/vispabutton.png")
+        # if problem with loading png
+        if pixmap.size().width()==0:
+            return
         rotate_matrix = QMatrix()
         rotate_matrix.rotate(angle)
         pixmap_rotated = pixmap.transformed(rotate_matrix)
