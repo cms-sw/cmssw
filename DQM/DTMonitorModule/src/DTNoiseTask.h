@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2008/07/09 08:57:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/09 14:13:12 $
+ *  $Revision: 1.5 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -45,9 +45,10 @@ protected:
 
   void beginRun(const edm::Run&, const edm::EventSetup&);
 
-  /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
   
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
@@ -84,6 +85,9 @@ private:
 
   //the time boxes
   std::map<DTSuperLayerId, MonitorElement*> tbHistos;
+
+  // safe margin (ns) between ttrig and beginning of counting area
+  double safeMargin;
 
 };
 #endif

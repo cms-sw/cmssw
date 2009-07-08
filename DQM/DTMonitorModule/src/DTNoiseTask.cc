@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:44:50 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/04/20 17:20:54 $
+ *  $Revision: 1.15 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -58,8 +58,11 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
   // the name of the 4D rec hits collection
   theRecHits4DLabel = ps.getParameter<string>("recHits4DLabel");
   
-  //switch for segment veto
+  // switch for segment veto
   doSegmentVeto = ps.getUntrackedParameter<bool>("doSegmentVeto", false);
+
+  // safe margin (ns) between ttrig and beginning of counting area
+  safeMargin = ps.getUntrackedParameter<double>("safeMargin", 200.);
 
 }
 
@@ -101,16 +104,18 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  e.getByLabel(theRecHits4DLabel, all4DSegments);
+  if(doSegmentVeto) {
+    e.getByLabel(theRecHits4DLabel, all4DSegments);
   
-  // Loop over all chambers containing a segment and look for the number of segments
-  DTRecSegment4DCollection::id_iterator chamberId;
-  for (chamberId = all4DSegments->id_begin();
-       chamberId != all4DSegments->id_end();
-       ++chamberId){
-    segmentsChId[*chamberId]=1;
+    // Loop over all chambers containing a segment and look for the number of segments
+    DTRecSegment4DCollection::id_iterator chamberId;
+    for (chamberId = all4DSegments->id_begin();
+	 chamberId != all4DSegments->id_end();
+	 ++chamberId){
+      segmentsChId[*chamberId]=1;
+    }
   }
- 
+
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
   e.getByLabel(dtDigiLabel, dtdigis);
@@ -123,7 +128,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
-      double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200.;
+      double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-safeMargin;
       if(doTimeBoxHistos)
 	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
@@ -135,13 +140,15 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 	continue;
 
       // fill the occupancy histo
+      // FIXME: needs to be optimized: no need to rescale the histo for each digi
       TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
       double normalization=0;
-      if(mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId())!=mapEvt.end()){
+      if(mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId())!=mapEvt.end()) {
 	LogVerbatim("DTNoiseTask")  << " Last fill: # of events: "
 				    << mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]
 				    << endl;
 	normalization =  1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
+	// revert back to # of entries
 	noise_root->Scale(normalization);
       }
       int yBin=(*dtLayerId_It).first.layer()+(4*((*dtLayerId_It).first.superlayerId().superlayer()-1));
@@ -153,6 +160,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 				  << " Time interval: " << upperLimit
 				  << " # of events: " << evtNumber << endl;;
       normalization = double( 1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
+      // update the rate
       noise_root->Scale(1./normalization);
       LogVerbatim("DTNoiseTask")  << "    noise rate: "
 				  << noise_root->GetBinContent((*digiIt).wire(),yBin) << endl;
@@ -277,7 +285,7 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
       if(doTimeBoxHistos)
 	bookHistos(slId);
       float tTrig, tTrigRMS, kFactor;
-      tTrigMap->get(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
+      tTrigMap->get(slId, tTrig, tTrigRMS,kFactor,DTTimeUnits::ns);
       // tTrig mapping per station
       // check that the ttrig is the lowest of the 3 SLs
       if(tTrigStMap.find(chId)==tTrigStMap.end() || 
@@ -289,3 +297,28 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
 
 }
 
+void DTNoiseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& setup) {
+  LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: End LS, update rates in all histos" << endl;
+  
+  // update the rate of all histos (usefull for histos with few entries: they are not updated very often
+  for(map<DTChamberId, MonitorElement*>::const_iterator meAndChamber = noiseHistos.begin();
+      meAndChamber != noiseHistos.end(); ++meAndChamber) {
+    DTChamberId chId = (*meAndChamber).first;
+    TH2F* noise_root = (*meAndChamber).second->getTH2F();
+    double upperLimit = tTrigStMap[chId]-safeMargin;
+
+    double normalization=0;
+    if(mapEvt.find(chId) != mapEvt.end()) {
+      LogVerbatim("DTNoiseTask")  << " Ch: " << chId << " Last fill: # of events: " << mapEvt[chId] << endl;
+	normalization =  1e-9*upperLimit*mapEvt[chId];
+	// revert back to # of entries
+	noise_root->Scale(normalization);
+    }
+    // set the # of events analyzed until this update
+    LogVerbatim("DTNoiseTask")  << "          Update for events: " << evtNumber << endl;
+    mapEvt[chId] = evtNumber;
+    // update the rate
+    normalization = double( 1e-9*upperLimit*evtNumber);
+    noise_root->Scale(1./normalization);
+  }
+}
