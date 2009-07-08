@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/03 14:21:43 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/04/09 15:45:24 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -174,8 +174,8 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	    LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
 	      << "   Wheel: " << wheel << " sect: " << sect
 	      << " station: " << sta
-	      << " rate is: " << histo->GetBinContent(sect, sta) << endl;
-	    if(histo->GetBinContent(sect, sta) > maxSynchNoiseRate) {
+	      << " rate is: " << histo->GetBinContent(sect, sta)/(float)nevents << endl;
+	    if(histo->GetBinContent(sect, sta)/(float)nevents > maxSynchNoiseRate) {
 	      summarySynchNoiseHisto->Fill(sect,wheel,1);
 	    }
 	  }
