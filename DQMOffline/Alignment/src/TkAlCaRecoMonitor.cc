@@ -3,19 +3,20 @@
  *
  */
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Alignment/interface/TkAlCaRecoMonitor.h"
-
-//#include <TrackingTools/Records/interface/TransientRecHitRecord.h>
 
 #include <DataFormats/JetReco/interface/CaloJet.h>
 #include <DataFormats/Math/interface/deltaR.h>
