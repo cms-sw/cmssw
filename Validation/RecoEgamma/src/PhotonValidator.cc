@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/02 17:43:44 $ 
- **  $Revision: 1.34 $
+ **  $Date: 2009/07/07 16:47:46 $ 
+ **  $Revision: 1.35 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -244,7 +244,7 @@ void  PhotonValidator::beginJob() {
     //// All MC photons
     // SC from reco photons
 
-    dbe_->setCurrentFolder("Egamma/PhotonValidator/SimulationInfo");
+    dbe_->setCurrentFolder("EgammaV/PhotonValidator/SimulationInfo");
     //
     // simulation information about all MC photons found
     std::string histname = "nOfSimPhotons";    
@@ -371,7 +371,7 @@ void  PhotonValidator::beginJob() {
     h_simTkEta_ = dbe_->book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
    
 
-    dbe_->setCurrentFolder("Egamma/PhotonValidator/Photons");
+    dbe_->setCurrentFolder("EgammaV/PhotonValidator/Photons");
 
     h_phoEta_[0] = dbe_->book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoPhi_[0] = dbe_->book1D("phoPhi"," Photon  Phi ",phiBin,phiMin,phiMax) ;
@@ -619,7 +619,7 @@ void  PhotonValidator::beginJob() {
     h_gamgamMass_[2][2] = dbe_->book1D(histname+"Endcap","2 photons with  conversion  invariant mass:  Endcap ",ggMassBin, ggMassMin, ggMassMax);
 
 
-    dbe_->setCurrentFolder("Egamma/PhotonValidator/ConversionInfo");
+    dbe_->setCurrentFolder("EgammaV/PhotonValidator/ConversionInfo");
 
 
     histname="nConv";
@@ -988,7 +988,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   nEvt_++;  
   LogInfo("PhotonValidator") << "PhotonValidator Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
-  //std::cout << "PhotonValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
+  //  std::cout << "PhotonValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
 
   // get the geometry from the event setup:
@@ -2076,6 +2076,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 void PhotonValidator::endJob() {
 
 
+
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
@@ -2084,10 +2085,8 @@ void PhotonValidator::endJob() {
   
   edm::LogInfo("PhotonValidator") << "Analyzed " << nEvt_  << "\n";
   // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
-  std::cout  << "PhotonValidator::endJob Analyzed " << nEvt_ << " events " << "\n";
-  std::cout << " Total number of photons " << nEntry_ << std::endl;
-  std::cout << " Fraction of conv with two tracks having both BC matching " << float(nRecConvAssWithEcal_)/nRecConvAss_ << std::endl;
-   
+  //  std::cout  << "PhotonValidator::endJob Analyzed " << nEvt_ << " events " << "\n";
+    
   return ;
 }
  
