@@ -110,13 +110,13 @@ void CalibrationTask::fill( const SiStripEventSummary& summary,
       updateHistoSet( calib_[apv*16+k],bin,digis.data[apv*128+ical+k*8].adc()-ped[apv*128+ical+k*8]-(digis.data[apv*128+isub+k*8].adc()-ped[apv*128+isub+k*8]));
     }
   }
-  if(bin>=62) update(); //TODO: temporary: find a better solution later
+  update(); //TODO: temporary: find a better solution later
 }
 
 // -----------------------------------------------------------------------------
 //
 void CalibrationTask::update() {
-  LogDebug("Commissioning") << "[CalibrationTask::update]";
+  // LogDebug("Commissioning") << "[CalibrationTask::update]"; // huge output
   for(std::vector<HistoSet>::iterator it=calib_.begin();it<calib_.end();++it) {
     updateHistoSet( *it );
   }

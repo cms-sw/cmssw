@@ -108,7 +108,7 @@ void CalibrationScanTask::book() {
 //
 void CalibrationScanTask::fill( const SiStripEventSummary& summary,
 			    const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
+//  LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
   // Check if ISHA/VFS changed. In that case, save, reset histo, change title, and continue
   checkAndSave(summary.isha(),summary.vfs());
   // retrieve the delay from the EventSummary
@@ -127,13 +127,13 @@ void CalibrationScanTask::fill( const SiStripEventSummary& summary,
     updateHistoSet( calib1_,bin,digis.data[ical+k*8].adc()-ped[ical+k*8]-(digis.data[isub+k*8].adc()-ped[isub+k*8]));
     updateHistoSet( calib2_,bin,digis.data[128+ical+k*8].adc()-ped[128+ical+k*8]-(digis.data[128+isub+k*8].adc()-ped[128+isub+k*8]));
   }
-  if(bin>=62) update(); //TODO: temporary: find a better solution later
+  update(); //TODO: temporary: find a better solution later
 }
 
 // -----------------------------------------------------------------------------
 //
 void CalibrationScanTask::update() {
-  LogDebug("Commissioning") << "[CalibrationScanTask::update]";
+  // LogDebug("Commissioning") << "[CalibrationScanTask::update]"; // huge output
   updateHistoSet( calib1_ );
   updateHistoSet( calib2_ );
 }
