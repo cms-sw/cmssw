@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.14 2008/11/28 19:02:15 lowette Exp $
+// $Id: Electron.cc,v 1.15 2009/03/26 06:23:10 hegner Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -13,12 +13,7 @@ Electron::Electron() :
     Lepton<reco::GsfElectron>(),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedTrack_(false)
 {
 }
 
@@ -28,12 +23,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     Lepton<reco::GsfElectron>(anElectron),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedTrack_(false)
 {
 }
 
@@ -43,12 +33,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedTrack_(false)
 {
 }
 
@@ -57,13 +42,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
-    embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
-{
+    embeddedTrack_(false){
 }
 
 
@@ -151,17 +130,6 @@ bool Electron::isElectronIDAvailable(const std::string & name) const {
     }
     return false;
 }
-/// method to store the electron's cluster shape
-void Electron::setClusterShapes (const float& scSigmaEtaEta, const float& scSigmaIEtaIEta, 
-                                 const float& scE1x5, const float& scE2x5Max, const float& scE5x5) 
-  { 
-    scSigmaEtaEta_ = scSigmaEtaEta ; 
-    scSigmaIEtaIEta_ = scSigmaIEtaIEta ;
-    scE1x5_ = scE1x5 ;
-    scE2x5Max_ = scE2x5Max ;
-    scE5x5_ = scE5x5 ;
-  }
-
 
 /// reference to the source PFCandidates
 reco::PFCandidateRef Electron::pfCandidateRef() const {
