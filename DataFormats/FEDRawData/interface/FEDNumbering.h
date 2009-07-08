@@ -25,44 +25,18 @@ class FEDNumbering {
   static std::pair<int,int> getSiPixelFEDIds();
   static std::pair<int,int> getSiStripFEDIds();
 
-  static std::pair<int,int> getPreShowerFEDIds();
   static std::pair<int,int> getEcalFEDIds();
-  static std::pair<int,int> getCastorFEDIds();
   static std::pair<int,int> getHcalFEDIds();
-
-  static std::pair<int,int> getLumiScalersFEDIds();
 
   static std::pair<int,int> getCSCFEDIds();
   static std::pair<int,int> getCSCTFFEDIds();
 
   static std::pair<int,int> getDTFEDIds();
-  static std::pair<int,int> getDTTFFEDIds();
 
   static std::pair<int,int> getRPCFEDIds();
 
   static std::pair<int,int> getTriggerGTPFEDIds();
   static std::pair<int,int> getTriggerEGTPFEDIds();
-
-  static std::pair<int,int> getTriggerGCTFEDIds();
-  
-  static std::pair<int,int> getTriggerLTCmtccFEDIds();
-  static std::pair<int,int> getTriggerLTCFEDIds();
-
-  static std::pair<int, int> getTriggerLTCTriggerFEDID();
-  static std::pair<int, int> getTriggerLTCHCALFEDID();
-  static std::pair<int, int> getTriggerLTCSiStripFEDID();
-  static std::pair<int, int> getTriggerLTCECALFEDID();
-  static std::pair<int, int> getTriggerLTCTotemCastorFEDID();
-  static std::pair<int, int> getTriggerLTCRPCFEDID();
-  static std::pair<int, int> getTriggerLTCCSCFEDID();
-  static std::pair<int, int> getTriggerLTCDTFEDID();
-  static std::pair<int, int> getTriggerLTCSiPixelFEDID();
-
-  static std::pair<int, int> getCSCDDUFEDIds();
-  static std::pair<int, int> getCSCContingencyFEDIds();
-  static std::pair<int, int> getCSCTFSPFEDIds();
-
-  static std::pair<int, int> getDAQeFEDFEDIds();
 
   static int lastFEDId();
 
