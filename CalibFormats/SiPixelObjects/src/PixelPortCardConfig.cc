@@ -272,6 +272,16 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	  setDataBaseAOHGain(settingName, i2c_values);
 	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
+      // FIXMR
+       else if ( settingName == k_PLL_CTR4 || settingName == k_PLL_CTR5 ) // special handling
+       {
+    	  unsigned int last_CTR2 = 0x0;
+    	  if ( containsSetting(k_PLL_CTR2) ) last_CTR2 = getdeviceValuesForSetting( k_PLL_CTR2 );
+    	
+    	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)) );
+    	  device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values) );
+       }
+      // FIXMR
       else // no special handling for this name
 	{
 	  if(type_ != "fpix" || (settingName.find("DELAY25_") != std::string::npos) || (settingName.find("AOH_BIAS") != std::string::npos))
@@ -768,7 +778,8 @@ void PixelPortCardConfig::fillDBToFileAddress()
       nameDBtoFileConversion_["PLL_CTR1"                 ] = k_PLL_CTR1 ;
       nameDBtoFileConversion_["PLL_CTR2"                 ] = k_PLL_CTR2 ;
       nameDBtoFileConversion_["PLL_CTR3"                 ] = k_PLL_CTR3 ;
-      nameDBtoFileConversion_["PLL_CTR4_5"               ] = k_PLL_CTR4 ;
+      nameDBtoFileConversion_["PLL_CTR4"                 ] = k_PLL_CTR4 ;
+      nameDBtoFileConversion_["PLL_CTR5"                 ] = k_PLL_CTR5 ;
       //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;
@@ -884,7 +895,8 @@ void PixelPortCardConfig::fillDBToFileAddress()
       nameDBtoFileConversion_["PLL_CTR1"             ] = k_PLL_CTR1 ;
       nameDBtoFileConversion_["PLL_CTR2"             ] = k_PLL_CTR2 ;
       nameDBtoFileConversion_["PLL_CTR3"             ] = k_PLL_CTR3 ;
-      nameDBtoFileConversion_["PLL_CTR4_5"           ] = k_PLL_CTR4 ;
+      nameDBtoFileConversion_["PLL_CTR4"             ] = k_PLL_CTR4 ;
+      nameDBtoFileConversion_["PLL_CTR5"             ] = k_PLL_CTR5 ;
       //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
       //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;

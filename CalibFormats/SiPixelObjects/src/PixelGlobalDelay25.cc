@@ -64,6 +64,13 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat):PixelC
         }
     }
   sscanf(tableMat[1][colM["GLOBALDELAY25"]].c_str(),"%x",&delay_);
+
+  if (delay_>=50) {
+    std::cout << __LINE__ << "]\t" << mthn << "global delay is out of range (>= 1 Tclk)."  << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "will not apply any global delays."          << std::endl;
+    std::cout << __LINE__ << "]\t" << mthn << "increase the delays in the TPLL if needed." << std::endl;
+    delay_=0;
+  }
 }
 
 
