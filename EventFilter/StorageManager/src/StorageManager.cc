@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.99 2009/06/29 13:07:49 mommsen Exp $
+// $Id: StorageManager.cc,v 1.99.2.2 2009/07/08 15:54:19 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -7,9 +7,9 @@
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -24,8 +24,19 @@
 #include "xdaq/NamespaceURI.h"
 #include "xdata/InfoSpaceFactory.h"
 #include "xgi/Method.h"
+#include "xoap/MessageFactory.h"
 #include "xoap/MessageReference.h"
 #include "xoap/Method.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPName.h"
+#include "xoap/SOAPPart.h"
+#include "xoap/domutils.h"
+
+#include "xdaq2rc/version.h"
+#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
+#include "xdaq2rc/SOAPParameterExtractor.hh"
+#endif
 
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
@@ -36,9 +47,8 @@ using namespace stor;
 
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
-  reasonForFailedState_(),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.99 2009/06/29 13:07:49 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.100 2009/07/07 11:17:08 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -98,19 +108,19 @@ void StorageManager::bindI2OCallbacks()
 void StorageManager::bindStateMachineCallbacks()
 {
   xoap::bind( this,
-              &StorageManager::configuring,
+              &StorageManager::handleFSMSoapMessage,
               "Configure",
               XDAQ_NS_URI );
   xoap::bind( this,
-              &StorageManager::enabling,
+              &StorageManager::handleFSMSoapMessage,
               "Enable",
               XDAQ_NS_URI );
   xoap::bind( this,
-              &StorageManager::stopping,
+              &StorageManager::handleFSMSoapMessage,
               "Stop",
               XDAQ_NS_URI );
   xoap::bind( this,
-              &StorageManager::halting,
+              &StorageManager::handleFSMSoapMessage,
               "Halt",
               XDAQ_NS_URI );
 }
@@ -581,129 +591,150 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
 // State Machine call back functions //
 ///////////////////////////////////////
 
-xoap::MessageReference StorageManager::configuring( xoap::MessageReference msg )
+xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageReference msg )
   throw( xoap::exception::Exception )
 {
+  std::string errorMsg;
+  xoap::MessageReference returnMsg;
+
   try {
-    if(!edmplugin::PluginManager::isAvailable()) {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    errorMsg = "Failed to extract FSM event and parameters from SOAP message: ";
+    std::string command = extractParameters(msg);
+
+    errorMsg = "Failed to put a '" + command + "' state machine event into command queue: ";
+    if (command == "Configure")
+    {
+      _sharedResources->_commandQueue->enq_nowait( stor::event_ptr( new stor::Configure() ) );
+    }
+    else if (command == "Enable")
+    {
+      if (_sharedResources->_configuration->streamConfigurationHasChanged())
+      {
+        _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Reconfigure() ) );
+      }
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Enable() ) );
+    }
+    else if (command == "Stop")
+    {
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Stop() ) );
+    }
+    else if (command == "Halt")
+    {
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
+    }
+    else
+    {
+      XCEPT_RAISE(stor::exception::StateMachine,
+        "Received an unknown state machine event '" + command + "'.");
     }
 
-    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Configure() ) );
+    errorMsg = "Failed to create FSM SOAP reply message: ";
+    returnMsg = createFsmSoapResponseMsg(command,
+      _sharedResources->_statisticsReporter->
+      getStateMachineMonitorCollection().externallyVisibleState());
   }
   catch (cms::Exception& e) {
-    reasonForFailedState_ = e.explainSelf();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    errorMsg += e.explainSelf();
+    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
+ 
+    _sharedResources->moveToFailedState();
+
+    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }
   catch (xcept::Exception &e) {
-    reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    LOG4CPLUS_FATAL( getApplicationLogger(),
+      errorMsg << xcept::stdformat_exception_history(e));
+
+    _sharedResources->moveToFailedState();
+
+    XCEPT_RETHROW(xoap::exception::Exception, errorMsg, e);
   }
   catch (std::exception& e) {
-    reasonForFailedState_  = e.what();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    errorMsg += e.what();
+    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
+
+    _sharedResources->moveToFailedState();
+
+    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }
   catch (...) {
-    reasonForFailedState_  = "Unknown Exception while configuring";
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    errorMsg += "Unknown exception";
+
+    LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
+
+    _sharedResources->moveToFailedState();
+
+    XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }
 
-  return msg;
+  return returnMsg;
 }
 
 
-xoap::MessageReference StorageManager::enabling( xoap::MessageReference msg )
-  throw( xoap::exception::Exception )
-{
-  if (_sharedResources->_configuration->streamConfigurationHasChanged()) {
-    try {
-      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Reconfigure() ) );
-    }
-    catch (cms::Exception& e) {
-      reasonForFailedState_ = e.explainSelf();
-      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-      return msg;
-    }
-    catch (xcept::Exception &e) {
-      reasonForFailedState_ = "re-configuring FAILED: " + (string)e.what();
-      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-      return msg;
-    }
-    catch (std::exception& e) {
-      reasonForFailedState_  = e.what();
-      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-      return msg;
-    }
-    catch (...) {
-      reasonForFailedState_  = "Unknown Exception while re-configuring";
-      LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-      return msg;
-    }
-  }
 
-  try {
-    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Enable() ) );
-  }
-  catch (xcept::Exception &e) {
-    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
-  }
-  catch(...)
+std::string StorageManager::extractParameters( xoap::MessageReference msg )
+{
+  std::string command = "unknown";
+
+#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
+  // Extract the command name and update any configuration parameter
+  // found in the SOAP message in the application infospace
+  xdaq2rc::SOAPParameterExtractor soapParameterExtractor(this);
+  command = soapParameterExtractor.extractParameters(msg);
+#else
+  // Only extract the FSM command name from the SOAP message
+  DOMNode* node  = msg->getSOAPPart().getEnvelope().getBody().getDOMNode();
+  DOMNodeList* bodyList = node->getChildNodes();
+  
+  for(unsigned int i=0; i<bodyList->getLength(); i++)
   {
-    reasonForFailedState_  = "Unknown Exception while enabling";
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    node = bodyList->item(i);
+    
+    if(node->getNodeType() == DOMNode::ELEMENT_NODE)
+    {
+      command = xoap::XMLCh2String(node->getLocalName());
+      return command;
+    }
   }
-  return msg;
+  XCEPT_RAISE(xoap::exception::Exception, "FSM event not found");
+#endif
+
+  return command;
 }
 
 
-xoap::MessageReference StorageManager::stopping( xoap::MessageReference msg )
-  throw( xoap::exception::Exception )
+xoap::MessageReference StorageManager::createFsmSoapResponseMsg
+(
+  const std::string commandName,
+  const std::string currentState
+)
 {
-  try {
-    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Stop() ) );
-  }
-  catch (xcept::Exception &e) {
-    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
-  }
-  catch(...)
+  xoap::MessageReference reply;
+
+  try
   {
-    reasonForFailedState_  = "Unknown Exception while stopping";
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
+    // response string
+    reply = xoap::createMessage();
+    xoap::SOAPEnvelope envelope  = reply->getSOAPPart().getEnvelope();
+    xoap::SOAPName responseName  = envelope.createName(commandName+"Response",
+                                                       "xdaq",XDAQ_NS_URI);
+    xoap::SOAPBodyElement responseElem =
+      envelope.getBody().addBodyElement(responseName);
+    
+    // state string
+    xoap::SOAPName stateName = envelope.createName("state", "xdaq",XDAQ_NS_URI);
+    xoap::SOAPElement stateElem = responseElem.addChildElement(stateName);
+    xoap::SOAPName attributeName = envelope.createName("stateName", "xdaq",XDAQ_NS_URI);
+    stateElem.addAttribute(attributeName,currentState);
+  }
+  catch(xcept::Exception &e)
+  {
+    XCEPT_RETHROW(xoap::exception::Exception,
+      "Failed to create FSM SOAP response message for command '" +
+      commandName + "' and current state '" + currentState + "'.",  e);
   }
   
-  return msg;
-}
-
-
-xoap::MessageReference StorageManager::halting( xoap::MessageReference msg )
-  throw( xoap::exception::Exception )
-{
-  try {
-    _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
-  }
-  catch (xcept::Exception &e) {
-    reasonForFailedState_ = "halting FAILED: " + (string)e.what();
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
-  }
-  catch(...)
-  {
-    reasonForFailedState_  = "Unknown Exception while halting";
-    LOG4CPLUS_ERROR( getApplicationLogger(), reasonForFailedState_ );
-    return msg;
-  }
-  
-  return msg;
+  return reply;
 }
 
 

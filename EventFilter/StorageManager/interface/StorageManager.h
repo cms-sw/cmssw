@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StorageManager.h,v 1.48.2.1 2009/07/07 16:33:44 mommsen Exp $
 
 #ifndef StorageManager_StorageManager_h
 #define StorageManager_StorageManager_h
@@ -33,9 +33,9 @@ namespace stor {
   /**
    * Main class of the StorageManager XDAQ application
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: mommsen $
+   * $Revision: 1.48.2.1 $
+   * $Date: 2009/07/07 16:33:44 $
    */
 
   class StorageManager: public xdaq::Application
@@ -84,27 +84,10 @@ namespace stor {
     void bindStateMachineCallbacks();
 
     /**
-     * Callback for SOAP message requesting a Configure state machine event
+     * Callback for SOAP message containint a state machine event,
+     * possibly including new configuration values
      */
-    xoap::MessageReference configuring( xoap::MessageReference )
-      throw( xoap::exception::Exception );
-
-    /**
-     * Callback for SOAP message requesting an Enable state machine event
-     */
-    xoap::MessageReference enabling( xoap::MessageReference )
-      throw( xoap::exception::Exception );
-
-    /**
-     * Callback for SOAP message requesting a Stop state machine event
-     */
-    xoap::MessageReference stopping( xoap::MessageReference )
-      throw( xoap::exception::Exception );
-
-    /**
-     * Callback for SOAP message requesting a Halt state machine event
-     */
-    xoap::MessageReference halting( xoap::MessageReference )
+    xoap::MessageReference handleFSMSoapMessage( xoap::MessageReference )
       throw( xoap::exception::Exception );
 
 
@@ -214,7 +197,6 @@ namespace stor {
     void processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out )
       throw( xgi::exception::Exception );
 
-
     /**
      * Initialize the shared resources
      */
@@ -225,11 +207,19 @@ namespace stor {
      */
     void startWorkerThreads();
 
+    /**
+     * Extract parameters and FSM command from SOAP message
+     */
+    std::string extractParameters( xoap::MessageReference );
 
-    // Do we need this here?
-    unsigned int getRunNumber() const;
-    std::string reasonForFailedState_;
-
+    /**
+     * Create a SOAP FSM response message
+     */
+    xoap::MessageReference createFsmSoapResponseMsg
+    (
+      const std::string commandName,
+      const std::string currentState
+    );
 
     // instantiate the plugin manager, not referenced here after!
     edm::AssertHandler _ah;

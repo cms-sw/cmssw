@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.4 2009/07/03 14:13:04 dshpakov Exp $
+// $Id: Ready.cc,v 1.5.2.1 2009/07/07 16:34:31 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -6,6 +6,9 @@
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include <iostream>
 
@@ -21,6 +24,10 @@ void Ready::do_entryActionWork()
 {
   TransitionRecord tr( stateName(), true );
   outermost_context().updateHistory( tr );
+
+  if(!edmplugin::PluginManager::isAvailable()) {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  }
 
   SharedResourcesPtr sharedResources =
     outermost_context().getSharedResources();
