@@ -3,18 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TestPhotonValidator")
 process.load('Configuration/StandardSequences/GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi")
-process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-process.load("Validation.RecoEgamma.photonValidator_cfi")
-process.load("Validation.RecoEgamma.tpSelection_cfi")
+process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
@@ -25,25 +21,14 @@ from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 
-#  include "DQMServices/Components/data/MessageLogger.cfi"
-#  service = LoadAllDictionaries {}
-
-
 
 process.maxEvents = cms.untracked.PSet(
-# input = cms.untracked.int32(3000)
+input = cms.untracked.int32(10)
 )
 
 
-
-from Validation.RecoEgamma.photonValidator_cfi import *
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaPt10.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaPt35.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310_SingleGammaFlatPt10_100.root'
-photonValidation.OutputFileName = 'PhotonValidationRelVal310_H130GGgluonfusion.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310_GammaJets_Pt_80_120.root'
-#photonValidation.OutputFileName = 'PhotonValidationRelVal310_QCD_Pt_50_80.root'
-
+from Validation.RecoEgamma.photonValidationSequence_cff import *
+photonValidation.OutputFileName = 'prova.root'
 
 
 process.source = cms.Source("PoolSource",
@@ -140,16 +125,6 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 
 
 
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-#TrackAssociatorByHits.AbsoluteNumberOfHits = True
-#TrackAssociatorByHits.Cut_RecoToSim = 3
-#TrackAssociatorByHits.Quality_SimToReco = 3
-TrackAssociatorByHits.Cut_RecoToSim = 0.5
-TrackAssociatorByHits.Quality_SimToReco = 0.5
-
-
-
 ## For single gamma fla pt =10-150
 #photonValidation.minPhoEtCut = 10
 #photonValidation.eMax  = 300
@@ -165,24 +140,19 @@ TrackAssociatorByHits.Quality_SimToReco = 0.5
 #photonValidation.signal = True
 
 ## For single gamma pt = 35
-#photonValidation.minPhoEtCut = 35
-#photonValidation.eMax  = 300
-#photonValidation.etMax = 50
-#photonValidation.etScale = 0.20
-#photonValidation.signal = True
-
-## For gam Jet and higgs
-photonValidation.minPhoEtCut = 20
-photonValidation.eMax  = 500
-photonValidation.etMax = 500
+photonValidation.minPhoEtCut = 35
+photonValidation.eMax  = 300
+photonValidation.etMax = 50
+photonValidation.etScale = 0.20
 photonValidation.signal = True
 
-## same for all
-photonValidation.convTrackMinPtCut = 1.
-photonValidation.useTP = True
-photonValidation.rBin = 48
-photonValidation.eoverpMin = 0.
-photonValidation.eoverpMax = 5.
+## For gam Jet and higgs
+#photonValidation.minPhoEtCut = 20
+#photonValidation.eMax  = 500
+#photonValidation.etMax = 500
+#photonValidation.signal = True
+
+
 
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
@@ -192,7 +162,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 
 #process.p1 = cms.Path(process.photonValidation)
-process.p1 = cms.Path(process.tpSelection*process.photonValidation*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.dqmStoreStats)
 #process.p1 = cms.Path(process.mix*process.trackingParticles*process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
