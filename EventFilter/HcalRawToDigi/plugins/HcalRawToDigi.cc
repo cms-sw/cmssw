@@ -11,13 +11,13 @@ using namespace std;
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
-  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",int(FEDNumbering::MINHCALFEDID)),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  false,
 	  0, 0, 
 	  -1),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
-  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
+  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
@@ -25,7 +25,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
   if (fedUnpackList_.empty()) {
-    for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+    for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
       fedUnpackList_.push_back(i);
   } 
   

@@ -16,21 +16,21 @@ HcalFEDList::~HcalFEDList() {
 
 void HcalFEDList::setListOfFEDs() { 
   
-  int first = FEDNumbering::getHcalFEDIds().first ; 
-  int last  = FEDNumbering::getHcalFEDIds().second ;
+  int first = FEDNumbering::MINHCALFEDID ; 
+  int last  = FEDNumbering::MAXHCALFEDID ;
 
-  int HBHEstart = FEDNumbering::getHcalFEDIds().first ; 
-  int HFstart   = FEDNumbering::getHcalFEDIds().first + 18 ; 
-  int HOstart   = FEDNumbering::getHcalFEDIds().first + 24 ; 
+  int HBHEstart = FEDNumbering::MINHCALFEDID ; 
+  int HFstart   = FEDNumbering::MINHCALFEDID + 18 ; 
+  int HOstart   = FEDNumbering::MINHCALFEDID + 24 ; 
 
-  int HBHEend = FEDNumbering::getHcalFEDIds().first + 17 ; 
-  int HFend   = FEDNumbering::getHcalFEDIds().first + 23 ; 
-  int HOend   = FEDNumbering::getHcalFEDIds().second ; 
+  int HBHEend = FEDNumbering::MINHCALFEDID + 17 ; 
+  int HFend   = FEDNumbering::MINHCALFEDID + 23 ; 
+  int HOend   = FEDNumbering::MAXHCALFEDID ;
 
   switch (calibType_ ) {
   case hc_Pedestal : 
-    first = FEDNumbering::getHcalFEDIds().first ; 
-    last  = FEDNumbering::getHcalFEDIds().second ; 
+    first = FEDNumbering::MINHCALFEDID ; 
+    last  = FEDNumbering::MAXHCALFEDID ;
     break ; 
   case hc_RADDAM : 
     first = HFstart ; 

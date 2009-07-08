@@ -12,9 +12,9 @@ using namespace std;
 
 HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
-  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
+  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID)),
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs")),
-  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first))
+  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID))
 {
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
