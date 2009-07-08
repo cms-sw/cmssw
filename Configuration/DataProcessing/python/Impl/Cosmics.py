@@ -28,8 +28,7 @@ class Cosmics(Scenario):
     """
 
 
-    def promptReco(self,process, recoOutputModule, aodOutputModule = None,
-                   alcaOutputModule = None):
+    def promptReco(self, globalTag, writeTiers = ['RECO']):
         """
         _promptReco_
 
@@ -46,21 +45,49 @@ class Cosmics(Scenario):
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+
         
+        
+        process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process)
         cb.addStandardSequences()
         cb.addConditions()
         process.load(cb.EVTCONTDefaultCFF)
-        recoOutputModule.eventContent = process.RECOEventContent
-        if aodOutputModule != None:
-            aodOutputModule.eventContent = process.AODEventContent
-        if alcaOutputModule != None:
-            print "ALCA Output needs to be implemented"
-            #alcaOutputModule.eventContent = \
-            #     process.ALCAIntermediateEventContent
+
+        if "RECO" in writeTiers:
+            process.writeRECO = cms.OutputModule(
+                "PoolOutputModule", 
+                fileName = cms.untracked.string('writeRECO.root'), 
+                dataset = cms.untracked.PSet( 
+                dataTier = cms.untracked.string('RECO'), 
+                ), 
+                )
+            
+            process.writeRECO.eventContent = process.RECOEventContent
+        if "AOD" in writeTiers:
+            process.writeAOD = cms.OutputModule(
+                "PoolOutputModule", 
+                fileName = cms.untracked.string('writeAOD.root'), 
+                dataset = cms.untracked.PSet( 
+                dataTier = cms.untracked.string('AOD'), 
+                ), 
+            )
+
+            process.writeAOD.eventContent = process.AODEventContent
+        if "ALCA" in writeTiers:
+            process.writeALCA = cms.OutputModule(
+                "PoolOutputModule", 
+                fileName = cms.untracked.string('writeALCA.root'), 
+                dataset = cms.untracked.PSet( 
+                dataTier = cms.untracked.string('ALCA'), 
+                ), 
+            )
+            process.writeALCA.eventContent = process.ALCAEventContent
+
         return process
 
-    def expressProcessing(self):
+    def expressProcessing(self, globalTag):
         """
         _expressProcessing_
 
@@ -94,6 +121,7 @@ class Cosmics(Scenario):
         options.isData = True
         options.eventcontent = "RECO"
         options.relval = None
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         
         process = cms.Process('EXPRESS')
         cb = ConfigBuilder(options, process = process)
@@ -115,7 +143,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.2 $'),
+            version = cms.untracked.string('$Revision: 1.3 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -209,7 +237,7 @@ class Cosmics(Scenario):
         return process
     
 
-    def alcaReco(self,*skims):
+    def alcaReco(self, *skims):
         """
         _alcaReco_
 
@@ -259,7 +287,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.2 $'),
+            version = cms.untracked.string('$Revision: 1.3 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -376,28 +404,13 @@ class Cosmics(Scenario):
         
 
 
-    def dqmHarvesting(self, datasetName, runNumber,  globalTag,
-                      *inputFiles, **options):
+    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **options):
         """
         _dqmHarvesting_
 
         Cosmic data taking DQM Harvesting
 
         """
-
-        #
-        # 
-        #
-        #sys.argv=["cmsDriver.py",
-        #          "step3",
-        #          "-s", "HARVESTING:dqmHarvesting",
-        #          "--conditions", "FrontierConditions_GlobalTag,CRAFT_30X::All",
-        #          "--filein", "file:step2_RAW2DIGI_RECO_DQM.root",
-        #          "--data",
-        #          "--scenario=cosmics"]
-        #  //
-        # // should be able to translate these into options settngs
-        #//
         options = defaultOptions
         options.scenario = "cosmics"
         options.step = "HARVESTING:dqmHarvesting"
@@ -407,24 +420,22 @@ class Cosmics(Scenario):
         options.eventcontent = None
         options.name = "EDMtoMEConvert"
         options.number = -1
-        options.conditions = "FrontierConditions_GlobalTag,CRAFT_30X::All"
-        options.filein = list(inputFiles)
+        options.conditions = "FrontierConditions_GlobalTag"
         options.arguments = ""
         options.evt_type = ""
+        options.filein = []
         options.customisation_file = ""
-        configBuilder = ConfigBuilder(options)
 
-
+        process = cms.Process("HARVESTING")
+        process.source = cms.Source("PoolSource")
+        configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
-        process = configBuilder.process
+
 
         #
         # customise process for particular job
         #
         process.source.fileNames = cms.untracked(cms.vstring())
-        #for fileName in inputFiles:
-        #    process.source.fileNames.append(fileName)
-        
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
         

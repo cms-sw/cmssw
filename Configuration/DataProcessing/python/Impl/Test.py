@@ -4,7 +4,7 @@ _Test_
 
 Test Scenario implementation for unittests/development purposes
 
-Not for use with data taking
+Not for use with data taking 
 
 """
 
@@ -21,8 +21,7 @@ class Test(Scenario):
     """
 
     
-    def promptReco(process, recoOutputModule, aodOutputModule = None,
-                   alcaOutputModule = None):
+    def promptReco(self, globalTag, writeTiers = ['RECO']):
         """
         _installPromptReco_
 
@@ -36,7 +35,7 @@ class Test(Scenario):
 
 
 
-    def alcaReco(process, *skims):
+    def alcaReco(self, *skims):
         """
         _alcaReco_
 
@@ -49,8 +48,7 @@ class Test(Scenario):
         return cms.Process("ALCARECO")
         
         
-    def dqmHarvesting(datasetName, runNumber,  globalTag,
-                      *inputFiles, **options):
+    def dqmHarvesting(datasetName, runNumber,  globalTag, **options):
         """
         _dqmHarvesting_
 
@@ -69,7 +67,7 @@ class Test(Scenario):
 
 
 
-    def expressProcessing(process):
+    def expressProcessing(self, globalTag):
         """
         _expressProcessing_
 
@@ -83,17 +81,17 @@ class Test(Scenario):
         return cms.Process("Express")
 
 
-    def expressMergepacking(process, *outputModules):
+    def expressMergepacking(self, *outputModules):
         """
         _expressMergepacking_
 
         Build/customise a mergepacking configuration
 
         """
-        return cms.Process("Express")
+        return cms.Process("MPack")
 
     
-    def skimming(process, *skims):
+    def skimming(self, *skims):
         """
         _skimming_
 
@@ -101,6 +99,6 @@ class Test(Scenario):
         and the appropriate output modules
 
         """
-        return cms.Process("Express")
+        return cms.Process("Skimming")
         
 

@@ -35,8 +35,7 @@ class Scenario(object):
 
 
 
-    def promptReco(self, process, recoOutputModule, aodOutputModule = None,
-                   alcaOutputModule = None):
+    def promptReco(self, globalTag, writeTiers = ['RECO']):
         """
         _installPromptReco_
 
@@ -68,7 +67,7 @@ class Scenario(object):
 
 
     def dqmHarvesting(self, datasetName, runNumber,  globalTag,
-                      *inputFiles, **options):
+                      **options):
         """
         _dqmHarvesting_
 
@@ -89,7 +88,7 @@ class Scenario(object):
 
 
 
-    def expressProcessing(self):
+    def expressProcessing(self, globalTag):
         """
         _expressProcessing_
 
@@ -105,7 +104,7 @@ class Scenario(object):
         raise NotImplementedError, msg        
 
 
-    def expressMergepacking(self, process, *outputModules):
+    def expressMergepacking(self, *outputModules):
         """
         _expressMergepacking_
 
@@ -117,7 +116,7 @@ class Scenario(object):
         raise NotImplementedError, msg        
 
     
-    def skimming(self, process, *skims):
+    def skimming(self, *skims):
         """
         _skimming_
 
