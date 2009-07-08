@@ -157,6 +157,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
                                            const edm::EventSetup &eventSetup)
 {
   std::string dqm = "DQM";
+  std::string in = "IN";
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
@@ -164,7 +165,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
   catch(...) { 
     edm::LogError("FUShmDQMOutputService")<< "exception when trying to get service MicroStateService";
   }
-  mss->setMicroState(dqm);
+
 
   // fake the luminosity section if we don't want to use the real one
   unsigned int thisLumiSection = 0;
@@ -212,7 +213,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
   int lsDelta = (int) (thisLumiSection - lumiSectionOfPreviousUpdate_);
   double updateRatio = ((double) lsDelta) / lumiSectionsPerUpdate_;
   if (updateRatio < 1.0) {return;}
-
+  if(mss) mss->setMicroState(dqm);
   // CAlculate the update ID and lumi ID for this update
   int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
   double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
@@ -298,7 +299,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
 
     // send the message
     writeShmDQMData(dqmMsgBuilder);
-
+  if(mss) mss->setMicroState(in);
     // test deserialization
     if (DSS_DEBUG >= 3) {
       DQMEventMsgView dqmEventView(&messageBuffer_[0]);
