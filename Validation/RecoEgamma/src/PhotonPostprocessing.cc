@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date:  $ 
+ **  $Date: 2009/07/07 16:49:13 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -83,9 +83,9 @@ void PhotonPostprocessing::endJob()
   int    zBin = parameters_.getParameter<int>("zBin");
 
 
-  std::string simInfoPathName = "Egamma/PhotonValidator/SimulationInfo/";
-  std::string convPathName = "Egamma/PhotonValidator/ConversionInfo/";
-  std::string effPathName = "Egamma/PhotonValidator/Efficiencies/";
+  std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
+  std::string convPathName = "EgammaV/PhotonValidator/ConversionInfo/";
+  std::string effPathName = "EgammaV/PhotonValidator/Efficiencies/";
 
 
   if(batch_)  dbe_->open(inputFileName_);
