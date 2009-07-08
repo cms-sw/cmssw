@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -51,13 +51,12 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_31X_V1P::All'
+process.GlobalTag.globaltag = 'GR09_31X_V2P::All'
 
 # Path and EndPath definitions
-process.load("FWCore.Modules.logErrorHarvester_cfi")
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
-process.reconstruction_step = cms.Path(process.reconstructionCosmics*process.logErrorHarvester)
+process.reconstruction_step = cms.Path(process.reconstructionCosmics)
 process.dqmoffline_step = cms.Path(process.DQMOfflineCosmics)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.FEVT)
