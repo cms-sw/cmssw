@@ -671,6 +671,7 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
   double temp_fC=0;
 
   int ieta=-9999;
+  int iphi=-9999;
   for (int subdet=1; subdet<=4;++subdet)
     {
       for (int depth=0;depth<4;++depth)
@@ -681,8 +682,9 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 	      if (ieta==-9999) continue;
 	      for (int phi=0;phi<ADCPedestalMean.depth[depth]->getNbinsY();++phi)
 		{
-		  if (!validDetId((HcalSubdetector)(subdet), ieta, phi+1, depth+1)) continue;
-		  HcalDetId detid((HcalSubdetector)(subdet), ieta, phi+1, depth+1);
+		  iphi=phi+1;
+		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1)) continue;
+		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth+1);
 		  ADC_ped=0;
 		  ADC_width=0;
 		  fC_ped=0;
@@ -737,24 +739,25 @@ void HcalPedestalMonitor::fillDBValues(const HcalDbService& cond)
 		  ADC_1D_WidthFromDBByDepth[subdet-1]->Fill(ADC_width);
 		  fC_1D_WidthFromDBByDepth[subdet-1]->Fill(fC_width);
 
-		  if (fVerbosity>1)
+		  if (fVerbosity>-1)
 		    {
-		      std::cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<phi+1<<", "<<depth<<")"<<endl;
+		      std::cout <<"<HcalPedestalMonitor::fillDBValues> HcalDet ID = "<<(HcalSubdetector)subdet<<": ("<<ieta<<", "<<iphi<<", "<<depth<<")"<<endl;
 		      std::cout <<"\tADC pedestal = "<<ADC_ped<<" +/- "<<ADC_width<<endl;
 		      std::cout <<"\tfC pedestal = "<<fC_ped<<" +/- "<<fC_width<<endl;
 		    }
 		  // Shift HF by -/+1 when filling eta-phi histograms
+		  int zside=0;
 		  if (subdet==4)
 		    {
-		      if (ieta<0) ieta--;
-		      else ieta++;
+		      if (ieta<0) zside=-1;
+		      else zside=1;
 		    }
-		  ADC_PedestalFromDBByDepth.depth[depth]->Fill(ieta,phi+1,ADC_ped);
-		  ADC_WidthFromDBByDepth.depth[depth]->Fill(ieta, phi+1, ADC_width);
-		  fC_PedestalFromDBByDepth.depth[depth]->Fill(ieta,phi+1,fC_ped);
-		  fC_WidthFromDBByDepth.depth[depth]->Fill(ieta, phi+1, fC_width);
-		} // iphi loop
-	    } // ieta loop
+		  ADC_PedestalFromDBByDepth.depth[depth]->Fill(ieta+zside,iphi,ADC_ped);
+		  ADC_WidthFromDBByDepth.depth[depth]->Fill(ieta+zside, iphi, ADC_width);
+		  fC_PedestalFromDBByDepth.depth[depth]->Fill(ieta+zside,iphi,fC_ped);
+		  fC_WidthFromDBByDepth.depth[depth]->Fill(ieta+zside, iphi, fC_width);
+		} // phi loop
+	    } // eta loop
 	} //depth loop
 
     } // subdet loop
