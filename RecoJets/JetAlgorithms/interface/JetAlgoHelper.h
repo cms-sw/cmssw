@@ -3,14 +3,14 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.7 2008/07/15 21:47:23 elmer Exp $
+// $Id: JetAlgoHelper.h,v 1.8 2009/04/22 12:49:09 stadie Exp $
 
 #include<limits>
 #include <iostream>
 #include <cmath>
 
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "CommonTools/Utils/interface/EtComparator.h"
 
 namespace {
 
