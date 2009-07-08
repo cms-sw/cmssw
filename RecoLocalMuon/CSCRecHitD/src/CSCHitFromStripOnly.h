@@ -54,7 +54,9 @@ class CSCHitFromStripOnly
   void fillPulseHeights( const CSCStripDigiCollection::Range& rstripd );  
 
   /// Find local maxima
-  void findMaxima();    
+  void findMaxima(const CSCDetId& id);  
+  // What we call a peak
+  bool isPeakOK(int iStrip, float heightCluster);  
 
   /// Make clusters using local maxima
   float makeCluster( int centerStrip );
@@ -64,6 +66,9 @@ class CSCHitFromStripOnly
 
   /// Is either neighbour 'bad'?
   bool isNearDeadStrip(const CSCDetId& id, int centralStrip); 
+
+  /// Is the strip 'bad'?
+  bool isDeadStrip(const CSCDetId& id, int centralStrip); 
 
   /// Find position of hit in strip cluster in terms of strip #
   float findHitOnStripPosition( const std::vector<CSCStripHitData>& data, const int& centerStrip );

@@ -79,7 +79,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
   
   // Store pulseheights from SCA and find maxima (potential hits)
   fillPulseHeights( rstripd );
-  findMaxima();      
+  findMaxima(id);      
 
   // Make a Strip Hit out of each strip local maximum
   for ( size_t imax = 0; imax != theMaxima.size(); ++imax ) {
@@ -326,55 +326,46 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
  * of the strips. The threshold defining a maximum is a configurable parameter.
  * A typical value is 30.
  */
-void CSCHitFromStripOnly::findMaxima() {
+void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
   
   theMaxima.clear();
   theConsecutiveStrips.clear();
   theClosestMaximum.clear();
   for ( size_t i=0; i!=thePulseHeightMap.size(); ++i ) {
 
-    float heightPeak = thePulseHeightMap[i].phmax();
-
     // sum 3 strips so that hits between strips are not suppressed
-    float heightCluster;
-
+    float heightCluster = 0.;
+    
     bool maximumFound = false;
     // Left edge of chamber
-    if ( i == 0 ) {
-      heightCluster = thePulseHeightMap[i].phmax()+thePulseHeightMap[i+1].phmax();
-      // Have found a strip Hit if...
-      if (( heightPeak                   > theThresholdForAPeak           ) &&  
-          ( heightCluster                > theThresholdForCluster         ) && 
-	        ( thePulseHeightMap[i].phmax() >= thePulseHeightMap[i+1].phmax()) &&
-          ( thePulseHeightMap[i].tmax()  > 2                              ) &&
-          ( thePulseHeightMap[i].tmax()  < 7                              )) {
-        theMaxima.push_back(i);
-	      maximumFound = true;
-      }
-    // Right edge of chamber
-    } else if ( i == thePulseHeightMap.size()-1) {  
-      heightCluster = thePulseHeightMap[i-1].phmax()+thePulseHeightMap[i].phmax();
-      // Have found a strip Hit if...
-      if (( heightPeak                   > theThresholdForAPeak          ) &&  
-          ( heightCluster                > theThresholdForCluster        ) && 
-          ( thePulseHeightMap[i].phmax() > thePulseHeightMap[i-1].phmax()) &&
-          ( thePulseHeightMap[i].tmax()  > 2                             ) &&
-          ( thePulseHeightMap[i].tmax()  < 7                             )) {
-        theMaxima.push_back(i);
-	      maximumFound = true;
-      }
-    // Any other strips
-    } else {
-      heightCluster = thePulseHeightMap[i-1].phmax()+thePulseHeightMap[i].phmax()+thePulseHeightMap[i+1].phmax();
-      // Have found a strip Hit if...
-      if (( heightPeak                   > theThresholdForAPeak           ) &&  
-          ( heightCluster                > theThresholdForCluster         ) && 
-          ( thePulseHeightMap[i].phmax() > thePulseHeightMap[i-1].phmax() ) &&
-	        ( thePulseHeightMap[i].phmax() >= thePulseHeightMap[i+1].phmax()) &&
-          ( thePulseHeightMap[i].tmax()  > 2                              ) &&
-          ( thePulseHeightMap[i].tmax()  < 7                             )) {
-        theMaxima.push_back(i);
-      	maximumFound = true;
+    if(!isDeadStrip(id, i+1)){ // is it i or i+1 
+      if ( i == 0 ) {
+	heightCluster = thePulseHeightMap[i].phmax()+thePulseHeightMap[i+1].phmax();
+	// Have found a strip Hit if...
+	if(thePulseHeightMap[i].phmax() >= thePulseHeightMap[i+1].phmax() &&
+	   isPeakOK(i,heightCluster)){
+	  theMaxima.push_back(i);
+	  maximumFound = true;
+	}
+	// Right edge of chamber
+      } else if ( i == thePulseHeightMap.size()-1) {  
+	heightCluster = thePulseHeightMap[i-1].phmax()+thePulseHeightMap[i].phmax();
+	// Have found a strip Hit if...
+	if(thePulseHeightMap[i].phmax() > thePulseHeightMap[i-1].phmax() &&
+	   isPeakOK(i,heightCluster)){
+	  theMaxima.push_back(i);
+	  maximumFound = true;
+	}
+	// Any other strips 
+      } else {
+	heightCluster = thePulseHeightMap[i-1].phmax()+thePulseHeightMap[i].phmax()+thePulseHeightMap[i+1].phmax();
+	// Have found a strip Hit if...
+	if(thePulseHeightMap[i].phmax() > thePulseHeightMap[i-1].phmax() &&
+	   thePulseHeightMap[i].phmax() >= thePulseHeightMap[i+1].phmax() &&
+	 isPeakOK(i,heightCluster)){
+	  theMaxima.push_back(i);
+	  maximumFound = true;
+	}
       }
     }
     //---- Consecutive strips with charge (real cluster); if too wide - measurement is not accurate 
@@ -405,7 +396,17 @@ void CSCHitFromStripOnly::findMaxima() {
     }
   }
 }
+//
 
+bool CSCHitFromStripOnly::isPeakOK(int iStrip, float heightCluster){
+  int i = iStrip;
+  bool peakOK =  ( thePulseHeightMap[i].phmax()>theThresholdForAPeak &&  
+		   heightCluster > theThresholdForCluster && 
+		   // ... and proper peak time; note that the values below are used elsewhere in this file;
+		   // they should become parameters or at least constants defined in appropriate place
+		   thePulseHeightMap[i].tmax() > 2 && thePulseHeightMap[i].tmax() < 7); 
+  return peakOK;
+}
 
 
 /* findHitOnStripPosition
@@ -468,6 +469,11 @@ bool CSCHitFromStripOnly::isNearDeadStrip(const CSCDetId& id, int centralStrip){
   //@@ Tim says: not sure I understand this properly... but just moved code to CSCRecoConditions
   // where it can handle the conversion from strip to channel etc.
   return recoConditions_->nearBadStrip( id, centralStrip );
+
+} 
+
+bool CSCHitFromStripOnly::isDeadStrip(const CSCDetId& id, int centralStrip){
+  return recoConditions_->badStrip( id, centralStrip );
 
 } 
 
