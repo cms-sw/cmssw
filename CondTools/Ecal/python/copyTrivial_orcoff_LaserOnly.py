@@ -4,6 +4,7 @@ process = cms.Process("TEST")
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 process.EcalTrivialConditionRetriever.laserAPDPNTime1 = cms.untracked.string('0')
 process.EcalTrivialConditionRetriever.laserAPDPNTime2 = cms.untracked.string('1')
+process.EcalTrivialConditionRetriever.laserAPDPNTime3 = cms.untracked.string('2')
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
@@ -22,6 +23,9 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
+
+#    timetype = cms.untracked.string('timestamp'),
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     timetype = cms.untracked.string('timestamp'),
@@ -39,6 +43,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('EcalLaserAPDPNRatiosRef_mc')
         ))
 )
+
+
+#    timetype = cms.string('timestamp'),
 
 process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
     timetype = cms.string('timestamp'),
