@@ -276,11 +276,8 @@ bool CSCRecoConditions::badStrip( const CSCDetId& id, int geomStrip ) const {
   const std::bitset<80>& badStrips = theConditions.badStripWord(idraw);
 
   bool aBadS = false;
-  if( rawChan>-1 && rawChan<79 ){ // 80 bits max, labelled 0-79. Test 0-79 (i.e. any - that's the idea;
-                                  // however nearBadStrip suggests that rawChan+1 is the central channel - 
-                                  // could rawChan be -1?
-                                  // are we testing 1-79 here? 1-80 certainly doesn't work...)
-    aBadS = badStrips.test(rawChan+1);
+  if( rawChan>0 && rawChan<81 ){ // 80 bits max, labelled 0-79. Test 0-79 (i.e. any - that's the idea)
+    aBadS = badStrips.test(rawChan-1);
   }
   return aBadS;
 }
