@@ -79,11 +79,8 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   std::auto_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
   if (doSynchro_) producedRawSynchoCounts.reset(new RPCRawSynchro::ProdItem);
 
-  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
- 
-
   int status = 0;
-  for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
+  for (int fedId= FEDNumbering::MINRPCFEDID; fedId<=FEDNumbering::MAXRPCFEDID; ++fedId){  
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
     RPCRecordFormatter interpreter = 
