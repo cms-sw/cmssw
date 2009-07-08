@@ -321,6 +321,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    canvas->cd();
 
    TPad* padX = new TPad("pad1","pad1",0.1,0.05,0.9,0.95);
+   padX->SetBorderMode(0);
    canvas->cd();
    padX->Draw();
 
