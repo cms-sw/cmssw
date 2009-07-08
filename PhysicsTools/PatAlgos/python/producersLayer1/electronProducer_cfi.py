@@ -57,11 +57,6 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
     ),
 
-    # electron cluster shape
-    addElectronShapes = cms.bool(True),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-
     # electron ID
     addElectronID = cms.bool(True),
     electronIDSources = cms.PSet(
@@ -75,7 +70,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     ),
 
     # mc matching
-    addGenMatch      = cms.bool(True),
+    addGenMatch      = cms.bool(False),
     embedGenMatch    = cms.bool(False),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
     
