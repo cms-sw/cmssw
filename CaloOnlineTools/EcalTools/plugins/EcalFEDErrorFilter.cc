@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.cc,v 1.2 2008/07/08 08:32:59 meridian Exp $
+// $Id: EcalFEDErrorFilter.cc,v 1.1 2008/12/12 02:34:35 scooper Exp $
 //
 //
 
@@ -30,7 +30,7 @@ EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig)
   DataLabel_     = iConfig.getParameter<edm::InputTag>("InputLabel");
   fedUnpackList_ = iConfig.getUntrackedParameter< std::vector<int> >("FEDs", std::vector<int>());
   if (fedUnpackList_.empty()) 
-    for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
+    for (int i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
       fedUnpackList_.push_back(i);
 }
 
