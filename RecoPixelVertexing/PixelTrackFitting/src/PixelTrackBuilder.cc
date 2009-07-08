@@ -152,12 +152,12 @@ std::string PixelTrackBuilder::print(const TrajectoryStateOnSurface & state) con
   Measurement1D cotTheta(cosTheta/sinTheta, errCotTheta);
 
   float zip_v = state.globalPosition().z();
-  float zip_e = sqrt( state.localError().matrix()(5,5));
+  float zip_e = sqrt( state.localError().matrix()(4,4));
   Measurement1D zip(zip_v, zip_e);
 
   float tip_v  = state.localPosition().x(); 
   int tip_sign = (state.localMomentum().y()*cotTheta.value() > 0) ? -1 : 1;
-  float tip_e  = sqrt( state.localError().matrix()(4,4) );
+  float tip_e  = sqrt( state.localError().matrix()(3,3) );
   Measurement1D tip( tip_sign*tip_v, tip_e);
 
   return print(pt, phi, cotTheta, tip, zip, 0., state.charge());
