@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2009/02/23 14:53:55 $
- * $Revision: 1.28 $
+ * $Date: 2009/02/26 12:08:47 $
+ * $Revision: 1.29 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -64,6 +64,7 @@ protected:
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -134,7 +135,7 @@ private:
   int inTimeHitsLowerBound;
   int inTimeHitsUpperBound;
   int timeBoxGranularity;
-  int tdcRescale;
+  int maxTDCCounts;
   bool doAllHitsOccupancies;
   bool doNoiseOccupancies;
   bool doInTimeOccupancies;
