@@ -15,7 +15,6 @@ class ZoomableWidget(QWidget, Zoomable):
         Zoomable.__init__(self)
         
         if isinstance(self.parent(), ZoomableWidget):
-#            logging.debug(__name__ + " __init__() parent().zoom() " + str(self.parent().zoom()))
             self.setZoom(self.parent().zoom())
         
     def setZoom(self, zoom):
@@ -27,7 +26,6 @@ class ZoomableWidget(QWidget, Zoomable):
             if isinstance(child, Zoomable):
                 child.setZoom(zoom)
         self.update()
-        #logging.debug(__name__ +" setZoom() "+ str(zoom))
         
     def exportPDF(self, application):
         """ Experimental export to pdf files.
@@ -96,5 +94,5 @@ class ZoomableWidget(QWidget, Zoomable):
             if os.path.splitext(fileName)[1].lower().strip(".") in imageFormats:
                 name=os.path.splitext(fileName)[0]
                 ext=os.path.splitext(fileName)[1].lower().strip(".")
-            picture=QPixmap.grabWidget(self,0,0,self.childrenRect().width(),self.childrenRect().height())
+            picture=QPixmap.grabWidget(self,0,0,self.childrenRect().right(),self.childrenRect().bottom())
             picture.save(name+"."+ext,ext)

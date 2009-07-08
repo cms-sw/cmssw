@@ -2,8 +2,8 @@ class Zoomable(object):
     """ Interface for zoomable objects.
     """
     def __init__(self):
-        #self._zoom = 1.0
-        self.setZoom(100)
+        #self._zoom = 1.0    # not just set self._zoom
+        self.setZoom(100)    # call setZoom() because it might be overwritten
     
     def setZoom(self, zoom):
         """Takes zoom factor in percent.

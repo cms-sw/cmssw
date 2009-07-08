@@ -233,11 +233,12 @@ class TextField(object):
         self._height = 1
         widthFits = heightFits = False
         
-#        if not self._autoscaleKeepAspectRatioFlag:
-#            # test for replacing else part in while-loop (2009-02-23)
-#            neededRect = fm.boundingRect(0, 0, self._width, self._height, self.outputFlags, self._text)
-#            self._width = neededRect.width()
-#            self._height = neededRect.height()
+        if not self._autoscaleKeepAspectRatioFlag:
+            # test for replacing else part in while-loop (2009-02-23)
+            neededRect = fm.boundingRect(0, 0, self._defaultWidth*100, self._defaultHeight*100, self.outputFlags, self._text)
+            self._width = neededRect.width()
+            self._height = neededRect.height()
+            return
         
         while not widthFits or not heightFits:
             if self._autoscaleKeepAspectRatioFlag:
@@ -330,11 +331,11 @@ class TextField(object):
         drawRect = self.getDrawRect(scale)
         painter.setBrush(Qt.NoBrush)
         painter.setPen(QPen(self._penColor))
+        self._font.setPointSize(self.getFontSize() * scale)
         painter.setFont(self._font)
         #painter.drawRect(drawRect)
         #print "   drawRect ", drawRect
         #print "drawRect(width, height) = ", drawRect.width(), ",", drawRect.height(), ")"
-        painter.font().setPointSize(self.getFontSize() * scale)
         painter.drawText(drawRect, self.getOutputFlags(), self.getOutputText())
 
 
@@ -435,6 +436,7 @@ class VispaWidget(ZoomableWidget):
         self._distances = None
         self._distancesHaveToBeRecalculatedFlag = True
         self._rearangeContentFlag = True
+        self._noRearangeContentFlag = True
         self._distancesLastScale = 0
         self._distancesLastScaleWidth = 0
         self._distancesLastScaleHeight = 0
@@ -455,6 +457,7 @@ class VispaWidget(ZoomableWidget):
         self.setAutopositionizeWhenZooming(self.AUTOPOSITIONIZE_WHEN_ZOOMING)
         self.setAutoresizeEnabled(self.AUTORESIZE, self.AUTORESIZE_KEEP_ASPECT_RATIO)
         
+        self.noRearangeContent(False)
         self.scheduleRearangeContent()
         
     def unzoomedX(self):
@@ -743,7 +746,7 @@ class VispaWidget(ZoomableWidget):
                 else:
                     self._scaleHeight = self._scaleWidth
              
-        self.resize(self.getWidth(), self.getHeight())
+        self.resize(self.width(), self.height())
 
     def rearangeContent(self):
         """ Checks which components have to be regarded for size calculation.
@@ -752,7 +755,6 @@ class VispaWidget(ZoomableWidget):
         This function is stronger than autoresize, as it also recalculates dimensions of children (e.g. text field).
         If content did not change autoresize is probably the better approach.  
         """
-        
         self._rearangeContentFlag = False
         # TODO: does not work with box decay tree (needs correct sizes before on screen)
         #if not self.isVisible():
@@ -779,6 +781,11 @@ class VispaWidget(ZoomableWidget):
         """
         self._distancesHaveToBeRecalculatedFlag = True
         
+    def noRearangeContent(self,no=True):
+        """ Flag disables any rearanging.
+        """
+        self._noRearangeContentFlag=no
+        
     def scheduleRearangeContent(self):
         """ Makes sure rearangeContent() will be called next time a distance is requested.
         
@@ -789,7 +796,7 @@ class VispaWidget(ZoomableWidget):
     def showEvent(self, event):
         """ Calls rearangeContent() if needed.
         """
-        if self._rearangeContentFlag:
+        if self._rearangeContentFlag and not self._noRearangeContentFlag:
             self.rearangeContent()
         ZoomableWidget.showEvent(self, event)
     
@@ -804,7 +811,7 @@ class VispaWidget(ZoomableWidget):
         The distances are needed for drawing widget content and are scaled according to current scale / zoom factors.
         The distances are stored in an dictionary (see distances()).
         """
-        if self._rearangeContentFlag: # and self.isVisible():
+        if self._rearangeContentFlag and not self._noRearangeContentFlag:# and self.isVisible():
             self.rearangeContent()
             
         scale = 1.0     # remove if works without
@@ -875,30 +882,15 @@ class VispaWidget(ZoomableWidget):
         else:
             logging.warning(self.__class__.__name__ +": getdistance() - Unknown distance '"+ name +"'")
             return 0
-        
-    def getWidth(self):
-        """ Returns width of this widget.
-        """
-        # TODO: if there are no problems with new width() and height() functions remove old getWidth() and getHeight() functions
-        #print "getWidth() "+ str(self.getDistance('width'))
-        return self.getDistance('width')
-    
-    def getHeight(self):
-        """ Returns height of this widget.
-        """
-        #print "getHeight() "+ str(self.getDistance('height'))
-        return self.getDistance('height')
-    
+
     def width(self):
         """ Returns width of this widget.
         """
-        #print "getWidth() "+ str(self.getDistance('width'))
         return self.getDistance('width')
     
     def height(self):
         """ Returns height of this widget.
         """
-        #print "getHeight() "+ str(self.getDistance('height'))
         return self.getDistance('height')
     
     def defineBackgroundBrush(self):
@@ -906,14 +898,14 @@ class VispaWidget(ZoomableWidget):
         
         Default is linear color gradient. See setColors().
         """
-        self._backgroundBrush = QLinearGradient(0, self.getDistance('titleFieldBottom'), 0, self.getHeight())
+        self._backgroundBrush = QLinearGradient(0, self.getDistance('titleFieldBottom'), 0, self.height())
         self._backgroundBrush.setColorAt(0, self.fillColor1)
         self._backgroundBrush.setColorAt(1, self.fillColor2)
         
     def defineRectBackgroundShape(self, painter):
         """ Draws background for rectangular shape.
         """
-        myRect = QRectF(0, 0, self.getWidth() - 1, self.getHeight() - 2)
+        myRect = QRectF(0, 0, self.width() - 1, self.height() - 2)
         self._backgroundShapePath = QPainterPath()
         self._backgroundShapePath.addRect(myRect)
     
@@ -921,10 +913,10 @@ class VispaWidget(ZoomableWidget):
         """ Draws background for circular shape.
         """
         radius = 0
-        if self.getWidth() <= self.getHeight():
-            radius = self.getWidth() - 1
+        if self.width() <= self.height():
+            radius = self.width() - 1
         else:
-            radius = self.getHeight() - 1
+            radius = self.height() - 1
         
         self._backgroundShapePath = QPainterPath()
         self._backgroundShapePath.addEllipse(0, 0, radius, radius)
@@ -933,8 +925,8 @@ class VispaWidget(ZoomableWidget):
         """ Draws background for rectangular shape with rounded corners.
         """ 
         r = (self.ROUNDRECT_RADIUS) * self._scale
-        w = self.getWidth() - 2
-        h = self.getHeight() - 2
+        w = self.width() - 2
+        h = self.height() - 2
         
         # Prevent nasty lines when box too small
         if r > 0.5 * h:
@@ -1012,7 +1004,7 @@ class VispaWidget(ZoomableWidget):
                 xBorder = self.SELECTED_FRAME_WIDTH - 2
             #painter.setPen(Qt.NoPen)
             painter.setPen(self.framePenColor)
-            painter.drawRect(QRectF(xBorder, headerBottom, self.getWidth() - 2 * xBorder - 2, self.getDistance('titleFieldBottom') - headerBottom))
+            painter.drawRect(QRectF(xBorder, headerBottom, self.width() - 2 * xBorder - 2, self.getDistance('titleFieldBottom') - headerBottom))
         
     def drawTitle(self, painter):
         """ Tells TextField object of title to draw title on widget.

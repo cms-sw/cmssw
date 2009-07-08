@@ -247,9 +247,41 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         
     def _addPort(self, port, description=None):
         self._ports.append(port)
+        port.show()
         if description:
             self._ports[len(self._ports) - 1].setDescription(description)
-        self.scheduleRearangeContent()  
+        self.scheduleRearangeContent()
+        
+    def removePort(self, port):
+        """ Removes given port if it is port of this widget.
+        """
+        if port in self._ports:
+            self._ports.remove(port)
+            port.setParent(None)
+            port.deleteLater()
+            
+    def portExists(self, name, description=None):
+        for port in self._ports:
+            if port.name() == name and port.description() == description:
+                return True
+        return False
+         
+        
+    def removePorts(self, filter=None):
+        """ Remove registered ports.
+        
+        If filter is "sink" only sinks are removed, if it is "source" only sources are removed, otherwise all ports are removed.
+        """
+        if filter and (filter != "sink" and filter != "source"):
+            filter = None
+        ports = self._ports[:]
+        for port in ports:
+            if not filter or port.portType() == filter:
+                self._ports.remove(port)
+                port.setParent(None)
+                port.deleteLater()
+        self.scheduleRearangeContent()
+        self.update()                    
         
     def sinkPorts(self):
         """ Returns list of all sink ports set.
@@ -296,12 +328,6 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         if len(ports) < 1:
             return 0
         return max([port.titleField().getWidth() for port in ports])
-#        width = 0
-#        for port in ports:
-#            thisWidth = port.titleField().getWidth()
-#            if thisWidth > width:
-#                width = thisWidth
-#        return width
     
     def _getMaxSinkTitleWidth(self):
         return self._getMaxPortTitleWidth('sink')
@@ -312,7 +338,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
     def getEffectivePortHeight(self, port):
         """ Returns the bigger value of the source height and the height of the port name text field.
         """ 
-        portHeight = port.getHeight()
+        portHeight = port.height()
         if not self._showPortNames:
             return portHeight
         
@@ -382,7 +408,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         if self._portNamesPosition == self.PORT_NAMES_NEXT_TO_PORTS:
             for port in self.sinkPorts():
                 if port.titleField():
-                    port.titleField().paint(painter, port.x() + self.getDistance('rightMargin') + port.getWidth(), port.y() - titleHeightFactor * port.getDistance('titleFieldHeight'), self.scale())
+                    port.titleField().paint(painter, port.x() + self.getDistance('rightMargin') + port.width(), port.y() - titleHeightFactor * port.getDistance('titleFieldHeight'), self.scale())
                 
             for port in self.sourcePorts():
                 if port.titleField():
@@ -397,7 +423,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
             for port in self.sourcePorts():
                 if port.titleField():
                     #logging.debug(self.__class__.__name__ +": drawPortNames() - "+ port.name() +", "+ str(port.titleField()._autoscaleFlag))
-                    port.titleField().paint(painter, self.width() - port.getDistance('titleFieldWidth'), port.y() - titleHeightFactor * port.getDistance('titleFieldHeight') - port.height(), self.scale())
+                    port.titleField().paint(painter, self.width() - port.getDistance('titleFieldWidth')- port.width()*0.5, port.y() - titleHeightFactor * port.getDistance('titleFieldHeight') - port.height(), self.scale())
         else:
             logging.waring(self.__class__.__name__ +": drawPortNames() - "+ self.NO_VALID_PORT_NAMES_POSITION_MESSAGE)
 

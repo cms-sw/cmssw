@@ -7,7 +7,6 @@ from Vispa.Main.BoxContentDialog import *
 from Vispa.Main.EventFileNavigator import *
 from Vispa.Main.WidgetView import *
 
-from Vispa.Main.BoxDecayTree import *
 
 class BrowserController(TabController):
     """ Controls a tab with a TreeView, a WidgetView and a PropertiesView.

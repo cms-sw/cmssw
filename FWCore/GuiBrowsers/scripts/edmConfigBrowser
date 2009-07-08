@@ -46,6 +46,4 @@ if __name__ == "__main__":
     app = Application(sys.argv)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
-    app.mainWindow().setWindowIcon(QIcon())
-    app.setVersion("Version 14.06.2009")
     app.run()

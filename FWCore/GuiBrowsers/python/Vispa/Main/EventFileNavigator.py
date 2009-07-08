@@ -96,19 +96,22 @@ class EventFileNavigator(QObject):
         if not self._threadChain.isRunning():
             self._threadChain.start()
 
-    def goto(self):
+    def goto(self, number=None):
         """ Ask event number in dialog and navigate and to event.
         """
         if self._dataAccessor.numberOfEvents():
             max = self._dataAccessor.numberOfEvents()
         else:
             max = 1000000000
-        if hasattr(QInputDialog, "getInteger"):
-            # Qt 4.3
-            (number, ok) = QInputDialog.getInteger(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 0, max)
+        if number!=None:
+            ok=(number>=1, number<=max)
         else:
-            # Qt 4.5
-            (number, ok) = QInputDialog.getInt(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 0, max)
+            if hasattr(QInputDialog, "getInteger"):
+                # Qt 4.3
+                (number, ok) = QInputDialog.getInteger(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 1, max)
+            else:
+                # Qt 4.5
+                (number, ok) = QInputDialog.getInt(self._application.mainWindow(), "Goto...", "Enter event number:", self._dataAccessor.eventNumber(), 1, max)
         if ok:
             if self._statusMessage != None: 
                 self._statusMessage = self._application.startWorking("Navigate in file")
