@@ -18,7 +18,9 @@ ALCARECOTkAlZMuMuTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.
     TkSizeMax = 5.5,
     TrackPtBin = 150,
     TrackPtMin = 0,
-    TrackPtMax = 150
+    TrackPtMax = 150,
+#choose histos from TrackingMonitor
+    doAllPlots = True
 )
 
 ALCARECOTkAlZMuMuTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRecoMonitor.clone(
