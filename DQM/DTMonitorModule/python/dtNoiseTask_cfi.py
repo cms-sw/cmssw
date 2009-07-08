@@ -9,5 +9,7 @@ dtNoiseMonitor = cms.EDAnalyzer("DTNoiseTask",
                                 # the name of the 4D rec hits collection
                                 recHits4DLabel = cms.string("dt4DSegments"),
                                 # switch for segment veto
-                                doSegmentVeto = cms.untracked.bool(False)
+                                doSegmentVeto = cms.untracked.bool(False),
+                                # safe margin (ns) between ttrig and beginning of counting area
+                                safeMargin = cms.untracked.double(100.)
                                 )
