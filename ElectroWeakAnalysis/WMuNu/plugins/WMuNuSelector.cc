@@ -16,10 +16,8 @@ private:
   edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
-  std::string metType_;
   bool metIncludesMuons_;
   edm::InputTag jetTag_;
-  std::string jetType_;
 
   const std::string muonTrig_;
   bool useOnlyGlobalMuons_;
@@ -47,19 +45,21 @@ private:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/GenericHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "DataFormats/Common/interface/View.h"
   
 using namespace edm;
 using namespace std;
@@ -69,10 +69,8 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      metType_(cfg.getUntrackedParameter<std::string> ("METType", "reco::CaloMET")),
       metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
-      jetType_(cfg.getUntrackedParameter<std::string> ("JetType", "reco::CaloJet")),
 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
       useOnlyGlobalMuons_(cfg.getUntrackedParameter<bool>("UseOnlyGlobalMuons", true)),
@@ -121,51 +119,49 @@ void WMuNuSelector::endJob() {
 bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Muon collection
-      Handle<MuonCollection> muonCollection;
+      Handle<View<Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
             LogError("") << ">>> Muon collection does not exist !!!";
             return false;
       }
+      unsigned int muonCollectionSize = muonCollection->size();
 
       // MET
       double met_px = 0.;
       double met_py = 0.;
-      GenericHandle metHandle("std::vector<" + metType_ + ">");
-      if (!ev.getByLabel(metTag_, metHandle)) {
+      Handle <View<MET> > metCollection;
+      if (!ev.getByLabel(metTag_, metCollection)) {
             LogError("") << ">>> MET collection does not exist !!!";
             return false;
       }
-      MET met;
-      metHandle->Invoke("front", met);
+      const MET& met = metCollection->at(0);
       met_px = met.px();
       met_py = met.py();
       if (!metIncludesMuons_) {
-            for (unsigned int i=0; i<muonCollection->size(); i++) {
-                  MuonRef mu(muonCollection,i);
-                  if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
-                  met_px -= mu->px();
-                  met_py -= mu->py();
+            for (unsigned int i=0; i<muonCollectionSize; i++) {
+                  const Muon& mu = muonCollection->at(i);
+                  if (useOnlyGlobalMuons_ && !mu.isGlobalMuon()) continue;
+                  met_px -= mu.px();
+                  met_py -= mu.py();
             }
       }
       double met_et = sqrt(met_px*met_px+met_py*met_py);
       LogTrace("") << ">>> MET, MET_px, MET_py= " << met_et << ", " << met_px << ", " << met_py;
 
       // Jet collection
-      GenericHandle jetHandle("std::vector<" + jetType_ + ">");
-      if (!ev.getByLabel(jetTag_, jetHandle)) {
+      Handle <View<Jet> > jetCollection;
+      if (!ev.getByLabel(jetTag_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
             return false;
       }
-      unsigned int jetSize;
-      jetHandle->Invoke("size", jetSize);
+      unsigned int jetCollectionSize = jetCollection->size();
+
       int njets = 0;
-      unsigned int i;
-      Jet jet;
-      std::vector<void*> args = Reflex::Tools::MakeVector(static_cast<void*>(&i));
-      for (i=0; i<jetSize; i++) {
-            jetHandle->Invoke("at",jet,args);
+      for (unsigned int i=0; i<jetCollectionSize; i++) {
+            const Jet& jet = jetCollection->at(i);
             if (jet.et()>eJetMin_) njets++;
       }
+      LogTrace("") << ">>> Total number of jets= " << jetCollectionSize;
 
       // Trigger
       Handle<TriggerResults> triggerResults;
@@ -192,11 +188,11 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       unsigned int nmuons = 0;
       unsigned int nmuonsForZ1 = 0;
       unsigned int nmuonsForZ2 = 0;
-      for (unsigned int i=0; i<muonCollection->size(); i++) {
-            MuonRef mu(muonCollection,i);
-            if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
-            if (mu->innerTrack().isNull()) continue;
-            TrackRef tk = mu->innerTrack();
+      for (unsigned int i=0; i<muonCollectionSize; i++) {
+            const Muon& mu = muonCollection->at(i);
+            if (useOnlyGlobalMuons_ && !mu.isGlobalMuon()) continue;
+            if (mu.innerTrack().isNull()) continue;
+            TrackRef tk = mu.innerTrack();
             LogTrace("") << "> Processing muon number " << i << "...";
 
             double pt = tk->pt();
@@ -212,10 +208,10 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             nrec++;
 
             bool iso = false;
-            double etsum = mu->isolationR03().sumPt;
+            double etsum = mu.isolationR03().sumPt;
             if (isCombinedIso_) {
-                  etsum += mu->isolationR03().emEt;
-                  etsum += mu->isolationR03().hadEt;
+                  etsum += mu.isolationR03().emEt;
+                  etsum += mu.isolationR03().hadEt;
             }
             if (isRelativeIso_) {
                   if (etsum/pt<isoCut03_) iso=true;
