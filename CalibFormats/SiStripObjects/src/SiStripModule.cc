@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.16 2008/01/22 18:44:27 muzaffar Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.17 2008/02/06 16:40:42 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -229,7 +229,7 @@ uint16_t SiStripModule::lldChannel( const uint16_t& apv_pair_num ) const {
     return 0;
   }
   if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 3; }
-  else if ( nApvPairs_ == 2 && apv_pair_num == 3 ) { 
+  else if ( nApvPairs_ == 2 && apv_pair_num == 2 ) { 
     edm::LogWarning(mlCabling_)
       << "[SiStripFecCabling::" << __func__ << "]"
       << " APV pair number is incompatible with"
