@@ -43,9 +43,9 @@ using namespace evf;
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
 bool FUResource::useEvmBoard_ = true;
-unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
-unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
-unsigned int FUResource::gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
+unsigned int FUResource::gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+unsigned int FUResource::gtpDaqId_ =  FEDNumbering::MAXTriggerGTPFEDID;
+unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
