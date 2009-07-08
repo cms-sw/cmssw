@@ -1,3 +1,79 @@
+2009-07-06 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-09
+	* Protect state-machine entry and exit action to not throw.
+	  This should fix the std::bad_cast bug.
+	* Introduce configurable time-out for closing error-event files.
+	* Improve monitoring of discard messages (display outstanding
+	  discards and keep track of discards per EP, not only per RB).
+
+2009-06-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-00-08
+	* Ugly hack to prevent the std::bad_cast bug to cause error
+	  messages being sent every millisecond.
+	* Remove no-longer needed pre-processor directives to avoid
+	  sentinel reporting in the demoSystem. (Sentinel was added
+	  to the demoSystem with tag V05-00-04.)
+
+2009-06-29 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-07
+	* Introduce stale window time to measure time an 
+	  event sits in the FragmentStore, not counting
+	  any privous queueing time.
+	* Monitor number of discards, stale events, and skipped discards.
+	* Fix bug where state events were checked 99% of the time instead of 1%.
+	* Increase stream queue size from 512 to 2048 entries.
+
+2009-06-21 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-06
+	* Assure that the constructor of StorageManager only
+	  throws xcept::exceptions.
+	* Improve consumer monitoring webpage
+	* Make sure that all stale file handles are purged
+	* Increase DQM event queue size from 2048 to 3072 and
+	  ThroughputMonitorCollection history from 150 to 300 entries.
+	* Switch to use python configs only in the demoSystem.
+
+2009-06-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-00-05
+	* Added a protection in the Ready entry action when the
+	  configuration cannot update the parameters
+	* Fixed an iterator overrun in StreamHandler when deleting
+	  FileHandlers from the list of open files.
+	
+2009-06-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-00-04
+	* Fixed to not revoke a disk-space alarm in ResourceMonitorCollection
+	  which is not set.
+	* Added the Sentinel to the SM process in the demoSystem setup.
+
+2009-06-12 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-00-03
+	* Explicitely link with sentinelutils.
+	
+2009-06-10 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-02
+	* Added include of cstdio for sprintf calls
+	  in case it is needed for gcc4.4.
+	
+2009-06-10 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-01
+	* Merge of refactored code from refdev01_scratch_branch
+	  to the trunk.
+
+2009-06-10 Dennis Shpakov <Denis.Shpakov@cern.ch>
+
+	* tag V05-00-00
+	* Final release candidate on the refdev01_scratch_branch.
+	
 2009-06-08  Kurt Biery <biery@fnal.gov>
 
 	* tag V04-02-07
