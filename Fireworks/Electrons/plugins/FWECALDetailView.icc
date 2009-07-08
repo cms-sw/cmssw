@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.6 2009/06/05 20:00:33 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.7 2009/06/18 16:02:40 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -164,16 +164,60 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      //        rotationCenter()[1] = i->TrackPositionAtCalo().y();
      //        rotationCenter()[2] = i->TrackPositionAtCalo().z();
      // vector for the ECAL crystals
-     TEveCaloDataVec* data = new TEveCaloDataVec(2);
+     TEveCaloDataVec* data = new TEveCaloDataVec(3);
      // one slice for the seed cluster (red) and one for the
      // other clusters
      data->RefSliceInfo(0).Setup("seed cluster", 0.0, kRed);
      data->RefSliceInfo(1).Setup("other clusters", 0.0, kYellow);
+     data->RefSliceInfo(2).Setup("track intersections", 0.0, kYellow);
 //       data->RefSliceInfo(2).Setup("unclustered crystals", 0.0, kYellow);
      // now fill
      fillData(detids, data, i->superCluster()->seed()->position().phi());
 //       if (m_endcap_reduced_hits != 0)
 // 	   fillReducedData(detids, data);
+#ifdef Fireworks_Electrons_FWElectronDetailView_h
+     // also put down track intersections, so that we don't draw them
+     // outside the grid later
+     if (drawTrack()) {
+	  if (subdetId == EcalBarrel) {
+	       const double eta = i->superCluster()->seed()->position().eta() -  
+		    i->deltaEtaSeedClusterTrackAtCalo();
+	       const double phi = i->superCluster()->seed()->position().phi() -  
+		    i->deltaPhiSeedClusterTrackAtCalo();
+	       data->AddTower(eta, eta, phi, phi);
+	       data->FillSlice(2, 0);
+	  } else if (subdetId == EcalEndcap) {
+	       const double eta = i->superCluster()->seed()->position().eta() -  
+		    i->deltaEtaSeedClusterTrackAtCalo();
+	       const double phi = i->superCluster()->seed()->position().phi() -  
+		    i->deltaPhiSeedClusterTrackAtCalo();
+	       TVector3 pos;
+	       pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(), 
+			       eta,
+			       phi);
+	       const double x = pos.X() * 0.01;
+	       const double y = pos.Y() * 0.01;
+ 	       data->AddTower(x, x, y, y);
+ 	       data->FillSlice(2, 0);
+	  }
+	  if (subdetId == EcalBarrel) {
+	       const double eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
+	       const double phi = i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i);
+ 	       data->AddTower(eta, eta, phi, phi);
+ 	       data->FillSlice(2, 0);
+	  } else if (subdetId == EcalEndcap) {
+	       TVector3 pos;
+	       pos.SetPtEtaPhi(i->caloPosition().rho(), 
+			       i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i), 
+			       i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i));
+	       const double x = pos.X() * 0.01;
+	       const double y = pos.Y() * 0.01;
+ 	       data->AddTower(x, x, y, y);
+ 	       data->FillSlice(2, 0);
+	  }
+     }
+#endif
+
      data->DataChanged();
      // printf("max val %f  %f \n", data->GetMaxVal(0), data->GetMaxVal(1));
          
