@@ -15,8 +15,9 @@ void runExtendedOfflineValidationPlots()
      p.loadFileList("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/CRAFT_Note/draft0_27may2009/data/FinalHIP.root","HIP",3,1);
      p.loadFileList("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/CRAFT_Note/draft0_27may2009/data/FinalMP.root","Millepede",6,1);
      p.loadFileList("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/CRAFT_Note/draft0_27may2009/data/FinalSHMPmerged.root","SuperHipMPmerged",4,1);
-
+    
   p.setOutputDir("$TMPDIR");
-  //  p.setTreeBaseDir("TrackHitFilter");
-  p.plotDMR("medianX",30);
+  //  p.setTreeBaseDir("TrackHitFilter");  //if the tree TkOffValidation is not in TrackerOfflineValidation directory
+  //  p.useFitForDMRplots(true); //if the width adn mean value of the DMR shall be taken from fit
+  p.plotDMR("medianY",30);
 }
