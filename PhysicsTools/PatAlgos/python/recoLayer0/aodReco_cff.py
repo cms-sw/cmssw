@@ -13,17 +13,10 @@ from PhysicsTools.PatAlgos.recoLayer0.pfCandidateIsoDepositSelection_cff import 
 from PhysicsTools.PatAlgos.recoLayer0.tauIsolation_cff import *
 
 # These two duplicate removals are here because they're AOD bugfixes
-from PhysicsTools.PatAlgos.recoLayer0.duplicatedElectrons_cfi import *
 from PhysicsTools.PatAlgos.recoLayer0.duplicatedPhotons_cfi   import *
 
 # Needed for the MET
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *  
-
-# Sequences needed to deliver the objects
-# You shouldn't remove modules from here unless you *know* what you're doing
-patAODCoreReco = cms.Sequence(
-    electronsNoDuplicates 
-)
 
 # Sequences needed to deliver external information for objects
 # You can remove modules from here if you don't need these features
@@ -59,7 +52,6 @@ aodSummary = cms.EDAnalyzer("CandidateSummaryTable",
 
 # Default PAT reconstruction sequence on top of AOD
 patAODReco = cms.Sequence(
-    patAODCoreReco +
     patAODExtraReco +
     aodSummary #+aodContents
 )

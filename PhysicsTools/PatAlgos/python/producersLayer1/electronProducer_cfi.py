@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # input collection
-    electronSource = cms.InputTag("electronsNoDuplicates"),
+    electronSource = cms.InputTag("gsfElectrons"),
 
     # use particle flow instead of std reco    
     useParticleFlow  =  cms.bool( False ),
