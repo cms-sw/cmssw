@@ -82,10 +82,14 @@
 <use name=CondCore/Utilities>
 <use name=CondFormats/EcalObjects>
 <use name=CondTools/Ecal>
+<use name=DataFormats/EcalDetId>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
 <use name=boost_regex>
+<use name=root>
+<use name=rootgraphics>
+
 <flags EDM_PLUGIN=1>
 </library>
 
