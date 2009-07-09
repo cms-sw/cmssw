@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/02 18:10:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/07 14:14:56 $
+ *  $Revision: 1.4 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -56,6 +56,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   edm::InputTag theCaloJetCollectionLabel;
   int theMinCaloJetEt;
   int theMinPhotonEt;
+  bool theRequirePhotonFound;
 
   // Histograms
   MonitorElement* h_photon_et;
@@ -73,5 +74,6 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_jet2_eta;
   MonitorElement* h_deltaPhi_photon_jet2;
   MonitorElement* h_deltaR_jet_jet2;
+  MonitorElement* h_deltaR_photon_jet2;
 };
 #endif
