@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/06/17 13:17:17 $ 
+ **  $Date: 2009/06/19 14:30:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -54,15 +54,25 @@ PhotonOfflineClient::~PhotonOfflineClient()
 {}
 
 void PhotonOfflineClient::beginJob( const edm::EventSetup& setup)
-{
-
-}
+{}
 
 void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& esup)
 {}
 
 
 void PhotonOfflineClient::endJob()
+{
+  if(standAlone_) runClient();
+}
+
+
+void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
+{
+  if(!standAlone_) runClient();
+}
+
+
+void PhotonOfflineClient::runClient()
 {
 
   if(batch_)  dbe_->open(inputFileName_);
@@ -235,14 +245,10 @@ void PhotonOfflineClient::endJob()
 
   if(standAlone_) dbe_->save(outputFileName_);
   else if(batch_) dbe_->save(inputFileName_);
-}
-
-
-void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
-{
-
  
+
 }
+
 
 
 
