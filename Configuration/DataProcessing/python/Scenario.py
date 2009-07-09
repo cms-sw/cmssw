@@ -13,6 +13,7 @@ configurations for the various types of job
 
 """
 
+import FWCore.ParameterSet.Config as cms
 
 class Scenario(object):
     """
@@ -86,9 +87,36 @@ class Scenario(object):
         msg += "Does not contain an implementation for dqmHarvesting"
         raise NotImplementedError, msg
 
+    def addExpressOutputModules(self, process, tiers, datasets):
+        """
+        _addExpressOutputModules_
 
+        Util method to unpack and install the set of data tier
+        output modules corresponding to the list of tiers and datasets
+        provided
 
-    def expressProcessing(self, globalTag):
+        """
+        for tier in tiers:
+            for dataset in datasets:
+                moduleName = "write%s%s" % (tier, dataset)
+                contentName = "%sEventContent" % tier
+                contentAttr = getattr(process, contentName)
+                setattr(process, moduleName, 
+
+                        cms.OutputModule(
+                    "PoolOutputModule", 
+                    fileName = cms.untracked.string('%s.root' % moduleName), 
+                    dataset = cms.untracked.PSet( 
+                    dataTier = cms.untracked.string(tier), 
+                    ),
+                    eventContent = contentAttr
+                    )
+                        
+                        )
+        return
+
+    def expressProcessing(self, globalTag, writeTiers = [],
+                          datasets = [], alcaDataset = None ):
         """
         _expressProcessing_
 
@@ -97,6 +125,15 @@ class Scenario(object):
         Express processing runs conversion, reco and alca reco on each
         streamer file in the express stream and writes out RAW, RECO and
         a combined ALCA file that gets mergepacked in a later step
+
+        writeTiers is list of tiers to write out, not including ALCA
+        
+        datasets is the list of datasets to split into for each tier
+        written out. Should always be one dataset
+
+        alcaDataset - if set, this means the combined Alca file is written
+        out with no dataset splitting, it gets assigned straight to the datase
+        provided
 
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__

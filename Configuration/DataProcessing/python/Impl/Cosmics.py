@@ -55,6 +55,12 @@ class Cosmics(Scenario):
         cb.addConditions()
         process.load(cb.EVTCONTDefaultCFF)
 
+        # Input source
+        process.source = cms.Source("PoolSource",
+            logicalFileNames = cms.untracked.vstring()
+        )
+
+
         if "RECO" in writeTiers:
             process.writeRECO = cms.OutputModule(
                 "PoolOutputModule", 
@@ -87,7 +93,8 @@ class Cosmics(Scenario):
 
         return process
 
-    def expressProcessing(self, globalTag):
+    def expressProcessing(self, globalTag,  writeTiers = [],
+                          datasets = [], alcaDataset = None):
         """
         _expressProcessing_
 
@@ -129,6 +136,14 @@ class Cosmics(Scenario):
         cb.addConditions()
         process.load(cb.EVTCONTDefaultCFF)
 
+        #  //
+        # // Install the OutputModules for everything but ALCA
+        #//
+        self.addExpressOutputModules(process, writeTiers, datasets)
+        
+        
+        
+
         # import of standard configurations
         process.load('Configuration/StandardSequences/Services_cff')
         process.load('FWCore/MessageService/MessageLogger_cfi')
@@ -143,7 +158,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.3 $'),
+            version = cms.untracked.string('$Revision: 1.4 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -206,33 +221,33 @@ class Cosmics(Scenario):
         process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTFHLT,process.pathALCARECOTkAlCosmicsCosmicTFHLT,process.pathALCARECOTkAlCosmicsRSHLT,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOMuAlStandAloneCosmics,process.endjob_step)
         
         
-        process.write_Express_StreamExpress_RAW = cms.OutputModule(
-            "PoolOutputModule", 
-            fileName = cms.untracked.string('write_Express_StreamExpress_RAW.root'), 
-            dataset = cms.untracked.PSet( 
-            dataTier = cms.untracked.string('RAW'), 
-            primaryDataset = cms.untracked.string('StreamExpress') 
-            ), 
-            compressionLevel = cms.untracked.int32(3), 
-            outputCommands = cms.untracked.vstring(
-            'drop *',  
-            'keep  FEDRawDataCollection_rawDataCollector_*_*',  
-            'keep  FEDRawDataCollection_source_*_*',  
-            'keep *_gtDigis_*_*',  
-            'keep *_l1GtRecord_*_*',  
-            'keep *_l1GtObjectMap_*_*',  
-            'keep *_l1extraParticles_*_*',  
-            'drop *_hlt*_*_*',  
-            'keep FEDRawDataCollection_rawDataCollector_*_*',  
-            'keep edmTriggerResults_*_*_*',  
-            'keep triggerTriggerEvent_*_*_*',  
-            'keep *_hltGctDigis_*_*',  
-            'keep *_hltGtDigis_*_*',  
-            'keep *_hltL1extraParticles_*_*',  
-            'keep *_hltL1GtObjectMap_*_*'), 
-            fastCloning = cms.untracked.bool(False), 
-            logicalFileName = cms.untracked.string('/store/whatever') 
-            ) 
+        ##process.write_Express_StreamExpress_RAW = cms.OutputModule(
+##            "PoolOutputModule", 
+##            fileName = cms.untracked.string('write_Express_StreamExpress_RAW.root'), 
+##            dataset = cms.untracked.PSet( 
+##            dataTier = cms.untracked.string('RAW'), 
+##            primaryDataset = cms.untracked.string('StreamExpress') 
+##            ), 
+##            compressionLevel = cms.untracked.int32(3), 
+##            outputCommands = cms.untracked.vstring(
+##            'drop *',  
+##            'keep  FEDRawDataCollection_rawDataCollector_*_*',  
+##            'keep  FEDRawDataCollection_source_*_*',  
+##            'keep *_gtDigis_*_*',  
+##            'keep *_l1GtRecord_*_*',  
+##            'keep *_l1GtObjectMap_*_*',  
+##            'keep *_l1extraParticles_*_*',  
+##            'drop *_hlt*_*_*',  
+##            'keep FEDRawDataCollection_rawDataCollector_*_*',  
+##            'keep edmTriggerResults_*_*_*',  
+##            'keep triggerTriggerEvent_*_*_*',  
+##            'keep *_hltGctDigis_*_*',  
+##            'keep *_hltGtDigis_*_*',  
+##            'keep *_hltL1extraParticles_*_*',  
+##            'keep *_hltL1GtObjectMap_*_*'), 
+##            fastCloning = cms.untracked.bool(False), 
+##            logicalFileName = cms.untracked.string('/store/whatever') 
+##            ) 
         
         return process
     
@@ -287,7 +302,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.3 $'),
+            version = cms.untracked.string('$Revision: 1.4 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
