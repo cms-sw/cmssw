@@ -13,7 +13,7 @@ import string
 FastSimUse="False"
 
 #Reference release
-NewRelease='CMSSW_3_1_0_pre11'
+NewRelease='CMSSW_3_1_1'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
@@ -86,6 +86,13 @@ Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidationFastSim_cfg.py'
 macro='macro/TrackValHistoPublisher.C'
+
+# Define a different process name for each sequence:
+ProcessName = 'MUVAL'
+if (Sequence=='harvesting'):
+    ProcessName = 'MUVALHV'
+elif (Sequence=='only_validation_and_TP'):
+    ProcessName = 'MUVALTP'
 
 
 #########################################################################
@@ -217,7 +224,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     else:
                         Nevents=Events[sample]
                     print 'line 199'
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
+                    symbol_map = { 'PROCESSNAME':ProcessName, 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )
