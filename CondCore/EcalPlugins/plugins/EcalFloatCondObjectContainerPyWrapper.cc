@@ -191,11 +191,11 @@ namespace cond {
     TH2F endcmap_p("EE+","EE+",100,1,101,100,1,101);
     TH2F endcmap_m("EE-","EE-",100,1,101,100,1,101);
 
-    const int kSides=2;
-    const int kBarlRings=85;
-    const int kBarlWedges = 360;
-    const int  kEndcWedgesX = 100;
-    const int  kEndcWedgesY = 100;
+    const int kSides       = 2;
+    const int kBarlRings   = EBDetId::MAX_IETA;
+    const int kBarlWedges  = EBDetId::MAX_IPHI;
+    const int kEndcWedgesX = EEDetId::IX_MAX;
+    const int kEndcWedgesY = EEDetId::IY_MAX;
 
 
     for (int sign=0; sign<kSides; sign++) {
@@ -242,10 +242,8 @@ namespace cond {
     endcmap_p.SetStats(0);
     endcmap_p.Draw("colz");
 
-    std::string fname = filename + ".png";
-    canvas.cd();
-    canvas.SaveAs(fname.c_str());
-    return fname;
+    canvas.SaveAs(filename.c_str());
+    return filename;
   }
   
   
