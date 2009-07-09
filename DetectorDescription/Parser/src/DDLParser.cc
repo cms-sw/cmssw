@@ -423,4 +423,5 @@ void DDLParser::clearFiles ()
 {
   fileNames_.clear();
   parsed_.clear();
+  nFiles_ = 0;
 }
