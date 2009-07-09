@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FragmentMonitorCollection.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
 
 #ifndef StorageManager_FragmentMonitorCollection_h
 #define StorageManager_FragmentMonitorCollection_h
@@ -14,9 +14,9 @@ namespace stor {
   /**
    * A collection of MonitoredQuantities related to fragments
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection
@@ -45,7 +45,7 @@ namespace stor {
       MonitoredQuantity::Stats dqmEventFragmentBandwidthStats;
     };
 
-    explicit FragmentMonitorCollection(xdaq::Application*);
+    FragmentMonitorCollection();
 
     void addEventFragmentSample(const double bytecount);
 
@@ -106,10 +106,9 @@ namespace stor {
     FragmentMonitorCollection& operator=(FragmentMonitorCollection const&);
 
     virtual void do_calculateStatistics();
-    
-    virtual void do_updateInfoSpace();
-    
     virtual void do_reset();
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
 
     xdata::UnsignedInteger32 _receivedFrames; // Total I2O frames received
     xdata::Double _instantBandwidth;          // Recent bandwidth in MB/s

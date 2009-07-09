@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.3 2009/06/24 19:11:21 biery Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.4 2009/06/30 19:58:23 biery Exp $
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
 #define StorageManager_DataSenderMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: biery $
-   * $Revision: 1.3 $
-   * $Date: 2009/06/24 19:11:21 $
+   * $Revision: 1.4 $
+   * $Date: 2009/06/30 19:58:23 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -270,7 +270,7 @@ namespace stor {
     /**
      * Constructor.
      */
-    explicit DataSenderMonitorCollection(xdaq::Application*);
+    DataSenderMonitorCollection();
 
     /**
      * Adds the specified fragment to the monitor collection.
@@ -349,10 +349,10 @@ namespace stor {
     DataSenderMonitorCollection& operator=(DataSenderMonitorCollection const&);
 
     virtual void do_calculateStatistics();
-
-    virtual void do_updateInfoSpace();
-
     virtual void do_reset();
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
+
 
     bool getAllNeededPointers(I2OChain const& i2oChain,
                               RBRecordPtr& rbRecordPtr,

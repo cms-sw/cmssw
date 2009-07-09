@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.3 2009/06/15 12:32:25 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.4 2009/07/09 09:37:18 mommsen Exp $
 
 #include <string>
 #include <sstream>
@@ -6,6 +6,7 @@
 #include <sys/statfs.h>
 #include <dirent.h>
 #include <fnmatch.h>
+#include <fstream>
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
@@ -13,16 +14,12 @@
 
 using namespace stor;
 
-ResourceMonitorCollection::ResourceMonitorCollection(xdaq::Application *app) :
-MonitorCollection(app),
+ResourceMonitorCollection::ResourceMonitorCollection(xdaq::Application* app) :
+MonitorCollection(),
 _app(app),
 _pool(0),
 _progressMarker( "unused" )
-{
-  _infoSpaceItems.push_back(std::make_pair("progressMarker", &_progressMarker));
-
-  putItemsIntoInfoSpace();
-}
+{}
 
 
 void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams)
@@ -102,6 +99,37 @@ void ResourceMonitorCollection::do_calculateStatistics()
   calcPoolUsage();
   calcDiskUsage();
   calcNumberOfWorkers();
+}
+
+
+void ResourceMonitorCollection::do_reset()
+{
+  _poolUsage.reset();
+  _numberOfCopyWorkers.reset();
+  _numberOfInjectWorkers.reset();
+
+  boost::mutex::scoped_lock sl(_diskUsageListMutex);
+  for ( DiskUsagePtrList::const_iterator it = _diskUsageList.begin(),
+          itEnd = _diskUsageList.end();
+        it != itEnd;
+        ++it)
+  {
+    (*it)->absDiskUsage.reset();
+    (*it)->relDiskUsage.reset();
+    (*it)->warningColor = "#FFFFFF";
+  }
+}
+
+
+void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
+{
+  infoSpaceItems.push_back(std::make_pair("progressMarker", &_progressMarker));
+}
+
+
+void ResourceMonitorCollection::do_updateInfoSpaceItems()
+{
+  //nothing to do: the progressMarker does not change its value
 }
 
 
@@ -195,30 +223,6 @@ void ResourceMonitorCollection::calcNumberOfWorkers()
   _numberOfInjectWorkers.calculateStatistics();
 }
 
-
-void ResourceMonitorCollection::do_updateInfoSpace()
-{
-  //nothing to do: the progressMarker does not change its value
-}
-
-
-void ResourceMonitorCollection::do_reset()
-{
-  _poolUsage.reset();
-  _numberOfCopyWorkers.reset();
-  _numberOfInjectWorkers.reset();
-
-  boost::mutex::scoped_lock sl(_diskUsageListMutex);
-  for ( DiskUsagePtrList::const_iterator it = _diskUsageList.begin(),
-          itEnd = _diskUsageList.end();
-        it != itEnd;
-        ++it)
-  {
-    (*it)->absDiskUsage.reset();
-    (*it)->relDiskUsage.reset();
-    (*it)->warningColor = "#FFFFFF";
-  }
-}
 
 namespace {
   int filter(const struct dirent *dir)

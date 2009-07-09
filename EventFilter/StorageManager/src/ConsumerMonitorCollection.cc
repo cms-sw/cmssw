@@ -1,12 +1,12 @@
-// $Id$
+// $Id: ConsumerMonitorCollection.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 
 using namespace stor;
 
 
-ConsumerMonitorCollection::ConsumerMonitorCollection( xdaq::Application* xapp ):
-  MonitorCollection( xapp )
+ConsumerMonitorCollection::ConsumerMonitorCollection():
+  MonitorCollection()
 {}
 
 
@@ -90,4 +90,9 @@ void ConsumerMonitorCollection::do_reset()
 }
 
 
-void ConsumerMonitorCollection::do_updateInfoSpace() {}
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

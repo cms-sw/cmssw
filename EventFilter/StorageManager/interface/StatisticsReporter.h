@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StatisticsReporter.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 
 #ifndef StorageManager_StatisticsReporter_h
 #define StorageManager_StatisticsReporter_h
@@ -6,6 +6,7 @@
 #include "toolbox/lang/Class.h"
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "xdaq/Application.h"
+#include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
@@ -23,6 +24,10 @@
 #include "boost/thread/mutex.hpp"
 
 #include <string>
+#include <list>
+#include <vector>
+#include <utility>
+
 
 namespace stor {
 
@@ -32,9 +37,9 @@ namespace stor {
    * This class also starts the monitoring workloop to update the 
    * statistics for all MonitorCollections.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -138,12 +143,19 @@ namespace stor {
 
   private:
 
+    typedef std::list<std::string> InfoSpaceItemNames;
+
     //Prevent copying of the StatisticsReporter
     StatisticsReporter(StatisticsReporter const&);
     StatisticsReporter& operator=(StatisticsReporter const&);
 
-    bool monitorAction(toolbox::task::WorkLoop*);
+    void createMonitoringInfoSpace();
+    void collectInfoSpaceItems();
+    void putItemsIntoInfoSpace(MonitorCollection::InfoSpaceItems&);
     void addRunInfoQuantitiesToApplicationInfoSpace();
+    bool monitorAction(toolbox::task::WorkLoop*);
+    void calculateStatistics();
+    void updateInfoSpace();
 
     xdaq::Application* _app;
     RunMonitorCollection _runMonCollection;
@@ -159,6 +171,10 @@ namespace stor {
     ThroughputMonitorCollection _throughputMonCollection;
     toolbox::task::WorkLoop* _monitorWL;      
     bool _doMonitoring;
+
+    // Stuff dealing with the monitoring info space
+    xdata::InfoSpace *_infoSpace;
+    InfoSpaceItemNames _infoSpaceItemNames;
 
     // These values have to be in the application infospace as
     // the HLTSFM queries them from the application infospace at 

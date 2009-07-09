@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StreamsMonitorCollection.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
 
 #include <string>
 #include <sstream>
@@ -10,22 +10,13 @@
 using namespace stor;
 
 
-StreamsMonitorCollection::StreamsMonitorCollection(xdaq::Application *app) :
-MonitorCollection(app),
+StreamsMonitorCollection::StreamsMonitorCollection() :
+MonitorCollection(),
 _timeWindowForRecentResults(300)
 {
   _allStreamsFileCount.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
   _allStreamsVolume.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
   _allStreamsBandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-
-  _infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
-  _infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
-
-  // These infospace items were defined in the old SM
-  // _infoSpaceItems.push_back(std::make_pair("namesOfStream", &_namesOfStream));
-  // _infoSpaceItems.push_back(std::make_pair("storedEventsInStream", &_storedEventsInStream));
-
-  putItemsIntoInfoSpace();
 }
 
 
@@ -40,6 +31,21 @@ StreamsMonitorCollection::getNewStreamRecord()
   streamRecord->bandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
   _streamRecords.push_back(streamRecord);
   return streamRecord;
+}
+
+
+void StreamsMonitorCollection::StreamRecord::incrementFileCount()
+{
+  fileCount.addSample(1);
+  parentCollection->_allStreamsFileCount.addSample(1);
+}
+
+
+void StreamsMonitorCollection::StreamRecord::addSizeInBytes(double size)
+{
+  size = size / (1024 * 1024);
+  volume.addSample(size);
+  parentCollection->_allStreamsVolume.addSample(size);
 }
 
 
@@ -77,49 +83,14 @@ void StreamsMonitorCollection::do_calculateStatistics()
 }
 
 
-void StreamsMonitorCollection::do_updateInfoSpace()
+void StreamsMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
-  std::string errorMsg =
-    "Failed to update values of items in info space " + _infoSpace->name();
+  infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
+  infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
 
-  MonitoredQuantity::Stats allStreamsVolumeStats;
-  _allStreamsVolume.getStats(allStreamsVolumeStats);
-
-  // Lock the infospace to assure that all items are consistent
-  try
-  {
-    _infoSpace->lock();
-
-    _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
-    _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
-
-    _infoSpace->unlock();
-  }
-  catch(std::exception &e)
-  {
-    _infoSpace->unlock();
- 
-    errorMsg += ": ";
-    errorMsg += e.what();
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
-  }
-  catch (...)
-  {
-    _infoSpace->unlock();
- 
-    errorMsg += " : unknown exception";
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
-  }
-
-  try
-  {
-    // The fireItemGroupChanged locks the infospace
-    _infoSpace->fireItemGroupChanged(_infoSpaceItemNames, this);
-  }
-  catch (xdata::exception::Exception &e)
-  {
-    XCEPT_RETHROW(stor::exception::Infospace, errorMsg, e);
-  }
+  // These infospace items were defined in the old SM
+  // infoSpaceItems.push_back(std::make_pair("namesOfStream", &_namesOfStream));
+  // infoSpaceItems.push_back(std::make_pair("storedEventsInStream", &_storedEventsInStream));
 }
 
 
@@ -134,18 +105,13 @@ void StreamsMonitorCollection::do_reset()
 }
 
 
-void StreamsMonitorCollection::StreamRecord::incrementFileCount()
+void StreamsMonitorCollection::do_updateInfoSpaceItems()
 {
-  fileCount.addSample(1);
-  parentCollection->_allStreamsFileCount.addSample(1);
-}
-
-
-void StreamsMonitorCollection::StreamRecord::addSizeInBytes(double size)
-{
-  size = size / (1024 * 1024);
-  volume.addSample(size);
-  parentCollection->_allStreamsVolume.addSample(size);
+  MonitoredQuantity::Stats allStreamsVolumeStats;
+  _allStreamsVolume.getStats(allStreamsVolumeStats);
+  
+  _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
+  _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
 }
 
 

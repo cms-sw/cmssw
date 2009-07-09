@@ -1,18 +1,13 @@
-// $Id$
+// $Id: MonitorCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef StorageManager_MonitorCollection_h
 #define StorageManager_MonitorCollection_h
 
-#include <list>
-#include <vector>
-#include <utility>
-#include <string>
-
-#include "xdaq/Application.h"
-#include "xdata/InfoSpace.h"
 #include "xdata/Serializable.h"
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
+
+#include <string>
 
 
 namespace stor {
@@ -20,25 +15,28 @@ namespace stor {
   /**
    * An abstract collection of MonitoredQuantities
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
   
   class MonitorCollection
   {
   public:
 
-    explicit MonitorCollection(xdaq::Application*);
+    typedef std::vector< std::pair<std::string, xdata::Serializable*> > InfoSpaceItems;
+
+
+    MonitorCollection() {};
 
     // A pure virtual destructor results in a missing symbol
     virtual ~MonitorCollection() {};
 
     /**
-     * Calculates the statistics and updates the info space
-     * for all monitored quantities
+     * Append the info space items to be published in the 
+     * monitoring info space to the InfoSpaceItems
      */
-    void update();
+    void appendInfoSpaceItems(InfoSpaceItems&);
 
     /**
      * Calculates the statistics for all quantities
@@ -46,40 +44,26 @@ namespace stor {
     void calculateStatistics();
 
     /**
-     * Updates the infospace
+     * Update all values of the items put into the monitoring
+     * info space. The caller has to make sure that the info
+     * space where the items reside is locked and properly unlocked
+     * after the call.
      */
-    void updateInfoSpace();
+    void updateInfoSpaceItems();
 
     /**
      * Resets the monitored quantities
      */
     void reset();
 
-    /**
-     * Returns the pointer to the monitoring info space
-     */
-    xdata::InfoSpace* getMonitoringInfoSpace()
-    { return _infoSpace; }
-
     
   protected:
 
     virtual void do_calculateStatistics() = 0;
-    
-    virtual void do_updateInfoSpace() = 0;
-
     virtual void do_reset() = 0;
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&) {};
+    virtual void do_updateInfoSpaceItems() {};
 
-
-    // Stuff dealing with info space
-    void putItemsIntoInfoSpace();
-
-    static xdata::InfoSpace *_infoSpace;
-
-    typedef std::vector< std::pair<std::string, xdata::Serializable*> > infoSpaceItems_t;
-    infoSpaceItems_t _infoSpaceItems;
-
-    std::list<std::string> _infoSpaceItemNames;
 
   private:
 

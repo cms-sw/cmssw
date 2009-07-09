@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StateMachineMonitorCollection.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 
 #ifndef StorageManager_StateMachineMonitorCollection_h
 #define StorageManager_StateMachineMonitorCollection_h
@@ -17,9 +17,9 @@ namespace stor {
   /**
    * A collection of monitored quantities related to the state machine
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
   
   class StateMachineMonitorCollection : public MonitorCollection
@@ -27,7 +27,7 @@ namespace stor {
 
   public:
 
-    explicit StateMachineMonitorCollection(xdaq::Application*);
+    StateMachineMonitorCollection();
 
     /**
      * Add the TransitionRecord to the state machine history
@@ -68,12 +68,9 @@ namespace stor {
     StateMachineMonitorCollection& operator=(StateMachineMonitorCollection const&);
 
     virtual void do_calculateStatistics();
-    
-    virtual void do_updateInfoSpace();
-    
     virtual void do_reset();
-
-    Logger& _logger;
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
 
     History _history;
     std::string _externallyVisibleState;

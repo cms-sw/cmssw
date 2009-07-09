@@ -1,4 +1,4 @@
-// $Id$
+// $Id: ResourceMonitorCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
 
 #ifndef StorageManager_ResourceMonitorCollection_h
 #define StorageManager_ResourceMonitorCollection_h
@@ -21,9 +21,9 @@ namespace stor {
   /**
    * A collection of MonitoredQuantities related to resource usages
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -96,10 +96,9 @@ namespace stor {
     ResourceMonitorCollection& operator=(ResourceMonitorCollection const&);
 
     virtual void do_calculateStatistics();
-    
-    virtual void do_updateInfoSpace();
-    
     virtual void do_reset();
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
 
     void emitDiskUsageAlarm(DiskUsagePtr);
     void revokeDiskUsageAlarm(DiskUsagePtr);

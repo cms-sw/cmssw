@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.3 2009/06/24 19:11:21 biery Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.4 2009/06/30 19:58:24 biery Exp $
 
 #include <string>
 #include <sstream>
@@ -13,14 +13,10 @@
 using namespace stor;
 
 
-DataSenderMonitorCollection::DataSenderMonitorCollection(xdaq::Application *app) :
-MonitorCollection(app),
+DataSenderMonitorCollection::DataSenderMonitorCollection() :
+MonitorCollection(),
 _connectedRBs(0)
-{
-  _infoSpaceItems.push_back(std::make_pair("connectedRBs", &_connectedRBs));
-
-  putItemsIntoInfoSpace();
-}
+{}
 
 
 void DataSenderMonitorCollection::addFragmentSample(I2OChain const& i2oChain)
@@ -441,50 +437,6 @@ void DataSenderMonitorCollection::do_calculateStatistics()
 }
 
 
-void DataSenderMonitorCollection::do_updateInfoSpace()
-{
-  boost::mutex::scoped_lock sl(_collectionsMutex);
-
-  std::string errorMsg =
-    "Failed to update values of items in info space " + _infoSpace->name();
-
-  // Lock the infospace to assure that all items are consistent
-  try
-  {
-    _infoSpace->lock();
-
-    _connectedRBs = static_cast<xdata::UnsignedInteger32>(_resourceBrokerMap.size());
-
-    _infoSpace->unlock();
-  }
-  catch(std::exception &e)
-  {
-    _infoSpace->unlock();
- 
-    errorMsg += ": ";
-    errorMsg += e.what();
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
-  }
-  catch (...)
-  {
-    _infoSpace->unlock();
- 
-    errorMsg += " : unknown exception";
-    XCEPT_RAISE(stor::exception::Monitoring, errorMsg);
-  }
-
-  try
-  {
-    // The fireItemGroupChanged locks the infospace
-    _infoSpace->fireItemGroupChanged(_infoSpaceItemNames, this);
-  }
-  catch (xdata::exception::Exception &e)
-  {
-    XCEPT_RETHROW(stor::exception::Monitoring, errorMsg, e);
-  }
-}
-
-
 void DataSenderMonitorCollection::do_reset()
 {
   boost::mutex::scoped_lock sl(_collectionsMutex);
@@ -492,6 +444,20 @@ void DataSenderMonitorCollection::do_reset()
   _connectedRBs = 0;
   _resourceBrokerMap.clear();
   _outputModuleMap.clear();
+}
+
+
+void DataSenderMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
+{
+  infoSpaceItems.push_back(std::make_pair("connectedRBs", &_connectedRBs));
+}
+
+
+void DataSenderMonitorCollection::do_updateInfoSpaceItems()
+{
+  boost::mutex::scoped_lock sl(_collectionsMutex);
+
+  _connectedRBs = static_cast<xdata::UnsignedInteger32>(_resourceBrokerMap.size());
 }
 
 

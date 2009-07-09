@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StreamsMonitorCollection.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 
 #ifndef StorageManager_StreamsMonitorCollection_h
 #define StorageManager_StreamsMonitorCollection_h
@@ -24,9 +24,9 @@ namespace stor {
   /**
    * A collection of MonitoredQuantities of output streams
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -59,7 +59,7 @@ namespace stor {
     typedef std::vector<StreamRecordPtr> StreamRecordList;
 
 
-    explicit StreamsMonitorCollection(xdaq::Application*);
+    StreamsMonitorCollection();
 
     const StreamRecordPtr getNewStreamRecord();
 
@@ -97,10 +97,9 @@ namespace stor {
     StreamsMonitorCollection& operator=(StreamsMonitorCollection const&);
 
     virtual void do_calculateStatistics();
-    
-    virtual void do_updateInfoSpace();
-
     virtual void do_reset();
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
 
     StreamRecordList _streamRecords;
     mutable boost::mutex _streamRecordsMutex;
