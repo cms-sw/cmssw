@@ -175,8 +175,9 @@ void EcalCoder::encode(const CaloSamples& caloSamples, EcalDataFrame& df) const
   if ( isSaturated ) {
           for (int i = 0 ; i < caloSamples.size() ; ++i) {
                   if ( df.sample(i).gainId() == 0 ) {
-                          int hyst = i+1+2;
-                          for ( int j = i+1; j < hyst && j < caloSamples.size(); ++j ) {
+                          ++i;
+                          int hyst = i+5;
+                          for ( int j = i; j < hyst && j < caloSamples.size(); ++j, ++i ) {
                                   df.setSample(j, EcalMGPASample(MAXADC, 0));   
                           }
                   }
