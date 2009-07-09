@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.h,v 1.2 2009/06/04 11:52:58 aosorio Exp $
+// $Id: TTUTrackingAlg.h,v 1.3 2009/06/17 15:27:24 aosorio Exp $
 #ifndef TTUTRACKINGALG_H 
 #define TTUTRACKINGALG_H 1
 
@@ -50,6 +50,7 @@ public:
       m_stationId = _stId;
       m_tkLength  = _tl;
     };
+  
     ~Seed() {};
     
     Seed( const Seed & _seed) 
@@ -98,6 +99,10 @@ public:
       m_tracklength = -1;
     };
 
+    void updateTrkLength() {
+      m_tracklength = m_seeds.size();
+    };
+    
     bool operator<(const Track &rhs) {
       return m_tracklength < rhs.m_tracklength;
     };
@@ -123,7 +128,7 @@ public:
   template< class T>
   struct CompareMechanism
   {
-    bool operator( )( T* a, T* b ) { return (*a) < (*b) ; }
+    bool operator()( T* a, T* b ) { return (*a) < (*b) ; }
   };
     
 protected:
@@ -137,7 +142,9 @@ private:
   int  executeTracker( Track *, std::vector<Seed*> & );
   
   void filter( Track * , std::vector<Seed*>  & );
-  
+
+  void ghostBuster( Track * );
+    
   void alignTracks();
 
   void cleanUp();
@@ -152,6 +159,32 @@ private:
   
   std::vector<Seed*>  m_initialseeds;
   
+  struct CompareSeeds {
+    bool operator()( const Seed * a, const Seed * b )
+    {
+      std::cout << (*a).m_sectorId << " " << (*b).m_sectorId << " " << (*a).m_stationId << " " << (*b).m_stationId << std::endl;
+      return ((*a).m_sectorId == (*b).m_sectorId ) && ((*a).m_stationId == (*b).m_stationId );
+    }
+  };
+  
+  struct SortBySector {
+    bool operator()( const Seed * a, const Seed * b )
+    {
+      return ((*a).m_sectorId <= (*b).m_sectorId );
+      
+    }
+  };
+  
+  struct SortByLayer {
+    bool operator()( const Seed * a, const Seed * b )
+    {
+      return ((*a).m_stationId <= (*b).m_stationId );
+      
+    }
+  };
+
+
+
   inline void print( const std::vector<Seed*> & seeds ) 
   {
     std::vector<Seed*>::const_iterator itr;

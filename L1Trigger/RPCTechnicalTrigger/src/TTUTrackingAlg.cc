@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.6 2009/07/01 22:52:06 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.7 2009/07/04 20:07:40 aosorio Exp $
 // Include files 
 
 
@@ -34,6 +34,7 @@ TTUTrackingAlg::TTUTrackingAlg(  ) {
   m_debug = false;
   
 }
+
 //=============================================================================
 // Destructor
 //=============================================================================
@@ -87,10 +88,11 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   std::vector<Seed*> neighbors;
   
   while ( _seed != m_initialseeds.end() ) {
-  
+    
     findNeighbors( (*_seed) , neighbors );
     filter( initTrk, neighbors );
     executeTracker( initTrk, neighbors );
+    ghostBuster( initTrk );
     
     ++_seed;
     
@@ -100,7 +102,7 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
       m_tracks.push_back( initTrk );
       
     }
-    
+
   }
 
   TracksItr itr;
@@ -168,9 +170,8 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
   }
   
   //...
-
-  
-  
+  if ( m_debug ) std::cout << "SeedBuster: " << m_initialseeds.size() << std::endl;
+    
 }
 
 int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors)
@@ -185,7 +186,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors
   while( _itr != neighbors.end() ) {
   
     _trk->add( (*_itr) );
-  
+    
     std::vector<Seed*> _nextneighbors;
     
     findNeighbors( (*_itr) , _nextneighbors );
@@ -196,17 +197,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors
       executeTracker( _trk, _nextneighbors );
     
     //... bifurcation not considered at the moment
-    // if ( _itr != neighbors.end() ) 
-    //     {
-    //       std::cout << "executeTracker> found a bifurcation" << std::endl;
-    //       _trk = new Track( (*_trk) );
-    //       m_tracks.push_back( _trk );
-    //       std::vector<Seed*> _nextneighbors;
-    //       findNeighbors( (*_itr) , _nextneighbors );
-    //       filter( _trk, _nextneighbors );
-    //       executeTracker( _trk, _nextneighbors );
-    //     }
-    
+        
     ++_itr;
     
   }
@@ -219,8 +210,7 @@ int TTUTrackingAlg::executeTracker( Track * _trk, std::vector<Seed*> & neighbors
   
 }
 
-void TTUTrackingAlg::findNeighbors( Seed  * _seed, 
-                                    std::vector<Seed*> & neighbors)
+void TTUTrackingAlg::findNeighbors( Seed  * _seed, std::vector<Seed*> & neighbors)
 {
   
   neighbors.clear();
@@ -237,7 +227,7 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed,
     int _difx    = std::abs( _xo - (*_itr)->m_sectorId );
     int _dify    = std::abs( _yo - (*_itr)->m_stationId );
     
-    //if (m_debug) std::cout << "difference (x,y): " << _difx << "," << _dify << std::endl;
+    if (m_debug) std::cout << "difference (x,y): " << _difx << "," << _dify << "\t";
     
     if ( _difx == 11 ) _difx = 1;
     
@@ -249,6 +239,8 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed,
     
     ++_itr;
   }
+
+  if (m_debug) std::cout << std::endl;
   
 }
 
@@ -258,15 +250,39 @@ void TTUTrackingAlg::filter( Track * _trk,
   
   //... filter: removes from neighbors list, seeds already present
   //...    in tracks
-  
+
   SeedsItr _itr;
   
   for( _itr = _trk->m_seeds.begin();_itr != _trk->m_seeds.end(); ++_itr) 
   {
     SeedsItr _isalready = std::find( _nbrs.begin(),_nbrs.end(), (*_itr) );
-    if( _isalready != _nbrs.end() ) _nbrs.erase( _isalready );
+    
+    if( _isalready != _nbrs.end() ) { 
+      _nbrs.erase( _isalready ); 
+      if( m_debug ) std::cout << "removing ..." << std::endl;
+    }
+    
+    
   }
   
+}
+
+void TTUTrackingAlg::ghostBuster( Track * currentTrk )
+{
+  
+  //...do a final check to make sure there are no repeated seeds in track
+  
+  std::vector<Seed*>::iterator seedItr;
+  
+  std::sort( currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), SortBySector() );
+  std::sort( currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), SortByLayer() );
+  
+  seedItr = std::unique (currentTrk->m_seeds.begin(), currentTrk->m_seeds.end(), CompareSeeds() );
+  
+  currentTrk->m_seeds.resize(seedItr - currentTrk->m_seeds.begin());
+
+  currentTrk->updateTrkLength();
+    
 }
 
 void TTUTrackingAlg::alignTracks()
