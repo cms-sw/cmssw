@@ -334,6 +334,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    padX->Range(-7.7,-1.5,6.966667,13.5);
    padX->SetFrameLineWidth(0);
    padX->Modified();
+   h_res->SetDirectory(0);
    h_res->SetTitle("");
    h_res->SetStats(kFALSE);
    h_res->SetTitleSize(0.04);
