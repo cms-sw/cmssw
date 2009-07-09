@@ -15,8 +15,108 @@ process.eegeom = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+#================================================================================================
+#================================================================================================
 # Get hardcoded conditions the same used for standard digitization
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.es_prefer = cms.ESPrefer("PoolDBESSource","ecalConditions")
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.ecalConditions = cms.ESSource("PoolDBESSource",
+    CondDBSetup,
+    siteLocalConfig = cms.untracked.bool(True),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('EcalPedestalsRcd'),
+        tag = cms.string('EcalPedestals_mc')
+    ), 
+
+        cms.PSet(
+            record = cms.string('EcalADCToGeVConstantRcd'),
+            tag = cms.string('EcalADCToGeVConstant_EBg50_EEwithB_new')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalChannelStatusRcd'),
+            tag = cms.string('EcalChannelStatus_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalGainRatiosRcd'),
+            tag = cms.string('EcalGainRatios_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalIntercalibConstantsRcd'),
+            tag = cms.string('EcalIntercalibConstants_EBg50_EEwithB_new')
+        ), 
+        ###cms.PSet(
+        ###    record = cms.string('EcalWeightXtalGroupsRcd'),
+        ###    tag = cms.string('EcalWeightXtalGroups_mc')
+        ###), 
+        ###cms.PSet(
+        ###    record = cms.string('EcalTBWeightsRcd'),
+        ###    tag = cms.string('EcalTBWeights_mc')
+        ###), 
+        ###cms.PSet(
+        ###    record = cms.string('EcalLaserAlphasRcd'),
+        ###    tag = cms.string('EcalLaserAlphas_mc')
+        ###), 
+        ###cms.PSet(
+        ###    record = cms.string('EcalLaserAPDPNRatiosRcd'),
+        ###    ###record = cms.string('EcalLaserAPDPNRatiosRcd'),
+        ###    ###tag = cms.string('EcalLaserAPDPNRatios_mc')
+        ###    ###tag = cms.string('EcalLaserAPDPNRatios_online')
+        ###    tag = cms.string('EcalLaserAPDPNRatios_v2_online')
+        ###), 
+        ###cms.PSet(
+        ###    record = cms.string('EcalLaserAPDPNRatiosRefRcd'),
+        ###    tag = cms.string('EcalLaserAPDPNRatiosRef_mc')
+        ###)
+        ),
+    messagelevel = cms.untracked.uint32(0),
+    timetype = cms.untracked.string('timestamp'),
+    ##timetype = cms.string('runnumber'),
+    #connect = cms.string('frontier://cms_conditions_data/CMS_COND_ECAL'), ##cms_conditions_data/CMS_COND_ECAL"
+    ##connect = cms.string('frontier://FrontierPrep/CMS_COND_ECAL_LT'), ##cms_conditions_data/CMS_COND_ECAL"
+    #####connect = cms.string('frontier://cms_conditions_data/CMS_COND_31X_ECAL'),
+    #####connect = cms.string('oracle://cms_orcon_prod/CMS_COND_31X_ECAL'),
+    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_ECAL'),
+    ##connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_ECAL_LT'),
+
+    authenticationMethod = cms.untracked.uint32(1)
+)
+#================================================================================================
+#================================================================================================
+
+### Get hardcoded conditions the same used for standard digitization before CMSSW_3_1_x
+####process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+### or Get DB parameters 
+##process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+##process.GlobalTag.globaltag = "IDEAL_31X::All"
+
+##from CondCore.DBCommon.CondDBSetup_cfi import *
+##CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+##process.ecalIntercalibConstants = cms.ESSource("PoolDBESSource",CondDBSetup,
+##        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
+##        toGet = cms.VPSet( cms.PSet(
+##                record = cms.string("EcalIntercalibConstantsRcd"),
+##                tag = cms.string("EcalIntercalibConstants_avg1_ideal")
+##                ) )
+##)
+##process.es_prefer_ecalIntercalibConstants = cms.ESPrefer("PoolDBESSource","ecalIntercalibConstants")
+
+#####CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+#####process.ecalADCToGeV = cms.ESSource("PoolDBESSource",CondDBSetup,
+#####        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
+#####        toGet = cms.VPSet( cms.PSet(
+#####                record = cms.string("EcalADCToGeVConstantRcd"),
+#####                tag = cms.string("EcalADCToGeVConstant_avg1_ideal")
+#####                ) )
+#####)
+#####process.es_prefer_ecalADCToGeV = cms.ESPrefer("PoolDBESSource","ecalADCToGeV")
+
+####process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#####process.CondDBCommon.connect = 'sqlite_file:DB.db'
+####process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_31X_ALL'
+####process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+
 
 #########################
 process.source = cms.Source("EmptySource")
@@ -38,7 +138,9 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_startup.txt'),
-
+   #### TPG config tag and version (if not given it will be automatically given ) ####
+    TPGtag = cms.string('CRAFT'),
+    TPGversion = cms.uint32(1),
                                         
    #### TPG calculation parameters ####
     useTransverseEnergy = cms.bool(True),   ## true when TPG computes transverse energy, false for energy
@@ -49,8 +151,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
 
-    forcedPedestalValue = cms.int32(160),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
-    forceEtaSlice = cms.bool(True),         ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower). Implemented only for EB
+    forcedPedestalValue = cms.int32(-1),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
+    forceEtaSlice = cms.bool(False),         ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower). Implemented only for EB
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
     LUT_threshold_EB = cms.double(0.750),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
@@ -62,10 +164,10 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
 
-    TTF_lowThreshold_EB = cms.double(0.6875),  ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(0.6875), ## EB Trigger Tower Flag high threshold in GeV
-    TTF_lowThreshold_EE = cms.double(0.6875),  ## EE Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EE = cms.double(0.6875), ## EE Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EB = cms.double(1.0),  ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(1.0), ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EE = cms.double(1.0),  ## EE Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EE = cms.double(1.0), ## EE Trigger Tower Flag high threshold in GeV
 
     FG_lowThreshold_EB = cms.double(5.0),   ## EB Fine Grain Et low threshold in GeV
     FG_highThreshold_EB = cms.double(5.0),  ## EB Fine Grain Et high threshold in GeV

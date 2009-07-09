@@ -49,7 +49,10 @@ process.es_prefer_ecalIntercalibConstants = cms.ESPrefer("PoolDBESSource","ecalI
 
 
 #########################
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+       firstRun = cms.untracked.uint32(200000) ### need to use latest run to pick-up update values from DB 
+)
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -67,7 +70,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     DBport  = cms.uint32(1521),
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_startup.txt'),
+    outFile = cms.string('TPG_craft.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
     TPGtag = cms.string('CRAFT'),
     TPGversion = cms.uint32(1),
@@ -81,7 +84,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
 
-    forcedPedestalValue = cms.int32(160),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
+    forcedPedestalValue = cms.int32(-1),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
     forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"

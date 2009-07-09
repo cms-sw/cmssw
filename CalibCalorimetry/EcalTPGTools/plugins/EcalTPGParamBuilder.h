@@ -76,6 +76,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
   void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
   int getEtaSlice(int tccId, int towerInTCC) ;
+  void realignBaseline(linStruc & lin, bool forceBase12to0 = false) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -104,7 +105,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
-  std::ofstream * geomFile2_ ;
   EcalTPGDBApp * db_ ;
   bool writeToDB_ ;
   bool writeToFiles_ ;
