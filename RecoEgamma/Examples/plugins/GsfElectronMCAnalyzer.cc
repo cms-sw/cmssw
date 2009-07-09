@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.28 2009/07/05 23:25:19 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.30 2009/07/09 12:24:32 charlot Exp $
 //
 //
 
@@ -203,6 +203,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexP->Sumw2();
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele transverse momentum",  nbinpt,0.,ptmax);
   h_ele_vertexPt->Sumw2();
+  h_ele_Et       = new TH1F( "h_ele_Et",       "ele transverse energy",  nbinpt,0.,ptmax);
+  h_ele_Et->Sumw2();
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbineta2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele transverse momentum vs phi",nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
   h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "Efficiency vs gen transverse momentum",  nbinpteff,5.,ptmax);
