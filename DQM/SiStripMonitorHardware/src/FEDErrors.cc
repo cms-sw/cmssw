@@ -527,7 +527,7 @@ const bool FEDErrors::printDebug()
   return ( anyFEDErrors()  ||
 	   anyFEProblems() ||
 	   fedErrors_.CorruptBuffer ||
-	   fedErrors_.BadActiveChannelStatusBit
+	   fedErrors_.BadChannelStatusBit
 	   );
 
 }
