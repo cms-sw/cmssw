@@ -215,6 +215,7 @@ h_ele_dEtaCl_propOut_all 1 1 1
 h_ele_dPhiCl_propOut_all 1 1 1 
 h_ele_HoE_all 1 1 1 
 h_ele_mee_all 1 1 1 
+h_ele_mee_os 1 1 1 
 EOF
 
 cat >> histos.txt <<EOF
@@ -313,6 +314,7 @@ h_ele_hcalDepth2TowerSumEt_dr04 1 1 1
 h_recEleNum 1 0 1
 h_ele_mee_all 1 1 1
 h_ele_mee 1 1 1
+h_ele_mee_os 1 1 1
 EOF
 
 cat >> histos.txt <<EOF
@@ -404,6 +406,7 @@ h_ele_dEtaCl_propOut_all 1 1 1
 h_ele_dPhiCl_propOut_all 1 1 1
 h_ele_HoE_all 1	1 1
 h_ele_mee_all 1	0 1
+h_ele_mee_os 1	0 1
 EOF
 
 cat >> histos.txt <<EOF

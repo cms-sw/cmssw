@@ -100,6 +100,9 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbinmee= conf.getParameter<int>("Nbinmee");
   meemin=conf.getParameter<double>("Meemin");
   meemax=conf.getParameter<double>("Meemax");
+  nbinhoe= conf.getParameter<int>("Nbinhoe");
+  hoemin=conf.getParameter<double>("Hoemin");
+  hoemax=conf.getParameter<double>("Hoemax");
 
 }
 
@@ -149,7 +152,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_dEtaCl_propOut_all->Sumw2();
   h_ele_dPhiCl_propOut_all = new TH1F( "h_ele_dPhiCl_propOut_all", "ele #phi_{cl} - #phi_{tr}, prop from outermost, all reco electrons",   nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dPhiCl_propOut_all->Sumw2();
-  h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", 55,-0.05,0.5) ;
+  h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", nbinhoe, hoemin, hoemax) ;
   h_ele_HoE_all->Sumw2();
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
   h_ele_vertexPt_all->Sumw2();
@@ -200,7 +203,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexP->Sumw2();
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele transverse momentum",  nbinpt,0.,ptmax);
   h_ele_vertexPt->Sumw2();
-  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbinpt2D,etamin,etamax,nbinpt2D,0.,ptmax);
+  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbineta2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele transverse momentum vs phi",nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
   h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "Efficiency vs gen transverse momentum",  nbinpteff,5.,ptmax);
   h_ele_vertexEta      = new TH1F( "h_ele_vertexEta",      "ele momentum eta",    nbineta,etamin,etamax);
@@ -452,15 +455,15 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_dPhiEleClVsPhi_propOut = new TH2F( "h_ele_dPhiEleClVsPhi_propOut", "ele #phi_{EleCl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPt_propOut = new TH2F( "h_ele_dPhiSEleClsPt_propOut", "ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
 
-  h_ele_HoE = new TH1F("h_ele_HoE", "ele hadronic energy / em energy", 55,-0.05,0.5) ;
+  h_ele_HoE = new TH1F("h_ele_HoE", "ele hadronic energy / em energy", nbinhoe, hoemin, hoemax) ;
   h_ele_HoE->Sumw2();
-  h_ele_HoE_eg = new TH1F("h_ele_HoE_eg", "ele hadronic energy / em energy, ecal driven", 55,-0.05,0.5) ;
+  h_ele_HoE_eg = new TH1F("h_ele_HoE_eg", "ele hadronic energy / em energy, ecal driven", nbinhoe, hoemin, hoemax) ;
   h_ele_HoE_eg->Sumw2();
-  h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele hadronic energy / em energy, fiducial region", 55,-0.05,0.5) ;
+  h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele hadronic energy / em energy, fiducial region", nbinhoe, hoemin, hoemax) ;
   h_ele_HoE_fiducial->Sumw2();
-  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele hadronic energy / em energy vs eta", nbineta,etamin,etamax,55,-0.05,0.5) ;
-  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele hadronic energy / em energy vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
-  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele hadronic energy / em energy vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
+  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele hadronic energy / em energy vs eta", nbineta,etamin,etamax,nbinhoe, hoemin, hoemax) ;
+  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele hadronic energy / em energy vs phi", nbinphi2D,phimin,phimax,nbinhoe, hoemin, hoemax) ;
+  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele hadronic energy / em energy vs E", nbinp, 0.,300.,nbinhoe, hoemin, hoemax) ;
 
   h_ele_seed_dphi2_ = new TH1F("h_ele_seedDphi2", "ele seed dphi 2nd layer", 50,-0.003,+0.003) ;
   h_ele_seed_dphi2_->Sumw2();
@@ -522,17 +525,17 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_hcalDepth2TowerSumEt_dr04->Sumw2();
   
   // fbrem
-  h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode of GSF components",50,0.,1.);
+  h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode of GSF components",100,0.,1.);
   h_ele_fbrem->Sumw2();
-  h_ele_fbrem_eg = new TH1F( "h_ele_fbrem_eg","ele brem fraction, mode of GSF components, ecal driven",50,0.,1.);
+  h_ele_fbrem_eg = new TH1F( "h_ele_fbrem_eg","ele brem fraction, mode of GSF components, ecal driven",100,0.,1.);
   h_ele_fbrem_eg->Sumw2();
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",nbineta2D,etamin,etamax,0.,1.);
 
   // e/g et pflow electrons 
-  h_ele_mva = new TH1F( "h_ele_mva","ele identification mva",50,-1.,1.);
+  h_ele_mva = new TH1F( "h_ele_mva","ele identification mva",100,-1.,1.);
   h_ele_mva->Sumw2();
-  h_ele_mva_eg = new TH1F( "h_ele_mva_eg","ele identification mva, ecal driven",50,-1.,1.);
+  h_ele_mva_eg = new TH1F( "h_ele_mva_eg","ele identification mva, ecal driven",100,-1.,1.);
   h_ele_mva_eg->Sumw2();
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
   h_ele_provenance->Sumw2();

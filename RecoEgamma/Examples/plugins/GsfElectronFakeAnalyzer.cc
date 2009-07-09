@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.19 2009/07/04 21:38:29 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.20 2009/07/05 23:25:19 charlot Exp $
 //
 //
 
@@ -100,6 +100,9 @@ GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
   nbinmee= conf.getParameter<int>("Nbinmee");
   meemin=conf.getParameter<double>("Meemin");
   meemax=conf.getParameter<double>("Meemax");
+  nbinhoe= conf.getParameter<int>("Nbinhoe");
+  hoemin=conf.getParameter<double>("Hoemin");
+  hoemax=conf.getParameter<double>("Hoemax");
   
 }
 
@@ -158,7 +161,7 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_dPhiSc_propVtx_all = new TH1F( "h_ele_dPhiSc_propVtx_all", "ele #phi_{sc} - #phi_{tr}, prop from vertex, all reco electrons",      nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dEtaCl_propOut_all = new TH1F( "h_ele_dEtaCl_propOut_all", "ele #eta_{cl} - #eta_{tr}, prop from outermost, all reco electrons",   nbindetamatch,detamatchmin,detamatchmax);
   h_ele_dPhiCl_propOut_all = new TH1F( "h_ele_dPhiCl_propOut_all", "ele #phi_{cl} - #phi_{tr}, prop from outermost, all reco electrons",   nbindphimatch,dphimatchmin,dphimatchmax);
-  h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", 55,-0.05,0.5) ;
+  h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", nbinhoe, hoemin, hoemax) ;
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
   h_ele_vertexPt_all->Sumw2();
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "ele eta, all reco electrons",    nbineta,etamin,etamax);
@@ -174,7 +177,7 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", nbinpt,0.,100.,5,-2.,2.);
   h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele momentum",       nbinp,0.,pmax);
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele transverse momentum",  nbinpt,0.,ptmax);
-  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbinpt2D,etamin,etamax,nbinpt2D,0.,ptmax);
+  h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbineta2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele transverse momentum vs phi",nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
   h_ele_matchingObjectPt_matched       = new TH1F( "h_ele_matchingObjectPt_matched",       "Efficiency vs matching jet p_{T}",  nbinpteff,5.,ptmax);
   h_ele_matchingObjectPt_matched->Sumw2();
@@ -305,11 +308,11 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_dPhiEleClVsPhi_propOut = new TH2F( "h_ele_dPhiEleClVsPhi_propOut", "ele #phi_{EleCl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiEleClVsPt_propOut = new TH2F( "h_ele_dPhiSEleClsPt_propOut", "ele #phi_{EleCl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
 
-  h_ele_HoE = new TH1F("h_ele_HoE", "ele hadronic energy / em energy", 55,-0.05,0.5) ;
-  h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele hadronic energy / em energy", 55,-0.05,0.5) ;
-  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele hadronic energy / em energy vs eta", nbineta,etamin,etamax,55,-0.05,0.5) ;
-  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele hadronic energy / em energy vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
-  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele hadronic energy / em energy vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
+  h_ele_HoE = new TH1F("h_ele_HoE", "ele hadronic energy / em energy",nbinhoe, hoemin, hoemax) ;
+  h_ele_HoE_fiducial = new TH1F("h_ele_HoE_fiducial", "ele hadronic energy / em energy",nbinhoe, hoemin, hoemax) ;
+  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele hadronic energy / em energy vs eta", nbineta,etamin,etamax,nbinhoe, hoemin, hoemax) ;
+  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele hadronic energy / em energy vs phi", nbinphi2D,phimin,phimax,nbinhoe, hoemin, hoemax) ;
+  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele hadronic energy / em energy vs E", nbinp, 0.,300.,nbinhoe, hoemin, hoemax) ;
 
   h_ele_seed_dphi2_ = new TH1F("h_ele_seedDphi2", "ele seed dphi 2nd layer", 50,-0.003,+0.003) ;
   h_ele_seed_dphi2VsEta_ = new TH2F("h_ele_seedDphi2VsEta", "ele seed dphi 2nd layer vs eta", nbineta2D,etamin,etamax,50,-0.003,+0.003) ;
@@ -350,12 +353,12 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
   
   // fbrem
-  h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",50,0.,1.);
+  h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",100,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
 
   // e/g et pflow electrons 
-  h_ele_mva = new TH1F( "h_ele_mva","ele mva",50,-1.,1.);
+  h_ele_mva = new TH1F( "h_ele_mva","ele mva",100,-1.,1.);
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
   
   // histos titles

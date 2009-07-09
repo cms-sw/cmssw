@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.13 2009/07/05 23:25:19 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.14 2009/07/09 10:06:53 charlot Exp $
 //
 //
 
@@ -360,6 +360,8 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   double poptruemax;
   double meemin;
   double meemax;
+  double hoemin;
+  double hoemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -382,6 +384,7 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   int nbindphimatch2D;
   int nbinpoptrue;
   int nbinmee;
+  int nbinhoe;
 
  };
 

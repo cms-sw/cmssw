@@ -78,13 +78,13 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     Dphimatchmax = cms.double(0.2),
     Detamatchmin = cms.double(-0.05),
     Detamatchmax = cms.double(0.05),
-    Fhitsmax = cms.double(20.0),
+    Fhitsmax = cms.double(30.0),
     Lhitsmax = cms.double(10.0),
     Nbinxyz = cms.int32(50),
     Nbineop2D = cms.int32(30),
     Nbinp = cms.int32(50),
     Nbineta2D = cms.int32(50),
-    Nbinfhits = cms.int32(20),
+    Nbinfhits = cms.int32(30),
     Nbinlhits = cms.int32(5),
     Nbinpteff = cms.int32(19),
     Nbinphi2D = cms.int32(32),
@@ -106,6 +106,9 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     Nbinmee = cms.int32(100),
     Meemin = cms.double(0.0),
     Meemax = cms.double(150.)
+    Nbinhoe = cms.int32(100),
+    Hoemin = cms.double(0.0),
+    Hoemax = cms.double(0.5)
 )
 
 process.p = cms.Path(process.mergedSuperClusters*process.gsfElectronAnalysis)
