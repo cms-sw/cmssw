@@ -143,6 +143,7 @@ h_ele_vertexZ 1	0 1
 h_ele_vertexTIP 1 1 1 
 h_ele_vertexP 1	0 1
 h_ele_vertexPt 1 0 1
+h_ele_Et 1 0 1
 h_ele_outerP_mode 1 0 1
 h_ele_outerPt_mode 1 0 1
 h_ele_ChargeMnChargeTrue 1 0 1 
@@ -156,17 +157,6 @@ h_ele_PoPtrue_showering_endcaps 1	0 1
 h_ele_PtoPttrue 1 0 1
 h_ele_PtoPttrue_barrel 1 0 1
 h_ele_PtoPttrue_endcaps 1	0 1
-h_scl_EoEtrue_barrel 1 0 1
-h_scl_EoEtrue_endcaps 1	0 1
-h_scl_EoEtrue_golden_barrel 1 0 1
-h_scl_EoEtrue_golden_endcaps 1 0 1
-h_scl_EoEtrue_showering_barrel 1 0 1
-h_scl_EoEtrue_showering_endcaps 1 0 1
-h_scl_EoEtrue_barrel_etagap 1 0 1 
-h_scl_EoEtrue_barrel_phigap 1 0 1  
-h_scl_EoEtrue_ebeegap 1	0 1    
-h_scl_EoEtrue_endcaps_deegap 1 0 1
-h_scl_EoEtrue_endcaps_ringgap 1	0 1
 h_scl_EoEtrue_barrel_new 1 0 1
 h_scl_EoEtrue_endcaps_new 1	0 1
 h_scl_EoEtrue_barrel_etagap_new 1 0 1 

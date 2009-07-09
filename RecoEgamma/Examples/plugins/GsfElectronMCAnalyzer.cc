@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.27 2009/07/05 09:47:02 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.28 2009/07/05 23:25:19 charlot Exp $
 //
 //
 
@@ -153,6 +153,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_HoE_all->Sumw2();
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
   h_ele_vertexPt_all->Sumw2();
+  h_ele_Et_all       = new TH1F( "h_ele_Et_all",       "ele SC E_{T}, all reco electrons",  nbinpteff,5.,ptmax);
+  h_ele_Et_all->Sumw2();
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "ele eta, all reco electrons",    nbineta,etamin,etamax);
   h_ele_vertexEta_all->Sumw2();
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
@@ -560,6 +562,10 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexP        -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexPt       -> GetXaxis()-> SetTitle("p_{T vertex} (GeV/c)");
   h_ele_vertexPt       -> GetYaxis()-> SetTitle("Events");
+  h_ele_Et       -> GetXaxis()-> SetTitle("E_{T} (GeV)");
+  h_ele_Et       -> GetYaxis()-> SetTitle("Events");
+  h_ele_Et_all       -> GetXaxis()-> SetTitle("E_{T} (GeV)");
+  h_ele_Et_all       -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexEta      -> GetXaxis()-> SetTitle("#eta");
   h_ele_vertexEta      -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexPhi      -> GetXaxis()-> SetTitle("#phi (rad)");
@@ -1028,6 +1034,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_HoE_all->Write();
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
+  h_ele_Et_all->Write();
   h_ele_vertexEta_all->Write();
   h_ele_mee_all->Write();
   h_ele_mee_os->Write();
@@ -1044,6 +1051,7 @@ GsfElectronMCAnalyzer::endJob(){
   // matched electrons
   h_ele_vertexP->Write();
   h_ele_vertexPt->Write();
+  h_ele_Et->Write();
   h_ele_vertexPtVsEta->Write();
   h_ele_vertexPtVsPhi->Write();
   h_ele_simPt_matched->Write();
@@ -1373,6 +1381,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h_ele_TIP_all     -> Fill( sqrt(d) );
     h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
     h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
+    h_ele_Et_all      -> Fill( gsfIter->superCluster()->energy()/cosh(gsfIter->superCluster()->eta()));
     // mee
     for (reco::GsfElectronCollection::const_iterator gsfIter2=gsfIter+1;
      gsfIter2!=gsfElectrons->end(); gsfIter2++){
@@ -1560,6 +1569,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_chargeVsPt        -> Fill( bestGsfElectron.pt(),bestGsfElectron.charge() );
 	h_ele_vertexP       -> Fill( bestGsfElectron.p() );
 	h_ele_vertexPt      -> Fill( bestGsfElectron.pt() );
+        h_ele_Et      -> Fill( bestGsfElectron.superCluster()->energy()/cosh(bestGsfElectron.superCluster()->eta()));
 	h_ele_vertexPtVsEta      -> Fill(  bestGsfElectron.eta(),bestGsfElectron.pt() );
 	h_ele_vertexPtVsPhi      -> Fill(  bestGsfElectron.phi(),bestGsfElectron.pt() );
 	h_ele_vertexEta     -> Fill( bestGsfElectron.eta() );
