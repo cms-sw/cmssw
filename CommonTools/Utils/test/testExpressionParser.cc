@@ -23,7 +23,7 @@ public:
   void tearDown() {}
   void checkAll(); 
   void checkTrack(const std::string &, double);
-  void checkCandidate(const std::string &, double);
+  void checkCandidate(const std::string &, double, bool lazy=false);
   void checkJet(const std::string &, double);
   void checkMuon(const std::string &, double);
   reco::Track trk;
@@ -37,51 +37,58 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testExpressionParser);
 
 void testExpressionParser::checkTrack(const std::string & expression, double x) {
-  std::cerr << "checking expression: \"" << expression << "\"" <<std::flush; 
+  for (int lazyMode = 0; lazyMode <= 1; ++lazyMode) {
+  std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush; 
   expr.reset();
-  CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Track>(expression, expr));
+  CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Track>(expression, expr, lazyMode));
   CPPUNIT_ASSERT(expr.get() != 0);
   double res = expr->value(o);
-  StringObjectFunction<reco::Track> f(expression);
+  StringObjectFunction<reco::Track> f(expression, lazyMode);
   CPPUNIT_ASSERT(fabs(f(trk) - res) < 1.e-6);
   CPPUNIT_ASSERT(fabs(f(trk) - x) < 1.e-6);
   std::cerr << " = " << res << std::endl;
+  }
 }
 
-void testExpressionParser::checkCandidate(const std::string & expression, double x) {
-  std::cerr << "checking expression: \"" << expression << "\"" << std::flush; 
+void testExpressionParser::checkCandidate(const std::string & expression, double x, bool lazyMode) {
+  std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush; 
   expr.reset();
-  CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Candidate>(expression, expr));
+  CPPUNIT_ASSERT(reco::parser::expressionParser<reco::Candidate>(expression, expr, lazyMode));
   CPPUNIT_ASSERT(expr.get() != 0);
-  double res = expr->value(o);
-  StringObjectFunction<reco::Candidate> f(expression);
+  double res = 0;
+  CPPUNIT_ASSERT_NO_THROW(res = expr->value(o));
+  StringObjectFunction<reco::Candidate> f(expression, lazyMode);
   CPPUNIT_ASSERT(fabs(f(cand) - res) < 1.e-6);
   CPPUNIT_ASSERT(fabs(f(cand) - x) < 1.e-6);
   std::cerr << " = " << res << std::endl;
 }
 
 void testExpressionParser::checkJet(const std::string & expression, double x) {
-  std::cerr << "checking expression: \"" << expression << "\"" << std::flush; 
+  for (int lazyMode = 0; lazyMode <= 1; ++lazyMode) {
+  std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush; 
   expr.reset();
-  CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Jet>(expression, expr));
+  CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Jet>(expression, expr, lazyMode));
   CPPUNIT_ASSERT(expr.get() != 0);
   double res = expr->value(o);
-  StringObjectFunction<pat::Jet> f(expression);
+  StringObjectFunction<pat::Jet> f(expression, lazyMode);
   CPPUNIT_ASSERT(fabs(f(jet) - res) < 1.e-6);
   CPPUNIT_ASSERT(fabs(f(jet) - x) < 1.e-6);
   std::cerr << " = " << res << std::endl;
+  }
 }
 
 void testExpressionParser::checkMuon(const std::string & expression, double x) {
-  std::cerr << "checking expression: \"" << expression << "\"" << std::flush; 
+  for (int lazyMode = 0; lazyMode <= 1; ++lazyMode) {
+  std::cerr << "checking " << (lazyMode ? "lazy " : "") << "expression: \"" << expression << "\"" << std::flush; 
   expr.reset();
-  CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Muon>(expression, expr));
+  CPPUNIT_ASSERT(reco::parser::expressionParser<pat::Muon>(expression, expr, lazyMode));
   CPPUNIT_ASSERT(expr.get() != 0);
   double res = expr->value(o);
-  StringObjectFunction<pat::Muon> f(expression);
+  StringObjectFunction<pat::Muon> f(expression, lazyMode);
   std::cerr << " = " << x << " (reference), " << res << " (bare), " << f(muon) << " (full)" << std::endl;
   CPPUNIT_ASSERT(fabs(f(muon) - res) < 1.e-6);
   CPPUNIT_ASSERT(fabs(f(muon) - x) < 1.e-6);
+  }
 }
 
 
@@ -119,7 +126,6 @@ void testExpressionParser::checkAll() {
   {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(reco::Track));
     o = ROOT::Reflex::Object(t, & trk);
-    
     checkTrack("pt", trk.pt());
     checkTrack("charge", trk.charge());
     checkTrack("pt/3", trk.pt()/3);
@@ -143,13 +149,20 @@ void testExpressionParser::checkAll() {
   {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(reco::Candidate));
     o = ROOT::Reflex::Object(t, & cand);  
-    checkCandidate("numberOfDaughters", cand.numberOfDaughters());
-    checkCandidate("daughter(0).isStandAloneMuon", cand.daughter(0)->isStandAloneMuon());  
-    checkCandidate("daughter(1).isStandAloneMuon", cand.daughter(1)->isStandAloneMuon());  
-    checkCandidate("daughter(0).pt", cand.daughter(0)->pt());
-    checkCandidate("daughter(1).pt", cand.daughter(1)->pt());
-    checkCandidate("min(daughter(0).pt, daughter(1).pt)", std::min(cand.daughter(0)->pt(), cand.daughter(1)->pt()));
-    checkCandidate("max(daughter(0).pt, daughter(1).pt)", std::max(cand.daughter(0)->pt(), cand.daughter(1)->pt()));
+    // these can be checked in both modes
+    for (int lazyMode = 0; lazyMode <= 1; ++lazyMode) {
+    checkCandidate("numberOfDaughters", cand.numberOfDaughters(), lazyMode);
+    checkCandidate("daughter(0).isStandAloneMuon", cand.daughter(0)->isStandAloneMuon(), lazyMode);  
+    checkCandidate("daughter(1).isStandAloneMuon", cand.daughter(1)->isStandAloneMuon(), lazyMode);  
+    checkCandidate("daughter(0).pt", cand.daughter(0)->pt(), lazyMode);
+    checkCandidate("daughter(1).pt", cand.daughter(1)->pt(), lazyMode);
+    checkCandidate("min(daughter(0).pt, daughter(1).pt)", std::min(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
+    checkCandidate("max(daughter(0).pt, daughter(1).pt)", std::max(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
+    }
+    // these can be checked only in lazy mode
+    checkCandidate("name.empty()", true, true);
+    checkCandidate("roles.size()", 0, true);
+
   }
 
   std::vector<reco::LeafCandidate> cands;

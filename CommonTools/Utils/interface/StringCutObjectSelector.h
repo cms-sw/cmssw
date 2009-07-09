@@ -4,18 +4,18 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringCutObjectSelector.h,v 1.3 2009/01/11 23:37:33 hegner Exp $
+ * $Id: StringCutObjectSelector.h,v 1.1 2009/02/24 14:10:19 llista Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/interface/cutParser.h"
 
-template<typename T>
+template<typename T, bool DefaultLazyness=false>
 struct StringCutObjectSelector {
-  StringCutObjectSelector(const std::string & cut) : 
+  StringCutObjectSelector(const std::string & cut, bool lazy=DefaultLazyness) : 
     type_(Reflex::Type::ByTypeInfo(typeid(T))) {
-    if(! reco::parser::cutParser<T>(cut, select_)) {
+    if(! reco::parser::cutParser<T>(cut, select_, lazy)) {
       throw edm::Exception(edm::errors::Configuration,
 			   "failed to parse \"" + cut + "\"");
     }

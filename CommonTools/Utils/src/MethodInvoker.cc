@@ -1,6 +1,10 @@
 #include "CommonTools/Utils/src/MethodInvoker.h"
 #include "CommonTools/Utils/src/findMethod.h"
+#include "CommonTools/Utils/src/returnType.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "CommonTools/Utils/src/MethodSetter.h"
+#include "CommonTools/Utils/src/ExpressionVar.h"
+
 #include <algorithm>
 using namespace reco::parser;
 using namespace Reflex;
@@ -87,4 +91,99 @@ MethodInvoker::invoke(const Object & o, Reflex::Object &retstore) const {
       << "\" returned void invoked on object of type \"" 
       << o.TypeOf().Name(QUALIFIED) << "\"\n";
   return ret;
+}
+
+LazyInvoker::LazyInvoker(const std::string &name, const std::vector<AnyMethodArgument> & args) :
+    name_(name),
+    argsBeforeFixups_(args)
+{
+}
+
+LazyInvoker::~LazyInvoker() 
+{
+}
+
+const SingleInvoker &
+LazyInvoker::invoker(const Reflex::Type & type) const 
+{
+    //std::cout << "LazyInvoker for " << name_ << " called on type " << type.Name(QUALIFIED|SCOPED) << std::endl;
+    SingleInvokerPtr & invoker = invokers_[type.Id()];
+    if (!invoker) {
+        //std::cout << "  Making new invoker for " << name_ << " on type " << type.Name(QUALIFIED|SCOPED) << std::endl;
+        //invoker = SingleInvokerPtr(new SingleInvoker(type, name_, argsBeforeFixups_));
+        invoker.reset(new SingleInvoker(type, name_, argsBeforeFixups_));
+    } 
+    return * invoker;
+}
+
+Object
+LazyInvoker::invoke(const Reflex::Object & o) const 
+{
+    Type type = o.TypeOf();
+    if (type.IsClass()) type = o.DynamicType();
+    return invoker(type).invoke(Object(type, o.Address()));
+}
+
+double
+LazyInvoker::invokeLast(const Reflex::Object & o) const 
+{
+    Type type = o.TypeOf();
+    if (type.IsClass()) type = o.DynamicType();
+    const SingleInvoker & i = invoker(type);
+    Object ret = i.invoke(Object(type, o.Address()));
+    return i.retToDouble(ret);
+}
+
+SingleInvoker::SingleInvoker(const Reflex::Type &type,
+        const std::string &name,
+        const std::vector<AnyMethodArgument> &args) 
+{
+    TypeStack typeStack(1, type);
+    LazyMethodStack dummy;
+    MethodArgumentStack dummy2;
+    MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
+    setter.push(name, args, "LazyInvoker dynamic resolution");
+    objects_.resize(invokers_.size());
+    std::vector<MethodInvoker>::iterator it, ed; 
+    std::vector<Reflex::Object>::iterator ito;
+    for (it = invokers_.begin(), ed = invokers_.end(), ito = objects_.begin(); it != ed; ++it, ++ito) {
+        ExpressionVar::makeStorage(*ito, it->method());
+    }
+    retType_ = reco::typeCode(typeStack.back());
+}
+
+SingleInvoker::~SingleInvoker()
+{
+    for (std::vector<Reflex::Object>::iterator it = objects_.begin(), ed = objects_.end(); it != ed; ++it) {
+        ExpressionVar::delStorage(*it);
+    }
+}
+
+Object
+SingleInvoker::invoke(const Reflex::Object & o) const 
+{
+    Object ro = o;
+    std::vector<MethodInvoker>::const_iterator itm, end = invokers_.end();
+    std::vector<Reflex::Object>::iterator      ito;
+    for(itm = invokers_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {
+        ro = itm->invoke(ro, *ito);
+    }
+    return ro;
+}
+
+double
+SingleInvoker::retToDouble(const Reflex::Object & o) const {
+    if (!ExpressionVar::isValidReturnType(retType_)) {
+        throwFailedConversion(o);
+    }
+    return ExpressionVar::objToDouble(o, retType_);
+}
+
+void
+SingleInvoker::throwFailedConversion(const Reflex::Object & o) const {
+    throw edm::Exception(edm::errors::Configuration)
+        << "member \"" << invokers_.back().method().Name(QUALIFIED)
+        << "\" return type is \"" << invokers_.back().method().TypeOf().Name(QUALIFIED)
+        << "\" retured a \"" << o.TypeOf().Name(QUALIFIED)
+        << "\" which is not convertible to double.";
 }

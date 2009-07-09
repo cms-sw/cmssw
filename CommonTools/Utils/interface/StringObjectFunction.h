@@ -4,18 +4,18 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.3 2009/01/11 23:37:33 hegner Exp $
+ * $Id: StringObjectFunction.h,v 1.1 2009/02/24 14:10:19 llista Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/interface/expressionParser.h"
 
-template<typename T>
+template<typename T, bool DefaultLazyness=false>
 struct StringObjectFunction {
-  StringObjectFunction(const std::string & expr) : 
+  StringObjectFunction(const std::string & expr, bool lazy=DefaultLazyness) : 
     type_(Reflex::Type::ByTypeInfo(typeid(T))) {
-    if(! reco::parser::expressionParser<T>(expr, expr_)) {
+    if(! reco::parser::expressionParser<T>(expr, expr_, lazy)) {
       throw edm::Exception(edm::errors::Configuration,
 			   "failed to parse \"" + expr + "\"");
     }

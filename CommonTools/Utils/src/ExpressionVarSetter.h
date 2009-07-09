@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionStack.h"
@@ -19,14 +19,21 @@ namespace reco {
     struct ExpressionVarSetter {
       ExpressionVarSetter(ExpressionStack & exprStack, 
 			  MethodStack & methStack, 
+			  LazyMethodStack & lazyMethStack, 
 			  TypeStack & typeStack) : 
 	exprStack_(exprStack), 
 	methStack_(methStack),
+	lazyMethStack_(lazyMethStack),
 	typeStack_(typeStack) { }
       void operator()(const char *, const char *) const;
+
     private:
+      void push(const char *, const char *) const;
+      void lazyPush(const char *, const char *) const;
+
       ExpressionStack & exprStack_;
       MethodStack & methStack_;
+      LazyMethodStack & lazyMethStack_;
       TypeStack & typeStack_;
     };
   }

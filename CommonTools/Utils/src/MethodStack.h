@@ -15,6 +15,7 @@
 namespace reco {
   namespace parser {
     typedef std::vector<MethodInvoker> MethodStack;
+    typedef std::vector<LazyInvoker>   LazyMethodStack;
   }
 }
 

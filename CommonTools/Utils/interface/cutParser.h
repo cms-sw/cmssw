@@ -9,7 +9,7 @@
 namespace reco {
   namespace parser {
     template<typename T>
-    bool cutParser(const std::string & cut, SelectorPtr & sel) {
+    bool cutParser(const std::string & cut, SelectorPtr & sel, bool lazy=false) {
       bool justBlanks = true;
       for(std::string::const_iterator c = cut.begin(); c != cut.end(); ++c) {
          if(*c != ' ') { justBlanks = false; break; }
@@ -19,7 +19,7 @@ namespace reco {
          return true;
       } else {
          using namespace boost::spirit::classic;
-         Grammar grammar(sel, (const T *)(0));
+         Grammar grammar(sel, (const T *)(0), lazy);
          bool returnValue = false;
          const char* startingFrom =cut.c_str();
          try {
