@@ -25,6 +25,7 @@ class StripCPEgeometric : public StripCPE
   public:
     WrappedCluster(const std::vector<stats_t<float> >&);
     void dropSmallerEdgeStrip();
+    void addSuppressedEdgeStrip();
     float middle() const;
     stats_t<float> centroid() const;
     stats_t<float> sumQ() const;
@@ -32,22 +33,21 @@ class StripCPEgeometric : public StripCPE
     bool deformed() const;
     stats_t<float> maxProjection() const;
     stats_t<float> smallerEdgeStrip() const;
-    stats_t<float> dedxRatio(const stats_t<float>&) const;
     int sign() const;
     uint16_t N;
   private:
     const stats_t<float>& last() const {return *(first+N-1);}
-    std::vector<stats_t<float> >::const_iterator Qbegin, first;
+    std::vector<stats_t<float> >::const_iterator clusterFirst, first;
   };
 
   stats_t<float> find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
   stats_t<float> offset_from_firstStrip( const std::vector<stats_t<float> >&, const stats_t<float>&) const;
   stats_t<float> geometric_position(const WrappedCluster&, const stats_t<float>&) const;
-  stats_t<float> between_positions(const stats_t<float>&, const stats_t<float>&) const;
+  bool useNPlusOne(const WrappedCluster&, const stats_t<float>&) const;
   bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
 
   std::vector<float> crosstalk;
-  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, maybe_noise_threshold, scaling_squared;
+  const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, maybe_noise_threshold, scaling_squared, minimum_uncertainty_squared;
 
 };
 
