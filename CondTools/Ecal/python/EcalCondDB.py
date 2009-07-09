@@ -5,11 +5,7 @@
 # Main script to list, plot, draw, dump Ecal conditions
 #
 #
-
-import EcalCondTools
-import os,sys, DLFCN,getopt
-sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
-from pluginCondDBPyInterface import *
+import os,sys,getopt
 
 def usage():
     print "NAME "
@@ -112,6 +108,14 @@ for opt,arg in opts:
     if opt in ("-g","--histo"):
        do_hist=1
        outfilename=arg 
+
+
+#done parsing options, now steer
+
+import EcalCondTools
+import DLFCN
+sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
+from pluginCondDBPyInterface import *
           
 a = FWIncantation()
 
