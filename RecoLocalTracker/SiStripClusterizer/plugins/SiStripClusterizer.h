@@ -14,8 +14,8 @@ public:
 
 private:
 
-  template<class T> bool findInput(edm::Handle<T>&, const edm::Event&);
-  std::vector<edm::InputTag> inputTags;
+  template<class T> bool findInput(const edm::InputTag&, edm::Handle<T>&, const edm::Event&);
+  const std::vector<edm::InputTag> inputTags;
   std::auto_ptr<StripClusterizerAlgorithm> algorithm;
 
 };
