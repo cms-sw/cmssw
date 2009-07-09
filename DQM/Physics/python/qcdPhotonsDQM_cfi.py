@@ -7,5 +7,6 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                             caloJetCollection        = cms.InputTag("sisCone5CaloJets"),
 #                           caloJetCollection        = cms.InputTag("L2L3CorJetSC5Calo"),
                             minCaloJetEt             = cms.int32(15),
-                            minPhotonEt              = cms.int32(20)
+                            minPhotonEt              = cms.int32(20),
+                            requirePhotonFound       = cms.bool(True)
 )
