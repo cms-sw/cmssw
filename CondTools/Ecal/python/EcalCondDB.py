@@ -69,7 +69,7 @@ do_list=0
 do_dump=0
 do_plot=0
 do_comp=0
-d0_hist=0
+do_hist=0
 
 outfilename=None
 
