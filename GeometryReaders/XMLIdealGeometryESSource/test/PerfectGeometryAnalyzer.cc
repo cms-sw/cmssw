@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.12 2007/01/18 17:16:36 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.13 2007/12/12 09:30:59 muzaffar Exp $
 //
 //
 
@@ -60,6 +60,8 @@ private:
   bool dumpHistory_;
   bool dumpPosInfo_;
   bool dumpSpecs_;
+  std::string fname_;
+  int nNodes_;
 };
 
 //
@@ -75,11 +77,13 @@ private:
 //
 PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
   label_(iConfig.getUntrackedParameter<std::string>("label","")),
-  isMagField_(iConfig.getUntrackedParameter<bool>("isMagField",false))
+  isMagField_(iConfig.getUntrackedParameter<bool>("isMagField",false)),
+  dumpHistory_(iConfig.getUntrackedParameter<bool>("dumpGeoHistory",false)),
+  dumpPosInfo_(iConfig.getUntrackedParameter<bool>("dumpPosInfo", false)),
+  dumpSpecs_(iConfig.getUntrackedParameter<bool>("dumpSpecs", false)),
+  fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
+  nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0))
 {
-  dumpHistory_=iConfig.getUntrackedParameter<bool>("dumpGeoHistory");
-  dumpPosInfo_=iConfig.getUntrackedParameter<bool>("dumpPosInfo");
-  dumpSpecs_=iConfig.getUntrackedParameter<bool>("dumpSpecs");
   if ( isMagField_ ) {
     label_ = "magfield";
   }
@@ -109,8 +113,11 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    } else {
      iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD );
    }
+   if (pDD.description()) {
+     std::cout << pDD.description()->type_ << " label: " << pDD.description()->label_ << std::endl;
+   }
    GeometryInfoDump gidump;
-   gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD );
+   gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD, fname_, nNodes_ );
    std::cout << "finished" << std::endl;
 }
 
