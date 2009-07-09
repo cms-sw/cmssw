@@ -17,21 +17,22 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver 3_1_0
+setenv CMSSWver1 3_1_0
+setenv CMSSWver2 3_1_1
 setenv OLDRELEASE 310
-setenv NEWRELEASE 310
-setenv OLDPRERELEASE pre8
-setenv NEWPRERELEASE pre10
+setenv NEWRELEASE 311
+setenv OLDPRERELEASE 
+setenv NEWPRERELEASE 
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -43,23 +44,23 @@ setenv SAMPLE SingleGammaPt10IDEAL
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35New.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
@@ -221,7 +222,9 @@ cat > scaledhistosForConvertedPhotons <<EOF
   PoverEtracksAll
   PoverEtracksBarrel 
   PoverEtracksEndcap
-
+  mvaOutAll
+  mvaOutBarrel
+  mvaOutEndcap
 
 EOF
 
@@ -232,6 +235,7 @@ cat > unscaledhistosForConvertedPhotons <<EOF
 pEoverEtrueVsEtaAll
 pEoverPVsEtaAll
 pEoverPVsRAll
+
 
 EOF
 
@@ -324,15 +328,18 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
 $i->SetStats(0);
 $i->SetMinimum(0.);
+$i->SetMaximum(1.1);
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
+
+file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
+$i->SetMaximum(1.1);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
@@ -352,7 +359,7 @@ foreach i (`cat scaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
@@ -369,7 +376,7 @@ $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 //$i->SetLineWidth(3);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -400,7 +407,7 @@ $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(2);
 $i->SetMarkerSize(0.2);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/Photons");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
 $i->SetStats(0);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(2);
@@ -428,9 +435,10 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
+$i->SetMaximum(1.);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
@@ -450,7 +458,7 @@ foreach i (`cat scaledhistosForConvertedPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t mold=$i->GetMaximum();
@@ -465,7 +473,7 @@ $i->SetFillColor(kPink+8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -497,7 +505,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
@@ -527,7 +535,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetLineColor(kBlack);
@@ -552,7 +560,7 @@ $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMarkerColor(kPink+8);
 $i->Draw();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMarkerColor(kBlack);
 $i->Draw("same");
@@ -573,7 +581,7 @@ else if ($i==convVtxRvsZEndcap)
 TH1D *tmp1$i= $i->ProjectionX();
 Double_t nold=tmp1$i->GetEntries();
 Double_t mold=tmp1$i->GetMaximum();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 //TH1D *tmp2$i= $i->ProjectionY();
 if ($i==convVtxRvsZBarrel)
 TH1D *tmp2$i= $i->ProjectionY();
@@ -609,7 +617,7 @@ foreach i (`cat scaledhistosForTracks`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t mold=$i->GetMaximum();
@@ -624,7 +632,7 @@ $i->SetFillColor(kPink+8);
 $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
@@ -644,7 +652,7 @@ foreach i (`cat unscaledhistosForTracks`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t mnew=$i->GetMaximum();
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 Double_t mold=$i->GetMaximum();
@@ -667,7 +675,7 @@ $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Draw();
 Double_t nold=$i->GetEntries();
-file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
 Double_t nnew=$i->GetEntries();
 $i->SetStats(0);
 $i->SetLineColor(kBlack);
