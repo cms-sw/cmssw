@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_3_1_0_pre10'
-RefRelease='CMSSW_3_1_0_pre9'
+NewRelease='CMSSW_3_1_1'
+RefRelease='CMSSW_3_1_0'
 
 #samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
 #samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
@@ -21,8 +21,8 @@ RefFastSim=False
 GetFilesFromCastor=False
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 
-#NewCondition='IDEAL'
-#RefCondition='IDEAL'
+#NewCondition='MC'
+#RefCondition='MC'
 NewCondition='STARTUP'
 RefCondition='STARTUP'
 
