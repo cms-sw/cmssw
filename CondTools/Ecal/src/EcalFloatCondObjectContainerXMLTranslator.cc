@@ -21,7 +21,7 @@ using namespace std;
 
 
 int  
-EcalFloatCondObjectContainerXMLTranslator::readXML(const std::string& filename,
+EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
 					      EcalCondHeader&          header,
 					      EcalFloatCondObjectContainer& record){
 
@@ -80,6 +80,21 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const std::string& filename,
     
 }
 
+
+
+int  
+EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
+						   vector<float>& barrel,
+                                                   vector<float>& endcap){
+  EcalCondHeader header;  
+  EcalFloatCondObjectContainer record;
+  int exitcode = readXML(filename,header,record);
+  
+  barrel=record.barrelItems();
+  endcap=record.endcapItems();
+
+  return exitcode;
+}
 
 
 

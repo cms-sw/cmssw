@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalIntercalibConstantsXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerXMLTranslator.h,v 1.1 2009/06/30 14:40:11 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -15,7 +15,7 @@
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <string>
-
+#include <vector>
 
 
 class EcalFloatCondObjectContainerXMLTranslator {
@@ -26,6 +26,10 @@ public:
   static int readXML  (const std::string& filename,
 		       EcalCondHeader& header,
 		       EcalFloatCondObjectContainer& record);
+
+  static int readXML  (const std::string& filename,
+		       std::vector<float>& barrel,
+                       std::vector<float>& endcap);
 
   static int writeXML (const std::string& filename, 
 		       const EcalCondHeader& header,
