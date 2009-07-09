@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerXMLTranslator.h,v 1.1 2009/06/30 14:40:11 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerXMLTranslator.h,v 1.2 2009/07/09 10:23:31 argiro Exp $
    \date 20 Jun 2008
 */
 
@@ -27,9 +27,9 @@ public:
 		       EcalCondHeader& header,
 		       EcalFloatCondObjectContainer& record);
 
-  static int readXML  (const std::string& filename,
-		       std::vector<float>& barrel,
-                       std::vector<float>& endcap);
+  static std::vector<float>  barrelfromXML(const std::string& filename);
+		      
+  static std::vector<float>  endcapfromXML(const std::string& filename);
 
   static int writeXML (const std::string& filename, 
 		       const EcalCondHeader& header,

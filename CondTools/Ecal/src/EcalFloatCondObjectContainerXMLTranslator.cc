@@ -82,21 +82,26 @@ EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
 
 
 
-int  
-EcalFloatCondObjectContainerXMLTranslator::readXML(const string& filename,
-						   vector<float>& barrel,
-                                                   vector<float>& endcap){
+std::vector<float>
+EcalFloatCondObjectContainerXMLTranslator::barrelfromXML(const string& filename){
   EcalCondHeader header;  
   EcalFloatCondObjectContainer record;
-  int exitcode = readXML(filename,header,record);
+  readXML(filename,header,record);
   
-  barrel=record.barrelItems();
-  endcap=record.endcapItems();
-
-  return exitcode;
+  return record.barrelItems();
+ 
 }
 
 
+std::vector<float>
+EcalFloatCondObjectContainerXMLTranslator::endcapfromXML(const string& filename){
+  EcalCondHeader header;  
+  EcalFloatCondObjectContainer record;
+  readXML(filename,header,record);
+  
+  return record.endcapItems();
+ 
+}
 
 
 std::string 

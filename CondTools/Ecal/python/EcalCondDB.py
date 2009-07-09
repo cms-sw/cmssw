@@ -25,7 +25,7 @@ def usage():
     print
     print "COMMAND OPTIONS"
     print
-    print "   -t, --tag= [tag] specify tag"
+    print "   -t, --tag= [tag,file] specify tag or xml file (histo,compare)"
     print
     print "COMMANDS"
     
@@ -89,7 +89,10 @@ for opt,arg in opts:
     if opt in ("-t","--tag"):
        tags.append(arg)
        ntags=ntags+1
-
+       if arg.find(".xml"):
+           print "WARNING : plot from XML is not protected against changes"
+           print "          in DetId or CondFormats"
+           
     if opt in ("-l","--listtags"):
        do_list=1  
        
