@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -53,36 +53,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 # Combined AlCaReco output
 process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *',
-        'keep edmTriggerResults_*_*_*',
-        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
-        'keep *_calZeroBiasClusters_*_*', 
-        'keep *_ALCARECOMuAlStandAloneCosmics_*_*',
-        'keep *_ALCARECOMuAlGlobalCosmics_*_*',  
-        'keep *_ALCARECOMuAlCalIsolatedMu_*_*',
-        'keep *_muonCSCDigis_*_*', 
-        'keep *_muonDTDigis_*_*', 
-        'keep *_muonRPCDigis_*_*', 
-        'keep *_dt1DRecHits_*_*', 
-        'keep *_dt2DSegments_*_*', 
-        'keep *_dt4DSegments_*_*', 
-        'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*',
-        'keep HOCalibVariabless_*_*_*',
-        'keep Si*Cluster*_si*Clusters_*_*', 
-        'keep *_ALCARECOTkAlCosmics*0T_*_*', 
-        'keep *_eventAuxiliaryHistoryProducer_*_*', 
-        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
-        'keep *_MEtoEDMConverter_*_*',
-        'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
-        'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
-        'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
-        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*',
-        'keep L1MuRegionalCands_*_RPCb_*', 
-        'keep L1MuRegionalCands_*_RPCf_*',  
-        'keep L1MuGMTCands_*_*_*', 
-        'keep L1MuGMTReadoutCollection_*_*_*'),
+    outputCommands = process.ALCARECOEventContent.outputCommands,
     fileName = cms.untracked.string('ALCACombined.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCACombined'),
