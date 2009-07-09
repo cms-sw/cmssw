@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/02/23 09:55:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/03 09:12:50 $
+ *  $Revision: 1.7 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -315,84 +315,39 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 				       ConstRecHitContainer& first) const {
 
   LogTrace(theCategory) << " GlobalMuonRefitter::getFirstHits " << endl;
-
-  // check order of muon measurements
-  if ( (all.size() > 1) &&
-       ( all.front()->globalPosition().mag() >
-	 all.back()->globalPosition().mag() ) ) {
-    LogTrace(theCategory)<< "reverse order: ";
-    stable_sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
-  }
-  
-  int station1 = -999;
-  int station2 = -999;
-  for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ihit++ ) {
-
-    if ( !(*ihit)->isValid() ) continue;
-    station1 = -999; station2 = -999;
-    // store muon hits one at a time.
-    first.push_back(*ihit);
-    DetId id = (*ihit)->geographicalId();
-
-    // Skip tracker hits
-    if (id.det()!=DetId::Muon) continue;
-    
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*ihit).get()); //FIXME
-    
-    // get station of 1st hit if it is in DT
-    if ( (*immrh).isDT()  ) {
-      DTChamberId did(id.rawId());
-      station1 = did.station();
-    }
-    // otherwise get station of 1st hit if it is in CSC
-    else if  ( (*immrh).isCSC() ) {
-      CSCDetId did(id.rawId());
-      station1 = did.station();
-    }
-    // check next RecHit
-    ConstRecHitContainer::const_iterator nexthit(ihit);
-    nexthit++;
-    
-    if ( ( nexthit != all.end()) && (*nexthit)->isValid() ) {
-      ConstMuonRecHitPointer immrh2 = dynamic_cast<const MuonTransientTrackingRecHit*>((*nexthit).get());
-      DetId id2 = immrh2->geographicalId();
-      
-      // get station of 1st hit if it is in DT
-      if ( (*immrh2).isDT()  ) {
-        DTChamberId did2(id2.rawId());
-        station2 = did2.station();
-      }
-      // otherwise get station of 1st hit if it is in CSC
-      else if  ( (*immrh2).isCSC() ) {
-        CSCDetId did2(id2.rawId());
-        station2 = did2.station();
-      }
-      
-      // 1st hit is in station 1 and second hit is in a different station
-      // or an rpc (if station = -999 it could be an rpc hit)
-      if ( (station1 != -999) && ((station2 == -999) || (station2 > station1)) ) {
-	LogTrace(theCategory) << " station 1 = "<<station1 
-			      <<", r = "<< (*ihit)->globalPosition().perp()
-			      <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
-	
-	LogTrace(theCategory) << " station 2 = " << station2
-			      <<", r = "<<(*(nexthit))->globalPosition().perp()
-			      <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
-	return;
-      }
-    }
-    else if ( (nexthit==all.end()) && (station1!=-999) ) {
-      LogTrace(theCategory) << " station 1 = "<< station1
-			    << ", r = " << (*ihit)->globalPosition().perp()
-			    << ", z = " << (*ihit)->globalPosition().z() << ", "; 
-      return;
-    }
-  }
-
-  // if none of the above is satisfied, return blank vector.
   first.clear();
 
-  return; 
+  int station_to_keep = 999;
+  vector<int> stations;
+  for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ++ihit) {
+  
+    int station = 0;
+    bool use_it = true;
+    DetId id = (*ihit)->geographicalId();
+    unsigned raw_id = id.rawId();
+    if (!(*ihit)->isValid()) station = -1;
+      else {
+	if (id.det() == DetId::Muon) {
+	  switch (id.subdetId()) {
+	  case MuonSubdetId::DT:  station = DTChamberId(raw_id).station(); break;
+	  case MuonSubdetId::CSC: station = CSCDetId(raw_id).station(); break;
+	  case MuonSubdetId::RPC: station = RPCDetId(raw_id).station(); use_it = false; break;
+	  }
+	}
+      }
+
+    if (use_it && station > 0 && station < station_to_keep) station_to_keep = station;
+    stations.push_back(station);
+
+  }
+
+  if (station_to_keep <= 0 || station_to_keep > 4 || stations.size() != all.size())
+    LogInfo(theCategory) << " getFirstHits error! station_to_keep = " << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
+
+  for (unsigned i = 0; i < stations.size(); ++i)
+    if (stations[i] >= 0 && stations[i] <= station_to_keep) first.push_back(all[i]);
+
+  return;
 }
 
 
@@ -540,16 +495,28 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // Reverse the order in the case of inconsistency between the fit direction and the rechit order
   if(theRefitDirection != recHitsOrder) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
 
-  // Fill the starting state
-  TrajectoryStateOnSurface firstTSOS;
-  unsigned int innerId;
-  if(theRefitDirection == insideOut){
-    innerId =   newTrack.innerDetId();
+  // Even though we checked the rechits' ordering above, we may have
+  // already flipped them elsewhere (getFirstHits() is such a
+  // culprit). Use the global positions of the states and the desired
+  // refit direction to find the starting TSOS.
+  TrajectoryStateOnSurface firstTSOS, lastTSOS;
+  unsigned int innerId, outerId;
+  bool order_swapped = track.outermostMeasurementState().globalPosition().mag() < track.innermostMeasurementState().globalPosition().mag();
+  bool inner_is_first;
+
+  if ((theRefitDirection == insideOut && !order_swapped) || (theRefitDirection == outsideIn && order_swapped)) {
+    innerId   = newTrack.innerDetId();
+    outerId   = newTrack.outerDetId();
     firstTSOS = track.innermostMeasurementState();
+    lastTSOS  = track.outermostMeasurementState();
+    inner_is_first = true;
   } else {
     innerId   = newTrack.outerDetId();
+    outerId   = newTrack.innerDetId();
     firstTSOS = track.outermostMeasurementState();
-  }
+    lastTSOS  = track.innermostMeasurementState();
+    inner_is_first = false;
+  } 
 
   if(!firstTSOS.isValid()){
     LogWarning(theCategory) << "Error wrong initial state!" << endl;
@@ -564,9 +531,15 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   PropagationDirection propDir = 
     (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
-  if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
-  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
-  
+//  if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
+//  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
+
+  const TrajectoryStateOnSurface& tsosForDir = inner_is_first ? lastTSOS : firstTSOS;
+  propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+
+  PropagationDirection propDir_first = (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
+  PropagationDirection propDir_last  = (lastTSOS .globalPosition().basicVector().dot(lastTSOS .globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
+
   TrajectorySeed seed(garbage1,garbage2,propDir);
 
   if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
