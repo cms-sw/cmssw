@@ -35,5 +35,6 @@ MessageLogger = cms.Service("MessageLogger",
            destinations = cms.untracked.vstring('cerr',
                                                 'info',
                                                 'warning',
+                                                'debug',
                                                 'error')
 )
