@@ -8,9 +8,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 
 # Ecal
-from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
+from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 
 # Hcal
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
@@ -39,8 +37,7 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
 #--------------------------------------------------------------------------
 
-ecalloc = cms.Sequence(ecalWeightUncalibRecHit*ecalRecHit*ecalPreshowerRecHit)
-caloReco = cms.Sequence(ecalloc*hcalLocalRecoSequence)
+caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 localReco = cms.Sequence(offlineBeamSpot*trackerlocalreco*caloReco)
 
 #--------------------------------------------------------------------------
