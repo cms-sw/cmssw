@@ -21,7 +21,12 @@ if useRelValSample == True :
     useGlobalTag = 'IDEAL_V12'
     #useGlobalTag='STARTUP_V9'
 else :
-    useGlobalTag = 'CRAFT_ALL_V12'
+    # 22X
+    #useGlobalTag = 'CRAFT_ALL_V12'
+    
+    # 31X
+    useGlobalTag = 'CRAFT0831X_V1'
+   
 
 # change to True to use local files
 #     the type of file should match the choice of useRelValSample and useGlobalTag
@@ -79,13 +84,14 @@ if useRelValSample == True :
 else : 
 
     # data
-    dataset = '/Cosmics/Commissioning09-v1/RAW'
+    dataset = '/Cosmics/Commissioning09-v2/RAW'
     print '   Running on set: '+ dataset    
     
     readFiles.extend( [                        
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/096/242/C255D25C-7040-DE11-9C30-0030487C608C.root',
-       '/store/data/Commissioning09/Cosmics/RAW/v1/000/096/242/BA0CDDA9-8240-DE11-8B85-001D09F29597.root' 
-        ]);                                                                                               
+        '/store/data/Commissioning09/Cosmics/RAW/v2/000/102/352/DA29931E-1668-DE11-AC1F-001D09F252DA.root',
+       '/store/data/Commissioning09/Cosmics/RAW/v2/000/102/352/CE1A360D-2768-DE11-8E2E-00304879FA4A.root',
+       '/store/data/Commissioning09/Cosmics/RAW/v2/000/102/352/CCE0CFDD-1668-DE11-BDCB-000423D6CA02.root'
+    ]);                                                                                               
 
     secFiles.extend([
         ])
