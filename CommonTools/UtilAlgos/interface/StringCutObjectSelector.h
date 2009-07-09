@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<StringCutObjectSelector<T> > {
-      static StringCutObjectSelector<T> make( const edm::ParameterSet & cfg ) {
-	return StringCutObjectSelector<T>( cfg.template getParameter<std::string>( "cut" ) );
+    template<typename T, bool Lazy>
+    struct ParameterAdapter<StringCutObjectSelector<T, Lazy> > {
+      static StringCutObjectSelector<T, Lazy> make( const edm::ParameterSet & cfg ) {
+	return StringCutObjectSelector<T, Lazy>( cfg.template getParameter<std::string>( "cut" ) );
       }
     };
     

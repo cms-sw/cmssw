@@ -16,7 +16,7 @@
 //
 // Original Author: Benedikt HEGNER
 //         Created:  Fri Jun  1 14:35:22 CEST 2007
-// $Id: ExpressionHisto.h,v 1.6 2009/02/24 15:36:02 llista Exp $
+// $Id: ExpressionHisto.h,v 1.1 2009/03/03 13:07:26 llista Exp $
 //
 
 // system include files
@@ -62,7 +62,8 @@ ExpressionHisto<T>::ExpressionHisto(const edm::ParameterSet& iConfig):
   nbins(iConfig.template getUntrackedParameter<int>("nbins")),
   name(iConfig.template getUntrackedParameter<std::string>("name")),
   description(iConfig.template getUntrackedParameter<std::string>("description")),
-  function(iConfig.template getUntrackedParameter<std::string>("plotquantity")) {
+  function(iConfig.template getUntrackedParameter<std::string>("plotquantity"), 
+           iConfig.template getUntrackedParameter<bool>("lazyParsing", false)) {
   int32_t itemsToPlot = iConfig.template getUntrackedParameter<int32_t>("itemsToPlot", -1);
   if (itemsToPlot <= 0) {
       nhistos = 1; separatePlots = false;
