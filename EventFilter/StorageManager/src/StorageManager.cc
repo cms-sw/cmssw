@@ -1,42 +1,21 @@
-// $Id: StorageManager.cc,v 1.99.2.2 2009/07/08 15:54:19 mommsen Exp $
+// $Id: StorageManager.cc,v 1.101 2009/07/08 16:07:00 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
-#include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/ConsRegMessage.h"
-#include "IOPool/Streamer/interface/HLTInfo.h"
-#include "IOPool/Streamer/interface/Utilities.h"
-#include "IOPool/Streamer/interface/StreamerInputSource.h"
-
 #include "i2o/Method.h"
-#include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
 #include "xdaq/NamespaceURI.h"
 #include "xdata/InfoSpaceFactory.h"
 #include "xgi/Method.h"
-#include "xoap/MessageFactory.h"
-#include "xoap/MessageReference.h"
 #include "xoap/Method.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPName.h"
-#include "xoap/SOAPPart.h"
-#include "xoap/domutils.h"
-
-#include "xdaq2rc/version.h"
-#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
-#include "xdaq2rc/SOAPParameterExtractor.hh"
-#endif
 
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
@@ -48,7 +27,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.100 2009/07/07 11:17:08 dshpakov Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.101 2009/07/08 16:07:00 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -599,7 +578,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
 
   try {
     errorMsg = "Failed to extract FSM event and parameters from SOAP message: ";
-    std::string command = extractParameters(msg);
+    std::string command = soaputils::extractParameters(msg);
 
     errorMsg = "Failed to put a '" + command + "' state machine event into command queue: ";
     if (command == "Configure")
@@ -629,7 +608,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     }
 
     errorMsg = "Failed to create FSM SOAP reply message: ";
-    returnMsg = createFsmSoapResponseMsg(command,
+    returnMsg = soaputils::createFsmSoapResponseMsg(command,
       _sharedResources->_statisticsReporter->
       getStateMachineMonitorCollection().externallyVisibleState());
   }
@@ -668,73 +647,6 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
   }
 
   return returnMsg;
-}
-
-
-
-std::string StorageManager::extractParameters( xoap::MessageReference msg )
-{
-  std::string command = "unknown";
-
-#if (XDAQ2RC_VERSION_MAJOR*10+XDAQ2RC_VERSION_MINOR)>16
-  // Extract the command name and update any configuration parameter
-  // found in the SOAP message in the application infospace
-  xdaq2rc::SOAPParameterExtractor soapParameterExtractor(this);
-  command = soapParameterExtractor.extractParameters(msg);
-#else
-  // Only extract the FSM command name from the SOAP message
-  DOMNode* node  = msg->getSOAPPart().getEnvelope().getBody().getDOMNode();
-  DOMNodeList* bodyList = node->getChildNodes();
-  
-  for(unsigned int i=0; i<bodyList->getLength(); i++)
-  {
-    node = bodyList->item(i);
-    
-    if(node->getNodeType() == DOMNode::ELEMENT_NODE)
-    {
-      command = xoap::XMLCh2String(node->getLocalName());
-      return command;
-    }
-  }
-  XCEPT_RAISE(xoap::exception::Exception, "FSM event not found");
-#endif
-
-  return command;
-}
-
-
-xoap::MessageReference StorageManager::createFsmSoapResponseMsg
-(
-  const std::string commandName,
-  const std::string currentState
-)
-{
-  xoap::MessageReference reply;
-
-  try
-  {
-    // response string
-    reply = xoap::createMessage();
-    xoap::SOAPEnvelope envelope  = reply->getSOAPPart().getEnvelope();
-    xoap::SOAPName responseName  = envelope.createName(commandName+"Response",
-                                                       "xdaq",XDAQ_NS_URI);
-    xoap::SOAPBodyElement responseElem =
-      envelope.getBody().addBodyElement(responseName);
-    
-    // state string
-    xoap::SOAPName stateName = envelope.createName("state", "xdaq",XDAQ_NS_URI);
-    xoap::SOAPElement stateElem = responseElem.addChildElement(stateName);
-    xoap::SOAPName attributeName = envelope.createName("stateName", "xdaq",XDAQ_NS_URI);
-    stateElem.addAttribute(attributeName,currentState);
-  }
-  catch(xcept::Exception &e)
-  {
-    XCEPT_RETHROW(xoap::exception::Exception,
-      "Failed to create FSM SOAP response message for command '" +
-      commandName + "' and current state '" + currentState + "'.",  e);
-  }
-  
-  return reply;
 }
 
 
