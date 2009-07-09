@@ -1,13 +1,16 @@
-// $Id$
+// $Id: Utils.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 
 #ifndef StorageManager_Utils_h
 #define StorageManager_Utils_h
 
 #include <string>
 
+#include "xcept/Exception.h"
+
 
 namespace xdaq
 {
+  class Application;
   class ApplicationDescriptor;
 }
 
@@ -19,9 +22,9 @@ namespace stor {
     /**
      * Collection of utility functions used in the storage manager
      *
-     * $Author$
-     * $Revision$
-     * $Date$
+     * $Author: dshpakov $
+     * $Revision: 1.2 $
+     * $Date: 2009/06/10 08:15:24 $
      */
 
     /**
@@ -75,6 +78,22 @@ namespace stor {
      */
     void checkDirectory(const std::string&);
 
+    /**
+       Raises a sentinel alarm
+    */
+    void raiseAlarm
+    (
+      const std::string name,
+      const std::string level,
+      xcept::Exception&,
+      xdaq::Application*
+    );
+
+    /**
+       Revokes s sentinel alarm
+    */
+    void revokeAlarm(const std::string name, xdaq::Application*);
+ 
 
   } // namespace utils
   

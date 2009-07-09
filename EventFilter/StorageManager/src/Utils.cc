@@ -1,5 +1,5 @@
 /**
- * $Id$
+ * $Id: Utils.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
  */
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -11,7 +11,14 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 
+#include "xdata/InfoSpaceFactory.h"
+#include "xdaq/Application.h"
 #include "xdaq/ApplicationDescriptor.h"
+
+#include "sentinel/utils/version.h"
+#if SENTINELUTILS_VERSION_MAJOR>1
+#include "sentinel/utils/Alarm.h"
+#endif
 
 
 namespace stor
@@ -93,6 +100,66 @@ namespace stor
       }
     }
 
+
+    void raiseAlarm
+    (
+      const std::string name,
+      const std::string level,
+      xcept::Exception& exception,
+      xdaq::Application* app
+    )
+    {
+#if SENTINELUTILS_VERSION_MAJOR>1
+  
+      xdata::InfoSpace *is =
+        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
+
+      sentinel::utils::Alarm *alarm =
+        new sentinel::utils::Alarm(level, exception, app);
+      try
+      {
+        is->fireItemAvailable(name, alarm);
+      }
+      catch(xdata::exception::Exception)
+      {
+        // Alarm is already set
+        return;
+      }
+#endif
+      LOG4CPLUS_ERROR(app->getApplicationLogger(),
+        "Raised alarm '" << name << "': " << exception.message());
+    }
+
+
+    void revokeAlarm
+    (
+      const std::string name,
+      xdaq::Application* app
+    )
+    {
+#if SENTINELUTILS_VERSION_MAJOR>1
+  
+      xdata::InfoSpace *is =
+        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
+
+      sentinel::utils::Alarm *alarm;
+      try
+      {
+        alarm = dynamic_cast<sentinel::utils::Alarm*>(is->find( name ));
+      }
+      catch(xdata::exception::Exception)
+      {
+        // Alarm has not been set
+        return;
+      }
+      
+      is->fireItemRevoked(name, app);
+      delete alarm;
+
+#endif
+      LOG4CPLUS_ERROR(app->getApplicationLogger(),
+        "Revoked alarm '" << name << "'");
+    }
 
   } // namespace utils
 
