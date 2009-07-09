@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.2 2009/06/24 09:49:11 kukartse Exp $
 //
 
 // system include files
@@ -363,18 +363,40 @@ const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMEle
   return _result;
 }
 
-int XMLDOMBlock::setTagValue( const string & tagName, const string & tagValue, int _item, DOMDocument * _document )
+DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const string & tagValue, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
-  _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
-  return 0;
+  DOMNode * the_tag = _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
+  return the_tag;
 }
 
-int XMLDOMBlock::setTagValue( const string & tagName, const int & tagValue, int _item, DOMDocument * _document )
+DOMNode * XMLDOMBlock::setTagValue(DOMElement * _elem, const string & tagName, const string & tagValue, int _item )
+{
+  if (!_elem) return 0;
+  DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  if (the_tag){
+    the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
+  }
+  return the_tag;
+}
+
+DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const int & tagValue, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
-  _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
-  return 0;
+  DOMNode * the_tag = _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
+  return the_tag;
+}
+
+DOMNode * XMLDOMBlock::setTagValue( DOMElement * _elem, const string & tagName, const int & tagValue, int _item )
+{
+  if (!_elem) return 0;
+  DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  if(the_tag){
+    the_tag -> getFirstChild() -> setNodeValue( XMLProcessor::_toXMLCh( tagValue ) );
+  }
+  return the_tag;
 }
 
 const char * XMLDOMBlock::getTagAttribute( const string & tagName, const string & attrName, int _item )
@@ -385,12 +407,42 @@ const char * XMLDOMBlock::getTagAttribute( const string & tagName, const string 
   return _result;
 }
 
-int XMLDOMBlock::setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item )
+DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item )
 {
-  DOMElement * _tag = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ));
+  DOMNode * the_tag = document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  DOMElement * _tag = (DOMElement *)the_tag;
   _tag -> setAttribute( XMLProcessor::_toXMLCh( attrName ), XMLProcessor::_toXMLCh( attrValue ) );
+  return the_tag;
+}
 
-  return 0;
+DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const string & attrValue, int _item )
+{
+  if (!_elem) return 0;
+  DOMNode * the_tag = _elem ->  getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  if (the_tag){
+    DOMElement * _tag = (DOMElement *)the_tag;
+    _tag -> setAttribute( XMLProcessor::_toXMLCh( attrName ), XMLProcessor::_toXMLCh( attrValue ) );
+  }
+  return the_tag;
+}
+
+DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & attrName, const int & attrValue, int _item )
+{
+  DOMNode * the_tag = document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  DOMElement * _tag = (DOMElement *)the_tag;
+  _tag -> setAttribute( XMLProcessor::_toXMLCh( attrName ), XMLProcessor::_toXMLCh( attrValue ) );
+  return the_tag;
+}
+
+DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const int & attrValue, int _item )
+{
+  if (!_elem) return 0;
+  DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
+  if (the_tag){
+    DOMElement * _tag = (DOMElement *)the_tag;
+    _tag -> setAttribute( XMLProcessor::_toXMLCh( attrName ), XMLProcessor::_toXMLCh( attrValue ) );
+  }
+  return the_tag;
 }
 
 string XMLDOMBlock::getTimestamp( time_t _time )
@@ -467,3 +519,15 @@ const XObjectPtr XMLDOMBlock::eval_xpath( std::string context, std::string expre
   return theResult;
 }
 */
+
+
+
+DOMElement * XMLDOMBlock::add_element(DOMElement * parent, XMLCh * tagname, XMLCh * value){
+  DOMElement * _elem = document -> createElement( tagname );
+  parent -> appendChild(_elem);
+  DOMText * _value = document -> createTextNode(value);
+  _elem->appendChild(_value);
+  return _elem;
+}
+
+

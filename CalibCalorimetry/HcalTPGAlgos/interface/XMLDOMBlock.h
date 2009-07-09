@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.9 2009/04/08 23:03:44 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 
@@ -67,9 +67,16 @@ class XMLDOMBlock
   const char * getTagValue( const string & tagName, int _item, DOMElement * _document );
   const char * getTagAttribute( const string & tagName, const string & attrName, int _item = 0 );
 
-  int setTagValue( const string & tagName, const string & tagValue, int _item = 0, DOMDocument * _document = NULL );
-  int setTagValue( const string & tagName, const int & tagValue, int _item = 0, DOMDocument * _document = NULL );
-  int setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item = 0 );
+  DOMElement * add_element(DOMElement * parent, XMLCh * tagname, XMLCh * value);
+
+  DOMNode * setTagValue( const string & tagName, const string & tagValue, int _item = 0, DOMDocument * _document = NULL );
+  DOMNode * setTagValue( DOMElement * _elem, const string & tagName, const string & tagValue, int _item = 0 );
+  DOMNode * setTagValue( const string & tagName, const int & tagValue, int _item = 0, DOMDocument * _document = NULL );
+  DOMNode * setTagValue( DOMElement * _elem, const string & tagName, const int & tagValue, int _item = 0 );
+  DOMNode * setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item = 0 );
+  DOMNode * setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const string & attrValue, int _item = 0);
+  DOMNode * setTagAttribute( const string & tagName, const string & attrName, const int & attrValue, int _item = 0 );
+  DOMNode * setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const int & attrValue, int _item = 0);
   string getTimestamp( time_t _time );  
 
   void parse( InputSource & _source );
