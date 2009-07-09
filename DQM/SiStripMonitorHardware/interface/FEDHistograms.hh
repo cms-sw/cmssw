@@ -56,7 +56,7 @@ public:
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
 			      const FEDErrors::ChannelCounters & aChLevelCounters, 
-			      const unsigned int aEvtNum);
+			      const double aTime);
 
   void fillFEDHistograms(FEDErrors & aFedError, 
 			 bool lFullDebug
@@ -139,22 +139,23 @@ private:
     *nFEDCorruptBuffers_, 
     *nBadChannelStatusBits_,
     *nBadActiveChannelStatusBits_,
+    *nUnconnectedChannels_,
     *nFEDsWithFEOverflows_, 
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
 
-  MonitorElement *nTotalBadChannelsvsEvtNum_;
-  MonitorElement *nTotalBadActiveChannelsvsEvtNum_;
+  MonitorElement *nTotalBadChannelsvsTime_;
+  MonitorElement *nTotalBadActiveChannelsvsTime_;
 
-  MonitorElement *nFEDErrorsvsEvtNum_;
-  MonitorElement *nFEDCorruptBuffersvsEvtNum_;
-  MonitorElement *nFEDsWithFEProblemsvsEvtNum_;
+  MonitorElement *nFEDErrorsvsTime_;
+  MonitorElement *nFEDCorruptBuffersvsTime_;
+  MonitorElement *nFEDsWithFEProblemsvsTime_;
 
-  MonitorElement *nAPVStatusBitvsEvtNum_;
-  MonitorElement *nAPVErrorvsEvtNum_;
-  MonitorElement *nAPVAddressErrorvsEvtNum_;
-  MonitorElement *nUnlockedvsEvtNum_;
-  MonitorElement *nOutOfSyncvsEvtNum_;
+  MonitorElement *nAPVStatusBitvsTime_;
+  MonitorElement *nAPVErrorvsTime_;
+  MonitorElement *nAPVAddressErrorvsTime_;
+  MonitorElement *nUnlockedvsTime_;
+  MonitorElement *nOutOfSyncvsTime_;
 
   //top level histograms
   MonitorElement *anyFEDErrors_, 

@@ -73,15 +73,15 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   ),
   nBadChannelStatusBitsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(38001),
+    NBins = cms.untracked.uint32(353),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(38001)
+    Max = cms.untracked.double(42240)
   ),
   nBadActiveChannelStatusBitsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(38001),
+    NBins = cms.untracked.uint32(353),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(38001)
+    Max = cms.untracked.double(42240)
   ),
   nFEDsWithFEOverflowsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
@@ -101,64 +101,70 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(441)
   ),
-  nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(353),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(42240)
   ),
-  nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nFEDErrorsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nTotalBadActiveChannelsvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nFEDCorruptBuffersvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nFEDErrorsvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nFEDsWithFEProblemsvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nFEDCorruptBuffersvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nAPVStatusBitvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nFEDsWithFEProblemsvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nAPVErrorvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nAPVStatusBitvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nAPVAddressErrorvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nAPVErrorvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nUnlockedvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nAPVAddressErrorvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
   ),
-  nOutOfSyncvsEvtNumHistogramConfig = cms.untracked.PSet(
+  nUnlockedvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(1000),
+    NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
-    Max = cms.untracked.double(100000)
+    Max = cms.untracked.double(3600)
+  ),
+  nOutOfSyncvsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
   )
 )

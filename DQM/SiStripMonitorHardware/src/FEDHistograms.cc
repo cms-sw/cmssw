@@ -59,17 +59,19 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("nFEDsWithMissingFEs",iConfig,pDebugStream);
   getConfigForHistogram("nFEDsWithFEBadMajorityAddresses",iConfig,pDebugStream);
 
-  getConfigForHistogram("nTotalBadChannelsvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nTotalBadActiveChannelsvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDErrorsvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDCorruptBuffersvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nFEDsWithFEProblemsvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nUnconnectedChannels",iConfig,pDebugStream);
 
-  getConfigForHistogram("nAPVStatusBitvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nAPVErrorvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nAPVAddressErrorvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nUnlockedvsEvtNum",iConfig,pDebugStream);
-  getConfigForHistogram("nOutOfSyncvsEvtNum",iConfig,pDebugStream);
+  getConfigForHistogram("nTotalBadChannelsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nTotalBadActiveChannelsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDErrorsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDCorruptBuffersvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nFEDsWithFEProblemsvsTime",iConfig,pDebugStream);
+
+  getConfigForHistogram("nAPVStatusBitvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVErrorvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVAddressErrorvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nUnlockedvsTime",iConfig,pDebugStream);
+  getConfigForHistogram("nOutOfSyncvsTime",iConfig,pDebugStream);
 
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
@@ -88,7 +90,7 @@ void FEDHistograms::fillHistogram(MonitorElement* histogram,
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
 					   const FEDErrors::ChannelCounters & chLevelCounters, 
-					   const unsigned int aEvtNum )
+					   const double aTime )
 {
   fillHistogram(nFEDErrors_,fedLevelCounters.nFEDErrors);
   fillHistogram(nFEDDAQProblems_,fedLevelCounters.nDAQProblems);
@@ -99,19 +101,21 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
   fillHistogram(nFEDsWithMissingFEs_,fedLevelCounters.nFEDsWithMissingFEs);
   fillHistogram(nBadChannelStatusBits_,fedLevelCounters.nBadChannels);
   fillHistogram(nBadActiveChannelStatusBits_,fedLevelCounters.nBadActiveChannels);
+
+  fillHistogram(nUnconnectedChannels_,chLevelCounters.nNotConnected);
   
-  fillHistogram(nTotalBadChannelsvsEvtNum_,aEvtNum,fedLevelCounters.nTotalBadChannels);
-  fillHistogram(nTotalBadActiveChannelsvsEvtNum_,aEvtNum,fedLevelCounters.nTotalBadActiveChannels);
+  fillHistogram(nTotalBadChannelsvsTime_,aTime,fedLevelCounters.nTotalBadChannels);
+  fillHistogram(nTotalBadActiveChannelsvsTime_,aTime,fedLevelCounters.nTotalBadActiveChannels);
 
-  fillHistogram(nFEDErrorsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDErrors);
-  fillHistogram(nFEDCorruptBuffersvsEvtNum_,aEvtNum,fedLevelCounters.nCorruptBuffers);
-  fillHistogram(nFEDsWithFEProblemsvsEvtNum_,aEvtNum,fedLevelCounters.nFEDsWithFEProblems);
+  fillHistogram(nFEDErrorsvsTime_,aTime,fedLevelCounters.nFEDErrors);
+  fillHistogram(nFEDCorruptBuffersvsTime_,aTime,fedLevelCounters.nCorruptBuffers);
+  fillHistogram(nFEDsWithFEProblemsvsTime_,aTime,fedLevelCounters.nFEDsWithFEProblems);
 
-  fillHistogram(nAPVStatusBitvsEvtNum_,aEvtNum,chLevelCounters.nAPVStatusBit);
-  fillHistogram(nAPVErrorvsEvtNum_,aEvtNum,chLevelCounters.nAPVError);
-  fillHistogram(nAPVAddressErrorvsEvtNum_,aEvtNum,chLevelCounters.nAPVAddressError);
-  fillHistogram(nUnlockedvsEvtNum_,aEvtNum,chLevelCounters.nUnlocked);
-  fillHistogram(nOutOfSyncvsEvtNum_,aEvtNum,chLevelCounters.nOutOfSync);
+  fillHistogram(nAPVStatusBitvsTime_,aTime,chLevelCounters.nAPVStatusBit);
+  fillHistogram(nAPVErrorvsTime_,aTime,chLevelCounters.nAPVError);
+  fillHistogram(nAPVAddressErrorvsTime_,aTime,chLevelCounters.nAPVAddressError);
+  fillHistogram(nUnlockedvsTime_,aTime,chLevelCounters.nUnlocked);
+  fillHistogram(nOutOfSyncvsTime_,aTime,chLevelCounters.nOutOfSync);
 
 }
 
@@ -183,8 +187,7 @@ void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId,
     fillHistogram(unlockedDetailed_[aFedId],lChId);
   }
   if (aChErr.OutOfSync) {
-    fillHistogram(outOfSyncDetailed_[aFedId],lChId);
-
+    fillHistogram(outOfSyncDetailed_[aFedId],lChId);    
   }
 }
 
@@ -307,48 +310,50 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs","nFEDsWithMissingFEs",
                                        "Number of FEDs with missing FE unit payloads per event","");
 
+  nUnconnectedChannels_ = bookHistogram("nUnconnectedChannels","nUnconnectedChannels",
+					 "Number of channels not connected per event","");
 
-  nTotalBadChannelsvsEvtNum_ = bookProfile("nTotalBadChannelsvsEvtNum",
-					   "nTotalBadChannelsvsEvtNum",
-					   "Number of channels with any error vs event number");
-
-
-  nTotalBadActiveChannelsvsEvtNum_  = bookProfile("nTotalBadActiveChannelsvsEvtNum",
-						  "nTotalBadActiveChannelsvsEvtNum",
-						  "Number of active channels with any error vs event number");
+  nTotalBadChannelsvsTime_ = bookProfile("nTotalBadChannelsvsTime",
+					   "nTotalBadChannelsvsTime",
+					   "Number of channels with any error vs time");
 
 
-  nFEDErrorsvsEvtNum_ = bookProfile("nFEDErrorsvsEvtNum",
-				    "nFEDErrorsvsEvtNum",
-				    "Number of FEDs with any error vs event number");
+  nTotalBadActiveChannelsvsTime_  = bookProfile("nTotalBadActiveChannelsvsTime",
+						  "nTotalBadActiveChannelsvsTime",
+						  "Number of active channels with any error vs time");
 
-  nFEDCorruptBuffersvsEvtNum_ = bookProfile("nFEDCorruptBuffersvsEvtNum",
-					    "nFEDCorruptBuffersvsEvtNum",
-					   "Number of FEDs with corrupt buffer vs event number");
 
-  nFEDsWithFEProblemsvsEvtNum_ = bookProfile("nFEDsWithFEProblemsvsEvtNum",
-					     "nFEDsWithFEProblemsvsEvtNum",
-					     "Number of FEDs with any FE error vs event number");
+  nFEDErrorsvsTime_ = bookProfile("nFEDErrorsvsTime",
+				    "nFEDErrorsvsTime",
+				    "Number of FEDs with any error vs time");
 
-  nAPVStatusBitvsEvtNum_ = bookProfile("nAPVStatusBitvsEvtNum",
-				       "nAPVStatusBitvsEvtNum",
-				       "Number of channels with APVStatusBit error vs event number");
+  nFEDCorruptBuffersvsTime_ = bookProfile("nFEDCorruptBuffersvsTime",
+					    "nFEDCorruptBuffersvsTime",
+					   "Number of FEDs with corrupt buffer vs time");
 
-  nAPVErrorvsEvtNum_ = bookProfile("nAPVErrorvsEvtNum",
-				   "nAPVErrorvsEvtNum",
-				   "Number of channels with APVError vs event number");
+  nFEDsWithFEProblemsvsTime_ = bookProfile("nFEDsWithFEProblemsvsTime",
+					     "nFEDsWithFEProblemsvsTime",
+					     "Number of FEDs with any FE error vs time");
 
-  nAPVAddressErrorvsEvtNum_ = bookProfile("nAPVAddressErrorvsEvtNum",
-					  "nAPVAddressErrorvsEvtNum",
-					  "Number of channels with APVAddressError vs event number");
+  nAPVStatusBitvsTime_ = bookProfile("nAPVStatusBitvsTime",
+				       "nAPVStatusBitvsTime",
+				       "Number of channels with APVStatusBit error vs time");
 
-  nUnlockedvsEvtNum_ = bookProfile("nUnlockedvsEvtNum",
-				   "nUnlockedvsEvtNum",
-				   "Number of channels Unlocked vs event number");
+  nAPVErrorvsTime_ = bookProfile("nAPVErrorvsTime",
+				   "nAPVErrorvsTime",
+				   "Number of channels with APVError vs time");
 
-  nOutOfSyncvsEvtNum_ = bookProfile("nOutOfSyncvsEvtNum",
-				    "nOutOfSyncvsEvtNum",
-				    "Number of channels OutOfSync vs event number");
+  nAPVAddressErrorvsTime_ = bookProfile("nAPVAddressErrorvsTime",
+					  "nAPVAddressErrorvsTime",
+					  "Number of channels with APVAddressError vs time");
+
+  nUnlockedvsTime_ = bookProfile("nUnlockedvsTime",
+				   "nUnlockedvsTime",
+				   "Number of channels Unlocked vs time");
+
+  nOutOfSyncvsTime_ = bookProfile("nOutOfSyncvsTime",
+				    "nOutOfSyncvsTime",
+				    "Number of channels OutOfSync vs time");
 
 
   //book map after, as it creates a new folder...

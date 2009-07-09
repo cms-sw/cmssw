@@ -47,6 +47,7 @@ public:
   };
 
   struct ChannelCounters {
+    unsigned int nNotConnected;
     unsigned int nUnlocked;
     unsigned int nOutOfSync;
     unsigned int nAPVStatusBit;
