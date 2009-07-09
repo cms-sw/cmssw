@@ -7,7 +7,6 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring("HLTClusterizer"),
-                                    #log = cms.untracked.PSet( threshold = cms.untracked.string('INFO') ),
                                     destinations = cms.untracked.vstring('log.txt'))
 
 # Configuration which varies with source
