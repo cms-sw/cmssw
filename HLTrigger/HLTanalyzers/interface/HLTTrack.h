@@ -35,15 +35,20 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const edm::Handle<reco::IsolatedPixelTrackCandidateCollection>                 & IsoPixelTrackL3,
+  void analyze(const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL3,
+               const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 	       TTree* tree);
 
   
 private:
 
   // Tree variables
+    //isoPixel
   float *isopixeltrackL3pt, *isopixeltrackL3eta, *isopixeltrackL3phi, *isopixeltrackL3maxptpxl, *isopixeltrackL3energy;
   int nisopixeltrackL3;
+    //minBiasPixel
+  float *pixeltracksL3pt, *pixeltracksL3eta, *pixeltracksL3phi, *pixeltracksL3vz;
+  int npixeltracksL3;
 
   // input variables
   bool _Monte,_Debug;

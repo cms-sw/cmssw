@@ -79,7 +79,7 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
 
-  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;//,MuLinkTag_;
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_;
   edm::InputTag HLTTau_;
 
   // btag OpenHLT input collections
@@ -135,6 +135,9 @@ private:
   edm::InputTag HORecHitTag_;   
   edm::InputTag HFRecHitTag_;   
   edm::InputTag IsoPixelTrackTagL3_; 
+
+  // Track OpenHLT input collections
+  edm::InputTag PixelTracksTagL3_; 
 
   int errCnt;
   const int errMax(){return 100;}

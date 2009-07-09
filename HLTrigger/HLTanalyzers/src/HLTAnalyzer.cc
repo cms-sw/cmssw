@@ -71,7 +71,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   MuIsolTag2_       = conf.getParameter<edm::InputTag> ("MuIsolTag2");
   MuCandTag3_       = conf.getParameter<edm::InputTag> ("MuCandTag3");
   MuIsolTag3_       = conf.getParameter<edm::InputTag> ("MuIsolTag3");
-  //  MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
   HLTTau_           = conf.getParameter<edm::InputTag> ("HLTTau");
 
   // btag OpenHLT input collections
@@ -127,6 +126,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HORecHitTag_              = conf.getParameter<edm::InputTag> ("HORecHits");  
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
   IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
+
+  // Track OpenHLT input collections
+  PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
 
   m_file = 0;   // set to null
   errCnt = 0;
@@ -192,7 +194,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
-  //  edm::Handle<MuonTrackLinksCollection>             mulinks;
   edm::Handle<reco::HLTTauCollection>               taus;
 
   // btag OpenHLT input collections
@@ -248,6 +249,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<HORecHitCollection>             horechits;   
   edm::Handle<HFRecHitCollection>             hfrechits;   
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL3; 
+  edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
 
   // new stuff for the egamma EleId
    edm::InputTag ecalRechitEBTag (string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
@@ -312,7 +314,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
   getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
   getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
-  //  getCollection( iEvent, missing, mulinks,         MuLinkTag_,         kMulinks );
   getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
   getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
   getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
@@ -374,6 +375,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
   getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
+  getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -405,7 +407,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     isoMap2,
     mucands3,
     isoMap3,
-    //    mulinks,
     HltTree);
   
    elm_analysis_.analyze(
@@ -473,6 +474,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   track_analysis_.analyze( 
     isopixeltracksL3, 
+    pixeltracksL3, 
     HltTree); 
 
   hlt_analysis_.analyze(

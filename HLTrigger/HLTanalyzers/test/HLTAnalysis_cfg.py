@@ -65,6 +65,9 @@ del process.PrescaleService
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
 process.analyzeThis = cms.Path( process.hltanalysis )
 
+# pdt
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
 # Schedule the whole thing
 process.schedule = cms.Schedule( 
     process.DoHLTJets, 
@@ -79,4 +82,5 @@ process.schedule = cms.Schedule(
 ##    process.DoHLTAlCaECALPhiSym,
     process.DoHLTAlCaPi0Eta1E31,
     process.DoHLTIsoTrack,
+    process.DoHLTMinBiasPixelTracks,
     process.analyzeThis )

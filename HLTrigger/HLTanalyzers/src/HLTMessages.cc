@@ -69,3 +69,4 @@ const char * kHFrechits                   = "HCAL HF RecHits";
 const char * kpi0EErechits                = "ECAL pi0 Endcap RecHits"; 
 const char * kpi0EBrechits                = "ECAL pi0 Barrel RecHits";  
 const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks"; 
+const char * kPixelTracksL3               = "L3 Pixel Tracks"; 

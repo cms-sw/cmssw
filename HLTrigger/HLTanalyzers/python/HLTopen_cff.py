@@ -599,3 +599,13 @@ DoHLTIsoTrack = cms.Path(
     hltHITIPTCorrector1E31 +
     HLTEndSequence)
 
+DoHLTMinBiasPixelTracks = cms.Path(
+    HLTBeginSequence + 
+    hltL1sMinBiasPixel + 
+    hltPreMinBiasPixel +
+    hltSiPixelDigis + 
+    hltSiPixelClusters + 
+    hltSiPixelRecHits +
+    hltPixelTracksForMinBias +
+    hltPixelCands)
+

@@ -35,7 +35,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
-    MuLinkTag                       = cms.InputTag("hltL3Muons"),
     ### egamma OpenHLT objects                             
     CandIso                         = cms.InputTag("hltL1IsoRecoEcalCandidate"),
     CandNonIso                      = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),
@@ -93,6 +92,9 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
     IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
+
+    ### Track settings
+    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
 
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),
