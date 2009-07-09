@@ -35,7 +35,7 @@ private:
   std::string thePropagatorOppositeName;  
   edm::ESHandle<Propagator>  thePropagatorAlong; 
   edm::ESHandle<Propagator>  thePropagatorOpposite;
- 
+  int theNumberMeasurementsForFit;
 };
 
 #endif
