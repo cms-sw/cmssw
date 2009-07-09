@@ -116,8 +116,8 @@ double FWTrackDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, un
      double global1[3], global2[3];
      const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
      assert(m != 0);
-     m->MasterToLocal(local1, global1);
-     m->MasterToLocal(local2, global2);
+     m->LocalToMaster(local1, global1);
+     m->LocalToMaster(local2, global2);
      TVector3 g1 = global1;
      TVector3 g2 = global2;
      if (g2.DeltaPhi(g1) > 0)
