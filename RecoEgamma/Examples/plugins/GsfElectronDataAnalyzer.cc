@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.21 2009/07/04 23:06:38 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.22 2009/07/05 23:25:19 charlot Exp $
 //
 //
 
@@ -208,6 +208,7 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", nbinpt,0.,100.,5,-2.,2.);
   h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele momentum",       nbinp,0.,pmax);
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele transverse momentum",  nbinpt,0.,ptmax);
+  h_ele_Et       = new TH1F( "h_ele_Et",       "ele SC transverse energy",  nbinpt,0.,ptmax);
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbinpt2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele transverse momentum vs phi",nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
   h_ele_matchingObjectPt_matched       = new TH1F( "h_ele_matchingObjectPt_matched",       "Efficiency vs matching SC E_{T}",  nbinpteff,5.,ptmax);
@@ -418,6 +419,8 @@ void GsfElectronDataAnalyzer::beginJob(){
   h_ele_vertexP        -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexPt       -> GetXaxis()-> SetTitle("p_{T vertex} (GeV/c)");
   h_ele_vertexPt       -> GetYaxis()-> SetTitle("Events");
+  h_ele_Et       -> GetXaxis()-> SetTitle("E_{T} (GeV)");
+  h_ele_Et       -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexEta      -> GetXaxis()-> SetTitle("#eta");
   h_ele_vertexEta      -> GetYaxis()-> SetTitle("Events");
   h_ele_vertexPhi      -> GetXaxis()-> SetTitle("#phi (rad)");
@@ -748,6 +751,7 @@ GsfElectronDataAnalyzer::endJob(){
   h_ele_chargeVsPt->Write();
   h_ele_vertexP->Write();
   h_ele_vertexPt->Write();
+  h_ele_Et->Write();
   h_ele_vertexPtVsEta->Write();
   h_ele_vertexPtVsPhi->Write();
   h_ele_matchingObjectPt_matched->Write();
@@ -1053,6 +1057,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	h_ele_chargeVsPt        -> Fill( gsfIter->pt(),gsfIter->charge() );
 	h_ele_vertexP       -> Fill( gsfIter->p() );
 	h_ele_vertexPt      -> Fill( gsfIter->pt() );
+	h_ele_Et      -> Fill( gsfIter->superCluster()->energy()/cosh( gsfIter->superCluster()->eta()) );
 	h_ele_vertexPtVsEta      -> Fill(  gsfIter->eta(),gsfIter->pt() );
 	h_ele_vertexPtVsPhi      -> Fill(  gsfIter->phi(),gsfIter->pt() );
 	h_ele_vertexEta     -> Fill( gsfIter->eta() );
