@@ -59,15 +59,12 @@ public:
 
 private:
   boost::shared_ptr<stor::ConsumerMonitorCollection> _cmcptr;
-  stor::MockApplication* _app;
 };
 
 void
 testEventQueueCollection::setUp()
 { 
-  stor::MockApplicationStub* stub(new stor::MockApplicationStub());
-  _app = new stor::MockApplication(stub); // stub is owned now by xdaq::Application
-  _cmcptr.reset(new stor::ConsumerMonitorCollection(_app));
+  _cmcptr.reset(new stor::ConsumerMonitorCollection());
 
   CPPUNIT_ASSERT(g_factory);
   CPPUNIT_ASSERT(g_alloc);
@@ -76,9 +73,7 @@ testEventQueueCollection::setUp()
 
 void
 testEventQueueCollection::tearDown()
-{ 
-  delete _app;
-}
+{}
 
 void 
 testEventQueueCollection::create_queues()
