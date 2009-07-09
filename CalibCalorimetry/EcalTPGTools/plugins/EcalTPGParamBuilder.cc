@@ -82,9 +82,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   if (writeToFiles_) {
     std::string outFile = pSet.getParameter<std::string>("outFile") ;
     out_file_ = new std::ofstream(outFile.c_str(), std::ios::out) ;  
-    geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
   }
-
+  geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
 
 
   useTransverseEnergy_ = pSet.getParameter<bool>("useTransverseEnergy") ;
