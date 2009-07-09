@@ -162,6 +162,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       df.setSample(i,data);
     }
     
+    bool isSaturation(true);
     if(wrongGain){ 
       
       // check whether the gain==0 has features of saturation or not 
@@ -181,7 +182,6 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       
     // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
     uint plateauEnd = min(nTSamples_,(uint)(firstGainZeroSampID+5));
-    bool isSaturation(true);
     for (uint s=firstGainZeroSampID; s<plateauEnd; s++) 
       {
 	if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
@@ -213,6 +213,10 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	return BLOCK_UNPACKED;
 	
       }//end isSaturation 
+    else {
+            data_ += numbDWInXtalBlock_;
+            return BLOCK_UNPACKED;
+    }
     }//end WrongGain
     
     short firstGainWrong=-1;
