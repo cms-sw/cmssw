@@ -88,14 +88,33 @@ string Tm::str() const
 uint64_t Tm::microsTime() const
 {
   uint64_t result = 0;
-  
+  /*  
   result += (uint64_t)ceil((m_tm.tm_year - 70 ) * 365.25) * 24 * 3600;
   result += (m_tm.tm_yday) * 24 * 3600;
   result += m_tm.tm_hour * 3600;
   result += m_tm.tm_min * 60;
   result += m_tm.tm_sec;
-  
   return (uint64_t) (result * 1000000);
+  */
+
+  struct tm time_struct;
+  time_struct.tm_year=1970-1900;
+  time_struct.tm_mon=0;
+  time_struct.tm_mday=1;
+  time_struct.tm_sec=0;
+  time_struct.tm_min=0;
+  time_struct.tm_hour=0;
+  time_struct.tm_isdst=0;
+  
+  time_t t1970=mktime(&time_struct);
+  tm s = m_tm;
+  time_t t_this=mktime(&s);
+
+  double x= difftime(t_this,t1970); 
+  result =(uint64_t) x*1000000;
+
+  return result; 
+
 }
 
 void Tm::setToMicrosTime(uint64_t micros)
