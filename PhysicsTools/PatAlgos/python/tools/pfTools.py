@@ -112,8 +112,7 @@ def usePF2PAT(process,runPF2PAT=True):
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
-        process.patAODCoreReco += process.PF2PAT
-        # note: I can't just replace it, because other people could have added stuff here (e.g. btagging)
+        process.patAODReco.replace(process.patAODExtraReco, PF2PAT + process.patAODExtraReco)
 
     removeCleaning(process)
     process.aodSummary.candidates = cms.VInputTag();
@@ -128,12 +127,10 @@ def usePF2PAT(process,runPF2PAT=True):
 #    adaptPFElectrons(process,process.allLayer1Electrons)
 #    switchMCMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
 #    process.aodSummary.candidates.append(process.allLayer1Electrons.pfElectronSource)
-#    process.patAODCoreReco.remove(process.electronsNoDuplicates)
 #    process.patAODExtraReco.remove(process.patElectronId)
 #    process.patAODExtraReco.remove(process.patElectronIsolation)
     print "Temporarily switching off electrons completely"
     removeSpecificPATObject(process,'Electrons')
-    process.patAODCoreReco.remove(process.electronsNoDuplicates)
     process.patAODExtraReco.remove(process.patElectronId)
     process.patAODExtraReco.remove(process.patElectronIsolation)
     #process.countLayer1Leptons.countElectrons = False

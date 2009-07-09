@@ -106,7 +106,7 @@ def switchJetCollection(process,jetCollection,doJTA=True,doBTagging=True,jetCorr
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
     if doBTagging :
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
-        process.patAODCoreReco += btagSeq # must add to Core, as it's needed by ExtraReco
+        process.patAODReco.replace(process.patAODExtraReco, btagSeq + process.patAODExtraReco)
         process.patJetCharge.src                     = btagLabels['jta']
         process.allLayer1Jets.trackAssociationSource = btagLabels['jta']
         process.allLayer1Jets.tagInfoSources       = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -199,7 +199,7 @@ def addJetCollection(process,jetCollection,postfixLabel,
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
     if doBTagging :
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
-        process.patAODCoreReco += btagSeq  # must add to Core, as it's needed by Extra
+        process.patAODReco.replace(process.patAODExtraReco, btagSeq + process.patAODExtraReco)
         addClone('patJetCharge', src=cms.InputTag(btagLabels['jta']))
         l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
         l1Jets.tagInfoSources         = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )

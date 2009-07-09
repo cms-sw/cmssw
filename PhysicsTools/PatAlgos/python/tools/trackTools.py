@@ -13,7 +13,7 @@ def makeAODTrackCandidates(process, label='TrackCands',                ## output
                      cms.EDFilter("CandViewSelector",
                         src = cms.InputTag('patAOD' + label + 'Unfiltered'),
                         cut = cms.string(candSelection) ) )
-    process.patAODCoreReco += getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label)
+    process.patAODReco.replace(process.patAODExtraReco, getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label)*process.patAODExtraReco)
 
 def makePATTrackCandidates(process, 
         label='TrackCands',                     # output will be 'allLayer1'+label , 'selectedLayer1' + label
