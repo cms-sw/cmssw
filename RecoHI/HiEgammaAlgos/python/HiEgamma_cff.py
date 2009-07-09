@@ -12,16 +12,17 @@ hiEcalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusterin
 
 # reco photon producer
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
-photons.primaryVertexProducer = cms.string('pixelVertices') # replace the primary vertex
-photons.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters") # use island for the moment
-photons.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters") # use island for the moment
-hiPhotonSequence = cms.Sequence(photons)
+photons.primaryVertexProducer = cms.string('pixel3Vertices') # replace the primary vertex
+photonCore.scHybridBarrelProducer = cms.InputTag("correctedIslandBarrelSuperClusters") # use island for the moment
+photonCore.scIslandEndcapProducer = cms.InputTag("correctedIslandEndcapSuperClusters") # use island for the moment
+hiPhotonSequence = cms.Sequence(photonSequence)
 
 # HI Egamma Isolation
 from RecoHI.HiEgammaAlgos.HiEgammaIsolation_cff import *
 
 # HI Ecal reconstruction
-hiEcalClusters = cms.Sequence(hiEcalClusteringSequence * hiPhotonSequence)
-hiEcalClustersIsolation = cms.Sequence(hiEcalClusters * hiEgammaIsolationSequence)
+hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
+hiEgammaSequence = cms.Sequence(hiPhotonSequence)
+hiEgammaIsolationSequence = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSequence)
 
 # Test
