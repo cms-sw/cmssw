@@ -293,12 +293,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     std::cout<<"got the 3 ecal barrel logic id set"<< endl;
 
     // EE crystals identifiers
-    // TTC = 108 Crystal number per TTC = min is 135
+    // EE crystals identifiers
     my_CrystalEcalLogicId_EE = db_->getEcalLogicIDSetOrdered("EE_crystal_number",
-    						    1, 110,
-						    1, 160,
-						    EcalLogicID::NULLID,EcalLogicID::NULLID,
-						    "EE_crystal_number",12 );
+    						    -1, 1,
+						    0, 200,
+						    0, 200,
+						    "EE_crystal_number",123 );
+
 						    
     // EE Strip identifiers
     // TTC=72 TT = 1440 EEstrip = 5
@@ -586,9 +587,28 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
     int etaSlice = towid.ietaAbs() ;
 
+    EcalLogicID logicId ;
     FEConfigPedDat pedDB ;
     FEConfigLinDat linDB ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    if (writeToDB_ && DBEE_) {
+      int iz = id.positiveZ() ;
+      if (iz ==0) iz = -1 ;
+      
+      for(int k=0; k<my_CrystalEcalLogicId_EE.size(); k++) {
+
+	int z= my_CrystalEcalLogicId_EE[k].getID1() ;
+	int x= my_CrystalEcalLogicId_EE[k].getID2() ;
+	int y= my_CrystalEcalLogicId_EE[k].getID3() ;
+
+	if(id.ix()==x && id.iy()==y && iz==z) {
+
+  	logicId=my_CrystalEcalLogicId_EE[k];
+
+	}
+      }
+       
+    }
     
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, id.rawId()) ;
@@ -663,9 +683,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       linMap[xtalCCU] = lin ;
     }
     if (writeToDB_ && DBEE_) {
-      // 25 crystals per SuperCrystal in the ECAL EndCap
-      int ixtal=(id.isc()-1)*25+(id.ic()-1);
-      EcalLogicID logicId = my_CrystalEcalLogicId_EE[ixtal];
       pedset[logicId] = pedDB ;
       linset[logicId] = linDB ;
     }
