@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.3 2009/06/15 12:32:25 mommsen Exp $
 
 #include <string>
 #include <sstream>
@@ -7,15 +7,9 @@
 #include <dirent.h>
 #include <fnmatch.h>
 
-#include "sentinel/utils/version.h"
-#if SENTINELUTILS_VERSION_MAJOR>1
-#include "sentinel/utils/Alarm.h"
-#endif
-
-#include "xdata/InfoSpaceFactory.h"
-
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 using namespace stor;
 
@@ -168,13 +162,9 @@ void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
 {
   diskUsage->warningColor = "#EF5A10";
 
-#if SENTINELUTILS_VERSION_MAJOR>1
   MonitoredQuantity::Stats relUsageStats, absUsageStats;
   diskUsage->relDiskUsage.getStats(relUsageStats);
   diskUsage->absDiskUsage.getStats(absUsageStats);
-
-  xdata::InfoSpace *is =
-    xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
 
   std::ostringstream msg;
   msg << std::fixed << std::setprecision(1) <<
@@ -184,13 +174,7 @@ void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
     diskUsage->diskSize << "GB).";
 
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg.str());
-
-  sentinel::utils::Alarm *alarm =
-    new sentinel::utils::Alarm("warning", ex, _app);
-
-  is->fireItemAvailable(diskUsage->alarmName, alarm);
-#endif
-
+  utils::raiseAlarm(diskUsage->alarmName, "warning", ex, _app);
 }
 
 
@@ -198,25 +182,7 @@ void ResourceMonitorCollection::revokeDiskUsageAlarm(DiskUsagePtr diskUsage)
 {
   diskUsage->warningColor = "#FFFFFF";
 
-#if SENTINELUTILS_VERSION_MAJOR>1
-  xdata::InfoSpace *is =
-    xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
-
-  sentinel::utils::Alarm *alarm;
-  try
-  {
-    alarm = dynamic_cast<sentinel::utils::Alarm*>(is->find( diskUsage->alarmName ));
-  }
-  catch(xdata::exception::Exception)
-  {
-    // Alarm has not been set
-    return;
-  }
-
-  is->fireItemRevoked(diskUsage->alarmName, _app);
-  delete alarm;
-#endif
-
+  utils::revokeAlarm(diskUsage->alarmName, _app);
 }
 
 
