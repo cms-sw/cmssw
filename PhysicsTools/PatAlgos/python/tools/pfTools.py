@@ -103,7 +103,6 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         jetCorrLabel=None, 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
-    process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
 
 def usePF2PAT(process,runPF2PAT=True):
 
@@ -112,7 +111,8 @@ def usePF2PAT(process,runPF2PAT=True):
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
-        process.patAODReco.replace(process.patAODExtraReco, PF2PAT + process.patAODExtraReco)
+        process.patAODReco.replace(process.patAODExtraReco,
+                                   process.PF2PAT + process.patAODExtraReco)
 
     removeCleaning(process)
     process.aodSummary.candidates = cms.VInputTag();
@@ -141,16 +141,16 @@ def usePF2PAT(process,runPF2PAT=True):
     process.patAODExtraReco.remove(process.patPhotonIsolation)
     
     # Jets
-    switchToPFJets( process, 'pfNoTau' )
+    switchToPFJets( process, cms.InputTag('pfNoTau') )
     
     # Taus
-    #COLIN try to re-enable taus
-    removeSpecificPATObject(process,'Taus')
-#    oldTaus = process.allLayer1Taus.tauSource
-#    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-#    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
-#    redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
-#    process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
+    oldTaus = process.allLayer1Taus.tauSource
+    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+    tauType = 'shrinkingConePFTau'
+    redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
+                            process.allLayer1Taus.tauSource,
+                            tauType)
+    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))

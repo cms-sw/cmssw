@@ -4,10 +4,22 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 def redoPFTauDiscriminators(process,
                             oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            newPFTauLabel = cms.InputTag('pfRecoTauProducer')):
+                            newPFTauLabel = cms.InputTag('pfRecoTauProducer'),
+                            tauType='fixedConePFTau'):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
-    process.patAODExtraReco += process.patPFTauDiscrimination
-    massSearchReplaceParam(process.patPFTauDiscrimination, 'PFTauProducer', oldPFTauLabel, newPFTauLabel)
+    print 'Tau type: ', tauType
+    tauSrc = 'PFTauProducer'
+    tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
+    if tauType == 'fixedConeHighEffPFTau':
+        tauDiscriminationSequence = process.patFixedConeHighEffPFTauDiscrimination
+    elif tauType == 'shrinkingConePFTau':
+        tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
+    elif tauType == 'caloTau':
+        tauDiscriminationSequence = process.patCaloTauDiscrimination
+        tauSrc = 'CaloTauProducer'
+    process.patAODExtraReco += tauDiscriminationSequence
+
+    massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
@@ -70,7 +82,7 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
     if pfTauLabelOld in process.aodSummary.candidates:
         process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabelOld)] = pfTauLabelNew
     else:
-        process.aodSummary.candidates += [pfTauLabelOld]
+        process.aodSummary.candidates += [pfTauLabelNew]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
@@ -120,4 +132,11 @@ def switchToPFTauShrinkingCone(process,
         byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     )
-
+    
+# function to switch to **any** PFTau collection
+# It is just to make internal function accessible externally
+def switchToAnyPFTau(process,
+                     pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
+                     pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
+                     pfTauType='fixedConePFTau'):
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType)
