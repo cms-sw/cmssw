@@ -34,8 +34,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-//#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 using namespace std;
 using namespace cms;
@@ -342,9 +342,9 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       
     }
 
-//    TSCBLBuilderNoMaterial tscblBuilder;
+    TSCBLBuilderNoMaterial tscblBuilder;
 
-    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
