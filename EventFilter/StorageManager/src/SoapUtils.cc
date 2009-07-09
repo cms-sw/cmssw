@@ -1,5 +1,5 @@
 /**
- * $Id: Utils.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+ * $Id: SoapUtils.cc,v 1.1 2009/07/09 08:41:10 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
@@ -23,7 +23,7 @@ namespace stor
   namespace soaputils
   {
 
-    std::string extractParameters( xoap::MessageReference msg )
+    std::string extractParameters( xoap::MessageReference msg, xdaq::Application* app )
     {
       std::string command;
 
@@ -31,7 +31,7 @@ namespace stor
 
       // Extract the command name and update any configuration parameter
       // found in the SOAP message in the application infospace
-      xdaq2rc::SOAPParameterExtractor soapParameterExtractor(this);
+      xdaq2rc::SOAPParameterExtractor soapParameterExtractor(app);
       command = soapParameterExtractor.extractParameters(msg);
       return command;
 

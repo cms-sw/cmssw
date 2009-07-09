@@ -1,8 +1,9 @@
-// $Id: Utils.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: SoapUtils.h,v 1.1 2009/07/09 08:41:35 mommsen Exp $
 
 #ifndef StorageManager_SoapUtils_h
 #define StorageManager_SoapUtils_h
 
+#include "xdaq/Application.h"
 #include "xoap/MessageReference.h"
 
 #include <string>
@@ -14,15 +15,19 @@ namespace stor {
     /**
      * Collection of utility functions for handling SOAP messages
      *
-     * $Author: dshpakov $
-     * $Revision: 1.2 $
-     * $Date: 2009/06/10 08:15:24 $
+     * $Author: mommsen $
+     * $Revision: 1.1 $
+     * $Date: 2009/07/09 08:41:35 $
      */
 
     /**
      * Extract parameters and FSM command from SOAP message
      */
-    std::string extractParameters( xoap::MessageReference );
+    std::string extractParameters
+    (
+      xoap::MessageReference,
+      xdaq::Application*
+    );
 
     /**
      * Create a SOAP FSM response message

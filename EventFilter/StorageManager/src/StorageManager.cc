@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.101 2009/07/08 16:07:00 mommsen Exp $
+// $Id: StorageManager.cc,v 1.102 2009/07/09 08:41:10 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -27,7 +27,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.101 2009/07/08 16:07:00 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.102 2009/07/09 08:41:10 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -578,7 +578,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
 
   try {
     errorMsg = "Failed to extract FSM event and parameters from SOAP message: ";
-    std::string command = soaputils::extractParameters(msg);
+    std::string command = soaputils::extractParameters(msg, this);
 
     errorMsg = "Failed to put a '" + command + "' state machine event into command queue: ";
     if (command == "Configure")
