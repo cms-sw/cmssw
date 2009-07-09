@@ -19,33 +19,7 @@ process.eegeom = cms.ESSource("EmptyESSource",
 ## process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 # or Get DB parameters 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "IDEAL_31X::All"
-
-from CondCore.DBCommon.CondDBSetup_cfi import *
-CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.ecalIntercalibConstants = cms.ESSource("PoolDBESSource",CondDBSetup,
-        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
-        toGet = cms.VPSet( cms.PSet(
-                record = cms.string("EcalIntercalibConstantsRcd"),
-                tag = cms.string("EcalIntercalibConstants_avg1_ideal")
-                ) )
-)
-process.es_prefer_ecalIntercalibConstants = cms.ESPrefer("PoolDBESSource","ecalIntercalibConstants")
-
-#####CondDBSetup.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-#####process.ecalADCToGeV = cms.ESSource("PoolDBESSource",CondDBSetup,
-#####        connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_31X_ALL"),
-#####        toGet = cms.VPSet( cms.PSet(
-#####                record = cms.string("EcalADCToGeVConstantRcd"),
-#####                tag = cms.string("EcalADCToGeVConstant_avg1_ideal")
-#####                ) )
-#####)
-#####process.es_prefer_ecalADCToGeV = cms.ESPrefer("PoolDBESSource","ecalADCToGeV")
-
-####process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#####process.CondDBCommon.connect = 'sqlite_file:DB.db'
-####process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_31X_ALL'
-####process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.GlobalTag.globaltag = "MC_31X_V2::All"
 
 
 #########################

@@ -46,8 +46,6 @@ double oneOverEtResolEt(double *x, double *par) {
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
-  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder"<<endl;
-
   ped_conf_id_=0;
   lin_conf_id_=0;
   lut_conf_id_=0;
@@ -122,10 +120,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
   FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
-
-  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder done"<<endl;
-
-
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -169,8 +163,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 {
   using namespace edm;
   using namespace std;
-
-  std::cout<< "we are in analyze"<< endl; 
 
   // geometry
   ESHandle<CaloGeometry> theGeometry;
@@ -230,30 +222,50 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t>::iterator itList ;
 
 
-  std::cout <<"we get the pedestals from offline DB"<<endl;
   // Pedestals
+  std::cout <<"Getting the pedestals from offline DB..."<<endl;
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
   const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
-
-
-  std::cout <<"we get the intercalib from offline DB"<<endl;
+  EcalPedestalsMapIterator pedIter ; 
+  int nPed = 0 ;
+  for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
+    EcalPedestals::Item aped = (*pedIter);
+    std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+  }
+  std::cout<<"...\n"<<std::endl ;
+  
+  
   // Intercalib constants
+  std::cout <<"Getting intercalib from offline DB..."<<endl;
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
   const EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
+  EcalIntercalibConstantMap::const_iterator calIter ;
+  int nCal = 0 ;
+  for (calIter = calibMap.begin() ; calIter != calibMap.end() && nCal<10 ; ++calIter, nCal++) {
+    std::cout<<(*calIter)<<std::endl ;
+  }  
+  std::cout<<"...\n"<<std::endl ;
 
 
-  std::cout <<"we get the gain ratios from offline DB"<<endl;
   // Gain Ratios
+  std::cout <<"Getting the gain ratios from offline DB..."<<endl;
   ESHandle<EcalGainRatios> pRatio;
   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
-  
+  EcalGainRatioMap::const_iterator gainIter ;
+  int nGain = 0 ;
+  for (gainIter = gainMap.begin() ; gainIter != gainMap.end() && nGain<10 ; ++gainIter, nGain++) {
+    const EcalMGPAGainRatio & aGain = (*gainIter) ;
+    std::cout<<aGain.gain12Over6()<<", "<<aGain.gain6Over1() * aGain.gain12Over6()<<std::endl ;
+  }  
+  std::cout<<"...\n"<<std::endl ;  
 
-  std::cout <<"we get the ADC to GEV from offline DB"<<endl;
+
   // ADCtoGeV
+  std::cout <<"Getting the ADC to GEV from offline DB..."<<endl;
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV) ;
   const EcalADCToGeVConstant * ADCToGeV = pADCToGeV.product() ;
@@ -261,7 +273,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
   std::cout<<"xtal_LSB_EB_ = "<<xtal_LSB_EB_<<std::endl ;
   std::cout<<"xtal_LSB_EE_ = "<<xtal_LSB_EE_<<std::endl ;
-
+  std::cout<<std::endl ;  
+  
   
   vector<EcalLogicID> my_EcalLogicId;
   vector<EcalLogicID> my_TTEcalLogicId;
@@ -1077,15 +1090,10 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   using namespace edm;
   using namespace std;
 
-  std::cout<<"we are in beginJob"<<endl;
-
   create_header() ; 
-  std::cout<<"we are in beginJob after create header"<<endl;
 
   DetId eb(DetId::Ecal,EcalBarrel) ;
   DetId ee(DetId::Ecal,EcalEndcap) ;
-
-  std::cout<<"we are in beginJob after detid"<<endl;
 
   if (writeToFiles_) {
     (*out_file_)<<"PHYSICS_EB "<<dec<<eb.rawId()<<std::endl ;
@@ -1100,8 +1108,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 		  <<-1<<" "<<-1<<std::endl ;
     (*out_file_) <<std::endl ;
   }
-  std::cout<<"we are in beginJob ending..."<<endl;
-
 
 }
 
@@ -1333,6 +1339,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
 
   std::vector<unsigned int> theWeights ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
+
+  std::cout<<std::endl ;
 
   delete weight ;
   delete iweight ;
