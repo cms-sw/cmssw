@@ -28,6 +28,8 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalTriggerKey.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelQualityXml.h"
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -102,6 +104,7 @@ int main( int argc, char **argv )
     ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
     ("qie", "Generate new QIE table file")
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
+    ("test-channel-data", "Test base class for DB entries per HCAL channel")
     ("test-new-developer", "Test area for a new developer")
     ;
 
@@ -402,6 +405,15 @@ int main( int argc, char **argv )
     }
 
 
+    if (vm.count("test-channel-data")) {
+      HcalChannelQualityXml xml;
+      //DOMNode * ds = xml.add_dataset();
+      xml.add_hcal_channel_dataset(2, 2, 1, "HO", 1, 0, "test channel quality comment field");
+      xml.write();
+      return 0;
+    }
+    
+    
     if (vm.count("test-new-developer")) {
       cout << "Wazzup, dude?! What would you like to do?.." << "\n";
       return 0;
