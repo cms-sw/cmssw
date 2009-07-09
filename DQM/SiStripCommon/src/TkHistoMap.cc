@@ -107,6 +107,18 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
   return folder;
 }
 
+#include "iostream"
+void TkHistoMap::fillFromAscii(char* filename){
+  ifstream file;
+  file.open(filename);
+  float value;
+  uint32_t detid;
+  while (file.good()){
+    file >> detid >> value;
+    fill(detid,value);
+  }
+  file.close();
+}
 
 void TkHistoMap::fill(uint32_t& detid,float value){
   int16_t layer=tkdetmap_->FindLayer(detid);

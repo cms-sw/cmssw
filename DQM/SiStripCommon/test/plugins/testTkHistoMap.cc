@@ -155,7 +155,7 @@ void testTkHistoMap::endJob(void)
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
   TrackerMap tkmap, tkmapZ, tkmapPhi, tkmapR; 
 
-  tkmap.setPalette(2);
+  tkmap.setPalette(1);
   tkmapZ.setPalette(2);
   tkmapPhi.setPalette(2);
   tkmapR.setPalette(2);
@@ -203,6 +203,9 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
   */
 
+  tkhisto->fillFromAscii("test.txt");
+  tkhistoBis->fillFromAscii("test2.txt");
+
   for(size_t i=0;i<TkDetIdList.size();++i){
 
     const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(TkDetIdList[i])));
@@ -210,8 +213,8 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
     
     value = TkDetIdList[i]%1000000;
     
-    tkhisto->fill(TkDetIdList[i],value);
-    tkhistoBis->fill(TkDetIdList[i],value);
+    //tkhisto->fill(TkDetIdList[i],value);
+    //tkhistoBis->fill(TkDetIdList[i],value);
     tkhistoZ->fill(TkDetIdList[i],globalPos.z());
     tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());
     tkhistoR->fill(TkDetIdList[i],globalPos.perp());
