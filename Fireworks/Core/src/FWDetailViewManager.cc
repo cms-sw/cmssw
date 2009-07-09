@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.37 2009/07/02 16:11:06 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.38 2009/07/08 15:51:02 amraktad Exp $
 //
 
 // system include files
@@ -137,13 +137,13 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 
    // clean after previous detail view
    m_textCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
-   //   m_textCanvas->GetCanvas()->Clear("D");
    if (m_modeGL) {
       m_detailView->clearOverlayElements();
       m_sceneGL->DestroyElements();
    }
    else {
-      m_viewCanvas->GetCanvas()->Clear("D");
+      m_viewCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
+      m_textCanvas ->GetCanvas()->SetEditable(kTRUE);
    }
 
    // build
@@ -168,8 +168,9 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    else
    {
       m_viewCanvas->GetCanvas()->Update();
+      m_viewCanvas ->GetCanvas()->SetEditable(kFALSE);
    }
-   //  m_textCanvas->GetCanvas()->SetEditable(kFALSE);
+   m_textCanvas->GetCanvas()->SetEditable(kFALSE);
 
    m_textCanvas->GetCanvas()->Update();
 
