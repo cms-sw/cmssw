@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("testbuilder")
 
-process.load("DQM.SiStripCommon.MessageLogger_cfi")
+process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
     ConfDb = cms.untracked.string('username/passwd@cms_omds_nolb'),

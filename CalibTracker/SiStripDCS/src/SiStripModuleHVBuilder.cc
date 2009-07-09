@@ -243,7 +243,9 @@ void SiStripModuleHVBuilder::BuildModuleHVObj() {
 	  isHV.push_back(1);
 	  psuName.push_back( dpname[dp] );
 	} else {
-	  LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
+	  if (board != "channel001") {
+	    LogTrace("SiStripModuleHVBuilder") << "[SiStripModuleHVBuilder::" << __func__ << "] channel name not recognised! " << board;
+	  }
 	}
       }
     } else {
