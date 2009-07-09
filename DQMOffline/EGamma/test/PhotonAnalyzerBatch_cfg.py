@@ -50,10 +50,15 @@ from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndRun = cms.untracked.bool(False)
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
+process.FEVT = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
+    fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
+)
 
 
+process.p1 = cms.Path(process.photonAnalysis*process.MEtoEDMConverter)
 
-process.p1 = cms.Path(process.photonAnalysis)
+#process.p1 = cms.Path(process.photonAnalysis)
 #process.p1 = cms.Path(process.photonAnalysis*process.dqmStoreStats)
 
 process.schedule = cms.Schedule(process.p1)
