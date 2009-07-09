@@ -1,5 +1,5 @@
 /**
- * $Id: Utils.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+ * $Id: Utils.cc,v 1.3 2009/07/09 09:36:46 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -126,8 +126,6 @@ namespace stor
         return;
       }
 #endif
-      LOG4CPLUS_ERROR(app->getApplicationLogger(),
-        "Raised alarm '" << name << "': " << exception.message());
     }
 
 
@@ -155,10 +153,7 @@ namespace stor
       
       is->fireItemRevoked(name, app);
       delete alarm;
-
 #endif
-      LOG4CPLUS_ERROR(app->getApplicationLogger(),
-        "Revoked alarm '" << name << "'");
     }
 
   } // namespace utils
