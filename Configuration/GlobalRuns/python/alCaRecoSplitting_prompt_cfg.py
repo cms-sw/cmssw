@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.123 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec
+# with command line options: alCaRecoSplitting -s ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+SiStripCalZeroBias+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCA')
@@ -147,6 +147,20 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias:RECO')
+    ),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
+        'keep *_calZeroBiasClusters_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('SiStripCalZeroBias.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('SiStripCalZeroBias'),
+        dataTier = cms.untracked.string('ALCARECO')
+    )
+)
 
 # Path and EndPath definitions
 process.endjob_step = cms.Path(process.endOfProcess)
@@ -156,6 +170,7 @@ process.ALCARECOStreamTkAlCosmics0TOutPath = cms.EndPath(process.ALCARECOStreamT
 process.ALCARECOStreamRpcCalHLTOutPath = cms.EndPath(process.ALCARECOStreamRpcCalHLT)
 process.ALCARECOStreamMuAlGlobalCosmicsOutPath = cms.EndPath(process.ALCARECOStreamMuAlGlobalCosmics)
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
+process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath)
+process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath)

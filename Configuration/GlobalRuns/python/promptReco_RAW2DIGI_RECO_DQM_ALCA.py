@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.123 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptReco -s RAW2DIGI,RECO,DQM,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec --data --magField 0T --scenario cosmics
+# with command line options: promptReco -s RAW2DIGI,RECO,DQM,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+SiStripCalZeroBias+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec --data --magField 0T --scenario cosmics
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -55,6 +55,8 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *',
         'keep edmTriggerResults_*_*_*',
+        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
+        'keep *_calZeroBiasClusters_*_*', 
         'keep *_ALCARECOMuAlStandAloneCosmics_*_*',
         'keep *_ALCARECOMuAlGlobalCosmics_*_*',  
         'keep *_ALCARECOMuAlCalIsolatedMu_*_*',
@@ -143,4 +145,4 @@ process.out_step = cms.EndPath(process.FEVT)
 process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECODQM,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOMuAlStandAloneCosmics,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECODQM,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOMuAlStandAloneCosmics,process.endjob_step,process.out_step,process.ALCARECOStreamCombinedOutPath)
