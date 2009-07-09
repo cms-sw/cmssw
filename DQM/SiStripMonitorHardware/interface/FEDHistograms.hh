@@ -144,6 +144,12 @@ private:
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
 
+  MonitorElement *nAPVStatusBit_;
+  MonitorElement *nAPVError_;
+  MonitorElement *nAPVAddressError_;
+  MonitorElement *nUnlocked_;
+  MonitorElement *nOutOfSync_;
+
   MonitorElement *nTotalBadChannelsvsTime_;
   MonitorElement *nTotalBadActiveChannelsvsTime_;
 

@@ -7,6 +7,8 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedMonitoringSummary'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
+  #do histos vs time with time=event number. Default time = orbit number (s).
+  FillWithEventNumber = cms.untracked.bool(False),
   #Whether to dump buffer info and raw data if any error is found: 
   #1=errors, 2=minimum info, 3=full debug with printing of the data buffer of each FED per event.
   PrintDebugMessages = cms.untracked.uint32(1),
@@ -102,6 +104,36 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     Max = cms.untracked.double(441)
   ),
   nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
+  ),
+  nAPVStatusBitHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
+  ),
+  nAPVErrorHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
+  ),
+  nAPVAddressErrorHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
+  ),
+  nUnlockedHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(353),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(42240)
+  ),
+  nOutOfSyncHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(353),
     Min = cms.untracked.double(0),

@@ -85,17 +85,18 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi')
 #process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff')
+process.siStripFEDMonitor.FillWithEventNumber = True
 process.siStripFEDMonitor.PrintDebugMessages = 2
-process.siStripFEDMonitor.nTotalBadChannelsvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nTotalBadActiveChannelsvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nFEDErrorsvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nFEDCorruptBuffersvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nFEDsWithFEProblemsvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nAPVStatusBitvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nAPVErrorvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nAPVAddressErrorvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nUnlockedvsTimeHistogramConfig.Max = 60;
-process.siStripFEDMonitor.nOutOfSyncvsTimeHistogramConfig.Max = 60;
+process.siStripFEDMonitor.nTotalBadChannelsvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nTotalBadActiveChannelsvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nFEDErrorsvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nFEDCorruptBuffersvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nFEDsWithFEProblemsvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nAPVStatusBitvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nAPVErrorvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nAPVAddressErrorvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nUnlockedvsTimeHistogramConfig.Max = 1000;
+process.siStripFEDMonitor.nOutOfSyncvsTimeHistogramConfig.Max = 1000;
 process.siStripFEDMonitor.WriteDQMStore = True
 process.siStripFEDMonitor.DQMStoreFileName = "DQMStore_comm09.root"
 process.siStripFEDMonitor.FillAllDetailedHistograms = False

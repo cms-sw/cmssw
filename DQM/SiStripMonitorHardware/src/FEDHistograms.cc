@@ -61,6 +61,12 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram("nUnconnectedChannels",iConfig,pDebugStream);
 
+  getConfigForHistogram("nAPVStatusBit",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVError",iConfig,pDebugStream);
+  getConfigForHistogram("nAPVAddressError",iConfig,pDebugStream);
+  getConfigForHistogram("nUnlocked",iConfig,pDebugStream);
+  getConfigForHistogram("nOutOfSync",iConfig,pDebugStream);
+
   getConfigForHistogram("nTotalBadChannelsvsTime",iConfig,pDebugStream);
   getConfigForHistogram("nTotalBadActiveChannelsvsTime",iConfig,pDebugStream);
   getConfigForHistogram("nFEDErrorsvsTime",iConfig,pDebugStream);
@@ -104,6 +110,12 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
 
   fillHistogram(nUnconnectedChannels_,chLevelCounters.nNotConnected);
   
+  fillHistogram(nAPVStatusBit_,chLevelCounters.nAPVStatusBit);
+  fillHistogram(nAPVError_,chLevelCounters.nAPVError);
+  fillHistogram(nAPVAddressError_,chLevelCounters.nAPVAddressError);
+  fillHistogram(nUnlocked_,chLevelCounters.nUnlocked);
+  fillHistogram(nOutOfSync_,chLevelCounters.nOutOfSync);
+
   fillHistogram(nTotalBadChannelsvsTime_,aTime,fedLevelCounters.nTotalBadChannels);
   fillHistogram(nTotalBadActiveChannelsvsTime_,aTime,fedLevelCounters.nTotalBadActiveChannels);
 
@@ -229,131 +241,198 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
                                "Number of events where the data from a FED is seen",
                                siStripFedIdMax-siStripFedIdMin+1,
                                siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   dataMissing_ = bookHistogram("DataMissing","DataMissing",
                                "Number of events where the data from a FED with cabled channels is missing",
                                siStripFedIdMax-siStripFedIdMin+1,
                                siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   anyFEDErrors_ = bookHistogram("AnyFEDErrors","AnyFEDErrors",
-                             "Number of buffers with any FED error (excluding bad channel status bits, FE problems except overflows) per FED",
-                             siStripFedIdMax-siStripFedIdMin+1,
-                             siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+				"Number of buffers with any FED error (excluding bad channel status bits, FE problems except overflows) per FED",
+				siStripFedIdMax-siStripFedIdMin+1,
+				siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   corruptBuffers_ = bookHistogram("CorruptBuffers","CorruptBuffers",
                                   "Number of corrupt FED buffers per FED",
                                   siStripFedIdMax-siStripFedIdMin+1,
                                   siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   invalidBuffers_ = bookHistogram("InvalidBuffers","InvalidBuffers",
                                   "Number of invalid FED buffers per FED",
                                   siStripFedIdMax-siStripFedIdMin+1,
                                   siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   anyDAQProblems_ = bookHistogram("AnyDAQProblems","AnyDAQProblems",
                                   "Number of buffers with any problems flagged in DAQ header (including CRC)",
                                   siStripFedIdMax-siStripFedIdMin+1,
                                   siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badIDs_ = bookHistogram("BadIDs","BadIDs",
                           "Number of buffers with non-SiStrip source IDs in DAQ header",
                           siStripFedIdMax-siStripFedIdMin+1,
                           siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badChannelStatusBits_ = bookHistogram("BadChannelStatusBits","BadChannelStatusBits",
                                         "Number of buffers with one or more enabled channel with bad status bits",
                                         siStripFedIdMax-siStripFedIdMin+1,
                                         siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badActiveChannelStatusBits_ = bookHistogram("BadActiveChannelStatusBits","BadActiveChannelStatusBits",
                                               "Number of buffers with one or more active channel with bad status bits",
                                               siStripFedIdMax-siStripFedIdMin+1,
                                               siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   anyFEProblems_ = bookHistogram("AnyFEProblems","AnyFEProblems",
-                                  "Number of buffers with any FE unit problems",
-                                  siStripFedIdMax-siStripFedIdMin+1,
-                                  siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+				 "Number of buffers with any FE unit problems",
+				 siStripFedIdMax-siStripFedIdMin+1,
+				 siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
   badDAQCRCs_ = bookHistogram("BadDAQCRCs","BadDAQCRCs",
                               "Number of buffers with bad CRCs from the DAQ",
                               siStripFedIdMax-siStripFedIdMin+1,
                               siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badFEDCRCs_ = bookHistogram("BadFEDCRCs","BadFEDCRCs",
                               "Number of buffers with bad CRCs from the FED",
                               siStripFedIdMax-siStripFedIdMin+1,
                               siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badDAQPacket_ = bookHistogram("BadDAQPacket","BadDAQPacket",
                                "Number of buffers with (non-CRC) problems flagged in DAQ header/trailer",
                                siStripFedIdMax-siStripFedIdMin+1,
                                siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   feOverflows_ = bookHistogram("FEOverflows","FEOverflows",
                                "Number of buffers with one or more FE overflow",
                                siStripFedIdMax-siStripFedIdMin+1,
                                siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   badMajorityAddresses_ = bookHistogram("BadMajorityAddresses","BadMajorityAddresses",
                                         "Number of buffers with one or more FE with a bad majority APV address",
                                         siStripFedIdMax-siStripFedIdMin+1,
                                         siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
   feMissing_ = bookHistogram("FEMissing","FEMissing",
                              "Number of buffers with one or more FE unit payload missing",
                              siStripFedIdMax-siStripFedIdMin+1,
                              siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
-  nFEDErrors_ = bookHistogram("nFEDErrors","nFEDErrors",
-                              "Number of FEDs with errors (exclusing channel status bits) per event","");
-  nFEDDAQProblems_ = bookHistogram("nFEDDAQProblems","nFEDDAQProblems",
-                                   "Number of FEDs with DAQ problems per event","");
-  nFEDsWithFEProblems_ = bookHistogram("nFEDsWithFEProblems","nFEDsWithFEProblems",
-                                       "Number of FEDs with FE problems per event","");
-  nFEDCorruptBuffers_ = bookHistogram("nFEDCorruptBuffers","nFEDCorruptBuffers",
-                                      "Number of FEDs with corrupt buffers per event","");
-  nBadChannelStatusBits_ = bookHistogram("nBadChannelStatusBits","nBadChannelStatusBits",
-					 "Number of channels with bad status bits per event","");
-  nBadActiveChannelStatusBits_ = bookHistogram("nBadActiveChannelStatusBits","nBadActiveChannelStatusBits",
-                                               "Number of active channels with bad status bits per event","");
-  nFEDsWithFEOverflows_ = bookHistogram("nFEDsWithFEOverflows","nFEDsWithFEOverflows",
-                                        "Number FEDs with FE units which overflowed per event","");
-  nFEDsWithFEBadMajorityAddresses_ = bookHistogram("nFEDsWithFEBadMajorityAddresses","nFEDsWithFEBadMajorityAddresses",
-                                                   "Number of FEDs with FE units with a bad majority address per event","");
-  nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs","nFEDsWithMissingFEs",
-                                       "Number of FEDs with missing FE unit payloads per event","");
+  nFEDErrors_ = bookHistogram("nFEDErrors",
+			      "nFEDErrors",
+                              "Number of FEDs with errors (exclusing channel status bits) per event",
+			      "");
 
-  nUnconnectedChannels_ = bookHistogram("nUnconnectedChannels","nUnconnectedChannels",
-					 "Number of channels not connected per event","");
+  nFEDDAQProblems_ = bookHistogram("nFEDDAQProblems",
+				   "nFEDDAQProblems",
+                                   "Number of FEDs with DAQ problems per event",
+				   "");
+
+  nFEDsWithFEProblems_ = bookHistogram("nFEDsWithFEProblems",
+				       "nFEDsWithFEProblems",
+                                       "Number of FEDs with FE problems per event",
+				       "");
+
+  nFEDCorruptBuffers_ = bookHistogram("nFEDCorruptBuffers",
+				      "nFEDCorruptBuffers",
+                                      "Number of FEDs with corrupt buffers per event",
+				      "");
+
+  nBadChannelStatusBits_ = bookHistogram("nBadChannelStatusBits",
+					 "nBadChannelStatusBits",
+					 "Number of channels with bad status bits per event",
+					 "");
+
+  nBadActiveChannelStatusBits_ = bookHistogram("nBadActiveChannelStatusBits",
+					       "nBadActiveChannelStatusBits",
+                                               "Number of active channels with bad status bits per event",
+					       "");
+
+  nFEDsWithFEOverflows_ = bookHistogram("nFEDsWithFEOverflows",
+					"nFEDsWithFEOverflows",
+                                        "Number FEDs with FE units which overflowed per event",
+					"");
+
+  nFEDsWithFEBadMajorityAddresses_ = bookHistogram("nFEDsWithFEBadMajorityAddresses",
+						   "nFEDsWithFEBadMajorityAddresses",
+                                                   "Number of FEDs with FE units with a bad majority address per event",
+						   "");
+
+  nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs",
+				       "nFEDsWithMissingFEs",
+                                       "Number of FEDs with missing FE unit payloads per event",
+				       "");
+
+  nUnconnectedChannels_ = bookHistogram("nUnconnectedChannels",
+					"nUnconnectedChannels",
+					"Number of channels not connected per event",
+					"");
+
+  nAPVStatusBit_ = bookHistogram("nAPVStatusBit",
+			       "nAPVStatusBit",
+			       "Number of channels with APVStatusBit error per event",
+			       "");
+
+  nAPVError_ = bookHistogram("nAPVError",
+			   "nAPVError",
+			   "Number of channels with APVError per event",
+			   "");
+
+  nAPVAddressError_ = bookHistogram("nAPVAddressError",
+				  "nAPVAddressError",
+				  "Number of channels with APVAddressError per event",
+				  "");
+
+  nUnlocked_ = bookHistogram("nUnlocked",
+			   "nUnlocked",
+			   "Number of channels Unlocked per event",
+			   "");
+
+  nOutOfSync_ = bookHistogram("nOutOfSync",
+			    "nOutOfSync",
+			    "Number of channels OutOfSync per event",
+			    "");
 
   nTotalBadChannelsvsTime_ = bookProfile("nTotalBadChannelsvsTime",
-					   "nTotalBadChannelsvsTime",
-					   "Number of channels with any error vs time");
+					 "nTotalBadChannelsvsTime",
+					 "Number of channels with any error vs time");
 
 
   nTotalBadActiveChannelsvsTime_  = bookProfile("nTotalBadActiveChannelsvsTime",
-						  "nTotalBadActiveChannelsvsTime",
-						  "Number of active channels with any error vs time");
+						"nTotalBadActiveChannelsvsTime",
+						"Number of active channels with any error vs time");
 
 
   nFEDErrorsvsTime_ = bookProfile("nFEDErrorsvsTime",
-				    "nFEDErrorsvsTime",
-				    "Number of FEDs with any error vs time");
+				  "nFEDErrorsvsTime",
+				  "Number of FEDs with any error vs time");
 
   nFEDCorruptBuffersvsTime_ = bookProfile("nFEDCorruptBuffersvsTime",
-					    "nFEDCorruptBuffersvsTime",
-					   "Number of FEDs with corrupt buffer vs time");
+					  "nFEDCorruptBuffersvsTime",
+					  "Number of FEDs with corrupt buffer vs time");
 
   nFEDsWithFEProblemsvsTime_ = bookProfile("nFEDsWithFEProblemsvsTime",
-					     "nFEDsWithFEProblemsvsTime",
-					     "Number of FEDs with any FE error vs time");
+					   "nFEDsWithFEProblemsvsTime",
+					   "Number of FEDs with any FE error vs time");
 
   nAPVStatusBitvsTime_ = bookProfile("nAPVStatusBitvsTime",
-				       "nAPVStatusBitvsTime",
-				       "Number of channels with APVStatusBit error vs time");
+				     "nAPVStatusBitvsTime",
+				     "Number of channels with APVStatusBit error vs time");
 
   nAPVErrorvsTime_ = bookProfile("nAPVErrorvsTime",
-				   "nAPVErrorvsTime",
-				   "Number of channels with APVError vs time");
+				 "nAPVErrorvsTime",
+				 "Number of channels with APVError vs time");
 
   nAPVAddressErrorvsTime_ = bookProfile("nAPVAddressErrorvsTime",
-					  "nAPVAddressErrorvsTime",
-					  "Number of channels with APVAddressError vs time");
+					"nAPVAddressErrorvsTime",
+					"Number of channels with APVAddressError vs time");
 
   nUnlockedvsTime_ = bookProfile("nUnlockedvsTime",
-				   "nUnlockedvsTime",
-				   "Number of channels Unlocked vs time");
+				 "nUnlockedvsTime",
+				 "Number of channels Unlocked vs time");
 
   nOutOfSyncvsTime_ = bookProfile("nOutOfSyncvsTime",
-				    "nOutOfSyncvsTime",
-				    "Number of channels OutOfSync vs time");
+				  "nOutOfSyncvsTime",
+				  "Number of channels OutOfSync vs time");
 
 
   //book map after, as it creates a new folder...
