@@ -101,6 +101,8 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
 
     if (xAxisRange > 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(0.,xAxisRange);
+    if (yAxisRange > 0) ref_hist1[nh1]->GetYaxis()->SetRangeUser(0.,yAxisRange);
+
     ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
     
     //Different histo colors and styles
