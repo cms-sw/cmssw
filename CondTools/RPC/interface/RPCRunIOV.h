@@ -5,8 +5,8 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/05/26 18:43:18 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/06/18 11:57:54 $
+ *  $Revision: 1.9 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -51,6 +51,7 @@ class  RPCRunIOV {
   bool isReadingNeeded(unsigned long long);
   unsigned long long toDAQ(unsigned long long);
   unsigned long long toUNIX(int, int);
+  unsigned long long DAQtoUNIX(unsigned long long*);
   std::vector<RPCObImon::I_Item> filterIMON(std::vector<RPCObImon::I_Item>, unsigned long long, unsigned long long);
   std::string chamberName(chRAW);
   unsigned long long min_I;

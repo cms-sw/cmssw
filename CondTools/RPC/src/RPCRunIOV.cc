@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include <sys/time.h>
 
 
 namespace 
@@ -213,6 +215,15 @@ RPCRunIOV::toDAQ(unsigned long long timeU)
 
 
 unsigned long long 
+RPCRunIOV::DAQtoUNIX(unsigned long long *time)
+{
+  timeval *tmval=(timeval*)time;
+  unsigned long long int curVal=(tmval->tv_usec*1000000LL)+tmval->tv_sec;
+  return curVal;
+}
+
+
+unsigned long long 
 RPCRunIOV::toUNIX(int date, int time)
 {
   int yea_ = (int)date/100; 
@@ -232,6 +243,8 @@ RPCRunIOV::toUNIX(int date, int time)
   unsigned long long UT = conv.TtoUT(TS);
   return UT;
 }
+
+
 
 
 
