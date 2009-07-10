@@ -45,9 +45,9 @@ namespace cond {
 
 
   void IOVSequence::loadAll() const {
-    m_provenance.get();
-    m_description.get();
-    m_userMetadata.get();
+    // m_provenance.get();
+    // m_description.get();
+    // m_userMetadata.get();
   }
   
   IOVSequence::Container const & IOVSequence::iovs() const {
