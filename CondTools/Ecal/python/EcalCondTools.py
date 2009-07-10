@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.1 2009/07/09 10:27:01 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.2 2009/07/09 22:56:14 argiro Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -37,22 +37,24 @@ def dumpXML(db,tag,filename='dump.xml'):
 def plot (db, tag,filename='plot.root'):
     '''Invoke the plot function from the wrapper and save to the specified \
        file. The file format will reflect the extension given.'''
+    
     try :
-       iov = inspect.Iov(db,tag)
-       iovlist = iov.list()
-       for p in iovlist:
-          payload=inspect.PayLoad(db,p[0])
-          payload.plot(filename,"",[],[])
-
+        iov = inspect.Iov(db,tag)
+        iovlist = iov.list()
+        for p in iovlist:
+            payload=inspect.PayLoad(db,p[0])
+            payload.plot(filename,"",[],[])
+            
     except Exception,er :
         print er
+        
 
 def compare(tag1,db1,tag2,db2, filename='compare.root'):
   '''Produce comparison plots for two records. If no db2 is passed, will \
        assume we want to compare tags in the same db. Save plots to file \
        according to format. tag can be an xml file'''
   
-  if not tag1.find(".xml"):
+  if  tag1.find(".xml") < 0:
       try:  
         exec('import '+db1.moduleName(tag1)+' as Plug')
 
@@ -70,7 +72,7 @@ def compare(tag1,db1,tag2,db2, filename='compare.root'):
   else:
       coeff_1,coeff_1_ee = EcalPyUtils.fromXML(tag1)
 
-  if not tag2.find(".xml"):
+  if  tag2.find(".xml")<0:
       try:  
         exec('import '+db2.moduleName(tag2)+' as Plug')
 
@@ -113,7 +115,7 @@ def compare(tag1,db1,tag2,db2, filename='compare.root'):
 
 def histo (db, tag,filename='histo.root'):
     '''Make histograms and save to file. tag can be an xml file'''
-    if not tag.find(".xml"):
+    if  tag.find(".xml")< 0:
         try:  
           exec('import '+db.moduleName(tag)+' as Plug')
 

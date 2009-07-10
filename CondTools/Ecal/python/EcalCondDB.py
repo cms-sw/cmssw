@@ -89,7 +89,7 @@ for opt,arg in opts:
     if opt in ("-t","--tag"):
        tags.append(arg)
        ntags=ntags+1
-       if arg.find(".xml"):
+       if arg.find(".xml")>0 :
            print "WARNING : plot from XML is not protected against changes"
            print "          in DetId or CondFormats"
            
