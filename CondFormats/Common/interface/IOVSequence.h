@@ -73,9 +73,9 @@ namespace cond {
     std::string const & metadataToken() const { return m_metadata;}
 
 
-    void set_description(cond::IOVDescription * id) { m_description = id;}
+    // void set_description(cond::IOVDescription * id) { m_description = id;}
 
-    cond::IOVDescription const & description() const {return *m_description;}
+    // cond::IOVDescription const & description() const {return *m_description;}
 
 
     void loadAll() const;
@@ -104,13 +104,13 @@ namespace cond {
     std::string m_metadata; // FIXME not used???
 
     // to describe history and be used as provenance
-    pool::PolyPtr<cond::IOVProvenance> m_provenance;
+    // pool::PolyPtr<cond::IOVProvenance> m_provenance;
 
     // keep list of types, list of keywords, 
-    pool::PolyPtr<cond::IOVDescription> m_description;
+    // pool::PolyPtr<cond::IOVDescription> m_description;
 
     // for the user
-    pool::PolyPtr<cond::IOVUserMetaData> m_userMetadata;
+    // pool::PolyPtr<cond::IOVUserMetaData> m_userMetadata;
 
     mutable Container * m_sorted;
 

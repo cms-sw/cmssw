@@ -28,7 +28,7 @@ namespace cond {
       co << " no iov for token " << m_token;
       return;
     }
-    co << "iov token " << m_token;
+    co << " iov token " << m_token;
     co << "\nStamp: " <<  m_iov->comment()
        << "; time " <<  m_iov->timestamp()
        << "; revision " <<  m_iov->revision();
@@ -37,13 +37,14 @@ namespace cond {
       co << ". empty";
     else
       co << ". size " <<  m_iov->iovs().size() 
-	 << "; last since" << m_iov->iovs().back().sinceTime();
+	 << "; last since " << m_iov->iovs().back().sinceTime();
   }
 
   void IOVEditorImpl::reportError(std::string message) const {
     std::ostringstream out;
-    out << "Error in";
+    out << "Error in ";
     debugInfo(out);
+    out  << "\n" << message;
     throw cond::Exception(out.str());
   }
 
@@ -51,7 +52,7 @@ namespace cond {
     std::ostringstream out;
     out << "Error in";
     debugInfo(out);
-    out << message << " for time " << time;
+    out << "\n" <<  message << " for time:  " << time;
     throw cond::Exception(out.str());
   }
 
