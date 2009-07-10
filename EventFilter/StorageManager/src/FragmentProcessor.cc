@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.7 2009/06/29 15:47:29 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.8 2009/07/08 20:06:08 mommsen Exp $
 
 #include <unistd.h>
 
@@ -95,7 +95,7 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
       sentinelException, errorMsg, e);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
   catch(std::exception &e)
   {
@@ -108,7 +108,7 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
   catch(...)
   {
@@ -121,7 +121,7 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
 
   return _actionIsActive;

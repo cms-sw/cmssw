@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.102 2009/07/09 08:41:10 mommsen Exp $
+// $Id: StorageManager.cc,v 1.103 2009/07/09 08:52:10 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -27,7 +27,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.102 2009/07/09 08:41:10 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.103 2009/07/09 08:52:10 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -199,7 +199,7 @@ void StorageManager::startWorkerThreads()
 
     notifyQualified("fatal", e);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( e.what() );
   }
   catch(std::exception &e)
   {
@@ -210,19 +210,19 @@ void StorageManager::startWorkerThreads()
       sentinelException, e.what());
     notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( e.what() );
   }
   catch(...)
   {
-    std::string errorMsg = "Unknown exception when starting the workloops.";
+    std::string errorMsg = "Unknown exception when starting the workloops";
     LOG4CPLUS_FATAL(getApplicationLogger(),
       errorMsg);
-    
+
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, errorMsg);
     notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
 }
 
@@ -615,8 +615,8 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
   catch (cms::Exception& e) {
     errorMsg += e.explainSelf();
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
- 
-    _sharedResources->moveToFailedState();
+
+    _sharedResources->moveToFailedState( errorMsg );
 
     XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }
@@ -624,7 +624,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     LOG4CPLUS_FATAL( getApplicationLogger(),
       errorMsg << xcept::stdformat_exception_history(e));
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
 
     XCEPT_RETHROW(xoap::exception::Exception, errorMsg, e);
   }
@@ -632,7 +632,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     errorMsg += e.what();
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
 
     XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }
@@ -641,7 +641,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
 
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
 
     XCEPT_RAISE(xoap::exception::Exception, errorMsg);
   }

@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.5.2.1 2009/07/07 16:34:31 mommsen Exp $
+// $Id: Ready.cc,v 1.6 2009/07/08 16:06:59 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -40,7 +40,7 @@ void Ready::do_entryActionWork()
   catch(...)
     {
       // To do: add logging:
-      sharedResources->moveToFailedState();
+      sharedResources->moveToFailedState( "exception while updating parameters in Ready entry action" );
       return;
     }
 
@@ -93,9 +93,9 @@ string Ready::do_stateName() const
   return string( "Ready" );
 }
 
-void Ready::do_moveToFailedState() const
+void Ready::do_moveToFailedState( const std::string& reason ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState();
+  outermost_context().getSharedResources()->moveToFailedState( reason );
 }
 
 

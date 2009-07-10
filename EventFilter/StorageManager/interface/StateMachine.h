@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.4 2009/07/03 19:30:17 mommsen Exp $
+// $Id: StateMachine.h,v 1.5 2009/07/10 09:07:17 mommsen Exp $
 
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
@@ -89,7 +89,7 @@ namespace stor
 
     std::string stateName() const;
 
-    void moveToFailedState() const;
+    void moveToFailedState( const std::string& reason ) const;
 
   protected:
 
@@ -99,7 +99,7 @@ namespace stor
 
     virtual std::string do_stateName() const = 0;
 
-    virtual void do_moveToFailedState() const = 0;
+    virtual void do_moveToFailedState( const std::string& reason ) const = 0;
 
     void safeEntryAction( Notifier* );
     virtual void do_entryActionWork() = 0;
@@ -167,7 +167,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -188,7 +188,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -209,7 +209,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -232,7 +232,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -256,7 +256,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -282,7 +282,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -310,7 +310,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
     bool workerThreadsConfigured() const;
 
@@ -336,7 +336,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
     bool destructionIsDone() const;
 
@@ -362,7 +362,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
     bool destructionIsDone() const;
 
@@ -392,7 +392,7 @@ namespace stor
     virtual std::string do_stateName() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -418,7 +418,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
   };
 
@@ -442,7 +442,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
     bool allQueuesAndWorkersAreEmpty() const;
     void processStaleFragments() const;
@@ -463,7 +463,7 @@ namespace stor
     virtual void do_noFragmentToProcess() const;
     virtual void do_entryActionWork();
     virtual void do_exitActionWork();
-    virtual void do_moveToFailedState() const;
+    virtual void do_moveToFailedState( const std::string& reason ) const;
 
     bool endOfRunProcessingIsDone() const;
 

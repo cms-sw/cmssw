@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.10 2009/06/30 20:00:37 biery Exp $
+// $Id: WebPageHelper.cc,v 1.11 2009/07/10 09:19:17 dshpakov Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -872,6 +872,7 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   std::string msg = "";
   if( statReporter->getStateMachineMonitorCollection().statusMessage( msg ) )
     {
+      maker.addNode( "hr", body );
       XHTMLMaker::Node* msg_box = maker.addNode( "p", body );
       maker.addText( msg_box, msg );
     }
@@ -879,6 +880,7 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   maker.addNode( "hr", body );
   
   return body;
+
 }
 
 

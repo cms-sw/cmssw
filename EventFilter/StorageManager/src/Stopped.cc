@@ -1,4 +1,4 @@
-// $Id: Stopped.cc,v 1.5 2009/07/03 19:31:20 mommsen Exp $
+// $Id: Stopped.cc,v 1.6 2009/07/10 09:07:27 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -39,9 +39,9 @@ string Stopped::do_stateName() const
   return string( "Stopped" );
 }
 
-void Stopped::do_moveToFailedState() const
+void Stopped::do_moveToFailedState( const std::string& reason ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState();
+  outermost_context().getSharedResources()->moveToFailedState( reason );
 }
 
 void Stopped::logHaltDoneRequest( const HaltDone& request )

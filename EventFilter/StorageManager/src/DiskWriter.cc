@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DiskWriter.cc,v 1.3 2009/06/29 13:07:49 mommsen Exp $
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
@@ -77,7 +77,7 @@ bool DiskWriter::writeAction(toolbox::task::WorkLoop*)
       sentinelException, errorMsg, e);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
   catch(std::exception &e)
   {
@@ -90,7 +90,7 @@ bool DiskWriter::writeAction(toolbox::task::WorkLoop*)
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
   catch(...)
   {
@@ -103,7 +103,7 @@ bool DiskWriter::writeAction(toolbox::task::WorkLoop*)
       sentinelException, errorMsg);
     _app->notifyQualified("fatal", sentinelException);
 
-    _sharedResources->moveToFailedState();
+    _sharedResources->moveToFailedState( errorMsg );
   }
 
   return _actionIsActive;
