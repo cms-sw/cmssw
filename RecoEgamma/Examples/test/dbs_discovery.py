@@ -20,8 +20,10 @@ def search():
       result = ['NONE']
   else:
     url = "https://cmsweb.cern.ch:443/dbs_discovery/aSearch"
-    input = "find file where release = " + os.environ['DBS_RELEASE']
-    input = input + " and primds = " + os.environ['DBS_SAMPLE']
+    if os.environ['DBS_RELEASE'] != "Any":
+      input = "find file where release = " + os.environ['DBS_RELEASE']
+    if os.environ['DBS_SAMPLE'] != "Any":
+      input = input + " and primds = " + os.environ['DBS_SAMPLE']
     input = input + " and dataset like " + os.environ['DBS_LIKE']
     final_input = urllib.quote(input) ;
 
