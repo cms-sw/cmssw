@@ -1,17 +1,17 @@
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/12/15 17:44:36 $ by $Author: flucke $
+# last update: $Date: 2009/01/31 06:40:31 $ by $Author: emiglior $
 
 import FWCore.ParameterSet.Config as cms
 
 # AlCaReco for track based alignment using Cosmic muon events
-OutALCARECOTkAlCosmics = cms.PSet(
+OutALCARECOTkAlCosmics_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF', 
             'pathALCARECOTkAlCosmicsCosmicTF', 
             'pathALCARECOTkAlCosmicsRS')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring(
 #        'keep *_ALCARECOTkAlCosmics*_*_*', # keeps also 0T ones if in same job
         'keep *_ALCARECOTkAlCosmicsCTF_*_*', 
         'keep *_ALCARECOTkAlCosmicsCosmicTF_*_*', 
@@ -23,3 +23,6 @@ OutALCARECOTkAlCosmics = cms.PSet(
         'keep *_MEtoEDMConverter_*_*')
 )
 
+import copy
+OutALCARECOTkAlCosmics = copy.deepcopy(OutALCARECOTkAlCosmics_noDrop)
+OutALCARECOTkAlCosmics.outputCommands.insert(0, "drop *")
