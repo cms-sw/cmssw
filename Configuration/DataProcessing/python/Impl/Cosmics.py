@@ -162,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.5 $'),
+            version = cms.untracked.string('$Revision: 1.6 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -308,7 +308,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.5 $'),
+            version = cms.untracked.string('$Revision: 1.6 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -319,8 +319,9 @@ class Cosmics(Scenario):
             Rethrow = cms.untracked.vstring('ProductNotFound')
         )
         # Input source
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring('step3_V16_RECO.root')
+        process.source = cms.Source(
+            "PoolSource",
+            logicalFileNames = cms.untracked.vstring()
         )
         
         # Additional output definition
@@ -456,7 +457,7 @@ class Cosmics(Scenario):
         #
         # customise process for particular job
         #
-        process.source.fileNames = cms.untracked(cms.vstring())
+        process.source.logicalFileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
         
