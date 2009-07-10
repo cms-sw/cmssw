@@ -100,8 +100,6 @@ class Cosmics(Scenario):
 
         Implement Cosmics Express processing
 
-        Global Tag needed as arg??
-
         Based on/Edited from:
         
         ConfigBuilder.py
@@ -128,6 +126,7 @@ class Cosmics(Scenario):
         options.isData = True
         options.eventcontent = "RECO"
         options.relval = None
+        options.beamspot = None
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         
         process = cms.Process('EXPRESS')
@@ -141,9 +140,14 @@ class Cosmics(Scenario):
         #//
         self.addExpressOutputModules(process, writeTiers, datasets)
         
+        #  //
+        # // TODO: Install Alca output
+        #//
         
+        #  //
+        # // everything below here could be complete gibberish
+        #//
         
-
         # import of standard configurations
         process.load('Configuration/StandardSequences/Services_cff')
         process.load('FWCore/MessageService/MessageLogger_cfi')
@@ -158,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.4 $'),
+            version = cms.untracked.string('$Revision: 1.5 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -166,8 +170,10 @@ class Cosmics(Scenario):
             Rethrow = cms.untracked.vstring('ProductNotFound')
         )
         # Input source
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring('step2_DIGI2RAW.root')
+        process.source = cms.Source(
+            "NewEventStreamFileReader",
+            logicalFileNames = cms.untracked.vstring()
+            
         )
         
         
@@ -302,7 +308,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.4 $'),
+            version = cms.untracked.string('$Revision: 1.5 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
