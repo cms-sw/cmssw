@@ -153,18 +153,19 @@ void testCutParser::checkAll() {
   sel.reset();
   CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt <> 5",sel, lazy), edm::Exception);
   sel.reset();
-
-  // FIXME: these three pass instead of failing - except the first one which throws 'unknown method "cos"' in non-lazy parsing
-  //std::cerr << "============ BEGIN " << (lazy ? "LAZY ":"") << "===================" << std::endl;
-  //CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy), edm::Exception);
-  //CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt() pt < .5",sel, lazy), edm::Exception);
-  //CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt pt < .5",sel, lazy), edm::Exception);
-  //std::cerr << "============ END ===================" << std::endl;
-
-  sel.reset();
   CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos( pt < .5",sel, lazy), edm::Exception);
   sel.reset();
   CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>(" 2 * (pt + 1 < .5",sel, lazy), edm::Exception);
+  // These don't throw, but they return false.
+  sel.reset();
+  CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt() pt < .5",sel, lazy));
+  sel.reset();
+  CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt pt < .5",sel, lazy));
+  // This throws or return false depending on the parsing:
+  // without lazy parsing, it complains about non-existing method 'cos'
+  sel.reset();
+  if (lazy) CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy));
+  else      CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy), edm::Exception);
   }
   // then those which are specific to non lazy parsing
   sel.reset();

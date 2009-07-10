@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -156,10 +156,10 @@ namespace reco {
                     ( int_p [ methodArg_s ] ) |
                     ( ch_p('"' ) >> *(~ch_p('"' ))  >> ch_p('"' ) ) [ methodArg_s ] |
                     ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
-	  var = 
-	    (alpha_p >> * chset<>("a-zA-Z0-9_") >>  // alnum_p doesn't accept underscores, so we use chset<>
+	  var = // alnum_p doesn't accept underscores, so we use chset<>; lexeme_d needed to avoid whitespace skipping within method names
+	    (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")] >>  
 	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
-	    ( (alpha_p >> * chset<>("a-zA-Z0-9_")) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
+	    ( (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")]) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
 	  method = 
 	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
 	  function1 = 
