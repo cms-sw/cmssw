@@ -1,4 +1,4 @@
-// $Id: Enabled.cc,v 1.3 2009/07/03 14:13:04 dshpakov Exp $
+// $Id: Enabled.cc,v 1.4 2009/07/03 19:31:19 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -60,10 +60,16 @@ void Enabled::do_moveToFailedState() const
   outermost_context().getSharedResources()->moveToFailedState();
 }
 
+void Enabled::logHaltRequest( const Halt& request )
+{
+  outermost_context().unconsumed_event( request );
+}
+
 void Enabled::logReconfigureRequest( const Reconfigure& request )
 {
   outermost_context().unconsumed_event( request );
 }
+
 
 /// emacs configuration
 /// Local Variables: -

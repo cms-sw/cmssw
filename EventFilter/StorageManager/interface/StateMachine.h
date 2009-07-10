@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.3 2009/07/03 14:13:03 dshpakov Exp $
+// $Id: StateMachine.h,v 1.4 2009/07/03 19:30:17 mommsen Exp $
 
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
@@ -219,9 +219,10 @@ namespace stor
 
   public:
 
-    typedef bsc::transition<Reconfigure,Stopped> ST;
+    typedef bsc::transition<Reconfigure,Ready> ST;
     typedef bsc::transition<Halt,Halted> HT;
-    typedef boost::mpl::list<ST,HT> reactions;
+    typedef bsc::transition<HaltDone,Halted> DT;
+    typedef boost::mpl::list<ST,HT,DT> reactions;
 
     Ready( my_context );
     virtual ~Ready();
@@ -241,8 +242,11 @@ namespace stor
 
   public:
 
+    void logHaltDoneRequest( const HaltDone& request );
+
     typedef bsc::transition<Enable,Enabled> ET;
-    typedef boost::mpl::list<ET> reactions;
+    typedef bsc::in_state_reaction<HaltDone,Stopped,&Stopped::logHaltDoneRequest> HaltDoneIR;
+    typedef boost::mpl::list<ET,HaltDoneIR> reactions;
 
     Stopped( my_context );
     virtual ~Stopped();
@@ -262,13 +266,13 @@ namespace stor
 
   public:
 
+    void logHaltRequest( const Halt& request );
     void logReconfigureRequest( const Reconfigure& request );
 
-    //    typedef bsc::transition<EmergencyStop,Stopped> ET;
     typedef bsc::transition<StopDone,Stopped> DT;
-    typedef bsc::transition<HaltDone,Halted> HT;
+    typedef bsc::in_state_reaction<Halt,Enabled,&Enabled::logHaltRequest> HaltIR;
     typedef bsc::in_state_reaction<Reconfigure,Enabled,&Enabled::logReconfigureRequest> RecfgIR;
-    typedef boost::mpl::list<DT,HT,RecfgIR> reactions;
+    typedef boost::mpl::list<DT,HaltIR,RecfgIR> reactions;
 
     Enabled( my_context );
     virtual ~Enabled();
@@ -320,9 +324,8 @@ namespace stor
 
     void logHaltDoneRequest( const HaltDone& request );
 
-    typedef bsc::transition<StopDone,Stopped> ST;
     typedef bsc::in_state_reaction<HaltDone,Stopping,&Stopping::logHaltDoneRequest> HaltDoneIR;
-    typedef boost::mpl::list<ST,HaltDoneIR> reactions;
+    typedef boost::mpl::list<HaltDoneIR> reactions;
 
     Stopping( my_context );
     virtual ~Stopping();
@@ -347,9 +350,8 @@ namespace stor
 
     void logStopDoneRequest( const StopDone& request );
 
-    typedef bsc::transition<HaltDone,Halted> HT;
     typedef bsc::in_state_reaction<StopDone,Halting,&Halting::logStopDoneRequest> StopDoneIR;
-    typedef boost::mpl::list<HT,StopDoneIR> reactions;
+    typedef boost::mpl::list<StopDoneIR> reactions;
 
     Halting( my_context );
     virtual ~Halting();
@@ -400,13 +402,11 @@ namespace stor
 
   public:
 
-    void logQueuesEmptyRequest( const QueuesEmpty& request );
     void logEndRunRequest( const EndRun& request );
 
     typedef bsc::transition<Stop,DrainingQueues> DT;
-    typedef bsc::in_state_reaction<QueuesEmpty,Processing,&Processing::logQueuesEmptyRequest> QueuesEmptyIR;
     typedef bsc::in_state_reaction<EndRun,Processing,&Processing::logEndRunRequest> EndRunIR;
-    typedef boost::mpl::list<DT,QueuesEmptyIR,EndRunIR> reactions;
+    typedef boost::mpl::list<DT,EndRunIR> reactions;
 
     Processing( my_context );
     virtual ~Processing();
@@ -428,13 +428,11 @@ namespace stor
 
   public:
 
-    void logStopRequest( const Stop& request );
     void logEndRunRequest( const EndRun& request );
 
     typedef bsc::transition<QueuesEmpty,FinishingDQM> FT;
-    typedef bsc::in_state_reaction<Stop,DrainingQueues,&DrainingQueues::logStopRequest> StopIR;
     typedef bsc::in_state_reaction<EndRun,DrainingQueues,&DrainingQueues::logEndRunRequest> EndRunIR;
-    typedef boost::mpl::list<FT,StopIR,EndRunIR> reactions;
+    typedef boost::mpl::list<FT,EndRunIR> reactions;
 
     DrainingQueues( my_context );
     virtual ~DrainingQueues();
@@ -455,13 +453,6 @@ namespace stor
   {
 
   public:
-
-    void logStopRequest( const Stop& request );
-    void logQueuesEmptyRequest( const QueuesEmpty& request );
-
-    typedef bsc::in_state_reaction<Stop,FinishingDQM,&FinishingDQM::logStopRequest> StopIR;
-    typedef bsc::in_state_reaction<QueuesEmpty,FinishingDQM,&FinishingDQM::logQueuesEmptyRequest> QueuesEmptyIR;
-    typedef boost::mpl::list<StopIR,QueuesEmptyIR> reactions;
 
     FinishingDQM( my_context );
     virtual ~FinishingDQM();

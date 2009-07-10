@@ -1,4 +1,4 @@
-// $Id: Stopped.cc,v 1.4 2009/07/03 14:13:04 dshpakov Exp $
+// $Id: Stopped.cc,v 1.5 2009/07/03 19:31:20 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -44,6 +44,10 @@ void Stopped::do_moveToFailedState() const
   outermost_context().getSharedResources()->moveToFailedState();
 }
 
+void Stopped::logHaltDoneRequest( const HaltDone& request )
+{
+  outermost_context().unconsumed_event( request );
+}
 
 
 /// emacs configuration
