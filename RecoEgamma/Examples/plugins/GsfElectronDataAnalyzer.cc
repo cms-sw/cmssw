@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.23 2009/07/09 10:13:40 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.24 2009/07/09 12:24:32 charlot Exp $
 //
 //
 
@@ -737,6 +737,8 @@ GsfElectronDataAnalyzer::endJob(){
   h_matchingObjectAbsEta->Write();
   h_matchingObjectP->Write();
   h_matchingObjectPt->Write();
+  h_matchingObjectPhi->Write();
+  h_matchingObjectZ->Write();
 
   h_ele_mee_all->Write();
   h_ele_mee_os->Write();
@@ -762,6 +764,7 @@ GsfElectronDataAnalyzer::endJob(){
   h_ele_vertexEtaVsPhi->Write();
   h_ele_matchingObjectAbsEta_matched->Write();
   h_ele_matchingObjectEta_matched->Write();
+  h_ele_matchingObjectPhi_matched->Write();
   h_ele_vertexPhi->Write();
   h_ele_vertexX->Write();
   h_ele_vertexY ->Write();

@@ -101,7 +101,9 @@ web_page<<"<br><br><hr>" ;
 std::ifstream histo_file("histos.txt") ;
 std::string histo_name, gif_name, canvas_name ;
 int scaled, log, err ;
-while (histo_file>>histo_name>>scaled>>log>>err)
+int divide;
+std::string num, denom;
+while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
  {
   gif_name = std::string("gifs/")+histo_name+".gif" ;
   canvas_name = std::string("c")+histo_name ;
@@ -111,12 +113,27 @@ while (histo_file>>histo_name>>scaled>>log>>err)
 
   if ( file_old != 0 )
    {
-	histo_old = (TH1 *)file_old->Get(histo_name.c_str()) ;
+    histo_old = (TH1 *)file_old->Get(histo_name.c_str()) ;
     if (histo_old!=0)
      {
       histo_old->SetLineColor(4) ;
       histo_old->SetLineWidth(3) ;
-      histo_old->Draw("hist") ;
+      if (divide==0) {
+        histo_old->Draw("hist") ;
+      } else {
+	// special for efficiencies
+	TH1F *h_num = (TH1F *)file_old->Get(num.c_str()) ;
+        TH1F *h_res = (TH1F*)h_num->Clone("res");
+        h_res->Reset();
+	TH1F *h_denom = (TH1F *)file_old->Get(denom.c_str()) ;
+        std::cout << "DIVIDING "<< num.c_str() << " by " << denom.c_str() << std::endl;
+	h_res->Divide(h_num,h_denom,1,1,"b");
+        h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
+        h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
+        h_res->SetLineColor(4) ;
+        h_res->SetLineWidth(3) ;
+        h_res ->Draw("hist") ;    
+      }
      }
     else
      {
@@ -133,6 +150,7 @@ while (histo_file>>histo_name>>scaled>>log>>err)
     histo_new->SetLineWidth(3) ;
     if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
      { if (histo_old!=0) histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
+    if (divide==0) {
     if (err==1) {
       if (histo_old!=0) histo_new->Draw("same E1 P") ;
       else histo_new->Draw("E1 P") ; 
@@ -140,6 +158,19 @@ while (histo_file>>histo_name>>scaled>>log>>err)
       if (histo_old!=0) histo_new->Draw("same hist") ;
       else histo_new->Draw("hist") ;
     }  
+    } else {
+      // special for efficiencies
+      TH1F *h_num = (TH1 *)file_new->Get(num.c_str()) ;
+      TH1F *h_res = (TH1F*)h_num->Clone("res");
+      TH1F *h_denom = (TH1 *)file_new->Get(denom.c_str()) ;
+      h_res->Divide(h_num,h_denom,1,1,"b");
+      h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
+      h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
+      h_res->SetLineColor(2) ;
+      h_res->SetMarkerColor(2) ;
+      h_res->SetLineWidth(3) ;
+      h_res ->Draw("same E1 P") ;      
+    }
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()
@@ -160,6 +191,8 @@ while (histo_file>>histo_name>>scaled>>log>>err)
    }
   web_page<<"</p>\n" ;
  }
+
+// cumulated efficiencies
 
 web_page<<"\n</html>"<<std::endl ;
 web_page.close() ;

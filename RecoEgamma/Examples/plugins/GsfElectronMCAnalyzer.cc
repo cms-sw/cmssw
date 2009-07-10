@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.30 2009/07/09 12:24:32 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.31 2009/07/09 13:29:10 charlot Exp $
 //
 //
 
@@ -182,15 +182,15 @@ void GsfElectronMCAnalyzer::beginJob(){
   // charge ID
   h_ele_ChargeMnChargeTrue   = new TH1F( "h_ele_ChargeMnChargeTrue",   "ele charge - gen charge ",5,-1.,4.);
   h_ele_ChargeMnChargeTrue->Sumw2();
-  h_ele_simEta_matched_qmisid             = new TH1F( "h_mc_eta_matched qmisid","charge misid vs gen eta", nbineta,etamin,etamax);
+  h_ele_simEta_matched_qmisid             = new TH1F( "h_ele_eta_matched_qmisid","charge misid vs gen eta", nbineta,etamin,etamax);
   h_ele_simEta_matched_qmisid->Sumw2();
-  h_ele_simAbsEta_matched_qmisid             = new TH1F( "h_mc_abseta_matched qmisid", "charge misid vs gen |eta|", nbineta/2,0.,etamax);
+  h_ele_simAbsEta_matched_qmisid             = new TH1F( "h_ele_abseta_matched_qmisid", "charge misid vs gen |eta|", nbineta/2,0.,etamax);
   h_ele_simAbsEta_matched_qmisid->Sumw2();
-  h_ele_simPt_matched_qmisid               = new TH1F( "h_mc_Pt_matched qmisid", "charge misid vs gen transverse momentum", nbinpteff,5.,ptmax);
+  h_ele_simPt_matched_qmisid               = new TH1F( "h_ele_Pt_matched_qmisid", "charge misid vs gen transverse momentum", nbinpteff,5.,ptmax);
   h_ele_simPt_matched_qmisid->Sumw2();
-  h_ele_simPhi_matched_qmisid               = new TH1F( "h_mc_phi_matched_qmisid","charge misid vs gen phi", nbinphi,phimin,phimax);
+  h_ele_simPhi_matched_qmisid               = new TH1F( "h_ele_phi_matched_qmisid","charge misid vs gen phi", nbinphi,phimin,phimax);
   h_ele_simPhi_matched_qmisid->Sumw2();
-  h_ele_simZ_matched_qmisid      = new TH1F( "h_mc_z_matched_qmisid","charge misid vs gen z",nbinxyz, -25, 25 );
+  h_ele_simZ_matched_qmisid      = new TH1F( "h_ele_z_matched_qmisid","charge misid vs gen z",nbinxyz, -25, 25 );
   h_ele_simZ_matched_qmisid->Sumw2();
   
   // matched electrons
@@ -1026,7 +1026,9 @@ GsfElectronMCAnalyzer::endJob(){
   h_simAbsEta->Write();
   h_simP->Write();
   h_simPt->Write();
-
+  h_simZ->Write();
+  h_simPhi->Write();
+    
   // all electrons
   h_ele_EoverP_all->Write();
   h_ele_EseedOP_all->Write(); 
@@ -1052,6 +1054,11 @@ GsfElectronMCAnalyzer::endJob(){
 
   // charge ID
   h_ele_charge->Write();
+  h_ele_simEta_matched_qmisid->Write();
+  h_ele_simAbsEta_matched_qmisid->Write();
+  h_ele_simPt_matched_qmisid->Write();
+  h_ele_simPhi_matched_qmisid->Write();
+  h_ele_simZ_matched_qmisid->Write();
 
   // matched electrons
   h_ele_vertexP->Write();
@@ -1064,6 +1071,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_vertexEtaVsPhi->Write();
   h_ele_simAbsEta_matched->Write();
   h_ele_simEta_matched->Write();
+  h_ele_simPhi_matched->Write();
   h_ele_vertexPhi->Write();
   h_ele_vertexX->Write();
   h_ele_vertexY ->Write();

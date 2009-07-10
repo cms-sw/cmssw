@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.20 2009/07/05 23:25:19 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.21 2009/07/09 12:24:32 charlot Exp $
 //
 //
 
@@ -711,6 +711,8 @@ GsfElectronFakeAnalyzer::endJob(){
   h_matchingObjectAbsEta->Write();
   h_matchingObjectP->Write();
   h_matchingObjectPt->Write();
+  h_matchingObjectPhi->Write();
+  h_matchingObjectZ->Write();
 
   // all electrons
   h_ele_EoverP_all->Write();
@@ -743,6 +745,7 @@ GsfElectronFakeAnalyzer::endJob(){
   h_ele_matchingObjectAbsEta_matched->Write();
   h_ele_matchingObjectEta_matched->Write();
   h_ele_vertexPhi->Write();
+  h_ele_matchingObjectPhi_matched->Write();
   h_ele_vertexX->Write();
   h_ele_vertexY ->Write();
   h_ele_vertexZ->Write();
