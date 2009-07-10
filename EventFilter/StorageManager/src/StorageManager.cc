@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.103 2009/07/09 08:52:10 mommsen Exp $
+// $Id: StorageManager.cc,v 1.104 2009/07/10 11:41:04 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -27,7 +27,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.103 2009/07/09 08:52:10 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.104 2009/07/10 11:41:04 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -624,7 +624,7 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     LOG4CPLUS_FATAL( getApplicationLogger(),
       errorMsg << xcept::stdformat_exception_history(e));
 
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
 
     XCEPT_RETHROW(xoap::exception::Exception, errorMsg, e);
   }

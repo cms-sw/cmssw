@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.8 2009/07/08 20:06:08 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.9 2009/07/10 11:41:03 dshpakov Exp $
 
 #include <unistd.h>
 
@@ -88,14 +88,14 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
   }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg << xcept::stdformat_exception_history(e));
+    LOG4CPLUS_FATAL( _app->getApplicationLogger(),
+                     errorMsg << xcept::stdformat_exception_history(e) );
 
-    XCEPT_DECLARE_NESTED(stor::exception::FragmentProcessing,
-      sentinelException, errorMsg, e);
-    _app->notifyQualified("fatal", sentinelException);
+    XCEPT_DECLARE_NESTED( stor::exception::FragmentProcessing,
+                          sentinelException, errorMsg, e );
+    _app->notifyQualified( "fatal", sentinelException );
 
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
   }
   catch(std::exception &e)
   {

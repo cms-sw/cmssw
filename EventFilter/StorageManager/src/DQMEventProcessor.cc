@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.3 2009/06/29 13:07:49 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.4 2009/07/10 11:41:03 dshpakov Exp $
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
@@ -68,14 +68,14 @@ bool DQMEventProcessor::processDQMEvents(toolbox::task::WorkLoop*)
   }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg << xcept::stdformat_exception_history(e));
+    LOG4CPLUS_FATAL( _app->getApplicationLogger(),
+                     errorMsg << xcept::stdformat_exception_history(e) );
 
-    XCEPT_DECLARE_NESTED(stor::exception::DQMEventProcessing,
-      sentinelException, errorMsg, e);
-    _app->notifyQualified("fatal", sentinelException);
+    XCEPT_DECLARE_NESTED( stor::exception::DQMEventProcessing,
+                          sentinelException, errorMsg, e );
+    _app->notifyQualified( "fatal", sentinelException );
     
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
   }
   catch(std::exception &e)
   {
