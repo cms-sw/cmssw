@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.11 2009/07/10 09:19:17 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.12 2009/07/10 11:41:04 dshpakov Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -647,6 +647,9 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
       }
 
   }
+
+  // Links to other pages:
+  addDOMforSMLinks(maker, body);
 
   // Write it:
   maker.out( *out );
