@@ -1,0 +1,29 @@
+# This is the decay file for the decay Lambda_B0 -> MU+ MU- Lambda0
+#
+# Descriptor: [Lambda_B0 -> mu+ mu- {,gamma} {,gamma} Lambda0]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     K. Ulmer
+# Date:   2-26-08
+#
+Alias      MyLambda_b0       Lambda_b0
+Alias      Myanti-Lambda_b0  anti-Lambda_b0
+ChargeConj MyLambda_b0       Myanti-Lambda_b0
+Alias      MyLambda0         Lambda0
+Alias      Myanti-Lambda0    anti-Lambda0
+ChargeConj MyLambda0         Myanti-Lambda0
+#
+Decay MyLambda_b0
+  1.000        MyLambda0     mu+     mu-     PHSP;
+Enddecay
+CDecay Myanti-Lambda_b0
+#
+Decay MyLambda0
+  1.000        p+       pi-              PHSP;
+Enddecay
+CDecay Myanti-Lambda0
+End
