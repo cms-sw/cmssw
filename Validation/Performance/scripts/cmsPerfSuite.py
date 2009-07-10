@@ -1038,9 +1038,6 @@ class PerfSuite:
                 AvailableCores=cpus
             else:
                 AvailableCores=range(cores)
-            #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
-            print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
-            print AvailableCores
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
             TestsToDo=[]
             #IgProf tests:
@@ -1233,7 +1230,14 @@ class PerfSuite:
             #Here if there are any IgProf, Callgrind or MemcheckEvents to be run,
             #run the infinite loop that submits the PerfTest() threads on the available cores:
             if IgProfEvents or CallgrindEvents or MemcheckEvents:
-               
+               #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
+               print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
+               #Save the original AvailableCores list to use it as a test to break the infinite loop:
+               #While in the regular RelVal use-case it makes sense to use the actual number of cores of the machines, in
+               #the IB case the AvailableCores will always consist of only 1 single core..
+               OriginalAvailableCores=AvailableCores
+               print AvailableCores
+
                #Create a dictionaty to keep track of running threads on the various cores:
                activePerfTestThreads={}
                #Flag for waiting messages:
@@ -1274,7 +1278,7 @@ class PerfSuite:
                         print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
                         print "About to append cpu %s to AvailableCores list"%cpu
                         AvailableCores.append(cpu)
-                  if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
+                  if (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
                      print "WHEW! We're done... all TestsToDo are done..."
                      print AvailableCores
                      print TestsToDo
