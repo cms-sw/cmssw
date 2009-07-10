@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+"""
+_RunAlcaSkimming_
+
+Test wrapper to generate an alca skimming config and push it into cmsRun for
+testing with a few input files etc from the command line
+
+"""
+
+import sys
+import getopt
+
+from Configuration.DataProcessing.GetScenario import getScenario
+
+
+
+class RunAlcaSkimming:
+
+    def __init__(self):
+        self.scenario = None
+        self.skims = []
+        self.inputLFN = None
+
+    def __call__(self):
+        if self.scenario == None:
+            msg = "No --scenario specified"
+            raise RuntimeError, msg
+        if self.inputLFN == None:
+            msg = "No --lfn specified"
+            raise RuntimeError, msg
+
+        if len(self.skims) == 0:
+            msg = "No --skims provided, need at least one"
+            raise RuntimeError, msg
+        
+        try:
+            scenario = getScenario(self.scenario)
+        except Exception, ex:
+            msg = "Error getting Scenario implementation for %s\n" % (
+                self.scenario,)
+            msg += str(ex)
+            raise RuntimeError, msg
+
+        print "Retrieved Scenario: %s" % self.scenario
+        print "Creating ALCA skimming config with skims:"
+        for skim in self.skims:
+            print " => %s" % skim
+            
+        try:
+            process = scenario.alcaReco(*self.skims)
+        except Exception, ex:
+            msg = "Error creating Prompt Reco config:\n"
+            msg += str(ex)
+            raise RuntimeError, msg
+
+        process.source.logicalFileNames.append(self.inputLFN)
+
+
+        psetFile = open("RunAlcaSkimmingCfg.py", "w")
+        psetFile.write(process.dumpPython())
+        psetFile.close()
+        cmsRun = "cmsRun -f FrameworkJobReport.xml RunAlcaSkimmingCfg.py"
+        print "Now do:\n%s" % cmsRun
+        
+
+
+
+if __name__ == '__main__':
+    valid = ["scenario=", "skims=", "lfn="]
+
+    usage = \
+"""
+RunAlcaSkimming.py <options>
+
+Where options are:
+ --scenario=ScenarioName
+ --lfn=/store/input/lfn
+ --skims=comma,separated,list
+
+
+Example:
+python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=ALCARECOStreamMuAlStandAloneCosmics
+
+"""
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", valid)
+    except getopt.GetoptError, ex:
+        print usage
+        print str(ex)
+        sys.exit(1)
+
+
+    skimmer = RunAlcaSkimming()
+
+    for opt, arg in opts:
+        if opt == "--scenario":
+            skimmer.scenario = arg
+        if opt == "--lfn" :
+            skimmer.inputLFN = arg
+        if opt == "--skims":
+            skimmer.skims = [ x for x in arg.split(',') if len(x) > 0 ]
+
+    skimmer()
