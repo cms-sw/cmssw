@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.24 2009/07/09 12:24:32 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.25 2009/07/10 16:56:24 charlot Exp $
 //
 //
 
@@ -898,22 +898,30 @@ GsfElectronDataAnalyzer::endJob(){
   p_ele_seed_dphi2VsEta_->SetTitle("mean ele seed dphi 2nd layer vs eta");
   p_ele_seed_dphi2VsEta_->GetXaxis()->SetTitle("#eta");
   p_ele_seed_dphi2VsEta_->GetYaxis()->SetTitle("<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)");
+  p_ele_seed_dphi2VsEta_->SetMinimum(-0.004);
+  p_ele_seed_dphi2VsEta_->SetMaximum(0.004);
   p_ele_seed_dphi2VsEta_->Write();
   TProfile *p_ele_seed_dphi2VsPt_ = h_ele_seed_dphi2VsPt_->ProfileX();
   p_ele_seed_dphi2VsPt_->SetTitle("mean ele seed dphi 2nd layer vs pt");
   p_ele_seed_dphi2VsPt_->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   p_ele_seed_dphi2VsPt_->GetYaxis()->SetTitle("<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)");
   p_ele_seed_dphi2VsPt_->Write();
+  p_ele_seed_dphi2VsPt_->SetMinimum(-0.004);
+  p_ele_seed_dphi2VsPt_->SetMaximum(0.004);
   h_ele_seed_drz2_->Write();
   TProfile *p_ele_seed_drz2VsEta_ = h_ele_seed_drz2VsEta_->ProfileX();
   p_ele_seed_drz2VsEta_->SetTitle("mean ele seed dr(dz) 2nd layer vs eta");
   p_ele_seed_drz2VsEta_->GetXaxis()->SetTitle("#eta");
   p_ele_seed_drz2VsEta_->GetYaxis()->SetTitle("<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)");
+  p_ele_seed_drz2VsEta_->SetMinimum(-0.15);
+  p_ele_seed_drz2VsEta_->SetMaximum(0.15);
   p_ele_seed_drz2VsEta_->Write();
   TProfile *p_ele_seed_drz2VsPt_ = h_ele_seed_drz2VsPt_->ProfileX();
   p_ele_seed_drz2VsPt_->SetTitle("mean ele seed dr(dz) 2nd layer vs pt");
   p_ele_seed_drz2VsPt_->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   p_ele_seed_drz2VsPt_->GetYaxis()->SetTitle("<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)");
+  p_ele_seed_drz2VsPt_->SetMinimum(-0.15);
+  p_ele_seed_drz2VsPt_->SetMaximum(0.15);
   p_ele_seed_drz2VsPt_->Write();
 
   // classes
