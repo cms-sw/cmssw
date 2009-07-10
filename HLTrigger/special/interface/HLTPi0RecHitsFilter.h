@@ -338,6 +338,5 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  
       static const int MAXCLUS = 2000;
       static const int MAXPI0S = 200;
-      
-      
+
 };
