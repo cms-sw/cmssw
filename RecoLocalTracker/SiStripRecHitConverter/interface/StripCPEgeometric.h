@@ -45,6 +45,7 @@ class StripCPEgeometric : public StripCPE
   stats_t<float> geometric_position(const WrappedCluster&, const stats_t<float>&) const;
   bool useNPlusOne(const WrappedCluster&, const stats_t<float>&) const;
   bool useNMinusOne(const WrappedCluster&, const stats_t<float>&) const;
+  bool ambiguousSize(const WrappedCluster&, const stats_t<float>&) const;
 
   std::vector<float> crosstalk;
   const float tan_diffusion_angle, thickness_rel_err2, noise_threshold, maybe_noise_threshold, scaling_squared, minimum_uncertainty_squared;

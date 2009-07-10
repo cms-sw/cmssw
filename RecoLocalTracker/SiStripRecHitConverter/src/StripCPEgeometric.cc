@@ -1,3 +1,4 @@
+
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -63,11 +64,11 @@ offset_from_firstStrip( const std::vector<stats_t<float> >& Q, const stats_t<flo
   if(    useNPlusOne( wc, proj))  wc.addSuppressedEdgeStrip();  else 
   while( useNMinusOne( wc, proj)) wc.dropSmallerEdgeStrip();
 
-  if( proj() < wc.N-2 ) return stats_t<float>( wc.middle(),  pow(wc.N-proj(),2) / 12.);
-  if( wc.deformed()   ) return stats_t<float>( wc.centroid()(),               1 / 12.);
-  if( proj() > wc.N+1 ) return stats_t<float>( wc.centroid()(),               1 / 12.);
+  if( proj() < wc.N-2 )           return stats_t<float>( wc.middle(),  pow(wc.N-proj(),2) / 12.);
+  if( wc.deformed()   )           return stats_t<float>( wc.centroid()(),               1 / 12.);
+  if( proj > wc.maxProjection() ) return stats_t<float>( wc.centroid()(),               1 / 12.);
 
-  if( proj() < wc.N-1 && wc.smallerEdgeStrip().sigmaFrom(0) < maybe_noise_threshold ) {
+  if( ambiguousSize( wc, proj) ) {
     const stats_t<float> probably = geometric_position( wc, proj);
     wc.dropSmallerEdgeStrip();
     const stats_t<float> maybe = geometric_position( wc, proj);
@@ -105,6 +106,13 @@ useNMinusOne(const WrappedCluster& wc, const stats_t<float>& proj) const {
   return wc.smallerEdgeStrip().sigmaFrom(0) < noise_threshold;
 }
 
+inline
+bool StripCPEgeometric::
+ambiguousSize( const WrappedCluster& wc, const stats_t<float>& proj) const 
+{  return 
+     proj() < wc.N-1 && 
+     wc.smallerEdgeStrip()()>0 && 
+     wc.smallerEdgeStrip().sigmaFrom(0) < maybe_noise_threshold; }
 
 StripCPEgeometric::WrappedCluster::
 WrappedCluster(const std::vector<stats_t<float> >& Q) : 
