@@ -23,7 +23,7 @@ process.db_client.UseClientFile    = cms.untracked.bool(CLIENTFLAG)
 process.db_client.UploadHwConfig   = cms.untracked.bool(DBUPDATE)
 process.db_client.UploadAnalyses   = cms.untracked.bool(ANALUPDATE)
 process.db_client.DisableDevices   = cms.untracked.bool(DISABLEDEVICES)
-process.db_client.DisableBadStrips = cms.untracked.bool(DISABLEBADSTRIPS),
+process.db_client.DisableBadStrips = cms.untracked.bool(DISABLEBADSTRIPS)
 process.db_client.SaveClientFile   = cms.untracked.bool(SAVECLIENTFILE)
 
 process.p = cms.Path(process.db_client)
