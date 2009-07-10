@@ -88,8 +88,8 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $cwd
-#cd /afs/cern.ch/cms/Physics/egamma/www/validation
-cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_1/src/RecoEgamma/Examples/test/validation
+cd /afs/cern.ch/cms/Physics/egamma/www/validation
+#cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_1/src/RecoEgamma/Examples/test/validation
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
