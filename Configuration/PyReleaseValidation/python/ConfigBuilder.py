@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+
 __version__ = "$Revision: 1.124 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
@@ -12,7 +13,6 @@ class Options:
 
 # the canonical defaults
 defaultOptions = Options()
-defaultOptions.datamix = 'DataOnSim'
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Ideal'
 defaultOptions.magField = 'Default'
@@ -222,35 +222,29 @@ class ConfigBuilder(object):
 
     def addConditions(self):
         """Add conditions to the process"""
-        conditionsSP=self._options.conditions.split(',')
+        conditions=self._options.conditions.lstrip("FrontierConditions_GlobalTag,") #only for backwards compatibility
+	
         # FULL or FAST SIM ?
         if "FASTSIM" in self._options.step:
-            # fake or real conditions?
-            if len(conditionsSP)>1:
-                self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+            self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
-		if "STARTUP" in conditionsSP[1]:
-                    self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
-		    self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
-		    self.additionalCommands.append("process.hbhereco.doMiscalib = True")
-		    self.additionalCommands.append("process.horeco.doMiscalib = True")
-		    self.additionalCommands.append("process.hfreco.doMiscalib = True")
-                # Apply Tracker misalignment
-                self.additionalCommands.append("# Apply Tracker misalignment")
-                self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-		self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
+            if "STARTUP" in conditions:
+                self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
+	        self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
+	        self.additionalCommands.append("process.hbhereco.doMiscalib = True")
+	        self.additionalCommands.append("process.horeco.doMiscalib = True")
+	        self.additionalCommands.append("process.hfreco.doMiscalib = True")
+
+            # Apply Tracker misalignment
+            self.additionalCommands.append("# Apply Tracker misalignment")
+            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
+	    self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
                                        
-            else:
-                self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
-                self.additionalCommands.append('process.famosSimHits.SimulateCalorimetry = True')
-                self.additionalCommands.append('process.famosSimHits.SimulateTracking = True')
-                
         else:
-            self.loadAndRemember('Configuration/StandardSequences/'+conditionsSP[0]+'_cff')
-        
-        # set non-default conditions 
-        if ( len(conditionsSP)>1 ):
-            self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
+            self.loadAndRemember(self.ConditionsDefaultCFF)
+
+        # set the global tag
+        self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
                         
     def addCustomise(self):
         """Include the customise code """
@@ -288,13 +282,9 @@ class ConfigBuilder(object):
 	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
 	self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
 	self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
-        self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-        self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
-        self.DIGIDefaultDMCFF="Configuration/StandardSequences/DigiDM_cff"
+	self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
 	self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
-        self.DIGI2RAWDefaultDMCFF="Configuration/StandardSequences/DigiToRawDM_cff"
 	self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
-        self.L1EMDefaultDMCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 	self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
 	self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
 	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
@@ -304,12 +294,12 @@ class ConfigBuilder(object):
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-
+        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	
 	self.ALCADefaultSeq=None
 	self.SIMDefaultSeq=None
 	self.GENDefaultSeq=None
 	self.DIGIDefaultSeq=None
-        self.DATAMIXDefaultSeq=None
 	self.DIGI2RAWDefaultSeq=None
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
@@ -360,11 +350,8 @@ class ConfigBuilder(object):
 	    self._options.magField=self.defaultMagField	
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
-        if self._options.gflash==True:
-                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
-        else:
-                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
-                
+
+	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 	if self._options.isMC==True:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
         else:
@@ -465,9 +452,6 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember(self.SIMDefaultCFF)
-        if self._options.gflash==True:
-                             self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
-
 	if self._options.magField=='0T':
 	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
 				
@@ -477,29 +461,13 @@ class ConfigBuilder(object):
 
     def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        if "DATAMIX" in self._options.step:
-                self.loadAndRemember(self.DIGIDefaultDMCFF)
-        else:
-                self.loadAndRemember(self.DIGIDefaultCFF)
-        if self._options.gflash==True:
-                self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
-                
+        self.loadAndRemember(self.DIGIDefaultCFF)
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.schedule.append(self.process.digitisation_step)
         return
 
-    def prepare_DATAMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadAndRemember(self.DATAMIXDefaultCFF)
-        self.process.datamixing_step = cms.Path(self.process.pdatamix)
-        self.schedule.append(self.process.datamixing_step)
-        return
-
     def prepare_DIGI2RAW(self, sequence = None):
-        if "DATAMIX" in self._options.step:
-                self.loadAndRemember(self.DIGI2RAWDefaultDMCFF)
-        else:
-                self.loadAndRemember(self.DIGI2RAWDefaultCFF)
+        self.loadAndRemember(self.DIGI2RAWDefaultCFF)
         self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
         self.schedule.append(self.process.digi2raw_step)
         return
@@ -507,10 +475,7 @@ class ConfigBuilder(object):
     def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
         if not sequence:
-            if "DATAMIX" in self._options.step:
-                    self.loadAndRemember(self.L1EMDefaultDMCFF)
-            else:
-                    self.loadAndRemember(self.L1EMDefaultCFF) 
+            self.loadAndRemember(self.L1EMDefaultCFF) 
 	else:
             # let the L1 package decide for the scenarios available
 	    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
@@ -636,7 +601,11 @@ class ConfigBuilder(object):
             self.loadAndRemember(self.ENDJOBDefaultCFF)
         else:    
             self.loadAndRemember(sequence.split(',')[0])
-        self.process.endjob_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	if "FASTSIM" in self._options.step:
+	    self.process.endjob_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
+	else:
+	    self.process.endjob_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+
         self.schedule.append(self.process.endjob_step)
 
     def prepare_FASTSIM(self, sequence = "all"):
