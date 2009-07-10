@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.36 2009/06/28 09:04:57 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.37 2009/06/28 23:28:51 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -463,16 +463,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
 
 
-      unsigned int NOn=0;
+      unsigned int NOnCount=0;
 
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 
-        eleMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        muoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        tauMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        phoMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        jetMon.monitorOnline(idtype, l1k, ki, toc, NOn);
-        btagMon.monitorOnline(idtype, l1k, ki, toc, NOn);
+        eleMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        muoMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        tauMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        phoMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        jetMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        btagMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
 
       } //online object loop
 
@@ -856,23 +856,15 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	  v!= hltPaths_.end(); ++v ) {
     	MonitorElement *NOn, *onEtOn, *onEtavsonPhiOn=0;
-    	MonitorElement *NMc, *mcEtMc, *mcEtavsmcPhiMc=0;
 	MonitorElement *NOff, *offEtOff, *offEtavsoffPhiOff=0;
 	MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
     	MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
 	MonitorElement *NL1Off, *offEtL1Off, *offEtavsoffPhiL1Off=0;
 	MonitorElement *NOnOff, *offEtOnOff, *offEtavsoffPhiOnOff=0;
-	MonitorElement *NL1Mc, *mcEtL1Mc, *mcEtavsmcPhiL1Mc=0;
-	MonitorElement *NOffMc, *mcEtOffMc, *mcEtavsmcPhiOffMc=0;
-	MonitorElement *NOnMc, *mcEtOnMc, *mcEtavsmcPhiOnMc=0;
     	MonitorElement *NL1OnUM, *l1EtL1OnUM, *l1Etavsl1PhiL1OnUM=0;
 	MonitorElement *NL1OffUM, *offEtL1OffUM, *offEtavsoffPhiL1OffUM=0;
 	MonitorElement *NOnOffUM, *offEtOnOffUM, *offEtavsoffPhiOnOffUM=0;
-	MonitorElement *NL1McUM, *mcEtL1McUM, *mcEtavsmcPhiL1McUM=0;
-	MonitorElement *NOffMcUM, *mcEtOffMcUM, *mcEtavsmcPhiOffMcUM=0;
-	MonitorElement *NOnMcUM, *mcEtOnMcUM, *mcEtavsmcPhiOnMcUM=0;
-  MonitorElement *mcDRL1Mc, *mcDROnMc, *mcDROffMc,
-                   *offDRL1Off, *offDROnOff, *l1DRL1On=0;
+  MonitorElement *offDRL1Off, *offDROnOff, *l1DRL1On=0;
 	std::string labelname("dummy");
         labelname = v->getPath() + "_wrt_" + v->getDenomPath();
 	std::string histoname(labelname+"_NOn");
@@ -922,12 +914,6 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 			  0.5,
 			  10.5);
 
-	histoname = labelname+"_NMc";
-	title = labelname+" N Mc";
-	NMc =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
 	histoname = labelname+"_NOff";
 	title = labelname+" N Off";
@@ -964,26 +950,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 			  0.5,
 			  10.5);
 
-	histoname = labelname+"_NL1Mc";
-	title = labelname+" N L1Mc";
-	NL1Mc =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
-	histoname = labelname+"_NOffMc";
-	title = labelname+" N OffMc";
-	NOffMc =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
-	histoname = labelname+"_NOnMc";
-	title = labelname+" N OnMc";
-	NOnMc =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
 	histoname = labelname+"_NL1OnUM";
 	title = labelname+" N L1OnUM";
@@ -1006,33 +974,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 			  0.5,
 			  10.5);
 
-	histoname = labelname+"_NL1McUM";
-	title = labelname+" N L1McUM";
-	NL1McUM =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
-	histoname = labelname+"_NOffMcUM";
-	title = labelname+" N OffMcUM";
-	NOffMcUM =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
-	histoname = labelname+"_NOnMcUM";
-	title = labelname+" N OnMcUM";
-	NOnMcUM =  dbe->book1D(histoname.c_str(),
-			  title.c_str(),10,
-			  0.5,
-			  10.5);
 
-	histoname = labelname+"_mcEtMc";
-	title = labelname+" mcE_t Mc";
-	mcEtMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
         histoname = labelname+"_onEtOn";
 	title = labelname+" onE_t online";
@@ -1057,12 +1001,6 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
         int nBins2D = 10;
 
-	histoname = labelname+"_mcEtamcPhiMc";
-	title = labelname+" mc#eta vs mc#phi Mc";
-	mcEtavsmcPhiMc =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_onEtaonPhiOn";
 	title = labelname+" on#eta vs on#phi online";
@@ -1106,26 +1044,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = labelname+"_mcEtL1Mc";
-	title = labelname+" mcE_t L1+MC truth";
-	mcEtL1Mc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
-	histoname = labelname+"_mcEtOffMc";
-	title = labelname+" mcE_t Off+MC truth";
-	mcEtOffMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
-	histoname = labelname+"_mcEtOnMc";
-	title = labelname+" mcE_t online+MC truth";
-	mcEtOnMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
 	histoname = labelname+"_l1Etal1PhiL1On";
 	title = labelname+" l1#eta vs l1#phi L1+online";
@@ -1148,27 +1068,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 				nBins2D,-histEtaMax,histEtaMax,
 				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	histoname = labelname+"_mcEtamcPhiL1Mc";
-	title = labelname+" mc#eta vs mc#phi L1+MC truth";
-	mcEtavsmcPhiL1Mc =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
-
-	histoname = labelname+"_mcEtamcPhiOffMc";
-	title = labelname+" mc#eta vs mc#phi Off+MC truth";
-	mcEtavsmcPhiOffMc =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
 
 
-	histoname = labelname+"_mcEtamcPhiOnMc";
-	title = labelname+" mc#eta vs mc#phi online+MC truth";
-	mcEtavsmcPhiOnMc =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
+
 
 	histoname = labelname+"_l1EtL1OnUM";
 	title = labelname+" l1E_t L1+onlineUM";
@@ -1191,26 +1093,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = labelname+"_mcEtL1McUM";
-	title = labelname+" mcE_t L1+MC truthUM";
-	mcEtL1McUM =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
-	histoname = labelname+"_mcEtOffMcUM";
-	title = labelname+" mcE_t Off+MC truthUM";
-	mcEtOffMcUM =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
-	histoname = labelname+"_mcEtOnMcUM";
-	title = labelname+" mcE_t online+MC truthUM";
-	mcEtOnMcUM =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 
-                           v->getPtMin(),
-			   v->getPtMax());
 
 	histoname = labelname+"_l1Etal1PhiL1OnUM";
 	title = labelname+" l1#eta vs l1#phi L1+onlineUM";
@@ -1233,26 +1117,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 				nBins2D,-histEtaMax,histEtaMax,
 				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	histoname = labelname+"_mcEtamcPhiL1McUM";
-	title = labelname+" mc#eta vs mc#phi L1+MC truthUM";
-	mcEtavsmcPhiL1McUM =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	histoname = labelname+"_mcEtamcPhiOffMcUM";
-	title = labelname+" mc#eta vs mc#phi Off+MC truthUM";
-	mcEtavsmcPhiOffMcUM =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
 
-	histoname = labelname+"_mcEtamcPhiOnMcUM";
-	title = labelname+" mc#eta vs mc#phi online+MC truthUM";
-	mcEtavsmcPhiOnMcUM =  dbe->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins2D,-histEtaMax,histEtaMax,
-				nBins2D,-TMath::Pi(), TMath::Pi());
 
 	histoname = labelname+"_l1DRL1On";
 	title = labelname+" l1DR L1+online";
@@ -1269,23 +1135,11 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 	offDROnOff =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_, 0, 1.);
 
-	histoname = labelname+"_mcDRL1Mc";
-	title = labelname+" mcDR L1+MC truth";
-	mcDRL1Mc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 0, 1.);
-
-	histoname = labelname+"_mcDROffMc";
-	title = labelname+" mcDR Off+MC truth";
-	mcDROffMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 0, 1.);
-
-	histoname = labelname+"_mcDROnMc";
-	title = labelname+" mcDR online+MC truth";
-	mcDROnMc =  dbe->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 0, 1.);
 
 
-	v->setHistos( NMc, mcEtMc, mcEtavsmcPhiMc, NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1Mc, mcEtL1Mc, mcEtavsmcPhiL1Mc, NOffMc, mcEtOffMc, mcEtavsmcPhiOffMc, NOnMc, mcEtOnMc, mcEtavsmcPhiOnMc, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, NL1McUM, mcEtL1McUM, mcEtavsmcPhiL1McUM, NOffMcUM, mcEtOffMcUM, mcEtavsmcPhiOffMcUM, NOnMcUM, mcEtOnMcUM, mcEtavsmcPhiOnMcUM, mcDRL1Mc, mcDROnMc, mcDROffMc, offDRL1Off, offDROnOff, l1DRL1On
+
+
+	v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On
 );
 
 
