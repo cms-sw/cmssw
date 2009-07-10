@@ -3,81 +3,18 @@
 // Package:    DQMOffline/JetMET
 // Class:      DataCertificationJetMET
 // 
-/**\class DataCertificationJetMET DataCertificationJetMET.cc DQMOffline/JetMET/src/DataCertificationJetMET.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.24 2009/03/28 00:19:58 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.25 2009/03/30 17:10:27 hatake Exp $
 //
-//
 
-// system include files
-#include <memory>
-#include <stdio.h>
-#include <math.h>
-#include <sstream>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
 
 // Some switches
-#define NJetAlgo 4
-#define NL3Flags 3
-
-//
-// class decleration
-//
-
-class DataCertificationJetMET : public edm::EDAnalyzer {
-   public:
-      explicit DataCertificationJetMET(const edm::ParameterSet&);
-      ~DataCertificationJetMET();
-
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-
-   // ----------member data ---------------------------
-
-   edm::ParameterSet conf_;
-   DQMStore * dbe;
-   edm::Service<TFileService> fs_;
-
-   int verbose;
-
-
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#define NJetAlgo  4
+#define NL3JFlags 3
+#define NMETAlgo  3
+#define NL3MFlags 3
 
 //
 // constructors and destructor
@@ -117,18 +54,56 @@ DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
 DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 {
 
   // -----------------------------------------
-  // verbose 0: suppress printouts
-  //         1: show printouts
-  verbose   = conf_.getUntrackedParameter<int>("Verbose");
+  // verbose_ 0: suppress printouts
+  //          1: show printouts
+  verbose_ = conf_.getUntrackedParameter<int>("Verbose");
 
-  if (verbose) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
+
+  // -----------------------------------------
+  // testType 0: no comparison with histograms
+  //          1: KS test
+  //          2: Chi2 test
+  //
+  testType_ = 0; 
+  testType_ = conf_.getUntrackedParameter<int>("TestType");
+  if (verbose_) std::cout << ">>> TestType_        = " <<  testType_  << std::endl;  
+
+  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
+  if (verbose_) std::cout << ">>> FileName        = " << filename    << std::endl;
+  bool InMemory = true;
+
+  //
+  //--- If fileName is not defined, it means the the monitoring MEs are already in memory.
+  if (filename != "") InMemory = false;
+  if (verbose_) std::cout << "InMemory           = " << InMemory    << std::endl;
+
+  //
+  //--- If fileName is defined, read the test file and reference file and store in DQMStore.
+  if (!InMemory) {
+
+    std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
+    if (verbose_) std::cout << "FileName           = " << filename    << std::endl;
+
+    std::string reffilename;
+    if (testType_>=1){
+      reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
+      if (verbose_) std::cout << "Reference FileName = " << reffilename << std::endl;
+    }
+
+    // -- Current & Reference Run
+    //---------------------------------------------
+    dbe_ = edm::Service<DQMStore>().operator->();
+    dbe_->open(filename);
+    if (testType_>=1) dbe_->open(reffilename);
+
+  }
 
 }
 
@@ -137,15 +112,15 @@ void
 DataCertificationJetMET::endJob()
 {
 
-  if (verbose) std::cout << ">>> EndJob (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> EndJob (DataCertificationJetMET) <<<" << std::endl;
 
   bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
   std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
-  if (verbose) std::cout << ">>> endJob " << outputFile << std:: endl;
+  if (verbose_) std::cout << ">>> endJob " << outputFile << std:: endl;
 
   if(outputFile){
-    //dbe->showDirStructure();
-    dbe->save(outputFileName);
+    dbe_->showDirStructure();
+    dbe_->save(outputFileName);
   }
 
 }
@@ -155,10 +130,10 @@ void
 DataCertificationJetMET::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
 {
 
-  if (verbose) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (verbose) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+  if (verbose_) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (verbose_) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
 }
 
@@ -167,24 +142,24 @@ void
 DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
 {
 
-  if (verbose) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (verbose) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (verbose) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
+  if (verbose_) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
+  if (verbose_) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
+  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
-  dbe = edm::Service<DQMStore>().operator->();    
-  dbe->setCurrentFolder("JetMET");
+  dbe_ = edm::Service<DQMStore>().operator->();    
+  dbe_->setCurrentFolder("JetMET");
 
   //
   //-----
   MonitorElement * meMETPhi=0;
-  meMETPhi = new MonitorElement(*(dbe->get("JetMET/MET/CaloMET/METTask_CaloMETPhi")));
+  meMETPhi = new MonitorElement(*(dbe_->get("JetMET/MET/CaloMET/METTask_CaloMETPhi")));
   const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
   if(myQReport) {
     float qtresult = myQReport->getQTresult(); // get QT result value
     int qtstatus   = myQReport->getStatus() ;  // get QT status value (see table below)
     std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
-    if (verbose) std::cout << "test" << qtmessage << " qtresult = " << qtresult << " qtstatus = " << qtstatus << std::endl;    
+    if (verbose_) std::cout << "test" << qtmessage << " qtresult = " << qtresult << " qtstatus = " << qtstatus << std::endl;    
   }
 
 }
@@ -194,8 +169,9 @@ void
 DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
-  if (verbose) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose) std::cout << ">>> run = " << run.id() << std::endl;
+  //-----
+  if (verbose_) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
 }
 
@@ -204,51 +180,43 @@ void
 DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   
-  if (verbose) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose) std::cout << ">>> run = " << run.id() << std::endl;
+  if (verbose_) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
+  if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
   // -----------------------------------------
-  // testType 0: no comparison with histograms
-  //          1: KS test
-  //          2: Chi2 test
-  //
-  int testType = 0; 
-  testType  = conf_.getUntrackedParameter<int>("TestType");
-  if (verbose) std::cout << ">>> TestType        = " <<  testType  << std::endl;  
 
   std::vector<MonitorElement*> mes;
   std::vector<std::string> subDirVec;
   std::string RunDir;
   std::string RunNum;
-  int         RunNumber;
+  int         RunNumber=0;
   std::string RefRunDir;
   std::string RefRunNum;
-  int         RefRunNumber;
+  int         RefRunNumber=0;
     
   std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  if (verbose) std::cout << ">>> FileName        = " << filename    << std::endl;
+  if (verbose_) std::cout << ">>> FileName        = " << filename    << std::endl;
   bool InMemory = true;
 
   if (filename != "") InMemory = false;
-  if (verbose) std::cout << "InMemory           = " << InMemory    << std::endl;
+  if (verbose_) std::cout << "InMemory           = " << InMemory    << std::endl;
 
   if (InMemory) {
     //----------------------------------------------------------------
     // Histograms are in memory (for standard full-chain mode)
     //----------------------------------------------------------------
 
-    dbe = edm::Service<DQMStore>().operator->();
-    //dbe->showDirStructure();
+    dbe_ = edm::Service<DQMStore>().operator->();
     
-    mes = dbe->getAllContents("");
-    if (verbose) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
+    mes = dbe_->getAllContents("");
+    if (verbose_) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
 
-    dbe->setCurrentFolder("JetMET");
-    subDirVec = dbe->getSubdirs();
+    dbe_->setCurrentFolder("JetMET");
+    subDirVec = dbe_->getSubdirs();
 
     for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {    
-      if (verbose) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
+      if (verbose_) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
     }
 
     RunDir    = "";
@@ -261,29 +229,14 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     // Open input files (for standalone mode)
     //----------------------------------------------------------------
 
-    std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-    if (verbose) std::cout << "FileName           = " << filename    << std::endl;
-
-    std::string reffilename;
-    if (testType>=1){
-      reffilename = conf_.getUntrackedParameter<std::string>("refFileName");
-      if (verbose) std::cout << "Reference FileName = " << reffilename << std::endl;
-    }
-
-    // -- Current & Reference Run
-    //---------------------------------------------
-    dbe = edm::Service<DQMStore>().operator->();
-    dbe->open(filename);
-    if (testType>=1) dbe->open(reffilename);
-
-    mes = dbe->getAllContents("");
-    if (verbose) std::cout << "found " <<  mes.size() << " monitoring elements!" << std::endl;
+    mes = dbe_->getAllContents("");
+    if (verbose_) std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
     
-    dbe->setCurrentFolder("/");
-    std::string currDir = dbe->pwd();
-    if (verbose) std::cout << "--- Current Directory " << currDir << std::endl;
+    dbe_->setCurrentFolder("/");
+    std::string currDir = dbe_->pwd();
+    if (verbose_) std::cout << "--- Current Directory " << currDir << std::endl;
 
-    subDirVec = dbe->getSubdirs();
+    subDirVec = dbe_->getSubdirs();
 
     // *** If the same file is read in then we have only one subdirectory
     int ind = 0;
@@ -299,7 +252,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	RunDir = *ic;
 	RunNum = *ic;
       }
-      if (verbose) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
+      if (verbose_) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
       ind++;
     }
 
@@ -308,38 +261,36 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //
     if (RunDir == "JetMET") {
       RunDir = "";
-      if (verbose) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
+      if (verbose_) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
     }
     RunNum.erase(0,4);
+    if (RunNum!="")
     RunNumber = atoi(RunNum.c_str());
-    if (verbose) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
+    if (verbose_) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
     //
     // Reference
     //
-    if (testType>=1){
+    if (testType_>=1){
       
       if (RefRunDir == "JetMET") {
 	RefRunDir = "";
-	if (verbose) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
+	if (verbose_) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
       }
+      if (RefRunNum!="")
       RefRunNum.erase(0,4);
       RefRunNumber = atoi(RefRunNum.c_str());
-      if (verbose) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
+      if (verbose_) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
       
     }
     //  ic++;
   }
 
-
-  //----------------------------------------------------------------
-  // Reference Histograms
-  //----------------------------------------------------------------
-
-
   //----------------------------------------------------------------
   // Book integers/histograms for data certification results
   //----------------------------------------------------------------
+
+  std::cout << "aaa" << std::endl;
 
   std::string Jet_Tag_L2[NJetAlgo];
   Jet_Tag_L2[0] = "JetMET_Jet_ICone";
@@ -347,7 +298,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
   Jet_Tag_L2[3] = "JetMET_Jet_JPT";
 
-  std::string Jet_Tag_L3[NJetAlgo][NL3Flags];
+  std::string Jet_Tag_L3[NJetAlgo][NL3JFlags];
   Jet_Tag_L3[0][0] = "JetMET_Jet_ICone_Barrel";
   Jet_Tag_L3[0][1] = "JetMET_Jet_ICone_EndCap";
   Jet_Tag_L3[0][2] = "JetMET_Jet_ICone_Forward";
@@ -361,48 +312,59 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   Jet_Tag_L3[3][1] = "JetMET_Jet_JPT_EndCap";
   Jet_Tag_L3[3][2] = "JetMET_Jet_JPT_Forward";
 
-  if (verbose) std::cout << RunDir << std::endl;
-  dbe->setCurrentFolder("JetMET/EventInfo/Certification/");    
+  std::string MET_Tag_L2[NMETAlgo];
+  MET_Tag_L2[0] = "JetMET_MET_CaloMET";
+  MET_Tag_L2[1] = "JetMET_MET_tcMET";
+  MET_Tag_L2[2] = "JetMET_MET_pfMET";
+
+  std::string MET_Tag_L3[NJetAlgo][NL3MFlags];
+  MET_Tag_L3[0][0] = "JetMET_MET_CaloMET_NoHF";
+  MET_Tag_L3[0][1] = "JetMET_MET_CaloMET_HO";
+  MET_Tag_L3[0][2] = "JetMET_MET_CaloMET_NoHFHO";
+
+  std::cout << "bbb" << std::endl;
+
+  if (verbose_) std::cout << RunDir << std::endl;
+  dbe_->setCurrentFolder("JetMET/EventInfo/Certification/");    
+
+  std::cout << "ccc" << std::endl;
 
   //
   // Layer 1
   //---------
-  MonitorElement* mJetDCFL1 = dbe->bookFloat("JetMET_Jet");
-  MonitorElement* mMETDCFL1 = dbe->bookFloat("JetMET_MET");
+  MonitorElement* mJetDCFL1 = dbe_->bookFloat("JetMET_Jet");
+  MonitorElement* mMETDCFL1 = dbe_->bookFloat("JetMET_MET");
 
   //
   // Layer 2
   //---------
   MonitorElement* mJetDCFL2[10];
-  int iL2JetTags=0;
-  for (int itag=0; itag<=NJetAlgo; itag++){
-    mJetDCFL2[iL2JetTags] = dbe->bookFloat(Jet_Tag_L2[itag]);
-    iL2JetTags++;
-  }
+  MonitorElement* mMETDCFL2[10];
 
-  //MonitorElement* mMETDCFL2[10];
-  //int iL2METTags=0;
-  //mMETDCFL2[iL2METTags] = dbe->bookFloat("JetMET_MET");
-  //iL2METTags++;
+  std::cout << "ddd" << std::endl;
+
+  for (int itag=0; itag<NJetAlgo; itag++) mJetDCFL2[itag] = dbe_->bookFloat(Jet_Tag_L2[itag]);
+  std::cout << "eee" << std::endl;
+  for (int itag=0; itag<NMETAlgo; itag++) mMETDCFL2[itag] = dbe_->bookFloat(MET_Tag_L2[itag]);
+  std::cout << "fff" << std::endl;
 
   //
   // Layer 3
   //---------
   MonitorElement* mJetDCFL3[20];
+  MonitorElement* mMETDCFL3[20];
+
   int iL3JetTags=0;
   for (int ialg=0; ialg<NJetAlgo; ialg++){
     for (int idet=0; idet<3; idet++){
-      mJetDCFL3[iL3JetTags]= dbe->bookFloat(Jet_Tag_L3[ialg][idet]);
-      iL3JetTags++;
+      mJetDCFL3[iL3JetTags++]= dbe_->bookFloat(Jet_Tag_L3[ialg][idet]);
     }
   }
-
-  MonitorElement* mMETDCFL3[20];
   int iL3METTags=0;
-  mMETDCFL3[iL3METTags]= dbe->bookFloat("JetMET_MET_All");
-  iL3METTags++;
-  mMETDCFL3[iL3METTags]= dbe->bookFloat("JetMET_MET_NoHF");
-  iL3METTags++;
+  int ialg=0; // CaloMET only
+  for (int idet=0; idet<3; idet++){
+    mMETDCFL3[iL3METTags++]= dbe_->bookFloat(MET_Tag_L3[ialg][idet]);
+  }
 
   //----------------------------------------------------------------
   // Data certification starts
@@ -427,7 +389,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   Int_t Jet_DCF_L1;
   Int_t Jet_DCF_L2[NJetAlgo];
-  Int_t Jet_DCF_L3[NJetAlgo][NL3Flags];
+  Int_t Jet_DCF_L3[NJetAlgo][NL3JFlags];
   
   std::string refHistoName;
   std::string newHistoName;
@@ -497,14 +459,14 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     test_Constituents = 0.;
     test_HFrac        = 0.;
 
-    meRef = dbe->get(refHistoName+"Pt");
-    meNew = dbe->get(newHistoName+"Pt");    
+    meRef = dbe_->get(refHistoName+"Pt");
+    meNew = dbe_->get(newHistoName+"Pt");    
 
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
 	  break;
@@ -512,80 +474,80 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	  test_Pt = newHisto->Chi2Test(refHisto);
 	  break;
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Pt << std::endl;    
       }
     }
 
-    meRef = dbe->get(refHistoName+"Eta");
-    meNew = dbe->get(newHistoName+"Eta");
+    meRef = dbe_->get(refHistoName+"Eta");
+    meNew = dbe_->get(newHistoName+"Eta");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Eta = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2:
 	  test_Eta = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Eta << std::endl;    
       }
     }
 
-    meRef = dbe->get(refHistoName+"Phi");
-    meNew = dbe->get(newHistoName+"Phi");
+    meRef = dbe_->get(refHistoName+"Phi");
+    meNew = dbe_->get(newHistoName+"Phi");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Phi = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2:
 	  test_Phi = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Phi << std::endl;    
       }
     }
      
-    meRef = dbe->get(refHistoName+"Constituents");
-    meNew = dbe->get(newHistoName+"Constituents");
+    meRef = dbe_->get(refHistoName+"Constituents");
+    meNew = dbe_->get(newHistoName+"Constituents");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :	  
 	  test_Constituents = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Constituents = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Constituents << std::endl;    
       }
     }
      
-    meRef = dbe->get(refHistoName+"HFrac");
-    meNew = dbe->get(newHistoName+"HFrac");
+    meRef = dbe_->get(refHistoName+"HFrac");
+    meNew = dbe_->get(newHistoName+"HFrac");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_HFrac = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2:
 	  test_HFrac = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_HFrac << std::endl;    	
       }
     }
 
-    if (verbose)
+    if (verbose_)
     std::cout << "--- Layer 2 Algo "
               << iAlgo    << " "
               << test_Pt  << " "
@@ -616,113 +578,113 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     test_Phi_Forward = 0.;
 
 
-    meRef = dbe->get(refHistoName+"Pt_Barrel");
-    meNew = dbe->get(newHistoName+"Pt_Barrel");
+    meRef = dbe_->get(refHistoName+"Pt_Barrel");
+    meNew = dbe_->get(newHistoName+"Pt_Barrel");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Pt_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Pt_Barrel = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Pt_Barrel << std::endl;    	
       }
     }
 
-    meRef = dbe->get(refHistoName+"Phi_Barrel");
-    meNew = dbe->get(newHistoName+"Phi_Barrel");
+    meRef = dbe_->get(refHistoName+"Phi_Barrel");
+    meNew = dbe_->get(newHistoName+"Phi_Barrel");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Phi_Barrel = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Phi_Barrel = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Phi_Barrel << std::endl;    	
       }
     }
 
     // --- EndCap
-    meRef = dbe->get(refHistoName+"Pt_EndCap");
-    meNew = dbe->get(newHistoName+"Pt_EndCap");
+    meRef = dbe_->get(refHistoName+"Pt_EndCap");
+    meNew = dbe_->get(newHistoName+"Pt_EndCap");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Pt_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Pt_EndCap = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Pt_EndCap << std::endl;    	
       }
     }
 
-    meRef = dbe->get(refHistoName+"Phi_EndCap");
-    meNew = dbe->get(newHistoName+"Phi_EndCap");
+    meRef = dbe_->get(refHistoName+"Phi_EndCap");
+    meNew = dbe_->get(newHistoName+"Phi_EndCap");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Phi_EndCap = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Phi_EndCap = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Phi_EndCap << std::endl;    	
 
       }
     }
 
     // --- Forward
-    meRef = dbe->get(refHistoName+"Pt_Forward");
-    meNew = dbe->get(newHistoName+"Pt_Forward");
+    meRef = dbe_->get(refHistoName+"Pt_Forward");
+    meNew = dbe_->get(newHistoName+"Pt_Forward");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Pt_Forward = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2:
 	  test_Pt_Forward = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Pt_Forward << std::endl;    	
       }
     }
 
-    meRef = dbe->get(refHistoName+"Phi_Forward");
-    meNew = dbe->get(newHistoName+"Phi_Forward");
+    meRef = dbe_->get(refHistoName+"Phi_Forward");
+    meNew = dbe_->get(newHistoName+"Phi_Forward");
     if ((meRef) && (meNew)) {
       TH1F *refHisto = meRef->getTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
-	switch (testType) {
+	switch (testType_) {
 	case 1 :
 	  test_Phi_Forward = newHisto->KolmogorovTest(refHisto,"UO");
 	case 2 :
 	  test_Phi_Forward = newHisto->Chi2Test(refHisto);
 	}
-	if (verbose > 0) std::cout << ">>> Test (" << testType 
+	if (verbose_ > 0) std::cout << ">>> Test (" << testType_ 
 				   << ") Result = " << test_Phi_Forward << std::endl;    	
 
       }
     }
 
-    if (verbose)
+    if (verbose_)
     std::cout << "--- Layer 3 Algo "
               << iAlgo    << " "
               << test_Pt_Barrel    << " "
@@ -738,7 +700,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     } else {
       Jet_DCF_L3[iAlgo][0] = 0;
     }
-    mJetDCFL3[iAlgo*NL3Flags+0]->Fill(double(Jet_DCF_L3[iAlgo][0]));
+    mJetDCFL3[iAlgo*NL3JFlags+0]->Fill(double(Jet_DCF_L3[iAlgo][0]));
 
     if ( (test_Pt_EndCap > 0.95) && (test_Phi_EndCap > 0.95) ) {
       Jet_DCF_L3[iAlgo][1] = 1;
@@ -746,7 +708,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       Jet_DCF_L3[iAlgo][1] = 0;
     }
     // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3Flags+1]->Fill(double(Jet_DCF_L3[iAlgo][1]));
+    mJetDCFL3[iAlgo*NL3JFlags+1]->Fill(double(Jet_DCF_L3[iAlgo][1]));
 
     if ( (test_Pt_Forward > 0.95) && (test_Phi_Forward > 0.95) ) {
       Jet_DCF_L3[iAlgo][2] = 1;
@@ -754,7 +716,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       Jet_DCF_L3[iAlgo][2] = 0;
     }
     // --- Fill DC results histogram
-    mJetDCFL3[iAlgo*NL3Flags+2]->Fill(double(Jet_DCF_L3[iAlgo][2]));
+    mJetDCFL3[iAlgo*NL3JFlags+2]->Fill(double(Jet_DCF_L3[iAlgo][2]));
 
   }
   // --- End of loop over jet algorithms
@@ -768,7 +730,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   mJetDCFL1->Fill(double(Jet_DCF_L1));
 
   // JET Data Certification Results
-  if (verbose) {
+  if (verbose_) {
     std::cout << std::endl;
     //
     //--- Layer 1
@@ -784,7 +746,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     //--- Layer 3
     //
     for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
-      for (int iL3Flag=0; iL3Flag<NL3Flags; iL3Flag++) {    
+      for (int iL3Flag=0; iL3Flag<NL3JFlags; iL3Flag++) {    
 	printf("%6d %15d %-35s %10d\n",RunNumber,0,Jet_Tag_L3[iAlgo][iL3Flag].c_str(), Jet_DCF_L3[iAlgo][iL3Flag]);
       }
     }
@@ -799,37 +761,20 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //-----------------------------
 
   //
-  //-----
-//   std::cout << "aaa " << std::endl;
-//   MonitorElement * meMETPhi=0;
-//   meMETPhi = new MonitorElement(*(dbe->get("JetMET/CaloMETAnalyzer/METTask_CaloMETPhi")));
-//   const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
-//   std::cout << "aaa " << myQReport << std::endl;    
-//   if(myQReport) {
-//     float qtresult = myQReport->getQTresult(); // get QT result value
-//     int qtstatus   = myQReport->getStatus() ;  // get QT status value (see table below)
-//     std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
-//     std::cout << "aaa" << qtmessage << " " << qtresult << " " << qtstatus << std::endl;    
-//   }
-
-  //
   // Prepare test histograms
   //
   MonitorElement *meMExy[6];
   MonitorElement *meMETPhi[3];
 
-  if (RunDir == "") {
-    newHistoName = "JetMET/MET/";
-  } else {
-    newHistoName = RunDir+"/JetMET/Run summary/MET/";
-  }
+  if (RunDir == "") newHistoName = "JetMET/MET/";
+  else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
 
-  meMExy[0]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMEx"))));
-  meMExy[1]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMEy"))));
-  meMExy[2]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMEx"))));
-  meMExy[3]   = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMEy"))));
-  meMETPhi[0] = new MonitorElement(*(dbe->get((newHistoName+"CaloMET/METTask_CaloMETPhi"))));
-  meMETPhi[1] = new MonitorElement(*(dbe->get((newHistoName+"CaloMETNoHF/METTask_CaloMETPhi"))));
+  meMExy[0]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMEx"))));
+  meMExy[1]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMEy"))));
+  meMExy[2]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMEx"))));
+  meMExy[3]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMEy"))));
+  meMETPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMETPhi"))));
+  meMETPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMETPhi"))));
 				   
   //----------------------------------------------------------------
   //--- Extract quality test results and fill data certification results
@@ -852,62 +797,52 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   if (QReport_MExy[0]){
     if (QReport_MExy[0]->getStatus()==100) 
       qr_JetMET_MExy[0] = QReport_MExy[0]->getQTresult();
-    if (verbose) std::cout << QReport_MExy[0]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_MExy[0]->getMessage() << std::endl;
   }
 
   if (QReport_MExy[1]){
     if (QReport_MExy[1]->getStatus()==100) 
       qr_JetMET_MExy[1] = QReport_MExy[1]->getQTresult();
-    if (verbose) std::cout << QReport_MExy[1]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_MExy[1]->getMessage() << std::endl;
   }
 
   if (QReport_MExy[2]){
     if (QReport_MExy[2]->getStatus()==100) 
       qr_JetMET_MExy[2] = QReport_MExy[2]->getQTresult();
-    if (verbose) std::cout << QReport_MExy[2]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_MExy[2]->getMessage() << std::endl;
   }
 
   if (QReport_MExy[3]){
     if (QReport_MExy[3]->getStatus()==100) 
       qr_JetMET_MExy[3] = QReport_MExy[3]->getQTresult();
-    if (verbose) std::cout << QReport_MExy[3]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_MExy[3]->getMessage() << std::endl;
   }
 
   if (QReport_METPhi[0]){
     if (QReport_METPhi[0]->getStatus()==100) 
       qr_JetMET_METPhi[0] = QReport_METPhi[0]->getQTresult();
-    if (verbose) std::cout << QReport_METPhi[0]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_METPhi[0]->getMessage() << std::endl;
   }
 
   if (QReport_METPhi[1]){
     if (QReport_METPhi[1]->getStatus()==100) 
       qr_JetMET_METPhi[1] = QReport_METPhi[1]->getQTresult();
-    if (verbose) std::cout << QReport_METPhi[1]->getMessage() << std::endl;
+    if (verbose_) std::cout << QReport_METPhi[1]->getMessage() << std::endl;
   }
 
   dc_JetMET[0]=0.;
-//   if (qr_JetMET_MExy[0]*qr_JetMET_MExy[1]*qr_JetMET_METPhi[0] > 0.5 )
   if (qr_JetMET_MExy[0]*qr_JetMET_MExy[1] > 0.5 )
     dc_JetMET[0]=1.;
 
   dc_JetMET[1]=0.;
-//   if (qr_JetMET_MExy[2]*qr_JetMET_MExy[3]*qr_JetMET_METPhi[1] > 0.5 )
   if (qr_JetMET_MExy[2]*qr_JetMET_MExy[3] > 0.5 )
     dc_JetMET[1]=1.;
 
-//   std::cout << qr_JetMET_MExy[0] << " " 
-// 	    << qr_JetMET_MExy[1] << " " 
-// 	    << qr_JetMET_METPhi[0] << std::endl;
-//   std::cout << qr_JetMET_MExy[2] << " " 
-// 	    << qr_JetMET_MExy[3] << " " 
-// 	    << qr_JetMET_METPhi[1] << std::endl;
-//   std::cout << dc_JetMET[0] << " " << dc_JetMET[1] << std::endl;
-
   mMETDCFL1->Fill(dc_JetMET[0]*dc_JetMET[1]);
-  mMETDCFL3[0]->Fill(dc_JetMET[0]);
-  mMETDCFL3[1]->Fill(dc_JetMET[1]);
+  mMETDCFL2[0]->Fill(dc_JetMET[0]);
+  mMETDCFL3[0]->Fill(dc_JetMET[1]);
 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(DataCertificationJetMET);
+//DEFINE_FWK_MODULE(DataCertificationJetMET);
