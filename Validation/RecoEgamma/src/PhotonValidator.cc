@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/08 19:11:55 $ 
- **  $Revision: 1.36 $
+ **  $Date: 2009/07/10 09:59:42 $ 
+ **  $Revision: 1.37 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1184,7 +1184,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     h_SimPho_[0]->Fill ( mcEta_);
     h_SimPho_[1]->Fill ( mcPhi_);
-    h_SimPho_[2]->Fill ( (*mcPho).motherMomentum().et()   );
+    h_SimPho_[2]->Fill ( (*mcPho).fourMomentum().et()   );
 
 
     
