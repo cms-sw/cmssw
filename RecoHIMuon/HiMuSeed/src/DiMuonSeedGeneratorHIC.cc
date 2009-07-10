@@ -58,7 +58,6 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
 
   if(TTRHbuilder == 0){
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
-    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
     iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
     TTRHbuilder = theBuilderHandle.product();
   }
