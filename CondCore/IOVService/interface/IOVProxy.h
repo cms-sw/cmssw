@@ -107,6 +107,7 @@ namespace cond {
 
     PoolTransaction & db() const;
  
+    bool refresh();
 
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;

@@ -20,30 +20,35 @@ namespace cond {
 	      const std::string & token,
 	      bool nolib,
 	      bool keepOpen) :
-	connection(conn){
+	connection(conn), m_nolib(nolib), m_keepOpen(keepOpen){
+	refresh(token);
+	if (m_keepOpen) pooldb().start(true);
+      }
+      void refresh(std::string const & token) {
 	pooldb().start(true);
 	pool::Ref<cond::IOVSequence> temp(&(pooldb().poolDataSvc()),token);
 	iov.copyShallow(temp);
-	pooldb().commit();   
-	if (!iov->iovs().empty() && !nolib) {
+	pooldb().commit();
+	if (!iov->iovs().empty() && !m_nolib) {
 	  // load dict (change: use IOV metadata....)
 	  std::string ptok = iov->iovs().front().wrapperToken();
 	  cond::reflexTypeByToken(ptok);
 	}
-	if (keepOpen) pooldb().start(true);
       }
       ~IOVImpl(){
-	pooldb().commit();
+	if (m_keepOpen) pooldb().commit();
       }
       cond::PoolTransaction& pooldb() { return connection.poolTransaction();}
 
 
       cond::Connection & connection;
       pool::Ref<cond::IOVSequence> iov;
+      bool m_nolib;
+      bool m_keepOpen;
+
     };
 
   }
-
 
   PoolTransaction *  IOVElementProxy::db() const {
     return connection() ? &connection()->poolTransaction() : (PoolTransaction *)(0);
@@ -73,6 +78,13 @@ namespace cond {
   IOVProxy::IOVProxy(cond::Connection& conn,
 		     const std::string & token, bool nolib, bool keepOpen) :
     m_iov(new impl::IOVImpl(conn,token,nolib,keepOpen)), m_low(0), m_high(size()){}
+
+
+  bool IOVProxy::refresh() {
+    int oldsize = m_iov.size();
+    m_iov->refresh(m_iov->iov.toString());
+    return oldsize<size();
+  }
 
 
   void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {

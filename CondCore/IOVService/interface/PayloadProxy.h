@@ -53,6 +53,10 @@ namespace cond {
 
     virtual void loadMore(CondGetter const &){}
 
+    // reload the iov return true if size has changed
+    bool refresh();
+
+
   private:
     virtual bool load(pool::IDataSvc * svc, std::string const & token) =0;   
 
