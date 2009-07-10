@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.9 2009/06/29 15:44:33 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.10 2009/06/30 20:00:37 biery Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -868,7 +868,15 @@ XHTMLMaker::Node* WebPageHelper::createWebPageBody
   xdaqImgAttr[ "border" ] = "0";
   maker.addNode("img", xdaqLink, xdaqImgAttr);
 
-  maker.addNode("hr", body);
+  // Status message box (reason for failed state, etc.):
+  std::string msg = "";
+  if( statReporter->getStateMachineMonitorCollection().statusMessage( msg ) )
+    {
+      XHTMLMaker::Node* msg_box = maker.addNode( "p", body );
+      maker.addText( msg_box, msg );
+    }
+
+  maker.addNode( "hr", body );
   
   return body;
 }

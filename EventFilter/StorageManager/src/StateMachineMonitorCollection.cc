@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+// $Id: StateMachineMonitorCollection.cc,v 1.3 2009/07/09 15:34:29 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
@@ -8,7 +8,9 @@ using namespace stor;
 StateMachineMonitorCollection::StateMachineMonitorCollection() :
 MonitorCollection(),
 _externallyVisibleState( "unknown" ),
-_stateName( "unknown" )
+_stateName( "unknown" ),
+_statusMessageAvailable( false ),
+_statusMessage( "" )
 {}
 
 
@@ -54,6 +56,31 @@ const std::string& StateMachineMonitorCollection::externallyVisibleState() const
 {
   boost::mutex::scoped_lock sl( _stateMutex );
   return _externallyVisibleState;
+}
+
+
+
+void StateMachineMonitorCollection::setStatusMessage( const std::string& m )
+{
+  boost::mutex::scoped_lock sl( _stateMutex );
+  _statusMessageAvailable = true;
+  _statusMessage = m;
+}
+
+
+void StateMachineMonitorCollection::clearStatusMessage()
+{
+  boost::mutex::scoped_lock sl( _stateMutex );
+  _statusMessageAvailable = false;
+  _statusMessage = "";
+}
+
+
+bool StateMachineMonitorCollection::statusMessage( std::string& m ) const
+{
+  boost::mutex::scoped_lock sl( _stateMutex );
+  m = _statusMessage;
+  return _statusMessageAvailable;
 }
 
 

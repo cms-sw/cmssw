@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: StateMachineMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
 
 #ifndef StorageManager_StateMachineMonitorCollection_h
 #define StorageManager_StateMachineMonitorCollection_h
@@ -17,9 +17,9 @@ namespace stor {
   /**
    * A collection of monitored quantities related to the state machine
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class StateMachineMonitorCollection : public MonitorCollection
@@ -48,7 +48,7 @@ namespace stor {
     /**
      * Set the externally visible state name
      */
-    void setExternallyVisibleState(const std::string&);
+    void setExternallyVisibleState( const std::string& );
 
     /**
      * Retrieve the externally visible state name
@@ -56,10 +56,24 @@ namespace stor {
     const std::string& externallyVisibleState() const;
 
     /**
+     * Set status message
+     */
+    void setStatusMessage( const std::string& );
+
+    /**
+     * Clear status message
+     */
+    void clearStatusMessage();
+
+    /**
+     * Get status message
+     */
+    bool statusMessage( std::string& msg ) const;
+
+    /**
      * Retrieve the current internal state name
      */
     const std::string& innerStateName() const;
-
 
   private:
 
@@ -75,6 +89,9 @@ namespace stor {
     History _history;
     std::string _externallyVisibleState;
     mutable boost::mutex _stateMutex;
+
+    bool _statusMessageAvailable;
+    std::string _statusMessage;
 
     xdata::String _stateName;
 
