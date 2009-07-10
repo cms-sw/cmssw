@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/05 15:56:50 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/06/19 12:20:36 $
+ *  $Revision: 1.22 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -1277,7 +1277,7 @@ coral::TimeStamp RPCFw::UTtoT(long long utime)
   
   int yea = static_cast<int>(trunc(utime/31536000) + 1970);
   int yes = (yea-1970)*31536000;
-  int cony = (yea-1972)%4;
+  int cony = ((yea-1972)%4)+1;
   if (cony == 0) yes = yes + (yea-1972)/4*86400; 
   else yes = yes +  static_cast<int>(trunc((yea-1972)/4))*86400;
   int day = static_cast<int>(trunc((utime - yes)/86400));
