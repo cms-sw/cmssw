@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # Process, how many events, inout files, ...
 process = cms.Process("wmnhist")
 process.maxEvents = cms.untracked.PSet(
-      #input = cms.untracked.int32(-1)
-      input = cms.untracked.int32(100)
+      input = cms.untracked.int32(-1)
+      #input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
@@ -14,12 +14,11 @@ process.source = cms.Source("PoolSource",
 
 # Printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('wmnHistogrammer'),
+      debugModules = cms.untracked.vstring('wmnHistBeforeCuts','wmnSelFilter','wmnHistAfterCuts'),
       cout = cms.untracked.PSet(
-            threshold = cms.untracked.string('INFO'),
-            default = cms.untracked.PSet(
-                  limit = cms.untracked.int32(10) 
-            )
+            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
+            threshold = cms.untracked.string('INFO')
+            #threshold = cms.untracked.string('DEBUG')
       ),
       destinations = cms.untracked.vstring('cout')
 )
@@ -104,5 +103,5 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu_histograms.root') )
 
 # Steering the process
-process.wmnhist = cms.Path(process.wmnHistBeforeCuts*process.wmnSelFilter*process.wmnHistAfterCuts)
+process.wmnhist = cms.Path(process.wmnHistBeforeCuts+process.wmnSelFilter+process.wmnHistAfterCuts)
 process.end = cms.EndPath(process.wmnOutput)

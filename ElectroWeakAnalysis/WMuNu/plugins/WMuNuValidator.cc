@@ -106,10 +106,10 @@ void WMuNuValidator::beginJob(const EventSetup& eventSetup){
 }
 
 void WMuNuValidator::endJob(){
-      LogVerbatim("") << "WMuNuValidator>>> FINAL PRINTOUTS -> BEGIN";
-      LogVerbatim("") << "WMuNuValidator>>> Number of analyzed events= " << numberOfEvents;
-      LogVerbatim("") << "WMuNuValidator>>> Number of analyzed muons= " << numberOfMuons;
-      LogVerbatim("") << "WMuNuValidator>>> FINAL PRINTOUTS -> END";
+      //LogVerbatim("") << "\n>>>>>> W VALIDATION SUMMARY BEGIN >>>>>>>>>>>>>>>";
+      //LogVerbatim("") << "Number of analyzed events: " << numberOfEvents;
+      //LogVerbatim("") << "Number of analyzed muons: " << numberOfMuons;
+      //LogVerbatim("") << ">>>>>> W VALIDATION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
  
 
@@ -219,9 +219,13 @@ void WMuNuValidator::analyze(const Event & event, const EventSetup& eventSetup){
             LogTrace("") << "\t... eta= " << eta;
 
             // d0, chi2, nhits
-            h1_["DXY"]->Fill(tk->dxy(beamSpotHandle->position()));
-            h1_["CHi2"]->Fill(gm->normalizedChi2());
-            h1_["NHITS"]->Fill(tk->numberOfValidHits()); 
+            double dxy = tk->dxy(beamSpotHandle->position());
+            double normalizedChi2 = gm->normalizedChi2();
+            double trackerHits = tk->numberOfValidHits();
+            h1_["DXY"]->Fill(dxy);
+            h1_["CHI2"]->Fill(normalizedChi2);
+            h1_["NHITS"]->Fill(trackerHits);
+            LogTrace("") << "\t... dxy, normalizedChi2, trackerHits: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits;
 
             // acoplanarity
             Geom::Phi<double> deltaphi(tk->phi()-atan2(met_py,met_px));

@@ -126,11 +126,11 @@ void WMuNuSelector::endJob() {
       double esel = nsel/all;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << nrec << " [events], (" << setprecision(5) << erec*100. <<" +/- "<< setprecision(2) << sqrt(erec*(1-erec)/all)*100. << ")%";
-      LogVerbatim("") << "Passing isolation cuts:         " << niso << " [events], (" << setprecision(5) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%, to previous step: " <<  setprecision(5) << eiso/erec*100 <<"%";
-      LogVerbatim("") << "Passing HLT criteria:           " << nhlt << " [events], (" << setprecision(5) << ehlt*100. <<" +/- "<< setprecision(2) << sqrt(ehlt*(1-ehlt)/all)*100. << ")%, to previous step: " <<  setprecision(5) << ehlt/eiso*100 <<"%";
-      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << nmet << " [events], (" << setprecision(5) << emet*100. <<" +/- "<< setprecision(2) << sqrt(emet*(1-emet)/all)*100. << ")%, to previous step: " <<  setprecision(5) << emet/ehlt*100 <<"%";
-      LogVerbatim("") << "Passing Z/top rejection cuts:   " << nsel << " [events], (" << setprecision(5) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%, to previous step: " <<  setprecision(5) << esel/emet*100 <<"%";
+      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << nrec << " [events], (" << setprecision(4) << erec*100. <<" +/- "<< setprecision(2) << sqrt(erec*(1-erec)/all)*100. << ")%";
+      LogVerbatim("") << "Passing isolation cuts:         " << niso << " [events], (" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%, to previous step: " <<  setprecision(4) << eiso/erec*100 <<"%";
+      LogVerbatim("") << "Passing HLT criteria:           " << nhlt << " [events], (" << setprecision(4) << ehlt*100. <<" +/- "<< setprecision(2) << sqrt(ehlt*(1-ehlt)/all)*100. << ")%, to previous step: " <<  setprecision(4) << ehlt/eiso*100 <<"%";
+      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << nmet << " [events], (" << setprecision(4) << emet*100. <<" +/- "<< setprecision(2) << sqrt(emet*(1-emet)/all)*100. << ")%, to previous step: " <<  setprecision(4) << emet/ehlt*100 <<"%";
+      LogVerbatim("") << "Passing Z/top rejection cuts:   " << nsel << " [events], (" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%, to previous step: " <<  setprecision(4) << esel/emet*100 <<"%";
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
