@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.3 2008/07/24 20:38:45 dsr Exp $
+// $Id: ChainEvent.h,v 1.4 2009/05/07 19:45:49 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -50,8 +50,8 @@ class ChainEvent
       const ChainEvent& to(Long64_t iIndex);
 
       //Go to event by Run & Event number
-//      bool to(edm::EventID id);
-//      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+      const ChainEvent & to(edm::EventID id);
+      const ChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
 
       /** Go to the very first Event*/
       const ChainEvent& toBegin();
@@ -77,6 +77,8 @@ class ChainEvent
       TFile* getTFile() const {
         return event_->getTFile();
       }
+
+      Long64_t eventIndex() const { return eventIndex_; }
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);

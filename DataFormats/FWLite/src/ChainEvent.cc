@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.5 2008/07/24 20:38:44 dsr Exp $
+// $Id: ChainEvent.cc,v 1.6 2009/03/15 15:01:12 wmtan Exp $
 //
 
 // system include files
@@ -122,6 +122,51 @@ ChainEvent::to(Long64_t iIndex) {
   }
   event_->to( iIndex - accumulatedSize_[offsetIndex]);
   return *this;
+}
+
+
+///Go to event with event id "id"
+const ChainEvent& 
+ChainEvent::to(edm::EventID id) {
+  return to(id.run(), id.event());
+}
+
+///Go to event with given run and event number
+const ChainEvent& 
+ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
+
+  // First try this file
+  if ( event_->to( run, event ) )  {
+    // found it, return
+    return *this;
+  } 
+  else {
+    // Did not find it, try the other files sequentially.
+    // Someday I can make this smarter. For now... we get something working. 
+    Long64_t thisFile = eventIndex_;
+    std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
+      filesEnd = fileNames_.end(), ifile = filesBegin;
+    for ( ; ifile != filesEnd; ++ifile ) {
+      // skip the "first" file that we tried
+      if ( ifile - filesBegin != thisFile ) {
+	// switch to the next file
+	switchToFile( ifile - filesBegin );
+	// check that tree for the desired event
+	if ( event_->to( run, event ) ) {
+	  // found it, return
+	  return *this;
+	} 
+      }// end ignore "first" file that we tried
+    }// end loop over files
+    
+    // did not find the event with id "id".
+    // throw exception. 
+    throw cms::Exception("EventNotFound")
+      << "The ChainEvent does not contain run " 
+      << run << ", event " << event;
+    return *this; // make the compiler happy. this will not execute
+  }// end if we did not find event id in "first" file
+
 }
 
 /** Go to the very first Event*/
