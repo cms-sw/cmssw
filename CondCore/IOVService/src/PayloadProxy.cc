@@ -57,6 +57,9 @@ namespace cond {
   }
 
 
+  bool  BasePayloadProxy::refresh() {
+    return m_iov.refresh();
+  }
 
 
 
