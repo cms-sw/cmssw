@@ -149,7 +149,7 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
   else if (lFedLevelErrors.CorruptBuffer) fillHistogram(corruptBuffers_,lFedId);
 
   if (aFedErr.anyFEDErrors()) fillHistogram(anyFEDErrors_,lFedId);
-  if (aFedErr.anyDAQProblems()) fillHistogram(anyDAQProblems_,lFedId);
+  if (lFedLevelErrors.HasCabledChannels && aFedErr.anyDAQProblems()) fillHistogram(anyDAQProblems_,lFedId);
   if (aFedErr.anyFEProblems()) fillHistogram(anyFEProblems_,lFedId);
 
   if (lFedLevelErrors.FEsOverflow) fillHistogram(feOverflows_,lFedId);
@@ -534,9 +534,9 @@ void FEDHistograms::getConfigForHistogram(const std::string& configName,
     const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>(psetName);
     config.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
     if (config.enabled) {
-      config.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 0);
+      config.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
       config.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 0);
+      config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 40000);
       if (config.nBins) {
         if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tEnabled"
                                           << "\tNBins: " << config.nBins << "\tMin: " << config.min << "\tMax: " << config.max << std::endl;
