@@ -20,13 +20,13 @@ namespace cond {
 	      const std::string & token,
 	      bool nolib,
 	      bool keepOpen) :
-	connection(conn), m_nolib(nolib), m_keepOpen(keepOpen){
-	refresh(token);
+	connection(conn),  m_token(token), m_nolib(nolib), m_keepOpen(keepOpen){
+	refresh();
 	if (m_keepOpen) pooldb().start(true);
       }
-      void refresh(std::string const & token) {
+      void refresh() {
 	pooldb().start(true);
-	pool::Ref<cond::IOVSequence> temp(&(pooldb().poolDataSvc()),token);
+	pool::Ref<cond::IOVSequence> temp(&(pooldb().poolDataSvc()),m_token);
 	iov.copyShallow(temp);
 	pooldb().commit();
 	if (!iov->iovs().empty() && !m_nolib) {
@@ -43,6 +43,7 @@ namespace cond {
 
       cond::Connection & connection;
       pool::Ref<cond::IOVSequence> iov;
+      std::string m_token;
       bool m_nolib;
       bool m_keepOpen;
 
@@ -82,7 +83,7 @@ namespace cond {
 
   bool IOVProxy::refresh() {
     int oldsize = size();
-    m_iov->refresh(m_iov->iov.toString());
+    m_iov->refresh();
     return oldsize<size();
   }
 
