@@ -1,4 +1,4 @@
-/** \class WMuNuValidator
+/** \class WMuNuPATValidator
  *  Simple Validator to make some W->MuNu plots
  *
  */
@@ -11,10 +11,10 @@
 #include <map>
 #include <string>
 
-class WMuNuValidator : public edm::EDAnalyzer {
+class WMuNuPATValidator : public edm::EDAnalyzer {
 public:
-      WMuNuValidator(const edm::ParameterSet& pset);
-      virtual ~WMuNuValidator();
+      WMuNuPATValidator(const edm::ParameterSet& pset);
+      virtual ~WMuNuPATValidator();
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -47,11 +47,11 @@ private:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -60,10 +60,10 @@ private:
 
 using namespace std;
 using namespace edm;
-using namespace reco;
+using namespace pat;
 
 /// Constructor
-WMuNuValidator::WMuNuValidator(const ParameterSet& cfg) :
+WMuNuPATValidator::WMuNuPATValidator(const ParameterSet& cfg) :
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
@@ -74,14 +74,14 @@ WMuNuValidator::WMuNuValidator(const ParameterSet& cfg) :
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 30.))
 {
-  LogDebug("WMuNuValidator")<<" WMuNuValidator constructor called";
+  LogDebug("WMuNuPATValidator")<<" WMuNuPATValidator constructor called";
 }
 
 /// Destructor
-WMuNuValidator::~WMuNuValidator(){
+WMuNuPATValidator::~WMuNuPATValidator(){
 }
 
-void WMuNuValidator::beginJob(const EventSetup& eventSetup){
+void WMuNuPATValidator::beginJob(const EventSetup& eventSetup){
       edm::Service<TFileService> fs;
 
       numberOfEvents = 0;
@@ -105,7 +105,7 @@ void WMuNuValidator::beginJob(const EventSetup& eventSetup){
 
 }
 
-void WMuNuValidator::endJob(){
+void WMuNuPATValidator::endJob(){
       //LogVerbatim("") << "\n>>>>>> W VALIDATION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       //LogVerbatim("") << "Number of analyzed events: " << numberOfEvents;
       //LogVerbatim("") << "Number of analyzed muons: " << numberOfMuons;
@@ -113,7 +113,7 @@ void WMuNuValidator::endJob(){
 }
  
 
-void WMuNuValidator::analyze(const Event & event, const EventSetup& eventSetup){
+void WMuNuPATValidator::analyze(const Event & event, const EventSetup& eventSetup){
   
       numberOfEvents++;
 
@@ -264,4 +264,4 @@ void WMuNuValidator::analyze(const Event & event, const EventSetup& eventSetup){
   
 }
 
-DEFINE_FWK_MODULE(WMuNuValidator);
+DEFINE_FWK_MODULE(WMuNuPATValidator);

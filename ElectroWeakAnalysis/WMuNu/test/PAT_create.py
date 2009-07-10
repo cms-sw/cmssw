@@ -1,48 +1,49 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PAT")
+# Process, how many events, inout files, ...
+process = cms.Process("ewkPAT")
+process.maxEvents = cms.untracked.PSet(
+      #input = cms.untracked.int32(-1)
+      input = cms.untracked.int32(100)
+)
+process.source = cms.Source("PoolSource",
+      debugVerbosity = cms.untracked.uint32(0),
+      debugFlag = cms.untracked.bool(False),
+      fileNames = cms.untracked.vstring("file:/data4/RelValWM_CMSSW_3_1_0-STARTUP31X_V1-v1_GEN-SIM-RECO/40BFAA1A-5466-DE11-B792-001D09F29533.root")
+)
 
-# initialize MessageLogger and output report
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('PATLayer0Summary')
-process.MessageLogger.cerr.INFO = cms.untracked.PSet(
-    default          = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
-    PATLayer0Summary = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+# Debug/info printouts
+process.MessageLogger = cms.Service("MessageLogger",
+      cout = cms.untracked.PSet(
+            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
+            threshold = cms.untracked.string('INFO')
+      ),
+      destinations = cms.untracked.vstring('cout')
 )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-# source
-process.source = cms.Source("PoolSource", 
-     #fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_1_X_2008-07-08_STARTUP_V4-AODSIM.100.root')
-     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_2/RelValWM/GEN-SIM-RECO/IDEAL_V6_v4/0000/0A2CF420-DA6E-DD11-8ABD-000423D94700.root')
-)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
+# Geometry, conditions, magnetic field
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V2::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-# PAT Layer 0+1
-process.load("PhysicsTools.PatAlgos.patLayer0_cff")
-process.load("PhysicsTools.PatAlgos.patLayer1_cff")
+# PAT sequences
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
 #process.content = cms.EDAnalyzer("EventContentAnalyzer")
-process.p = cms.Path(
-                process.patLayer0  
-                #+ process.content # uncomment to get a dump of the output after layer 0
-                + process.patLayer1  
-            )
+process.pat = cms.Path( process.patDefaultSequence )
 
-# Output module configuration
+# Output: no cleaning, extra AOD collections (generator info, trigger)
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('data1/example.pat.root'),
-    # save only events passing the full path
-    SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
+    fileName = cms.untracked.string('PAT_test.root'),
+    SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('pat') ),
     outputCommands = cms.untracked.vstring('drop *')
 )
-process.outpath = cms.EndPath(process.out)
-# save PAT Layer 1 output
-process.load("PhysicsTools.PatAlgos.patLayer1_EventContent_cff")
-process.out.outputCommands.extend(process.patLayer1EventContent.outputCommands)
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoLayer1Cleaning
+from PhysicsTools.PatAlgos.patEventContent_cff import patExtraAodEventContent
+process.out.outputCommands.extend(patEventContentNoLayer1Cleaning)
+process.out.outputCommands.extend(patExtraAodEventContent)
 
+# End
+process.outpath = cms.EndPath(process.out)

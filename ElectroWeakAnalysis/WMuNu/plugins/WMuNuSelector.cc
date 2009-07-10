@@ -145,7 +145,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       unsigned int muonCollectionSize = muonCollection->size();
 
       // Beam spot
-      Handle<BeamSpot> beamSpotHandle;
+      Handle<reco::BeamSpot> beamSpotHandle;
       if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
             LogTrace("") << ">>> No beam spot found !!!";
             return false;
@@ -217,7 +217,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!mu.isGlobalMuon()) continue;
             double pt = mu.pt();
             if (useTrackerPt_) {
-                  TrackRef tk = mu.innerTrack();
+                  reco::TrackRef tk = mu.innerTrack();
                   if (mu.innerTrack().isNull()) continue;
                   pt = tk->pt();
             }
@@ -234,16 +234,12 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (mu.innerTrack().isNull()) continue;
 
             LogTrace("") << "> Wsel: processing muon number " << i << "...";
-            TrackRef gm = mu.globalTrack();
-            TrackRef tk = mu.innerTrack();
+            reco::TrackRef gm = mu.globalTrack();
+            reco::TrackRef tk = mu.innerTrack();
 
             // Pt,eta cuts
             double pt = mu.pt();
-            if (useTrackerPt_) {
-                  TrackRef tk = mu.innerTrack();
-                  if (mu.innerTrack().isNull()) continue;
-                  pt = tk->pt();
-            }
+            if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt<ptCut_) continue;
