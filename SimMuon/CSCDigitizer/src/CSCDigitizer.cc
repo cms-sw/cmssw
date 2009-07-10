@@ -57,6 +57,15 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     hitMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 
+  // count how many layers on each chamber are hit
+  std::map<int, int> layersInChamberHit;
+  for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
+      hitMapItr != hitMap.end(); ++hitMapItr)
+  {
+    int chamberId = CSCDetId(hitMapItr->first).chamberId();
+    ++layersInChamberHit[chamberId];
+  }
+
   // add neutron background, if needed
   if(theNeutronReader != 0)
   {
@@ -67,6 +76,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
+    int chamberId = CSCDetId(hitMapItr->first).chamberId();
     // skip bad chambers
     if ( !digitizeBadChambers_ && theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue;
 
