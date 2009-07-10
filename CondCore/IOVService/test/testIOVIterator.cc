@@ -158,13 +158,14 @@ int main(){
       if (data.refresh()) std::cout << "error!, what refresh..." << std::endl;
       {
 	myconnection.connect(session);
-	pooldb=myconnection.poolTransaction();
-	pooldb.start(false);
-	cond::IOVEditor* editor=iovmanager.newIOVEditor(iovtok);
+	cond::PoolTransaction& pooldb2=myconnection.poolTransaction();
+	pooldb2.start(false);
+	cond::IOVService iovmanager2(pooldb);
+	cond::IOVEditor* editor=iovmanager2.newIOVEditor(iovtok);
 	Add add(pooldb,*editor);
 	add(54,"pay54");
 	delete editor;
-	pooldb.commit();
+	pooldb2.commit();
       }
       if (!data.refresh()) std::cout << "error!, NO refresh..." << std::endl;
       print(data,3);
