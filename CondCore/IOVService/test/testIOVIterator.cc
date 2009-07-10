@@ -160,8 +160,7 @@ int main(){
 	myconnection.connect(session);
 	pooldb=myconnection.poolTransaction();
 	pooldb.start(false);
-	cond::IOVEditor* editor=iovmanager.newIOVEditor();
-	editor->create(cond::timestamp,60);
+	cond::IOVEditor* editor=iovmanager.newIOVEditor(iovtok);
 	Add add(pooldb,*editor);
 	add(54,"pay54");
 	delete editor;
@@ -172,6 +171,7 @@ int main(){
       print(data,23);
       print(data,33);
       print(data,43);
+      print(data,57);
       print(data,63);
     }
     delete session;
