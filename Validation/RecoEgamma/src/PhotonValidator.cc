@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/07 16:47:46 $ 
- **  $Revision: 1.35 $
+ **  $Date: 2009/07/08 19:11:55 $ 
+ **  $Revision: 1.36 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1735,8 +1735,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      h_SimConvTwoMTracksAndVtxPGT0_[2]->Fill( mcConvR_ ); 
 	      h_SimConvTwoMTracksAndVtxPGT0_[3]->Fill( mcConvZ_ );
 	      h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill(  (*mcPho).fourMomentum().et()); 
-	      
-	    } else if (   chi2Prob > 0.005) {
+	    }
+	    if (   chi2Prob > 0.005) {
 	      h_SimConvTwoMTracksAndVtxPGT005_[0]->Fill( mcEta_ ) ;
 	      h_SimConvTwoMTracksAndVtxPGT005_[1]->Fill( mcPhi_ );
 	      h_SimConvTwoMTracksAndVtxPGT005_[2]->Fill( mcConvR_ ); 
