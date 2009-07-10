@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.12 2009/07/10 11:41:04 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.13 2009/07/10 13:18:36 dshpakov Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -1782,6 +1782,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
                                                   XHTMLMaker::Node *parent,
                                                   ThroughputMonitorCollection const& tmc)
 {
+  const int NUMBER_OF_AVERAGES = 16;
   double busyPercentage, dataRate;
 
   MonitoredQuantity::Stats fqEntryCountMQ, fragSizeMQ, fpIdleMQ;
@@ -1800,7 +1801,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   int binCount = tmc.getBinCount();
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "16";
+  colspanAttr[ "colspan" ] = "17";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -1836,6 +1837,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   maker.addText(tableDiv, "Data Rate Popped from Stream Queue (MB/sec)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Disk Writer Thread Busy Percentage");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "New Disk Writer Thread Busy Percentage");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Number of Events Written to Disk");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -1879,8 +1882,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   }
 
   // calculate the sum of the data in each column so we can show averages
-  double sums[15];
-  for (int idx = 0; idx < 15; ++idx) {sums[idx] = 0.0;}
+  double sums[NUMBER_OF_AVERAGES];
+  for (int idx = 0; idx < NUMBER_OF_AVERAGES; ++idx) {sums[idx] = 0.0;}
 
   // add individual rows for the bins
   double relativeTime = fqEntryCountMQ.recentDuration;
@@ -1968,6 +1971,26 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
     maker.addText(tableDiv, busyPercentage, 0);
     sums[8] += busyPercentage;
 
+    // test new default for disk writer thread busy percentage
+    busyPercentage = 0.0;
+    if (relativeTime > 5.0 &&
+        dwIdleMQ.recentBinnedDurations[idx] >
+        (0.95 * fqEntryCountMQ.recentBinnedDurations[idx]))
+    {
+      busyPercentage = 100.0;
+    }
+    if (dwIdleMQ.recentBinnedSampleCounts[idx] > 0 &&
+        (dwIdleMQ.recentBinnedValueSums[idx] <=
+         dwIdleMQ.recentBinnedDurations[idx]))
+    {
+      busyPercentage = 100.0 * (1.0 - (dwIdleMQ.recentBinnedValueSums[idx] /
+                                       dwIdleMQ.recentBinnedDurations[idx]));
+      busyPercentage += 0.5;
+    }
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addText(tableDiv, busyPercentage, 0);
+    sums[15] += busyPercentage;
+
     // number of events written to disk
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addText(tableDiv, diskWriteMQ.recentBinnedSampleCounts[idx], 0);
@@ -2021,8 +2044,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   }
 
   // calculate the averages
-  double averages[15];
-  for (int idx = 0; idx < 15; ++idx)
+  double averages[NUMBER_OF_AVERAGES];
+  for (int idx = 0; idx < NUMBER_OF_AVERAGES; ++idx)
   {
     if (binCount > 0)
     {
@@ -2077,6 +2100,10 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
     // disk writer thread busy percentage
     tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
     maker.addText(tableDiv, averages[8], 1);
+
+    // new disk writer thread busy percentage
+    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
+    maker.addText(tableDiv, averages[15], 1);
 
     // number of events written to disk
     tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
