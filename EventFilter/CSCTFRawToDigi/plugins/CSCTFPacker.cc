@@ -283,11 +283,11 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	if( putBufferToEvent ){
 		std::auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
-		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::getCSCTFFEDIds().first);
+		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::MINCSCTFFEDID);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
 		FEDHeader  csctfFEDHeader (fedRawData.data());
-		csctfFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, FEDNumbering::getCSCTFFEDIds().first);
+		csctfFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, FEDNumbering::MINCSCTFFEDID);
 		FEDTrailer csctfFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
 		csctfFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
 		e.put(data,"CSCTFRawData");

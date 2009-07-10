@@ -22,8 +22,8 @@
 
 CSCFileDumper::CSCFileDumper(const edm::ParameterSet & pset){
 	output = pset.getUntrackedParameter<std::string>("output");
-	fedID_first = FEDNumbering::getCSCFEDIds().first;
-	fedID_last  = FEDNumbering::getCSCTFFEDIds().second;
+	fedID_first = FEDNumbering::MINCSCFEDID;
+	fedID_last  = FEDNumbering::MAXCSCTFFEDID;
 	events = pset.getUntrackedParameter<std::string>("events","");
 	if( events.length() ){
 		for(size_t pos1=0,pos2=events.find(",");;pos1=pos2+1,pos2=events.find(",",pos2+1)){

@@ -99,7 +99,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
 	std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dtProduct(new CSCTriggerContainer<csctf::TrackStub>);
 
-	for(int fedid=FEDNumbering::getCSCTFFEDIds().first; fedid<=FEDNumbering::getCSCTFFEDIds().second; fedid++){
+	for(int fedid=FEDNumbering::MINCSCTFFEDID; fedid<=FEDNumbering::MAXCSCTFFEDID; fedid++){
 		const FEDRawData& fedData = rawdata->FEDData(fedid);
 		if( fedData.size()==0 ) continue;
 		//LogDebug("CSCTFUnpacker|produce");

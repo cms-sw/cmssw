@@ -104,7 +104,7 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 
 	if( nActiveRUIs && !nActiveFUs ){
 		// Assign RUIs to FEDs
-		for(int fed=FEDNumbering::getCSCFEDIds().first; fed<=FEDNumbering::getCSCFEDIds().second; fed++){
+		for(int fed=FEDNumbering::MINCSCFEDID; fed<=FEDNumbering::MAXCSCFEDID; fed++){
 			std::ostringstream name;
 			name<<"FED"<<fed<<std::ends;
 			std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str(),std::vector<std::string>(0));
@@ -112,7 +112,7 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 				FED[fed].push_back((unsigned int)atoi(rui->c_str()+rui->length()-2));
 		}
 		// Do the same for Track-Finder FED
-		for(int fed=FEDNumbering::getCSCTFFEDIds().first; fed<=FEDNumbering::getCSCTFFEDIds().second; fed++){
+		for(int fed=FEDNumbering::MINCSCTFFEDID; fed<=FEDNumbering::MAXCSCTFFEDID; fed++){
 			std::ostringstream name;
 			name<<"FED"<<fed<<std::ends;
 			std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str(),std::vector<std::string>(0));
@@ -215,7 +215,7 @@ int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
 	} while(nEvents++<firstEvent);
 
 	for(std::map<unsigned int,std::list<unsigned int> >::const_iterator fed=FED.begin(); fed!=FED.end(); fed++)
-		if( fed->first<(unsigned int)FEDNumbering::getCSCTFFEDIds().first ){
+		if( fed->first<(unsigned int)FEDNumbering::MINCSCTFFEDID ){
 			// Now let's pretend that DDU data were wrapped with DCC Header (2 64-bit words) and Trailer (2 64-bit words):
 			unsigned short *dccBuf=tmpBuf, *dccCur=dccBuf;
 			dccCur[3] = 0x5000; dccCur[2] = 0x0000; dccCur[1] = 0x0000; dccCur[0] = 0x005F; // Fake DCC Header 1
@@ -319,7 +319,7 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data){
 	// Cut out Track-Finder DDU from the buffer
 		if( !end ) throw cms::Exception("CSCFileReader|lookingForTF")<<" Sanity check failed (end==0)! Should never happen";
 
-		FEDRawData& tfRawData = data->FEDData(FEDNumbering::getCSCTFFEDIds().first);
+		FEDRawData& tfRawData = data->FEDData(FEDNumbering::MINCSCTFFEDID);
 		tfRawData.resize((end-start)*sizeof(unsigned long long));
 		std::copy((unsigned char*)start,(unsigned char*)end,tfRawData.data());
 
@@ -329,11 +329,11 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data){
 		event += ((unsigned short*)start-fuEvent[readyToGo]);
 		memcpy(event,end,(fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end)*sizeof(unsigned short));
 		event += fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end;
-		FEDRawData& fedRawData = data->FEDData(FEDNumbering::getCSCFEDIds().first);
+		FEDRawData& fedRawData = data->FEDData(FEDNumbering::MINCSCFEDID);
 		fedRawData.resize((fuEventSize[readyToGo]-((unsigned short*)end-(unsigned short*)start))*sizeof(unsigned short));
 		std::copy((unsigned char*)tmpBuf,(unsigned char*)event,fedRawData.data());
 	} else {
-		FEDRawData& fedRawData = data->FEDData(FEDNumbering::getCSCFEDIds().first);
+		FEDRawData& fedRawData = data->FEDData(FEDNumbering::MINCSCFEDID);
 		fedRawData.resize((fuEventSize[readyToGo])*sizeof(unsigned short));
 		std::copy((unsigned char*)fuEvent[readyToGo],(unsigned char*)(fuEvent[readyToGo]+fuEventSize[readyToGo]),fedRawData.data());
 	}
