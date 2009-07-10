@@ -24,6 +24,7 @@ namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     rootServiceChecker_(),
+    auxItems_(), 
     selectedOutputItemList_(), 
     fileName_(pset.getUntrackedParameter<std::string>("fileName")),
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
@@ -32,6 +33,7 @@ namespace edm {
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 7)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel", 99) + 1, 99)),
+    basketOrder_(pset.getUntrackedParameter<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     whyNotFastClonable_(pset.getUntrackedParameter<bool>("fastCloning", true) ? FileBlock::CanFastClone : FileBlock::DisabledInConfigFile),
     dropMetaData_(DropNone),
@@ -62,6 +64,9 @@ namespace edm {
     // configuration by reading this source code.
     pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
   }
+
+  PoolOutputModule::AuxItem::AuxItem() :
+	basketSize_(BranchDescription::invalidBasketSize) {}
 
   PoolOutputModule::OutputItem::OutputItem() :
 	branchDescription_(0),
@@ -112,6 +117,15 @@ namespace edm {
 
     Selections const& keptVector =    keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
+    AuxItem&   auxItem = auxItems_[branchType];
+
+    // Fill AuxItem
+    if (theTree != 0 && !overrideInputFileSplitLevels_) {
+      TBranch* auxBranch = theTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
+      auxItem.basketSize_ = auxBranch->GetBasketSize();; 
+    } else {
+      auxItem.basketSize_ = basketSize_; 
+    }
 
     // Fill outputItemList with an entry for each branch.
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
