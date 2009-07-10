@@ -38,3 +38,14 @@ def removeCleaning(process):
     countLept.muonSource     = countLept.muonSource.value().replace('cleanLayer1','selectedLayer1')
     countLept.tauSource      = countLept.tauSource.value().replace('cleanLayer1','selectedLayer1')
     process.patDefaultSequence.remove(process.cleanLayer1Objects)
+
+def addCleaning(process):
+    """add the cleaning layer to the process"""
+    process.patDefaultSequence.replace(process.countLayer1Objects, process.cleanLayer1Objects * process.countLayer1Objects)
+    for m in listModules(process.countLayer1Objects):
+        if hasattr(m, 'src'): m.src = m.src.value().replace('selectedLayer1','cleanLayer1')
+    countLept = process.countLayer1Leptons
+    countLept.electronSource = countLept.electronSource.value().replace('selectedLayer1','cleanLayer1')
+    countLept.muonSource     = countLept.muonSource.value().replace('selectedLayer1','cleanLayer1')
+    countLept.tauSource      = countLept.tauSource.value().replace('selectedLayer1','cleanLayer1')
+                        
