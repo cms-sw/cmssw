@@ -10,7 +10,7 @@
 namespace {
   namespace {
     struct dictionaries {
-	pool::PolyPtr<std::string> d0;
+      pool::PolyPtr<std::string> d0;
       pool::PolyPtr<cond::IOVProvenance> d1;
       pool::PolyPtr<cond::IOVDescription> d2;
       pool::PolyPtr<cond::IOVUserMetaData> d3;
