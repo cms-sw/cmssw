@@ -17,10 +17,10 @@ void compare() {
 	       "benchmark_1.root",
 	       "DQMData/PFTask/Benchmarks/PFlowTaus_barrel/Gen"
 	       );
-  comp.SetStyles(style1, style2, "CMSSW_3_1_0_pre10", "CMSSW_3_1_0_pre11");
+  comp.SetStyles(style1, style2, "310_pre10", "310_pre11");
 
  TCanvas c0("c0", "legend", 400, 200);
-  FormatPad( &c0, false ); 
+  FormatPad( &c0, false, false, true ); 
   comp.Legend().Draw();
   gPad->SaveAs("c_legend.png");
 
@@ -30,7 +30,7 @@ void compare() {
   comp.SetAxis(4, -30, 30);
   comp.DrawSlice("DeltaEtvsEt", 0, 9999, mode);
   
-//  gPad->SetLogy();
+  gPad->SetLogy();
   gPad->SaveAs("c_tauBenchmarkGeneric.png");
   
 }
