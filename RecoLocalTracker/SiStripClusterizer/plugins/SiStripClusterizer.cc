@@ -24,7 +24,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   BOOST_FOREACH( const edm::InputTag& tag, inputTags) {
     if(      findInput( tag, inputOld, event) ) algorithm->clusterize(*inputOld, *output); 
     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
-    else edm::LogError("Input Not Found") << tag;
+    else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] " << tag;
   }
 
   LogDebug("Output") << output->dataSize() << " clusters from " 
@@ -37,7 +37,5 @@ inline
 bool SiStripClusterizer::
 findInput(const edm::InputTag& tag, edm::Handle<T>& handle, const edm::Event& e) {
     e.getByLabel( tag, handle);
-    if( handle.isValid() && !handle->empty() )
-      LogDebug("Input") << tag;
     return handle.isValid();
 }
