@@ -146,7 +146,7 @@ namespace cond {
   }
 
   cond::PoolTransaction & IOVProxy::db() const {
-    m_iov->pooldb();
+    return m_iov->pooldb();
   }
 
 
