@@ -28,10 +28,10 @@ beforeLayer1Objects = cms.Sequence(
 #beforeLayer1Objects.doc = "Sequence to be run before producing PAT Objects"
 
 patDefaultSequence = cms.Sequence(
-    beforeLayer1Objects *    # using '*', as the order is fixed.
-    allLayer1Objects *
-    selectedLayer1Objects # *
-#   cleanLayer1Objects *
-#   countLayer1Objects
+      beforeLayer1Objects    # using '*', as the order is fixed.
+    * allLayer1Objects
+    * selectedLayer1Objects
+    * cleanLayer1Objects 
+    * countLayer1Objects
 )
 #patDefaultSequence.doc = "Default PAT Sequence from AOD to PAT Objects, including filters"
