@@ -336,7 +336,9 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     
     if(feUnpacking_){
+      productDigisEB->sort();
       e.put(productDigisEB,"ebDigis");
+      productDigisEE->sort();
       e.put(productDigisEE,"eeDigis");
       e.put(productInvalidGains,"EcalIntegrityGainErrors");
       e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
