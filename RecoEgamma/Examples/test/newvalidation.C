@@ -169,7 +169,8 @@ while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
       h_res->SetLineColor(2) ;
       h_res->SetMarkerColor(2) ;
       h_res->SetLineWidth(3) ;
-      h_res ->Draw("same E1 P") ;      
+      if (err==1) h_res ->Draw("same E1 P") ;   
+      else  h_res ->Draw("same hist") ;    
     }
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
