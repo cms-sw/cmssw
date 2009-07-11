@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.22 2009/07/10 16:56:24 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.23 2009/07/10 20:11:22 charlot Exp $
 //
 //
 
@@ -59,50 +59,54 @@ GsfElectronFakeAnalyzer::GsfElectronFakeAnalyzer(const edm::ParameterSet& conf)
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
-  etamin=conf.getParameter<double>("Etamin");
-  etamax=conf.getParameter<double>("Etamax");
-  phimin=conf.getParameter<double>("Phimin");
-  phimax=conf.getParameter<double>("Phimax");
-  ptmax=conf.getParameter<double>("Ptmax");
-  pmax=conf.getParameter<double>("Pmax");
-  eopmax=conf.getParameter<double>("Eopmax");
-  eopmaxsht=conf.getParameter<double>("Eopmaxsht");
-  detamin=conf.getParameter<double>("Detamin");
-  detamax=conf.getParameter<double>("Detamax");
-  dphimin=conf.getParameter<double>("Dphimin");
-  dphimax=conf.getParameter<double>("Dphimax");
-  detamatchmin=conf.getParameter<double>("Detamatchmin");
-  detamatchmax=conf.getParameter<double>("Detamatchmax");
-  dphimatchmin=conf.getParameter<double>("Dphimatchmin");
-  dphimatchmax=conf.getParameter<double>("Dphimatchmax");
-  fhitsmax=conf.getParameter<double>("Fhitsmax");
-  lhitsmax=conf.getParameter<double>("Lhitsmax");
-  nbineta=conf.getParameter<int>("Nbineta");
-  nbineta2D=conf.getParameter<int>("Nbineta2D");
-  nbinp=conf.getParameter<int>("Nbinp");
-  nbinpt=conf.getParameter<int>("Nbinpt");
-  nbinp2D=conf.getParameter<int>("Nbinp2D");
-  nbinpt2D=conf.getParameter<int>("Nbinpt2D");
-  nbinpteff=conf.getParameter<int>("Nbinpteff");
-  nbinphi=conf.getParameter<int>("Nbinphi");
-  nbinphi2D=conf.getParameter<int>("Nbinphi2D");
-  nbineop=conf.getParameter<int>("Nbineop");
-  nbineop2D=conf.getParameter<int>("Nbineop2D");
-  nbinfhits=conf.getParameter<int>("Nbinfhits");
-  nbinlhits=conf.getParameter<int>("Nbinlhits");
-  nbinxyz=conf.getParameter<int>("Nbinxyz");
-  nbindeta=conf.getParameter<int>("Nbindeta");
-  nbindphi=conf.getParameter<int>("Nbindphi");
-  nbindetamatch=conf.getParameter<int>("Nbindetamatch");
-  nbindphimatch=conf.getParameter<int>("Nbindphimatch");
-  nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
-  nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
-  nbinmee= conf.getParameter<int>("Nbinmee");
-  meemin=conf.getParameter<double>("Meemin");
-  meemax=conf.getParameter<double>("Meemax");
-  nbinhoe= conf.getParameter<int>("Nbinhoe");
-  hoemin=conf.getParameter<double>("Hoemin");
-  hoemax=conf.getParameter<double>("Hoemax");
+  
+  edm::ParameterSet pset =
+   conf.getParameter<edm::ParameterSet>("HistosConfigurationFake") ;
+
+  etamin=pset.getParameter<double>("Etamin");
+  etamax=pset.getParameter<double>("Etamax");
+  phimin=pset.getParameter<double>("Phimin");
+  phimax=pset.getParameter<double>("Phimax");
+  ptmax=pset.getParameter<double>("Ptmax");
+  pmax=pset.getParameter<double>("Pmax");
+  eopmax=pset.getParameter<double>("Eopmax");
+  eopmaxsht=pset.getParameter<double>("Eopmaxsht");
+  detamin=pset.getParameter<double>("Detamin");
+  detamax=pset.getParameter<double>("Detamax");
+  dphimin=pset.getParameter<double>("Dphimin");
+  dphimax=pset.getParameter<double>("Dphimax");
+  detamatchmin=pset.getParameter<double>("Detamatchmin");
+  detamatchmax=pset.getParameter<double>("Detamatchmax");
+  dphimatchmin=pset.getParameter<double>("Dphimatchmin");
+  dphimatchmax=pset.getParameter<double>("Dphimatchmax");
+  fhitsmax=pset.getParameter<double>("Fhitsmax");
+  lhitsmax=pset.getParameter<double>("Lhitsmax");
+  nbineta=pset.getParameter<int>("Nbineta");
+  nbineta2D=pset.getParameter<int>("Nbineta2D");
+  nbinp=pset.getParameter<int>("Nbinp");
+  nbinpt=pset.getParameter<int>("Nbinpt");
+  nbinp2D=pset.getParameter<int>("Nbinp2D");
+  nbinpt2D=pset.getParameter<int>("Nbinpt2D");
+  nbinpteff=pset.getParameter<int>("Nbinpteff");
+  nbinphi=pset.getParameter<int>("Nbinphi");
+  nbinphi2D=pset.getParameter<int>("Nbinphi2D");
+  nbineop=pset.getParameter<int>("Nbineop");
+  nbineop2D=pset.getParameter<int>("Nbineop2D");
+  nbinfhits=pset.getParameter<int>("Nbinfhits");
+  nbinlhits=pset.getParameter<int>("Nbinlhits");
+  nbinxyz=pset.getParameter<int>("Nbinxyz");
+  nbindeta=pset.getParameter<int>("Nbindeta");
+  nbindphi=pset.getParameter<int>("Nbindphi");
+  nbindetamatch=pset.getParameter<int>("Nbindetamatch");
+  nbindphimatch=pset.getParameter<int>("Nbindphimatch");
+  nbindetamatch2D=pset.getParameter<int>("Nbindetamatch2D");
+  nbindphimatch2D=pset.getParameter<int>("Nbindphimatch2D");
+  nbinmee= pset.getParameter<int>("Nbinmee");
+  meemin=pset.getParameter<double>("Meemin");
+  meemax=pset.getParameter<double>("Meemax");
+  nbinhoe= pset.getParameter<int>("Nbinhoe");
+  hoemin=pset.getParameter<double>("Hoemin");
+  hoemax=pset.getParameter<double>("Hoemax");
   
 }
 
@@ -169,6 +173,10 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
   h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", nbinmee, meemin, meemax );
   h_ele_mee_os      = new TH1F( "h_ele_mee_os", "ele pairs invariant mass, opp. sign", nbinmee, meemin, meemax );
+
+  // duplicates
+  h_ele_E2mnE1vsMee_all = new TH2F("h_ele_E2mnE1vsMee_all", "E2 - E1 vs ele pairs invariant mass, all electrons", nbinmee, meemin, meemax, 100, -50., 50. );
+  h_ele_E2mnE1vsMee_egeg_all = new TH2F("h_ele_E2mnE1vsMee_egeg_all", "E2 - E1 vs ele pairs invariant mass, ecal driven pairs, all electrons", nbinmee, meemin, meemax, 100, -50., 50. );
 
   // matched electrons
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);
@@ -492,6 +500,10 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_mee_all-> GetYaxis()-> SetTitle("Events");
   h_ele_mee_os-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
   h_ele_mee_os-> GetYaxis()-> SetTitle("Events");
+  h_ele_E2mnE1vsMee_all-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_E2mnE1vsMee_all-> GetYaxis()-> SetTitle("E2 - E1 (GeV)");
+  h_ele_E2mnE1vsMee_egeg_all-> GetXaxis()-> SetTitle("m_{e^{+}e^{-}} (GeV/c^{2})");
+  h_ele_E2mnE1vsMee_egeg_all-> GetYaxis()-> SetTitle("E2 - E1 (GeV)");
   histNum_-> GetXaxis()-> SetTitle("N_{ele}");
   histNum_-> GetYaxis()-> SetTitle("Events");
   h_ele_fbremVsEta_mode-> GetXaxis()-> SetTitle("#eta");
@@ -729,6 +741,8 @@ GsfElectronFakeAnalyzer::endJob(){
   h_ele_vertexEta_all->Write();
   h_ele_mee_all->Write();
   h_ele_mee_os->Write();
+  h_ele_E2mnE1vsMee_all ->Write();
+  h_ele_E2mnE1vsMee_egeg_all->Write();
 
   // matched electrons
   h_ele_charge->Write();
@@ -1009,12 +1023,16 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_ele_TIP_all     -> Fill( sqrt(d) );
     h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
     h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
+    float enrj1=gsfIter->superCluster()->energy();
     // mee
     for (reco::GsfElectronCollection::const_iterator gsfIter2=gsfIter+1;
      gsfIter2!=gsfElectrons->end(); gsfIter2++){
              math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
         float mee2 = p12.Dot(p12);
 	h_ele_mee_all -> Fill(sqrt(mee2));
+        float enrj2=gsfIter2->superCluster()->energy();
+        h_ele_E2mnE1vsMee_all->Fill(sqrt(mee2),enrj2-enrj1);
+        if (gsfIter->isEcalDriven() && gsfIter2->isEcalDriven()) h_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1);
 	if (gsfIter->charge()*gsfIter2->charge()<0.) h_ele_mee_os -> Fill(sqrt(mee2));
     }
   }

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.14 2009/07/09 10:06:53 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.15 2009/07/09 12:24:32 charlot Exp $
 //
 //
 
@@ -103,6 +103,9 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_mee_os_gb;
   TH1F *h_ele_mee_os_bb;
 
+  TH2F *h_ele_E2mnE1vsMee_all;
+  TH2F *h_ele_E2mnE1vsMee_egeg_all;
+  
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
