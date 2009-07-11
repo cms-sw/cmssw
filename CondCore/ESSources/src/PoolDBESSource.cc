@@ -67,7 +67,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   lastRun(0),  // for the refresh
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false))
 {
-  stats = {0,0,0,0,0};
+  //stats = {0,0,0,0,0};
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
@@ -168,8 +168,9 @@ PoolDBESSource::~PoolDBESSource() {
 	    << "Records " << stats.nData
 	    <<"setInterval " << stats.nSet
 	    <<"Runs " << stats.nRun
-	    <<"Refresh " << stats.Refresh;
-	    <<"Actual Refresh " << stats.ActualRefresh;
+	    <<"Refresh " << stats.nRefresh;
+	    <<"Actual Refresh " << stats.nActualRefresh;
+  std::cout << std::endl;
 }
 
 
@@ -199,8 +200,8 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	stats.nActualRefresh += (*p).second->proxy()->refresh(); 
 	stats.nRefresh++;
       }
+    }
   }
-
 
   bool userTime=false;
   cond::TimeType timetype = (*p).second->proxy()->timetype();
@@ -238,7 +239,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }
     
     //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
-
+    
     // to force refresh we leave the interval open, so we will get call back at each event...
     oInterval = edm::ValidityInterval( start, doRefresh ?  edm::IOVSyncValue::invalidIOVSyncValue() : stop );
     
