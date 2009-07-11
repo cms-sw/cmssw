@@ -168,7 +168,7 @@ PoolDBESSource::~PoolDBESSource() {
 	    << "Records " << stats.nData
 	    <<"setInterval " << stats.nSet
 	    <<"Runs " << stats.nRun
-	    <<"Refresh " << stats.nRefresh;
+	    <<"Refresh " << stats.nRefresh
 	    <<"Actual Refresh " << stats.nActualRefresh;
   std::cout << std::endl;
 }
