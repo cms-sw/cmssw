@@ -88,7 +88,7 @@ geometric_position(const StripCPEgeometric::WrappedCluster& wc, const stats_t<fl
 inline
 bool StripCPEgeometric::
 useNPlusOne(const WrappedCluster& wc, const stats_t<float>& proj) const 
-{ return wc.maxProjection() < proj && proj() < wc.N+1 && wc.eta().sigmaFrom(0) > 1;  }
+{ return wc.maxProjection() < proj && proj() < wc.N+1 ; }
 
 inline
 bool StripCPEgeometric::
@@ -124,9 +124,9 @@ WrappedCluster(const std::vector<stats_t<float> >& Q) :
 inline
 void StripCPEgeometric::WrappedCluster::
 addSuppressedEdgeStrip() {
-  if( *first > last() ) { first--; N+=1; } else 
-  if( last() > *first ) {          N+=1; } else  
-                        { first--; N+=2; } 
+  if( eta().sigmaFrom(0) < 1 ) { first--; N+=2; } 
+  else if( *first > last() )   { first--; N+=1; } 
+  else                         {          N+=1; }
 }
 
 inline
