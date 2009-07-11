@@ -7,7 +7,14 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/PatUtils>
 <library name=ElectroWeakAnalysisWMuNu_plugins file=*.cc>
-      #<flags CppDefines="IS_PAT=1">
+      ### With local LHAPDF
+      #<flags CXXFLAGS="-I/usr/local/include">
+      #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+      ### CMSSW 31X libraries (much slower for the time being)
+      <use name=LHAPDF>
+</library>
+<library name=ElectroWeakAnalysisWMuNuPAT_plugins file=WMuNuSelector.cc>
+      <flags CppDefines="IS_PAT=1">
       ### With local LHAPDF
       #<flags CXXFLAGS="-I/usr/local/include">
       #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">

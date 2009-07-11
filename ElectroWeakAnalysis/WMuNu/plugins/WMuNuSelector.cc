@@ -1,14 +1,19 @@
-/* \class WMuNuSelector
- *
- * \author Juan Alcaraz, CIEMAT
- *
- */
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "TH1D.h"
+#include <map>
 
-class WMuNuSelector : public edm::EDFilter {
+#ifdef IS_PAT
+class WMuNuPATSelector : public edm::EDFilter {
+#else
+class WMuNuAODSelector : public edm::EDFilter {
+#endif
 public:
-  WMuNuSelector (const edm::ParameterSet &);
+#ifdef IS_PAT
+  WMuNuPATSelector (const edm::ParameterSet &);
+#else
+  WMuNuAODSelector (const edm::ParameterSet &);
+#endif
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
@@ -49,21 +54,29 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
+
+  std::map<std::string,TH1D*> h1_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-
+#ifdef IS_PAT
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#else
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#endif
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -80,7 +93,11 @@ using namespace std;
       using namespace reco;
 #endif
 
-WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
+#ifdef IS_PAT
+WMuNuPATSelector::WMuNuPATSelector( const ParameterSet & cfg ) :
+#else
+WMuNuAODSelector::WMuNuAODSelector( const ParameterSet & cfg ) :
+#endif
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
@@ -118,16 +135,52 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
 {
 }
 
-void WMuNuSelector::beginJob(const EventSetup &) {
+#ifdef IS_PAT
+void WMuNuPATSelector::beginJob(const EventSetup &) {
+#else
+void WMuNuAODSelector::beginJob(const EventSetup &) {
+#endif
       nall = 0;
       nrec = 0;
       niso = 0;
       nhlt = 0;
       nmet = 0;
       nsel = 0;
+
+      edm::Service<TFileService> fs;
+      char chtitle[256] = "";
+
+      snprintf(chtitle, 255, "Trigger response (bit %s)", muonTrig_.data());
+      h1_["TRIG"]  = fs->make<TH1D>("TRIG",chtitle,2,-0.5,1.5);
+      h1_["PT"] = fs->make<TH1D>("PT","Muon transverse momentum [GeV]",100,0.,100.);
+      h1_["ETA"] = fs->make<TH1D>("ETA","Muon pseudorapidity",50,-2.5,2.5);
+      h1_["DXY"] = fs->make<TH1D>("DXY","Muon transverse distance to beam spot [cm]",100,-1.,1.);
+      h1_["CHI2"] = fs->make<TH1D>("CHI2","Normalized Chi2, inner track fit",100,0.,100.);
+      h1_["NHITS"] = fs->make<TH1D>("NHITS","Number of hits in inner track",35,-0.5,34.5);
+      h1_["TKMU"] = fs->make<TH1D>("TKMU","Tracker Muon flag (for global muons)",2,-0.5,1.5);
+      h1_["MET"] = fs->make<TH1D>("MET","Missing Transverse Energy [GeV]", 100,0.,200.);
+      h1_["MT"] = fs->make<TH1D>("MT","Transverse Mass [GeV]",150,0.,300.);
+      h1_["ACOP"] = fs->make<TH1D>("ACOP","Mu-MET acoplanarity",50,0.,M_PI);
+
+      snprintf(chtitle, 255, "Number of jets above %.2f GeV", eJetMin_);
+      h1_["NJETS"] = fs->make<TH1D>("NJETS",chtitle,25,-0.5,24.5);
+      if (isRelativeIso_) {
+            h1_["ISO"] = fs->make<TH1D>("ISO","Relative isolation variable", 100, 0., 1.);
+      } else {
+            h1_["ISO"] = fs->make<TH1D>("ISO","Transverse energy/momentum in isolation cone (GeV)", 100, 0., 50.);
+      }
+
+      snprintf(chtitle, 255, "Z rejetion: number of muons above %.2f GeV", ptThrForZ1_);
+      h1_["NZ1"] = fs->make<TH1D>("NZ1",chtitle, 10, -0.5, 9.5);
+      snprintf(chtitle, 255, "Z rejetion: number of muons above %.2f GeV", ptThrForZ2_);
+      h1_["NZ2"] = fs->make<TH1D>("NZ2",chtitle, 10, -0.5, 9.5);
 }
 
-void WMuNuSelector::endJob() {
+#ifdef IS_PAT
+void WMuNuPATSelector::endJob() {
+#else
+void WMuNuAODSelector::endJob() {
+#endif
       double all = nall;
       double erec = nrec/all;
       double eiso = niso/all;
@@ -175,7 +228,18 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
+#ifdef IS_PAT
+bool WMuNuPATSelector::filter (Event & ev, const EventSetup &) {
+#else
+bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
+#endif
+
+      // Reset global event selection flags
+      bool rec_sel = false;
+      bool iso_sel = false;
+      bool hlt_sel = false;
+      bool met_sel = false;
+      bool sel = false;
 
       // Muon collection
       Handle<View<Muon> > muonCollection;
@@ -213,6 +277,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
       double met_et = sqrt(met_px*met_px+met_py*met_py);
       LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
+      h1_["MET"]->Fill(met_et);
 
       // Jet collection
       Handle<View<Jet> > jetCollection;
@@ -227,6 +292,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (jet.et()>eJetMin_) njets++;
       }
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
+      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
+      h1_["NJETS"]->Fill(njets);
 
       // Trigger
       Handle<TriggerResults> triggerResults;
@@ -243,10 +310,11 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             }
       }
       */
-      bool fired = false;
+      bool trigger_fired = false;
       int itrig1 = trigNames.triggerIndex(muonTrig_);
-      if (triggerResults->accept(itrig1)) fired = true;
-      LogTrace("") << ">>> Trigger bit: " << fired << " (" << muonTrig_ << ")";
+      if (triggerResults->accept(itrig1)) trigger_fired = true;
+      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
+      h1_["TRIG"]->Fill((double)trigger_fired);
 
       nall++;
 
@@ -265,10 +333,20 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
       }
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
+      h1_["NZ1"]->Fill((double)nmuonsForZ1);
+      h1_["NZ2"]->Fill((double)nmuonsForZ2);
 
       // Central W->mu nu selection criteria
-      unsigned int nmuonsForW = 0;
+      const int NFLAGS = 10;
+      bool muon_sel[NFLAGS];
       for (unsigned int i=0; i<muonCollectionSize; i++) {
+            for (int j=0; j<NFLAGS; ++j) muon_sel[j] = false;
+            bool rec_sel_this = true;
+            bool iso_sel_this = true;
+            bool met_sel_this = true;
+
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
             if (mu.globalTrack().isNull()) continue;
@@ -283,43 +361,45 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
-            if (pt<ptCut_) continue;
-            if (fabs(eta)>etaCut_) continue;
+            if (pt>ptCut_) muon_sel[0] = true; else rec_sel_this = false;
+            if (fabs(eta)<etaCut_) muon_sel[1] = true; else rec_sel_this = false;
 
             // d0, chi2, nhits quality cuts
             double dxy = tk->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
             double trackerHits = tk->numberOfValidHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
-            if (fabs(dxy)>dxyCut_) continue;
-            if (normalizedChi2>normalizedChi2Cut_) continue;
-            if (trackerHits<trackerHitsCut_) continue; 
-            if (isAlsoTrackerMuon_ && !mu.isTrackerMuon()) continue;
+            if (fabs(dxy)<dxyCut_) muon_sel[2] = true; else rec_sel_this = false;
+            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; else rec_sel_this = false;
+            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; else rec_sel_this = false;
+            if (mu.isTrackerMuon()) muon_sel[5] = true; else rec_sel_this = false;
+
+            h1_["PT"]->Fill(pt);
+            h1_["ETA"]->Fill(eta);
+            h1_["DXY"]->Fill(dxy);
+            h1_["CHI2"]->Fill(normalizedChi2);
+            h1_["NHITS"]->Fill(trackerHits);
+            h1_["TKMU"]->Fill((double)mu.isTrackerMuon());
 
             // "rec" => pt,eta and wuality cuts are satisfied
-            nrec++;
+            if (rec_sel_this) rec_sel = true;
 
             // Isolation cuts
-            bool iso = false;
-            double etsum = mu.isolationR03().sumPt;
+            double isovar = mu.isolationR03().sumPt;
             if (isCombinedIso_) {
-                  etsum += mu.isolationR03().emEt;
-                  etsum += mu.isolationR03().hadEt;
+                  isovar += mu.isolationR03().emEt;
+                  isovar += mu.isolationR03().hadEt;
             }
-            if (isRelativeIso_) {
-                  if (etsum/pt<isoCut03_) iso=true;
-            } else {
-                  if (etsum<isoCut03_) iso=true;
-            }
-            LogTrace("") << "\t... isolated? " << iso;
+            if (isRelativeIso_) isovar /= pt;
+            if (isovar<isoCut03_) muon_sel[6] = true; else iso_sel_this = false;
+            LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
+            h1_["ISO"]->Fill(isovar);
 
             // "iso" => "rec" AND "muon is isolated"
-            if (!iso) continue;
-            niso++;
+            if (rec_sel_this && iso_sel_this) iso_sel = true;
 
             // "hlt" => "rec" AND "iso" AND "event is triggered"
-            if (!fired) continue;
-            nhlt++;
+            if (rec_sel_this && iso_sel_this && trigger_fired) hlt_sel = true;
 
             // MET/MT cuts
             double w_et = met_et;
@@ -338,10 +418,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             massT = (massT>0) ? sqrt(massT) : 0;
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-            if (met_et<metMin_) continue;
-            if (met_et>metMax_) continue;
-            if (massT<mtMin_) continue;
-            if (massT>mtMax_) continue;
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[7] = true; else met_sel_this = false;
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; else met_sel_this = false;
+            h1_["MT"]->Fill(massT);
 
             // Acoplanarity cuts
             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -349,38 +428,38 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
-            if (acop>acopCut_) continue;
+            if (acop<acopCut_) muon_sel[9] = true; else met_sel_this = false;
+            h1_["ACOP"]->Fill(acop);
 
-            // "mt" => "rec" AND "iso" AND "hlt" AND "passes MET/MT and acoplanarity cuts"
-            nmet++;
-
-            nmuonsForW++;
+            // "met" => "rec" AND "iso" AND "hlt" AND "passes MET/MT and acoplanarity cuts"
+            if (rec_sel_this && iso_sel_this && trigger_fired && met_sel_this) met_sel = true;
       }
 
-      // Z and top rejection is done here
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {
+      // Collect final flags
+      if (rec_sel) nrec++;
+      if (iso_sel) niso++;
+      if (hlt_sel) nhlt++;
+      if (met_sel) nmet++;
+
+      if (met_sel && (nmuonsForZ1<1||nmuonsForZ2<2) && njets<nJetMax_) {
+            sel = true;
+            nsel++;
+      }
+
+      if (sel) {
+            LogTrace("") << ">>>> Event ACCEPTED";
+      } else {
             LogTrace("") << ">>>> Event REJECTED";
-            return false;
       }
-      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-      if (njets>nJetMax_) return false;
 
-      LogTrace("") << "> Number of muons for W: " << nmuonsForW;
-      if (nmuonsForW<1) {
-            LogTrace("") << ">>>> Event REJECTED";
-            return false;
-      }
-      LogTrace("") << ">>>> Event SELECTED!!!";
-
-      // "sel" => "rec" AND "iso" AND "hlt" AND "mt" AND "Z and top rejection"
-      nsel++;
-
-      return true;
+      return sel;
 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( WMuNuSelector );
+#ifdef IS_PAT
+      DEFINE_FWK_MODULE( WMuNuPATSelector );
+#else
+      DEFINE_FWK_MODULE( WMuNuAODSelector );
+#endif
