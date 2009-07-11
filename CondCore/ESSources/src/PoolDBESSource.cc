@@ -166,10 +166,10 @@ PoolDBESSource::~PoolDBESSource() {
 
   std::cout << "PoolDBESSource Statistics" << std::endl
 	    << "Records " << stats.nData
-	    <<"setInterval " << stats.nSet
-	    <<"Runs " << stats.nRun
-	    <<"Refresh " << stats.nRefresh
-	    <<"Actual Refresh " << stats.nActualRefresh;
+	    <<" setInterval " << stats.nSet
+	    <<" Runs " << stats.nRun
+	    <<" Refresh " << stats.nRefresh
+	    <<" Actual Refresh " << stats.nActualRefresh;
   std::cout << std::endl;
 }
 
