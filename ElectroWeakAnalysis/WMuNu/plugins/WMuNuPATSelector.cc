@@ -71,10 +71,10 @@ using namespace pat;
 WMuNuPATSelector::WMuNuPATSelector( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
-      muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
+      muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("selectedLayer1Muons"))),
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("layer1METs"))),
+      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", true)),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("selectedLayer1Jets"))),
 
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
