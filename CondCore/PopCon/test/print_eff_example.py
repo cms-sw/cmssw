@@ -6,6 +6,7 @@ process.CondDBCommon.connect = 'sqlite_file:pop_test.db'
 
 process.eff = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
+    RefreshEachRun=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('ExEfficiencyRcd'),
         tag = cms.string('Example_tag1')
