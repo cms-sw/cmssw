@@ -88,7 +88,7 @@ geometric_position(const StripCPEgeometric::WrappedCluster& wc, const stats_t<fl
 inline
 bool StripCPEgeometric::
 useNPlusOne(const WrappedCluster& wc, const stats_t<float>& proj) const 
-{ return wc.maxProjection() < proj && proj() < wc.N+1 && wc.eta().sigmaFrom(0) < 3;  }
+{ return wc.maxProjection() < proj && proj() < wc.N+1 && wc.eta().sigmaFrom(0) > 1;  }
 
 inline
 bool StripCPEgeometric::
