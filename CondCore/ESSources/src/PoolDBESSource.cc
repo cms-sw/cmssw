@@ -63,8 +63,11 @@ namespace {
 
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_session()
-{		
+  m_session(), 
+  lastRun(edm::IOVSyncValue::invalidIOVSyncValue()),  // for the refresh
+  doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)
+{
+  stats = {0,0,0,0,0}
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
@@ -155,11 +158,19 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }
 
     }
-
+    stats.nData=m_proxies.size();
 }
 
 
-PoolDBESSource::~PoolDBESSource() {}
+PoolDBESSource::~PoolDBESSource() {
+
+  std::cout << "PoolDBESSource Statistics" << std::endl
+	    << "Records " << stats.nData
+	    <<"setInterval " << stats.nSet
+	    <<"Runs " << stats.nRun
+	    <<"Refresh " << stats.Refresh;
+	    <<"Actual Refresh " << stats.ActualRefresh;
+}
 
 
 //
@@ -167,6 +178,9 @@ PoolDBESSource::~PoolDBESSource() {}
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
+
+  stats.nSet++;
+
   std::string recordname=iKey.name();
   oInterval = edm::ValidityInterval::invalidInterval();
   
@@ -175,6 +189,18 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     LogDebug ("PoolDBESSource")<<"no DataProxy (Pluging) found for record "<<recordname;
     return;
   }
+
+  {
+    // the refresh: each new run: up to us to detect it...
+    if(iTime.eventID().run()!=lastRun) {
+      lastRun=iTime.eventID().run();
+      stats.nRun++;
+      if (doRefresh)  { 
+	stats.nActualRefresh += (*p).second->proxy()->refresh(); 
+	stats.nRefresh++;
+      }
+  }
+
 
   bool userTime=false;
   cond::TimeType timetype = (*p).second->proxy()->timetype();
@@ -212,7 +238,9 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }
     
     //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
-    oInterval = edm::ValidityInterval( start, stop );
+
+    // to force refresh we leave the interval open, so we will get call back at each event...
+    oInterval = edm::ValidityInterval( start, doRefresh ?  edm::IOVSyncValue::invalidIOVSyncValue() : stop );
     
   }
   

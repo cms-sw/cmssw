@@ -60,6 +60,18 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   typedef std::set< cond::TagMetadata > TagCollection;
   TagCollection m_tagCollection;
 
+  struct Stats {
+    int nData;
+    int nSet;
+    int nRun;
+    int nRefresh;
+    int nActualRefresh;
+  };
+
+  Stats stats;
+
+  int lastRun;
+  bool doRefresh;
 
  private:
 
