@@ -17,7 +17,7 @@
 #   is the default default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
 # $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}Ideal
+#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}_Ideal
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
@@ -62,6 +62,8 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
   else if ( "${DBS_LIKE}" =~ *STARTUP* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
+  else if ( "${DBS_LIKE}" =~ *MC* ) then
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
   endif

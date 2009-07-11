@@ -11,16 +11,15 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_1_1">
+<var name="DBS_RELEASE" value="CMSSW_3_1_0_pre11">
 <!var name="DBS_RELEASE" value="LOCAL">
-<var name="DBS_LIKE" value="*MC_31X_V2-v1*-RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="311">
-<var name="VAL_REF_RELEASE" value="310">
+<var name="VAL_NEW_RELEASE" value="310pre11">
+<var name="VAL_REF_RELEASE" value="310pre11">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
@@ -51,64 +50,110 @@ input data files returned by the data discovery web server. We guess that from
 time to time we will have to upgrade the values DBS_* variable so to keep in
 touch with changes in data catalog structure.
 
-<environment name="Pt10">
-  <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="Pt10 ${TEST_OUTPUT_FILE}">
+<environment name="FullSimStdStats">
+
+  <var name="DBS_LIKE" value="*MC_31X_V1-v1*-RECO">
+
+  <environment name="FullPt10">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullPt10 ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullPt35">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullPt35 ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullTTbar">
+    <var name="DBS_SAMPLE" value="RelValTTbar">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullTTbar ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullZEEIdeal">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullZEEIdeal ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullZEEStartup">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="DBS_LIKE" value="*STARTUP31X_V1-v1*-RECO">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">
+  </environment>
+  
+  <environment name="FullQcdPt80-120">
+    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+    <var name="VAL_ANALYZER" value="GsfElectronFakeAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="newvalidation.csh" args="FullQcdPt80-120 ${TEST_OUTPUT_FILE}">
+  </environment>
+  
 </environment>
 
-<environment name="Pt35">
-  <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="Pt35 ${TEST_OUTPUT_FILE}">
-</environment>
+<environment name="FullSimHighStats">
 
-<environment name="TTbar">
-  <var name="DBS_SAMPLE" value="RelValTTbar">
-  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="TTbar ${TEST_OUTPUT_FILE}">
-</environment>
+  <var name="DBS_LIKE" value="*MC_31X_V1-v1*-RECO">
 
-<environment name="ZEEIdeal">
-  <var name="DBS_SAMPLE" value="RelValZEE">
-  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="ZEEIdeal ${TEST_OUTPUT_FILE}">
-</environment>
-
-<environment name="ZEEStartup">
-  <var name="DBS_SAMPLE" value="RelValZEE">
-  <var name="DBS_LIKE" value="*STARTUP31X_V1-v2*-RECO">
-  <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="ZEEStartup ${TEST_OUTPUT_FILE}">
-</environment>
-
-<environment name="QcdPt80-120">
-  <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-  <var name="VAL_ANALYZER" value="GsfElectronFakeAnalyzer">
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="newvalidation.csh" args="QcdPt80-120 ${TEST_OUTPUT_FILE}">
-</environment>
-
-<environment name="HighStat">
-
-  <environment name="FlatPt5To100">
+  <environment name="HighFlatPt5To100">
     <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <!executable name="dbs_discovery.py">
     <!executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-    <!executable name="newvalidation.csh" args="FlatPt5To100 ${TEST_OUTPUT_FILE}">
+    <!executable name="newvalidation.csh" args="HighFlatPt5To100 ${TEST_OUTPUT_FILE}">
   </environment>
 
+</environment>
+
+<environment name="FastSim">
+
+  <var name="VAL_REF_RELEASE" value="FastSim">
+  <var name="DBS_LIKE" value="*MC_31X_V1_FastSim-v1*-RECO">
+
+  <environment name="FastTTbar">
+    <var name="DBS_SAMPLE" value="RelValTTbar">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <var name="VAL_NEW_FILE" value="cmsRun.FullTTbar.olog.${TEST_OUTPUT_FILE}">
+    <var name="VAL_REF_FILE" value="cmsRun.FastTTbar.olog.${TEST_OUTPUT_FILE}">
+    <executable name="newvalidation.csh" args="FastTTbar">
+  </environment>
+  
+  <environment name="FastZEEIdeal">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <var name="VAL_NEW_FILE" value="cmsRun.FullZEEIdeal.olog.${TEST_OUTPUT_FILE}">
+    <var name="VAL_REF_FILE" value="cmsRun.FastZEEIdeal.olog.${TEST_OUTPUT_FILE}">
+    <executable name="newvalidation.csh" args="FastZEEIdeal">
+  </environment>
+  
+  <environment name="FastZEEStartup">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="DBS_LIKE" value="*STARTUP31X_V1_FastSim-v1*-RECO">
+    <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <var name="VAL_NEW_FILE" value="cmsRun.FullZEEStartup.olog.${TEST_OUTPUT_FILE}">
+    <var name="VAL_REF_FILE" value="cmsRun.FastZEEStartup.olog.${TEST_OUTPUT_FILE}">
+    <executable name="newvalidation.csh" args="FastZEEStartup">
+  </environment>
+  
 </environment>
 
