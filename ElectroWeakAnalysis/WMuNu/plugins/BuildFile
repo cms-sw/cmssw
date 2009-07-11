@@ -1,11 +1,16 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
+<use name=DataFormats/PatCandidates>
+<use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/PatUtils>
 <library name=ElectroWeakAnalysisWMuNu_plugins file=*.cc>
-    <use name=DataFormats/BTauReco>
-    <use name=PhysicsTools/PatUtils>
-    <use name=DataFormats/PatCandidates>
-    <use name=PhysicsTools/UtilAlgos>
-    <use name=root>
+      #<flags CppDefines="IS_PAT=1">
+      ### With local LHAPDF
+      #<flags CXXFLAGS="-I/usr/local/include">
+      #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+      ### CMSSW 31X libraries (much slower for the time being)
+      <use name=LHAPDF>
 </library>

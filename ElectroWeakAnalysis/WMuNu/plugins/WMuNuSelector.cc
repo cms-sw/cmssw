@@ -54,11 +54,17 @@ private:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/Framework/interface/TriggerNames.h"
@@ -68,7 +74,11 @@ private:
   
 using namespace edm;
 using namespace std;
-using namespace reco;
+#ifdef IS_PAT
+      using namespace pat;
+#else
+      using namespace reco;
+#endif
 
 WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       // Input collections
@@ -126,11 +136,42 @@ void WMuNuSelector::endJob() {
       double esel = nsel/all;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << nrec << " [events], (" << setprecision(4) << erec*100. <<" +/- "<< setprecision(2) << sqrt(erec*(1-erec)/all)*100. << ")%";
-      LogVerbatim("") << "Passing isolation cuts:         " << niso << " [events], (" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%, to previous step: " <<  setprecision(4) << eiso/erec*100 <<"%";
-      LogVerbatim("") << "Passing HLT criteria:           " << nhlt << " [events], (" << setprecision(4) << ehlt*100. <<" +/- "<< setprecision(2) << sqrt(ehlt*(1-ehlt)/all)*100. << ")%, to previous step: " <<  setprecision(4) << ehlt/eiso*100 <<"%";
-      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << nmet << " [events], (" << setprecision(4) << emet*100. <<" +/- "<< setprecision(2) << sqrt(emet*(1-emet)/all)*100. << ")%, to previous step: " <<  setprecision(4) << emet/ehlt*100 <<"%";
-      LogVerbatim("") << "Passing Z/top rejection cuts:   " << nsel << " [events], (" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%, to previous step: " <<  setprecision(4) << esel/emet*100 <<"%";
+
+      double num = nrec;
+      double eff = erec;
+      double err = sqrt(eff*(1-eff)/all);
+      double effstep = 1.;
+      double errstep = 0.;
+      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
+
+      num = niso;
+      eff = eiso;
+      err = sqrt(eff*(1-eff)/all);
+      effstep = eiso/erec;
+      errstep = sqrt(effstep*(1-effstep)/nrec);
+      LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+      num = nhlt;
+      eff = ehlt;
+      err = sqrt(eff*(1-eff)/all);
+      effstep = ehlt/eiso;
+      errstep = sqrt(effstep*(1-effstep)/niso);
+      LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+      num = nmet;
+      eff = emet;
+      err = sqrt(eff*(1-eff)/all);
+      effstep = emet/ehlt;
+      errstep = sqrt(effstep*(1-effstep)/nhlt);
+      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+      num = nsel;
+      eff = esel;
+      err = sqrt(eff*(1-eff)/all);
+      effstep = esel/emet;
+      errstep = sqrt(effstep*(1-effstep)/nmet);
+      LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
@@ -154,7 +195,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       // MET
       double met_px = 0.;
       double met_py = 0.;
-      Handle <View<MET> > metCollection;
+      Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
             LogError("") << ">>> MET collection does not exist !!!";
             return false;
@@ -174,7 +215,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
 
       // Jet collection
-      Handle <View<Jet> > jetCollection;
+      Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
             return false;
