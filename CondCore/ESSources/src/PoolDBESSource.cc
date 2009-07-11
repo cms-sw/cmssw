@@ -64,8 +64,8 @@ namespace {
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session(), 
-  lastRun(edm::IOVSyncValue::invalidIOVSyncValue()),  // for the refresh
-  doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)
+  lastRun(0),  // for the refresh
+  doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false))
 {
   stats = {0,0,0,0,0};
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
