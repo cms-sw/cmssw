@@ -67,7 +67,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   lastRun(edm::IOVSyncValue::invalidIOVSyncValue()),  // for the refresh
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)
 {
-  stats = {0,0,0,0,0}
+  stats = {0,0,0,0,0};
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
