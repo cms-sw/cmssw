@@ -149,9 +149,10 @@ int main(){
       // test PayloadProxy
       cond::PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
       print(data,3);
-      print(data,23);
+      print(data,21);
       print(data,33);
       print(data,43);
+      print(data,21);
       print(data,63);
       std::cout << "test refresh" << std::endl;
       // test refresh
@@ -169,10 +170,12 @@ int main(){
 	pooldb2.commit();
       }
       if (!data.refresh()) std::cout << "error!, NO refresh..." << std::endl;
+      std::cout << " size " << data.iov().size() << std::endl;
       print(data,3);
-      print(data,23);
+      print(data,21);
       print(data,33);
       print(data,43);
+      print(data,54);
       print(data,57);
       print(data,63);
     }

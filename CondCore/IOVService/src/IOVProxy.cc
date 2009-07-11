@@ -84,7 +84,7 @@ namespace cond {
   bool IOVProxy::refresh() {
     int oldsize = size();
     m_iov->refresh();
-    anew = oldsize<size();
+    bool anew = oldsize<size();
     if (anew) m_high = size();
     return anew;
   }
