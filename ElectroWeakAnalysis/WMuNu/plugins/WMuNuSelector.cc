@@ -18,7 +18,9 @@ public:
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
   void init_histograms();
+  void fill_histogram(char*, const double&);
 private:
+  bool fastOption_;
   edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
@@ -99,6 +101,9 @@ WMuNuPATSelector::WMuNuPATSelector( const ParameterSet & cfg ) :
 #else
 WMuNuAODSelector::WMuNuAODSelector( const ParameterSet & cfg ) :
 #endif
+      // Fast selection (no histograms or book-keeping)
+      fastOption_(cfg.getUntrackedParameter<bool> ("FastOption", false)),
+
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
@@ -142,13 +147,15 @@ void WMuNuPATSelector::beginJob(const EventSetup &) {
 void WMuNuAODSelector::beginJob(const EventSetup &) {
 #endif
       nall = 0;
-      nrec = 0;
-      niso = 0;
-      nhlt = 0;
-      nmet = 0;
       nsel = 0;
 
-      init_histograms();
+      if (!fastOption_) {
+            nrec = 0;
+            niso = 0;
+            nhlt = 0;
+            nmet = 0;
+            init_histograms();
+      }
 }
 
 #ifdef IS_PAT
@@ -231,53 +238,67 @@ void WMuNuAODSelector::init_histograms() {
 }
 
 #ifdef IS_PAT
+void WMuNuPATSelector::fill_histogram(char* name, const double& var) {
+#else
+void WMuNuAODSelector::fill_histogram(char* name, const double& var) {
+#endif
+      if (fastOption_) return;
+      h1_[name]->Fill(var);
+}
+
+#ifdef IS_PAT
 void WMuNuPATSelector::endJob() {
 #else
 void WMuNuAODSelector::endJob() {
 #endif
       double all = nall;
-      double erec = nrec/all;
-      double eiso = niso/all;
-      double ehlt = nhlt/all;
-      double emet = nmet/all;
       double esel = nsel/all;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Overall efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
 
-      double num = nrec;
-      double eff = erec;
-      double err = sqrt(eff*(1-eff)/all);
-      double effstep = 1.;
-      double errstep = 0.;
-      LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
+      if (!fastOption_) {
+        double erec = nrec/all;
+        double eiso = niso/all;
+        double ehlt = nhlt/all;
+        double emet = nmet/all;
 
-      num = niso;
-      eff = eiso;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = eiso/erec;
-      errstep = sqrt(effstep*(1-effstep)/nrec);
-      LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+        double num = nrec;
+        double eff = erec;
+        double err = sqrt(eff*(1-eff)/all);
+        double effstep = 1.;
+        double errstep = 0.;
+        LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
 
-      num = nhlt;
-      eff = ehlt;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = ehlt/eiso;
-      errstep = sqrt(effstep*(1-effstep)/niso);
-      LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+        num = niso;
+        eff = eiso;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = eiso/erec;
+        errstep = sqrt(effstep*(1-effstep)/nrec);
+        LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+  
+        num = nhlt;
+        eff = ehlt;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = ehlt/eiso;
+        errstep = sqrt(effstep*(1-effstep)/niso);
+        LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
 
-      num = nmet;
-      eff = emet;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = emet/ehlt;
-      errstep = sqrt(effstep*(1-effstep)/nhlt);
-      LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+        num = nmet;
+        eff = emet;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = emet/ehlt;
+        errstep = sqrt(effstep*(1-effstep)/nhlt);
+        LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
 
-      num = nsel;
-      eff = esel;
-      err = sqrt(eff*(1-eff)/all);
-      effstep = esel/emet;
-      errstep = sqrt(effstep*(1-effstep)/nmet);
-      LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+        num = nsel;
+        eff = esel;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = esel/emet;
+        errstep = sqrt(effstep*(1-effstep)/nmet);
+        LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+      }
 
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
@@ -294,9 +315,6 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       bool hlt_sel = false;
       bool met_sel = false;
       bool all_sel = false;
-      const int NFLAGS = 13;
-      bool muon_sel[NFLAGS];
-      for (int j=0; j<NFLAGS; ++j) muon_sel[j] = false;
 
       // Muon collection
       Handle<View<Muon> > muonCollection;
@@ -334,7 +352,7 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       }
       double met_et = sqrt(met_px*met_px+met_py*met_py);
       LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
-      h1_["MET_BEFORECUTS"]->Fill(met_et);
+      fill_histogram("MET_BEFORECUTS",met_et);
 
       // Trigger
       Handle<TriggerResults> triggerResults;
@@ -355,9 +373,7 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       int itrig1 = trigNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
-      h1_["TRIG_BEFORECUTS"]->Fill((double)trigger_fired);
-
-      nall++;
+      fill_histogram("TRIG_BEFORECUTS",trigger_fired);
 
       // Loop to reject/control Z->mumu is done separately
       unsigned int nmuonsForZ1 = 0;
@@ -376,8 +392,8 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       }
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      h1_["NZ1_BEFORECUTS"]->Fill((double)nmuonsForZ1);
-      h1_["NZ2_BEFORECUTS"]->Fill((double)nmuonsForZ2);
+      fill_histogram("NZ1_BEFORECUTS",nmuonsForZ1);
+      fill_histogram("NZ2_BEFORECUTS",nmuonsForZ2);
       
       // Jet collection
       Handle<View<Jet> > jetCollection;
@@ -393,7 +409,13 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       }
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-      h1_["NJETS_BEFORECUTS"]->Fill(njets);
+      fill_histogram("NJETS_BEFORECUTS",njets);
+
+      // Start counting, reject already events if possible (under FastOption flag)
+      nall++;
+      if (fastOption_ && !trigger_fired) return false;
+      if (fastOption_ && nmuonsForZ1>=0 && nmuonsForZ2>=2) return false;
+      if (fastOption_ && njets>nJetMax_) return false;
 
       // Histograms per event shouldbe done only once, so keep track of them
       bool hlt_hist_done = false;
@@ -403,6 +425,8 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       bool njets_hist_done = false;
 
       // Central W->mu nu selection criteria
+      const int NFLAGS = 13;
+      bool muon_sel[NFLAGS];
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             for (int j=0; j<NFLAGS; ++j) {
                   muon_sel[j] = false;
@@ -422,25 +446,31 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
             if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
-            if (pt>ptCut_) muon_sel[0] = true;
-            if (fabs(eta)<etaCut_) muon_sel[1] = true;
+            if (pt>ptCut_) muon_sel[0] = true; 
+            else if (fastOption_) continue;
+            if (fabs(eta)<etaCut_) muon_sel[1] = true; 
+            else if (fastOption_) continue;
 
             // d0, chi2, nhits quality cuts
             double dxy = tk->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
             double trackerHits = tk->numberOfValidHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
-            if (fabs(dxy)<dxyCut_) muon_sel[2] = true;
-            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true;
-            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true;
-            if (mu.isTrackerMuon()) muon_sel[5] = true;
+            if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
+            else if (fastOption_) continue;
+            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            else if (fastOption_) continue;
+            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
+            else if (fastOption_) continue;
+            if (mu.isTrackerMuon()) muon_sel[5] = true; 
+            else if (fastOption_) continue;
 
-            h1_["PT_BEFORECUTS"]->Fill(pt);
-            h1_["ETA_BEFORECUTS"]->Fill(eta);
-            h1_["DXY_BEFORECUTS"]->Fill(dxy);
-            h1_["CHI2_BEFORECUTS"]->Fill(normalizedChi2);
-            h1_["NHITS_BEFORECUTS"]->Fill(trackerHits);
-            h1_["TKMU_BEFORECUTS"]->Fill((double)mu.isTrackerMuon());
+            fill_histogram("PT_BEFORECUTS",pt);
+            fill_histogram("ETA_BEFORECUTS",eta);
+            fill_histogram("DXY_BEFORECUTS",dxy);
+            fill_histogram("CHI2_BEFORECUTS",normalizedChi2);
+            fill_histogram("NHITS_BEFORECUTS",trackerHits);
+            fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
 
             // Isolation cuts
             double isovar = mu.isolationR03().sumPt;
@@ -449,12 +479,14 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
                   isovar += mu.isolationR03().hadEt;
             }
             if (isRelativeIso_) isovar /= pt;
-            if (isovar<isoCut03_) muon_sel[6] = true;
+            if (isovar<isoCut03_) muon_sel[6] = true; 
+            else if (fastOption_) continue;
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
-            h1_["ISO_BEFORECUTS"]->Fill(isovar);
+            fill_histogram("ISO_BEFORECUTS",isovar);
 
             // HLT (not mtched to muon for the time being)
-            if (trigger_fired) muon_sel[7] = true;
+            if (trigger_fired) muon_sel[7] = true; 
+            else if (fastOption_) continue;
 
             // MET/MT cuts
             double w_et = met_et;
@@ -473,9 +505,11 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
             massT = (massT>0) ? sqrt(massT) : 0;
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true;
-            h1_["MT_BEFORECUTS"]->Fill(massT);
-            if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true;
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
+            else if (fastOption_) continue;
+            fill_histogram("MT_BEFORECUTS",massT);
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
+            else if (fastOption_) continue;
 
             // Acoplanarity cuts
             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -483,87 +517,97 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
-            if (acop<acopCut_) muon_sel[10] = true;
-            h1_["ACOP_BEFORECUTS"]->Fill(acop);
+            if (acop<acopCut_) muon_sel[10] = true; 
+            else if (fastOption_) continue;
+            fill_histogram("ACOP_BEFORECUTS",acop);
 
             // Remaining flags (from global event information)
-            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true;
-            if (njets<nJetMax_) muon_sel[12] = true;
-      
-            // Collect necessary flags "per muon"
-            int flags_passed = 0;
-            bool rec_sel_this = true;
-            bool iso_sel_this = true;
-            bool hlt_sel_this = true;
-            bool met_sel_this = true;
-            bool all_sel_this = true;
-            for (int j=0; j<NFLAGS; ++j) {
+            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
+            else if (fastOption_) continue;
+            if (njets<=nJetMax_) muon_sel[12] = true; 
+            else if (fastOption_) continue;
+
+            if (fastOption_) {
+                  all_sel = true;
+                  break;
+            } else {
+              // Collect necessary flags "per muon"
+              int flags_passed = 0;
+              bool rec_sel_this = true;
+              bool iso_sel_this = true;
+              bool hlt_sel_this = true;
+              bool met_sel_this = true;
+              bool all_sel_this = true;
+              for (int j=0; j<NFLAGS; ++j) {
                   if (muon_sel[j]) flags_passed += 1;
                   if (j<6 && !muon_sel[j]) rec_sel_this = false;
                   if (j<7 && !muon_sel[j]) iso_sel_this = false;
                   if (j<8 && !muon_sel[j]) hlt_sel_this = false;
                   if (j<11 && !muon_sel[j]) met_sel_this = false;
                   if (!muon_sel[j]) all_sel_this = false;
-            }
+              }
 
-            // "rec" => pt,eta and quality cuts are satisfied
-            if (rec_sel_this) rec_sel = true;
-            // "iso" => "rec" AND "muon is isolated"
-            if (iso_sel_this) iso_sel = true;
-            // "hlt" => "iso" AND "event is triggered"
-            if (hlt_sel_this) hlt_sel = true;
-            // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
-            if (met_sel_this) met_sel = true;
-            // "all" => "met" AND "Z/top rejection cuts"
-            if (all_sel_this) all_sel = true;
+              // "rec" => pt,eta and quality cuts are satisfied
+              if (rec_sel_this) rec_sel = true;
+              // "iso" => "rec" AND "muon is isolated"
+              if (iso_sel_this) iso_sel = true;
+              // "hlt" => "iso" AND "event is triggered"
+              if (hlt_sel_this) hlt_sel = true;
+              // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
+              if (met_sel_this) met_sel = true;
+              // "all" => "met" AND "Z/top rejection cuts"
+              if (all_sel_this) all_sel = true;
 
-            // Do N-1 histograms now (and only once for global event quantities)
-            if (flags_passed >= (NFLAGS-1)) {
+              // Do N-1 histograms now (and only once for global event quantities)
+              if (flags_passed >= (NFLAGS-1)) {
                   if (!muon_sel[0] || flags_passed==NFLAGS) 
-                        h1_["PT_LASTCUT"]->Fill(pt);
+                        fill_histogram("PT_LASTCUT",pt);
                   if (!muon_sel[1] || flags_passed==NFLAGS) 
-                        h1_["ETA_LASTCUT"]->Fill(eta);
+                        fill_histogram("ETA_LASTCUT",eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS) 
-                        h1_["DXY_LASTCUT"]->Fill(dxy);
+                        fill_histogram("DXY_LASTCUT",dxy);
                   if (!muon_sel[3] || flags_passed==NFLAGS) 
-                        h1_["CHI2_LASTCUT"]->Fill(normalizedChi2);
+                        fill_histogram("CHI2_LASTCUT",normalizedChi2);
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
-                        h1_["NHITS_LASTCUT"]->Fill(trackerHits);
+                        fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
-                        h1_["TKMU_LASTCUT"]->Fill((double)mu.isTrackerMuon());
+                        fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
                   if (!muon_sel[6] || flags_passed==NFLAGS) 
-                        h1_["ISO_LASTCUT"]->Fill(isovar);
+                        fill_histogram("ISO_LASTCUT",isovar);
                   if (!muon_sel[7] || flags_passed==NFLAGS) 
-                        if (!hlt_hist_done) h1_["TRIG_LASTCUT"]->Fill((double)trigger_fired);
+                        if (!hlt_hist_done) fill_histogram("TRIG_LASTCUT",trigger_fired);
                         hlt_hist_done = true;
                   if (!muon_sel[8] || flags_passed==NFLAGS) 
-                        h1_["MT_LASTCUT"]->Fill(massT);
+                        fill_histogram("MT_LASTCUT",massT);
                   if (!muon_sel[9] || flags_passed==NFLAGS) 
-                        if (!met_hist_done) h1_["MET_LASTCUT"]->Fill(met_et);
+                        if (!met_hist_done) fill_histogram("MET_LASTCUT",met_et);
                         met_hist_done = true;
                   if (!muon_sel[10] || flags_passed==NFLAGS) 
-                        h1_["ACOP_LASTCUT"]->Fill(acop);
+                        fill_histogram("ACOP_LASTCUT",acop);
                   if (!muon_sel[11] || flags_passed==NFLAGS) 
-                        if (!nz1_hist_done) h1_["NZ1_LASTCUT"]->Fill(nmuonsForZ1);
+                        if (!nz1_hist_done) fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
                         nz1_hist_done = true;
                   if (!muon_sel[11] || flags_passed==NFLAGS) 
-                        if (!nz2_hist_done) h1_["NZ2_LASTCUT"]->Fill(nmuonsForZ2);
+                        if (!nz2_hist_done) fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
                         nz2_hist_done = true;
                   if (!muon_sel[12] || flags_passed==NFLAGS) 
-                        if (!njets_hist_done) h1_["NJETS_LASTCUT"]->Fill(njets);
+                        if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
                         njets_hist_done = true;
+              }
             }
 
       }
 
       // Collect final flags
-      if (rec_sel) nrec++;
-      if (iso_sel) niso++;
-      if (hlt_sel) nhlt++;
-      if (met_sel) nmet++;
-      if (all_sel) nsel++;
+      if (!fastOption_) {     
+            if (rec_sel) nrec++;
+            if (iso_sel) niso++;
+            if (hlt_sel) nhlt++;
+            if (met_sel) nmet++;
+      }
 
       if (all_sel) {
+            nsel++;
             LogTrace("") << ">>>> Event ACCEPTED";
       } else {
             LogTrace("") << ">>>> Event REJECTED";
