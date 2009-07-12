@@ -211,7 +211,7 @@ void WMuNuAODSelector::init_histograms() {
             h1_[chname]  = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
 
             snprintf(chname, 255, "MT%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Transverse energy [GeV]");
+            snprintf(chtitle, 255, "Transverse mass [GeV]");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,150,0.,300.);
 
             snprintf(chname, 255, "MET%s", chsuffix[i].data());
