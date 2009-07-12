@@ -45,6 +45,6 @@ process.Timing = cms.Service("Timing")
 process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.gsfElectronSequence)
 
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.GlobalTag.globaltag = 'MC_31X_V2'
 
 

@@ -90,20 +90,18 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
-#process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.particleFlowReco*process.gsfElectronAnalysis)
-#process.p = cms.Path(process.RawToDigi*process.reconstruction*process.gsfElectronSequence*process.gsfElectronAnalysis)
 process.mylocalreco =  cms.Sequence(process.trackerlocalreco*process.calolocalreco)
 process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks+process.ecalClusters+process.caloTowersRec*process.vertexreco*process.gsfElectronSequence)
 process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.gsfElectronAnalysis)
 
-#process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'IDEAL_30X::All'
+process.outpath = cms.EndPath(process.out)
+process.GlobalTag.globaltag = 'MC_31X_V2'
 
 
