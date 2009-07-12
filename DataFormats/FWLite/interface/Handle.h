@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.10 2008/09/23 16:34:41 dsr Exp $
+// $Id: Handle.h,v 1.11 2008/09/23 16:59:16 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/FWLite/interface/MultiChainEvent.h"
 #include "DataFormats/FWLite/interface/ErrorThrower.h"
 #endif
 
@@ -143,6 +144,36 @@ class Handle
          }
       }
 
+
+      void getByLabel(const fwlite::MultiChainEvent& iEvent, 
+                      const char* iModuleLabel,
+                      const char* iProductInstanceLabel = 0,
+                      const char* iProcessLabel = 0) {
+      TempWrapT* temp;
+      void* pTemp = &temp;
+      iEvent.getByLabel(TempWrapT::typeInfo(),
+                        iModuleLabel,
+                        iProductInstanceLabel,
+                        iProcessLabel,
+                        pTemp);
+         if ( 0 != errorThrower_ ) delete errorThrower_;
+         errorThrower_ = 0;
+         if(0==temp) {
+            errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
+                                                                            iModuleLabel,
+                                                                            iProductInstanceLabel,
+                                                                            iProcessLabel);
+	    return;
+         }
+         data_ = temp->product();
+         if(data_==0) {
+            errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
+                                                                             iModuleLabel,
+                                                                             iProductInstanceLabel,
+                                                                             iProcessLabel);
+         }
+      }
+
     const std::string getBranchNameFor(const fwlite::Event& iEvent, 
                                        const char* iModuleLabel,
                                        const char* iProductInstanceLabel = 0,
@@ -154,6 +185,18 @@ class Handle
     }
 
     const std::string getBranchNameFor(const fwlite::ChainEvent& iEvent, 
+                                       const char* iModuleLabel,
+                                       const char* iProductInstanceLabel = 0,
+                                       const char* iProcessLabel = 0) {
+      return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
+                                     iModuleLabel,
+                                     iProductInstanceLabel,
+                                     iProcessLabel);
+    }
+
+
+
+    const std::string getBranchNameFor(const fwlite::MultiChainEvent& iEvent, 
                                        const char* iModuleLabel,
                                        const char* iProductInstanceLabel = 0,
                                        const char* iProcessLabel = 0) {

@@ -1,0 +1,125 @@
+#ifndef DataFormats_FWLite_MultiChainEvent_h
+#define DataFormats_FWLite_MultiChainEvent_h
+// -*- C++ -*-
+//
+// Package:     FWLite
+// Class  :     MultiChainEvent
+// 
+/**\class MultiChainEvent MultiChainEvent.h DataFormats/FWLite/interface/MultiChainEvent.h
+
+ Description: FWLite chain event that is aware of two files at once
+
+ Usage:
+    <usage>
+
+*/
+//
+// Original Author:  Salvatore Rappoccio
+//         Created:  Thu Jul  9 22:05:56 CDT 2009
+// $Id: MultiChainEvent.h,v 1.4 2009/05/07 19:45:49 dsr Exp $
+//
+#if !defined(__CINT__) && !defined(__MAKECINT__)
+// system include files
+#include <vector>
+#include <string>
+#include <boost/shared_ptr.hpp>
+
+// user include files
+#include "DataFormats/FWLite/interface/ChainEvent.h"
+
+// forward declarations
+namespace edm {
+  class EDProduct;
+  class ProductRegistry;
+  class BranchDescription;
+  class EDProductGetter;
+  class EventAux;
+}
+
+namespace fwlite {
+  namespace internal {
+    class MultiProductGetter;
+  }
+
+class MultiChainEvent
+{
+
+   public:
+      MultiChainEvent(const std::vector<std::string>& iFileNames1, 
+		      const std::vector<std::string>& iFileNames2);
+      virtual ~MultiChainEvent();
+
+      const MultiChainEvent& operator++();
+
+      ///Go to the event at index iIndex
+      const MultiChainEvent& to(Long64_t iIndex);
+
+      //Go to event by Run & Event number
+      const MultiChainEvent & to(edm::EventID id);
+      const MultiChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
+
+
+      ///Go to the event from secondary files at index iIndex
+      const MultiChainEvent& toSec(Long64_t iIndex);
+
+      //Go to event from secondary files by Run & Event number
+      const MultiChainEvent & toSec(edm::EventID id);
+      const MultiChainEvent & toSec(edm::RunNumber_t run, edm::EventNumber_t event);
+
+
+      /** Go to the very first Event*/
+      const MultiChainEvent& toBegin();
+      
+      // ---------- const member functions ---------------------
+      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+
+      /** This function should only be called by fwlite::Handle<>*/
+      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+      //void getByBranchName(const std::type_info&, const char*, void*&) const;
+
+      bool isValid() const;
+      operator bool () const;
+      bool atEnd() const;
+      
+      Long64_t size() const;
+
+      edm::EventID id() const;
+      const edm::Timestamp& time() const;
+
+      const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
+      const std::vector<std::string>& getProcessHistory() const;
+      TFile* getTFile() const {
+        return event1_->getTFile();
+      }
+      TFile* getTFileSec() const {
+        return event2_->getTFile();
+      }
+
+      Long64_t eventIndex() const { return event1_->eventIndex(); }
+      Long64_t eventIndexSec() const { return event2_->eventIndex(); }
+
+      // ---------- static member functions --------------------
+      static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+
+      // return the two chain events
+      ChainEvent const * primary  () const { return &*event1_;}
+      ChainEvent const * secondary() const { return &*event2_;}
+
+      // ---------- member functions ---------------------------
+
+   private:
+
+      MultiChainEvent(const Event&); // stop default
+
+      const MultiChainEvent& operator=(const Event&); // stop default
+
+      // ---------- member data --------------------------------
+
+      boost::shared_ptr<ChainEvent> event1_;  // primary files
+      boost::shared_ptr<ChainEvent> event2_;  // secondary files
+      boost::shared_ptr<internal::MultiProductGetter> getter_;
+};
+
+}
+#endif /*__CINT__ */
+#endif

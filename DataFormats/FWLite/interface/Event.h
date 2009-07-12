@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.15 2008/11/28 17:44:48 wmtan Exp $
+// $Id: Event.h,v 1.16 2009/05/07 19:45:49 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -139,7 +139,7 @@ class Event
       const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
@@ -159,6 +159,10 @@ class Event
         return branchMap_.getFile();
       }
 
+      void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { std::cout << "resetting getter" << std::endl; getter_ = getter; }
+
+      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
@@ -166,6 +170,7 @@ class Event
 
    private:
       friend class internal::ProductGetter;
+      friend class ChainEvent;
       
       Event(const Event&); // stop default
 
@@ -177,7 +182,6 @@ class Event
 
       internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
       
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
 //      TFile* file_;
 //      TTree* eventTree_;
@@ -206,7 +210,7 @@ class Event
       //references branch descriptions in prodReg_;
 //      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
       
-      std::auto_ptr<edm::EDProductGetter> getter_;
+      boost::shared_ptr<edm::EDProductGetter> getter_;
 };
 
 }

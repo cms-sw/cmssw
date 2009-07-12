@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="fwlite::Event"/>
   <class name="fwlite::ChainEvent"/>
+  <class name="fwlite::MultiChainEvent"/>
   <class name="fwlite::ErrorThrower"/>
 </lcgdict>

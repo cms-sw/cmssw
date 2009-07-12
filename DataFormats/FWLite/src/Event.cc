@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.23 2008/11/28 17:44:48 wmtan Exp $
+// $Id: Event.cc,v 1.24 2008/12/27 05:24:02 wmtan Exp $
 //
 
 // system include files
@@ -112,7 +112,7 @@ private:
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
     }
     
-    getter_ = std::auto_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
+    getter_ = boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
 }
 
 // Event::Event(const Event& rhs)
@@ -436,7 +436,7 @@ Event::getBranchNameFor(const std::type_info& iInfo,
   return std::string("");
 }
 
-void 
+bool 
 Event::getByLabel(const std::type_info& iInfo,
                   const char* iModuleLabel,
                   const char* iProductInstanceLabel,
@@ -448,6 +448,7 @@ Event::getByLabel(const std::type_info& iInfo,
   }
   void** pOData = reinterpret_cast<void**>(oData);
   *pOData = 0;
+
 
   internal::Data& theData = 
     Event::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
@@ -461,7 +462,8 @@ Event::getByLabel(const std::type_info& iInfo,
     }
     *pOData = theData.obj_.Address();
   }
-  //std::cout << "getByLabel " << *pOData << std::endl;
+  if ( 0 == *pOData ) return false;
+  else return true;
 }
 
 edm::EventID
