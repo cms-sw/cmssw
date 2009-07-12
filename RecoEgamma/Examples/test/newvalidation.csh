@@ -17,7 +17,7 @@
 #   is the default default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
 # $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}_Ideal
+#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}Ideal
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
@@ -62,8 +62,6 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
   else if ( "${DBS_LIKE}" =~ *STARTUP* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
-  else if ( "${DBS_LIKE}" =~ *MC* ) then
-    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
   endif
@@ -90,8 +88,8 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $cwd
-cd /afs/cern.ch/cms/Physics/egamma/www/validation
-#cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_1/src/RecoEgamma/Examples/test/validation
+#cd /afs/cern.ch/cms/Physics/egamma/www/validation
+cd /home/llr/cms/charlot/cmssw/CMSSW_3_1_1/src/RecoEgamma/Examples/test/validation
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
@@ -320,11 +318,11 @@ h_ele_mee_os 1 1 1 0 0 0
 EOF
 
 cat >> histos.txt <<EOF
-h_ele_absetaEff	0 0 1 1 h_ele_simAbsEta_matched h_mc_abseta
-h_ele_etaEff 0 0 1 1 h_ele_simEta_matched h_mc_eta
-h_ele_ptEff 0 0 1 1 h_ele_simPt_matched h_mc_Pt
-h_ele_phiEff 0 0 1 1 h_ele_simPhi_matched h_mc_phi
-h_ele_zEff 0 0 1 1 h_ele_simZ_matched h_mc_z
+h_ele_absetaEff	0 0 1 1 h_ele_matchingObjectAbsEta_matched h_SC_abseta
+h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_SC_eta
+h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_SC_Pt
+h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_SC_phi
+h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_SC_z
 h_ele_vertexPtVsEta_pfx 0 0 1 0 0 0
 h_ele_PoPmatchingObjectVsEta_pfx 0 0 1 0 0 0
 h_ele_PoPmatchingObjectVsPhi_pfx 0 0 1 0 0 0   
@@ -412,13 +410,13 @@ h_ele_mee_os 1	0 1 0 0 0
 EOF
 
 cat >> histos.txt <<EOF
-h_ele_absetaEff	0 0 1 1 h_ele_simAbsEta_matched h_mc_abseta
-h_ele_etaEff 0 0 1 1 h_ele_simEta_matched h_mc_eta
-h_ele_ptEff 0 0 1 1 h_ele_simPt_matched h_mc_Pt
-h_ele_phiEff 0 0 1 1 h_ele_simPhi_matched h_mc_phi
-h_ele_zEff 0 0 1 1 h_ele_simZ_matched h_mc_z
-h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_mc_eta
-h_ele_ptEff_all	0 0 1 1 h_ele_vertexPt_all h_mc_Pt
+h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_CaloJet_abseta
+h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_CaloJet_eta
+h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_CaloJet_Pt
+h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_CaloJet_phi
+h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_CaloJet_z
+h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_CaloJet_eta
+h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_CaloJet_Pt
 h_ele_vertexPtVsEta_pfx 0 0 1 0 0 0
 h_ele_EoPVsEta_pfx 0 0 1 0 0 0
 h_ele_EoPoutVsEta_pfx 0	0 1 0 0 0
