@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.25 2009/03/30 17:10:27 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.26 2009/07/10 14:32:39 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -67,6 +67,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup& c)
   if (verbose_) std::cout << ">>> BeginJob (DataCertificationJetMET) <<<" << std::endl;
 
   // -----------------------------------------
+  //
+  dbe_ = edm::Service<DQMStore>().operator->();
+
+  // -----------------------------------------
   // testType 0: no comparison with histograms
   //          1: KS test
   //          2: Chi2 test
@@ -77,16 +81,16 @@ DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 
   std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
   if (verbose_) std::cout << ">>> FileName        = " << filename    << std::endl;
-  bool InMemory = true;
+  InMemory_ = true;
 
   //
   //--- If fileName is not defined, it means the the monitoring MEs are already in memory.
-  if (filename != "") InMemory = false;
-  if (verbose_) std::cout << "InMemory           = " << InMemory    << std::endl;
+  if (filename != "") InMemory_ = false;
+  if (verbose_) std::cout << "InMemory_           = " << InMemory_    << std::endl;
 
   //
   //--- If fileName is defined, read the test file and reference file and store in DQMStore.
-  if (!InMemory) {
+  if (!InMemory_) {
 
     std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
     if (verbose_) std::cout << "FileName           = " << filename    << std::endl;
@@ -99,9 +103,10 @@ DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 
     // -- Current & Reference Run
     //---------------------------------------------
-    dbe_ = edm::Service<DQMStore>().operator->();
     dbe_->open(filename);
-    if (testType_>=1) dbe_->open(reffilename);
+    //dbe_->open(filename,false,"","Collate");
+    //dbe_->setCurrentFolder("/Collate");
+    //if (testType_>=1) dbe_->open(reffilename);
 
   }
 
@@ -120,7 +125,9 @@ DataCertificationJetMET::endJob()
 
   if(outputFile){
     dbe_->showDirStructure();
-    dbe_->save(outputFileName);
+    dbe_->save(outputFileName,
+	       "", "","",
+	       (DQMStore::SaveReferenceTag) DQMStore::SaveWithReference);
   }
 
 }
@@ -147,11 +154,11 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
   if (verbose_) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
   if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
-  dbe_ = edm::Service<DQMStore>().operator->();    
-  dbe_->setCurrentFolder("JetMET");
+  if (verbose_) dbe_->showDirStructure();  
 
   //
   //-----
+  /*
   MonitorElement * meMETPhi=0;
   meMETPhi = new MonitorElement(*(dbe_->get("JetMET/MET/CaloMET/METTask_CaloMETPhi")));
   const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
@@ -161,6 +168,7 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
     std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
     if (verbose_) std::cout << "test" << qtmessage << " qtresult = " << qtresult << " qtstatus = " << qtstatus << std::endl;    
   }
+  */
 
 }
 
@@ -169,7 +177,6 @@ void
 DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
-  //-----
   if (verbose_) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
   if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
@@ -190,38 +197,27 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   std::string RunDir;
   std::string RunNum;
   int         RunNumber=0;
+
   std::string RefRunDir;
-  std::string RefRunNum;
-  int         RefRunNumber=0;
-    
-  std::string filename    = conf_.getUntrackedParameter<std::string>("fileName");
-  if (verbose_) std::cout << ">>> FileName        = " << filename    << std::endl;
-  bool InMemory = true;
 
-  if (filename != "") InMemory = false;
-  if (verbose_) std::cout << "InMemory           = " << InMemory    << std::endl;
+  if (verbose_) std::cout << "InMemory_           = " << InMemory_    << std::endl;
 
-  if (InMemory) {
+  if (InMemory_) {
     //----------------------------------------------------------------
     // Histograms are in memory (for standard full-chain mode)
     //----------------------------------------------------------------
 
-    dbe_ = edm::Service<DQMStore>().operator->();
-    
     mes = dbe_->getAllContents("");
     if (verbose_) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
 
     dbe_->setCurrentFolder("JetMET");
     subDirVec = dbe_->getSubdirs();
-
     for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {    
       if (verbose_) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
     }
 
     RunDir    = "";
-    RefRunDir = "";
-
     RunNumber = run.id().run();
 
   } else {
@@ -242,16 +238,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     int ind = 0;
     for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {
-      if (ind == 0) {
-	RefRunDir = *ic;
-	RefRunNum = *ic;
-	RunDir = *ic;
-	RunNum = *ic;
-      }
-      if (ind == 1) {
-	RunDir = *ic;
-	RunNum = *ic;
-      }
+      RunDir = *ic;
+      RunNum = *ic;
       if (verbose_) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
       ind++;
     }
@@ -268,29 +256,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     RunNumber = atoi(RunNum.c_str());
     if (verbose_) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
 
-    //
-    // Reference
-    //
-    if (testType_>=1){
-      
-      if (RefRunDir == "JetMET") {
-	RefRunDir = "";
-	if (verbose_) std::cout << "-XXX- RefRunDir = >>" << RefRunDir.c_str() << "<<" << std::endl;
-      }
-      if (RefRunNum!="")
-      RefRunNum.erase(0,4);
-      RefRunNumber = atoi(RefRunNum.c_str());
-      if (verbose_) std::cout << "--- >>" << RefRunNumber << "<<" << std::endl;
-      
-    }
-    //  ic++;
   }
+
+  if (verbose_) dbe_->showDirStructure();
 
   //----------------------------------------------------------------
   // Book integers/histograms for data certification results
   //----------------------------------------------------------------
-
-  std::cout << "aaa" << std::endl;
 
   std::string Jet_Tag_L2[NJetAlgo];
   Jet_Tag_L2[0] = "JetMET_Jet_ICone";
@@ -322,12 +294,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   MET_Tag_L3[0][1] = "JetMET_MET_CaloMET_HO";
   MET_Tag_L3[0][2] = "JetMET_MET_CaloMET_NoHFHO";
 
-  std::cout << "bbb" << std::endl;
-
+  if (RunDir=="Reference") RunDir="";
   if (verbose_) std::cout << RunDir << std::endl;
   dbe_->setCurrentFolder("JetMET/EventInfo/Certification/");    
-
-  std::cout << "ccc" << std::endl;
 
   //
   // Layer 1
@@ -341,12 +310,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   MonitorElement* mJetDCFL2[10];
   MonitorElement* mMETDCFL2[10];
 
-  std::cout << "ddd" << std::endl;
-
   for (int itag=0; itag<NJetAlgo; itag++) mJetDCFL2[itag] = dbe_->bookFloat(Jet_Tag_L2[itag]);
-  std::cout << "eee" << std::endl;
   for (int itag=0; itag<NMETAlgo; itag++) mMETDCFL2[itag] = dbe_->bookFloat(MET_Tag_L2[itag]);
-  std::cout << "fff" << std::endl;
 
   //
   // Layer 3
