@@ -1,12 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
-                            triggerPathToPass        = cms.string("HLT_Photon15_L1R"),
-                            triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
-                            photonCollection         = cms.InputTag("photons"),
-                            caloJetCollection        = cms.InputTag("sisCone5CaloJets"),
-#                           caloJetCollection        = cms.InputTag("L2L3CorJetSC5Calo"),
-                            minCaloJetEt             = cms.int32(15),
-                            minPhotonEt              = cms.int32(20),
-                            requirePhotonFound       = cms.bool(True)
+                # Event must pass this trigger
+                triggerPathToPass        = cms.string("HLT_Photon15_L1R"),
+                # Plot results of these triggers too (these don't *have* to be passed)
+                plotTheseTriggersToo     = cms.vstring("HLT_Photon10_L1R","HLT_Photon15_L1R","HLT_Photon15_LooseEcalIso_L1R","HLT_Photon20_L1R","HLT_Photon30_L1R","HLT_Ele15_LW_L1R"),
+                # Collections
+                triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
+                photonCollection         = cms.InputTag("photons"),
+                caloJetCollection        = cms.InputTag("sisCone5CaloJets"),
+#               caloJetCollection        = cms.InputTag("L2L3CorJetSC5Calo"),
+                # Cuts on the reco objects
+                minCaloJetEt             = cms.int32(15),
+                minPhotonEt              = cms.int32(20),
+                requirePhotonFound       = cms.bool(True)
 )

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/07 14:14:52 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/07/09 08:20:45 $
+ *  $Revision: 1.12 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -43,6 +43,7 @@ using namespace reco;
 QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // Get parameters from configuration file
   theTriggerPathToPass        = parameters.getParameter<string>("triggerPathToPass");
+  thePlotTheseTriggersToo     = parameters.getParameter<vector<string> >("plotTheseTriggersToo");
   theTriggerResultsCollection = parameters.getParameter<InputTag>("triggerResultsCollection");
   thePhotonCollectionLabel    = parameters.getParameter<InputTag>("photonCollection");
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
@@ -69,6 +70,13 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   aStringStream << theMinCaloJetEt;
   aString = aStringStream.str();
 
+  // Monitor of triggers passed
+  int numOfTriggersToMonitor = thePlotTheseTriggersToo.size();
+  h_triggers_passed = theDbe->book1D("h_triggers_passed", "Events passing these trigger paths", numOfTriggersToMonitor, 0, numOfTriggersToMonitor);
+  for (int i=0; i<numOfTriggersToMonitor; i++) {
+    h_triggers_passed->setBinLabel(i+1,thePlotTheseTriggersToo[i]);
+  }
+
   // Keep the number of plots and number of bins to a minimum!
   h_photon_et           = theDbe->book1D("h_photon_et",     "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
   h_photon_eta          = theDbe->book1D("h_photon_eta",    "#gamma with highest E_{T};#eta(#gamma)", 40, -5.0, 5.0);
@@ -93,15 +101,30 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   LogTrace(logTraceName)<<"Analysis of event # ";
 
-  // Did it pass certain HLT path?
+  ////////////////////////////////////////////////////////////////////
+  // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
-  unsigned int triggerIndex = hltConfig.triggerIndex(theTriggerPathToPass); // index of trigger path
-  bool passed_HLT = true;
+  unsigned int triggerIndex; // index of trigger path
+  bool passed_HLT;
+
+  // See if event passed trigger paths
+  //  increment that bin in the trigger plot
+  for (unsigned int i=0; i<thePlotTheseTriggersToo.size(); i++) {
+    passed_HLT = false;
+    triggerIndex = hltConfig.triggerIndex(thePlotTheseTriggersToo[i]);
+    if (triggerIndex < HLTresults->size()) passed_HLT = HLTresults->accept(triggerIndex);
+    if (passed_HLT) h_triggers_passed->Fill(i);
+  }
+
+  // Quit if the event did not pass the HLT path we care about
+  passed_HLT = false;
+  triggerIndex = hltConfig.triggerIndex(theTriggerPathToPass); // index of trigger path
   if (triggerIndex < HLTresults->size()) passed_HLT = HLTresults->accept(triggerIndex);
   if (!passed_HLT) return;
+  ////////////////////////////////////////////////////////////////////
 
 
   // grab photons
