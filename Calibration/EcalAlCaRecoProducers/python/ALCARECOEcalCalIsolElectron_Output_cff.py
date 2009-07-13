@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OutALCARECOEcalCalElectron = cms.PSet(
+OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalElectron')
     ),
@@ -18,3 +18,7 @@ OutALCARECOEcalCalElectron = cms.PSet(
         'keep *_MEtoEDMConverter_*_*')
 )
 
+
+import copy
+OutALCARECOEcalCalElectron=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
+OutALCARECOEcalCalElectron.outputCommands.insert(0, "drop *")

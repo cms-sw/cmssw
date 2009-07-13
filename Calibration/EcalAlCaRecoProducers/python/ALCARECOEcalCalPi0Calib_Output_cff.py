@@ -12,5 +12,5 @@ OutALCARECOEcalCalPi0Calib_noDrop = cms.PSet(
 )
 
 import copy
-OutALCARECOEcalCalPhiSym=copy.deepcopy(OutALCARECOEcalCalPhiSym_noDrop)
-OutALCARECOEcalCalPhiSym.outputCommands.insert(0,"drop *")
+OutALCARECOEcalCalPi0Calib=copy.deepcopy(OutALCARECOEcalCalPi0Calib_noDrop)
+OutALCARECOEcalCalPi0Calib.outputCommands.insert(0,"drop *")

@@ -15,4 +15,4 @@ OutALCARECOSiStripCalMinBias_noDrop = cms.PSet(
 
 import copy
 OutALCARECOSiStripCalMinBias=copy.deepcopy(OutALCARECOSiStripCalMinBias_noDrop)
-OutALCARECOSiStripCalMinBias.insert(0,"drop *")
+OutALCARECOSiStripCalMinBias.outputCommands.insert(0,"drop *")

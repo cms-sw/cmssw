@@ -16,5 +16,5 @@ OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
 
 
 import copy
-OutALCARECOHcalCalIsoTrk=copy.deepcopy(OutALCARECOHcalCalIsoTrkNoHLT_noDrop)
+OutALCARECOHcalCalIsoTrk=copy.deepcopy(OutALCARECOHcalCalIsoTrk_noDrop)
 OutALCARECOHcalCalIsoTrk.outputCommands.insert(0, "drop *")
