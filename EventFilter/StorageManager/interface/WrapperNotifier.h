@@ -1,10 +1,16 @@
 // -*- c++ -*-
-// $Id: WrapperNotifier.h,v 1.4 2009/07/01 13:08:17 dshpakov Exp $
+// $Id: WrapperNotifier.h,v 1.5 2009/07/02 12:55:27 dshpakov Exp $
 
 #ifndef WRAPPERNOTIFIER_H
 #define WRAPPERNOTIFIER_H
 
-// Notifier implementation to be used by StorageManager
+/**
+   Notifier implementation used by StorageManager
+
+   $ Author: $
+   $ Revision: $
+   $ Date: $
+*/
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 
@@ -20,10 +26,24 @@ namespace stor
     
   public:
 
+    /**
+       Constructor
+    */
     WrapperNotifier( xdaq::Application* app );
-    
+
+    /**
+       Report new state to RCMS
+    */
     void reportNewState( const std::string& stateName );
+
+    /**
+       Access logger
+    */
     Logger& getLogger() { return _app->getApplicationLogger(); }
+
+    /**
+       Send message to sentinel
+    */
     void tellSentinel( const std::string& level,
                        xcept::Exception& e )
     {

@@ -1,10 +1,16 @@
 // -*- c++ -*-                                                                              
-// $Id: Notifier.h,v 1.3 2009/07/01 13:08:17 dshpakov Exp $
+// $Id: Notifier.h,v 1.4 2009/07/02 12:55:27 dshpakov Exp $
 
 #ifndef NOTIFIER_H
 #define NOTIFIER_H
 
-// Interface class for handling RCMS notifier
+/**
+   Interface class for handling RCMS notifier
+
+   $ Author: $
+   $ Revision: $
+   $ Date: $
+*/
 
 #include <string>
 
@@ -19,18 +25,42 @@ namespace stor
 
   public:
 
+    /**
+       Constructor
+    */
     Notifier() {}
 
+    /**
+       Destructor
+    */
     virtual ~Notifier() {};
 
+    /**
+       Report new state to RCMS
+    */
     virtual void reportNewState( const std::string& stateName ) = 0;
+
+    /**
+       Access logger
+    */
     virtual Logger& getLogger() = 0;
+
+    /**
+       Send message to sentinel
+    */
     virtual void tellSentinel( const std::string& level, xcept::Exception& e ) = 0;
 
+    /**
+       Write message to a file in /tmp (last resort when everything
+       else fails)
+    */
     void localDebug( const std::string& message ) const;
 
   protected:
 
+    /**
+       Storage manager instance number
+    */
     virtual unsigned long instanceNumber() const = 0;
 
   };

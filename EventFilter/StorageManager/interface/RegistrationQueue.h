@@ -4,6 +4,14 @@
 #include <boost/shared_ptr.hpp>
 #include <EventFilter/StorageManager/interface/RegistrationInfoBase.h>
 
+/**
+   Concurrent queue holding consumer registrations
+
+   $ Author: $
+   $ Revision: $
+   $ Date: $
+*/
+
 namespace stor
 {
   typedef boost::shared_ptr<RegistrationInfoBase> RegInfoBasePtr;
