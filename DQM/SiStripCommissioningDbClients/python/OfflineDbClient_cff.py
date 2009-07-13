@@ -12,7 +12,9 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   SaveClientFile   = cms.untracked.bool(True),
   SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
   # individual parameters
-  ApvTimingParameters	   = cms.PSet(),
+  ApvTimingParameters	   = cms.PSet(
+    TargetDelay = cms.int32(-1)      # -1: latest tick (old default), otherwise target delay for all ticks' rising edge
+  ),
   CalibrationParameters    = cms.PSet(),
   DaqScopeModeParameters   = cms.PSet(),
   FastFedCablingParameters = cms.PSet(),
