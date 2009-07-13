@@ -161,7 +161,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   for ( ianal = data().begin(); ianal != data().end(); ianal++ ) { 
     ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(ianal->second);
     if ( !anal ) { continue; }
-    anal->refTime( time_max ); 
+    anal->refTime( time_max, this->pset().getParameter<int>("TargetDelay") );
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 
       errors[anal->getErrorCodes()[0]]++;
