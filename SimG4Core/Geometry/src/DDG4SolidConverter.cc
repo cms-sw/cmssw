@@ -32,7 +32,7 @@ DDG4SolidConverter::DDG4SolidConverter()
    convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
    convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
    convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
-   
+   convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
 }
 
 
@@ -510,4 +510,17 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
       
   return result;
 
+}
+
+#include "G4Sphere.hh"
+G4VSolid * DDG4SolidConverter::sphere(const DDSolid & s) 
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: sphere = " << s ;  
+   DDSphere sp(s);
+   return new G4Sphere(s.name().name(), sp.innerRadius(),
+                               sp.outerRadius(),
+			       sp.startPhi(),
+			       sp.deltaPhi(),
+			       sp.startTheta(),
+		               sp.deltaTheta());
 }
