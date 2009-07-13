@@ -61,7 +61,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
@@ -93,10 +92,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
-  theLayerMeasurements = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
-						      par.getParameter<InputTag>("CSCRecSegmentLabel"),
-						      par.getParameter<InputTag>("RPCRecSegmentLabel"));
-  
   string MatcherOutPropagator = par.getParameter<string>("MatcherOutPropagator");
   string TransformerOutPropagator = par.getParameter<string>("TransformerOutPropagator");
   
@@ -120,15 +115,9 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
   theTECxScale = par.getParameter<double>("ScaleTECxFactor");
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
-  theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
-  theHitThreshold = par.getParameter<int>("HitThreshold");
-  theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
-  theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
-  theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
   theKFFitterName = par.getParameter<string>("KFFitter");
 
   theCacheId_TRH = 0;
@@ -142,7 +131,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
 
   if (theTrackMatcher) delete theTrackMatcher;
-  if (theLayerMeasurements) delete theLayerMeasurements;
   if (theRegionBuilder) delete theRegionBuilder;
   if (theTrackTransformer) delete theTrackTransformer;
 
@@ -153,9 +141,8 @@ GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
 // set Event
 //
 void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
-  
+
   theEvent = &event;
-  theLayerMeasurements->setEvent(event);  
   theService->eventSetup().get<TrajectoryFitter::Record>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
   theRegionBuilder->setEvent(event);
@@ -166,7 +153,6 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
     theCacheId_TRH = newCacheId_TRH;
     theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
-
   }
 
 }
@@ -179,142 +165,83 @@ MuonCandidate::CandidateContainer
 GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
                                    MuonCandidate::CandidateContainer& tkTrajs) const {
 
-  // MuonHitsOption: 0 - tracker only
-  //                 1 - include all muon hits
-  //                 2 - include only first muon hit(s)
-  //                 3 - include only selected muon hits
-  //                 4 - combined
-  //                 5 - new combined
-  //
+  LogTrace(theCategory) << "build begin. " << endl;
 
   // tracker trajectory should be built and refit before this point
-  LogTrace(theCategory) << "build begin. ";
-
   if ( tkTrajs.empty() ) return CandidateContainer();
 
   // add muon hits and refit/smooth trajectories
   CandidateContainer refittedResult;
+  ConstRecHitContainer muonRecHits = getTransientRecHits(*(staCand.second));
 
-
-  
-  if ( theMuonHitsOption > 0 ) {
-
-    vector<int> stationHits(4,0);
-    ConstRecHitContainer muonRecHits0; // no muon hits
-    ConstRecHitContainer muonRecHits1; // all muon rechits
-    ConstRecHitContainer muonRecHits2; // only first muon rechits
-    ConstRecHitContainer muonRecHits3; // selected muon rechits
-
-    // check and select muon measurements and
-    // measure occupancy in muon stations
-    checkMuonHits(*(staCand.second), muonRecHits1, muonRecHits2, stationHits);
-    
-    for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
-
-      // cut on tracks with low momenta
-      if(  (*it)->trackerTrack()->p() < 2.5 || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
-
-      ConstRecHitContainer trackerRecHits;
-      if ((*it)->trackerTrack().isNonnull()) {
-	LogDebug(theCategory);
-	trackerRecHits = getTransientRecHits(*(*it)->trackerTrack());
-      } else {
-	LogDebug(theCategory)<<"NEED HITS FROM TRAJ";
-	//trackerRecHits = (*it)->trackerTrajectory()->recHits();
-      }
-
-      // check for single TEC RecHits in trajectories in the overalp region
-      if ( fabs((*it)->trackerTrack()->eta()) > 0.95 && fabs((*it)->trackerTrack()->eta()) < 1.15 && (*it)->trackerTrack()->pt() < 60 ) {
-        if ( theTECxScale < 0 || theTECyScale < 0 )
-	  trackerRecHits = selectTrackerHits(trackerRecHits);
-	else
-	  fixTEC(trackerRecHits,theTECxScale,theTECyScale);
-      }
-		  
-      RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
-      if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
-
-      reco::TransientTrack tTT((*it)->trackerTrack(),&*theService->magneticField(),theService->trackingGeometry());
-      TrajectoryStateOnSurface innerTsos = tTT.innermostMeasurementState();
-
-      edm::RefToBase<TrajectorySeed> tmpSeed;
-      if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
-
-      if ( !innerTsos.isValid() ) {
-	    LogTrace(theCategory) << "inner Trajectory State is invalid. ";
-	    continue;
-      }
-      innerTsos.rescaleError(100.);
-                  
-      TC refitted0,refitted1,refitted2,refitted3;
-      vector<Trajectory*> refit(4);
-      MuonCandidate* finalTrajectory = 0;
-
-      // tracker only track
-      if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) refitted0 =  theTrackTransformer->transform((*it)->trackerTrack()) ;
-
-
-      // full track with all muon hits
-      if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ||  theMuonHitsOption == 5 ) {
-        refitted1 = glbTrajectory(tmpSeed, trackerRecHits, muonRecHits1,innerTsos);
-      }
-
-      // only first muon hits
-      if ( theMuonHitsOption == 2 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
-        refitted2 = glbTrajectory(tmpSeed,trackerRecHits, muonRecHits2,innerTsos);
-      }
-
-      // only selected muon hits
-      if ( (theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5) && refitted1.size() == 1 ) {
-        muonRecHits3 = selectMuonHits(*refitted1.begin(),stationHits);
-        refitted3 = glbTrajectory(tmpSeed,trackerRecHits, muonRecHits3,innerTsos);
-      }
-
-      refit[0] = ( refitted0.empty() ) ? 0 : &(*refitted0.begin());
-      refit[1] = ( refitted1.empty() ) ? 0 : &(*refitted1.begin());
-      refit[2] = ( refitted2.empty() ) ? 0 : &(*refitted2.begin());
-      refit[3] = ( refitted3.empty() ) ? 0 : &(*refitted3.begin());
-
-      if((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid() ) refit[0] = (*it)->trackerTrajectory();
-
-      if (refit[0]) refit[0]->setSeedRef(tmpSeed);
-
-      Trajectory * refitTkTraj = refit[0];
-
-      const Trajectory* chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
-      if (chosenTrajectory && refitTkTraj) {
-	    Trajectory *tmpTrajectory = new Trajectory(*chosenTrajectory);
-	    tmpTrajectory->setSeedRef(tmpSeed);
-	    finalTrajectory = new MuonCandidate(tmpTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*refitTkTraj));
-      } else {
-	    LogWarning(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
-      }
-
-      if ( finalTrajectory ) {
-        refittedResult.push_back(finalTrajectory);
-      }
-    }
+  // check order of muon measurements
+  if ( (muonRecHits.size() > 1) &&
+       ( muonRecHits.front()->globalPosition().mag() >
+	 muonRecHits.back()->globalPosition().mag() ) ) {
+    LogTrace(theCategory)<< "reverse order: ";
+    stable_sort(muonRecHits.begin(),muonRecHits.end(),RecHitLessByDet(alongMomentum));
   }
-  else {
-    LogTrace(theCategory)<<"theMuonHitsOption="<<theMuonHitsOption<<"\n"
-                      <<tkTrajs.size()<<" total trajectories.";
-    // do not just copy the collection over
-	// we need to refit it for the smoother to work properly
 
-	// refittedResult = tkTrajs;
-	  
-    // loop over tracker trajectories and refit them
-    for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
-      Trajectory * refitTkTraj = ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ? (*it)->trackerTrajectory() : 0;
-      TC refitted0;
-      if( ! refitTkTraj) refitted0 = theTrackTransformer->transform((*it)->trackerTrack());
-      if( ! refitted0.empty() ) {
-	refitTkTraj = &(*refitted0.begin());
-	refitTkTraj->setSeedRef((*it)->trackerTrack()->seedRef());
-      }
-      
-      refittedResult.push_back(new MuonCandidate(new Trajectory(*refitTkTraj),(*it)->muonTrack(),(*it)->trackerTrack(), new Trajectory(*refitTkTraj) ));
+  stable_sort(muonRecHits.begin(),muonRecHits.end(),ComparatorInOut());
+
+  for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
+
+    // cut on tracks with low momenta
+    if(  (*it)->trackerTrack()->p() < 2.5 || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
+
+    ConstRecHitContainer trackerRecHits;
+    if ((*it)->trackerTrack().isNonnull()) {
+      trackerRecHits = getTransientRecHits(*(*it)->trackerTrack());
+    } else {
+      LogDebug(theCategory)<<"NEED HITS FROM TRAJ";
+      //trackerRecHits = (*it)->trackerTrajectory()->recHits();
     }
+
+    // check for single TEC RecHits in trajectories in the overalp region
+    if ( fabs((*it)->trackerTrack()->eta()) > 0.95 && fabs((*it)->trackerTrack()->eta()) < 1.15 && (*it)->trackerTrack()->pt() < 60 ) {
+      if ( theTECxScale < 0 || theTECyScale < 0 )
+        trackerRecHits = selectTrackerHits(trackerRecHits);
+      else
+        fixTEC(trackerRecHits,theTECxScale,theTECyScale);
+    }
+		  
+    RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+    if ( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
+
+    reco::TransientTrack tTT((*it)->trackerTrack(),&*theService->magneticField(),theService->trackingGeometry());
+    TrajectoryStateOnSurface innerTsos = tTT.innermostMeasurementState();
+
+    edm::RefToBase<TrajectorySeed> tmpSeed;
+    if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
+
+    if ( !innerTsos.isValid() ) {
+      LogTrace(theCategory) << "inner Trajectory State is invalid. ";
+      continue;
+    }
+  
+    innerTsos.rescaleError(100.);
+                  
+    TC refitted0,refitted1;
+    MuonCandidate* finalTrajectory = 0;
+    Trajectory *tkTrajectory;
+
+    // tracker only track
+    if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) { 
+      refitted0 = theTrackTransformer->transform((*it)->trackerTrack()) ;
+      tkTrajectory = new Trajectory(*(refitted0.begin())); 
+    } else tkTrajectory = (*it)->trackerTrajectory();
+    if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
+                                    
+    // full track with all muon hits
+    refitted1 = glbTrajectory(tmpSeed, trackerRecHits, muonRecHits,innerTsos);
+    Trajectory *glbTrajectory = new Trajectory(*(refitted1.begin()));
+    if (glbTrajectory) glbTrajectory->setSeedRef(tmpSeed);
+    
+    finalTrajectory = new MuonCandidate(glbTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*tkTrajectory));
+
+    if ( finalTrajectory ) 
+      refittedResult.push_back(finalTrajectory);
+      
   }
 
   // choose the best global fit for this Standalone Muon based on the track probability
@@ -407,369 +334,6 @@ GlobalTrajectoryBuilderBase::defineRegionOfInterest(const reco::TrackRef& staTra
   delete region1;
   return region2;
   
-}
-
-
-//
-// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-//
-void GlobalTrajectoryBuilderBase::checkMuonHits(const reco::Track& muon, 
-						ConstRecHitContainer& all,
-						ConstRecHitContainer& first,
-						std::vector<int>& hits) const {
-
-  int dethits[4];
-  for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
-  
-  TransientTrackingRecHit::ConstRecHitContainer muonRecHits = getTransientRecHits(muon);
-
-//  all.assign(muonRecHits.begin(),muonRecHits.end()); //FIXME: should use this
-
-  // loop through all muon hits and calculate the maximum # of hits in each chamber      
-  for (ConstRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) {
-
-    if ( (*imrh != 0 ) && !(*imrh)->isValid() ) continue;
-
-    if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
-      
-      int station = 0;
-      int detRecHits = 0;
-      
-      DetId id = (*imrh)->geographicalId();
-      const DetLayer* layer = theService->detLayerGeometry()->idToLayer(id);
-      MuonRecHitContainer dRecHits = theLayerMeasurements->recHits(layer);
-      // get station of hit if it is in DT
-      if ( id.subdetId() == MuonSubdetId::DT ) {
-        DTChamberId did(id.rawId());
-        station = did.station();
-        float coneSize = 10.0;
-	
-        bool hitUnique = false;
-        ConstRecHitContainer all2dRecHits;
-        for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-          if ( (**ir).dimension() == 2 ) {
-            hitUnique = true;
-            if ( all2dRecHits.size() > 0 ) {
-              for (ConstRecHitContainer::const_iterator iir = all2dRecHits.begin(); iir != all2dRecHits.end(); iir++ ) 
-		if (((*iir)->localPosition()-(*ir)->localPosition()).mag()<0.01) hitUnique = false;
-            } //end of if ( all2dRecHits.size() > 0 )
-            if ( hitUnique ) all2dRecHits.push_back((*ir).get()); //FIXME!!
-          } else {
-            ConstRecHitContainer sRecHits = (**ir).transientHits();
-            for (ConstRecHitContainer::const_iterator iir = sRecHits.begin(); iir != sRecHits.end(); iir++ ) {
-              if ( (*iir)->dimension() == 2 ) {
-                hitUnique = true;
-                if ( !all2dRecHits.empty() ) {
-                  for (ConstRecHitContainer::const_iterator iiir = all2dRecHits.begin(); iiir != all2dRecHits.end(); iiir++ ) 
-		    if (((*iiir)->localPosition()-(*iir)->localPosition()).mag()<0.01) hitUnique = false;
-                }//end of if ( all2dRecHits.size() > 0 )
-              }//end of if ( (*iir).dimension() == 2 ) 
-              if ( hitUnique )
-		all2dRecHits.push_back(*iir);
-              break;
-            }//end of for sRecHits
-          }// end of else
-	}// end of for loop over dRecHits
-	for (ConstRecHitContainer::const_iterator ir = all2dRecHits.begin(); ir != all2dRecHits.end(); ir++ ) {
-	  double rhitDistance = ((*ir)->localPosition()-(**imrh).localPosition()).mag();
-	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogTrace(theCategory) << " Station " << station << " DT "<<(*ir)->dimension()<<" " << (*ir)->localPosition()
-						      << " Distance: "<< rhitDistance<<" recHits: "<< detRecHits;
-	}// end of for all2dRecHits
-      }// end of if DT
-      // get station of hit if it is in CSC
-      else if ( id.subdetId() == MuonSubdetId::CSC ) {
-	CSCDetId did(id.rawId());
-	station = did.station();
-	
-	float coneSize = 10.0;
-	
-	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
-	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogTrace(theCategory) << " Station " << station << " CSC "<<(**ir).dimension()<<" "<<(**ir).localPosition()
-                                                  << " Distance: "<< rhitDistance<<" recHits: "<<detRecHits;
-	}
-      }
-      // get station of hit if it is in RPC
-      else if ( id.subdetId() == MuonSubdetId::RPC ) {
-	RPCDetId rpcid(id.rawId());
-	station = rpcid.station();
-	float coneSize = 100.0;
-	for (MuonRecHitContainer::const_iterator ir = dRecHits.begin(); ir != dRecHits.end(); ir++ ) {
-	  double rhitDistance = ((**ir).localPosition()-(**imrh).localPosition()).mag();
-	  if ( rhitDistance < coneSize ) detRecHits++;
-	  LogTrace(theCategory)<<" Station "<<station<<" RPC "<<(**ir).dimension()<<" "<< (**ir).localPosition()
-						     <<" Distance: "<<rhitDistance<<" recHits: "<<detRecHits;
-	}
-      }
-      else {
-        LogError(theCategory)<<" Wrong Hit Type ";
-	continue;      
-      }
-      
-      if ( (station > 0) && (station < 5) ) {
-	int detHits = dRecHits.size();
-	dethits[station-1] += detHits;
-	if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
-      }
-    } //end of if option 3, 4, 5
-
-    all.push_back((*imrh).get()); //FIXME: may need fast assignment on above
-
-  } // end of loop over muon rechits
-  if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5 )  {
-    for ( int i = 0; i < 4; i++ ) {
-      LogTrace(theCategory) <<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
-    }
-  }     
-  
-  //
-  // check order of muon measurements
-  //
-  LogTrace(theCategory) << "CheckMuonHits "<<all.size();
-
-  if ( (all.size() > 1) &&
-       ( all.front()->globalPosition().mag() >
-	 all.back()->globalPosition().mag() ) ) {
-    LogTrace(theCategory)<< "reverse order: ";
-    stable_sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
-  }
-
-  stable_sort(all.begin(),all.end(),ComparatorInOut());
-  
-  int station1 = -999;
-  int station2 = -999;
-  for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ihit++ ) {
-
-    if ( !(*ihit)->isValid() ) continue;
-    station1 = -999; station2 = -999;
-    // store muon hits one at a time.
-    first.push_back(*ihit);
-    
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*ihit).get()); //FIXME
-    DetId id = immrh->geographicalId();
-    
-    // get station of 1st hit if it is in DT
-    if ( (*immrh).isDT()  ) {
-      DTChamberId did(id.rawId());
-      station1 = did.station();
-    }
-    // otherwise get station of 1st hit if it is in CSC
-    else if  ( (*immrh).isCSC() ) {
-      CSCDetId did(id.rawId());
-      station1 = did.station();
-    }
-    // check next RecHit
-    ConstRecHitContainer::const_iterator nexthit(ihit);
-    nexthit++;
-    
-    if ( ( nexthit != all.end()) && (*nexthit)->isValid() ) {
-      
-      ConstMuonRecHitPointer immrh2 = dynamic_cast<const MuonTransientTrackingRecHit*>((*nexthit).get());
-      DetId id2 = immrh2->geographicalId();
-      
-      // get station of 1st hit if it is in DT
-      if ( (*immrh2).isDT()  ) {
-        DTChamberId did2(id2.rawId());
-        station2 = did2.station();
-      }
-      // otherwise get station of 1st hit if it is in CSC
-      else if  ( (*immrh2).isCSC() ) {
-        CSCDetId did2(id2.rawId());
-        station2 = did2.station();
-      }
-      
-      // 1st hit is in station 1 and second hit is in a different station
-      // or an rpc (if station = -999 it could be an rpc hit)
-      if ( (station1 != -999) && ((station2 == -999) || (station2 > station1)) ) {
-	LogTrace(theCategory) << "checkMuonHits:";
-	LogTrace(theCategory) << " station 1 = "<<station1 
-						   <<", r = "<< (*ihit)->globalPosition().perp()
-						   <<", z = "<< (*ihit)->globalPosition().z() << ", "; 
-	
-	LogTrace(theCategory) << " station 2 = " << station2
-						   <<", r = "<<(*(nexthit))->globalPosition().perp()
-						   <<", z = "<<(*(nexthit))->globalPosition().z() << ", ";
-	return;
-      }
-    }
-    else if ( (nexthit == all.end()) && (station1 != -999) ) {
-      LogTrace(theCategory) << "checkMuonHits:";
-      LogTrace(theCategory) << " station 1 = "<< station1
-                                              << ", r = " << (*ihit)->globalPosition().perp()
-                                              << ", z = " << (*ihit)->globalPosition().z() << ", "; 
-      return;
-    }
-  }
-  // if none of the above is satisfied, return blank vector
-  first.clear();
-
-  return; 
-
-}
-
-
-//
-// select muon hits compatible with trajectory; 
-// check hits in chambers with showers
-//
-GlobalTrajectoryBuilderBase::ConstRecHitContainer 
-GlobalTrajectoryBuilderBase::selectMuonHits(const Trajectory& traj, 
-                                            const std::vector<int>& hits) const {
-
-  ConstRecHitContainer muonRecHits;
-  const double globalChi2Cut = 200.0;
-
-  vector<TrajectoryMeasurement> muonMeasurements = traj.measurements(); 
-
-  // loop through all muon hits and skip hits with bad chi2 in chambers with high occupancy      
-  for (vector<TrajectoryMeasurement>::const_iterator im = muonMeasurements.begin(); im != muonMeasurements.end(); im++ ) {
-
-    if ( !(*im).recHit()->isValid() ) continue;
-    if ( (*im).recHit()->det()->geographicalId().det() != DetId::Muon ) continue;
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
-
-    DetId id = immrh->geographicalId();
-    int station = 0;
-    int threshold = 0;
-    double chi2Cut = 0.0;
-
-    // get station of hit if it is in DT
-    if ( (*immrh).isDT() ) {
-      DTChamberId did(id.rawId());
-      station = did.station();
-      threshold = theHitThreshold;
-      chi2Cut = theDTChi2Cut;
-    }
-    // get station of hit if it is in CSC
-    else if ( (*immrh).isCSC() ) {
-      CSCDetId did(id.rawId());
-      station = did.station();
-      threshold = theHitThreshold;
-      chi2Cut = theCSCChi2Cut;
-    }
-    // get station of hit if it is in RPC
-    else if ( (*immrh).isRPC() ) {
-      RPCDetId rpcid(id.rawId());
-      station = rpcid.station();
-      threshold = theHitThreshold;
-      chi2Cut = theRPCChi2Cut;
-    }
-    else {
-      continue;
-    }
-
-    double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
-
-    bool keep = true;
-    if ( (station > 0) && (station < 5) ) {
-      if ( hits[station-1] > threshold ) keep = false;
-    }   
-    
-    if ( (keep || ( chi2ndf < chi2Cut )) && ( chi2ndf < globalChi2Cut ) ) {
-      muonRecHits.push_back((*im).recHit());
-    } else {
-      LogTrace(theCategory)
-	<< "Skip hit: " << id.det() << " " << station << ", " 
-	<< chi2ndf << " (" << chi2Cut << " chi2 threshold) " 
-	<< hits[station-1] << endl;
-    }
-
-  }
-  
-  // check order of rechits
-  reverse(muonRecHits.begin(),muonRecHits.end());
-
-  return muonRecHits;
-
-}
-
-
-//
-// choose final trajectory
-//
-const Trajectory* 
-GlobalTrajectoryBuilderBase::chooseTrajectory(const std::vector<Trajectory*>& t, 
-                                              int muonHitsOption) const {
-
-  Trajectory* result = 0;
-  
-  if ( muonHitsOption == 0 ) {
-    if (t[0]) result = t[0];
-    return result;
-  } else if ( muonHitsOption == 1 ) {
-    if (t[1]) result = t[1];
-    return result;
-  } else if ( muonHitsOption == 2 ) {
-    if (t[2]) result = t[2];
-    return result;
-  } else if ( muonHitsOption == 3 ) {
-    if (t[3]) result = t[3];
-    return result;
-  } else if ( muonHitsOption == 4 ) {
-    double prob0 = ( t[0] ) ? trackProbability(*t[0]) : 0.0;
-    double prob1 = ( t[1] ) ? trackProbability(*t[1]) : 0.0;
-    double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
-    double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
-    
-    LogTrace(theCategory) << "Probabilities: " << prob0 << " " << prob1 << " " << prob2 << " " << prob3 << endl;
-    
-    if ( t[1] ) result = t[1];
-    if ( (t[1] == 0) && t[3] ) result = t[3];
-  
-    if ( t[1] && t[3] && ( (prob1 - prob3) > 0.05 )  )  result = t[3];
-
-    if ( t[0] && t[2] && fabs(prob2 - prob0) > theProbCut ) {
-      LogTrace(theCategory) << "select Tracker only: -log(prob) = " << prob0 << endl;
-      result = t[0];
-      return result;
-    }
-
-    if ( (t[1] == 0) && (t[3] == 0) && t[2] ) result = t[2];
-
-    Trajectory* tmin = 0;
-    double probmin = 0.0;
-    if ( t[1] && t[3] ) {
-      probmin = prob3; tmin = t[3];
-      if ( prob1 < prob3 ) { probmin = prob1; tmin = t[1]; }
-    }
-    else if ( (t[3] == 0) && t[1] ) { 
-      probmin = prob1; tmin = t[1]; 
-    }
-    else if ( (t[1] == 0) && t[3] ) {
-      probmin = prob3; tmin = t[3]; 
-    }
-
-    if ( tmin && t[2] && ( (probmin - prob2) > 3.5 )  ) {
-      result = t[2];
-    }
-
-  } else if ( muonHitsOption == 5 ) {
-
-    double prob[4];
-    int chosen=3;
-    for (int i=0;i<4;i++) 
-      prob[i] = (t[i]) ? trackProbability(*t[i]) : 0.0; 
-
-    if (!t[3])
-      if (t[2]) chosen=2; else
-        if (t[1]) chosen=1; else
-          if (t[0]) chosen=0;
-
-    if ( t[0] && t[3] && ((prob[3]-prob[0]) > 48.) ) chosen=0;
-    if ( t[0] && t[1] && ((prob[1]-prob[0]) < 3.) ) chosen=1;
-    if ( t[2] && ((prob[chosen]-prob[2]) > 9.) ) chosen=2;
-    
-    LogTrace(theCategory) << "Chosen Trajectory " << chosen;
-    
-    result=t[chosen];
-  }
-  else {
-    LogTrace(theCategory) << "Wrong Hits Option in Choosing Trajectory ";
-  } 
-  return result;
-
 }
 
 
@@ -1003,5 +567,4 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
   }
   
   return result;
-
-  }
+}
