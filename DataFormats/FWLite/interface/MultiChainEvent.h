@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.4 2009/05/07 19:45:49 dsr Exp $
+// $Id: MultiChainEvent.h,v 1.1 2009/07/12 05:09:08 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -58,15 +58,6 @@ class MultiChainEvent
       const MultiChainEvent & to(edm::EventID id);
       const MultiChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
 
-
-      ///Go to the event from secondary files at index iIndex
-      const MultiChainEvent& toSec(Long64_t iIndex);
-
-      //Go to event from secondary files by Run & Event number
-      const MultiChainEvent & toSec(edm::EventID id);
-      const MultiChainEvent & toSec(edm::RunNumber_t run, edm::EventNumber_t event);
-
-
       /** Go to the very first Event*/
       const MultiChainEvent& toBegin();
       
@@ -107,11 +98,21 @@ class MultiChainEvent
 
       // ---------- member functions ---------------------------
 
+      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+
    private:
 
       MultiChainEvent(const Event&); // stop default
 
       const MultiChainEvent& operator=(const Event&); // stop default
+
+      ///Go to the event from secondary files at index iIndex
+      const MultiChainEvent& toSec(Long64_t iIndex);
+
+      //Go to event from secondary files by Run & Event number
+      const MultiChainEvent & toSec(edm::EventID id);
+      const MultiChainEvent & toSec(edm::RunNumber_t run, edm::EventNumber_t event);
+
 
       // ---------- member data --------------------------------
 

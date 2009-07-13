@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.7 2009/07/10 14:56:23 srappocc Exp $
+// $Id: ChainEvent.cc,v 1.8 2009/07/12 05:09:09 srappocc Exp $
 //
 
 // system include files
@@ -55,7 +55,6 @@ namespace fwlite {
     }
     if ( iFileNames.size() > 0 ) 
       switchToFile(0);
-    chainType_ = MASTER;
 }
 
 // ChainEvent::ChainEvent(const ChainEvent& rhs)
@@ -232,6 +231,11 @@ ChainEvent::getByLabel(const std::type_info& iType,
                        void* iValue) const
 {
   return event_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
+}
+
+edm::EDProduct const* ChainEvent::getByProductID(edm::ProductID const& iID) const
+{
+  return event_->getByProductID( iID );
 }
 
 bool 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.5 2009/07/10 14:56:23 srappocc Exp $
+// $Id: ChainEvent.h,v 1.6 2009/07/12 05:09:08 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -41,8 +41,6 @@ class ChainEvent
 {
 
    public:
-
-      enum Chain_t { MASTER, SLAVE, NCHAINTYPES};
 
       ChainEvent(const std::vector<std::string>& iFileNames);
       virtual ~ChainEvent();
@@ -83,10 +81,8 @@ class ChainEvent
 
       Long64_t eventIndex() const { return eventIndex_; }
 
-      void setGetter( boost::shared_ptr<edm::EDProductGetter> getter, 
-		      Chain_t chainType ){
+      void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ){
 	event_->setGetter( getter );
-	chainType_ = chainType;
       }
 
       Event const * event() const { return &*event_; }
@@ -95,6 +91,8 @@ class ChainEvent
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
       // ---------- member functions ---------------------------
+
+      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
    private:
 
@@ -112,7 +110,6 @@ class ChainEvent
       boost::shared_ptr<Event> event_;
       Long64_t eventIndex_;
       std::vector<Long64_t> accumulatedSize_;
-      Chain_t chainType_;
       boost::shared_ptr<edm::EDProductGetter> getter_;
 
 };

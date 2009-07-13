@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.6 2009/03/15 15:01:12 wmtan Exp $
+// $Id: MultiChainEvent.cc,v 1.1 2009/07/12 05:09:09 srappocc Exp $
 //
 
 // system include files
@@ -30,15 +30,8 @@ public:
       
       virtual edm::EDProduct const*
       getIt(edm::ProductID const& iID) const {
-	
-	// First try the first file
-	edm::EDProduct const * prod = event_->primary()->event()->getByProductID(iID);
-	// Did not find the product, try again
-	if ( 0 == prod ) {
-	  (const_cast<MultiChainEvent*>(event_))->toSec(event_->id());
-	  prod = event_->secondary()->event()->getByProductID(iID);
-	}
-	return prod;
+
+	return event_->getByProductID( iID );
       }
 private:
       MultiChainEvent const * event_;
@@ -66,8 +59,8 @@ private:
 
   getter_ = boost::shared_ptr<internal::MultiProductGetter>( new internal::MultiProductGetter( this) );
 
-  event1_->setGetter( getter_, ChainEvent::MASTER );
-  event2_->setGetter( getter_, ChainEvent::SLAVE );
+  event1_->setGetter( getter_ );
+  event2_->setGetter( getter_ );
 }
 
 // MultiChainEvent::MultiChainEvent(const MultiChainEvent& rhs)
@@ -204,6 +197,19 @@ MultiChainEvent::getByLabel(const std::type_info& iType,
   }
   else return true;
 }
+
+edm::EDProduct const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const 
+{
+  // First try the first file
+  edm::EDProduct const * prod = this->primary()->event()->getByProductID(iID);
+  // Did not find the product, try again
+  if ( 0 == prod ) {
+    (const_cast<MultiChainEvent*>(this))->toSec(this->id());
+    prod = this->secondary()->event()->getByProductID(iID);
+  }
+  return prod;
+}
+
 
 bool 
 MultiChainEvent::isValid() const
