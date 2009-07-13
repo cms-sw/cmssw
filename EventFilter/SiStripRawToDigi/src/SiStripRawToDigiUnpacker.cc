@@ -49,10 +49,8 @@ void OldSiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	<< "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
 	<< " No FEDs found in cabling map!";
       // Check which FED ids have non-zero size buffers
-      std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
       std::vector<uint16_t> feds;
-      for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
-	    ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
+      for ( uint16_t ifed = FEDNumbering::MINSiStripFEDID; ifed < FEDNumbering::MAXSiStripFEDID; ifed++ ) {
 	if ( ifed != unpacker_->triggerFedId_ && 
 	     buffers.FEDData( static_cast<int>(ifed) ).size() ) {
 	  feds.push_back(ifed);
@@ -487,10 +485,8 @@ namespace sistrip {
 	  << "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
 	  << " No FEDs found in cabling map!";
 	// Check which FED ids have non-zero size buffers
-	std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
 	std::vector<uint16_t> feds;
-	for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
-	      ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
+	for ( uint16_t ifed = FEDNumbering::MINSiStripFEDID; ifed < FEDNumbering::MAXSiStripFEDID; ifed++ ) {
 	  if ( ifed != triggerFedId_ && 
 	       buffers.FEDData( static_cast<int>(ifed) ).size() ) {
 	    feds.push_back(ifed);
