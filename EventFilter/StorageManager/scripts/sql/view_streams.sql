@@ -35,7 +35,7 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	      TO_CHAR ( LAST_UPDATE_TIME, 'dd.mm.yyyy hh24:mi:ss' ) AS UPDATE_TIME,
 	      TO_CHAR ( setupLabel ) AS SETUPLABEL,
 	      TO_CHAR ( APP_VERSION ) AS APP_VERSION,
-	      TO_CHAR ( NVL(N_INSTANCE, M_INSTANCE) ) AS M_INSTANCE,
+	      TO_CHAR ( NVL(N_INSTANCE, M_INSTANCE) + 1 ) AS M_INSTANCE,
 	     (CASE NVL(s_filesize, 0)
                 WHEN 0 THEN TO_CHAR('NA')
                 ELSE TO_CHAR ( ROUND (s_filesize/1073741824, 2) )
