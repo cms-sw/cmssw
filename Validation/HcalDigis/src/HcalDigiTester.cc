@@ -516,7 +516,26 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     hcalselector_ = "noise";
   }
 
+// New block !!!!
+  if (hcalselector_ == "all") {
+   noise_ = 0;
+
+    hcalselector_ = "HB";
+    reco<HBHEDataFrame>(iEvent,iSetup);
+    hcalselector_ = "HE";
+    reco<HBHEDataFrame>(iEvent,iSetup);
+    hcalselector_ = "HO";
+    reco<HODataFrame>(iEvent,iSetup);
+    hcalselector_ = "HF";
+    reco<HFDataFrame>(iEvent,iSetup);
+    hcalselector_ = "noise";
+
+  }
+
+
+
 }
+
 double HcalDigiTester::dR(double eta1, double phi1, double eta2, double phi2) { 
   double PI = 3.1415926535898;
   double deltaphi= phi1 - phi2;
