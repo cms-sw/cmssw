@@ -557,6 +557,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 // We must check the charge of the high pt track after first step
 //
 
+/*
   if(abs(currentLayerCode) > 100&&traj0.measurements().size()>1) {
            HICMuonPropagator hmp(mf);
 #ifdef DEBUG
@@ -587,16 +588,9 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
   std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward::end "<<std::endl;
 #endif             
   }
-
-
-
-
-//  else
-//  {
-               tmp0 = 
-                      theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
-//  }		      
-		      
+*/
+       tmp0 = theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
+		      		      
 #ifdef DEBUG 
   std::cout<<" findCompatibleMeasurements Point 6 "<<theCut[0]<<" "<<theCut[1]<<std::endl;
   std::cout<<" findCompatibleMeasurements Point 7 "<<traj0.measurements().size()<<std::endl;
