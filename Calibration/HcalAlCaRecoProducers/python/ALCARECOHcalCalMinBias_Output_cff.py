@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 # output module 
 #  module alcastreamHcalMinbiasOutput = PoolOutputModule
 
-OutALCARECOHcalCalMinBias = cms.PSet(
+OutALCARECOHcalCalMinBias_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalMinBias')
     ),
-    outputCommands = cms.untracked.vstring('drop *',
+    outputCommands = cms.untracked.vstring(
         'keep HBHERecHitsSorted_hbherecoMB_*_*',
         'keep HORecHitsSorted_horecoMB_*_*',
         'keep HFRecHitsSorted_hfrecoMB_*_*',
@@ -17,4 +17,6 @@ OutALCARECOHcalCalMinBias = cms.PSet(
         'keep HFRecHitsSorted_hfrecoNoise_*_*')
 )
 
-
+import copy
+OutALCARECOHcalCalMinBias=copy.deepcopy(OutALCARECOHcalCalMinBias_noDrop)
+OutALCARECOHcalCalMinBias.outputCommands.insert(0, "drop *")

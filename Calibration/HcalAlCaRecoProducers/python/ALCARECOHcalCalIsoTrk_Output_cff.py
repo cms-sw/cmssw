@@ -3,14 +3,18 @@ import FWCore.ParameterSet.Config as cms
 # output block for alcastream HCAL Isotrk
 # output module 
 #  module alcastreamHcalIsotrkOutput = PoolOutputModule
-OutALCARECOHcalCalIsoTrk = cms.PSet(
+OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring( 
         'keep *_IsoProd_*_*',
 	'keep triggerTriggerEvent_*_*_*'
 )
 )
 
+
+import copy
+OutALCARECOHcalCalIsoTrk=copy.deepcopy(OutALCARECOHcalCalIsoTrkNoHLT_noDrop)
+OutALCARECOHcalCalIsoTrk.outputCommands.insert(0, "drop *")
