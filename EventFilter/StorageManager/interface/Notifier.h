@@ -1,16 +1,8 @@
 // -*- c++ -*-                                                                              
-// $Id: Notifier.h,v 1.4 2009/07/02 12:55:27 dshpakov Exp $
+// $Id: Notifier.h,v 1.5 2009/07/13 13:27:45 dshpakov Exp $
 
 #ifndef NOTIFIER_H
 #define NOTIFIER_H
-
-/**
-   Interface class for handling RCMS notifier
-
-   $ Author: $
-   $ Revision: $
-   $ Date: $
-*/
 
 #include <string>
 
@@ -19,6 +11,14 @@
 
 namespace stor
 {
+
+  /**
+    Interface class for handling RCMS notifier
+    
+    $Author: $
+    $Revision: $
+    $Date: $
+  */
 
   class Notifier
   {
