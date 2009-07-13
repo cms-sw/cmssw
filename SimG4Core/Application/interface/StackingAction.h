@@ -6,7 +6,7 @@
 #include "G4UserStackingAction.hh"
 #include "G4Region.hh"
 #include "G4Track.hh"
-#include "G4VPhysicalVolume.hh"
+#include "G4LogicalVolume.hh"
 
 #include <string>
 #include <vector>
@@ -21,12 +21,12 @@ public:
   virtual void PrepareNewEvent();
 private:
   void   initPointer();
-  bool   isThisVolume(const G4VTouchable*, G4VPhysicalVolume* ) const;
+  bool   isThisVolume(const G4VTouchable*, G4LogicalVolume* ) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
   int    isItFromPrimary(const G4Track &, int) const;
   bool   isItLongLived(const G4Track*) const;
 private:
-  G4VPhysicalVolume        *tracker, *beam, *calo, *muon;
+  G4LogicalVolume          *tracker, *beam, *calo, *muon;
   bool                     savePDandCinTracker, savePDandCinCalo;
   bool                     savePDandCinMuon, saveFirstSecondary;
   bool                     killHeavy, trackNeutrino;

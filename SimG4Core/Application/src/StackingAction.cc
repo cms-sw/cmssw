@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VProcess.hh"
-#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
  
 StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
@@ -110,19 +110,19 @@ void StackingAction::PrepareNewEvent() {}
 
 void StackingAction::initPointer() {
 
-  const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
-  if (pvs) {
-    std::vector<G4VPhysicalVolume*>::const_iterator pvcite;
-    for (pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
+  const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+  if (lvs) {
+    std::vector<G4LogicalVolume*>::const_iterator lvcite;
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
       if (savePDandCinTracker) {
-        if ((*pvcite)->GetName() == "Tracker") tracker = (*pvcite);
-        if ((*pvcite)->GetName() == "BEAM")    beam    = (*pvcite);
+        if ((*lvcite)->GetName() == "Tracker") tracker = (*lvcite);
+        if ((*lvcite)->GetName() == "BEAM")    beam    = (*lvcite);
       }
       if (savePDandCinCalo) {
-        if ((*pvcite)->GetName() == "CALO")    calo    = (*pvcite);
+        if ((*lvcite)->GetName() == "CALO")    calo    = (*lvcite);
       }
       if (savePDandCinMuon) {
-        if ((*pvcite)->GetName() == "MUON")    muon    = (*pvcite);
+        if ((*lvcite)->GetName() == "MUON")    muon    = (*lvcite);
       }
       if ( (!savePDandCinTracker || (tracker && beam)) && 
 	   (!savePDandCinCalo || calo) && (!savePDandCinMuon || muon ) ) break;
@@ -170,14 +170,14 @@ void StackingAction::initPointer() {
 }
 
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
-				  G4VPhysicalVolume* pv) const {
+				  G4LogicalVolume* lv) const {
 
   bool flag = false;
-  if (pv != 0 && touch !=0) {
+  if (lv != 0 && touch !=0) {
     int level = ((touch->GetHistoryDepth())+1);
     if (level >= 3) {
       int  ii = level - 3;
-      flag    = (touch->GetVolume(ii) == pv);
+      flag    = (touch->GetVolume(ii)->GetLogicalVolume() == lv);
     }
   }
   return flag;
