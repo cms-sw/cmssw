@@ -115,7 +115,7 @@ class DotProducer(object):
     if self.options['seqconnect']:
       if endpath:
         self.endstarts.append('endstart_%s'%self.data.label(path))
-        self.nodes['endstart_%s'%data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
+        self.nodes['endstart_%s'%self.data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
       else:
         self.pathstarts.append('start_%s'%self.data.label(path))
         self.pathends.append('end_%s'%self.data.label(path))
@@ -287,12 +287,13 @@ class DotExport(FileExportPlugin):
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
     'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
     'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
+    'node_graphs_restrict':('Select which nodes to make node graphs for','string',''),
     'node_depth':('Search depth for individual node graphs','int',1),
     'font_name':('Font name','string','Times-Roman'),
     'font_size':('Font size','int',8)
   }
   plugin_name='DOT Export'
-  file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map')
+  file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map','stdout')
   def __init__(self):
     FileExportPlugin.__init__(self)
     
@@ -472,11 +473,15 @@ class DotExport(FileExportPlugin):
     if self.options['node_graphs']:
       nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
       for n in nodes:
-        node_dot = self.selectNode(dot,n,self.options['node_depth'])
-        self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
-    
-    dot = self.dotIndenter(dot)
-    self.write_output(dot,filename,filetype)
+        if self.options['node_graphs_restrict'] in n:
+          try:
+            node_dot = self.selectNode(dot,n,self.options['node_depth'])
+            self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
+          except:
+            pass
+    else:
+      dot = self.dotIndenter(dot)
+      self.write_output(dot,filename,filetype)
     
     
     
