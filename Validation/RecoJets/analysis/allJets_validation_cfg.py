@@ -18,8 +18,12 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
-process.load("JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+#process.load("JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff")
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff")
+#process.load("JetMETCorrections.Configuration.L2L3Corrections_Winter09_cff")
+
+
 
 #process.load("DQMServices.Core.DQM_cfg")
 
@@ -32,26 +36,25 @@ process.source = cms.Source("PoolSource",
     debugVebosity = cms.untracked.uint32(0),
 
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/EAE8043B-EB4E-DE11-8ADC-0019DB29C614.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/E0D2779F-ED4E-DE11-AAAF-000423D6B42C.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/CAC40E5E-524F-DE11-BBB6-001D09F251D1.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/C2B3C04F-EB4E-DE11-9A68-001617C3B6CC.root',
-    #'/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/ACD61339-ED4E-DE11-A33B-001617C3B6CC.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/A21B95E1-EC4E-DE11-8EB8-001D09F2905B.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/96FF33DE-EC4E-DE11-80E9-001D09F2A465.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/90B4023B-EF4E-DE11-8258-001D09F24691.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/866EE0D7-EC4E-DE11-BAA7-001617C3B706.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/62FB60E2-EE4E-DE11-ACEE-001D09F25393.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/483DD622-EE4E-DE11-8136-000423D94534.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/38F94336-EE4E-DE11-8ADC-001617C3B710.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/3425A3DC-ED4E-DE11-BBAE-001D09F276CF.root',
-    '/store/relval/CMSSW_3_1_0_pre9/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/IDEAL_31X_FastSim_v1/0007/10A0BBE1-EC4E-DE11-9C3C-000423D6B444.root'
+
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/F0003B41-AB6B-DE11-A751-001D09F2A690.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/E4E8B446-A06B-DE11-AF53-000423D6B2D8.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/E0CCCD38-B56B-DE11-B6D2-001D09F282F5.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/9C6C79B9-A56B-DE11-85BA-0019B9F707D8.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/608F5711-B66B-DE11-9A82-001D09F28E80.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/58E40A13-AF6B-DE11-B7F8-001D09F24D67.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/2204FCC2-976B-DE11-B1BB-000423D98844.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/2086BDA1-B36B-DE11-93A8-001D09F2AD4D.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/16E5D232-D66B-DE11-85E0-001D09F2924F.root',
+        '/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/000F823D-B86B-DE11-90C2-000423D98B6C.root'
+
+
     )
 
 )
 
 process.fileSaver = cms.EDFilter("JetFileSaver",
-                                 OutputFile = cms.untracked.string('JetTester_FlatPt_15_3000_IDEAL_fastsim_310pre9.root')
+                                 OutputFile = cms.untracked.string('histo.root')
 )
 
 # IC5 Calo jets
@@ -176,11 +179,11 @@ process.JetAnalyzer8 = cms.EDAnalyzer("CaloJetTester",
 )
 
 
-process.prefer("L2L3JetCorrectorIcone5")
+process.prefer("L2L3JetCorrectorIC5Calo")
 
 process.L2L3CorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
     src = cms.InputTag("iterativeCone5CaloJets"),
-    correctors = cms.vstring('L2L3JetCorrectorIcone5')
+    correctors = cms.vstring('L2L3JetCorrectorIC5Calo')
 )
 
 process.p1 = cms.Path(process.fileSaver*process.L2L3CorJetIcone5*process.ZSPJetCorrections*process.JetPlusTrackCorrections*process.JetAnalyzer1*process.JetAnalyzer2*process.JetAnalyzer3*process.JetAnalyzer4*process.JetAnalyzer5*process.JetAnalyzer6*process.JetAnalyzer7*process.JetAnalyzer8)
