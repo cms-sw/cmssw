@@ -1434,7 +1434,13 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
   
   MeasurementEstimator::HitReturnType est = theEstimator->estimate(innerState, *intrhit);
   if (!est.first) return theSeedTrajectory;	    
-  TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
+   TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
+   if (debug_) std::cout<<"InnerUpdated: " << innerUpdated << std::endl;
+  if (!innerUpdated.isValid() ||
+       isnan(innerUpdated.globalMomentum().perp())) {
+    if (debug_) std::cout<<"Trajectory updated with first hit is invalid!!!" << std::endl;
+    return theSeedTrajectory;
+  }
   TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,theInnerHitLayer);
   
   PTrajectoryStateOnDet* pFirstStateTwo = theTransformer->persistentState(innerUpdated,
