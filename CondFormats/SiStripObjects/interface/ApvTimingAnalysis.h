@@ -47,7 +47,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   inline const float& refTime() const; 
 
   /** Static method to set global reference time [ns]. */
-  void refTime( const float& time );
+  void refTime( const float& time, const float& targetDelay = -1 );
   
   /** Delay required to sync w.r.t. reference tick mark [ns]. */
   inline const float& delay() const; 
