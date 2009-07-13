@@ -30,7 +30,7 @@ namespace reco { namespace isodeposit {
                 if( fabs(vetoDir_.eta()) < 1.479) {
                     return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.0174*iR_ );
                 } else {
-                    return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.00864*sinh(eta)*iR_ );
+                    return ( vetoDir_.deltaR(Direction(eta,phi)) < 0.00864*fabs(sinh(eta))*iR_ );
                 }
             }
             virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
@@ -56,8 +56,8 @@ namespace reco { namespace isodeposit {
                 if( fabs(vetoDir_.eta()) < 1.479) {
                     return ( (fabs(dEta) < 0.0174*iEta_) && (fabs(dPhi) < 0.0174*iPhi_) );
                 } else {
-                    return ( (fabs(dEta) < 0.00864*sinh(eta)*iEta_) && 
-                             (fabs(dPhi) < 0.00864*sinh(eta)*iPhi_) );
+                    return ( (fabs(dEta) < 0.00864*fabs(sinh(eta))*iEta_) && 
+                             (fabs(dPhi) < 0.00864*fabs(sinh(eta))*iPhi_) );
                 }
             }
             virtual void centerOn(double eta, double phi) { vetoDir_ = Direction(eta,phi); }
