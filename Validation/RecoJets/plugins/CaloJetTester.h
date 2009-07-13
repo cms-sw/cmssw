@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.14 2009/06/04 00:25:24 chjeong Exp $
+// $Id: CaloJetTester.h,v 1.15 2009/06/08 19:48:47 hatake Exp $
 
 #include <string>
 
@@ -124,6 +124,10 @@ private:
   MonitorElement* mHFShort_80;
   MonitorElement* mHFShort_3000;
   MonitorElement* mN90;
+
+  // pthat
+  MonitorElement* mPthat_80;
+  MonitorElement* mPthat_3000;
 
   // GenJet Generic Jet Parameters
   MonitorElement* mGenEta;

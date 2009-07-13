@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.16 2009/06/09 14:48:04 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.17 2009/06/16 15:54:04 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,6 +28,8 @@
 #include "DataFormats/METReco/interface/METCollection.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CaloJetTester.h"
 
@@ -89,6 +91,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mpTScale1D_60_120 = mpTScale1D_200_300 = mpTScale1D_600_900 = mpTScale1D_2700_3500
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
+    = mPthat_80 = mPthat_3000
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -221,6 +224,9 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEBTime    = dbe->book1D( "EBTime", "EBTime", 200, -200, 200 );
     mEEEne     = dbe->book1D( "EEEne",  "EEEne", 1000, -20, 100 );
     mEETime    = dbe->book1D( "EETime", "EETime", 200, -200, 200 );
+    //
+    mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 40.0, 160.0); 
+    mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 2500.0, 4000.0); 
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -369,6 +375,21 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 {
   double countsfornumberofevents = 1;
   numberofevents->Fill(countsfornumberofevents);
+  // *********************************
+  // *** Get pThat
+  // *********************************
+
+  edm::Handle<HepMCProduct> evt;
+  mEvent.getByLabel("generator", evt);
+  HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  
+  double pthat = myGenEvent->event_scale();
+
+  mPthat_80->Fill(pthat);
+  mPthat_3000->Fill(pthat);
+
+  delete myGenEvent; 
+
 
   // ***********************************
   // *** Get CaloMET
@@ -612,11 +633,16 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     if (mHFShort_80)   mHFShort_80->Fill (jet->hadEnergyInHF()*0.5);
     if (mHFShort_3000) mHFShort_3000->Fill (jet->hadEnergyInHF()*0.5);
 
+
+
     if (mN90) mN90->Fill (jet->n90());
     mJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->energy());
     mHadJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->hadEnergyInHO()+jet->hadEnergyInHB()+jet->hadEnergyInHF()+jet->hadEnergyInHE());
     mEMJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->emEnergyInEB()+jet->emEnergyInEE()+jet->emEnergyInHF());
   }
+
+
+
 
   if (mNJetsEtaC) mNJetsEtaC->Fill( nJetC );
   if (mNJetsEtaF) mNJetsEtaF->Fill( nJetF );
