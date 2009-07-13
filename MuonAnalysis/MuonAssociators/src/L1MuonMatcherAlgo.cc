@@ -173,7 +173,7 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L
         GlobalPoint pos = propagated.globalPosition();
         double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi());
         double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
-        if ((thisDeltaPhi < deltaPhi_) && (thisDeltaR2 < deltaR2_)) {
+        if ((fabs(thisDeltaPhi) < deltaPhi_) && (thisDeltaR2 < deltaR2_)) {
             deltaR   = std::sqrt(thisDeltaR2);
             deltaPhi = thisDeltaPhi;
             return true;
@@ -193,11 +193,12 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vecto
         if (preselectionCut_(l1)) {
             double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi());
             double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
-            if ((thisDeltaPhi < deltaPhi_) && (thisDeltaR2 < deltaR2_)) { // check both
-                if (sortByDeltaPhi_ ? (thisDeltaPhi < minDeltaPhi) : (thisDeltaR2 < minDeltaR2)) { // sort on one
+            if ((fabs(thisDeltaPhi) < deltaPhi_) && (thisDeltaR2 < deltaR2_)) { // check both
+                if (sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi)) : (thisDeltaR2 < minDeltaR2)) { // sort on one
                     match = i;
                     deltaR   = std::sqrt(thisDeltaR2);
                     deltaPhi = thisDeltaPhi;
+                    if (sortByDeltaPhi_) sortByDeltaPhi_ = thisDeltaPhi; else minDeltaR2 = thisDeltaR2;
                 }
             }
         }
