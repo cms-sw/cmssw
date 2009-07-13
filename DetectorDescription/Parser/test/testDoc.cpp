@@ -450,29 +450,23 @@ int main(int argc, char *argv[])
 
     // C.  Manufacture a configuration and establish it.
     std::string config =
-      "process x = {"
-      "service = MessageLogger {"
-      "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
-      "untracked PSet infos = {"
-      "untracked string threshold = 'INFO'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "untracked PSet FwkJob = {untracked int32 limit = 0}"
-      "}"
-      "untracked PSet warnings = {"
-      "untracked string threshold = 'WARNING'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "}"
-      "untracked vstring fwkJobReports = {'FrameworkJobReport.xml'}"
-      "untracked vstring categories = {'FwkJob'}"
-      "untracked PSet FrameworkJobReport.xml = {"
-      "untracked PSet default = {untracked int32 limit = 0}"
-      "untracked PSet FwkJob = {untracked int32 limit = 10000000}"
-      "}"
-      "}"
-      "service = JobReportService{}"
-      "service = SiteLocalConfigService{}"
-      "}";
-
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('TEST')\n"
+      "process.maxEvents = cms.untracked.PSet(\n"
+      "    input = cms.untracked.int32(5)\n"
+      ")\n"
+      "process.source = cms.Source('EmptySource')\n"
+      "process.JobReportService = cms.Service('JobReportService')\n"
+      "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
+      // "process.MessageLogger = cms.Service('MessageLogger')\n"
+      "process.m1 = cms.EDProducer('IntProducer',\n"
+      "    ivalue = cms.int32(11)\n"
+      ")\n"
+      "process.out = cms.OutputModule('PoolOutputModule',\n"
+      "    fileName = cms.untracked.string('testStandalone.root')\n"
+      ")\n"
+      "process.p = cms.Path(process.m1)\n"
+      "process.e = cms.EndPath(process.out)\n";
 
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;

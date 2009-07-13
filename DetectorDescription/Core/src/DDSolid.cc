@@ -16,6 +16,7 @@
 #include "DetectorDescription/Core/src/Cons.h"
 #include "DetectorDescription/Core/src/PseudoTrap.h"
 #include "DetectorDescription/Core/src/TruncTubs.h"
+#include "DetectorDescription/Core/src/Sphere.h"
 #include <algorithm>
 
 // Message logger.
@@ -535,6 +536,33 @@ DDSolid DDBooleanSolid::solidB() const
   return boolean_->b();
 }
 
+// =================================================================================
+
+DDSphere::DDSphere(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddsphere) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDSphere (or sphere section).\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDSphere::innerRadius() const { return rep().parameters()[0]; }
+
+double DDSphere::outerRadius() const { return rep().parameters()[1]; }
+
+double DDSphere::startPhi () const { return rep().parameters()[2]; }
+
+double DDSphere::deltaPhi() const { return rep().parameters()[3]; }
+
+double DDSphere::startTheta() const { return rep().parameters()[4]; }
+
+double DDSphere::deltaTheta() const { return rep().parameters()[5]; }
+
+
+// =================================================================================
+// =========================SolidFactory============================================
+
 DDSolid DDSolidFactory::polycone(const DDName & name, double startPhi, double deltaPhi,
                   const std::vector<double> & z,
 		  const std::vector<double> & rmin,
@@ -675,6 +703,19 @@ DDSolid DDSolidFactory::tubs(const DDName & name,
   return DDSolid(name, new DDI::Tubs(zhalf,rIn,rOut,phiFrom,deltaPhi));
 }
 
+
+DDSolid DDSolidFactory::sphere(const DDName & name,
+                     double innerRadius,
+	   	     double outerRadius,	      	      
+		     double startPhi,
+		     double deltaPhi,
+		     double startTheta,
+		     double deltaTheta)
+{
+  return DDSolid(name, new DDI::Sphere(innerRadius, outerRadius, 
+				       startPhi, deltaPhi,
+				       startTheta, deltaTheta));
+}		     
 
 DDSolid DDSolidFactory::shapeless(const DDName & name)
 {

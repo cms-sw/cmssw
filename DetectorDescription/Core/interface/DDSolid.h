@@ -345,6 +345,21 @@ class DDSubtraction : public DDBooleanSolid
 };
 
 
+class DDSphere : public DDSolid
+{
+ public:
+  DDSphere(const DDSolid & s);
+  double innerRadius() const;
+  double outerRadius() const;
+  double startPhi() const;
+  double deltaPhi() const;
+  double startTheta() const;
+  double deltaTheta() const;
+
+ private:
+  DDSphere();
+};
+
 // Solid generation function
 //! Creates a box with side length 2*xHalf, 2*yHalf, 2*zHalf
 /** \arg \c name unique name identifying the box
@@ -354,6 +369,7 @@ class DDSubtraction : public DDBooleanSolid
     The center of the box (for positioning) is the center of gravity.
 */    
 struct DDSolidFactory {
+
 
 static DDSolid box(const DDName & name,
                      double xHalf, 
@@ -466,6 +482,14 @@ static DDSolid torus(const DDName & name,
 		     double startPhi,
 		     double deltaPhi);
   
+static DDSolid sphere(const DDName & name,
+		     double innerRadius,
+	   	     double outerRadius,	      	      
+		     double startPhi,
+		     double deltaPhi,
+		     double startTheta,
+		     double deltaTheta);
+
 static DDSolid shapeless(const DDName & name);
 
 static DDSolid reflection(const DDName & name,
@@ -473,105 +497,118 @@ static DDSolid reflection(const DDName & name,
 
 };		     		     				    		     		    
 		      		      
-//! Creates a cone or a cone-section (refere to \b Geant4 documentation)
-/** The center of the cone or cone-section (for positioning) is the center of
-    coordinates of its definition (x=y=z=0).
-*/    
-DDSolid *      DDcons(const DDName & name,
-                     double zhalf,
-	   	     double rInMinusZ,
-		     double rOutMinusZ,
-		     double rInPlusZ,
-		     double rOutPlusZ,
-		     double startPhi,
-		     double deltaPhi);
+/* //! Creates a cone or a cone-section (refere to \b Geant4 documentation) */
+/* /\** The center of the cone or cone-section (for positioning) is the center of */
+/*     coordinates of its definition (x=y=z=0). */
+/* *\/     */
+/* DDSolid *      DDcons(const DDName & name, */
+/*                      double zhalf, */
+/* 	   	     double rInMinusZ, */
+/* 		     double rOutMinusZ, */
+/* 		     double rInPlusZ, */
+/* 		     double rOutPlusZ, */
+/* 		     double startPhi, */
+/* 		     double deltaPhi); */
 
-//! Creates a torus or a toroidal-section (refere to \b Geant4 documentation)
-/** The center of the torus or toroidal-section (for positioning) is the center of
-    coordinates of its definition (x=y=z=0).
-*/    
-DDSolid *      DDtorus(const DDName & name,
-		       double rMin,
-		       double rMax,
-		       double rTorus,
-		       double startPhi,
-		       double deltaPhi);
+/* //! Creates a torus or a toroidal-section (refere to \b Geant4 documentation) */
+/* /\** The center of the torus or toroidal-section (for positioning) is the center of */
+/*     coordinates of its definition (x=y=z=0). */
+/* *\/     */
+/* DDSolid *      DDtorus(const DDName & name, */
+/* 		       double rMin, */
+/* 		       double rMax, */
+/* 		       double rTorus, */
+/* 		       double startPhi, */
+/* 		       double deltaPhi); */
 
-//! Creates a tube or a tube-section (refere to \b Geant4 documentation)
-/** The center of the tube or tube-section (for positioning) is the center of
-    coordinates of its definition (x=y=z=0).
-*/    
-DDSolid *      DDtubs(const DDName & name,
-                     double zhalf,
-		     double rIn, double rOut,	      	      
-		     double startPhi, 
-		     double deltaPhi);
+/* //! Creates a tube or a tube-section (refere to \b Geant4 documentation) */
+/* /\** The center of the tube or tube-section (for positioning) is the center of */
+/*     coordinates of its definition (x=y=z=0). */
+/* *\/     */
+/* DDSolid *      DDtubs(const DDName & name, */
+/*                      double zhalf, */
+/* 		     double rIn, double rOut,	      	       */
+/* 		     double startPhi,  */
+/* 		     double deltaPhi); */
 		     
 
-//! Creates a trapezoid (refere to \b Geant3 or \b Geant4 documentation)
-/** The center of the tube or tube-section (for positioning) is the center of
-    coordinates of its definition (x=y=z=0).
-*/    
-DDSolid *      DDtrap(const DDName & name,
-                     double pDz,
-	             double pTheta, double pPhi,
-	             double pDy1, double pDx1, double pDx2,
-	             double pAlp1,
-	             double pDy2, double pDx3, double pDx4,
-	             double pAlp2);
+/* //! Creates a trapezoid (refere to \b Geant3 or \b Geant4 documentation) */
+/* /\** The center of the tube or tube-section (for positioning) is the center of */
+/*     coordinates of its definition (x=y=z=0). */
+/* *\/     */
+/* DDSolid *      DDtrap(const DDName & name, */
+/*                      double pDz, */
+/* 	             double pTheta, double pPhi, */
+/* 	             double pDy1, double pDx1, double pDx2, */
+/* 	             double pAlp1, */
+/* 	             double pDy2, double pDx3, double pDx4, */
+/* 	             double pAlp2); */
 		     
-//! Creates a shapeless solid
-/** When used in a mother-volume this type of solid forms an assembly
-    in the \b Geant4 sense
-*/    
-DDSolid * DDshapeless(const DDName & name);
+/* //! Creates a shapeless solid */
+/* /\** When used in a mother-volume this type of solid forms an assembly */
+/*     in the \b Geant4 sense */
+/* *\/     */
+/* DDSolid * DDshapeless(const DDName & name); */
 
-/*
-DDSolid      DDunion(const DDName & name,
-                     const DDSolid & a = DDSolid(), 
-                     const DDSolid & b = DDSolid() );
-*/
+/* /\* */
+/* DDSolid      DDunion(const DDName & name, */
+/*                      const DDSolid & a = DDSolid(),  */
+/*                      const DDSolid & b = DDSolid() ); */
+/* *\/ */
 
-//! Creates a boolean solid - the union of 2 compound solids
-/** \arg \c name unique name
-    \arg \c a first compound of the union
-    \arg \c b second comound of the union
-    \arg \c r relative rotation of \c b towards \c a
-    \arg \c t relative translation of \c b towards \c a
-*/    								 				 		 		 
-DDSolid *     DDunion(const DDName & name,
-                     const DDSolid & a, 
-                     const DDSolid & b,
-		     const DDRotation &r =DDRotation(),
-		     const DDTranslation &t =DDTranslation());
+/* //! Creates a boolean solid - the union of 2 compound solids */
+/* /\** \arg \c name unique name */
+/*     \arg \c a first compound of the union */
+/*     \arg \c b second comound of the union */
+/*     \arg \c r relative rotation of \c b towards \c a */
+/*     \arg \c t relative translation of \c b towards \c a */
+/* *\/    								 				 		 		  */
+/* DDSolid *     DDunion(const DDName & name, */
+/*                      const DDSolid & a,  */
+/*                      const DDSolid & b, */
+/* 		     const DDRotation &r =DDRotation(), */
+/* 		     const DDTranslation &t =DDTranslation()); */
 
-//! Creates a boolean solid - the union of 2 compound solids
-/** \arg \c name unique name
-    \arg \c a first compound of the subtraction
-    \arg \c b second comound of the subtraction
-    \arg \c r relative rotation of \c b towards \c a
-    \arg \c t relative translation of \c b towards \c a
-    \c b is subtracted from \c a .
-*/    								 				 		 		 
-DDSolid *     DDsubtraction(const DDName & name,
-                           const DDSolid & a, 
-                           const DDSolid & b,
-		           const DDRotation &r =DDRotation(),
-		           const DDTranslation &t =DDTranslation()); 
+/* //! Creates a boolean solid - the union of 2 compound solids */
+/* /\** \arg \c name unique name */
+/*     \arg \c a first compound of the subtraction */
+/*     \arg \c b second comound of the subtraction */
+/*     \arg \c r relative rotation of \c b towards \c a */
+/*     \arg \c t relative translation of \c b towards \c a */
+/*     \c b is subtracted from \c a . */
+/* *\/    								 				 		 		  */
+/* DDSolid *     DDsubtraction(const DDName & name, */
+/*                            const DDSolid & a,  */
+/*                            const DDSolid & b, */
+/* 		           const DDRotation &r =DDRotation(), */
+/* 		           const DDTranslation &t =DDTranslation());  */
 		     
-//! Creates a boolean solid - the intersection of 2 compound solids
-/** \arg \c name unique name
-    \arg \c a first compound of the intersection
-    \arg \c b second comound of the intersection
-    \arg \c r relative rotation of \c b towards \c a
-    \arg \c t relative translation of \c b towards \c a
-    The resulting solid is the common volume of \c a and \c b .
-*/    								 				 		 		 
-DDSolid *     DDintersection(const DDName & name,
-                            const DDSolid & a, 
-                            const DDSolid & b,
-		            const DDRotation &r =DDRotation(),
-		            const DDTranslation &t =DDTranslation()); 
+/* //! Creates a boolean solid - the intersection of 2 compound solids */
+/* /\** \arg \c name unique name */
+/*     \arg \c a first compound of the intersection */
+/*     \arg \c b second comound of the intersection */
+/*     \arg \c r relative rotation of \c b towards \c a */
+/*     \arg \c t relative translation of \c b towards \c a */
+/*     The resulting solid is the common volume of \c a and \c b . */
+/* *\/    								 				 		 		  */
+/* DDSolid *     DDintersection(const DDName & name, */
+/*                             const DDSolid & a,  */
+/*                             const DDSolid & b, */
+/* 		            const DDRotation &r =DDRotation(), */
+/* 		            const DDTranslation &t =DDTranslation());  */
 		     
+
+/* //! Creates a cone or a cone-section (refere to \b Geant4 documentation) */
+/* /\** The center of the cone or cone-section (for positioning) is the center of */
+/*     coordinates of its definition (x=y=z=0). */
+/* *\/     */
+/* DDSolid *      DDcons(const DDName & name, */
+/*                      double zhalf, */
+/* 	   	     double rInMinusZ, */
+/* 		     double rOutMinusZ, */
+/* 		     double rInPlusZ, */
+/* 		     double rOutPlusZ, */
+/* 		     double startPhi, */
+/* 		     double deltaPhi); */
 			
 #endif

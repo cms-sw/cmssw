@@ -73,8 +73,8 @@
 		<UnionSolid name="BoxOne union PC1">
 			<rSolid name="BoxOne"/>
 			<rSolid name="PC1"/>
-			<rRotation name="R2618"/>
 			<Translation x="10" y="0" z="0"/>
+			<rRotation name="R2618"/>
 		</UnionSolid>
 		<Box name="NarrowBox" dx="3" dy="3" dz="30"/>
 		<IntersectionSolid name="BoxOne intersect NarrowBox">
