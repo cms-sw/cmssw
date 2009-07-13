@@ -1,15 +1,5 @@
-#ifndef _DQMInstance_h
-#define _DQMInstance_h
-
-/*
-   Author: William Badgett, FNAL
-
-   Description:
-     Container class for one snapshot instance of a collection of 
-     collated DQM objects
-
-   $Id$
-*/
+#ifndef StorageManager_DQMInstance_h
+#define StorageManager_DQMInstance_h
 
 #include <string>
 #include <vector>
@@ -20,14 +10,21 @@
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "PluginManager/PluginManager.h"
-
 #include "TFile.h"
 #include "TTimeStamp.h"
 #include "TObject.h"
 
 namespace stor 
 {
+
+  /**
+   * A single DQM folder holding several histograms
+   *
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
+   */
+
   class DQMFolder
   {
     public:
@@ -35,6 +32,16 @@ namespace stor
      ~DQMFolder();
       std::map<std::string, TObject *> dqmObjects_;
   }; 
+
+
+
+  /**
+   * A collection of DQM Folders under the same top-level name.
+   *
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
+   */
 
   class DQMGroup
   {
@@ -64,6 +71,17 @@ namespace stor
       int                    lastEvent_;
       bool                   wasServedSinceUpdate_;
   }; 
+
+
+
+  /**
+   * Container class for one snapshot instance of a collection of 
+   * collated DQM groups
+   *
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
+   */
 
   class DQMInstance
   {
@@ -120,4 +138,12 @@ namespace stor
 }
 
 
-#endif
+#endif // StorageManager_DQMInstance_h
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

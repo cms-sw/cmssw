@@ -1,14 +1,5 @@
-#if !defined(STOR_FUPROXY_H)
-#define STOR_FUPROXY_H
-
-////////////////////////////////////////////////////////////////////////////////
-// Created by Markus Klute on 2007 Mar 22.
-// $Id: FUProxy.h,v 1.3 2007/06/19 12:20:03 hcheung Exp $
-////////////////////////////////////////////////////////////////////////////////
-// send back discards to filter units
-//
-// following the example in EventFilter/ResourceBroker for BUProxy and SMProxy
-////////////////////////////////////////////////////////////////////////////////
+#ifndef StorageManager_FUProxy_h
+#define StorageManager_FUProxy_h
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/Exception.h"
@@ -19,6 +10,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 namespace stor 
 {
+
+  /**
+   * Send back discards to the FU resource borker.
+   *
+   * Following the example in EventFilter/ResourceBroker for BUProxy and SMProxy.
+   *
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
+   */
+
   class FUProxy
     {     
     public:
@@ -44,4 +46,12 @@ namespace stor
 
 } // namespace stor
 
-#endif
+#endif // StorageManager_FUProxy_h
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -
