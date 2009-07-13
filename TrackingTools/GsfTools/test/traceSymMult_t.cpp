@@ -26,6 +26,7 @@ typedef SingleGaussianState<5>  __attribute__ ((aligned (16))) GS;
 typedef GS::Vector  __attribute__ ((aligned (16))) Vector;
 typedef GS::Matrix  __attribute__ ((aligned (16))) Matrix;
 typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> >  __attribute__ ((aligned (16))) Matrix6;
+typedef ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >  __attribute__ ((aligned (16))) Matrix2;
 
   Distance const & distance() {
       static Distance * d = new KDistance;
@@ -53,6 +54,11 @@ Matrix buildCovariance(float y) {
 
 
 int main(int args, char ** argv) {
+
+  std::cout << "size of 2x2 Sym Matrix " << sizeof(Matrix2) << std::endl;
+  std::cout << "size of 5x5 Sym Matrix " << sizeof(Matrix) << std::endl;
+  std::cout << "size of 6x6 Sym Matrix " << sizeof(Matrix6) << std::endl;
+
 
   // Distance const & d = distance();
 
