@@ -583,6 +583,10 @@ DoHLTAlCaPi0Eta8E29 = cms.Path(
 ##    HLTEndSequence
 ##    )
 
+hltIsolPixelTrackProd1E31.MaxVtxDXYSeed = cms.double(101)
+hltIsolPixelTrackL2Filter1E31.MaxPtNearby = cms.double(3.0)
+hltIsolPixelTrackL2Filter1E31.MinPtTrack = cms.double(3.0)
+
 DoHLTIsoTrack = cms.Path(
     HLTBeginSequence +
     hltL1sIsoTrack1E31 +

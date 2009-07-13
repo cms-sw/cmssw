@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTTrack.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 HLTTrack::HLTTrack() {
   evtCounter=0;
@@ -39,6 +40,10 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   isopixeltrackL3phi = new float[kMaxTrackL3]; 
   isopixeltrackL3maxptpxl = new float[kMaxTrackL3];
   isopixeltrackL3energy = new float[kMaxTrackL3]; 
+  isopixeltrackL2pt = new float[kMaxTrackL3];
+  isopixeltrackL2eta = new float[kMaxTrackL3];
+  isopixeltrackL2dXY = new float[kMaxTrackL3];
+
    //minBiasPixel
   pixeltracksL3pt = new float[kMaxTrackL3];
   pixeltracksL3eta = new float[kMaxTrackL3];
@@ -53,6 +58,10 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohIsoPixelTrackL3Phi",isopixeltrackL3phi,"ohIsoPixelTrackL3Phi[NohIsoPixelTrackL3]/F"); 
   HltTree->Branch("ohIsoPixelTrackL3MaxPtPxl",isopixeltrackL3maxptpxl,"ohIsoPixelTrackL3MaxPtPxl[NohIsoPixelTrackL3]/F");
   HltTree->Branch("ohIsoPixelTrackL3Energy",isopixeltrackL3energy,"ohIsoPixelTrackL3Energy[NohIsoPixelTrackL3]/F");
+  HltTree->Branch("ohIsoPixelTrackL2pt",isopixeltrackL2pt,"ohIsoPixelTrackL2pt[NohIsoPixelTrackL3]/F");
+  HltTree->Branch("ohIsoPixelTrackL2eta",isopixeltrackL2eta,"ohIsoPixelTrackL2eta[NohIsoPixelTrackL3]/F");
+  HltTree->Branch("ohIsoPixelTrackL2dXY",isopixeltrackL2dXY,"ohIsoPixelTrackL2dXY[NohIsoPixelTrackL3]/F");
+
    //minBiasPixel
   HltTree->Branch("NohPixelTracksL3",&npixeltracksL3,"NohPixelTracksL3/I");
   HltTree->Branch("ohPixelTracksL3Pt",pixeltracksL3pt,"ohPixelTracksL3Pt[NohPixelTracksL3]/F");
@@ -64,6 +73,8 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 /* **Analyze the event** */
 void HLTTrack::analyze(
                        const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL3,
+		       const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL2,
+		       const edm::Handle<reco::VertexCollection> & pixelVertices,
 		       const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 		       TTree* HltTree) {
 
@@ -104,6 +115,45 @@ void HLTTrack::analyze(
 	pixeltracksL3eta[i] = candref->eta();
         pixeltracksL3phi[i] = candref->phi();   
 	pixeltracksL3vz[i] = candref->vz();
+	
+	if (IsoPixelTrackL2.isValid()) {
+	  double minDR=100;
+	  edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candrefl2;
+	  edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candrefl2matched;
+	  for (unsigned int j=0; j<IsoPixelTrackL2->size(); j++) 
+	    { 
+	      candrefl2 = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackL2, j);
+	      double drL3L2 = deltaR(candrefl2->eta(), candrefl2->phi(),candref->eta(), candref->phi());
+	      if (drL3L2<minDR)
+		{
+		  candrefl2matched=candrefl2;
+		  minDR=drL3L2;
+		}
+	    }
+	  if (candrefl2matched.isNonnull())
+	    {
+	      isopixeltrackL2pt[i]=candrefl2matched->pt();
+	      isopixeltrackL2eta[i]=candrefl2matched->eta();
+	      if (pixelVertices.isValid()) 
+		{
+		  double minDZ=100;
+		  edm::Ref<reco::VertexCollection> vertref; 
+		  edm::Ref<reco::VertexCollection> vertrefMatched;
+		  for (unsigned int k=0; k<pixelVertices->size(); k++)
+		    {
+		      vertref=edm::Ref<reco::VertexCollection>(pixelVertices, k);
+		      double dz=fabs(candrefl2matched->track()->dz(vertref->position()));
+		      if (dz<minDZ)
+			{
+			  minDZ=dz;
+			  vertrefMatched=vertref;
+			}
+		    }
+		  if (vertrefMatched.isNonnull()) isopixeltrackL2dXY[i] = candrefl2matched->track()->dxy(vertref->position());
+		  else isopixeltrackL2dXY[i]=0;
+		}
+	    }
+	}
       } 
   }
   else {npixeltracksL3 = 0;} 

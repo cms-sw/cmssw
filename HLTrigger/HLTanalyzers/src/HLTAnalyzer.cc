@@ -126,7 +126,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   HORecHitTag_              = conf.getParameter<edm::InputTag> ("HORecHits");  
   HFRecHitTag_              = conf.getParameter<edm::InputTag> ("HFRecHits");  
   IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
-
+  IsoPixelTrackTagL2_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL2");
+  IsoPixelTrackVerticesTag_       = conf.getParameter<edm::InputTag> ("IsoPixelTrackVertices");
+  
   // Track OpenHLT input collections
   PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
 
@@ -249,6 +251,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<HORecHitCollection>             horechits;   
   edm::Handle<HFRecHitCollection>             hfrechits;   
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL3; 
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL2;	
+  edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
   edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
 
   // new stuff for the egamma EleId
@@ -375,6 +379,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
   getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
   getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
+  getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
+  getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
   getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
 
   // print missing collections
@@ -474,6 +480,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   track_analysis_.analyze( 
     isopixeltracksL3, 
+    isopixeltracksL2,
+    isopixeltrackPixVertices,			  
     pixeltracksL3, 
     HltTree); 
 

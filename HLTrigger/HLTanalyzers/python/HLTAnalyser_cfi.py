@@ -92,6 +92,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
     IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
+    IsoPixelTracksL2            = cms.InputTag("hltIsolPixelTrackProd1E31"),
+    IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
 
     ### Track settings
     PixelTracksL3               = cms.InputTag("hltPixelCands"),                         

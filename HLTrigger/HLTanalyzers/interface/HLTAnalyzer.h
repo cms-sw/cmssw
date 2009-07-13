@@ -134,7 +134,9 @@ private:
   edm::InputTag HBHERecHitTag_;   
   edm::InputTag HORecHitTag_;   
   edm::InputTag HFRecHitTag_;   
-  edm::InputTag IsoPixelTrackTagL3_; 
+  edm::InputTag IsoPixelTrackTagL3_;
+  edm::InputTag IsoPixelTrackTagL2_; 
+  edm::InputTag IsoPixelTrackVerticesTag_;
 
   // Track OpenHLT input collections
   edm::InputTag PixelTracksTagL3_; 
