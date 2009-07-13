@@ -19,12 +19,12 @@ process.eegeom = cms.ESSource("EmptyESSource",
 ## process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 # or Get DB parameters 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "MC_31X_V2::All"
+process.GlobalTag.globaltag = "GR09_31X_V2P::All"
 
 
 #########################
 process.source = cms.Source("EmptySource",
-       firstRun = cms.untracked.uint32(200000) ### need to use latest run to pick-up update values from DB 
+       firstRun = cms.untracked.uint32(100000000) ### need to use latest run to pick-up update values from DB 
 )
 
 
@@ -58,7 +58,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
 
-    forcedPedestalValue = cms.int32(-1),   ## use this value instead of getting it from DB or MC (-1 means use DB or MC)
+    forcedPedestalValue = cms.int32(-2),    ## use this value instead of getting it from DB or MC (-1 means use DB or MC. -2 used to cope with FENIX bug)
     forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
