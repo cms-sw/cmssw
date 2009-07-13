@@ -159,7 +159,7 @@ L1CaloCluster::isEGamma() const
 bool
 L1CaloCluster::isIsoEGamma() const
 {
-  return (!fg() && eGamma() &&isoEG()); 
+  return (!fg() && eGamma() &&isoEG() && isCentral()); 
 }
 
 bool
