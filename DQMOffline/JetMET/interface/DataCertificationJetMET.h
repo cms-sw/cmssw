@@ -50,6 +50,7 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
 
    int verbose_;
    int testType_;
+   bool InMemory_;
 
 };
 
