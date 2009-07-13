@@ -1,0 +1,51 @@
+<TESTSCONFIGURATION>
+
+#####
+
+<QTEST name="phiQTest">    
+   <TYPE>NoisyChannel</TYPE>                          <!--  NAME OF QUALITY TEST TO RUN  -->
+   <PARAM name="tolerance">0.5</PARAM>
+   <PARAM name="neighbours">5</PARAM>
+   <PARAM name="error">0.80</PARAM>
+   <PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+<LINK name="JetMET/MET/CaloMET/METTask_CaloMETPhi">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">phiQTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/CaloMETNoHF/METTask_CaloMETPhi">          <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">phiQTest</TestName>
+</LINK>
+
+#####
+
+<QTEST name="meanQTest">
+        <TYPE>MeanWithinExpected</TYPE> 
+        <PARAM name="mean">0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-10</PARAM>
+        <PARAM name="xmax">10</PARAM>
+        <PARAM name="error">0.50</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="JetMET/MET/CaloMET/METTask_CaloMEx">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanQTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/CaloMET/METTask_CaloMEy">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanQTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/CaloMETNoHF/METTask_CaloMEx">          <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanQTest</TestName>
+</LINK>
+
+<LINK name="JetMET/MET/CaloMETNoHF/METTask_CaloMEy">          <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">meanQTest</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>
