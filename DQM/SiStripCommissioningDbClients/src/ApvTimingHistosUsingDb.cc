@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.25 2009/05/29 12:34:49 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.26 2009/06/18 20:52:36 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -143,8 +143,9 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
+
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
-    
+
     // Check device type
     if ( (*idevice)->getDeviceType() != PLL ) { continue; }
     
@@ -190,9 +191,14 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	}
 	
 	// Calculate coarse and fine delays
-	uint32_t delay = static_cast<uint32_t>( rint( anal->delay() * 24. / 25. ) ); 
+        int32_t delay = static_cast<int32_t>( rint( anal->delay() )*24./25 );
+
 	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
-	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
+             + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
+        if ( ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24 < 0 ) {
+          coarse -= 1;
+	  delay += 24;
+	}
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
 	
 	// Record PPLs maximum coarse setting
