@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.104 2009/07/10 11:41:04 dshpakov Exp $
+// $Id: StorageManager.cc,v 1.105 2009/07/10 14:51:12 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -27,7 +27,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.104 2009/07/10 11:41:04 dshpakov Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.105 2009/07/10 14:51:12 dshpakov Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -199,7 +199,7 @@ void StorageManager::startWorkerThreads()
 
     notifyQualified("fatal", e);
 
-    _sharedResources->moveToFailedState( e.what() );
+    _sharedResources->moveToFailedState( e.what() + xcept::stdformat_exception_history(e) );
   }
   catch(std::exception &e)
   {
@@ -704,7 +704,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
       sentinelException, errorMsg, excpt);
       notifyQualified("error", sentinelException);
 
-      writeErrorString( out, errorMsg );
+      writeErrorString( out, errorMsg + xcept::stdformat_exception_history(excpt) );
       return;
     }
   catch ( ... )
@@ -874,7 +874,7 @@ StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Outp
       sentinelException, errorMsg, excpt);
       notifyQualified("error", sentinelException);
 
-      writeErrorString( out, errorMsg );
+      writeErrorString( out, errorMsg + xcept::stdformat_exception_history(excpt) );
       return;
     }
   catch ( ... )

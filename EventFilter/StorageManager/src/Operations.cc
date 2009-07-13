@@ -1,4 +1,4 @@
-// $Id: Operations.cc,v 1.5 2009/07/03 19:31:19 mommsen Exp $
+// $Id: Operations.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
@@ -91,7 +91,7 @@ void Operations::safeEntryAction( Notifier* n )
           XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
                                 sentinelException, msg, e );
           n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
+          moveToFailedState( msg + xcept::stdformat_exception_history(e) );
         }
       catch(...)
         {
@@ -151,7 +151,7 @@ void Operations::safeExitAction( Notifier* n )
           XCEPT_DECLARE_NESTED( stor::exception::StateTransition,
                                 sentinelException, msg, e );
           n->tellSentinel( "fatal", sentinelException );
-          moveToFailedState( msg );
+          moveToFailedState( msg + xcept::stdformat_exception_history(e) );
         }
       catch(...)
         {
