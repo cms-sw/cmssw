@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.17 2009/05/29 13:28:21 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.18 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -160,6 +160,14 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
   SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
   for ( ; ip != jp; ++ip ) {
 
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Starting from partition " << ip->first
+      << " with versions:\n" << std::dec
+      << "   FED:  " << ip->second.fedVersion().first  << "." << ip->second.fedVersion().second << "\n"
+      << "   FEC:  " << ip->second.fecVersion().first  << "." << ip->second.fecVersion().second << "\n"
+      << "   Mask: " << ip->second.maskVersion().first << "." << ip->second.maskVersion().second;
+
     // Upload commissioning analysis results 
     SiStripConfigDb::AnalysisDescriptionsV anals;
     createAnalyses( anals );
@@ -188,11 +196,34 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       edm::LogVerbatim(mlDqmClient_) 
 	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Upload of analysis descriptions to DB finished!";
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " TEST! No analysis descriptions will be uploaded to DB...";
-  }
+    } else {
+      edm::LogWarning(mlDqmClient_) 
+        << "[CommissioningHistosUsingDb::" << __func__ << "]"
+        << " TEST! No analysis descriptions will be uploaded to DB...";
+    }
+
+    if ( uploadConf_ ) {
+      SiStripDbParams::SiStripPartitions::const_iterator ip = db_->dbParams().partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
+      for ( ; ip != jp; ++ip ) {
+        DeviceFactory* df = db_->deviceFactory();
+        tkStateVector states = df->getCurrentStates();
+        tkStateVector::const_iterator istate = states.begin();
+        tkStateVector::const_iterator jstate = states.end();
+        while ( istate != jstate ) {
+          if ( *istate && ip->first == (*istate)->getPartitionName() ) { break; }
+          istate++;
+        }
+        // Set versions if state was found
+        if ( istate != states.end() ) {
+          edm::LogVerbatim(mlDqmClient_) 
+            << "[CommissioningHistosUsingDb::" << __func__ << "]"
+            << " Created new version for partition " << ip->first
+            << ". Current state:\n" << std::dec
+            << "   FED:  " << (*istate)->getFedVersionMajorId() << "." << (*istate)->getFedVersionMinorId();
+        }
+      }
+    }
 
   }
   
