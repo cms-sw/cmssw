@@ -11,7 +11,7 @@ Tracer = cms.Service(
 
 # Conditions
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = "IDEAL_30X::All" 
+GlobalTag.globaltag = "MC_31X_V2::All" 
 
 # Region cabling
 from Configuration.StandardSequences.Geometry_cff import *
