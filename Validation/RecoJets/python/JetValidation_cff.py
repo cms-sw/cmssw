@@ -8,12 +8,9 @@ import FWCore.ParameterSet.Config as cms
 from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 
-#process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-#process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
-#process.load("JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff")
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
-from JetMETCorrections.Configuration.ZSPJetCorrections152_cff import *
-from JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff import *
+from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
+from JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff import *
 
 from Validation.RecoJets.JetValidation_cfi import *
 
