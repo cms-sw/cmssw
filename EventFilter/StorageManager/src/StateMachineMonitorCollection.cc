@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.cc,v 1.3 2009/07/09 15:34:29 mommsen Exp $
+// $Id: StateMachineMonitorCollection.cc,v 1.4 2009/07/10 09:19:17 dshpakov Exp $
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
@@ -8,9 +8,9 @@ using namespace stor;
 StateMachineMonitorCollection::StateMachineMonitorCollection() :
 MonitorCollection(),
 _externallyVisibleState( "unknown" ),
-_stateName( "unknown" ),
 _statusMessageAvailable( false ),
-_statusMessage( "" )
+_statusMessage( "" ),
+_stateName( "unknown" )
 {}
 
 
