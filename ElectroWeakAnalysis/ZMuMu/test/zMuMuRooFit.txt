@@ -1,0 +1,18 @@
+#"InitValue L (lo - hi) B(nBins)" for variable param. "Value C" for constant param. ORDER: Yield - nbkg_mutrk - nbkg_mumuNotIso - eff_tk - eff_sa - eff_iso -  eff_hlt -  alpha -  a0 -   a1 -   a2 -   beta -  b0 -   b1  -  b2 ## Default Yield value for signal and background at 45 pb-1, rescaled for tiy at the setted luminosity
+17000 L(0 - 10000000) B(1000) 
+800 L (0 - 10000000) B(1000)  
+1200 L (0 - 10000000) B(1000)   
+0.998 L (0.001 - 1.001) B(100) 
+0.989 L (0.001 - 1.001) B(100) 
+0.982 L (0.001 - 1.001) B(100) 
+0.916 L (0.001 - 1.001) B(100) 
+-0.0142615 L (-1. -   1.) B(200) 
+1.09558 L (0. -   10.) B(100) 
+-0.00670222 L (-100 -   100.) B(100) 
+0. C
+-0.0110013 L (-1. -   1.) B(200) 
+1.02109 L (0. -   10.) B(100) 
+-0.0078142 L (-100 -   100.) B(100) 
+0. C
+######
+PLEASE DO NOT ADD NEW LINES AND RESPECT THE ORDER
