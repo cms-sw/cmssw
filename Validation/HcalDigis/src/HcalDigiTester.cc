@@ -59,14 +59,20 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //    std::cout << "source HepMCProduct found"<< std::endl;
   }
   
-
+  // MC particle with highest pt is taken as a direction reference  
+  double maxPt = -99999.;
+  int npart    = 0;
   const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	p != myGenEvent->particles_end(); ++p ) {
-    fphi_mc = (*p)->momentum().phi();
-    feta_mc = (*p)->momentum().eta();
+    double phip = (*p)->momentum().phi();
+    double etap = (*p)->momentum().eta();
+    //    phi_MC = phip;
+    //    eta_MC = etap;
+    double pt  = (*p)->momentum().perp();
+    if(pt > maxPt) { npart++; maxPt = pt; fphi_mc = phip; feta_mc = etap; }
   }
-
+  //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
 
   typename   edm::Handle<edm::SortedCollection<Digi> > digiCollection;
   typename edm::SortedCollection<Digi>::const_iterator digiItr;
