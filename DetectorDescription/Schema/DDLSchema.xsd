@@ -859,7 +859,14 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
-  
+  <xsd:complexType name="SphereType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="SphereAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+ 
   <!-- Elements -->
   
   <xsd:element name="Solid" type="SolidType" abstract="true"/>
@@ -881,6 +888,7 @@
   <xsd:element name="ZSection" type="ZSectionType"/>
   <xsd:element name="RZPoint" type="RZPointType"/>
   <xsd:element name="ReflectionSolid" type="ReflectionSolidType" substitutionGroup="Solid"/>
+  <xsd:element name="Sphere" type="SphereType" substitutionGroup="Solid"/>
 
   <!-- Groups (non-Attribute) -->
 
@@ -1011,6 +1019,14 @@
     <xsd:attribute name="z" use="optional" type="lengthT"/>
     <xsd:attribute name="rotation" use="optional" type="xsd:string"/>
  -->
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="SphereAttributes">
+    <xsd:attribute name="innerRadius" use="required" type="lengthT"/>
+    <xsd:attribute name="outerRadius" use="required" type="lengthT"/>
+    <xsd:attribute name="startPhi" use="optional" type="angleT"/>
+    <xsd:attribute name="deltaPhi" use="optional" type="angleT"/>
+    <xsd:attribute name="startTheta" use="optional" type="angleT"/>
+    <xsd:attribute name="deltaTheta" use="optional" type="angleT"/>
   </xsd:attributeGroup>
   <xsd:attributeGroup name="SolidAttributes">
     <xsd:attribute name="name" use="required" type="xsd:string"/>
