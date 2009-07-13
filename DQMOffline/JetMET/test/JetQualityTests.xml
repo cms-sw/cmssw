@@ -1,0 +1,17 @@
+<TESTSCONFIGURATION>
+
+#####
+<QTEST name="KolmogorovTest">
+        <TYPE>Comp2RefKolmogorov</TYPE> 
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="JetMET/Jet/*/Eta">              <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">KolmogorovTest</TestName>
+</LINK>
+
+#####
+
+</TESTSCONFIGURATION>
