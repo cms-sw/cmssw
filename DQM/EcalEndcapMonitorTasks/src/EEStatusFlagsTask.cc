@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2009/06/18 14:47:10 $
- * $Revision: 1.20 $
+ * $Date: 2009/06/23 06:41:51 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -175,7 +175,7 @@ void EEStatusFlagsTask::setup(void){
       meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO+L1A", 1);
       meFEchErrors_[i][2]->setBinLabel(1+13, "H PARITY", 1);
       meFEchErrors_[i][2]->setBinLabel(1+14, "V PARITY", 1);
-      meFEchErrors_[i][2]->setBinLabel(1+15, "H+V PARITY", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+15, "FORCED ZS", 1);
       dqmStore_->tag(meFEchErrors_[i][2], i+1);
     }
 
