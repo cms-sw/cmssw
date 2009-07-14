@@ -206,45 +206,26 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     }
   }
 
-  bool userTime=false;
+
   cond::TimeType timetype = (*p).second->proxy()->timetype();
 
-  cond::Time_t abtime;
-  if( timetype == cond::timestamp ){
-    abtime=(cond::Time_t)iTime.time().value();
-  }else if( timetype == cond::runnumber){
-    abtime=(cond::Time_t)iTime.eventID().run();
-  }else if( timetype ==  cond::lumiid ){
-    edm::LuminosityBlockID lum(iTime.eventID().run(), iTime.luminosityBlockNumber());
-    abtime=(cond::Time_t)lum.value();
-  }else{
-    userTime=true;
-  }
+  cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
+  bool userTime= (0==abtime);
   //std::cout<<"abtime "<<abtime<<std::endl;
 
   if (!userTime) {
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
+
+    // to force refresh we leave the interval open, so we will get call back at each event...
     
-    edm::IOVSyncValue start,stop;
-    
-    if( timetype == cond::timestamp ){
-      start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
-      stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
-    }else if( timetype == cond::runnumber ){
-      start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
-      stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
-    }else if( timetype == cond::lumiid ){
-      edm::LuminosityBlockID lumstart((boost::uint64_t)validity.first);
-      start=edm::IOVSyncValue(edm::EventID(lumstart.run(),0), lumstart.luminosityBlock());
-      edm::LuminosityBlockID lumstop((boost::uint64_t)validity.second);
-      stop=edm::IOVSyncValue(edm::EventID(lumstop.run(),edm::EventID::maxEventNumber()), lumstop.luminosityBlock());
-    }
-    
+    edm::IOVSyncValue start = cond::toIOVSyncValue(validity.first, timetype, true);
+    edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (validity.first, timetype)
+      : cond::toIOVSyncValue(validity.second, timetype, false);
+ 
     //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
     
-    // to force refresh we leave the interval open, so we will get call back at each event...
-    oInterval = edm::ValidityInterval( start, doRefresh ?  edm::IOVSyncValue::invalidIOVSyncValue() : stop );
+    oInterval = edm::ValidityInterval( start, stop );
     
   }
   

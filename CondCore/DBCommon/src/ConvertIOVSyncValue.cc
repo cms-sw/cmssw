@@ -7,10 +7,12 @@ namespace cond {
   edm::IOVSyncValue toIOVSyncValue(cond::Time_t time, cond::TimeType timetype, bool startOrStop) {
     switch (timetype) {
     case cond::runnumber :
-      return edm::IOVSyncValue( edm::EventID(time,0) );
+      return edm::IOVSyncValue( edm::EventID(time, 
+					     startOrStop ? 0 : edm::EventID::maxEventNumber()) );
     case cond::lumiid :
       edm::LuminosityBlockID l(time);
-      return edm::IOVSyncValue(edm::EventID(l.run(),startOrStop ? 0 : edm::EventID::maxEventNumber()), 
+      return edm::IOVSyncValue(edm::EventID(l.run(),
+					    startOrStop ? 0 : edm::EventID::maxEventNumber()), 
 			       l.luminosityBlock());
     case cond::timestamp :
       return edm::IOVSyncValue( edm::Timestamp(time));
@@ -19,7 +21,7 @@ namespace cond {
     }
   }
 
-  cond::Time_t fromIOVSyncValue(edm::IOVSyncValue const & time) {
+  cond::Time_t fromIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
     switch (timetype) {
     case cond::runnumber :
       return time.eventID().run();
@@ -32,6 +34,28 @@ namespace cond {
       return 0;
     }
   }
-  
+
+  // the minimal maximum-time an IOV can extend to
+  edm::IOVSyncValue limitedIOVSyncValue(cond::Time_t time, cond::TimeType timetype) {
+    switch (timetype) {
+    case cond::runnumber :
+      // last event of this run
+      return edm::IOVSyncValue( edm::EventID(time,edm::EventID::maxEventNumber()) );
+    case cond::lumiid :
+      // the same lumiblock
+      edm::LuminosityBlockID l(time);
+      return edm::IOVSyncValue(edm::EventID(l.run(), 
+					    startOrStop ? 0 : edm::EventID::maxEventNumber()), 
+			       l.luminosityBlock());
+    case cond::timestamp :
+      // next event ?
+      return edm::IOVSyncValue::invalidIOVSyncValue();
+    default:
+      return  edm::IOVSyncValue::invalidIOVSyncValue();
+    }
+
+
+  }
+
 }
 
