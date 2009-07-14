@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/06/12 12:31:37 $
- * $Revision: 1.167 $
+ * $Date: 2009/06/29 13:28:19 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  *
 */
@@ -135,30 +135,22 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meLedL2Timing_       = 0;
   meLedL2AmplOverPN_   = 0;
 
-  mePedestal_[0]       = 0;
-  mePedestal_[1]       = 0;
   mePedestalG01_[0]       = 0;
   mePedestalG01_[1]       = 0;
   mePedestalG06_[0]       = 0;
   mePedestalG06_[1]       = 0;
   mePedestalG12_[0]       = 0;
   mePedestalG12_[1]       = 0;
-  mePedestalPN_[0]     = 0;
-  mePedestalPN_[1]     = 0;
   mePedestalPNG01_[0]     = 0;
   mePedestalPNG01_[1]     = 0;
   mePedestalPNG16_[0]     = 0;
   mePedestalPNG16_[1]     = 0;
-  meTestPulse_[0]      = 0;
-  meTestPulse_[1]      = 0;
   meTestPulseG01_[0]      = 0;
   meTestPulseG01_[1]      = 0;
   meTestPulseG06_[0]      = 0;
   meTestPulseG06_[1]      = 0;
   meTestPulseG12_[0]      = 0;
   meTestPulseG12_[1]      = 0;
-  meTestPulsePN_[0]    = 0;
-  meTestPulsePN_[1]    = 0;
   meTestPulsePNG01_[0]    = 0;
   meTestPulsePNG01_[1]    = 0;
   meTestPulsePNG16_[0]    = 0;
@@ -199,10 +191,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meLedL1PNErr_         = 0;
   meLedL2Err_           = 0;
   meLedL2PNErr_         = 0;
-  mePedestalErr_        = 0;
-  mePedestalPNErr_      = 0;
-  meTestPulseErr_       = 0;
-  meTestPulsePNErr_     = 0;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -786,12 +774,6 @@ void EESummaryClient::setup(void) {
 
   }
 
-  if( mePedestal_[0] ) dqmStore_->removeElement( mePedestal_[0]->getName() );
-  sprintf(histo, "EEPT EE - pedestal quality summary");
-  mePedestal_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestal_[0]->setAxisTitle("jx", 1);
-  mePedestal_[0]->setAxisTitle("jy", 2);
-
   if( mePedestalG01_[0] ) dqmStore_->removeElement( mePedestalG01_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality G01 summary");
   mePedestalG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -810,12 +792,6 @@ void EESummaryClient::setup(void) {
   mePedestalG12_[0]->setAxisTitle("jx", 1);
   mePedestalG12_[0]->setAxisTitle("jy", 2);
 
-  if( mePedestalPN_[0] ) dqmStore_->removeElement( mePedestalPN_[0]->getName() );
-  sprintf(histo, "EEPT EE - PN pedestal quality summary");
-  mePedestalPN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPN_[0]->setAxisTitle("jx", 1);
-  mePedestalPN_[0]->setAxisTitle("jy", 2);
-
   if( mePedestalPNG01_[0] ) dqmStore_->removeElement( mePedestalPNG01_[0]->getName() );
   sprintf(histo, "EEPT EE - PN pedestal quality G01 summary");
   mePedestalPNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
@@ -827,12 +803,6 @@ void EESummaryClient::setup(void) {
   mePedestalPNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPNG16_[0]->setAxisTitle("jx", 1);
   mePedestalPNG16_[0]->setAxisTitle("jy", 2);
-
-  if( mePedestal_[1] ) dqmStore_->removeElement( mePedestal_[1]->getName() );
-  sprintf(histo, "EEPT EE + pedestal quality summary");
-  mePedestal_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestal_[1]->setAxisTitle("jx", 1);
-  mePedestal_[1]->setAxisTitle("jy", 2);
 
   if( mePedestalG01_[1] ) dqmStore_->removeElement( mePedestalG01_[1]->getName() );
   sprintf(histo, "EEPT EE + pedestal quality G01 summary");
@@ -852,12 +822,6 @@ void EESummaryClient::setup(void) {
   mePedestalG12_[1]->setAxisTitle("jx", 1);
   mePedestalG12_[1]->setAxisTitle("jy", 2);
 
-  if( mePedestalPN_[1] ) dqmStore_->removeElement( mePedestalPN_[1]->getName() );
-  sprintf(histo, "EEPT EE + PN pedestal quality summary");
-  mePedestalPN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPN_[1]->setAxisTitle("jx", 1);
-  mePedestalPN_[1]->setAxisTitle("jy", 2);
-
   if( mePedestalPNG01_[1] ) dqmStore_->removeElement( mePedestalPNG01_[1]->getName() );
   sprintf(histo, "EEPT EE + PN pedestal quality G01 summary");
   mePedestalPNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
@@ -869,26 +833,6 @@ void EESummaryClient::setup(void) {
   mePedestalPNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPNG16_[1]->setAxisTitle("jx", 1);
   mePedestalPNG16_[1]->setAxisTitle("jy", 2);
-
-  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
-  sprintf(histo, "EEPT pedestal quality errors summary");
-  mePedestalErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-  for (int i = 0; i < 18; i++) {
-    mePedestalErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-  }
-
-  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
-  sprintf(histo, "EEPT PN pedestal quality errors summary");
-  mePedestalPNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-  for (int i = 0; i < 18; i++) {
-    mePedestalPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-  }
-
-  if( meTestPulse_[0] ) dqmStore_->removeElement( meTestPulse_[0]->getName() );
-  sprintf(histo, "EETPT EE - test pulse quality summary");
-  meTestPulse_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulse_[0]->setAxisTitle("jx", 1);
-  meTestPulse_[0]->setAxisTitle("jy", 2);
 
   if( meTestPulseG01_[0] ) dqmStore_->removeElement( meTestPulseG01_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality G01 summary");
@@ -908,12 +852,6 @@ void EESummaryClient::setup(void) {
   meTestPulseG12_[0]->setAxisTitle("jx", 1);
   meTestPulseG12_[0]->setAxisTitle("jy", 2);
 
-  if( meTestPulsePN_[0] ) dqmStore_->removeElement( meTestPulsePN_[0]->getName() );
-  sprintf(histo, "EETPT EE - PN test pulse quality summary");
-  meTestPulsePN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePN_[0]->setAxisTitle("jx", 1);
-  meTestPulsePN_[0]->setAxisTitle("jy", 2);
-
   if( meTestPulsePNG01_[0] ) dqmStore_->removeElement( meTestPulsePNG01_[0]->getName() );
   sprintf(histo, "EETPT EE - PN test pulse quality G01 summary");
   meTestPulsePNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
@@ -925,12 +863,6 @@ void EESummaryClient::setup(void) {
   meTestPulsePNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePNG16_[0]->setAxisTitle("jx", 1);
   meTestPulsePNG16_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulse_[1] ) dqmStore_->removeElement( meTestPulse_[1]->getName() );
-  sprintf(histo, "EETPT EE + test pulse quality summary");
-  meTestPulse_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulse_[1]->setAxisTitle("jx", 1);
-  meTestPulse_[1]->setAxisTitle("jy", 2);
 
   if( meTestPulseG01_[1] ) dqmStore_->removeElement( meTestPulseG01_[1]->getName() );
   sprintf(histo, "EETPT EE + test pulse quality G01 summary");
@@ -950,12 +882,6 @@ void EESummaryClient::setup(void) {
   meTestPulseG12_[1]->setAxisTitle("jx", 1);
   meTestPulseG12_[1]->setAxisTitle("jy", 2);
 
-  if( meTestPulsePN_[1] ) dqmStore_->removeElement( meTestPulsePN_[1]->getName() );
-  sprintf(histo, "EETPT EE + PN test pulse quality summary");
-  meTestPulsePN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePN_[1]->setAxisTitle("jx", 1);
-  meTestPulsePN_[1]->setAxisTitle("jy", 2);
-
   if( meTestPulsePNG01_[1] ) dqmStore_->removeElement( meTestPulsePNG01_[1]->getName() );
   sprintf(histo, "EETPT EE + PN test pulse quality G01 summary");
   meTestPulsePNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
@@ -967,20 +893,6 @@ void EESummaryClient::setup(void) {
   meTestPulsePNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePNG16_[1]->setAxisTitle("jx", 1);
   meTestPulsePNG16_[1]->setAxisTitle("jy", 2);
-
-  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
-  sprintf(histo, "EETPT test pulse quality errors summary");
-  meTestPulseErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-  for (int i = 0; i < 18; i++) {
-    meTestPulseErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-  }
-
-  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
-  sprintf(histo, "EETPT PN test pulse quality errors summary");
-  meTestPulsePNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-  for (int i = 0; i < 18; i++) {
-    meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-  }
 
   if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   sprintf(histo, "EETPT test pulse amplitude G01 summary");
@@ -1209,12 +1121,6 @@ void EESummaryClient::cleanup(void) {
   if ( meLedL1AmplOverPN_ ) dqmStore_->removeElement( meLedL1AmplOverPN_->getName() );
   meLedL1AmplOverPN_ = 0;
 
-  if ( mePedestal_[0] ) dqmStore_->removeElement( mePedestal_[0]->getName() );
-  mePedestal_[0] = 0;
-
-  if ( mePedestal_[1] ) dqmStore_->removeElement( mePedestal_[1]->getName() );
-  mePedestal_[1] = 0;
-
   if ( mePedestalG01_[0] ) dqmStore_->removeElement( mePedestalG01_[0]->getName() );
   mePedestalG01_[0] = 0;
 
@@ -1233,15 +1139,6 @@ void EESummaryClient::cleanup(void) {
   if ( mePedestalG12_[1] ) dqmStore_->removeElement( mePedestalG12_[1]->getName() );
   mePedestalG12_[1] = 0;
 
-  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
-  mePedestalErr_ = 0;
-
-  if ( mePedestalPN_[0] ) dqmStore_->removeElement( mePedestalPN_[0]->getName() );
-  mePedestalPN_[0] = 0;
-
-  if ( mePedestalPN_[1] ) dqmStore_->removeElement( mePedestalPN_[1]->getName() );
-  mePedestalPN_[1] = 0;
-
   if ( mePedestalPNG01_[0] ) dqmStore_->removeElement( mePedestalPNG01_[0]->getName() );
   mePedestalPNG01_[0] = 0;
 
@@ -1253,15 +1150,6 @@ void EESummaryClient::cleanup(void) {
 
   if ( mePedestalPNG16_[1] ) dqmStore_->removeElement( mePedestalPNG16_[1]->getName() );
   mePedestalPNG16_[1] = 0;
-
-  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
-  mePedestalPNErr_ = 0;
-
-  if ( meTestPulse_[0] ) dqmStore_->removeElement( meTestPulse_[0]->getName() );
-  meTestPulse_[0] = 0;
-
-  if ( meTestPulse_[1] ) dqmStore_->removeElement( meTestPulse_[1]->getName() );
-  meTestPulse_[1] = 0;
 
   if ( meTestPulseG01_[0] ) dqmStore_->removeElement( meTestPulseG01_[0]->getName() );
   meTestPulseG01_[0] = 0;
@@ -1281,15 +1169,6 @@ void EESummaryClient::cleanup(void) {
   if ( meTestPulseG12_[1] ) dqmStore_->removeElement( meTestPulseG12_[1]->getName() );
   meTestPulseG12_[1] = 0;
 
-  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
-  meTestPulseErr_ = 0;
-
-  if ( meTestPulsePN_[0] ) dqmStore_->removeElement( meTestPulsePN_[0]->getName() );
-  meTestPulsePN_[0] = 0;
-
-  if ( meTestPulsePN_[1] ) dqmStore_->removeElement( meTestPulsePN_[1]->getName() );
-  meTestPulsePN_[1] = 0;
-
   if ( meTestPulsePNG01_[0] ) dqmStore_->removeElement( meTestPulsePNG01_[0]->getName() );
   meTestPulsePNG01_[0] = 0;
 
@@ -1301,9 +1180,6 @@ void EESummaryClient::cleanup(void) {
 
   if ( meTestPulsePNG16_[1] ) dqmStore_->removeElement( meTestPulsePNG16_[1]->getName() );
   meTestPulsePNG16_[1] = 0;
-
-  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
-  meTestPulsePNErr_ = 0;
 
   if ( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   meTestPulseAmplG01_ = 0;
@@ -1394,16 +1270,12 @@ void EESummaryClient::analyze(void) {
       meLaserL1_[1]->setBinContent( ix, iy, 6. );
       meLedL1_[0]->setBinContent( ix, iy, 6. );
       meLedL1_[1]->setBinContent( ix, iy, 6. );
-      mePedestal_[0]->setBinContent( ix, iy, 6. );
-      mePedestal_[1]->setBinContent( ix, iy, 6. );
       mePedestalG01_[0]->setBinContent( ix, iy, 6. );
       mePedestalG01_[1]->setBinContent( ix, iy, 6. );
       mePedestalG06_[0]->setBinContent( ix, iy, 6. );
       mePedestalG06_[1]->setBinContent( ix, iy, 6. );
       mePedestalG12_[0]->setBinContent( ix, iy, 6. );
       mePedestalG12_[1]->setBinContent( ix, iy, 6. );
-      meTestPulse_[0]->setBinContent( ix, iy, 6. );
-      meTestPulse_[1]->setBinContent( ix, iy, 6. );
       meTestPulseG01_[0]->setBinContent( ix, iy, 6. );
       meTestPulseG01_[1]->setBinContent( ix, iy, 6. );
       meTestPulseG06_[0]->setBinContent( ix, iy, 6. );
@@ -1426,14 +1298,10 @@ void EESummaryClient::analyze(void) {
 
       meLaserL1PN_[0]->setBinContent( ix, iy, 6. );
       meLaserL1PN_[1]->setBinContent( ix, iy, 6. );
-      mePedestalPN_[0]->setBinContent( ix, iy, 6. );
-      mePedestalPN_[1]->setBinContent( ix, iy, 6. );
       mePedestalPNG01_[0]->setBinContent( ix, iy, 6. );
       mePedestalPNG01_[1]->setBinContent( ix, iy, 6. );
       mePedestalPNG16_[0]->setBinContent( ix, iy, 6. );
       mePedestalPNG16_[1]->setBinContent( ix, iy, 6. );
-      meTestPulsePN_[0]->setBinContent( ix, iy, 6. );
-      meTestPulsePN_[1]->setBinContent( ix, iy, 6. );
       meTestPulsePNG01_[0]->setBinContent( ix, iy, 6. );
       meTestPulsePNG01_[1]->setBinContent( ix, iy, 6. );
       meTestPulsePNG16_[0]->setBinContent( ix, iy, 6. );
@@ -1485,38 +1353,26 @@ void EESummaryClient::analyze(void) {
   meLedL1Ampl_->Reset();
   meLedL1Timing_->Reset();
   meLedL1AmplOverPN_->Reset();
-  mePedestal_[0]->setEntries( 0 );
-  mePedestal_[1]->setEntries( 0 );
   mePedestalG01_[0]->setEntries( 0 );
   mePedestalG01_[1]->setEntries( 0 );
   mePedestalG06_[0]->setEntries( 0 );
   mePedestalG06_[1]->setEntries( 0 );
   mePedestalG12_[0]->setEntries( 0 );
   mePedestalG12_[1]->setEntries( 0 );
-  mePedestalErr_->Reset();
-  mePedestalPN_[0]->setEntries( 0 );
-  mePedestalPN_[1]->setEntries( 0 );
   mePedestalPNG01_[0]->setEntries( 0 );
   mePedestalPNG01_[1]->setEntries( 0 );
   mePedestalPNG16_[0]->setEntries( 0 );
   mePedestalPNG16_[1]->setEntries( 0 );
-  mePedestalPNErr_->Reset();
-  meTestPulse_[0]->setEntries( 0 );
-  meTestPulse_[1]->setEntries( 0 );
   meTestPulseG01_[0]->setEntries( 0 );
   meTestPulseG01_[1]->setEntries( 0 );
   meTestPulseG06_[0]->setEntries( 0 );
   meTestPulseG06_[1]->setEntries( 0 );
   meTestPulseG12_[0]->setEntries( 0 );
   meTestPulseG12_[1]->setEntries( 0 );
-  meTestPulseErr_->Reset();
-  meTestPulsePN_[0]->setEntries( 0 );
-  meTestPulsePN_[1]->setEntries( 0 );
   meTestPulsePNG01_[0]->setEntries( 0 );
   meTestPulsePNG01_[1]->setEntries( 0 );
   meTestPulsePNG16_[0]->setEntries( 0 );
   meTestPulsePNG16_[1]->setEntries( 0 );
-  meTestPulsePNErr_->Reset();
   meTestPulseAmplG01_->Reset();
   meTestPulseAmplG06_->Reset();
   meTestPulseAmplG12_->Reset();
@@ -1559,15 +1415,6 @@ void EESummaryClient::analyze(void) {
 
     TH2F* h2;
     TProfile2D* h2d;
-
-    // fill the gain value priority map<id,priority>
-    map<float,float> priority;
-    priority.insert( pair<float,float>(0,3) );
-    priority.insert( pair<float,float>(1,1) );
-    priority.insert( pair<float,float>(2,2) );
-    priority.insert( pair<float,float>(3,2) );
-    priority.insert( pair<float,float>(4,3) );
-    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1806,33 +1653,9 @@ void EESummaryClient::analyze(void) {
             me_03 = eepc->meg03_[ism-1];
 
             if ( me_01 && me_02 && me_03 ) {
-              float xval=2;
               float val_01=me_01->getBinContent(ix,iy);
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
-
-              vector<float> maskedVal, unmaskedVal;
-              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==3) xval = brightColor;
-              else if(maskedVal.size()==3) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
 
               if ( me_01->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
@@ -1858,15 +1681,6 @@ void EESummaryClient::analyze(void) {
                 }
               }
 
-              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestal_[0]->setBinContent( 101 - jx, jy, xval );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) mePedestal_[1]->setBinContent( jx, jy, xval );
-                }
-                if ( xval == 0 ) mePedestalErr_->Fill( ism );
-              }
-
             }
 
           }
@@ -1878,33 +1692,9 @@ void EESummaryClient::analyze(void) {
             me_03 = eetpc->meg03_[ism-1];
 
             if ( me_01 && me_02 && me_03 ) {
-              float xval=2;
               float val_01=me_01->getBinContent(ix,iy);
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
-
-              vector<float> maskedVal, unmaskedVal;
-              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==3) xval = brightColor;
-              else if(maskedVal.size()==3) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
 
               if ( me_01->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
@@ -1928,15 +1718,6 @@ void EESummaryClient::analyze(void) {
                 } else {
                   if ( Numbers::validEE(ism, jx, jy) ) meTestPulseG12_[1]->setBinContent( jx, jy, val_03 );
                 }
-              }
-
-              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulse_[0]->setBinContent( 101 - jx, jy, xval );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meTestPulse_[1]->setBinContent( jx, jy, xval );
-                }
-                if ( xval == 0 ) meTestPulseErr_->Fill( ism );
               }
 
             }
