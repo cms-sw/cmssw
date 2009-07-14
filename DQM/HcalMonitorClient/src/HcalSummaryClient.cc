@@ -31,7 +31,6 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // Find out which subtasks are being run
-  // At the moment, only hot/dead/pedestal comply with correct format of histograms; ignore all others
   dataFormatMon_.onoff=(ps.getUntrackedParameter<bool>("DataFormatClient",false));
   digiMon_.onoff=(ps.getUntrackedParameter<bool>("DigiClient",false));
   recHitMon_.onoff=(ps.getUntrackedParameter<bool>("RecHitClient",false));
@@ -40,52 +39,50 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   //ledMon_.onoff=(ps.getUntrackedParameter<bool>("LEDClient",false));
   hotCellMon_.onoff=(ps.getUntrackedParameter<bool>("HotCellClient",false));
   deadCellMon_.onoff=(ps.getUntrackedParameter<bool>("DeadCellClient",false));
-  //trigPrimMon_.onoff=(ps.getUntrackedParameter<bool>("TrigPrimClient",false));
-  //caloTowerMon_.onoff=(ps.getUntrackedParameter<bool>("CaloTowerClient",false));
+  trigPrimMon_.onoff=(ps.getUntrackedParameter<bool>("TrigPrimClient",false));
+  caloTowerMon_.onoff=(ps.getUntrackedParameter<bool>("CaloTowerClient",false));
 
-  // Set histogram problem names & directories  for each subtask
-  dataFormatMon_.baseProblemName  = "DataFormatMonitor/ HardwareWatchCells"; // untested
-  digiMon_.baseProblemName        = "DigiMonitor_Hcal/ ProblemDigis";
-  recHitMon_.baseProblemName      = "RecHitMonitor_Hcal/ ProblemRecHits";
-  pedestalMon_.baseProblemName    = "BaselineMonitor_Hcal/ ProblemPedestals";
-  ledMon_.baseProblemName         = "";
-  hotCellMon_.baseProblemName     = "HotCellMonitor_Hcal/ ProblemHotCells";
-  deadCellMon_.baseProblemName    = "DeadCellMonitor_Hcal/ ProblemDeadCells";
-  trigPrimMon_.baseProblemName    = "";
-  caloTowerMon_.baseProblemName   = "";
-
-  dataFormatMon_.problemName  = " Hardware Watch Cells";
-  digiMon_.problemName        = " Problem Digi Rate";
-  recHitMon_.problemName      = " Problem RecHit Rate";
-  pedestalMon_.problemName    = " Problem Pedestal Rate";
-  ledMon_.problemName         = "";
-  hotCellMon_.problemName     = " Problem Hot Cell Rate";
-  deadCellMon_.problemName    = " Problem Dead Cell Rate";
-  trigPrimMon_.problemName    = "";
-  caloTowerMon_.problemName   = "";
-
-  dataFormatMon_.problemDir   = "DataFormatMonitor";
-  digiMon_.problemDir         = "DigiMonitor_Hcal/problem_digis";
-  recHitMon_.problemDir       = "RecHitMonitor_Hcal/problem_rechits";
-  pedestalMon_.problemDir     = "BaselineMonitor_Hcal/problem_pedestals";
-  ledMon_.problemDir          = "";
-  hotCellMon_.problemDir      = "HotCellMonitor_Hcal/problem_hotcells";
-  deadCellMon_.problemDir     = "DeadCellMonitor_Hcal/problem_deadcells";
-  trigPrimMon_.problemDir     = "";
-  caloTowerMon_.problemDir    = "";
+  if (dataFormatMon_.onoff)
+    dataFormatMon_.Setup("DataFormatMonitor",  // directory where problem depth histograms stored
+			 " Hardware Watch Cells", // base name of depth histograms
+			 "DataFormatMonitor/ HardwareWatchCells", // 
+			 "DataFormat",
+			 0.0);
   
-  dataFormatMon_.ievtName   = "DataFormatMonitor/Data Format Task Event Number";
-  digiMon_.ievtName         = "DigiMonitor_Hcal/Digi Task Event Number";
-  recHitMon_.ievtName       = "RecHitMonitor_Hcal/RecHit Task Event Number";
-  pedestalMon_.ievtName     = "BaselineMonitor_Hcal/Pedestal Task Event Number";
-  ledMon_.ievtName          = "";
-  hotCellMon_.ievtName      = "HotCellMonitor_Hcal/Hot Cell Task Event Number";
-  deadCellMon_.ievtName     = "DeadCellMonitor_Hcal/Dead Cell Task Event Number";
-  trigPrimMon_.ievtName     = "";
-  caloTowerMon_.ievtName    = "";
-
+  if (digiMon_.onoff)
+    digiMon_.Setup("DigiMonitor_Hcal/problem_digis",
+		   " Problem Digi Rate",
+		   "DigiMonitor_Hcal/ ProblemDigis",
+		   "Digi",
+		   0.0);
+  if (recHitMon_.onoff)
+    recHitMon_.Setup("RecHitMonitor_Hcal/problem_rechits",
+		     " Problem RecHit Rate",
+		     "RecHitMonitor_Hcal/ ProblemRecHits",
+		     "RecHit",
+		     ps.getUntrackedParameter<double>("RecHitClient_minErrorFlag",0.0));
+  if (pedestalMon_.onoff)
+    pedestalMon_.Setup("BaselineMonitor_Hcal/problem_pedestals",
+		       " Problem Pedestal Rate",
+		       "BaselineMonitor_Hcal/ ProblemPedestals",
+		       "PedEstimate",
+		       ps.getUntrackedParameter<double>("PedestalClient_minErrorFlag",0.05));
+		       
+  if (hotCellMon_.onoff)
+    hotCellMon_.Setup("HotCellMonitor_Hcal/problem_hotcells",
+		      " Problem Hot Cell Rate",
+		      "HotCellMonitor_Hcal/ ProblemHotCells",
+		      "HotCell",
+		      ps.getUntrackedParameter<double>("HotCellClient_minErrorFlag",0.05));
+  if (deadCellMon_.onoff)
+    deadCellMon_.Setup("DeadCellMonitor_Hcal/problem_deadcells",
+		       " Problem Dead Cell Rate",
+		       "DeadCellMonitor_Hcal/ ProblemDeadCells",
+		       "DeadCell",
+		       ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.05));
 
   // All initial status floats set to -1 (unknown)
+  // status floats give fraction of good cells in detector
   status_HB_=-1;
   status_HE_=-1;
   status_HO_=-1;
@@ -98,6 +95,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   subdetCells_.insert(make_pair("HE",2592));
   subdetCells_.insert(make_pair("HO",2160));
   subdetCells_.insert(make_pair("HF",1728));
+  subdetCells_.insert(make_pair("ZDC",18));
 
   // Assume subdetectors absent at start
   HBpresent_=0;
@@ -105,28 +103,6 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   HOpresent_=0;
   HFpresent_=0;
   ZDCpresent_=0;
-
-  // Set eta, phi boundaries for overall report summary map
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", ETAMAX);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", ETAMIN);
-  if (etaMax_ > 44.5)
-    {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<std::endl;
-      std::cout <<"                      Value being set back to 44.5."<<std::endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<std::endl;
-      etaMax_ = 44.5;
-    }
-  if (etaMin_ < ETAMIN)
-    {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<std::endl;
-      std::cout <<"                      Value being set back to -44.5."<<std::endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<std::endl;
-      etaMin_ = -44.5;
-    }
-  etaBins_ = (int)(etaMax_ - etaMin_);
-  phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", PHIMAX);
-  phiMin_ = ps.getUntrackedParameter<double>("MinPhi", PHIMIN);
-  phiBins_ = (int)(phiMax_ - phiMin_);
 
 } // HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
 
@@ -190,7 +166,8 @@ void HcalSummaryClient::setup(void)
   for (unsigned int i=0;i<5;++i)
     {
       // Create floats showing subtasks status
-      dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );  histo<<"Hcal_"<<subdets[i].c_str();
+      dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );  
+      histo<<"Hcal_"<<subdets[i].c_str();
       me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
       if (me)
 	dqmStore_->removeElement(me->getName());
@@ -199,20 +176,40 @@ void HcalSummaryClient::setup(void)
       histo.str("");
     }
 
-  // Make overall 2D histogram
+  // Make depth 2D histograms
   dqmStore_->setCurrentFolder(prefixME_+"/EventInfo/");
-  histo<<"advancedReportSummaryMap";
-  me=dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
+
+  histo<<"HB HE HF Depth 1 Summary Map";
+  me = dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
-  me = dqmStore_->book2D(histo.str().c_str(), histo.str().c_str(), 
-			 85,-42.5,42.5,
-			 72,0.5,72.5);
+  histo<<"HB HE HF Depth 2 Summary Map";
+  me = dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
+  if (me)
+    dqmStore_->removeElement(me->getName());
+  histo<<"HE Depth 3 Summary Map";
+  me = dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
+  if (me)
+    dqmStore_->removeElement(me->getName());
+  histo<<"HO Depth 4 Summary Map";
+  me = dqmStore_->get(prefixME_+"/EventInfo/"+histo.str().c_str());
+  if (me)
+    dqmStore_->removeElement(me->getName());
+
+  EtaPhiHists SummaryMapByDepth;
+  SummaryMapByDepth.setup(dqmStore_,"Summary Map");
   // Set histogram values to -1
   // Set all bins to "unknown" to start
-  for (int ieta=1;ieta<=etaBins_;++ieta)
-    for (int iphi=1; iphi<=phiBins_;++iphi)
-      me->setBinContent(ieta,iphi,-1);
+  int etabins=0;
+  for (unsigned int depth=0;depth<4;++depth)
+    {
+      etabins=SummaryMapByDepth.depth[depth]->getNbinsX();
+      for (int ieta=0;ieta<etabins;++ieta)
+	{
+	  for (int iphi=0;iphi<72;++iphi)
+	    SummaryMapByDepth.depth[depth]->setBinContent(ieta+1,iphi+1,-1);
+	}
+    }
   
   // Make new simplified status histogram
   histo.str("");
@@ -242,15 +239,58 @@ void HcalSummaryClient::setup(void)
   status_HF_=-1; 
   status_ZDC_=-1;
 
-  MonitorElement* advancedMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
   // Set all bins to "unknown" to start
-
-  if (advancedMap)
+  if(dqmStore_->get(prefixME_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
     {
-      for (int ieta=1;ieta<=etaBins_;++ieta)
-	for (int iphi=1; iphi<=phiBins_;++iphi)
-	  advancedMap->setBinContent(ieta,iphi,-1);
+      depthME.push_back(dqmStore_->get(prefixME_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      int etabins=depthME[depthME.size()-1]->getNbinsX();
+      for (int ieta=0;ieta<etabins;++ieta)
+	{
+	  for (int iphi=0;iphi<72;++iphi)
+	    depthME[depthME.size()-1]->setBinContent(ieta+1,iphi+1,-1);
+	}
     }
+
+  if(dqmStore_->get(prefixME_+"/EventInfo/HB HE HF Depth 2 Summary Map"))
+    {
+      depthME.push_back(dqmStore_->get(prefixME_+"/EventInfo/HB HE HF Depth 2 Summary Map"));
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      int etabins=depthME[depthME.size()-1]->getNbinsX();
+      for (int ieta=0;ieta<etabins;++ieta)
+	{
+	  for (int iphi=0;iphi<72;++iphi)
+	    depthME[depthME.size()-1]->setBinContent(ieta+1,iphi+1,-1);
+	}
+    }
+
+  if(dqmStore_->get(prefixME_+"/EventInfo/HE Depth 3 Summary Map"))
+    {
+      depthME.push_back(dqmStore_->get(prefixME_+"/EventInfo/HE Depth 3 Summary Map"));
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      int etabins=depthME[depthME.size()-1]->getNbinsX();
+      for (int ieta=0;ieta<etabins;++ieta)
+	{
+	  for (int iphi=0;iphi<72;++iphi)
+	    depthME[depthME.size()-1]->setBinContent(ieta+1,iphi+1,-1);
+	}
+    }
+  if(dqmStore_->get(prefixME_+"/EventInfo/HO Depth 4 Summary Map"))
+    {
+      depthME.push_back(dqmStore_->get(prefixME_+"/EventInfo/HO Depth 4 Summary Map"));
+      (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
+      (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
+      int etabins=depthME[depthME.size()-1]->getNbinsX();
+      for (int ieta=0;ieta<etabins;++ieta)
+	{
+	  for (int iphi=0;iphi<72;++iphi)
+	    depthME[depthME.size()-1]->setBinContent(ieta+1,iphi+1,-1);
+	}
+    }
+
   MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if (!reportMap)
     {
@@ -309,12 +349,7 @@ void HcalSummaryClient::analyze(void)
   for (int ix=1;ix<=5;++ix)
     simpleMap->setBinContent(ix,1,-1);
 
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
-  // Set all bins to "unknown" to start
-  for (int ieta=1;ieta<=etaBins_;++ieta)
-    for (int iphi=1; iphi<=phiBins_;++iphi)
-      reportMap->setBinContent(ieta,iphi,-1);
-
+  // reset all depth histograms
 
   // Start with counters in 'unknown' status; they'll be set by analyze_everything routines 
   status_global_=-1; 
@@ -364,6 +399,7 @@ void HcalSummaryClient::analyze(void)
  if (debug_>1) 
    std::cout <<"<HcalSummaryClient::analyze>  HB present = "<<HBpresent_<<" "<<"HE present = "<<HEpresent_<<" "<<"HO present = "<<HOpresent_<<" "<<"HF present = "<<HFpresent_<<" ZDC present = "<<ZDCpresent_<<std::endl;
 
+ // set status to 0 if subdetector is present
  if (HBpresent_) status_HB_=0;
  if (HEpresent_) status_HE_=0;
  if (HOpresent_) status_HO_=0;
@@ -373,67 +409,89 @@ void HcalSummaryClient::analyze(void)
    status_global_=0;
 
  // Set starting histogram values to 0
- if (HBpresent_) resetSummaryPlot(1); 
- if (HEpresent_) resetSummaryPlot(2);
- if (HOpresent_) resetSummaryPlot(3);
- if (HFpresent_) resetSummaryPlot(4);
+ resetSummaryPlots();
 
  // Calculate status values for individual tasks
- if (dataFormatMon_.IsOn()) New_analyze_subtask(dataFormatMon_);
- if (digiMon_.IsOn()) New_analyze_subtask(digiMon_);
- if (recHitMon_.IsOn()) New_analyze_subtask(recHitMon_);
- if (pedestalMon_.IsOn()) New_analyze_subtask(pedestalMon_);
+ if (dataFormatMon_.IsOn()) analyze_subtask(dataFormatMon_);
+ if (digiMon_.IsOn()) analyze_subtask(digiMon_);
+ if (recHitMon_.IsOn()) analyze_subtask(recHitMon_);
+ if (pedestalMon_.IsOn()) analyze_subtask(pedestalMon_);
  if (ledMon_.IsOn()) analyze_subtask(ledMon_);
- if (hotCellMon_.IsOn()) New_analyze_subtask(hotCellMon_);
- if (deadCellMon_.IsOn()) New_analyze_subtask(deadCellMon_);
+ if (hotCellMon_.IsOn()) analyze_subtask(hotCellMon_);
+ if (deadCellMon_.IsOn()) analyze_subtask(deadCellMon_);
  if (trigPrimMon_.IsOn()) analyze_subtask(trigPrimMon_);
  if (caloTowerMon_.IsOn()) analyze_subtask(caloTowerMon_);
 
  // Okay, we've got the individual tasks; now form the combined value
 
+ int ieta=-9999;
+ for (unsigned int d=0;d<depthME.size();++d)
+   {
+     for (int eta=0;eta<depthME[d]->getNbinsX();++eta)
+       {
+	 ieta=CalcIeta(eta,d+1);
+	 if (ieta==-9999) continue;
+	 for (int phi=0;phi<72;++phi)
+	   {
+	     // skip unphysical values
+	     if (abs(ieta)>20 && abs(ieta)<40 && (phi+1)%2!=1) continue;
+	     if (abs(ieta)>39 && (phi+1)%4!=3) continue;
+	     if (depthME[d]->getBinContent(eta+1,phi+1)>0)
+	       {
+		 if (isHB(eta,d+1)) ++status_HB_;
+		 else if (isHE(eta,d+1)) ++status_HE_;
+		 else if (isHO(eta,d+1)) ++status_HO_;
+		 else if (isHF(eta,d+1)) ++status_HF_;
+	       }
+	   } // loop over phi
+       } // loop over eta
+   } //loop over depth
+
   int totalcells=0;
   std::map<std::string, int>::const_iterator it;
+
+  // need to loop over report summary plots
   if (HBpresent_)
     {
-      status_global_+=status_HB_;
+      status_global_+=status_HB_; 
       it=subdetCells_.find("HB");
       totalcells+=it->second;
-      status_HB_/=it->second;
-      status_HB_=max(0.,1-status_HB_); // converts fraction of bad channels to good fraction
+      status_HB_= 1-(status_HB_/it->second);
+      status_HB_=max(0.,status_HB_); // converts fraction of bad channels to good fraction
     }
   if (HEpresent_)
     {
       status_global_+=status_HE_;
       it=subdetCells_.find("HE");
       totalcells+=it->second;
-      status_HE_/=it->second;
-      status_HE_=max(0.,1-status_HE_); // converts fraction of bad channels to good fraction
+      status_HE_= 1-(status_HE_/it->second);
+      status_HE_=max(0.,status_HE_); // converts fraction of bad channels to good fraction
     }
+
   if (HOpresent_)
     {
       status_global_+=status_HO_;
       it=subdetCells_.find("HO");
       totalcells+=it->second;
-      status_HO_/=it->second;
-      status_HO_=max(0.,1-status_HO_); // converts fraction of bad channels to good fraction
+      status_HO_= 1-(status_HO_/it->second);
+      status_HO_=max(0.,status_HO_); // converts fraction of bad channels to good fraction
     }
   if (HFpresent_)
     {
       status_global_+=status_HF_;
       it=subdetCells_.find("HF");
       totalcells+=it->second;
-      status_HF_/=it->second;
-      status_HF_=max(0.,1-status_HF_); // converts fraction of bad channels to good fraction
+      status_HF_= 1-(status_HF_/it->second);
+      status_HF_=max(0.,status_HF_); // converts fraction of bad channels to good fraction
     }
   /*
  if (ZDCpresent_)
     {
     status_global_+=status_ZDC_;
-      it=subdetCells_.find("ZDC");
-      totalcells+=it->second;
-      status_ZDC_/=it->second;
-      status_ZDC_=max(0.,1-status_ZDC_); // converts fraction of bad channels to good fraction
-
+    it=subdetCells_.find("ZDC");
+    totalcells+=it->second;
+    status_ZDC_= 1-(status_ZDC_/it->second);
+    status_ZDC_=max(0.,status_ZDC_); // converts fraction of bad channels to good fraction
     }
   */
   
@@ -441,52 +499,70 @@ void HcalSummaryClient::analyze(void)
     status_global_=-1;
   else
     {
-      status_global_/=totalcells;
-      status_global_=max(0.,1-status_global_); // convert to good fraction
+      status_global_=1-status_global_/totalcells;
+      status_global_=max(0.,status_global_); // convert to good fraction
       // Now loop over cells in reportsummarymap, changing from bad fraction to good
 
-      int eta,phi;
-      for (int ieta=1;ieta<=etaBins_;++ieta)
-	{
-	  eta=ieta+int(etaMin_)-1;
-	  for (int iphi=1; iphi<=phiBins_;++iphi)
-	    {
-	      if (reportMap->getBinContent(ieta,iphi)>-1)
-		{
-		  phi=iphi+int(phiMin_)-1;
-		  if (abs(eta)>20 && phi%2!=1)
-		    continue;
-		  if (abs(eta)>39 &&phi%4!=3)
-		    continue;
-		  reportMap->setBinContent(ieta,iphi,max(0.,(double)(1-reportMap->getBinContent(ieta,iphi))));
+      int ieta,iphi;
 
-		  if (fillUnphysical_)
-		    {
-		      // fill even phi cells in region where cells span 10 degrees in phi
-		      // ("True" cell values are phi=1,3,5,7,...) 
-		      if (abs(eta)>20 && abs(eta)<40 && phi%2==1 &&phi<73)
-			{
-			  reportMap->setBinContent(ieta,iphi+1,reportMap->getBinContent(ieta,iphi));
-			}
-		      
-		      // fill all cells in region where cells span 20 degrees in phi
-		      // (actual cell phi values are 3,7,11,...)
-		      if (abs(eta)>39 && phi%4==3 && phi<73)
-			{
-			  reportMap->setBinContent(ieta,iphi+1,reportMap->getBinContent(ieta,iphi));
-			  reportMap->setBinContent(ieta,iphi-1,reportMap->getBinContent(ieta,iphi));
-			  reportMap->setBinContent(ieta,iphi-2,reportMap->getBinContent(ieta,iphi));
-			}
-		    }
-		} //if (bincontent>-1)
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+      for (unsigned int depth=0;
+	   depth<depthME.size();
+	   ++depth)
+      {
+	int etaBins=depthME[depth]->getNbinsX();
+	double reportval=0;
+
+	for (int eta=0;eta<etaBins;++eta)
+	  {
+	    ieta=CalcIeta(eta, 1);
+	    if (ieta==-9999) continue;
+	    for (int phi=0; phi<72;++phi)
+	      {
+		reportval=depthME[depth]->getBinContent(eta+1,phi+1);
+		if (reportval>-1)
+		  {
+		    iphi=phi+1;
+		    /*
+		      if (abs(ieta)>20 && iphi%2!=1)
+		      continue;
+		    if (abs(ieta)>39 &&iphi%4!=3)
+		      continue;
+		    */
+		    depthME[depth]->setBinContent(eta+1,phi+1,max(0.,1-reportval));
+		    
+		    /*
+		    if (fillUnphysical_)
+		      {
+			if (depth==3) continue; // skip HO
+			// fill even phi cells in region where cells span 10 degrees in phi
+			// ("True" cell values are phi=1,3,5,7,...) 
+			if (abs(ieta)>20 && abs(ieta)<40 && iphi%2==1)
+			  {
+			    depthME[depth]->setBinContent(eta+1,phi+2,reportval);
+			  }
+			
+			// fill all cells in region where cells span 20 degrees in phi
+			// (actual cell phi values are 3,7,11,...)
+			else if (abs(ieta)>39 && phi%4==3)
+			  {
+			    depthME[depth]->setBinContent(eta,phi+2,reportval);
+			    depthME[depth]->setBinContent(eta,phi,reportval);
+			    depthME[depth]->setBinContent(eta,phi-1,reportval);
+			  }
+		      }
+		    */
+		  } //if (bincontent>-1)
+	      } // for (int phi=0;...)
+	  } // for (int eta=0;...)
+      } // for (int d=0;...)
     } // else (totalcells>0)
 
   // Now set the status words
   MonitorElement* me;
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
   
+
+  if (debug_>1) std::cout <<"SUMMARY = "<<status_HB_<<"\t"<<status_HE_<<"\t"<<status_HO_<<"\t"<<status_HF_<<"\t"<<status_global_<<std::endl;
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
   if (me) 
     {
@@ -533,442 +609,15 @@ void HcalSummaryClient::analyze(void)
  return;
 } // void HcalSummaryClient::analyze(void)
 
-
 void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 {
-  double HBstatus=0;
-  double HEstatus=0;
-  double HOstatus=0;
-  double HFstatus=0;
-  double ZDCstatus=-1; // not yet implemented
-  double ALLstatus=0;
-
-
-  double etamin, etamax, phimin, phimax;
-  int etabins, phibins;
-  int eta, phi;
-  double bincontent;
-
-  //cout <<"Running Summary Client"<<endl;
-
-  ostringstream name;
-  MonitorElement* me;
-  TH2F* hist;
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
-
-  // No longer use ievtTask for normalization; 
-  // use the underflow bin (0,0) of the 2D histograms to get # of events,
-  // just as with renderPlugins
-  /*
-  int ievtTask=-1;
-  name.str("");
-  name <<prefixME_<<"/"<<s.ievtName;
-  me = dbe_->get(name.str().c_str());
-  name.str("");
-  if (me)
+  if (depthME.size()!=4) 
     {
-      string s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievtTask);
-      if ( debug_>0 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
-    }
-  */
-  // Scale overall problem plot
-  name.str("");
-  name << prefixME_<<"/"<<s.baseProblemName;
-  me=dqmStore_->get(name.str().c_str());
-
-  double counter=0;
-  if (me)
-    {
-      hist=me->getTH2F();
-      counter=hist->GetBinContent(0,0);
-      if (counter>0) 
-	{
-	  hist->Scale(1./counter);
-	  // scale to 0-1 to always maintain consistent coloration
-	  hist->SetMaximum(1.);
-	  hist->SetMinimum(0.);  // change to some threshold value?
-	}
+      if (debug_>0) std::cout <<"<HcalSummaryClient::analyze_subtask> Could not get Summary Maps!  # of maps found = "<<depthME.size()<<std::endl;
+      return;
     }
 
-
-  // Layer 1 HB& HF
-  if (HBpresent_ || HFpresent_)
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HF Depth 1 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      name.str("");
-      if (!me && debug_>0)  std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  counter=hist->GetBinContent(0,0);
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      eta=ieta+int(etamin)-1;
-		      phi=iphi+int(phimin)-1;
-		      reportMap->Fill(eta,phi,bincontent);
-		      if (abs(eta)<17 && HBpresent_) // HB
-			{
-			  HBstatus+=bincontent;
-			}
-		      else if (HFpresent_)
-			{
-			  if (phi%2==0) continue; // skip non-physical phi bins
-			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
-			  HFstatus+=bincontent;
-			}
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-    } // if (HBpresent_ || HFpresent)
-
-  // Layer 2 HB& HF
-  if (HBpresent_ || HFpresent_)
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HF Depth 2 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      eta=ieta+int(etamin)-1;
-		      phi=iphi+int(phimin)-1;
-		      reportMap->Fill(eta,phi,bincontent);
-		      if (abs(eta)<17 && HBpresent_) // HB
-			{
-			  HBstatus+=bincontent;
-			}
-		      else if (HFpresent_)
-			{
-			  if (phi%2==0) continue; // skip non-physical phi bins
-			  if (abs(eta)>39 && phi%4!=3) continue; // skip non-physical phi bins
-			  HFstatus+=bincontent;
-			}
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-    } // if (HBpresent_ || HFpresent)
-
-  // Layer 4 HO & ZDC
-  if (HOpresent_ || ZDCpresent_)
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HO ZDC "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      eta=ieta+int(etamin)-1;
-		      phi=iphi+int(phimin)-1;
-		      reportMap->Fill(eta,phi,bincontent);
-		      if (abs(eta)<42 && HOpresent_) // HO
-			{
-			  HOstatus+=bincontent;
-			}
-		      else if (ZDCpresent_)
-			{
-			  ZDCstatus+=bincontent;
-			}
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-    } // if (HOpresent_ || ZDCpresent)
-
-  // Layer 1 HE
-  if (HEpresent_) 
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 1 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      //cout <<"Got "<<name.str().c_str()<<endl;
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  eta=ieta+int(etamin)-1;
-		  phi=iphi+int(phimin)-1;
-		  if (abs(eta)>20 && phi%2==0) continue; // skip non-physical phi bins
-
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      reportMap->Fill(eta,phi,bincontent);
-		      HEstatus+=bincontent;
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-      //cout <<"HEstatus (depth1)= "<<HEstatus<<endl;
-    } // if (HEpresent_)
-  
-   // Layer 2 HE
-  if (HEpresent_) 
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 2 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      //cout <<"Got "<<name.str().c_str()<<endl;
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  eta=ieta+int(etamin)-1;
-		  phi=iphi+int(phimin)-1;
-		  if (abs(eta)>20 && phi%2==0) continue; // skip non-physical phi bins
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      eta=ieta+int(etamin)-1;
-		      reportMap->Fill(eta,phi,bincontent); 
-		      HEstatus+=bincontent;
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-      //cout <<"HEstatus (depth2)= "<<HEstatus<<endl;
-    } // if (HEpresent_)
-
-  // HE Depth 3
-  if (HEpresent_) 
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      //cout <<"Got "<<name.str().c_str()<<endl;
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  etamin=hist->GetXaxis()->GetXmin();
-	  etamax=hist->GetXaxis()->GetXmax();
-	  phimin=hist->GetYaxis()->GetXmin();
-	  phimax=hist->GetYaxis()->GetXmax();
-	  for (int ieta=1;ieta<=etabins;++ieta)
-	    {
-	      for (int iphi=1; iphi<=phibins;++iphi)
-		{
-		  
-		  eta=ieta+int(etamin)-1;
-		  phi=iphi+int(phimin)-1;
-		  if (abs(eta)>20 && phi%2==0) continue; // skip non-physical phi bins
-		  bincontent=hist->GetBinContent(ieta,iphi);
-		  if (bincontent>0)
-		    {
-		      reportMap->Fill(eta,phi,bincontent);
-		      HEstatus+=bincontent;
-		    } // if (bincontent>0)
-		} // for (int iphi=1;...)
-	    } // for (int ieta=1;...)
-	} // if (me)
-      //cout <<"HEstatus (depth3)= "<<HEstatus<<endl;
-    } // if (HEpresent_)
-
-  ALLstatus=HBstatus+HEstatus+HOstatus+HFstatus;
-  int totalcells=0;
-  std::map<std::string, int>::const_iterator it;
-  if (HBpresent_)
-    {
-      status_HB_+=HBstatus;
-      it=subdetCells_.find("HB");
-      totalcells+=it->second;
-      HBstatus/=it->second;
-      HBstatus=1-HBstatus; // converts fraction of bad channels to good fraction
-      if (HBstatus<0) HBstatus=0;
-      s.status[0]=HBstatus;
-    }
-  if (HEpresent_)
-    {
-      status_HE_+=HEstatus;
-      it=subdetCells_.find("HE");
-      totalcells+=it->second;
-      HEstatus/=it->second;
-      HEstatus=1-HEstatus; // converts fraction of bad channels to good fraction
-      if (HEstatus<0)
-	HEstatus=0;
-      s.status[1]=HEstatus;
-    }
-
-  if (HOpresent_)
-    {
-      status_HO_+=HOstatus;
-      it=subdetCells_.find("HO");
-      totalcells+=it->second;
-      HOstatus/=it->second;
-      HOstatus=1-HOstatus; // converts fraction of bad channels to good fraction
-      if (HOstatus<0)
-	HOstatus=0;
-      s.status[2]=HOstatus;
-    }
-  if (HFpresent_)
-    {
-      status_HF_+=HFstatus;
-      it=subdetCells_.find("HF");
-      totalcells+=it->second;
-      HFstatus/=it->second;
-      HFstatus=1-HFstatus; // converts fraction of bad channels to good fraction
-      if (HFstatus<0)
-	HFstatus=0;
-      s.status[3]=HFstatus;
-    }
-  /*
- if (ZDCpresent_)
-    {
-      status_ZDC_+=ZDCstatus;
-      it=subdetCells_.find("ZDC");
-      totalcells+=it->second;
-      ZDCstatus/=it->second;
-      ZDCstatus=1-ZDCstatus; // converts fraction of bad channels to good fraction
-      if (ZDCstatus<0)
-        ZDCstatus=0;
-      s.status[4]=ZDCStatus;
-    }
-  */
-  if (totalcells>0)
-    {
-      ALLstatus/=totalcells;
-      ALLstatus=1-ALLstatus;
-      if (ALLstatus<0)
-	ALLstatus=0;
-      s.ALLstatus=ALLstatus;
-    }
-
-  if (debug_>0)
-    {
-      std::cout <<s.problemDir<<std::endl;
-      std::cout <<"ReportSummary:  HB = "<<HBstatus<<std::endl;
-      std::cout <<"ReportSummary: HE = "<<HEstatus<<std::endl;
-      std::cout <<"ReportSummary: HO = "<<HOstatus<<std::endl;
-      std::cout <<"ReportSummary: HF = "<<HFstatus<<std::endl;
-      std::cout <<"ReportSummary: TOTAL = "<<s.ALLstatus<<std::endl;
-      std::cout <<"Avg # of bad cells: "<<std::endl;
-      std::cout <<"sumHB = "<<status_HB_<<std::endl;
-      std::cout <<"sumHE = "<<status_HE_<<std::endl;
-      std::cout <<"sumHO = "<<status_HO_<<std::endl;
-      std::cout <<"sumHF = "<<status_HF_<<std::endl;
-      std::cout <<"________________"<<std::endl;
-      
-    }
-
-  return;
-} //void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
-
-
-void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
-{
-  double HBstatus=0;
-  double HEstatus=0;
-  double HOstatus=0;
-  double HFstatus=0;
-  //double ZDCstatus=-1; // not yet implemented
-  double ALLstatus=0;
-
-  int etabins, phibins;
+  int etabins=0;
   int ieta=-9999;
   int iphi=-9999;
   double bincontent;
@@ -976,19 +625,14 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
   ostringstream name;
   MonitorElement* me;
   TH2F* hist;
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
 
-  // No longer use ievtTask for normalization; 
-  // use the underflow bin (0,0) of the 2D histograms to get # of events,
-  // just as with renderPlugins
-
-  // Scale overall problem plot
+  // get overall problem rate histogram for this task
   name.str("");
-  name << prefixME_<<"/"<<s.baseProblemName;
+  name << prefixME_<<"/"<<s.summaryName;
   me=dqmStore_->get(name.str().c_str());
-
+  name.str("");
   double counter=0;
-  if (me)
+  if (me) // scale histogram to provide failure rate
     {
       hist=me->getTH2F();
       counter=hist->GetBinContent(0,0);
@@ -1001,23 +645,33 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
 	}
     }
 
-  // Layers 1&2  HB HE HF
-  if (HBpresent_ || HEpresent_ || HFpresent_)
+  if (HBpresent_ || HEpresent_ || HFpresent_ || HOpresent_ || ZDCpresent_)
     {
-      for (int d=1;d<=2;++d)
+      s.ALLstatus = 0; //number of bad cells
+      if (HBpresent_)  s.status[0]=0; // number of bad HB cells
+      if (HEpresent_)  s.status[1]=0; // number of bad HE cells;
+      if (HOpresent_)  s.status[2]=0; // number of bad HO cells;
+      if (HFpresent_)  s.status[3]=0; // number of bad HF cells;
+      if (ZDCpresent_) s.status[4]=0; // number of bad ZDC cells;
+
+      for (int d=0;d<4;++d)
 	{
-	  int HF_eta_offset=72;
-	  if (d==2) HF_eta_offset=42;
 	  name.str("");
-	  name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth "<<d<<" "<<s.problemName;
+	  if (d==0) name<< prefixME_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 1 "<<s.problemName;
+	  else if (d==1) name<< prefixME_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 2 "<<s.problemName;
+	  else if (d==2) name<< prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
+	  else if (d==3) name<< prefixME_<<"/"<<s.problemDir<<"/"<<"HO Depth 4 "<<s.problemName;
+
 	  me=dqmStore_->get(name.str().c_str());
 	  name.str("");
-	  if (!me && debug_>0)  std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
-	  if (me)
+
+	  if (!me && debug_>0)  
+	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
+	  else if (me)
 	    {
 	      hist=me->getTH2F();
-	      counter=hist->GetBinContent(0,0);
-	      if (counter>0) 
+	      counter=hist->GetBinContent(0,0); // event counter
+	      if (counter>0) // scale by number of events to make rate histogram
 		{
 		  hist->Scale(1./counter);
 		  // scale to 0-1 to always maintain consistent coloration
@@ -1025,236 +679,114 @@ void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
 		  hist->SetMinimum(0.);  // change to some threshold value?
 		}
 	      etabins=hist->GetNbinsX();
-	      phibins=hist->GetNbinsY();
-	      
-	      for (int eta=1;eta<=etabins;++eta)
+	      for (int eta=0;eta<etabins;++eta)
 		{
-		  for (int phi=1; phi<=phibins;++phi)
+		  ieta=CalcIeta(eta,d+1); // skip non-physical bins when counting bad cells
+		  if (ieta==-9999) continue;
+		  for (int phi=0; phi<72;++phi)
 		    {
-		      bincontent=hist->GetBinContent(eta,phi);
-		      if (bincontent>0)
+		      bincontent=hist->GetBinContent(eta+1,phi+1);
+		      if (bincontent>s.thresh) // cell is bad if above threshold
 			{
-			  ieta=CalcIeta(eta,d);
-			  iphi=phi;
-			  if (eta<14 || eta>HF_eta_offset)
+			  iphi=phi+1;
+			  //cout <<"Found bad cell!\t" <<ieta<<"\t"<<iphi<<"\t"<<d+1<<"\tbincontent = "<<bincontent<<endl;
+			  if (isHF(eta,d+1))
 			    {
-			      if (eta<14) ieta--;
-			      else        ieta++;
 			      if (!HFpresent_) continue;
-			      if (iphi%2==0) continue; //skip non-physical phi bins
-			      if ((eta<3 || eta>83) && phi%4!=3) continue; // skip non-physical phi bins
-			      HFstatus+=bincontent;
+			      depthME[d]->setBinContent(eta+1,phi+1,1); // Fill bin with a value of 1 if error found
+			      /*
+			      if (fillUnphysical_)
+				{
+				  if (abs(ieta)>39 && iphi%4==3)
+				    {
+				      depthME[d]->setBinContent(eta+1,phi+2,1);
+				      depthME[d]->setBinContent(eta+1,phi,1);
+				      depthME[d]->setBinContent(eta+1,phi-1,1);
+				    }
+				  else if (abs(ieta)>20 && iphi%2==1)
+				    {
+				      depthME[d]->setBinContent(eta+1,phi+2,1);
+				    }
+				}
+			      */
+			      // don't count unphysical bins in status
+			      if (iphi%2==0) continue;  // skip non-physical phi bins
+			      if (abs(ieta)>39 && (iphi%4!=3)) continue;
+
+			      s.status[3]++;
+			      s.ALLstatus++;
 			    }
-			  else if (abs(ieta)<17)
+			  else if (isHB(eta,d+1))
 			    {
 			      if (!HBpresent_) continue;
-			      HBstatus+=bincontent;
+			      depthME[d]->setBinContent(eta+1,phi+1,1);
+			      s.status[0]++;
+			      s.ALLstatus++;
 			    }
-			  else if (ieta!=-9999)
+			  else if (isHE(eta,d+1))
 			    {
 			      if (!HEpresent_) continue;
-			      if (abs(ieta)>20 && iphi%2==0) continue;
-			      HEstatus+=bincontent;
+			      depthME[d]->setBinContent(eta+1,phi+1,1);
+			      if (abs(ieta)>20 && iphi%2==0) continue; // skip nonphysical bins
+			      s.status[1]++;
+			      s.ALLstatus++;
 			    }
-
-			  reportMap->Fill(ieta,iphi,bincontent); // need to adjust reportMap to contain shifted ieta bins
-
-			} // if (bincontent>0)
-		    } // for (int iphi=1;...)
-		} // for (int ieta=1;...)
+			  else if (isHO(eta,d+1))
+			    {
+			      if (!HOpresent_) continue;
+			      depthME[d]->setBinContent(eta+1,phi+1,1);
+			      s.status[2]++;
+			      s.ALLstatus++;
+			    }
+			} // if (bincontent>s.thresh)
+		    } // for (int phi=0;...)
+		} // for (int eta=0;...)
 	    } // if (me)
-	} //for (int d=1;d<=2;++d)
-    } // if (HBpresent_ || HEpresent_ || HFpresent)
-
-  // Layer 3 HE
-  if (HEpresent_)
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-	  
-	  for (int eta=1;eta<=etabins;++eta)
-	    {
-	      for (int phi=1; phi<=phibins;++phi)
-		{
-		  ieta=binmapd3[eta-1];
-		  if (ieta==-9999) continue;
-		  iphi=phi;
-		  if (abs(ieta)>16 && iphi%2==0) continue; // skip unphysical cells
-		  bincontent=hist->GetBinContent(eta,phi);
-		  if (bincontent>0)
-		    {
-		      reportMap->Fill(ieta,iphi,bincontent);
-		      HEstatus+=bincontent;
-		    } // if (bincontent>0)
-		}
-	    }
-	}
-    } // if (HEpresent_)
-
-  // Layer 4 HO 
-  if (HOpresent_)
-    {
-      name.str("");
-      name <<prefixME_<<"/"<<s.problemDir<<"/"<<"HO Depth 4 "<<s.problemName;
-      me=dqmStore_->get(name.str().c_str());
-      
-      if (me)
-	{
-	  hist=me->getTH2F();
-	  if (counter>0) 
-	    {
-	      hist->Scale(1./counter);
-	      // scale to 0-1 to always maintain consistent coloration
-	      hist->SetMaximum(1.);
-	      hist->SetMinimum(0.);  // change to some threshold value?
-	    }
-	  etabins=hist->GetNbinsX();
-	  phibins=hist->GetNbinsY();
-
-	  for (int eta=1;eta<=etabins;++eta)
-	    {
-	      for (int phi=1; phi<=phibins;++phi)
-		{
-		  bincontent=hist->GetBinContent(eta,phi);
-		  if (bincontent>0)
-		    {
-		      ieta=eta-16;
-		      iphi=phi;
-		      reportMap->Fill(ieta,iphi,bincontent);
-		      HOstatus+=bincontent;
-		    } // if (bincontent>0)
-		} // for (int phi=1;...)
-	    } // for (int eta=1;...)
-	} // if (me)
-    } // if (HOpresent_ )
-
-  ALLstatus=HBstatus+HEstatus+HOstatus+HFstatus;
-  int totalcells=0;
-  std::map<std::string, int>::const_iterator it;
-  if (HBpresent_)
-    {
-      status_HB_+=HBstatus;
-      it=subdetCells_.find("HB");
-      totalcells+=it->second;
-      HBstatus/=it->second;
-      HBstatus=1-HBstatus; // converts fraction of bad channels to good fraction
-      if (HBstatus<0) HBstatus=0;
-      s.status[0]=HBstatus;
-    }
-  if (HEpresent_)
-    {
-      status_HE_+=HEstatus;
-      it=subdetCells_.find("HE");
-      totalcells+=it->second;
-      HEstatus/=it->second;
-      HEstatus=1-HEstatus; // converts fraction of bad channels to good fraction
-      if (HEstatus<0)
-	HEstatus=0;
-      s.status[1]=HEstatus;
-    }
-
-  if (HOpresent_)
-    {
-      status_HO_+=HOstatus;
-      it=subdetCells_.find("HO");
-      totalcells+=it->second;
-      HOstatus/=it->second;
-      HOstatus=1-HOstatus; // converts fraction of bad channels to good fraction
-      if (HOstatus<0)
-	HOstatus=0;
-      s.status[2]=HOstatus;
-    }
-  if (HFpresent_)
-    {
-      status_HF_+=HFstatus;
-      it=subdetCells_.find("HF");
-      totalcells+=it->second;
-      HFstatus/=it->second;
-      HFstatus=1-HFstatus; // converts fraction of bad channels to good fraction
-      if (HFstatus<0)
-	HFstatus=0;
-      s.status[3]=HFstatus;
-    }
-
-  if (totalcells>0)
-    {
-      ALLstatus/=totalcells;
-      ALLstatus=1-ALLstatus;
-      if (ALLstatus<0)
-	ALLstatus=0;
-      s.ALLstatus=ALLstatus;
-    }
-
-  if (debug_>0)
-    {
-      std::cout <<s.problemDir<<std::endl;
-      std::cout <<"ReportSummary:  HB = "<<HBstatus<<std::endl;
-      std::cout <<"ReportSummary: HE = "<<HEstatus<<std::endl;
-      std::cout <<"ReportSummary: HO = "<<HOstatus<<std::endl;
-      std::cout <<"ReportSummary: HF = "<<HFstatus<<std::endl;
-      std::cout <<"ReportSummary: TOTAL = "<<s.ALLstatus<<std::endl;
-      std::cout <<"Avg # of bad cells: "<<std::endl;
-      std::cout <<"sumHB = "<<status_HB_<<std::endl;
-      std::cout <<"sumHE = "<<status_HE_<<std::endl;
-      std::cout <<"sumHO = "<<status_HO_<<std::endl;
-      std::cout <<"sumHF = "<<status_HF_<<std::endl;
-      std::cout <<"________________"<<std::endl;
-      
-    }
+	} //for (int d=0;d<4;++d)
+    } // if (HBpresent_ || HEpresent_ || HFpresent || HOpresent_)
   return;
-} //void HcalSummaryClient::New_analyze_subtask(SubTaskSummaryStatus &s)
+} //void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 
-
-
-
-
-
-void HcalSummaryClient::resetSummaryPlot(int Subdet)
+void HcalSummaryClient::resetSummaryPlots()
 {
-  MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
-  if (!reportMap)
-    {
-      std::cout <<"<HcalSummaryClient::resetSummaryPlot> Could not get advancedReportSummaryMap!"<<std::endl;
-      return;
-    }
-  TH2F* hist=reportMap->getTH2F();
-  int etabins=hist->GetNbinsX();
-  int phibins=hist->GetNbinsY();
-  double etamin=hist->GetXaxis()->GetXmin();
-  double phimin=hist->GetYaxis()->GetXmin();
-  int eta,phi;
+  MonitorElement* summary = dqmStore_->get(prefixME_+"/EventInfo/reportSummaryMap");
+  // if subdetector present, histogram value set to 0; otherwise, set to -1
+  (HBpresent_==true)  ? summary->setBinContent(1,0) : summary->setBinContent(1,-1);
+  (HEpresent_==true)  ? summary->setBinContent(2,0) : summary->setBinContent(2,-1);
+  (HOpresent_==true)  ? summary->setBinContent(3,0) : summary->setBinContent(3, -1);
+  (HFpresent_==true)  ? summary->setBinContent(4,0) : summary->setBinContent(4, -1);
+  (ZDCpresent_==true) ? summary->setBinContent(5,0) : summary->setBinContent(5, -1);
 
-  //  Loop over all bins for problem report; set their contents to 0 if 
-  // they have valid cell ID
-  for (int ieta=1;ieta<=etabins;++ieta)
+  // Set all starting bins to 0, rather than -1
+  int ieta=0;
+  int iphi=0;
+
+  for (unsigned int d=0;d<depthME.size();++d)
     {
-      for (int iphi=1; iphi<=phibins;++iphi)
+      TH2F* hist=depthME[d]->getTH2F();
+      int etabins=hist->GetNbinsX();
+      for (int eta=0;eta<etabins;++eta)
 	{
-	  for (int d=1;d<=4;++d)
+	  ieta=CalcIeta(eta,d+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<72;++phi)
 	    {
-	      eta=ieta+int(etamin)-1;
-	      phi=iphi+int(phimin)-1;
-	      if (validDetId((HcalSubdetector)Subdet,eta,phi,d))
-		hist->SetBinContent(ieta,iphi,0.);
-	    }
+	      iphi=phi+1;
+	      // Set starting bin value to 0, unless subdetector not present (in which case value is -1)
+	      if ((HBpresent_ && isHB(eta,d+1)) ||
+		  (HEpresent_ && isHE(eta,d+1)) ||
+		  (HOpresent_ && isHO(eta,d+1)) ||
+		  (HFpresent_ && isHF(eta,d+1))
+		  )
+		hist->SetBinContent(eta+1,phi+1,0);
+	      else
+		hist->SetBinContent(eta+1,phi+1,-1);
+	    } // for (int phi=0;...)
+	} // for (int eta=0;...)
+    } // for (std::vector<MonitorElement*>::iterator depth=depthME.begin();...)
 
-	} // for (int iphi=1;iphi<=phibins;++iphi)
-    } // for (int ieta=1; ieta<=etabins;++ieta)
   return;
-} // void HcalSummaryClient::resetSummaryPlot(int Subdet)
+} // void HcalSummaryClient::resetSummaryPlots()
 
 
 void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, string& htmlDir, string& htmlName)
@@ -1305,18 +837,23 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 
   // Produce the plots to be shown as .png files from existing histograms
 
+  /*
   TH2F* obj2f;
   std::string imgNameMap="";
   std::string imgName;
   gStyle->SetPaintTextFormat("+g");
 
+ 
   // Test for now -- let's just dump out global summary histogram
   MonitorElement* me;
   me = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
   obj2f = me->getTH2F();
+ 
 
+  MonitorElement* me;
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   TH2F* simple2f = me->getTH2F();
+  */
 
   // Standard error palette, extended to greys for - values
   static int pcol[40];
@@ -1351,6 +888,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
  
    gStyle->SetPalette(40, pcol);
    gStyle->SetOptStat(0);
+   /*
    if( obj2f ) 
      {
        obj2f->SetMinimum(-1.);
@@ -1367,7 +905,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
       htmlFile <<"</tr></table>"<<std::endl;
 
     } // if (obj2f)
-
+   */
   
   // Make table that lists all status words for each subdet
   

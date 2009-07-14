@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/06/28 20:24:09 $
- * $Revision: 1.15.2.5 $
+ * $Date: 2009/07/06 10:51:55 $
+ * $Revision: 1.19 $
  * \author Jeff Temple
  *
 */
@@ -40,6 +40,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalDeadCellClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalHotCellClient.h"
 #include "DQM/HcalMonitorClient/interface/SubTaskSummaryStatus.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
 class MonitorElement;
 class DQMStore;
@@ -79,8 +80,7 @@ class HcalSummaryClient : public HcalBaseClient {
   // Analyze
   void analyze(void);
   void analyze_subtask(SubTaskSummaryStatus& s);
-  void New_analyze_subtask(SubTaskSummaryStatus& s);
-  void resetSummaryPlot(int Subdet);
+  void resetSummaryPlots();
   void incrementCounters(void);
 
   // HtmlOutput
@@ -128,11 +128,11 @@ class HcalSummaryClient : public HcalBaseClient {
   double status_HF_;
   double status_ZDC_;
   double status_global_;
+
+  std::vector<MonitorElement *> depthME;
     
   ofstream htmlFile;
 
-  double etaMin_, etaMax_, phiMin_, phiMax_;
-  int etaBins_, phiBins_;
 }; // end of class declaration
 
 #endif
