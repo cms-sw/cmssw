@@ -22,7 +22,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "RooMCStudy.h"
+#include "RooNLLVar.h"
 #include "RooRandom.h"
 #include <iostream>
 #include <fstream>
@@ -94,11 +94,14 @@ void fit( RooAbsReal & chi2, int numberOfBins, const char * outFileNameWithFitRe
   RooFitResult* r_chi2 = m_tot.save() ;
   cout << "==> Chi2 Fit results " << endl ;
   r_chi2->Print("v") ;
-  r_chi2->floatParsFinal().Print("s") ;
+  //  r_chi2->floatParsFinal().Print("v") ;
   int NumberOfFreeParameters =  r_chi2->floatParsFinal().getSize() ;
+  for (int i =0; i< NumberOfFreeParameters; ++i){
+   r_chi2->floatParsFinal()[i].Print();
+   
+ }
   cout<<"chi2:" <<chi2.getVal() << ", numberOfBins: " << numberOfBins  << ", NumberOfFreeParameters: " << NumberOfFreeParameters << endl; 
   cout<<"Normalized Chi2   = " << chi2.getVal()/ (numberOfBins - NumberOfFreeParameters)<<endl; 
-
   r_chi2->Write( ) ;
   delete out_root_file;
 }
@@ -326,7 +329,10 @@ int main(int argc, char** argv){
   // creting the chi2s 
   RooChi2Var *chi2_mutrk = new RooChi2Var("chi2_mutrk","chi2_mutrk",*model_mutrk,*zmtMass, Extended(kTRUE)) ;
   RooChi2Var *chi2_mumuNotIso = new RooChi2Var("chi2_mumuNotIso","chi2_mumuNotIso",*model_mumuNotIso,*zmmNotIsoMass,Extended(kTRUE)) ;
+
   RooChi2Var *chi2_musta = new RooChi2Var("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE) ) ;
+  // uncomment this line if you want to use logLik for mu sta 
+  // RooNLLVar *chi2_musta = new RooNLLVar("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE) ) ;
   RooChi2Var *chi2_mu1hlt = new RooChi2Var("chi2_mu1hlt","chi2_mu1hlt", *eZmm1hltSig, *zmm1hltMass,  Extended(kTRUE) ) ;
   RooChi2Var *chi2_mu2hlt = new RooChi2Var("chi2_mu2hlt","chi2_mu2hlt", *eZmm2hltSig, *zmm2hltMass,  Extended(kTRUE) ) ;  
   
