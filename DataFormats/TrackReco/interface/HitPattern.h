@@ -210,6 +210,11 @@ namespace reco {
     int numberOfLostMuonDTHits() const;       // not-null, not valid, muon DT
     int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
     int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
+    int numberOfBadHits() const;              // not-null, bad (only used in Muon Ch.)
+    int numberOfBadMuonHits() const;          // not-null, bad, muon
+    int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
+    int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
+    int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
 
     int numberOfValidStripLayersWithMonoAndStereo () 
       const; // count strip layers that have non-null, valid mono and stereo hits

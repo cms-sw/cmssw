@@ -656,6 +656,69 @@ int HitPattern::numberOfLostMuonRPCHits() const {
   return count;
 }
 
+int HitPattern::numberOfBadHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_3_HitFilter(pattern)) count++;
+    }
+  }
+  return count;
+}
+
+int HitPattern::numberOfBadMuonHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_3_HitFilter(pattern)) {
+        if (muonHitFilter(pattern)) count++;
+      }
+    }
+  }
+  return count;
+}
+
+int HitPattern::numberOfBadMuonDTHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_3_HitFilter(pattern)) {
+        if (muonDTHitFilter(pattern)) count++;
+      }
+    }
+  }
+  return count;
+}
+
+int HitPattern::numberOfBadMuonCSCHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_3_HitFilter(pattern)) {
+        if (muonCSCHitFilter(pattern)) count++;
+      }
+    }
+  }
+  return count;
+}
+
+int HitPattern::numberOfBadMuonRPCHits() const {
+  int count = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern != 0) {
+      if (type_3_HitFilter(pattern)) {
+        if (muonRPCHitFilter(pattern)) count++;
+      }
+    }
+  }
+  return count;
+}
+
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const 
 {
      static const int nHits = (PatternSize * 32) / HitSize;
