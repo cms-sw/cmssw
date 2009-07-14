@@ -25,7 +25,7 @@ class RPCGeometry;
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
-  class RandPoissonQ;
+  class RandPoisson;
 }
 
 class RPCSimAverageNoiseEff : public RPCSim
@@ -72,7 +72,7 @@ class RPCSimAverageNoiseEff : public RPCSim
   //Adding a second flatDistribution, since it was redefined 
   //in a method with different interval
   CLHEP::RandFlat* flatDistribution2;
-  CLHEP::RandPoissonQ *poissonDistribution_;
+  CLHEP::RandPoisson *poissonDistribution_;
 
 };
 #endif
