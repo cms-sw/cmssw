@@ -6,8 +6,6 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("GeneratorInterface.HydjetInterface.hydjetDefault_cfi")
 
-process.source = cms.Source("EmptySource")
-
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10)
                                        )
 
