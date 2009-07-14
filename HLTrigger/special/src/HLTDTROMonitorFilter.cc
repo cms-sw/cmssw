@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/20 16:12:45 $
+ *  $Date: 2009/07/14 10:12:54 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -36,12 +36,12 @@ bool HLTDTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setu
   
 
   // Loop over the DT FEDs
-  static int FEDIDmin = FEDNumbering::getDTFEDIds().first;
-  static int FEDIDMax = FEDNumbering::getDTFEDIds().second;
+  int FEDIDmin = FEDNumbering::MINDTFEDID;
+  int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   // Definitions
-  static const int wordSize_32 = 4;
-  static const int wordSize_64 = 8;
+  const int wordSize_32 = 4;
+  const int wordSize_64 = 8;
 
   for (int dduID=FEDIDmin; dduID<=FEDIDMax; ++dduID) {  // loop over all feds
     const FEDRawData& feddata = rawdata->FEDData(dduID);
