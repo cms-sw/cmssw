@@ -4,7 +4,8 @@ from RecoJets.Configuration.CaloTowersRec_cff import *
 
 from RecoJets.JetProducers.CaloJetPileupSubtractionParameters_cfi import *
 from RecoJets.JetProducers.IconeJetParameters_cfi import *
-from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
+#from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
+
 CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder",
     MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
 )
@@ -26,11 +27,12 @@ iterativeConePu5CaloJets = cms.EDProducer("IterativeConePilupSubtractionJetProdu
     coneRadius = cms.double(0.5)
 )
 
-MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
-    src = cms.InputTag("iterativeConePu5CaloJets"),
-    correctors = cms.vstring('MCJetCorrectorIcone5'),
-    alias = cms.untracked.string('MCJetCorJetIconePu5')
-)
+# REPLACE with UP-TO-DATE Corrections
+#MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
+#    src = cms.InputTag("iterativeConePu5CaloJets"),
+#    correctors = cms.vstring('MCJetCorrectorIcone5'),
+#    alias = cms.untracked.string('MCJetCorJetIconePu5')
+#)
 
 iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
                                          IconeJetParameters,
@@ -44,4 +46,4 @@ iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
 
 CaloJetPileupSubtractionParameters.inputEtJetMin = 10.
 
-runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets*MCJetCorJetIconePu5)
+runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
