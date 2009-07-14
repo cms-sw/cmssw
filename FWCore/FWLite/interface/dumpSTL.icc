@@ -1,0 +1,35 @@
+// -*- C++ -*-
+
+#if !defined(dumpSTL_ICC)
+#define dumpSTL_ICC
+
+
+#include <iostream>
+#include <iterator>
+#include <string>
+
+template <class T, template <class> class CONTAINER>
+void dumpSTL (const CONTAINER<T> &cont, std::ostream& stream = std::cout)
+{
+   std::ostream_iterator<T> output(stream, " ");
+   std::copy(cont.begin(), cont.end(), output);
+}
+
+template <class T, template <class> class CONTAINER>
+void dumpSTLendl (const CONTAINER<T> &cont, std::ostream& stream = std::cout)
+{
+   std::ostream_iterator<T> output(stream, " ");
+   std::copy(cont.begin(), cont.end(), output);
+   stream << std::endl;
+}
+
+template <class T, template <class> class CONTAINER>
+void dumpNamedSTLendl (const std::string &name, const CONTAINER<T> &cont, std::ostream& stream = std::cout)
+{
+   stream << name << " ";
+   std::ostream_iterator<T> output(stream, " ");
+   std::copy(cont.begin(), cont.end(), output);
+   stream << std::endl;
+}
+
+#endif // dumpSTL_ICC
