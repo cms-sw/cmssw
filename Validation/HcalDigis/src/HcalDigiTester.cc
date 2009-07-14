@@ -25,7 +25,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -41,45 +40,12 @@
 template<class Digi>
 
 void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  double fphi_mc = -999999.;  // phi of initial particle from HepMC
-  double feta_mc = -999999.;  // eta of initial particle from HepMC
   
-  bool MC = false;
   
-  // double deltaR = 0.05;
-  
-  edm::Handle<edm::HepMCProduct> evtMC;
-  //  iEvent.getByLabel("VtxSmeared",evtMC);
-  iEvent.getByLabel("generator",evtMC);
-  if (!evtMC.isValid()) {
-    MC=false;
-    std::cout << "no HepMCProduct found" << std::endl;    
-  } else {
-    MC=true;
-    //    std::cout << "source HepMCProduct found"<< std::endl;
-  }
-  
-  // MC particle with highest pt is taken as a direction reference  
-  double maxPt = -99999.;
-  int npart    = 0;
-  const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
-  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	p != myGenEvent->particles_end(); ++p ) {
-    double phip = (*p)->momentum().phi();
-    double etap = (*p)->momentum().eta();
-    //    phi_MC = phip;
-    //    eta_MC = etap;
-    double pt  = (*p)->momentum().perp();
-    if(pt > maxPt) { npart++; maxPt = pt; fphi_mc = phip; feta_mc = etap; }
-  }
-  //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
-
   typename   edm::Handle<edm::SortedCollection<Digi> > digiCollection;
   typename edm::SortedCollection<Digi>::const_iterator digiItr;
-  
-   
+     
   // ADC2fC 
-
   const HcalQIEShape* shape = conditions->getHcalShape();
   HcalCalibrations calibrations;
   CaloSamples tool;
@@ -104,16 +70,51 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   int ndigis = 0;
   //  amplitude for signal cell at diff. depths
-  double ampl1    = 0.;
-  double ampl2    = 0.;
-  double ampl3    = 0.;
-  double ampl4    = 0.;
-  double ampl_all_depths = 0.;
-
+  double ampl1_c    = 0.;
+  double ampl2_c    = 0.;
+  double ampl3_c    = 0.;
+  double ampl4_c    = 0.;
+  double ampl_c     = 0.;
  
   //  std::cout << " HcalDigiTester::reco :  "
   //	    << "subdet=" << subdet << "  noise="<< noise_ << std::endl;
  
+  int ieta_Sim    =  9999;
+  int iphi_Sim    =  9999;
+  double emax_Sim = -9999.;
+
+    
+  // SimHits always
+  edm::Handle<edm::PCaloHitContainer> hcalHits ;
+  iEvent.getByLabel("g4SimHits","HcalHits",hcalHits); 
+  const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
+
+ 
+  if ( subdet != 0 && noise_ == 0) { // signal only SimHits
+
+    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
+      
+      HcalDetId cell(simhits->id());
+      double en    = simhits->energy();
+      int sub      = cell.subdet();
+      int ieta     = cell.ieta();
+      if(ieta > 0) ieta--;
+      int iphi     = cell.iphi()-1; 
+
+      if(en > emax_Sim && sub == subdet) {
+        emax_Sim = en;
+        ieta_Sim = ieta;
+        iphi_Sim = iphi;            
+        // to limit SimHit energy in case of "multi" event  
+        if (mode_ == "multi" && 
+           ((sub == 4 && en < 100. && en > 1.) 
+	    || ((sub !=4) && en < 1. && en > 0.05))) break;   
+      }
+
+    }
+  }   // end of SimHits
+    
+
 
   // CYCLE OVER CELLS ========================================================
 
@@ -123,8 +124,16 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int depth = cell.depth();
     int iphi  = cell.iphi()-1;
     int ieta  = cell.ieta();
-    int sub   = cell.subdet();
     if(ieta > 0) ieta--;
+    int sub   = cell.subdet();
+
+
+  //  amplitude for signal cell at diff. depths
+    double ampl     = 0.;
+    double ampl1    = 0.;
+    double ampl2    = 0.;
+    double ampl3    = 0.;
+    double ampl4    = 0.;
     
     // Gains, pedestals (once !) and only for "noise" case  
     if ( ((nevent1 == 1 && subdet == 1) || 
@@ -270,17 +279,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }     // end of event #1 
     
     
-    // No-noise case, only subdet selected  =================================
+// No-noise case, only single  subdet selected  ===========================
+
     if ( sub == subdet && noise_ == 0 ) {   
       
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double fEta = cellGeometry->getPosition ().eta () ;
-      double fPhi = cellGeometry->getPosition ().phi () ;
-      int depth   = cell.depth();
-      
-      // old version 
-      //      conditions->makeHcalCalibration(cell, &calibrations);
       HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
       const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
@@ -307,17 +309,18 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	monitor()->fillmeADC0fC_depth4(noisefC);
       }
       
-      // Cycle on time slices 
+      // Cycle on time slices
+      // - for each Digi 
+      // - for one Digi with max SimHits E in subdet
       
-      double ampl = 0.;
       int closen  = 0;
-      if(fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.)
-	closen = 1;
+      if(ieta == ieta_Sim && iphi == iphi_Sim ) closen = 1; // max SimHit E
 
       for  (int ii=0;ii<tool.size();ii++) {
 	int capid  = (*digiItr)[ii].capid();
+        // single ts amplitude
 	double val = (tool[ii]-calibrations.pedestal(capid));
-	
+
 	monitor()->fillmeAll10slices(double(ii), val);
 
  	
@@ -325,43 +328,55 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  monitor()->fillmeSignalTimeSlice(double(ii), val);
 	}
 
+
 	// HB/HE/HO
 	if (subdet != 4 && ii>=4 && ii<=7) { 
 	  ampl += val;	  
+	  if(depth == 1) ampl1 += val;   
+	  if(depth == 2) ampl2 += val;   
+	  if(depth == 3) ampl3 += val;   
+	  if(depth == 4) ampl4 += val;
+	  
 	  if( closen == 1 && ( ieta * zsign >= 0 )) { 
-	    
-	    if(depth == 1) ampl1 += val;   
-	    if(depth == 2) ampl2 += val;   
-	    if(depth == 3) ampl3 += val;   
-	    if(depth == 4) ampl4 += val;
+            ampl_c += val;	  
+	    if(depth == 1) ampl1_c += val;   
+	    if(depth == 2) ampl2_c += val;   
+	    if(depth == 3) ampl3_c += val;   
+	    if(depth == 4) ampl4_c += val;
 	    
 	  }
 	}
 	
 	// HF
 	if (subdet == 4 && ii==3 )	{
-	  ampl += val;
-	  if( closen == 1 && ( ieta * zsign >= 0 )) { 
-	    //	  if( dR(feta_mc, fphi_mc, fEta, fPhi) < deltaR) {  
-	    
-	    if(depth == 1)  ampl1 += val;
-	    if(depth == 2)  ampl2 += val;
-	    if(depth == 3)  ampl3 += val;
-	    if(depth == 4)  ampl4 += val;
+	  ampl += val;	    
+	  if(depth == 1)  ampl1 += val;
+	  if(depth == 2)  ampl2 += val;
+	  if(depth == 3)  ampl3 += val;
+	  if(depth == 4)  ampl4 += val;
+	  if( closen == 1 && ( ieta * zsign >= 0 )) { 	    
+	    ampl_c += val;	    
+	    if(depth == 1)  ampl1_c += val;
+	    if(depth == 2)  ampl2_c += val;
+	    if(depth == 3)  ampl3_c += val;
+	    if(depth == 4)  ampl4_c += val;
 
 	  }
 	}
       }
       // end of time bucket sample      
       
-      monitor()->fillmeAmplIetaIphi(double(ieta),double(iphi), ampl);
-      monitor()->fillmeSumAmp      (ampl);
+      monitor()->fillmeAmplIetaIphi1(double(ieta),double(iphi), ampl1);
+      monitor()->fillmeAmplIetaIphi2(double(ieta),double(iphi), ampl2);
+      monitor()->fillmeAmplIetaIphi3(double(ieta),double(iphi), ampl3);
+      monitor()->fillmeAmplIetaIphi4(double(ieta),double(iphi), ampl4);
+      monitor()->fillmeSumAmp (ampl);
       
       
-      if(ampl > 10.) ndigis++;
+      if(ampl1 > 10. || ampl2 > 10.  || ampl3 > 10.  || ampl4 > 10. ) ndigis++;
       
       // fraction 5,6 bins if ampl. is big.
-      if(ampl1 > 50. &&  depth == 1 && closen == 1 ) { 
+      if(ampl1 > 10. &&  depth == 1 && closen == 1 ) { 
 	  double fBin5  = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
 	double fBin67 = tool[5] + tool[6] 
 	  - calibrations.pedestal((*digiItr)[5].capid())
@@ -371,29 +386,23 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	monitor()->fillmeBin5Frac (fBin5);
 	monitor()->fillmeBin67Frac(fBin67);
       }
+
+      monitor()->fillmeSignalAmp (ampl); 
+      monitor()->fillmeSignalAmp1(ampl1); 
+      monitor()->fillmeSignalAmp2(ampl2); 
+      monitor()->fillmeSignalAmp3(ampl3); 
+      monitor()->fillmeSignalAmp4(ampl4); 
+    
       
     }   
   }    // End of CYCLE OVER CELLS =============================================
   
   
-  if ( subdet != 0 && noise_ == 0) { // signal only 
+  if ( subdet != 0 && noise_ == 0) { // signal only, once per event 
 
-    ampl_all_depths = ampl1+ampl2+ampl3+ampl4;
-    monitor()->fillmeSignalAmp (ampl_all_depths); 
-    monitor()->fillmeSignalAmp1(ampl1); 
-    monitor()->fillmeSignalAmp2(ampl2); 
-    monitor()->fillmeSignalAmp3(ampl3); 
-    monitor()->fillmeSignalAmp4(ampl4); 
-    
     monitor()->fillmenDigis(ndigis);
     
-    // SimHits 
-    
-    edm::Handle<edm::PCaloHitContainer> hcalHits ;
-    iEvent.getByLabel("g4SimHits","HcalHits",hcalHits);
-    
-    const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
-    
+    // SimHits once again !!!
     double ehits  = 0.; 
     double ehits1 = 0.; 
     double ehits2 = 0.; 
@@ -403,13 +412,13 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
       
       HcalDetId cell(simhits->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double fEta  = cellGeometry->getPosition ().eta () ;
-      double fPhi  = cellGeometry->getPosition ().phi () ;
+      int ieta   = cell.ieta();
+      if(ieta > 0) ieta--;
+      int iphi   = cell.iphi()-1; 
+      int sub    = cell.subdet();
       
-      if (cell.subdet() == subdet &&  
-	  (fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.)){  
+      // take cell already found to be max energy in a particular subdet
+      if (sub == subdet && ieta == ieta_Sim && iphi == iphi_Sim){  
 	int depth = cell.depth();
 	double en = simhits->energy();
 	
@@ -420,27 +429,26 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(depth == 4)  ehits4 += en; 
       }
     }
+        
+    monitor()->fillmeDigiSimhit (ehits,  ampl_c );
+    monitor()->fillmeDigiSimhit1(ehits1, ampl1_c);
+    monitor()->fillmeDigiSimhit2(ehits2, ampl2_c);
+    monitor()->fillmeDigiSimhit3(ehits3, ampl3_c);
+    monitor()->fillmeDigiSimhit4(ehits4, ampl4_c);
     
+    monitor()->fillmeDigiSimhitProfile (ehits,  ampl_c );
+    monitor()->fillmeDigiSimhitProfile1(ehits1, ampl1_c);
+    monitor()->fillmeDigiSimhitProfile2(ehits2, ampl2_c);
+    monitor()->fillmeDigiSimhitProfile3(ehits3, ampl3_c);
+    monitor()->fillmeDigiSimhitProfile4(ehits4, ampl4_c);
     
-    monitor()->fillmeDigiSimhit (ehits,  ampl_all_depths);
-    monitor()->fillmeDigiSimhit1(ehits1, ampl1);
-    monitor()->fillmeDigiSimhit2(ehits2, ampl2);
-    monitor()->fillmeDigiSimhit3(ehits3, ampl3);
-    monitor()->fillmeDigiSimhit4(ehits4, ampl4);
+    if(ehits  > 0) monitor()->fillmeRatioDigiSimhit (ampl_c  / ehits);
+    if(ehits1 > 0) monitor()->fillmeRatioDigiSimhit1(ampl1_c / ehits1);
+    if(ehits2 > 0) monitor()->fillmeRatioDigiSimhit2(ampl2_c / ehits2);
+    if(ehits3 > 0) monitor()->fillmeRatioDigiSimhit3(ampl3_c / ehits3);
+    if(ehits4 > 0) monitor()->fillmeRatioDigiSimhit4(ampl4_c / ehits4);
     
-    monitor()->fillmeDigiSimhitProfile (ehits,  ampl_all_depths);
-    monitor()->fillmeDigiSimhitProfile1(ehits1, ampl1);
-    monitor()->fillmeDigiSimhitProfile2(ehits2, ampl2);
-    monitor()->fillmeDigiSimhitProfile3(ehits3, ampl3);
-    monitor()->fillmeDigiSimhitProfile4(ehits4, ampl4);
-    
-    if(ehits  > 0) monitor()->fillmeRatioDigiSimhit (ampl_all_depths / ehits);
-    if(ehits1 > 0) monitor()->fillmeRatioDigiSimhit1(ampl1 / ehits1);
-    if(ehits2 > 0) monitor()->fillmeRatioDigiSimhit2(ampl2 / ehits2);
-    if(ehits3 > 0) monitor()->fillmeRatioDigiSimhit3(ampl3 / ehits3);
-    if(ehits4 > 0) monitor()->fillmeRatioDigiSimhit4(ampl4 / ehits4);
-    
-  }  
+  } //  end of if( subdet != 0 && noise_ == 0) { // signal only 
 }
 
 
@@ -450,6 +458,7 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
     outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),
     zside_(iConfig.getUntrackedParameter<std::string>("zside", "*")),
+    mode_(iConfig.getUntrackedParameter<std::string>("mode", "multi")),
     monitors_()
 {
   if ( outputFile_.size() != 0 ) {
@@ -501,15 +510,31 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<CaloGeometryRecord>().get (geometry);
   iSetup.get<HcalDbRecord>().get(conditions);
 
-  noise_ = 0;
-                                                          
-  if (hcalselector_ == "HB" ) reco<HBHEDataFrame>(iEvent,iSetup);
-  if (hcalselector_ == "HE" ) reco<HBHEDataFrame>(iEvent,iSetup);
-  if (hcalselector_ == "HO" ) reco<HODataFrame>(iEvent,iSetup);
-  if (hcalselector_ == "HF" ) reco<HFDataFrame>(iEvent,iSetup);  
+  if( hcalselector_ != "all") {
+    noise_ = 0;
+    
+    if (hcalselector_ == "HB" ) reco<HBHEDataFrame>(iEvent,iSetup);
+    if (hcalselector_ == "HE" ) reco<HBHEDataFrame>(iEvent,iSetup);
+    if (hcalselector_ == "HO" ) reco<HODataFrame>(iEvent,iSetup);
+    if (hcalselector_ == "HF" ) reco<HFDataFrame>(iEvent,iSetup);  
 
-  if (hcalselector_ == "noise") {
-    noise_ = 1;
+    if (hcalselector_ == "noise") {
+      noise_ = 1;
+      
+      hcalselector_ = "HB";
+      reco<HBHEDataFrame>(iEvent,iSetup);
+      hcalselector_ = "HE";
+      reco<HBHEDataFrame>(iEvent,iSetup);
+      hcalselector_ = "HO";
+      reco<HODataFrame>(iEvent,iSetup);
+      hcalselector_ = "HF";
+      reco<HFDataFrame>(iEvent,iSetup);
+      hcalselector_ = "noise";
+    }
+  }    
+    // all subdetectors
+  else {
+    noise_ = 0;
     
     hcalselector_ = "HB";
     reco<HBHEDataFrame>(iEvent,iSetup);
@@ -519,26 +544,8 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco<HODataFrame>(iEvent,iSetup);
     hcalselector_ = "HF";
     reco<HFDataFrame>(iEvent,iSetup);
-    hcalselector_ = "noise";
+    hcalselector_ = "all";    
   }
-
-// New block !!!!
-  if (hcalselector_ == "all") {
-   noise_ = 0;
-
-    hcalselector_ = "HB";
-    reco<HBHEDataFrame>(iEvent,iSetup);
-    hcalselector_ = "HE";
-    reco<HBHEDataFrame>(iEvent,iSetup);
-    hcalselector_ = "HO";
-    reco<HODataFrame>(iEvent,iSetup);
-    hcalselector_ = "HF";
-    reco<HFDataFrame>(iEvent,iSetup);
-    hcalselector_ = "noise";
-
-  }
-
-
 
 }
 
