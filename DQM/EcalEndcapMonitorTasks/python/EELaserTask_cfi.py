@@ -8,6 +8,6 @@ ecalEndcapLaserTask = cms.EDAnalyzer("EELaserTask",
     EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE"),
-    laserWavelengths = cms.untracked.vint32(1, 2, 3, 4)
+    laserWavelengths = cms.untracked.vint32(1, 3)
 )
 

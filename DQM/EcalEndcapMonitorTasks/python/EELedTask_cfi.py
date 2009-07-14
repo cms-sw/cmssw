@@ -8,6 +8,6 @@ ecalEndcapLedTask = cms.EDAnalyzer("EELedTask",
     EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE"),
-    ledWavelengths = cms.untracked.vint32(1, 2)
+    ledWavelengths = cms.untracked.vint32(1)
 )
 
