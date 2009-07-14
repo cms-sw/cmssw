@@ -241,9 +241,6 @@ int main( int argc, char** argv ){
     }
     
 
-    bool newIOV = destiovtoken.empty();
-
-
     cond::PoolTransaction& destdb=conHandler.getConnection("destdb")->poolTransaction();
     cond::IOVService iovmanager(destdb);
     std::string payload = iovmanager.payloadToken(iovtoken,from);
@@ -253,6 +250,8 @@ int main( int argc, char** argv ){
     };
     int size=0;
 
+
+
     bool newIOV = destiovtoken.empty();
 
 
@@ -260,7 +259,6 @@ int main( int argc, char** argv ){
       // to be streamlined
       cond::IOVProxy iov(*conHandler.getConnection("destdb"),destiovtoken,false,true);
       size = iov.size();
-      payload = 
       if ( (iov.end()-1)->wrapperToken()==payload) {
 	std::cerr <<"[Warning] payload for time " << from
 		  <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
