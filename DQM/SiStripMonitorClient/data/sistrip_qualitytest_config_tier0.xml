@@ -8,7 +8,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">0.1</PARAM>
+      <PARAM name="xmax">0.002</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:nFEDBadChannels">
       <TYPE>MeanWithinExpected</TYPE>
@@ -19,7 +19,18 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">3800.0</PARAM>
+      <PARAM name="xmax">380.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:nFEDBadActiveChannels">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">380.0</PARAM>
 </QTEST>
 <QTEST name="ContentsWithinExpected:TkHistoFedError">
         <TYPE>ContentsWithinExpected</TYPE>
@@ -116,13 +127,30 @@
       <PARAM name="xmin">0.01</PARAM>
       <PARAM name="xmax">10.0</PARAM>
 </QTEST>
+<QTEST name="XrangeWithin:NumberOfRecHitsPerTrk" activate="true"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.70</PARAM> 
+     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="xmin">5.0</PARAM> 
+     <PARAM name="xmax">100.0</PARAM> 
+</QTEST>
+<QTEST name="XrangeWithin:Chi2overDoF" activate="true"> 
+     <TYPE>ContentsXRange</TYPE> 
+     <PARAM name="error">0.70</PARAM> 
+     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="xmin">0</PARAM> 
+     <PARAM name="xmax">25.0</PARAM> 
+</QTEST>
 
 
 <LINK name="*nFEDErrors*">
   <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
 </LINK>
-<LINK name="*nBadActiveChannelStatusBits*">
+<LINK name="*nFEDBadChannels*">
   <TestName activate="true">MeanWithinExpectedRange:nFEDBadChannels</TestName>
+</LINK>
+<LINK name="*nFEDBadActiveChannels*">
+  <TestName activate="true">MeanWithinExpectedRange:nFEDBadActiveChannels</TestName>
 </LINK>
 <LINK name="*TkHMap_FractionOfBadChannels*">
   <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
@@ -153,6 +181,12 @@
 </LINK>
 <LINK name="*TrackParameters/NumberOfTracks_CKFTk">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
+</LINK>
+<LINK name="*TrackParameters/NumberOfRecHitsPerTrack_CKFTk">
+  <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
+</LINK>
+<LINK name="*TrackParameters/Chi2overDoF_CKFTk">
+  <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
 </LINK>
 
 </TESTCONFIGURATION>

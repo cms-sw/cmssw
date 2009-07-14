@@ -2,6 +2,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/QReport.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -151,8 +152,21 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       dqm_store->setCurrentFolder(tracking_dir+"/EventInfo"); 
       TrackSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
 
+      string hname, htitle;
+      hname  = "reportSummaryMap";
+      htitle = "Tracking Report Summary Map";
+ 
+      TrackSummaryReportMap    = dqm_store->book2D(hname, htitle, 3,0.5,3.5,1,0.5,1.5);
+      TrackSummaryReportMap->setAxisTitle("Track Quality Type", 1);
+      TrackSummaryReportMap->setAxisTitle("QTest Flag", 2);
+      TrackSummaryReportMap->setBinLabel(1,"Rate");
+      TrackSummaryReportMap->setBinLabel(2,"Chi2");
+      TrackSummaryReportMap->setBinLabel(3,"RecHits");
+
       dqm_store->setCurrentFolder(tracking_dir+"/EventInfo/reportSummaryContents");  
-      ReportTrackRate = dqm_store->bookFloat("TrackRate");     
+      ReportTrackRate       = dqm_store->bookFloat("TrackRate");     
+      ReportTrackChi2overDoF = dqm_store->bookFloat("TrackChi2overDoF");     
+      ReportTrackRecHits    = dqm_store->bookFloat("TrackRecHits");     
 
       bookedTrackingStatus_ = true;
     }
@@ -162,6 +176,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 // -- Fill Dummy  Status
 //
 void SiStripQualityChecker::fillDummyStatus(){
+ 
   if (bookedStripStatus_) {
     resetStatus();
     for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
@@ -172,8 +187,8 @@ void SiStripQualityChecker::fillDummyStatus(){
       local_mes.SummaryFlag->Fill(-1.0);
     }
     
-    for (unsigned int xbin = 1; xbin < 7; xbin++) {
-      for (unsigned int ybin = 1; ybin < 10; ybin++) {
+    for (int xbin = 1; xbin < SummaryReportMap->getNbinsX()+1; xbin++) {
+      for (int ybin = 1; ybin < SummaryReportMap->getNbinsY()+1; ybin++) {
 	DetFractionReportMap->Fill(xbin, ybin, -1.0);
 	SToNReportMap->Fill(xbin, ybin, -1.0);
 	SummaryReportMap->Fill(xbin, ybin, -1.0);
@@ -183,7 +198,14 @@ void SiStripQualityChecker::fillDummyStatus(){
   }
   if (bookedTrackingStatus_) {  
     TrackSummaryReportGlobal->Fill(-1.0);
+    for (int xbin = 1; xbin < TrackSummaryReportMap->getNbinsX()+1; xbin++) {
+      for (int ybin = 1; ybin < TrackSummaryReportMap->getNbinsY()+1; ybin++) {
+        TrackSummaryReportMap->Fill(xbin, ybin, -1.0);
+      }
+    }
     ReportTrackRate->Fill(-1.0);
+    ReportTrackChi2overDoF->Fill(-1.0);     
+    ReportTrackRecHits->Fill(-1.0);     
   }
 }
 //
@@ -207,7 +229,10 @@ void SiStripQualityChecker::resetStatus() {
   }
   if (bookedTrackingStatus_) {  
     TrackSummaryReportGlobal->Reset();
+    TrackSummaryReportMap->Reset();
     ReportTrackRate->Reset();
+    ReportTrackChi2overDoF->Reset();     
+    ReportTrackRecHits->Reset();     
   }
 }
 //
@@ -255,24 +280,39 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
 // -- Fill Tracking Status
 //
 void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
+
   dqm_store->cd();
   string dir = "Tracking"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
-  dir = "TrackParameter"; 
+  dir = "TrackParameters"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
   vector<MonitorElement*> meVec = dqm_store->getContents(dqm_store->pwd());
+
   float gstatus = 1.0;
   for (vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
     MonitorElement * me = (*it);     
-    if (!me) continue;
-    if (me->getQReports().size() == 0) continue;
+    if (!me) continue;     
+    vector<QReport *> qt_reports = me->getQReports();          
+    if (qt_reports.size() == 0) continue;
     string name = me->getName();
     int istat =  SiStripUtility::getMEStatus((*it)); 
     float status = 1.0; 
-    if (name.find("NumberOfTracks") != string::npos) {
-      if (istat == dqm::qstatus::ERROR) status = 0.0;
+    if (name.find("NumberOfTracks_CKFTk") != string::npos) {
+      status = qt_reports[0]->getQTresult();
       ReportTrackRate->Fill(status);
+      fillStatusHistogram(TrackSummaryReportMap, 1, 1, status);
+    } else if (name.find("Chi2overDoF_CKFTk") != string::npos) {
+      //      if (istat == dqm::qstatus::ERROR) status = 0.0;
+      status = qt_reports[0]->getQTresult();
+      ReportTrackChi2overDoF->Fill(status);
+      fillStatusHistogram(TrackSummaryReportMap, 2, 1, status);
+    } else if (name.find("NumberOfRecHitsPerTrack_CKFTk") != string::npos) {
+      //      if (istat == dqm::qstatus::ERROR) status = 0.0;
+      status = qt_reports[0]->getQTresult();
+      ReportTrackRecHits->Fill(status);
+      fillStatusHistogram(TrackSummaryReportMap, 3, 1, status);
     }
+    cout << " name " << name << " status " << status  << " gstatus " << gstatus << endl;
     gstatus = gstatus * status; 
   }
   TrackSummaryReportGlobal->Fill(gstatus);

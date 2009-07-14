@@ -61,6 +61,10 @@ class SiStripQualityChecker {
   MonitorElement* SummaryReportGlobal;
 
   MonitorElement* ReportTrackRate;
+  MonitorElement* ReportTrackChi2overDoF;
+  MonitorElement* ReportTrackRecHits;
+  MonitorElement* TrackSummaryReportMap;
+
   MonitorElement* TrackSummaryReportGlobal;
 
   std::map<uint32_t,uint16_t> badModuleList;
