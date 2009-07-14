@@ -21,6 +21,8 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
+
 // #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
