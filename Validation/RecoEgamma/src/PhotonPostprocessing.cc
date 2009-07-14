@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/08 19:12:49 $ 
+ **  $Date: 2009/07/09 19:01:15 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -164,8 +164,8 @@ void PhotonPostprocessing::endJob()
   dividePlots(dbe_->get(effPathName+"convFakeRateVsEtaTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEta"),dbe_->get(convPathName+"h_RecoConvTwoTracksEta"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsPhiTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksPhi"),dbe_->get(convPathName+"h_RecoConvTwoTracksPhi"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsRTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksR"),dbe_->get(convPathName+"h_RecoConvTwoTracksR"),"fakerate");
-  dividePlots(dbe_->get(effPathName+"convFakeRateVsZTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ"),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ"),"fakerate");
-  dividePlots(dbe_->get(effPathName+"convFakeRateVsEtTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt"),"fakerate");
+  dividePlots(dbe_->get(effPathName+"convFakeRateVsZTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ"),dbe_->get(convPathName+"h_RecoConvTwoTracksZ"),"fakerate");
+  dividePlots(dbe_->get(effPathName+"convFakeRateVsEtTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt"),dbe_->get(convPathName+"h_RecoConvTwoTracksEt"),"fakerate");
   
 
 
