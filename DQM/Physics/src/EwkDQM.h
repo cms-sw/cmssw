@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/06/28 09:46:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/30 13:15:06 $
+ *  $Revision: 1.1 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -54,11 +54,31 @@ class EwkDQM : public edm::EDAnalyzer {
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theElectronCollectionLabel;
   edm::InputTag theCaloJetCollectionLabel;
+  edm::InputTag theCaloMETCollectionLabel;
 
   // Histograms
   MonitorElement* h_mumu_invMass;
   MonitorElement* h_ee_invMass;
   MonitorElement* h_jet_et;
   MonitorElement* h_jet_count;
+//WCP: Adding a Histo
+  MonitorElement* h_e1_et;
+  MonitorElement* h_e2_et;
+  MonitorElement* h_e1_eta;
+  MonitorElement* h_e2_eta;
+  MonitorElement* h_e1_phi;
+  MonitorElement* h_e2_phi;
+  MonitorElement* h_m1_pt;
+  MonitorElement* h_m2_pt;
+  MonitorElement* h_m1_eta;
+  MonitorElement* h_m2_eta;
+  MonitorElement* h_m1_phi;
+  MonitorElement* h_m2_phi;
+  MonitorElement* h_t1_et;
+  MonitorElement* h_t1_eta;
+  MonitorElement* h_t1_phi;
+  MonitorElement* h_met;
+  MonitorElement* h_met_phi;
+  MonitorElement* h_e_invWMass;
 };
 #endif
