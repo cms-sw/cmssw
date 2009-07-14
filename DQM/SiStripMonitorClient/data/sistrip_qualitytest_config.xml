@@ -147,8 +147,8 @@
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:TrkRate" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
-      <PARAM name="error">0.05</PARAM>
-      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="error">0.85</PARAM>
+      <PARAM name="warning">0.95</PARAM>
       <PARAM name="mean">1.0</PARAM>
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
@@ -158,15 +158,15 @@
 </QTEST>
 <QTEST name="XrangeWithin:NumberOfRecHitsPerTrk" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.70</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="error">0.85</PARAM> 
+     <PARAM name="warning">0.95</PARAM> 
      <PARAM name="xmin">5.0</PARAM> 
      <PARAM name="xmax">100.0</PARAM> 
 </QTEST>
 <QTEST name="XrangeWithin:Chi2overDoF" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.70</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="error">0.85</PARAM> 
+     <PARAM name="warning">0.95</PARAM> 
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">25.0</PARAM> 
 </QTEST>
