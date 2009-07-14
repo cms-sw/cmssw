@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2008/10/30 12:04:03 $
+ * $Date: 2008/12/11 12:27:22 $
  * \author C. Rovelli
  *
 */
@@ -95,6 +95,12 @@ private:
  MonitorElement* meEBRecHitSimHitRatio_;
  MonitorElement* meEERecHitSimHitRatio_;
  MonitorElement* meESRecHitSimHitRatio_;
+ MonitorElement* meEBRecHitSimHitRatio1011_;
+ MonitorElement* meEERecHitSimHitRatio1011_;
+ MonitorElement* meEBRecHitSimHitRatio12_;
+ MonitorElement* meEERecHitSimHitRatio12_;
+ MonitorElement* meEBRecHitSimHitRatio13_;
+ MonitorElement* meEERecHitSimHitRatio13_;
  MonitorElement* meEBRecHitSimHitRatioGt35_;
  MonitorElement* meEERecHitSimHitRatioGt35_;
  MonitorElement* meEBUnRecHitSimHitRatio_;
@@ -116,6 +122,25 @@ private:
  MonitorElement* meESRecHitLog10EnergyContr_;
  MonitorElement* meEBRecHitLog10Energy5x5Contr_;
  MonitorElement* meEERecHitLog10Energy5x5Contr_;
+
+ MonitorElement* meEBRecHitsOccupancyFlag5_6_;     
+ MonitorElement* meEBRecHitsOccupancyFlag8_9_;     
+
+ MonitorElement* meEERecHitsOccupancyPlusFlag5_6_;     
+ MonitorElement* meEERecHitsOccupancyMinusFlag5_6_;     
+ MonitorElement* meEERecHitsOccupancyPlusFlag8_9_;     
+ MonitorElement* meEERecHitsOccupancyMinusFlag8_9_;     
+
+ MonitorElement* meEBRecHitFlags_;
+ MonitorElement* meEBRecHitSimHitvsSimHitFlag5_6_;
+ MonitorElement* meEBRecHitSimHitFlag6_;
+ MonitorElement* meEBRecHitSimHitFlag7_;
+ MonitorElement* meEB5x5RecHitSimHitvsSimHitFlag8_;
+
+ MonitorElement* meEERecHitFlags_;
+ MonitorElement* meEERecHitSimHitvsSimHitFlag5_6_;
+ MonitorElement* meEERecHitSimHitFlag6_;
+ MonitorElement* meEERecHitSimHitFlag7_;
 
  std::vector<uint32_t> crystalMatrix;
 
