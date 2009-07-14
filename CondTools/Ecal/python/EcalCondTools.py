@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.3 2009/07/10 07:59:29 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.4 2009/07/14 16:52:11 argiro Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -61,22 +61,22 @@ def plot (db, tag,since,till,filename='plot.root'):
         print er
         
 
-def compare(tag1,db1,tag2,db2, filename='compare.root'):
+def compare(tag1,db1,since1,till1,
+            tag2,db2,since2,till2,filename='compare.root'):
   '''Produce comparison plots for two records. Save plots to file \
      according to format. tag can be an xml file'''
+  coeff_1=[]
+  coeff_2=[]
   
   if  tag1.find(".xml") < 0:
-      try:  
-        exec('import '+db1.moduleName(tag1)+' as Plug')
-
+      try:
+        exec('import '+db1.moduleName(tag1)+' as Plug')  
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
         ex = Plug.Extractor(w)
-
-        for elem in db1.iov(tag1).elements :
-            p = Plug.Object(elem)
-            p.extract(ex)
-            coeff_1 = [i for i in ex.values()]# first set of coefficients
+        p = getObject(db1,tag1,since1,till1)
+        p.extract(ex)
+        coeff_1 = [i for i in ex.values()]# first set of coefficients
 
       except Exception,er :
           print er
@@ -86,15 +86,12 @@ def compare(tag1,db1,tag2,db2, filename='compare.root'):
   if  tag2.find(".xml")<0:
       try:  
         exec('import '+db2.moduleName(tag2)+' as Plug')
-
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
         ex = Plug.Extractor(w)
-        
-        for elem in db2.iov(tag2).elements :
-            p = Plug.Object(elem)
-            p.extract(ex)
-            coeff_2 = [i for i in ex.values()]# 2nd set of coefficients
+        p = getObject(db2,tag2,since2,till2)
+        p.extract(ex)
+        coeff_2 = [i for i in ex.values()]# 2nd set of coefficients
         
       except Exception, er :
           print er
@@ -195,11 +192,11 @@ def getObject(db,tag,since,till):
     found=0
     try:
        exec('import '+db.moduleName(tag)+' as Plug')  
-       for elem in db.iov(tag).elements :
-           #not sure why I have to str() this
+       for elem in db.iov(tag).elements :       
            if str(elem.since())==str(since) and str(elem.till())==str(till):
                found=1
                return Plug.Object(elem)
+           
     except Exception, er :
         print er
 

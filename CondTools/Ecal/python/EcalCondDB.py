@@ -7,6 +7,7 @@
 #
 import os,sys,getopt
 
+
 def usage():
     print "NAME "
     print "   EcalCondDB - inpect EcalCondDB"
@@ -28,7 +29,7 @@ def usage():
     print "   -t, --tag= [tag,file] specify tag or xml file (histo,compare)"
     print
     print "   -s, --since= [runnumber] specify since"
-    print "   -u, --till=  [runnumber] specify till"
+    print "   -u, --till=  [runnumber] specify till (inf=4294967295)"
     
     print "COMMANDS"
     
@@ -82,6 +83,8 @@ do_hist=0
 
 outfilename=None
 
+#shortcut for infinity
+inf="4294967295"
 
 for opt,arg in opts:
 
@@ -128,7 +131,10 @@ for opt,arg in opts:
 
 
     if opt in ("-u","--till"):
-       tills.append(arg)
+       if arg=='inf' :
+           tills.append(inf)
+       else :
+           tills.append(arg)
 
        
 #done parsing options, now steer
@@ -162,7 +168,13 @@ if do_comp:
    if len(tags) != 2 :
        print "Must give exactly two tags to compare: -t tag1 -t tag2"
        sys.exit(0)
-   EcalCondTools.compare(tags[0],db,tags[1],db,outfilename)       
+   if  tags[0].find('.xml')<0 and  len(sinces)!=2 and len(tills)!=2:
+       print "Must specify tag, since, till to compare  with -t [tag1] \
+              -s [since1] -u [till1] -t [tag2] -s [since2] -t[since3]    "
+       sys.exit(0)
+       
+   EcalCondTools.compare(tags[0],db,sinces[0],tills[0],
+                         tags[1],db,sinces[1],tills[1],outfilename)       
 
 if do_hist:
    if not len(tags):
