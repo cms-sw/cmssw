@@ -67,7 +67,7 @@ class ProjectionFitter
                                  const unsigned int rebinX, const unsigned int rebinY,
                                  const double & fitXmin, const double & fitXmax,
                                  const TString & fitName, const TString & append,
-                                 const unsigned int minEntries = 1000);
+                                 const unsigned int minEntries = 100);
  protected:
   /// Take the projection and give it a suitable name and title
   TH1 * takeProjectionY( const TH2 * histo, const int index ) {
@@ -224,14 +224,14 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   }
 
   TGraphErrors *grMean = new TGraphErrors(fitsNumber, xCenter, mean, xCenterError, meanError);
-  grMean->SetTitle(histoName+"_Mean");
-  grMean->SetName(histoName+"_Mean");
+  grMean->SetTitle(histoName+"_Mean"+append);
+  grMean->SetName(histoName+"_Mean"+append);
   TGraphErrors *grWidth = new TGraphErrors(fitsNumber, xCenter, width, xCenterError, widthError);
-  grWidth->SetTitle(histoName+"_Width");
-  grWidth->SetName(histoName+"_Width");
+  grWidth->SetTitle(histoName+"_Width"+append);
+  grWidth->SetName(histoName+"_Width"+append);
   TGraphErrors *grChi2 = new TGraphErrors(fitsNumber, xCenter, chi2, xCenterError, xCenterError);
-  grChi2->SetTitle(histoName+"_chi2");
-  grChi2->SetName(histoName+"_chi2");
+  grChi2->SetTitle(histoName+"_chi2"+append);
+  grChi2->SetName(histoName+"_chi2"+append);
 
   grMean->SetMarkerColor(4);
   grMean->SetMarkerStyle(20);
@@ -265,23 +265,34 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
 
 /****************************************************************************************/
 void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title,
-                const TString & resonanceType, const int rebinX, const int rebinY, const TString & outputFileName) {
+                const TString & resonanceType, const int rebinX, const int rebinY, const TString & outputFileName,
+                TFile * externalOutputFile = 0) {
 
   gROOT->SetBatch(true);
 
   //Save the graphs in a file
-  TFile *outputFile = new TFile(outputFileName,"RECREATE");
+  TFile *outputFile = externalOutputFile;
+  if( outputFile == 0 ) {
+    outputFile = new TFile(outputFileName,"RECREATE");
+  }
 
   setTDRStyle();
 
   ProjectionFitter projectionFitter;
 
-  cout << "nameFile1 = " << nameFile1 << endl;
+  cout << "File 1 = " << nameFile1 << endl;
+  cout << "File 2 = " << nameFile2 << endl;
 
-  TGraphErrors *grM_1 = projectionFitter.fit2Dprojection( nameFile1, name, rebinX, rebinY, 70, 110, "gaus", "_1" );
-  TGraphErrors *grM_2 = projectionFitter.fit2Dprojection( nameFile2, name, rebinX, rebinY, 70, 110, "gaus", "_2" );
+  double y[2];
+  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=0.; y[1]=6.; }
+  else if( resonanceType.Contains("Upsilon") ) { y[0]=8.; y[1]=12.; }
+  else if( resonanceType == "Z" ) { y[0]=70; y[1]=110; }
+  else if( resonanceType == "Resolution" ) { y[0]=-0.3; y[1]=0.3; }
 
-  TCanvas *c = new TCanvas(name+"_Z",name+"_Z");
+  TGraphErrors *grM_1 = projectionFitter.fit2Dprojection( nameFile1, name, rebinX, rebinY, y[0], y[1], "gaus", "_1" );
+  TGraphErrors *grM_2 = projectionFitter.fit2Dprojection( nameFile2, name, rebinX, rebinY, y[0], y[1], "gaus", "_2" );
+
+  TCanvas *c = new TCanvas(name,name);
   c->SetGridx();
   c->SetGridy();
     
@@ -290,10 +301,10 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
  
   TString xAxisTitle;
 
-  double x[2],y[2];
+  double x[2];
 
   if( name.Contains("Eta") ) {
-    x[0]=-3; x[1]=3;       //<------useful for reso VS eta
+    x[0]=-3; x[1]=3;
     xAxisTitle = "#eta";
   }
   else if( name.Contains("PhiPlus") || name.Contains("PhiMinus") ) {
@@ -304,9 +315,6 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
     x[0] = 0.; x[1] = 200;
     xAxisTitle = "pt(GeV)";
   }
-  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=0.; y[1]=6.; }
-  else if( resonanceType.Contains("Upsilon") ) { y[0]=8.; y[1]=12.; }
-  else if( resonanceType == "Z" ) { y[0]=80; y[1]=100; }
 
   // This is used to have a canvas containing both histogram points
   TGraph *gr = new TGraph(2,x,y);
@@ -345,7 +353,9 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   outputFile->cd();
   c->Write();
-  outputFile->Close();
+  if( externalOutputFile == 0 ) {
+    outputFile->Close();
+  }
 }
 
 /****************************************************************************************/
