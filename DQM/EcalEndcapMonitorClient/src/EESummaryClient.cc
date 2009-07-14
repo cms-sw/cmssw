@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/07/14 09:13:32 $
- * $Revision: 1.169 $
+ * $Date: 2009/07/14 14:05:16 $
+ * $Revision: 1.170 $
  * \author G. Della Ricca
  *
 */
@@ -1255,48 +1255,48 @@ void EESummaryClient::analyze(void) {
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
 
-      meIntegrity_[0]->setBinContent( ix, iy, 6. );
-      meIntegrity_[1]->setBinContent( ix, iy, 6. );
-      meOccupancy_[0]->setBinContent( ix, iy, 0. );
-      meOccupancy_[1]->setBinContent( ix, iy, 0. );
-      meStatusFlags_[0]->setBinContent( ix, iy, 6. );
-      meStatusFlags_[1]->setBinContent( ix, iy, 6. );
-      mePedestalOnline_[0]->setBinContent( ix, iy, 6. );
-      mePedestalOnline_[1]->setBinContent( ix, iy, 6. );
-      mePedestalOnlineRMSMap_[0]->setBinContent( ix, iy, -1. );
-      mePedestalOnlineRMSMap_[1]->setBinContent( ix, iy, -1. );
+      if ( meIntegrity_[0] ) meIntegrity_[0]->setBinContent( ix, iy, 6. );
+      if ( meIntegrity_[1] ) meIntegrity_[1]->setBinContent( ix, iy, 6. );
+      if ( meOccupancy_[0] ) meOccupancy_[0]->setBinContent( ix, iy, 0. );
+      if ( meOccupancy_[1] ) meOccupancy_[1]->setBinContent( ix, iy, 0. );
+      if ( meStatusFlags_[0] ) meStatusFlags_[0]->setBinContent( ix, iy, 6. );
+      if ( meStatusFlags_[1] ) meStatusFlags_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalOnline_[0] ) mePedestalOnline_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalOnline_[1] ) mePedestalOnline_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalOnlineRMSMap_[0] ) mePedestalOnlineRMSMap_[0]->setBinContent( ix, iy, -1. );
+      if ( mePedestalOnlineRMSMap_[1] ) mePedestalOnlineRMSMap_[1]->setBinContent( ix, iy, -1. );
 
-      meLaserL1_[0]->setBinContent( ix, iy, 6. );
-      meLaserL1_[1]->setBinContent( ix, iy, 6. );
-      meLaserL2_[0]->setBinContent( ix, iy, 6. );
-      meLaserL2_[1]->setBinContent( ix, iy, 6. );
-      meLaserL3_[0]->setBinContent( ix, iy, 6. );
-      meLaserL3_[1]->setBinContent( ix, iy, 6. );
-      meLaserL4_[0]->setBinContent( ix, iy, 6. );
-      meLaserL4_[1]->setBinContent( ix, iy, 6. );
-      meLedL1_[0]->setBinContent( ix, iy, 6. );
-      meLedL1_[1]->setBinContent( ix, iy, 6. );
-      meLedL2_[0]->setBinContent( ix, iy, 6. );
-      meLedL2_[1]->setBinContent( ix, iy, 6. );
-      mePedestalG01_[0]->setBinContent( ix, iy, 6. );
-      mePedestalG01_[1]->setBinContent( ix, iy, 6. );
-      mePedestalG06_[0]->setBinContent( ix, iy, 6. );
-      mePedestalG06_[1]->setBinContent( ix, iy, 6. );
-      mePedestalG12_[0]->setBinContent( ix, iy, 6. );
-      mePedestalG12_[1]->setBinContent( ix, iy, 6. );
-      meTestPulseG01_[0]->setBinContent( ix, iy, 6. );
-      meTestPulseG01_[1]->setBinContent( ix, iy, 6. );
-      meTestPulseG06_[0]->setBinContent( ix, iy, 6. );
-      meTestPulseG06_[1]->setBinContent( ix, iy, 6. );
-      meTestPulseG12_[0]->setBinContent( ix, iy, 6. );
-      meTestPulseG12_[1]->setBinContent( ix, iy, 6. );
-      meCosmic_[0]->setBinContent( ix, iy, 0. );
-      meCosmic_[1]->setBinContent( ix, iy, 0. );
-      meTiming_[0]->setBinContent( ix, iy, 6. );
-      meTiming_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL1_[0] ) meLaserL1_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL1_[1] ) meLaserL1_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL2_[0] ) meLaserL2_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL2_[1] ) meLaserL2_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL3_[0] ) meLaserL3_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL3_[1] ) meLaserL3_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL4_[0] ) meLaserL4_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL4_[1] ) meLaserL4_[1]->setBinContent( ix, iy, 6. );
+      if ( meLedL1_[0] ) meLedL1_[0]->setBinContent( ix, iy, 6. );
+      if ( meLedL1_[1] ) meLedL1_[1]->setBinContent( ix, iy, 6. );
+      if ( meLedL2_[0] ) meLedL2_[0]->setBinContent( ix, iy, 6. );
+      if ( meLedL2_[1] ) meLedL2_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG01_[0] ) mePedestalG01_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG01_[1] ) mePedestalG01_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG06_[0] ) mePedestalG06_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG06_[1] ) mePedestalG06_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG12_[0] ) mePedestalG12_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalG12_[1] ) mePedestalG12_[1]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG01_[0] ) meTestPulseG01_[0]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG01_[1] ) meTestPulseG01_[1]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG06_[0] ) meTestPulseG06_[0]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG06_[1] ) meTestPulseG06_[1]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG12_[0] ) meTestPulseG12_[0]->setBinContent( ix, iy, 6. );
+      if ( meTestPulseG12_[1] ) meTestPulseG12_[1]->setBinContent( ix, iy, 6. );
+      if ( meCosmic_[0] ) meCosmic_[0]->setBinContent( ix, iy, 0. );
+      if ( meCosmic_[1] ) meCosmic_[1]->setBinContent( ix, iy, 0. );
+      if ( meTiming_[0] ) meTiming_[0]->setBinContent( ix, iy, 6. );
+      if ( meTiming_[1] ) meTiming_[1]->setBinContent( ix, iy, 6. );
 
-      meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
-      meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
+      if ( meGlobalSummary_[0] ) meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
+      if ( meGlobalSummary_[1] ) meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
 
     }
   }
@@ -1304,148 +1304,148 @@ void EESummaryClient::analyze(void) {
   for ( int ix = 1; ix <= 20; ix++ ) {
     for ( int iy = 1; iy <= 90; iy++ ) {
 
-      meLaserL1PN_[0]->setBinContent( ix, iy, 6. );
-      meLaserL1PN_[1]->setBinContent( ix, iy, 6. );
-      meLaserL2PN_[0]->setBinContent( ix, iy, 6. );
-      meLaserL2PN_[1]->setBinContent( ix, iy, 6. );
-      meLaserL3PN_[0]->setBinContent( ix, iy, 6. );
-      meLaserL3PN_[1]->setBinContent( ix, iy, 6. );
-      meLaserL4PN_[0]->setBinContent( ix, iy, 6. );
-      meLaserL4PN_[1]->setBinContent( ix, iy, 6. );
-      meLedL1PN_[0]->setBinContent( ix, iy, 6. );
-      meLedL1PN_[1]->setBinContent( ix, iy, 6. );
-      meLedL2PN_[0]->setBinContent( ix, iy, 6. );
-      meLedL2PN_[1]->setBinContent( ix, iy, 6. );
-      mePedestalPNG01_[0]->setBinContent( ix, iy, 6. );
-      mePedestalPNG01_[1]->setBinContent( ix, iy, 6. );
-      mePedestalPNG16_[0]->setBinContent( ix, iy, 6. );
-      mePedestalPNG16_[1]->setBinContent( ix, iy, 6. );
-      meTestPulsePNG01_[0]->setBinContent( ix, iy, 6. );
-      meTestPulsePNG01_[1]->setBinContent( ix, iy, 6. );
-      meTestPulsePNG16_[0]->setBinContent( ix, iy, 6. );
-      meTestPulsePNG16_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL1PN_[0] ) meLaserL1PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL1PN_[1] ) meLaserL1PN_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL2PN_[0] ) meLaserL2PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL2PN_[1] ) meLaserL2PN_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL3PN_[0] ) meLaserL3PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL3PN_[1] ) meLaserL3PN_[1]->setBinContent( ix, iy, 6. );
+      if ( meLaserL4PN_[0] ) meLaserL4PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLaserL4PN_[1] ) meLaserL4PN_[1]->setBinContent( ix, iy, 6. );
+      if ( meLedL1PN_[0] ) meLedL1PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLedL1PN_[1] ) meLedL1PN_[1]->setBinContent( ix, iy, 6. );
+      if ( meLedL2PN_[0] ) meLedL2PN_[0]->setBinContent( ix, iy, 6. );
+      if ( meLedL2PN_[1] ) meLedL2PN_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalPNG01_[0] ) mePedestalPNG01_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalPNG01_[1] ) mePedestalPNG01_[1]->setBinContent( ix, iy, 6. );
+      if ( mePedestalPNG16_[0] ) mePedestalPNG16_[0]->setBinContent( ix, iy, 6. );
+      if ( mePedestalPNG16_[1] ) mePedestalPNG16_[1]->setBinContent( ix, iy, 6. );
+      if ( meTestPulsePNG01_[0] ) meTestPulsePNG01_[0]->setBinContent( ix, iy, 6. );
+      if ( meTestPulsePNG01_[1] ) meTestPulsePNG01_[1]->setBinContent( ix, iy, 6. );
+      if ( meTestPulsePNG16_[0] ) meTestPulsePNG16_[0]->setBinContent( ix, iy, 6. );
+      if ( meTestPulsePNG16_[1] ) meTestPulsePNG16_[1]->setBinContent( ix, iy, 6. );
 
     }
   }
 
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
-      meTriggerTowerEt_[0]->setBinContent( ix, iy, 0. );
-      meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
-      meTriggerTowerEmulError_[0]->setBinContent( ix, iy, 6. );
-      meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
-      meTriggerTowerTiming_[0]->setBinContent( ix, iy, -1 );
-      meTriggerTowerTiming_[1]->setBinContent( ix, iy, -1 );
+      if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( ix, iy, 0. );
+      if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
+      if ( meTriggerTowerEmulError_[0] ) meTriggerTowerEmulError_[0]->setBinContent( ix, iy, 6. );
+      if ( meTriggerTowerEmulError_[1] ) meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
+      if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setBinContent( ix, iy, -1 );
+      if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setBinContent( ix, iy, -1 );
     }
   }
 
-  meIntegrity_[0]->setEntries( 0 );
-  meIntegrity_[1]->setEntries( 0 );
-  meIntegrityErr_->Reset();
-  meOccupancy_[0]->setEntries( 0 );
-  meOccupancy_[1]->setEntries( 0 );
-  meOccupancy1D_->Reset();
-  meStatusFlags_[0]->setEntries( 0 );
-  meStatusFlags_[1]->setEntries( 0 );
-  meStatusFlagsErr_->Reset();
-  mePedestalOnline_[0]->setEntries( 0 );
-  mePedestalOnline_[1]->setEntries( 0 );
-  mePedestalOnlineErr_->Reset();
-  mePedestalOnlineMean_->Reset();
-  mePedestalOnlineRMS_->Reset();
-  meLaserL1_[0]->setEntries( 0 );
-  meLaserL1_[1]->setEntries( 0 );
-  meLaserL1Err_->Reset();
-  meLaserL1PN_[0]->setEntries( 0 );
-  meLaserL1PN_[1]->setEntries( 0 );
-  meLaserL1PNErr_->Reset();
-  meLaserL1Ampl_->Reset();
-  meLaserL1Timing_->Reset();
-  meLaserL1AmplOverPN_->Reset();
-  meLaserL2_[0]->setEntries( 0 );
-  meLaserL2_[1]->setEntries( 0 );
-  meLaserL2Err_->Reset();
-  meLaserL2PN_[0]->setEntries( 0 );
-  meLaserL2PN_[1]->setEntries( 0 );
-  meLaserL2PNErr_->Reset();
-  meLaserL2Ampl_->Reset();
-  meLaserL2Timing_->Reset();
-  meLaserL2AmplOverPN_->Reset();
-  meLaserL3_[0]->setEntries( 0 );
-  meLaserL3_[1]->setEntries( 0 );
-  meLaserL3Err_->Reset();
-  meLaserL3PN_[0]->setEntries( 0 );
-  meLaserL3PN_[1]->setEntries( 0 );
-  meLaserL3PNErr_->Reset();
-  meLaserL3Ampl_->Reset();
-  meLaserL3Timing_->Reset();
-  meLaserL3AmplOverPN_->Reset();
-  meLaserL4_[0]->setEntries( 0 );
-  meLaserL4_[1]->setEntries( 0 );
-  meLaserL4Err_->Reset();
-  meLaserL4PN_[0]->setEntries( 0 );
-  meLaserL4PN_[1]->setEntries( 0 );
-  meLaserL4PNErr_->Reset();
-  meLaserL4Ampl_->Reset();
-  meLaserL4Timing_->Reset();
-  meLaserL4AmplOverPN_->Reset();
-  meLedL1_[0]->setEntries( 0 );
-  meLedL1_[1]->setEntries( 0 );
-  meLedL1Err_->Reset();
-  meLedL1PN_[0]->setEntries( 0 );
-  meLedL1PN_[1]->setEntries( 0 );
-  meLedL1PNErr_->Reset();
-  meLedL1Ampl_->Reset();
-  meLedL1Timing_->Reset();
-  meLedL1AmplOverPN_->Reset();
-  meLedL2_[0]->setEntries( 0 );
-  meLedL2_[1]->setEntries( 0 );
-  meLedL2Err_->Reset();
-  meLedL2PN_[0]->setEntries( 0 );
-  meLedL2PN_[1]->setEntries( 0 );
-  meLedL2PNErr_->Reset();
-  meLedL2Ampl_->Reset();
-  meLedL2Timing_->Reset();
-  meLedL2AmplOverPN_->Reset();
-  mePedestalG01_[0]->setEntries( 0 );
-  mePedestalG01_[1]->setEntries( 0 );
-  mePedestalG06_[0]->setEntries( 0 );
-  mePedestalG06_[1]->setEntries( 0 );
-  mePedestalG12_[0]->setEntries( 0 );
-  mePedestalG12_[1]->setEntries( 0 );
-  mePedestalPNG01_[0]->setEntries( 0 );
-  mePedestalPNG01_[1]->setEntries( 0 );
-  mePedestalPNG16_[0]->setEntries( 0 );
-  mePedestalPNG16_[1]->setEntries( 0 );
-  meTestPulseG01_[0]->setEntries( 0 );
-  meTestPulseG01_[1]->setEntries( 0 );
-  meTestPulseG06_[0]->setEntries( 0 );
-  meTestPulseG06_[1]->setEntries( 0 );
-  meTestPulseG12_[0]->setEntries( 0 );
-  meTestPulseG12_[1]->setEntries( 0 );
-  meTestPulsePNG01_[0]->setEntries( 0 );
-  meTestPulsePNG01_[1]->setEntries( 0 );
-  meTestPulsePNG16_[0]->setEntries( 0 );
-  meTestPulsePNG16_[1]->setEntries( 0 );
-  meTestPulseAmplG01_->Reset();
-  meTestPulseAmplG06_->Reset();
-  meTestPulseAmplG12_->Reset();
+  if ( meIntegrity_[0] ) meIntegrity_[0]->setEntries( 0 );
+  if ( meIntegrity_[1] ) meIntegrity_[1]->setEntries( 0 );
+  if ( meIntegrityErr_ ) meIntegrityErr_->Reset();
+  if ( meOccupancy_[0] ) meOccupancy_[0]->setEntries( 0 );
+  if ( meOccupancy_[1] ) meOccupancy_[1]->setEntries( 0 );
+  if ( meOccupancy1D_ ) meOccupancy1D_->Reset();
+  if ( meStatusFlags_[0] ) meStatusFlags_[0]->setEntries( 0 );
+  if ( meStatusFlags_[1] ) meStatusFlags_[1]->setEntries( 0 );
+  if ( meStatusFlagsErr_ ) meStatusFlagsErr_->Reset();
+  if ( mePedestalOnline_[0] ) mePedestalOnline_[0]->setEntries( 0 );
+  if ( mePedestalOnline_[1] ) mePedestalOnline_[1]->setEntries( 0 );
+  if ( mePedestalOnlineErr_ ) mePedestalOnlineErr_->Reset();
+  if ( mePedestalOnlineMean_ ) mePedestalOnlineMean_->Reset();
+  if ( mePedestalOnlineRMS_ ) mePedestalOnlineRMS_->Reset();
+  if ( meLaserL1_[0] ) meLaserL1_[0]->setEntries( 0 );
+  if ( meLaserL1_[1] ) meLaserL1_[1]->setEntries( 0 );
+  if ( meLaserL1Err_ ) meLaserL1Err_->Reset();
+  if ( meLaserL1PN_[0] ) meLaserL1PN_[0]->setEntries( 0 );
+  if ( meLaserL1PN_[1] ) meLaserL1PN_[1]->setEntries( 0 );
+  if ( meLaserL1PNErr_ ) meLaserL1PNErr_->Reset();
+  if ( meLaserL1Ampl_ ) meLaserL1Ampl_->Reset();
+  if ( meLaserL1Timing_ ) meLaserL1Timing_->Reset();
+  if ( meLaserL1AmplOverPN_ ) meLaserL1AmplOverPN_->Reset();
+  if ( meLaserL2_[0] ) meLaserL2_[0]->setEntries( 0 );
+  if ( meLaserL2_[1] ) meLaserL2_[1]->setEntries( 0 );
+  if ( meLaserL2Err_ ) meLaserL2Err_->Reset();
+  if ( meLaserL2PN_[0] ) meLaserL2PN_[0]->setEntries( 0 );
+  if ( meLaserL2PN_[1] ) meLaserL2PN_[1]->setEntries( 0 );
+  if ( meLaserL2PNErr_ ) meLaserL2PNErr_->Reset();
+  if ( meLaserL2Ampl_ ) meLaserL2Ampl_->Reset();
+  if ( meLaserL2Timing_ ) meLaserL2Timing_->Reset();
+  if ( meLaserL2AmplOverPN_ ) meLaserL2AmplOverPN_->Reset();
+  if ( meLaserL3_[0] ) meLaserL3_[0]->setEntries( 0 );
+  if ( meLaserL3_[1] ) meLaserL3_[1]->setEntries( 0 );
+  if ( meLaserL3Err_ ) meLaserL3Err_->Reset();
+  if ( meLaserL3PN_[0] ) meLaserL3PN_[0]->setEntries( 0 );
+  if ( meLaserL3PN_[1] ) meLaserL3PN_[1]->setEntries( 0 );
+  if ( meLaserL3PNErr_ ) meLaserL3PNErr_->Reset();
+  if ( meLaserL3Ampl_ ) meLaserL3Ampl_->Reset();
+  if ( meLaserL3Timing_ ) meLaserL3Timing_->Reset();
+  if ( meLaserL3AmplOverPN_ ) meLaserL3AmplOverPN_->Reset();
+  if ( meLaserL4_[0] ) meLaserL4_[0]->setEntries( 0 );
+  if ( meLaserL4_[1] ) meLaserL4_[1]->setEntries( 0 );
+  if ( meLaserL4Err_ ) meLaserL4Err_->Reset();
+  if ( meLaserL4PN_[0] ) meLaserL4PN_[0]->setEntries( 0 );
+  if ( meLaserL4PN_[1] ) meLaserL4PN_[1]->setEntries( 0 );
+  if ( meLaserL4PNErr_ ) meLaserL4PNErr_->Reset();
+  if ( meLaserL4Ampl_ ) meLaserL4Ampl_->Reset();
+  if ( meLaserL4Timing_ ) meLaserL4Timing_->Reset();
+  if ( meLaserL4AmplOverPN_ ) meLaserL4AmplOverPN_->Reset();
+  if ( meLedL1_[0] ) meLedL1_[0]->setEntries( 0 );
+  if ( meLedL1_[1] ) meLedL1_[1]->setEntries( 0 );
+  if ( meLedL1Err_ ) meLedL1Err_->Reset();
+  if ( meLedL1PN_[0] ) meLedL1PN_[0]->setEntries( 0 );
+  if ( meLedL1PN_[1] ) meLedL1PN_[1]->setEntries( 0 );
+  if ( meLedL1PNErr_ ) meLedL1PNErr_->Reset();
+  if ( meLedL1Ampl_ ) meLedL1Ampl_->Reset();
+  if ( meLedL1Timing_ ) meLedL1Timing_->Reset();
+  if ( meLedL1AmplOverPN_ ) meLedL1AmplOverPN_->Reset();
+  if ( meLedL2_[0] ) meLedL2_[0]->setEntries( 0 );
+  if ( meLedL2_[1] ) meLedL2_[1]->setEntries( 0 );
+  if ( meLedL2Err_ ) meLedL2Err_->Reset();
+  if ( meLedL2PN_[0] ) meLedL2PN_[0]->setEntries( 0 );
+  if ( meLedL2PN_[1] ) meLedL2PN_[1]->setEntries( 0 );
+  if ( meLedL2PNErr_ ) meLedL2PNErr_->Reset();
+  if ( meLedL2Ampl_ ) meLedL2Ampl_->Reset();
+  if ( meLedL2Timing_ ) meLedL2Timing_->Reset();
+  if ( meLedL2AmplOverPN_ ) meLedL2AmplOverPN_->Reset();
+  if ( mePedestalG01_[0] ) mePedestalG01_[0]->setEntries( 0 );
+  if ( mePedestalG01_[1] ) mePedestalG01_[1]->setEntries( 0 );
+  if ( mePedestalG06_[0] ) mePedestalG06_[0]->setEntries( 0 );
+  if ( mePedestalG06_[1] ) mePedestalG06_[1]->setEntries( 0 );
+  if ( mePedestalG12_[0] ) mePedestalG12_[0]->setEntries( 0 );
+  if ( mePedestalG12_[1] ) mePedestalG12_[1]->setEntries( 0 );
+  if ( mePedestalPNG01_[0] ) mePedestalPNG01_[0]->setEntries( 0 );
+  if ( mePedestalPNG01_[1] ) mePedestalPNG01_[1]->setEntries( 0 );
+  if ( mePedestalPNG16_[0] ) mePedestalPNG16_[0]->setEntries( 0 );
+  if ( mePedestalPNG16_[1] ) mePedestalPNG16_[1]->setEntries( 0 );
+  if ( meTestPulseG01_[0] ) meTestPulseG01_[0]->setEntries( 0 );
+  if ( meTestPulseG01_[1] ) meTestPulseG01_[1]->setEntries( 0 );
+  if ( meTestPulseG06_[0] ) meTestPulseG06_[0]->setEntries( 0 );
+  if ( meTestPulseG06_[1] ) meTestPulseG06_[1]->setEntries( 0 );
+  if ( meTestPulseG12_[0] ) meTestPulseG12_[0]->setEntries( 0 );
+  if ( meTestPulseG12_[1] ) meTestPulseG12_[1]->setEntries( 0 );
+  if ( meTestPulsePNG01_[0] ) meTestPulsePNG01_[0]->setEntries( 0 );
+  if ( meTestPulsePNG01_[1] ) meTestPulsePNG01_[1]->setEntries( 0 );
+  if ( meTestPulsePNG16_[0] ) meTestPulsePNG16_[0]->setEntries( 0 );
+  if ( meTestPulsePNG16_[1] ) meTestPulsePNG16_[1]->setEntries( 0 );
+  if ( meTestPulseAmplG01_ ) meTestPulseAmplG01_->Reset();
+  if ( meTestPulseAmplG06_ ) meTestPulseAmplG06_->Reset();
+  if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
 
-  meCosmic_[0]->setEntries( 0 );
-  meCosmic_[1]->setEntries( 0 );
-  meTiming_[0]->setEntries( 0 );
-  meTiming_[1]->setEntries( 0 );
-  meTriggerTowerEt_[0]->setEntries( 0 );
-  meTriggerTowerEt_[1]->setEntries( 0 );
-  meTriggerTowerEtSpectrum_[0]->Reset();
-  meTriggerTowerEtSpectrum_[1]->Reset();
-  meTriggerTowerEmulError_[0]->setEntries( 0 );
-  meTriggerTowerEmulError_[1]->setEntries( 0 );
-  meTriggerTowerTiming_[0]->setEntries( 0 );
-  meTriggerTowerTiming_[1]->setEntries( 0 );
+  if ( meCosmic_[0] ) meCosmic_[0]->setEntries( 0 );
+  if ( meCosmic_[1] ) meCosmic_[1]->setEntries( 0 );
+  if ( meTiming_[0] ) meTiming_[0]->setEntries( 0 );
+  if ( meTiming_[1] ) meTiming_[1]->setEntries( 0 );
+  if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setEntries( 0 );
+  if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setEntries( 0 );
+  if ( meTriggerTowerEtSpectrum_[0] ) meTriggerTowerEtSpectrum_[0]->Reset();
+  if ( meTriggerTowerEtSpectrum_[1] ) meTriggerTowerEtSpectrum_[1]->Reset();
+  if ( meTriggerTowerEmulError_[0] ) meTriggerTowerEmulError_[0]->setEntries( 0 );
+  if ( meTriggerTowerEmulError_[1] ) meTriggerTowerEmulError_[1]->setEntries( 0 );
+  if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setEntries( 0 );
+  if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setEntries( 0 );
 
-  meGlobalSummary_[0]->setEntries( 0 );
-  meGlobalSummary_[1]->setEntries( 0 );
+  if ( meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
+  if ( meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
