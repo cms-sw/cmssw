@@ -1,18 +1,18 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.2 2009/07/09 22:56:14 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.3 2009/07/10 07:59:29 argiro Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
 #          contains one element only, the case of several elements
 #          will need to be addressed
 
-from pluginCondDBPyInterface import *
+#from pluginCondDBPyInterface import *
 from CondCore.Utilities import iovInspector as inspect
 from ROOT import TCanvas,TH1F, TH2F
 import EcalPyUtils
-
+import sys
 
 
 def listTags(db):
@@ -21,38 +21,49 @@ def listTags(db):
     for tag in tags.split():
         print tag
 
-def dumpXML(db,tag,filename='dump.xml'):
-    '''Dump record in XML format for a given tag '''
+def listIovs(db,tag):
+    '''List all available iovs for a given tag'''
+
     try :
        iov = inspect.Iov(db,tag)
        iovlist = iov.list()
+       print "Available iovs for tag: ",tag
        for p in iovlist:
-          payload=inspect.PayLoad(db,p[0])
-          out = open(filename,'w')
-          print >> out, payload
+           print "  Since " , p[1], " Till " , p[2]
+     
+    except Exception,er :
+        print er 
 
+def dumpXML(db,tag,since,till,filename='dump.xml'):
+    '''Dump record in XML format for a given tag '''
+    try :
+       iov = inspect.Iov(db,tag)
+       token = getToken(db,tag,since,till)       
+       payload=inspect.PayLoad(db,token)
+       out = open(filename,'w')
+       print >> out, payload
+      
     except Exception,er :
         print er
 
-def plot (db, tag,filename='plot.root'):
+def plot (db, tag,since,till,filename='plot.root'):
     '''Invoke the plot function from the wrapper and save to the specified \
        file. The file format will reflect the extension given.'''
     
     try :
         iov = inspect.Iov(db,tag)
         iovlist = iov.list()
-        for p in iovlist:
-            payload=inspect.PayLoad(db,p[0])
-            payload.plot(filename,"",[],[])
+        token = getToken(db,tag,since,till)       
+        payload=inspect.PayLoad(db,token)
+        payload.plot(filename,"",[],[])
             
     except Exception,er :
         print er
         
 
 def compare(tag1,db1,tag2,db2, filename='compare.root'):
-  '''Produce comparison plots for two records. If no db2 is passed, will \
-       assume we want to compare tags in the same db. Save plots to file \
-       according to format. tag can be an xml file'''
+  '''Produce comparison plots for two records. Save plots to file \
+     according to format. tag can be an xml file'''
   
   if  tag1.find(".xml") < 0:
       try:  
@@ -113,28 +124,29 @@ def compare(tag1,db1,tag2,db2, filename='compare.root'):
 
 
 
-def histo (db, tag,filename='histo.root'):
+def histo (db, tag,since,till,filename='histo.root'):
     '''Make histograms and save to file. tag can be an xml file'''
+    
+    coeff_barl=[]
+    coeff_endc=[]
+    
     if  tag.find(".xml")< 0:
         try:  
           exec('import '+db.moduleName(tag)+' as Plug')
 
           what = {'how':'barrel'}
           w = inspect.setWhat(Plug.What(),what)
-          ex = Plug.Extractor(w)      
-          for elem in db.iov(tag).elements :
-              p = Plug.Object(elem)
-              p.extract(ex)
-              coeff_barl = [i for i in ex.values()]
+          ex = Plug.Extractor(w)
+          p=getObject(db,tag,since,till)
+          p.extract(ex)
+          coeff_barl = [i for i in ex.values()]
 
 
           what = {'how':'endcap'}
           w = inspect.setWhat(Plug.What(),what)
           ex = Plug.Extractor(w)
-          for elem in db.iov(tag).elements :
-              p = Plug.Object(elem)
-              p.extract(ex)
-              coeff_endc = [i for i in ex.values()]     
+          p.extract(ex)
+          coeff_endc = [i for i in ex.values()]     
 
         except Exception, er :
           print er 
@@ -159,3 +171,39 @@ def histo (db, tag,filename='histo.root'):
 
     c.SaveAs(filename)
 
+
+def getToken(db,tag,since,till):
+    ''' Return payload token for a given iov, tag, db'''
+    try :
+       iov = inspect.Iov(db,tag)
+       iovlist = iov.list()
+       for p in iovlist:
+           tmpsince=p[1]
+           tmptill =p[2]
+           if tmpsince==since and tmptill==till:
+               return p[0]
+       print "Could not retrieve token for tag: " , tag, " since: ", since,\
+              " till: " ,till
+       sys.exit(0)
+       
+    except Exception, er :
+       print er
+
+
+def getObject(db,tag,since,till):
+    ''' Return payload object for a given iov, tag, db'''
+    found=0
+    try:
+       exec('import '+db.moduleName(tag)+' as Plug')  
+       for elem in db.iov(tag).elements :
+           #not sure why I have to str() this
+           if str(elem.since())==str(since) and str(elem.till())==str(till):
+               found=1
+               return Plug.Object(elem)
+    except Exception, er :
+        print er
+
+    if not found :
+        print "Could not retrieve payload for tag: " , tag, " since: ", since,\
+          " till: " ,till
+        sys.exit(0)
