@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ECALTBH4-GEN-SIM-DIGI")
+process = cms.Process("EcalTBH4GenSimDigi")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -38,7 +38,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(25)
 )
 
 #Geometry
