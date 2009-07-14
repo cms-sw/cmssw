@@ -1199,6 +1199,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   NumberOfNeverPresentCells->Fill(neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
 
   ProblemDeadCells->Reset();
+  ProblemDeadCells->setBinContent(0,0,ievt_);
 
   etabins=0;
   phibins=0;
