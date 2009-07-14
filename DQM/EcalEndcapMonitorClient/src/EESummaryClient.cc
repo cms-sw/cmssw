@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/06/29 13:28:19 $
- * $Revision: 1.168 $
+ * $Date: 2009/07/14 09:13:32 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  *
 */
@@ -1268,8 +1268,16 @@ void EESummaryClient::analyze(void) {
 
       meLaserL1_[0]->setBinContent( ix, iy, 6. );
       meLaserL1_[1]->setBinContent( ix, iy, 6. );
+      meLaserL2_[0]->setBinContent( ix, iy, 6. );
+      meLaserL2_[1]->setBinContent( ix, iy, 6. );
+      meLaserL3_[0]->setBinContent( ix, iy, 6. );
+      meLaserL3_[1]->setBinContent( ix, iy, 6. );
+      meLaserL4_[0]->setBinContent( ix, iy, 6. );
+      meLaserL4_[1]->setBinContent( ix, iy, 6. );
       meLedL1_[0]->setBinContent( ix, iy, 6. );
       meLedL1_[1]->setBinContent( ix, iy, 6. );
+      meLedL2_[0]->setBinContent( ix, iy, 6. );
+      meLedL2_[1]->setBinContent( ix, iy, 6. );
       mePedestalG01_[0]->setBinContent( ix, iy, 6. );
       mePedestalG01_[1]->setBinContent( ix, iy, 6. );
       mePedestalG06_[0]->setBinContent( ix, iy, 6. );
@@ -1298,6 +1306,16 @@ void EESummaryClient::analyze(void) {
 
       meLaserL1PN_[0]->setBinContent( ix, iy, 6. );
       meLaserL1PN_[1]->setBinContent( ix, iy, 6. );
+      meLaserL2PN_[0]->setBinContent( ix, iy, 6. );
+      meLaserL2PN_[1]->setBinContent( ix, iy, 6. );
+      meLaserL3PN_[0]->setBinContent( ix, iy, 6. );
+      meLaserL3PN_[1]->setBinContent( ix, iy, 6. );
+      meLaserL4PN_[0]->setBinContent( ix, iy, 6. );
+      meLaserL4PN_[1]->setBinContent( ix, iy, 6. );
+      meLedL1PN_[0]->setBinContent( ix, iy, 6. );
+      meLedL1PN_[1]->setBinContent( ix, iy, 6. );
+      meLedL2PN_[0]->setBinContent( ix, iy, 6. );
+      meLedL2PN_[1]->setBinContent( ix, iy, 6. );
       mePedestalPNG01_[0]->setBinContent( ix, iy, 6. );
       mePedestalPNG01_[1]->setBinContent( ix, iy, 6. );
       mePedestalPNG16_[0]->setBinContent( ix, iy, 6. );
@@ -1344,6 +1362,33 @@ void EESummaryClient::analyze(void) {
   meLaserL1Ampl_->Reset();
   meLaserL1Timing_->Reset();
   meLaserL1AmplOverPN_->Reset();
+  meLaserL2_[0]->setEntries( 0 );
+  meLaserL2_[1]->setEntries( 0 );
+  meLaserL2Err_->Reset();
+  meLaserL2PN_[0]->setEntries( 0 );
+  meLaserL2PN_[1]->setEntries( 0 );
+  meLaserL2PNErr_->Reset();
+  meLaserL2Ampl_->Reset();
+  meLaserL2Timing_->Reset();
+  meLaserL2AmplOverPN_->Reset();
+  meLaserL3_[0]->setEntries( 0 );
+  meLaserL3_[1]->setEntries( 0 );
+  meLaserL3Err_->Reset();
+  meLaserL3PN_[0]->setEntries( 0 );
+  meLaserL3PN_[1]->setEntries( 0 );
+  meLaserL3PNErr_->Reset();
+  meLaserL3Ampl_->Reset();
+  meLaserL3Timing_->Reset();
+  meLaserL3AmplOverPN_->Reset();
+  meLaserL4_[0]->setEntries( 0 );
+  meLaserL4_[1]->setEntries( 0 );
+  meLaserL4Err_->Reset();
+  meLaserL4PN_[0]->setEntries( 0 );
+  meLaserL4PN_[1]->setEntries( 0 );
+  meLaserL4PNErr_->Reset();
+  meLaserL4Ampl_->Reset();
+  meLaserL4Timing_->Reset();
+  meLaserL4AmplOverPN_->Reset();
   meLedL1_[0]->setEntries( 0 );
   meLedL1_[1]->setEntries( 0 );
   meLedL1Err_->Reset();
@@ -1353,6 +1398,15 @@ void EESummaryClient::analyze(void) {
   meLedL1Ampl_->Reset();
   meLedL1Timing_->Reset();
   meLedL1AmplOverPN_->Reset();
+  meLedL2_[0]->setEntries( 0 );
+  meLedL2_[1]->setEntries( 0 );
+  meLedL2Err_->Reset();
+  meLedL2PN_[0]->setEntries( 0 );
+  meLedL2PN_[1]->setEntries( 0 );
+  meLedL2PNErr_->Reset();
+  meLedL2Ampl_->Reset();
+  meLedL2Timing_->Reset();
+  meLedL2AmplOverPN_->Reset();
   mePedestalG01_[0]->setEntries( 0 );
   mePedestalG01_[1]->setEntries( 0 );
   mePedestalG06_[0]->setEntries( 0 );
