@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.74 2009/06/10 10:58:14 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.75 2009/06/15 22:46:46 chamont Exp $
 //
 //
 
@@ -420,11 +420,13 @@ void GsfElectronAlgo::process(
 //      HoE = hcalHelper_->hcalESum(theClus)/theClus.energy() ;
 //     }
 
+    // charge ID
     pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
     const TrackRef ctfTrackRef = ctfpair.first ;
     const float fracShHits = ctfpair.second ;
-
-    createElectron(coreRef,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
+    int elecharge = computeCharge(gsfTrackRef,scRef,bs);
+    
+    createElectron(coreRef,elecharge,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
      ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,reducedEBRecHits,
      reducedEERecHits,mva,outEle) ;
@@ -551,6 +553,7 @@ math::XYZVector convert( const GlobalVector & gv )
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const GsfElectronCoreRef & coreRef,
+   int charge,
    const CaloClusterPtr & elbcRef,
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
    double HoE1, double HoE2,
@@ -713,7 +716,7 @@ void GsfElectronAlgo::createElectron
 
   GsfElectron * ele = new
 	GsfElectron
-	 ( momentum,coreRef,
+	 ( momentum,charge,coreRef,
 	   tcMatching, tkExtra, ctfInfo,
 	   fiducialFlags,showerShape,
 	   fbrem,mva) ;
@@ -973,3 +976,49 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
   return make_pair(ctfTrackRef,maxFracShared) ;
  }
 
+int GsfElectronAlgo::computeCharge(const GsfTrackRef & tk,const SuperClusterRef & sc, const BeamSpot & bs){
+
+  int chargeIn=tk->charge();
+  int charge = chargeIn;
+  bool goodCharge=true; // not transmitted for the moment
+  
+  // determine charge from SC
+  int chargeSC;  
+  GlobalPoint orig(bs.position().x(), bs.position().y(), bs.position().z());
+  GlobalPoint scpos(sc->position().x(), sc->position().y(), sc->position().z());
+  GlobalVector scvect(scpos-orig);
+  GlobalPoint inntkpos = innTSOS_.globalPosition();
+  GlobalVector inntkvect = GlobalVector(inntkpos-orig);
+
+  float dPhiInnEle=normalized_dphi(scvect.phi() - inntkvect.phi());
+
+  if(dPhiInnEle>0) chargeSC = -1;
+  else chargeSC = 1;
+
+  // charge from outer momentum
+  int chargeOut = outTSOS_.charge();
+  
+  // then combine
+
+  // need to recompute these, ugly..
+  GlobalVector innMom, outMom ;
+  mtsMode_->momentumFromModeCartesian(innTSOS_,innMom) ;
+  mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
+  float fbrem = (outMom.mag()>0.)?((innMom.mag()-outMom.mag())/innMom.mag()):1.e30 ;
+  float deltaPhiSuperClusterTrackAtVtx = normalized_dphi(sc->phi()-sclPos_.phi()) ;
+
+  if(deltaPhiSuperClusterTrackAtVtx>0.06 && fbrem>0.4 && fbrem<0.7 && sc->clustersSize()>1) {
+    // special case for delta phi_in >0.06 && fbrem > 0.4 && fbrem < 0.7 && n_clus > 1
+    charge = chargeIn;
+  } else {
+    // standard, take majority
+    if(chargeIn*chargeSC>0) charge = chargeIn;
+    else charge = chargeOut;
+  }
+  
+  // flag for bad charge
+  if(chargeIn*chargeSC<0) goodCharge = false;
+
+  return charge;
+
+}

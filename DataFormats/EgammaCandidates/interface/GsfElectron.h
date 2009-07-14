@@ -5,6 +5,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -31,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.28 2009/03/31 10:54:09 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.29 2009/04/06 11:18:05 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.29  2009/04/06 11:18:05  chamont
+// few changes, should not affect users
+//
 // Revision 1.28  2009/03/31 10:54:09  charlot
 // readded isolation setters
 //
@@ -87,7 +91,7 @@ class GsfElectron : public RecoCandidate
     GsfElectron() ;
     GsfElectron
      (
-      const LorentzVector & p4, const GsfElectronCoreRef &,
+      const LorentzVector & p4, int charge, const GsfElectronCoreRef &,
       const TrackClusterMatching &, const TrackExtrapolations &, const ClosestCtfTrack &,
       const FiducialFlags &, const ShowerShape &, float fbrem, float mva
      ) ;
@@ -129,6 +133,7 @@ class GsfElectron : public RecoCandidate
     bool isEcalDriven() const { return core_->isEcalDriven() ; }
     bool isTrackerDriven() const { return core_->isTrackerDriven() ; }
     SuperClusterRef pflowSuperCluster() const { return core_->pflowSuperCluster() ; }
+    int trackCharge() const { return core_->gsfTrack()->charge() ; }
 
   private:
 

@@ -9,7 +9,7 @@ GsfElectron::GsfElectron()
  : mva_(0), fbrem_(0), class_(UNKNOWN) {}
 
 GsfElectron::GsfElectron
- ( const LorentzVector & p4,
+ ( const LorentzVector & p4, int charge,
    const GsfElectronCoreRef & core,
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
@@ -23,10 +23,10 @@ GsfElectron::GsfElectron
    mva_(mva),
    fbrem_(fbrem), class_(UNKNOWN)
  {
-  setCharge(gsfTrack()->charge()) ;
+  setCharge(charge) ;
   setP4(p4) ;
   setVertex(te.positionAtVtx) ;
-  setPdgId(-11*charge()) ;
+  setPdgId(-11*charge) ;
   if (isEcalDriven()) corrections_.ecalEnergy = superCluster()->energy() ;
 }
 
