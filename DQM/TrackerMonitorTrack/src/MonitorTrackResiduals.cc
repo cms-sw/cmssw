@@ -108,10 +108,10 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 	  std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);	
 	  HitResidual[ModuleID] = dqmStore_->book1D(hid, hid, 
 						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  HitResidual[ModuleID]->setAxisTitle("x_{pred} - x_{rec} [cm]");
+	  HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
 	  NormedHitResiduals[ModuleID] = dqmStore_->book1D(normhid, normhid, 
 							   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  NormedHitResiduals[ModuleID]->setAxisTitle("x_{pred} - x_{rec}/#sigma");
+	  NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
 	// book layer level histogramms
 	std::pair<std::string,int32_t> subdetandlayer = folder_organizer->GetSubDetAndLayer(ModuleID);
@@ -128,11 +128,11 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 	  m_SubdetLayerResiduals[subdetandlayer] = 
 	    dqmStore_->book1D(histoname.c_str(),histoname.c_str(),
 			      i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("x_{pred} - x_{rec} [cm]");
+	  m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
 	  m_SubdetLayerNormedResiduals[subdetandlayer] = 
 	    dqmStore_->book1D(normhistoname.c_str(),normhistoname.c_str(),
 			      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("x_{pred} - x_{rec} [cm]/#sigma");
+	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	} 
       } // end 'is strip module'
     } // end loop over activeDets
@@ -176,15 +176,15 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
     uint RawId = it->rawDetId;
     
     // fill if hit belongs to StripDetector and its error is not zero
-    if( it->resErrX != 0 && SiStripDetId(RawId).subDetector()  != 0 )  {
+    if( it->resXprimeErr != 0 && SiStripDetId(RawId).subDetector()  != 0 )  {
       if (ModOn && HitResidual[RawId]) { 
-	HitResidual[RawId]->Fill(it->resX);
-	NormedHitResiduals[RawId]->Fill(it->resX/it->resErrX);
+	HitResidual[RawId]->Fill(it->resXprime);
+	NormedHitResiduals[RawId]->Fill(it->resXprime/it->resXprimeErr);
       }
       std::pair<std::string, int32_t> subdetandlayer = folder_organizer->GetSubDetAndLayer(RawId);
       if(m_SubdetLayerResiduals[subdetandlayer]) {
-	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resX);
-	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resX/it->resErrX);
+	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resXprime);
+	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resXprime/it->resXprimeErr);
       }
     }
   }
