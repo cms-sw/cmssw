@@ -79,8 +79,9 @@ MeasurementTracker.StripCPE = cms.string('FastStripCPE')
 MeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Making sure not to use the Seed Comparitor
-process.newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
-process.secTriplets.SeedComparitorPSet.ComponentName = 'none'
+##from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import* 
+newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
+secTriplets.SeedComparitorPSet.ComponentName = 'none'
 
 
 siClusterTranslator = cms.EDProducer("SiClusterTranslator")
