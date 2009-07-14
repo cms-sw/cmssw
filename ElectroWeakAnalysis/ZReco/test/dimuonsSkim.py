@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 #    'file:/scratch1/users/fabozzi/zmm20_fastsim.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -32,7 +32,7 @@ process.source.inputCommands = cms.untracked.vstring(
 
 # Output module configuration
 process.load("ElectroWeakAnalysis.ZReco.dimuonsOutputModule_cfi")
-process.dimuonsOutputModule.fileName = 'file:testSkim_v2.root'
+process.dimuonsOutputModule.fileName = 'file:testSkim_triggermatch.root'
 
 process.outpath = cms.EndPath(process.dimuonsOutputModule)
 
