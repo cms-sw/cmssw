@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/09 08:20:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/07/13 14:52:55 $
+ *  $Revision: 1.13 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -50,6 +50,7 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   theMinCaloJetEt             = parameters.getParameter<int>("minCaloJetEt");
   theMinPhotonEt              = parameters.getParameter<int>("minPhotonEt");
   theRequirePhotonFound       = parameters.getParameter<bool>("requirePhotonFound");
+  thePlotMaxEt                = parameters.getParameter<double>("plotMaxEt");
 }
 
 QcdPhotonsDQM::~QcdPhotonsDQM() { 
@@ -78,17 +79,17 @@ void QcdPhotonsDQM::beginJob(EventSetup const& iSetup) {
   }
 
   // Keep the number of plots and number of bins to a minimum!
-  h_photon_et           = theDbe->book1D("h_photon_et",     "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., 200.0);
+  h_photon_et           = theDbe->book1D("h_photon_et",     "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., thePlotMaxEt);
   h_photon_eta          = theDbe->book1D("h_photon_eta",    "#gamma with highest E_{T};#eta(#gamma)", 40, -5.0, 5.0);
   h_photon_phiMod       = theDbe->book1D("h_photon_phiMod", "#gamma with highest E_{T} (Barrel only);#phi_{mod}=#phi#bullet180/#pi mod 20 - 10", 42, (-1.-1./20)*0.1745329, (1.+1./20.)*0.1745329 );
   h_photon_count        = theDbe->book1D("h_photon_count",  "Number of #gamma's passing selection cuts;Number of #gamma's", 8, -0.5, 7.5);
-  h_jet_et              = theDbe->book1D("h_jet_et",        "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., 200.0);
+  h_jet_et              = theDbe->book1D("h_jet_et",        "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., thePlotMaxEt);
   h_jet_eta             = theDbe->book1D("h_jet_eta",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(1^{st} jet)", 20, -5.0, 5.0);
   h_deltaPhi_photon_jet = theDbe->book1D("h_deltaPhi_photon_jet", "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,1^{st} jet)", 20, 0, 3.1415926);
   h_deltaPhi_jet_jet2   = theDbe->book1D("h_deltaPhi_jet_jet2", "#Delta#phi between Highest E_{T} jet and 2^{nd} jet;#Delta#phi(1^{st} jet,2^{nd} jet)", 20, 0, 3.1415926);
   h_deltaEt_photon_jet  = theDbe->book1D("h_deltaEt_photon_jet",  "(E_{T}(#gamma)-E_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,1^{st} jet) > 2.8;#DeltaE_{T}(#gamma,1^{st} jet)/E_{T}(#gamma)", 20, -1.0, 1.0);
   h_jet_count           = theDbe->book1D("h_jet_count",           "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > "+aString+" GeV);Number of Jets", 8, -0.5, 7.5);
-  h_jet2_et             = theDbe->book1D("h_jet2_et",        "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
+  h_jet2_et             = theDbe->book1D("h_jet2_et",        "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., thePlotMaxEt);
   h_jet2_eta            = theDbe->book1D("h_jet2_eta", "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");#eta(2^{nd} jet)", 20, -5.0, 5.0);
   h_jet2_etOverPhotonEt = theDbe->book1D("h_jet2_etOverPhotonEt", "E_{T}(2^{nd} highest jet) / E_{T}(#gamma);E_{T}(2^{nd} Jet)/E_{T}(#gamma)", 20, 0.0, 4.0);
   h_deltaPhi_photon_jet2 = theDbe->book1D("h_deltaPhi_photon_jet2","#Delta#phi between Highest E_{T} #gamma and 2^{nd} highest jet;#Delta#phi(#gamma,2^{nd} jet)", 20, 0, 3.1415926);

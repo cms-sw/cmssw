@@ -13,5 +13,9 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 # Cuts on the reco objects
                 minCaloJetEt             = cms.int32(15),
                 minPhotonEt              = cms.int32(20),
-                requirePhotonFound       = cms.bool(True)
+                requirePhotonFound       = cms.bool(True),
+                # Max Et on plots
+                plotMaxEt                = cms.double(500.0),
+                plotPhotonMaxEta         = cms.double(5.0),
+                plotJetMaxEta            = cms.double(5.0)
 )
