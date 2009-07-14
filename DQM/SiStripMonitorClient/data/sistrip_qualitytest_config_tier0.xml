@@ -10,7 +10,7 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">0.002</PARAM>
 </QTEST>
-<QTEST name="MeanWithinExpectedRange:nFEDBadChannels">
+<QTEST name="MeanWithinExpectedRange:nBadChannelStatusBits">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
@@ -21,7 +21,7 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">380.0</PARAM>
 </QTEST>
-<QTEST name="MeanWithinExpectedRange:nFEDBadActiveChannels">
+<QTEST name="MeanWithinExpectedRange:nBadActiveChannelStatusBits">
       <TYPE>MeanWithinExpected</TYPE>
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
@@ -143,16 +143,16 @@
 </QTEST>
 
 
-<LINK name="*nFEDErrors*">
+<LINK name="*nFEDErrors">
   <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
 </LINK>
-<LINK name="*nFEDBadChannels*">
-  <TestName activate="true">MeanWithinExpectedRange:nFEDBadChannels</TestName>
+<LINK name="*nBadChannelStatusBits">
+  <TestName activate="true">MeanWithinExpectedRange:nBadChannelStatusBits</TestName>
 </LINK>
-<LINK name="*nFEDBadActiveChannels*">
-  <TestName activate="true">MeanWithinExpectedRange:nFEDBadActiveChannels</TestName>
+<LINK name="*nBadActiveChannelStatusBits">
+  <TestName activate="true">MeanWithinExpectedRange:nBadActiveChannelStatusBits</TestName>
 </LINK>
-<LINK name="*TkHMap_FractionOfBadChannels*">
+<LINK name="*TkHMap_FractionOfBadChannels">
   <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
 </LINK>
 <LINK name="*TkHMap_NumberOfDigi_*">
