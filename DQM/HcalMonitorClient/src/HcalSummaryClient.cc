@@ -45,9 +45,9 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   if (dataFormatMon_.onoff)
     dataFormatMon_.Setup("DataFormatMonitor",  // directory where problem depth histograms stored
 			 " Hardware Watch Cells", // base name of depth histograms
-			 "DataFormatMonitor/ HardwareWatchCells", // 
-			 "DataFormat",
-			 0.0);
+			 "DataFormatMonitor/ HardwareWatchCells", // name of problem summary plot
+			 "DataFormat", // shorthand name for the object
+			 0.0); // minimum threshold required to mark a cell as bad
   
   if (digiMon_.onoff)
     digiMon_.Setup("DigiMonitor_Hcal/problem_digis",
@@ -855,6 +855,56 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   TH2F* simple2f = me->getTH2F();
   */
 
+  std::vector<int> Ncells;
+  std::map<std::string, int>::const_iterator it;
+
+  // need to loop over report summary plots
+  if (HBpresent_)
+    {
+      it=subdetCells_.find("HB");
+      if (it!=subdetCells_.end())
+	Ncells.push_back(it->second);
+      else 
+	Ncells.push_back(0);
+    }
+  else Ncells.push_back(0);
+  if (HEpresent_)
+    {
+      it=subdetCells_.find("HE");
+      if (it!=subdetCells_.end())
+	Ncells.push_back(it->second);
+      else 
+	Ncells.push_back(0);
+    }
+  else Ncells.push_back(0);
+  if (HOpresent_)
+    {
+      it=subdetCells_.find("HO");
+      if (it!=subdetCells_.end())
+	Ncells.push_back(it->second);
+      else 
+	Ncells.push_back(0);
+    }
+  else Ncells.push_back(0);
+  if (HFpresent_)
+    {
+      it=subdetCells_.find("HF");
+      if (it!=subdetCells_.end())
+	Ncells.push_back(it->second);
+      else 
+	Ncells.push_back(0);
+    }
+  else Ncells.push_back(0);
+  if (ZDCpresent_)
+    {
+      it=subdetCells_.find("ZDC");
+      if (it!=subdetCells_.end())
+	Ncells.push_back(it->second);
+      else 
+	Ncells.push_back(0);
+    }
+  else Ncells.push_back(0);
+
   // Standard error palette, extended to greys for - values
   static int pcol[40];
   float rgb[20][3];
@@ -913,59 +963,105 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   htmlFile << "<table border=\"2\" cellspacing=\"0\" " << std::endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << std::endl;
   htmlFile << "<tr align=\"center\">" << std::endl;
-  htmlFile <<"<td>Task</td><td>HB</td><td>HE</td><td>HO</td><td>HF</td><td>ZDC</td><td>HCAL</td></tr>"<<std::endl;
+  htmlFile <<"<td><Task</td><td>HB</td><td>HE</td><td>HO</td><td>HF</td><td>ZDC</td><td>HCAL</td></tr>"<<std::endl;
   if (dataFormatMon_.onoff)
-    htmlFile<<"<td>Data Format Monitor</td><td>"<<dataFormatMon_.status[0]<<"</td><td>"<<dataFormatMon_.status[1]<<"</td><td>"<<dataFormatMon_.status[2]<<"</td><td>"<<dataFormatMon_.status[3]<<"</td><td>"<<dataFormatMon_.status[4]<<"</td><td>"<<dataFormatMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Data Format Monitor", dataFormatMon_, Ncells);
   if (digiMon_.onoff)
-    htmlFile<<"<td>Digi Monitor</td><td>"<<digiMon_.status[0]<<"</td><td>"<<digiMon_.status[1]<<"</td><td>"<<digiMon_.status[2]<<"</td><td>"<<digiMon_.status[3]<<"</td><td>"<<digiMon_.status[4]<<"</td><td>"<<digiMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Digi Monitor", digiMon_, Ncells);
   if (recHitMon_.onoff)
-    htmlFile<<"<td>Rec Hit Monitor</td><td>"<<recHitMon_.status[0]<<"</td><td>"<<recHitMon_.status[1]<<"</td><td>"<<recHitMon_.status[2]<<"</td><td>"<<recHitMon_.status[3]<<"</td><td>"<<recHitMon_.status[4]<<"</td><td>"<<recHitMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("RecHit Monitor", recHitMon_, Ncells);
   if (pedestalMon_.onoff)
-    htmlFile<<"<td>Pedestal Monitor</td><td>"<<pedestalMon_.status[0]<<"</td><td>"<<pedestalMon_.status[1]<<"</td><td>"<<pedestalMon_.status[2]<<"</td><td>"<<pedestalMon_.status[3]<<"</td><td>"<<pedestalMon_.status[4]<<"</td><td>"<<pedestalMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Pedestal Monitor", pedestalMon_, Ncells);
   if (ledMon_.onoff)
-    htmlFile<<"<td>LED Monitor</td><td>"<<ledMon_.status[0]<<"</td><td>"<<ledMon_.status[1]<<"</td><td>"<<ledMon_.status[2]<<"</td><td>"<<ledMon_.status[3]<<"</td><td>"<<ledMon_.status[4]<<"</td><td>"<<ledMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("LED Monitor", ledMon_, Ncells);
   if (hotCellMon_.onoff)
-    htmlFile<<"<td>Hot Cell Monitor</td><td>"<<hotCellMon_.status[0]<<"</td><td>"<<hotCellMon_.status[1]<<"</td><td>"<<hotCellMon_.status[2]<<"</td><td>"<<hotCellMon_.status[3]<<"</td><td>"<<hotCellMon_.status[4]<<"</td><td>"<<hotCellMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Hot Cell Monitor", hotCellMon_, Ncells);
   if (deadCellMon_.onoff)
-    htmlFile<<"<td>Dead Cell Monitor</td><td>"<<deadCellMon_.status[0]<<"</td><td>"<<deadCellMon_.status[1]<<"</td><td>"<<deadCellMon_.status[2]<<"</td><td>"<<deadCellMon_.status[3]<<"</td><td>"<<deadCellMon_.status[4]<<"</td><td>"<<deadCellMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Dead Cell Monitor", deadCellMon_, Ncells);
   if (trigPrimMon_.onoff)
-    htmlFile<<"<td>Trigger Primitive Monitor</td><td>"<<trigPrimMon_.status[0]<<"</td><td>"<<trigPrimMon_.status[1]<<"</td><td>"<<trigPrimMon_.status[2]<<"</td><td>"<<trigPrimMon_.status[3]<<"</td><td>"<<trigPrimMon_.status[4]<<"</td><td>"<<trigPrimMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("Trigger Primitive Monitor", trigPrimMon_, Ncells);
   if (caloTowerMon_.onoff)
-    htmlFile<<"<td>CaloTower Monitor</td><td>"<<caloTowerMon_.status[0]<<"</td><td>"<<caloTowerMon_.status[1]<<"</td><td>"<<caloTowerMon_.status[2]<<"</td><td>"<<caloTowerMon_.status[3]<<"</td><td>"<<caloTowerMon_.status[4]<<"</td><td>"<<caloTowerMon_.ALLstatus<<"</td></tr>"<<std::endl;
+    htmlStatusDump("CaloTower Monitor", caloTowerMon_, Ncells);
 
   htmlFile<<"<td><font color = \"blue\">Overall Status</font></td>"<<"<td><font color = \"blue\">"<<status_HB_<<"</font></td><td><font color = \"blue\">"<<status_HE_<<"</font></td><td><font color = \"blue\">"<<status_HO_<<"</font></td><td><font color = \"blue\">"<<status_HF_<<"</font></td><td><font color = \"blue\">"<< status_ZDC_<<"</font></td><td><font color = \"blue\">"<<   status_global_<<"</font></td></tr>"<<std::endl;
   htmlFile <<"</tr></table>"<<std::endl;
  
   htmlFile <<"<br><h2> A note on Status Values </h2><br>"<<std::endl;
-  htmlFile <<"Status values in each subdetector task represent the average fraction of good channels per event.  (For example, a value of .99 in the HB Hot Cell monitor means that, on average, 1% of the cells in HB are hot.)  Status values should range from 0 to 1, with a perfectly-functioning detector will have all status values = 1.  If the status is unknown, a value of -1 or \"--\" will be shown. <br>"<<std::endl;
-  htmlFile <<"<br>The HCAL status values for each task are a weighted average from each subdetector.  Weights are assigned as (# of cells in the subdetector)/(total # of cells being checked).<br>"<<std::endl;
-  htmlFile <<"<br>The overall Status Values at the bottom of the table are a combination of the individual status values.  These values are not quite the same as the overall fraction of good channels in an event, because of ambiguities in the eta-phi plots.  (The summary code does not store the results of monitor tests on individual events, and thus can't tell the difference between a run where the digi monitor failed in the first half of events and the dead cell monitor failed the second half and a run in which the digi and dead cell monitors were both bad only for the first 50% of the run.  For the moment, the errors from the different monitors are added together, but this can lead to double-counting, and an overall status value less than the individual values.)"<<std::endl;
+  htmlFile <<"Status values in each subdetector task represent the fraction of good cells in the run.  (For example, a value of .99 in the HB Hot Cell monitor means that 1% of the cells in HB are hot.)  Status values should range from 0 to 1, with a perfectly-functioning detector will have all status values = 1.  If the status is unknown, a value of -1 or \"--\" will be shown. <br>"<<std::endl;
+  htmlFile <<"<br>The overall Status Values at the bottom of the table are a combination of the individual status values."<<std::endl;
 
   htmlFile <<"<br><hr><br>"<<std::endl;
   htmlFile <<"Run #: "<<run<<"&nbsp;&nbsp;&nbsp;&nbsp Starting Time: "<<startTime<<"&nbsp;&nbsp;&nbsp;&nbsp;";
   htmlFile<<"Luminosity blocks: "<<minlumi<<" - "<<maxlumi <<"&nbsp;&nbsp;&nbsp;&nbsp";
-  htmlFile <<"# of events: "<<ievt_<<"&nbsp;&nbsp;&nbsp;&nbsp";
+  htmlFile <<"# of events: "<<ievt_<<"&nbsp;&nbsp;&nbsp;&nbsp<br>";
   if (dataFormatMon_.onoff)
-    htmlFile <<"  Data Format Status:  HB: "<<dataFormatMon_.status[0]<<"  HE: "<<dataFormatMon_.status[1]<<"  HO: "<<dataFormatMon_.status[2]<<"  HF: "<<dataFormatMon_.status[3]<<"  ZDC: "<<dataFormatMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Data Format Status", dataFormatMon_, Ncells);
   if (digiMon_.onoff)
-    htmlFile <<"  Digi Monitor Status:  HB: "<<digiMon_.status[0]<<"  HE: "<<digiMon_.status[1]<<"  HO: "<<digiMon_.status[2]<<"  HF: "<<digiMon_.status[3]<<"  ZDC: "<<digiMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Digi Monitor Status", digiMon_, Ncells);
   if (recHitMon_.onoff)
-    htmlFile <<"  RecHit Monitor Status:  HB: "<<recHitMon_.status[0]<<"  HE: "<<recHitMon_.status[1]<<"  HO: "<<recHitMon_.status[2]<<"  HF: "<<recHitMon_.status[3]<<"  ZDC: "<<recHitMon_.status[4]<<std::endl;
+    htmlStatusDumpText("RecHit Monitor Status", recHitMon_, Ncells);
   if (pedestalMon_.onoff)
-    htmlFile <<"  Pedestal Monitor Status:  HB: "<<pedestalMon_.status[0]<<"  HE: "<<pedestalMon_.status[1]<<"  HO: "<<pedestalMon_.status[2]<<"  HF: "<<pedestalMon_.status[3]<<"  ZDC: "<<pedestalMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Pedestal Monitor Status", pedestalMon_, Ncells);
   if (ledMon_.onoff)
-    htmlFile <<"  LED Monitor Status:  HB: "<<ledMon_.status[0]<<"  HE: "<<ledMon_.status[1]<<"  HO: "<<ledMon_.status[2]<<"  HF: "<<ledMon_.status[3]<<"  ZDC: "<<ledMon_.status[4]<<std::endl;
+    htmlStatusDumpText("LED Monitor Status", ledMon_, Ncells);
   if (hotCellMon_.onoff)
-    htmlFile <<"  Hot Cell Monitor Status:  HB: "<<hotCellMon_.status[0]<<"  HE: "<<hotCellMon_.status[1]<<"  HO: "<<hotCellMon_.status[2]<<"  HF: "<<hotCellMon_.status[3]<<"  ZDC: "<<hotCellMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Hot Cell Monitor Status", hotCellMon_, Ncells);
   if (deadCellMon_.onoff)
-    htmlFile <<"  Dead Cell Monitor Status:  HB: "<<deadCellMon_.status[0]<<"  HE: "<<deadCellMon_.status[1]<<"  HO: "<<deadCellMon_.status[2]<<"  HF: "<<deadCellMon_.status[3]<<"  ZDC: "<<deadCellMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Dead Cell Monitor Status", deadCellMon_, Ncells);
   if (trigPrimMon_.onoff)
-    htmlFile <<"  Trigger Primitive Monitor Status:  HB: "<<trigPrimMon_.status[0]<<"  HE: "<<trigPrimMon_.status[1]<<"  HO: "<<trigPrimMon_.status[2]<<"  HF: "<<trigPrimMon_.status[3]<<"  ZDC: "<<trigPrimMon_.status[4]<<std::endl;
+    htmlStatusDumpText("Trigger Primitive Monitor Status", trigPrimMon_, Ncells);
   if (caloTowerMon_.onoff)
-    htmlFile <<"  CaloTower Monitor Status:  HB: "<<caloTowerMon_.status[0]<<"  HE: "<<caloTowerMon_.status[1]<<"  HO: "<<caloTowerMon_.status[2]<<"  HF: "<<caloTowerMon_.status[3]<<"  ZDC: "<<caloTowerMon_.status[4]<<std::endl;
+    htmlStatusDumpText("CaloTower Monitor Status", caloTowerMon_, Ncells);
   htmlFile <<"  OVERALL STATUS:  "<<status_global_<<std::endl;
   htmlFile.close();
 } // void htmlOutput(...)
+
+void HcalSummaryClient::htmlStatusDump(std::string name, SubTaskSummaryStatus& task, std::vector<int> &Ncells)
+{
+  htmlFile <<"<tr><td>"<<name<<"</td>"<<endl;
+  int totalcells=0;
+  for (unsigned int i=0;i<=4;++i)
+    {
+      if (i>Ncells.size()) 
+	htmlFile <<"<td> ?? </td>"<<endl;
+      else if (Ncells[i]>0 && task.status[i]!=-1)
+	{
+	  totalcells+=Ncells[i];
+	  htmlFile <<"<td>"<<1-task.status[i]/Ncells[i]<<"</td>";
+	}
+      else
+	htmlFile <<"<td>-1"<<"</td>";
+    }
+  if (totalcells>0)
+    htmlFile <<"<td>"<<1-task.ALLstatus/totalcells<<"</td></tr>"<<std::endl;
+  else
+    htmlFile <<"<td>-1</td></tr>"<<std::endl;
+}
+
+void HcalSummaryClient::htmlStatusDumpText(std::string name, SubTaskSummaryStatus& task, std::vector<int> &Ncells)
+{
+  htmlFile <<name<<" Status:";
+  int totalcells=0;
+  for (unsigned int i=0;i<=4;++i)
+    {
+      if (i==0) htmlFile <<"  HB: ";
+      else if (i==1) htmlFile <<"  HE: ";
+      else if (i==2) htmlFile <<"  HO: ";
+      else if (i==3) htmlFile <<"  HF: ";
+      else if (i==4) htmlFile <<"  ZDC: ";
+      if (i>Ncells.size())
+	htmlFile <<"-1";
+      else if (Ncells[i]>0 && task.status[i]!=-1)
+	{
+	  totalcells+=Ncells[i];
+	  htmlFile <<1-task.status[i]/Ncells[i];
+	}
+      else
+	htmlFile <<"-1";
+    } // for (int i=0;i<=4;++i)
+  htmlFile <<std::endl<<"<br>"<<std::endl;
+}
+
 
 
 bool HcalSummaryClient::hasErrors_Temp()

@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/07/06 10:51:55 $
- * $Revision: 1.19 $
+ * $Date: 2009/07/14 11:30:09 $
+ * $Revision: 1.20 $
  * \author Jeff Temple
  *
 */
@@ -85,7 +85,9 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // HtmlOutput
   void htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, std::string& htmlDir, std::string& htmlName);
-  
+  void htmlStatusDump(std::string name, SubTaskSummaryStatus& task, std::vector<int>& Ncells);
+  void htmlStatusDumpText(std::string name, SubTaskSummaryStatus& task, std::vector<int>& Ncells);
+
   // Get Functions
   inline int getEvtPerJob() { return ievt_; }
   inline int getEvtPerRun() { return jevt_; }
