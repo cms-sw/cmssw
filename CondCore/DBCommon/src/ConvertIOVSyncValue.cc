@@ -10,9 +10,12 @@ namespace cond {
       return edm::IOVSyncValue( edm::EventID(time, 
 					     startOrStop ? 0 : edm::EventID::maxEventNumber()) );
     case cond::lumiid :
+      {
+	edm::LuminosityBlockID l(time);
 	return edm::IOVSyncValue(edm::EventID(l.run(),
 					      startOrStop ? 0 : edm::EventID::maxEventNumber()), 
-				 edm::LuminosityBlockID(time).luminosityBlock());
+				 l.luminosityBlock());
+      }
     case cond::timestamp :
       return edm::IOVSyncValue( edm::Timestamp(time));
     default:
