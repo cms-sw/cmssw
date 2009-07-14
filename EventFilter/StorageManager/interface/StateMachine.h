@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.5 2009/07/10 09:07:17 mommsen Exp $
+// $Id: StateMachine.h,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
 
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
@@ -72,9 +72,13 @@ namespace stor
   class StopDone : public bsc::event<StopDone> {};
   class HaltDone : public bsc::event<HaltDone> {};
 
-  ////////////////////////////////////////////////////////
-  //// Operations -- abstract base for state classes: ////
-  ////////////////////////////////////////////////////////
+  /**
+     Abstract base for state classes
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
 
   class Operations
   {
@@ -110,9 +114,13 @@ namespace stor
   };
 
 
-  ///////////////////////
-  //// StateMachine: ////
-  ///////////////////////
+  /**
+     State machine class
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
 
   class StateMachine: public bsc::state_machine<StateMachine,Normal>
   {
@@ -153,7 +161,13 @@ namespace stor
   //// State classes: ////
   ////////////////////////
 
-  // Failed:
+  /**
+     Failed state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Failed: public bsc::state<Failed,StateMachine>, public Operations
   {
 
@@ -171,7 +185,13 @@ namespace stor
 
   };
 
-  // Normal:
+  /**
+     Normal state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Normal: public bsc::state<Normal,StateMachine,Halted>, public Operations
   {
 
@@ -192,7 +212,13 @@ namespace stor
 
   };
 
-  // Halted:
+  /**
+     Halted state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Halted: public bsc::state<Halted,Normal>, public Operations
   {
 
@@ -213,7 +239,13 @@ namespace stor
 
   };
 
-  // Ready:
+  /**
+     Ready state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Ready: public bsc::state<Ready,Normal,Stopped>, public Operations
   {
 
@@ -236,7 +268,13 @@ namespace stor
 
   };
 
-  // Stopped:
+  /**
+     Stopped state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Stopped: public bsc::state<Stopped,Ready>, public Operations
   {
 
@@ -260,7 +298,13 @@ namespace stor
 
   };
 
-  // Enabled:
+  /**
+     Enabled state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Enabled: public bsc::state<Enabled,Ready,Starting>, public Operations
   {
 
@@ -286,7 +330,13 @@ namespace stor
 
   };
 
-  // Starting:
+  /**
+     Starting state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Starting: public bsc::state<Starting,Enabled>, public Operations
   {
 
@@ -316,7 +366,13 @@ namespace stor
 
   };
 
-  // Stopping:
+  /**
+     Stopping state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Stopping: public bsc::state<Stopping,Enabled>, public Operations
   {
 
@@ -342,7 +398,13 @@ namespace stor
 
   };
 
-  // Halting:
+  /**
+     Halting state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Halting: public bsc::state<Halting,Enabled>, public Operations
   {
 
@@ -368,7 +430,13 @@ namespace stor
 
   };
 
-  // Running:
+  /**
+     Running state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Running: public bsc::state<Running,Enabled,Processing>, public Operations
   {
 
@@ -396,7 +464,13 @@ namespace stor
 
   };
 
-  // Processing:
+  /**
+     Processing state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class Processing: public bsc::state<Processing,Running>, public Operations
   {
 
@@ -422,7 +496,13 @@ namespace stor
 
   };
 
-  // DrainingQueues:
+  /**
+     DrainingQueues state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class DrainingQueues: public bsc::state<DrainingQueues,Running>, public Operations
   {
 
@@ -448,7 +528,13 @@ namespace stor
     void processStaleFragments() const;
   };
 
-  // FinishingDQM:
+  /**
+     FinishingDQM state
+
+     $Author: $
+     $Revision: $
+     $Date: $
+  */
   class FinishingDQM: public bsc::state<FinishingDQM,Running>, public Operations
   {
 
