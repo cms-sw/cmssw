@@ -6,6 +6,8 @@
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/HcalIsolatedTrack>
 <use name=DataFormats/Math>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/FEDRawData>
