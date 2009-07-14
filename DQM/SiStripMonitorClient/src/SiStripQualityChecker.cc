@@ -295,7 +295,6 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     vector<QReport *> qt_reports = me->getQReports();          
     if (qt_reports.size() == 0) continue;
     string name = me->getName();
-    int istat =  SiStripUtility::getMEStatus((*it)); 
     float status = 1.0; 
     if (name.find("NumberOfTracks_CKFTk") != string::npos) {
       status = qt_reports[0]->getQTresult();
@@ -312,7 +311,6 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
       ReportTrackRecHits->Fill(status);
       fillStatusHistogram(TrackSummaryReportMap, 3, 1, status);
     }
-    cout << " name " << name << " status " << status  << " gstatus " << gstatus << endl;
     gstatus = gstatus * status; 
   }
   TrackSummaryReportGlobal->Fill(gstatus);
