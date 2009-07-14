@@ -327,14 +327,14 @@ int main(int argc, char** argv){
   }
   
   // creting the chi2s 
-  RooChi2Var *chi2_mutrk = new RooChi2Var("chi2_mutrk","chi2_mutrk",*model_mutrk,*zmtMass, Extended(kTRUE)) ;
-  RooChi2Var *chi2_mumuNotIso = new RooChi2Var("chi2_mumuNotIso","chi2_mumuNotIso",*model_mumuNotIso,*zmmNotIsoMass,Extended(kTRUE)) ;
+  RooChi2Var *chi2_mutrk = new RooChi2Var("chi2_mutrk","chi2_mutrk",*model_mutrk,*zmtMass, Extended(kTRUE),DataError(RooAbsData::SumW2) ) ;
+  RooChi2Var *chi2_mumuNotIso = new RooChi2Var("chi2_mumuNotIso","chi2_mumuNotIso",*model_mumuNotIso,*zmmNotIsoMass,Extended(kTRUE), DataError(RooAbsData::SumW2)) ;
 
-  RooChi2Var *chi2_musta = new RooChi2Var("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE) ) ;
+  RooChi2Var *chi2_musta = new RooChi2Var("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE) ,DataError(RooAbsData::SumW2) ) ;
   // uncomment this line if you want to use logLik for mu sta 
-  // RooNLLVar *chi2_musta = new RooNLLVar("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE) ) ;
-  RooChi2Var *chi2_mu1hlt = new RooChi2Var("chi2_mu1hlt","chi2_mu1hlt", *eZmm1hltSig, *zmm1hltMass,  Extended(kTRUE) ) ;
-  RooChi2Var *chi2_mu2hlt = new RooChi2Var("chi2_mu2hlt","chi2_mu2hlt", *eZmm2hltSig, *zmm2hltMass,  Extended(kTRUE) ) ;  
+  // RooNLLVar *chi2_musta = new RooNLLVar("chi2_musta","chi2_musta",*eZmsSig, *zmsMass,  Extended(kTRUE), DataError(RooAbsData::SumW2) ) ;
+  RooChi2Var *chi2_mu1hlt = new RooChi2Var("chi2_mu1hlt","chi2_mu1hlt", *eZmm1hltSig, *zmm1hltMass,  Extended(kTRUE) , DataError(RooAbsData::SumW2)) ;
+  RooChi2Var *chi2_mu2hlt = new RooChi2Var("chi2_mu2hlt","chi2_mu2hlt", *eZmm2hltSig, *zmm2hltMass,  Extended(kTRUE), DataError(RooAbsData::SumW2) ) ;  
   
   // adding the chi2
   RooAddition totChi2("totChi2","chi2_mutrk + chi2_mumuNotIso + chi2_musta   + chi2_mu1hlt  +  chi2_mu2hlt " , RooArgSet(*chi2_mutrk   ,*chi2_mumuNotIso  , *chi2_musta  ,*chi2_mu1hlt  ,  *chi2_mu2hlt  )) ;
