@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/06/24 16:11:47 $
- * $Revision: 1.181 $
+ * $Date: 2009/06/29 13:28:46 $
+ * $Revision: 1.182 $
  * \author G. Della Ricca
  *
 */
@@ -67,7 +67,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
 
   // summary maps
   meIntegrity_            = 0;
+  meIntegrityPN_          = 0;
   meOccupancy_            = 0;
+  meOccupancyPN_          = 0;
   meStatusFlags_          = 0;
   mePedestalOnline_       = 0;
   mePedestalOnlineRMSMap_ = 0;
@@ -98,18 +100,14 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meLaserL4Timing_        = 0;
   meLaserL4AmplOverPN_    = 0;
 
-  mePedestal_             = 0;
   mePedestalG01_          = 0;
   mePedestalG06_          = 0;
   mePedestalG12_          = 0;
-  mePedestalPN_           = 0;
   mePedestalPNG01_        = 0;
   mePedestalPNG16_        = 0;
-  meTestPulse_            = 0;
   meTestPulseG01_         = 0;
   meTestPulseG06_         = 0;
   meTestPulseG12_         = 0;
-  meTestPulsePN_          = 0;
   meTestPulsePNG01_       = 0;
   meTestPulsePNG16_       = 0;
   meTestPulseAmplG01_     = 0;
@@ -137,10 +135,6 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meLaserL3PNErr_       = 0;
   meLaserL4Err_         = 0;
   meLaserL4PNErr_       = 0;
-  mePedestalErr_        = 0;
-  mePedestalPNErr_      = 0;
-  meTestPulseErr_       = 0;
-  meTestPulsePNErr_     = 0;
 
   // additional histograms from tasks
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -258,6 +252,12 @@ void EBSummaryClient::setup(void) {
     meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
+  if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
+  sprintf(histo, "EBIT PN integrity quality summary");
+  meIntegrityPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meIntegrityPN_->setAxisTitle("jphi", 1);
+  meIntegrityPN_->setAxisTitle("jeta", 2);
+
   if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT digi occupancy summary");
   meOccupancy_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -270,6 +270,12 @@ void EBSummaryClient::setup(void) {
   for (int i = 0; i < 36; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
+
+  if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
+  sprintf(histo, "EBOT PN digi occupancy summary");
+  meOccupancyPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meOccupancyPN_->setAxisTitle("jphi", 1);
+  meOccupancyPN_->setAxisTitle("jeta", 2);
 
   if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   sprintf(histo, "EBSFT front-end status summary");
@@ -521,12 +527,6 @@ void EBSummaryClient::setup(void) {
 
   }
 
-  if( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
-  sprintf(histo, "EBPT pedestal quality summary");
-  mePedestal_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  mePedestal_->setAxisTitle("jphi", 1);
-  mePedestal_->setAxisTitle("jeta", 2);
-
   if( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
   sprintf(histo, "EBPT pedestal quality G01 summary");
   mePedestalG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -545,19 +545,6 @@ void EBSummaryClient::setup(void) {
   mePedestalG12_->setAxisTitle("jphi", 1);
   mePedestalG12_->setAxisTitle("jeta", 2);
 
-  if( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
-  sprintf(histo, "EBPT pedestal quality errors summary");
-  mePedestalErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    mePedestalErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-  }
-
-  if( mePedestalPN_ ) dqmStore_->removeElement( mePedestalPN_->getName() );
-  sprintf(histo, "EBPT PN pedestal quality summary");
-  mePedestalPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPN_->setAxisTitle("jphi", 1);
-  mePedestalPN_->setAxisTitle("jeta", 2);
-
   if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
   sprintf(histo, "EBPT PN pedestal quality G01 summary");
   mePedestalPNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
@@ -569,19 +556,6 @@ void EBSummaryClient::setup(void) {
   mePedestalPNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPNG16_->setAxisTitle("jphi", 1);
   mePedestalPNG16_->setAxisTitle("jeta", 2);
-
-  if( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
-  sprintf(histo, "EBPT PN pedestal quality errors summary");
-  mePedestalPNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    mePedestalPNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-  }
-
-  if( meTestPulse_ ) dqmStore_->removeElement( meTestPulse_->getName() );
-  sprintf(histo, "EBTPT test pulse quality summary");
-  meTestPulse_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meTestPulse_->setAxisTitle("jphi", 1);
-  meTestPulse_->setAxisTitle("jeta", 2);
 
   if( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
   sprintf(histo, "EBTPT test pulse quality G01 summary");
@@ -601,19 +575,6 @@ void EBSummaryClient::setup(void) {
   meTestPulseG12_->setAxisTitle("jphi", 1);
   meTestPulseG12_->setAxisTitle("jeta", 2);
 
-  if( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
-  sprintf(histo, "EBTPT test pulse quality errors summary");
-  meTestPulseErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    meTestPulseErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-  }
-
-  if( meTestPulsePN_ ) dqmStore_->removeElement( meTestPulsePN_->getName() );
-  sprintf(histo, "EBTPT PN test pulse quality summary");
-  meTestPulsePN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePN_->setAxisTitle("jphi", 1);
-  meTestPulsePN_->setAxisTitle("jeta", 2);
-
   if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality G01 summary");
   meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
@@ -625,13 +586,6 @@ void EBSummaryClient::setup(void) {
   meTestPulsePNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePNG16_->setAxisTitle("jphi", 1);
   meTestPulsePNG16_->setAxisTitle("jeta", 2);
-
-  if( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
-  sprintf(histo, "EBTPT PN test pulse quality errors summary");
-  meTestPulsePNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
-  for (int i = 0; i < 36; i++) {
-    meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-  }
 
   if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   sprintf(histo, "EBTPT test pulse amplitude G01 summary");
@@ -723,11 +677,17 @@ void EBSummaryClient::cleanup(void) {
   if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   meIntegrityErr_ = 0;
 
+  if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
+  meIntegrityPN_ = 0;
+
   if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
   if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   meOccupancy1D_ = 0;
+
+  if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
+  meOccupancyPN_ = 0;
 
   if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   meStatusFlags_ = 0;
@@ -834,9 +794,6 @@ void EBSummaryClient::cleanup(void) {
   if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
   meLaserL4PNErr_ = 0;
 
-  if ( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
-  mePedestal_ = 0;
-
   if ( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
   mePedestalG01_ = 0;
 
@@ -845,18 +802,6 @@ void EBSummaryClient::cleanup(void) {
 
   if ( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
   mePedestalG12_ = 0;
-
-  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
-  mePedestalErr_ = 0;
-
-  if ( mePedestalPN_ ) dqmStore_->removeElement( mePedestalPN_->getName() );
-  mePedestalPN_ = 0;
-
-  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
-  mePedestalPNErr_ = 0;
-
-  if ( meTestPulse_ ) dqmStore_->removeElement( meTestPulse_->getName() );
-  meTestPulse_ = 0;
 
   if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
   meTestPulseG01_ = 0;
@@ -869,15 +814,6 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
   meTestPulseG01_ = 0;
-
-  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
-  meTestPulseErr_ = 0;
-
-  if ( meTestPulsePN_ ) dqmStore_->removeElement( meTestPulsePN_->getName() );
-  meTestPulsePN_ = 0;
-
-  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
-  meTestPulsePNErr_ = 0;
 
   if ( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   meTestPulseAmplG01_ = 0;
@@ -933,7 +869,9 @@ void EBSummaryClient::analyze(void) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
       if ( meIntegrity_ ) meIntegrity_->setBinContent( ipx, iex, 6. );
+      if ( meIntegrityPN_ ) meIntegrityPN_->setBinContent( ipx, iex, 6. );
       if ( meOccupancy_ ) meOccupancy_->setBinContent( ipx, iex, 0. );
+      if ( meOccupancyPN_ ) meOccupancyPN_->setBinContent( ipx, iex, 0. );
       if ( meStatusFlags_ ) meStatusFlags_->setBinContent( ipx, iex, 6. );
       if ( mePedestalOnline_ ) mePedestalOnline_->setBinContent( ipx, iex, 6. );
       if ( mePedestalOnlineRMSMap_ ) mePedestalOnlineRMSMap_->setBinContent( ipx, iex, -1.);
@@ -941,11 +879,9 @@ void EBSummaryClient::analyze(void) {
       if ( meLaserL2_ ) meLaserL2_->setBinContent( ipx, iex, 6. );
       if ( meLaserL3_ ) meLaserL3_->setBinContent( ipx, iex, 6. );
       if ( meLaserL4_ ) meLaserL4_->setBinContent( ipx, iex, 6. );
-      if ( mePedestal_ ) mePedestal_->setBinContent( ipx, iex, 6. );
       if ( mePedestalG01_ ) mePedestalG01_->setBinContent( ipx, iex, 6. );
       if ( mePedestalG06_ ) mePedestalG06_->setBinContent( ipx, iex, 6. );
       if ( mePedestalG12_ ) mePedestalG12_->setBinContent( ipx, iex, 6. );
-      if ( meTestPulse_ ) meTestPulse_->setBinContent( ipx, iex, 6. );
       if ( meTestPulseG01_ ) meTestPulseG01_->setBinContent( ipx, iex, 6. );
       if ( meTestPulseG06_ ) meTestPulseG06_->setBinContent( ipx, iex, 6. );
       if ( meTestPulseG12_ ) meTestPulseG12_->setBinContent( ipx, iex, 6. );
@@ -965,10 +901,8 @@ void EBSummaryClient::analyze(void) {
       if ( meLaserL2PN_ ) meLaserL2PN_->setBinContent( ipx, iex, 6. );
       if ( meLaserL3PN_ ) meLaserL3PN_->setBinContent( ipx, iex, 6. );
       if ( meLaserL4PN_ ) meLaserL4PN_->setBinContent( ipx, iex, 6. );
-      if ( mePedestalPN_ ) mePedestalPN_->setBinContent( ipx, iex, 6. );
       if ( mePedestalPNG01_ ) mePedestalPNG01_->setBinContent( ipx, iex, 6. );
       if ( mePedestalPNG16_ ) mePedestalPNG16_->setBinContent( ipx, iex, 6. );
-      if ( meTestPulsePN_ ) meTestPulsePN_->setBinContent( ipx, iex, 6. );
       if ( meTestPulsePNG01_ ) meTestPulsePNG01_->setBinContent( ipx, iex, 6. );
       if ( meTestPulsePNG16_ ) meTestPulsePNG16_->setBinContent( ipx, iex, 6. );
 
@@ -985,8 +919,10 @@ void EBSummaryClient::analyze(void) {
 
   if ( meIntegrity_ ) meIntegrity_->setEntries( 0 );
   if ( meIntegrityErr_ ) meIntegrityErr_->Reset();
+  if ( meIntegrityPN_ ) meIntegrityPN_->setEntries( 0 );
   if ( meOccupancy_ ) meOccupancy_->setEntries( 0 );
   if ( meOccupancy1D_ ) meOccupancy1D_->Reset();
+  if ( meOccupancyPN_ ) meOccupancyPN_->setEntries( 0 );
   if ( meStatusFlags_ ) meStatusFlags_->setEntries( 0 );
   if ( meStatusFlagsErr_ ) meStatusFlagsErr_->Reset();
   if ( mePedestalOnline_ ) mePedestalOnline_->setEntries( 0 );
@@ -1027,24 +963,16 @@ void EBSummaryClient::analyze(void) {
   if ( meLaserL4PN_ ) meLaserL4PN_->setEntries( 0 );
   if ( meLaserL4PNErr_ ) meLaserL4PNErr_->Reset();
 
-  if ( mePedestal_ ) mePedestal_->setEntries( 0 );
   if ( mePedestalG01_ ) mePedestalG01_->setEntries( 0 );
   if ( mePedestalG06_ ) mePedestalG06_->setEntries( 0 );
   if ( mePedestalG12_ ) mePedestalG12_->setEntries( 0 );
-  if ( mePedestalErr_ ) mePedestalErr_->Reset();
-  if ( mePedestalPN_ ) mePedestalPN_->setEntries( 0 );
   if ( mePedestalPNG01_ ) mePedestalPNG01_->setEntries( 0 );
   if ( mePedestalPNG16_ ) mePedestalPNG16_->setEntries( 0 );
-  if ( mePedestalPNErr_ ) mePedestalPNErr_->Reset();
-  if ( meTestPulse_ ) meTestPulse_->setEntries( 0 );
   if ( meTestPulseG01_ ) meTestPulseG01_->setEntries( 0 );
   if ( meTestPulseG06_ ) meTestPulseG06_->setEntries( 0 );
   if ( meTestPulseG12_ ) meTestPulseG12_->setEntries( 0 );
-  if ( meTestPulseErr_ ) meTestPulseErr_->Reset();
-  if ( meTestPulsePN_ ) meTestPulsePN_->setEntries( 0 );
   if ( meTestPulsePNG01_ ) meTestPulsePNG01_->setEntries( 0 );
   if ( meTestPulsePNG16_ ) meTestPulsePNG16_->setEntries( 0 );
-  if ( meTestPulsePNErr_ ) meTestPulsePNErr_->Reset();
   if ( meTestPulseAmplG01_ ) meTestPulseAmplG01_->Reset();
   if ( meTestPulseAmplG01_ ) meTestPulseAmplG06_->Reset();
   if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
@@ -1078,16 +1006,6 @@ void EBSummaryClient::analyze(void) {
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TProfile2D* h2d;
-
-
-    // fill the gain value priority map<id,priority>
-    map<float,float> priority;
-    priority.insert( pair<float,float>(0,3) );
-    priority.insert( pair<float,float>(1,1) );
-    priority.insert( pair<float,float>(2,2) );
-    priority.insert( pair<float,float>(3,2) );
-    priority.insert( pair<float,float>(4,3) );
-    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1294,33 +1212,9 @@ void EBSummaryClient::analyze(void) {
             me_03 = ebpc->meg03_[ism-1];
 
             if ( me_01 && me_02 && me_03 ) {
-              float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
-
-              vector<float> maskedVal, unmaskedVal;
-              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==3) xval = brightColor;
-              else if(maskedVal.size()==3) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
 
               int iex;
               int ipx;
@@ -1337,11 +1231,6 @@ void EBSummaryClient::analyze(void) {
               if ( me_02->getEntries() != 0 ) mePedestalG06_->setBinContent( ipx, iex, val_02 );
               if ( me_03->getEntries() != 0 ) mePedestalG12_->setBinContent( ipx, iex, val_03 );
 
-              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                mePedestal_->setBinContent( ipx, iex, xval );
-                if ( xval == 0 ) mePedestalErr_->Fill( ism );
-              }
-
             }
 
           }
@@ -1353,33 +1242,9 @@ void EBSummaryClient::analyze(void) {
             me_03 = ebtpc->meg03_[ism-1];
 
             if ( me_01 && me_02 && me_03 ) {
-              float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
-
-              vector<float> maskedVal, unmaskedVal;
-              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==3) xval = brightColor;
-              else if(maskedVal.size()==3) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
 
               int iex;
               int ipx;
@@ -1395,11 +1260,6 @@ void EBSummaryClient::analyze(void) {
               if ( me_01->getEntries() != 0 ) meTestPulseG01_->setBinContent( ipx, iex, val_01 );
               if ( me_02->getEntries() != 0 ) meTestPulseG06_->setBinContent( ipx, iex, val_02 );
               if ( me_03->getEntries() != 0 ) meTestPulseG12_->setBinContent( ipx, iex, val_03 );
-
-              if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                meTestPulse_->setBinContent( ipx, iex, xval );
-                if( xval == 0 ) meTestPulseErr_->Fill( ism );
-              }
 
             }
 
@@ -1565,56 +1425,49 @@ void EBSummaryClient::analyze(void) {
       for( int i = 1; i <= 10; i++ ) {
         for( int j = 1; j <= 5; j++ ) {
 
+          int iex;
+          int ipx;
+          
+          if(ism<=18) {
+            iex = i;
+            ipx = j+5*(ism-1);
+          } else {
+            iex = i+10;
+            ipx = j+5*(ism-19);
+          }
+          
+          if ( ebic ) {
+
+            me_04 = ebic->meg02_[ism-1];
+            h2 = ebic->hmem_[ism-1];
+
+            if( me_04 ) {
+
+              float xval = me_04->getBinContent(i,1);
+              meIntegrityPN_->setBinContent( ipx, iex, xval );
+
+            }
+
+            if ( h2 ) {
+              
+              float xval = h2->GetBinContent(i,1);
+              meOccupancyPN_->setBinContent( ipx, iex, xval );
+
+            }
+
+          }
+
           if ( ebpc ) {
 
             me_04 = ebpc->meg04_[ism-1];
             me_05 = ebpc->meg05_[ism-1];
 
             if( me_04 && me_05) {
-              float xval=2;
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              vector<float> maskedVal, unmaskedVal;
-              (val_04>=3&&val_04<=5) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-              (val_05>=3&&val_05<=5) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==2) xval = brightColor;
-              else if(maskedVal.size()==2) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
-
-              int iex;
-              int ipx;
-
-              if(ism<=18) {
-                iex = i;
-                ipx = j+5*(ism-1);
-              } else {
-                iex = i+10;
-                ipx = j+5*(ism-19);
-              }
-
               if ( me_04->getEntries() != 0 ) mePedestalPNG01_->setBinContent( ipx, iex, val_04 );
               if ( me_05->getEntries() != 0 ) mePedestalPNG16_->setBinContent( ipx, iex, val_05 );
-
-              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-                mePedestalPN_->setBinContent( ipx, iex, xval );
-                if( xval == 0 ) mePedestalPNErr_->Fill( ism );
-              }
 
             }
 
@@ -1626,67 +1479,17 @@ void EBSummaryClient::analyze(void) {
             me_05 = ebtpc->meg05_[ism-1];
 
             if( me_04 && me_05) {
-              float xval=2;
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              vector<float> maskedVal, unmaskedVal;
-              (val_04>=3&&val_04<=5) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
-              (val_05>=3&&val_05<=5) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
-
-              float brightColor=6, darkColor=6;
-              float maxPriority=-1;
-
-              vector<float>::const_iterator Val;
-              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) brightColor=*Val;
-              }
-              maxPriority=-1;
-              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
-                if(priority[*Val]>maxPriority) darkColor=*Val;
-              }
-              if(unmaskedVal.size()==2) xval = brightColor;
-              else if(maskedVal.size()==2) xval = darkColor;
-              else {
-                if(brightColor==1 && darkColor==5) xval = 5;
-                else xval = brightColor;
-              }
-
-              int iex;
-              int ipx;
-
-              if(ism<=18) {
-                iex = i;
-                ipx = j+5*(ism-1);
-              } else {
-                iex = i+10;
-                ipx = j+5*(ism-19);
-              }
-
               if ( me_04->getEntries() != 0 ) meTestPulsePNG01_->setBinContent( ipx, iex, val_04 );
               if ( me_05->getEntries() != 0 ) meTestPulsePNG16_->setBinContent( ipx, iex, val_05 );
-
-              if ( me_04->getEntries() != 0 && me_05->getEntries() != 0 ) {
-                meTestPulsePN_->setBinContent( ipx, iex, xval );
-                if ( xval == 0 ) meTestPulsePNErr_->Fill ( ism );
-              }
 
             }
           }
 
           if ( eblc ) {
 
-            int iex;
-            int ipx;
-            
-            if(ism<=18) {
-              iex = i;
-              ipx = j+5*(ism-1);
-            } else {
-              iex = i+10;
-              ipx = j+5*(ism-19);
-            }
-            
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
               
               me = eblc->meg09_[ism-1];
