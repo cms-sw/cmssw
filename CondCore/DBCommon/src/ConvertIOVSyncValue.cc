@@ -10,10 +10,9 @@ namespace cond {
       return edm::IOVSyncValue( edm::EventID(time, 
 					     startOrStop ? 0 : edm::EventID::maxEventNumber()) );
     case cond::lumiid :
-      edm::LuminosityBlockID l(time);
-      return edm::IOVSyncValue(edm::EventID(l.run(),
-					    startOrStop ? 0 : edm::EventID::maxEventNumber()), 
-			       l.luminosityBlock());
+	return edm::IOVSyncValue(edm::EventID(l.run(),
+					      startOrStop ? 0 : edm::EventID::maxEventNumber()), 
+				 edm::LuminosityBlockID(time).luminosityBlock());
     case cond::timestamp :
       return edm::IOVSyncValue( edm::Timestamp(time));
     default:
@@ -25,9 +24,11 @@ namespace cond {
     switch (timetype) {
     case cond::runnumber :
       return time.eventID().run();
-    case cond::lumiid :
-      edm::LuminosityBlockID lum(time.eventID().run(), time.luminosityBlockNumber());
-      return lum.value();
+    case cond::lumiid : 
+      {
+	edm::LuminosityBlockID lum(time.eventID().run(), time.luminosityBlockNumber());
+	return lum.value();
+      }
     case cond::timestamp :
       return time.time().value();
     default:
@@ -41,18 +42,20 @@ namespace cond {
     case cond::runnumber :
       // last event of this run
       return edm::IOVSyncValue( edm::EventID(time,edm::EventID::maxEventNumber()) );
-    case cond::lumiid :
-      // the same lumiblock
-      edm::LuminosityBlockID l(time);
-      return edm::IOVSyncValue(edm::EventID(l.run(), edm::EventID::maxEventNumber()), 
-			       l.luminosityBlock());
+    case cond::lumiid : 
+      {
+	// the same lumiblock
+	edm::LuminosityBlockID l(time);
+	return edm::IOVSyncValue(edm::EventID(l.run(), edm::EventID::maxEventNumber()), 
+				 l.luminosityBlock());
+      }
     case cond::timestamp :
       // next event ?
       return edm::IOVSyncValue::invalidIOVSyncValue();
     default:
       return  edm::IOVSyncValue::invalidIOVSyncValue();
     }
-
+  }
 
     edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
       switch (timetype) {
