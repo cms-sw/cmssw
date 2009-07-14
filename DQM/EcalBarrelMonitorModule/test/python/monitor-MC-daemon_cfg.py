@@ -36,9 +36,7 @@ process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cf
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.preScaler = cms.EDFilter("Prescaler",
-    prescaleFactor = cms.int32(1)
-)
+process.load("FWCore.Modules.preScaler_cfi")
 
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
@@ -64,20 +62,20 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee.root')
+#    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee_310.root')
 #---
-    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root', 
-        '/store/user/dellaric/data/relval_zee.root')
+    fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root', 
+        '/store/user/dellaric/data/relval_zee_310.root')
 #---
 )
 
@@ -109,6 +107,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
+process.preScaler.prescaleFactor = 1
+
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB)
 
@@ -120,6 +120,7 @@ process.ecalUncalibHit.MinAmplEndcap = 16.
 process.ecalUncalibHit.EBdigiCollection = 'simEcalDigis:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
+process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 

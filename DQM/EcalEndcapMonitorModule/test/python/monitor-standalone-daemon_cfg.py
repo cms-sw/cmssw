@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ECALDQM")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
+
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
@@ -59,9 +59,7 @@ process.ecalEBunpacker = cms.EDProducer("EcalDCCTB07UnpackingModule",
 #process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
 #process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
 
-process.preScaler = cms.EDFilter("Prescaler",
-    prescaleFactor = cms.int32(1)
-)
+process.load("FWCore.Modules.preScaler_cfi")
 
 process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
@@ -228,6 +226,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
+process.preScaler.prescaleFactor = 1
+
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient*process.dqmQTestEE)
 
@@ -243,6 +243,7 @@ process.ecalUncalibHit.MinAmplEndcap = 16.
 process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
 process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
+process.ecalRecHit.killDeadChannels = False
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
