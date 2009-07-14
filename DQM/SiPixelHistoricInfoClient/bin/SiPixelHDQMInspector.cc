@@ -1,5 +1,5 @@
 #include "DQMServices/Diagnostic/test/HDQMInspector.h"
-#include "DQM/SiPixelHistoricInfoClient/interface/HDQMInspectorConfigSiPixel.h"
+#include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
 
 void SiPixelHDQMInspector (int const NRuns) {
 /////////////////////////////////////////////////////////////////

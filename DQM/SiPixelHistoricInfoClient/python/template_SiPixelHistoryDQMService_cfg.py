@@ -8,7 +8,7 @@ process = cms.Process("PWRITE")
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('cout'),
-                                    readFromFile_RUNNUMBER = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+#readFromFile_RUNNUMBER = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
                                     debugModules = cms.untracked.vstring('*')
                                     )
 
@@ -48,7 +48,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           connect = cms.string('sqlite_file:dbfile.db'),
                                           toPut = cms.VPSet(cms.PSet(
     record = cms.string("HDQMSummary"),
-    tag = cms.string("HDQM_SiPixel")
+    tag = cms.string("TAGNAME")
     )),
                                           logconnect = cms.untracked.string("sqlite_file:log.db") 
                                           )

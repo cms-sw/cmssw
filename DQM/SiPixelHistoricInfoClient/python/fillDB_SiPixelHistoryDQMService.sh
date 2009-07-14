@@ -17,7 +17,7 @@ while [ "$k" -lt "$ListSize" ]
   cat template_SiPixelHistoryDQMService_cfg.py | sed -e "s@RUNNUMBER@${runNumber}@g" -e "s@FILENAME@$DirName/$rootFile@" > RunMe_${runNumber}.py
 
   cmsRun RunMe_${runNumber}.py > Run_${runNumber}.log
-  [ "$?" != "0" ] && echo -e "Problem found in the processing. please have a look at \nlog/RunMe_${runNumber}.log" && exit
+  [ "$?" != "0" ] && echo -e "Problem found in the processing. please have a look at \nRun_${runNumber}.log" && exit
   rm RunMe_${runNumber}.py
 
   let "k+=1"
