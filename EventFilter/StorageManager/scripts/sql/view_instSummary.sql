@@ -50,7 +50,7 @@ BEGIN
 END GENERATE_FLAG_CLOSED;
 /
 
-CREATE OR REPLACE FUNCTION GENERATE_FLAG_SAFE0(run in number, maxRatio in number, sumNum in number)
+CREATE OR REPLACE FUNCTION GENERATE_FLAG_INJECTED(run in number, maxRatio in number, sumNum in number)
     RETURN VARCHAR2 AS
     flag VARCHAR2(1000);
     threshold NUMBER(10);
@@ -65,17 +65,42 @@ BEGIN
 	IF ( (NVL(entry.N_INJECTED,0) * maxRatio - NVL(entry.N_NEW,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_NEW,0) = 0) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
-			flag := flag || 'SAFE0:';
+			flag := flag || 'INJECTED:';
 		END IF;
 		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_NEW,0)) || ')'; 
 	END IF;
     END LOOP;
 
     RETURN flag;
-END GENERATE_FLAG_SAFE0;
+END GENERATE_FLAG_INJECTED;
 /
 
-CREATE OR REPLACE FUNCTION GENERATE_FLAG_SAFE99(run in number, maxRatio in number, sumNum in number)
+CREATE OR REPLACE FUNCTION GENERATE_FLAG_TRANSFERRED(run in number, maxRatio in number, sumNum in number)
+    RETURN VARCHAR2 AS
+    flag VARCHAR2(1000);
+    threshold NUMBER(10);
+    numFlagged NUMBER(5); 
+BEGIN
+    --Determine minimum below which should be flagged.
+
+    flag := ' ';
+    numFlagged := 0;
+    FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
+    LOOP
+	IF ( (NVL(entry.N_NEW,0) * maxRatio - NVL(entry.N_COPIED,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_COPIED,0) = 0) THEN
+		numFlagged := numFlagged + 1;
+		IF (numFlagged = 1) THEN
+			flag := flag || 'TRANS:';
+		END IF;
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_COPIED,0)) || ')'; 
+	END IF;
+    END LOOP;
+
+    RETURN flag;
+END GENERATE_FLAG_TRANSFERRED;
+/
+
+CREATE OR REPLACE FUNCTION GENERATE_FLAG_CHECKED(run in number, maxRatio in number, sumNum in number)
     RETURN VARCHAR2 AS
     flag VARCHAR2(1000);
     threshold NUMBER(10);
@@ -90,14 +115,14 @@ BEGIN
 	IF ( (NVL(entry.N_NEW,0) * maxRatio - NVL(entry.N_CHECKED,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_CHECKED,0) = 0) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
-			flag := flag || 'SAFE99:';
+			flag := flag || 'CHECKED:';
 		END IF;
 		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_CHECKED,0)) || ')'; 
 	END IF;
     END LOOP;
 
     RETURN flag;
-END GENERATE_FLAG_SAFE99;
+END GENERATE_FLAG_CHECKED;
 /
 
 CREATE OR REPLACE FUNCTION GENERATE_FLAG_DELETED(run in number, maxLastClosedTime in DATE)
@@ -134,10 +159,12 @@ AS SELECT "RUN_NUMBER",
           "N_INSTANCES",
           "MIN_CLOSED",
           "MAX_CLOSED",
-	  "MIN_SAFE0",
-          "MAX_SAFE0",
-          "MIN_SAFE99",
-          "MAX_SAFE99",
+	  "MIN_INJECTED",
+          "MAX_INJECTED",
+          "MIN_TRANSFERRED",
+          "MAX_TRANSFERRED",
+          "MIN_CHECKED",
+          "MAX_CHECKED",
           "MIN_DELETED",
           "MAX_DELETED",
           "INSTANCE_STATUS",
@@ -146,16 +173,19 @@ FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
              TO_CHAR( TO_CHAR(COUNT(INSTANCE)) || '/' || TO_CHAR(MAX(INSTANCE) + 1)  ) AS N_INSTANCES,
              TO_CHAR( MIN(NVL(N_INJECTED, 0))) AS MIN_CLOSED,
              TO_CHAR( MAX(NVL(N_INJECTED, 0))) AS MAX_CLOSED,
-             TO_CHAR( MIN(NVL(N_NEW, 0))) AS MIN_SAFE0,
-             TO_CHAR( MAX(NVL(N_NEW, 0))) AS MAX_SAFE0,
-             TO_CHAR( MIN(NVL(N_CHECKED, 0))) AS MIN_SAFE99,
-             TO_CHAR( MAX(NVL(N_CHECKED, 0))) AS MAX_SAFE99,
+             TO_CHAR( MIN(NVL(N_NEW, 0))) AS MIN_INJECTED,
+             TO_CHAR( MAX(NVL(N_NEW, 0))) AS MAX_INJECTED,
+             TO_CHAR( MIN(NVL(N_COPIED, 0))) AS MIN_TRANSFERRED,
+             TO_CHAR( MAX(NVL(N_COPIED, 0))) AS MAX_TRANSFERRED,
+             TO_CHAR( MIN(NVL(N_CHECKED, 0))) AS MIN_CHECKED,
+             TO_CHAR( MAX(NVL(N_CHECKED, 0))) AS MAX_CHECKED,
              TO_CHAR( MIN(NVL(N_DELETED, 0))) AS MIN_DELETED,
              TO_CHAR( MAX(NVL(N_DELETED, 0))) AS MAX_DELETED,
              TO_CHAR( INSTANCE_CHECK(RUNNUMBER, COUNT(INSTANCE), MAX(INSTANCE), MAX(SETUPLABEL), MAX(NVL(N_INJECTED, 0)) ) ) AS INSTANCE_STATUS,
              TO_CHAR( GENERATE_FLAG_CLOSED(RUNNUMBER, MAX(N_INJECTED), MAX(LAST_WRITE_TIME)) ||
-                      GENERATE_FLAG_SAFE0(RUNNUMBER, MAX(N_NEW / NVL(N_INJECTED, 1)), MAX(N_NEW) ) ||
-                      GENERATE_FLAG_SAFE99(RUNNUMBER, MAX(N_CHECKED / NVL(N_NEW, 1)), MAX(N_CHECKED) ) ||
+                      GENERATE_FLAG_INJECTED(RUNNUMBER, MAX(N_NEW / NVL(N_INJECTED, 1)), MAX(N_NEW) ) ||
+                      GENERATE_FLAG_TRANSFERRED(RUNNUMBER, MAX(N_COPIED / NVL(N_NEW, 1)), MAX(N_COPIED) ) ||
+                      GENERATE_FLAG_CHECKED(RUNNUMBER, MAX(N_CHECKED / NVL(N_NEW, 1)), MAX(N_CHECKED) ) ||
                       GENERATE_FLAG_DELETED(RUNNUMBER, MAX(LAST_WRITE_TIME) ) ) AS FLAGS
 FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, N_CREATED, N_INJECTED, N_NEW, N_COPIED, N_CHECKED, N_INSERTED, N_REPACKED, N_DELETED, LAST_WRITE_TIME, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) run
 FROM SM_INSTANCES)

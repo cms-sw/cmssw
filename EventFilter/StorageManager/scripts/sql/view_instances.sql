@@ -4,21 +4,24 @@ AS SELECT "RUN_NUMBER",
           "NUM_FILES",
           "NUM_OPEN",
           "NUM_CLOSED",
-          "NUM_SAFE0",
-          "NUM_SAFE99",
+          "NUM_INJECTED",
+          "NUM_TRANSFERRED",
+          "NUM_CHECKED"
           "NUM_DELETED",
           "NUM_REPACKED",
           "OPEN_STATUS",
-          "SAFE0_STATUS",
-          "SAFE99_STATUS",
+          "INJECTED_STATUS",
+          "TRANSFERRED_STATUS",
+          "CHECKED_STATUS",
           "DELETED_STATUS" 
 FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
              TO_CHAR( INSTANCE ) AS INSTANCE_NUMBER,
              TO_CHAR( NVL(N_CREATED, 0)) AS NUM_FILES,
              TO_CHAR( NVL(N_CREATED, 0) - NVL(N_INJECTED,0)) AS NUM_OPEN,
              TO_CHAR( NVL(N_INJECTED, 0)) AS NUM_CLOSED,
-             TO_CHAR( NVL(N_NEW, 0)) AS NUM_SAFE0,
-             TO_CHAR( NVL(N_CHECKED, 0)) AS NUM_SAFE99,
+             TO_CHAR( NVL(N_NEW, 0)) AS NUM_INJECTED,
+             TO_CHAR( NVL(N_COPIED, 0)) AS NUM_TRANSFERRED,
+             TO_CHAR( NVL(N_CHECKED, 0)) AS NUM_CHECKED,
              TO_CHAR( NVL(N_DELETED, 0)) AS NUM_DELETED,
              TO_CHAR( NVL(N_REPACKED, 0)) AS NUM_REPACKED,
             (CASE NVL(N_CREATED,0) - NVL(N_INJECTED,0)
@@ -28,11 +31,15 @@ FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
             (CASE NVL(N_INJECTED, 0) - NVL(N_NEW, 0)
              WHEN 0 THEN TO_CHAR(0)
              ELSE TO_CHAR(1)
-             END) AS SAFE0_STATUS,
+             END) AS INJECTED_STATUS,
+            (CASE NVL(N_COPIED, 0) - NVL(N_INJECTED, 0)
+             WHEN 0 THEN TO_CHAR(0)
+             ELSE TO_CHAR(1)
+             END) AS TRANSFERRED_STATUS,
             (CASE NVL(N_NEW, 0) - NVL(N_CHECKED, 0)
              WHEN 0 THEN TO_CHAR(0)
              ELSE TO_CHAR(1)
-             END) AS SAFE99_STATUS,
+             END) AS CHECKED_STATUS,
             (CASE NVL(N_DELETED, 0) - NVL(N_CHECKED, 0)
              WHEN 0 THEN TO_CHAR(0)
              ELSE TO_CHAR(1)
