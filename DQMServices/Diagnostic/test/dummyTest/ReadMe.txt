@@ -33,9 +33,11 @@ cmsRun test_SiStripHistoryDQMService_cfg_69572.py
 
 #*** Upload summaries for pixels
 cmsRun test_SiPixelpHistoryDQMService_cfg_69912.py
+cmsRun test_SiPixelpHistoryDQMService_cfg_70416.py
  
 #****************
 #Create Trends
 #***************
 
 root test_Inspector.cc
+root SiPixelPlottingExample.C
