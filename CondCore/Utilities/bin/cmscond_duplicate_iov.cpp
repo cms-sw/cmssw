@@ -49,6 +49,7 @@ int main( int argc, char** argv ){
   myopt.addLogDB();
   myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
+    ("destTag,d",boost::program_options::value<std::string>(),"destination tag (if different than source tag)")
     ("fromTime,f",boost::program_options::value<cond::Time_t>(),"a valid time of payload to append (required)")
     ("sinceTime,s",boost::program_options::value<cond::Time_t>(),"since time of new iov(required)")
     ;
@@ -56,6 +57,7 @@ int main( int argc, char** argv ){
 
   std::string destConnect;
   std::string dictionary;
+  std::string sourceTag;
   std::string destTag;
   std::string logConnect;
 
@@ -99,7 +101,11 @@ int main( int argc, char** argv ){
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else
-      destTag = vm["tag"].as<std::string>();
+      sourceTag = destTag = vm["tag"].as<std::string>();
+
+    if(!vm.count("destTag"))
+      destTag = vm["destTag"].as<std::string>();
+
     
     if(!vm.count("fromTime")){
       std::cerr <<"[Error] no fromTime[f] option given \n";
@@ -193,6 +199,7 @@ int main( int argc, char** argv ){
     
     conHandler.connect(&session);
     std::string iovtoken;
+    std::string destiovtoken;
     cond::TimeType iovtype;
     std::string timetypestr;
 
@@ -208,16 +215,24 @@ int main( int argc, char** argv ){
       cond::CoralTransaction& coralDB=conHandler.getConnection("destdb")->coralTransaction();
       coralDB.start(true);
       cond::MetaData  metadata(coralDB);
-      if( !metadata.hasTag(destTag) ){
-	throw std::runtime_error(std::string("tag ")+destTag+std::string(" not found") );
+      if( !metadata.hasTag(sourceTag) ){
+	throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
       }
-      //sourceiovtoken=sourceMetadata->getToken(inputTag);
-      cond::MetaDataEntry entry;
-      metadata.getEntryByTag(destTag,entry);
-      iovtoken=entry.iovtoken;
-      iovtype=entry.timetype;
-      timetypestr = cond::timeTypeSpecs[iovtype].name;
-       
+      {
+	cond::MetaDataEntry entry;
+	metadata.getEntryByTag(sourceTag,entry);
+	iovtoken=entry.iovtoken;
+	iovtype=entry.timetype;
+	timetypestr = cond::timeTypeSpecs[iovtype].name;
+      }
+      if( metadata.hasTag(destTag) ){
+	cond::MetaDataEntry entry;
+	metadata.getEntryByTag(destTag,entry);
+	destiovtoken=entry.iovtoken;
+	if (iovtype!=entry.timetype) {
+	  // throw...
+	}      
+      }
       coralDB.commit();
       if(debug){
 	std::cout<<"iov token "<< iovtoken<<std::endl;
@@ -226,25 +241,32 @@ int main( int argc, char** argv ){
     }
     
 
+    bool newIOV = destiovtoken.empty();
+
+
     cond::PoolTransaction& destdb=conHandler.getConnection("destdb")->poolTransaction();
     cond::IOVService iovmanager(destdb);
-    std::string payload;
+    std::string payload = iovmanager.payloadToken(iovtoken,from);
+    if (payload.empty()) {
+      std::cerr <<"[Error] no payload found for time " << from << std::endl;
+      return 1;
+    };
     int size=0;
-    {
+
+    bool newIOV = destiovtoken.empty();
+
+
+    if (!newIOV) {
       // to be streamlined
-      cond::IOVProxy iov(*conHandler.getConnection("destdb"),iovtoken,false,true);
+      cond::IOVProxy iov(*conHandler.getConnection("destdb"),destiovtoken,false,true);
       size = iov.size();
-      payload = iovmanager.payloadToken(iovtoken,from);
-      if (payload.empty()) {
-	std::cerr <<"[Error] no payload found for time " << from << std::endl;
-	return 1;
-      }
+      payload = 
       if ( (iov.end()-1)->wrapperToken()==payload) {
 	std::cerr <<"[Warning] payload for time " << from
 		  <<" equal to last inserted payload, no new IOV will be created" <<  std::endl;
 	return 0;
       }
-      if (payload == iovmanager.payloadToken(iovtoken,since)) {
+      if (payload == iovmanager.payloadToken(destiovtoken,since)) {
 	std::cerr <<"[Warning] payload for time " << from 
 		  <<" equal to payload valid at time "<< since
 		  <<", no new IOV will be created" <<  std::endl;
@@ -273,12 +295,37 @@ int main( int argc, char** argv ){
     }
 
 
+    // create if does not exist;
+    if (newIOV) {
+      std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor());
+      destdb.start(false);
+      editor->create(iovtype);
+      destiovtoken=editor->token();
+      editor->append(since,payload);
+      destdb.commit();
+    } else {
     //append it
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(iovtoken));
-    destdb.start(false);
-    editor->append(since,payload);
-    destdb.commit();
- 
+      std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(destiovtoken));
+      destdb.start(false);
+      editor->append(since,payload);
+      destdb.commit();
+    }
+
+    if (newIOV) {
+      cond::CoralTransaction& destCoralDB=conHandler.getConnection("destdb")->coralTransaction();
+      cond::MetaData destMetadata(destCoralDB);
+      destCoralDB.start(false);
+      destMetadata.addMapping(destTag,destiovtoken,iovtype);
+      if(debug){
+        std::cout<<"dest iov token "<<destiovtoken<<std::endl;
+        std::cout<<"dest iov type "<<iovtype<<std::endl;
+      }
+      destCoralDB.commit();
+    }
+
+    ::sleep(1);
+
+
 
     if (!logConnect.empty()){
       logdb->getWriteLock();
