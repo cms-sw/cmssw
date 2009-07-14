@@ -1,7 +1,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStyle.h"
-//#include "TApplication.h"
+#include "TApplication.h"
 #include "TFile.h"
 #include "TCanvas.h"
 #include "TPaveLabel.h"
@@ -9,20 +9,43 @@
 #include "TH1D.h"
 #include "TLegend.h"
 
+void printUsage(){
+    printf("Usage: WMuNuValidatorMacro [-blh] 'root_file_to_validate' 'reference_root_file'\n\n");
+    printf("\tOptions:\t -b ==> run in batch (no graphics)\n");
+    printf("\t        \t -l ==> use linY scale (logY is the default)\n");
+    printf("\t        \t -h ==> print this message\n\n");
+    printf("\tInput files:\t Created with the WMuNuAODSelector or WMuNuPATSelector plugins\n\n");
+    printf("\tOutput: \t Canvases in 'WMuNuValidation_*.root'\n");
+    printf("\t        \t Gif files in 'WMuNuValidation_*.gif'\n\n");
+}
+
 int main(int argc, char** argv){
 
-  if (argc!=3){
-    printf("Usage: WMuNuValidatorMacro 'root_file_to_validate' 'reference_root_file'\n\n");
-    printf("Example: WMuNuValidatorMacro WMuNu_histograms_31X.root WMuNu_histograms_22X.root\n");
-    printf("Output: canvases in 'WMuNuValidation_*.root'\n");
-    printf("        gif files in 'WMuNuValidation_*.gif'\n\n");
-    return 1;
+  TString chfile;
+  TString chfileref;
+
+  bool helpFlag = false;
+  bool logyFlag = true;
+  int ntrueargs = 0;
+  for (int i=1; i<argc; ++i) {
+      if (argv[i][0] == '-') {
+            if (argv[i][1]=='h' || argv[i][1]=='?') helpFlag = true;
+            if (argv[i][1]=='b') gROOT->SetBatch();
+            if (argv[i][1]=='l') logyFlag = false;
+            continue;
+      }
+      ntrueargs += 1;
+      if (ntrueargs==1) chfile = argv[i];
+      else if (ntrueargs==2) chfileref = argv[i];
+  }
+  if (ntrueargs!=2) helpFlag = true;
+  if (helpFlag) {    
+      printUsage();
+      return 1;
   }
 
-  //TApplication* app = new TApplication("CMS Root Application", 0, 0);
+  TApplication* app = new TApplication("CMS Root Application", 0, 0);
 
-  TString chfile = argv[1];
-  TString chfileref = argv[2];
   TString cmssw_version = gSystem->Getenv("CMSSW_VERSION");
   TString chtitle = "WMuNu validation for " + cmssw_version;
 
@@ -34,7 +57,7 @@ int main(int argc, char** argv){
 
   gStyle->SetOptTitle(1);
   gStyle->SetOptLogx(0);
-  gStyle->SetOptLogy(1);
+  gStyle->SetOptLogy(logyFlag);
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
   gStyle->SetPadLeftMargin(0.12);
@@ -149,7 +172,5 @@ int main(int argc, char** argv){
       c1->SaveAs(chplot);
   }
 
-  //app->Run();
+  if (!gROOT->IsBatch()) app->Run();
 }
-
-
