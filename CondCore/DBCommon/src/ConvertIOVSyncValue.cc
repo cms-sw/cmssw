@@ -44,8 +44,7 @@ namespace cond {
     case cond::lumiid :
       // the same lumiblock
       edm::LuminosityBlockID l(time);
-      return edm::IOVSyncValue(edm::EventID(l.run(), 
-					    startOrStop ? 0 : edm::EventID::maxEventNumber()), 
+      return edm::IOVSyncValue(edm::EventID(l.run(), edm::EventID::maxEventNumber()), 
 			       l.luminosityBlock());
     case cond::timestamp :
       // next event ?
@@ -53,6 +52,24 @@ namespace cond {
     default:
       return  edm::IOVSyncValue::invalidIOVSyncValue();
     }
+
+
+    edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const & time, cond::TimeType timetype) {
+      switch (timetype) {
+      case cond::runnumber :
+	// last event of this run
+	return edm::IOVSyncValue( edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()) );
+      case cond::lumiid :
+	// the same lumiblock
+	return time;
+      case cond::timestamp :
+	// smae lumiblock
+	return time;
+      default:
+	return  edm::IOVSyncValue::invalidIOVSyncValue();
+      }
+    }
+
 
 
   }

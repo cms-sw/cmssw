@@ -217,10 +217,10 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
 
-    // to force refresh we leave the interval open, so we will get call back at each event...
+    // to force refresh we set end-value to the minimum such an IOV can exend to....
     
     edm::IOVSyncValue start = cond::toIOVSyncValue(validity.first, timetype, true);
-    edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (validity.first, timetype)
+    edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)
       : cond::toIOVSyncValue(validity.second, timetype, false);
  
     //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
