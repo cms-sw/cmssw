@@ -194,15 +194,17 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
 
+  // refresh if required...
+  if (doRefresh)  { 
+    stats.nActualRefresh += (*p).second->proxy()->refresh(); 
+    stats.nRefresh++;
+  }
+
   {
-    // the refresh: each new run: up to us to detect it...
+    // not required anymore, keep here for the time being
     if(iTime.eventID().run()!=lastRun) {
       lastRun=iTime.eventID().run();
       stats.nRun++;
-      if (doRefresh)  { 
-	stats.nActualRefresh += (*p).second->proxy()->refresh(); 
-	stats.nRefresh++;
-      }
     }
   }
 
@@ -211,13 +213,14 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 
   cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
   bool userTime= (0==abtime);
+
   //std::cout<<"abtime "<<abtime<<std::endl;
 
   if (!userTime) {
     
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
 
-    // to force refresh we set end-value to the minimum such an IOV can exend to....
+    // to force refresh we set end-value to the minimum such an IOV can exend to: current run or lumiblock
     
     edm::IOVSyncValue start = cond::toIOVSyncValue(validity.first, timetype, true);
     edm::IOVSyncValue stop = doRefresh ? cond::limitedIOVSyncValue (iTime, timetype)

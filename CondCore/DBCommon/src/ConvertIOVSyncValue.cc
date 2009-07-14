@@ -58,13 +58,15 @@ namespace cond {
       switch (timetype) {
       case cond::runnumber :
 	// last event of this run
-	return edm::IOVSyncValue( edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()) );
+	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()) );
       case cond::lumiid :
 	// the same lumiblock
-	return time;
+	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()),
+				 time.luminosityBlockNumber());
       case cond::timestamp :
-	// smae lumiblock
-	return time;
+	// same lumiblock
+	return edm::IOVSyncValue(edm::EventID(time.eventID().run(),edm::EventID::maxEventNumber()),
+				 time.luminosityBlockNumber());	
       default:
 	return  edm::IOVSyncValue::invalidIOVSyncValue();
       }
