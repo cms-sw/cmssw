@@ -250,6 +250,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) {  
     for (unsigned int j=0;j<menu->GetTriggerSize();j++) {  
       overlap->SetBinContent(i,j,coMa[i][j]); 
+      overlap->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
+      overlap->GetYaxis()->SetBinLabel(j+1,menu->GetTriggerName(j));
     } 
   } 
 

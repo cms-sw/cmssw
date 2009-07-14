@@ -24,6 +24,7 @@ void MakeRatePlots(TString filename = "")
 
   c1->cd(3);
   TH2F *h3 = (TH2F *)f->Get("overlap");
+  h3->SetMinimum(-0.0001);
 
   h3->Draw("col2");
 }

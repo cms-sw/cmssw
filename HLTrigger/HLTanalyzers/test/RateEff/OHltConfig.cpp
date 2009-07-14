@@ -160,6 +160,12 @@ void OHltConfig::print()
   cout << "nPrintStatusEvery: " << nPrintStatusEvery << endl;
   cout << "menuTag: " << menuTag << endl;
   cout << "versionTag: " << versionTag << endl;
+  cout << "isRealData: " << isRealData << endl;
+  if(isRealData == true)
+    {
+      cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
+      cout << "liveTimeRun: " << liveTimeRun << endl;
+    }
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
   cout << "---------------------------------------------" <<  endl;
