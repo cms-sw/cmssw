@@ -183,15 +183,15 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
                 if ( flag == EcalSrFlag::SRF_FULL || ( flag == EcalSrFlag::SRF_FORCED_MASK) ) {
                         //EcalTrigTowerDetId ttId = it->id();
                         //eeSrpTTDetId.push_back( ttId );
-                        EcalScDetId scId = it->id();
+                        EcalScDetId scId( it->id() );
                         // not clear how to get the vector of DetId constituents of a SC...
                         //////////EcalElectronicsId eId( scId.rawId() );
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( eId.dccId(), eId.towerId() );
                         std::vector<DetId> vid;
                         for(int dx=1; dx<=5; ++dx){
                                 for(int dy=1; dy<=5; ++dy){
-                                        int ix = (scId.ix()-1)/5 + dx;
-                                        int iy = (scId.iy()-1)/5 + dy;
+                                        int ix = (scId.ix()-1)*5 + dx;
+                                        int iy = (scId.iy()-1)*5 + dy;
                                         int iz = scId.zside();
                                         if(EEDetId::validDetId(ix, iy, iz)){
                                                 vid.push_back(EEDetId(ix, iy, iz));
@@ -269,7 +269,6 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
                         if ( flag >= 10 && flag <= 12) { // FIXME -- avoid hardcoded values...
                                 eeDetIdToRecover->insert( *itId );
                         } else if ( flag == 13 || flag == 14 ) { // FIXME -- avoid hardcoded values...
-                                //eeSCDetIdToRecover->insert( EcalElectronicsId((*itId).rawId()).towerId() );
                                 eeSCDetIdToRecover->insert( EcalScDetId(1+((*itId).ix()-1)/5,1+((*itId).iy()-1)/5,(*itId).zside()) );
                         }
                 } else {
