@@ -13,9 +13,9 @@ BEGIN
     SELECT COUNT(INSTANCE) INTO lastNumInstance FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) RUN_RANK
          FROM SM_INSTANCES WHERE RUNNUMBER < run AND SETUPLABEL = currentSETUP) WHERE RUN_RANK = 1;
 
-    IF (numInstance != lastNumInstance) THEN
-         status := 1;
-    END IF;
+    --IF (numInstance != lastNumInstance) THEN
+         --status := 1;
+    --END IF;
     
     IF (numInstance != maxInstance + 1) THEN
          status := 1;
