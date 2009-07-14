@@ -78,9 +78,6 @@ namespace cond {
       }
     }
 
-
-
-  }
-
 }
+
 
