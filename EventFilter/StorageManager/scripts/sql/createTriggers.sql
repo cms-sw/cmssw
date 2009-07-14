@@ -41,11 +41,13 @@ BEGIN
             INSERT INTO SM_INSTANCES (
                 RUNNUMBER,
                 INSTANCE,
-                N_CREATED)
+                N_CREATED,
+                SETUPLABEL)
             VALUES (
                 :NEW.RUNNUMBER,
                 :NEW.INSTANCE,
-                1);
+                1,
+                :NEW.SETUPLABEL);
          END IF; 
      END IF;	
 END;
