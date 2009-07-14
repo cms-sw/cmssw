@@ -6,7 +6,7 @@ AS SELECT "RUN_NUMBER",
           "NUM_CLOSED",
           "NUM_INJECTED",
           "NUM_TRANSFERRED",
-          "NUM_CHECKED"
+          "NUM_CHECKED",
           "NUM_DELETED",
           "NUM_REPACKED",
           "OPEN_STATUS",
