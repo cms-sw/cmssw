@@ -23,13 +23,11 @@ cscConditions = cms.ESSource("PoolDBESSource",
             tag = cms.string('CSCDDUMap')
         )),
     messagelevel = cms.untracked.uint32(0),
-    DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
     timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_CSC'), ##cms_orcoff_int2r/CMS_COND_CSC"
 
     authenticationMethod = cms.untracked.uint32(1)
 )
 
+cscConditions.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
