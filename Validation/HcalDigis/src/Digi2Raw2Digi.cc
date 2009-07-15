@@ -7,6 +7,8 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 
@@ -41,98 +43,155 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   typename edm::SortedCollection<Digi>::const_iterator digiItr1;
   typename edm::Handle<edm::SortedCollection<Digi> > digiCollection2;
   typename edm::SortedCollection<Digi>::const_iterator digiItr2;
-  
-  if(unsuppressed) {  // ZDC
-    iEvent.getByLabel ("simHcalUnsuppressedDigis", digiCollection1); 
-  }
+
+   if(unsuppressed) {  // ZDC
+     iEvent.getByLabel ("simHcalUnsuppressedDigis", digiCollection1); 
+   }
   else iEvent.getByLabel (inputTag1_, digiCollection1);
 
   iEvent.getByLabel (inputTag2_, digiCollection2);
-
  
   int size1 = 0;
   int size2 = 0;
 
   for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
     size2++;
-  }
+ }
+  std::cout<<"size2="<<size2<<std::endl;
   // CYCLE over first DIGI collection ======================================
 
   for (digiItr1=digiCollection1->begin();digiItr1!=digiCollection1->end();digiItr1++) {
     size1++;    
 
-    HcalDetId cell(digiItr1->id()); 
-    int depth = cell.depth();
-    int iphi  = cell.iphi()-1;
-    int ieta  = cell.ieta();
-    int sub   = cell.subdet();
-    //    if(ieta > 0) ieta--;
-    
-    //    std::cout << " Cell subdet=" << sub << "  ieta=" << ieta 
-    //	      << "  inphi=" << iphi << "  depth=" << depth << std::endl;
-	       
+   
+
+    HcalGenericDetId HcalGenDetId(digiItr1->id());
     int tsize =  (*digiItr1).size();
     int match = 0;
+ 
+    if(HcalGenDetId.isHcalZDCDetId()){
 
-  // CYCLE over second DIGI collection ======================================
-    
-    for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
-         
-      HcalDetId cell2(digiItr2->id()); 
+      std::cout<<digiItr1->id()<<std::endl;
+      
+      //for zdc
+      HcalZDCDetId element(digiItr1->id());
+      int zside =  element.zside();
+      int section = element.section();
+      int channel = element.channel();
+      int gsub = HcalGenDetId.genericSubdet();
+
+      std::cout<< " Zdc genSubdet="<< gsub << " zside=" <<zside
+	       << " section= "<< section << " channel " <<channel
+	       <<std::endl; 
+
+      for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
+  	HcalZDCDetId element2(digiItr2->id());
+	if( element == element2) {
+	  match = 1;
+	  int identical = 1; 
+	  for (int i=0; i<tsize; i++) {
+	    double adc  =  (*digiItr1)[i].adc();     
+	    int capid   =  (*digiItr1)[i].capid();
+	    //	  std::cout << std::endl << "     capid1=" << capid 
+	    //                << " adc1=" << adc 
+	    //		    << std::endl;
+	    double adc2 =  (*digiItr2)[i].adc();     
+	    int capid2  =  (*digiItr2)[i].capid();
+	    //	  std::cout << "     capid2=" << capid2 << " adc2=" << adc2 
+	    //		    << std::endl;
+	    if( capid != capid2 || adc !=  adc2) {
+	      std::cout << "===> PROBLEM !!!  gebsubdet=" << gsub 
+			<< " zside=" <<zside
+			<< " section= "<< section << " channel " <<channel
+			<< std::endl;
+	      std::cout << "     capid1["<< i << "]=" << capid 
+			<< " adc1["<< i << "]=" << adc 
+			<< "     capid2["<< i << "]=" << capid2 
+			<< " adc2["<< i << "]=" << adc2
+			<< std::endl;   
+	      identical = 0;
+	      meStatus->Fill(1.); 
+	      break;
+	    }
+	  } // end of DataFrames array
+	  if(identical) meStatus->Fill(0.); 
+	  break; // matched HcalZDCID  is processed,
+	  //  go to next (primary collection) cell  
+	} 
+      } // end of cycle over 2d DIGI collection 
+      if (!match) {
+	meStatus->Fill(2.); 
+	std::cout << "===> PROBLEM !!!  gsubdet=" << gsub
+		  << " zside=" <<zside
+		  << " section= "<< section << " channel " <<channel
+		  << " HcalZDCId match is not found !!!" 
+		  << std::endl;
+      }
+    }
+    else{
+      //for Hcal subdetectors
+      HcalDetId cell(digiItr1->id()); 
+      int depth = cell.depth();
+      int iphi  = cell.iphi()-1;
+      int ieta  = cell.ieta();
+      int sub   = cell.subdet();
+      //    if(ieta > 0) ieta--;
+      //    std::cout << " Cell subdet=" << sub << "  ieta=" << ieta 
+      //	      << "  inphi=" << iphi << "  depth=" << depth << std::endl;
+      
+      // CYCLE over second DIGI collection ======================================
+      for (digiItr2=digiCollection2->begin();digiItr2!=digiCollection2->end();digiItr2++) {
   
-      if( cell == cell2) {
-	match = 1;
-        int identical = 1; 
-	for (int i=0; i<tsize; i++) {
-	  double adc  =  (*digiItr1)[i].adc();     
-	  int capid   =  (*digiItr1)[i].capid();
-	  //	  std::cout << std::endl << "     capid1=" << capid 
-          //                << " adc1=" << adc 
-	  //		    << std::endl;
-	  double adc2 =  (*digiItr2)[i].adc();     
-	  int capid2  =  (*digiItr2)[i].capid();
-	  //	  std::cout << "     capid2=" << capid2 << " adc2=" << adc2 
-	  //		    << std::endl;
-	  if( capid != capid2 || adc !=  adc2) {
-	    std::cout << "===> PROBLEM !!!  subdet=" << sub << "  ieta="
-		      << ieta  << "  inphi=" << iphi << "  depth=" << depth
-		      << std::endl;
-	    std::cout << "     capid1["<< i << "]=" << capid 
-		      << " adc1["<< i << "]=" << adc 
-		      << "     capid2["<< i << "]=" << capid2 
-		      << " adc2["<< i << "]=" << adc2
-		      << std::endl;
-
+	HcalDetId cell2(digiItr2->id());
+	
+	if( cell == cell2) {
+	  match = 1;
+	  int identical = 1; 
+	  for (int i=0; i<tsize; i++) {
+	    double adc  =  (*digiItr1)[i].adc();     
+	    int capid   =  (*digiItr1)[i].capid();
+	    //	  std::cout << std::endl << "     capid1=" << capid 
+	    //                << " adc1=" << adc 
+	    //		    << std::endl;
+	    double adc2 =  (*digiItr2)[i].adc();     
+	    int capid2  =  (*digiItr2)[i].capid();
+	    //	  std::cout << "     capid2=" << capid2 << " adc2=" << adc2 
+	    //		    << std::endl;
+	    if( capid != capid2 || adc !=  adc2) {
+	      std::cout << "===> PROBLEM !!!  subdet=" << sub << "  ieta="
+			<< ieta  << "  inphi=" << iphi << "  depth=" << depth
+			<< std::endl;
+	      std::cout << "     capid1["<< i << "]=" << capid 
+			<< " adc1["<< i << "]=" << adc 
+			<< "     capid2["<< i << "]=" << capid2 
+			<< " adc2["<< i << "]=" << adc2
+			<< std::endl;   
             identical = 0;
             meStatus->Fill(1.); 
             break;
-	  }
-	} // end of DataFrames array
-
-	if(identical) meStatus->Fill(0.); 
-	break; // matched HcalID  is processed,
-              //  go to next (primary collection) cell  
-
-      } 
-
-    } // end of cycle over 2d DIGI collection 
-    if (!match) {
-      meStatus->Fill(2.); 
-      std::cout << "===> PROBLEM !!!  subdet=" << sub << "  ieta="
-		<< ieta  << "  inphi=" << iphi << "  depth=" << depth
-                << " HcalID match is not found !!!" 
- 		<< std::endl;
+	    }
+	  } // end of DataFrames array
+	  if(identical) meStatus->Fill(0.); 
+	  break; // matched HcalID  is processed,
+	  //  go to next (primary collection) cell  
+	} 
+      } // end of cycle over 2d DIGI collection 
+      if (!match) {
+	meStatus->Fill(2.); 
+	std::cout << "===> PROBLEM !!!  subdet=" << sub << "  ieta="
+		  << ieta  << "  inphi=" << iphi << "  depth=" << depth
+		  << " HcalID match is not found !!!" 
+		  << std::endl;
+      }
     }
   } // end of cycle over 1st DIGI collection    
-
+  
   if (size1 != size2) {
     meStatus->Fill(3.); 
     std::cout << "===> PROBLEM !!!  Different size of Digi collections : "
 	      << size1  << " and " << size2 
 	      << std::endl;
   }
-
-  
 }
 
 
