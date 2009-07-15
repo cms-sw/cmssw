@@ -34,8 +34,8 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
-#include "Alignment/LaserAlignment/src/LASGlobalData.cc" // template
-#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
 
 
 
