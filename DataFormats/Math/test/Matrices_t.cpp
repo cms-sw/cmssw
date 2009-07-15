@@ -12,23 +12,49 @@ typedef ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > Matrix3
 
 
 
-
-
-
 int main() {
 
   double v[3] = {1.,-0.2,0.5};
   Matrix2 m(v,3);
 
   std::cout << m << std::endl;
-
-  edm::HRTimeType s= edm::hrRealTime();
   invertPosDefMatrix(m);
-  edm::HRTimeType e = edm::hrRealTime();
-  std::cout << e-s << std::endl;
-  
-  std::cout << m << std::endl;
+  invertPosDefMatrix(m);
+  m.Invert();
+  m.Invert();
 
+ 
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    invertPosDefMatrix(m);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << m << std::endl;
+  }
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    invertPosDefMatrix(m);
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << m << std::endl;
+  }
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    m.Invert();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << m << std::endl;
+  }
+
+  {
+    edm::HRTimeType s= edm::hrRealTime();
+    m.Invert();
+    edm::HRTimeType e = edm::hrRealTime();
+    std::cout << e-s << std::endl;
+    std::cout << m << std::endl;
+  }
 
   return 0;
 
