@@ -24,12 +24,14 @@ int main(int argc, char** argv){
   TString chfile;
   TString chfileref;
 
-  bool helpFlag = false;
-  bool logyFlag = true;
   int ntrueargs = 0;
+  bool logyFlag = true;
   for (int i=1; i<argc; ++i) {
       if (argv[i][0] == '-') {
-            if (argv[i][1]=='h' || argv[i][1]=='?') helpFlag = true;
+            if (argv[i][1]=='h') {
+                  printUsage();
+                  return 1;
+            }
             if (argv[i][1]=='b') gROOT->SetBatch();
             if (argv[i][1]=='l') logyFlag = false;
             continue;
@@ -38,8 +40,8 @@ int main(int argc, char** argv){
       if (ntrueargs==1) chfile = argv[i];
       else if (ntrueargs==2) chfileref = argv[i];
   }
-  if (ntrueargs!=2) helpFlag = true;
-  if (helpFlag) {    
+
+  if (ntrueargs!=2) {    
       printUsage();
       return 1;
   }
@@ -173,4 +175,6 @@ int main(int argc, char** argv){
   }
 
   if (!gROOT->IsBatch()) app->Run();
+
+  return 0;
 }
