@@ -15,7 +15,7 @@ typedef ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > Matrix3
 int main() {
 
   double v[3] = {1.,-0.2,0.5};
-  Matrix2 m(v,3);
+  Matrix2 & m = *(new Matrix2(v,3));
 
   std::cout << m << std::endl;
   invertPosDefMatrix(m);
