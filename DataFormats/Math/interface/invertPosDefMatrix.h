@@ -1,7 +1,7 @@
 #ifndef DataFormat_Math_invertPosDefMatrix_H
 #define DataFormat_Math_invertPosDefMatrix_H
 
-
+#include "Math/SMatrix.h"
 #include "DataFormats/Math/interface/CholeskyDecomp.h"
 
 template<typename T,unsigned int N>
