@@ -237,7 +237,7 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
 
   int pace  = (word >> 53) & m2;
   if (kPACE[pace]==0) return;
-  if (kid > 1511) return;
+  if (kid > 1511 || kid < 1) return;
   
   int adc[3];
   adc[0]    = (word >> 0)  & m16;
