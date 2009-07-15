@@ -6,7 +6,6 @@
 #include "DQMOffline/JetMET/interface/ECALRecHitAnalyzer.h"
 #include "DQMOffline/JetMET/interface/HCALRecHitAnalyzer.h"
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
-#include "DQMOffline/JetMET/interface/JetMETDQMStoreClean.h"
 // the clients
 // #include "DQMOffline/Muon/src/MuonTrackResidualsTest.h"
 
@@ -16,5 +15,4 @@ DEFINE_ANOTHER_FWK_MODULE(CaloTowerAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(HCALRecHitAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ECALRecHitAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(DataCertificationJetMET);
-DEFINE_ANOTHER_FWK_MODULE(JetMETDQMStoreClean);
 // DEFINE_ANOTHER_FWK_MODULE(MuonTrackResidualsTest);
