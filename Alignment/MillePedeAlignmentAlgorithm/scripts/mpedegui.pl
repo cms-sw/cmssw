@@ -5,7 +5,7 @@
 # Project: Millipede Production Enviroment GUI
 # File:    /afs/cern.ch/user/s/sanchl/public/ZooZ-1.2/mpedegui.zooz
 # Authors: Luis Sanchez, Andrea Parenti, Silvia Miglioranzi
-# Contact: sanchl@mail.cern.ch
+# Contact: parenti@mail.cern.ch
 #
 ##################
 
@@ -323,7 +323,7 @@ $ZWIDGETS{'batchclass_label'} = $MW->Label(
 
 # Widget milleclass_menu isa Optionmenu
 $ZWIDGETS{'milleclass_menu'} = $MW->Optionmenu(
-        -options => [ ["(Choose mille queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf8nh"=>"cmscaf8nh"], ["cmscaf1nw"=>"cmscaf1nw"] ],
+        -options => [ ["(Choose mille queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf1nd"=>"cmscaf1nd"], ["cmscaf1nw"=>"cmscaf1nw"] ],
         -variable => \$milleclass_variable,
         -command => \&createbatchclass,
 	)->grid(
@@ -334,7 +334,7 @@ $ZWIDGETS{'milleclass_menu'} = $MW->Optionmenu(
 
 # Widget pedeclass_menu isa Optionmenu
 $ZWIDGETS{'pedeclass_menu'} = $MW->Optionmenu(
-        -options => [ ["(Choose pede queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf8nh"=>"cmscaf8nh"], ["cmscaf1nw"=>"cmscaf1nw"], ["cmscafspec1nh"=>"cmscafspec1nh"], ["cmscafspec8nh"=>"cmscafspec8nh"], ["cmscafspec1nw"=>"cmscafspec1nw"] ],
+        -options => [ ["(Choose pede queue)"=>""], ["8nm"=>"8nm"], ["1nh"=>"1nh"], ["8nh"=>"8nh"], ["1nd"=>"1nd"], ["2nd"=>"2nd"], ["1nw"=>"1nw"], ["2nw"=>"2nw"], ["cmscaf1nh"=>"cmscaf1nh"], ["cmscaf1nd"=>"cmscaf1nd"], ["cmscaf1nw"=>"cmscaf1nw"], ["cmscafspec1nh"=>"cmscafspec1nh"], ["cmscafspec1nd"=>"cmscafspec1nd"], ["cmscafspec1nw"=>"cmscafspec1nw"] ],
         -variable => \$pedeclass_variable,
         -command => \&createbatchclass,
 	)->grid(

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.20 $
-#     $Date: 2009/06/24 10:14:39 $
+#     $Revision: 1.21 $
+#     $Date: 2009/06/24 11:58:48 $
 #
 #  Setup local mps database
 #  
@@ -12,8 +12,8 @@
 #  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
 #
 # class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
-#              - special CAF queues (cmscaf1nh, cmscaf8nh, cmscaf1nw)
-#              - special CAF queues, for pede job (cmscafspec1nh, cmscafspec8nh, cmscafspec1nw). E.g. cmscafspec1nh corresponds to "-q cmscaf1nh -R cmscafspec"
+#              - special CAF queues (cmscaf1nh, cmscaf1nd, cmscaf1nw)
+#              - special CAF queues, for pede job (cmscafspec1nh, cmscafspec1nd, cmscafspec1nw). E.g. cmscafspec1nh corresponds to "-q cmscaf1nh -R cmscafspec"
 # If class contains a ':', it will be split:
 #              - the part before the ':' defines the class for Mille jobs,
 #              - the part behind the class for the Pede job.
@@ -130,11 +130,11 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("mille")." ")>-1) {
   print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
-unless (index(" lxplus cmscaf1nh cmscaf8nh cmscaf1nw cmscafspec1nh cmscafspec8nh cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("pede")." ")>-1) {
+unless (index(" lxplus cmscaf1nh cmscaf1nd cmscaf1nw cmscafspec1nh cmscafspec1nd cmscafspec1nw 8nm 1nh 8nh 1nd 2nd 1nw 2nw "," ".get_class("pede")." ")>-1) {
   print "Bad job class for pede in class '$class'\n";
   exit 1;
 }
