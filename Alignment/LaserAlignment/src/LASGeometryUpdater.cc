@@ -1,5 +1,5 @@
 
-#include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
+#include "Alignment/LaserAlignment/interface/LASGeometryUpdater.h"
 
 
 ///

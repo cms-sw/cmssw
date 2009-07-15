@@ -9,10 +9,10 @@
 
 #include <TMinuit.h>
 
-#include "Alignment/LaserAlignment/src/LASEndcapAlignmentParameterSet.h"
-#include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
-#include "Alignment/LaserAlignment/src/LASGlobalData.cc"
-#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/interface/LASEndcapAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/interface/LASCoordinateSet.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
 
 ///
 /// calculate parameters for both endcaps from measurement

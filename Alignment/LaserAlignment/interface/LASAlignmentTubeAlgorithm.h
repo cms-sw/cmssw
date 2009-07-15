@@ -8,10 +8,10 @@
 #include <fstream>
 #include <cmath>
 
-#include "Alignment/LaserAlignment/src/LASBarrelAlignmentParameterSet.h"
-#include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
-#include "Alignment/LaserAlignment/src/LASGlobalData.cc"
-#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/interface/LASBarrelAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/interface/LASCoordinateSet.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
 
 
 ///

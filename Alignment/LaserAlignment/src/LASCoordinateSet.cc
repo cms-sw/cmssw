@@ -1,6 +1,6 @@
 
 
-#include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
+#include "Alignment/LaserAlignment/interface/LASCoordinateSet.h"
 
 ///
 /// convenience functions for the coordinates;

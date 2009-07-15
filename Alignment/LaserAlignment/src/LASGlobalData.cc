@@ -2,7 +2,7 @@
 #ifndef __LASGLOBALDATA_C
 #define __LASGLOBALDATA_C
 
-#include "Alignment/LaserAlignment/src/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
 
 
 

@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/06/04 15:26:11 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/06/11 13:33:13 $
+ *  $Revision: 1.25 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -52,17 +52,18 @@
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/LaserAlignment/src/LASGlobalData.cc" // (template)
-#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
-#include "Alignment/LaserAlignment/src/LASModuleProfile.h"
-#include "Alignment/LaserAlignment/src/LASProfileJudge.h"
-#include "Alignment/LaserAlignment/src/LASBarrelAlgorithm.h"
-#include "Alignment/LaserAlignment/src/LASAlignmentTubeAlgorithm.h"
-#include "Alignment/LaserAlignment/src/LASEndcapAlgorithm.h"
-#include "Alignment/LaserAlignment/src/LASPeakFinder.h"
-#include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
-#include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
-#include "Alignment/LaserAlignment/src/LASConstants.h"
+
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/interface/LASModuleProfile.h"
+#include "Alignment/LaserAlignment/interface/LASProfileJudge.h"
+#include "Alignment/LaserAlignment/interface/LASBarrelAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LASAlignmentTubeAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LASEndcapAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LASPeakFinder.h"
+#include "Alignment/LaserAlignment/interface/LASCoordinateSet.h"
+#include "Alignment/LaserAlignment/interface/LASGeometryUpdater.h"
+#include "Alignment/LaserAlignment/interface/LASConstants.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 

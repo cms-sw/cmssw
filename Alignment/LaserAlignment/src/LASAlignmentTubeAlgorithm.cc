@@ -1,5 +1,5 @@
 
-#include "LASAlignmentTubeAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LASAlignmentTubeAlgorithm.h"
 
 
 ///

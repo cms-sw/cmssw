@@ -1,6 +1,6 @@
 
 
-#include "Alignment/LaserAlignment/src/LASBarrelAlgorithm.h"
+#include "Alignment/LaserAlignment/interface/LASBarrelAlgorithm.h"
 
 
 // this is ugly but we need it for Minuit

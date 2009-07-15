@@ -10,7 +10,7 @@
 #include <TH1.h>
 #include <TF1.h>
 
-#include "Alignment/LaserAlignment/src/LASModuleProfile.h"
+#include "Alignment/LaserAlignment/interface/LASModuleProfile.h"
 
 
 ///

@@ -3,7 +3,7 @@
 #define __LASMODULEPROFILE_C
 
 
-#include "LASModuleProfile.h"
+#include "Alignment/LaserAlignment/interface/LASModuleProfile.h"
 
 
 LASModuleProfile::LASModuleProfile() {

@@ -1,6 +1,6 @@
 
 
-#include "Alignment/LaserAlignment/src/LASProfileJudge.h"
+#include "Alignment/LaserAlignment/interface/LASProfileJudge.h"
 
 
 // terminal colors

@@ -1,5 +1,5 @@
 
-#include "Alignment/LaserAlignment/src/LASPeakFinder.h"
+#include "Alignment/LaserAlignment/interface/LASPeakFinder.h"
 
 
 ///

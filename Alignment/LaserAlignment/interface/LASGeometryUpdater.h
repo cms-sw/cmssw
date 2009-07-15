@@ -6,12 +6,12 @@
 #include <cmath>
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/LaserAlignment/src/LASEndcapAlignmentParameterSet.h"
-#include "Alignment/LaserAlignment/src/LASBarrelAlignmentParameterSet.h"
-#include "Alignment/LaserAlignment/src/LASGlobalData.cc" //template
-#include "Alignment/LaserAlignment/src/LASCoordinateSet.h" 
-#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
-#include "Alignment/LaserAlignment/src/LASConstants.h"
+#include "Alignment/LaserAlignment/interface/LASEndcapAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/interface/LASBarrelAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalData.h"
+#include "Alignment/LaserAlignment/interface/LASCoordinateSet.h" 
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/interface/LASConstants.h"
 
 
 class LASGeometryUpdater {

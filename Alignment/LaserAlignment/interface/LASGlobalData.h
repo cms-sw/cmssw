@@ -55,5 +55,7 @@ class LASGlobalData {
 
 };
 
+// since this is a template
+#include "Alignment/LaserAlignment/src/LASGlobalData.cc"
 
 #endif

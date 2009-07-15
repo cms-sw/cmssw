@@ -1,5 +1,5 @@
 
-#include "Alignment/LaserAlignment/src/LASEndcapAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/interface/LASEndcapAlignmentParameterSet.h"
 
 
 

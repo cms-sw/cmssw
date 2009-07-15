@@ -1,6 +1,6 @@
 
 
-#include "Alignment/LaserAlignment/src/LASConstants.h"
+#include "Alignment/LaserAlignment/interface/LASConstants.h"
 
 
 ///

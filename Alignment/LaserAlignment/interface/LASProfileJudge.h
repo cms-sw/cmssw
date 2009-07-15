@@ -5,7 +5,7 @@
 #include <iostream>
 #include <utility>
 
-#include "Alignment/LaserAlignment/src/LASModuleProfile.h"
+#include "Alignment/LaserAlignment/interface/LASModuleProfile.h"
 
 
 ///
