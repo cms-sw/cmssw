@@ -57,15 +57,9 @@ int main(int argc, char** argv){
   TPaveLabel* paveTitle = new TPaveLabel(0.1,0.93,0.9,0.99, chtitle.Data());
   paveTitle->Draw();
 
-  gStyle->SetOptTitle(1);
-  gStyle->SetOptLogx(0);
   gStyle->SetOptLogy(logyFlag);
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
-  gStyle->SetPadLeftMargin(0.12);
-  gStyle->SetPadBottomMargin(0.12);
-
-  gStyle->SetOptFit(0000);
   gStyle->SetOptStat(1111111);
 
   TPad* pad[4];
@@ -73,7 +67,7 @@ int main(int argc, char** argv){
   pad[1] = new TPad("pad_tr","The top-right pad",0.51,0.48,0.99,0.92); 
   pad[2] = new TPad("pad_bl","The bottom-left pad",0.01,0.01,0.49,0.46); 
   pad[3] = new TPad("pad_br","The bottom-right pad",0.51,0.01,0.99,0.46); 
-  pad[0]->Draw(); pad[1]->Draw(); pad[2]->Draw(); pad[3]->Draw();
+  for (unsigned int i=0; i<4; ++i) pad[i]->Draw();
                                                                                 
   TLegend* leg = new TLegend(0.5,0.9,0.7,1.0);
 
@@ -84,7 +78,7 @@ int main(int argc, char** argv){
   TDirectory* dir_before = input_file->GetDirectory("wmnSelFilter/BeforeCuts");
   TDirectory* dirref_before = input_fileref->GetDirectory("wmnSelFilter/BeforeCuts");
   TList* list_before = dir_before->GetListOfKeys();
-  //list_before->Print();
+  list_before->Print();
 
   unsigned int list_before_size = list_before->GetSize();
   TString auxTitle = chtitle + ": BEFORE CUTS";
@@ -131,7 +125,7 @@ int main(int argc, char** argv){
   TDirectory* dir_lastcut = input_file->GetDirectory("wmnSelFilter/LastCut");
   TDirectory* dirref_lastcut = input_fileref->GetDirectory("wmnSelFilter/LastCut");
   TList* list_lastcut = dir_lastcut->GetListOfKeys();
-  //list_lastcut->Print();
+  list_lastcut->Print();
 
   unsigned int list_lastcut_size = list_lastcut->GetSize();
   auxTitle = chtitle + ": AFTER N-1 CUTS";
