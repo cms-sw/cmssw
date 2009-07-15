@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.24 2009/06/22 14:32:26 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.25 2009/07/08 15:09:59 amraktad Exp $
 //
 
 // system include files
@@ -205,17 +205,17 @@ class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron
    y -= 2*fontsize;
    // legend
 
-   latex->DrawLatex(x, y, "#color[5]{+} track outer helix extrapolation");
+   latex->DrawLatex(x, y, "#color[2]{+} track outer helix extrapolation");
    y -= fontsize;
    latex->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[5]{#bullet} seed cluster centroid");
+   latex->DrawLatex(x, y, "#color[2]{#bullet} seed cluster centroid");
    y -= fontsize;
    latex->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[2]{#Box} seed cluster");
+   latex->DrawLatex(x, y, "#color[8]{#Box} seed cluster");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[5]{#Box} other clusters");
+   latex->DrawLatex(x, y, "#color[433]{#Box} other clusters"); //kCyan+1
    // eta, phi axis or x, y axis?
    assert(electron.superCluster().isNonnull());
    bool is_endcap = false;
