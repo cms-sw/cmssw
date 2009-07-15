@@ -6,18 +6,15 @@
 <use name=DataFormats/PatCandidates>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/PatUtils>
-<library name=ElectroWeakAnalysisWMuNu_plugins file=*.cc>
+<library name=ElectroWeakPDFProducer_plugins file=EwkPdfWeightProducer.cc>
       ### With local LHAPDF
       #<flags CXXFLAGS="-I/usr/local/include">
       #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
       ### CMSSW 31X libraries (much slower for the time being)
       <use name=LHAPDF>
 </library>
-<library name=ElectroWeakAnalysisWMuNuPAT_plugins file=WMuNuSelector.cc>
-      <flags CppDefines="IS_PAT=1">
-      ### With local LHAPDF
-      #<flags CXXFLAGS="-I/usr/local/include">
-      #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
-      ### CMSSW 31X libraries (much slower for the time being)
-      <use name=LHAPDF>
+<library name=ElectroWeakAnalysisWMuNuAOD_plugins file=*Selector.cc>
+</library>
+<library name=ElectroWeakAnalysisWMuNuPAT_plugins file=*Selector.cc>
+      <flags CPPDEFINES="IS_PAT_FOR_EWKMU">
 </library>

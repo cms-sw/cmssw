@@ -86,8 +86,9 @@ int main(int argc, char** argv){
       if (first_plots_done==true) c1->DrawClone();
       paveTitle->SetLabel(auxTitle.Data());
       for (unsigned int j=0; j<4; ++j) {
-            if ((i+j)>=list_before_size) break;
             pad[j]->cd(); 
+            pad[j]->Clear(); 
+            if ((i+j)>=list_before_size) continue;
 
             TH1D* h1 = (TH1D*)dir_before->Get(list_before->At(i+j)->GetName()); 
             h1->SetLineColor(kBlue);
@@ -133,8 +134,9 @@ int main(int argc, char** argv){
       if (first_plots_done==true) c1->DrawClone();
       paveTitle->SetLabel(auxTitle.Data());
       for (unsigned int j=0; j<4; ++j) {
-            if ((i+j)>=list_lastcut_size) break;
             pad[j]->cd(); 
+            pad[j]->Clear(); 
+            if ((i+j)>=list_lastcut_size) continue;
 
             TH1D* h1 = (TH1D*)dir_lastcut->Get(list_lastcut->At(i+j)->GetName()); 
             h1->SetLineColor(kBlue);

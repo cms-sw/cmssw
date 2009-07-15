@@ -3,13 +3,13 @@
 #include "TH1D.h"
 #include <map>
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 class WMuNuPATSelector : public edm::EDFilter {
 #else
 class WMuNuAODSelector : public edm::EDFilter {
 #endif
 public:
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
   WMuNuPATSelector (const edm::ParameterSet &);
 #else
   WMuNuAODSelector (const edm::ParameterSet &);
@@ -71,7 +71,7 @@ private:
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -90,13 +90,13 @@ private:
   
 using namespace edm;
 using namespace std;
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
       using namespace pat;
 #else
       using namespace reco;
 #endif
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 WMuNuPATSelector::WMuNuPATSelector( const ParameterSet & cfg ) :
 #else
 WMuNuAODSelector::WMuNuAODSelector( const ParameterSet & cfg ) :
@@ -141,7 +141,7 @@ WMuNuAODSelector::WMuNuAODSelector( const ParameterSet & cfg ) :
 {
 }
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 void WMuNuPATSelector::beginJob(const EventSetup &) {
 #else
 void WMuNuAODSelector::beginJob(const EventSetup &) {
@@ -158,7 +158,7 @@ void WMuNuAODSelector::beginJob(const EventSetup &) {
       }
 }
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 void WMuNuPATSelector::init_histograms() {
 #else
 void WMuNuAODSelector::init_histograms() {
@@ -174,7 +174,11 @@ void WMuNuAODSelector::init_histograms() {
 
       for (int i=0; i<2; ++i) {
             snprintf(chname, 255, "PT%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Muon transverse momentum [GeV]");
+            if (useTrackerPt_) {
+                  snprintf(chtitle, 255, "Muon transverse momentum (tracker) [GeV]");
+            } else {
+                  snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
+            }
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
 
             snprintf(chname, 255, "ETA%s", chsuffix[i].data());
@@ -199,10 +203,18 @@ void WMuNuAODSelector::init_histograms() {
 
             snprintf(chname, 255, "ISO%s", chsuffix[i].data());
             if (isRelativeIso_) {
-                  snprintf(chtitle, 255, "Relative isolation variable");
+                  if (isCombinedIso_) {
+                        snprintf(chtitle, 255, "Relative (combined) isolation variable");
+                  } else {
+                        snprintf(chtitle, 255, "Relative (tracker) isolation variable");
+                  }
                   h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 100, 0., 1.);
             } else {
-                  snprintf(chtitle, 255, "Absolute isolation variable [GeV]");
+                  if (isCombinedIso_) {
+                        snprintf(chtitle, 255, "Absolute (combined) isolation variable [GeV]");
+                  } else {
+                        snprintf(chtitle, 255, "Absolute (tracker) isolation variable [GeV]");
+                  }
                   h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 100, 0., 20.);
             }
 
@@ -211,15 +223,15 @@ void WMuNuAODSelector::init_histograms() {
             h1_[chname]  = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
 
             snprintf(chname, 255, "MT%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Transverse mass [GeV]");
+            snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,150,0.,300.);
 
             snprintf(chname, 255, "MET%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Missing transverse energy [GeV]");
+            snprintf(chtitle, 255, "Missing transverse energy (%s) [GeV]", metTag_.label().data());
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,200.);
 
             snprintf(chname, 255, "ACOP%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "MU-MET acoplanarity");
+            snprintf(chtitle, 255, "MU-MET (%s) acoplanarity", metTag_.label().data());
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,0.,M_PI);
 
             snprintf(chname, 255, "NZ1%s", chsuffix[i].data());
@@ -231,13 +243,13 @@ void WMuNuAODSelector::init_histograms() {
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 10, -0.5, 9.5);
 
             snprintf(chname, 255, "NJETS%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Number of jets above %.2f GeV", eJetMin_);
+            snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,-0.5,9.5);
 
       }
 }
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 void WMuNuPATSelector::fill_histogram(char* name, const double& var) {
 #else
 void WMuNuAODSelector::fill_histogram(char* name, const double& var) {
@@ -246,7 +258,7 @@ void WMuNuAODSelector::fill_histogram(char* name, const double& var) {
       h1_[name]->Fill(var);
 }
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 void WMuNuPATSelector::endJob() {
 #else
 void WMuNuAODSelector::endJob() {
@@ -267,43 +279,49 @@ void WMuNuAODSelector::endJob() {
         double num = nrec;
         double eff = erec;
         double err = sqrt(eff*(1-eff)/all);
-        double effstep = 1.;
-        double errstep = 0.;
         LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
 
         num = niso;
         eff = eiso;
         err = sqrt(eff*(1-eff)/all);
-        effstep = eiso/erec;
-        errstep = sqrt(effstep*(1-effstep)/nrec);
+        double effstep = 0.;
+        double errstep = 0.;
+        if (nrec>0) effstep = eiso/erec;
+        if (nrec>0) errstep = sqrt(effstep*(1-effstep)/nrec);
         LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
   
         num = nhlt;
         eff = ehlt;
         err = sqrt(eff*(1-eff)/all);
-        effstep = ehlt/eiso;
-        errstep = sqrt(effstep*(1-effstep)/niso);
+        effstep = 0.;
+        errstep = 0.;
+        if (niso>0) effstep = ehlt/eiso;
+        if (niso>0) errstep = sqrt(effstep*(1-effstep)/niso);
         LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
 
         num = nmet;
         eff = emet;
         err = sqrt(eff*(1-eff)/all);
-        effstep = emet/ehlt;
-        errstep = sqrt(effstep*(1-effstep)/nhlt);
+        effstep = 0.;
+        errstep = 0.;
+        if (nhlt>0) effstep = emet/ehlt;
+        if (nhlt>0) errstep = sqrt(effstep*(1-effstep)/nhlt);
         LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
 
         num = nsel;
         eff = esel;
         err = sqrt(eff*(1-eff)/all);
-        effstep = esel/emet;
-        errstep = sqrt(effstep*(1-effstep)/nmet);
+        effstep = 0.;
+        errstep = 0.;
+        if (nmet>0) effstep = esel/emet;
+        if (nmet>0) errstep = sqrt(effstep*(1-effstep)/nmet);
         LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
       }
 
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
 bool WMuNuPATSelector::filter (Event & ev, const EventSetup &) {
 #else
 bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
@@ -365,7 +383,7 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
       /*
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
-                  LogError("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
+                  LogTrace("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
             }
       }
       */
@@ -619,7 +637,7 @@ bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#ifdef IS_PAT
+#ifdef IS_PAT_FOR_EWKMU
       DEFINE_FWK_MODULE( WMuNuPATSelector );
 #else
       DEFINE_FWK_MODULE( WMuNuAODSelector );
