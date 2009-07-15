@@ -49,7 +49,8 @@ int main(int argc, char** argv){
   TRint* app = new TRint("CMS Root Application", 0, 0);
 
   TString cmssw_version = gSystem->Getenv("CMSSW_VERSION");
-  TString chtitle = "WMuNu validation for " + cmssw_version;
+  TString chsample = "WMuNu";
+  TString chtitle = chsample + " validation for " + cmssw_version;
 
   //TCanvas* c1 = new TCanvas("c1",chtitle.Data());
   TCanvas* c1 = new TCanvas("c1",chtitle.Data(),0,0,1024,768);
@@ -117,9 +118,9 @@ int main(int argc, char** argv){
       c1->Modified();
       c1->Update();
       char chplot[80];
-      sprintf(chplot,"WMuNuValidation_%s_BEFORECUTS_%d.root",cmssw_version.Data(),i/4);
+      sprintf(chplot,"%sValidation_%s_BEFORECUTS_%d.root",chsample.Data(),cmssw_version.Data(),i/4);
       c1->SaveAs(chplot);
-      sprintf(chplot,"WMuNuValidation_%s_BEFORECUTS_%d.gif",cmssw_version.Data(),i/4);
+      sprintf(chplot,"%sValidation_%s_BEFORECUTS_%d.gif",chsample.Data(),cmssw_version.Data(),i/4);
       c1->SaveAs(chplot);
   }
 
@@ -154,7 +155,7 @@ int main(int argc, char** argv){
             hr->SetLineWidth(3);
 
             h1->Draw("hist");
-            hr->DrawNormalized("samehist",h1->GetEntries());
+            hr->DrawNormalized("samehist",h1->Integral());
             leg->Clear();
             leg->AddEntry(h1,cmssw_version.Data(),"L");
             leg->AddEntry(hr,"Reference","L");
@@ -164,9 +165,9 @@ int main(int argc, char** argv){
       c1->Modified();
       c1->Update();
       char chplot[80];
-      sprintf(chplot,"WMuNuValidation_%s_LASTCUT_%d.root",cmssw_version.Data(),i/4);
+      sprintf(chplot,"%sValidation_%s_LASTCUT_%d.root",chsample.Data(),cmssw_version.Data(),i/4);
       c1->SaveAs(chplot);
-      sprintf(chplot,"WMuNuValidation_%s_LASTCUT_%d.gif",cmssw_version.Data(),i/4);
+      sprintf(chplot,"%sValidation_%s_LASTCUT_%d.gif",chsample.Data(),cmssw_version.Data(),i/4);
       c1->SaveAs(chplot);
   }
 
