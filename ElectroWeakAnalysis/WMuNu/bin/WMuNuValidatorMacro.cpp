@@ -10,13 +10,17 @@
 #include "TLegend.h"
 
 int printUsage(){
-    printf("Usage: WMuNuValidatorMacro [-blh] 'root_file_to_validate' 'reference_root_file'\n\n");
-    printf("\tOptions:\t -b ==> run in batch (no graphics)\n");
-    printf("\t        \t -l ==> use linY scale (logY is the default)\n");
+    printf("Usage: WMuNuValidatorMacro [-lbh] 'root_file_to_validate' 'reference_root_file'\n\n");
+
+    printf("\tOptions:\t -l ==> linear scale for Y axes (default is log-scale)\n");
+    printf("\t        \t -b ==> run in batch (no graphics)\n");
     printf("\t        \t -h ==> print this message\n\n");
-    printf("\tInput files:\t Created with the WMuNuAODSelector or WMuNuPATSelector plugins\n\n");
-    printf("\tOutput: \t Canvases in 'WMuNuValidation_*.root'\n");
-    printf("\t        \t Gif files in 'WMuNuValidation_*.gif'\n\n");
+
+    printf("\tInput files:\t Created via '*Validator.py' configuration files in:\n");
+    printf("\t            \t   $CMSSW_BASE/src/ElectroWeakAnalysis/WMuNu/test/\n\n");
+
+    printf("\tOutput: \t Canvases: './WMuNuValidation_$CMSSW_VERSION_*.root'\n");
+    printf("\t        \t Gifs:     './WMuNuValidation_$CMSSW_VERSION_*.gif'\n\n");
 
     return 1;
 }
@@ -30,9 +34,9 @@ int main(int argc, char** argv){
   bool logyFlag = true;
   for (int i=1; i<argc; ++i) {
       if (argv[i][0] == '-') {
-            if (argv[i][1]=='h') return printUsage();
-            if (argv[i][1]=='b') gROOT->SetBatch();
             if (argv[i][1]=='l') logyFlag = false;
+            else if (argv[i][1]=='b') gROOT->SetBatch();
+            else if (argv[i][1]=='h') return printUsage();
       } else {
             ntrueargs += 1;
             if (ntrueargs==1) chfile = argv[i];
