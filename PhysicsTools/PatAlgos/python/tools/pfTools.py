@@ -177,7 +177,7 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
     # Taus
     oldTaus = process.allLayer1Taus.tauSource
     process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-    tauType = 'shrinkingConePFTau'
+    tauType = 'fixedConePFTau'
     redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
                             process.allLayer1Taus.tauSource,
                             tauType)
