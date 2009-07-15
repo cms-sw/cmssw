@@ -1,7 +1,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStyle.h"
-#include "TApplication.h"
+#include "TRint.h"
 #include "TFile.h"
 #include "TCanvas.h"
 #include "TPaveLabel.h"
@@ -44,7 +44,7 @@ int main(int argc, char** argv){
       return 1;
   }
 
-  TApplication* app = new TApplication("CMS Root Application", 0, 0);
+  TRint* app = new TRint("CMS Root Application", 0, 0);
 
   TString cmssw_version = gSystem->Getenv("CMSSW_VERSION");
   TString chtitle = "WMuNu validation for " + cmssw_version;
