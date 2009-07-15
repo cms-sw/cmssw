@@ -60,6 +60,7 @@ namespace MathSSE {
       det = _mm_sub_pd(det,det2);
       // m0 /det, m1/-det -> m3, m2
       r1() = _mm_div_pd(r0(),det);
+      //back in order
       r1() = _mm_shuffle_pd(r1(),r1(),1);
       // m3/det, m2/-det -> m0 m1
       r0() = _mm_div_pd(tmp,det);
@@ -70,12 +71,12 @@ namespace MathSSE {
 
 template<>
 bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
-  MathSSE::M2 mm = { m(0,0), m(0,1), m(1,0), m(1,1) };
+  MathSSE::M2 mm = { m.Array()[0], m.Array()[1], m.Array()[1], m.Array()[2]  };
 
   mm.invert();
-  m(0,0) = mm[0];
-  m(0,1) = mm[1];
-  m(1,1) = mm[3];
+  m.Array()[0] = mm[0];
+  m.Array()[1] = mm[1];
+  m.Array()[2] = mm[3];
 
   return true;
 }
@@ -84,13 +85,13 @@ template<>
 bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > const & mIn,
 				  ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & mOut) {
  
-  MathSSE::M2 mm = { mIn(0,0), mIn(0,1), mIn(1,0), mIn(1,1) };
+  MathSSE::M2 mm = { mIn.Array()[0], mIn.Array()[1], mIn.Array()[1], mIn.Array()[2]  };
 
   mm.invert();
-  mOut(0,0) = mm[0];
-  mOut(0,1) = mm[1];
-  mOut(1,1) = mm[3];
- 
+  mOut.Array()[0] = mm[0];
+  mOut.Array()[1] = mm[1];
+  mOut.Array()[2] = mm[3];
+
   return true;
 }
 
