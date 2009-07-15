@@ -2,7 +2,7 @@
  * Make some convenient Ecal function available in python
  * 
  * \author Stefano Argiro
- * \version $Id$
+ * \version $Id: EcalPyUtils.cc,v 1.1 2009/07/09 22:58:25 argiro Exp $
  */
 
 
@@ -43,14 +43,16 @@ namespace ecalpyutils{
 
 BOOST_PYTHON_MODULE(pluginEcalPyUtils) {
 
-  // python access to stl integer vectors 
-  class_< std::vector<int> >("vectorInt") 
-    .def(vector_indexing_suite<std::vector<int> >()) 
-  ; 
+//   looks like these are already defined somewhere
 
-  class_< std::vector<float> >("vectorFloat") 
-    .def(vector_indexing_suite<std::vector<float> >()) 
-  ; 
+//   python access to stl integer vectors 
+//   class_< std::vector<int> >("vectorInt") 
+//     .def(vector_indexing_suite<std::vector<int> >()) 
+//   ; 
+
+//   class_< std::vector<float> >("vectorFloat") 
+//     .def(vector_indexing_suite<std::vector<float> >()) 
+//   ; 
 
   def("hashedIndexToEtaPhi",&ecalpyutils::hashedIndexToEtaPhi);
   def("hashedIndexToXY",&ecalpyutils::hashedIndexToXY);
