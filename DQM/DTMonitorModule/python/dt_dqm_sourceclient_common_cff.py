@@ -82,6 +82,11 @@ dtqTester = cms.EDFilter("QualityTester",
 # test pulse monitoring
 from DQM.DTMonitorModule.dtDigiTask_TP_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_TP_cfi import *
+# New time window for TPs
+dtTPmonitor.defaultTtrig = 700
+dtTPmonitor.defaultTmax = 200
+dtTPmonitor.inTimeHitsLowerBound = 0
+dtTPmonitor.inTimeHitsUpperBound = 0
 
 # Local Trigger task for test pulses
 from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
