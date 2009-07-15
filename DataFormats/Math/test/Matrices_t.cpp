@@ -19,9 +19,12 @@ int main() {
 
   std::cout << m << std::endl;
   invertPosDefMatrix(m);
+  std::cout << m << std::endl;
   invertPosDefMatrix(m);
+  std::cout << m << std::endl;
   m.Invert();
   m.Invert();
+  std::cout << m << std::endl;
 
  
   {
@@ -29,7 +32,6 @@ int main() {
     invertPosDefMatrix(m);
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    std::cout << m << std::endl;
   }
 
   {
@@ -37,7 +39,6 @@ int main() {
     invertPosDefMatrix(m);
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    std::cout << m << std::endl;
   }
 
   {
@@ -45,7 +46,6 @@ int main() {
     m.Invert();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    std::cout << m << std::endl;
   }
 
   {
@@ -53,7 +53,6 @@ int main() {
     m.Invert();
     edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
-    std::cout << m << std::endl;
   }
 
   return 0;
