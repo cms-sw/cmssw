@@ -6,6 +6,9 @@ import FWCore.ParameterSet.Config as cms
 #
 #ECAL conditions
 #  include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
+#
+#TPG condition needed by ecalRecHit producer if TT recovery is ON
+from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import *
