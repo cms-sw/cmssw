@@ -54,15 +54,15 @@ namespace MathSSE {
       //  load 2-3 as 3-2
       __m128d tmp = _mm_shuffle_pd(r1(),r1(),1);
       // mult and sub
-      __m128d det = _mm_mul_pd(r0(),tmp);
-      __m128d det2 _mm_shuffle_pd(det,det,1);
+      __m128d det  = _mm_mul_pd(r0(),tmp);
+      __m128d det2 = _mm_shuffle_pd(det,det,1);
       // det  and -det 
       det = _mm_sub_pd(det,det2);
       // m0 /det, m1/-det -> m3, m2
       r1() = _mm_div_pd(r0(),det);
       r1() = _mm_shuffle_pd(r1(),r1(),1);
       // m3/det, m2/-det -> m0 m1
-      r0()=  _mm_div_pd(tmp,det);
+      r0() = _mm_div_pd(tmp,det);
     } 
   
   }  __attribute__ ((aligned (16))) ;
@@ -77,6 +77,7 @@ bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::Mat
   m(0,1) = mm[1];
   m(1,1) = mm[3];
 
+  return true;
 }
 
 template<>
@@ -90,6 +91,7 @@ bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::Mat
   mOut(0,1) = mm[1];
   mOut(1,1) = mm[3];
  
+  return true;
 }
 
 #endif
