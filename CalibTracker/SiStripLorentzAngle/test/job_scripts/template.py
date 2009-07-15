@@ -17,24 +17,24 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_31X::All'
+process.GlobalTag.globaltag = 'GLOBAL_TAG::All'
 
 process.Timing = cms.Service("Timing")
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
     
-process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(messageLevel = cms.untracked.int32(2),
-                            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-                            ),
-    toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
-                               tag = cms.string('SiStripLA_TEST_Layers')
-    )),
-    connect = cms.string('sqlite_file:DB_LA_TEST_Layers.db')
-)
-                                      
-process.es_prefer_SiStripLorentzAngle   = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
+#process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
+#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#    DBParameters = cms.PSet(messageLevel = cms.untracked.int32(2),
+#                            authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#                            ),
+#    toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
+#                               tag = cms.string('SiStripLA_TEST_Layers')
+#    )),
+#    connect = cms.string('sqlite_file:DB_LA_TEST_Layers.db')
+#)
+#                                      
+#process.es_prefer_SiStripLorentzAngle   = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
@@ -52,17 +52,15 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
  
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('read', 
-        'sistripLorentzAngle'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    destinations = cms.untracked.vstring('LA_debug_NEWAL_NUMBER')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.debugModules = cms.untracked.vstring('sistripLAProfile')
+process.MessageLogger.destinations = cms.untracked.vstring('MY_DEBUG_NUMBER')
+
+process.MessageLogger.MY_DEBUG_NUMBER =  cms.untracked.PSet(
+      threshold = cms.untracked.string('DEBUG'),
+      noLineBreaks = cms.untracked.bool(False),
+      DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))
+ )
 
 import FWCore.Python.FileUtils as FileUtils
 readFiles = cms.untracked.vstring( FileUtils.loadListFromFile ('JLIST') )
@@ -87,7 +85,7 @@ process.trackrefitter = cms.EDFilter("TrackRefitter",
 process.LA_analysis = cms.Sequence(process.offlineBeamSpot*process.trackrefitter*process.sistripLAProfile*process.MEtoEDMConverter)
 
 process.myOut = cms.OutputModule("PoolOutputModule",
-fileName = cms.untracked.string('file:MY_TMP/LA_Histos_Harv_NEWAL_NUMBER.root'),
+fileName = cms.untracked.string('file:MY_TMP/MY_HISTOS_HARV_NUMBER.root'),
 outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*')
 )
 
@@ -100,8 +98,8 @@ process.sistripLAProfile.Tracks = 'trackrefitter'
 process.sistripLAProfile.TIB_bin = 120
 process.sistripLAProfile.TOB_bin = 120
 process.sistripLAProfile.SUM_bin = 120
-process.sistripLAProfile.fileName = "file:MY_TMP/LA_Histos_NEWAL_NUMBER.root"
-process.sistripLAProfile.treeName = "file:MY_TMP/LA_Trees_NEWAL_NUMBER.root"
+process.sistripLAProfile.fileName = "file:MY_TMP/MY_HISTOS_NUMBER.root"
+process.sistripLAProfile.treeName = "file:MY_TMP/MY_TREE_NUMBER.root"
 
 
 

@@ -43,6 +43,8 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   
   LayerDB = conf_.getUntrackedParameter<bool>("LayerDB", false);
   
+  CalibByMC = conf_.getUntrackedParameter<bool>("CalibByMC", false);
+  
   dbe_->open(inputFile_);
   
   // use SistripHistoId for producing histogram id (and title)
@@ -90,10 +92,12 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   TH1Ds["MagneticField"] = new TH1D("MagneticField","MagneticField",500,0,5);
   TH1Ds["MagneticField"]->SetDirectory(MuH);
   
-  TH2Ds["LA_TIB_graph"] = new TH2D("TanLAPerTesla TIB Layers","TanLAPerTesla TIB Layers",4,1,4,1000,-0.3,0.3);
+  TH2Ds["LA_TIB_graph"] = new TH2D("TanLAPerTesla TIB Layers","TanLAPerTesla TIB Layers",60,0,5,1000,-0.3,0.3);
   TH2Ds["LA_TIB_graph"]->SetDirectory(MuH);
-  TH2Ds["LA_TOB_graph"] = new TH2D("TanLAPerTesla TOB Layers","TanLAPerTesla TOB Layers",6,1,6,1000,-0.3,0.3);
+  TH2Ds["LA_TIB_graph"]->SetNdivisions(6);
+  TH2Ds["LA_TOB_graph"] = new TH2D("TanLAPerTesla TOB Layers","TanLAPerTesla TOB Layers",80,0,7,1000,-0.3,0.3);
   TH2Ds["LA_TOB_graph"]->SetDirectory(MuH);
+  TH2Ds["LA_TOB_graph"]->SetNdivisions(8);
 
   TH1Ds["LA_TIB_1"] = new TH1D("TanLAPerTesla TIB1","TanLAPerTesla TIB1",2000,-0.5,0.5);
   TH1Ds["LA_TIB_1"]->SetDirectory(TIB_MuH);
@@ -264,6 +268,32 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   double p0_guess=conf_.getParameter<double>("p0_guess");
   double p1_guess=conf_.getParameter<double>("p1_guess");
   double p2_guess=conf_.getParameter<double>("p2_guess");
+  
+  double TIB1calib = 1.;
+  double TIB2calib = 1.;
+  double TIB3calib = 1.;
+  double TIB4calib = 1.;
+  double TOB1calib = 1.;
+  double TOB2calib = 1.;
+  double TOB3calib = 1.;
+  double TOB4calib = 1.;
+  double TOB5calib = 1.;
+  double TOB6calib = 1.;
+  
+  if(CalibByMC==true){
+  //Calibration factors evaluated by using MC analysis
+  TIB1calib=conf_.getParameter<double>("TIB1calib");
+  TIB2calib=conf_.getParameter<double>("TIB2calib");
+  TIB3calib=conf_.getParameter<double>("TIB3calib");
+  TIB4calib=conf_.getParameter<double>("TIB4calib");
+  TOB1calib=conf_.getParameter<double>("TOB1calib");
+  TOB2calib=conf_.getParameter<double>("TOB2calib");
+  TOB3calib=conf_.getParameter<double>("TOB3calib");
+  TOB4calib=conf_.getParameter<double>("TOB4calib");
+  TOB5calib=conf_.getParameter<double>("TOB5calib");
+  TOB6calib=conf_.getParameter<double>("TOB6calib");
+  }
+  
   
   TF1 *fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
   TF1 *fitfunc2IT= new TF1("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
@@ -465,8 +495,23 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
             
 	edm::LogInfo("SiStripCalibLorentzAngle")<<FitFunction->GetParameter(0);
 	
-	muH = -(FitFunction->GetParameter(0))/theBfield; 
-
+	muH = -(FitFunction->GetParameter(0))/theBfield;
+	
+	if(TIB==1){
+	if(Layer==1) muH = muH/TIB1calib;
+	if(Layer==2) muH = muH/TIB2calib;
+	if(Layer==3) muH = muH/TIB3calib;
+	if(Layer==4) muH = muH/TIB4calib;
+	}
+	if(TOB==1){
+	if(Layer==1) muH = muH/TOB1calib;
+	if(Layer==2) muH = muH/TOB2calib;
+	if(Layer==3) muH = muH/TOB3calib;
+	if(Layer==4) muH = muH/TOB4calib;
+	if(Layer==5) muH = muH/TOB5calib;
+	if(Layer==6) muH = muH/TOB6calib;
+	}
+	
 	detid_la[id]= muH;
 	
 	if(TIB==1){
@@ -651,12 +696,12 @@ TF1 *fit_TIB= new TF1("fit_TIB","[0]",0,4);
 TF1 *fit_TOB= new TF1("fit_TOB","[0]",0,6);
 
 gStyle->SetOptFit(111);
+gStyle->SetOptStat(111);
 
 TIB_graph->SetTitle("TIB Layers #mu_{H}");
 TIB_graph->GetXaxis()->SetTitle("Layers");
 TIB_graph->GetXaxis()->SetNdivisions(4);
 TIB_graph->GetYaxis()->SetTitle("#mu_{H}");
-TIB_graph->GetYaxis()->CenterTitle();
 TIB_graph->SetMarkerStyle(20);
 TIB_graph->GetYaxis()->SetTitleOffset(1.3);
 TIB_graph->Fit("fit_TIB","E","",1,4);
@@ -666,7 +711,6 @@ TOB_graph->SetTitle("TOB Layers #mu_{H}");
 TOB_graph->GetXaxis()->SetTitle("Layers");
 TOB_graph->GetXaxis()->SetNdivisions(6);
 TOB_graph->GetYaxis()->SetTitle("#mu_{H}");
-TOB_graph->GetYaxis()->CenterTitle();
 TOB_graph->SetMarkerStyle(20);
 TOB_graph->GetYaxis()->SetTitleOffset(1.3);
 TOB_graph->Fit("fit_TOB","E","",1,6);

@@ -7,28 +7,28 @@ eval `scramv1 runtime -sh`
 python PY;
 cmsRun PY;
 
-export STAGE_SVCCLASS=cmscaf
-export STAGER_TRACE=3
+#export STAGE_SVCCLASS=cmscaf
+#export STAGER_TRACE=3
 
 rfcp ./PY MY_CASTOR_DIR/DIR_PY;
 rm ./PY;
 
-rfcp ./LA_debug_NEWAL_NUMBER.log MY_CASTOR_DIR/DIR_DEBUG;
-rm ./LA_debug_NEWAL_NUMBER.log;
+rfcp ./MY_DEBUG_NUMBER.log MY_CASTOR_DIR/DIR_DEBUG;
+rm ./MY_DEBUG_NUMBER.log;
 
 cd MY_TMP/;
 
-rfcp ./LA_Histos_NEWAL_NUMBER.root MY_CASTOR_DIR/DIR_HISTOS;
-rm ./LA_Histos_NEWAL_NUMBER.root;
+rfcp ./MY_HISTOS_NUMBER.root MY_CASTOR_DIR/DIR_HISTOS;
+rm ./MY_HISTOS_NUMBER.root;
 
-rfcp ./LA_Histos_Harv_NEWAL_NUMBER.root MY_CASTOR_DIR/DIR_HISTOHARV;
-rm ./LA_Histos_Harv_NEWAL_NUMBER.root;
+rfcp ./MY_HISTOS_HARV_NUMBER.root MY_CASTOR_DIR/DIR_HISTOHARV;
+rm ./MY_HISTOS_HARV_NUMBER.root;
 
-rfcp ./LA_Trees_NEWAL_NUMBER.root MY_CASTOR_DIR/DIR_TREES;
-rm ./LA_Trees_NEWAL_NUMBER.root;
+rfcp ./MY_TREE_NUMBER.root MY_CASTOR_DIR/DIR_TREES;
+rm ./MY_TREE_NUMBER.root;
 
 cd WORK_DIR;
 
 rm ./JOB;
 
-mv ./JLIST CRAFT_Repro_Lists/
+mv ./JLIST Source_Lists/

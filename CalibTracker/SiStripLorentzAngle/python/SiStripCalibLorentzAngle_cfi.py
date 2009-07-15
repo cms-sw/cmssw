@@ -4,6 +4,7 @@ sistripLACalib = cms.EDFilter("SiStripCalibLorentzAngle",
     Record = cms.string('SiStripLorentzAngleRcd'),
     IOVMode = cms.string('Run'), 
     LayerDB = cms.untracked.bool(False),
+    CalibByMC = cms.untracked.bool(False),
     ModuleFitXMin = cms.double(-0.5),
     ModuleFitXMax = cms.double(0.3),    
     ModuleFit2ITXMin = cms.double(-0.4),
@@ -23,7 +24,20 @@ sistripLACalib = cms.EDFilter("SiStripCalibLorentzAngle",
     out_fileName = cms.untracked.string('LA_plots.root'),
     LA_Report = cms.untracked.string('LA_Report.txt'),
     doStoreOnDB = cms.bool(True),
-    SinceAppendMode = cms.bool(True)
+    SinceAppendMode = cms.bool(True),
+    
+    #Calibration factors evaluated by using MC analysis
+    TIB1calib = cms.double(0.967295),
+    TIB2calib = cms.double(0.966423),
+    TIB3calib = cms.double(0.938199),
+    TIB4calib = cms.double(0.941943),
+    TOB1calib = cms.double(0.924422),
+    TOB2calib = cms.double(0.926291),
+    TOB3calib = cms.double(0.922504),
+    TOB4calib = cms.double(0.921485),
+    TOB5calib = cms.double(0.963979),
+    TOB6calib = cms.double(0.961533)
+    
 )
 
 

@@ -24,7 +24,6 @@ process.DQM.collectorHost = ''
 
 process.Timing = cms.Service("Timing")
 
-<<<<<<< SiStripLAProfileBooker.py
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
     
 #process.SiStripLorentzAngle = cms.ESSource("PoolDBESSource",
@@ -39,9 +38,8 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #)
 #                                      
 #process.es_prefer_SiStripLorentzAngle   = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngle")
-=======
+
 process.load("RecoTracker.TrackProducer.TrackRefitter_cff")
->>>>>>> 1.2
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
@@ -55,17 +53,15 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
  
-process.MessageLogger = cms.Service("MessageLogger",
-    debug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('read', 
-        'sistripLorentzAngle'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    destinations = cms.untracked.vstring('LA_debug_NEWAL')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.debugModules = cms.untracked.vstring('sistripLAProfile')
+process.MessageLogger.destinations = cms.untracked.vstring('LAProfileDebug')
+
+process.MessageLogger.LAProfileDebug =  cms.untracked.PSet(
+      threshold = cms.untracked.string('DEBUG'),
+      noLineBreaks = cms.untracked.bool(False),
+      DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))
+ )
 
 import FWCore.Python.FileUtils as FileUtils
 

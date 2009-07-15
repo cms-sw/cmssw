@@ -4,7 +4,7 @@ process = cms.Process("analyze")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRAFT_31X::All'
+process.GlobalTag.globaltag = 'GR09_31X_V3P::All'
 
 process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 
@@ -45,32 +45,35 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    destinations = cms.untracked.vstring('debug_TEST')
-)
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.debugModules = cms.untracked.vstring('sistripLACalib')
+process.MessageLogger.destinations = cms.untracked.vstring('LACalibDebug_Calib')
+
+process.MessageLogger.LACalibDebug_Calib =  cms.untracked.PSet(
+      threshold = cms.untracked.string('DEBUG'),
+      noLineBreaks = cms.untracked.bool(False),
+      DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0))
+ )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:DB_LA_TEST_Modules.db'
+process.CondDBCommon.connect = 'sqlite_file:DB_LA_TEST_Modules_Calib.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    connect = cms.string('sqlite_file:DB_LA_TEST_Modules.db'),
+    connect = cms.string('sqlite_file:DB_LA_TEST_Modules_Calib.db'),
     timetype = cms.untracked.string('runnumber'),
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')),
     toPut = cms.VPSet(cms.PSet(
 	record = cms.string('SiStripLorentzAngleRcd'),
-        tag = cms.string('SiStripLA_TEST_Modules')
+        tag = cms.string('SiStripLA_TEST_Modules_Calib')
     ))
 )
 
 process.p = cms.Path(process.sistripLACalib)
 
 process.sistripLACalib.LayerDB = False
-
+process.sistripLACalib.CalibByMC = True
 process.sistripLACalib.ModuleFitXMin = -0.5
 process.sistripLACalib.ModuleFitXMax = 0.3
 process.sistripLACalib.ModuleFit2ITXMin = -0.4
@@ -87,8 +90,8 @@ process.sistripLACalib.FitCuts_ParErr_p0 = 0.001
 process.sistripLACalib.GaussFitRange = 0.1
 
 process.sistripLACalib.fileName = 'Summary_CRAFTREPRO_NEWAL.root'
-process.sistripLACalib.out_fileName = 'LA_TEST.root'
-process.sistripLACalib.LA_Report = 'LA_Report_TEST.txt'
+process.sistripLACalib.out_fileName = 'LA_TEST_Calib.root'
+process.sistripLACalib.LA_Report = 'LA_Report_TEST_Calib.txt'
 
 
 

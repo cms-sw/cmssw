@@ -70,7 +70,7 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   
   float hallMobility, meanMobility_TIB, meanMobility_TOB;
   
-  bool LayerDB;
+  bool LayerDB, CalibByMC;
   
   TGraphErrors *TIB_graph, *TOB_graph;
   
