@@ -143,12 +143,19 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	      
 	     if(ecid_name=="EB_trigger_tower") {
  	  
-	       int sm_num=rd_badTT.getTCCId();
-	       int xt_num=rd_badTT.getTTId();
+	       int tcc_num=rd_badTT.getTCCId();
+	       int tt_num=rd_badTT.getTTId();
 	        
-	       EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-    	    
-	       towerStatus->setValue(ebdetid.rawId(),rd_badTT.getStatus());
+	       char identTTEB[10];
+    	       sprintf(identTTEB,"%d%d", tcc_num, tt_num);
+	       str.assign(identTTEB);
+	       std::string S="";
+	       S.insert(0,identTTEB);
+	       
+	       int ebTTDetId = 0; 
+	       ebTTDetId = atoi(S.c_str());
+	       
+	       towerStatus->setValue(ebTTDetId,rd_badTT.getStatus());
 	    
 	       ++icells;
 	     }
@@ -156,20 +163,20 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	       // Check
 	       // EE data
 	    
-	       int sm_num=rd_badTT.getTCCId();
-	       int xt_num=rd_badTT.getTTId();
+	       int tcc_num=rd_badTT.getTCCId();
+	       int tt_num=rd_badTT.getTTId();
 
-	       char identTT[6];
-	       sprintf(identTT,"%d%d", sm_num, xt_num);
-	       str.assign(identTT);
+	       char identTTEE[10];
+	       sprintf(identTTEE,"%d%d", tcc_num, tt_num);
+	       str.assign(identTTEE);
 		
 	       std::string S="";
-	       S.insert(0,identTT);
+	       S.insert(0,identTTEE);
 	       		        
-	       int eeDetId = 0; 
-	       eeDetId = atoi(S.c_str());
+	       int eeTTDetId = 0; 
+	       eeTTDetId = atoi(S.c_str());
                  
-	       towerStatus->setValue(eeDetId,rd_badTT.getStatus());
+	       towerStatus->setValue(eeTTDetId,rd_badTT.getStatus());
 	    
 	      ++icells;
 		
