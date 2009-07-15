@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.25 2009/07/08 15:09:59 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.26 2009/07/15 18:32:15 amraktad Exp $
 //
 
 // system include files
@@ -213,9 +213,9 @@ class TEveElementList *FWElectronDetailView::makeLabels (const reco::GsfElectron
    y -= fontsize;
    latex->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[8]{#Box} seed cluster");
+   latex->DrawLatex(x, y, "#color[618]{#Box} seed cluster");// kMagenta +2
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[433]{#Box} other clusters"); //kCyan+1
+   latex->DrawLatex(x, y, "#color[608]{#Box} other clusters"); 
    // eta, phi axis or x, y axis?
    assert(electron.superCluster().isNonnull());
    bool is_endcap = false;

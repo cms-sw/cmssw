@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.12 2009/07/15 14:32:46 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.13 2009/07/15 18:32:15 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -167,8 +167,8 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      TEveCaloDataVec* data = new TEveCaloDataVec(3);
      // one slice for the seed cluster (red) and one for the
      // other clusters
-     data->RefSliceInfo(0).Setup("seed cluster", 0.0, 8);
-     data->RefSliceInfo(1).Setup("other clusters", 0.0, kCyan+1);
+     data->RefSliceInfo(0).Setup("seed cluster", 0.0, kMagenta+2);
+     data->RefSliceInfo(1).Setup("other clusters", 0.0, kMagenta-5);
      data->RefSliceInfo(2).Setup("track intersections", 0.0, kYellow);
 //       data->RefSliceInfo(2).Setup("unclustered crystals", 0.0, kYellow);
      // now fill
