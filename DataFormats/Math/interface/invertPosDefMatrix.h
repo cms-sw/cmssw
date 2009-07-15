@@ -54,6 +54,7 @@ namespace MathSSE {
     void invert() {
       //  load 2-3 as 3-2
       // __m128d tmp = _mm_shuffle_pd(r1(),r1(),1);
+      __m128d tmp = r1();
       // mult and sub
       __m128d det  = _mm_mul_pd(r0(),tmp);
       __m128d det2 = _mm_shuffle_pd(det,det,1);
