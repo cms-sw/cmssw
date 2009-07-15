@@ -10,8 +10,7 @@ process.GlobalTag.globaltag = "MC_31X_V1::All"
 process.load("FastSimulation/Configuration/FamosSequences_cff")
 
 # Magnetic Field (new mapping, 3.8 and 4.0T)
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-# process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # process.load("FastSimulation.TrackingRecHitProducer.test.FamosRecHitAnalysis_cfi")
 
@@ -46,7 +45,6 @@ process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
 process.siTrackerGaussianSmearingRecHits.UseCMSSWPixelParametrization = True
 process.siTrackerGaussianSmearingRecHits.doRecHitMatching = False
-process.FamosRecHitAnalysis.UseCMSSWPixelParametrization = False
 
 process.p1 = cms.Path(process.generator*
                       process.famosWithTrackerHits*

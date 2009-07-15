@@ -18,7 +18,6 @@ process.load("FastSimulation.Configuration.mixNoPU_cfi")
 process.mix.playback = cms.untracked.bool(True)
 # RecHit Analysis ###
 process.load("FastSimulation.TrackingRecHitProducer.FamosRecHitAnalysis_cfi")
-process.FamosRecHitAnalysis.UseCMSSWPixelParametrization = False
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -26,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
-    fileNames = cms.untracked.vstring('file:./rechits.root')
+    fileNames = cms.untracked.vstring('file:rechits.root')
 )
 
 process.Path = cms.Path(process.mix*process.FamosRecHitAnalysis)
