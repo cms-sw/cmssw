@@ -9,6 +9,7 @@ import os,sys,getopt
 
 
 def usage():
+    print
     print "NAME "
     print "   EcalCondDB - inpect EcalCondDB"
     print
@@ -29,41 +30,47 @@ def usage():
     print "   -t, --tag= [tag,file] specify tag or xml file (histo,compare)"
     print
     print "   -s, --since= [runnumber] specify since"
-    print "   -u, --till=  [runnumber] specify till (inf=4294967295)"
     
     print "COMMANDS"
     
     print "   -l, --listtags  list all tags and exit"
     print
     print "   -m, --listiovs  list iovs for a given tag"
+    print "                   Example EcalCondDB.py -t tag" 
     print
     print "   -d, --dump= [file] dump record to xml file"
+    print "         Example EcalCondDB.py -d=file.xml -t tag -s since"
     print
     print "   -p, --plot= [file] plot record to file, extension specifies ",\
                     "format (.root,.png,.jpg,.gif,.svg)"
-    print 
+    print "         Example: EcalCondDB.py -p=plot.png -t tag -s since"
+    print
+    
     print "   -q, --compare= [file]"
     print "         compare two tags and write histograms to file, extension",\
                     " specifies format."               
     print "         Example:"
-    print "                 EcalCondDB -q -t tag1 -t tag2"
+    print "           EcalCondDB -q=h.root -t tag1 -s since1 -t tag2 -s since2"
     print
     print "   -g, --histo= [file] make histograms and write to file"
+    print "         Example : "
+    print "           EcalCondDB -g=h.png -t tag1 -s since1 "
     print
     
 try:
     opts, args = getopt.getopt(sys.argv[1:],
-                               "c:P:t:ld:p:q:g:ms:u:",
-                               ["connect=","authpath=","tag=","listtags",\
-                                "dump=","plot=","compare=","histo=","listiovs",\
-                                "since=","till="])
+                             "c:P:t:ld:p:q:g:ms:h",
+                             ["connect=","authpath=","tag=","listtags",\
+                              "dump=","plot=","compare=","histo=","listiovs",\
+                              "since=","help"])
     
     if not len(opts):
         usage()
         sys.exit(0)
 
-except getopt.GetoptError:
-    usage()
+except getopt.GetoptError,ex:
+    print
+    print ex," , use -h or --help for help"
     sys.exit(0)
 
 dbName =  "oracle://cms_orcoff_prod/CMS_COND_31X_ECAL"
@@ -71,7 +78,7 @@ authpath= "/afs/cern.ch/cms/DB/conddb"
 
 tags=[]
 sinces=[]
-tills =[]
+
 
 
 do_list=0
@@ -130,13 +137,7 @@ for opt,arg in opts:
        sinces.append(arg)
 
 
-    if opt in ("-u","--till"):
-       if arg=='inf' :
-           tills.append(inf)
-       else :
-           tills.append(arg)
-
-       
+   
 #done parsing options, now steer
 
 import EcalCondTools
@@ -159,8 +160,8 @@ if do_dump :
    EcalCondTools.dumpXML(db,tags[0],outfilename)
 
 if do_plot:
-   if not len(tags):
-       print "Must specify tag with -t"
+   if not len(tags) or not len (sinces):
+       print "Must specify tag with -t [tag] -s [since]"
        sys.exit(0)       
    EcalCondTools.plot(db,tags[0],outfilename) 
  
@@ -168,26 +169,26 @@ if do_comp:
    if len(tags) != 2 :
        print "Must give exactly two tags to compare: -t tag1 -t tag2"
        sys.exit(0)
-   if  tags[0].find('.xml')<0 and  len(sinces)!=2 and len(tills)!=2:
-       print "Must specify tag, since, till to compare  with -t [tag1] \
-              -s [since1] -u [till1] -t [tag2] -s [since2] -t[since3]    "
+   if  tags[0].find('.xml')<0 and  len(sinces)!=2 :
+       print "Must specify tag, since  to compare  with -t [tag1] \
+              -s [since1]  -t [tag2] -s [since2]     "
        sys.exit(0)
        
-   EcalCondTools.compare(tags[0],db,sinces[0],tills[0],
-                         tags[1],db,sinces[1],tills[1],outfilename)       
+   EcalCondTools.compare(tags[0],db,sinces[0],
+                         tags[1],db,sinces[1],outfilename)       
 
 if do_hist:
    if not len(tags):
-       print "Must specify tag, since, till  with -t [tag] \
-              -s [runsince] -u [runtill]  (since and till not needed for xml)"
+       print "Must specify tag, since,  with -t [tag] \
+              -s [runsince]   (since a not needed for xml)"
        sys.exit(0)
        
-   if  tags[0].find('.xml')<0 and  not len(sinces) or not len(tills):
-       print "Must specify tag, since, till  with -t [tag] \
-              -s [runsince] -u [runtill]  "
+   if  tags[0].find('.xml')<0 and  not len(sinces) :
+       print "Must specify tag, since, with -t [tag] \
+              -s [runsince]   "
        sys.exit(0)
        
-   EcalCondTools.histo(db,tags[0],sinces[0],tills[0],outfilename) 
+   EcalCondTools.histo(db,tags[0],sinces[0],outfilename) 
 
 if do_liio:
     if not len(tags):
