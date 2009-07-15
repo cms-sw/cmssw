@@ -73,7 +73,16 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 			continue;
          }
 	  }
-	  
+  
+          // if rechit affected by features other than these, do not allow if seeding  
+	  uint32_t rhFlag = (*it).flags();
+          if (!(
+		rhFlag == EcalRecHit::kGood      ||
+		rhFlag == EcalRecHit::kOutOfTime ||
+		rhFlag == EcalRecHit::kPoorCalib
+		)
+	      ) continue;
+
 	  EcalUncalibratedRecHitCollection::const_iterator itt =  uncalibRecHits_->find(it->id());
 	  
 	  if (itt == uncalibRecHits_->end()){  
@@ -86,7 +95,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  }
 	  
       EcalUncalibratedRecHit uhit_p = *itt;
-	  
+
+      // looking for cluster seeds	  
 	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
 	  
 	  const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
