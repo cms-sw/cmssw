@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtmonitorfilter = cms.EDFilter("HLTDTROMonitorFilter",
-                               inputLabel = cms.InputTag("source"))
+hltDTROMonitorFilter = cms.EDFilter("HLTDTROMonitorFilter",
+  inputLabel = cms.InputTag("source")
+)
 

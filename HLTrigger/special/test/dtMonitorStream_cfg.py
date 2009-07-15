@@ -85,9 +85,9 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 # -------------------------------------------------------------------------
 
-# process.dtROMonitorSelection = cms.Path(process.dtmonitorfilter + process.dtmonitorfilterCached + process.pts + process.fedSelector)
+# process.dtROMonitorSelection = cms.Path(process.hltDTROMonitorFilter + process.dtmonitorfilterCached + process.pts + process.fedSelector)
 
-process.dtROMonitorSelection = cms.Path(process.dtmonitorfilter + process.fedSelector)
+process.dtROMonitorSelection = cms.Path(process.hltDTROMonitorFilter + process.fedSelector)
 
 
 process.options = cms.untracked.PSet(
