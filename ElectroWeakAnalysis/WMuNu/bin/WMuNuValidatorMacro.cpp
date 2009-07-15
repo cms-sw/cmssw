@@ -9,7 +9,7 @@
 #include "TH1D.h"
 #include "TLegend.h"
 
-void printUsage(){
+int printUsage(){
     printf("Usage: WMuNuValidatorMacro [-blh] 'root_file_to_validate' 'reference_root_file'\n\n");
     printf("\tOptions:\t -b ==> run in batch (no graphics)\n");
     printf("\t        \t -l ==> use linY scale (logY is the default)\n");
@@ -17,6 +17,8 @@ void printUsage(){
     printf("\tInput files:\t Created with the WMuNuAODSelector or WMuNuPATSelector plugins\n\n");
     printf("\tOutput: \t Canvases in 'WMuNuValidation_*.root'\n");
     printf("\t        \t Gif files in 'WMuNuValidation_*.gif'\n\n");
+
+    return 1;
 }
 
 int main(int argc, char** argv){
@@ -28,23 +30,17 @@ int main(int argc, char** argv){
   bool logyFlag = true;
   for (int i=1; i<argc; ++i) {
       if (argv[i][0] == '-') {
-            if (argv[i][1]=='h') {
-                  printUsage();
-                  return 1;
-            }
+            if (argv[i][1]=='h') return printUsage();
             if (argv[i][1]=='b') gROOT->SetBatch();
             if (argv[i][1]=='l') logyFlag = false;
-            continue;
+      } else {
+            ntrueargs += 1;
+            if (ntrueargs==1) chfile = argv[i];
+            else if (ntrueargs==2) chfileref = argv[i];
       }
-      ntrueargs += 1;
-      if (ntrueargs==1) chfile = argv[i];
-      else if (ntrueargs==2) chfileref = argv[i];
   }
 
-  if (ntrueargs!=2) {    
-      printUsage();
-      return 1;
-  }
+  if (ntrueargs!=2) return printUsage();
 
   TRint* app = new TRint("CMS Root Application", 0, 0);
 
