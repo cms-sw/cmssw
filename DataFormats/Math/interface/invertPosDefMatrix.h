@@ -5,7 +5,7 @@
 #include "DataFormats/Math/interface/CholeskyDecomp.h"
 
 template<typename T,unsigned int N>
-bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & m) {
+inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & m) {
   
   ROOT::Math::CholeskyDecomp<T,N> decomp(m);
   if (!decomp) {
@@ -17,7 +17,7 @@ bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > &
 }
 
 template<typename T,unsigned int N>
-bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & mIn,
+inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & mIn,
 			ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & mOut) {
   
   ROOT::Math::CholeskyDecomp<T,N> decomp(mIn);
@@ -50,8 +50,8 @@ namespace MathSSE {
     __m128d const & r1() const { return r[1]; }
     
     
-    // assume second row is already shuffle
-    void invert() {
+    // assume second row is already shuffled
+    inline void invert() {
       //  load 2-3 as 3-2
       // __m128d tmp = _mm_shuffle_pd(r1(),r1(),1);
       __m128d tmp = r1();
@@ -72,7 +72,7 @@ namespace MathSSE {
 }
 
 template<>
-bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
+inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
   // load shuffled
   MathSSE::M2 mm = { m.Array()[0], m.Array()[1], m.Array()[2], m.Array()[1]  };
 
@@ -85,7 +85,7 @@ bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::Mat
 }
 
 template<>
-bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > const & mIn,
+inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > const & mIn,
 				  ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & mOut) {
  
   MathSSE::M2 mm = { mIn.Array()[0], mIn.Array()[1], mIn.Array()[2], mIn.Array()[1]  };
