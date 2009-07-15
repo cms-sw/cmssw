@@ -62,6 +62,7 @@ class ESIntegrityClient : public ESClient {
   int fed_[2][2][40][40];  
   int kchip_[2][2][40][40];  
   int fedStatus_[56];
+  int fiberStatus_[56];
 
   bool cloneME_;
   bool verbose_;
@@ -78,6 +79,7 @@ class ESIntegrityClient : public ESClient {
   MonitorElement* meKCHIP_[2][2];
 
   TH1F *hFED_;  
+  TH2F *hFiber_;
   TH2F *hKF1_;
   TH2F *hKF2_;
   TH1F *hKBC_;

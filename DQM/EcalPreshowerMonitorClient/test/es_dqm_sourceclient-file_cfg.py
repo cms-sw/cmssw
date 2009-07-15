@@ -11,8 +11,12 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.source = cms.Source("NewEventStreamFileReader",
-                            fileNames = cms.untracked.vstring('file:../../../EventFilter/ESRawToDigi/test/MWGR20.00096298.0001.A.storageManager.00.0000.dat')
-                            #fileNames = cms.untracked.vstring('file:/cmsdisk1/lookarea_SM/MWGR21.00096778.0001.A.storageManager.00.0000.dat')
+                            fileNames = cms.untracked.vstring(
+    'file:/esdata/MWGR_29.00105579.0001.A.storageManager.00.0000.dat',
+    'file:/esdata/MWGR_29.00105579.0006.A.storageManager.01.0000.dat',
+    'file:/esdata/MWGR_29.00105579.0011.A.storageManager.02.0000.dat',
+    'file:/esdata/MWGR_29.00105579.0016.A.storageManager.03.0000.dat'
+    )
                             )
 
 

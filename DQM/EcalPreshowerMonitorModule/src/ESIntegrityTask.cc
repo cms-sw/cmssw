@@ -37,6 +37,21 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
    kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
 
+   // temp. solution for Opto
+   int fed_rx[56] = {2, 0, 2, 3, 3,
+		     3, 0, 0, 2, 2,
+		     3, 3, 3, 0, 3,
+		     3, 0, 2, 0, 2,
+		     3, 3, 3, 0, 0,
+		     2, 2, 3, 3, 2,
+		     0, 2, 0, 3, 3,
+		     3, 2, 2, 0, 0,
+		     3, 3, 0, 3, 3,
+		     3, 2, 0, 2, 0,
+		     3, 3, 3, 2, 2,
+		     0};
+   for (int i=0; i<56; ++i) fed_rx[i] = fed_rx_[i];
+
 }
 
 ESIntegrityTask::~ESIntegrityTask() {
@@ -113,10 +128,9 @@ void ESIntegrityTask::setup(void){
       meOptoBC_->setAxisTitle("ES OptoRX", 2);
 
       sprintf(histo, "ES Fiber Status");
-      meFiberStatus_ = dqmStore_->book3D(histo, histo, 56, 519.5, 575.5, 36, -0.5, 35.5, 16, -0.5, 15.5); 
+      meFiberStatus_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 2, -0.5, 1.5);
       meFiberStatus_->setAxisTitle("ES FED", 1);
-      meFiberStatus_->setAxisTitle("ES Fiber", 2);
-      meFiberStatus_->setAxisTitle("ES Fiber Status", 3);
+      meFiberStatus_->setAxisTitle("ES Fiber Status", 2);
 
       sprintf(histo, "ES KChip Flag 1 Error codes");
       meKF1_ = dqmStore_->book2D(histo, histo, 1550, -0.5, 1549.5, 16, -0.5, 15.5);
@@ -193,13 +207,19 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if (dcc.getOptoRX1() == 128) meOptoRX_->Fill(dcc.fedId(), 1);
       if (dcc.getOptoRX2() == 128) meOptoRX_->Fill(dcc.fedId(), 2);
 
-      if (dcc.getOptoBC0() != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
-      if (dcc.getOptoBC1() != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
-      if (dcc.getOptoBC2() != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
+      if (((dcc.getOptoBC0()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+      if (((dcc.getOptoBC1()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
+      if ((((dcc.getOptoBC2()+9) & 0x0fff) != dcc.getBX()) && fed_rx_[dcc.fedId()-520]==3)
+	meOptoBC_->Fill(dcc.fedId(), 2);
 
       fiberStatus = dcc.getFEChannelStatus();
 
-      for (unsigned int i=0; i<fiberStatus.size(); ++i) meFiberStatus_->Fill(dcc.fedId(), i, fiberStatus[i]);
+      for (unsigned int i=0; i<fiberStatus.size(); ++i) {
+	if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
+	  meFiberStatus_->Fill(dcc.fedId(), 1);
+	else if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	  meFiberStatus_->Fill(dcc.fedId(), 0);
+      }
 
       runtype_   = dcc.getRunType();
       seqtype_   = dcc.getSeqType();
