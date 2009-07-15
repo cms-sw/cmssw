@@ -1,6 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
+# prepare reco information
+from PhysicsTools.PatAlgos.recoLayer0.photonId_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import *
+
+# add PAT specifics
+from PhysicsTools.PatAlgos.mcMatchLayer0.photonMatch_cfi import *
+
+# produce object
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cfi import *
-from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
-from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
-layer1Photons = cms.Sequence(allLayer1Photons * selectedLayer1Photons * countLayer1Photons)
+
+makeAllLayer1Photons = cms.Sequence(
+    # reco pre-production
+    patPhotonIsolation *
+    # pat specifics
+    photonMatch *
+    # object production
+    allLayer1Photons
+    )

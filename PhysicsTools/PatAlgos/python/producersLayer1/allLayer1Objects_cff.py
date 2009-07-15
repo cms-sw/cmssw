@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # Build the Objects from AOD (Jets, Muons, Electrons, METs, Taus)
-from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
-from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import *
-from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cfi import *
-from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
-from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import *
+from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
+from PhysicsTools.PatAlgos.producersLayer1.metProducer_cff import *
 
 # One module to count objects
 allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
@@ -21,11 +21,11 @@ allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
 )
 
 allLayer1Objects = cms.Sequence(
-    allLayer1Electrons +
-    allLayer1Muons +
-    allLayer1Taus +
-    allLayer1Photons +
-    allLayer1Jets +
-    layer1METs +
+    makeAllLayer1Electrons +
+    makeAllLayer1Muons +
+    makeAllLayer1Taus +
+    makeAllLayer1Photons +
+    makeAllLayer1Jets +
+    makeLayer1METs +
     allLayer1Summary
 )

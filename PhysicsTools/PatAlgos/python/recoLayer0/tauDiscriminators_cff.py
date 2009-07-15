@@ -38,5 +38,3 @@ patCaloTauDiscrimination = cms.Sequence(
     caloRecoTauDiscriminationByLeadingTrackFinding +
     caloRecoTauDiscriminationByLeadingTrackPtCut 
 )
-
-#patTauDiscrimination = cms.Sequence ()  # Empty sequences not yet supported
