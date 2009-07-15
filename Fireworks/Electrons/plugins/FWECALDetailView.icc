@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.10 2009/07/08 19:06:15 jmuelmen Exp $
+// $Id: FWECALDetailView.icc,v 1.11 2009/07/08 20:26:26 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -243,6 +243,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
      lego->Set2DMode(TEveCaloLego::kValSize);
      lego->SetProjection(TEveCaloLego::kAuto);
      lego->SetName("ElectronDetail Lego");
+     lego->SetFontColor(kGray);
      gEve->AddElement(lego, tList);
 
    
