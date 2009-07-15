@@ -50,19 +50,27 @@
 <class name="EcalMappingElectronics"/>
 
 <class name="EcalTPGFineGrainConstEB"/>
+<class name="std::map< uint32_t, EcalTPGFineGrainConstEB>"/>
+<class name="std::pair< const uint32_t, EcalTPGFineGrainConstEB>"/>
 <class name="EcalTPGFineGrainEBIdMap"/>
 <class name="EcalTPGFineGrainStripEE"/>
 <class name="EcalTPGFineGrainStripEE::Item"/>
+<class name="std::map< uint32_t, EcalTPGFineGrainStripEE::Item >"/>
+<class name="std::pair< const uint32_t, EcalTPGFineGrainStripEE::Item >"/>
 <class name="EcalTPGFineGrainTowerEE"/>
 <class name="EcalTPGTowerStatus"/>
 <class name="EcalTPGGroups"/>
 <class name="EcalTPGLinearizationConst"/>
 <class name="EcalTPGLut"/>
+<class name="std::map< uint32_t, EcalTPGLut >"/> 
+<class name="std::pair< const uint32_t, EcalTPGLut >"/> 
 <class name="EcalTPGLutIdMap"/>
 <class name="EcalTPGPedestals"/>
 <class name="EcalTPGSlidingWindow"/>
 <class name="EcalTPGWeightIdMap"/>
 <class name="EcalTPGWeights"/>
+<class name="std::map<uint32_t, EcalTPGWeights>"/>
+<class name="std::pair<const uint32_t, EcalTPGWeights>"/>
 
 <class pattern="*EcalContainer*"/>
 
@@ -70,5 +78,8 @@
 <class name="EcalTPGLutGroup"/>
 <class name="EcalTPGWeightGroup"/>
 <class name="EcalTPGPhysicsConst"/>
+<class name="EcalTPGPhysicsConst::Item"/>
+<class name="std::map< uint32_t, EcalTPGPhysicsConst::Item >"/>
+<class name="std::pair< const uint32_t, EcalTPGPhysicsConst::Item >"/>
 
 </lcgdict>
