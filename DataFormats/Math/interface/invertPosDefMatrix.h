@@ -32,6 +32,7 @@ bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > c
 
 // here for a test
 #if defined(__SSE3__)
+#include <pmmintrin.h>
 
 namespace MathSSE {
   struct M2 {
