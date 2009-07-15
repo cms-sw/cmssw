@@ -80,8 +80,12 @@ void DDPixBarStackLayerAlgo::initialize(const DDNumericArguments & nArgs,
 ////////////////////////////////////////////////////////////////////////////////
 // The algorithm itself
 void DDPixBarStackLayerAlgo::execute() {
-  if ((number%2==1)&&(layout==1)) { throw cms::Exception("DDPixBarStackLayerAlgo") 
-	<< "\nAsking for a TOB like Geometry with an odd number of stacks.\n\n";}
+  if ((number%2==1)&&(layout==1)) { 
+        number+=1;
+        std::cout << "\nAsking for an invalid layout ... Adjusting the number of ladders to compensate.\n";
+  }
+//  if ((number%2==1)&&(layout==1)) { throw cms::Exception("DDPixBarStackLayerAlgo") 
+//	<< "\nAsking for a TOB like Geometry with an odd number of stacks.\n\n";}
 // Define some obscure badly defined variables
   double dphi = twopi/number;
 
