@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.38 2009/07/08 15:51:02 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.39 2009/07/09 10:11:05 amraktad Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGPack.h"
+#include "TGFileDialog.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
@@ -194,9 +195,20 @@ FWDetailViewManager::createDetailViewFrame()
    m_pack->SetUseSplitters(kFALSE);
 
    // text view
-   m_textCanvas = new TRootEmbeddedCanvas("Embeddedcanvas", m_pack);
+   TGPack* vp = new TGPack(m_pack, m_pack->GetWidth(), m_pack->GetHeight());
+   vp->SetUseSplitters(kFALSE);
+   m_textCanvas = new TRootEmbeddedCanvas("Embeddedcanvas", vp);
    m_textCanvas->GetCanvas()->SetHighLightColor(-1);
-   m_pack->AddFrameWithWeight(m_textCanvas, 0, leftW);
+   vp->AddFrameWithWeight(m_textCanvas, new TGLayoutHints(kLHintsNormal), 15);
+   {
+      TGVerticalFrame* f =  new TGVerticalFrame(vp);
+      TGTextButton* sbtn = new TGTextButton(f, "Export Detail View Image");
+      sbtn->Connect("Clicked()", "FWDetailViewManager", this, "saveImage()");
+
+      f->AddFrame(sbtn, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4,4,4,0));
+      vp->AddFrameWithWeight(f, 0 , 1);
+   }
+   m_pack->AddFrameWithWeight(vp, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY),leftW);
 
    // viewer
    m_viewerGL = new TGLEmbeddedViewer(m_pack, 0, 0);
@@ -278,6 +290,45 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
    return returnValue;
 }
 
-//
-// static member functions
-//
+//______________________________________________________________________________
+void
+FWDetailViewManager::saveImage() const
+{
+   try{
+      // open file dialog
+      static TString dir(".");
+      const char *  kImageExportTypes[] = {"PNG",                     "*.png",
+                                           "GIF",                     "*.gif",
+                                           "JPEG",                    "*.jpg",
+                                           "PDF",                     "*.pdf",
+                                           "Encapsulated PostScript", "*.eps",
+                                           0, 0};
+      TGFileInfo fi;
+      fi.fFileTypes = kImageExportTypes;
+      fi.fIniDir    = StrDup(dir);
+      new TGFileDialog(gClient->GetDefaultRoot(), m_pack, kFDSave,&fi);
+      dir = fi.fIniDir;
+      if (fi.fFilename != 0) {
+         std::string name = fi.fFilename;
+         std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
+         if (name.find(ext) == name.npos)
+            name += ext;
+
+         if (m_modeGL)
+         {
+            bool succeeded = m_viewerGL->SavePicture(name);
+            std::cout << "Writing to file "<< name.c_str() << ".\n";
+            if(!succeeded)
+               throw std::runtime_error("Unable to save picture");         
+         } 
+         else
+         {
+            m_viewCanvas->GetCanvas()->SaveAs(name.c_str());
+         }
+      }
+   }
+
+   catch (std::exception& iException) {
+      std::cerr <<"FWDetailViewManager caught exception "<<iException.what()<<std::endl;
+   } 
+}
