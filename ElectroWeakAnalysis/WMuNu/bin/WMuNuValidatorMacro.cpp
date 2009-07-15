@@ -107,7 +107,7 @@ int main(int argc, char** argv){
             hr->SetLineWidth(3);
 
             h1->Draw("hist");
-            hr->DrawNormalized("samehist",h1->GetEntries());
+            hr->DrawNormalized("samehist",h1->Integral());
             leg->Clear();
             leg->AddEntry(h1,cmssw_version.Data(),"L");
             leg->AddEntry(hr,"Reference","L");
