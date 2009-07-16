@@ -19,13 +19,13 @@
 ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
-        //These should be taken from a DB
-        int ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
-        int ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
-        double ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
-        double ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 81.08);
-
-        algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV); 
+  //These should be taken from a DB
+  int ESGain = ps.getParameter<int>("ESGain");
+  int ESBaseline = ps.getParameter<int>("ESBaseline");
+  double ESMIPADC = ps.getParameter<double>("ESMIPADC");
+  double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
+  
+  algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV); 
 }
 
 
