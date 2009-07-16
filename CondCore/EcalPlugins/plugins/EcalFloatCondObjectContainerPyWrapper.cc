@@ -3,6 +3,7 @@
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "TH2F.h"
 #include "TCanvas.h"
+#include "TStyle.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
@@ -177,6 +178,7 @@ namespace cond {
 								   std::vector<int> const&, 
 								   std::vector<float> const& ) const {
 
+    gStyle->SetPalette(1);
     TCanvas canvas("CC map","CC map",840,280);
     //canvas.Divide(3,1);
  
