@@ -268,16 +268,18 @@ bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip ) const 
 
 bool CSCRecoConditions::badStrip( const CSCDetId& id, int geomStrip ) const {
   // Note ME1A strip runs 1-48 
-  CSCChannelTranslator translate;
-  CSCDetId idraw = translate.rawCSCDetId( id );
-  int geomChan = translate.channelFromStrip( id, geomStrip ); 
-  int rawChan = translate.rawStripChannel( id, geomChan ); 
-
-  const std::bitset<80>& badStrips = theConditions.badStripWord(idraw);
-
   bool aBadS = false;
-  if( rawChan>0 && rawChan<81 ){ // 80 bits max, labelled 0-79. Test 0-79 (i.e. any - that's the idea)
-    aBadS = badStrips.test(rawChan-1);
+  if(geomStrip>0 && geomStrip<81){ 
+    CSCChannelTranslator translate;
+    CSCDetId idraw = translate.rawCSCDetId( id );
+    int geomChan = translate.channelFromStrip( id, geomStrip ); 
+    int rawChan = translate.rawStripChannel( id, geomChan ); 
+
+    const std::bitset<80>& badStrips = theConditions.badStripWord(idraw);
+
+    if( rawChan>0 && rawChan<81 ){ // 80 bits max, labelled 0-79. Test 0-79 (i.e. any - that's the idea)
+      aBadS = badStrips.test(rawChan-1);
+    }
   }
   return aBadS;
 }
