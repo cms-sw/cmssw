@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 17:04:48 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/03/27 13:29:16 $
+ *  $Revision: 1.27 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -52,6 +52,10 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   // get the cfi parameters
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
   normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
+  // top folder for the histograms in DQMStore
+  topHistoFolder = ps.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  // hlt DQM mode
+  hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
 }
 
 
@@ -238,9 +242,8 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   stringstream station; station << chID.station();	
   stringstream sector; sector << chID.sector();	
   
-  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
+    topHistoFolder + "/Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/";
 
@@ -251,7 +254,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
   if(histoTag == "numberOfSegments")
     histoname = 
-      folderRoot + "DT/02-Segments/Wheel" +  wheel.str() + "/" +
+      topHistoFolder + "/Wheel" +  wheel.str() + "/" +
       histoTag  + + "_W" + wheel.str();
 
   return histoname;
@@ -264,7 +267,7 @@ void DTSegmentAnalysisTest::bookHistos() {
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
       string histoName =  "segmentSummary_W" + wheel.str();
-      dbe->setCurrentFolder("DT/02-Segments");
+      dbe->setCurrentFolder(topHistoFolder);
       summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
       summaryHistos[wh]->setAxisTitle("Sector",1);
       summaryHistos[wh]->setBinLabel(1,"MB1",2);
@@ -276,7 +279,7 @@ void DTSegmentAnalysisTest::bookHistos() {
 	for(int sect=1; sect<=14; sect++){
 	  stringstream sector; sector << sect;
 	  string chi2HistoName =  "chi2BadSegmPercentual_W" + wheel.str() + "_Sec" + sector.str();
-	  dbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() + "/Tests");
+	  dbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() + "/Tests");
 	  chi2Histos[make_pair(wh,sect)] = dbe->book1D(chi2HistoName.c_str(),chi2HistoName.c_str(),4,1,5);
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(1,"MB1");
 	  chi2Histos[make_pair(wh,sect)]->setBinLabel(2,"MB2");
@@ -295,7 +298,7 @@ void DTSegmentAnalysisTest::bookHistos() {
   }
   
   string histoName =  "segmentSummary";
-  dbe->setCurrentFolder("DT/02-Segments");
+  dbe->setCurrentFolder(topHistoFolder);
   summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
   summaryHistos[3]->setAxisTitle("Sector",1);
   summaryHistos[3]->setAxisTitle("Wheel",2); 
@@ -319,13 +322,16 @@ void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
 
   if(normalizeHistoPlots) {
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
-    MonitorElement* hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
+    MonitorElement* hNevtPerLS = 0;
+    if(hltDQMMode) dbe->get(topHistoFolder + "/NevtPerLS");
+    else  dbe->get("DT/EventInfo/NevtPerLS");
+
     if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
 	for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
 	  stringstream wheelstr; wheelstr << wheel;	
 	  stringstream sectorstr; sectorstr << sector;
-	  string sectorHistoName = "DT/02-Segments/Wheel" + wheelstr.str() +
+	  string sectorHistoName = topHistoFolder + "/Wheel" + wheelstr.str() +
 	    "/Sector" + sectorstr.str() +
 	    "/NSegmPerEvent_W" + wheelstr.str() +
 	    "_Sec" + sectorstr.str();

@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/24 09:25:33 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/11/28 11:11:48 $
+ *  $Revision: 1.6 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -88,6 +88,10 @@ private:
   std::map< std::pair<int,int>, MonitorElement* > segmRecHitHistos;
   std::map< int, MonitorElement* > summaryHistos;
   bool normalizeHistoPlots;
+  // top folder for the histograms in DQMStore
+  std::string topHistoFolder;
+  // hlt DQM mode
+  bool hltDQMMode;
 };
 
 #endif

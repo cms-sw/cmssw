@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/12/10 10:28:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/27 14:44:34 $
+ *  $Revision: 1.6 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -66,7 +66,6 @@ private:
   int prescaleFactor;
   int run;
   int percentual;
-  std::string folderRoot;
 
   DQMStore* dbe;
 
@@ -96,6 +95,9 @@ private:
   bool sigmaInRange(double sigma) const;
 
   MonitorElement* globalResSummary;
+  
+  // top folder for the histograms in DQMStore
+  std::string topHistoFolder;
 
 };
 
