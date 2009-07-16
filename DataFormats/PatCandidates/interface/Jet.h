@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.34 2009/03/09 21:19:22 lowette Exp $
+// $Id: Jet.h,v 1.35 2009/03/26 20:04:10 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.34 2009/03/09 21:19:22 lowette Exp $
+  \version  $Id: Jet.h,v 1.35 2009/03/26 20:04:10 rwolf Exp $
 */
 
 
@@ -102,16 +102,28 @@ namespace pat {
       float corrFactor(const std::string& step, const std::string& flavour, const std::string& set) const;
       /// copy of the jet with correction factor to target step for
       /// the set of correction factors, which is currently in use 
-      Jet correctedJet(const JetCorrFactors::CorrStep& step) const ;
+      Jet correctedJet(const JetCorrFactors::CorrStep& step) const;
       /// copy of the jet with correction factor to target step for
       /// the set of correction factors, which is currently in use 
-      Jet correctedJet(const std::string& step, const std::string& flavour="") const ;
+      Jet correctedJet(const std::string& step, const std::string& flavour="") const;
       /// copy of this jet with correction factor to target step
       /// for a specific set of correction factors
-      Jet correctedJet(const JetCorrFactors::CorrStep& step, const std::string& set) const ;
+      Jet correctedJet(const JetCorrFactors::CorrStep& step, const std::string& set) const;
       /// copy of this jet with correction factor to target step
       /// for a specific set of correction factors
-      Jet correctedJet(const std::string& step, const std::string& flavour, const std::string& set) const ;
+      Jet correctedJet(const std::string& step, const std::string& flavour, const std::string& set) const;
+      /// p4 of the jet with correction factor to target step for
+      /// the set of correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const JetCorrFactors::CorrStep& step) const { return correctedJet(step).p4(); };
+      /// p4 of the jet with correction factor to target step for
+      /// the set of correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const std::string& step, const std::string& flavour="") const { return correctedJet(step, flavour).p4(); };
+      /// p4 of the jet with correction factor to target step for
+      /// the set of correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const JetCorrFactors::CorrStep& step, const std::string& set) const { return correctedJet(step, set).p4(); };
+      /// p4 of the jet with correction factor to target step for
+      /// the set of correction factors, which is currently in use 
+      const LorentzVector& correctedP4(const std::string& step, const std::string& flavour, const std::string& set) const { return correctedJet(step, flavour, set).p4(); };
       /// method to set the energy scale correction factors this will change the jet's momentum! 
       /// it should only be used by the PATJetProducer; per default the first element in 
       /// jetEnergyCorrections_ is taken into consideration
