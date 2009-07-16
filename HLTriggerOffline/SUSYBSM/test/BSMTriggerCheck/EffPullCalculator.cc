@@ -1,7 +1,9 @@
-using namespace std;
+#include <TMath.h>
 #include <TH1D.h>
 #include <TAxis.h>
 #include "EffPullCalculator.hh"
+
+using namespace std;
 
 EffPullcalculator::EffPullcalculator(TH1D* pathHisto1_v, TH1D* pathHisto2_v, string error_v) {
   pathHisto.push_back(pathHisto1_v);
@@ -30,7 +32,8 @@ void EffPullcalculator::CalculatePulls() {
     for(int i2=1; i2 <= pathHisto[1]->GetNbinsX(); i2++) {
       string label2 = axis2->GetBinLabel(i2);
       if(label2 == "Total") nEv2 = pathHisto[1]->GetBinContent(i2);
-      if(label1 == label2) { // we are comparing the same path
+      if(label1 == label2 && // we are comparing the same path
+	 GoodLabel(label1)) { // we are comparing an interesting path
 	eff1.push_back(pathHisto[0]->GetBinContent(i1));
 	eff2.push_back(pathHisto[1]->GetBinContent(i2));
 	name.push_back(label1);
@@ -220,4 +223,16 @@ void EffPullcalculator::PrintTwikiTable(string filename) {
     }
   }
   fclose(f);
+}
+
+bool EffPullcalculator::GoodLabel(string pathname) {
+  bool good = false;
+  if(pathname.find("Ele") != string::npos ||
+     pathname.find("Pho") != string::npos ||
+     pathname.find("Mu") != string::npos ||
+     pathname.find("Jet") != string::npos ||
+     pathname.find("MET") != string::npos ||
+     pathname.find("Met") != string::npos ||
+     pathname.find("HT") != string::npos) good = true;
+  return good;
 }

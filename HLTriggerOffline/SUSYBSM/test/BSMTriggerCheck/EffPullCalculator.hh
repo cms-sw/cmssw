@@ -15,7 +15,8 @@ public:
   vector<int> SortVec(vector<double> eff);
   void AddGoldenPath(string name);
   void PrintTwikiTable(string filename);
-  
+  bool GoodLabel(string pathname);
+
 private:
   // log file
   vector<string> lines;

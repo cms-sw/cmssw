@@ -78,6 +78,8 @@ int main(int argc, char *argv[]){
 
   gErrorIgnoreLevel = 2001;
   
+  cout << "aaaaaaaaaaaaaaaaaaaa" << endl;
+
   string file1name, file2name;
   string outputfilename("trigger_validation.root");
   char inputstr[256];
@@ -105,6 +107,7 @@ int main(int argc, char *argv[]){
     }
   }
 
+  cout << "bbbbbbbbbbbbbbbbbbbbbbb" << endl;
   vector<TFile*> files;
   files.push_back(new TFile(file1name.c_str()));
   files.push_back(new TFile(file2name.c_str()));
@@ -125,12 +128,28 @@ int main(int argc, char *argv[]){
   string label1 = file1name.erase(file1name.find("/"),file1name.size()-file1name.find("/"));
   string label2 = file2name.erase(file2name.find("/"),file2name.size()-file2name.find("/"));
 
-  // Get TriggerBit histogram 
-  L1effhisto1  = (TH1D*) files[0]->Get("TriggerBits/L1Paths"); 
-  L1effhisto2  = (TH1D*) files[1]->Get("TriggerBits/L1Paths"); 
-  HLTeffhisto1 = (TH1D*) files[0]->Get("TriggerBits/HltPaths"); 
-  HLTeffhisto2 = (TH1D*) files[1]->Get("TriggerBits/HltPaths"); 
+  cout << "cccccccccccccccc" << endl;
+   for (int i=1;i<argc;i++){
+     if (strncmp(argv[i],"-",1)==0){
+       if (strncmp(argv[i],"-label1",7)==0) {
+       sscanf(argv[i],"-label1=%s",inputstr);
+       label1 = string(inputstr,strlen(argv[i]));
+       }
+       if (strncmp(argv[i],"-label2",7)==0) {
+       sscanf(argv[i],"-label2=%s",inputstr);
+       label2 = string(inputstr,strlen(argv[i]));
+       }
+     }
+   }
 
+  cout << "ddddddddddddddddddddd" << endl;
+  // Get TriggerBit histogram 
+  L1effhisto1  = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1Paths"); 
+  L1effhisto2  = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1Paths"); 
+  HLTeffhisto1 = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/HltPaths"); 
+  HLTeffhisto2 = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/HltPaths"); 
+
+  cout << "eeeeeeeeeeeeeeeee" << endl;
   // pull and residual histograms
   EffPullcalculator* HLTpullcal = new EffPullcalculator(HLTeffhisto1,HLTeffhisto2,error);
   HLTpullcal->CalculatePulls();
@@ -139,12 +158,14 @@ int main(int argc, char *argv[]){
   HLTeffhistos = HLTpullcal->GetEffHistos();
   HLTpullcal->WriteLogFile("HLTcomparison.log");
 
+  cout << "ffffffffffffffff" << endl;
   EffPullcalculator* L1pullcal = new EffPullcalculator(L1effhisto1,L1effhisto2,error);
   L1pullcal->CalculatePulls();
   L1pullhisto = L1pullcal->GetPullHisto();
   L1reshisto  = L1pullcal->GetResidualHisto();
   L1effhistos = L1pullcal->GetEffHistos();
 
+  cout << "ggggggggggggggg" << endl;
   L1pullcal->WriteLogFile("L1comparison.log");
 
   //////////////////////
@@ -160,6 +181,7 @@ int main(int argc, char *argv[]){
   L1reshisto->Write();
   HLTpullhisto->Write();
   HLTreshisto->Write();
+  cout << "hhhhhhhhhhhhhhhhhhh" << endl;
 
   for(int ih=0; ih<int(L1effhistos.size()); ih++) 
     L1effhistos[ih]->Write();
@@ -169,12 +191,14 @@ int main(int argc, char *argv[]){
 //   WriteEffEps(L1pullhisto,  L1reshisto);
 //   WriteEffEps(HLTpullhisto, HLTreshisto);
 
+  cout << "iiiiiiiiiiiiiiiii" << endl;
   WriteEffEps(L1effhistos,label1,label2);
   WriteEffEps(HLTeffhistos,label1,label2);
 
   // close
   outfile->Close();
 
+  cout << "lllllllllllllllllll" << endl;
 
   /////////////////////////////////////////////
   // comparison histograms for each HLT path //
@@ -187,21 +211,23 @@ int main(int argc, char *argv[]){
   string obj = "Reco";
   if(usel1obj == true) obj = "L1";
 
+  cout << "mmmmmmmmmmmmmmmmmmmmm" << endl;
   for(int ifile=0; ifile<2; ifile++) {  
     // general plots
     if(usel1obj == false) {
-      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoJets/General/JetMult")); 
-      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMuons/General/MuonMult"));
-      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoElectrons/General/ElecMult"));
-      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoPhotons/General/PhotonMult"));
-      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMET/General/MET"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/RecoJets/General/JetMult")); 
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMuons/General/MuonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/RecoElectrons/General/ElecMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/RecoPhotons/General/PhotonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMET/General/MET"));
     } else {
-      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Jets/General/JetMult")); 
-      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Muons/General/MuonMult"));
-      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Em/General/ElecMult"));
-      inputhisto.push_back((TH1D*) files[ifile]->Get("L1MET/General/MET"));      
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/L1Jets/General/JetMult")); 
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/L1Muons/General/MuonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/L1Em/General/ElecMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/L1MET/General/MET"));      
     }
 
+  cout << "nnnnnnnnnnnnnnnnnnnnnn" << endl;
     // L1 plots
     TAxis* axis = L1reshisto->GetXaxis();
     for(int i=1; i<L1reshisto->GetNbinsX(); i++) { //we skip the last bin, which is the total
@@ -210,20 +236,21 @@ int main(int argc, char *argv[]){
       if(L1pullcal->GetEff(label,0) > 0.3 &&
 	 L1pullcal->GetEff(label,1) > 0.3) {
 	if(usel1obj == false) {
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/L1/JetMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/L1/MuonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/L1/ElecMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/L1/PhotonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/L1/MET_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoJets/L1/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMuons/L1/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoElectrons/L1/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoPhotons/L1/PhotonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMET/L1/MET_"+label).c_str()));
 	} else {
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Jets/L1/JetMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Muons/L1/MuonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Em/L1/ElecMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1MET/L1/MET_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Jets/L1/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Muons/L1/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Em/L1/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1MET/L1/MET_"+label).c_str()));
 	}
       }
     }
 
+  cout << "ooooooooooooooooooooooo" << endl;
     // HLT plots
     axis = HLTreshisto->GetXaxis();
     for(int i=1; i<HLTreshisto->GetNbinsX(); i++) { //we skip the last bin, which is the total
@@ -232,29 +259,39 @@ int main(int argc, char *argv[]){
       if(HLTpullcal->GetEff(label,0) > 0.3 &&
 	 HLTpullcal->GetEff(label,1) > 0.3) {
 	if(usel1obj == false) {
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/HLT/JetMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/HLT/MuonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/HLT/ElecMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/HLT/PhotonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/HLT/MET_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoJets/HLT/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMuons/HLT/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoElectrons/HLT/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoPhotons/HLT/PhotonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/RecoMET/HLT/MET_"+label).c_str()));
 	} else {
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Jets/HLT/JetMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Muons/HLT/MuonMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Em/HLT/ElecMult_"+label).c_str()));
-	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1MET/HLT/MET_"+label).c_str()));	  
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Jets/HLT/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Muons/HLT/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1Em/HLT/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("DQMData/Run 1/HLT/Run summary/SusyExo/L1MET/HLT/MET_"+label).c_str()));	  
 	}
       }
     }
   }
 
+  cout << "pppppppppppppppppp" << endl;
   for(int i=0; i<int(inputhisto.size()/2); i++) {
+    cout << "loop CompHisto 1" << endl;
     CompHisto1D* compare = new CompHisto1D(inputhisto[i],inputhisto[i+inputhisto.size()/2]);
+    cout << "loop CompHisto 2" << endl;
     compare->SetLabel1(label1);
-    compare->SetLabel2(label2);
+    cout << "loop CompHisto 3" << endl;
+   compare->SetLabel2(label2);
+    cout << "loop CompHisto 4" << endl;
+   cout << "inputhisto[i]->GetName() = " << endl;
+    cout << "inputhisto[i]->GetName() = " << inputhisto[i]->GetName() << endl;
     compatibility.insert(std::make_pair(string(inputhisto[i]->GetName()),compare->Compare()));
-    compare->SaveAsEps();
+    cout << "loop CompHisto 5" << endl;
+     compare->SaveAsEps();
+    cout << "loop CompHisto 6" << endl;
   }
   
+  cout << "qqqqqqqqqqqqqqqqqqqq" << endl;
   // Make plot of compatibilities
   JetMETComp* jetmetcomp = new JetMETComp(compatibility);
   // L1
@@ -278,6 +315,7 @@ int main(int argc, char *argv[]){
   jetmetcomp->MakePlot("JetMult_HLT");
   jetmetcomp->MakePlot("MET_HLT");
   jetmetcomp->WriteFile();
+  cout << "rrrrrrrrrrrrrrrrrr" << endl;
 
 }
 
