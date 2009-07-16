@@ -25,7 +25,7 @@
 
 // ROOT
 #include <TFile.h>
-//#include <TH1F.h>
+#include <TH1F.h>
 //#include <TAxis.h>
 
 //#define FAMOS_DEBUG
@@ -134,7 +134,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
 				 1110
 				 + alphaMultiplicity);    //
       theAlphaHistos[alphaHistN] = new SimpleHistogramGenerator(
-        (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
+	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
         random);
       // Fill also big pixels if new parametrization is used. Their code is 10000 + histogram number
       if(useCMSSWPixelParameterization) {
