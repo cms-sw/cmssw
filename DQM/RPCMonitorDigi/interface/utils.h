@@ -270,11 +270,11 @@ namespace rpcdqm{
 
       string labels[9]= {"C", "Ring1 B", "A","C", "Ring2 B", "A","C", "Ring3 B", "A"};
       int startBin ;
-      (numberOfRings == 2 ? startBin = 4: startBin = 1);
+      (numberOfRings == 2 ? startBin = 3: startBin = 0);
  
       //set bin labels
       for(int y =1 ;y<= myMe->getNbinsY() && y<=9; y++ )
-	myMe->setBinLabel(y,labels[y-1],2);
+	myMe->setBinLabel(y,labels[y-1+startBin],2);
     }
 
 
