@@ -93,7 +93,8 @@ class SiStripPsuDetIdMap
   /** Extracts the DCU-PSU map from the DB. */
   void getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition);
   /** Extracts the DCU device descriptions and stores them for further use. Only used for control groups. */
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >  retrieveDcuDeviceAddresses(std::string partition);
+  //  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >  retrieveDcuDeviceAddresses(std::string partition);
+  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > retrieveDcuDeviceAddresses(std::string partition);
   /** Searches the DCU device descriptions for the specified DCU ID. Needed for control groups. */
   std::vector<uint32_t>  findDcuIdFromDeviceAddress(uint32_t dcuid_);
   /** Utility to clone a DCU-PSU map. */
@@ -108,6 +109,7 @@ class SiStripPsuDetIdMap
   std::vector<std::string> detectorLocations, controlLocations;
   std::vector<uint32_t> dcuIds, cgDcuIds, ccuDcuIds;
   DcuPsus DcuPsuMapPG_, DcuPsuMapCG_;
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > dcu_device_addr_vector;
+  //  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > dcu_device_addr_vector;
+  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > dcu_device_addr_vector;
 };
 #endif

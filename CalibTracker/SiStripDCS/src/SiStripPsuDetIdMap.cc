@@ -62,9 +62,9 @@ void SiStripPsuDetIdMap::BuildMap() {
 	  SiStripConfigDb::DcuDetIdsV nextVec( range.begin(), range.end() );
 	  dcu_detid_vector.insert( dcu_detid_vector.end(), nextVec.begin(), nextVec.end() );
 	}
-	std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
+	//	std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
+	std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
 	dcu_device_addr_vector.insert( dcu_device_addr_vector.end(), nextControlVector.begin(), nextControlVector.end() );
-	retrieveDcuDeviceAddresses(iter->second.partitionName());
       }
     }
   } else {
@@ -488,7 +488,8 @@ void SiStripPsuDetIdMap::checkMapInputValues(SiStripConfigDb::DcuDetIdsV dcuDetI
   std::cout << "Size of detectorLocations:          " << detectorLocations.size() << std::endl;
 }
 
-std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
+//std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
+std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
   // get the DB parameters
   SiStripDbParams dbParams_ = db_->dbParams();
   SiStripDbParams::SiStripPartitions::const_iterator iter;
@@ -513,35 +514,69 @@ std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > SiStripPsuDet
       }
     }
   }
-  return resultVec;
+
+  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > testVec;
+  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator reorg_iter = resultVec.begin();
+
+  for ( ; reorg_iter != resultVec.end(); reorg_iter++) {
+    std::vector<uint16_t> fecInfo(4,0);
+    fecInfo[0] = reorg_iter->second.fecCrate_;
+    fecInfo[1] = reorg_iter->second.fecSlot_;
+    fecInfo[2] = reorg_iter->second.fecRing_;
+    fecInfo[3] = reorg_iter->second.ccuAddr_;
+    std::vector<uint32_t> dcuids;
+    std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator jter = reorg_iter;
+    for ( ; jter != resultVec.end(); jter++) {
+      if (reorg_iter->second.fecCrate_ == jter->second.fecCrate_ &&
+	  reorg_iter->second.fecSlot_ == jter->second.fecSlot_ &&
+	  reorg_iter->second.fecRing_ == jter->second.fecRing_ &&
+	  reorg_iter->second.ccuAddr_ == jter->second.ccuAddr_) {
+	dcuids.push_back(jter->first);
+      }
+    }
+    // handle duplicates
+    bool isDup = false;
+    for (unsigned int i = 0; i < testVec.size(); i++) {
+      if (fecInfo == testVec[i].first) {
+	isDup = true;
+	dcuids.insert(dcuids.end(), (testVec[i].second).begin(), (testVec[i].second).end() );
+	std::sort(dcuids.begin(),dcuids.end());
+	std::vector<uint32_t>::iterator it = std::unique(dcuids.begin(),dcuids.end());
+	dcuids.resize( it - dcuids.begin() );
+	testVec[i].second = dcuids;
+      }
+    }
+    if (!isDup) {
+      std::sort(dcuids.begin(),dcuids.end());
+      std::vector<uint32_t>::iterator it = std::unique(dcuids.begin(),dcuids.end());
+      dcuids.resize( it - dcuids.begin() );
+      testVec.push_back(std::make_pair(fecInfo,dcuids));
+    }
+  }
+  //  return resultVec;
+  return testVec;
 }
 
 std::vector<uint32_t> SiStripPsuDetIdMap::findDcuIdFromDeviceAddress(uint32_t dcuid_) {
-  // find the dcu id
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator jter = dcu_device_addr_vector.begin();
-  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator res_iter = dcu_device_addr_vector.end();
-  for ( ; jter != dcu_device_addr_vector.end(); jter++) {
-    if (jter->first == dcuid_) {
-      if (res_iter == dcu_device_addr_vector.end()) {
-	res_iter = jter;
-      }
-    }
-  }
-  
-  // identify other DCUs associated to this FEC
+  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > >::iterator iter = dcu_device_addr_vector.begin();
+  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > >::iterator res_iter = dcu_device_addr_vector.end();
   std::vector<uint32_t> pgDcu;
-  
-  if (res_iter != dcu_device_addr_vector.end()) {
-    std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >::iterator dter = dcu_device_addr_vector.begin();
-    for ( ; dter != dcu_device_addr_vector.end(); dter++) {
-      if (res_iter->second.fecCrate_ == dter->second.fecCrate_ &&
-	  res_iter->second.fecSlot_ == dter->second.fecSlot_ &&
-	  res_iter->second.fecRing_ == dter->second.fecRing_) {
-	pgDcu.push_back(dter->first);
+
+  for ( ; iter != dcu_device_addr_vector.end(); iter++) {
+    std::vector<uint32_t> dcuids = iter->second;
+    std::vector<uint32_t>::iterator dcu_iter = std::find(dcuids.begin(),dcuids.end(),dcuid_);
+    bool alreadyFound = false;
+    if (res_iter != dcu_device_addr_vector.end()) {alreadyFound = true;}
+    if (dcu_iter != dcuids.end()) {
+      res_iter = iter;
+      if (!alreadyFound) {
+	for (unsigned int i = 0; i < dcuids.size(); i++) {
+	  if (dcuids[i] != dcuid_) {pgDcu.push_back(dcuids[i]);}
+	}
+      } else {
+	std::cout << "Oh oh ... we have a duplicate :-(" << std::endl;
       }
     }
-  } else {
-    edm::LogError("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] Did not find FEC information for DCU ID " << dcuid_;
   }
   return pgDcu;
 }
