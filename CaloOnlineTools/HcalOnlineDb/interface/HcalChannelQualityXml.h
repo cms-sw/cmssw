@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelQualityXml.h,v 1.2 2009/05/08 23:26:51 elmer Exp $
+// $Id: HcalChannelQualityXml.h,v 1.1 2009/07/09 17:00:13 kukartse Exp $
 //
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
@@ -34,11 +34,16 @@ class HcalChannelQualityXml : public HcalChannelDataXml
   //
   DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,
 				      int _channel_status, int _on_off, std::string _comment );
+
+  int set_all_channels_on_off( int _hb, int _he, int _hf, int _ho);
+
   //
   //_____ helper method, better not use directly
   //
   DOMElement * add_data( DOMNode * _dataset, int _channel_status, int _on_off, std::string _comment );
-};
 
+ private:
+  std::string get_random_comment( void );
+};
 
 #endif

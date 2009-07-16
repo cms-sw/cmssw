@@ -16,11 +16,12 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelDataXml.h,v 1.2 2009/05/08 23:26:51 elmer Exp $
+// $Id: HcalChannelDataXml.h,v 1.1 2009/07/09 17:00:13 kukartse Exp $
 //
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 
 class HcalChannelDataXml : public XMLDOMBlock
 {
@@ -65,7 +66,6 @@ class HcalChannelDataXml : public XMLDOMBlock
   DOMElement * get_channel_element( DOMNode * _dataset );
 
   int a_to_i(char * inbuf);
-
   //
   //_____ tester methods ________________________________________________
   //
@@ -97,6 +97,12 @@ class HcalChannelDataXml : public XMLDOMBlock
   int tag_idref;
   int iov_idref;
   int data_set_idref;
+  //
+  //_____ DATA_SET
+  std::string username;
+  std::string dataset_comment;
+
+  HcalAssistant hcal_ass;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelDataXml.cc,v 1.2 2009/06/24 09:49:11 kukartse Exp $
+// $Id: HcalChannelDataXml.cc,v 1.1 2009/07/09 17:00:13 kukartse Exp $
 //
 
 #include <iostream>
@@ -17,7 +17,6 @@
 #include <sstream>
 #include <iconv.h>
 #include <sys/time.h>
-
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
 
 using namespace std;
@@ -26,6 +25,7 @@ using namespace std;
 
 
 HcalChannelDataXml::HcalChannelDataXml(){
+  comment = hcal_ass.getRandomQuote();
   //init_data();
 }
 
@@ -99,7 +99,7 @@ int HcalChannelDataXml::init_data( void )
   <DATA_SET>\n\
     <COMMENT_DESCRIPTION>test-channel-status-26jun2009-v1</COMMENT_DESCRIPTION>\n\
     <CREATE_TIMESTAMP>2009-04-06 17:36:40.0</CREATE_TIMESTAMP>\n\
-    <CREATED_BY_USER>kukartse</CREATED_BY_USER>\n\
+    <CREATED_BY_USER>user</CREATED_BY_USER>\n\
     <VERSION>test-channel-status-26jun2009-v1</VERSION>\n\
     <SUBVERSION>1</SUBVERSION>\n\
     <CHANNEL>\n\
@@ -112,6 +112,11 @@ int HcalChannelDataXml::init_data( void )
   const XMLByte * _template2 = (const XMLByte *)_str2;
   _dataset = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_dataset", false );
 
+  //
+  //_____ some more default initialization
+  username = hcal_ass.getUserName();
+  dataset_comment = hcal_ass.getRandomQuote();
+  //
   return 0;
 }
 
@@ -124,6 +129,7 @@ DOMNode * HcalChannelDataXml::add_hcal_channel( DOMNode * _dataset, int ieta, in
     add_element(_channel, XMLProcessor::_toXMLCh("DEPTH"), XMLProcessor::_toXMLCh(depth));
     add_element(_channel, XMLProcessor::_toXMLCh("SUBDET"), XMLProcessor::_toXMLCh(subdetector));
   }
+  
   return (DOMNode *)_channel;
 }
 
@@ -138,8 +144,9 @@ DOMNode * HcalChannelDataXml::add_dataset( void ){
   //_____ set defaults
   //
   DOMElement * dataset_elem = (DOMElement *)dataset_node;
-  setTagValue(dataset_elem, "COMMENT_DESCRIPTION", tag_name);
+  setTagValue(dataset_elem, "COMMENT_DESCRIPTION", dataset_comment);
   setTagValue(dataset_elem, "CREATE_TIMESTAMP", getTimestamp(time(0)));
+  setTagValue(dataset_elem, "CREATED_BY_USER", username);
   setTagValue(dataset_elem, "VERSION", tag_name);
   setTagValue(dataset_elem, "SUBVERSION", 1);
   //
@@ -170,98 +177,114 @@ DOMElement * HcalChannelDataXml::get_channel_element( DOMNode * _dataset ){
 
 
 DOMNode * HcalChannelDataXml::set_header_table_name(std::string name){
+  extension_table_name = name;
   DOMElement * _header = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("HEADER") ) -> item(0));
-  return setTagValue(_header, "EXTENSION_TABLE_NAME", name);
+  return setTagValue(_header, "EXTENSION_TABLE_NAME", extension_table_name);
 }
 
 
 DOMNode * HcalChannelDataXml::set_header_type(std::string type){
+  type_name = type;
   DOMElement * _header = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("HEADER") ) -> item(0));
-  return setTagValue(_header, "NAME", type);
+  return setTagValue(_header, "NAME", type_name);
 }
 
 
 DOMNode * HcalChannelDataXml::set_header_run_number(int run){
+  run_number = run;
   DOMElement * _header = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("HEADER") ) -> item(0));
-  return setTagValue(_header, "RUN_NUMBER", run);
+  return setTagValue(_header, "RUN_NUMBER", run_number);
 }
 
 
 DOMNode * HcalChannelDataXml::set_header_channel_map(std::string name){
+  channel_map = name;
   DOMElement * _header = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("HEADER") ) -> item(0));
-  return setTagAttribute(_header, "HINTS", "channelmap", name);
+  return setTagAttribute(_header, "HINTS", "channelmap", channel_map);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_dataset_id(int id){
+  data_set_id = id;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagAttribute(_elements, "DATA_SET", "id", id);
+  return setTagAttribute(_elements, "DATA_SET", "id", data_set_id);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_iov_id(int id){
+  iov_id = id;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagAttribute(_elements, "IOV", "id", id);
+  return setTagAttribute(_elements, "IOV", "id", iov_id);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_iov_begin(int value){
+  iov_begin = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagValue(_elements, "INTERVAL_OF_VALIDITY_BEGIN", value);
+  return setTagValue(_elements, "INTERVAL_OF_VALIDITY_BEGIN", iov_begin);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_iov_end(int value){
+  iov_end = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagValue(_elements, "INTERVAL_OF_VALIDITY_END", value);
+  return setTagValue(_elements, "INTERVAL_OF_VALIDITY_END", iov_end);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_tag_id(int value){
+  tag_id = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagAttribute(_elements, "TAG", "id", value);
+  return setTagAttribute(_elements, "TAG", "id", tag_id);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_tag_mode(std::string value){
+  tag_mode = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagAttribute(_elements, "TAG", "mode", value);
+  return setTagAttribute(_elements, "TAG", "mode", tag_mode);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_tag_name(std::string value){
+  tag_name = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagValue(_elements, "TAG_NAME", value);
+  return setTagValue(_elements, "TAG_NAME", tag_name);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_detector_name(std::string value){
+  detector_name = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagValue(_elements, "DETECTOR_NAME", value);
+  return setTagValue(_elements, "DETECTOR_NAME", detector_name);
 }
 
 
 DOMNode * HcalChannelDataXml::set_elements_comment(std::string value){
+  comment = value;
   DOMElement * _elements = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("ELEMENTS") ) -> item(0));
-  return setTagValue(_elements, "COMMENT_DESCRIPTION", value);
+  return setTagValue(_elements, "COMMENT_DESCRIPTION", comment);
 }
 
 
 DOMNode * HcalChannelDataXml::set_maps_tag_idref(int value){
+  tag_idref = value;
   DOMElement * _maps = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("MAPS") ) -> item(0));
-  return setTagAttribute(_maps, "TAG", "idref", value);
+  return setTagAttribute(_maps, "TAG", "idref", tag_idref);
 }
 
 
 DOMNode * HcalChannelDataXml::set_maps_iov_idref(int value){
+  iov_idref = value;
   DOMElement * _maps = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("MAPS") ) -> item(0));
-  return setTagAttribute(_maps, "IOV", "idref", value);
+  return setTagAttribute(_maps, "IOV", "idref", iov_idref);
 }
 
 
 DOMNode * HcalChannelDataXml::set_maps_dataset_idref(int value){
+  data_set_idref = value;
   DOMElement * _maps = (DOMElement *)(document -> getElementsByTagName( XMLString::transcode("MAPS") ) -> item(0));
-  return setTagAttribute(_maps, "DATA_SET", "idref", value);
+  return setTagAttribute(_maps, "DATA_SET", "idref", data_set_idref);
 }
 
 
@@ -274,4 +297,5 @@ int HcalChannelDataXml::a_to_i(char * inbuf){
   sscanf(inbuf,"%d",&result);
   return result;
 }
+
 

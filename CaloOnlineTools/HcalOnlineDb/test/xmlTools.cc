@@ -9,6 +9,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcalChannelQualityManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatterns.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatternLoader.h"
@@ -30,6 +31,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalTriggerKey.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelQualityXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -105,6 +107,8 @@ int main( int argc, char **argv )
     ("qie", "Generate new QIE table file")
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
     ("test-channel-data", "Test base class for DB entries per HCAL channel")
+    ("test-channel-masking", "Test base class for DB entries per HCAL channel")
+    ("test-channel-iterator", "Test iterator class for HCAL channels")
     ("test-new-developer", "Test area for a new developer")
     ;
 
@@ -408,8 +412,38 @@ int main( int argc, char **argv )
     if (vm.count("test-channel-data")) {
       HcalChannelQualityXml xml;
       //DOMNode * ds = xml.add_dataset();
-      xml.add_hcal_channel_dataset(2, 2, 1, "HO", 1, 0, "test channel quality comment field");
-      xml.write();
+      xml.set_header_run_number(1);
+      xml.set_elements_tag_name("AllChannelsMasked16Jul2009v1");
+      xml.set_elements_iov_begin(80000);
+      //xml.add_hcal_channel_dataset(39, 15, 1, "HF", 1, 0, "test channel quality comment field");
+      xml.set_all_channels_on_off( 0, 1, 1, 1);
+      xml.write("channel_quality.xml");
+      return 0;
+    }
+    
+    
+    if (vm.count("test-channel-masking")) {
+      HcalChannelQualityManager manager;
+      DetId id1(13408717);
+      DetId id2(13408718);
+      DetId id3(13401380);
+      cout << "channel " << id1.rawId() << "is masked: " << manager.isChannelMasked(id1,true) << endl;
+      cout << "channel " << id2.rawId() << "is masked: " << manager.isChannelMasked(id2,true) << endl;
+      cout << "channel " << id3.rawId() << "is masked: " << manager.isChannelMasked(id3,true) << endl << endl;
+      return 0;
+    }
+    
+    
+    if (vm.count("test-channel-iterator")) {
+      HcalChannelIterator iter;
+      iter.clearChannelList();
+      iter.addListFromLmapAscii("HCALmapHBEF_Jan.27.2009.txt");
+      iter.addListFromLmapAscii("HCALmapHO_Jan.27.2009.txt");
+      cout << "The iterator list contains " << iter.size() << " entries (not necessarily unique)" << endl;
+      cout << "Testing the iterator over all entries now..." << endl;
+      for (iter.begin(); !iter.end(); iter.next()){
+	cout << iter.getHcalGenericDetId() << endl;
+      }
       return 0;
     }
     
