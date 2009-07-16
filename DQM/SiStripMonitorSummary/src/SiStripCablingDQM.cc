@@ -54,7 +54,8 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
     if(HistoMaps_On_ ) {Tk_HM_->fill(detId, cablingHandle_->nApvPairs(detId)*2);}
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(detId,cablingHandle_->nApvPairs(detId)*2.); //fill with numb of active APVs
+            fillTkMap(detId,cablingHandle_->getConnections(detId).size()*2.); //fill with numb of active APVs
+      //          fillTkMap(detId,2.); //fill with numb of active APV
     }
 
     switch (subdet.subdetId()) 
