@@ -61,6 +61,15 @@ shrinkingConePFTauDecayModeIndexProducer                        = copy.deepcopy(
 shrinkingConePFTauDecayModeIndexProducer.PFTauProducer          = cms.InputTag("shrinkingConePFTauProducer")
 shrinkingConePFTauDecayModeIndexProducer.PFTauDecayModeProducer = cms.InputTag("shrinkingConePFTauDecayModeProducer")
 
+# Apply the CV tranformation to the TaNC output.  This module is not run in the default sequences, you must add it manually
+#  For details of the transformation, see RecoTauTag/RecoTau/plugins/PFTauDecayModeCVTransformation.cc
+from RecoTauTag.TauTagTools.TancCVTransform_cfi                                     import *
+shrinkingConePFTauTancCVTransform = copy.deepcopy(TauCVTransformPrototype)
+shrinkingConePFTauTancCVTransform.PFTauDecayModeSrc            = cms.InputTag("shrinkingConePFTauDecayModeIndexProducer")
+shrinkingConePFTauTancCVTransform.PFTauDiscriminantToTransform = cms.InputTag('shrinkingConePFTauDiscriminationByTaNC')
+shrinkingConePFTauTancCVTransform.preDiscriminants             = cms.VInputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut")
+UpdateTransform(shrinkingConePFTauTancCVTransform, TaNC_DecayModeOccupancy)
+
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
