@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.3 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
 boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
-   //std::cout <<"accessFor "<<iClass->GetName()<<std::endl;
+  //std::cout <<"accessFor "<<iClass->GetName()<<std::endl;
    if(iClass->GetCollectionProxy()) {
       return boost::shared_ptr<FWItemAccessorBase>(new FWItemTVirtualCollectionProxyAccessor(iClass,
                                                                                              boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
@@ -82,6 +82,9 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
       if(dataType.DataMemberSize()==1) {
          ROOT::Reflex::Type memType( dataType.DataMemberAt(0).TypeOf() );
          assert(memType != ROOT::Reflex::Type());
+	 //std::cout <<"    memType:"<<memType.Name()<<std::endl;
+	 //make sure this is the real type and not a typedef
+	 memType = memType.FinalType();
          const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
          assert(rootMemType != 0);
          if(rootMemType->GetCollectionProxy()) {
