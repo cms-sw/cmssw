@@ -4,7 +4,7 @@
 
 int main() {
  
-  typdef double T;
+  typedef double T;
   typedef  ROOT::Math::SMatrix<T,2,2,ROOT::Math::MatRepSym<T,2> > SMatDD;
   typedef  ROOT::Math::SMatrix<T,5,5,ROOT::Math::MatRepSym<T,5> > SMatNN;
   typedef  ROOT::Math::SMatrix<T,5,2 > SMatND;

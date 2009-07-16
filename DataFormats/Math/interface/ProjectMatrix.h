@@ -10,7 +10,7 @@ struct ProjectMatrix{
   typedef  ROOT::Math::SMatrix<T,D,D,ROOT::Math::MatRepSym<T,D> > SMatDD;
   typedef  ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > SMatNN;
   typedef  ROOT::Math::SMatrix<T,N,D > SMatND;
-
+  
   // no constructor
   
   // H*S
@@ -21,7 +21,7 @@ struct ProjectMatrix{
 	r(index(i),j) = s(i,j);
     return r;
   }
-
+  
   // K*H
   SMatNN project(SMatND const & k) {
     SMatNN s;
@@ -34,7 +34,7 @@ struct ProjectMatrix{
   // only H(i,index(i))=1.
   unsigned int index[D];
 
-}
+};
 
 
 #endif
