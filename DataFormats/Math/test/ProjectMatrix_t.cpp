@@ -11,7 +11,7 @@ int main() {
   typedef  ROOT::Math::SMatrix<T,2,5 > SMatDN;
 
   
-  double v[3] = {1. -0.5, 2.};
+  double v[3] = {1., -0.5, 2.};
   SMatDD S(v,3);
 
   std::cout << S << std::endl;
