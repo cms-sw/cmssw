@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/13 14:52:55 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/07/14 10:31:19 $
+ *  $Revision: 1.14 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -106,6 +106,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
+  if (!HLTresults.isValid()) return;
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
   unsigned int triggerIndex; // index of trigger path
@@ -170,6 +171,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Find the highest et jet
   Handle<CaloJetCollection> caloJetCollection;
   iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
+  if (!caloJetCollection.isValid()) return;
 
   float jet_et    = -8.0;
   float jet_eta   = -8.0;
