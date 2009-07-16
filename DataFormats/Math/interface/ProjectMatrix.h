@@ -14,7 +14,7 @@ struct ProjectMatrix{
   // no constructor
   
   // H*S
-  SMatND project(SmatDD const & s) {
+  SMatND project(SMatDD const & s) {
     SMatND r;
     for (unsigned int i=0; i<D; i++)
       for (unsigned int j=0; j<D; j++)
@@ -23,12 +23,12 @@ struct ProjectMatrix{
   }
 
   // K*H
-  SMatNN project(SmatND const & k) {
+  SMatNN project(SMatND const & k) {
     SMatNN s;
     for (unsigned int i=0; i<N; i++)
       for (unsigned int j=0; j<D; j++)
 	s(i,index(j)) = k(i,j);
-    return rs
+    return s;
   }
 
   // only H(i,index(i))=1.
