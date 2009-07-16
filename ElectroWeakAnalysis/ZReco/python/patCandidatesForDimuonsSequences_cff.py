@@ -69,7 +69,7 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     cut = cms.double(3.0),
     threshold = cms.double(1.5)
 )
-allLayer1Muons.addTrigMatch = cms.bool(False)
+#allLayer1Muons.addTrigMatch = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
@@ -82,7 +82,7 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 #    matched = cms.InputTag( "patTrigger" ),
 #    andOr          = cms.bool( False ),
 #    filterIdsEnum  = cms.vstring( '*' ),
-#    filterIds      = cms.vuint32( 0 ),
+#    filterIds      = cms.vint32( 0 ),
 #    filterLabels   = cms.vstring( '*' ),
 #    pathNames      = cms.vstring( 'HLT_Mu15' ),
 #    collectionTags = cms.vstring( '*' ),
@@ -97,7 +97,7 @@ muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
-    filterIds      = cms.vuint32( 93 ),
+    filterIds      = cms.vint32( 83 ),
     filterLabels   = cms.vstring( '*' ),
     pathNames      = cms.vstring( '*' ),
     collectionTags = cms.vstring( '*' ),
