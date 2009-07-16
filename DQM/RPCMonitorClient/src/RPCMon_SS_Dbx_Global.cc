@@ -150,7 +150,11 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     string YLabel = RPCname.shortname();
 	     me->setBinLabel(nr, YLabel, 2);
 	   }
+	   
+	   
 	 }
+	 
+
        }
      }
    }	    
