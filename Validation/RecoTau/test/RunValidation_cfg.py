@@ -62,7 +62,7 @@ outputDir = os.path.join(outputDir, subDirName)
 # Store configuration, showtags, etc in a sub directory
 configDir = os.path.join(outputDir, "Config")
 
-if os.path.exists(outputDir):
+if os.path.exists(outputDir) and options.batchNumber < 0:
    print "Output directory %s already exists!  OK to overwrite?" % outputDir
    while True:
       input = raw_input("Please enter [y/n] ")
