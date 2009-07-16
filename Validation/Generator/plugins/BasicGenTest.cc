@@ -40,17 +40,15 @@ void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
        
     dbe->setCurrentFolder("Generator/Particles");
 
-    gluonNumber = dbe->book1D("gluonNumber", "No. gluons", 100, -.5, 9999.5);
+    gluonNumber = dbe->book1D("gluonNumber", "No. gluons", 100, -.5, 299.5);
     dusNumber = dbe->book1D("dusNumber", "No. uds", 20, -.5, 59.5);
     cNumber = dbe->book1D("cNumber", "No. c", 15, -.5, 14.5);
     bNumber = dbe->book1D("bNumber", "No. b", 15, -.5, 14.5);
     tNumber = dbe->book1D("tNumber", "No. t", 6, -.5, 5.5);
     WNumber = dbe->book1D("WNumber", "No. W", 15, -.5, 14.5);
     ZNumber = dbe->book1D("ZNumber", "No. Z", 6, -.5, 5.5);
-
-    particle_number_nogammagluon = dbe->book1D("particle_number_nogammagluon", "No. ptcls & partons by PDGId w/o gamma & gluons", 100, -.5, 99.5);
-    particle_number = dbe->book1D("partnum", "No. ptcls", 100, 99.5, 1199.5);
-    PartonNumber = dbe->book1D("PartonNumber", "No. parton by PDGId ", 100, -.5, 99.5);
+    stablepart = dbe->book1D("stablepart", "No. ptcls", 100, -.5, 1199.5);
+    Part_ID = dbe->book1D("Part_ID", "No. parton by PDGID ", 100, -.5, 99.5);
     // ChargStableNumber = dbe->book1D("ChargStableNumber", "Number of Charged Stable particles per event", 100, -.5, 999.5);
 
     dbe->tag(gluonNumber->getFullname(),1);
@@ -60,9 +58,8 @@ void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
     dbe->tag(tNumber->getFullname(),5);
     dbe->tag(WNumber->getFullname(),6);
     dbe->tag(ZNumber->getFullname(),7);
-    dbe->tag(particle_number_nogammagluon->getFullname(),8);
-    dbe->tag(particle_number->getFullname(),9);
-    dbe->tag(PartonNumber->getFullname(),10);
+    dbe->tag(stablepart->getFullname(),8);
+    dbe->tag(Part_ID->getFullname(),9);
     // dbe->tag(ChargStableNumber->getFullname(),11);
  }
 
@@ -76,6 +73,7 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
 {
  
   int counterstable = 0; // To count "stable", status == 1, particles
+  glunum = 0;
   bnum = 0;
   topnumber = 0;
   Wnum = 0;
@@ -83,10 +81,7 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
   cnum = 0;
   Znum = 0;
   // charstanum = 0;
-  for(int i=0; i < 100; ++i) {
-    part_counter[i] = 0;
-    part_noglu_counter[i] = 0;
-  }
+  for(int i=0; i < 100; ++i) part_counter[i] = 0;
 
   edm::Handle<HepMCProduct> evt;
   
@@ -112,8 +107,7 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
        if(abs(Id) == 23) ++Znum;
        if(abs(Id) == 21) ++glunum;
        if( 0 < Id && 100 > Id) ++part_counter[Id];
-       if( 0 < Id && 100 > Id && Id != 21 && Id != 22) ++ part_noglu_counter[Id];
-       if(status == 1) ++counterstable;
+        if(status == 1) ++counterstable;
 
        // if(charge != 0 && status == 1 && pT < .5){
        // ++charstanum;
@@ -142,11 +136,11 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
   tNumber->Fill(topnumber);
   WNumber->Fill(Wnum);
   ZNumber->Fill(Znum);
-  particle_number->Fill(counterstable);
+  stablepart->Fill(counterstable);
   
   for(int i = 0; i < 100; ++i){
-     PartonNumber->Fill(float(i), float(part_counter[i]));
-     particle_number_nogammagluon->Fill(float(i), float(part_noglu_counter[i]));  
+     Part_ID->Fill(float(i), float(part_counter[i]));
+     
    }
    //     ChargStableNumber->Fill(charstanum);
  }

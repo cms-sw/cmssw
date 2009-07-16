@@ -43,7 +43,7 @@ class BasicGenTest : public edm::EDAnalyzer
   
 private:
   
-  int part_counter[100], part_noglu_counter[100];
+  int part_counter[100];
 
   int glunum, dusnum, cnum, bnum, topnumber, Wnum, Znum; /// charstanum;
   
@@ -56,9 +56,8 @@ private:
   MonitorElement *tNumber;
   MonitorElement *WNumber;
   MonitorElement *ZNumber;
-  MonitorElement *particle_number_nogammagluon;
-  MonitorElement *particle_number; 
-  MonitorElement *PartonNumber;
+  MonitorElement *stablepart; 
+  MonitorElement *Part_ID;
   //  MonitorElement *ChargStableNumber;
 };
 
