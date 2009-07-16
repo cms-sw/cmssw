@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/06/30 13:15:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/07/14 15:22:21 $
+ *  $Revision: 1.2 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -49,7 +49,8 @@ class EwkDQM : public edm::EDAnalyzer {
   std::string logTraceName;
 
   // Variables from config file
-  std::string   theTriggerPathToPass;
+  std::string   theElecTriggerPathToPass;
+  std::string   theMuonTriggerPathToPass;
   edm::InputTag theTriggerResultsCollection;
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theElectronCollectionLabel;
