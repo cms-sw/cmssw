@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/08 11:16:06 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/02/19 11:54:34 $
+ *  $Revision: 1.17 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -38,11 +38,12 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
 
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-  // the name of the rechits collection
-  theRecHitLabel = pset.getParameter<string>("recHitLabel");
   
   prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
+  // top folder for the histograms in DQMStore
+  topHistoFolder = pset.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+
 }
 
 
@@ -115,9 +116,8 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
 
-  // Get the rechit collection from the event
-  Handle<DTRecHitCollection> dtRecHits;
-  event.getByLabel(theRecHitLabel, dtRecHits);
+  // check the validity of the collection 
+  if(!all4DSegments.isValid()) return;
 
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
@@ -256,7 +256,7 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
   
-  theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
 			   "/Station" + station.str());
   // Create the monitor elements

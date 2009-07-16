@@ -10,8 +10,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/11/06 16:02:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/11/20 09:12:47 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -62,8 +62,6 @@ private:
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
-  // Lable of 1D rechits in the event
-  std::string theRecHitLabel;
   
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);
@@ -73,6 +71,10 @@ private:
 		  float residual);
 
   std::map<DTSuperLayerId, std::vector<MonitorElement*> > histosPerSL;
+
+  // top folder for the histograms in DQMStore
+  std::string topHistoFolder;
+
 };
 #endif
 
