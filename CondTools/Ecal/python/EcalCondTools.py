@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.6 2009/07/15 14:05:16 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.7 2009/07/15 14:28:23 argiro Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -10,7 +10,7 @@
 
 #from pluginCondDBPyInterface import *
 from CondCore.Utilities import iovInspector as inspect
-from ROOT import TCanvas,TH1F, TH2F
+from ROOT import TCanvas,TH1F, TH2F, gStyle
 import EcalPyUtils
 import sys
 
@@ -114,7 +114,7 @@ def compare(tag1,db1,since1,
   else:
       coeff_2_b,coeff_2_e = EcalPyUtils.fromXML(tag2)
 
-    
+  gStyle.SetPalette(1)    
   diff_distro_can = TCanvas("difference","difference")
   diff_distro_can.Divide(2,3)
  
@@ -194,7 +194,7 @@ def getToken(db,tag,since):
        iovlist = iov.list()
        for p in iovlist:
            tmpsince=p[1]
-           if tmpsince==since :
+           if str(tmpsince)==str(since) :
                return p[0]
        print "Could not retrieve token for tag: " , tag, " since: ", since
        sys.exit(0)

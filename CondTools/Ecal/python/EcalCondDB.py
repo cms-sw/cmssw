@@ -157,13 +157,13 @@ if do_dump :
    if not len(tags):
       print "Must specify tag with -t"
       sys.exit(0)
-   EcalCondTools.dumpXML(db,tags[0],outfilename)
+   EcalCondTools.dumpXML(db,tags[0],sinces[0],outfilename)
 
 if do_plot:
    if not len(tags) or not len (sinces):
        print "Must specify tag with -t [tag] -s [since]"
        sys.exit(0)       
-   EcalCondTools.plot(db,tags[0],outfilename) 
+   EcalCondTools.plot(db,tags[0],sinces[0],outfilename) 
  
 if do_comp:
    if len(tags) != 2 :
