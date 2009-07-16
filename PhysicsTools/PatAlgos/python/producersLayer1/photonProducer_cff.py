@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # prepare reco information
-from PhysicsTools.PatAlgos.recoLayer0.photonId_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import *
 
 # add PAT specifics
