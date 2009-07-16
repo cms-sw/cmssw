@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <sstream>
 #include "TChain.h"
 #include "TFile.h"
@@ -39,9 +40,9 @@ TString mainNamePt("hResolPtGenVSMu");
 TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
 TString mainNamePhi("hResolPhiGenVSMu");
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta );
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta, const int minEntries = 100 );
 
-void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
+void ResolDraw(const TString numString = "0", const bool doHalfEta = false, const int minEntries = 100) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
@@ -85,18 +86,21 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   // List of Files
   FileList->Add( TFile::Open(numString+"_MuScleFit.root") );    // 1
 
-  draw( Target, FileList, vecNames, doHalfEta );
+  draw( Target, FileList, vecNames, doHalfEta, minEntries );
 
   Target->Close();
 }
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta ) {
+void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta, const int minEntries ) {
 
   //  cout << "Target path: " << target->GetPath() << endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
   path.Remove( 0, 2 );
 
   TFile *first_source = (TFile*)sourcelist->First();
+
+  // Stores all the fits
+  map<TString, vector<TH1D*> > fitHistograms;
 
   first_source->cd( path );
   TDirectory *current_sourcedir = gDirectory;
@@ -160,42 +164,45 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               TH1D * temp = h2->ProjectionY(fitName+fitNum.str(),x,x);
               TH1D * temp2 = h2->ProjectionY(fitName+fitNum.str(),xBins+1-x,xBins+1-x);
               temp->Add(temp2);
-              temp->Fit("gaus");
-              double sigma = temp->GetFunction("gaus")->GetParameter(2);
-              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
-              double rms = temp->GetRMS();
-              double rmsError = temp->GetRMSError();
-              // cout << "sigma = " << rms << endl;
-              // cout << "sigma error = " << rmsError << endl;
-              // cout << "rms = " << rms << endl;
-              // cout << "rms error = " << rmsError << endl;
-              // Reverse x in the first half to the second half.
-              int xToFill = x;
-              // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
-              if( *namesIt == mainNamePt+"_ResoVSEta" ) {
-                cout << mainNamePt+"_ResoVSEta" << endl;
-                if( x<xBins/2+1 ) xToFill = xBins+1 - x;
-              }
-              // cout << "x = " << x << ", xToFill = " << xToFill << endl;
-              // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
-              h1->SetBinContent(x, sigma);
-              h1->SetBinError(x, sigmaError);
-              h1->SetBinContent(xBins+1-x, 0);
-              h1->SetBinError(xBins+1-x, 0);
+              if( temp->GetEntries() > minEntries ) {
+                fitHistograms[*namesIt].push_back(temp);
+                temp->Fit("gaus");
+                double sigma = temp->GetFunction("gaus")->GetParameter(2);
+                double sigmaError = temp->GetFunction("gaus")->GetParError(2);
+                double rms = temp->GetRMS();
+                double rmsError = temp->GetRMSError();
+                // cout << "sigma = " << rms << endl;
+                // cout << "sigma error = " << rmsError << endl;
+                // cout << "rms = " << rms << endl;
+                // cout << "rms error = " << rmsError << endl;
+                // Reverse x in the first half to the second half.
+                int xToFill = x;
+                // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
+                if( *namesIt == mainNamePt+"_ResoVSEta" ) {
+                  cout << mainNamePt+"_ResoVSEta" << endl;
+                  if( x<xBins/2+1 ) xToFill = xBins+1 - x;
+                }
+                // cout << "x = " << x << ", xToFill = " << xToFill << endl;
+                // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
+                h1->SetBinContent(x, sigma);
+                h1->SetBinError(x, sigmaError);
+                h1->SetBinContent(xBins+1-x, 0);
+                h1->SetBinError(xBins+1-x, 0);
 
-              h1RMS->SetBinContent(x, rms);
-              h1RMS->SetBinError(x, rmsError);
-              h1RMS->SetBinContent(xBins+1-x, 0);
-              h1RMS->SetBinError(xBins+1-x, 0);
-              // h2->ProjectionY("_px",x,x)->Write();
-              fits->cd();
-              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
-              temp->Draw();
-              TF1 * gaussian = temp->GetFunction("gaus");
-              gaussian->SetLineColor(kRed);
-              gaussian->Draw("same");
-              //canvas->Write();
-              temp->Write();
+                h1RMS->SetBinContent(x, rms);
+                h1RMS->SetBinError(x, rmsError);
+                h1RMS->SetBinContent(xBins+1-x, 0);
+                h1RMS->SetBinError(xBins+1-x, 0);
+                // h2->ProjectionY("_px",x,x)->Write();
+                fits->cd();
+                TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
+                temp->Draw();
+                TF1 * gaussian = temp->GetFunction("gaus");
+                gaussian->SetLineColor(kRed);
+                gaussian->Draw("same");
+                //canvas->Write();
+                temp->Write();
+              }
             }
             target->cd();
             profile->Write();
@@ -212,37 +219,42 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               TString fitName(*namesIt);
               fitName += "_fit_";
               TH1D * temp = h2->ProjectionY(fitName+fitNum.str(),x,x);
-              temp->Fit("gaus");
 
-              // double rms = temp->GetRMS();
-              // double rmsError = temp->GetRMSError();
+              if( temp->GetEntries() > minEntries ) {
 
-              double sigma = temp->GetFunction("gaus")->GetParameter(2);
-              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
-              double rms = temp->GetRMS();
-              double rmsError = temp->GetRMSError();
-              if( sigma != sigma ) cout << "value is NaN: rms = " << rms << endl; 
-              if( sigma == sigma ) {
+                fitHistograms[*namesIt].push_back(temp);
+                temp->Fit("gaus");
 
-                cout << "rms = " << rms << endl;
-                cout << "rms error = " << rmsError << endl;
+                // double rms = temp->GetRMS();
+                // double rmsError = temp->GetRMSError();
 
-                // NaN is the only value different from itself. Infact NaN is "not a number"
-                // and it is not equal to any value, including itself.
-                h1->SetBinContent(x, sigma);
-                h1->SetBinError(x, sigmaError);
-                h1RMS->SetBinContent(x, rms);
-                h1RMS->SetBinError(x, rmsError);
+                double sigma = temp->GetFunction("gaus")->GetParameter(2);
+                double sigmaError = temp->GetFunction("gaus")->GetParError(2);
+                double rms = temp->GetRMS();
+                double rmsError = temp->GetRMSError();
+                if( sigma != sigma ) cout << "value is NaN: rms = " << rms << endl; 
+                if( sigma == sigma ) {
+
+                  cout << "rms = " << rms << endl;
+                  cout << "rms error = " << rmsError << endl;
+
+                  // NaN is the only value different from itself. Infact NaN is "not a number"
+                  // and it is not equal to any value, including itself.
+                  h1->SetBinContent(x, sigma);
+                  h1->SetBinError(x, sigmaError);
+                  h1RMS->SetBinContent(x, rms);
+                  h1RMS->SetBinError(x, rmsError);
+                }
+                // h2->ProjectionY("_px",x,x)->Write();
+                fits->cd();
+                TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
+                temp->Draw();
+                TF1 * gaussian = temp->GetFunction("gaus");
+                gaussian->SetLineColor(kRed);
+                gaussian->Draw("same");
+                // canvas->Write();
+                temp->Write();
               }
-              // h2->ProjectionY("_px",x,x)->Write();
-              fits->cd();
-              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
-              temp->Draw();
-              TF1 * gaussian = temp->GetFunction("gaus");
-              gaussian->SetLineColor(kRed);
-              gaussian->Draw("same");
-              // canvas->Write();
-              temp->Write();
             }
             target->cd();
             profile->Write();
@@ -286,6 +298,26 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
     }
 
   } // while ( ( TKey *key = (TKey*)nextkey() ) )
+
+  // Save canvases of the fitted histograms
+  map<TString, vector<TH1D*> >::const_iterator mapIt = fitHistograms.begin();
+  for( ; mapIt != fitHistograms.end(); ++mapIt ) {
+    TCanvas * canvas = new TCanvas(mapIt->first, mapIt->first, 1000, 800);
+
+    int sizeCheck = mapIt->second.size();
+    int x = int(sqrt(sizeCheck));
+    int y = x;
+    if( x*y < sizeCheck ) y += 1;
+    if( x*y < sizeCheck ) x += 1;
+    canvas->Divide(x,y);
+    vector<TH1D*>::const_iterator histoIt = mapIt->second.begin();
+    int histoNum = 1;
+    for( ; histoIt != mapIt->second.end(); ++histoIt, ++histoNum ) {
+      canvas->cd(histoNum);
+      (*histoIt)->Draw();
+    }
+    canvas->Write();
+  }
 
   // save modifications to target file
   target->SaveSelf(kTRUE);
