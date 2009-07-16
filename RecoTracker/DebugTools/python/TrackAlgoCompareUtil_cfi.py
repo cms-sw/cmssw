@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 trackAlgoCompareUtil = cms.EDProducer("TrackAlgoCompareUtil",
+
     # recoTrack labels A and B
     trackLabel_algoA = cms.InputTag("generalTracks"),
     trackLabel_algoB = cms.InputTag("generalTracks"),
@@ -18,11 +19,11 @@ trackAlgoCompareUtil = cms.EDProducer("TrackAlgoCompareUtil",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
 
     # associator label (by hits default)
+    UseAssociators = cms.bool(True),
     assocLabel_algoA = cms.untracked.string('TrackAssociatorByHits'),
     assocLabel_algoB = cms.untracked.string('TrackAssociatorByHits'),
     
-    # if an asociation map exist in the event, use it--its faster
-    UseAssociators = cms.bool(False),
+    # if an asociation map exist in the event, use it--its faster (set UseAssociatos = cms.bool(False)
     associatormap_algoA = cms.InputTag("trackingParticleRecoTrackAsssociation"),
     associatormap_algoB = cms.InputTag("trackingParticleRecoTrackAsssociation")
 )

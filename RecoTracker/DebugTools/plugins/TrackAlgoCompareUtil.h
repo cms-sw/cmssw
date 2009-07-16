@@ -83,7 +83,8 @@ class TrackAlgoCompareUtil : public edm::EDProducer
   edm::InputTag associatormap_algoB;
   bool UseAssociators;
   bool UseVertex;
-  std::string assocLabel;     
+  std::string assocLabel_algoA;     
+  std::string assocLabel_algoB;     
   
 };
 
