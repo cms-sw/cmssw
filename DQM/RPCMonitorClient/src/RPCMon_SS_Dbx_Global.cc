@@ -119,7 +119,9 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	       rpcUtils.labelYAxisRing(me, numberOfRings_);
 	       
 	     }
-	     me->Fill(seg, (id.ring()-1)*3+id.roll()); 
+	     int yBin;
+	     (numberOfRings_ == 3 ? yBin= id.ring()*3-id.roll()+1 : yBin= (id.ring()-1)*3-id.roll()+1);	     
+	     me->Fill(seg, yBin); 
 	   } else { // Barrel ( region == 0 ).
 	     
 	     name.str("");
@@ -132,10 +134,10 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	       rpcUtils.labelXAxisSector( me);
 	       rpcUtils.labelYAxisRoll(me, 0, id.ring());
 	     }
-	   } 
-	   me->Fill(id.sector(),nr);
-	 }//Barrel
-       }//End loop on digi2
+	     me->Fill(id.sector(),nr);
+	   }//Barrel
+	 }
+       }
      }
    }
  }
