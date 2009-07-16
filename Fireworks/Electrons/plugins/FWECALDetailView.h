@@ -10,7 +10,7 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWECALDetailView.h,v 1.4 2009/06/05 20:00:33 amraktad Exp $
+// $Id: FWECALDetailView.h,v 1.5 2009/07/16 11:23:25 amraktad Exp $
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -59,6 +59,10 @@ protected:
 
    void addTrackPointsInCaloData(const T*, int, TEveCaloDataVec*);
    void drawCrossHair(const T*, int, TEveCaloLego*, TEveElementList*);
+
+   Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
+
+   Double_t m_unitCM;
 
 protected:
    // ---------- member data --------------------------------
