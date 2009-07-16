@@ -8,7 +8,7 @@
 template<typename T, unsigned int N, unsigned int D>
 struct ProjectMatrix{
   typedef  ROOT::Math::SMatrix<T,D,D,ROOT::Math::MatRepSym<T,D> > SMatDD;
-  typedef  ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > SMatNN;
+  typedef  ROOT::Math::SMatrix<T,N,N > SMatNN;
   typedef  ROOT::Math::SMatrix<T,N,D > SMatND;
   
   // no constructor
