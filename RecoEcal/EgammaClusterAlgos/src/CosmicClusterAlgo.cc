@@ -75,7 +75,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  }
   
           // if rechit affected by features other than these, do not allow if seeding  
-	  uint32_t rhFlag = (*it).flags();
+	  uint32_t rhFlag = (*it).recoFlag();
           if (!(
 		rhFlag == EcalRecHit::kGood      ||
 		rhFlag == EcalRecHit::kOutOfTime ||
