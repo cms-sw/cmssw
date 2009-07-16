@@ -7,18 +7,45 @@ heavyFlavorValidationHarvesting = cms.EDAnalyzer("DQMGenericClient",
   commands       = cms.vstring(),
   resolution     = cms.vstring(),                                    
   efficiency     = cms.vstring(
-    "eff_HLT_Mu3 'HLT_Mu3 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_Mu3 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_Mu5 'HLT_Mu5 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_Mu5 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_Mu7 'HLT_Mu7 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_Mu7 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_Mu9 'HLT_Mu9 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_Mu9 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3 'HLT_DoubleMu3 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3_JPsi 'HLT_DoubleMu3_JPsi / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3_JPsi denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3_Upsilon 'HLT_DoubleMu3_Upsilon / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3_Upsilon denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3_SameSign 'HLT_DoubleMu3_SameSign / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3_SameSign denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3_BJPsi 'HLT_DoubleMu3_BJPsi / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3_BJPsi denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleMu3_Vtx2mm 'HLT_DoubleMu3_Vtx2mm / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleMu3_Vtx2mm denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_DoubleIsoMu3 'HLT_DoubleIsoMu3 / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_DoubleIsoMu3 denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_L1Mu 'HLT_L1Mu / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_L1Mu denominator_genGlobQuarkonium_recoPt",
-    "eff_HLT_L1MuOpen 'HLT_L1MuOpen / Global Quarkonium;Global Quarkonium p_{T} (GeV);Efficiency' HLT_L1MuOpen denominator_genGlobQuarkonium_recoPt"
+    "HLT_DoubleMu0/eff_genGlobDimuonPath 'HLT_DoubleMu0 / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu0/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_DoubleMu0/eff_genGlobL1Dimuon 'HLT_DoubleMu0 (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu0/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_DoubleMu0/eff_genGlobL1L2L2vDimuon 'HLT_DoubleMu0 (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu0/genGlobL1L2L2vDimuon_recoPt HLT_DoubleMu0/genGlobL1Dimuon_recoPt",
+    "HLT_DoubleMu0/eff_genGlobL1L2L2vL3Dimuon 'HLT_DoubleMu0 (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu0/genGlobL1L2L2vL3Dimuon_recoPt HLT_DoubleMu0/genGlobL1L2L2vDimuon_recoPt",
+
+    "HLT_DoubleMu3/eff_genGlobDimuonPath 'HLT_DoubleMu3 / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu3/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_DoubleMu3/eff_genGlobL1Dimuon 'HLT_DoubleMu3 (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu3/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_DoubleMu3/eff_genGlobL1L2L2vDimuon 'HLT_DoubleMu3 (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu3/genGlobL1L2L2vDimuon_recoPt HLT_DoubleMu3/genGlobL1Dimuon_recoPt",
+    "HLT_DoubleMu3/eff_genGlobL1L2L2vL3Dimuon 'HLT_DoubleMu3 (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_DoubleMu3/genGlobL1L2L2vL3Dimuon_recoPt HLT_DoubleMu3/genGlobL1L2L2vDimuon_recoPt",
+
+    "HLT_L1DoubleMuOpen/eff_genGlobDimuonPath 'HLT_L1DoubleMuOpen / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1DoubleMuOpen/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1DoubleMuOpen/eff_genGlobL1Dimuon 'HLT_L1DoubleMuOpen (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1DoubleMuOpen/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1DoubleMuOpen/eff_genGlobL1L2L2vDimuon 'HLT_L1DoubleMuOpen (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1DoubleMuOpen/genGlobL1L2L2vDimuon_recoPt HLT_L1DoubleMuOpen/genGlobL1Dimuon_recoPt",
+    "HLT_L1DoubleMuOpen/eff_genGlobL1L2L2vL3Dimuon 'HLT_L1DoubleMuOpen (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1DoubleMuOpen/genGlobL1L2L2vL3Dimuon_recoPt HLT_L1DoubleMuOpen/genGlobL1L2L2vDimuon_recoPt",
+
+    "HLT_L1Mu/eff_genGlobDimuonPath 'HLT_L1Mu / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1Mu/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1Mu/eff_genGlobL1Dimuon 'HLT_L1Mu (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1Mu/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1Mu/eff_genGlobL1L2L2vDimuon 'HLT_L1Mu (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1Mu/genGlobL1L2L2vDimuon_recoPt HLT_L1Mu/genGlobL1Dimuon_recoPt",
+    "HLT_L1Mu/eff_genGlobL1L2L2vL3Dimuon 'HLT_L1Mu (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1Mu/genGlobL1L2L2vL3Dimuon_recoPt HLT_L1Mu/genGlobL1L2L2vDimuon_recoPt",
+
+    "HLT_L1MuOpen/eff_genGlobDimuonPath 'HLT_L1MuOpen / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1MuOpen/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1MuOpen/eff_genGlobL1Dimuon 'HLT_L1MuOpen (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1MuOpen/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_L1MuOpen/eff_genGlobL1L2L2vDimuon 'HLT_L1MuOpen (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1MuOpen/genGlobL1L2L2vDimuon_recoPt HLT_L1MuOpen/genGlobL1Dimuon_recoPt",
+    "HLT_L1MuOpen/eff_genGlobL1L2L2vL3Dimuon 'HLT_L1MuOpen (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_L1MuOpen/genGlobL1L2L2vL3Dimuon_recoPt HLT_L1MuOpen/genGlobL1L2L2vDimuon_recoPt",
+
+    "HLT_Mu3/eff_genGlobDimuonPath 'HLT_Mu3 / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_Mu3/genGlobDimuonPath_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_Mu3/eff_genGlobL1Dimuon 'HLT_Mu3 (L1) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_Mu3/genGlobL1Dimuon_recoPt OfflineMuons/genGlobDimuon_recoPt",
+    "HLT_Mu3/eff_genGlobL1L2L2vDimuon 'HLT_Mu3 (L2) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_Mu3/genGlobL1L2L2vDimuon_recoPt HLT_Mu3/genGlobL1Dimuon_recoPt",
+    "HLT_Mu3/eff_genGlobL1L2L2vL3Dimuon 'HLT_Mu3 (L3) / Global Dimuon;Global Dimuon p_{T} (GeV);Efficiency' HLT_Mu3/genGlobL1L2L2vL3Dimuon_recoPt HLT_Mu3/genGlobL1L2L2vDimuon_recoPt",
+
+    "OfflineMuons/eff_genGlobDimuon 'Global Dimuon / Generated Dimuon;Generated Dimuon p_{T} (GeV);Efficiency' OfflineMuons/genGlobDimuon_genPt OfflineMuons/genDimuon_genPt",
+
+    "dR/eff_genGlobDimuon 'Global Dimuon / Generated Dimuon;Generated Dimuon dR At IP;Efficiency' dR/genGlobDimuon_dR dR/genDimuon_dR",
+    "dR/eff_genGlobL1Dimuon 'L1 Dimuon / Global Dimuon;Global Dimuon dR At IP;Efficiency' dR/genGlobL1Dimuon_dR dR/genGlobDimuon_dR",
+    "dR/eff_genGlobL1L2L2vDimuon 'L2 Dimuon / Global Dimuon;Global Dimuon dR At IP;Efficiency' dR/genGlobL1L2L2vDimuon_dR dR/genGlobL1Dimuon_dR",
+    "dR/eff_genGlobL1L2L2vL3Dimuon 'L3 Dimuon / Global Dimuon;Global Dimuon dR At IP;Efficiency' dR/genGlobL1L2L2vL3Dimuon_dR dR/genGlobL1L2L2vDimuon_dR",
+
+    "dR/eff_genGlobL1Dimuon_pos 'L1 Dimuon / Global Dimuon;Global Dimuon dR in Muon System;Efficiency' dR/genGlobL1Dimuon_dRpos dR/genGlobDimuon_dRpos",
+    "dR/eff_genGlobL1L2L2vDimuon_pos 'L2 Dimuon / Global Dimuon;Global Dimuon dR in Muon System;Efficiency' dR/genGlobL1L2L2vDimuon_dRpos dR/genGlobL1Dimuon_dRpos",
+    "dR/eff_genGlobL1L2L2vL3Dimuon_pos 'L3 Dimuon / Global Dimuon;Global Dimuon dR in Muon System;Efficiency' dR/genGlobL1L2L2vL3Dimuon_dRpos dR/genGlobL1L2L2vDimuon_dRpos"
   )
 )

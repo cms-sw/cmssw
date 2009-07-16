@@ -31,6 +31,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -45,7 +46,8 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace l1extra;
-  
+using namespace trigger;
+
 class HeavyFlavorValidation : public edm::EDAnalyzer {
   public:
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
@@ -54,8 +56,10 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     virtual void beginJob(const edm::EventSetup&) ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
+    bool containsIndex(vector<RecoChargedCandidateRef> &v, size_t i);
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
+    string processName;
     string dqmFolder;
     InputTag genParticlesTag;   
     InputTag l1MuonsTag;   
@@ -71,12 +75,9 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     int massN;
     double massLower;
     double massUpper;
-    int ptN;
-    double ptMin;
-    double ptMax;
-    int etaN;
-    double etaMin;
-    double etaMax;
+    vector<float> muonPtBins;
+    vector<float> dimuonPtBins;
+    vector<float> muonEtaBins;
     int deltaEtaN;
     double deltaEtaMin;
     double deltaEtaMax;
@@ -89,17 +90,22 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     double globL2vDeltaRMatchingCut;
     double globL3DeltaRMatchingCut;
     DQMStore* dqmStore;
-    map<string, MonitorElement *> muonMultiplicityME;
-    map<string, MonitorElement *> muonME;
-    vector<MonitorElement *> triggerPathME;
-    map<string, MonitorElement *> dimuonME;
+//     map<string, MonitorElement *> muonMultiplicityME;
+    vector<map<string, MonitorElement *> > pathME;
+    map<string, MonitorElement *> offlineME;
+//     vector<MonitorElement *> triggerPathME;
+//     map<string, MonitorElement *> dimuonME;
     map<string, MonitorElement *> massME;
     map<string, MonitorElement *> dRME;
+    map<string, MonitorElement *> matchingME;
     double muonMass;
+    vector<vector<string> > filterNames;
+    vector<int> pathIndices;
 };
 
 HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
 //get parameters
+  processName = pset.getUntrackedParameter<string>("ProcessName");
   dqmFolder = pset.getUntrackedParameter<string>("DQMFolder");
   genParticlesTag = pset.getParameter<InputTag>("GenParticles");
   l1MuonsTag = pset.getParameter<InputTag>("L1Muons");
@@ -115,12 +121,18 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
   massN = pset.getUntrackedParameter<int>("massN");
   massLower = pset.getUntrackedParameter<double>("massLower");
   massUpper = pset.getUntrackedParameter<double>("massUpper");
-  ptN = pset.getUntrackedParameter<int>("ptN");
-  ptMin = pset.getUntrackedParameter<double>("ptMin");
-  ptMax = pset.getUntrackedParameter<double>("ptMax");
-  etaN = pset.getUntrackedParameter<int>("etaN");
-  etaMin = pset.getUntrackedParameter<double>("etaMin");
-  etaMax = pset.getUntrackedParameter<double>("etaMax");
+  vector<double> tmp = pset.getUntrackedParameter<vector<double> >("muonPtBins");
+  for(size_t i=0;i<tmp.size();i++){
+    muonPtBins.push_back(tmp[i]);
+  }
+  tmp = pset.getUntrackedParameter<vector<double> >("dimuonPtBins");
+  for(size_t i=0;i<tmp.size();i++){
+    dimuonPtBins.push_back(tmp[i]);
+  }
+  tmp = pset.getUntrackedParameter<vector<double> >("muonEtaBins");
+  for(size_t i=0;i<tmp.size();i++){
+    muonEtaBins.push_back(tmp[i]);
+  }
   deltaEtaN = pset.getUntrackedParameter<int>("deltaEtaN");
   deltaEtaMin = pset.getUntrackedParameter<double>("deltaEtaMin");
   deltaEtaMax = pset.getUntrackedParameter<double>("deltaEtaMax");
@@ -134,6 +146,38 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
   globL3DeltaRMatchingCut = pset.getUntrackedParameter<double>("GlobL3DeltaRMatchingCut");
   muonMass = 0.106;
   
+//discover HLT configuration
+  HLTConfigProvider hltConfig;
+  hltConfig.init(processName);
+  vector<string> triggerNames = hltConfig.triggerNames();
+  for( size_t i = 0; i < triggerNames.size(); i++) {
+    TString triggerName = triggerNames[i];
+    if (triggerName.Contains("Mu") && !triggerName.Contains("Iso") && !TString(triggerName(4,triggerName.Length())).Contains("_") && !(TString(triggerName(triggerName.First("Mu")+2,triggerName.Length())).Atoi()>3) ){ 
+      vector<string> filters(4);
+      filters[0] = triggerNames[i];
+      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      for( size_t j = 0; j < moduleNames.size(); j++) {
+        TString name = moduleNames[j];
+        if(name.Contains("Filtered") && !name.Contains("Iso")){
+          if(name.Contains("L1")){
+            filters[1] = name;
+          }
+          if(name.Contains("L2")){
+            filters[2] = name;
+          }
+          if(name.Contains("L3")){
+            filters[3] = name;
+          }
+        }
+      }
+      filterNames.push_back(filters);
+      pathIndices.push_back(i);
+    }
+  }
+  for(size_t i=0; i<filterNames.size(); i++){
+    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<filterNames[i][0]<<" Filters: "<<filterNames[i][1]<<",  "<<filterNames[i][2]<<", "<<filterNames[i][3]<<endl;
+  }
+
 //create Monitor Elements
   dqmStore = Service<DQMStore>().operator->();  
   if( !dqmStore ){
@@ -141,11 +185,46 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
     return;
   }
   dqmStore->setVerbose(0);
-
-//muon multiplicity
-  dqmStore->setCurrentFolder(dqmFolder+"/MuonMultiplicity");
-  const int muonMultiplicityMEsize = 6;
+ 
+//per path monitoring elements
+  const int muonMultiplicityMEsize = 3;
   string muonMultiplicityMEnames[muonMultiplicityMEsize] = {
+    "l1Muon_size",
+    "l2vMuon_size",
+    "l3Muon_size"
+  };
+  const int muonMEsize = 3;
+  string muonMEnames[muonMEsize] = {
+    "genGlobL1Muon_recoPtEta",
+    "genGlobL1L2L2vMuon_recoPtEta",
+    "genGlobL1L2L2vL3Muon_recoPtEta"
+  };
+  const int dimuonMEsize = 4;
+  string dimuonMEnames[dimuonMEsize] = {
+    "genGlobL1Dimuon_recoPt",
+    "genGlobL1L2L2vDimuon_recoPt",
+    "genGlobL1L2L2vL3Dimuon_recoPt",
+    "genGlobDimuonPath_recoPt"
+  };
+  for(size_t path=0; path<filterNames.size(); path++){
+    dqmStore->setCurrentFolder((dqmFolder+"/")+filterNames[path][0]);
+    map<string, MonitorElement *> tmp;
+    for(int i=0;i<muonMultiplicityMEsize;i++){
+      tmp[muonMultiplicityMEnames[i]] = dqmStore->book1D( muonMultiplicityMEnames[i], muonMultiplicityMEnames[i], 10,-0.5,9.5 );
+    }
+    for(int i=0;i<muonMEsize;i++){
+      tmp[muonMEnames[i]] = dqmStore->book2D( muonMEnames[i], muonMEnames[i], muonPtBins.size()-1, &muonPtBins[0], muonEtaBins.size()-1, &muonEtaBins[0] );
+    }
+    for(int i=0;i<dimuonMEsize;i++){
+      tmp[dimuonMEnames[i]] = dqmStore->book1D( dimuonMEnames[i], dimuonMEnames[i], dimuonPtBins.size()-1, &dimuonPtBins[0] );
+    }
+    pathME.push_back(tmp);
+  }
+  
+//per event offline monitoring elements
+  dqmStore->setCurrentFolder(dqmFolder+"/OfflineMuons");
+  const int offlineMuonMultiplicityMEsize = 6;
+  string offlineMuonMultiplicityMEnames[offlineMuonMultiplicityMEsize] = {
     "genMuon_size",
     "globMuon_size",
     "l1Muon_size",
@@ -153,57 +232,27 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
     "l2vMuon_size",
     "l3Muon_size"
   };
-  for(int i=0;i<muonMultiplicityMEsize;i++){
-    muonMultiplicityME[muonMultiplicityMEnames[i]] = dqmStore->book1D( muonMultiplicityMEnames[i].c_str(), muonMultiplicityMEnames[i].c_str(), 10,-0.5,9.5 );
+  for(int i=0;i<offlineMuonMultiplicityMEsize;i++){
+    offlineME[offlineMuonMultiplicityMEnames[i]] = dqmStore->book1D( offlineMuonMultiplicityMEnames[i], offlineMuonMultiplicityMEnames[i], 10,-0.5,9.5 );
   }
-  
-//single muons
-  dqmStore->setCurrentFolder(dqmFolder+"/MuonEfficiencies");
-  const int muonMEsize = 7;
-  string muonMEnames[muonMEsize] = {
+  const int offlineMEsize = 6;
+  string offlineMEnames[offlineMEsize] = {
     "genMuon_genPtEta",
     "genGlobMuon_genPtEta",
     "genGlobMuon_recoPtEta",
-    "genGlobL1Muon_recoPtEta",
-    "genGlobL1L2Muon_recoPtEta",
-    "genGlobL1L2L2vMuon_recoPtEta",
-    "genGlobL1L2L2vL3Muon_recoPtEta"
-  };
-  for(int i=0;i<muonMEsize;i++){
-    muonME[muonMEnames[i]] = dqmStore->book2D( muonMEnames[i].c_str(), muonMEnames[i].c_str(), ptN, ptMin, ptMax, etaN, etaMin, etaMax );
-  }
-  
-//matching
-  dqmStore->setCurrentFolder(dqmFolder+"/MuonMatching");
-  const int matchingSize = 5;
-  string matchingNames[matchingSize] = {
-    "genGlob_deltaEtaDeltaPhi",
-    "globL1_deltaEtaDeltaPhi",
-    "globL2_deltaEtaDeltaPhi",
-    "globL2v_deltaEtaDeltaPhi",
-    "globL3_deltaEtaDeltaPhi"
-  };
-  for(int i=0;i<matchingSize;i++){
-    muonME[matchingNames[i]] = dqmStore->book2D( matchingNames[i].c_str(), matchingNames[i].c_str(), deltaEtaN, deltaEtaMin, deltaEtaMax, deltaPhiN, deltaPhiMin, deltaPhiMax );
-  }
-  
-//dimuons
-//pt dependence  
-  dqmStore->setCurrentFolder(dqmFolder+"/DimuonEfficiencies");
-  const int dimuonMEsize = 7;
-  string dimuonMEnames[dimuonMEsize] = {
     "genDimuon_genPt",
     "genGlobDimuon_genPt",
-    "genGlobDimuon_recoPt",
-    "genGlobL1Dimuon_recoPt",
-    "genGlobL1L2Dimuon_recoPt",
-    "genGlobL1L2L2vDimuon_recoPt",
-    "genGlobL1L2L2vL3Dimuon_recoPt"
+    "genGlobDimuon_recoPt"
   };
-  for(int i=0;i<dimuonMEsize;i++){
-    dimuonME[dimuonMEnames[i]] = dqmStore->book1D( dimuonMEnames[i], dimuonMEnames[i], ptN, ptMin, ptMax );
+  for(int i=0;i<3;i++){
+    offlineME[offlineMEnames[i]] = dqmStore->book2D( offlineMEnames[i], offlineMEnames[i], muonPtBins.size()-1, &muonPtBins[0], muonEtaBins.size()-1, &muonEtaBins[0] );
   }
+  for(int i=3;i<offlineMEsize;i++){
+    offlineME[offlineMEnames[i]] = dqmStore->book1D( offlineMEnames[i], offlineMEnames[i], dimuonPtBins.size()-1, &dimuonPtBins[0] );
+  }
+
 //dR dependence  
+  dqmStore->setCurrentFolder(dqmFolder+"/dR");
   const int dRMEsize = 12;
   string dRMEnames[dRMEsize] = {
     "genDimuon_gendR",
@@ -220,9 +269,23 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
     "genGlobL1L2L2vL3Dimuon_dRpos"
   };
   for(int i=0;i<dRMEsize;i++){
-    dRME[dRMEnames[i]] = dqmStore->book1D( dRMEnames[i].c_str(), dRMEnames[i].c_str(), 50, 0., 1. );
+    dRME[dRMEnames[i]] = dqmStore->book1D( dRMEnames[i], dRMEnames[i], 50, 0., 1. );
   }
 
+//matching
+  dqmStore->setCurrentFolder(dqmFolder+"/MuonMatching");
+  const int matchingSize = 5;
+  string matchingNames[matchingSize] = {
+    "genGlob_deltaEtaDeltaPhi",
+    "globL1_deltaEtaDeltaPhi",
+    "globL2_deltaEtaDeltaPhi",
+    "globL2v_deltaEtaDeltaPhi",
+    "globL3_deltaEtaDeltaPhi"
+  };
+  for(int i=0;i<matchingSize;i++){
+    matchingME[matchingNames[i]] = dqmStore->book2D( matchingNames[i], matchingNames[i], deltaEtaN, deltaEtaMin, deltaEtaMax, deltaPhiN, deltaPhiMin, deltaPhiMax );
+  }
+  
 //dimuon mass resolutions  
   dqmStore->setCurrentFolder(dqmFolder+"/MassResolutions");
   const int massMEsize = 6;
@@ -235,7 +298,7 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
     "genGlobL1L2L2vL3Dimuon_mass"
   };
   for(int i=0;i<massMEsize;i++){
-    massME[massMEnames[i]] = dqmStore->book1D( massMEnames[i].c_str(), massMEnames[i].c_str(), massN, massLower, massUpper );
+    massME[massMEnames[i]] = dqmStore->book1D( massMEnames[i], massMEnames[i], massN, massLower, massUpper );
   }  
 }
 
@@ -247,24 +310,22 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access DQM Store service"<<endl;
     return;
   }
+
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
   iEvent.getByLabel(genParticlesTag, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
-      if( p->status() == 1 && abs(p->pdgId())==13 ){
-        vector<int>::iterator mother = find( motherIDs.begin(), motherIDs.end(), getMotherId( &(*p) ) );
-        if( mother != motherIDs.end() ){
-          genMuons.push_back( *p );
-        }
+      if( p->status() == 1 && abs(p->pdgId())==13 && find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ){
+        genMuons.push_back( *p );
       }  
     }
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access GenParticleCollection"<<endl;
   }
   sort(genMuons.begin(), genMuons.end(), GreaterByPt<LeafCandidate>());
-  muonMultiplicityME["genMuon_size"]->Fill(genMuons.size());
+  offlineME["genMuon_size"]->Fill(genMuons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"GenParticleCollection from "<<genParticlesTag<<" has size: "<<genMuons.size()<<endl;
   
   vector<LeafCandidate> globMuons;
@@ -281,7 +342,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access reco Muons"<<endl;
   }
-  muonMultiplicityME["globMuon_size"]->Fill(globMuons.size());
+  offlineME["globMuon_size"]->Fill(globMuons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"Global Muons from "<<recoMuonsTag<<" has size: "<<globMuons.size()<<endl;
 
   vector<LeafCandidate> l1Muons;
@@ -298,7 +359,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access L1Muons"<<endl;
   }
-  muonMultiplicityME["l1Muon_size"]->Fill(l1Muons.size());
+  offlineME["l1Muon_size"]->Fill(l1Muons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"L1 Muons from "<<l1MuonsTag<<" has size: "<<l1Muons.size()<<endl;
   
   vector<LeafCandidate> l2Muons;
@@ -313,7 +374,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access L2Muons"<<endl;
   }
-  muonMultiplicityME["l2Muon_size"]->Fill(l2Muons.size());
+  offlineME["l2Muon_size"]->Fill(l2Muons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"L2 Muons from "<<l2MuonsTag<<" has size: "<<l2Muons.size()<<endl;
   
   vector<LeafCandidate> l2vMuons;
@@ -328,7 +389,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access L2Muons updated at vertex"<<endl;
   }
-  muonMultiplicityME["l2vMuon_size"]->Fill(l2vMuons.size());
+  offlineME["l2vMuon_size"]->Fill(l2vMuons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"L2 updatedAtVertex Muons from "<<l2vMuonsTag<<" has size: "<<l2vMuons.size()<<endl;
 
   vector<LeafCandidate> l3Muons;
@@ -341,7 +402,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }else{
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access L3Muons"<<endl;
   }   
-  muonMultiplicityME["l3Muon_size"]->Fill(l3Muons.size());
+  offlineME["l3Muon_size"]->Fill(l3Muons.size());
   LogDebug("HLTriggerOfflineHeavyFlavor")<<"L3 Muons from "<<l3MuonsTag<<" has size: "<<l3Muons.size()<<endl;
  
 //create matching maps
@@ -350,33 +411,73 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<int> l2_glob(globMuons.size(),-1);
   vector<int> l2v_glob(globMuons.size(),-1);
   vector<int> l3_glob(globMuons.size(),-1);
-  match( muonME["genGlob_deltaEtaDeltaPhi"], genMuons, globMuons, genGlobDeltaRMatchingCut, glob_gen );
-  match( muonME["globL1_deltaEtaDeltaPhi"], globMuons_position, l1Muons ,globL1DeltaRMatchingCut, l1_glob );
-  match( muonME["globL2_deltaEtaDeltaPhi"], globMuons_position, l2Muons_position, globL2DeltaRMatchingCut, l2_glob );
-  match( muonME["globL2v_deltaEtaDeltaPhi"], globMuons_position, l2vMuons_position, globL2vDeltaRMatchingCut, l2v_glob );
-  match( muonME["globL3_deltaEtaDeltaPhi"], globMuons, l3Muons, globL3DeltaRMatchingCut, l3_glob );
+  match( matchingME["genGlob_deltaEtaDeltaPhi"], genMuons, globMuons, genGlobDeltaRMatchingCut, glob_gen );
+  match( matchingME["globL1_deltaEtaDeltaPhi"], globMuons_position, l1Muons ,globL1DeltaRMatchingCut, l1_glob );
+  match( matchingME["globL2_deltaEtaDeltaPhi"], globMuons_position, l2Muons_position, globL2DeltaRMatchingCut, l2_glob );
+  match( matchingME["globL2v_deltaEtaDeltaPhi"], globMuons_position, l2vMuons_position, globL2vDeltaRMatchingCut, l2v_glob );
+  match( matchingME["globL3_deltaEtaDeltaPhi"], globMuons, l3Muons, globL3DeltaRMatchingCut, l3_glob );
 
-//fill single muon histograms
+//get the trigger event and copy trigger decisions 
+  vector<vector<L1MuonParticleRef> > l1Cands;
+  vector<vector<RecoChargedCandidateRef> > l2Cands;
+  vector<vector<RecoChargedCandidateRef> > l3Cands;
+  for(size_t path=0; path<filterNames.size(); path++){
+    l1Cands.push_back( vector<L1MuonParticleRef>() );
+    l2Cands.push_back( vector<RecoChargedCandidateRef>() );
+    l3Cands.push_back( vector<RecoChargedCandidateRef>() );
+  }  
+  
+  Handle<TriggerEventWithRefs> rawTriggerEvent;
+  iEvent.getByLabel( "hltTriggerSummaryRAW", rawTriggerEvent );
+  if( rawTriggerEvent.isValid() ){
+    for(size_t path=0; path<filterNames.size(); path++){
+      size_t indexL1 = rawTriggerEvent->filterIndex(InputTag( filterNames[path][1], "", processName ));
+      if ( indexL1 < rawTriggerEvent->size() ){
+          rawTriggerEvent->getObjects( indexL1, TriggerL1Mu, l1Cands[path] );
+      }  
+      pathME[path]["l1Muon_size"]->Fill(l1Cands[path].size());
+      size_t indexL2 = rawTriggerEvent->filterIndex(InputTag( filterNames[path][2], "", processName ));
+      if ( indexL2 < rawTriggerEvent->size() ){
+          rawTriggerEvent->getObjects( indexL2, TriggerMuon, l2Cands[path] );
+      }
+      pathME[path]["l2vMuon_size"]->Fill(l2Cands[path].size());
+      size_t indexL3 = rawTriggerEvent->filterIndex(InputTag( filterNames[path][3], "", processName ));
+      if ( indexL3 < rawTriggerEvent->size() ){
+          rawTriggerEvent->getObjects( indexL3, TriggerMuon, l3Cands[path] );
+      }
+      pathME[path]["l3Muon_size"]->Fill(l3Cands[path].size());
+    }
+  }else{
+    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access rawTriggerEvent"<<endl;
+  }
+    
+//fill histos
   for(size_t i=0; i<genMuons.size(); i++){
-    muonME["genMuon_genPtEta"]->Fill(genMuons[i].pt(), genMuons[i].eta());
+    offlineME["genMuon_genPtEta"]->Fill(genMuons[i].pt(), genMuons[i].eta());
     if(glob_gen[i] != -1){
-      muonME["genGlobMuon_genPtEta"]->Fill(genMuons[i].pt(), genMuons[i].eta());
-      muonME["genGlobMuon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
-      if(l1_glob[glob_gen[i]] != -1){
-        muonME["genGlobL1Muon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
-        if(l2_glob[glob_gen[i]] != -1){
-          muonME["genGlobL1L2Muon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
-          if(l2v_glob[glob_gen[i]] != -1){
-            muonME["genGlobL1L2L2vMuon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
-            if(l3_glob[glob_gen[i]] != -1){
-              muonME["genGlobL1L2L2vL3Muon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
+      offlineME["genGlobMuon_genPtEta"]->Fill(genMuons[i].pt(), genMuons[i].eta());
+      offlineME["genGlobMuon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
+      for(size_t path=0; path<filterNames.size(); path++){  
+        if(l1_glob[glob_gen[i]] != -1 && find(l1Cands[path].begin(), l1Cands[path].end(), L1MuonParticleRef(l1MuonsHandle,l1_glob[glob_gen[i]])) != l1Cands[path].end() ){
+          pathME[path]["genGlobL1Muon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
+          if(l2v_glob[glob_gen[i]] != -1 && containsIndex(l2Cands[path], l2v_glob[glob_gen[i]]) ){
+            pathME[path]["genGlobL1L2L2vMuon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
+            if(l3_glob[glob_gen[i]] != -1 && containsIndex(l3Cands[path], l3_glob[glob_gen[i]]) ){
+              pathME[path]["genGlobL1L2L2vL3Muon_recoPtEta"]->Fill(globMuons[glob_gen[i]].pt(), globMuons[glob_gen[i]].eta());
             }
           }
         }
       }
     }
   }
-
+  
+//trigger path efficiencies wrt global dimuon   
+  Handle<TriggerResults> triggerResultsHandle;
+  iEvent.getByLabel(triggerResultsTag, triggerResultsHandle);
+  if( !triggerResultsHandle.isValid() ){
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not access TriggerResults"<<endl;
+  }
+  
 //fill dimuon histograms (highest pT, opposite charge) 
   int secondMuon = 0;
   for(size_t j=1; j<genMuons.size(); j++){
@@ -388,68 +489,52 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   if(secondMuon > 0){
 //two generated
     double genDimuonPt = (genMuons[0].p4()+genMuons[secondMuon].p4()).pt();
-    dimuonME["genDimuon_genPt"]->Fill( genDimuonPt );
+    offlineME["genDimuon_genPt"]->Fill( genDimuonPt );
     massME["genDimuon_mass"]->Fill( (genMuons[0].p4()+genMuons[secondMuon].p4()).mass() );
 //two global
     if(glob_gen[0]!=-1 && glob_gen[secondMuon]!=-1){
-      dimuonME["genGlobDimuon_genPt"]->Fill( genDimuonPt );
+      offlineME["genGlobDimuon_genPt"]->Fill( genDimuonPt );
       double globDimuonPt = (globMuons[glob_gen[0]].p4()+globMuons[glob_gen[secondMuon]].p4()).pt();
-      dimuonME["genGlobDimuon_recoPt"]->Fill( globDimuonPt );
+      offlineME["genGlobDimuon_recoPt"]->Fill( globDimuonPt );
       massME["genGlobDimuon_mass"]->Fill( (globMuons[glob_gen[0]].p4()+globMuons[glob_gen[secondMuon]].p4()).mass() );
-//trigger path efficiencies wrt global dimuon   
-      Handle<TriggerResults> triggerResultsHandle;
-      iEvent.getByLabel(triggerResultsTag, triggerResultsHandle);
-      if (triggerResultsHandle.isValid()) {
-        if(triggerPathME.size()==0){ //Run this only once in the beginning
-          LogDebug("HLTriggerOfflineHeavyFlavor") << "Initializing trigger path names"<<endl;
-          dqmStore->setCurrentFolder(dqmFolder+"/TriggerPaths");
-          TriggerNames tn(*triggerResultsHandle);
-          vector<string> names = tn.triggerNames();
-          for (size_t i=0; i<names.size(); i++){
-            triggerPathME.push_back( dqmStore->book1D(names[i], names[i], ptN, ptMin, ptMax) );
-          }
-          LogDebug("HLTriggerOfflineHeavyFlavor") << "Found "<<names.size()<<" paths"<<endl;
-          triggerPathME.push_back( dqmStore->book1D("denominator_genGlobDimuon_recoPt", "denominator_genGlobDimuon_recoPt", ptN, ptMin, ptMax) );
+      for(size_t path=0; path<filterNames.size(); path++){  
+        if(triggerResultsHandle.isValid() && triggerResultsHandle->accept(pathIndices[path])){
+          pathME[path]["genGlobDimuonPath_recoPt"]->Fill(globDimuonPt);
         }
-        for (size_t i=0; i<triggerPathME.size()-1; i++){
-          if(triggerResultsHandle->accept(i)){
-            triggerPathME[i]->Fill(globDimuonPt);
-          }
-        }
-        triggerPathME[triggerPathME.size()-1]->Fill(globDimuonPt);    
-      }else{
-        LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not access TriggerResults"<<endl;
-      }
 //two l1      
-      if(l1_glob[glob_gen[0]]!=-1 && l1_glob[glob_gen[secondMuon]]!=-1){
-        dimuonME["genGlobL1Dimuon_recoPt"]->Fill( globDimuonPt );
-        massME["genGlobL1Dimuon_mass"]->Fill( (l1Muons[l1_glob[glob_gen[0]]].p4()+l1Muons[l1_glob[glob_gen[secondMuon]]].p4()).mass() );
-//two l2        
-        if(l2_glob[glob_gen[0]] != -1 && l2_glob[glob_gen[secondMuon]] != -1){
-          dimuonME["genGlobL1L2Dimuon_recoPt"]->Fill( globDimuonPt );
-          massME["genGlobL1L2Dimuon_mass"]->Fill( (l2Muons[l2_glob[glob_gen[0]]].p4()+l2Muons[l2_glob[glob_gen[secondMuon]]].p4()).mass() );
+        if( l1_glob[glob_gen[0]]!=-1 
+          && find(l1Cands[path].begin(), l1Cands[path].end(), L1MuonParticleRef(l1MuonsHandle,l1_glob[glob_gen[0]])) != l1Cands[path].end()
+          && l1_glob[glob_gen[secondMuon]]!=-1
+          && find(l1Cands[path].begin(), l1Cands[path].end(), L1MuonParticleRef(l1MuonsHandle,l1_glob[glob_gen[secondMuon]])) != l1Cands[path].end()
+          ){
+          pathME[path]["genGlobL1Dimuon_recoPt"]->Fill( globDimuonPt );
+          massME["genGlobL1Dimuon_mass"]->Fill( (l1Muons[l1_glob[glob_gen[0]]].p4()+l1Muons[l1_glob[glob_gen[secondMuon]]].p4()).mass() );
 //two l2v       
-          if(l2v_glob[glob_gen[0]] != -1 && l2v_glob[glob_gen[secondMuon]] != -1){
-            dimuonME["genGlobL1L2L2vDimuon_recoPt"]->Fill( globDimuonPt );
+          if( l2v_glob[glob_gen[0]] != -1 && containsIndex(l2Cands[path], l2v_glob[glob_gen[0]])
+            && l2v_glob[glob_gen[secondMuon]] != -1 && containsIndex(l2Cands[path], l2v_glob[glob_gen[secondMuon]])
+            ){
+            pathME[path]["genGlobL1L2L2vDimuon_recoPt"]->Fill( globDimuonPt );
             massME["genGlobL1L2L2vDimuon_mass"]->Fill( (l2vMuons[l2v_glob[glob_gen[0]]].p4()+l2vMuons[l2v_glob[glob_gen[secondMuon]]].p4()).mass() );
 //two l3         
-            if(l3_glob[glob_gen[0]] != -1 && l3_glob[glob_gen[secondMuon]] != -1){
-              dimuonME["genGlobL1L2L2vL3Dimuon_recoPt"]->Fill( globDimuonPt );
+            if(l3_glob[glob_gen[0]] != -1  && containsIndex(l3Cands[path], l3_glob[glob_gen[0]])
+              && l3_glob[glob_gen[secondMuon]] != -1 && containsIndex(l3Cands[path], l3_glob[glob_gen[secondMuon]])
+              ){
+              pathME[path]["genGlobL1L2L2vL3Dimuon_recoPt"]->Fill( globDimuonPt );
               massME["genGlobL1L2L2vL3Dimuon_mass"]->Fill( (l3Muons[l3_glob[glob_gen[0]]].p4()+l3Muons[l3_glob[glob_gen[secondMuon]]].p4()).mass() );
             }
           }
         }
       }
     }
-//fill dR histograms when both muon pT>7
-    if(genMuons[0].pt()>7. && genMuons[secondMuon].pt()>7.){
+//fill dR histograms when both muon pT>0
+    if(genMuons[0].pt()>0. && genMuons[secondMuon].pt()>0.){
       double gendR = deltaR<LeafCandidate,LeafCandidate>(genMuons[0],genMuons[secondMuon]);
       dRME["genDimuon_gendR"]->Fill( gendR );
       if(glob_gen[0]!=-1 && glob_gen[secondMuon]!=-1){
         dRME["genGlobDimuon_gendR"]->Fill( gendR );
       }
     }
-    if(glob_gen[0]!=-1 && globMuons[glob_gen[0]].pt()>7. && glob_gen[secondMuon]!=-1 && globMuons[glob_gen[secondMuon]].pt()>7.){
+    if(glob_gen[0]!=-1 && globMuons[glob_gen[0]].pt()>0. && glob_gen[secondMuon]!=-1 && globMuons[glob_gen[secondMuon]].pt()>0.){
       double dR = deltaR<LeafCandidate,LeafCandidate>(globMuons[glob_gen[0]],globMuons[glob_gen[secondMuon]]);
       double dRpos = deltaR<LeafCandidate,LeafCandidate>(globMuons_position[glob_gen[0]],globMuons_position[glob_gen[secondMuon]]);
       dRME["genGlobDimuon_dR"]->Fill( dR );
@@ -475,6 +560,14 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 }
 
 void HeavyFlavorValidation::endJob(){
+}
+
+bool HeavyFlavorValidation::containsIndex(vector<RecoChargedCandidateRef> &v, size_t i){
+  bool result = false;
+  for(size_t i=0; i<v.size(); i++){
+    if(v[i].key() == i) result = true;
+  }
+  return result;
 }
 
 int HeavyFlavorValidation::getMotherId( const Candidate * p ){
