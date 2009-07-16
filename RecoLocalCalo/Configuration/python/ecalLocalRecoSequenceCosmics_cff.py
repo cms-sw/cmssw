@@ -19,3 +19,6 @@ ecalLocalRecoSequence = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeig
 ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
+ecalPreshowerRecHit.ESGain = cms.int32(2)
+ecalPreshowerRecHit.ESBaseline = cms.int32(0)
+ecalPreshowerRecHit.ESMIPADC = cms.double(50)
