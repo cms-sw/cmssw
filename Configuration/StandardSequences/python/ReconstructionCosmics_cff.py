@@ -54,5 +54,5 @@ egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*jetsCosmics*muonsCosmics*egammaCosmics*logErrorHarvester)
+reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
 reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics)
