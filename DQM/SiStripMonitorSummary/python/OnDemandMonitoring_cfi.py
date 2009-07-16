@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# combinations of {"TIB","TOB","TID","TEC" }
-# *** other restricting specifications
-
 import FWCore.ParameterSet.Config as cms
 
 OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
@@ -14,8 +9,7 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
      MonitorSiStripNoise        = cms.bool(True),
      MonitorSiStripQuality      = cms.bool(True),
      MonitorSiStripApvGain      = cms.bool(False),
-     MonitorSiStripLorentzAngle = cms.bool(False),
-     
+     MonitorSiStripLorentzAngle = cms.bool(False),     
      MonitorSiStripCabling      = cms.bool(False),
      MonitorSiStripLowThreshold = cms.bool(False),
      MonitorSiStripHighThreshold= cms.bool(False) ,    
@@ -23,13 +17,19 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
 
      FillConditions_PSet = cms.PSet(     
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
+      OutputSummaryAtLayerLevelAsImage           = cms.bool(False),
+      OutputSummaryProfileAtLayerLevelAsImage    = cms.bool(False),
+      OutputCumulativeSummaryAtLayerLevelAsImage = cms.bool(False),      
       Mod_On                  = cms.bool(False),
       HistoMaps_On            = cms.bool(False),
       SummaryOnStringLevel_On = cms.bool(False),
       SummaryOnLayerLevel_On  = cms.bool(False),
       GrandSummary_On         = cms.bool(False),
       StripQualityLabel       = cms.string(''),
-        
+ 
+      ActiveDetIds_On         =  cms.bool(False),
+      TkMap_On                =  cms.bool(False),
+      
       #  exclude OR include a set of modules
       restrictModules         = cms.bool(False),
 
@@ -45,14 +45,28 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # -----
 
     SiStripCablingDQM_PSet = cms.PSet(
+
+    ActiveDetIds_On         =  cms.bool(True),
     
-      CondObj_fillId       = cms.string('onlyProfile'),
-      CondObj_name         = cms.string('fedcabling')
+    TkMap_On                =  cms.bool(False),
+    TkMapName               =  cms.string('CablingTkMap.png'),
+    minValue               =  cms.double(0.),
+    maxValue               =  cms.double(6.),
+    
+    CondObj_fillId       = cms.string('onlyProfile'),
+    CondObj_name         = cms.string('fedcabling')
     ), 
     
     # -----
     SiStripLowThresholdDQM_PSet = cms.PSet(
 
+      ActiveDetIds_On         =  cms.bool(True),
+      
+      TkMap_On                =  cms.bool(False),
+      TkMapName               =  cms.string('LowThresholdTkMap.png'),
+      minValue               =  cms.double(0.),
+      maxValue               =  cms.double(10.),
+      
       WhichThreshold= cms.string('Low'),
 
       CondObj_fillId = cms.string('onlyProfile'), 
@@ -60,7 +74,7 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
 
       FillSummaryAtLayerLevel= cms.bool(True),
       FillSummaryProfileAtLayerLevel=cms.bool(False),
-
+      FillCumulativeSummaryAtLayerLevel = cms.bool(False),
 
       Profile_description = cms.string('Profile_LowThresholdFromCondDB'),
       Profile_xTitle      = cms.string('Strip Number'),
@@ -86,6 +100,13 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # ----- 
     SiStripHighThresholdDQM_PSet = cms.PSet(
 
+    ActiveDetIds_On         =  cms.bool(True),
+
+    TkMap_On                =  cms.bool(False),
+    TkMapName               =  cms.string('HighThresholdTkMap.png'),
+    minValue               =  cms.double(0.),
+    maxValue               =  cms.double(10.), 	
+
       WhichThreshold= cms.string('High'),
 
       CondObj_fillId = cms.string('onlyProfile'), 
@@ -93,7 +114,7 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
 
       FillSummaryAtLayerLevel= cms.bool(True),
       FillSummaryProfileAtLayerLevel=cms.bool(False),
-
+      FillCumulativeSummaryAtLayerLevel = cms.bool(False),
 
       Profile_description = cms.string('Profile_HighThresholdFromCondDB'),
       Profile_xTitle      = cms.string('Strip Number'),
@@ -105,7 +126,6 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
       SummaryOfProfile_NchY        = cms.int32(100),
       SummaryOfProfile_LowY        = cms.double(0),
       SummaryOfProfile_HighY       = cms.double(10),
-
 	
 	
       Summary_description   = cms.string('Summary_HighThresholdFromCondDB'),
@@ -118,9 +138,16 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
        
     # -----
     SiStripApvGainsDQM_PSet = cms.PSet(
-    
+ 
+      ActiveDetIds_On         =  cms.bool(True),
+
+      TkMap_On                =  cms.bool(False),
+      TkMapName               =  cms.string('GainTkMap.svg'),
+      minValue               =  cms.double(0.),
+      maxValue               =  cms.double(1.5),
+      
       CondObj_name   = cms.string('apvgain'),
-      CondObj_fillId = cms.string('onlyProfile'),
+      CondObj_fillId = cms.string('ProfileAndCumul'),
 
       FillSummaryAtLayerLevel           = cms.bool(True),
       FillSummaryProfileAtLayerLevel    = cms.bool(False),
@@ -155,6 +182,13 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # -----
     SiStripQualityDQM_PSet = cms.PSet(
 
+      ActiveDetIds_On         =  cms.bool(True),
+    
+      TkMap_On                =  cms.bool(False),
+      TkMapName               =  cms.string('QualityTkMap.svg'),
+      minValue               =  cms.double(0.),
+      maxValue               =  cms.double(100.), 
+      
       CondObj_name   = cms.string('quality'),
       CondObj_fillId = cms.string('onlyProfile'),
       
@@ -198,10 +232,17 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # -----
     SiStripLorentzAngleDQM_PSet = cms.PSet(
 
-      CondObj_name = cms.string('lorentzangle'),
-      CondObj_fillId = cms.string('none'),
+    ActiveDetIds_On         =  cms.bool(False),
       
-      FillSummaryProfileAtLayerLevel = cms.bool(False),
+    TkMap_On                =  cms.bool(False),
+    TkMapName               =  cms.string('LorentzAngleTkMap.png'),
+    minValue               =  cms.double(0.01),
+    maxValue               =  cms.double(0.03),
+   
+      CondObj_name = cms.string('lorentzangle'),
+      CondObj_fillId = cms.string('ProfileAndCumul'),
+      
+      FillSummaryProfileAtLayerLevel = cms.bool(True),
       FillCumulativeSummaryAtLayerLevel = cms.bool(True),
 
       SummaryOfCumul_description = cms.string('ProfileSummary_LorentzAngleFromCondDB'),
@@ -223,13 +264,20 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # -----
     SiStripNoisesDQM_PSet = cms.PSet(
 
+      ActiveDetIds_On         =  cms.bool(True),
+      
+      TkMap_On                =  cms.bool(False),
+      TkMapName               =  cms.string('NoiseTkMap.png'),
+      minValue               =  cms.double(0.),
+      maxValue               =  cms.double(6.),      
+
       CondObj_fillId    = cms.string('onlyProfile'),
       CondObj_name      = cms.string('noise'),
 
       GainRenormalisation               = cms.bool(False),
       
       FillSummaryAtLayerLevel           = cms.bool(True),
-      FillSummaryProfileAtLayerLevel    = cms.bool(False),
+      FillSummaryProfileAtLayerLevel    = cms.bool(True),
       FillCumulativeSummaryAtLayerLevel = cms.bool(True),
       
       Profile_description               = cms.string('Profile_NoiseFromCondDB'),
@@ -269,6 +317,13 @@ OnDemandMonitoring = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
     # -----
     SiStripPedestalsDQM_PSet = cms.PSet(
 
+      ActiveDetIds_On         =  cms.bool(True),
+      
+      TkMap_On                =  cms.bool(False),     
+      TkMapName               =  cms.string('PedestalTkMap.png'),
+      minValue               =  cms.double(0.),
+      maxValue               =  cms.double(400.),  
+ 
       CondObj_fillId       = cms.string('onlyProfile'),
       CondObj_name         = cms.string('pedestal'),
 
