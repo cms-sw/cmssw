@@ -7,6 +7,6 @@ ecalPreshowerRecHit = cms.EDProducer("ESRecHitProducer",
                                      algo = cms.string("ESRecHitWorker"),
                                      ESGain = cms.int32(1),
                                      ESBaseline = cms.int32(1000),
-                                     ESMIPADC = cms.double(50),
+                                     ESMIPADC = cms.double(9),
                                      ESMIPkeV = cms.double(81.08)
 )
