@@ -18,4 +18,4 @@ from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 ecalLocalRecoSequence = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeightUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
 ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-ecalRecHit.ChannelStatusToBeExcluded = [ 1 2 3 4 8 9 10 11 12 13 14 78 142 ]
+ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
