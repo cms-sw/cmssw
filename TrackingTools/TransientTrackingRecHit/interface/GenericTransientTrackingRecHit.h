@@ -3,12 +3,19 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
+
 
 class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:
   typedef TrackingRecHit::Type Type;
 
   virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
+
+
+  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+      HelpertRecHit2DLocalPos().getKfComponents(holder, *hit(), *det()); 
+  }
 
   virtual AlgebraicVector parameters() const {return trackingRecHit_->parameters();}
   virtual AlgebraicSymMatrix parametersError() const {return trackingRecHit_->parametersError();}
