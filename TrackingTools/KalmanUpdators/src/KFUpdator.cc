@@ -65,15 +65,18 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   //R.Invert();
 
   // Compute Kalman gain matrix
-  Mat5D K = C * ROOT::Math::Transpose(H) * R;
+  Mat5D K = (C * ROOT::Math::Transpose(H)) * R;
+
+
+  AlgebraicMatrix55 M(ROOT::Math::SMatrixIdentity());
+  AlgebraicMatrix55 M -=  K * H;
+
 
   // Compute local filtered state vector
   AlgebraicVector5 fsv = x + K * r;
-
   // Compute covariance matrix of local filtered state vector
-  AlgebraicMatrix55 I = AlgebraicMatrixID();
-  AlgebraicMatrix55 M = I - K * H;
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
+
 
   return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
 				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
