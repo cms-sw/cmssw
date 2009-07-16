@@ -19,7 +19,7 @@
 
 // Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
-#include "FastSimulation/Utilities/interface/HistogramGenerator.h"
+#include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
 
 // STL
 
@@ -133,14 +133,14 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
 				 :
 				 1110
 				 + alphaMultiplicity);    //
-      theAlphaHistos[alphaHistN] = new HistogramGenerator(
-	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
-	random);
+      theAlphaHistos[alphaHistN] = new SimpleHistogramGenerator(
+        (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
+        random);
       // Fill also big pixels if new parametrization is used. Their code is 10000 + histogram number
       if(useCMSSWPixelParameterization) {
-        theAlphaHistos[alphaHistN+10000] = new HistogramGenerator(
-          (TH1F*) thePixelResolutionFile->Get(  Form( "h%ub" , alphaHistN ) ),
-          random);
+          theAlphaHistos[alphaHistN+10000] = new SimpleHistogramGenerator(
+	    (TH1F*) thePixelResolutionFile->Get(  Form( "h%ub" , alphaHistN ) ),
+	    random);
       }
     }
   }
@@ -161,14 +161,15 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
 				+ betaMultiplicity
 				:
 				1100 + betaMultiplicity);    //
-      theBetaHistos[betaHistN] = new HistogramGenerator(
-	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ),
+      theBetaHistos[betaHistN] = new SimpleHistogramGenerator(
+        (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ),
 	random);
       // Fill also big pixels if new parametrization is used. Their code is 10000 + histogram number
-      if(useCMSSWPixelParameterization)
-        theBetaHistos[betaHistN+10000] = new HistogramGenerator(
+      if(useCMSSWPixelParameterization) {
+	theBetaHistos[betaHistN+10000] = new SimpleHistogramGenerator(
           (TH1F*) thePixelResolutionFile->Get(  Form( "h%ub" , betaHistN  ) ),
-          random);
+	  random);
+      }
     }
   }
 }
@@ -179,8 +180,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitC
   // Some cleaning
   delete pixelError;
 
-  std::map<unsigned,const HistogramGenerator*>::const_iterator it;
-
+  std::map<unsigned,const SimpleHistogramGenerator*>::const_iterator it;
   for ( it=theAlphaHistos.begin(); it!=theAlphaHistos.end(); ++it ) 
     delete it->second;
 
@@ -444,8 +444,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     // Smear the hit Position
     thePositionX = theAlphaHistos[alphaHistN]->generate();
     thePositionY = theBetaHistos[betaHistN]->generate();
-    //  thePositionX = theAlphaHistos[alphaHistN]->getHisto()->GetRandom();
-    //  thePositionY = theBetaHistos[betaHistN]->getHisto()->GetRandom();
     thePositionZ = 0.0; // set at the centre of the active area
     thePosition = 
       Local3DPoint(simHit.localPosition().x() + thePositionX , 
