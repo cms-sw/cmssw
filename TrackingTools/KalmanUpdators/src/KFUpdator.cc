@@ -68,8 +68,8 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   Mat5D K = (C * ROOT::Math::Transpose(H)) * R;
 
 
-  AlgebraicMatrix55 M(ROOT::Math::SMatrixIdentity());
-  AlgebraicMatrix55 M -=  K * H;
+  AlgebraicMatrix55 M = AlgebraicMatrixID();
+  M -=  K * H;
 
 
   // Compute local filtered state vector
