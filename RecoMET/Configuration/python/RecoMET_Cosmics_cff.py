@@ -14,16 +14,16 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.Configuration.RecoMET_cff import *
 
-tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
-hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
+#tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
+tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
 
-metrecoCosmics = cms.Sequence(
-    met+metNoHF+metHO+metNoHFHO+
-    calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-    htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMetP5
-    )
+#hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
+hcalnoise.fillTracks = False
 
-metrecoPlusHCALNoiseCosmics = cms.Sequence( metrecoCosmics + hcalnoiseCosmics )
+metrecoCosmics = cms.Sequence( metreco + hcalnoise)
+
+metrecoCosmics_woHcalNoise = cms.Sequence( metreco )
+
 
 
 
