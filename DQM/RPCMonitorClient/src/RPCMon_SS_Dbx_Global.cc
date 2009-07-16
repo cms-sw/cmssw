@@ -147,10 +147,9 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	       }
 	     } 
 	     me->Fill(id.sector(),nr);
+	     string YLabel = RPCname.shortname();
+	     me->setBinLabel(nr, YLabel, 2);
 	   }
-
-	   string YLabel = RPCname.shortname();
-	   me->setBinLabel(nr, YLabel, 2);
 	 }
        }
      }
