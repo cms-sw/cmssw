@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
+// $Id: LutXml.cc,v 1.2 2009/06/24 09:49:11 kukartse Exp $
 //
 
 #include <iostream>
@@ -111,7 +111,7 @@ LutXml::~LutXml()
   //delete brickElem; // belongs to document that belongs to parser???
   XMLString::release(&root);
   XMLString::release(&brick);
-  delete lut_map;
+  //delete lut_map;
 }
 
 
@@ -120,11 +120,12 @@ void LutXml::init( void )
   root  = XMLString::transcode("CFGBrickSet");
   brick = XMLString::transcode("CFGBrick");
   brickElem = 0;
-  lut_map = 0;
+  //lut_map = 0;
 }
 
 
 std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
+   /*
   if (lut_map){
     return &(*lut_map)[det_id];
   }
@@ -132,6 +133,10 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
     cerr << "LUT not found, null pointer is returned" << endl;
     return 0;
   }
+  */
+   if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
+   cerr << "LUT not found, null pointer is returned" << endl;
+   return 0;
 }
 
 //
@@ -370,7 +375,8 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
 
 int LutXml::test_access( std::string filename ){
   //create_lut_map();
-  cout << "Created map size: " << lut_map->size() << endl;
+  //cout << "Created map size: " << lut_map->size() << endl;
+  cout << "Created map size: " << lut_map.size() << endl;
 
   struct timeval _t;
   gettimeofday( &_t, NULL );
@@ -489,8 +495,9 @@ int LutXml::a_to_i(char * inbuf){
 // FIXME: it would be better to use some official map
 //
 int LutXml::create_lut_map( void ){
-  delete lut_map;
-  lut_map = new map<uint32_t,vector<unsigned int> >();
+  //delete lut_map;
+  lut_map.clear();
+  //lut_map = new map<uint32_t,vector<unsigned int> >();
 
   if (document){
     //DOMElement * rootElem = 
@@ -565,7 +572,8 @@ int LutXml::create_lut_map( void ){
 	HcalTrigTowerDetId _id(ieta,iphi);
 	_key = _id.rawId();
       }
-      lut_map->insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
+      //lut_map->insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
+      lut_map.insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
     }
   }
   else{
@@ -575,4 +583,16 @@ int LutXml::create_lut_map( void ){
 
 
   return 0;
+}
+
+LutXml::const_iterator LutXml::begin() const{
+   return lut_map.begin();
+}
+
+LutXml::const_iterator LutXml::end() const{
+   return lut_map.end();
+}
+
+LutXml::const_iterator LutXml::find(uint32_t id) const{
+   return lut_map.find(id);
 }

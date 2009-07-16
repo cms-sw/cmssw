@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
+// $Id: LutXml.h,v 1.2 2009/05/08 23:26:51 elmer Exp $
 //
 
 #include <vector>
@@ -71,6 +71,12 @@ class LutXml : public XMLDOMBlock
 
   //LutXml & operator+=( const LutXml & other);
 
+  //Iterators and find
+  typedef std::map<uint32_t,vector<unsigned int> >::const_iterator const_iterator;
+  const_iterator begin() const;
+  const_iterator end() const;
+  const_iterator find(uint32_t) const;
+
  protected:  
 
   XMLCh * root;
@@ -83,7 +89,8 @@ class LutXml : public XMLDOMBlock
 
   DOMElement * brickElem;
 
-  std::map<uint32_t,vector<unsigned int> > * lut_map;
+  //std::map<uint32_t,vector<unsigned int> > * lut_map;
+  std::map<uint32_t,vector<unsigned int> > lut_map;
 
 };
 
