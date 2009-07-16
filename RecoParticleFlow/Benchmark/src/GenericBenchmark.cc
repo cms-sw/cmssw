@@ -356,7 +356,7 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
       hDeltaSetvsSet->Fill((*met1).sumEt(),(*met2).sumEt()-(*met1).sumEt());
       hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->px()-genParticle->px());
       hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->py()-genParticle->py());
-      hDeltaSetOverSetvsSet->Fill((*met1).sumEt(),((*met2).sumEt()-(*met1).sumEt())/(*met1).sumEt());
+      if ((*met1).sumEt()>0.01) hDeltaSetOverSetvsSet->Fill((*met1).sumEt(),((*met2).sumEt()-(*met1).sumEt())/(*met1).sumEt());
     }
     else
     {
