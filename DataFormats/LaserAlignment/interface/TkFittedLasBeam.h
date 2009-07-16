@@ -1,11 +1,11 @@
 #ifndef DataFormats_LaserAlignment_TkFittedLasBeam_h
 #define DataFormats_LaserAlignment_TkFittedLasBeam_h
 
-/// \class TkFittedLasBeam ($Revision$)
+/// \class TkFittedLasBeam ($Revision: 1.1 $)
 ///
 /// \author Gero Flucke 
 /// \date May 2009
-/// last update on $Date$ by $Author$
+/// last update on $Date: 2009/05/11 10:16:13 $ by $Author: flucke $
 ///
 /// An extension of the 'TkLasBeam' containing information about 
 /// a track model fit to the laser hits.
@@ -29,8 +29,8 @@ class TkFittedLasBeam : public TkLasBeam {
   const std::vector<Scalar>& parameters() const { return parameters_;}
   /// covariance of first n=firstFixedParameter() parameters()
   const AlgebraicSymMatrix & parametersCov() const {return paramCovariance_;}
-  /// parallel to parameters()
-  const std::vector<Scalar>& derivatives() const { return derivatives_;}
+  /// matrix of local derivatives: columns are parameters, rows are hits
+  const AlgebraicMatrix derivatives() const { return derivatives_;}
   /// index of first parameter and its derivative that was not fixed
   /// in the fit, but might be free in a global fit, e.g. within millepede
   unsigned int firstFixedParameter() const { return firstFixedParameter_;}
@@ -43,15 +43,14 @@ class TkFittedLasBeam : public TkLasBeam {
   void setParameters(unsigned int parametrisation,
 		     const std::vector<Scalar> &params,
 		     const AlgebraicSymMatrix &paramCovariance,
-		     const std::vector<Scalar> &derivatives,
+		     const AlgebraicMatrix &derivatives,
 		     unsigned int firstFixedParam, float chi2);
 
 private:
   unsigned int parametrisation_; /// type of parameterisation (0 means undefined)
-
   std::vector<Scalar> parameters_; /// beam parameters (depend on parameterisation_)
   AlgebraicSymMatrix paramCovariance_; /// cov. matrix of 'free' params. (dim=firstFixedParameter_)
-  std::vector<Scalar> derivatives_; /// derivatives with respect to parameters_
+  AlgebraicMatrix derivatives_; /// derivatives with respect to parameters_
   unsigned int firstFixedParameter_; /// first non-free parameter in (local) fit
   float chi2_; /// chi^2 value of fit
 
