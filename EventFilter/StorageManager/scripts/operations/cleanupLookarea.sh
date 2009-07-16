@@ -90,9 +90,9 @@ LIFETIME_SMLL82=360     #  6 hrs
 LIFETIME_SMLL73=720     # 12 hrs 
 LIFETIME_SMLL65=1440    # 1 day
 LIFETIME_SMLL55=4320    # 3 days
-LIFETIME_SMLL45=7200    # 5 days 
-LIFETIME_SMLL28=10800   # 7 days
-LIFETIME_SMLL15=20160   #14 days
+LIFETIME_SMLL35=7200    # 5 days 
+LIFETIME_SMLL25=10800   # 7 days
+LIFETIME_SMLL13=20160   #14 days
 LIFETIME_SMLL00=50400   #35 days
 
 
@@ -122,19 +122,19 @@ LIFETIME_SMLL=$(df |
 	-v LIFETIME_SMLL73="$LIFETIME_SMLL73" \
 	-v LIFETIME_SMLL65="$LIFETIME_SMLL65" \
 	-v LIFETIME_SMLL55="$LIFETIME_SMLL55" \
-	-v LIFETIME_SMLL45="$LIFETIME_SMLL45" \
-	-v LIFETIME_SMLL28="$LIFETIME_SMLL28" \
-	-v LIFETIME_SMLL15="$LIFETIME_SMLL15" \
+	-v LIFETIME_SMLL35="$LIFETIME_SMLL35" \
+	-v LIFETIME_SMLL25="$LIFETIME_SMLL25" \
+	-v LIFETIME_SMLL13="$LIFETIME_SMLL13" \
 	-v LIFETIME_SMLL00="$LIFETIME_SMLL00" \
 	-v pat="$mntpoint" \
-	'$0 ~ pat {if ($4 > 90) print LIFETIME_SMLL90; \
-	else if ($4 > 82) print LIFETIME_SMLL82; \
-	else if ($4 > 73) print LIFETIME_SMLL73; \
-	else if ($4 > 65) print LIFETIME_SMLL65; \
-	else if ($4 > 55) print LIFETIME_SMLL55; \
-	else if ($4 > 45) print LIFETIME_SMLL45; \
-	else if ($4 > 28) print LIFETIME_SMLL28; \
-	else if ($4 > 15) print LIFETIME_SMLL15; \
+	'$0 ~ pat {if ($4+0 > 90) print LIFETIME_SMLL90; \
+	else if ($4+0 > 82) print LIFETIME_SMLL82; \
+	else if ($4+0 > 73) print LIFETIME_SMLL73; \
+	else if ($4+0 > 65) print LIFETIME_SMLL65; \
+	else if ($4+0 > 55) print LIFETIME_SMLL55; \
+	else if ($4+0 > 35) print LIFETIME_SMLL35; \
+	else if ($4+0 > 25) print LIFETIME_SMLL25; \
+	else if ($4+0 > 13) print LIFETIME_SMLL13; \
 	else print LIFETIME_SMLL00; }' )
 
 
@@ -175,16 +175,16 @@ LIFETIME_BIG=$(df |
 	-v LIFETIME_BIG10="$LIFETIME_BIG10" \
 	-v LIFETIME_BIG00="$LIFETIME_BIG00" \
 	-v pat="$mntpoint"  \
-	'$0 ~ pat {if ($4 > 85) print LIFETIME_BIG85; \
-	else if ($4 > 80) print LIFETIME_BIG80; \
-	else if ($4 > 75) print LIFETIME_BIG75; \
-	else if ($4 > 70) print LIFETIME_BIG70; \
-	else if ($4 > 60) print LIFETIME_BIG60; \
-	else if ($4 > 50) print LIFETIME_BIG50; \
-	else if ($4 > 40) print LIFETIME_BIG40; \
-	else if ($4 > 30) print LIFETIME_BIG30; \
-	else if ($4 > 20) print LIFETIME_BIG20; \
-	else if ($4 > 10) print LIFETIME_BIG10; \
+	'$0 ~ pat {if ($4+0 > 85) print LIFETIME_BIG85; \
+	else if ($4+0 > 80) print LIFETIME_BIG80; \
+	else if ($4+0 > 75) print LIFETIME_BIG75; \
+	else if ($4+0 > 70) print LIFETIME_BIG70; \
+	else if ($4+0 > 60) print LIFETIME_BIG60; \
+	else if ($4+0 > 50) print LIFETIME_BIG50; \
+	else if ($4+0 > 40) print LIFETIME_BIG40; \
+	else if ($4+0 > 30) print LIFETIME_BIG30; \
+	else if ($4+0 > 20) print LIFETIME_BIG20; \
+	else if ($4+0 > 10) print LIFETIME_BIG10; \
 	else print LIFETIME_BIG00; }' )
 
 
