@@ -19,4 +19,7 @@ pfJetFilter = cms.EDFilter("PFJetFilter",
     # Reco Pt at least 6 sigma below or 5 sigma above gen Pt
     minDeltaEt = cms.double(-6.),
     maxDeltaEt = cms.double(+6.),
+    # debug level
+    verbose = cms.bool(False)
+                           
 )

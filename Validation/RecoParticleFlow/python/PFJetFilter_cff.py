@@ -21,6 +21,7 @@ pfIterativeCone5GenJets = iterativeCone5GenJets.clone()
 pfIterativeCone5GenJets.src = 'pfGenParticlesForJets'
 
 pfJetFilter.InputTruthLabel = 'pfIterativeCone5GenJets'
+#pfJetFilter.verbose = True
 
 pfFilter =cms.Sequence(
     pfGenParticlesForJets*

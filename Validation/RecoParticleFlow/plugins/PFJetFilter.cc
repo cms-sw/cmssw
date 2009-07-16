@@ -18,17 +18,19 @@ PFJetFilter::PFJetFilter(const edm::ParameterSet& iConfig)
   inputTruthLabel_             = iConfig.getParameter<edm::InputTag>("InputTruthLabel");
   inputRecoLabel_              = iConfig.getParameter<edm::InputTag>("InputRecoLabel");
 
-  recPt_cut                       = iConfig.getParameter<double>("recPt");
-  genPt_cut                       = iConfig.getParameter<double>("genPt");
+  recPt_cut                    = iConfig.getParameter<double>("recPt");
+  genPt_cut                    = iConfig.getParameter<double>("genPt");
 
-  eta_min                   = iConfig.getParameter<double>("minEta");
-  eta_max                   = iConfig.getParameter<double>("maxEta");
+  eta_min                      = iConfig.getParameter<double>("minEta");
+  eta_max                      = iConfig.getParameter<double>("maxEta");
 
   deltaR_min                   = iConfig.getParameter<double>("deltaRMin");
   deltaR_max                   = iConfig.getParameter<double>("deltaRMax");
 
   deltaEt_min                  = iConfig.getParameter<double>("minDeltaEt");
   deltaEt_max                  = iConfig.getParameter<double>("maxDeltaEt");
+
+  verbose                      = iConfig.getParameter<bool>("verbose");
 
   entry = 0;
 }
@@ -156,14 +158,15 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
 
       if ( nSig > deltaEt_max || nSig < deltaEt_min ) { 
 	/* */
-	std::cout << "Entry " << entry 
-		  << " resPt = " << resPt 
-		  << " sigma/avera/nSig = " << sigma << "/" << avera <<"/" << nSig
-		  << " pT (T/R) " << true_pt << "/" << rec_pt 
-		  << " Eta (T/R) " << true_eta << "/" << rec_eta 
-		  << " Phi (T/R) " << true_phi << "/" << rec_phi 
-		  << " deltaRMin/ptmin " << deltaRmin << "/" << ptmin  
-		  << std::endl;
+	if ( verbose ) 
+	  std::cout << "Entry " << entry 
+		    << " resPt = " << resPt 
+		    << " sigma/avera/nSig = " << sigma << "/" << avera <<"/" << nSig
+		    << " pT (T/R) " << true_pt << "/" << rec_pt 
+		    << " Eta (T/R) " << true_eta << "/" << rec_eta 
+		    << " Phi (T/R) " << true_phi << "/" << rec_phi 
+		    << " deltaRMin/ptmin " << deltaRmin << "/" << ptmin  
+		    << std::endl;
 	/* */
 	pass = true;
       }

@@ -35,6 +35,7 @@ class PFJetFilter: public edm::EDFilter {
   edm::InputTag inputTruthLabel_;
   edm::InputTag inputRecoLabel_;
   unsigned int entry;
+  bool verbose;
   
   PFBenchmarkAlgo *algo_;
 
