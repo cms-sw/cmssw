@@ -6,6 +6,8 @@ ewkDQM = cms.EDAnalyzer("EwkDQM",
                             triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
                             muonCollection           = cms.InputTag("muons"),
                             electronCollection       = cms.InputTag("gsfElectrons"),
-                            caloJetCollection        = cms.InputTag("sisCone5CaloJets")
+                            caloJetCollection        = cms.InputTag("sisCone5CaloJets"),
+                            caloMETCollection        = cms.InputTag("met"),
+                            genParticleCollection    = cms.InputTag("genParticles")
 #                           caloJetCollection        = cms.InputTag("L2L3CorJetSC5Calo"),
 )
