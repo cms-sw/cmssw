@@ -181,11 +181,11 @@ void L1TdeRCT::beginJob(const EventSetup & c)
         CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctIsoEmEff2_ =
-  dbe->book2D("rctIsoEmEff2", "rctIsoEmEff2", ETABINS, ETAMIN,
+  dbe->book2D("rctIsoEmEff2", "rctIsoEmEff2, energy matching required", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctIsoEmEff2oneD_ =
-  dbe->book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD",
+  dbe->book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD, energy matching required",
         CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctIsoEmIneff_ =
@@ -265,11 +265,11 @@ void L1TdeRCT::beginJob(const EventSetup & c)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctNisoEmEff2_ =
-  dbe->book2D("rctNisoEmEff2", "rctNisoEmEff2", ETABINS, ETAMIN,
+  dbe->book2D("rctNisoEmEff2", "rctNisoEmEff2, energy matching required", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctNisoEmEff2oneD_ =
-  dbe->book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD",
+  dbe->book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD, energy matching required",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctNisoEmIneff_ =
@@ -366,7 +366,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctRegSpEff2D_ =
-      dbe->book2D("rctRegSpEff2D", "2D region special efficiency",
+      dbe->book2D("rctRegSpEff2D", "2D region efficiency, energy matching required",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData");
@@ -1144,6 +1144,7 @@ if(first)
     if(ireg->et() > 0) {
       rctRegUnmatchedEmulOcc2D_->Fill (ireg->gctEta(), ireg->gctPhi(), 0.01);
       rctRegMatchedOcc2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01);
+/*      rctRegDeltaEtOcc2D_->Fill       (ireg->gctEta(), ireg->gctPhi(), 0.01); */
     }
 
     nRegionEmul = PHIBINS * ireg->gctEta() + ireg->gctPhi();
