@@ -14,6 +14,9 @@ int main() {
   double v[3] = {1. -0.5, 2.};
   SMatDD S(v,3);
 
+  std::cout << S << std::endl;
+  
+
   {
     SMatDN H; H(0,3)=1; H(1,4)=1;
     SMatND K = ROOT::Math::Transpose(H) * S;  
