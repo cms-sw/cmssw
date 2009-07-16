@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/19 11:54:34 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/07/16 08:52:08 $
+ *  $Revision: 1.18 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -42,7 +42,7 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
   // top folder for the histograms in DQMStore
-  topHistoFolder = pset.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
 
 }
 

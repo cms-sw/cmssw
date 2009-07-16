@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/12 18:12:43 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/07/16 08:38:39 $
+ *  $Revision: 1.24 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -61,7 +61,7 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nE
   theDbe = edm::Service<DQMStore>().operator->();
   
   // top folder for the histograms in DQMStore
-  topHistoFolder = pset.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
   hltDQMMode = pset.getUntrackedParameter<bool>("hltDQMMode",false);
 
