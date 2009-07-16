@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/14 15:22:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/16 13:21:08 $
+ *  $Revision: 1.3 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -104,6 +104,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
+  if ( !HLTresults.isValid() ) return;
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
   unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
@@ -117,8 +118,9 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   ////////////////////////////////////////////////////////////////////////////////
   //Missing ET
-  edm::Handle<reco::CaloMETCollection> caloMETCollection;
+  Handle<CaloMETCollection> caloMETCollection;
   iEvent.getByLabel(theCaloMETCollectionLabel, caloMETCollection);
+  if ( !caloMETCollection.isValid() ) return;
   float missing_et = -9.0;
   missing_et = caloMETCollection->begin()->et();
   float met_phi = -9.0;
@@ -128,6 +130,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // grab "gaussian sum fitting" electrons
   Handle<GsfElectronCollection> electronCollection;
   iEvent.getByLabel(theElectronCollectionLabel, electronCollection);
+  if ( !electronCollection.isValid() ) return;
 
   // Find the electron pair closest to z mass
   float zMass = 91.1876;
@@ -204,6 +207,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Take the STA muon container
   Handle<MuonCollection> muonCollection;
   iEvent.getByLabel(theMuonCollectionLabel,muonCollection);
+  if ( !muonCollection.isValid() ) return;
 
   // Find the muon pair closest to z mass
   //  float zMass = 91.1876;
@@ -270,6 +274,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Find the highest et jet
   Handle<CaloJetCollection> caloJetCollection;
   iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
+  if ( !caloJetCollection.isValid() ) return;
 
   float jet_et    = -8.0;
   float jet_eta   = -8.0;
