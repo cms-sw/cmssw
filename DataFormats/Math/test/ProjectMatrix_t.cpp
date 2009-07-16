@@ -26,10 +26,10 @@ int main() {
   }
   {
 
-    ProjectMatrix<double,5,2> H; H.index(0)=3; H.index(1)=4;
+    ProjectMatrix<double,5,2> H; H.index[0]=3; H.index[1]=4;
     SMatND K = H.project(S);  
   
-    SMatNN V = H.Project(K); 
+    SMatNN V = H.project(K); 
     
     std::cout << K << std::endl;
     std::cout << V << std::endl;

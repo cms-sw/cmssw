@@ -18,7 +18,7 @@ struct ProjectMatrix{
     SMatND r;
     for (unsigned int i=0; i<D; i++)
       for (unsigned int j=0; j<D; j++)
-	r(index(i),j) = s(i,j);
+	r(index[i],j) = s(i,j);
     return r;
   }
   
@@ -27,7 +27,7 @@ struct ProjectMatrix{
     SMatNN s;
     for (unsigned int i=0; i<N; i++)
       for (unsigned int j=0; j<D; j++)
-	s(i,index(j)) = k(i,j);
+	s(i,index[j]) = k(i,j);
     return s;
   }
 
