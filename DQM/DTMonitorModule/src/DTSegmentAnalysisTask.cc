@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/02 13:26:42 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/12/12 18:12:43 $
+ *  $Revision: 1.23 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -59,6 +59,11 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nE
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
+  
+  // top folder for the histograms in DQMStore
+  topHistoFolder = pset.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  // hlt DQM mode
+  hltDQMMode = pset.getUntrackedParameter<bool>("hltDQMMode",false);
 
  }
 
@@ -92,14 +97,15 @@ void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
 	+ "_Sec" + sectorstr.str();
       string sectorHistoTitle = "# segm. W" + wheelstr.str() + " Sect." + sectorstr.str();
 
-      theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheelstr.str() +
+      theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheelstr.str() +
 			       "/Sector" + sectorstr.str());
       histoTimeEvol[wheel][sector] = new DTTimeEvolutionHisto(&(*theDbe),sectorHistoName,sectorHistoTitle,
 							      nTimeBins,nLSTimeBin,slideTimeBins,modeTimeHisto);
     }
   }
 
-  theDbe->setCurrentFolder("DT/EventInfo/");
+  if(hltDQMMode) theDbe->setCurrentFolder(topHistoFolder);
+  else theDbe->setCurrentFolder("DT/EventInfo/");
 
   hNevtPerLS = new DTTimeEvolutionHisto(&(*theDbe),"NevtPerLS","# evt.",nTimeBins,nLSTimeBin,slideTimeBins,2);
 
@@ -135,6 +141,8 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
+
+  if(!all4DSegments.isValid()) return;
   
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
@@ -244,7 +252,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
-    theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str());
+    theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
     string histoName =  "numberOfSegments_W" + wheel.str();
     summaryHistos[wh] = theDbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
     summaryHistos[wh]->setAxisTitle("Sector",1);
@@ -267,7 +275,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
   }
 
 
-  theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
 			   "/Station" + station.str());
 
@@ -323,3 +331,5 @@ void DTSegmentAnalysisTask::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 void DTSegmentAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& eSetup) {
   nEventsInLS = 0;
 }
+
+
