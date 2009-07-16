@@ -93,7 +93,7 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     if (w>0) offset --; //used to skip case equale to zero
 
     histoName.str("");   
-    histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
+    histoName<<"ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
     me = 0;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
     if ( 0!=me){
@@ -115,7 +115,7 @@ void RPCClusterSizeTest::beginRun(const Run& r, const EventSetup& c,vector<Monit
     
     
     histoName.str("");
-    histoName<<"ClusterSizeMean_Roll_vs_Sector_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
+    histoName<<"ClusterSizeMean_Ring_vs_Segment_Disk"<<w;       // Avarage ClusterSize (2D Roll vs Sector)   
     me = 0;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
     if ( 0!=me){

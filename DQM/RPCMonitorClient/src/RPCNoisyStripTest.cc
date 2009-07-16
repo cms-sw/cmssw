@@ -108,7 +108,7 @@ void RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& iSetup,vector<M
    DEVDDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
    
    histoName.str("");
-   histoName<<"RPCNoisyStrips_Roll_vs_Sector_Disk"<<w;
+   histoName<<"RPCNoisyStrips_Ring_vs_Segment_Disk"<<w;
    me =0;
    me = dbe_->get( globalFolder_ +"/"+ histoName.str());
    if ( 0!=me ) {

@@ -96,7 +96,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     if (w>0) offset --; //used to skip case equale to zero
     
     histoName.str("");
-    histoName<<"AsymmetryLeftRight_Roll_vs_Sector_Disk"<<w;
+    histoName<<"AsymmetryLeftRight_Ring_vs_Segment_Disk"<<w;
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {

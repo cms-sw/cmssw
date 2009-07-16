@@ -83,7 +83,7 @@ void RPCMultiplicityTest::beginRun(const Run& r, const EventSetup& iSetup,vector
     if (i>0) offset --; //used to skip case equale to zero
   
     histoName.str("");
-    histoName<<"NumberOfDigi_Mean_Roll_vs_Sector_Disk"<<i;
+    histoName<<"NumberOfDigi_Mean_Ring_vs_Segment_Disk"<<i;
     me = 0;
     me = dbe_->get(globalFolder_ +"/"+ histoName.str());
     if ( 0!=me) {
@@ -175,14 +175,13 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe)
     
       if(detId.region()<0){
       MULT = MULTDisk[-detId.station() + numberOfDisks_];
-      MULTD = MULTDDisk[detId.station()+ numberOfDisks_];
+      MULTD = MULTDDisk[-detId.station()+ numberOfDisks_];
       }else{
 	MULT = MULTDisk[detId.station()+ numberOfDisks_ -1];
 	MULTD = MULTDDisk[detId.station()+ numberOfDisks_-1];
       }
     }
   }
-
 
   if ( MULT && MULTD ){
 
@@ -199,6 +198,7 @@ void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe)
    }
    
    float mean = myMe->getMean();
+ 
    MULT->setBinContent(xBin,yBin, mean );
    MULTD->Fill(mean);
   }

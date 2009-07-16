@@ -73,7 +73,7 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& iSetup,vector<
    if (i>0) offset --; //used to skip case equale to zero
   
    histoName.str("");
-   histoName<<"DeadChannelFraction_Roll_vs_Sector_Disk"<<i;
+   histoName<<"DeadChannelFraction_Ring_vs_Segment_Disk"<<i;
    me = 0;
    me = dbe_->get(globalFolder_ +"/"+ histoName.str());
    if (0!=me ) {
