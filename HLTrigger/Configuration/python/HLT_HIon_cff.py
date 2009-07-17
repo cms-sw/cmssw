@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_2_0/pre1/HIon_V14/V2 (CMSSW_3_1_1_HLT1)
+# /dev/CMSSW_3_2_0/pre1/HIon_V17/V2 (CMSSW_3_1_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/HIon_V14/V2')
+  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/HIon_V17/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -100,7 +100,7 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
     Type = cms.string( "ESRecHitWorker" ),
     ESGain = cms.int32( 1 ),
     ESBaseline = cms.int32( 1000 ),
-    ESMIPADC = cms.double( 50.0 ),
+    ESMIPADC = cms.double( 9.0 ),
     ESMIPkeV = cms.double( 81.08 )
   )
 )

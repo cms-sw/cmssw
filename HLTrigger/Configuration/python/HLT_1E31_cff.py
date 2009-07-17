@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_2_0/pre1/1E31_V14/V2 (CMSSW_3_1_1_HLT1)
+# /dev/CMSSW_3_2_0/pre1/1E31_V17/V2 (CMSSW_3_1_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/1E31_V14/V2')
+  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/1E31_V17/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -100,7 +100,7 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
     Type = cms.string( "ESRecHitWorker" ),
     ESGain = cms.int32( 1 ),
     ESBaseline = cms.int32( 1000 ),
-    ESMIPADC = cms.double( 50.0 ),
+    ESMIPADC = cms.double( 9.0 ),
     ESMIPkeV = cms.double( 81.08 )
   )
 )
@@ -6654,8 +6654,8 @@ hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
     endcapHitCollection = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     phiSymBarrelHitCollection = cms.string( "phiSymEcalRecHitsEB" ),
     phiSymEndcapHitCollection = cms.string( "phiSymEcalRecHitsEE" ),
-    eCut_barrel = cms.double( 0.15 ),
-    eCut_endcap = cms.double( 0.75 )
+    eCut_barrel = cms.double( 0.0 ),
+    eCut_endcap = cms.double( 0.0 )
 )
 hltL1sAlCaEcalPi0Eta1E31 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
