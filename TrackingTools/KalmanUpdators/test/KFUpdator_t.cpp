@@ -89,12 +89,32 @@ public:
 void print(TrajectoryStateOnSurface const & ts) {
   using namespace std;
 
+  cout << "transverseCurvature  " << ts.transverseCurvature() << endl;
   cout << "globalMomentum       " << ts.globalMomentum() << endl;
   cout << "localMomentum        " << ts.localMomentum() << endl;
   cout << "localPosition        " << ts.localPosition() << endl;
-  cout << "transverseCurvature  " << ts.transverseCurvature() << endl;
+  cout << "localError           " << ts.localError() << endl;
   cout << endl;
 }
+
+
+#include "FWCore/Utilities/interface/HRRealTime.h"
+#include<iostream>
+#include<vector>
+
+bool isAligned(const void* data, long alignment)
+{
+ // check that the alignment is a power of two
+ assert((alignment & (alignment-1)) == 0); 
+ return ((long)data & (alignment-1)) == 0;
+}
+
+
+void st(){}
+void en(){}
+
+
+
 
 int main() {
 
@@ -138,6 +158,24 @@ int main() {
    print(tsn);
     
   }
+
+  {
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  }
+  {
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  }
+
 
   return 0;
 
