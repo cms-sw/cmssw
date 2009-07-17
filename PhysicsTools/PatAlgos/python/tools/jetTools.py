@@ -110,8 +110,16 @@ def runBTagging(process,
     process.load("RecoBTag.Configuration.RecoBTag_cff")
     import RecoBTag.Configuration.RecoBTag_cff as btag
     
-    ## define tag info labels (compare with jetProducer_cfi.py)
-    jtaLabel  = 'jetTracksAssociatorAtVertex' + label
+    ## define jetTracksAssociator; for switchJetCollection
+    ## the label is 'AOD' as empty labels will lead to crashes
+    ## of crab. In this case the postfix label is skiped,
+    ## otherwise a postfix label is added as for the other
+    ## labels
+    jtaLabel = 'jetTracksAssociatorAtVertex'
+    if (not label == 'AOD'):
+        jtaLabel  += label
+
+    ## define tag info labels (compare with jetProducer_cfi.py)        
     ipTILabel = 'impactParameterTagInfos'     + label
     svTILabel = 'secondaryVertexTagInfos'     + label
     seTILabel = 'softElectronTagInfos'        + label
@@ -243,7 +251,8 @@ def switchJetCollection(process,
         process.allLayer1Jets.addJetCharge = False
 
     if (doBTagging):
-        ## replace b tagging sequence
+        ## replace b tagging sequence; add postfix label 'AOD' as crab will
+        ## crash when confronted with empy labels
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
         ## add b tagging sequence to the patAODCoreReco
         ## sequence as it is also needed by ExtraReco
