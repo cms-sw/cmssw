@@ -70,7 +70,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   Mat5D K;
   AlgebraicMatrix55 M = AlgebraicMatrixID();
   if (holder.useProjFunc() ) {
-    K = pf.project(R);
+    K = C*pf.project(R);
     M -= pf.project(K);
   }
   else {
