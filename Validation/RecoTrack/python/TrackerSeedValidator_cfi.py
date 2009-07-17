@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
     associators = cms.vstring('TrackAssociatorByHits'),
     useFabsEta = cms.bool(True),
-    minpT = cms.double(0.0),
+    minpT = cms.double(-1),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     min = cms.double(0.0),
     max = cms.double(2.5),
@@ -11,11 +11,11 @@ trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
     label = cms.VInputTag(cms.InputTag("newSeedFromTriplets")),
     maxHit = cms.double(25.0),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    nintpT = cms.int32(200),
+    nintpT = cms.int32(40),
     label_tp_fake = cms.InputTag("cutsTPFake"),
     label_tp_effic = cms.InputTag("cutsTPEffic"),
     useInvPt = cms.bool(False),
-    maxpT = cms.double(100.0),
+    maxpT = cms.double(3),
     outputFile = cms.string(''),
 #    outputFile = cms.string('validationPlotsSeed.root'),
     minHit = cms.double(0.0),
@@ -47,7 +47,8 @@ trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
     phiRes_nbin = cms.int32(100),                                   
     cotThetaRes_nbin = cms.int32(120),                                   
     dxyRes_nbin = cms.int32(100),                                   
-    dzRes_nbin = cms.int32(150) 
+    dzRes_nbin = cms.int32(150),
+    useLogPt=cms.untracked.bool(True)
 )
 
 

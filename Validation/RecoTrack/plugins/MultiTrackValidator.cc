@@ -286,34 +286,34 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
 
       if(useLogPt){
-      BinLogX(dzres_vs_pt[j]->getTH2F());
-      BinLogX(h_dzmeanhPt[j]->getTH1F());
-      BinLogX(h_dzrmshPt[j]->getTH1F());
-
-      BinLogX(dxyres_vs_pt[j]->getTH2F());
-      BinLogX(h_dxymeanhPt[j]->getTH1F());
-      BinLogX(h_dxyrmshPt[j]->getTH1F());
-
-      BinLogX(phires_vs_pt[j]->getTH2F());
-      BinLogX(h_phimeanhPt[j]->getTH1F());
-      BinLogX(h_phirmshPt[j]->getTH1F());
-
-      BinLogX(cotThetares_vs_pt[j]->getTH2F());
-      BinLogX(h_cotThetameanhPt[j]->getTH1F());
-      BinLogX(h_cotThetarmshPt[j]->getTH1F());
-
-      BinLogX(ptres_vs_pt[j]->getTH2F());
-      BinLogX(h_ptmeanhPt[j]->getTH1F());
-      BinLogX(h_ptrmshPt[j]->getTH1F());
-
-      BinLogX(h_efficPt[j]->getTH1F());
-      BinLogX(h_fakeratePt[j]->getTH1F());
-      BinLogX(h_recopT[j]->getTH1F());
-      BinLogX(h_assocpT[j]->getTH1F());
-      BinLogX(h_assoc2pT[j]->getTH1F());
-      BinLogX(h_simulpT[j]->getTH1F());
-      j++;
+	BinLogX(dzres_vs_pt[j]->getTH2F());
+	BinLogX(h_dzmeanhPt[j]->getTH1F());
+	BinLogX(h_dzrmshPt[j]->getTH1F());
+	
+	BinLogX(dxyres_vs_pt[j]->getTH2F());
+	BinLogX(h_dxymeanhPt[j]->getTH1F());
+	BinLogX(h_dxyrmshPt[j]->getTH1F());
+	
+	BinLogX(phires_vs_pt[j]->getTH2F());
+	BinLogX(h_phimeanhPt[j]->getTH1F());
+	BinLogX(h_phirmshPt[j]->getTH1F());
+	
+	BinLogX(cotThetares_vs_pt[j]->getTH2F());
+	BinLogX(h_cotThetameanhPt[j]->getTH1F());
+	BinLogX(h_cotThetarmshPt[j]->getTH1F());
+	
+	BinLogX(ptres_vs_pt[j]->getTH2F());
+	BinLogX(h_ptmeanhPt[j]->getTH1F());
+	BinLogX(h_ptrmshPt[j]->getTH1F());
+	
+	BinLogX(h_efficPt[j]->getTH1F());
+	BinLogX(h_fakeratePt[j]->getTH1F());
+	BinLogX(h_recopT[j]->getTH1F());
+	BinLogX(h_assocpT[j]->getTH1F());
+	BinLogX(h_assoc2pT[j]->getTH1F());
+	BinLogX(h_simulpT[j]->getTH1F());
       }
+	j++;
     }
   }
   if (UseAssociators) {

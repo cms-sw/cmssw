@@ -41,9 +41,9 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
 	dirName+=algo.label()+"_";
       if(algo.instance()!="")
 	dirName+=algo.instance()+"_";      
-      if (dirName.find("Seeds")<dirName.length()){
-	dirName.replace(dirName.find("Seeds"),6,"");
-      }
+      //      if (dirName.find("Seeds")<dirName.length()){
+      //	dirName.replace(dirName.find("Seeds"),6,"");
+      //      }
       string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
 	assoc.replace(assoc.find("Track"),5,"");
@@ -103,6 +103,14 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
       nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
+      if(useLogPt){
+	BinLogX(h_efficPt[j]->getTH1F());
+	BinLogX(h_fakeratePt[j]->getTH1F());
+	BinLogX(h_recopT[j]->getTH1F());
+	BinLogX(h_assocpT[j]->getTH1F());
+	BinLogX(h_assoc2pT[j]->getTH1F());
+	BinLogX(h_simulpT[j]->getTH1F());
+      }      
       j++;
     }
   }
@@ -191,20 +199,20 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 					     << " with pt=" << sqrt(tp->momentum().perp2())
 					     << " NOT associated to any TrajectorySeed" << "\n";
 	}
-
+	double tpeta=getEta(tp->momentum().eta());
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	  if (getEta(tp->momentum().eta())>etaintervals[w][f]&&
-	      getEta(tp->momentum().eta())<etaintervals[w][f+1]) {
+	  if (tpeta>etaintervals[w][f]&&
+	      tpeta<etaintervals[w][f+1]) {
 	    totSIMeta[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSeta[w][f]++;
 	    }
 	  }
 	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	
+	double tppt=getPt(sqrt(tp->momentum().perp2()));
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-          if (getPt(sqrt(tp->momentum().perp2()))>pTintervals[w][f]&&
-              getPt(sqrt(tp->momentum().perp2()))<pTintervals[w][f+1]) {
+          if (tppt>pTintervals[w][f]&&
+              tppt<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSpT[w][f]++;
@@ -238,8 +246,11 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	//get parameters and errors from the seed state
 	TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
 	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
-
 	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
+	if(!(tsAtClosestApproachSeed.isValid())){
+	  edm::LogVerbatim("SeedValidator")<<"TrajectoryStateClosestToBeamLine not valid";
+	  continue;
+	    }
 	GlobalPoint vSeed1 = tsAtClosestApproachSeed.trackStateAtPCA().position();
 	GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
 	GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
@@ -272,26 +283,27 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  tp = recSimColl[seed];
 	  if (tp.size()!=0) {
 	    at++;
-	    edm::LogVerbatim("TrackValidator") << "TrajectorySeed #" << rT << " associated with quality:" << tp.begin()->second <<"\n";
+	    edm::LogVerbatim("SeedValidator") << "TrajectorySeed #" << rT << " associated with quality:" << tp.begin()->second <<"\n";
 	  }
 	} else {
-	  edm::LogVerbatim("TrackValidator") << "TrajectorySeed #" << rT << " NOT associated to any TrackingParticle" << "\n";		  
+	  edm::LogVerbatim("SeedValidator") << "TrajectorySeed #" << rT << " NOT associated to any TrackingParticle" << "\n";		  
 	}
 	
 	//Compute fake rate vs eta
+	double seedeta=getEta(etaSeed);
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	  if (getEta(etaSeed)>etaintervals[w][f]&&
-	      getEta(etaSeed)<etaintervals[w][f+1]) {
+	  if (seedeta>etaintervals[w][f]&&
+	      seedeta<etaintervals[w][f+1]) {
 	    totRECeta[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2eta[w][f]++;
 	    }		
 	  }
 	}
-	
+	double seedpt=getPt(ptSeed);
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	  if (getPt(ptSeed)>pTintervals[w][f]&&
-	      getPt(ptSeed)<pTintervals[w][f+1]) {
+	  if (seedpt>pTintervals[w][f]&&
+	      seedpt<pTintervals[w][f+1]) {
 	    totRECpT[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2pT[w][f]++;
@@ -351,7 +363,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	    ((lambdaSeed-lambdaSim)/lambdaErrorSeed)/5;
 	  double contrib_phi = ((phiSeed-phiSim)/phiErrorSeed)*
 	    ((phiSeed-phiSim)/phiErrorSeed)/5;
-	  LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
+	  LogTrace("SeedValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 					 << "" <<  "\n"
 					 << "ptREC=" << ptSeed << "\n"
 					 << "etaREC=" << etaSeed << "\n"
@@ -400,12 +412,12 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  nhits_vs_eta[w]->Fill(getEta(etaSeed),numberOfHitsSeed);
 
 	} catch (cms::Exception e){
-	  LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
+	  LogTrace("SeedValidator") << "exception found: " << e.what() << "\n";
 	}
       }
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
-      edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
+      edm::LogVerbatim("SeedValidator") << "Total Simulated: " << st << "\n"
 					 << "Total Associated (simToReco): " << ats << "\n"
 					 << "Total Reconstructed: " << rT << "\n"
 					 << "Total Associated (recoToSim): " << at << "\n"
@@ -417,7 +429,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 }
 
 void TrackerSeedValidator::endRun(edm::Run const&, edm::EventSetup const&) {
-  LogTrace("TrackValidator") << "TrackerSeedValidator::endRun()";
+  LogTrace("SeedValidator") << "TrackerSeedValidator::endRun()";
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){

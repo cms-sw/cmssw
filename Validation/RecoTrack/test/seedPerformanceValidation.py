@@ -33,7 +33,7 @@ idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100',
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
 
 
-idealsamples= ['RelValSingleMuPt100']
+idealsamples= ['RelValMinBias']
 
 
 #
@@ -68,11 +68,11 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
-NewRepository = '.'
-#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
+#NewRepository = '.'
+NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/seeds'
 
 #Default Nevents
-defaultNevents ='1000'
+defaultNevents ='5000'
 
 #Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is -1:
 Events={}
@@ -106,9 +106,9 @@ def do_validation(samples, GlobalTag):
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
 
-    mineff='0.5'
+    mineff='0.'
     maxeff='1.025'
-    maxfake='0.7'
+    maxfake='0.1'
 
 
     #build the New Selection name
@@ -230,7 +230,7 @@ def do_validation(samples, GlobalTag):
             else:
                     for seedcollection in SeedCollections :
                         rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"val.' +sample+'.root\\\",\\\"val.' +sample+'_'+seedcollection+'.root\\\",\\\"'+ seedcollection+'_AssociatorByHits\\\",\\\"Seed\\\"\\) >& /dev/null'
-                        print rootcommand
+#                        print rootcommand
                         os.system(rootcommand)
                         referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+seedcollection + '/' + 'val.'+sample+'.root'
                         if os.path.isfile(referenceSample ):
