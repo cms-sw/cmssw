@@ -28,7 +28,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V2::All"
+process.GlobalTag.globaltag = "MC_31X_V3::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
