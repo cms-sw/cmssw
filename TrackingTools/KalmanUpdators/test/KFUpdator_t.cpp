@@ -3,6 +3,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
@@ -94,17 +96,17 @@ int main() {
     
   SiStripRecHit2D dummy;
   TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, DetId() , &dummy, &dummy);
-  TransientTrackingRecHit * hit = new  My2DHit(det, hit);
+  TransientTrackingRecHit * thit = new  My2DHit(det, hit);
 
   TrajectoryStateUpdator * tsu = new KFUpdator();
 
   {
-    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *hit);
+    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
     print (tsn);
   }
 
   {
-   TrajectoryStateOnSurface tsn =  (*tsu).update(ts2, *hit);
+   TrajectoryStateOnSurface tsn =  (*tsu).update(ts2, *thit);
    print(tsn);
     
   }
