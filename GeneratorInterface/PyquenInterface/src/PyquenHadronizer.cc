@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenHadronizer.cc,v 1.2 2009/05/28 17:36:53 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.3 2009/05/28 18:54:16 yilmaz Exp $
 */
 
 #include <iostream>
@@ -50,7 +50,7 @@ doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
 docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
 doIsospin_(pset.getParameter<bool>("doIsospin")),
 embedding_(pset.getParameter<bool>("embeddingMode")),
-nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
+nquarkflavor_(pset.getParameter<int>("qgpNumQuarkFlavor")),
 qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),

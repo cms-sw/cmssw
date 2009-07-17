@@ -21,7 +21,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          # Center of mass energy
                          comEnergy = cms.double(4000.0),
 
-                         numQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
+                         qgpNumQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
                          cFlag = cms.int32(0), ## centrality flag
                          bMin = cms.double(0.0), ## min impact param (fm); valid only if cflag_!=0
                          bMax = cms.double(0.0), ## max impact param (fm); valid only if cflag_!=0
