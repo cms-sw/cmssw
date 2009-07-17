@@ -90,12 +90,12 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     modulename   = tableMat[r][colM["PANEL_NAME"]];
     aohstring    = tableMat[r][colM["AOH_CHAN"]];
     tbmChannel   = tableMat[r][colM["TBM_MODE"]] ;
-//    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
-//      << "Portcardname: " << portcardname
-//      << "\tmodulename: "   << modulename
-//      << "\taohstring: "    << aohstring
-//      << "\ttbmChannel:"   << tbmChannel
-//      << endl ;
+//     cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
+// 	 << "Portcardname: " << portcardname
+// 	 << "\tmodulename: "   << modulename
+// 	 << "\taohstring: "    << aohstring
+// 	 << "\ttbmChannel:"   << tbmChannel
+// 	 << endl ;
     //aohname.erase(0,20);  // Is going to be change when Umesh put a AOH Channel column in the view.
     aoh = (((unsigned int)atoi(aohstring.c_str())));
     //std::cout<<aoh<<std::endl;

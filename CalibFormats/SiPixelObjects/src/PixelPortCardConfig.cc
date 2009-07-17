@@ -225,7 +225,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     }
 
   portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
-//  cout << __LINE__ << mthn << "Loading PortCard " << portcardname_ << endl ;
+  cout << __LINE__ << mthn << "Loading PortCard " << portcardname_ << endl ;
   if(portcardname_.find("FPix") != std::string::npos)
     {
       type_ = "fpix" ;
@@ -243,11 +243,11 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   channelAddress_ = atoi(tableMat[1][colM["CHANNEL"]].c_str() ) ;
   i2cSpeed_       = atoi(tableMat[1][colM["I2C_SPEED"]].c_str()       ) ;
 
-//  cout << __LINE__ << "]\t" << mthn << 
-//    "ringAddress_\t"    << ringAddress_	    << endl <<
-//    "ccuAddress_\t"     << ccuAddress_	    << endl <<
-//    "channelAddress_\t" << channelAddress_  << endl <<
-//    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+  cout << __LINE__ << "]\t" << mthn << 
+    "ringAddress_\t"    << ringAddress_	    << endl <<
+    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+    "channelAddress_\t" << channelAddress_  << endl <<
+    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
   
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
@@ -263,17 +263,20 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
 	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
 	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
 	{
+	  if(portcardname_.find("PRT2")!=std::string::npos  && 
+	     (settingName.find("AOH3_")!=std::string::npos   ||		     
+	     settingName.find("AOH4_")!=std::string::npos ) ) continue ;
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  //cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  cout << __LINE__ << "]\t" << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       // FIXMR
-       else if ( settingName == k_PLL_CTR4 || settingName == k_PLL_CTR5 ) // special handling
+       else if ( settingName == k_PLL_CTR5 ) // special handling
        {
     	  unsigned int last_CTR2 = 0x0;
     	  if ( containsSetting(k_PLL_CTR2) ) last_CTR2 = getdeviceValuesForSetting( k_PLL_CTR2 );
@@ -284,7 +287,10 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
       // FIXMR
       else // no special handling for this name
 	{
-	  if(type_ != "fpix" || (settingName.find("DELAY25_") != std::string::npos) || (settingName.find("AOH_BIAS") != std::string::npos))
+	  if((settingName.find("DELAY25_") != std::string::npos) || 
+	     (settingName.find("_BIAS") != std::string::npos) || 
+	     (settingName.find("PLL_CTR2") != std::string::npos) ||
+	     (settingName.find("PLL_CTR5") != std::string::npos) )
 	    {
 	      map<string,string>::iterator iter = nameDBtoFileConversion_.find(settingName);
 	      if(iter == nameDBtoFileConversion_.end()) continue ;
@@ -292,14 +298,26 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	      
 	      if ( foundName_itr != nameToAddress_.end() )
 		{
+		  if(portcardname_.find("PRT2")!=std::string::npos  && 
+		     (settingName.find("AOH3_")!=std::string::npos   ||		     
+		      settingName.find("AOH4_")!=std::string::npos )) continue ;		     
 		  i2c_address = foundName_itr->second;
 		}
 	      else
 		{
 		  i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
 		}
+	      if(type_ == "fpix"  && 
+		 (
+		  settingName.find("AOH1_")!=std::string::npos   ||		     
+		  settingName.find("AOH2_")!=std::string::npos   ||
+		  settingName.find("AOH3_")!=std::string::npos   ||  
+		  settingName.find("AOH4_")!=std::string::npos   
+		  )
+		 ) continue ;
+	      
 	      pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-/*
+
 	      cout << __LINE__ 
 	           << mthn << "Setting\t" 
 		   << "|"
@@ -312,7 +330,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		   << i2c_values
 		   << ")"
 		   << endl ;
-*/
+
 	      device_.push_back(p);
 	    }
 	}
