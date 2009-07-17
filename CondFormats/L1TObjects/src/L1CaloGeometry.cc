@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:36 EDT 2006
-// $Id: L1CaloGeometry.cc,v 1.1 2008/04/16 23:20:48 wsun Exp $
+// $Id: L1CaloGeometry.cc,v 1.2 2009/07/02 01:45:47 wsun Exp $
 //
 
 // system include files
@@ -54,6 +54,21 @@
 // constructors and destructor
 //
 L1CaloGeometry::L1CaloGeometry()
+  : m_version( kOrig ), // if version is not in CondDB, set it to kOrig
+    m_numberGctEmJetPhiBins( 0 ),
+    m_numberGctEtSumPhiBins( 0 ),
+    m_numberGctHtSumPhiBins( 0 ),
+    m_numberGctCentralEtaBinsPerHalf( 0 ),
+    m_numberGctForwardEtaBinsPerHalf( 0 ),
+    m_etaSignBitOffset( 0 ),
+    m_gctEtaBinBoundaries(),
+    m_etaBinsPerHalf( 0 ),
+    m_gctEmJetPhiBinWidth( 0. ),
+    m_gctEtSumPhiBinWidth( 0. ),
+    m_gctHtSumPhiBinWidth( 0. ),
+    m_gctEmJetPhiOffset( 0. ),
+    m_gctEtSumPhiOffset( 0. ),
+    m_gctHtSumPhiOffset( 0. )
 {
 }
 
@@ -61,12 +76,16 @@ L1CaloGeometry::L1CaloGeometry( unsigned int numberGctEmJetPhiBins,
 				double gctEmJetPhiBinOffset,
 				unsigned int numberGctEtSumPhiBins,
 				double gctEtSumPhiBinOffset,
+				unsigned int numberGctHtSumPhiBins,
+				double gctHtSumPhiBinOffset,
 				unsigned int numberGctCentralEtaBinsPerHalf,
 				unsigned int numberGctForwardEtaBinsPerHalf,
 				unsigned int etaSignBitOffset,
 				const std::vector<double>& gctEtaBinBoundaries)
-  : m_numberGctEmJetPhiBins( numberGctEmJetPhiBins ),
+  : m_version( kAddedMHTPhi ),
+    m_numberGctEmJetPhiBins( numberGctEmJetPhiBins ),
     m_numberGctEtSumPhiBins( numberGctEtSumPhiBins ),
+    m_numberGctHtSumPhiBins( numberGctHtSumPhiBins ),
     m_numberGctCentralEtaBinsPerHalf( numberGctCentralEtaBinsPerHalf ),
     m_numberGctForwardEtaBinsPerHalf( numberGctForwardEtaBinsPerHalf ),
     m_etaSignBitOffset( etaSignBitOffset ),
@@ -77,9 +96,11 @@ L1CaloGeometry::L1CaloGeometry( unsigned int numberGctEmJetPhiBins,
 
   m_gctEmJetPhiBinWidth = 2. * M_PI / m_numberGctEmJetPhiBins ;
   m_gctEtSumPhiBinWidth = 2. * M_PI / m_numberGctEtSumPhiBins ;
+  m_gctHtSumPhiBinWidth = 2. * M_PI / m_numberGctHtSumPhiBins ;
 
   m_gctEmJetPhiOffset = gctEmJetPhiBinOffset * m_gctEmJetPhiBinWidth ;
   m_gctEtSumPhiOffset = gctEtSumPhiBinOffset * m_gctEtSumPhiBinWidth ;
+  m_gctHtSumPhiOffset = gctHtSumPhiBinOffset * m_gctHtSumPhiBinWidth ;
 }
 
 // L1CaloGeometry::L1CaloGeometry(const L1CaloGeometry& rhs)
@@ -294,22 +315,46 @@ L1CaloGeometry::etSumPhiBinHighEdge( unsigned int phiIndex ) const
 double
 L1CaloGeometry::htSumPhiBinCenter( unsigned int phiIndex ) const
 {
-   return ( ( double ) phiIndex + 0.5 ) * m_gctEtSumPhiBinWidth * 4. +
-      m_gctEtSumPhiOffset ;
+  if( m_version == kOrig )
+    {
+      return ( ( double ) phiIndex + 0.5 ) * m_gctEtSumPhiBinWidth * 4. +
+	m_gctEtSumPhiOffset ;
+    }
+  else
+    {
+      return ( ( double ) phiIndex + 0.5 ) * m_gctHtSumPhiBinWidth +
+	m_gctHtSumPhiOffset ;
+    }
 }
 
 double
 L1CaloGeometry::htSumPhiBinLowEdge( unsigned int phiIndex ) const
 {
-   return ( ( double ) phiIndex ) * m_gctEtSumPhiBinWidth * 4. +
-      m_gctEtSumPhiOffset ;
+  if( m_version == kOrig )
+    {
+      return ( ( double ) phiIndex ) * m_gctEtSumPhiBinWidth * 4. +
+	m_gctEtSumPhiOffset ;
+    }
+  else
+    {
+      return ( ( double ) phiIndex ) * m_gctHtSumPhiBinWidth +
+	m_gctHtSumPhiOffset ;
+    }
 }
 
 double
 L1CaloGeometry::htSumPhiBinHighEdge( unsigned int phiIndex ) const
 {
-   return ( ( double ) phiIndex + 1. ) * m_gctEtSumPhiBinWidth * 4. +
-      m_gctEtSumPhiOffset ;
+  if( m_version == kOrig )
+    {
+      return ( ( double ) phiIndex + 1. ) * m_gctEtSumPhiBinWidth * 4. +
+	m_gctEtSumPhiOffset ;
+    }
+  else
+    {
+      return ( ( double ) phiIndex + 1. ) * m_gctHtSumPhiBinWidth +
+	m_gctHtSumPhiOffset ;
+    }
 }
 
 unsigned int
@@ -446,7 +491,27 @@ L1CaloGeometry::htSumPhiIndex( const double& phiValue ) const
       while( phiAdjusted > 2. * M_PI ) ;
    }
 
-   return ( ( int ) ( phiAdjusted / ( m_gctEtSumPhiBinWidth * 4. ) ) ) ;
+   if( m_version == kOrig )
+     {
+       return ( ( int ) ( phiAdjusted / ( m_gctEtSumPhiBinWidth * 4. ) ) ) ;
+     }
+   else
+     {
+       return ( ( int ) ( phiAdjusted / m_gctHtSumPhiBinWidth ) ) ;
+     }
+}
+
+unsigned int
+L1CaloGeometry::numberGctHtSumPhiBins() const
+{
+  if( m_version == kOrig )
+    {
+      return m_numberGctEtSumPhiBins / 4 ;
+    }
+  else
+    {
+      return m_numberGctHtSumPhiBins ;
+    }
 }
 
 //

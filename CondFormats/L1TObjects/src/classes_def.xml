@@ -126,6 +126,6 @@
   <class name="L1GtTriggerMenu">
     <field name="m_conditionMap" transient="true" />
   </class>
-  <class name="L1CaloGeometry"/>
+  <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01"/>
 
 </lcgdict>

@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 21:52:29 EDT 2006
-// $Id: L1CaloGeometry.h,v 1.1 2008/04/16 23:20:48 wsun Exp $
+// $Id: L1CaloGeometry.h,v 1.2 2009/07/02 01:45:47 wsun Exp $
 //
 
 // system include files
@@ -39,11 +39,15 @@ class L1CaloGeometry
       // calo sign bit is the 4th bit
 /*       static const unsigned int kEtaSignBitOffset = 8 ; */
 
+      enum Versions{ kOrig, kAddedMHTPhi, kNumVersions } ;
+
       L1CaloGeometry();
       L1CaloGeometry( unsigned int numberGctEmJetPhiBins,
 		      double gctEmJetPhiBinOffset, // -0.5 bins usually
 		      unsigned int numberGctEtSumPhiBins,
 		      double gctEtSumPhiBinOffset, // 0 bins usually
+		      unsigned int numberGctHtSumPhiBins,
+		      double gctHtSumPhiBinOffset, // 0 bins usually
 		      unsigned int numberGctCentralEtaBinsPerHalf,
 		      unsigned int numberGctForwardEtaBinsPerHalf,
 		      unsigned int etaSignBitOffset,
@@ -51,6 +55,8 @@ class L1CaloGeometry
       virtual ~L1CaloGeometry();
 
       // ---------- const member functions ---------------------
+
+      unsigned int version() const { return m_version ; }
 
       // Central/tau jets and EM have etaIndex = 0-6 for eta = 0.0-3.0
       // Forward jets have etaIndex = 0-3 for eta = 3.0-5.0
@@ -103,8 +109,7 @@ class L1CaloGeometry
       { return m_numberGctEmJetPhiBins ; }
       unsigned int numberGctEtSumPhiBins() const
       { return m_numberGctEtSumPhiBins ; }
-      unsigned int numberGctHtSumPhiBins() const
-      { return m_numberGctEtSumPhiBins / 4 ; }
+      unsigned int numberGctHtSumPhiBins() const ;
       unsigned int numberGctCentralEtaBinsPerHalf() const
       { return m_numberGctCentralEtaBinsPerHalf ; }
       unsigned int numberGctForwardEtaBinsPerHalf() const
@@ -123,8 +128,11 @@ class L1CaloGeometry
 
       // ---------- member data --------------------------------
 
+      unsigned int m_version ;
+
       unsigned int m_numberGctEmJetPhiBins ;
       unsigned int m_numberGctEtSumPhiBins ;
+      unsigned int m_numberGctHtSumPhiBins ;
       unsigned int m_numberGctCentralEtaBinsPerHalf ;
       unsigned int m_numberGctForwardEtaBinsPerHalf ;
       unsigned int m_etaSignBitOffset ;
@@ -135,8 +143,10 @@ class L1CaloGeometry
       // Calo phi bins are uniform.
       double m_gctEmJetPhiBinWidth ;
       double m_gctEtSumPhiBinWidth ;
+      double m_gctHtSumPhiBinWidth ;
       double m_gctEmJetPhiOffset ;
       double m_gctEtSumPhiOffset ;
+      double m_gctHtSumPhiOffset ;
 };
 
 
