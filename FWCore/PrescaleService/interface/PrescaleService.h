@@ -2,10 +2,6 @@
 #define FWCore_PrescaleService_PrescaleService_h
 
 
-#include "DataFormats/Provenance/interface/EventID.h"
-
-#include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h" 
 
@@ -19,6 +15,11 @@
 
 
 namespace edm {
+  class ActivityRegistry;
+  class Event;
+  class EventID;
+  class EventSetup;
+  class Timestamp;
   namespace service {
 
     class PrescaleService
