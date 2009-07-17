@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.41 2009/07/15 14:31:08 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.42 2009/07/17 08:01:57 amraktad Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include <boost/bind.hpp>
 
 #include "TClass.h"
+#include "TColor.h"
 #include "TCanvas.h"
 #include "TRootEmbeddedCanvas.h"
 #include "TGButton.h"
@@ -170,8 +171,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
       m_viewCanvas->GetCanvas()->Update();
       m_viewCanvas ->GetCanvas()->SetEditable(kFALSE);
    }
+   m_textCanvas->GetCanvas()->SetBorderMode(0);
    m_textCanvas->GetCanvas()->SetEditable(kFALSE);
-
    m_textCanvas->GetCanvas()->Update();
 
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
@@ -188,26 +189,25 @@ FWDetailViewManager::createDetailViewFrame()
    Float_t leftW = 2;
    Float_t rightW = 5;
 
+   // used default canvas color
+   Pixel_t bgPixel = TColor::Number2Pixel(19);
+
    m_pack = new TGPack(m_mainFrame);
    m_mainFrame->AddFrame(m_pack, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
    m_pack->SetVertical(kFALSE);
    m_pack->SetUseSplitters(kFALSE);
 
-   // text view
-   TGPack* vp = new TGPack(m_pack, m_pack->GetWidth(), m_pack->GetHeight());
-   vp->SetUseSplitters(kFALSE);
-   m_textCanvas = new TRootEmbeddedCanvas("Embeddedcanvas", vp);
-   m_textCanvas->GetCanvas()->SetHighLightColor(-1);
-   vp->AddFrameWithWeight(m_textCanvas, new TGLayoutHints(kLHintsNormal), 15);
-   {
-      TGVerticalFrame* f =  new TGVerticalFrame(vp);
-      TGTextButton* sbtn = new TGTextButton(f, "Export Detail View Image");
-      sbtn->Connect("Clicked()", "FWDetailViewManager", this, "saveImage()");
-
-      f->AddFrame(sbtn, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4,4,4,0));
-      vp->AddFrameWithWeight(f, 0 , 1);
-   }
-   m_pack->AddFrameWithWeight(vp, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY),leftW);
+   TGVerticalFrame* f = new TGVerticalFrame(m_pack, 10, 10, kSunkenFrame|kDoubleBorder);
+   f->SetBackgroundColor(bgPixel);
+   m_textCanvas = new TRootEmbeddedCanvas("Embeddedcanvas", f, 10, 10, 0);
+   m_textCanvas->GetCanvas()->SetBorderMode(0);
+   f->AddFrame(m_textCanvas, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   TGTextButton* sbtn = new TGTextButton(f, "Export Image");
+   sbtn->Connect("Clicked()", "FWDetailViewManager", this, "saveImage()");
+   sbtn->SetBackgroundColor(bgPixel);
+   f->AddFrame(sbtn, new TGLayoutHints(kLHintsNormal|kLHintsBottom));
+ 
+   m_pack->AddFrameWithWeight(f, new TGLayoutHints(kLHintsNormal),leftW);
 
    // viewer
    m_viewerGL = new TGLEmbeddedViewer(m_pack, 0, 0);
