@@ -73,8 +73,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/10 09:59:42 $ 
- **  $Revision: 1.37 $
+ **  $Date: 2009/07/14 16:33:47 $ 
+ **  $Revision: 1.39 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -476,32 +476,48 @@ void  PhotonValidator::beginJob() {
     h2_hOverEVsEt_[1] = dbe_->book2D(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
     //
     histname = "ecalRecHitSumEtConeDR04";
-    h_ecalRecHitSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,etMax*etScale);
-    h_ecalRecHitSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","ecalRecHitSumEtDR04: Barrel ", etBin,etMin,etMax*etScale);
-    h_ecalRecHitSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","ecalRecHitSumEtDR04: Endcap ", etBin,etMin,etMax*etScale);
+    h_ecalRecHitSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
+    h_ecalRecHitSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","ecalRecHitSumEtDR04: Barrel ", etBin,etMin,20.);
+    h_ecalRecHitSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","ecalRecHitSumEtDR04: Endcap ", etBin,etMin,20.);
     //
     histname="ecalRecHitSumEtConeDR04VsEta";
     h2_ecalRecHitSumEtConeDR04VsEta_[0] = dbe_->book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
     h2_ecalRecHitSumEtConeDR04VsEta_[1] = dbe_->book2D(histname+"Unconv"," All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*etScale);
+    histname="pEcalRecHitSumEtConeDR04VsEta";
+    p_ecalRecHitSumEtConeDR04VsEta_[0] = dbe_->bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+    p_ecalRecHitSumEtConeDR04VsEta_[1] = dbe_->bookProfile(histname+"Unconv","All photons ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
     //
     histname="ecalRecHitSumEtConeDR04VsEt";
     h2_ecalRecHitSumEtConeDR04VsEt_[0] = dbe_->book2D(histname+"All"," All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
     h2_ecalRecHitSumEtConeDR04VsEt_[1] = dbe_->book2D(histname+"Barrel"," All photons ecalRecHitSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
     h2_ecalRecHitSumEtConeDR04VsEt_[2] = dbe_->book2D(histname+"Endcap"," All photons ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    histname="pEcalRecHitSumEtConeDR04VsEt";
+    p_ecalRecHitSumEtConeDR04VsEt_[0] = dbe_->bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_ecalRecHitSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_ecalRecHitSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     //
     histname = "hcalTowerSumEtConeDR04";
-    h_hcalTowerSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,etMax*0.1);
-    h_hcalTowerSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,etMax*0.1);
-    h_hcalTowerSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,etMax*0.1);
+    h_hcalTowerSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
+    h_hcalTowerSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,20.);
+    h_hcalTowerSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,20.);
+
     //
     histname="hcalTowerSumEtConeDR04VsEta";
     h2_hcalTowerSumEtConeDR04VsEta_[0] = dbe_->book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
     h2_hcalTowerSumEtConeDR04VsEta_[1] = dbe_->book2D(histname+"Unconv"," All photons hcalTowerSumEtConeDR04 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,etBin,etMin,etMax*0.1);
+    histname="pHcalTowerSumEtConeDR04VsEta";
+    p_hcalTowerSumEtConeDR04VsEta_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+    p_hcalTowerSumEtConeDR04VsEta_[1] = dbe_->bookProfile(histname+"Unconv","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
     //
     histname="hcalTowerSumEtConeDR04VsEt";
     h2_hcalTowerSumEtConeDR04VsEt_[0] = dbe_->book2D(histname+"All"," All photons hcalTowerSumEtConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
     h2_hcalTowerSumEtConeDR04VsEt_[1] = dbe_->book2D(histname+"Barrel"," All photons hcalTowerSumEtConeDR04 vs Et: Barrel ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
     h2_hcalTowerSumEtConeDR04VsEt_[2] = dbe_->book2D(histname+"Endcap"," All photons hcalTowerSumEtConeDR04 vs Et: Endcap ",etBin,etMin, etMax,etBin,etMin,etMax*0.1);
+    histname="pHcalTowerSumEtConeDR04VsEt";
+    p_hcalTowerSumEtConeDR04VsEt_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+
     //
     histname = "isoTrkSolidConeDR04";
     h_isoTrkSolidConeDR04_[0][0] = dbe_->book1D(histname+"All",   "isoTrkSolidConeDR04: All Ecal",etBin,etMin,etMax*0.1);
@@ -1197,22 +1213,22 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    ||  (mother != 0  && mother->pdg_id() == 35) ) 
 	{ 
 	  //std::cout << " ZERO mother or Higgs or primary photon  " << std::endl;
-	  if (mother !=0) std::cout <<  mother->pdg_id() << std::endl; 
+	  //if (mother !=0) std::cout <<  mother->pdg_id() << std::endl; 
           double dPt =  fabs((*mcIter)->momentum().perp() - (*mcPho).fourMomentum().et());
           float phiMother=(*mcIter)->momentum().phi();
           double dPhi = phiNormalization(phiMother) - mcPhi_ ; 
           double dEta = fabs( (*mcIter)->momentum().eta() - (*mcPho).fourMomentum().pseudoRapidity() );
 	  
-	  std::cout << " HEP photon pt " << (*mcIter)->momentum().perp() << " eta " << (*mcIter)->momentum().eta() << " phi " << (*mcIter)->momentum().phi() << std::endl;
-	  std::cout << "   (*mcPho).motherType() selection  " <<   (*mcPho).motherType() << " pt " <<  (*mcPho).fourMomentum().et()  << " eta " << (*mcPho).fourMomentum().pseudoRapidity() << " phi " << mcPhi_ << std::endl;
-	  std::cout << " dPt " << dPt << " dEta " << dEta << " dPhi " << dPhi << std::endl;
+	  //std::cout << " HEP photon pt " << (*mcIter)->momentum().perp() << " eta " << (*mcIter)->momentum().eta() << " phi " << (*mcIter)->momentum().phi() << std::endl;
+	  //std::cout << "   (*mcPho).motherType() selection  " <<   (*mcPho).motherType() << " pt " <<  (*mcPho).fourMomentum().et()  << " eta " << (*mcPho).fourMomentum().pseudoRapidity() << " phi " << mcPhi_ << std::endl;
+	  //std::cout << " dPt " << dPt << " dEta " << dEta << " dPhi " << dPhi << std::endl;
           if ( dEta <=0.0001 && dPhi <=0.0001 && dPt <=0.0001) 
 	    isTheSame = true;
 
 	} 
       if ( ! isTheSame ) continue; 
-      std::cout << " HEP photon pt " << (*mcIter)->momentum().perp() << " eta " << (*mcIter)->momentum().eta() << " phi " << (*mcIter)->momentum().phi() << std::endl;
-      std::cout << "   (*mcPho).motherType() after  " <<   (*mcPho).motherType() << " pt " <<  (*mcPho).fourMomentum().et()  << " eta " << (*mcPho).fourMomentum().pseudoRapidity() << " phi " << mcPhi_ << std::endl;
+      //      std::cout << " HEP photon pt " << (*mcIter)->momentum().perp() << " eta " << (*mcIter)->momentum().eta() << " phi " << (*mcIter)->momentum().phi() << std::endl;
+      //std::cout << "   (*mcPho).motherType() after  " <<   (*mcPho).motherType() << " pt " <<  (*mcPho).fourMomentum().et()  << " eta " << (*mcPho).fourMomentum().pseudoRapidity() << " phi " << mcPhi_ << std::endl;
 
 
     
@@ -1421,10 +1437,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_ecalRecHitSumEtConeDR04_[type][0]->Fill( ecalIso );
       h2_ecalRecHitSumEtConeDR04VsEta_[0] -> Fill (mcEta_, ecalIso );      
       h2_ecalRecHitSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
+      p_ecalRecHitSumEtConeDR04VsEta_[0] -> Fill (mcEta_, ecalIso );      
+      p_ecalRecHitSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
       //
       h_hcalTowerSumEtConeDR04_[type][0]->Fill( hcalIso );
       h2_hcalTowerSumEtConeDR04VsEta_[0] -> Fill (mcEta_, hcalIso );      
       h2_hcalTowerSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
+      p_hcalTowerSumEtConeDR04VsEta_[0] -> Fill (mcEta_, hcalIso );      
+      p_hcalTowerSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
       //
       h_isoTrkSolidConeDR04_[type][0]->Fill( trkIso );
       h2_isoTrkSolidConeDR04VsEta_[0] -> Fill (mcEta_, trkIso );      
@@ -1474,8 +1494,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h2_hOverEVsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hOverE);
 	//
 	h2_ecalRecHitSumEtConeDR04VsEta_[1] -> Fill (mcEta_, ecalIso );      
+	p_ecalRecHitSumEtConeDR04VsEta_[1] -> Fill (mcEta_, ecalIso );      
 	//
 	h2_hcalTowerSumEtConeDR04VsEta_[1] -> Fill (mcEta_, hcalIso );      
+	p_hcalTowerSumEtConeDR04VsEta_[1] -> Fill (mcEta_, hcalIso );      
 	//
 	h2_isoTrkSolidConeDR04VsEta_[1] -> Fill (mcEta_, trkIso );      
 	h2_isoTrkSolidConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), trkIso);      
@@ -1517,8 +1539,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_hOverE_[type][1]->Fill( hOverE );
 	h_ecalRecHitSumEtConeDR04_[type][1]->Fill( ecalIso );
 	h2_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
+	p_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
 	h_hcalTowerSumEtConeDR04_[type][1]->Fill( hcalIso );
 	h2_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
+	p_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
 	h_isoTrkSolidConeDR04_[type][1]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][1]->Fill( nIsoTrk );
 
@@ -1559,8 +1583,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_hOverE_[type][2]->Fill( hOverE );
 	h_ecalRecHitSumEtConeDR04_[type][2]->Fill( ecalIso );
 	h2_ecalRecHitSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
+	p_ecalRecHitSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);      
 	h_hcalTowerSumEtConeDR04_[type][2]->Fill( hcalIso );
 	h2_hcalTowerSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
+        p_hcalTowerSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);      
 	h_isoTrkSolidConeDR04_[type][2]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][2]->Fill( nIsoTrk );
 	h_phoE_[type][2]->Fill( photonE );
