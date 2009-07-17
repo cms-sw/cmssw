@@ -36,7 +36,7 @@ BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) co
    proj(0,3) = 1;
    proj(1,4) = 1;
 
-   ProjectMatrix<double,5,2>  pf & holder.projFunc<2>();
+   ProjectMatrix<double,5,2>  & pf = holder.projFunc<2>();
    pf.index[0] = 3;
    pf.index[1] = 4;
    holder.doUseProjFunc();
