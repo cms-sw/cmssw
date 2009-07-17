@@ -52,10 +52,30 @@ HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) :
       _meRecoJetPtRef= store->book1D("_meRecoJetPtRef","Single Reconstructed Jet Pt -- Ref trigger fired",100,0,500);
       _meRecoJetPtProbe= store->book1D("_meRecoJetPtProbe","Single Reconstructed Jet Pt -- Probe trigger fired",100,0,500);
 
+      _meRecoJetEta= store->book1D("_meRecoJetEta","Single Reconstructed Jet Eta",100,-10,10);
+      _meRecoJetEtaTrg= store->book1D("_meRecoJetEtaTrg","Single Reconstructed Jet Eta -- HLT Triggered",100,-10,10);
+      _meRecoJetEtaRef= store->book1D("_meRecoJetEtaRef","Single Reconstructed Jet Eta -- Ref trigger fired",100,-10,10);
+      _meRecoJetEtaProbe= store->book1D("_meRecoJetEtaProbe","Single Reconstructed Jet Eta -- Probe trigger fired",100,-10,10);
+
+      _meRecoJetPhi= store->book1D("_meRecoJetPhi","Single Reconstructed Jet Phi",100,-4.,4.);
+      _meRecoJetPhiTrg= store->book1D("_meRecoJetPhiTrg","Single Reconstructed Jet Phi -- HLT Triggered",100,-4.,4.);
+      _meRecoJetPhiRef= store->book1D("_meRecoJetPhiRef","Single Reconstructed Jet Phi -- Ref trigger fired",100,-4.,4.);
+      _meRecoJetPhiProbe= store->book1D("_meRecoJetPhiProbe","Single Reconstructed Jet Phi -- Probe trigger fired",100,-4.,4.);
+
       _meGenJetPt= store->book1D("_meGenJetPt","Single Generated Jet Pt",100,0,500);
       _meGenJetPtTrg= store->book1D("_meGenJetPtTrg","Single Generated Jet Pt -- HLT Triggered",100,0,500);
       _meGenJetPtRef= store->book1D("_meGenJetPtRef","Single Generated Jet Pt -- Ref trigger fired",100,0,500);
       _meGenJetPtProbe= store->book1D("_meGenJetPtProbe","Single Generated Jet Pt -- Probe trigger fired",100,0,500);
+
+      _meGenJetEta= store->book1D("_meGenJetEta","Single Generated Jet Eta",100,-10,10);
+      _meGenJetEtaTrg= store->book1D("_meGenJetEtaTrg","Single Generated Jet Eta -- HLT Triggered",100,-10,10);
+      _meGenJetEtaRef= store->book1D("_meGenJetEtaRef","Single Generated Jet Eta -- Ref trigger fired",100,-10,10);
+      _meGenJetEtaProbe= store->book1D("_meGenJetEtaProbe","Single Generated Jet Eta -- Probe trigger fired",100,-10,10);
+
+      _meGenJetPhi= store->book1D("_meGenJetPhi","Single Generated Jet Phi",100,-4.,4.);
+      _meGenJetPhiTrg= store->book1D("_meGenJetPhiTrg","Single Generated Jet Phi -- HLT Triggered",100,-4.,4.);
+      _meGenJetPhiRef= store->book1D("_meGenJetPhiRef","Single Generated Jet Phi -- Ref trigger fired",100,-4.,4.);
+      _meGenJetPhiProbe= store->book1D("_meGenJetPhiProbe","Single Generated Jet Phi -- Probe trigger fired",100,-4.,4.);
 
       _meRecoMET= store->book1D("_meRecoMET","Reconstructed Missing ET",100,0,500);
       _meRecoMETTrg= store->book1D("_meRecoMETTrg","Reconstructed Missing ET -- HLT Triggered",100,0,500);
@@ -200,7 +220,9 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Handle<CaloJetCollection> caloJets,caloJetsDummy;
   iEvent.getByLabel( CaloJetAlgorithm, caloJets );
-  double calJetPt=-1;
+  double calJetPt=-1.;
+  double calJetEta=-999.;
+  double calJetPhi=-999.;
   if (caloJets.isValid()) { 
     //Loop over the CaloJets and fill some histograms
     int jetInd = 0;
@@ -210,8 +232,14 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (jetInd == 0){
 	//h_ptCalLeading->Fill( cal->pt() );
 	calJetPt=cal->pt();
+	calJetEta=cal->eta();
+	calJetPhi=cal->phi();
 	_meRecoJetPt->Fill( calJetPt );
-	if (myTrig) _meRecoJetPtTrg->Fill( cal->pt() );
+	_meRecoJetEta->Fill( calJetEta );
+	_meRecoJetPhi->Fill( calJetPhi );
+	if (myTrig) _meRecoJetPtTrg->Fill( calJetPt );
+	if (myTrig) _meRecoJetEtaTrg->Fill( calJetEta );
+	if (myTrig) _meRecoJetPhiTrg->Fill( calJetPhi );
 
 	//h_etaCalLeading->Fill( cal->eta() );
 	//h_phiCalLeading->Fill( cal->phi() );
@@ -227,7 +255,9 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Handle<GenJetCollection> genJets,genJetsDummy;
   iEvent.getByLabel( GenJetAlgorithm, genJets );
-  double genJetPt=-1;
+  double genJetPt=-1.;
+  double genJetEta=-999.;
+  double genJetPhi=-999.;
 
   if (genJets.isValid()) { 
     //Loop over the GenJets and fill some histograms
@@ -238,8 +268,14 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (jetInd == 0){
 	//h_ptCalLeading->Fill( gen->pt() );
 	genJetPt=gen->pt();
+	genJetEta=gen->eta();
+	genJetPhi=gen->phi();
 	_meGenJetPt->Fill( genJetPt );
+	_meGenJetEta->Fill( genJetEta );
+	_meGenJetPhi->Fill( genJetPhi );
 	if (myTrig) _meGenJetPtTrg->Fill( genJetPt );
+	if (myTrig) _meGenJetEtaTrg->Fill( genJetEta );
+	if (myTrig) _meGenJetPhiTrg->Fill( genJetPhi );
 	//h_etaCalLeading->Fill( gen->eta() );
 	//h_phiCalLeading->Fill( gen->phi() );
       
@@ -310,7 +346,11 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       trigEv->getObjects(HLTProbeJetID,trigger::TriggerJet,probejets);
       if (probejets.size() > 0){
 	if (calJetPt> 0) _meRecoJetPtProbe->Fill( calJetPt );    
+	if (calJetPt> 0) _meRecoJetEtaProbe->Fill( calJetEta );    
+	if (calJetPt> 0) _meRecoJetPhiProbe->Fill( calJetPhi );    
 	if (genJetPt> 0) _meGenJetPtProbe ->Fill( genJetPt ); 
+	if (genJetPt> 0) _meGenJetEtaProbe ->Fill( genJetEta ); 
+	if (genJetPt> 0) _meGenJetPhiProbe ->Fill( genJetPhi ); 
 	if (calMet  > 0) _meRecoMETProbe  ->Fill(calMet);
       }
   }
@@ -332,13 +372,15 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       // fill leading jet that fired the reference trigger
       _meRefPt->Fill((*refjets[0]).pt());
       if (calJetPt>0) _meRecoJetPtRef->Fill( calJetPt );    
+      if (calJetPt>0) _meRecoJetEtaRef->Fill( calJetEta );    
+      if (calJetPt>0) _meRecoJetPhiRef->Fill( calJetPhi );    
       if (genJetPt>0) _meGenJetPtRef ->Fill( genJetPt ); 
+      if (genJetPt>0) _meGenJetEtaRef ->Fill( genJetEta ); 
+      if (genJetPt>0) _meGenJetPhiRef ->Fill( genJetPhi ); 
       if (calMet  > 0) _meRecoMETRef ->Fill(calMet);
       } // if (refjets.size() > 0){
 
     // then count how often the probe trigger was fired
-
-
 
     if (refjets.size() > 0 && FLT_HLTPROBE != trigEv->size()){
       NProbe++;

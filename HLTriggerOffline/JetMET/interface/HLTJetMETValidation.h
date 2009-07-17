@@ -94,8 +94,12 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
 //JoCa
 //JoCa  /*Trigger Bits for Tau and Reference Trigger*/
   MonitorElement *test_histo;
+  MonitorElement *_meRecoJetEta, *_meRecoJetEtaRef, *_meRecoJetEtaProbe, *_meRecoJetEtaTrg;
+  MonitorElement *_meRecoJetPhi, *_meRecoJetPhiRef, *_meRecoJetPhiProbe, *_meRecoJetPhiTrg;
   MonitorElement *_meRecoJetPt, *_meRecoJetPtRef, *_meRecoJetPtProbe, *_meRecoJetPtTrg;
   MonitorElement *_meGenJetPt,  *_meGenJetPtRef , *_meGenJetPtProbe , *_meGenJetPtTrg;
+  MonitorElement *_meGenJetEta,  *_meGenJetEtaRef , *_meGenJetEtaProbe , *_meGenJetEtaTrg;
+  MonitorElement *_meGenJetPhi,  *_meGenJetPhiRef , *_meGenJetPhiProbe , *_meGenJetPhiTrg;
   MonitorElement *_meRecoMET,   *_meRecoMETRef  , *_meRecoMETProbe  , *_meRecoMETTrg;
   MonitorElement *_meGenMET,    *_meGenMETRef  ,  *_meGenMETProbe  ,  *_meGenMETTrg;
   MonitorElement *_meRefPt;
