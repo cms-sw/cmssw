@@ -1,4 +1,4 @@
-how#!/bin/sh
+#!/bin/sh
 
 DQMfilesDir=/home/dqmprolocal/done/
 
@@ -44,7 +44,7 @@ do
 
     echo
     echo "file[$i] = $file"
-    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $4}'`
+    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $5}'`
     # Strip the R at the start of the string
     runNumber=`echo ${runNumber#R}`
     # Strip all the 0s at the start of the runNumber
@@ -58,7 +58,7 @@ do
     fi
 
     cat SiStripBadComponentsDQMServiceTemplate_cfg.py | sed "s/RUNNUMBER/$runNumber/g" | sed "s@FILENAME@$file@" > temp_cfg.py
-    # cmsRun temp_cfg.py > output_$runNumber.txt
+    cmsRun temp_cfg.py > output_$runNumber.txt
     echo "Job finished with exit code = $?"
 
     # File processed. Update the list
