@@ -7,6 +7,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRawData>
+<use name=DataFormats/FEDRawData>
 <use name=rootphysics>
 <flags EDM_PLUGIN=1>
 <export>
@@ -15,6 +16,7 @@
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalRawData>
+   <use name=DataFormats/FEDRawData>
    <use name=rootphysics>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
