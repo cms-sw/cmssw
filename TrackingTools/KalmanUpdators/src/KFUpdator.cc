@@ -68,7 +68,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 
   // Compute Kalman gain matrix
   Mat5D K;
-  M = AlgebraicMatrixID();
+  AlgebraicMatrix55 M = AlgebraicMatrixID();
   if (holder.useProjFunc() ) {
     K = C*pf.project(R);
     pf.projectAndSubtractFrom(M,K);
