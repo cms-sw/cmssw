@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.128 $"
+__version__ = "$Revision: 1.129 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -249,7 +249,7 @@ class ConfigBuilder(object):
 
     def addConditions(self):
         """Add conditions to the process"""
-        conditions=self._options.conditions.lstrip("FrontierConditions_GlobalTag,") #only for backwards compatibility
+        conditions=self._options.conditions.replace("FrontierConditions_GlobalTag,",'') #only for backwards compatibility
 	
         # FULL or FAST SIM ?
         if "FASTSIM" in self._options.step:
@@ -702,7 +702,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.128 $"),
+              (version=cms.untracked.string("$Revision: 1.129 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
