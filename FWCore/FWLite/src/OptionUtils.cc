@@ -25,9 +25,10 @@ optutl::SSVecMap  optutl::ns_stringVecMap;
 
 optutl::SBMap     optutl::ns_variableModifiedMap;
 optutl::SSMap     optutl::ns_variableDescriptionMap;
-string                 optutl::ns_usageString;
-string                 optutl::ns_argv0;
-bool                   optutl::ns_printOptions = false;
+optutl::SVec      optutl::ns_fullArgVec;
+string            optutl::ns_argv0;
+string            optutl::ns_usageString;
+bool              optutl::ns_printOptions = false;
 
 optutl::SVec
 optutl::parseArguments (int argc, char** argv, bool returnArgs)
@@ -35,9 +36,11 @@ optutl::parseArguments (int argc, char** argv, bool returnArgs)
    bool callHelp     = false;
    SVec argsVec;
    ns_argv0 = argv[0];
+   ns_fullArgVec.push_back (argv[0]);
    for (int loop = 1; loop < argc; ++loop)
    {
       string arg = argv[loop];
+      ns_fullArgVec.push_back (arg);
       string::size_type where = arg.find_first_of("=");
       if (string::npos != where)
       {
@@ -982,8 +985,7 @@ optutl::getSectionFiles (const SVec &inputList, SVec &outputList,
 void
 optutl::setupDefaultOptions()
 {
-   addOption ("inputFiles",    kStringVector,
-              "List of input files");
+   // Integer options
    addOption ("totalSections", kInteger,
               "Total number of sections", 
               0);
@@ -993,14 +995,26 @@ optutl::setupDefaultOptions()
    addOption ("maxEvents",     kInteger,
               "Maximum number of events to run over (0 for whole file)", 
               0);
-   addOption ("outputFile",    kString,
-              "Output filename", 
-              "output.root");
+   addOption ("jobID",         kInteger,
+              "jobID given by CRAB,etc. (-1 means append nothing)", 
+              -1);
    addOption ("outputEvery",   kInteger,
               "Output something once every N events (0 for never)", 
               0);
+   // String options
+   addOption ("outputFile",    kString,
+              "Output filename", 
+              "output.root");
    addOption ("storePrepend",  kString,
               "Prepend location on files starting with '/store/'");
+   addOption ("tag",           kString,
+              "A 'tag' to append to output file (e.g., 'v2', etc.");
+   // Bool options
+   addOption ("logName",       kBool,
+              "Print log name and exit");
+   // String vector options
+   addOption ("inputFiles",    kStringVector,
+              "List of input files");
 }
 
 void 
@@ -1048,15 +1062,34 @@ optutl::finishDefaultOptions (std::string tag)
       currentFiles = tempVec;
    } // if storePrepend.
 
-   ////////////////////////////
-   // Modify output filename //
-   ////////////////////////////
+   //////////////////////////////////
+   // //////////////////////////// //
+   // // Modify output filename // //
+   // //////////////////////////// //
+   //////////////////////////////////
    string outputFile = stringValue ("outputFile");
    outputFile = removeEnding (outputFile, ".root");
    outputFile += tag;
    if ( integerValue ("maxEvents") )
    {
       outputFile += Form ("_maxevt%03d", integerValue ("maxEvents"));
+   }
+   if ( integerValue ("jobID") >= 0)
+   {
+      outputFile += Form ("_jobID%03d", integerValue ("jobID"));
+   }
+   if ( stringValue ("tag").length() )
+   {
+      outputFile += "_" + stringValue ("tag");
+   }
+
+   /////////////////////////////////
+   // Log File Name, if requested //
+   /////////////////////////////////
+   if ( boolValue ("logName") )
+   {
+      cout << outputFile << ".log" << endl;
+      exit(0);
    }
    outputFile += ".root";
    stringValue ("outputFile") = outputFile;

@@ -201,8 +201,9 @@ namespace optutl
 
    extern SBMap        ns_variableModifiedMap;
    extern SSMap        ns_variableDescriptionMap;
-   extern std::string  ns_usageString;  
+   extern SVec         ns_fullArgVec;
    extern std::string  ns_argv0;
+   extern std::string  ns_usageString;  
    extern bool         ns_printOptions;
 
 }

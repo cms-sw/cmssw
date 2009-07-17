@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <cassert>
 #include "FWCore/FWLite/interface/TH1Store.h"
+#include "FWCore/FWLite/interface/OptionUtils.h"
 
 using namespace std;
 
@@ -68,6 +69,12 @@ void
 TH1Store::write (const string &filename) const
 {
    TFile *filePtr = TFile::Open (filename.c_str(), "RECREATE");
+   if ( ! filePtr)
+   {
+      cerr << "TH1Store::write() Error: Can not open '" 
+           << filename << "' for output.  Aborting." << endl;
+      assert (0);
+   }
    write (filePtr);
    delete filePtr;
 }
@@ -76,12 +83,23 @@ void
 TH1Store::write (TFile *filePtr) const
 {
    filePtr->cd();
+   // write out all histograms
    for (STH1PtrMapConstIter iter = m_ptrMap.begin();
         m_ptrMap.end() != iter;
         ++iter)
    {
       iter->second->Write();
-   } // for iter   
+   } // for iter
+   // write out command line arguments
+   filePtr->WriteObject (&optutl::ns_fullArgVec, "argsVec");
+   // write out input file names
+   if (optutl::kStringVector == optutl::hasOption ("inputFiles"))
+   {
+      const optutl::SVec &inputFilesVec = optutl::stringVector ("inputFiles");
+      filePtr->WriteObject (&inputFilesVec, "inputFilesVec");
+   }
+   cout << "TH1Store::write(): Successfully written to '"
+        << filePtr->GetName() << "'." << endl;
 }
 
 // friends
