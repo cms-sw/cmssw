@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.126 $"
+__version__ = "$Revision: 1.127 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -50,12 +50,14 @@ def availableFileOptions(nameTemplate, path="Configuration/StandardSequences" ):
 class ConfigBuilder(object):
     """The main building routines """
     
-    def __init__(self, options, process = None ):
+    def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
-
+ 
         self._options = options
-        self.define_Configs()
-
+	self.define_Configs()
+	self.with_output = with_output
+	self.with_input = with_input
+		
 	if process == None:
             self.process = cms.Process(self._options.name)
         else:
@@ -124,8 +126,6 @@ class ConfigBuilder(object):
     def addOutput(self):
         """ Add output module to the process """    
         
-        self.loadAndRemember(self.EVTCONTDefaultCFF)
-	
         theEventContent = getattr(self.process, self.eventcontent.split(',')[0]+"EventContent") 
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
@@ -702,7 +702,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.126 $"),
+              (version=cms.untracked.string("$Revision: 1.127 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -714,11 +714,15 @@ class ConfigBuilder(object):
         """ Prepare the configuration string and add missing pieces."""
 
         self.addMaxEvents()                    
-        self.addSource()
+	if self.with_input:
+           self.addSource()
         self.addStandardSequences()
         self.addConditions()
-        if not 'HARVESTING' in self._options.step:
+        self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
+			   
+        if not 'HARVESTING' in self._options.step and self.with_output:
             self.addOutput()
+	    
         self.addCommon()
 
         self.pythonCfgCode =  "# Auto generated configuration file\n"
@@ -856,3 +860,33 @@ def installPromptReco(process, recoOutputModule, aodOutputModule = None):
         
         
 promptReco = installPromptReco
+
+
+def addOutputModule(process, tier, content):
+    """
+    _addOutputModule_
+
+    Function to add an output module to a given process with given data tier and event content
+    """
+    moduleName = "output%s%s" % (tier, content)
+    pathName = "%sPath" % moduleName
+    contentName = "%sEventContent" % content
+    contentAttr = getattr(process, contentName)
+    setattr(process, moduleName,
+	    cms.OutputModule("PoolOutputModule",
+                              fileName = cms.untracked.string('%s.root' % moduleName),
+                              dataset = cms.untracked.PSet(
+                                dataTier = cms.untracked.string(tier),
+                              ),
+                              eventContent = contentAttr
+		           )
+            )
+    print getattr(process,moduleName)
+    # put it in an EndPath and put the EndPath into the schedule
+    setattr(process, pathName, cms.EndPath(getattr(process,moduleName)) )
+    process.schedule.append(getattr(process, pathName))
+
+    return process
+
+
+	
