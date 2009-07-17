@@ -85,6 +85,9 @@ double TCTauAlgorithm::efficiency(){
 	return double(passed)/all;
 }
 
+int TCTauAlgorithm::statistics(){
+	return passed;
+}
 
 void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	edm::ESHandle<TransientTrackBuilder> builder;

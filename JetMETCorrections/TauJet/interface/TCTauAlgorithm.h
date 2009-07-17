@@ -61,6 +61,7 @@ class TCTauAlgorithm {
 	void eventSetup(const edm::Event&,const edm::EventSetup&);
 
 	double efficiency();
+	int    statistics();
 
     private:
         void init();

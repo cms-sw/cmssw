@@ -59,3 +59,7 @@ bool TCTauCorrector::eventRequired() const {
 double TCTauCorrector::efficiency(){
 	return tcTauAlgorithm->efficiency();
 }
+
+int TCTauCorrector::statistics(){
+        return tcTauAlgorithm->statistics();
+}

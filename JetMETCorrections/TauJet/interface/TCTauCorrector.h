@@ -39,6 +39,7 @@ class TCTauCorrector :  public JetCorrector {
 	virtual bool eventRequired() const;
 
 	double efficiency();
+	int    statistics();
 
     private:
         void init();
