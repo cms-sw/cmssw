@@ -75,6 +75,9 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   double ampl3_c    = 0.;
   double ampl4_c    = 0.;
   double ampl_c     = 0.;
+
+  // is set to 1 if "seed" SimHit is found 
+  int seedSimHit  = 0;
  
   //  std::cout << " HcalDigiTester::reco :  "
   //	    << "subdet=" << subdet << "  noise="<< noise_ << std::endl;
@@ -101,15 +104,21 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(ieta > 0) ieta--;
       int iphi     = cell.iphi()-1; 
 
+  
       if(en > emax_Sim && sub == subdet) {
         emax_Sim = en;
         ieta_Sim = ieta;
         iphi_Sim = iphi;            
-        // to limit SimHit energy in case of "multi" event  
+        // to limit "seed" SimHit energy in case of "multi" event  
         if (mode_ == "multi" && 
            ((sub == 4 && en < 100. && en > 1.) 
-	    || ((sub !=4) && en < 1. && en > 0.05))) break;   
+	    || ((sub !=4) && en < 1. && en > 0.02))) 
+	  {
+            seedSimHit = 1;            
+            break;   
+	  }
       }
+
 
     }
   }   // end of SimHits
@@ -313,8 +322,8 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       // - for each Digi 
       // - for one Digi with max SimHits E in subdet
       
-      int closen  = 0;
-      if(ieta == ieta_Sim && iphi == iphi_Sim ) closen = 1; // max SimHit E
+      int closen = 0;   // =1 if 1) seedSimHit = 1 and 2) the cell is the same
+      if(ieta == ieta_Sim && iphi == iphi_Sim ) closen = seedSimHit;
 
       for  (int ii=0;ii<tool.size();ii++) {
 	int capid  = (*digiItr)[ii].capid();
@@ -324,7 +333,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	monitor()->fillmeAll10slices(double(ii), val);
 
  	
-	if( closen == 1 && ( ieta * zsign >= 0 )) { 
+	if( closen == 1 &&( ieta * zsign >= 0 )) { 
 	  monitor()->fillmeSignalTimeSlice(double(ii), val);
 	}
 
@@ -376,7 +385,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(ampl1 > 10. || ampl2 > 10.  || ampl3 > 10.  || ampl4 > 10. ) ndigis++;
       
       // fraction 5,6 bins if ampl. is big.
-      if(ampl1 > 10. &&  depth == 1 && closen == 1 ) { 
+      if(ampl1 > 30. &&  depth == 1 && closen == 1 ) { 
 	  double fBin5  = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
 	double fBin67 = tool[5] + tool[6] 
 	  - calibrations.pedestal((*digiItr)[5].capid())
@@ -403,6 +412,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     monitor()->fillmenDigis(ndigis);
     
     // SimHits once again !!!
+    double eps    = 1.e-3;
     double ehits  = 0.; 
     double ehits1 = 0.; 
     double ehits2 = 0.; 
@@ -429,25 +439,28 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(depth == 4)  ehits4 += en; 
       }
     }
+
+    if(seedSimHit) { // only if seed SimHit was found/defined
         
-    monitor()->fillmeDigiSimhit (ehits,  ampl_c );
-    monitor()->fillmeDigiSimhit1(ehits1, ampl1_c);
-    monitor()->fillmeDigiSimhit2(ehits2, ampl2_c);
-    monitor()->fillmeDigiSimhit3(ehits3, ampl3_c);
-    monitor()->fillmeDigiSimhit4(ehits4, ampl4_c);
-    
-    monitor()->fillmeDigiSimhitProfile (ehits,  ampl_c );
-    monitor()->fillmeDigiSimhitProfile1(ehits1, ampl1_c);
-    monitor()->fillmeDigiSimhitProfile2(ehits2, ampl2_c);
-    monitor()->fillmeDigiSimhitProfile3(ehits3, ampl3_c);
-    monitor()->fillmeDigiSimhitProfile4(ehits4, ampl4_c);
-    
-    if(ehits  > 0) monitor()->fillmeRatioDigiSimhit (ampl_c  / ehits);
-    if(ehits1 > 0) monitor()->fillmeRatioDigiSimhit1(ampl1_c / ehits1);
-    if(ehits2 > 0) monitor()->fillmeRatioDigiSimhit2(ampl2_c / ehits2);
-    if(ehits3 > 0) monitor()->fillmeRatioDigiSimhit3(ampl3_c / ehits3);
-    if(ehits4 > 0) monitor()->fillmeRatioDigiSimhit4(ampl4_c / ehits4);
-    
+      if(ehits  > eps) monitor()->fillmeDigiSimhit (ehits,  ampl_c );
+      if(ehits1 > eps) monitor()->fillmeDigiSimhit1(ehits1, ampl1_c);
+      if(ehits2 > eps) monitor()->fillmeDigiSimhit2(ehits2, ampl2_c);
+      if(ehits3 > eps) monitor()->fillmeDigiSimhit3(ehits3, ampl3_c);
+      if(ehits4 > eps) monitor()->fillmeDigiSimhit4(ehits4, ampl4_c);
+      
+      if(ehits  > eps) monitor()->fillmeDigiSimhitProfile (ehits,  ampl_c );
+      if(ehits1 > eps) monitor()->fillmeDigiSimhitProfile1(ehits1, ampl1_c);
+      if(ehits2 > eps) monitor()->fillmeDigiSimhitProfile2(ehits2, ampl2_c);
+      if(ehits3 > eps) monitor()->fillmeDigiSimhitProfile3(ehits3, ampl3_c);
+      if(ehits4 > eps) monitor()->fillmeDigiSimhitProfile4(ehits4, ampl4_c);
+      
+      if(ehits  > eps) monitor()->fillmeRatioDigiSimhit (ampl_c  / ehits);
+      if(ehits1 > eps) monitor()->fillmeRatioDigiSimhit1(ampl1_c / ehits1);
+      if(ehits2 > eps) monitor()->fillmeRatioDigiSimhit2(ampl2_c / ehits2);
+      if(ehits3 > eps) monitor()->fillmeRatioDigiSimhit3(ampl3_c / ehits3);
+      if(ehits4 > eps) monitor()->fillmeRatioDigiSimhit4(ampl4_c / ehits4);
+    }    
+
   } //  end of if( subdet != 0 && noise_ == 0) { // signal only 
 }
 
