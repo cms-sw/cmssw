@@ -166,10 +166,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
    canvas = new TCanvas("Seeds1","Seeds: hits and Pt",1000,1050);
    
-   rh1->GetYaxis()->SetRangeUser(8,24);
-   sh1->GetYaxis()->SetRangeUser(8,24);
-   rh2->GetXaxis()->SetRangeUser(0,30);
-   sh2->GetXaxis()->SetRangeUser(0,30);
+   rh1->GetYaxis()->SetRangeUser(0,5);
+   sh1->GetYaxis()->SetRangeUser(0,5);
+   rh2->GetXaxis()->SetRangeUser(0,10);
+   sh2->GetXaxis()->SetRangeUser(0,10);
    
    rh3->GetXaxis()->SetRangeUser(0,10);
    sh3->GetXaxis()->SetRangeUser(0,10);
@@ -1094,10 +1094,12 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     //gStyle->SetOptStat(1001);
 
     if (fit){
-      s->Fit("gaus");
-      TF1* f1 = (TF1*) s->GetListOfFunctions()->FindObject("gaus");
-      f1->SetLineColor(2);
-      f1->SetLineWidth(1);
+      int err=s->Fit("gaus");
+      if(!err){
+	TF1* f1 = (TF1*) s->GetListOfFunctions()->FindObject("gaus");
+	f1->SetLineColor(2);
+	f1->SetLineWidth(1);
+      }
     }
     s->Draw();
     gPad->Update(); 
@@ -1109,10 +1111,12 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     st1->SetY2NDC(startingY+0.35);
     st1->SetTextColor(2);
     if (fit) {
-      r->Fit("gaus");
-      TF1* f2 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
-      f2->SetLineColor(4);
-      f2->SetLineWidth(1);    
+      int err =r->Fit("gaus");
+      if(!err){
+	TF1* f2 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
+	f2->SetLineColor(4);
+	f2->SetLineWidth(1);    
+      }
     }
     r->Draw();
     gPad->Update(); 
