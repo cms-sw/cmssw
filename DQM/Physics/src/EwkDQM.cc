@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 13:21:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/16 16:38:51 $
+ *  $Revision: 1.4 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -121,10 +121,9 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<CaloMETCollection> caloMETCollection;
   iEvent.getByLabel(theCaloMETCollectionLabel, caloMETCollection);
   if ( !caloMETCollection.isValid() ) return;
-  float missing_et = -9.0;
-  missing_et = caloMETCollection->begin()->et();
-  float met_phi = -9.0;
-  met_phi = caloMETCollection->begin()->phi();
+  float missing_et = caloMETCollection->begin()->et();
+  float met_phi = caloMETCollection->begin()->phi();
+
 
   ////////////////////////////////////////////////////////////////////////////////
   // grab "gaussian sum fitting" electrons
