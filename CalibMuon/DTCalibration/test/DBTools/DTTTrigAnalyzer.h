@@ -4,8 +4,8 @@
 /** \class DTTTrigAnalyzer
  *  Plot the ttrig from the DB
  *
- *  $Date: 2007/05/08 14:52:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -50,16 +50,18 @@ private:
   const DTTtrig *tTrigMap;
  
   //The k factor
-  double kfactor;
+  //double kfactor;
   
   // Map of the ttrig, tmean, sigma histos by wheel/sector/SL
   std::map<std::pair<int,int>, TH1D*> theTTrigHistoMap;
   std::map<std::pair<int,int>, TH1D*> theTMeanHistoMap;
   std::map<std::pair<int,int>, TH1D*> theSigmaHistoMap;
+  std::map<std::pair<int,int>, TH1D*> theKFactorHistoMap;
  // Map of the ttrig, tmean, sigma distributions by wheel/station/SL
   std::map<std::vector<int>, TH1D*> theTTrigDistribMap;
   std::map<std::vector<int>, TH1D*> theTMeanDistribMap;
   std::map<std::vector<int>, TH1D*> theSigmaDistribMap;
+  std::map<std::vector<int>, TH1D*> theKFactorDistribMap;
 
 };
 #endif
