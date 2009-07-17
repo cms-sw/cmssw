@@ -2,10 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def switchMCMatch(process,fromCollection,toCollection):
-    massSearchReplaceParam(process.patMCTruth, 'src', fromCollection, toCollection)
-
-
 def removeSpecificPATObject(process,name):
     "Name should be something like 'Photons'"
     process.allLayer1Objects.remove( getattr(process, 'allLayer1'+name) )

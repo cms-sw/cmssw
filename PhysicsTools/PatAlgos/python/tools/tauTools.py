@@ -25,7 +25,8 @@ def redoPFTauDiscriminators(process,
 def switchToCaloTau(process,
                     pfTauLabel = cms.InputTag('fixedConePFTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
-    switchMCMatch(process, pfTauLabel, caloTauLabel)
+    process.tauMatch.src       = caloTauLabel
+    process.tauGenJetMatch.src = caloTauLabel
     process.allLayer1Taus.tauSource = caloTauLabel
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding"),
@@ -33,10 +34,6 @@ def switchToCaloTau(process,
         byIsolation         = cms.InputTag("caloRecoTauDiscriminationByIsolation"),
         againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron"),  
     )
-    if pfTauLabel in process.aodSummary.candidates:
-        process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabel)] = caloTauLabel
-    else:
-        process.aodSummary.candidates += [caloTauLabel]
     process.allLayer1Taus.addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
@@ -49,7 +46,8 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
 
     print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
 
-    switchMCMatch(process, pfTauLabelOld, pfTauLabelNew)
+    process.tauMatch.src       = pfTauLabelNew
+    process.tauGenJetMatch.src = pfTauLabelNew
     process.tauIsoDepositPFCandidates.src = pfTauLabelNew
     process.tauIsoDepositPFCandidates.ExtractorPSet.tauSource = pfTauLabelNew
     process.tauIsoDepositPFChargedHadrons.src = pfTauLabelNew
