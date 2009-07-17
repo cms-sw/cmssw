@@ -14,9 +14,10 @@ using namespace edm;
 
 TriggerFilter::TriggerFilter(ParameterSet const& cfg) 
 {
-  triggerName_               = cfg.getParameter<std::string>("TriggerName");
+  triggerName_               = cfg.getParameter<std::string>("triggerName");
   triggerProcessName_        = cfg.getParameter<std::string>("triggerProcessName"); 
   triggerResultsTag_         = cfg.getParameter<edm::InputTag>("triggerResultsTag");
+  DEBUG_                     = cfg.getParameter<bool>("DEBUG");
 }
 ////////////////////////////////////////////////////////////////////
 void TriggerFilter::beginJob(const edm::EventSetup &iSetup) 
@@ -30,6 +31,13 @@ bool TriggerFilter::beginRun(edm::Run  &,edm::EventSetup const&iSetup)
   //trigger names are allowed to change by run.
 
   hltConfig_.init(triggerProcessName_);
+  // diagnostics:
+  if (DEBUG_)
+    {
+      std::cout<<"There are "<<hltConfig_.size()<<" HLT triggers:"<<std::endl;
+      for(unsigned int i=0;i<hltConfig_.size();i++)
+        std::cout<<hltConfig_.triggerName(i)<<std::endl;
+    } 
   //selectd index of chosen triggeR:
   triggerIndex_=hltConfig_.triggerIndex(triggerName_);
   if (triggerIndex_==hltConfig_.size()){

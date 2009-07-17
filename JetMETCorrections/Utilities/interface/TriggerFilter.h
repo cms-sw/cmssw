@@ -21,5 +21,6 @@ class TriggerFilter : public edm::EDFilter
     edm::Handle<edm::TriggerResults> triggerResultsHandle_;
     edm::InputTag triggerResultsTag_;
     HLTConfigProvider hltConfig_;
+    bool DEBUG_;
 };
 #endif
