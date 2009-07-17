@@ -1030,6 +1030,7 @@ class VispaWidget(ZoomableWidget):
         """
         #logging.debug(self.__class__.__name__ +": paintEvent()")
         painter = QPainter(self)
+        painter.setClipRegion(event.region())
         if self.zoom() > 30:
             painter.setRenderHint(QPainter.Antialiasing)
         self.paint(painter)

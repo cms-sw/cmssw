@@ -13,6 +13,7 @@ from ParticleDataAccessor import *
 from PortConnection import *
 from WidgetView import *
 from Exceptions import *
+from Vispa.Main.Thread import RunThread
 
 class BoxDecayTree(WidgetView):
     """Visualizes a decay tree using boxes to represent containers as well as their contents.
@@ -82,7 +83,12 @@ class BoxDecayTree(WidgetView):
         if self._dataAccessor:
             objects = self._filter(self._dataObjects)
             if self._sortBeforeArranging:
-                objects = self._sortByRelations(operationId, objects)
+                thread = RunThread(self._sortByRelations, objects)
+                while thread.isRunning():
+                    QCoreApplication.instance().processEvents()
+                    if operationId != self._operationId:
+                        return False
+                objects=thread.returnValue
             self.createBoxesRecursive(operationId, objects, self)
         self._updatingFlag = False
         return operationId == self._operationId
@@ -240,7 +246,12 @@ class BoxDecayTree(WidgetView):
         else:
             otherChildren += decayTreeChildren
         if self._sortBeforeArranging:
-            otherChildren = self._sortByRelations(operationId, otherChildren)
+            thread = RunThread(self._sortByRelations, otherChildren)
+            while thread.isRunning():
+                QCoreApplication.instance().processEvents()
+                if operationId != self._operationId:
+                    return None
+            otherChildren=thread.returnValue
 
         i = 0
         for object in otherChildren:
@@ -298,7 +309,7 @@ class BoxDecayTree(WidgetView):
             return None
         self.autosizeScrollArea() 
 
-    def _sortByRelations(self, operationId, objects):
+    def _sortByRelations(self, objects):
         """ Sort a list of objects by their mother/daughter relations.
         
         All daughter objects are put directly behind the mother object in the list.
@@ -310,17 +321,12 @@ class BoxDecayTree(WidgetView):
         unsortedObjects = list(objects)
         sortedObjects = []
         for object in reversed(list(objects)):
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
-            if operationId != self._operationId:
-                return ()
             globalMother=True
             for mother in self._dataAccessor.allMotherRelations(object):
                 if mother in unsortedObjects:
                     globalMother=False
                     break
-            if globalMother:
+            if object in unsortedObjects and globalMother:
                 unsortedObjects.remove(object)
                 sortedObjects.insert(0, object)
                 i = 0

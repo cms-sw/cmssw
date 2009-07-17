@@ -483,12 +483,18 @@ class Application(QApplication):
     def getLastOpenLocation(self):
         """ Returns directory name of first entry of recent files list.
         """
-        if len(self._recentFiles) > 0:
-            return os.path.dirname(self._recentFiles[0])
-        elif platform.system() == "Darwin":
-            # Mac OS X
-            return homeDirectory + "/Documents"
-        return homeDirectory
+        # if current working dir is vispa directory use recentfile or home
+        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory),os.path.abspath(os.path.join(baseDirectory,"bin"))]:
+            if len(self._recentFiles) > 0:
+                return os.path.dirname(self._recentFiles[0])
+            elif platform.system() == "Darwin":
+                # Mac OS X
+                return homeDirectory + "/Documents"
+            else:
+                return homeDirectory
+        # if user navigated to another directory use this
+        else:
+            return os.getcwd()
     
     def updateMenu(self):
         """ Update recent files and enable disable menu entries in file and edit menu.
@@ -893,9 +899,9 @@ class Application(QApplication):
         ini = self.ini()
         self._recentFiles = []
         if ini.has_section("history"):
-            ini.remove_option("history", "recentfiles")
-            for file in ini.items("history"):
-                self._recentFiles.insert(0, file[1])
+            for i in range(0, self.MAX_RECENT_FILES):
+                if ini.has_option("history", str(i)):
+                    self._recentFiles+=[ini.get("history", str(i))]
                
     def _saveIni(self):
         """ Load the list of recent files.
@@ -905,8 +911,9 @@ class Application(QApplication):
         if ini.has_section("history"):
             ini.remove_section("history")
         ini.add_section("history")
-        for i in xrange(len(self._recentFiles)):
+        for i in range(len(self._recentFiles)):
             ini.set("history", str(i), self._recentFiles[i])
+                
         self.writeIni()
 
     def errorMessage(self, message):
@@ -969,12 +976,12 @@ class Application(QApplication):
         self._window.statusBar().addPermanentWidget(self._progressWidget)
 
         self._progressTimeLine = QTimeLine(1000, self)
-        self._progressTimeLine.setFrameRange(0, 100)
+        self._progressTimeLine.setFrameRange(0, 20)
         self._progressTimeLine.setLoopCount(0)
         self.connect(self._progressTimeLine, SIGNAL("frameChanged(int)"), self.setProgress)
         
     def setProgress(self, progress):
-        angle = int(progress * 360.0 / 100.0)
+        angle = int(progress * 360.0 / 20.0)
         pixmap = QPixmap(":/resources/vispabutton.png")
         # if problem with loading png
         if pixmap.size().width()==0:
