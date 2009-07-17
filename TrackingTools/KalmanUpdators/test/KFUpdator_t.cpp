@@ -102,12 +102,12 @@ int main() {
   GlobalVector gv(1,1,1);
   GlobalTrajectoryParameters gtp(gp,gv,1,field);
   CurvilinearTrajectoryError gerr(buildCovariance(1.));
-  BoundPlane* plane = new BoundPlane( gp, gerr, Surface::RotationType());
+  BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
   GeomDet *  det =  new MyDet(plane);
 
   
 
-  TrajectoryStateOnSurface ts(gtp,*plane);
+  TrajectoryStateOnSurface ts(gtp,gerr, *plane);
   print (ts);
 
   LocalPoint lp(0,0,0);
