@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2009/05/04 17:54:13 $
- * $Revision: 1.12 $
+ * $Date: 2009/05/05 10:02:31 $
+ * $Revision: 1.13 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -91,8 +91,20 @@ int nCryTower[72][34];
 ///To store the events with full readout 
 int nEvtFullReadout[72][34];
 
+///To store the events with RU forced 
+int nEvtRUForced[72][34];
+
 ///To store the events with any readout
 int nEvtAnyReadout[72][34];
+
+///To store the events with high interest TT
+int nEvtHighInterest[72][34];
+
+///To store the events with low interest TT
+int nEvtLowInterest[72][34];
+
+///To store the events with any interest
+int nEvtAnyInterest[72][34];
 
 private:
 
@@ -300,7 +312,6 @@ float ybins[89];
 MonitorElement* EBDccEventSize_;
 MonitorElement* EBDccEventSizeMap_;
 MonitorElement* EBTowerSize_;
-MonitorElement* EBTowerFullReadoutFrequency_;
 MonitorElement* EBReadoutUnitForcedBitMap_;
 MonitorElement* EBFullReadoutSRFlagMap_;
 MonitorElement* EBHighInterestTriggerTowerFlagMap_;

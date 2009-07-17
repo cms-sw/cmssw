@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/05/04 17:54:32 $
- * $Revision: 1.12 $
+ * $Date: 2009/05/05 10:04:27 $
+ * $Revision: 1.13 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -114,8 +114,20 @@ int nCryTower[20][20][2];
 ///To store the events with full readout
 int nEvtFullReadout[20][20][2];
 
+///To store the events with RU forced
+int nEvtRUForced[20][20][2];
+
 ///To store the events with any readout
 int nEvtAnyReadout[20][20][2];
+
+///To store the events with high interest TT
+int nEvtHighInterest[100][100][2];
+
+///To store the events with low interest TT
+int nEvtLowInterest[100][100][2];
+
+///To store the events with any interest
+int nEvtAnyInterest[100][100][2];
 
 private:
 
