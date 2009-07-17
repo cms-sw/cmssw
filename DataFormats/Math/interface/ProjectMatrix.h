@@ -31,6 +31,13 @@ struct ProjectMatrix{
     return s;
   }
 
+  // S-K*H
+  void projectAndSubtractFrom(SMatNN & s, SMatND const & k) {
+    for (unsigned int i=0; i<N; i++)
+      for (unsigned int j=0; j<D; j++)
+	s(i,index[j]) -= k(i,j);
+  }
+
   // only H(i,index(i))=1.
   unsigned int index[D];
 
