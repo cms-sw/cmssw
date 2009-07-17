@@ -89,10 +89,11 @@ public:
 void print(TrajectoryStateOnSurface const & ts) {
   using namespace std;
 
-  cout << "ts.globalMomentum() " << ts.globalMomentum() << endl;
-  cout << "ts.localMomentum()  " << ts.localMomentum() << endl;
-  cout << "ts.transverseCurvature()  " << ts.transverseCurvature() << endl;
-							   
+  cout << "globalMomentum       " << ts.globalMomentum() << endl;
+  cout << "localMomentum        " << ts.localMomentum() << endl;
+  cout << "localPosition        " << ts.localPosition() << endl;
+  cout << "transverseCurvature  " << ts.transverseCurvature() << endl;
+  cout << endl;
 }
 
 int main() {
@@ -119,7 +120,7 @@ int main() {
 
 
   LocalPoint m(0.1,0.1,0);
-  LocalError e(0.2,0.1,-0.05);
+  LocalError e(0.2,-0.05,0.1);
     
   SiStripRecHit2D dummy;
   TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, DetId() , &dummy, &dummy);
