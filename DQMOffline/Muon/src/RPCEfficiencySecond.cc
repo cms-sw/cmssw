@@ -1202,7 +1202,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  if(p > 100){ //We need at least 100 predictions to fill the summary plot
 	    int rollY = (*r)->id().roll();
 	    if(rollY==1) rollY=3;
-	    else if(rollY==3) rollY ==1;
+	    else if(rollY==3) rollY=1;
 	    int Y=((*r)->id().ring()-2)*3+rollY;
 	    if(Disk==-3) Diskm3Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
 	    else if(Disk==-2) Diskm2Summary->setBinContent(rpcsrv.segment(),Y,averageeff);
