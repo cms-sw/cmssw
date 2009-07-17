@@ -1,8 +1,14 @@
-#!/bin/sh
+how#!/bin/sh
 
-rootFilesList=(`ls ../test | grep .root`)
+DQMfilesDir=/home/dqmprolocal/done/
 
-rootFilesList=(`find ../test -name "*.root"`)
+# rootFilesList=(`ls $DQMfilesDir | grep .root`)
+
+# The playback_full is what is used now. It is supposed to change in the future
+# when the DQM gui will be able to handle to complete file.
+# The list is sorted.
+rootFilesList=(`find $DQMfilesDir -name "*.root" | grep Playback_full | sort`)
+#rootFilesList=(`echo ${rootFilesList[@]} | grep Playback_full`)
 
 # echo "List of files: $rootFilesList"
 
@@ -13,10 +19,13 @@ if [ -e newList.txt ]; then
     rm newList.txt
 fi
 
-echo $rootFilesList > tempList.txt
+for file in ${rootFilesList[@]}
+do
+    echo $file >> tempList.txt
+done
 cat fullList.txt >> tempList.txt
 # Take only unique lines
-cat tempList.txt | uniq -u > newList.txt
+cat tempList.txt | sort | uniq -u > newList.txt
 rm tempList.txt
 # Take the difference between the full list and the list of already analyzed files
 
@@ -30,12 +39,12 @@ cd $LOCALRT/src/DQMOffline/CalibTracker/scripts
 echo pwd is `pwd`
 
 i=0
-for file in ${rootFilesList[@]}
+for file in `cat newList.txt`
 do
 
     echo
     echo "file[$i] = $file"
-    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $5}'`
+    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $4}'`
     # Strip the R at the start of the string
     runNumber=`echo ${runNumber#R}`
     # Strip all the 0s at the start of the runNumber
@@ -53,8 +62,16 @@ do
     echo "Job finished with exit code = $?"
 
     # File processed. Update the list
-    echo $file > fullList.txt
+    echo $file >> fullList.txt
 
     let i+=1
 
 done
+
+#Cleanup
+if [ -e newList.txt ]; then
+    rm newList.txt
+fi
+
+# Do it every half a hour.
+# sleep 1800
