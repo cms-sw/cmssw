@@ -19,14 +19,16 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 # Conditions (Global Tag is used here):
 process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1))
 
 #Drop old reco
 process.source = cms.Source("PoolSource",
+#    skipEvents = cms.untracked.uint32(523),
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0006/20993712-7C00-DE11-8BAA-003048678B5E.root',
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0007/7AC674EA-7F00-DE11-A0AB-0018F3D09706.root',
-    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0008/5EF7C8EC-9B00-DE11-B1C5-00304867920C.root'
+        '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0012/1A8C28D2-0402-DE11-84C0-0018F3D09644.root'
+#    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0006/20993712-7C00-DE11-8BAA-003048678B5E.root',
+#    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0007/7AC674EA-7F00-DE11-A0AB-0018F3D09706.root',
+#    '/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_SuperPointing_225-v3/0008/5EF7C8EC-9B00-DE11-B1C5-00304867920C.root'
     ),
     inputCommands = cms.untracked.vstring('drop *')
 )
@@ -63,6 +65,8 @@ process.dqmoffline_step = cms.Path(process.DQMOfflineCosmics)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.FEVT)
 
+# remove crashing modules
+process.dqmoffline_step.remove(process.hcalOfflineDQMSource)
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.endjob_step,process.out_step)
 
