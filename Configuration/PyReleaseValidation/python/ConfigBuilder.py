@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.127 $"
+__version__ = "$Revision: 1.128 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -702,7 +702,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.127 $"),
+              (version=cms.untracked.string("$Revision: 1.128 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -886,7 +886,22 @@ def addOutputModule(process, tier, content):
     setattr(process, pathName, cms.EndPath(getattr(process,moduleName)) )
     process.schedule.append(getattr(process, pathName))
 
-    return process
+    return 
 
 
-	
+def addALCAPaths(process, listOfALCANames, definitionFile = "Configuration/StandardSequences/AlCaRecoStreams_cff"):
+    """
+    _addALCAPaths_
+
+    Function to add alignment&calibration sequences to an existing process
+    """
+    definitionModule = __import__(definitionFile)
+    process.extend(definitionModule)
+    
+    for alca in listOfALCANames:
+       streamName = "ALCARECOStream%s" % alca	    
+       stream = getattr(definitionModule, streamName)
+        for path in stream.paths:
+            schedule.append(path)
+
+    return 
