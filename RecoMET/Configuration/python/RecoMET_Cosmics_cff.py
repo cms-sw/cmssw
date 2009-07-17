@@ -20,9 +20,47 @@ tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
 #hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
 hcalnoise.fillTracks = False
 
-metrecoCosmics = cms.Sequence( metreco + hcalnoise)
 
-metrecoCosmics_woHcalNoise = cms.Sequence( metreco )
+metrecoCosmics = cms.Sequence(
+      met+
+      metNoHF+
+      metHO+
+      metNoHFHO+
+      calotoweroptmaker+
+      metOpt+
+      metOptNoHF+
+      calotoweroptmakerWithHO+
+      metOptHO+metOptNoHFHO+
+      htMetSC5+
+      htMetSC7+
+      htMetKT4+
+      htMetKT6+
+      htMetIC5+
+      muonMETValueMapProducer+
+      corMetGlobalMuons+
+      muonTCMETValueMapProducer+
+      hcalnoise)
+
+metrecoCosmics_woHcalNoise = cms.Sequence(
+    met+
+    metNoHF+
+    metHO+
+    metNoHFHO+
+    calotoweroptmaker+
+    metOpt+
+    metOptNoHF+
+    calotoweroptmakerWithHO+
+    metOptHO+metOptNoHFHO+
+    htMetSC5+
+    htMetSC7+
+    htMetKT4+
+    htMetKT6+
+    htMetIC5+
+    muonMETValueMapProducer+
+    corMetGlobalMuons+
+    muonTCMETValueMapProducer
+)
+    
 
 
 
