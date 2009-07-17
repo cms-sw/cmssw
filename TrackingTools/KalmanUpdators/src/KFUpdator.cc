@@ -81,8 +81,9 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   // Compute local filtered state vector
   AlgebraicVector5 fsv = x + K * r;
   // Compute covariance matrix of local filtered state vector
-  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
-
+  // AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
+  AlgebraicSymMatrix55 fse = (M*C) *  ROOT::Math::Transpose(M);
+  fse += (K*V) *  ROOT::Math::Transpose(K);
 
   return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
 				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
