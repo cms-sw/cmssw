@@ -23,6 +23,33 @@ public:
 };
 
 
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
+
+
+typedef ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> > Matrix5;
+typedef ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> > Matrix6;
+
+Matrix5 buildCovariance(float y) {
+
+  // build a resonable covariance matrix as JIJ
+
+  Basic3DVector<float>  axis(0.5,1.,1);
+  
+  Surface::RotationType rot(axis,0.5*M_PI);
+
+  Surface::PositionType pos( 0., 0., 0.);
+
+  Plane plane(pos,rot);
+  LocalTrajectoryParameters tp(1., 1., y, 0.,0.,1.);
+
+  JacobianLocalToCartesian jl2c(plane,tp);
+  return ROOT::Math::SimilarityT(jl2c.jacobian(),Matrix6(ROOT::Math::SMatrixIdentity()));
+  // return  ROOT::Math::Transpose(jl2c.jacobian())* jl2c.jacobian();
+
+}
+
 // A fake Det class
 
 class MyDet : public GeomDet {
@@ -74,8 +101,8 @@ int main() {
   GlobalPoint gp(0,0,0);
   GlobalVector gv(1,1,1);
   GlobalTrajectoryParameters gtp(gp,gv,1,field);
-
-  BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
+  CurvilinearTrajectoryError gerr(buildCovariance(1.));
+  BoundPlane* plane = new BoundPlane( gp, gerr, Surface::RotationType());
   GeomDet *  det =  new MyDet(plane);
 
   
@@ -86,8 +113,8 @@ int main() {
   LocalPoint lp(0,0,0);
   LocalVector lv(1,1,1);
   LocalTrajectoryParameters ltp(lp,lv,1);
-
-  TrajectoryStateOnSurface ts2(ltp,*plane, field);
+  LocalTrajectoryError ler(0.1,0.1,0.01,0.05,0.1);
+  TrajectoryStateOnSurface ts2(ltp,ler,*plane, field);
   print (ts2);
 
 
