@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.40 2009/07/15 14:10:27 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.41 2009/07/15 14:31:08 amraktad Exp $
 //
 
 // system include files
@@ -23,7 +23,6 @@
 #include "TLatex.h"
 #include "TGLEmbeddedViewer.h"
 #include "TGLScenePad.h"
-#include "TGLLightSet.h"
 #include "TGLOrthoCamera.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
@@ -216,8 +215,6 @@ FWDetailViewManager::createDetailViewFrame()
    eveViewer->SetGLViewer(m_viewerGL, m_viewerGL->GetFrame());
    m_pack->AddFrameWithWeight(m_viewerGL->GetFrame(),0, rightW);
 
-   TGLLightSet *light_set = m_viewerGL->GetLightSet();
-   light_set->SetLight(TGLLightSet::kLightSpecular, false);
    m_sceneGL = gEve->SpawnNewScene("Detailed view");
    eveViewer->AddScene(m_sceneGL);
 

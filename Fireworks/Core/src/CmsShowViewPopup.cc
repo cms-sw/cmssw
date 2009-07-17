@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.11 2009/06/28 19:54:45 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.12 2009/07/06 19:14:54 amraktad Exp $
 //
 
 // system include files
@@ -96,9 +96,10 @@ CmsShowViewPopup::reset(TEveWindow* ew)
    RemoveFrame(m_viewContentFrame);
    m_viewContentFrame->DestroyWindow();
    delete m_viewContentFrame;
+   m_setters.clear();
+
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame);
-
    // fill content
    if(viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
@@ -111,6 +112,7 @@ CmsShowViewPopup::reset(TEveWindow* ew)
          ptr->attach(*itP, this);
          TGFrame* pframe = ptr->build(m_viewContentFrame);
          m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
+         m_setters.push_back(ptr);
       }
    }
    else {
