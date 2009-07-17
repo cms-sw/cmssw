@@ -1,6 +1,5 @@
 <use name=DataFormats/Provenance>
 <use name=DataFormats/Common>
-<use name=FWCore/Catalog>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
