@@ -5,6 +5,7 @@
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
+#include "DataFormats/Math/interface/ProjectMatrix.h"
 
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 				           const TransientTrackingRecHit& aRecHit) const {
