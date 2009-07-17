@@ -160,8 +160,13 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       ESDCCHeader.setPrecision(precision_);
     }
     if (dccLineCount == 3) {
-      vminor_ = (*word >> 40) & m8;
-      vmajor_ = (*word >> 48) & m8;
+      orbit_number_ = (*word >>  0) & m32;
+      vminor_       = (*word >> 40) & m8;
+      vmajor_       = (*word >> 48) & m8;
+
+      ESDCCHeader.setOrbitNumber(orbit_number_);
+      ESDCCHeader.setMajorVersion(vmajor_);
+      ESDCCHeader.setMinorVersion(vminor_);
     }
     if (dccLineCount == 4) optoRX0_  = (*word >> 48) & m8;
     if (dccLineCount == 5) optoRX1_  = (*word >> 48) & m8;
