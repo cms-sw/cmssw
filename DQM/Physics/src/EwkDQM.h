@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/14 15:22:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/16 13:21:11 $
+ *  $Revision: 1.3 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -81,5 +81,6 @@ class EwkDQM : public edm::EDAnalyzer {
   MonitorElement* h_met;
   MonitorElement* h_met_phi;
   MonitorElement* h_e_invWMass;
+  MonitorElement* h_m_invWMass;
 };
 #endif

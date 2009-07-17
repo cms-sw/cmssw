@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 16:38:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/17 09:30:28 $
+ *  $Revision: 1.5 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -77,7 +77,7 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
   h_jet_et       = theDbe->book1D("h_jet_et",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
   h_jet_count    = theDbe->book1D("h_jet_count",    "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
 //WCP: Added histos
-  h_e1_et        = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron (GeV);E_{T} (GeV)" , 20,-10.0 , 100.0);
+  h_e1_et        = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron (GeV);E_{T} (GeV)" , 20, 0.0 , 100.0);
   h_e2_et        = theDbe->book1D("h_e2_et",  "E_{T} of Second Electron (GeV);E_{T} (GeV)"  , 20,  0.0 , 100.0);
   h_e1_eta       = theDbe->book1D("h_e1_eta", "#eta of Leading Electron;#eta"               , 20, -4.0 , 4.0);
   h_e2_eta       = theDbe->book1D("h_e2_eta", "#eta of Second Electron;#eta"                , 20, -4.0 , 4.0);
@@ -94,7 +94,8 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
 //  h_t1_phi         = theDbe->book1D("h_t1_phi",          "#phi of Leading Tau;#phi"               , 20, -4.0, 4.0);
   h_met          = theDbe->book1D("h_met",    "Missing E_{T} (GeV)"                         , 20, 0.0 , 100);
   h_met_phi      = theDbe->book1D("h_met_phi","Missing E_{T} #phi;#phi"                     , 20, -4.0, 4.0);
-//  h_e_invWMass       = theDbe->book1D("h_e_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)", 60, -10.0, 140.0); 
+  h_e_invWMass       = theDbe->book1D("h_e_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)", 60, 0.0, 140.0); 
+  h_m_invWMass       = theDbe->book1D("h_m_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)", 60, 0.0, 140.0); 
 }
 
 
@@ -148,6 +149,8 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // If it passed electron HLT and the collection was found, find electrons near Z mass
   if( passed_electron_HLT && electronCollection.isValid() ) {
     for (reco::GsfElectronCollection::const_iterator recoElectron=electronCollection->begin(); recoElectron!=electronCollection->end(); recoElectron++){
+      // Require electron to pass some basic cuts
+      if (recoElectron->et() < 20 || fabs(recoElectron->eta())>2.5) continue;
 
       if (recoElectron->et()>electronW_et){
         electronW_et = recoElectron->et();
@@ -157,19 +160,8 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
         W_mt_e = sqrt(2*missing_et*electronW_et*(1-cos(dphiW)));
       }
 
-      // Require electron to pass some basic cuts
-      if (recoElectron->et() < 20 || fabs(recoElectron->eta())>2.5) continue;
-
       // loop over all the other electrons
       for (reco::GsfElectronCollection::const_iterator recoElectron2=recoElectron+1; recoElectron2!=electronCollection->end(); recoElectron2++){
-        if (recoElectron2->et()>electronW_et){
-          electronW_et = recoElectron2->et();
-          electronW_eta = recoElectron2->eta();
-          electronW_phi = recoElectron2->phi();
-          double dphiW = fabs(met_phi-electronW_phi); 
-          W_mt_e = sqrt(2*missing_et*electronW_et*(1-cos(dphiW)));
-        }
-
         // Require electron to pass some basic cuts
         if (recoElectron2->et() < 20 || fabs(recoElectron2->eta())>2.5) continue;
 
@@ -314,12 +306,12 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   //                 Fill Histograms                                            //
   ////////////////////////////////////////////////////////////////////////////////
-  h_jet_et   ->Fill(jet_et);
-  h_jet_count->Fill(jet_count);
-  h_met      ->Fill(missing_et);
-  h_met_phi  ->Fill(met_phi);
-//    h_e_invWMass ->Fill(W_mt_e);
-//    h_m_invWMass ->Fill(W_mt_m);
+    h_jet_et   ->Fill(jet_et);
+    h_jet_count->Fill(jet_count);
+    h_met      ->Fill(missing_et);
+    h_met_phi  ->Fill(met_phi);
+    h_e_invWMass ->Fill(W_mt_e);
+    h_m_invWMass ->Fill(W_mt_m);
 
   if ( electron_et>0 && electron2_et>0 ) {
     h_ee_invMass->Fill(closestEEInvMasstoZFound);
