@@ -13,7 +13,7 @@
       ### CMSSW 31X libraries (much slower for the time being)
       <use name=LHAPDF>
 </library>
-<library name=ElectroWeakAnalysisWMuNuAOD_plugins file=*Selector.cc>
+<library name=ElectroWeakAnalysisWMuNuAOD_plugins file=*Selector.cc,DistortedMuonProducer.cc>
 </library>
 <library name=ElectroWeakAnalysisWMuNuPAT_plugins file=*Selector.cc>
       <flags CPPDEFINES="IS_PAT_FOR_EWKMU">
