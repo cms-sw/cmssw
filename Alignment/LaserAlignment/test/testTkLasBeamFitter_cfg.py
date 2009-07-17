@@ -18,31 +18,43 @@ process.MessageLogger.statistics.append('cout')
 ##
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring("ProductNotFound") # make this exception fatal
-    )
-
+)
 
 ##
 ## Data input
 ##
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/f/flucke/cms/CMSSW/CMSSW_2_2_8/tkLasBeams.root"
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/Alignment/LaserAlignment/tkLasBeams_dataCRAFT.root' # tkLasBeams_dataCRAFT.root, tkLasBeams_CRAFT_2_2_9.root
                                       )
     )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-
 ##
-## Geometry and conditions (add B-field?)
+## Geometry and conditions
 ##
-
-# too many things...process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff") # for 22X when using db object
 process.GlobalTag.globaltag = "IDEAL_V12::All"
+
+# using database file
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+#                                        connect = cms.string("sqlite_file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/LasReader/TestProducer/alignments_MP.db"),
+                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+                                                                   tag = cms.string("Tracker_Geometry_v5_offline")), #"Alignments"
+                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+                                                                   tag = cms.string("Tracker_GeometryErr_v5_offline")) #"AlignmentErrors"
+                                       )
+)
+#process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
 
 ##
 ## My module(s)
