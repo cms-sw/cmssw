@@ -1,4 +1,4 @@
-create or replace view view_sm_streams
+create or replace view view_sm_streams_full
 AS SELECT  "RUN_NUMBER",
 	   "STREAM", 
 	   "START_TIME",
@@ -109,4 +109,4 @@ ORDER BY 1 DESC , 2 ASC;
 
 
 
-grant select on view_sm_streams to public;
+grant select on view_sm_streams_full to public;
