@@ -80,7 +80,7 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
               END) AS SETUP_STATUS,
 	      TO_CHAR ( OPEN_STATUS(NVL(STOP_WRITE_TIME, LAST_UPDATE_TIME), S_CREATED, S_INJECTED) ) AS N_OPEN_STATUS,
 	     (CASE 
-		WHEN (CASE NVL(s_injected,0)
+		WHEN (CASE s_injected
 		        WHEN 0 THEN 0
 		        ELSE ROUND ((s_filesize2D / 1048576) / (GREATEST(time_diff( STOP_WRITE_TIME, START_WRITE_TIME),1)), 2)
 	              END) < 2000 THEN TO_CHAR(0)
@@ -104,7 +104,7 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 FROM ( SELECT runnumber, stream, start_write_time, last_update_time, setuplabel, app_version, n_instance, m_instance, s_filesize, s_created, s_filesize2d, s_filesize2T0, s_NEvents, s_injected, s_new, 
 	      s_copied, s_checked, s_deleted, s_repacked, HLTKEY, STOP_WRITE_TIME, start_trans_time, STOP_TRANS_TIME, DENSE_RANK() OVER ( ORDER BY RUNNUMBER DESC NULLS LAST) dr
         FROM SM_SUMMARY)
-	where dr <= 2)
+	where dr <= 30)
 ORDER BY 1 DESC , 2 ASC;
 
 
