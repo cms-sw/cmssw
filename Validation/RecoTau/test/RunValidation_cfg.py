@@ -248,7 +248,7 @@ if options.writeEDMFile != "":
    myOutpath = cms.EndPath(process.out)
    process.schedule.append(myOutpath)
 
-if options.myModifications != ['<none>']:
+if options.myModifications != ['none']:
    for aModifier in options.myModifications:
       process.load(aModifier.replace('.py',''))
 

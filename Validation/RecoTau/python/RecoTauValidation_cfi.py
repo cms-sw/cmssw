@@ -446,8 +446,18 @@ standardDrawingStuff = cms.PSet(
       yScale = cms.string('linear'), # linear/log
       minY_linear = cms.double(0.),
       maxY_linear = cms.double(1.6),
-      minY_log = cms.double(0.0001),
-      maxY_log = cms.double(1.1),
+      minY_log = cms.double(0.001),
+      maxY_log = cms.double(1.8),
+      yAxisTitle = cms.string('#varepsilon'), 
+      yAxisTitleOffset = cms.double(1.1),
+      yAxisTitleSize = cms.double(0.05)
+    ),
+    fakeRate = cms.PSet(
+      yScale = cms.string('log'), # linear/log
+      minY_linear = cms.double(0.),
+      maxY_linear = cms.double(1.6),
+      minY_log = cms.double(0.001),
+      maxY_log = cms.double(1.8),
       yAxisTitle = cms.string('#varepsilon'), 
       yAxisTitleOffset = cms.double(1.1),
       yAxisTitleSize = cms.double(0.05)
@@ -1197,6 +1207,23 @@ def MakeLabeler(TestLabel, ReferenceLabel):
             print "ERROR in RecoTauValidation_cfi::MakeLabeler - trying to set test/reference label but %s does not have processes.(test/reference).legendEntry parameters!" % module.label()
    return labeler
 
+def SetYmodulesToLog(matchingNames = []):
+   ''' set all modules whose name contains one of the matching names to log y scale'''
+   def yLogger(module):
+      ''' set a module to use log scaling in the yAxis'''
+      if hasattr(module, 'drawJobs'):
+         print "EK DEBUG"
+         drawJobParamGetter = lambda subName : getattr(module.drawJobs, subName)
+         #for subModule in [getattr(module.drawJobs, subModuleName) for subModuleName in dir(module.drawJobs)]:
+         attrNames = dir(module.drawJobs)
+         for subModuleName, subModule in zip(attrNames, map(drawJobParamGetter, attrNames)):
+            matchedNames = [name for name in matchingNames if subModuleName.find( name) > -1] # matching sub strings
+            if hasattr(subModule, "yAxis") and len(matchedNames):
+               print "Setting drawJob: ", subModuleName, " to log scale."
+               subModule.yAxis = cms.string('fakeRate') #'fakeRate' configuration specifies the log scaling
+   return yLogger
+
+
 def SetBaseDirectory(Directory):
    def BaseDirectorizer(module):
       newPath = Directory
@@ -1239,6 +1266,14 @@ def SetReferenceFileToPlot(myProcess, FileLoc):
       del myProcess.loadTau.reference
    else:
       myProcess.loadTau.reference.inputFileNames = cms.vstring(FileLoc)
+
+def SetLogScale(myPlottingSequence):
+   myFunctor = ApplyFunctionToSequence(SetYmodulesToLog())
+   myPlottingSequence.visit(myFunctor)
+
+def SetSmartLogScale(myPlottingSequence):
+   myFunctor = ApplyFunctionToSequence(SetYmodulesToLog(['Electron', 'Muon', 'Isolation', 'TaNC']))
+   myPlottingSequence.visit(myFunctor)
 
 def SetPlotOnlyStepByStep(myPlottingSequence):
    myFunctor = ApplyFunctionToSequence(RemoveComparisonPlotCommands)

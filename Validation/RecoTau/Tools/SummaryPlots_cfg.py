@@ -67,7 +67,11 @@ if not os.path.exists(PlotOutputDir):
 # Load plotting sequences
 process.load("Validation.RecoTau.RecoTauValidation_cfi")
 #set scale
-process.standardDrawingStuff.yAxes.efficiency.yScale = cms.string(options.scale)
+from Validation.RecoTau.RecoTauValidation_cfi import SetLogScale
+from Validation.RecoTau.RecoTauValidation_cfi import SetSmartLogScale
+if options.scale == 'log':
+   print "Setting everything to log scale"
+   SetLogScale(process.plotTauValidation)
 
 # Get helper functions
 from Validation.RecoTau.RecoTauValidation_cfi import SetTestFileToPlot

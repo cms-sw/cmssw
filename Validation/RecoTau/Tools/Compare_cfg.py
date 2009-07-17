@@ -55,7 +55,7 @@ options.register( 'scale',
                   'linear',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "Set scale of yaxis on plots (linear/log)"
+                  "Set scale of yaxis on plots (linear/log/smartlog) smartlog option sets only high-purity (TaNC, electron, muon) discriminators to log"
                   )
 
 options.parseArguments()
@@ -118,11 +118,21 @@ PlotOutputDir = os.path.join(PlotOutputDir, "Plots")
 if not os.path.exists(PlotOutputDir):
    os.makedirs(PlotOutputDir)
 
+
 # Load plotting sequences
 process.load("Validation.RecoTau.RecoTauValidation_cfi")
 
 #set scale
-process.standardDrawingStuff.yAxes.efficiency.yScale = cms.string(options.scale)
+from Validation.RecoTau.RecoTauValidation_cfi import SetLogScale
+from Validation.RecoTau.RecoTauValidation_cfi import SetSmartLogScale
+if options.scale == 'log':
+   print "Setting everything to log scale"
+   SetLogScale(process.plotTauValidation)
+elif options.scale == 'smartlog':
+   print "Setting high purity discriminators to log scale"
+   SetSmartLogScale(process.plotTauValidation)
+
+
 # Get helper functions
 from Validation.RecoTau.RecoTauValidation_cfi import SetTestFileToPlot
 from Validation.RecoTau.RecoTauValidation_cfi import SetReferenceFileToPlot

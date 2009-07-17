@@ -75,7 +75,7 @@ options.register( 'conditions',
                 )
 
 options.register( 'myModifications',
-                  '<none>',
+                  'none',
                   VarParsing.VarParsing.multiplicity.list,
                   VarParsing.VarParsing.varType.string,
                   "Specify one (or more) files to be loaded in the process. You can use this to modifiy cfi parameters from their defaults. See ExampleModification_cfi.py"
@@ -163,5 +163,5 @@ def returnOptionsString():
 
    for optionsName, optionValues in options.__dict__['_lists'].iteritems():
       for anOption in optionValues:
-         outputString += " %s=%s" % (optionsName, optionValue) 
+         outputString += " %s=%s" % (optionsName, anOption) 
    return outputString

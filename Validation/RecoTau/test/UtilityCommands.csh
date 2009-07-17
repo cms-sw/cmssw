@@ -9,11 +9,12 @@ setenv PastResults /afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-
 
 cmsenv
 
-alias MergeBatchJob 'cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py `ls BatchJobs/*_0.root | sed "s|_0.root|.root|" | sed "s|BatchJobs/||"` BatchJobs/*root'
-alias Compare 'cmsRun ${VALTOOLS}/Compare_cfg.py'
-alias Summarize 'cmsRun ${VALTOOLS}/SummaryPlots_cfg.py'
-alias PerformanceCurves 'python ${VALTOOLS}/PlotPerformanceCurves.py'
-alias BuildWebpage 'python ${VALTOOLS}/BuildWebpage.py'
-alias SubmitResults 'python ${PFVALTOOLS}/submit.py'
-alias getZTTRecoFiles 'dbs search --query="find dataset where release = CMSSW_3_1_0_pre10 and primds = RelValZTT and tier like *RECO* and dataset not like *FastSim*" --createCFF=tempZTTRecoFiles'
+alias MergeBatchJob='cmsRun ${VALTOOLS}/MergeFilesAndCalculateEfficiencies_cfg.py `ls BatchJobs/*_0.root | sed "s|_0.root|.root|" | sed "s|BatchJobs/||"` BatchJobs/*root'
+alias Compare='cmsRun ${VALTOOLS}/Compare_cfg.py'
+alias Summarize='cmsRun ${VALTOOLS}/SummaryPlots_cfg.py'
+alias PerformanceCurves='python ${VALTOOLS}/PlotPerformanceCurves.py'
+alias BuildWebpage='python ${VALTOOLS}/BuildWebpage.py'
+alias SubmitResults='python ${PFVALTOOLS}/submit.py'
+alias getZTTRecoFiles='dbs search --query="find dataset where release = CMSSW_3_1_0_pre10 and primds = RelValZTT and tier like *RECO* and dataset not like *FastSim*" --createCFF=tempZTTRecoFiles'
+alias removeLogs='rm -r $VALTEST/LSFJOB_[0-9]*'
 
