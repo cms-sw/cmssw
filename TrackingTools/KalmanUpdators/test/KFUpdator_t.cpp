@@ -93,7 +93,7 @@ void print(TrajectoryStateOnSurface const & ts) {
   cout << "globalMomentum       " << ts.globalMomentum() << endl;
   cout << "localMomentum        " << ts.localMomentum() << endl;
   cout << "localPosition        " << ts.localPosition() << endl;
-  cout << "localError           " << ts.localError() << endl;
+  cout << "localError           " << ts.localError().matrix() << endl;
   cout << endl;
 }
 
