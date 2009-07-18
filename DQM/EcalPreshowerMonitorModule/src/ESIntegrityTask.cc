@@ -37,21 +37,6 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
    kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
 
-   // temp. solution for Opto
-   int fed_rx[56] = {2, 0, 2, 3, 3,
-		     3, 0, 0, 2, 2,
-		     3, 3, 3, 0, 3,
-		     3, 0, 2, 0, 2,
-		     3, 3, 3, 0, 0,
-		     2, 2, 3, 3, 2,
-		     0, 2, 0, 3, 3,
-		     3, 2, 2, 0, 0,
-		     3, 3, 0, 3, 3,
-		     3, 2, 0, 2, 0,
-		     3, 3, 3, 2, 2,
-		     0};
-   for (int i=0; i<56; ++i) fed_rx[i] = fed_rx_[i];
-
 }
 
 ESIntegrityTask::~ESIntegrityTask() {
@@ -203,14 +188,18 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       meDCCErr_->Fill(dcc.fedId(), dcc.getDCCErrors());
 
-      if (dcc.getOptoRX0() == 128) meOptoRX_->Fill(dcc.fedId(), 0);
-      if (dcc.getOptoRX1() == 128) meOptoRX_->Fill(dcc.fedId(), 1);
-      if (dcc.getOptoRX2() == 128) meOptoRX_->Fill(dcc.fedId(), 2);
-
-      if (((dcc.getOptoBC0()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
-      if (((dcc.getOptoBC1()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
-      if ((((dcc.getOptoBC2()+9) & 0x0fff) != dcc.getBX()) && fed_rx_[dcc.fedId()-520]==3)
-	meOptoBC_->Fill(dcc.fedId(), 2);
+      if (dcc.getOptoRX0() == 128) {
+	meOptoRX_->Fill(dcc.fedId(), 0);
+	if (((dcc.getOptoBC0()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+      }
+      if (dcc.getOptoRX1() == 128) {
+	meOptoRX_->Fill(dcc.fedId(), 1);
+	if (((dcc.getOptoBC1()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
+      }
+      if (dcc.getOptoRX2() == 128) {
+	meOptoRX_->Fill(dcc.fedId(), 2);
+	if (((dcc.getOptoBC2()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
+      }
 
       fiberStatus = dcc.getFEChannelStatus();
 
