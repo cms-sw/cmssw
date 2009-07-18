@@ -18,9 +18,3 @@ patDefaultSequence = cms.Sequence(
     cleanLayer1Objects *
     countLayer1Objects
 )
-
-patDefaultSequenceNoCleaning = cms.Sequence(
-    allLayer1Objects * 
-    selectedLayer1Objects *
-    countLayer1Objects
-)
