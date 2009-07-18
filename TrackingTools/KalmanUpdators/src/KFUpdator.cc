@@ -59,11 +59,8 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   //SMatDD V = asSMatrix<D>(aRecHit.parametersError());
   //SMatDD R = V + me.measuredError<D>(aRecHit);
   SMatDD R = V + VMeas;
-  int ierr = !  invertPosDefMatrix(R);
-  if (ierr != 0) {
-    edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
-    return TrajectoryStateOnSurface();
-  }
+  bool ok = invertPosDefMatrix(R);
+  // error check moved at the end
   //R.Invert();
 
   // Compute Kalman gain matrix
@@ -92,8 +89,14 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   fse +=  tmp;
   */
 
-  return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
+  if (ok) {
+    return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
 				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
+  }else {
+    edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
+    return TrajectoryStateOnSurface();
+  }
+
 }
 #endif
 
