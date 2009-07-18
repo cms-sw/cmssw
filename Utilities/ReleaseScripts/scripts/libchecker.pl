@@ -14,7 +14,6 @@
   $libname = shift; chomp($libname);
   # Should check that library actually exists
 
-
   # Get the list of direct dependencies
   @LDDLIST = `ldd $libname`;
 
@@ -53,13 +52,12 @@
  
   # Loop and print only unused libraries which are not deps of other deps
   # (i.e. those that must have been added as direct deps of the library 
-  #  in question, not things that come in indirectly via its deps)
+  # in question, not things that come in indirectly via its deps)
   foreach $dkey (@UNUSEDLIST) {
     chomp($dkey);
     $dkey =~ s/(^\s+|\s+$)//g; # Drop the whitespace
     if (exists($lddrevdepmap{$dkey})) {
       if ($opt_v) {print "Found unneeded library => $dkey\n"};
-      #print "XXX library $dkey used ".$lddrevneedmap{$dkey}." times\n";
       if ($lddrevneedmap{$dkey}==0) {
         print "Unnecessary direct dependence ".$lddrevdepmap{$dkey}."\n";
       } else {
