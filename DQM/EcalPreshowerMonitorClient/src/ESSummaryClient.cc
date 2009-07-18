@@ -40,6 +40,17 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
 
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
+   sprintf(histo, "reportSummary");
+   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+   if ( me ) {
+      dqmStore_->removeElement(me->getName());
+   }
+   me = dqmStore_->bookFloat(histo);
+   me->Fill(-1.0);      
+
+
+   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
    sprintf(histo, "reportSummaryMap");
    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
    if ( me ) {
@@ -138,23 +149,42 @@ void ESSummaryClient::analyze(void) {
       }
    }
 
-   //Number:Error mapping; 1:Normal 2:Noisy 3:No Readout 4:DCC & KChip Error 
+   //The global-summary
+   int nGlobalErrors = 0;
+   int nValidChannels = 0;
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
-      float xval = 0.;
+      float xval = 0;
       for(int x=0; x<80; x++){
 	 for(int y=0; y<80; y++){
-	    xval = 1.;
-	    if(DigiHit[x][y]>1&&noDigiHit==0) xval = 2.;
-	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval = 3.;
-	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval = 4.;
-	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval = 4.;
-	    if(DCC[x][y]<0.5) xval = 0.;	//0 for non-module point
+	    //Number:Error mapping; 1:Normal 2:Noisy 3:No Readout 4:DCC & KChip Error 
+	    xval = 1;
+	    if(DigiHit[x][y]>1&&noDigiHit==0) xval = 2;
+	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval = 3;
+	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval = 4;
+	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval = 4;
+	    if(DCC[x][y]<0.5) xval = 0;	//0 for non-module point
+
+	    //Count Valid Channels and Error Channels
+	    if( xval != 0 ){
+	       nValidChannels++;
+	       if( xval != 1) nGlobalErrors++;
+	    }
 
 	    me->setBinContent(x+1, y+1, xval);
 	 }
       }
    }
+
+   //Return ratio of good channels
+   float reportSummary = -1.0;
+   if ( nValidChannels != 0 ){
+      reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+   }
+   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+   if ( me ) me->Fill(reportSummary);
+
+
 }
 
 void ESSummaryClient::softReset(bool flag) {
