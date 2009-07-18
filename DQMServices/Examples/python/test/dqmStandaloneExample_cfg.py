@@ -6,7 +6,7 @@ process.source = cms.Source("EmptySource")
 
 ### set number of events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1000)
     )
 
 ### include to get DQM histogramming services
@@ -62,7 +62,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQM.collectorHost = 'localhost'
+process.DQM.collectorHost = ''
 process.DQM.collectorPort = 9190
 
 ### path where to save the output file
@@ -71,16 +71,21 @@ process.dqmSaver.dirName = '.'
 ### the filename prefix 
 process.dqmSaver.producer = 'DQM'
 
-### possible conventions are "Online", "Offline" and "RelVal"
+### possible conventions are "Online" and "Offline"
 process.dqmSaver.convention = 'Online'
 
 process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 
 ### optionally change fileSaving  conditions
-#process.dqmSaver.saveByLumiSection = -1
-#process.dqmSaver.saveByMinute      = -1
-#process.dqmSaver.saveByEvent       = -1
-#process.dqmSaver.saveByRun         =  1
+process.dqmSaver.convention = 'Online'
+process.dqmSaver.dirName = '.'
+process.dqmSaver.producer = 'DQM'
+process.dqmSaver.saveByTime = 4
+process.dqmSaver.saveByLumiSection = -1
+process.dqmSaver.saveByMinute = 8
+process.dqmSaver.saveByRun = -1
+process.dqmSaver.saveAtJobEnd = True
+
 
 ### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
 process.p = cms.Path(process.dqmSource*process.qTester*process.dqmStoreStats*process.dqmClient*process.dqmEnv*process.dqmSaver)
