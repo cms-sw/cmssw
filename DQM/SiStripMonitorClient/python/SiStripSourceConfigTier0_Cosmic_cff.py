@@ -15,10 +15,12 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff import *
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.Mod_On = False
+SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
+SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Tracks
@@ -122,6 +124,11 @@ TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamH
 TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
 TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
 
+# Split Tracking
+from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
+TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
+
+
 # DQM Services
 dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
      subSystemFolder = cms.untracked.string('SiStrip')
@@ -139,4 +146,4 @@ SiStripDQMTier0_ckf = cms.Sequence(SiStripMonitorTrack_ckf*MonitorTrackResiduals
 
 SiStripDQMTier0_rs = cms.Sequence(SiStripMonitorTrack_rs*MonitorTrackResiduals_rs*TrackMon_rs*TrackEffMon_rs)
 
-SiStripDQMTier0 = cms.Sequence(siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackMon_rs*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
