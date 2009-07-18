@@ -116,20 +116,20 @@ void en(){}
 
 
 struct KFUTest {
-  TrajectoryStateUpdator tsu;
+  TrajectoryStateUpdator coonst & tsu;
 
-  KFUTest(TrajectoryStateUpdator & itsu) : tsu(itsu){}
+  KFUTest(TrajectoryStateUpdator const & itsu) : tsu(itsu){}
 
 
   void print(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) {
+	     const TransientTrackingRecHit& hit) const {
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
     print (tsn);
   }
   
 
   void time(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) {
+	     const TransientTrackingRecHit& hit) const {
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
@@ -141,20 +141,20 @@ struct KFUTest {
 };
 
 struct Chi2Test {
-  MeasurementEstimator & chi2;
-  std::pair<bool, double> res;
-  KFUTest(MeasurementEstimator & ichi2) : chi2(ichi2){}
+  MeasurementEstimator const & chi2;
+  mutable std::pair<bool, double> res;
+  KFUTest(MeasurementEstimator const & ichi2) : chi2(ichi2){}
 
 
   void print(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& hit) {
+	     const TransientTrackingRecHit& hit) const {
     res = chi2.estimate(tsos, hit);
     std::cout << "chi2 " << res.second << std::endl;
   }
   
 
   void time(const TrajectoryStateOnSurface& tsos,
-	    const TransientTrackingRecHit& hit) {
+	    const TransientTrackingRecHit& hit) const {
     st();	
     edm::HRTimeType s= edm::hrRealTime();
     res = chi2.estimate(tsos, hit);
