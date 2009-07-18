@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.35 2009/03/26 20:04:10 rwolf Exp $
+// $Id: Jet.h,v 1.36 2009/07/16 09:28:08 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.35 2009/03/26 20:04:10 rwolf Exp $
+  \version  $Id: Jet.h,v 1.36 2009/07/16 09:28:08 rwolf Exp $
 */
 
 
@@ -183,6 +183,19 @@ namespace pat {
       /// method to set the flavour of the parton underlying the jet
       void setPartonFlavour(int partonFl);
 
+
+      /// methods for jet ID 
+      void setFHPD         (double   fHPD         ){fHPD_ =         fHPD;         }; 
+      void setFRBX         (double   fRBX         ){fRBX_ =         fRBX;         }; 
+      void setN90Hits      (int      n90Hits      ){n90Hits_ =      n90Hits;      }; 
+      void setFSubDetector1(double   fSubDetector1){fSubDetector1_ =fSubDetector1;}; 
+      void setFSubDetector2(double   fSubDetector2){fSubDetector2_ =fSubDetector2;}; 
+      void setFSubDetector3(double   fSubDetector3){fSubDetector3_ =fSubDetector3;}; 
+      void setFSubDetector4(double   fSubDetector4){fSubDetector4_ =fSubDetector4;}; 
+      void setRestrictedEMF(double   restrictedEMF){restrictedEMF_ =restrictedEMF;}; 
+      void setNHCALTowers  (int      nHCALTowers  ){nHCALTowers_ =  nHCALTowers;  }; 
+      void setNECALTowers  (int      nECALTowers  ){nECALTowers_ =  nECALTowers;  };      
+
       // ---- jet specific methods ----
 
       /// check to see if the jet is a reco::CaloJet
@@ -289,7 +302,20 @@ namespace pat {
       virtual size_t numberOfDaughters() const {
           return (embeddedCaloTowers_ ? caloTowers_.size() : reco::Jet::numberOfDaughters() );
       }
- 
+
+
+      /// accessing Jet ID information
+      double fHPD()          const   { return    fHPD_;         }           
+      double fRBX()          const   { return    fRBX_;         }           
+      int    n90Hits()       const   { return    n90Hits_;      }        
+      double fSubDetector1() const   { return    fSubDetector1_;}  
+      double fSubDetector2() const   { return    fSubDetector2_;}  
+      double fSubDetector3() const   { return    fSubDetector3_;}  
+      double fSubDetector4() const   { return    fSubDetector4_;}  
+      double restrictedEMF() const   { return    restrictedEMF_;}  
+      int    nHCALTowers()   const   { return    nHCALTowers_;  }    
+      int    nECALTowers()   const   { return    nECALTowers_;  }       
+
     protected:
 
       // ---- for content embedding ----
@@ -327,6 +353,19 @@ namespace pat {
       std::vector<CaloSpecific> specificCalo_;
       std::vector<PFSpecific>   specificPF_;
 
+      // ---- id functions ----
+      // Mostly english, except for: "f"-fraction, "n"=number, "had"=hadronic, "EM"=electro-magnetic
+      double fHPD_;
+      double fRBX_;
+      int    n90Hits_;
+      double fSubDetector1_;
+      double fSubDetector2_;
+      double fSubDetector3_;
+      double fSubDetector4_;
+      double restrictedEMF_;
+      int    nHCALTowers_;
+      int    nECALTowers_;      
+      
     private:
 
       // ---- helper functions ----
