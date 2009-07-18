@@ -118,13 +118,13 @@ void en(){}
 struct KFUTest {
   TrajectoryStateUpdator coonst & tsu;
 
-  KFUTest(TrajectoryStateUpdator const & itsu) : tsu(itsu){}
+  KFUTest(TrajectoryStateUpdator const * itsu) : tsu(*itsu){}
 
 
   void print(const TrajectoryStateOnSurface& tsos,
 	     const TransientTrackingRecHit& hit) const {
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
-    print (tsn);
+    ::print (tsn);
   }
   
 
@@ -143,7 +143,7 @@ struct KFUTest {
 struct Chi2Test {
   MeasurementEstimator const & chi2;
   mutable std::pair<bool, double> res;
-  KFUTest(MeasurementEstimator const & ichi2) : chi2(ichi2){}
+  KFUTest(MeasurementEstimator const * ichi2) : chi2(&ichi2){}
 
 
   void print(const TrajectoryStateOnSurface& tsos,
@@ -198,7 +198,7 @@ int main() {
   TransientTrackingRecHit * thit = new  My2DHit(det, hit);
 
   KFUTest kt(new KFUpdator());
-  Chi2Test chi2(new Chi2MeasurementEstimator(10.)).
+  Chi2Test chi2(new Chi2MeasurementEstimator(10.));
 
   std::cout << "\n** KFU ** \n" << std::endl;
   
