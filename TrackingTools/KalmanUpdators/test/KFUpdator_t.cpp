@@ -1,4 +1,5 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -114,6 +115,56 @@ void st(){}
 void en(){}
 
 
+struct KFUTest {
+  TrajectoryStateUpdator tsu;
+
+  KFUTest(TrajectoryStateUpdator & itsu) : tsu(itsu){}
+
+
+  void print(const TrajectoryStateOnSurface& tsos,
+	     const TransientTrackingRecHit& hit) {
+    TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
+    print (tsn);
+  }
+  
+
+  void time(const TrajectoryStateOnSurface& tsos,
+	     const TransientTrackingRecHit& hit) {
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  }
+
+};
+
+struct Chi2Test {
+  MeasurementEstimator & chi2;
+  std::pair<bool, double> res;
+  KFUTest(MeasurementEstimator & ichi2) : chi2(ichi2){}
+
+
+  void print(const TrajectoryStateOnSurface& tsos,
+	     const TransientTrackingRecHit& hit) {
+    res = chi2.estimate(tsos, hit);
+    std::cout << "chi2 " << res.second << std::endl;
+  }
+  
+
+  void time(const TrajectoryStateOnSurface& tsos,
+	    const TransientTrackingRecHit& hit) {
+    st();	
+    edm::HRTimeType s= edm::hrRealTime();
+    res = chi2.estimate(tsos, hit);
+    edm::HRTimeType e = edm::hrRealTime();
+    en();
+    std::cout << e-s << std::endl;
+  }
+
+};
+
 
 
 int main() {
@@ -146,35 +197,25 @@ int main() {
   TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, DetId() , &dummy, &dummy);
   TransientTrackingRecHit * thit = new  My2DHit(det, hit);
 
-  TrajectoryStateUpdator * tsu = new KFUpdator();
+  KFUTest kt(new KFUpdator());
+  Chi2Test chi2(new Chi2MeasurementEstimator(10.)).
 
-  {
-    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
-    print (tsn);
-  }
+  std::cout << "\n** KFU ** \n" << std::endl;
+  
+  kt.print(ts,*thit);
+  kt.print(ts2,*thit);
 
-  {
-   TrajectoryStateOnSurface tsn =  (*tsu).update(ts2, *thit);
-   print(tsn);
-    
-  }
+  kt.time(ts,*thit);
+  kt.time(ts2,*thit);
 
-  {
-    st();	
-    edm::HRTimeType s= edm::hrRealTime();
-    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
-    edm::HRTimeType e = edm::hrRealTime();
-    en();
-    std::cout << e-s << std::endl;
-  }
-  {
-    st();	
-    edm::HRTimeType s= edm::hrRealTime();
-    TrajectoryStateOnSurface tsn =  (*tsu).update(ts, *thit);
-    edm::HRTimeType e = edm::hrRealTime();
-    en();
-    std::cout << e-s << std::endl;
-  }
+  std::cout << "\n** Chi2 ** \n" << std::endl;
+  
+  chi2.print(ts,*thit);
+  chi2.print(ts2,*thit);
+
+  chi2.time(ts,*thit);
+  chi2.time(ts2,*thit);
+
 
 
   return 0;
