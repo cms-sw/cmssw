@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/11/20 17:21:37 $
-// $Revision: 1.62 $
+// $Author: vlimant $
+// $Date: 2009/02/26 19:30:10 $
+// $Revision: 1.63 $
 //
 
 #include <vector>
@@ -1415,7 +1415,8 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
   const GeomDet* innerDet = trackerGeom->idToDet((theInnerHit)->geographicalId());
   const TrajectoryStateOnSurface innerState = 
     thePropagator->propagate(fts,innerDet->surface());
-  if ( !innerState.isValid()) {
+  if ( !innerState.isValid() ||
+       isnan(innerState.globalMomentum().perp())) {
     if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
     return theSeedTrajectory;
   }
@@ -1433,7 +1434,13 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
   
   MeasurementEstimator::HitReturnType est = theEstimator->estimate(innerState, *intrhit);
   if (!est.first) return theSeedTrajectory;	    
-  TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
+   TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
+   if (debug_) std::cout<<"InnerUpdated: " << innerUpdated << std::endl;
+  if (!innerUpdated.isValid() ||
+       isnan(innerUpdated.globalMomentum().perp())) {
+    if (debug_) std::cout<<"Trajectory updated with first hit is invalid!!!" << std::endl;
+    return theSeedTrajectory;
+  }
   TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,theInnerHitLayer);
   
   PTrajectoryStateOnDet* pFirstStateTwo = theTransformer->persistentState(innerUpdated,

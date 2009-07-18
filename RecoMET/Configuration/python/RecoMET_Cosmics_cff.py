@@ -14,16 +14,54 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.Configuration.RecoMET_cff import *
 
-tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
-hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
+#tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
+tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
+
+#hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
+hcalnoise.fillTracks = False
+
 
 metrecoCosmics = cms.Sequence(
-    met+metNoHF+metHO+metNoHFHO+
-    calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-    htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMetP5
-    )
+      met+
+      metNoHF+
+      metHO+
+      metNoHFHO+
+      calotoweroptmaker+
+      metOpt+
+      metOptNoHF+
+      calotoweroptmakerWithHO+
+      metOptHO+metOptNoHFHO+
+      htMetSC5+
+      htMetSC7+
+      htMetKT4+
+      htMetKT6+
+      htMetIC5+
+      muonMETValueMapProducer+
+      corMetGlobalMuons+
+      muonTCMETValueMapProducer+
+      hcalnoise)
 
-metrecoPlusHCALNoiseCosmics = cms.Sequence( metrecoCosmics + hcalnoiseCosmics )
+metrecoCosmics_woHcalNoise = cms.Sequence(
+    met+
+    metNoHF+
+    metHO+
+    metNoHFHO+
+    calotoweroptmaker+
+    metOpt+
+    metOptNoHF+
+    calotoweroptmakerWithHO+
+    metOptHO+metOptNoHFHO+
+    htMetSC5+
+    htMetSC7+
+    htMetKT4+
+    htMetKT6+
+    htMetIC5+
+    muonMETValueMapProducer+
+    corMetGlobalMuons+
+    muonTCMETValueMapProducer
+)
+    
+
 
 
 

@@ -2,6 +2,7 @@
 //Source code for HLT JetMET DQ monitoring.
 
 #include "DQM/HLTEvF/interface/HLTMonJetMETDQMSource.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,76 +38,75 @@
 
 using namespace edm;
 using namespace reco;
-
+  
 HLTMonJetMETDQMSource::HLTMonJetMETDQMSource(const edm::ParameterSet& iConfig)
 {
+  if(verbose_) cout  << "constructor...." ;
 
- LogDebug("HLTMonJetMETDQMSource") << "constructor...." ;
+  logFile_.open("HLTMonJetMETDQMSource.log");
 
- logFile_.open("HLTMonJetMETDQMSource.log");
-
- dbe = NULL;
- if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
-   dbe = Service < DQMStore > ().operator->();
-   dbe->setVerbose(0);
- }
-
-
- debug_=false;
- verbose_=true;
- outputFile_ =
+  dbe = NULL;
+  if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
+    dbe = Service < DQMStore > ().operator->();
+    dbe->setVerbose(0);
+  }
+  
+  
+  debug_=false;
+  verbose_=false;
+  outputFile_ =
    iConfig.getUntrackedParameter < std::string > ("outputFile", "");
- if (outputFile_.size() != 0) {
-   LogInfo("HLTMonJetMETDQMSource") << "L1T Monitoring histograms will be saved to " 
-				    << outputFile_ ;
- }
- else {
-   outputFile_ = "L1TDQM.root";
- }
- 
- bool disable =
-   iConfig.getUntrackedParameter < bool > ("disableROOToutput", false);
- if (disable) {
-   outputFile_ = "";
- }
- //dirname_="HLT/HLTMonJetMETDQMSource"+iConfig.getParameter<std::string>("@module_label");
- dirname_="HLTMonJetMET/HLTMonJetMETDQMSource";
- LogDebug("HLTMonJetMETDQMSource") << dirname_ << " is the dqm source dir." << endl;
+  if (outputFile_.size() != 0) {
+    LogInfo("HLTMonJetMETDQMSource") << "L1T Monitoring histograms will be saved to " 
+				     << outputFile_ ;
+  }
+  else {
+    outputFile_ = "L1TDQM.root";
+  }
+  
+  bool disable =
+    iConfig.getUntrackedParameter < bool > ("disableROOToutput", false);
+  if (disable) {
+    outputFile_ = "";
+  }
+  //dirname_="HLT/HLTMonJetMETDQMSource"+iConfig.getParameter<std::string>("@module_label");
+  dirname_="HLT/HLTMonJetMET/HLTMonJetMETDQMSource";
+  if(verbose_) cout  << dirname_ << " is the dqm source dir." << endl;
   if (dbe != NULL) {
     dbe->setCurrentFolder(dirname_);
- }
-
- //plotting paramters
- thePtMin = iConfig.getUntrackedParameter<double>("PtMin",0.);
- thePtMax = iConfig.getUntrackedParameter<double>("PtMax",1000.);
- theNbins = iConfig.getUntrackedParameter<unsigned int>("Nbins",1000);
- theNbinseta = iConfig.getUntrackedParameter<unsigned int>("Nbins",100);
-
- //info for each filter-step
- reqNum = iConfig.getParameter<unsigned int>("reqNum");
- std::vector<edm::ParameterSet> filters = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
- // get parameter info for each trigger path from the config file
- for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
-   theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
-   theHLTOutputTypes.push_back(filterconf->getParameter<unsigned int>("theHLTOutputTypes"));
-
-   subdir_.push_back(filterconf->getParameter<std::string>("theSubDir"));
-   std::vector<double> bounds = filterconf->getParameter<std::vector<double> >("PlotBounds");
-   assert(bounds.size() == 2);
-   plotBounds.push_back(std::pair<double,double>(bounds[0],bounds[1]));
- }
- 
+  }
+  
+  //plotting paramters
+  thePtMin = iConfig.getUntrackedParameter<double>("PtMin",0.);
+  thePtMax = iConfig.getUntrackedParameter<double>("PtMax",1000.);
+  theNbins = iConfig.getUntrackedParameter<unsigned int>("Nbins",1000);
+  theNbinseta = iConfig.getUntrackedParameter<unsigned int>("Nbins",100);
+  
+  //info for each filter-step
+  reqNum = iConfig.getParameter<unsigned int>("reqNum");
+  std::vector<edm::ParameterSet> filters = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
+  // get parameter info for each trigger path from the config file
+  for(std::vector<edm::ParameterSet>::iterator filterconf = filters.begin() ; filterconf != filters.end() ; filterconf++){
+    theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
+    theHLTOutputTypes.push_back(filterconf->getParameter<unsigned int>("theHLTOutputTypes"));
+    
+    subdir_.push_back(filterconf->getParameter<std::string>("theSubDir"));
+    std::vector<double> bounds = filterconf->getParameter<std::vector<double> >("PlotBounds");
+    assert(bounds.size() == 2);
+    plotBounds.push_back(std::pair<double,double>(bounds[0],bounds[1]));
+  }
+  
 }
 
 HLTMonJetMETDQMSource::~HLTMonJetMETDQMSource()
 {
-
+  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
+  
 }
 
-void HLTMonJetMETDQMSource::beginJob()
+void HLTMonJetMETDQMSource::beginJob(const edm::EventSetup&)
 //HLTMonJetMETDQMSource::beginJob(const edm::EventSetup&)
 {
   nev_ = 0;
@@ -116,13 +116,7 @@ void HLTMonJetMETDQMSource::beginJob()
   if (!dbe) {
     edm::LogInfo("HLTJetMETDQMSource") << "unable to get DQMStore service?";
   }
-  //debug_ = false;
-  //verbose_ = false;
   
-  // if (dbe) {
-  //   dbe->setCurrentFolder(dirname_);
-  //  dbe->rmdir(dirname_);
-  //}
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
     std::string histoname="total rate";
@@ -130,7 +124,7 @@ void HLTMonJetMETDQMSource::beginJob()
     MonitorElement *dummy;
     MonitorElement* tmphisto;
     dummy =  dbe->bookFloat("dummy");
-    LogDebug("HLTMonJetMETDQMSource") << dirname_ << endl;
+    if(verbose_) cout  << dirname_ << endl;
     
     
     total = dbe->book1D(histoname.c_str(),histoname.c_str(),theHLTCollectionLabels.size()+1,0,theHLTCollectionLabels.size()+1);
@@ -139,7 +133,7 @@ void HLTMonJetMETDQMSource::beginJob()
     
     for(unsigned int i = 0; i< theHLTCollectionLabels.size() ; i++){
       
-      dirname_="HLTMonJetMET/HLTMonJetMETDQMSource/" + subdir_[i];
+      dirname_="HLT/HLTMonJetMET/HLTMonJetMETDQMSource/" + subdir_[i];
       dbe->setCurrentFolder(dirname_);
       histoname = theHLTCollectionLabels[i].label()+"et";
       //ability to customize histograms
@@ -154,7 +148,7 @@ void HLTMonJetMETDQMSource::beginJob()
       tmphisto->setAxisTitle("p_{T}", 1);
       ethist.push_back(tmphisto);
       
-      LogDebug("HLTMonJetMETDQMSource") << histoname <<", " ;
+      if(verbose_) cout  << histoname <<", " ;
       
       
       histoname = theHLTCollectionLabels[i].label()+"phi";
@@ -164,7 +158,7 @@ void HLTMonJetMETDQMSource::beginJob()
       tmphisto->setAxisTitle("#phi", 1);
       phihist.push_back(tmphisto);  
       
-      LogDebug("HLTMonJetMETDQMSource") << histoname <<", " ;
+      if(verbose_) cout  << histoname <<", " ;
       
       if (!(subdir_[i].find("MET") != std::string::npos ))
 	{
@@ -176,7 +170,7 @@ void HLTMonJetMETDQMSource::beginJob()
 	  tmphisto->setAxisTitle("#eta", 1);
 	  etahist.push_back(tmphisto);          
 	  
-	  LogDebug("HLTMonJetMETDQMSource") << histoname <<", " ;
+	  if(verbose_) cout  << histoname <<", " ;
 	  
 	  histoname = theHLTCollectionLabels[i].label()+"eta_phi";
 	  histoTitle = theHLTCollectionLabels[i].label() + " #eta vs. #phi";
@@ -186,7 +180,7 @@ void HLTMonJetMETDQMSource::beginJob()
 	  tmphisto->setAxisTitle("#eta", 1);
 	  eta_phihist.push_back(tmphisto);	
 	  
-	LogDebug("HLTMonJetMETDQMSource") << histoname <<", " ;
+	  if(verbose_) cout  << histoname <<", " ;
 	}
     }//done booking all histograms
     
@@ -194,10 +188,9 @@ void HLTMonJetMETDQMSource::beginJob()
     
   }//if dbe
   
-  LogDebug("HLTMonJetMETDQMSource") << " Done with begin job tasks!! " << endl;
+  if(verbose_) cout  << " Done with begin job tasks!! " << endl;
   
 }
-
 
 void HLTMonJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
@@ -219,34 +212,73 @@ void HLTMonJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup&
     const unsigned int n(hltConfig_.size());
     for (unsigned int j=0; j!=n; ++j) {
       std::string pathname = hltConfig_.triggerName(j);  
-      cout << j << " " << hltConfig_.triggerName(j) << endl;      
+      cout << j << " th trigger path is: " << hltConfig_.triggerName(j) << endl;      
     }
-    }
+  }
   
 }
 
+template <class T> void HLTMonJetMETDQMSource::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent  ,unsigned int n){
+  
+  
+ std::vector<edm::Ref<T> > particlecands;
+ // To keep track of what particlecands have passed a filter in TriggerEventWithRefs
+ // it adds the name to a list of filter names. To check whether a filter got passed, 
+ // one just looks at its index  in the list...if it is not there it (for some reason) 
+ // returns the size of the list.
+ if (!( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() ))
+   { // only process if availabel  
+     
+     if(verbose_) cout  << "triggerObj->filterIndex(theHLTCollectionLabels[n]) " << triggerObj->filterIndex(theHLTCollectionLabels[n]) << endl;
+     // retrieve saved filter objects
+     triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],particlecands);
+     
+     //fill filter objects into histos
+     if (particlecands.size()!=0){
+       if(particlecands.size() >= reqNum ) 
+	 total->Fill(n+0.5);
+       
+       if(verbose_) cout  << " theHLTCollectionLabels[n].label() " << theHLTCollectionLabels[n].label() << endl;
+       
+       if (particlecands[0].isAvailable()){
+	 if(verbose_) cout  << " particlecands.size()" << particlecands.size() << endl;
+	 ethist[n]->Fill(particlecands[0]->et() );
+	   phihist[n]->Fill(particlecands[0]->phi() );
+	   
+	   
+	   if (!(subdir_[n].find("MET") != std::string::npos ))
+	     {
+	       if(verbose_) cout  << "found Jet object so filling the eta and eta-phi plots as well " << endl;
+	       eta_phihist[n]->Fill(particlecands[0]->eta(), particlecands[0]->phi() );
+	       etahist[n]->Fill(particlecands[0]->eta() );
+	     }
+	   
+       }// leading canditate in the event 
+     }
+   }
+}
 
-
-void
-HLTMonJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTMonJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   using namespace trigger;
   nev_++;
-  LogDebug("HLTMonJetMETDQMSource") << " Analysing event nummber =   "  << nev_ << endl;
-  LogDebug("HLTMonJetMETDQMSource")<< "HLTMonJetMETDQMSource: analyze...." ;
+  if(verbose_) {  
+    cout  << " Analysing event nummber =   "  << nev_ << endl;
+    cout << "HLTMonJetMETDQMSource: analyze...." << endl;
+  }
   
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj);   //Gets the data product which holds
   if(!triggerObj.isValid()) {                             //all of the information. 
     edm::LogWarning("HLTMonJetMETDQMSource") << "RAW-type HLT results not found, skipping event";
+    if(verbose_) cout << "RAW-type HLT results not found, skipping event" << endl;
     return;
   }
   
   // total event number
   total->Fill(theHLTCollectionLabels.size()+0.5);
   
-  LogDebug("HLTMonJetMETDQMSource") << "theHLTCollectionLabels.size()" << theHLTCollectionLabels.size() << endl;
+  if(verbose_) cout  << "theHLTCollectionLabels.size()" << theHLTCollectionLabels.size() << endl;
   
   if (verbose_){
     int filter_size = triggerObj->size();
@@ -254,20 +286,11 @@ HLTMonJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for (int i=0; i<filter_size; i++){
       edm::InputTag MyInputTag = triggerObj->filterTag(i);
       std::cout << "JoCa: filter" << i << " name: " << MyInputTag.label() << std::endl;
-   }
+    }
   }
   
-
-
   for(unsigned int n=0; n < theHLTCollectionLabels.size() ; n++) { //loop over filter modules
     switch(theHLTOutputTypes[n]){
-      // case 81: //L1 Muons
-      // fillHistos<l1extra::L1MuonParticleCollection>(triggerObj,iEvent,n);break;
-      //case 82: // non-iso L1
-      //  fillHistos<l1extra::L1EmParticleCollection>(triggerObj,iEvent,n);break;
-      //case 83: // iso L1http://slashdot.org/
-      //  fillHistos<l1extra::L1EmParticleCollection>(triggerObj,iEvent,n);break;
-      
     case 84: // 
       fillHistos<l1extra::L1JetParticleCollection>(triggerObj,iEvent,n);break;
     case 85: // 
@@ -278,10 +301,6 @@ HLTMonJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      fillHistos<l1extra::L1EtMissParticleCollection>(triggerObj,iEvent,n);break;
     case 91: //photon 
       fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,iEvent,n);break;
-      //case 92: //electron 
-      // fillHistos<reco::ElectronCollection>(triggerObj,iEvent,n);break;
-      //case 93: //Muon 
-      //  fillHistos<reco::RecoChargedCandidateCollection>(triggerObj,iEvent,n);break;
     case 95: //Jet
       fillHistos<reco::CaloJetCollection>(triggerObj,iEvent,n);break;
     case 97: //MET
@@ -295,66 +314,21 @@ HLTMonJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 }
 
-template <class T> void HLTMonJetMETDQMSource::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent  ,unsigned int n){
-  
-  
- std::vector<edm::Ref<T> > particlecands;
- // To keep track of what particlecands have passed a filter in TriggerEventWithRefs
- // it adds the name to a list of filter names. To check whether a filter got passed, 
- // one just looks at its index  in the list...if it is not there it (for some reason) 
- // returns the size of the list.
- if (!( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() ))
-   { // only process if availabel  
-   
-     LogDebug("HLTMonJetMETDQMSource") << "triggerObj->filterIndex(theHLTCollectionLabels[n]) " << triggerObj->filterIndex(theHLTCollectionLabels[n]) << endl;
-     // retrieve saved filter objects
-     triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],particlecands);
-     
-     //fill filter objects into histos
-     if (particlecands.size()!=0){
-       if(particlecands.size() >= reqNum ) 
-	 total->Fill(n+0.5);
-
-       LogDebug("HLTMonJetMETDQMSource") << " theHLTCollectionLabels[n].label() " << theHLTCollectionLabels[n].label() << endl;
-       
-
-       //for (unsigned int i=0; i<particlecands.size() && particlecands[i].isAvailable(); i++) {
-       if (particlecands[0].isAvailable()){
-	 LogDebug("HLTMonJetMETDQMSource") << " particlecands.size()" << particlecands.size() << endl;
-	 ethist[n]->Fill(particlecands[0]->et() );
-	 phihist[n]->Fill(particlecands[0]->phi() );
-	 
-	 
-	 if (!(subdir_[n].find("MET") != std::string::npos ))
-	   {
-	     LogDebug("HLTMonJetMETDQMSource") << "found Jet object so filling the eta and eta-phi plots as well " << endl;
-	     eta_phihist[n]->Fill(particlecands[0]->eta(), particlecands[0]->phi() );
-	     etahist[n]->Fill(particlecands[0]->eta() );
-	    }
-	 
-	 }// leading canditate in the event 
-       
-       
-     }
-   }
-}
 
 void HLTMonJetMETDQMSource::bookJetMET()
 {
-
+  
   
 }
 
-  // ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTMonJetMETDQMSource::endJob() {
-
-
+// ------------ method called once each job just after ending the event loop  ------------
+void HLTMonJetMETDQMSource::endJob() {
+  
   LogInfo("HLTMonJetMETDQMSource") << "analyzed " << nev_ << " events";
-
+  
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
-
+  
   return;
 }
 

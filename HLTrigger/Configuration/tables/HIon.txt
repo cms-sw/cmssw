@@ -1,0 +1,12 @@
+HLTriggerFirstPath
+HLT_HIJet50U
+HLT_HIJet75U
+HLT_HIJet90U
+HLT_HIPhoton10
+HLT_HIPhoton20
+HLT_HIPhoton30
+HLT_HIDoubleMu
+HLTriggerFinalPath
+HLTAnalyzerEndpath
+HLTOutput
+AlCaOutput

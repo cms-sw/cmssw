@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.5 2009/06/01 12:57:20 aosorio Exp $
+// $Id: $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -17,30 +17,20 @@
  */
 class TTUInput {
 public: 
-  
   /// Standard constructor
-  TTUInput( );
+  TTUInput( ); 
   
-  ///< Destructor
-  virtual ~TTUInput( );
+  virtual ~TTUInput( ); ///< Destructor
   
-  TTUInput( const TTUInput & in )
+  TTUInput( const TTUInput & _in)
   {
-    m_bx = in.m_bx;
-    m_hasHits = in.m_hasHits;
-    m_rbcDecision = in.m_rbcDecision;
-    input_sec = new std::bitset<6>[12];
     for(int i=0; i < 12; ++i) 
-      input_sec[i] = in.input_sec[i];
+      input_sec[i] = _in.input_sec[i];
   };
   
   TTUInput & operator=( const TTUInput & rhs )
   {
     if (this == &rhs) return (*this);
-    (*this).m_bx = rhs.m_bx;
-    (*this).m_hasHits = rhs.m_hasHits;
-    (*this).input_sec = new std::bitset<6>[12];
-    (*this).m_rbcDecision = rhs.m_rbcDecision;
     for(int i=0; i < 12; ++i)
       (*this).input_sec[i] = rhs.input_sec[i];
     return (*this);
@@ -48,12 +38,7 @@ public:
   
   void reset();
   
-  int m_bx;
-  bool m_hasHits;
-  
-  std::bitset<6> * input_sec;
-  
-  std::bitset<12> m_rbcDecision;
+  std::bitset<6> input_sec[12];
   
   void mask ( const std::vector<int> & );
   
@@ -63,7 +48,8 @@ protected:
   
 private:
   
-  bool m_debug;
-    
+  
+  
+  
 };
 #endif // INTERFACE_TTUINPUT_H

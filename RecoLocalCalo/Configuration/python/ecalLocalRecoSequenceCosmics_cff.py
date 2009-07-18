@@ -6,6 +6,9 @@ import FWCore.ParameterSet.Config as cms
 #
 #ECAL conditions
 #  include "CalibCalorimetry/EcalTrivialCondModules/data/EcalTrivialCondRetriever.cfi"
+#
+#TPG condition needed by ecalRecHit producer if TT recovery is ON
+from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import *
@@ -15,4 +18,7 @@ from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 ecalLocalRecoSequence = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeightUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
 ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-ecalRecHit.ChannelStatusToBeExcluded = [1]
+ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
+ecalPreshowerRecHit.ESGain = cms.int32(2)
+ecalPreshowerRecHit.ESBaseline = cms.int32(0)
+ecalPreshowerRecHit.ESMIPADC = cms.double(50)

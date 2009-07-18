@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/06/17 13:15:31 $ 
+ **  $Date: 2009/06/19 14:29:17 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -69,6 +69,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   virtual void beginJob( const edm::EventSetup& ) ;
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
+  virtual void runClient();
+
  private:
   //
 

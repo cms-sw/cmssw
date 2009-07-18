@@ -54,7 +54,7 @@ elif Source == str("SIM") :
     process.source = cms.Source(
         "PoolSource",
         fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_1_0_pre2/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0001/027A5B5E-AF03-DE11-832C-000423D99AAE.root'
+       '/store/relval/CMSSW_3_1_1/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V2-v1/0002/ECAD7ED7-966B-DE11-B4FE-000423D99CEE.root'
         )
         )
     

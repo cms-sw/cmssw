@@ -14,7 +14,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     prescaleFactor = cms.untracked.int32(1),
 
     useBinning = cms.bool(False),
-    useTriggerFiltering = cms.bool(True),                             
+    useTriggerFiltering = cms.bool(False),                             
     standAlone = cms.bool(False),
                                 
     minPhoEtCut = cms.double(0.0),

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.31 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.27 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
-#include "Fireworks/Core/interface/FWGUIManager.h"
+#include  "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 //
@@ -55,7 +55,7 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    //swap
    m_swapButton = new TGPictureButton(this, swapIcon());
    m_swapButton->SetDisabledPicture(swapDisabledIcon());
-   m_swapButton->SetToolTipText("Swap with the first view or select window to swap with click on toolbar.");
+   m_swapButton->SetToolTipText("Swap. Select window with click on frame toolbar");
    m_swapButton->ChangeOptions(kRaisedFrame);
    m_swapButton->SetHeight(height);
    AddFrame(m_swapButton, new TGLayoutHints(lh));
@@ -91,7 +91,12 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    AddFrame(m_closeButton, new TGLayoutHints(lh));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
 
-   FWGUIManager::getGUIManager()->connectSubviewAreaSignals(this);
+   // gui manager callbacks
+   FWGUIManager* mng = FWGUIManager::getGUIManager();
+   goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,mng,_1));
+   selected_.connect(boost::bind(&FWGUIManager::subviewSelected,mng,_1));
+   unselected_.connect(boost::bind(&FWGUIManager::subviewUnselected,mng,_1));
+   swap_.connect(boost::bind(&FWGUIManager::subviewSwapped,mng,_1));
 }
 
 FWGUISubviewArea::~FWGUISubviewArea()
@@ -126,9 +131,9 @@ FWGUISubviewArea::unselect()
 }
 
 void
-FWGUISubviewArea::setSwapIcon(bool isOn)
+FWGUISubviewArea::currentWindowChanged()
 {
-  m_swapButton->SetEnabled(isOn);
+  m_swapButton->SetEnabled(!m_frame->GetEveWindow()->IsCurrent());
 }
 
 void
@@ -146,7 +151,7 @@ FWGUISubviewArea::destroy()
 void
 FWGUISubviewArea::undock()
 {
-    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindow()");
+    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindowDestroySlot()");
 }
 
 void
@@ -168,6 +173,13 @@ FWGUISubviewArea::isSelected() const
 
 
 //______________________________________________________________________________
+void 
+FWGUISubviewArea::configurePrimaryView()
+{
+   m_closeButton->SetEnabled(kFALSE);
+   m_undockButton->SetEnabled(kFALSE);
+}
+
 TEveWindow*
 FWGUISubviewArea::getEveWindow()
 {
@@ -319,5 +331,5 @@ FWGUISubviewArea::infoDisabledIcon()
 void
 FWGUISubviewArea::setInfoButton(bool downp)
 {
-   m_infoButton->SetState(downp ? kButtonEngaged : kButtonUp, false);
+   m_infoButton->SetState(downp ? kButtonDown : kButtonUp, false);
 }

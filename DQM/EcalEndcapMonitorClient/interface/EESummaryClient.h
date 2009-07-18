@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/06/11 20:54:51 $
- * $Revision: 1.37 $
+ * $Date: 2009/06/29 13:28:19 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -146,24 +146,16 @@ MonitorElement* meLedL2PNErr_;
 MonitorElement* meLedL2Ampl_;
 MonitorElement* meLedL2Timing_;
 MonitorElement* meLedL2AmplOverPN_;
-MonitorElement* mePedestal_[2];
 MonitorElement* mePedestalG01_[2];
 MonitorElement* mePedestalG06_[2];
 MonitorElement* mePedestalG12_[2];
-MonitorElement* mePedestalErr_;
-MonitorElement* mePedestalPN_[2];
 MonitorElement* mePedestalPNG01_[2];
 MonitorElement* mePedestalPNG16_[2];
-MonitorElement* mePedestalPNErr_;
-MonitorElement* meTestPulse_[2];
 MonitorElement* meTestPulseG01_[2];
 MonitorElement* meTestPulseG06_[2];
 MonitorElement* meTestPulseG12_[2];
-MonitorElement* meTestPulseErr_;
-MonitorElement* meTestPulsePN_[2];
 MonitorElement* meTestPulsePNG01_[2];
 MonitorElement* meTestPulsePNG16_[2];
-MonitorElement* meTestPulsePNErr_;
 MonitorElement* meTestPulseAmplG01_;
 MonitorElement* meTestPulseAmplG06_;
 MonitorElement* meTestPulseAmplG12_;

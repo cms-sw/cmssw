@@ -23,6 +23,8 @@ TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::Event
 {
   thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
   thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
+  theNumberMeasurementsForFit = conf.getParameter<int32_t>("numberMeasurementsForFit");   
+
 
   // let's avoid breaking compatibility now
   es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
@@ -46,10 +48,9 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 								traj.firstMeasurement().recHit()->det());
   }
 
-  int nhits = traj.foundHits();
-  //int lastFitted = 4;
-  int lastFitted = nhits; //BM
-  if (nhits-1 < lastFitted) lastFitted = nhits-1;
+  int nMeas = traj.measurements().size();
+  int lastFitted = theNumberMeasurementsForFit >=0 ? theNumberMeasurementsForFit : nMeas; 
+  if (nMeas-1 < lastFitted) lastFitted = nMeas-1;
 
   std::vector<TrajectoryMeasurement> measvec = traj.measurements();
   TransientTrackingRecHit::ConstRecHitContainer firstHits;
@@ -90,9 +91,15 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
   }
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
-  TSOS firstState = firstMeas.updatedState();
+  TSOS firstState(firstMeas.updatedState().localParameters(),
+		  firstMeas.updatedState().localError(),
+  		  firstState.surface(),
+  		  thePropagatorAlong->magneticField());
+  // I couldn't do: 
+  //TSOS firstState = firstMeas.updatedState();
+  // why????
+
   firstState.rescaleError(100.);
-  
   return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
 							      firstMeas.recHit()->det());
 }

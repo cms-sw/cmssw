@@ -1,13 +1,5 @@
 /**
  * This macro draws the resolutions for single muons quantities: pt, cotgTheta and phi.
- *
- * It does a rebin(4) if NbinsX > 50 and in the case of PtGenVsMu_ResoVSPt also a rebin(8) in y. <br>
- * It takes a new histogram (a TH1D) equal to the projection in X of the starting histogram (a TH2F) and it empties it
- * (so as to have the binning and the axis already set and an empty histogram). <br>
- * Takes also a profileX of the TH2F. <br>
- * For the fit in eta it takes the events with eta < 0 on those with eta > 0. <br>
- * In any case it takes the projection in y (ProjectionY) of the TH2F in each bin (from x to x, that is a single bin). <br>
- * It extracts the rms and its error from the gaussian fit and writes them in the TH1D described above.
  */
 
 // Needed to use gROOT in a compiled macro
@@ -31,27 +23,25 @@
 
 using namespace std;
 
+// vector of names of the histograms to fit
+TString mainNamePt("hResolPtGenVSMu");
+TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
+TString mainNamePhi("hResolPhiGenVSMu");
 // Use this with the ResolutionAnalyzer files
 // TString mainNamePt("PtResolutionGenVSMu");
 // TString mainNameCotgTheta("CotgThetaResolutionGenVSMu");
 // TString mainNamePhi("PhiResolutionGenVSMu");
-TString mainNamePt("hResolPtGenVSMu");
-TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
-TString mainNamePhi("hResolPhiGenVSMu");
+vector<TString> vecNames;
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta );
+TList *FileList;
+TFile *Target;
+void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta );
 
-void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
+void Draw(const bool doHalfEta = false) {
   // in an interactive ROOT session, edit the file names
   // Target and FileList, then
   // root > .L hadd.C
   // root > hadd()
-
-  TList *FileList;
-  // vector of names of the histograms to fit
-  vector<TString> vecNames;
-
-  TFile *Target;
 
   vecNames.push_back(mainNamePt + "_ResoVSPt");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
@@ -68,7 +58,7 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
   vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
   vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
 
-  gROOT->SetBatch(true);
+  //gROOT->SetBatch(true);
 //   gROOT->SetStyle("Plain");
 //   gStyle->SetCanvasColor(kWhite);
 //   gStyle->SetCanvasBorderMode(0);
@@ -77,20 +67,18 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false) {
 //   gStyle->SetTitleColor(kWhite);
 //   gStyle->SetOptStat("nemruoi");
 
-  Target = TFile::Open( "redrawed_"+numString+".root", "RECREATE" );
+  Target = TFile::Open( "redrawed.root", "RECREATE" );
 
   FileList = new TList();
 
   // ************************************************************
   // List of Files
-  FileList->Add( TFile::Open(numString+"_MuScleFit.root") );    // 1
+  FileList->Add( TFile::Open("0_MuScleFit_Y.root") );    // 1
 
-  draw( Target, FileList, vecNames, doHalfEta );
-
-  Target->Close();
+  draw( Target, FileList, doHalfEta );
 }
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames, const bool doHalfEta ) {
+void draw( TDirectory *target, TList *sourcelist, const bool doHalfEta ) {
 
   //  cout << "Target path: " << target->GetPath() << endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
@@ -133,17 +121,14 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
 
           int xBins = h2->GetNbinsX();
           if( xBins > 50 ) {
-            h2->RebinX(2);
-            xBins /= 2;
+            h2->RebinX(4);
+            xBins /= 4;
           }
-          // if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
+          if( namesIt->Contains("PtGenVSMu_ResoVSPt") ) h2->RebinY(8);
           TH1D * h1 = h2->ProjectionX();
-          TH1D * h1RMS = h2->ProjectionX();
           // h1->Clear();
           h1->Reset();
           h1->SetName(*namesIt+"_resol");
-          h1RMS->Reset();
-          h1RMS->SetName(*namesIt+"_resolRMS");
           TProfile * profile = h2->ProfileX();
 
           // This is used to fit half eta, needed to get the resolution function by value
@@ -161,14 +146,10 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               TH1D * temp2 = h2->ProjectionY(fitName+fitNum.str(),xBins+1-x,xBins+1-x);
               temp->Add(temp2);
               temp->Fit("gaus");
-              double sigma = temp->GetFunction("gaus")->GetParameter(2);
-              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
-              double rms = temp->GetRMS();
-              double rmsError = temp->GetRMSError();
-              // cout << "sigma = " << rms << endl;
-              // cout << "sigma error = " << rmsError << endl;
-              // cout << "rms = " << rms << endl;
-              // cout << "rms error = " << rmsError << endl;
+              double rms = temp->GetFunction("gaus")->GetParameter(2);
+              double rmsError = temp->GetFunction("gaus")->GetParError(2);
+              cout << "rms = " << rms << endl;
+              cout << "rms error = " << rmsError << endl;
               // Reverse x in the first half to the second half.
               int xToFill = x;
               // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
@@ -178,23 +159,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               }
               // cout << "x = " << x << ", xToFill = " << xToFill << endl;
               // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
-              h1->SetBinContent(x, sigma);
-              h1->SetBinError(x, sigmaError);
+              h1->SetBinContent(x, rms);
+              h1->SetBinError(x, rmsError);
               h1->SetBinContent(xBins+1-x, 0);
               h1->SetBinError(xBins+1-x, 0);
-
-              h1RMS->SetBinContent(x, rms);
-              h1RMS->SetBinError(x, rmsError);
-              h1RMS->SetBinContent(xBins+1-x, 0);
-              h1RMS->SetBinError(xBins+1-x, 0);
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
-              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
-              temp->Draw();
-              TF1 * gaussian = temp->GetFunction("gaus");
-              gaussian->SetLineColor(kRed);
-              gaussian->Draw("same");
-              //canvas->Write();
               temp->Write();
             }
             target->cd();
@@ -203,7 +173,6 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
             //   cout << "bin["<<i<<"] = " << h1->GetBinContent(i) << endl;
             // }
             h1->Write();
-            h1RMS->Write();
           }
           else {
             for( int x=1; x<=xBins; ++x ) {
@@ -217,37 +186,26 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               // double rms = temp->GetRMS();
               // double rmsError = temp->GetRMSError();
 
-              double sigma = temp->GetFunction("gaus")->GetParameter(2);
-              double sigmaError = temp->GetFunction("gaus")->GetParError(2);
-              double rms = temp->GetRMS();
-              double rmsError = temp->GetRMSError();
-              if( sigma != sigma ) cout << "value is NaN: rms = " << rms << endl; 
-              if( sigma == sigma ) {
+              double rms = temp->GetFunction("gaus")->GetParameter(2);
+              double rmsError = temp->GetFunction("gaus")->GetParError(2);
+              if( rms != rms ) cout << "value is NaN: rms = " << rms << endl; 
+              if( rms == rms ) {
 
                 cout << "rms = " << rms << endl;
                 cout << "rms error = " << rmsError << endl;
 
                 // NaN is the only value different from itself. Infact NaN is "not a number"
                 // and it is not equal to any value, including itself.
-                h1->SetBinContent(x, sigma);
-                h1->SetBinError(x, sigmaError);
-                h1RMS->SetBinContent(x, rms);
-                h1RMS->SetBinError(x, rmsError);
+                h1->SetBinContent(x, rms);
+                h1->SetBinError(x, rmsError);
               }
               // h2->ProjectionY("_px",x,x)->Write();
               fits->cd();
-              TCanvas * canvas = new TCanvas(temp->GetName()+TString("_canvas"), temp->GetTitle(), 1000, 800);
-              temp->Draw();
-              TF1 * gaussian = temp->GetFunction("gaus");
-              gaussian->SetLineColor(kRed);
-              gaussian->Draw("same");
-              // canvas->Write();
               temp->Write();
             }
             target->cd();
             profile->Write();
             h1->Write();
-            h1RMS->Write();
           }
         }
       }
@@ -264,7 +222,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      draw( newdir, sourcelist, vecNames, doHalfEta );
+      draw( newdir, sourcelist, doHalfEta );
     }
     else {
       // object is of no type that we know or can handle

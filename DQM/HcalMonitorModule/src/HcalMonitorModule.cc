@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/07/06 09:42:23 $
- * $Revision: 1.118 $
+ * $Date: 2009/07/06 19:13:51 $
+ * $Revision: 1.119 $
  * \author W Fisher
  * \author J Temple
  *
@@ -1170,8 +1170,8 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 					       )
 {
   vector<int> fedUnpackList;
-  for (int i=FEDNumbering::getHcalFEDIds().first; 
-       i<=FEDNumbering::getHcalFEDIds().second; 
+  for (int i=FEDNumbering::MINHCALFEDID; 
+       i<=FEDNumbering::MAXHCALFEDID; 
        i++) 
     {
       fedUnpackList.push_back(i);
@@ -1228,7 +1228,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	if (!htr.check()) continue;
 	if (htr.isHistogramEvent()) continue;
 	
-	int firstFED =  FEDNumbering::getHcalFEDIds().first; 
+	int firstFED =  FEDNumbering::MINHCALFEDID;
 	
 	// Tease out HB and HE, which share HTRs in HBHE
 	for(int fchan=0; fchan<3; ++fchan) //0,1,2 are valid

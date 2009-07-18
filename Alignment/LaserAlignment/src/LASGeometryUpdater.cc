@@ -3,56 +3,12 @@
 
 
 ///
-/// constructor providing access to the nominal coordinates and the constants -
-/// for the moment, both objects are passed here, later it
-/// should be sufficient to pass only the constants and to fill
-/// the nominalCoordinates locally from that
 ///
-LASGeometryUpdater::LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& aNominalCoordinates, LASConstants& aLasConstants ) {
+///
+LASGeometryUpdater::LASGeometryUpdater( LASGlobalData<LASCoordinateSet>& aNominalCoordinates ) {
   
   nominalCoordinates = aNominalCoordinates;
   isReverseDirection = false;
-  isMisalignmentFromRefGeometry = false;
-  lasConstants = aLasConstants;
-
-}
-
-
-
-
-
-///
-/// this function reads the beam kinks from the lasConstants
-/// and applies them to the set of measured global phi positions
-///
-void LASGeometryUpdater::ApplyBeamKinkCorrections( LASGlobalData<LASCoordinateSet>& measuredCoordinates ) const {
-
-  /// first we apply the endcap beamsplitter kink corrections
-  /// for TEC+/- in one go
-  for( unsigned int det = 0; det < 2; ++det ) {
-    for( unsigned int ring = 0; ring < 2; ++ring ) {
-      for( unsigned int beam = 0; beam < 8; ++beam ) {
-
-	// corrections have different sign for TEC+/-
-	const double endcapSign = det==0 ? 1.: -1.;
-
-	// the correction is applied to the last 4 disks
-	for( unsigned int disk = 5; disk < 9; ++disk ) {
-
-	  measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi(
-	     measuredCoordinates.GetTECEntry( det, ring, beam, disk ).GetPhi() - 
-	     tan( lasConstants.GetEndcapBsKink( det, ring, beam ) ) / lasConstants.GetTecRadius( ring ) *
-	     ( lasConstants.GetTecZPosition( det, disk ) - endcapSign * lasConstants.GetTecBsZPosition( det ) )
-	  );
-	
-	}
-      }
-    }
-  }
-
-
-  /// alignment tube beamsplitter & mirror kink corrections
-  /// TBD.
 
 }
 
@@ -109,16 +65,16 @@ void LASGeometryUpdater::EndcapUpdate( LASEndcapAlignmentParameterSet& endcapPar
 /// merge the output from endcap and barrel algorithms
 /// and update the AlignableTracker object
 ///
-/// the AlignableTracker input object is expected to be perfectly aligned!!
+/// the AlignableTracker object is expected to be perfectly aligned!!
 ///
 void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapParameters,
 					LASBarrelAlignmentParameterSet& barrelParameters, 
 					AlignableTracker& theAlignableTracker ) {
   
 
-  // this constant defines the sense of *ALL* translations/rotations
+  // this constant defines the sense of motions/rotations
   // of the alignables in the AlignableTracker object
-  const int direction = ( isReverseDirection || isMisalignmentFromRefGeometry ) ? -1 : 1;
+  const int direction = isReverseDirection ? -1 : 1;
 
   // first, we access the half barrels of TIB and TOB
   const align::Alignables& theOuterHalfBarrels = theAlignableTracker.outerHalfBarrels();
@@ -185,7 +141,7 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     // LAS monte carlo digis are always ideally aligned, and misalignment is introduced
     // by displacing the reference geometry (AlignableTracker) instead which is used for stripNumber->phi conversion.
     // Hence, in case MC are used in that way, factors of -1 must be introduced
-    // for rotations around x,y and translations in x,y. The variable "xyDirection" takes care of this.
+    // for rotations around x,y (but not z) and translations in x,y
     // 
     // However, for rotations around z (phi) there is a complication:
     // in the analytical AlignmentTubeAlgorithm, the alignment parameter phi (z-rotation)
@@ -197,15 +153,15 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 
     // rotation around x axis = (dy1-dy2)/L
     const align::Scalar rxLocal = ( barrelParameters.GetParameter( halfBarrel, 0, 2 ).first - barrelParameters.GetParameter( halfBarrel, 1, 2 ).first ) / theBarrelLength.at( halfBarrel );
-    theHalfBarrels.at( halfBarrel )->rotateAroundLocalX( direction * rxLocal );
+    theHalfBarrels.at( halfBarrel )->rotateAroundLocalX( direction * -1. * rxLocal );
 
     // rotation around y axis = (dx2-dx1)/L
     const align::Scalar ryLocal = ( barrelParameters.GetParameter( halfBarrel, 1, 1 ).first - barrelParameters.GetParameter( halfBarrel, 0, 1 ).first ) / theBarrelLength.at( halfBarrel );
-    theHalfBarrels.at( halfBarrel )->rotateAroundLocalY( direction * ryLocal );
+    theHalfBarrels.at( halfBarrel )->rotateAroundLocalY( direction * -1. * ryLocal );
 
     // average rotation around z axis = (dphi1+dphi2)/2
     const align::Scalar rzLocal = ( barrelParameters.GetParameter( halfBarrel, 0, 0 ).first + barrelParameters.GetParameter( halfBarrel, 1, 0 ).first ) / 2.;
-    theHalfBarrels.at( halfBarrel )->rotateAroundLocalZ( -1. * direction * rzLocal ); // this is phi, additional -1 here, see comment above
+    theHalfBarrels.at( halfBarrel )->rotateAroundLocalZ( direction * rzLocal ); // this is phi, no minus sign here..
 
     // now that the rotational displacements are removed, the remaining translational offsets can be corrected for.
     // for this, the effect of the rotations is subtracted from the measured endface offsets
@@ -226,11 +182,11 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     
     // average x displacement = (cd1+cd2)/2
     const align::GlobalVector dxLocal( ( correctedEndfaceOffsetsX.at( 0 ) + correctedEndfaceOffsetsX.at( 1 ) ) / 2. / fromMmToCm, 0., 0. );
-    theHalfBarrels.at( halfBarrel )->move( direction * ( dxLocal ) );
+    theHalfBarrels.at( halfBarrel )->move( direction * -1. * ( dxLocal ) );
       
     // average y displacement = (cd1+cd2)/s
     const align::GlobalVector dyLocal( 0., ( correctedEndfaceOffsetsY.at( 0 ) + correctedEndfaceOffsetsY.at( 1 ) ) / 2. / fromMmToCm, 0. );
-    theHalfBarrels.at( halfBarrel )->move( direction * ( dyLocal ) );
+    theHalfBarrels.at( halfBarrel )->move( direction * -1. * ( dyLocal ) );
 
   }
 
@@ -268,9 +224,9 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     // in the opposite sense compared with the AT algorithm, thus the factor of -1 applies also to phi rotations.
 
     for( int wheel = 0; wheel < 9; ++wheel ) {
-      theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( direction * endcapParameters.GetDiskParameter( det, wheel, 0 ).first );
+      theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( direction * -1. * endcapParameters.GetDiskParameter( det, wheel, 0 ).first );
       const align::GlobalVector dXY( endcapParameters.GetDiskParameter( det, wheel, 1 ).first / fromMmToCm, endcapParameters.GetDiskParameter( det, wheel, 2 ).first / fromMmToCm, 0. );
-      theEndcaps.at( det )->components().at( wheel )->move( direction * dXY );
+      theEndcaps.at( det )->components().at( wheel )->move( direction * -1. * dXY );
     }
 
 
@@ -279,13 +235,13 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     
     // rotation around z of disk 1
     const align::Scalar dphi1 = barrelParameters.GetParameter( det, side, 0 ).first;
-    theEndcaps.at( det )->rotateAroundLocalZ( -1. * direction * dphi1 ); // dphi1 is from the AT algorithm, so additional sign (s.above)
+    theEndcaps.at( det )->rotateAroundLocalZ( direction * dphi1 ); // dphi1 is from the AT algorithm, so no additional sign (s.above)
     
     // displacement in x,y of disk 1
     const align::GlobalVector dxy1( barrelParameters.GetParameter( det, side, 1 ).first / fromMmToCm, 
 				    barrelParameters.GetParameter( det, side, 2 ).first / fromMmToCm,
 				    0. );
-    theEndcaps.at( det )->move( direction * dxy1 );
+    theEndcaps.at( det )->move( direction * -1. * dxy1 );
 
 
 
@@ -302,8 +258,8 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     // the individual rotation/movement of the wheels is a function of their z-position
     for( int wheel = 0; wheel < 9; ++wheel ) {
       const double reducedZ = ( wheelZPositions.at( det ).at( wheel ) - wheelZPositions.at( det ).at( 0 ) ) / theBarrelLength.at( det ) * fromMmToCm;
-      theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( -1. * direction * reducedZ * resultingPhi9 ); // twist
-      theEndcaps.at( det )->components().at( wheel )->move( direction * reducedZ * resultingXY9 ); // shear
+      theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( direction * reducedZ * resultingPhi9 ); // twist
+      theEndcaps.at( det )->components().at( wheel )->move( direction * -1. * reducedZ * resultingXY9 ); // shear
     }
 
   } 
@@ -320,18 +276,5 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 void LASGeometryUpdater::SetReverseDirection( bool isSet ) {
 
   isReverseDirection = isSet;
-
-}
-
-
-
-
-
-///
-///
-///
-void LASGeometryUpdater::SetMisalignmentFromRefGeometry( bool isSet ) {
-
-  isMisalignmentFromRefGeometry = isSet;
 
 }

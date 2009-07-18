@@ -1,21 +1,12 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripThresholdDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "TCanvas.h"
-
 // -----
 SiStripThresholdDQM::SiStripThresholdDQM(const edm::EventSetup & eSetup,
                                          edm::ParameterSet const& hPSet,
                                          edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
   WhichThreshold=hPSet.getParameter<std::string>("WhichThreshold");
-
-  // Build the Histo_TkMap:
-  if(HistoMaps_On_ ){
-    if(WhichThreshold=="Low") Tk_HM_L = new TkHistoMap("SiStrip/Histo_Map","LowThresh_TkMap",0.);
-    if(WhichThreshold=="High") Tk_HM_H = new TkHistoMap("SiStrip/Histo_Map","HighThresh_TkMap",0.);
-  }
 }
-
 // -----
 
 
@@ -30,12 +21,12 @@ void SiStripThresholdDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
   getConditionObject(eSetup);
   thresholdHandle_->getDetIds(activeDetIds);
+  selectModules(activeDetIds);
+
 }
 // -----
 
 //=====================================================================================
-
-
 // -----
 void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
    
@@ -55,23 +46,13 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 //======================================================================================
 // -----
-
-
-
 void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
-
-  std::vector<uint32_t> DetIds;
-  thresholdHandle_->getDetIds(DetIds);
     
- 
+  getModMEs(selModME_,selDetId_);
+  
   SiStripThreshold::Range ThresholdRange = thresholdHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
-
-
-    getModMEs(selModME_,selDetId_);
-
-
-    
+  
   for( int istrip=0;istrip<nStrip;++istrip){
     try{      
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
@@ -92,24 +73,19 @@ void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
     }
   }// istrip
   
-    
-} 
-
-   
+}    
 // -----
-
 
 
 //=======================================================================================
 // -----
 void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
    
-   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-       detIter_!= selectedDetIds.end();detIter_++){
-     fillMEsForLayer(SummaryMEsMap_, *detIter_);
+  for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
+      detIter_!= selectedDetIds.end();detIter_++){
+    fillMEsForLayer(SummaryMEsMap_, *detIter_);
 
-   }
-  
+  } 
 }    
 // -----
 
@@ -130,17 +106,17 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
   }
   // ----
      
-   std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
-   ModMEs selME_;
-   selME_ =selMEsMapIter_->second;
-   getSummaryMEs(selME_,selDetId_);
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+  ModMEs selME_;
+  selME_ =selMEsMapIter_->second;
+  getSummaryMEs(selME_,selDetId_);
 
     
-   SiStripThreshold::Range ThresholdRange = thresholdHandle_->getRange(selDetId_);
+  SiStripThreshold::Range ThresholdRange = thresholdHandle_->getRange(selDetId_);
   
-   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
+  int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
   
-     SiStripHistoId hidmanager;
+  SiStripHistoId hidmanager;
   
   
   if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
@@ -151,22 +127,22 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
   
     std::string hSummaryOfProfile_name; 
   
-    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer", getLayerNameAndId(selDetId_).first, "") ;
+  
+    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
+							 "layer", 
+							 getLayerNameAndId(selDetId_).first, 
+							 "") ;
 
   
-    
+  
     for( int istrip=0;istrip<nStrip;++istrip){
     
       try{ 
 	if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
-	  if(WhichThreshold=="Low"){
+	  if(WhichThreshold=="Low")
 	    selME_.SummaryOfProfileDistr->Fill(istrip+1,thresholdHandle_->getData(istrip,ThresholdRange).getLth());
-	    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) fillTkMap(selDetId_, thresholdHandle_->getData(istrip,ThresholdRange).getLth());
-	  }
-	  if(WhichThreshold=="High"){
+	  if(WhichThreshold=="High")
 	    selME_.SummaryOfProfileDistr->Fill(istrip+1,thresholdHandle_->getData(istrip,ThresholdRange).getHth());
-	    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) fillTkMap(selDetId_, thresholdHandle_->getData(istrip,ThresholdRange).getHth());
-	  }
 	}
       } 
       catch(cms::Exception& e){
@@ -179,12 +155,7 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 	  << e.what() ;
       }
     }// istrip	
-
-
-
   }//if Fill
-
- 
 
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
     
@@ -236,19 +207,13 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
       if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
     }   
   
-    if(WhichThreshold=="Low"){
+    if(WhichThreshold=="Low")
       selME_.SummaryDistr->Fill(iBin,meanLowThreshold);
-      if(HistoMaps_On_ ) Tk_HM_L->fill(selDetId_, meanLowThreshold);
-    }
-    if(WhichThreshold=="High"){
+    if(WhichThreshold=="High")
       selME_.SummaryDistr->Fill(iBin,meanHighThreshold);
-      if(HistoMaps_On_ )Tk_HM_H->fill(selDetId_, meanHighThreshold);
-    }
   
   }//if Fill ...
   
-
-
 }  
 // -----
 

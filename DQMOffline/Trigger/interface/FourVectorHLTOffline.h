@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.24 2009/06/28 09:04:56 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.25 2009/06/28 23:28:50 rekovic Exp $
 //
 //
 
@@ -178,9 +178,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  {};
       public:
 	void setHistos(
-                       MonitorElement* const NMc, 
-                       MonitorElement* const mcEtMc, 
-                       MonitorElement* const mcEtavsmcPhiMc,  
                        MonitorElement* const NOn, 
                        MonitorElement* const onEtOn, 
                        MonitorElement* const onEtavsonPhiOn,  
@@ -199,15 +196,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
                        MonitorElement* const NOnOff, 
                        MonitorElement* const offEtOnOff, 
 		       MonitorElement* const offEtavsoffPhiOnOff,
-                       MonitorElement* const NL1Mc, 
-                       MonitorElement* const mcEtL1Mc, 
-		       MonitorElement* const mcEtavsmcPhiL1Mc,
-                       MonitorElement* const NOffMc, 
-                       MonitorElement* const mcEtOffMc, 
-		       MonitorElement* const mcEtavsmcPhiOffMc,
-                       MonitorElement* const NOnMc, 
-                       MonitorElement* const mcEtOnMc, 
-		       MonitorElement* const mcEtavsmcPhiOnMc,
                        MonitorElement* const NL1OnUM, 
                        MonitorElement* const l1EtL1OnUM, 
 		       MonitorElement* const l1Etavsl1PhiL1OnUM,
@@ -217,25 +205,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
                        MonitorElement* const NOnOffUM, 
                        MonitorElement* const offEtOnOffUM, 
 		       MonitorElement* const offEtavsoffPhiOnOffUM,
-                       MonitorElement* const NL1McUM, 
-                       MonitorElement* const mcEtL1McUM, 
-		       MonitorElement* const mcEtavsmcPhiL1McUM,
-                       MonitorElement* const NOffMcUM, 
-                       MonitorElement* const mcEtOffMcUM, 
-		       MonitorElement* const mcEtavsmcPhiOffMcUM,
-                       MonitorElement* const NOnMcUM, 
-                       MonitorElement* const mcEtOnMcUM, 
-		       MonitorElement* const mcEtavsmcPhiOnMcUM,
-                       MonitorElement* const mcDRL1Mc, 
-                       MonitorElement* const mcDROnMc, 
-                       MonitorElement* const mcDROffMc, 
                        MonitorElement* const offDRL1Off, 
                        MonitorElement* const offDROnOff, 
                        MonitorElement* const l1DRL1On 
 					 ) {
-	  NMc_ = NMc;
-	  mcEtMc_ = mcEtMc;
-	  mcEtavsmcPhiMc_ = mcEtavsmcPhiMc;
           NOn_ = NOn;
 	  onEtOn_ = onEtOn;
 	  onEtavsonPhiOn_ = onEtavsonPhiOn;
@@ -254,15 +227,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NOnOff_ = NOnOff;
 	  offEtOnOff_ = offEtOnOff;
 	  offEtavsoffPhiOnOff_ = offEtavsoffPhiOnOff;
-          NL1Mc_ = NL1Mc;
-	  mcEtL1Mc_ = mcEtL1Mc;
-	  mcEtavsmcPhiL1Mc_ = mcEtavsmcPhiL1Mc;
-          NOffMc_ = NOffMc;
-	  mcEtOffMc_ = mcEtOffMc;
-	  mcEtavsmcPhiOffMc_ = mcEtavsmcPhiOffMc;
-          NOnMc_ = NOnMc;
-	  mcEtOnMc_ = mcEtOnMc;
-	  mcEtavsmcPhiOnMc_ = mcEtavsmcPhiOnMc;
           NL1OnUM_ = NL1OnUM;
 	  l1EtL1OnUM_ = l1EtL1OnUM;
 	  l1Etavsl1PhiL1OnUM_ = l1Etavsl1PhiL1OnUM;
@@ -272,30 +236,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
           NOnOffUM_ = NOnOffUM;
 	  offEtOnOffUM_ = offEtOnOffUM;
 	  offEtavsoffPhiOnOffUM_ = offEtavsoffPhiOnOffUM;
-          NL1McUM_ = NL1McUM;
-	  mcEtL1McUM_ = mcEtL1McUM;
-	  mcEtavsmcPhiL1McUM_ = mcEtavsmcPhiL1McUM;
-          NOffMcUM_ = NOffMcUM;
-	  mcEtOffMcUM_ = mcEtOffMcUM;
-	  mcEtavsmcPhiOffMcUM_ = mcEtavsmcPhiOffMcUM;
-          NOnMcUM_ = NOnMcUM;
-	  mcEtOnMcUM_ = mcEtOnMcUM;
-	  mcEtavsmcPhiOnMcUM_ = mcEtavsmcPhiOnMcUM;
-    mcDRL1Mc_   =  mcDRL1Mc; 
-    mcDROnMc_   =  mcDROnMc; 
-    mcDROffMc_  =  mcDROffMc; 
     offDRL1Off_ =  offDRL1Off; 
     offDROnOff_ =  offDROnOff; 
     l1DRL1On_   =  l1DRL1On;
-	}
-	MonitorElement * getNMcHisto() {
-	  return NMc_;
-	}
-	MonitorElement * getMcEtMcHisto() {
-	  return mcEtMc_;
-	}
-	MonitorElement * getMcEtaVsMcPhiMcHisto() {
-	  return mcEtavsmcPhiMc_;
 	}
 	MonitorElement * getNOnHisto() {
 	  return NOn_;
@@ -351,35 +294,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	MonitorElement * getOffEtaVsOffPhiOnOffHisto() {
 	  return offEtavsoffPhiOnOff_;
 	}
-	MonitorElement * getNL1McHisto() {
-	  return NL1Mc_;
-	}
-	MonitorElement * getMcEtL1McHisto() {
-	  return mcEtL1Mc_;
-	}
-	MonitorElement * getMcEtaVsMcPhiL1McHisto() {
-	  return mcEtavsmcPhiL1Mc_;
-	}
 
-	MonitorElement * getNOffMcHisto() {
-	  return NOffMc_;
-	}
-	MonitorElement * getMcEtOffMcHisto() {
-	  return mcEtOffMc_;
-	}
-	MonitorElement * getMcEtaVsMcPhiOffMcHisto() {
-	  return mcEtavsmcPhiOffMc_;
-	}
 
-	MonitorElement * getNOnMcHisto() {
-	  return NOnMc_;
-	}
-	MonitorElement * getMcEtOnMcHisto() {
-	  return mcEtOnMc_;
-	}
-	MonitorElement * getMcEtaVsMcPhiOnMcHisto() {
-	  return mcEtavsmcPhiOnMc_;
-	}
 	MonitorElement * getNL1OnUMHisto() {
 	  return NL1OnUM_;
 	}
@@ -407,49 +323,13 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	MonitorElement * getOffEtaVsOffPhiOnOffUMHisto() {
 	  return offEtavsoffPhiOnOffUM_;
 	}
-	MonitorElement * getNL1McUMHisto() {
-	  return NL1McUM_;
-	}
-	MonitorElement * getMcEtL1McUMHisto() {
-	  return mcEtL1McUM_;
-	}
-	MonitorElement * getMcEtaVsMcPhiL1McUMHisto() {
-	  return mcEtavsmcPhiL1McUM_;
-	}
 
-	MonitorElement * getNOffMcUMHisto() {
-	  return NOffMcUM_;
-	}
-	MonitorElement * getMcEtOffMcUMHisto() {
-	  return mcEtOffMcUM_;
-	}
-	MonitorElement * getMcEtaVsMcPhiOffMcUMHisto() {
-	  return mcEtavsmcPhiOffMcUM_;
-	}
 
-	MonitorElement * getNOnMcUMHisto() {
-	  return NOnMcUM_;
-	}
-	MonitorElement * getMcEtOnMcUMHisto() {
-	  return mcEtOnMcUM_;
-	}
-	MonitorElement * getMcEtaVsMcPhiOnMcUMHisto() {
-	  return mcEtavsmcPhiOnMcUM_;
-	}
-	MonitorElement * getMcDRL1McHisto() {
-	  return mcDRL1Mc_;
-	}
 	MonitorElement * getOffDRL1OffHisto() {
 	  return offDRL1Off_;
 	}
 	MonitorElement * getOffDROnOffHisto() {
 	  return offDROnOff_;
-	}
-	MonitorElement * getMcDROnMcHisto() {
-	  return mcDROnMc_;
-	}
-	MonitorElement * getMcDROffMcHisto() {
-	  return mcDROffMc_;
 	}
 	MonitorElement * getL1DROnL1Histo() {
 	  return l1DRL1On_;
@@ -485,31 +365,20 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type, float ptmin, 
 		 float ptmax):
 	  denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
-	  NMc_(0), mcEtMc_(0), mcEtavsmcPhiMc_(0),
           NOn_(0), onEtOn_(0), onEtavsonPhiOn_(0),
 	  NOff_(0), offEtOff_(0), offEtavsoffPhiOff_(0),
 	  NL1_(0), l1EtL1_(0), l1Etavsl1PhiL1_(0),
           NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
 	  NL1Off_(0), offEtL1Off_(0), offEtavsoffPhiL1Off_(0),
 	  NOnOff_(0), offEtOnOff_(0), offEtavsoffPhiOnOff_(0),
-	  NL1Mc_(0), mcEtL1Mc_(0), mcEtavsmcPhiL1Mc_(0),
-	  NOffMc_(0), mcEtOffMc_(0), mcEtavsmcPhiOffMc_(0),
-	  NOnMc_(0), mcEtOnMc_(0), mcEtavsmcPhiOnMc_(0),
           NL1OnUM_(0), l1EtL1OnUM_(0), l1Etavsl1PhiL1OnUM_(0),
 	  NL1OffUM_(0), offEtL1OffUM_(0), offEtavsoffPhiL1OffUM_(0),
 	  NOnOffUM_(0), offEtOnOffUM_(0), offEtavsoffPhiOnOffUM_(0),
-	  NL1McUM_(0), mcEtL1McUM_(0), mcEtavsmcPhiL1McUM_(0),
-	  NOffMcUM_(0), mcEtOffMcUM_(0), mcEtavsmcPhiOffMcUM_(0),
-	  NOnMcUM_(0), mcEtOnMcUM_(0), mcEtavsmcPhiOnMcUM_(0),
-    mcDRL1Mc_(0), mcDROnMc_(0), mcDROffMc_(0), offDRL1Off_(0),
-    offDROnOff_(0), l1DRL1On_(0),
+		offDRL1Off_(0), offDROnOff_(0), l1DRL1On_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
 	  PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type,
-		   MonitorElement *NMc,
-		   MonitorElement *mcEtMc,
-		   MonitorElement *mcEtavsmcPhiMc,
 		   MonitorElement *NOn,
 		   MonitorElement *onEtOn,
 		   MonitorElement *onEtavsonPhiOn,
@@ -528,15 +397,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *NOnOff,
 		   MonitorElement *offEtOnOff,
 		   MonitorElement *offEtavsoffPhiOnOff,
-		   MonitorElement *NL1Mc,
-		   MonitorElement *mcEtL1Mc,
-		   MonitorElement *mcEtavsmcPhiL1Mc,
-		   MonitorElement *NOffMc,
-		   MonitorElement *mcEtOffMc,
-		   MonitorElement *mcEtavsmcPhiOffMc,
-		   MonitorElement *NOnMc,
-		   MonitorElement *mcEtOnMc,
-		   MonitorElement *mcEtavsmcPhiOnMc,
 		   MonitorElement *NL1OnUM,
 		   MonitorElement *l1EtL1OnUM,
 		   MonitorElement *l1Etavsl1PhiL1OnUM,
@@ -546,43 +406,21 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *NOnOffUM,
 		   MonitorElement *offEtOnOffUM,
 		   MonitorElement *offEtavsoffPhiOnOffUM,
-		   MonitorElement *NL1McUM,
-		   MonitorElement *mcEtL1McUM,
-		   MonitorElement *mcEtavsmcPhiL1McUM,
-		   MonitorElement *NOffMcUM,
-		   MonitorElement *mcEtOffMcUM,
-		   MonitorElement *mcEtavsmcPhiOffMcUM,
-		   MonitorElement *NOnMcUM,
-		   MonitorElement *mcEtOnMcUM,
-		   MonitorElement *mcEtavsmcPhiOnMcUM,
-       MonitorElement *mcDRL1Mc, 
-       MonitorElement *mcDROnMc, 
-       MonitorElement *mcDROffMc, 
        MonitorElement *offDRL1Off, 
        MonitorElement *offDROnOff, 
        MonitorElement *l1DRL1On,
 		   float ptmin, float ptmax
 		   ):
 	    denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), processName_(processName), objectType_(type),
-	    NMc_(NMc), mcEtMc_(mcEtMc), mcEtavsmcPhiMc_(mcEtavsmcPhiMc),
             NOn_(NOn), onEtOn_(onEtOn), onEtavsonPhiOn_(onEtavsonPhiOn),
 	    NOff_(NOff), offEtOff_(offEtOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
 	    NL1_(NL1), l1EtL1_(l1EtL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
             NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
 	    NL1Off_(NL1Off), offEtL1Off_(offEtL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
 	    NOnOff_(NOnOff), offEtOnOff_(offEtOnOff), offEtavsoffPhiOnOff_(offEtavsoffPhiOnOff),
-	    NL1Mc_(NL1Mc), mcEtL1Mc_(mcEtL1Mc), mcEtavsmcPhiL1Mc_(mcEtavsmcPhiL1Mc),
-	    NOffMc_(NOffMc), mcEtOffMc_(mcEtOffMc), mcEtavsmcPhiOffMc_(mcEtavsmcPhiOffMc),
-	    NOnMc_(NOnMc), mcEtOnMc_(mcEtOnMc), mcEtavsmcPhiOnMc_(mcEtavsmcPhiOnMc),
             NL1OnUM_(NL1OnUM), l1EtL1OnUM_(l1EtL1OnUM), l1Etavsl1PhiL1OnUM_(l1Etavsl1PhiL1OnUM),
 	    NL1OffUM_(NL1OffUM), offEtL1OffUM_(offEtL1OffUM), offEtavsoffPhiL1OffUM_(offEtavsoffPhiL1OffUM),
 	    NOnOffUM_(NOnOffUM), offEtOnOffUM_(offEtOnOffUM), offEtavsoffPhiOnOffUM_(offEtavsoffPhiOnOffUM),
-	    NL1McUM_(NL1McUM), mcEtL1McUM_(mcEtL1McUM), mcEtavsmcPhiL1McUM_(mcEtavsmcPhiL1McUM),
-	    NOffMcUM_(NOffMcUM), mcEtOffMcUM_(mcEtOffMcUM), mcEtavsmcPhiOffMcUM_(mcEtavsmcPhiOffMcUM),
-	    NOnMcUM_(NOnMcUM), mcEtOnMcUM_(mcEtOnMcUM), mcEtavsmcPhiOnMcUM_(mcEtavsmcPhiOnMcUM),
-    mcDRL1Mc_(mcDRL1Mc), 
-    mcDROnMc_(mcDROnMc), 
-    mcDROffMc_(mcDROffMc), 
     offDRL1Off_(offDRL1Off), 
     offDROnOff_(offDROnOff), 
     l1DRL1On_(l1DRL1On),
@@ -602,24 +440,16 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  int objectType_;
 
 	  // we don't own this data
-	  MonitorElement *NMc_, *mcEtMc_, *mcEtavsmcPhiMc_;
     MonitorElement *NOn_, *onEtOn_, *onEtavsonPhiOn_;
 	  MonitorElement *NOff_, *offEtOff_, *offEtavsoffPhiOff_;
 	  MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
 	  MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
 	  MonitorElement *NL1Off_, *offEtL1Off_, *offEtavsoffPhiL1Off_;
 	  MonitorElement *NOnOff_, *offEtOnOff_, *offEtavsoffPhiOnOff_;
-	  MonitorElement *NL1Mc_, *mcEtL1Mc_, *mcEtavsmcPhiL1Mc_;
-	  MonitorElement *NOffMc_, *mcEtOffMc_, *mcEtavsmcPhiOffMc_;
-	  MonitorElement *NOnMc_, *mcEtOnMc_, *mcEtavsmcPhiOnMc_;
 	  MonitorElement *NL1OnUM_, *l1EtL1OnUM_, *l1Etavsl1PhiL1OnUM_;
 	  MonitorElement *NL1OffUM_, *offEtL1OffUM_, *offEtavsoffPhiL1OffUM_;
 	  MonitorElement *NOnOffUM_, *offEtOnOffUM_, *offEtavsoffPhiOnOffUM_;
-	  MonitorElement *NL1McUM_, *mcEtL1McUM_, *mcEtavsmcPhiL1McUM_;
-	  MonitorElement *NOffMcUM_, *mcEtOffMcUM_, *mcEtavsmcPhiOffMcUM_;
-	  MonitorElement *NOnMcUM_, *mcEtOnMcUM_, *mcEtavsmcPhiOnMcUM_;
-    MonitorElement *mcDRL1Mc_, *mcDROnMc_, *mcDROffMc_,
-                   *offDRL1Off_, *offDROnOff_, *l1DRL1On_;
+    MonitorElement *offDRL1Off_, *offDROnOff_, *l1DRL1On_;
 
 	  float ptmin_, ptmax_;
 
@@ -759,7 +589,7 @@ bool objMonData<T>::isL1TriggerType(int t)
   for(std::vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
 	{
 
-	 if(t == *it) { rc = true; break; }
+	 if(fabs(t) == fabs(*it)) { rc = true; break; }
 
   } // end for
 

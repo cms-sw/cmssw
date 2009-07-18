@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-OutALCARECORpcCalHLT = cms.PSet(
+OutALCARECORpcCalHLT_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECORpcCalHLT')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring(
         'keep *_muonDTDigis_*_*', 
         'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
         'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
@@ -13,9 +13,15 @@ OutALCARECORpcCalHLT = cms.PSet(
         'keep *_cscSegments_*_*',
         'keep *_rpcRecHits_*_*',        
         'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        'keep recoMuons_muonsNoRPC_*_*',                               
         'keep L1MuRegionalCands_*_RPCb_*',
         'keep L1MuRegionalCands_*_RPCf_*',
         'keep L1MuGMTCands_*_*_*', 
         'keep L1MuGMTReadoutCollection_*_*_*')
 )
 
+
+
+import copy
+OutALCARECORpcCalHLT=copy.deepcopy(OutALCARECORpcCalHLT_noDrop)
+OutALCARECORpcCalHLT.outputCommands.insert(0, "drop *")

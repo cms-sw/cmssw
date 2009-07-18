@@ -29,6 +29,14 @@ FEDErrors::FEDErrors()
   lFedCounter.nTotalBadChannels = 0;
   lFedCounter.nTotalBadActiveChannels = 0;
 
+  ChannelCounters & lChCounter = FEDErrors::getChannelErrorsCounters();
+  lChCounter.nNotConnected = 0;
+  lChCounter.nUnlocked = 0;
+  lChCounter.nOutOfSync = 0;
+  lChCounter.nAPVStatusBit = 0;
+  lChCounter.nAPVError = 0;
+  lChCounter.nAPVAddressError = 0;
+
   feCounter_.nFEOverflows = 0; 
   feCounter_.nFEBadMajorityAddresses = 0; 
   feCounter_.nFEMissing = 0;
@@ -244,7 +252,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
           print(lChVec.at(iBadCh),debugStream);
         }
         debugStream << std::endl;
-        debugStream << "[FEDErrors] Active (have been unlocked in at least one event) cabled channels which had errors: ";
+        debugStream << "[FEDErrors] Active (have been locked in at least one event) cabled channels which had errors: ";
 	for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
           if ((lChVec.at(iBadCh)).IsActive) print(lChVec.at(iBadCh),debugStream);
         }
@@ -274,14 +282,6 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
     lFeErr.Missing = false;
     lFeErr.BadMajorityAddress = false;
 
-    if (aBuffer->feOverflow(iFE)) {
-      lFeErr.Overflow = true;
-      foundOverflow = true;
-      addBadFE(lFeErr);
-      //if FE overflowed then address isn't valid
-      continue;
-    }
-    if (!aBuffer->feEnabled(iFE)) continue;
     //check for cabled channels
     bool hasCabledChannels = false;
     for (unsigned int feUnitCh = 0; feUnitCh < sistrip::FEDCH_PER_FEUNIT; feUnitCh++) {
@@ -290,13 +290,25 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
         break;
       }
     }
+
+    if (!hasCabledChannels) continue;
+
+    if (aBuffer->feOverflow(iFE)) {
+      lFeErr.Overflow = true;
+      foundOverflow = true;
+      addBadFE(lFeErr);
+      //if FE overflowed then address isn't valid
+      continue;
+    }
+    if (!aBuffer->feEnabled(iFE)) continue;
+
     //check for missing data
     if (!aBuffer->fePresent(iFE)) {
-      if (hasCabledChannels) {
-	lFeErr.Missing = true;
-        foundMissing = true;
-	addBadFE(lFeErr);
-      }
+      //if (hasCabledChannels) {
+      lFeErr.Missing = true;
+      foundMissing = true;
+      addBadFE(lFeErr);
+      //}
       continue;
     }
     if (aBuffer->majorityAddressErrorForFEUnit(iFE)) {
@@ -346,6 +358,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
     FEDErrors::ChannelLevelErrors lChErr;
     lChErr.ChannelID = iCh;
+    lChErr.Connected = connected_[iCh];
     lChErr.IsActive = activeChannel;
     lChErr.Unlocked = false;
     lChErr.OutOfSync = false;
@@ -358,6 +371,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
       FEDErrors::APVLevelErrors lAPVErr;
       lAPVErr.APVID = 2*iCh+iAPV;
       lAPVErr.ChannelID = iCh;
+      lAPVErr.Connected = connected_[iCh];
       lAPVErr.IsActive = activeChannel;
       lAPVErr.APVStatusBit = false;
       lAPVErr.APVError = false;
@@ -392,7 +406,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
       if (debugHeader->outOfSync(iCh)) {
 	lChErr.OutOfSync = true;
       }
-      if (lChErr.Unlocked || lChErr.OutOfSync) addBadChannel(lChErr);
+      if (!lChErr.Connected || (lChErr.Connected && (lChErr.Unlocked || lChErr.OutOfSync))) addBadChannel(lChErr);
     }
 
 
@@ -518,7 +532,7 @@ const bool FEDErrors::printDebug()
   return ( anyFEDErrors()  ||
 	   anyFEProblems() ||
 	   fedErrors_.CorruptBuffer ||
-	   fedErrors_.BadActiveChannelStatusBit
+	   fedErrors_.BadChannelStatusBit
 	   );
 
 }
@@ -532,6 +546,12 @@ FEDErrors::FEDCounters & FEDErrors::getFEDErrorsCounters()
 {
   static FEDCounters lFedCounter;
   return lFedCounter;
+}
+
+FEDErrors::ChannelCounters & FEDErrors::getChannelErrorsCounters()
+{
+  static ChannelCounters lChCounter;
+  return lChCounter;
 }
 
 FEDErrors::FECounters & FEDErrors::getFEErrorsCounters()
@@ -584,12 +604,14 @@ void FEDErrors::addBadFE(const FEDErrors::FELevelErrors & aFE)
 
 void FEDErrors::addBadChannel(const FEDErrors::ChannelLevelErrors & aChannel)
 {
-  chErrorsDetailed_.push_back(aChannel);
+  if (aChannel.Connected) chErrorsDetailed_.push_back(aChannel);
+  incrementChannelCounters(aChannel);
 }
 
 void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors & aAPV, bool & aFirst)
 {
   apvErrors_.push_back(aAPV);
+  incrementAPVCounters(aAPV);
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
     (FEDErrors::getFEDErrorsCounters().nBadChannels)++;
@@ -643,6 +665,22 @@ void FEDErrors::incrementFEDCounters()
 
 }
 
+
+void FEDErrors::incrementChannelCounters(const FEDErrors::ChannelLevelErrors & aChannel)
+{
+  if (aChannel.Unlocked && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nUnlocked)++; 
+  if (aChannel.OutOfSync && aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nOutOfSync)++;
+  if (!aChannel.Connected) (FEDErrors::getChannelErrorsCounters().nNotConnected)++;
+}
+
+void FEDErrors::incrementAPVCounters(const FEDErrors::APVLevelErrors & aAPV)
+{
+  if (aAPV.Connected && aAPV.IsActive){
+    if (aAPV.APVStatusBit) (FEDErrors::getChannelErrorsCounters().nAPVStatusBit)++; 
+    if (aAPV.APVAddressError) (FEDErrors::getChannelErrorsCounters().nAPVAddressError)++; 
+    if (aAPV.APVError) (FEDErrors::getChannelErrorsCounters().nAPVError)++; 
+  }
+}
 
 
 bool FEDErrors::ChannelLevelErrors::operator <(const FEDErrors::ChannelLevelErrors & aErr) const{
@@ -741,9 +779,10 @@ void FEDErrors::print(const FEDErrors::ChannelLevelErrors & aErr, std::ostream &
       << "[FEDErrors]==== Printing channel errors information :   ====" << std::endl
       << "[FEDErrors]=================================================" << std::endl
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.Unlocked << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.OutOfSync << std::endl
+      << "[FEDErrors]============ Unlocked = " << aErr.Unlocked << std::endl
+      << "[FEDErrors]============ OutOfSync = " << aErr.OutOfSync << std::endl
       << "[FEDErrors]=================================================" << std::endl;
 }
 
@@ -756,10 +795,11 @@ void FEDErrors::print(const FEDErrors::APVLevelErrors & aErr, std::ostream & aOs
       << "[FEDErrors]=================================================" << std::endl
       << "[FEDErrors]============ APV #" << aErr.APVID  << std::endl
       << "[FEDErrors]============ Channel #" << aErr.ChannelID  << std::endl
+      << "[FEDErrors]============ connected  = " << aErr.Connected << std::endl
       << "[FEDErrors]============ isActive  = " << aErr.IsActive << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVStatusBit << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVError << std::endl
-      << "[FEDErrors]============ statusBit = " << aErr.APVAddressError << std::endl
+      << "[FEDErrors]============ APVStatusBit = " << aErr.APVStatusBit << std::endl
+      << "[FEDErrors]============ APVError = " << aErr.APVError << std::endl
+      << "[FEDErrors]============ APVAddressError = " << aErr.APVAddressError << std::endl
       << "[FEDErrors]=================================================" << std::endl;
 }
 

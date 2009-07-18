@@ -23,6 +23,9 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
   
   void getActiveDetIds(const edm::EventSetup & eSetup);
 
+  void fillModMEs(const std::vector<uint32_t> & selectedDetIds);
+  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
+
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
   void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
 

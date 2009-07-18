@@ -160,8 +160,13 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       ESDCCHeader.setPrecision(precision_);
     }
     if (dccLineCount == 3) {
-      vminor_ = (*word >> 40) & m8;
-      vmajor_ = (*word >> 48) & m8;
+      orbit_number_ = (*word >>  0) & m32;
+      vminor_       = (*word >> 40) & m8;
+      vmajor_       = (*word >> 48) & m8;
+
+      ESDCCHeader.setOrbitNumber(orbit_number_);
+      ESDCCHeader.setMajorVersion(vmajor_);
+      ESDCCHeader.setMinorVersion(vminor_);
     }
     if (dccLineCount == 4) optoRX0_  = (*word >> 48) & m8;
     if (dccLineCount == 5) optoRX1_  = (*word >> 48) & m8;
@@ -237,12 +242,14 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
 
   int pace  = (word >> 53) & m2;
   if (kPACE[pace]==0) return;
-
+  if (kid > 1511 || kid < 1) return;
+  
   int adc[3];
   adc[0]    = (word >> 0)  & m16;
   adc[1]    = (word >> 16) & m16;
   adc[2]    = (word >> 32) & m16;
   int strip = (word >> 48) & m5;
+
   if (debug_) cout<<kid<<" "<<strip<<" "<<pace<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<endl;
 
   int zside, plane, ix, iy;

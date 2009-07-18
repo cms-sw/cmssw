@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.10 2008/06/20 20:55:47 fischler Exp $
+// $Id: MessageLogger.h,v 1.11 2009/06/14 23:45:25 fischler Exp $
 //
 
 // system include files
@@ -51,9 +51,14 @@ public:
 
   void  postBeginJob();
   void  postEndJob();
+  void  jobFailure();
+  
+  void  preSource  ();
+  void  postSource ();
 
-  void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
-  void  postEventProcessing( Event const &, EventSetup const & );
+  void  preFile       ();
+  void  preFileClose  ();
+  void  postFile      ();
 
   void  preModuleConstruction ( ModuleDescription const & );
   void  postModuleConstruction( ModuleDescription const & );
@@ -61,11 +66,47 @@ public:
   void  preSourceConstruction ( ModuleDescription const & );
   void  postSourceConstruction( ModuleDescription const & );
 
-  void  preSource  ();
-  void  postSource ();
-
   void  preModule ( ModuleDescription const & );
   void  postModule( ModuleDescription const & );
+
+  void  preModuleBeginJob  ( ModuleDescription const & );
+  void  postModuleBeginJob ( ModuleDescription const & );
+  void  preModuleEndJob  ( ModuleDescription const & );
+  void  postModuleEndJob ( ModuleDescription const & );
+
+  void  preModuleBeginRun  ( ModuleDescription const & );
+  void  postModuleBeginRun ( ModuleDescription const & );
+  void  preModuleEndRun  ( ModuleDescription const & );
+  void  postModuleEndRun ( ModuleDescription const & );
+
+  void  preModuleBeginLumi  ( ModuleDescription const & );
+  void  postModuleBeginLumi ( ModuleDescription const & );
+  void  preModuleEndLumi  ( ModuleDescription const & );
+  void  postModuleEndLumi ( ModuleDescription const & );
+
+  void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
+  void  postEventProcessing( Event const &, EventSetup const & );
+
+  void  preBeginRun    ( const edm::RunID&, const edm::Timestamp& );
+  void  postBeginRun   ( const edm::Run&, EventSetup const & );
+  void  preEndRun      ( const edm::RunID&, const edm::Timestamp& );
+  void  postEndRun     ( const edm::Run&, EventSetup const & );
+  void  preBeginLumi   ( const edm::LuminosityBlockID&, const edm::Timestamp& );
+  void  postBeginLumi  ( const edm::LuminosityBlock&, EventSetup const & );
+  void  preEndLumi     ( const edm::LuminosityBlockID&, const edm::Timestamp& );
+  void  postEndLumi    ( const edm::LuminosityBlock&, EventSetup const & );
+
+  void  prePathBeginRun   ( const std::string& pathname );
+  void  postPathBeginRun  ( const std::string& pathname, HLTPathStatus const&);
+  void  prePathEndRun     ( const std::string& pathname );
+  void  postPathEndRun    ( const std::string& pathname, HLTPathStatus const&);
+  void  prePathBeginLumi  ( const std::string& pathname );
+  void  postPathBeginLumi ( const std::string& pathname, HLTPathStatus const&);
+  void  prePathEndLumi    ( const std::string& pathname );
+  void  postPathEndLumi   ( const std::string& pathname, HLTPathStatus const&);
+  void  preProcessPath    ( const std::string& pathname );
+  void  postProcessPath   ( const std::string& pathname, HLTPathStatus const&);
+
 
   void  fillErrorObj(edm::ErrorObj& obj) const;
   bool  debugEnabled() const { return debugEnabled_; }
@@ -77,7 +118,16 @@ public:
   void  SummarizeInJobReport();
   
 private:
-  // put an ErrorLog object here, and maybe more
+
+  // set up the module name in the message drop, and the enable/suppress info
+  void  establishModule   ( const ModuleDescription& desc,
+  		            std::string const & whichPhase );
+  void  unEstablishModule ( const ModuleDescription& desc,
+  		            std::string const & whichPhase );
+  void  establish         ( std::string const & whichPhase ); 
+  void  unEstablish       ( std::string const & whichPhase ); 
+  
+ // put an ErrorLog object here, and maybe more
 
   edm::EventID curr_event_;
   std::string curr_module_;
@@ -93,7 +143,11 @@ private:
   static bool fjrSummaryRequested_;
   bool messageServicePSetHasBeenValidated_;
   std::string  messageServicePSetValidatationResults_;
-   
+
+  bool nonModule_debugEnabled;
+  bool nonModule_infoEnabled;
+  bool nonModule_warningEnabled;  
+  
 };  // MessageLogger
 
 

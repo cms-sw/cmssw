@@ -1,38 +1,50 @@
-#include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle2.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+
+
+
+#include <string>
+#include <memory>
+
+using namespace edm;
 
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p) 
 {
-  name_ = p.getParameter<std::string>("ComponentName");
+  std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,name_);
+  setWhatProduced(this,myname);
 }
 
-boost::shared_ptr<StripClusterParameterEstimator> StripCPEESProducer::
-produce(const TkStripCPERecord & iRecord) 
-{ 
-  edm::ESHandle<MagneticField> magfield;
+StripCPEESProducer::~StripCPEESProducer() {}
+
+boost::shared_ptr<StripClusterParameterEstimator> 
+StripCPEESProducer::produce(const TkStripCPERecord & iRecord){ 
+  //   if (_propagator){
+  //     delete _propagator;
+  //     _propagator = 0;
+  //   }
+  ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
   
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
   
-  edm::ESHandle<SiStripLorentzAngle> lorentzAngle;
-  iRecord.getRecord<SiStripLorentzAngleRcd>().get(lorentzAngle);
-
-  if(name_=="SimpleStripCPE") 
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(               pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));  
-  else if(name_=="StripCPEfromTrackAngle")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
-  else if(name_=="StripCPEfromTrackAngle2")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle2(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
-  else if(name_=="StripCPEgeometric")
-    cpe_ = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset_, magfield.product(), pDD.product(), lorentzAngle.product() ));
-  else throw cms::Exception("Unknown StripCPE type") << name_;
-
-  return cpe_;
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
+  iRecord.getRecord<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
+  _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(pset_,magfield.product(), pDD.product(), SiStripLorentzAngle_.product()));
+  
+  return _cpe;
 }
+
+

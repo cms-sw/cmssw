@@ -8,12 +8,6 @@
 #include "TEveTrackPropagator.h"
 #include "TGLViewer.h"
 #include "TGLUtil.h"
-#include <TH2.h>
-#include <TBox.h>
-#include <TLine.h>
-#include <TLatex.h>
-#include <TPaveText.h>
-#include <TCanvas.h>
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -28,11 +22,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
-
-using reco::Track;
-using reco::TrackBase;
-using reco::HitPattern;
-using reco::TrackResiduals;
 
 class FWTrackDetailView : public FWDetailView<reco::Track> {
 
@@ -60,357 +49,153 @@ private:
       rotationCenter()[1] = 0;
       rotationCenter()[2] = 0;
    }
+
 };
 
 
 FWTrackDetailView::FWTrackDetailView ()
 {
-   setUseGL(kFALSE);
+
 }
 
 FWTrackDetailView::~FWTrackDetailView ()
 {
+
 }
 
-TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* track)
+TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* iTrack)
 {
- //      following table pasted from HitPattern.h
- //
- //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
- //      |tk/mu|  sub-structure  |   sub-sub-structure   |     stereo     |  hit type |
- //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
- //      | 10  |   9    8     7  |   6    5     4     3  |        2       |  1     0  | bit
- //
- //      |tk = 1      PXB = 1            layer = 1-3                       hit type = 0-3
- //      |tk = 1      PXF = 2            disk  = 1-2                       hit type = 0-3
- //      |tk = 1      TIB = 3            layer = 1-4      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TID = 4            wheel = 1-3      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TOB = 5            layer = 1-6      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TEC = 6            wheel = 1-9      0=rphi,1=stereo  hit type = 0-3
- //      |mu = 0      DT  = 1            layer                             hit type = 0-3
- //      |mu = 0      CSC = 2            layer                             hit type = 0-3
- //      |mu = 0      RPC = 3            layer                             hit type = 0-3
- //
- //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
- //      valid    = valid hit                                     = 0
- //      missing  = detector is good, but no rec hit found        = 1
- //      inactive = detector is off, so there was no hope         = 2
- //      bad      = there were many bad strips within the ellipse = 3
- //
+   if( 0 == iTrack) { return 0; }
+   const FWEventItem* item = id.item();
+   // printf("calling ElectronDetailView::buildRhoZ\n");
+   TEveElementList* tList =  new TEveElementList(item->name().c_str(),"Supercluster RhoZ",true);
+   tList->SetMainColor(item->defaultDisplayProperties().color());
 
+   TEveTrackPropagator* rnrStyle = new TEveTrackPropagator();
+   //units are Tesla
+   rnrStyle->SetMagField( -4.0);
+   //get this from geometry, units are CM
+   rnrStyle->SetMaxR(120.0);
+   rnrStyle->SetMaxZ(300.0);
 
-   bool debug=false;   
+   //  Original Commented out here
+   //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
 
-   int nhits;
-   float res[2][64];
-   int hittype[64];
-   int stereo[64];
-   int substruct[64];
-   int subsubstruct[64];
-   int detector[64];
+   int index=0;
+   //cout <<"----"<<endl;
+   TEveRecTrack t;
 
-   const static char* det_tracker_str[6]={"PXB","PXF","TIB","TID","TOB","TEC"};
-   HitPattern hitpat = track->hitPattern();
-   TrackResiduals residuals = track->residuals();
+   t.fBeta = 1.;
+   t.fP = TEveVector(iTrack->px(),
+                     iTrack->py(),
+                     iTrack->pz());
+   t.fV = TEveVector(iTrack->vx(),
+                     iTrack->vy(),
+                     iTrack->vz());
+   t.fSign = iTrack->charge();
 
-   nhits=hitpat.numberOfHits();
-   for (int i = 0; i < nhits; ++i) {
-      hittype[i] = 0x3 & hitpat.getHitPattern(i);
-      stereo[i] = 0x1 & hitpat.getHitPattern(i) >> 2;
-      subsubstruct[i] = 0xf & hitpat.getHitPattern(i) >> 3;
-      substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
-      detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
-      res[0][i] = residuals.residualX(i, hitpat);
-      res[1][i] = residuals.residualY(i, hitpat);
-      if (debug) printf("%s, %i\n",det_tracker_str[substruct[i]-1],subsubstruct[i]);
-   }
+   TEveElementList* trkList = new TEveElementList(Form("track%d",index));
+   gEve->AddElement(trkList,tList);
+   TEveTrack* trk = new TEveTrack(&t,rnrStyle);
+   trk->SetMainColor(item->defaultDisplayProperties().color());
+   trk->MakeTrack();
+   trkList->AddElement(trk);
 
-   int ndet=0;
-   int det[64];
-   det[0]=0;
-   for(int j=0; j < nhits-1;) {
-      int k=j+1;
-      for(; k<nhits ; k++) {
-         if(substruct[j]==substruct[k]  && subsubstruct[j]==subsubstruct[k]) {	 
-            if(k==(nhits-1)) j=k;
-         }
-         else {
-            ndet++;
-            j=k;
-            det[ndet]=j;
-            break;
-         }
-      }
-   }
-   ndet++;
-   det[ndet]=nhits;
+   /* The addition of RecHits is in a try-catch block to avoid exceptions
+    * occuring when TrackExtras and/or RecHits aren't available.
+    */
 
-   if (debug)
-   {
-      for(int i=0; i<ndet; i++)
-      { 
-         std::cout <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-         std::cout << "idx " << i << " det[idx] " <<  det[i] << std::endl;
-         std::cout << "det idx " << det[i] <<   std::endl;
-         std::cout << "det_tracker_str idx " << substruct[det[i]]-1  << std::endl;
-         printf("det[idx] %i det_tracker_str %s substruct %i\n",det[i], det_tracker_str[substruct[det[i]]-1], subsubstruct[det[i]]);
-      }
-   }
-   //______________________________________________________________________________
-   // text canvas
+   try {
 
-   char mytext[256];
-   int nvalid=0;
-   int npix=0;
-   int nstrip=0;
-   for(int i=0; i<nhits; i++) {
-      if(hittype[i]==0) nvalid++;
-      if(substruct[i]<3) npix++;
-      else nstrip++;
-   }
+      //      HitPattern pattern = (*it).HitPattern();
 
-   textCanvas()->cd();
+      Int_t nHits = iTrack->recHitsSize();
+      // const reco::HitPattern& p = (*it).hitPattern();
+      // If we have muon tracks, then this is going to be bad
 
-   TLatex* latex = new TLatex(0.02, 0.970, "");
-   latex->SetTextSize(0.07);
-   float_t x0 = 0.02;
-   float   y = 0.83;
-   float fontsize = latex->GetTextSize()*0.6;
+      // Declare point set with size of the overall number of recHits
+      TEvePointSet *recHitsMarker = new TEvePointSet(nHits);
+      // Make a TEveStraightLineSet for the line implementation of recHits
+      TEveStraightLineSet *recHitsLines = new TEveStraightLineSet();
+      Int_t globalRecHitIndex = 0;
+      Double_t localRecHitPoint[3];
+      Double_t globalRecHitPoint[3];
 
-   // top text
-   {
-      sprintf(mytext,"valid/total Si hits: %i/%i", nvalid, nhits);
-      latex->DrawLatex(x0, y, mytext);
-      y -= fontsize;
-
-      sprintf(mytext,"valid Si pixel (strip) hits: %i (%i)", npix, nstrip);
-      latex->DrawLatex(x0, y, mytext);
-      y -= fontsize;
-
-      sprintf(mytext,"Number of layers hit: %i", ndet);
-      latex->DrawLatex(x0, y, mytext);
-   }
-   // legend
-   {
-      textCanvas()->cd();
-
-      Float_t x1 = 0.4;
-      Float_t x2 = 0.7;
-      Float_t boxH = 0.02;
-
-      //_________________________
-      y -= fontsize*2;
-      sprintf(mytext,"r-phi hit");
-      latex->DrawLatex(x0, y, mytext);
-
-      TBox *b31 = new TBox(x1, y, x2, y+boxH);
-      b31->SetFillColor(kGreen-9);
-      b31->Draw();
-
-      TBox *b3 = new TBox(x1, y, x2, y+boxH);
-      b3->SetFillStyle(3006);
-      b3->SetFillColor(1);
-      b3->Draw();
-
-      TBox *b6 = new TBox(x1, y, x2, y+boxH);
-      b6->SetFillStyle(0);
-      b6->SetFillColor(1);
-      b6->SetLineWidth(2);
-      b6->Draw();
-
-      //--------------
-      y = y - boxH*2;
-      sprintf(mytext, "stereo hit");
-      latex->DrawLatex(x0, y, mytext);
-
-      TBox *b21 = new TBox(x1, y, x2,y+boxH);
-      b21->SetFillColor(kCyan-9);
-      b21->Draw();
-
-      TBox *b2 = new TBox(x1, y, x2, y+boxH);
-      b2->SetFillStyle(3004);
-      b2->SetFillColor(1);
-      b2->Draw();
-
-      TBox *b5 = new TBox(x1, y, x2, y+boxH);
-      b5->SetFillStyle(0);
-      b5->SetFillColor(1);
-      b5->SetLineWidth(2);
-      b5->Draw();
-
-      //--------------
-      y = y -boxH*2;
-      sprintf(mytext, "invalid hit");
-      latex->DrawLatex(x0, y, mytext);
-
-      TBox *b11 = new TBox(x1, y, x2, y+boxH);
-      b11->SetFillColor(2);
-      b11->Draw();
-
-      TBox *b1 = new TBox(x1, y, x2, y+boxH);
-      b1->SetFillColor(1);
-      b1->SetFillStyle(3001);
-      b1->Draw();
-
-
-      TBox *b4 = new TBox(x1, y, x2, y+boxH);
-      b4->SetFillStyle(0);
-      b4->SetFillColor(1);
-      b4->SetLineWidth(2);
-      b4->Draw();
-   }
-
-   //______________________________________________________________________________
-   // draw histogram
-   TCanvas *canvas = FWTrackDetailView::viewCanvas();
-   canvas->cd();
-   canvas->SetFillColor(0);
-
-   TPad* pads[2];
-   pads[0] = new TPad("pad1","pad1",0.05,0.05,0.475,0.95);
-   canvas->cd();
-   pads[0]->Draw();
-   pads[1] = new TPad("pad2","pad2",0.535,0.05,0.95,0.95);
-   canvas->cd();
-   pads[1]->Draw();
-
-   TH2F* h_res[2];
-   h_res[0] = new TH2F("h_resx","h_resx",10,-5.5,5.5,ndet,0,ndet);
-   h_res[1] = new TH2F("h_resy","h_resy",10,-5.5,5.5,ndet,0,ndet);
-   char* res_str[2]={"x-axis residuals in Si detector local x-y coord.","y-axis residuals in Si detector local x-y coord."};
-
-   char* xtitle[2] = {"resX","resY"};
-   for(int i=0; i<2; i++) {
-      pads[i]->cd();
-      pads[i]->SetLeftMargin(0.15);
-      pads[i]->SetFillColor(0);
-
-      pads[i]->Range(-7.7,-1.5,6.966667,13.5);
-      pads[i]->Modified();
-      //    h_res[i]->SetTitle(res_str[i]);
-      h_res[i]->SetTitle("");
-      h_res[i]->SetTitleSize(0.04);
-      h_res[i]->GetYaxis()->SetRangeUser(0,ndet+1);
-      h_res[i]->GetYaxis()->SetLabelSize(0.06);
-      h_res[i]->SetXTitle(xtitle[i]);
-      h_res[i]->GetXaxis()->SetTickLength(0);
-      h_res[i]->GetYaxis()->SetTickLength(0);
-      h_res[i]->GetXaxis()->SetNdivisions(20);
-      h_res[i]->Draw();
-      pads[i]->SetGridy();
-      TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
-      pt->SetName("mytitle");
-      pt->SetBorderSize(0);
-      pt->SetFillColor(0);
-      pt->AddText(res_str[i]);
-      pt->Draw();
-      canvas->cd();
-   }
-
-   float larray[9]={0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.5, 4.5, 5.5};
-   float larray2[8];
-   for(int l=0; l<8; l++) {
-      float diff2=(larray[l+1]-larray[l])/2;
-      larray2[l]=larray[l]+diff2;
-      //  printf("(%.1f,%.1f),",larray[i],larray[i+1]);
-   }
-
-   int resi[2][64];
-   for(int l=0; l<nhits; l++) {
-      for(int k=0; k<8; k++) {
-         if(fabs(res[0][l])==larray2[k])
-            resi[0][l]=k;
-         if(fabs(res[1][l])==larray2[k])
-            resi[1][l]=k;
-      }
-   }
-
-   TLine* lines[17];
-   for(int l=0; l<17; l++) {
-      int ix=l%9;
-      int sign=1;
-      sign = (l>8) ? -1 : 1;
-      lines[l] = new TLine(sign*larray[ix],0,sign*larray[ix],ndet);
-      if(l!=9)
-         lines[l]->SetLineStyle(3);
-      pads[0]->cd();
-      lines[l]->Draw();
-      pads[1]->cd();
-      lines[l]->Draw();
-   }
-
-   float width=0.25;
-   for(int h=0; h<2; h++) {
-      pads[h]->cd();
-      //      TPaveText *text_error = new TPaveText(5.6,0,6.0,ndet);
-      //      text_error->Draw();
-
-      float height1=0;
-      for(int j=0; j<ndet; j++) {
-         char det_str2[256];
-         sprintf(det_str2,"%s/%i",det_tracker_str[substruct[det[j]]-1],subsubstruct[det[j]]);
-         h_res[h]->GetYaxis()->SetBinLabel(j+1,det_str2);
-         int diff=det[j+1]-det[j];
-         int k=0;
-         width=1.0/diff;
-         // printf("%f\n",width);
-         for(int l=det[j]; l<(det[j]+diff); l++) {
-            //      g->SetPoint(l,resx[l],j+0.5);
-            //	printf("%i, %f %f %f\n",l,resx[l],sign*larray[resxi[l]],sign*larray[resxi[l]+1]);
-            int sign = (res[h][l]<0) ? -1 : 1;
-            float left = (hittype[l]==0) ? sign*larray[resi[h][l]] : -5.5;
-            float right = (hittype[l]==0) ? sign*larray[resi[h][l]+1] : 5.5;
-
-
-
-            //	else width=0.25;
-            float height=1.0;
-            if(substruct[det[j]]<3) height=0.5;
-            //	float height1=j+width*k;
-            //	float height2=j+width*(k+1);
-            //	float height1_tmp=j+width*k;
-            //	float height2_tmp=j+width*(k+1);
-            float height1_tmp=height1+width*k;
-            float height2_tmp=height1+width*(k+1);
-            TBox *tbox = new TBox(left,height1_tmp,right,height2_tmp);
-            TBox *tbox3 = new TBox(left,height1_tmp,right,height2_tmp);
-
-            int filltype = 3006;
-            int color=kGreen-9;
-            if(stereo[l]==1) {
-               color=kCyan-9;
-               filltype=3004;
+      for(trackingRecHit_iterator recIt = iTrack->recHitsBegin(); recIt != iTrack->recHitsEnd(); ++recIt){
+         if((*recIt)->isValid()){
+            DetId detid = (*recIt)->geographicalId();
+            LocalPoint lp = (*recIt)->localPosition();
+            // localError we don't use just yet.
+            //	  LocalError le = (*recIt)->localPositionError();
+            // Here's the local->global transformation matrix
+            const TGeoHMatrix* matrix = item->getGeom()->getMatrix( detid );
+            // And here are the shapes of the hit modules
+            TEveGeoShape* shape = item->getGeom()->getShape( detid );
+            if(0!=shape) {
+               shape->SetMainTransparency(50);
+               shape->SetMainColor(tList->GetMainColor());
+               trkList->AddElement(shape);
             }
-            if(hittype[l]!=0) {
-               filltype=3001;
-               color=kRed;
-            }
-            //	int color=1;
-            //	if(hittype[l]!=0) color=2;
-            //	tbox->SetLineColor(1);
-            tbox->SetFillColor(1);
-            tbox->SetFillStyle(filltype);
-            tbox->SetLineColor(1);
-            tbox3->SetFillColor(color);
-            tbox3->Draw();
-            tbox->Draw();
 
-            TBox *tbox2 = new TBox(left,height1_tmp,right,height2_tmp);
-            tbox2->SetFillColor(1);
-            tbox2->SetFillStyle(0);
-            tbox2->SetLineWidth(2);
-            tbox2->Draw();
-            k++;
-         }
-         //      if(substruct[det[j]]<3) height1+=0.5;
-         //      else height1++;
-         height1++;
-      }
-      //    printf("\n");
+            // set local position to a more digestable format
+            localRecHitPoint[0] = lp.x();
+            localRecHitPoint[1] = lp.y();
+            localRecHitPoint[2] = 0;
+
+            // reset global position
+            globalRecHitPoint[0] = 0;
+            globalRecHitPoint[1] = 0;
+            globalRecHitPoint[2] = 0;
+
+
+            /*  Do segments for the recHits.  Right now they're going to be of arbitrary length.
+               Eventually, we'll have detector geom in here, but for now, we'll just use 5cm
+               segments in the local y.  These transform nicely.
+             */
+
+            Double_t localRecHitInnerPoint[3];
+            Double_t localRecHitOuterPoint[3];
+            Double_t globalRecHitInnerPoint[3];
+            Double_t globalRecHitOuterPoint[3];
+
+            localRecHitInnerPoint[0] = 0;
+            localRecHitInnerPoint[1] = 2.5;
+            localRecHitInnerPoint[2] = 0;
+
+            localRecHitOuterPoint[0] = 0;
+            localRecHitOuterPoint[1] = -2.5;
+            localRecHitOuterPoint[2] = 0;
+
+            // Transform from local to global, if possible
+            if ( matrix ) {
+               matrix->LocalToMaster(localRecHitPoint, globalRecHitPoint);
+               matrix->LocalToMaster(localRecHitInnerPoint, globalRecHitInnerPoint);
+               matrix->LocalToMaster(localRecHitOuterPoint, globalRecHitOuterPoint);
+               // Now we add the point to the TEvePointSet
+               recHitsMarker->SetPoint(globalRecHitIndex, globalRecHitPoint[0],
+                                       globalRecHitPoint[1], globalRecHitPoint[2]);
+               recHitsLines->AddLine(globalRecHitInnerPoint[0], globalRecHitInnerPoint[1], globalRecHitInnerPoint[2],
+                                     globalRecHitOuterPoint[0], globalRecHitOuterPoint[1], globalRecHitOuterPoint[2]);
+               globalRecHitIndex++;
+            }
+
+         } // if the hit isValid().
+      } // For Loop Over Rec hits (recIt)
+
+      // This saved just in case we want to use points for recHits.
+      //recHitsMarker->SetMainColor(iItem->defaultDisplayProperties().color());
+      //recHitsMarker->SetMarkerSize(1);
+      //trkList->AddElement(recHitsMarker);
+
+      recHitsLines->SetMainColor(item->defaultDisplayProperties().color());
+      trkList->AddElement(recHitsLines);
+   }
+   catch (...) {
+      //      std::cout << "Sorry, don't have the recHits for this event." << std::endl;
    }
 
-   viewCanvas()->cd();
-   return 0;
+   viewer()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
+   return tList;
 }
 
 REGISTER_FWDETAILVIEW(FWTrackDetailView);

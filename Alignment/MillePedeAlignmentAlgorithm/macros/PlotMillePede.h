@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/06/26 13:39:29 $
+// last change    : $Date: 2009/01/20 20:21:39 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -29,9 +29,6 @@
 // understand the option 'add'. If the flag is true or the optione string
 // contains 'add', canvases from previous Draw-commands are kept (in fact they
 // are re-drawn).
-//
-// A title can be set by 'void SetTitle(const char *title)':
-// The title will appear as part of all histogram titles.
 //
 // Several cuts can be set and are active until reset for all drawing routines
 // called after setting them. Active selections are mentioned in histogram titles.
@@ -69,13 +66,7 @@
 //  * ... therefore for experts 
 //  * current setting cleared by 'ClearAdditionalSel()'
 //
-// 4a) Strip stereo, rphi, 1Dlayer/double sided selection:
-//  * Known keywords for AddAdditionalSel(..)
-//     * StripStereo:     only Id's of stereo modules in 2D layers/rings 
-//     * StripRphi:       only Id's of rphi modules in 2D layers/rings 
-//     * StripDoubleOr1D: only Id's from 1D layers or composed Dets in 2D layers/rings
-//
-// 4b) Geometrical and N(hit) selection:
+// 4a) Geometrical and N(hit) selection:
 // void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max);
 //  This method makes internal use of the above "AddAdditionalSel(const char *)".
 //  Selects quantity 'xyzrPhiNhit' between 'min' and 'max' where
@@ -95,7 +86,6 @@ class PlotMillePede : public MillePedeTrees
   PlotMillePede(const char *fileName, Int_t iter, Int_t hieraLevel, const char *treeNameAdd);
   virtual ~PlotMillePede();
 
-  void SetTitle(const char *title) {fTitle = title;}
   GFHistManager* GetHistManager() { return fHistManager;}
 
   void DrawAll(Option_t *opt = "rogpmeh"); // r=ParamResult,o=OrigParam,g=GlobCorr,p=Pull,m=MisVsLocation,e=ErrorVsHit,h=HitMaps
@@ -134,7 +124,7 @@ class PlotMillePede : public MillePedeTrees
   void AddSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC
   Int_t SetAlignableTypeId(Int_t alignableTypeId);//detunit=1,det=2,...,TIBString=15,etc. from StructureType.h (-1: all)
   Int_t SetHieraLevel(Int_t hieraLevel); // select hierarchical level (-1: all)
-  void AddAdditionalSel(const char *selection);// special select; StripDoubleOr1D,StripRphi,StripStereo
+  void AddAdditionalSel(const char *selection);// select something special
   void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // x,y,z,r,phi,Nhit
 
   const TString GetAdditionalSel () const { return fAdditionalSel;}
@@ -148,7 +138,6 @@ class PlotMillePede : public MillePedeTrees
  private: 
   Int_t PrepareAdd(bool addPlots);
 
-  TString        fTitle; // added to hist titles
   GFHistManager *fHistManager;
   Int_t          fHieraLevel; // which hierarchical level to require (-1: all)
   bool           fUseDiff; // true: result is diff between MisParT() and ParT()

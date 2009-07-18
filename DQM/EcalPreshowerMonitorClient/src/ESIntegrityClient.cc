@@ -30,7 +30,10 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
 	  kchip_[i][j][k][m] = -1;
 	}
 
-  for (int i=0; i<56; ++i) fedStatus_[i] = -1;
+  for (int i=0; i<56; ++i) {
+    fedStatus_[i] = -1;
+    fiberStatus_[i] = -1;
+  }
 
   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   ifstream file;
@@ -129,6 +132,10 @@ void ESIntegrityClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking").c_str());
   me = dqmStore_->get(histo);
   hFED_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFED_ ); 
+
+  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Status").c_str());
+  me = dqmStore_->get(histo);
+  hFiber_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiber_ ); 
   
   int xval = 0;
   int nevFEDs = 0;
@@ -137,20 +144,26 @@ void ESIntegrityClient::analyze(void) {
       nevFEDs = (int) hFED_->GetBinContent(i);
   
   // FED integrity
-  for (int i=1; i<=56; ++i) 
-    if (hFED_->GetBinContent(i) >0) {
+  for (int i=1; i<=56; ++i) {
+    if (hFED_->GetBinContent(i) > 0) 
       fedStatus_[i-1] = 1;      
+    if (hFiber_->GetBinContent(i+58) > 0) 
+      fiberStatus_[i-1] = 1;
+  }
 
-      for (int iz=0; iz<2; ++iz) 
-	for (int ip=0; ip<2; ++ip)
-	  for (int ix=0; ix<40; ++ix)
-	    for (int iy=0; iy<40; ++iy) {
-	      if (fed_[iz][ip][ix][iy] == -1) continue;
-	      xval = (hFED_->GetBinContent(i) == nevFEDs) ? 3:2;
-	      meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	    }
-      
-    }
+  for (int iz=0; iz<2; ++iz) 
+    for (int ip=0; ip<2; ++ip)
+      for (int ix=0; ix<40; ++ix)
+	for (int iy=0; iy<40; ++iy) {
+	  if (fed_[iz][ip][ix][iy] == -1) continue;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	    xval = (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) ? 3:5;
+	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) xval = 2;
+	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
+	    xval = 1;
+	  } 
+	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
+	}
   
   // KCHIP integrity
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip Flag 1 Error codes").c_str());
@@ -169,6 +182,7 @@ void ESIntegrityClient::analyze(void) {
   me = dqmStore_->get(histo);
   hKEC_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hKEC_ ); 
 
+  Int_t kchip_xval[1550];
   for (int i=1; i<=1550; ++i) {
 
     xval = 3;
@@ -178,7 +192,7 @@ void ESIntegrityClient::analyze(void) {
 	xval = 2;
 	kErr++;
       }
-      if (hKF1_->GetBinContent(i, j+1)>0) {
+      if (hKF2_->GetBinContent(i, j+1)>0) {
 	xval = 4;
 	kErr++;
       }
@@ -191,18 +205,19 @@ void ESIntegrityClient::analyze(void) {
       xval = 6;
       kErr++;
     } 
-    if (kErr>1) xval = 1;    
-    
-    for (int iz=0; iz<2; ++iz) 
-      for (int ip=0; ip<2; ++ip)
-	for (int ix=0; ix<40; ++ix)
-	  for (int iy=0; iy<40; ++iy) {
-	    if (fed_[iz][ip][ix][iy] == -1) continue;
-	    xval = (hFED_->GetBinContent(i) == nevFEDs) ? 3:2;
-	    meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	  }
-    
+    if (kErr>1) xval = 7; 
+    kchip_xval[i] = xval;
   }
+
+  for (int iz=0; iz<2; ++iz) 
+    for (int ip=0; ip<2; ++ip)
+      for (int ix=0; ix<40; ++ix)
+	for (int iy=0; iy<40; ++iy) {
+	  if (fed_[iz][ip][ix][iy] == -1) continue;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) kchip_xval[kchip_[iz][ip][ix][iy]-1] = 1;
+	  meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-1]); 
+	}
+
   
 }
 

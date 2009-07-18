@@ -6,6 +6,7 @@
 CSCNeutronWriter::CSCNeutronWriter(edm::ParameterSet const& pset)
 : SubsystemNeutronWriter(pset)
 {
+std::cout << "MAKE NEUTRONWRITER " << std::endl;
   for(int i = 1; i <= 10; ++i)
   {
     initialize(i);
@@ -14,6 +15,7 @@ CSCNeutronWriter::CSCNeutronWriter(edm::ParameterSet const& pset)
 
 
 CSCNeutronWriter::~CSCNeutronWriter() {
+std::cout << "DESTRUCT NEUTRONWRITER " << std::endl;
 }
 
 
@@ -34,25 +36,4 @@ int CSCNeutronWriter::chamberId(int globalDetId) const
 {
   return CSCDetId(globalDetId).chamberId().rawId();
 }
-
-
-bool CSCNeutronWriter::accept(const edm::PSimHitContainer & cluster) const
-{
-  return true;
-  // if you want to require at least two layers, to satisfy pretrigger
-  if(cluster.size() > 1) 
-  {
-    unsigned int firstHitDetUnitId = cluster[0].detUnitId();
-    for(edm::PSimHitContainer::const_iterator hitItr = cluster.begin()+1;
-        hitItr != cluster.end(); ++hitItr)
-    {
-      if(hitItr->detUnitId() != firstHitDetUnitId)
-      {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/04/30 15:13:02 $
- * $Revision: 1.72 $
+ * $Date: 2009/05/05 12:13:30 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -457,7 +457,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
         if ( meOccupancyMem_[ism-1] ) {
           st = chInStrip - 0.5;
-          if ( runType[ism-1] == physics || runType[ism-1] == notdata ) meOccupancyMem_[ism-1]->Fill(PnId, st);
+          meOccupancyMem_[ism-1]->Fill(PnId, st);
         }
       }
 

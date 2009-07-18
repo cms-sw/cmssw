@@ -24,7 +24,7 @@ using namespace pos;
 PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >& tableMat):
   PixelTrimBase("","","")
 {
-    std::string mthn = "]\t[PixelTrimAllPixels::PixelTrimAllPixels()]\t\t    " ; 
+
     std::stringstream currentRocName;
     std::map<std::string , int > colM;
     std::vector<std::string > colNames;
@@ -64,7 +64,7 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
       {
       if(colM.find(colNames[n]) == colM.end())
 	{
-	  std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << "[PixelTrimAllPixels::PixelTrimAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
 	  assert(0);
 	}
       }
@@ -301,15 +301,15 @@ void PixelTrimAllPixels::writeXMLHeader(pos::PixelConfigKey key,
   *outstream << "   <RUN_TYPE>ROC Trim Bits</RUN_TYPE>"                                                   << std::endl ; 
   *outstream << "   <RUN_NUMBER>1</RUN_NUMBER>"                                                           << std::endl ; 
   *outstream << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>"   << std::endl ; 
-  *outstream << "   <LOCATION>CERN P5</LOCATION>"                                                         << std::endl ; 
+  *outstream << "   <COMMENT_DESCRIPTION>ROC Trim Bits</COMMENT_DESCRIPTION>"                             << std::endl ; 
+  *outstream << "   <LOCATION>CERN TAC</LOCATION>"                                                        << std::endl ; 
+  *outstream << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"                                 << std::endl ; 
   *outstream << "  </RUN>"                                                                                << std::endl ; 
   *outstream << " </HEADER>"                                                                              << std::endl ; 
   *outstream << ""                                                                                        << std::endl ; 
   *outstream << " <DATA_SET>"                                                                             << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
-  *outstream << "  <VERSION>"             << version      << "</VERSION>"                                 << std::endl ;
-  *outstream << "  <COMMENT_DESCRIPTION>" << getComment() << "</COMMENT_DESCRIPTION>"			  << std::endl ;
-  *outstream << "  <INITIATED_BY_USER>"   << getAuthor()  << "</INITIATED_BY_USER>"			  << std::endl ;
+  *outstream << "  <VERSION>" << version << "</VERSION>"                                                  << std::endl ;
   *outstream << ""                                                                                        << std::endl ;
   *outstream << "  <PART>"                                                                                << std::endl ;
   *outstream << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                                              << std::endl ;      

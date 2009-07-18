@@ -3,6 +3,8 @@
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DataFormats/HLTReco>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/CaloRecHit>
 <use name=DQMServices/Components>
 <use name=DataFormats/L1GlobalTrigger>
 <flags EDM_PLUGIN=1>
@@ -13,6 +15,8 @@
    <use name=FWCore/ParameterSet>
    <use name=DQMServices/Core>
    <use name=DataFormats/HLTReco>
+   <use name=DataFormats/HcalDetId>
+   <use name=DataFormats/CaloRecHit>
    <use name=DQMServices/Components>
    <use name=DataFormats/L1GlobalTrigger>
 </export>

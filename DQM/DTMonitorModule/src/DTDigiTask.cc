@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2009/04/09 15:44:49 $
- * $Revision: 1.59 $
+ * $Date: 2009/04/20 17:20:38 $
+ * $Revision: 1.60 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -73,7 +73,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
-  tdcRescale = ps.getUntrackedParameter<int>("tdcRescale", 1);
+  maxTDCCounts = ps.getUntrackedParameter<int>("maxTDCCounts", 6400);
 
   doAllHitsOccupancies = ps.getUntrackedParameter<bool>("doAllHitsOccupancies", true);
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
@@ -244,7 +244,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
 
   // ttrig and rms are TDC counts
   if ( readTTrigDB ) 
-    tTrigMap->get(dtSL, tTrig, tTrigRMS, DTTimeUnits::counts); 
+    tTrigMap->get(dtSL, tTrig, tTrigRMS, kFactor, DTTimeUnits::counts); 
   else tTrig = defaultTTrig;
   
 
@@ -252,7 +252,6 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     string histoTitle = histoName + " (TDC Counts)";
 
     if (!readTTrigDB) {
-      int maxTDCCounts = 6400 * tdcRescale;
       (digiHistos[histoTag])[dtSL.rawId()] = 
 	dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
       if(doLayerTimeBoxes) {      // Book TimeBoxes per layer
@@ -421,7 +420,7 @@ void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
     (wheelHistos[histoTag])[wheelId]->setAxisTitle("sector",1);
   } else if(folder == "SynchNoise") {
     dbe->setCurrentFolder("DT/05-Noise/SynchNoise");
-    string histoTitle = "Event rate of Syncronous Noisy events WHEEL: "+wheel.str();
+    string histoTitle = "# of Syncronous-noise events WHEEL: "+wheel.str();
     (wheelHistos[histoTag])[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(1,"MB1",2);
     (wheelHistos[histoTag])[wheelId]->setBinLabel(2,"MB2",2);
@@ -467,7 +466,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "Event " << nevents << " empty." << endl;
   }
 
-  if (lookForSyncNoise) { // dosync
+  if (lookForSyncNoise || filterSyncNoise) { // dosync
     // Count the # of digis per chamber
     DTDigiCollection::DigiRangeIterator dtLayerId_It;
     for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); dtLayerId_It++) {
@@ -485,10 +484,13 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch noise in chamber: " << iter->first
 						     << " with # digis: " << iter->second << endl;
 	syncNoisyChambers.insert(iter->first);
-	nSynchNoiseEvents[iter->first]++;// FIXME check and optimize
-	// FIXME: log noisy event in this chamber
+	nSynchNoiseEvents[iter->first]++;// FIXME check and optimize	
+	// FIXME: should update all chambers each event
+// 	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
+// 									     (double)nSynchNoiseEvents[iter->first]/(double)nevents); 
 	wheelHistos["SyncNoiseEvents"][(*iter).first.wheel()]->setBinContent((*iter).first.sector(),(*iter).first.station(),
-									     (double)nSynchNoiseEvents[iter->first]/(double)nevents); 
+									     (double)nSynchNoiseEvents[iter->first]); 
+
       }
     }
     
@@ -552,7 +554,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
         // ttrig and rms are TDC counts
 	if (readTTrigDB)
 	  tTrigMap->get( ((*dtLayerId_It).first).superlayerId(),
-                         tTrig, tTrigRMS, DTTimeUnits::counts); 
+                         tTrig, tTrigRMS, kFactor, DTTimeUnits::counts); 
 	else tTrig = defaultTTrig;
 	
 	int inTimeHitsLowerBoundCorr = int(round(tTrig)) - inTimeHitsLowerBound;
@@ -719,3 +721,15 @@ string DTDigiTask::topFolder() const {
 
 
 
+void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) {
+  // Update all histos for SynchNoise if needed
+//   if(lookForSyncNoise || filterSyncNoise) {
+//     //loop over chambers with synch noise events and update their entries in the histos
+//     for(map<DTChamberId, int>::const_iterator nEvPerch = nSynchNoiseEvents.begin();
+// 	nEvPerch != nSynchNoiseEvents.end(); ++nEvPerch) {
+//       DTChamberId chId = (*nEvPerch).first;
+//       wheelHistos["SyncNoiseEvents"][chId.wheel()]->setBinContent(chId.sector(),chId.station(),
+// 								  (double)nSynchNoiseEvents[chId]/(double)nevents); 
+//     }
+//   }
+}

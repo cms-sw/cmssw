@@ -351,7 +351,7 @@ void HcalHotCellClient::getHistograms()
     {
       for (int i=0;i<4;++i)
 	{
-	  // scaling of histograms done in summary client!
+	  // scaling of Problem histograms done in summary client!
 	  if (ProblemHotCellsByDepth[i]) 
 	    {
 	      //if (ProblemHotCellsByDepth[i]->GetBinContent(0,0)>0)
@@ -361,29 +361,29 @@ void HcalHotCellClient::getHistograms()
 	    }
 	  if (AbovePersistentThresholdCellsByDepth[i]) 
 	    {
-	      //if (AbovePersistentThresholdCellsByDepth[i]->GetBinContent(0,0)>0)
-	      //AbovePersistentThresholdCellsByDepth[i]->Scale(1./AbovePersistentThresholdCellsByDepth[i]->GetBinContent(0,0));
+	      if (AbovePersistentThresholdCellsByDepth[i]->GetBinContent(0,0)>0)
+	      AbovePersistentThresholdCellsByDepth[i]->Scale(1./AbovePersistentThresholdCellsByDepth[i]->GetBinContent(0,0));
 	      AbovePersistentThresholdCellsByDepth[i]->SetMinimum(0.);
 	      AbovePersistentThresholdCellsByDepth[i]->SetMaximum(1.);
 	    }
 	  if (AbovePedestalHotCellsByDepth[i])
 	    {
-	      //if (AbovePedestalHotCellsByDepth[i]->GetBinContent(0,0)>0)
-	      //AbovePedestalHotCellsByDepth[i]->Scale(1./AbovePedestalHotCellsByDepth[i]->GetBinContent(0,0));
+	      if (AbovePedestalHotCellsByDepth[i]->GetBinContent(0,0)>0)
+	      AbovePedestalHotCellsByDepth[i]->Scale(1./AbovePedestalHotCellsByDepth[i]->GetBinContent(0,0));
 	      AbovePedestalHotCellsByDepth[i]->SetMinimum(0.);
 	      AbovePedestalHotCellsByDepth[i]->SetMaximum(1.);
 	    }
 	  if (AboveNeighborsHotCellsByDepth[i])
 	    {
-	      //if (AboveNeighborsHotCellsByDepth[i]->GetBinContent(0,0)>0)
-	      //AboveNeighborsHotCellsByDepth[i]->Scale(1./AboveNeighborsHotCellsByDepth[i]->GetBinContent(0,0));
+	      if (AboveNeighborsHotCellsByDepth[i]->GetBinContent(0,0)>0)
+	      AboveNeighborsHotCellsByDepth[i]->Scale(1./AboveNeighborsHotCellsByDepth[i]->GetBinContent(0,0));
 	      AboveNeighborsHotCellsByDepth[i]->SetMinimum(0.);
 	      AboveNeighborsHotCellsByDepth[i]->SetMaximum(1.);
 	    }
 	    if (AboveEnergyThresholdCellsByDepth[i])
 	      {
-		//if (AboveEnergyThresholdCellsByDepth[i]->GetBinContent(0,0)>0)
-		//AboveEnergyThresholdCellsByDepth[i]->Scale(1./AboveEnergyThresholdCellsByDepth[i]->GetBinContent(0,0));
+		if (AboveEnergyThresholdCellsByDepth[i]->GetBinContent(0,0)>0)
+		AboveEnergyThresholdCellsByDepth[i]->Scale(1./AboveEnergyThresholdCellsByDepth[i]->GetBinContent(0,0));
 		AboveEnergyThresholdCellsByDepth[i]->SetMinimum(0.);
 		AboveEnergyThresholdCellsByDepth[i]->SetMaximum(1.);
 	      }

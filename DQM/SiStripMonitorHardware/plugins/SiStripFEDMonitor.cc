@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.20 2009/07/03 15:32:53 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.25 2009/07/09 11:47:39 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -75,6 +75,8 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
+  //do histos vs time with time=event number. Default time = orbit number (s)
+  bool fillWithEvtNum_;
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
   //bool printDebug_;
@@ -103,6 +105,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
+    fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
     //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
@@ -116,6 +119,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
                 << "[SiStripFEDMonitorPlugin]\tRawDataTag: " << rawDataTag_ << std::endl
                 << "[SiStripFEDMonitorPlugin]\tHistogramFolderName: " << folderName_ << std::endl
                 << "[SiStripFEDMonitorPlugin]\tFillAllDetailedHistograms? " << (fillAllDetailedHistograms_ ? "yes" : "no") << std::endl
+		<< "[SiStripFEDMonitorPlugin]\tFillWithEventNumber?" << (fillWithEvtNum_ ? "yes" : "no") << std::endl
                 << "[SiStripFEDMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl
                 << "[SiStripFEDMonitorPlugin]\tWriteDQMStore? " << (writeDQMStore_ ? "yes" : "no") << std::endl;
     if (writeDQMStore_) debugStream << "[SiStripFEDMonitorPlugin]\tDQMStoreFileName: " << dqmStoreFileName_ << std::endl;
@@ -132,12 +136,12 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
 
-    debugStream.str("");
+    //debugStream.str("");
 
-    debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
-		<< " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
+    //debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
+    //	<< " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
 
-    edm::LogError("SiStripMonitorHardware") << debugStream.str();
+    //edm::LogError("SiStripMonitorHardware") << debugStream.str();
   }
 
   nEvt_ = 0;
@@ -274,8 +278,10 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
   FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
-  fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
-
+  //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
+  //time in seconds since beginning of the run or event number
+  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.id().event());
+  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.orbitNumber()/11223.);
 
   //match fedId/channel with detid
 

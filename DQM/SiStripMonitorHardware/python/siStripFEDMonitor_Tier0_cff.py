@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi import *
 
-#disable error output: only in P5 configuration.
+#disable error output: enabled in P5 configuration for errors.
 siStripFEDMonitor.PrintDebugMessages = 0
 #Global/summary histograms
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
@@ -10,7 +10,7 @@ siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyDAQProblemsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEProblemsHistogramConfig.Enabled = True
 siStripFEDMonitor.CorruptBuffersHistogramConfig.Enabled = True
-siStripFEDMonitor.BadChannelStatusBitsHistogramConfig.Enabled = False
+siStripFEDMonitor.BadChannelStatusBitsHistogramConfig.Enabled = True
 siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 #sub sets of FE problems
 siStripFEDMonitor.FEOverflowsHistogramConfig.Enabled = False
@@ -90,15 +90,99 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
   #Min = cms.untracked.double(0),
   #Max = cms.untracked.double(441)
 )
-siStripFEDMonitor.nTotalBadChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(1000),
-  #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(1000)
+siStripFEDMonitor.nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(353),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(42241)
 )
-siStripFEDMonitor.nTotalBadActiveChannelsvsEvtNumHistogramConfig = cms.untracked.PSet(
+siStripFEDMonitor.nAPVStatusBitHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(1000),
+  #NBins = cms.untracked.uint32(353),
   #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(1000)
+  #Max = cms.untracked.double(42241)
+)
+siStripFEDMonitor.nAPVErrorHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(353),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(42241)
+)
+siStripFEDMonitor.nAPVAddressErrorHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(353),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(42241)
+)
+siStripFEDMonitor.nUnlockedHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(353),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(42241)
+)
+siStripFEDMonitor.nOutOfSyncHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(353),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(42241)
+)
+siStripFEDMonitor.nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nTotalBadActiveChannelsvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nFEDErrorsvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nFEDCorruptBuffersvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nFEDsWithFEProblemsvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nAPVStatusBitvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nAPVErrorvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nAPVAddressErrorvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nUnlockedvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.nOutOfSyncvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
 )

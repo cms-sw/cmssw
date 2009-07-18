@@ -89,7 +89,6 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 setenv CURRENTDIR $cwd
 cd /afs/cern.ch/cms/Physics/egamma/www/validation
-#cd /afs/cern.ch/user/c/charlot/scratch0/CMSSW_3_1_0_pre10/src/RecoEgamma/Examples/test/validation
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
@@ -149,31 +148,6 @@ h_ele_ChargeMnChargeTrue 1 0 1
 h_ele_PoPtrue 1 0 1
 h_ele_PoPtrue_barrel 1 0 1
 h_ele_PoPtrue_endcaps 1	0 1
-h_ele_PoPtrue_golden_barrel 1 0 1
-h_ele_PoPtrue_golden_endcaps 1	0 1
-h_ele_PoPtrue_showering_barrel 1 0 1
-h_ele_PoPtrue_showering_endcaps 1	0 1
-h_ele_PtoPttrue 1 0 1
-h_ele_PtoPttrue_barrel 1 0 1
-h_ele_PtoPttrue_endcaps 1	0 1
-h_scl_EoEtrue_barrel 1 0 1
-h_scl_EoEtrue_endcaps 1	0 1
-h_scl_EoEtrue_golden_barrel 1 0 1
-h_scl_EoEtrue_golden_endcaps 1 0 1
-h_scl_EoEtrue_showering_barrel 1 0 1
-h_scl_EoEtrue_showering_endcaps 1 0 1
-h_scl_EoEtrue_barrel_etagap 1 0 1 
-h_scl_EoEtrue_barrel_phigap 1 0 1  
-h_scl_EoEtrue_ebeegap 1	0 1    
-h_scl_EoEtrue_endcaps_deegap 1 0 1
-h_scl_EoEtrue_endcaps_ringgap 1	0 1
-h_scl_EoEtrue_barrel_new 1 0 1
-h_scl_EoEtrue_endcaps_new 1	0 1
-h_scl_EoEtrue_barrel_etagap_new 1 0 1 
-h_scl_EoEtrue_barrel_phigap_new 1 0 1  
-h_scl_EoEtrue_ebeegap_new 1	0 1    
-h_scl_EoEtrue_endcaps_deegap_new 1 0 1
-h_scl_EoEtrue_endcaps_ringgap_new 1	0 1
 h_ele_EtaMnEtaTrue 1 0 1
 h_ele_PhiMnPhiTrue 1 0 1
 h_ele_EoP 1 1 1
@@ -188,6 +162,13 @@ h_ele_dPhiEleCl_propOut 1 1 1
 h_ele_dPhiSc_propVtx 1 1 1
 h_ele_HoE 1 1 1
 h_ele_HoE_fiducial 1 1 1
+h_scl_EoEtrue_barrel 1 0 1
+h_scl_EoEtrue_endcaps 1	0 1
+h_scl_EoEtrue_barrel_etagap 1 0 1 
+h_scl_EoEtrue_barrel_phigap 1 0 1  
+h_scl_EoEtrue_ebeegap 1	0 1    
+h_scl_EoEtrue_endcaps_deegap 1 0 1
+h_scl_EoEtrue_endcaps_ringgap 1	0 1
 h_scl_sigetaeta 1 1 1
 h_scl_sigietaieta_barrel 1 1 1
 h_scl_sigietaieta_endcaps 1 1 1 
@@ -279,11 +260,6 @@ h_ele_outerPt_mode 1 0 1
 h_ele_PoPmatchingObject 1 0 1  
 h_ele_PoPmatchingObject_barrel 1 0 1   
 h_ele_PoPmatchingObject_endcaps 1 0 1   
-h_ele_PtoPtmatchingObject 1 0 1  
-h_ele_PtoPtmatchingObject_barrel 1 0 1   
-h_ele_PtoPtmatchingObject_endcaps 1 0 1   
-h_scl_EoEmatchingObject_barrel 1 0 1
-h_scl_EoEmatchingObject_endcaps 1 0 1   
 h_ele_EtaMnEtamatchingObject 1 0 1  
 h_ele_PhiMnPhimatchingObject 1 0 1
 h_ele_EoP 1 1 1  	
@@ -297,6 +273,8 @@ h_ele_dPhiCl_propOut 1 1 1
 h_ele_dPhiEleCl_propOut 1 1 1
 h_ele_dPhiSc_propVtx 1 1 1
 h_ele_HoE 1 1 1
+h_scl_EoEmatchingObject_barrel 1 0 1
+h_scl_EoEmatchingObject_endcaps 1 0 1   
 h_scl_sigetaeta 1 1 1 
 h_scl_sigietaieta_barrel 1 1 1 
 h_scl_sigietaieta_endcaps 1 1 1
@@ -313,15 +291,24 @@ h_ele_classes 1 0 1
 h_ele_mva 1 0 1
 h_ele_tkSumPt_dr03 1 1 1
 h_ele_ecalRecHitSumEt_dr03 1 1 1
-h_ele_hcalDepth1TowerSumEt_dr03 1 1 1
+h_ele_hcalDepth1TowerSumEt_dr03 1 1
 h_ele_hcalDepth2TowerSumEt_dr03 1 1 1
 h_ele_tkSumPt_dr04 1 1 1
 h_ele_ecalRecHitSumEt_dr04 1 1 1
 h_ele_hcalDepth1TowerSumEt_dr04 1 1 1
 h_ele_hcalDepth2TowerSumEt_dr04 1 1 1
 h_recEleNum 1 0 1
+h_ele_EoverP_all 1 1 1
+h_ele_EseedOP_all 1 1 1
+h_ele_EoPout_all 1 1 1
+h_ele_EeleOPout_all 1 1 1
+h_ele_TIP_all 1 1 1
+h_ele_dEtaSc_propVtx_all 1 1 1
+h_ele_dPhiSc_propVtx_all 1 1 1
+h_ele_dEtaCl_propOut_all 1 1 1
+h_ele_dPhiCl_propOut_all 1 1 1
+h_ele_HoE_all 1 1 1
 h_ele_mee_all 1 1 1
-h_ele_mee 1 1 1
 EOF
 
 cat >> histos.txt <<EOF
@@ -330,6 +317,8 @@ h_ele_etaEff 0 0 1
 h_ele_ptEff 0 0 1
 h_ele_phiEff 0 0 1
 h_ele_zEff 0 0 1
+h_ele_etaEff_all 0 0 1
+h_ele_ptEff_all 0 0 1
 h_ele_vertexPtVsEta_pfx 0 0 1
 h_ele_PoPmatchingObjectVsEta_pfx 0 0 1
 h_ele_PoPmatchingObjectVsPhi_pfx 0 0 1   

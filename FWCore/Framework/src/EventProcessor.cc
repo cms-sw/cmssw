@@ -38,6 +38,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
@@ -1568,6 +1569,9 @@ namespace edm {
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
+    if (numberOfForkedChildren_ > 0) {
+	fb_->setNotFastClonable(FileBlock::ParallelProcesses);
+    }
   }
 
   void EventProcessor::closeInputFile() {

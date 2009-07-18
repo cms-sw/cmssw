@@ -69,10 +69,10 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
   // get backendinterface  
   dbe_ = Service<DQMStore>().operator->();
 
-  dbe_->setCurrentFolder("HLTOffline/EventInfo");
+  dbe_->setCurrentFolder("HLT/EventInfo");
 
 //  sprintf(histo, "reportSummary");
-  if ( reportSummary_ = dbe_->get("HLTOffline/EventInfo/reportSumamry") ) {
+  if ( reportSummary_ = dbe_->get("HLT/EventInfo/reportSumamry") ) {
       dbe_->removeElement(reportSummary_->getName()); 
    }
   
@@ -83,7 +83,7 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
  //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
 
-  dbe_->setCurrentFolder("HLTOffline/EventInfo/reportSummaryContents");
+  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents");
 
   
   char histo[100];
@@ -130,9 +130,9 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
   }  
 
 
-  dbe_->setCurrentFolder("HLTOffline/EventInfo");
+  dbe_->setCurrentFolder("HLT/EventInfo");
 
-  if ( reportSummaryMap_ = dbe_->get("HLTOffline/EventInfo/reportSummaryMap") ) {
+  if ( reportSummaryMap_ = dbe_->get("HLT/EventInfo/reportSummaryMap") ) {
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 

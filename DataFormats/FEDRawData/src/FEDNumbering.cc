@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/01/23 17:00:31 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/02/10 14:24:18 $
+ *  $Revision: 1.15 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -36,14 +36,6 @@ pair<int,int> FEDNumbering::getDTFEDIds(){
 
 }
 
-pair<int,int> FEDNumbering::getDTTFFEDIds(){
-
-  return pair<int,int> (MINDTTFFEDID, MAXDTTFFEDID);
-
-}
-
-
-
 pair<int,int> FEDNumbering::getCSCFEDIds(){
 
   return pair<int,int> (MINCSCFEDID, MAXCSCFEDID);
@@ -55,20 +47,11 @@ pair<int,int> FEDNumbering::getCSCTFFEDIds(){
 
 }
 
-
 pair<int,int> FEDNumbering::getRPCFEDIds(){
 
   return pair<int,int> (MINRPCFEDID, MAXRPCFEDID);
 
 }
-
-
-pair<int,int> FEDNumbering::getPreShowerFEDIds(){
-
-  return pair<int,int> (MINPreShowerFEDID, MAXPreShowerFEDID);
-
-}
-
 
 pair<int,int> FEDNumbering::getEcalFEDIds(){
 
@@ -76,23 +59,9 @@ pair<int,int> FEDNumbering::getEcalFEDIds(){
 
 }
 
-
-pair<int,int> FEDNumbering::getCastorFEDIds(){
-
-  return pair<int,int> (MINCASTORFEDID, MAXCASTORFEDID);
-
-}
-
-
 pair<int,int> FEDNumbering::getHcalFEDIds(){
 
   return pair<int,int> (MINHCALFEDID, MAXHCALFEDID);
-
-}
-
-pair<int,int> FEDNumbering::getLumiScalersFEDIds(){
-
-  return pair<int,int> (MINLUMISCALERSFEDID, MAXLUMISCALERSFEDID);
 
 }
 
@@ -106,102 +75,6 @@ pair<int,int> FEDNumbering::getTriggerGTPFEDIds(){
 pair<int,int> FEDNumbering::getTriggerEGTPFEDIds(){
 
   return pair<int,int> (MINTriggerEGTPFEDID, MAXTriggerEGTPFEDID);
-
-}
-
-
-pair<int,int> FEDNumbering::getTriggerGCTFEDIds(){
-
-  return pair<int,int> (MINTriggerGCTFEDID, MAXTriggerGCTFEDID);
-
-}
-
-
-pair<int,int> FEDNumbering::getTriggerLTCmtccFEDIds(){
-
-  return pair<int,int> (MINTriggerLTCmtccFEDID, MAXTriggerLTCmtccFEDID);
-
-
-}
-pair<int,int> FEDNumbering::getTriggerLTCFEDIds(){
-
-  return pair<int,int> (MINTriggerLTCFEDID, MAXTriggerLTCFEDID);
-
-}
-
-
-pair<int, int> FEDNumbering::getTriggerLTCTriggerFEDID(){
-
-return pair<int,int>(MINTriggerLTCTriggerFEDID, MAXTriggerLTCTriggerFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getTriggerLTCHCALFEDID(){
-
-  return pair<int,int>(MINTriggerLTCHCALFEDID, MAXTriggerLTCHCALFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getTriggerLTCSiStripFEDID(){
-
-  return pair<int,int>(MINTriggerLTCSiStripFEDID, MAXTriggerLTCSiStripFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getTriggerLTCECALFEDID(){
-
-return pair<int,int>(MINTriggerLTCECALFEDID, MAXTriggerLTCECALFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getTriggerLTCTotemCastorFEDID(){
-
-  return pair<int,int>(MINTriggerLTCTotemCastorFEDID, MAXTriggerLTCTotemCastorFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getTriggerLTCRPCFEDID(){
-
-return pair<int,int>(MINTriggerLTCRPCFEDID, MAXTriggerLTCRPCFEDID);
-
-}
-pair<int, int> FEDNumbering::getTriggerLTCCSCFEDID(){
-
-return pair<int,int>(MINTriggerLTCCSCFEDID, MAXTriggerLTCCSCFEDID);
-
-}
-pair<int, int> FEDNumbering::getTriggerLTCDTFEDID(){
-
-return pair<int,int>(MINTriggerLTCDTFEDID, MAXTriggerLTCDTFEDID);
-
-}
-pair<int, int> FEDNumbering::getTriggerLTCSiPixelFEDID(){
-
-return pair<int,int>(MINTriggerLTCSiPixelFEDID, MAXTriggerLTCSiPixelFEDID);
-
-}
-
-pair<int, int> FEDNumbering::getCSCDDUFEDIds(){
-
-return pair<int,int>(MINCSCDDUFEDID, MAXCSCDDUFEDID);  
-
-}
-
-pair<int, int> FEDNumbering::getCSCContingencyFEDIds(){
-
-return pair<int,int>(MINCSCContingencyFEDID, MAXCSCContingencyFEDID);  
-
-}
-
-pair<int, int> FEDNumbering::getCSCTFSPFEDIds(){
-
-return pair<int,int>(MINCSCTFSPFEDID, MAXCSCTFSPFEDID);  
-
-}
-
-pair<int, int> FEDNumbering::getDAQeFEDFEDIds(){
-
-return pair<int,int>(MINDAQeFEDFEDID, MAXDAQeFEDFEDID);  
 
 }
 
@@ -224,7 +97,7 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "SiStrip";
     }
-  for(i=getPreShowerFEDIds().first; i<=getPreShowerFEDIds().second; i++)
+  for(i=MINPreShowerFEDID; i<=MAXPreShowerFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "PreShower";
@@ -234,7 +107,7 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "Ecal";
     }
-  for(i=getCastorFEDIds().first; i<=getCastorFEDIds().second; i++)
+  for(i=MINCASTORFEDID; i<=MAXCASTORFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "Castor";
@@ -244,7 +117,7 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "Hcal";
     }
-  for(i=getLumiScalersFEDIds().first; i<=getLumiScalersFEDIds().second; i++)
+  for(i=MINLUMISCALERSFEDID; i<=MAXLUMISCALERSFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "LumiScalers";
@@ -264,7 +137,7 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "DT";
     }
-  for(i=getDTTFFEDIds().first; i<=getDTTFFEDIds().second; i++)
+  for(i=MINDTTFFEDID; i<=MAXDTTFFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "DTTF";
@@ -284,37 +157,37 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "TriggerEGTP";
     }
-  for(i=getTriggerGCTFEDIds().first; i<=getTriggerGCTFEDIds().second; i++)
+  for(i=MINTriggerGCTFEDID; i<=MAXTriggerGCTFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "TriggerGCT";
     }
-  for(i=getTriggerLTCFEDIds().first; i<=getTriggerLTCFEDIds().second; i++)
+  for(i=MINTriggerLTCFEDID; i<=MAXTriggerLTCFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "TriggerLTC";
     }
-  for(i=getTriggerLTCmtccFEDIds().first; i<=getTriggerLTCmtccFEDIds().second; i++)
+  for(i=MINTriggerLTCmtccFEDID; i<=MAXTriggerLTCmtccFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "TriggerLTCmtcc";
     }
-  for(i=getCSCDDUFEDIds().first; i<=getCSCDDUFEDIds().second; i++)
+  for(i=MINCSCDDUFEDID; i<=MAXCSCDDUFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "CSCDDU";
     }
-  for(i=getCSCContingencyFEDIds().first; i<=getCSCContingencyFEDIds().second; i++)
+  for(i=MINCSCContingencyFEDID; i<=MAXCSCContingencyFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "CSCContingency";
     }
-  for(i=getCSCTFSPFEDIds().first; i<=getCSCTFSPFEDIds().second; i++)
+  for(i=MINCSCTFSPFEDID; i<=MAXCSCTFSPFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "CSCTFSP";
     }
-  for(i=getDAQeFEDFEDIds().first; i<=getDAQeFEDFEDIds().second; i++)
+  for(i=MINDAQeFEDFEDID; i<=MAXDAQeFEDFEDID; i++)
     {
       in_[i] = true;
       from_[i] = "DAQeFED";

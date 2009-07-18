@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
 
 photonAnalysis.Verbosity = cms.untracked.int32(0)
-photonAnalysis.useTriggerFiltering = cms.bool(True)
+photonAnalysis.useTriggerFiltering = cms.bool(False)
 photonAnalysis.standAlone = cms.bool(True)
 photonAnalysis.OutputFileName = cms.string('DQMOfflinePhotonsBatch.root')
 
@@ -49,8 +49,6 @@ from DQMServices.Components.DQMStoreStats_cfi import *
 
 dqmStoreStats.runOnEndRun = cms.untracked.bool(False)
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
-
-
 
 
 process.p1 = cms.Path(process.photonAnalysis)

@@ -32,9 +32,9 @@ class GenericBenchmark{
 	     float minDeltaPhi = -0.5, float maxDeltaPhi = 0.5,
 	     bool doMetPlots=false);
 
-  template< template<typename> class T, typename Collection>
-  void fill(const T<Collection> *RecoCollection, 
-	    const T<Collection> *GenCollection,
+  template< typename C>
+  void fill(const C *RecoCollection, 
+	    const C *GenCollection,
 	    bool startFromGen=false, 
 	    bool PlotAgainstReco =true, 
 	    bool onlyTwoJets = false, 
@@ -110,7 +110,7 @@ class GenericBenchmark{
   TH1F *hTrueSumEt;
   TH2F *hDeltaSetvsSet;
   TH2F *hDeltaMexvsSet;
-  TH2F *hDeltaSetOverSetvsSet;
+  //PETH2F *hDeltaSetOverSetvsSet;
 
   BenchmarkTree*  tree_;
 
@@ -123,9 +123,9 @@ class GenericBenchmark{
 
 };
 
-template< template<typename> class T, typename Collection>
-void GenericBenchmark::fill(const T<Collection> *RecoCollection, 
-			    const T<Collection> *GenCollection,
+template< typename C>
+void GenericBenchmark::fill(const C *RecoCollection, 
+			    const C *GenCollection,
 			    bool startFromGen, 
 			    bool PlotAgainstReco, 
 			    bool onlyTwoJets, 

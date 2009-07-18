@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.12 2009/06/22 17:34:03 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.14 2009/07/09 15:48:31 futyand Exp $
 #
 #
 #
@@ -49,6 +49,7 @@ from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 
 #not in Cosmics 
@@ -131,6 +132,16 @@ AODSIMEventContent = cms.PSet(
 FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_logErrorHarvester_*_*')
+)
+
+#
+#
+# ALCARECO Data Tier definition
+#
+#
+ALCARECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep edmTriggerResults_*_*_*')
 )
 
 
@@ -261,3 +272,13 @@ FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHOCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)

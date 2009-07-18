@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------------
 # Output block for HOCalibProducer
 #-------------------------------------------------------
-OutALCARECOHcalCalHO = cms.PSet(
+OutALCARECOHcalCalHO_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalHO')
     ),
@@ -12,3 +12,6 @@ OutALCARECOHcalCalHO = cms.PSet(
 )
 
 
+import copy
+OutALCARECOHcalCalHO=copy.deepcopy(OutALCARECOHcalCalHO_noDrop)
+OutALCARECOHcalCalHO.outputCommands.insert(0, "drop *")

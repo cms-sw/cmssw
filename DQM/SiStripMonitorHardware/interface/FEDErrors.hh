@@ -46,6 +46,15 @@ public:
     unsigned int nTotalBadActiveChannels;
   };
 
+  struct ChannelCounters {
+    unsigned int nNotConnected;
+    unsigned int nUnlocked;
+    unsigned int nOutOfSync;
+    unsigned int nAPVStatusBit;
+    unsigned int nAPVError;
+    unsigned int nAPVAddressError;
+  };
+
   struct FECounters {
     unsigned int nFEOverflows; 
     unsigned int nFEBadMajorityAddresses; 
@@ -78,6 +87,7 @@ public:
 
   struct ChannelLevelErrors {
     unsigned int ChannelID;
+    bool Connected;
     bool IsActive;
     bool Unlocked;
     bool OutOfSync;
@@ -88,6 +98,7 @@ public:
   struct APVLevelErrors {
     unsigned int APVID;
     unsigned int ChannelID;
+    bool Connected;
     bool IsActive;
     bool APVStatusBit;
     bool APVError;
@@ -149,6 +160,8 @@ public:
 
   static FEDCounters & getFEDErrorsCounters();
 
+  static ChannelCounters & getChannelErrorsCounters();
+
   FECounters & getFEErrorsCounters();
 
   FEDLevelErrors & getFEDLevelErrors();
@@ -168,6 +181,10 @@ public:
   void addBadAPV(const APVLevelErrors & aAPV, bool & aFirst);
 
   void incrementFEDCounters();
+
+  void incrementChannelCounters(const FEDErrors::ChannelLevelErrors & aChannel);
+
+  void incrementAPVCounters(const FEDErrors::APVLevelErrors & aAPV);
 
   void print(const FEDCounters & aFEDCounter, std::ostream & aOs = std::cout);
   void print(const FECounters & aFECounter, std::ostream & aOs = std::cout);

@@ -1,10 +1,10 @@
-// $Id: TTUBasicConfig.cc,v 1.4 2009/06/04 11:52:59 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/TTUBasicConfig.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/TTUBasicConfig.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : TTUBasicConfig
@@ -19,17 +19,13 @@ TTUBasicConfig::TTUBasicConfig( const TTUBoardSpecs * ttuspecs ) {
 
   m_ttuboardspecs = ttuspecs;
   m_ttulogic      = new TTULogicUnit();
-
-  m_debug = false;
-    
+  
 }
 
-TTUBasicConfig::TTUBasicConfig( const char * logic  ) {
+TTUBasicConfig::TTUBasicConfig( const char * _logic  ) {
 
-  m_ttulogic = new TTULogicUnit( logic );
-
-  m_debug = false;
-    
+  m_ttulogic = new TTULogicUnit( _logic );
+  
 }
 
 //=============================================================================
@@ -45,7 +41,7 @@ TTUBasicConfig::~TTUBasicConfig() {
 } 
 
 //=============================================================================
-bool TTUBasicConfig::initialise( int line )
+bool TTUBasicConfig::initialise()
 {
   
   bool status(false);
@@ -54,32 +50,19 @@ bool TTUBasicConfig::initialise( int line )
   
   std::vector<TTUBoardSpecs::TTUBoardConfig>::const_iterator itr;
   itr = m_ttuboardspecs->m_boardspecs.begin();
- 
-  // initialise logic unit
   
-  if ( line == 2 ) {
-    
-    // itr+=3; // <- ideally one would select the next three specifications
-    //temporary fix
-    
-    m_ttulogic->setlogic( "SectorORLogic" );
-    
-  } else {
-    
-    m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
-    
-  }
+  // initialise logic unit
+  m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
   
   status = m_ttulogic->initialise();
-  
-  m_ttulogic->setBoardSpecs( (*itr) );
-  
+
   // get mask and force vectors
+  
   m_vecmask.assign( (*itr).m_MaskedSectors.begin(), (*itr).m_MaskedSectors.end() );
   m_vecforce.assign( (*itr).m_ForcedSectors.begin(), (*itr).m_ForcedSectors.end() );
   
   if ( !status ) { 
-    if( m_debug ) std::cout << "TTUConfiguration> Problem initialising the logic unit\n"; 
+    std::cout << "TTUConfiguration> Problem initialising the logic unit\n"; 
     return 0; };
   
   return status;
@@ -89,11 +72,11 @@ bool TTUBasicConfig::initialise( int line )
 void TTUBasicConfig::preprocess( TTUInput & input )
 {
   
-  if( m_debug ) std::cout << "TTUBasicConfig::preprocess> starts here" << std::endl;
-  
+  std::cout << "TTUBasicConfig::preprocess> starts here" << std::endl;
+
   input.mask( m_vecmask );
   //input.force( m_vecforce );
   
-  if( m_debug ) std::cout << "TTUBasicConfig::preprocess> done" << std::endl;
+  std::cout << "TTUBasicConfig::preprocess> done" << std::endl;
   
 }

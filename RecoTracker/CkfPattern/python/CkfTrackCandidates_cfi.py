@@ -20,7 +20,8 @@ ckfTrackCandidates = cms.EDFilter("CkfTrackCandidateMaker",
     TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
-        propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
+        propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite'),
+        numberMeasurementsForFit = cms.int32(4)
     )
 )
 

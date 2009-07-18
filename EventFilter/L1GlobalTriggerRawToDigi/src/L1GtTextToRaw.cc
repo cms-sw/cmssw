@@ -66,7 +66,7 @@ L1GtTextToRaw::L1GtTextToRaw(const edm::ParameterSet& pSet)
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
     // default value: assume the DAQ record is the last GT record 
     m_daqGtFedId = pSet.getUntrackedParameter<int>(
-                       "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
+                       "DaqGtFedId", FEDNumbering::MAXTriggerGTPFEDID);
 
     LogDebug("L1GtTextToRaw")
     << "\nFED Id for DAQ GT record: "

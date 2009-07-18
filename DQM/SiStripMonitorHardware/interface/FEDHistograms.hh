@@ -54,7 +54,9 @@ public:
 		     double weight=1.
 		     );
 
-  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, const unsigned int aEvtNum);
+  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
+			      const FEDErrors::ChannelCounters & aChLevelCounters, 
+			      const double aTime);
 
   void fillFEDHistograms(FEDErrors & aFedError, 
 			 bool lFullDebug
@@ -115,7 +117,12 @@ public:
 				const std::string& title, 
 				const std::string& xAxisTitle
 				);
-  
+
+  MonitorElement* bookProfile(const std::string& configName,
+			      const std::string& name,
+			      const std::string& title
+			      );
+
 protected:
   
 private:
@@ -132,12 +139,29 @@ private:
     *nFEDCorruptBuffers_, 
     *nBadChannelStatusBits_,
     *nBadActiveChannelStatusBits_,
+    *nUnconnectedChannels_,
     *nFEDsWithFEOverflows_, 
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
 
-  MonitorElement *nTotalBadChannelsvsEvtNum_;
-  MonitorElement *nTotalBadActiveChannelsvsEvtNum_;
+  MonitorElement *nAPVStatusBit_;
+  MonitorElement *nAPVError_;
+  MonitorElement *nAPVAddressError_;
+  MonitorElement *nUnlocked_;
+  MonitorElement *nOutOfSync_;
+
+  MonitorElement *nTotalBadChannelsvsTime_;
+  MonitorElement *nTotalBadActiveChannelsvsTime_;
+
+  MonitorElement *nFEDErrorsvsTime_;
+  MonitorElement *nFEDCorruptBuffersvsTime_;
+  MonitorElement *nFEDsWithFEProblemsvsTime_;
+
+  MonitorElement *nAPVStatusBitvsTime_;
+  MonitorElement *nAPVErrorvsTime_;
+  MonitorElement *nAPVAddressErrorvsTime_;
+  MonitorElement *nUnlockedvsTime_;
+  MonitorElement *nOutOfSyncvsTime_;
 
   //top level histograms
   MonitorElement *anyFEDErrors_, 
@@ -168,6 +192,7 @@ private:
     unlockedDetailed_, 
     outOfSyncDetailed_;
 
+
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 
     debugHistosBooked_;
@@ -175,6 +200,8 @@ private:
   std::string tkMapConfigName_;
   TkHistoMap *tkmapFED_;
 
+
+  double minAxis_;
 
 
 };//class

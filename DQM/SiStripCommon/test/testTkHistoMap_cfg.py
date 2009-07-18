@@ -29,7 +29,7 @@ process.TkDetMap = cms.Service("TkDetMap")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.tester = cms.EDFilter("testTkHistoMap",
-                              readFromFile = cms.bool(True)
+                              readFromFile = cms.bool(False)
                               )
 process.p = cms.Path(process.tester)
 

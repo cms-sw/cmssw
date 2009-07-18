@@ -28,39 +28,37 @@ namespace edm {
 
   class RootOutputTree : private boost::noncopyable {
   public:
-    // Constructor for trees with no fast cloning
-    template <typename T>
-    RootOutputTree(T* , // first argument is a dummy so that the compiiler can resolve the match.
-		   boost::shared_ptr<TFile> filePtr,
+    RootOutputTree(boost::shared_ptr<TFile> filePtr,
 		   BranchType const& branchType,
-		   typename T::Auxiliary const*& pAux,
-		   typename T::EntryInfoVector*& pEntryInfoVector,
+		   std::vector<ProductProvenance>*& pEntryInfoVector,
 		   int bufSize,
 		   int splitLevel,
                    int treeMaxVirtualSize) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
-      auxBranch_(0),
       producedBranches_(),
       metaBranches_(),
       readBranches_(),
       unclonedReadBranches_(),
       unclonedReadBranchNames_(),
       currentlyFastCloning_() {
-
       if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
-      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
-      readBranches_.push_back(auxBranch_);  
-
       branchEntryInfoBranch_ = metaTree_->Branch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str(),
                                                  &pEntryInfoVector, bufSize, 0);
       metaBranches_.push_back(branchEntryInfoBranch_);
-  }
+    }
 
     ~RootOutputTree() {}
-    
-    static void fastCloneTTree(TTree* in, TTree* out);
+
+    template <typename T>
+    void
+    addAuxiliary(BranchType const& branchType, T const*& pAux, int bufSize) {
+      TBranch *auxBranch = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
+      readBranches_.push_back(auxBranch);
+    }
+
+    static void fastCloneTTree(TTree* in, TTree* out, std::string const& option);
 
     static TTree* makeTTree(TFile* filePtr, std::string const& name, int splitLevel);
 
@@ -70,7 +68,8 @@ namespace edm {
 
     bool isValid() const;
 
-    void addBranch(BranchDescription const& prod,
+    void addBranch(std::string const& branchName,
+		   std::string const& className,
 		   void const*& pProd,
 		   int splitLevel,
 		   int basketSize,
@@ -80,7 +79,7 @@ namespace edm {
 
     bool checkIfFastClonable(TTree* inputTree) const;
 
-    void maybeFastCloneTree(TTree* tree);
+    void maybeFastCloneTree(bool canFastClone, TTree* tree, std::string const& option);
 
     void fillTree() const;
 
@@ -99,10 +98,6 @@ namespace edm {
       if(metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
-    void beginInputFile(bool fastCloning) {
-      currentlyFastCloning_ = fastCloning;
-    }
-
     bool
     uncloned(std::string const& branchName) const {
 	return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
@@ -118,7 +113,6 @@ namespace edm {
     boost::shared_ptr<TFile> filePtr_;
     TTree* tree_;
     TTree* metaTree_;
-    TBranch* auxBranch_;
     TBranch* branchEntryInfoBranch_;
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> metaBranches_;

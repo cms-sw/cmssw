@@ -1554,7 +1554,7 @@ DQMStore::readDirectory(TFile *file,
   {
 
     // If we are reading reference, skip previous reference.
-    if (slash != std::string::npos
+    if (slash == std::string::npos   // skip if Reference is toplevel folder, i.e. no slash
 	&& slash+1+s_referenceDirName.size() == dirpart.size()
 	&& dirpart.compare(slash+1, s_referenceDirName.size(), s_referenceDirName) == 0)
       return 0;

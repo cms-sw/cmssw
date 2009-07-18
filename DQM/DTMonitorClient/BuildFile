@@ -12,6 +12,7 @@
 <use name=CalibMuon/DTDigiSync>
 <use name=CalibMuon/DTCalibration>
 <use name=DQM/DTMonitorModule>
+<use name=CondFormats/RunInfo>
 <use name=boost>
 <use name=rootgraphics>
 

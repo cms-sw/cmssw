@@ -1031,7 +1031,7 @@ void HcalMonitorClient::htmlOutput(void){
   /////////////////////////////////////////////////////////
   if( summary_client_) 
     {
-      htmlName = "HcalSummaryCellClient.html";
+      htmlName = "HcalSummaryClient.html";
       summary_client_->htmlOutput(irun_, mytime_, minlumisec_, maxlumisec_, htmlDir, htmlName);
       htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
       htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Summary Monitor</a></td>" << endl;

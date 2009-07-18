@@ -62,7 +62,7 @@
 L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet) :
 
     m_daqGtFedId(pSet.getUntrackedParameter<int> (
-            "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second)),
+            "DaqGtFedId", FEDNumbering::MAXTriggerGTPFEDID)),
     m_daqGtInputTag(pSet.getParameter<edm::InputTag> ("DaqGtInputTag")),
     m_muGmtInputTag(pSet.getParameter<edm::InputTag> ("MuGmtInputTag")),
     m_activeBoardsMaskGt(pSet.getParameter<unsigned int> ("ActiveBoardsMask")),

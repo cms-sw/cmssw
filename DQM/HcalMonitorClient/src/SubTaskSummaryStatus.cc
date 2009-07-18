@@ -27,3 +27,15 @@ bool SubTaskSummaryStatus::IsOn()
   return onoff;
 } // IsOn()
 
+void SubTaskSummaryStatus::Setup(std::string Dir, 
+				 std::string Name,
+				 std::string OverName,
+				 std::string ID, 
+				 double t=0.)
+{
+  problemDir=Dir; // directory where depth histos are stored
+  problemName=Name; // base name of depth histos
+  summaryName=OverName; // name of summary Problem plot (including directory)
+  id=ID;
+  thresh=t;
+}

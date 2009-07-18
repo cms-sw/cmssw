@@ -7,10 +7,14 @@
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
  *
- *  $Date: 2006/10/24 15:11:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/29 16:28:27 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
+
+
+#include "DataFormats/Provenance/interface/RunID.h"
+
 
 class FEDRawDataCollection;
 namespace edm {class EventID; class Timestamp; class ParameterSet;}
@@ -29,6 +33,9 @@ public:
   // abstract interface
   //
   
+  /// set the run number
+  virtual void setRunNumber(edm::RunNumber_t runNumber) {}
+
   /// overload to fill the fed collection to be put in the transient
   /// event store. NOTE: the FEDRawDataCollection data must be created
   /// (with new) withing the method; ownership is passed to the caller.

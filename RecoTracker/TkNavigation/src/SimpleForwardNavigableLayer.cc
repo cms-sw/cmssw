@@ -223,9 +223,8 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
 					       PropagationDirection dir) const
 {
   if( !areAllReachableLayersSet ){
-    return SimpleNavigableLayer::compatibleLayers(fts,dir);
-    //    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    //    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
+    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
   }
 
   vector<const DetLayer*> result;

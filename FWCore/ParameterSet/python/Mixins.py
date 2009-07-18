@@ -148,8 +148,13 @@ class _Parameterizable(object):
         returns None if not found
         """
         lastParam = self
+        # Don't accidentally iterate over letters in a string
+        if type(params).__name__ == 'str':
+            return getattr(self, params, None)
         for param in params:
+            print "PARA "+param
             lastParam = getattr(lastParam, param, None)
+            print str(lastParam)
             if lastParam == None:
                 return None
         return lastParam

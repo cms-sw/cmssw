@@ -19,7 +19,7 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "PhysicsTools/Utilities/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "HLTmmkFilter.h"
 

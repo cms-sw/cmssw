@@ -138,6 +138,24 @@ EventSetupRecord::find(const DataKey& iKey) const
    return 0;
 }
 
+bool 
+EventSetupRecord::doGet(const DataKey& aKey) const {
+   const DataProxy* proxy = find(aKey);
+   if(0 != proxy) {
+      proxy->doGet(*this, aKey);
+   }
+   return 0 != proxy;
+}
+
+bool 
+EventSetupRecord::wasGotten(const DataKey& aKey) const {
+   const DataProxy* proxy = find(aKey);
+   if(0 != proxy) {
+      return proxy->cacheIsValid();
+   }
+   return false;
+}
+   
 void 
 EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 {

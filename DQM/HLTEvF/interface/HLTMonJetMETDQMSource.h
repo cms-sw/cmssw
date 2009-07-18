@@ -44,15 +44,13 @@
 //
 
 class HLTMonJetMETDQMSource : public edm::EDAnalyzer {
-   public:
-      explicit HLTMonJetMETDQMSource(const edm::ParameterSet&);
-      ~HLTMonJetMETDQMSource();
-
-
-   private:
-      virtual void beginJob() ;
+ public:
+  explicit HLTMonJetMETDQMSource(const edm::ParameterSet&);
+  ~HLTMonJetMETDQMSource();
+ private:
+      virtual void beginJob(const edm::EventSetup&);
       virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-
+      
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& , const edm::Event&  ,unsigned int);
@@ -60,13 +58,13 @@ class HLTMonJetMETDQMSource : public edm::EDAnalyzer {
       virtual void bookJetMET();
       HLTConfigProvider hltConfig_;
       std::string processname_;
-
+      
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe;
       bool debug_;
       bool verbose_;
-
+      
       std::vector<MonitorElement *> etahist;
       std::vector<MonitorElement *> ethist;
       std::vector<MonitorElement *> phihist;
@@ -83,7 +81,7 @@ class HLTMonJetMETDQMSource : public edm::EDAnalyzer {
       std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
       std::vector<std::pair<double,double> > plotBounds; 
       unsigned int reqNum;
- 
+      
       double thePtMin ;
       double thePtMax ;
       double thePtMinTemp;
@@ -97,7 +95,7 @@ class HLTMonJetMETDQMSource : public edm::EDAnalyzer {
       int theHLTOutputType;
       std::string outputFile_;
       //std::string subdir_;
-
+      
       std::string histoTitle;
       
 };

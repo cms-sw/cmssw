@@ -89,19 +89,20 @@ namespace edm {
       pLumiEntryInfoVector_(&lumiEntryInfoVector_),
       pRunEntryInfoVector_(&runEntryInfoVector_),
       pHistory_(0),
-      eventTree_(static_cast<EventPrincipal*>(0),
-                 filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
+      eventTree_(filePtr_, InEvent, pEventEntryInfoVector_,
                  om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(static_cast<LuminosityBlockPrincipal*>(0),
-                filePtr_, InLumi, pLumiAux_, pLumiEntryInfoVector_,
+      lumiTree_(filePtr_, InLumi, pLumiEntryInfoVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(static_cast<RunPrincipal*>(0),
-               filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
+      runTree_(filePtr_, InRun, pRunEntryInfoVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       dataTypeReported_(false),
       parentageIDs_(),
       branchesWithStoredHistory_() {
+
+    eventTree_.addAuxiliary<EventAuxiliary>(InEvent, pEventAux_, om_->auxItems()[InEvent].basketSize_); 
+    lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(InLumi, pLumiAux_, om_->auxItems()[InLumi].basketSize_);
+    runTree_.addAuxiliary<RunAuxiliary>(InRun, pRunAux_, om_->auxItems()[InRun].basketSize_);
 
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -109,14 +110,18 @@ namespace edm {
 
     for(int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
+      RootOutputTree *theTree = treePointers_[branchType];
       for(OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
 	  itEnd = om_->selectedOutputItemList()[branchType].end();
 	  it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_,
-					      it->product_,
-					      it->splitLevel_,
-					      it->basketSize_,
-					      it->branchDescription_->produced());
+	BranchDescription const& desc = *it->branchDescription_;
+	desc.init();
+	theTree->addBranch(desc.branchName(),
+			   desc.wrappedName(),
+			   it->product_,
+			   it->splitLevel_,
+			   it->basketSize_,
+			   it->branchDescription_->produced());
 	//make sure we always store product registry info for all branches we create
 	branchesWithStoredHistory_.insert(it->branchID());
       }
@@ -254,18 +259,7 @@ namespace edm {
   void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {
 
     if(fb.tree() != 0) {
-      // There are two different reasons (not mutually exclusive) that we might need
-      // to compare the split levels and basket sizes of the input and output branches.
-      // We do it up front so that we do it at most once.
-      //
-      // 1) We are using the input split levels and basket sizes from the first input file
-      // for copied output branches.  In this case, we throw an exception if any branches
-      // have different split levels or basket sizes in a subsequent input file.
-      //
-      // 2) We may be fast copying.  We must disable fast copying if the split levels
-      // or basket sizes do not match.
 
-      bool throwIfDifferentSplitLevels = !om_->overrideInputFileSplitLevels() && om_->inputFileCount() > 1;
       whyNotFastClonable_ |= fb.whyNotFastClonable();
 
       if(remainingEvents >= 0 && remainingEvents < fb.tree()->GetEntries()) {
@@ -274,14 +268,21 @@ namespace edm {
 
       bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
       if(!match) {
-        if(throwIfDifferentSplitLevels) {
+        if(om_->overrideInputFileSplitLevels()) {
+	  // We may be fast copying.  We must disable fast copying if the split levels
+	  // or basket sizes do not match.
+	  whyNotFastClonable_ |= FileBlock::SplitLevelMismatch;
+	} else {
+	  // We are using the input split levels and basket sizes from the first input file
+	  // for copied output branches.  In this case, we throw an exception if any branches
+	  // have different split levels or basket sizes in a subsequent input file.
+	  // If the mismatch is in the first file, there is a bug somewhere, so we assert.
+	  assert(om_->inputFileCount() > 1);
           throw edm::Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
 	    "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n" <<
 	    "than previous files.  To allow merging in splite of this, use the configuration parameter\n" <<
 	    "overrideInputFileSplitLevels=cms.untracked.bool(True)\n" <<
 	    "in every PoolOutputModule.\n";
-	} else {
-	  whyNotFastClonable_ |= FileBlock::SplitLevelMismatch;
 	}
       }
 
@@ -295,8 +296,7 @@ namespace edm {
       whyNotFastClonable_ |= FileBlock::NoRootInputSource;
     }
 
-    eventTree_.beginInputFile(whyNotFastClonable_ == FileBlock::CanFastClone);
-    eventTree_.maybeFastCloneTree(fb.tree());
+    eventTree_.maybeFastCloneTree(whyNotFastClonable_ == FileBlock::CanFastClone, fb.tree(), om_->basketOrder());
 
     // Issue warning message if we haven't fast cloned, unless we disabled it deliberately or unless there are no events to copy anyway.
     if(fb.tree() != 0 && whyNotFastClonable_ != FileBlock::CanFastClone) {
@@ -361,6 +361,8 @@ namespace edm {
 
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     // Auxiliary branch
+    // NOTE: pLumiAux_ must be set before calling fillBranches since it gets written out
+    // in that routine.
     pLumiAux_ = &lb.aux();
     // Add lumi to index.
     fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
@@ -370,6 +372,8 @@ namespace edm {
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
+    // NOTE: pRunAux_ must be set before calling fillBranches since it gets written out
+    // in that routine.
     pRunAux_ = &r.aux();
     // Add run to index.
     fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);

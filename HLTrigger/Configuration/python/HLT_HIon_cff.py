@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre11/HIon_V8/V2 (CMSSW_3_1_0)
+# /dev/CMSSW_3_2_0/pre1/HIon_V20/V2 (CMSSW_3_1_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/HIon_V8/V2')
+  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/HIon_V20/V2')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -96,7 +96,13 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
   ComponentName = cms.string( "esRawToRecHit" ),
   appendToDataLabel = cms.string( "" ),
   DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
-  RHAlgo = cms.PSet(  Type = cms.string( "ESRecHitWorker" ) )
+  RHAlgo = cms.PSet( 
+    Type = cms.string( "ESRecHitWorker" ),
+    ESGain = cms.int32( 1 ),
+    ESBaseline = cms.int32( 1000 ),
+    ESMIPADC = cms.double( 9.0 ),
+    ESMIPkeV = cms.double( 81.08 )
+  )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -1700,9 +1706,7 @@ hltBoolFinalPath = cms.EDFilter( "HLTBool",
 )
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" ),
-    PrintVerbosity = cms.untracked.int32( 0 ),
-    PrintOutput = cms.untracked.int32( 2 )
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
 )
 hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )

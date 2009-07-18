@@ -4,9 +4,9 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -t -f u23_infos.log 
+rm -f u31_infos.log 
 
-cmsRun -p $LOCAL_TEST_DIR/u31_cfg.py
+cmsRun -t -p $LOCAL_TEST_DIR/u31_cfg.py
  
 for file in u31_infos.log 
 do

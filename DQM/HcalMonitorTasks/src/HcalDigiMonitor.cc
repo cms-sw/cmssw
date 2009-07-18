@@ -1076,22 +1076,21 @@ void HcalDigiMonitor::fill_Nevents()
   double problemsum=0;
   bool valid=false;
 
-
   // Fill plots of sums of adjacent digi samples
   for (int i=0;i<10;++i)
     {
       for (int j=0;j<50;++j)
 	{
 	  if (hbHists.tssumplus[j][i]>0) hbHists.TS_sum_plus[i]->Fill(j, hbHists.tssumplus[j][i]);
-	  if (hbHists.tssumminus[j][i]>0) hbHists.TS_sum_minus[i]->Fill(j, hbHists.tssumminus[j][i]);
-	  if (heHists.tssumplus[j][i]>0) heHists.TS_sum_plus[i]->Fill(j, heHists.tssumplus[j][i]);
-	  if (heHists.tssumminus[j][i]>0) heHists.TS_sum_minus[i]->Fill(j, heHists.tssumminus[j][i]);
-	  if (hoHists.tssumplus[j][i]>0) hoHists.TS_sum_plus[i]->Fill(j, hoHists.tssumplus[j][i]);
-	  if (hoHists.tssumminus[j][i]>0) hoHists.TS_sum_minus[i]->Fill(j, hoHists.tssumminus[j][i]);
-	  if (hfHists.tssumplus[j][i]>0) hfHists.TS_sum_plus[i]->Fill(j, hfHists.tssumplus[j][i]);
-	  if (hfHists.tssumminus[j][i]>0) hfHists.TS_sum_minus[i]->Fill(j, hfHists.tssumminus[j][i]);
-	  if (zdcHists.tssumplus[j][i]>0) zdcHists.TS_sum_plus[i]->Fill(j, zdcHists.tssumplus[j][i]);
-	  if (zdcHists.tssumminus[j][i]>0) zdcHists.TS_sum_minus[i]->Fill(j, zdcHists.tssumminus[j][i]);
+	  if (hbHists.tssumminus[j][i]>0) hbHists.TS_sum_minus[i]->Fill(j, hbHists.tssumminus[j][i]);	  
+	  if (heHists.tssumplus[j][i]>0) heHists.TS_sum_plus[i]->Fill(j, heHists.tssumplus[j][i]); 
+	  if (heHists.tssumminus[j][i]>0) heHists.TS_sum_minus[i]->Fill(j, heHists.tssumminus[j][i]); 
+	  if (hoHists.tssumplus[j][i]>0) hoHists.TS_sum_plus[i]->Fill(j, hoHists.tssumplus[j][i]); 
+	  if (hoHists.tssumminus[j][i]>0) hoHists.TS_sum_minus[i]->Fill(j, hoHists.tssumminus[j][i]); 
+	  if (hfHists.tssumplus[j][i]>0) hfHists.TS_sum_plus[i]->Fill(j, hfHists.tssumplus[j][i]); 
+	  if (hfHists.tssumminus[j][i]>0) hfHists.TS_sum_minus[i]->Fill(j, hfHists.tssumminus[j][i]); 
+	  if (zdcHists.tssumplus[j][i]>0) zdcHists.TS_sum_plus[i]->Fill(j, zdcHists.tssumplus[j][i]); 
+	  if (zdcHists.tssumminus[j][i]>0) zdcHists.TS_sum_minus[i]->Fill(j, zdcHists.tssumminus[j][i]); 
 	}
     } // for (int i=0;i<10;++i)
 
@@ -1126,6 +1125,7 @@ void HcalDigiMonitor::fill_Nevents()
       if (zdcHists.capid[i]>0) zdcHists.CapID->Fill(i, zdcHists.capid[i]);
 
     }
+
   for (int i=0;i<200;++i)
     {
       if (hbHists.adc[i]>0) hbHists.ADC->Fill(i, hbHists.adc[i]);
@@ -1140,7 +1140,6 @@ void HcalDigiMonitor::fill_Nevents()
       if (zdcHists.adcsum[i]>0) zdcHists.ADCsum->Fill(i, zdcHists.adcsum[i]);
 
     }
-
 
   // Fill plots of bad fraction of digis found
   for (int i=0;i<DIGI_BQ_FRAC_NBINS;++i)
@@ -1190,7 +1189,6 @@ void HcalDigiMonitor::fill_Nevents()
 
     }
 
-
   // Fill VME plots
   for (int i=0;i<40;++i)
     {
@@ -1200,7 +1198,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  if (occupancyVME[i][j]>0) DigiOccupancyVME->Fill(i, j,occupancyVME[i][j]);
 	}
     } //for (int i=0;i<40;++i)
-  
+
   // Fill VME plots
   for (int i=0;i<HcalDCCHeader::SPIGOT_COUNT;++i)
     {
@@ -1220,7 +1218,6 @@ void HcalDigiMonitor::fill_Nevents()
 	    DigiSize->Fill(sub,dsize,digisize[dsize][sub]);
 	}
     } // for (int sub=0;sub<4;++sub)
-
 
   // Loop over eta, phi, depth
   for (int phi=0;phi<72;++phi)
@@ -1476,10 +1473,12 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.dverr[i]=0;
 	  hoHists.dverr[i]=0;
 	  hfHists.dverr[i]=0;
+	  zdcHists.dverr[i]=0;
 	  hbHists.capid[i]=0;
 	  heHists.capid[i]=0;
 	  hoHists.capid[i]=0;
 	  hfHists.capid[i]=0;
+	  zdcHists.capid[i]=0;
 	}
       if (i<8)
 	{
@@ -1487,6 +1486,7 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.capIDdiff[i]=0;
 	  hoHists.capIDdiff[i]=0;
 	  hfHists.capIDdiff[i]=0;
+	  zdcHists.capIDdiff[i]=0;
 	}
 
       if (i<10)
@@ -1495,10 +1495,12 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.count_shape[i]=0;
 	  hoHists.count_shape[i]=0;
 	  hfHists.count_shape[i]=0;
+	  zdcHists.count_shape[i]=0;
 	  hbHists.count_shapeThresh[i]=0;
 	  heHists.count_shapeThresh[i]=0;
 	  hoHists.count_shapeThresh[i]=0;
 	  hfHists.count_shapeThresh[i]=0;
+	  zdcHists.count_shapeThresh[i]=0;
 	}
       if (i<50)
 	{
@@ -1506,16 +1508,19 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.count_presample[i]=0;
 	  hoHists.count_presample[i]=0;
 	  hfHists.count_presample[i]=0;
+	  zdcHists.count_presample[i]=0;
 	  for (int j=0;j<10;++j)
 	    {
 	      hbHists.tssumplus[i][j]=0;
 	      heHists.tssumplus[i][j]=0;
 	      hoHists.tssumplus[i][j]=0;
 	      hfHists.tssumplus[i][j]=0;
+	      zdcHists.tssumplus[i][j]=0;
 	      hbHists.tssumminus[i][j]=0;
 	      heHists.tssumminus[i][j]=0;
 	      hoHists.tssumminus[i][j]=0;
 	      hfHists.tssumminus[i][j]=0;
+	      zdcHists.tssumminus[i][j]=0;
 	    }
 	}
       if (i<200)
@@ -1524,10 +1529,12 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.adc[i]=0;
 	  hoHists.adc[i]=0;
 	  hfHists.adc[i]=0;
+	  zdcHists.adc[i]=0;
 	  hbHists.adcsum[i]=0;
 	  heHists.adcsum[i]=0;
 	  hoHists.adcsum[i]=0;
 	  hfHists.adcsum[i]=0;
+	  zdcHists.adcsum[i]=0;
 	}
       if (i<DIGI_SUBDET_NUM)
 	{
@@ -1535,6 +1542,7 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.count_BQ[i]=0;
 	  hoHists.count_BQ[i]=0;
 	  hfHists.count_BQ[i]=0;
+	  zdcHists.count_BQ[i]=0;
 	}
       if (i<DIGI_BQ_FRAC_NBINS)
 	{
@@ -1542,6 +1550,7 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.count_BQFrac[i]=0;
 	  hoHists.count_BQFrac[i]=0;
 	  hfHists.count_BQFrac[i]=0;
+	  zdcHists.count_BQFrac[i]=0;
 	}
     } // for (int i=0;i<DIGI_NUM;++i)
 

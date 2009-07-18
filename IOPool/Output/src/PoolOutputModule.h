@@ -32,6 +32,7 @@ namespace edm {
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
+    std::string const& basketOrder() const {return basketOrder_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
     bool const& overrideInputFileSplitLevels() const {return overrideInputFileSplitLevels_;}
     DropMetaData const& dropMetaData() const {return dropMetaData_;}
@@ -41,6 +42,14 @@ namespace edm {
     int const& inputFileCount() const {return inputFileCount_;}
     int const& whyNotFastClonable() const {return whyNotFastClonable_;}
     using OutputModule::selectorConfig;
+
+    struct AuxItem {
+      AuxItem();
+      ~AuxItem() {}
+      int basketSize_;
+    };
+    typedef boost::array<AuxItem, NumBranchTypes> AuxItemArray;
+    AuxItemArray const& auxItems() const {return auxItems_;}
 
     struct OutputItem {
       class Sorter {
@@ -107,6 +116,7 @@ namespace edm {
     void beginInputFile(FileBlock const& fb);
 
     RootServiceChecker rootServiceChecker_;
+    AuxItemArray auxItems_;
     OutputItemListArray selectedOutputItemList_;
     std::string const fileName_;
     std::string const logicalFileName_;
@@ -115,6 +125,7 @@ namespace edm {
     int const compressionLevel_;
     int const basketSize_;
     int const splitLevel_;
+    std::string basketOrder_;
     int const treeMaxVirtualSize_;
     int whyNotFastClonable_;
     DropMetaData dropMetaData_;

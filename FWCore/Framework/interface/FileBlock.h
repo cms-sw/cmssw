@@ -26,7 +26,8 @@ namespace edm {
       
       // For entire job
       NoRootInputSource = 0x1,
-      NotProcessingEvents = (NoRootInputSource << 1),
+      ParallelProcesses = (NoRootInputSource << 1),
+      NotProcessingEvents = (ParallelProcesses << 1),
       HasSecondaryFileSequence = (NotProcessingEvents << 1),
       
       // For a given input file

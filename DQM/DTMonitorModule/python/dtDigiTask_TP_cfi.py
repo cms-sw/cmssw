@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 dtTPmonitor = cms.EDAnalyzer("DTDigiTask",
-    # set the max TDC counts for the time-box (in units of 6400)
-    tdcRescale = cms.untracked.int32(1),
+    # set the max TDC counts for the time-box (6400 or 1600)
+    maxTDCCounts = cms.untracked.int32(6400),
     # bin size for the time boxes
     timeBoxGranularity = cms.untracked.int32(4),
     # Set to true to read the ttrig from the DB

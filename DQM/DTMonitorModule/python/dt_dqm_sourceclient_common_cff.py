@@ -50,7 +50,7 @@ from DQM.DTMonitorModule.dtDigiTask_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_cfi import *
 dtDigiMonitor.readDB = False 
 dtDigiMonitor.filterSyncNoise = True
-#dtDigiMonitor.lookForSyncNoise = True
+dtDigiMonitor.lookForSyncNoise = True
 
 # Local Trigger task
 from DQM.DTMonitorModule.dtTriggerTask_cfi import *

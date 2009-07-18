@@ -114,9 +114,9 @@ namespace edm {
   }
 
   void
-  RootOutputTree::fastCloneTTree(TTree* in, TTree* out) {
+  RootOutputTree::fastCloneTTree(TTree* in, TTree* out, std::string const& option) {
     if(in->GetEntries() != 0) {
-      TTreeCloner cloner(in, out, "");
+      TTreeCloner cloner(in, out, option.c_str());
       if(!cloner.IsValid()) {
         throw edm::Exception(errors::FatalRootError)
           << "invalid TTreeCloner\n";
@@ -147,11 +147,12 @@ namespace edm {
   }
 
   void
-  RootOutputTree::maybeFastCloneTree(TTree* tree) {
+  RootOutputTree::maybeFastCloneTree(bool canFastClone, TTree* tree, std::string const& option) {
     unclonedReadBranches_.clear();
     unclonedReadBranchNames_.clear();
+    currentlyFastCloning_ = canFastClone;
     if(currentlyFastCloning_) {
-      fastCloneTTree(tree, tree_);
+      fastCloneTTree(tree, tree_, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
 	  it != itEnd; ++it) {
 	if((*it)->GetEntries() != tree_->GetEntries()) {
@@ -174,16 +175,16 @@ namespace edm {
   }
 
   void
-  RootOutputTree::addBranch(BranchDescription const& prod,
+  RootOutputTree::addBranch(std::string const& branchName,
+			    std::string const& className,
 			    void const*& pProd,
 			    int splitLevel,
 			    int basketSize,
 			    bool produced) {
-      prod.init();
       assert(splitLevel != BranchDescription::invalidSplitLevel);
       assert(basketSize != BranchDescription::invalidBasketSize);
-      TBranch* branch = tree_->Branch(prod.branchName().c_str(),
-		 prod.wrappedName().c_str(),
+      TBranch* branch = tree_->Branch(branchName.c_str(),
+		 className.c_str(),
 		 &pProd,
 		 basketSize,
 		 splitLevel);
@@ -198,7 +199,7 @@ namespace edm {
   RootOutputTree::close() {
     // The TFile was just closed.
     // Just to play it safe, zero all pointers to quantities in the file.
-    auxBranch_ = branchEntryInfoBranch_ = 0;
+    branchEntryInfoBranch_ = 0;
     producedBranches_.clear();
     metaBranches_.clear();
     readBranches_.clear();

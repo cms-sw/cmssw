@@ -534,37 +534,38 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       std::cout <<"<HcalPedestalClient::htmlOutput>  ERROR: can't find ProblemPedestal plot!"<<std::endl;
       return;
     }
-  int etabins  = ProblemPedestals->GetNbinsX();
-  int phibins  = ProblemPedestals->GetNbinsY();
-  float etaMin = ProblemPedestals->GetXaxis()->GetXmin();
-  float phiMin = ProblemPedestals->GetYaxis()->GetXmin();
-
-  int eta,phi;
-
+  
+  int ieta=-9999,iphi=-9999;
+  int etabins=0, phibins=0;
   ostringstream name;
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      etabins  = ProblemPedestalsByDepth[depth]->GetNbinsX();
+      phibins  = ProblemPedestalsByDepth[depth]->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+	  ieta=CalcIeta(hist_eta,depth+1);
+	  if (ieta==-9999) continue;
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
-	      int mydepth=depth+1;
-	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
+              iphi=hist_phi+1;
+	      if (abs(ieta)>20 && iphi%2!=1) continue;
+	      if (abs(ieta)>39 && iphi%4!=3) continue;
+	      
 	      if (ProblemPedestalsByDepth[depth]==0)
-		{
 		  continue;
-		}
-	      if (ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+	      if (ProblemPedestalsByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)>minErrorFlag_)
 		{
 		  if (depth<2)
-		    (fabs(eta)<29) ? name<<"HB" : name<<"HF";
-		  else if (depth==3)
-		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
-		  else name <<"HE";
+		    {
+		      if (isHB(hist_eta,depth+1)) name <<"HB";
+		      else if (isHE(hist_eta,depth+1)) name<<"HE";
+		      else if (isHF(hist_eta,depth+1)) name<<"HF";
+		    }
+		  else if (depth==2) name <<"HE";
+		  else if (depth==3) name<<"HO";
 		  if (MeanMapByDepth[depth]!=0 && RMSMapByDepth[depth]!=0)
-		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(ieta,iphi)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(ieta,iphi)<<"</td></tr>"<<std::endl;
+		    htmlFile<<"<td>"<<name.str().c_str()<<" ("<<ieta<<", "<<iphi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemPedestalsByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)*100.<<"</td><td align=\"center\"> "<<MeanMapByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)<<" </td>  <td align=\"center\">"<<RMSMapByDepth[depth]->GetBinContent(hist_eta+1,hist_phi+1)<<"</td></tr>"<<std::endl;
 		  name.str("");
 		}
 	    } // for (int iphi=1;...)

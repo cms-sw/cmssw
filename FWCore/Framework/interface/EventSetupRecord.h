@@ -82,8 +82,13 @@ class EventSetupRecord
       }
       
       ///returns false if no data available for key
-      virtual bool doGet(const DataKey& aKey) const = 0;
+      bool doGet(const DataKey& aKey) const;
 
+      /**returns true only if someone has already requested data for this key
+       and the data was retrieved
+       */
+      bool wasGotten(const DataKey& aKey) const;
+   
       virtual EventSetupRecordKey key() const = 0;
       
       /**If you are caching data from the Record, you should also keep

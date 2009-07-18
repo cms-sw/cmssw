@@ -7,7 +7,7 @@ hcalnoise = cms.EDProducer(
     fillCaloTowers = cms.bool(True),
     fillJets = cms.bool(True),
     fillTracks = cms.bool(False),    
-    dropRefVectors = cms.bool(True),
+    dropRefVectors = cms.bool(False),
     refillRefVectors = cms.bool(False),
 
     # conditions for writing RBX to the event

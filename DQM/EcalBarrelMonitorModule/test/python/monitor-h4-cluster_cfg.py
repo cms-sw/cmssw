@@ -36,9 +36,7 @@ process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cf
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.preScaler = cms.EDFilter("Prescaler",
-    prescaleFactor = cms.int32(1)
-)
+process.load("FWCore.Modules.preScaler_cfi")
 
 process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
@@ -205,6 +203,8 @@ process.MessageLogger = cms.Service("MessageLogger",
                                        'EcalBarrelMonitorModule'),
     destinations = cms.untracked.vstring('cout')
 )
+
+process.preScaler.prescaleFactor = 1
 
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB)

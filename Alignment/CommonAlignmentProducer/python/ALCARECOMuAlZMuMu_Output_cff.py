@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # AlCaReco for muon based alignment using ZMuMu events
-OutALCARECOMuAlZMuMu = cms.PSet(
+OutALCARECOMuAlZMuMu_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlZMuMu')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOMuAlZMuMu_*_*', 
         'keep *_muonCSCDigis_*_*', 
         'keep *_muonDTDigis_*_*', 
@@ -17,4 +17,8 @@ OutALCARECOMuAlZMuMu = cms.PSet(
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
 )
+
+import copy
+OutALCARECOMuAlZMuMu = copy.deepcopy(OutALCARECOMuAlZMuMu_noDrop)
+OutALCARECOMuAlZMuMu.outputCommands.insert(0, "drop *")
 

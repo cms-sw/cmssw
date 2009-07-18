@@ -43,7 +43,7 @@ template < class C > class EcalUncalibRecHitLeadingEdgeAlgo : public EcalUncalib
 
 		// compute amplitude
 		amplitude_ = double (((double) (dataFrame.sample( leadingSample_ ).adc() -
-					      pedestals[dataFrame.sample( leadingSample_ ).gainId()]) * 
+					      pedestals[ dataFrame.sample( leadingSample_ ).gainId() - 1]) * 
 					      saturationCorrection( leadingSample_ ) *
 					      gainRatios[ dataFrame.sample( leadingSample_ ).gainId() - 1] )); 
 

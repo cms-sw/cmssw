@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/06/11 20:54:50 $
- * $Revision: 1.46 $
+ * $Date: 2009/06/24 16:11:46 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -93,10 +93,12 @@ std::vector<EBClient*> clients_;
 DQMStore* dqmStore_;
 
 MonitorElement* meIntegrity_;
+MonitorElement* meIntegrityPN_;
 MonitorElement* meIntegrityErr_;
 MonitorElement* meStatusFlags_;
 MonitorElement* meStatusFlagsErr_;
 MonitorElement* meOccupancy_;
+MonitorElement* meOccupancyPN_;
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_;
 MonitorElement* mePedestalOnlineErr_;
@@ -131,24 +133,16 @@ MonitorElement* meLaserL4Timing_;
 MonitorElement* meLaserL4AmplOverPN_;
 MonitorElement* meLaserL4PN_;
 MonitorElement* meLaserL4PNErr_;
-MonitorElement* mePedestal_;
-MonitorElement* mePedestalErr_;
 MonitorElement* mePedestalG01_;
 MonitorElement* mePedestalG06_;
 MonitorElement* mePedestalG12_;
-MonitorElement* mePedestalPN_;
 MonitorElement* mePedestalPNG01_;
 MonitorElement* mePedestalPNG16_;
-MonitorElement* mePedestalPNErr_;
-MonitorElement* meTestPulse_;
 MonitorElement* meTestPulseG01_;
 MonitorElement* meTestPulseG06_;
 MonitorElement* meTestPulseG12_;
-MonitorElement* meTestPulseErr_;
-MonitorElement* meTestPulsePN_;
 MonitorElement* meTestPulsePNG01_;
 MonitorElement* meTestPulsePNG16_;
-MonitorElement* meTestPulsePNErr_;
 MonitorElement* meTestPulseAmplG01_;
 MonitorElement* meTestPulseAmplG06_;
 MonitorElement* meTestPulseAmplG12_;

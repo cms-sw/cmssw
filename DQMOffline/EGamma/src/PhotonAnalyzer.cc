@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/19 14:30:03 $ 
+ **  $Date: 2009/06/26 13:46:27 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -828,7 +828,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
-    if ((*iPho).isEBEEGap()) continue;  //cut out gap photons
+    //if ((*iPho).isEBEEGap()) continue;  //cut out gap photons
 
 
     //filling histograms to make isolation efficiencies

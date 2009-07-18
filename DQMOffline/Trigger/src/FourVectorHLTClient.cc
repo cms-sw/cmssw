@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.12 2009/06/04 00:25:04 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.13 2009/06/11 20:22:33 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -221,10 +221,11 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
        //if(!hltPath.Contains(numPathName,TString::kExact)) continue;
        //TString numPathName=hltPath;
        //if(!hltPath.Contains(numPathName,TString::kExact)) continue;
-       TString numPathName=hltPath;
+       //LogDebug("FourVectorHLTClient")<< "hltPath = " << hltPath <<  "   matchString = " << custompathnamepair->first << endl;
        //if(!hltPath.Contains(TString(custompathnamepair->first),TString::kExact)) continue;
        if(!hltPath.Contains(TString(custompathnamepair->first))) continue;
  
+      TString numPathName=hltPath;
  			TString denPathName=TString(custompathnamepair->second);
  
  

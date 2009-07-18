@@ -23,20 +23,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-##             '/store/relval/CMSSW_3_1_0_pre10/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_31X_v1/0008/E60958D5-0458-DE11-B0B7-000423D98E30.root',
-##         '/store/relval/CMSSW_3_1_0_pre10/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_31X_v1/0008/C0188C68-4157-DE11-AE7E-001D09F250AF.root'
 
-
-        '/store/relval/CMSSW_3_1_0_pre9/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0006/6AA9BBFD-9F4E-DE11-8064-001617C3B79A.root',
-        '/store/relval/CMSSW_3_1_0_pre9/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0006/3A31C266-A14E-DE11-80AB-001D09F28F11.root',
-        '/store/relval/CMSSW_3_1_0_pre9/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0006/2E9E0AED-A34E-DE11-86D2-001D09F251D1.root',
-        '/store/relval/CMSSW_3_1_0_pre9/RelValGammaJets_Pt_80_120/GEN-SIM-RECO/STARTUP_31X_v1/0006/1E82DB64-B44E-DE11-880E-001D09F27003.root'
-
-
-
-##             '/store/relval/CMSSW_3_1_0_pre9/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_31X_v1/0007/82C99CCD-514F-DE11-998E-001D09F290CE.root',
-##         '/store/relval/CMSSW_3_1_0_pre9/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_31X_v1/0007/563F9E7B-EF4E-DE11-9603-000423D8F63C.root'
-
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0002/7C21B4CC-946C-DE11-B5FE-003048D4766A.root',
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0000/C42E60D2-426C-DE11-AAB9-0015172561DA.root',
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0000/9282DE91-426C-DE11-9DE3-003048D410BD.root',
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0000/6C0BB2C4-426C-DE11-84B4-0015172C0910.root',
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0000/600FA77D-426C-DE11-ABC3-0015172C0925.root',
+        '/store/mc/Summer09/PhotonJet_Pt0to15/GEN-SIM-RECO/MC_31X_V2_preproduction_311-v1/0000/56D0D66E-426C-DE11-9138-0015172C0934.root'
 
 
 
@@ -49,7 +42,7 @@ process.source = cms.Source("PoolSource",
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
 
 photonAnalysis.Verbosity = cms.untracked.int32(0)
-photonAnalysis.useTriggerFiltering = cms.bool(True)
+photonAnalysis.useTriggerFiltering = cms.bool(False)
 
 from DQMOffline.EGamma.photonOfflineClient_cfi import *
 

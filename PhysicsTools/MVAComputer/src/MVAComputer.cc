@@ -2,7 +2,6 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
-#include <iterator>
 #include <cstddef>
 #include <cstring>
 #include <vector>
@@ -156,17 +155,16 @@ unsigned int MVAComputer::getVariableId(AtomicId name) const
 	return pos->index;
 }
 
-template<class T>
-void MVAComputer::evalInternal(T &ctx) const
+void MVAComputer::eval(double *values, int *conf, unsigned int n) const
 {
-	double *output = ctx.values() + ctx.n();
-	int *outConf = ctx.conf() + inputVariables.size();
+	double *output = values + n;
+	int *outConf = conf + inputVariables.size();
 
 #ifdef DEBUG_EVAL
 	std::cout << "Input" << std::endl;
-	double *v = ctx.values();
-	for(int *o = ctx.conf(); o < outConf; o++) {
-		std::cout << "\tVar " << (o - ctx.conf()) << std::endl;
+	double *v = values;
+	for(int *o = conf; o < outConf; o++) {
+		std::cout << "\tVar " << (o - conf) << std::endl;
 		for(int i = o[0]; i < o[1]; i++)
 			std::cout << "\t\t" << *v++ << std::endl;
 	}
@@ -190,14 +188,15 @@ void MVAComputer::evalInternal(T &ctx) const
 				typeid(*iter->processor)) << std::endl;
 #endif
 			if (status != VarProcessor::kSkip)
-				ctx.eval(&*iter->processor, outConf, output,
-				         loopStart ? loopStart : loopOutConf,
-				         offset, iter->nOutput);
+				iter->processor->eval(
+					values, conf, output, outConf,
+					loopStart ? loopStart : loopOutConf,
+					offset);
 
 #ifdef DEBUG_EVAL
 			for(unsigned int i = 0; i < iter->nOutput;
 			    i++, outConf++) {
-				std::cout << "\tVar " << (outConf - ctx.conf())
+				std::cout << "\tVar " << (outConf - conf)
 				          << std::endl;
 				for(int j = outConf[0]; j < outConf[1]; j++)
 					std::cout << "\t\t" << *output++
@@ -304,37 +303,5 @@ void MVAComputer::writeCalibration(std::ostream &os,
 	ozs.write(buffer.Buffer(), buffer.Length());
 	ozs.flush();
 }
-
-// instantiate use cases fo MVAComputer::evalInternal
-
-void MVAComputer::DerivContext::eval(
-		const VarProcessor *proc, int *outConf, double *output,
-		int *loop, unsigned int offset, unsigned int out) const
-{
-	proc->deriv(values(), conf(), output, outConf,
-	            loop, offset, n(), out, deriv_);
-}
-
-double MVAComputer::DerivContext::output(unsigned int output,
-                                         std::vector<double> &derivs) const
-{
-	derivs.clear();
-	derivs.reserve(n_);
-
-	int pos = conf_[output];
-	if (pos >= (int)n_)
-		std::copy(&deriv_.front() + n_ * (pos - n_),
-		          &deriv_.front() + n_ * (pos - n_ + 1),
-		          std::back_inserter(derivs));
-	else {
-		derivs.resize(n_);
-		derivs[pos] = 1.;
-	}
-
-	return values_[pos];
-}
-
-template void MVAComputer::evalInternal(EvalContext &ctx) const;
-template void MVAComputer::evalInternal(DerivContext &ctx) const;
 
 } // namespace PhysicsTools
