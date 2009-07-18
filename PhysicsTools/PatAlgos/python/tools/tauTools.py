@@ -17,8 +17,10 @@ def redoPFTauDiscriminators(process,
     elif tauType == 'caloTau':
         tauDiscriminationSequence = process.patCaloTauDiscrimination
         tauSrc = 'CaloTauProducer'
-    process.patAODExtraReco += tauDiscriminationSequence
-
+    process.patDefaultSequence.replace(process.allLayer1Objects,
+                                       tauDiscriminationSequence +
+                                       process.allLayer1Objects
+                                       )
     massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
 
 # switch to CaloTau collection
@@ -77,10 +79,7 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
         #byTaNCfrTenthPercent = cms.InputTag(pfTauType + "DiscriminationByTaNCfrTenthPercent")
     )
     process.allLayer1Taus.decayModeSrc = cms.InputTag(pfTauType + "DecayModeProducer")
-    if pfTauLabelOld in process.aodSummary.candidates:
-        process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabelOld)] = pfTauLabelNew
-    else:
-        process.aodSummary.candidates += [pfTauLabelNew]
+
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
