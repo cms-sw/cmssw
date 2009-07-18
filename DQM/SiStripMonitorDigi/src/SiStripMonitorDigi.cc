@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.48 2009/06/30 10:31:55 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.49 2009/07/01 17:53:14 borrell Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -599,7 +599,6 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 					      Parameters.getParameter<double>("ymax"),
 					      "" );
       subdetMEs.SubDetDigiApvProf->setAxisTitle("absolute Bx mod(70)",1);
-      if (subdetMEs.SubDetDigiApvProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetDigiApvProf->getTH1()->SetBit(TH1::kCanRebin);
     }
 
     // Number of Digi vs Bx - TH2
