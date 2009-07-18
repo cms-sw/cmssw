@@ -142,7 +142,16 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
 
    runNum_ = e.id().run();
 
+   Handle<ESRawDataCollection> dccs;
+   if ( e.getByLabel(dccCollections_, dccs) ) {
+   } else {
+      LogWarning("ESRawDataTask") << "Error! can't get ES raw data collection !" << std::endl;
+   }
+
    int gt_L1A = 0, gt_OrbitNumber = 0, gt_BX = 0;
+   int esDCC_L1A_MostFreqCounts = 0;
+   int esDCC_BX_MostFreqCounts = 0;
+   int esDCC_OrbitNumber_MostFreqCounts = 0;
 
    edm::Handle<FEDRawDataCollection> allFedRawData;
 
@@ -162,13 +171,37 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
        gt_L1A         = header.lvl1ID();
        gt_OrbitNumber = e.orbitNumber();
        gt_BX          = e.bunchCrossing();
+     } else {
+
+       map<int, int> esDCC_L1A_FreqMap;
+       map<int, int> esDCC_BX_FreqMap;
+       map<int, int> esDCC_OrbitNumber_FreqMap;
+
+       for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+	 ESDCCHeaderBlock esdcc = (*dccItr);
+	 
+	 esDCC_L1A_FreqMap[esdcc.getLV1()]++;
+	 esDCC_BX_FreqMap[esdcc.getBX()]++;
+	 esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()]++;
+	 
+	 if (esDCC_L1A_FreqMap[esdcc.getLV1()] > esDCC_L1A_MostFreqCounts) {
+	   esDCC_L1A_MostFreqCounts = esDCC_L1A_FreqMap[esdcc.getLV1()];
+	   gt_L1A = esdcc.getLV1();
+	 } 
+
+	 if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
+	   esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
+	   gt_BX = esdcc.getBX();
+	 } 
+
+	 if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
+	   esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
+	   gt_OrbitNumber = esdcc.getOrbitNumber();
+	 } 
+
+       }
+
      }
-   }
-     
-   Handle<ESRawDataCollection> dccs;
-   if ( e.getByLabel(dccCollections_, dccs) ) {
-   } else {
-      LogWarning("ESRawDataTask") << "Error! can't get ES raw data collection !" << std::endl;
    }
 
    // DCC 
