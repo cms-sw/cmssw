@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.62 2009/06/30 10:26:28 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.63 2009/07/01 18:04:42 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -662,7 +662,6 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 					      Parameters.getParameter<double>("ymax"),
 					      "" );
       subdetMEs.SubDetClusterApvProf->setAxisTitle("absolute Bx mod(70)",1);
-      if (subdetMEs.SubDetClusterApvProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetClusterApvProf->getTH1()->SetBit(TH1::kCanRebin);
     }
 
   if (subdetswitchtotclusterth1on){
