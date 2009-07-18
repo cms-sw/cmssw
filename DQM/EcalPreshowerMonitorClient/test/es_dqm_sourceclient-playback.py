@@ -27,5 +27,5 @@ process.dqmEnv.subSystemFolder = 'EcalPreshower'
 process.load("DQM/EcalPreshowerMonitorModule/EcalPreshowerMonitorTasks_cfi")
 process.load("DQM/EcalPreshowerMonitorClient/EcalPreshowerMonitorClient_cfi")
 
-process.p = cms.Path(process.preScaler*process.esRawToDigi*process.ecalPreshowerDefaultTasksSequence*dqmEnv*process.ecalPreshowerMonitorClient*process.dqmSaver*process.dqmInfoES)
+process.p = cms.Path(process.preScaler*process.esRawToDigi*process.ecalPreshowerDefaultTasksSequence*process.ecalPreshowerMonitorClient*process.dqmEnv*process.dqmSaver*process.dqmInfoES)
 
