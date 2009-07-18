@@ -129,17 +129,10 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     convention_ = Offline;
   else if (convention == "Online")
     convention_ = Online;
-  else if (convention == "RelVal")
-  {
-    convention_ = RelVal;
-    saveByRun_ = -1;
-    saveAtJobEnd_ = true;
-    forceRunNumber_ = 1;
-  }
   else
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'convention' parameter '" << convention << "'."
-      << "  Expected one of 'Online', 'Offline' or 'RelVal'.";
+      << "  Expected one of 'Online' or 'Offline'.";
 
   // If this isn't online convention, check workflow.
   if (convention_ != Online)
@@ -179,10 +172,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "'.  Expected 'DQM'.";
   }
 
-  // In RelVal mode use workflow "stream" name instead of producer label.
-  if (convention_ == RelVal)
-    producer_ = workflow_.substr(1, workflow_.find('/', 1)-1);
-
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
   if (refsave == "default")
@@ -209,10 +198,9 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "Invalid 'dirName' parameter '" << dirName_ << "'.";
 
   // Find out when and how to save files.  The following contraints apply:
-  // - For online, allow files to be saved at lumi, event and time intervals.
-  // - For online and offline, allow files to be saved per run.
-  // - For offline and relval, allow files to be saved at job end
-  //   and run number to be overridden (for mc data).
+  // - For online, allow files to be saved at event and time intervals.
+  // - For online and offline, allow files to be saved per run, lumi and job end
+  // - For offline allow run number to be overridden (for mc data).
   if (convention_ == Online)
   {
     getAnInt(ps, saveByEvent_, "saveByEvent");
@@ -230,10 +218,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   {
     getAnInt(ps, forceRunNumber_, "forceRunNumber");
     saveAtJobEnd_ = ps.getUntrackedParameter<bool>("saveAtJobEnd", saveAtJobEnd_);
-    if (convention_ == RelVal && ! saveAtJobEnd_)
-      saveAtJobEnd_ = true;
-    if (convention_ == RelVal && forceRunNumber_ == -1)
-      forceRunNumber_ = 1;
   }
 
   if (saveAtJobEnd_ && forceRunNumber_ < 1)
@@ -385,25 +369,11 @@ DQMFileSaver::endJob(void)
 { 
   if (saveAtJobEnd_)
   {
-    if (convention_ == RelVal)
-    {
-      size_t pos;
-      std::string release = edm::getReleaseVersion();
-      while ((pos = release.find('"')) != std::string::npos)
-	release.erase(pos, 1);
-
-      pos = fileBaseName_.rfind('/');
-      std::string stream = fileBaseName_.substr(pos+1, fileBaseName_.size()-pos-2);
-      dbe_->save(fileBaseName_ + release + ".root",
-		 "", "^(Reference/)?([^/]+)", "\\1" + stream + "/\\2",
-	         (DQMStore::SaveReferenceTag) saveReference_,
-		 saveReferenceQMin_);
-    }
-    else if (convention_ == Offline && forceRunNumber_ > 0)
+    if (convention_ == Offline && forceRunNumber_ > 0)
       saveForOffline(workflow_, forceRunNumber_);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files at the end of the"
-	<< " job in RelVal and Offline modes with run number overridden.";
+	<< " job in Offline mode with run number overridden.";
   }
 }
