@@ -91,7 +91,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 
   if (ok) {
     return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
-				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
+				     LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
   }else {
     edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
     return TrajectoryStateOnSurface();

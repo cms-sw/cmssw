@@ -82,7 +82,7 @@ public:
     GenericTransientTrackingRecHit(geom,  rh) {}
 
   virtual void getKfComponents( KfComponentsHolder & holder ) const {
-      HelpertRecHit2DLocalPos().getKfComponents(holder, *hit(), *det()); 
+    HelpertRecHit2DLocalPos::getKfComponents(holder, *hit(), *det()); 
   }
 };
 
@@ -130,11 +130,11 @@ struct KFUTest {
 
   void time(const TrajectoryStateOnSurface& tsos,
 	     const TransientTrackingRecHit& hit) const {
-    st();	
     edm::HRTimeType s= edm::hrRealTime();
+    st();	
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
-    edm::HRTimeType e = edm::hrRealTime();
     en();
+    edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
   }
 
@@ -155,11 +155,11 @@ struct Chi2Test {
 
   void time(const TrajectoryStateOnSurface& tsos,
 	    const TransientTrackingRecHit& hit) const {
-    st();	
     edm::HRTimeType s= edm::hrRealTime();
+    st();	
     res = chi2.estimate(tsos, hit);
-    edm::HRTimeType e = edm::hrRealTime();
     en();
+    edm::HRTimeType e = edm::hrRealTime();
     std::cout << e-s << std::endl;
   }
 

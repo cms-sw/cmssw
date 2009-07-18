@@ -16,7 +16,7 @@ HelpertRecHit2DLocalPos::updateWithAPE(LocalError& le, const GeomDet& det) {
 }
 
 AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
-						      const GeomDet& det) const
+						      const GeomDet& det)
 {
   AlgebraicSymMatrix m(2);
   if ( det.alignmentPositionError() != 0) {
@@ -37,7 +37,7 @@ AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
 void
 HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
                         const TrackingRecHit &hit2dLocalPos,
-                        const GeomDet& det) const 
+                        const GeomDet& det)
 {
     hit2dLocalPos.getKfComponents(holder);
     if ( det.alignmentPositionError() != 0) {
