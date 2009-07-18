@@ -116,7 +116,7 @@ void en(){}
 
 
 struct KFUTest {
-  TrajectoryStateUpdator coonst & tsu;
+  TrajectoryStateUpdator const & tsu;
 
   KFUTest(TrajectoryStateUpdator const * itsu) : tsu(*itsu){}
 
@@ -143,7 +143,7 @@ struct KFUTest {
 struct Chi2Test {
   MeasurementEstimator const & chi2;
   mutable std::pair<bool, double> res;
-  KFUTest(MeasurementEstimator const * ichi2) : chi2(&ichi2){}
+  Chi2Test(MeasurementEstimator const * ichi2) : chi2(&ichi2){}
 
 
   void print(const TrajectoryStateOnSurface& tsos,
