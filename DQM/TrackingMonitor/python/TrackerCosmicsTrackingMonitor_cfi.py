@@ -91,9 +91,9 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     TkSeedSizeMin = cms.double(-0.5),
     TkSeedSizeMax = cms.double(19.5),
     
-    TrackPBin = cms.int32(1000),
+    TrackPBin = cms.int32(100),
     TrackPMin = cms.double(0),
-    TrackPMax = cms.double(1000),
+    TrackPMax = cms.double(100),
 
     TrackPtBin = cms.int32(100),
     TrackPtMax = cms.double(30.0),
