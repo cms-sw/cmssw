@@ -254,8 +254,7 @@ def switchJetCollection(process,
         ## replace b tagging sequence; add postfix label 'AOD' as crab will
         ## crash when confronted with empy labels
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, 'AOD')
-        ## add b tagging sequence to the patAODCoreReco
-        ## sequence as it is also needed by ExtraReco
+        ## add b tagging sequence before running the allLayer1Jets modules
         process.makeAllLayer1Jets.replace(process.jetTracksAssociatorAtVertex, process.jetTracksAssociatorAtVertex+btagSeq)
 
         ## replace corresponding tags for pat jet production
@@ -425,8 +424,7 @@ def addJetCollection(process,
     if (doBTagging):
         ## add b tagging sequence
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
-        ## add b tagging sequence to the patAODCoreReco
-        ## sequence as it is also needed by ExtraReco
+        ## add b tagging sequence before running the allLayer1Jets modules
         process.makeAllLayer1Jets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
 
         ## replace corresponding tags for pat jet production
