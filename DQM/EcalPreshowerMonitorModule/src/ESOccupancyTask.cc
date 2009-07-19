@@ -64,10 +64,10 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
    hRecNHit_[3] = dqmStore_->book1D("ES- P2 RecHit 1D Occupancy", "ES- P2 RecHit 1D Occupancy", 30,0,300);
 
    //Bin 41,41 is used to save eumber of event for scaling.
-   hRecOCC_[0] = dqmStore_->book2D("ES+ P1 RecHit 2D Occupancy", "ES+ P1 RecHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hRecOCC_[1] = dqmStore_->book2D("ES+ P2 RecHit 2D Occupancy", "ES+ P2 RecHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hRecOCC_[2] = dqmStore_->book2D("ES- P1 RecHit 2D Occupancy", "ES- P1 RecHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hRecOCC_[3] = dqmStore_->book2D("ES- P2 RecHit 2D Occupancy", "ES- P2 RecHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
+   hRecOCC_[0] = dqmStore_->book2D("ES+ P1 RecHit 2D Occupancy", "ES+ P1 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hRecOCC_[1] = dqmStore_->book2D("ES+ P2 RecHit 2D Occupancy", "ES+ P2 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hRecOCC_[2] = dqmStore_->book2D("ES- P1 RecHit 2D Occupancy", "ES- P1 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hRecOCC_[3] = dqmStore_->book2D("ES- P2 RecHit 2D Occupancy", "ES- P2 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
 
    hEng_[0] = dqmStore_->book1D("ES+ P1 RecHit Energy", "ES+ P1 RecHit Energy", 50, 0, 0.0005);
    hEng_[1] = dqmStore_->book1D("ES+ P2 RecHit Energy", "ES+ P2 RecHit Energy", 50, 0, 0.0005);
@@ -87,10 +87,10 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
    hDigiNHit_[2] = dqmStore_->book1D("ES- P1 DigiHit 1D Occupancy", "ES- P1 DigiHit 1D Occupancy", 30,0,300);
    hDigiNHit_[3] = dqmStore_->book1D("ES- P2 DigiHit 1D Occupancy", "ES- P2 DigiHit 1D Occupancy", 30,0,300);
 
-   hDigiOCC_[0] = dqmStore_->book2D("ES+ P1 DigiHit 2D Occupancy", "ES+ P1 DigiHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hDigiOCC_[1] = dqmStore_->book2D("ES+ P2 DigiHit 2D Occupancy", "ES+ P2 DigiHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hDigiOCC_[2] = dqmStore_->book2D("ES- P1 DigiHit 2D Occupancy", "ES- P1 DigiHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
-   hDigiOCC_[3] = dqmStore_->book2D("ES- P2 DigiHit 2D Occupancy", "ES- P2 DigiHit 2D Occupancy", 40, 1, 41, 40, 1, 41);
+   hDigiOCC_[0] = dqmStore_->book2D("ES+ P1 DigiHit 2D Occupancy", "ES+ P1 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hDigiOCC_[1] = dqmStore_->book2D("ES+ P2 DigiHit 2D Occupancy", "ES+ P2 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hDigiOCC_[2] = dqmStore_->book2D("ES- P1 DigiHit 2D Occupancy", "ES- P1 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+   hDigiOCC_[3] = dqmStore_->book2D("ES- P2 DigiHit 2D Occupancy", "ES- P2 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
 
 }
 
