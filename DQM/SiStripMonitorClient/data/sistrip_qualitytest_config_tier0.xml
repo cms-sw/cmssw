@@ -152,7 +152,7 @@
 <LINK name="*nBadActiveChannelStatusBits">
   <TestName activate="true">MeanWithinExpectedRange:nBadActiveChannelStatusBits</TestName>
 </LINK>
-<LINK name="*TkHMap_FractionOfBadChannels">
+<LINK name="*TkHMap_FractionOfBadChannels_*">
   <TestName activate="true">ContentsWithinExpected:TkHistoFedError</TestName>
 </LINK>
 <LINK name="*TkHMap_NumberOfDigi_*">
