@@ -61,7 +61,7 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   } else edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
 
   // write output to file
-  LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
+  LogDebug("CosmicSeedGenerator")<<" number of seeds = "<< output->size();
 
 
   ev.put(output);

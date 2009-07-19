@@ -55,7 +55,7 @@ void CRackSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   cosmic_seed.run(*output,es);
 
   // write output to file
-  LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
+  LogDebug("CRackSeedGenerator")<<" number of seeds = "<< output->size();
 
 
   ev.put(output);

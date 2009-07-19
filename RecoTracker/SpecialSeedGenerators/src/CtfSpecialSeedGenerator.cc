@@ -155,7 +155,7 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   }
   
   
-  edm::LogVerbatim("Algorithm Performance") << " number of seeds = "<< output->size();
+  edm::LogVerbatim("CtfSpecialSeedGenerator") << " number of seeds = "<< output->size();
   e.put(output);
 }
 
