@@ -7,6 +7,7 @@
 <use name=FWCore/Utilities> 
 <use name=PhysicsTools/UtilAlgos> 
 <use name=DataFormats/SiStripDigi> 
+<use name=DataFormats/SiStripCluster> 
 <use name=DataFormats/Common> 
 <use name=DPGAnalysis/SiStripTools> 
 <library file="*.cc" name = DPGAnalysisSiStripToolsPlugins>
