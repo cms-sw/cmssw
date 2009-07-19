@@ -1,5 +1,5 @@
 # Original Author: James Jackson
-# $Id$
+# $Id: HltComparatorWorkflowTemplate.py,v 1.1 2009/06/22 20:11:40 wittich Exp $
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HltRerun")
@@ -21,7 +21,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("histog
 #process.dump = cms.EDAnalyzer('EventContentAnalyzer')
 
 
-# Data to run
+# Data to run. You'll want to change this.
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         '/store/data/Commissioning08/Cosmics/RAW/v1/000/069/365/664D66FA-01AB-DD11-B9E5-001617C3B76A.root'
@@ -44,8 +44,6 @@ process.hltTrigReportRerun = cms.EDAnalyzer( "HLTrigReport",
 
 process.load("HLTriggerOffline.Common.HltComparator_cfi")
 
-# load HLT configuration -- NEED TO ADAPT THIS
-#process.load("PwTest.HltTester.JobHLTConfig_13691_32003_1244677280_cff")
 
 
 ### output 
@@ -60,5 +58,5 @@ process.out = cms.OutputModule("PoolOutputModule",
 # Final reporting and output. The output is only for discrepant events.
 process.HLTAnalysisEndPath = cms.EndPath( process.hltTrigReport + process.hltTrigReportRerun+process.hltComparator+process.out)
 
-
-
+# load HLT configuration -- something like this will be automatically appended.
+#process.load("PwTest.HltTester.JobHLTConfig_13691_32003_1244677280_cff")

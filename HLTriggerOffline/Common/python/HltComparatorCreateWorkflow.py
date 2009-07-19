@@ -1,34 +1,50 @@
 #!/usr/bin/env python
-# Author: James Jackson
-# $Id$
+# Original Author: James Jackson
+# $Id: HltComparatorCreateWorkflow.py,v 1.1 2009/06/22 20:11:40 wittich Exp $
+# $Log$
 
 # MakeValidationConfig.py
-#   Makes CMSSW config for prompt validation of a given run number, HLT Key or HLT Config
+#   Makes CMSSW config for prompt validation of a given run number,
+#   HLT Key or HLT Config
 
 from optparse import OptionParser
 import os, time, re
 
 jobHash = "%s_%s_%s" % (os.getuid(), os.getpid(), int(time.time()))
 
-parser = OptionParser()
-parser.add_option("-a", "--analysis", dest="analysis", help="analysis configuration file")
-parser.add_option("-r", "--run", dest="run", help="construct config for runnumber RUN", metavar="RUN")
-parser.add_option("-k", "--hltkey", dest="hltkey", help="ignore RunRegistry and force the use of HLT key KEY", metavar="KEY")
-parser.add_option("-c", "--hltcff", dest="hltcff", help="use the config fragment CFF to define HLT configuration", metavar="CFF")
-parser.add_option("-f", "--frontier", dest="frontier", help="frontier connection string to use, defaults to frontier://FrontierProd/CMS_COND_21X_GLOBALTAG", default="frontier://FrontierProd/CMS_COND_21X_GLOBALTAG")
+usage = '%prog [options]. \n\t-a and -k required, -h for help.'
+parser = OptionParser(usage)
+parser.add_option("-a", "--analysis", dest="analysis", 
+                  help="analysis configuration file")
+# not yet implemented
+#parser.add_option("-r", "--run", dest="run", 
+#                  help="construct config for runnumber RUN", metavar="RUN")
+parser.add_option("-k", "--hltkey", dest="hltkey", 
+                  help="ignore RunRegistry and force the use of HLT key KEY", 
+                  metavar="KEY")
+parser.add_option("-c", "--hltcff", dest="hltcff", 
+                  help="use the config fragment CFF to define HLT configuration", 
+                  metavar="CFF")
+parser.add_option("-f", "--frontier", dest="frontier", 
+                  help="frontier connection string to use, defaults to frontier://FrontierProd/CMS_COND_21X_GLOBALTAG", 
+                  default="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG")
 
 # Parse options and perform sanity checks
 (options, args) = parser.parse_args()
-if options.run == None and options.hltkey == None and options.hltcff == None:
-   raise SystemExit("Please specify one of --run (-r), --hltkey (-k) or --hltcff (-s)")
+#if options.run == None and options.hltkey == None and options.hltcff == None:
+if options.hltkey == None and options.hltcff == None:
+   parser.error("I don't have all the required options.")
+   raise SystemExit(
+      "Please specify one of --hltkey (-k) or --hltcff (-s)")
 if options.hltkey != None and options.hltcff != None:
    raise SystemExit("Please only specify --hltkey (-k) or --hltcff (-c)")
-if options.run != None and options.hltkey != None:
-   raise SystemExit("Please only specify --run (-r) or --hltkey (-k)")
-if options.run != None and options.hltcff != None: 
-   raise SystemExit("Please only specify --run (-r) or --hltcff (-c)")
+# if options.run != None and options.hltkey != None:
+#    raise SystemExit("Please only specify --run (-r) or --hltkey (-k)")
+# if options.run != None and options.hltcff != None: 
+#    raise SystemExit("Please only specify --run (-r) or --hltcff (-c)")
 if options.analysis == None:
-   raise SystemExit("Please specify an analysis configuration: -a or --analysis")
+   raise SystemExit(
+      "Please specify an analysis configuration: -a or --analysis")
 
 # Checks the runtime environment is suitable
 def CheckEnvironment():
@@ -49,9 +65,11 @@ def ConvertHltOnlineToOffline(config, frontierString):
    # Replace the global tag
    config = config.replace("H::All", "P::All")
 
+   # print config -- debugging
    # Remove unwanted PSets
    config = RemovePSet(config, "MessageLogger")
-   config = RemovePSet(config, "DQMStore")
+#   config = RemovePSet(config, "DQMStore")
+   config = RemovePSet(config, "DQM")
    config = RemovePSet(config, "FUShmDQMOutputService")
 
    return config
@@ -107,7 +125,7 @@ def GetHltConfiguration(hltKey, frontierString):
 
    return 'process.load("%s.%s.%s")' % (module, package, configName.split(".")[0])
 
-# Fetches the HLT key from ConfDB
+# Fetches the HLT key from ConfDB - turned off in options for now
 def GetHltKeyForRun(run):
    raise SystemExit("Not implemented yet")
 

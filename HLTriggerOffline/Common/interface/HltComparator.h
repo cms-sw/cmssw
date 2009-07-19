@@ -1,13 +1,14 @@
 #ifndef HLTCOMPARATOR_H
 #define HLTCOMPARATOR_H
 // Original Author: James Jackson
-// $Id$
+// $Id: HltComparator.h,v 1.1 2009/06/22 20:11:40 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
@@ -48,5 +49,5 @@ class HltComparator : public edm::EDFilter
         std::string formatResult(const unsigned int);
 };
 
-#endif
+#endif // HLTCOMPARATOR_HH
 
