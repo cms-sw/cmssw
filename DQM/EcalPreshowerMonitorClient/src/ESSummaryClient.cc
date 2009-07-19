@@ -56,7 +56,7 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
    if ( me ) {
       dqmStore_->removeElement(me->getName());
    }
-   me = dqmStore_->book2D(histo, histo, 80, 0., 80., 80, 0., 80);
+   me = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
    for ( int i = 0; i < 80; i++ ) {
       for ( int j = 0; j < 80; j++ ) {
 	 me->setBinContent( i+1, j+1, 0. );
@@ -150,6 +150,9 @@ void ESSummaryClient::analyze(void) {
    }
 
    //The global-summary
+   //ReportSummary Map 
+   //  ES+F  ES-F
+   //  ES+R  ES-R
    int nGlobalErrors = 0;
    int nValidChannels = 0;
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
@@ -157,18 +160,21 @@ void ESSummaryClient::analyze(void) {
       float xval = 0;
       for(int x=0; x<80; x++){
 	 for(int y=0; y<80; y++){
-	    //Number:Error mapping; 1:Normal 2:Noisy 3:No Readout 4:DCC & KChip Error 
-	    xval = 1;
-	    if(DigiHit[x][y]>1&&noDigiHit==0) xval = 2;
-	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval = 3;
-	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval = 4;
-	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval = 4;
-	    if(DCC[x][y]<0.5) xval = 0;	//0 for non-module point
+	    //All three kind error has same weight of 1/3
+	    //Fill good efficiency into reportSummaryMap
+	    xval = 0;
+	    if(DigiHit[x][y]>1&&noDigiHit==0) xval+=1;
+	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval+=1;
+	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval+=1;
+	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval+=1;
 
+	    xval = 1. - xval/3;
+
+	    if(DCC[x][y]<0.5) xval = -1;	//0 for non-module points
 	    //Count Valid Channels and Error Channels
-	    if( xval != 0 ){
+	    if( xval != -1 ){
 	       nValidChannels++;
-	       if( xval != 1) nGlobalErrors++;
+	       if( xval != 1 ) nGlobalErrors++;
 	    }
 
 	    me->setBinContent(x+1, y+1, xval);
