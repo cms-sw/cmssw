@@ -119,6 +119,9 @@ if __name__ == "__main__":
     parser.add_option ('--alias', dest='alias', type='string',
                        default = 'dummyAlias',
                        help="Tell GO to set an alias")
+    parser.add_option ('--goName', dest='goName', type='string',
+                       default='',
+                       help='GenObject name')
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
                        help="Tuple name (default '%default')")
@@ -129,7 +132,7 @@ if __name__ == "__main__":
         sys.exit(1)
     #
     objectName = args[0]    
-    goName = colonRE.sub ('', objectName)
+    goName     = options.goName or colonRE.sub ('', objectName)
     outputFile = options.output or goName + '.txt'
     ROOT.gROOT.SetBatch()
     # load the right libraries, etc.
@@ -141,8 +144,8 @@ if __name__ == "__main__":
     targetFile = open (outputFile, 'w')
     genDef, tupleDef = genObjectDef (mylist,
                                      options.tupleName,
-                                     options.alias,
-                                     goName)
+                                     goName,
+                                     options.alias)
     targetFile.write ("# -*- sh -*- For Font lock mode\n# GenObject 'event' definition\n[runevent singleton]\nrun:   type=int\nevent: type=int\n\n")
     targetFile.write (genDef)
     targetFile.write ('\n\n# %s Definition\n# Nickname and Tree\n[%s:Events]\n'\
