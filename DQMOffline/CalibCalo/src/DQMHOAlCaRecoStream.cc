@@ -230,7 +230,9 @@ DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 DQMHOAlCaRecoStream::endJob() {
-
+  if (dbe_) {
+     if (saveToFile_) dbe_->save(theRootFileName);
+  } 
 }
 
 void DQMHOAlCaRecoStream::endRun(const Run& r, const EventSetup& context){
@@ -256,7 +258,5 @@ void DQMHOAlCaRecoStream::endRun(const Run& r, const EventSetup& context){
       hSignal3x3[k]->getTH1F()->Scale(scale);
     }
 
-   
-     if (saveToFile_) dbe_->save(theRootFileName); 
   }
 }

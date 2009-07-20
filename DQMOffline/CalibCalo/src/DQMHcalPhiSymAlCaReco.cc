@@ -423,12 +423,13 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
        hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
     }
   }
-  if (saveToFile_) {
-     dbe_->save(fileName_);
-  }
+
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endJob(){
+  if (saveToFile_) {
+     dbe_->save(fileName_);
+  }
 }
 
 
