@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.7 2009/03/31 23:27:20 jmuelmen Exp $
+// $Id: FWElectronDetailView.h,v 1.8 2009/04/23 17:06:49 jmuelmen Exp $
 //
 
 
@@ -19,6 +19,9 @@
 #include "FWECALDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
+class TEveCaloDataVec;
+class TEveCaloLego;
 
 class FWElectronDetailView : public FWECALDetailView<reco::GsfElectron> {
 
@@ -39,6 +42,10 @@ protected:
 
    void fillReducedData (const std::vector<DetId> &detids,
 			 TEveCaloDataVec *data);
+
+   virtual void drawCrossHair(const reco::GsfElectron*, int, TEveCaloLego*, TEveElementList*);
+
+   virtual void addTrackPointsInCaloData(const reco::GsfElectron*, int, TEveCaloDataVec*);
 
 private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
