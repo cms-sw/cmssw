@@ -29,6 +29,9 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
   m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
   m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
   m_muonsSrc = iConfig.getParameter<edm::InputTag>("muonSrc");
+  //JW electron ID
+   m_recoGsfelectrons= iConfig.getParameter<edm::InputTag>("recoGsfelectrons" ); 
+  m_eIDValueMap_= iConfig.getParameter<edm::InputTag>("eIDValueMap" );
   theResponseAlgo = iConfig.getParameter<int>("respalgo");
   theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
   theNonEfficiencyFile = iConfig.getParameter<std::string>("NonEfficiencyFile");
@@ -46,6 +49,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 
   std::cout<<" BugFix JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<< theResponseAlgo
 	   <<" TheAddOutOfConeTracks " << theAddOutOfConeTracks
+    	   <<" Electron ID "<< m_eIDValueMap_ 
 	   <<" TheNonEfficiencyFile "<< theNonEfficiencyFile
 	   <<" TheNonEfficiencyFileResp "<< theNonEfficiencyFileResp
 	   <<" TheResponseFile "<< theResponseFile <<std::endl;
@@ -213,6 +217,16 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::MuonCollection::const_iterator muon;
    iEvent.getByLabel(m_muonsSrc, muons);
    
+   //JW:  Get electrons
+   edm::Handle<reco::GsfElectronCollection>  elecs;
+   iEvent.getByLabel( m_recoGsfelectrons, elecs);
+   reco::GsfElectronCollection::const_iterator elec;  
+   //JW: map for electronID
+   edm::Handle<edm::ValueMap<float> >  eIDValueMap;
+   iEvent.getByLabel( m_eIDValueMap_ , eIDValueMap );
+    const edm::ValueMap<float> & eIdmapCuts = * eIDValueMap;
+   
+
    if(debug){
    cout <<" muon collection size = " << muons->size() << endl;   
 
@@ -224,7 +238,16 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	    <<" muon phi = " << muon->phi() << endl;  
      }
    }
+   // JW: Electron debug   
+   if(elecs->size() != 0) {
+     for (elec= elecs->begin(); elec != elecs->end(); ++elec) {
+       //reco::TrackRef glbTrack = muon->combinedMuon();
+       cout <<" electron pT = " << elec->pt() 
+	    <<" electron eta = " << elec->eta()
+	    <<" electron  phi = " << elec->phi() << endl;  
+     }   
    }
+   } //debug 
 
    // Added by R.B.
    reco::TrackRefVector trAtVertex;
@@ -345,7 +368,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
     } // etabin
 
    //cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
-
+     const reco::GsfElectron *matched=NULL;
    for( reco::TrackRefVector::iterator itV = trAtVertex.begin(); itV != trAtVertex.end(); itV++)
      {
        if(theUseQuality && (!(**itV).quality(trackQuality_))) continue;
@@ -368,6 +391,29 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	     break;
 	   }
        }
+       // JW: Look for electrons
+       bool iselec(false); 
+       int  i=0;
+       //	 cout <<" track id " <<itV->id() << endl;  
+       //	 cout  <<" track phi/eta/pt = " <<(**itV).momentum().phi()<< "/"<< (**itV).momentum().eta() << "/"<< (**itV).pt()  << endl;
+      	double deltaR=999.;
+	double deltaRMIN=999.;
+
+       for (elec = elecs->begin(); elec != elecs->end(); ++elec) {
+	 // elec id here
+	 edm::Ref<reco::GsfElectronCollection> electronRef(elecs,i);
+	 i++;
+	 bool eleid = false;
+	 if( eIdmapCuts[electronRef] > 0) eleid = true;
+	 if(eleid) {
+	   double deltaphi=fabs(elec->phi()- (**itV).momentum().phi() );
+	   if (deltaphi > 6.283185308) deltaphi -= 6.283185308;
+	   if (deltaphi > 3.141592654) deltaphi = 6.283185308-deltaphi;
+	   deltaR= abs(sqrt(pow((elec->eta()-(**itV).momentum().eta()),2) +  pow(deltaphi ,2 ))); 
+	   if(deltaR<deltaRMIN)  { deltaRMIN=deltaR;	matched= &(*elec);}
+	 } 
+       }
+       if(deltaR < 0.02) iselec = true;
 
        reco::TrackRefVector::iterator it = find(trAtCalo.begin(),trAtCalo.end(),(*itV));
        if(it != trAtCalo.end()) {
@@ -377,6 +423,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	 if (ismuon) 
 	   muInCaloInVertex.push_back(*it);
 	 else 
+	   //JW
+	   if(!iselec)
 	   trInCaloInVertex.push_back(*it);
        } else { // trAtCalo.end()
 	 if (ismuon)

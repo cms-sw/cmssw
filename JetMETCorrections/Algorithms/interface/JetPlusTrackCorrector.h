@@ -10,8 +10,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+//JW: electrons
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+//JW: needed for elecID
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class SingleParticleJetResponse;
 
@@ -51,6 +59,9 @@ private:
   edm::InputTag m_JetTracksAtVertex;
   edm::InputTag m_JetTracksAtCalo;
   edm::InputTag m_muonsSrc;
+  //JW:
+  edm::InputTag m_recoGsfelectrons; 
+  edm::InputTag m_eIDValueMap_;
 
   // Used by "on-the-fly" jet-tracks association
   edm::InputTag m_tracksSrc;
