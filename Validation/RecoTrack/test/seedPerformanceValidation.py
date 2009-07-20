@@ -122,7 +122,7 @@ def do_validation(samples, GlobalTag):
         #check if the sample is already done
         missing=False
         for seedcollection in SeedCollections :
-            if(os.path.isfile(newdir+'/'+seedcollection+'/bbuilding.pdf' )!=True):
+            if(os.path.isfile(newdir+'/'+seedcollection+'/building.pdf' )!=True):
                   missing=True
         if(missing==True):
             #if the job is harvesting check if the file is already harvested
@@ -212,8 +212,8 @@ def do_validation(samples, GlobalTag):
                             cfgFile = open(cfgFileName+'.py' , 'a' )
                             replace(symbol_map, templatecfgFile, cfgFile)
 
-                            #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                            cmdrun='date'
+                            cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                            #cmdrun='date'
                             retcode=os.system(cmdrun)
 
                     else:      
