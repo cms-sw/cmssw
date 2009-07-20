@@ -56,7 +56,8 @@ lumi::LumiOMDSReader::fill(int startRun,
 			   std::vector< std::pair<lumi::LuminosityInfo*,cond::Time_t> >& result, short lumiVersionNumber){
   //fill summary info
   //fill detail info
-  //select summary.DEADTIME_NORMALIZATION,summary.INSTANT_LUMI,summary.INSTANT_LUMI_ERR,summary.INSTANT_LUMI_QLTY,sect.LUMI_SECTION_NUMBER, bx.BUNCH_X_NUMBER,bx.ET_LUMI,bx.ET_LUMI_ERR,bx.ET_LUMI_QLTY,bx.OCC_LUMI_D1,bx.OCC_LUMI_D1_ERR,bx.OCC_LUMI_D1_QLTY,bx.OCC_LUMI_D2,bx.OCC_LUMI_D2_ERR,bx.OCC_LUMI_D2_QLTY from CMS_LUMI.LUMI_SUMMARIES summary, CMS_LUMI.LUMI_DETAILS bx, CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER=70674 ORDER BY sect.LUMI_SECTION_NUMBER
+  //select summary.DEADTIME_NORMALIZATION,summary.INSTANT_LUMI,summary.INSTANT_LUMI_ERR,summary.INSTANT_LUMI_QLTY,sect.LUMI_SECTION_NUMBER, bx.BUNCH_X_NUMBER,bx.ET_LUMI,bx.ET_LUMI_ERR,bx.ET_LUMI_QLTY from CMS_LUMI.LUMI_SUMMARIES summary, CMS_LUMI.LUMI_DETAILS bx, CMS_LUMI.LUMI_SECTIONS sect WHERE sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.lumi_section_number>0 AND sect.RUN_NUMBER=70674 and summary.lumi_version=1 ORDER BY sect.LUMI_SECTION_NUMBER
+  
   try{
     m_session->open();
     cond::Connection con(m_constr,-1);
@@ -65,7 +66,9 @@ lumi::LumiOMDSReader::fill(int startRun,
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(int));
     bindVariableList.extend("lumiversion",typeid(short));
+    bindVariableList.extend("lsmin",typeid(int));
     bindVariableList["lumiversion"].data<short>()=lumiVersionNumber;
+    bindVariableList["lsmin"].data<int>()=0;
     std::cout<<"lumiVersionNumber "<<lumiVersionNumber<<std::endl;
     transaction.start(true); 
     int stopRun=startRun+numberOfRuns;
@@ -83,19 +86,19 @@ lumi::LumiOMDSReader::fill(int startRun,
       query1->addToOutputList("bx.ET_LUMI_ERR","bx_err_et");
       query1->addToOutputList("bx.ET_LUMI_QLTY","bx_quality_et");
 
-      query1->addToOutputList("bx.OCC_LUMI_D1","bx_lumi_occd1");
-      query1->addToOutputList("bx.OCC_LUMI_D1_ERR","bx_err_occd1");
-      query1->addToOutputList("bx.OCC_LUMI_D1_QLTY","bx_quality_occd1");
+      //query1->addToOutputList("bx.OCC_LUMI_D1","bx_lumi_occd1");
+      //query1->addToOutputList("bx.OCC_LUMI_D1_ERR","bx_err_occd1");
+      //query1->addToOutputList("bx.OCC_LUMI_D1_QLTY","bx_quality_occd1");
 
-      query1->addToOutputList("bx.OCC_LUMI_D2","bx_lumi_occd2");
-      query1->addToOutputList("bx.OCC_LUMI_D2_ERR","bx_err_occd2");
-      query1->addToOutputList("bx.OCC_LUMI_D2_QLTY","bx_quality_occd2");
+      //query1->addToOutputList("bx.OCC_LUMI_D2","bx_lumi_occd2");
+      //query1->addToOutputList("bx.OCC_LUMI_D2_ERR","bx_err_occd2");
+      //query1->addToOutputList("bx.OCC_LUMI_D2_QLTY","bx_quality_occd2");
 
       query1->addToTableList( "LUMI_SUMMARIES","summary");
       query1->addToTableList( "LUMI_SECTIONS","sect");
       query1->addToTableList( "LUMI_DETAILS","bx" );
 
-      query1->setCondition( "sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER =:runnumber AND summary.LUMI_VERSION =:lumiversion", bindVariableList );
+      query1->setCondition( "sect.SECTION_ID=summary.SECTION_ID AND sect.SECTION_ID=bx.SECTION_ID AND sect.RUN_NUMBER =:runnumber AND summary.LUMI_VERSION =:lumiversion AND sect.lumi_section_number > :lsmin", bindVariableList );
       query1->addToOrderList( "sect.LUMI_SECTION_NUMBER" );
       query1->addToOrderList( "bx.BUNCH_X_NUMBER" );
       query1->setRowCacheSize( 10692 );
@@ -104,10 +107,10 @@ lumi::LumiOMDSReader::fill(int startRun,
       int lastLumiSection=0;
       std::vector<lumi::BunchCrossingInfo> bxinfo_et;
       bxinfo_et.reserve(3564);
-      std::vector<lumi::BunchCrossingInfo> bxinfo_occd1;
-      bxinfo_occd1.reserve(3564);
-      std::vector<lumi::BunchCrossingInfo> bxinfo_occd2;
-      bxinfo_occd2.reserve(3564);
+      //std::vector<lumi::BunchCrossingInfo> bxinfo_occd1;
+      //bxinfo_occd1.reserve(3564);
+      //std::vector<lumi::BunchCrossingInfo> bxinfo_occd2;
+      //bxinfo_occd2.reserve(3564);
 
       if( !cursor1.next() ){
 	///if run doesn't exist
@@ -131,7 +134,7 @@ lumi::LumiOMDSReader::fill(int startRun,
 	  
 	  float bx_lumi_et=-99.0;
 	  if( !row["bx_lumi_et"].isNull() ){
-	    bx_lumi_et=(float)row["bx_lumi_et"].data<double>(); //if null, convert to negative
+	    bx_lumi_et=(float)row["bx_lumi_et"].data<float>(); //if null, convert to negative
 	  }
 	  float bx_err_et=-99.0;
 	  if( !row["bx_err_et"].isNull() ){
@@ -142,34 +145,35 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    bx_quality_et=(int)row["bx_quality_et"].data<short>();
 	  }
 	  bxinfo_et.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_et,bx_err_et,bx_quality_et));
-	  
-	  float bx_lumi_occd1=-99.0;
-	  if( !row["bx_lumi_occd1"].isNull() ){
+	  /*
+	    float bx_lumi_occd1=-99.0;
+	    if( !row["bx_lumi_occd1"].isNull() ){
 	    bx_lumi_occd1=(float)row["bx_lumi_occd1"].data<double>();
-	  }
-	  float bx_err_occd1=-99.0;
-	  if( !row["bx_err_occd1"].isNull() ){
+	    }
+	    float bx_err_occd1=-99.0;
+	    if( !row["bx_err_occd1"].isNull() ){
 	    bx_err_occd1=(float)row["bx_err_occd1"].data<double>();
-	  }	  
-	  int bx_quality_occd1=-99;
-	  if( !row["bx_quality_occd1"].isNull() ){
+	    }	  
+	    int bx_quality_occd1=-99;
+	    if( !row["bx_quality_occd1"].isNull() ){
 	    bx_quality_occd1=(int)row["bx_quality_occd1"].data<short>();
-	  }
-	  bxinfo_occd1.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd1,bx_err_occd1,bx_quality_occd1));
-	  
-	  float bx_lumi_occd2=-99.0;
-	  if( !row["bx_lumi_occd2"].isNull() ){
+	    }
+	    bxinfo_occd1.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd1,bx_err_occd1,bx_quality_occd1));
+	    
+	    float bx_lumi_occd2=-99.0;
+	    if( !row["bx_lumi_occd2"].isNull() ){
 	    bx_lumi_occd2=(float)row["bx_lumi_occd2"].data<double>();
-	  }
-	  float bx_err_occd2=-99.0;
-	  if( !row["bx_err_occd2"].isNull() ){
+	    }
+	    float bx_err_occd2=-99.0;
+	    if( !row["bx_err_occd2"].isNull() ){
 	    bx_err_occd2=(float)row["bx_err_occd2"].data<double>();
-	  }
-	  int bx_quality_occd2=-99;
-	  if( !row["bx_quality_occd2"].isNull() ){
+	    }
+	    int bx_quality_occd2=-99;
+	    if( !row["bx_quality_occd2"].isNull() ){
 	    bx_quality_occd2=(int)row["bx_quality_occd2"].data<short>();
-	  }
-	  bxinfo_occd2.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd2,bx_err_occd2,bx_quality_occd2));
+	    }
+	    bxinfo_occd2.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd2,bx_err_occd2,bx_quality_occd2));
+	  */
 	  if(currentLumiSection>lastLumiSection && bxidx==3564){
 	    l=new lumi::LuminosityInfo;
 	    edm::LuminosityBlockID lu(currentRun,currentLumiSection);
@@ -183,7 +187,7 @@ lumi::LumiOMDSReader::fill(int startRun,
 
 	    float instant_lumi=-99.0;
 	    if( !row["instant_lumi"].isNull() ){
-	      instant_lumi=(float)row["instant_lumi"].data<double>();
+	      instant_lumi=(float)row["instant_lumi"].data<float>();
 	    }
 	    float instant_lumi_err=-99.0;
 	    if( !row["instant_lumi_err"].isNull() ){
@@ -199,12 +203,12 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    l->setLumiQuality(instant_lumi_quality);
 	    l->setDeadFraction(deadfrac);
 	    l->setBunchCrossingData(bxinfo_et,lumi::ET);
-	    l->setBunchCrossingData(bxinfo_occd1,lumi::OCCD1);
-	    l->setBunchCrossingData(bxinfo_occd2,lumi::OCCD2);
+	    //l->setBunchCrossingData(bxinfo_occd1,lumi::OCCD1);
+	    //l->setBunchCrossingData(bxinfo_occd2,lumi::OCCD2);
 	    result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
 	    bxinfo_et.clear();
-	    bxinfo_occd1.clear();
-	    bxinfo_occd2.clear();
+	    //bxinfo_occd1.clear();
+	    //bxinfo_occd2.clear();
 	    ++lastLumiSection;
 	  }
 	}
