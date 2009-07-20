@@ -1,4 +1,5 @@
 <use name=root>
+<use name=boost>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet> 
@@ -6,6 +7,8 @@
 <use name=FWCore/ServiceRegistry> 
 <use name=FWCore/Utilities> 
 <use name=CondCore/PluginSystem>
+<use name=CondCore/DBOutputService>
+<use name=CondCore/DBCommon>
 <use name=PhysicsTools/UtilAlgos> 
 <use name=DataFormats/SiStripDigi> 
 <use name=DataFormats/SiStripCluster> 
