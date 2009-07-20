@@ -136,7 +136,4 @@ deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
 
 # the sequences
-L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt)
-
-L1HardwareValidation_woGT = cms.Sequence(deEcal+deHcal+deRct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt)
-
+L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
