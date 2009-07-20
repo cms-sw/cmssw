@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.12 2009/04/07 14:06:23 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.13 2009/04/07 21:34:18 chrjones Exp $
 //
 
 // system include files
@@ -104,7 +104,7 @@ private:
    std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
    FWEvePtr<TEveElementList> m_elements;
    TEveCaloDataHist* m_data;
-   FWEvePtr<TEveCaloLego> m_lego;
+   TEveCaloLego* m_lego;
    TEveStraightLineSet* m_boundaries;
    int m_legoRebinFactor;
 

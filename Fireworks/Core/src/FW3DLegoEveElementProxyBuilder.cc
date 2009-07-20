@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -63,13 +63,14 @@ void
 FW3DLegoEveElementProxyBuilder::attach(TEveElement* iElement,
                                        TEveCaloDataHist* iHist)
 {
-   iElement->AddElement(&m_elementHolder);
+   m_elementHolder = new TEveElementList("FW3DLegoEveElementProxyBuilder Holder");
+   iElement->AddElement(m_elementHolder);
 }
 
 void
 FW3DLegoEveElementProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
-   modelChanges(iIds,static_cast<TEveElementList*>(m_elementHolder.FirstChild()));
+   modelChanges(iIds,static_cast<TEveElementList*>(m_elementHolder->FirstChild()));
 }
 
 void
@@ -124,14 +125,14 @@ FW3DLegoEveElementProxyBuilder::build()
 {
    if(0==item()) { return;}
    TEveElementList* newElements=0;
-   bool notFirstTime = m_elementHolder.NumChildren();
+   bool notFirstTime = m_elementHolder->NumChildren();
    if(notFirstTime) {
       //we know the type since it is enforced in this routine so static_cast is safe
-      newElements = static_cast<TEveElementList*>(*(m_elementHolder.BeginChildren()));
+      newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
    }
    build(item(), &newElements);
    if(!notFirstTime && newElements) {
-      m_elementHolder.AddElement(newElements);
+      m_elementHolder->AddElement(newElements);
    }
    setUserData(item(),newElements,ids());
    /*
@@ -183,7 +184,7 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
 void
 FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
-   m_elementHolder.DestroyElements();
+   m_elementHolder->DestroyElements();
 }
 
 //

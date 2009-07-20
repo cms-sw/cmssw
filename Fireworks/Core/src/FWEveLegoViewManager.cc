@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.29 2009/05/28 19:01:45 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.30 2009/06/08 21:25:29 dmytro Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
    FWViewManagerBase(),
    m_elements( new TEveElementList("Lego")),
    m_data(0),
-   m_lego(),
+   m_lego(0),
    m_boundaries(0),
    m_legoRebinFactor(1),
    m_eveSelection(0),
@@ -118,7 +118,7 @@ FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr) :
 FWEveLegoViewManager::~FWEveLegoViewManager()
 {
    //delete m_data;
-   m_lego.destroyElement();
+   //   m_lego->DestroyElement();
    //delete m_lego;
 }
 
@@ -259,7 +259,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             builder->setItem(iItem);
             initData();
             if(!m_lego) {
-               m_lego.reset( new TEveCaloLego(m_data) );
+               m_lego = new TEveCaloLego(m_data);
                TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
                // pal->SetLimits(0, data->GetMaxVal());
                pal->SetLimits(0, 100);
@@ -291,7 +291,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
                m_boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
                m_lego->AddElement(m_boundaries);
-               m_elements->AddElement(m_lego.get());
+               m_elements->AddElement(m_lego);
                setGridColors();
             }
             builder->attach(m_elements.get(),m_data);
