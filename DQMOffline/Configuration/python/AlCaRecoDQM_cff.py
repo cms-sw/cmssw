@@ -17,8 +17,6 @@ from DQMOffline.Configuration.ALCARECOHcalCalDQM_cff import *
 # Muon Calibration
 from DQMOffline.Configuration.ALCARECOMuonDQM_cff import *
 
-MEtoEDMConverter.deleteAfterCopy = False
-
 # unfortunally the ALCARECOTkAl-Producers can not go here because they are filters.
 pathALCARECODQM = cms.Path(MEtoEDMConverter)
 
