@@ -1,4 +1,5 @@
-// $Id: RunMonitorCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: RunMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
 #define StorageManager_RunMonitorCollection_h
@@ -14,9 +15,9 @@ namespace stor {
    * A collection of MonitoredQuantities related to events received
    * in the current run
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class RunMonitorCollection : public MonitorCollection

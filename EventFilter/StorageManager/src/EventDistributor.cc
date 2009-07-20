@@ -1,4 +1,5 @@
-// $Id: EventDistributor.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: EventDistributor.cc,v 1.3 2009/06/24 19:11:22 biery Exp $
+/// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 

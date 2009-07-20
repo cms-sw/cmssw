@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DQMEventStore.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: DQMEventStore.h 
 
 #ifndef StorageManager_DQMEventStore_h
 #define StorageManager_DQMEventStore_h
@@ -25,9 +26,9 @@ namespace stor {
    * class wide temporary buffer to convert I2OChains
    * into DQMEventMsgViews.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
   
   class DQMEventStore

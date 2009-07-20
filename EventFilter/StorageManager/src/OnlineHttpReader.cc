@@ -17,7 +17,8 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: OnlineHttpReader.cc,v 1.5 2008/08/13 21:46:11 wmtan Exp $
+  $Id: OnlineHttpReader.cc,v 1.6 2009/07/13 13:18:03 mommsen Exp $
+/// @file: OnlineHttpReader.cc
 */
 
 #include "EventFilter/StorageManager/src/OnlineHttpReader.h"

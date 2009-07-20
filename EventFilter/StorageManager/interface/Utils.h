@@ -1,4 +1,5 @@
-// $Id: Utils.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: Utils.h,v 1.3 2009/07/09 09:36:31 mommsen Exp $
+/// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
 #define StorageManager_Utils_h
@@ -22,9 +23,9 @@ namespace stor {
     /**
      * Collection of utility functions used in the storage manager
      *
-     * $Author: dshpakov $
-     * $Revision: 1.2 $
-     * $Date: 2009/06/10 08:15:24 $
+     * $Author: mommsen $
+     * $Revision: 1.3 $
+     * $Date: 2009/07/09 09:36:31 $
      */
 
     /**

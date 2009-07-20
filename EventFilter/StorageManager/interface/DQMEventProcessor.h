@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DQMEventProcessor.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: DQMEventProcessor.h 
 
 #ifndef StorageManager_DQMEventProcessor_h
 #define StorageManager_DQMEventProcessor_h
@@ -26,9 +27,9 @@ namespace stor {
    * Depending on the configuration, it also writes the histograms
    * to disk every N lumi-sections.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class

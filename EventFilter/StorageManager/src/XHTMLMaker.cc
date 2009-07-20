@@ -1,4 +1,5 @@
-// $Id$
+// $Id: XHTMLMaker.cc,v 1.2 2009/06/10 08:15:29 dshpakov Exp $
+/// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
 

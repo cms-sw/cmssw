@@ -1,5 +1,6 @@
 /**
- * $Id: SharedResources.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+ * $Id: SharedResources.cc,v 1.3 2009/07/10 11:41:04 dshpakov Exp $
+/// @file: SharedResources.cc
  */
 
 #include "EventFilter/StorageManager/interface/SharedResources.h"

@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DQMEventRecord.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
 #define StorageManager_DQMEventRecord_h
@@ -21,9 +22,9 @@ namespace stor {
   /**
    * Class holding information for one DQM event
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   class DQMEventRecord : public DQMInstance

@@ -1,4 +1,5 @@
-// $Id: RegistrationCollection.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: RegistrationCollection.cc,v 1.3 2009/07/07 11:17:08 dshpakov Exp $
+/// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 

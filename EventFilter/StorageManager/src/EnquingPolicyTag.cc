@@ -1,3 +1,6 @@
+// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+/// @file: EnquingPolicyTag.cc
+
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 
 using namespace stor;

@@ -1,5 +1,6 @@
 /**
- * $Id: SoapUtils.cc,v 1.1 2009/07/09 08:41:10 mommsen Exp $
+ * $Id: SoapUtils.cc,v 1.2 2009/07/09 08:52:10 mommsen Exp $
+/// @file: SoapUtils.cc
  */
 
 #include "EventFilter/StorageManager/interface/SoapUtils.h"

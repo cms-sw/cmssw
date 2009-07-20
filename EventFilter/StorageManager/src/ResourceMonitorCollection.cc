@@ -1,4 +1,5 @@
-// $Id: ResourceMonitorCollection.cc,v 1.4 2009/07/09 09:37:18 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.5 2009/07/09 15:34:28 mommsen Exp $
+/// @file: ResourceMonitorCollection.cc
 
 #include <string>
 #include <sstream>

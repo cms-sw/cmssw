@@ -1,4 +1,5 @@
-// $Id$
+// $Id: StreamID.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+/// @file: StreamID.h 
 
 #ifndef StorageManager_StreamID_h
 #define StorageManager_StreamID_h
@@ -10,9 +11,9 @@ namespace stor {
   /**
    * Definition of the StreamID used in the storage manager
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
 
   typedef size_t StreamID;

@@ -1,3 +1,6 @@
+// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+/// @file: FUProxy.h 
+
 #ifndef StorageManager_FUProxy_h
 #define StorageManager_FUProxy_h
 
@@ -16,9 +19,9 @@ namespace stor
    *
    * Following the example in EventFilter/ResourceBroker for BUProxy and SMProxy.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class FUProxy

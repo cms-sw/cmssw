@@ -1,4 +1,5 @@
-// $Id: Enabled.cc,v 1.5 2009/07/10 09:07:27 mommsen Exp $
+// $Id: Enabled.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
+/// @file: Enabled.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"

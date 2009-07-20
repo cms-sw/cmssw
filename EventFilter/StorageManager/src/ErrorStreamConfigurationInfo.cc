@@ -1,4 +1,5 @@
-// $Id$
+// $Id: ErrorStreamConfigurationInfo.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+/// @file: ErrorStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 

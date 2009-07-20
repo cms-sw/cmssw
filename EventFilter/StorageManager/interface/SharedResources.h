@@ -1,4 +1,5 @@
-// $Id: SharedResources.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: SharedResources.h,v 1.3 2009/07/10 11:41:03 dshpakov Exp $
+/// @file: SharedResources.h 
 
 #ifndef StorageManager_SharedResources_h
 #define StorageManager_SharedResources_h
@@ -28,8 +29,8 @@ namespace stor {
    * Container for shared resources.
    *
    * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/10 11:41:03 $
    */
 
   struct SharedResources

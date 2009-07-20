@@ -1,4 +1,5 @@
-// $Id: SoapUtils.h,v 1.1 2009/07/09 08:41:35 mommsen Exp $
+// $Id: SoapUtils.h,v 1.2 2009/07/09 08:52:16 mommsen Exp $
+/// @file: SoapUtils.h 
 
 #ifndef StorageManager_SoapUtils_h
 #define StorageManager_SoapUtils_h
@@ -16,8 +17,8 @@ namespace stor {
      * Collection of utility functions for handling SOAP messages
      *
      * $Author: mommsen $
-     * $Revision: 1.1 $
-     * $Date: 2009/07/09 08:41:35 $
+     * $Revision: 1.2 $
+     * $Date: 2009/07/09 08:52:16 $
      */
 
     /**

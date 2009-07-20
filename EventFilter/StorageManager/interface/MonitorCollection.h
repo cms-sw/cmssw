@@ -1,4 +1,5 @@
-// $Id: MonitorCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: MonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: MonitorCollection.h 
 
 #ifndef StorageManager_MonitorCollection_h
 #define StorageManager_MonitorCollection_h
@@ -15,9 +16,9 @@ namespace stor {
   /**
    * An abstract collection of MonitoredQuantities
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class MonitorCollection

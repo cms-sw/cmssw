@@ -1,4 +1,5 @@
-// $Id: DiskWriter.cc,v 1.4 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+/// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"

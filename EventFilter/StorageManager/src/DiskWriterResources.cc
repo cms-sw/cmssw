@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DiskWriterResources.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+/// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 

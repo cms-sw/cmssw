@@ -1,4 +1,5 @@
-// $Id$
+// $Id: EventQueueCollection.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+/// @file: EventQueueCollection.h 
 
 #ifndef StorageManager_EventQueueCollection_h
 #define StorageManager_EventQueueCollection_h
@@ -11,9 +12,9 @@ namespace stor {
   /**
    * A collection of ConcurrentQueue<I2OChain>.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
 
   typedef QueueCollection<I2OChain> EventQueueCollection;

@@ -2,7 +2,8 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.13 2008/07/03 15:38:09 biery Exp $
+ *  $Id: DQMHttpSource.cc,v 1.14 2008/07/15 20:13:21 biery Exp $
+/// @file: DQMHttpSource.cc
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"

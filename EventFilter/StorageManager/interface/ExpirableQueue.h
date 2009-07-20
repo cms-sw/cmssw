@@ -1,4 +1,5 @@
-// $Id: ExpirableQueue.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: ExpirableQueue.h,v 1.3 2009/06/19 13:49:12 dshpakov Exp $
+/// @file: ExpirableQueue.h 
 
 
 #ifndef EventFilter_StorageManager_ExpirableQueue_h
@@ -20,8 +21,8 @@ namespace stor
      was made.
    
      $Author: dshpakov $
-     $Revision: 1.2 $
-     $Date: 2009/06/10 08:15:22 $
+     $Revision: 1.3 $
+     $Date: 2009/06/19 13:49:12 $
    */
 
   template <class T, class Policy>

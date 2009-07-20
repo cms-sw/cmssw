@@ -1,4 +1,5 @@
-// $Id: WebPageHelper.cc,v 1.14 2009/07/10 16:51:46 biery Exp $
+// $Id: WebPageHelper.cc,v 1.15 2009/07/20 06:33:26 mommsen Exp $
+/// @file: WebPageHelper.cc
 
 #include <iomanip>
 #include <iostream>

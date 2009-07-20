@@ -1,4 +1,5 @@
-// $Id$
+// $Id: CommonRegistrationInfo.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: CommonRegistrationInfo.h 
 
 #ifndef EventFilter_StorageManager_CommonRegistrationInfo_h
 #define EventFilter_StorageManager_CommonRegistrationInfo_h
@@ -19,9 +20,9 @@ namespace stor
    * that don't have reason to do otherwise should include this as a
    * data member.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   struct CommonRegistrationInfo

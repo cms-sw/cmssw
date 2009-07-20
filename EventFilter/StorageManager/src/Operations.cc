@@ -1,4 +1,5 @@
-// $Id: Operations.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Operations.cc,v 1.7 2009/07/13 07:11:17 mommsen Exp $
+/// @file: Operations.cc
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"

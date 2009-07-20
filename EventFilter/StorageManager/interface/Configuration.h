@@ -1,4 +1,5 @@
-// $Id: Configuration.h,v 1.3 2009/07/01 09:51:13 mommsen Exp $
+// $Id: Configuration.h,v 1.4 2009/07/03 11:07:43 mommsen Exp $
+/// @file: Configuration.h 
 
 
 #ifndef EventFilter_StorageManager_Configuration_h
@@ -121,8 +122,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/01 09:51:13 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/03 11:07:43 $
    */
 
   class Configuration : public xdata::ActionListener

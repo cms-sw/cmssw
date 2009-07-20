@@ -1,8 +1,8 @@
-// -*- c++ -*-
-// $Id$
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: DQMEventConsumerRegistrationInfo.h 
 
-#ifndef DQMEVENTCONSUMERREGISTRATIONINFO_H
-#define DQMEVENTCONSUMERREGISTRATIONINFO_H
+#ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
+#define StorageManager_DQMEventConsumerRegistrationInfo_h
 
 #include <iosfwd>
 #include <string>
@@ -16,9 +16,9 @@ namespace stor
   /**
    * Holds the registration information for a DQM event consumer.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase
@@ -85,7 +85,7 @@ namespace stor
   
 } // namespace stor
 
-#endif
+#endif // StorageManager_DQMEventConsumerRegistrationInfo_h
 
 
 /// emacs configuration

@@ -1,4 +1,5 @@
-// $Id$
+// $Id: TransitionRecord.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+/// @file: TransitionRecord.h 
 
 #ifndef StorageManager_TransitionRecord_h
 #define StorageManager_TransitionRecord_h
@@ -13,9 +14,9 @@ namespace stor {
   /**
    * A record of state machine transitions
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
   
   class TransitionRecord

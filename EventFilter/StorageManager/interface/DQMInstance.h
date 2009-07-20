@@ -1,3 +1,6 @@
+// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+/// @file: DQMInstance.h 
+
 #ifndef StorageManager_DQMInstance_h
 #define StorageManager_DQMInstance_h
 
@@ -20,9 +23,9 @@ namespace stor
   /**
    * A single DQM folder holding several histograms
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMFolder
@@ -38,9 +41,9 @@ namespace stor
   /**
    * A collection of DQM Folders under the same top-level name.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMGroup
@@ -78,9 +81,9 @@ namespace stor
    * Container class for one snapshot instance of a collection of 
    * collated DQM groups
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMInstance

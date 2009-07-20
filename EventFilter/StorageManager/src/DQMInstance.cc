@@ -1,10 +1,5 @@
-//
-//  File: EventFilter/src/SMProxyServer/DQMInstance.cc
-//
-//  Author:  W.Badgett (FNAL)
-//
-//  Container class for a single instance of a set of DQM objects
-//
+// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+/// @file: DQMInstance.cc
 
 #include <iostream>
 

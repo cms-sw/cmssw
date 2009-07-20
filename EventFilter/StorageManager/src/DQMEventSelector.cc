@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DQMEventSelector.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+/// @file: DQMEventSelector.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventSelector.h"
 

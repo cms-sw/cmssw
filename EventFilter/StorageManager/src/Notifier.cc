@@ -1,4 +1,5 @@
-// $Id: $
+// $Id: Notifier.cc,v 1.1 2009/07/02 12:55:27 dshpakov Exp $
+/// @file: Notifier.cc
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 

@@ -1,4 +1,5 @@
-// $Id: Processing.cc,v 1.9 2009/07/10 09:07:27 mommsen Exp $
+// $Id: Processing.cc,v 1.10 2009/07/10 11:41:03 dshpakov Exp $
+/// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"

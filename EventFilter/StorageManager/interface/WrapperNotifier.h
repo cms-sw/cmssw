@@ -1,8 +1,8 @@
-// -*- c++ -*-
-// $Id: WrapperNotifier.h,v 1.6 2009/07/13 13:27:45 dshpakov Exp $
+// $Id: WrapperNotifier.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+/// @file: WrapperNotifier.h 
 
-#ifndef WRAPPERNOTIFIER_H
-#define WRAPPERNOTIFIER_H
+#ifndef StorageManager_WrapperNotifier_h
+#define StorageManager_WrapperNotifier_h
 
 #include "EventFilter/StorageManager/interface/Notifier.h"
 
@@ -16,9 +16,9 @@ namespace stor
   /**
      Notifier implementation used by StorageManager
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class WrapperNotifier: public Notifier
   {
@@ -63,7 +63,7 @@ namespace stor
 
 }
 
-#endif // WRAPPERNOTIFIER_H
+#endif // StorageManager_WrapperNotifier_h
 
 
 

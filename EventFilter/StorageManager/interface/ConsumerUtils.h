@@ -1,12 +1,8 @@
-// $Id$
+// $Id: ConsumerUtils.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: ConsumerUtils.h 
 
-/**
-   Free helper functions for handling consumer header and event
-   requests and responses
- */
-
-#ifndef CONSUMERUTILS_H
-#define CONSUMERUTILS_H
+#ifndef StorageManager_ConsumerUtils_h
+#define StorageManager_ConsumerUtils_h
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
@@ -28,6 +24,15 @@ namespace xgi
 
 namespace stor
 {
+
+  /**
+     Free helper functions for handling consumer header and event
+     requests and responses
+
+     $Author: dshpakov $
+     $Revision: 1.4 $
+     $Date: 2009/07/14 10:34:44 $
+  */
 
   /**
      Parse consumer registration request:
@@ -97,7 +102,7 @@ namespace stor
 
 }
 
-#endif
+#endif // StorageManager_ConsumerUtils_h
 
 
 /// emacs configuration

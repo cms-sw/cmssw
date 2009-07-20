@@ -1,4 +1,5 @@
-// $Id: StatisticsReporter.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: StatisticsReporter.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
 #define StorageManager_StatisticsReporter_h
@@ -37,9 +38,9 @@ namespace stor {
    * This class also starts the monitoring workloop to update the 
    * statistics for all MonitorCollections.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener

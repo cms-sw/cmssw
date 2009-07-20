@@ -1,7 +1,8 @@
-// $Id$
+// $Id: EventStreamConfigurationInfo.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+/// @file: EventStreamConfigurationInfo.h
 
-#ifndef EVENTSTREAMCONFIGURATIONINFO_H
-#define EVENTSTREAMCONFIGURATIONINFO_H
+#ifndef StorageManager_EventStreamConfigurationInfo_h
+#define StorageManager_EventStreamConfigurationInfo_h
 
 #include "EventFilter/StorageManager/interface/StreamID.h"
 
@@ -13,6 +14,14 @@
 
 namespace stor
 {
+
+  /**
+     Configuration information for the event stream
+
+     $Author: dshpakov $
+     $Revision: 1.4 $
+     $Date: 2009/07/14 10:34:44 $
+  */
 
   class EventStreamConfigurationInfo
   {
@@ -77,7 +86,8 @@ namespace stor
 
 }
 
-#endif
+#endif // StorageManager_EventStreamConfigurationInfo_h
+
 
 /// emacs configuration
 /// Local Variables: -

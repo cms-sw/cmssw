@@ -1,4 +1,5 @@
-// $Id: DataSenderMonitorCollection.h,v 1.4 2009/06/30 19:58:23 biery Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.5 2009/07/09 15:34:44 mommsen Exp $
+/// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
 #define StorageManager_DataSenderMonitorCollection_h
@@ -20,9 +21,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author: biery $
-   * $Revision: 1.4 $
-   * $Date: 2009/06/30 19:58:23 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection

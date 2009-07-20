@@ -1,7 +1,8 @@
-// $Id: Exception.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: Exception.h,v 1.3 2009/07/01 13:48:49 dshpakov Exp $
+/// @file: Exception.h 
 
-#ifndef _storagemanager_Exception_h_
-#define _storagemanager_Exception_h_
+#ifndef StorageManager_Exception_h
+#define StorageManager_Exception_h
 
 
 #include "xcept/Exception.h"
@@ -25,6 +26,18 @@
   }
 #endif
 
+namespace stor {
+
+  /**
+     List of exceptions thrown by the StorageManager
+
+     $Author: dshpakov $
+     $Revision: 1.4 $
+     $Date: 2009/07/14 10:34:44 $
+    
+     @file: Exception.h
+  */
+}
 
 /**
  * Generic exception raised by the storage manager
@@ -133,7 +146,7 @@ XCEPT_DEFINE_EXCEPTION( stor, DiskSpaceAlarm )
  */
 XCEPT_DEFINE_EXCEPTION( stor, StateTransition )
 
-#endif // _storagemanager_Exception_h_
+#endif // StorageManager_Exception_h
 
 
 /// emacs configuration

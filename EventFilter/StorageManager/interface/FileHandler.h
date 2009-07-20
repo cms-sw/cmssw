@@ -1,4 +1,5 @@
-// $Id: FileHandler.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: FileHandler.h,v 1.3 2009/07/03 11:08:05 mommsen Exp $
+/// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
 #define StorageManager_FileHandler_h
@@ -19,9 +20,9 @@ namespace stor {
   /**
    * Abstract representation of a physical file
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:22 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/03 11:08:05 $
    */
 
   class FileHandler

@@ -1,4 +1,5 @@
-// $Id: FilesMonitorCollection.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: FilesMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
+/// @file: FilesMonitorCollection.cc
 
 #include <string>
 #include <sstream>

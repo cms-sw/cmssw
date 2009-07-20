@@ -1,4 +1,5 @@
-// $Id: Ready.cc,v 1.6 2009/07/08 16:06:59 mommsen Exp $
+// $Id: Ready.cc,v 1.7 2009/07/10 11:41:03 dshpakov Exp $
+/// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"

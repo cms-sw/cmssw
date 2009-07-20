@@ -1,7 +1,8 @@
-// $Id: StateMachine.h,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+/// @file: StateMachine.h 
 
-#ifndef STATEMACHINE_H
-#define STATEMACHINE_H
+#ifndef StorageManager_StateMachine_h
+#define StorageManager_StateMachine_h
 
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
@@ -75,9 +76,9 @@ namespace stor
   /**
      Abstract base for state classes
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
 
   class Operations
@@ -117,9 +118,9 @@ namespace stor
   /**
      State machine class
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
 
   class StateMachine: public bsc::state_machine<StateMachine,Normal>
@@ -164,9 +165,9 @@ namespace stor
   /**
      Failed state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Failed: public bsc::state<Failed,StateMachine>, public Operations
   {
@@ -188,9 +189,9 @@ namespace stor
   /**
      Normal state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Normal: public bsc::state<Normal,StateMachine,Halted>, public Operations
   {
@@ -215,9 +216,9 @@ namespace stor
   /**
      Halted state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Halted: public bsc::state<Halted,Normal>, public Operations
   {
@@ -242,9 +243,9 @@ namespace stor
   /**
      Ready state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Ready: public bsc::state<Ready,Normal,Stopped>, public Operations
   {
@@ -271,9 +272,9 @@ namespace stor
   /**
      Stopped state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Stopped: public bsc::state<Stopped,Ready>, public Operations
   {
@@ -301,9 +302,9 @@ namespace stor
   /**
      Enabled state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Enabled: public bsc::state<Enabled,Ready,Starting>, public Operations
   {
@@ -333,9 +334,9 @@ namespace stor
   /**
      Starting state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Starting: public bsc::state<Starting,Enabled>, public Operations
   {
@@ -369,9 +370,9 @@ namespace stor
   /**
      Stopping state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Stopping: public bsc::state<Stopping,Enabled>, public Operations
   {
@@ -401,9 +402,9 @@ namespace stor
   /**
      Halting state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Halting: public bsc::state<Halting,Enabled>, public Operations
   {
@@ -433,9 +434,9 @@ namespace stor
   /**
      Running state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Running: public bsc::state<Running,Enabled,Processing>, public Operations
   {
@@ -467,9 +468,9 @@ namespace stor
   /**
      Processing state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class Processing: public bsc::state<Processing,Running>, public Operations
   {
@@ -499,9 +500,9 @@ namespace stor
   /**
      DrainingQueues state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class DrainingQueues: public bsc::state<DrainingQueues,Running>, public Operations
   {
@@ -531,9 +532,9 @@ namespace stor
   /**
      FinishingDQM state
 
-     $Author: $
-     $Revision: $
-     $Date: $
+     $Author: dshpakov $
+     $Revision: 1.7 $
+     $Date: 2009/07/14 10:34:44 $
   */
   class FinishingDQM: public bsc::state<FinishingDQM,Running>, public Operations
   {
@@ -557,7 +558,7 @@ namespace stor
 
 } // end namespace stor
 
-#endif
+#endif // StorageManager_StateMachine_h
 
 /// emacs configuration
 /// Local Variables: -

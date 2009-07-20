@@ -1,4 +1,5 @@
-// $Id: StreamsMonitorCollection.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: StreamsMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
 #define StorageManager_StreamsMonitorCollection_h
@@ -24,9 +25,9 @@ namespace stor {
   /**
    * A collection of MonitoredQuantities of output streams
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection

@@ -1,4 +1,5 @@
-// $Id: FinishingDQM.cc,v 1.5 2009/07/10 09:07:27 mommsen Exp $
+// $Id: FinishingDQM.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
+/// @file: FinishingDQM.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"

@@ -1,8 +1,8 @@
-// -*- c++ -*-                                                                              
-// $Id: Notifier.h,v 1.5 2009/07/13 13:27:45 dshpakov Exp $
+// $Id: Notifier.h,v 1.6 2009/07/13 14:51:13 mommsen Exp $
+/// @file: Notifier.h 
 
-#ifndef NOTIFIER_H
-#define NOTIFIER_H
+#ifndef StorageManager_Notifier_h
+#define StorageManager_Notifier_h
 
 #include <string>
 
@@ -15,9 +15,9 @@ namespace stor
   /**
     Interface class for handling RCMS notifier
     
-    $Author: $
-    $Revision: $
-    $Date: $
+    $Author: mommsen $
+    $Revision: 1.6 $
+    $Date: 2009/07/13 14:51:13 $
   */
 
   class Notifier
@@ -67,4 +67,12 @@ namespace stor
 
 }
 
-#endif // NOTIFIER_H
+#endif // StorageManager_Notifier_h
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

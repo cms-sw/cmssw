@@ -1,4 +1,5 @@
-// $Id: StreamHandler.cc,v 1.4 2009/06/18 16:02:01 biery Exp $
+// $Id: StreamHandler.cc,v 1.5 2009/07/16 11:41:46 mommsen Exp $
+/// @file: StreamHandler.cc
 
 #include <sstream>
 #include <iomanip>

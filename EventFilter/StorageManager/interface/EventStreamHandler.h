@@ -1,4 +1,5 @@
-// $Id$
+// $Id: EventStreamHandler.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+/// @file: EventStreamHandler.h 
 
 #ifndef StorageManager_EventStreamHandler_h
 #define StorageManager_EventStreamHandler_h
@@ -18,9 +19,9 @@ namespace stor {
   /**
    * Handle one event stream written to disk.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
   
   class EventStreamHandler : public StreamHandler

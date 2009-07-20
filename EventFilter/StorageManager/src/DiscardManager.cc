@@ -1,4 +1,5 @@
-// $Id: DiscardManager.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DiscardManager.cc,v 1.3 2009/06/24 19:11:21 biery Exp $
+/// @file: DiscardManager.cc
 
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/Exception.h"

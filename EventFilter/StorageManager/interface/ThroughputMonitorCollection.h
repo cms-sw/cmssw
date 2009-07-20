@@ -1,4 +1,5 @@
-// $Id: ThroughputMonitorCollection.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
 #define StorageManager_ThroughputMonitorCollection_h
@@ -17,9 +18,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track the flow of data
    * through the storage manager.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection

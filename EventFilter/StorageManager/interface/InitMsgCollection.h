@@ -1,13 +1,8 @@
-#ifndef STOR_INITMSG_COLLECTION_H
-#define STOR_INITMSG_COLLECTION_H
+// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+/// @file: InitMsgCollection.h 
 
-/**
- * This class is used to manage the set of INIT messages that have
- * been received by the storage manager and will be sent to event
- * consumers and written to output streams.
- *
- * $Id$
- */
+#ifndef StorageManager_InitMsgCollection_h
+#define StorageManager_InitMsgCollection_h
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 
@@ -21,6 +16,17 @@
 
 namespace stor
 {
+
+  /**
+     This class is used to manage the unique set of INIT messages
+     that have been received by the storage manager and will be sent
+     to event consumers and written to output streams.
+
+     $Author: dshpakov $
+     $Revision: 1.4 $
+     $Date: 2009/07/14 10:34:44 $
+  */
+
   typedef std::vector<unsigned char> InitMsgBuffer;
   typedef boost::shared_ptr<InitMsgBuffer> InitMsgSharedPtr;
 
@@ -64,4 +70,12 @@ namespace stor
   };
 }
 
-#endif
+#endif // StorageManager_InitMsgCollection_h
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

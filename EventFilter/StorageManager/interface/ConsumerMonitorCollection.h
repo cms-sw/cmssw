@@ -1,5 +1,6 @@
 // -*- c++ -*-
-// $Id: ConsumerMonitorCollection.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+/// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
 #define StorageManager_ConsumerMonitorCollection_h
@@ -18,9 +19,9 @@ namespace stor {
   /**
    * A collection of MonitoredQuantities to track consumer activity.
    *
-   * $Author: biery $
-   * $Revision: 1.4 $
-   * $Date: 2009/06/30 19:58:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection

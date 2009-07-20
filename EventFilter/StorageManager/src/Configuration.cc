@@ -1,4 +1,5 @@
-// $Id: Configuration.cc,v 1.5 2009/07/01 09:50:47 mommsen Exp $
+// $Id: Configuration.cc,v 1.6 2009/07/03 11:07:35 mommsen Exp $
+/// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"

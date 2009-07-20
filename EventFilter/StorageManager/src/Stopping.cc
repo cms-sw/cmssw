@@ -1,4 +1,5 @@
-// $Id: Stopping.cc,v 1.4 2009/07/03 19:31:20 mommsen Exp $
+// $Id: Stopping.cc,v 1.5 2009/07/10 11:41:04 dshpakov Exp $
+/// @file: Stopping.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"

@@ -1,7 +1,8 @@
-// $Id$
+// $Id: RegistrationInfoBase.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+/// @file: RegistrationInfoBase.h 
 
-#ifndef REGISTRATIONINFOBASE_H
-#define REGISTRATIONINFOBASE_H
+#ifndef StorageManager_RegistrationInfoBase_h
+#define StorageManager_RegistrationInfoBase_h
 
 #include <string>
 
@@ -20,9 +21,9 @@ namespace stor {
    * Defines the common interface for event and DQM consumer
    * registration info objects.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:23 $
    */
 
   class RegistrationInfoBase
@@ -34,7 +35,7 @@ namespace stor {
        The virtual destructor allows polymorphic
        containment-by-reference.
     */
-    virtual ~RegistrationInfoBase();
+    virtual ~RegistrationInfoBase() {};
 
     /**
        Register the consumer represented by this registration with the
@@ -155,7 +156,7 @@ namespace stor {
 
 } // namespace stor
 
-#endif
+#endif // StorageManager_RegistrationInfoBase_h
 
 
 /// emacs configuration

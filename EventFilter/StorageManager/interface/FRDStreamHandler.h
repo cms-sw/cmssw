@@ -1,4 +1,5 @@
-// $Id$
+// $Id: FRDStreamHandler.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+/// @file: FRDStreamHandler.h 
 
 #ifndef StorageManager_FRDStreamHandler_h
 #define StorageManager_FRDStreamHandler_h
@@ -14,9 +15,9 @@ namespace stor {
   /**
    * Handle one FED Raw Data (error) event stream written to disk.
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:22 $
    */
   
   class FRDStreamHandler : public StreamHandler

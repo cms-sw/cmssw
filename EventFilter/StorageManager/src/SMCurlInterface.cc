@@ -2,7 +2,8 @@
  *  This will eventually be an interface class for curl common
  *  functions but now is just some common utility
  *
- *  $Id$
+ *  $Id: SMCurlInterface.cc,v 1.1 2007/04/26 01:02:34 hcheung Exp $
+/// @file: SMCurlInterface.cc
  */
 
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"

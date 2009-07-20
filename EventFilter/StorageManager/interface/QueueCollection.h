@@ -1,4 +1,5 @@
-// $Id: QueueCollection.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: QueueCollection.h,v 1.3 2009/06/19 13:49:12 dshpakov Exp $
+/// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
 #define StorageManager_QueueCollection_h
@@ -33,8 +34,8 @@ namespace stor {
    * of QueueIDs of queues the class should be added.
    *
    * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Revision: 1.3 $
+   * $Date: 2009/06/19 13:49:12 $
    */
 
   template <class T>

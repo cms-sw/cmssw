@@ -1,4 +1,5 @@
-// $Id: DiscardManager.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DiscardManager.h,v 1.3 2009/06/24 19:11:21 biery Exp $
+/// @file: DiscardManager.h 
 
 #ifndef StorageManager_DiscardManager_h
 #define StorageManager_DiscardManager_h
@@ -20,9 +21,9 @@ namespace stor {
   /**
    * Handles the discard messages sent to the upstream Resource Brokers.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: biery $
+   * $Revision: 1.3 $
+   * $Date: 2009/06/24 19:11:21 $
    */
 
   class DiscardManager

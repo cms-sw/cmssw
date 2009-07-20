@@ -1,4 +1,5 @@
-// $Id$
+// $Id: DQMEventQueue.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+/// @file: DQMEventQueue.h 
 
 #ifndef StorageManager_DQMEventQueue_h
 #define StorageManager_DQMEventQueue_h
@@ -12,9 +13,9 @@ namespace stor {
    * Queue holding I2OChains of complete DQM events (histograms)
    * waiting to be processed by the DQMEventProcessor
    *
-   * $Author$
-   * $Revision$
-   * $Date$
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
 
   typedef ConcurrentQueue< I2OChain, RejectNewest<I2OChain> > DQMEventQueue;  

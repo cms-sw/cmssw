@@ -1,4 +1,5 @@
-// $Id: I2OChain.cc,v 1.5 2009/07/03 10:01:44 mommsen Exp $
+// $Id: I2OChain.cc,v 1.6 2009/07/03 11:05:48 mommsen Exp $
+/// @file: I2OChain.cc
 
 #include <algorithm>
 #include "EventFilter/StorageManager/interface/Exception.h"
