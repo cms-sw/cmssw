@@ -84,11 +84,13 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    rdir->GetObject(collname1+"/efficPt",rh3);
    sdir->GetObject(collname2+"/efficPt",sh3);
-   rh3->GetXaxis()->SetRangeUser(0,30);
-   sh3->GetXaxis()->SetRangeUser(0,30);
+   rh3->GetXaxis()->SetRangeUser(0,1000);
+   sh3->GetXaxis()->SetRangeUser(0,1000);
    rh3->GetYaxis()->SetTitle("efficiency vs p_{t}");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
+   rh3->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh3->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    rh3->SetTitle("");
    rdir->GetObject(collname1+"/fakeratePt",rh4);
    sdir->GetObject(collname2+"/fakeratePt",sh4);
@@ -96,21 +98,24 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh4->GetYaxis()->SetTitle("fakrate vs p_{t}");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
-   rh4->GetYaxis()->SetRangeUser(0.,.80);
-   sh4->GetYaxis()->SetRangeUser(0.,.80);
-   rh4->GetXaxis()->SetRangeUser(0.2,50);
-   sh4->GetXaxis()->SetRangeUser(0.2,50);
+   rh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   rh4->GetXaxis()->SetRangeUser(0.2,1000);
+   sh4->GetXaxis()->SetRangeUser(0.2,1000);
 
 
    rdir->GetObject(collname1+"/effic_vs_hit",rh5);
    sdir->GetObject(collname2+"/effic_vs_hit",sh5);
+   rh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    //rh3->GetXaxis()->SetRangeUser(0,30);
    //sh3->GetXaxis()->SetRangeUser(0,30);
    rdir->GetObject(collname1+"/fakerate_vs_hit",rh6);
    sdir->GetObject(collname2+"/fakerate_vs_hit",sh6);
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
-   rh6->GetYaxis()->SetRangeUser(0.,1.0);
-
+   rh6->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   sh6->GetYaxis()->SetRangeUser(0.,MAXFAKE);
+   rh6->GetXaxis()->SetRangeUser(0.2,1000);
+   sh6->GetXaxis()->SetRangeUser(0.2,1000);
    //rdir->GetObject(collname1+"/num_reco_pT",rh6);
    //sdir->GetObject(collname2+"/num_reco_pT",sh6);
 
@@ -171,10 +176,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh2->GetXaxis()->SetRangeUser(0,10);
    sh2->GetXaxis()->SetRangeUser(0,10);
    
-   rh3->GetXaxis()->SetRangeUser(0,10);
-   sh3->GetXaxis()->SetRangeUser(0,10);
-   rh4->GetXaxis()->SetRangeUser(0,10);
-   sh4->GetXaxis()->SetRangeUser(0,10);
+   rh3->GetXaxis()->SetRangeUser(0,1000);
+   sh3->GetXaxis()->SetRangeUser(0,1000);
+   rh4->GetXaxis()->SetRangeUser(0,1000);
+   sh4->GetXaxis()->SetRangeUser(0,1000);
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rh4,sh4);
    
@@ -751,11 +756,13 @@ void plot4histos(TCanvas *canvas,
 
   canvas->cd(3);
   setStats(s3,r3, 0.6, 0.65, false);
+  gPad->SetLogx();
   r3->Draw();
   s3->Draw("sames");
 
   canvas->cd(4);
   setStats(s4,r4, 0.6, 0.65, false);
+  gPad->SetLogx();
   s4->Draw();
   r4->Draw("sames");
 

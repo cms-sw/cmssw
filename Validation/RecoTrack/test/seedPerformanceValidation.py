@@ -33,7 +33,7 @@ idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100',
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
 
 
-idealsamples= ['RelValMinBias']
+idealsamples= ['RelValTTbar']
 
 
 #
@@ -106,10 +106,6 @@ def do_validation(samples, GlobalTag):
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
 
-    mineff='0.'
-    maxeff='1.025'
-    maxfake='0.1'
-
 
     #build the New Selection name
     NewSelection=GlobalTag + '_' + PileUp
@@ -126,7 +122,7 @@ def do_validation(samples, GlobalTag):
         #check if the sample is already done
         missing=False
         for seedcollection in SeedCollections :
-            if(os.path.isfile(newdir+'/'+seedcollection+'/building.pdf' )!=True):
+            if(os.path.isfile(newdir+'/'+seedcollection+'/bbuilding.pdf' )!=True):
                   missing=True
         if(missing==True):
             #if the job is harvesting check if the file is already harvested
@@ -216,8 +212,8 @@ def do_validation(samples, GlobalTag):
                             cfgFile = open(cfgFileName+'.py' , 'a' )
                             replace(symbol_map, templatecfgFile, cfgFile)
 
-                            cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                            #cmdrun='date'
+                            #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                            cmdrun='date'
                             retcode=os.system(cmdrun)
 
                     else:      
@@ -233,6 +229,13 @@ def do_validation(samples, GlobalTag):
 #                        print rootcommand
                         os.system(rootcommand)
                         referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+seedcollection + '/' + 'val.'+sample+'.root'
+                        mineff='0.'
+                        maxeff='0.5'
+                        if(seedcollection=='newSeedFromTriplets'):
+                            mineff='0.5'
+                            maxeff='1.025'
+                        maxfake='1.'
+
                         if os.path.isfile(referenceSample ):
                                 replace_map = { 'NEW_FILE':'val.'+sample+'_'+seedcollection+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'_'+seedcollection+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample+'_'+seedcollection, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
