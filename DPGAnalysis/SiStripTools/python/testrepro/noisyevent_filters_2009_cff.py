@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------------------------
 
 from DPGAnalysis.SiStripTools.eventwithhistoryproducer_cfi import *
-from DPGAnalysis.SiStripTools.configurableapvphaseproducer_GR09_cfi import *
+from DPGAnalysis.SiStripTools.configurableapvcyclephaseproducer_GR09_cfi import *
 
 from DPGAnalysis.SiStripTools.apvlatency.apvlatencyinfofromconddb_CRAFT_cff import *
 essapvlatency.connect = cms.string("sqlite_file:/afs/cern.ch/cms/tracker/sistrlocrec/CRAFTReproIn31X/latency09_fromDPG.db")
