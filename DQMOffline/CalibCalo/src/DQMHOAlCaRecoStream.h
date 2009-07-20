@@ -13,6 +13,7 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 
   MonitorElement* hMuonMultipl;

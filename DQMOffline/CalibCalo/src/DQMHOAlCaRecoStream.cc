@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.2 2009/03/26 10:54:01 argiro Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.3 2009/04/17 15:07:37 argiro Exp $
 //
 //
 
@@ -66,7 +66,9 @@ using namespace edm;
 //
 DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
-  
+
+  dbe_ = edm::Service<DQMStore>().operator->();  
+
   theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName","tmp.root");
   folderName_ = iConfig.getUntrackedParameter<string>("folderName");
   m_sigmaValue = iConfig.getUntrackedParameter<double>("sigmaval",0.2);
@@ -156,7 +158,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 void 
 DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
+
   dbe_->setCurrentFolder(folderName_);
 
   char title[200];
@@ -228,6 +230,10 @@ DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 DQMHOAlCaRecoStream::endJob() {
+
+}
+
+void DQMHOAlCaRecoStream::endRun(const Run& r, const EventSetup& context){
   if (dbe_) {
 
     //    char name[100];
@@ -253,6 +259,4 @@ DQMHOAlCaRecoStream::endJob() {
    
      if (saveToFile_) dbe_->save(theRootFileName); 
   }
-
 }
-
