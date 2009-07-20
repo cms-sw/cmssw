@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="TinyEvent"/>
+  <class name="std::vector<TinyEvent>" persistent="false"/>
+  <class name="EventWithHistory" persistent="false"/>
+  <class name="APVCyclePhaseCollection" persistent="false"/>
+
+  <class name="APVLatency"/>
+</lcgdict>
