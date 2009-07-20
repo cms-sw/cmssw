@@ -23,7 +23,7 @@ parser.add_option_group(expertSettings)
 
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
-                        "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING or ALL.",
+                        "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING, NONE or ALL.",
                    default="ALL",
                    dest="step")
 
@@ -46,6 +46,11 @@ parser.add_option("--fileout",
                    help="The outfile name. If absent a default value is assigned",
                    default="", #to be changed in the default form later
                    dest="fileout")
+
+parser.add_option("--filetype",
+                   help="The type of the infile (EDM, LHE or MCDB).",
+                   default="",#to be changed in the default form later
+                   dest="filetype")
 
 parser.add_option("-n", "--number",
                   help="The number of events. The default is 1.",
@@ -203,7 +208,8 @@ options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
 # Build the IO files if necessary.
 # The default form of the files is:
 # <type>_<energy>_<step>.root
-prec_step = {"ALL":"",
+prec_step = {"NONE":"",
+             "ALL":"",
              "GEN":"",
              "SIM":"GEN",
              "DIGI":"SIM",
@@ -228,12 +234,24 @@ for s in step_list:
     else:
         trimmedStep=trimmedStep+','+step
 
-        
+
+if options.filetype=="":
+    if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
+        options.filetype="LHE"
+    elif options.filein.startswith("mcdb:"):
+        options.filetype="MCDB"
+    else:
+        options.filetype="EDM"
+if options.filetype=="MCDB" and options.filein.startswith("mcdb:"):
+    options.filein = options.filein[5:]
+
+filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
+
 first_step=trimmedStep.split(',')[0]             
-if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
+if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN") and options.dirin == ""):
     if options.dirin=="":
         options.dirin="file:"
-    options.filein=trimmedEvtType+"_"+prec_step[first_step]+".root"
+    options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
 
 
 # Prepare the canonical file name for output / config file etc
@@ -292,7 +310,9 @@ if options.secondfilein!='':
 
 
 # replace step aliases by right list
-if options.step=='ALL':
+if options.step=='NONE': 
+        options.step=''
+elif options.step=='ALL':
         options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM'
 elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
@@ -302,7 +322,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 # if not fastsim or harvesting...
 
 addEndJob = True
-if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step: 
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or options.step == "": 
     addEndJob = False
 if addEndJob:    
     options.step=options.step+',ENDJOB'
@@ -316,10 +336,12 @@ if not options.name:
         options.name = 'HLT'
     elif 'RECO' in trimmedStep:
         options.name = 'RECO'
+    elif trimmedStep == 'NONE' and options.filetype in ('LHE', 'MCDB'):
+        options.name = 'LHE'
     else:
         options.name = trimmedStep.split(',')[-1]
 
-# check to be sure that people run the harvesting as a separte step
+# check to be sure that people run the harvesting as a separate step
 isHarvesting = False
 isOther = False
 

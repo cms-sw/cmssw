@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.130 $"
+__version__ = "$Revision: 1.132 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -14,6 +14,7 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.pileup = 'NoPileUp'
+defaultOptions.datamix = 'DataOnSim'
 defaultOptions.geometry = 'Ideal'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
@@ -100,23 +101,32 @@ class ConfigBuilder(object):
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         if self._options.filein:
-           if 'HARVESTING' in self._options.step:
-               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein),processingMode = cms.untracked.string("RunsAndLumis"))
-           else:
+           if self._options.filetype == "EDM":
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
-        elif hasattr(self._options,'evt_type'):
+           elif self._options.filetype == "LHE":
+               self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
+           elif self._options.filetype == "MCDB":
+               self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
+
+           if 'HARVESTING' in self._options.step:
+               self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
+
+        if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
+            if self.process.source is None:
+                self.process.source=cms.Source("EmptySource")
+
             evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
             else:
                 evt_type = 'Configuration/Generator/'+evt_type 
 
-            sourceModule = __import__(evt_type)
-            self.process.extend(sourceModule)
+            generatorModule = __import__(evt_type)
+            self.process.extend(generatorModule)
             # now add all modules and sequences to the process
             import FWCore.ParameterSet.Modules as cmstypes  
-            for name in sourceModule.__dict__:
-                theObject = getattr(sourceModule,name)
+            for name in generatorModule.__dict__:
+                theObject = getattr(generatorModule,name)
                 if isinstance(theObject, cmstypes._Module):
                    self.additionalObjects.insert(0,name)
                 if isinstance(theObject, cms.Sequence):
@@ -232,7 +242,9 @@ class ConfigBuilder(object):
                 
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
-	    print step	
+	    if step == "":
+	        continue
+	    print step
             stepParts = step.split(":")   # for format STEP:alternativeSequence
             stepName = stepParts[0]
             if stepName not in stepList:
@@ -468,6 +480,8 @@ class ConfigBuilder(object):
         # is there a production filter sequence given?
 	if "ProductionFilterSequence" in self.additionalObjects and "generator" in self.additionalObjects and sequence == None:
             sequence = "ProductionFilterSequence"
+	elif "generator" in self.additionalObjects and sequence == None:
+            sequence = "generator"
 		
         if sequence:
             if sequence not in self.additionalObjects:
@@ -702,7 +716,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.130 $"),
+              (version=cms.untracked.string("$Revision: 1.132 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
