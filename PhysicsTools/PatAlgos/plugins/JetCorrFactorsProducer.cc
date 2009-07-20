@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.6 2009/03/30 17:18:11 rwolf Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.7 2009/05/07 21:07:23 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -53,10 +53,13 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
 
   SampleType type=kNone;
   // determine sample type for the flavor dependend corrections
-  switch( iConfig.getParameter<int>( "sampleType" ) ){
-  case  0: type = kDijet; break;
-  case  1: type = kTtbar; break;
-  default: 
+  if     ( iConfig.getParameter<std::string>( "sampleType" ).compare("dijet")!=0){
+    type = kDijet;
+  }
+  else if( iConfig.getParameter<std::string>( "sampleType" ).compare("ttbar")!=0){
+    type = kTtbar;
+  }
+  else{
     throw cms::Exception("InvalidRequest") 
       << "you ask for a sample type for jet energy corrections which does not exist \n";  
   }
@@ -302,7 +305,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription iDesc;
   iDesc.add<bool>("useEMF", false);
   iDesc.add<edm::InputTag>("jetSource", edm::InputTag("iterativeCone5CaloJets")); 
-  iDesc.add<int>("sampleType", 0);
+  iDesc.add<std::string>("sampleType", "dijet");
   iDesc.add<std::string>("L1Offset", "none");
   iDesc.add<std::string>("L2Relative", "Summer08Redigi_L2Relative_IC5Calo");
   iDesc.add<std::string>("L3Absolute", "Summer08Redigi_L2Relative_IC5Calo");
