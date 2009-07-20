@@ -21,6 +21,9 @@ if __name__ == "__main__":
                           help='Loads files and prepares "event" '
                           'for interactive mode')
     # tuple group
+    tupleGroup.add_option ('--tuple', dest='tuple', type='string',
+                           default='',
+                           help="Tuple type of 1st and 2nd tuple")
     tupleGroup.add_option ('--tuple1', dest='tuple1', type='string',
                            default='GenObject',
                            help="Tuple type of 1st tuple")
@@ -33,12 +36,15 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--file2', dest='file2', type='string',
                            default="",
                            help="2nd tuple file")
+    tupleGroup.add_option ('--numEvents', dest='numEvents', type='int',
+                           default=0,
+                           help="number of events for first and second file")
     tupleGroup.add_option ('--numEvents1', dest='numEvents1', type='int',
                            default=0,
-                           help="number of events")
+                           help="number of events for first file")
     tupleGroup.add_option ('--numEvents2', dest='numEvents2', type='int',
                            default=0,
-                           help="number of events")
+                           help="number of events for second file")
     tupleGroup.add_option ('--alias', dest='alias', type='string',
                            action='append',
                            help="Change alias ('tuple:object:alias')")
@@ -119,6 +125,11 @@ if __name__ == "__main__":
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
     if options.debug:
         GenObject.setGlobalFlag ('debug', True)
+    # take care of any 'double' options now
+    if options.tuple:
+        options.tuple1 = options.tuple2 = options.tuple
+    if options.numEvents:
+        options.numEvents1 = options.numEvents2 = options.numEvents
     if options.compare:
         # Compare two files
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,

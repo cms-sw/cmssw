@@ -15,14 +15,15 @@ defsDict = {
     }
 
 root2GOtypeDict = {
-    'int'          : 'int',
-    'float'        : 'float',
-    'double'       : 'float',
-    'long'         : 'long',
-    'long int'     : 'long',
-    'unsigned int' : 'int',
-    'bool'         : 'int',
-    'string'       : 'str',
+    'int'                      : 'int',
+    'float'                    : 'float',
+    'double'                   : 'float',
+    'long'                     : 'long',
+    'long int'                 : 'long',
+    'unsigned int'             : 'int',
+    'bool'                     : 'int',
+    'string'                   : 'str',
+    'std::basic_string<char>'  : 'str',
     }
 
 colonRE     = re.compile (r':')
@@ -116,7 +117,7 @@ if __name__ == "__main__":
                        default = '',
                        help="Output (Default 'objectName.txt')")
     parser.add_option ('--alias', dest='alias', type='string',
-                       default = '',
+                       default = 'dummyAlias',
                        help="Tell GO to set an alias")
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
