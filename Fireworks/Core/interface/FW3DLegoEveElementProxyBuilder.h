@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:18 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.4 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.5 2009/07/20 08:46:44 amraktad Exp $
 //
 
 // system include files
@@ -58,8 +58,6 @@ private:
 
    // ---------- member data --------------------------------
    TEveElementList* m_elementHolder;
-
 };
-
 
 #endif
