@@ -6,7 +6,7 @@ from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = 'IDEAL_31X::All'
+GlobalTag.globaltag = 'MC_31X_V3::All'
 
 from DQMServices.Core.DQM_cfg import *
 MessageLogger = cms.Service("MessageLogger")
