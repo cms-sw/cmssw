@@ -11,6 +11,7 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 
 #include "xdaq/Application.h"
@@ -32,10 +33,6 @@
 #include <list>
 #include <vector>
 #include <map>
-
-namespace edm {
-  class EventProcessor;
-}
 
 namespace evf
 {
