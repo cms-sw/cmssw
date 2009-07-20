@@ -17,6 +17,7 @@ allLayer1Summary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("allLayer1Taus"),
         cms.InputTag("allLayer1Photons"),
         cms.InputTag("allLayer1Jets"),
+        cms.InputTag("layer1METs")
     )
 )
 
