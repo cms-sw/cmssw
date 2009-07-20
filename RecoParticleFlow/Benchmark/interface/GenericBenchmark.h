@@ -111,6 +111,8 @@ class GenericBenchmark{
   TH2F *hDeltaSetvsSet;
   TH2F *hDeltaMexvsSet;
   TH2F *hDeltaSetOverSetvsSet;
+  TH2F *hRecSetvsTrueSet;
+  TH2F *hTrueMexvsTrueSet;
 
   BenchmarkTree*  tree_;
 
