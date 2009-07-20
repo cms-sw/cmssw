@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.13 2009/07/10 13:18:36 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.14 2009/07/10 16:51:46 biery Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -2025,7 +2025,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
         dqmEventSizeMQ.recentBinnedDurations[idx];
     }
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, dataRate, 1);
+    maker.addText(tableDiv, dataRate, 3);
     sums[13] += dataRate;
 
     // DQMEvent processor thread busy percentage
