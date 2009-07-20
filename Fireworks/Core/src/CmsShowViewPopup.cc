@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.12 2009/07/06 19:14:54 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.13 2009/07/17 08:01:57 amraktad Exp $
 //
 
 // system include files
@@ -170,7 +170,7 @@ void
 CmsShowViewPopup::saveImage()
 {
    if(m_eveWindow) {
-      FWViewBase* viewBase = (FWViewBase*)m_eveWindow;
+      FWViewBase* viewBase = (FWViewBase*)(m_eveWindow->GetUserData());
       viewBase->promptForSaveImageTo(this);
    }
 }
