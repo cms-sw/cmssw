@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.5 2009/07/20 08:46:45 amraktad Exp $
 //
 
 // system include files
@@ -34,26 +34,11 @@ FW3DLegoEveElementProxyBuilder::FW3DLegoEveElementProxyBuilder()
 {
 }
 
-// FW3DLegoEveElementProxyBuilder::FW3DLegoEveElementProxyBuilder(const FW3DLegoEveElementProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FW3DLegoEveElementProxyBuilder::~FW3DLegoEveElementProxyBuilder()
 {
 }
 
-//
-// assignment operators
-//
-// const FW3DLegoEveElementProxyBuilder& FW3DLegoEveElementProxyBuilder::operator=(const FW3DLegoEveElementProxyBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   FW3DLegoEveElementProxyBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -135,24 +120,6 @@ FW3DLegoEveElementProxyBuilder::build()
       m_elementHolder->AddElement(newElements);
    }
    setUserData(item(),newElements,ids());
-   /*
-      if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
-      int index=0;
-      int largestIndex = m_ids.size();
-      if(m_ids.size()<m_item->size()) {
-         m_ids.resize(m_item->size());
-      }
-      std::vector<FWModelId>::iterator itId = m_ids.begin();
-      for(TEveElement::List_i it = newElements->BeginChildren(),
-          itEnd = newElements->EndChildren();
-          it != itEnd;
-    ++it,++itId,++index) {
-         if(largestIndex<=index) {
-    *itId=FWModelId(m_item,index);
-         }
-         setUserDataElementAndChildren(*it,&(*itId));
-      }
-    */
 }
 
 void
@@ -186,11 +153,3 @@ FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
    m_elementHolder->DestroyElements();
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
