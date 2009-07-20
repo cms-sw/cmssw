@@ -88,7 +88,7 @@ void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, Ru
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.Config_tag d.version "
+		 "d.Config_tag, d.version "
 		 "FROM channelview cv JOIN run_TPGConfig_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
