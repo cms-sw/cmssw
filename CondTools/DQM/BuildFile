@@ -4,6 +4,7 @@
 <use name=CondCore/MetaDataService>
 <use name=CondCore/PopCon>
 <use name=CondFormats/DQMObjects>
+<use name=CondFormats/GeometryObjects>
 <use name=CoralBase>
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
@@ -17,6 +18,7 @@
   <use name=CondCore/MetaDataService>
   <use name=CondCore/DBOutputService>
   <use name=CondFormats/DQMObjects>
+  <use name=CondFormats/GeometryObjects>
   <use name=CondCore/IOVService>
   <use name=FWCore/ServiceRegistry>
   <lib name=CondToolsDQM>

@@ -1,6 +1,7 @@
 <use name=CondTools/DQM>
 <use name=CondCore/PopCon>
 <use name=CondFormats/DataRecord>
+<use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
@@ -8,6 +9,14 @@
    <flags EDM_PLUGIN=1>
 </library>
 
-<library name=DQMSummaryEventSetupAnalyzer file=DQMSummaryEventSetupAnalyzer.cc>
-  <flags EDM_PLUGIN=1>
+<library file=DQMSummaryEventSetupAnalyzer.cc name=CondToolsDQMSummaryEventSetupAnalyzer>
+   <flags EDM_PLUGIN=1>
+</library>
+
+<library file=DQMReferenceHistogramRootFilePopConAnalyzer.cc name=CondToolsDQMReferenceHistogramRootFilePopConAnalyzer>
+   <flags EDM_PLUGIN=1>
+</library>
+
+<library file=DQMReferenceHistogramRootFileEventSetupAnalyzer.cc name=CondToolsDQMReferenceHistogramRootFileEventSetupAnalyzer>
+   <flags EDM_PLUGIN=1>
 </library>
