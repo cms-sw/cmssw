@@ -26,7 +26,7 @@ isolationSumsCalculator = cms.PSet(
     beamSpotProducer = cms.InputTag("offlineBeamSpot"),
     #switches, turn on quality cuts for various quantities.
     vetoClustered  = cms.bool(False),  #will remove clustered rechits from ecal iso sum
-    useNumCrystals = cms.bool(False),  #will define the veto region by number of crystals in stead of geometrically
+    useNumCrystals = cms.bool(True),  #will define the veto region by number of crystals in stead of geometrically
     #configuration of parameters for isolation
 #### BARREL
     #tracks
@@ -42,15 +42,15 @@ isolationSumsCalculator = cms.PSet(
     longImpactParameterB_Barrel  = cms.double(0.2),
     transImpactParameterB_Barrel = cms.double(0.1),
     #Ecal rechits 
-    EcalRecHitInnerRadiusA_Barrel = cms.double(0.06),
+    EcalRecHitInnerRadiusA_Barrel = cms.double(3.5),
     EcalRecHitOuterRadiusA_Barrel = cms.double(0.4),
-    EcalRecHitEtaSliceA_Barrel = cms.double(0.04),
+    EcalRecHitEtaSliceA_Barrel = cms.double(2.5),
     EcalRecHitThreshEA_Barrel = cms.double(0.08),
     EcalRecHitThreshEtA_Barrel = cms.double(0.0),
 #
-    EcalRecHitInnerRadiusB_Barrel = cms.double(0.06),
+    EcalRecHitInnerRadiusB_Barrel = cms.double(3.5),
     EcalRecHitOuterRadiusB_Barrel = cms.double(0.3),
-    EcalRecHitEtaSliceB_Barrel = cms.double(0.04),
+    EcalRecHitEtaSliceB_Barrel = cms.double(2.5),
     EcalRecHitThreshEB_Barrel = cms.double(0.08),
     EcalRecHitThreshEtB_Barrel = cms.double(0.0),
     #Hcal towers
@@ -88,15 +88,15 @@ isolationSumsCalculator = cms.PSet(
     longImpactParameterB_Endcap  = cms.double(0.2),
     transImpactParameterB_Endcap = cms.double(0.1),
     #Ecal rechits 
-    EcalRecHitInnerRadiusA_Endcap = cms.double(0.06),
+    EcalRecHitInnerRadiusA_Endcap = cms.double(3.5),
     EcalRecHitOuterRadiusA_Endcap = cms.double(0.4),
-    EcalRecHitEtaSliceA_Endcap = cms.double(0.04),
+    EcalRecHitEtaSliceA_Endcap = cms.double(2.5),
     EcalRecHitThreshEA_Endcap = cms.double(0.0),
     EcalRecHitThreshEtA_Endcap = cms.double(0.1),
 #
-    EcalRecHitInnerRadiusB_Endcap = cms.double(0.06),
+    EcalRecHitInnerRadiusB_Endcap = cms.double(3.5),
     EcalRecHitOuterRadiusB_Endcap = cms.double(0.3),
-    EcalRecHitEtaSliceB_Endcap = cms.double(0.04),
+    EcalRecHitEtaSliceB_Endcap = cms.double(2.5),
     EcalRecHitThreshEB_Endcap = cms.double(0.0),
     EcalRecHitThreshEtB_Endcap = cms.double(0.1),
     #Hcal towers
