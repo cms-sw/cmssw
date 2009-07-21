@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.7 2009/05/07 21:07:23 hegner Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.8 2009/07/20 17:12:49 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -53,10 +53,10 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
 
   SampleType type=kNone;
   // determine sample type for the flavor dependend corrections
-  if     ( iConfig.getParameter<std::string>( "sampleType" ).compare("dijet")!=0){
+  if     ( iConfig.getParameter<std::string>( "sampleType" ).compare("dijet")==0){
     type = kDijet;
   }
-  else if( iConfig.getParameter<std::string>( "sampleType" ).compare("ttbar")!=0){
+  else if( iConfig.getParameter<std::string>( "sampleType" ).compare("ttbar")==0){
     type = kTtbar;
   }
   else{
