@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/06/24 16:59:59 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/06/25 08:23:11 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -358,17 +358,16 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     }
   }
 
-  std::auto_ptr<MEtoEDM<TH1F> > pOut1;
-  std::auto_ptr<MEtoEDM<TH1S> > pOut1s;
-  std::auto_ptr<MEtoEDM<TH2F> > pOut2;
-  std::auto_ptr<MEtoEDM<TH2S> > pOut2s;
-  std::auto_ptr<MEtoEDM<TH3F> > pOut3;
-  std::auto_ptr<MEtoEDM<TProfile> > pOutProf;
-  std::auto_ptr<MEtoEDM<TProfile2D> > pOutProf2;
-  std::auto_ptr<MEtoEDM<double> > pOutFloat;
-  std::auto_ptr<MEtoEDM<int> > pOutInt;
-  std::auto_ptr<MEtoEDM<TString> > pOutString; 
-
+  std::auto_ptr<MEtoEDM<int> > pOutInt(new MEtoEDM<int>(nInt));
+  std::auto_ptr<MEtoEDM<double> > pOutFloat(new MEtoEDM<double>(nFloat));
+  std::auto_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
+  std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
+  std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
+  std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
+  std::auto_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
+  std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
+  std::auto_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
+  std::auto_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
 
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
 
@@ -378,81 +377,51 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      if(0==pOutInt.get()) {
-	pOutInt.reset(new MEtoEDM<int>(nInt));
-      }
       pOutInt->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getIntValue(),
 				release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      if(0==pOutFloat.get()) {
-	pOutFloat.reset(new MEtoEDM<double>(nFloat));
-      }
       pOutFloat->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
 				  release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_STRING:
-      if(0==pOutString.get()) {
-	pOutString.reset(new MEtoEDM<TString>(nString));
-      }
       pOutString->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getStringValue(),
 				   release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
-      if(0==pOut1.get()) {
-	pOut1.reset(new MEtoEDM<TH1F>(n1F));
-      }
       pOut1->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1F(),
 			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH1S:
-      if(0==pOut1s.get()) {
-	pOut1s.reset(new MEtoEDM<TH1S>(n1S));
-      }
       pOut1s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1S(),
 			       release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
-      if(0==pOut2.get()) {
-	pOut2.reset(new MEtoEDM<TH2F>(n2F));
-      }
       pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F(),
 			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
-      if(0==pOut2s.get()) {
-	pOut2s.reset(new MEtoEDM<TH2S>(n2S));
-      }
       pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S(),
 			       release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
-      if(0==pOut3.get()) {
-	pOut3.reset(new MEtoEDM<TH3F>(n3F));
-      }
       pOut3->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH3F(),
 			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
-      if(0==pOutProf.get()) {
-	pOutProf.reset(new MEtoEDM<TProfile>(nProf));
-      }
       pOutProf->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile(),
 			      release,run,datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
-      if(0==pOutProf2.get()) {
-	pOutProf2.reset(new MEtoEDM<TProfile2D>(nProf2));
-      }
       pOutProf2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile2D(),
 				  release,run,datatier);
       break;
@@ -472,36 +441,17 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   } // end loop through monitor elements
 
   // produce objects to put in events
-  if (0 != pOut1.get()) {
-    iRun.put(pOut1,fName);
-  }
-  if ( 0 != pOut1s.get()) {
-    iRun.put(pOut1s,fName);
-  }
-  if ( 0 != pOut2.get() ) {
-    iRun.put(pOut2,fName);
-  }
-  if ( 0 != pOut2s.get() ) {
-    iRun.put(pOut2s,fName);
-  }
-  if ( 0 != pOut3.get() ) {
-    iRun.put(pOut3,fName);
-  }
-  if ( 0 != pOutProf.get() ) {
-    iRun.put(pOutProf,fName);
-  }
-  if ( 0 != pOutProf2.get() ) {
-    iRun.put(pOutProf2,fName);
-  }
-  if ( 0 != pOutFloat.get() ) {
-    iRun.put(pOutFloat,fName);
-  }
-  if ( 0 != pOutInt.get() ) {
-    iRun.put(pOutInt,fName);
-  }
-  if ( 0 != pOutString.get() ) {
-    iRun.put(pOutString,fName);
-  }
+  iRun.put(pOutInt,fName);
+  iRun.put(pOutFloat,fName);
+  iRun.put(pOutString,fName);
+  iRun.put(pOut1,fName);
+  iRun.put(pOut1s,fName);
+  iRun.put(pOut2,fName);
+  iRun.put(pOut2s,fName);
+  iRun.put(pOut3,fName);
+  iRun.put(pOutProf,fName);
+  iRun.put(pOutProf2,fName);
+
 }
 
 void
