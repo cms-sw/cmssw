@@ -86,9 +86,9 @@ lumi::LumiOMDSReader::fill(int startRun,
       query1->addToOutputList("bx.ET_LUMI_ERR","bx_err_et");
       query1->addToOutputList("bx.ET_LUMI_QLTY","bx_quality_et");
 
-      //query1->addToOutputList("bx.OCC_LUMI_D1","bx_lumi_occd1");
-      //query1->addToOutputList("bx.OCC_LUMI_D1_ERR","bx_err_occd1");
-      //query1->addToOutputList("bx.OCC_LUMI_D1_QLTY","bx_quality_occd1");
+      query1->addToOutputList("bx.OCC_LUMI_D1","bx_lumi_occd1");
+      query1->addToOutputList("bx.OCC_LUMI_D1_ERR","bx_err_occd1");
+      query1->addToOutputList("bx.OCC_LUMI_D1_QLTY","bx_quality_occd1");
 
       //query1->addToOutputList("bx.OCC_LUMI_D2","bx_lumi_occd2");
       //query1->addToOutputList("bx.OCC_LUMI_D2_ERR","bx_err_occd2");
@@ -107,20 +107,21 @@ lumi::LumiOMDSReader::fill(int startRun,
       int lastLumiSection=0;
       std::vector<lumi::BunchCrossingInfo> bxinfo_et;
       bxinfo_et.reserve(3564);
-      //std::vector<lumi::BunchCrossingInfo> bxinfo_occd1;
-      //bxinfo_occd1.reserve(3564);
+      std::vector<lumi::BunchCrossingInfo> bxinfo_occd1;
+      bxinfo_occd1.reserve(3564);
       //std::vector<lumi::BunchCrossingInfo> bxinfo_occd2;
       //bxinfo_occd2.reserve(3564);
 
       if( !cursor1.next() ){
 	///if run doesn't exist
-	std::cout<<"run "<<currentRun<<" doesn't exist, filling null data"<<std::endl;
-	l=new lumi::LuminosityInfo;
-	edm::LuminosityBlockID lu(currentRun,1);
-	cond::Time_t current=(cond::Time_t)(lu.value());
-	l->setLumiNull();
-	l->setLumiSectionId(1);
-	result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
+	std::cout<<"run "<<currentRun<<" doesn't exist, do nothing"<<std::endl;
+	//l=new lumi::LuminosityInfo;
+	//edm::LuminosityBlockID lu(currentRun,1);
+	//cond::Time_t current=(cond::Time_t)(lu.value());
+	//l->setLumiNull();
+	//l->setLumiSectionId(1);
+	//result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
+	continue;
       }else{
 	while( cursor1.next() ){
 	  const coral::AttributeList& row=cursor1.currentRow();
@@ -145,34 +146,34 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    bx_quality_et=(int)row["bx_quality_et"].data<short>();
 	  }
 	  bxinfo_et.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_et,bx_err_et,bx_quality_et));
-	  /*
-	    float bx_lumi_occd1=-99.0;
-	    if( !row["bx_lumi_occd1"].isNull() ){
-	    bx_lumi_occd1=(float)row["bx_lumi_occd1"].data<double>();
-	    }
-	    float bx_err_occd1=-99.0;
-	    if( !row["bx_err_occd1"].isNull() ){
+	  
+	  float bx_lumi_occd1=-99.0;
+	  if( !row["bx_lumi_occd1"].isNull() ){
+	    bx_lumi_occd1=(float)row["bx_lumi_occd1"].data<float>();
+	  }
+	  float bx_err_occd1=-99.0;
+	  if( !row["bx_err_occd1"].isNull() ){
 	    bx_err_occd1=(float)row["bx_err_occd1"].data<double>();
-	    }	  
-	    int bx_quality_occd1=-99;
-	    if( !row["bx_quality_occd1"].isNull() ){
+	  }	  
+	  int bx_quality_occd1=-99;
+	  if( !row["bx_quality_occd1"].isNull() ){
 	    bx_quality_occd1=(int)row["bx_quality_occd1"].data<short>();
-	    }
-	    bxinfo_occd1.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd1,bx_err_occd1,bx_quality_occd1));
-	    
-	    float bx_lumi_occd2=-99.0;
-	    if( !row["bx_lumi_occd2"].isNull() ){
-	    bx_lumi_occd2=(float)row["bx_lumi_occd2"].data<double>();
-	    }
-	    float bx_err_occd2=-99.0;
-	    if( !row["bx_err_occd2"].isNull() ){
-	    bx_err_occd2=(float)row["bx_err_occd2"].data<double>();
-	    }
-	    int bx_quality_occd2=-99;
-	    if( !row["bx_quality_occd2"].isNull() ){
-	    bx_quality_occd2=(int)row["bx_quality_occd2"].data<short>();
-	    }
-	    bxinfo_occd2.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd2,bx_err_occd2,bx_quality_occd2));
+	  }
+	  bxinfo_occd1.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd1,bx_err_occd1,bx_quality_occd1));
+	  /*  
+	      float bx_lumi_occd2=-99.0;
+	      if( !row["bx_lumi_occd2"].isNull() ){
+	      bx_lumi_occd2=(float)row["bx_lumi_occd2"].data<double>();
+	      }
+	      float bx_err_occd2=-99.0;
+	      if( !row["bx_err_occd2"].isNull() ){
+	      bx_err_occd2=(float)row["bx_err_occd2"].data<double>();
+	      }
+	      int bx_quality_occd2=-99;
+	      if( !row["bx_quality_occd2"].isNull() ){
+	      bx_quality_occd2=(int)row["bx_quality_occd2"].data<short>();
+	      }
+	      bxinfo_occd2.push_back(lumi::BunchCrossingInfo(bxidx,bx_lumi_occd2,bx_err_occd2,bx_quality_occd2));
 	  */
 	  if(currentLumiSection>lastLumiSection && bxidx==3564){
 	    l=new lumi::LuminosityInfo;
@@ -203,11 +204,11 @@ lumi::LumiOMDSReader::fill(int startRun,
 	    l->setLumiQuality(instant_lumi_quality);
 	    l->setDeadFraction(deadfrac);
 	    l->setBunchCrossingData(bxinfo_et,lumi::ET);
-	    //l->setBunchCrossingData(bxinfo_occd1,lumi::OCCD1);
+	    l->setBunchCrossingData(bxinfo_occd1,lumi::OCCD1);
 	    //l->setBunchCrossingData(bxinfo_occd2,lumi::OCCD2);
 	    result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
 	    bxinfo_et.clear();
-	    //bxinfo_occd1.clear();
+	    bxinfo_occd1.clear();
 	    //bxinfo_occd2.clear();
 	    ++lastLumiSection;
 	  }

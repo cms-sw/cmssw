@@ -17,38 +17,29 @@ lumi::LumiDummyReader::fill(int startRun,
   //
   short lumiversion=lumiVersionNumber;
   std::cout<<"lumiversion "<<lumiversion<<std::endl;
-  for(int i=startRun; i<=startRun+numberOfRuns; ++i){
+  for(int i=startRun; i<startRun+numberOfRuns; ++i){
     for(int j=1; j<30; ++j){
       edm::LuminosityBlockID lu(i,j);
-      if(i==5){
-	edm::LuminosityBlockID lu5(5,1);
-	cond::Time_t current=(cond::Time_t)(lu5.value());
-	lumi::LuminosityInfo* l5=new lumi::LuminosityInfo;
-	l5->setLumiNull();
-	std::cout<<"current "<<current<<std::endl;
-	result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l5,current));
-      }else{
-	cond::Time_t current=(cond::Time_t)(lu.value());
-	lumi::LuminosityInfo* l=new lumi::LuminosityInfo;
-	l->setLumiVersionNumber(1);
-	l->setLumiSectionId(j);
-	l->setLumiAverage(1.1);
-	l->setLumiQuality(1);
-	l->setDeadFraction(0.2);
-	l->setLumiError(0.5);
-	std::vector<lumi::BunchCrossingInfo> bxinfo;
-	bxinfo.reserve(3564);
-	for(int bxidx=1;bxidx<=3564;++bxidx){
+      cond::Time_t current=(cond::Time_t)(lu.value());
+      lumi::LuminosityInfo* l=new lumi::LuminosityInfo;
+      l->setLumiVersionNumber(1);
+      l->setLumiSectionId(j);
+      l->setLumiAverage(1.1);
+      l->setLumiQuality(1);
+      l->setDeadFraction(0.2);
+      l->setLumiError(0.5);
+      std::vector<lumi::BunchCrossingInfo> bxinfo;
+      bxinfo.reserve(3564);
+      for(int bxidx=1;bxidx<=3564;++bxidx){
 	bxinfo.push_back(lumi::BunchCrossingInfo(bxidx,2.1,0.6,3));
-	}
-	l->setBunchCrossingData(bxinfo,lumi::ET);
-	l->setBunchCrossingData(bxinfo,lumi::OCCD1);
-	l->setBunchCrossingData(bxinfo,lumi::OCCD2);
-	std::cout<<"current "<<current<<std::endl;
-	result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
       }
-  }
-  std::cout<<"result size "<<result.size()<<std::endl;
+      l->setBunchCrossingData(bxinfo,lumi::ET);
+      l->setBunchCrossingData(bxinfo,lumi::OCCD1);
+      l->setBunchCrossingData(bxinfo,lumi::OCCD2);
+      std::cout<<"current "<<current<<std::endl;
+      result.push_back(std::make_pair<lumi::LuminosityInfo*,cond::Time_t>(l,current));
+    }
+    std::cout<<"result size "<<result.size()<<std::endl;
   }
 }
 
