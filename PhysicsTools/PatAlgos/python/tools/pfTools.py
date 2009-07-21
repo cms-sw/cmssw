@@ -131,7 +131,7 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
 #    process.patDefaultSequence.remove(process.patElectronIsolation)
     if not addElectrons:
         print "Temporarily switching off electrons completely"
-        removeSpecificPATObject(process,'Electrons')
+        removeSpecificPATObjects(process,['Electrons'])
         process.patDefaultSequence.remove(process.patElectronId)
         process.patDefaultSequence.remove(process.patElectronIsolation)
         #process.countLayer1Leptons.countElectrons = False
@@ -166,7 +166,7 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
     
     # Photons
     print "Temporarily switching off photons completely"
-    removeSpecificPATObject(process,'Photons')
+    removeSpecificPATObjects(process,['Photons'])
     process.patDefaultSequence.remove(process.patPhotonIsolation)
     
     # Jets
