@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/05/05 14:17:55 $
- * $Revision: 1.29 $
+ * $Date: 2009/07/17 17:14:23 $
+ * $Revision: 1.30 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -690,17 +690,24 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
                        == EcalSrFlag::SRF_FULL);
 
   if(endcap) {
+
+    int dccZsFIRval = dccZsFIR(frame, firWeights_, firstFIRSample_, 0); 
+
     if ( ism >= 1 && ism <= 9 ) {
       if(highInterest) {
 	++nEeHI_[0];
+        EEHighInterestZsFIR_[0]->Fill( dccZsFIRval );
       } else{ //low interest
 	++nEeLI_[0];
+        EELowInterestZsFIR_[0]->Fill( dccZsFIRval );
       }
     } else {
       if(highInterest) {
 	++nEeHI_[1];
+        EEHighInterestZsFIR_[1]->Fill( dccZsFIRval );
       } else{ //low interest
 	++nEeLI_[1];
+        EELowInterestZsFIR_[1]->Fill( dccZsFIRval );
       }
     }
   }
