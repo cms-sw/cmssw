@@ -48,40 +48,50 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   TH1F *ksNewFakeR, *ksNewTkFakeR;
 
   // K0s Efficiency plots from reference release
-  refdir->GetObject(hList1->At(0)->GetName(), ksEffEta);
+  //refdir->GetObject(hList1->At(0)->GetName(), ksEffEta);
+  refdir->GetObject(hList1->FindObject("K0sEffVsEta")->GetName(), ksEffEta);
   ksEffEta->GetYaxis()->SetRangeUser(0, 1.1);
-
-  refdir->GetObject(hList1->At(6)->GetName(), ksTkEffEta);
+  
+  //refdir->GetObject(hList1->At(6)->GetName(), ksTkEffEta);
+  refdir->GetObject(hList1->FindObject("K0sTkEffVsEta")->GetName(), ksTkEffEta);
   ksTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(1)->GetName(), ksEffPt);
+  //refdir->GetObject(hList1->At(1)->GetName(), ksEffPt);
+  refdir->GetObject(hList1->FindObject("K0sEffVsPt")->GetName(), ksEffPt);
   ksEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksEffPt->GetYaxis()->SetTitle("K^{0}_{S} Efficiency vs p_{T}");
   ksEffPt->GetYaxis()->SetTitleSize(0.05);
   ksEffPt->GetYaxis()->SetTitleOffset(1.2);
   ksEffPt->SetTitle("");
 
-  refdir->GetObject(hList1->At(7)->GetName(), ksTkEffPt);
+  //refdir->GetObject(hList1->At(7)->GetName(), ksTkEffPt);
+  refdir->GetObject(hList1->FindObject("K0sTkEffPt")->GetName(), ksTkEffPt);
   ksTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksTkEffPt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Efficiency vs p_{T}");
   ksTkEffPt->GetYaxis()->SetTitleSize(0.05);
   ksTkEffPt->GetYaxis()->SetTitleOffset(1.2);
   ksTkEffPt->SetTitle("");
 
-  refdir->GetObject(hList1->At(2)->GetName(), ksEffR);
+  //refdir->GetObject(hList1->At(2)->GetName(), ksEffR);
+  refdir->GetObject(hList1->FindObject("K0sEffVsR")->GetName(), ksEffR);
   ksEffR->GetYaxis()->SetRangeUser(0, 1.1);
-  refdir->GetObject(hList1->At(8)->GetName(), ksTkEffR);
+
+  //refdir->GetObject(hList1->At(8)->GetName(), ksTkEffR);
+  refdir->GetObject(hList1->FindObject("K0sTkEffVsR")->GetName(), ksTkEffR);
   ksTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
   // K0s efficiency plots from new release
-  newdir->GetObject(hList1->At(0)->GetName(), ksNewEffEta);
+  //newdir->GetObject(hList1->At(0)->GetName(), ksNewEffEta);
+  newdir->GetObject(hList2->FindObject("K0sEffVsEta")->GetName(), ksNewEffEta);
   ksNewEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(6)->GetName(), ksNewTkEffEta);
+  //newdir->GetObject(hList1->At(6)->GetName(), ksNewTkEffEta);
+  newdir->GetObject(hList2->FindObject("K0sTkEffVsEta")->GetName(), ksNewTkEffEta);
   ksNewTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(1)->GetName(), ksNewEffPt);
+  //newdir->GetObject(hList1->At(1)->GetName(), ksNewEffPt);
+  newdir->GetObject(hList2->FindObject("K0sEffVsPt")->GetName(), ksNewEffPt);
   ksNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksNewEffPt->GetYaxis()->SetTitle("K^{0}_{S} Efficiency vs p_{T}");
@@ -89,28 +99,34 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksNewEffPt->GetYaxis()->SetTitleOffset(1.2);
   ksNewEffPt->SetTitle("");
 
-  newdir->GetObject(hList1->At(7)->GetName(), ksNewTkEffPt);
+  //newdir->GetObject(hList1->At(7)->GetName(), ksNewTkEffPt);
+  newdir->GetObject(hList2->FindObject("K0sTkEffVsPt")->GetName(), ksNewTkEffPt);
   ksNewTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksNewTkEffPt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Efficiency vs p_{T}");
   ksNewTkEffPt->GetYaxis()->SetTitleSize(0.05);
   ksNewTkEffPt->GetYaxis()->SetTitleOffset(1.2);
   ksNewTkEffPt->SetTitle("");
 
-  newdir->GetObject(hList1->At(2)->GetName(), ksNewEffR);
+  //newdir->GetObject(hList1->At(2)->GetName(), ksNewEffR);
+  newdir->GetObject(hList2->FindObject("K0sEffVsR")->GetName(), ksNewEffR);
   ksNewEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(8)->GetName(), ksNewTkEffR);
+  //newdir->GetObject(hList1->At(8)->GetName(), ksNewTkEffR);
+  newdir->GetObject(hList2->FindObject("K0sTkEffVsR")->GetName(), ksNewTkEffR);
   ksNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
   // K0s fake rate plots from reference release
-  refdir->GetObject(hList1->At(3)->GetName(), ksFakeEta);
+  //refdir->GetObject(hList1->At(3)->GetName(), ksFakeEta);
+  refdir->GetObject(hList1->FindObject("K0sFakeVsEta")->GetName(), ksFakeEta);
   ksFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(9)->GetName(), ksTkFakeEta);
+  //refdir->GetObject(hList1->At(9)->GetName(), ksTkFakeEta);
+  refdir->GetObject(hList1->FindObject("K0sTkFakeVsEta")->GetName(), ksTkFakeEta);
   ksTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(4)->GetName(), ksFakePt);
+  //refdir->GetObject(hList1->At(4)->GetName(), ksFakePt);
+  refdir->GetObject(hList1->FindObject("K0sFakeVsPt")->GetName(), ksFakePt);
   ksFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   ksFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   ksFakePt->GetYaxis()->SetTitle("K^{0}_{S} Fake Rate vs p_{T}");
@@ -118,40 +134,49 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksFakePt->GetYaxis()->SetTitleOffset(1.2);
   ksFakePt->SetTitle("");
 
-  refdir->GetObject(hList1->At(10)->GetName(), ksTkFakePt);
+  //refdir->GetObject(hList1->At(10)->GetName(), ksTkFakePt);
+  refdir->GetObject(hList1->FindObject("K0sTkFakeVsPt")->GetName(), ksTkFakePt);
   ksTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   ksTkFakePt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Fake Rate vs p_{T}");
   ksTkFakePt->GetYaxis()->SetTitleSize(0.05);
   ksTkFakePt->GetYaxis()->SetTitleOffset(1.2);
   ksTkFakePt->SetTitle("");
 
-  refdir->GetObject(hList1->At(5)->GetName(), ksFakeR);
+  //refdir->GetObject(hList1->At(5)->GetName(), ksFakeR);
+  refdir->GetObject(hList1->FindObject("K0sFakeVsR")->GetName(), ksFakeR);
   ksFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(11)->GetName(), ksTkFakeR);
+  //refdir->GetObject(hList1->At(11)->GetName(), ksTkFakeR);
+  refdir->GetObject(hList1->FindObject("K0sTkFakeVsR")->GetName(), ksTkFakeR);
   ksTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
 
   // Kshort plots from new release we're testing
-  newdir->GetObject(hList1->At(3)->GetName(), ksNewFakeEta);
+  //newdir->GetObject(hList1->At(3)->GetName(), ksNewFakeEta);
+  newdir->GetObject(hList2->FindObject("K0sFakeVsEta")->GetName(), ksNewFakeEta);
   ksNewFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(9)->GetName(), ksNewTkFakeEta);
+  //newdir->GetObject(hList1->At(9)->GetName(), ksNewTkFakeEta);
+  newdir->GetObject(hList2->FindObject("K0sTkFakeVsEta")->GetName(), ksNewTkFakeEta);
   ksNewTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(4)->GetName(), ksNewFakePt);
+  //newdir->GetObject(hList1->At(4)->GetName(), ksNewFakePt);
+  newdir->GetObject(hList2->FindObject("K0sFakeVsPt")->GetName(), ksNewFakePt);
   ksNewFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   ksNewFakePt->SetTitle("");
 
-  newdir->GetObject(hList1->At(10)->GetName(), ksNewTkFakePt);
+  //newdir->GetObject(hList1->At(10)->GetName(), ksNewTkFakePt);
+  newdir->GetObject(hList2->FindObject("K0sTkFakeVsPt")->GetName(), ksNewTkFakePt);
   ksNewTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   ksNewTkFakePt->SetTitle("");
 
-  newdir->GetObject(hList1->At(5)->GetName(), ksNewFakeR);
+  //newdir->GetObject(hList1->At(5)->GetName(), ksNewFakeR);
+  newdir->GetObject(hList2->FindObject("K0sFakeVsR")->GetName(), ksNewFakeR);
   ksNewFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(11)->GetName(), ksNewTkFakeR);
+  //newdir->GetObject(hList1->At(11)->GetName(), ksNewTkFakeR);
+  newdir->GetObject(hList2->FindObject("K0sTkFakeVsR")->GetName(), ksNewTkFakeR);
   ksNewTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
@@ -162,7 +187,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksEffEta->SetMarkerColor(2);
   ksEffEta->SetMarkerSize(0.7);
   ksEffEta->SetLineColor(2);
-  ksNewEffEta->SetMarkerStyle(21);
+  ksNewEffEta->SetMarkerStyle(20);
   ksNewEffEta->SetMarkerColor(4);
   ksNewEffEta->SetMarkerSize(0.7);
   ksNewEffEta->SetLineColor(4);
@@ -171,7 +196,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksTkEffEta->SetMarkerColor(2);
   ksTkEffEta->SetMarkerSize(0.7);
   ksTkEffEta->SetLineColor(2);
-  ksNewTkEffEta->SetMarkerStyle(21);
+  ksNewTkEffEta->SetMarkerStyle(20);
   ksNewTkEffEta->SetMarkerColor(4);
   ksNewTkEffEta->SetMarkerSize(0.7);
   ksNewTkEffEta->SetLineColor(4);
@@ -180,7 +205,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksEffPt->SetMarkerColor(2);
   ksEffPt->SetMarkerSize(0.7);
   ksEffPt->SetLineColor(2);
-  ksNewEffPt->SetMarkerStyle(21);
+  ksNewEffPt->SetMarkerStyle(20);
   ksNewEffPt->SetMarkerColor(4);
   ksNewEffPt->SetMarkerSize(0.7);
   ksNewEffPt->SetLineColor(4);
@@ -189,7 +214,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksTkEffPt->SetMarkerColor(2);
   ksTkEffPt->SetMarkerSize(0.7);
   ksTkEffPt->SetLineColor(2);
-  ksNewTkEffPt->SetMarkerStyle(21);
+  ksNewTkEffPt->SetMarkerStyle(20);
   ksNewTkEffPt->SetMarkerColor(4);
   ksNewTkEffPt->SetMarkerSize(0.7);
   ksNewTkEffPt->SetLineColor(4);
@@ -198,7 +223,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksEffR->SetMarkerColor(2);
   ksEffR->SetMarkerSize(0.7);
   ksEffR->SetLineColor(2);
-  ksNewEffR->SetMarkerStyle(21);
+  ksNewEffR->SetMarkerStyle(20);
   ksNewEffR->SetMarkerColor(4);
   ksNewEffR->SetMarkerSize(0.7);
   ksNewEffR->SetLineColor(4);
@@ -207,7 +232,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksTkEffR->SetMarkerColor(2);
   ksTkEffR->SetMarkerSize(0.7);
   ksTkEffR->SetLineColor(2);
-  ksNewTkEffR->SetMarkerStyle(21);
+  ksNewTkEffR->SetMarkerStyle(20);
   ksNewTkEffR->SetMarkerColor(4);
   ksNewTkEffR->SetMarkerSize(0.7);
   ksNewTkEffR->SetLineColor(4);
@@ -257,6 +282,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   leg1->Draw();
 
   canvas->Print("K0sEff.png");
+  canvas->Print("K0sEff.pdf");
 
   delete leg1;
   //delete canvas;
@@ -266,56 +292,56 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
 
   ksFakeEta->SetMarkerStyle(20);
   ksFakeEta->SetMarkerColor(2);
-  ksFakeEta->SetMarkerSize(0.7);
+  ksFakeEta->SetMarkerSize(0.5);
   ksFakeEta->SetLineColor(2);
-  ksNewFakeEta->SetMarkerStyle(21);
+  ksNewFakeEta->SetMarkerStyle(20);
   ksNewFakeEta->SetMarkerColor(4);
-  ksNewFakeEta->SetMarkerSize(0.7);
+  ksNewFakeEta->SetMarkerSize(0.5);
   ksNewFakeEta->SetLineColor(4);
 
   ksTkFakeEta->SetMarkerStyle(20);
   ksTkFakeEta->SetMarkerColor(2);
-  ksTkFakeEta->SetMarkerSize(0.7);
+  ksTkFakeEta->SetMarkerSize(0.5);
   ksTkFakeEta->SetLineColor(2);
-  ksNewTkFakeEta->SetMarkerStyle(21);
+  ksNewTkFakeEta->SetMarkerStyle(20);
   ksNewTkFakeEta->SetMarkerColor(4);
-  ksNewTkFakeEta->SetMarkerSize(0.7);
+  ksNewTkFakeEta->SetMarkerSize(0.5);
   ksNewTkFakeEta->SetLineColor(4);
 
   ksFakePt->SetMarkerStyle(20);
   ksFakePt->SetMarkerColor(2);
-  ksFakePt->SetMarkerSize(0.7);
+  ksFakePt->SetMarkerSize(0.5);
   ksFakePt->SetLineColor(2);
-  ksNewFakePt->SetMarkerStyle(21);
+  ksNewFakePt->SetMarkerStyle(20);
   ksNewFakePt->SetMarkerColor(4);
-  ksNewFakePt->SetMarkerSize(0.7);
+  ksNewFakePt->SetMarkerSize(0.5);
   ksNewFakePt->SetLineColor(4);
 
   ksTkFakePt->SetMarkerStyle(20);
   ksTkFakePt->SetMarkerColor(2);
-  ksTkFakePt->SetMarkerSize(0.7);
+  ksTkFakePt->SetMarkerSize(0.5);
   ksTkFakePt->SetLineColor(2);
-  ksNewTkFakePt->SetMarkerStyle(21);
+  ksNewTkFakePt->SetMarkerStyle(20);
   ksNewTkFakePt->SetMarkerColor(4);
-  ksNewTkFakePt->SetMarkerSize(0.7);
+  ksNewTkFakePt->SetMarkerSize(0.5);
   ksNewTkFakePt->SetLineColor(4);
 
   ksFakeR->SetMarkerStyle(20);
   ksFakeR->SetMarkerColor(2);
-  ksFakeR->SetMarkerSize(0.7);
+  ksFakeR->SetMarkerSize(0.5);
   ksFakeR->SetLineColor(2);
-  ksNewFakeR->SetMarkerStyle(21);
+  ksNewFakeR->SetMarkerStyle(20);
   ksNewFakeR->SetMarkerColor(4);
-  ksNewFakeR->SetMarkerSize(0.7);
+  ksNewFakeR->SetMarkerSize(0.5);
   ksNewFakeR->SetLineColor(4);
 
   ksTkFakeR->SetMarkerStyle(20);
   ksTkFakeR->SetMarkerColor(2);
-  ksTkFakeR->SetMarkerSize(0.7);
+  ksTkFakeR->SetMarkerSize(0.5);
   ksTkFakeR->SetLineColor(2);
-  ksNewTkFakeR->SetMarkerStyle(21);
+  ksNewTkFakeR->SetMarkerStyle(20);
   ksNewTkFakeR->SetMarkerColor(4);
-  ksNewTkFakeR->SetMarkerSize(0.7);
+  ksNewTkFakeR->SetMarkerSize(0.5);
   ksNewTkFakeR->SetLineColor(4);
 
   canvas->Divide(2,3);
@@ -363,10 +389,11 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   leg2->Draw();
 
   canvas->Print("K0sFake.png");
+  canvas->Print("K0sFake.pdf");
 
   delete leg2;
 
-  cout << "Plotting Lambdas?" << endl;
+  cout << "Plotting Lambdas" << endl;
   // Lambda plots
   TH1F *lamEffEta, *lamTkEffEta;
   TH1F *lamEffPt, *lamTkEffPt;
@@ -385,40 +412,50 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   TH1F *lamNewFakeR, *lamNewTkFakeR;
 
   // Lambda Efficiency plots from reference release
-  refdir->GetObject(hList1->At(12)->GetName(), lamEffEta);
+  //refdir->GetObject(hList1->At(12)->GetName(), lamEffEta);
+  refdir->GetObject(hList1->FindObject("LamEffVsEta")->GetName(), lamEffEta);
   lamEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(18)->GetName(), lamTkEffEta);
+  //refdir->GetObject(hList1->At(18)->GetName(), lamTkEffEta);
+  refdir->GetObject(hList1->FindObject("LamTkEffVsEta")->GetName(), lamTkEffEta);
   lamTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(13)->GetName(), lamEffPt);
+  //refdir->GetObject(hList1->At(13)->GetName(), lamEffPt);
+  refdir->GetObject(hList1->FindObject("LamEffVsPt")->GetName(), lamEffPt);
   lamEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   lamEffPt->GetYaxis()->SetTitle("#Lambda^{0} Efficiency vs p_{T}");
   lamEffPt->GetYaxis()->SetTitleSize(0.05);
   lamEffPt->GetYaxis()->SetTitleOffset(1.2);
   lamEffPt->SetTitle("");
 
-  refdir->GetObject(hList1->At(19)->GetName(), lamTkEffPt);
+  //refdir->GetObject(hList1->At(19)->GetName(), lamTkEffPt);
+  refdir->GetObject(hList1->FindObject("LamTkEffVsPt")->GetName(), lamTkEffPt);
   lamTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   lamTkEffPt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Efficiency vs p_{T}");
   lamTkEffPt->GetYaxis()->SetTitleSize(0.05);
   lamTkEffPt->GetYaxis()->SetTitleOffset(1.2);
   lamTkEffPt->SetTitle("");
 
-  refdir->GetObject(hList1->At(14)->GetName(), lamEffR);
+  //refdir->GetObject(hList1->At(14)->GetName(), lamEffR);
+  refdir->GetObject(hList1->FindObject("LamEffVsR")->GetName(), lamEffR);
   lamEffR->GetYaxis()->SetRangeUser(0, 1.1);
-  refdir->GetObject(hList1->At(20)->GetName(), lamTkEffR);
+
+  //refdir->GetObject(hList1->At(20)->GetName(), lamTkEffR);
+  refdir->GetObject(hList1->FindObject("LamTkEffVsR")->GetName(), lamTkEffR);
   lamTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
   // Lambda efficiency plots from new release
-  newdir->GetObject(hList1->At(12)->GetName(), lamNewEffEta);
+  //newdir->GetObject(hList1->At(12)->GetName(), lamNewEffEta);
+  newdir->GetObject(hList2->FindObject("LamEffVsEta")->GetName(), lamNewEffEta);
   lamNewEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(18)->GetName(), lamNewTkEffEta);
+  //newdir->GetObject(hList1->At(18)->GetName(), lamNewTkEffEta);
+  newdir->GetObject(hList2->FindObject("LamTkEffVsEta")->GetName(), lamNewTkEffEta);
   lamNewTkEffEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(13)->GetName(), lamNewEffPt);
+  //newdir->GetObject(hList1->At(13)->GetName(), lamNewEffPt);
+  newdir->GetObject(hList2->FindObject("LamEffVsPt")->GetName(), lamNewEffPt);
   lamNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   lamNewEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   lamNewEffPt->GetYaxis()->SetTitle("#Lambda^{0} Efficiency vs p_{T}");
@@ -426,28 +463,34 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   lamNewEffPt->GetYaxis()->SetTitleOffset(1.2);
   lamNewEffPt->SetTitle("");
 
-  newdir->GetObject(hList1->At(19)->GetName(), lamNewTkEffPt);
+  //newdir->GetObject(hList1->At(19)->GetName(), lamNewTkEffPt);
+  newdir->GetObject(hList1->FindObject("LamTkEffVsPt")->GetName(), lamNewTkEffPt);
   lamNewTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   lamNewTkEffPt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Efficiency vs p_{T}");
   lamNewTkEffPt->GetYaxis()->SetTitleSize(0.05);
   lamNewTkEffPt->GetYaxis()->SetTitleOffset(1.2);
   lamNewTkEffPt->SetTitle("");
 
-  newdir->GetObject(hList1->At(14)->GetName(), lamNewEffR);
+  //newdir->GetObject(hList1->At(14)->GetName(), lamNewEffR);
+  newdir->GetObject(hList2->FindObject("LamEffVsR")->GetName(), lamNewEffR);
   lamNewEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(20)->GetName(), lamNewTkEffR);
+  //newdir->GetObject(hList1->At(20)->GetName(), lamNewTkEffR);
+  newdir->GetObject(hList2->FindObject("LamTkEffVsR")->GetName(), lamNewTkEffR);
   lamNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
   // Lambda fake rate plots from reference release
-  refdir->GetObject(hList1->At(15)->GetName(), lamFakeEta);
+  //refdir->GetObject(hList1->At(15)->GetName(), lamFakeEta);
+  refdir->GetObject(hList1->FindObject("LamFakeVsEta")->GetName(), lamFakeEta);
   lamFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(21)->GetName(), lamTkFakeEta);
+  //refdir->GetObject(hList1->At(21)->GetName(), lamTkFakeEta);
+  refdir->GetObject(hList1->FindObject("LamTkFakeVsEta")->GetName(), lamTkFakeEta);
   lamTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(16)->GetName(), lamFakePt);
+  //refdir->GetObject(hList1->At(16)->GetName(), lamFakePt);
+  refdir->GetObject(hList2->FindObject("LamFakeVsPt")->GetName(), lamFakePt);
   lamFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   lamFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   lamFakePt->GetYaxis()->SetTitle("#Lambda^{0} Fake Rate vs p_{T}");
@@ -455,40 +498,49 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   lamFakePt->GetYaxis()->SetTitleOffset(1.2);
   lamFakePt->SetTitle("");
 
-  refdir->GetObject(hList1->At(22)->GetName(), lamTkFakePt);
+  //refdir->GetObject(hList1->At(22)->GetName(), lamTkFakePt);
+  refdir->GetObject(hList1->FindObject("LamTkFakeVsPt")->GetName(), lamTkFakePt);
   lamTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   lamTkFakePt->GetYaxis()->SetTitle("#Lambda^{0} Tracking Fake Rate vs p_{T}");
   lamTkFakePt->GetYaxis()->SetTitleSize(0.05);
   lamTkFakePt->GetYaxis()->SetTitleOffset(1.2);
   lamTkFakePt->SetTitle("");
 
-  refdir->GetObject(hList1->At(17)->GetName(), lamFakeR);
+  //refdir->GetObject(hList1->At(17)->GetName(), lamFakeR);
+  refdir->GetObject(hList1->FindObject("LamFakeVsR")->GetName(), lamFakeR);
   lamFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  refdir->GetObject(hList1->At(23)->GetName(), lamTkFakeR);
+  //refdir->GetObject(hList1->At(23)->GetName(), lamTkFakeR);
+  refdir->GetObject(hList1->FindObject("LamTkFakeVsR")->GetName(), lamTkFakeR);
   lamTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
 
   // Lambda plots from new release we're testing
-  newdir->GetObject(hList1->At(15)->GetName(), lamNewFakeEta);
+  //newdir->GetObject(hList1->At(15)->GetName(), lamNewFakeEta);
+  newdir->GetObject(hList2->FindObject("LamFakeVsEta")->GetName(), lamNewFakeEta);
   lamNewFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(21)->GetName(), lamNewTkFakeEta);
+  //newdir->GetObject(hList1->At(21)->GetName(), lamNewTkFakeEta);
+  newdir->GetObject(hList2->FindObject("LamTkFakeVsEta")->GetName(), lamNewTkFakeEta);
   lamNewTkFakeEta->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(16)->GetName(), lamNewFakePt);
+  //newdir->GetObject(hList1->At(16)->GetName(), lamNewFakePt);
+  newdir->GetObject(hList2->FindObject("LamFakeVsPt")->GetName(), lamNewFakePt);
   lamNewFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   lamNewFakePt->SetTitle("");
 
-  newdir->GetObject(hList1->At(22)->GetName(), lamNewTkFakePt);
+  //newdir->GetObject(hList1->At(22)->GetName(), lamNewTkFakePt);
+  newdir->GetObject(hList2->FindObject("LamTkFakeVsPt")->GetName(), lamNewTkFakePt);
   lamNewTkFakePt->GetYaxis()->SetRangeUser(0, 1.1);
   lamNewTkFakePt->SetTitle("");
 
-  newdir->GetObject(hList1->At(17)->GetName(), lamNewFakeR);
+  //newdir->GetObject(hList1->At(17)->GetName(), lamNewFakeR);
+  newdir->GetObject(hList2->FindObject("LamFakeVsR")->GetName(), lamNewFakeR);
   lamNewFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
-  newdir->GetObject(hList1->At(23)->GetName(), lamNewTkFakeR);
+  //newdir->GetObject(hList1->At(23)->GetName(), lamNewTkFakeR);
+  newdir->GetObject(hList2->FindObject("LamTkFakeVsR")->GetName(), lamNewTkFakeR);
   lamNewTkFakeR->GetYaxis()->SetRangeUser(0, 1.1);
 
 
@@ -497,56 +549,56 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
 
   lamEffEta->SetMarkerStyle(20);
   lamEffEta->SetMarkerColor(2);
-  lamEffEta->SetMarkerSize(0.7);
+  lamEffEta->SetMarkerSize(0.5);
   lamEffEta->SetLineColor(2);
-  lamNewEffEta->SetMarkerStyle(21);
+  lamNewEffEta->SetMarkerStyle(20);
   lamNewEffEta->SetMarkerColor(4);
-  lamNewEffEta->SetMarkerSize(0.7);
+  lamNewEffEta->SetMarkerSize(0.5);
   lamNewEffEta->SetLineColor(4);
 
   lamTkEffEta->SetMarkerStyle(20);
   lamTkEffEta->SetMarkerColor(2);
-  lamTkEffEta->SetMarkerSize(0.7);
+  lamTkEffEta->SetMarkerSize(0.5);
   lamTkEffEta->SetLineColor(2);
-  lamNewTkEffEta->SetMarkerStyle(21);
+  lamNewTkEffEta->SetMarkerStyle(20);
   lamNewTkEffEta->SetMarkerColor(4);
-  lamNewTkEffEta->SetMarkerSize(0.7);
+  lamNewTkEffEta->SetMarkerSize(0.5);
   lamNewTkEffEta->SetLineColor(4);
 
   lamEffPt->SetMarkerStyle(20);
   lamEffPt->SetMarkerColor(2);
-  lamEffPt->SetMarkerSize(0.7);
+  lamEffPt->SetMarkerSize(0.5);
   lamEffPt->SetLineColor(2);
-  lamNewEffPt->SetMarkerStyle(21);
+  lamNewEffPt->SetMarkerStyle(20);
   lamNewEffPt->SetMarkerColor(4);
-  lamNewEffPt->SetMarkerSize(0.7);
+  lamNewEffPt->SetMarkerSize(0.5);
   lamNewEffPt->SetLineColor(4);
 
   lamTkEffPt->SetMarkerStyle(20);
   lamTkEffPt->SetMarkerColor(2);
-  lamTkEffPt->SetMarkerSize(0.7);
+  lamTkEffPt->SetMarkerSize(0.5);
   lamTkEffPt->SetLineColor(2);
-  lamNewTkEffPt->SetMarkerStyle(21);
+  lamNewTkEffPt->SetMarkerStyle(20);
   lamNewTkEffPt->SetMarkerColor(4);
-  lamNewTkEffPt->SetMarkerSize(0.7);
+  lamNewTkEffPt->SetMarkerSize(0.5);
   lamNewTkEffPt->SetLineColor(4);
 
   lamEffR->SetMarkerStyle(20);
   lamEffR->SetMarkerColor(2);
-  lamEffR->SetMarkerSize(0.7);
+  lamEffR->SetMarkerSize(0.5);
   lamEffR->SetLineColor(2);
-  lamNewEffR->SetMarkerStyle(21);
+  lamNewEffR->SetMarkerStyle(20);
   lamNewEffR->SetMarkerColor(4);
-  lamNewEffR->SetMarkerSize(0.7);
+  lamNewEffR->SetMarkerSize(0.5);
   lamNewEffR->SetLineColor(4);
 
   lamTkEffR->SetMarkerStyle(20);
   lamTkEffR->SetMarkerColor(2);
-  lamTkEffR->SetMarkerSize(0.7);
+  lamTkEffR->SetMarkerSize(0.5);
   lamTkEffR->SetLineColor(2);
-  lamNewTkEffR->SetMarkerStyle(21);
+  lamNewTkEffR->SetMarkerStyle(20);
   lamNewTkEffR->SetMarkerColor(4);
-  lamNewTkEffR->SetMarkerSize(0.7);
+  lamNewTkEffR->SetMarkerSize(0.5);
   lamNewTkEffR->SetLineColor(4);
 
   canvas->Divide(2,3);
@@ -594,6 +646,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   leg3->Draw();
 
   canvas->Print("LamEff.png");
+  canvas->Print("LamEff.pdf");
 
   delete leg3;
   //delete canvas;
@@ -603,56 +656,56 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
 
   lamFakeEta->SetMarkerStyle(20);
   lamFakeEta->SetMarkerColor(2);
-  lamFakeEta->SetMarkerSize(0.7);
+  lamFakeEta->SetMarkerSize(0.5);
   lamFakeEta->SetLineColor(2);
-  lamNewFakeEta->SetMarkerStyle(21);
+  lamNewFakeEta->SetMarkerStyle(20);
   lamNewFakeEta->SetMarkerColor(4);
-  lamNewFakeEta->SetMarkerSize(0.7);
+  lamNewFakeEta->SetMarkerSize(0.5);
   lamNewFakeEta->SetLineColor(4);
 
   lamTkFakeEta->SetMarkerStyle(20);
   lamTkFakeEta->SetMarkerColor(2);
-  lamTkFakeEta->SetMarkerSize(0.7);
+  lamTkFakeEta->SetMarkerSize(0.5);
   lamTkFakeEta->SetLineColor(2);
-  lamNewTkFakeEta->SetMarkerStyle(21);
+  lamNewTkFakeEta->SetMarkerStyle(20);
   lamNewTkFakeEta->SetMarkerColor(4);
-  lamNewTkFakeEta->SetMarkerSize(0.7);
+  lamNewTkFakeEta->SetMarkerSize(0.5);
   lamNewTkFakeEta->SetLineColor(4);
 
   lamFakePt->SetMarkerStyle(20);
   lamFakePt->SetMarkerColor(2);
-  lamFakePt->SetMarkerSize(0.7);
+  lamFakePt->SetMarkerSize(0.5);
   lamFakePt->SetLineColor(2);
-  lamNewFakePt->SetMarkerStyle(21);
+  lamNewFakePt->SetMarkerStyle(20);
   lamNewFakePt->SetMarkerColor(4);
-  lamNewFakePt->SetMarkerSize(0.7);
+  lamNewFakePt->SetMarkerSize(0.5);
   lamNewFakePt->SetLineColor(4);
 
   lamTkFakePt->SetMarkerStyle(20);
   lamTkFakePt->SetMarkerColor(2);
-  lamTkFakePt->SetMarkerSize(0.7);
+  lamTkFakePt->SetMarkerSize(0.5);
   lamTkFakePt->SetLineColor(2);
-  lamNewTkFakePt->SetMarkerStyle(21);
+  lamNewTkFakePt->SetMarkerStyle(20);
   lamNewTkFakePt->SetMarkerColor(4);
-  lamNewTkFakePt->SetMarkerSize(0.7);
+  lamNewTkFakePt->SetMarkerSize(0.5);
   lamNewTkFakePt->SetLineColor(4);
 
   lamFakeR->SetMarkerStyle(20);
   lamFakeR->SetMarkerColor(2);
-  lamFakeR->SetMarkerSize(0.7);
+  lamFakeR->SetMarkerSize(0.5);
   lamFakeR->SetLineColor(2);
-  lamNewFakeR->SetMarkerStyle(21);
+  lamNewFakeR->SetMarkerStyle(20);
   lamNewFakeR->SetMarkerColor(4);
-  lamNewFakeR->SetMarkerSize(0.7);
+  lamNewFakeR->SetMarkerSize(0.5);
   lamNewFakeR->SetLineColor(4);
 
   lamTkFakeR->SetMarkerStyle(20);
   lamTkFakeR->SetMarkerColor(2);
-  lamTkFakeR->SetMarkerSize(0.7);
+  lamTkFakeR->SetMarkerSize(0.5);
   lamTkFakeR->SetLineColor(2);
-  lamNewTkFakeR->SetMarkerStyle(21);
+  lamNewTkFakeR->SetMarkerStyle(20);
   lamNewTkFakeR->SetMarkerColor(4);
-  lamNewTkFakeR->SetMarkerSize(0.7);
+  lamNewTkFakeR->SetMarkerSize(0.5);
   lamNewTkFakeR->SetLineColor(4);
 
   canvas->Divide(2,3);
@@ -700,6 +753,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   leg4->Draw();
 
   canvas->Print("LamFake.png");
+  canvas->Print("LamFake.pdf");
 
   delete leg4;
 
