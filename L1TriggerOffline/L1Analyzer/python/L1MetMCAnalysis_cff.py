@@ -32,4 +32,5 @@ L1AnalyzerMetMC = cms.EDAnalyzer("L1Analyzer",
 )
 
 # Define analysis sequence
-L1MetMCAnalysis = cms.Sequence(L1MetSelection+GenMetSelection*MatchMetMc+MatchMcMet*L1AnalyzerMetMC)
+L1MetMCAnalysis = cms.Sequence(CloneL1ExtraMet*CloneGenMet*SelectL1Met*SelectGenMet*MatchMetMc*MatchMcMet*L1AnalyzerMetMC)
+

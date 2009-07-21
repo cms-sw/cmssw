@@ -3,7 +3,6 @@
 <use name=DataFormats/EcalRecHit>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
-<use name=Geometry/CaloTopology>     		
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
@@ -28,7 +27,7 @@
    <use name=SimDataFormats/GeneratorProducts> 
    <use name=DataFormats/EcalDetId>       
    <use name=FWCore/Framework>            
-   <use name=DQMServices/Core>     
+   <use name=DQMServices/Core>        
    <use name=boost>                       
    <use name=root>                        
 </export>

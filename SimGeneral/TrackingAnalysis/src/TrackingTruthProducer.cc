@@ -1,6 +1,3 @@
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -11,7 +8,6 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -20,7 +16,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthProducer.h"
-#include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
+
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
@@ -36,22 +32,21 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
     volumeRadius_          = config.getParameter<double>("volumeRadius");
     volumeZ_               = config.getParameter<double>("volumeZ");
     mergedBremsstrahlung_  = config.getParameter<bool>("mergedBremsstrahlung");
-    removeDeadModules_     = config.getParameter<bool>("removeDeadModules");
 
     if ( config.exists("select") )
     {
         edm::ParameterSet param = config.getParameter<edm::ParameterSet>("select");
-        selector_ = TrackingParticleSelector(
-                        param.getParameter<double>("ptMinTP"),
-                        param.getParameter<double>("minRapidityTP"),
-                        param.getParameter<double>("maxRapidityTP"),
-                        param.getParameter<double>("tipTP"),
-                        param.getParameter<double>("lipTP"),
-                        param.getParameter<int>("minHitTP"),
-                        param.getParameter<bool>("signalOnlyTP"),
-                        param.getParameter<bool>("chargedOnlyTP"),
-                        param.getParameter<std::vector<int> >("pdgIdTP")
-                    );
+    	selector_ = TrackingParticleSelector(
+    	    param.getParameter<double>("ptMinTP"),
+            param.getParameter<double>("minRapidityTP"),
+            param.getParameter<double>("maxRapidityTP"),
+            param.getParameter<double>("tipTP"),
+            param.getParameter<double>("lipTP"),
+            param.getParameter<int>("minHitTP"),
+            param.getParameter<bool>("signalOnlyTP"),
+            param.getParameter<bool>("chargedOnlyTP"),
+            param.getParameter<std::vector<int> >("pdgIdTP")
+        );
         selectorFlag_ = true;
     }
     else
@@ -80,7 +75,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config)
 }
 
 
-void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
+void TrackingTruthProducer::produce(Event &event, const EventSetup &)
 {
     bool foundHepMC = false;
     for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
@@ -139,41 +134,28 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
     associator(simTracks_, trackIdToIndex_);
 
     // Create a multimap between trackId and hit indices
-    if (removeDeadModules_)
-    {
-        std::map<uint32_t, std::vector<int> > theDetIdList;
-        edm::ESHandle<SiStripDetCabling> detCabling;
-        setup.get<SiStripDetCablingRcd>().get( detCabling );
-        detCabling->addConnected(theDetIdList);
-        associator(
-            pSimHits_,
-            SimHitSelectorFromDB().getSimHit(pSimHits_, theDetIdList),
-            trackIdToHits_
-        );
-    }
-    else
-        associator(pSimHits_, trackIdToHits_);
+    associator(pSimHits_, trackIdToHits_);
 
     createTrackingTruth();
 
     if (mergedBremsstrahlung_)
     {
-        // Create collections of things we will put in event,
+    	// Create collections of things we will put in event,
         mergedTrackingParticles_ = auto_ptr<TrackingParticleCollection>( new TrackingParticleCollection );
         mergedTrackingVertexes_ = auto_ptr<TrackingVertexCollection>( new TrackingVertexCollection );
 
         // Get references before put so we can cross reference
         refMergedTrackingParticles_ = event.getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
         refMergedTrackingVertexes_ = event.getRefBeforePut<TrackingVertexCollection>("MergedTrackTruth");
-
+        
         // Merged brem electrons
         mergeBremsstrahlung();
-
+        
         // Put TrackingParticles and TrackingVertices in event
         event.put(mergedTrackingParticles_, "MergedTrackTruth");
         event.put(mergedTrackingVertexes_, "MergedTrackTruth");
         event.put(trackingParticles_);
-        event.put(trackingVertexes_);
+        event.put(trackingVertexes_);        
     }
     else
     {
@@ -181,37 +163,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
         event.put(trackingParticles_);
         event.put(trackingVertexes_);
     }
-}
-
-
-void TrackingTruthProducer::associator(
-    std::auto_ptr<MixCollection<PSimHit> > const & mixCollection,
-    std::vector<std::pair<PSimHit,int> > const & pSimHits,
-    EncodedTruthIdToIndexes & association
-)
-{
-    // Clear the association map
-    association.clear();
-    
-    unsigned int index = 0;
-    
-    // Create a association from simtracks to overall index in the mix collection (only for non tracker psimhits)
-    for (MixCollection<PSimHit>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
-    {
-    	if (DetId(iterator->detUnitId()).det() != DetId::Tracker)
-    	{
-            EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(iterator->eventId(), iterator->trackId());
-            association.insert( make_pair(objectId, index) );
-    	}
-    }
-    
-    // Create a association from simtracks to overall index in the mix collection
-    for (std::vector<std::pair<PSimHit,int> >::const_iterator iterator = pSimHits.begin(); iterator != pSimHits.end(); ++iterator)
-        if ( DetId(iterator->first.detUnitId()).det() == DetId::Tracker )
-        {      
-            EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(iterator->first.eventId(), iterator->first.trackId());
-            association.insert( make_pair(objectId, iterator->second-1) );
-        }
 }
 
 
@@ -219,7 +170,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
 {
     uint index = 0;
 
-    std::set<uint> excludedTV, excludedTP;
+	std::set<uint> excludedTV, excludedTP;
 
     // Merge Bremsstrahlung vertexes
     for (TrackingVertexCollection::iterator iVC = trackingVertexes_->begin(); iVC != trackingVertexes_->end(); ++iVC, ++index)
@@ -255,8 +206,8 @@ void TrackingTruthProducer::mergeBremsstrahlung()
                     pointer->setParentVertex( track->parentVertex() );
                     // Get a non-const pointer to the parent vertex
                     TrackingVertex * vertex = &trackingVertexes_->at( track->parentVertex().key() );
-                    // Add the photon to the doughter list of the parent vertex
-                    vertex->addDaughterTrack( *idaughter );
+                    // Add the photon to the doughter list of the parent vertex 
+                    vertex->addDaughterTrack( *idaughter );                    
                 }
             }
 
@@ -272,13 +223,13 @@ void TrackingTruthProducer::mergeBremsstrahlung()
 
             // Make a copy of the decay vertexes of the track
             TrackingVertexRefVector decayVertices( track->decayVertices() );
-
+            
             // Clear the decay vertex list
             track->clearDecayVertices();
 
             // Add the remaining vertexes
             for (TrackingVertexRefVector::const_iterator idecay = decayVertices.begin(); idecay != decayVertices.end(); ++idecay)
-                if ( (*idecay).key() != index ) track->addDecayVertex(*idecay);
+            	if ( (*idecay).key() != index ) track->addDecayVertex(*idecay);
 
             // Redirect all the decay source vertexes to those in the electron daughter
             for (TrackingParticle::tv_iterator idecay = daughter->decayVertices_begin(); idecay != daughter->decayVertices_end(); ++idecay)
@@ -328,7 +279,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
         newVertex.clearParentTracks();
         mergedTrackingVertexes_->push_back(newVertex);
     }
-
+    
     index = 0;
 
     // Copy and cross reference the non-excluded tp to the merged collection
@@ -354,7 +305,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
         newTrack.setParentVertex( TrackingVertexRef(refMergedTrackingVertexes_, parentIndex) );
         // Add track to vertex
         (mergedTrackingVertexes_->at(parentIndex)).addDaughterTrack(TrackingParticleRef(refMergedTrackingParticles_, tIndex));
-
+        
         for (TrackingVertexRefVector::const_iterator iDecayV = decayVs.begin(); iDecayV != decayVs.end(); ++iDecayV)
         {
             // Index of decay vertex in vertex container
@@ -442,7 +393,7 @@ void TrackingTruthProducer::createTrackingTruth()
             // Initial condition for the tp and tv indexes
             int trackingParticleIndex = -1;
             int trackingVertexIndex = -1;
-
+            
             do
             {
                 // Set a new tracking particle for the current simtrack
@@ -549,7 +500,7 @@ void TrackingTruthProducer::createTrackingTruth()
                     // Add the vertex to list of decay vertexes of the new tp
                     trackingParticles_->at(vetoedTracks[nextSimTrackIndex]).addDecayVertex(
                         TrackingVertexRef(refTrackingVertexes_, trackingVertexIndex)
-                    );
+                    );                    
                     break;
                 }
 
@@ -763,9 +714,9 @@ void TrackingTruthProducer::addCloseGenVertexes(TrackingVertex & trackingVertex)
 int TrackingTruthProducer::LayerFromDetid(const unsigned int & detid)
 {
     DetId detId = DetId(detid);
-
+    
     if ( detId.det() != DetId::Tracker ) return 0;
-
+    
     int layerNumber=0;
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 

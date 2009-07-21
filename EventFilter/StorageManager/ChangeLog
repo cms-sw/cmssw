@@ -1,9 +1,16 @@
+2009-07-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-01-02
+	* Fix a couple of issues due to obsolete code removal
+	* Minor adjustements to doxygen class documentation
+
 2009-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-01-01
 	* Fix logic of file-system selection
 	* Increase displayed precision of data rate popped from the DQM queue
 	* Complete doxygen class documentation
+	* Remove obsolete code
 	
 2009-07-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

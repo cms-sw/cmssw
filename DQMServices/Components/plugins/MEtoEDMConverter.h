@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2009/06/24 16:55:06 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/08/09 16:08:21 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,7 +80,6 @@ private:
   std::string fName;
   int verbosity;
   int frequency;
-  bool deleteAfterCopy;
   std::string path;
 
   DQMStore *dbe;

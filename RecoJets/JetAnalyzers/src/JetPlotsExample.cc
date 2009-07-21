@@ -1,102 +1,90 @@
-// Implementation of template class: JetPlotsExample
+// JetPlotsExample.cc
 // Description:  Example of simple EDAnalyzer for jets.
-// Author: K. Kousouris
-// Date:  25 - August - 2008
+// Author: Robert M. Harris
+// Date:  28 - August - 2006
+// 
 #include "RecoJets/JetAnalyzers/interface/JetPlotsExample.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <TROOT.h>
+#include <TSystem.h>
 #include <TFile.h>
+#include <TCanvas.h>
 #include <cmath>
 using namespace edm;
 using namespace reco;
 using namespace std;
-////////////////////////////////////////////////////////////////////////////////////////
-template<class Jet>
-JetPlotsExample<Jet>::JetPlotsExample(edm::ParameterSet const& cfg)
-{
-  JetAlgorithm  = cfg.getParameter<std::string> ("JetAlgorithm"); 
-  HistoFileName = cfg.getParameter<std::string> ("HistoFileName");
-  NJets         = cfg.getParameter<int> ("NJets");
+
+// Get the algorithm of the jet collections we will read from the .cfg file 
+// which defines the value of the strings CaloJetAlgorithm and GenJetAlgorithm.
+JetPlotsExample::JetPlotsExample( const ParameterSet & cfg ) :
+  CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) ), 
+  GenJetAlgorithm( cfg.getParameter<string>( "GenJetAlgorithm" ) )
+  {
 }
-////////////////////////////////////////////////////////////////////////////////////////
-template<class Jet>
-void JetPlotsExample<Jet>::beginJob(edm::EventSetup const& iSetup) 
-{
-  TString hname;
-  m_file = new TFile(HistoFileName.c_str(),"RECREATE"); 
-  /////////// Booking histograms //////////////////////////
-  hname = "JetPt";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,0,1000);
-  hname = "JetEta";
-  m_HistNames1D[hname] = new TH1F(hname,hname,120,-6,6);
-  hname = "JetPhi";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,-M_PI,M_PI);
-  hname = "NumberOfJets";
-  m_HistNames1D[hname] = new TH1F(hname,hname,100,0,100);
+
+void JetPlotsExample::beginJob( const EventSetup & ) {
+
+  // Open the histogram file and book some associated histograms
+  m_file=new TFile("histo.root","RECREATE"); 
+  h_ptCal =  TH1F( "ptCal",  "p_{T} of leading CaloJets", 50, 0, 1000 );
+  h_etaCal = TH1F( "etaCal", "#eta of leading CaloJets", 50, -3, 3 );
+  h_phiCal = TH1F( "phiCal", "#phi of leading CaloJets", 50, -M_PI, M_PI );
+  h_ptGen =  TH1F( "ptGen",  "p_{T} of leading GenJets", 50, 0, 1000 );
+  h_etaGen = TH1F( "etaGen", "#eta of leading GenJets", 50, -3, 3 );
+  h_phiGen = TH1F( "phiGen", "#phi of leading GenJets", 50, -M_PI, M_PI );
 }
-////////////////////////////////////////////////////////////////////////////////////////
-template<class Jet>
-void JetPlotsExample<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
-{
-  /////////// Get the jet collection //////////////////////
-  Handle<JetCollection> jets;
-  evt.getByLabel(JetAlgorithm,jets);
-  typename JetCollection::const_iterator i_jet;
-  int index = 0;
-  TString hname; 
-  /////////// Count the jets in the event /////////////////
-  hname = "NumberOfJets";
-  FillHist1D(hname,jets->size()); 
-  /////////// Fill Histograms for the leading NJet jets ///
-  for(i_jet = jets->begin(); i_jet != jets->end() && index < NJets; ++i_jet) 
-    {
-      hname = "JetPt";
-      FillHist1D(hname,i_jet->pt());   
-      hname = "JetEta";
-      FillHist1D(hname,i_jet->eta());
-      hname = "JetPhi";
-      FillHist1D(hname,i_jet->phi());
-      index++;
-    }
+
+void JetPlotsExample::analyze( const Event& evt, const EventSetup& es ) {
+
+  //Get the CaloJet collection
+  Handle<CaloJetCollection> caloJets;
+  evt.getByLabel( CaloJetAlgorithm, caloJets );
+
+  //Loop over the two leading CaloJets and fill some histograms
+  int jetInd = 0;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    // std::cout << "CALO JET #" << jetInd << std::endl << cal->print() << std::endl;
+    h_ptCal.Fill( cal->pt() );   
+    h_etaCal.Fill( cal->eta() );
+    h_phiCal.Fill( cal->phi() );
+    jetInd++;
+  }
+
+  //Get the GenJet collection
+  Handle<GenJetCollection> genJets;
+  evt.getByLabel( GenJetAlgorithm, genJets );
+
+  //Loop over the two leading GenJets and fill some histograms
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<2; ++ gen ) {
+    // std::cout << "GEN JET #" << jetInd << std::endl << gen->print() << std::endl;
+    h_ptGen.Fill( gen->pt() );   
+    h_etaGen.Fill( gen->eta() );
+    h_phiGen.Fill( gen->phi() );
+    jetInd++;
+  }
+
 }
-////////////////////////////////////////////////////////////////////////////////////////
-template<class Jet>
-void JetPlotsExample<Jet>::endJob() 
-{
-  /////////// Write Histograms in output ROOT file ////////
+
+void JetPlotsExample::endJob() {
   if (m_file !=0) 
     {
-      m_file->cd();
-      for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
-        hid->second->Write();
-      delete m_file;
-      m_file = 0;      
-    }
+    //Write the histograms to the file.
+    m_file->cd(); 
+    h_ptCal.Write();
+    h_etaCal.Write();
+    h_phiCal.Write();
+    h_ptGen.Write();
+    h_etaGen.Write();
+    h_phiGen.Write();
+    delete m_file;
+    m_file=0;           
+    }    
+
 }
-////////////////////////////////////////////////////////////////////////////////////////
-template<class Jet>
-void JetPlotsExample<Jet>::FillHist1D(const TString& histName,const Double_t& value) 
-{
-  std::map<TString, TH1*>::iterator hid=m_HistNames1D.find(histName);
-  if (hid==m_HistNames1D.end())
-    std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
-  else
-    hid->second->Fill(value);
-}
-/////////// Register Modules ////////
 #include "FWCore/Framework/interface/MakerMacros.h"
-/////////// Calo Jet Instance ////////
-typedef JetPlotsExample<CaloJet> CaloJetPlotsExample;
-DEFINE_FWK_MODULE(CaloJetPlotsExample);
-/////////// Cen Jet Instance ////////
-typedef JetPlotsExample<GenJet> GenJetPlotsExample;
-DEFINE_ANOTHER_FWK_MODULE(GenJetPlotsExample);
-/////////// PF Jet Instance ////////
-typedef JetPlotsExample<PFJet> PFJetPlotsExample;
-DEFINE_ANOTHER_FWK_MODULE(PFJetPlotsExample);
+DEFINE_FWK_MODULE(JetPlotsExample);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.21 2009/06/24 13:16:20 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.19 2009/04/09 15:45:05 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -53,7 +53,7 @@ public:
 
    // ---------- member functions ---------------------------
    void unselect();
-   void setSwapIcon(bool);
+   void currentWindowChanged();
    void swap();
    void destroy();
    void undock();
@@ -67,6 +67,7 @@ public:
    sigc::signal<void, FWGUISubviewArea*> selected_;
    sigc::signal<void, FWGUISubviewArea*> unselected_;
 
+   void configurePrimaryView();
    void setInfoButton(bool downp);
 
    TEveWindow* getEveWindow();

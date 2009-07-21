@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.69 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.66 2009/05/20 16:33:39 amraktad Exp $
 //
 
 // system include files
@@ -37,17 +37,27 @@ class TGPictureButton;
 class TGComboBox;
 class TGTextButton;
 class TGTextEntry;
+class FWSelectionManager;
 class TGFrame;
 class TGSplitFrame;
 class TGVerticalFrame;
+class CmsShowMainFrame;
 class TGMainFrame;
 class TGTab;
 class TGCompositeFrame;
 class TGCheckButton;
-class TGPopupMenu;
+class FWGUISubviewArea;
+
+class FWEventItemsManager;
+class FWEventItem;
+class FWListEventItem;
+class FWViewBase;
+
+class FWListModel;
 
 class TGListTreeItem;
 class TGListTree;
+//class TEveGedEditor;
 class TEveElementList;
 class TEveElement;
 class TEveWindowPack;
@@ -55,19 +65,11 @@ class TEveWindowSlot;
 class TEveCompositeFrame;
 class TEveWindow;
 
-class CmsShowMainFrame;
-class FWSelectionManager;
-class FWEventItemsManager;
-class FWEventItem;
-class FWListEventItem;
-class FWViewBase;
-class FWListModel;
-class FWGUISubviewArea;
-
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWModelChangeManager;
 
+class TGPopupMenu;
 class CSGAction;
 class CSGContinuousAction;
 
@@ -118,8 +120,10 @@ public:
 
    void createModelPopup();
    void showModelPopup();
+
+   void createViewPopup();
+   void refillViewPopup(FWViewBase* iView, FWGUISubviewArea* sva);
    void showViewPopup();
-   void popupViewClosed();
 
    // help
    void createHelpPopup ();
@@ -136,14 +140,15 @@ public:
    static FWGUISubviewArea* getGUISubviewArea(TEveWindow*);
 
    // ---------- member functions ---------------------------
+   TEveWindowSlot* parentForNextView();
+
    //have to use the portable syntax else the reflex code will not build
    typedef boost::function1<FWViewBase*,TEveWindowSlot*> ViewBuildFunctor;
    void registerViewBuilder(const std::string& iName,
                             ViewBuildFunctor& iBuilder);
 
-   void createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   void createView(const std::string& iName);
 
-   void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
    void disablePrevious();
    void disableNext();
@@ -186,11 +191,11 @@ public:
    void eventFilterChanged();
    void runIdChanged();
    void eventIdChanged();
-   void checkSubviewAreaIconState(TEveWindow*);
+   void subviewCurrentChanged(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
-   void subviewInfoSelected(FWGUISubviewArea*);
-   void subviewInfoUnselected(FWGUISubviewArea*);
+   void subviewSelected(FWGUISubviewArea*);
+   void subviewUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
@@ -202,8 +207,6 @@ private:
 
    void selectionChanged(const FWSelectionManager&);
 
-   TEveWindow* getSwapCandidate();
-
    void newItem(const FWEventItem*);
 
    void exportImageOfMainView();
@@ -212,9 +215,6 @@ private:
    void delaySliderChanged(Int_t);
 
    void finishUpColorChange();
-
-   void setViewPopup(TEveWindow*);
-
    // ---------- member data --------------------------------
 
    static FWGUIManager* m_guiManager;

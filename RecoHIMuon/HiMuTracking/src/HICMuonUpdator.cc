@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-//#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
 #include <stdlib.h>
 #include <string>
@@ -25,8 +25,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 		                                const TrajectoryMeasurement& ntm, 
 					        const DetLayer* layer,
 					        double& chirz, double& chirf) const {
-  double pi = 4.*atan(1.);
-  double twopi=8.*atan(1.);
+
   TrajectoryStateOnSurface badtsos; 
   if(!nTsos.isValid()) {
    std::cout<<" HICMuonUpdator::update:: can not start::initial tsos is not valid " <<std::endl;
@@ -37,8 +36,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   vector<TrajectoryMeasurement> MTM=mt.measurements();
 #ifdef DEBUG   
   std::cout<<" HICMuonUpdator::update::MTM size "<<MTM.size()<<" vertex "<<zvert<<std::endl;
-  std::cout<<" HICMuonUpdator::update::charge from trajectory"<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge()<<std::endl;
-  std::cout<<" HICMuonUpdator::update::charge predicted tsos"<<nTsos.freeTrajectoryState()->charge()<<std::endl;
+  std::cout<<" HICMuonUpdator::update::charge "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge()<<std::endl;
   std::cout<<" HICMuonUpdator::update::momentum "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum()<<std::endl;
 #endif 
   vector<double> phihit,rhit,zhit,dphihit,drhit,dzhit,dzhitl,ehitphi,dehitphi,ehitstrip;
@@ -49,14 +47,13 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   const TransientTrackingRecHit::ConstRecHitPointer pRecHit=(MTM.back()).recHit();
   const TransientTrackingRecHit::ConstRecHitPointer nRecHit=ntm.recHit();
   
-//  double acharge=(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge();
-//  double acharge=nTsos.freeTrajectoryState()->charge();
+  double acharge=(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge();
   GlobalVector pold=(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum();
   double theta=pold.theta();
   
   for(vector<TrajectoryMeasurement>::const_iterator ihit=MTM.begin();ihit!=MTM.end();ihit++){
   
-//    FreeTrajectoryState* ftshit = (*ihit).updatedState().freeTrajectoryState();
+    FreeTrajectoryState* ftshit = (*ihit).updatedState().freeTrajectoryState();
     phihit.push_back((*ihit).recHit()->globalPosition().phi());
     rhit.push_back((*ihit).recHit()->globalPosition().perp());
     zhit.push_back((*ihit).recHit()->globalPosition().z());
@@ -190,7 +187,7 @@ if(x.size() != y.size()) return fit;
 if(x.size() != err.size()) return fit;
 
 
-for (unsigned int i=0;i<x.size();i++){
+for (int i=0;i<x.size();i++){
 #ifdef LINEFIT_DEBUG
 cout<<" line2fit "<<a00<<" "<<x[i]/err[i]<<" "<<x[i]<<" "<<err[i]<<" second try "<<err[i]<<endl; 
 #endif
@@ -250,7 +247,7 @@ cout<<"linefit2::co1,co2="<<co1<<" "<<co2<<" size "<<x.size()<<endl;
 #endif
 // CHI2
 chi2=0.;
-for (unsigned int i=0;i<x.size();i++){
+for (int i=0;i<x.size();i++){
 double zdet=(y[i]-co2)/co1;
 chi2=chi2+(x[i]-zdet)*(x[i]-zdet)/(err[i]*err[i]);
 
@@ -283,7 +280,7 @@ cout<<" linefit1::sizes="<<x.size()<<" "<<y.size()<<" "<<err.size()<<endl;
 if(x.size() != y.size()) return fit;
 if(x.size() != err.size()) return fit;
 
-for (unsigned int i=0;i<x.size();i++){
+for (int i=0;i<x.size();i++){
 s1=s1+(x[i]/err[i])*(y[i]/err[i]);
 s2=s2+(x[i]/err[i])*(x[i]/err[i]);
 
@@ -300,7 +297,7 @@ cout<<"linefit1::co1,co2="<<co1<<endl;
 #endif
 // CHI2
 chi2=0.;
-for (unsigned int i=0;i<x.size();i++){
+for (int i=0;i<x.size();i++){
 chi2=chi2+(y[i]-co1*x[i])*(y[i]-co1*x[i])/(err[i]*err[i]);
 }
 chi2=chi2/x.size();
@@ -313,10 +310,6 @@ return fit=true;
 
 double
         HICMuonUpdator::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDetEnumerators::Location location) const{
-
-     double pi = 4.*atan(1.);
-//     double twopi=8.*atan(1.);
-
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();
      double psi;
@@ -354,14 +347,12 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
 
 // fit in (dphi dr), (dphi-dz)
   TrajectoryStateOnSurface badtsos; 
-       double pi = 4.*atan(1.);
-     double twopi=8.*atan(1.);
 
 //  cout<<" Update barrel begin "<<endl;
 
   double ch1,dphi,dr,ptnew;
-  double co1,co2;
-  bool fitrf,fitrz;
+  double co1,co2,co1n,chirz1;
+  bool fitrf,fitrz,fitrz1;
   
 // fit in (ZR)-coordinate 
 
@@ -411,10 +402,10 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
 // Updating trajectory
   ptnew=0.006/ch1;
   GlobalPoint xrhit = nRecHit->globalPosition();
-  TrackCharge aCharge = nTsos.freeTrajectoryState()->parameters().charge();
+  double aCharge = nTsos.freeTrajectoryState()->parameters().charge();
   double phiclus=xrhit.phi();
   double xrclus=xrhit.perp();
-  //double xzclus=xrhit.z();
+  double xzclus=xrhit.z();
   double rc=100.*ptnew/(0.3*4.);
   double xdouble=xrclus/(2.*rc);
   double psi=phiclus-aCharge*asin(xdouble);
@@ -451,17 +442,13 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 						 double& chirz, double& chirf, int& tType) const{
 
 // fit in (dphi dr), (dphi-dz)
-  double pi = 4.*atan(1.);
-  double twopi=8.*atan(1.);
-
-
   TrajectoryStateOnSurface badtsos;
 
 //    cout<<" Update endcap begin "<<endl;
 
   double ch1,dphi,dr;
-  double co1,co2;
-  bool fitrf,fitrz;
+  double co1,co2,co1n,chirz1;
+  bool fitrf,fitrz,fitrz1;
   
 #ifdef UPDATOR_ENDCAP_DEBUG
   cout<<"updateEndcap switched on"<<endl;
@@ -513,7 +500,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<<" point 1 "<<endl;
   GlobalPoint xrhit = nRecHit->globalPosition();
 //  cout<<" point 2 "<<endl;
-  TrackCharge aCharge = nTsos.freeTrajectoryState()->charge();
+  double aCharge = nTsos.freeTrajectoryState()->charge();
 //  cout<<" point 3 "<<endl;
   double phiclus=xrhit.phi();
 //  cout<<" point 4 "<<endl;

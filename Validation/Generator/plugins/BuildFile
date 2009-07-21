@@ -1,7 +1,0 @@
-<use name=root>
-<use name=DQMOffline/RecoB>
-<use name=DQMServices/Core>
-<use name=Validation/RecoB>
-<library file="BasicGenTest.cc" name=BasicGenTest>
-     <flags EDM_PLUGIN=1>
-</library>

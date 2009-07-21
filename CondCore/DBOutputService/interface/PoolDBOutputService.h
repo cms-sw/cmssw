@@ -297,12 +297,9 @@ namespace cond{
       // 
       void tagInfo(const std::string& EventSetupRecordName,
 		   cond::TagInfo& result );
-
       virtual ~PoolDBOutputService();  
 
     private:
-
-      void fillRecord( edm::ParameterSet & pset);
 
       void createNewIOV( GetToken const & token, 
 			 cond::Time_t firstSinceTime, 

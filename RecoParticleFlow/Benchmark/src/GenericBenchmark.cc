@@ -154,17 +154,14 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   
   BOOK1D(NGen,"Number of generated objects",20,0,20);
 
-  BOOK1D(SumEt,"SumEt", 1000, 0., 3000.);
-  BOOK1D(TrueSumEt,"TrueSumEt", 1000, 0., 3000.);
+  BOOK1D(SumEt,"SumEt", 2000, 0., 2000.);
+  BOOK1D(TrueSumEt,"TrueSumEt", 2000, 0., 2000.);
   BOOK2D(DeltaSetvsSet,"#DeltaSEt vs trueSEt",
-	 3000, 0., 3000.,
+	 2000, 0., 2000.,
 	 1000,-1000., 1000.);
   BOOK2D(DeltaMexvsSet,"#DeltaMEX vs trueSEt",
-	 3000, 0., 3000.,
+	 2000, 0., 2000.,
 	 1000,-400., 400.);
-  BOOK2D(DeltaSetOverSetvsSet,"#DeltaSetOverSet vs trueSet",
-	 3000, 0., 3000.,
-	 1000,-1., 1.);
 
 
   // number of truth particles found within given cone radius of reco
@@ -222,7 +219,6 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   SETAXES(TrueSumEt,"TrueSumEt [GeV]","");
   SETAXES(DeltaSetvsSet,"TrueSumEt","#DeltaSumEt [GeV]");
   SETAXES(DeltaMexvsSet,"TrueSumEt","#DeltaMEX [GeV]");
-  SETAXES(DeltaSetOverSetvsSet,"TrueSumEt","#DeltaSumEt/trueSumEt");
 
   TDirectory* oldpwd = gDirectory;
 
@@ -356,7 +352,6 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
       hDeltaSetvsSet->Fill((*met1).sumEt(),(*met2).sumEt()-(*met1).sumEt());
       hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->px()-genParticle->px());
       hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->py()-genParticle->py());
-      if ((*met1).sumEt()>0.01) hDeltaSetOverSetvsSet->Fill((*met1).sumEt(),((*met2).sumEt()-(*met1).sumEt())/(*met1).sumEt());
     }
     else
     {

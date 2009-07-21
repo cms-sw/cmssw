@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.8 2009/07/12 05:09:09 srappocc Exp $
+// $Id: ChainEvent.cc,v 1.5 2008/07/24 20:38:44 dsr Exp $
 //
 
 // system include files
@@ -53,8 +53,7 @@ namespace fwlite {
       summedSize += tree->GetEntries();
       accumulatedSize_.push_back(summedSize);
     }
-    if ( iFileNames.size() > 0 ) 
-      switchToFile(0);
+    switchToFile(0);
 }
 
 // ChainEvent::ChainEvent(const ChainEvent& rhs)
@@ -125,51 +124,6 @@ ChainEvent::to(Long64_t iIndex) {
   return *this;
 }
 
-
-///Go to event with event id "id"
-const ChainEvent& 
-ChainEvent::to(edm::EventID id) {
-  return to(id.run(), id.event());
-}
-
-///Go to event with given run and event number
-const ChainEvent& 
-ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
-
-  // First try this file
-  if ( event_->to( run, event ) )  {
-    // found it, return
-    return *this;
-  } 
-  else {
-    // Did not find it, try the other files sequentially.
-    // Someday I can make this smarter. For now... we get something working. 
-    Long64_t thisFile = eventIndex_;
-    std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
-      filesEnd = fileNames_.end(), ifile = filesBegin;
-    for ( ; ifile != filesEnd; ++ifile ) {
-      // skip the "first" file that we tried
-      if ( ifile - filesBegin != thisFile ) {
-	// switch to the next file
-	switchToFile( ifile - filesBegin );
-	// check that tree for the desired event
-	if ( event_->to( run, event ) ) {
-	  // found it, return
-	  return *this;
-	} 
-      }// end ignore "first" file that we tried
-    }// end loop over files
-    
-    // did not find the event with id "id".
-    // throw exception. 
-    throw cms::Exception("EventNotFound")
-      << "The ChainEvent does not contain run " 
-      << run << ", event " << event;
-    return *this; // make the compiler happy. this will not execute
-  }// end if we did not find event id in "first" file
-
-}
-
 /** Go to the very first Event*/
 const ChainEvent& 
 ChainEvent::toBegin() {
@@ -223,19 +177,14 @@ ChainEvent::time() const
   return event_->time();
 }
 
-bool 
+void 
 ChainEvent::getByLabel(const std::type_info& iType, 
                        const char* iModule, 
                        const char* iInstance, 
                        const char* iProcess, 
                        void* iValue) const
 {
-  return event_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
-}
-
-edm::EDProduct const* ChainEvent::getByProductID(edm::ProductID const& iID) const
-{
-  return event_->getByProductID( iID );
+  event_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
 }
 
 bool 

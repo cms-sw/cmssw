@@ -28,19 +28,19 @@ GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::Para
 GsfTrajectorySmootherESProducer::~GsfTrajectorySmootherESProducer() {}
 
 boost::shared_ptr<TrajectorySmoother> 
-GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
+GsfTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   //
   // material effects
   //
   std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
   edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(matName,matProducer);
+  iRecord.get(matName,matProducer);
   //
   // propagator
   //
   std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
   edm::ESHandle<Propagator> geomProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(geomName,geomProducer);
+  iRecord.get(geomName,geomProducer);
   GsfPropagatorWithMaterial propagator(*geomProducer.product(),*matProducer.product());
   //
   // merger
@@ -49,7 +49,7 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
 //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
 //   iRecord.get(mergerName,mergerProducer);
   edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName,mergerProducer);
+  iRecord.get(mergerName,mergerProducer);
   MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
@@ -58,10 +58,6 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
   double chi2Cut(100.);
   GsfChi2MeasurementEstimator estimator(chi2Cut);
   //
-  // geometry
-  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
-  edm::ESHandle<DetLayerGeometry> geo;
-  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
   // create algorithm
   //
   //   bool matBefUpd = pset_.getParameter<bool>("MaterialBeforeUpdate");
@@ -70,7 +66,5 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
 									 GsfMultiStateUpdator(), 
 									 estimator,merger,
 // 									 matBefUpd,
-									 scale,
-									 true,//BM should this be taken from parameterSet?
-									 geo.product()));
+									 scale));
 }

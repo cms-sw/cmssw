@@ -6,11 +6,6 @@
 #include <vector>
 #include <string>
 #include "POOLCore/PVector.h"
-#include "POOLCore/Ptr.h"
-
-#include "CondFormats/Common/interface/IOVProvenance.h"
-#include "CondFormats/Common/interface/IOVDescription.h"
-#include "CondFormats/Common/interface/IOVUserMetaData.h"
 
 
 namespace cond {
@@ -28,11 +23,6 @@ namespace cond {
     typedef Container::const_iterator const_iterator;
 
     IOVSequence();
-
-    // the real default constructor...
-    explicit IOVSequence(cond::TimeType ttype);
-
-    // constructor for the editor
     IOVSequence(int type, cond::Time_t till, std::string const& imetadata);
 
     ~IOVSequence();
@@ -40,13 +30,9 @@ namespace cond {
     IOVSequence(IOVSequence const & rh);
     IOVSequence & operator=(IOVSequence const & rh);
 
-    // append a new item, return position of last inserted entry
+    // append a new item, return new size
     size_t add(cond::Time_t time, 
 	       std::string const & wrapperToken);
-
-    // remove last entry, return position of last entry still valid
-    size_t truncate();
-
 
     // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
@@ -72,21 +58,11 @@ namespace cond {
     
     std::string const & metadataToken() const { return m_metadata;}
 
-
-    // void set_description(cond::IOVDescription * id) { m_description = id;}
-
-    // cond::IOVDescription const & description() const {return *m_description;}
-
-
-    void loadAll() const;
-
-  public:
-
+  private:
+    
     // the real persistent container...
     Container & piovs() { return m_iovs;}
 
-  private:
-    
     // iovs is not in order: take action!
     void disorder();
 
@@ -101,16 +77,8 @@ namespace cond {
 
     bool m_notOrdered;
 
-    std::string m_metadata; // FIXME not used???
+    std::string m_metadata; // FIXME change in Pool::Ptr???
 
-    // to describe history and be used as provenance
-    // pool::PolyPtr<cond::IOVProvenance> m_provenance;
-
-    // keep list of types, list of keywords, 
-    // pool::PolyPtr<cond::IOVDescription> m_description;
-
-    // for the user
-    // pool::PolyPtr<cond::IOVUserMetaData> m_userMetadata;
 
     mutable Container * m_sorted;
 

@@ -4,31 +4,16 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 def redoPFTauDiscriminators(process,
                             oldPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            newPFTauLabel = cms.InputTag('pfRecoTauProducer'),
-                            tauType='fixedConePFTau'):
+                            newPFTauLabel = cms.InputTag('pfRecoTauProducer')):
     print 'Tau discriminators: ', oldPFTauLabel, '->', newPFTauLabel
-    print 'Tau type: ', tauType
-    tauSrc = 'PFTauProducer'
-    tauDiscriminationSequence = process.patFixedConePFTauDiscrimination
-    if tauType == 'fixedConeHighEffPFTau':
-        tauDiscriminationSequence = process.patFixedConeHighEffPFTauDiscrimination
-    elif tauType == 'shrinkingConePFTau':
-        tauDiscriminationSequence = process.patShrinkingConePFTauDiscrimination
-    elif tauType == 'caloTau':
-        tauDiscriminationSequence = process.patCaloTauDiscrimination
-        tauSrc = 'CaloTauProducer'
-    process.patDefaultSequence.replace(process.allLayer1Objects,
-                                       tauDiscriminationSequence +
-                                       process.allLayer1Objects
-                                       )
-    massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
+    process.patAODExtraReco += process.patPFTauDiscrimination
+    massSearchReplaceParam(process.patPFTauDiscrimination, 'PFTauProducer', oldPFTauLabel, newPFTauLabel)
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
                     pfTauLabel = cms.InputTag('fixedConePFTauProducer'),
                     caloTauLabel = cms.InputTag('caloRecoTauProducer')):
-    process.tauMatch.src       = caloTauLabel
-    process.tauGenJetMatch.src = caloTauLabel
+    switchMCMatch(process, pfTauLabel, caloTauLabel)
     process.allLayer1Taus.tauSource = caloTauLabel
     process.allLayer1Taus.tauIDSources = cms.PSet(
         leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding"),
@@ -36,6 +21,10 @@ def switchToCaloTau(process,
         byIsolation         = cms.InputTag("caloRecoTauDiscriminationByIsolation"),
         againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron"),  
     )
+    if pfTauLabel in process.aodSummary.candidates:
+        process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabel)] = caloTauLabel
+    else:
+        process.aodSummary.candidates += [caloTauLabel]
     process.allLayer1Taus.addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
@@ -48,8 +37,7 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
 
     print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
 
-    process.tauMatch.src       = pfTauLabelNew
-    process.tauGenJetMatch.src = pfTauLabelNew
+    switchMCMatch(process, pfTauLabelOld, pfTauLabelNew)
     process.tauIsoDepositPFCandidates.src = pfTauLabelNew
     process.tauIsoDepositPFCandidates.ExtractorPSet.tauSource = pfTauLabelNew
     process.tauIsoDepositPFChargedHadrons.src = pfTauLabelNew
@@ -79,7 +67,10 @@ def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):
         #byTaNCfrTenthPercent = cms.InputTag(pfTauType + "DiscriminationByTaNCfrTenthPercent")
     )
     process.allLayer1Taus.decayModeSrc = cms.InputTag(pfTauType + "DecayModeProducer")
-
+    if pfTauLabelOld in process.aodSummary.candidates:
+        process.aodSummary.candidates[process.aodSummary.candidates.index(pfTauLabelOld)] = pfTauLabelNew
+    else:
+        process.aodSummary.candidates += [pfTauLabelOld]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
 def switchToPFTauFixedCone(process,
@@ -129,11 +120,4 @@ def switchToPFTauShrinkingCone(process,
         byTaNCfrQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
         byTaNCfrTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent")
     )
-    
-# function to switch to **any** PFTau collection
-# It is just to make internal function accessible externally
-def switchToAnyPFTau(process,
-                     pfTauLabelOld = cms.InputTag('pfRecoTauProducer'),
-                     pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
-                     pfTauType='fixedConePFTau'):
-    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType)
+

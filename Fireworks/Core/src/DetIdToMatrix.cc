@@ -23,20 +23,13 @@ DetIdToMatrix::~DetIdToMatrix()
 TFile* DetIdToMatrix::findFile(const char* fileName)
 {
    TString file;
-   if ( fileName[0] == '/')
-   {
-      file= fileName;
+   if ( const char* cmspath = gSystem->Getenv("CMSSW_BASE") ) {
+      file += cmspath;
+      file += "/";
    }
-   else
-   {
-      if ( const char* cmspath = gSystem->Getenv("CMSSW_BASE") ) {
-         file += cmspath;
-         file += "/";
-      }
-      file += fileName;
-   }
+   file += fileName;
    if ( ! gSystem->AccessPathName(file.Data()) ) {
-      return TFile::Open(file);
+      return TFile::Open(fileName);
    } 
    
    const char* searchpath = gSystem->Getenv("CMSSW_SEARCH_PATH");
@@ -49,7 +42,7 @@ TFile* DetIdToMatrix::findFile(const char* fileName)
       fullFileName += "/Fireworks/Geometry/data/";
       fullFileName += fileName;
       if ( ! gSystem->AccessPathName(fullFileName.Data()) )
-         return TFile::Open(fullFileName.Data());
+	return TFile::Open(fullFileName.Data());
    }
    return 0;
 }
@@ -117,31 +110,29 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
    static const TGeoRotation inverseCscRotation("iCscRot",0,90,0);
 
    DetId detId(id);
-   if (detId.det() == DetId::Muon) {
-	if ( detId.subdetId() == MuonSubdetId::CSC ) {
-	     TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-	     if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
-	     idToMatrix_[id] = m;
-	     return &idToMatrix_[id];
-	} else if ( detId.subdetId() == MuonSubdetId::RPC ) {
-	     RPCDetId rpcid(detId);
-	     // std::cout << "id: " << detId.rawId() << std::endl;
-	     if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
-		  // std::cout << "before: " << std::endl;
-		  // (*(manager_->GetCurrentMatrix())).Print();
-		  TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
-		  if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
-		  idToMatrix_[id] = m;
-		  // std::cout << "after: " << std::endl;
-		  // m.Print();
-		  return &idToMatrix_[id];
-	     }
-	     /* else {
-		std::cout << "BARREL station: " << rpcid.station() << std::endl;
-		(*(manager_->GetCurrentMatrix())).Print();
-		}
-	     */
-	}
+   if ( detId.subdetId() == MuonSubdetId::CSC ) {
+      TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+      if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
+      idToMatrix_[id] = m;
+      return &idToMatrix_[id];
+   } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
+      RPCDetId rpcid(detId);
+      // std::cout << "id: " << detId.rawId() << std::endl;
+      if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
+         // std::cout << "before: " << std::endl;
+         // (*(manager_->GetCurrentMatrix())).Print();
+         TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+         if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
+         idToMatrix_[id] = m;
+         // std::cout << "after: " << std::endl;
+         // m.Print();
+         return &idToMatrix_[id];
+      }
+      /* else {
+         std::cout << "BARREL station: " << rpcid.station() << std::endl;
+         (*(manager_->GetCurrentMatrix())).Print();
+         }
+       */
    }
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
 

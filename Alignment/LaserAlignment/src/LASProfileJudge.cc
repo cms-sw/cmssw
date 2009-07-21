@@ -1,6 +1,6 @@
 
 
-#include "Alignment/LaserAlignment/interface/LASProfileJudge.h"
+#include "Alignment/LaserAlignment/src/LASProfileJudge.h"
 
 
 // terminal colors
@@ -102,19 +102,6 @@ void LASProfileJudge::EnableZeroFilter( bool zeroFilter ) {
   }
 
   isZeroFilter = zeroFilter;
-
-}
-
-
-
-
-
-///
-/// set the threshold for overdriven profiles (passed from cfg file)
-///
-void LASProfileJudge::SetOverdriveThreshold( unsigned int aThreshold ) {
-
-  overdriveThreshold = aThreshold;
 
 }
 
@@ -249,9 +236,12 @@ bool LASProfileJudge::IsOverdrive( int offset ) {
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
+  // to be softcoded...
+  const unsigned int maxmimumAllowedAmplitude = 200;
+
   // find maximum strip amplitude in range
   for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
-    if( profile.GetValue( strip ) > overdriveThreshold ) return true;
+    if( profile.GetValue( strip ) > maxmimumAllowedAmplitude ) return true;
   }
 
   return false;

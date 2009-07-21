@@ -56,7 +56,6 @@ namespace edm
       virtual void branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label);
       virtual void put(edm::Event &e,const edm::EventSetup& es);
       virtual void createnewEDProduct();
-      //virtual void checkSignal(const edm::Event &e);
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
       virtual void addPileups(const int bcr, EventPrincipal*,unsigned int EventId,unsigned int worker, const edm::EventSetup& e);
@@ -64,14 +63,11 @@ namespace edm
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       std::string labelPlayback_;
-      bool mixProdStep2_;
-      bool mixProdStep1_;
       CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
 
       std::vector<MixingWorkerBase *> workers_;
-      std::vector<MixingWorkerBase *> workersObjects_;
       std::vector<std::string> wantedBranches_;
       bool useCurrentProcessOnly_;
     };

@@ -36,9 +36,7 @@ public:
   std::string outputFile_;
   std::string hcalselector_;
   std::string zside_;
-  std::string mode_;
-  int noise_;             
-// flag to distinguish between 
+  int noise_;             // flag to distinguish between 
                           // particular subdet only case and "global" noise one
 
   edm::ESHandle<CaloGeometry> geometry ;

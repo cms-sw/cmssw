@@ -31,7 +31,7 @@ class TFile;
 class TH1F;
 class PixelErrorParametrization;
 class RandomEngine;
-class SimpleHistogramGenerator;
+class HistogramGenerator;
 
 class SiPixelGaussianSmearingRecHitConverterAlgorithm {
 public:
@@ -84,8 +84,8 @@ private:
   std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities;
   std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities;
 
-  std::map<unsigned,const SimpleHistogramGenerator*> theAlphaHistos;
-  std::map<unsigned,const SimpleHistogramGenerator*> theBetaHistos;
+  std::map<unsigned,const HistogramGenerator*> theAlphaHistos;
+  std::map<unsigned,const HistogramGenerator*> theBetaHistos;
 
   TFile* thePixelResolutionFile;
 

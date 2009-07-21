@@ -51,7 +51,7 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 
 // CLHEP includes
-//#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 //#include <CLHEP/Vector/LorentzVector.h>
 
@@ -121,10 +121,10 @@ class DiMuonSeedGeneratorHIC  {
 					 
   edm::InputTag rphirecHitsTag;
   const TransientTrackingRecHitBuilder * TTRHbuilder;
-  const MagneticField*                   magfield;	
-  const GeometricSearchTracker*          theTracker;
-  const MeasurementTracker*              theMeasurementTracker;
-  const LayerMeasurements*               theLayerMeasurements;
+  const MagneticField* magfield;	
+  const GeometricSearchTracker* theTracker;
+  const MeasurementTracker*             theMeasurementTracker;
+  const LayerMeasurements*              theLayerMeasurements;
   			 
 };
 }

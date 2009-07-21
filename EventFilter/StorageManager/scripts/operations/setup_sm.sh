@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.37 2009/05/12 07:58:25 loizides Exp $
+# $Id: setup_sm.sh,v 1.38 2009/06/09 16:17:08 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -17,6 +17,8 @@ lookarea=$store/lookarea
 if test -n "$SM_LOOKAREA"; then
     lookarea=$SM_LOOKAREA
 fi
+
+cmhost=srv-C2C07-20
 
 hname=`hostname | cut -d. -f1`;
 nname="node"`echo $hname | cut -d- -f3` 
@@ -37,6 +39,11 @@ esac
 t0control="~cmsprod/$nname/t0_control.sh";
 if test -e "/opt/copyworker/t0_control.sh"; then
     t0control="/opt/copyworker/t0_control.sh"
+fi
+
+t0cmcontrol="~cmsprod/TransferTest/old_t0_transferstatusworker.sh_old";
+if test -e "/opt/copymanager/t0_control.sh"; then
+    t0control="/opt/copymanager/t0_control.sh"
 fi
 
 t0inject="~smpro/scripts/t0inject.sh";
@@ -113,6 +120,34 @@ startinjectworker () {
     su - smpro -c "$t0inject start"
 }
 
+startcopymanager () {
+    local local_file="/opt/copymanager/TransferSystem_Cessy.cfg"
+    local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
+
+    if test "$hname" != "$cmhost"; then
+        return;
+    fi
+
+    if test -r "$reference_file"; then
+        local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
+        local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
+        if test $reference_time -gt $local_time; then
+            logger -s -t "SM INIT" "INFO: $reference_file is more recent than $local_file"
+            logger -s -t "SM INIT" "INFO: I will overwrite the local configuration"
+            mv $local_file $local_file.old.$local_time
+            cp $reference_file $local_file
+            sed -i "1i# File copied from $reference_file on `date`" $local_file
+            chmod 644 $local_file
+            chown cmsprod.root $local_file
+        fi
+    else
+        logger -s -t "SM INIT" "WARNING: Can not read $reference_file"
+    fi
+    
+    su - cmsprod -c "$t0cmcontrol stop" >/dev/null 2>&1
+    su - cmsprod -c "$t0cmcontrol start"
+}
+
 start () {
     case $hname in
         cmsdisk0)
@@ -176,6 +211,7 @@ start () {
         fi
     fi
 
+    startcopymanager
     startcopyworker
     startinjectworker
 
@@ -203,9 +239,18 @@ stopinjectworker () {
     rm -f /tmp/.20*-${hname}-*.log.lock
 }
 
+stopcopymanager () {
+    if test "$hname" != "$cmhost"; then
+        return;
+    fi
+
+    su - cmsprod -c "$t0cmcontrol stop"
+}
+
 stopworkers () {
     stopinjectworker
     stopcopyworker
+    stopcopymanager
 }
 
 stop () {
@@ -305,6 +350,7 @@ status () {
 
     su - smpro -c "$t0inject status"
     su - cmsprod -c "$t0control status"
+    su - cmsprod -c "$t0cmcontrol status"
     return 0
 }
 
@@ -356,6 +402,18 @@ case "$1" in
 	;;
     statuscopy)
         su - cmsprod -c "$t0control status"
+	RETVAL=$?
+	;;
+    startmanager)
+	startcopymanager
+	RETVAL=$?
+	;;
+    stopmanager)
+	stopcopymanager
+	RETVAL=$?
+	;;
+    statusmanager)
+        su - cmsprod -c "$t0cmcontrol status"
 	RETVAL=$?
 	;;
     *)

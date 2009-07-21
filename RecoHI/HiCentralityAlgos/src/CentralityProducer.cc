@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.5 2009/06/15 19:46:29 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.2 2008/07/07 15:04:55 yilmaz Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -47,7 +46,7 @@
 using namespace std;
 
 //
-// class declaration
+// class decleration
 //
 
 class CentralityProducer : public edm::EDProducer {
@@ -64,7 +63,6 @@ class CentralityProducer : public edm::EDProducer {
 
   bool recoLevel_;
   bool genLevel_;
-  edm::InputTag   genLabel_;	
 
 };
 
@@ -86,7 +84,6 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
   
   recoLevel_ = iConfig.getUntrackedParameter<bool>("recoLevel",true);
   genLevel_ = iConfig.getUntrackedParameter<bool>("genLevel",true);
-  genLabel_ = iConfig.getParameter<edm::InputTag>("genLabel");
 
   if(recoLevel_){
     produces<reco::Centrality>("recoBased");
@@ -145,7 +142,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(genLevel_){
      Handle<HepMCProduct> mc;
-     iEvent.getByLabel(genLabel_,mc);   
+     iEvent.getByLabel("source",mc);   
      evt=mc->GetEvent();
      
      HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();

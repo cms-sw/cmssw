@@ -36,9 +36,6 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--numEvents1', dest='numEvents1', type='int',
                            default=0,
                            help="number of events")
-    tupleGroup.add_option ('--numEvents2', dest='numEvents2', type='int',
-                           default=0,
-                           help="number of events")
     tupleGroup.add_option ('--alias', dest='alias', type='string',
                            action='append',
                            help="Change alias ('tuple:object:alias')")
@@ -65,24 +62,13 @@ if __name__ == "__main__":
                              default=0.02,
                              help="Rate at which objects will be changed. " + \
                              "(%default default)")
-    optionsGroup.add_option ('--compRoot', dest='compRoot', type='string',
-                             default='',
-                             help="Write out root file for file comparisons")
-    optionsGroup.add_option ('--oldLoad', dest='oldLoad', action='store_true',
-                             help="Use old loading routine (DEBUGGING ONLY)")
-    optionsGroup.add_option ('--debug', dest='debug', action='store_true',
-                             help="Print debugging information")
-    optionsGroup.add_option 
     parser.add_option_group (modeGroup)
     parser.add_option_group (tupleGroup)
     parser.add_option_group (optionsGroup)
     (options, args) = parser.parse_args()
     # Here we go
     random.seed( os.getpid() )
-    if options.oldLoad:
-        GenObject.oldLoadConfigFile (options.config)
-    else:
-        GenObject.loadConfigFile (options.config)
+    GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
     # Let's parse any args
@@ -117,17 +103,12 @@ if __name__ == "__main__":
     if options.blur:
         GenObject.setGlobalFlag ('blur', options.blur)
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
-    if options.debug:
-        GenObject.setGlobalFlag ('debug', True)
     if options.compare:
         # Compare two files
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
                                          options.numEvents1)
-        chain2 = GenObject.prepareTuple (options.tuple2, options.file2,
-                                         options.numEvents2)
-        problems = \
-                 GenObject.compareTwoTrees (chain1, chain2,
-                                            diffOutputName = options.compRoot)
+        chain2 = GenObject.prepareTuple (options.tuple2, options.file2)
+        problems = GenObject.compareTwoTrees (chain1, chain2)
         print "problems"
         pprint.pprint (problems)
     if options.saveAs:
@@ -155,7 +136,7 @@ if __name__ == "__main__":
         import atexit
         historyPath = os.path.expanduser("~/.pyhistory")
 
-        def save_history (historyPath=historyPath):
+        def save_history(historyPath=historyPath):
             import readline
             readline.write_history_file(historyPath)
             if os.path.exists(historyPath):

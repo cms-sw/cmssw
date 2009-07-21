@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.15 2009/07/06 16:08:41 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.9 2009/02/20 08:48:19 kodolova Exp $
 //
 //
  
@@ -54,7 +54,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
@@ -107,7 +106,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
    L2candTag_          = ps1.getParameter< edm::InputTag > ("L2CandTag");
    rphirecHitsTag      = ps1.getParameter< edm::InputTag > ("rphiRecHits");
-   builderName         = ps1.getParameter< std::string >   ("TTRHBuilder");
+   builderName         = ps1.getParameter< std::string > ("TTRHBuilder");
    primaryVertexTag    = ps1.getParameter< edm::InputTag > ("PrimaryVertexTag");
 
 #ifdef DEBUG
@@ -124,7 +123,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
        
     double theChiSquareCut = 500.;
     double nsig = 3.;
-//    int theLowMult = 1;
+    int theLowMult = 1;
     theEstimator = new HICMeasurementEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
     std::string updatorName = "KFUpdator";
     std::string propagatorAlongName    = "PropagatorWithMaterial";
@@ -142,17 +141,6 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
                                                      recHitBuilderHandle.product(),
                                                      measurementTrackerHandle.product(),
                                                      theMinPtFilter);
-// Fill vector of navigation schools for barrel
-   int lost=-1;
-   int lostf=-1;
-   theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, lostf));  
-   for(int i=11;i>-1;i--) {
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), i, lostf));
-   } 
-   lost=-1;    
-   for(int i=12;i>-1;i--) {
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, i));
-   }
 #ifdef DEBUG
     std::cout<<" HICTrajectoryBuilder constructed "<<std::endl;
 #endif
@@ -174,19 +162,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    e1.getByLabel (primaryVertexTag,vertexcands);
    int iv = 0;
 
-#ifdef DEBUG   
-   cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
-   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
-#endif
-
-//   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
+//   cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
 
    if(vertexcands->size()<1) return dimuon;
-
-#ifdef DEBUG_COUNT
-   cout<<" Accepted for L3 propagation  "<<endl;  
-#endif
-   
 
    for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
    {
@@ -195,7 +173,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      iv++;
    } 
 
-//   cout << " Vertex is set to (found by pixel finder)"<<theHICConst->zvert<<endl;
+//   cout << " Vertex is set to "<<theHICConst->zvert<<endl;
  
 //
 // Get recHit builder
@@ -219,32 +197,73 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG
   std::cout<<" After first tracker update "<<std::endl;
 #endif
+//
+// Get L1 muon info
+//
+
+  vector<L1MuGMTExtendedCand> excall;
+
+/*  
+try{  
+edm::Handle<L1MuGMTReadoutCollection> gmtrc1_handle;
+e1.getByLabel("gmtDigis",gmtrc1_handle);
+
+L1MuGMTReadoutCollection const* gmtrc1 = gmtrc1_handle.product();
+
+
+vector<L1MuGMTReadoutRecord> gmtrecords = gmtrc1->getRecords();
+vector<L1MuGMTReadoutRecord>::const_iterator igmtrr1;
+std::cout<<" Number of :L1 "<<gmtrecords.size()<<std::endl;
+
+
+for(igmtrr1=gmtrecords.begin(); igmtrr1!=gmtrecords.end(); igmtrr1++)
+{
+
+vector<L1MuRegionalCand>::const_iterator iter11;
+vector<L1MuRegionalCand> rmc1;
+
+vector<L1MuGMTExtendedCand>::const_iterator gmt_iter1; 
+vector<L1MuGMTExtendedCand> exc1 = igmtrr1->getGMTCands();
+
+std::cout<<" Number of :L1MuGMTExtendedCand "<<exc1.size()<<std::endl;
+int igmt1 = 0;
+for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
+	{
+	double etal1=(*gmt_iter1).etaValue();
+	double phil1=(*gmt_iter1).phiValue();
+	int chargel1=(*gmt_iter1).charge();
+	double ptl1=(*gmt_iter1).ptValue();
+	cout<<"etal1= "<<etal1<<"phil1= "<<phil1<<"ptl1= "<<ptl1<<"chargel1= "<<chargel1<<endl;
+	igmt1++;
+        excall.push_back(*gmt_iter1);
+
+	} 
+}
+
+} 
+        catch (cms::Exception& e) { // can't find it!
+              throw e;
+       }
+
+*/
 
    edm::Handle<RecoChargedCandidateCollection> L2mucands;
-//   edm::Handle<TrackCollection> L2mucands;
+   //edm::Handle<TrackCollection> L2mucands;
    e1.getByLabel (L2candTag_,L2mucands);
-//   RecoChargedCandidateCollection::const_iterator L2cand1;
-//   RecoChargedCandidateCollection::const_iterator L2cand2;
+   RecoChargedCandidateCollection::const_iterator L2cand1;
+   RecoChargedCandidateCollection::const_iterator L2cand2;
       
 #ifdef DEBUG
    cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
-   if( L2mucands->size() < 2 ) cout<<"L2 muon failed"<<endl;
 #endif
 
    if( L2mucands->size() < 2 ) return dimuon;
-
-#ifdef DEBUG
-   cout<<"L2 muon accepted"<<endl;
-#endif
-
+   
 // For trajectory builder   
    int  theLowMult = 1;
    theEstimator->setHICConst(theHICConst);
    theEstimator->setMult(theLowMult);
-//   int lost=-1;
-//   theNavigationSchool = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
-//   lost=10;
-//   theNavigationSchooln = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
+   theNavigationSchool = new HICSimpleNavigationSchool(&(*tracker), &(*magfield));
    theTrajectoryBuilder->settracker(measurementTrackerHandle.product());
 //============================   
     FastMuPropagator* theFmp = new FastMuPropagator(&(*magfield),theFmpConst); 
@@ -280,237 +299,112 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     
    DiMuonSeedGeneratorHIC::SeedContainer myseeds;  
    map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap;
-   vector<Trajectory> theTmpTrajectories0;
- 
-//   map< FreeTrajectoryState*, Trajectory>  
-
-   vector<FreeTrajectoryState*> theFoundFts;
-   map<FreeTrajectoryState*, vector<Trajectory> >  theMapFtsTraj;
-
-
+   vector<Trajectory> allTraj;
+   
+   int numofseeds = 0; 
    for(vector<FreeTrajectoryState>::iterator ifts=theFts.begin(); ifts!=theFts.end(); ifts++)
    {
-      theTmpTrajectories0.clear();
 #ifdef DEBUG
      cout<<" cycle on Muon Trajectory State " <<(*ifts).parameters().position().perp()<<
                                           " " <<(*ifts).parameters().position().z()   <<endl;
 #endif
-
-     tsos=state((*ifts));          
+     tsos=state((*ifts));
+     
+     int iseedn = 0; 
+     
      if(tsos.isValid())
      {
-
-//        vector<Trajectory> theTmpTrajectories0;
+     
 #ifdef DEBUG
         cout<<" Position "<<tsos.globalPosition().perp()<<" "<<tsos.globalPosition().phi()<<
-	      " "<<tsos.globalPosition().z()<<" "<<tsos.globalMomentum().perp()<<endl;
+	" "<<tsos.globalPosition().z()<<" "<<tsos.globalMomentum().perp()<<endl;
 #endif
 
 // Start to find starting layers
 	FreeTrajectoryState* ftsnew=tsos.freeTrajectoryState();
-        vector<DetLayer*> seedlayers = TkOSLF.startingLayers((*ftsnew));
 	
+	vector<DetLayer*> seedlayers = TkOSLF.startingLayers((*ftsnew));
+
 #ifdef DEBUG
 	std::cout<<" The size of the starting layers "<<seedlayers.size()<<std::endl;
 #endif
 
-	if( seedlayers.size() == 0 ) {
+	if( seedlayers.size() == 0 ) continue;
+
+        map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
+	                                       recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);
+	
+	int ilnum = 0;
+	  for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
+	  {
+	    ilnum++;
+	    vector<Trajectory> theTmpTrajectories0;
+	    DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
+    // set the correct navigation
+            NavigationSetter setter( *theNavigationSchool);
 #ifdef DEBUG
-          cout<<" Starting layers failed for muon candidate "<<endl;
-#endif
-          continue;
-        }
-        map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, 
-                                                          (*ftsnew), tsos, (*ifts), 
-	                                                   recHitBuilderHandle.product(),
-                                                           measurementTrackerHandle.product(), 
-                                                           &seedlayers);
-
- 
-
-       for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
-       {
-
-       DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
-
-#ifdef DEBUG
-       std::cout<<" Layer::Position z "<<(**it).surface().position().z()<<
-                  " Number of seeds in layer "<<seeds.size()<<std::endl;	    
-#endif
-
-  if(seeds.size() == 0) {
-#ifdef DEBUG
-    std::cout<<" No seeds are found: do not continue with this Detlayer "<<std::endl;   
-#endif
-    continue;
-  }
-    // set the first navigation (all layers without gap)
-       
-       NavigationSetter setter( *(theNavigationSchoolV[0]));
-    
-       for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();
-                                                           iseed!=seeds.end();iseed++)
+       std::cout<<" Layer "<<ilnum<<" Number of seeds in layer "<<seeds.size()<<std::endl;	    
+#endif	    
+	    if(seeds.size() > 0) {
+       for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();iseed!=seeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-
 #ifdef DEBUG
-         std::cout<< "RecHIT Layer position r "<<
-         theV[0].recHit()->globalPosition().perp()<<" phi "<<
-         theV[0].recHit()->globalPosition().phi()<<" z "<<
-         theV[0].recHit()->globalPosition().z()<<" momentum "<<
-         theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
+         std::cout<< "Layer " <<ilnum<<" Seed number "<<iseedn<<"position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
+         theV[0].recHit()->globalPosition().z()<<" momentum "<<theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
 #endif
-
-	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed); 
-    
+	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);   
 #ifdef DEBUG
         cout<<" Number of found trajectories "<<theTmpTrajectories.size()<<endl;	 
 #endif
         if(theTmpTrajectories.size()>0) {
-//	allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-        theTmpTrajectories0.insert(theTmpTrajectories0.end(),
-                                   theTmpTrajectories.begin(),
-                                   theTmpTrajectories.end());
+	                                    allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+					    theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+	                                }
+	if(theTmpTrajectories0.size() > 0) { 
 #ifdef DEBUG
-        std::cout<<"We found trajectories for at least one seed "<<theTmpTrajectories0.size()<<std::endl; 
+          std::cout<<"We found trajectories for at least one seed "<<std::endl; 
 #endif
-        break;
-        }  // There are trajectories
+          break;
+        }
+					
+        iseedn++;
+	    
        } // seeds 	    
+	    } // there are seeds/layer
+	    
+//	    std::cout<<" Size of seed container "<<seeds.size()<<" size of trajectories "<<theTmpTrajectories0.size()<<std::endl;  
+	    
+	    if( theTmpTrajectories0.size() > 0 ) break;
+	    
+	  } // Detlayer cycle  
+	
+     } // tsos. isvalid
+     if(iseedn > 0) numofseeds++;
+   } // Muon Free trajectory state
 
-    if( theTmpTrajectories0.size() > 0 ) {
 #ifdef DEBUG
-        std::cout<<"We found trajectories for at least one seed "<<theTmpTrajectories0.size()<<"break layer cycle "<<std::endl; 
+   cout<<" Number of muons trajectories in MUON "<<theFts.size()<<" Number of seeds "<<numofseeds+1<<endl;
 #endif
-     break;  
-    }
-   } // seedlayer
-
-
-
-    if( theTmpTrajectories0.size() > 0 ) {
-#ifdef DEBUG
-        std::cout<<"We found trajectories for at least one seed "<<theTmpTrajectories0.size()
-                 <<"continue"<<std::endl; 
-#endif
-     theFoundFts.push_back(&(*ifts));
-     theMapFtsTraj[&(*ifts)] = theTmpTrajectories0;
-     continue;
-    } 
-
-#ifdef DEBUG
-        std::cout<<"No trajectories for this FTS "<<theTmpTrajectories0.size()<<
-                   "try second path"<<std::endl; 
-#endif
-
-// No trajectories found for this Muon FTS although seeds exist. 
-// Try to allow another trajectory map with lost 1 layer (only for barrel layers)
-
-       for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
-       {
-
-          DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
-
-          if(seeds.size() == 0) {
-#ifdef DEBUG
-    std::cout<<" Second path: No seeds are found: do not continue with this Detlayer "<<std::endl;   
-#endif
-             continue;
-           }
-
-       if((**it).location() == GeomDetEnumerators::endcap) {
-       for(unsigned int j=13; j<theNavigationSchoolV.size();j++){
-       NavigationSetter setter( *(theNavigationSchoolV[j]));
-       for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();
-                                                           iseed!=seeds.end();iseed++)
-       {
-         std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
-
-         if(theTmpTrajectories.size()>0) {
-//	 allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-         theTmpTrajectories0.insert(theTmpTrajectories0.end(),
-                                    theTmpTrajectories.begin(),
-                                    theTmpTrajectories.end());
-#ifdef DEBUG
-         std::cout<<"Second path: We found trajectories for at least one seed in barrel layer "<<
-                                    theTmpTrajectories0.size()<<std::endl; 
-#endif
-          break;
-         }  // There are trajectories
-        } // seeds
-
-         if( theTmpTrajectories0.size() > 0 ) {
-#ifdef DEBUG
-         std::cout<<"Second path: no trajectories: we try next barrel layer "<<
-                                  theTmpTrajectories0.size()<<std::endl; 
-#endif
-                    break;
-         }   
-       } // navigation maps
-       } else {
-       for(int j=1; j<13;j++){
-       NavigationSetter setter(*(theNavigationSchoolV[j]));
-       for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();
-                                                           iseed!=seeds.end();iseed++)
-       {
-         std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
-
-         if(theTmpTrajectories.size()>0) {
-//	 allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
-         theTmpTrajectories0.insert(theTmpTrajectories0.end(),
-                                    theTmpTrajectories.begin(),
-                                    theTmpTrajectories.end());
-#ifdef DEBUG
-         std::cout<<"Second path: We found trajectories for at least one seed in barrel layer "<<
-                                  theTmpTrajectories0.size()<<std::endl; 
-#endif
-          break;
-         }  // There are trajectories
-        } // seeds
-
-         if( theTmpTrajectories0.size() > 0 ) {
-#ifdef DEBUG
-         std::cout<<
-   "Second path:  We found trajectories for at least one seed in barrel/endcap layer"<<
-                                  theTmpTrajectories0.size()<<std::endl; 
-#endif
-                    break;
-         }   
-     } // navigation maps
-    } // barrel or endcap seed
-         if( theTmpTrajectories0.size() > 0 ) {
-#ifdef DEBUG
-         std::cout<<
-              "Second path: We found trajectories for at least one seed in barrel/endcap layer "
-                               <<
-                                  theTmpTrajectories0.size()<<std::endl; 
-#endif     
-              theFoundFts.push_back(&(*ifts));     
-              theMapFtsTraj[&(*ifts)] = theTmpTrajectories0;
-              break;
-         }  
-    } // seedlayer
-   } // tsos. isvalid
- } // Muon Free trajectory state
         
 //
 // start fitting procedure
 //
 #ifdef DEBUG
-    if(theFoundFts.size()>0 ) {
-     std::cout<<" Event reconstruction finished with "<<theFoundFts.size()  
-              <<std::endl;} 
-           else {std::cout<<" Event reconstruction::no tracks found"<<std::endl;}
+    if(allTraj.size()>0 ) {std::cout<<" Event reconstruction finished with "<<allTraj.size()<<std::endl;} else {std::cout<<" Event reconstruction::no tracks found"<<std::endl;}
 #endif
-    if(theFoundFts.size()<2)  return dimuon;
-
-// Look for vertex constraints
+    if(allTraj.size()<2)  return dimuon;
 
     edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
     es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
+
+    vector<reco::Track> thePositiveTracks;
+    vector<reco::Track> theNegativeTracks; 
+    vector<reco::TrackRef> thePositiveTrackRefs;
+    vector<reco::TrackRef> theNegativeTrackRefs;
+    vector<reco::TransientTrack> thePositiveTransTracks;
+    vector<reco::TransientTrack> theNegativeTransTracks;
 
     reco::BeamSpot::CovarianceMatrix matrix;
     matrix(2,2) = 0.001;
@@ -527,135 +421,103 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 
     reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
 
-//    edm::ESHandle<TrajectoryFitter> theFitterTrack;
-//    edm::ESHandle<TrajectorySmoother> theSmootherTrack;
-//    edm::ESHandle<Propagator> thePropagatorTrack;
-//    es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
-//    es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
-//    es1.get<TrackingComponentsRecord>().get("SmartPropagatorAny",thePropagatorTrack);
-//    enum RefitDirection{insideOut,outsideIn,undetermined};
+    edm::ESHandle<TrajectoryFitter> theFitterTrack;
+    edm::ESHandle<TrajectorySmoother> theSmootherTrack;
+    edm::ESHandle<Propagator> thePropagatorTrack;
+    es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
+    es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
+    es1.get<TrackingComponentsRecord>().get("SmartPropagatorAny",thePropagatorTrack);
+    enum RefitDirection{insideOut,outsideIn,undetermined};
 
-// For trajectory refitting
-        vector<reco::Track> firstTrack;
-        vector<reco::TransientTrack> firstTransTracks;
-        vector<reco::TrackRef> firstTrackRefs;
-        vector<reco::Track> secondTrack;
-        vector<reco::TransientTrack> secondTransTracks;
-        vector<reco::TrackRef> secondTrackRefs;
-	
-    for(vector<FreeTrajectoryState*>::iterator it = theFoundFts.begin(); it!= theFoundFts.end(); it++)
+
+    for(vector<Trajectory>::iterator it = allTraj.begin(); it!= allTraj.end(); it++)
     {
-        vector<Trajectory> first = (*theMapFtsTraj.find(*it)).second;
+//
+// Refit the trajectory
+//
+// Refit the trajectory before putting into the last result
 
-        for(vector<Trajectory>::iterator im=first.begin();im!=first.end(); im++) {
+  Trajectory::ConstRecHitContainer recHitsForReFit = (*it).recHits();
+  
+  PTrajectoryStateOnDet garbage1;
+  edm::OwnVector<TrackingRecHit> garbage2;
+  TrajectoryStateOnSurface firstTSOS = (*it).firstMeasurement().updatedState();
 
-          TrajectoryStateOnSurface innertsos;
-          if (im->direction() == alongMomentum) {
-           innertsos = im->firstMeasurement().updatedState();
-          } else {
-            innertsos = im->lastMeasurement().updatedState();
-          }
+//   cout<<" firstTSOS "<<firstTSOS.freeTrajectoryState()->position().perp()<<" "<<firstTSOS.freeTrajectoryState()->position().z()<<endl;
+//  PropagationDirection propDir =
+//    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
+  PropagationDirection propDir = oppositeToMomentum;
+  
+//  RefitDirection theRefitDirection = insideOut;
+//  propDir = alongMomentum;
+//  RefitDirection theRefitDirection = outsideIn;
 
-         // CMSSW31X
-          TSCBLBuilderNoMaterial tscblBuilder;
-         // CMSSW22X
-         //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-         TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+//  if(propDir == alongMomentum && theRefitDirection == outsideIn)  {cout<<" oppositeToMomentum "<<endl; propDir=oppositeToMomentum;}
+//  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) {cout<<" alongMomentum "<<endl; propDir=alongMomentum;}
 
-         if (tscbl.isValid()==false) {
-            //cout<<" false track "<<endl; 
-         continue;
-         }
+  TrajectorySeed seed(garbage1,garbage2,propDir);
+  vector<Trajectory> trajectories = theFitterTrack->fit(seed,recHitsForReFit,firstTSOS);
 
-         GlobalPoint v = tscbl.trackStateAtPCA().position();
-         math::XYZPoint  pos( v.x(), v.y(), v.z() );
+//  vector<Trajectory> trajectories = theFitterTrack->fit(*it);
+
+//  if(trajectories.empty()) {cout<<" No refit is done "<<endl;};
+  
+//  Trajectory trajectoryBW = trajectories.front();
+//  vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
+//  if(trajectoriesSM.size()<1) continue;
+
+    TrajectoryStateOnSurface innertsos;
+    if (it->direction() == alongMomentum) {
+   //    cout<<" Direction is along momentum "<<endl;
+      innertsos = it->firstMeasurement().updatedState();
+    } else {
+      innertsos = it->lastMeasurement().updatedState();
+   //   cout<<" Direction is opposite to momentum "<<endl;
+      
+    }
+   //  cout<<" Position of the innermost point "<<innertsos.freeTrajectoryState()->position().perp()<<" "<<innertsos.freeTrajectoryState()->position().z()<<endl;
+    TSCBLBuilderNoMaterial tscblBuilder;
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+
+    if (tscbl.isValid()==false) {
+    //cout<<" false track "<<endl; 
+    continue;}
+
+    GlobalPoint v = tscbl.trackStateAtPCA().position();
+    math::XYZPoint  pos( v.x(), v.y(), v.z() );
     
 //    cout<<" Position of track close to vertex "<<v.perp()<<" "<<v.z()<<" Primary vertex "<<theHICConst->zvert<<
 //                                     " charge "<<tscbl.trackStateAtPCA().charge()<<endl;
    
-         if(v.perp() > 0.1 ) continue;
-         if(fabs(v.z() - theHICConst->zvert ) > 0.4 ) continue;
+    if(v.perp() > 0.1 ) continue;
+    if(fabs(v.z() - theHICConst->zvert ) > 0.4 ) continue;
 
-          GlobalVector p = tscbl.trackStateAtPCA().momentum();
-          math::XYZVector mom( p.x(), p.y(), p.z() );
+    GlobalVector p = tscbl.trackStateAtPCA().momentum();
+    math::XYZVector mom( p.x(), p.y(), p.z() );
 
-          Track theTrack(im->chiSquared(),
-                         im->ndof(), 
-                         pos, mom, tscbl.trackStateAtPCA().charge(), 
-                         tscbl.trackStateAtPCA().curvilinearError(),Algo);
-           TransientTrack tmpTk( theTrack, &(*magfield), globTkGeomHandle );
-
-         
-           firstTrack.push_back( theTrack );
-           firstTransTracks.push_back( tmpTk );
-        }
-
-    if( firstTrack.size() == 0 ) continue;
-
-    for(vector<FreeTrajectoryState*>::iterator jt = it+1; jt!= theFoundFts.end(); jt++)
+    Track theTrack(it->chiSquared(),
+                   it->ndof(), 
+                   pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError(),Algo);
+    TransientTrack tmpTk( theTrack, &(*magfield), globTkGeomHandle );
+    if( tscbl.trackStateAtPCA().charge() > 0)
     {
-        vector<Trajectory> second = (*theMapFtsTraj.find(*jt)).second;
-       // cout<<" Number of trajectories first "<<first.size()<<" second "<<second.size()<<endl;
+      thePositiveTracks.push_back( theTrack );
+      thePositiveTransTracks.push_back( tmpTk );
+    }
+      else
+      {
+        theNegativeTracks.push_back( theTrack );
+        theNegativeTransTracks.push_back( tmpTk );
+      }
+    } // Traj
 
-        for(vector<Trajectory>::iterator im=second.begin();im!=second.end(); im++) {
-
-          TrajectoryStateOnSurface innertsos;
-
-          if (im->direction() == alongMomentum) {
-           innertsos = im->firstMeasurement().updatedState();
-          } else {
-            innertsos = im->lastMeasurement().updatedState();
-          }
-
-         TSCBLBuilderNoMaterial  tscblBuilder;
-         //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-         TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
-
-         if (tscbl.isValid()==false) {
-            //cout<<" false track "<<endl; 
-         continue;
-         }
-
-         GlobalPoint v = tscbl.trackStateAtPCA().position();
-         math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    
-//    cout<<" Position of track close to vertex "<<v.perp()<<" "<<v.z()<<" Primary vertex "<<theHICConst->zvert<<
-//                                     " charge "<<tscbl.trackStateAtPCA().charge()<<endl;
-   
-         if(v.perp() > 0.1 ) continue;
-         if(fabs(v.z() - theHICConst->zvert ) > 0.4 ) continue;
-
-          GlobalVector p = tscbl.trackStateAtPCA().momentum();
-          math::XYZVector mom( p.x(), p.y(), p.z() );
-
-          Track theTrack(im->chiSquared(),
-                         im->ndof(), 
-                         pos, mom, tscbl.trackStateAtPCA().charge(), 
-                             tscbl.trackStateAtPCA().curvilinearError(),Algo);
-           TransientTrack tmpTk( theTrack, &(*magfield), globTkGeomHandle );
-
-         
-           secondTrack.push_back( theTrack );
-           secondTransTracks.push_back( tmpTk );
-        }
-        if( secondTrack.size() == 0 ) continue;
-        //cout<<" Number of tracks first "<<firstTrack.size()<<" second "<<secondTrack.size()<<endl;
-// Try to reconstruct vertex
-
-
-
-    } // FTS
-  } // FTS 
-
-
-   if( firstTrack.size() < 1 || secondTrack.size() < 1 ){ 
+   if( thePositiveTracks.size() < 1 || theNegativeTracks.size() < 1 ){ 
 #ifdef DEBUG
      cout<<" No enough tracks to get vertex "<<endl; 
 #endif
      return dimuon; 
    }
-
 
    bool useRefTrax=true;
    KalmanVertexFitter theFitter(useRefTrax);
@@ -664,16 +526,12 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 // Create possible two particles vertices
 //
    vector<reco::TransientTrack> theTwoTransTracks;
-
    vector<TransientVertex> theVertexContainer;
-
-   for(vector<reco::TransientTrack>::iterator iplus = firstTransTracks.begin(); 
-                                              iplus != firstTransTracks.end(); iplus++)
+   for(vector<reco::TransientTrack>::iterator iplus = thePositiveTransTracks.begin(); iplus != thePositiveTransTracks.end(); iplus++)
    {
      theTwoTransTracks.clear();
      theTwoTransTracks.push_back(*iplus);
-     for(vector<reco::TransientTrack>::iterator iminus = secondTransTracks.begin(); 
-                                                iminus != secondTransTracks.end(); iminus++)
+     for(vector<reco::TransientTrack>::iterator iminus = theNegativeTransTracks.begin(); iminus != theNegativeTransTracks.end(); iminus++)
      {
        theTwoTransTracks.push_back(*iminus);
        theRecoVertex = theFitter.vertex(theTwoTransTracks);
@@ -681,10 +539,10 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
         continue;
       } 
       
-     //   cout<<" Vertex is found "<<endl;
-     //   cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
-     //	          " r= "<<theRecoVertex.position().perp()<<
-     //		  " z= "<<theRecoVertex.position().z()<<endl;
+//        cout<<" Vertex is found "<<endl;
+//        cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
+//	          " r= "<<theRecoVertex.position().perp()<<
+//		  " z= "<<theRecoVertex.position().z()<<endl;
 
 // Additional cuts       
      if ( theRecoVertex.totalChiSquared() > 0.0002 ) {
@@ -701,11 +559,10 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      }
      double quality = theRecoVertex.normalisedChiSquared();
      std::vector<reco::TransientTrack> tracks = theRecoVertex.originalTracks();
-     
-//     vector<TransientTrack> refittedTrax;
-//     if( theRecoVertex.hasRefittedTracks() ) {
-//          refittedTrax = theRecoVertex.refittedTracks();
-//     }
+     vector<TransientTrack> refittedTrax;
+     if( theRecoVertex.hasRefittedTracks() ) {
+          refittedTrax = theRecoVertex.refittedTracks();
+     }
 
      for (std::vector<reco::TransientTrack>::iterator ivb = tracks.begin(); ivb != tracks.end(); ivb++)
      {
@@ -716,15 +573,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 		continue;
       }
       theVertexContainer.push_back(theRecoVertex);
-      
-      dimuon = true;
-      break;
      } // iminus
-      if(dimuon) break; 
   } // iplus
-
-       
-/*
+  
        if( theVertexContainer.size() < 1 ) { 
 #ifdef DEBUG
         std::cout<<" No vertex found in event "<<std::endl; 
@@ -734,10 +585,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
           // cout<<" Event vertex is selected "<<endl;
        }
 
-    dimuon = true;
-*/
-    return dimuon;
 
+    dimuon = true;
+    return dimuon;
 } 
 }
 

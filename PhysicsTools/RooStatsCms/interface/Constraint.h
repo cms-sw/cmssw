@@ -2,8 +2,8 @@
 
 /**
 \class Constraint
-$Revision: 1.4 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.3 $
+$Date: 2009/02/25 12:59:59 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class describes the single constraint.
@@ -37,11 +37,7 @@ For more detail see RscCombinedModel.
 #include "RooRealVar.h"
 #include "RooAbsPdf.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "NLLPenalty.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/NLLPenalty.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/NLLPenalty.h"
 
 class Constraint : public NLLPenalty,public RooRealVar {
 
@@ -146,10 +142,6 @@ class Constraint : public NLLPenalty,public RooRealVar {
 
     // For Cint
     //ClassDef(Constraint,1) 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(Constraint,1)
-#endif
  };
 
 #endif

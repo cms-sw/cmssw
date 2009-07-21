@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/16 13:21:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/28 09:46:47 $
+ *  $Revision: 1.2 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -49,38 +49,16 @@ class EwkDQM : public edm::EDAnalyzer {
   std::string logTraceName;
 
   // Variables from config file
-  std::string   theElecTriggerPathToPass;
-  std::string   theMuonTriggerPathToPass;
+  std::string   theTriggerPathToPass;
   edm::InputTag theTriggerResultsCollection;
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theElectronCollectionLabel;
   edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag theCaloMETCollectionLabel;
 
   // Histograms
   MonitorElement* h_mumu_invMass;
   MonitorElement* h_ee_invMass;
   MonitorElement* h_jet_et;
   MonitorElement* h_jet_count;
-//WCP: Adding a Histo
-  MonitorElement* h_e1_et;
-  MonitorElement* h_e2_et;
-  MonitorElement* h_e1_eta;
-  MonitorElement* h_e2_eta;
-  MonitorElement* h_e1_phi;
-  MonitorElement* h_e2_phi;
-  MonitorElement* h_m1_pt;
-  MonitorElement* h_m2_pt;
-  MonitorElement* h_m1_eta;
-  MonitorElement* h_m2_eta;
-  MonitorElement* h_m1_phi;
-  MonitorElement* h_m2_phi;
-  MonitorElement* h_t1_et;
-  MonitorElement* h_t1_eta;
-  MonitorElement* h_t1_phi;
-  MonitorElement* h_met;
-  MonitorElement* h_met_phi;
-  MonitorElement* h_e_invWMass;
-  MonitorElement* h_m_invWMass;
 };
 #endif

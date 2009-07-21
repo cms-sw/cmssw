@@ -24,7 +24,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/HcalChannelQualityManager.h"
+
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
@@ -439,13 +439,12 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
 }
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
-   HcalL1TriggerObjects *HcalL1TrigObjCol = new HcalL1TriggerObjects();
+	HcalL1TriggerObjects *HcalL1TrigObjCol = new HcalL1TriggerObjects();
    const HcalQIEShape* shape = conditions.getHcalShape();
    HcalCalibrations calibrations;
    int id;
    float divide;
    HcalTopology theTopo;
-   HcalChannelQualityManager channelQuality;
 
 	//debug
 	//std::ofstream ofdebug("debug_LUTGeneration.txt");
@@ -479,8 +478,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
-                  unsigned long flag = channelQuality.isChannelMasked(cell, true) ? 1 : 0;
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, flag);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{
@@ -528,9 +526,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
-                  unsigned long flag = channelQuality.isChannelMasked(cell, true) ? 1 : 0;
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, flag);
-			//HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{
@@ -575,9 +571,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
 			//Add HcalL1TriggerObject to its container
-			//HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
-                  unsigned long flag = channelQuality.isChannelMasked(cell, true) ? 1 : 0;
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, flag);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{

@@ -217,23 +217,6 @@ namespace rpcdqm{
       
     }
 
-    //use only with RingvsSegment MEs
-    void labelXAxisSegment(MonitorElement * myMe){
-      //before do some checks
-      if (!myMe) return;
-
-      stringstream xLabel;
-
-      myMe->setAxisTitle("Segments", 1);
-
-      for(int x = 1; x<= myMe->getNbinsX(); x++){
-	xLabel.str("");
-	xLabel<<x;
-	myMe->setBinLabel(x, xLabel.str(), 1);
-      }
-      
-    }
-
 
     //use only with RollvsSector MEs
     void labelYAxisRoll(MonitorElement * myMe, int region, int ring){
@@ -262,20 +245,7 @@ namespace rpcdqm{
     }
 
 
-  //use only with RingvsSegment MEs
-    void labelYAxisRing(MonitorElement * myMe, int numberOfRings){
-  
-      //before do some checks
-      if (!myMe) return;
 
-      string labels[9]= {"C", "Ring1 B", "A","C", "Ring2 B", "A","C", "Ring3 B", "A"};
-      int startBin ;
-      (numberOfRings == 2 ? startBin = 3: startBin = 0);
- 
-      //set bin labels
-      for(int y =1 ;y<= myMe->getNbinsY() && y<=9; y++ )
-	myMe->setBinLabel(y,labels[y-1+startBin],2);
-    }
 
 
   

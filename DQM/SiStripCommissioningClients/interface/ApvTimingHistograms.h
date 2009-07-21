@@ -10,8 +10,8 @@ class ApvTimingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  ApvTimingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
-  ApvTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
+  ApvTimingHistograms( DQMOldReceiver* );
+  ApvTimingHistograms( DQMStore* );
   virtual ~ApvTimingHistograms();
   
   void histoAnalysis( bool debug );

@@ -10,10 +10,10 @@
 
 
 typedef boost::minstd_rand base_generator_type;
-writeMultipleRecords::writeMultipleRecords(const edm::ParameterSet& iConfig)
+writeMultipleRecords::writeMultipleRecords(const edm::ParameterSet& iConfig):
+  m_PedRecordName("PedestalsRcd"),
+  m_StripRecordName("mySiStripNoisesRcd")
 {
-   m_PedRecordName=iConfig.getParameter<std::string>("PedCallerName");
-   m_StripRecordName=iConfig.getParameter<std::string>("StripCallerName");
 }
 
 writeMultipleRecords::~writeMultipleRecords()

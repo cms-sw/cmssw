@@ -22,8 +22,7 @@ def equalRange( bench1, bench2 ):
     bench2.maxDeltaPhi = bench1.maxDeltaPhi                                
 
 
-#fromTaus = True
-fromTaus = False
+fromTaus = True
 
 # taking the jets, reconstructed from the large jet cone
 # and as a reference the closest genjet (reconstructed with the same cone)

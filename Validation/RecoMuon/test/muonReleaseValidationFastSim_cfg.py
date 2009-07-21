@@ -2,7 +2,7 @@
 
 FastSim=FASTSIM
 
-process = cms.Process("PROCESSNAME")
+process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes

@@ -46,7 +46,7 @@ public:
  private:
   int prescaleFactor_;
   std::string globalFolder_;
-  int numberOfDisks_, numberOfRings_;
+  int numberOfDisks_;
 
   std::vector<MonitorElement *>  myNumDigiMe_;
   std::vector<RPCDetId>   myDetIds_;
