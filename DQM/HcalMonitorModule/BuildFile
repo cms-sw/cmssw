@@ -1,4 +1,5 @@
 <flags EDM_PLUGIN=1>
+<flags CXXFLAGS="-g -O0">
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
