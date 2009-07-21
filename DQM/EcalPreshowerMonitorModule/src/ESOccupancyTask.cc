@@ -30,7 +30,6 @@ using namespace edm;
 using namespace std;
 
 ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
-
 {
 
    rechitlabel_    = ps.getParameter<InputTag>("RecHitLabel");
@@ -41,13 +40,15 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
    eCount_ = 0;
 
    //Histogram init  
-   for(int i = 0; i<4; i++){
-      hRecOCC_[i]=0;
-      hRecNHit_[i]=0;
-      hEng_[i]=0;
-      hEvEng_[i]=0;
-      hDigiOCC_[i]=0;
-      hDigiNHit_[i]=0;
+   for(int i = 0; i < 2; i++) {
+      for(int j = 0; j < 2; j++) {
+	 hRecOCC_[i][j]=0;
+	 hRecNHit_[i][j]=0;
+	 hEng_[i][j]=0;
+	 hEvEng_[i][j]=0;
+	 hDigiOCC_[i][j]=0;
+	 hDigiNHit_[i][j]=0;
+      }
    }
 
    for(int i = 0; i<2; i++){
@@ -58,45 +59,60 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps)
 
    //Booking Histograms
    //Notice: Change ESRenderPlugin under DQM/RenderPlugins/src if you change this histogram name.
-   hRecNHit_[0] = dqmStore_->book1D("ES+ P1 RecHit 1D Occupancy", "ES+ P1 RecHit 1D Occupancy", 30,0,300); 
-   hRecNHit_[1] = dqmStore_->book1D("ES+ P2 RecHit 1D Occupancy", "ES+ P2 RecHit 1D Occupancy", 30,0,300);
-   hRecNHit_[2] = dqmStore_->book1D("ES- P1 RecHit 1D Occupancy", "ES- P1 RecHit 1D Occupancy", 30,0,300);
-   hRecNHit_[3] = dqmStore_->book1D("ES- P2 RecHit 1D Occupancy", "ES- P2 RecHit 1D Occupancy", 30,0,300);
+   char histo[200];
+   for (int i=0 ; i<2; ++i) { 
+      for (int j=0 ; j<2; ++j) {
+	 int iz = (i==0)? 1:-1;
+	 sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
+	 hRecOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+	 hRecOCC_[i][j]->setAxisTitle("Si X", 1);
+	 hRecOCC_[i][j]->setAxisTitle("Si Y", 2);
 
-   //Bin 41,41 is used to save eumber of event for scaling.
-   hRecOCC_[0] = dqmStore_->book2D("ES+ P1 RecHit 2D Occupancy", "ES+ P1 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hRecOCC_[1] = dqmStore_->book2D("ES+ P2 RecHit 2D Occupancy", "ES+ P2 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hRecOCC_[2] = dqmStore_->book2D("ES- P1 RecHit 2D Occupancy", "ES- P1 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hRecOCC_[3] = dqmStore_->book2D("ES- P2 RecHit 2D Occupancy", "ES- P2 RecHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
+	 //Bin 40,40 is used to save eumber of event for scaling.
+	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
+	 hDigiOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+	 hDigiOCC_[i][j]->setAxisTitle("Si X", 1);
+	 hDigiOCC_[i][j]->setAxisTitle("Si Y", 2);
 
-   hEng_[0] = dqmStore_->book1D("ES+ P1 RecHit Energy", "ES+ P1 RecHit Energy", 50, 0, 0.0005);
-   hEng_[1] = dqmStore_->book1D("ES+ P2 RecHit Energy", "ES+ P2 RecHit Energy", 50, 0, 0.0005);
-   hEng_[2] = dqmStore_->book1D("ES- P1 RecHit Energy", "ES- P1 RecHit Energy", 50, 0, 0.0005);
-   hEng_[3] = dqmStore_->book1D("ES- P2 RecHit Energy", "ES- P2 RecHit Energy", 50, 0, 0.0005);
+	 sprintf(histo, "ES RecHit 1D Occupancy Z %d P %d", iz, j+1);
+	 hRecNHit_[i][j] = dqmStore_->book1D(histo, histo, 30,0,300);
+	 hRecNHit_[i][j]->setAxisTitle("RecHit Occupancy", 1);
+	 hRecNHit_[i][j]->setAxisTitle("Num of Events", 2);
 
-   hEvEng_[0] = dqmStore_->book1D("ES+ P1 Event Energy", "ES+ P1 Event Energy", 50, 0, 0.1);
-   hEvEng_[1] = dqmStore_->book1D("ES+ P2 Event Energy", "ES+ P2 Event Energy", 50, 0, 0.1);
-   hEvEng_[2] = dqmStore_->book1D("ES- P1 Event Energy", "ES- P1 Event Energy", 50, 0, 0.1);
-   hEvEng_[3] = dqmStore_->book1D("ES- P2 Event Energy", "ES- P2 Event Energy", 50, 0, 0.1);
+	 sprintf(histo, "ES Digi 1D Occupancy Z %d P %d", iz, j+1);
+	 hDigiNHit_[i][j] = dqmStore_->book1D(histo, histo, 30,0,300);
+	 hDigiNHit_[i][j]->setAxisTitle("Digi Occupancy", 1);
+	 hDigiNHit_[i][j]->setAxisTitle("Num of Events", 2);
+
+	 sprintf(histo, "ES RecHit Energy Z %d P %d", iz, j+1);
+	 hEng_[i][j] = dqmStore_->book1D(histo, histo, 50, 0, 0.0005);
+	 hEng_[i][j]->setAxisTitle("RecHit Energy", 1);
+	 hEng_[i][j]->setAxisTitle("Num of ReHits", 2);
+
+	 sprintf(histo, "ES Event Energy Z %d P %d", iz, j+1);
+	 hEvEng_[i][j] = dqmStore_->book1D(histo, histo, 50, 0, 0.1);
+	 hEvEng_[i][j]->setAxisTitle("Event Energy", 1);
+	 hEvEng_[i][j]->setAxisTitle("Num of Events", 2);
+      }
+   }
 
    hE1E2_[0] = dqmStore_->book2D("ES+ EP1 vs EP2", "ES+ EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
    hE1E2_[1] = dqmStore_->book2D("ES- EP1 vs EP2", "ES- EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
-
-   hDigiNHit_[0] = dqmStore_->book1D("ES+ P1 DigiHit 1D Occupancy", "ES+ P1 DigiHit 1D Occupancy", 30,0,300);
-   hDigiNHit_[1] = dqmStore_->book1D("ES+ P2 DigiHit 1D Occupancy", "ES+ P2 DigiHit 1D Occupancy", 30,0,300);
-   hDigiNHit_[2] = dqmStore_->book1D("ES- P1 DigiHit 1D Occupancy", "ES- P1 DigiHit 1D Occupancy", 30,0,300);
-   hDigiNHit_[3] = dqmStore_->book1D("ES- P2 DigiHit 1D Occupancy", "ES- P2 DigiHit 1D Occupancy", 30,0,300);
-
-   hDigiOCC_[0] = dqmStore_->book2D("ES+ P1 DigiHit 2D Occupancy", "ES+ P1 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hDigiOCC_[1] = dqmStore_->book2D("ES+ P2 DigiHit 2D Occupancy", "ES+ P2 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hDigiOCC_[2] = dqmStore_->book2D("ES- P1 DigiHit 2D Occupancy", "ES- P1 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
-   hDigiOCC_[3] = dqmStore_->book2D("ES- P2 DigiHit 2D Occupancy", "ES- P2 DigiHit 2D Occupancy", 40, 0.5, 40.5, 40, 0.5, 40.5);
 
 }
 
 
 ESOccupancyTask::~ESOccupancyTask(){}
 
+void ESOccupancyTask::beginJob(const edm::EventSetup & c)
+{
+}
+
+void ESOccupancyTask::endJob() {
+
+   cout<<"Reach EndJob of ESOccupancyTask"<<endl;
+
+}
 
 void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
 {
@@ -120,16 +136,19 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
    // RecHits
    int zside, plane, ix, iy, strip;
-   int sum_RecHits[4], sum_DigiHits[4];
-   float sum_Energy[4];
+   int sum_RecHits[2][2], sum_DigiHits[2][2];
+   float sum_Energy[2][2];
 
-   for(int i = 0; i < 4; i++ ){
-      sum_RecHits[i]=0;
-      sum_DigiHits[i]=0;
-      sum_Energy[i]=0;
+   for(int i = 0; i < 2; i++ ) {
+      for( int j = 0; j < 2; j++) {
+	 sum_RecHits[i][j]=0;
+	 sum_DigiHits[i][j]=0;
+	 sum_Energy[i][j]=0;
+      }
    }
 
-   for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
+   for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) 
+   {
 
       ESDetId id = ESDetId(hitItr->id());
 
@@ -139,37 +158,19 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
       iy    = id.siy();
       strip = id.strip();
 
-      if ( (zside == +1) && (plane == 1) ){
-	 sum_RecHits[0]++;
-	 sum_Energy[0]+=hitItr->energy();
-	 hRecOCC_[0]->Fill(ix, iy);
-	 hEng_[0]->Fill(hitItr->energy());
-      }
+      int i = (zside==1)? 0:1;
+      int j = plane-1;
 
-      if( (zside == +1) && (plane == 2) ){
-	 sum_RecHits[1]++;
-	 sum_Energy[1]+=hitItr->energy();
-	 hRecOCC_[1]->Fill(ix, iy);
-	 hEng_[1]->Fill(hitItr->energy());
-      }
+      sum_RecHits[i][j]++;
+      sum_Energy[i][j]+=hitItr->energy();
+      hRecOCC_[i][j]->Fill(ix, iy);
+      if(hitItr->energy() != 0) hEng_[i][j]->Fill(hitItr->energy());
 
-      if( (zside == -1) && (plane == 1) ){
-	 sum_RecHits[2]++;
-	 sum_Energy[2]+=hitItr->energy();
-	 hRecOCC_[2]->Fill(ix, iy);
-	 hEng_[2]->Fill(hitItr->energy());
-      }
-
-      if( (zside == -1) && (plane == 2) ){
-	 sum_RecHits[3]++;
-	 sum_Energy[3]+=hitItr->energy();
-	 hRecOCC_[3]->Fill(ix, iy);
-	 hEng_[3]->Fill(hitItr->energy());
-      }
    }
 
    //DigiHits
-   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
+   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) 
+   {
 
       ESDataFrame dataframe = (*digiItr);
       ESDetId id = dataframe.id();
@@ -180,59 +181,30 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
       iy    = id.siy();
       strip = id.strip();
 
-      if ( (zside == +1) && (plane == 1) ){
-	 sum_DigiHits[0]++;
-	 hDigiOCC_[0]->Fill(ix, iy, dataframe.sample(1).adc());
-      }
+      int i = (zside==1)? 0:1;
+      int j = plane-1;
 
-      if( (zside == +1) && (plane == 2) ){
-	 sum_DigiHits[1]++;
-	 hDigiOCC_[1]->Fill(ix, iy, dataframe.sample(1).adc());
-      }
+      sum_DigiHits[i][j]++;
+      hDigiOCC_[i][j]->Fill(ix, iy, dataframe.sample(1).adc());
 
-      if( (zside == -1) && (plane == 1) ){
-	 sum_DigiHits[2]++;
-	 hDigiOCC_[2]->Fill(ix, iy, dataframe.sample(1).adc());
-      }
-
-      if( (zside == -1) && (plane == 2) ){
-	 sum_DigiHits[3]++;
-	 hDigiOCC_[3]->Fill(ix, iy, dataframe.sample(1).adc());
-      }
    }
-
 
    //Fill histograms after a event
 
-   for(int i=0; i<4; i++){
-      hRecNHit_[i]->Fill(sum_RecHits[i]);
-      hDigiNHit_[i]->Fill(sum_DigiHits[i]);
-      hEvEng_[i]->Fill(sum_Energy[i]);
+   for( int i = 0; i < 2; i++){
+      for( int j = 0; j < 2; j++){
+	 if(sum_RecHits[i][j] != 0) hRecNHit_[i][j]->Fill(sum_RecHits[i][j]);
+	 if(sum_DigiHits[i][j] != 0) hDigiNHit_[i][j]->Fill(sum_DigiHits[i][j]);
+	 if(sum_DigiHits[i][j] != 0) hEvEng_[i][j]->Fill(sum_Energy[i][j]);
 
-      //Save eCount_ for Scaling
-      hRecOCC_[i]->setBinContent(40,40,eCount_);
-      hDigiOCC_[i]->setBinContent(40,40,eCount_);
+	 //Save eCount_ for Scaling
+	 hRecOCC_[i][j]->setBinContent(40,40,eCount_);
+	 hDigiOCC_[i][j]->setBinContent(40,40,eCount_);
+      }
    }
 
-   hE1E2_[0]->Fill(sum_Energy[0],sum_Energy[1]);
-   hE1E2_[1]->Fill(sum_Energy[2],sum_Energy[3]);
-
-
-}
-
-
-void ESOccupancyTask::beginJob(const edm::EventSetup & c)
-{
-}
-
-void ESOccupancyTask::endJob() {
-
-   cout<<"Reach EndJob of ESOccupancyTask"<<endl;
-   //	float EvtWeight = eCount_;
-   //	EvtWeight = 1./EvtWeight;
-   //	for(int i=0;i<4;i++){
-   //		hOCC_[i]->getTH2F()->Scale(EvtWeight);
-   //	}
+   hE1E2_[0]->Fill(sum_Energy[0][0],sum_Energy[0][1]);
+   hE1E2_[1]->Fill(sum_Energy[1][0],sum_Energy[1][2]);
 
 }
 

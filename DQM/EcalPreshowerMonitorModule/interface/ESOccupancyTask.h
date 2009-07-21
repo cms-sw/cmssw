@@ -30,12 +30,12 @@ class ESOccupancyTask : public edm::EDAnalyzer {
 
 
       DQMStore* dqmStore_;
-      MonitorElement* hRecOCC_[4];
-      MonitorElement* hRecNHit_[4];
-      MonitorElement* hDigiOCC_[4];
-      MonitorElement* hDigiNHit_[4];
-      MonitorElement* hEng_[4];
-      MonitorElement* hEvEng_[4];
+      MonitorElement* hRecOCC_[2][2];
+      MonitorElement* hRecNHit_[2][2];
+      MonitorElement* hDigiOCC_[2][2];
+      MonitorElement* hDigiNHit_[2][2];
+      MonitorElement* hEng_[2][2];
+      MonitorElement* hEvEng_[2][2];
       MonitorElement* hE1E2_[2];
 
 
