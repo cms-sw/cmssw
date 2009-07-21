@@ -60,6 +60,10 @@ double TCTauCorrector::efficiency(){
 	return tcTauAlgorithm->efficiency();
 }
 
+int TCTauCorrector::allTauCandidates(){
+        return tcTauAlgorithm->allTauCandidates();
+}
+
 int TCTauCorrector::statistics(){
         return tcTauAlgorithm->statistics();
 }

@@ -89,6 +89,10 @@ int TCTauAlgorithm::statistics(){
 	return passed;
 }
 
+int TCTauAlgorithm::allTauCandidates(){
+        return all;
+}
+
 void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	edm::ESHandle<TransientTrackBuilder> builder;
         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
