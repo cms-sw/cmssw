@@ -1019,7 +1019,7 @@ optutl::setupDefaultOptions()
 }
 
 void 
-optutl::finishDefaultOptions (std::string tag)
+optutl::_finishDefaultOptions (std::string tag)
 {
    ////////////////////////
    // Deal with sections //

@@ -179,11 +179,11 @@ namespace optutl
    // sets up default optioons
    void setupDefaultOptions();
 
-   // finish evaluating default options.  Pass in 'tag' if you want to
-   // modify the output name based on options the user has passed in.
-   // 'tag' is not passed by const reference because it may be
-   // modified.
-   void finishDefaultOptions (std::string tag = "");
+   // Not called by users anymore.  Finish evaluating default options.
+   // Pass in 'tag' if you want to modify the output name based on
+   // options the user has passed in.  'tag' is not passed by const
+   // reference because it may be modified.
+   void _finishDefaultOptions (std::string tag = "");
 
    /////////////////////
    // /////////////// //

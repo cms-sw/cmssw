@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <typeinfo>
 
 #include "TH1.h"
 #include "TFile.h"
@@ -21,6 +22,7 @@ class FWLiteCont : public fwlite::EventBase
       //////////////////////
 
       typedef std::map< std::string, std::string >   SSMap;
+      typedef void ( *FuncPtr ) (std::string&);
 
       /////////////
       // friends //
@@ -39,12 +41,15 @@ class FWLiteCont : public fwlite::EventBase
       /////////////////////////////////
       // Constructors and Destructor //
       /////////////////////////////////
-      FWLiteCont();
+      FWLiteCont (FuncPtr funcPtr);
       ~FWLiteCont();
 
        ////////////////
       // One Liners //
       ////////////////
+
+      // return number of events seen
+      int eventsSeen () const { return m_eventsSeen; }
 
       //////////////////////////////
       // Regular Member Functions //
@@ -56,9 +61,9 @@ class FWLiteCont : public fwlite::EventBase
       // given a string, returns corresponding histogram pointer
       TH1* hist (const std::string &name);
 
-      // write all histograms to a root file
-      void write (const std::string &filename) const;
-      void write (TFile *filePtr) const;
+      // // write all histograms to a root file
+      // void write (const std::string &filename) const;
+      // void write (TFile *filePtr) const;
 
       // implement the two functions needed to make this an EventBase.
       bool getByLabel (const std::type_info& iInfo,
@@ -73,6 +78,10 @@ class FWLiteCont : public fwlite::EventBase
                                           const char* iProcessLabel) const;
 
       const FWLiteCont& operator++();
+
+      const FWLiteCont& toBegin();
+
+      bool atEnd() const;
       
       /////////////////////////////
       // Static Member Functions //
@@ -81,12 +90,25 @@ class FWLiteCont : public fwlite::EventBase
 
   private:
 
+      //////////////////////////////
+      // Private Member Functions //
+      //////////////////////////////
+
+      // stop the copy constructor
+      FWLiteCont (const FWLiteCont &rhs) {}
+
       /////////////////////////
       // Private Member Data //
       /////////////////////////
 
       fwlite::EventBase *m_eventBasePtr;
       TH1Store           m_histStore;
+      std::string        m_outputName;
+      int                m_eventsSeen;
+      int                m_maxWanted;
+      int                m_outputEvery;
+
+      static bool m_autoloaderCalled;
 
 };
 
