@@ -581,6 +581,38 @@ namespace edm {
     }
   }
 
+  void
+  RootInputFileSequence::readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    skipBadFiles_ = false;
+    if (fileIter_ == fileIterEnd_ || !rootFile_) {
+      fileIter_ = fileIterBegin_;
+      initFile(false);
+      rootFile_->setAtEventEntry(0);
+    }
+    fileSeqNumber = fileIter_ - fileIterBegin_;
+    unsigned int numberRead = 0;
+    for(int i = 0; i < number; ++i) {
+      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      if(ev.get() == 0) {
+	if (numberRead == 0) {
+	  ++fileIter_;
+          fileSeqNumber = fileIter_ - fileIterBegin_;
+	  if (fileIter_ == fileIterEnd_) {
+	    return;
+	  }
+	  initFile(false);
+	  rootFile_->setAtEventEntry(0);
+	  return readManySequential_(number, result, fileSeqNumber);
+	}
+	return;
+      }
+      VectorInputSource::EventPrincipalVectorElement e(ev.release());
+      result.push_back(e);
+      ++numberRead;
+      rootFile_->nextEventEntry();
+    }
+  }
+
   void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
     if(primarySequence_) {
       time_t t = time(0);

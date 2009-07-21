@@ -5,7 +5,6 @@
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.5 2008/05/29 16:17:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
