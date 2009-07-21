@@ -63,11 +63,6 @@ private:
   edm::InputTag m_recoGsfelectrons; 
   edm::InputTag m_eIDValueMap_;
 
-  // Used by "on-the-fly" jet-tracks association
-  edm::InputTag m_tracksSrc;
-  std::string thePropagator;
-  double coneSize;
-
   // responce algo (will be absolete)
   int theResponseAlgo;
   // add or not out of cone tracks (default: true)
