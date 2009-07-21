@@ -8,10 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.10 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWViewBase.cc,v 1.11 2009/04/15 10:36:22 amraktad Exp $
 //
 
 // system include files
+#include <stdexcept>
+#include <iostream>
 #include "TGFileDialog.h"
 
 // user include files
@@ -70,30 +72,33 @@ FWViewBase::destroy()
 void
 FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 {
-   static TString dir(".");
-   const char *  kImageExportTypes[] = {"PNG",                     "*.png",
-                                        "GIF",                     "*.gif",
-                                        "JPEG",                    "*.jpg",
-                                        "PDF",                     "*.pdf",
-                                        "Encapsulated PostScript", "*.eps",
-                                        0, 0};
+   try {
+      static TString dir(".");
+      const char *  kImageExportTypes[] = {"PNG",                     "*.png",
+                                           "GIF",                     "*.gif",
+                                           "JPEG",                    "*.jpg",
+                                           "PDF",                     "*.pdf",
+                                           "Encapsulated PostScript", "*.eps",
+                                           0, 0};
 
-   TGFileInfo fi;
-   fi.fFileTypes = kImageExportTypes;
-   fi.fIniDir    = StrDup(dir);
-   new TGFileDialog(gClient->GetDefaultRoot(), iParent,
-                    kFDSave,&fi);
-   dir = fi.fIniDir;
-   if (fi.fFilename != 0) {
-      std::string name = fi.fFilename;
-      // fi.fFileTypeIdx points to the name of the file type
-      // selected in the drop-down menu, so fi.fFileTypeIdx gives us
-      // the extension
-      std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
-      if (name.find(ext) == name.npos)
-         name += ext;
-      saveImageTo(name);
+      TGFileInfo fi;
+      fi.fFileTypes = kImageExportTypes;
+      fi.fIniDir    = StrDup(dir);
+      new TGFileDialog(gClient->GetDefaultRoot(), iParent,
+                       kFDSave,&fi);
+      dir = fi.fIniDir;
+      if (fi.fFilename != 0) {
+         std::string name = fi.fFilename;
+         // fi.fFileTypeIdx points to the name of the file type
+         // selected in the drop-down menu, so fi.fFileTypeIdx gives us
+         // the extension
+         std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
+         if (name.find(ext) == name.npos)
+            name += ext;
+         saveImageTo(name);
+      }
    }
+   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 //
