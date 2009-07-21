@@ -23,7 +23,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            checkZDC= cms.untracked.bool(False),
                            MonitorDaemon = cms.untracked.bool(True),
                            HcalAnalysis = cms.untracked.bool(False),
-                           HotCells = cms.untracked.vstring(),
+                           BadCells = cms.untracked.vstring(),
                            checkNevents = cms.untracked.int32(1000),
 
                            FEDRawDataCollection = cms.untracked.InputTag("source"),
