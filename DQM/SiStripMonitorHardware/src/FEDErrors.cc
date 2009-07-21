@@ -451,9 +451,11 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
     unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
 	
     bool isBadFE = false;
+    bool isMissingFE = false;
     for (unsigned int badfe(0); badfe<feErrors_.size(); badfe++) {
       if ((feErrors_.at(badfe)).FeID == feNumber) {
 	isBadFE = true;
+	if ((feErrors_.at(badfe)).Missing) isMissingFE = true;
 	break;
       }
     }
@@ -477,7 +479,8 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
       if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
       //nBadChans++;
       aNBadChannels++;
-      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || isBadFE) aNBadActiveChannels++;
+      //define as active channel if channel locked AND not from an unlocked FE.
+      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
     }
     else {
       if (aFillAll) alreadyThere = aMap.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,0)));
