@@ -75,6 +75,7 @@ class GenericBenchmark{
   TH2F *hDeltaEtOverEtvsDeltaR;
 
   TH2F *hEtRecvsEt;
+  TH2F *hEtRecOverTrueEtvsTrueEt;
 
   TH1F *hDeltaEta;
   TH2F *hDeltaEtavsEt;
@@ -112,6 +113,7 @@ class GenericBenchmark{
   TH2F *hDeltaMexvsSet;
   TH2F *hDeltaSetOverSetvsSet;
   TH2F *hRecSetvsTrueSet;
+  TH2F *hRecSetOverTrueSetvsTrueSet;
   TH2F *hTrueMexvsTrueSet;
 
   BenchmarkTree*  tree_;
@@ -214,6 +216,7 @@ void GenericBenchmark::fill(const C *RecoCollection,
     hEyRec->Fill(rec_particle->py() );
 
     hEtRecvsEt->Fill(gen_particle->et(),rec_particle->et());
+    hEtRecOverTrueEtvsTrueEt->Fill(gen_particle->et(),rec_particle->et()/gen_particle->et());
 
     if( startFromGen ) 
       fillHistos( gen_particle, rec_particle, deltaR_cut, PlotAgainstReco);

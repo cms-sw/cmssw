@@ -147,6 +147,9 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   BOOK2D(EtRecvsEt,"Rec E_{T} vs E_{T}",
 	 nbinsEt, minEt, maxEt,
 	 nbinsEt, minEt, maxEt);
+  BOOK2D(EtRecOverTrueEtvsTrueEt,"Rec E_{T} / E_{T} vs E_{T}",
+	 nbinsEt, minEt, maxEt,
+	 1000, 0., 100.);
 
   BOOK1D(EtaGen,"generated #eta",100,-5,5);
   BOOK1D(PhiGen,"generated #phi",100,-3.5,3.5);
@@ -168,6 +171,9 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   BOOK2D(RecSetvsTrueSet,"Set vs trueSet",
 	 3000, 0., 3000.,
 	 3000,0., 3000.);
+  BOOK2D(RecSetOverTrueSetvsTrueSet,"Set/trueSet vs trueSet",
+	 3000, 0., 3000.,
+	 500,0., 2.);
   BOOK2D(TrueMexvsTrueSet,"trueMex vs trueSet",
 	 3000,0., 3000.,
 	 nbinsEt, -maxEt, maxEt);
@@ -216,6 +222,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   SETAXES(ExRec,"E_{X} [GeV]","");
   SETAXES(EyRec,"E_{Y} [GeV]","");
   SETAXES(EtRecvsEt,ET,"Rec E_{T} [GeV]");
+  SETAXES(EtRecOverTrueEtvsTrueEt,ET,"Rec E_{T} / E_{T} [GeV]");
 
   SETAXES(EtaGen,"generated #eta","");
   SETAXES(PhiGen,"generated #phi [rad]","");
@@ -229,6 +236,7 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   SETAXES(DeltaMexvsSet,"TrueSumEt","#DeltaMEX [GeV]");
   SETAXES(DeltaSetOverSetvsSet,"TrueSumEt","#DeltaSumEt/trueSumEt");
   SETAXES(RecSetvsTrueSet,"TrueSumEt","SumEt");
+  SETAXES(RecSetOverTrueSetvsTrueSet,"TrueSumEt","SumEt/trueSumEt");
   SETAXES(TrueMexvsTrueSet,"TrueSumEt","TrueMEX");
 
   TDirectory* oldpwd = gDirectory;
@@ -365,6 +373,7 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
       hDeltaMexvsSet->Fill((*met1).sumEt(),recParticle->py()-genParticle->py());
       if ((*met1).sumEt()>0.01) hDeltaSetOverSetvsSet->Fill((*met1).sumEt(),((*met2).sumEt()-(*met1).sumEt())/(*met1).sumEt());
       hRecSetvsTrueSet->Fill((*met1).sumEt(),(*met2).sumEt());
+      hRecSetOverTrueSetvsTrueSet->Fill((*met1).sumEt(),(*met2).sumEt()/((*met1).sumEt()));
       hTrueMexvsTrueSet->Fill((*met1).sumEt(),(*met1).px());
       hTrueMexvsTrueSet->Fill((*met1).sumEt(),(*met1).py());
     }
