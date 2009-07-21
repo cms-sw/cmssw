@@ -77,16 +77,16 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
-      ProblemRecHits=m_dbe->book2D(" ProblemRecHits",
+      ProblemCells=m_dbe->book2D(" ProblemRecHits",
 				   " Problem Rec Hit Rate for all HCAL",
 				   85,-42.5,42.5,
 				   72,0.5,72.5);
-      ProblemRecHits->setAxisTitle("i#eta",1);
-      ProblemRecHits->setAxisTitle("i#phi",2);
+      ProblemCells->setAxisTitle("i#eta",1);
+      ProblemCells->setAxisTitle("i#phi",2);
       
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_rechits");
-      SetupEtaPhiHists(ProblemRecHitsByDepth, " Problem RecHit Rate","");
+      SetupEtaPhiHists(ProblemCellsByDepth, " Problem RecHit Rate","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info");
       SetupEtaPhiHists(EnergyByDepth,"Rec Hit Average Energy","GeV");
@@ -562,9 +562,9 @@ void HcalRecHitMonitor::fillNevents(void)
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  ProblemRecHits->setBinContent(0,0,ievt_);
+  ProblemCells->setBinContent(0,0,ievt_);
   for (int i=0;i<4;++i)
-    ProblemRecHitsByDepth.depth[i]->setBinContent(0,0,ievt_);
+    ProblemCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
 
   // Clear contents of 1D plots -- can remove dummy fills of ievt_ here!
   h_HBEnergy_1D->Reset();

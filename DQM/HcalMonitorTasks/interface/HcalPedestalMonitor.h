@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.20.2.5 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.27 $
   * \author W. Fisher - FNAL
   */
 
@@ -108,11 +108,6 @@ private:
   EtaPhiHists subfCPedestalRMS;
   std::vector<MonitorElement*> subfCPedestalMean_1D;
   std::vector<MonitorElement*> subfCPedestalRMS_1D;
-
-  // Problem Histograms 
-  MonitorElement* ProblemPedestals;
-  EtaPhiHists ProblemPedestalsByDepth;
-
 
   //Quick pedestal arrays -- these store the values that are used to compute pedestals
   unsigned int pedcounts[85][72][4];

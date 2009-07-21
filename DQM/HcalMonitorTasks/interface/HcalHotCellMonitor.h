@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.28 $
+  * $Date: 2009/07/06 11:58:16 $
+  * $Revision: 1.29 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -98,10 +98,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   int ievt_;
 
   double hotmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
-
-  // Problem Histograms
-  MonitorElement* ProblemHotCells;
-  EtaPhiHists ProblemHotCellsByDepth;
   
   double nsigma_;
   double HBnsigma_, HEnsigma_, HOnsigma_, HFnsigma_, ZDCnsigma_;
@@ -117,12 +113,12 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   std::map<HcalDetId, double> rechitEnergies_;
 
   double SiPMscale_;
-  int abovepedestal[ETABINS][PHIBINS][4]; // filled when digi is above pedestal+nsigma
-  int aboveneighbors[ETABINS][PHIBINS][4];
-  int aboveenergy[ETABINS][PHIBINS][4]; // when rechit is above threshold energy
-  int abovepersistent[ETABINS][PHIBINS][4]; // when rechit is consistently above some threshold
-  int rechit_occupancy_sum[ETABINS][PHIBINS][4];
-  float rechit_energy_sum[ETABINS][PHIBINS][4];
+  int abovepedestal[85][72][4]; // filled when digi is above pedestal+nsigma
+  int aboveneighbors[85][72][4];
+  int aboveenergy[85][72][4]; // when rechit is above threshold energy
+  int abovepersistent[85][72][4]; // when rechit is consistently above some threshold
+  int rechit_occupancy_sum[85][72][4];
+  float rechit_energy_sum[85][72][4];
   
   // counters for diagnostic plots
   int diagADC_HB[300];

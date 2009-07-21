@@ -34,8 +34,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/06/28 21:01:17 $
- * $Revision: 1.39.2.4 $
+ * $Date: 2009/07/06 10:51:54 $
+ * $Revision: 1.44 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -98,8 +98,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
  private:  //Monitoring elements
    
   MonitorElement* meEVT_;
-  MonitorElement* HWProblems_;
-  EtaPhiHists HWProblemsByDepth_;
 
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;

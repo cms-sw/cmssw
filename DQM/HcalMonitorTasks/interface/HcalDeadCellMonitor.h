@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.29 $
+  * $Date: 2009/07/06 11:58:16 $
+  * $Revision: 1.30 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -96,9 +96,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
   double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
 
-  // Problem Histograms
-  MonitorElement* ProblemDeadCells;
-  EtaPhiHists  ProblemDeadCellsByDepth;
   EtaPhiHists  UnoccupiedDeadCellsByDepth;
   EtaPhiHists  DigisNeverPresentByDepth;
   EtaPhiHists  BelowEnergyThresholdCellsByDepth;
@@ -131,13 +128,9 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   MonitorElement* NumberOfBelowEnergyCellsHF;
   MonitorElement* NumberOfBelowEnergyCellsZDC;
 
-  //bool present[ETABINS][PHIBINS][6]; // filled when a digi is present
-  //unsigned int occupancy[ETABINS][PHIBINS][6]; // will get filled when an occupied digi is found; resent on checkNevents
-  //unsigned int aboveenergy[ETABINS][PHIBINS][6];
-
-  bool present[86][72][4];
-  unsigned int occupancy[86][72][4];
-  unsigned int aboveenergy[86][72][4];
+  bool present[85][72][4];
+  unsigned int occupancy[85][72][4];
+  unsigned int aboveenergy[85][72][4];
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_, ZDCpresent_;
 

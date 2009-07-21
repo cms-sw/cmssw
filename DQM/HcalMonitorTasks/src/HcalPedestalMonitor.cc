@@ -82,19 +82,19 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       SetupEtaPhiHists(MeanMapByDepth,"Pedestal Mean Map", "ADC");
       SetupEtaPhiHists(RMSMapByDepth, "Pedestal RMS Map", "ADC");
       
-      ProblemPedestals=m_dbe->book2D(" ProblemPedestals",
+      ProblemCells=m_dbe->book2D(" ProblemPedestals",
 				     " Problem Pedestal Rate for all HCAL",
 				     85,-42.5,42.5,
 				     72,0.5,72.5);
       
-      ProblemPedestals->setAxisTitle("i#eta",1);
-      ProblemPedestals->setAxisTitle("i#phi",2);
-      SetEtaPhiLabels(ProblemPedestals);
+      ProblemCells->setAxisTitle("i#eta",1);
+      ProblemCells->setAxisTitle("i#phi",2);
+      SetEtaPhiLabels(ProblemCells);
 
       // Overall Problem plot appears in main directory; plots by depth appear in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_pedestals");
 
-      SetupEtaPhiHists(ProblemPedestalsByDepth, " Problem Pedestal Rate","");
+      SetupEtaPhiHists(ProblemCellsByDepth, " Problem Pedestal Rate","");
 
       m_dbe->setCurrentFolder(baseFolder_+"/adc/unsubtracted");
       SetupEtaPhiHists(ADCPedestalMean, "Pedestal Values Map","ADC");
@@ -245,7 +245,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       //subADCPedestalRMS.depth[i]->setBinContent(0,ievt_);
       //subfCPedestalMean.depth[i]->setBinContent(0,ievt_);
       //subfCPedestalRMS.depth[i]->setBinContent(0,ievt_);
-      ProblemPedestalsByDepth.depth[i]->setBinContent(0,ievt_);
+      ProblemCellsByDepth.depth[i]->setBinContent(0,ievt_);
     }
 
   for (unsigned int i=0;i<ADC_1D_PedestalFromDBByDepth.size();++i)
@@ -264,7 +264,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       //subADCPedestalMean_1D[i]->setBinContent(0,ievt_);
       //subADCPedestalRMS_1D[i]->setBinContent(0,ievt_);
     }
-  ProblemPedestals->setBinContent(0,ievt_);
+  ProblemCells->setBinContent(0,ievt_);
 
 
   //ZDC loop
@@ -480,18 +480,18 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
       */
     }
 
-  ProblemPedestals->Reset();
-  ProblemPedestals->setBinContent(0,0,ievt_);
+  ProblemCells->Reset();
+  ProblemCells->setBinContent(0,0,ievt_);
   int etabins=0;
   int phibins=0;
   int zside=0;
   for (int depth=0;depth<4;++depth)
     {
-      ProblemPedestalsByDepth.depth[depth]->Reset();
-      ProblemPedestalsByDepth.depth[depth]->setBinContent(0,0,ievt_);
+      ProblemCellsByDepth.depth[depth]->Reset();
+      ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
       subdet=depth+1;
-      etabins=ProblemPedestalsByDepth.depth[depth]->getNbinsX();
-      phibins=ProblemPedestalsByDepth.depth[depth]->getNbinsY();
+      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
       for (int eta=0;eta<etabins;++eta)
 	{
 	  ieta=CalcIeta(eta,depth+1);
@@ -586,21 +586,21 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
 		   && (fabs(ADC_mean-nominalPedMeanInADC_)>maxPedMeanDiffADC_ 
 		       || fabs(ADC_RMS-nominalPedWidthInADC_)>maxPedWidthDiffADC_))
 		{
-		  ProblemPedestals->Fill(ieta+zside,phi+1,fillvalue);
-		  ProblemPedestalsByDepth.depth[depth]->Fill(ieta+zside,phi+1,fillvalue);
+		  ProblemCells->Fill(ieta+zside,phi+1,fillvalue);
+		  ProblemCellsByDepth.depth[depth]->Fill(ieta+zside,phi+1,fillvalue);
 		}
 	    } // for (int phi)
 	} // for (int eta)
     } // for (int depth...)
   
-  etabins=ProblemPedestals->getNbinsX();
-  phibins=ProblemPedestals->getNbinsY();
+  etabins=ProblemCells->getNbinsX();
+  phibins=ProblemCells->getNbinsY();
 
   for (int eta=0;eta<etabins;++eta)
     {
       for (int phi=0;phi<phibins;++phi)
-	if (ProblemPedestals->getBinContent(eta+1,phi+1)>ievt_)
-	  ProblemPedestals->setBinContent(eta+1,phi+1,ievt_);
+	if (ProblemCells->getBinContent(eta+1,phi+1)>ievt_)
+	  ProblemCells->setBinContent(eta+1,phi+1,ievt_);
     }
 
   // Fill unphysical cells
@@ -622,8 +622,8 @@ void HcalPedestalMonitor::fillPedestalHistos(void)
   FillUnphysicalHEHFBins(MeanMapByDepth);    
   FillUnphysicalHEHFBins(RMSMapByDepth);     
   
-  FillUnphysicalHEHFBins(ProblemPedestalsByDepth); 
-  FillUnphysicalHEHFBins(ProblemPedestals);
+  FillUnphysicalHEHFBins(ProblemCellsByDepth); 
+  FillUnphysicalHEHFBins(ProblemCells);
 
 
 

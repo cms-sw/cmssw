@@ -119,13 +119,13 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
-      ProblemDeadCells=m_dbe->book2D(" ProblemDeadCells",
+      ProblemCells=m_dbe->book2D(" ProblemDeadCells",
 				     " Problem Dead Cell Rate for all HCAL",
 				     85,-42.5,42.5,
 				     72,0.5,72.5);
-      ProblemDeadCells->setAxisTitle("i#eta",1);
-      ProblemDeadCells->setAxisTitle("i#phi",2);
-      SetEtaPhiLabels(ProblemDeadCells);
+      ProblemCells->setAxisTitle("i#eta",1);
+      ProblemCells->setAxisTitle("i#phi",2);
+      SetEtaPhiLabels(ProblemCells);
 
       // 1D plots count number of bad cells
       NumberOfDeadCells=m_dbe->book1D("Problem_TotalDeadCells_HCAL",
@@ -152,7 +152,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
-      SetupEtaPhiHists(ProblemDeadCellsByDepth, " Problem Dead Cell Rate","");
+      SetupEtaPhiHists(ProblemCellsByDepth, " Problem Dead Cell Rate","");
       
       // Set up plots for each failure mode of dead cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
@@ -374,8 +374,8 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   int phibins=0;
   for (int d=0;d<4;++d)
     {
-      etabins=ProblemDeadCellsByDepth.depth[d]->getNbinsX();
-      phibins=ProblemDeadCellsByDepth.depth[d]->getNbinsY();
+      etabins=ProblemCellsByDepth.depth[d]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[d]->getNbinsY();
       for (int hist_eta=0;hist_eta<etabins;++hist_eta)
 	{
 	  for (int hist_phi=0;hist_phi<phibins;++hist_phi)
@@ -384,7 +384,7 @@ void HcalDeadCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
 	      if (ieta==-9999) continue;
 	      iphi=hist_phi;
 
-	      binval=ProblemDeadCellsByDepth.depth[d]->getBinContent(hist_eta,hist_phi);
+	      binval=ProblemCellsByDepth.depth[d]->getBinContent(hist_eta,hist_phi);
 	  
 	      // Set subdetector labels for output
 	      if (d==0) // HB/HE/HF
@@ -686,8 +686,8 @@ void HcalDeadCellMonitor::fillDeadHistosAtEndRun()
       deadmon_test_neighbor_  || deadmon_test_energy_)  
    {
      fillNevents_problemCells();
-     FillUnphysicalHEHFBins(ProblemDeadCellsByDepth);
-     FillUnphysicalHEHFBins(ProblemDeadCells);
+     FillUnphysicalHEHFBins(ProblemCellsByDepth);
+     FillUnphysicalHEHFBins(ProblemCells);
    }
   */
 } // fillDeadHistosAtEndOfRun()
@@ -1102,8 +1102,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   int phibins=0;
   for (int depth=0;depth<4;++depth)
     {
-      etabins=ProblemDeadCellsByDepth.depth[depth]->getNbinsX();
-      phibins=ProblemDeadCellsByDepth.depth[depth]->getNbinsY();
+      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
       for (int eta=0;eta<etabins;++eta)
 	{
 	  for (int phi=0;phi<phibins;++phi)
@@ -1198,18 +1198,18 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   NumberOfNeverPresentCellsZDC->Fill(neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
   NumberOfNeverPresentCells->Fill(neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
 
-  ProblemDeadCells->Reset();
-  ProblemDeadCells->setBinContent(0,0,ievt_);
+  ProblemCells->Reset();
+  ProblemCells->setBinContent(0,0,ievt_);
 
   etabins=0;
   phibins=0;
   int zside=0;
-  for (unsigned int d=0;d<ProblemDeadCellsByDepth.depth.size();++d)
+  for (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
     {
-      ProblemDeadCellsByDepth.depth[d]->Reset();
-      ProblemDeadCellsByDepth.depth[d]->setBinContent(0,0,ievt_);
-      etabins=ProblemDeadCellsByDepth.depth[d]->getNbinsX();
-      phibins=ProblemDeadCellsByDepth.depth[d]->getNbinsY();
+      ProblemCellsByDepth.depth[d]->Reset();
+      ProblemCellsByDepth.depth[d]->setBinContent(0,0,ievt_);
+      etabins=ProblemCellsByDepth.depth[d]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[d]->getNbinsY();
       for (int eta=0;eta<etabins;++eta)
 	{
 	  ieta=CalcIeta(eta,d+1);
@@ -1240,20 +1240,20 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		  if (isHF(eta,d+1))
 		    ieta<0 ? zside = -1 : zside = 1;
 		}
-	      ProblemDeadCellsByDepth.depth[d]->Fill(ieta+zside,iphi,problemvalue);
-	      ProblemDeadCells->Fill(ieta+zside,iphi,problemvalue);
+	      ProblemCellsByDepth.depth[d]->Fill(ieta+zside,iphi,problemvalue);
+	      ProblemCells->Fill(ieta+zside,iphi,problemvalue);
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth
   
-  etabins=ProblemDeadCells->getNbinsX();
-  phibins=ProblemDeadCells->getNbinsY();
+  etabins=ProblemCells->getNbinsX();
+  phibins=ProblemCells->getNbinsY();
   for (int eta=0;eta<etabins;++eta)
     {
       for (int phi=0;phi<phibins;++phi)
 	{
-	  if (ProblemDeadCells->getBinContent(eta+1,phi+1)>(double)ievt_)
-	    ProblemDeadCells->setBinContent(eta+1,phi+1,(double)ievt_);
+	  if (ProblemCells->getBinContent(eta+1,phi+1)>(double)ievt_)
+	    ProblemCells->setBinContent(eta+1,phi+1,(double)ievt_);
 	}
     }
   if (showTiming)

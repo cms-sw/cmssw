@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/07/04 20:14:36 $
-  * $Revision: 1.20.2.6 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.26 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -63,9 +63,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   int ievt_;
 
   double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
-  // Problem Histograms
-  MonitorElement* ProblemRecHits;
-  EtaPhiHists ProblemRecHitsByDepth;
 
   // Basic Histograms
   EtaPhiHists OccupancyByDepth;

@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.35.2.4 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.41 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -92,8 +92,7 @@ private:
 
   // Monitoring elements
   MonitorElement* meEVT_;
-  MonitorElement* ProblemDigis;
-  EtaPhiHists ProblemDigisByDepth;
+
   EtaPhiHists DigiErrorsBadCapID;
   EtaPhiHists DigiErrorsBadDigiSize;
   EtaPhiHists DigiErrorsBadADCSum;

@@ -98,21 +98,21 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     std::string type;
     m_dbe->setCurrentFolder(baseFolder_);
 
-    HWProblems_=m_dbe->book2D(" HardwareWatchCells",
+    ProblemCells=m_dbe->book2D(" HardwareWatchCells",
 			      " Hardware Watch Cells for HCAL",
 			      85,-42.5,45.5,
 			      72,0.5,72.5);
-    HWProblems_->setAxisTitle("i#eta",1);
-    HWProblems_->setAxisTitle("i#phi",2);
-    SetEtaPhiLabels(HWProblems_);
-    SetupEtaPhiHists(HWProblemsByDepth_," Hardware Watch Cells", "");
+    ProblemCells->setAxisTitle("i#eta",1);
+    ProblemCells->setAxisTitle("i#phi",2);
+    SetEtaPhiLabels(ProblemCells);
+    SetupEtaPhiHists(ProblemCellsByDepth," Hardware Watch Cells", "");
     
     unsigned int etabins=0;
     unsigned int phibins=0;
     for (unsigned int depth=0; depth<4; ++depth)
       {
-	etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
-	phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+	etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+	phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
 	for (unsigned int eta=0; eta<etabins;++eta)
 	  {
 	    for (unsigned int phi=0;phi<phibins;++phi)
@@ -630,9 +630,9 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   meEVT_->Fill(ievt_);
   
   
-  HWProblems_->setBinContent(0,0,ievt_);
+  ProblemCells->setBinContent(0,0,ievt_);
   for (int depth=0;depth<4;++depth) 
-    HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_);
+    ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
 
   meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
   meBadQualityDigis_->Fill(report.badQualityDigis());
@@ -670,8 +670,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   unsigned int phibins=0;
   for (unsigned int depth=0; depth<4; ++depth)
     {
-      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
-      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
       for (unsigned int eta=0; eta<etabins;++eta)
 	{
 	  for (unsigned int phi=0;phi<phibins;++phi)
@@ -688,8 +688,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   
   for (unsigned int depth=0; depth<4; ++depth)
     {
-      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
-      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
+      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
       for (unsigned int eta=0; eta<etabins;++eta)
 	{
 	  for (unsigned int phi=0;phi<phibins;++phi)
@@ -1508,14 +1508,14 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
   int phibins=0;
   int filleta=-9999;
   
-  HWProblems_->Reset(); // clear old values so that we can use "Fill" without problems
-  HWProblems_->setBinContent(0,0,ievt_);
+  ProblemCells->Reset(); // clear old values so that we can use "Fill" without problems
+  ProblemCells->setBinContent(0,0,ievt_);
   for (int depth=0;depth<4;++depth)
     {
-      etabins=HWProblemsByDepth_.depth[depth]->getNbinsX();
-      phibins=HWProblemsByDepth_.depth[depth]->getNbinsY();
-      HWProblemsByDepth_.depth[depth]->Reset(); // clear depth histograms
-      HWProblemsByDepth_.depth[depth]->setBinContent(0,0,ievt_); // set underflow bin to event count
+      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
+      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
+      ProblemCellsByDepth.depth[depth]->Reset(); // clear depth histograms
+      ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_); // set underflow bin to event count
       for (int eta=0;eta<etabins;++eta)
 	{
 	  for (int phi=0;phi<phibins;++phi)
@@ -1526,23 +1526,23 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
 	      // Offset true ieta for HF plotting
 	      if (isHF(eta,depth+1))
 		filleta<0 ? filleta-- : filleta++;
-	      HWProblemsByDepth_.depth[depth]->Fill(filleta,phi+1,probfrac);
-	      HWProblems_->Fill(filleta,phi+1,probfrac);
+	      ProblemCellsByDepth.depth[depth]->Fill(filleta,phi+1,probfrac);
+	      ProblemCells->Fill(filleta,phi+1,probfrac);
 	    }
 	}
     }
   // Make sure problem rate (summed over depths) doesn't exceed 100%
-  etabins=HWProblems_->getNbinsX();
-  phibins=HWProblems_->getNbinsY();
+  etabins=ProblemCells->getNbinsX();
+  phibins=ProblemCells->getNbinsY();
   for (int eta=0;eta<etabins;++eta)
     {
       for (int phi=0;phi<phibins;++phi)
 	{
-	  if (HWProblems_->getBinContent(eta+1,phi+1)>ievt_)
-	    HWProblems_->setBinContent(eta+1,phi+1,ievt_);
+	  if (ProblemCells->getBinContent(eta+1,phi+1)>ievt_)
+	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
 	}
     }
 
- FillUnphysicalHEHFBins(HWProblems_);
- FillUnphysicalHEHFBins(HWProblemsByDepth_);
+ FillUnphysicalHEHFBins(ProblemCells);
+ FillUnphysicalHEHFBins(ProblemCellsByDepth);
 } //UpdateMEs

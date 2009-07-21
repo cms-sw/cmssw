@@ -112,13 +112,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       occT->Fill(occThresh_);
       MonitorElement* shapeT = m_dbe->bookInt("DigiShapeThresh");
       shapeT->Fill(shapeThresh_);
-      ProblemDigis = m_dbe->book2D(" ProblemDigis",
+      ProblemCells = m_dbe->book2D(" ProblemDigis",
 				   " Problem Digi Rate for all HCAL",
-				   etaBins_,etaMin_,etaMax_,
-				   phiBins_,phiMin_,phiMax_);
+				   85, -42.5, 42.5,
+				   72, 0.5, 72.5);
+      ProblemCells->setAxisTitle("i#eta",1);
+      ProblemCells->setAxisTitle("i#phi",2);
+      SetEtaPhiLabels(ProblemCells);
+
       
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis");
-      SetupEtaPhiHists(ProblemDigisByDepth," Problem Digi Rate","");
+      SetupEtaPhiHists(ProblemCellsByDepth," Problem Digi Rate","");
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/badcapID");
       SetupEtaPhiHists(DigiErrorsBadCapID," Digis with Bad Cap ID Rotation", "");
       m_dbe->setCurrentFolder(baseFolder_+"/problem_digis/baddigisize");
@@ -1235,7 +1239,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  for (int d=0;d<4;++d)
 	    {
 	      iDepth=d+1;
-	      ProblemDigisByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
+	      ProblemCellsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
 	      // HB
 	      if (validDetId(HcalBarrel, iEta, iPhi, iDepth))
 		{
@@ -1265,10 +1269,10 @@ void HcalDigiMonitor::fill_Nevents()
 					       digierrorsdverr[calcEta][phi][d]);
 		      problemsum+=problemdigis[calcEta][phi][d];
 		      problemvalue=min(ievt_,problemdigis[calcEta][phi][d]);
-		      ProblemDigisByDepth.depth[d]->Fill(iEta, iPhi,
+		      ProblemCellsByDepth.depth[d]->Fill(iEta, iPhi,
 						   problemvalue);
 		      // Use this for testing purposes only
-		      //ProblemDigisByDepth[d]->Fill(iEta, iPhi, ievt_);
+		      //ProblemCellsByDepth[d]->Fill(iEta, iPhi, ievt_);
 		    } // if (hbHists.check)
 		} 
 	      // HE
@@ -1301,7 +1305,7 @@ void HcalDigiMonitor::fill_Nevents()
 					       digierrorsdverr[calcEta][phi][d]);
 		      problemsum+=problemdigis[calcEta][phi][d];
 		      problemvalue=problemdigis[calcEta][phi][d];
-		      ProblemDigisByDepth.depth[d]->Fill(iEta, iPhi,
+		      ProblemCellsByDepth.depth[d]->Fill(iEta, iPhi,
 						   problemvalue);
 		    } // if (heHists.check)
 		} 
@@ -1334,7 +1338,7 @@ void HcalDigiMonitor::fill_Nevents()
 					       digierrorsdverr[calcEta][phi][d]);
 		      problemsum+=problemdigis[calcEta][phi][d];
 		      problemvalue=problemdigis[calcEta][phi][d];
-		      ProblemDigisByDepth.depth[d]->Fill(iEta, iPhi,
+		      ProblemCellsByDepth.depth[d]->Fill(iEta, iPhi,
 						   problemvalue);
 		    } // if (hoHists.check)
 		}
@@ -1368,7 +1372,7 @@ void HcalDigiMonitor::fill_Nevents()
 					       digierrorsdverr[calcEta][phi][d]);
 		      problemsum+=problemdigis[calcEta][phi][d];
 		      problemvalue=problemdigis[calcEta][phi][d];
-		      ProblemDigisByDepth.depth[d]->Fill(iEta+zside, iPhi,
+		      ProblemCellsByDepth.depth[d]->Fill(iEta+zside, iPhi,
 						   problemvalue);
 		    } // if (hfHists.check)
 		}
@@ -1377,15 +1381,15 @@ void HcalDigiMonitor::fill_Nevents()
 	    {
 	      //problemvalue=min(1.,problemsum/ievt_);
 	      problemsum=min((double)ievt_,problemsum);
-	      ProblemDigis->Fill(iEta, iPhi,problemsum);
-	      ProblemDigis->setBinContent(0,0,ievt_);
+	      ProblemCells->Fill(iEta, iPhi,problemsum);
+	      ProblemCells->setBinContent(0,0,ievt_);
 	    }
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
 
   // Now fill all the unphysical cell values
-  FillUnphysicalHEHFBins(ProblemDigis);
-  FillUnphysicalHEHFBins(ProblemDigisByDepth);
+  FillUnphysicalHEHFBins(ProblemCells);
+  FillUnphysicalHEHFBins(ProblemCellsByDepth);
   FillUnphysicalHEHFBins(DigiErrorsBadCapID);
   FillUnphysicalHEHFBins(DigiErrorsDVErr);
   FillUnphysicalHEHFBins(DigiErrorsBadDigiSize);

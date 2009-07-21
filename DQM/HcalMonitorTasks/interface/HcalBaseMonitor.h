@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.27 $
+  * $Date: 2009/07/06 11:37:40 $
+  * $Revision: 1.28 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -49,6 +49,8 @@ public:
   virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   virtual void done();
   virtual void clearME();
+  virtual void periodicReset();
+  
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
@@ -56,7 +58,8 @@ public:
   void setDiagnostics(bool myval) { makeDiagnostics=myval;}
   bool getDiagnostics() const { return makeDiagnostics;}
 
-  bool vetoCell(HcalDetId id);
+  bool vetoCell(HcalDetId& id);
+  void hideKnownBadCells();
   bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
   
   // Set up vectors of Monitors for individual depths
@@ -109,19 +112,26 @@ protected:
   int etaBins_, phiBins_;
   double minErrorFlag_;
   bool checkHB_, checkHE_, checkHO_, checkHF_, checkZDC_;
-  
+  int periodicresetNevent_;
+
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
   bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
   
   DQMStore* m_dbe;
-  vector<string> hotCells_;
+  vector<string> badCells_; // keeps list of bad cells that should be ignored
   string rootFolder_;
   string baseFolder_;
 
   static const int binmapd2[];
   static const int binmapd3[];
+
+  MonitorElement* ProblemCells;
+  EtaPhiHists ProblemCellsByDepth;
+
+  int ievt_;
+  int totalevt_;
 };
 
 #endif

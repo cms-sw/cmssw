@@ -15,7 +15,7 @@ const int HcalBaseMonitor::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
 
 HcalBaseMonitor::HcalBaseMonitor() {
   fVerbosity = 0;
-  hotCells_.clear();
+  badCells_.clear();
   rootFolder_ = "Hcal";
   baseFolder_ = "BaseMonitor";
 }
@@ -26,7 +26,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 
-  hotCells_ =  ps.getUntrackedParameter<vector<string> >( "HotCells" );
+  badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
   
   // Base folder for the contents of this job
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
@@ -106,24 +106,41 @@ void HcalBaseMonitor::clearME(){
 // ***************************************************************** //
 
 
-bool HcalBaseMonitor::vetoCell(HcalDetId id)
+bool HcalBaseMonitor::vetoCell(HcalDetId& id)
 {
   /*
-    Function identifies whether cell width HcalDetId 'id' should be vetoed, based on elements stored in  hotCells_ array.
+    Function identifies whether cell with HcalDetId 'id' should be vetoed, 
+    based on elements stored in  badCells_ array.
   */
 
-  if(hotCells_.size()==0) return false;
-  for(unsigned int i = 0; i< hotCells_.size(); ++i)
+  if(badCells_.size()==0) return false;
+  for(unsigned int i = 0; i< badCells_.size(); ++i)
     {
       
-      unsigned int badc = atoi(hotCells_[i].c_str());
+      unsigned int badc = atoi(badCells_[i].c_str());
       if(id.rawId() == badc) return true;
     }
   return false;
 } // bool HcalBaseMonitor::vetoCell(HcalDetId id)
 
+void HcalBaseMonitor::hideKnownBadCells()
+{
+  /* This prevents known bad cells from being displayed in overall problem maps and 
+     depth histograms.  Is this what we want?  Or do we want some problems to be
+     displayed in the depth plots but not the overall map?  (Or vice versa?)
+  */
+  
+  for (unsigned int i=0;i<badCells_.size();++i)
+    {
+      unsigned int badc = atoi(badCells_[i].c_str());
+      HcalDetId id(badc);
+      int etabin=CalcEtaBin(id.subdet(),id.ieta(),id.depth());
+      if (ProblemCells!=0) ProblemCells->setBinContent(etabin+1,id.iphi(),0);
+      if (ProblemCellsByDepth.depth[id.depth()-1]!=0)
+	ProblemCellsByDepth.depth[id.depth()-1]->setBinContent(etabin+1,id.iphi(),0);
+    } // for (unsigned int i=0;...)
 
-
+} // void HcalBaseMonitor::hideKnownBadCells()
 
 
 // ************************************************************************************************************ //
@@ -273,6 +290,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
   /* Code makes vector of 2D MonitorElements for all 6 depths
      (4 depths, + 2 for separate HE histograms).
      Bins are automatically set for eta/phi indices
+     DEPRECATE THIS ONCE ALL OLD-STYLE 2D HISTOGRAMS HAVE BEEN REMOVED!
   */
   
   /*
@@ -346,6 +364,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   /* Code makes overall 2D MonitorElement histogram,
      and the vector of 2D MonitorElements for each individual depth.
      Bin ranges, sizes are specified by user
+     DEPRECATE THIS ONCE ALL OLD-STYLE 2D HISTOGRAMS HAVE BEEN REMOVED!
   */
 
   if (showTiming)
@@ -395,6 +414,9 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
   /* Code makes vector of 2D MonitorElements for all 6 depths
      (4 depths, + 2 for separate HE histograms).
      Bins are automatically set for eta/phi indices
+     DEPRECATE THIS ONCE ALL OLD-STYLE 2D HISTOGRAMS HAVE BEEN REMOVED!
+     
+     
   */
 
   if (showTiming)
@@ -576,6 +598,7 @@ void HcalBaseMonitor::FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
   // This fills in the regions of the eta-phi map where the HCAL phi segmentation is greater than 5 degrees.
   // This version does the fill for the "St. John 6" set of histograms
 
+  // DEPRECATE THIS ONCE ALL (eta,phi,depth) HISTOGRAMS HAVE MOVED TO TYPE EtaPhiHists!
   if (!fillUnphysical_) return; 
 
   int ieta=0;
@@ -963,4 +986,15 @@ void HcalBaseMonitor::SetEtaPhiLabels(MonitorElement* &h)
       label.str("");
     }
 
+}
+
+void HcalBaseMonitor::periodicReset()
+{
+  // when called, reset all counters, and all histograms
+  if (ProblemCells!=0) ProblemCells->Reset();
+  for (unsigned int i=0;i<ProblemCellsByDepth.depth.size();++i)
+    {
+      if (ProblemCellsByDepth.depth[i]!=0) 
+	ProblemCellsByDepth.depth[i]->Reset();
+    }
 }
