@@ -545,9 +545,9 @@ void HcalSummaryClient::analyze(void)
 			// (actual cell phi values are 3,7,11,...)
 			else if (abs(ieta)>39 && phi%4==3)
 			  {
-			    depthME[depth]->setBinContent(eta,phi+2,reportval);
-			    depthME[depth]->setBinContent(eta,phi,reportval);
-			    depthME[depth]->setBinContent(eta,phi-1,reportval);
+			    depthME[depth]->setBinContent(eta,(iphi)%72+1,reportval);
+			    depthME[depth]->setBinContent(eta,(iphi+1)%72+1,reportval);
+			    depthME[depth]->setBinContent(eta,(iphi+2)%72+1,reportval);
 			  }
 		      }
 		    */
@@ -697,11 +697,11 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 			      /*
 			      if (fillUnphysical_)
 				{
-				  if (abs(ieta)>39 && iphi%4==3)
+			 	  if (abs(ieta)>39 && iphi%4==3)
 				    {
-				      depthME[d]->setBinContent(eta+1,phi+2,1);
-				      depthME[d]->setBinContent(eta+1,phi,1);
-				      depthME[d]->setBinContent(eta+1,phi-1,1);
+				      depthME[d]->setBinContent(eta,(iphi)%72+1,1);
+				      depthME[d]->setBinContent(eta,(iphi+1)%72+1,1);
+				      depthME[d]->setBinContent(eta,(iphi+2)%72+1,1);
 				    }
 				  else if (abs(ieta)>20 && iphi%2==1)
 				    {
