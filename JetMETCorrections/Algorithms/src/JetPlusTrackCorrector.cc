@@ -234,18 +234,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	    <<" electron  phi = " << elec->phi() << endl;  
      }   
    }
-<<<<<<< JetPlusTrackCorrector.cc
    } //debug 
-=======
-   } //debug 
-
-   // Added by R.B.
-   reco::TrackRefVector trAtVertex;
-   reco::TrackRefVector trAtCalo;
-
-   if ( !m_JetTracksAtVertex.label().empty() &&
-	!m_JetTracksAtCalo.label().empty() ) {
->>>>>>> 1.20
 
    // Get Jet-track association at Vertex
    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
