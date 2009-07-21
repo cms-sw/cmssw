@@ -79,8 +79,42 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
   if(noise_ == 0) {   
 
+    // maps of occupancies
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub ) ;
+    meOccupancy_map_depth1 = book2D(histo,  ietaLim, iphiLim);
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub ) ;
 
-    // map of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth2_%s", sub ) ;
+    meOccupancy_map_depth2 = book2D(histo,  ietaLim, iphiLim);
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth2_%s", sub ) ;
+
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth3_%s", sub ) ;
+    meOccupancy_map_depth3 = book2D(histo,  ietaLim, iphiLim);
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth3_%s", sub ) ;
+
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub ) ;
+    meOccupancy_map_depth4 = book2D(histo,  ietaLim, iphiLim);
+    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub ) ;
+
+    // occupancies vs ieta
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub ) ;
+    meOccupancy_vs_ieta_depth1 = book1D(histo,  ietaLim);
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub ) ;
+
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth2_%s", sub ) ;
+    meOccupancy_vs_ieta_depth2 = book1D(histo,  ietaLim);
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth2_%s", sub ) ;
+
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth3_%s", sub ) ;
+    meOccupancy_vs_ieta_depth3 = book1D(histo,  ietaLim);
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth3_%s", sub ) ;
+
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub ) ;
+    meOccupancy_vs_ieta_depth4 = book1D(histo,  ietaLim);
+    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub ) ;
+
+
+    // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
     sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_%s", sub ) ;
     meAmplIetaIphi1= book2D(histo,  ietaLim, iphiLim);
     sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth2_%s", sub ) ;

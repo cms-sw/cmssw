@@ -11,6 +11,47 @@ public:
 
   HcalSubdetDigiMonitor(DQMStore* dbe, const std::string & subdet, int noise);
 
+
+  // occupancies filling
+  void fillmeOccupancy_map_depth1(double v1, double v2)
+  {fillElements(meOccupancy_map_depth1, v1, v2);}
+  void fillmeOccupancy_map_depth2(double v1, double v2)
+  {fillElements(meOccupancy_map_depth2, v1, v2);}
+  void fillmeOccupancy_map_depth3(double v1, double v2)
+  {fillElements(meOccupancy_map_depth3, v1, v2);}
+  void fillmeOccupancy_map_depth4(double v1, double v2)
+  {fillElements(meOccupancy_map_depth4, v1, v2);}
+
+  void fillmeOccupancy_vs_ieta_depth1(double v1, double v2)
+  {fillElements(meOccupancy_vs_ieta_depth1, v1, v2);}
+  void fillmeOccupancy_vs_ieta_depth2(double v1, double v2)
+  {fillElements(meOccupancy_vs_ieta_depth2, v1, v2);}
+  void fillmeOccupancy_vs_ieta_depth3(double v1, double v2)
+  {fillElements(meOccupancy_vs_ieta_depth3, v1, v2);}
+  void fillmeOccupancy_vs_ieta_depth4(double v1, double v2)
+  {fillElements(meOccupancy_vs_ieta_depth4, v1, v2);}
+
+  // occupancies handling
+  double getBinContent_depth1(int i, int j)
+  {return getMeElementBinContent(meOccupancy_map_depth1, i, j);} 
+  double getBinContent_depth2(int i, int j)
+  {return getMeElementBinContent(meOccupancy_map_depth2, i, j);} 
+  double getBinContent_depth3(int i, int j)
+  {return getMeElementBinContent(meOccupancy_map_depth3, i, j);} 
+  double getBinContent_depth4(int i, int j)
+  {return getMeElementBinContent(meOccupancy_map_depth4, i, j);} 
+
+  void setBinContent_depth1(int i, int j, double v)
+  {setMeElementBinContent(meOccupancy_map_depth1, i, j, v);} 
+  void setBinContent_depth2(int i, int j, double v)
+  {setMeElementBinContent(meOccupancy_map_depth2, i, j, v);} 
+  void setBinContent_depth3(int i, int j, double v)
+  {setMeElementBinContent(meOccupancy_map_depth3, i, j, v);} 
+  void setBinContent_depth4(int i, int j, double v)
+  {setMeElementBinContent(meOccupancy_map_depth4, i, j, v);} 
+
+
+  //
   void fillmeAmplIetaIphi1(double v1, double v2, double v3)
   {fillElements(meAmplIetaIphi1, v1, v2, v3);}
   void fillmeAmplIetaIphi2(double v1, double v2, double v3)
@@ -19,6 +60,7 @@ public:
   {fillElements(meAmplIetaIphi3, v1, v2, v3);}
   void fillmeAmplIetaIphi4(double v1, double v2, double v3)
   {fillElements(meAmplIetaIphi4, v1, v2, v3);}  
+
 
   void fillmeSumAmp(double v1)
   {fillElement(meSumAmp, v1);}
@@ -268,6 +310,17 @@ private:
     if(me) me->Fill(v1, v2, v3);
   }
 
+  double getMeElementBinContent(MonitorElement* me, int i, int j)
+  {
+    if(me) return me->getBinContent(i,j);
+  }
+
+  void setMeElementBinContent(MonitorElement* me, int i, int j, double v)
+  {
+    if(me) me->setBinContent(i,j,v);
+  }
+
+
   // little embedded struct
   struct HistLim
   {
@@ -288,6 +341,16 @@ private:
   DQMStore* dbe_;
   std::string subdet_;
   int noise_;
+
+  MonitorElement* meOccupancy_map_depth1;
+  MonitorElement* meOccupancy_map_depth2;
+  MonitorElement* meOccupancy_map_depth3;
+  MonitorElement* meOccupancy_map_depth4;
+  MonitorElement* meOccupancy_vs_ieta_depth1;
+  MonitorElement* meOccupancy_vs_ieta_depth2;
+  MonitorElement* meOccupancy_vs_ieta_depth3;
+  MonitorElement* meOccupancy_vs_ieta_depth4;
+
 
   MonitorElement* meAmplIetaIphi1;
   MonitorElement* meAmplIetaIphi2;

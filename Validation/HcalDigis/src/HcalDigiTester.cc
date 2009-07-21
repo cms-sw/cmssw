@@ -301,6 +301,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double noiseADC =  (*digiItr)[0].adc();     
       double noisefC  =  tool[0];     
       
+      // noise evaluations from "pre-samples"
       if(depth == 1) { 
 	monitor()->fillmeADC0_depth1  (noiseADC);
 	monitor()->fillmeADC0fC_depth1(noisefC);
@@ -317,6 +318,18 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	monitor()->fillmeADC0_depth4  (noiseADC);
 	monitor()->fillmeADC0fC_depth4(noisefC);
       }
+
+      // OCCUPANCY maps filling
+      double deta = double(ieta);
+      double dphi = double(iphi);
+      if(depth == 1)
+      monitor()->fillmeOccupancy_map_depth1(deta, dphi); 
+      if(depth == 2)
+      monitor()->fillmeOccupancy_map_depth2(deta, dphi); 
+      if(depth == 3)
+      monitor()->fillmeOccupancy_map_depth3(deta, dphi); 
+      if(depth == 4)
+      monitor()->fillmeOccupancy_map_depth4(deta, dphi); 
       
       // Cycle on time slices
       // - for each Digi 
@@ -489,7 +502,93 @@ HcalDigiTester::~HcalDigiTester() {
 }
 
 
-void HcalDigiTester::endJob() { }
+void HcalDigiTester::endJob() {
+
+ if(noise_ != 1) {
+
+   if( hcalselector_ == "all") {
+    hcalselector_ = "HB";
+    eval_occupancy();
+    hcalselector_ = "HE";
+    eval_occupancy();
+    hcalselector_ = "HO";
+    eval_occupancy();
+    hcalselector_ = "HF";
+    eval_occupancy();
+   }
+   else  // one of subsystem only
+    eval_occupancy();
+ }
+
+}
+
+
+
+  //occupancies evaluation
+void HcalDigiTester::eval_occupancy() {    
+  
+  int nx = 82;
+  int ny = 72;
+  float cnorm;
+  float fev = float (nevtot);
+  //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
+  
+  float sumphi_1, sumphi_2, sumphi_3, sumphi_4;
+  float phi_factor;  
+  
+  for (int i = 1; i <= nx; i++) {
+    sumphi_1 = 0.;
+    sumphi_2 = 0.;
+    sumphi_3 = 0.;
+    sumphi_4 = 0.;
+    
+    for (int j = 1; j <= ny; j++) {
+      
+      // occupancies
+      cnorm = monitor()->getBinContent_depth1(i,j) / fev;   
+      monitor()->setBinContent_depth1(i,j,cnorm);
+      cnorm = monitor()->getBinContent_depth2(i,j) / fev;   
+      monitor()->setBinContent_depth2(i,j,cnorm);
+      cnorm = monitor()->getBinContent_depth3(i,j) / fev;   
+      monitor()->setBinContent_depth3(i,j,cnorm);
+      cnorm = monitor()->getBinContent_depth4(i,j) / fev;   
+      monitor()->setBinContent_depth4(i,j,cnorm);
+
+      sumphi_1 += monitor()->getBinContent_depth1(i,j);
+      sumphi_2 += monitor()->getBinContent_depth2(i,j);
+      sumphi_3 += monitor()->getBinContent_depth3(i,j);
+      sumphi_4 += monitor()->getBinContent_depth4(i,j);
+
+    }
+    
+    int ieta = i - 42;        // -41 -1, 0 40 
+    if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
+    
+    if(ieta >= -20 && ieta <= 20 )
+      {phi_factor = 72.;}
+    else {
+      if(ieta >= 40 || ieta <= -40 ) {phi_factor = 18.;}
+      else 
+	phi_factor = 36.;
+    }  
+
+
+    if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num !!!
+    double deta =  double(ieta);
+
+    cnorm = sumphi_1 / phi_factor;
+    monitor() -> fillmeOccupancy_vs_ieta_depth1(deta, cnorm);      
+    cnorm = sumphi_2 / phi_factor;
+    monitor() -> fillmeOccupancy_vs_ieta_depth2(deta, cnorm);
+    cnorm = sumphi_3 / phi_factor;
+    monitor() -> fillmeOccupancy_vs_ieta_depth3(deta, cnorm);
+    cnorm = sumphi_4 / phi_factor;
+    monitor() -> fillmeOccupancy_vs_ieta_depth4(deta, cnorm);
+      
+      
+  }  // end of i-loop
+  
+}
 
 void HcalDigiTester::beginJob() {
 
@@ -497,6 +596,8 @@ void HcalDigiTester::beginJob() {
   nevent2 = 0;
   nevent3 = 0;
   nevent4 = 0;
+
+  nevtot  = 0;
 
 }
 
@@ -519,6 +620,7 @@ HcalSubdetDigiMonitor * HcalDigiTester::monitor()
 void 
 HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
 
   iSetup.get<CaloGeometryRecord>().get (geometry);
   iSetup.get<HcalDbRecord>().get(conditions);
@@ -559,6 +661,8 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco<HFDataFrame>(iEvent,iSetup);
     hcalselector_ = "all";    
   }
+
+  nevtot++;
 
 }
 
