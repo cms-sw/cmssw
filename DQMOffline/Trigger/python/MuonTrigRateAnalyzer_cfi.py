@@ -21,6 +21,19 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    # Define the cuts for your muon selections
    customCollection = cms.VPSet(
 
+	
+
+	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("topMuonPt10_QuadJet15U"),
+	  trackCollection = cms.untracked.string ("globalTrack"),
+	  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
+	  d0cut = cms.untracked.double(0.2),
+	  z0cut = cms.untracked.double(25.0),
+	  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1 && numberOfMatches >= 3"),
+	  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")	  
+	),
+
+
 ## 	cms.untracked.PSet(
 ## 	  collectionName = cms.untracked.string ("dqmBarrelMuons3"),
 ## 	  # The track collection is just a switch, not a true collection name
@@ -63,16 +76,27 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 ## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
 ## 	),
 
+ 	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("looseMuonPt3"),
+	  trackCollection = cms.untracked.string ("globalTrack"),
+	  requiredTriggers = cms.untracked.vstring(""),
+ 	  d0cut = cms.untracked.double(2.0),
+ 	  z0cut = cms.untracked.double(25.0), # 3 meters
+ 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 2.1 && numberOfMatches >= 3"),
+ 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 2.1")
+ 	),
 
 	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("allMuonPt3"),
-	  trackCollection = cms.untracked.string ("outerTrack"),
-	  requiredTriggers = cms.untracked.vstring(""),
-	  d0cut = cms.untracked.double(2.0),
-	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 2.4"),
-	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 2.4")	  
-	),
+	  collectionName = cms.untracked.string ("looseMuonPt3_L1Mu"),
+	  trackCollection = cms.untracked.string ("globalTrack"),
+	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
+ 	  d0cut = cms.untracked.double(2.0),
+ 	  z0cut = cms.untracked.double(25.0), # 3 meters
+ 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 2.1 "),
+ 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 2.1")
+ 	),
+	
+	
 									  
     ),
 
@@ -80,12 +104,26 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# max pt is not very useful
     MaxPtParameters    = cms.vdouble(40,0.,80.),
     # PtParmeters is not currently used
-	PtParameters       = cms.vdouble(50,0.,80.),
+
     EtaParameters      = cms.vdouble(50, -3.5,3.5),
     PhiParameters      = cms.vdouble(50, -3.15,3.15),
     ResParameters      = cms.vdouble(50, -0.15, 0.15),
 	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
 
+    # Use Pt Parameters to set bin edges
+
+    PtParameters       = cms.vdouble(0.0,  2.0,  4.0, 
+									 6.0, 8.0, 10.0, 
+									 12.0,  14.0,  16.0, 
+									 18.0,  20.0,
+									 22.0, 24.0, 26.0, 28.0,
+									 30.0, 32.0, 34.0, 36.0,
+									 38.0, 40.0,
+									 45.0, 50.0, 55.0, 60.0,
+									 65.0, 70.0, 75.0, 80.0,
+									 85.0, 90.0, 95.0, 100.0,
+									 125.0, 150.0, 175.0, 200.0,
+									 300.0),
 
 	# valid match types are dr and cosmic
 	# future update: make sure default is

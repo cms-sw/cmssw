@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/06/26 20:59:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/26 21:27:25 $
+ *  $Revision: 1.3 $
  */
 
 
@@ -126,14 +126,33 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
   theMaxPtParameters = pset.getParameter< vector<double> >("MaxPtParameters");
-  thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
   theEtaParameters   = pset.getParameter< vector<double> >("EtaParameters");
   thePhiParameters   = pset.getParameter< vector<double> >("PhiParameters");
 
-    
-
   theResParameters = pset.getParameter < vector<double> >("ResParameters");
 
+  //  pt parameters are a different story
+  //  it's a vector of doubles but it unpacked
+  //  as bin low edges
+  thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
+
+
+  int numPtBinEdge = 0;
+  if ( thePtParameters.size() > 100) {
+    LogInfo ("HLTMuonVal") << "Warning!!! You specified a list of pt bin edges that is > 100 bins"
+                           << "This is too many bins!! Truncating the list!!! " << endl;
+    numPtBinEdge = 100;
+  } else {
+    numPtBinEdge = thePtParameters.size();
+  }
+
+  // the number of bins in the histo is one
+  // less than the number of edges
+  numBinsInPtHisto = numPtBinEdge - 1;
+  
+  for (int iBin = 0; iBin < numPtBinEdge; iBin++){
+    ptBins[iBin] = (float) thePtParameters[iBin];
+  }
 
   
   // Duplicate the pt parameters for some 2D histos
@@ -350,7 +369,8 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
   LogTrace ("HLTMuonVal") << "\n\n\n\nDone getting gen, now getting reco\n\n\n";
   
-  std::vector<MatchStruct> recMatches;
+  recMatches.clear();
+  
   //std::vector<MatchStruct> highPtMatches;
   
   reco::BeamSpot  beamSpot;
@@ -989,6 +1009,15 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
   } // End loop over HLT labels
 
+  //=======================
+  // DoubleMu Triggers
+  // ----------------------
+  // If you're using a double mu trigger
+  // Check to see if you found at least two reco muons
+  // If you haven't, then skip this event!
+  //========================
+
+  if ((theNumberOfObjects == 2) && (recMatches.size() < 2)) return;
   
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
@@ -1731,6 +1760,8 @@ void HLTMuonMatchAndPlot::begin()
       hPassPhiRec.push_back( bookIt( "recPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
       hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
       
+
+      
       hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
       hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
       
@@ -1923,6 +1954,21 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
   }
   
 }
+
+MonitorElement* HLTMuonMatchAndPlot::bookIt
+( TString name, TString title, int nbins, float * xBinLowEdges )
+{
+  LogTrace("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
+                            name << " Title:" << title;
+
+  TH1F *tempHist = new TH1F(name, title, nbins, xBinLowEdges);
+  tempHist->Sumw2();
+  return dbe_->book1D(name.Data(), tempHist);
+  
+}
+
+
+
 
 int HLTMuonMatchAndPlot::getCharge (int pdgId) {
 

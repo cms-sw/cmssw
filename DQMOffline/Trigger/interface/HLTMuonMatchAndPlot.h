@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/06/26 20:59:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/06/26 21:27:26 $
+ *  $Revision: 1.3 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -109,9 +109,8 @@ public:
   void            analyze( const edm::Event & iEvent );
   void            finish ( );
   MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
+  MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
 
-
-private:
 
   // Struct and methods for matching
 
@@ -146,8 +145,12 @@ private:
     trigger::TriggerObject              myHltCand;
     bool                       isAFake;    
   };
-  
 
+  // store the matches for each event
+  std::vector<MatchStruct> recMatches;
+  
+private:
+  
   const reco::Candidate* findMother( const reco::Candidate* );
   int findGenMatch( double eta, double phi, double maxDeltaR,
 		    std::vector<MatchStruct> matches );
@@ -220,7 +223,11 @@ private:
   std::vector<double> theChargeParameters;
   std::vector<double> theDRParameters;
   std::vector<double> theChargeFlipParameters;
-  
+
+  // variable width pt bins
+  // don't allow more than 100
+  float  ptBins[100];
+  int numBinsInPtHisto;
 
   // 2-D histogram parameters
   std::vector<double> theMaxPtParameters2d;
