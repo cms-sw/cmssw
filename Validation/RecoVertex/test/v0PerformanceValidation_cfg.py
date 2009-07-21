@@ -26,7 +26,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
-process.v0Validator.outputFile = 'val.SAMPLE.root'
+process.v0Validator.DQMRootFileName = 'val.SAMPLE.root'
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -48,7 +48,7 @@ if ValidationSequence == "harvesting":
     process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
     process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
-    process.dqmSaver.workflow = "/GLOBALTAG/SAMPLE/Validation
+    process.dqmSaver.workflow = "/GLOBALTAG/SAMPLE/Validation"
     process.DQMStore.verbose=3
 
     process.options = cms.untracked.PSet(
