@@ -74,7 +74,8 @@ namespace edm {
 	if (playback_)   {
 	  input_->readMany(n, oneResult,ids[i-minBunch_],fileNrs[i-minBunch_]);  // playback
 	} else if (sequential_) {
-	  input_->readMany(n, oneResult);  // sequential
+	  unsigned int file;
+	  input_->readManySequential(n, oneResult, file);  // sequential
 	} else  {
 	  unsigned int file;   //FIXME: need unsigned filenr?
 	  input_->readManyRandom(n, oneResult,file);     //no playback
