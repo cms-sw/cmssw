@@ -61,11 +61,9 @@ class FWLiteCont : public fwlite::EventBase
       // given a string, returns corresponding histogram pointer
       TH1* hist (const std::string &name);
 
-      // // write all histograms to a root file
-      // void write (const std::string &filename) const;
-      // void write (TFile *filePtr) const;
-
-      // implement the two functions needed to make this an EventBase.
+      ///////////////////////////////////////////////////////////////////
+      // Implement the two functions needed to make this an EventBase. //
+      ///////////////////////////////////////////////////////////////////
       bool getByLabel (const std::type_info& iInfo,
                        const char* iModuleLabel,
                        const char* iProductInstanceLabel,
@@ -108,7 +106,11 @@ class FWLiteCont : public fwlite::EventBase
       int                m_maxWanted;
       int                m_outputEvery;
 
-      static bool m_autoloaderCalled;
+      ////////////////////////////////
+      // Private Static Member Data //
+      ////////////////////////////////
+
+      static bool sm_autoloaderCalled;
 
 };
 

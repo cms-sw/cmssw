@@ -6,6 +6,7 @@
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "PhysicsTools/FWLite/interface/FWLiteCont.h"
 #include "PhysicsTools/FWLite/interface/OptionUtils.h"
+#include "PhysicsTools/FWLite/interface/dout.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
 using namespace std;
@@ -14,42 +15,46 @@ using namespace std;
 // Static Member Data Declaration //
 ////////////////////////////////////
 
-bool FWLiteCont::m_autoloaderCalled = false;
+bool FWLiteCont::sm_autoloaderCalled = false;
 
 
 FWLiteCont::FWLiteCont (FuncPtr funcPtr) : m_eventsSeen (0), m_maxWanted (0)
 {
-   // Call the autoloader if not already called.
-   if (! m_autoloaderCalled)
-   {
-      AutoLibraryLoader::enable();
-      m_autoloaderCalled = true;      
-   }
-
    // get the user-defined tag
    string tag;
    (*funcPtr) (tag);
 
-   // finish defaultt options
+   // finish defaultt options and create fwlite::Event
    optutl::_finishDefaultOptions (tag);
+   if (! sm_autoloaderCalled)
+   {
+      AutoLibraryLoader::enable();
+      sm_autoloaderCalled = true;      
+   }
    m_eventBasePtr = 
-      new fwlite::ChainEvent(optutl::stringVector ("inputFiles") );
-   m_outputName = optutl::stringValue ("outputName");
+      new fwlite::ChainEvent( optutl::stringVector ("inputFiles") );
 
-   m_maxWanted   = optutl::integerValue ("maxEvent");
+   // get whatever other info you want
+   m_outputName  = optutl::stringValue  ("outputFile");
+   m_maxWanted   = optutl::integerValue ("maxEvents");
    m_outputEvery = optutl::integerValue ("outputEvery");
+
+   // Call the autoloader if not already called.
 }
 
 FWLiteCont::~FWLiteCont()
 {
    // if the pointer is non-zero, then we should run the standard
    // destructor.  If it is zero, then we should do nothing
+   dout << endl;
    if (! m_eventBasePtr)
    {
       return;
    } 
    // If we're still here, let's get to work.
+   dout << endl;
    m_histStore.write (m_outputName);
+   dout << endl;
    delete m_eventBasePtr;
 }
 
@@ -118,6 +123,7 @@ FWLiteCont::operator++()
    {
       cout << "Processing Event: " << m_eventsSeen << endl;
    }
+   dout << endl;
    return *this;   
 }
 
@@ -155,6 +161,7 @@ FWLiteCont::atEnd() const
    fwlite::ChainEvent *chainEventPtr = 
       dynamic_cast< fwlite::ChainEvent* > ( m_eventBasePtr );
    assert (chainEventPtr);
+   dout << endl;
    return chainEventPtr->atEnd();
 }
 
