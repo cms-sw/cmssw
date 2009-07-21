@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jul 21 11:00:06 CDT 2009
-// $Id$
+// $Id: metoedmformat_t.cc,v 1.1 2009/07/21 17:53:30 chrjones Exp $
 //
 
 // system include files
@@ -149,6 +149,67 @@ TestMEtoEDMFormat::testMergeInt()
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1,full));
 
+  MEtoEDM<int> specials1(3);
+  specials1.putMEtoEdmObject("EventInfo/processedEvents",
+			tList,
+			1,
+			"TEST",
+			12,
+			"MYTIER");
+  specials1.putMEtoEdmObject("EventInfo/iEvent",
+			tList,
+			2,
+			"TEST",
+			12,
+			"MYTIER");
+  specials1.putMEtoEdmObject("EventInfo/iLumiSection",
+			tList,
+			3,
+			"TEST",
+			12,
+			"MYTIER");
+
+  MEtoEDM<int> specials2(3);
+  specials2.putMEtoEdmObject("EventInfo/processedEvents",
+			tList,
+			1,
+			"TEST",
+			12,
+			"MYTIER");
+  specials2.putMEtoEdmObject("EventInfo/iEvent",
+			tList,
+			3,
+			"TEST",
+			12,
+			"MYTIER");
+  specials2.putMEtoEdmObject("EventInfo/iLumiSection",
+			tList,
+			2,
+			"TEST",
+			12,
+			"MYTIER");
+
+  MEtoEDM<int> specialsTotal(3);
+  specialsTotal.putMEtoEdmObject("EventInfo/processedEvents",
+			tList,
+			2,
+			"TEST",
+			12,
+			"MYTIER");
+  specialsTotal.putMEtoEdmObject("EventInfo/iEvent",
+			tList,
+			3,
+			"TEST",
+			12,
+			"MYTIER");
+  specialsTotal.putMEtoEdmObject("EventInfo/iLumiSection",
+			tList,
+			3,
+			"TEST",
+			12,
+			"MYTIER");
+  specials1.mergeProduct(specials2);
+  CPPUNIT_ASSERT(areEquivalent(specials1,specialsTotal));
 }
 
 
