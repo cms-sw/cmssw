@@ -369,17 +369,17 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   nAPVStatusBit_ = bookHistogram("nAPVStatusBit",
 			       "nAPVStatusBit",
-			       "Number of channels with APVStatusBit error per event",
+			       "Number of APVs with APVStatusBit error per event",
 			       "");
 
   nAPVError_ = bookHistogram("nAPVError",
 			   "nAPVError",
-			   "Number of channels with APVError per event",
+			   "Number of APVs with APVError per event",
 			   "");
 
   nAPVAddressError_ = bookHistogram("nAPVAddressError",
 				  "nAPVAddressError",
-				  "Number of channels with APVAddressError per event",
+				  "Number of APVs with APVAddressError per event",
 				  "");
 
   nUnlocked_ = bookHistogram("nUnlocked",
@@ -416,15 +416,15 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   nAPVStatusBitvsTime_ = bookProfile("nAPVStatusBitvsTime",
 				     "nAPVStatusBitvsTime",
-				     "Number of channels with APVStatusBit error vs time");
+				     "Number of APVs with APVStatusBit error vs time");
 
   nAPVErrorvsTime_ = bookProfile("nAPVErrorvsTime",
 				 "nAPVErrorvsTime",
-				 "Number of channels with APVError vs time");
+				 "Number of APVs with APVError vs time");
 
   nAPVAddressErrorvsTime_ = bookProfile("nAPVAddressErrorvsTime",
 					"nAPVAddressErrorvsTime",
-					"Number of channels with APVAddressError vs time");
+					"Number of APVs with APVAddressError vs time");
 
   nUnlockedvsTime_ = bookProfile("nUnlockedvsTime",
 				 "nUnlockedvsTime",
