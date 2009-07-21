@@ -20,6 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
+process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoVertex.VertexValidation_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
@@ -32,7 +33,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-process.only_validation = cms.Sequence(process.v0Validator)
+process.only_validation = cms.Sequence(process.trackingParticleRecoTrackAsssociation*process.v0Validator*process.postProcessorV0)
 
 # Need to put in a PoolOutputModule at some point, for which I need to figure out
 #  what the optimal event content would be
@@ -59,3 +60,7 @@ if ValidationSequence == "harvesting":
             filter.outputFile=""
 
 process.harvesting = cms.Sequence(process.postValidation*process.EDMtoMEConverter*process.dqmSaver)
+
+process.p = cms.Path(process.SEQUENCE)
+
+process.schedule = cms.Schedule(process.p)

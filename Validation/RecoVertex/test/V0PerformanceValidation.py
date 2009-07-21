@@ -189,7 +189,7 @@ def do_validation(samples, GlobalTag):
                     replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher':cfgFileName }
 
                 macroFile = open(cfgFileName+'.C', 'w')
-                replace(replace_map, templatemacroFile, macroFile)
+                replace(replace_map, templateMacroFile, macroFile)
 
                 os.system('root -b -q -l ' + cfgFileName + '.C' + ' > macro.' + cfgFileName + '.log')
 
@@ -207,6 +207,9 @@ def do_validation(samples, GlobalTag):
         else:
             print 'Validation for sample '+sample+' already done, skipping.\n'
 
+###########################
+### Main part of script ###
+###########################
 if(NewRelease == ''):
     try:
         NewRelease = os.environ["CMSSW_VERSION"]
@@ -221,6 +224,7 @@ else:
         print >>sys.stderr, '       Please run cmsenv in the appropriate release area.'
 
 NewSelection = ''
+RefSelection = MCReferenceSelection
 
 do_validation(mcsamples, MCTag)
 do_validation(startupsamples, StartupTag)
