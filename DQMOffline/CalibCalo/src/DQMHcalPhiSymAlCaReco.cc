@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/04/17 15:07:59 $
- * $Revision: 1.6 $
+ * $Date: 2009/07/20 12:19:06 $
+ * $Revision: 1.8 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -251,7 +251,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
-
+   eventCounter_ = 0;
 }
 
 //--------------------------------------------------------
@@ -280,6 +280,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
    
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
   
+
      
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
         {
@@ -387,6 +388,12 @@ void DQMHcalPhiSymAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
+  hiDistrNoisePl2D_->Fill(0.,0.,(float)eventCounter_);
+}
+//--------------------------------------------------------
+void DQMHcalPhiSymAlCaReco::endJob(){
+  if (saveToFile_) {
+
   for(int k=0; k<=hiDistr_x_nbin_;k++)
   {
     for(int j=0; j<=hiDistr_y_nbin_;j++)
@@ -423,11 +430,6 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
        hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
     }
   }
-
-}
-//--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endJob(){
-  if (saveToFile_) {
      dbe_->save(fileName_);
   }
 }
