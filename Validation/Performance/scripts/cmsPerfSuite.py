@@ -1314,16 +1314,29 @@ class PerfSuite:
     
             #Create a tarball of the work directory
             #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
-            TarFile = "%s_%s_%s_%s.tgz" % (self.cmssw_version, str(stepOptions), self.host, self.user)
+            #Cleaning the stepOptions from the --usersteps=:
+            if "=" in str(stepOptions):
+               fileStepOption=str(stepOptions).split("=")[1]
+            else:
+               fileStepOption=str(stepOptions)
+            #Add the working directory used to avoid overwriting castor files (also put a check...)
+            fileWorkingDir=os.path.basename(perfsuitedir)
+            TarFile = "%s_%s_%s_%s_%s.tgz" % (self.cmssw_version, fileStepOption, fileWorkingDir, self.host, self.user)
             AbsTarFile = os.path.join(perfsuitedir,TarFile)
             tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
             self.printFlush(tarcmd)
             self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
     
             #Archive it on CASTOR
-            castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
-            self.printFlush(castorcmd)
-            castorcmdstderr=os.popen3(castorcmd)[2].read()
+            #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
+            checkcastor="nsls  %s" % (os.path.join(castordir,TarFile))
+            checkcastorerr=os.popen3(checkcastor)[2].read()
+            if not checkcastorerr:
+               castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
+               self.printFlush(castorcmd)
+               castorcmdstderr=os.popen3(castorcmd)[2].read()
+            else:
+               castorcmdstderr="File already on CASTOR! Will NOT OVERWRITE!!!"
             #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
             if castorcmdstderr:
                 #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
