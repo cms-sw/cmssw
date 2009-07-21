@@ -176,17 +176,19 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 		  // Need this to keep from flagging non-existent HE/HF cells
 		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
 		    continue;
-		  if (binval<=minErrorFlag_)
-		    continue;
 		  if (debug_>0)
-		    std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
+		    std::cout <<"Dead Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
 
-		  // if we've reached here, hot cell condition was met
-		  int value=1;
-
+		  // Need to write out all cells?  Or can we add a statement like:
+		  // if (binval<=minErrorFlag_) continue?
+		  int value=0;
+		  if (binval>minErrorFlag_)
+		    value=1; // dead cell found; value = 1
+		  else if (vetoCell(myid))
+		    value=1;
 		  if (myqual.find(myid)==myqual.end())
 		    {
-		      myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
+		      myqual[myid]=(value<<BITSHIFT);  // dead cell shifted to bit 5
 		    }
 		  else
 		    {

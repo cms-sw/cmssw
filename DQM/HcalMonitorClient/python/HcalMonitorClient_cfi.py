@@ -19,13 +19,13 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           resetFreqUpdates          = cms.untracked.int32(-1),
                           enableExit                = cms.untracked.bool(False),
                           #DoPerChanTests            = cms.untracked.bool(False), # is this used anywhere?
-                          
                           # Variables from which subtasks may inherit
                           subDetsOn                 = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
                           debug                     = cms.untracked.int32(0),
                           showTiming                = cms.untracked.bool(False),
                           fillUnphysicalIphi        = cms.untracked.bool(True),
-                          
+                          BadCells = cms.untracked.vstring(),
+
                           # Pedestal Client,
                           PedestalClient                       = cms.untracked.bool(True),
                           PedestalClient_nominalPedMeanInADC   = cms.untracked.double(3.),

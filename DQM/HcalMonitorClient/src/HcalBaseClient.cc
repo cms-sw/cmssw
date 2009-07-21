@@ -27,7 +27,7 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
   dqmReportMapWarn_.clear(); 
   dqmReportMapOther_.clear();
   dqmQtests_.clear();
-  
+  badCells_.clear();
   dbe_ = dbe;
   ievt_=0; jevt_=0;
   clientName_ = clientName;
@@ -48,6 +48,9 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
   //Decide whether or not to fill unphysical iphi cells
   fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi",true);
   
+  // Known Bad Cells -- don't count?
+  badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
+
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++)
     {
@@ -76,6 +79,24 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
 
   return; 
 } // void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+
+bool HcalBaseClient::vetoCell(HcalDetId& id)
+{
+  /*
+    Function identifies whether cell with HcalDetId 'id' should be vetoed, 
+    based on elements stored in  badCells_ array.
+  */
+
+  if(badCells_.size()==0) return false;
+  for(unsigned int i = 0; i< badCells_.size(); ++i)
+    {
+      
+      unsigned int badc = atoi(badCells_[i].c_str());
+      if(id.rawId() == badc) return true;
+    }
+  return false;
+} // bool HcalBaseClient::vetoCell(HcalDetId id)
+
 
 
 void HcalBaseClient::errorOutput(){

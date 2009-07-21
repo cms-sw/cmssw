@@ -68,6 +68,8 @@ class HcalBaseClient{
   void getSJ6histos( std::string dir, std::string name, TH2F* h[6], std::string units="");
   void getSJ6histos( std::string dir, std::string name, TH1F* h[4], std::string units="");
 
+  bool vetoCell(HcalDetId& id);
+
   void getEtaPhiHists( std::string dir, std::string name, TH2F* h[4], std::string units="");
   int CalcIeta(int hist_eta, int depth);
   bool isHB(int etabin, int depth);
@@ -101,12 +103,13 @@ class HcalBaseClient{
   static const int binmapd2[];
   static const int binmapd3[];
 
+  std::vector <std::string> badCells_;
+
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;
   map<string, vector<QReport*> > dqmReportMapWarn_;
   map<string, vector<QReport*> > dqmReportMapOther_;
   map<string, string> dqmQtests_;
-
 };
 
 #endif

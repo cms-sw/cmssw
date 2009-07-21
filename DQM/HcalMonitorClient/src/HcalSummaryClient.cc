@@ -837,23 +837,17 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  /*
-  TH2F* obj2f;
+  // Just show overall summary map for now; add in individual depth plots later
   std::string imgNameMap="";
   std::string imgName;
   gStyle->SetPaintTextFormat("+g");
 
  
   // Test for now -- let's just dump out global summary histogram
-  MonitorElement* me;
-  me = dqmStore_->get(prefixME_ + "/EventInfo/advancedReportSummaryMap");
-  obj2f = me->getTH2F();
- 
 
   MonitorElement* me;
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   TH2F* simple2f = me->getTH2F();
-  */
 
   std::vector<int> Ncells;
   std::map<std::string, int>::const_iterator it;
@@ -909,6 +903,13 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   static int pcol[40];
   float rgb[20][3];
   
+  if( simple2f ) 
+    {
+      simple2f->SetMinimum(-1.);
+      simple2f->SetMaximum(+1.0);
+      simple2f->SetOption("textcolz");
+    }
+
   for( int i=0; i<20; ++i ) 
     {
       //pcol[i]=kGray; // grey -- seems to be red in my version of root?
@@ -936,26 +937,19 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
       color->SetRGB( rgb[i][0], rgb[i][1], rgb[i][2] );
     } // for (int i=0;i<20;++i)
  
-   gStyle->SetPalette(40, pcol);
+  // Doesn't work?  Need to make color change in htmlAnyHisto?  Need to be careful about defining new colors there...
+   gStyle->SetPalette(80, pcol);
    gStyle->SetOptStat(0);
-   /*
-   if( obj2f ) 
-     {
-       obj2f->SetMinimum(-1.);
-       obj2f->SetMaximum(+1.0);
-       obj2f->SetOption("colz");
-     }
-
-  if (obj2f)// && obj2f->GetEntries()!=0)
+   
+   if (simple2f)
     {
-      htmlFile << "<table  width=100% border=1><tr>" << std::endl; 
+      htmlFile << "<table  width=50% border=1><tr>" << std::endl; 
       htmlFile << "<tr align=\"center\">" << std::endl;  
-      htmlAnyHisto(run,obj2f,"i#eta","i#phi",92,htmlFile,htmlDir);
-      htmlAnyHisto(run,simple2f,"","",92,htmlFile,htmlDir);
+      htmlAnyHisto(run,simple2f,"i#eta","i#phi",92,htmlFile,htmlDir);
+      //htmlAnyHisto(run,simple2f,"","",92,htmlFile,htmlDir);
       htmlFile <<"</tr></table>"<<std::endl;
 
-    } // if (obj2f)
-   */
+    } // if (simple2f)
   
   // Make table that lists all status words for each subdet
   
