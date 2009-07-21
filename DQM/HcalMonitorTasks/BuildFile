@@ -1,4 +1,3 @@
-<flags CXXFLAGS = "-g -O0">
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/HcalDigi>
 <use name=TBDataFormats/HcalTBObjects>
