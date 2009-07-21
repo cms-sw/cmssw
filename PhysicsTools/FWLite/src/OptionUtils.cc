@@ -1009,7 +1009,7 @@ optutl::setupDefaultOptions()
    addOption ("storePrepend",  kString,
               "Prepend location on files starting with '/store/'");
    addOption ("tag",           kString,
-              "A 'tag' to append to output file (e.g., 'v2', etc.");
+              "A 'tag' to append to output file (e.g., 'v2', etc.)");
    // Bool options
    addOption ("logName",       kBool,
               "Print log name and exit");
