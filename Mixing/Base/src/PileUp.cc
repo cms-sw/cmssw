@@ -25,7 +25,8 @@ namespace edm {
     none_(type_ == "none"),
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
     poissonDistribution_(0),
-    playback_(playback)
+    playback_(playback),
+    sequential_(pset.getUntrackedParameter<bool>("sequential", false))
   {
 
     edm::Service<edm::RandomNumberGenerator> rng;
@@ -57,23 +58,28 @@ namespace edm {
       EventPrincipalVector eventVector;
       int n;
       
-      if (!playback_){
+      if (playback_){
+	n=nrEvents[i-minBunch_];
+      } else if (sequential_) {
+	// For now, the use case for sequential read reads only one event at a time.
+	n = 1;
+      } else {
 	n = (none_ ? 0 : (poisson_ ? poissonDistribution_->fire() : intAverage_));
 	nrEvents[i-minBunch_]=n;
-      }else {
-	n=nrEvents[i-minBunch_];
       }
       eventVector.reserve(n);
       while (n > 0) {
         EventPrincipalVector oneResult;
         oneResult.reserve(n);
-	if (!playback_)   {
+	if (playback_)   {
+	  input_->readMany(n, oneResult,ids[i-minBunch_],fileNrs[i-minBunch_]);  // playback
+	} else if (sequential_) {
+	  input_->readMany(n, oneResult);  // sequential
+	} else  {
 	  unsigned int file;   //FIXME: need unsigned filenr?
 	  input_->readManyRandom(n, oneResult,file);     //no playback
           ids[i-minBunch_]=oneResult[0]->id(); 
 	  fileNrs[i-minBunch_]=file;
-	} else  {
-	  input_->readMany(n, oneResult,ids[i-minBunch_],fileNrs[i-minBunch_]);  // playback
 	}
         LogDebug("readPileup") << "READ: " << oneResult.size();
         std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
