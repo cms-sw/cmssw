@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.4 2007/11/28 17:49:12 wmtan Exp $
+$Id: VectorInputSource.h,v 1.5 2008/05/29 16:17:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,12 +30,14 @@ namespace edm {
     void readMany(int number, EventPrincipalVector& result);
     void readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
+    void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber); 
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
 
   private:
     virtual void readMany_(int number, EventPrincipalVector& result) = 0;
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) = 0;
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) = 0;
+    virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) = 0;
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
   };
 }
