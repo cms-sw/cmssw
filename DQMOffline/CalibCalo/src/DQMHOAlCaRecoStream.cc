@@ -66,9 +66,7 @@ using namespace edm;
 //
 DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
-
-  dbe_ = edm::Service<DQMStore>().operator->();  
-
+  
   theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName","tmp.root");
   folderName_ = iConfig.getUntrackedParameter<string>("folderName");
   m_sigmaValue = iConfig.getUntrackedParameter<double>("sigmaval",0.2);
@@ -158,7 +156,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 void 
 DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
 {
-
+  dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);
 
   char title[200];
@@ -230,16 +228,8 @@ DQMHOAlCaRecoStream::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 DQMHOAlCaRecoStream::endJob() {
-  if (dbe_) {
-     if (saveToFile_) dbe_->save(theRootFileName);
-  } 
-}
+  if (saveToFile_) {
 
-void DQMHOAlCaRecoStream::endRun(const Run& r, const EventSetup& context){
-  if (dbe_) {
-
-    //    char name[100];
-    
     //    double scale = 1./max(1,Nevents);
     double scale = 1./max(1,Nmuons);
     hMuonMom->getTH1F()->Scale(scale);
@@ -258,5 +248,8 @@ void DQMHOAlCaRecoStream::endRun(const Run& r, const EventSetup& context){
       hSignal3x3[k]->getTH1F()->Scale(scale);
     }
 
+    dbe_->save(theRootFileName); 
   }
+
 }
+
