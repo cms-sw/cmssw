@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
-'file:/data1/edmProvDump_MinBias_Summer09/CMSSW_3_1_1/src/Minbias_GEN_SIM_RAW.root'
+'file:'
       )
 )
 
