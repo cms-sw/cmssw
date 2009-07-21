@@ -3,11 +3,14 @@
 #include <fstream>
 #include <iomanip>
 #include <cassert>
+
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "PhysicsTools/FWLite/interface/FWLiteCont.h"
 #include "PhysicsTools/FWLite/interface/OptionUtils.h"
 #include "PhysicsTools/FWLite/interface/dout.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+
+#include "TH1.h"
 
 using namespace std;
 
@@ -26,11 +29,14 @@ FWLiteCont::FWLiteCont (FuncPtr funcPtr) : m_eventsSeen (0), m_maxWanted (0)
 
    // finish defaultt options and create fwlite::Event
    optutl::_finishDefaultOptions (tag);
+
+   // Call the autoloader if not already called.
    if (! sm_autoloaderCalled)
    {
       AutoLibraryLoader::enable();
       sm_autoloaderCalled = true;      
    }
+
    m_eventBasePtr = 
       new fwlite::ChainEvent( optutl::stringVector ("inputFiles") );
 
@@ -39,22 +45,19 @@ FWLiteCont::FWLiteCont (FuncPtr funcPtr) : m_eventsSeen (0), m_maxWanted (0)
    m_maxWanted   = optutl::integerValue ("maxEvents");
    m_outputEvery = optutl::integerValue ("outputEvery");
 
-   // Call the autoloader if not already called.
+   TH1::AddDirectory(false);
 }
 
 FWLiteCont::~FWLiteCont()
 {
    // if the pointer is non-zero, then we should run the standard
    // destructor.  If it is zero, then we should do nothing
-   dout << endl;
    if (! m_eventBasePtr)
    {
       return;
    } 
    // If we're still here, let's get to work.
-   dout << endl;
    m_histStore.write (m_outputName);
-   dout << endl;
    delete m_eventBasePtr;
 }
 
@@ -123,7 +126,6 @@ FWLiteCont::operator++()
    {
       cout << "Processing Event: " << m_eventsSeen << endl;
    }
-   dout << endl;
    return *this;   
 }
 
@@ -161,7 +163,6 @@ FWLiteCont::atEnd() const
    fwlite::ChainEvent *chainEventPtr = 
       dynamic_cast< fwlite::ChainEvent* > ( m_eventBasePtr );
    assert (chainEventPtr);
-   dout << endl;
    return chainEventPtr->atEnd();
 }
 

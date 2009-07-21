@@ -97,7 +97,6 @@ int main (int argc, char* argv[])
 
    for (event.toBegin(); ! event.atEnd(); ++event) 
    {
-      dout << endl;
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
@@ -111,14 +110,10 @@ int main (int argc, char* argv[])
            kJetEnd != jetIter; 
            ++jetIter) 
       {         
-         dout << endl;
          event.hist("jetPt")->Fill (jetIter->pt());
-         dout << endl;
       } // for jetIter
-      dout << endl;
    } // for event
 
-   dout << endl;
       
    ////////////////////////
    // ////////////////// //
