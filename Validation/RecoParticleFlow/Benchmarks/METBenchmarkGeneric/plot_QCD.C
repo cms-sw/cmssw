@@ -166,11 +166,22 @@
   comp.DrawSigmaEt2("DeltaMexvsSet", 0., 3000., mode);
   SavePlot("sigmaDeltaMEX", outdir.c_str() );
 
+  TCanvas c16("c16", "<recoSet/TrueSet>");
+  FormatPad( &c16, false );
+  comp.DrawResp("RecSetOverTrueSetvsTrueSet", 0., 3000., mode, 0., 1., "trueSET");
+  SavePlot("recSetOverTrueSet", outdir.c_str() );
+
+  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
+  FormatPad( &c17, false );
+  comp.DrawSigmaEt_var("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0., 3000., mode);
+  SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
+
+
 //  TCanvas c13("c13", "sigmaMET_MET");
 //  FormatPad( &c13, false );
 //  comp.DrawSigmaEt_Et("DeltaEtvsEt", 20., 200., mode);
 //  SavePlot("sigmaMET_MET", outdir.c_str() );
-//
+
 //  TCanvas c14("c14", "sigmaPhi");
 //  FormatPad( &c14, false );
 //  comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
