@@ -20,7 +20,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "CLHEP/HepPDT/DefaultConfig.hh"
 //
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -287,7 +287,7 @@ JPTBjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // initialize vector containing two highest Et gen jets > 20 GeV
   // in this example they are checked not to be leptons from Z->ll decay (DR match)
-  vector<HepLorentzVector> gjets;
+  vector<CLHEP::HepLorentzVector> gjets;
   gjets.clear();
 
   // initialize tree variables
@@ -372,10 +372,10 @@ for(GenJetCollection::const_iterator gjet = genjets->begin(); gjet != genjets->e
  
   //Rough preselection,final cut in root macro
   if(gjet->pt() > jet_pt_min && fabs(gjet->eta())<jet_abseta ) {
-    HepLorentzVector jet(gjet->px(), gjet->py(), gjet->pz(), gjet->energy());
+    CLHEP::HepLorentzVector jet(gjet->px(), gjet->py(), gjet->pz(), gjet->energy());
     double drMINB=999;
     for(unsigned int n=0; n< mcBquarks.size() ; n++ ){
-      HepLorentzVector bquark(mcBquarks[n]->px(), mcBquarks[n]->py(), mcBquarks[n]->pz(), mcBquarks[n]->energy());
+      CLHEP::HepLorentzVector bquark(mcBquarks[n]->px(), mcBquarks[n]->py(), mcBquarks[n]->pz(), mcBquarks[n]->energy());
       double dr =bquark.deltaR(jet);
       if (dr < drMINB) drMINB=dr;
       }
@@ -384,7 +384,7 @@ for(GenJetCollection::const_iterator gjet = genjets->begin(); gjet != genjets->e
     // Check for electrons 
     hoE = gjet->hadEnergy()/gjet->emEnergy();
     for(unsigned int n=0; n< mcElectrons.size() ; n++ ){
-      HepLorentzVector elec(mcElectrons[n]->px(), mcElectrons[n]->py(), mcElectrons[n]->pz(), mcElectrons[n]->energy());
+      CLHEP::HepLorentzVector elec(mcElectrons[n]->px(), mcElectrons[n]->py(), mcElectrons[n]->pz(), mcElectrons[n]->energy());
       double dr =elec.deltaR(jet);
       if (dr < drMIN) drMIN=dr;
     }
@@ -393,7 +393,7 @@ for(GenJetCollection::const_iterator gjet = genjets->begin(); gjet != genjets->e
 	// Check for muons 
 	double drMIN2=999;
 	for(unsigned int n=0; n< mcMuons.size() ; n++ ){
-	  HepLorentzVector mu(mcMuons[n]->px(), mcMuons[n]->py(), mcMuons[n]->pz(), mcMuons[n]->energy());
+	  CLHEP::HepLorentzVector mu(mcMuons[n]->px(), mcMuons[n]->py(), mcMuons[n]->pz(), mcMuons[n]->energy());
 	  double dr =mu.deltaR(jet);
 	  if (dr < drMIN2) drMIN2=dr;
 	}
@@ -402,7 +402,7 @@ for(GenJetCollection::const_iterator gjet = genjets->begin(); gjet != genjets->e
 	    // Check for taus
 	    double drMIN3=999;
 	    for(unsigned int n=0; n< mcTaus.size() ; n++ ){
-	      HepLorentzVector tau(mcTaus[n]->px(), mcTaus[n]->py(), mcTaus[n]->pz(), mcTaus[n]->energy());
+	      CLHEP::HepLorentzVector tau(mcTaus[n]->px(), mcTaus[n]->py(), mcTaus[n]->pz(), mcTaus[n]->energy());
 	      double dr =tau.deltaR(jet);
 	      if (dr < drMIN3) drMIN3=dr;
 	    }
@@ -518,11 +518,11 @@ if(gjets.size() > 0) {
     // loop over jets and do matching with gen jets      
     for( CaloJetCollection::const_iterator cjet = calojets->begin(); 
 	 cjet != calojets->end(); ++cjet ){ 
-      HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());    
+      CLHEP::HepLorentzVector cjetc(cjet->px(), cjet->py(), cjet->pz(), cjet->energy());    
       //Finding ZSP jet that corresponds to calo jet
       CaloJetCollection::const_iterator zspjet;
       for( zspjet = zspjets->begin();  zspjet != zspjets->end(); ++zspjet ){ 
-	HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
+	CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
 	double dr = zspjetc.deltaR(cjetc);
 	if(dr < 0.001) break;
       }
