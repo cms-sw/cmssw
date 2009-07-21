@@ -116,10 +116,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 				   const HepGeom::Transform3D&   tr ,
 				   const unsigned int      id     )
 {
-   static HepPoint3D A0 ;
-   static HepPoint3D B0 ;
-   static HepPoint3D C0 ;
-   static HepPoint3D D0 ;
+   static HepPoint3D AA0 ;
+   static HepPoint3D BB0 ;
+   static HepPoint3D CC0 ;
+   static HepPoint3D DD0 ;
 
    std::vector<double> pv ;
    pv.reserve( vv.size() ) ;
@@ -153,32 +153,40 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       <<"\n "<<corners[7]
 	       <<std::endl ;*/
 
-      if( 160 == id ) A0 = HepPoint3D( corners[3].x(),
+      if( 160 == id ) AA0 = HepPoint3D( corners[3].x(),
 				       corners[3].y(),
 				       corners[3].z() ) ;
-      if( 164 == id ) B0 = HepPoint3D( corners[2].x(),
+      if( 164 == id ) BB0 = HepPoint3D( corners[2].x(),
 				       corners[2].y(),
 				       corners[2].z() ) ;
-      if( 134 == id ) C0 = HepPoint3D( corners[1].x(),
+      if( 134 == id ) CC0 = HepPoint3D( corners[1].x(),
 				       corners[1].y(),
 				       corners[1].z() ) ;
-      if( 130 == id ) D0 = HepPoint3D( corners[0].x(),
+      if( 130 == id ) DD0 = HepPoint3D( corners[0].x(),
 				       corners[0].y(),
 				       corners[0].z() ) ;
    }
    static bool done (false) ;
-   if( 0.001 < A0.mag() &&
-       0.001 < B0.mag() &&
-       0.001 < C0.mag() &&
-       0.001 < D0.mag() &&
+   if( 0.001 < AA0.mag() &&
+       0.001 < BB0.mag() &&
+       0.001 < CC0.mag() &&
+       0.001 < DD0.mag() &&
        !done                  )
    {
       done = true ;
-      std::cout<<"\nA0 = "<<A0
-	       <<"\nB0 = "<<B0
-	       <<"\nC0 = "<<C0
-	       <<"\nD0 = "<<D0
+
+      std::cout<<"\nA0 = "<<AA0
+	       <<"\nB0 = "<<BB0
+	       <<"\nC0 = "<<CC0
+	       <<"\nD0 = "<<DD0
 	       << std::endl ;
+
+      const HepPoint3D A0 (AA0) ;
+      const HepPoint3D B0 (BB0) ;
+      const HepPoint3D C0 (CC0) ;
+      const HepPoint3D D0 (DD0) ;
+
+      const double angle ( (C0-B0).angle( A0-B0 ) ) ;
 
       static std::vector< HepPoint3D > sur ;
       sur.push_back( HepPoint3D( 13862.30,  20.68, 11.60 ) ) ;
@@ -236,18 +244,21 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
       for( unsigned int i ( 0 ) ; i != nsur ; ++i )
       {
-	 const HepPoint3D aa ( sur[i] ) ;
-	 const HepPoint3D bb ( aa + ( sur[i+1] - aa ).unit()*(B0-A0).mag() ) ;
+	 const HepPoint3D SA ( sur[4*i] ) ;
+	 const HepPoint3D SB ( sur[4*i+1] ) ;
+	 const HepPoint3D SC ( sur[4*i+2] ) ;
+	 const HepPoint3D SD ( sur[4*i+3] ) ;
+/*	 const HepPoint3D SB ( sur[4*i] ) ;
+	 const HepPoint3D SC ( sur[4*i+1] ) ;
+	 const HepPoint3D SD ( sur[4*i+2] ) ;
+	 const HepPoint3D SA ( sur[4*i+3] ) ;*/
 
-	 const HepPlane3D plane ( aa, bb, sur[i+2] ) ;
+	 const HepPoint3D aa ( SA ) ;
+	 const HepPoint3D bb ( SA + ( SB-SA ).unit()*(B0-A0).mag() ) ;
+
+	 const HepPlane3D plane ( aa, bb, SC ) ;
 
 
-//	 const HepPlane3D pl0 ( A0, B0, C0 ) ;
-//	 const HepVector3D CBA ( ( C0-B0 ).unit()*( A0-B0 ).mag() ) ;
-//	 const HepPoint3D CC ( B0 + HepRotate3D( A0, B0, CC, B0 ) ;
-	 const double angle ( (C0-B0).angle( A0-B0 ) ) ;
-
-//	 const HepRotate3D rota ( A0, B0, B0+cba, B0 ) ; 
 	 const HepPoint3D cc ( bb + ( HepRotate3D( -angle, plane.normal() )*
 				      HepVector3D( aa-bb ) ).unit()*( C0-B0 ).mag() ) ;
 
@@ -261,31 +272,31 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	 std::cout<<"\n********* Name is " << names[i] ;
 
-	 std::cout<<"\n\n B discrepancy is "<< (bb-sur[i+1])<<", "<< (bb-sur[i+1]).mag()
-		  <<"\n\n C discrepancy is "<< (cc-sur[i+2])<<", "<< (cc-sur[i+2]).mag()
-		  <<"\n\n D discrepancy is "<< (dd-sur[i+3])<<", "<< (dd-sur[i+3]).mag()
+	 std::cout<<"\n\n B discrepancy is "<< (bb-SB)<<", "<< (bb-SB).mag()
+		  <<"\n\n C discrepancy is "<< (cc-SC)<<", "<< (cc-SC).mag()
+		  <<"\n\n D discrepancy is "<< (dd-SD)<<", "<< (dd-SD).mag()
 		  <<std::endl ;
 
-	 const double dxbb ( bb.x() - sur[i+1].x() ) ;
-	 const double dybb ( bb.y() - sur[i+1].y() ) ;
-	 const double dzbb ( bb.z() - sur[i+1].z() ) ;
+	 const double dxbb ( bb.x() - SB.x() ) ;
+	 const double dybb ( bb.y() - SB.y() ) ;
+	 const double dzbb ( bb.z() - SB.z() ) ;
 
-	 const double dxcc ( cc.x() - sur[i+2].x() ) ;
-	 const double dycc ( cc.y() - sur[i+2].y() ) ;
-	 const double dzcc ( cc.z() - sur[i+2].z() ) ;
+	 const double dxcc ( cc.x() - SC.x() ) ;
+	 const double dycc ( cc.y() - SC.y() ) ;
+	 const double dzcc ( cc.z() - SC.z() ) ;
 
-	 const double dxdd ( dd.x() - sur[i+3].x() ) ;
-	 const double dydd ( dd.y() - sur[i+3].y() ) ;
-	 const double dzdd ( dd.z() - sur[i+3].z() ) ;
+	 const double dxdd ( dd.x() - SD.x() ) ;
+	 const double dydd ( dd.y() - SD.y() ) ;
+	 const double dzdd ( dd.z() - SD.z() ) ;
 
-	 sumx  += dxbb + dxcc + dxdd ;
-	 sumy  += dybb + dycc + dydd ;
-	 sumz  += dzbb + dzcc + dzdd ;
-	 sumx2 += dxbb*dxbb + dxcc*dxcc + dxdd*dxdd ;
-	 sumy2 += dybb*dybb + dycc*dycc + dydd*dydd ;
-	 sumz2 += dzbb*dzbb + dzcc*dzcc + dzdd*dzdd ;
+	 sumx  += dxdd ;//dxbb + dxcc + dxdd ;
+	 sumy  += dydd ;//dybb + dycc + dydd ;
+	 sumz  += dzdd ;//dzbb + dzcc + dzdd ;
+	 sumx2 += dxdd*dxdd ;//dxbb*dxbb + dxcc*dxcc + dxdd*dxdd ;
+	 sumy2 += dydd*dydd ;//dybb*dybb + dycc*dycc + dydd*dydd ;
+	 sumz2 += dzdd*dzdd ;//dzbb*dzbb + dzcc*dzcc + dzdd*dzdd ;
       }
-      const double ntot ( 3.0*nsur ) ;
+      const double ntot ( 1.0*nsur ) ;
       sumx /= ntot ;
       sumy /= ntot ;
       sumz /= ntot ;
