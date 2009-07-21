@@ -27,18 +27,22 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
-process.v0Validator.DQMRootFileName = 'val.SAMPLE.root'
+process.v0Validator.DQMRootFileName = ''
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
+ValidationSequence="SEQUENCE"
+
+if ValidationSequence == "only_validation":
+    process.postProcessorV0.outputFileName = 'val.SAMPLE.root'
+
 process.only_validation = cms.Sequence(process.trackingParticleRecoTrackAsssociation*process.v0Validator*process.postProcessorV0)
+
 
 # Need to put in a PoolOutputModule at some point, for which I need to figure out
 #  what the optimal event content would be
-
-ValidationSequence="SEQUENCE"
 
 if ValidationSequence == "harvesting":
     process.DQMStore.collateHistograms = False

@@ -61,9 +61,17 @@ Events = {}
 cfg = 'v0PerformanceValidation_cfg.py'
 macro = 'macros/V0ValHistoPublisher.C'
 
-# Functions
-##########################################################
+###################################
+### End configurable parameters ###
+###################################
 
+#----------------------------------------------------------------------------
+
+#################
+### Functions ###
+#################
+
+# Does replacement of strings in files
 def replace(map, filein, fileout):
     replace_items = map.items()
     while 1:
@@ -76,6 +84,7 @@ def replace(map, filein, fileout):
     filein.close()
 
 
+# This function does most of the work
 def do_validation(samples, GlobalTag):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
@@ -178,7 +187,7 @@ def do_validation(samples, GlobalTag):
                 referenceSample = RefRepository + '/' + RefRelease + '/' + RefSelection + '/' + sample + '/' + 'val.'+sample+'.root'
             
                 if os.path.isfile(referenceSample):
-                    replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/'+'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher':cfgFileName }
+                    replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/'+'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'V0ValHistoPublisher':cfgFileName }
                 
                     if not os.path.exists(RefRelease + '/' + RefSelection):
                         os.makedirs(RefRelease + '/' + RefSelection)
@@ -186,7 +195,7 @@ def do_validation(samples, GlobalTag):
                 
                 else:
                     print "No reference file found at ", RefRelease+'/'+RefSelection
-                    replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher':cfgFileName }
+                    replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'V0ValHistoPublisher':cfgFileName }
 
                 macroFile = open(cfgFileName+'.C', 'w')
                 replace(replace_map, templateMacroFile, macroFile)
@@ -207,9 +216,9 @@ def do_validation(samples, GlobalTag):
         else:
             print 'Validation for sample '+sample+' already done, skipping.\n'
 
-###########################
-### Main part of script ###
-###########################
+##############################################################################
+### Main part of script, this runs do_validation for all specified samples ###
+##############################################################################
 if(NewRelease == ''):
     try:
         NewRelease = os.environ["CMSSW_VERSION"]

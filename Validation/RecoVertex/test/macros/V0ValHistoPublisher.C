@@ -19,12 +19,12 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
 
   TFile* infile1 = new TFile(refFile);
-  infile1->cd("DQMData");
+  infile1->cd("DQMData/V0V/EffFakes");
   TDirectory* refdir = gDirectory;
   TList* hList1 = refdir->GetListOfKeys();
 
   TFile* infile2 = new TFile(newFile);
-  infile2->cd("DQMData");
+  infile2->cd("DQMData/V0V/EffFakes");
   TDirectory* newdir = gDirectory;
   TList* hList2 = newdir->GetListOfKeys();
 
@@ -65,7 +65,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   ksEffPt->SetTitle("");
 
   //refdir->GetObject(hList1->At(7)->GetName(), ksTkEffPt);
-  refdir->GetObject(hList1->FindObject("K0sTkEffPt")->GetName(), ksTkEffPt);
+  refdir->GetObject(hList1->FindObject("K0sTkEffVsPt")->GetName(), ksTkEffPt);
   ksTkEffPt->GetYaxis()->SetRangeUser(0, 1.1);
   ksTkEffPt->GetYaxis()->SetTitle("K^{0}_{S} Tracking Efficiency vs p_{T}");
   ksTkEffPt->GetYaxis()->SetTitleSize(0.05);
