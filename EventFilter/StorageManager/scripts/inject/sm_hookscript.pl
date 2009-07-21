@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.14 2009/03/27 10:29:33 jserrano Exp $
+# $Id: sm_hookscript.pl,v 1.15 2009/05/12 06:56:59 loizides Exp $
 ################################################################################
 
 use strict;
@@ -32,7 +32,7 @@ my $copydelay   = 3;
 # special treatment for EcalCalibration
 my $doca = $ENV{'SM_CALIB_NFS'};
 
-if($fields[3] eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
+if ($fields[3] eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
     if (defined $doca) {
         my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
         my $copyresult = 1;
@@ -57,6 +57,13 @@ if (defined $dola) {
         my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10';
         system($COPYCOMMAND);
     }
+}
+
+if ($stream =~ '_NoTransfer$') {
+    $filename =~ s/.dat$/.*/;
+    my $RMCOMMAND = 'rm -f $SM_PATHNAME/'.$filename;
+    system($RMCOMMAND);
+    exit 0;
 }
 
 exit 0;

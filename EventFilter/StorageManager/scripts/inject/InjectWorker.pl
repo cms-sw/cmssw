@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.35 2009/05/12 06:56:29 loizides Exp $
+# $Id: InjectWorker.pl,v 1.36 2009/05/14 13:33:33 loizides Exp $
 
 use warnings;
 use strict;
@@ -214,6 +214,7 @@ sub inject($$)
     # redirect setuplabel/streams to different destinations according to 
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     return 0 if ($stream eq 'EcalCalibration' || $stream =~ '_EcalNFS$'); #skip EcalCalibration
+    return 0 if ($stream =~ '_NoTransfer$'); #skip if NoTransfer option is set
 
     if ($setuplabel =~ 'TransferTest' || $stream =~ '_TransferTest$') {
 	$destination = 'TransferTest'; # transfer but delete after
