@@ -27,25 +27,35 @@ myanalyzer = cms.EDFilter("CaloTowersValidation",
 
 DQM.collectorHost = ''
 
-#--- DigiToRaw
+#--- DigiToRaw <-> RawToDigi
 from Configuration.StandardSequences.DigiToRaw_cff import *
-ecalPacker.Label = 'simEcalDigis'
-ecalPacker.InstanceEB = 'ebDigis'
-ecalPacker.InstanceEE = 'eeDigis'
-ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
-ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
-#--- RawToDigi
 from Configuration.StandardSequences.RawToDigi_cff  import *
-hcalDigis.InputLabel = 'hcalRawData'
-ecalDigis.InputLabel = 'ecalPacker'
+
+### Special - CaloOnly ---------------------------------------------------
+ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
+ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("ecalPreshowerDigis") 
+hbhereco.digiLabel = cms.InputTag("hcalDigis")
+horeco.digiLabel   = cms.InputTag("hcalDigis")
+hfreco.digiLabel   = cms.InputTag("hcalDigis")
+ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
+ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
+ecalRecHit.recoverEBFE = cms.bool(False)
+ecalRecHit.recoverEEFE = cms.bool(False)
+
 
 p = cms.Path(
  mix *
  calDigi *
- ecalPacker * hcalRawData *
- ecalDigis * hcalDigis *
- ecalGlobalUncalibRecHit * ecalDetIdToBeRecovered * ecalRecHit *
- hbhereco * horeco * hfreco *
+ ecalPacker *
+ esDigiToRaw *
+ hcalRawData *
+ rawDataCollector *
+ ecalDigis *
+ ecalPreshowerDigis *
+ hcalDigis *
+ calolocalreco *
  caloTowersRec *
- myanalyzer)
+ myanalyzer
+)
 

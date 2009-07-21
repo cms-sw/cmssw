@@ -47,17 +47,23 @@ VtxSmeared.SigmaY = 0.00001
 VtxSmeared.SigmaZ = 0.00001
 
 
-#--- DigiToRaw
+#--- DigiToRaw <-> RawToDigi
 from Configuration.StandardSequences.DigiToRaw_cff import *
-ecalPacker.Label = 'simEcalDigis'
-ecalPacker.InstanceEB = 'ebDigis'
-ecalPacker.InstanceEE = 'eeDigis'
-ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
-ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
-#--- RawToDigi
 from Configuration.StandardSequences.RawToDigi_cff  import *
-hcalDigis.InputLabel = 'hcalRawData'
-ecalDigis.InputLabel = 'ecalPacker'
+
+
+### Special - CaloOnly ---------------------------------------------------
+ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
+ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("ecalPreshowerDigis") 
+hbhereco.digiLabel = cms.InputTag("hcalDigis")
+horeco.digiLabel   = cms.InputTag("hcalDigis")
+hfreco.digiLabel   = cms.InputTag("hcalDigis")
+ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
+ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
+ecalRecHit.recoverEBFE = cms.bool(False)
+ecalRecHit.recoverEEFE = cms.bool(False)
+
 
 
 
