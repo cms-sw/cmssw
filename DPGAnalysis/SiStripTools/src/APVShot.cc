@@ -51,4 +51,6 @@ const float APVShot::median() const { return _median; }
 
 const int APVShot::subDet() const { return _detid.subdetId(); }
 
+const unsigned int APVShot::detId() const { return _detid.rawId(); }
+
 const int APVShot::_threshold = 64;

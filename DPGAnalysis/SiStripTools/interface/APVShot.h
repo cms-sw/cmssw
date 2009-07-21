@@ -20,6 +20,7 @@ class APVShot {
   const int nStrips() const;
   const float median() const;
   const int subDet() const;
+  const unsigned int detId() const;
 
  private:
 
