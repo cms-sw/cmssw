@@ -6,10 +6,10 @@ SiStripO2OCalibrationFactors = cms.PSet(
     DefaultNoise=cms.untracked.double(51),
     DefaultThresholdLow=cms.untracked.double(2),
     DefaultThresholdHigh=cms.untracked.double(5),
-    DefaultTickHeight=cms.untracked.double(640),
+    DefaultTickHeight=cms.untracked.double(690),
 
     # Normalization Factor needed to convert Tick Height to Gain
-    GainNormalizationFactor=cms.untracked.double(640)
+    GainNormalizationFactor=cms.untracked.double(690)
     
     )
 
