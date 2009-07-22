@@ -41,8 +41,8 @@ Level1TriggerScalers::Level1TriggerScalers():
   deadtimeBeamActivePrivateOrbit_(0),
   deadtimeBeamActivePartitionController_(0),
   deadtimeBeamActiveTimeSlot_(0),
-  gtAlgoCounts_(nL1Triggers),
-  gtTechCounts_(nL1TestTriggers),
+  gtAlgoCounts_(nLevel1Triggers),
+  gtTechCounts_(nLevel1TestTriggers)
 { 
 }
 
@@ -66,16 +66,46 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
     collectionTimeGeneral_.set_tv_nsec( 
       raw->trig.collectionTimeGeneral_nsec);
 
+    lumiSegmentNr_ = raw->trig.lumiSegmentNr;
+    lumiSegmentOrbits_ = raw->trig.lumiSegmentOrbits;
+    orbitNr_ = raw->trig.orbitNr;
+    gtPartition0Resets_ = raw->trig.gtPartition0Resets;
+    bunchCrossingErrors_ = raw->trig.bunchCrossingErrors;
+    gtPartition0Triggers_ = raw->trig.gtPartition0Triggers;
+    gtPartition0Events_ = raw->trig.gtPartition0Events;
+    prescaleIndexAlgo_ = raw->trig.prescaleIndexAlgo;
+    prescaleIndexTech_ = raw->trig.prescaleIndexTech;
+
     collectionTimeLumiSeg_.set_tv_sec( static_cast<long>(
       raw->trig.collectionTimeLumiSeg_sec));
     collectionTimeLumiSeg_.set_tv_nsec( 
       raw->trig.collectionTimeLumiSeg_nsec);
 
+    lumiSegmentNrLumiSeg_ = raw->trig.lumiSegmentNrLumiSeg;
+    triggersPhysicsGeneratedFDL_ = raw->trig.triggersPhysicsGeneratedFDL;
+    triggersPhysicsLost_ = raw->trig.triggersPhysicsLost;
+    triggersPhysicsLostBeamActive_ = raw->trig.triggersPhysicsLostBeamActive;
+    triggersPhysicsLostBeamInactive_ = 
+      raw->trig.triggersPhysicsLostBeamInactive;
+
+    l1AsPhysics_ = raw->trig.l1AsPhysics;
+    l1AsRandom_ = raw->trig.l1AsRandom;
+    l1AsTest_ = raw->trig.l1AsTest;
+    l1AsCalibration_ = raw->trig.l1AsCalibration;
+    deadtime_ = raw->trig.deadtime;
+    deadtimeBeamActive_ = raw->trig.deadtimeBeamActive;
+    deadtimeBeamActiveTriggerRules_ = raw->trig.deadtimeBeamActiveTriggerRules;
+    deadtimeBeamActiveCalibration_ = raw->trig.deadtimeBeamActiveCalibration;
+    deadtimeBeamActivePrivateOrbit_ = raw->trig.deadtimeBeamActivePrivateOrbit;
+    deadtimeBeamActivePartitionController_ = 
+      raw->trig.deadtimeBeamActivePartitionController;
+    deadtimeBeamActiveTimeSlot_ = raw->trig.deadtimeBeamActiveTimeSlot;
+
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
-    { triggers_.push_back( raw->trig.ALGO_RATE[i]);}
+    { gtAlgoCounts_.push_back( raw->trig.gtAlgoCounts[i]);}
 
     for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
-    { testTriggers_.push_back( raw->trig.TEST_RATE[i]);}
+    { gtTechCounts_.push_back( raw->trig.gtTechCounts[i]);}
   }
 }
 
@@ -97,98 +127,108 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  struct timespec secondsToHeaven = c.collectionTimeSummary();
+  struct timespec secondsToHeaven = c.collectionTimeGeneral();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTimeSummary: %s.%9.9d" , 
+  sprintf(line, " CollectionTimeGeneral: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
-  struct timespec secondsToHell= c.collectionTimeDetails();
+  struct timespec secondsToHell= c.collectionTimeLumiSeg();
   horaHell = gmtime(&secondsToHell.tv_sec);
   strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
-  sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
+  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
 	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,
-	  " LuminositySection: %15d  BunchCrossingErrors:      %15d",
-	  c.luminositySection(), c.bunchCrossingErrors());
+	  " LumiSegmentNr: %10d  LumiSegmentOrbits: %10d   OrbitNr: %10d",
+	  c.lumiSegmentNr(), c.lumiSegmentOrbits(), c.orbitNr());
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggerNumber:     %15d  EventNumber:              %15d",
-	  c.triggerNumber(), c.eventNumber());
+	  " GtPartition0Resets: %10d  BunchCrossingErrors: %10d",
+	  c.gtPartition0Resets(), c.bunchCrossingErrors());
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggersDistributed:    %10d  TriggersGenerated:        %15d",
-	  c.finalTriggersDistributed(), 
-	  c.finalTriggersGenerated());
+	  " PrescaleIndexAlgo: %10d   PrescaleIndexTech: %10d",
+	  c.prescaleIndexAlgo(), c.prescaleIndexTech());
   s << line << std::endl;
 
   sprintf(line,
-	  " TriggersInvalidBC: %15d  CalibrationTriggers:      %15d",
-	  c.finalTriggersInvalidBC(), c.calibrationTriggers());
+	  " GtPartition0Triggers:     %20llu  GtPartition0Events: %20llu",
+	  c.gtPartition0Triggers(), c.gtPartition0Events());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " TriggersPhysicsGeneratedFDL:     %20llu  TriggersPhysicsLost:              %20llu",
+	  c.triggersPhysicsGeneratedFDL(), c.triggersPhysicsLost());
   s << line << std::endl;
 
   sprintf(line,
-	  " TestTriggers:      %15d  RandomTriggers:           %15d",
-	  c.totalTestTriggers(), c.randomTriggers());
+	  " TriggersPhysicsLostBeamActive:  %20llu  TriggersPhysicsLostBeamInactive:  %20llu",
+	  c.triggersPhysicsLostBeamActive(), c.triggersPhysicsLostBeamInactive());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " L1AsPhysics:  %20llu  L1AsRandom:  %20llu",
+	  c.l1AsPhysics(), c.l1AsRandom());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " L1AsTest:  %20llu  L1AsCalibration:  %20llu",
+	  c.l1AsTest(), c.l1AsCalibration());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " Deadtime:  %20llu  DeadtimeBeamActive:  %20llu",
+	  c.deadtime(), c.deadtimeBeamActive());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " DeadtimeBeamActiveTriggerRules:  %20llu  DeadtimeBeamActiveCalibration:  %20llu",
+	  c.deadtimeBeamActiveTriggerRules(), c.deadtimeBeamActiveCalibration());
+  s << line << std::endl;
+
+
+  sprintf(line,
+	  " DeadtimeBeamActiveCalibration:  %20llu  DeadtimeBeamActivePrivateOrbit:  %20llu",
+	  c.deadtimeBeamActiveCalibration(), c.deadtimeBeamActivePrivateOrbit());
   s << line << std::endl;
 
   sprintf(line,
-	  " DeadTime:          %15d  DeadTimeActiveTimeSlot:   %15ld",
-	  c.numberResets(), (long int)c.deadTime());
+	  " DeadtimeBeamActivePartitionController:  %20llu  DeadtimeBeamActiveTimeSlot:  %20llu",
+	  c.deadtimeBeamActivePartitionController(), c.deadtimeBeamActiveTimeSlot());
   s << line << std::endl;
 
-  sprintf(line,
-	  " DeadTimeActive:    %15ld  DeadTimeActiveCalibration:%15ld",
-	  (long int)c.deadTimeActive(), 
-	  (long int)c.deadTimeActiveCalibration());
-  s << line << std::endl;
-
-  sprintf(line,
-	  " LostTriggers:      %15ld  DeadTimeActivePartition:  %15ld",
-	  (long int)c.lostFinalTriggers(), 
-	  (long int)c.deadTimeActivePartition());
-  s << line << std::endl;
-
-  sprintf(line,
-	  " LostTriggersActive:%15ld  DeadTimeActiveThrottle:   %15ld",
-	  (long int)c.lostFinalTriggersActive(),
-	  (long int)c.deadTimeActiveThrottle());
-  s << line << std::endl;
-
-  sprintf(line,
-	  " NumberResets:      %15d  DeadTimeActivePrivate:    %15ld",
-	  c.numberResets(),
-	  (long int)c.deadTimeActivePrivate());
-  s << line << std::endl;
-
-  s << "Physics Triggers" << std::endl;
-  std::vector<unsigned int> triggers = c.triggers();
-  int length = triggers.size() / 4;
+  std::vector<unsigned int> gtAlgoCounts = c.gtAlgoCounts();
+  int length = gtAlgoCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
     sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
-	    i,              triggers[i], 
-	    (i+length),     triggers[i+length], 
-	    (i+(length*2)), triggers[i+(length*2)], 
-	    (i+(length*3)), triggers[i+(length*3)]);
+	    i,              gtAlgoCounts[i], 
+	    (i+length),     gtAlgoCounts[i+length], 
+	    (i+(length*2)), gtAlgoCounts[i+(length*2)], 
+	    (i+(length*3)), gtAlgoCounts[i+(length*3)]);
     s << line << std::endl;
   }
 
-  s << "Test Triggers" << std::endl;
-  std::vector<unsigned int> testTriggers = c.testTriggers();
-  length = testTriggers.size() / 4;
+  s << "Test GtTechCounts" << std::endl;
+  std::vector<unsigned int> gtTechCounts = c.gtTechCounts();
+  length = gtTechCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
     sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
-	    i,              testTriggers[i], 
-	    (i+length),     testTriggers[i+length], 
-	    (i+(length*2)), testTriggers[i+(length*2)], 
-	    (i+(length*3)), testTriggers[i+(length*3)]);
+	    i,              gtTechCounts[i], 
+	    (i+length),     gtTechCounts[i+length], 
+	    (i+(length*2)), gtTechCounts[i+(length*2)], 
+	    (i+(length*3)), gtTechCounts[i+(length*3)]);
     s << line << std::endl;
   }
   return s;

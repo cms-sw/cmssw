@@ -28,6 +28,7 @@
 // Scalers classes
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
@@ -49,6 +50,7 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
 {
   produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
+  produces<Level1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
   if ( iConfig.exists("scalersInputTag") )
   {
@@ -72,7 +74,10 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
 
   std::auto_ptr<L1TriggerScalersCollection> 
-    pTrigger(new L1TriggerScalersCollection());
+    pOldTrigger(new L1TriggerScalersCollection());
+
+  std::auto_ptr<Level1TriggerScalersCollection> 
+    pTrigger(new Level1TriggerScalersCollection());
 
   std::auto_ptr<L1AcceptBunchCrossingCollection> 
     pBunch(new L1AcceptBunchCrossingCollection());
@@ -82,7 +87,10 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {
-    L1TriggerScalers triggerScalers(fedData.data());
+    L1TriggerScalers oldTriggerScalers(fedData.data());
+    pOldTrigger->push_back(oldTriggerScalers);
+
+    Level1TriggerScalers triggerScalers(fedData.data());
     pTrigger->push_back(triggerScalers);
 
     LumiScalers      lumiScalers(fedData.data());
@@ -104,6 +112,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       }
     }
   }
+  iEvent.put(pOldTrigger); 
   iEvent.put(pTrigger); 
   iEvent.put(pLumi); 
   iEvent.put(pBunch);

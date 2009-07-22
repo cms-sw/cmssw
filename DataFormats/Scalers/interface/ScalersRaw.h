@@ -70,6 +70,43 @@ struct TriggerScalersRaw_v1
   unsigned int       TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
+struct TriggerScalersRaw_v3
+{
+  unsigned int  collectionTimeGeneral_sec;
+  unsigned int  collectionTimeGeneral_nsec;
+  unsigned int lumiSegmentNr;
+  unsigned int lumiSegmentOrbits;
+  unsigned int orbitNr;
+  unsigned int gtPartition0Resets;
+  unsigned int bunchCrossingErrors;
+  unsigned long long gtPartition0Triggers;
+  unsigned long long gtPartition0Events;
+  int prescaleIndexAlgo;
+  int prescaleIndexTech;
+
+  unsigned int collectionTimeLumiSeg_sec;
+  unsigned int collectionTimeLumiSeg_nsec;
+  unsigned int lumiSegmentNrLumiSeg;
+  unsigned long long triggersPhysicsGeneratedFDL;
+  unsigned long long triggersPhysicsLost;
+  unsigned long long triggersPhysicsLostBeamActive;
+  unsigned long long triggersPhysicsLostBeamInactive;
+  unsigned long long l1AsPhysics;
+  unsigned long long l1AsRandom;
+  unsigned long long l1AsTest;
+  unsigned long long l1AsCalibration;
+  unsigned long long deadtime;
+  unsigned long long deadtimeBeamActive;
+  unsigned long long deadtimeBeamActiveTriggerRules;
+  unsigned long long deadtimeBeamActiveCalibration;
+  unsigned long long deadtimeBeamActivePrivateOrbit;
+  unsigned long long deadtimeBeamActivePartitionController;
+  unsigned long long deadtimeBeamActiveTimeSlot;
+
+  unsigned int gtAlgoCounts[ScalersRaw::N_L1_TRIGGERS_v1];
+  unsigned int gtTechCounts[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
+};
+
 struct LumiScalersRaw_v1
 {
   unsigned int collectionTime_sec;
@@ -122,6 +159,17 @@ struct ScalersEventRecordRaw_v2
   unsigned long long header;
   int version;
   struct TriggerScalersRaw_v1 trig;
+  struct LumiScalersRaw_v1    lumi;
+  unsigned int filler;
+  unsigned long long bx[ScalersRaw::N_BX_v2];
+  unsigned long long trailer;
+};
+
+struct ScalersEventRecordRaw_v3
+{
+  unsigned long long header;
+  int version;
+  struct TriggerScalersRaw_v3 trig;
   struct LumiScalersRaw_v1    lumi;
   unsigned int filler;
   unsigned long long bx[ScalersRaw::N_BX_v2];

@@ -11,6 +11,8 @@
 #include <ostream>
 #include <vector>
 
+#include "DataFormats/Scalers/interface/TimeSpec.h"
+
 /*! \file Level1TriggerScalers.h
  * \Header file for Level 1 Global Trigger Scalers
  * 
@@ -51,7 +53,7 @@ class Level1TriggerScalers
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
   struct timespec collectionTimeGeneral() const
-  { return(collectionTimeGeneral_);}
+  { return(collectionTimeGeneral_.get_timespec());}
 
   unsigned int lumiSegmentNr() const        { return(lumiSegmentNr_);}
   unsigned int lumiSegmentOrbits() const    { return(lumiSegmentOrbits_);}
@@ -59,19 +61,18 @@ class Level1TriggerScalers
 
   unsigned int gtPartition0Resets() const   { return(gtPartition0Resets_);}
   unsigned int bunchCrossingErrors() const  { return(bunchCrossingErrors_);}
-  unsigned int gtPartition0Triggers() const { return(gtPartition0Triggers_);}
-  unsigned int gtPartition0Events() const   { return(gtPartition0Events_);}
+  unsigned long long gtPartition0Triggers() const 
+  { return(gtPartition0Triggers_);}
+  unsigned long long gtPartition0Events() const   
+  { return(gtPartition0Events_);}
   int prescaleIndexAlgo() const             { return(prescaleIndexAlgo_);}
   int prescaleIndexTech() const             { return(prescaleIndexTech_);}
 
   struct timespec collectionTimeLumiSeg() const 
-  { return(collectionTimeLumiSeg_);}
+  { return(collectionTimeLumiSeg_.get_timespec());}
 
   unsigned int lumiSegmentNrLumiSeg() const      
   { return(lumiSegmentNrLumiSeg_);}
-
-  unsigned long long () const  
-  { return(_);}
 
   unsigned long long triggersPhysicsGeneratedFDL() const 
   { return(triggersPhysicsGeneratedFDL_);}
@@ -124,18 +125,19 @@ protected:
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  struct timespec    collectionTimeGeneral_;
+  TimeSpec    collectionTimeGeneral_;
   unsigned int lumiSegmentNr_;
   unsigned int lumiSegmentOrbits_;
   unsigned int orbitNr_;
   unsigned int gtPartition0Resets_;
   unsigned int bunchCrossingErrors_;
-  unsigned int gtPartition0Triggers_;
-  unsigned int gtPartition0Events_;
+  unsigned long long gtPartition0Triggers_;
+  unsigned long long gtPartition0Events_;
   int prescaleIndexAlgo_;
   int prescaleIndexTech_;
 
-  struct timespec    collectionTimeLumiSeg_;
+  TimeSpec    collectionTimeLumiSeg_;
+  unsigned int lumiSegmentNrLumiSeg_;
   unsigned long long triggersPhysicsGeneratedFDL_;
   unsigned long long triggersPhysicsLost_;
   unsigned long long triggersPhysicsLostBeamActive_;
