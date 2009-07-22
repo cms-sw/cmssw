@@ -1,51 +1,57 @@
 
 /*
- *   File: DataFormats/Scalers/src/L1TriggerScalers.cc   (W.Badgett)
+ *   File: DataFormats/Scalers/src/Level1TriggerScalers.cc   (W.Badgett)
  */
 
-#include "DataFormats/Scalers/interface/L1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
-#include <cstdio>
+#include <time.h>
 
-L1TriggerScalers::L1TriggerScalers():
+Level1TriggerScalers::Level1TriggerScalers():
   version_(0),
-  collectionTimeSpecial_(0,0),
-  orbitNumber_(0),
-  luminositySection_(0),
+  trigType_(0),
+  eventID_(0),
+  sourceID_(0),
+  bunchNumber_(0),
+  collectionTimeGeneral_(0,0),
+  lumiSegmentNr_(0),
+  lumiSegmentOrbits_(0),
+  orbitNr_(0),
+  gtPartition0Resets_(0),
   bunchCrossingErrors_(0),
-  collectionTimeSummary_(0,0),
-  triggerNumber_(0),
-  eventNumber_(0),
-  finalTriggersDistributed_(0),
-  calibrationTriggers_(0),
-  randomTriggers_(0),
-  totalTestTriggers_(0),
-  finalTriggersGenerated_(0),
-  finalTriggersInvalidBC_(0),
-  deadTime_(0),
-  lostFinalTriggers_(0),
-  deadTimeActive_(0),
-  lostFinalTriggersActive_(0),
-  deadTimeActivePrivate_(0),
-  deadTimeActivePartition_(0),
-  deadTimeActiveThrottle_(0),
-  deadTimeActiveCalibration_(0),
-  deadTimeActiveTimeSlot_(0),
-  numberResets_(0),
-  collectionTimeDetails_(0,0),
-  triggers_(nL1Triggers),
-  testTriggers_(nL1TestTriggers)
+  gtPartition0Triggers_(0),
+  gtPartition0Events_(0),
+  prescaleIndexAlgo_(0),
+  prescaleIndexTech_(0),
+  collectionTimeLumiSeg_(0,0),
+  triggersPhysicsGeneratedFDL_(0),
+  triggersPhysicsLost_(0),
+  triggersPhysicsLostBeamActive_(0),
+  triggersPhysicsLostBeamInactive_(0),
+  l1AsPhysics_(0),
+  l1AsRandom_(0),
+  l1AsTest_(0),
+  l1AsCalibration_(0),
+  deadtime_(0),
+  deadtimeBeamActive_(0),
+  deadtimeBeamActiveTriggerRules_(0),
+  deadtimeBeamActiveCalibration_(0),
+  deadtimeBeamActivePrivateOrbit_(0),
+  deadtimeBeamActivePartitionController_(0),
+  deadtimeBeamActiveTimeSlot_(0),
+  gtAlgoCounts_(nL1Triggers),
+  gtTechCounts_(nL1TestTriggers),
 { 
 }
 
-L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
+Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 { 
-  L1TriggerScalers();
+  Level1TriggerScalers();
 
-  ScalersEventRecordRaw_v1 * raw 
-    = (struct ScalersEventRecordRaw_v1 *)rawData;
+  ScalersEventRecordRaw_v3 * raw 
+    = (struct ScalersEventRecordRaw_v3 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
@@ -53,46 +59,17 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
   version_ = raw->version;
-  if ( ( version_ == 1 ) || ( version_ == 2 ) )
+  if ( version_ >= 3 )
   {
-    collectionTimeSpecial_.set_tv_sec( static_cast<long>(
-      raw->trig.collectionTimeSpecial_sec));
-    collectionTimeSpecial_.set_tv_nsec( 
-      raw->trig.collectionTimeSpecial_nsec);
-    orbitNumber_               = raw->trig.ORBIT_NUMBER;
-    luminositySection_         = raw->trig.LUMINOSITY_SEGMENT;
-    bunchCrossingErrors_       = raw->trig.BC_ERRORS;
+    collectionTimeGeneral_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTimeGeneral_sec));
+    collectionTimeGeneral_.set_tv_nsec( 
+      raw->trig.collectionTimeGeneral_nsec);
 
-    collectionTimeSummary_.set_tv_sec( static_cast<long>(
-      raw->trig.collectionTimeSummary_sec));
-    collectionTimeSummary_.set_tv_nsec( 
-      raw->trig.collectionTimeSummary_nsec);
-
-    triggerNumber_             = raw->trig.TRIGGER_NR;
-    eventNumber_               = raw->trig.EVENT_NR;
-    finalTriggersDistributed_  = raw->trig.FINOR_DISTRIBUTED;
-    calibrationTriggers_       = raw->trig.CAL_TRIGGER;
-    randomTriggers_            = raw->trig.RANDOM_TRIGGER;
-    totalTestTriggers_         = raw->trig.TEST_TRIGGER;
-
-    finalTriggersGenerated_    = raw->trig.FINOR_GENERATED;
-    finalTriggersInvalidBC_    = raw->trig.FINOR_IN_INVALID_BC;
-
-    deadTime_                  = raw->trig.DEADTIME;
-    lostFinalTriggers_         = raw->trig.LOST_FINOR;
-    deadTimeActive_            = raw->trig.DEADTIMEA;
-    lostFinalTriggersActive_   = raw->trig.LOST_FINORA;
-    deadTimeActivePrivate_     = raw->trig.PRIV_DEADTIMEA;
-    deadTimeActivePartition_   = raw->trig.PTCSTATUS_DEADTIMEA;
-    deadTimeActiveThrottle_    = raw->trig.THROTTLE_DEADTIMEA;
-    deadTimeActiveCalibration_ = raw->trig.CALIBRATION_DEADTIMEA;
-    deadTimeActiveTimeSlot_    = raw->trig.TIMESLOT_DEADTIMEA;
-    numberResets_              = raw->trig.NR_OF_RESETS;
-
-    collectionTimeDetails_.set_tv_sec( static_cast<long>(
-      raw->trig.collectionTimeDetails_sec));
-    collectionTimeDetails_.set_tv_nsec(
-      raw->trig.collectionTimeDetails_nsec);
+    collectionTimeLumiSeg_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTimeLumiSeg_sec));
+    collectionTimeLumiSeg_.set_tv_nsec( 
+      raw->trig.collectionTimeLumiSeg_nsec);
 
     for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
     { triggers_.push_back( raw->trig.ALGO_RATE[i]);}
@@ -102,45 +79,36 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   }
 }
 
-L1TriggerScalers::~L1TriggerScalers() { } 
+Level1TriggerScalers::~Level1TriggerScalers() { } 
 
 
-/// Pretty-print operator for L1TriggerScalers
-std::ostream& operator<<(std::ostream& s,L1TriggerScalers const &c) 
+/// Pretty-print operator for Level1TriggerScalers
+std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c) 
 {
-  s << "L1TriggerScalers    Version:" << c.version() <<
+  s << "Level1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
   char line[128];
   char zeitHeaven[128];
   char zeitHell[128];
-  char zeitLimbo[128];
   struct tm * horaHeaven;
   struct tm * horaHell;
-  struct tm * horaLimbo;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  timespec secondsToHeaven = c.collectionTimeSummary();
+  struct timespec secondsToHeaven = c.collectionTimeSummary();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
   sprintf(line, " CollectionTimeSummary: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
-  timespec secondsToHell= c.collectionTimeSpecial();
+  struct timespec secondsToHell= c.collectionTimeDetails();
   horaHell = gmtime(&secondsToHell.tv_sec);
   strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
-  sprintf(line, " CollectionTimeSpecial: %s.%9.9d" , 
-	  zeitHell, (int)secondsToHell.tv_nsec);
-  s << line << std::endl;
-
-  timespec secondsToLimbo= c.collectionTimeDetails();
-  horaLimbo = gmtime(&secondsToLimbo.tv_sec);
-  strftime(zeitLimbo, sizeof(zeitLimbo), "%Y.%m.%d %H:%M:%S", horaLimbo);
   sprintf(line, " CollectionTimeDetails: %s.%9.9d" , 
-	  zeitLimbo, (int)secondsToLimbo.tv_nsec);
+	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,
