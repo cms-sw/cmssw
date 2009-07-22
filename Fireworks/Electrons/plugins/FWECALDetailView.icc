@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.17 2009/07/20 14:08:46 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.18 2009/07/20 15:06:19 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -57,10 +57,12 @@ FWECALDetailView<T>::~FWECALDetailView ()
 template <typename T>
 void  FWECALDetailView<T>::clearOverlayElements()
 {
-   TGLViewer* v =  FWDetailViewBase::viewer();
+   TGLOverlayElement* ov;
    for(std::vector<TGLOverlayElement* >::iterator it = m_overlays.begin();  it != m_overlays.end(); it++)
    {
-      v->RemoveOverlayElement(*it);
+      ov = *it;
+      TEveCaloLegoOverlay* lo = dynamic_cast<TEveCaloLegoOverlay*>(ov);
+      if (lo) FWDetailViewBase::viewer()->RemoveOverlayElement(ov);
    }
    m_overlays.clear();
 }
@@ -220,11 +222,13 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
+   gEve->AddElement(overlay, tList);
    FWDetailViewBase::viewer()->AddOverlayElement(overlay);
    m_overlays.push_back(overlay);
 
    // set event handler and flip camera to top view at beginning
    FWDetailViewBase::viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   //   FWDetailViewBase::viewer()->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
    TGLViewer* fwdv =  FWDetailViewBase::viewer();
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)fwdv->GetGLWidget(), (TObject*)fwdv);
    fwdv->SetEventHandler(eh);
