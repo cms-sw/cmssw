@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMuonDetailView.cc,v 1.3 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.4 2009/04/16 20:39:57 amraktad Exp $
 //
 
 // system include files
@@ -399,7 +399,9 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
       if ( !matches.empty() ) muonList->AddElement( segmentSet.release() );
       if (outerTrack) outerTrack->MakeTrack();
    }
-   viewer()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
+
+   FWDetailViewBase::viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   // viewer()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    return tList;
 }
 
