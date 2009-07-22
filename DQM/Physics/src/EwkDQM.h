@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/16 13:21:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/17 20:17:09 $
+ *  $Revision: 1.4 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -61,6 +61,7 @@ class EwkDQM : public edm::EDAnalyzer {
   MonitorElement* h_mumu_invMass;
   MonitorElement* h_ee_invMass;
   MonitorElement* h_jet_et;
+  MonitorElement* h_jet2_et;
   MonitorElement* h_jet_count;
 //WCP: Adding a Histo
   MonitorElement* h_e1_et;
