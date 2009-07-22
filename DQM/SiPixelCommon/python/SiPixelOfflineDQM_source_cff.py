@@ -31,11 +31,11 @@ SiPixelTrackResidualSource_Cosmics.saveFile = False
 #RawDataErrors
 SiPixelRawDataErrorSource.modOn = False
 SiPixelRawDataErrorSource.ladOn = True
-SiPixelRawDataErrorSource.layOn = True
-SiPixelRawDataErrorSource.phiOn = True
+SiPixelRawDataErrorSource.layOn = False
+SiPixelRawDataErrorSource.phiOn = False
 SiPixelRawDataErrorSource.bladeOn = True
-SiPixelRawDataErrorSource.diskOn = True
-SiPixelRawDataErrorSource.ringOn = True
+SiPixelRawDataErrorSource.diskOn = False
+SiPixelRawDataErrorSource.ringOn = False
 #Digi
 SiPixelDigiSource.modOn = False
 SiPixelDigiSource.twoDimOn = False
@@ -43,46 +43,46 @@ SiPixelDigiSource.reducedSet = True
 SiPixelDigiSource.hiRes = False
 SiPixelDigiSource.ladOn = True
 SiPixelDigiSource.layOn = True
-SiPixelDigiSource.phiOn = True
+SiPixelDigiSource.phiOn = False
 SiPixelDigiSource.bladeOn = True
 SiPixelDigiSource.diskOn = True
-SiPixelDigiSource.ringOn = True
+SiPixelDigiSource.ringOn = False
 #Cluster
 SiPixelClusterSource.modOn = False
 SiPixelClusterSource.twoDimOn = False
 SiPixelClusterSource.reducedSet = True
 SiPixelClusterSource.ladOn = True
 SiPixelClusterSource.layOn = True
-SiPixelClusterSource.phiOn = True
+SiPixelClusterSource.phiOn = False
 SiPixelClusterSource.bladeOn = True
 SiPixelClusterSource.diskOn = True
-SiPixelClusterSource.ringOn = True
+SiPixelClusterSource.ringOn = False
 #RecHit
 SiPixelRecHitSource.modOn = False
 SiPixelRecHitSource.twoDimOn = False
 SiPixelRecHitSource.reducedSet = True
 SiPixelRecHitSource.ladOn = True
 SiPixelRecHitSource.layOn = True
-SiPixelRecHitSource.phiOn = True	
+SiPixelRecHitSource.phiOn = False	
 SiPixelRecHitSource.bladeOn = True
 SiPixelRecHitSource.diskOn = True
-SiPixelRecHitSource.ringOn = True
+SiPixelRecHitSource.ringOn = False
 
 #Track
 SiPixelTrackResidualSource.modOn = False
 SiPixelTrackResidualSource.ladOn = True
 SiPixelTrackResidualSource.layOn = True
-SiPixelTrackResidualSource.phiOn = True	
+SiPixelTrackResidualSource.phiOn = False	
 SiPixelTrackResidualSource.bladeOn = True
 SiPixelTrackResidualSource.diskOn = True
-SiPixelTrackResidualSource.ringOn = True
+SiPixelTrackResidualSource.ringOn = False
 SiPixelTrackResidualSource_Cosmics.modOn = False
 SiPixelTrackResidualSource_Cosmics.ladOn = True
 SiPixelTrackResidualSource_Cosmics.layOn = True
-SiPixelTrackResidualSource_Cosmics.phiOn = True	
+SiPixelTrackResidualSource_Cosmics.phiOn = False	
 SiPixelTrackResidualSource_Cosmics.bladeOn = True
 SiPixelTrackResidualSource_Cosmics.diskOn = True
-SiPixelTrackResidualSource_Cosmics.ringOn = True
+SiPixelTrackResidualSource_Cosmics.ringOn = False
 
 #DQM service
 dqmInfo = cms.EDFilter("DQMEventInfo",
