@@ -159,6 +159,8 @@ bool FEDErrors::failUnpackerFEDCheck(const FEDRawData & fedData)
   return lFail;
 }
 
+
+
 bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData, 
 			      bool & aFullDebug,
 			      const unsigned int aPrintDebug
@@ -211,9 +213,6 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   std::auto_ptr<const sistrip::FEDBuffer> buffer;
   buffer.reset(new sistrip::FEDBuffer(aFedData.data(),aFedData.size(),true));
 
-  //std::ostringstream lMode;
-  //lMode << buffer->readoutMode();
-  
   //payload checks
   if (!this->anyFEDErrors()) {
     //corrupt buffer checks
@@ -363,7 +362,9 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     lChErr.Unlocked = false;
     lChErr.OutOfSync = false;
 
-
+    //std::ostringstream lMode;
+    //lMode << aBuffer->readoutMode();
+  
     bool lFirst = true;
 
     for (unsigned int iAPV = 0; iAPV < 2; iAPV++) {//loop on APVs
