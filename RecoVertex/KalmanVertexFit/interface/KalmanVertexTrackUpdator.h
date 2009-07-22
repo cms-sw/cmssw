@@ -53,7 +53,8 @@ public:
   }
 
   typedef ROOT::Math::SMatrix<double,3,N-2,ROOT::Math::MatRepStd<double,3,N-2> > AlgebraicMatrix3M;
-  typedef std::pair< RefCountedRefittedTrackState, AlgebraicMatrix3M > trackMatrixPair; 
+  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
+  typedef std::pair< RefCountedRefittedTrackState, AlgebraicSymMatrixOO > trackMatrixPair; 
 
   /**
    *   Refit of the track with the vertex constraint.

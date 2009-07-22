@@ -39,7 +39,7 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
   typedef ROOT::Math::SMatrix<double,N,N-2,ROOT::Math::MatRepStd<double,N,N-2> > AlgebraicMatrixNM;
   typedef ROOT::Math::SMatrix<double,N-2,3,ROOT::Math::MatRepStd<double,N-2,3> > AlgebraicMatrixM3;
   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
-  typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
+//   typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepSym<double,N+1> > AlgebraicSymMatrixOO;
   typedef ROOT::Math::SMatrix<double,N+1,N+1,ROOT::Math::MatRepStd<double,N+1,N+1> > AlgebraicMatrixOO;
   typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
 
@@ -91,8 +91,8 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
   RefCountedRefittedTrackState refittedTrackState = linTrackState->
 	createRefittedTrackState(vertexPosition, newTrackMomentumP, covSymMatrix);
 
-  return pair<RefCountedRefittedTrackState, AlgebraicMatrix3M>
-  		(refittedTrackState, refittedPositionMomentumConvariance);
+  return trackMatrixPair(refittedTrackState, covSymMatrix);
+//   		(refittedTrackState, refittedPositionMomentumConvariance);
 } 
 
 template class KalmanVertexTrackUpdator<5>;
