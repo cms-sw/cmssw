@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/06/22 15:58:20 $
- * $Revision: 1.41 $
+ * $Date: 2009/06/23 09:48:55 $
+ * $Revision: 1.42 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.42  2009/06/23 09:48:55  tapper
+ * Added missing occupancy plot for central and forward jets.
+ *
  * Revision 1.41  2009/06/22 15:58:20  tapper
  * Added MET vs MHT correlation plots (both for magnitude and phi). Still untested!
  *
@@ -252,13 +255,13 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 					ETABINS, ETAMIN, ETAMAX,
 					PHIBINS, PHIMIN, PHIMAX); 
     l1GctTauJetsEtEtaPhi_ = dbe->book2D("TauJetsEtEtaPhi", "TAU JET RANK", 
-					ETABINS, ETAMIN, ETAMAX,
+					14, 3.5, 17.5,
 					PHIBINS, PHIMIN, PHIMAX); 
     l1GctIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM RANK", 
-                                        ETABINS, ETAMIN, ETAMAX,
+                                        14, 3.5, 17.5,
                                         PHIBINS, PHIMIN, PHIMAX); 		    
     l1GctNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
-                                           ETABINS, ETAMIN, ETAMAX,
+                                           14, 3.5, 17.5,
                                            PHIBINS, PHIMIN, PHIMAX); 
     l1GctAllJetsOccEtaPhi_ = dbe->book2D("AllJetsOccEtaPhi", "CENTRAL AND FORWARD JET OCCUPANCY",
 					ETABINS, ETAMIN, ETAMAX,
@@ -270,13 +273,13 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 					 ETABINS, ETAMIN, ETAMAX,
 					 PHIBINS, PHIMIN, PHIMAX);
     l1GctTauJetsOccEtaPhi_ = dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-					 ETABINS, ETAMIN, ETAMAX,
+					 14, 3.5, 17.5,
 					 PHIBINS, PHIMIN, PHIMAX); 
     l1GctIsoEmOccEtaPhi_ = dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-				       ETABINS, ETAMIN, ETAMAX,
+				       14, 3.5, 17.5,
 				       PHIBINS, PHIMIN, PHIMAX); 
     l1GctNonIsoEmOccEtaPhi_ = dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-					  ETABINS, ETAMIN, ETAMAX,
+					  14, 3.5, 17.5,
 					  PHIBINS, PHIMIN, PHIMAX); 
 
     l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",

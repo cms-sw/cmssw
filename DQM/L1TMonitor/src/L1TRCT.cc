@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/07/02 11:45:52 $
- * $Revision: 1.15 $
+ * $Date: 2008/11/08 08:45:42 $
+ * $Revision: 1.16 $
  * \author P. Wittich
  *
  */
@@ -103,17 +103,17 @@ void L1TRCT::beginJob(const EventSetup & c)
     dbe->setCurrentFolder("L1T/L1TRCT");
 
     rctIsoEmEtEtaPhi_ =
-	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", 14, 3.5,
+		    17.5, PHIBINS, PHIMIN, PHIMAX);
     rctIsoEmOccEtaPhi_ =
-	dbe->book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+	dbe->book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", 14,
+		    3.5, 17.5, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmEtEtaPhi_ =
-	dbe->book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS,
-		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+	dbe->book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", 14,
+		    3.5, 17.5, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmOccEtaPhi_ =
 	dbe->book2D("RctEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+		    14, 3.5, 17.5, PHIBINS, PHIMIN, PHIMAX);
 
     // global regions
     rctRegionsEtEtaPhi_ =
