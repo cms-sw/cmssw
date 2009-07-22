@@ -5,7 +5,7 @@
 //   Description: DTTF Masks from OMDS
 //
 //
-//   $Date: 2008/05/29 10:15:02 $
+//   $Date: 2009/05/12 10:38:35 $
 //   $Revision: 1.2 $
 //
 //   Author :
@@ -224,7 +224,6 @@ void L1MuDTTFMasks::print() const {
   cout << endl;
   for( int i=-3; i<4; i++ ) {
     if ( i == 0 ) continue;
-    if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st1(i,j); }
     cout << endl; }
 
@@ -234,7 +233,6 @@ void L1MuDTTFMasks::print() const {
   cout << endl;
   for( int i=-3; i<4; i++ ) {
     if ( i == 0 ) continue;
-    if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st2(i,j); }
     cout << endl; }
 
@@ -244,7 +242,6 @@ void L1MuDTTFMasks::print() const {
   cout << endl;
   for( int i=-3; i<4; i++ ) {
     if ( i == 0 ) continue;
-    if ( i == 2 ) continue;
     for( int j=0; j<12; j++ ) { cout << " " << setw(1) << get_etsoc_chdis_st3(i,j); }
     cout << endl; }
 
