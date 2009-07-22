@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Wed Mar  7 08:31:57 CET 2007
-// $Id: RPCPhiEff.cc,v 1.2 2009/02/05 10:08:06 fruboes Exp $
+// $Id: RPCPhiEff.cc,v 1.3 2009/05/22 08:04:07 fruboes Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // constants, enums and typedefs
@@ -118,8 +119,30 @@ void
     int noOfRecMuons = 0;
     int noOfMatchedRecMuons = 0; 
 
-    bool firstRunForMuonMatchingCnt = true; 
+    bool firstRunForMuonMatchingCnt = true;
+
+    // ask MC muons to be separated
+    double deltarMin = -1;
     edm::SimTrackContainer::const_iterator simTrk = simTracks->begin();
+    for (; simTrk != simTracks->end(); ++simTrk) { 
+
+      if (simTrk->type() != -13 && simTrk->type()!=13) continue;
+
+      edm::SimTrackContainer::const_iterator simTrk2 = simTrk;
+      ++simTrk2;
+      for (; simTrk2 != simTracks->end(); ++simTrk2) { 
+        if (simTrk2->type() != -13 && simTrk2->type()!=13) continue;
+        double drCand = reco::deltaR(simTrk2->momentum(), simTrk->momentum());
+        if (drCand < deltarMin || deltarMin < 0) deltarMin = drCand;
+      }
+
+
+    }
+
+    //std::cout << deltarMin << std::endl;
+    if (deltarMin < 0.7 &&  deltarMin > 0) return;
+
+    simTrk = simTracks->begin();
     for (; simTrk != simTracks->end(); simTrk++) {
         int type = simTrk->type();
         if (type == 13 || type == -13) {
@@ -166,7 +189,7 @@ void
 
                      //std::cout << "phi " << phiGen << " " << phiHwGen << " " << phiRec
                      //          << " eta " << etaGen << " " << m_const.towerNumFromEta(etaGen) << " "<< towerRec << std::endl;
-                     if (  ( std::abs(phiHwGen-phiRec) < 20) && (std::abs(m_const.towerNumFromEta(etaGen)-towerRec)<3) )
+                     if (  ( std::abs(phiHwGen-phiRec) < 10) && (std::abs(m_const.towerNumFromEta(etaGen)-towerRec)<1) )
                      {
                          if (matched) { // we have matched m.c. earlier, this is ghost
                             ++ghost;
