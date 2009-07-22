@@ -10,7 +10,7 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: SISConeJetProducer.h,v 1.2 2007/07/01 04:56:52 fedor Exp $
+ * $Id: SISConeJetProducer.h,v 1.1 2007/06/30 17:24:07 fedor Exp $
  *
  ************************************************************/
 
@@ -33,7 +33,6 @@ namespace cms
 			       JetReco::OutputCollection* fOutput);
   private:
     SISConeAlgorithmWrapper alg_;
-    uint ncut_;
   };
 }
 

@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id$
+ * $Id: EventServer.h,v 1.12 2009/06/10 08:15:22 dshpakov Exp $
  */
 
 #include <sys/time.h>
@@ -24,7 +24,7 @@
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
 #include "EventFilter/StorageManager/interface/ForeverCounter.h"
 #include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
-#include "EventFilter/StorageManager/interface/RateLimiter.h"
+//#include "EventFilter/StorageManager/interface/RateLimiter.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "boost/random.hpp"
 #include "boost/shared_ptr.hpp"
@@ -93,7 +93,7 @@ namespace stor
     bool runFairShareAlgo_;
 
     // new fair-share scheme
-    boost::shared_ptr<RateLimiter> rateLimiter_;
+    //boost::shared_ptr<RateLimiter> rateLimiter_;
 
     // data members for deciding when to check for disconnected consumers
     int disconnectedConsumerTestCounter_;

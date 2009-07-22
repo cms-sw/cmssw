@@ -10,19 +10,17 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="False"
+FastSimUse="True"
 
 #Reference release
-NewRelease='CMSSW_3_1_1'
+NewRelease='CMSSW_3_1_0_pre9'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar','RelValZMM']
-#startupsamples= ['']
+startupsamples= ['RelValTTbar']
 
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
-#idealsamples= ['RelValSingleMuPt10']
+idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
 
 
 
@@ -47,19 +45,18 @@ Tracksname=''
 Sequence='harvesting'
 
 Submit=False
-#DBS=False  # Ineffective...
 DBS=True
 OneAtATime=False
 
 # Ideal and Statup tags
-IdealTag='MC'
+IdealTag='IDEAL'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_31X_V1'
-StartupTagUse='STARTUP31X_V1'
+IdealTagUse='IDEAL_31X'
+StartupTagUse='STARTUP_31X'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='IDEAL_31X__noPU'
+ReferenceSelection='IDEAL_31X_noPU'
 StartupReferenceSelection='STARTUP_31X_noPU'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
@@ -68,9 +65,8 @@ if (FastSimUse=="True"):
 else:
     NewSelectionLabel=''
 
-#WorkDirBase = '/tmp/aperrott'
+WorkDirBase = '/tmp/aperrott'
 #WorkDirBase = '/afs/cern.ch/user/a/aeverett/scratch0'
-WorkDirBase = '/afs/cern.ch/user/a/aperrott/scratch0/'+NewRelease+'/src/Validation/RecoMuon/test'
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -86,13 +82,6 @@ Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 # template file names. Usually should not be changed.
 cfg='muonReleaseValidationFastSim_cfg.py'
 macro='macro/TrackValHistoPublisher.C'
-
-# Define a different process name for each sequence:
-ProcessName = 'MUVAL'
-if (Sequence=='harvesting'):
-    ProcessName = 'MUVALHV'
-elif (Sequence=='only_validation_and_TP'):
-    ProcessName = 'MUVALTP'
 
 
 #########################################################################
@@ -193,10 +182,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 # if not harvesting find secondary file names
                     if(dataset!="" and Sequence!="harvesting"):
                         print 'Getting secondary files'
-                        if (FastSimUse=="True"):
-                            cmd3=cmd
-                        else:
-                            cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
+                        cmd3=cmd
                         parentdataset=os.popen(cmd3).readline()
                         print 'Parent DataSet:  ', parentdataset, '\n'
                     
@@ -224,7 +210,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     else:
                         Nevents=Events[sample]
                     print 'line 199'
-                    symbol_map = { 'PROCESSNAME':ProcessName, 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )

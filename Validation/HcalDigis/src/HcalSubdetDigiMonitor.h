@@ -10,16 +10,9 @@ class HcalSubdetDigiMonitor
 public:
 
   HcalSubdetDigiMonitor(DQMStore* dbe, const std::string & subdet, int noise);
-
-  void fillmeAmplIetaIphi1(double v1, double v2, double v3)
-  {fillElements(meAmplIetaIphi1, v1, v2, v3);}
-  void fillmeAmplIetaIphi2(double v1, double v2, double v3)
-  {fillElements(meAmplIetaIphi2, v1, v2, v3);}
-  void fillmeAmplIetaIphi3(double v1, double v2, double v3)
-  {fillElements(meAmplIetaIphi3, v1, v2, v3);}
-  void fillmeAmplIetaIphi4(double v1, double v2, double v3)
-  {fillElements(meAmplIetaIphi4, v1, v2, v3);}  
-
+  void fillmeAmplIetaIphi(double v1, double v2, double v3)
+  {fillElements(meAmplIetaIphi, v1, v2, v3);}
+  
   void fillmeSumAmp(double v1)
   {fillElement(meSumAmp, v1);}
 
@@ -289,10 +282,7 @@ private:
   std::string subdet_;
   int noise_;
 
-  MonitorElement* meAmplIetaIphi1;
-  MonitorElement* meAmplIetaIphi2;
-  MonitorElement* meAmplIetaIphi3;
-  MonitorElement* meAmplIetaIphi4;
+  MonitorElement* meAmplIetaIphi;
   MonitorElement* meSumAmp;
   MonitorElement* menDigis;
 

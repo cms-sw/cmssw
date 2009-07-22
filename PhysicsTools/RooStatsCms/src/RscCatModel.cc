@@ -2,16 +2,8 @@
 #include "RooExponential.h"
 #include "RooGaussian.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscCatModel.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscCatModel.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscBaseModel.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/RscCatModel.h"
+#include "PhysicsTools/RooStatsCms/interface/RscBaseModel.h"
 
 
 RscCatModel::RscCatModel(TString theName, RooRealVar& theVar, RooArgSet* discVars)

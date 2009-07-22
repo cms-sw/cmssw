@@ -20,7 +20,11 @@ void run_app(TApplication &app, int argc, char **argv)
    pMain.reset();
 
    TEveManager::Terminate();
-   app.Terminate();
+
+   //the handler has a pointer back to TApplication so must be removed
+   TFileHandler* handler = gSystem->RemoveFileHandler(gXDisplay);
+   if(0!=handler) {gXDisplay=0;}
+   delete handler;
 }
 
 int main (int argc, char **argv)
@@ -31,10 +35,10 @@ int main (int argc, char **argv)
 
    // check root interactive promp
    bool isri = false;
+   const char* ropt = "-r";
    for (Int_t i =0; i<argc; i++)
    {
-      if (strncmp(argv[i], "-r", 2) == 0||
-	  strncmp(argv[i], "--root", 6) == 0)
+      if (strncmp(argv[i], ropt, 2) == 0)
       {
          isri=true;
          break;

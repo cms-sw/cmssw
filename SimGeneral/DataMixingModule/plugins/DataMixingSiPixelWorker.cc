@@ -99,24 +99,15 @@ namespace edm
 
 
 
-  void DataMixingSiPixelWorker::addSiPixelPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingSiPixelWorker::addSiPixelPileups(const int bcr, Event *e, unsigned int eventNr) {
   
-    LogDebug("DataMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("DataMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<PixelDigi> >(*ep, pixeldigi_collectionPile_ );
+    Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    if(inputPTR ) {
-
-      const edm::DetSetVector<PixelDigi>  *input = const_cast< edm::DetSetVector<PixelDigi> * >(inputPTR->product());
-
-
-
-      //   Handle< edm::DetSetVector<PixelDigi> >  input;
-
-      //   if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
+    if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();

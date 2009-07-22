@@ -69,7 +69,7 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       bool init_;
       int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
       int firstDAC_, nDAC_, isPed_, vDAC_[5]; 
-
+      int fed_rx_[56];
 };
 
 #endif

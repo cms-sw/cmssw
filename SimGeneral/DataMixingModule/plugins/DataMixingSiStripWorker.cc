@@ -46,8 +46,8 @@ namespace edm
 
     Sistripdigi_collectionSig_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionSig");
     SistripLabelSig_   = ps.getParameter<edm::InputTag>("SistripLabelSig");
-
-    SiStripPileInputTag_ = ps.getParameter<edm::InputTag>("SiStripPileInputTag");
+    Sistripdigi_collectionPile_   = ps.getParameter<edm::InputTag>("SistripdigiCollectionPile");
+    SistripLabelPile_   = ps.getParameter<edm::InputTag>("SistripLabelPile");
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
@@ -93,21 +93,14 @@ namespace edm
 
 
 
-  void DataMixingSiStripWorker::addSiStripPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
-    LogDebug("DataMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+  void DataMixingSiStripWorker::addSiStripPileups(const int bcr, Event *e, unsigned int eventNr) {
+    LogDebug("DataMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_ );
+    Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    if(inputPTR ) {
-
-      const edm::DetSetVector<SiStripDigi>  *input = const_cast< edm::DetSetVector<SiStripDigi> * >(inputPTR->product());
-
-      // Handle< edm::DetSetVector<SiStripDigi> >  input;
-
-      // if( e->getByLabel(Sistripdigi_collectionPile_.label(),SistripLabelPile_.label(),input) ) {
+    if( e->getByLabel(Sistripdigi_collectionPile_.label(),SistripLabelPile_.label(),input) ) {
 
       OneDetectorMap LocalMap;
 

@@ -22,7 +22,11 @@ Monitoring special quantities related to Tracker Alignment AlCaReco Production.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class TrackerGeometry;
+#include <TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h>
+
+#include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
+
+
 class DQMStore;
 
 class TkAlCaRecoMonitor : public edm::EDAnalyzer {

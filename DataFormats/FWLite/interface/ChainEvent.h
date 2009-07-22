@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.6 2009/07/12 05:09:08 srappocc Exp $
+// $Id: ChainEvent.h,v 1.3 2008/07/24 20:38:45 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -41,7 +41,6 @@ class ChainEvent
 {
 
    public:
-
       ChainEvent(const std::vector<std::string>& iFileNames);
       virtual ~ChainEvent();
 
@@ -51,8 +50,8 @@ class ChainEvent
       const ChainEvent& to(Long64_t iIndex);
 
       //Go to event by Run & Event number
-      const ChainEvent & to(edm::EventID id);
-      const ChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
+//      bool to(edm::EventID id);
+//      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
 
       /** Go to the very first Event*/
       const ChainEvent& toBegin();
@@ -61,7 +60,7 @@ class ChainEvent
       const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+      void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
@@ -79,25 +78,12 @@ class ChainEvent
         return event_->getTFile();
       }
 
-      Long64_t eventIndex() const { return eventIndex_; }
-
-      void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ){
-	event_->setGetter( getter );
-      }
-
-      Event const * event() const { return &*event_; }
-
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
       // ---------- member functions ---------------------------
 
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
-
    private:
-
-      friend class MultiChainEvent;
-
       ChainEvent(const Event&); // stop default
 
       const ChainEvent& operator=(const Event&); // stop default
@@ -110,7 +96,6 @@ class ChainEvent
       boost::shared_ptr<Event> event_;
       Long64_t eventIndex_;
       std::vector<Long64_t> accumulatedSize_;
-      boost::shared_ptr<edm::EDProductGetter> getter_;
 
 };
 

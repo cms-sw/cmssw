@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.132 $"
+__version__ = "$Revision: 1.133 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -327,6 +327,7 @@ class ConfigBuilder(object):
 	self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
 	self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
 	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
+	self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -344,6 +345,7 @@ class ConfigBuilder(object):
 	self.L1DefaultSeq=None
         self.HARVESTINGDefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
+	self.L1RecoDefaultSeq='L1Reco'
 	self.RECODefaultSeq='reconstruction'
 	self.POSTRECODefaultSeq=None
 	self.DQMDefaultSeq='DQMOffline'
@@ -554,6 +556,16 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.raw2digi_step)
         return
 
+    def prepare_L1Reco(self, sequence = "L1Reco"):
+        ''' Enrich the schedule with L1 reconstruction '''
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.L1RecoDefaultCFF)
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.L1Reco_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        self.schedule.append(self.process.L1Reco_step)
+        return
+
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         if ( len(sequence.split(','))==1 ):
@@ -716,7 +728,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.132 $"),
+              (version=cms.untracked.string("$Revision: 1.133 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -915,7 +927,7 @@ def addALCAPaths(process, listOfALCANames, definitionFile = "Configuration/Stand
     for alca in listOfALCANames:
        streamName = "ALCARECOStream%s" % alca	    
        stream = getattr(definitionModule, streamName)
-        for path in stream.paths:
+       for path in stream.paths:
             schedule.append(path)
 
     return 

@@ -3,15 +3,7 @@
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -38,15 +30,7 @@
      <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -71,15 +55,7 @@
      <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -106,15 +82,7 @@
      <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>

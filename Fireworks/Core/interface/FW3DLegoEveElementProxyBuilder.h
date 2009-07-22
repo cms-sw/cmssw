@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:18 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.5 2009/07/20 08:46:44 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.3 2008/11/06 22:05:22 amraktad Exp $
 //
 
 // system include files
@@ -57,7 +57,9 @@ private:
    virtual void itemBeingDestroyedImp(const FWEventItem*);
 
    // ---------- member data --------------------------------
-   TEveElementList* m_elementHolder;
+   TEveElementList m_elementHolder;
+
 };
+
 
 #endif

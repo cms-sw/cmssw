@@ -5,7 +5,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
  
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <cmath>
@@ -30,7 +30,7 @@ TrajectoryStateOnSurface
   double aCharge = fts.charge();
   AlgebraicSymMatrix55 e = fts.curvilinearError().matrix();
   double dfcalc,phnext,zdet;
-//  double pt = p.perp();
+  double pt = p.perp();
   double a = p.perp()/pz;
 
   double b = -a*theHICConst->zvert; 

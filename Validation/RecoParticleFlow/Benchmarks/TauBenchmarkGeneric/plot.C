@@ -35,8 +35,7 @@
   Style* style2 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
- int etamode = BARREL;
-//  int etamode = ENDCAP;
+  int etamode = BARREL;
 
   string outdir = "Plots_BarrelAndEndcap";
 
@@ -67,7 +66,7 @@
   comp.Legend().Draw();
   SavePlot("legend", outdir.c_str() );
     
-  comp.SetAxis(4, -30,30);
+  comp.SetAxis(1, -30,30);
   TCanvas c1a("c1a", "Tau benchmark, low pT");
   FormatPad( &c1a, false ); 
   comp.DrawSlice("DeltaEtvsEt", ptMin, ptMax, mode);

@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.14 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.13 2008/11/25 18:21:33 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -21,18 +21,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMOldReceiver* mui,
-						SiStripConfigDb* const db )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
-                             mui,
-                             FINE_DELAY ),
-    CommissioningHistosUsingDb( db,
-                                mui,
-                                FINE_DELAY ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
-                        mui,
-                        FINE_DELAY ),
+FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
+						SiStripConfigDb* const db ) 
+  : CommissioningHistograms( mui, FINE_DELAY ),
+    CommissioningHistosUsingDb( db, mui, FINE_DELAY ),
+    SamplingHistograms( mui, FINE_DELAY ),
     tracker_(0)
 {
   LogTrace(mlDqmClient_) 
@@ -43,13 +36,10 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( const edm::ParameterSet & pset,
-                                                DQMStore* bei,
+FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( pset.getParameter<edm::ParameterSet>("FineDelayParameters"),
-                        bei,
-                        FINE_DELAY ),
+    SamplingHistograms( bei, FINE_DELAY ),
     tracker_(0)
 {
   LogTrace(mlDqmClient_) 

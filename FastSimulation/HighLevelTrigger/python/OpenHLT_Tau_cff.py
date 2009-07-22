@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-#from FastSimulation.Configuration.HLT_cff import *
-#from FastSimulation.Configuration.HLT_1E31_cff import *
-from HLTrigger.Configuration.HLT_FULL_cff import *
+# import the whole HLT menu
+from FastSimulation.Configuration.HLT_cff import *
 
-openhltTauPrescaler = cms.EDFilter("HLTPrescaler",
+hltTauPrescaler = cms.EDFilter("HLTPrescaler",
     makeFilterObject = cms.bool(True),
     eventOffset = cms.uint32(0),
     prescaleFactor = cms.uint32(1)
@@ -162,12 +161,12 @@ hltIcone2Central4 = cms.EDProducer( "IterativeConeJetProducer",
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
-openhltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
+hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 15.0 ),
-    JetSrc = cms.VInputTag( 'hltIconeTau1Regional','hltIconeTau2Regional','hltIconeTau3Regional','hltIconeTau4Regional','hltIconeCentral1Regional','hltIconeCentral2Regional','hltIconeCentral3Regional','hltIconeCentral4Regional' )
+    JetSrc = cms.VInputTag( 'hltIcone2Tau1','hltIcone2Tau2','hltIcone2Tau3','hltIcone2Tau4','hltIcone2Central1','hltIcone2Central2','hltIcone2Central3','hltIcone2Central4' )
 )
-openhltL2TauIsolationProducer = cms.EDProducer( "L2TauNarrowConeIsolationProducer",
-    L2TauJetCollection = cms.InputTag( "openhltL2TauJets" ),
+hltL2TauIsolationProducer = cms.EDProducer( "L2TauNarrowConeIsolationProducer",
+    L2TauJetCollection = cms.InputTag( "hltL2TauJets" ),
     EBRecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
     EERecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
                                             CaloTowers = cms.InputTag('hltTowerMakerForAll'),                                       
@@ -191,8 +190,8 @@ crystalThresholdEE = cms.double( 0.45 ),
       outerCone = cms.double( 0.5 )
     )
 )
-openhltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationSelector",
-    L2InfoAssociation = cms.InputTag( 'openhltL2TauIsolationProducer'),
+hltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationSelector",
+    L2InfoAssociation = cms.InputTag( 'hltL2TauIsolationProducer'),
     MinJetEt = cms.double( 15.0 ),
     SeedTowerEt = cms.double( -10.0 ),
     EcalIsolationEt = cms.vdouble( 1000.0, 0.0, 0.0 ),
@@ -202,7 +201,7 @@ openhltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationS
     ClusterEtaRMS = cms.vdouble( 1000.0, 0.0, 0.0 ),
     ClusterDRRMS = cms.vdouble( 1000.0, 0.0, 0.0 )
 )
-openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
+hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
       RegionPSet = cms.PSet( 
@@ -213,7 +212,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         originRadius = cms.double( 0.2 ),
         originHalfLength = cms.double( 0.2 ),
         precise = cms.bool( True ),
-        JetSrc = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
+        JetSrc = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
         vertexSrc = cms.InputTag( "hltPixelVertices" )
       )
     ),
@@ -222,14 +221,10 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
       SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
-    SeedCreatorPSet = cms.PSet( 
-      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-      propagator = cms.string( "PropagatorWithMaterial" )
-    ),
     TTRHBuilder = cms.string( "WithTrackAngle" )
 )
-openhltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    src = cms.InputTag( "openhltL25TauPixelSeeds" ),
+hltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltL25TauPixelSeeds" ),
     TrajectoryBuilder = cms.string( "trajBuilderL3" ),
     TrajectoryCleaner = cms.string( "TrajectoryCleanerBySharedHits" ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
@@ -242,25 +237,25 @@ openhltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
-openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
+hltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     useHitsSplitting = cms.bool( False ),
     clusterRemovalInfo = cms.InputTag( "" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
     Fitter = cms.string( "FittingSmootherRK" ),
     Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
-    src = cms.InputTag( "openhltL25TauCkfTrackCandidates" ),
+    src = cms.InputTag( "hltL25TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
     AlgorithmName = cms.string( "undefAlgorithm" )
 )
-openhltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
-    tracks = cms.InputTag( "openhltL25TauCtfWithMaterialTracks" ),
+hltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
+    jets = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
+    tracks = cms.InputTag( "hltL25TauCtfWithMaterialTracks" ),
     coneSize = cms.double( 0.5 )
 )
-openhltL25TauConeIsolation = cms.EDProducer( "ConeIsolation",
-    JetTrackSrc = cms.InputTag( "openhltL25TauJetTracksAssociator" ),
+hltL25TauConeIsolation = cms.EDProducer( "ConeIsolation",
+    JetTrackSrc = cms.InputTag( "hltL25TauJetTracksAssociator" ),
     vertexSrc = cms.InputTag( "hltPixelVertices" ),
     useVertex = cms.bool( True ),
     useBeamSpot = cms.bool( True ),
@@ -283,16 +278,20 @@ openhltL25TauConeIsolation = cms.EDProducer( "ConeIsolation",
     VariableMinCone = cms.double( 0.05 )
 )
 TauOpenHLT = cms.EDProducer("HLTTauProducer",
-    L25TrackIsoJets = cms.InputTag("openhltL25TauConeIsolation"),
-    L3TrackIsoJets = cms.InputTag("openhltL25TauConeIsolation"),
+    L25TrackIsoJets = cms.InputTag("hltL25TauConeIsolation"),
+    L3TrackIsoJets = cms.InputTag("hltL25TauConeIsolation"),
     SignalCone = cms.double(0.15),
     MatchingCone = cms.double(0.2),
-    MinPtTracks = cms.double(1.),
-    L2EcalIsoJets = cms.InputTag("openhltL2TauIsolationProducer"),
+    L2EcalIsoJets = cms.InputTag("hltL2TauIsolationProducer"),
     IsolationCone = cms.double(0.5)
 )
 
-OpenHLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalJetsFEDs + hltEcalRegionalJetsRecHit + HLTDoLocalHcalSequence + hltTowerMakerForJets)
+
+#OpenHLTDoCaloSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForAll )
+OpenHLTDoCaloSequence = cms.Sequence( hltEcalPreshowerDigis + hltEcalRawToRecHitFacility + hltEcalRegionalJetsFEDs + hltEcalRegionalJetsRecHit + hltEcalPreshowerRecHit + HLTDoLocalHcalSequence + hltTowerMakerForJets)
+#OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1 + hltIcone2Tau1 + hltCaloTowersTau2 + hltIcone2Tau2 + hltCaloTowersTau3 + hltIcone2Tau3 + hltCaloTowersTau4 + hltIcone2Tau4 + hltCaloTowersCentral1 + hltIcone2Central1 + hltCaloTowersCentral2 + hltIcone2Central2 + hltCaloTowersCentral3 + hltIcone2Central3 + hltCaloTowersCentral4 + hltIcone2Central4 )
 OpenHLTCaloTausCreatorSequence = cms.Sequence( OpenHLTDoCaloSequence + hltCaloTowersTau1Regional + hltIconeTau1Regional + hltCaloTowersTau2Regional + hltIconeTau2Regional + hltCaloTowersTau3Regional + hltIconeTau3Regional + hltCaloTowersTau4Regional + hltIconeTau4Regional + hltCaloTowersCentral1Regional + hltIconeCentral1Regional + hltCaloTowersCentral2Regional + hltIconeCentral2Regional + hltCaloTowersCentral3Regional + hltIconeCentral3Regional + hltCaloTowersCentral4Regional + hltIconeCentral4Regional )
-OpenHLTL25TauTrackReconstructionSequence = cms.Sequence( HLTDoLocalStripSequence + openhltL25TauPixelSeeds + openhltL25TauCkfTrackCandidates + openhltL25TauCtfWithMaterialTracks )
-OpenHLTL25TauTrackIsolation = cms.Sequence( openhltL25TauJetTracksAssociator + openhltL25TauConeIsolation )
+HLTL25TauTrackReconstructionSequence = cms.Sequence( HLTDoLocalStripSequence + hltL25TauPixelSeeds + hltL25TauCkfTrackCandidates + hltL25TauCtfWithMaterialTracks )
+HLTL25TauTrackIsolation = cms.Sequence( hltL25TauJetTracksAssociator + hltL25TauConeIsolation )
+
+ 

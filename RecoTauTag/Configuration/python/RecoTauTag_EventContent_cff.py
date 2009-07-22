@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 #Full Event content 
 RecoTauTagFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        'keep *_iterativeCone5PFJets_*_*', 
+        'keep *_ic5PFJetTracksAssociatorAtVertex_*_*', 
         'keep *_pfRecoTauTagInfoProducer_*_*', 
         'keep *_fixedConePFTauProducer*_*_*', 
         'keep *_fixedConePFTauDiscrimination*_*_*', 
@@ -19,6 +21,8 @@ RecoTauTagFEVT = cms.PSet(
 #RECO content
 RecoTauTagRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        'keep *_iterativeCone5PFJets_*_*', 
+        'keep *_ic5PFJetTracksAssociatorAtVertex_*_*', 
         'keep *_pfRecoTauTagInfoProducer_*_*', 
         'keep *_fixedConePFTauProducer*_*_*', 
         'keep *_fixedConePFTauDiscrimination*_*_*', 
@@ -34,6 +38,8 @@ RecoTauTagRECO = cms.PSet(
 #AOD content
 RecoTauTagAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
+        'keep *_iterativeCone5PFJets_*_*', 
+        'keep *_ic5PFJetTracksAssociatorAtVertex_*_*', 
         'keep *_pfRecoTauTagInfoProducer_*_*', 
         'keep *_fixedConePFTauProducer*_*_*', 
         'keep *_fixedConePFTauDiscrimination*_*_*', 
