@@ -19,4 +19,5 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          bFixed = cms.double(0)
                          )
 
+ProductionFilterSequence = cms.Sequence(generator)
 
