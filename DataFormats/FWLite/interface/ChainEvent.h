@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.7 2009/07/13 21:01:36 srappocc Exp $
+// $Id: ChainEvent.h,v 1.8 2009/07/20 20:51:33 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -55,19 +55,23 @@ namespace fwlite {
       const ChainEvent & to(edm::EventID id);
       const ChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
 
-      /** Go to the very first Event*/
+      // Go to the very first Event.  
       const ChainEvent& toBegin();
       
       // ---------- const member functions ---------------------
-      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+      virtual const std::string getBranchNameFor(const std::type_info&, 
+                                                 const char*, 
+                                                 const char*, 
+                                                 const char*) const;
 
-      /** This function should only be called by fwlite::Handle<>*/
-      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+      // This function should only be called by fwlite::Handle<>
+      virtual bool getByLabel(const std::type_info&, const char*, 
+                              const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
       operator bool () const;
-      bool atEnd() const;
+      virtual bool atEnd() const;
       
       Long64_t size() const;
 
@@ -94,6 +98,15 @@ namespace fwlite {
       // ---------- member functions ---------------------------
 
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+
+   protected:
+
+      // toBeginImpl() is meat of toBegin() with no return value
+      virtual void toBeginImpl(); 
+
+      // toNext is meat of operator++ with no return value
+      virtual void toNext();
+
 
    private:
 

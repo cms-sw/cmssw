@@ -48,17 +48,33 @@ namespace fwlite
    {
       public:
          EventBase();
+
          virtual ~EventBase() {}
+
          virtual bool getByLabel (const std::type_info&, 
                                   const char*, 
                                   const char*, 
                                   const char*, 
                                   void*) const = 0;
+
          virtual const std::string getBranchNameFor (const std::type_info&, 
                                                      const char*, 
                                                      const char*, 
                                                      const char*) const = 0;
+
+         virtual bool atEnd() const = 0;
+
+      protected:
          
+         // The meat of operator++, but with no return value.  Note
+         // that C++ could handle just overwriting operator++, but
+         // we're afraid that CInt can't.
+         virtual void toNext() = 0;
+         
+         // This is meant for the meat of the toBegin function, but
+         // with no return value.  Same explanation as above.
+         virtual void toBeginImpl() = 0;
+
    };
 } // fwlite namespace
 

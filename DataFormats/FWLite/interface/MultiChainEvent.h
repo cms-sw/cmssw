@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.2 2009/07/13 21:01:36 srappocc Exp $
+// $Id: MultiChainEvent.h,v 1.3 2009/07/20 20:51:33 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -59,14 +59,18 @@ class MultiChainEvent: public EventBase
       const MultiChainEvent & to(edm::EventID id);
       const MultiChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
 
-      /** Go to the very first Event*/
+      // Go to the very first Event. 
       const MultiChainEvent& toBegin();
       
       // ---------- const member functions ---------------------
-      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+      virtual const std::string getBranchNameFor(const std::type_info&, 
+                                                 const char*, 
+                                                 const char*, 
+                                                 const char*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+      virtual bool getByLabel(const std::type_info&, const char*, 
+                              const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
@@ -100,6 +104,15 @@ class MultiChainEvent: public EventBase
       // ---------- member functions ---------------------------
 
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+
+   protected:
+
+      // toBeginImpl() is meat of toBegin() with no return value
+      virtual void toBeginImpl(); 
+
+      // toNext is meat of operator++ with no return value
+      virtual void toNext();
+
 
    private:
 

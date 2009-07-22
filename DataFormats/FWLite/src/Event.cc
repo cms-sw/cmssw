@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.24 2008/12/27 05:24:02 wmtan Exp $
+// $Id: Event.cc,v 1.25 2009/07/12 05:09:09 srappocc Exp $
 //
 
 // system include files
@@ -145,14 +145,22 @@ Event::~Event()
 //
 // member functions
 //
+
+void
+Event::toNext()
+{
+   Long_t eventIndex = branchMap_.getEventEntry();
+   if(eventIndex < size()) 
+   {
+      branchMap_.updateEvent(++eventIndex);
+   }
+}
+
 const Event& 
 Event::operator++()
 {
-  Long_t eventIndex = branchMap_.getEventEntry();
-  if(eventIndex < size()) {
-    branchMap_.updateEvent(++eventIndex);
-  }
-  return *this;
+   toNext();
+   return *this;
 }
 
 const Event& 
@@ -202,11 +210,17 @@ Event::to(edm::EventID id)
   return to(id.run(), id.event());
 }
 
+void
+Event::toBeginImpl()
+{
+   branchMap_.updateEvent(0);
+}
+
 const Event& 
 Event::toBegin()
 {
-  branchMap_.updateEvent(0);
-  return *this;
+   toBeginImpl();
+   return *this;
 }
 
 //

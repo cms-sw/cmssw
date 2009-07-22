@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.17 2009/07/12 05:09:08 srappocc Exp $
+// $Id: Event.h,v 1.18 2009/07/20 20:51:33 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -121,7 +121,8 @@ namespace fwlite {
    {
 
       public:
-         /**NOTE: Does NOT take ownership so iFile must remain around at least as long as Event*/
+         // NOTE: Does NOT take ownership so iFile must remain around
+         // at least as long as Event
          Event(TFile* iFile);
          virtual ~Event();
 
@@ -134,19 +135,22 @@ namespace fwlite {
          bool to(edm::EventID id);
          bool to(edm::RunNumber_t run, edm::EventNumber_t event);
 
-         /** Go to the very first Event*/
+         // Go to the very first Event.
          const Event& toBegin();
       
          // ---------- const member functions ---------------------
-         const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+         virtual const std::string getBranchNameFor(const std::type_info&, 
+                                                    const char*, 
+                                                    const char*, 
+                                                    const char*) const;
 
-         /** This function should only be called by fwlite::Handle<>*/
-         bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
+         // This function should only be called by fwlite::Handle<>
+         virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
          //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
          bool isValid() const;
          operator bool () const;
-         bool atEnd() const;
+         virtual bool atEnd() const;
       
          Long64_t size() const;
 
@@ -169,6 +173,15 @@ namespace fwlite {
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
          // ---------- member functions ---------------------------
+
+      protected:
+
+         // toBeginImpl() is meat of toBegin() with no return value
+         virtual void toBeginImpl(); 
+         
+         // toNext is meat of operator++ with no return value
+         virtual void toNext();
+
 
       private:
          friend class internal::ProductGetter;

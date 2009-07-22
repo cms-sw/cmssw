@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.1 2009/07/12 05:09:09 srappocc Exp $
+// $Id: MultiChainEvent.cc,v 1.2 2009/07/13 21:01:38 srappocc Exp $
 //
 
 // system include files
@@ -87,12 +87,19 @@ MultiChainEvent::~MultiChainEvent()
 //
 // member functions
 //
+
+void
+MultiChainEvent::toNext()
+{
+   // only increment the first
+   event1_->toNext();
+}
+
 const MultiChainEvent& 
 MultiChainEvent::operator++()
 {
-  // only increment the first
-  event1_->operator++();
-  return *this;
+   toNext();
+   return *this;
 }
 
 ///Go to the event at index iIndex
@@ -138,11 +145,18 @@ MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) {
   return *this;
 }
 
-/** Go to the very first Event*/
+// Go to the very first Event
+void
+MultiChainEvent::toBeginImpl()
+{
+   event1_->toBeginImpl();
+}
+
 const MultiChainEvent& 
-MultiChainEvent::toBegin() {
-  event1_->toBegin();
-  return *this;
+MultiChainEvent::toBegin() 
+{
+   toBeginImpl();
+   return *this;
 }
 
 //

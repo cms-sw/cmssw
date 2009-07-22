@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.8 2009/07/12 05:09:09 srappocc Exp $
+// $Id: ChainEvent.cc,v 1.9 2009/07/13 21:01:38 srappocc Exp $
 //
 
 // system include files
@@ -81,20 +81,28 @@ ChainEvent::~ChainEvent()
 //
 // member functions
 //
+
+void
+ChainEvent::toNext()
+{
+   if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1) 
+   {
+      ++(*event_);
+      if(event_->atEnd()) {
+         switchToFile(++eventIndex_);
+      }
+   } else {
+      if(*event_) {
+         ++(*event_);
+      }
+   } 
+}
+
 const ChainEvent& 
 ChainEvent::operator++()
 {
-  if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1) {
-    ++(*event_);
-    if(event_->atEnd()) {
-      switchToFile(++eventIndex_);
-    }
-  } else {
-    if(*event_) {
-      ++(*event_);
-    }
-  } 
-  return *this;
+   toNext();
+   return *this;
 }
 
 ///Go to the event at index iIndex
@@ -171,13 +179,22 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
 }
 
 /** Go to the very first Event*/
+
+void
+ChainEvent::toBeginImpl()
+{
+   if (eventIndex_ != 0) 
+   {
+      switchToFile(0);
+   }
+   event_->toBeginImpl();
+}
+
 const ChainEvent& 
-ChainEvent::toBegin() {
-  if(eventIndex_ != 0) {
-    switchToFile(0);
-  }
-  event_->toBegin();
-  return *this;
+ChainEvent::toBegin() 
+{
+   toBeginImpl();
+   return *this;
 }
 
 void
