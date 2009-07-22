@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.42 2009/07/17 08:01:57 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.43 2009/07/17 18:25:24 amraktad Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "TLatex.h"
 #include "TGLEmbeddedViewer.h"
 #include "TGLScenePad.h"
-#include "TGLOrthoCamera.h"
+#include "TGLCamera.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -96,6 +96,24 @@ FWDetailViewManager::~FWDetailViewManager()
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 {
+   if (m_mainFrame == 0)
+   {
+      createDetailViewFrame();
+   }
+   else
+   {
+      // clean after previous detail view
+      m_textCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
+      if (m_modeGL) {
+         m_detailView->clearOverlayElements();
+         m_sceneGL->DestroyElements();
+      }
+      else {
+         m_viewCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
+         m_textCanvas ->GetCanvas()->SetEditable(kTRUE);
+      }
+   }
+
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
    std::map<std::string, FWDetailViewBase *>::iterator detailViewBaseIt = m_detailViews.find(typeName);
@@ -121,9 +139,6 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    }
 
    //setup GUI 
-   if (m_mainFrame == 0)
-      createDetailViewFrame();
-
    if (m_detailView->useGL() != m_modeGL) {
       m_modeGL= m_detailView->useGL();
       if (m_modeGL) {
@@ -134,17 +149,6 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
          m_pack->ShowFrame(m_viewCanvas);
          m_pack->HideFrame(m_viewerGL->GetFrame());
       }
-   }
-
-   // clean after previous detail view
-   m_textCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
-   if (m_modeGL) {
-      m_detailView->clearOverlayElements();
-      m_sceneGL->DestroyElements();
-   }
-   else {
-      m_viewCanvas->GetCanvas()->GetListOfPrimitives()->Delete();
-      m_textCanvas ->GetCanvas()->SetEditable(kTRUE);
    }
 
    // build
