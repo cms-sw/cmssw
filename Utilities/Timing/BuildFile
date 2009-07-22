@@ -1,7 +1,4 @@
-<use name=Utilities/General>
-<use name=boost>
 <export>
-  <use name=Utilities/General>
   <lib name=UtilitiesTiming>
 </export>
 
