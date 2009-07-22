@@ -346,6 +346,13 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
 
   //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> keyStrips = getKeyStripsFromMC();
+  fillStripDigis(keyStrips, digis);
+}
+
+
+void CSCStripElectronicsSim::fillStripDigis(const std::list<int> & keyStrips,
+  CSCStripDigiCollection & digis)
+{
   std::list<int> stripsToDo = channelsToRead(keyStrips, 3);
   std::vector<CSCStripDigi> stripDigis;
   stripDigis.reserve(stripsToDo.size());
@@ -359,7 +366,7 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   digis.put(stripRange, layerId());
 }
 
-
+ 
 void CSCStripElectronicsSim::addCrosstalk() {
   // this is needed so we can add a noise signal to the map
   // without messing up any iterators
@@ -439,6 +446,31 @@ void CSCStripElectronicsSim::doSaturation(CSCStripDigi & digi)
   digi.setADCCounts(scaCounts);
 }
 
+
+void CSCStripElectronicsSim::fillMissingLayer(const CSCLayer * layer,
+  const CSCComparatorDigiCollection & comparators, CSCStripDigiCollection & digis)
+{
+  theSignalMap.clear();
+  setLayer(layer);
+  CSCDetId chamberId(theLayerId.chamberId());
+  // find all comparator key strips in this chamber
+  std::list<int> chamberKeyStrips;
+  for(CSCComparatorDigiCollection::DigiRangeIterator comparatorItr = comparators.begin();
+      comparatorItr != comparators.end(); ++comparatorItr)
+  {
+    // could be more efficient
+    if(CSCDetId((*comparatorItr).first).chamberId() == chamberId)
+    {
+      std::vector<CSCComparatorDigi> layerComparators((*comparatorItr).second.first, (*comparatorItr).second.second);
+      std::list<int> layerKeyStrips = getKeyStrips(layerComparators);
+      chamberKeyStrips.insert(chamberKeyStrips.end(), layerKeyStrips.begin(), layerKeyStrips.end());
+    }
+  }
+  chamberKeyStrips.sort();
+  chamberKeyStrips.unique();
+  fillStripDigis(chamberKeyStrips, digis);
+}
+    
 
 void CSCStripElectronicsSim::selfTest() const
 {
