@@ -1,10 +1,6 @@
 <export>
  <lib name=GeometryCommonDetUnit>
- <use name=DataFormats/GeometrySurface>
- <use name=DataFormats/DetId>
- <use name=clhep>
 </export>
- <use name=DataFormats/GeometrySurface>
- <use name=FWCore/Framework>
- <use name=DataFormats/DetId>
- <use name=clhep>
+<use name=DataFormats/GeometrySurface>
+<use name=FWCore/Framework>
+<use name=clhep>
