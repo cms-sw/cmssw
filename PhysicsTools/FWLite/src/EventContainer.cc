@@ -59,6 +59,8 @@ EventContainer::~EventContainer()
       return;
    } 
    // If we're still here, let's get to work.
+   cout << "EventContainer Summary: Processed "
+        << m_eventsSeen << " events." << endl;
    m_histStore.write (m_outputName);
    delete m_eventBasePtr;
 }
@@ -108,21 +110,7 @@ EventContainer::operator++()
 {
    assert (m_eventBasePtr);
 
-   // What we should do here is put a virtual function in the base
-   // class called plusplusOperator.  This function should be called
-   // by each derived class' operator++() function.  In this case, I
-   // could then:
-   //
-   // m_eventBasePtr->plusPlusOperator()
-   // return *this;
-
-   // Since this isn't setup, I'm going to have to resort to dynamic
-   // casting.  Either m_eventBasePtr is a pointer to ChainEvent or
-   // (eventually) MultiChainEvent.
-   fwlite::ChainEvent *chainEventPtr = 
-      dynamic_cast< fwlite::ChainEvent* > ( m_eventBasePtr );
-   assert (chainEventPtr);
-   chainEventPtr->operator++();
+   m_eventBasePtr->operator++();
    ++m_eventsSeen;
    if (m_outputEvery && m_eventsSeen % m_outputEvery == 0 ) 
    {
@@ -136,12 +124,7 @@ EventContainer::toBegin()
 {
    assert (m_eventBasePtr);
    m_eventsSeen = 0;
-
-   // same comment here as in operator++
-   fwlite::ChainEvent *chainEventPtr = 
-      dynamic_cast< fwlite::ChainEvent* > ( m_eventBasePtr );
-   assert (chainEventPtr);
-   chainEventPtr->toBegin();
+   m_eventBasePtr->toBegin();
 
    // If we're going to skip over any events, do it here.
 
@@ -152,6 +135,7 @@ EventContainer::toBegin()
 bool
 EventContainer::atEnd() const
 {
+   assert (m_eventBasePtr);
    // first check to see that we haven't already processed the maxinum
    // number of events that we asked for.
    if (m_maxWanted && m_eventsSeen >= m_maxWanted)
@@ -160,12 +144,7 @@ EventContainer::atEnd() const
       return true;
    }
 
-   // now let's make sure there are still events.  Same comment here
-   // as in operator++.
-   fwlite::ChainEvent *chainEventPtr = 
-      dynamic_cast< fwlite::ChainEvent* > ( m_eventBasePtr );
-   assert (chainEventPtr);
-   return chainEventPtr->atEnd();
+   return m_eventBasePtr->atEnd();
 }
 
 

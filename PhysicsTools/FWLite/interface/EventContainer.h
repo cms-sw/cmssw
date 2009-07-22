@@ -16,7 +16,7 @@
 namespace fwlite
 {
 
-   class EventContainer : public fwlite::EventBase
+   class EventContainer : public EventBase
    {
       public:
 
