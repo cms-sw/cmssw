@@ -197,77 +197,77 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   s << line << std::endl;
 
 
-  sprintf(line, " TriggersPhysicsGeneratedFDL:     %20llu %20.3f Hz",
+  sprintf(line, " TriggersPhysicsGeneratedFDL:     %20llu %22.3f Hz",
 	  c.triggersPhysicsGeneratedFDL(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsGeneratedFDL()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLost:             %20llu %20.3f Hz",
+  sprintf(line, " TriggersPhysicsLost:             %20llu %22.3f Hz",
 	  c.triggersPhysicsLost(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLost()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamActive:   %20llu %20.3f Hz",
+  sprintf(line, " TriggersPhysicsLostBeamActive:   %20llu %22.3f Hz",
 	  c.triggersPhysicsLostBeamActive(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamActive()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamInactive: %20llu %20.3f Hz",
+  sprintf(line, " TriggersPhysicsLostBeamInactive: %20llu %22.3f Hz",
 	  c.triggersPhysicsLostBeamInactive(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamInactive()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsPhysics:                     %20llu %20.3f Hz",
+  sprintf(line, " L1AsPhysics:                     %20llu %22.3f Hz",
 	  c.l1AsPhysics(),
 	  Level1TriggerScalers::rateLS(c.l1AsPhysics()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsRandom:                      %20llu %20.3f Hz",
+  sprintf(line, " L1AsRandom:                      %20llu %22.3f Hz",
 	  c.l1AsRandom(),
 	  Level1TriggerScalers::rateLS(c.l1AsRandom()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsTest:                        %20llu %20.3f Hz",
+  sprintf(line, " L1AsTest:                        %20llu %22.3f Hz",
 	  c.l1AsTest(),
 	  Level1TriggerScalers::rateLS(c.l1AsTest()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsCalibration:                 %20llu %20.3f Hz",
+  sprintf(line, " L1AsCalibration:                 %20llu %22.3f Hz",
 	  c.l1AsCalibration(),
 	  Level1TriggerScalers::rateLS(c.l1AsCalibration()));
   s << line << std::endl;
 
-  sprintf(line, " Deadtime:                             %20llu %14.3f%%",
+  sprintf(line, " Deadtime:                             %20llu %17.3f%%",
 	  c.deadtime(),
 	  Level1TriggerScalers::percentLS(c.deadtime()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActive:                   %20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActive:                   %20llu %17.3f%%",
 	  c.deadtimeBeamActive(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActive()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTriggerRules:       %20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActiveTriggerRules:       %20llu %17.3f%%",
 	  c.deadtimeBeamActiveTriggerRules(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTriggerRules()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveCalibration:        %20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActiveCalibration:        %20llu %17.3f%%",
 	  c.deadtimeBeamActiveCalibration(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveCalibration()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePrivateOrbit:       %20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActivePrivateOrbit:       %20llu %17.3f%%",
 	  c.deadtimeBeamActivePrivateOrbit(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePrivateOrbit()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePartitionController:%20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActivePartitionController:%20llu %17.3f%%",
 	  c.deadtimeBeamActivePartitionController(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePartitionController()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTimeSlot:           %20llu %14.3f%%",
+  sprintf(line, " DeadtimeBeamActiveTimeSlot:           %20llu %17.3f%%",
 	  c.deadtimeBeamActiveTimeSlot(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTimeSlot()));
   s << line << std::endl;
