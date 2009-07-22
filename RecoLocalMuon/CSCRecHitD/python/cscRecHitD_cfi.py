@@ -39,13 +39,15 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #  When using data from simulation
     #    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     #    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    #
+    # Use dead channels information 
+    readBadChannels = cms.bool(True),
+    readBadChambers = cms.bool(True),
                               
     #
     #    Parameters which are not used currently
     #
     CSCDebug = cms.untracked.bool(False),
-    readBadChannels = cms.bool(False),
-    readBadChambers = cms.bool(False),
     #  To be set once wire digis have proper timing info:
     CSCstripWireDeltaTime = cms.int32(8),
     # to be deleted
