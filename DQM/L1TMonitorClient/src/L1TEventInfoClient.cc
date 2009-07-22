@@ -446,6 +446,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
 
   if( gt_algobits_prob!=-1 && gt_techbits_prob!=-1 ) summaryContent[6] = 0.5*( gt_algobits_prob + gt_techbits_prob );
+  else if( GT_AlgoBits_QHist && GT_TechBits_QHist  ) summaryContent[6] = 1;
   else summaryContent[6] = 0;
   reportSummaryContent_[6]->Fill( summaryContent[6] );
 
