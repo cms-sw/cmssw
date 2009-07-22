@@ -8,6 +8,7 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/FWLite>
  <use name=DataFormats/PatCandidates>
+ <use name=PhysicsTools/FWLite>
 </bin>
 
 <bin name=blank.exe file=blank.cc>
@@ -16,6 +17,25 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/FWLite>
  <use name=DataFormats/PatCandidates>
+ <use name=PhysicsTools/FWLite>
+</bin>
+
+<bin name=playingWithJets.exe file=playingWithJets.cc>
+ <use name=root>
+ <use name=FWCore/FWLite>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FWLite>
+ <use name=DataFormats/PatCandidates>
+ <use name=PhysicsTools/FWLite>
+</bin>
+
+<bin name=mostPatObjects.exe file=mostPatObjects.cc>
+ <use name=root>
+ <use name=FWCore/FWLite>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FWLite>
+ <use name=DataFormats/PatCandidates>
+ <use name=PhysicsTools/FWLite>
 </bin>
 
 <bin name=jetPt.exe file=jetPt.cc>

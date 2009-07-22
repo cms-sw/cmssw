@@ -5,7 +5,8 @@
 // CMS includes
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/OptionUtils.h"  // (optutl::)
@@ -52,14 +53,12 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::setUsageAndDefaultOptions ("Skeleton Analyser",
+   optutl::setUsageAndDefaultOptions ("Playing around with jets",
                                       optutl::kEventContainer);
 
    //////////////////////////////////////////////////////
    // Add any command line options you would like here //
    //////////////////////////////////////////////////////
-   // optutl::addOption ("sampleName",   optutl::kString, 
-   //                    "Sample name (e.g., top, Wqq, etc.)");   
 
    // Parse the command line arguments
    optutl::parseArguments (argc, argv);
@@ -98,18 +97,38 @@ int main (int argc, char* argv[])
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      // fwlite::Handle< vector< reco::CaloJet > > jetCollection;
-      // jetCollection.getByLabel (event, "sisCone5CaloJets");
-      // assert ( jetCollection.isValid() );
-						
-      // // Loop over the jets
-      // const vector< reco::CaloJet >::const_iterator kJetEnd = jetCollection->end();
-      // for (vector< reco::CaloJet >::const_iterator jetIter = jetCollection->begin();
-      //      kJetEnd != jetIter; 
-      //      ++jetIter) 
-      // {         
-      //    event.hist("jetPt")->Fill (jetIter->pt());
-      // } // for jetIter
+
+      // Get jets
+      fwlite::Handle< vector<pat::Jet> > h_jet;
+      h_jet.getByLabel(event,"selectedLayer1Jets");
+      assert ( h_jet.isValid() );
+
+      const vector< pat::Jet >::const_iterator kJetEnd = h_jet->end();
+      for (vector< pat::Jet >::const_iterator jetIter = h_jet->begin(); 
+           jetIter != kJetEnd; 
+           ++jetIter) 
+      {	   
+         // A few correctedJet options:
+         // ABS - absolute pt calibration (automatic)
+         // REL - relative inter eta calibration  
+         // EMF - calibration as a function of the jet EMF
+         event.hist("reljetpt") ->Fill( jetIter->correctedJet("REL").pt() );
+         event.hist("reljeteta")->Fill( jetIter->correctedJet("REL").eta() );
+         event.hist("jetpt")    ->Fill( jetIter->correctedJet("ABS").pt() );
+         // Automatically ABS
+         event.hist("jeteta")   ->Fill( jetIter->eta() );
+      } // for jetIter
+
+      // Do we have at least two jets?
+      if (h_jet->size() < 2)
+      {
+         // Nothing to do here
+         continue;
+      }
+
+      // Store invariant mass and delta phi between two leading jets.
+      event.hist("invarMass")->Fill( (h_jet->at(0).p4() + h_jet->at(1).p4()).M() );
+      event.hist("phijet1jet2")->Fill( deltaPhi( h_jet->at(0).phi(), h_jet->at(1).phi() ) );
    } // for event
 
       
@@ -149,6 +168,11 @@ void outputNameTagFunc (string &tag)
 
 void bookHistograms (fwlite::EventContainer &event)
 {
-   //event.add( new TH1F( "jetPt", "jetPt", 1000, 0, 1000) );
+   event.add( new TH1F( "jetpt",        "Jet p_{T} using standard absolute p_{T} calibration", 100, 0, 60) );
+   event.add( new TH1F( "jeteta",       "Jet eta using standard absolute p_{T} calibration",   100, 0, 10) );
+   event.add( new TH1F( "reljetpt",     "Jet p_{T} using relative inter eta calibration",      100, 0, 60) );
+   event.add( new TH1F( "reljeteta",    "Jet eta using relative inter eta calibration",        100, 0, 10) );
+   event.add( new TH1F( "phijet1jet2",  "Phi between Jet 1 and Jet 2",                        100, 0, 3.5) );
+   event.add( new TH1F( "invarMass",    "Invariant Mass of the 4-vector sum of Two Jets",     100, 0, 200) );
 }
-					
+
