@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.27 2009/07/15 18:58:31 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.28 2009/07/20 14:08:46 amraktad Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 #include "TCanvas.h"
 
 #include "TGLViewer.h"
-#include "TGLOverlayButton.h"
 
 #include "TEveManager.h"
 #include "TEveCalo.h"
@@ -95,17 +94,6 @@ TEveElement* FWElectronDetailView::build_projected (const FWModelId &id,
    if(0==iElectron) { return 0;}
    m_item = id.item();
 
-   
-   if (0)
-   {
-      TGLOverlayButton *tgo = 
-         new TGLOverlayButton(viewer(), "Show surrounding rec hits", 
-                              10, 10, 200, 16);
-      //  tgo->Connect("Clicked(TGLViewerBase*)", "FWElectronDetailView", 
-      //             this, "showInterestingHits(TGLViewerBase*)");
-   
-      m_overlays.push_back(tgo);
-   }
    TEveElementList* tList =  new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
    tList->SetMainColor(m_item->defaultDisplayProperties().color());
    gEve->AddElement(tList);
