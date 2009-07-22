@@ -58,15 +58,9 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
   {
     theSignalMap.clear();
     theDetectorHitMap.clear();
-    // fill the specs member data
-    theSpecs = layer->chamber()->specs();
-    theLayerGeometry = layer->geometry();
-
-    theLayer = layer;
-    theLayerId = CSCDetId(theLayer->geographicalId().rawId());
+    setLayer(layer);
     // can we swap for efficiency?
     theDigiSimLinks = DigiSimLinks(layerId().rawId());
-    initParameters();
   }
   
   {
@@ -88,6 +82,18 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
     }
   }
 } 
+
+
+void CSCBaseElectronicsSim::setLayer(const CSCLayer * layer) 
+{
+  // fill the specs member data
+  theSpecs = layer->chamber()->specs();
+  theLayerGeometry = layer->geometry();
+
+  theLayer = layer;
+  theLayerId = CSCDetId(theLayer->geographicalId().rawId());
+  initParameters();
+}
 
 
 void CSCBaseElectronicsSim::fillAmpResponse() {
