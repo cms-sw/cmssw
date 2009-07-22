@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -177,6 +177,7 @@ private:
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
   DQMStore* dbe_;
+  bool doall;
 };
 #endif
 

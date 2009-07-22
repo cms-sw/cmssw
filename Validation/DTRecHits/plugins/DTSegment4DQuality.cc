@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/19 12:03:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/03 16:44:37 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -56,6 +56,7 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   //sigma resolution on angle
   sigmaResAlpha = pset.getParameter<double>("sigmaResAlpha");
   sigmaResBeta = pset.getParameter<double>("sigmaResBeta");
+  doall = pset.getUntrackedParameter<bool>("doall", false);
 
 
   // Create the root file
@@ -76,15 +77,17 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
     if ( debug ) dbe_->showDirStructure();
   }
 
-  h4DHit= new HRes4DHit ("All",dbe_);
-  h4DHit_W0= new HRes4DHit ("W0",dbe_);
-  h4DHit_W1= new HRes4DHit ("W1",dbe_);
-  h4DHit_W2= new HRes4DHit ("W2",dbe_);
+  h4DHit= new HRes4DHit ("All",dbe_,doall);
+  h4DHit_W0= new HRes4DHit ("W0",dbe_,doall);
+  h4DHit_W1= new HRes4DHit ("W1",dbe_,doall);
+  h4DHit_W2= new HRes4DHit ("W2",dbe_,doall);
 
-  hEff_All= new HEff4DHit ("All",dbe_);
-  hEff_W0= new HEff4DHit ("W0",dbe_);
-  hEff_W1= new HEff4DHit ("W1",dbe_);
-  hEff_W2= new HEff4DHit ("W2",dbe_);
+  if(doall) {
+    hEff_All= new HEff4DHit ("All",dbe_);
+    hEff_W0= new HEff4DHit ("W0",dbe_);
+    hEff_W1= new HEff4DHit ("W1",dbe_);
+    hEff_W2= new HEff4DHit ("W2",dbe_);
+  }
 }
 
 // Destructor
@@ -101,11 +104,12 @@ void DTSegment4DQuality::endJob() {
   //h4DHit_W1->Write();
   //h4DHit_W2->Write();
 
-  hEff_All->ComputeEfficiency();
-  hEff_W0->ComputeEfficiency();
-  hEff_W1->ComputeEfficiency();
-  hEff_W2->ComputeEfficiency();
-
+  if(doall){
+    hEff_All->ComputeEfficiency();
+    hEff_W0->ComputeEfficiency();
+    hEff_W1->ComputeEfficiency();
+    hEff_W2->ComputeEfficiency();
+  }
   //hEff_All->Write();
   //hEff_W0->Write();
   //hEff_W1->Write();
@@ -354,15 +358,17 @@ void DTSegment4DQuality::endJob() {
       } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-      HEff4DHit *heff = 0;
-
-      if((*chamberId).wheel() == 0)
-        heff = hEff_W0;
-      else if(abs((*chamberId).wheel()) == 1)
-        heff = hEff_W1;
-      else if(abs((*chamberId).wheel()) == 2)
-        heff = hEff_W2;
-      heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-      hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+      if(doall){
+	HEff4DHit *heff = 0;
+	
+	if((*chamberId).wheel() == 0)
+	  heff = hEff_W0;
+	else if(abs((*chamberId).wheel()) == 1)
+	  heff = hEff_W1;
+	else if(abs((*chamberId).wheel()) == 2)
+	  heff = hEff_W2;
+	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+      }
     } // End of loop over chambers
   }

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 13:06:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/03 16:45:07 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -56,7 +56,8 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep1 = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2 = pset.getUntrackedParameter<bool>("doStep2", false);
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
-
+  doall = pset.getUntrackedParameter<bool>("doall", false);
+  // if(doall) doStep1
   // Create the root file
   //theFile = new TFile(rootFileName.c_str(), "RECREATE");
   //theFile->cd();
@@ -76,48 +77,57 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   if ( dbe_ ) {
     if ( debug ) dbe_->showDirStructure();
   }
+  if(doall){
+    hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_);    // RecHits, 1. step, RPhi
+    hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
+  }
+  hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_,doall);     // RecHits, 3. step, RPhi
+  if(doall){
+    hRes_S1RZ= new HRes1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
+    hRes_S2RZ= new HRes1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
+  }
+  hRes_S3RZ= new HRes1DHit("S3RZ",dbe_,doall);	    // RecHits, 3. step, RZ
 
-  hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_);    // RecHits, 1. step, RPhi
-  hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
-  hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
+  if(doall){
+    hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
+    hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
+  }
+  hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall);   // RecHits, 3. step, RZ, wheel 0
 
-  hRes_S1RZ= new HRes1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
-  hRes_S2RZ= new HRes1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
-  hRes_S3RZ= new HRes1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
+  if(doall){
+    hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
+    hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
+  }
+  hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-1
 
-  hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
-  hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
-  hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
+  if(doall) {
+    hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
+    hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
+  }
+  hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-2
 
-  hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
-  hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
-  hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
-
-  hRes_S1RZ_W2= new HRes1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
-  hRes_S2RZ_W2= new HRes1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
-  hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
-
-  hEff_S1RPhi= new HEff1DHit("S1RPhi",dbe_);     // RecHits, 1. step, RPhi
-  hEff_S2RPhi= new HEff1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
-  hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
-
-  hEff_S1RZ= new HEff1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
-  hEff_S2RZ= new HEff1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
-  hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
-
-  hEff_S1RZ_W0= new HEff1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
-  hEff_S2RZ_W0= new HEff1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
-  hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
-
-  hEff_S1RZ_W1= new HEff1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
-  hEff_S2RZ_W1= new HEff1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
-  hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
-
-  hEff_S1RZ_W2= new HEff1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
-  hEff_S2RZ_W2= new HEff1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
-  hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+  if(doall){
+    hEff_S1RPhi= new HEff1DHit("S1RPhi",dbe_);     // RecHits, 1. step, RPhi
+    hEff_S2RPhi= new HEff1DHit("S2RPhi",dbe_);     // RecHits, 2. step, RPhi
+    hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
+    
+    hEff_S1RZ= new HEff1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
+    hEff_S2RZ= new HEff1DHit("S2RZ",dbe_);	    // RecHits, 2. step, RZ
+    hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
+    
+    hEff_S1RZ_W0= new HEff1DHit("S1RZ_W0",dbe_);   // RecHits, 1. step, RZ, wheel 0
+    hEff_S2RZ_W0= new HEff1DHit("S2RZ_W0",dbe_);   // RecHits, 2. step, RZ, wheel 0
+    hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
+    
+    hEff_S1RZ_W1= new HEff1DHit("S1RZ_W1",dbe_);   // RecHits, 1. step, RZ, wheel +-1
+    hEff_S2RZ_W1= new HEff1DHit("S2RZ_W1",dbe_);   // RecHits, 2. step, RZ, wheel +-1
+    hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
+    
+    hEff_S1RZ_W2= new HEff1DHit("S1RZ_W2",dbe_);   // RecHits, 1. step, RZ, wheel +-2
+    hEff_S2RZ_W2= new HEff1DHit("S2RZ_W2",dbe_);   // RecHits, 2. step, RZ, wheel +-2
+    hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+  }
 }
-
 
 
 // Destructor
@@ -128,25 +138,27 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
 
 void DTRecHitQuality::endJob() {
   // Write the histos to file
-  hEff_S1RPhi->ComputeEfficiency();
-  hEff_S2RPhi->ComputeEfficiency();
-  hEff_S3RPhi->ComputeEfficiency();
-
-  hEff_S1RZ->ComputeEfficiency();
-  hEff_S2RZ->ComputeEfficiency();
-  hEff_S3RZ->ComputeEfficiency();
-
-  hEff_S1RZ_W0->ComputeEfficiency();
-  hEff_S2RZ_W0->ComputeEfficiency();
-  hEff_S3RZ_W0->ComputeEfficiency();
-
-  hEff_S1RZ_W1->ComputeEfficiency();
-  hEff_S2RZ_W1->ComputeEfficiency();
-  hEff_S3RZ_W1->ComputeEfficiency();
-
-  hEff_S1RZ_W2->ComputeEfficiency();
-  hEff_S2RZ_W2->ComputeEfficiency();
-  hEff_S3RZ_W2->ComputeEfficiency();
+  if(doall){
+    hEff_S1RPhi->ComputeEfficiency();
+    hEff_S2RPhi->ComputeEfficiency();
+    hEff_S3RPhi->ComputeEfficiency();
+    
+    hEff_S1RZ->ComputeEfficiency();
+    hEff_S2RZ->ComputeEfficiency();
+    hEff_S3RZ->ComputeEfficiency();
+    
+    hEff_S1RZ_W0->ComputeEfficiency();
+    hEff_S2RZ_W0->ComputeEfficiency();
+    hEff_S3RZ_W0->ComputeEfficiency();
+    
+    hEff_S1RZ_W1->ComputeEfficiency();
+    hEff_S2RZ_W1->ComputeEfficiency();
+    hEff_S3RZ_W1->ComputeEfficiency();
+    
+    hEff_S1RZ_W2->ComputeEfficiency();
+    hEff_S2RZ_W2->ComputeEfficiency();
+    hEff_S3RZ_W2->ComputeEfficiency();
+  }
   //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
 
   // Write histos to file
@@ -218,7 +230,7 @@ void DTRecHitQuality::endJob() {
 
     //=======================================================================================
     // RecHit analysis at Step 1
-    if(doStep1) {
+    if(doStep1 && doall) {
       if(debug)
         cout << "  -- DTRecHit S1: begin analysis:" << endl;
       // Get the rechit collection from the event
@@ -241,7 +253,7 @@ void DTRecHitQuality::endJob() {
 
     //=======================================================================================
     // RecHit analysis at Step 2
-    if(doStep2) {
+    if(doStep2 && doall) {
       if(debug)
         cout << "  -- DTRecHit S2: begin analysis:" << endl;
 
@@ -493,7 +505,6 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
           << "    SimHit distance angle " << simHitTheta << endl
           << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
-
       HRes1DHit *hRes = 0;
       HRes1DHit *hResTot = 0;
 
@@ -548,60 +559,60 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if(hResTot != 0)
         hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
                       simHitGlobalPos.phi(),recHitErr);
-      
     }
 
     // Fill Efficiencies
-    HEff1DHit *hEff = 0;
-    HEff1DHit *hEffTot = 0;
-
-    if(step == 1) {
-      // Step 1
-      if(wireId.superlayer() != 2) {
-        hEff = hEff_S1RPhi;
-      } else {
-        hEffTot = hEff_S1RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S1RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S1RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S1RZ_W2;
+    if(doall){
+      HEff1DHit *hEff = 0;
+      HEff1DHit *hEffTot = 0;
+      if(step == 1) {
+	// Step 1
+	if(wireId.superlayer() != 2) {
+	  hEff = hEff_S1RPhi;
+	} else {
+	  hEffTot = hEff_S1RZ;
+	  if(wireId.wheel() == 0)
+	    hEff = hEff_S1RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hEff = hEff_S1RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hEff = hEff_S1RZ_W2;
+	}
+	
+      } else if(step == 2) {
+	// Step 2
+	if(wireId.superlayer() != 2) {
+	  hEff = hEff_S2RPhi;
+	} else {
+	  hEffTot = hEff_S2RZ;
+	  if(wireId.wheel() == 0)
+	    hEff = hEff_S2RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hEff = hEff_S2RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hEff = hEff_S2RZ_W2;
+	}
+	
+      } else if(step == 3) {
+	// Step 3
+	if(wireId.superlayer() != 2) {
+	  hEff = hEff_S3RPhi;
+	} else {
+	  hEffTot = hEff_S3RZ;
+	  if(wireId.wheel() == 0)
+	    hEff = hEff_S3RZ_W0;
+	  if(abs(wireId.wheel()) == 1)
+	    hEff = hEff_S3RZ_W1;
+	  if(abs(wireId.wheel()) == 2)
+	    hEff = hEff_S3RZ_W2;
+	}
+	
       }
-
-    } else if(step == 2) {
-      // Step 2
-      if(wireId.superlayer() != 2) {
-        hEff = hEff_S2RPhi;
-      } else {
-        hEffTot = hEff_S2RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S2RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S2RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S2RZ_W2;
-      }
-
-    } else if(step == 3) {
-      // Step 3
-      if(wireId.superlayer() != 2) {
-        hEff = hEff_S3RPhi;
-      } else {
-        hEffTot = hEff_S3RZ;
-        if(wireId.wheel() == 0)
-          hEff = hEff_S3RZ_W0;
-        if(abs(wireId.wheel()) == 1)
-          hEff = hEff_S3RZ_W1;
-        if(abs(wireId.wheel()) == 2)
-          hEff = hEff_S3RZ_W2;
-      }
-
+      // Fill
+      hEff->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+      if(hEffTot != 0)
+	hEffTot->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
     }
-    // Fill
-    hEff->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
-    if(hEffTot != 0)
-      hEffTot->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
   }
 }
 

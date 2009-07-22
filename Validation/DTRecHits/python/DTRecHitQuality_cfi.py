@@ -1,16 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
 rechivalidation = cms.EDFilter("DTRecHitQuality",
-    doStep2 = cms.untracked.bool(True),
+    doStep2 = cms.untracked.bool(False),
     # Switches for analysis at various steps
-    doStep1 = cms.untracked.bool(True),
+    doStep1 = cms.untracked.bool(False),
     # Lable to retrieve RecHits from the event
     recHitLabel = cms.untracked.InputTag('dt1DRecHits'),
     doStep3 = cms.untracked.bool(True),
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     segment2DLabel = cms.untracked.InputTag('dt2DSegments'),
     debug = cms.untracked.bool(False),
-    segment4DLabel = cms.untracked.InputTag('dt4DSegments')
+    segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
+    doall = cms.untracked.bool(False)
+
 )
 
 seg2dvalidation = cms.EDFilter("DTSegment2DQuality",
@@ -26,7 +28,8 @@ seg2dsuperphivalidation = cms.EDFilter("DTSegment2DSLPhiQuality",
     simHitLabel = cms.untracked.InputTag('g4SimHits',"MuonDTHits"),
     sigmaResAngle = cms.double(0.008),
     debug = cms.untracked.bool(False),
-    segment4DLabel = cms.untracked.InputTag('dt4DSegments')
+    segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
+    doall = cms.untracked.bool(False)
 )
 
 seg4dvalidation = cms.EDFilter("DTSegment4DQuality",
@@ -39,7 +42,8 @@ seg4dvalidation = cms.EDFilter("DTSegment4DQuality",
     #resolution on position
     sigmaResX = cms.double(0.01),
     sigmaResY = cms.double(0.05),
-    segment4DLabel = cms.untracked.InputTag('dt4DSegments')
+    segment4DLabel = cms.untracked.InputTag('dt4DSegments'),
+    doall = cms.untracked.bool(False)
 )
 
 dtLocalRecoValidation = cms.Sequence(rechivalidation*seg2dvalidation*seg2dsuperphivalidation*seg4dvalidation)

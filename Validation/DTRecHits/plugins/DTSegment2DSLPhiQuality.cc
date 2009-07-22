@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/26 13:06:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/03 16:42:48 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -51,6 +51,7 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
   //sigma resolution on angle
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
+  doall = pset.getUntrackedParameter<bool>("doall", false);
 
   // Create the root file
   //theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -71,8 +72,8 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   }
 
   // Book the histos
-  h2DHitSuperPhi = new HRes2DHit ("SuperPhi",dbe_);
-  h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi",dbe_);
+  h2DHitSuperPhi = new HRes2DHit ("SuperPhi",dbe_,doall);
+  if(doall) h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi",dbe_);
 }
 
 // Destructor
@@ -84,7 +85,7 @@ void DTSegment2DSLPhiQuality::endJob() {
   //theFile->cd();
   //h2DHitSuperPhi->Write();
 
-  h2DHitEff_SuperPhi->ComputeEfficiency();
+  if(doall) h2DHitEff_SuperPhi->ComputeEfficiency();
   //h2DHitEff_SuperPhi->Write();
 
   //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
@@ -249,11 +250,11 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-    h2DHitEff_SuperPhi->Fill(etaSimSeg,
+    if(doall) {h2DHitEff_SuperPhi->Fill(etaSimSeg,
                             phiSimSeg,
                             posSimSeg,
                             angleSimSeg,
-                            recHitFound);
+					recHitFound);}
   } // End of loop over chambers
 }
 
