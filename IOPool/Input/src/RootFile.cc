@@ -365,9 +365,6 @@ namespace edm {
   
     fillProductRegistryTransients(procConfigVector, inputProdDescReg);
 
-    // freeze our temporary product registry
-    inputProdDescReg.setFrozen();
-
     std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
@@ -393,12 +390,12 @@ namespace edm {
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
 	}
       }
-      // freeze the product registry
-      newReg->setFrozen();
       productRegistry_.reset(newReg.release());
     }
 
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
+    // freeze the product registry
+    productRegistry_->setFrozen();
 
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry()->productList();
