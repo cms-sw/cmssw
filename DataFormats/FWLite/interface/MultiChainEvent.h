@@ -105,14 +105,6 @@ class MultiChainEvent: public EventBase
 
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
-   protected:
-
-      // toBeginImpl() is meat of toBegin() with no return value
-      virtual void toBeginImpl(); 
-
-      // toNext is meat of operator++ with no return value
-      virtual void toNext();
-
 
    private:
 

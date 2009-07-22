@@ -88,17 +88,10 @@ MultiChainEvent::~MultiChainEvent()
 // member functions
 //
 
-void
-MultiChainEvent::toNext()
-{
-   // only increment the first
-   event1_->toNext();
-}
-
 const MultiChainEvent& 
 MultiChainEvent::operator++()
 {
-   toNext();
+   event1_->operator++();
    return *this;
 }
 
@@ -146,16 +139,10 @@ MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) {
 }
 
 // Go to the very first Event
-void
-MultiChainEvent::toBeginImpl()
-{
-   event1_->toBeginImpl();
-}
-
 const MultiChainEvent& 
 MultiChainEvent::toBegin() 
 {
-   toBeginImpl();
+   event1_->toBegin();
    return *this;
 }
 

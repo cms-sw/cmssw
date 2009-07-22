@@ -146,20 +146,14 @@ Event::~Event()
 // member functions
 //
 
-void
-Event::toNext()
+const Event& 
+Event::operator++()
 {
    Long_t eventIndex = branchMap_.getEventEntry();
    if(eventIndex < size()) 
    {
       branchMap_.updateEvent(++eventIndex);
    }
-}
-
-const Event& 
-Event::operator++()
-{
-   toNext();
    return *this;
 }
 
@@ -210,16 +204,10 @@ Event::to(edm::EventID id)
   return to(id.run(), id.event());
 }
 
-void
-Event::toBeginImpl()
-{
-   branchMap_.updateEvent(0);
-}
-
 const Event& 
 Event::toBegin()
 {
-   toBeginImpl();
+   branchMap_.updateEvent(0);
    return *this;
 }
 

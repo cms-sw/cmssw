@@ -174,15 +174,6 @@ namespace fwlite {
 
          // ---------- member functions ---------------------------
 
-      protected:
-
-         // toBeginImpl() is meat of toBegin() with no return value
-         virtual void toBeginImpl(); 
-         
-         // toNext is meat of operator++ with no return value
-         virtual void toNext();
-
-
       private:
          friend class internal::ProductGetter;
          friend class ChainEvent;

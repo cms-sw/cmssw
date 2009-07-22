@@ -64,16 +64,9 @@ namespace fwlite
 
          virtual bool atEnd() const = 0;
 
-      protected:
-         
-         // The meat of operator++, but with no return value.  Note
-         // that C++ could handle just overwriting operator++, but
-         // we're afraid that CInt can't.
-         virtual void toNext() = 0;
-         
-         // This is meant for the meat of the toBegin function, but
-         // with no return value.  Same explanation as above.
-         virtual void toBeginImpl() = 0;
+         virtual const EventBase& operator++() = 0;
+
+         virtual const EventBase& toBegin() = 0;
 
    };
 } // fwlite namespace

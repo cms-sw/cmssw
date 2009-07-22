@@ -82,8 +82,8 @@ ChainEvent::~ChainEvent()
 // member functions
 //
 
-void
-ChainEvent::toNext()
+const ChainEvent& 
+ChainEvent::operator++()
 {
    if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1) 
    {
@@ -96,12 +96,6 @@ ChainEvent::toNext()
          ++(*event_);
       }
    } 
-}
-
-const ChainEvent& 
-ChainEvent::operator++()
-{
-   toNext();
    return *this;
 }
 
@@ -180,20 +174,14 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) {
 
 /** Go to the very first Event*/
 
-void
-ChainEvent::toBeginImpl()
+const ChainEvent& 
+ChainEvent::toBegin() 
 {
    if (eventIndex_ != 0) 
    {
       switchToFile(0);
    }
-   event_->toBeginImpl();
-}
-
-const ChainEvent& 
-ChainEvent::toBegin() 
-{
-   toBeginImpl();
+   event_->toBegin();
    return *this;
 }
 
