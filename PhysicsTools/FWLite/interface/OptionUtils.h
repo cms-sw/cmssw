@@ -73,6 +73,11 @@ namespace optutl
       kNumOptionTypes
    };
 
+   enum WhichDefaultOptionsType
+   {
+      kEventContainer
+   };
+
    ///////////////
    // Functions //
    ///////////////
@@ -81,8 +86,10 @@ namespace optutl
    // any non-assignments and non-options will be returned.
    SVec parseArguments (int argc, char** argv, bool returnArgs = false);
 
-   // set a usage string for '--help' option
-   void setUsageString (const std::string &usage);
+   // Set a usage string for '--help' option as well as setup a set of
+   // default options.
+   void setUsageAndDefaultOptions (const std::string &usage,
+                                   WhichDefaultOptionsType type);
 
    // prints out '--help' screen, then exits.
    void help();
@@ -175,9 +182,6 @@ namespace optutl
    // list with correct files.
    void getSectionFiles (const SVec &inputList, SVec &outputList,
                          int section, int totalSection);
-
-   // sets up default optioons
-   void setupDefaultOptions();
 
    // Not called by users anymore.  Finish evaluating default options.
    // Pass in 'tag' if you want to modify the output name based on

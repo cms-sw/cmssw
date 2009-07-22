@@ -100,9 +100,48 @@ optutl::parseArguments (int argc, char** argv, bool returnArgs)
 }
 
 void 
-optutl::setUsageString (const std::string &usage) 
+optutl::setUsageAndDefaultOptions (const std::string &usage,
+                                   WhichDefaultOptionsType type)
 { 
    ns_usageString = usage; 
+   if (kEventContainer == type)
+   {
+      // Integer options
+      addOption ("totalSections", kInteger,
+                 "Total number of sections", 
+                 0);
+      addOption ("section",       kInteger,
+                 "This section (from 1..totalSections inclusive)", 
+                 0);
+      addOption ("maxEvents",     kInteger,
+                 "Maximum number of events to run over (0 for whole file)", 
+                 0);
+      addOption ("jobID",         kInteger,
+                 "jobID given by CRAB,etc. (-1 means append nothing)", 
+                 -1);
+      addOption ("outputEvery",   kInteger,
+                 "Output something once every N events (0 for never)", 
+                 0);
+      // String options
+      addOption ("outputFile",    kString,
+                 "Output filename", 
+                 "output.root");
+      addOption ("storePrepend",  kString,
+                 "Prepend location on files starting with '/store/'");
+      addOption ("tag",           kString,
+                 "A 'tag' to append to output file (e.g., 'v2', etc.)");
+      // Bool options
+      addOption ("logName",       kBool,
+                 "Print log name and exit");
+      // String vector options
+      addOption ("inputFiles",    kStringVector,
+                 "List of input files");
+      return;
+   }
+   // If we're still here, we have a type I don't understand.
+   cerr << "optutl::setUsageAndDefaultOptions() Error: type '" << type 
+        << "' is not understood.  Aborting." << endl;
+   assert (0);   
 }
 
 void
@@ -251,11 +290,11 @@ void
 optutl::printOptionValues()
 {
    cout << "------------------------------------------------------------------" 
-        << left << endl << "Option Values:" << endl;
+        << left << endl;
    // Print the integers next
    if (ns_integerMap.size())
    {
-      cout << "  Integer options:" << endl;
+      cout << endl << "Integer options:" << endl;
    }
    for (SIMapConstIter iter = ns_integerMap.begin(); 
        ns_integerMap.end() != iter; 
@@ -274,7 +313,7 @@ optutl::printOptionValues()
    // Print the doubles next
    if (ns_doubleMap.size())
    {
-      cout << "  Double options:" << endl;
+      cout << endl << "Double options:" << endl;
    }
    for (SDMapConstIter iter = ns_doubleMap.begin(); 
        ns_doubleMap.end() != iter; 
@@ -293,7 +332,7 @@ optutl::printOptionValues()
    // Print the bools first
    if (ns_boolMap.size())
    {
-      cout << "  Bool options:" << endl;
+      cout << endl << "Bool options:" << endl;
    }
    for (SBMapConstIter iter = ns_boolMap.begin(); 
        ns_boolMap.end() != iter; 
@@ -317,7 +356,7 @@ optutl::printOptionValues()
    // Print the strings next
    if (ns_stringMap.size())
    {
-      cout << "  String options:" << endl;
+      cout << endl << "String options:" << endl;
    }
    for (SSMapConstIter iter = ns_stringMap.begin(); 
        ns_stringMap.end() != iter; 
@@ -326,18 +365,18 @@ optutl::printOptionValues()
       const string &description = ns_variableDescriptionMap[ iter->first ];
       cout << "    " << setw(14) << iter->first << " = ";
       const string value = "'" + iter->second + "'";
-      cout << setw(14) << value;
+      cout << setw(14) << "";
       if (description.length())
       {
          cout << " - " << description;
       }
-      cout << endl;
+      cout << endl << "        " << value << endl;
    } // for iter
 
    // Integer Vec
    if (ns_integerVecMap.size())
    {
-      cout << "  Integer Vector options:" << endl;
+      cout << endl << "Integer Vector options:" << endl;
    }
    for (SIVecMapConstIter iter = ns_integerVecMap.begin(); 
        ns_integerVecMap.end() != iter; 
@@ -357,7 +396,7 @@ optutl::printOptionValues()
    // Double Vec
    if (ns_doubleVecMap.size())
    {
-      cout << "  Double Vector options:" << endl;
+      cout << endl << "Double Vector options:" << endl;
    }
    for (SDVecMapConstIter iter = ns_doubleVecMap.begin(); 
        ns_doubleVecMap.end() != iter; 
@@ -377,7 +416,9 @@ optutl::printOptionValues()
    // String Vec
    if (ns_stringVecMap.size())
    {
-      cout << "  String Vector options:" << endl;
+      cout << endl << "String Vector options:" << endl;
+   } else {
+      cout << endl;
    }
    for (SSVecMapConstIter iter = ns_stringVecMap.begin(); 
        ns_stringVecMap.end() != iter; 
@@ -385,13 +426,12 @@ optutl::printOptionValues()
    {
       const string &description = ns_variableDescriptionMap[ iter->first ];
       cout << "    " << setw(14) << iter->first << " = ";
-      dumpSTL (iter->second); 
-      cout << endl;
       if (description.length())
       {
-         cout << "      - " << description;
+         cout << setw(14) << "" << " - " << description;
       }
       cout << endl;
+      dumpSTLeachEndl (iter->second, 8); 
    } // for iter
 
    cout << "------------------------------------------------------------------" 
@@ -981,41 +1021,6 @@ optutl::getSectionFiles (const SVec &inputList, SVec &outputList,
    {
       outputList.push_back( inputList.at( loop ) );
    } // for loop
-}
-
-void
-optutl::setupDefaultOptions()
-{
-   // Integer options
-   addOption ("totalSections", kInteger,
-              "Total number of sections", 
-              0);
-   addOption ("section",       kInteger,
-              "This section (from 1..totalSections inclusive)", 
-              0);
-   addOption ("maxEvents",     kInteger,
-              "Maximum number of events to run over (0 for whole file)", 
-              0);
-   addOption ("jobID",         kInteger,
-              "jobID given by CRAB,etc. (-1 means append nothing)", 
-              -1);
-   addOption ("outputEvery",   kInteger,
-              "Output something once every N events (0 for never)", 
-              0);
-   // String options
-   addOption ("outputFile",    kString,
-              "Output filename", 
-              "output.root");
-   addOption ("storePrepend",  kString,
-              "Prepend location on files starting with '/store/'");
-   addOption ("tag",           kString,
-              "A 'tag' to append to output file (e.g., 'v2', etc.)");
-   // Bool options
-   addOption ("logName",       kBool,
-              "Print log name and exit");
-   // String vector options
-   addOption ("inputFiles",    kStringVector,
-              "List of input files");
 }
 
 void 
