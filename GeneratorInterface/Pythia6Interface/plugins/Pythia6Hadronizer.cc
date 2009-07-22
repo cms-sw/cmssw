@@ -95,7 +95,9 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
      fCOMEnergy(ps.getParameter<double>("comEnergy")),
      fHepMCVerbosity(ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      fMaxEventsToPrint(ps.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
+     fPythiaListVerbosity(ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
+     fDisplayPythiaBanner(ps.getUntrackedParameter<bool>("displayPythiaBanner",false)),
+     fDisplayPythiaCards(ps.getUntrackedParameter<bool>("displayPythiaCards",false))
 { 
 
    // J.Y.: the following 4 params are "hacked", in the sense 
@@ -130,20 +132,26 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
       fJetMatching = JetMatching::create(jmParams).release();
    }
    
-   // first of all, silence Pythia6 banner printout
+   // first of all, silence Pythia6 banner printout, unless display requested
    //
-   if (!call_pygive("MSTU(12)=12345")) 
+   if ( !fDisplayPythiaBanner )
    {
-      throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-          <<" Pythia did not accept MSTU(12)=12345";
+      if (!call_pygive("MSTU(12)=12345")) 
+      {
+         throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+             <<" Pythia did not accept MSTU(12)=12345";
+      }
    }
    
-// silence printouts from PYGIVE
+// silence printouts from PYGIVE, unless display requested
 //
-   if (!call_pygive("MSTU(13)=0")) 
+   if ( ! fDisplayPythiaCards )
    {
-      throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-          <<" Pythia did not accept MSTU(13)=0";
+      if (!call_pygive("MSTU(13)=0")) 
+      {
+         throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+             <<" Pythia did not accept MSTU(13)=0";
+      }
    }
 
    // tmp stuff to deal with EvtGen corrupting pyjets
