@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -35,8 +35,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-'/store/backfill/2/data/T0TEST_31XReplayTesting_TEMPORARYFORVALIDATIONONLY/MinimumBias/RAW/v1/000/100/880/B298B113-9066-DE11-9B56-000423D99F3E.root')
+    fileNames = cms.untracked.vstring('/store/data/Commissioning09/Cosmics/RAW/v3/000/106/019/FECCF15C-4872-DE11-BDB2-000423D944F8.root')
 )
 
 # Output definition
@@ -60,9 +59,10 @@ process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+process.ALCARECOStreamCombined.outputCommands.extend(cms.untracked.vstring('drop *_MEtoEDMConverter_*_*'))
 
 # Other statements
-process.GlobalTag.globaltag = 'GR09_31X_V2P::All'
+process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
 
 # Path and EndPath definitions
 
