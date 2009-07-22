@@ -63,6 +63,10 @@ namespace fwlite
 
          // given a string, returns corresponding histogram pointer
          TH1* hist (const std::string &name);
+         TH1* hist (const char* name)
+         { return hist( (const std::string) name); }
+         TH1* hist (const TString &name)
+         { return hist( (const char*) name ); }
 
          ///////////////////////////////////////////////////////////////////
          // Implement the two functions needed to make this an EventBase. //
