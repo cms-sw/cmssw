@@ -24,7 +24,7 @@ protected:
   virtual int chamberId(int globalDetId) const;
 
   /// decides whether this cluster is good enough to be included
-  virtual bool accept(const edm::PSimHitContainer & cluster) const;
+  virtual bool accept(const edm::PSimHitContainer & cluster) const {return true;}
 
 };
 
