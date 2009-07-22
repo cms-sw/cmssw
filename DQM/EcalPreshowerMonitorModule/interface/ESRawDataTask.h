@@ -55,10 +55,13 @@ class ESRawDataTask : public edm::EDAnalyzer {
       edm::InputTag dccCollections_;
       edm::InputTag FEDRawDataCollection_;
 
-      MonitorElement* meRunNumberErrors_;
+      //MonitorElement* meRunNumberErrors_;
       MonitorElement* meL1ADCCErrors_;
       MonitorElement* meBXDCCErrors_;
       MonitorElement* meOrbitNumberDCCErrors_;
+      MonitorElement* meL1ADiff_;
+      MonitorElement* meBXDiff_;
+      MonitorElement* meOrbitNumberDiff_;
 
       bool init_;
       int runNum_;

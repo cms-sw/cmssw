@@ -81,10 +81,10 @@ void ESRawDataTask::setup(void){
    if (dqmStore_) {
       dqmStore_->setCurrentFolder(prefixME_ + "/ESRawDataTask");
 
-      sprintf(histo, "ES run number errors");
-      meRunNumberErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      meRunNumberErrors_->setAxisTitle("ES FED", 1);
-      meRunNumberErrors_->setAxisTitle("Num of Events", 2);
+      //sprintf(histo, "ES run number errors");
+      //meRunNumberErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
+      //meRunNumberErrors_->setAxisTitle("ES FED", 1);
+      //meRunNumberErrors_->setAxisTitle("Num of Events", 2);
 
       sprintf(histo, "ES L1A DCC errors");
       meL1ADCCErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
@@ -100,6 +100,21 @@ void ESRawDataTask::setup(void){
       meOrbitNumberDCCErrors_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
       meOrbitNumberDCCErrors_->setAxisTitle("ES FED", 1);
       meOrbitNumberDCCErrors_->setAxisTitle("Num of Events", 2);
+      
+      sprintf(histo, "Difference between ES and GT L1A ");
+      meL1ADiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
+      meL1ADiff_->setAxisTitle("ES - GT L1A", 1);
+      meL1ADiff_->setAxisTitle("Num of Events", 2);
+
+      sprintf(histo, "Difference between ES and GT BX");
+      meBXDiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
+      meBXDiff_->setAxisTitle("ES - GT BX", 1);
+      meBXDiff_->setAxisTitle("Num of Events", 2);
+
+      sprintf(histo, "Difference between ES and GT Orbit Number");
+      meOrbitNumberDiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
+      meOrbitNumberDiff_->setAxisTitle("ES - GT orbit number", 1);
+      meOrbitNumberDiff_->setAxisTitle("Num of Events", 2);
    }
 
 }
@@ -109,8 +124,8 @@ void ESRawDataTask::cleanup(void){
    if ( ! init_ ) return;
 
    if ( dqmStore_ ) {
-     if ( meRunNumberErrors_ ) dqmStore_->removeElement( meRunNumberErrors_->getName() );
-     meRunNumberErrors_ = 0;
+     //if ( meRunNumberErrors_ ) dqmStore_->removeElement( meRunNumberErrors_->getName() );
+     //meRunNumberErrors_ = 0;
 
      if ( meL1ADCCErrors_ ) dqmStore_->removeElement( meL1ADCCErrors_->getName() );
      meL1ADCCErrors_ = 0;
@@ -120,6 +135,15 @@ void ESRawDataTask::cleanup(void){
 
      if ( meOrbitNumberDCCErrors_ ) dqmStore_->removeElement( meOrbitNumberDCCErrors_->getName() );
      meOrbitNumberDCCErrors_ = 0;
+
+     if ( meL1ADiff_ ) dqmStore_->removeElement( meL1ADiff_->getName() );
+     meL1ADiff_ = 0;
+
+     if ( meBXDiff_ ) dqmStore_->removeElement( meBXDiff_->getName() );
+     meBXDiff_ = 0;
+
+     if ( meOrbitNumberDiff_ ) dqmStore_->removeElement( meOrbitNumberDiff_->getName() );
+     meOrbitNumberDiff_ = 0;
    }
 
    init_ = false;
@@ -217,14 +241,27 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
       if (dcc.getLV1() != gt_L1A) {
 	meL1ADCCErrors_->Fill(dcc.fedId());
 	//cout<<"L1A err : "<<dcc.getLV1()<<" "<<gt_L1A<<endl;
+	Float_t l1a_diff = dcc.getLV1() - gt_L1A;
+	if (l1a_diff > 100) l1a_diff = 100;
+	else if (l1a_diff < -100) l1a_diff = -100;
+	meL1ADiff_->Fill(l1a_diff);
       }
+
       if (dcc.getBX() != gt_BX) {
 	meBXDCCErrors_->Fill(dcc.fedId());
 	//cout<<"BX err : "<<dcc.getBX()<<" "<<gt_BX<<endl;
+	Float_t bx_diff = dcc.getBX() - gt_BX;
+	if (bx_diff > 100) bx_diff = 100;
+	else if (bx_diff < -100) bx_diff = -100;
+	meBXDiff_->Fill(bx_diff);
       }
       if (dcc.getOrbitNumber() != gt_OrbitNumber) {
 	meOrbitNumberDCCErrors_->Fill(dcc.fedId());
 	//cout<<"Orbit err : "<<dcc.getOrbitNumber()<<" "<<gt_OrbitNumber<<endl;
+	Float_t orbitnumber_diff = dcc.getOrbitNumber() - gt_OrbitNumber;
+	if (orbitnumber_diff > 100) orbitnumber_diff = 100;
+	else if (orbitnumber_diff < -100) orbitnumber_diff = -100;
+	meBXDiff_->Fill(orbitnumber_diff);
       }
    }
 
