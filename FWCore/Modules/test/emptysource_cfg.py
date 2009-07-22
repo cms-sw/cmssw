@@ -17,6 +17,20 @@ process.source = cms.Source("EmptySource",
     timeBetweenEvents = cms.untracked.uint32(10)
 )
 
+ids = cms.VEventID()
+numberOfEventsInRun = 0
+numberOfEventsPerRun = process.source.numberEventsInRun.value()
+run = process.source.firstRun.value()
+event=0
+for i in xrange(process.maxEvents.input.value()):
+   numberOfEventsInRun +=1
+   event += 1
+   if numberOfEventsInRun > numberOfEventsPerRun:
+      numberOfEventsInRun=1
+      run += 1
+      event = 1
+   ids.append(cms.EventID(run,event))
+process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(ids))
 process.print1 = cms.OutputModule("AsciiOutputModule")
 
-process.p = cms.EndPath(process.print1)
+process.p = cms.EndPath(process.check+process.print1)
