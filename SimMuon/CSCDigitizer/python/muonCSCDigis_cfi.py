@@ -61,8 +61,8 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     InputCollection = cms.string('g4SimHitsMuonCSCHits'),
     stripConditions = cms.string('Database'),
     GeometryType = cms.string('idealForDigi'),                            
-    digitizeBadChambers = cms.bool(False)
-
+    digitizeBadChambers = cms.bool(False),
+    layersNeeded = cms.uint32(2)
 )
 
 
