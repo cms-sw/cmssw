@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/17 20:17:06 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/20 20:02:04 $
+ *  $Revision: 1.7 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -30,6 +30,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 // Trigger stuff
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -76,7 +77,8 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
   // Keep the number of plots and number of bins to a minimum!
   h_mumu_invMass = theDbe->book1D("h_mumu_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0);
   h_ee_invMass   = theDbe->book1D("h_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0);
-  h_jet_et       = theDbe->book1D("h_jet_et",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(jet) (GeV)",    20, 0., 200.0);
+  h_jet_et       = theDbe->book1D("h_jet_et",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., 200.0);
+  h_jet2_et      = theDbe->book1D("h_jet2_et",      "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
   h_jet_count    = theDbe->book1D("h_jet_count",    "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
   h_e1_et        = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0);
   h_e2_et        = theDbe->book1D("h_e2_et",  "E_{T} of Second Electron;E_{T} (GeV)"         , 20,  0.0 , 100.0);
@@ -200,9 +202,9 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     for (reco::MuonCollection::const_iterator recoMuon=muonCollection->begin(); recoMuon!=muonCollection->end(); recoMuon++){
 
       // Require muon to pass some basic cuts
-      if (recoMuon->pt() < 20) continue;
+      if ( recoMuon->pt() < 20 || !recoMuon->isGlobalMuon() ) continue;
       // Some tighter muon cuts
-      //if ( recoMuon->globalTrack()->normalizedChi2() > 10 ) continue;
+      if ( recoMuon->globalTrack()->normalizedChi2() > 10 ) continue;
 
       if (recoMuon->pt() > muon_pt){
         muon2_pt  = muon_pt;  // 2nd highest gets values from current highest    
@@ -212,7 +214,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
         muon_eta  = recoMuon->eta();
         muon_phi  = recoMuon->phi();
         m1 = TLorentzVector(recoMuon->momentum().x(),recoMuon->momentum().y(),recoMuon->momentum().z(),recoMuon->p());
-      } else if (recoMuon->et() > muon2_pt) {
+      } else if (recoMuon->pt() > muon2_pt) {
         muon2_pt  = recoMuon->pt();
         muon2_eta = recoMuon->eta();
         muon2_phi = recoMuon->phi();
@@ -273,54 +275,73 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //                 Fill Histograms                                            //
   ////////////////////////////////////////////////////////////////////////////////
 
+  bool fill_e1  = false;
+  bool fill_e2  = false;
+  bool fill_m1  = false;
+  bool fill_m2  = false;
+  bool fill_met = false;
+
   // Was Z->ee found?
   if (ee_invMass>0.0) {
     h_ee_invMass ->Fill(ee_invMass);
-    h_e1_et      ->Fill(electron_et);
-    h_e1_eta     ->Fill(electron_eta);
-    h_e1_phi     ->Fill(electron_phi);
-    h_e2_et      ->Fill(electron2_et);
-    h_e2_eta     ->Fill(electron2_eta);
-    h_e2_phi     ->Fill(electron2_phi);
+    fill_e1 = true;
+    fill_e2 = true;
   }
 
   // Was Z->mu mu found?
   if (mm_invMass > 0.0) {
     h_mumu_invMass->Fill(mm_invMass);
-    h_m1_pt      ->Fill(muon_pt);
-    h_m2_pt      ->Fill(muon2_pt);
-    h_m1_eta     ->Fill(muon_eta);
-    h_m2_eta     ->Fill(muon2_eta);
-    h_m1_phi     ->Fill(muon_phi);
-    h_m2_phi     ->Fill(muon2_phi);
+    fill_m1 = true;
+    fill_m2 = true;
   }
 
   // Was W->e nu found?
   if (electron_et>0.0&&missing_et>20.0) {
-    double dphiW = fabs(met_phi-electron_phi);
+    float dphiW = fabs(met_phi-electron_phi);
     float W_mt_e = sqrt(2*missing_et*electron_et*(1-cos(dphiW)));
-    h_m_invWMass ->Fill(W_mt_e);
-    h_e1_et      ->Fill(electron_et);
-    h_e1_eta     ->Fill(electron_eta);
-    h_e1_phi     ->Fill(electron_phi);
-    h_met        ->Fill(missing_et);
-    h_met_phi    ->Fill(met_phi);
+    h_e_invWMass ->Fill(W_mt_e);
+    fill_e1  = true;
+    fill_met = true;
   }
 
   // Was W->mu nu found?
   if (muon_pt>0.0&&missing_et>20.0) {
-    double dphiW = fabs(met_phi-muon_phi);
+    float dphiW = fabs(met_phi-muon_phi);
     float W_mt_m = sqrt(2*missing_et*muon_pt*(1-cos(dphiW)));
-    h_e_invWMass ->Fill(W_mt_m);
+    h_m_invWMass ->Fill(W_mt_m);
+    fill_m1  = true;
+    fill_met = true;
+  }
+
+  if (jet_et>0.0) {
+    h_jet_et   ->Fill(jet_et);
+    h_jet_count->Fill(jet_count);
+  }
+
+  if (fill_e1) {
+    h_e1_et      ->Fill(electron_et);
+    h_e1_eta     ->Fill(electron_eta);
+    h_e1_phi     ->Fill(electron_phi);
+  }
+  if (fill_e2) {
+    h_e2_et      ->Fill(electron2_et);
+    h_e2_eta     ->Fill(electron2_eta);
+    h_e2_phi     ->Fill(electron2_phi);
+  }
+  if (fill_m1) {
     h_m1_pt      ->Fill(muon_pt);
     h_m1_eta     ->Fill(muon_eta);
     h_m1_phi     ->Fill(muon_phi);
+  }
+  if (fill_m2) {
+    h_m2_pt      ->Fill(muon2_pt);
+    h_m2_eta     ->Fill(muon2_eta);
+    h_m2_phi     ->Fill(muon2_phi);
+  }
+  if (fill_met) {
     h_met        ->Fill(missing_et);
     h_met_phi    ->Fill(met_phi);
   }
-
-  h_jet_et   ->Fill(jet_et);
-  h_jet_count->Fill(jet_count);
   ////////////////////////////////////////////////////////////////////////////////
 }
 
