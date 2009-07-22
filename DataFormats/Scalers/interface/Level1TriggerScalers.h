@@ -34,6 +34,11 @@ class Level1TriggerScalers
     nLevel1TestTriggers      = 64
   };
 
+  static const unsigned long long N_BX = 3564ULL;
+  static const unsigned long long N_BX_ACTIVE = 2808ULL;
+  static const unsigned long long N_ORBITS_LUMI_SECTION = 0x100000ULL;
+  static const unsigned long long N_BX_LUMI_SECTION = N_ORBITS_LUMI_SECTION * N_BX;
+
   Level1TriggerScalers();
   Level1TriggerScalers(const unsigned char * rawData);
   virtual ~Level1TriggerScalers();
@@ -104,6 +109,11 @@ class Level1TriggerScalers
   { return(deadtimeBeamActivePartitionController_);}
   unsigned long long deadtimeBeamActiveTimeSlot() const 
   { return(deadtimeBeamActiveTimeSlot_);}
+
+  static double rateLS(unsigned long long counts);
+  static double rateLS(unsigned int counts);
+  static double percentLS(unsigned long long counts);
+  static double percentLSActive(unsigned long long counts);
 
   std::vector<unsigned int> gtAlgoCounts() const 
   { return(gtAlgoCounts_);}

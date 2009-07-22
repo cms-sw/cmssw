@@ -111,12 +111,41 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 
 Level1TriggerScalers::~Level1TriggerScalers() { } 
 
+double Level1TriggerScalers::rateLS(unsigned int counts)
+{ 
+  unsigned long long counts64 = (unsigned long long)counts;
+  return(rateLS(counts64));
+}
+
+double Level1TriggerScalers::rateLS(unsigned long long counts)
+{ 
+  double rate = ((double)counts) / 93.4281216;
+  return(rate);
+}
+
+double Level1TriggerScalers::percentLS(unsigned long long counts)
+{ 
+  double percent = ((double)counts) * 373712486400.0;
+  if ( percent > 100.0000 ) { percent = 100.0;}
+  return(percent);
+}
+
+double Level1TriggerScalers::percentLSActive(unsigned long long counts)
+{ 
+  double percent = ((double)counts) * 294440140800.0;
+  if ( percent > 100.0000 ) { percent = 100.0;}
+  return(percent);
+}
 
 /// Pretty-print operator for Level1TriggerScalers
 std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c) 
 {
-  //  std::cout << "sizeof(v3)=" << sizeof(struct ScalersEventRecordRaw_v3)
-  //	    << std::endl;
+  std::cout << "sizeof(v3)=" << sizeof(struct ScalersEventRecordRaw_v3)
+  	    << std::endl;
+  std::cout << "sizeof(lumi)=" << sizeof(struct LumiScalersRaw_v1)
+  	    << std::endl;
+  std::cout << "sizeof(trig)=" << sizeof(struct TriggerScalersRaw_v3)
+  	    << std::endl;
 
   s << "Level1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
@@ -145,69 +174,102 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   s << line << std::endl;
 
   sprintf(line,
-	  " LumiSegmentNr: %10d  LumiSegmentOrbits: %10d   OrbitNr: %10d",
+	  " LumiSegmentNr: %10u  LumiSegmentOrbits: %10u   OrbitNr: %10u",
 	  c.lumiSegmentNr(), c.lumiSegmentOrbits(), c.orbitNr());
   s << line << std::endl;
 
   sprintf(line,
-	  " GtPartition0Resets: %10d  BunchCrossingErrors: %10d",
+	  " GtPartition0Resets:   %10u    BunchCrossingErrors:   %10u",
 	  c.gtPartition0Resets(), c.bunchCrossingErrors());
   s << line << std::endl;
 
   sprintf(line,
-	  " PrescaleIndexAlgo: %10d   PrescaleIndexTech: %10d",
+	  " PrescaleIndexAlgo:    %10d    PrescaleIndexTech:     %10d",
 	  c.prescaleIndexAlgo(), c.prescaleIndexTech());
   s << line << std::endl;
 
-  sprintf(line,
-	  " GtPartition0Triggers:     %20llu  GtPartition0Events: %20llu",
-	  c.gtPartition0Triggers(), c.gtPartition0Events());
+  sprintf(line, " GtPartition0Triggers:            %20llu", 
+	  c.gtPartition0Triggers());
+  s << line << std::endl;
+
+  sprintf(line, " GtPartition0Events:              %20llu", 
+	  c.gtPartition0Events());
   s << line << std::endl;
 
 
-  sprintf(line,
-	  " TriggersPhysicsGeneratedFDL:     %20llu  TriggersPhysicsLost:              %20llu",
-	  c.triggersPhysicsGeneratedFDL(), c.triggersPhysicsLost());
+  sprintf(line, " TriggersPhysicsGeneratedFDL:     %20llu %20.3f Hz",
+	  c.triggersPhysicsGeneratedFDL(),
+	  Level1TriggerScalers::rateLS(c.triggersPhysicsGeneratedFDL()));
   s << line << std::endl;
 
-  sprintf(line,
-	  " TriggersPhysicsLostBeamActive:  %20llu  TriggersPhysicsLostBeamInactive:  %20llu",
-	  c.triggersPhysicsLostBeamActive(), c.triggersPhysicsLostBeamInactive());
+  sprintf(line, " TriggersPhysicsLost:             %20llu %20.3f Hz",
+	  c.triggersPhysicsLost(),
+	  Level1TriggerScalers::rateLS(c.triggersPhysicsLost()));
   s << line << std::endl;
 
-
-  sprintf(line,
-	  " L1AsPhysics:  %20llu  L1AsRandom:  %20llu",
-	  c.l1AsPhysics(), c.l1AsRandom());
+  sprintf(line, " TriggersPhysicsLostBeamActive:   %20llu %20.3f Hz",
+	  c.triggersPhysicsLostBeamActive(),
+	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamActive()));
   s << line << std::endl;
 
-
-  sprintf(line,
-	  " L1AsTest:  %20llu  L1AsCalibration:  %20llu",
-	  c.l1AsTest(), c.l1AsCalibration());
+  sprintf(line, " TriggersPhysicsLostBeamInactive: %20llu %20.3f Hz",
+	  c.triggersPhysicsLostBeamInactive(),
+	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamInactive()));
   s << line << std::endl;
 
-
-  sprintf(line,
-	  " Deadtime:  %20llu  DeadtimeBeamActive:  %20llu",
-	  c.deadtime(), c.deadtimeBeamActive());
+  sprintf(line, " L1AsPhysics:                     %20llu %20.3f Hz",
+	  c.l1AsPhysics(),
+	  Level1TriggerScalers::rateLS(c.l1AsPhysics()));
   s << line << std::endl;
 
-
-  sprintf(line,
-	  " DeadtimeBeamActiveTriggerRules:  %20llu  DeadtimeBeamActiveCalibration:  %20llu",
-	  c.deadtimeBeamActiveTriggerRules(), c.deadtimeBeamActiveCalibration());
+  sprintf(line, " L1AsRandom:                      %20llu %20.3f Hz",
+	  c.l1AsRandom(),
+	  Level1TriggerScalers::rateLS(c.l1AsRandom()));
   s << line << std::endl;
 
-
-  sprintf(line,
-	  " DeadtimeBeamActiveCalibration:  %20llu  DeadtimeBeamActivePrivateOrbit:  %20llu",
-	  c.deadtimeBeamActiveCalibration(), c.deadtimeBeamActivePrivateOrbit());
+  sprintf(line, " L1AsTest:                        %20llu %20.3f Hz",
+	  c.l1AsTest(),
+	  Level1TriggerScalers::rateLS(c.l1AsTest()));
   s << line << std::endl;
 
-  sprintf(line,
-	  " DeadtimeBeamActivePartitionController:  %20llu  DeadtimeBeamActiveTimeSlot:  %20llu",
-	  c.deadtimeBeamActivePartitionController(), c.deadtimeBeamActiveTimeSlot());
+  sprintf(line, " L1AsCalibration:                 %20llu %20.3f Hz",
+	  c.l1AsCalibration(),
+	  Level1TriggerScalers::rateLS(c.l1AsCalibration()));
+  s << line << std::endl;
+
+  sprintf(line, " Deadtime:                             %20llu %14.3f%%",
+	  c.deadtime(),
+	  Level1TriggerScalers::percentLS(c.deadtime()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActive:                   %20llu %14.3f%%",
+	  c.deadtimeBeamActive(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActive()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActiveTriggerRules:       %20llu %14.3f%%",
+	  c.deadtimeBeamActiveTriggerRules(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTriggerRules()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActiveCalibration:        %20llu %14.3f%%",
+	  c.deadtimeBeamActiveCalibration(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveCalibration()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActivePrivateOrbit:       %20llu %14.3f%%",
+	  c.deadtimeBeamActivePrivateOrbit(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePrivateOrbit()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActivePartitionController:%20llu %14.3f%%",
+	  c.deadtimeBeamActivePartitionController(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePartitionController()));
+  s << line << std::endl;
+
+  sprintf(line, " DeadtimeBeamActiveTimeSlot:           %20llu %14.3f%%",
+	  c.deadtimeBeamActiveTimeSlot(),
+	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTimeSlot()));
   s << line << std::endl;
 
   std::vector<unsigned int> gtAlgoCounts = c.gtAlgoCounts();
