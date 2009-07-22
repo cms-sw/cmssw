@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # DQM monitor module for EWK
 ewkDQM = cms.EDAnalyzer("EwkDQM",
-            elecTriggerPathToPass    = cms.string("HLT_Ele15_SW_L1R"),
+            elecTriggerPathToPass    = cms.string("HLT_Ele10_LW_L1R"),
             muonTriggerPathToPass    = cms.string("HLT_Mu9"),
             triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
             muonCollection           = cms.InputTag("muons"),
