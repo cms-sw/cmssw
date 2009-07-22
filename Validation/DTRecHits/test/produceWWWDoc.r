@@ -30,7 +30,7 @@
   cin >> nameDir;
 
   // Load 1D RecHits histos
-  TFile *file = new TFile("DTSegmentQuality.root");
+  TFile *file = new TFile("Cosmics_V0001_CMSSW_3_2_0.root");
   gROOT->LoadMacro("plotHitReso.r"); 
   gROOT->LoadMacro("plotHitPull.r"); 
   

@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2008/12/03 12:17:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/19 12:03:11 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -51,17 +51,17 @@ class HRes1DHit{
 
     HRes1DHit(TString name_, TFile* file){
       name=name_;
-      hDist          = (TH1F *) file->Get("DQMData/1D_"+name+"_hDist");
-      hRes           = (TH1F *) file->Get("DQMData/1D_"+name+"_hRes");
-      hResVsEta      = (TH2F *) file->Get("DQMData/1D_"+name+"_hResVsEta");
-      hResVsPhi      = (TH2F *) file->Get("DQMData/1D_"+name+"_hResVsPhi");
-      hResVsPos      = (TH2F *) file->Get("DQMData/1D_"+name+"_hResVsPos");
-      hResVsAngle    = (TH2F *) file->Get("DQMData/1D_"+name+"_hResVsAngle");
-      hResVsDistFE   = (TH2F *) file->Get("DQMData/1D_"+name+"_hResVsDistFE");
-      hPull          = (TH1F *) file->Get("DQMData/1D_"+name+"_hPull");
-      hPullVsPos     = (TH2F *) file->Get("DQMData/1D_"+name+"_hPullVsPos");
-      hPullVsAngle   = (TH2F *) file->Get("DQMData/1D_"+name+"_hPullVsAngle");
-      hPullVsDistFE  = (TH2F *) file->Get("DQMData/1D_"+name+"_hPullVsDistFE");
+      hDist          = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hDist");
+      hRes           = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hRes");
+      hResVsEta      = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hResVsEta");
+      hResVsPhi      = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hResVsPhi");
+      hResVsPos      = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hResVsPos");
+      hResVsAngle    = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hResVsAngle");
+      hResVsDistFE   = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hResVsDistFE");
+      hPull          = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPull");
+      hPullVsPos     = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPullVsPos");
+      hPullVsAngle   = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPullVsAngle");
+      hPullVsDistFE  = (TH2F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPullVsDistFE");
     }
 
 
@@ -166,17 +166,17 @@ class HEff1DHit{
 
     HEff1DHit (TString name_, TFile* file){
       name=name_;
-      hEtaMuSimHit        = (TH1F *) file->Get("DQMData/1D_"+name+"_hEtaMuSimHit");
-      hEtaRecHit          = (TH1F *) file->Get("DQMData/1D_"+name+"_hEtaRecHit");
-      hEffVsEta           = (TH1F *) file->Get("DQMData/1D_"+name+"_hEffVsEta");
+      hEtaMuSimHit        = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hEtaMuSimHit");
+      hEtaRecHit          = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hEtaRecHit");
+      hEffVsEta           = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hEffVsEta");
 
-      hPhiMuSimHit        = (TH1F *) file->Get("DQMData/1D_"+name+"_hPhiMuSimHit");
-      hPhiRecHit          = (TH1F *) file->Get("DQMData/1D_"+name+"_hPhiRecHit");
-      hEffVsPhi           = (TH1F *) file->Get("DQMData/1D_"+name+"_hEffVsPhi");
+      hPhiMuSimHit        = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPhiMuSimHit");
+      hPhiRecHit          = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hPhiRecHit");
+      hEffVsPhi           = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hEffVsPhi");
 
-      hDistMuSimHit       = (TH1F *) file->Get("DQMData/1D_"+name+"_hDistMuSimHit");
-      hDistRecHit         = (TH1F *) file->Get("DQMData/1D_"+name+"_hDistRecHit");
-      hEffVsDist          = (TH1F *) file->Get("DQMData/1D_"+name+"_hEffVsDist");
+      hDistMuSimHit       = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hDistMuSimHit");
+      hDistRecHit         = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hDistRecHit");
+      hEffVsDist          = (TH1F *) file->Get("DQMData/DT/1DRecHits/1D_"+name+"_hEffVsDist");
     }
 
 
@@ -343,18 +343,18 @@ class HRes2DHit{
     HRes2DHit (TString name_, TFile* file){
       name=name_;
 
-      hRecAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hRecAngle");
-      hSimAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hSimAngle");
-      hRecVsSimAngle = (TH2F *) file->Get("DQMData/2D_"+name+"_hRecVsSimAngle");
-      hResAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hResAngle");
-      hResAngleVsEta = (TH2F *) file->Get("DQMData/2D_"+name+"_hResAngleVsEta");
-      hResAngleVsPhi = (TH2F *) file->Get("DQMData/2D_"+name+"_hResAngleVsPhi");
-      hResPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hResPos");
-      hResPosVsEta = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsEta");
-      hResPosVsPhi = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsPhi");
-      hResPosVsResAngle = (TH2F *) file->Get("DQMData/2D_"+name+"_hResPosVsResAngle");
-      hPullAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hPullAngle");
-      hPullPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hPullPos");
+      hRecAngle = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hRecAngle");
+      hSimAngle = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hSimAngle");
+      hRecVsSimAngle = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hRecVsSimAngle");
+      hResAngle = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResAngle");
+      hResAngleVsEta = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResAngleVsEta");
+      hResAngleVsPhi = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResAngleVsPhi");
+      hResPos = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResPos");
+      hResPosVsEta = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResPosVsEta");
+      hResPosVsPhi = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResPosVsPhi");
+      hResPosVsResAngle = (TH2F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hResPosVsResAngle");
+      hPullAngle = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPullAngle");
+      hPullPos = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPullPos");
 
     }
 
@@ -459,21 +459,21 @@ class HEff2DHit{
 
     HEff2DHit (TString name_, TFile* file){
       name=name_;
-      hEtaSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hEtaSimSegm");
-      hEtaRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hEtaRecHit");
-      hEffVsEta = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsEta");
+      hEtaSimSegm = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEtaSimSegm");
+      hEtaRecHit = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEtaRecHit");
+      hEffVsEta = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEffVsEta");
 
-      hPhiSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hPhiSimSegm");
-      hPhiRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hPhiRecHit");
-      hEffVsPhi = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsPhi");
+      hPhiSimSegm = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPhiSimSegm");
+      hPhiRecHit = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPhiRecHit");
+      hEffVsPhi = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEffVsPhi");
 
-      hPosSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hPosSimSegm");
-      hPosRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hPosRecHit");
-      hEffVsPos = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsPos");
+      hPosSimSegm = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPosSimSegm");
+      hPosRecHit = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hPosRecHit");
+      hEffVsPos = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEffVsPos");
 
-      hAngleSimSegm = (TH1F *) file->Get("DQMData/2D_"+name+"_hAngleSimSegm");
-      hAngleRecHit = (TH1F *) file->Get("DQMData/2D_"+name+"_hAngleRecHit");
-      hEffVsAngle = (TH1F *) file->Get("DQMData/2D_"+name+"_hEffVsAngle");
+      hAngleSimSegm = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hAngleSimSegm");
+      hAngleRecHit = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hAngleRecHit");
+      hEffVsAngle = (TH1F *) file->Get("DQMData/DT/2DSegments/2D_"+name+"_hEffVsAngle");
     }
 
 
@@ -784,74 +784,74 @@ class HRes4DHit{
     HRes4DHit (TString name_, TFile* file){
       name=name_;
 
-      hRecAlpha = (TH1F *) file->Get("DQMData/4D_"+name+"_hRecAlpha");
-      hRecBeta = (TH1F *) file->Get("DQMData/4D_"+name+"_hRecBeta");
+      hRecAlpha = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecAlpha");
+      hRecBeta = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecBeta");
 
-      hSimAlpha = (TH1F *) file->Get("DQMData/4D_"+name+"_hSimAlpha");
-      hSimBeta = (TH1F *) file->Get("DQMData/4D_"+name+"_hSimBeta");
+      hSimAlpha = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hSimAlpha");
+      hSimBeta = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hSimBeta");
 
-      hRecVsSimAlpha = (TH2F *) file->Get("DQMData/4D_"+name+"_hRecVsSimAlpha");
-      hRecVsSimBeta = (TH2F *) file->Get("DQMData/4D_"+name+"_hRecVsSimBeta");
+      hRecVsSimAlpha = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecVsSimAlpha");
+      hRecVsSimBeta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecVsSimBeta");
 
-      hResAlpha = (TH1F *) file->Get("DQMData/4D_"+name+"_hResAlpha");
-      hResAlphaVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hResAlphaVsEta");
-      hResAlphaVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hResAlphaVsPhi");
+      hResAlpha = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlpha");
+      hResAlphaVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlphaVsEta");
+      hResAlphaVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlphaVsPhi");
 
-      hResBeta = (TH1F *) file->Get("DQMData/4D_"+name+"_hResBeta");
-      hResBetaVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hResBetaVsEta");
-      hResBetaVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hResBetaVsPhi");
+      hResBeta = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBeta");
+      hResBetaVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBetaVsEta");
+      hResBetaVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBetaVsPhi");
 
-      hResX = (TH1F *) file->Get("DQMData/4D_"+name+"_hResX");
-      hResXVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hResXVsEta");
-      hResXVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hResXVsPhi");
+      hResX = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResX");
+      hResXVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResXVsEta");
+      hResXVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResXVsPhi");
 
-      hResY = (TH1F *) file->Get("DQMData/4D_"+name+"_hResY");
-      hResYVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hResYVsEta");
-      hResYVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hResYVsPhi");
+      hResY = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResY");
+      hResYVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResYVsEta");
+      hResYVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResYVsPhi");
 
-      hResAlphaVsResBeta = (TH2F *) file->Get("DQMData/4D_"+name+"_hResAlphaVsResBeta");
-      hResXVsResY = (TH2F *) file->Get("DQMData/4D_"+name+"_hResXVsResY");
-      hResAlphaVsResX = (TH2F *) file->Get("DQMData/4D_"+name+"_hResAlphaVsResX");
-      hResAlphaVsResY = (TH2F *) file->Get("DQMData/4D_"+name+"_hResAlphaVsResY"); 
+      hResAlphaVsResBeta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlphaVsResBeta");
+      hResXVsResY = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResXVsResY");
+      hResAlphaVsResX = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlphaVsResX");
+      hResAlphaVsResY = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResAlphaVsResY"); 
 
-      hPullAlpha = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullAlpha");
-      hPullAlphaVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullAlphaVsEta");
-      hPullAlphaVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullAlphaVsPhi");
+      hPullAlpha = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullAlpha");
+      hPullAlphaVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullAlphaVsEta");
+      hPullAlphaVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullAlphaVsPhi");
 
-      hPullBeta = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullBeta");
-      hPullBetaVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullBetaVsEta");
-      hPullBetaVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullBetaVsPhi");
+      hPullBeta = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBeta");
+      hPullBetaVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBetaVsEta");
+      hPullBetaVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBetaVsPhi");
 
-      hPullX = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullX");
-      hPullXVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullXVsEta");
-      hPullXVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullXVsPhi");
+      hPullX = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullX");
+      hPullXVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullXVsEta");
+      hPullXVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullXVsPhi");
 
-      hPullY = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullY");
-      hPullYVsEta = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullYVsEta");
-      hPullYVsPhi = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullYVsPhi");
+      hPullY = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullY");
+      hPullYVsEta = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullYVsEta");
+      hPullYVsPhi = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullYVsPhi");
 
       // RX SL frame
-      hRecBetaRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hRecBetaRZ");
+      hRecBetaRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecBetaRZ");
 
-      hSimBetaRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hSimBetaRZ");
+      hSimBetaRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hSimBetaRZ");
 
-      hRecVsSimBetaRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hRecVsSimBetaRZ");
+      hRecVsSimBetaRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hRecVsSimBetaRZ");
 
-      hResBetaRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hResBetaRZ");
-      hResBetaVsEtaRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hResBetaVsEtaRZ");
-      hResBetaVsPhiRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hResBetaVsPhiRZ");
+      hResBetaRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBetaRZ");
+      hResBetaVsEtaRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBetaVsEtaRZ");
+      hResBetaVsPhiRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResBetaVsPhiRZ");
 
-      hResYRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hResYRZ");
-      hResYVsEtaRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hResYVsEtaRZ");
-      hResYVsPhiRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hResYVsPhiRZ");
+      hResYRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResYRZ");
+      hResYVsEtaRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResYVsEtaRZ");
+      hResYVsPhiRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hResYVsPhiRZ");
 
-      hPullBetaRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullBetaRZ");
-      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullBetaVsEtaRZ");
-      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullBetaVsPhiRZ");
+      hPullBetaRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBetaRZ");
+      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBetaVsEtaRZ");
+      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullBetaVsPhiRZ");
 
-      hPullYRZ = (TH1F *) file->Get("DQMData/4D_"+name+"_hPullYRZ");
-      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullYVsEtaRZ");
-      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/4D_"+name+"_hPullYVsPhiRZ");
+      hPullYRZ = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullYRZ");
+      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullYVsEtaRZ");
+      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPullYVsPhiRZ");
     }
 
     ~HRes4DHit(){
@@ -1119,29 +1119,29 @@ class HEff4DHit{
 
     HEff4DHit (TString name_, TFile* file){
       name=name_;
-      hEtaSimSegm = (TH1F *) file->Get("DQMData/4D_"+name+"_hEtaSimSegm");
-      hEtaRecHit = (TH1F *) file->Get("DQMData/4D_"+name+"_hEtaRecHit");
-      hEffVsEta = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsEta");
+      hEtaSimSegm = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEtaSimSegm");
+      hEtaRecHit = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEtaRecHit");
+      hEffVsEta = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsEta");
 
-      hPhiSimSegm = (TH1F *) file->Get("DQMData/4D_"+name+"_hPhiSimSegm");
-      hPhiRecHit = (TH1F *) file->Get("DQMData/4D_"+name+"_hPhiRecHit");
-      hEffVsPhi = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsPhi");
+      hPhiSimSegm = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPhiSimSegm");
+      hPhiRecHit = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hPhiRecHit");
+      hEffVsPhi = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsPhi");
 
-      hXSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hXSimSegm");
-      hXRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hXRecHit");
-      hEffVsX  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsX");
+      hXSimSegm  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hXSimSegm");
+      hXRecHit  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hXRecHit");
+      hEffVsX  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsX");
 
-      hYSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hYSimSegm");
-      hYRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hYRecHit");
-      hEffVsY  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsY");
+      hYSimSegm  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hYSimSegm");
+      hYRecHit  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hYRecHit");
+      hEffVsY  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsY");
 
-      hAlphaSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hAlphaSimSegm");
-      hAlphaRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hAlphaRecHit");
-      hEffVsAlpha  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsAlpha");
+      hAlphaSimSegm  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hAlphaSimSegm");
+      hAlphaRecHit  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hAlphaRecHit");
+      hEffVsAlpha  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsAlpha");
 
-      hBetaSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hBetaSimSegm");
-      hBetaRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hBetaRecHit");
-      hEffVsBeta  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsBeta");
+      hBetaSimSegm  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hBetaSimSegm");
+      hBetaRecHit  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hBetaRecHit");
+      hEffVsBeta  = (TH1F *) file->Get("DQMData/DT/4DSegments/4D_"+name+"_hEffVsBeta");
     }
 
 
