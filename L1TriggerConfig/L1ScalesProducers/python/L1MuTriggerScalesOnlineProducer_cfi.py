@@ -8,11 +8,11 @@ L1MuTriggerScalesOnlineProducer = cms.ESProducer("L1MuTriggerScalesOnlineProduce
 #                we just define it here like for the dummy producers.
                                                  
                                            nbitPackingDTEta = cms.int32(6),
-                                           signedPackingDTEta = cms.bool(True),
+                                           signedPackingDTEta = cms.bool(False),
                                            nbinsDTEta = cms.int32(64),
                                            minDTEta = cms.double(-1.2),
                                            maxDTEta = cms.double(1.2),
-                                           offsetDTEta = cms.int32(32),
+                                           offsetDTEta = cms.int32(0),
                                            nbitPackingCSCEta = cms.int32(6),
                                            nbinsCSCEta = cms.int32(32),
                                            minCSCEta = cms.double(0.9),
