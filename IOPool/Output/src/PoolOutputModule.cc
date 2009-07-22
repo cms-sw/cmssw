@@ -113,16 +113,20 @@ namespace edm {
     return lh < rh;
   }
 
-  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theTree) {
+  void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theInputTree) {
 
     Selections const& keptVector =    keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
     AuxItem&   auxItem = auxItems_[branchType];
 
     // Fill AuxItem
-    if (theTree != 0 && !overrideInputFileSplitLevels_) {
-      TBranch* auxBranch = theTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      auxItem.basketSize_ = auxBranch->GetBasketSize();; 
+    if (theInputTree != 0 && !overrideInputFileSplitLevels_) {
+      TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
+      if (auxBranch) {
+        auxItem.basketSize_ = auxBranch->GetBasketSize();; 
+      } else {
+        auxItem.basketSize_ = basketSize_; 
+      }
     } else {
       auxItem.basketSize_ = basketSize_; 
     }
@@ -133,7 +137,7 @@ namespace edm {
       int basketSize = BranchDescription::invalidBasketSize;
 
       BranchDescription const& prod = **it;
-      TBranch* theBranch = ((!prod.produced() && theTree != 0 && !overrideInputFileSplitLevels_) ? theTree->GetBranch(prod.branchName().c_str()) : 0);
+      TBranch* theBranch = ((!prod.produced() && theInputTree != 0 && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
 
       if(theBranch != 0) {
 	splitLevel = theBranch->GetSplitLevel();
@@ -147,7 +151,7 @@ namespace edm {
 
     // Sort outputItemList to allow fast copying.
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
-    sort_all(outputItemList, OutputItem::Sorter(theTree));
+    sort_all(outputItemList, OutputItem::Sorter(theInputTree));
   }
 
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
@@ -167,10 +171,10 @@ namespace edm {
     if(!initializedFromInput_) {
       for(int i = InEvent; i < NumBranchTypes; ++i) {
         BranchType branchType = static_cast<BranchType>(i);
-        TTree* theTree = (branchType == InEvent ? fb.tree() : 
-		          (branchType == InLumi ? fb.lumiTree() :
-                          fb.runTree()));
-        fillSelectedItemList(branchType, theTree);
+        TTree* theInputTree = (branchType == InEvent ? fb.tree() : 
+			      (branchType == InLumi ? fb.lumiTree() :
+			       fb.runTree()));
+        fillSelectedItemList(branchType, theInputTree);
       }
       initializedFromInput_ = true;
     }

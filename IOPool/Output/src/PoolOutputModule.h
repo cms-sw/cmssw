@@ -112,7 +112,7 @@ namespace edm {
     virtual void writeProductDependencies();
     virtual void finishEndFile();
 
-    void fillSelectedItemList(BranchType branchtype, TTree* theTree);
+    void fillSelectedItemList(BranchType branchtype, TTree* theInputTree);
     void beginInputFile(FileBlock const& fb);
 
     RootServiceChecker rootServiceChecker_;
