@@ -1,0 +1,251 @@
+TimeReport> Report activated
+TimeReport> Report columns headings for events: eventnum runnum timetaken
+TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetakeni
+TimeReport> JobTime=1.24827e+09 JobCPU=5.54716
+
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 22-Jul-2009 16:58:09 CEST
+
+A0 = (103.618,0.0399998,316.3)
+B0 = (103.615,73.649,316.299)
+C0 = (44.3754,73.649,317.745)
+D0 = (44.3781,0.0399998,317.744)
+
+********* Name is H0
+
+ B discrepancy is (-0.000298358,0.00647146,-9.15316e-05), 0.00647898
+
+ C discrepancy is (-0.0291472,-0.043566,-0.12512), 0.135656
+
+ D discrepancy is (-0.100863,0.0298733,-0.0247652), 0.10807
+
+
+ E discrepancy is (-0.019929,-0.0778596,0.0114021), 0.0811745
+
+ F discrepancy is (0.085271,-0.0425695,0.0858261), 0.128255
+
+ G discrepancy is (0.0564902,0.0502671,0.077389), 0.108199
+
+ H discrepancy is (-0.018659,-0.0450204,0.0729194), 0.0877053
+
+ Pivot point in CMS coord = (-141.444,3.24153,41.6895)
+
+
+Transform rotation is 
+   [ (     0.26303     0.0258082      0.964442)
+     (   0.0460672     -0.998838     0.0141648)
+     (    0.963687     0.0407034     -0.263914) ]
+
+
+          translation=(-3554.31,-618.065,-13040.4)
+
+********* Name is H1
+
+ B discrepancy is (-0.00065254,0.00928604,-0.000130255), 0.00930985
+
+ C discrepancy is (-0.0329389,-0.0443611,-0.144672), 0.154864
+
+ D discrepancy is (-0.104298,0.0262151,-0.0242791), 0.110249
+
+
+Transform rotation is 
+   [ (    0.262382     0.0320066      0.964433)
+     (   0.0701083     -0.997441     0.0140284)
+     (    0.962414      0.063934     -0.263955) ]
+
+
+          translation=(-3545.56,-943.398,-13023.2)
+
+********* Name is H2
+
+ B discrepancy is (-0.00256103,0.014343,-0.000205832), 0.0145713
+
+ C discrepancy is (-0.0284376,-0.0428527,-0.142881), 0.151855
+
+ D discrepancy is (-0.107862,0.0224535,-0.0224118), 0.112431
+
+
+Transform rotation is 
+   [ (    0.257585     0.0598746      0.964399)
+     (    0.175776     -0.984328     0.0141632)
+     (    0.950133       0.16587     -0.264073) ]
+
+
+          translation=(-3480.68,-2373.4,-12857)
+
+********* Name is H3
+
+ B discrepancy is (0.00144361,0.0111164,-0.000156848), 0.0112109
+
+ C discrepancy is (-0.0431057,-0.0269092,-0.158367), 0.16632
+
+ D discrepancy is (-0.0865484,0.0522377,-0.0379478), 0.107979
+
+
+Transform rotation is 
+   [ (    0.263279    -0.0205406      0.964501)
+     (   -0.128752     -0.991578     0.0140281)
+     (     0.95609     -0.127875     -0.263706) ]
+
+
+          translation=(-3557.6,1747.84,-12937.6)
+
+********* Name is H4
+
+ B discrepancy is (0.00159176,0.00623419,-9.09079e-05), 0.00643483
+
+ C discrepancy is (-0.0465359,-0.0334114,-0.148265), 0.158948
+
+ D discrepancy is (-0.0900804,0.0608567,-0.0379116), 0.115132
+
+
+Transform rotation is 
+   [ (     0.25891    -0.0520007      0.964501)
+     (    -0.24735     -0.968823     0.0141648)
+     (    0.933693     -0.242237     -0.263701) ]
+
+
+          translation=(-3498.48,3352.84,-12634.5)
+
+********* Name is V1
+
+ B discrepancy is (-0.000399266,0.00438117,-7.11268e-05), 0.0043999
+
+ C discrepancy is (-0.0333637,-0.0521896,-0.149242), 0.161587
+
+ D discrepancy is (-0.0949714,0.0232507,-0.038898), 0.105229
+
+
+Transform rotation is 
+   [ (    0.266376     0.0399508      0.963041)
+     (   0.0907615     -0.995741     0.0162028)
+     (    0.959586      0.083091     -0.268867) ]
+
+
+          translation=(-3599.58,-1222.85,-12984.9)
+
+********* Name is V2
+
+ B discrepancy is (-0.000418423,0.00459889,-2.13289e-05), 0.00461793
+
+ C discrepancy is (-0.0271364,-0.0722567,-0.151635), 0.170149
+
+ D discrepancy is (-0.0987319,0.0129621,-0.0514015), 0.112063
+
+
+Transform rotation is 
+   [ (    0.238092      0.026206      0.970889)
+     (   0.0906243     -0.995874    0.00465647)
+     (    0.967005     0.0868775     -0.239485) ]
+
+
+          translation=(-3216.74,-1221.08,-13085.3)
+
+********* Name is V3
+
+ B discrepancy is (-0.00052673,0.00578929,4.26438e-05), 0.00581336
+
+ C discrepancy is (-0.0216371,-0.0314213,-0.128892), 0.134419
+
+ D discrepancy is (-0.0831297,0.0526045,-0.0287835), 0.1025
+
+
+Transform rotation is 
+   [ (    0.209966     0.0119429      0.977636)
+     (   0.0906218     -0.995859   -0.00729726)
+     (      0.9735     0.0901273     -0.210178) ]
+
+
+          translation=(-2836.12,-1220.93,-13173.2)
+
+********* Name is V4
+
+ B discrepancy is (-0.00199706,0.0217864,0.000419026), 0.0218817
+
+ C discrepancy is (-0.0206152,-0.0302264,-0.147681), 0.152145
+
+ D discrepancy is (-0.100641,0.0278,-0.0280102), 0.108102
+
+
+Transform rotation is 
+   [ (    0.181365   -0.00224874      0.983413)
+     (   0.0912799     -0.995642    -0.0191109)
+     (     0.97917      0.093232     -0.180369) ]
+
+
+          translation=(-2448.98,-1229.98,-13250)
+
+********* Name is V5
+
+ B discrepancy is (-0.0025184,0.0273038,0.000849403), 0.0274329
+
+ C discrepancy is (-0.016166,-0.0214292,-0.142305), 0.144814
+
+ D discrepancy is (-0.105672,0.0310793,-0.0431257), 0.118289
+
+
+Transform rotation is 
+   [ (     0.15287    -0.0165984      0.988107)
+     (   0.0918151     -0.995296    -0.0309239)
+     (    0.983972     0.0954505     -0.150627) ]
+
+
+          translation=(-2063.42,-1237.23,-13315)
+
+ Number of survey points = 10
+====== Mean x deviation = -0.0972798 +- 0.00794016
+====== Mean y deviation = 0.0339333 +- 0.0148864
+====== Mean z deviation = -0.0337534 +- 0.00904164
+TimeModule> 1 1 cga SurveyToTransforms 7.66409
+TimeModule> 1 1 TriggerResults TriggerResultInserter 0.000200987
+TimeEvent> 1 1 7.66465 7.58385 7.58385
+MemoryReport> Peak virtual size 143.688 Mbytes
+ Key events increasing vsize: 
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[1] run: 1 event: 1  vsize = 143.688 deltaVsize = 0 rss = 94.0312 delta 0
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
+[1] run: 1 event: 1  vsize = 143.688 deltaVsize = 0 rss = 94.0312 delta 0
+TimeReport> Time report complete in 7.667 seconds
+ Time Summary: 
+ - Min event:   7.66465
+ - Max event:   7.66465
+ - Avg event:   7.667
+ - Total job:   7.667
+ CPU Summary: 
+ - Min event:   7.58385
+ - Max event:   7.58385
+ - Avg event:   7.58385
+ - Total job:   7.58585
+ - Total event: 7.58385
+
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 TimeEvent            -w PostModule                             1        1
+    2 TimeModule           -w SurveyToTransfor                       1        1
+    3 TimeModule           -w TriggerResultIns                       1        1
+    4 TimeReport           -e                                        1        1
+    5 TimeReport           -e PostModule                             1        1
+    6 MemoryReport         -s PostModule                             1        1
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 TimeEvent            1/1                               
+    2 TimeModule           1/1                               
+    3 TimeModule           1/1                               
+    4 TimeReport           BeforeEvents                      
+    5 TimeReport           1/1                               
+    6 MemoryReport         1/1                               
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Warning                 3                   3
+Error                   2                   2
+System                  1                   1

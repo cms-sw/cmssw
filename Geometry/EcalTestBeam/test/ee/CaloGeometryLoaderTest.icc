@@ -120,6 +120,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    static HepPoint3D BB0 ;
    static HepPoint3D CC0 ;
    static HepPoint3D DD0 ;
+   static HepPoint3D EE0 ;
+   static HepPoint3D FF0 ;
+   static HepPoint3D GG0 ;
+   static HepPoint3D HH0 ;
 
    std::vector<double> pv ;
    pv.reserve( vv.size() ) ;
@@ -137,6 +141,9 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    if( ( 160 == id ||
 	 164 == id ||
 	 134 == id ||
+	 133 == id ||
+	 153 == id ||
+	 150 == id ||
 	 130 == id    ) &&
        ( 0 < corners[0].x() &&
 	 0 < corners[0].y() &&
@@ -165,6 +172,18 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       if( 130 == id ) DD0 = HepPoint3D( corners[0].x(),
 				       corners[0].y(),
 				       corners[0].z() ) ;
+      if( 150 == id ) EE0 = HepPoint3D( corners[2].x(),
+					corners[2].y(),
+					corners[2].z() ) ;
+      if( 153 == id ) FF0 = HepPoint3D( corners[2].x(),
+					corners[2].y(),
+					corners[2].z() ) ;
+      if( 133 == id ) GG0 = HepPoint3D( corners[2].x(),
+					corners[2].y(),
+					corners[2].z() ) ;
+      if( 130 == id ) HH0 = HepPoint3D( corners[2].x(),
+					corners[2].y(),
+					corners[2].z() ) ;
    }
    static bool done (false) ;
    if( 0.001 < AA0.mag() &&
@@ -187,6 +206,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       const HepPoint3D D0 (DD0) ;
 
       const double angle ( (C0-B0).angle( A0-B0 ) ) ;
+
+      static std::vector< HepPoint3D > extra ;
+      extra.push_back( HepPoint3D(  13859.05,  005.79, -002.66 ) ) ;
+      extra.push_back( HepPoint3D(  13860.98, -038.39, -002.11 ) ) ;
+      extra.push_back( HepPoint3D(  13853.19, -039.25, -030.77 ) ) ;
+      extra.push_back( HepPoint3D(  13851.23,  004.99, -031.39 ) ) ;
+
+
 
       static std::vector< HepPoint3D > sur ;
       sur.push_back( HepPoint3D( 13862.30,  20.68, 11.60 ) ) ;
@@ -267,9 +294,6 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	 const HepPoint3D dd ( trform*D0 ) ;
 
-	 std::cout<<"\n\nTransform rotation is "<<trform.getRotation()
-		  <<"\n\n          translation="<<trform.getTranslation() <<std::endl ;
-
 	 std::cout<<"\n********* Name is " << names[i] ;
 
 	 std::cout<<"\n\n B discrepancy is "<< (bb-SB)<<", "<< (bb-SB).mag()
@@ -295,6 +319,26 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 sumx2 += dxdd*dxdd ;//dxbb*dxbb + dxcc*dxcc + dxdd*dxdd ;
 	 sumy2 += dydd*dydd ;//dybb*dybb + dycc*dycc + dydd*dydd ;
 	 sumz2 += dzdd*dzdd ;//dzbb*dzbb + dzcc*dzcc + dzdd*dzdd ;
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 if( 0 == i )
+	 {
+	    const HepPoint3D ee ( trform*EE0 ) ;
+	    const HepPoint3D ff ( trform*FF0 ) ;
+	    const HepPoint3D gg ( trform*GG0 ) ;
+	    const HepPoint3D hh ( trform*HH0 ) ;
+
+	    std::cout<<"\n\n E discrepancy is "<< (ee-extra[0])<<", "<< (ee-extra[0]).mag()
+		     <<"\n\n F discrepancy is "<< (ff-extra[1])<<", "<< (ff-extra[1]).mag()
+		     <<"\n\n G discrepancy is "<< (gg-extra[2])<<", "<< (gg-extra[2]).mag()
+		     <<"\n\n H discrepancy is "<< (hh-extra[3])<<", "<< (hh-extra[3]).mag()
+		     <<std::endl ;
+
+
+	    const HepPoint3D pivot ( 13533.35, -000.02, -152.23 ) ;
+	    std::cout<<"\n Pivot point in CMS coord = "<<trform.inverse()*pivot<<std::endl ;
+	 }
+	 std::cout<<"\n\nTransform rotation is "<<trform.inverse().getRotation()
+		  <<"\n\n          translation="<<trform.inverse().getTranslation() <<std::endl ;
       }
       const double ntot ( 1.0*nsur ) ;
       sumx /= ntot ;
