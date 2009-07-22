@@ -11,7 +11,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "Math/GenVector/PxPyPzM4D.h"
 
-#include "PhysicsTools/FWLite/interface/FWLiteCont.h"
+#include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/OptionUtils.h"  // (optutl::)
 #include "PhysicsTools/FWLite/interface/dout.h"
 #include "PhysicsTools/FWLite/interface/dumpSTL.icc"
@@ -41,16 +41,16 @@ enum
 // This subroutine, written by you (below), uses the command line
 // arguments and creates an output tag (if any).  This subroutine must
 // exist.
-void outputNameTag (string &tag);
+void outputNameTagFunc (string &tag);
 
 // Book all histograms to be filled this job.  If wanted, you can skip
 // this subroutine and book all histograms in the main subroutine.
-void bookHistograms (FWLiteCont &event);
+void bookHistograms (fwlite::EventContainer &event);
 
 // Calculate the name that should be used for this event based on the
 // mode, the HF word, and (if necessary), whether or not it's a W or
 // Z.  Returns false if the event should not be processed.
-bool calcSampleName (FWLiteCont &event, string &sampleName);
+bool calcSampleName (fwlite::EventContainer &event, string &sampleName);
 
 ///////////////////////////
 // ///////////////////// //
@@ -66,11 +66,9 @@ int main (int argc, char* argv[])
    // ////////////////////////// //
    ////////////////////////////////
 
-   // Tell people what this analysis code does.
-   optutl::setUsageString ("Creates SecVtx Mass templates");
-
-   // Setup default options
-   optutl::setupDefaultOptions();
+   // Tell people what this analysis code does and setup default options.
+   optutl::setUsageAndDefaultOptions ("Creates SecVtx Mass templates",
+                                      optutl::kEventContainer);
 
    //////////////////////////////////////////////////////
    // Add any command line options you would like here //
@@ -92,7 +90,7 @@ int main (int argc, char* argv[])
 
    // This object 'event' is used both to get all information from the
    // event as well as to store histograms, etc.
-   FWLiteCont event (&outputNameTag);
+   fwlite::EventContainer event (&outputNameTagFunc);
 
    ////////////////////////////////////////
    // ////////////////////////////////// //
@@ -268,17 +266,19 @@ int main (int argc, char* argv[])
    return 0;
 }
 
+
 //////////////  //////////////////////////////////  //////////////
 //////////////  // //////////////////////////// //  //////////////
 //////////////  // // Supporting Subroutines // //  //////////////
 //////////////  // //////////////////////////// //  //////////////
 //////////////  //////////////////////////////////  //////////////
 
-void outputNameTag (string &tag)
+
+void outputNameTagFunc (string &tag)
 {
    // If you do not want to give you output filename any "tag" based
    // on the command line options, simply do nothing here.  This
-   // function is designed to be called by FWLiteCont constructor.
+   // function is designed to be called by fwlite::EventContainer constructor.
 
    // if ( optutl::boolValue ("someCondition") )
    // { 
@@ -287,7 +287,7 @@ void outputNameTag (string &tag)
 }
 
 
-void bookHistograms (FWLiteCont &event)
+void bookHistograms (fwlite::EventContainer &event)
 {
    /////////////////////////////////////////////
    // First, come up with all possible base   //
@@ -392,7 +392,7 @@ void bookHistograms (FWLiteCont &event)
 }
 					
 
-bool calcSampleName (FWLiteCont &event, string &sampleName)
+bool calcSampleName (fwlite::EventContainer &event, string &sampleName)
 {
    // calculate sample name
    sampleName = optutl::stringValue  ("sampleName");

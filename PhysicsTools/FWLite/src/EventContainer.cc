@@ -5,7 +5,7 @@
 #include <cassert>
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "PhysicsTools/FWLite/interface/FWLiteCont.h"
+#include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/OptionUtils.h"
 #include "PhysicsTools/FWLite/interface/dout.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
@@ -13,15 +13,17 @@
 #include "TH1.h"
 
 using namespace std;
+using namespace fwlite;
 
 ////////////////////////////////////
 // Static Member Data Declaration //
 ////////////////////////////////////
 
-bool FWLiteCont::sm_autoloaderCalled = false;
+bool EventContainer::sm_autoloaderCalled = false;
 
 
-FWLiteCont::FWLiteCont (FuncPtr funcPtr) : m_eventsSeen (0), m_maxWanted (0)
+EventContainer::EventContainer (FuncPtr funcPtr) : 
+   m_eventsSeen (0), m_maxWanted (0)
 {
    // get the user-defined tag
    string tag;
@@ -48,7 +50,7 @@ FWLiteCont::FWLiteCont (FuncPtr funcPtr) : m_eventsSeen (0), m_maxWanted (0)
    TH1::AddDirectory(false);
 }
 
-FWLiteCont::~FWLiteCont()
+EventContainer::~EventContainer()
 {
    // if the pointer is non-zero, then we should run the standard
    // destructor.  If it is zero, then we should do nothing
@@ -62,23 +64,23 @@ FWLiteCont::~FWLiteCont()
 }
 
 void
-FWLiteCont::add (TH1 *histPtr)
+EventContainer::add (TH1 *histPtr)
 {
    m_histStore.add (histPtr);
 }
 
 TH1*
-FWLiteCont::hist (const string &name)
+EventContainer::hist (const string &name)
 {
    return m_histStore.hist (name);
 }
 
 bool 
-FWLiteCont::getByLabel (const std::type_info& iInfo,
-                        const char* iModuleLabel,
-                        const char* iProductInstanceLabel,
-                        const char* iProcessLabel,
-                        void* oData) const
+EventContainer::getByLabel (const std::type_info& iInfo,
+                            const char* iModuleLabel,
+                            const char* iProductInstanceLabel,
+                            const char* iProcessLabel,
+                            void* oData) const
 {
    assert (m_eventBasePtr);
    return m_eventBasePtr->getByLabel( iInfo, 
@@ -89,10 +91,10 @@ FWLiteCont::getByLabel (const std::type_info& iInfo,
 }
 
 const std::string 
-FWLiteCont::getBranchNameFor (const std::type_info& iInfo,
-                              const char* iModuleLabel,
-                              const char* iProductInstanceLabel,
-                              const char* iProcessLabel) const
+EventContainer::getBranchNameFor (const std::type_info& iInfo,
+                                  const char* iModuleLabel,
+                                  const char* iProductInstanceLabel,
+                                  const char* iProcessLabel) const
 {
    assert (m_eventBasePtr);
    return m_eventBasePtr->getBranchNameFor( iInfo,
@@ -101,8 +103,8 @@ FWLiteCont::getBranchNameFor (const std::type_info& iInfo,
                                             iProcessLabel );
 }
 
-const FWLiteCont& 
-FWLiteCont::operator++()
+const EventContainer& 
+EventContainer::operator++()
 {
    assert (m_eventBasePtr);
 
@@ -129,8 +131,8 @@ FWLiteCont::operator++()
    return *this;   
 }
 
-const FWLiteCont& 
-FWLiteCont::toBegin()
+const EventContainer& 
+EventContainer::toBegin()
 {
    assert (m_eventBasePtr);
    m_eventsSeen = 0;
@@ -148,7 +150,7 @@ FWLiteCont::toBegin()
 }
 
 bool
-FWLiteCont::atEnd() const
+EventContainer::atEnd() const
 {
    // first check to see that we haven't already processed the maxinum
    // number of events that we asked for.
@@ -168,7 +170,7 @@ FWLiteCont::atEnd() const
 
 
 // friends
-ostream& operator<< (ostream& o_stream, const FWLiteCont &rhs)
+ostream& operator<< (ostream& o_stream, const EventContainer &rhs)
 {
    return o_stream;
 } 
