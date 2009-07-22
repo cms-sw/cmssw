@@ -2,11 +2,7 @@
 #include "RooExponential.h"
 #include "RooGaussian.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscTotModel.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/RscTotModel.h"
 
 
 /// The Constructor
@@ -29,10 +25,6 @@ RscTotModel::RscTotModel(TString theName)
     cout << "ERROR, you forgot to specify the discriminating variables\n";
 }
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(RscTotModel)
-#endif
 /*----------------------------------------------------------------------------*/
 
 ///   Destructor

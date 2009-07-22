@@ -8,7 +8,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
-#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 #include <vector>
 
@@ -31,8 +30,7 @@ public:
   GsfTrajectoryFitter(const Propagator& aPropagator,
 		      const TrajectoryStateUpdator& aUpdator,
 		      const MeasurementEstimator& aEstimator,
-		      const MultiTrajectoryStateMerger& aMerger,
-		      const DetLayerGeometry* detLayerGeometry=0);
+		      const MultiTrajectoryStateMerger& aMerger);
   
   virtual ~GsfTrajectoryFitter(); 
   
@@ -50,7 +48,7 @@ public:
   
   virtual GsfTrajectoryFitter* clone() const
   {
-    return new GsfTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,*theMerger,theGeometry);
+    return new GsfTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,*theMerger);
   }
 
 private:
@@ -58,8 +56,6 @@ private:
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const MultiTrajectoryStateMerger* theMerger;
-  const DetLayerGeometry dummyGeometry;
-  const DetLayerGeometry* theGeometry;
 
   bool theTiming;
 };

@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.45 $
- *  $Date: 2009/06/24 12:59:18 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.42 $
+ *  $Date: 2008/11/10 14:48:42 $
+ *  (last update by $Author: henderle $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -171,17 +171,19 @@ void MillePedeAlignmentAlgorithm::terminate()
     }
   }
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
+  bool pedeOk = true;
   if (this->isMode(myPedeRunBit)) {
-    thePedeSteer->runPede(masterSteer);
+    pedeOk = thePedeSteer->runPede(masterSteer);
   }
   
   if (this->isMode(myPedeReadBit)) {
-    if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true)) {
+    if (!pedeOk || !this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                 << "Problems reading pede result, but applying!";
+                                 << "Problems running pede or reading result, but applying!";
     }
     // FIXME: problem if what is read in does not correspond to store
     theAlignmentParameterStore->applyParameters();
+    // thePedeSteer->correctToReferenceSystem(); // Already done before, here for possible rounding reasons...??
   }
 
   if (this->isMode(myMilleBit)) { // if mille was run, we store trees with suffix _1...
@@ -277,16 +279,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   } // end of reference trajectory and track loop
 
   theUseTrackTsos = useTrackTsosBack;
-}
-
-//____________________________________________________
-void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo,
-					 const edm::EventSetup &setup)
-{
-  if(runInfo.tkLasBeams_ && runInfo.tkLasBeamTsoses_){
-    // LAS beam treatment
-    this->addLaserData(*(runInfo.tkLasBeams_), *(runInfo.tkLasBeamTsoses_));
-  }
 }
 
 //____________________________________________________
@@ -823,54 +815,3 @@ int MillePedeAlignmentAlgorithm
 
   return (isReal2DHit ? 2 : 1);
 }
-
-//____________________________________________________
-void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &lasBeams,
-					       const TsosVectorCollection &lasBeamTsoses)
-{
-  AlignmentParameters *dummyPointer = 0; // for globalDerivativesHierarchy()
-  std::vector<float> lasLocalDerivsX;
-
-  TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
-  for(TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
-      iBeam != iEnd; ++iBeam, ++iTsoses){ // beam/tsoses parallel!
-
-    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
-			      << "Beam " << iBeam->getBeamId() << " with " 
-			      << iBeam->parameters().size() << " parameters and " 
-			      << iBeam->getData().size() << " hits.\n There are " 
-			      << iTsoses->size() << " TSOSes.";
-    if(iTsoses->size() > 0){
-      edm::LogInfo("Alignment")	<< " First TSOS is " << ((*iTsoses)[0].isValid() ? "valid." : "invalid.");
-    }
-
-    for(unsigned int hit = 0; hit < (*iTsoses).size(); ++hit){
-      
-      theFloatBufferX.clear();
-      theFloatBufferY.clear();
-      theIntBuffer.clear();
-      lasLocalDerivsX.clear();
-  
-      if((*iTsoses)[hit].isValid()){
-	
-	AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(iBeam->getData()[hit].getDetId()));
-	
-	this->globalDerivativesHierarchy((*iTsoses)[hit], lasAli, lasAli, 
-					 theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPointer);
-	// fill local derivatives vector from derivatives matrix
-	for(unsigned int nFitParams = 0; nFitParams < iBeam->parameters().size(); ++nFitParams){
-	  lasLocalDerivsX.push_back((iBeam->derivatives())[hit][nFitParams]);
-	}
-
-	float localResidual = ((iBeam->getData())[hit].localPosition().x()) - ((*iTsoses)[hit].localPosition().x());
-	// error from file or assume 0.003
-	float localError = 0.003; // (iBeam->getData())[hit].localPositionError().xx();
-	
-	theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(), &(theFloatBufferX[0]), 
-			&(theIntBuffer[0]), localResidual, localError);
-      }
-    } // end of loop over hits
-    theMille->end();
-  }
-}
-

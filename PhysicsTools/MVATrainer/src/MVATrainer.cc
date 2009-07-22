@@ -17,7 +17,6 @@
 #include <TRandom.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -196,7 +195,7 @@ InitInterceptor::configure(const MVAComputer *computer, unsigned int n,
                            const std::vector<Variable::Flags> &flags)
 {
 	calib->configured(this);
-	return std::vector<Variable::Flags>(n, Variable::FLAG_ALL);
+	return std::vector<Variable::Flags>(n, Variable::FLAG_NONE);
 }
 
 double
@@ -402,43 +401,12 @@ static bool isMagic(AtomicId id)
 	       id == kOutputId;
 }
 
-static std::string escape(const std::string &in)
-{
-	std::string result("'");
-	for(std::string::const_iterator iter = in.begin();
-	    iter != in.end(); ++iter) {
-		switch(*iter) {
-		    case '\'':
-			result += "'\\''";
-			break;
-		    default:
-			result += *iter;
-		}
-	}
-	result += '\'';
-	return result;
-}
-
-MVATrainer::MVATrainer(const std::string &fileName, bool useXSLT,
-	const char *styleSheet) :
+MVATrainer::MVATrainer(const std::string &fileName) :
 	input(0), output(0), name("MVATrainer"),
-	doAutoSave(true), doCleanup(false),
-	doMonitoring(false), randomSeed(65539), crossValidation(0.0)
+	doAutoSave(true), doCleanup(false), doMonitoring(false),
+	randomSeed(65539), crossValidation(0.0)
 {
-	if (useXSLT) {
-		std::string sheet;
-		if (!styleSheet)
-			sheet = edm::FileInPath(
-				"PhysicsTools/MVATrainer/data/MVATrainer.xsl")
-				.fullPath();
-		else
-			sheet = styleSheet;
-
-		std::string preproc = "xsltproc --xinclude " + escape(sheet) +
-		                      " " + escape(fileName);
-		xml.reset(new XMLDocument(fileName, preproc));
-	} else
-		xml.reset(new XMLDocument(fileName));
+	xml = std::auto_ptr<XMLDocument>(new XMLDocument(fileName));
 
 	DOMNode *node = xml->getRootNode();
 
@@ -677,7 +645,7 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 			<< "Variable processor trainer " << name
 			<< " could not be instantiated. Most likely because"
 			   " the trainer plugin for \"" << name << "\""
-			   " does not exist." << std::endl;
+			   " \" does not exist." << std::endl;
 
 	if (sources.find(id) != sources.end())
 		throw cms::Exception("MVATrainer")

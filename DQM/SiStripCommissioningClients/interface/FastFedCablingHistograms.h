@@ -10,8 +10,8 @@ class FastFedCablingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  FastFedCablingHistograms( const edm::ParameterSet& pset, DQMOldReceiver* );
-  FastFedCablingHistograms( const edm::ParameterSet& pset, DQMStore* );
+  FastFedCablingHistograms( DQMOldReceiver* );
+  FastFedCablingHistograms( DQMStore* );
   virtual ~FastFedCablingHistograms();
   
   void histoAnalysis( bool debug );

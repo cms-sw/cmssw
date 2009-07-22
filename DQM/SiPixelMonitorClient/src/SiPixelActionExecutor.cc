@@ -663,11 +663,12 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 //=============================================================================================================
 void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                                                          vector<string>& me_names) {
-  //printing cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos..."<<endl;
+//  cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos...:"<<me_names.size()<<endl;
   vector<MonitorElement*> gsum_mes;
   string currDir = bei->pwd();
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
+//  cout<<"I am in "<<path_name<<" now."<<endl;
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -688,7 +689,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
        it != subdirs.end(); it++) {
     cnt++;
     bei->cd(*it);
-    //		cout << "--- " << cnt << "\t" << bei->pwd() << endl;
+//    cout << "--- " << cnt << "\t" << bei->pwd() << endl;
     vector<string> contents = bei->getMEs();
 		
     bei->goUp();
@@ -705,13 +706,15 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 		
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
-      // printing cout<<"A: iterating over "<<(*im)<<" now:"<<endl;
+//      cout<<"A: iterating over "<<(*im)<<" now:"<<endl;
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
 	string var = "_" + (*iv) + "_";
-	// printing cout<<"\t B: iterating over "<<(*iv)<<" now, var is set to: "<<var<<endl;
+//	cout<<"\t B: iterating over "<<(*iv)<<" now, var is set to: "<<var<<endl;
 	if ((*im).find(var) != string::npos) {
-	  // printing cout << "Looking into " << (*iv) << endl;
+	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
+	     (*im).find("Track_")!=string::npos) continue;
+//	  cout << "Looking into " << (*iv) << endl;
 	  string full_path = (*it) + "/" +(*im);
 	  MonitorElement * me = bei->get(full_path.c_str());
 	  if (!me) continue; 
@@ -790,9 +793,9 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 
 	  for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 	       igm != gsum_mes.end(); igm++) {
-	    // printing cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
+//	    cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
 	    if ((*igm)->getName().find(var) != string::npos) {
-	      // if printing cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
+//	      cout<<"\t \t D: Have the correct var now!"<<endl;
 	      if(prefix=="SUMOFF") (*igm)->setAxisTitle("Ladders",1);
 	      else if((*igm)->getName().find("adcCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
@@ -873,12 +876,12 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    } // end var in igm (gsum_mes)
 	  } // end igm loop
 	} // end var in im (contents)
-      }
-    }
+      } // end of iv loop
+    } // end of im loop
     iDir++;
   first_subdir = false; // We are done processing the first directory, we don't add any new MEs in the future passes.	
   } // end of it loop (subdirs)
-  //printing cout<<"...leaving SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
+//  cout<<"...leaving SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
 }
 
 //=============================================================================================================
@@ -925,6 +928,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	   iv != me_names.end(); iv++) {
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
+	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
+	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
 	  MonitorElement * me = bei->get(full_path.c_str());
 	  if (!me) continue; 

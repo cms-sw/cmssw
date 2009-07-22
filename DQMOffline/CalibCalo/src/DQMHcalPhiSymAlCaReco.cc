@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/04/17 15:07:59 $
- * $Revision: 1.6 $
+ * $Date: 2009/03/26 10:17:10 $
+ * $Revision: 1.5 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -387,6 +387,11 @@ void DQMHcalPhiSymAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
+
+}
+//--------------------------------------------------------
+void DQMHcalPhiSymAlCaReco::endJob(){
+ 
   for(int k=0; k<=hiDistr_x_nbin_;k++)
   {
     for(int j=0; j<=hiDistr_y_nbin_;j++)
@@ -423,13 +428,10 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
        hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
     }
   }
-
-}
-//--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endJob(){
   if (saveToFile_) {
      dbe_->save(fileName_);
   }
+  
 }
 
 

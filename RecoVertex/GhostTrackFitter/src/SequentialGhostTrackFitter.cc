@@ -39,9 +39,6 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(
 
 	reset();
 
-	ndof = 0.;
-	chi2 = 0.;
-
 	unsigned int iteration = 0;
 	for(;;) {
 		pred = prior;

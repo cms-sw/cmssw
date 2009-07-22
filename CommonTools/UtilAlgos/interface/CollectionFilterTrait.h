@@ -5,8 +5,8 @@
  * \author Luca Lista, INFN
  *
  */
-#include "PhysicsTools/UtilAlgos/interface/AnySelector.h"
-#include "PhysicsTools/UtilAlgos/interface/MinNumberSelector.h"
+#include "CommonTools/UtilAlgos/interface/AnySelector.h"
+#include "CommonTools/UtilAlgos/interface/MinNumberSelector.h"
 
 namespace helper {
 

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 14:44:49 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/01/13 17:21:43 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,12 +42,13 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
   dbe = Service<DQMStore>().operator->();
 
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  folderRoot = ps.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
+
   // permitted test range
   permittedMeanRange = ps.getUntrackedParameter<double>("permittedMeanRange",0.005); 
   permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.01); 
-  // top folder for the histograms in DQMStore
-  topHistoFolder = ps.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
-}
+  
+ }
 
 
 DTResolutionAnalysisTest::~DTResolutionAnalysisTest(){
@@ -66,13 +67,13 @@ void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
   context.get<MuonGeometryRecord>().get(muonGeom);
 
   // global residual summary
-  dbe->setCurrentFolder(topHistoFolder);
+  dbe->setCurrentFolder("DT/02-Segments/");
   globalResSummary = dbe->book2D("ResidualsGlbSummary", "Summary residuals",12,1,13,5,-2,3);
 
 
 
   // book summaries for mean and sigma
-  dbe->setCurrentFolder(topHistoFolder + "/00-MeanRes");
+  dbe->setCurrentFolder("DT/02-Segments/00-MeanRes");
   meanDistr[-2] = dbe->book1D("MeanDistr","Mean value of the residuals all (cm)",
 			      100,-0.1,0.1);
   meanDistr[-1] = dbe->book1D("MeanDistr_Phi","Mean value of the residuals #phi SL (cm)",
@@ -92,7 +93,7 @@ void DTResolutionAnalysisTest::beginJob(const EventSetup& context){
   wheelMeanHistos[3]->setAxisTitle("Wheel",2);
 
 
-  dbe->setCurrentFolder(topHistoFolder + "/01-SigmaRes");
+  dbe->setCurrentFolder("DT/02-Segments/01-SigmaRes");
   sigmaDistr[-2] = dbe->book1D("SigmaDistr","Sigma value of the residuals all (cm)",
 			      50,0.0,0.2);
   sigmaDistr[-1] = dbe->book1D("SigmaDistr_Phi","Sigma value of the residuals #phi SL (cm)",
@@ -263,7 +264,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
 
   stringstream wheel; wheel <<wh;
 
-  dbe->setCurrentFolder(topHistoFolder + "/00-MeanRes");
+  dbe->setCurrentFolder("DT/02-Segments/00-MeanRes");
   string histoName =  "MeanSummaryRes_W" + wheel.str();
   stringstream meanRange; meanRange << (permittedMeanRange*10000);
   string histoTitle = "# of SL with |mean of res.| > " + meanRange.str() + "#mum (Wheel " + wheel.str() + ")";
@@ -285,7 +286,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh) {
   
 
 
-  dbe->setCurrentFolder(topHistoFolder + "/01-SigmaRes");
+  dbe->setCurrentFolder("DT/02-Segments/01-SigmaRes");
   histoName =  "SigmaSummaryRes_W" + wheel.str();
   stringstream sigmaRange; sigmaRange << (permittedSigmaRange*10000);
   histoTitle = "# of SL with #sigma res. > " + sigmaRange.str() + "#mum (Wheel " + wheel.str() + ")";
@@ -317,7 +318,7 @@ void DTResolutionAnalysisTest::bookHistos(int wh, int sect) {
   string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
   string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
  
-  string folder = topHistoFolder + "/Wheel" + wheel.str() + "/Sector" + sector.str();
+  string folder = "DT/02-Segments/Wheel" + wheel.str() + "/Sector" + sector.str();
   dbe->setCurrentFolder(folder);
 
   if(sect!=4 && sect!=10) {
@@ -386,7 +387,7 @@ string DTResolutionAnalysisTest::getMEName(const DTSuperLayerId & slID) {
   stringstream superLayer; superLayer << slID.superlayer();
   
   string folderName = 
-    topHistoFolder + "/Wheel" +  wheel.str() +
+    folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/";
   

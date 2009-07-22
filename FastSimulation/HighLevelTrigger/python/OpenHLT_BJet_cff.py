@@ -3,9 +3,7 @@ import copy
 import FWCore.ParameterSet.Config as cms
 
 # import the whole HLT menu
-#from FastSimulation.Configuration.HLT_cff import *
-#from FastSimulation.Configuration.HLT_1E31_cff import *
-from HLTrigger.Configuration.HLT_FULL_cff import *
+from FastSimulation.Configuration.HLT_cff import *
   
 ### lifetime-based b-tag OpenHLT (ideal) ######################################
 # L1 filter is skipped
@@ -68,35 +66,35 @@ OpenHLTBLifetimeL3recoSequence = cms.Sequence(
 # L2.5 as rewritten is common with ideal conditions
 # L3 sequence is rewritten to bypass selectors and filters
 
-openHltBLifetimeRegionalPixelSeedGeneratorStartup = copy.deepcopy(hltBLifetimeRegionalPixelSeedGeneratorStartup)
-openHltBLifetimeRegionalPixelSeedGeneratorStartup.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
+openHltBLifetimeRegionalPixelSeedGeneratorRelaxed = copy.deepcopy(hltBLifetimeRegionalPixelSeedGeneratorRelaxed)
+openHltBLifetimeRegionalPixelSeedGeneratorRelaxed.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag("hltIterativeCone5CaloJets")
 
-openHltBLifetimeRegionalCkfTrackCandidatesStartup = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidatesStartup)
-openHltBLifetimeRegionalCkfTrackCandidatesStartup.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGeneratorStartup")
+openHltBLifetimeRegionalCkfTrackCandidatesRelaxed = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidatesRelaxed)
+openHltBLifetimeRegionalCkfTrackCandidatesRelaxed.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGeneratorRelaxed")
 
-openHltBLifetimeRegionalCtfWithMaterialTracksStartup = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksStartup)
-openHltBLifetimeRegionalCtfWithMaterialTracksStartup.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidatesStartup")
+openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksRelaxed)
+openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidatesRelaxed")
   
-openHltBLifetimeL3AssociatorStartup = copy.deepcopy(hltBLifetimeL3AssociatorStartup)
-openHltBLifetimeL3AssociatorStartup.jets   = cms.InputTag("hltIterativeCone5CaloJets")
-openHltBLifetimeL3AssociatorStartup.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracksStartup")
+openHltBLifetimeL3AssociatorRelaxed = copy.deepcopy(hltBLifetimeL3AssociatorRelaxed)
+openHltBLifetimeL3AssociatorRelaxed.jets   = cms.InputTag("hltIterativeCone5CaloJets")
+openHltBLifetimeL3AssociatorRelaxed.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed")
 
-openHltBLifetimeL3TagInfosStartup = copy.deepcopy(hltBLifetimeL3TagInfosStartup)
-openHltBLifetimeL3TagInfosStartup.jetTracks = cms.InputTag("openHltBLifetimeL3AssociatorStartup")
+openHltBLifetimeL3TagInfosRelaxed = copy.deepcopy(hltBLifetimeL3TagInfosRelaxed)
+openHltBLifetimeL3TagInfosRelaxed.jetTracks = cms.InputTag("openHltBLifetimeL3AssociatorRelaxed")
   
-openHltBLifetimeL3BJetTagsStartup = copy.deepcopy(hltBLifetimeL3BJetTagsStartup)
-openHltBLifetimeL3BJetTagsStartup.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfosStartup"))
+openHltBLifetimeL3BJetTagsRelaxed = copy.deepcopy(hltBLifetimeL3BJetTagsRelaxed)
+openHltBLifetimeL3BJetTagsRelaxed.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfosRelaxed"))
   
 # L3 reco sequence for relaxed lifetime tagger
-OpenHLTBLifetimeL3recoSequenceStartup = cms.Sequence( 
+OpenHLTBLifetimeL3recoSequenceRelaxed = cms.Sequence( 
     HLTDoLocalPixelSequence + 
     HLTDoLocalStripSequence + 
-    openHltBLifetimeRegionalPixelSeedGeneratorStartup + 
-    openHltBLifetimeRegionalCkfTrackCandidatesStartup + 
-    openHltBLifetimeRegionalCtfWithMaterialTracksStartup + 
-    openHltBLifetimeL3AssociatorStartup + 
-    openHltBLifetimeL3TagInfosStartup + 
-    openHltBLifetimeL3BJetTagsStartup )
+    openHltBLifetimeRegionalPixelSeedGeneratorRelaxed + 
+    openHltBLifetimeRegionalCkfTrackCandidatesRelaxed + 
+    openHltBLifetimeRegionalCtfWithMaterialTracksRelaxed + 
+    openHltBLifetimeL3AssociatorRelaxed + 
+    openHltBLifetimeL3TagInfosRelaxed + 
+    openHltBLifetimeL3BJetTagsRelaxed )
 
 ### soft-muon-based b-tag OpenHLT (ideal, start up, and performance meas.) ####
 # L1 filter is skipped

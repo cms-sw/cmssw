@@ -13,9 +13,6 @@ mix = cms.EDProducer("MixingModule",
 
     bunchspace = cms.int32(75), ##ns
     checktof = cms.bool(False),
-    mixProdStep1 = cms.bool(True),
-    mixProdStep2 = cms.bool(False),
-
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
                    

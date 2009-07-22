@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.1.2.2 2009/04/20 12:33:27 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.2 2009/04/20 18:13:47 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.1.2.2 2009/04/20 12:33:27 vadler Exp $
 //
 
 
@@ -37,7 +37,7 @@
 
 namespace pat {
 
-  template< class PATObjectType >
+  template< class PATObjectType, class RecoObjectType >
   class PATTriggerMatchEmbedder : public edm::EDProducer {
 
       edm::InputTag src_;
@@ -54,28 +54,28 @@ namespace pat {
 
   };
 
-  typedef PATTriggerMatchEmbedder< Electron > PATTriggerMatchElectronEmbedder;
-  typedef PATTriggerMatchEmbedder< Jet >         PATTriggerMatchJetEmbedder;
-  typedef PATTriggerMatchEmbedder< MET >         PATTriggerMatchMETEmbedder;
-  typedef PATTriggerMatchEmbedder< Muon >        PATTriggerMatchMuonEmbedder;
-  typedef PATTriggerMatchEmbedder< Photon >      PATTriggerMatchPhotonEmbedder;
-  typedef PATTriggerMatchEmbedder< Tau >     PATTriggerMatchTauEmbedder;
+  typedef PATTriggerMatchEmbedder< Electron, reco::GsfElectron > PATTriggerMatchElectronEmbedder;
+  typedef PATTriggerMatchEmbedder< Jet     , reco::Jet >         PATTriggerMatchJetEmbedder;
+  typedef PATTriggerMatchEmbedder< MET     , reco::MET >         PATTriggerMatchMETEmbedder;
+  typedef PATTriggerMatchEmbedder< Muon    , reco::Muon >        PATTriggerMatchMuonEmbedder;
+  typedef PATTriggerMatchEmbedder< Photon  , reco::Photon >      PATTriggerMatchPhotonEmbedder;
+  typedef PATTriggerMatchEmbedder< Tau     , reco::BaseTau >     PATTriggerMatchTauEmbedder;
 
 }
 
 
 using namespace pat;
 
-template< class PATObjectType >
-PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig ) :
+template< class PATObjectType, class RecoObjectType >
+PATTriggerMatchEmbedder< PATObjectType, RecoObjectType >::PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig ) :
   src_( iConfig.getParameter< edm::InputTag >( "src" ) ),
   matches_( iConfig.getParameter< std::vector< edm::InputTag > >( "matches" ) )
 {
   produces< std::vector< PATObjectType > >();
 }
 
-template< class PATObjectType >
-void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
+template< class PATObjectType, class RecoObjectType >
+void PATTriggerMatchEmbedder< PATObjectType, RecoObjectType >::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
 {  
   std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
   
@@ -88,7 +88,8 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
 
   for ( typename edm::View< PATObjectType >::const_iterator iCand = candidates->begin(); iCand != candidates->end(); ++iCand ) {
     const unsigned index( iCand - candidates->begin() );
-    PATObjectType cand( candidates->at( index ) );
+    const edm::RefToBase< RecoObjectType > candRef( candidates->refAt( index ) );
+    PATObjectType cand( candRef );
     for ( size_t iMatch = 0; iMatch < matches_.size(); ++iMatch ) {
       edm::Handle< TriggerObjectStandAloneMatch > match;
       iEvent.getByLabel( matches_.at( iMatch ), match );
@@ -96,7 +97,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
         edm::LogError( "missingInputMatch" ) << "Input match with InputTag " << matches_.at( iMatch ).encode() << " not in event.";
         continue;
       }
-      const TriggerObjectStandAloneRef trigRef( ( *match )[ candidates->refAt( index ) ] );
+      const TriggerObjectStandAloneRef trigRef( ( *match )[ candRef ] );
       if ( trigRef.isNonnull() && trigRef.isAvailable() ) {
         cand.addTriggerObjectMatch( *trigRef );
       }

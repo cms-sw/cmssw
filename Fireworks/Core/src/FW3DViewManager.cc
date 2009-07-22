@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.11 2009/06/13 14:33:44 chrjones Exp $
+// $Id: FW3DViewManager.cc,v 1.10 2009/05/13 20:26:05 amraktad Exp $
 //
 
 // system include files
@@ -128,7 +128,7 @@ FW3DViewManager::buildView(TEveWindowSlot* iParent)
          (*it)->setHaveAWindow(true);
       }
    }
-   view->setGeometry( detIdToGeo() );
+   view->makeGeometry( detIdToGeo() );
    view->beingDestroyed_.connect(boost::bind(&FW3DViewManager::beingDestroyed,this,_1));
    return view.get();
 }

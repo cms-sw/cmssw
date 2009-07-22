@@ -25,7 +25,7 @@ class Alignments;
 
 /// Class to update a given geometry with a set of alignments
 
-class GeometryAligner : public DetPositioner { 
+class GeometryAligner : public DetPositioner {
 
 public:
   template<class C> 
@@ -44,8 +44,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 				       const AlignTransform& globalCoordinates )
 {
 
-  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
-			    << "Starting to apply alignments.";
+  edm::LogInfo("Starting") << "Starting to apply alignments";
 
   // Preliminary checks (or we can't loop!)
   if ( alignments->m_align.size() != geometry->theMap.size() )
@@ -67,7 +66,6 @@ void GeometryAligner::applyAlignments( C* geometry,
   //copy  geometry->theMap to a real map to order it....
   std::map<unsigned int, GeomDet*> theMap;
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap,theMap.begin()));
-  unsigned int nAPE = 0;
   for ( std::map<unsigned int, GeomDet*>::const_iterator iPair = theMap.begin(); 
 		iPair != theMap.end(); ++iPair, ++iAlign, ++iAlignError )
 	{
@@ -86,27 +84,23 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  CLHEP::Hep3Vector positionHep = globalRotation * CLHEP::Hep3Vector( (*iAlign).translation() ) + globalShift;
 	  CLHEP::HepRotation rotationHep = globalRotation * CLHEP::HepRotation( (*iAlign).rotation() );
 
-	  // Define new position/rotation objects and apply
+	  // Define new quantities
 	  Surface::PositionType position( positionHep.x(), positionHep.y(), positionHep.z() );
 	  Surface::RotationType rotation( rotationHep.xx(), rotationHep.xy(), rotationHep.xz(), 
 					  rotationHep.yx(), rotationHep.yy(), rotationHep.yz(), 
 					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
-	  GeomDet* iGeomDet = (*iPair).second;
-	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
-	  // Alignment Position Error only if non-zero to save memory
+	  // Alignment Position Error
 	  GlobalError error( (*iAlignError).matrix() );
-	  if ( error.cxx() || error.cyy() || error.czz() ||
-	       error.cyx() || error.czx() || error.czy() ) {
-	    AlignmentPositionError ape( error );
-	    this->setAlignmentPositionError( *iGeomDet, ape );
-	    ++nAPE;
-	  }
+	  AlignmentPositionError ape( error );
+
+	  // Apply new quantities
+	  GeomDet* iGeomDet = (*iPair).second;
+	  DetPositioner::setGeomDetPosition( *iGeomDet, position, rotation );
+	  DetPositioner::setAlignmentPositionError( *iGeomDet, ape );
 	}
 
-  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
-			    << "Finished to apply " << theMap.size() << " alignments with "
-			    << nAPE << " non-zero APE.";
+  edm::LogInfo("Done") << "Finished to apply alignments";
 }
 
 

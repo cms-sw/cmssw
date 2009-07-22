@@ -115,7 +115,7 @@ class DotProducer(object):
     if self.options['seqconnect']:
       if endpath:
         self.endstarts.append('endstart_%s'%self.data.label(path))
-        self.nodes['endstart_%s'%self.data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
+        self.nodes['endstart_%s'%data.label(path)]={'obj':path,'n_label':'Start %s'%self.data.label(path),'n_color':'grey','n_shape':'plaintext','inpath':False}
       else:
         self.pathstarts.append('start_%s'%self.data.label(path))
         self.pathends.append('end_%s'%self.data.label(path))
@@ -245,18 +245,19 @@ class DotProducer(object):
     if self.options['legend']:
       blocks += [self.produceLegend()]
     blocks += [self.producePaths()]
-    if self.options['seqconnect']:
-      blocks += [self.connectPaths()]
-    if self.options['tagconnect']:
-      blocks += [self.connectTags()]
-    if self.options['source']:
-      blocks += [self.produceSource()]
-    if self.options['es'] or self.options['services']:
-      blocks += [self.produceServices()]
-    blocks += [self.produceNodes()]
     if self.data.process():
+      if self.options['seqconnect']:
+        blocks += [self.connectPaths()]
+      if self.options['tagconnect']:
+        blocks += [self.connectTags()]
+      if self.options['source']:
+        blocks += [self.produceSource()]
+      if self.options['es'] or self.options['services']:
+        blocks += [self.produceServices()]
+      blocks += [self.produceNodes()]
       return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
     else:
+      blocks += [self.produceNodes()]
       return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
   
   
@@ -287,13 +288,12 @@ class DotExport(FileExportPlugin):
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
     'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
     'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
-    'node_graphs_restrict':('Select which nodes to make node graphs for','string',''),
     'node_depth':('Search depth for individual node graphs','int',1),
     'font_name':('Font name','string','Times-Roman'),
     'font_size':('Font size','int',8)
   }
   plugin_name='DOT Export'
-  file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map','stdout')
+  file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map')
   def __init__(self):
     FileExportPlugin.__init__(self)
     
@@ -327,12 +327,8 @@ class DotExport(FileExportPlugin):
         newdot += spaces(depth)+line+'\n'
     return newdot
   
-  def selectNode(self,dotdata,node,depth_s):
-    depth = int(depth_s)
-    backtrace=False
-    if depth<0:
-      depth = abs(depth)
-      backtrace=True
+  def selectNode(self,dotdata,node,depth):
+    depth = int(depth)
     re_link = re.compile(r'^\s*?(\w*?)->(\w*?)(?:\[.*?\])?$',re.MULTILINE)
     re_nodedef = re.compile(r'^\s*?(\w*?)(?:\[.*?\])?$',re.MULTILINE)
     re_title = re.compile(r'^label=\"(.*?)\"$',re.MULTILINE)
@@ -344,11 +340,10 @@ class DotExport(FileExportPlugin):
     links_l = re_link.findall(dotdata)
     links = {}
     for link in links_l:
-      if not backtrace:
-        if link[0] in links:
-          links[link[0]] += [link[1]]
-        else:
-          links[link[0]] = [link[1]]
+      if link[0] in links:
+        links[link[0]] += [link[1]]
+      else:
+        links[link[0]] = [link[1]]
       if link[1] in links:
           links[link[1]] += [link[0]]
       else:
@@ -387,7 +382,7 @@ class DotExport(FileExportPlugin):
     
     dotdata = re_link.sub(link_replacer(include_nodes),dotdata)
     dotdata = re_nodedef.sub(node_replacer(include_nodes),dotdata)
-    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth_s)+r' from node ' +node+r'"',dotdata,1)
+    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth)+r' from node ' +node+r'"',dotdata,1)
     dotdata = re_nodeprops.sub('\\g<1>[\\g<2>,color="red"]',dotdata,1)
     
     return dotdata
@@ -473,15 +468,11 @@ class DotExport(FileExportPlugin):
     if self.options['node_graphs']:
       nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
       for n in nodes:
-        if self.options['node_graphs_restrict'] in n:
-          try:
-            node_dot = self.selectNode(dot,n,self.options['node_depth'])
-            self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
-          except:
-            pass
-    else:
-      dot = self.dotIndenter(dot)
-      self.write_output(dot,filename,filetype)
+        node_dot = self.selectNode(dot,n,self.options['node_depth'])
+        self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
+    
+    dot = self.dotIndenter(dot)
+    self.write_output(dot,filename,filetype)
     
     
     

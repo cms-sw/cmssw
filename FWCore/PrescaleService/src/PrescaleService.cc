@@ -8,8 +8,9 @@
 
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <set>
 #include <algorithm>

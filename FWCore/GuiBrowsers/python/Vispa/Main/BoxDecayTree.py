@@ -13,7 +13,6 @@ from ParticleDataAccessor import *
 from PortConnection import *
 from WidgetView import *
 from Exceptions import *
-from Vispa.Main.Thread import RunThread
 
 class BoxDecayTree(WidgetView):
     """Visualizes a decay tree using boxes to represent containers as well as their contents.
@@ -30,8 +29,6 @@ class BoxDecayTree(WidgetView):
         self._subView = None
         self._subViews = []
         self._arrangeUsingRelations = True
-        self._leftMargin = ConnectableWidget().getDistance('leftMargin')
-        self._topMargin = ConnectableWidget().getDistance('topMargin')
 
         self.setPalette(QPalette(Qt.black, Qt.white))
 
@@ -83,12 +80,7 @@ class BoxDecayTree(WidgetView):
         if self._dataAccessor:
             objects = self._filter(self._dataObjects)
             if self._sortBeforeArranging:
-                thread = RunThread(self._sortByRelations, objects)
-                while thread.isRunning():
-                    QCoreApplication.instance().processEvents()
-                    if operationId != self._operationId:
-                        return False
-                objects=thread.returnValue
+                objects = self._sortByRelations(operationId, objects)
             self.createBoxesRecursive(operationId, objects, self)
         self._updatingFlag = False
         return operationId == self._operationId
@@ -98,10 +90,8 @@ class BoxDecayTree(WidgetView):
         """
         if container:
             widget = WidgetContainer(widgetParent)
-            widget.noRearangeContent()
         else:
             widget = ConnectableWidget(widgetParent)
-            widget.noRearangeContent()
             widget.TEXTFIELD_FLAGS = 0
             widget.setText(text)
             widget.setShowPortNames(True)
@@ -111,7 +101,7 @@ class BoxDecayTree(WidgetView):
 #        widget.ROUNDRECT_RADIUS=0
 #        widget.setColors(Qt.black,Qt.white,Qt.white)
         widget.setTitle(title)
-        widget.move(self._leftMargin, self._topMargin)
+        widget.move(widget.getDistance('leftMargin'), widget.getDistance('topMargin'))
         return widget
 
     def createSourcePort(self, w, name, visible=True):
@@ -150,7 +140,7 @@ class BoxDecayTree(WidgetView):
         connection.setDeletable(False)
         if color:
             connection.FILL_COLOR2 = color
-        connection.move(2 * self._leftMargin, 2 * self._topMargin)
+        connection.move(2 * w1.getDistance('leftMargin'), 2 * w1.getDistance('topMargin'))
         return connection
 
     def createConnections(self, operationId, widgetParent):
@@ -158,52 +148,56 @@ class BoxDecayTree(WidgetView):
         
         In BoxDecayTree default mother-daughter relations are vizualized by the connections.
         """
-        for w1 in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
-            if operationId != self._operationId:
-                return None
-            if isinstance(w1, ConnectableWidget):
-                w1.setShowPortNames(False)
-                for daughter in self._dataAccessor.daughterRelations(w1.object):
-                    w2 = self._widgetByObject(daughter)
-                    if w2:
-                        connectionWidget = self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
-                        connectionWidget.stackUnder(w2)
-                        connectionWidget.show()
-
-    def arrangeBoxPositions(self, widgetParent, operationId=None):
+        if widgetParent:
+            children = [w for w in widgetParent.children()
+                        if isinstance(w, ConnectableWidget)]
+        else:
+            children = []
+        for w1 in children:
+            w1.setShowPortNames(False)
+            for w2 in children:
+                if operationId != self._operationId:
+                    break
+                if w1.object in self._dataAccessor.motherRelations(w2.object):
+                    connectionWidget = self.createConnection(w1, 'daughterRelations', w2, 'motherRelations', None, False)
+                    connectionWidget.stackUnder(w2)
+                    connectionWidget.show()
+        
+    def arrangeBoxPosition(self, widget):
         """ Arrange box position according to mother relations.
         """
-        min_y = self._topMargin
-        widgetBefore=None
-        for widget in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
-            if operationId != None and operationId != self._operationId:
-                return None
-            if isinstance(widget, VispaWidget):
-                x = self._leftMargin
-                y = min_y
-                if self._arrangeUsingRelations:
-                    for mother in self._dataAccessor.motherRelations(widget.object):
-                        w = self._widgetByObject(mother)
-                        if w:
-                            # place daughter box on the right of the mother box
-                            if x < w.x() + w.width():
-                                x = w.x() + w.width() + self._leftMargin
-                            # place right next to mother if its the first daughter
-                            if w==widgetBefore:
-                                y = w.y()
-                widget.move(x, y)
-                widgetBefore=widget
-            # remember the position below all other objects as min_y
-            if (isinstance(widget, VispaWidget) or \
-                (self._subView and isinstance(widget, self._subView))) and \
-               min_y < widget.y() + widget.height() + self._topMargin:
-                min_y = widget.y() + widget.height() + self._topMargin
+        leftMargin = widget.getDistance('leftMargin')
+        topMargin = widget.getDistance('topMargin')
+        x = leftMargin
+        y = topMargin
+        motherRelations = self._dataAccessor.allMotherRelations(widget.object)
+        if widget.parent():
+            vispaWidgets = [w for w in widget.parent().children() if isinstance(w, VispaWidget)]
+            children = vispaWidgets[:vispaWidgets.index(widget)]
+        else:
+            children = []
+        if self._arrangeUsingRelations:
+            for w in children:
+                if w.object in motherRelations:
+                    # place daughter box on the right of the mother box
+                    if x < w.x() + w.width():
+                        x = w.x() + w.width() + leftMargin
+                    if y < w.y():
+                        y = w.y()
+        # resolve remaining overlaps by moving the box downwards
+        for w in children:
+            if not w.object in motherRelations and\
+                y < w.y() + w.height():
+                y = w.y() + w.height() + topMargin
+        # resolve overlaps with SubViews
+        if self._subView != None and widget.parent():
+            subViews = [w for w in widget.parent().children() if isinstance(w, self._subView)]
+        else:
+            subViews = []
+        for w in subViews:
+            if y < w.y() + w.height():
+                y = w.y() + w.height() + topMargin
+        widget.move(x, y)
 
     def updateBoxPositions(self, widget):
         """ Arrange box positions of all objects below a certain widget.
@@ -211,16 +205,18 @@ class BoxDecayTree(WidgetView):
         This makes sure that all boxes are in the right position after a widget is resized.
         """
         if widget.parent():
-            self.arrangeBoxPositions(widget.parent())
-            if isinstance(widget.parent(), WidgetContainer):
-                widget.parent().autosize()
+            vispaWidgets = [w for w in widget.parent().children() if isinstance(w, VispaWidget)]
+            children = vispaWidgets[vispaWidgets.index(widget) + 1:]
+        else:
+            children = []
+        for w in children:
+            self.arrangeBoxPosition(w)
 
     def createBoxesRecursive(self, operationId, objects, widgetParent, positionName="0"):
         """ Creates a box from an object.
         
         All children of this object are created recursively.
         """
-        logging.debug(__name__ + ": createBoxesRecursive")
         # Process application event loop in order to accept user input during time consuming drawing operation
         QCoreApplication.instance().processEvents()
         # Abort drawing if operationId out of date
@@ -240,18 +236,13 @@ class BoxDecayTree(WidgetView):
             subView.setDataObjects(decayTreeChildren)
             subView.updateContent()
             if isinstance(widgetParent, WidgetContainer):
-                subView.move(self._leftMargin, self._topMargin)
+                subView.move(widgetParent.getDistance('leftMargin'), widgetParent.getDistance('topMargin'))
             self._subViews += [subView]
             self.connect(subView, SIGNAL("selected"), self.onSubViewSelected)
         else:
             otherChildren += decayTreeChildren
         if self._sortBeforeArranging:
-            thread = RunThread(self._sortByRelations, otherChildren)
-            while thread.isRunning():
-                QCoreApplication.instance().processEvents()
-                if operationId != self._operationId:
-                    return None
-            otherChildren=thread.returnValue
+            otherChildren = self._sortByRelations(operationId, otherChildren)
 
         i = 0
         for object in otherChildren:
@@ -275,16 +266,9 @@ class BoxDecayTree(WidgetView):
         self.createConnections(operationId, widgetParent)
 
         for widget in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
-            if operationId != self._operationId:
-                return None
             # create children objects
             if isinstance(widget, WidgetContainer):
                 self.createBoxesRecursive(operationId, self._filter(self._dataAccessor.children(widget.object)), widget, positionName)
-            if isinstance(widget, VispaWidget):
-                widget.noRearangeContent(False)
 
             if operationId != self._operationId:
                 return None
@@ -292,14 +276,13 @@ class BoxDecayTree(WidgetView):
             if isinstance(widget, WidgetContainer):
                 widget.autosize()
                 self.connect(widget, SIGNAL("sizeChanged"), self.updateBoxPositions)
-        
-        # calculate box positions
-        self.arrangeBoxPositions(widgetParent, operationId)
 
-        for widget in widgetParent.children():
-            # Process application event loop in order to accept user input during time consuming drawing operation
-            QCoreApplication.instance().processEvents()
-            # Abort drawing if operationId out of date
+            if operationId != self._operationId:
+                return None
+            # calculate box position
+            if isinstance(widget, VispaWidget):
+                self.arrangeBoxPosition(widget)
+
             if operationId != self._operationId:
                 return None
             # draw box
@@ -309,7 +292,7 @@ class BoxDecayTree(WidgetView):
             return None
         self.autosizeScrollArea() 
 
-    def _sortByRelations(self, objects):
+    def _sortByRelations(self, operationId, objects):
         """ Sort a list of objects by their mother/daughter relations.
         
         All daughter objects are put directly behind the mother object in the list.
@@ -321,18 +304,13 @@ class BoxDecayTree(WidgetView):
         unsortedObjects = list(objects)
         sortedObjects = []
         for object in reversed(list(objects)):
-            globalMother=True
-            for mother in self._dataAccessor.allMotherRelations(object):
-                if mother in unsortedObjects:
-                    globalMother=False
-                    break
-            if object in unsortedObjects and globalMother:
+            if len(self._dataAccessor.motherRelations(object)) == 0:
                 unsortedObjects.remove(object)
                 sortedObjects.insert(0, object)
                 i = 0
                 for child in self._dataAccessor.allDaughterRelations(object):
+                    i += 1
                     if child in unsortedObjects:
-                        i += 1
                         unsortedObjects.remove(child)
                         sortedObjects.insert(i, child)
         sortedObjects += unsortedObjects

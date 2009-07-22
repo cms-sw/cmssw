@@ -3,7 +3,6 @@
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 std::pair<bool,double>
 MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
@@ -25,7 +24,7 @@ MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   	Vec r = asSVector<2>((*iter)->parameters()) - me.measuredParameters<2>(**iter);
   	Mat R = asSMatrix<2>((*iter)->parametersError())*annealing + me.measuredError<2>(**iter);
   	//int ierr = ! R.Invert(); // if (ierr != 0) throw exception; // 
-	invertPosDefMatrix(R);
+  	R.Invert();
 	LogDebug("MRHChi2MeasurementEstimator") << "Hit with weight " << (*iter)->weight(); 
   	est += ROOT::Math::Similarity(r, R)*((*iter)->weight());
   }	

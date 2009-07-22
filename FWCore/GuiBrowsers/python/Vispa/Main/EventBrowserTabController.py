@@ -10,6 +10,17 @@ from Vispa.Main.WidgetView import WidgetView
 from Vispa.Main.BoxDecayTree import *
 from Vispa.Main.LineDecayTree import *
 
+#import Vispa.Main.Preferences as Preferences
+
+#if Preferences.get('RootCanvasViewEnabled'):
+#  try:
+#    from Vispa.Main.RootCanvasView import RootCanvasView
+#    RootCanvasViewEnable = True
+#  except:
+#    RootCanvasViewEnable = False
+#    logging.error(__name__ + ": RootCanvasView not availeable")
+#else:
+#  RootCanvasViewEnable = False
 try:
   from Vispa.Main.RootCanvasView import RootCanvasView
   RootCanvasViewEnable = True
@@ -137,13 +148,8 @@ class EventBrowserTabController(BrowserController):
         self._loadIni()
 
     def refresh(self):
-        statusMessage = self.plugin().application().startWorking("Reopening file")
-        eventNum=self._dataAccessor.eventNumber()
-        self._fileModifcationTimestamp = os.path.getmtime(self._filename)
         self.dataAccessor().close()
-        self.readFile(self._filename)
-        self._eventFileNavigator.goto(eventNum)
-        self.plugin().application().stopWorking(statusMessage)
+        BrowserController.refresh(self)
             
     def readFile(self, filename):
         """ Reads in the file in a separate thread.

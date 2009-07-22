@@ -5,7 +5,7 @@
 # with command line options: alcareco_AlCaP0 -s ALCA:EcalCalPi0Calib+EcalCalEtaCalib+DQM --conditions=FrontierConditions_GlobalTag,GR09_31X_V4P::All --scenario cosmics --data --magField 0T -n 1000 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('ALCA')
+process = cms.Process('RECO')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -23,7 +23,7 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -33,35 +33,18 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/data/Commissioning09/AlCaP0/RAW/v3/000/106/019/54F9735F-6972-DE11-8995-001D09F24EC0.root')
 )
 
-# Additional output definition
-process.ALCARECOStreamEcalCalPi0Calib = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*', 
-        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*', 
-        'keep *_hltAlCaPi0RegRecHits*_pi0EcalRecHitsES_*'),
-    fileName = cms.untracked.string('ALCARECOEcalCalPi0Calib.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('StreamALCARECOEcalCalPi0Calib'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
+# Combined AlCaReco output
+process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
+   outputCommands = process.ALCARECOEventContent.outputCommands,
+   fileName = cms.untracked.string('ALCACombined.root'),
+   dataset = cms.untracked.PSet(
+       filterName = cms.untracked.string('StreamALCACombined'),
+       dataTier = cms.untracked.string('ALCARECO')
+   )
 )
-process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOEcalCalEtaCalib')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*', 
-        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*', 
-        'keep *_hltAlCaEtaRegRecHits*_etaEcalRecHitsES_*'),
-    fileName = cms.untracked.string('ALCARECOEcalCalEtaCalib.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('StreamALCARECOEcalCalEtaCalib'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
+process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
@@ -110,8 +93,7 @@ process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*pr
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
-process.ALCARECOStreamEcalCalPi0CalibOutPath = cms.EndPath(process.ALCARECOStreamEcalCalPi0Calib)
-process.ALCARECOStreamEcalCalEtaCalibOutPath = cms.EndPath(process.ALCARECOStreamEcalCalEtaCalib)
+process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 process.ecalPi0Corrected.EBRecHitCollection = cms.InputTag("hltAlCaPi0RegRecHitsCosmics","pi0EcalRecHitsEB")
 process.ecalPi0Corrected.EERecHitCollection = cms.InputTag("hltAlCaPi0RegRecHitsCosmics","pi0EcalRecHitsEE")
@@ -119,4 +101,4 @@ process.ecalEtaCorrected.EBRecHitCollection = cms.InputTag("hltAlCaEtaRegRecHits
 process.ecalEtaCorrected.EERecHitCollection = cms.InputTag("hltAlCaEtaRegRecHitsCosmics","etaEcalRecHitsEE")
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathALCARECOEcalCalPi0Calib,process.pathALCARECOEcalCalEtaCalib,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamEcalCalPi0CalibOutPath,process.ALCARECOStreamEcalCalEtaCalibOutPath)
+process.schedule = cms.Schedule(process.pathALCARECOEcalCalPi0Calib,process.pathALCARECOEcalCalEtaCalib,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamCombinedOutPath)

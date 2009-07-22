@@ -1,8 +1,5 @@
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
 #include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashPiKShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashProtonShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashAntiProtonShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashNameSpace.h"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
@@ -24,10 +21,7 @@
 GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
 {
-  theProfile = new GflashHadronShowerProfile(parSet);
-  thePiKProfile = new GflashPiKShowerProfile(parSet);
-  theProtonProfile = new GflashProtonShowerProfile(parSet);
-  theAntiProtonProfile = new GflashAntiProtonShowerProfile(parSet);
+  theProfile = new GflashHadronShowerProfile(envelope,parSet);
   theHisto = GflashHistogram::instance();
 }
 
@@ -43,7 +37,8 @@ G4bool GflashHadronShowerModel::IsApplicable(const G4ParticleDefinition& particl
     &particleType == G4PionPlus::PionPlusDefinition() ||
     &particleType == G4KaonMinus::KaonMinusDefinition() ||
     &particleType == G4KaonPlus::KaonPlusDefinition() ||
-    &particleType == G4AntiProton::AntiProtonDefinition() ||
+    //@@@turn-off AntiProton parameterization until it is completed
+    //    &particleType == G4AntiProton::AntiProtonDefinition() ||
     &particleType == G4Proton::ProtonDefinition() ;
 }
 
@@ -80,22 +75,18 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
 
 void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 {
-  // kill the particle
-  fastStep.KillPrimaryTrack();
-  fastStep.ProposePrimaryTrackPathLength(0.0);
+
+  // Kill the parameterised particle:
+
   fastStep.ProposeTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
-  // parameterize energy depostion by the particle type
-  G4ParticleDefinition* particleType = fastTrack.GetPrimaryTrack()->GetDefinition();
-  
-  theProfile = thePiKProfile;
-  if(particleType == G4AntiProton::AntiProtonDefinition()) theProfile = theAntiProtonProfile;
-  else if(particleType == G4Proton::ProtonDefinition()) theProfile = theProtonProfile;
-
-  theProfile->loadParameters(fastTrack);
   theProfile->hadronicParameterization(fastTrack);
 
+  fastStep.KillPrimaryTrack();
+  fastStep.ProposePrimaryTrackPathLength(0.0);
+
 }
+
 
 G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& fastTrack)
 {
@@ -113,7 +104,8 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
      (particleType == G4PionMinus::PionMinusDefinition() && procName == "WrappedPionMinusInelastic") ||
      (particleType == G4KaonPlus::KaonPlusDefinition() && procName == "WrappedKaonPlusInelastic") ||
      (particleType == G4KaonMinus::KaonMinusDefinition() && procName == "WrappedKaonMinusInelastic") ||
-     (particleType == G4AntiProton::AntiProtonDefinition() && procName == "WrappedAntiProtonInelastic") ||
+     //@@@turn-off AntiProton parameterization until it is completed
+     //     (particleType == G4AntiProton::AntiProtonDefinition() && procName == "WrappedAntiProtonInelastic") ||
      (particleType == G4Proton::ProtonDefinition() && procName == "WrappedProtonInelastic")) {
 
     //skip to the second interaction if the first inelastic is a quasi-elastic like interaction
@@ -157,14 +149,12 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
 G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack)
 {
   G4bool isExcluded=false;
-  int verbosity = theParSet.getUntrackedParameter<int>("Verbosity");
   
   //exclude regions where geometry are complicated 
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
   if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
-    if(verbosity>0) {
-      std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
-    }
+    //@@@remove this print statement later
+    std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
     return true;  
   }
   else {
@@ -187,12 +177,10 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
       distOut =  Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ()/cm);
       if (distOut < Gflash::MinDistanceToOut ) isExcluded = true;
     }
-
     //@@@remove this print statement later
-    if(isExcluded && verbosity > 0) {
+    if(isExcluded) {
       std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << 
-	" DistanceToOut " << distOut << " from (" <<  (postStep->GetPosition()).getRho()/cm << 
-	":" << (postStep->GetPosition()).getZ()/cm << ") of KE = " << fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV << std::endl;
+	" DistanceToOut " << distOut << std::endl;
     }
   }
 

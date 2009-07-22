@@ -29,10 +29,6 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(12345),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    mixData = cms.PSet(
-        initialSeed = cms.untracked.uint32(12345),
-        engineName = cms.untracked.string('HepJamesRandom')
-    ),
     simSiStripDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')

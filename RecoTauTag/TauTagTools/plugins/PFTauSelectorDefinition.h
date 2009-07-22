@@ -4,8 +4,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
-
 #include <iostream>
 
 struct PFTauSelectorDefinition {
@@ -23,10 +21,7 @@ struct PFTauSelectorDefinition {
   
   PFTauSelectorDefinition ( const edm::ParameterSet & cfg ) {
     discriminators_ = cfg.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
-    cut_ = ( cfg.exists("cut") ) ? new StringCutObjectSelector<reco::PFTau>( cfg.getParameter<std::string>( "cut" ) ) : 0;
   }
-
-  ~PFTauSelectorDefinition () { delete cut_; }
   
   const_iterator begin() const { return selected_.begin(); }
 
@@ -59,6 +54,7 @@ struct PFTauSelectorDefinition {
       discriminators.push_back(disc);
     }
       
+
     unsigned key=0;
     static bool passedAllCuts;
     for( collection::const_iterator pftau = hc->begin(); 
@@ -76,8 +72,7 @@ struct PFTauSelectorDefinition {
         if ( (*(discIt->m_discHandle))[pfTauRef] <= discIt->m_cut)
           passedAllCuts = false;
       }
-
-      if ( cut_ ) passedAllCuts &= (*cut_)(*pftau);
+      
          
       if(passedAllCuts)
         selected_.push_back( new reco::PFTau(*pftau) );
@@ -86,11 +81,10 @@ struct PFTauSelectorDefinition {
 
   size_t size() const { return selected_.size(); }
 
- private:
+private:
   container selected_;
   std::vector< edm::ParameterSet > discriminators_;
-  StringCutObjectSelector<reco::PFTau>* cut_;
-
+  
 };
 
 #endif

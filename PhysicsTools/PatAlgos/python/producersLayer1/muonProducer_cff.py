@@ -1,18 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# prepare reco information
-# NOT NEEDED AT THE MOMENT
-
-# add PAT specifics
-from PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi import *
-
-# produce object
+from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-
-makeAllLayer1Muons = cms.Sequence(
-    # reco pre-production
-    # pat specifics
-    muonMatch *
-    # object production
-    allLayer1Muons
-    )
+from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi import *
+layer1Muons = cms.Sequence(allLayer1Muons * selectedLayer1Muons * countLayer1Muons)

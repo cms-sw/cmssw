@@ -5,7 +5,7 @@
 # with command line options: alcareco_AlCaPhiSymEcal -s ALCA:EcalCalPhiSym+DQM --conditions=FrontierConditions_GlobalTag,GR09_31X_V4P::All --scenario cosmics --data --magField 0T -n 1000 --no_exec
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('ALCA')
+process = cms.Process('RECO')
 
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
@@ -23,7 +23,7 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -33,22 +33,17 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/data/Commissioning09/AlCaPhiSymEcal/RAW/v3/000/106/019/F4D6046A-6972-DE11-9BE4-000423D94A04.root')
 )
 
-# Additional output definition
-process.ALCARECOStreamEcalCalPhiSym = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOEcalCalPhiSym')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEB_*', 
-        'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEE_*', 
-        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string('ALCARECOEcalCalPhiSym.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('StreamALCARECOEcalCalPhiSym'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
+# Combined AlCaReco output
+process.ALCARECOStreamCombined = cms.OutputModule("PoolOutputModule",
+   outputCommands = process.ALCARECOEventContent.outputCommands,
+   fileName = cms.untracked.string('ALCACombined.root'),
+   dataset = cms.untracked.PSet(
+       filterName = cms.untracked.string('StreamALCACombined'),
+       dataTier = cms.untracked.string('ALCARECO')
+   )
 )
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+process.ALCARECOStreamCombined.outputCommands.extend(OutALCARECOEcalCalPhiSym_noDrop.outputCommands)
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_31X_V4P::All'
@@ -97,7 +92,7 @@ process.pathALCARECOEcalCalPhiSym = cms.Path(process.seqALCARECOEcalCalPhiSym*pr
 process.pathALCARECOMuAlGlobalCosmics = cms.Path(process.seqALCARECOMuAlGlobalCosmics*process.ALCARECOMuAlGlobalCosmicsDQM)
 process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
 process.endjob_step = cms.Path(process.endOfProcess)
-process.ALCARECOStreamEcalCalPhiSymOutPath = cms.EndPath(process.ALCARECOStreamEcalCalPhiSym)
+process.ALCARECOStreamCombinedOutPath = cms.EndPath(process.ALCARECOStreamCombined)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathALCARECOEcalCalPhiSym,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamEcalCalPhiSymOutPath)
+process.schedule = cms.Schedule(process.pathALCARECOEcalCalPhiSym,process.pathALCARECODQM,process.endjob_step,process.ALCARECOStreamCombinedOutPath)

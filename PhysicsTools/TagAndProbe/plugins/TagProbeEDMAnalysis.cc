@@ -9,7 +9,8 @@
 
  Implementation:
      <Notes on implementation>
-*///
+*/
+//
 // Original Author:  "Nadia Adam"
 //         Created:  Sun Apr 20 10:35:25 CDT 2008
 //
@@ -26,216 +27,374 @@
 // Added demoninator histograms
 // UPdated binning on the SBS method
 //
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
 
-// TP Utilities
-#include "PhysicsTools/TagAndProbe/interface/FCIntervals.hh"
-#include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
-#include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
-//#include "PhysicsTools/TagAndProbe/interface/SimultaneousFitter.hh" // Some day
 
-// Line Shapes
-#include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
-#include "PhysicsTools/TagAndProbe/interface/CBLineShape.hh"
-#include "PhysicsTools/TagAndProbe/interface/GaussianLineShape.hh"
-#include "PhysicsTools/TagAndProbe/interface/PolynomialLineShape.hh"
-#include "PhysicsTools/TagAndProbe/interface/CMSBkgLineShape.hh"
+// ROOT headers
 
-// CMSSW
-#include "FWCore/Framework/interface/MakerMacros.h"  // DEFINE_FWK_MODULE
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h" // edm::ParameterSet
-
-// RooFit - clean headers only
-#include <RooDataSet.h>
-#include <RooCategory.h>
-#include <RooCatType.h>
-#include <RooFitResult.h>
-#include <RooMinuit.h>
-#include <RooPlot.h>
-#include <RooRealVar.h>
-#include <RooTreeData.h>
-
-// ROOT
-#include <TROOT.h>  // gROOT
-#include <TChain.h>
-#include <TCanvas.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TTree.h>
+#include <TArrow.h>
 #include <TCanvas.h>
 #include <TFile.h>
+#include <TGaxis.h>
 #include <TGraphAsymmErrors.h>
+#include <TIterator.h>
+#include <TLatex.h>
+#include <TString.h>
 #include <TStyle.h>
-#include <TMath.h> // Gamma
 
-// STL
-#include <vector>
-#include <string>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): 
-  effBinsFromTxt_(NULL),SBS_(NULL),
-  zLineShape_(NULL), cbLineShape_(NULL), gaussLineShape_(NULL),
-  polyBkgLineShape_(NULL),cmsBkgLineShape_(NULL), signalShapePdf_(NULL),
-  var1Pass_(NULL), var1All_(NULL),
-  var2Pass_(NULL), var2All_(NULL),
-  var1var2Pass_(NULL), var1var2All_(NULL) {
+using namespace std;
+using namespace edm;
+using namespace RooFit;
 
-  // Efficiency input variables
-  tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
-  
-  calcEffsSB_     = iConfig.getUntrackedParameter< bool >("CalculateEffSideBand",false);
-  calcEffsFitter_ = iConfig.getUntrackedParameter< bool >("CalculateEffFitter",false);
-  calcEffsTruth_  = iConfig.getUntrackedParameter< bool >("CalculateEffTruth",false);
-  
-  truthParentId_  = iConfig.getUntrackedParameter< int >("MCTruthParentId");
-  
-  // Type of fit
-  unbinnedFit_    = iConfig.getUntrackedParameter< bool >("UnbinnedFit",false);
-  do2DFit_        = iConfig.getUntrackedParameter< bool >("Do2DFit",false);
-  
-  // This gives the option to use bins from a file. 
-  doTextDefinedBins_ = iConfig.getUntrackedParameter< bool >("DoBinsFromTxt",false);
-  if (doTextDefinedBins_) {
-    textBinsFile_ = iConfig.getUntrackedParameter< std::string >("EffBinsFile","EffBinsFile.txt");
-    effBinsFromTxt_ = new EffTableLoader(textBinsFile_);
-    var1Bins_.clear();
-    unsigned int nBins = effBinsFromTxt_->size();
-    for (unsigned int iBin=0; iBin<=nBins; ++iBin) {
-      var1Bins_.push_back(iBin);
-    }
-  }
-  
-  // If want to use reconstructed or detector values (instead of MC generated values) 
-  // of var1 and var2 when doing MC truth efficiencies (i.e., when "calcEffsTruth==true").
-  useRecoVarsForTruthMatchedCands_ = 
-    iConfig.getUntrackedParameter< bool >("useRecoVarsForTruthMatchedCands",true);
-  
-  // Check that the names of the variables are okay ...
-  if (!(var1Name_ == "pt" || var1Name_ == "p"   || var1Name_ == "px" ||
-	var1Name_ == "py" || var1Name_ == "pz"  || var1Name_ == "e"  ||
-	var1Name_ == "et" || var1Name_ == "eta" || var1Name_ == "phi" || 
-	var1Name_ == "ptDet" || var1Name_ == "pDet"   || var1Name_ == "pxDet" ||
-	var1Name_ == "pyDet" || var1Name_ == "pzDet"  || var1Name_ == "eDet"  ||
-	var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
-	var1Name_ == "jetDeltaR" || var1Name_ == "totJets")) {
-    edm::LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
-    var1Name_ = "pt";
-  }
-  
-  if (!(var2Name_ == "pt" || var2Name_ == "p"   || var2Name_ == "px" ||
-	var2Name_ == "py" || var2Name_ == "pz"  || var2Name_ == "e"  ||
-	var2Name_ == "et" || var2Name_ == "eta" || var2Name_ == "phi" ||
-	var2Name_ == "ptDet" || var2Name_ == "pDet"   || var2Name_ == "pxDet" ||
-	var2Name_ == "pyDet" || var2Name_ == "pzDet"  || var2Name_ == "eDet"  ||
-	var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
-	var2Name_ == "jetDeltaR" || var2Name_ == "totJets")) {
-    edm::LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
-    var2Name_ = "eta";
-  }
-  
-  // Make the uppercase names ...
-  var1NameUp_ = var1Name_;
-  std::toupper(var1NameUp_.at(0));
-  
-  var2NameUp_ = var2Name_;
-  std::toupper(var2NameUp_.at(0));
-  
-  // Set up the bins for the eff histograms ...   
-  if (var1Bins_.size() == 0) {
-    // User didn't set bin boundaries, so use even binning
-    double bwidth = (var1High_-var1Low_)/static_cast<double>(var1Nbins_);
-    for (unsigned int iBin=0; iBin<=var1Nbins_; ++iBin) {
-      double low_edge = var1Low_+ static_cast<double>(iBin)*bwidth;
-      var1Bins_.push_back(low_edge);
-    }
-  }
+TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig)
+{
+   // TagProbeEDMAnalysis variables
+   vector<string>       dEmptyStringVec;
+   vector<unsigned int> dEmptyUIntVec;
+   vector<double>       dEmptyDoubleVec;
+   quantities_      = iConfig.getUntrackedParameter< vector<string> >("quantities",dEmptyStringVec); 
+   conditions_      = iConfig.getUntrackedParameter< vector<string> >("conditions",dEmptyStringVec); 
+   outputFileNames_ = iConfig.getUntrackedParameter< vector<string> >("outputFileNames",dEmptyStringVec);
+   XBins_           = iConfig.getUntrackedParameter< vector<unsigned int> >("XBins",dEmptyUIntVec);
+   XMin_            = iConfig.getUntrackedParameter< vector<double> >("XMin",dEmptyDoubleVec);
+   XMax_            = iConfig.getUntrackedParameter< vector<double> >("XMax",dEmptyDoubleVec);
+   logY_            = iConfig.getUntrackedParameter< vector<unsigned int> >("logY",dEmptyUIntVec);
+   Verbose_         = iConfig.getUntrackedParameter< bool >("Verbose",false);
 
-  if (var2Bins_.size() == 0) {
-    // User didn't set bin boundaries, so use even binning
-    double bwidth = (var2High_-var2Low_)/static_cast<double>(var2Nbins_);
-    for (unsigned int iBin=0; iBin<=var2Nbins_; ++iBin) {
-      double low_edge = var2Low_+static_cast<double>(iBin)*bwidth;
-      var2Bins_.push_back(low_edge);
-    }
-  }
+   // Efficiency input variables
+   tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
 
-  const edm::ParameterSet dummyPSet;
-  edm::ParameterSet quantityPSet
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("Quantities", dummyPSet);
-  ConfigureQuantityHistograms(quantityPSet);
-  
-  // Fitter variables
-  massNbins_      = iConfig.getUntrackedParameter< int >("NumBinsMass");
-  massLow_        = iConfig.getUntrackedParameter< double >("MassLow");
-  massHigh_       = iConfig.getUntrackedParameter< double >("MassHigh");
-  
-  rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
-  rooMass_->setBins(massNbins_);
-  
-  edm::ParameterSet ZLineShapePSet
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape", dummyPSet);
-  if (!ZLineShapePSet.empty()) {
-    zLineShape_ = new ZLineShape(ZLineShapePSet, rooMass_);
-  }
-  
-  edm::ParameterSet CBLineShapePSet 
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dummyPSet);
-  if (!CBLineShapePSet.empty()) {
-    cbLineShape_ = new CBLineShape(CBLineShapePSet, rooMass_);
-  }
-  
-  edm::ParameterSet GaussLineShapePSet 
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dummyPSet);
-  if (!GaussLineShapePSet.empty()) {
-    gaussLineShape_ = new GaussianLineShape(GaussLineShapePSet, rooMass_);
-  }
-  
-  edm::ParameterSet PolyLineShapePSet 
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("PolynomialLineShape",dummyPSet);
-  if (!PolyLineShapePSet.empty()) {
-    polyBkgLineShape_ = new PolynomialLineShape(PolyLineShapePSet, rooMass_);
-  }
-  
-  edm::ParameterSet CMSBkgLineShapePSet 
-    = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dummyPSet);
-  if (!CMSBkgLineShapePSet.empty()) {
-    cmsBkgLineShape_ = new CMSBkgLineShape(CMSBkgLineShapePSet, rooMass_);
-  }
-  
-  // Should not have defaults!
-  efficiency_ = iConfig.getUntrackedParameter< std::vector<double> >("Efficiency");
-  numSignal_  = iConfig.getUntrackedParameter< std::vector<double> >("NumSignal");
-  numBkgPass_ = iConfig.getUntrackedParameter< std::vector<double> >("NumBkgPass");
-  numBkgFail_ = iConfig.getUntrackedParameter< std::vector<double> >("NumBkgFail");
-  
-  // Get the mode of operation variables
-  mode_        = iConfig.getUntrackedParameter< std::string >("Mode","Normal");
-  fitFileName_ = iConfig.getUntrackedParameter< std::string >("FitFileName","fitfile.root");
-  
-  std::vector< std::string > dReadFiles;
-  readFiles_ = iConfig.getUntrackedParameter< std::vector<std::string> >("ReadFromFiles",dReadFiles);
-  
-  inweight_ = iConfig.getUntrackedParameter< double >("Weight",1.0); 
+   calcEffsSB_     = iConfig.getUntrackedParameter< bool >("CalculateEffSideBand",false);
+   calcEffsFitter_ = iConfig.getUntrackedParameter< bool >("CalculateEffFitter",false);
+   calcEffsTruth_  = iConfig.getUntrackedParameter< bool >("CalculateEffTruth",false);
+   
+   truthParentId_  = iConfig.getUntrackedParameter< int >("MCTruthParentId",23);
 
-  std::vector< double > dBins;
-  var1Name_  = iConfig.getUntrackedParameter< std::string >("NameVar1","pt");
-  var1Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar1");
-  var1Low_   = iConfig.getUntrackedParameter< double >("Var1Low");
-  var1High_  = iConfig.getUntrackedParameter< double >("Var1High");
-  var1Bins_  = iConfig.getUntrackedParameter< std::vector<double> >("Var1BinBoundaries",dBins);
-  
-  var2Name_  = iConfig.getUntrackedParameter< std::string >("NameVar2","eta");
-  var2Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar2");
-  var2Low_   = iConfig.getUntrackedParameter< double >("Var2Low");
-  var2High_  = iConfig.getUntrackedParameter< double >("Var2High");
-  var2Bins_  = iConfig.getUntrackedParameter< std::vector<double> >("Var2BinBoundaries",dBins);
+   // Type of fit
+   unbinnedFit_    = iConfig.getUntrackedParameter< bool >("UnbinnedFit",false);
+   do2DFit_        = iConfig.getUntrackedParameter< bool >("Do2DFit",false);
 
-  CreateFitTree();
-  InitializeMCHistograms();
-}
+   massNbins_      = iConfig.getUntrackedParameter< int >("NumBinsMass",20);
+   massLow_        = iConfig.getUntrackedParameter< double >("MassLow",0.0);
+   massHigh_       = iConfig.getUntrackedParameter< double >("MassHigh",100.0);
 
-void TagProbeEDMAnalysis::InitializeMCHistograms(){
+   inweight_         = iConfig.getUntrackedParameter< double >("Weight",1.0);
+
+   // The efficiency binning variables (default pt and eta)
+   vector< double > dBins;
+   var1Name_       = iConfig.getUntrackedParameter< string >("NameVar1","pt");
+   var1Nbins_      = iConfig.getUntrackedParameter< int >("NumBinsVar1",20);
+   var1Low_        = iConfig.getUntrackedParameter< double >("Var1Low",0.0);
+   var1High_       = iConfig.getUntrackedParameter< double >("Var1High",100.0);
+   var1Bins_       = iConfig.getUntrackedParameter< vector<double> >("Var1BinBoundaries",dBins);
+
+   var2Name_       = iConfig.getUntrackedParameter< string >("NameVar2","eta");
+   var2Nbins_      = iConfig.getUntrackedParameter< int >("NumBinsVar2",20);
+   var2Low_        = iConfig.getUntrackedParameter< double >("Var2Low",-2.4);
+   var2High_       = iConfig.getUntrackedParameter< double >("Var2High",2.4);
+   var2Bins_       = iConfig.getUntrackedParameter< vector<double> >("Var2BinBoundaries",dBins);
+
+   // This gives the option to use bins from a file. 
+   doTextDefinedBins_ = iConfig.getUntrackedParameter< bool >("DoBinsFromTxt",false);
+   if (doTextDefinedBins_)
+   {
+      textBinsFile_      = iConfig.getUntrackedParameter< std::string >("EffBinsFile","EffBinsFile.txt");
+      effBinsFromTxt_    = new EffTableLoader(textBinsFile_);
+      var1Bins_.clear();
+      for (int bin = 0; bin <= effBinsFromTxt_->size(); ++bin) 
+        {
+           var1Bins_.push_back(bin);
+        }
+   }
+
+
+   // If want to use reconstructed or detector values (instead of MC generated values) 
+   // of var1 and var2 when doing MC truth efficiencies (i.e., when "calcEffsTruth==true").
+   useRecoVarsForTruthMatchedCands_ = 
+     iConfig.getUntrackedParameter< bool >("useRecoVarsForTruthMatchedCands",true);
+
+
+   // Check that the names of the variables are okay ...
+   if( !( var1Name_ == "pt" || var1Name_ == "p"   || var1Name_ == "px" ||
+	  var1Name_ == "py" || var1Name_ == "pz"  || var1Name_ == "e"  ||
+	  var1Name_ == "et" || var1Name_ == "eta" || var1Name_ == "phi" || 
+	  var1Name_ == "ptDet" || var1Name_ == "pDet"   || var1Name_ == "pxDet" ||
+	  var1Name_ == "pyDet" || var1Name_ == "pzDet"  || var1Name_ == "eDet"  ||
+	  var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
+	  var1Name_ == "jetDeltaR" || var1Name_ == "totJets" ) )
+   {
+      LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
+      var1Name_ = "pt";
+   }
+
+   if( !( var2Name_ == "pt" || var2Name_ == "p"   || var2Name_ == "px" ||
+	  var2Name_ == "py" || var2Name_ == "pz"  || var2Name_ == "e"  ||
+	  var2Name_ == "et" || var2Name_ == "eta" || var2Name_ == "phi" ||
+	  var2Name_ == "ptDet" || var2Name_ == "pDet"   || var2Name_ == "pxDet" ||
+	  var2Name_ == "pyDet" || var2Name_ == "pzDet"  || var2Name_ == "eDet"  ||
+	  var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
+	  var2Name_ == "jetDeltaR" || var2Name_ == "totJets" ) )
+   {
+      LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
+      var2Name_ = "eta";
+   }
+
+   // Make the uppercase names ...
+   var1NameUp_ = var1Name_;
+   var1NameUp_.at(0) -= 32;
+
+   var2NameUp_ = var2Name_;
+   var2NameUp_.at(0) -= 32;
+
+   // Set up the bins for the eff histograms ...
+   
+   if( var1Bins_.size() == 0 ) 
+   {
+      // User didn't set bin boundaries, so use even binning
+      double bwidth = (var1High_-var1Low_)/(double)var1Nbins_;
+      for( int i=0; i<=var1Nbins_; ++i )
+      {
+	 double low_edge = var1Low_+(double)i*bwidth;
+	 var1Bins_.push_back(low_edge);
+      }
+   }
+   if( var2Bins_.size() == 0 ) 
+   {
+      // User didn't set bin boundaries, so use even binning
+      double bwidth = (var2High_-var2Low_)/(double)var2Nbins_;
+      for( int i=0; i<=var2Nbins_; ++i )
+      {
+	 double low_edge = var2Low_+(double)i*bwidth;
+	 var2Bins_.push_back(low_edge);
+      }
+   }
+
+
+   // SBS
+   SBSPeak_     = iConfig.getUntrackedParameter< double >("SBSPeak",90);
+   SBSStanDev_  = iConfig.getUntrackedParameter< double >("SBSStanDev",2);
+
+   // Fitter variables
+
+   // 1. ZLineShape
+   fitZLineShape_ = false;
+   ParameterSet dLineShape;
+   ZLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("ZLineShape",dLineShape);
+
+   vector<double> dSigM;
+   dSigM.push_back(91.1876);
+   dSigM.push_back(85.0);
+   dSigM.push_back(95.0);
+   zMean_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZMean",dSigM);
+   vector<double> dSigW;
+   dSigW.push_back(2.3);
+   dSigW.push_back(1.0);
+   dSigW.push_back(4.0);
+   zWidth_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidth",dSigW);
+   vector<double> dSigS;
+   dSigS.push_back(1.5);
+   dSigS.push_back(0.0);
+   dSigS.push_back(4.0);
+   zSigma_     = ZLineShape_.getUntrackedParameter< vector<double> >("ZSigma",dSigS);
+   vector<double> dSigWL;
+   dSigWL.push_back(3.0);
+   dSigWL.push_back(1.0);
+   dSigWL.push_back(10.0);
+   zWidthL_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthL",dSigWL);
+   vector<double> dSigWR;
+   dSigWR.push_back(0.52);
+   dSigWR.push_back(0.0);
+   dSigWR.push_back(2.0);
+   zWidthR_    = ZLineShape_.getUntrackedParameter< vector<double> >("ZWidthR",dSigWR);
+   vector<double> dBGF;
+   dBGF.push_back(0.87);
+   dBGF.push_back(0.0);
+   dBGF.push_back(1.0);
+   zBifurGaussFrac_  = ZLineShape_.getUntrackedParameter< vector<double> >("ZBifurGaussFrac",dBGF);
+
+   floatFailZMean_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZMean",false);
+   floatFailZWidth_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidth",false);
+   floatFailZSigma_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZSigma",false);
+   floatFailZWidthL_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthL",false);
+   floatFailZWidthR_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZWidthR",false);
+   floatFailZBifurGaussFrac_ = ZLineShape_.getUntrackedParameter< bool >("FloatFailZBifurGaussFrac",false);
+
+   // 2. CBLineShape
+   fitCBLineShape_ = false;
+   ParameterSet dCBLineShape;
+   CBLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("CBLineShape",dCBLineShape);
+
+   vector<double> dCBM;
+   dCBM.push_back(91.1876);
+   dCBM.push_back(85.0);
+   dCBM.push_back(95.0);
+   cbMean_          = CBLineShape_.getUntrackedParameter< vector<double> >("CBMean",dCBM);
+   vector<double> dCBS;
+   dCBS.push_back(1.5);
+   dCBS.push_back(0.0);
+   dCBS.push_back(4.0);
+   cbSigma_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBSigma",dCBS);
+   vector<double> dCBAlpha;
+   dCBAlpha.push_back(3.0);
+   dCBAlpha.push_back(1.0);
+   dCBAlpha.push_back(10.0);
+   cbAlpha_         = CBLineShape_.getUntrackedParameter< vector<double> >("CBAlpha",dCBAlpha);
+   vector<double> dCBN;
+   dCBN.push_back(3.0);
+   dCBN.push_back(0.0);
+   dCBN.push_back(20.0);
+   cbN_             = CBLineShape_.getUntrackedParameter< vector<double> >("CBN",dCBN);
+
+   // 3. GaussLineShape
+   fitGaussLineShape_ = false;
+   ParameterSet dGaussLineShape;
+   GaussLineShape_     = iConfig.getUntrackedParameter< edm::ParameterSet >("GaussLineShape",dGaussLineShape);
+
+   vector<double> dGaussM;
+   dGaussM.push_back(91.1876);
+   dGaussM.push_back(85.0);
+   dGaussM.push_back(95.0);
+   gaussMean_          = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussMean",dGaussM);
+   vector<double> dGaussS;
+   dGaussS.push_back(1.5);
+   dGaussS.push_back(0.0);
+   dGaussS.push_back(4.0);
+   gaussSigma_         = GaussLineShape_.getUntrackedParameter< vector<double> >("GaussSigma",dGaussS);
+
+   // 1. CMS Background Line Shape
+   fitCMSBkgLineShape_ = false;
+   ParameterSet dCMSBkgLineShape;
+   CMSBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("CMSBkgLineShape",dCMSBkgLineShape);
+
+   vector<double> dBAl;
+   dBAl.push_back(63.0);
+   cmsBkgAlpha_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgAlpha",dBAl);
+   vector<double> dBBt;
+   dBBt.push_back(0.001);
+   cmsBkgBeta_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgBeta",dBBt);
+   vector<double> dBPk;
+   dBPk.push_back(91.1876);
+   cmsBkgPeak_         = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgPeak",dBPk);
+   vector<double> dBGam;
+   dBGam.push_back(0.08);
+   dBGam.push_back(0.0);
+   dBGam.push_back(1.0);
+   cmsBkgGamma_        = CMSBkgLineShape_.getUntrackedParameter< vector<double> >("CMSBkgGamma",dBGam);
+
+   // 2. Polynomial Background Line Shape
+   fitPolyBkgLineShape_ = false;
+   ParameterSet dPolyBkgLineShape;
+   PolyBkgLineShape_ = iConfig.getUntrackedParameter< edm::ParameterSet >("PolyBkgLineShape",dPolyBkgLineShape);
+
+   vector<double> dC0;
+   dC0.push_back(0);
+   dC0.push_back(0);
+   dC0.push_back(10000);
+   polyBkgC0_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC0",dC0); 
+   vector<double> dC1;
+   dC1.push_back(1.0);
+   dC1.push_back(-1000);
+   dC1.push_back(1000);
+   polyBkgC1_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC1",dC1); 
+   vector<double> dC2;
+   dC2.push_back(0);
+   dC2.push_back(-1000);
+   dC2.push_back(1000);
+   polyBkgC2_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC2",dC2); 
+   vector<double> dC3;
+   dC3.push_back(0);
+   dC3.push_back(-1000);
+   dC3.push_back(1000);
+   polyBkgC3_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC3",dC3); 
+   vector<double> dC4;
+   dC4.push_back(0);
+   dC4.push_back(-1000);
+   dC4.push_back(1000);
+   polyBkgC4_        = PolyBkgLineShape_.getUntrackedParameter< vector<double> >("PolyBkgC4",dC4); 
+
+
+   vector<double> dEff;
+   dEff.push_back(0.98);
+   dEff.push_back(0.0);
+   dEff.push_back(1.1);
+   efficiency_      = iConfig.getUntrackedParameter< vector<double> >("Efficiency",dEff);
+   vector<double> dNSig;
+   dNSig.push_back(1000.0);
+   dNSig.push_back(-10.0);
+   dNSig.push_back(1000000.0);
+   numSignal_       = iConfig.getUntrackedParameter< vector<double> >("NumSignal",dNSig);
+   vector<double> dNBPs;
+   dNBPs.push_back(1000.0);
+   dNBPs.push_back(-10.0);
+   dNBPs.push_back(1000000.0);
+   numBkgPass_      = iConfig.getUntrackedParameter< vector<double> >("NumBkgPass",dNBPs);
+   vector<double> dNBFl;
+   dNBFl.push_back(1000.0);
+   dNBFl.push_back(-10.0);
+   dNBFl.push_back(1000000.0);
+   numBkgFail_      = iConfig.getUntrackedParameter< vector<double> >("NumBkgFail",dNBFl);
+
+   // Get the mode of operation variables
+   mode_        = iConfig.getUntrackedParameter< string >("Mode","Normal");
+   fitFileName_ = iConfig.getUntrackedParameter< string >("FitFileName","fitfile.root");
+
+   vector< string > dReadFiles;
+   readFiles_   = iConfig.getUntrackedParameter< vector<string> >("ReadFromFiles",dReadFiles);
+   
+   // Allocate space for the simple plot histograms
+   numQuantities_ = quantities_.size();
+   Histograms_ = new TH1F[numQuantities_];
+
+   for(unsigned int i = 0; i < numQuantities_; i++)
+   {
+      Histograms_[i] =  TH1F(("h"+quantities_[i]).c_str(), "", 
+			     XBins_[i], XMin_[i], XMax_[i]);
+   }
+
+   // Verify correct use of input variables for making simple plots 
+   doAnalyze_ = true;
+   if( numQuantities_ == 0 ) doAnalyze_ = false;
+   else if(outputFileNames_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "outputFileNames is not the same size as quantities" << endl;    
+   }else if(conditions_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "conditions is not the same size as quantities" << endl;    
+   }else if(XBins_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "XBins is not the same size as quantities" << endl;    
+   }else if(XMax_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "XMax is not the same size as quantities" << endl;    
+   }else if(XMin_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "XMin is not the same size as quantities" << endl;    
+   }else if(logY_.size() != numQuantities_){
+      doAnalyze_ = false;
+      cout << "logY is not the same size as quantities" << endl;    
+   }   
+
+
+   // Make the simple fit tree
+   if( mode_ != "Read" )
+   {
+      string fmode = "RECREATE";
+      outRootFile_ = new TFile(fitFileName_.c_str(),fmode.c_str());
+      outRootFile_->cd();
+
+      fitTree_ = new TTree("fitter_tree","Tree For Fitting",1);
+      fitTree_->Branch("ProbePass",         &ProbePass_,"ProbePass/I");
+      fitTree_->Branch("Mass",              &Mass_,     "Mass/D");
+      fitTree_->Branch("Weight",            &Weight_,   "Weight/D");
+      fitTree_->Branch(var1NameUp_.c_str(), &Var1_,     
+		       (var1NameUp_+"/D").c_str());
+      fitTree_->Branch(var2NameUp_.c_str(), &Var2_,     
+		       (var2NameUp_+"/D").c_str());   
+   }
 
    // MC Truth Histograms
    var1Pass_ = new TH1F("hvar1pass","Var1 Pass",
@@ -254,617 +413,587 @@ void TagProbeEDMAnalysis::InitializeMCHistograms(){
    var1var2All_  = new TH2F("hvar1var2all","Var1:Var2 All",
 			    var1Bins_.size()-1,&var1Bins_[0],
 			    var2Bins_.size()-1,&var2Bins_[0]);
-}
 
-void TagProbeEDMAnalysis::ReadMCHistograms(){
+   // MC Truth Tag-Probe Biased Histograms
+   var1BiasPass_ = new TH1F("hvar1biaspass","Var1 Pass",
+                             var1Bins_.size()-1,&var1Bins_[0]);
+   var1BiasAll_  = new TH1F("hvar1biasall","Var1 All",
+		             var1Bins_.size()-1,&var1Bins_[0]);
+   
+   var2BiasPass_ = new TH1F("hvar2biaspass","Var2 Pass",
+			     var2Bins_.size()-1,&var2Bins_[0]);
+   var2BiasAll_  = new TH1F("hvar2biasall","Var2 All",
+			     var2Bins_.size()-1,&var2Bins_[0]);
+   
+   var1var2BiasPass_ = new TH2F("hvar1var2biaspass","Var1:Var2 Pass",
+			         var1Bins_.size()-1,&var1Bins_[0],
+			         var2Bins_.size()-1,&var2Bins_[0]);
+   var1var2BiasAll_  = new TH2F("hvar1var2biasall","Var1:Var2 All",
+			         var1Bins_.size()-1,&var1Bins_[0],
+			         var2Bins_.size()-1,&var2Bins_[0]);
 
-  // Now read in the MC truth histograms and add the results
-  for (std::vector< std::string >::iterator iFile = readFiles_.begin();
-       iFile != readFiles_.end(); ++iFile) {
-    TFile inputFile(iFile->c_str());
-    
-    var1Pass_->Add( static_cast<TH1F*>(inputFile.Get("hvar1pass")) );
-    var1All_->Add( static_cast<TH1F*>(inputFile.Get("hvar1all")) );  
-    
-    var2Pass_->Add( static_cast<TH1F*>(inputFile.Get("hvar2pass")) );
-    var2All_->Add( static_cast<TH1F*>(inputFile.Get("hvar2all")) );  
-    
-    var1var2Pass_->Add( static_cast<TH2F*>(inputFile.Get("hvar1var2pass")) );
-    var1var2All_->Add( static_cast<TH1F*>(inputFile.Get("hvar1var2all")) );
-  }
-}
-
-void TagProbeEDMAnalysis::WriteMCHistograms() {
-  var1Pass_->Write();
-  var1All_->Write();  
-  
-  var2Pass_->Write();
-  var2All_->Write();  
-  
-  var1var2Pass_->Write();
-  var1var2All_->Write();
-}
-
-void TagProbeEDMAnalysis::CreateFitTree() {
-
-  if (mode_ != "Read") {
-    std::string fmode = "RECREATE";
-    outRootFile_ = new TFile(fitFileName_.c_str(),fmode.c_str());
-    outRootFile_->cd();
-    
-    fitTree_ = new TTree("fitter_tree","Tree For Fitting",1);
-    fitTree_->Branch("ProbePass",         &ProbePass_,"ProbePass/I");
-    fitTree_->Branch("Mass",              &Mass_,     "Mass/D");
-    fitTree_->Branch("Weight",            &Weight_,   "Weight/D");
-    fitTree_->Branch(var1NameUp_.c_str(), &Var1_,     
-		     (var1NameUp_+"/D").c_str());
-    fitTree_->Branch(var2NameUp_.c_str(), &Var2_,     
-		     (var2NameUp_+"/D").c_str());   
-  }
-}
-
-void TagProbeEDMAnalysis::FillFitTree(const edm::Event& iEvent){
-  
-  edm::Handle< std::vector<int> > tp_type;
-  if ( !iEvent.getByLabel("TPEdm","TPtype",tp_type) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPtype in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > tp_true;
-  if ( !iEvent.getByLabel("TPEdm","TPtrue",tp_true) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPtrue in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > tp_ppass;
-  if ( !iEvent.getByLabel("TPEdm","TPppass",tp_ppass) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPppass in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > tp_mass;
-  if ( !iEvent.getByLabel("TPEdm","TPmass",tp_mass) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPmass in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > tp_probe_var1;
-  if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var1Name_).c_str(),tp_probe_var1) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPProbe"+var1Name_+" in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > tp_probe_var2;
-  if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var2Name_).c_str(),tp_probe_var2) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No TPProbe"+var2Name_+" in Tree!"; 
-  }
-  
-  outRootFile_->cd();
-  
-  if( tp_type.isValid() ) {
-    unsigned int nrTP = tp_type->size();
-    for (unsigned int iTP=0; iTP<nrTP; ++iTP) {
-      if( (*tp_type)[iTP] != tagProbeType_ ) continue;
-      
-      Weight_ = inweight_;
-      ProbePass_ = (*tp_ppass)[iTP];
-      // Do these values really need to be doubles?
-      Mass_ = static_cast<double>((*tp_mass)[iTP]);
-      Var1_ = static_cast<double>((*tp_probe_var1)[iTP]);
-      Var2_ = static_cast<double>((*tp_probe_var2)[iTP]);
-      fitTree_->Fill();
-    }
-  }      
 }
 
 
-void TagProbeEDMAnalysis::CreateMCTree() {
 
-   if (mode_ != "Read") {
-      std::string fmode = "RECREATE";
-      outRootFile_ = new TFile(fitFileName_.c_str(),fmode.c_str());
-      outRootFile_->cd();
 
-      mcTree_ = new TTree("fitter_tree","Tree For Fitting",1);
-      mcTree_->Branch("ProbePass",         &ProbePass_,"ProbePass/I");
-      mcTree_->Branch("Mass",              &Mass_,     "Mass/D");
-      mcTree_->Branch("Weight",            &Weight_,   "Weight/D");
-      mcTree_->Branch(("MC"+var1NameUp_).c_str(), &MCVar1_,     
-		       (var1NameUp_+"/D").c_str());
-      mcTree_->Branch(("MC"+var2NameUp_).c_str(), &MCVar2_,     
-		       (var2NameUp_+"/D").c_str());   
 
+TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
+{
+   // Clean up
+
+   if( var1Pass_  ) delete var1Pass_;
+   if( var1All_   ) delete var1All_;
+   if( var2Pass_ ) delete var2Pass_;
+   if( var2All_  ) delete var2All_;
+
+   if( var1BiasPass_  ) delete var1BiasPass_;
+   if( var1BiasAll_   ) delete var1BiasAll_;
+   if( var2BiasPass_ ) delete var2BiasPass_;
+   if( var2BiasAll_  ) delete var2BiasAll_;
+  
+   if(outRootFile_) 
+   {
+      outRootFile_->Close();
+      if( mode_ != "Read" ) delete outRootFile_;
    }
+  
+   if(Histograms_)
+   {
+      delete [] Histograms_; 
+      Histograms_ = 0;
+   }
+
+   cleanFitVariables();
 }
 
-void TagProbeEDMAnalysis::FillMCTree(const edm::Event& iEvent){
- 
-  // Get the Cnd variable for the MC truth ...
-  edm::Handle< std::vector<int> > cnd_type;
-  if ( !iEvent.getByLabel("TPEdm","Cndtype",cnd_type) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndtype in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > cnd_tag;
-  if ( !iEvent.getByLabel("TPEdm","Cndtag",cnd_tag) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndtag in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > cnd_aprobe;
-  if ( !iEvent.getByLabel("TPEdm","Cndaprobe",cnd_aprobe) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndaprobe in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > cnd_pprobe;
-  if ( !iEvent.getByLabel("TPEdm","Cndpprobe",cnd_pprobe) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndpprobe in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > cnd_moid;
-  if ( !iEvent.getByLabel("TPEdm","Cndmoid",cnd_moid) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndmoid in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<int> > cnd_gmid;
-  if ( !iEvent.getByLabel("TPEdm","Cndgmid",cnd_gmid) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndgmid in Tree!"; 
-  }
-  
-  std::string truthVar1 = var1Name_.c_str();
-  std::string truthVar2 = var2Name_.c_str();
-  
-  if(!useRecoVarsForTruthMatchedCands_) {
-    truthVar1.insert(0, "Cnd");
-    truthVar2.insert(0, "Cnd");
-  } else {
-    truthVar1.insert(0, "Cndr");
-    truthVar2.insert(0, "Cndr");
-  }
-  
-  edm::Handle< std::vector<float> > cnd_var1;
-  if ( !iEvent.getByLabel("TPEdm",truthVar1.c_str(),cnd_var1) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cnd"+var1Name_+" in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > cnd_var2;
-  if ( !iEvent.getByLabel("TPEdm",truthVar2.c_str(),cnd_var2) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cnd"+var2Name_+" in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > cnd_rpx;
-  if ( !iEvent.getByLabel("TPEdm","Cndrpx",cnd_rpx) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpx in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > cnd_rpy;
-  if ( !iEvent.getByLabel("TPEdm","Cndrpy",cnd_rpy) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpy in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > cnd_rpz;
-  if ( !iEvent.getByLabel("TPEdm","Cndrpz",cnd_rpz) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndrpz in Tree!"; 
-  }
-  
-  edm::Handle< std::vector<float> > cnd_re;
-  if ( !iEvent.getByLabel("TPEdm","Cndre",cnd_re) ) {
-    edm::LogInfo("TagProbeEDMAnalysis") << "No Cndre in Tree!"; 
-  }
-  
-  if (cnd_type.isValid()) {
-    int nTag = 0;
-    int nMatch = 0;
-    float px = 0;
-    float py = 0;
-    float pz = 0;
-    float e = 0;
-    unsigned int nCnd = cnd_type->size();
-    for (unsigned int iCnd=0; iCnd<nCnd; ++iCnd) {
-      if( (*cnd_type)[iCnd] != tagProbeType_ ) continue;
-      if( truthParentId_ != 0 &&
-	  !( fabs((*cnd_gmid)[iCnd]) == truthParentId_ || fabs((*cnd_moid)[iCnd]) == truthParentId_ ) ) continue;
-      
-      if( (*cnd_tag)[iCnd] == 1 ) ++nTag;
-      if( (*cnd_tag)[iCnd] == 1 || (*cnd_aprobe)[iCnd] == 1) {
-	++nMatch;
-	px += (*cnd_rpx)[iCnd];
-	py += (*cnd_rpy)[iCnd];
-	pz += (*cnd_rpz)[iCnd];
-	e += (*cnd_re)[iCnd];
-      }
-    }
-    
-    if( nTag >= 1 && nMatch == 2) {
-      float invMass = sqrt(e*e - px*px - py*py - pz*pz);
-      if (invMass > massLow_ && invMass < massHigh_) {
-	for (unsigned int iCnd=0; iCnd<nCnd; ++iCnd)  {
-	  if ((*cnd_type)[iCnd] != tagProbeType_) continue;
-	  
-	  if ( !(truthParentId_ == 0 || 
-		 fabs((*cnd_gmid)[iCnd]) == truthParentId_ || 
-		 fabs((*cnd_moid)[iCnd]) == truthParentId_ ) ) continue;
-	  
-	  // If there is only one tag, only count the probe
-	  bool FillHists = true;
-	  if( nTag==1 && (*cnd_tag)[iCnd]==1 ) FillHists = false;
-	  
-	  bool inVar1Range = false;
-	  if( (*cnd_var1)[iCnd] > var1Bins_[0] &&
-	      (*cnd_var1)[iCnd] < var1Bins_[var1Bins_.size()-1] )
-	    inVar1Range = true;
-	  bool inVar2Range = false;
-	  if( (*cnd_var2)[iCnd] > var2Bins_[0] &&
-	      (*cnd_var2)[iCnd] < var2Bins_[var2Bins_.size()-1] )
-	    inVar2Range = true;
-	  
-	  if ((*cnd_aprobe)[iCnd] == 1 && (*cnd_pprobe)[iCnd] == 1) {
-	    if (inVar2Range) var1Pass_->Fill((*cnd_var1)[iCnd]);
-	    if (inVar1Range) var2Pass_->Fill((*cnd_var2)[iCnd]);
-	    var1var2Pass_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
-	    
-	    if (FillHists) {
-	      if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[iCnd]);
-	      if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[iCnd]);
-	      var1var2Pass_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
-	    }
-	  }
-	  
-	  if ((*cnd_aprobe)[iCnd] == 1) {
-	    if (inVar2Range) var1All_->Fill((*cnd_var1)[iCnd]);
-	    if (inVar1Range) var2All_->Fill((*cnd_var2)[iCnd]);
-	    var1var2All_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
-	    
-	    if (FillHists) {
-	      if( inVar2Range ) var1All_->Fill((*cnd_var1)[iCnd]);
-	      if( inVar1Range ) var2All_->Fill((*cnd_var2)[iCnd]);
-	      var1var2All_->Fill((*cnd_var1)[iCnd],(*cnd_var2)[iCnd]);
-	    }
-	  }
-	}
-      }
-    }
-  }
-  
-  outRootFile_->cd();
-    
-      //      MCVar1_ = static_cast<double>((*cnd_type) );
-      //MCVar2_ = static_cast<double>( );
-      //MCMass_ = static_cast<double>( );
 
-}
+
 
 // ------------ method called to for each event  ------------
-
-void TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
-				  const edm::EventSetup& iSetup) {
+void
+TagProbeEDMAnalysis::analyze(const edm::Event& iEvent, 
+			     const edm::EventSetup& iSetup)
+{
 
    // Safety check .. if mode = read, the user should use an empty source.
-   if (mode_ == "Read") return;
+   if( mode_ == "Read" ) return;
 
    // Fill the fit tree if we are fitting or doing SB subtraction
    if( calcEffsSB_ || calcEffsFitter_ || mode_ == "Write" )
    {
       // Get the TP variables to fill the fitter tree ...
-     FillFitTree(iEvent);
+      Handle< vector<int> > tp_type;
+      if ( !iEvent.getByLabel("TPEdm","TPtype",tp_type) ) {
+	if(Verbose_) cout << "No TPtype in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > tp_true;
+      if ( !iEvent.getByLabel("TPEdm","TPtrue",tp_true) ) {
+         if(Verbose_) cout << "No TPtrue in Tree!" << endl; 
+      }
+      
+      Handle< vector<int> > tp_ppass;
+      if ( !iEvent.getByLabel("TPEdm","TPppass",tp_ppass) ) {
+         if(Verbose_) cout << "No TPppass in Tree!" << endl; 
+      }
+      
+      Handle< vector<float> > tp_mass;
+      if ( !iEvent.getByLabel("TPEdm","TPmass",tp_mass) ) {
+         if(Verbose_) cout << "No TPmass in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > tp_probe_var1;
+      if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var1Name_).c_str(),tp_probe_var1) ) {
+         if(Verbose_) cout << "No TPProbe"+var1Name_+" in Tree!" << endl; 
+      }
+      
+      Handle< vector<float> > tp_probe_var2;
+      if ( !iEvent.getByLabel("TPEdm",("TPProbe"+var2Name_).c_str(),tp_probe_var2) ) {
+         if(Verbose_) cout << "No TPProbe"+var2Name_+" in Tree!" << endl; 
+      }
+      
+      outRootFile_->cd();
+
+      if( tp_type.isValid() ) {
+	int nrTP = tp_type->size();
+	for( int i=0; i<nrTP; ++i ) {
+	  if( (*tp_type)[i] != tagProbeType_ ) continue;
+	 
+	  Weight_ = inweight_;
+	  ProbePass_ = (*tp_ppass)[i];
+	  Mass_ = (double)(*tp_mass)[i];
+	  Var1_ = (double)(*tp_probe_var1)[i];
+	  Var2_ = (double)(*tp_probe_var2)[i];	 
+	  fitTree_->Fill();
+	}
+      }      
    }
+
 
    // Fill the MC truth information if required
-   if (calcEffsTruth_ || mode_ == "Write") {
-     FillMCTree(iEvent);
+   if( calcEffsTruth_ || mode_ == "Write" )
+   {
+      // Get the Cnd variable for the MC truth ...
+      Handle< vector<int> > cnd_type;
+      if ( !iEvent.getByLabel("TPEdm","Cndtype",cnd_type) ) {
+         if(Verbose_) cout << "No Cndtype in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > cnd_tag;
+      if ( !iEvent.getByLabel("TPEdm","Cndtag",cnd_tag) ) {
+         if(Verbose_) cout << "No Cndtag in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > cnd_aprobe;
+      if ( !iEvent.getByLabel("TPEdm","Cndaprobe",cnd_aprobe) ) {
+         if(Verbose_) cout << "No Cndaprobe in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > cnd_pprobe;
+      if ( !iEvent.getByLabel("TPEdm","Cndpprobe",cnd_pprobe) ) {
+         if(Verbose_) cout << "No Cndpprobe in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > cnd_moid;
+      if ( !iEvent.getByLabel("TPEdm","Cndmoid",cnd_moid) ) {
+         if(Verbose_) cout << "No Cndmoid in Tree!" << endl; 
+      }
+
+      Handle< vector<int> > cnd_gmid;
+      if ( !iEvent.getByLabel("TPEdm","Cndgmid",cnd_gmid) ) {
+         if(Verbose_) cout << "No Cndgmid in Tree!" << endl; 
+      }
+
+      std::string truthVar1 = var1Name_.c_str();
+      std::string truthVar2 = var2Name_.c_str();
+
+      if(!useRecoVarsForTruthMatchedCands_) {
+	truthVar1.insert(0, "Cnd");
+	truthVar2.insert(0, "Cnd");
+      }
+      else
+      {
+	truthVar1.insert(0, "Cndr");
+	truthVar2.insert(0, "Cndr");
+      }
+
+      Handle< vector<float> > cnd_var1;
+      if ( !iEvent.getByLabel("TPEdm",truthVar1.c_str(),cnd_var1) ) {
+         if(Verbose_) cout << "No Cnd"+var1Name_+" in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_var2;
+      if ( !iEvent.getByLabel("TPEdm",truthVar2.c_str(),cnd_var2) ) {
+         if(Verbose_) cout << "No Cnd"+var2Name_+" in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_rpx;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpx",cnd_rpx) ) {
+         if(Verbose_) cout << "No Cndrpx in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_rpy;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpy",cnd_rpy) ) {
+         if(Verbose_) cout << "No Cndrpy in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_rpz;
+      if ( !iEvent.getByLabel("TPEdm","Cndrpz",cnd_rpz) ) {
+         if(Verbose_) cout << "No Cndrpz in Tree!" << endl; 
+      }
+
+      Handle< vector<float> > cnd_re;
+      if ( !iEvent.getByLabel("TPEdm","Cndre",cnd_re) ) {
+         if(Verbose_) cout << "No Cndre in Tree!" << endl; 
+      }
+
+      if( cnd_type.isValid() )
+      {
+	 int nTag = 0;
+	 int nMatch = 0;
+	 float px = 0;
+	 float py = 0;
+	 float pz = 0;
+	 float e = 0;
+	 int nCnd = (int)cnd_type->size();
+	 for( int i=0; i<nCnd; ++i )
+	 {
+	    if( (*cnd_type)[i] != tagProbeType_ ) continue;
+	    if( truthParentId_ != 0 && 
+	    !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
+
+	    if( (*cnd_tag)[i] == 1 ) ++nTag;
+	    if( (*cnd_tag)[i] == 1 || (*cnd_aprobe)[i] == 1 )
+            {
+	       ++nMatch;
+	       px += (*cnd_rpx)[i];
+	       py += (*cnd_rpy)[i];
+	       pz += (*cnd_rpz)[i];
+	       e += (*cnd_re)[i];
+	    }
+	 }
+	 if( nTag >= 1 && nMatch == 2 )
+	 {
+	    float invMass = sqrt(e*e - px*px - py*py - pz*pz);
+	    if( invMass > massLow_ && invMass < massHigh_ )
+	    {
+	       for( int i=0; i<nCnd; ++i )
+	       {
+		  if( (*cnd_type)[i] != tagProbeType_ ) continue;
+	    
+		  if( truthParentId_ != 0 && 
+		  !( fabs((*cnd_gmid)[i]) == truthParentId_ || fabs((*cnd_moid)[i]) == truthParentId_ ) ) continue;
+	    
+		  // If there is only one tag, only count the probe
+		  bool FillBiasHists = true;
+		  if( nTag==1 && (*cnd_tag)[i]==1 ) FillBiasHists = false;
+
+		  bool inVar1Range = false;
+		  if( (*cnd_var1)[i] > var1Bins_[0] &&
+		  (*cnd_var1)[i] < var1Bins_[var1Bins_.size()-1] )
+		     inVar1Range = true;
+		  bool inVar2Range = false;
+		  if( (*cnd_var2)[i] > var2Bins_[0] &&
+		  (*cnd_var2)[i] < var2Bins_[var2Bins_.size()-1] )
+		     inVar2Range = true;
+
+		  if( (*cnd_aprobe)[i] == 1 && (*cnd_pprobe)[i] == 1 )
+		  {
+		     if( inVar2Range ) var1Pass_->Fill((*cnd_var1)[i]);
+		     if( inVar1Range ) var2Pass_->Fill((*cnd_var2)[i]);
+		     var1var2Pass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+
+		     if( FillBiasHists )
+		     {
+			if( inVar2Range ) var1BiasPass_->Fill((*cnd_var1)[i]);
+			if( inVar1Range ) var2BiasPass_->Fill((*cnd_var2)[i]);
+			var1var2BiasPass_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     }
+		  }
+		  if( (*cnd_aprobe)[i] == 1 )
+		  {
+		     if( inVar2Range ) var1All_->Fill((*cnd_var1)[i]);
+		     if( inVar1Range ) var2All_->Fill((*cnd_var2)[i]);
+		     var1var2All_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+
+		     if( FillBiasHists )
+		     {
+			if( inVar2Range ) var1BiasAll_->Fill((*cnd_var1)[i]);
+			if( inVar1Range ) var2BiasAll_->Fill((*cnd_var2)[i]);
+			var1var2BiasAll_->Fill((*cnd_var1)[i],(*cnd_var2)[i]);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
+
 
    // Do plot making etc ...
-   if( doAnalyze_ ) {
-     CreateQuantityHistograms(iEvent);
+   if( doAnalyze_ )
+   {
+      for(unsigned int i = 0; i < numQuantities_; i++)
+      {
+	 // int
+	 if( quantities_[i].find("n") == 0 || 
+	     quantities_[i] == "Run"       || 
+	     quantities_[i] == "Event" )
+	 {
+	    Handle< int > h;
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) { 
+	       cout << "No "+quantities_[i]+" in Tree!" << endl; 
+            }
+	    if( h.isValid() ) Histograms_[i].Fill(*h);
+	 }
+	 // vector<int>
+	 else if( quantities_[i].find("type") != string::npos ||
+		  quantities_[i].find("true") != string::npos || 
+		  quantities_[i].find("ppass") != string::npos || 
+		  quantities_[i].find("l1") != string::npos || 
+		  quantities_[i].find("hlt") != string::npos || 
+		  quantities_[i].find("tag") != string::npos || 
+		  quantities_[i].find("aprobe") != string::npos || 
+		  quantities_[i].find("pprobe") != string::npos || 
+		  quantities_[i].find("moid") != string::npos || 
+		  quantities_[i].find("gmid") != string::npos || 
+		  quantities_[i].find("pid") != string::npos || 
+		  quantities_[i].find("bc") != string::npos )
+	 {
+	    Handle< vector<int> > h;
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
+	        if(Verbose_) cout << "No "+quantities_[i]+" in Tree!" << endl; 
+            }
+	    if( h.isValid() ) 
+	      for( int n=0; n<(int)h->size(); ++n ) 
+		Histograms_[i].Fill((*h)[n]);
+	 }
+	 // vector< float >
+	 else
+	 {
+	    Handle< vector<float> > h;
+	    if ( !iEvent.getByLabel("TPEdm",quantities_[i].c_str(),h) ) {
+	        if(Verbose_) cout << "No "+quantities_[i]+" in Tree!" << endl; 
+            }
+	    if( h.isValid() ) 
+	      for( int n=0; n<(int)h->size(); ++n ) 
+		Histograms_[i].Fill((*h)[n]);
+	 }
+      }
    }
 }
 
-void TagProbeEDMAnalysis::ConfigureQuantityHistograms(const edm::ParameterSet& QuantPSet){
 
-   quantities_      = QuantPSet.getUntrackedParameter< std::vector<std::string> >("quantities"); 
-   conditions_      = QuantPSet.getUntrackedParameter< std::vector<std::string> >("conditions"); 
-   outputFileNames_ = QuantPSet.getUntrackedParameter< std::vector<std::string> >("outputFileNames");
-   XBins_           = QuantPSet.getUntrackedParameter< std::vector<unsigned int> >("XBins");
-   XMin_            = QuantPSet.getUntrackedParameter< std::vector<double> >("XMin");
-   XMax_            = QuantPSet.getUntrackedParameter< std::vector<double> >("XMax");
-   logY_            = QuantPSet.getUntrackedParameter< std::vector<unsigned int> >("logY");
 
-   // Allocate space for the simple plot histograms
-   const unsigned int numQuantities = quantities_.size();
-   
-   // Verify correct use of input variables for making simple plots 
-   doAnalyze_ = true;
-   if (numQuantities == 0) 
-     doAnalyze_ = false;
 
-   else if(outputFileNames_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "outputFileNames is not the same size as quantities";    
-   }else if(conditions_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "conditions is not the same size as quantities";    
-   }else if(XBins_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "XBins is not the same size as quantities";    
-   }else if(XMax_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "XMax is not the same size as quantities";    
-   }else if(XMin_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "XMin is not the same size as quantities";    
-   }else if(logY_.size() != numQuantities){
-      doAnalyze_ = false;
-      edm::LogInfo("TagProbeEDMAnalysis") << "logY is not the same size as quantities";    
-   }
-}
 
-void TagProbeEDMAnalysis::CreateQuantityHistograms(const edm::Event& iEvent) {
 
-  const unsigned int numQuantities = quantities_.size();
-  TH1F *Histograms_ = new TH1F[numQuantities];
-
-  for (unsigned int i = 0; i < numQuantities; i++) {
-    Histograms_[i] = TH1F(("h"+quantities_[i]).c_str(), "", 
-			  XBins_[i], XMin_[i], XMax_[i]);
-  }
-
-  for (unsigned int iQuant = 0; iQuant < numQuantities; ++iQuant) {
-    if( quantities_[iQuant].find("n") == 0 || 
-	quantities_[iQuant] == "Run"       || 
-	quantities_[iQuant] == "Event" ) {
-      edm::Handle< int > h;
-      if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) { 
-	edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
-      }
-      if( h.isValid() ) Histograms_[iQuant].Fill(*h);
-    } else if( quantities_[iQuant].find("type") != std::string::npos ||
-	       quantities_[iQuant].find("true") != std::string::npos || 
-	       quantities_[iQuant].find("ppass") != std::string::npos || 
-	       quantities_[iQuant].find("l1") != std::string::npos || 
-	       quantities_[iQuant].find("hlt") != std::string::npos || 
-	       quantities_[iQuant].find("tag") != std::string::npos || 
-	       quantities_[iQuant].find("aprobe") != std::string::npos || 
-	       quantities_[iQuant].find("pprobe") != std::string::npos || 
-	       quantities_[iQuant].find("moid") != std::string::npos || 
-	       quantities_[iQuant].find("gmid") != std::string::npos || 
-	       quantities_[iQuant].find("pid") != std::string::npos || 
-	       quantities_[iQuant].find("bc") != std::string::npos ) {
-      edm::Handle< std::vector<int> > h;
-      if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) {
-	edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
-      }
-      if( h.isValid() ) 
-	for( int n=0; n<(int)h->size(); ++n ) 
-	  Histograms_[iQuant].Fill((*h)[n]);
-    } else {
-      edm::Handle< std::vector<float> > h;
-      if ( !iEvent.getByLabel("TPEdm",quantities_[iQuant].c_str(),h) ) {
-	edm::LogInfo("TagProbeEDMAnalysis") << "No "+quantities_[iQuant]+" in Tree!"; 
-      }
-      if( h.isValid() ) 
-	for( int n=0; n<(int)h->size(); ++n ) 
-	  Histograms_[iQuant].Fill((*h)[n]);
-    }
-  }
-
-  for (unsigned int iQuant=0; iQuant<numQuantities; ++iQuant) {
-      SaveHistogram(Histograms_[iQuant], outputFileNames_[iQuant], logY_[iQuant]);
-  }
-  
-   if(Histograms_) {
-      delete [] Histograms_; 
-      Histograms_ = NULL;
-   }
-}
 
 // ********* Save the user requested histograms ******** //
-int TagProbeEDMAnalysis::SaveHistogram (TH1F& Histo, std::string outFileName, Int_t LogY) {
+int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int_t LogY = 0)
+{
   
-   TCanvas c1("c1","c1",700,500);
-   c1.GetPad(0)->SetTicks(1,1);
-   c1.SetLogy(LogY);
+   TCanvas* c1 = new TCanvas("c1","c1",700,500);
+   c1->GetPad(0)->SetTicks(1,1);
+   c1->SetLogy(LogY);
   
    Histo.Draw();
   
-   c1.SaveAs(outFileName.c_str());
+   c1->SaveAs(outFileName.c_str());
   
+   if(c1) delete c1;
+
    return 0;
 }
 // ***************************************************** //
 
+
+
+
+
+
 // ****************** TP Eff Side band subtraction *************
-void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar, 
-				    std::vector< double > bins, std::string &bvar2, 
-				    double bvar2Lo, double bvar2Hi ) {
-  
-  if (bins.size() < 2) return;
-  unsigned int bnbins = bins.size() - 1;
-  
-  outRootFile_->cd();
-  fitTree_->SetDirectory(outRootFile_);
-  
-  edm::LogInfo("TagProbeEDMAnalysis") << "***** Here in TP sideband subtraction ******";
-  edm::LogInfo("TagProbeEDMAnalysis") << "Number of entries " << fitTree_->GetEntries();
-  
-  // Here I will just change the names if we are using 1D regions by reading 
-  // in the efficiencies from a file.
-  
-  std::string bvard = bvar;
-  if ( doTextDefinedBins_ ) bvard = bvar + "_" + bvar2;
-  
-  std::string hdname = "sbs_den_" + bvard; 
-  std::string hdtitle = "SBS Denominator vs " + bvard; 
-  TH1F denhist(hdname.c_str(), hdtitle.c_str(), bnbins, &bins[0]);
-  
-  std::ostringstream histoName;
-  std::ostringstream histoTitle;;
-  
-  std::ostringstream condition;
-  condition << "(" << bvar2 << ">" << bvar2Lo << ") && (" << bvar2 << "<" << bvar2Hi << ")";
-  const std::string bvar2Cond = condition.str();
-  
-  TGraphAsymmErrors effhist(bnbins);
-  std::string hname = "sbs_eff_" + bvard;
-  std::string htitle = "SBS Efficiency vs " + bvard;
-  effhist.SetNameTitle(hname.c_str(), htitle.c_str());
-  
-  for (unsigned int iBin=0; iBin<bnbins; ++iBin ) {
-    // Limit the scope of these variables and speed up by declaring them static.
-    static const std::string passCond = "(ProbePass==1)";
-    static const std::string failCond = "(ProbePass==0)";
-    static std::ostringstream bvar1Cond;
-    static double lowEdge;
-    static double highEdge;
-    static std::string bunits = "";
+void TagProbeEDMAnalysis::TPEffSBS( string &fileName, string &bvar, 
+				     vector< double > bins, string &bvar2, 
+				     double bvar2Lo, double bvar2Hi )
+{
 
-    if( bvar == "Pt" ) bunits = "GeV";
-    if ( doTextDefinedBins_ ) {
-      bunits = "";
-      std::vector<std::pair<float, float> > bininfo = effBinsFromTxt_->GetCellInfo(iBin);
-      lowEdge  = bininfo[0].first;
-      highEdge = bininfo[0].second;
-      bvar2Lo  = bininfo[1].first;
-      bvar2Hi  = bininfo[1].second;
-      edm::LogInfo("TagProbeEDMAnalysis") << " Bin " << iBin << ", lowEdge " << lowEdge << 
-	", highEdge " << highEdge << ", bvar2Lo " << bvar2Lo << ", bvar2Hi " << bvar2Hi << std::endl;
-    }
-
-    lowEdge = bins[iBin];
-    highEdge = bins[iBin+1];
-    bvar1Cond.str(std::string());
-    bvar1Cond << bvar << ">" << lowEdge << " && " << bvar << "<" << highEdge;
-
-    // The binning variable
-    ///////////// HERE I NEED TO CHANGE THESE VALUES
-    // Print out the pass/fail condition
-    std::ostringstream DisplayCondition;
-    DisplayCondition.str(std::string());
-    DisplayCondition << "(ProbePass==1(0) && " << bvar1Cond << " && " << bvar2Cond <<")*Weight";
-    edm::LogInfo("TagProbeEDMAnalysis") << "Pass(Fail) condition[" << bvar<< "]: " << 
-      DisplayCondition.str();
-    
-    // Passing Probes
-    condition.str(std::string());
-    condition  << "(" << passCond << " && " << bvar1Cond << " && " << bvar2Cond <<")*Weight";
-    histoName.str(std::string());
-    histoName << "sbs_pass_" << bvard << "_" << iBin;
-    histoTitle.str(std::string());
-    histoTitle << "Passing Probes - " << lowEdge << "<" << bvar << 
-      "<" << highEdge;
-    TH1F PassProbes(histoName.str().c_str(), 
-		    histoTitle.str().c_str(), massNbins_, 
-		    massLow_, massHigh_); 
-    PassProbes.Sumw2();
-    PassProbes.SetDirectory(outRootFile_);
-    fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
-		   condition.str().c_str() );
-    
-    // Failing Probes
-    condition.str(std::string());
-    condition  << "(" << failCond << " && " << bvar1Cond << " && " << bvar2Cond <<")*Weight";
-    histoName.str(std::string());
-    histoName << "sbs_fail_" <<  bvard << "_" << iBin;
-    histoTitle.str(std::string());
-    histoTitle << "Failing Probes - " << lowEdge << "<" << bvar << 
-      "<" << highEdge;
-    TH1F FailProbes(histoName.str().c_str(), 
-		    histoTitle.str().c_str(), 
-		    massNbins_, massLow_, massHigh_); 
-    FailProbes.Sumw2();
-    FailProbes.SetDirectory(outRootFile_);
-    fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
-		   condition.str().c_str());
-    
-    // SBS Passing  Probes
-    histoName.str(std::string());
-    histoName << "sbs_pass_subtracted_" << bvard << "_" << iBin;
-    histoTitle.str(std::string());
-    histoTitle << "Passing Probes SBS - "  << lowEdge << "<" << 
-      bvar << "<" << highEdge;
-    TH1F SBSPassProbes(histoName.str().c_str(), 
-		       histoTitle.str().c_str(), 
-		       massNbins_, massLow_, massHigh_); 
-    SBSPassProbes.Sumw2();
-    
-    // SBS Failing Probes
-    histoName.str(std::string());
-    histoName << "sbs_fail_subtracted_" << bvard << "_" << iBin; 
-    histoTitle.str(std::string());
-    histoTitle << "Failing Probes SBS - "  << lowEdge << "<" << 
-      bvar << "<" << highEdge;
-    TH1F SBSFailProbes (histoName.str().c_str(), 
-			histoTitle.str().c_str(), 
-			massNbins_, massLow_, massHigh_); 
-    SBSFailProbes.Sumw2();
-    
-    // Perform side band subtraction
-    SBS_->Subtract(PassProbes, SBSPassProbes);
-    SBS_->Subtract(FailProbes, SBSFailProbes);
-    
-    // Count the number of passing and failing probes in the region
-    double npassR = SBSPassProbes.Integral("");
-    double nfailR = SBSFailProbes.Integral("");
-    
-    if((npassR + nfailR) != 0){
-      double eff, effErrHi, effErrLo;      
-      FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
-      
-      edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
-	nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;
-      
-      // Fill the efficiency hist
-      effhist.SetPoint( iBin, (highEdge + lowEdge)/2.0, eff );
-      effhist.SetPointEXhigh( iBin, (highEdge - lowEdge)/2.0 );
-      effhist.SetPointEXlow(  iBin, (highEdge - lowEdge)/2.0 );
-      effhist.SetPointEYhigh( iBin, effErrHi );
-      effhist.SetPointEYlow(  iBin, effErrLo );
-      
-      //Fill the denominator hist
-      denhist.SetBinContent(iBin+1,npassR+nfailR);
-      denhist.SetBinError(iBin+1,pow(npassR+nfailR,0.5));
-      
-    }else {
-      edm::LogInfo("TagProbeEDMAnalysis") << " no probes ";
-    }
-    
-    // ********** Make and save Canvas for the plots ********** //
-    outRootFile_->cd();
-    
-    PassProbes.Write();
-    FailProbes.Write();
-    SBSPassProbes.Write();
-    SBSFailProbes.Write();
-  }
+   outRootFile_->cd();
+   fitTree_->SetDirectory(outRootFile_);
   
-  outRootFile_->cd();
-  effhist.Write();
-  denhist.Write();
-  
+   //return;
+   cout << "***** Here in TP sideband subtraction ******" << endl;
+   cout << "Number of entries " << fitTree_->GetEntries() << endl;
+   
+   // Here I will just change the names if we are using 1D regions by reading 
+   // in the efficiencies from a file.
+ 
+   string bvard = bvar;
+   if ( doTextDefinedBins_ ) bvard = bvar + "_" + bvar2;
+
+   string hname = "sbs_eff_" + bvard;
+   string htitle = "SBS Efficiency vs " + bvard;
+
+   string hdname = "sbs_den_" + bvard; 
+   string hdtitle = "SBS Denominator vs " + bvard; 
+
+
+   stringstream condition;
+   stringstream histoName;
+   stringstream histoTitle;;
+
+   int bnbins = bins.size()-1;
+   cout << "There are " << bnbins << " bins " << endl;
+   TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
+   TH1F denhist(hdname.c_str(),hdtitle.c_str(),bnbins,&bins[0]);
+   for( int bin=0; bin<bnbins; ++bin ) cout << "Bin low edge " << 
+					 effhist.GetBinLowEdge(bin+1) << endl;
+
+   TH1F* PassProbes(0);
+   TH1F* FailProbes(0);
+
+   TH1F* SBSPassProbes(0);
+   TH1F* SBSFailProbes(0);
+
+   const int XBinsSBS = massNbins_;
+   double XMinSBS = massLow_;
+   double XMaxSBS = massHigh_;
+
+
+   if( XMinSBS > ( SBSPeak_ - 13*SBSStanDev_ ) )
+     XMinSBS = SBSPeak_ - 13*SBSStanDev_;
+
+   if( XMaxSBS < ( SBSPeak_ + 13*SBSStanDev_ ) )
+     XMaxSBS = SBSPeak_ + 13*SBSStanDev_;
+
+   for( int bin=0; bin<bnbins; ++bin )
+   {
+ 
+      // The binning variable
+      string bunits = "";
+      double lowEdge = bins[bin];
+      double highEdge = bins[bin+1];
+      if( bvar == "Pt" ) bunits = "GeV";
+      if ( doTextDefinedBins_ ) 
+      {
+         bunits = "";
+         std::vector<std::pair<float, float> > bininfo = effBinsFromTxt_->GetCellInfo(bin);
+         lowEdge  = bininfo[0].first;
+         highEdge = bininfo[0].second;
+         bvar2Lo  = bininfo[1].first;
+         bvar2Hi  = bininfo[1].second;
+         std::cout << " Bin " << bin << ", lowEdge " << lowEdge << ", highEdge " << highEdge << ", bvar2Lo " << bvar2Lo << ", bvar2Hi " << bvar2Hi << std::endl;
+      }
+///////////// HERE I NEED TO CHANGE THESE VALUES
+      // Print out the pass/fail condition
+      stringstream DisplayCondition;
+      DisplayCondition.str(std::string());
+      DisplayCondition << "(ProbePass==1(0) && " << bvar << ">" <<  
+	lowEdge << " && " << bvar << "<" << highEdge << " && " << 
+	bvar2 << ">" << bvar2Lo << " && " << bvar2 << "<" << 
+	bvar2Hi <<")*Weight";
+      std::cout << "Pass(Fail) condition[" << bvar<< "]: " << 
+	DisplayCondition.str() << std::endl;
+
+      // Passing Probes
+      condition.str(std::string());
+      condition  << "(ProbePass==1 && " << bvar << ">" <<  lowEdge << 
+	" && " << bvar << "<" << highEdge << " && " << bvar2 << ">" << 
+	bvar2Lo << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
+      histoName.str(std::string());
+      histoName << "sbs_pass_" << bvard << "_" << bin;
+      histoTitle.str(std::string());
+      histoTitle << "Passing Probes - " << lowEdge << "<" << bvar << 
+	"<" << highEdge;
+      PassProbes = new TH1F(histoName.str().c_str(), 
+			    histoTitle.str().c_str(), XBinsSBS, 
+			    XMinSBS, XMaxSBS); 
+      PassProbes->Sumw2();
+      PassProbes->SetDirectory(outRootFile_);
+      fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
+		     condition.str().c_str() );
+
+      // Failing Probes
+      condition.str(std::string());
+      condition  << "(ProbePass==0 && " << bvar << ">" <<  lowEdge << 
+	" && " << bvar << "<" << highEdge << " && " << bvar2 << ">" << 
+	bvar2Lo << " && " << bvar2 << "<" << bvar2Hi <<")*Weight";
+      histoName.str(std::string());
+      histoName << "sbs_fail_" <<  bvard << "_" << bin;
+      histoTitle.str(std::string());
+      histoTitle << "Failing Probes - " << lowEdge << "<" << bvar << 
+	"<" << highEdge;
+      FailProbes = new TH1F(histoName.str().c_str(), 
+			    histoTitle.str().c_str(), 
+			    XBinsSBS, XMinSBS, XMaxSBS); 
+      FailProbes->Sumw2();
+      FailProbes->SetDirectory(outRootFile_);
+      fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
+		     condition.str().c_str());
+
+      // SBS Passing  Probes
+      histoName.str(std::string());
+      histoName << "sbs_pass_subtracted_" << bvard << "_" << bin;
+      histoTitle.str(std::string());
+      histoTitle << "Passing Probes SBS - "  << lowEdge << "<" << 
+	bvar << "<" << highEdge;
+      SBSPassProbes = new TH1F(histoName.str().c_str(), 
+			       histoTitle.str().c_str(), 
+			       XBinsSBS, XMinSBS, XMaxSBS); 
+      SBSPassProbes->Sumw2();
+
+      // SBS Failing Probes
+      histoName.str(std::string());
+      histoName << "sbs_fail_subtracted_" << bvard << "_" << bin; 
+      histoTitle.str(std::string());
+      histoTitle << "Failing Probes SBS - "  << lowEdge << "<" << 
+	bvar << "<" << highEdge;
+      SBSFailProbes = new TH1F(histoName.str().c_str(), 
+			       histoTitle.str().c_str(), 
+			       XBinsSBS, XMinSBS, XMaxSBS); 
+      SBSFailProbes->Sumw2();
+
+      // Perform side band subtraction
+      SideBandSubtraction(*PassProbes, *SBSPassProbes, SBSPeak_, SBSStanDev_);
+      SideBandSubtraction(*FailProbes, *SBSFailProbes, SBSPeak_, SBSStanDev_);
+
+      // Count the number of passing and failing probes in the region
+      double npassR = SBSPassProbes->Integral("");
+      double nfailR = SBSFailProbes->Integral("");
+
+      if((npassR + nfailR) != 0){
+	Double_t eff = npassR/(npassR + nfailR);
+	Double_t effErr = sqrt(npassR * nfailR / 
+			       (npassR + nfailR))/(npassR + nfailR);
+	
+	cout << "Num pass " << npassR << ",  Num fail " << 
+	  nfailR << ". Eff " << eff << " +/- " << effErr << endl;
+	
+	// Fill the efficiency hist
+	effhist.SetBinContent(bin+1,eff);
+	effhist.SetBinError(bin+1,effErr);
+
+	//Fill the denominator hist
+	denhist.SetBinContent(bin+1,npassR+nfailR);
+	denhist.SetBinError(bin+1,pow(npassR+nfailR,0.5));
+
+      }else {
+	cout << " no probes " << endl;
+      }
+
+      // ********** Make and save Canvas for the plots ********** //
+      outRootFile_->cd();
+
+      PassProbes->Write();
+      FailProbes->Write();
+      SBSPassProbes->Write();
+      SBSFailProbes->Write();
+   }
+   
+   outRootFile_->cd();
+   effhist.Write();
+   denhist.Write();
+
+   if(PassProbes)    delete PassProbes;
+   if(FailProbes)    delete FailProbes;
+   if(SBSPassProbes) delete SBSPassProbes;
+   if(SBSFailProbes) delete SBSFailProbes;
+
+   return;
+
 }
 
 
+
+
+
 // ****************** TP Eff Side band subtraction *************
-void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1, 
-				       std::vector< double > bins1,
-				       std::string &bvar2, std::vector< double > bins2 )
+void TagProbeEDMAnalysis::TPEffSBS2D( string &fileName, string &bvar1, 
+				       vector< double > bins1,
+				       string &bvar2, vector< double > bins2 )
 {
 
   outRootFile_->cd();
   fitTree_->SetDirectory(outRootFile_);
   
   //return;
-  edm::LogInfo("TagProbeEDMAnalysis") << "***** Here in TP sideband subtraction 2D ******";
-  edm::LogInfo("TagProbeEDMAnalysis") << "Number of entries " << fitTree_->GetEntries();
+  cout << "***** Here in TP sideband subtraction 2D ******" << endl;
+  cout << "Number of entries " << fitTree_->GetEntries() << endl;
    
-  std::string hname = "sbs_eff_" + bvar1 + "_" + bvar2;
-  std::string htitle = "SBS Efficiency: " + bvar1 + " vs " + bvar2;
+  string hname = "sbs_eff_" + bvar1 + "_" + bvar2;
+  string htitle = "SBS Efficiency: " + bvar1 + " vs " + bvar2;
   
-  std::string hdname = "sbs_den_" + bvar1 + "_" + bvar2; 
-  std::string hdtitle = "SBS Denominator vs " + bvar1 + " vs " + bvar2; 
+  string hdname = "sbs_den_" + bvar1 + "_" + bvar2; 
+  string hdtitle = "SBS Denominator vs " + bvar1 + " vs " + bvar2; 
   
-  std::stringstream condition;
-  std::stringstream histoName;
-  std::stringstream histoTitle;;
+  stringstream condition;
+  stringstream histoName;
+  stringstream histoTitle;;
   
    int bnbins1 = bins1.size()-1;
    int bnbins2 = bins2.size()-1;
-   edm::LogInfo("TagProbeEDMAnalysis") << "There are " << bnbins1 << " bins for var1 ";
+   cout << "There are " << bnbins1 << " bins for var1 " << endl;
 
    TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],
 		bnbins2,&bins2[0]);
@@ -877,38 +1006,40 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
    TH1F* SBSPassProbes(0);
    TH1F* SBSFailProbes(0);
 
-   for (int iBin1=0; iBin1<bnbins1; ++iBin1){
-      double lowEdge1 = bins1[iBin1];
-      double highEdge1 = bins1[iBin1+1];
-      condition.str(std::string());
-      condition << "(" << bvar1 << ">" <<  lowEdge1
-			 << ") && (" << bvar1 << "<" << highEdge1 << ")";
-      std::string bvar1Cond = condition.str();
+   const int XBinsSBS = massNbins_;
+   const double XMinSBS = massLow_;
+   const double XMaxSBS = massHigh_;
+
+   for( int bin1=0; bin1<bnbins1; ++bin1 )
+   {
+      double lowEdge1 = bins1[bin1];
+      double highEdge1 = bins1[bin1+1];
 
       for( int bin2=0; bin2<bnbins2; ++bin2 )
       {
 	 // The binning variables
 	 double lowEdge2 = bins2[bin2];
 	 double highEdge2 = bins2[bin2+1];
-	 condition.str(std::string());
-	 condition << "(" << bvar2 << ">" <<  lowEdge2
-		   << ") && (" << bvar2 << "<" << highEdge2 << ")";
-	 std::string bvar2Cond = condition.str();
 
 	 // Print out the pass/fail condition
-	 std::stringstream DisplayCondition;
+	 stringstream DisplayCondition;
 	 DisplayCondition.str(std::string());
-	 DisplayCondition << "(ProbePass==1(0) && " << bvar1Cond << " && " << bvar2Cond <<")*Weight";
-	 edm::LogInfo("TagProbeEDMAnalysis") << "Pass(Fail) condition[" << bvar1 << ":" << 
+	 DisplayCondition << "(ProbePass==1(0) && " << bvar1 << 
+	   ">" <<  lowEdge1 << " && " << bvar1 << "<" << 
+	   highEdge1 << " && " << bvar2 << ">" << lowEdge2
+			  << " && " << bvar2 << "<" << highEdge2 <<")*Weight";
+	 std::cout << "Pass(Fail) condition[" << bvar1 << ":" << 
 	   bvar2 << "]: " << DisplayCondition.str() <<  std::endl;
 	 
 	 // Passing Probes
 	 condition.str(std::string());
-	 condition  << "(ProbePass==1 && " << bvar1Cond << 
-	   " && " << bvar1Cond << ")*Weight";
+	 condition  << "(ProbePass==1 && " << bvar1 << ">" <<  
+	   lowEdge1 << " && " << bvar1 << "<" << highEdge1 << 
+	   " && " << bvar2 << ">" << lowEdge2 << " && " << 
+	   bvar2 << "<" << highEdge2  << ")*Weight";
 
 	 histoName.str(std::string());
-	 histoName << "sbs_pass_" << bvar1 << "_" << iBin1 << 
+	 histoName << "sbs_pass_" << bvar1 << "_" << bin1 << 
 	   "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
 	 histoTitle << "Passing Probes - " << lowEdge1 << 
@@ -916,7 +1047,7 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	   "<" << bvar2 << "<" << highEdge2;
 	 PassProbes = new TH1F(histoName.str().c_str(), 
 			       histoTitle.str().c_str(), 
-			       massNbins_, massLow_, massHigh_); 
+			       XBinsSBS, XMinSBS, XMaxSBS); 
 	 PassProbes->Sumw2();
 	 PassProbes->SetDirectory(outRootFile_);
 	 fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
@@ -924,11 +1055,12 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 
 	 // Failing Probes
 	 condition.str(std::string());
-	 condition  << "(ProbePass==0 && " << bvar1Cond << 
-	   " && " << bvar2Cond << ")*Weight";
-
+	 condition  << "(ProbePass==0 && " << bvar1 << ">" <<  
+	   lowEdge1 << " && " << bvar1 << "<" << highEdge1 << 
+	   " && " << bvar2 << ">" << lowEdge2 << " && " << 
+	   bvar2 << "<" << highEdge2 << ")*Weight";
 	 histoName.str(std::string());
-	 histoName << "sbs_fail_" << bvar1 << "_" << iBin1 << 
+	 histoName << "sbs_fail_" << bvar1 << "_" << bin1 << 
 	   "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
 	 histoTitle << "Failing Probes - " << lowEdge1 << 
@@ -936,7 +1068,7 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	   "<" << bvar2 << "<" << highEdge2;
 	 FailProbes = new TH1F(histoName.str().c_str(), 
 			       histoTitle.str().c_str(), 
-			       massNbins_, massLow_, massHigh_); 
+			       XBinsSBS, XMinSBS, XMaxSBS); 
 	 FailProbes->Sumw2();
 	 FailProbes->SetDirectory(outRootFile_);
 	 fitTree_->Draw(("Mass >> " + histoName.str()).c_str(), 
@@ -945,53 +1077,56 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	 // SBS Passing  Probes
 	 histoName.str(std::string());
 	 histoName << "sbs_pass_subtracted_" << bvar1 << 
-	   "_" << iBin1 << "_" << bvar2 << "_" << bin2;
+	   "_" << bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
 	 histoTitle << "Passing Probes SBS - " << lowEdge1 << 
 	   "<" << bvar1 << "<" << highEdge1 << " & " << lowEdge2 << 
 	   "<" << bvar2 << "<" << highEdge2;
 	 SBSPassProbes = new TH1F(histoName.str().c_str(), 
 				  histoTitle.str().c_str(), 
-				  massNbins_, massLow_, massHigh_); 
+				  XBinsSBS, XMinSBS, XMaxSBS); 
 	 SBSPassProbes->Sumw2();
 
 	 // SBS Failing Probes
 	 histoName.str(std::string());
 	 histoName << "sbs_fail_subtracted_" << bvar1 << "_" << 
-	   iBin1 << "_" << bvar2 << "_" << bin2;
+	   bin1 << "_" << bvar2 << "_" << bin2;
 	 histoTitle.str(std::string());
 	 histoTitle << "Failing Probes SBS - " << lowEdge1 << "<" << 
 	   bvar1 << "<" << highEdge1 << " & " << lowEdge2 << "<" << 
 	   bvar2 << "<" << highEdge2;
 	 SBSFailProbes = new TH1F(histoName.str().c_str(), 
 				  histoTitle.str().c_str(), 
-				  massNbins_, massLow_, massHigh_); 
+				  XBinsSBS, XMinSBS, XMaxSBS); 
 	 SBSFailProbes->Sumw2();
 
 	 // Perform side band subtraction
-	 SBS_->Subtract(*PassProbes, *SBSPassProbes);
-	 SBS_->Subtract(*FailProbes, *SBSFailProbes);
+	 SideBandSubtraction(*PassProbes, *SBSPassProbes, 
+			     SBSPeak_, SBSStanDev_);
+	 SideBandSubtraction(*FailProbes, *SBSFailProbes, 
+			     SBSPeak_, SBSStanDev_);
 
 	 // Count the number of passing and failing probes in the region
 	 double npassR = SBSPassProbes->Integral("");
 	 double nfailR = SBSFailProbes->Integral("");
 
 	 if((npassR + nfailR) != 0){
-	   double eff, effErrHi, effErrLo;      
-	   FCIntervals::Efficiency (npassR, npassR + nfailR, eff, effErrHi, effErrLo);
-	   
-	   edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR << ",  Num fail " << 
-	     nfailR << ". Eff " << eff << " + " << effErrHi << " - " << effErrLo;
-	   
-	    // Fill the efficiency hist
-	    effhist.SetBinContent( iBin1+1, bin2+1, eff);
-	    effhist.SetBinError( iBin1+1, bin2+1, ((effErrLo > effErrHi)? effErrLo : effErrHi));
+	    Double_t eff = npassR/(npassR + nfailR);
+	    Double_t effErr = sqrt(npassR * nfailR / 
+				   (npassR + nfailR))/(npassR + nfailR);
 
-            denhist.SetBinContent(iBin1+1,bin2+1,(npassR + nfailR));
-	    denhist.SetBinError(iBin1+1,bin2+1,pow(npassR + nfailR,0.5));
+	    cout << "Num pass " << npassR << ",  Num fail " << 
+	      nfailR << ". Eff " << eff << " +/- " << effErr << endl;
+	    
+	    // Fill the efficiency hist
+	    effhist.SetBinContent(bin1+1,bin2+1,eff);
+	    effhist.SetBinError(bin1+1,bin2+1,effErr);
+	    
+            denhist.SetBinContent(bin1+1,bin2+1,(npassR + nfailR));
+	    denhist.SetBinError(bin1+1,bin2+1,pow(npassR + nfailR,0.5));
 	      
 	 }else {
-	    edm::LogInfo("TagProbeEDMAnalysis") << " no probes ";
+	    cout << " no probes " << endl;
 	 }
 
 	 // ********** Make and save Canvas for the plots ********** //
@@ -1001,7 +1136,7 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	 FailProbes->Write();
 	 SBSPassProbes->Write();
 	 SBSFailProbes->Write();
-	 edm::LogInfo("TagProbeEDMAnalysis") << "Wrote probes.";
+	 cout << "Wrote probes." << endl;
       }
    }
    
@@ -1009,24 +1144,15 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
    effhist.Write();
    denhist.Write();
    
-   edm::LogInfo("TagProbeEDMAnalysis") << "Wrote eff hist!";
+   cout << "Wrote eff hist!" << endl;
 
-   if (PassProbes) {
-     delete PassProbes;
-     PassProbes = NULL;
-   }
-   if (FailProbes) {
-     delete FailProbes;
-     FailProbes = NULL;
-   }
-   if(SBSPassProbes) {
-     delete SBSPassProbes;
-     SBSPassProbes = NULL;
-   }
-   if (SBSFailProbes) {
-     delete SBSFailProbes;
-     SBSFailProbes = NULL;
-   }
+   if(PassProbes)    delete PassProbes;
+   if(FailProbes)    delete FailProbes;
+   if(SBSPassProbes) delete SBSPassProbes;
+   if(SBSFailProbes) delete SBSFailProbes;
+
+   return;
+
 }
 
 
@@ -1034,113 +1160,124 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 
 
 // ********* Do sideband subtraction on the requested histogram ********* //
+void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
+                                               Double_t Peak, Double_t SD)
+{
+  // Total Means signal plus background
+
+  const Double_t BinWidth  = Total.GetXaxis()->GetBinWidth(1);
+  const Int_t nbins = Total.GetNbinsX();
+  const Double_t xmin = Total.GetXaxis()->GetXmin();
+
+  const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
+  const Double_t SDBin = (SD/BinWidth); // Standard deviation
+  const Int_t I = (Int_t)((3.0*SDBin > 1.0)  ?  3.0*SDBin  : 1 ); // Interval
+  const Int_t D = (Int_t)((10.0*SDBin > 1.0) ?  10.0*SDBin : 1 );  // Distance from peak
+
+  const Double_t IntegralRight = Total.Integral(PeakBin + D, PeakBin + D + I);
+  const Double_t IntegralLeft = Total.Integral(PeakBin - D - I, PeakBin - D);
+
+  double SubValue = 0.0;
+  double NewValue = 0.0;
+
+  const double Slope     = (IntegralRight - IntegralLeft)/
+    (double)((2*D + I )*(I+1));
+  const double Intercept = IntegralLeft/(double)(I+1) - 
+    ((double)PeakBin - (double)D - (double)I/2.0)*Slope;
+
+  for(Int_t bin = 1; bin < (nbins + 1); bin++){
+    SubValue = Slope*bin + Intercept;
+    if(SubValue < 0)
+      SubValue = 0;
+
+    NewValue = Total.GetBinContent(bin)-SubValue;
+    if(NewValue > 0){
+      Result.SetBinContent(bin, NewValue);
+    }
+  }
+  Result.SetEntries(Result.Integral());
+}
 // ********************************************************************** //
 
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::TPEffFitter( std::string &fileName, std::string &bvar, 
-					std::vector< double > bins, std::string &bvar2, 
+void TagProbeEDMAnalysis::TPEffFitter( string &fileName, string &bvar, 
+					vector< double > bins, string &bvar2, 
 					double bvar2Lo, double bvar2Hi )
 {
-   edm::LogInfo("TagProbeEDMAnalysis") << "Here in TP fitter";
+   cout << "Here in TP fitter" << endl;
     
    outRootFile_->cd();
    fitTree_ = (TTree*)outRootFile_->Get("fitter_tree");
 
-   const unsigned int bnbins = bins.size()-1;
-   edm::LogInfo("TagProbeEDMAnalysis") << "TPEffFitter: The number of bins is " << bnbins;
-
-   std::vector< double > bins2;
-   bins2.push_back(bvar2Lo);
-   bins2.push_back(bvar2Hi);
-
-   TGraphAsymmErrors effhist(bnbins);
-   std::string hname = "fit_eff_" + bvar;
-   std::string htitle = "Efficiency vs " + bvar;
-   effhist.SetNameTitle(hname.c_str(), htitle.c_str());
-
-   TGraph chi2hist(bnbins);
-   TGraph qualityhist(bnbins);
-   hname = "fit_chi2_" + bvar;
-   htitle = "Chi^{2} vs " + bvar;
-   chi2hist.SetNameTitle(hname.c_str(), htitle.c_str());
-   hname = "fit_quality_" + bvar;
-   htitle = "Quality vs " + bvar;
-   qualityhist.SetNameTitle(hname.c_str(), htitle.c_str());
+   string hname = "fit_eff_" + bvar;
+   string htitle = "Efficiency vs " + bvar;
+   int bnbins = bins.size()-1;
+   cout << "TPEffFitter: The number of bins is " << bnbins << endl;
+   TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
     
-   double eff, hierr, loerr, xval, xerr, chi2Val, quality;
-   for (unsigned int iBin=0; iBin<bnbins; ++iBin ) 
+   vector< double > bins2;
+   bins2.push_back( bvar2Lo );
+   bins2.push_back( bvar2Hi );
+   double eff = 0.0, err = 0.0;
+
+   for( int bin=0; bin<bnbins; ++bin ) 
    {
-     
-     doFit( bvar, bins, iBin, bvar2, bins2, 0, eff, loerr, hierr, chi2Val, quality, false );
-     
-     xval = (bins[iBin + 1] + bins[iBin])/2;
-     xerr = (bins[iBin + 1] - bins[iBin])/2;
-     
-     effhist.SetPoint( iBin, xval, eff );
-     effhist.SetPointEXhigh( iBin, xerr);
-     effhist.SetPointEXlow( iBin, xerr);
-     effhist.SetPointEYhigh( iBin, hierr );
-     effhist.SetPointEYlow( iBin, loerr );
-     
-     chi2hist.SetPoint(iBin, xval, chi2Val);
-     qualityhist.SetPoint(iBin, xval, quality);
+      eff = 0.0;
+      err = 0.0;
+    
+      doFit( bvar, bins, bin, bvar2, bins2, 0, eff, err, false );
+
+      // Fill the efficiency hist
+      effhist.SetBinContent(bin+1, eff);
+      effhist.SetBinError(bin+1, err);
+
    }
-   
+
    outRootFile_->cd();
    effhist.Write();
-   chi2hist.Write();
-   qualityhist.Write();
-   
+
    return;
 }
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::TPEffFitter2D( std::string &fileName, std::string &bvar1, std::vector< double > bins1,
-					  std::string &bvar2, std::vector<double> bins2 )
+void TagProbeEDMAnalysis::TPEffFitter2D( string &fileName, string &bvar1, vector< double > bins1,
+					  string &bvar2, vector<double> bins2 )
 {
 
    outRootFile_->cd();
    fitTree_->SetDirectory(outRootFile_);
-
-   edm::LogInfo("TagProbeEDMAnalysis") << "Here in TP fitter 2D";
-   const unsigned int bnbins1 = bins1.size()-1;
-   const unsigned int bnbins2 = bins2.size()-1;
-   edm::LogVerbatim("TagAndProbe|Fitter") << "TPEffFitter2D: The number of bins is " << bnbins1 << ":" << bnbins2;
-
-   std::string hname = "fit_eff_" + bvar1 + "_" + bvar2;
-   std::string htitle = "Efficiency: " + bvar1 + " vs " + bvar2;
+  
+   cout << "Here in TP fitter 2D" << endl;
+  
+   string hname = "fit_eff_" + bvar1 + "_" + bvar2;
+   string htitle = "Efficiency: " + bvar1 + " vs " + bvar2;
+   int bnbins1 = bins1.size()-1;
+   int bnbins2 = bins2.size()-1;
+   cout << "TPEffFitter2D: The number of bins is " << bnbins1 << ":" << bnbins2 << endl;
    TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
-   hname = "fit_chi2_" + bvar1 + "_" + bvar2;
-   htitle = "Chi^{2}: " + bvar1 + " vs " + bvar2;
-   TH2F chi2hist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
-   hname = "fit_quality_" + bvar1 + "_" + bvar2;
-   htitle = "Quality: " + bvar1 + " vs " + bvar2;
-   TH2F qualityhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
+   double eff = 0.0, err = 0.0;
 
-   for( unsigned int bin1=0; bin1<bnbins1; ++bin1 )
+   for( int bin1=0; bin1<bnbins1; ++bin1 )
    {
-      for( unsigned int bin2=0; bin2<bnbins2; ++bin2 )
+      for( int bin2=0; bin2<bnbins2; ++bin2 )
       {
-        double eff, loerr, hierr, chi2Val, quality;
+	 eff = 0.0;
+	 err = 0.0;
 
-        doFit(bvar1, bins1, bin1, bvar2, bins2, bin2, eff, loerr, hierr, chi2Val, quality, true);
-        // Fill the efficiency hist
-        effhist.SetBinContent(bin1+1,bin2+1,eff);
-        effhist.SetBinError(bin1+1,bin2+1, (loerr > hierr)? loerr : hierr);
-
-        // Fill chi2 histogram
-        chi2hist.SetBinContent( bin1+1, bin2+1, chi2Val);
-        qualityhist.SetBinContent( bin1+1, bin2+1, quality);
+	 doFit( bvar1, bins1, bin1, bvar2, bins2, bin2, eff, err, true );
+	 // Fill the efficiency hist
+	 effhist.SetBinContent(bin1+1,bin2+1,eff);
+	 effhist.SetBinError(bin1+1,bin2+1,err);
       }
    }
 
    outRootFile_->cd();
    effhist.Write();
-   chi2hist.Write();
-   qualityhist.Write();
+
+   return;
 }
 // ************************************** //
 
@@ -1148,291 +1285,316 @@ void TagProbeEDMAnalysis::TPEffFitter2D( std::string &fileName, std::string &bva
 // ***** Function to return the signal Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeSignalPdf( )
 {
+   if( !CBLineShape_.empty() )
+   {
+      // So we can clean up ...
+      fitCBLineShape_ = true;
 
-  
-   if (cbLineShape_) {
-     cbLineShape_->CreatePDF(signalShapePdf_);
-     signalShapeFailPdf_  = signalShapePdf_;
-   } else if (zLineShape_) {
-     zLineShape_->CreatePDF(signalShapePdf_);
-     signalShapeFailPdf_  = signalShapePdf_;
-   } else if (gaussLineShape_) {
-     gaussLineShape_->CreatePDF(signalShapePdf_);
-     signalShapeFailPdf_  = signalShapePdf_;
-   } else {
-     edm::LogError("TagAndProbe") << "No signal PDF specified";
-     exit(1);
+      // Signal PDF variables
+      rooCBMean_  = new RooRealVar("cbMean","cbMean",cbMean_[0]);
+      rooCBSigma_ = new RooRealVar("cbSigma","cbSigma",cbSigma_[0]);
+      rooCBAlpha_ = new RooRealVar("cbAlpha","cbAlpha",cbAlpha_[0]);
+      rooCBN_     = new RooRealVar("cbN","cbN",cbN_[0]);
+
+      // If the user has set a range, make the variable float
+      if( cbMean_.size() == 3 )
+      {
+	 rooCBMean_->setRange(cbMean_[1],cbMean_[2]);
+	 rooCBMean_->setConstant(false);
+      }
+      if( cbSigma_.size() == 3 )
+      {
+	 rooCBSigma_->setRange(cbSigma_[1],cbSigma_[2]);
+	 rooCBSigma_->setConstant(false);
+      }
+      if( cbAlpha_.size() == 3 )
+      {
+	 rooCBAlpha_->setRange(cbAlpha_[1],cbAlpha_[2]);
+	 rooCBAlpha_->setConstant(false);
+      }
+      if( cbN_.size() == 3 )
+      {
+	 rooCBN_->setRange(cbN_[1],cbN_[2]);
+	 rooCBN_->setConstant(false);
+      }
+
+      rooCBPdf_ = new RooCBShape("cbPdf","cbPdf",*rooMass_,*rooCBMean_,
+      *rooCBSigma_,*rooCBAlpha_,*rooCBN_);
+
+      rooCBDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooCBPdf_,*rooCBPdf_,*rooCBDummyFrac_);
+
+      signalShapeFailPdf_  = signalShapePdf_;
    }
+   else if( !GaussLineShape_.empty() )
+   {
+      // So we can clean up ...
+      fitGaussLineShape_ = true;
+
+      // Signal PDF variables
+      rooGaussMean_  = new RooRealVar("gaussMean","gaussMean",gaussMean_[0]);
+      rooGaussSigma_ = new RooRealVar("gaussSigma","gaussSigma",gaussSigma_[0]);
+
+      // If the user has set a range, make the variable float
+      if( gaussMean_.size() == 3 )
+      {
+	 rooGaussMean_->setRange(gaussMean_[1],gaussMean_[2]);
+	 rooGaussMean_->setConstant(false);
+      }
+      if( gaussSigma_.size() == 3 )
+      {
+	 rooGaussSigma_->setRange(gaussSigma_[1],gaussSigma_[2]);
+	 rooGaussSigma_->setConstant(false);
+      }
+
+      rooGaussPdf_ = new RooGaussian("gaussPdf","gaussPdf",*rooMass_,*rooGaussMean_,
+      *rooGaussSigma_);
+
+      rooGaussDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooGaussPdf_,*rooGaussPdf_,*rooGaussDummyFrac_);
+
+      signalShapeFailPdf_  = signalShapePdf_;
+   }
+   else
+   {
+      // So we can clean up ...
+      fitZLineShape_ = true;
+
+      // Signal PDF variables
+      rooZMean_   = new RooRealVar("zMean","zMean",zMean_[0]);
+      rooZWidth_  = new RooRealVar("zWidth","zWidth",zWidth_[0]);
+      rooZSigma_  = new RooRealVar("zSigma","zSigma",zSigma_[0]);
+      rooZWidthL_ = new RooRealVar("zWidthL","zWidthL",zWidthL_[0]);
+      rooZWidthR_ = new RooRealVar("zWidthR","zWidthR",zWidthR_[0]);
+
+      // If the user has set a range, make the variable float
+      if( zMean_.size() == 3 )
+      {
+	 rooZMean_->setRange(zMean_[1],zMean_[2]);
+	 rooZMean_->setConstant(false);
+      }
+      if( zWidth_.size() == 3 )
+      {
+	 rooZWidth_->setRange(zWidth_[1],zWidth_[2]);
+	 rooZWidth_->setConstant(false);
+      }
+      if( zSigma_.size() == 3 )
+      {
+	 rooZSigma_->setRange(zSigma_[1],zSigma_[2]);
+	 rooZSigma_->setConstant(false);
+      }
+      if( zWidthL_.size() == 3 )
+      {
+	 rooZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
+	 rooZWidthL_->setConstant(false);
+      }
+      if( zWidthR_.size() == 3 )
+      {
+	 rooZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
+	 rooZWidthR_->setConstant(false);
+      }
+      // Voigtian
+      rooZVoigtPdf_ = new RooVoigtian("zVoigtPdf", "zVoigtPdf", 
+      *rooMass_, *rooZMean_, *rooZWidth_, *rooZSigma_);
+
+      // Bifurcated Gaussian
+      rooZBifurGaussPdf_ = new RooBifurGauss("zBifurGaussPdf", "zBifurGaussPdf", 
+      *rooMass_, *rooZMean_, *rooZWidthL_, *rooZWidthR_);
+      
+      // Bifurcated Gaussian fraction
+      rooZBifurGaussFrac_ = new RooRealVar("zBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
+      if( zBifurGaussFrac_.size() == 3 )
+      {
+	 rooZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
+	 rooZBifurGaussFrac_->setConstant(false);
+      } 
+
+      // The total signal PDF
+      signalShapePdf_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
+      *rooZVoigtPdf_,*rooZBifurGaussPdf_,*rooZBifurGaussFrac_);
+
+      // Fail pdf ...
+      // Signal PDF variables
+      if( !floatFailZMean_ )   rooFailZMean_ = rooZMean_;
+      else                     rooFailZMean_   = new RooRealVar("zFailMean","zMean",zMean_[0]);
+      if( !floatFailZWidth_ )  rooFailZWidth_ = rooZWidth_;
+      else                     rooFailZWidth_  = new RooRealVar("zFailWidth","zWidth",zWidth_[0]);
+      if( !floatFailZSigma_ )  rooFailZSigma_ = rooZSigma_;
+      else                     rooFailZSigma_  = new RooRealVar("zFailSigma","zSigma",zSigma_[0]);
+      if( !floatFailZWidthL_ ) rooFailZWidthL_ = rooZWidthL_;
+      else                     rooFailZWidthL_ = new RooRealVar("zFailWidthL","zWidthL",zWidthL_[0]);
+      if( !floatFailZWidthR_ ) rooFailZWidthR_ = rooZWidthR_;
+      else                     rooFailZWidthR_ = new RooRealVar("zFailWidthR","zWidthR",zWidthR_[0]);
+
+      // If the user has set a range, make the variable float
+      if( floatFailZMean_ && zMean_.size() == 3 )
+      {
+	 rooFailZMean_->setRange(zMean_[1],zMean_[2]);
+	 rooFailZMean_->setConstant(false);
+      }
+      if( floatFailZWidth_ && zWidth_.size() == 3 )
+      {
+	 rooFailZWidth_->setRange(zWidth_[1],zWidth_[2]);
+	 rooFailZWidth_->setConstant(false);
+      }
+      if( floatFailZSigma_ && zSigma_.size() == 3 )
+      {
+	 rooFailZSigma_->setRange(zSigma_[1],zSigma_[2]);
+	 rooFailZSigma_->setConstant(false);
+      }
+      if( floatFailZWidthL_ && zWidthL_.size() == 3 )
+      {
+	 rooFailZWidthL_->setRange(zWidthL_[1],zWidthL_[2]);
+	 rooFailZWidthL_->setConstant(false);
+      }
+      if( floatFailZWidthR_ && zWidthR_.size() == 3 )
+      {
+	 rooFailZWidthR_->setRange(zWidthR_[1],zWidthR_[2]);
+	 rooFailZWidthR_->setConstant(false);
+      }
+      // Voigtian
+      rooFailZVoigtPdf_ = new RooVoigtian("zFailVoigtPdf", "zVoigtPdf", 
+      *rooMass_, *rooFailZMean_, *rooFailZWidth_, *rooFailZSigma_);
+
+      // Bifurcated Gaussian
+      rooFailZBifurGaussPdf_ = new RooBifurGauss("zFailBifurGaussPdf", "zBifurGaussPdf", 
+      *rooMass_, *rooFailZMean_, *rooFailZWidthL_, *rooFailZWidthR_);
+      
+      // Bifurcated Gaussian fraction
+      if( !floatFailZBifurGaussFrac_ ) rooFailZBifurGaussFrac_ = rooZBifurGaussFrac_;
+      else                             rooFailZBifurGaussFrac_ = new RooRealVar("zFailBifurGaussFrac","zBifurGaussFrac",zBifurGaussFrac_[0]);
+      if( floatFailZBifurGaussFrac_ && zBifurGaussFrac_.size() == 3 )
+      {
+	 rooFailZBifurGaussFrac_->setRange(zBifurGaussFrac_[1],zBifurGaussFrac_[2]);
+	 rooFailZBifurGaussFrac_->setConstant(false);
+      } 
+
+      // The total fail signal PDF
+      signalShapeFailPdf_ = new RooAddPdf("signalShapeFailPdf", "signalShapePdf",
+      *rooFailZVoigtPdf_,*rooFailZBifurGaussPdf_,*rooFailZBifurGaussFrac_);
+
+   }
+
+   return;
 }
 
 // ***** Function to return the background Pdf depending on the users choice of fit func ******* //
 void TagProbeEDMAnalysis::makeBkgPdf( )
 {
-   if (polyBkgLineShape_) {
-     polyBkgLineShape_->CreatePDF(bkgShapePdf_);
-   } else if(cmsBkgLineShape_) {
-     cmsBkgLineShape_->CreatePDF(bkgShapePdf_);
-   } else {
-     edm::LogError("TagAndProbe") << "No signal PDF specified";
-     exit(1);
-   }
-}
-
-// ********** Get the true efficiency from this TTree ********** //
-void TagProbeEDMAnalysis::TPEffMCTruth()
-{
-   // Loop over the number of different types of 
-   // efficiency measurement in the input tree
-   // Make a simple tree for fitting, and then
-   // call the fitter.
-   edm::LogInfo("TagProbeEDMAnalysis") << "Here in MC truth";
-
-   outRootFile_->cd();
-   edm::LogInfo("TagProbeEDMAnalysis") << "Writing MC Truth Eff hists!"; 
-
-   std::string hname = "truth_eff_"+var1NameUp_;
-   std::string htitle = "Efficiency vs "+var1NameUp_;
-   TGraphAsymmErrors var1effhist(var1Pass_,var1All_,"");
-   var1effhist.SetNameTitle(hname.c_str(), htitle.c_str());
-   var1effhist.GetXaxis()->SetName(var1NameUp_.c_str());
-   var1effhist.GetYaxis()->SetName("Efficiency");
-   var1effhist.Write();
-
-   hname = "truth_eff_"+var2NameUp_;
-   htitle = "Efficiency vs "+var2NameUp_;
-   TGraphAsymmErrors var2effhist(var2Pass_,var2All_,"");
-   var2effhist.SetNameTitle(hname.c_str(), htitle.c_str());
-   var2effhist.GetXaxis()->SetName(var2NameUp_.c_str());
-   var2effhist.GetYaxis()->SetName("Efficiency");
-   var2effhist.Write();
-
-   return;
-}
-// ******************************************************** //
-
-
-// ********** Get the true 2D efficiency from this TTree ********** //
-void TagProbeEDMAnalysis::TPEffMCTruth2D()
-{
-   // Loop over the number of different types of 
-   // efficiency measurement in the input tree
-   // Make a simple tree for fitting, and then
-   // call the fitter.
-   edm::LogInfo("TagProbeEDMAnalysis") << "Here in MC truth";
-
-   outRootFile_->cd();
-   edm::LogInfo("TagProbeEDMAnalysis") << "Writing MC Truth Eff hists!"; 
-
-   std::string hname = "truth_eff_"+var1NameUp_+"_"+var2NameUp_;
-   std::string htitle = "Efficiency: "+var1NameUp_+" vs "+var2NameUp_;
-   TH2F var1var2effhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0],
-		     var2Bins_.size()-1,&var2Bins_[0]);
-   var1var2effhist.Sumw2();
-   var1var2effhist.Divide(var1var2Pass_,var1var2All_,1.0,1.0,"B");
-   var1var2effhist.Write();
-
-   hname = "truth_eff_bias_"+var1NameUp_+"_"+var2NameUp_;
-   htitle = "Efficiency: "+var1NameUp_+" vs "+var2NameUp_;
-   TH2F var1var2biaseffhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0],
-		            var2Bins_.size()-1,&var2Bins_[0]);
-   var1var2biaseffhist.Sumw2();
-   var1var2biaseffhist.Divide(var1var2Pass_,var1var2All_,1.0,1.0,"B");
-   var1var2biaseffhist.Write();
-
-   return;
-}
-// ******************************************************** //
-
-
-// ********** Get the efficiency from this TTree ********** //
-void TagProbeEDMAnalysis::CalculateEfficiencies() {
-  
-  if (calcEffsTruth_) {
-      TPEffMCTruth();
-      // 2D MC Truth
-      if( do2DFit_ ) TPEffMCTruth2D();
-   }
-
-   if( calcEffsFitter_ || calcEffsSB_ )
+   if( !PolyBkgLineShape_.empty() )
    {
-      edm::LogInfo("TagProbeEDMAnalysis") << "Entries in fit tree ... " << fitTree_->GetEntries();
-      fitTree_->Write();
+      // So we can clean up
+      fitPolyBkgLineShape_ = true;
 
-      edm::LogInfo("TagProbeEDMAnalysis") << "There are " << var1Bins_.size()-1 << " " << var1NameUp_ << " bins.";
-      const unsigned int nbins1 = var1Bins_.size()-1;
-      const unsigned int nbins2 = var2Bins_.size()-1;
+      // Background PDF variables
+      rooPolyBkgC0_ = new RooRealVar("polyBkgC0","polyBkgC0",polyBkgC0_[0]);
+      rooPolyBkgC1_ = new RooRealVar("polyBkgC1","polyBkgC1",polyBkgC1_[0]);
+      rooPolyBkgC2_ = new RooRealVar("polyBkgC2","polyBkgC2",polyBkgC2_[0]);
+      rooPolyBkgC3_ = new RooRealVar("polyBkgC3","polyBkgC3",polyBkgC3_[0]);
+      rooPolyBkgC4_ = new RooRealVar("polyBkgC4","polyBkgC4",polyBkgC4_[0]);
 
-      if (calcEffsFitter_) {
-	 // We have filled the simple tree ... call the fitter
-	 TPEffFitter( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
-	 TPEffFitter( fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
-
-	 // 2D Fit
-	 if( do2DFit_ )
-	 {
-	    TPEffFitter2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
-	 }
-      }
-
-      if (calcEffsSB_) {
-	 // We have filled the simple tree ... call side band subtraction
-	 TPEffSBS(  fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
-	 if (!doTextDefinedBins_) TPEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
-
-	 // 2D SBS
-	 if (do2DFit_) {
-	    TPEffSBS2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
-	 }
-      }
-   }
-
-   return;
-}
-// ******************************************************** //
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TagProbeEDMAnalysis::endJob() 
-{
-   //return;
-
-   // Check for the various modes ...
-   if( mode_ == "Write" )
-   {
-      // All we need to do is write out the truth histograms and fitTree
-      outRootFile_->cd();
-
-      edm::LogInfo("TagProbeEDMAnalysis") << "Fit tree has " << fitTree_->GetEntries() << " entries.";
-      fitTree_->Write();
-
-      WriteMCHistograms();
-
-      outRootFile_->Close();
-      edm::LogInfo("TagProbeEDMAnalysis") << "Closed ROOT file and returning!";
-
-      return;
-   }
-
-   if( mode_ == "Normal" )
-   {
-      // Calculate the efficiencies etc ...
-      outRootFile_->cd();
-      CalculateEfficiencies();  
-      outRootFile_->Close();
-
-      return;
-   }
-
-   edm::LogInfo("TagProbeEDMAnalysis") << "Here in endjob " << readFiles_.size();
-   if( mode_ == "Read" && readFiles_.size() > 0 )
-   {
-      edm::LogInfo("TagProbeEDMAnalysis") << "Here in end job: Num files = " << readFiles_.size();
-
-      // For the fittree chain the files together, then merge the
-      // trees from the chain into the fitTree_ ...
-      TChain fChain("fitter_tree");
-      for(std::vector<std::string>::iterator iFile=readFiles_.begin(); iFile!=readFiles_.end(); ++iFile )
+      // If the user has specified a range, let the bkg shape 
+      // variables float in the fit
+      if( polyBkgC0_.size() == 3 )
       {
-	 edm::LogInfo("TagProbeEDMAnalysis") << "fChain adding: " << iFile->c_str();
-	 fChain.Add(iFile->c_str());
-      }      edm::LogInfo("TagProbeEDMAnalysis") << "Added all files: Num Entries = " << fChain.GetEntries();
+	 rooPolyBkgC0_->setRange(polyBkgC0_[1],polyBkgC0_[2]);
+	 rooPolyBkgC0_->setConstant(false);
+      }
+      if( polyBkgC1_.size() == 3 )
+      {
+	 rooPolyBkgC1_->setRange(polyBkgC1_[1],polyBkgC1_[2]);
+	 rooPolyBkgC1_->setConstant(false);
+      }
+      if( polyBkgC2_.size() == 3 )
+      {
+	 rooPolyBkgC2_->setRange(polyBkgC2_[1],polyBkgC2_[2]);
+	 rooPolyBkgC2_->setConstant(false);
+      }
+      if( polyBkgC3_.size() == 3 )
+      {
+	 rooPolyBkgC3_->setRange(polyBkgC3_[1],polyBkgC3_[2]);
+	 rooPolyBkgC3_->setConstant(false);
+      }
+      if( polyBkgC4_.size() == 3 )
+      {
+	 rooPolyBkgC4_->setRange(polyBkgC4_[1],polyBkgC4_[2]);
+	 rooPolyBkgC4_->setConstant(false);
+      }
 
-      // Now merge the trees into the output file ...
-      fChain.Merge(fitFileName_.c_str());
+      rooPolyBkgPdf_ = new RooPolynomial("polyBkgPdf","polyBkgPdf",*rooMass_,
+      RooArgList(*rooPolyBkgC0_,*rooPolyBkgC1_,*rooPolyBkgC2_,*rooPolyBkgC3_,*rooPolyBkgC4_),0);
 
-      // Get the private tree ...
-      TFile f(fitFileName_.c_str(),"update");
-      fitTree_ = (TTree*)f.Get("fitter_tree");
-      edm::LogInfo("TagProbeEDMAnalysis") << "Read mode: Fit tree total entries " << fitTree_->GetEntries();
+      rooPolyBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
 
-      //ReadMCHistograms();
-      
-      // Now call for and calculate the efficiencies as normal
-      // Set the file pointer
-      outRootFile_ = &f;
-      outRootFile_->cd();
-      CalculateEfficiencies();  
-      edm::LogInfo("TagProbeEDMAnalysis") << "Done calculating efficiencies!";
-      outRootFile_->Close();
+      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
+      *rooPolyBkgPdf_,*rooPolyBkgPdf_,*rooPolyBkgDummyFrac_);
 
-      return;
    }
-}
-
-//******************************* Clean up and destructors ***********************
-
-TagProbeEDMAnalysis::~TagProbeEDMAnalysis() {
-
-  CleanUpMCHistograms();
-  if (outRootFile_) {
-    outRootFile_->Close();
-    if( mode_ != "Read" ) delete outRootFile_;
-  }
-  cleanFitVariables();
-}
-
-void TagProbeEDMAnalysis::CleanUpMCHistograms() {
-
-  if (var1Pass_) {
-    delete var1Pass_;
-    var1Pass_ = NULL;
-  }
-  if (var1All_) {
-    delete var1All_;
-    var1All_ = NULL;
-  }
-  if (var2Pass_) {
-    delete var2Pass_;
-    var2Pass_ = NULL;
-  }
-  if (var2All_) {
-    delete var2All_;
-    var2All_ = NULL;
-  }  
-}
-
-/****************************************************************
-WARNING: The following headers pollute the namespace by calling
-"using namespace std" in Minuit2/stackAllocator.h. The path exact
-is not clear.
-****************************************************************/
-#include <RooAddPdf.h> 
-#include <RooChi2Var.h>
-#include <RooNLLVar.h>
-#include <RooSimultaneous.h>
-#include <RooDataHist.h>
-#include <RooGlobalFunc.h> // DataError, Extended, ...
-
-void TagProbeEDMAnalysis::cleanFitVariables()
-{
+   else
+   {
   
-  if (rooMass_) {
-    delete rooMass_;
-    rooMass_ = NULL;
-  }
-  if (signalShapePdf_) {
-    delete signalShapePdf_;
-    signalShapePdf_ = NULL;
-  }
-  if (bkgShapePdf_) {
-    delete bkgShapePdf_;
-    bkgShapePdf_ = NULL;
-  }
+      // So we can clean up ...
+      fitCMSBkgLineShape_ = true;
+
+      // Background PDF variables
+      rooCMSBkgPeak_  = new RooRealVar("cmsBkgPeak","cmsBkgPeak",cmsBkgPeak_[0]);
+      rooCMSBkgBeta_ = new RooRealVar("cmsBkgBeta","cmsBkgBeta",cmsBkgBeta_[0]);
+      rooCMSBkgAlpha_ = new RooRealVar("cmsBkgAlpha","cmsBkgAlpha",cmsBkgAlpha_[0]);
+      rooCMSBkgGamma_     = new RooRealVar("cmsBkgGamma","cmsBkgGamma",cmsBkgGamma_[0]);
+
+      // If the user has specified a range, let the bkg shape 
+      // variables float in the fit
+      if( cmsBkgAlpha_.size() == 3 )
+      {
+	 rooCMSBkgAlpha_->setRange(cmsBkgAlpha_[1],cmsBkgAlpha_[2]);
+	 rooCMSBkgAlpha_->setConstant(false);
+      }
+      if( cmsBkgBeta_.size() == 3 )
+      {
+	 rooCMSBkgBeta_->setRange(cmsBkgBeta_[1],cmsBkgBeta_[2]);
+	 rooCMSBkgBeta_->setConstant(false);
+      }
+      if( cmsBkgGamma_.size() == 3 )
+      {
+	 rooCMSBkgGamma_->setRange(cmsBkgGamma_[1],cmsBkgGamma_[2]);
+	 rooCMSBkgGamma_->setConstant(false);
+      }
+      if( cmsBkgPeak_.size() == 3 )
+      {
+	 rooCMSBkgPeak_->setRange(cmsBkgPeak_[1],cmsBkgPeak_[2]);
+	 rooCMSBkgPeak_->setConstant(false);
+      }
+
+      rooCMSBkgPdf_ = new RooCMSShapePdf("cmsBkgPdf","cmsBkgPdf",*rooMass_,*rooCMSBkgAlpha_,
+      *rooCMSBkgBeta_,*rooCMSBkgGamma_,*rooCMSBkgPeak_);
+
+      rooCMSBkgDummyFrac_ = new RooRealVar("dummyFrac","dummyFrac",1.0);
+
+      bkgShapePdf_ = new RooAddPdf("bkgShapePdf", "bkgShapePdf",
+      *rooCMSBkgPdf_,*rooCMSBkgPdf_,*rooCMSBkgDummyFrac_);
+   }
+
+   return;
 }
+
 
 // ****************** Function to perform the efficiency fit ************ //
-void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
-				const std::string &bvar2, const std::vector< double >& bins2, const int bin2,
-				double &eff, double &loerr, double &hierr, double &chi2Val, 
-				double& quality, const bool is2D){
 
-  using namespace RooFit;
-
+void TagProbeEDMAnalysis::doFit( std::string &bvar1, std::vector< double > bins1, int bin1, 
+				 std::string &bvar2, std::vector<double> bins2, int bin2,  
+                                 double &eff, double &err, bool is2D )
+{
    // The fit variable - lepton invariant mass
+   rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
+   rooMass_->setBins(massNbins_);
    RooRealVar Mass = *rooMass_;
 
    // The binning variables
-   std::string bunits = "GeV";
+   string bunits = "GeV";
    double lowEdge1 = bins1[bin1];
    double highEdge1 = bins1[bin1+1];
    if( bvar1 == "Eta" || bvar1 == "Phi" ) bunits = "";
@@ -1458,22 +1620,14 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    RooDataSet* data = new RooDataSet("fitData","fitData",fitTree_,
    RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
 
+   //data->get()->Print();
    data->setWeightVar("Weight");
-
-   std::stringstream roofitstream;
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-   data->defaultStream(&roofitstream);
-#else
-   data->defaultPrintStream(&roofitstream);
-#endif
    data->get()->Print();
-   edm::LogInfo("RooFit") << roofitstream.str();
-   roofitstream.str(std::string());
 
-   edm::LogInfo("TagProbeEDMAnalysis") << "Made dataset";
+   cout << "Made dataset" << endl;
    RooDataHist *bdata = new RooDataHist("bdata","Binned Data",
    RooArgList(Mass,ProbePass),*data);
-   edm::LogInfo("TagProbeEDMAnalysis") << "Made binned data: Weighted = " << bdata->isWeighted();
+   cout << "Made binned data: Weighted = " << bdata->isWeighted() << endl;
 
    // ********** Construct signal shape PDF ********** //
 
@@ -1516,7 +1670,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    RooFormulaVar numSigFail("numSigFail","numSignal*(1.0 - efficiency)", 
    RooArgList(numSignal,efficiency) );
 
-   RooArgList componentspass(*signalShapePdf_, *bkgShapePdf_);
+   RooArgList componentspass(*signalShapePdf_,*bkgShapePdf_);
    RooArgList yieldspass(numSigPass, numBkgPass);
    RooArgList componentsfail(*signalShapeFailPdf_,*bkgShapePdf_);
    RooArgList yieldsfail(numSigFail, numBkgFail);	  
@@ -1528,39 +1682,32 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    RooSimultaneous totalPdf("totalPdf","totalPdf",ProbePass);
    ProbePass.setLabel("pass");
    totalPdf.addPdf(sumpass,ProbePass.getLabel());
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-   totalPdf.defaultStream(&roofitstream;)
-#else
-   totalPdf.defaultPrintStream(&roofitstream);
-#endif
    totalPdf.Print();
    ProbePass.setLabel("fail");
    totalPdf.addPdf(sumfail,ProbePass.getLabel());
    totalPdf.Print();
-   edm::LogInfo("RooFit") << roofitstream.str();
-   roofitstream.str(std::string(""));
 
    // Count the number of passing and failing probes in the region
    // making sure we have enough to fit ...
-   edm::LogInfo("TagProbeEDMAnalysis") << "About to count the number of events";
-   std::ostringstream passCond;
+   cout << "About to count the number of events" << endl;
+   stringstream passCond;
    passCond.str(std::string());
-   passCond << "(ProbePass==1) && (Mass<" << massHigh_ << ") && (Mass>" << massLow_
-            << ") && (" << bvar1 << "<" << highEdge1 << ") && (" << bvar1 << ">"
-            << lowEdge1 << ") && (" << bvar2 << "<" << highEdge2 << ") && ("
-            << bvar2 << ">" << lowEdge2 << ")";
-   edm::LogVerbatim("TagAndProbe|Fitter") << passCond.str();
-   std::ostringstream failCond;
+   passCond << "ProbePass==1 && Mass<" << massHigh_ << " && Mass>" << massLow_
+	    << " && " << bvar1 << "<" << highEdge1 << " && " << bvar1 << ">"
+	    << lowEdge1 << " && " << bvar2 << "<" << highEdge2 << " && " 
+	    << bvar2 << ">" << lowEdge2;
+   cout << passCond.str() << endl;
+   stringstream failCond;
    failCond.str(std::string());
-   failCond << "(ProbePass==0) && (Mass<" << massHigh_ << ") && (Mass>" << massLow_
-            << ") && (" << bvar1 << "<" << highEdge1 << ") && (" << bvar1 << ">"
-            << lowEdge1 << ") && (" << bvar2 << "<" << highEdge2 << ") && ("
-            << bvar2 << ">" << lowEdge2 << ")";
-   edm::LogVerbatim("TagAndProbe|Fitter") << failCond.str();
-   int npassR = static_cast<int>(data->sumEntries(passCond.str().c_str()));
-   int nfailR = static_cast<int>(data->sumEntries(failCond.str().c_str()));
-   edm::LogInfo("TagProbeEDMAnalysis") << "Num pass " << npassR;
-   edm::LogInfo("TagProbeEDMAnalysis") << "Num fail " << nfailR;
+   failCond << "ProbePass==0 && Mass<" << massHigh_ << " && Mass>" << massLow_
+	    << " && " << bvar1 << "<" << highEdge1 << " && " << bvar1 << ">"
+	    << lowEdge1 << " && " << bvar2 << "<" << highEdge2 << " && " 
+	    << bvar2 << ">" << lowEdge2;
+   cout << failCond.str() << endl;
+   int npassR = (int)data->sumEntries(passCond.str().c_str());
+   int nfailR = (int)data->sumEntries(failCond.str().c_str());
+   cout << "Num pass " << npassR << endl;
+   cout << "Num fail " << nfailR << endl;
 
    RooAbsCategoryLValue& simCat = (RooAbsCategoryLValue&) totalPdf.indexCat();
 
@@ -1573,21 +1720,22 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
       RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
       RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
      
-      if (pdf && dset && dset->numEntries() != 0.0) 
+      if (pdf && dset && dset->numEntries(kTRUE)!=0.) 
       {               
-	 edm::LogInfo("TagProbeEDMAnalysis") << "GOF Entries " << dset->numEntries() << " " 
+	 cout << "GOF Entries " << dset->numEntries() << " " 
 	      << type->GetName() << std::endl;
-	 if( strcmp(type->GetName(),"pass") == 0 ) 
+	 if( (string)type->GetName() == "pass" ) 
 	 {
 	    npassR = dset->numEntries(); 
-	    edm::LogInfo("TagProbeEDMAnalysis") << "Pass " << npassR; 
+	    cout << "Pass " << npassR << endl; 
 	 }
-	 else if( strcmp(type->GetName(),"fail") == 0 ) 
+	 else if( (string)type->GetName() == "fail" ) 
 	 {
 	    nfailR = dset->numEntries();
-	    edm::LogInfo("TagProbeEDMAnalysis") << "Fail " << nfailR; 
+	    cout << "Fail " << nfailR << endl; 
 	 }
       }
+
    }
    
    // Return if there's nothing to fit
@@ -1608,7 +1756,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
       numBkgFail.setConstant(true);
    }
 
-   edm::LogInfo("TagProbeEDMAnalysis") << "**** About to start the fitter ****";
+   cout << "**** About to start the fitter ****" << endl;
 
    // ********* Do the Actual Fit ********** //  
    RooFitResult *fitResult = 0;
@@ -1618,7 +1766,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    // The user chooses between binnned/unbinned fitting
    if( unbinnedFit_ )
    {
-      edm::LogInfo("TagProbeEDMAnalysis") << "Starting unbinned fit using LL.";
+      cout << "Starting unbinned fit using LL." << endl;
       RooNLLVar nll("nll","nll",totalPdf,*data,kTRUE);
       RooMinuit m(nll);
       m.setErrorLevel(0.5);
@@ -1631,7 +1779,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    }
    else
    {
-      edm::LogInfo("TagProbeEDMAnalysis") << "Starting binned fit using Chi2.";
+      cout << "Starting binned fit using Chi2." << endl;
       RooChi2Var chi2("chi2","chi2",totalPdf,*bdata,DataError(fitError),Extended(kTRUE));
       RooMinuit m(chi2);
       m.setErrorLevel(0.5); // <<< HERE
@@ -1641,40 +1789,18 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
       m.hesse();
       m.minos();
       fitResult = m.save();
-      chi2Val = chi2.getVal();
-      double numParams = fitResult->floatParsFinal().getSize();
-      double dof = 2*massNbins_ - numParams;
-
-      quality = 1 - TMath::Gamma(0.5*dof, chi2Val);
-      chi2Val /= dof;
    }
 
-#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-   fitResult->defaultStream(&roofitstream;)
-#else
-   fitResult->defaultPrintStream(&roofitstream);
-#endif
    fitResult->Print("v");
-   edm::LogInfo("RooFit") << roofitstream.str();
-   roofitstream.str(std::string(""));
 
    eff = efficiency.getVal();
-
-   if( efficiency.hasAsymError() ){
-     hierr = efficiency.getAsymErrorHi();
-     // RooFit returns a negative number.  TGraphAsymmErrors expects a positive number.
-     loerr = -efficiency.getAsymErrorLo();
-   } else {
-     hierr = efficiency.getError();
-     loerr = efficiency.getError();
-   }
+   err = efficiency.getError();
 
 
-
-   edm::LogInfo("TagProbeEDMAnalysis") << "Signal yield: " << numSignal.getVal() << " +- "
+   std::cout << "Signal yield: " << numSignal.getVal() << " +- "
 	     << numSignal.getError() << " + " << numSignal.getAsymErrorHi()
 	     <<" - "<< numSignal.getAsymErrorLo() << std::endl;
-   edm::LogInfo("TagProbeEDMAnalysis") << "Efficiency: "<< efficiency.getVal() << " +- "
+   std::cout << "Efficiency: "<< efficiency.getVal() << " +- "
 	     << efficiency.getError() << " + " << efficiency.getAsymErrorHi()
 	     <<" - "<< efficiency.getAsymErrorLo() << std::endl;
 
@@ -1708,11 +1834,11 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    fitStyle.SetLabelSize(font_size, "XYZ");
    fitStyle.cd();
 
-   std::ostringstream oss1;
+   ostringstream oss1;
    oss1 << bin1;
-   std::ostringstream oss2;
+   ostringstream oss2;
    oss2 << bin2;
-   std::string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
+   string cname = "fit_canvas_" + bvar1 + "_" + oss1.str() + "_" + bvar2 + "_" + oss2.str();
    if( !is2D ) cname = "fit_canvas_" + bvar1 + "_" + oss1.str();
    TCanvas *c = new TCanvas(cname.c_str(),"Sum over Modes, Signal Region",1000,1500);
    c->Divide(1,2);
@@ -1764,7 +1890,7 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
    outRootFile_->cd();
    c->Write();
 
-   edm::LogInfo("TagProbeEDMAnalysis") << "Finished with fitter - fit results saved to " << fitFileName_.c_str() << std::endl;
+   std::cout << "Finished with fitter - fit results saved to " << fitFileName_.c_str() << std::endl;
 
    if(data) delete data;
    if(bdata) delete bdata;
@@ -1772,6 +1898,265 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
 }
 
 
+// ********** Get the true efficiency from this TTree ********** //
+void TagProbeEDMAnalysis::TPEffMCTruth()
+{
+   // Loop over the number of different types of 
+   // efficiency measurement in the input tree
+   // Make a simple tree for fitting, and then
+   // call the fitter.
+   cout << "Here in MC truth" << endl;
+
+   outRootFile_->cd();
+   cout << "Writing MC Truth Eff hists!" << endl; 
+
+   string hname = "truth_eff_"+var1NameUp_;
+   string htitle = "Efficiency vs "+var1NameUp_;
+   TH1F var1effhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0]);
+   var1effhist.Sumw2();
+   var1effhist.Divide(var1Pass_,var1All_,1.0,1.0,"B");
+   var1effhist.Write();
+
+   outRootFile_->cd();
+   hname = "truth_eff_"+var2NameUp_;
+   htitle = "Efficiency vs "+var2NameUp_;
+   TH1F var2effhist(hname.c_str(),htitle.c_str(),var2Bins_.size()-1,&var2Bins_[0]);
+   var2effhist.Sumw2();
+   var2effhist.Divide(var2Pass_,var2All_,1.0,1.0,"B");
+   var2effhist.Write();
+
+   hname = "truth_eff_bias_"+var1NameUp_;
+   htitle = "Efficiency vs "+var1NameUp_;
+   TH1F var1biaseffhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0]);
+   var1biaseffhist.Sumw2();
+   var1biaseffhist.Divide(var1BiasPass_,var1BiasAll_,1.0,1.0,"B");
+   var1biaseffhist.Write();
+
+   outRootFile_->cd();
+   hname = "truth_eff_bias_"+var2NameUp_;
+   htitle = "Efficiency vs "+var2NameUp_;
+   TH1F var2biaseffhist(hname.c_str(),htitle.c_str(),var2Bins_.size()-1,&var2Bins_[0]);
+   var2biaseffhist.Sumw2();
+   var2biaseffhist.Divide(var2BiasPass_,var2BiasAll_,1.0,1.0,"B");
+   var2biaseffhist.Write();
+
+   return;
+}
+// ******************************************************** //
+
+
+// ********** Get the true 2D efficiency from this TTree ********** //
+void TagProbeEDMAnalysis::TPEffMCTruth2D()
+{
+   // Loop over the number of different types of 
+   // efficiency measurement in the input tree
+   // Make a simple tree for fitting, and then
+   // call the fitter.
+   cout << "Here in MC truth" << endl;
+
+   outRootFile_->cd();
+   cout << "Writing MC Truth Eff hists!" << endl; 
+
+   string hname = "truth_eff_"+var1NameUp_+"_"+var2NameUp_;
+   string htitle = "Efficiency: "+var1NameUp_+" vs "+var2NameUp_;
+   TH2F var1var2effhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0],
+		     var2Bins_.size()-1,&var2Bins_[0]);
+   var1var2effhist.Sumw2();
+   var1var2effhist.Divide(var1var2Pass_,var1var2All_,1.0,1.0,"B");
+   var1var2effhist.Write();
+
+   hname = "truth_eff_bias_"+var1NameUp_+"_"+var2NameUp_;
+   htitle = "Efficiency: "+var1NameUp_+" vs "+var2NameUp_;
+   TH2F var1var2biaseffhist(hname.c_str(),htitle.c_str(),var1Bins_.size()-1,&var1Bins_[0],
+		            var2Bins_.size()-1,&var2Bins_[0]);
+   var1var2biaseffhist.Sumw2();
+   var1var2biaseffhist.Divide(var1var2BiasPass_,var1var2BiasAll_,1.0,1.0,"B");
+   var1var2biaseffhist.Write();
+
+   return;
+}
+// ******************************************************** //
+
+
+// ********** Get the efficiency from this TTree ********** //
+void TagProbeEDMAnalysis::CalculateEfficiencies()
+{
+
+   if( calcEffsTruth_ ) 
+   {
+      TPEffMCTruth();
+
+      // 2D MC Truth
+      if( do2DFit_ ) TPEffMCTruth2D();
+   }
+
+   if( calcEffsFitter_ || calcEffsSB_ )
+   {
+      cout << "Entries in fit tree ... " << fitTree_->GetEntries() << endl;
+      fitTree_->Write();
+
+      cout << "There are " << var1Bins_.size()-1 << " " << var1NameUp_ << " bins." << endl;
+      int nbins1 = var1Bins_.size()-1;
+      int nbins2 = var2Bins_.size()-1;
+
+      if( calcEffsFitter_ )
+      {
+	 // We have filled the simple tree ... call the fitter
+	 TPEffFitter( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
+	 TPEffFitter( fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
+
+	 // 2D Fit
+	 if( do2DFit_ )
+	 {
+	    TPEffFitter2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
+	 }
+      }
+
+      if( calcEffsSB_ )
+      {
+	 // We have filled the simple tree ... call side band subtraction
+	 TPEffSBS(  fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_[0], var2Bins_[nbins2] );
+	 if (!doTextDefinedBins_) TPEffSBS(  fitFileName_, var2NameUp_, var2Bins_, var1NameUp_, var1Bins_[0], var1Bins_[nbins1] );
+
+	 // 2D SBS
+	 if( do2DFit_ )
+	 {
+	    TPEffSBS2D( fitFileName_, var1NameUp_, var1Bins_, var2NameUp_, var2Bins_ );
+	 }
+      }
+   }
+
+   return;
+}
+// ******************************************************** //
+
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+TagProbeEDMAnalysis::beginJob()
+{
+
+}
+
+
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+TagProbeEDMAnalysis::endJob() 
+{
+   //return;
+
+   // Check for the various modes ...
+   if( mode_ == "Write" )
+   {
+      // All we need to do is write out the truth histograms and fitTree
+      outRootFile_->cd();
+
+      cout << "Fit tree has " << fitTree_->GetEntries() << " entries." << endl;
+      fitTree_->Write();
+
+      var1Pass_->Write();
+      var1All_->Write();  
+      
+      var2Pass_->Write();
+      var2All_->Write();  
+      
+      var1var2Pass_->Write();
+      var1var2All_->Write();
+
+      var1BiasPass_->Write();
+      var1BiasAll_->Write();  
+      
+      var2BiasPass_->Write();
+      var2BiasAll_->Write();  
+      
+      var1var2BiasPass_->Write();
+      var1var2BiasAll_->Write();
+
+      outRootFile_->Close();
+      cout << "Closed ROOT file and returning!" << endl;
+
+      return;
+   }
+
+   if( mode_ == "Normal" )
+   {
+      // Save plots ...
+      for( int i=0; i<(int)quantities_.size(); ++i )
+      {
+	 SaveHistogram(Histograms_[i], outputFileNames_[i], logY_[i]);
+      }
+ 
+      // Calculate the efficiencies etc ...
+      outRootFile_->cd();
+      CalculateEfficiencies();  
+      outRootFile_->Close();
+
+      return;
+   }
+
+   cout << "Here in endjob " << readFiles_.size() << endl;
+   if( mode_ == "Read" && readFiles_.size() > 0 )
+   {
+      cout << "Here in end job: Num files = " << readFiles_.size() << endl;
+
+      // For the fittree chain the files together, then merge the
+      // trees from the chain into the fitTree_ ...
+      TChain fChain("fitter_tree");
+      for( int iFile=0; iFile<(int)readFiles_.size(); ++iFile )
+      {
+	 cout << "fChain adding: " << readFiles_[iFile].c_str() << endl;
+	 fChain.Add(readFiles_[iFile].c_str());
+      }
+      cout << "Added all files: Num Entries = " << fChain.GetEntries() << endl;
+
+      // Now merge the trees into the output file ...
+      fChain.Merge(fitFileName_.c_str());
+
+      // Get the private tree ...
+      TFile f(fitFileName_.c_str(),"update");
+      fitTree_ = (TTree*)f.Get("fitter_tree");
+      cout << "Read mode: Fit tree total entries " << fitTree_->GetEntries() << endl;
+
+      // Now read in the MC truth histograms and add the results
+      for( int iFile=0; iFile<(int)readFiles_.size(); ++iFile )
+      {
+	 TFile inputFile(readFiles_[iFile].c_str());
+
+	 var1Pass_->Add( (TH1F*)inputFile.Get("hvar1pass") );
+	 var1All_->Add( (TH1F*)inputFile.Get("hvar1all") );  
+	 
+	 var2Pass_->Add( (TH1F*)inputFile.Get("hvar2pass") );
+	 var2All_->Add( (TH1F*)inputFile.Get("hvar2all") );  
+	 
+	 var1var2Pass_->Add( (TH2F*)inputFile.Get("hvar1var2pass") );
+	 var1var2All_->Add( (TH2F*)inputFile.Get("hvar1var2all") );
+
+	 var1BiasPass_->Add( (TH1F*)inputFile.Get("hvar1biaspass") );
+	 var1BiasAll_->Add( (TH1F*)inputFile.Get("hvar1biasall") );  
+
+	 var2BiasPass_->Add( (TH1F*)inputFile.Get("hvar2biaspass") );
+	 var2BiasAll_->Add( (TH1F*)inputFile.Get("hvar2biasall") );  
+	 
+	 var1var2BiasPass_->Add( (TH2F*)inputFile.Get("hvar1var2biaspass") );
+	 var1var2BiasAll_->Add( (TH2F*)inputFile.Get("hvar1var2biasall") );
+
+      }
+      
+      // Now call for and calculate the efficiencies as normal
+      // Set the file pointer
+      outRootFile_ = &f;
+      outRootFile_->cd();
+      CalculateEfficiencies();  
+      cout << "Done calculating efficiencies!" << endl;
+      outRootFile_->Close();
+
+      return;
+   }
+
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE( TagProbeEDMAnalysis );
+

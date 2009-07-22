@@ -141,9 +141,9 @@ GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
 // set Event
 //
 void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
-
+  
   theEvent = &event;
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theKFFitterName,theKFFitter);
+  theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
   theRegionBuilder->setEvent(event);
 

@@ -28,6 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
+    readFromDB = cms.bool(False),
     writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(False),
 
@@ -35,12 +36,11 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     DBuser  = cms.string('test09'),
     DBpass  = cms.string('oratest09'),
     DBport  = cms.uint32(1521),
+    DBrunNb = cms.uint32(29000),
 
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_cosmics.txt'),
-   #### TPG config tag and version (if not given it will be automatically given ) ####
-    TPGtag = cms.string('CRAFT'),
-    TPGversion = cms.uint32(1),
+
                                         
     #### TPG calculation parameters ####
 
@@ -52,7 +52,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
                                         
     useTransverseEnergy = cms.bool(False),   ## true when TPG computes transverse energy, false for energy
     Et_sat_EB = cms.double(35.84),          ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
-    Et_sat_EE = cms.double(61.44),          ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
+    Et_sat_EE = cms.double(35.84),          ## Saturation value (in GeV) of the TPG before the compressed-LUT (rem: with 35.84 the TPG_LSB = crystal_LSB)
 
     sliding = cms.uint32(0),                ## Parameter used for the FE data format, should'nt be changed
 

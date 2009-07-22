@@ -3,23 +3,20 @@
 #include<utility>
 #include <string>
 #include <limits>
-// #include <boost/cstdint.hpp>
+#include <boost/cstdint.hpp>
 
-#include "CondFormats/Common/interface/hash64.h"
 
 
 namespace cond{
   
   
-  // typedef uint64_t  Time_t;
-  typedef unsigned long long uint64_t; // avoid typedef to long on 64 bit
-  typedef unsigned long long Time_t;
+  typedef uint64_t  Time_t;
   typedef std::pair<unsigned int, unsigned int> UnpackedTime;
   
   typedef std::pair<Time_t, Time_t> ValidityInterval;
   
-  typedef enum { runnumber=0, timestamp, lumiid, hash, userid } TimeType;
-  const unsigned int TIMETYPE_LIST_MAX=5;
+  typedef enum { runnumber=0, timestamp, lumiid, userid } TimeType;
+  const unsigned int TIMETYPE_LIST_MAX=4;
   
   extern const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX];
   
@@ -29,8 +26,6 @@ namespace cond{
   
   const Time_t TIMELIMIT(std::numeric_limits<Time_t>::max());
   
-  const Time_t invalidTime(0);
-
   template<TimeType type>
   struct RealTimeType {
   };
@@ -65,10 +60,6 @@ namespace cond{
     typedef uint64_t  type; 
   };
   
-  template<> struct RealTimeType<hash> {
-    typedef uint64_t  type; 
-  };
-
   template<> struct RealTimeType<userid> {
     typedef uint64_t  type; 
   };
@@ -82,7 +73,7 @@ namespace cond{
 	timeTypeNames(type),
 	1,
 	std::numeric_limits<typename RealTimeType<type>::type>::max(),
-	cond::invalidTime
+	0
       };
       return local;
     }
