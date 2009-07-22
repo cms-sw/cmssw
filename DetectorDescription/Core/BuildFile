@@ -1,14 +1,10 @@
 <use name=FWCore/Framework>
-<use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Base>
 <use name=DetectorDescription/ExprAlgo>
 <use name=FWCore/MessageLogger>
 <use name=boost>
 <use name=clhep>
 <export>
-  <use name=FWCore/Framework>
-  <use name=DetectorDescription/Base>
-  <use name=clhep>
   <lib name=DetectorDescriptionCore>
 </export>
 
