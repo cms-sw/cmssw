@@ -113,7 +113,7 @@ PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
 
       for (int i=1;i<5;i++){
-         for (int j=0;j<5;j++){
+         for (int j=1;j<5;j++){
             var[idx]=photon->userFloat(Form("isoT%d%d",i,j));
 	    idx++;     
 	 }  
