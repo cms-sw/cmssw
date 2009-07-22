@@ -115,6 +115,9 @@ Level1TriggerScalers::~Level1TriggerScalers() { }
 /// Pretty-print operator for Level1TriggerScalers
 std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c) 
 {
+  //  std::cout << "sizeof(v3)=" << sizeof(struct ScalersEventRecordRaw_v3)
+  //	    << std::endl;
+
   s << "Level1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
   char line[128];

@@ -70,10 +70,19 @@ struct TriggerScalersRaw_v1
   unsigned int       TEST_RATE[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
+/*
+ *  unsigned int: 10              40
+ *  unsigned long long: 17       136
+ *  unsigned int[128]: 1         512
+ *  unsigned int[64]: 1          256
+ *                               ===  
+ *                               944   (118)
+ */
+
 struct TriggerScalersRaw_v3
 {
-  unsigned int  collectionTimeGeneral_sec;
-  unsigned int  collectionTimeGeneral_nsec;
+  unsigned int collectionTimeGeneral_sec;
+  unsigned int collectionTimeGeneral_nsec;
   unsigned int lumiSegmentNr;
   unsigned int lumiSegmentOrbits;
   unsigned int orbitNr;
@@ -107,6 +116,13 @@ struct TriggerScalersRaw_v3
   unsigned int gtTechCounts[ScalersRaw::N_L1_TEST_TRIGGERS_v1];
 };
 
+/*
+ *  unsigned int:    5    20
+ *  float:          28   112
+ *  unsigned char:   4     4
+ *                       ===
+ *                       136  (17)
+ */
 struct LumiScalersRaw_v1
 {
   unsigned int collectionTime_sec;
@@ -167,13 +183,13 @@ struct ScalersEventRecordRaw_v2
 
 struct ScalersEventRecordRaw_v3
 {
-  unsigned long long header;
-  int version;
-  struct TriggerScalersRaw_v3 trig;
-  struct LumiScalersRaw_v1    lumi;
-  unsigned int filler;
-  unsigned long long bx[ScalersRaw::N_BX_v2];
-  unsigned long long trailer;
+  unsigned long long header;          /*    8 */
+  int version;                        /*    4 */
+  struct TriggerScalersRaw_v3 trig;   /*  944 */
+  struct LumiScalersRaw_v1    lumi;   /*  136 */
+  unsigned int filler;                /*    4  ==  1096 (137) */
+  unsigned long long bx[ScalersRaw::N_BX_v2]; /* 32 */
+  unsigned long long trailer;         /*   8 */
 };
 
 #endif
