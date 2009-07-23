@@ -2,14 +2,13 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.1 2009/05/11 10:01:28 flucke Exp $
+           $Id: TkLasBeamFitter.cc,v 1.3 2009/07/17 12:20:20 kaschube Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
  Implementation:
     - TkLasBeamCollection read from edm::Run
-    - currently all done in beginRun(..),
-      but should move to endRun(..) to allow a correct sequence with 
+    - all done in endRun(..) to allow a correct sequence with 
       production of TkLasBeamCollection in LaserAlignment::endRun(..)
 */
 
@@ -71,9 +70,8 @@ public:
   
   //virtual void beginJob(const edm::EventSetup& /*access deprecated*/) {}
   virtual void produce(edm::Event &event, const edm::EventSetup &setup);
-  virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
+  // virtual void beginRun(edm::Run &run, const edm::EventSetup &setup);
   virtual void endRun(edm::Run &run, const edm::EventSetup &setup);
-  //virtual void endRun(edm::Event &run, const edm::EventSetup &setup);
   //virtual void endJob() {}
 
 private:
@@ -286,14 +284,14 @@ void TkLasBeamFitter::produce(edm::Event &iEvent, const edm::EventSetup &setup)
 // ------------ method called at end of each run  ---------------------------------------
 void TkLasBeamFitter::endRun(edm::Run &run, const edm::EventSetup &setup)
 {
-}
-// FIXME!
-// Indeed, that should be in endRun(..) - as soon as AlignmentProducer can call
-// the algorithm's endRun correctly!
-
-
-void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
-{
+// }
+// // FIXME!
+// // Indeed, that should be in endRun(..) - as soon as AlignmentProducer can call
+// // the algorithm's endRun correctly!
+//
+//
+// void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
+// {
 
 //   edm::Service<TFileService> fileService;
   out = new TFile("residuals.root","UPDATE");
@@ -357,7 +355,7 @@ void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
     // fill output products
     fittedBeams->push_back(fittedBeam);
 
-    cout << "No. of TSOS in beam: " << gTsosLas.size() << endl;
+    //    cout << "No. of TSOS in beam: " << gTsosLas.size() << endl;
     tsosesVec->push_back(gTsosLas);
 
 //     if(!this->fitBeam(fittedBeams->back(), tsosesVec->back())){
@@ -372,7 +370,7 @@ void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
   run.put(fittedBeams);
   run.put(tsosesVec);
 
-  cout << "TkLasBeamFitter done. Saving and cleaning up..." << endl;
+  //  cout << "TkLasBeamFitter done. Saving and cleaning up..." << endl;
 
   // save histos and clean up
   h_hitX->Write();
@@ -430,10 +428,10 @@ void TkLasBeamFitter::beginRun(edm::Run &run, const edm::EventSetup &setup)
 // -------------- loop over beams, call functions ----------------------------
 void TkLasBeamFitter::getLasBeams(TkLasBeam &beam, TkFittedLasBeam &fittedBeam)
 {
-  cout << "---------------------------------------" << endl;
-  cout << "beam id: " << beam.getBeamId() << " isTec: " << (beam.isTecInternal() ? "Y" : "N") 
-       << " isTec+: " << (beam.isTecInternal(1) ? "Y" : "N") << " isTec-: " << (beam.isTecInternal(-1) ? "Y" : "N")
-       << " isAt: " << (beam.isAlignmentTube() ? "Y" : "N") << " isR6: " << (beam.isRing6() ? "Y" : "N") << endl;
+//   cout << "---------------------------------------" << endl;
+//   cout << "beam id: " << beam.getBeamId() << " isTec: " << (beam.isTecInternal() ? "Y" : "N") 
+//        << " isTec+: " << (beam.isTecInternal(1) ? "Y" : "N") << " isTec-: " << (beam.isTecInternal(-1) ? "Y" : "N")
+//        << " isAt: " << (beam.isAlignmentTube() ? "Y" : "N") << " isR6: " << (beam.isRing6() ? "Y" : "N") << endl;
       
   // only use good beams -> adjust according to data!
   if(beam.getBeamId() != 0 && beam.getBeamId() != 30 && beam.getBeamId() != 50 &&
@@ -441,7 +439,7 @@ void TkLasBeamFitter::getLasBeams(TkLasBeam &beam, TkFittedLasBeam &fittedBeam)
     
     // set right beam radius
     gBeamR = beam.isRing6() ? gBeamR6 : gBeamR4;
-    cout << "nominal beam radius = " << gBeamR << endl;
+    //    cout << "nominal beam radius = " << gBeamR << endl;
     
     // get LAS hits
     this->getLasHits(beam);
@@ -471,8 +469,8 @@ void TkLasBeamFitter::getLasBeams(TkLasBeam &beam, TkFittedLasBeam &fittedBeam)
       gBeamZmin = -200.0 - gBeamZ0;
       gBeamZmax = 200.0 - gBeamZ0;
     }
-    cout << "z0 = " << gBeamZ0 << ", z_bs' = " << gBeamSplitterZprime 
-	 << ", zmin = " << gBeamZmin << ", zmax = " << gBeamZmax << endl;
+//     cout << "z0 = " << gBeamZ0 << ", z_bs' = " << gBeamSplitterZprime 
+// 	 << ", zmin = " << gBeamZmin << ", zmax = " << gBeamZmax << endl;
     
     // fill vectors for fit
     this->fillVectors(beam);
@@ -512,7 +510,7 @@ void TkLasBeamFitter::getLasBeams(TkLasBeam &beam, TkFittedLasBeam &fittedBeam)
 	h_bsAngleVsBeam->Fill(beam.getBeamId(), 2.0*atan(0.5*gBeamSplitterAngleParam));
       }
     }
-    else cout << "no hit, no fit" << endl;
+    //    else cout << "no hit, no fit" << endl;
   }
 }
 
@@ -528,7 +526,7 @@ void TkLasBeamFitter::getLasHits(TkLasBeam &beam)
 
   for( TkLasBeam::const_iterator iHit = beam.begin(); iHit < beam.end(); ++iHit ){
     // iHit is a SiStripLaserRecHit2D
-    cout << "Strip hit (local x): " << iHit->localPosition().x() << " +- " << iHit->localPositionError().xx() << endl;
+    //    cout << "Strip hit (local x): " << iHit->localPosition().x() << " +- " << iHit->localPositionError().xx() << endl;
  
     // get global position of LAS hits
     gd.push_back(geometry->idToDetUnit(iHit->getDetId()));
@@ -539,7 +537,7 @@ void TkLasBeamFitter::getLasHits(TkLasBeam &beam)
     if(iHit->localPosition().x() == 0.0 || iHit->localPositionError().xx() > 0.1){
       globHit.push_back(GlobalPoint(0,0,0));
       gInvalidHits ++;
-      cout << "invalid hit" << endl;
+      //      cout << "invalid hit" << endl;
       // ATs: TECminus invalid hits need counting
       if(beam.isAlignmentTube() && globPtemp.z() < -112.3){
 	gInvalidHitsAtTecMinus ++;
@@ -552,7 +550,7 @@ void TkLasBeamFitter::getLasHits(TkLasBeam &beam)
 	    ){
       globHit.push_back(GlobalPoint(0,0,0));
       gInvalidHits ++;
-      cout << "overlap with TEC beam: ignored!" << endl;
+      //      cout << "overlap with TEC beam: ignored!" << endl;
       if(beam.isAlignmentTube() && globPtemp.z() < -112.3){
 	gInvalidHitsAtTecMinus ++;
       }
@@ -744,9 +742,9 @@ double TkLasBeamFitter::atFunction(double *x, double *par)
 // ------------ perform fit of beams ------------------------------------
 void TkLasBeamFitter::fitter(TkLasBeam &beam, AlgebraicSymMatrix &covMatrix)
 {
-  cout << "used hits: " << gFitZprime.size() << ", invalid hits: " << gInvalidHits 
-       << ", nBarrelModules: " << gBarrelModuleRadius.size() 
-       << ", invalid hits in AT TECminus: " << gInvalidHitsAtTecMinus << endl;
+//   cout << "used hits: " << gFitZprime.size() << ", invalid hits: " << gInvalidHits 
+//        << ", nBarrelModules: " << gBarrelModuleRadius.size() 
+//        << ", invalid hits in AT TECminus: " << gInvalidHitsAtTecMinus << endl;
   
   TGraphErrors *lasData = new TGraphErrors(gFitZprime.size(), 
 					   &(gFitZprime[0]), &(gFitPhi[0]), 
@@ -884,16 +882,16 @@ void TkLasBeamFitter::trackPhi(TkLasBeam &beam)
 	  trackPhiRef.push_back(gOffset + gSlope * gHitZprime[hit]);
 	  // TIB
 	  if(gBarrelModuleOffset[hit-5] > 3.5){
-	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
-		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
+// 	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
+// 		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
 	    trackPhi.push_back(gOffset + gSlope * (gHitZprime[hit] - gBarrelModuleOffset[hit-5])
 			       + gBarrelModuleOffset[hit-5] / 
 			       gBarrelModuleRadius[hit-5] * (0)); // check params!!!
 	  }
 	  // TOB
 	  else{
-	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
-		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
+// 	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
+// 		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
 	    trackPhi.push_back(gOffset + gSlope * (gHitZprime[hit] - gBarrelModuleOffset[hit-5])
 			       + gBarrelModuleOffset[hit-5] / 
 			       gBarrelModuleRadius[hit-5] * (0)); // check params!!!
@@ -904,16 +902,16 @@ void TkLasBeamFitter::trackPhi(TkLasBeam &beam)
 	  trackPhiRef.push_back(gOffset + gSlope * gHitZprime[hit]);
 	  // TIB
 	  if(gBarrelModuleOffset[hit-5] > 3.5){
-	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
-		 << ", radius = " << gBarrelModuleRadius[hit-5] << endl;
+// 	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
+// 		 << ", radius = " << gBarrelModuleRadius[hit-5] << endl;
 	    trackPhi.push_back(gOffset + gSlope * (gHitZprime[hit] - gBarrelModuleOffset[hit-5])
 			       + gBarrelModuleOffset[hit-5] / 
 			       gBarrelModuleRadius[hit-5] * (0)); // check params!!!
 	  }
 	  // TOB
 	  else{
-	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
-		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
+// 	    cout << "module offset = " << gBarrelModuleOffset[hit-5] 
+// 		 << ", radius = " << gBarrelModuleRadius[hit-5]<< endl;
 	    trackPhi.push_back(gOffset + gSlope * (gHitZprime[hit] - gBarrelModuleOffset[hit-5])
 			       + gBarrelModuleOffset[hit-5] / 
 			       gBarrelModuleRadius[hit-5] * (0)); // check params!!!
@@ -977,9 +975,9 @@ void TkLasBeamFitter::globalTrackPoint(TkLasBeam &beam, vector<double> &trackPhi
 	}
       }
 
-      cout << "hit (global): " << globHit[hit] << " r = " << globHit[hit].perp() << " phi = " << globHit[hit].phi() << endl
-	   << "  fitted hit: " << globPTrack[hit] << " r = " << globPTrack[hit].perp() << ", phi = " << globPTrack[hit].phi() << endl
-	   << "    reference point: " << globPref[hit] << " r = " << globPref[hit].perp() << ", phi = " << globPref[hit].phi() << endl;
+//       cout << "hit (global): " << globHit[hit] << " r = " << globHit[hit].perp() << " phi = " << globHit[hit].phi() << endl
+// 	   << "  fitted hit: " << globPTrack[hit] << " r = " << globPTrack[hit].perp() << ", phi = " << globPTrack[hit].phi() << endl
+// 	   << "    reference point: " << globPref[hit] << " r = " << globPref[hit].perp() << ", phi = " << globPref[hit].phi() << endl;
       
       // calculate residuals = pred - hit (in global phi)
       phiResidual = globPTrack[hit].phi() - globHit[hit].phi();
@@ -987,7 +985,7 @@ void TkLasBeamFitter::globalTrackPoint(TkLasBeam &beam, vector<double> &trackPhi
       phiResidualPull = phiResidual / gHitPhiError[hit];
       //       sqrt(gHitPhiError[hit]*gHitPhiError[hit] + 
       // 	   (gOffsetError*gOffsetError + globPTrack[hit].z()*globPTrack[hit].z() * gSlopeError*gSlopeError));
-      cout << "      phi residual = " << phiResidual << " +- " << gHitPhiError[hit] << ", pull = " << phiResidualPull << endl;
+//       cout << "      phi residual = " << phiResidual << " +- " << gHitPhiError[hit] << ", pull = " << phiResidualPull << endl;
       // calculate chi2
       chi2 += phiResidual*phiResidual / (gHitPhiError[hit]*gHitPhiError[hit]);
       
@@ -1074,7 +1072,8 @@ void TkLasBeamFitter::buildTrajectory(TkLasBeam &beam)
 	}
       }				
       const FreeTrajectoryState ftsLas = FreeTrajectoryState(globPTrack[hit],trajectoryState,0,magneticField);
-      gTsosLas.push_back(TrajectoryStateOnSurface(ftsLas,gd[hit]->surface(),beforeSurface));
+      gTsosLas.push_back(TrajectoryStateOnSurface(ftsLas,gd[hit]->surface(),
+						  SurfaceSideDefinition::beforeSurface));
     }
   }
 }
