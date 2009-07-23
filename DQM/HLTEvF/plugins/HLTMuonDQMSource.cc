@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.20 2009/03/27 22:33:37 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.24 2009/06/17 01:04:04 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -117,7 +117,7 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
     theDirectoryName.push_back(filterconf->getParameter<std::string>("directoryName"));
     //theHLTCollectionLevel.push_back(filterconf->getParameter<std::string>("level"));
     //theTriggerBits.push_back(filterconf->getParameter<std::vector<std::string> >("triggerBits"));
-    std::string _tmp_level = filterconf->getParameter<std::string>("level");
+    std::string _tmp_level = filterconf->getParameter<std::string>("directoryName");
     std::vector<std::string> _tmp_bits = filterconf->getParameter<std::vector<std::string> >("triggerBits");
     for( size_t i = 0; i < _tmp_bits.size(); ++i ) {
 	theTriggerBits.push_back(_tmp_bits[i]);
@@ -776,14 +776,14 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     TriggerNames trigName;
     trigName.init(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
+	//cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
       for( unsigned int n = 0; n < (unsigned int)theTriggerBits.size(); n++) { 
 	if( trigName.triggerIndex(theTriggerBits[n]) == (unsigned int)ntrigs ) continue;
         if( trigResult->accept(trigName.triggerIndex(theTriggerBits[n])) ) {
-	  if( theHLTCollectionLevel[n] == "L1" ) FiredTriggers[0] = true;
-	  if( theHLTCollectionLevel[n] == "L2" ) FiredTriggers[1] = true;
-	  if( theHLTCollectionLevel[n] == "L3" ) FiredTriggers[2] = true;
-	  if( theHLTCollectionLevel[n] == "JetStream" ) FiredTriggers[3] = true;
-	  trigFired = true;
+	    for( unsigned int j = 0; j < (unsigned int)theDirectoryName.size(); j++ ) {
+		if( theHLTCollectionLevel[n] == theDirectoryName[j] ) FiredTriggers[j] = true;
+	    }
+	    trigFired = true;
 	}
       }
     }
