@@ -28,20 +28,6 @@
 using namespace std;
 
 
-//////////////////////////
-// Forward Declarations //
-//////////////////////////
-
-// This subroutine, written by you (below), uses the command line
-// arguments and creates an output tag (if any).  This subroutine must
-// exist.
-void outputNameTagFunc (string &tag);
-
-// Book all histograms to be filled this job.  If wanted, you can skip
-// this subroutine and book all histograms in the main subroutine.
-void bookHistograms (fwlite::EventContainer &event);
-
-
 ///////////////////////////
 // ///////////////////// //
 // // Main Subroutine // //
@@ -76,7 +62,7 @@ int main (int argc, char* argv[])
 
    // This object 'event' is used both to get all information from the
    // event as well as to store histograms, etc.
-   fwlite::EventContainer event (&outputNameTagFunc);
+   fwlite::EventContainer event;
 
    ////////////////////////////////////////
    // ////////////////////////////////// //
@@ -89,7 +75,13 @@ int main (int argc, char* argv[])
    gROOT->SetStyle ("Plain");
 
    // Book those histograms!
-   bookHistograms (event);
+   event.add( new TH1F( "jetpt",      "Jet Pt",      100, 0, 200) );
+   event.add( new TH1F( "jetnum",     "Jet Size",    100, 0, 50)  );
+   event.add( new TH1F( "metpt",      "MET Pt",      100, 0, 200) );
+   event.add( new TH1F( "photonpt",   "Photon Pt",   100, 0, 200) );
+   event.add( new TH1F( "trackpt",    "Track Pt",    100, 0, 200) );
+   event.add( new TH1F( "electronpt", "Electron Pt", 100, 0, 200) );
+   event.add( new TH1F( "taupt",      "Tau Pt",      100, 0, 200) );   
 
    //////////////////////
    // //////////////// //
@@ -194,36 +186,3 @@ int main (int argc, char* argv[])
    // All done!  Bye bye.
    return 0;
 }
-
-
-//////////////  //////////////////////////////////  //////////////
-//////////////  // //////////////////////////// //  //////////////
-//////////////  // // Supporting Subroutines // //  //////////////
-//////////////  // //////////////////////////// //  //////////////
-//////////////  //////////////////////////////////  //////////////
-
-
-void outputNameTagFunc (string &tag)
-{
-   // If you do not want to give you output filename any "tag" based
-   // on the command line options, simply do nothing here.  This
-   // function is designed to be called by fwlite::EventContainer constructor.
-
-   // if ( optutl::boolValue ("someCondition") )
-   // { 
-   //    tag += "_someCond";
-   // }
-}
-
-
-void bookHistograms (fwlite::EventContainer &event)
-{
-   event.add( new TH1F( "jetpt",      "Jet Pt",      100, 0, 200) );
-   event.add( new TH1F( "jetnum",     "Jet Size",    100, 0, 50)  );
-   event.add( new TH1F( "metpt",      "MET Pt",      100, 0, 200) );
-   event.add( new TH1F( "photonpt",   "Photon Pt",   100, 0, 200) );
-   event.add( new TH1F( "trackpt",    "Track Pt",    100, 0, 200) );
-   event.add( new TH1F( "electronpt", "Electron Pt", 100, 0, 200) );
-   event.add( new TH1F( "taupt",      "Tau Pt",      100, 0, 200) );   
-}
-					

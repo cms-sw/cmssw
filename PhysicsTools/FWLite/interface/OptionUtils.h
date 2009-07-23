@@ -89,7 +89,7 @@ namespace optutl
    // Set a usage string for '--help' option as well as setup a set of
    // default options.
    void setUsageAndDefaultOptions (const std::string &usage,
-                                   WhichDefaultOptionsType type);
+                                   WhichDefaultOptionsType type = kEventContainer);
 
    // prints out '--help' screen, then exits.
    void help();

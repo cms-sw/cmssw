@@ -44,7 +44,7 @@ namespace fwlite
          /////////////////////////////////
          // Constructors and Destructor //
          /////////////////////////////////
-         EventContainer (FuncPtr funcPtr);
+         EventContainer (FuncPtr funcPtr = 0);
          ~EventContainer();
 
          ////////////////

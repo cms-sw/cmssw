@@ -27,7 +27,10 @@ EventContainer::EventContainer (FuncPtr funcPtr) :
 {
    // get the user-defined tag
    string tag;
-   (*funcPtr) (tag);
+   if (funcPtr)
+   {
+      (*funcPtr) (tag);
+   }
 
    // finish defaultt options and create fwlite::Event
    optutl::_finishDefaultOptions (tag);
