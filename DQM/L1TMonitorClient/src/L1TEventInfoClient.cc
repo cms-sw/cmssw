@@ -238,6 +238,10 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   summaryContent[0] = -1;
 
 
+
+  // GCT uninstrumented regions for IsoEm, NonIsoEm, and TauJets
+  int nCh_no_inst = 144;
+
   //
   // 01  NonIsoEM Quality Tests
   //
@@ -269,7 +273,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
 
-    summaryContent[1] = 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh;
+    summaryContent[1] = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
     reportSummaryContent_[1]->Fill( summaryContent[1] );
   }
 
@@ -280,7 +284,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // 02  IsoEM Quality Tests
   //
   if (GCT_IsoEm_QHist){
-    const QReport *GCT_IsoEm_DeadCh_QReport = GCT_IsoEm_QHist->getQReport("DeadChannels_GCT_2D_tight");
+    const QReport *GCT_IsoEm_DeadCh_QReport = GCT_IsoEm_QHist->getQReport("DeadChannels_GCT_2D_loose");
     const QReport *GCT_IsoEm_HotCh_QReport = GCT_IsoEm_QHist->getQReport("HotChannels_GCT_2D");
 
     int GCT_IsoEm_nBadCh = 0;
@@ -307,7 +311,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
 
-    summaryContent[2] = 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh;
+    summaryContent[2] = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
     reportSummaryContent_[2]->Fill( summaryContent[2] );
   }
 
@@ -318,7 +322,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // 03  TauJets Quality Tests
   //
   if (GCT_TauJets_QHist){
-    const QReport *GCT_TauJets_DeadCh_QReport = GCT_TauJets_QHist->getQReport("DeadChannels_GCT_2D_tight");
+    const QReport *GCT_TauJets_DeadCh_QReport = GCT_TauJets_QHist->getQReport("DeadChannels_GCT_2D_loose");
     const QReport *GCT_TauJets_HotCh_QReport = GCT_TauJets_QHist->getQReport("HotChannels_GCT_2D");
 
     int GCT_TauJets_nBadCh = 0;
@@ -345,7 +349,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
 
-    summaryContent[3] = 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh;
+    summaryContent[3] = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
     reportSummaryContent_[3]->Fill( summaryContent[3] );
   }
 
