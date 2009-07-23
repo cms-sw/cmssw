@@ -9,6 +9,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
+
 #include "DataFormats/Math/interface/Point3D.h"
 
 
@@ -19,6 +20,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFSimParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFGenParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h"
+
 
 #include <TTree.h>
 #include <TVector3.h>
@@ -42,7 +44,7 @@ DisplayManager::DisplayManager(PFRootEventManager *em,
   maxERecHitEcal_(-1),
   maxERecHitHcal_(-1),
   isGraphicLoaded_(false),
-  shiftId_(27) {
+  shiftId_(SHIFTID) {
         
   readOptions( optfile );
         
@@ -112,7 +114,28 @@ void DisplayManager::readOptions( const char* optfile ) {
     trackAttributes_.push_back(8);   //Marker style
     trackAttributes_.push_back(0.8);   //Marker size
   }
-        
+  gsfAttributes_.clear();
+  options_->GetOpt("display", "gsf_attributes", gsfAttributes_);
+  if(gsfAttributes_.size() != 4) {
+    cerr<<"PFRootEventManager::::ReadOptions, bad display/gsf_attributes tag...using 105 1 8 8"
+	<<endl;
+    gsfAttributes_.clear();
+    gsfAttributes_.push_back(105); //color Line and Marker
+    gsfAttributes_.push_back(1);  //line style
+    gsfAttributes_.push_back(8);   //Marker style
+    gsfAttributes_.push_back(0.8);   //Marker size
+  }
+  bremAttributes_.clear();
+  options_->GetOpt("display", "brem_attributes", bremAttributes_);
+  if(bremAttributes_.size() != 4) {
+    cerr<<"PFRootEventManager::::ReadOptions, bad display/gsf_attributes tag...using 106 1 8 8"
+	<<endl;
+    bremAttributes_.clear();
+    bremAttributes_.push_back(106); //color Line and Marker
+    bremAttributes_.push_back(1);  //line style
+    bremAttributes_.push_back(8);   //Marker style
+    bremAttributes_.push_back(0.8);   //Marker size
+  }     
         
   clusPattern_ = new TAttMarker( (int)clusterAttributes_[0],
 				 (int)clusterAttributes_[2],
@@ -126,6 +149,20 @@ void DisplayManager::readOptions( const char* optfile ) {
   trackPatternM_ = new TAttMarker( (int)trackAttributes_[0],
 				   (int)trackAttributes_[2],
 				   trackAttributes_[3]);
+
+  gsfPatternL_ = new TAttLine( (int)gsfAttributes_[0],
+   			 (int)gsfAttributes_[1],
+   			 1);
+  gsfPatternM_ = new TAttMarker( (int)gsfAttributes_[0],
+				   (int)gsfAttributes_[2],
+				   gsfAttributes_[3]);
+
+  bremPatternL_ = new TAttLine( (int)bremAttributes_[0],
+   			 (int)bremAttributes_[1],
+   			 1);
+  bremPatternM_ = new TAttMarker( (int)bremAttributes_[0],
+				   (int)bremAttributes_[2],
+				   bremAttributes_[3]);
   
   genPartPattern_= new TAttMarker(kGreen-1,22,1.);
   
@@ -169,6 +206,12 @@ void DisplayManager::readOptions( const char* optfile ) {
         
   drawTracks_ = true;
   options_->GetOpt("display", "rectracks", drawTracks_);
+
+  drawGsfTracks_ = true;
+  options_->GetOpt("display", "gsftracks", drawGsfTracks_);
+
+  drawBrems_ = false;
+  options_->GetOpt("display", "brems", drawBrems_);
         
   drawParticles_ = true;
   options_->GetOpt("display", "particles", drawParticles_);
@@ -183,6 +226,9 @@ void DisplayManager::readOptions( const char* optfile ) {
   
   trackPtMin_ = -1;
   options_->GetOpt("display", "rectracks_ptmin", trackPtMin_);
+
+  gsfPtMin_ = -1;
+  options_->GetOpt("display", "gsfrectracks_ptmin", gsfPtMin_);
         
   hitEnMin_ = -1;
   options_->GetOpt("display","rechits_enmin",hitEnMin_);
@@ -730,7 +776,7 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
 void DisplayManager::createGTrack( reco::PFRecTrack &tr,
                                    const std::vector<reco::PFTrajectoryPoint>& points, 
                                    int ident,double pt,double phi0, double sign, bool displayInitial,
-                                   int linestyle) 
+                                   int linestyle,int kfgsfbrem) 
 {
         
   //   bool inside = false; 
@@ -746,8 +792,10 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
     for(unsigned i=0; i<points.size(); i++) {
       if( !points[i].isValid() ) continue;
       
-      const math::XYZPoint& xyzPos = points[i].position();      
-
+      const math::XYZPoint& xyzPos = points[i].position();
+      //muriel      
+      //if(kfgsfbrem) 
+      //   std::cout << xyzPos << std::endl;
       double eta = xyzPos.Eta();
       double phi = xyzPos.Phi();
                         
@@ -782,13 +830,32 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
     //if( !inside ) return;
                 
     //fill map with graphic objects
-                
-    GPFTrack *gt = new  GPFTrack(this,
-                                 viewType,ident,
-                                 &tr,
-                                 xPos.size(),&xPos[0],&yPos[0],pt,
-                                 trackPatternM_,trackPatternL_,"pl");
-    graphicMap_.insert(pair<int,GPFBase *> (ident, gt));
+      GPFTrack *gt=0;
+      if(kfgsfbrem==0) {
+	gt = new  GPFTrack(this,
+			   viewType,ident,
+			   &tr,
+			   xPos.size(),&xPos[0],&yPos[0],pt,
+			   trackPatternM_,trackPatternL_,"pl");
+      }
+      else if (kfgsfbrem==1) {
+	//	std::cout << " Creating the GSF track " << std::endl;
+	gt = new  GPFTrack(this,
+			   viewType,ident,
+			   &tr,
+			   xPos.size(),&xPos[0],&yPos[0],pt,
+			   gsfPatternM_,gsfPatternL_,"pl");
+      }
+      else if (kfgsfbrem==2) {
+	//	std::cout << " Creating the Brem " << std::endl;
+	//	std::cout<<"adr brem dans create:"<<&tr<<std::flush<<std::endl;
+	gt = new  GPFTrack(this,
+			   viewType,ident,
+			   &tr,
+			   xPos.size(),&xPos[0],&yPos[0],pt,
+			   bremPatternM_,bremPatternL_,"pl");
+      }
+      graphicMap_.insert(pair<int,GPFBase *> (ident, gt));
   }   
 }
 //________________________________________________________
@@ -864,6 +931,24 @@ void DisplayManager::displayAll(bool noRedraw)
             displayView_[view]->cd();
             p->second->draw();
           }
+      }
+      break;
+    case GSFRECTRACKID:
+      {
+        if (drawGsfTracks_) 
+          if (p->second->getPt() > gsfPtMin_) {
+            displayView_[view]->cd();
+            p->second->draw();
+          }
+      }
+      break;
+    case BREMID:
+      {
+	if (drawBrems_)
+	  {
+	    displayView_[view]->cd();
+	    p->second->draw();
+	  }
       }
       break;
     case SIMPARTICLEID:
@@ -1044,6 +1129,7 @@ void DisplayManager::drawGObject(int ident,int color,bool toInitial)
   iter p;
   std::pair<iter, iter > result = graphicMap_.equal_range(ident);
   if(result.first == graphicMap_.end()) {
+    std::cout<<"pas d'objet avec cet ident: "<<ident<<std::flush<<std::endl; 
     return;
   }
   p=result.first;
@@ -1064,22 +1150,30 @@ void DisplayManager::enableDrawPFBlock(bool state)
 {
   drawPFBlocks_=state;
 }  
+//______________________________________________________________________________
+void DisplayManager::enableDrawBrem(bool state)
+{
+  drawBrems_=state;
+}  
 //_______________________________________________________________________________
 void DisplayManager::findAndDraw(int ident) 
 {
         
-  int type=ident >> shiftId_;
+  int type=ident >> shiftId_;            // defined in DisplayCommon.h
   int color=1;
-  if (type>8) {
+  if (type>15) {
     std ::cout<<"DisplayManager::findAndDraw :object Type unknown"<<std::endl;
     return;
   }  
-  if (drawPFBlocks_==0  || type<3 || type==8) {
+  if (drawPFBlocks_==0  ||
+      type==RECHITECALID || type==RECHITHCALID  ||
+      type==RECHITHFEMID || type==RECHITHFHADID ||
+      type==RECHITPSID   || type==SIMPARTICLEID)   {
     rubOutGPFBlock();
     selectedGObj_.clear();
     bool toInitial=false;
     drawGObject(ident,color,toInitial);
-    if (type<3) {
+    if (type<HITTYPES) {
       //redrawWithoutHits_=true;
       displayAll(false);
       //redrawWithoutHits_=false;
@@ -1109,7 +1203,14 @@ void DisplayManager::findBlock(int ident)
     displayPFBlock(blockNb);
   }   
   updateDisplay();
-}  
+}
+//_______________________________________________________________________ 
+bool DisplayManager::findBadBremsId(int ident)
+{
+  for (unsigned i=0;i<badBremsId_.size();i++)
+    if (badBremsId_[i]==ident) return true;
+  return false;  
+}
 //_________________________________________________________________________
 
 void DisplayManager::updateDisplay() {
@@ -1342,6 +1443,40 @@ void DisplayManager::loadGClusters()
 //   }  
 }
 //_____________________________________________________________________
+void DisplayManager::retrieveBadBrems()
+{
+
+  //selects Brems with no information in PFBlock.Those selected Brems are not displayed
+   
+  int size = em_->pfBlocks_->size();
+  for (int ibl=0;ibl<size;ibl++) {
+     edm::OwnVector< reco::PFBlockElement >::const_iterator iter;
+    for( iter =((*(em_->pfBlocks_))[ibl].elements()).begin();
+         iter != ((*(em_->pfBlocks_))[ibl].elements()).end();iter++) {
+       int ident=-1;  
+       reco::PFBlockElement::Type type = (*iter).type();
+       if (type == reco::PFBlockElement::BREM) {
+          std::multimap<double, unsigned> ecalElems;
+	   
+	  (*(em_->pfBlocks_))[ibl].associatedElements( (*iter).index(),(*(em_->pfBlocks_))[ibl].linkData(),
+				                        ecalElems ,
+				                        reco::PFBlockElement::ECAL,
+				                        reco::PFBlock::LINKTEST_ALL );
+
+       
+          if (ecalElems.size()==0) {
+             std::cout<<" PfBlock Nb "<<ibl<<" -- brem elem  "<<(*iter).index()<<"-type "<<(*iter).type()<<" not drawn"<<std::flush<<std::endl;
+       	     const reco::PFBlockElementBrem * Brem =  dynamic_cast<const reco::PFBlockElementBrem*>(&(*iter)); 
+	     reco::GsfPFRecTrackRef trackref = Brem->GsftrackRefPF();
+	     unsigned ind=trackref.key()*40+Brem->indTrajPoint();
+	     ident = (BREMID << shiftId_ ) | ind ;
+	     badBremsId_.push_back(ident); 
+          }
+       }   
+    }     
+  }
+}
+//_____________________________________________________________________
 void DisplayManager::loadGPFBlocks()
 {
   int size = em_->pfBlocks_->size();
@@ -1419,9 +1554,25 @@ void DisplayManager::loadGPFBlocks()
         }
       break;
       case reco::PFBlockElement::GSF:
+	{
+	  const reco::PFBlockElementGsfTrack *  GsfEl =  
+	    dynamic_cast<const reco::PFBlockElementGsfTrack*>(&(*iter));
+	  
+	  reco::GsfPFRecTrackRef trackref=GsfEl->GsftrackRefPF();
+	  assert( !trackref.isNull() ); 
+	  ident=(GSFRECTRACKID << shiftId_) | trackref.key();
+	}
       break;
       case reco::PFBlockElement::BREM:
+	{
+	  const reco::PFBlockElementBrem * Brem =  dynamic_cast<const reco::PFBlockElementBrem*>(&(*iter)); 
+	  reco::GsfPFRecTrackRef trackref = Brem->GsftrackRefPF();
+	  unsigned index=trackref.key()*40+Brem->indTrajPoint();
+	  ident = (BREMID << shiftId_ ) | index ;
+	  if (findBadBremsId(ident))  ident=-1;
+	}
       break;
+       
       default: 
         std::cout<<"unknown PFBlock element of type "<<type<<std::endl;
         break; 
@@ -1440,6 +1591,7 @@ void DisplayManager::loadGraphicObjects()
   loadGClusters();
   loadGRecHits();
   loadGRecTracks();
+  loadGGsfRecTracks();
   loadGSimParticles();
   loadGPFBlocks();
   loadGGenParticles();
@@ -1565,6 +1717,91 @@ void DisplayManager::loadGRecTracks()
     createGTrack(*itRecTrack,points,recTrackId, pt, phi0, sign, false,linestyle);
   }
 }
+
+//________________________________________________________________________
+void DisplayManager::loadGGsfRecTracks()
+{
+  double phi0=0;
+        
+  int ind=-1;
+  int indbrem=-1;
+  
+  // allows not to draw Brems with no informations in PFBlocks
+  retrieveBadBrems();
+  
+  std::vector<reco::GsfPFRecTrack>::iterator itRecTrack;
+  for (itRecTrack = em_->gsfrecTracks_.begin(); itRecTrack != em_->gsfrecTracks_.end();itRecTrack++) {
+    double sign = 1.;
+    const reco::PFTrajectoryPoint& tpinitial 
+      = itRecTrack->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach);
+    double pt = tpinitial.momentum().Pt();
+    //if( pt<em_->displayRecTracksPtMin_ ) continue;
+                
+    const reco::PFTrajectoryPoint& tpatecal 
+      = itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() +
+                                    reco::PFTrajectoryPoint::ECALEntrance );
+                
+    if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
+      sign = -1.;
+                
+    const std::vector<reco::PFTrajectoryPoint>& points = 
+      itRecTrack->trajectoryPoints();
+                
+    int    linestyle = itRecTrack->algoType();
+    ind++;
+    int recTrackId=(GSFRECTRACKID <<shiftId_) | ind; 
+    
+    createGTrack(*itRecTrack,points,recTrackId, pt, phi0, sign, false,linestyle,1);
+
+    // now the Brems - bad to copy, but problems otherwise
+    std::vector<reco::PFBrem> brems=itRecTrack->PFRecBrem();
+    unsigned nbrems=brems.size();
+    for(unsigned ibrem=0;ibrem<nbrems;++ibrem)
+      {
+	unsigned indTrajPoint=brems[ibrem].indTrajPoint();
+	if(indTrajPoint==99) continue;
+	double signBrem = 1. ; // this is not the charge
+	int  linestyleBrem = brems[ibrem].algoType(); 
+	indbrem++;
+	// build the index by hand. Assume that there are less 40 Brems per GSF track (ultrasafe!)
+	// make it from the GSF index and the brem index
+	unsigned indexBrem= ind*40+brems[ibrem].indTrajPoint();
+	int recTrackIdBrem=(BREMID << shiftId_ ) | indexBrem;
+	
+	//check if there is information on this brem in the PFBlock
+	//before creating a graphic object
+	if (!findBadBremsId(recTrackIdBrem)) {
+
+	  // the vertex is not stored, need to make it by hand
+	  std::vector<reco::PFTrajectoryPoint> pointsBrem;
+	  //the first two trajectory points are dummy; copy them
+	  pointsBrem.push_back(brems[ibrem].trajectoryPoints()[0]);
+	  pointsBrem.push_back(brems[ibrem].trajectoryPoints()[1]);
+
+	  // then get the vertex from the GSF track
+	  pointsBrem.push_back(itRecTrack->trajectoryPoint(indTrajPoint));
+	
+	  unsigned ntp=brems[ibrem].trajectoryPoints().size();
+	  for(unsigned itp=2;itp<ntp;++itp)
+	   {
+	    pointsBrem.push_back(brems[ibrem].trajectoryPoints()[itp]);
+	   }
+
+	  double deltaP=brems[ibrem].DeltaP();
+	  const reco::PFTrajectoryPoint& tpatecalbrem
+	    = brems[ibrem].trajectoryPoint(brems[ibrem].nTrajectoryMeasurements() +
+					 reco::PFTrajectoryPoint::ECALEntrance );
+	
+	  if ( cos(phi0 - tpatecalbrem.momentum().Phi()) < 0.)
+	    signBrem = -1.; // again, not the charge
+	
+	  createGTrack(brems[ibrem],pointsBrem,recTrackIdBrem,deltaP,phi0,signBrem,false,linestyleBrem,2);
+	}  
+      }
+  }
+ 
+}
+
 //___________________________________________________________________________
 void DisplayManager::loadGSimParticles()
 {
@@ -1775,6 +2012,8 @@ void DisplayManager::reset()
 
   blockIdentsMap_.clear(); 
   selectedGObj_.clear();
+  badBremsId_.clear();
+  
 
 }
 //_______________________________________________________________________________

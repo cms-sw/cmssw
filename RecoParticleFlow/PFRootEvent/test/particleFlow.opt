@@ -122,6 +122,10 @@ display rechits                 1
 display   clusters              1
 // display reconstructed tracks yes/no
 display  rectracks              1
+// display Gsf tracks yes/no
+display  gsftracks              1
+// display Gsf tracks yes/no
+display  brems              1
 // display true particles yes/no
 display  particles              1              
 
@@ -130,6 +134,9 @@ display  particles_ptmin 0
 
 // min pt for rectracks display
 display  rectracks_ptmin 0
+
+// min pt for rectracks display
+display  gsfrectracks_ptmin 0
 
 //min energy threshold to display hits
 display rechits_enmin    0 
@@ -149,6 +156,8 @@ display  r/z      1
 display cluster_attributes 2 5 20 1
 // color, line style, marker style, marker size 
 display track_attributes   8 1 8 1
+display gsf_attributes   419 2 23 1
+display brem_attributes   921 3 22 1
 // color, line style, marker size 
 display simPart_attributes 4 2 1
 display drawPFBlock 0

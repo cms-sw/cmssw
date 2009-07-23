@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 #include "TPad.h"
 #include "TObject.h"
 #include "TGraph.h"
@@ -20,11 +21,12 @@ GPFTrack::GPFTrack(DisplayManager * display,int view,int ident,
   SetMarkerSize(markerAttr_->GetMarkerSize());
   SetMarkerColor(markerAttr_->GetMarkerColor());
   
-}                    
-//____________________________________________________________________________________________________________
+}
+//_________________________________________________________________________                    
 void GPFTrack::Print()
 {
-  std::cout<<*track_<<std::endl;
+   if ((origId_>>SHIFTID) != BREMID) 
+     std::cout<<*track_<<std::endl;
 }
 //_______________________________________________________________________________    
 void GPFTrack::ExecuteEvent(Int_t event, Int_t px, Int_t py)

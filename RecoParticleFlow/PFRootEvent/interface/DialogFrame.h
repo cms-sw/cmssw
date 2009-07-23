@@ -39,10 +39,10 @@ class DialogFrame  : public TGMainFrame {
   TGCompositeFrame    *cmdFrame_;
     
 
-  TGCheckButton       *selectObject_[6];
+  TGCheckButton       *selectObject_[8];
   TGCheckButton       *printButton_[7];
-  TGDoubleHSlider     *thresholdS_[5];
-  TGNumberEntryField  *threshEntry_[5];
+  TGDoubleHSlider     *thresholdS_[6];
+  TGNumberEntryField  *threshEntry_[6];
   TGNumberEntryField  *maxLineEntry_; 
   TGNumberEntryField  *particleTypeEntry_; 
   TGTextButton        *exitButton,*nextButton,*previousButton;
@@ -70,6 +70,7 @@ class DialogFrame  : public TGMainFrame {
   void doModifyOptions(unsigned obj);
   void doModifyPtThreshold(unsigned obj,double val);
   void isPFBlockVisible();
+  void areBremVisible();
   void doPrint();
   void doPrintGenParticles();
   void doReProcessEvent();

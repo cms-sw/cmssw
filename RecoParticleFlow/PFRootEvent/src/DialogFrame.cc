@@ -97,7 +97,7 @@ void DialogFrame::createCmdFrame()
   
   //create object selection buttons
   TGGroupFrame *gr1= new TGGroupFrame(h1Frame1,"Draw Selection",kVerticalFrame); 
-  gr1->SetLayoutManager(new TGMatrixLayout(gr1,7,3,5));
+  gr1->SetLayoutManager(new TGMatrixLayout(gr1,9,3,5));
   
   selectObject_[0] = new TGCheckButton(gr1,"Hits");
   selectObject_[0]->SetState(display_->drawHits_ ? kButtonDown :kButtonUp);
@@ -114,13 +114,20 @@ void DialogFrame::createCmdFrame()
   selectObject_[4] = new TGCheckButton(gr1,"GenParticles");
   selectObject_[4]->SetState(display_->drawGenParticles_ ? kButtonDown :kButtonUp);
   selectObject_[4]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=4)");
-  selectObject_[5] = new TGCheckButton(gr1,"PFBlock visible");
-  selectObject_[5]->SetState(display_->drawPFBlocks_ ? kButtonDown :kButtonUp);
-  selectObject_[5]->Connect("Clicked()","DialogFrame",this,"isPFBlockVisible()");
+  selectObject_[5] = new TGCheckButton(gr1,"GsfTracks");
+  selectObject_[5]->SetState(display_->drawGsfTracks_ ? kButtonDown :kButtonUp);
+  selectObject_[5]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=5)");
+  selectObject_[6] = new TGCheckButton(gr1,"Brems visible");
+  selectObject_[6]->SetState(display_->drawBrems_ ? kButtonDown :kButtonUp);
+  selectObject_[6]->Connect("Clicked()","DialogFrame",this,"areBremVisible()");
+  selectObject_[7] = new TGCheckButton(gr1,"PFBlock visible");
+  selectObject_[7]->SetState(display_->drawPFBlocks_ ? kButtonDown :kButtonUp);
+  selectObject_[7]->Connect("Clicked()","DialogFrame",this,"isPFBlockVisible()");
+
 
   // create threshold fields
   TGNumberFormat::ELimit lim = TGNumberFormat::kNELLimitMinMax;  
-  for (int i=0;i<5;++i){
+  for (int i=0;i<6;++i){
     thresholdS_[i] = new TGDoubleHSlider(gr1,100,kDoubleScaleNo,ENER+i);
     thresholdS_[i]->Associate(this);
     thresholdS_[i]->SetRange(0,10);
@@ -135,11 +142,12 @@ void DialogFrame::createCmdFrame()
   thresholdS_[2]->SetPosition((float) display_->trackPtMin_,(float)display_->trackPtMin_);
   thresholdS_[3]->SetPosition((float) display_->particlePtMin_,(float)display_->particlePtMin_);
   thresholdS_[4]->SetPosition((float) display_->genParticlePtMin_,(float)display_->genParticlePtMin_);
+  thresholdS_[5]->SetPosition((float) display_->gsfPtMin_,(float)display_->gsfPtMin_);
   
   
   int charw= threshEntry_[0]->GetCharWidth("O");
   int size=charw*4;
-  for (int i=0;i<5;++i) {
+  for (int i=0;i<6;++i) {
     threshEntry_[i]->SetNumber(thresholdS_[i]->GetMinPosition());
     threshEntry_[i]->Resize(size,threshEntry_[i]->GetDefaultHeight());
   }
@@ -153,13 +161,25 @@ void DialogFrame::createCmdFrame()
   label=new TGLabel(gr1," (Gev) ");  
   gr1->AddFrame(label,lo1);
   
-  for (int i=0;i<5;++i) {
+  for (int i=0;i<6;++i) {
     gr1->AddFrame(selectObject_[i],lo1);
     gr1->AddFrame(thresholdS_[i],lo1);
     gr1->AddFrame(threshEntry_[i],lo1);
   }
-  gr1->AddFrame(selectObject_[5],lo1);   
-  h1Frame1->AddFrame(gr1,lo1);
+  
+//gr1->AddFrame(selectObject_[6],lo1);   
+//  h1Frame1->AddFrame(gr1,lo1);
+//  gr1->AddFrame(selectObject_[7],lo1);   
+//  h1Frame1->AddFrame(gr1,lo1);
+
+// MURIEL - replace the previous four  lines by :
+  TGLabel *label0 = new TGLabel(gr1,"  ");
+  gr1->AddFrame(selectObject_[6],lo1);   
+  gr1->AddFrame(label0,lo1);   
+  gr1->AddFrame(label0,lo1);
+  gr1->AddFrame(selectObject_[7],lo1);   
+  h1Frame1->AddFrame(gr1,lo);
+  
   
   //add options frame
   TGVerticalFrame *optionFrame = new TGVerticalFrame(h1Frame1,10,10,kSunkenFrame);
@@ -309,6 +329,9 @@ void DialogFrame::doModifyOptions(unsigned objNb)
   case 4:
     display_->drawGenParticles_ = (selectObject_[4]->IsDown()) ?true :false;
     break;    
+  case 5:
+    display_->drawGsfTracks_ = (selectObject_[5]->IsDown()) ?true :false;
+    break;    
   }
   display_->displayAll();    
 }
@@ -331,6 +354,8 @@ void DialogFrame::doModifyPtThreshold(unsigned objNb,double pt)
     display_->particlePtMin_= pt;break;
   case 4:
     display_->genParticlePtMin_= pt;break;
+  case 5:
+    display_->gsfPtMin_= pt;break;
     
   default:break;
   }  
@@ -371,8 +396,17 @@ void DialogFrame::doReProcessEvent()
 //_________________________________________________________________________________
 void DialogFrame::isPFBlockVisible()
 {
-  display_->enableDrawPFBlock((selectObject_[5]->IsDown()) ?true :false);
+  display_->enableDrawPFBlock((selectObject_[7]->IsDown()) ?true :false);
+  
 }
+//_________________________________________________________________________________
+void DialogFrame::areBremVisible()
+{
+  display_->enableDrawBrem((selectObject_[6]->IsDown()) ?true :false);
+  display_->displayAll();
+}
+
+
 //_________________________________________________________________________________
 void DialogFrame::selectPrintOption(int opt)
 {
@@ -444,7 +478,7 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
     switch (GET_SUBMSG(msg)) {
     case kTE_ENTER:
       switch (parm1) {
-      case EN :case EN+1: case EN+2: case EN+3: case EN+4:
+      case EN :case EN+1: case EN+2: case EN+3: case EN+4: case EN+5:
         {
           //int eventNumber=evMan_->iEvent_;
           float val=threshEntry_[parm1-EN]->GetNumber();
@@ -470,7 +504,7 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
     switch (GET_SUBMSG(msg)) {
     case kSL_POS:
       switch (parm1) {
-      case ENER: case ENER+1: case ENER+2: case ENER+3: case ENER+4:
+      case ENER: case ENER+1: case ENER+2: case ENER+3: case ENER+4: case ENER+5:
         {
           unsigned index=parm1-ENER;
           float val = thresholdS_[index]->GetMinPosition();
@@ -483,7 +517,7 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       break;  
     case kSL_RELEASE:
       switch (parm1) {
-      case ENER: case ENER+1: case ENER+2: case ENER+3:case ENER+4:
+      case ENER: case ENER+1: case ENER+2: case ENER+3:case ENER+4: case ENER+5:
         {
           float val = thresholdS_[parm1-ENER]->GetMinPosition();
           doModifyPtThreshold(parm1-ENER,(double)val);
