@@ -42,6 +42,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
+process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
