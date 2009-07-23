@@ -17,6 +17,8 @@ const char * TrackCategories::Names[] =
     "KsDecay",
     "LambdaDecay",
     "Jpsi",
+    "Xi",
+    "Omega",
     "LongLivedDecay",
     "Conversion",
     "Interaction",

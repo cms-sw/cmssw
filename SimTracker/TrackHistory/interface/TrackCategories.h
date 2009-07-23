@@ -25,6 +25,8 @@ public:
         KsDecay,
         LambdaDecay,
         Jpsi,
+        Xi,
+        Omega,
         LongLivedDecay,
         Conversion,
         Interaction,

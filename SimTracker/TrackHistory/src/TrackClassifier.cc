@@ -292,6 +292,8 @@ void TrackClassifier::processesAtGenerator()
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
                     update(flags_[Jpsi], pdgid == 443);
+                    update(flags_[Xi], pdgid == 3312);
+                    update(flags_[Omega], pdgid == 3334);
                     update(
                         flags_[LongLivedDecay],
                         !flags_[BWeakDecay] &&
@@ -300,6 +302,8 @@ void TrackClassifier::processesAtGenerator()
                         !flags_[KsDecay] &&
                         !flags_[LambdaDecay] &&
                         !flags_[Jpsi] &&
+                        !flags_[Xi] &&
+                        !flags_[Omega] &&
                         longlived
                     );
                 }
@@ -386,6 +390,8 @@ void TrackClassifier::processesAtSimulation()
                         update(flags_[KsDecay], pdgid == 310);
                         update(flags_[LambdaDecay], pdgid == 3122);
                         update(flags_[Jpsi], pdgid == 443);
+                        update(flags_[Xi], pdgid == 3312);
+                        update(flags_[Omega], pdgid == 3334);
                         update(
                             flags_[LongLivedDecay],
                             !flags_[BWeakDecay] &&
@@ -394,6 +400,8 @@ void TrackClassifier::processesAtSimulation()
                             !flags_[KsDecay] &&
                             !flags_[LambdaDecay] &&
                             !flags_[Jpsi] &&
+                            !flags_[Xi] &&
+                            !flags_[Omega] &&
                             longlived
                         );
                     }
@@ -406,7 +414,9 @@ void TrackClassifier::processesAtSimulation()
                     !flags_[TauDecay] &&
                     !flags_[KsDecay] &&
                     !flags_[LambdaDecay] &&
-                    !flags_[Jpsi]
+                    !flags_[Jpsi] &&
+                    !flags_[Xi] &&
+                    !flags_[Omega]
                 );
             }
             else
