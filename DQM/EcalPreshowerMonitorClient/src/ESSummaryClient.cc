@@ -57,9 +57,12 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
       dqmStore_->removeElement(me->getName());
    }
    me = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
+   me->setAxisTitle("Si X", 1);
+   me->setAxisTitle("Si Y", 2);
+
    for ( int i = 0; i < 80; i++ ) {
       for ( int j = 0; j < 80; j++ ) {
-	 me->setBinContent( i+1, j+1, 0. );
+	 me->setBinContent( i+1, j+1, -1. );
       }
    }
 
@@ -150,12 +153,13 @@ void ESSummaryClient::analyze(void) {
 	 }
 
 	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
+	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
 	 if(me){
 	    UseDigi = true;
+	    float eCount = me->getBinContent(40,40);
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
-		  Digi[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+		  Digi[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1)/eCount;
 	       }
 	    }
 	 }
@@ -176,27 +180,27 @@ void ESSummaryClient::analyze(void) {
 
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
-      float xval;
+      float xval, ErrorCount;
       for(int x=0; x<80; x++){
 	 for(int y=0; y<80; y++){
-	    //All three kind error has same weight of 1/3
+	    //All three kind error has same weight
 	    //Fill good efficiency into reportSummaryMap
 	    xval = 0.;
-	    if(Digi[x][y]>20&&UseDigi) xval+=1.;
-	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval+=1.;
-	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval+=1.;
+	    ErrorCount = 0.;
+	    if(Digi[x][y]>=1000&&UseDigi) ErrorCount+=1.;
+	    if(DCC[x][y]!=3.&&UseDCC) ErrorCount+=1.;
+	    if(KChip[x][y]!=3&&UseKChip) ErrorCount+=1.;
 
-	    if( nErrorKinds != 0 ) xval = 1. - xval/float(nErrorKinds);
+	    if( nErrorKinds != 0 ) xval = 1. - ErrorCount/nErrorKinds;
 
-	    if(DCC[x][y]<0.5&&UseDCC) xval = -1;	//-1 for non-module points
-	    if(KChip[x][y]<0.5&&UseKChip) xval = -1;	//-1 for non-module points
+	    if(DCC[x][y]==0.&&UseDCC) xval = -1;	//-1 for non-module points
+	    if(KChip[x][y]==0.&&UseKChip) xval = -1;	//-1 for non-module points
 
 	    //Count Valid Channels and Error Channels
 	    if( xval != -1 ){
 	       nValidChannels+=1.;
-	       nGlobalErrors+=xval;
+	       nGlobalErrors = nGlobalErrors + ErrorCount/nErrorKinds;
 	    }
-
 	    me->setBinContent(x+1, y+1, xval);
 	 }
       }
