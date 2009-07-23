@@ -151,20 +151,6 @@ void ESIntegrityClient::analyze(void) {
       fiberStatus_[i-1] = 1;
   }
 
-  for (int iz=0; iz<2; ++iz) 
-    for (int ip=0; ip<2; ++ip)
-      for (int ix=0; ix<40; ++ix)
-	for (int iy=0; iy<40; ++iy) {
-	  if (fed_[iz][ip][ix][iy] == -1) continue;
-	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	    xval = (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) ? 3:5;
-	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) xval = 2;
-	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
-	    xval = 0;
-	  } 
-	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	}
-  
   // KCHIP integrity
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip Flag 1 Error codes").c_str());
   me = dqmStore_->get(histo);
@@ -209,6 +195,7 @@ void ESIntegrityClient::analyze(void) {
     kchip_xval[i] = xval;
   }
 
+  // detailed KCHIP summary (i.e. summary 2)
   for (int iz=0; iz<2; ++iz) 
     for (int ip=0; ip<2; ++ip)
       for (int ix=0; ix<40; ++ix)
@@ -216,6 +203,36 @@ void ESIntegrityClient::analyze(void) {
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
 	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) kchip_xval[kchip_[iz][ip][ix][iy]-1] = 0;
 	  meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-1]); 
+	}
+
+  // FED, Fiber, KCHIP summary (i.e. summary 1) 
+  Int_t nErr = 0;
+  for (int iz=0; iz<2; ++iz) 
+    for (int ip=0; ip<2; ++ip)
+      for (int ix=0; ix<40; ++ix)
+	for (int iy=0; iy<40; ++iy) {
+	  if (fed_[iz][ip][ix][iy] == -1) continue;
+	  nErr = 0;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	    if (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) 
+	      xval = 3;
+	    else {
+	      xval = 4; // FED problem
+	      nErr++;
+	    }
+	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	      xval = 2; // fiber problem
+	      nErr++;
+	    }
+	    if (kchip_xval[kchip_[iz][ip][ix][iy]-1] != 3 && kchip_xval[kchip_[iz][ip][ix][iy]-1] != 0) {
+	      xval = 5; // kchip problem
+	      nErr++;
+	    }
+	    if (nErr > 1) xval = 6;
+	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
+	    xval = 0;
+	  } 
+	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
 	}
   
 }
