@@ -4,7 +4,7 @@
 <use name=FWCore/MessageLogger>
 <use name=Geometry/CaloEventSetup>
 <use name=SimDataFormats/ValidationFormats>
-<use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/DetId>
 <use name=FWCore/ServiceRegistry>
 <use name=PhysicsTools/UtilAlgos>
@@ -36,8 +36,6 @@
 <use name=DQMServices/Core>
 <use name=root>
 <use name=clhep>
-<use name=rootmath>
-<use name=DataFormats/Math>
 
 <flags EDM_PLUGIN=1>
 
@@ -49,7 +47,6 @@
  <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 <use name=PhysicsTools/UtilAlgos>
-<use name=rootmath>
 <use name=DataFormats/Math>
 <use name=DataFormats/JetReco>
 <use name=RecoJets/JetAlgorithms>
@@ -59,7 +56,6 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrack>
- <use name=Geometry/CaloEventSetup>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/EgammaCandidates>
@@ -69,10 +65,11 @@
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
  <use name=SimDataFormats/ValidationFormats>
- <use name=SimDataFormats/HepMCProduct>
+ <use name=SimDataFormats/GeneratorProducts>
  <use name=DataFormats/DetId>
  <use name=DataFormats/Common>
  <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CaloEventSetup>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=DataFormats/MuonDetId>
  <use name=Geometry/CSCGeometry>
@@ -82,8 +79,4 @@
  <use name=root>
  <use name=clhep>
  <use name=rootmath>
- <use name=DataFormats/Math>
 </export>
-
-
-

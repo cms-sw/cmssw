@@ -1,6 +1,5 @@
 #ifndef BasicGenTest_h
 #define BasicGenTest_h
-
 /*class BasicGenTest
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
@@ -11,25 +10,20 @@
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
 
 // framework & common header files
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <iostream>
 #include <stdlib.h>
 
-
 class BasicGenTest : public edm::EDAnalyzer
 {
-  
  public:
 
   explicit BasicGenTest(const edm::ParameterSet&);
@@ -39,14 +33,12 @@ class BasicGenTest : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
-
   
 private:
   
-  int part_counter[100];
-
-  int glunum, dusnum, cnum, bnum, topnumber, Wnum, Znum; /// charstanum;
-  
+  unsigned short int part_counter[100];
+  unsigned short int glunum, dusnum, cnum, bnum, topnumber, Wnum, Znum; 
+ 
   DQMStore *dbe;
   
   MonitorElement *gluonNumber;
@@ -58,7 +50,6 @@ private:
   MonitorElement *ZNumber;
   MonitorElement *stablepart; 
   MonitorElement *Part_ID;
-  //  MonitorElement *ChargStableNumber;
-};
+ };
 
 #endif

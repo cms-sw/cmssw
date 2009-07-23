@@ -26,8 +26,6 @@ BasicGenTest::BasicGenTest(const edm::ParameterSet& iPSet)
   Wnum = 0;
   Znum = 0;
 
-  //charstanum = 0;
- 
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
 }
@@ -37,9 +35,9 @@ BasicGenTest::~BasicGenTest() {}
 void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
 {
   if(dbe){
-       
+    ///Setting the DQM top directories
     dbe->setCurrentFolder("Generator/Particles");
-
+    ///Booking the ME's
     gluonNumber = dbe->book1D("gluonNumber", "No. gluons", 100, -.5, 299.5);
     dusNumber = dbe->book1D("dusNumber", "No. uds", 20, -.5, 59.5);
     cNumber = dbe->book1D("cNumber", "No. c", 15, -.5, 14.5);
@@ -49,8 +47,7 @@ void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
     ZNumber = dbe->book1D("ZNumber", "No. Z", 6, -.5, 5.5);
     stablepart = dbe->book1D("stablepart", "No. ptcls", 100, -.5, 1199.5);
     Part_ID = dbe->book1D("Part_ID", "No. parton by PDGID ", 100, -.5, 99.5);
-    // ChargStableNumber = dbe->book1D("ChargStableNumber", "Number of Charged Stable particles per event", 100, -.5, 999.5);
-
+    
     dbe->tag(gluonNumber->getFullname(),1);
     dbe->tag(dusNumber->getFullname(),2);
     dbe->tag(cNumber->getFullname(),3);
@@ -60,9 +57,7 @@ void BasicGenTest::beginJob(const edm::EventSetup& iSetup)
     dbe->tag(ZNumber->getFullname(),7);
     dbe->tag(stablepart->getFullname(),8);
     dbe->tag(Part_ID->getFullname(),9);
-    // dbe->tag(ChargStableNumber->getFullname(),11);
- }
-
+  }
   return;
 }
 
@@ -71,7 +66,6 @@ void BasicGenTest::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
 void BasicGenTest::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
- 
   int counterstable = 0; // To count "stable", status == 1, particles
   glunum = 0;
   bnum = 0;
@@ -80,25 +74,24 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
   dusnum = 0;
   cnum = 0;
   Znum = 0;
-  // charstanum = 0;
-  for(int i=0; i < 100; ++i) part_counter[i] = 0;
+  for(unsigned short int i=0; i < 100; ++i) part_counter[i] = 0;//clearing the array
 
-  edm::Handle<HepMCProduct> evt;
-  
+  ///Gathering the HepMCProduct information
+  edm::Handle<HepMCProduct> evt; 
   iEvent.getByLabel("generator", evt);
-  
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
   HepMC::GenEvent::particle_const_iterator begin = myGenEvent->particles_begin();
   HepMC::GenEvent::particle_const_iterator end = myGenEvent->particles_end();
 
+  ///Looping through the particles in the event
   for(HepMC::GenEvent::particle_const_iterator it = begin;it!=end;++it)
      {
        HepMC::GenParticle* particle = *it;
-       int Id = particle->pdg_id();
-       int status = particle->status();       
-       //int charge = particle->flow(1);
+       unsigned int Id = particle->pdg_id();
+       unsigned short int status = particle->status();       
        //double pT = particle->momentum().perp();
-
+      
+       ///counting multiplicities 
        if (abs(Id) == 6) ++topnumber;
        if (abs(Id) == 24) ++Wnum;
        if(abs(Id) == 5) ++bnum;
@@ -107,28 +100,24 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
        if(abs(Id) == 23) ++Znum;
        if(abs(Id) == 21) ++glunum;
        if( 0 < Id && 100 > Id) ++part_counter[Id];
-        if(status == 1) ++counterstable;
+       if(status == 1) ++counterstable;
 
-       // if(charge != 0 && status == 1 && pT < .5){
-       // ++charstanum;
-       // }
+    	}//for(HepMC::
 
-	}//for(HepMC::
+  //if((2*topnumber) != Wnum){ ///Since top decays from status 3, but W does not
+  //  std::cout << "Tops= " << topnumber << "!=  W's= " << Wnum << std::endl;
+  //  myGenEvent->print(); 
+  //  }//if(top
+  //if(bnum == 1 || bnum == 3 || bnum == 5){
+  //  std::cout << "We have odd number of b's! b = " << bnum << std::endl;
+  //  myGenEvent->print();
+  //  }//if(bnum
+  //if(Wnum == 0 && (cnum == 1 || cnum ==3 || cnum == 5 || cnum == 7)){
+  //  std::cout << "We have odd number of c's! c = " << cnum << std::endl;
+  //  myGenEvent->print();
+  //  }//if(Wnum
 
-  if((2*topnumber) != Wnum){ ///Since top decays from status 3, but W does not
-      
-	std::cout << "WOOT WOOT! We have a problem! Tops= " << topnumber << "!= W's = " << Wnum << std::endl;
-	myGenEvent->print(); 
-      
-      }//if(top
-      
- if(bnum == 1 || bnum == 3 || bnum == 5){
-	std::cout << "We have odd number of b's! b = " << bnum << std::endl;
-	myGenEvent->print();
-      }
-
- // std:: cout << "\n"  <<"We are inside the analyze loop: BTagPerformanceAnalyzerMC: iEvent = " << counter2 << " Event Number= " << iEvent.id() << "!!!" << "\n"<< std::endl;
-
+  ///filling the ME's
   gluonNumber->Fill(glunum);  
   dusNumber->Fill(dusnum);
   cNumber->Fill(cnum);
@@ -138,12 +127,9 @@ void BasicGenTest::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetu
   ZNumber->Fill(Znum);
   stablepart->Fill(counterstable);
   
-  for(int i = 0; i < 100; ++i){
+
+  for(unsigned short int i = 0; i < 100; ++i){
      Part_ID->Fill(float(i), float(part_counter[i]));
-     
-   }
-   //     ChargStableNumber->Fill(charstanum);
+  }
  }
-
-
 DEFINE_FWK_MODULE(BasicGenTest);
