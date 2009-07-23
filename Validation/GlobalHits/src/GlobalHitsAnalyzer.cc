@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/22 17:12:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/07/23 19:47:47 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -220,9 +220,12 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meMuonCscToF[i] = 0;
     meMuonRpcFToF[i] = 0;
     meMuonRpcBToF[i] = 0;
+    meGeantVtxRad[i] = 0;
   }
   meGeantTrkPt = 0;
   meGeantTrkE = 0;
+  meGeantVtxEta = 0;
+  meGeantVtxPhi = 0;
   meCaloEcalPhi = 0;
   meCaloEcalEta = 0;
   meCaloPreShPhi = 0;
@@ -327,6 +330,28 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meGeantTrkE = dbe->book1D(hname,htitle,100,0.,5000.);
     meGeantTrkE->setAxisTitle("E of Track (GeV)",1);
     meGeantTrkE->setAxisTitle("Count",2);
+
+    sprintf(hname,"hGeantVtxEta");
+    sprintf(htitle,"Geant vertices eta");
+    meGeantVtxEta = dbe->book1D(hname,htitle,220,-5.5,5.5);
+    meGeantVtxEta->setAxisTitle("eta of SimVertex",1);
+    meGeantVtxEta->setAxisTitle("Count",2);
+
+    sprintf(hname,"hGeantVtxPhi");
+    sprintf(htitle,"Geant vertices phi/rad");
+    meGeantVtxPhi = dbe->book1D(hname,htitle,100,-3.2,3.2);
+    meGeantVtxPhi->setAxisTitle("phi of SimVertex (rad)",1);
+    meGeantVtxPhi->setAxisTitle("Count",2);
+
+    sprintf(hname,"hGeantVtxRad1");
+    sprintf(htitle,"Geant vertices radius/cm");
+    meGeantVtxRad[0] = dbe->book1D(hname,htitle,130,0.,130.);
+    sprintf(hname,"hGeantVtxRad2");
+    meGeantVtxRad[1] = dbe->book1D(hname,htitle,100,0.,1000.);
+    for (Int_t i = 0; i < 2; ++i) {
+      meGeantVtxRad[i]->setAxisTitle("radius of SimVertex (cm)",1);
+      meGeantVtxRad[i]->setAxisTitle("Count",2);
+    }
 
     // ECal
     dbe->setCurrentFolder("GlobalHitsV/ECals");
@@ -813,6 +838,11 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
       
       if (meGeantVtxZ[0]) meGeantVtxZ[0]->Fill((G4Vtx[2]*unit)/millimeter);
       if (meGeantVtxZ[1]) meGeantVtxZ[1]->Fill((G4Vtx[2]*unit)/millimeter); 
+
+      if (meGeantVtxEta) meGeantVtxEta->Fill(G4Vtx1.eta());
+      if (meGeantVtxPhi) meGeantVtxPhi->Fill(G4Vtx1.phi());
+      if (meGeantVtxRad[0]) meGeantVtxRad[0]->Fill(G4Vtx1.rho());
+      if (meGeantVtxRad[1]) meGeantVtxRad[1]->Fill(G4Vtx1.rho());
       
     }
     
