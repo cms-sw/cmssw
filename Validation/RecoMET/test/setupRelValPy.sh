@@ -10,14 +10,16 @@ mkdir $FullSimRootFileDirectory -p
 
 #======= Define list of samples that you will be validating ========#
 dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
+#dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
 
 
 echo "Run path = {" $RunPath "}"
-cmssw_version="3_1_0"
-condition="MC_31X_V1-v1"
+cmssw_version="3_1_2"
+condition="MC_31X_V3-v1"
+#condition="STARTUP31X_V1-v2"
 
 #==========================================#
 cd $current_area
@@ -54,17 +56,17 @@ process.load(\"Validation.RecoMET.HTMET_cff\")
 
 process.load(\"Validation.RecoMET.GenMETFromGenJets_cff\")
 process.load(\"DQMOffline.JetMET.caloTowers_cff\")
-process.towerSchemeBAnalyzer.FineBinning = True
-process.towerSchemeBAnalyzer.FolderName = \"RecoMETV/MET_CaloTowers/SchemeB\"
-process.towerOptAnalyzer.FineBinning = True
-process.towerOptAnalyzer.FolderName = \"RecoMETV/MET_CaloTowers/Optimized\"
+process.towerSchemeBAnalyzer.FineBinning = cms.untracked.bool(True)
+process.towerSchemeBAnalyzer.FolderName =  cms.untracked.string(\"RecoMETV/MET_CaloTowers/SchemeB\")
+process.towerOptAnalyzer.FineBinning = cms.untracked.bool(True)
+process.towerOptAnalyzer.FolderName =  cms.untracked.string(\"RecoMETV/MET_CaloTowers/Optimized\")
 
 
 process.load(\"DQMOffline.JetMET.RecHits_cff\")
-process.ECALAnalyzer.FineBinning = True
-process.ECALAnalyzer.FolderName = \"RecoMETV/MET_ECAL/data\"
-process.HCALAnalyzer.FineBinning = True
-process.HCALAnalyzer.FolderName = \"RecoMETV/MET_HCAL/data\"
+process.ECALAnalyzer.FineBinning = cms.untracked.bool(True)
+process.ECALAnalyzer.FolderName =  cms.untracked.string(\"RecoMETV/MET_ECAL/data\")
+process.HCALAnalyzer.FineBinning = cms.untracked.bool(True)
+process.HCALAnalyzer.FolderName =  cms.untracked.string(\"RecoMETV/MET_HCAL/data\")
 
 
 process.load(\"Validation.RecoMET.PFMET_cff\")
@@ -79,7 +81,7 @@ process.load(\"Configuration.StandardSequences.MagneticField_cff\")
 
 process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
 
-process.GlobalTag.globaltag = cms.string(\"MC_31X_V1::All\")
+process.GlobalTag.globaltag = cms.string(\"MC_31X_V3::All\")
 
 process.load(\"RecoLocalCalo.Configuration.hcalLocalReco_cff\")
 
