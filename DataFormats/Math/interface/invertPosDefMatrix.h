@@ -51,7 +51,7 @@ namespace MathSSE {
     
     
     // assume second row is already shuffled
-    inline void invert() {
+    inline bool invert() {
       //  load 2-3 as 3-2
       // __m128d tmp = _mm_shuffle_pd(r1(),r1(),1);
       __m128d tmp = r1();
@@ -66,6 +66,8 @@ namespace MathSSE {
       // r1() = _mm_shuffle_pd(r1(),r1(),1);
       // m3/det, m2/-det -> m0 m1
       r0() = _mm_div_pd(tmp,det);
+      double d; _mm_store_sd(&d,det);
+      return !(0.==d);
     } 
   
   }  __attribute__ ((aligned (16))) ;
@@ -76,12 +78,13 @@ inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Ma
   // load shuffled
   MathSSE::M2 mm = { m.Array()[0], m.Array()[1], m.Array()[2], m.Array()[1]  };
 
-  mm.invert();
-  m.Array()[0] = mm[0];
-  m.Array()[1] = mm[1];
-  m.Array()[2] = mm[2];
-
-  return true;
+  bool ok = mm.invert();
+  if (ok) {
+    m.Array()[0] = mm[0];
+    m.Array()[1] = mm[1];
+    m.Array()[2] = mm[2];
+  }
+  return ok;
 }
 
 template<>
@@ -90,12 +93,12 @@ inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Ma
  
   MathSSE::M2 mm = { mIn.Array()[0], mIn.Array()[1], mIn.Array()[2], mIn.Array()[1]  };
 
-  mm.invert();
+  ok = mm.invert();
   mOut.Array()[0] = mm[0];
   mOut.Array()[1] = mm[1];
   mOut.Array()[2] = mm[2];
 
-  return true;
+  return ok;
 }
 
 #endif
