@@ -63,6 +63,7 @@ class ESIntegrityClient : public ESClient {
   int kchip_[2][2][40][40];  
   int fedStatus_[56];
   int fiberStatus_[56];
+  int syncStatus_[56];
 
   bool cloneME_;
   bool verbose_;
@@ -84,6 +85,10 @@ class ESIntegrityClient : public ESClient {
   TH2F *hKF2_;
   TH1F *hKBC_;
   TH1F *hKEC_; 
+  TH1F *hL1ADiff_;
+  TH1F *hBXDiff_;
+  TH1F *hOrbitNumberDiff_;
+
 };
 
 #endif

@@ -33,6 +33,7 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
   for (int i=0; i<56; ++i) {
     fedStatus_[i] = -1;
     fiberStatus_[i] = -1;
+    syncStatus_[i] = -1;
   }
 
   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -67,7 +68,6 @@ void ESIntegrityClient::beginJob(DQMStore* dqmStore) {
 
   ievt_ = 0;
   jevt_ = 0;
-
 }
 
 void ESIntegrityClient::beginRun(void) {
@@ -136,7 +136,7 @@ void ESIntegrityClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Status").c_str());
   me = dqmStore_->get(histo);
   hFiber_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiber_ ); 
-  
+
   int xval = 0;
   int nevFEDs = 0;
   for (int i=1; i<=56; ++i) 
@@ -149,6 +149,26 @@ void ESIntegrityClient::analyze(void) {
       fedStatus_[i-1] = 1;      
     if (hFiber_->GetBinContent(i+58) > 0) 
       fiberStatus_[i-1] = 1;
+  }
+
+  // obtain MEs from ESRawDataTask
+
+  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES L1A DCC errors").c_str());
+  me = dqmStore_->get(histo);
+  hL1ADiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hL1ADiff_ ); 
+
+  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES BX DCC errors").c_str());
+  me = dqmStore_->get(histo);
+  hBXDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBXDiff_ ); 
+
+  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES Orbit Number DCC errors").c_str());
+  me = dqmStore_->get(histo);
+  hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
+
+  for (int i=1; i<=56; ++i) {
+    if (hL1ADiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
+    if (hBXDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
+    if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
   }
 
   // KCHIP integrity
@@ -228,7 +248,11 @@ void ESIntegrityClient::analyze(void) {
 	      xval = 5; // kchip problem
 	      nErr++;
 	    }
-	    if (nErr > 1) xval = 6;
+	    if (syncStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	      xval = 6;
+	      nErr++;
+	    }
+	    if (nErr > 1) xval = 7;
 	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
 	    xval = 0;
 	  } 
