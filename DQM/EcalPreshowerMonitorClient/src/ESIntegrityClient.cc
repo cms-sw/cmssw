@@ -166,9 +166,9 @@ void ESIntegrityClient::analyze(void) {
   hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
 
   for (int i=1; i<=56; ++i) {
-    if (hL1ADiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
-    if (hBXDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
-    //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
+    if (hL1ADiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
+    if (hBXDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
+    //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
   }
 
   // KCHIP integrity
