@@ -116,8 +116,6 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-  if (etTotFromRegions-(etTot*lsbForEt) > 100.) std::cout << "Big mismatch" << std::endl;
-
   double htMissGct = 0.0;
   double htMissAng = 0.0;
   double htMissGeV = 0.0;
