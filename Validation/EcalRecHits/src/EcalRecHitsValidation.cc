@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2009/07/02 11:17:47 $
+ * $Date: 2009/07/14 09:13:38 $
  * \author C. Rovelli
  *
 */
@@ -391,6 +391,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
+      if( myRecHit == EBRecHit->end() ) continue; 
       ebRecMap[EBid.rawId()] += myRecHit->energy();
       
       // Fill log10(Energy) stuff...   
@@ -541,6 +542,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+      if( myRecHit == EERecHit->end() ) continue; 
       eeRecMap[EEid.rawId()] += myRecHit->energy();
 
       // Fill log10(Energy) stuff...
