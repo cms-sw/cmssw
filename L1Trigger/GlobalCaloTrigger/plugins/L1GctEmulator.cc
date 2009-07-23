@@ -187,6 +187,31 @@ int L1GctEmulator::configureGct(const edm::EventSetup& c)
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
+  // The emulator will always produce output collections, which get filled as long as
+  // the setup and input data are present. Start by making empty output collections.
+
+  // create the em and jet collections
+  std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection( ) );
+  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection( ) );
+  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection( ) );
+  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection( ) );
+  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection( ) );
+
+  // create the energy sum digis
+  std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection( ) );
+  std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  ( ) );
+  std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection ( ) );
+  std::auto_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection ( ) );
+
+  // create the Hf sums digis
+  std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection ( ) );
+  std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection( ) );
+
+  // create internal data collections
+  std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection( ));
+  std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ( ));
+  std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
+
   // get config data from EventSetup.
   // check this has been done successfully before proceeding
   if (configureGct(c) == 0) { 
@@ -194,64 +219,91 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
     // get the RCT data
     edm::Handle<L1CaloEmCollection> em;
     edm::Handle<L1CaloRegionCollection> rgn;
-    e.getByLabel(m_inputLabel, em);
-    e.getByLabel(m_inputLabel, rgn);
+    bool gotEm  = e.getByLabel(m_inputLabel, em);
+    bool gotRgn = e.getByLabel(m_inputLabel, rgn);
 
-    // reset the GCT internal buffers
-    m_gct->reset();
-
-    // fill the GCT source cards
-    m_gct->fillEmCands(*em);
-    m_gct->fillRegions(*rgn);
-  
-    // process the event
-    m_gct->process();
-
-    // create the em and jet collections
-    std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection(m_gct->getIsoElectrons() ) );
-    std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection(m_gct->getNonIsoElectrons() ) );
-    std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection(m_gct->getCentralJets() ) );
-    std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
-    std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
-
-    // create the energy sum digis
-    std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
-    std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
-    std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
-    std::auto_ptr<L1GctHtMissCollection>  htMissResult(new L1GctHtMissCollection (m_gct->getHtMissCollection() ) );
-
-    // create the Hf sums digis
-    std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
-    std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
-
-    // create internal data collections if required - empty if not
-    std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection());
-    std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ());
-    std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ());
-    if (m_writeInternalData) {
-      *internalJetResult    = m_gct->getInternalJets();
-      *internalEtSumResult  = m_gct->getInternalEtSums();
-      *internalHtMissResult = m_gct->getInternalHtMiss();
+    // check the data
+    if (!gotEm && m_verbose) {
+      edm::LogError("L1GctInputFailedError")
+	<< "Failed to get em candidates with label " << m_inputLabel << " - GCT emulator will not be run" << std::endl;
     }
 
-    // put the collections into the event
-    e.put(isoEmResult,"isoEm");
-    e.put(nonIsoEmResult,"nonIsoEm");
-    e.put(cenJetResult,"cenJets");
-    e.put(forJetResult,"forJets");
-    e.put(tauJetResult,"tauJets");
-    e.put(etTotResult);
-    e.put(etHadResult);
-    e.put(etMissResult);
-    e.put(htMissResult);
-    e.put(hfBitCountResult);
-    e.put(hfRingEtSumResult);
+    if (!gotRgn && m_verbose) {
+      edm::LogError("L1GctInputFailedError")
+	<< "Failed to get calo regions with label " << m_inputLabel << " - GCT emulator will not be run" << std::endl;
+    }
 
-    e.put(internalJetResult);
-    e.put(internalEtSumResult);
-    e.put(internalHtMissResult);
+    if (gotEm && !em.isValid()) {
+      gotEm = false;
+      if (m_verbose) {
+	edm::LogError("L1GctInputFailedError")
+	  << "isValid() flag set to false for em candidates with label " << m_inputLabel << " - GCT emulator will not be run" << std::endl;
+      }
+    }
 
+    if (gotRgn && !rgn.isValid()) {
+      gotRgn = false;
+      if (m_verbose) {
+	edm::LogError("L1GctInputFailedError")
+	  << "isValid() flag set to false for calo regions with label " << m_inputLabel << " - GCT emulator will not be run" << std::endl;
+      }
+    }
+
+    // if all is ok, proceed with GCT processing
+    if (gotEm && gotRgn) {
+      // reset the GCT internal buffers
+      m_gct->reset();
+
+      // fill the GCT source cards
+      m_gct->fillEmCands(*em);
+      m_gct->fillRegions(*rgn);
+  
+      // process the event
+      m_gct->process();
+
+      // fill the em and jet collections
+      *isoEmResult    = m_gct->getIsoElectrons();
+      *nonIsoEmResult = m_gct->getNonIsoElectrons();
+      *cenJetResult   = m_gct->getCentralJets();
+      *forJetResult   = m_gct->getForwardJets();
+      *tauJetResult   = m_gct->getTauJets();
+
+      // fill the energy sum digis
+      *etTotResult  = m_gct->getEtSumCollection();
+      *etHadResult  = m_gct->getEtHadCollection();
+      *etMissResult = m_gct->getEtMissCollection();
+      *htMissResult = m_gct->getHtMissCollection();
+
+      // fill the Hf sums digis
+      *hfBitCountResult  = m_gct->getHFBitCountsCollection ();
+      *hfRingEtSumResult = m_gct->getHFRingEtSumsCollection();
+
+      // fill internal data collections if required
+      if (m_writeInternalData) {
+	*internalJetResult    = m_gct->getInternalJets();
+	*internalEtSumResult  = m_gct->getInternalEtSums();
+	*internalHtMissResult = m_gct->getInternalHtMiss();
+      }
+    }
   }
+
+  // put the collections into the event
+  e.put(isoEmResult,"isoEm");
+  e.put(nonIsoEmResult,"nonIsoEm");
+  e.put(cenJetResult,"cenJets");
+  e.put(forJetResult,"forJets");
+  e.put(tauJetResult,"tauJets");
+  e.put(etTotResult);
+  e.put(etHadResult);
+  e.put(etMissResult);
+  e.put(htMissResult);
+  e.put(hfBitCountResult);
+  e.put(hfRingEtSumResult);
+
+  e.put(internalJetResult);
+  e.put(internalEtSumResult);
+  e.put(internalHtMissResult);
+
 }
 
 DEFINE_FWK_MODULE(L1GctEmulator);
