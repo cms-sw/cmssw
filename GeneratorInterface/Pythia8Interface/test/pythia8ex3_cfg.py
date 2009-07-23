@@ -6,7 +6,7 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 
 #process.source = cms.Source("EmptySource")
 process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:ttbar.lhe')
+    fileNames = cms.untracked.vstring('ttbar.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
