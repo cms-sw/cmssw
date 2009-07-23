@@ -116,6 +116,9 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 				   const HepGeom::Transform3D&   tr ,
 				   const unsigned int      id     )
 {
+   static const HepPoint3D PIVOT ( 13533.35, -000.02, 0 ) ;//-152.23 ) ;
+
+   static const HepPoint3D IP    ( 0, 0, 0 ) ;//-152.23 ) ;
    static HepPoint3D AA0 ;
    static HepPoint3D BB0 ;
    static HepPoint3D CC0 ;
@@ -194,6 +197,18 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    {
       done = true ;
 
+      const HepTransform3D H4ToBeamLine ( PIVOT + HepPoint3D( 0, 1, 0),
+					  PIVOT + HepPoint3D( 0, 0, 1),
+					  PIVOT + HepPoint3D( 1, 0, 0),
+					  HepPoint3D( 0, -1, 0),
+					  HepPoint3D( 1,  0, 0),
+					  HepPoint3D( 0,  0, 1) ) ;
+
+      std::cout<<"pivot to beamline="<<H4ToBeamLine*PIVOT<<std::endl ;
+      std::cout<<"endcap to beamline="<<H4ToBeamLine*HepPoint3D(PIVOT.x()+316,0,50)
+	       <<std::endl ;
+
+
       std::cout<<"\nA0 = "<<AA0
 	       <<"\nB0 = "<<BB0
 	       <<"\nC0 = "<<CC0
@@ -258,6 +273,13 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       sur.push_back( HepPoint3D( 13856.81,  -38.43,  -11.13 ) ) ;
       sur.push_back( HepPoint3D( 13850.14,   34.78,   -8.95 ) ) ;
 
+      double psumx  ( 0 ) ;
+      double psumy  ( 0 ) ;
+      double psumz  ( 0 ) ;
+      double psumx2 ( 0 ) ;
+      double psumy2 ( 0 ) ;
+      double psumz2 ( 0 ) ;
+
       double sumx  ( 0 ) ;
       double sumy  ( 0 ) ;
       double sumz  ( 0 ) ;
@@ -291,8 +313,18 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	 const HepTransform3D trform ( A0, B0, C0,
 				       aa, bb, cc ) ;
+	 const HepTransform3D trforminv ( aa, bb, cc,
+					  A0, B0, C0 ) ;
 
 	 const HepPoint3D dd ( trform*D0 ) ;
+
+
+	 const HepTransform3D BeamLineToCMS ( H4ToBeamLine*aa,
+					      H4ToBeamLine*bb,
+					      H4ToBeamLine*cc,
+					      A0, B0, C0 ) ;
+	 const HepRotation blcmsrot ( BeamLineToCMS.getRotation() ) ;
+	 const HepVector3D blcmstra ( BeamLineToCMS.getTranslation() ) ;
 
 	 std::cout<<"\n********* Name is " << names[i] ;
 
@@ -334,11 +366,50 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 		     <<std::endl ;
 
 
-	    const HepPoint3D pivot ( 13533.35, -000.02, -152.23 ) ;
-	    std::cout<<"\n Pivot point in CMS coord = "<<trform.inverse()*pivot<<std::endl ;
+	    std::cout<<"\n Point SA in CMS coord = "<<trforminv*SA<<std::endl ;
+
 	 }
-	 std::cout<<"\n\nTransform rotation is "<<trform.inverse().getRotation()
-		  <<"\n\n          translation="<<trform.inverse().getTranslation() <<std::endl ;
+	 const HepPoint3D cmsPiv ( trforminv*PIVOT ) ;
+	 psumx += cmsPiv.x() ;
+	 psumy += cmsPiv.y() ;
+	 psumz += cmsPiv.z() ;
+	 psumx2 += cmsPiv.x()*cmsPiv.x() ;
+	 psumy2 += cmsPiv.y()*cmsPiv.y() ;
+	 psumz2 += cmsPiv.z()*cmsPiv.z() ;
+
+	 const HepRotation rotInv ( trforminv.getRotation() ) ; 
+
+	 std::cout<<"\n CMS IP in H4 coord = "<<trform*IP<<std::endl ;
+	 std::cout<<"\n Pivot point in CMS coord = "<<cmsPiv<<std::endl ;
+//	 std::cout<<"\n\nTransform rotation is "<<rotInv
+//		  <<"\n\n          translation="<<trforminv.getTranslation() <<std::endl ;
+
+	 static const double kRadToDeg ( 180/M_PI ) ;
+
+/*	 std::cout<<"\n"<<names[i]
+		  <<"   Theta_x == "<<(blcmsrot*HepPoint3D(1,0,0)).theta()*kRadToDeg
+		  <<",  Theta_y == "<<(blcmsrot*HepPoint3D(0,1,0)).theta()*kRadToDeg
+		  <<",  Theta_z == "<<(blcmsrot*HepPoint3D(0,0,1)).theta()*kRadToDeg<<std::endl ;
+
+	 std::cout<<"\n"<<names[i]
+		  <<"   Phi_x == "<<(blcmsrot*HepPoint3D(1,0,0)).phi()*kRadToDeg
+		  <<",  Phi_y == "<<(blcmsrot*HepPoint3D(0,1,0)).phi()*kRadToDeg
+		  <<",  Phi_z == "<<(blcmsrot*HepPoint3D(0,0,1)).phi()*kRadToDeg<<std::endl ;
+*/
+
+	 std::cout<<"\n"<<names[i]
+		  <<"   Theta_x = "<<blcmsrot.thetaX()*kRadToDeg
+		  <<",  Theta_y = "<<blcmsrot.thetaY()*kRadToDeg
+		  <<",  Theta_z = "<<blcmsrot.thetaZ()*kRadToDeg
+		  <<",  eta = "<<-log(tan(blcmsrot.thetaZ()/2.))
+		  <<std::endl ;
+
+	 std::cout<<"\n"<<names[i]
+		  <<"   Phi_x = "<<blcmsrot.phiX()*kRadToDeg
+		  <<",  Phi_y = "<<blcmsrot.phiY()*kRadToDeg
+		  <<",  Phi_z = "<<blcmsrot.phiZ()*kRadToDeg<<std::endl ;
+
+	 std::cout<<"\n\n BeamLine to CMS translation"<<blcmstra<<std::endl ;
       }
       const double ntot ( 1.0*nsur ) ;
       sumx /= ntot ;
@@ -352,6 +423,17 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       std::cout<<"\n====== Mean x deviation = "<< sumx <<" +- "<<sumx2 ;
       std::cout<<"\n====== Mean y deviation = "<< sumy <<" +- "<<sumy2 ;
       std::cout<<"\n====== Mean z deviation = "<< sumz <<" +- "<<sumz2 <<std::endl ;
+
+      psumx /= ntot ;
+      psumy /= ntot ;
+      psumz /= ntot ;
+      psumx2 = sqrt( psumx2/ntot - psumx*psumx ) ;
+      psumy2 = sqrt( psumy2/ntot - psumy*psumy ) ;
+      psumz2 = sqrt( psumz2/ntot - psumz*psumz ) ;
+
+      std::cout<<"\n====== Mean x of pivot = "<< psumx <<" +- "<<psumx2 ;
+      std::cout<<"\n====== Mean y of pivot = "<< psumy <<" +- "<<psumy2 ;
+      std::cout<<"\n====== Mean z of pivot = "<< psumz <<" +- "<<psumz2 <<std::endl ;
    }
 }
 

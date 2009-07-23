@@ -80,9 +80,9 @@
 
 <RotationSection label="TBH4.xml">
 <Rotation name="blRot"
-                        phiX="[tbrot:phi]"        thetaX="[tbrot:theta]+90*deg"
-                        phiY="[tbrot:phi]+90*deg" thetaY="              90*deg"
-                        phiZ="[tbrot:phi]"        thetaZ="[tbrot:theta]       "   />
+                        phiX="[tbrot:phi_X]"  thetaX="[tbrot:theta_X]"
+                        phiY="[tbrot:phi_Y]"  thetaY="[tbrot:theta_Y]"
+                        phiZ="[tbrot:phi]  "  thetaZ="[tbrot:theta]  "   />
 </RotationSection>
 
 <PosPartSection label="TBH4.xml">

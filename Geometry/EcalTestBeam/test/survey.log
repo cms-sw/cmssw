@@ -1,9 +1,11 @@
 TimeReport> Report activated
 TimeReport> Report columns headings for events: eventnum runnum timetaken
 TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetakeni
-TimeReport> JobTime=1.24827e+09 JobCPU=5.54716
+TimeReport> JobTime=1.24831e+09 JobCPU=5.87011
 
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 22-Jul-2009 16:58:09 CEST
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 23-Jul-2009 02:06:32 CEST
+pivot to beamline=(0,-1.66533e-16,0)
+endcap to beamline=(50,-0.02,316)
 
 A0 = (103.618,0.0399998,316.3)
 B0 = (103.615,73.649,316.299)
@@ -27,16 +29,18 @@ D0 = (44.3781,0.0399998,317.744)
 
  H discrepancy is (-0.018659,-0.0450204,0.0729194), 0.0877053
 
- Pivot point in CMS coord = (-141.444,3.24153,41.6895)
+ Point SA in CMS coord = (103.618,0.0399998,316.3)
+
+ CMS IP in H4 coord = (13530.2,5.17128,-4.85856)
+
+ Pivot point in CMS coord = (5.3727,5.39784,1.51396)
+
+H0   Theta_x = 105.302,  Theta_y = 92.3328,  Theta_z = 15.4879,  eta = 1.9952
+
+H0   Phi_x = 0.841445,  Phi_y = 91.4801,  Phi_z = 9.93403
 
 
-Transform rotation is 
-   [ (     0.26303     0.0258082      0.964442)
-     (   0.0460672     -0.998838     0.0141648)
-     (    0.963687     0.0407034     -0.263914) ]
-
-
-          translation=(-3554.31,-618.065,-13040.4)
+ BeamLine to CMS translation(5.3727,5.39784,1.51396)
 
 ********* Name is H1
 
@@ -46,14 +50,16 @@ Transform rotation is
 
  D discrepancy is (-0.104298,0.0262151,-0.0242791), 0.110249
 
+ CMS IP in H4 coord = (13530.1,5.12112,-4.83466)
 
-Transform rotation is 
-   [ (    0.262382     0.0320066      0.964433)
-     (   0.0701083     -0.997441     0.0140284)
-     (    0.962414      0.063934     -0.263955) ]
+ Pivot point in CMS coord = (5.34615,5.42237,1.5056)
+
+H1   Theta_x = 105.305,  Theta_y = 93.6656,  Theta_z = 15.7587,  eta = 1.97765
+
+H1   Phi_x = 0.833353,  Phi_y = 91.8379,  Phi_z = 14.9599
 
 
-          translation=(-3545.56,-943.398,-13023.2)
+ BeamLine to CMS translation(5.34615,5.42237,1.5056)
 
 ********* Name is H2
 
@@ -63,14 +69,16 @@ Transform rotation is
 
  D discrepancy is (-0.107862,0.0224535,-0.0224118), 0.112431
 
+ CMS IP in H4 coord = (13529.6,4.7807,-4.80362)
 
-Transform rotation is 
-   [ (    0.257585     0.0598746      0.964399)
-     (    0.175776     -0.984328     0.0141632)
-     (    0.950133       0.16587     -0.264073) ]
+ Pivot point in CMS coord = (5.31231,5.45348,1.50261)
+
+H2   Theta_x = 105.312,  Theta_y = 99.5478,  Theta_z = 18.1705,  eta = 1.83315
+
+H2   Phi_x = 0.841391,  Phi_y = 93.4809,  Phi_z = 34.3095
 
 
-          translation=(-3480.68,-2373.4,-12857)
+ BeamLine to CMS translation(5.31231,5.45348,1.50261)
 
 ********* Name is H3
 
@@ -80,14 +88,16 @@ Transform rotation is
 
  D discrepancy is (-0.0865484,0.0522377,-0.0379478), 0.107979
 
+ CMS IP in H4 coord = (13531.2,5.65483,-4.93031)
 
-Transform rotation is 
-   [ (    0.263279    -0.0205406      0.964501)
-     (   -0.128752     -0.991578     0.0140281)
-     (     0.95609     -0.127875     -0.263706) ]
+ Pivot point in CMS coord = (5.44487,5.41597,1.50641)
+
+H3   Theta_x = 105.29,  Theta_y = 82.6532,  Theta_z = 17.0421,  eta = 1.89827
+
+H3   Phi_x = 0.833273,  Phi_y = 88.8133,  Phi_z = -26.0602
 
 
-          translation=(-3557.6,1747.84,-12937.6)
+ BeamLine to CMS translation(5.44487,5.41597,1.50641)
 
 ********* Name is H4
 
@@ -97,14 +107,16 @@ Transform rotation is
 
  D discrepancy is (-0.0900804,0.0608567,-0.0379116), 0.115132
 
+ CMS IP in H4 coord = (13531.9,5.83643,-4.93203)
 
-Transform rotation is 
-   [ (     0.25891    -0.0520007      0.964501)
-     (    -0.24735     -0.968823     0.0141648)
-     (    0.933693     -0.242237     -0.263701) ]
+ Pivot point in CMS coord = (5.44083,5.38129,1.48609)
+
+H4   Theta_x = 105.29,  Theta_y = 75.9814,  Theta_z = 20.9819,  eta = 1.68645
+
+H4   Phi_x = 0.841395,  Phi_y = 86.9276,  Phi_z = -43.6919
 
 
-          translation=(-3498.48,3352.84,-12634.5)
+ BeamLine to CMS translation(5.44083,5.38129,1.48609)
 
 ********* Name is V1
 
@@ -114,14 +126,16 @@ Transform rotation is
 
  D discrepancy is (-0.0949714,0.0232507,-0.038898), 0.105229
 
+ CMS IP in H4 coord = (13530,5.0985,-4.86657)
 
-Transform rotation is 
-   [ (    0.266376     0.0399508      0.963041)
-     (   0.0907615     -0.995741     0.0162028)
-     (    0.959586      0.083091     -0.268867) ]
+ Pivot point in CMS coord = (5.3805,5.48162,1.5022)
+
+V1   Theta_x = 105.597,  Theta_y = 94.7663,  Theta_z = 16.3446,  eta = 1.94066
+
+V1   Phi_x = 0.963888,  Phi_y = 92.2976,  Phi_z = 18.8154
 
 
-          translation=(-3599.58,-1222.85,-12984.9)
+ BeamLine to CMS translation(5.3805,5.48162,1.5022)
 
 ********* Name is V2
 
@@ -131,14 +145,16 @@ Transform rotation is
 
  D discrepancy is (-0.0987319,0.0129621,-0.0514015), 0.112063
 
+ CMS IP in H4 coord = (13530.1,5.07506,-4.96299)
 
-Transform rotation is 
-   [ (    0.238092      0.026206      0.970889)
-     (   0.0906243     -0.995874    0.00465647)
-     (    0.967005     0.0868775     -0.239485) ]
+ Pivot point in CMS coord = (5.44882,5.38789,1.47106)
+
+V2   Theta_x = 103.856,  Theta_y = 94.984,  Theta_z = 14.7591,  eta = 2.04396
+
+V2   Phi_x = 0.274794,  Phi_y = 91.5074,  Phi_z = 20.8382
 
 
-          translation=(-3216.74,-1221.08,-13085.3)
+ BeamLine to CMS translation(5.44882,5.38789,1.47106)
 
 ********* Name is V3
 
@@ -148,14 +164,16 @@ Transform rotation is
 
  D discrepancy is (-0.0831297,0.0526045,-0.0287835), 0.1025
 
+ CMS IP in H4 coord = (13530.3,5.26508,-4.95125)
 
-Transform rotation is 
-   [ (    0.209966     0.0119429      0.977636)
-     (   0.0906218     -0.995859   -0.00729726)
-     (      0.9735     0.0901273     -0.210178) ]
+ Pivot point in CMS coord = (5.42366,5.50599,1.47939)
+
+V3   Theta_x = 102.133,  Theta_y = 95.1709,  Theta_z = 13.2198,  eta = 2.15521
+
+V3   Phi_x = -0.427659,  Phi_y = 90.6871,  Phi_z = 23.3452
 
 
-          translation=(-2836.12,-1220.93,-13173.2)
+ BeamLine to CMS translation(5.42366,5.50599,1.47939)
 
 ********* Name is V4
 
@@ -165,14 +183,16 @@ Transform rotation is
 
  D discrepancy is (-0.100641,0.0278,-0.0280102), 0.108102
 
+ CMS IP in H4 coord = (13530.4,5.19357,-5.038)
 
-Transform rotation is 
-   [ (    0.181365   -0.00224874      0.983413)
-     (   0.0912799     -0.995642    -0.0191109)
-     (     0.97917      0.093232     -0.180369) ]
+ Pivot point in CMS coord = (5.4972,5.36183,1.47222)
+
+V4   Theta_x = 100.391,  Theta_y = 95.3496,  Theta_z = 11.7148,  eta = 2.27703
+
+V4   Phi_x = -1.1133,  Phi_y = 89.8706,  Phi_z = 26.7158
 
 
-          translation=(-2448.98,-1229.98,-13250)
+ BeamLine to CMS translation(5.4972,5.36183,1.47222)
 
 ********* Name is V5
 
@@ -182,44 +202,50 @@ Transform rotation is
 
  D discrepancy is (-0.105672,0.0310793,-0.0431257), 0.118289
 
+ CMS IP in H4 coord = (13530.6,5.25871,-4.98134)
 
-Transform rotation is 
-   [ (     0.15287    -0.0165984      0.988107)
-     (   0.0918151     -0.995296    -0.0309239)
-     (    0.983972     0.0954505     -0.150627) ]
+ Pivot point in CMS coord = (5.43074,5.35271,1.45581)
+
+V5   Theta_x = 98.6633,  Theta_y = 95.4773,  Theta_z = 10.2721,  eta = 2.40926
+
+V5   Phi_x = -1.79255,  Phi_y = 89.0446,  Phi_z = 30.9894
 
 
-          translation=(-2063.42,-1237.23,-13315)
+ BeamLine to CMS translation(5.43074,5.35271,1.45581)
 
  Number of survey points = 10
 ====== Mean x deviation = -0.0972798 +- 0.00794016
 ====== Mean y deviation = 0.0339333 +- 0.0148864
 ====== Mean z deviation = -0.0337534 +- 0.00904164
-TimeModule> 1 1 cga SurveyToTransforms 7.66409
-TimeModule> 1 1 TriggerResults TriggerResultInserter 0.000200987
-TimeEvent> 1 1 7.66465 7.58385 7.58385
-MemoryReport> Peak virtual size 143.688 Mbytes
+
+====== Mean x of pivot = 5.40978 +- 0.0527025
+====== Mean y of pivot = 5.4161 +- 0.0480776
+====== Mean z of pivot = 1.48953 +- 0.0183411
+TimeModule> 1 1 cga SurveyToTransforms 7.54766
+TimeModule> 1 1 TriggerResults TriggerResultInserter 0.000200033
+TimeEvent> 1 1 7.54821 7.53785 7.53785
+MemoryReport> Peak virtual size 143.695 Mbytes
  Key events increasing vsize: 
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
-[1] run: 1 event: 1  vsize = 143.688 deltaVsize = 0 rss = 94.0312 delta 0
+[1] run: 1 event: 1  vsize = 143.695 deltaVsize = 0 rss = 94.0352 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
-[1] run: 1 event: 1  vsize = 143.688 deltaVsize = 0 rss = 94.0312 delta 0
-TimeReport> Time report complete in 7.667 seconds
+[1] run: 1 event: 1  vsize = 143.695 deltaVsize = 0 rss = 94.0352 delta 0
+TimeReport> Time report complete in 7.55045 seconds
  Time Summary: 
- - Min event:   7.66465
- - Max event:   7.66465
- - Avg event:   7.667
- - Total job:   7.667
+ - Min event:   7.54821
+ - Max event:   7.54821
+ - Avg event:   7.55045
+ - Total job:   7.55045
  CPU Summary: 
- - Min event:   7.58385
- - Max event:   7.58385
- - Avg event:   7.58385
- - Total job:   7.58585
- - Total event: 7.58385
+ - Min event:   7.53785
+ - Max event:   7.53785
+ - Avg event:   7.53785
+ - Total job:   7.53985
+ - Total event: 7.53785
 
 
 =============================================
