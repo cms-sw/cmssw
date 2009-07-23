@@ -17,7 +17,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 # TSC key
 process.load("CondTools.L1Trigger.L1SubsystemKeysOnline_cfi")
-process.L1SubsystemKeysOnline.tscKey = cms.string( 'TSC_000618_090304_MIDWEEK2008_GTgt20090bst30_GMTstartup3_DTTF_DT_MI' )
+#process.L1SubsystemKeysOnline.tscKey = cms.string( 'TSC_000618_090304_MIDWEEK2008_GTgt20090bst30_GMTstartup3_DTTF_DT_MI' )
+process.L1SubsystemKeysOnline.tscKey = cms.string( 'TSC_000990_090723_CRAFT_GTgt200911_GMTsynctf02ro3rpc2_GCT_RCT_DTTF_CSCTF_HCAL_DT_RPC_MI')
 
 # Subclass of L1ObjectKeysOnlineProdBase.
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTscObjectKeysOnline_cfi")

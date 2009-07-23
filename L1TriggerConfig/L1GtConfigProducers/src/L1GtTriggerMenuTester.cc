@@ -64,6 +64,7 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
     edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
     evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu);
+    (const_cast<L1GtTriggerMenu*>(l1GtMenu.product()))->buildGtConditionMap();
 
     // print with various level of verbosities
 
