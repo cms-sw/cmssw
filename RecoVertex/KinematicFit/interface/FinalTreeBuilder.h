@@ -31,7 +31,7 @@ private:
 
 //internal calculation and helper methods
  AlgebraicMatrix momentumPart(const CachingVertex<6>& vtx,
-				     const AlgebraicVector7& par, const MagneticField* )const;
+				     const AlgebraicVector7& par)const;
 
  KinematicVertexFactory * kvFactory;
  VirtualKinematicParticleFactory * pFactory;

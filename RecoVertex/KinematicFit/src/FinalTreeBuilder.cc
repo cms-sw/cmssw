@@ -58,7 +58,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
 
 // covariance matrix calculation: momentum-momentum components part (4x4)
 // and position-momentum components part:
- AlgebraicMatrix m_all = momentumPart(vtx,par, input[0]->magneticField());
+ AlgebraicMatrix m_all = momentumPart(vtx,par);
 
 //position-position components part (3x3)
  AlgebraicMatrix x_X = vtx.error().matrix();
@@ -140,8 +140,8 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
 
 //method returning the full covariance matrix
 //of new born kinematic particle
-AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx, const AlgebraicVector7& par,
-		const MagneticField* field) const
+AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx,
+	const AlgebraicVector7& par) const
 {
  vector<RefCountedVertexTrack> refTracks  = vtx.tracks();
  int size = refTracks.size();
@@ -166,7 +166,8 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx, cons
   double mass = param[5];
 
   if ((**rt_i).linearizedTrack()->charge()!=0) {
-    a = -field->inInverseGeV(vtx.position()).z()*(**rt_i).refittedState()->freeTrajectoryState ().parameters ().charge();
+      a = -(**rt_i).refittedState()->freeTrajectoryState().parameters().magneticFieldInInverseGeV(vtx.position()).z()
+      		* (**rt_i).refittedState()->freeTrajectoryState().parameters ().charge();
     if (a==0.) throw cms::Exception("FinalTreeBuilder", "Field is 0");
   } else {
     a = 1;
