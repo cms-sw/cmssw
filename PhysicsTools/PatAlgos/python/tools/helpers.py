@@ -21,8 +21,8 @@ class MassSearchReplaceAnyInputTagVisitor(object):
     """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
        It will climb down within PSets, VPSets and VInputTags to find its target"""
     def __init__(self,paramSearch,paramReplace):
-        self._paramSearch  = paramSearch
-        self._paramReplace = paramReplace
+        self._paramSearch  = self.standardizeInputTagFmt(paramSearch)
+        self._paramReplace = self.standardizeInputTagFmt(paramReplace)
         self._moduleName   = ''
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
@@ -37,13 +37,23 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                     for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
                 elif type == 'cms.VInputTag':
                     for (i,n) in enumerate(value): 
-                        if (it == self._paramSearch):
+                         # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
+                         n = self.standardizeInputTagFmt(n)
+                         if (n == self._paramSearch):
                             print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
                             value[i] == self._paramReplace
                 elif type == 'cms.InputTag':
                     if value == self._paramSearch:
                         print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
                         setattr(pset, name, self._paramReplace)
+
+    @staticmethod 
+    def standardizeInputTagFmt(inputTag):
+       ''' helper function to ensure that the InputTag is defined as cms.InputTag(str) and not as a plain str '''
+       if not isinstance(inputTag, cms.InputTag):
+          return cms.InputTag(inputTag)
+       return inputTag
+
     def enter(self,visitee):
         label = ''
         try:    label = visitee.label()

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.11 2009/06/03 11:22:46 jandrea Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.8 2008/03/05 18:10:25 tboccali Exp $
 //
 //
 // system include files
@@ -40,11 +40,20 @@
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 
-#include "TClass.h"
+#include <TClass.h>
 
+
+#include "RVersion.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
 #include "TBufferFile.h"
+typedef TBufferFile MyTBuffer;
+#else
+#include "TBuffer.h"
+typedef TBuffer MyTBuffer;
+#endif
 
-#include "TBufferXML.h"
+
+#include <TBufferXML.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -172,7 +181,7 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
         it_begin=m_calibration[i]->data.begin();
         it_end=m_calibration[i]->data.end();
   
-      for(unsigned int j=0;j<selTracks.size(); j++)
+      for(unsigned int j=0;j<ip.size(); j++)
         {
           double ipsig;
           if (i==0) ipsig  = it->impactParameterData()[j].ip3d.significance();
@@ -185,19 +194,13 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
             if(found!=it_end) 
               found->histogram.fill(-ipsig);
             else
-              {std::cout << "No category for this track!!" << std::endl;
-              std::cout << "p       "  <<(*selTracks[j]).p ()  << std::endl;
-              std::cout << "eta     " << (*selTracks[j]).eta() << std::endl;
-              std::cout << "NHit    " << (*selTracks[j]).numberOfValidHits() << std::endl;
-              std::cout << "NPixHit " << (*selTracks[j]).hitPattern().numberOfValidPixelHits() << std::endl;
-              std::cout << "FPIXHIT " << (*selTracks[j]).hitPattern().hasValidHitInFirstPixelBarrel() << std::endl;}
-	      
+              std::cout << "No category for this track!!" << std::endl;
            }
          }
       } 
      }  
       
-         
+      
   
 }
 
@@ -225,19 +228,16 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
   if(categories == "HardCoded")
   {
    vector<TrackProbabilityCategoryData> v;
-    //TrackProbabilityCategoryData {pMin, pMax, etaMin, etaMax,
-    //nHitsMin, nHitsMax, nPixelHitsMin, nPixelHitsMax, chiMin,chiMax, withFirstPixel;
-    //trackQuality;
-  v.push_back(createCategory(0, 5000, 0  , 2.5, 8 , 50, 1, 1, 0  , 5  , 0));
-  v.push_back(createCategory(0, 5000, 0  , 2.5, 8 , 50, 2, 8, 2.5, 5  , 0));
-  v.push_back(createCategory(0, 8   , 0  , 0.8, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(0, 8   , 0.8, 1.6, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(0, 8   , 1.6, 2.5, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(0, 8   , 0  , 2.5, 8 , 50, 2, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(8, 5000, 0  , 0.8, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(8, 5000, 0.8, 1.6, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(8, 5000, 1.6, 2.5, 8 , 50, 3, 8, 0  , 2.5, 0));
-  v.push_back(createCategory(8, 5000, 0  , 2.5, 8 , 50, 2 ,2, 0  , 2.5, 0));
+  v.push_back(createCategory(0,5000,0,2.4,8,50,1,1,0,5,0));
+  v.push_back(createCategory(0,5000,0,2.4,8,50,2,5,2.5,5,0));
+  v.push_back(createCategory(0,8,0,0.8,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(0,8,0.8,1.6,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(0,8,1.6,2.4,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(0,8,0,2.4,8,50,2,2,0,2.5,0));
+  v.push_back(createCategory(8,5000,0,0.8,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(8,5000,0.8,1.6,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(8,5000,1.6,2.4,8,50,3,5,0,2.5,0));
+  v.push_back(createCategory(8,5000,0,2.4,8,50,2,2,0,2.5,0));
   for(unsigned int i=minLoop;i <=maxLoop ;i++)
    for(unsigned int j=0;j<v.size() ; j++)
     {
@@ -372,7 +372,7 @@ ImpactParameterCalibration::endJob() {
   {
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if( !mydbservice.isAvailable() ) return;
-    if(minLoop == 0 )  mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+    if(minLoop == 0 )    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
     if(maxLoop == 1)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
   } 
     
@@ -403,7 +403,7 @@ ImpactParameterCalibration::endJob() {
     if(maxLoop == 1 ){
       
       std::ofstream ofile("2d.dat");
-      TBufferFile buffer(TBuffer::kWrite);
+      MyTBuffer buffer(TBuffer::kWrite);
       buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
 			  TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size = buffer.Length();
@@ -412,7 +412,7 @@ ImpactParameterCalibration::endJob() {
     }
     if(minLoop == 0 ){
       std::ofstream ofile3("3d.dat");
-      TBufferFile buffer3(TBuffer::kWrite);
+      MyTBuffer buffer3(TBuffer::kWrite);
       buffer3.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
 			   TClass::GetClass("TrackProbabilityCalibration"));
       Int_t size3 = buffer3.Length();

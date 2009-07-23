@@ -71,8 +71,8 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step B: Create empty output
   std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
 
-  const int ifed_first=FEDNumbering::getHcalFEDIds().first;
-  const int ifed_last=FEDNumbering::getHcalFEDIds().second;
+  const int ifed_first=FEDNumbering::MINHCALFEDID;
+  const int ifed_last=FEDNumbering::MAXHCALFEDID;
 
   int orbitN=e.id().event();
   int bcnN=2000;

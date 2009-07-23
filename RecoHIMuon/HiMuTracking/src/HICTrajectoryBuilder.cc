@@ -343,6 +343,8 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     }
 
     TSCBLBuilderNoMaterial tscblBuilder;
+
+    //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
@@ -555,6 +557,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 // We must check the charge of the high pt track after first step
 //
 
+/*
   if(abs(currentLayerCode) > 100&&traj0.measurements().size()>1) {
            HICMuonPropagator hmp(mf);
 #ifdef DEBUG
@@ -568,7 +571,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
         TSOS predictedState = tm.predictedState();
 	TM::ConstRecHitPointer  hit = tm.recHit();
 	TSOS updateState = traj0.lastMeasurement().updatedState();
-
+#ifdef DEBUG
 	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<
                    " valid updated state "<< updateState.isValid()<<" Predicted state is valid "
                     <<predictedState.isValid()<<
@@ -579,21 +582,15 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
                    " phi  "<<predictedState.freeTrajectoryState()->parameters().position().phi()<<
                    " z  "<<predictedState.freeTrajectoryState()->parameters().position().z()<<
 	 std::endl;        
+#endif
      }
 #ifdef DEBUG
   std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward::end "<<std::endl;
 #endif             
   }
-
-
-
-
-//  else
-//  {
-               tmp0 = 
-                      theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
-//  }		      
-		      
+*/
+       tmp0 = theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
+		      		      
 #ifdef DEBUG 
   std::cout<<" findCompatibleMeasurements Point 6 "<<theCut[0]<<" "<<theCut[1]<<std::endl;
   std::cout<<" findCompatibleMeasurements Point 7 "<<traj0.measurements().size()<<std::endl;

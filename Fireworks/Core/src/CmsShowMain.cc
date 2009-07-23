@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.78 2009/05/17 12:29:29 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.80 2009/07/07 14:14:50 amraktad Exp $
 //
 
 // system include files
@@ -139,6 +139,7 @@ static char const* const kHelpCommandOpt = "help,h";
 // static char const* const kSoftOpt = "soft";
 static char const* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
+static char const* const kPlainRootCommandOpt = "root";
 static char const* const kRootInteractiveCommandOpt = "root-interactive,r";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
@@ -175,7 +176,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
               (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
               (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
-              (kRootInteractiveCommandOpt,                               "Enable root interactive prompt.")
+              (kPlainRootCommandOpt,                              "Plain ROOT without event display")
+              (kRootInteractiveCommandOpt,                        "Enable root interactive prompt.")
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
               (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
@@ -195,21 +197,27 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          std::cout << desc <<std::endl;
          exit(0);
       }
-
-      if (vm.count(kInputFileOpt)) {
-         m_inputFileName = vm[kInputFileOpt].as<std::string>();
-      } else {
-#if !defined(__APPLE__)
-         printf("No data file name.\n");
-         std::cout << desc <<std::endl;
-         exit(0);
-#endif
+      if(vm.count(kPlainRootCommandOpt)) {
+         std::cout << "Plain ROOT prompt requested" <<std::endl;
+	 return;
       }
+
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
       if(0 == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
 
+      // input file
+      if (vm.count(kInputFileOpt)) {
+         m_inputFileName = vm[kInputFileOpt].as<std::string>();
+      }      
+
+      if (!m_inputFileName.size())
+         std::cout << "No data file given." << std::endl;
+      else
+         std::cout << "Input: " << m_inputFileName.c_str() << std::endl;
+
+      // configuration file
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
       } else {
@@ -220,7 +228,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
             m_configFileName = "src/Fireworks/Core/macros/default.fwc";
          }
       }
+      std::cout << "Config: "  <<  m_configFileName.c_str() << std::endl;
 
+      // geometry
       if (vm.count(kGeomFileOpt)) {
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
@@ -228,6 +238,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          // m_geomFileName =cmspath;
          m_geomFileName.append("cmsGeom10.root");
       }
+      std::cout << "Geom: " <<  m_geomFileName.c_str() << std::endl;
+
       bool eveMode = vm.count(kEveOpt);
 
       //Delay creating guiManager until here so that if we have a 'help' request we don't
@@ -243,9 +255,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          TEveLine::SetDefaultSmooth(kTRUE);
       }
 
-      printf("Input: %s\n", m_inputFileName.c_str());
-      printf("Config: %s\n", m_configFileName.c_str());
-      printf("Geom: %s\n", m_geomFileName.c_str());
       //connect up the managers
       m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                                 m_changeManager.get(), _1) );
@@ -262,9 +271,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       macPath += "/src/Fireworks/Core/macros";
       const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
       if(0!=base) {
-	macPath+=":";
-	macPath +=base;
-	macPath +="/src/Fireworks/Core/macros";
+         macPath+=":";
+         macPath +=base;
+         macPath +="/src/Fireworks/Core/macros";
       }
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());
 
@@ -399,8 +408,7 @@ void CmsShowMain::draw(const fwlite::Event& event)
 
 void CmsShowMain::openData()
 {
-   const char* kRootType[] = {"ROOT files","*.root",
-                              0,0};
+   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
    TGFileInfo fi;
    fi.fFileTypes = kRootType;
    /* this is how things used to be done:
@@ -713,6 +721,9 @@ CmsShowMain::setupDataHandling()
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
       m_navigator->loadFile(m_inputFileName);
+   }
+   else {
+      openData();
    }
 }
 

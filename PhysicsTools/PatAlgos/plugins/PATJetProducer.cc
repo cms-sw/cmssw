@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.37 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATJetProducer.cc,v 1.38 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -34,6 +34,8 @@
 
 #include "FWCore/Framework/interface/Selector.h"
 
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+
 #include <vector>
 #include <memory>
 
@@ -67,6 +69,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
   jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
+  addJetID_                = iConfig.getParameter<bool>                       ( "addJetID");
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -281,6 +284,21 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
 
+    // add jet ID for calo jets
+    if (addJetID_ && ajet.isCaloJet() ) {
+      reco::helper::JetID jetID;
+      jetID.calculate( iEvent, dynamic_cast<reco::CaloJet const &>(*itJet) );
+      ajet.setFHPD         ( jetID.fHPD()            );
+      ajet.setFRBX         ( jetID.fRBX()            );
+      ajet.setN90Hits      ( jetID.n90Hits()         );
+      ajet.setFSubDetector1( jetID.fSubDetector1()   );
+      ajet.setFSubDetector2( jetID.fSubDetector2()   );
+      ajet.setFSubDetector3( jetID.fSubDetector3()   );
+      ajet.setFSubDetector4( jetID.fSubDetector4()   );
+      ajet.setRestrictedEMF( jetID.restrictedEMF()   );
+      ajet.setNHCALTowers  ( jetID.nHCALTowers()     );
+      ajet.setNECALTowers  ( jetID.nECALTowers()     );
+    }
 
     if ( useUserData_ ) {
       userDataHelper_.add( ajet, iEvent, iSetup );
@@ -321,6 +339,8 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   iDesc.add<bool>("addJetCharge", true);
   iDesc.add<edm::InputTag>("jetChargeSource", edm::InputTag("patJetCharge"));
+  
+  iDesc.add<bool>("addJetID", true)->setComment("Add jet ID information");
 
   iDesc.add<bool>("addPartonJetMatch", false);
   iDesc.add<edm::InputTag>("partonJetSource", edm::InputTag("NOT IMPLEMENTED"));

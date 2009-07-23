@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.135 2009/07/02 18:35:25 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.136 2009/07/02 19:09:00 amraktad Exp $
 //
 
 // system include files
@@ -643,8 +643,11 @@ FWGUIManager::showModelPopup()
 void
 FWGUIManager::popupViewClosed()
 {
-  FWGUISubviewArea* sa = getGUISubviewArea(m_viewPopup->GetEveWindow());
-  sa->setInfoButton(kFALSE);
+   if (m_viewPopup->GetEveWindow())
+   {
+      FWGUISubviewArea* sa = getGUISubviewArea(m_viewPopup->GetEveWindow());
+      sa->setInfoButton(kFALSE);
+   }
 }
 
 void

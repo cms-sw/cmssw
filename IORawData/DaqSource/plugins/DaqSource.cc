@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2009/02/11 18:23:49 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/07/07 16:33:33 $
+ *  $Revision: 1.32 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -39,14 +39,14 @@
 
 
 namespace daqsource{
-  static unsigned int gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
-  static unsigned int gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
+  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 }
 
 namespace edm {
  namespace daqsource{
-  static unsigned int gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
-  static unsigned int gtpeId_ =  FEDNumbering::getTriggerEGTPFEDIds().first;
+  static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
+  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
  }
 
   //______________________________________________________________________________
@@ -82,12 +82,15 @@ namespace edm {
       reader_=
         DaqReaderPluginFactory::get()->create(reader,
   					    pset.getUntrackedParameter<ParameterSet>("readerPset"));
+      reader_->setRunNumber(runNumber_);
     }
     catch(edm::Exception &e) {
       if(e.category() == "Configuration" && reader_ == 0) {
   	reader_ = DaqReaderPluginFactoryU::get()->create(reader);
   	if(reader_ == 0) throw;
-      } else {
+	else reader_->setRunNumber(runNumber_);
+      }
+      else {
         throw;
       }
     }
@@ -277,6 +280,7 @@ namespace edm {
     reset();
     newRun_ = newLumi_ = true;
     runNumber_ = r;
+    if (reader_) reader_->setRunNumber(runNumber_);
     noMoreEvents_ = false;
     resetLuminosityBlockPrincipal();
     resetRunPrincipal();

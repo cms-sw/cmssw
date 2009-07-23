@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.11 2009/07/04 23:06:38 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.8 2009/03/28 22:29:08 charlot Exp $
 //
 //
 
@@ -73,14 +73,19 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_matchingObjectPhi_matched;
   TH1F *h_ele_matchingObjectZ_matched;
 
+  TH1F *h_ele_EoverP_all;
+  TH1F *h_ele_EseedOP_all;
+  TH1F *h_ele_EoPout_all;
+  TH1F *h_ele_EeleOPout_all;
+  TH1F *h_ele_dEtaSc_propVtx_all;
+  TH1F *h_ele_dPhiSc_propVtx_all;
+  TH1F *h_ele_dEtaCl_propOut_all;
+  TH1F *h_ele_dPhiCl_propOut_all;
+  TH1F *h_ele_TIP_all;
+  TH1F *h_ele_HoE_all;
+  TH1F *h_ele_vertexEta_all;
+  TH1F *h_ele_vertexPt_all;
   TH1F *h_ele_mee_all;
-  TH1F *h_ele_mee_os;
-  TH1F *h_ele_mee_os_ebeb;
-  TH1F *h_ele_mee_os_ebee;
-  TH1F *h_ele_mee_os_eeee;
-  TH1F *h_ele_mee_os_gg;
-  TH1F *h_ele_mee_os_gb;
-  TH1F *h_ele_mee_os_bb;
 
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
@@ -108,8 +113,6 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEn_ ;
   TH1F *histSclEoEmatchingObject_barrel;
   TH1F *histSclEoEmatchingObject_endcaps;
-  TH1F *histSclEoEmatchingObject_barrel_new;
-  TH1F *histSclEoEmatchingObject_endcaps_new;
   TH1F *histSclEt_ ;
   TH2F *histSclEtVsEta_ ;
   TH2F *histSclEtVsPhi_ ;
@@ -140,15 +143,12 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
 
-  TH1F *h_ele_PtoPtmatchingObject;
   TH1F *h_ele_PoPmatchingObject;
   TH2F *h_ele_PoPmatchingObjectVsEta;
   TH2F *h_ele_PoPmatchingObjectVsPhi;
   TH2F *h_ele_PoPmatchingObjectVsPt;
   TH1F *h_ele_PoPmatchingObject_barrel;
   TH1F *h_ele_PoPmatchingObject_endcaps;
-  TH1F *h_ele_PtoPtmatchingObject_barrel;
-  TH1F *h_ele_PtoPtmatchingObject_endcaps;
   TH1F *h_ele_EtaMnEtamatchingObject;
   TH2F *h_ele_EtaMnEtamatchingObjectVsEta;
   TH2F *h_ele_EtaMnEtamatchingObjectVsPhi;
@@ -271,45 +271,8 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   edm::InputTag matchingObjectCollection_;
   std::string type_;
 
-  //selection
-  double maxAbsEta_;
-  double minEt_;
-  double minPt_;
-  bool isEB_;
-  bool isEE_;
-  bool isNotEBEEGap_;
-  bool isEcalDriven_;
-  bool isTrackerDriven_;
-  double eOverPMinBarrel_;
-  double eOverPMaxBarrel_;
-  double eOverPMinEndcaps_;
-  double eOverPMaxEndcaps_;
-  double dEtaMinBarrel_;
-  double dEtaMaxBarrel_;
-  double dEtaMinEndcaps_;
-  double dEtaMaxEndcaps_;
-  double dPhiMinBarrel_;
-  double dPhiMaxBarrel_;
-  double dPhiMinEndcaps_;
-  double dPhiMaxEndcaps_;
-  double sigIetaIetaMinBarrel_;
-  double sigIetaIetaMaxBarrel_;
-  double sigIetaIetaMinEndcaps_;
-  double sigIetaIetaMaxEndcaps_;
-  double hadronicOverEmMaxBarrel_;
-  double hadronicOverEmMaxEndcaps_;
-  double mvaMin_;
-  double tipMaxBarrel_;
-  double tipMaxEndcaps_;
-  double tkIso03Max_;
-  double hcalIso03Depth1MaxBarrel_;
-  double hcalIso03Depth1MaxEndcaps_;
-  double hcalIso03Depth2MaxEndcaps_;
-  double ecalIso03MaxBarrel_;
-  double ecalIso03MaxEndcaps_;
-  
-  //matching
   double maxPt_;
+  double maxAbsEta_;
   double deltaR_;
 
   // histos limits and binning
@@ -331,10 +294,6 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   double dphimatchmax;
   double fhitsmax;
   double lhitsmax;
-  double poptruemin;
-  double poptruemax;
-  double meemin;
-  double meemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -355,8 +314,6 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   int nbindphimatch;
   int nbindetamatch2D;
   int nbindphimatch2D;
-  int nbinpoptrue;
-  int nbinmee;
 
  };
 

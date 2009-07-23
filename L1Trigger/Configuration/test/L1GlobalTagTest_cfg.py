@@ -7,24 +7,34 @@ process = cms.Process('L1GlobalTagTest')
 
 ###################### user choices ######################
 
-# choose the global tag type; 
-useGlobalTag = 'IDEAL_31X'
-#useGlobalTag='STARTUP_31X'
-#useGlobalTag='CRAFT_31X'
+# choose the global tag type
+# 310 ->
 
-printL1Rct = True
-printL1Gct = True
+#useGlobalTag = 'MC_31X_V1'
+#useGlobalTag = 'STARTUP31X_V1'
 
-printL1DtTPG = True
-printL1DtTF = True
+useGlobalTag = 'GR09_31X_V1P'
+#useGlobalTag = 'GR09_31X_V1H'
 
-printL1CscTF= True
+# include printing for subsystems
+printL1Rct = False
+printL1Gct = False
 
-printL1Rpc = True
+printL1DtTPG = False
+printL1DtTF = False
 
-printL1Gmt = True
+printL1CscTF= False
+
+printL1Rpc = False
+
+printL1Gmt = False
 
 printL1Gt = True
+
+# infinite IoV (use empty source) or run over given event sample (POOL source - default)
+#cmsSource = 'EmptySource'
+cmsSource = 'PoolSource'
+
 
 ###################### end user choices ###################
 
@@ -33,7 +43,20 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.source = cms.Source('EmptySource')
+if cmsSource == 'EmptySource' :
+    process.source = cms.Source('EmptySource')
+else :
+    readFiles = cms.untracked.vstring()
+    secFiles = cms.untracked.vstring() 
+    process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNames=secFiles)
+    
+    dataset = cms.untracked.vstring('/Cosmics/Commissioning09-v3/RAW')
+    readFiles.extend( [
+            '/store/data/Commissioning09/Cosmics/RAW/v3/000/105/847/6A699BB9-2072-DE11-995B-001D09F34488.root'
+        
+        ] );
+
+   
 
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
@@ -128,23 +151,14 @@ print ''
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['*']
-process.MessageLogger.cout = cms.untracked.PSet(
-    threshold=cms.untracked.string('DEBUG'),
-    #threshold = cms.untracked.string('INFO'),
-    #threshold = cms.untracked.string('ERROR'),
-    DEBUG=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    INFO=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    WARNING=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    ERROR=cms.untracked.PSet(
-        limit=cms.untracked.int32(-1)
-    ),
-    default = cms.untracked.PSet( 
-        limit=cms.untracked.int32(-1)  
-    )
-)
+
+process.MessageLogger.cerr.threshold = 'DEBUG'
+#process.MessageLogger.cerr.threshold = 'INFO'
+#process.MessageLogger.cerr.threshold = 'WARNING'
+#process.MessageLogger.cerr.threshold = 'ERROR'
+
+process.MessageLogger.cerr.DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.WARNING = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+

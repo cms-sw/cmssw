@@ -1618,6 +1618,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	// This reference could be NULL it is needed a protection? 
 	temp_Candidate.setGsfTrackRef(RefGSF);
 	temp_Candidate.setPositionAtECALEntrance(posGsfEcalEntrance);
+	// Add Vertex
+	temp_Candidate.setVertex(RefGSF->vertex());
 
 	
 	if( DebugIDCandidates ) 

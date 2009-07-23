@@ -4,6 +4,17 @@
   Date:   2007-08-24
 */
 
+#ifndef HLXTCP_H
+#define HLXTCP_H
+
+#include <string>
+
+// Lumi
+#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
+
+#include <netinet/in.h> // struct sockaddr_in
 
 /* 
    Error Codes
@@ -19,19 +30,9 @@
      501: Failed to Receive Data from server
      601; close() failed
 
-TODO: This should be changed to errno.
-
 */
 
-#ifndef HLXTCP_H
-#define HLXTCP_H
-
-#include <string>
-#include <netinet/in.h> // struct sockaddr_in
-
 namespace HCAL_HLX{
-
-  struct LUMI_SECTION;
 
   class TCPReceiver{
 

@@ -6,21 +6,16 @@ triggerTest = cms.EDAnalyzer("DTLocalTriggerTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('DCC','DDU','COM'),
+    hwSources = cms.untracked.vstring('DCC','DDU'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
     folderRoot = cms.untracked.string(''),
-    # correlated fraction test tresholds
+    # correlated fraction amd 2nd fraction tests tresholds
     corrFracError     = cms.untracked.double(0.50),
     corrFracWarning   = cms.untracked.double(0.60),
-    # second fraction test tresholds
     secondFracError   = cms.untracked.double(0.20),
-    secondFracWarning = cms.untracked.double(0.10),
-    # DDU-DCC matching tests tresholds
-    matchingFracError     = cms.untracked.double(0.65),
-    matchingFracWarning   = cms.untracked.double(0.85),
-
+    secondFracWarning = cms.untracked.double(0.10)
 )
 
 

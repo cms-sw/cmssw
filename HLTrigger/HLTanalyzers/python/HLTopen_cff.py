@@ -318,25 +318,33 @@ DoHLTElectronLargeWindows = cms.Path(
     DoLWTracking
     )
 
-## create the tau HLT reco path
-#from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
-#DoHLTTau = cms.Path(HLTBeginSequence +
-#                    hltTauPrescaler +
-#                    OpenHLTL2TauEcalIsolationNoCutSequence +
-#                    OpenHLTL25TauPixelTracksIsolationNoL2 +
-#                    HLTEndSequence)
+# create the tau HLT reco path
+from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
+DoHLTTau = cms.Path(HLTBeginSequence +
+                    openhltTauPrescaler +
+                    OpenHLTCaloTausCreatorSequence +
+                    openhltL2TauJets +
+                    openhltL2TauIsolationProducer +
+                    openhltL2TauRelaxingIsolationSelector +
+                    HLTDoLocalPixelSequence +
+                    HLTRecopixelvertexingSequence +
+                    OpenHLTL25TauTrackReconstructionSequence +
+                    OpenHLTL25TauTrackIsolation +
+                    TauOpenHLT+
+                    HLTEndSequence)
+
 
 # create the b-jet HLT paths
-#from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
-#DoHLTBTag = cms.Path(
-#    HLTBeginSequence +
-#    HLTBCommonL2recoSequence +
-#    OpenHLTBLifetimeL25recoSequence +
-#    OpenHLTBSoftmuonL25recoSequence +
-#    OpenHLTBLifetimeL3recoSequence +
-#    OpenHLTBLifetimeL3recoSequenceStartup +
-#    OpenHLTBSoftmuonL3recoSequence +
-#    HLTEndSequence )
+from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
+DoHLTBTag = cms.Path(
+    HLTBeginSequence +
+    HLTBCommonL2recoSequence +
+    OpenHLTBLifetimeL25recoSequence +
+    OpenHLTBSoftmuonL25recoSequence +
+    OpenHLTBLifetimeL3recoSequence +
+    OpenHLTBLifetimeL3recoSequenceStartup +
+    OpenHLTBSoftmuonL3recoSequence +
+    HLTEndSequence )
 
 
 DoHLTAlCaPi0Eta1E31 = cms.Path(

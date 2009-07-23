@@ -2,30 +2,46 @@ import FWCore.ParameterSet.Config as cms
 
 # RAW content 
 L1TriggerRAW = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_gtDigis_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*')
+)
+
+
+# RAWDEBUG content 
+L1TriggerRAWDEBUG = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
-        'keep *_l1GtObjectMap_*_*', 
         'keep *_l1extraParticles_*_*')
 )
+
 # RECO content
 L1TriggerRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_gtDigis_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
-        'keep *_l1GtObjectMap_*_*', 
         'keep *_l1extraParticles_*_*',
         'keep LumiDetails_lumiProducer_*_*',
         'keep LumiSummary_lumiProducer_*_*')
 )
+
+
 # AOD content
 L1TriggerAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_gtDigis_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
-        'keep *_l1GtObjectMap_*_*', 
         'keep *_l1extraParticles_*_*',
         'keep LumiSummary_lumiProducer_*_*')
 )
+
+
 L1TriggerFEVTDEBUG = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_simCscTriggerPrimitiveDigis_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep *_simCscTriggerPrimitiveDigis_*_*', 
         'keep *_simDtTriggerPrimitiveDigis_*_*', 
         'keep *_simRpcTriggerDigis_*_*', 
         'keep *_simRctDigis_*_*', 
@@ -45,6 +61,10 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_gctDigis_*_*', 
         'keep *_gmtDigis_*_*', 
         'keep *_gtDigis_*_*',
-        'keep *_gtEvmDigis_*_*')
+        'keep *_gtEvmDigis_*_*',
+        'keep *_l1GtRecord_*_*', 
+        'keep *_l1extraParticles_*_*',
+        'keep LumiDetails_lumiProducer_*_*',
+        'keep LumiSummary_lumiProducer_*_*')
 )
 

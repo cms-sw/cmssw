@@ -1,12 +1,8 @@
-// $Id: SealModule.cc,v 1.2 2009/06/22 20:11:40 wittich Exp $
-
-#include "FWCore/Framework/interface/MakerMacros.h"
+// $Id: SealModule.cc,v 1.13 2008/11/04 22:51:22 rekovic Exp $
 
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
-DEFINE_ANOTHER_FWK_MODULE(FourVectorHLTriggerOffline);
 
-//#include "HLTriggerOffline/Common/interface/HltComparator.h"
-//DEFINE_ANOTHER_FWK_MODULE(HltComparator);
-
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(FourVectorHLTriggerOffline);
 
 

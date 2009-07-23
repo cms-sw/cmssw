@@ -151,16 +151,6 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
         ymax = cms.double(0.0),
         subdetswitchon = cms.bool(False)
         ),
-
-    TH2ClustersApvCycle = cms.PSet(
-        Nbins = cms.int32(70),
-        xmin = cms.double(-0.5),
-        xmax = cms.double(69.5),
-        Nbinsy = cms.int32(200),
-        ymin = cms.double(0.0),
-        yfactor = cms.double(0.2),
-        subdetswitchon = cms.bool(False)
-    ),
                                      
     Mod_On = cms.bool(True),
 

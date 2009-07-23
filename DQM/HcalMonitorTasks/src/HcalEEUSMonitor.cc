@@ -90,24 +90,23 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   
   
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
-  firstFED_ = FEDNumbering::getHcalFEDIds().first;
+  firstFED_ = FEDNumbering::MINHCALFEDID;
   if (fVerbosity>0) cout <<"FIRST FED = "<<firstFED_<<endl;
 
-  for (int i=FEDNumbering::getHcalFEDIds().first; 
-       i<=FEDNumbering::getHcalFEDIds().second; ++i) 
+  for (int i=FEDNumbering::MINHCALFEDID;
+       i<=FEDNumbering::MAXHCALFEDID; ++i) 
     {
       if(fVerbosity) cout << "<HcalEEUSMonitor::setup>:Pushback for fedUnpackList_: " << i <<endl;
       fedUnpackList_.push_back(i);
-    } // for (int i=FEDNumbering::getHcalFEDIds().first;...
+    } // for (int i=FEDNumbering::MINHCALFEDID
   
   
   
   if (m_dbe)
     {
-      char* type;
+      std::string type;
       m_dbe->setCurrentFolder(baseFolder_);
-      type = "EEUSMonitor Event Number";
-      meEVT_ = m_dbe->bookInt(type); // store event number
+      meEVT_ = m_dbe->bookInt("EEUSMonitor Event Number"); // store event number
 
       char label[10];
       //Francesco

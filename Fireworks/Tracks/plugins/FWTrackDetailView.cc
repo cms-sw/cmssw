@@ -7,6 +7,8 @@
 #include "TEveBoxSet.h"
 #include "TEveTrackPropagator.h"
 #include "TGLViewer.h"
+#include "TGeoMatrix.h"
+#include "TVector3.h"
 #include "TGLUtil.h"
 #include <TH2.h>
 #include <TBox.h>
@@ -49,10 +51,13 @@ protected:
       vars[1] = rotationCenter()[1];
       vars[2] = rotationCenter()[2];
    }
+   double getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX);
 
 private:
    FWTrackDetailView(const FWTrackDetailView&); // stop default
    const FWTrackDetailView& operator=(const FWTrackDetailView&); // stop default
+
+   static void drawBox(Float_t* pos, Color_t fillCol, Int_t fillType, bool bg=kTRUE);
 
    // ---------- member data --------------------------------
    void resetCenter() {
@@ -72,34 +77,87 @@ FWTrackDetailView::~FWTrackDetailView ()
 {
 }
 
+
+Int_t   resXFill = 3007;
+Int_t   resYFill = 3006;
+Int_t   stereoFill = 3004;
+Int_t   invalidFill = 3001;
+
+//______________________________________________________________________________
+void FWTrackDetailView::drawBox(Float_t *pos, Color_t fillCol, Int_t fillType, bool bg)
+{
+   // background color
+   if (bg)
+   {
+      TBox *b1 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+      b1->SetFillColor(fillCol);
+      b1->Draw();
+   }
+
+   // fill style
+   TBox *b2 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+   b2->SetFillStyle(fillType);
+   b2->SetFillColor(kBlack);
+   b2->Draw();
+
+   //outline
+   TBox *b3 = new TBox(pos[0], pos[1], pos[2], pos[3]);
+   b3->SetFillStyle(0);
+   b3->SetFillColor(1);
+   b3->SetLineWidth(2);
+   b3->Draw();
+}
+
+//______________________________________________________________________________
+double FWTrackDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX)
+{
+     double local1[3] = { 0, 0, 0 };
+     double local2[3] = { resX, 0, 0 };
+     double global1[3], global2[3];
+     const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+     assert(m != 0);
+     m->LocalToMaster(local1, global1);
+     m->LocalToMaster(local2, global2);
+     TVector3 g1 = global1;
+     TVector3 g2 = global2;
+     if (g2.DeltaPhi(g1) > 0)
+	  return resX;
+     else return -resX;
+}
+
+//______________________________________________________________________________
 TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* track)
 {
- //      following table pasted from HitPattern.h
- //
- //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
- //      |tk/mu|  sub-structure  |   sub-sub-structure   |     stereo     |  hit type |
- //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
- //      | 10  |   9    8     7  |   6    5     4     3  |        2       |  1     0  | bit
- //
- //      |tk = 1      PXB = 1            layer = 1-3                       hit type = 0-3
- //      |tk = 1      PXF = 2            disk  = 1-2                       hit type = 0-3
- //      |tk = 1      TIB = 3            layer = 1-4      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TID = 4            wheel = 1-3      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TOB = 5            layer = 1-6      0=rphi,1=stereo  hit type = 0-3
- //      |tk = 1      TEC = 6            wheel = 1-9      0=rphi,1=stereo  hit type = 0-3
- //      |mu = 0      DT  = 1            layer                             hit type = 0-3
- //      |mu = 0      CSC = 2            layer                             hit type = 0-3
- //      |mu = 0      RPC = 3            layer                             hit type = 0-3
- //
- //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
- //      valid    = valid hit                                     = 0
- //      missing  = detector is good, but no rec hit found        = 1
- //      inactive = detector is off, so there was no hope         = 2
- //      bad      = there were many bad strips within the ellipse = 3
- //
+   //      following table pasted from HitPattern.h
+   //
+   //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
+   //      |tk/mu|  sub-structure  |   sub-sub-structure   |     stereo     |  hit type |
+   //      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
+   //      | 10  |   9    8     7  |   6    5     4     3  |        2       |  1     0  | bit
+   //
+   //      |tk = 1      PXB = 1            layer = 1-3                       hit type = 0-3
+   //      |tk = 1      PXF = 2            disk  = 1-2                       hit type = 0-3
+   //      |tk = 1      TIB = 3            layer = 1-4      0=rphi,1=stereo  hit type = 0-3
+   //      |tk = 1      TID = 4            wheel = 1-3      0=rphi,1=stereo  hit type = 0-3
+   //      |tk = 1      TOB = 5            layer = 1-6      0=rphi,1=stereo  hit type = 0-3
+   //      |tk = 1      TEC = 6            wheel = 1-9      0=rphi,1=stereo  hit type = 0-3
+   //      |mu = 0      DT  = 1            layer                             hit type = 0-3
+   //      |mu = 0      CSC = 2            layer                             hit type = 0-3
+   //      |mu = 0      RPC = 3            layer                             hit type = 0-3
+   //
+   //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
+   //      valid    = valid hit                                     = 0
+   //      missing  = detector is good, but no rec hit found        = 1
+   //      inactive = detector is off, so there was no hope         = 2
+   //      bad      = there were many bad strips within the ellipse = 3
+   //
 
+   bool debug = kFALSE;
 
-   bool debug=false;   
+   Color_t resXCol   = kGreen-9;
+   Color_t resYCol   = kWhite;
+   Color_t stereoCol = kCyan-9;
+   Color_t invalidCol = kRed;
 
    int nhits;
    float res[2][64];
@@ -113,14 +171,24 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    HitPattern hitpat = track->hitPattern();
    TrackResiduals residuals = track->residuals();
 
+   const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
+   assert(detIdToGeo != 0);
    nhits=hitpat.numberOfHits();
    for (int i = 0; i < nhits; ++i) {
+      //   	printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
+      //   	       nhits, track->recHitsEnd() - track->recHitsBegin(), (*(track->recHitsBegin() + i))->geographicalId().rawId());
       hittype[i] = 0x3 & hitpat.getHitPattern(i);
       stereo[i] = 0x1 & hitpat.getHitPattern(i) >> 2;
       subsubstruct[i] = 0xf & hitpat.getHitPattern(i) >> 3;
       substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
       detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
-      res[0][i] = residuals.residualX(i, hitpat);
+      if ((*(track->recHitsBegin() + i))->isValid()) {
+         res[0][i] = getSignedResidual(detIdToGeo,
+                                       (*(track->recHitsBegin() + i))->geographicalId().rawId(),
+                                       residuals.residualX(i, hitpat));
+      } else {
+         res[0][i] = 0;
+      }
       res[1][i] = residuals.residualY(i, hitpat);
       if (debug) printf("%s, %i\n",det_tracker_str[substruct[i]-1],subsubstruct[i]);
    }
@@ -131,7 +199,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    for(int j=0; j < nhits-1;) {
       int k=j+1;
       for(; k<nhits ; k++) {
-         if(substruct[j]==substruct[k]  && subsubstruct[j]==subsubstruct[k]) {	 
+         if(substruct[j]==substruct[k]  && subsubstruct[j]==subsubstruct[k]) {
             if(k==(nhits-1)) j=k;
          }
          else {
@@ -148,7 +216,7 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    if (debug)
    {
       for(int i=0; i<ndet; i++)
-      { 
+      {
          std::cout <<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
          std::cout << "idx " << i << " det[idx] " <<  det[i] << std::endl;
          std::cout << "det idx " << det[i] <<   std::endl;
@@ -172,10 +240,10 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    textCanvas()->cd();
 
    TLatex* latex = new TLatex(0.02, 0.970, "");
-   latex->SetTextSize(0.07);
+   latex->SetTextSize(0.06);
    float_t x0 = 0.02;
    float   y = 0.83;
-   float fontsize = latex->GetTextSize()*0.6;
+   float fontsize = 0.03;
 
    // top text
    {
@@ -192,120 +260,100 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
    }
    // legend
    {
-      textCanvas()->cd();
-
-      Float_t x1 = 0.4;
-      Float_t x2 = 0.7;
-      Float_t boxH = 0.02;
+      Float_t pos[4];
+      pos[0] = 0.4;
+      pos[2] = 0.55;
+      Float_t boxH = 0.015;
 
       //_________________________
       y -= fontsize*2;
-      sprintf(mytext,"r-phi hit");
+      sprintf(mytext,"X hit");
       latex->DrawLatex(x0, y, mytext);
+      pos[1] = y; pos[3] = pos[1] + boxH;
+      drawBox(pos, resXCol, resXFill);
 
-      TBox *b31 = new TBox(x1, y, x2, y+boxH);
-      b31->SetFillColor(kGreen-9);
-      b31->Draw();
-
-      TBox *b3 = new TBox(x1, y, x2, y+boxH);
-      b3->SetFillStyle(3006);
-      b3->SetFillColor(1);
-      b3->Draw();
-
-      TBox *b6 = new TBox(x1, y, x2, y+boxH);
-      b6->SetFillStyle(0);
-      b6->SetFillColor(1);
-      b6->SetLineWidth(2);
-      b6->Draw();
+      //_________________________
+      y -=  boxH*2;
+      sprintf(mytext,"Y hit");
+      latex->DrawLatex(x0, y, mytext);
+      pos[1] = y; pos[3] = pos[1] + boxH;
+      drawBox(pos, resYCol, resYFill);
 
       //--------------
-      y = y - boxH*2;
+      y -= boxH*2;
       sprintf(mytext, "stereo hit");
       latex->DrawLatex(x0, y, mytext);
-
-      TBox *b21 = new TBox(x1, y, x2,y+boxH);
-      b21->SetFillColor(kCyan-9);
-      b21->Draw();
-
-      TBox *b2 = new TBox(x1, y, x2, y+boxH);
-      b2->SetFillStyle(3004);
-      b2->SetFillColor(1);
-      b2->Draw();
-
-      TBox *b5 = new TBox(x1, y, x2, y+boxH);
-      b5->SetFillStyle(0);
-      b5->SetFillColor(1);
-      b5->SetLineWidth(2);
-      b5->Draw();
+      pos[1] = y; pos[3] = pos[1] + boxH;
+      drawBox(pos, stereoCol, stereoFill);
 
       //--------------
-      y = y -boxH*2;
+      y -= boxH*2;
       sprintf(mytext, "invalid hit");
       latex->DrawLatex(x0, y, mytext);
+      pos[1] = y; pos[3] = pos[1] + boxH;
+      drawBox(pos, invalidCol, invalidFill);
 
-      TBox *b11 = new TBox(x1, y, x2, y+boxH);
-      b11->SetFillColor(2);
-      b11->Draw();
-
-      TBox *b1 = new TBox(x1, y, x2, y+boxH);
-      b1->SetFillColor(1);
-      b1->SetFillStyle(3001);
-      b1->Draw();
-
-
-      TBox *b4 = new TBox(x1, y, x2, y+boxH);
-      b4->SetFillStyle(0);
-      b4->SetFillColor(1);
-      b4->SetLineWidth(2);
-      b4->Draw();
+      y -= boxH*2;
    }
+
+   // explanation
+   y -= fontsize;
+   sprintf(mytext,"Residual: ");
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext, "(X_{hit} - X_{traj}) #/ #sqrt{#sigma^{2}_{hit} + #sigma^{2}_{traj}}");
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext,"Y is detector local coordinate");
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext,"X is detector local coordinate");
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext,"signed by sgn(#hat{X}#bullet#hat{#phi})");
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+
 
    //______________________________________________________________________________
    // draw histogram
    TCanvas *canvas = FWTrackDetailView::viewCanvas();
    canvas->cd();
-   canvas->SetFillColor(0);
 
-   TPad* pads[2];
-   pads[0] = new TPad("pad1","pad1",0.05,0.05,0.475,0.95);
+   TPad* padX = new TPad("pad1","pad1",0.1,0.05,0.9,0.95);
+   padX->SetBorderMode(0);
    canvas->cd();
-   pads[0]->Draw();
-   pads[1] = new TPad("pad2","pad2",0.535,0.05,0.95,0.95);
+   padX->Draw();
+
+   TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,ndet,0,ndet);
+   char* res_str= "residuals in Si detector local x-y coord.";
+   char* title = "residual";
+   padX->cd();
+   padX->SetLeftMargin(0.2);
+   padX->SetRightMargin(0.2);
+   padX->Range(-7.7,-1.5,6.966667,13.5);
+   padX->SetFrameLineWidth(0);
+   padX->Modified();
+   h_res->SetDirectory(0);
+   h_res->SetTitle("");
+   h_res->SetStats(kFALSE);
+   h_res->SetTitleSize(0.04);
+   h_res->GetYaxis()->SetRangeUser(0,ndet+1);
+   h_res->GetYaxis()->SetLabelSize(0.06);
+   h_res->SetXTitle(title);
+   h_res->GetXaxis()->SetTickLength(0);
+   h_res->GetYaxis()->SetTickLength(0);
+   h_res->GetXaxis()->SetNdivisions(20);
+   h_res->Draw();
+   padX->SetGridy();
+
+   TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
+   pt->SetName("mytitle");
+   pt->SetBorderSize(0);
+   pt->AddText(res_str);
+   pt->Draw();
+
    canvas->cd();
-   pads[1]->Draw();
-
-   TH2F* h_res[2];
-   h_res[0] = new TH2F("h_resx","h_resx",10,-5.5,5.5,ndet,0,ndet);
-   h_res[1] = new TH2F("h_resy","h_resy",10,-5.5,5.5,ndet,0,ndet);
-   char* res_str[2]={"x-axis residuals in Si detector local x-y coord.","y-axis residuals in Si detector local x-y coord."};
-
-   char* xtitle[2] = {"resX","resY"};
-   for(int i=0; i<2; i++) {
-      pads[i]->cd();
-      pads[i]->SetLeftMargin(0.15);
-      pads[i]->SetFillColor(0);
-
-      pads[i]->Range(-7.7,-1.5,6.966667,13.5);
-      pads[i]->Modified();
-      //    h_res[i]->SetTitle(res_str[i]);
-      h_res[i]->SetTitle("");
-      h_res[i]->SetTitleSize(0.04);
-      h_res[i]->GetYaxis()->SetRangeUser(0,ndet+1);
-      h_res[i]->GetYaxis()->SetLabelSize(0.06);
-      h_res[i]->SetXTitle(xtitle[i]);
-      h_res[i]->GetXaxis()->SetTickLength(0);
-      h_res[i]->GetYaxis()->SetTickLength(0);
-      h_res[i]->GetXaxis()->SetNdivisions(20);
-      h_res[i]->Draw();
-      pads[i]->SetGridy();
-      TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
-      pt->SetName("mytitle");
-      pt->SetBorderSize(0);
-      pt->SetFillColor(0);
-      pt->AddText(res_str[i]);
-      pt->Draw();
-      canvas->cd();
-   }
 
    float larray[9]={0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.5, 4.5, 5.5};
    float larray2[8];
@@ -333,85 +381,66 @@ TEveElement* FWTrackDetailView::build (const FWModelId &id, const reco::Track* t
       lines[l] = new TLine(sign*larray[ix],0,sign*larray[ix],ndet);
       if(l!=9)
          lines[l]->SetLineStyle(3);
-      pads[0]->cd();
-      lines[l]->Draw();
-      pads[1]->cd();
+      padX->cd();
       lines[l]->Draw();
    }
 
    float width=0.25;
-   for(int h=0; h<2; h++) {
-      pads[h]->cd();
-      //      TPaveText *text_error = new TPaveText(5.6,0,6.0,ndet);
-      //      text_error->Draw();
+   int filltype;
+   Color_t color;
+   Float_t box[4];
+   padX->cd();
 
+   for(int h=0; h<2; h++) {
       float height1=0;
       for(int j=0; j<ndet; j++) {
+         // take only X res and Y pixel residals
+         if (strcmp(det_tracker_str[substruct[det[j]]-1], "PXB") && h)
+            continue;
+
          char det_str2[256];
          sprintf(det_str2,"%s/%i",det_tracker_str[substruct[det[j]]-1],subsubstruct[det[j]]);
-         h_res[h]->GetYaxis()->SetBinLabel(j+1,det_str2);
+         h_res->GetYaxis()->SetBinLabel(j+1,det_str2);
+
          int diff=det[j+1]-det[j];
          int k=0;
          width=1.0/diff;
-         // printf("%f\n",width);
+
          for(int l=det[j]; l<(det[j]+diff); l++) {
             //      g->SetPoint(l,resx[l],j+0.5);
             //	printf("%i, %f %f %f\n",l,resx[l],sign*larray[resxi[l]],sign*larray[resxi[l]+1]);
             int sign = (res[h][l]<0) ? -1 : 1;
-            float left = (hittype[l]==0) ? sign*larray[resi[h][l]] : -5.5;
-            float right = (hittype[l]==0) ? sign*larray[resi[h][l]+1] : 5.5;
+            box[0] = (hittype[l]==0) ? sign*larray[resi[h][l]] : -5.5;
+            box[2] = (hittype[l]==0) ? sign*larray[resi[h][l]+1] : 5.5;
+            box[1] = height1+width*k;
+            box[3] = height1+width*(k+1);
 
-
-
-            //	else width=0.25;
-            float height=1.0;
-            if(substruct[det[j]]<3) height=0.5;
-            //	float height1=j+width*k;
-            //	float height2=j+width*(k+1);
-            //	float height1_tmp=j+width*k;
-            //	float height2_tmp=j+width*(k+1);
-            float height1_tmp=height1+width*k;
-            float height2_tmp=height1+width*(k+1);
-            TBox *tbox = new TBox(left,height1_tmp,right,height2_tmp);
-            TBox *tbox3 = new TBox(left,height1_tmp,right,height2_tmp);
-
-            int filltype = 3006;
-            int color=kGreen-9;
             if(stereo[l]==1) {
-               color=kCyan-9;
-               filltype=3004;
+	       color    = stereoCol;
+               filltype = stereoFill;
             }
-            if(hittype[l]!=0) {
-               filltype=3001;
-               color=kRed;
+            else if(hittype[l]!=0) {
+               color    = invalidCol;
+               filltype = invalidFill;
             }
-            //	int color=1;
-            //	if(hittype[l]!=0) color=2;
-            //	tbox->SetLineColor(1);
-            tbox->SetFillColor(1);
-            tbox->SetFillStyle(filltype);
-            tbox->SetLineColor(1);
-            tbox3->SetFillColor(color);
-            tbox3->Draw();
-            tbox->Draw();
+            else {
+               filltype = h ? resYFill : resXFill;
+               color    = h ? resYCol  : resXCol;
+            }
 
-            TBox *tbox2 = new TBox(left,height1_tmp,right,height2_tmp);
-            tbox2->SetFillColor(1);
-            tbox2->SetFillStyle(0);
-            tbox2->SetLineWidth(2);
-            tbox2->Draw();
+            drawBox(box, color, filltype, h<1);
             k++;
          }
-         //      if(substruct[det[j]]<3) height1+=0.5;
-         //      else height1++;
-         height1++;
+         height1 +=1;
       }
-      //    printf("\n");
    }
 
    viewCanvas()->cd();
    return 0;
 }
+
+
+
 
 REGISTER_FWDETAILVIEW(FWTrackDetailView);
 

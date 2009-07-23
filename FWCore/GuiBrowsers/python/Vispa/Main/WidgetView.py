@@ -56,6 +56,8 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
             self._updatingFlag = True
             widget.select()
             self._updatingFlag = False
+            if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
+                self.parent().parent().ensureWidgetVisible(widget,0,0)
         else:
             self._selection = None
             self._updatingFlag = True

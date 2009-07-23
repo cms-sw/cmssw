@@ -192,8 +192,7 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std
   name<<Name;
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -238,8 +237,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   name<<Name;
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -288,8 +286,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
 
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -360,8 +357,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   name<<Name;
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -411,8 +407,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
 
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -472,8 +467,7 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
 
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";
@@ -515,8 +509,7 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::s
   name<<Name;
   stringstream unitname;
   stringstream unittitle;
-  std::string s(Units);
-  if (s.empty())
+  if (Units.empty())
     {
       unitname<<Units;
       unittitle<<"No Units";

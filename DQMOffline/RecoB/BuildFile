@@ -9,7 +9,7 @@
 <use name=RecoBTau/JetTagComputer>
 <use name=rootcore>
 <use name=DQMServices/Core>
-<use name=root>
+<use name=rootgpad>
 <use name=JetMETCorrections/Objects>
 <use name=boost>
 <export>

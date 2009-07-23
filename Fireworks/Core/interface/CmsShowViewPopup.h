@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.8 2009/05/22 20:28:22 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.9 2009/06/28 19:54:45 amraktad Exp $
 //
 
 // system include files
@@ -59,7 +59,6 @@ public:
    bool mapped() { return m_mapped; }
 
    void reset(TEveWindow* ew);
-   void removeView();
 
    void saveImage();
    void changeBackground();

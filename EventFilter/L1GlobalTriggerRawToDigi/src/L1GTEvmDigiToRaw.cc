@@ -56,7 +56,7 @@
 // constructor(s)
 L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet) :
     m_evmGtFedId(pSet.getUntrackedParameter<int>("EvmGtFedId",
-            FEDNumbering::getTriggerGTPFEDIds().first)),
+            FEDNumbering::MINTriggerGTPFEDID)),
     m_evmGtInputTag(pSet.getParameter<edm::InputTag>("EvmGtInputTag")),
     m_activeBoardsMaskGt(pSet.getParameter<unsigned int>("ActiveBoardsMask")),
     m_totalBxInEvent(0),

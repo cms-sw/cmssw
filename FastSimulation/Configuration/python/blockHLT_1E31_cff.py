@@ -1,108 +1,12 @@
-# /dev/CMSSW_3_1_0/pre11/1E31_V2/V2 (CMSSW_3_1_0)
+# /dev/CMSSW_3_1_0/pre11/1E31_V12/V2 (CMSSW_3_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/1E31_V2/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/1E31_V12/V2')
 )
 
-block_hltL1IsoLargeElectronPixelSeeds = cms.PSet(
-  searchInTIDTEC = cms.bool( True ),
-  HighPtThreshold = cms.double( 35.0 ),
-  r2MinF = cms.double( -0.3 ),
-  OrderedHitsFactoryPSet = cms.PSet( 
-    ComponentName = cms.string( "StandardHitPairGenerator" ),
-    SeedingLayers = cms.string( "MixedLayerPairs" ),
-    useOnDemandTracker = cms.untracked.int32( 0 )
-  ),
-  DeltaPhi1Low = cms.double( 0.23 ),
-  DeltaPhi1High = cms.double( 0.08 ),
-  ePhiMin1 = cms.double( -0.045 ),
-  PhiMin2 = cms.double( -0.0010 ),
-  LowPtThreshold = cms.double( 3.0 ),
-  RegionPSet = cms.PSet( 
-    deltaPhiRegion = cms.double( 0.4 ),
-    originHalfLength = cms.double( 15.0 ),
-    useZInVertex = cms.bool( True ),
-    deltaEtaRegion = cms.double( 0.1 ),
-    ptMin = cms.double( 1.5 ),
-    originRadius = cms.double( 0.2 ),
-    VertexProducer = cms.InputTag( "dummyVertices" )
-  ),
-  maxHOverE = cms.double( 999999.0 ),
-  dynamicPhiRoad = cms.bool( False ),
-  ePhiMax1 = cms.double( 0.03 ),
-  DeltaPhi2 = cms.double( 0.0040 ),
-  SizeWindowENeg = cms.double( 0.675 ),
-  rMaxI = cms.double( 0.11 ),
-  rMinI = cms.double( -0.11 ),
-  preFilteredSeeds = cms.bool( True ),
-  r2MaxF = cms.double( 0.3 ),
-  pPhiMin1 = cms.double( -0.03 ),
-  initialSeeds = cms.InputTag( "noSeedsHere" ),
-  pPhiMax1 = cms.double( 0.045 ),
-  hbheModule = cms.string( "hbhereco" ),
-  SCEtCut = cms.double( 3.0 ),
-  z2MaxB = cms.double( 0.2 ),
-  fromTrackerSeeds = cms.bool( True ),
-  hcalRecHits = cms.InputTag( "hltHbhereco" ),
-  z2MinB = cms.double( -0.2 ),
-  hbheInstance = cms.string( "" ),
-  PhiMax2 = cms.double( 0.0010 ),
-  hOverEConeSize = cms.double( 0.0 ),
-  hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
-)
-block_hltL1NonIsoLargeElectronPixelSeeds = cms.PSet(
-  searchInTIDTEC = cms.bool( True ),
-  HighPtThreshold = cms.double( 35.0 ),
-  r2MinF = cms.double( -0.3 ),
-  OrderedHitsFactoryPSet = cms.PSet( 
-    ComponentName = cms.string( "StandardHitPairGenerator" ),
-    SeedingLayers = cms.string( "MixedLayerPairs" ),
-    useOnDemandTracker = cms.untracked.int32( 0 )
-  ),
-  DeltaPhi1Low = cms.double( 0.23 ),
-  DeltaPhi1High = cms.double( 0.08 ),
-  ePhiMin1 = cms.double( -0.045 ),
-  PhiMin2 = cms.double( -0.0010 ),
-  LowPtThreshold = cms.double( 3.0 ),
-  RegionPSet = cms.PSet( 
-    deltaPhiRegion = cms.double( 0.4 ),
-    originHalfLength = cms.double( 15.0 ),
-    useZInVertex = cms.bool( True ),
-    deltaEtaRegion = cms.double( 0.1 ),
-    ptMin = cms.double( 1.5 ),
-    originRadius = cms.double( 0.2 ),
-    VertexProducer = cms.InputTag( "dummyVertices" )
-  ),
-  maxHOverE = cms.double( 999999.0 ),
-  dynamicPhiRoad = cms.bool( False ),
-  ePhiMax1 = cms.double( 0.03 ),
-  DeltaPhi2 = cms.double( 0.0040 ),
-  SizeWindowENeg = cms.double( 0.675 ),
-  rMaxI = cms.double( 0.11 ),
-  rMinI = cms.double( -0.11 ),
-  preFilteredSeeds = cms.bool( True ),
-  r2MaxF = cms.double( 0.3 ),
-  pPhiMin1 = cms.double( -0.03 ),
-  initialSeeds = cms.InputTag( "noSeedsHere" ),
-  pPhiMax1 = cms.double( 0.045 ),
-  hbheModule = cms.string( "hbhereco" ),
-  SCEtCut = cms.double( 3.0 ),
-  z2MaxB = cms.double( 0.2 ),
-  fromTrackerSeeds = cms.bool( True ),
-  hcalRecHits = cms.InputTag( "hltHbhereco" ),
-  z2MinB = cms.double( -0.2 ),
-  hbheInstance = cms.string( "" ),
-  PhiMax2 = cms.double( 0.0010 ),
-  hOverEConeSize = cms.double( 0.0 ),
-  hOverEHBMinE = cms.double( 999999.0 ),
-  hOverEHFMinE = cms.double( 999999.0 ),
-  nSigmasDeltaZ1 = cms.double( 5.0 )
-)
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
   HighPtThreshold = cms.double( 35.0 ),

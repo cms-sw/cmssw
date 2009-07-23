@@ -56,8 +56,12 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     etaBin = cms.int32(200),                               
     etaMin = cms.double(-2.5),
     etaMax = cms.double(2.5),
+    barrelEtaBin = cms.int32(170),                               
+    barrelEtaMin = cms.double(-1.5),
+    barrelEtaMax = cms.double(1.5),                                
 
     phiBin = cms.int32(200),
+    barrelPhiBin = cms.int32(360),                               
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
                                 
@@ -73,6 +77,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     numberBin = cms.int32(10),
     numberMin = cms.double(0),                               
     numberMax = cms.double(10), 
+
+    xyBin = cms.int32(100),
+    xyMin = cms.double(-150),                               
+    xyMax = cms.double(150),
 
     xBin = cms.int32(100),
     xMin = cms.double(-80),                               

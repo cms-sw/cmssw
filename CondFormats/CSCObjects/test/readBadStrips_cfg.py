@@ -1,6 +1,3 @@
-# Test read of bad channels db for CSC strips
-# This version 17.06.2009 Tim Cox
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -13,19 +10,15 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     # For testing, sqlite database file expected to be in local directory 
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCBadStripsRcd'),
-        tag = cms.string('CSCBadStrips')
+        tag = cms.string('CSCBadStrips_new_popcon')
     )),
-    connect = cms.string('sqlite_file:BadStrips_17June2009.db')
+    connect = cms.string('sqlite_file:BadStrips.db')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
-## Set the run number > 100K
-process.source = cms.Source("EmptySource",
- firstRun = cms.untracked.uint32(100001)
-)
+process.source = cms.Source("EmptySource")
 
 process.analyze = cms.EDAnalyzer("CSCReadBadStripsAnalyzer",
     outputToFile = cms.bool(False),

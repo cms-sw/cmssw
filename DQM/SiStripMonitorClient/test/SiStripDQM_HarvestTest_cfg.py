@@ -8,8 +8,9 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
-
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.prefer("GlobalTag")
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")
 process.siStripDaqInfo = cms.EDFilter("SiStripDaqInfo")
@@ -55,6 +56,6 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 # Tracer service
 process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
-#process.load('DQM.SiStripCommon.MessageLogger_cfi')
+process.load('DQM.SiStripCommon.MessageLogger_cfi')
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)

@@ -31,8 +31,8 @@ using namespace std;
 
 /** \class HcalDetDiagPedestalMonitor
   *  
-  * $Date: 2009/07/01 06:09:04 $
-  * $Revision: 1.1.2.6 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.4 $
   * \author D. Vishnevskiy
   */
 
@@ -193,7 +193,7 @@ private:
   std::vector<MonitorElement*> ChannelStatusUnstableChannels;
   std::vector<MonitorElement*> ChannelStatusBadPedestalMean;
   std::vector<MonitorElement*> ChannelStatusBadPedestalRMS;
-  void fill_channel_status(char *subdet,int eta,int phi,int depth,int type,double status);
+  void fill_channel_status(std::string subdet,int eta,int phi,int depth,int type,double status);
 };
 
 #endif

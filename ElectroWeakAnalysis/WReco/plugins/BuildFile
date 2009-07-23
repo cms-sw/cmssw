@@ -1,15 +1,11 @@
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
-<library file="EwkPdfWeightProducer.cc" name=EwkPdfWeightProducer>
-  <flags EDM_PLUGIN=1>
-  ### 22X at CERN
-  #<flags CXXFLAGS="-I/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/include">
-  #<flags LDFLAGS="-Wl,-rpath /afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/lib -L/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/lhapdf/5.6.0-cms/lib -lLHAPDF">
-  ### 22X with local LHAPDF
-  #<flags CXXFLAGS="-I/usr/local/include">
-  #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
-  ### 31X
-  <use name=lhapdf>
-</library> 
+<library name=ElectroWeakAnalysisWReco_plugins file=*.cc>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/MuonReco>
+      <use name=DataFormats/HepMCCandidate>
+      <use name=PhysicsTools/CandUtils>
+      <use name=hepmc>
+      <use name=SimDataFormats/GeneratorProducts>
+</library>

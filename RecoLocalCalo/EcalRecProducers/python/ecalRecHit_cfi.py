@@ -19,9 +19,9 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
              4,               # faulty hardware (noisy)
             -1,  -1,  -1,     # not yet assigned
              4,   4,          # faulty hardware (fixed gain)
-             6,   6,   6,     # dead channel with trigger
-             7,               # dead FE
-             8                # dead or recovery failed
+             7,   7,   7,     # dead channel with trigger
+             8,               # dead FE
+             9                # dead or recovery failed
             ),
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),

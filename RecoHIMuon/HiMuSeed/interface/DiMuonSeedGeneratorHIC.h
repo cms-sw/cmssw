@@ -98,7 +98,7 @@ class DiMuonSeedGeneratorHIC  {
   FreeTrajectoryState                        theFtsMuon;
   const HICConst*                            theHICConst;
   Propagator*                                thePropagator; 
-//  std::string                                builderName;    
+  std::string                                builderName;    
   int                                        theLowMult;
   
   std::vector<BarrelDetLayer*>               bl;
@@ -120,7 +120,7 @@ class DiMuonSeedGeneratorHIC  {
 					 ) const;
 					 
   edm::InputTag rphirecHitsTag;
-//  const TransientTrackingRecHitBuilder * TTRHbuilder;
+  const TransientTrackingRecHitBuilder * TTRHbuilder;
   const MagneticField*                   magfield;	
   const GeometricSearchTracker*          theTracker;
   const MeasurementTracker*              theMeasurementTracker;

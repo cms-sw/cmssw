@@ -16,10 +16,9 @@ BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
 # set up the CMS environment (choose your release and working area):
-cd $HOME/cms/CMSSW/CMSSW_3_1_0
-#cd $HOME/cms/CMSSW/CMSSW_2_2_10
+cd $HOME/cms/CMSSW/CMSSW_3_0_0
 echo Setting up $(pwd) as CMSSW environment. 
-eval `scram runtime -sh`
+eval `scramv1 runtime -sh`
 rehash
 
 cd $BATCH_DIR
@@ -34,25 +33,11 @@ ls -lh
 # but you might want to copy less stuff to save disk space
 # (separate cp's for each item, otherwise you loose all if one file is missing):
 cp -p *.log.gz $RUNDIR
-# store  millePedeMonitor also in $RUNDIR, below is backup in $MSSDIR
-cp -p millePedeMonitor*root $RUNDIR
+cp -p *.root $RUNDIR
 
-# Copy MillePede binary file to Castor
-# Must use different command for the cmscafuser pool
-if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
-# Not using cmscafuser pool => rfcp command must be used
-  export STAGE_SVCCLASS=$MSSDIRPOOL
-  nsrm -f $MSSDIR/milleBinaryISN.dat
-  echo "rfcp milleBinaryISN.dat $MSSDIR/"
-  rfcp milleBinaryISN.dat    $MSSDIR/
-  rfcp treeFile*root         $MSSDIR/treeFileISN.root
-  rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
-else
-# Using cmscafuser pool => cmsStageOut command must be used
-  . /afs/cern.ch/cms/caf/setup.sh
-  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  echo "cmsStageOut milleBinaryISN.dat $MSSCAFDIR/milleBinaryISN.dat"
-  cmsStageOut milleBinaryISN.dat    $MSSCAFDIR/milleBinaryISN.dat
-  cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root
-  cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root
-fi
+# Copy MillePede binary file to Castor,
+# so first set castor pool for binary files in $MSSDIR area:
+export STAGE_SVCCLASS=$MSSDIRPOOL
+nsrm -f $MSSDIR/milleBinaryISN.dat
+echo "rfcp milleBinaryISN.dat $MSSDIR/"
+rfcp milleBinaryISN.dat $MSSDIR/

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/12 09:59:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/06/21 19:12:07 $
+ *  $Revision: 1.4 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -85,10 +85,11 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   histname = "NumberOfTracks_";
   NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
 
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+
   histname = "NumberOfSeeds_";
   NumberOfSeeds = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
 
-  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
     histname = "SeedEta_";
     SeedEta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, EtaBin, EtaMin, EtaMax);
     SeedEta->setAxisTitle("Seed pseudorapidity");
@@ -101,9 +102,11 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
     SeedTheta = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, ThetaBin, ThetaMin, ThetaMax);
     SeedTheta->setAxisTitle("Seed polar angle");
   }
+
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
   histname = "NumberOfTrackCandidates_";
   NumberOfTrackCandidates = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
-
+}
 
   histname = "NumberOfMeanRecHitsPerTrack_";
   NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
@@ -135,22 +138,28 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if (!trackCollection.isValid()) return;
 
   Handle<edm::View<TrajectorySeed> > seedCollection;
-  iEvent.getByLabel(seedProducer, seedCollection);
-  if (!seedCollection.isValid()) return;
-  
   Handle<TrackCandidateCollection> theTCCollection;
+  
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+ 
+
+  iEvent.getByLabel(seedProducer, seedCollection);
+  if (!seedCollection.isValid()) return;  
   iEvent.getByLabel(tcProducer, theTCCollection ); 
   if (!theTCCollection.isValid()) return;
-  
+}  
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
   
-  
+ 
   NumberOfTracks->Fill(trackCollection->size());
+  if (conf_.getParameter<bool>("doSeedParameterHistos")) {
+
   NumberOfSeeds->Fill(seedCollection->size());
+
   NumberOfTrackCandidates->Fill(theTCCollection->size());
-      
+}      
   TrajectoryStateTransform tsTransform;
   TSCBLBuilderNoMaterial tscblBuilder;
 

@@ -7,7 +7,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.cc,v 1.6 2009/04/27 16:53:30 dmytro Exp $
+// $Id: FWPhotonDetailView.cc,v 1.9 2009/07/15 18:32:15 amraktad Exp $
 //
 
 // system include files
@@ -103,7 +103,7 @@ TEveElement* FWPhotonDetailView::build_projected (const FWModelId &id, const rec
 class TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photon)
 {
    TLatex* latex = new TLatex(0.02, 0.970, "");
-   latex->SetTextSize(0.07);
+   latex->SetTextSize(0.06);
    textCanvas()->cd();
 
 
@@ -168,13 +168,13 @@ class TEveElementList *FWPhotonDetailView::makeLabels (const reco::Photon &photo
 //    y -= fontsize;
 //    latex->DrawLatex(x, y, "#color[4]{+} track inner helix extrapolation");
 //    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[5]{#bullet} seed cluster centroid");
+   latex->DrawLatex(x, y, "#color[2]{#bullet} seed cluster centroid");
    y -= fontsize;
    latex->DrawLatex(x, y, "#color[4]{#bullet} supercluster centroid");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[2]{#Box} seed cluster");
+   latex->DrawLatex(x, y, "#color[618]{#Box} seed cluster");
    y -= fontsize;
-   latex->DrawLatex(x, y, "#color[5]{#Box} other clusters");
+   latex->DrawLatex(x, y, "#color[608]{#Box} other clusters"); // kCyan+1
    // eta, phi axis or x, y axis?
    assert(photon.superCluster().isNonnull());
    bool is_endcap = false;

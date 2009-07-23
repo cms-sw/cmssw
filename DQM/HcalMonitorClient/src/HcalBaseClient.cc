@@ -188,32 +188,32 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 
-void HcalBaseClient::getEtaPhiHists(char* dir, char* name, TH2F* h[4], char* units)
+void HcalBaseClient::getEtaPhiHists(std::string dir, std::string name, TH2F* h[4], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
   TH2F* dummy = new TH2F();
   ostringstream hname;
 
   hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
@@ -224,44 +224,44 @@ void HcalBaseClient::getEtaPhiHists(char* dir, char* name, TH2F* h[4], char* uni
 
 
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units)
+void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH2F* h[6], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting SJ6histos (2D)"<<std::endl;
   TH2F* dummy = new TH2F();
   ostringstream hname;
 
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
-  if (units!="") hname<<" "<<units;
+  if (!units.empty()) hname<<" "<<units;
   h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
@@ -272,28 +272,28 @@ void HcalBaseClient::getSJ6histos(char* dir, char* name, TH2F* h[6], char* units
 
 
 
-void HcalBaseClient::getSJ6histos(char* dir, char* name, TH1F* h[4], char* units)
+void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH1F* h[4], std::string units)
 {
   TH1F* dummy = new TH1F();
   ostringstream hname;
 
   hname <<process_.c_str()<<dir<<"HB "<<name;
-  if (units!="") hname << " "<<units;
+  if (!units.empty()) hname << " "<<units;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE "<<name;
-  if (units!="") hname << " "<<units;
+  if (!units.empty()) hname << " "<<units;
   h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HO "<<name;
-  if (units!="") hname << " "<<units;
+  if (!units.empty()) hname << " "<<units;
   h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HF "<<name;
-  if (units!="") hname << " "<<units;
+  if (!units.empty()) hname << " "<<units;
   h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
   hname.str("");
   return;

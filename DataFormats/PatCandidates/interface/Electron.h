@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
+// $Id: Electron.h,v 1.23 2009/03/26 06:23:10 hegner Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
+  \version  $Id: Electron.h,v 1.23 2009/03/26 06:23:10 hegner Exp $
 */
 
 
@@ -89,14 +89,7 @@ namespace pat {
       /// Store multiple electron ID values, discarding existing ones
       /// The first one in the list becomes the 'default' electron id 
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
-      /// Store the cluster shape variables associated to the electron
-      void setClusterShapes ( const float& , const float& , const float& , const float& , const float& ) ;
-      const float scSigmaEtaEta()   const { return  scSigmaEtaEta_ ; }
-      const float scSigmaIEtaIEta() const { return  scSigmaIEtaIEta_ ; }  
-      const float scE1x5()          const { return  scE1x5_ ; }
-      const float scE2x5Max()       const { return  scE2x5Max_ ; }        
-      const float scE5x5()          const { return  scE5x5_ ; } 	      
-
+      
       // ---- PF specific methods ----
       /// reference to the source PFCandidates
       /// null if this has been built from a standard electron
@@ -120,12 +113,6 @@ namespace pat {
       std::vector<reco::Track> track_;
       // ---- electron ID's holder ----
       std::vector<IdPair> electronIDs_;
-
-      float scSigmaEtaEta_ ;
-      float scSigmaIEtaIEta_ ; 
-      float scE1x5_ ;
-      float scE2x5Max_ ; 
-      float scE5x5_ ; 
 
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded

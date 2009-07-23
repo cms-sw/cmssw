@@ -58,18 +58,11 @@ void LMFRunList::fetchRuns()
   int nruns=0;
 
   m_runTag.setConnection(m_env, m_conn);
-  int tagID =0;
-
-  RunTag empty_rt;
-
-  if(m_runTag != empty_rt  ){
-    tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
-    if (!tagID) { 
-      return ;
-    }
+  int tagID = m_runTag.fetchID();
+  cout <<"tag id="<< tagID << endl;
+  if (!tagID) { 
+    return ;
   }
-
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
   cout <<"lmf tag id="<< lmftagID << endl;
@@ -79,16 +72,10 @@ void LMFRunList::fetchRuns()
 
   try {
     Statement* stmt0 = m_conn->createStatement();
-    string sqlstr;
-    sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id " ;
-    if (tagID!=0) sqlstr = sqlstr +" AND run_iov.tag_id = :tag_id "; 
-
-    //    stmt0->setSQL("SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov "
-    //		 "WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and run_iov.tag_id = :tag_id and lmf_run_iov.tag_id=:lmftag_id " );
-
-    stmt0->setSQL(sqlstr);
-    stmt0->setInt(1, lmftagID);
-    if (tagID!=0) stmt0->setInt(2, tagID);
+    stmt0->setSQL("SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov "
+		 "WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and run_iov.tag_id = :tag_id and lmf_run_iov.tag_id=:lmftag_id " );
+    stmt0->setInt(1, tagID);
+    stmt0->setInt(2, lmftagID);
   
     ResultSet* rset0 = stmt0->executeQuery();
     if (rset0->next()) {
@@ -101,18 +88,9 @@ void LMFRunList::fetchRuns()
     m_vec_lmfruniov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-
-    string sqlstr2;
-    sqlstr2 = "SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp, lmf_run_iov.lmf_iov_id FROM run_iov, lmf_run_iov WHERE lmf_run_iov.run_iov_id=run_iov.iov_id ";
-    if (tagID!=0) sqlstr2 = sqlstr2 +" AND run_iov.tag_id = :tag_id "; 
-    sqlstr2=sqlstr2+" order by run_iov.run_num, lmf_run_iov.subrun_num ";
-
-    //    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp, lmf_run_iov.lmf_iov_id FROM run_iov, lmf_run_iov "
-    //	 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id  order by run_iov.run_num, lmf_run_iov.subrun_num " );
-
-    stmt->setSQL(sqlstr2);
-
-    if (tagID!=0) stmt->setInt(1, tagID);
+    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp, lmf_run_iov.lmf_iov_id FROM run_iov, lmf_run_iov "
+		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id  order by run_iov.run_num, lmf_run_iov.subrun_num " );
+    stmt->setInt(1, tagID);
 
     DateHandler dh(m_env, m_conn);
     Tm runStart;
@@ -183,17 +161,11 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
   int nruns=0;
 
   m_runTag.setConnection(m_env, m_conn);
-
-  int tagID =0;
-  RunTag empty_rt;
-  if(m_runTag != empty_rt  ){
-    tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
-    if (!tagID) { 
-      return ;
-    }
+  int tagID = m_runTag.fetchID();
+  cout <<"tag id="<< tagID << endl;
+  if (!tagID) { 
+    return ;
   }
-
   m_lmfrunTag.setConnection(m_env, m_conn);
   int lmftagID = m_lmfrunTag.fetchID();
   cout <<"lmf tag id="<< lmftagID << endl;
@@ -205,18 +177,15 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
   int my_max_run=max_run+1;
   try {
     Statement* stmt0 = m_conn->createStatement();
-
-    cout <<"query with parameters:"<< lmftagID <<" " <<my_min_run <<" "<<my_max_run << " " << tagID<< endl;
-
-    string sqlstr;
-    sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and run_iov.run_num> :min_run and run_iov.run_num< :max_run " ;
-    if (tagID!=0) sqlstr = sqlstr +" AND run_iov.tag_id = :tag_id ";
-
-    stmt0->setSQL(sqlstr );
-    stmt0->setInt(1, lmftagID);
-    stmt0->setInt(2, my_min_run);
-    stmt0->setInt(3, my_max_run);
-    if(tagID!=0) stmt0->setInt(4, tagID);
+    stmt0->setSQL("SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov "
+		 "WHERE lmf_run_iov.run_iov_id= run_iov.iov_id "
+		  "and run_iov.tag_id = :tag_id and lmf_run_iov.tag_id=:lmftag_id "
+		  " and run_iov.run_num> :min_run and run_iov.run_num< :max_run "
+		  );
+    stmt0->setInt(1, tagID);
+    stmt0->setInt(2, lmftagID);
+    stmt0->setInt(3, my_min_run);
+    stmt0->setInt(4, my_max_run);
   
     ResultSet* rset0 = stmt0->executeQuery();
     if (rset0->next()) {
@@ -229,22 +198,15 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
     m_vec_lmfruniov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-
-
-    string sqlstr2;
-    sqlstr2 = "SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and run_iov.run_num> :min_run and run_iov.run_num< :max_run ";
-    if (tagID!=0) sqlstr2 = sqlstr2 +" AND run_iov.tag_id = :tag_id ";
-    sqlstr2=sqlstr2+ " order by run_iov.run_num, lmf_run_iov.subrun_num ";
-    
-
-    stmt->setSQL(sqlstr2);
-
-    stmt->setInt(1, lmftagID);
-    stmt->setInt(2, my_min_run);
-    stmt->setInt(3, my_max_run);
-
-    if (tagID!=0) stmt->setInt(4, tagID);
-
+    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov "
+		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
+		 " and lmf_run_iov.tag_id=:lmftag_id "
+		 " and run_iov.run_num> :min_run and run_iov.run_num< :max_run "
+		 " order by run_iov.run_num, lmf_run_iov.subrun_num " );
+    stmt->setInt(1, tagID);
+    stmt->setInt(2, lmftagID);
+    stmt->setInt(3, my_min_run);
+    stmt->setInt(4, my_max_run);
 
     DateHandler dh(m_env, m_conn);
     Tm runStart;
@@ -283,6 +245,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
        r.setID(lid);
     
        LMFRunIOV lr ;
+       // da correggere qui
        lr.setRunIOV(r);
        lr.setSubRunNumber(subrun);
        lr.setSubRunStart(lrunStart);
@@ -391,153 +354,6 @@ void LMFRunList::fetchLastNRuns( int max_run, int n_runs  )
        lr.setSubRunType(lmf_type);
        lr.setLMFRunTag(m_lmfrunTag);
        lr.setID(liov_id);
-       m_vec_lmfruniov.push_back(lr);
-      
-      i++;
-    }
-   
-
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::fetchID:  "+e.getMessage()));
-  }
-
-
-}
-
-
-
-
-void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
-  throw(runtime_error)
-{
-
-
-  this->checkConnection();
-  int nruns=0;
-
-  m_runTag.setConnection(m_env, m_conn);
-
-  int tagID =0;
-  RunTag empty_rt;
-  if(m_runTag != empty_rt  ){
-    tagID=m_runTag.fetchID();
-    cout <<"tag id="<< tagID << endl;
-    if (!tagID) { 
-      return ;
-    }
-  }
-
-  m_lmfrunTag.setConnection(m_env, m_conn);
-  int lmftagID = m_lmfrunTag.fetchID();
-  cout <<"lmf tag id="<< lmftagID << endl;
-  if (!lmftagID) { 
-    return ;
-  }
-
-  DateHandler dh(m_env, m_conn);
-  
-  Date min_d= dh.minDate();
-  Tm tmin_d= dh.dateToTm(min_d);
-  cout << "min time="<< tmin_d.microsTime()<<endl;
-
-  Tm start_time(start_micro);
-  cout << "query with start_time="<< start_time.microsTime()<<endl; 
-  cout << "query with LMF tag id:"<< lmftagID << endl;
-
-
-
-
-  try {
-    Statement* stmt0 = m_conn->createStatement();
-
-    start_time.dumpTm();
-
-    string sqlstr;
-    sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_time and run_iov.run_num > :min_run and run_iov.run_num < :max_run  " ;
-    if (tagID!=0) sqlstr = sqlstr +" AND run_iov.tag_id = :tag_id ";
-
-    stmt0->setSQL(sqlstr );
-    stmt0->setInt(1, lmftagID);
-    stmt0->setDate(2, dh.tmToDate(start_time));
-    stmt0->setInt(3, min_run);
-    stmt0->setInt(4, end_run);
-
-    if(tagID!=0) stmt0->setInt(5, tagID);
-  
-    ResultSet* rset0 = stmt0->executeQuery();
-    if (rset0->next()) {
-      nruns = rset0->getInt(1);
-    }
-    m_conn->terminateStatement(stmt0);
-
-    cout <<"number of LMF runs="<< nruns << endl;
-    
-    m_vec_lmfruniov.reserve(nruns);
-    
-    Statement* stmt = m_conn->createStatement();
-
-
-    string sqlstr2;
-    sqlstr2 = "SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_time and run_iov.run_num > :min_run and run_iov.run_num < :max_run  ";
-    if (tagID!=0) sqlstr2 = sqlstr2 +" AND run_iov.tag_id = :tag_id ";
-    sqlstr2=sqlstr2+ " order by run_iov.run_num, lmf_run_iov.subrun_num ";
-    
-    stmt->setSQL(sqlstr2);
-    stmt->setInt(1, lmftagID);
-    stmt->setDate(2, dh.tmToDate(start_time));
-    stmt->setInt(3, min_run);
-    stmt->setInt(4, end_run);
-    if (tagID!=0) stmt->setInt(5, tagID);
-
-
-    DateHandler dh(m_env, m_conn);
-    Tm runStart;
-    Tm runEnd;
-    Tm lrunStart;
-    Tm ldbtime;
-    Tm lrunEnd;
-  
-    ResultSet* rset = stmt->executeQuery();
-    int i=0;
-    while (i<nruns) {
-      rset->next();
-       int runNum = rset->getInt(1);
-       Date startDate = rset->getDate(2);
-       Date endDate = rset->getDate(3);
-       //int ltag = rset->getInt(4);
-       int lid=rset->getInt(5);
-       int subrun=rset->getInt(6);
-       Date lmfstartDate = rset->getDate(7);
-       Date lmfendDate = rset->getDate(8);
-       int liov_id=rset->getInt(9);
-       std::string lmf_type=rset->getString(10);
-       Date lmfdbtime = rset->getDate(11);
-	 
-       runStart = dh.dateToTm( startDate );
-       runEnd = dh.dateToTm( endDate );
-       lrunStart = dh.dateToTm( lmfstartDate );
-       lrunEnd = dh.dateToTm( lmfendDate );
-       ldbtime = dh.dateToTm( lmfdbtime );
-       
-       RunIOV r ;
-       r.setRunNumber(runNum);
-       r.setRunStart(runStart);
-       r.setRunEnd(runEnd);
-       r.setRunTag(m_runTag);
-       r.setID(lid);
-    
-       LMFRunIOV lr ;
-       // da correggere qui
-       lr.setRunIOV(r);
-       lr.setSubRunNumber(subrun);
-       lr.setSubRunStart(lrunStart);
-       lr.setSubRunEnd(lrunEnd);
-       lr.setLMFRunTag(m_lmfrunTag);
-       lr.setDBInsertionTime(ldbtime);
-       lr.setSubRunType(lmf_type);
-       lr.setID(liov_id);
-
        m_vec_lmfruniov.push_back(lr);
       
       i++;

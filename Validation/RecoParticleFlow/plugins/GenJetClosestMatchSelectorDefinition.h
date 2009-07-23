@@ -3,8 +3,7 @@
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-//will move in 31..
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <iostream>
 

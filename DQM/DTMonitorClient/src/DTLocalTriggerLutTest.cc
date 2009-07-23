@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.6 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,8 +36,7 @@ using namespace std;
 DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerLut");
-  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
-  baseFolderDDU = "DT/04-LocalTrigger-DDU/";
+  baseFolder = "DT/03-LocalTrigger/";
 
 }
 
@@ -67,23 +66,23 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
-	    bookSectorHistos(wh,sect,"PhiTkvsTrigSlope");  
-	    bookSectorHistos(wh,sect,"PhiTkvsTrigIntercept");  
-	    bookSectorHistos(wh,sect,"PhiTkvsTrigCorr");  
-	    bookSectorHistos(wh,sect,"PhibTkvsTrigSlope");  
-	    bookSectorHistos(wh,sect,"PhibTkvsTrigIntercept");  
-	    bookSectorHistos(wh,sect,"PhibTkvsTrigCorr");  
+	    bookSectorHistos(wh,sect,"","PhiTkvsTrigSlope");  
+	    bookSectorHistos(wh,sect,"","PhiTkvsTrigIntercept");  
+	    bookSectorHistos(wh,sect,"","PhiTkvsTrigCorr");  
+	    bookSectorHistos(wh,sect,"","PhibTkvsTrigSlope");  
+	    bookSectorHistos(wh,sect,"","PhibTkvsTrigIntercept");  
+	    bookSectorHistos(wh,sect,"","PhibTkvsTrigCorr");  
 	  }
-	  bookWheelHistos(wh,"PhiResidualMean");  
-	  bookWheelHistos(wh,"PhiResidualRMS");
-	  bookWheelHistos(wh,"PhibResidualMean");  
-	  bookWheelHistos(wh,"PhibResidualRMS");  
-	  bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-	  bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-	  bookWheelHistos(wh,"PhiTkvsTrigCorr");  
-	  bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-	  bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-	  bookWheelHistos(wh,"PhibTkvsTrigCorr");  
+	  bookWheelHistos(wh,"","PhiResidualMean");  
+	  bookWheelHistos(wh,"","PhiResidualRMS");
+	  bookWheelHistos(wh,"","PhibResidualMean");  
+	  bookWheelHistos(wh,"","PhibResidualRMS");  
+	  bookWheelHistos(wh,"","PhiTkvsTrigSlope");  
+	  bookWheelHistos(wh,"","PhiTkvsTrigIntercept");  
+	  bookWheelHistos(wh,"","PhiTkvsTrigCorr");  
+	  bookWheelHistos(wh,"","PhibTkvsTrigSlope");  
+	  bookWheelHistos(wh,"","PhibTkvsTrigIntercept");  
+	  bookWheelHistos(wh,"","PhibTkvsTrigCorr");  
 	}
       }
     }
@@ -96,8 +95,8 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
-	bookWheelHistos(wh,"PhiSlopeSummary");
-	bookWheelHistos(wh,"PhibSlopeSummary");
+	bookWheelHistos(wh,"","PhiSlopeSummary");
+	bookWheelHistos(wh,"","PhibSlopeSummary");
       }
       bookCmsHistos("PhiSlopeSummary");
       bookCmsHistos("PhibSlopeSummary");
@@ -128,14 +127,14 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      
 	      // Fill client histos
 	      if( secME[sector_id].find(fullName("PhiTkvsTrigCorr")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"PhiTkvsTrigSlope");  
-		bookSectorHistos(wh,sect,"PhiTkvsTrigIntercept");  
-		bookSectorHistos(wh,sect,"PhiTkvsTrigCorr");  
+		bookSectorHistos(wh,sect,"","PhiTkvsTrigSlope");  
+		bookSectorHistos(wh,sect,"","PhiTkvsTrigIntercept");  
+		bookSectorHistos(wh,sect,"","PhiTkvsTrigCorr");  
 	      }
 	      if( whME[wh].find(fullName("PhiTkvsTrigCorr")) == whME[wh].end() ){
-		bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-		bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-		bookWheelHistos(wh,"PhiTkvsTrigCorr");  
+		bookWheelHistos(wh,"","PhiTkvsTrigSlope");  
+		bookWheelHistos(wh,"","PhiTkvsTrigIntercept");  
+		bookWheelHistos(wh,"","PhiTkvsTrigCorr");  
 	      }
 
 	      TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
@@ -173,14 +172,14 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      
 	      // Fill client histos
 	      if( secME[sector_id].find(fullName("PhibTkvsTrigCorr")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"PhibTkvsTrigSlope");  
-		bookSectorHistos(wh,sect,"PhibTkvsTrigIntercept");  
-		bookSectorHistos(wh,sect,"PhibTkvsTrigCorr");  
+		bookSectorHistos(wh,sect,"","PhibTkvsTrigSlope");  
+		bookSectorHistos(wh,sect,"","PhibTkvsTrigIntercept");  
+		bookSectorHistos(wh,sect,"","PhibTkvsTrigCorr");  
 	      }
 	      if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
- 		bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-		bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-		bookWheelHistos(wh,"PhibTkvsTrigCorr");  
+ 		bookWheelHistos(wh,"","PhibTkvsTrigSlope");  
+		bookWheelHistos(wh,"","PhibTkvsTrigIntercept");  
+		bookWheelHistos(wh,"","PhibTkvsTrigCorr");  
 	      }
 
 	      TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
@@ -219,8 +218,8 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      
 	      // Fill client histos
 	      if( whME[wh].find(fullName("PhiResidualMean")) == whME[wh].end() ){
- 		bookWheelHistos(wh,"PhiResidualMean");  
-		bookWheelHistos(wh,"PhiResidualRMS");  
+ 		bookWheelHistos(wh,"","PhiResidualMean");  
+		bookWheelHistos(wh,"","PhiResidualRMS");  
 	      }
 
 	      double peak = PhiResidual->GetBinCenter(PhiResidual->GetMaximumBin());
@@ -251,8 +250,8 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	      
 	      // Fill client histos
 	      if( whME[wh].find(fullName("PhibResidualMean")) == whME[wh].end() ){
- 		bookWheelHistos(wh,"PhibResidualMean");  
-		bookWheelHistos(wh,"PhibResidualRMS");  
+ 		bookWheelHistos(wh,"","PhibResidualMean");  
+		bookWheelHistos(wh,"","PhibResidualRMS");  
 	      }
 
 	      double peak = PhibResidual->GetBinCenter(PhibResidual->GetMaximumBin());

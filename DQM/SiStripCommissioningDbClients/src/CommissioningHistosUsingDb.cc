@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.17 2009/05/29 13:28:21 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.14 2008/07/09 16:28:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -26,9 +26,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -64,16 +62,14 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
 							DQMOldReceiver* const mui,
 							sistrip::RunType type )
-  : CommissioningHistograms( edm::ParameterSet(), mui, type ),
+  : CommissioningHistograms( mui, type ),
     runType_(type),
     db_(db),
     cabling_(0),
     detInfo_(),
     disabled_(),
     uploadAnal_(true),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -107,16 +103,14 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
-  : CommissioningHistograms( edm::ParameterSet(), reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
+  : CommissioningHistograms( reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     db_(0),
     cabling_(0),
     detInfo_(),
     disabled_(),
     uploadAnal_(false),
-    uploadConf_(false),
-    disableDevices_(false),
-    disableBadStrips_(false)
+    uploadConf_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -191,7 +185,7 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " TEST! No analysis descriptions will be uploaded to DB...";
+      << " TEST only! No analysis descriptions will be uploaded to DB...";
   }
 
   }

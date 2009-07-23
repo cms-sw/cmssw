@@ -8,6 +8,6 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
 patTriggerSequence = cms.Sequence(
     patTrigger        *
     patTriggerMatcher *
-#     patTriggerMatchEmbedder *
+#   patTriggerMatchEmbedder *
     patTriggerEvent
 )

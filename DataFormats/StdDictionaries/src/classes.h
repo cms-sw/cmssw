@@ -64,6 +64,7 @@ namespace {
 
   std::map<unsigned long, unsigned long> dummywm1;
   std::map<unsigned int, unsigned int> dummywm2;
+  std::pair<const unsigned int, unsigned int> dummywm2_valuetype;
   std::map<unsigned int, int> dummywm2_1;
   std::map<unsigned short, unsigned short> dummywm3;
   std::map<int, int> dummywm4;

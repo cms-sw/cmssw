@@ -21,8 +21,7 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
   theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
   theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
   theNeutronReader(0),
-  theCSCGeometry(0),
-  digitizeBadChambers_(p.getParameter<bool>("digitizeBadChambers"))
+  theCSCGeometry(0)
 {
   if(p.getParameter<bool>("doNeutrons"))
   {
@@ -67,8 +66,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
-    // skip bad chambers
-    if ( !digitizeBadChambers_ && theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue;
+    if ( theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue; // skip 'bad' chamber
 
     const CSCLayer * layer = findLayer(hitMapItr->first);
     const edm::PSimHitContainer & layerSimHits = hitMapItr->second;

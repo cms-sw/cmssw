@@ -1038,9 +1038,6 @@ class PerfSuite:
                 AvailableCores=cpus
             else:
                 AvailableCores=range(cores)
-            #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
-            print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
-            print AvailableCores
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
             TestsToDo=[]
             #IgProf tests:
@@ -1230,62 +1227,72 @@ class PerfSuite:
                   #Append the test to the TestsToDo list:
                   TestsToDo.append(MemcheckPUArgs)  
                   print "Appended Memcheck PileUp test to the TestsToDo list"
-            #Here run the infinite loop that submits the PerfTest() threads on the available cores:
-            #Create a dictionaty to keep track of running threads on the various cores:
-            activePerfTestThreads={}
-            #Flag for waiting messages:
-            Waiting=False
-            while 1:
-               #Check if there are tests to run:
-               if TestsToDo:
-                  #Using the Waiting flag to avoid writing this message every 5 seconds in the case
-                  #of having more tests to do than available cores...
-                  if not Waiting:
-                     print "Currently %s tests are scheduled to be run:"%len(TestsToDo)
+            #Here if there are any IgProf, Callgrind or MemcheckEvents to be run,
+            #run the infinite loop that submits the PerfTest() threads on the available cores:
+            if IgProfEvents or CallgrindEvents or MemcheckEvents:
+               #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
+               print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
+               #Save the original AvailableCores list to use it as a test to break the infinite loop:
+               #While in the regular RelVal use-case it makes sense to use the actual number of cores of the machines, in
+               #the IB case the AvailableCores will always consist of only 1 single core..
+               OriginalAvailableCores=AvailableCores
+               print AvailableCores
+
+               #Create a dictionaty to keep track of running threads on the various cores:
+               activePerfTestThreads={}
+               #Flag for waiting messages:
+               Waiting=False
+               while 1:
+                  #Check if there are tests to run:
+                  if TestsToDo:
+                     #Using the Waiting flag to avoid writing this message every 5 seconds in the case
+                     #of having more tests to do than available cores...
+                     if not Waiting:
+                        print "Currently %s tests are scheduled to be run:"%len(TestsToDo)
+                        print TestsToDo
+                     #Check the available cores:
+                     if AvailableCores:
+                        #Set waiting flag to False since we'll be doing something
+                        Waiting=False
+                        print "There is/are %s core(s) available"%len(AvailableCores)
+                        cpu=AvailableCores.pop()
+                        print "Let's use cpu %s"%cpu
+                        simpleGenReportArgs=TestsToDo.pop()
+                        print "Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu)
+                        threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
+                        print "Starting thread %s"%threadToDo
+                        ReportExitCode=threadToDo.start()
+                        print "Adding thread %s to the list of active threads"%threadToDo
+                        activePerfTestThreads[cpu]=threadToDo
+                     #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
+                     else:
+                        pass
+                  #Test activePerfThreads:
+                  for cpu in activePerfTestThreads.keys():
+                     if activePerfTestThreads[cpu].isAlive():
+                        pass
+                     elif cpu not in AvailableCores:
+                        #Set waiting flag to False since we'll be doing something
+                        Waiting=False
+                        print time.ctime()
+                        print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
+                        print "About to append cpu %s to AvailableCores list"%cpu
+                        AvailableCores.append(cpu)
+                  if (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
+                     print "WHEW! We're done... all TestsToDo are done..."
+                     print AvailableCores
                      print TestsToDo
-                  #Check the available cores:
-                  if AvailableCores:
-                     #Set waiting flag to False since we'll be doing something
-                     Waiting=False
-                     print "There is/are %s core(s) available"%len(AvailableCores)
-                     cpu=AvailableCores.pop()
-                     print "Let's use cpu %s"%cpu
-                     simpleGenReportArgs=TestsToDo.pop()
-                     print "Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu)
-                     threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
-                     print "Starting thread %s"%threadToDo
-                     ReportExitCode=threadToDo.start()
-                     print "Adding thread %s to the list of active threads"%threadToDo
-                     activePerfTestThreads[cpu]=threadToDo
-                  #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
+                     break
                   else:
-                     pass
-               #Test activePerfThreads:
-               for cpu in activePerfTestThreads.keys():
-                  if activePerfTestThreads[cpu].isAlive():
-                     pass
-                  elif cpu not in AvailableCores:
-                     #Set waiting flag to False since we'll be doing something
-                     Waiting=False
-                     print time.ctime()
-                     print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
-                     print "About to append cpu %s to AvailableCores list"%cpu
-                     AvailableCores.append(cpu)
-               if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
-                  print "WHEW! We're done... all TestsToDo are done..."
-                  print AvailableCores
-                  print TestsToDo
-                  break
-               else:
-                  #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
-                  time.sleep(5)
-                  #Use Waiting flag to writing 1 waiting message while waiting and avoid having 1 message every 5 seconds...
-                  if not Waiting:
-                     print time.ctime()
-                     print "Waiting for tests to be done..."
-                     sys.stdout.flush()
-                     Waiting=True
-                  
+                     #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
+                     time.sleep(5)
+                     #Use Waiting flag to writing 1 waiting message while waiting and avoid having 1 message every 5 seconds...
+                     if not Waiting:
+                        print time.ctime()
+                        print "Waiting for tests to be done..."
+                        sys.stdout.flush()
+                        Waiting=True
+            #End of the if for IgProf, Callgrind, Memcheck tests      
                   
             if benching and not (self._unittest or self._noexec):
                 #Ending the performance suite with the cmsScimark benchmarks again:
@@ -1307,16 +1314,29 @@ class PerfSuite:
     
             #Create a tarball of the work directory
             #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
-            TarFile = "%s_%s_%s_%s.tgz" % (self.cmssw_version, str(stepOptions), self.host, self.user)
+            #Cleaning the stepOptions from the --usersteps=:
+            if "=" in str(stepOptions):
+               fileStepOption=str(stepOptions).split("=")[1]
+            else:
+               fileStepOption=str(stepOptions)
+            #Add the working directory used to avoid overwriting castor files (also put a check...)
+            fileWorkingDir=os.path.basename(perfsuitedir)
+            TarFile = "%s_%s_%s_%s_%s.tgz" % (self.cmssw_version, fileStepOption, fileWorkingDir, self.host, self.user)
             AbsTarFile = os.path.join(perfsuitedir,TarFile)
             tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
             self.printFlush(tarcmd)
             self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
     
             #Archive it on CASTOR
-            castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
-            self.printFlush(castorcmd)
-            castorcmdstderr=os.popen3(castorcmd)[2].read()
+            #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
+            checkcastor="nsls  %s" % (os.path.join(castordir,TarFile))
+            checkcastorerr=os.popen3(checkcastor)[2].read()
+            if not checkcastorerr:
+               castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
+               self.printFlush(castorcmd)
+               castorcmdstderr=os.popen3(castorcmd)[2].read()
+            else:
+               castorcmdstderr="File already on CASTOR! Will NOT OVERWRITE!!!"
             #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
             if castorcmdstderr:
                 #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory

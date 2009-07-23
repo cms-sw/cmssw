@@ -117,10 +117,7 @@ private:
   //get The trigger Event
   edm::InputTag triggerEvent_;
   //Helper function to get Trigger event primitives
-  //  LVColl getFilterCollection(size_t,int,const trigger::TriggerEventWithRefs&,double);
-  LVColl getFilterCollection(size_t index,int id,const trigger::TriggerEvent& trigEv,double);
-
-
+  LVColl getFilterCollection(size_t,int,const trigger::TriggerEventWithRefs&,double);
   //Define Dummy vectors of Plotters
   std::vector<HLTTauDQML1Plotter> l1Plotters;
   std::vector<HLTTauDQMCaloPlotter> caloPlotters;

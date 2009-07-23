@@ -49,6 +49,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     unsigned int maxEventsToPrint_; 
     unsigned int nEventAnalyzed_;
     bool printOnlyHardInteraction_;
+    bool printVertex_;
     bool useMessageLogger_;
 };
 
@@ -57,6 +58,7 @@ ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   nEventAnalyzed_(0),
   printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
+  printVertex_(pset.getUntrackedParameter<bool>("printVertex", false)),
   useMessageLogger_(pset.getUntrackedParameter<bool>("useMessageLogger", false)) {
 }
 
@@ -92,8 +94,13 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     out << "* GenEvent           *" << endl;
     out << "**********************" << endl;
 
-    snprintf(buf, 256, " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |\n");
+    snprintf(buf, 256, " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |"); 
     out << buf;
+    if (printVertex_) {
+      snprintf(buf, 256, "        vx       vy        vz     |");
+      out << buf;
+    }
+    out << endl; 
 
     int idx  = -1;
     int iMo1 = -1;
@@ -141,7 +148,7 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       char buf[256];
       snprintf(buf, 256,
-	     " %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |\n",
+	     " %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |",
              idx,
              p->pdgId(),
              particleName.c_str(),
@@ -156,6 +163,16 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
              p->mass()
             );
       out << buf;
+
+      if (printVertex_) {
+        snprintf(buf, 256, " %10.3f %10.3f %10.3f |",
+                 p->vertex().x(),
+                 p->vertex().y(),
+                 p->vertex().z());
+        out << buf;
+      }
+
+      out << endl;
     }
     nEventAnalyzed_++;
 

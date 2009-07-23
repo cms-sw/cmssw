@@ -23,9 +23,14 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   L1MatchDr_              = ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5);
   HLTMatchDr_             = ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.3);
 
+
   refFilter_              = ps.getUntrackedParameter<std::vector<edm::InputTag> >("matchFilter");
   refID_                  = ps.getUntrackedParameter<std::vector<int> >("matchObjectID");
   ptThres_                = ps.getUntrackedParameter<std::vector<double> >("matchObjectMinPt");
+
+  //  refFilter2_             = ps.getUntrackedParameter<edm::InputTag>("secMatchFilter");
+  //  refID2_                 = ps.getUntrackedParameter<int >("secMatchObjectID");
+  //  ptThres2_                = ps.getUntrackedParameter<double>("secMatchObjectMinPt");
   prescaleEvt_            = ps.getUntrackedParameter<int>("prescaleEvt", -1);
 
   triggerEvent_           = ps.getParameter < edm::InputTag > ("TriggerEvent");
@@ -115,12 +120,15 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
 
       if(doRefAnalysis_)
 	{
-	  Handle<TriggerEvent> trigEv;
+	  Handle<TriggerEventWithRefs> trigEv;
 	  if(iEvent.getByLabel(triggerEvent_,trigEv))
 	    for(unsigned int i=0;i<refFilter_.size();++i)
 	    {
 	      size_t ID =trigEv->filterIndex(refFilter_[i]);
+	      if(ID!=trigEv->size())
+		{
 		  refC.push_back(getFilterCollection(ID,refID_[i],*trigEv,ptThres_[i]));
+		}
 	    }
 	}
 
@@ -178,103 +186,77 @@ void HLTTauDQMSource::endJob(){
 }
 
 
-LVColl 
-HLTTauDQMSource::getFilterCollection(size_t index,int id,const trigger::TriggerEvent& trigEv,double ptCut)
+
+
+
+
+LVColl HLTTauDQMSource::getFilterCollection(size_t filterID,int id,const trigger::TriggerEventWithRefs& trigEv,double ptMin)
 {
   using namespace trigger;
 
-  //Create output Collection
   LVColl out;
-      //get All the final trigger objects
-      const TriggerObjectCollection& TOC(trigEv.getObjects());
-     
-      //filter index
-      if(index!=trigEv.sizeFilters())
-	{
-	  const Keys& KEYS = trigEv.filterKeys(index);
-	  for(size_t i = 0;i<KEYS.size();++i)
+
+
+	  if(id==trigger::TriggerL1IsoEG ||trigger::TriggerL1NoIsoEG) 
 	    {
-	      const TriggerObject& TO(TOC[KEYS[i]]);
-	      LV a(TO.px(),TO.py(),TO.pz(),sqrt(TO.px()*TO.px()+TO.py()*TO.py()+TO.pz()*TO.pz()));
-	      if(abs(TO.id()) == id)
-		if(a.pt()>ptCut)
-		  out.push_back(a);
+	      VRl1em obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
 	    }
-	}
 
-  return out;
+	  if(id==trigger::TriggerL1Mu) 
+	    {
+	      VRl1muon obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
+	    }
+
+
+	  if(id==trigger::TriggerMuon) 
+	    {
+	      VRmuon obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
+	    }
+
+	  if(id==trigger::TriggerElectron) 
+	    {
+	      VRelectron obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
+	    }
+
+	  if(id==trigger::TriggerL1TauJet) 
+	    {
+	      VRl1jet obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
+	    }
+
+	  if(id==trigger::TriggerTau) 
+	    {
+	      VRjet obj;
+	      trigEv.getObjects(filterID,id,obj);
+	      for(size_t i=0;i<obj.size();++i)
+		if(&obj[i])
+		  if(obj[i]->pt()>ptMin)
+		    out.push_back(obj[i]->p4());
+	    }
+
+	  return out;
 }
-
-
-
-
-//LVColl HLTTauDQMSource::getFilterCollection(size_t filterID,int id,const trigger::TriggerEventWithRefs& trigEv,double ptMin)
-//{
-//  using namespace trigger;
-//
-//  LVColl out;
-//
-//
-//	  if(id==trigger::TriggerL1IsoEG ||trigger::TriggerL1NoIsoEG) 
-//	    {
-//	      VRl1em obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//		  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-//
-//	  if(id==trigger::TriggerL1Mu) 
-//	    {
-//	      VRl1muon obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//		  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-//
-//
-//	   if(id==trigger::TriggerMuon) 
-//	    {
-//	      VRmuon obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//	  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-//
-//	  if(id==trigger::TriggerElectron) 
-//	    {
-//	      VRelectron obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//		  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-
-//	  if(id==trigger::TriggerL1TauJet) 
-//	    {
-//	      VRl1jet obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//		  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-
-//	  if(id==trigger::TriggerTau) 
-//	    {
-//	      VRjet obj;
-//	      trigEv.getObjects(filterID,id,obj);
-//	      for(size_t i=0;i<obj.size();++i)
-//		if(&obj[i])
-//		  if(obj[i]->pt()>ptMin)
-//		    out.push_back(obj[i]->p4());
-//	    }
-
-//	  return out;
-//

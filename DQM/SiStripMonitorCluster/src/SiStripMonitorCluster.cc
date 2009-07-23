@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.62 2009/06/30 10:26:28 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.58 2009/05/20 08:13:27 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -102,9 +102,6 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersClusterApvProf = conf_.getParameter<edm::ParameterSet>("TProfClustersApvCycle");
   subdetswitchclusterapvprofon = ParametersClusterApvProf.getParameter<bool>("subdetswitchon");
-
-  edm::ParameterSet ParametersClustersApvTH2 = conf_.getParameter<edm::ParameterSet>("TH2ClustersApvCycle");
-  subdetswitchapvcycleth2on = ParametersClustersApvTH2.getParameter<bool>("subdetswitchon");
 
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
@@ -423,12 +420,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       else if (it->first == "TID") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTID);
       else if (it->first == "TEC") subdetmes.SubDetClusterApvProf->Fill(tbx%70,nTotClusterTEC);      
     }
-    if (subdetswitchapvcycleth2on) {
-      if (it->first == "TIB") subdetmes.SubDetClusterApvTH2->Fill(tbx%70,nTotClusterTIB);
-      else if (it->first == "TOB") subdetmes.SubDetClusterApvTH2->Fill(tbx%70,nTotClusterTOB);
-      else if (it->first == "TID") subdetmes.SubDetClusterApvTH2->Fill(tbx%70,nTotClusterTID);
-      else if (it->first == "TEC") subdetmes.SubDetClusterApvTH2->Fill(tbx%70,nTotClusterTEC);      
-    }
     if (subdetswitchtotclusterth1on) {
       if (it->first == "TIB") subdetmes.SubDetTotClusterTH1->Fill(nTotClusterTIB);
       else if (it->first == "TOB") subdetmes.SubDetTotClusterTH1->Fill(nTotClusterTOB);
@@ -672,28 +663,6 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     subdetMEs.SubDetTotClusterTH1->setAxisTitle("Total number of clusters in subdetector");
     subdetMEs.SubDetTotClusterTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
-    // TH2 with number of Clusters vs Bx 
-    if(subdetswitchapvcycleth2on){
-      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ClustersApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Cluster_vs_ApvCycle_2D_" + label;
-      // Adjusting the scale for 2D histogram
-      double h2ymax = 9999.0;     
-      double yfact = Parameters.getParameter<double>("yfactor");
-      if(label == "TIB") h2ymax = (6984.*256.)*yfact;
-      else if (label == "TID") h2ymax = (2208.*256.)*yfact;
-      else if (label == "TOB") h2ymax = (12906.*256.)*yfact;
-      else if (label == "TEC") h2ymax = (7552.*2.*256.)*yfact;
-
-      subdetMEs.SubDetClusterApvTH2=dqmStore_->book2D(HistoName,HistoName,
-					      Parameters.getParameter<int32_t>("Nbins"),
-					      Parameters.getParameter<double>("xmin"),
-					      Parameters.getParameter<double>("xmax"),
-					      Parameters.getParameter<int32_t>("Nbinsy"),
-					      Parameters.getParameter<double>("ymin"),
-					      h2ymax);
-      subdetMEs.SubDetClusterApvTH2->setAxisTitle("absolute Bx mod(70)",1);
-    }
   SubDetMEsMap[label]=subdetMEs;
   }
 }

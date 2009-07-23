@@ -107,10 +107,10 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       SetupEtaPhiHists(SumTimeThreshByDepth,"Above Threshold Rec Hit Summed Time","nS");
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_1D_plots");
-      h_HBEnergy_1D=m_dbe->book1D("HB_energy_1D","HB Average Energy Per Rec Hit",200,-5,5);
-      h_HEEnergy_1D=m_dbe->book1D("HE_energy_1D","HE Average Energy Per Rec Hit",200,-5,5);
-      h_HOEnergy_1D=m_dbe->book1D("HO_energy_1D","HO Average Energy Per Rec Hit",600,-15,15);
-      h_HFEnergy_1D=m_dbe->book1D("HF_energy_1D","HF Average Energy Per Rec Hit",200,-5,5);
+      h_HBEnergy_1D=m_dbe->book1D("HB_energy_1D","HB Average Energy Per Rec Hit",400,-5,15);
+      h_HEEnergy_1D=m_dbe->book1D("HE_energy_1D","HE Average Energy Per Rec Hit",400,-5,15);
+      h_HOEnergy_1D=m_dbe->book1D("HO_energy_1D","HO Average Energy Per Rec Hit",600,-10,20);
+      h_HFEnergy_1D=m_dbe->book1D("HF_energy_1D","HF Average Energy Per Rec Hit",400,-5,15);
       h_HBEnergy_1D->setAxisTitle("Energy (GeV)", 1);
       h_HEEnergy_1D->setAxisTitle("Energy (GeV)", 1);
       h_HOEnergy_1D->setAxisTitle("Energy (GeV)", 1);

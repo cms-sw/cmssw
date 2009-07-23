@@ -31,8 +31,8 @@ using namespace std;
 
 /** \class HcalDetDiagLEDMonitor
   *  
-  * $Date: 2009/07/01 06:09:21 $
-  * $Revision: 1.1.2.6 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.4 $
   * \author D. Vishnevskiy
   */
 
@@ -98,15 +98,18 @@ private:
              return Energy;
           }
    double GetTime(double *data,int n=10){
-             int MaxI=-100; double Time,SumT=0,MaxT=-10;
+             int MaxI=-100; double Time=-9999,SumT=0,MaxT=-10;
              for(int j=0;j<n;++j) if(MaxT<data[j]){ MaxT=data[j]; MaxI=j; }
-             Time=MaxI*data[MaxI];
-             SumT=data[MaxI];
-             if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
-             if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
-	     Time=Time/SumT;
-             return Time;
-         }      
+             if (MaxI>=0) // add protection so that compiler doesn't think MaxI=-100;
+	       {
+		 Time=MaxI*data[MaxI];
+		 SumT=data[MaxI];
+		 if(MaxI>0){ Time+=(MaxI-1)*data[MaxI-1]; SumT+=data[MaxI-1]; }
+		 if(MaxI<(n-1)){ Time+=(MaxI+1)*data[MaxI+1]; SumT+=data[MaxI+1]; }
+		 Time=Time/SumT;
+	       }
+	     return Time;
+   }      
    int   overflow;
    int   undeflow;
    double Xe,XXe,Xt,XXt,n;
@@ -137,34 +140,34 @@ private:
   void LoadReference();
   void CheckStatus();
   
-  HcalDetDiagLEDData *GetCalib(char *sd,int eta,int phi){
-          int SD=0,ETA=0,PHI=0;
-          if(strcmp(sd,"HB")==0)SD=1; 
-          if(strcmp(sd,"HE")==0)SD=2; 
-          if(strcmp(sd,"HO")==0)SD=3; 
-          if(strcmp(sd,"HF")==0)SD=4; 
-          if(SD==1 || SD==2){
-             if(eta>0) ETA=1; else ETA=-1;
-             if(phi==71 ||phi==72 || phi==1 || phi==2) PHI=71; else PHI=((phi-3)/4)*4+3;
-          }else if(SD==3){
-             if(abs(eta)<=4){
-                 ETA=0;
-                 if(phi==71 ||phi==72 || phi==1 || phi==2 || phi==3 || phi==4) PHI=71; else PHI=((phi-5)/6)*6+5;
-             }else{
-                 if(abs(eta)>4  && abs(eta)<=10)  ETA=1;
-                 if(abs(eta)>10 && abs(eta)<=15)  ETA=2;
-                 if(eta<0) ETA=-ETA;
-	         if(phi==71 ||phi==72 || (phi>=1 && phi<=10)) PHI=71; else PHI=((phi-11)/12)*12+11;
-             }
-	  }else if(SD==4){
-             if(eta>0) ETA=1; else ETA=-1;
-	     if(phi>=1  && phi<=18) PHI=1;
-	     if(phi>=19 && phi<=36) PHI=19;
-	     if(phi>=37 && phi<=54) PHI=37;
-	     if(phi>=55 && phi<=72) PHI=55;
-          }
-          return &calib_data[SD][ETA+2][PHI-1];
-       };
+  HcalDetDiagLEDData *GetCalib(std::string sd,int eta,int phi){
+    int SD=0,ETA=0,PHI=0;
+    if(sd.compare("HB")==0) SD=1; 
+    if(sd.compare("HE")==0) SD=2; 
+    if(sd.compare("HO")==0) SD=3; 
+    if(sd.compare("HF")==0) SD=4; 
+    if(SD==1 || SD==2){
+      if(eta>0) ETA=1; else ETA=-1;
+      if(phi==71 ||phi==72 || phi==1 || phi==2) PHI=71; else PHI=((phi-3)/4)*4+3;
+    }else if(SD==3){
+      if(abs(eta)<=4){
+	ETA=0;
+	if(phi==71 ||phi==72 || phi==1 || phi==2 || phi==3 || phi==4) PHI=71; else PHI=((phi-5)/6)*6+5;
+      }else{
+	if(abs(eta)>4  && abs(eta)<=10)  ETA=1;
+	if(abs(eta)>10 && abs(eta)<=15)  ETA=2;
+	if(eta<0) ETA=-ETA;
+	if(phi==71 ||phi==72 || (phi>=1 && phi<=10)) PHI=71; else PHI=((phi-11)/12)*12+11;
+      }
+    }else if(SD==4){
+      if(eta>0) ETA=1; else ETA=-1;
+      if(phi>=1  && phi<=18) PHI=1;
+      if(phi>=19 && phi<=36) PHI=19;
+      if(phi>=37 && phi<=54) PHI=37;
+      if(phi>=55 && phi<=72) PHI=55;
+    }
+    return &calib_data[SD][ETA+2][PHI-1];
+  };
   int         ievt_;
   int         run_number;
   int         dataset_seq_number;
@@ -223,9 +226,9 @@ private:
   std::vector<MonitorElement*> ChannelStatusTimeMean;
   std::vector<MonitorElement*> ChannelStatusTimeRMS;
  
-  void fill_channel_status(char *subdet,int eta,int phi,int depth,int type,double status);
-  void   fill_energy(char *subdet,int eta,int phi,int depth,double e,int type);
-  double get_energy(char *subdet,int eta,int phi,int depth,int type);
+  void fill_channel_status(std::string subdet,int eta,int phi,int depth,int type,double status);
+  void   fill_energy(std::string subdet,int eta,int phi,int depth,double e,int type);
+  double get_energy(std::string subdet,int eta,int phi,int depth,int type);
 };
 
 #endif

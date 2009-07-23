@@ -25,6 +25,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainConstEB.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
@@ -87,9 +88,11 @@ namespace{
     EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
  
     EcalTPGFineGrainConstEB grain;
-    std::map<uint32_t, EcalTPGFineGrainConstEB::EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap ;
+    std::map<uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap ;
+    std::pair<const uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap_valuetype ;
  
     std::map< uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap;
+    std::pair< const uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap_valuetype;
  
     std::map< uint32_t, uint32_t> EcalTPGFineGrainTowerEEMap;
  
@@ -100,12 +103,14 @@ namespace{
     EcalTPGLinearizationConst tpglinconstmap;
  
     EcalTPGLut lut;
-    std::map< uint32_t, EcalTPGLut::EcalTPGLut > EcalTPGLutMap;
+    std::map< uint32_t, EcalTPGLut > EcalTPGLutMap;
+    std::pair< const uint32_t, EcalTPGLut > EcalTPGLutMap_valuetype;
  
     EcalTPGPedestals tpgpedmap;
  
     EcalTPGWeights weights;
-    std::map<uint32_t, EcalTPGWeights::EcalTPGWeights> EcalTPGWeightMap;
+    std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap;
+    std::pair<const uint32_t, EcalTPGWeights> EcalTPGWeightMap_valuetype;
  
     std::map<uint32_t, uint32_t> EcalTPGSlidingWindowMap;
  
@@ -125,7 +130,9 @@ namespace{
  
     EcalTPGWeightGroup wgroup;
  
+    EcalTPGPhysicsConst::Item foo1;
     std::map< uint32_t, EcalTPGPhysicsConst::Item >  phConst;
+    std::pair< const uint32_t, EcalTPGPhysicsConst::Item >  phConst_valuetype;
  
     EcalTPGCrystalStatus tpgCrystalStatus;
   };

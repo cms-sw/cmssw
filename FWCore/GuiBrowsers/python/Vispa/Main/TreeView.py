@@ -13,6 +13,8 @@ class TreeView(AbstractView, QTreeWidget):
         logging.debug(__name__ + ": __init__")
         AbstractView.__init__(self)
         QTreeWidget.__init__(self, parent)
+
+        self._operationId = 0
         self._firstItem = None
         self._itemDict = {}
         self._maxDepth = maxDepth
@@ -45,6 +47,7 @@ class TreeView(AbstractView, QTreeWidget):
         """ Deletes all items in the TreeView
         """
         logging.debug(__name__ + ": clear")
+        self._operationId += 1
         self._itemDict = {}
         self._firstItem = None
         QTreeWidget.clear(self)
@@ -55,9 +58,15 @@ class TreeView(AbstractView, QTreeWidget):
         logging.debug(__name__ + ": updateContent")
         self._updatingFlag = True
         self.clear()
+        operationId = self._operationId
         if self._dataAccessor:
             i = 0
             for object in self._filter(self._dataObjects):
+                # Process application event loop in order to accept user input during time consuming drawing operation
+                QCoreApplication.instance().processEvents()
+                # Abort drawing if operationId out of date
+                if operationId != self._operationId:
+                    return False
                 self._createNode(object, self, str(i))
                 i += 1
         self.expandToDepth(0)

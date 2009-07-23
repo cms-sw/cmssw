@@ -115,7 +115,7 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
       float binval;
 
       int subdet=0;
-      char* subdetname;
+      std::string subdetname;
       if (debug_>1)
 	{
 	  std::cout <<"<HcalDeadCellClient>  Summary of Dead Cells in Run: "<<std::endl;
@@ -130,60 +130,35 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 	{
 	  etabins=ProblemDeadCellsByDepth[d]->GetNbinsX();
 	  phibins=ProblemDeadCellsByDepth[d]->GetNbinsY();
-	  for (int hist_eta=1;ieta<=etabins;++hist_eta)
+	  for (int hist_eta=0;hist_eta<etabins;++hist_eta)
 	    {
 	      ieta=CalcIeta(hist_eta,d+1);
 	      if (ieta==-9999) continue;
-	      for (int hist_phi=1;hist_phi<=phibins;++hist_phi)
+	      for (int hist_phi=0;hist_phi<phibins;++hist_phi)
 		{
-		  iphi=hist_phi;
+		  iphi=hist_phi+1;
 
 		  // ProblemDeadCells have already been normalized
-		  binval=ProblemDeadCellsByDepth[d]->GetBinContent(ieta,iphi);
+		  binval=ProblemDeadCellsByDepth[d]->GetBinContent(hist_eta+1,hist_phi+1);
 		  
-		  // Set subdetector labels for output
-		  if (d==0) // HB/HE/HF
+		  if (d<2)
 		    {
-		      if (hist_eta<14)
-			{
-			  subdetname="HF";
-			  subdet=4;
-			}
-		      else if (hist_eta>72)
-			{
-			  subdetname="HF";
-			  subdet=4;
-			}
-		      else if (abs(ieta)<=16)
+		      if (isHB(hist_eta,d+1))
 			{
 			  subdetname="HB";
 			  subdet=1;
 			}
-		      else
+		      else if (isHE(hist_eta,d+1))
 			{
 			  subdetname="HE";
 			  subdet=2;
 			}
-		    }
-		  
-		  else if (d==1)
-		    {
-		      if (hist_eta<14 || hist_eta >44)
+		      else if (isHF(hist_eta,d+1))
 			{
 			  subdetname="HF";
 			  subdet=4;
 			}
-		      else if (abs(ieta)<17)
-			{
-			  subdetname="HB";
-			  subdet=1;
-			}
-		      else
-			{
-			  subdetname="HE";
-			  subdet=2;
-			}
-		    }
+		    } // if (d<2)
 		  else if (d==2)
 		    {
 		      subdetname="HE";
@@ -194,6 +169,7 @@ void HcalDeadCellClient::endJob(std::map<HcalDetId, unsigned int>& myqual)
 		      subdetname="HO";
 		      subdet=3;
 		    }
+		  
 		  // Set correct depth label
 
 		  HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
@@ -592,41 +568,43 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
       if (debug_) std::cout <<"<HcalDeadCellClient::htmlOutput>  ERROR: can't find Problem Dead Cell plot!"<<std::endl;
       return;
     }
-  int etabins  = ProblemDeadCells->GetNbinsX();
-  int phibins  = ProblemDeadCells->GetNbinsY();
-  float etaMin = ProblemDeadCells->GetXaxis()->GetXmin();
-  float phiMin = ProblemDeadCells->GetYaxis()->GetXmin();
-
-  int eta,phi;
+  int etabins  = 0;
+  int phibins  = 0;
+  int ieta=-9999,iphi=-9999;
 
   ostringstream name;
   for (int depth=0;depth<4; ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      etabins  = ProblemDeadCells->GetNbinsX();
+      phibins  = ProblemDeadCells->GetNbinsY();
+      for (int eta=0;eta<etabins;++eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+	  ieta=CalcIeta(eta, depth+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0; phi<phibins;++phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
-	      if (abs(eta)>20 && phi%2!=1) continue;
-	      if (abs(eta)>39 && phi%4!=3) continue;
+              iphi=phi+1;
+	      if (abs(ieta)>20 && iphi%2!=1) continue;
+	      if (abs(ieta)>39 && iphi%4!=3) continue;
 	      if (ProblemDeadCellsByDepth[depth]==0)
-		{
 		  continue;
-		}
-	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+	      if (ProblemDeadCellsByDepth[depth]->GetBinContent(eta+1,phi+1)>minErrorFlag_)
 		{
 		  if (depth<2)
-		    (fabs(eta)<29) ? name<<"HB" : name<<"HF";
-		  else if (depth==3)
-		    name<<"HO";
-		  else name <<"HE";
-		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemDeadCellsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
+		    {
+		      if (isHB(eta,depth+1)) name <<"HB";
+		      else if (isHE(eta,depth+1)) name<<"HE";
+		      else if (isHF(eta,depth+1)) name<<"HF";
+		    }
+		  else if (depth==2) name <<"HE";
+		  else if (depth==3) name<<"HO";
+
+		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<ieta<<", "<<iphi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemDeadCellsByDepth[depth]->GetBinContent(eta+1,phi+1)*100.<<"</td></tr>"<<std::endl;
 
 		  name.str("");
 		}
-	    } // for (int iphi=1;...)
-	} // for (int ieta=1;...)
+	    } // for (int phi=0;...)
+	} // for (int eta=0;...)
     } // for (int depth=0;...)
   
   

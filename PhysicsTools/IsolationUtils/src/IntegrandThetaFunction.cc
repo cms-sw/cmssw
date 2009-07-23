@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegrandThetaFunction.cc,v 1.3 2009/01/14 10:53:15 hegner Exp $
+// $Id: IntegrandThetaFunction.cc,v 1.2 2007/05/28 09:59:50 llista Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 // CMSSW include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "PhysicsTools/IsolationUtils/interface/IntegralOverPhiFunction.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 //
@@ -38,11 +39,13 @@
 //
 
 IntegrandThetaFunction::IntegrandThetaFunction()
-  : fPhi_()
+  : ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>(3)
 {
   theta0_ = 0.; 
   phi0_ = 0.; 
   alpha_ = 0.; 
+
+  fPhi_ = new IntegralOverPhiFunction();
 }
 
 IntegrandThetaFunction::IntegrandThetaFunction(const IntegrandThetaFunction& bluePrint)
@@ -50,12 +53,14 @@ IntegrandThetaFunction::IntegrandThetaFunction(const IntegrandThetaFunction& blu
   theta0_ = bluePrint.theta0_;
   phi0_ = bluePrint.phi0_;
   alpha_ = bluePrint.alpha_;
-  
-  fPhi_ = bluePrint.fPhi_;
+
+  fPhi_ = new IntegralOverPhiFunction(*bluePrint.fPhi_);
 }
 
 IntegrandThetaFunction::~IntegrandThetaFunction()
-{}
+{
+  delete fPhi_;
+}
 
 //
 // assignment operator
@@ -67,7 +72,7 @@ IntegrandThetaFunction& IntegrandThetaFunction::operator=(const IntegrandThetaFu
   phi0_ = bluePrint.phi0_;
   alpha_ = bluePrint.alpha_;
   
-  fPhi_ = bluePrint.fPhi_;
+  (*fPhi_) = (*bluePrint.fPhi_);
 
   return (*this);
 }
@@ -91,6 +96,22 @@ void IntegrandThetaFunction::SetParameterAlpha(double alpha)
   alpha_ = alpha;
 }
 
+void IntegrandThetaFunction::SetParameters(double* param)
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+}
+
+double IntegrandThetaFunction::DoEvalPar(double x, const double* param) const  //FIXME: constness
+{
+  theta0_ = param[0];
+  phi0_ = param[1];
+  alpha_ = param[2];
+
+  return DoEval(x);
+}
+
 double IntegrandThetaFunction::DoEval(double x) const
 {
 //--- return zero if theta either close  to zero or close to Pi
@@ -105,15 +126,15 @@ double IntegrandThetaFunction::DoEval(double x) const
   double cscTheta = 1./sinTheta;
 
   double detJacobi = -cscTheta; // partial derrivative dEta/dTheta (for constant particle density in tau id. isolation cone)
-  //double detJacobi = 1.; // ordinary solid angle (for TESTING ONLY)
+  //double detJacobi = 1.; // ordinary solid angle (FOR TESTING ONLY)
 
 //--- evaluate integral over angle phi
 //    (azimuth angle of point within cone)
-  fPhi_.SetParameterTheta0(theta0_);
-  fPhi_.SetParameterPhi0(phi0_);
-  fPhi_.SetParameterAlpha(alpha_);
+  fPhi_->SetParameterTheta0(theta0_);
+  fPhi_->SetParameterPhi0(phi0_);
+  fPhi_->SetParameterAlpha(alpha_);
 
-  double integralOverPhi = fPhi_(x);		
+  double integralOverPhi = (*fPhi_)(x);
 
   if ( debugLevel_ > 0 ) {
     edm::LogVerbatim("") << "integralOverPhi = " << integralOverPhi << std::endl
@@ -133,6 +154,34 @@ double IntegrandThetaFunction::DoEval(double x) const
 //     o the factor sin(theta) originates from the solid angle surface element 
 //       expressed in spherical polar coordinates)
 //
-  //return TMath::Abs(detJacobi)*integralOverPhi*sinTheta; (in case of TESTING with ordinary solid angle ONLY)
+  //return TMath::Abs(detJacobi)*integralOverPhi*sinTheta;
   return TMath::Abs(detJacobi)*integralOverPhi;
 }  
+
+double IntegrandThetaFunction::DoDerivative(double x) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+double IntegrandThetaFunction::DoParameterDerivative(double, const double*, unsigned int) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+
+  return 0.;
+}
+
+
+
+void IntegrandThetaFunction::DoParameterGradient(double x, double* paramGradient) const
+{
+//--- virtual function inherited from ROOT::Math::ParamFunction base class;
+//    not implemented, because not neccessary, but needs to be defined to make code compile...
+  edm::LogWarning("") << "Function not implemented yet !" << std::endl;
+}
+

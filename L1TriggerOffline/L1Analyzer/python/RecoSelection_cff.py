@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Jets
 # Correct Reco jets
-from JetMETCorrections.Configuration.JetCorrectionsHLT_cff import *
+from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
 #Muons
 # Clone Reco muons
 CloneRecoMuons = cms.EDProducer("MuonShallowCloneProducer",
@@ -87,8 +87,8 @@ SelectRecoMet = cms.EDFilter("PtMinCandSelector",
 
 RecoMuonSelection = cms.Sequence(CloneRecoMuons*SelectRecoMuons)
 RecoElecSelection = cms.Sequence(CloneRecoElec*SelectRecoElec)
-RecoCenJetSelection = cms.Sequence(hltMCJetCorJetIcone5*CloneRecoJets*SelectRecoCenJets)
-RecoForJetSelection = cms.Sequence(hltMCJetCorJetIcone5*CloneRecoJets*SelectRecoForJets)
+RecoCenJetSelection = cms.Sequence(MCJetCorJetIcone5*CloneRecoJets*SelectRecoCenJets)
+RecoForJetSelection = cms.Sequence(MCJetCorJetIcone5*CloneRecoJets*SelectRecoForJets)
 RecoTauJetSelection = cms.Sequence(TauJets*CloneRecoTauJets*SelectRecoTauJets)
 RecoMetSelection = cms.Sequence(CloneRecoMet*SelectRecoMet)
 

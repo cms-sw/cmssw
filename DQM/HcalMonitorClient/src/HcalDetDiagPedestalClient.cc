@@ -3,35 +3,35 @@
 #include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 #include <TPaveStats.h>
 
-static int IsKnownBadChannel(char *subdet,int eta,int phi,int depth){
-   if(strcmp(subdet,"HO")==0 && eta==5    && phi==35 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==6    && phi==35 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==5    && phi==36 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==6    && phi==36 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-4   && phi==37 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==5    && phi==37 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==6    && phi==37 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==38 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==38 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-4   && phi==38 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==39 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==39 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==40 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-9   && phi==40 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==41 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==42 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-10  && phi==43 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-3   && phi==59 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-2   && phi==59 && depth==4) return 1;
-   if(strcmp(subdet,"HO")==0 && eta==-1   && phi==59 && depth==4) return 1;
-
-   if(strcmp(subdet,"HO")==0 && eta==1   && phi==4 && depth==4) return 3;
-   if(strcmp(subdet,"HO")==0 && eta==3   && phi==4 && depth==4) return 3;
-   if(strcmp(subdet,"HO")==0 && eta==15  && phi==24 && depth==4) return 3;
-   
-   if(strcmp(subdet,"HF")==0 && eta==41  && phi==47 && depth==2) return 3;
-   if(strcmp(subdet,"HF")==0 && eta==29  && phi==71 && depth==1) return 3;
-   return 0;
+static int IsKnownBadChannel(std::string subdet,int eta,int phi,int depth){
+  if(subdet.compare("HO")==0 && eta==5    && phi==35 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==6    && phi==35 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==5    && phi==36 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==6    && phi==36 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-4   && phi==37 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==5    && phi==37 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==6    && phi==37 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==38 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-9   && phi==38 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-4   && phi==38 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==39 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-9   && phi==39 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==40 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-9   && phi==40 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==41 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==42 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-10  && phi==43 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-3   && phi==59 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-2   && phi==59 && depth==4) return 1;
+  if(subdet.compare("HO")==0 && eta==-1   && phi==59 && depth==4) return 1;
+  
+  if(subdet.compare("HO")==0 && eta==1   && phi==4 && depth==4) return 3;
+  if(subdet.compare("HO")==0 && eta==3   && phi==4 && depth==4) return 3;
+  if(subdet.compare("HO")==0 && eta==15  && phi==24 && depth==4) return 3;
+  
+  if(subdet.compare("HF")==0 && eta==41  && phi==47 && depth==2) return 3;
+  if(subdet.compare("HF")==0 && eta==29  && phi==71 && depth==1) return 3;
+  return 0;
 }
 
 HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(){}
@@ -154,11 +154,11 @@ int  HcalDetDiagPedestalClient::SummaryStatus(){
     if(status==1) return 1;
     return 2;
 }
-double HcalDetDiagPedestalClient::get_channel_status(char *subdet,int eta,int phi,int depth,int type){
+double HcalDetDiagPedestalClient::get_channel_status(std::string subdet,int eta,int phi,int depth,int type){
    int ind=-1;
-   if(strcmp(subdet,"HB")==0 || strcmp(subdet,"HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(strcmp(subdet,"HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(strcmp(subdet,"HO")==0) ind=3; 
+   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
+   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
+   else if(subdet.compare("HO")==0) ind=3; 
    if(ind==-1) return -1.0;
    if(type==1) return ChannelStatusMissingChannels[ind] ->GetBinContent(eta+42,phi+1);
    if(type==2) return ChannelStatusUnstableChannels[ind]->GetBinContent(eta+42,phi+1);
@@ -167,7 +167,7 @@ double HcalDetDiagPedestalClient::get_channel_status(char *subdet,int eta,int ph
    return -1.0;
 }
 
-static void printTableHeader(ofstream& file,char * header){
+static void printTableHeader(ofstream& file,std::string  header){
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      file << "<head>"<< endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
@@ -183,7 +183,7 @@ static void printTableHeader(ofstream& file,char * header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,char *comment=""){
+static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
      file << "<td class=\"s4\" align=\"center\">#</td>"    << endl;
@@ -206,7 +206,7 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
      if(comment[0]!=0) file << "<td class=\"s1\" align=\"center\">Comment</td>"   << endl;
      file << "</tr>"   << endl;
    }
-   char *raw_class;
+   std::string raw_class;
    file << "<tr>"<< endl;
    if((ind%2)==1){
       raw_class="<td class=\"s2\" align=\"center\">";
@@ -255,40 +255,70 @@ int  newHEM[4]={0,0,0,0};
 int  newHFP[4]={0,0,0,0}; 
 int  newHFM[4]={0,0,0,0}; 
 int  newHO[4] ={0,0,0,0}; 
-char *subdet[4]={"HB","HE","HO","HF"};
+std::string subdet[4]={"HB","HE","HO","HF"};
 
   HcalLogicalMapGenerator gen;
   HcalLogicalMap lmap(gen.createMap());
   HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
   
   // check how many problems we have:
-  for(int sd=0;sd<4;sd++){
-     int feta=0,teta=0,fdepth=0,tdepth=0; 
-     if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2; } 
-     if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3; } 
-     if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4; } 
-     if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2; } 
-     for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
-        if(sd==3 && eta>-29 && eta<29) continue;
-        double problem[4]={0,0,0,0};
-        problem[0] =get_channel_status(subdet[sd],eta,phi,depth,1); 
-        problem[1] =get_channel_status(subdet[sd],eta,phi,depth,2);
-        problem[2] =get_channel_status(subdet[sd],eta,phi,depth,3);
-        problem[3] =get_channel_status(subdet[sd],eta,phi,depth,4);
-        for(int i=0;i<4;i++){
-           if(problem[i]>0){
-	      if(sd==0)if(eta>0){ HBP[i]++; if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBP[i]++;}
-	                    else{ HBM[i]++; if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBM[i]++;} 
-	      if(sd==1)if(eta>0){ HEP[i]++; if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEP[i]++;}
-	                    else{ HEM[i]++; if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEM[i]++;}
-	      if(sd==2)         { HO[i]++;  if(IsKnownBadChannel("HO",eta,phi,depth)!=(i+1)) newHO[i]++; }
-	      if(sd==3)if(eta>0){ HFP[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFP[i]++;}
-	                    else{ HFM[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFM[i]++;}
-           }
-        }
-     }
-  }
- 
+  for(int sd=0;sd<4;sd++)
+    {
+      int feta=0,teta=0,fdepth=0,tdepth=0; 
+      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2; } 
+      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3; } 
+      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4; } 
+      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2; } 
+      for(int phi=1;phi<=72;phi++) 
+	{
+	  for(int depth=fdepth;depth<=tdepth;depth++) 
+	    {
+	      for(int eta=feta;eta<=teta;eta++)
+		{
+		  if(sd==3 && eta>-29 && eta<29) continue;
+		  double problem[4]={0,0,0,0};
+		  problem[0] =get_channel_status(subdet[sd],eta,phi,depth,1); 
+		  problem[1] =get_channel_status(subdet[sd],eta,phi,depth,2);
+		  problem[2] =get_channel_status(subdet[sd],eta,phi,depth,3);
+		  problem[3] =get_channel_status(subdet[sd],eta,phi,depth,4);
+		  for(int i=0;i<4;i++){
+		    if(problem[i]>0){
+		      if(sd==0){
+			if(eta>0)
+			  { 
+			    HBP[i]++; 
+			    if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBP[i]++;
+			  }
+			else
+			  {
+			    HBM[i]++; 
+			    if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBM[i]++;
+			  } 
+		      } // if (sd==0)
+		      if(sd==1){
+			if(eta>0)
+			  { 
+			    HEP[i]++; 
+			    if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEP[i]++;
+			  }
+			else{
+			  HEM[i]++; 
+			  if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEM[i]++;}
+		      } // if (sd==1)
+		      if(sd==2)         { HO[i]++;  if(IsKnownBadChannel("HO",eta,phi,depth)!=(i+1)) newHO[i]++; }
+		      if(sd==3){
+			if(eta>0){
+			  HFP[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFP[i]++;}
+			else{
+			  HFM[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFM[i]++;}
+		      } // if (sd==3)
+		    } // if (problem[i]>0)
+		  } //for (int i=0;i<4;i++)
+		} // for (int eta=feta;...)
+	    } // for (int depth=fdepth;...)
+	} // for (int phi = 1;...)
+    }//for (int sd=0;...
+  
   // missing channels list
   ofstream Missing;
   Missing.open((htmlDir + "Missing_"+htmlName).c_str());
@@ -308,7 +338,7 @@ char *subdet[4]={"HB","HE","HO","HF"};
       for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
          if(sd==3 && eta>-29 && eta<29) continue;
          double missing =get_channel_status(subdet[sd],eta,phi,depth,1);
-	 char *comm="   ";
+	 std::string comm="   ";
 	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==1) comm="KNOWN PROBLEM";
          if(missing>0){
             try{
@@ -386,14 +416,14 @@ char *subdet[4]={"HB","HE","HO","HF"};
          if(sd==3 && eta>-29 && eta<29) continue;
          double bad1 =get_channel_status(subdet[sd],eta,phi,depth,3);
          double bad2 =get_channel_status(subdet[sd],eta,phi,depth,4);
-	 char *comm="";
+	 std::string comm="";
 	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==2 || IsKnownBadChannel(subdet[sd],eta,phi,depth)==3) comm=", KNOWN PROBLEM";
          if(bad1>0 || bad2>0){
-            try{
-	       char comment[100]; 
-	       if(bad1>0) sprintf(comment,"|Ped-Ref|=%.2f%s\n",bad1,comm);
-	       if(bad2>0) sprintf(comment,"|Rms-Ref|=%.2f%s\n",bad2,comm);
-	       if(bad1>0 && bad2>0) sprintf(comment,"|Ped-Ref|=%.2f,|Rms-Ref|=%.2f%s\n",bad1,bad2,comm);
+	   try{
+	     char comment[100]; 
+	       if(bad1>0) sprintf(comment,"|Ped-Ref|=%.2f%s\n",bad1,comm.c_str());
+	       if(bad2>0) sprintf(comment,"|Rms-Ref|=%.2f%s\n",bad2,comm.c_str());
+	       if(bad1>0 && bad2>0) sprintf(comment,"|Ped-Ref|=%.2f,|Rms-Ref|=%.2f%s\n",bad1,bad2,comm.c_str());
 	       HcalDetId *detid=0;
                if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
@@ -440,10 +470,10 @@ char *subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: yellow; }"<< endl;
   htmlFile << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: green; }"<< endl;
   htmlFile << "   td.s5 { font-family: arial, arial ce, helvetica; background-color: silver; }"<< endl;
-  char *state[4]={"<td class=\"s2\" align=\"center\">",
-                  "<td class=\"s3\" align=\"center\">",
-		  "<td class=\"s4\" align=\"center\">",
-		  "<td class=\"s5\" align=\"center\">"};
+  std::string state[4]={"<td class=\"s2\" align=\"center\">",
+			"<td class=\"s3\" align=\"center\">",
+			"<td class=\"s4\" align=\"center\">",
+			"<td class=\"s5\" align=\"center\">"};
   htmlFile << "</style>"<< endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;

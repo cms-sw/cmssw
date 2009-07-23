@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/07 09:28:33 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/11/18 08:41:43 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -69,11 +69,6 @@ void MuonRecoTest::beginJob(const edm::EventSetup& context){
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
   phiEfficiency = theDbe->book1D("phiEfficiency_staMuon", "#phi_{STA} efficiency", phiBin, phiMin, phiMax);
-
-  // alignment plots
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_posMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}",50,0,200));
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_negMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{-}",50,0,200));
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}-#mu^{-}",50,0,200));
 
 }
 
@@ -179,29 +174,6 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
       LogTrace(metname)<< "[phiEfficiency test] bad ranges: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
     }
     LogTrace(metname)<<"-------- type: [phiEfficiency]  "<<thePhiQReport->getMessage()<<" ------- "<<thePhiQReport->getStatus()<<endl;
-  }
-
-  //alignment plot
-  string pathPos = "Muons/MuonRecoAnalyzer/muVStkSytemRotation_posMu";
-  MonitorElement * muVStkSytemRotation_posMu_histo = theDbe->get(pathPos);
-  string pathNeg = "Muons/MuonRecoAnalyzer/muVStkSytemRotation_negMu";
-  MonitorElement * muVStkSytemRotation_negMu_histo = theDbe->get(pathNeg);
-  if(muVStkSytemRotation_posMu_histo && muVStkSytemRotation_negMu_histo){
-
-    TH2F * muVStkSytemRotation_posMu_root = muVStkSytemRotation_posMu_histo->getTH2F();
-    TProfile * muVStkSytemRotation_posMu_profile = muVStkSytemRotation_posMu_root->ProfileX("",1,100);
-    TH2F * muVStkSytemRotation_negMu_root = muVStkSytemRotation_negMu_histo->getTH2F();
-    TProfile * muVStkSytemRotation_negMu_profile = muVStkSytemRotation_negMu_root->ProfileX("",1,100);
-
-    for(int x=1; x<50; x++){
-      globalRotation[0]->Fill((x*4)-1,muVStkSytemRotation_posMu_profile->GetBinContent(x));
-      globalRotation[0]->setBinError(x,muVStkSytemRotation_posMu_profile->GetBinError(x));
-      globalRotation[1]->Fill((x*4)-1,muVStkSytemRotation_negMu_profile->GetBinContent(x));
-      globalRotation[1]->setBinError(x,muVStkSytemRotation_negMu_profile->GetBinError(x));
-      globalRotation[2]->Fill((x*4)-1,muVStkSytemRotation_posMu_profile->GetBinContent(x)-muVStkSytemRotation_negMu_profile->GetBinContent(x));
-      globalRotation[2]->setBinError(x,sqrt((muVStkSytemRotation_posMu_profile->GetBinError(x)*muVStkSytemRotation_posMu_profile->GetBinError(x))
-					    + (muVStkSytemRotation_negMu_profile->GetBinError(x)*muVStkSytemRotation_negMu_profile->GetBinError(x))));
-    }
   }
 
 }

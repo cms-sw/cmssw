@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.1 2008/07/07 18:50:04 meridian Exp $
+// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 
@@ -74,7 +74,7 @@ EcalFEDWithCRCErrorProducer::EcalFEDWithCRCErrorProducer(const edm::ParameterSet
   fedUnpackList_ = iConfig.getUntrackedParameter< std::vector<int> >("FEDs", std::vector<int>());
   writeAllEcalFEDs_ = iConfig.getUntrackedParameter<bool >("writeAllEcalFED", false);
   if (fedUnpackList_.empty()) 
-    for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
+    for (int i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
       fedUnpackList_.push_back(i);
 
   produces< FEDRawDataCollection >();

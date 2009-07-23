@@ -50,11 +50,10 @@ public:
 
   //fill a histogram if the pointer is not NULL (ie if it has been booked)
   void fillHistogram(MonitorElement* histogram, 
-		     double value,
-		     double weight=1.
+		     double value
 		     );
 
-  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, const unsigned int aEvtNum);
+  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters);
 
   void fillFEDHistograms(FEDErrors & aFedError, 
 			 bool lFullDebug
@@ -130,14 +129,10 @@ private:
     *nFEDDAQProblems_, 
     *nFEDsWithFEProblems_, 
     *nFEDCorruptBuffers_, 
-    *nBadChannelStatusBits_,
     *nBadActiveChannelStatusBits_,
     *nFEDsWithFEOverflows_, 
     *nFEDsWithFEBadMajorityAddresses_, 
     *nFEDsWithMissingFEs_;
-
-  MonitorElement *nTotalBadChannelsvsEvtNum_;
-  MonitorElement *nTotalBadActiveChannelsvsEvtNum_;
 
   //top level histograms
   MonitorElement *anyFEDErrors_, 

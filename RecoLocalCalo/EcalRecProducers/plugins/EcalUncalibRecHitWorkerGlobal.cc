@@ -113,7 +113,13 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 if ( leadingSample != 4 ) {
                         // all samples different from the fifth are not reliable for the amplitude estimation
                         // put by default the energy at the saturation threshold and flag as saturated
-                        uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12, 0, 0, 0);
+                        float sratio = 1;
+                        if ( detid.subdetId()==EcalBarrel) {
+                                sratio = ebPulseShape_[5] / ebPulseShape_[4];
+                        } else {
+                                sratio = eePulseShape_[5] / eePulseShape_[4];
+                        }
+                        uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kSaturated );
                 } else {
                         // compute the right bin of the pulse shape using time calibration constants

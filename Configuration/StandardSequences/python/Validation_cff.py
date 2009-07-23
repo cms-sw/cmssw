@@ -23,8 +23,8 @@ from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.RecoMuon.muonValidation_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
+from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
-
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
 validation_prod = cms.Sequence(trackingTruthValid
@@ -32,5 +32,6 @@ validation_prod = cms.Sequence(trackingTruthValid
                           +METRelValSequence
                           +recoMuonValidation
                           +muIsoVal_seq
+                          +muonIdValDQMSeq
                           +hltvalidation_prod
                           )

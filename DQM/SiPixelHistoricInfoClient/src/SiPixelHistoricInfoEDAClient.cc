@@ -17,6 +17,7 @@ using namespace edm;
 
 SiPixelHistoricInfoEDAClient::SiPixelHistoricInfoEDAClient(const ParameterSet& parameterSet) { 
   dbe_ = Service<DQMStore>().operator->(); 
+  dbe_->setVerbose(0); 
   
   parameterSet_ = parameterSet;  
   

@@ -53,7 +53,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #--------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_30X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.prefer("GlobalTag")
 
 #-----------------------
 #  Reconstruction Modules
@@ -77,6 +79,5 @@ process.myOut = cms.OutputModule("PoolOutputModule",
 # Scheduling
 #--------------------------
 process.p = cms.Path(process.RawToDigi_woGCT*process.reconstructionCosmics*process.SiStripDQMTest)
-
 
 process.outpath = cms.EndPath(process.myOut)

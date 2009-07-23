@@ -5,13 +5,11 @@
  *
  *  
  *  This class is an EDFilter choosing reconstructed di-tracks
- *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2009/05/22 07:49:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/03 01:42:38 $
+ *  $Revision: 1.2 $
  *
  *  \author Ezio Torassa  -  INFN Padova
- *  \revised J. Fernandez  -  Univ. Oviedo
  *
  */
 
@@ -26,7 +24,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <vector>
 
 
 using namespace edm;
@@ -46,13 +43,11 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       double diTrackPtMin_;
       double etaMin_;
       double etaMax_;
-      bool   beTight_;
-      double dilepM_;
-      double eleHadronicOverEm_;
       unsigned int  nEvents_;
       unsigned int nAccepted_;
 
   // Reco samples
+  edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
   edm::InputTag theGsfELabel;
 

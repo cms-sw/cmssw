@@ -52,8 +52,7 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
   int bitMask=12; 
   process_part1(tpframetow,nStr,bitMask);
 
- 
-process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup_,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainEB_,ecaltpgBadTT_,tptow,tptow2,towid);
+  process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup_,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainEB_,tptow,tptow2,towid);
 }
  
 //-----------------------------------------------------------------------------------------  
@@ -64,10 +63,9 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
 			   bool isInInnerRing, EcalTrigTowerDetId towid) 
 {
-  int bitMask=12; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) {was 10 before]
+  int bitMask=10;
   process_part1(tpframetow,nStr,bitMask);
- 
-  process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainTowerEE_,ecaltpgBadTT_,tptow,tptow2,isInInnerRing, towid);
+  process_part2_endcap(tpframetow,nStr,bitMask,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainTowerEE_,tptow,tptow2,isInInnerRing, towid);
 }
 //----------------------------------------------------------------------------------------- 
 void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int nStr, int bitMask)
@@ -110,7 +108,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
                                         const EcalTPGLutGroup *ecaltpgLutGroup,
                                         const EcalTPGLutIdMap *ecaltpgLut,
                                         const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
-					const EcalTPGTowerStatus *ecaltpgBadTT,
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
                                         std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,
 					EcalTrigTowerDetId towid)
@@ -130,7 +127,7 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
    
   //call fgvb
 
-  this->getFGVBEB()->setParameters(towid.rawId(),ecaltpgFgEBGroup,ecaltpgFineGrainEB);
+  this->getFGVBEB()->setParameters(towid.rawId(),ecaltpgFgEBGroup,ecaltpgFineGrainEB );
   this->getFGVBEB()->process(adder_out_,maxOf2_out_,fgvb_out_);
   //this is a test:
   if (debug_) {
@@ -145,7 +142,7 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
   // call formatter
   int eTTotShift=2;
  
-  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgBadTT);
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut);
   this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,false);
   //this is a test:
   if (debug_) {
@@ -164,10 +161,8 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
                                         const EcalTPGLutGroup *ecaltpgLutGroup,
                                         const EcalTPGLutIdMap *ecaltpgLut,
                                         const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
-					const EcalTPGTowerStatus *ecaltpgbadTT,
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
-                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,bool isInInnerRings,					
-					EcalTrigTowerDetId towid)
+                                        std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,bool isInInnerRings,					EcalTrigTowerDetId towid)
 
 {
   //call fgvb
@@ -176,9 +171,9 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
   fgvbEE_->process(bypasslinout,nStr,bitMask,fgvb_out_);
 
   //call formatter
-  int eTTotShift=2; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) so shift must be applied to just keep [11:2]
+  int eTTotShift=0;
 
-  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT);
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut);
 
   this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,isInInnerRings);
   //this is a test:

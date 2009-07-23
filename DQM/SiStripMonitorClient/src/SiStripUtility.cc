@@ -223,9 +223,7 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, string name) {
   vector<string> subDirVec = dqm_store->getSubdirs();
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    string fname = (*ic);
-    if (fname.find("Reference") != string::npos) continue;
-    dqm_store->cd(fname);
+    dqm_store->cd(*ic);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();
     else return true;
   }

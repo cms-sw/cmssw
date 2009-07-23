@@ -19,9 +19,9 @@ in Offline Trigger DQM etc
 #include "TLorentzVector.h"
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
-
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -37,10 +37,6 @@ in Offline Trigger DQM etc
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
-//Photon Includes
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include <vector>
 #include <string>
@@ -58,7 +54,7 @@ public:
   typedef std::vector<LorentzVector> LorentzVectorCollection;
   
   edm::InputTag PFTaus_;
-  std::vector<edm::InputTag> PFTauDis_;
+  edm::InputTag PFTauDis_;
   bool doPFTaus_;
   double ptMinPFTau_;
   
@@ -83,12 +79,6 @@ public:
   double e_zMmin_,e_zMmax_;
   double e_FromZet_;
 
-  edm::InputTag Photons_;
-  bool doPhotons_;
-  double photonEcalIso_;
-  double ptMinPhoton_;
-
-
   edm::InputTag Muons_;
   bool doMuons_;
   double ptMinMuon_;
@@ -107,7 +97,6 @@ public:
   void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::auto_ptr<LorentzVectorCollection>&);
   double ElectronTrkIsolation(const reco::TrackCollection*, const reco::GsfElectron&);
   void doJets(edm::Event&,const edm::EventSetup&);
-  void doPhotons(edm::Event&,const edm::EventSetup&);
 
 };
 

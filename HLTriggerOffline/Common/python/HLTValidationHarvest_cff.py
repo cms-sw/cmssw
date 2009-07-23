@@ -34,10 +34,14 @@ hltpostvalidation_fastsim = cms.Sequence(
     +SusyExoPostVal
     )
 
-hltpostvalidation_prod = cms.Sequence( 
-     HLTTauPostVal
-    +HLTTopPostVal
+hltpostvalidation_pu = cms.Sequence( 
+     HLTMuonPostVal
+    +HLTTauPostVal
+    +EgammaPostVal
     +hltriggerFourVectorClient
+    +HLTTopPostVal
     +heavyFlavorValidationHarvestingSequence
+    +JetMETPostVal
+    +HLTAlCaPostVal
     +SusyExoPostVal
-)
+    )

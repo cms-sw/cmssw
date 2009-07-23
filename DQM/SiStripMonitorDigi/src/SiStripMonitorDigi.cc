@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.48 2009/06/30 10:31:55 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.44 2009/04/15 15:49:32 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -72,10 +72,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
 
   edm::ParameterSet ParametersDigiApvProf = conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
   subdetswitchapvcycleprofon = ParametersDigiApvProf.getParameter<bool>("subdetswitchon");
-
-  edm::ParameterSet ParametersDigiApvTH2 = conf_.getParameter<edm::ParameterSet>("TH2DigiApvCycle");
-  subdetswitchapvcycleth2on = ParametersDigiApvTH2.getParameter<bool>("subdetswitchon");
-
+  
   digitkhistomapon = conf_.getParameter<bool>("TkHistoMap_On"); 
   
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
@@ -372,12 +369,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       else if (it->first == "TID") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTID);
       else if (it->first == "TEC") subdetmes.SubDetDigiApvProf->Fill(tbx%70,nTotDigiTEC);      
     }
-    if (subdetswitchapvcycleth2on) {
-      if (it->first == "TIB") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTIB);
-      else if (it->first == "TOB") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTOB);
-      else if (it->first == "TID") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTID);
-      else if (it->first == "TEC") subdetmes.SubDetDigiApvTH2->Fill(tbx%70,nTotDigiTEC);      
-    }
   }
 }//end of method analyze
 //--------------------------------------------------------------------------------------------
@@ -600,28 +591,6 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 					      "" );
       subdetMEs.SubDetDigiApvProf->setAxisTitle("absolute Bx mod(70)",1);
       if (subdetMEs.SubDetDigiApvProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetDigiApvProf->getTH1()->SetBit(TH1::kCanRebin);
-    }
-
-    // Number of Digi vs Bx - TH2
-    if(subdetswitchapvcycleth2on){
-      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2DigiApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
-      HistoName = "Digi_vs_ApvCycle_2D_" + label;
-      // Adjusting the scale for 2D histogram
-      double h2ymax = 9999.0;
-      double yfact = Parameters.getParameter<double>("yfactor");
-      if(label == "TIB") h2ymax = (6984.*256.)*yfact;
-      else if (label == "TID") h2ymax = (2208.*256.)*yfact;
-      else if (label == "TOB") h2ymax = (12906.*256.)*yfact;
-      else if (label == "TEC") h2ymax = (7552.*2.*256.)*yfact;
-      subdetMEs.SubDetDigiApvTH2=dqmStore_->book2D(HistoName,HistoName,
-					      Parameters.getParameter<int32_t>("Nbins"),
-					      Parameters.getParameter<double>("xmin"),
-					      Parameters.getParameter<double>("xmax"),
-					      Parameters.getParameter<int32_t>("Nbinsy"), //it was 100 that parameter should not be there !?
-					      Parameters.getParameter<double>("ymin"),
-					      h2ymax);
-      subdetMEs.SubDetDigiApvTH2->setAxisTitle("absolute Bx mod(70)",1);
     }
   SubDetMEsMap[label]=subdetMEs;
   }

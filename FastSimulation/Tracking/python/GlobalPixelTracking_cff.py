@@ -36,7 +36,8 @@ globalPixelWithMaterialTracksForElectrons.Propagator = 'PropagatorWithMaterial'
 globalPixelWithMaterialTracksForElectrons.TrajectoryInEvent = cms.bool(True)
 
 globalPixelWithMaterialTracksForPhotons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForElectrons'
+###globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForElectrons'
+globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForPhotons'
 globalPixelWithMaterialTracksForPhotons.TTRHBuilder = 'WithoutRefit'
 globalPixelWithMaterialTracksForPhotons.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalPixelWithMaterialTracksForPhotons.Propagator = 'PropagatorWithMaterial'

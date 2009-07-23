@@ -12,18 +12,19 @@ import FWCore.ParameterSet.Config as cms
 # Addition of HCAL noise by JP Chou
 # Date:  3/26/09
 
+import FWCore.ParameterSet.Config as cms
 from RecoMET.Configuration.RecoMET_cff import *
 
 tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
-hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
+hcalnoise_cosmics = hcalnoise.clone(fillTracks = False)
 
-metrecoCosmics = cms.Sequence(
-    met+metNoHF+metHO+metNoHFHO+
-    calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
-    htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMetP5
-    )
+metreco_cosmics = cms.Sequence(
+        met+metNoHF+metHO+metNoHFHO+
+            calotoweroptmaker+metOpt+metOptNoHF+calotoweroptmakerWithHO+metOptHO+metOptNoHFHO+
+            htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5+muonMETValueMapProducer+corMetGlobalMuons+muonTCMETValueMapProducer+tcMetP5
+            )
 
-metrecoPlusHCALNoiseCosmics = cms.Sequence( metrecoCosmics + hcalnoiseCosmics )
+metrecoPlusHCALNoise_cosmics = cms.Sequence( metreco_cosmics + hcalnoise_cosmics )
 
 
 

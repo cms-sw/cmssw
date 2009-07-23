@@ -18,226 +18,198 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include <TProfile.h>
+#include <TStyle.h>
+
 
 SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf) : ConditionDBWriter<SiStripLorentzAngle>(conf) , conf_(conf){}
 
+
 void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 
+  //  edm::ESHandle<TrackerGeometry> estracker;
   c.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker=&(*estracker); 
+  const TrackerGeometry *tracker=&(*estracker); 
+  
+  //c.get<IdealMagneticFieldRecord>().get(magfield_);
   
   //get magnetic field and geometry from ES
   edm::ESHandle<MagneticField> magfield_;
   c.get<IdealMagneticFieldRecord>().get(magfield_);
+  //const MagneticField *  magfield=&(*magfield_);
 
   edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
   c.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
   detid_la= SiStripLorentzAngle_->getLorentzAngles();
   
   DQMStore* dbe_ = edm::Service<DQMStore>().operator->();
-  
-  std::string inputFile_ =conf_.getUntrackedParameter<std::string>("fileName", "LAProfiles.root");
-  std::string LAreport_ =conf_.getUntrackedParameter<std::string>("LA_Report", "LA_Report.txt");
-  std::string NoEntriesHisto_ =conf_.getUntrackedParameter<std::string>("NoEntriesHisto", "NoEntriesHisto.txt");
-  std::string Dir_Name_ =conf_.getUntrackedParameter<std::string>("Dir_Name", "SiStrip");
-  
-  LayerDB = conf_.getUntrackedParameter<bool>("LayerDB", false);
-  
+  std::string inputFile_ =conf_.getUntrackedParameter<std::string>("fileName", "LorentzAngle.root");
+  std::string outputFile_ =conf_.getUntrackedParameter<std::string>("out_fileName", "LorentzAngle.root");
+  std::string LAreport_ =conf_.getUntrackedParameter<std::string>("LA_Report", "LorentzAngle.root");
+  std::string LAProbFit_ =conf_.getUntrackedParameter<std::string>("LA_ProbFit", "LorentzAngle.root");
   dbe_->open(inputFile_);
   
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
-  
-  edm::LogInfo("SiStripCalibLorentzAngle")<<"### DIR-NAME = "<<Dir_Name_;
-  histolist= dbe_->getAllContents(Dir_Name_);
+   
+  std::vector<MonitorElement*> histolist= dbe_->getAllContents("/");
   std::vector<MonitorElement*>::iterator histo;
-  
-  hFile = new TFile (conf_.getUntrackedParameter<std::string>("out_fileName").c_str(), "RECREATE" );
     
-  LorentzAngle_Plots = hFile->mkdir("LorentzAngle_Plots");
-  Rootple = LorentzAngle_Plots->mkdir("Rootple");
-  MuH = LorentzAngle_Plots->mkdir("MuH");
-  TIB_MuH = MuH->mkdir("TIB_MuH");
-  TOB_MuH = MuH->mkdir("TOB_MuH");
-  MuH_vs_Phi = LorentzAngle_Plots->mkdir("MuH_vs_Phi");
-  TIB_Phi = MuH_vs_Phi->mkdir("TIB_Phi");
-  TOB_Phi = MuH_vs_Phi->mkdir("TOB_Phi");
-  MuH_vs_Eta = LorentzAngle_Plots->mkdir("MuH_vs_Eta");
-  TIB_Eta = MuH_vs_Eta->mkdir("TIB_Eta");
-  TOB_Eta = MuH_vs_Eta->mkdir("TOB_Eta");
-  FirstIT_GoodFit_Histos = LorentzAngle_Plots->mkdir("1IT_GoodFit_Histos");
-  TIB_1IT_GoodFit = FirstIT_GoodFit_Histos->mkdir("TIB_1IT_GoodFit");
-  TOB_1IT_GoodFit = FirstIT_GoodFit_Histos->mkdir("TOB_1IT_GoodFit");
-  SecondIT_GoodFit_Histos = LorentzAngle_Plots->mkdir("2IT_GoodFit_Histos");
-  TIB_2IT_GoodFit = SecondIT_GoodFit_Histos->mkdir("TIB_2IT_GoodFit");
-  TOB_2IT_GoodFit = SecondIT_GoodFit_Histos->mkdir("TOB_2IT_GoodFit");
-  SecondIT_BadFit_Histos = LorentzAngle_Plots->mkdir("2IT_BadFit_Histos");
-  TIB_2IT_BadFit = SecondIT_BadFit_Histos->mkdir("TIB_2IT_BadFit");
-  TOB_2IT_BadFit = SecondIT_BadFit_Histos->mkdir("TOB_2IT_BadFit");
-    
-  TH1Ds["LA_TIB"] = new TH1D("TanLAPerTesla TIB","TanLAPerTesla TIB",1000,-0.5,0.5);
-  TH1Ds["LA_TIB"]->SetDirectory(MuH);
-  TH1Ds["LA_TOB"] = new TH1D("TanLAPerTesla TOB","TanLAPerTesla TOB",1000,-0.5,0.5);
-  TH1Ds["LA_TOB"]->SetDirectory(MuH);
-  TH1Ds["LA_err_TIB"] = new TH1D("TanLAPerTesla Error TIB","TanLAPerTesla Error TIB",1000,0,1);
-  TH1Ds["LA_err_TIB"]->SetDirectory(MuH);
-  TH1Ds["LA_err_TOB"] = new TH1D("TanLAPerTesla Error TOB","TanLAPerTesla Error TOB",1000,0,1);
-  TH1Ds["LA_err_TOB"]->SetDirectory(MuH);
-  TH1Ds["LA_chi2norm_TIB"] = new TH1D("TanLAPerTesla Chi2norm TIB","TanLAPerTesla Chi2norm TIB",2000,0,10);
-  TH1Ds["LA_chi2norm_TIB"]->SetDirectory(MuH);
-  TH1Ds["LA_chi2norm_TOB"] = new TH1D("TanLAPerTesla Chi2norm TOB","TanLAPerTesla Chi2norm TOB",2000,0,10);
-  TH1Ds["LA_chi2norm_TOB"]->SetDirectory(MuH);
-  TH1Ds["MagneticField"] = new TH1D("MagneticField","MagneticField",500,0,5);
-  TH1Ds["MagneticField"]->SetDirectory(MuH);
+  dbe_->setCurrentFolder("LorentzAngle_Plots");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/Histos/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/Histos/TOB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/Profiles/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/Profiles/TOB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_BadFit_Histos/TOB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
+  dbe_->setCurrentFolder("LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");
   
-  TH2Ds["LA_TIB_graph"] = new TH2D("TanLAPerTesla TIB Layers","TanLAPerTesla TIB Layers",4,1,4,1000,-0.3,0.3);
-  TH2Ds["LA_TIB_graph"]->SetDirectory(MuH);
-  TH2Ds["LA_TOB_graph"] = new TH2D("TanLAPerTesla TOB Layers","TanLAPerTesla TOB Layers",6,1,6,1000,-0.3,0.3);
-  TH2Ds["LA_TOB_graph"]->SetDirectory(MuH);
+  dbe_->cd("LorentzAngle_Plots/Histos");
+  
+  MonitorElement * LA_plot=dbe_->book1D("TanLAPerTesla","TanLAPerTesla",1000,-0.5,0.5); 
+  MonitorElement * LA_err_plot=dbe_->book1D("TanLAPerTesla Error","TanLAPerTesla Error",1000,0,1);
+  MonitorElement * LA_chi2norm_plot=dbe_->book1D("TanLAPerTesla Chi2norm","TanLAPerTesla Chi2norm",2000,0,10);
+  MonitorElement * MagneticField=dbe_->book1D("MagneticField","MagneticField",500,0,5);
+  
+  dbe_->cd("LorentzAngle_Plots/Histos/TIB");
+  
+  MonitorElement * LA_plot_TIB=dbe_->book1D("TanLAPerTesla_TIB","TanLAPerTesla_TIB",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_1_mono=dbe_->book1D("TanLAPerTesla_TIB_1_MONO","TanLAPerTesla_TIB_1_MONO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_1_stereo=dbe_->book1D("TanLAPerTesla_TIB_1_STEREO","TanLAPerTesla_TIB_1_STEREO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_2_mono=dbe_->book1D("TanLAPerTesla_TIB_2_MONO","TanLAPerTesla_TIB_2_MONO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_2_stereo=dbe_->book1D("TanLAPerTesla_TIB_2_STEREO","TanLAPerTesla_TIB_2_STEREO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_3=dbe_->book1D("TanLAPerTesla_TIB_3","TanLAPerTesla_TIB_3",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TIB_4=dbe_->book1D("TanLAPerTesla_TIB_4","TanLAPerTesla_TIB_4",2000,-0.5,0.5);
+  MonitorElement * LA_MONO_TIB=dbe_->book1D("TanLAPerTesla_MONO_TIB","TanLAPerTesla_MONO_TIB",2000,-0.5,0.5);
+  MonitorElement * LA_STEREO_TIB=dbe_->book1D("TanLAPerTesla_STEREO_TIB","TanLAPerTesla_STEREO_TIB",2000,-0.5,0.5);
+  
+  dbe_->cd("LorentzAngle_Plots/Histos/TOB");
+  
+  MonitorElement * LA_plot_TOB=dbe_->book1D("TanLAPerTesla_TOB","TanLAPerTesla_TOB",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_1_mono=dbe_->book1D("TanLAPerTesla_TOB_1_MONO","TanLAPerTesla_TOB_1_MONO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_1_stereo=dbe_->book1D("TanLAPerTesla_TOB_1_STEREO","TanLAPerTesla_TOB_1_STEREO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_2_mono=dbe_->book1D("TanLAPerTesla_TOB_2_MONO","TanLAPerTesla_TOB_2_MONO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_2_stereo=dbe_->book1D("TanLAPerTesla_TOB_2_STEREO","TanLAPerTesla_TOB_2_STEREO",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_3=dbe_->book1D("TanLAPerTesla_TOB_3","TanLAPerTesla_TOB_3",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_4=dbe_->book1D("TanLAPerTesla_TOB_4","TanLAPerTesla_TOB_4",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_5=dbe_->book1D("TanLAPerTesla_TOB_5","TanLAPerTesla_TOB_5",2000,-0.5,0.5);
+  MonitorElement * LA_plot_TOB_6=dbe_->book1D("TanLAPerTesla_TOB_6","TanLAPerTesla_TOB_6",2000,-0.5,0.5);  
+  MonitorElement * LA_MONO_TOB=dbe_->book1D("TanLAPerTesla_MONO_TOB","TanLAPerTesla_MONO_TOB",2000,-0.5,0.5);
+  MonitorElement * LA_STEREO_TOB=dbe_->book1D("TanLAPerTesla_STEREO_TOB","TanLAPerTesla_STEREO_TOB",2000,-0.5,0.5);
+  
+  dbe_->cd("LorentzAngle_Plots/Profiles");
+    
+  MonitorElement * LA_phi_plot=dbe_->bookProfile("TanLAPerTesla_vs_Phi","TanLAPerTesla_vs_Phi",200,-3.5,3.5,1000,-0.5,0.5,"");
+  MonitorElement * LA_eta_plot=dbe_->bookProfile("TanLAPerTesla_vs_Eta","TanLAPerTesla_vs_Eta",200,-2.6,2.6,1000,-0.5,0.5,"");
+  
+  dbe_->cd("LorentzAngle_Plots/Profiles/TIB");
+  
+  MonitorElement * LA_eta_plot_TIB=dbe_->bookProfile("TanLAPerTesla_vs_Eta_TIB","TanLAPerTesla_vs_Eta_TIB",200,-3.5,3.5,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_MONO_TIB1=dbe_->bookProfile("TanLAPerTesla_vs_Z_MONO_TIB1","TanLAPerTesla_vs_Z_MONO_TIB1",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_STEREO_TIB1=dbe_->bookProfile("TanLAPerTesla_vs_Z_STEREO_TIB1","TanLAPerTesla_vs_Z_STEREO_TIB1",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_MONO_TIB2=dbe_->bookProfile("TanLAPerTesla_vs_Z_MONO_TIB2","TanLAPerTesla_vs_Z_MONO_TIB2",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_STEREO_TIB2=dbe_->bookProfile("TanLAPerTesla_vs_Z_STEREO_TIB2","TanLAPerTesla_vs_Z_STEREO_TIB2",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TIB3=dbe_->bookProfile("TanLAPerTesla_vs_Z_TIB3","TanLAPerTesla_vs_Z_TIB3",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TIB4=dbe_->bookProfile("TanLAPerTesla_vs_Z_TIB4","TanLAPerTesla_vs_Z_TIB4",200,-100,100,1000,-0.5,0.5,"");
+ 
+  dbe_->cd("LorentzAngle_Plots/Profiles/TOB");
+  
+  MonitorElement * LA_eta_plot_TOB=dbe_->bookProfile("TanLAPerTesla_vs_Eta_TOB","TanLAPerTesla_vs_Eta_TOB",200,-3.5,3.5,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_MONO_TOB1=dbe_->bookProfile("TanLAPerTesla_vs_Z_MONO_TOB1","TanLAPerTesla_vs_Z_MONO_TOB1",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_STEREO_TOB1=dbe_->bookProfile("TanLAPerTesla_vs_Z_STEREO_TOB1","TanLAPerTesla_vs_Z_STEREO_TOB1",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_MONO_TOB2=dbe_->bookProfile("TanLAPerTesla_vs_Z_MONO_TOB2","TanLAPerTesla_vs_Z_MONO_TOB2",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_STEREO_TOB2=dbe_->bookProfile("TanLAPerTesla_vs_Z_STEREO_TOB2","TanLAPerTesla_vs_Z_STEREO_TOB2",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TOB3=dbe_->bookProfile("TanLAPerTesla_vs_Z_TOB3","TanLAPerTesla_vs_Z_TOB3",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TOB4=dbe_->bookProfile("TanLAPerTesla_vs_Z_TOB4","TanLAPerTesla_vs_Z_TOB4",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TOB5=dbe_->bookProfile("TanLAPerTesla_vs_Z_TOB5","TanLAPerTesla_vs_Z_TOB5",200,-100,100,1000,-0.5,0.5,"");
+  MonitorElement * LA_Z_plot_TOB6=dbe_->bookProfile("TanLAPerTesla_vs_Z_TOB6","TanLAPerTesla_vs_Z_TOB6",200,-100,100,1000,-0.5,0.5,""); 
+  
+  
+  histos[1] = LA_plot;
+  histos[2] = LA_err_plot;
+  histos[3] = LA_chi2norm_plot;
+  histos[4] = LA_phi_plot;
+  histos[5] = LA_eta_plot;
+  
+  histos[6] = LA_plot_TIB;
+  histos[7] = LA_plot_TIB_1_mono;
+  histos[8] = LA_plot_TIB_1_stereo;
+  histos[9] = LA_plot_TIB_2_mono;
+  histos[10] = LA_plot_TIB_2_stereo;
+  histos[11] = LA_plot_TIB_3;
+  histos[12] = LA_plot_TIB_4;
+    
+  histos[13] = LA_plot_TOB;
+  histos[14] = LA_plot_TOB_1_mono;
+  histos[15] = LA_plot_TOB_1_stereo;
+  histos[16] = LA_plot_TOB_2_mono;
+  histos[17] = LA_plot_TOB_2_stereo;
+  histos[18] = LA_plot_TOB_3;
+  histos[19] = LA_plot_TOB_4;
+  histos[20] = LA_plot_TOB_5;
+  histos[21] = LA_plot_TOB_6;
+  
+  histos[22] = LA_MONO_TIB;
+  histos[23] = LA_STEREO_TIB;
+  histos[24] = LA_eta_plot_TIB;
+  TProfile* Eta_TIB=ExtractTObject<TProfile>().extract(histos[24]);
+  Eta_TIB->GetXaxis()->SetTitle("#eta");
+  Eta_TIB->GetYaxis()->SetTitle("TanLAPerTesla");
+  Eta_TIB->GetYaxis()->CenterTitle();
+  Eta_TIB->GetYaxis()->SetTitleOffset(1.3);
 
-  TH1Ds["LA_TIB_1"] = new TH1D("TanLAPerTesla TIB1","TanLAPerTesla TIB1",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_1"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_1_mono"] = new TH1D("TanLAPerTesla TIB1 MONO","TanLAPerTesla TIB1 MONO",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_1_mono"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_1_stereo"] = new TH1D("TanLAPerTesla TIB1 STEREO","TanLAPerTesla TIB1 STEREO",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_1_stereo"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_2"] = new TH1D("TanLAPerTesla TIB2","TanLAPerTesla TIB2",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_2"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_2_mono"] = new TH1D("TanLAPerTesla TIB2 MONO","TanLAPerTesla TIB2 MONO",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_2_mono"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_2_stereo"] = new TH1D("TanLAPerTesla TIB2 STEREO","TanLAPerTesla TIB2 STEREO",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_2_stereo"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_3"] = new TH1D("TanLAPerTesla_TIB 3","TanLAPerTesla TIB3",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_3"]->SetDirectory(TIB_MuH);
-  TH1Ds["LA_TIB_4"] = new TH1D("TanLAPerTesla_TIB 4","TanLAPerTesla TIB4",2000,-0.5,0.5);
-  TH1Ds["LA_TIB_4"]->SetDirectory(TIB_MuH);
+  histos[25] = LA_MONO_TOB;
+  histos[26] = LA_STEREO_TOB;
+  histos[27] = LA_eta_plot_TOB;
+  TProfile* Eta_TOB=ExtractTObject<TProfile>().extract(histos[27]);
+  Eta_TOB->GetXaxis()->SetTitle("#eta");
+  Eta_TOB->GetYaxis()->SetTitle("TanLAPerTesla");
+  Eta_TOB->GetYaxis()->CenterTitle();
+  Eta_TOB->GetYaxis()->SetTitleOffset(1.3);
   
-  TH1Ds["LA_TOB_1"] = new TH1D("TanLAPerTesla TOB1","TanLAPerTesla TOB1",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_1"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_1_mono"] = new TH1D("TanLAPerTesla TOB1 MONO","TanLAPerTesla TOB1 MONO",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_1_mono"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_1_stereo"] = new TH1D("TanLAPerTesla TOB1 STEREO","TanLAPerTesla TOB1 STEREO",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_1_stereo"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_2"] = new TH1D("TanLAPerTesla TOB2","TanLAPerTesla TOB2",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_2"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_2_mono"] = new TH1D("TanLAPerTesla TOB2 MONO","TanLAPerTesla TOB2 MONO",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_2_mono"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_2_stereo"] = new TH1D("TanLAPerTesla TOB2 STEREO","TanLAPerTesla TOB2 STEREO",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_2_stereo"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_3"] = new TH1D("TanLAPerTesla TOB3","TanLAPerTesla TOB3",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_3"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_4"] = new TH1D("TanLAPerTesla TOB4","TanLAPerTesla TOB4",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_4"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_5"] = new TH1D("TanLAPerTesla TOB5","TanLAPerTesla TOB5",2000,-0.5,0.5);
-  TH1Ds["LA_TOB_5"]->SetDirectory(TOB_MuH);
-  TH1Ds["LA_TOB_6"] = new TH1D("TanLAPerTesla TOB6","TanLAPerTesla TOB6",2000,-0.5,0.5); 
-  TH1Ds["LA_TOB_6"]->SetDirectory(TOB_MuH);
-    
-  TH2Ds["LA_phi_TIB"] = new TH2D("TanLAPerTesla vs Phi TIB","TanLAPerTesla vs Phi TIB",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB"]->SetDirectory(MuH_vs_Phi);
-  TH2Ds["LA_phi_TOB"] = new TH2D("TanLAPerTesla vs Phi TOB","TanLAPerTesla vs Phi TOB",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB"]->SetDirectory(MuH_vs_Phi);
+  histos[30] = LA_Z_plot_MONO_TIB1;
+  histos[31] = LA_Z_plot_STEREO_TIB1;
+  histos[32] = LA_Z_plot_MONO_TIB2;
+  histos[33] = LA_Z_plot_STEREO_TIB2;
+  histos[34] = LA_Z_plot_TIB3;
+  histos[35] = LA_Z_plot_TIB4;
   
-  TH2Ds["LA_phi_TIB1"] = new TH2D("TanLAPerTesla vs Phi TIB1","TanLAPerTesla vs Phi TIB1",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB1"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB1_mono"] = new TH2D("TanLAPerTesla vs Phi TIB1 MONO","TanLAPerTesla vs Phi TIB1 MONO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB1_mono"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB1_stereo"] = new TH2D("TanLAPerTesla vs Phi TIB1 STEREO","TanLAPerTesla vs Phi TIB1 STEREO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB1_stereo"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB2"] = new TH2D("TanLAPerTesla vs Phi TIB2","TanLAPerTesla vs Phi TIB2",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB2"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB2_mono"] = new TH2D("TanLAPerTesla vs Phi TIB2 MONO","TanLAPerTesla vs Phi TIB2 MONO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB2_mono"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB2_stereo"] = new TH2D("TanLAPerTesla vs Phi TIB2 STEREO","TanLAPerTesla vs Phi TIB2 STEREO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB2_stereo"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB3"] = new TH2D("TanLAPerTesla vs Phi TIB3","TanLAPerTesla vs Phi TIB3",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB3"]->SetDirectory(TIB_Phi);
-  TH2Ds["LA_phi_TIB4"] = new TH2D("TanLAPerTesla vs Phi TIB4","TanLAPerTesla vs Phi TIB4",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TIB4"]->SetDirectory(TIB_Phi);
+  histos[36] = LA_Z_plot_MONO_TOB1;
+  histos[37] = LA_Z_plot_STEREO_TOB1;
+  histos[38] = LA_Z_plot_MONO_TOB2;
+  histos[39] = LA_Z_plot_STEREO_TOB2;
+  histos[40] = LA_Z_plot_TOB3;
+  histos[41] = LA_Z_plot_TOB4;
+  histos[42] = LA_Z_plot_TOB5;
+  histos[43] = LA_Z_plot_TOB6;
   
-  TH2Ds["LA_phi_TOB1"] = new TH2D("TanLAPerTesla vs Phi TOB1","TanLAPerTesla vs Phi TOB1",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB1"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB1_mono"] = new TH2D("TanLAPerTesla vs Phi TOB1 MONO","TanLAPerTesla vs Phi TOB1 MONO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB1_mono"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB1_stereo"] = new TH2D("TanLAPerTesla vs Phi TOB1 STEREO","TanLAPerTesla vs Phi TOB1 STEREO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB1_stereo"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB2"] = new TH2D("TanLAPerTesla vs Phi TOB2","TanLAPerTesla vs Phi TOB2",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB2"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB2_mono"] = new TH2D("TanLAPerTesla vs Phi TOB2 MONO","TanLAPerTesla vs Phi TOB2 MONO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB2_mono"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB2_stereo"] = new TH2D("TanLAPerTesla vs Phi TOB2 STEREO","TanLAPerTesla vs Phi TOB2 STEREO",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB2_stereo"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB3"] = new TH2D("TanLAPerTesla vs Phi TOB3","TanLAPerTesla vs Phi TOB3",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB3"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB4"] = new TH2D("TanLAPerTesla vs Phi TOB4","TanLAPerTesla vs Phi TOB4",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB4"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB5"] = new TH2D("TanLAPerTesla vs Phi TOB5","TanLAPerTesla vs Phi TOB5",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB5"]->SetDirectory(TOB_Phi);
-  TH2Ds["LA_phi_TOB6"] = new TH2D("TanLAPerTesla vs Phi TOB6","TanLAPerTesla vs Phi TOB6",800,-4,4,600,-0.3,0.3);
-  TH2Ds["LA_phi_TOB6"]->SetDirectory(TOB_Phi);
+  histos[44] = MagneticField;
   
-  TH2Ds["LA_eta_TIB"] = new TH2D("TanLAPerTesla vs Eta TIB","TanLAPerTesla vs Eta TIB",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB"]->SetDirectory(MuH_vs_Eta);
-  TH2Ds["LA_eta_TOB"] = new TH2D("TanLAPerTesla vs Eta TOB","TanLAPerTesla vs Eta TOB",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB"]->SetDirectory(MuH_vs_Eta);
-  
-  TH2Ds["LA_eta_TIB1"] = new TH2D("TanLAPerTesla vs Eta TIB1","TanLAPerTesla vs Eta TIB1",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB1"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB1_mono"] = new TH2D("TanLAPerTesla vs Eta TIB1 MONO","TanLAPerTesla vs Eta TIB1 MONO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB1_mono"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB1_stereo"] = new TH2D("TanLAPerTesla vs Eta TIB1 STEREO","TanLAPerTesla vs Eta TIB1 STEREO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB1_stereo"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB2"] = new TH2D("TanLAPerTesla vs Eta TIB2","TanLAPerTesla vs Eta TIB2",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB2"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB2_mono"] = new TH2D("TanLAPerTesla vs Eta TIB2 MONO","TanLAPerTesla vs Eta TIB2 MONO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB2_mono"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB2_stereo"] = new TH2D("TanLAPerTesla vs Eta TIB2 STEREO","TanLAPerTesla vs Eta TIB2 STEREO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB2_stereo"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB3"] = new TH2D("TanLAPerTesla vs Eta TIB3","TanLAPerTesla vs Eta TIB3",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB3"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TIB4"] = new TH2D("TanLAPerTesla vs Eta TIB4","TanLAPerTesla vs Eta TIB4",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TIB4"]->SetDirectory(TIB_Eta);
-  
-  TH2Ds["LA_eta_TOB1"] = new TH2D("TanLAPerTesla vs Eta TOB1","TanLAPerTesla vs Eta TOB1",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB1"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB1_mono"] = new TH2D("TanLAPerTesla vs Eta TOB1 MONO","TanLAPerTesla vs Eta TOB1 MONO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB1_mono"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB1_stereo"] = new TH2D("TanLAPerTesla vs Eta TOB1 STEREO","TanLAPerTesla vs Eta TOB1 STEREO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB1_stereo"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB2"] = new TH2D("TanLAPerTesla vs Eta TOB2","TanLAPerTesla vs Eta TOB2",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB2"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB2_mono"] = new TH2D("TanLAPerTesla vs Eta TOB2 MONO","TanLAPerTesla vs Eta TOB2 MONO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB2_mono"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB2_stereo"] = new TH2D("TanLAPerTesla vs Eta TOB2 STEREO","TanLAPerTesla vs Eta TOB2 STEREO",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB2_stereo"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB3"] = new TH2D("TanLAPerTesla vs Eta TOB3","TanLAPerTesla vs Eta TOB3",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB3"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB4"] = new TH2D("TanLAPerTesla vs Eta TOB4","TanLAPerTesla vs Eta TOB4",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB4"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB5"] = new TH2D("TanLAPerTesla vs Eta TOB5","TanLAPerTesla vs Eta TOB5",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB5"]->SetDirectory(TIB_Eta);
-  TH2Ds["LA_eta_TOB6"] = new TH2D("TanLAPerTesla vs Eta TOB6","TanLAPerTesla vs Eta TOB6",800,-2.6,2.6,600,-0.3,0.3);
-  TH2Ds["LA_eta_TOB6"]->SetDirectory(TIB_Eta);
+  hFile = new TFile (conf_.getUntrackedParameter<std::string>("treeName").c_str(), "RECREATE" );
   
   ModuleTree = new TTree("ModuleTree", "ModuleTree");
-  ModuleTree->Branch("histoEntries", &histoEntries, "histoEntries/F");
-  ModuleTree->Branch("globalX", &globalX, "globalX/F");
-  ModuleTree->Branch("globalY", &globalY, "globalY/F");
-  ModuleTree->Branch("globalZ", &globalZ, "globalZ/F");
+  ModuleTree->Branch("TreeHistoEntries", &TreeHistoEntries, "TreeHistoEntries/F");
+  ModuleTree->Branch("TreeGlobalX", &TreeGlobalX, "TreeGlobalX/F");
+  ModuleTree->Branch("TreeGlobalY", &TreeGlobalY, "TreeGlobalY/F");
+  ModuleTree->Branch("TreeGlobalZ", &TreeGlobalZ, "TreeGlobalZ/F");
+  ModuleTree->Branch("TreeGoodFit", &TreeGoodFit, "TreeGoodFit/I");
+  ModuleTree->Branch("TreeBadFit", &TreeBadFit, "TreeBadFit/I");
+  ModuleTree->Branch("muH", &muH, "muH/F");
+  ModuleTree->Branch("TreeTIB", &TreeTIB, "TreeTIB/I");
+  ModuleTree->Branch("TreeTOB", &TreeTOB, "TreeTOB/I");
+  ModuleTree->Branch("Layer", &Layer, "Layer/I");
+  ModuleTree->Branch("theBfield", &theBfield, "theBfield/F");
   ModuleTree->Branch("gphi", &gphi, "gphi/F");
   ModuleTree->Branch("geta", &geta, "geta/F");
   ModuleTree->Branch("gR", &gR, "gR/F");
-  ModuleTree->Branch("goodFit", &goodFit, "goodFit/I");
-  ModuleTree->Branch("goodFit1IT", &goodFit1IT, "goodFit1IT/I");
-  ModuleTree->Branch("badFit", &badFit, "badFit/I");
-  ModuleTree->Branch("TIB", &TIB, "TIB/I");
-  ModuleTree->Branch("TOB", &TOB, "TOB/I");
-  ModuleTree->Branch("Layer", &Layer, "Layer/I");
-  ModuleTree->Branch("MonoStereo", &MonoStereo, "MonoStereo/I");
-  ModuleTree->Branch("theBfield", &theBfield, "theBfield/F");
-  ModuleTree->Branch("muH", &muH, "muH/F");
   
-  ModuleTree->SetDirectory(Rootple);
+  gphi=-99;
+  geta=-99;
+  gz = -99;
+  Layer = 0;
      
   int histocounter = 0;
   int NotEnoughEntries = 0;
@@ -268,8 +240,10 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   TF1 *fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
   TF1 *fitfunc2IT= new TF1("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
  
+  ofstream LA_pf;
+  LA_pf.open(LAProbFit_.c_str());
   ofstream NoEntries;
-  NoEntries.open(NoEntriesHisto_.c_str());
+  NoEntries.open("NoEntriesModules.txt");
   ofstream Rep;
   Rep.open(LAreport_.c_str());
   
@@ -281,28 +255,21 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   FitFunction2IT = 0;
   bool Good2ITFit = false;
   bool ModuleHisto = true;
-  
-  histoEntries = -99;
-  gphi=-99;
-  geta=-99;
-  gz = -99;
-  gR=-1;
-  globalX = -99;
-  globalY = -99;
-  globalZ = -99;
-  goodFit = 0;
-  goodFit1IT = 0;
-  badFit = 0;
+  //bool GoodPhi = false;
+  TreeHistoEntries = -99;
+  TreeGlobalX = -99;
+  TreeGlobalY = -99;
+  TreeGlobalZ = -99;
+  TreeGoodFit = 0;
+  TreeBadFit = 0;
   muH = -1;
-  TIB = 0;
-  TOB = 0;
-  MonoStereo = -1;
+  TreeTIB = 0;
+  TreeTOB = 0;
   
     uint32_t id=hidmanager.getComponentId((*histo)->getName());
     DetId detid(id);
     StripSubdetector subid(id);
     const GeomDetUnit * stripdet;
-    MonoStereo = subid.stereo();
     
     if(!(stripdet=tracker->idToDetUnit(subid))){
     no_mod_histo++;
@@ -311,25 +278,12 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     
     if(stripdet!=0 && ModuleHisto==true){
     
-      if(subid.subdetId() == int (StripSubdetector::TIB)){
-      TIBDetId TIBid=TIBDetId(subid);
-      Layer = TIBid.layer();
-      TIB = 1;}     
-      if(subid.subdetId() == int (StripSubdetector::TOB)){
-      TOBDetId TOBid=TOBDetId(subid);
-      Layer = TOBid.layer();
-      TOB = 1;}
-      
     //get module coordinates
     const GlobalPoint gposition = (stripdet->surface()).toGlobal(p);
-    histoEntries = (*histo)->getEntries();
-    globalX = gposition.x();
-    globalY = gposition.y();
-    globalZ = gposition.z();
-    gphi = gposition.phi();
-    geta = gposition.eta();
-    gR = sqrt(pow(gposition.x(),2)+pow(gposition.y(),2));
-    gz = gposition.z();
+    TreeHistoEntries = (*histo)->getEntries();
+    TreeGlobalX = gposition.x();
+    TreeGlobalY = gposition.y();
+    TreeGlobalZ = gposition.z();
     
     //get magnetic field
     const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
@@ -340,62 +294,71 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
     theBfield = lbfield.mag();
     theBfield = (theBfield > 0) ? theBfield : 0.00001; 
-    TH1Ds["MagneticField"]->Fill(theBfield);    
+    histos[44]->Fill(theBfield);
+    
     }
     if(stripdet==0)continue;
       
     if(((*histo)->getEntries()<=FitCuts_Entries)&&ModuleHisto==true){
-    if(((*histo)->getEntries()==0)&&ModuleHisto==true){    
-    NoEntries<<"NO ENTRIES MODULE, ID = "<<id<<std::endl;    
-    edm::LogInfo("SiStripCalibLorentzAngle")<<"### HISTOGRAM WITH 0 ENTRIES => TYPE:"<<subid.subdetId();
+    uint32_t id0=hidmanager.getComponentId((*histo)->getName());
+    DetId detid0(id0);
+    StripSubdetector subid0(id0);
+    
+    if(((*histo)->getEntries()==0)&&ModuleHisto==true){
+    
+    NoEntries<<"NO ENTRIES MODULE, ID = "<<id<<std::endl;
+    
+    edm::LogInfo("SiStripCalibLorentzAngle")<<"### HISTOGRAM WITH 0 ENTRIES => TYPE:"<<subid0.subdetId();
     ZeroEntries++;
     }else{    
-    edm::LogInfo("SiStripCalibLorentzAngle")<<"### HISTOGRAM WITH NR. ENTRIES <= ENTRIES_CUT => TYPE:"<<subid.subdetId();
-    NotEnoughEntries++;}    
+    edm::LogInfo("SiStripCalibLorentzAngle")<<"### HISTOGRAM WITH NR. ENTRIES <= ENTRIES_CUT => TYPE:"<<subid0.subdetId();
+    NotEnoughEntries++;}
+    
     }
-    
-      std::string name;
-      if(TIB==1){
-      name+="TIB";
-      }else{
-      name+="TOB";}
-      std::stringstream LayerStream;
-      LayerStream<<Layer;
-      name+=LayerStream.str();    
-      std::stringstream idnum;
-      idnum<<id;
-      name+="_Id_";
-      name+=idnum.str();
-      
-    gStyle->SetOptFit(111);  
-    
-    //Extract TProfile from Monitor Element to ProfileMap
-    Profiles[name.c_str()] = new TProfile;   
-    TProfile* theProfile=ExtractTObject<TProfile>().extract(*histo);   
-    theProfile->Copy(*Profiles[name.c_str()]);    
-    Profiles[name.c_str()]->SetName(name.c_str());
   
-    if(((*histo)->getEntries()>FitCuts_Entries) && ModuleHisto==true){   
-      histocounter++;            
-      if(TIB==1){
-      edm::LogInfo("SiStripCalibLorentzAngle")<<"TIB layer = "<<Layer;}    
-      if(TOB==1){
-      edm::LogInfo("SiStripCalibLorentzAngle")<<"TOB layer = "<<Layer;}     
+    if(((*histo)->getEntries()>FitCuts_Entries)&&ModuleHisto==true){
+    
+      histocounter++;   
+          
+      if(subid.subdetId() == int (StripSubdetector::TIB)){
+      TIBDetId TIBid=TIBDetId(subid);
+      Layer = TIBid.layer();
+      TreeTIB = 1;
+      edm::LogInfo("SiStripCalibLorentzAngle")<<"TIB layer = "<<Layer;}
+      
+      if(subid.subdetId() == int (StripSubdetector::TOB)){
+      TOBDetId TOBid=TOBDetId(subid);
+      Layer = TOBid.layer();
+      TreeTOB = 1;
+      edm::LogInfo("SiStripCalibLorentzAngle")<<"TOB layer = "<<Layer;}
+      
       edm::LogInfo("SiStripCalibLorentzAngle")<<"id: "<<id;    
+            
+      if(stripdet!=0){
+      const GlobalPoint gposition = (stripdet->surface()).toGlobal(p);
+      gphi = gposition.phi();
+      geta = gposition.eta();
+      gR = sqrt(pow(gposition.x(),2)+pow(gposition.y(),2));
+      gz = gposition.z();}
+      if(stripdet==0)continue;
+      
+      //if((gphi>-2.2 && gphi<-0.2) || (gphi>1 && gphi<2.4))GoodPhi=true;
             
       float thickness=stripdet->specificSurface().bounds().thickness();
       const StripTopology& topol=(StripTopology&)stripdet->topology();
       float pitch = topol.localPitch(p);
-           	  
+           
+      TProfile* theProfile=ExtractTObject<TProfile>().extract(*histo);
+            
       fitfunc->SetParameter(0, p0_guess);
       fitfunc->SetParameter(1, p1_guess);
       fitfunc->SetParameter(2, p2_guess);
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
       
-      Profiles[name.c_str()]->Fit("fitfunc","E","",ModuleRangeMin, ModuleRangeMax);
-            
-      FitFunction = Profiles[name.c_str()]->GetFunction("fitfunc");
+      theProfile->Fit("fitfunc","E","",ModuleRangeMin, ModuleRangeMax);
+      
+      FitFunction = theProfile->GetFunction("fitfunc");
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
       
       if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
@@ -409,22 +372,29 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       fitfunc2IT->FixParameter(4, thickness);
       
       //2nd Iteration
-      Profiles[name.c_str()]->Fit("fitfunc2IT","E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
+      theProfile->Fit("fitfunc2IT","E","",ModuleRangeMin2IT, ModuleRangeMax2IT);
       
-      FitFunction = Profiles[name.c_str()]->GetFunction("fitfunc2IT");
+      FitFunction = theProfile->GetFunction("fitfunc2IT");
       chi2norm = FitFunction->GetChisquare()/FitFunction->GetNDF();
-                
-      //2nd Iteration failed
       
+      //2nd Iteration failed
       if(FitFunction->GetParameter(0)>FitCuts_p0 || FitFunction->GetParameter(1)<FitCuts_p1 || FitFunction->GetParameter(2)<FitCuts_p2 || chi2norm>FitCuts_chi2 || FitFunction->GetParError(0)<FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
-      Profiles[name.c_str()]->SetDirectory(TIB_2IT_BadFit);
+      dbe_->cd("LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
       }else{
-      Profiles[name.c_str()]->SetDirectory(TOB_2IT_BadFit);} 
+      dbe_->cd("LorentzAngle_Plots/2IT_BadFit_Histos/TOB");}  
             
       SecondIT_badfit++;
-      badFit=1;     
+      TreeBadFit=1;     
+      gStyle->SetOptFit(111);
+      
+      std::string name="Fit_Histo";    
+      std::stringstream badfitnum;
+      badfitnum<<SecondIT_badfit;
+      name+=badfitnum.str();
+      
+      MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
           
       }
       
@@ -433,15 +403,41 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2 && FitFunction->GetParError(0)>FitCuts_ParErr_p0){
       
       if(subid.subdetId() == int (StripSubdetector::TIB)){
-      Profiles[name.c_str()]->SetDirectory(TIB_2IT_GoodFit);
+      dbe_->cd("LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
       }else{
-      Profiles[name.c_str()]->SetDirectory(TOB_2IT_GoodFit);} 
+      dbe_->cd("LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");}
       
       SecondIT_goodfit++;      
-      Good2ITFit = true;
+      gStyle->SetOptFit(111);
       
+      std::string name="Fit_Histo";    
+      std::stringstream goodfitnum;
+      goodfitnum<<SecondIT_goodfit;
+      name+=goodfitnum.str();
+           
+      MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
+	   
+      Good2ITFit = true;
       }
             
+      if(Good2ITFit){
+      LA_pf<<"2IT Fit OK"<<std::endl;}
+      else{
+      LA_pf<<"###??? 2IT Fit Bad"<<std::endl;}
+      LA_pf<<"Type = "<<subid.subdetId()<<" Layer = "<<Layer;
+      if(subid.subdetId() == int (StripSubdetector::TIB)){
+      TIBDetId TIBid=TIBDetId(subid);
+      if(TIBid.string()[0]==1){LA_pf<<" Backward, ";}else{LA_pf<<" Forward, ";}
+      if(TIBid.string()[1]==1){LA_pf<<" Int String, ";}else{LA_pf<<" Ext String, ";}
+      LA_pf<<" Nr. String = "<<TIBid.string()[2];}
+      if(subid.subdetId() == int (StripSubdetector::TOB)){
+      TOBDetId TOBid=TOBDetId(subid);
+      if(TOBid.rod()[0]==1){LA_pf<<" Backward, ";}else{LA_pf<<" Forward, ";}
+      LA_pf<<" Nr. Rod = "<<TOBid.rod()[1];}    
+      LA_pf<<" MonoStereo = "<<subid.stereo()<<" Id = "<<id<<std::endl;
+      LA_pf<<"=> Fit_Par0 = "<<FitFunction->GetParameter(0)<<" Fit_Par1 = "<<FitFunction->GetParameter(1)<<" Fit_Par2 = "<<FitFunction->GetParameter(2);
+      LA_pf<<" Chi2/NDF = "<<chi2norm<<std::endl<<std::endl; 
+      
       }  
                        
       if(FitFunction->GetParameter(0)<FitCuts_p0 && FitFunction->GetParameter(1)>FitCuts_p1 && FitFunction->GetParameter(2)>FitCuts_p2 && chi2norm<FitCuts_chi2 && FitFunction->GetParError(0)>FitCuts_ParErr_p0){
@@ -449,19 +445,27 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 	if(Good2ITFit==false){
 	
 	FirstIT_goodfit++;
-	goodFit1IT = 1;
 	
 	if(subid.subdetId() == int (StripSubdetector::TIB)){
-        Profiles[name.c_str()]->SetDirectory(TIB_1IT_GoodFit);
+        dbe_->cd("LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
         }else{
-        Profiles[name.c_str()]->SetDirectory(TOB_1IT_GoodFit);} 
+        dbe_->cd("LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");}  
+                
+        gStyle->SetOptFit(111);
+      
+        std::string name="Fit_Histo";    
+        std::stringstream FirstITgoodfitnum;
+        FirstITgoodfitnum<<FirstIT_badfit;
+        name+=FirstITgoodfitnum.str();
+	
+	MonitorElement * fit_histo=dbe_->bookProfile(name.c_str(),theProfile);
 	
 	}
 	
 	GoodFit++;
-	goodFit=1;
+	TreeGoodFit=1;
 	
-	LorentzAngle_Plots->cd();
+	dbe_->cd("LorentzAngle_Plots");
             
 	edm::LogInfo("SiStripCalibLorentzAngle")<<FitFunction->GetParameter(0);
 	
@@ -469,116 +473,80 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
 
 	detid_la[id]= muH;
 	
-	if(TIB==1){
+	histos[1]->Fill(muH);
+	histos[2]->Fill(FitFunction->GetParError(0)/theBfield);
+	histos[3]->Fill(chi2norm);
+	histos[4]->Fill(gphi,muH);
+	histos[5]->Fill(geta,muH);
 	
-	TH1Ds["LA_TIB"]->Fill(muH);
-	TH1Ds["LA_err_TIB"]->Fill(FitFunction->GetParError(0)/theBfield);
-	TH1Ds["LA_chi2norm_TIB"]->Fill(chi2norm);
-	TH2Ds["LA_phi_TIB"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB"]->Fill(geta,muH);
-	TH2Ds["LA_TIB_graph"]->Fill(Layer,muH);
+	if(subid.subdetId() == int (StripSubdetector::TIB)){
+
+        if(subid.stereo()==0){
+        //MONO
+        histos[22]->Fill(muH);
+        }else{
+        //STEREO
+        histos[23]->Fill(muH);}
 	
-	if(Layer==1){
-	TH1Ds["LA_TIB_1"]->Fill(muH);
-	TH2Ds["LA_phi_TIB1"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB1"]->Fill(geta,muH);
-	if(MonoStereo==0){
-	TH1Ds["LA_TIB_1_mono"]->Fill(muH);
-	TH2Ds["LA_phi_TIB1_mono"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB1_mono"]->Fill(geta,muH);}
-	if(MonoStereo==1){
-	TH1Ds["LA_TIB_1_stereo"]->Fill(muH);
-	TH2Ds["LA_phi_TIB1_stereo"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB1_stereo"]->Fill(geta,muH);}
-	}
+        histos[24]->Fill(geta,muH);
+	histos[6]->Fill(muH);
 	
-	if(Layer==2){
-	TH1Ds["LA_TIB_2"]->Fill(muH);
-	TH2Ds["LA_phi_TIB2"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB2"]->Fill(geta,muH);
-	if(MonoStereo==0){
-	TH1Ds["LA_TIB_2_mono"]->Fill(muH);
-	TH2Ds["LA_phi_TIB2_mono"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB2_mono"]->Fill(geta,muH);}
-	if(MonoStereo==1){
-	TH1Ds["LA_TIB_2_stereo"]->Fill(muH);
-	TH2Ds["LA_phi_TIB2_stereo"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB2_stereo"]->Fill(geta,muH);}
-	}
-	
+	if((Layer==1)&&(subid.stereo()==0)){
+	histos[7]->Fill(muH);
+	histos[30]->Fill(gz,muH);}
+	if((Layer==1)&&(subid.stereo()==1)){
+	histos[8]->Fill(muH);
+        histos[31]->Fill(gz,muH);}
+	if((Layer==2)&&(subid.stereo()==0)){
+	histos[9]->Fill(muH);
+	histos[32]->Fill(gz,muH);}
+	if((Layer==2)&&(subid.stereo()==1)){
+	histos[10]->Fill(muH);
+	histos[33]->Fill(gz,muH);}
 	if(Layer==3){
-	TH1Ds["LA_TIB_3"]->Fill(muH);
-	TH2Ds["LA_phi_TIB3"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB3"]->Fill(geta,muH);
-	}
-	
+	histos[11]->Fill(muH);
+	histos[34]->Fill(gz,muH);}
 	if(Layer==4){
-	TH1Ds["LA_TIB_4"]->Fill(muH);
-	TH2Ds["LA_phi_TIB4"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TIB4"]->Fill(geta,muH);
-	}
-	}	
-	
-	if(TOB==1){
-	
-        TH1Ds["LA_TOB"]->Fill(muH);
-	TH1Ds["LA_err_TOB"]->Fill(FitFunction->GetParError(0)/theBfield);
-	TH1Ds["LA_chi2norm_TOB"]->Fill(chi2norm);
-	TH2Ds["LA_phi_TOB"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB"]->Fill(geta,muH);
-	TH2Ds["LA_TOB_graph"]->Fill(Layer,muH);
-	
-	if(Layer==1){
-	TH1Ds["LA_TOB_1"]->Fill(muH);
-	TH2Ds["LA_phi_TOB1"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB1"]->Fill(geta,muH);
-	if(MonoStereo==0){
-	TH1Ds["LA_TOB_1_mono"]->Fill(muH);
-	TH2Ds["LA_phi_TOB1_mono"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB1_mono"]->Fill(geta,muH);}
-	if(MonoStereo==1){
-	TH1Ds["LA_TOB_1_stereo"]->Fill(muH);
-	TH2Ds["LA_phi_TOB1_stereo"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB1_stereo"]->Fill(geta,muH);}
+	histos[12]->Fill(muH);
+	histos[35]->Fill(gz,muH);}	
 	}
 	
-	if(Layer==2){
-	TH1Ds["LA_TOB_2"]->Fill(muH);
-	TH2Ds["LA_phi_TOB2"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB2"]->Fill(geta,muH);
-	if(MonoStereo==0){
-	TH1Ds["LA_TOB_2_mono"]->Fill(muH);
-	TH2Ds["LA_phi_TOB2_mono"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB2_mono"]->Fill(geta,muH);}
-	if(MonoStereo==1){
-	TH1Ds["LA_TOB_2_stereo"]->Fill(muH);
-	TH2Ds["LA_phi_TOB2_stereo"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB2_stereo"]->Fill(geta,muH);}
-	}
+	if(subid.subdetId() == int (StripSubdetector::TOB)){
+
+        if(subid.stereo()==0){
+        //MONO
+        histos[25]->Fill(muH);
+        }else{
+        //STEREO
+        histos[26]->Fill(muH);}
 	
+        histos[27]->Fill(geta,muH);
+	histos[13]->Fill(muH);
+	
+	if((Layer==1)&&(subid.stereo()==0)){
+	histos[14]->Fill(muH);
+	histos[36]->Fill(gz,muH);}
+	if((Layer==1)&&(subid.stereo()==1)){
+	histos[15]->Fill(muH);
+	histos[37]->Fill(gz,muH);}
+	if((Layer==2)&&(subid.stereo()==0)){
+	histos[16]->Fill(muH);
+	histos[38]->Fill(gz,muH);}
+	if((Layer==2)&&(subid.stereo()==1)){
+	histos[17]->Fill(muH);
+	histos[39]->Fill(gz,muH);}
 	if(Layer==3){
-	TH1Ds["LA_TOB_3"]->Fill(muH);
-	TH2Ds["LA_phi_TOB3"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB3"]->Fill(geta,muH);
-	}
-	
+	histos[18]->Fill(muH);
+	histos[40]->Fill(gz,muH);}
 	if(Layer==4){
-	TH1Ds["LA_TOB_4"]->Fill(muH);
-	TH2Ds["LA_phi_TOB4"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB4"]->Fill(geta,muH);
-	}
-	
+	histos[19]->Fill(muH);
+	histos[41]->Fill(gz,muH);}
 	if(Layer==5){
-	TH1Ds["LA_TOB_5"]->Fill(muH);
-	TH2Ds["LA_phi_TOB5"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB5"]->Fill(geta,muH);
-	}
-	
+	histos[20]->Fill(muH);
+	histos[42]->Fill(gz,muH);}
 	if(Layer==6){
-	TH1Ds["LA_TOB_6"]->Fill(muH);
-	TH2Ds["LA_phi_TOB6"]->Fill(gphi,muH);
-	TH2Ds["LA_eta_TOB6"]->Fill(geta,muH);
-	}
+	histos[21]->Fill(muH);
+	histos[43]->Fill(gz,muH);}
 	}
 	
        }
@@ -588,93 +556,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
      
   }
   
-  double GaussFitRange=conf_.getParameter<double>("GaussFitRange");
   
-  TH1Ds["LA_TIB_1"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB1 = TH1Ds["LA_TIB_1"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_2"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB2 = TH1Ds["LA_TIB_2"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_3"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB3 = TH1Ds["LA_TIB_3"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TIB_4"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParError(1);
-  float rms_TIB4 = TH1Ds["LA_TIB_4"]->GetFunction("gaus")->GetParameter(2);
-
-  TH1Ds["LA_TOB_1"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB1 = TH1Ds["LA_TOB_1"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_2"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB2 = TH1Ds["LA_TOB_2"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_3"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB3 = TH1Ds["LA_TOB_3"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_4"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB4 = TH1Ds["LA_TOB_4"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_5"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB5 = TH1Ds["LA_TOB_5"]->GetFunction("gaus")->GetParameter(2);
-  TH1Ds["LA_TOB_6"]->Fit("gaus","","",-GaussFitRange,GaussFitRange);  
-  mean_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParameter(1);
-  float err_mean_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParError(1);
-  float rms_TOB6 = TH1Ds["LA_TOB_6"]->GetFunction("gaus")->GetParameter(2);
-
-int nlayersTIB = 4;
-float TIBx[4]={1,2,3,4};
-float TIBex[4]={0,0,0,0};
-float TIBy[4]={mean_TIB1, mean_TIB2, mean_TIB3, mean_TIB4};
-float TIBey[4]={err_mean_TIB1, err_mean_TIB2, err_mean_TIB3, err_mean_TIB4};
-
-int nlayersTOB = 6;
-float TOBx[6]={1,2,3,4,5,6};
-float TOBex[6]={0,0,0,0,0,0};
-float TOBy[6]={mean_TOB1, mean_TOB2, mean_TOB3, mean_TOB4, mean_TOB5, mean_TOB6};
-float TOBey[6]={err_mean_TOB1, err_mean_TOB2, err_mean_TOB3, err_mean_TOB4, err_mean_TOB5, err_mean_TOB6};
-
-TIB_graph = new TGraphErrors(nlayersTIB,TIBx,TIBy,TIBex,TIBey);
-TOB_graph = new TGraphErrors(nlayersTOB,TOBx,TOBy,TOBex,TOBey);
-
-TF1 *fit_TIB= new TF1("fit_TIB","[0]",0,4);
-TF1 *fit_TOB= new TF1("fit_TOB","[0]",0,6);
-
-gStyle->SetOptFit(111);
-
-TIB_graph->SetTitle("TIB Layers #mu_{H}");
-TIB_graph->GetXaxis()->SetTitle("Layers");
-TIB_graph->GetXaxis()->SetNdivisions(4);
-TIB_graph->GetYaxis()->SetTitle("#mu_{H}");
-TIB_graph->GetYaxis()->CenterTitle();
-TIB_graph->SetMarkerStyle(20);
-TIB_graph->GetYaxis()->SetTitleOffset(1.3);
-TIB_graph->Fit("fit_TIB","E","",1,4);
-meanMobility_TIB = TIB_graph->GetFunction("fit_TIB")->GetParameter(0);
-
-TOB_graph->SetTitle("TOB Layers #mu_{H}");
-TOB_graph->GetXaxis()->SetTitle("Layers");
-TOB_graph->GetXaxis()->SetNdivisions(6);
-TOB_graph->GetYaxis()->SetTitle("#mu_{H}");
-TOB_graph->GetYaxis()->CenterTitle();
-TOB_graph->SetMarkerStyle(20);
-TOB_graph->GetYaxis()->SetTitleOffset(1.3);
-TOB_graph->Fit("fit_TOB","E","",1,6);
-meanMobility_TOB = TOB_graph->GetFunction("fit_TOB")->GetParameter(0);
-
-  TIB_graph->Write("TIB_graph");
-  TOB_graph->Write("TOB_graph");
-
   Rep<<"- NR.OF TIB AND TOB MODULES = 7932"<<std::endl<<std::endl<<std::endl;
   Rep<<"- NO MODULE HISTOS FOUND = "<<no_mod_histo<<std::endl<<std::endl;
   Rep<<"- NR.OF HISTOS WITH ENTRIES > "<<FitCuts_Entries<<" = "<<histocounter<<std::endl<<std::endl;
@@ -684,121 +566,50 @@ meanMobility_TOB = TOB_graph->GetFunction("fit_TOB")->GetParameter(0);
   Rep<<"- NR.OF FIRST IT GOOD FIT = "<<FirstIT_goodfit<<std::endl<<std::endl;
   Rep<<"- NR.OF SECOND IT GOOD FIT = "<<SecondIT_goodfit<<std::endl<<std::endl;
   Rep<<"- NR.OF FIRST IT BAD FIT = "<<FirstIT_badfit<<std::endl<<std::endl;
-  Rep<<"- NR.OF SECOND IT BAD FIT = "<<SecondIT_badfit<<std::endl<<std::endl<<std::endl;
-  
-  Rep<<"--------------- Mean MuH values per Layer -------------------"<<std::endl<<std::endl<<std::endl;
-  Rep<<"TIB1 = "<<mean_TIB1<<" +- "<<err_mean_TIB1<<" RMS = "<<rms_TIB1<<std::endl;
-  Rep<<"TIB2 = "<<mean_TIB2<<" +- "<<err_mean_TIB2<<" RMS = "<<rms_TIB2<<std::endl;
-  Rep<<"TIB3 = "<<mean_TIB3<<" +- "<<err_mean_TIB3<<" RMS = "<<rms_TIB3<<std::endl;
-  Rep<<"TIB4 = "<<mean_TIB4<<" +- "<<err_mean_TIB4<<" RMS = "<<rms_TIB4<<std::endl;
-  Rep<<"TOB1 = "<<mean_TOB1<<" +- "<<err_mean_TOB1<<" RMS = "<<rms_TOB1<<std::endl;
-  Rep<<"TOB2 = "<<mean_TOB2<<" +- "<<err_mean_TOB2<<" RMS = "<<rms_TOB2<<std::endl;
-  Rep<<"TOB3 = "<<mean_TOB3<<" +- "<<err_mean_TOB3<<" RMS = "<<rms_TOB3<<std::endl;
-  Rep<<"TOB4 = "<<mean_TOB4<<" +- "<<err_mean_TOB4<<" RMS = "<<rms_TOB4<<std::endl;
-  Rep<<"TOB5 = "<<mean_TOB5<<" +- "<<err_mean_TOB5<<" RMS = "<<rms_TOB5<<std::endl;
-  Rep<<"TOB6 = "<<mean_TOB6<<" +- "<<err_mean_TOB6<<" RMS = "<<rms_TOB6<<std::endl<<std::endl;
-  Rep<<"Mean Hall Mobility TIB = "<<meanMobility_TIB<<" +- "<<TIB_graph->GetFunction("fit_TIB")->GetParError(0)<<std::endl;
-  Rep<<"Mean Hall Mobility TOB = "<<meanMobility_TOB<<" +- "<<TOB_graph->GetFunction("fit_TOB")->GetParError(0)<<std::endl<<std::endl<<std::endl;
-        
-  Rep.close();
-  NoEntries.close(); 
-  
-hFile->Write();
-hFile->Close();
+  Rep<<"- NR.OF SECOND IT BAD FIT = "<<SecondIT_badfit<<std::endl<<std::endl;
     
+  LA_pf.close();
+  Rep.close();
+  NoEntries.close();
+  
+  dbe_->save(outputFile_,"LorentzAngle_Plots/1IT_GoodFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/1IT_GoodFit_Histos/TOB");   
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_BadFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_BadFit_Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_GoodFit_Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/2IT_GoodFit_Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles/TIB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles/TOB");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Histos");
+  dbe_->save(outputFile_,"LorentzAngle_Plots/Profiles");
+  dbe_->save(outputFile_,"LorentzAngle_Plots"); 
+  
+  hFile->Write();
+  hFile->Close();    
+  
 }
 
 // Virtual destructor needed.
 
 SiStripCalibLorentzAngle::~SiStripCalibLorentzAngle(){
- delete hFile;
 }
   
 
 // Analyzer: Functions that gets called by framework every event
-   
+
+
 SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
 
   SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
   
-  if(!LayerDB){
   for(std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); it++){
     
     float langle=it->second;
     if ( ! LorentzAngle->putLorentzAngle(it->first,langle) )
       edm::LogError("SiStripCalibLorentzAngle")<<"[SiStripCalibLorentzAngle::analyze] detid already exists"<<std::endl;
   }
-  }
-  
-  else{
-  
-    const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
-    TrackerGeometry::DetIdContainer::const_iterator Iditer; 
-       
-    for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
-  
-    StripSubdetector subid(Iditer->rawId());
-    
-    hallMobility = 0.;
-    
-    if(subid.subdetId() == int (StripSubdetector::TIB)){
-    TIBDetId TIBid=TIBDetId(subid);
-    if(TIBid.layer()==1){
-    hallMobility=mean_TIB1;}
-    if(TIBid.layer()==2){
-    hallMobility=mean_TIB2;}
-    if(TIBid.layer()==3){
-    hallMobility=mean_TIB3;}
-    if(TIBid.layer()==4){
-    hallMobility=mean_TIB4;}
-    if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
-    }
-    
-    if(subid.subdetId() == int (StripSubdetector::TOB)){
-    TOBDetId TOBid=TOBDetId(subid);
-    if(TOBid.layer()==1){
-    hallMobility=mean_TOB1;}
-    if(TOBid.layer()==2){
-    hallMobility=mean_TOB2;}
-    if(TOBid.layer()==3){
-    hallMobility=mean_TOB3;}
-    if(TOBid.layer()==4){
-    hallMobility=mean_TOB4;}
-    if(TOBid.layer()==5){
-    hallMobility=mean_TOB5;}
-    if(TOBid.layer()==6){
-    hallMobility=mean_TOB6;}
-    if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
-    } 
-     
-    if( subid.subdetId() == int(StripSubdetector::TID) ) {
-    hallMobility=meanMobility_TIB;
-    if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
-    } 
-    
-    if( subid.subdetId() == int(StripSubdetector::TEC) ) {
-    TECDetId TECid = TECDetId(subid);
-    if(TECid.ringNumber()<5 ) {
-    hallMobility=meanMobility_TIB;
-    }else{
-    hallMobility=meanMobility_TOB;
-    }
-    if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
-    }
-                 
-  }
-  }
   
   return LorentzAngle;
-  
 }
-
-
-
-
-
-  
-  
-  
-
-

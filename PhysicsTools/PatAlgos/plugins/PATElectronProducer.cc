@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.28 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.29 2009/07/02 12:31:58 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -122,11 +122,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     userDataHelper_ = PATUserDataHelper<Electron>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
-  // electron ID configurables
-  addElecShapes_        = iConfig.getParameter<bool>("addElectronShapes" );
-  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection") ;
-  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection") ;
-   
   // produces vector of muons
   produces<std::vector<Electron> >();
 
@@ -171,11 +166,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         iEvent.getByLabel(elecIDSrcs_[i].second, idhandles[i]);
         ids[i].first = elecIDSrcs_[i].first;
      }
-  }
-
-
-  if (addElecShapes_) {
-    lazyTools_ .reset(new EcalClusterLazyTools( iEvent , iSetup , reducedBarrelRecHitCollection_ , reducedEndcapRecHitCollection_ ));  
   }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
@@ -325,17 +315,6 @@ void PATElectronProducer::FillElectron(Electron& anElectron,
       resolutionLoader_.setResolutions(anElectron);
     }
 
-    //  add electron shapes info
-    if (addElecShapes_) {
-	std::vector<float> covariances = lazyTools_->covariances(*(elecsRef->superCluster()->seed())) ;
-	std::vector<float> localCovariances = lazyTools_->localCovariances(*(elecsRef->superCluster()->seed())) ;
-	float scSigmaEtaEta = sqrt(covariances[0]) ;
-	float scSigmaIEtaIEta = sqrt(localCovariances[0]) ;
-	float scE1x5 = lazyTools_->e1x5(*(elecsRef->superCluster()->seed()))  ;
-	float scE2x5Max = lazyTools_->e2x5Max(*(elecsRef->superCluster()->seed()))  ;
-	float scE5x5 = lazyTools_->e5x5(*(elecsRef->superCluster()->seed())) ;
-	anElectron.setClusterShapes(scSigmaEtaEta,scSigmaIEtaIEta,scE1x5,scE2x5Max,scE5x5) ;
-    }
 }
 
 
