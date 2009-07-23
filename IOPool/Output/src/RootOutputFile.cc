@@ -191,21 +191,27 @@ namespace edm {
     void
     maybeIssueWarning(int whyNotFastClonable, std::string const& ifileName, std::string const& ofileName) {
 
-      // No warning if fast cloning was deliberately disabled, or if there are no events to copy anyway.
-      whyNotFastClonable &= ~(FileBlock::DisabledInConfigFile | FileBlock::NoRootInputSource | FileBlock::NotProcessingEvents | FileBlock::NoEventsInFile);
-      if(whyNotFastClonable == FileBlock::CanFastClone) {
+      // No message if fast cloning was deliberately disabled, or if there are no events to copy anyway.
+      if ((whyNotFastClonable &
+	(FileBlock::DisabledInConfigFile | FileBlock::NoRootInputSource | FileBlock::NotProcessingEvents | FileBlock::NoEventsInFile)) != 0) {
 	return;
       }
 
+      // There will be a message stating every reason that fast cloning was not possible.
+      // If at one or more of the reasons was because of something the user explicitly specified (e.g. event selection, skipping events),
+      //   or if the input file was in an old format, the message will be informational.  Otherwise, the message will be a warning.
+      bool isWarning = true;
       std::ostringstream message;
       message << "Fast copying of file " << ifileName << " to file " << ofileName << " is disabled because:\n";
       if((whyNotFastClonable & FileBlock::HasSecondaryFileSequence) != 0) {
 	message << "a SecondaryFileSequence was specified.\n";
         whyNotFastClonable &= ~(FileBlock::HasSecondaryFileSequence);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::FileTooOld) != 0) {
 	message << "the input file is in an old format.\n";
         whyNotFastClonable &= ~(FileBlock::FileTooOld);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::EventsToBeSorted) != 0) {
 	message << "events need to be sorted.\n";
@@ -214,10 +220,12 @@ namespace edm {
       if((whyNotFastClonable & FileBlock::EventsOrLumisSelectedByID) != 0) {
 	message << "events or lumis were selected or skipped by ID.\n";
         whyNotFastClonable &= ~(FileBlock::EventsOrLumisSelectedByID);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::InitialEventsSkipped) != 0) {
 	message << "initial events, lumis or runs were skipped.\n";
         whyNotFastClonable &= ~(FileBlock::InitialEventsSkipped);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::DuplicateEventsRemoved) != 0) {
 	message << "some events were skipped because of duplicate checking.\n";
@@ -226,22 +234,27 @@ namespace edm {
       if((whyNotFastClonable & FileBlock::MaxEventsTooSmall) != 0) {
 	message << "some events were not copied because of maxEvents limit.\n";
         whyNotFastClonable &= ~(FileBlock::MaxEventsTooSmall);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::MaxLumisTooSmall) != 0) {
 	message << "some events were not copied because of maxLumis limit.\n";
         whyNotFastClonable &= ~(FileBlock::MaxLumisTooSmall);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::RunNumberModified) != 0) {
 	message << "setRunNumber was specified.\n";
         whyNotFastClonable &= ~(FileBlock::RunNumberModified);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::EventSelectionUsed) != 0) {
 	message << "an EventSelector was specified.\n";
         whyNotFastClonable &= ~(FileBlock::EventSelectionUsed);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::OutputMaxEventsTooSmall) != 0) {
 	message << "some events were not copied because of maxEvents output limit.\n";
         whyNotFastClonable &= ~(FileBlock::OutputMaxEventsTooSmall);
+        isWarning = false;
       }
       if((whyNotFastClonable & FileBlock::SplitLevelMismatch) != 0) {
 	message << "the split level or basket size of a branch or branches was modified.\n";
@@ -252,7 +265,11 @@ namespace edm {
         whyNotFastClonable &= ~(FileBlock::BranchMismatch);
       }
       assert(whyNotFastClonable == FileBlock::CanFastClone);
-      LogInfo("FastCloningDisabled") << message.str();
+      if (isWarning) {
+        LogWarning("FastCloningDisabled") << message.str();
+      } else {
+        LogInfo("FastCloningDisabled") << message.str();
+      }
     }
   }
 
@@ -298,7 +315,7 @@ namespace edm {
 
     eventTree_.maybeFastCloneTree(whyNotFastClonable_ == FileBlock::CanFastClone, fb.tree(), om_->basketOrder());
 
-    // Issue warning message if we haven't fast cloned, unless we disabled it deliberately or unless there are no events to copy anyway.
+    // Possibly issue warning or informational message if we haven't fast cloned.
     if(fb.tree() != 0 && whyNotFastClonable_ != FileBlock::CanFastClone) {
       maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
     }
