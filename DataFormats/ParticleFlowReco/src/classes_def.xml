@@ -135,10 +135,26 @@
   <class name="pftools::Calibratable" />
   <class name="pftools::CalibratableElement" />
   <class name="pftools::CandidateWrapper" />
+  <class name="edm::Wrapper<std::vector<pftools::Calibratable> >" />
   <class name="std::vector<pftools::Calibratable>" />
   <class name="std::vector<pftools::CalibratableElement>" />
   <class name="std::vector<pftools::CandidateWrapper>" />
   <class name="std::vector<pftools::CalibrationResultWrapper> "/>
+  <class name="pftools::CaloWindow" />
+  <class name="pftools::TestCaloWindow" />
+  <class name="pftools::CaloRing" />
+  <class name="std::map<unsigned int, pftools::CaloRing>"/>
+  <class name="std::vector<pftools::CaloRing>"/>
+  <class name="pftools::CaloEllipse" />
+  <class name="std::vector<std::pair<double, double> >"/>
+  <class name="pftools::CaloBox" />
+  <class name="std::map<std::pair<int, int>, double>"/>
+  <class name="std::pair<unsigned int,pftools::CaloRing>" />  
+  
+  <class name="pftools::ParticleFiltrationDecision"/>
+  <class name="std::vector<pftools::ParticleFiltrationDecision>"/>
+  <class name="edm::Wrapper<std::vector<pftools::ParticleFiltrationDecision> >"/>
+  <class name="edm::Wrapper<pftools::ParticleFiltrationDecision>"/>
 
 
 </selection>
