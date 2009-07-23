@@ -28,10 +28,10 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     #
     min = cms.double(-2.5),
     max = cms.double(2.5),
-    nint = cms.int32(50),
+    nint = cms.int32(30),
     #
-    ptRes_rangeMin = cms.double(-0.1),
-    ptRes_rangeMax = cms.double(0.1),
+    ptRes_rangeMin = cms.double(-1.20),
+    ptRes_rangeMax = cms.double(1.20),
     phiRes_rangeMin = cms.double(-0.003),
     phiRes_rangeMax = cms.double(0.003),
     cotThetaRes_rangeMin = cms.double(-0.01),
@@ -41,11 +41,11 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     dzRes_rangeMin = cms.double(-0.05),
     dzRes_rangeMax = cms.double(+0.05),
     # 
-    ptRes_nbin = cms.int32(100),                                   
-    phiRes_nbin = cms.int32(100),                                   
-    cotThetaRes_nbin = cms.int32(120),                                   
-    dxyRes_nbin = cms.int32(100),                                   
-    dzRes_nbin = cms.int32(150),                                   
+    ptRes_nbin = cms.int32(50),                                   
+    phiRes_nbin = cms.int32(50),                                   
+    cotThetaRes_nbin = cms.int32(60),                                   
+    dxyRes_nbin = cms.int32(50),                                   
+    dzRes_nbin = cms.int32(170),                                   
     # 
     minpT = cms.double(0),
     maxpT = cms.double(250),
@@ -68,6 +68,6 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     nintDz = cms.int32(100),    
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(True),
-    useLogPt=cms.untracked.bool(False)
-
+    useLogPt=cms.untracked.bool(False),
+    useGsf=cms.bool(False)
 )

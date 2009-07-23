@@ -4,13 +4,16 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/07/16 16:27:59 $
- *  $Revision: 1.45 $
+ *  $Date: 2008/12/19 17:26:18 $
+ *  $Revision: 1.46 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidatorBase {
  public:
@@ -31,6 +34,7 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
     minPhi = pset.getParameter<double>("minPhi"); 
     maxPhi = pset.getParameter<double>("maxPhi");
     nintPhi = pset.getParameter<int>("nintPhi");
+    useGsf = pset.getParameter<bool>("useGsf");
     
     if (!UseAssociators) {
       associators.clear();
@@ -48,12 +52,23 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   /// Method called at the end of the event loop
   void endRun(edm::Run const&, edm::EventSetup const&);
 
+private:
+  /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF) 
+  void getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,  
+			double& phi, double& phiError ) const;
+  /// retrieval of reconstructed momentum components based on the mode of a reco::GsfTrack
+  void getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,  
+			double& phi, double& phiError) const;
+
  private:
   std::string dirName_;
   edm::InputTag associatormap;
   bool UseAssociators;
   double minPhi, maxPhi;
   int nintPhi;
+  bool useGsf;
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      

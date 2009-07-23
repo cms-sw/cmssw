@@ -6,6 +6,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
@@ -286,34 +288,34 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
 
       if(useLogPt){
-	BinLogX(dzres_vs_pt[j]->getTH2F());
-	BinLogX(h_dzmeanhPt[j]->getTH1F());
-	BinLogX(h_dzrmshPt[j]->getTH1F());
-	
-	BinLogX(dxyres_vs_pt[j]->getTH2F());
-	BinLogX(h_dxymeanhPt[j]->getTH1F());
-	BinLogX(h_dxyrmshPt[j]->getTH1F());
-	
-	BinLogX(phires_vs_pt[j]->getTH2F());
-	BinLogX(h_phimeanhPt[j]->getTH1F());
-	BinLogX(h_phirmshPt[j]->getTH1F());
-	
-	BinLogX(cotThetares_vs_pt[j]->getTH2F());
-	BinLogX(h_cotThetameanhPt[j]->getTH1F());
-	BinLogX(h_cotThetarmshPt[j]->getTH1F());
-	
-	BinLogX(ptres_vs_pt[j]->getTH2F());
-	BinLogX(h_ptmeanhPt[j]->getTH1F());
-	BinLogX(h_ptrmshPt[j]->getTH1F());
-	
-	BinLogX(h_efficPt[j]->getTH1F());
-	BinLogX(h_fakeratePt[j]->getTH1F());
-	BinLogX(h_recopT[j]->getTH1F());
-	BinLogX(h_assocpT[j]->getTH1F());
-	BinLogX(h_assoc2pT[j]->getTH1F());
-	BinLogX(h_simulpT[j]->getTH1F());
+      BinLogX(dzres_vs_pt[j]->getTH2F());
+      BinLogX(h_dzmeanhPt[j]->getTH1F());
+      BinLogX(h_dzrmshPt[j]->getTH1F());
+
+      BinLogX(dxyres_vs_pt[j]->getTH2F());
+      BinLogX(h_dxymeanhPt[j]->getTH1F());
+      BinLogX(h_dxyrmshPt[j]->getTH1F());
+
+      BinLogX(phires_vs_pt[j]->getTH2F());
+      BinLogX(h_phimeanhPt[j]->getTH1F());
+      BinLogX(h_phirmshPt[j]->getTH1F());
+
+      BinLogX(cotThetares_vs_pt[j]->getTH2F());
+      BinLogX(h_cotThetameanhPt[j]->getTH1F());
+      BinLogX(h_cotThetarmshPt[j]->getTH1F());
+
+      BinLogX(ptres_vs_pt[j]->getTH2F());
+      BinLogX(h_ptmeanhPt[j]->getTH1F());
+      BinLogX(h_ptrmshPt[j]->getTH1F());
+
+      BinLogX(h_efficPt[j]->getTH1F());
+      BinLogX(h_fakeratePt[j]->getTH1F());
+      BinLogX(h_recopT[j]->getTH1F());
+      BinLogX(h_assocpT[j]->getTH1F());
+      BinLogX(h_assoc2pT[j]->getTH1F());
+      BinLogX(h_simulpT[j]->getTH1F());
+      j++;
       }
-	j++;
     }
   }
   if (UseAssociators) {
@@ -618,31 +620,66 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double dxySim    = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
 	  double dzSim     = v.z() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.perp();
 
-	  TrackBase::ParameterVector rParameters = track->parameters();	  
-	  double qoverpRec = rParameters[0];
-	  double lambdaRec = rParameters[1];
-	  double phiRec    = rParameters[2];
+	  TrackBase::ParameterVector rParameters = track->parameters();
+
+	  double qoverpRec(0);
+	  double qoverpErrorRec(0); 
+	  double ptRec(0);
+	  double ptErrorRec(0);
+	  double lambdaRec(0); 
+	  double lambdaErrorRec(0);
+	  double phiRec(0);
+	  double phiErrorRec(0);
+
+
+	  //loop to decide whether to take gsfTrack (utilisation of mode-function) or common track
+	  const GsfTrack* gsfTrack(0);
+	  if(useGsf){
+	    gsfTrack = dynamic_cast<const GsfTrack*>(&(*track));
+	    if (gsfTrack==0) edm::LogInfo("TrackValidator") << "Trying to access mode for a non-GsfTrack";
+	  }
+	  
+	  if (gsfTrack) {
+	    // get values from mode
+	    getRecoMomentum(*gsfTrack, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec, 
+			    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec); 
+	  }
+	 
+	  else {
+	    // get values from track (without mode) 
+	    getRecoMomentum(*track, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec, 
+			    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec); 
+	  }
+	 
+	  double ptError = ptErrorRec;
+
+	  double ptres=ptRec-sqrt(assocTrack->momentum().perp2()); 
+	  double etares=track->eta()-assocTrack->momentum().Eta();
+	  
+// 	  double qoverpRec = rParameters[0];
+// 	  double lambdaRec = rParameters[1];
+// 	  double phiRec    = rParameters[2];
 	  double dxyRec    = track->dxy(bs.position());
 	  double dzRec     = track->dz(bs.position());
 
 	  // eta residue; pt, k, theta, phi, dxy, dz pulls
-	  double qoverpPull=(qoverpRec-qoverpSim)/track->qoverpError();
-	  double thetaPull=(lambdaRec-lambdaSim)/track->thetaError();
-	  double phiPull=(phiRec-phiSim)/track->phiError();
+	  double qoverpPull=(qoverpRec-qoverpSim)/qoverpErrorRec;
+	  double thetaPull=(lambdaRec-lambdaSim)/lambdaErrorRec;
+	  double phiPull=(phiRec-phiSim)/phiErrorRec;
 	  double dxyPull=(dxyRec-dxySim)/track->dxyError();
 	  double dzPull=(dzRec-dzSim)/track->dzError();
 
-	  double contrib_Qoverp = ((qoverpRec-qoverpSim)/track->qoverpError())*
-	    ((qoverpRec-qoverpSim)/track->qoverpError())/5;
+	  double contrib_Qoverp = ((qoverpRec-qoverpSim)/qoverpErrorRec)*
+	    ((qoverpRec-qoverpSim)/qoverpErrorRec)/5;
 	  double contrib_dxy = ((dxyRec-dxySim)/track->dxyError())*((dxyRec-dxySim)/track->dxyError())/5;
 	  double contrib_dz = ((dzRec-dzSim)/track->dzError())*((dzRec-dzSim)/track->dzError())/5;
-	  double contrib_theta = ((lambdaRec-lambdaSim)/track->thetaError())*
-	    ((lambdaRec-lambdaSim)/track->thetaError())/5;
-	  double contrib_phi = ((phiRec-phiSim)/track->phiError())*
-	    ((phiRec-phiSim)/track->phiError())/5;
+	  double contrib_theta = ((lambdaRec-lambdaSim)/lambdaErrorRec)*
+	    ((lambdaRec-lambdaSim)/lambdaErrorRec)/5;
+	  double contrib_phi = ((phiRec-phiSim)/phiErrorRec)*
+	    ((phiRec-phiSim)/phiErrorRec)/5;
 	  LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 					 << "" <<  "\n"
-					 << "ptREC=" << track->pt() << "\n"
+					 << "ptREC=" << ptRec << "\n"
 					 << "etaREC=" << track->eta() << "\n"
 					 << "qoverpREC=" << qoverpRec << "\n"
 					 << "dxyREC=" << dxyRec << "\n"
@@ -650,11 +687,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << "thetaREC=" << track->theta() << "\n"
 					 << "phiREC=" << phiRec << "\n"
 					 << "" <<  "\n"
-					 << "qoverpError()=" << track->qoverpError() << "\n"
+					 << "qoverpError()=" << qoverpErrorRec << "\n"
 					 << "dxyError()=" << track->dxyError() << "\n"
 					 << "dzError()=" << track->dzError() << "\n"
-					 << "thetaError()=" << track->thetaError() << "\n"
-					 << "phiError()=" << track->phiError() << "\n"
+					 << "thetaError()=" << lambdaErrorRec << "\n"
+					 << "phiError()=" << phiErrorRec << "\n"
 					 << "" <<  "\n"
 					 << "ptSIM=" << sqrt(assocTrack->momentum().perp2()) << "\n"
 					 << "etaSIM=" << assocTrack->momentum().Eta() << "\n"    
@@ -678,13 +715,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_pullDxy[w]->Fill(dxyPull);
 	  h_pullDz[w]->Fill(dzPull);
 
-	  double ptres=track->pt()-sqrt(assocTrack->momentum().perp2()); 
-	  double etares=track->eta()-assocTrack->momentum().Eta();
 
-	  double ptError =  track->ptError();
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
 	  etares_vs_eta[w]->Fill(getEta(track->eta()),etares);
+ 
 
 	  //chi2 and #hit vs eta: fill 2D histos
 	  chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
@@ -702,7 +737,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  nPXLlayersWithMeas_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().pixelLayersWithMeasurement());
 	  int LayersAll = track->hitPattern().stripLayersWithMeasurement();
 	  int Layers2D = track->hitPattern().numberOfValidStripLayersWithMonoAndStereo(); 
-	  int Layers1D = LayersAll - Layers2D;
+	  int Layers1D = LayersAll - Layers2D;	
 	  nSTRIPlayersWithMeas_vs_eta[w]->Fill(getEta(track->eta()),LayersAll);
 	  nSTRIPlayersWith1dMeas_vs_eta[w]->Fill(getEta(track->eta()),Layers1D);
 	  nSTRIPlayersWith2dMeas_vs_eta[w]->Fill(getEta(track->eta()),Layers2D);
@@ -711,17 +746,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  //resolution of track params: fill 2D histos
 	  dxyres_vs_eta[w]->Fill(getEta(track->eta()),dxyRec-dxySim);
-	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
+	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
 	  dzres_vs_eta[w]->Fill(getEta(track->eta()),dzRec-dzSim);
 	  phires_vs_eta[w]->Fill(getEta(track->eta()),phiRec-phiSim);
 	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));         
 
 	  //same as before but vs pT
-	  dxyres_vs_pt[w]->Fill(getPt(track->pt()),dxyRec-dxySim);
-	  ptres_vs_pt[w]->Fill(getPt(track->pt()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
-	  dzres_vs_pt[w]->Fill(getPt(track->pt()),dzRec-dzSim);
-	  phires_vs_pt[w]->Fill(getPt(track->pt()),phiRec-phiSim);
-	  cotThetares_vs_pt[w]->Fill(getPt(track->pt()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));  	 
+	  dxyres_vs_pt[w]->Fill(getPt(ptRec),dxyRec-dxySim);
+	  ptres_vs_pt[w]->Fill(getPt(ptRec),(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
+	  dzres_vs_pt[w]->Fill(getPt(ptRec),dzRec-dzSim);
+	  phires_vs_pt[w]->Fill(getPt(ptRec),phiRec-phiSim);
+	  cotThetares_vs_pt[w]->Fill(getPt(ptRec),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));  	 
   	 
 	  //pulls of track params vs eta: fill 2D histos
 	  dxypull_vs_eta[w]->Fill(getEta(track->eta()),dxyPull);
@@ -731,15 +766,15 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  thetapull_vs_eta[w]->Fill(getEta(track->eta()),thetaPull);
 
 	  //plots vs phi
-	  nhits_vs_phi[w]->Fill(track->phi(),track->numberOfValidHits());
-	  chi2_vs_phi[w]->Fill(track->phi(),track->normalizedChi2());
-	  ptmean_vs_eta_phi[w]->Fill(track->phi(),getEta(track->eta()),track->pt());
-	  phimean_vs_eta_phi[w]->Fill(track->phi(),getEta(track->eta()),track->phi());
-	  ptres_vs_phi[w]->Fill(track->phi(),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
-	  phires_vs_phi[w]->Fill(track->phi(),phiRec-phiSim); 
-	  ptpull_vs_phi[w]->Fill(track->phi(),ptres/ptError);
-	  phipull_vs_phi[w]->Fill(track->phi(),phiPull); 
-	  thetapull_vs_phi[w]->Fill(track->phi(),thetaPull); 
+	  nhits_vs_phi[w]->Fill(phiRec,track->numberOfValidHits());
+	  chi2_vs_phi[w]->Fill(phiRec,track->normalizedChi2());
+	  ptmean_vs_eta_phi[w]->Fill(phiRec,getEta(track->eta()),ptRec);
+	  phimean_vs_eta_phi[w]->Fill(phiRec,getEta(track->eta()),phiRec);
+	  ptres_vs_phi[w]->Fill(phiRec,(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
+	  phires_vs_phi[w]->Fill(phiRec,phiRec-phiSim); 
+	  ptpull_vs_phi[w]->Fill(phiRec,ptres/ptError);
+	  phipull_vs_phi[w]->Fill(phiRec,phiPull); 
+	  thetapull_vs_phi[w]->Fill(phiRec,thetaPull); 
 	} catch (cms::Exception e){
 	  LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
 	}
@@ -909,5 +944,39 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
   }
   
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+}
+
+
+void 
+MultiTrackValidator::getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
+				      double& qoverp, double& qoverpError, double& lambda,double& lambdaError,  double& phi, double& phiError ) const {
+  pt = track.pt();
+  ptError = track.ptError();
+  qoverp = track.qoverp();
+  qoverpError = track.qoverpError();
+  lambda = track.lambda();
+  lambdaError = track.lambdaError(); 
+  phi = track.phi(); 
+  phiError = track.phiError();
+  //   cout <<"test1" << endl; 
+  
+
+
+}
+
+void 
+MultiTrackValidator::getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
+				      double& qoverp, double& qoverpError, double& lambda,double& lambdaError,  double& phi, double& phiError  ) const {
+
+  pt = gsfTrack.ptMode();
+  ptError = gsfTrack.ptModeError();
+  qoverp = gsfTrack.qoverpMode();
+  qoverpError = gsfTrack.qoverpModeError();
+  lambda = gsfTrack.lambdaMode();
+  lambdaError = gsfTrack.lambdaModeError(); 
+  phi = gsfTrack.phiMode(); 
+  phiError = gsfTrack.phiModeError();
+  //   cout <<"test2" << endl;
+
 }
 
