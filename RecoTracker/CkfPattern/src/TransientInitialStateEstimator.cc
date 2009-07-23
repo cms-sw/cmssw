@@ -40,9 +40,10 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*>
 TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 {
   if(traj.firstMeasurement().forwardPredictedState().isValid()){    
-    // The firstMeasurement fwd state is valid. Therefore the backward fitting has already been done
-    // and we don't have to repeat it.
-    TSOS firstState = traj.firstMeasurement().forwardPredictedState();
+    LogDebug("TransientInitialStateEstimator")
+      <<"The firstMeasurement fwd state is valid. Therefore the backward fitting has already been done"
+      <<"and we don't have to repeat it.";
+    TSOS firstState = traj.firstMeasurement().backwardPredictedState();
     firstState.rescaleError(100.);    
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
 								traj.firstMeasurement().recHit()->det());
@@ -83,10 +84,14 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 					   backFitDirection);
 
   vector<Trajectory> fitres = backFitter.fit( fakeSeed, firstHits, startingState);
-
+  
+  LogDebug("TransientInitialStateEstimator")
+    <<"using a backward fit of :"<<firstHits.size()<<" hits, starting from:\n"<<startingState
+    <<" to get the estimate of the initial state of the track.";
 
   if (fitres.size() != 1) {
-    // cout << "FitTester: first hits fit failed!" << endl;
+        LogDebug("TransientInitialStateEstimator")
+	  << "FitTester: first hits fit failed!";
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>();
   }
 
