@@ -5,4 +5,4 @@ from DQMServices.Components.DQMEnvironment_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 dqmSaver.convention = 'Offline'
-dqmSaver.workflow = '/ConverterTester/Workflow/RECO'
+dqmSaver.workflow = '/BasicGenTest/Workflow/GEN'
