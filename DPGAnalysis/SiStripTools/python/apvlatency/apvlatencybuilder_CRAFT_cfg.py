@@ -24,7 +24,7 @@ process.source = cms.Source("EmptySource",
                             )
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
-                           connect = cms.string("sqlite_file:/afs/cern.ch/user/v/venturia/GlobalRuns/scratch/TEST/latency_new.db"),
+                           connect = cms.string("sqlite_file:/afs/cern.ch/user/v/venturia/GlobalRuns/scratch/TEST/latency08_fromDPG.db"),
                            timetype = cms.untracked.string("runnumber"),
 #                           BlobStreamerName = cms.untracked.string("TBufferBlobStreamingService"),
                            DBParameters = cms.PSet(
@@ -39,7 +39,7 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
                            )
 
 
-process.load("DPGAnalysisSiStripTools.apvlatency.apvlatencybuilder_cfi")
+process.load("DPGAnalysis.SiStripTools.apvlatency.apvlatencybuilder_cfi")
 process.apvLatencyBuilder.latencyIOVs = cms.VPSet(
     cms.PSet( runNumber = cms.int32(60000), latency = cms.int32(147)),
     cms.PSet( runNumber = cms.int32(69252), latency = cms.int32(143))

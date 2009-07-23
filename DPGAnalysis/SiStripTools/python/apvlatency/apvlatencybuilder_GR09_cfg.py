@@ -24,7 +24,7 @@ process.source = cms.Source("EmptySource",
                             )
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
-                           connect = cms.string("sqlite_file:/afs/cern.ch/user/v/venturia/GlobalRuns/scratch/TEST/latency09_new.db"),
+                           connect = cms.string("sqlite_file:/afs/cern.ch/user/v/venturia/GlobalRuns/scratch/TEST/latency09_fromDPG.db"),
                            timetype = cms.untracked.string("runnumber"),
 #                           BlobStreamerName = cms.untracked.string("TBufferBlobStreamingService"),
                            DBParameters = cms.PSet(
