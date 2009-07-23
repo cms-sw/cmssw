@@ -445,7 +445,7 @@ void FWColorSelect::UpdateColors()
 
 void FWColorSelect::CatchSignal(Int_t index)
 {
-   if(index < fPalette.size()) {
+   if(index < static_cast<int>(fPalette.size())) {
       fIndex=index;
       SetColorByIndex(index, kTRUE);
    }   
