@@ -168,7 +168,7 @@ void ESIntegrityClient::analyze(void) {
   for (int i=1; i<=56; ++i) {
     if (hL1ADiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
     if (hBXDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
-    if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
+    //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i] = 1;
   }
 
   // KCHIP integrity
