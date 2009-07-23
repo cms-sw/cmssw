@@ -101,7 +101,7 @@ void ESRawDataTask::setup(void){
       meOrbitNumberDCCErrors_->setAxisTitle("ES FED", 1);
       meOrbitNumberDCCErrors_->setAxisTitle("Num of Events", 2);
       
-      sprintf(histo, "Difference between ES and GT L1A ");
+      sprintf(histo, "Difference between ES and GT L1A");
       meL1ADiff_ = dqmStore_->book1D(histo, histo, 201, -100.5, 100.5);
       meL1ADiff_->setAxisTitle("ES - GT L1A", 1);
       meL1ADiff_->setAxisTitle("Num of Events", 2);
