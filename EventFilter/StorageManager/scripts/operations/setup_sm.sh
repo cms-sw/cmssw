@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.38 2009/06/09 16:17:08 loizides Exp $
+# $Id: setup_sm.sh,v 1.39 2009/07/20 19:31:07 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -43,7 +43,7 @@ fi
 
 t0cmcontrol="~cmsprod/TransferTest/old_t0_transferstatusworker.sh_old";
 if test -e "/opt/copymanager/t0_control.sh"; then
-    t0control="/opt/copymanager/t0_control.sh"
+    t0cmcontrol="/opt/copymanager/t0_control.sh"
 fi
 
 t0inject="~smpro/scripts/t0inject.sh";
@@ -125,6 +125,7 @@ startcopymanager () {
     local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
 
     if test "$hname" != "$cmhost"; then
+        echo "This host is not configured to by CopyManager: $hname != $cmhost"
         return;
     fi
 
