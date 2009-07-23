@@ -11,4 +11,5 @@
 <export>
    <lib name=DPGAnalysisSiStripTools>
    <use name=DataFormats/DetId>
+   <use name=FWCore/Utilities>
 </export>
