@@ -261,7 +261,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
 	Float_t orbitnumber_diff = dcc.getOrbitNumber() - gt_OrbitNumber;
 	if (orbitnumber_diff > 100) orbitnumber_diff = 100;
 	else if (orbitnumber_diff < -100) orbitnumber_diff = -100;
-	meBXDiff_->Fill(orbitnumber_diff);
+	meOrbitNumberDiff_->Fill(orbitnumber_diff);
       }
    }
 
