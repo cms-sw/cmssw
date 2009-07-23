@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMedians.cc,v 1.26 2009/07/09 14:34:53 amagnan Exp $
+// $Id: SiStripFEDMedians.cc,v 1.1 2009/07/22 11:32:49 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -95,6 +95,11 @@ class SiStripFEDMediansPlugin : public edm::EDAnalyzer
   MonitorElement *medianAPV0_;
   MonitorElement *medianAPV1_;
   MonitorElement *medianAPV1vsAPV0_;
+  MonitorElement *medianAPV1minusAPV0_;
+  MonitorElement *medianAPV1minusAPV0perFED_[FEDNumbering::MAXSiStripFEDID];
+  MonitorElement *medianAPV1minusAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
+  MonitorElement *medianAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
+  MonitorElement *medianAPV1vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
 
 
 };
@@ -158,18 +163,13 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
   unsigned int lNMonitoring = 0;
   unsigned int lNUnpacker = 0;
   unsigned int lNTotBadFeds = 0;
-
+  
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
        fedId <= FEDNumbering::MAXSiStripFEDID; 
        fedId++) {//loop over FED IDs
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
-    if (printDebug_ > 1) {
-      std::ostringstream debugStream;
-      debugStream << " --- Processing FED " << fedId << std::endl;
-      edm::LogInfo("SiStripMonitorHardware") << debugStream.str();
-    }
     //create an object to fill all errors
     lFedErrors.initialise(fedId,cabling_);
 
@@ -216,7 +216,14 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
 
     if (lFedErrors.failMonitoringFEDCheck() ||
 	lFedErrors.anyFEProblems()) continue;
+
+    std::ostringstream infoStream;
+
     
+    if (printDebug_ > 1) {
+      infoStream << " --- Processing FED #" << fedId << std::endl;
+    }
+
     //need to construct full object to go any further
     std::auto_ptr<const sistrip::FEDBuffer> buffer;
     buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
@@ -224,7 +231,14 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
     for (unsigned int iCh = 0; 
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {//loop on channels
-      bool connected = (cabling_->connection(fedId,iCh)).isConnected();
+
+      const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+
+
+      bool connected = lConnection.isConnected();
+
+      //std::cout << "FedID " << fedId << ", ch " << iCh << ", nAPVPairs " << lConnection.nApvPairs() << " apvPairNumber " << lConnection.apvPairNumber() << std::endl;
+
       if (!connected) continue;
 
       bool isBadChan = false;
@@ -240,22 +254,36 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
       std::ostringstream lMode;
       lMode << buffer->readoutMode();
   
-      std::pair<uint16_t,uint16_t> medians = fillMedians(lMode.str(),buffer->channel(iCh),iCh);
+      const sistrip::FEDChannel & lChannel = buffer->channel(iCh);
+
+      std::pair<uint16_t,uint16_t> medians = fillMedians(lMode.str(),lChannel,iCh);
 
       if (printDebug_ > 1) {
-	std::ostringstream debugStream;
-	debugStream << "Medians for channel #" << iCh << ": " << medians.first << ", " << medians.second << std::endl;
-	edm::LogInfo("SiStripMonitorHardware") << debugStream.str();
+	if (lChannel.length() > 7) {
+	  infoStream << "Medians for channel #" << iCh << " (length " << lChannel.length() << "): " << medians.first << ", " << medians.second << std::endl;
+	}
       }
 
-      medianAPV0_->Fill(medians.first);
-      medianAPV1_->Fill(medians.second);
-
-      medianAPV1vsAPV0_->Fill(medians.first,medians.second);
+      //if some clusters are found:
+      if (lChannel.length() > 7) {
+	medianAPV0_->Fill(medians.first);
+	medianAPV1_->Fill(medians.second);
+	medianAPV1vsAPV0_->Fill(medians.first,medians.second);
+	medianAPV1minusAPV0_->Fill(medians.second-medians.first);
+	medianAPV1minusAPV0perFED_[fedId]->Fill(iCh,medians.second-medians.first);
+	medianAPV1minusAPV0vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.second-medians.first);
+	medianAPV1vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.second);
+	medianAPV0vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.first);
+      }
 
     }//loop on channels
+    
+    if (printDebug_ > 1) edm::LogInfo("SiStripMonitorHardware") << infoStream.str();
+
 
   }//loop on FEDs
+
+
 
   if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
     std::ostringstream debugStream;
@@ -281,10 +309,24 @@ SiStripFEDMediansPlugin::beginJob(const edm::EventSetup&)
   dqm_ = &(*edm::Service<DQMStore>());
   dqm_->setCurrentFolder(folderName_);
 
-  medianAPV0_ = dqm_->book1D("medianAPV0","median APV0",100,110,150);
-  medianAPV1_ = dqm_->book1D("medianAPV1","median APV1",100,110,150);
-  medianAPV1vsAPV0_ = dqm_->book2D("medianAPV1vsAPV0","median APV1 vs APV0",100,110,150,100,110,150);
+  medianAPV0_ = dqm_->book1D("medianAPV0","median APV0",200,0,200);
+  medianAPV1_ = dqm_->book1D("medianAPV1","median APV1",200,0,200);
+  medianAPV1vsAPV0_ = dqm_->book2D("medianAPV1vsAPV0","median APV1 vs APV0",200,0,200,200,0,200);
+  medianAPV1minusAPV0_ = dqm_->book1D("medianAPV1minusAPV0","median APV1 - median APV0",400,-200,200);
 
+  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID;
+       fedId < FEDNumbering::MAXSiStripFEDID;
+       fedId++) {//loop over FED IDs
+    std::ostringstream lTitle,lTitleTime,lTitleTime0,lTitleTime1;
+    lTitle << "medianAPV1minusAPV0_" << fedId ;
+    lTitleTime << "medianAPV1minusAPV0vsTime_" << fedId ;
+    lTitleTime0 << "medianAPV0vsTime_" << fedId ;
+    lTitleTime1 << "medianAPV1vsTime_" << fedId ;
+    medianAPV1minusAPV0perFED_[fedId] = dqm_->bookProfile(lTitle.str().c_str(),"median APV1 - median APV0",96,0,96,-200,200);
+    medianAPV1minusAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime.str().c_str(),"median APV1 - median APV0",1000,0,12000,-200,200);
+    medianAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime0.str().c_str(),"median APV0",1000,0,12000,0,200);
+    medianAPV1vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime1.str().c_str(),"median APV1",1000,0,12000,0,200);
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -313,7 +355,8 @@ std::pair<uint16_t,uint16_t> SiStripFEDMediansPlugin::fillMedians(const std::str
 {
 
   /// create unpacker only if zero-suppressed mode
-  if (printDebug_ > 1) std::cout << "Readout mode = " << aMode << std::endl;
+  std::ostringstream debugStream;
+  if (printDebug_ > 1) debugStream << "Readout mode = " << aMode << std::endl;
   if (aMode.find("Zero suppressed") == aMode.npos || aMode.find("lite") != aMode.npos) return std::pair<uint16_t,uint16_t>(0,0);
 
   const uint8_t* lData = aChannel.data();
@@ -337,9 +380,11 @@ std::pair<uint16_t,uint16_t> SiStripFEDMediansPlugin::fillMedians(const std::str
   uint16_t lMedian1 = lWord4 + (lWord5 << 8);
 
   if (lLength != aChannel.length()) {
-    std::cout << "Channel #" << aIndex << " offset: " << aChannel.offset() << ", offset^7 = " << (aChannel.offset()^7) << std::endl;
-    std::cout << "My length = " << lLength << ", Nicks's length = " << aChannel.length() << std::endl;
+    if (printDebug_ > 1) debugStream << "Channel #" << aIndex << " offset: " << aChannel.offset() << ", offset^7 = " << (aChannel.offset()^7) << std::endl;
+    if (printDebug_ > 1) debugStream << "My length = " << lLength << ", Nicks's length = " << aChannel.length() << std::endl;
   }
+
+  if (printDebug_ > 1) edm::LogError("SiStripMonitorHardware") << debugStream.str();
 
   return std::pair<uint16_t,uint16_t>(lMedian0,lMedian1);
 }
