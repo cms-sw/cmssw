@@ -15,6 +15,9 @@
 <use name=DataFormats/Scalers> 
 <use name=DataFormats/Common> 
 <use name=DPGAnalysis/SiStripTools> 
+<use name=DQM/SiStripCommon>
+<use name=DQMServices/Core> 
+<use name=CommonTools/TrackerMap> 
 <library file="*.cc" name = DPGAnalysisSiStripToolsPlugins>
 	<flags EDM_PLUGIN=1>
 </library>

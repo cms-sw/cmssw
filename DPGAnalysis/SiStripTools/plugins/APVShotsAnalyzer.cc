@@ -24,6 +24,7 @@
 #include "TH1F.h"
 #include "TProfile.h"
 #include <vector>
+#include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -46,6 +47,10 @@
 #include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
 #include "DPGAnalysis/SiStripTools/interface/APVShot.h"
 
+//******** Single include for the TkMap *************
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+//***************************************************
+
 //
 // class decleration
 //
@@ -66,6 +71,8 @@ class APVShotsAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   edm::InputTag _digicollection;
+  bool _zs;
+  std::string _suffix;
   int _nevents;
 
   TH1F* _nShots;
@@ -75,6 +82,7 @@ class APVShotsAnalyzer : public edm::EDAnalyzer {
   TH1F* _median;
   TH1F* _subDetector;
 
+  TkHistoMap *tkhisto,*tkhisto2; 
 };
 
 //
@@ -90,9 +98,13 @@ class APVShotsAnalyzer : public edm::EDAnalyzer {
 //
 APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
   _digicollection(iConfig.getParameter<edm::InputTag>("digiCollection")),
+  _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true)),
+  _suffix(iConfig.getParameter<std::string>("mapSuffix")),
   _nevents(0)
 {
    //now do what ever initialization is needed
+
+  if(!_zs) _suffix += "_notZS";
 
  edm::Service<TFileService> tfserv;
 
@@ -116,6 +128,9 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
  _subDetector = tfserv->make<TH1F>("subDets","SubDetector Shot distribution",10,-0.5,9.5);
  _subDetector->GetYaxis()->SetTitle("Shots");
 
+
+ tkhisto      =new TkHistoMap("ShotMultiplicity","ShotMultiplicity",-1); 
+ tkhisto2      =new TkHistoMap("StripMultiplicity","StripMultiplicity",-1); 
 }
 
 
@@ -147,22 +162,25 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    int nshots=0;
 
-   APVShotFinder apvsf(*digis);
+   APVShotFinder apvsf(*digis,_zs);
    const std::vector<APVShot>& shots = apvsf.getShots();
 
    for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {
      if(shot->isGenuine()) {
        
-       ++nshots;
+	 ++nshots;
        
-       _whichAPV->Fill(shot->apvNumber());
-       _median->Fill(shot->median());
-       _stripMult->Fill(shot->nStrips());
-       _subDetector->Fill(shot->subDet());
-       
+	 _whichAPV->Fill(shot->apvNumber());
+	 _median->Fill(shot->median());
+	 _stripMult->Fill(shot->nStrips());
+	 _subDetector->Fill(shot->subDet());
+	 uint32_t det=shot->detId();
+	 tkhisto2->fill(det,shot->nStrips());;
+	 tkhisto->add(det,1);
+
      }
    }
-   
+
    _nShots->Fill(nshots);
    _nShotsVsTime->Fill(iEvent.orbitNumber(),nshots);
    
@@ -192,6 +210,21 @@ APVShotsAnalyzer::endJob() {
 
   edm::LogInfo("EndOfJob") << _nevents << " analyzed events";
 
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+  TrackerMap tkmap,tkmap2;
+
+  tkmap.setPalette(1);
+  tkmap2.setPalette(1);
+  tkhisto->dumpInTkMap(&tkmap);
+  tkhisto2->dumpInTkMap(&tkmap2);
+  std::string tkshotmultmapname = "ShotMultiplicity_" + _suffix + ".png";
+  tkmap.save(true,0,0,tkshotmultmapname);
+  std::string tkstripmultmapname = "StripMultiplicity_" + _suffix + ".png";
+  tkmap2.save(true,0,0,tkstripmultmapname);
+
+  std::string rootmapname = "TKMap_"+_suffix+".root";
+  tkhisto->save(rootmapname);
+  tkhisto2->save(rootmapname);
 }
 
 

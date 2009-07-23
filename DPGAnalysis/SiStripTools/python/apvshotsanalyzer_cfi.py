@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 apvshotsanalyzer = cms.EDAnalyzer('APVShotsAnalyzer',
-                                  digiCollection = cms.InputTag("siStripDigis","ZeroSuppressed")                    
+                                  digiCollection = cms.InputTag("siStripDigis","ZeroSuppressed"),
+                                  zeroSuppressed = cms.untracked.bool(True),
+                                  mapSuffix = cms.string("")
 )	

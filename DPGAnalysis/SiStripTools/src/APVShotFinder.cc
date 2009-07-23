@@ -7,18 +7,18 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
 
-APVShotFinder::APVShotFinder():
-  _shots() { }
+APVShotFinder::APVShotFinder(const bool zs):
+  _zs(zs), _shots() { }
 
-APVShotFinder::APVShotFinder(const edm::DetSet<SiStripDigi>& digis):
-  _shots() {
+APVShotFinder::APVShotFinder(const edm::DetSet<SiStripDigi>& digis, const bool zs):
+  _zs(zs), _shots() {
 
   computeShots(digis);
 
 }
 
-APVShotFinder::APVShotFinder(const edm::DetSetVector<SiStripDigi>& digicoll):
-  _shots() {
+APVShotFinder::APVShotFinder(const edm::DetSetVector<SiStripDigi>& digicoll, const bool zs):
+  _zs(zs), _shots() {
 
   computeShots(digicoll);
 
@@ -53,27 +53,28 @@ void APVShotFinder::addShots(const edm::DetSet<SiStripDigi>& digis) {
 
   for(edm::DetSet<SiStripDigi>::const_iterator digi=digis.begin();digi!=digis.end();digi++) {
 
-    if(laststrip >= digi->strip()) edm::LogWarning("StripNotInOrder") << "Strips not in order in DetSet<SiStripDigi>";
-    laststrip = digi->strip();
-
-    int newapv = digi->strip()/128;
-    if( newapv!=apv) {
-      if(apv>=0) {
-        if(temp.size() > 64) {
-	  APVShot shot(temp,detid);
-	  _shots.push_back(shot);
+    if(!_zs || digi->adc()>0) {
+      if(laststrip >= digi->strip()) edm::LogWarning("StripNotInOrder") << "Strips not in order in DetSet<SiStripDigi>";
+      laststrip = digi->strip();
+      
+      int newapv = digi->strip()/128;
+      if( newapv!=apv) {
+	if(apv>=0) {
+	  if(temp.size() > 64) {
+	    APVShot shot(temp,detid,_zs);
+	    _shots.push_back(shot);
+	  }
+	  temp.clear();
 	}
-	temp.clear();
+	apv = newapv;
       }
-      apv = newapv;
+      
+      temp.push_back(*digi);
     }
-
-    temp.push_back(*digi);
-
   }
   // last strip
   if(temp.size() > 64) {
-    APVShot shot(temp,detid);
+    APVShot shot(temp,detid,_zs);
     _shots.push_back(shot);
   }
   temp.clear();

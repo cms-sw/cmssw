@@ -4,16 +4,20 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 APVShot::APVShot(): 
-  _apv(-1), _nstrips(0), _median(-1), _detid() { }
+  _zs(true), _apv(-1), _nstrips(0), _median(-1), _detid() { }
 
-APVShot::APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid):
-  _apv(-1), _nstrips(0), _median(-1), _detid() 
+APVShot::APVShot(const bool zs): 
+  _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() { }
+
+APVShot::APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs):
+  _zs(zs), _apv(-1), _nstrips(0), _median(-1), _detid() 
 { 
-  computeShot(digis,detid);
+  computeShot(digis,detid,zs);
 }
 
-void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid) {
+void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs) {
 
+  _zs = zs;
   _detid = detid;
 
   _nstrips = 0;
@@ -23,13 +27,14 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   std::vector<unsigned int> charge;
   for(std::vector<SiStripDigi>::const_iterator digi=digis.begin();digi!=digis.end();++digi) {
 
-    int oldapv = _apv;
-    _apv = digi->strip()/128;
-    if(oldapv>=0 && oldapv!=_apv) throw cms::Exception("WrongDigiVector") << "Digis from Different APVs" ;
-
-    charge.push_back(digi->adc());
-    ++_nstrips;
-
+    if(!_zs || digi->adc()>0) {
+      int oldapv = _apv;
+      _apv = digi->strip()/128;
+      if(oldapv>=0 && oldapv!=_apv) throw cms::Exception("WrongDigiVector") << "Digis from Different APVs" ;
+      
+      charge.push_back(digi->adc());
+      ++_nstrips;
+    }
   }
   
   // charge to be sorted in descending order

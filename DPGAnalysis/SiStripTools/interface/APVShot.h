@@ -11,9 +11,10 @@ class APVShot {
 
  public:
   APVShot();
-  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid);
+  APVShot(const bool zs=true);
+  APVShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
 
-  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid);
+  void computeShot(const std::vector<SiStripDigi>& digis, const DetId& detid, const bool zs=true);
 
   const bool isGenuine() const;
   const int apvNumber() const;
@@ -24,6 +25,7 @@ class APVShot {
 
  private:
 
+  bool _zs;
   int _apv;
   int _nstrips;
   float _median;
