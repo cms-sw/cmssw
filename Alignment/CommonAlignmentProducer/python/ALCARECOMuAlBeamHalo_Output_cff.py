@@ -9,7 +9,8 @@ OutALCARECOMuAlBeamHalo_noDrop = cms.PSet(
         'keep *_ALCARECOMuAlBeamHalo_*_*', 
         'keep *_muonCSCDigis_*_*', 
         'keep *_csc2DRecHits_*_*', 
-        'keep *_cscSegments_*_*')
+        'keep *_cscSegments_*_*',
+	'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy

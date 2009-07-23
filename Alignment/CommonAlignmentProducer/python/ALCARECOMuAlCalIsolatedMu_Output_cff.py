@@ -15,7 +15,8 @@ OutALCARECOMuAlCalIsolatedMu_noDrop = cms.PSet(
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*')
+        'keep *_rpcRecHits_*_*',
+	'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy
