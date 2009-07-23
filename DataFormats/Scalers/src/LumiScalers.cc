@@ -48,7 +48,7 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
 { 
   LumiScalers();
 
-  ScalersEventRecordRaw_v1 * raw 
+  struct ScalersEventRecordRaw_v1 * raw 
     = (struct ScalersEventRecordRaw_v1 *)rawData;
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;

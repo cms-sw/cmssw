@@ -29,6 +29,7 @@
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+#include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
@@ -87,6 +88,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {
+    //    const ScalersEventRecordRaw_v3 * raw 
+    //      = (struct ScalersEventRecordRaw_v3 *)fedData.data();
+
     L1TriggerScalers oldTriggerScalers(fedData.data());
     pOldTrigger->push_back(oldTriggerScalers);
     std::cout << oldTriggerScalers << std::endl;
@@ -94,6 +98,9 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     Level1TriggerScalers triggerScalers(fedData.data());
     pTrigger->push_back(triggerScalers);
     std::cout << triggerScalers << std::endl;
+
+    Level1TriggerRates rates(triggerScalers,triggerScalers);
+    std::cout << rates << std::endl;
 
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);

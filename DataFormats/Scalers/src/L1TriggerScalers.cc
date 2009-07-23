@@ -44,7 +44,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
 { 
   L1TriggerScalers();
 
-  ScalersEventRecordRaw_v1 * raw 
+  struct ScalersEventRecordRaw_v1 * raw 
     = (struct ScalersEventRecordRaw_v1 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;

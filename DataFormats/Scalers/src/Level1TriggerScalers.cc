@@ -50,7 +50,7 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 { 
   Level1TriggerScalers();
 
-  ScalersEventRecordRaw_v3 * raw 
+  struct ScalersEventRecordRaw_v3 * raw 
     = (struct ScalersEventRecordRaw_v3 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
@@ -58,44 +58,45 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
   sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
-  version_ = raw->version;
-  if ( version_ >= 3 )
+  version_      = raw->version;
+  std::cout << " version ====== " << version_ << std::endl;
+  if ( version_ >= 1 )
   {
     collectionTimeGeneral_.set_tv_sec( static_cast<long>(
       raw->trig.collectionTimeGeneral_sec));
     collectionTimeGeneral_.set_tv_nsec( 
       raw->trig.collectionTimeGeneral_nsec);
 
-    lumiSegmentNr_ = raw->trig.lumiSegmentNr;
-    lumiSegmentOrbits_ = raw->trig.lumiSegmentOrbits;
-    orbitNr_ = raw->trig.orbitNr;
-    gtPartition0Resets_ = raw->trig.gtPartition0Resets;
-    bunchCrossingErrors_ = raw->trig.bunchCrossingErrors;
+    lumiSegmentNr_        = raw->trig.lumiSegmentNr;
+    lumiSegmentOrbits_    = raw->trig.lumiSegmentOrbits;
+    orbitNr_              = raw->trig.orbitNr;
+    gtPartition0Resets_   = raw->trig.gtPartition0Resets;
+    bunchCrossingErrors_  = raw->trig.bunchCrossingErrors;
     gtPartition0Triggers_ = raw->trig.gtPartition0Triggers;
-    gtPartition0Events_ = raw->trig.gtPartition0Events;
-    prescaleIndexAlgo_ = raw->trig.prescaleIndexAlgo;
-    prescaleIndexTech_ = raw->trig.prescaleIndexTech;
+    gtPartition0Events_   = raw->trig.gtPartition0Events;
+    prescaleIndexAlgo_    = raw->trig.prescaleIndexAlgo;
+    prescaleIndexTech_    = raw->trig.prescaleIndexTech;
 
     collectionTimeLumiSeg_.set_tv_sec( static_cast<long>(
       raw->trig.collectionTimeLumiSeg_sec));
     collectionTimeLumiSeg_.set_tv_nsec( 
       raw->trig.collectionTimeLumiSeg_nsec);
 
-    lumiSegmentNrLumiSeg_ = raw->trig.lumiSegmentNrLumiSeg;
-    triggersPhysicsGeneratedFDL_ = raw->trig.triggersPhysicsGeneratedFDL;
-    triggersPhysicsLost_ = raw->trig.triggersPhysicsLost;
-    triggersPhysicsLostBeamActive_ = raw->trig.triggersPhysicsLostBeamActive;
+    lumiSegmentNrLumiSeg_           = raw->trig.lumiSegmentNrLumiSeg;
+    triggersPhysicsGeneratedFDL_    = raw->trig.triggersPhysicsGeneratedFDL;
+    triggersPhysicsLost_            = raw->trig.triggersPhysicsLost;
+    triggersPhysicsLostBeamActive_  = raw->trig.triggersPhysicsLostBeamActive;
     triggersPhysicsLostBeamInactive_ = 
       raw->trig.triggersPhysicsLostBeamInactive;
 
-    l1AsPhysics_ = raw->trig.l1AsPhysics;
-    l1AsRandom_ = raw->trig.l1AsRandom;
-    l1AsTest_ = raw->trig.l1AsTest;
-    l1AsCalibration_ = raw->trig.l1AsCalibration;
-    deadtime_ = raw->trig.deadtime;
-    deadtimeBeamActive_ = raw->trig.deadtimeBeamActive;
+    l1AsPhysics_                    = raw->trig.l1AsPhysics;
+    l1AsRandom_                     = raw->trig.l1AsRandom;
+    l1AsTest_                       = raw->trig.l1AsTest;
+    l1AsCalibration_                = raw->trig.l1AsCalibration;
+    deadtime_                       = raw->trig.deadtime;
+    deadtimeBeamActive_             = raw->trig.deadtimeBeamActive;
     deadtimeBeamActiveTriggerRules_ = raw->trig.deadtimeBeamActiveTriggerRules;
-    deadtimeBeamActiveCalibration_ = raw->trig.deadtimeBeamActiveCalibration;
+    deadtimeBeamActiveCalibration_  = raw->trig.deadtimeBeamActiveCalibration;
     deadtimeBeamActivePrivateOrbit_ = raw->trig.deadtimeBeamActivePrivateOrbit;
     deadtimeBeamActivePartitionController_ = 
       raw->trig.deadtimeBeamActivePartitionController;
@@ -140,13 +141,6 @@ double Level1TriggerScalers::percentLSActive(unsigned long long counts)
 /// Pretty-print operator for Level1TriggerScalers
 std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c) 
 {
-  std::cout << "sizeof(v3)=" << sizeof(struct ScalersEventRecordRaw_v3)
-  	    << std::endl;
-  std::cout << "sizeof(lumi)=" << sizeof(struct LumiScalersRaw_v1)
-  	    << std::endl;
-  std::cout << "sizeof(trig)=" << sizeof(struct TriggerScalersRaw_v3)
-  	    << std::endl;
-
   s << "Level1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
   char line[128];
@@ -272,7 +266,8 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTimeSlot()));
   s << line << std::endl;
 
-  std::vector<unsigned int> gtAlgoCounts = c.gtAlgoCounts();
+  s << "Physics GtAlgoCounts" << std::endl;
+  const std::vector<unsigned int> gtAlgoCounts = c.gtAlgoCounts();
   int length = gtAlgoCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
@@ -285,7 +280,7 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   }
 
   s << "Test GtTechCounts" << std::endl;
-  std::vector<unsigned int> gtTechCounts = c.gtTechCounts();
+  const std::vector<unsigned int> gtTechCounts = c.gtTechCounts();
   length = gtTechCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {

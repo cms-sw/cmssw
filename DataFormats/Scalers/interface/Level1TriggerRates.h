@@ -45,6 +45,8 @@ class Level1TriggerRates
   Level1TriggerRates(Level1TriggerScalers const& s1, Level1TriggerScalers const& s2);
   virtual ~Level1TriggerRates();
 
+  void computeRates(Level1TriggerScalers const& t1);
+
   void computeRates(Level1TriggerScalers const& t1,
 		    Level1TriggerScalers const& t2);
 
@@ -59,7 +61,8 @@ class Level1TriggerRates
   int version() const { return(version_);}
   timespec collectionTimeGeneral() { return(collectionTimeGeneral_.get_timespec());}
 
-  double deltaT()       const { return(deltaT_);}
+  unsigned long long deltaNS()  const { return(deltaNS_);}
+  double deltaT()               const { return(deltaT_);}
 
   double gtPartition0ResetsRate() const 
   { return(gtPartition0ResetsRate_);}
@@ -133,6 +136,7 @@ protected:
   int version_;
   TimeSpec collectionTimeGeneral_;
 
+  unsigned long long deltaNS_;
   double deltaT_;
   double gtPartition0ResetsRate_;
   double bunchCrossingErrorsRate_;
