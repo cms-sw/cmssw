@@ -10,4 +10,5 @@
 <use name=DataFormats/DetId>
 <export>
    <lib name=DPGAnalysisSiStripTools>
+   <use name=DataFormats/DetId>
 </export>
