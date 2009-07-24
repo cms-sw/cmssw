@@ -112,5 +112,5 @@ export SMDEV_FU_PROCESS_COUNT=2
 export SMDEV_BIG_HLT_CONFIG=0
 
 # 08-JUL-2009 - define the configuration to be used
-#export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu.xml
-export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu_atcp.xml
+export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu.xml
+#export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu_atcp.xml
