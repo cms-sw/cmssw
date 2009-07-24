@@ -68,10 +68,11 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
       std::string object = pset.getParameter<std::string>("type");
       std::vector<InputTag>  tags=pset.getParameter<std::vector<InputTag> >("input");
 
-      if ( object == "HepMCProduct" ) {
+if ( object == "HepMCProduct" ) {
 
         std::string title = "Log10 Number of GenParticle in " + object;
-        nrHepMCProductH_ = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+	std::string name = "NumberOf" + object;
+        nrHepMCProductH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
         
         HepMCProductTags_ = tags;
     
@@ -79,7 +80,8 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
       else if ( object == "SimTrack" ) {
         
         std::string title = "Log10 Number of " + object;
-        nrSimTrackH_ = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+	std::string name = "NumberOf" + object;
+        nrSimTrackH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
         
         SimTrackTags_ = tags;
     
@@ -87,7 +89,8 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
       else if ( object == "SimVertex" )  {
         
         std::string title = "Log10 Number of " + object;
-        nrSimVertexH_ = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+	std::string name = "NumberOf" + object;
+        nrSimVertexH_ = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
     
         SimVertexTags_ = tags;
 
@@ -97,10 +100,12 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
         for (unsigned int ii=0;ii<subdets.size();ii++) {
 
           std::string title = "Log10 Number of " + subdets[ii];
-          SimHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+	  std::string name = "NumberOf" + subdets[ii];
+          SimHitNrmap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
           title = "Time of " + subdets[ii];
-          SimHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+	  name = "TimeOf" + subdets[ii];
+          SimHitTimemap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
         }
 
@@ -112,10 +117,12 @@ MixCollectionValidation::MixCollectionValidation(const edm::ParameterSet& iConfi
         for (unsigned int ii=0;ii<subdets.size();ii++) {
 
           std::string title = "Log10 Number of " + subdets[ii];
-          CaloHitNrmap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+	  std::string name = "NumberOf" + subdets[ii];
+          CaloHitNrmap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
         
           title = "Time of " + subdets[ii];
-          CaloHitTimemap_[subdets[ii]] = dbe_->bookProfile(title,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+	  name = "TimeOf" + subdets[ii];
+          CaloHitTimemap_[subdets[ii]] = dbe_->bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
         }
 
@@ -152,45 +159,48 @@ MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
    using namespace edm;
 
    if ( HepMCProductTags_.size() > 0 ) {
-
+     bool gotHepMCProduct; 	
      edm::Handle<CrossingFrame<HepMCProduct> > crossingFrame;
      std::string HepMCProductLabel = HepMCProductTags_[0].label();
-     iEvent.getByLabel("mix",HepMCProductLabel,crossingFrame);
+     gotHepMCProduct = iEvent.getByLabel("mix",HepMCProductLabel,crossingFrame);
 
-     std::auto_ptr<MixCollection<HepMCProduct> > 
-       hepMCProduct (new MixCollection<HepMCProduct>(crossingFrame.product ()));
-     MixCollection<HepMCProduct>::MixItr hitItr;
+     if (gotHepMCProduct){
+       std::auto_ptr<MixCollection<HepMCProduct> > 
+         hepMCProduct (new MixCollection<HepMCProduct>(crossingFrame.product ()));
+       MixCollection<HepMCProduct>::MixItr hitItr;
      
-     fillGenParticleMulti(hitItr, hepMCProduct, nrHepMCProductH_);
-
+       fillGenParticleMulti(hitItr, hepMCProduct, nrHepMCProductH_);
+     }	
    }
 
    if ( SimTrackTags_.size() > 0 ) {
-
+     bool gotSimTrack;
      edm::Handle<CrossingFrame<SimTrack> > crossingFrame;
      std::string SimTrackLabel = SimTrackTags_[0].label();
-     iEvent.getByLabel("mix",SimTrackLabel,crossingFrame);
+     gotSimTrack = iEvent.getByLabel("mix",SimTrackLabel,crossingFrame);
 
-     std::auto_ptr<MixCollection<SimTrack> > 
-       simTracks (new MixCollection<SimTrack>(crossingFrame.product ()));
-     MixCollection<SimTrack>::MixItr hitItr;
+     if (gotSimTrack){
+       std::auto_ptr<MixCollection<SimTrack> > 
+         simTracks (new MixCollection<SimTrack>(crossingFrame.product ()));
+       MixCollection<SimTrack>::MixItr hitItr;
      
-     fillMultiplicity(hitItr, simTracks, nrSimTrackH_);
-
+       fillMultiplicity(hitItr, simTracks, nrSimTrackH_);
+     }
    }
 
    if ( SimVertexTags_.size() > 0 ) {
-
+     bool gotSimVertex;
      edm::Handle<CrossingFrame<SimVertex> > crossingFrame;
      std::string SimVertexLabel = SimVertexTags_[0].label();
-     iEvent.getByLabel("mix",SimVertexLabel,crossingFrame);
+     gotSimVertex = iEvent.getByLabel("mix",SimVertexLabel,crossingFrame);
 
-     std::auto_ptr<MixCollection<SimVertex> > 
-       simVerteces (new MixCollection<SimVertex>(crossingFrame.product ()));
-     MixCollection<SimVertex>::MixItr hitItr;
+     if (gotSimVertex){
+       std::auto_ptr<MixCollection<SimVertex> > 
+         simVerteces (new MixCollection<SimVertex>(crossingFrame.product ()));
+       MixCollection<SimVertex>::MixItr hitItr;
      
-     fillMultiplicity(hitItr, simVerteces, nrSimVertexH_);
-
+       fillMultiplicity(hitItr, simVerteces, nrSimVertexH_);
+     }
    }
 
    if ( PSimHitTags_.size() > 0 ) {
@@ -198,19 +208,20 @@ MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
      edm::Handle<CrossingFrame<PSimHit> > crossingFrame;
 
      for ( int i = 0; i < (int)PSimHitTags_.size(); i++ ) {
-       
+       bool gotPSimHit;
        std::string PSimHitLabel = PSimHitTags_[i].label()+PSimHitTags_[i].instance();
-       iEvent.getByLabel("mix",PSimHitLabel,crossingFrame);
+       gotPSimHit = iEvent.getByLabel("mix",PSimHitLabel,crossingFrame);
 
-       std::auto_ptr<MixCollection<PSimHit> > 
-         simHits (new MixCollection<PSimHit>(crossingFrame.product ()));
+       if (gotPSimHit){
+         std::auto_ptr<MixCollection<PSimHit> > 
+           simHits (new MixCollection<PSimHit>(crossingFrame.product ()));
 
-       MixCollection<PSimHit>::MixItr hitItr;
+         MixCollection<PSimHit>::MixItr hitItr;
 
-       fillMultiplicity(hitItr, simHits, SimHitNrmap_[PSimHitTags_[i].instance()]);
+         fillMultiplicity(hitItr, simHits, SimHitNrmap_[PSimHitTags_[i].instance()]);
 
-       fillSimHitTime(hitItr, simHits, SimHitTimemap_[PSimHitTags_[i].instance()]);
-       
+         fillSimHitTime(hitItr, simHits, SimHitTimemap_[PSimHitTags_[i].instance()]);
+       }
      }
    }
 
@@ -219,19 +230,20 @@ MixCollectionValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
      edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
      for ( int i = 0; i < (int)PCaloHitTags_.size(); i++ ) {
-       
+       bool gotPCaloHit;
        std::string PCaloHitLabel = PCaloHitTags_[i].label()+PCaloHitTags_[i].instance();
-       iEvent.getByLabel("mix",PCaloHitLabel,crossingFrame);
+       gotPCaloHit = iEvent.getByLabel("mix",PCaloHitLabel,crossingFrame);
 
-       std::auto_ptr<MixCollection<PCaloHit> > 
-         caloHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+       if (gotPCaloHit){
+         std::auto_ptr<MixCollection<PCaloHit> > 
+           caloHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
 
-       MixCollection<PCaloHit>::MixItr hitItr;
+         MixCollection<PCaloHit>::MixItr hitItr;
 
-       fillMultiplicity(hitItr, caloHits, CaloHitNrmap_[PCaloHitTags_[i].instance()]);
+         fillMultiplicity(hitItr, caloHits, CaloHitNrmap_[PCaloHitTags_[i].instance()]);
 
-       fillCaloHitTime(hitItr, caloHits, CaloHitTimemap_[PCaloHitTags_[i].instance()]);
-       
+         fillCaloHitTime(hitItr, caloHits, CaloHitTimemap_[PCaloHitTags_[i].instance()]);
+       }
      }
    }
 
