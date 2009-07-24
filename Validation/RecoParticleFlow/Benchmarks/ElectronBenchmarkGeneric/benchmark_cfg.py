@@ -7,21 +7,33 @@ process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("PoolSource",
-		            fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0006/443872D1-DA4D-DE11-87DB-000423D94700.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/C258C2F4-5A4D-DE11-B2EF-001D09F2424A.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/3463063D-614D-DE11-8717-001D09F242EA.root',
-                                                              '/store/relval/CMSSW_3_1_0_pre8/RelValZEE/GEN-SIM-RECO/STARTUP_31X_v1/0005/0AC4EE74-5F4D-DE11-A410-001D09F23944.root')
+#		            fileNames = cms.untracked.vstring('file:/localscratch/b/beaudett/validation/CMSSW_3_1_0/src/RecoEgamma/Examples/test/SingleElectrons_Fast.root'),
+                            fileNames = cms.untracked.vstring('file:/localscratch/b/beaudett/pflow/CMSSW_3_1_1/src/FastSimulation/Configuration/test/AODIntegrationTestWithHLT.root'),			    
+                            noEventSort = cms.untracked.bool(True),
+                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
+                            )
 
-			    )
+process.load("FWCore.Modules.printContent_cfi")
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+process.load("PhysicsTools.PFCandProducer.pfElectrons_cff")
 
 process.load("Validation.RecoParticleFlow.electronBenchmarkGeneric_cff")
+
+process.gensource.select = cms.vstring(
+    "drop *",
+    "keep+ pdgId = 24",
+    "keep+ pdgId = -24",
+    "drop pdgId !=11 && pdgId !=-11"
+    )
+
 process.p =cms.Path(
-    process.electronBenchmarkGeneric
+#    process.printContent
+    process.electronBenchmarkGeneric    
     )
 
 

@@ -1,0 +1,70 @@
+The variables immediatly below are internal values for this test suite.
+The difffile tag implies that after each run the eventual file gsfElectronHistos.root is automatically
+renamed as target.olog.gsfElectronHistos.root . This way, we can use the same output file
+name for all the cmsRun configurations, yet keeping a separate copy of each kind of
+execution.
+
+
+The DBS_* variables are configuration variables for dbs_discovery.py,
+which prepares and send a query to the Data Discovery web server,
+and receive as a result the corresponding list of input data files.
+
+<var name="DBS_RELEASE" value="CMSSW_3_1_2">
+<!var name="DBS_LIKE" value="LOCAL">
+<var name="DBS_LIKE" value="*MC_31X_V3-v1*-RECO">
+
+<var name="VAL_ANALYZER" value="benchmark-oval">
+
+<environment name="Pt10">
+  <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+  <var name="DIR_NAME" value="SinglePt10">
+  <var name="E_SELECTION" value="">	
+  <var name="TEST_OUTPUT_FILE" value="TreeSinglePt10.root">	
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="root" args="-l plot.C">
+</environment>
+
+<environment name="Pt35">
+  <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+  <var name="E_SELECTION" value="">	
+  <var name="DIR_NAME" value="SinglePt35">	
+  <var name="TEST_OUTPUT_FILE" value="TreeSinglePt35.root">	
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="root" args="-l plot.C">
+</environment>
+
+<environment name="TTbarW">
+  <var name="DBS_SAMPLE" value="RelValTTbar">
+  <var name="E_SELECTION" value="efromW">	
+  <var name="DIR_NAME" value="TTBar-W">	
+  <var name="TEST_OUTPUT_FILE" value="TreeTTbarW.root">	
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="root" args="-l plot.C">
+</environment>
+
+<environment name="TTbarb">
+  <var name="DBS_SAMPLE" value="RelValTTbar">
+  <!var name="VAL_ANALYZER" value="benchmark-oval">
+  <var name="E_SELECTION" value="efromb">	
+  <var name="DIR_NAME" value="TTBar-bjets">	
+  <var name="TEST_OUTPUT_FILE" value="TreeTTbarbjets.root">	
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="root" args="-l plot.C">
+</environment>
+
+<environment name="ZEE">
+  <var name="DBS_SAMPLE" value="RelValZEE">
+  <var name="E_SELECTION" value="efromZ">
+  <var name="DIR_NAME" value="ZEE">		
+  <var name="TEST_OUTPUT_FILE" value="TreeZEEIdeal.root">	
+  <executable name="dbs_discovery.py">
+  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+  <executable name="root" args="-l plot.C">
+</environment>
+
+
+
