@@ -1,5 +1,6 @@
 <library file=*.cc name=FireworksTracksPlugins>
   <use name=Fireworks/Tracks>
+  <use name=Fireworks/Core>
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiPixelCluster>
   <use name=DataFormats/FWLite>
