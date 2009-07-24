@@ -8,14 +8,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Builder")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
-    NoisesBuilder = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    debugModules = cms.untracked.vstring('siStripNoisesDummyDBWriter'),
+    threshold = cms.untracked.string('DEBUG'),
     destinations = cms.untracked.vstring('NoisesBuilder.log')
 )
 

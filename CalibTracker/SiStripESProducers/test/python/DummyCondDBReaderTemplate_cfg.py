@@ -9,7 +9,9 @@ process = cms.Process("Reader")
 process.MessageLogger = cms.Service(
     "MessageLogger",
     debugModules = cms.untracked.vstring('reader'),
-    threshold = cms.untracked.string('DEBUG'),
+    threshold = cms.untracked.string('INFO'),
+    # Warning: debug output can be of ~ 250Mb for Noise and Pedestals
+    # threshold = cms.untracked.string('DEBUG'),
     destinations = cms.untracked.vstring('TAGNAMEReader_Ideal.log')
 )
 
