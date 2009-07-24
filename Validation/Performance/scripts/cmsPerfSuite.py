@@ -1278,8 +1278,8 @@ class PerfSuite:
                         print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
                         print "About to append cpu %s to AvailableCores list"%cpu
                         AvailableCores.append(cpu)
-                  if (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
-                     print "WHEW! We're done... all TestsToDo are done..."
+                  if not AvailableCores==[] and (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
+                     print "PHEW! We're done... all TestsToDo are done..."
                      print AvailableCores
                      print TestsToDo
                      break
