@@ -124,9 +124,9 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag) {
   bei->setCurrentFolder("Pixel/EventInfo");
   SummaryReport = bei->bookFloat("reportSummary");
   if(!Tier0Flag){
-    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,24,1.,23.);
-    SummaryReportMap->setAxisTitle("Pixel FED#",1);
-    SummaryReportMap->setAxisTitle("Pixel Link#",2);
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
+    SummaryReportMap->setAxisTitle("Pixel FED #",1);
+    SummaryReportMap->setAxisTitle("Pixel FED Channel #",2);
   }else{
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,15,0.,15.);
     SummaryReportMap->setBinLabel(1,"Barrel_Layer_1",1);
@@ -217,11 +217,12 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     n_errors_feds_=0; feds_error_flag_=0.;
     n_errors_barrelL1_=0; n_errors_barrelL2_=0; n_errors_barrelL3_=0; 
     n_errors_endcapDP1_=0; n_errors_endcapDP2_=0; n_errors_endcapDM1_=0; n_errors_endcapDM2_=0;
-    BarrelL1_error_flag_=0.; BarrelL2_error_flag_=0.; BarrelL3_error_flag_=0.;
-    EndcapDP1_error_flag_=0.; EndcapDP2_error_flag_=0.; EndcapDM1_error_flag_=0.; EndcapDM2_error_flag_=0.; 
+    BarrelL1_error_flag_=-1.; BarrelL2_error_flag_=-1.; BarrelL3_error_flag_=-1.;
+    EndcapDP1_error_flag_=-1.; EndcapDP2_error_flag_=-1.; EndcapDM1_error_flag_=-1.; EndcapDM2_error_flag_=-1.; 
     for(int i=0; i!=14; i++){
-      BarrelL1_cuts_flag_[i]=0; BarrelL2_cuts_flag_[i]=0; BarrelL3_cuts_flag_[i]=0;
-      EndcapDP1_cuts_flag_[i]=0; EndcapDP2_cuts_flag_[i]=0; EndcapDM1_cuts_flag_[i]=0; EndcapDM2_cuts_flag_[i]=0; 
+      BarrelL1_cuts_flag_[i]=-1.; BarrelL2_cuts_flag_[i]=-1.; BarrelL3_cuts_flag_[i]=-1.;
+      EndcapDP1_cuts_flag_[i]=-1.; EndcapDP2_cuts_flag_[i]=-1.; EndcapDM1_cuts_flag_[i]=-1.;
+      EndcapDM2_cuts_flag_[i]=-1.; 
     }
     //MonitoringElements:
     SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
@@ -530,8 +531,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     NDigisBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelNDigisCut");
-    if(NDigisBarrel){
-      if(me->hasError() && digiStatsBarrel) NDigisBarrel->Fill(0);
+    if(NDigisBarrel && digiStatsBarrel){
+      if(me->hasError()) NDigisBarrel->Fill(0);
       else NDigisBarrel->Fill(1); 
     }
   }
@@ -540,8 +541,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     NDigisEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapNDigisCut");
-    if(NDigisEndcap){
-      if(me->hasError() && digiStatsEndcap) NDigisEndcap->Fill(0);
+    if(NDigisEndcap && digiStatsEndcap){
+      if(me->hasError()) NDigisEndcap->Fill(0);
       else NDigisEndcap->Fill(1);
     }
   }
@@ -551,58 +552,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[0]=0;
-    else BarrelL1_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[0]=0.;
+    else if(digiStatsBarrelL1) BarrelL1_cuts_flag_[0]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(digiStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[0]=0;
-    else BarrelL2_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[0]=0.;
+    else if(digiStatsBarrelL2) BarrelL2_cuts_flag_[0]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(digiStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[0]=0;
-    else BarrelL3_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[0]=0.;
+    else if(digiStatsBarrelL3) BarrelL3_cuts_flag_[0]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(digiStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[0]=0;
-    else EndcapDM1_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[0]=0.;
+    else if(digiStatsEndcapDM1) EndcapDM1_cuts_flag_[0]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(digiStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[0]=0;
-    else EndcapDP1_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[0]=0.;
+    else if(digiStatsEndcapDP1) EndcapDP1_cuts_flag_[0]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(digiStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[0]=0;
-    else EndcapDM2_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[0]=0.;
+    else if(digiStatsEndcapDM2) EndcapDM2_cuts_flag_[0]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(digiStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[0]=0;
-    else EndcapDP2_cuts_flag_[0]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[0]=0.;
+    else if(digiStatsEndcapDP2) EndcapDP2_cuts_flag_[0]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMDIG_adc_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_adc_Barrel"; 
   me = bei->get(meName0);
   if(me){
     DigiChargeBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelDigiChargeCut");
-    if(DigiChargeBarrel){
-      if(me->hasError() && digiStatsBarrel) DigiChargeBarrel->Fill(0);
+    if(DigiChargeBarrel && digiStatsBarrel){
+      if(me->hasError()) DigiChargeBarrel->Fill(0);
       else DigiChargeBarrel->Fill(1);
     }
   }
@@ -611,8 +612,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     DigiChargeEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapDigiChargeCut");
-    if(DigiChargeEndcap){
-      if(me->hasError() && digiStatsEndcap) DigiChargeEndcap->Fill(0);
+    if(DigiChargeEndcap && digiStatsEndcap){
+      if(me->hasError()) DigiChargeEndcap->Fill(0);
       else DigiChargeEndcap->Fill(1);
     }
   }
@@ -642,50 +643,50 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[1]=0;
-    else BarrelL1_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[1]=0.;
+    else if(digiStatsBarrelL1) BarrelL1_cuts_flag_[1]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(digiStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[1]=0;
-    else BarrelL2_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[1]=0.;
+    else if(digiStatsBarrelL2) BarrelL2_cuts_flag_[1]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(digiStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[1]=0;
-    else BarrelL3_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[1]=0.;
+    else if(digiStatsBarrelL3) BarrelL3_cuts_flag_[1]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(digiStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[1]=0;
-    else EndcapDM1_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[1]=0.;
+    else if(digiStatsEndcapDM1) EndcapDM1_cuts_flag_[1]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(digiStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[1]=0;
-    else EndcapDP1_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[1]=0.;
+    else if(digiStatsEndcapDP1) EndcapDP1_cuts_flag_[1]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(digiStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[1]=0;
-    else EndcapDM2_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[1]=0.;
+    else if(digiStatsEndcapDM2) EndcapDM2_cuts_flag_[1]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(digiStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[1]=0;
-    else EndcapDP2_cuts_flag_[1]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[1]=0.;
+    else if(digiStatsEndcapDP2) EndcapDP2_cuts_flag_[1]=1.;
   }
      
      
@@ -729,8 +730,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OnTrackClusterSizeBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeBarrel){
-      if(me->hasError() && clusterOntrackStatsBarrel) OnTrackClusterSizeBarrel->Fill(0);
+    if(OnTrackClusterSizeBarrel && clusterOntrackStatsBarrel){
+      if(me->hasError()) OnTrackClusterSizeBarrel->Fill(0);
       else OnTrackClusterSizeBarrel->Fill(1);
     }
   }
@@ -739,8 +740,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OnTrackClusterSizeEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeEndcap){
-      if(me->hasError() && clusterOntrackStatsEndcap) OnTrackClusterSizeEndcap->Fill(0);
+    if(OnTrackClusterSizeEndcap && clusterOntrackStatsEndcap){
+      if(me->hasError()) OnTrackClusterSizeEndcap->Fill(0);
       else OnTrackClusterSizeEndcap->Fill(1);
     }
   }
@@ -750,58 +751,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[2]=0;
-    else BarrelL1_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsBarrelL1) BarrelL1_cuts_flag_[2]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOntrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[2]=0;
-    else BarrelL2_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsBarrelL2) BarrelL2_cuts_flag_[2]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOntrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[2]=0;
-    else BarrelL3_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsBarrelL3) BarrelL3_cuts_flag_[2]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOntrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[2]=0;
-    else EndcapDM1_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsEndcapDM1) EndcapDM1_cuts_flag_[2]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOntrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[2]=0;
-    else EndcapDP1_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsEndcapDP1) EndcapDP1_cuts_flag_[2]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOntrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[2]=0;
-    else EndcapDM2_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsEndcapDM2) EndcapDM2_cuts_flag_[2]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOntrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[2]=0;
-    else EndcapDP2_cuts_flag_[2]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[2]=0.;
+    else if(clusterOntrackStatsEndcapDP2) EndcapDP2_cuts_flag_[2]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_charge_OnTrack_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OnTrackClusterChargeBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeBarrel){
-      if(me->hasError() && clusterOntrackStatsBarrel) OnTrackClusterChargeBarrel->Fill(0);
+    if(OnTrackClusterChargeBarrel && clusterOntrackStatsBarrel){
+      if(me->hasError()) OnTrackClusterChargeBarrel->Fill(0);
       else OnTrackClusterChargeBarrel->Fill(1);
     }
   }
@@ -810,8 +811,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OnTrackClusterChargeEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeEndcap){
-      if(me->hasError() && clusterOntrackStatsEndcap) OnTrackClusterChargeEndcap->Fill(0);
+    if(OnTrackClusterChargeEndcap && clusterOntrackStatsEndcap){
+      if(me->hasError()) OnTrackClusterChargeEndcap->Fill(0);
       else OnTrackClusterChargeEndcap->Fill(1);
     }
   }
@@ -841,58 +842,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[3]=0;
-    else BarrelL1_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsBarrelL1) BarrelL1_cuts_flag_[3]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOntrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[3]=0;
-    else BarrelL2_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsBarrelL2) BarrelL2_cuts_flag_[3]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOntrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[3]=0;
-    else BarrelL3_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsBarrelL3) BarrelL3_cuts_flag_[3]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOntrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[3]=0;
-    else EndcapDM1_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsEndcapDM1) EndcapDM1_cuts_flag_[3]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOntrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[3]=0;
-    else EndcapDP1_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsEndcapDP1) EndcapDP1_cuts_flag_[3]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOntrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[3]=0;
-    else EndcapDM2_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsEndcapDM2) EndcapDM2_cuts_flag_[3]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOntrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[3]=0;
-    else EndcapDP2_cuts_flag_[3]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[3]=0.;
+    else if(clusterOntrackStatsEndcapDP2) EndcapDP2_cuts_flag_[3]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_nclusters_OnTrack_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OnTrackNClustersBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOnTrackNClustersCut");
-    if(OnTrackNClustersBarrel){
-      if(me->hasError() && clusterOntrackStatsBarrel) OnTrackNClustersBarrel->Fill(0);
+    if(OnTrackNClustersBarrel && clusterOntrackStatsBarrel){
+      if(me->hasError()) OnTrackNClustersBarrel->Fill(0);
       else OnTrackNClustersBarrel->Fill(1);
     }
   }
@@ -901,8 +902,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OnTrackNClustersEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOnTrackNClustersCut");
-    if(OnTrackNClustersEndcap){
-      if(me->hasError() && clusterOntrackStatsEndcap) OnTrackNClustersEndcap->Fill(0);
+    if(OnTrackNClustersEndcap && clusterOntrackStatsEndcap){
+      if(me->hasError()) OnTrackNClustersEndcap->Fill(0);
       else OnTrackNClustersEndcap->Fill(1);
     }
   }
@@ -932,50 +933,50 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[4]=0;
-    else BarrelL1_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsBarrelL1) BarrelL1_cuts_flag_[4]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOntrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[4]=0;
-    else BarrelL2_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsBarrelL2) BarrelL2_cuts_flag_[4]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOntrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[4]=0;
-    else BarrelL3_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsBarrelL3) BarrelL3_cuts_flag_[4]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOntrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[4]=0;
-    else EndcapDM1_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsEndcapDM1) EndcapDM1_cuts_flag_[4]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOntrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[4]=0;
-    else EndcapDP1_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsEndcapDP1) EndcapDP1_cuts_flag_[4]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOntrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[4]=0;
-    else EndcapDM2_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsEndcapDM2) EndcapDM2_cuts_flag_[4]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOntrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[4]=0;
-    else EndcapDP2_cuts_flag_[4]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[4]=0.;
+    else if(clusterOntrackStatsEndcapDP2) EndcapDP2_cuts_flag_[4]=1.;
   }
 
      
@@ -1019,8 +1020,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OffTrackClusterSizeBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOffTrackClusterSizeCut");
-    if(OffTrackClusterSizeBarrel){
-      if(me->hasError() && clusterOfftrackStatsBarrel) OffTrackClusterSizeBarrel->Fill(0);
+    if(OffTrackClusterSizeBarrel && clusterOfftrackStatsBarrel){
+      if(me->hasError()) OffTrackClusterSizeBarrel->Fill(0);
       else OffTrackClusterSizeBarrel->Fill(1);
     }
   }
@@ -1029,8 +1030,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OffTrackClusterSizeEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOffTrackClusterSizeCut");
-    if(OffTrackClusterSizeEndcap){
-      if(me->hasError() && clusterOfftrackStatsEndcap) OffTrackClusterSizeEndcap->Fill(0);
+    if(OffTrackClusterSizeEndcap && clusterOfftrackStatsEndcap){
+      if(me->hasError()) OffTrackClusterSizeEndcap->Fill(0);
       else OffTrackClusterSizeEndcap->Fill(1);
     }
   }
@@ -1040,58 +1041,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[5]=0;
-    else BarrelL1_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsBarrelL1) BarrelL1_cuts_flag_[5]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOfftrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[5]=0;
-    else BarrelL2_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsBarrelL2) BarrelL2_cuts_flag_[5]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOfftrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[5]=0;
-    else BarrelL3_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsBarrelL3) BarrelL3_cuts_flag_[5]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOfftrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[5]=0;
-    else EndcapDM1_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsEndcapDM1) EndcapDM1_cuts_flag_[5]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOfftrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[5]=0;
-    else EndcapDP1_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsEndcapDP1) EndcapDP1_cuts_flag_[5]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOfftrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[5]=0;
-    else EndcapDM2_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsEndcapDM2) EndcapDM2_cuts_flag_[5]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOfftrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[5]=0;
-    else EndcapDP2_cuts_flag_[5]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[5]=0.;
+    else if(clusterOfftrackStatsEndcapDP2) EndcapDP2_cuts_flag_[5]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_charge_OffTrack_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_charge_OffTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OffTrackClusterChargeBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOffTrackClusterChargeCut");
-    if(OffTrackClusterChargeBarrel){
-      if(me->hasError() && clusterOfftrackStatsBarrel) OffTrackClusterChargeBarrel->Fill(0);
+    if(OffTrackClusterChargeBarrel && clusterOfftrackStatsBarrel){
+      if(me->hasError()) OffTrackClusterChargeBarrel->Fill(0);
       else OffTrackClusterChargeBarrel->Fill(1);
     }
   }
@@ -1100,8 +1101,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OffTrackClusterChargeEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOffTrackClusterChargeCut");
-    if(OffTrackClusterChargeEndcap){
-      if(me->hasError() && clusterOfftrackStatsEndcap) OffTrackClusterChargeEndcap->Fill(0);
+    if(OffTrackClusterChargeEndcap && clusterOfftrackStatsEndcap){
+      if(me->hasError()) OffTrackClusterChargeEndcap->Fill(0);
       else OffTrackClusterChargeEndcap->Fill(1);
     }
   }
@@ -1131,58 +1132,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[6]=0;
-    else BarrelL1_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsBarrelL1) BarrelL1_cuts_flag_[6]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOfftrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[6]=0;
-    else BarrelL2_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsBarrelL2) BarrelL2_cuts_flag_[6]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOfftrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[6]=0;
-    else BarrelL3_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsBarrelL3) BarrelL3_cuts_flag_[6]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOfftrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[6]=0;
-    else EndcapDM1_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsEndcapDM1) EndcapDM1_cuts_flag_[6]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOfftrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[6]=0;
-    else EndcapDP1_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsEndcapDP1) EndcapDP1_cuts_flag_[6]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOfftrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[6]=0;
-    else EndcapDM2_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsEndcapDM2) EndcapDM2_cuts_flag_[6]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOfftrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[6]=0;
-    else EndcapDP2_cuts_flag_[6]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[6]=0.;
+    else if(clusterOfftrackStatsEndcapDP2) EndcapDP2_cuts_flag_[6]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_nclusters_OffTrack_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_nclusters_OffTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OffTrackNClustersBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelOffTrackNClustersCut");
-    if(OffTrackNClustersBarrel){
-      if(me->hasError() && clusterOfftrackStatsBarrel) OffTrackNClustersBarrel->Fill(0);
+    if(OffTrackNClustersBarrel && clusterOfftrackStatsBarrel){
+      if(me->hasError()) OffTrackNClustersBarrel->Fill(0);
       else OffTrackNClustersBarrel->Fill(1);
     }
   }
@@ -1191,8 +1192,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     OffTrackNClustersEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapOffTrackNClustersCut");
-    if(OffTrackNClustersEndcap){
-      if(me->hasError() && clusterOfftrackStatsEndcap) OffTrackNClustersEndcap->Fill(0);
+    if(OffTrackNClustersEndcap && clusterOfftrackStatsEndcap){
+      if(me->hasError()) OffTrackNClustersEndcap->Fill(0);
       else OffTrackNClustersEndcap->Fill(1);
     }
   }
@@ -1222,50 +1223,50 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[7]=0;
-    else BarrelL1_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsBarrelL1) BarrelL1_cuts_flag_[7]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(clusterOfftrackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[7]=0;
-    else BarrelL2_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsBarrelL2) BarrelL2_cuts_flag_[7]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(clusterOfftrackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[7]=0;
-    else BarrelL3_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsBarrelL3) BarrelL3_cuts_flag_[7]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(clusterOfftrackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[7]=0;
-    else EndcapDM1_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsEndcapDM1) EndcapDM1_cuts_flag_[7]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(clusterOfftrackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[7]=0;
-    else EndcapDP1_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsEndcapDP1) EndcapDP1_cuts_flag_[7]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(clusterOfftrackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[7]=0;
-    else EndcapDM2_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsEndcapDM2) EndcapDM2_cuts_flag_[7]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(clusterOfftrackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[7]=0;
-    else EndcapDP2_cuts_flag_[7]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[7]=0.;
+    else if(clusterOfftrackStatsEndcapDP2) EndcapDP2_cuts_flag_[7]=1.;
   }
 
 
@@ -1309,8 +1310,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     RecHitErrorXBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelRecHitErrorXCut");
-    if(RecHitErrorXBarrel){
-      if(me->hasError() && rechitStatsBarrel) RecHitErrorXBarrel->Fill(0);
+    if(RecHitErrorXBarrel && rechitStatsBarrel){
+      if(me->hasError()) RecHitErrorXBarrel->Fill(0);
       else RecHitErrorXBarrel->Fill(1);
     }
   }
@@ -1319,8 +1320,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     RecHitErrorXEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapRecHitErrorXCut");
-    if(RecHitErrorXEndcap){
-      if(me->hasError() && rechitStatsEndcap) RecHitErrorXEndcap->Fill(0);
+    if(RecHitErrorXEndcap && rechitStatsEndcap){
+      if(me->hasError()) RecHitErrorXEndcap->Fill(0);
       else RecHitErrorXEndcap->Fill(1);
     }
   }
@@ -1330,58 +1331,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[8]=0;
-    else BarrelL1_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[8]=0.;
+    else if(rechitStatsBarrelL1) BarrelL1_cuts_flag_[8]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(rechitStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[8]=0;
-    else BarrelL2_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[8]=0.;
+    else if(rechitStatsBarrelL2) BarrelL2_cuts_flag_[8]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(rechitStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[8]=0;
-    else BarrelL3_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[8]=0.;
+    else if(rechitStatsBarrelL3) BarrelL3_cuts_flag_[8]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(rechitStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[8]=0;
-    else EndcapDM1_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[8]=0.;
+    else if(rechitStatsEndcapDM1) EndcapDM1_cuts_flag_[8]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(rechitStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[8]=0;
-    else EndcapDP1_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[8]=0.;
+    else if(rechitStatsEndcapDP1) EndcapDP1_cuts_flag_[8]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(rechitStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[8]=0;
-    else EndcapDM2_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[8]=0.;
+    else if(rechitStatsEndcapDM2) EndcapDM2_cuts_flag_[8]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(rechitStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[8]=0;
-    else EndcapDP2_cuts_flag_[8]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[8]=0.;
+    else if(rechitStatsEndcapDP2) EndcapDP2_cuts_flag_[8]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMHIT_ErrorY_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_ErrorY_Barrel"; 
   me = bei->get(meName0);
   if(me){
     RecHitErrorYBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelRecHitErrorYCut");
-    if(RecHitErrorYBarrel){
-      if(me->hasError() && rechitStatsBarrel) RecHitErrorYBarrel->Fill(0);
+    if(RecHitErrorYBarrel && rechitStatsBarrel){
+      if(me->hasError()) RecHitErrorYBarrel->Fill(0);
       else RecHitErrorYBarrel->Fill(1);
     }
   }
@@ -1390,8 +1391,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     RecHitErrorYEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapRecHitErrorYCut");
-    if(RecHitErrorYEndcap){
-      if(me->hasError() && rechitStatsEndcap) RecHitErrorYEndcap->Fill(0);
+    if(RecHitErrorYEndcap && rechitStatsEndcap){
+      if(me->hasError()) RecHitErrorYEndcap->Fill(0);
       else RecHitErrorYEndcap->Fill(1);
     }
   }
@@ -1421,50 +1422,50 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[9]=0;
-    else BarrelL1_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[9]=0.;
+    else if(rechitStatsBarrelL1) BarrelL1_cuts_flag_[9]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(rechitStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[9]=0;
-    else BarrelL2_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[9]=0.;
+    else if(rechitStatsBarrelL2) BarrelL2_cuts_flag_[9]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(rechitStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[9]=0;
-    else BarrelL3_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[9]=0.;
+    else if(rechitStatsBarrelL3) BarrelL3_cuts_flag_[9]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(rechitStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[9]=0;
-    else EndcapDM1_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[9]=0.;
+    else if(rechitStatsEndcapDM1) EndcapDM1_cuts_flag_[9]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(rechitStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[9]=0;
-    else EndcapDP1_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[9]=0.;
+    else if(rechitStatsEndcapDP1) EndcapDP1_cuts_flag_[9]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(rechitStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[9]=0;
-    else EndcapDM2_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[9]=0.;
+    else if(rechitStatsEndcapDM2) EndcapDM2_cuts_flag_[9]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(rechitStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[9]=0;
-    else EndcapDP2_cuts_flag_[9]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[9]=0.;
+    else if(rechitStatsEndcapDP2) EndcapDP2_cuts_flag_[9]=1.;
   }
  
  
@@ -1508,8 +1509,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     ResidualXMeanBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelResidualXMeanCut");
-    if(ResidualXMeanBarrel){
-      if(me->hasError() && trackStatsBarrel) ResidualXMeanBarrel->Fill(0);
+    if(ResidualXMeanBarrel && trackStatsBarrel){
+      if(me->hasError()) ResidualXMeanBarrel->Fill(0);
       else ResidualXMeanBarrel->Fill(1);
     }
   }
@@ -1518,8 +1519,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     ResidualXMeanEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapResidualXMeanCut");
-    if(ResidualXMeanEndcap){
-      if(me->hasError() && trackStatsEndcap) ResidualXMeanEndcap->Fill(0);
+    if(ResidualXMeanEndcap && trackStatsEndcap){
+      if(me->hasError()) ResidualXMeanEndcap->Fill(0);
       else ResidualXMeanEndcap->Fill(1);
     }
   }
@@ -1529,58 +1530,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[10]=0;
-    else BarrelL1_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[10]=0.;
+    else if(trackStatsBarrelL1) BarrelL1_cuts_flag_[10]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(trackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[10]=0;
-    else BarrelL2_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[10]=0.;
+    else if(trackStatsBarrelL2) BarrelL2_cuts_flag_[10]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(trackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[10]=0;
-    else BarrelL3_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[10]=0.;
+    else if(trackStatsBarrelL3) BarrelL3_cuts_flag_[10]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(trackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[10]=0;
-    else EndcapDM1_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[10]=0.;
+    else if(trackStatsEndcapDM1) EndcapDM1_cuts_flag_[10]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(trackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[10]=0;
-    else EndcapDP1_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[10]=0.;
+    else if(trackStatsEndcapDP1) EndcapDP1_cuts_flag_[10]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(trackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[10]=0;
-    else EndcapDM2_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[10]=0.;
+    else if(trackStatsEndcapDM2) EndcapDM2_cuts_flag_[10]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(trackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[10]=0;
-    else EndcapDP2_cuts_flag_[10]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[10]=0.;
+    else if(trackStatsEndcapDP2) EndcapDP2_cuts_flag_[10]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_residualX_RMS_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_residualX_RMS_Barrel"; 
   me = bei->get(meName0);
   if(me){
     ResidualXRMSBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelResidualXRMSCut");
-    if(ResidualXRMSBarrel){
-      if(me->hasError() && trackStatsBarrel) ResidualXRMSBarrel->Fill(0);
+    if(ResidualXRMSBarrel && trackStatsBarrel){
+      if(me->hasError()) ResidualXRMSBarrel->Fill(0);
       else ResidualXRMSBarrel->Fill(1);
     }
   }
@@ -1589,8 +1590,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     ResidualXRMSEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapResidualXRMSCut");
-    if(ResidualXRMSEndcap){
-      if(me->hasError() && trackStatsEndcap) ResidualXRMSEndcap->Fill(0);
+    if(ResidualXRMSEndcap && trackStatsEndcap){
+      if(me->hasError()) ResidualXRMSEndcap->Fill(0);
       else ResidualXRMSEndcap->Fill(1);
     }
   }
@@ -1620,58 +1621,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[11]=0;
-    else BarrelL1_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[11]=0.;
+    else if(trackStatsBarrelL1) BarrelL1_cuts_flag_[11]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(trackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[11]=0;
-    else BarrelL2_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[11]=0.;
+    else if(trackStatsBarrelL2) BarrelL2_cuts_flag_[11]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(trackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[11]=0;
-    else BarrelL3_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[11]=0.;
+    else if(trackStatsBarrelL3) BarrelL3_cuts_flag_[11]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(trackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[11]=0;
-    else EndcapDM1_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[11]=0.;
+    else if(trackStatsEndcapDM1) EndcapDM1_cuts_flag_[11]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(trackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[11]=0;
-    else EndcapDP1_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[11]=0.;
+    else if(trackStatsEndcapDP1) EndcapDP1_cuts_flag_[11]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(trackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[11]=0;
-    else EndcapDM2_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[11]=0.;
+    else if(trackStatsEndcapDM2) EndcapDM2_cuts_flag_[11]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(trackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[11]=0;
-    else EndcapDP2_cuts_flag_[11]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[11]=0.;
+    else if(trackStatsEndcapDP2) EndcapDP2_cuts_flag_[11]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_residualY_mean_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_residualY_mean_Barrel"; 
   me = bei->get(meName0);
   if(me){
     ResidualYMeanBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelResidualYMeanCut");
-    if(ResidualYMeanBarrel){
-      if(me->hasError() && trackStatsBarrel) ResidualYMeanBarrel->Fill(0);
+    if(ResidualYMeanBarrel && trackStatsBarrel){
+      if(me->hasError()) ResidualYMeanBarrel->Fill(0);
       else ResidualYMeanBarrel->Fill(1);
     }
   }
@@ -1680,8 +1681,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     ResidualYMeanEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapResidualYMeanCut");
-    if(ResidualYMeanEndcap){
-      if(me->hasError() && trackStatsEndcap) ResidualYMeanEndcap->Fill(0);
+    if(ResidualYMeanEndcap && trackStatsEndcap){
+      if(me->hasError()) ResidualYMeanEndcap->Fill(0);
       else ResidualYMeanEndcap->Fill(1);
     }
   }
@@ -1711,58 +1712,58 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[12]=0;
-    else BarrelL1_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[12]=0.;
+    else if(trackStatsBarrelL1) BarrelL1_cuts_flag_[12]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(trackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[12]=0;
-    else BarrelL2_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[12]=0.;
+    else if(trackStatsBarrelL2) BarrelL2_cuts_flag_[12]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(trackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[12]=0;
-    else BarrelL3_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[12]=0.;
+    else if(trackStatsBarrelL3) BarrelL3_cuts_flag_[12]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(trackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[12]=0;
-    else EndcapDM1_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[12]=0.;
+    else if(trackStatsEndcapDM1) EndcapDM1_cuts_flag_[12]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(trackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[12]=0;
-    else EndcapDP1_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[12]=0.;
+    else if(trackStatsEndcapDP1) EndcapDP1_cuts_flag_[12]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(trackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[12]=0;
-    else EndcapDM2_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[12]=0.;
+    else if(trackStatsEndcapDM2) EndcapDM2_cuts_flag_[12]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(trackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[12]=0;
-    else EndcapDP2_cuts_flag_[12]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[12]=0.;
+    else if(trackStatsEndcapDP2) EndcapDP2_cuts_flag_[12]=1.;
   }
   if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_residualY_RMS_Barrel";
   else meName0 = "Pixel/Barrel/SUMOFF_residualY_RMS_Barrel"; 
   me = bei->get(meName0);
   if(me){
     ResidualYRMSBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelResidualYRMSCut");
-    if(ResidualYRMSBarrel){
-      if(me->hasError() && trackStatsBarrel) ResidualYRMSBarrel->Fill(0);
+    if(ResidualYRMSBarrel && trackStatsBarrel){
+      if(me->hasError()) ResidualYRMSBarrel->Fill(0);
       else ResidualYRMSBarrel->Fill(1);
     }
   }
@@ -1771,8 +1772,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     ResidualYRMSEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapResidualYRMSCut");
-    if(ResidualYRMSEndcap){
-      if(me->hasError() && trackStatsEndcap) ResidualYRMSEndcap->Fill(0);
+    if(ResidualYRMSEndcap && trackStatsEndcap){
+      if(me->hasError()) ResidualYRMSEndcap->Fill(0);
       else ResidualYRMSEndcap->Fill(1);
     }
   }
@@ -1802,50 +1803,50 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[13]=0;
-    else BarrelL1_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) BarrelL1_cuts_flag_[13]=0.;
+    else if(trackStatsBarrelL1) BarrelL1_cuts_flag_[13]=1.;
     me1 = bei->get(meName5); me2 = bei->get(meName6); me3 = bei->get(meName7); me4 = bei->get(meName8);
     if(trackStatsBarrelL2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[13]=0;
-    else BarrelL2_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) BarrelL2_cuts_flag_[13]=0.;
+    else if(trackStatsBarrelL2) BarrelL2_cuts_flag_[13]=1.;
     me1 = bei->get(meName9); me2 = bei->get(meName10); me3 = bei->get(meName11); me4 = bei->get(meName12);
     if(trackStatsBarrelL3 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[13]=0;
-    else BarrelL3_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) BarrelL3_cuts_flag_[13]=0.;
+    else if(trackStatsBarrelL3) BarrelL3_cuts_flag_[13]=1.;
     me1 = bei->get(meName13); me2 = bei->get(meName14);
     if(trackStatsEndcapDM1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[13]=0;
-    else EndcapDM1_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) EndcapDM1_cuts_flag_[13]=0.;
+    else if(trackStatsEndcapDM1) EndcapDM1_cuts_flag_[13]=1.;
     me1 = bei->get(meName15); me2 = bei->get(meName16);
     if(trackStatsEndcapDP1 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[13]=0;
-    else EndcapDP1_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) EndcapDP1_cuts_flag_[13]=0.;
+    else if(trackStatsEndcapDP1) EndcapDP1_cuts_flag_[13]=1.;
     me1 = bei->get(meName17); me2 = bei->get(meName18);
     if(trackStatsEndcapDM2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[13]=0;
-    else EndcapDM2_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) EndcapDM2_cuts_flag_[13]=0.;
+    else if(trackStatsEndcapDM2) EndcapDM2_cuts_flag_[13]=1.;
     me1 = bei->get(meName19); me2 = bei->get(meName20);
     if(trackStatsEndcapDP2 &&
        (( me1 && me1->hasError() ) || 
         ( me2 && me2->hasError() ) ||
         ( me3 && me3->hasError() ) ||
-        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[13]=0;
-    else EndcapDP2_cuts_flag_[13]=1;
+        ( me4 && me4->hasError() ))) EndcapDP2_cuts_flag_[13]=0.;
+    else if(trackStatsEndcapDP2) EndcapDP2_cuts_flag_[13]=1.;
   }
   
   // Final combination of all Data Quality results:
@@ -1960,14 +1961,14 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 {
   //calculate eta and phi of the modules and fill a 2D plot:
   if(init){
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,22,0.,22.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,22,0.,22.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,22,0.,22.);
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,0.,36.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,0.,36.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,0.,36.);
     count=0; errcount=0;
     //cout<<"Number of FEDs in the readout: "<<nFEDs<<endl;
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){
-      if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=23; j++) SummaryReportMap->setBinContent(i,j,-1.);
+      if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
       if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=16; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
 
