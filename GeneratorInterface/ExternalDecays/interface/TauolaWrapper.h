@@ -93,4 +93,12 @@ extern "C" {
 }
 #define momdec momdec_
 
+extern "C" {
+   extern struct {
+      int np1;
+      int np2; 
+    } taupos_;
+}
+#define taupos taupos_
+
 #endif

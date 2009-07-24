@@ -17,6 +17,7 @@ using namespace edm;
 using namespace std;
 
 TauolaInterface::TauolaInterface( const ParameterSet& pset )
+   : fIsInitialized(false)
 {
    fPy6Service = new Pythia6Service;
 
@@ -45,6 +46,8 @@ TauolaInterface::~TauolaInterface()
 void TauolaInterface::init( const edm::EventSetup& es )
 {
    
+   if ( fIsInitialized ) return; // do init only once
+   
    if ( ki_taumod_.mdtau <= -1 ) // actually, need to throw exception !
       return ;
    
@@ -71,6 +74,8 @@ void TauolaInterface::init( const edm::EventSetup& es )
    mode = -1;
    // tauola_( &mode, &fPolarization );
    tauola_srs_( &mode, &fPolarization );
+   
+   fIsInitialized = true;
    
    return;
 }
