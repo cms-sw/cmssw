@@ -5,18 +5,12 @@
 // 
 /**\class SiStripFEDMediansPlugin SiStripFEDMedians.cc DQM/SiStripMonitorHardware/plugins/SiStripFEDMedians.cc
 
- Description: DQM source application to produce data integrety histograms for SiStrip data
+ Description: DQM source application to monitor common mode for SiStrip data
 */
 //
-// Original Author:  Nicholas Cripps
-//         Created:  2008/09/16
-// $Id: SiStripFEDMedians.cc,v 1.1 2009/07/22 11:32:49 amagnan Exp $
+//         Created:  2009/07/22
+// $Id: SiStripFEDMedians.cc,v 1.2 2009/07/23 10:40:07 amagnan Exp $
 //
-//Modified        :  Anne-Marie Magnan
-//   ---- 2009/04/21 : histogram management put in separate class
-//                     struct helper to simplify arguments of functions
-//   ---- 2009/04/22 : add TkHistoMap with % of bad channels per module
-//   ---- 2009/04/27 : create FEDErrors class 
 
 #include <sstream>
 #include <memory>
@@ -51,6 +45,17 @@
 #include "DQM/SiStripMonitorHardware/interface/FEDHistograms.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
+#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
+
+#include "DQM/SiStripMonitorHardware/interface/FEDHistograms.hh"
 
 //
 // Class declaration
@@ -59,6 +64,7 @@
 class SiStripFEDMediansPlugin : public edm::EDAnalyzer
 {
  public:
+
   explicit SiStripFEDMediansPlugin(const edm::ParameterSet&);
   ~SiStripFEDMediansPlugin();
  private:
@@ -75,6 +81,7 @@ class SiStripFEDMediansPlugin : public edm::EDAnalyzer
 					   const unsigned int aIndex
 					   );
 
+  void bookFEDHistograms(unsigned int fedId);
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
@@ -94,12 +101,23 @@ class SiStripFEDMediansPlugin : public edm::EDAnalyzer
 
   MonitorElement *medianAPV0_;
   MonitorElement *medianAPV1_;
+  MonitorElement *shotMedianAPV0_;
+  MonitorElement *shotMedianAPV1_;
   MonitorElement *medianAPV1vsAPV0_;
   MonitorElement *medianAPV1minusAPV0_;
-  MonitorElement *medianAPV1minusAPV0perFED_[FEDNumbering::MAXSiStripFEDID];
-  MonitorElement *medianAPV1minusAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
-  MonitorElement *medianAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
-  MonitorElement *medianAPV1vsTimeperFED_[FEDNumbering::MAXSiStripFEDID];
+  MonitorElement *diffMedianminusShotMedianAPV1_;
+  MonitorElement *medianAPV0minusShot0_;
+  MonitorElement *medianAPV1minusShot1_;
+  MonitorElement *medianAPV1minusAPV0perFED_[FEDNumbering::MAXSiStripFEDID+1];
+  MonitorElement *medianAPV1minusAPV0vsChperFED_[FEDNumbering::MAXSiStripFEDID+1];
+  MonitorElement *medianAPV1minusAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID+1];
+  MonitorElement *medianAPV0vsTimeperFED_[FEDNumbering::MAXSiStripFEDID+1];
+  MonitorElement *medianAPV1vsTimeperFED_[FEDNumbering::MAXSiStripFEDID+1];
+
+  edm::InputTag _digicollection;
+  bool _zs;
+
+  FEDHistograms::HistogramConfig timeConfig_;
 
 
 };
@@ -115,7 +133,10 @@ SiStripFEDMediansPlugin::SiStripFEDMediansPlugin(const edm::ParameterSet& iConfi
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
-    cablingCacheId_(0)
+    cablingCacheId_(0),
+    _digicollection(iConfig.getParameter<edm::InputTag>("digiCollection")),
+    _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true))
+ 
 {
   //print config to debug log
   std::ostringstream debugStream;
@@ -132,7 +153,16 @@ SiStripFEDMediansPlugin::SiStripFEDMediansPlugin(const edm::ParameterSet& iConfi
     LogTrace("SiStripMonitorHardware") << debugStream.str();
   }
 
-
+  const std::string psetName = "TimeHistogramConfig";
+  if (iConfig.exists(psetName)) {
+    const edm::ParameterSet& pset = iConfig.getUntrackedParameter<edm::ParameterSet>(psetName);
+    timeConfig_.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
+    if (timeConfig_.enabled) {
+      timeConfig_.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
+      timeConfig_.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
+      timeConfig_.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 40000);
+    }
+  }
 }
 
 SiStripFEDMediansPlugin::~SiStripFEDMediansPlugin()
@@ -149,6 +179,8 @@ void
 SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
+
+  static bool firstEvent = true;
   //update cabling
   updateCabling(iSetup);
   
@@ -157,6 +189,15 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
+  //get digi data
+  edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
+  iEvent.getByLabel(_digicollection,digis);
+
+   // loop on detector with digis
+
+   APVShotFinder apvsf(*digis,_zs);
+   const std::vector<APVShot>& shots = apvsf.getShots();
+
   //FED errors
   FEDErrors lFedErrors;
 
@@ -228,6 +269,9 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
     std::auto_ptr<const sistrip::FEDBuffer> buffer;
     buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
 
+    bookFEDHistograms(fedId);
+
+
     for (unsigned int iCh = 0; 
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {//loop on channels
@@ -251,6 +295,44 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
 
       if (isBadChan) continue;
 
+      uint32_t lDetId = lConnection.detId();
+      short lAPVPair = lConnection.apvPairNumber();
+      short lSubDet = 0;
+      std::pair<float,float> lShotMedian = std::pair<float,float>(0,0);
+
+      bool isShot = false;
+      //bool isFirst = true;
+      for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {
+
+	if (shot->detId() == lDetId && static_cast<short>(shot->apvNumber()/2.) == lAPVPair) {
+	  if(shot->isGenuine()) {
+	    lSubDet = shot->subDet();
+	    isShot = true;
+	    if (shot->apvNumber()%2 == 0) lShotMedian.first = shot->median();
+	    else if (shot->apvNumber()%2 == 1) {
+	      lShotMedian.second = shot->median();
+	      break;
+	    }
+	    //shot->nStrips()
+	  }
+	  //isFirst = false;
+	}
+      }
+
+      //if (!isShot) continue;
+
+      if (firstEvent){
+	if (lSubDet == 3) {
+	  TIBDetId lId(lDetId);
+	  std::cout << "TIB layer " << lId.layer()  << ", fedID " << fedId << ", channel " << iCh << std::endl;
+	}
+      }
+      
+      if (isShot) {
+	shotMedianAPV0_->Fill(lShotMedian.first);
+	shotMedianAPV1_->Fill(lShotMedian.second);
+      }
+
       std::ostringstream lMode;
       lMode << buffer->readoutMode();
   
@@ -270,7 +352,13 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
 	medianAPV1_->Fill(medians.second);
 	medianAPV1vsAPV0_->Fill(medians.first,medians.second);
 	medianAPV1minusAPV0_->Fill(medians.second-medians.first);
-	medianAPV1minusAPV0perFED_[fedId]->Fill(iCh,medians.second-medians.first);
+	if (isShot) {
+	  diffMedianminusShotMedianAPV1_->Fill(medians.second-medians.first-lShotMedian.second);
+	  medianAPV0minusShot0_->Fill(medians.first-(lShotMedian.first+128));
+	  medianAPV1minusShot1_->Fill(medians.second-(lShotMedian.second+128));
+	}
+	medianAPV1minusAPV0perFED_[fedId]->Fill(medians.second-medians.first);
+	medianAPV1minusAPV0vsChperFED_[fedId]->Fill(iCh,medians.second-medians.first);
 	medianAPV1minusAPV0vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.second-medians.first);
 	medianAPV1vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.second);
 	medianAPV0vsTimeperFED_[fedId]->Fill(iEvent.id().event(),medians.first);
@@ -299,6 +387,8 @@ SiStripFEDMediansPlugin::analyze(const edm::Event& iEvent,
 
   }
 
+  firstEvent = false;
+
 }//analyze method
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -309,24 +399,16 @@ SiStripFEDMediansPlugin::beginJob(const edm::EventSetup&)
   dqm_ = &(*edm::Service<DQMStore>());
   dqm_->setCurrentFolder(folderName_);
 
+  shotMedianAPV0_ = dqm_->book1D("shotMedianAPV0","median shot APV0",100,-50,50);
+  shotMedianAPV1_ = dqm_->book1D("shotMedianAPV1","median shot APV1",100,-50,50);
   medianAPV0_ = dqm_->book1D("medianAPV0","median APV0",200,0,200);
   medianAPV1_ = dqm_->book1D("medianAPV1","median APV1",200,0,200);
   medianAPV1vsAPV0_ = dqm_->book2D("medianAPV1vsAPV0","median APV1 vs APV0",200,0,200,200,0,200);
   medianAPV1minusAPV0_ = dqm_->book1D("medianAPV1minusAPV0","median APV1 - median APV0",400,-200,200);
+  diffMedianminusShotMedianAPV1_ = dqm_->book1D("diffMedianminusShotMedianAPV1","(median APV1 - median APV0)-shot median APV1",500,-50,50);
+  medianAPV0minusShot0_ = dqm_->book1D("medianAPV0minusShot0","median APV0 - (median shot APV0+128)",100,-50,50);
+  medianAPV1minusShot1_ = dqm_->book1D("medianAPV1minusShot1","median APV1 - (median shot APV1+128)",100,-50,50);
 
-  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID;
-       fedId < FEDNumbering::MAXSiStripFEDID;
-       fedId++) {//loop over FED IDs
-    std::ostringstream lTitle,lTitleTime,lTitleTime0,lTitleTime1;
-    lTitle << "medianAPV1minusAPV0_" << fedId ;
-    lTitleTime << "medianAPV1minusAPV0vsTime_" << fedId ;
-    lTitleTime0 << "medianAPV0vsTime_" << fedId ;
-    lTitleTime1 << "medianAPV1vsTime_" << fedId ;
-    medianAPV1minusAPV0perFED_[fedId] = dqm_->bookProfile(lTitle.str().c_str(),"median APV1 - median APV0",96,0,96,-200,200);
-    medianAPV1minusAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime.str().c_str(),"median APV1 - median APV0",1000,0,12000,-200,200);
-    medianAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime0.str().c_str(),"median APV0",1000,0,12000,0,200);
-    medianAPV1vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime1.str().c_str(),"median APV1",1000,0,12000,0,200);
-  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -369,7 +451,7 @@ std::pair<uint16_t,uint16_t> SiStripFEDMediansPlugin::fillMedians(const std::str
   //7=0, 0=7, 1=6, 6=1, 8=15, 15=8, etc....
   uint8_t lWord1 = lData[aChannel.offset()^7];
   uint8_t lWord2 = lData[(aChannel.offset()+1)^7] & 0x0F;
-  uint8_t lWord3 = lData[(aChannel.offset()+2)^7];
+  //uint8_t lWord3 = lData[(aChannel.offset()+2)^7];
   uint8_t lWord4 = lData[(aChannel.offset()+3)^7];
   uint8_t lWord5 = lData[(aChannel.offset()+4)^7] & 0x03;
   uint8_t lWord6 = lData[(aChannel.offset()+5)^7];
@@ -392,6 +474,29 @@ std::pair<uint16_t,uint16_t> SiStripFEDMediansPlugin::fillMedians(const std::str
 //
 // Define as a plug-in
 //
+
+
+
+void SiStripFEDMediansPlugin::bookFEDHistograms(unsigned int fedId)
+{
+
+  std::ostringstream lTitle,lTitleCh,lTitleTime,lTitleTime0,lTitleTime1;
+  lTitle << "medianAPV1minusAPV0_" << fedId ;
+  lTitleCh << "medianAPV1minusAPV0vsCh_" << fedId ;
+  lTitleTime << "medianAPV1minusAPV0vsTime_" << fedId ;
+  lTitleTime0 << "medianAPV0vsTime_" << fedId ;
+  lTitleTime1 << "medianAPV1vsTime_" << fedId ;
+  medianAPV1minusAPV0perFED_[fedId] = dqm_->book1D(lTitle.str().c_str(),"median APV1 - median APV0",400,-200,200);
+  medianAPV1minusAPV0vsChperFED_[fedId] = dqm_->bookProfile(lTitleCh.str().c_str(),"median APV1 - median APV0",96,0,96,-200,200);
+  medianAPV1minusAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime.str().c_str(),"median APV1 - median APV0",timeConfig_.nBins,timeConfig_.min,timeConfig_.max,-200,200);
+  medianAPV0vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime0.str().c_str(),"median APV0",timeConfig_.nBins,timeConfig_.min,timeConfig_.max,0,200);
+  medianAPV1vsTimeperFED_[fedId] = dqm_->bookProfile(lTitleTime1.str().c_str(),"median APV1",timeConfig_.nBins,timeConfig_.min,timeConfig_.max,0,200);
+
+
+}
+
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripFEDMediansPlugin);

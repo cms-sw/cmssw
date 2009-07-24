@@ -12,5 +12,6 @@
   <use name=FWCore/Utilities>
   <use name=DQM/SiStripMonitorHardware>
   <use name=DQM/SiStripCommon>
+  <use name=DPGAnalysis/SiStripTools>
   <flags EDM_PLUGIN=1>
 </library>

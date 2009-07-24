@@ -12,5 +12,13 @@ siStripFEDMedians = cms.EDAnalyzer("SiStripFEDMediansPlugin",
   #Whether to write the DQM store to a file at the end of the run and the file name
   WriteDQMStore = cms.untracked.bool(True),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
+  digiCollection = cms.InputTag("siStripDigis","ZeroSuppressed"),
+
+  TimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(1000),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(10000)
+  )
 
 )
