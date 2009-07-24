@@ -107,7 +107,9 @@ void ClusterShape::determineShape
  data.isStraight = true;
  data.isComplete = true;
 
- x[0]=-1; x[1]=-1; olow=-2; ohig=-2; odir=0; low=0; hig=0;
+ x[0]=-1; x[1]=-1;
+ y[0]=-1; y[1]=-1;
+ olow=-2; ohig=-2; odir=0; low=0; hig=0;
  pair<int,int> pos;
 
  // Get a sort pixels
