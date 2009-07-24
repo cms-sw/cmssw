@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #Client:
 sipixelEDAClientP5 = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(False),
+    ActionOnLumiSection = cms.untracked.bool(True),
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(True),
     NoiseRateCutValue = cms.untracked.double(0.0001),
