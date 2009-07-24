@@ -1,9 +1,9 @@
 TimeReport> Report activated
 TimeReport> Report columns headings for events: eventnum runnum timetaken
 TimeReport> Report columns headings for modules: eventnum runnum modulelabel modulename timetakeni
-TimeReport> JobTime=1.24831e+09 JobCPU=5.87011
+TimeReport> JobTime=1.24837e+09 JobCPU=5.81212
 
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 23-Jul-2009 02:06:32 CEST
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at 23-Jul-2009 20:28:20 CEST
 pivot to beamline=(0,-1.66533e-16,0)
 endcap to beamline=(50,-0.02,316)
 
@@ -35,6 +35,8 @@ D0 = (44.3781,0.0399998,317.744)
 
  Pivot point in CMS coord = (5.3727,5.39784,1.51396)
 
+ Floor point in CMS coord = (-141.444,3.24153,41.6895)
+
 H0   Theta_x = 105.302,  Theta_y = 92.3328,  Theta_z = 15.4879,  eta = 1.9952
 
 H0   Phi_x = 0.841445,  Phi_y = 91.4801,  Phi_z = 9.93403
@@ -53,6 +55,8 @@ H0   Phi_x = 0.841445,  Phi_y = 91.4801,  Phi_z = 9.93403
  CMS IP in H4 coord = (13530.1,5.12112,-4.83466)
 
  Pivot point in CMS coord = (5.34615,5.42237,1.5056)
+
+ Floor point in CMS coord = (-141.47,3.28682,41.6874)
 
 H1   Theta_x = 105.305,  Theta_y = 93.6656,  Theta_z = 15.7587,  eta = 1.97765
 
@@ -73,6 +77,8 @@ H1   Phi_x = 0.833353,  Phi_y = 91.8379,  Phi_z = 14.9599
 
  Pivot point in CMS coord = (5.31231,5.45348,1.50261)
 
+ Floor point in CMS coord = (-141.498,3.2974,41.7025)
+
 H2   Theta_x = 105.312,  Theta_y = 99.5478,  Theta_z = 18.1705,  eta = 1.83315
 
 H2   Phi_x = 0.841391,  Phi_y = 93.4809,  Phi_z = 34.3095
@@ -91,6 +97,8 @@ H2   Phi_x = 0.841391,  Phi_y = 93.4809,  Phi_z = 34.3095
  CMS IP in H4 coord = (13531.2,5.65483,-4.93031)
 
  Pivot point in CMS coord = (5.44487,5.41597,1.50641)
+
+ Floor point in CMS coord = (-141.381,3.28048,41.6504)
 
 H3   Theta_x = 105.29,  Theta_y = 82.6532,  Theta_z = 17.0421,  eta = 1.89827
 
@@ -111,6 +119,8 @@ H3   Phi_x = 0.833273,  Phi_y = 88.8133,  Phi_z = -26.0602
 
  Pivot point in CMS coord = (5.44083,5.38129,1.48609)
 
+ Floor point in CMS coord = (-141.385,3.22498,41.6292)
+
 H4   Theta_x = 105.29,  Theta_y = 75.9814,  Theta_z = 20.9819,  eta = 1.68645
 
 H4   Phi_x = 0.841395,  Phi_y = 86.9276,  Phi_z = -43.6919
@@ -129,6 +139,8 @@ H4   Phi_x = 0.841395,  Phi_y = 86.9276,  Phi_z = -43.6919
  CMS IP in H4 coord = (13530,5.0985,-4.86657)
 
  Pivot point in CMS coord = (5.3805,5.48162,1.5022)
+
+ Floor point in CMS coord = (-141.223,3.01507,42.4319)
 
 V1   Theta_x = 105.597,  Theta_y = 94.7663,  Theta_z = 16.3446,  eta = 1.94066
 
@@ -149,6 +161,8 @@ V1   Phi_x = 0.963888,  Phi_y = 92.2976,  Phi_z = 18.8154
 
  Pivot point in CMS coord = (5.44882,5.38789,1.47106)
 
+ Floor point in CMS coord = (-142.35,4.67903,37.9278)
+
 V2   Theta_x = 103.856,  Theta_y = 94.984,  Theta_z = 14.7591,  eta = 2.04396
 
 V2   Phi_x = 0.274794,  Phi_y = 91.5074,  Phi_z = 20.8382
@@ -167,6 +181,8 @@ V2   Phi_x = 0.274794,  Phi_y = 91.5074,  Phi_z = 20.8382
  CMS IP in H4 coord = (13530.3,5.26508,-4.95125)
 
  Pivot point in CMS coord = (5.42366,5.50599,1.47939)
+
+ Floor point in CMS coord = (-143.402,6.61686,33.4749)
 
 V3   Theta_x = 102.133,  Theta_y = 95.1709,  Theta_z = 13.2198,  eta = 2.15521
 
@@ -187,6 +203,8 @@ V3   Phi_x = -0.427659,  Phi_y = 90.6871,  Phi_z = 23.3452
 
  Pivot point in CMS coord = (5.4972,5.36183,1.47222)
 
+ Floor point in CMS coord = (-144.208,8.27109,28.9299)
+
 V4   Theta_x = 100.391,  Theta_y = 95.3496,  Theta_z = 11.7148,  eta = 2.27703
 
 V4   Phi_x = -1.1133,  Phi_y = 89.8706,  Phi_z = 26.7158
@@ -206,6 +224,8 @@ V4   Phi_x = -1.1133,  Phi_y = 89.8706,  Phi_z = 26.7158
 
  Pivot point in CMS coord = (5.43074,5.35271,1.45581)
 
+ Floor point in CMS coord = (-144.989,10.0603,24.3858)
+
 V5   Theta_x = 98.6633,  Theta_y = 95.4773,  Theta_z = 10.2721,  eta = 2.40926
 
 V5   Phi_x = -1.79255,  Phi_y = 89.0446,  Phi_z = 30.9894
@@ -221,31 +241,65 @@ V5   Phi_x = -1.79255,  Phi_y = 89.0446,  Phi_z = 30.9894
 ====== Mean x of pivot = 5.40978 +- 0.0527025
 ====== Mean y of pivot = 5.4161 +- 0.0480776
 ====== Mean z of pivot = 1.48953 +- 0.0183411
-TimeModule> 1 1 cga SurveyToTransforms 7.54766
-TimeModule> 1 1 TriggerResults TriggerResultInserter 0.000200033
-TimeEvent> 1 1 7.54821 7.53785 7.53785
-MemoryReport> Peak virtual size 143.695 Mbytes
+
+====== Mean x of floor = -142.335 +- 1.30304
+====== Mean y of floor = 4.89735 +- 2.40606
+====== Mean z of floor = 37.5509 +- 6.10848
+
+
++++ HNormal for A =0, 0
++++ HNormal for B =0, 0
++++ HNormal for C =0.184644, -14.4051
++++ HNormal for D =0.029167, 7.20431
++++ HNormal for A =0, 0
++++ HNormal for B =0.092881, -13.7721
++++ HNormal for C =0, 0
++++ HNormal for D =0.0282814, 170.034
++++ HAverage      =0.0352477, -12.506
+
+
++++ VNormal for A =89.3548, -55.776
++++ VNormal for B =89.2061, -54.3736
++++ VNormal for C =90.9925, -55.6565
++++ VNormal for D =90.7426, -57.038
++++ VNormal for A =90.3138, -65.6781
++++ VNormal for B =90.3664, -65.5355
++++ VNormal for C =89.9678, -65.3128
++++ VNormal for D =89.8237, -66.6665
++++ VNormal for A =89.3694, -55.9272
++++ VNormal for B =89.4095, -56.3388
++++ VNormal for C =90.8361, -57.1416
++++ VNormal for D =90.7899, -56.5394
++++ VNormal for A =89.3694, -55.9272
++++ VNormal for B =89.4095, -56.3388
++++ VNormal for C =90.8361, -57.1416
++++ VNormal for D =90.7899, -56.5394
++++ VAverage      =90.0764, -58.3487
+TimeModule> 1 1 cga SurveyToTransforms 7.28058
+TimeModule> 1 1 TriggerResults TriggerResultInserter 0.000197887
+TimeEvent> 1 1 7.28114 7.27989 7.27989
+MemoryReport> Peak virtual size 143.711 Mbytes
  Key events increasing vsize: 
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
-[1] run: 1 event: 1  vsize = 143.695 deltaVsize = 0 rss = 94.0352 delta 0
+[1] run: 1 event: 1  vsize = 143.711 deltaVsize = 0 rss = 94.0547 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
 [0] run: 0 event: 0  vsize = 0 deltaVsize = 0 rss = 0 delta 0
-[1] run: 1 event: 1  vsize = 143.695 deltaVsize = 0 rss = 94.0352 delta 0
-TimeReport> Time report complete in 7.55045 seconds
+[1] run: 1 event: 1  vsize = 143.711 deltaVsize = 0 rss = 94.0547 delta 0
+TimeReport> Time report complete in 7.28341 seconds
  Time Summary: 
- - Min event:   7.54821
- - Max event:   7.54821
- - Avg event:   7.55045
- - Total job:   7.55045
+ - Min event:   7.28114
+ - Max event:   7.28114
+ - Avg event:   7.28341
+ - Total job:   7.28341
  CPU Summary: 
- - Min event:   7.53785
- - Max event:   7.53785
- - Avg event:   7.53785
- - Total job:   7.53985
- - Total event: 7.53785
+ - Min event:   7.27989
+ - Max event:   7.27989
+ - Avg event:   7.27989
+ - Total job:   7.28189
+ - Total event: 7.27989
 
 
 =============================================

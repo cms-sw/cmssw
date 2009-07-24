@@ -30,6 +30,7 @@
 #include "CLHEP/Geometry/Plane3D.h"
 
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -112,11 +113,13 @@ CaloGeometryLoaderTest<T>::makeGeometry( const DDCompactView*  cpv        ,
 template <class T>
 void
 CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
-				   const ParmVec&          vv ,
-				   const HepGeom::Transform3D&   tr ,
-				   const unsigned int      id     )
+				       const ParmVec&          vv ,
+				       const HepGeom::Transform3D&   tr ,
+				       const unsigned int      id     )
 {
+   static const double kRadToDeg ( 180/M_PI ) ;
    static const HepPoint3D PIVOT ( 13533.35, -000.02, 0 ) ;//-152.23 ) ;
+   static const HepPoint3D FLOOR ( 13533.35, -000.02, -152.23 ) ;//-152.23 ) ;
 
    static const HepPoint3D IP    ( 0, 0, 0 ) ;//-152.23 ) ;
    static HepPoint3D AA0 ;
@@ -272,6 +275,13 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       sur.push_back( HepPoint3D( 13864.43,  -39.60,   47.48 ) ) ;
       sur.push_back( HepPoint3D( 13856.81,  -38.43,  -11.13 ) ) ;
       sur.push_back( HepPoint3D( 13850.14,   34.78,   -8.95 ) ) ;
+      
+      double fsumx  ( 0 ) ;
+      double fsumy  ( 0 ) ;
+      double fsumz  ( 0 ) ;
+      double fsumx2 ( 0 ) ;
+      double fsumy2 ( 0 ) ;
+      double fsumz2 ( 0 ) ;
 
       double psumx  ( 0 ) ;
       double psumy  ( 0 ) ;
@@ -290,6 +300,9 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
       const std::string names[10] = { "H0", "H1",  "H2",  "H3",  "H4", 
 				      "V1", "V2",  "V3",  "V4",  "V5" } ;
+
+
+      HepTransform3D V3Transform ;
 
       for( unsigned int i ( 0 ) ; i != nsur ; ++i )
       {
@@ -313,6 +326,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	 const HepTransform3D trform ( A0, B0, C0,
 				       aa, bb, cc ) ;
+
 	 const HepTransform3D trforminv ( aa, bb, cc,
 					  A0, B0, C0 ) ;
 
@@ -323,6 +337,9 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 					      H4ToBeamLine*bb,
 					      H4ToBeamLine*cc,
 					      A0, B0, C0 ) ;
+
+	 if( 7 == i ) V3Transform = BeamLineToCMS ;
+
 	 const HepRotation blcmsrot ( BeamLineToCMS.getRotation() ) ;
 	 const HepVector3D blcmstra ( BeamLineToCMS.getTranslation() ) ;
 
@@ -332,7 +349,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 		  <<"\n\n C discrepancy is "<< (cc-SC)<<", "<< (cc-SC).mag()
 		  <<"\n\n D discrepancy is "<< (dd-SD)<<", "<< (dd-SD).mag()
 		  <<std::endl ;
-
+/*
 	 const double dxbb ( bb.x() - SB.x() ) ;
 	 const double dybb ( bb.y() - SB.y() ) ;
 	 const double dzbb ( bb.z() - SB.z() ) ;
@@ -340,7 +357,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 const double dxcc ( cc.x() - SC.x() ) ;
 	 const double dycc ( cc.y() - SC.y() ) ;
 	 const double dzcc ( cc.z() - SC.z() ) ;
-
+*/
 	 const double dxdd ( dd.x() - SD.x() ) ;
 	 const double dydd ( dd.y() - SD.y() ) ;
 	 const double dzdd ( dd.z() - SD.z() ) ;
@@ -376,15 +393,22 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 psumx2 += cmsPiv.x()*cmsPiv.x() ;
 	 psumy2 += cmsPiv.y()*cmsPiv.y() ;
 	 psumz2 += cmsPiv.z()*cmsPiv.z() ;
+	 const HepPoint3D cmsFlr ( trforminv*FLOOR ) ;
+	 fsumx += cmsFlr.x() ;
+	 fsumy += cmsFlr.y() ;
+	 fsumz += cmsFlr.z() ;
+	 fsumx2 += cmsFlr.x()*cmsFlr.x() ;
+	 fsumy2 += cmsFlr.y()*cmsFlr.y() ;
+	 fsumz2 += cmsFlr.z()*cmsFlr.z() ;
 
 	 const HepRotation rotInv ( trforminv.getRotation() ) ; 
 
 	 std::cout<<"\n CMS IP in H4 coord = "<<trform*IP<<std::endl ;
 	 std::cout<<"\n Pivot point in CMS coord = "<<cmsPiv<<std::endl ;
+	 std::cout<<"\n Floor point in CMS coord = "<<cmsFlr<<std::endl ;
 //	 std::cout<<"\n\nTransform rotation is "<<rotInv
 //		  <<"\n\n          translation="<<trforminv.getTranslation() <<std::endl ;
 
-	 static const double kRadToDeg ( 180/M_PI ) ;
 
 /*	 std::cout<<"\n"<<names[i]
 		  <<"   Theta_x == "<<(blcmsrot*HepPoint3D(1,0,0)).theta()*kRadToDeg
@@ -434,6 +458,271 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       std::cout<<"\n====== Mean x of pivot = "<< psumx <<" +- "<<psumx2 ;
       std::cout<<"\n====== Mean y of pivot = "<< psumy <<" +- "<<psumy2 ;
       std::cout<<"\n====== Mean z of pivot = "<< psumz <<" +- "<<psumz2 <<std::endl ;
+
+      fsumx /= ntot ;
+      fsumy /= ntot ;
+      fsumz /= ntot ;
+      fsumx2 = sqrt( fsumx2/ntot - fsumx*fsumx ) ;
+      fsumy2 = sqrt( fsumy2/ntot - fsumy*fsumy ) ;
+      fsumz2 = sqrt( fsumz2/ntot - fsumz*fsumz ) ;
+
+      std::cout<<"\n====== Mean x of floor = "<< fsumx <<" +- "<<fsumx2 ;
+      std::cout<<"\n====== Mean y of floor = "<< fsumy <<" +- "<<fsumy2 ;
+      std::cout<<"\n====== Mean z of floor = "<< fsumz <<" +- "<<fsumz2 <<std::endl ;
+
+      const HepVector3D hpl[] = { HepPlane3D( sur[16], sur[0], sur[8] ).normal(),
+				  HepPlane3D( sur[17], sur[1], sur[9] ).normal(),
+				  HepPlane3D( sur[18], sur[2], sur[10]).normal(),
+				  HepPlane3D( sur[19], sur[3], sur[11]).normal(),
+				  HepPlane3D( sur[16], sur[12], sur[8] ).normal(),
+				  HepPlane3D( sur[17], sur[13], sur[9] ).normal(),
+				  HepPlane3D( sur[18], sur[14], sur[10]).normal(),
+				  HepPlane3D( sur[19], sur[15], sur[11]).normal()   } ;
+
+      const HepVector3D hplavr ( 0.125*( hpl[0] + hpl[1] + hpl[2] + hpl[3] +
+					 hpl[4] + hpl[5] + hpl[6] + hpl[7]  ) ) ; 
+
+      std::cout<<"\n\n+++ HNormal for A ="<< hpl[0].theta()*kRadToDeg <<", "<<hpl[0].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for B ="<< hpl[1].theta()*kRadToDeg <<", "<<hpl[1].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for C ="<< hpl[2].theta()*kRadToDeg <<", "<<hpl[2].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for D ="<< hpl[3].theta()*kRadToDeg <<", "<<hpl[3].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for A ="<< hpl[4].theta()*kRadToDeg <<", "<<hpl[4].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for B ="<< hpl[5].theta()*kRadToDeg <<", "<<hpl[5].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for C ="<< hpl[6].theta()*kRadToDeg <<", "<<hpl[6].phi()*kRadToDeg
+	       <<  "\n+++ HNormal for D ="<< hpl[7].theta()*kRadToDeg <<", "<<hpl[7].phi()*kRadToDeg
+	       <<  "\n+++ HAverage      ="<< hplavr.theta()*kRadToDeg <<", "<<hplavr.phi()*kRadToDeg
+	       << std::endl; 
+
+      const HepVector3D vpl[] = { HepPlane3D( sur[20], sur[28], sur[36] ).normal(),
+				  HepPlane3D( sur[21], sur[29], sur[37] ).normal(),
+				  HepPlane3D( sur[22], sur[30], sur[38]).normal(),
+				  HepPlane3D( sur[23], sur[31], sur[39]).normal(),
+
+				  HepPlane3D( sur[20], sur[24], sur[36] ).normal(),
+				  HepPlane3D( sur[21], sur[25], sur[37] ).normal(),
+				  HepPlane3D( sur[22], sur[26], sur[38]).normal(),
+				  HepPlane3D( sur[23], sur[27], sur[39]).normal(),
+
+				  HepPlane3D( sur[20], sur[32], sur[36] ).normal(),
+				  HepPlane3D( sur[21], sur[33], sur[37] ).normal(),
+				  HepPlane3D( sur[22], sur[34], sur[38]).normal(),
+				  HepPlane3D( sur[23], sur[35], sur[39]).normal(),
+
+				  HepPlane3D( sur[20], sur[32], sur[36] ).normal(),
+				  HepPlane3D( sur[21], sur[33], sur[37] ).normal(),
+				  HepPlane3D( sur[22], sur[34], sur[38]).normal(),
+				  HepPlane3D( sur[23], sur[35], sur[39]).normal()
+      } ;
+
+      const HepVector3D vplavr ( 0.0625*( vpl[0] + vpl[1] + vpl[2] + vpl[3] +
+					  vpl[4] + vpl[5] + vpl[6] + vpl[7] +
+					  vpl[8] + vpl[9] + vpl[10] + vpl[11] +
+					  vpl[12] + vpl[13] + vpl[14] + vpl[15]  ) ) ; 
+
+      std::cout<<"\n\n+++ VNormal for A ="<< vpl[0].theta()*kRadToDeg <<", "<<vpl[0].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for B ="<< vpl[1].theta()*kRadToDeg <<", "<<vpl[1].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for C ="<< vpl[2].theta()*kRadToDeg <<", "<<vpl[2].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for D ="<< vpl[3].theta()*kRadToDeg <<", "<<vpl[3].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for A ="<< vpl[4].theta()*kRadToDeg <<", "<<vpl[4].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for B ="<< vpl[5].theta()*kRadToDeg <<", "<<vpl[5].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for C ="<< vpl[6].theta()*kRadToDeg <<", "<<vpl[6].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for D ="<< vpl[7].theta()*kRadToDeg <<", "<<vpl[7].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for A ="<< vpl[8].theta()*kRadToDeg <<", "<<vpl[8].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for B ="<< vpl[9].theta()*kRadToDeg <<", "<<vpl[9].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for C ="<< vpl[10].theta()*kRadToDeg <<", "<<vpl[10].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for D ="<< vpl[11].theta()*kRadToDeg <<", "<<vpl[11].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for A ="<< vpl[12].theta()*kRadToDeg <<", "<<vpl[12].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for B ="<< vpl[13].theta()*kRadToDeg <<", "<<vpl[13].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for C ="<< vpl[14].theta()*kRadToDeg <<", "<<vpl[14].phi()*kRadToDeg
+	       <<  "\n+++ VNormal for D ="<< vpl[15].theta()*kRadToDeg <<", "<<vpl[15].phi()*kRadToDeg
+	       <<  "\n+++ VAverage      ="<< vplavr.theta()*kRadToDeg <<", "<<vplavr.phi()*kRadToDeg
+	       << std::endl; 
+
+      unsigned int Hinput ( 0 ) ;
+      unsigned int Vinput ( 0 ) ;
+
+      std::cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+	       <<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+	       <<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
+	       <<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	       << std::endl ;
+
+      bool keepGoing ( true ) ;
+      while( keepGoing )
+      {
+
+	 std::cout<<"\n\n+++ Preparing to make two files for the table position you specify" ;
+
+	 std::cout<<"\n\n**Enter desired H position (integer, 25000-300000) [0 to quit]: "<<std::ends ;
+	 std::cin>>Hinput ;
+
+	 keepGoing = ( 0 != Hinput ) ;
+
+	 if( keepGoing )
+	 {
+	    std::cout<<"\n\n**Enter desired V position (integer, 5000-30000): "<<std::ends ;
+	    std::cin>>Vinput ;
+
+	    std::cout<<"\n\nH input value ="<<Hinput<<", V input value ="<<Vinput<<std::endl ;
+
+	    if(  25000 > Hinput ||
+		300000 < Hinput ||
+		  5000 > Vinput ||
+		 30000 < Vinput    )
+	    {
+	       std::cout<<"!!!!!!!! Invalid input(s), try again !!!!!!!"<<std::endl ;
+	    }
+	    else
+	    {
+	       // calculate transform parameters ================================================
+
+
+//	       const HepPlane3D plaV ( sur[20], sur[28], sur[36] ) ;
+//	       const double angleVPerUnit ( ( plaV.point( sur[36] ) - PIVOT ).angle(
+//					       plaV.point( sur[20] ) - PIVOT ) ) ;
+
+//	       const HepPlane3D plaH ( sur[16], sur[0], sur[8] ) ;
+//	       const double angleHPerUnit ( ( plaH.point( sur[8] ) - PIVOT ).angle(
+//					       plaH.point( sur[16] ) - PIVOT ) ) ;
+
+	       const double angleHPerUnit ( ( sur[8] - PIVOT ).angle( sur[16] - PIVOT )/176458. ) ;
+	       std::cout<<"angleHPerUnit="<<kRadToDeg*angleHPerUnit*1.e3<<std::endl ;
+
+	       const double angleVPerUnit ( ( sur[36] - PIVOT ).angle( sur[20] - PIVOT )/16000. ) ;
+	       std::cout<<"angleVPerUnit="<<kRadToDeg*angleVPerUnit*1.e3<<std::endl ;
+
+	       const HepRotate3D  vRotate ( ( Vinput -  16000 )*angleVPerUnit, vpl[0] ) ;
+	       const HepRotateZ3D hRotate ( ( Hinput - 191000 )*angleHPerUnit ) ;
+
+	       const HepTransform3D myTrf ( V3Transform*hRotate*vRotate ) ;
+
+	       const HepRotation myRot  ( myTrf.getRotation()    ) ;
+	       const HepVector3D myTran ( myTrf.getTranslation() ) ;
+	       
+	       const double TthetaX ( myRot.thetaX() ) ;
+	       const double TthetaY ( myRot.thetaY() ) ;
+	       const double TthetaZ ( myRot.thetaZ() ) ;
+	       const double TphiX   ( myRot.phiX() ) ;
+	       const double TphiY   ( myRot.phiY() ) ;
+	       const double TphiZ   ( myRot.phiZ() ) ;
+	       const double Txtra   ( myTran.x() ) ;
+	       const double Tytra   ( myTran.y() ) ;
+	       const double Tztra   ( myTran.z() ) ;
+	       const double TetaZ   ( -log(tan(TthetaZ/2.)) ) ;
+	    
+	       // write to files ================================================================
+
+	       std::stringstream ssTxtra ;
+	       ssTxtra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+		      << Txtra << "*cm" ;
+	       const std::string strTxtra ( ssTxtra.str() ) ;
+	       std::stringstream ssTytra ;
+	       ssTytra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+		      << Tytra << "*cm" ;
+	       const std::string strTytra ( ssTytra.str() ) ;
+	       std::stringstream ssTztra ;
+	       ssTztra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+		      << Tztra << "*cm" ;
+	       const std::string strTztra ( ssTztra.str() ) ;
+
+	       std::stringstream ssTetaZ ;
+	       ssTetaZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+		      << TetaZ ;
+	       const std::string strTetaZ ( ssTetaZ.str() ) ;
+
+	       std::stringstream ssTthetaX ;
+	       ssTthetaX<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+			<< TthetaX*kRadToDeg << "*deg" ;
+	       const std::string strTthetaX ( ssTthetaX.str() ) ;
+	       std::stringstream ssTphiX ;
+	       ssTphiX<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		      << TphiX*kRadToDeg << "*deg" ;
+	       const std::string strTphiX ( ssTphiX.str() ) ;
+
+	       std::stringstream ssTthetaY ;
+	       ssTthetaY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+			<< TthetaY*kRadToDeg << "*deg" ;
+	       const std::string strTthetaY ( ssTthetaY.str() ) ;
+	       std::stringstream ssTphiY ;
+	       ssTphiY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		      << TphiY*kRadToDeg << "*deg" ;
+	       const std::string strTphiY ( ssTphiY.str() ) ;
+	    
+	       std::stringstream ssTthetaZ ;
+	       ssTthetaZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+			<< TthetaZ*kRadToDeg << "*deg" ;
+	       const std::string strTthetaZ ( ssTthetaZ.str() ) ;
+	       std::stringstream ssTphiZ ;
+	       ssTphiZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		      << TphiZ*kRadToDeg << "*deg" ;
+	       const std::string strTphiZ ( ssTphiZ.str() ) ;
+	       std::stringstream ssTphiZr ;
+	       ssTphiZr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		       << TphiZ ;
+	       const std::string strTphiZr ( ssTphiZr.str() ) ;
+	       //-------------- first tbrot file ---------------------------
+	       std::stringstream ss ;
+	       ss<<"tbrot_H"<<std::setw(6)<<std::setfill('0')<< Hinput 
+		 <<"_V"<<std::setw(5)<<std::setfill('0')<< Vinput 
+		 <<".xml"<<std::ends ;
+	       const std::string myname ( ss.str() ) ;
+
+	       std::ofstream tbrotfile ( myname.c_str() ) ;
+
+	       tbrotfile<<"<?xml version=\"1.0\"?>"
+			<<"<DDDefinition xmlns=\"http://www.cern.ch/cms/DDL\""
+			<<"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+			<<"xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../"
+			<<"DetectorDescription/Schema/DDLSchema.xsd\">"
+			<<"\n\n<ConstantsSection  label=\"tbrot.xml\" eval=\"true\" >"
+			<<"\n\n<Constant name=\"eta\"        value=\""<<strTetaZ<<"\"/>"
+//			<<"\n\n<Constant name=\"theta\"      value=\"2*atan(exp(-[tbrot:eta]))\"/>"
+			<<"\n\n<Constant name=\"theta\"      value=\""<<strTthetaZ<<"\"/>"
+			<<"\n\n<Constant name=\"phi\"        value=\""<<strTphiZ<<"\"/>"
+			<<"\n\n<Constant name=\"theta_X\"    value=\""<<strTthetaX<<"\"/>"
+			<<"\n\n<Constant name=\"phi_X\"      value=\""<<strTphiX<<"\"/>"
+			<<"\n\n<Constant name=\"theta_Y\"    value=\""<<strTthetaY<<"\"/>"
+			<<"\n\n<Constant name=\"phi_Y\"      value=\""<<strTphiY<<"\"/>"
+			<<"\n\n<Constant name=\"xtran\"        value=\""<<strTxtra<<"\"/>"
+			<<"\n<Constant name=\"ytran\"        value=\""<<strTytra<<"\"/>"
+			<<"\n<Constant name=\"ztran\"        value=\""<<strTztra<<"\"/>"
+			<<"\n\n</ConstantsSection>"
+			<<"\n\n</DDDefinition>"
+			<<std::endl ;
+	    
+	       tbrotfile.close() ;
+	    
+	       //--------------- now beam paramter file ----------------------
+
+	       std::stringstream ss2 ;
+	       ss2<<"ee_beam_H"<<std::setw(6)<<std::setfill('0')<< Hinput 
+		  <<"_V"<<std::setw(5)<<std::setfill('0')<< Vinput 
+		  <<"_cff.py"<<std::ends ;
+	       const std::string myname2 ( ss2.str() ) ;
+
+	       std::ofstream beamfile ( myname2.c_str() ) ;
+
+	       beamfile<<"import FWCore.ParameterSet.Config as cms"
+		       <<"\n\n common_beam_direction_parameters = cms.PSet("
+		       <<"\n    MinEta = cms.double("<< strTetaZ <<"),"
+		       <<"\n    MaxEta = cms.double("<< strTetaZ <<"),"
+		       <<"\n    MinPhi = cms.double("<< strTphiZr <<"),"
+		       <<"\n    MaxPhi = cms.double("<< strTphiZr <<"),"
+		       <<"\n    BeamMeanX = cms.double(0.0),"
+		       <<"\n    BeamMeanY = cms.double(0.0),"
+		       <<"\n    BeamPosition = cms.double(-26733.5)\n    )"
+		       <<std::endl;
+	    
+	       beamfile.close() ;
+	    }
+	 }
+      }
    }
 }
 
