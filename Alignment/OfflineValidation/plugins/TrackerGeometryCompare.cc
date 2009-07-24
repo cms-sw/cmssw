@@ -323,7 +323,9 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		//std::cout << "ali identifiers: " << refAli->id() << ", " << refAli->alignableObjectId() << std::endl;
 		//std::cout << "diff pos" << (refAli->globalPosition() - curAli->globalPosition()) << std::endl;
 		//std::cout <<"z";
-	        CLHEP::Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
+
+		CLHEP::Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
+
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		lRtotal.set(0.,0.,0.); lWtotal.set(0.,0.,0.);
 		for (int i = 0; i < 100; i++){
@@ -381,12 +383,17 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 		
 	diffCommonTrackerSystem(referenceTracker, currentTracker);
 	
-	align::RotationType rot = align::toMatrix( _TrackerCommonR );
+	align::EulerAngles dOmega(3); dOmega[0] = _TrackerCommonR.x() ; dOmega[1] = _TrackerCommonR.y(); dOmega[2] = _TrackerCommonR.z();
+	align::RotationType rot = align::toMatrix( dOmega );
 	align::GlobalVector theR = _TrackerCommonT;
+	
+	std::cout << "what we get from overlaying the pixels..." << theR << ", " << rot << std::endl;
 	
 	//transform to the Tracker System
 	align::PositionType trackerCM = currentTracker->globalPosition();
 	align::GlobalVector cmDiff( trackerCM.x()-_TrackerCommonCM.x(), trackerCM.y()-_TrackerCommonCM.y(), trackerCM.z()-_TrackerCommonCM.z() );
+	
+	std::cout << "Pixel CM: " << _TrackerCommonCM << ", tracker CM: " << trackerCM << std::endl;
 	
 	//adjust translational difference factoring in different rotational CM
 	//needed because rotateInGlobalFrame is about CM of alignable, not Tracker
@@ -396,7 +403,9 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	
 	AlgebraicVector TrackerCommonTR(6);
 	TrackerCommonTR(1) = theRprime.x(); TrackerCommonTR(2) = theRprime.y(); TrackerCommonTR(3) = theRprime.z();
-	TrackerCommonTR(4) = _TrackerCommonR(1); TrackerCommonTR(5) = _TrackerCommonR(2); TrackerCommonTR(6) = _TrackerCommonR(3);
+	TrackerCommonTR(4) = _TrackerCommonR.x(); TrackerCommonTR(5) = _TrackerCommonR.y(); TrackerCommonTR(6) = _TrackerCommonR.z();
+	
+	std::cout << "and after the transformation: " << TrackerCommonTR << std::endl;
 	
 	align::moveAlignable(currentTracker, TrackerCommonTR );
 	
@@ -410,44 +419,44 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 	unsigned int nComp = refComp.size();
 	//only perform for designate levels
 	bool useLevel = false;
-	for (unsigned int i = 0; i < theLevels.size(); ++i){
-		if (refAli->alignableObjectId() == _commonTrackerLevel) useLevel = true;
-	}
+	if (refAli->alignableObjectId() == _commonTrackerLevel) useLevel = true;
 	
+	//useLevel = false;
 	if (useLevel){
 		CLHEP::Hep3Vector Rtotal, Wtotal;
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		
-		for (int i = 0; i < 100; i++){
-			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
-			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
-			Rtotal+=dR;
-			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
-			CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
-			CLHEP::HepRotation drot(dW.unit(),dW.mag());
-			rot*=drot;
-			Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
-			//std::cout << "a";
-			//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
-			align::moveAlignable(curAli, diff);
-			float tolerance = 1e-7;
-			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
-			align::GlobalVector checkR(check[0],check[1],check[2]);
-			align::GlobalVector checkW(check[3],check[4],check[5]);
-			DetId detid(refAli->id());
-			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
-				edm::LogInfo("TrackerGeometryCompare") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
-				<< ", rawId: " << refAli->geomDetId().rawId()
-				<< ", subdetId: "<< detid.subdetId() << "): " << diff;
-			}
-			else{
-				break;
-			}
-		}
+		AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
+		CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
+		Rtotal+=dR;
+		CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
+		CLHEP::HepRotation rot(Wtotal.unit(),Wtotal.mag());
+		CLHEP::HepRotation drot(dW.unit(),dW.mag());
+		rot*=drot;
+		Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
+		/*
+		 //std::cout << "a";
+		 //if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
+		 align::moveAlignable(curAli, diff);
+		 float tolerance = 1e-7;
+		 AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
+		 align::GlobalVector checkR(check[0],check[1],check[2]);
+		 align::GlobalVector checkW(check[3],check[4],check[5]);
+		 DetId detid(refAli->id());
+		 if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
+		 edm::LogInfo("TrackerGeometryCompare") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
+		 << ", rawId: " << refAli->geomDetId().rawId()
+		 << ", subdetId: "<< detid.subdetId() << "): " << diff;
+		 }
+		 else{
+		 break;
+		 }
+		 }
+		 */
 		
 		//_TrackerCommonT.set(Rtotal.x(), Rtotal.y(), Rtotal.z());
 		_TrackerCommonT = align::GlobalVector(Rtotal.x(), Rtotal.y(), Rtotal.z());
-		_TrackerCommonR(1) = Wtotal.x(); _TrackerCommonR(2) = Wtotal.y(); _TrackerCommonR(3) = Wtotal.z();
+		_TrackerCommonR = align::GlobalVector(Wtotal.x(), Wtotal.y(), Wtotal.z());
 		_TrackerCommonCM = curAli->globalPosition();
 		//_TrackerCommonTR(1) = Rtotal.x(); _TrackerCommonTR(2) = Rtotal.y(); _TrackerCommonTR(3) = Rtotal.z();
 		//_TrackerCommonTR(4) = Wtotal.x(); _TrackerCommonTR(5) = Wtotal.y(); _TrackerCommonTR(6) = Wtotal.z();
@@ -455,7 +464,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 		
 	}
 	else{
-		for (unsigned int i = 0; i < nComp; ++i) compareGeometries(refComp[i],curComp[i]);
+		for (unsigned int i = 0; i < nComp; ++i) diffCommonTrackerSystem(refComp[i],curComp[i]);
 	}
 	
 	

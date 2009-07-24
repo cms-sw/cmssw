@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2008/06/17 15:35:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/02/17 14:19:19 $
+ *  $Revision: 1.8 $
  *  \author Nhan Tran
  */
 
@@ -105,7 +105,7 @@ private:
 	std::vector< uint32_t > _detIdFlagVector;
 	align::StructureType _commonTrackerLevel;
 	align::GlobalVector _TrackerCommonT;
-	align::EulerAngles _TrackerCommonR;
+	align::GlobalVector _TrackerCommonR;
 	align::PositionType _TrackerCommonCM;
 	
 	//root configuration
