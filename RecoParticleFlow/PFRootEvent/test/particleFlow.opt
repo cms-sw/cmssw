@@ -5,6 +5,7 @@ root outtree 1
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
+//root file /castor/cern.ch/user/l/lacroix/MET_Validation/ttbar_fastsim_310_pre11_muonAndJEC/display_001.root
 
 // filter ------------------------------------------------------------
 
@@ -471,9 +472,6 @@ pfmet_benchmark debug 0
 //pfmet benchmark outputfile
 pfmet_benchmark outmetfile pfmetBenchmark.root
 
-//PlotagainstReco  yes/no
-pfmet_benchmark PlotAgainstReco 0
-
 //MET cut
 pfmet_benchmark truemetcut 10.0
 
@@ -482,6 +480,11 @@ pfmet_benchmark deltametcut 200.0
 
 //phi cut (absolute value)
 pfmet_benchmark deltaphicut 3.8
+
+// true_MET
+pfmet_benchmark trueMetIgnoreParticlesIDs 1 2 3 4 5 6 12 14 16 21 39 1000022
+pfmet_benchmark trueMetSpecificIdCut 13
+pfmet_benchmark trueMetSpecificEtaCut 2.4
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

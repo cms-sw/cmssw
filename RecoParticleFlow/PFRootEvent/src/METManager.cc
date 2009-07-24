@@ -84,6 +84,17 @@ void METManager::setMET2(const reco::PFCandidateCollection& pfCandidates)
   MET2_=recomputePFMET(pfCandidates);
 }
 
+void METManager::SetIgnoreParticlesIDs(const std::vector<unsigned int>* vIgnoreParticlesIDs)
+{
+  vIgnoreParticlesIDs_=(*vIgnoreParticlesIDs);
+}
+
+void METManager::SetSpecificIdCut(const std::vector<unsigned int>* Id, const std::vector<double>* Eta)
+{
+  trueMetSpecificIdCut_=(*Id);
+  trueMetSpecificEtaCut_=(*Eta);
+}
+
 reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genParticleList) const
 {
 
@@ -98,22 +109,23 @@ reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genPartic
     //std::cout << "(*genParticleList)[i].eta() = " << (*genParticleList)[i].eta() << std::endl;
 
     if( (*genParticleList)[i].status() == 1 && fabs((*genParticleList)[i].eta()) < 5.0 ) { 
-//      if( abs((*genParticleList)[i].pdgId()) == 12 ||
-//	  abs((*genParticleList)[i].pdgId()) == 14 ||
-//	  abs((*genParticleList)[i].pdgId()) == 16 || 
-//	  abs((*genParticleList)[i].pdgId()) < 7   || 
-//	  abs((*genParticleList)[i].pdgId()) == 21 ) {
-//	trueMEX += (*genParticleList)[i].px();
-//	trueMEY += (*genParticleList)[i].py();
-//      } else {
-//	true_set += (*genParticleList)[i].pt();
-      if( abs((*genParticleList)[i].pdgId()) != 12 &&
-	  abs((*genParticleList)[i].pdgId()) != 14 &&
-	  abs((*genParticleList)[i].pdgId()) != 16 && 
-	  abs((*genParticleList)[i].pdgId()) >= 7  && 
-	  abs((*genParticleList)[i].pdgId()) != 21 ) {
-	trueMEX -= (*genParticleList)[i].px();
-	trueMEY -= (*genParticleList)[i].py();
+
+      bool ignoreThisPart=false;
+      if (vIgnoreParticlesIDs_.size()==0) std::cout << "Warning : METManager: vIgnoreParticlesIDs_.size()==0" << std::endl;
+      for (unsigned int idc=0;idc<vIgnoreParticlesIDs_.size();++idc)
+      {
+	if(abs((*genParticleList)[i].pdgId()) == vIgnoreParticlesIDs_[idc]) ignoreThisPart=true;
+      }
+      for (unsigned int specificIdc=0;specificIdc<trueMetSpecificIdCut_.size();++specificIdc)
+      {
+        if (abs((*genParticleList)[i].pdgId())==trueMetSpecificIdCut_[specificIdc] && fabs((*genParticleList)[i].eta()) > trueMetSpecificEtaCut_[specificIdc]) ignoreThisPart=true;
+      }
+
+      if (!ignoreThisPart) {
+	//trueMEX -= (*genParticleList)[i].px();
+	//trueMEY -= (*genParticleList)[i].py();
+	trueMEX -= (*genParticleList)[i].et()*cos((*genParticleList)[i].phi());
+	trueMEY -= (*genParticleList)[i].et()*sin((*genParticleList)[i].phi());
 	true_set += (*genParticleList)[i].pt();
       }
     }

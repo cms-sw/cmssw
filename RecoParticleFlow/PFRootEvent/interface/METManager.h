@@ -49,6 +49,9 @@ class METManager {
   void propagateJECtoMET2(const std::vector<reco::CaloJet> caloJets,
 		    const std::vector<reco::CaloJet> corr_caloJets);
 
+  void SetIgnoreParticlesIDs(const std::vector<unsigned int>*);
+  void SetSpecificIdCut(const std::vector<unsigned int>*, const std::vector<double>*);
+
  private:
  
   /// private functions
@@ -64,6 +67,9 @@ class METManager {
   std::map<std::string,GenericBenchmark> GenBenchmarkMap_;
   std::string outmetfilename_;
   TFile* outfile_;
+  std::vector<unsigned int> vIgnoreParticlesIDs_;
+  std::vector<unsigned int> trueMetSpecificIdCut_;
+  std::vector<double> trueMetSpecificEtaCut_;
 
 };
 

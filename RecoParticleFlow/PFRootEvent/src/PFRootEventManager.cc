@@ -20,7 +20,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 
-
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/METManager.h"
@@ -221,10 +220,7 @@ void PFRootEventManager::readOptions(const char* file,
 
     bool pfmetBenchmarkDebug;
     options_->GetOpt("pfmet_benchmark", "debug", pfmetBenchmarkDebug);
-    
-    bool plotAgainstReco=0;
-    options_->GetOpt("pfmet_benchmark", "plotAgainstReco", plotAgainstReco);
-    
+        
     MET1cut = 10.0;
     options_->GetOpt("pfmet_benchmark", "truemetcut", MET1cut);
     
@@ -234,20 +230,18 @@ void PFRootEventManager::readOptions(const char* file,
     DeltaPhicut = 0.8;
     options_->GetOpt("pfmet_benchmark", "deltaphicut", DeltaPhicut);
     
-//    fastsim_=true;
-//    options_->GetOpt("Simulation","Fast",fastsim_);
+    std::vector<unsigned int> vIgnoreParticlesIDs;
+    options_->GetOpt("pfmet_benchmark", "trueMetIgnoreParticlesIDs", vIgnoreParticlesIDs);
+    //std::cout << "FL: vIgnoreParticlesIDs.size() = " << vIgnoreParticlesIDs.size() << std::endl;
+    //std::cout << "FL: first = " << vIgnoreParticlesIDs[0] << std::endl;
+    metManager_->SetIgnoreParticlesIDs(&vIgnoreParticlesIDs);
 
-// -----------------------------------
-// PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
-    std::string xbenchmarkLabel_ = "ParticleFlow";
-    DQMStore* xdbe_;
-    xdbe_ = 0; //edm::Service<DQMStore>().operator->();
-    PFMETBenchmark_.setup( "old_pfmetBenchmark.root", 
-                           pfmetBenchmarkDebug,
-                           plotAgainstReco,
-			   xbenchmarkLabel_, 
-			   xdbe_);
-// -----------------------------------
+    std::vector<unsigned int> trueMetSpecificIdCut;
+    std::vector<double> trueMetSpecificEtaCut;
+    options_->GetOpt("pfmet_benchmark", "trueMetSpecificIdCut", trueMetSpecificIdCut);
+    options_->GetOpt("pfmet_benchmark", "trueMetSpecificEtaCut", trueMetSpecificEtaCut);
+    if (trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()) std::cout << "Warning: PFRootEventManager: trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()" << std::endl;
+    else metManager_->SetSpecificIdCut(&trueMetSpecificIdCut,&trueMetSpecificEtaCut);
 
   }
 
@@ -1431,7 +1425,6 @@ PFRootEventManager::~PFRootEventManager() {
 void PFRootEventManager::write() {
 
   if(doPFJetBenchmark_) PFJetBenchmark_.write();
-  if(doPFMETBenchmark_) PFMETBenchmark_.write(); // PFMETBenchmark staff
   if(doPFMETBenchmark_) metManager_->write();
 
   if(!outFile_) return;
@@ -1580,41 +1573,6 @@ bool PFRootEventManager::processEntry(int entry) {
       metManager_->propagateJECtoMET2(caloJetsCMSSW_, corrcaloJetsCMSSW_);
       metManager_->FillHisto("corrCalo");
     }
-
-
-    // -----------------------------------
-    // PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
-    if ( doMet_ ) { 
-      reconstructPFMets();
-      if (JECinCaloMet_)
-      {
-	//std::cout << "JECinCaloMet !!! " << std::endl;
-	PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_,
-        tcMetsCMSSW_, caloJetsCMSSW_, corrcaloJetsCMSSW_ );
-      }
-      else
-      {
-	PFMETBenchmark_.calculateQuantities( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-      }
-    } else {
-      if (JECinCaloMet_)
-      {
-	PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_,
-        caloJetsCMSSW_, corrcaloJetsCMSSW_ );
-      }
-      else
-      {
-	PFMETBenchmark_.calculateQuantities( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-      }
-    }
-    const float trueMET = PFMETBenchmark_.getTrueMET();
-    if(trueMET > MET1cut) { 
-      if ( doMet_ ) 
-      	PFMETBenchmark_.process( pfMets_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-      else PFMETBenchmark_.process( pfMetsCMSSW_, genParticlesCMSSW_, caloMetsCMSSW_, tcMetsCMSSW_ );
-    }
-    // -----------------------------------
-
   }// end PFMET Benchmark
     
   // evaluate tau Benchmark   
@@ -2505,57 +2463,6 @@ void PFRootEventManager::reconstructPFJets() {
   } // end loop on protojets iterator IPJ
 
 }
-
-// -----------------------------------
-// PFMETBenchmark staff. This will be removed when all the plots will be made in METManager.
-void PFRootEventManager::reconstructPFMets() {
-
-  typedef math::XYZTLorentzVector LorentzVector;
-  typedef math::XYZPoint Point;
-
-  if (verbosity_ == VERBOSE || jetsDebug_) {
-    cout<<endl;
-    cout<<"start reconstruct PF Met --- "<<endl;
-  }
-  pfMets_.clear();
-  pfCandidatesPtrs_.clear();
-    
-  for( unsigned i=0; i<pfCandidates_->size(); i++) {
-    reco::CandidatePtr candPtr( pfCandidates_.get(), i );
-    pfCandidatesPtrs_.push_back( candPtr );
-  }
-
-  double sum_et = 0.0;
-  double sum_ex = 0.0;
-  double sum_ey = 0.0;
-  double sum_ez = 0.0;
-  for (unsigned int pfc=0;pfc<pfCandidatesPtrs_.size();++pfc) {
-    double phi   = pfCandidatesPtrs_[pfc]->phi();
-    double theta = pfCandidatesPtrs_[pfc]->theta();
-    double e     = pfCandidatesPtrs_[pfc]->energy();
-    double et    = e*sin(theta);
-    sum_ez += e*cos(theta);
-    sum_et += et;
-    sum_ex += et*cos(phi);
-    sum_ey += et*sin(phi);
-  }
-
-  double met = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  const LorentzVector p4( -sum_ex, -sum_ey, 0.0, met);
-  const Point vtx(0.0,0.0,0.0);
- 
-  SpecificPFMETData specific;
-  // Initialize the container
-  specific.NeutralEMFraction = 0.0;
-  specific.NeutralHadFraction = 0.0;
-  specific.ChargedEMFraction = 0.0;
-  specific.ChargedHadFraction = 0.0;
-  specific.MuonFraction = 0.0;
-
-  reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
-  pfMets_.push_back(specificPFMET);
-}
-// -----------------------------------
 
 void 
 PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates, vector<ProtoJet>& output ) {
