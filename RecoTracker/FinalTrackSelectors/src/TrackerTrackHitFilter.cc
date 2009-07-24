@@ -405,10 +405,30 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	++end;
       }
  
+         // if we still have some hits build the track candidate
+      if(replaceWithInactiveHits_){
+	int nvalidhits=0;
+	for( std::vector<TrackingRecHit *>::iterator ithit=begin;ithit!=end;++ithit){
+	  if( (*ithit)->isValid())nvalidhits++;
+	}
+	if(nvalidhits >= int(minimumHits_)){
+	  output->push_back( makeCandidate ( *trk, begin, end ) );
+	}
+	nvalidhits=0;
+      }
+      else{//all invalid hits have been already kicked out
+	if ((end - begin) >= int(minimumHits_)) {
+	  output->push_back( makeCandidate ( *trk, begin, end ) );
+	} 
+      }
+
+
       // if we still have some hits build the track candidate
-      if ((end - begin) >= int(minimumHits_)) {
-	output->push_back( makeCandidate ( *trk, begin, end ) );
-      } 
+      //if ((end - begin) >= int(minimumHits_)) {
+      //	output->push_back( makeCandidate ( *trk, begin, end ) );
+      //}
+
+ 
       // now delete the hits not used by the candidate
       for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 	if (*begin) delete *begin;
@@ -465,9 +485,22 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       }
       
       // if we still have some hits build the track candidate
-      if ((end - begin) >= int(minimumHits_)) {
+      if(replaceWithInactiveHits_){
+	int nvalidhits=0;
+	for( std::vector<TrackingRecHit *>::iterator ithit=begin;ithit!=end;++ithit){
+	  if( (*ithit)->isValid())nvalidhits++;
+	}
+	if(nvalidhits >= int(minimumHits_)){
 	  output->push_back( makeCandidate ( *ittrk, begin, end ) );
-      } 
+	}
+
+      }
+      else{//all invalid hits have been already kicked out
+	if ((end - begin) >= int(minimumHits_)) {
+	  output->push_back( makeCandidate ( *ittrk, begin, end ) );
+	} 
+      }
+
       // now delete the hits not used by the candidate
       for (begin = hits.begin(), end = hits.end(); begin != end; ++begin) {
 	if (*begin) delete *begin;
