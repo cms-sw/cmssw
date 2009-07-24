@@ -54,10 +54,13 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
     if(HistoMaps_On_ ) {Tk_HM_->fill(detId, cablingHandle_->nApvPairs(detId)*2);}
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-            fillTkMap(detId,cablingHandle_->getConnections(detId).size()*2.); //fill with numb of active APVs
-      //          fillTkMap(detId,2.); //fill with numb of active APV
-    }
 
+    int32_t n_conn = 0;
+      for(int connDet_i=0; connDet_i<cablingHandle_->getConnections(detId).size(); connDet_i++){
+	if(cablingHandle_->getConnections(detId)[connDet_i].isConnected()!=0) n_conn++;
+      }
+      fillTkMap(detId,n_conn*2.); 
+    }
     switch (subdet.subdetId()) 
       {
       case StripSubdetector::TIB:
