@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
@@ -52,8 +53,8 @@
 // Constructors --
 //----------------
 
-DTTrig::DTTrig(const  edm::ParameterSet &params) : 
-  _configid(0) , _geomid(0) , _t0id(0) , _ttrigid(0) {
+DTTrig::DTTrig(const  edm::ParameterSet &params) :
+ _inputexist(1) ,  _configid(0) , _geomid(0) , _t0id(0) , _ttrigid(0) {
 
   // Set configuration parameters
   // _debug = _conf_manager->getDTTPGDebug();
@@ -180,13 +181,24 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 
 void 
 DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  
   updateES(iSetup);
+  if (!_inputexist) return;
 
   DTDigiMap digiMap;
   //Sort digis by chamber so they can be used by BTIs
   edm::Handle<DTDigiCollection> dtDigis;
-  iEvent.getByLabel(_digitag, dtDigis);   
+  iEvent.getByLabel(_digitag, dtDigis);
+
+  if (!dtDigis.isValid()) {
+    LogDebug("DTTrig")
+      << "DTTrig::triggerReco DTDigiCollection  with input tag " << _digitag
+      << "requested in configuration, but not found in the event." << std::endl;
+   
+    _inputexist = false;
+    return;
+  }
+   
   DTDigiCollection::DigiRangeIterator detUnitIt;
   
   for (detUnitIt=dtDigis->begin();
