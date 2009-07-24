@@ -278,14 +278,13 @@ void TrackClassifier::processesAtGenerator()
                 // Check if the particle exist in the table
                 if (particleData)
                 {
-                    bool longlived = false;
                     // Check if their life time is bigger than longLivedDecayLength_
                     if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
                         // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
-                        longlived = true;
+                        update(flags_[LongLivedDecay], true);
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[TauDecay], pdgid == 15);
@@ -293,19 +292,8 @@ void TrackClassifier::processesAtGenerator()
                     update(flags_[LambdaDecay], pdgid == 3122);
                     update(flags_[Jpsi], pdgid == 443);
                     update(flags_[Xi], pdgid == 3312);
-                    update(flags_[Omega], pdgid == 3334);
-                    update(
-                        flags_[LongLivedDecay],
-                        !flags_[BWeakDecay] &&
-                        !flags_[CWeakDecay] &&
-                        !flags_[TauDecay] &&
-                        !flags_[KsDecay] &&
-                        !flags_[LambdaDecay] &&
-                        !flags_[Jpsi] &&
-                        !flags_[Xi] &&
-                        !flags_[Omega] &&
-                        longlived
-                    );
+                    update(flags_[SigmaPlus], pdgid == 3222);
+                    update(flags_[SigmaMinus], pdgid == 3112);
                 }
             }
         }
@@ -376,15 +364,15 @@ void TrackClassifier::processesAtSimulation()
                     // Check if the particle exist in the table
                     if (particleData)
                     {
-                        bool longlived = false;
                         // Check if their life time is bigger than 1e-14
                         if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
                         {
                             // Check for B, C weak decays and long lived decays
                             update(flags_[BWeakDecay], particleID.hasBottom());
                             update(flags_[CWeakDecay], particleID.hasCharm());
-                            longlived = true;
+                            update(flags_[LongLivedDecay], true);
                         }
+  
                         // Check Tau, Ks and Lambda decay
                         update(flags_[TauDecay], pdgid == 15);
                         update(flags_[KsDecay], pdgid == 310);
@@ -392,18 +380,8 @@ void TrackClassifier::processesAtSimulation()
                         update(flags_[Jpsi], pdgid == 443);
                         update(flags_[Xi], pdgid == 3312);
                         update(flags_[Omega], pdgid == 3334);
-                        update(
-                            flags_[LongLivedDecay],
-                            !flags_[BWeakDecay] &&
-                            !flags_[CWeakDecay] &&
-                            !flags_[TauDecay] &&
-                            !flags_[KsDecay] &&
-                            !flags_[LambdaDecay] &&
-                            !flags_[Jpsi] &&
-                            !flags_[Xi] &&
-                            !flags_[Omega] &&
-                            longlived
-                        );
+                        update(flags_[SigmaPlus], pdgid == 3222);
+                        update(flags_[SigmaMinus], pdgid == 3112);
                     }
                 }
                 update(
@@ -416,7 +394,9 @@ void TrackClassifier::processesAtSimulation()
                     !flags_[LambdaDecay] &&
                     !flags_[Jpsi] &&
                     !flags_[Xi] &&
-                    !flags_[Omega]
+                    !flags_[Omega] &&
+                    !flags_[SigmaPlus] &&
+                    !flags_[SigmaMinus]
                 );
             }
             else

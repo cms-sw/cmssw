@@ -11,8 +11,8 @@ def TrackCategorySelector(src, cut):
     return cms.EDFilter('TrackCategorySelector', trackClassifier, src = src, cut = cut)
 
 def TrackingParticleCategorySelector(src, cut):
-    trackClassifer.enableRecoToSim = cms.untracked.bool(False);
-    trackClassifer.enableSimToReco = cms.untracked.bool(False);    
+    trackClassifier.enableRecoToSim = cms.untracked.bool(False);
+    trackClassifier.enableSimToReco = cms.untracked.bool(False);    
     return cms.EDFilter('TrackingParticleCategorySelector', trackClassifier, src = src, cut = cut)
 
 def VertexCategorySelector(src, cut):
@@ -21,8 +21,8 @@ def VertexCategorySelector(src, cut):
     return cms.EDFilter('VertexCategorySelector', vertexClassifier, src = src, cut = cut)
 
 def TrackingVertexCategorySelector(src, cut):
-    vertexClassifer.enableRecoToSim = cms.untracked.bool(False);
-    vertexClassifer.enableSimToReco = cms.untracked.bool(False);    
+    vertexClassifier.enableRecoToSim = cms.untracked.bool(False);
+    vertexClassifier.enableSimToReco = cms.untracked.bool(False);    
     return cms.EDFilter('TrackingVertexCategorySelector', vertexClassifier, src = src, cut = cut)
 
 def SecondaryVertexTagInfoCategorySelector(src, pxy, cut):

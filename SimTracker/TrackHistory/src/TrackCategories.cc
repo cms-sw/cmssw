@@ -19,6 +19,8 @@ const char * TrackCategories::Names[] =
     "Jpsi",
     "Xi",
     "Omega",
+    "SigmaPlus",
+    "SigmaMinus",
     "LongLivedDecay",
     "Conversion",
     "Interaction",

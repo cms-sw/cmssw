@@ -27,6 +27,8 @@ public:
         Jpsi,
         Xi,
         Omega,
+        SigmaPlus,
+        SigmaMinus,
         LongLivedDecay,
         Conversion,
         Interaction,
