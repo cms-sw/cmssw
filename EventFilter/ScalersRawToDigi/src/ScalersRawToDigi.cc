@@ -88,23 +88,21 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {
-    //    const ScalersEventRecordRaw_v3 * raw 
-    //      = (struct ScalersEventRecordRaw_v3 *)fedData.data();
-
-    L1TriggerScalers oldTriggerScalers(fedData.data());
-    pOldTrigger->push_back(oldTriggerScalers);
-    std::cout << oldTriggerScalers << std::endl;
-
-    Level1TriggerScalers triggerScalers(fedData.data());
-    pTrigger->push_back(triggerScalers);
-    std::cout << triggerScalers << std::endl;
-
-    Level1TriggerRates rates(triggerScalers,triggerScalers);
-    std::cout << rates << std::endl;
+    const ScalersEventRecordRaw_v3 * raw 
+	     = (struct ScalersEventRecordRaw_v3 *)fedData.data();
+    if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
+    {
+      L1TriggerScalers oldTriggerScalers(fedData.data());
+      pOldTrigger->push_back(oldTriggerScalers);
+    }
+    else if ( raw->version >= 3 )
+    {
+      Level1TriggerScalers triggerScalers(fedData.data());
+      pTrigger->push_back(triggerScalers);
+    }
 
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
-    std::cout << lumiScalers << std::endl;
 
     int nWords = length / 8;
     int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
@@ -119,7 +117,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 	int index = nWords - 5 + i;
 	L1AcceptBunchCrossing bc(i,data[index]);
 	pBunch->push_back(bc);
-		std::cout << bc << std::endl;
       }
     }
   }

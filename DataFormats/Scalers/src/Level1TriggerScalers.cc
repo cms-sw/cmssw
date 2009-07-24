@@ -59,8 +59,7 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
   version_      = raw->version;
-  std::cout << " version ====== " << version_ << std::endl;
-  if ( version_ >= 1 )
+  if ( version_ >= 3 )
   {
     collectionTimeGeneral_.set_tv_sec( static_cast<long>(
       raw->trig.collectionTimeGeneral_sec));
