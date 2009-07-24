@@ -1,79 +1,46 @@
+#!/bin/sh
+
 TIMESTAMP=`date '+%Y%m%d%H%M%S'`
 RUNNUMBER_TIMESTAMP=`date '+%y%m%d%H%M' | sed 's/^0//'`
 
 
-rm -f $STMGR_DIR/cfg/tmp.tmp
-cat $STMGR_DIR/cfg/sm_autobu_8fu.xml | sed "s/\(<runNumber.*>\).*\(<\/runNumber>\)/\1${RUNNUMBER_TIMESTAMP}\2/" > $STMGR_DIR/cfg/tmp.tmp
-mv $STMGR_DIR/cfg/tmp.tmp $STMGR_DIR/cfg/sm_autobu_8fu.xml
+sed --in-place "s/\(<runNumber.*>\).*\(<\/runNumber>\)/\1${RUNNUMBER_TIMESTAMP}\2/" $STMGR_CONFIG
 
 
 cd $STMGR_DIR/log/builderUnit
-xdaq.exe -h STMGR_DEV_BU_HOST -p STMGR_DEV_BU_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > BU${TIMESTAMP}.log 2>&1 &
+xdaq.exe -h STMGR_DEV_BU_HOST -p STMGR_DEV_BU_PORT -c $STMGR_CONFIG > BU${TIMESTAMP}.log 2>&1 &
 echo "Started BU/RB xdaq.exe..."
 
-sleep 3
+if [[ $SMDEV_FU_PROCESS_COUNT -gt 8 ]] ; then
+    echo "Cannot handle more than 8 FUs."
+    SMDEV_FU_PROCESS_COUNT=8
+fi
+
+fu_host[1]=STMGR_DEV_FU_HOST ; fu_port[1]=STMGR_DEV_FU_PORT
+fu_host[2]=STMGR_DEV_FU2_HOST ; fu_port[2]=STMGR_DEV_FU2_PORT
+fu_host[3]=STMGR_DEV_FU3_HOST ; fu_port[3]=STMGR_DEV_FU3_PORT
+fu_host[4]=STMGR_DEV_FU4_HOST ; fu_port[4]=STMGR_DEV_FU4_PORT
+fu_host[5]=STMGR_DEV_FU5_HOST ; fu_port[5]=STMGR_DEV_FU5_PORT
+fu_host[6]=STMGR_DEV_FU6_HOST ; fu_port[6]=STMGR_DEV_FU6_PORT
+fu_host[7]=STMGR_DEV_FU7_HOST ; fu_port[7]=STMGR_DEV_FU7_PORT
+fu_host[8]=STMGR_DEV_FU8_HOST ; fu_port[8]=STMGR_DEV_FU8_PORT
 
 cd $STMGR_DIR/log/filterUnit
-xdaq.exe -h STMGR_DEV_FU_HOST -p STMGR_DEV_FU_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}.log 2>&1 &
-echo "Started FU1 xdaq.exe..."
-sleep 3
-if [ $SMDEV_FU_PROCESS_COUNT -gt 1 ]
-then
-  xdaq.exe -h STMGR_DEV_FU2_HOST -p STMGR_DEV_FU2_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_2.log 2>&1 &
-  echo "Started FU2 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 2 ]
-then
-  xdaq.exe -h STMGR_DEV_FU3_HOST -p STMGR_DEV_FU3_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_3.log 2>&1 &
-  echo "Started FU3 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 3 ]
-then
-  xdaq.exe -h STMGR_DEV_FU4_HOST -p STMGR_DEV_FU4_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_4.log 2>&1 &
-  echo "Started FU4 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 4 ]
-then
-  xdaq.exe -h STMGR_DEV_FU5_HOST -p STMGR_DEV_FU5_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_5.log 2>&1 &
-  echo "Started FU5 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 5 ]
-then
-  xdaq.exe -h STMGR_DEV_FU6_HOST -p STMGR_DEV_FU6_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_6.log 2>&1 &
-  echo "Started FU6 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 6 ]
-then
-  xdaq.exe -h STMGR_DEV_FU7_HOST -p STMGR_DEV_FU7_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_7.log 2>&1 &
-  echo "Started FU7 xdaq.exe..."
-  sleep 3
-fi
-if [ $SMDEV_FU_PROCESS_COUNT -gt 7 ]
-then
-  xdaq.exe -h STMGR_DEV_FU8_HOST -p STMGR_DEV_FU8_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > FU${TIMESTAMP}_8.log 2>&1 &
-  echo "Started FU8 xdaq.exe..."
-  sleep 3
-fi
+for fucount in $(seq $SMDEV_FU_PROCESS_COUNT) ; do
+    xdaq.exe -h ${fu_host[$fucount]} -p ${fu_port[$fucount]} -c $STMGR_CONFIG > FU${TIMESTAMP}_${fucount}.log 2>&1 &
+    echo "Started FU${fucount} xdaq.exe..."
+done
 
 cd $STMGR_DIR/log/storageManager
-xdaq.exe -h STMGR_DEV_SM_HOST -p STMGR_DEV_SM_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > SM${TIMESTAMP}.log 2>&1 &
+xdaq.exe -h STMGR_DEV_SM_HOST -p STMGR_DEV_SM_PORT -c $STMGR_CONFIG > SM${TIMESTAMP}.log 2>&1 &
 echo "Started SM xdaq.exe..."
 
-sleep 5
-
 cd $STMGR_DIR/log/smProxy
-xdaq.exe -h STMGR_DEV_SMPROXY_HOST -p STMGR_DEV_SMPROXY_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > PROXY${TIMESTAMP}.log 2>&1 &
+xdaq.exe -h STMGR_DEV_SMPROXY_HOST -p STMGR_DEV_SMPROXY_PORT -c $STMGR_CONFIG > PROXY${TIMESTAMP}.log 2>&1 &
 echo "Started SMPS xdaq.exe..."
 
-sleep 5
-
 cd $STMGR_DIR/log/consFU
-xdaq.exe -h STMGR_DEV_CONSFU_HOST -p STMGR_DEV_CONSFU_PORT -c $STMGR_DIR/cfg/sm_autobu_8fu.xml > CONS${TIMESTAMP}.log 2>&1 &
+xdaq.exe -h STMGR_DEV_CONSFU_HOST -p STMGR_DEV_CONSFU_PORT -c $STMGR_CONFIG > CONS${TIMESTAMP}.log 2>&1 &
 echo "Started consumer xdaq.exe..."
 
 sleep 5

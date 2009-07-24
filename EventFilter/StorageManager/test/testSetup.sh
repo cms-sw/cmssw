@@ -6,12 +6,11 @@
 # 22-Jan-2009, MO  - changes to make the script work from the
 #                    EventFilter/StorageManager/test directory
 
-demoSystemDir=`pwd`/demoSystem
-export STMGR_DIR="$demoSystemDir"
+export STMGR_DIR=`pwd`/demoSystem
 
 # initial setup
-source $demoSystemDir/bin/uaf_setup.sh
-#source $demoSystemDir/bin/cvs_setup.sh
+source $STMGR_DIR/bin/uaf_setup.sh
+#source $STMGR_DIR/bin/cvs_setup.sh
 
 # check if this script is being run from inside a CMSSW project area
 selectedProject=""
@@ -57,7 +56,7 @@ fi
 
 # set up the selected project
 cd ${selectedProject}/src
-source $demoSystemDir/bin/scram_setup.sh
+source $STMGR_DIR/bin/scram_setup.sh
 cd - > /dev/null
 
 scramArch=`scramv1 arch`
@@ -65,25 +64,25 @@ export PATH=${selectedProject}/test/${scramArch}:${PATH}
 
 # define useful aliases
 
-alias startEverything="cd $demoSystemDir/bin; source ./startEverything.sh"
+alias startEverything="cd $STMGR_DIR/bin; source ./startEverything.sh"
 
-alias startConsumer="cd $demoSystemDir/log/client; cmsRun ../../cfg/eventConsumer.py"
-alias startConsumer1="cd $demoSystemDir/log/client1; cmsRun ../../cfg/eventConsumer.py"
-alias startConsumer2="cd $demoSystemDir/log/client2; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer="cd $STMGR_DIR/log/client; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer1="cd $STMGR_DIR/log/client1; cmsRun ../../cfg/eventConsumer.py"
+alias startConsumer2="cd $STMGR_DIR/log/client2; cmsRun ../../cfg/eventConsumer.py"
 
-alias startProxyConsumer="cd $demoSystemDir/log/client1; cmsRun ../../cfg/proxyEventConsumer.py"
+alias startProxyConsumer="cd $STMGR_DIR/log/client1; cmsRun ../../cfg/proxyEventConsumer.py"
 
-alias startProxyDQMConsumer="cd $demoSystemDir/log/client; cmsRun ../../cfg/proxyDQMConsumer.py"
+alias startProxyDQMConsumer="cd $STMGR_DIR/log/client; cmsRun ../../cfg/proxyDQMConsumer.py"
 
-alias startDQMConsumer="cd $demoSystemDir/log/client; cmsRun ../../cfg/dqmConsumer.py"
+alias startDQMConsumer="cd $STMGR_DIR/log/client; cmsRun ../../cfg/dqmConsumer.py"
 
 alias cleanupShm="FUShmCleanUp_t"
-alias killEverything="killall -9 xdaq.exe; sleep 2; FUShmCleanUp_t; cd $demoSystemDir/bin; ./removeOldLogFiles.sh; ./removeOldDataFiles.sh; ./removeOldDQMFiles.sh; cd - > /dev/null"
+alias killEverything="killall -9 xdaq.exe; sleep 2; FUShmCleanUp_t; cd $STMGR_DIR/bin; ./removeOldLogFiles.sh; ./removeOldDataFiles.sh; ./removeOldDQMFiles.sh; cd - > /dev/null"
 
-alias globalConfigure="cd $demoSystemDir/soap; ./globalConfigure.sh"
-alias globalEnable="cd $demoSystemDir/soap; ./globalEnable.sh"
-alias globalStop="cd $demoSystemDir/soap; ./globalStop.sh"
-alias globalHalt="cd $demoSystemDir/soap; ./globalHalt.sh"
+alias globalConfigure="cd $STMGR_DIR/soap; ./globalConfigure.sh"
+alias globalEnable="cd $STMGR_DIR/soap; ./globalEnable.sh"
+alias globalStop="cd $STMGR_DIR/soap; ./globalStop.sh"
+alias globalHalt="cd $STMGR_DIR/soap; ./globalHalt.sh"
 
 alias shutdownEverything="globalStop ; sleep 3 ; killEverything"
 
@@ -111,3 +110,7 @@ export SMDEV_FU_PROCESS_COUNT=2
 # 02-Jan-2009 - define whether we want a big HLT config or not
 # Valid values are 0 (small config) and 1 (big config)
 export SMDEV_BIG_HLT_CONFIG=0
+
+# 08-JUL-2009 - define the configuration to be used
+#export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu.xml
+export STMGR_CONFIG=$STMGR_DIR/cfg/sm_autobu_8fu_atcp.xml

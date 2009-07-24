@@ -5,26 +5,19 @@
 # check for valid arguments
 if [ "$1" == "-h" ]
 then
-    echo "Usage: configureHosts.sh [cfgType [baseXdaqPort [hostNameOverride]]]"
-    echo "where cfgType is one of 'python' or 'cfg', default is python"
-    echo "e.g. 'configureHosts.sh python 50000 cmsroc8.fnal.gov'"
+    echo "Usage: configureHosts.sh [baseXdaqPort [hostNameOverride]]"
+    echo "e.g. 'configureHosts.sh 50000 cmsroc8.fnal.gov'"
     exit
 fi
 if [ $# -gt 0 ]
 then
-    cfgType=$1
-else
-    cfgType="python"
-fi
-if [ $# -gt 1 ]
-then
-    basePort=$2
+    basePort=$1
 else
     basePort=50000
 fi
-if [ $# -gt 2 ]
+if [ $# -gt 1 ]
 then
-    localHostName=$3
+    localHostName=$2
 else
     localHostName=$HOSTNAME
 fi
@@ -46,12 +39,6 @@ smTcpPort=$(($basePort + 1011))
 fuCfgFile="fu_twoOut.py"
 smCfgFile="sm_streams.py"
 consCfgFile="fuConsumer.py"
-if [ "$cfgType" != "python" ]
-then
-    fuCfgFile="fu_twoOut.cfg"
-    smCfgFile="sm_streams.cfg"
-    consCfgFile="fuConsumer.cfg"
-fi
 
 for filename in `find -maxdepth 3 -name "*.base"`
 do
