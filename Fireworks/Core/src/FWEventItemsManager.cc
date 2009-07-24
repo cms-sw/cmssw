@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.18 2009/04/07 14:03:50 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.19 2009/04/07 15:59:15 chrjones Exp $
 //
 
 // system include files
@@ -203,7 +203,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const std::string& type = (*keyValues)[0].second.value();
       const std::string& moduleLabel = (*keyValues)[1].second.value();
       const std::string& productInstanceLabel = (*keyValues)[2].second.value();
-      const std::string& processName = (*keyValues)[3].second.value();
+      // const std::string& processName = (*keyValues)[3].second.value();
       const std::string& filterExpression = (*keyValues)[4].second.value();
       const std::string& sColor = (*keyValues)[5].second.value();
       const bool isVisible = (*keyValues)[6].second.value() == kTrue;
@@ -236,7 +236,7 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                disp,
                                moduleLabel,
                                productInstanceLabel,
-                               processName,
+			       "", // processName - ignore it when load configuration
                                filterExpression,
                                layer);
       add(desc);
