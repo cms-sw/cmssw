@@ -212,7 +212,7 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
 
         TLorentzVector p4(0,0,0,0);
 
-        if(leadTk->pt() == 0) return p4;
+        if(leadTk.isNull()) return p4;
 
 	XYZVector momentum(0,0,0);
 	int prongCounter = 0;

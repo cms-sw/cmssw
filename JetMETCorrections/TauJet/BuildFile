@@ -8,7 +8,6 @@
 <use name=JetMETCorrections/Objects>
 <lib name=TrackingToolsTransientTrack>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/BTauReco>
 <use name=RecoTauTag/TauTagTools>
 
