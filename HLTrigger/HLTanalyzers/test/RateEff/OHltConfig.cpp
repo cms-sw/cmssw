@@ -1,4 +1,5 @@
 #include "OHltConfig.h"
+#include "HLTDatasets.h"
 
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
@@ -10,16 +11,18 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cout << " ... ok" << endl;
 
     // temporary vars
-    const char* stmp; float ftmp; bool btmp;
-    
-    /**** General Menu & Run conditions ****/ 
-    cfg.lookupValue("run.nEntries",nEntries);    
-    cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);    
+    const char* stmp; float ftmp; bool btmp; int itmp;
+
+    /**** General Menu & Run conditions ****/
+    cfg.lookupValue("run.nEntries",nEntries);
+    cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);
     cfg.lookupValue("run.isRealData",isRealData);
-    cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);    
-    cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);    
-    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);    
-    cfg.lookupValue("run.doPrintAll",doPrintAll);    
+    cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
+    cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
+    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
+    cfg.lookupValue("run.doPrintAll",doPrintAll);
+    cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
+    cout << "General Menu & Run conditions...ok"<< endl;
     /**********************************/
   
     /**** Beam conditions ****/ 
@@ -28,27 +31,32 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("beam.maxFilledBunches",maxFilledBunches);    
     cfg.lookupValue("beam.nFilledBunches",nFilledBunches);    
     cfg.lookupValue("beam.cmsEnergy",cmsEnergy);    
+    cout << "Beam conditions...ok"<< endl;
     /**********************************/
 
     /**** Real data conditions ****/   
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
+    cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
+    cout << "Real data conditions...ok"<< endl;
     /******************************/  
   
     /**** Samples & Processes ****/ 
     Setting &p = cfg.lookup("process.names");
     const int nproc = (const int)p.getLength();
     //cout << nproc << endl;
+    Setting &isPS = cfg.lookup("process.isPhysicsSample");
     Setting &xs = cfg.lookup("process.sigmas");
     Setting &pa = cfg.lookup("process.paths");
     Setting &fn = cfg.lookup("process.fnames");
     Setting &muc = cfg.lookup("process.doMuonCuts");
     Setting &ec = cfg.lookup("process.doElecCuts");
 
-
     for (int i=0;i<nproc;i++) {
       stmp = p[i];
       pnames.push_back(TString(stmp));
+      itmp = isPS[i];
+      pisPhysicsSample.push_back(itmp);
       stmp = pa[i];
       ppaths.push_back(TString(stmp));
       stmp = fn[i];
@@ -60,6 +68,14 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
       btmp = ec[i];
       pdoecuts.push_back(btmp);
     }
+    cout << "Samples & Processes...ok"<< endl;
+
+    for (int i=0;i<nproc;i++) { //RR
+
+			printf("Name [%d]: %s\n",i,pnames.at(i).Data());
+			printf("Path [%d]: %s\n",i,ppaths.at(i).Data());
+			printf("File [%d]: %s\n",i,pfnames.at(i).Data());
+		}
     /**********************************/
 
     /**** Branch Selections ****/ 
@@ -73,6 +89,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("branch.selectBranchL1extra",selectBranchL1extra);    
     cfg.lookupValue("branch.selectBranchReco",selectBranchReco);    
     cfg.lookupValue("branch.selectBranchMC",selectBranchMC);    
+    cout << "Branch Selections...ok"<< endl;
     /**********************************/
 
     
@@ -165,6 +182,7 @@ void OHltConfig::print()
     {
       cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
       cout << "liveTimeRun: " << liveTimeRun << endl;
+      cout << "prescaleNormalization: " << prescaleNormalization << endl;
     }
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;

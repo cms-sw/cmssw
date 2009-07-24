@@ -471,8 +471,9 @@ void SampleDiagnostics::report(TString tablesPrefix, const Char_t* errata) const
   pdfIt.Form("latex %s.tex ; latex %s.tex ; latex %s.tex ; dvipdf %s.dvi %s.pdf", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   //pdfIt       += TString::Format(" & (rm %s.aux %s.dvi %s.tex %s.log %s.toc)", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
-  if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
-  else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
+	//RR commenting the latex compilation for now
+//   if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
+//   else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
 }
 
 
@@ -578,7 +579,11 @@ HLTDatasets::HLTDatasets(const std::vector<TString>& triggerNames, const Char_t*
   // Register all triggers _not_ in any dataset as new triggers
   UInt_t          numNewTriggers  = 0;
   for (UInt_t iTrigger = 0; iTrigger < numTriggers; ++iTrigger) {
-    if (notInDataset[iTrigger]) {
+    if (notInDataset[iTrigger] && 
+				(!triggerNames[iTrigger].Contains("AlCa_Ecal"      ,TString::kIgnoreCase) &&
+				 !triggerNames[iTrigger].Contains("AlCa_IsoTrack"  ,TString::kIgnoreCase) &&
+				 !triggerNames[iTrigger].Contains("AlCa_HcalPhiSym",TString::kIgnoreCase) &&
+				 !triggerNames[iTrigger].Contains("AlCa_RPC"       ,TString::kIgnoreCase))) {
       datasetsConfig.push_back(Dataset(triggerNames[iTrigger], kTRUE));
       datasetsConfig.back().push_back(Trigger(triggerNames[iTrigger], iTrigger));
       ++numNewTriggers;
@@ -631,12 +636,14 @@ void HLTDatasets::write(const Char_t* outputPrefix, Option_t* writeOptions) cons
     }
   }
   // Make additional compilations of samples
+// 	printf("HLTDatasets::write. About to call compileSamples(diagnostics)\n"); //RR
   std::vector<SampleDiagnostics>  diagnostics;    compileSamples(diagnostics);
   // Create output file
   TFile             correlationsFile(outputPath + "correlations.root", writeOptions, scenarioName + " : Correlation Plots");
 
   // Store corerlation plots
   const UInt_t      numDiagnostics = diagnostics.size();
+// 	printf("HLTDatasets::write. About to call diagnostics[iSample].write\n"); //RR
   for (UInt_t iSample = 0; iSample < numDiagnostics; ++iSample)
     diagnostics[iSample].write();
   correlationsFile.Close();
@@ -699,13 +706,25 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, c
     tablesFile      << "\\end{itemize}"                                       << std::endl;
     tablesFile      << std::endl;
   }
-  tablesFile        << "\\begin{table}[b]"                                    << std::endl;
-  tablesFile        << "\\begin{tabular}{|c|c|l|}"                            << std::endl;
+  tablesFile        << "\\begin{longtable}{|c|c|l|}"                                    << std::endl;
+//  tablesFile        << "\\begin{tabular}{|c|c|l|}"                            << std::endl;
   tablesFile        << "\\hline"                                              << std::endl;
   tablesFile        << "{\\bf Primary Dataset} & {\\bf Rate in Hz ("
                     << TString(diagnostics[0].name).ReplaceAll("samples", " samples")
                     << ")} & {\\bf Triggers (OR-ed)} \\\\" << std::endl;
   tablesFile        << "\\hline"                                              << std::endl;
+  tablesFile        << "\\endfirsthead"  << std::endl;
+  tablesFile        << "\\hline"                                              << std::endl;
+  tablesFile        << "{\\bf Primary Dataset} & {\\bf Rate in Hz ("
+                    << TString(diagnostics[0].name).ReplaceAll("samples", " samples")
+                    << ")} & {\\bf Triggers (OR-ed)} \\\\" << std::endl;
+  tablesFile        << "\\hline"   << std::endl;
+  tablesFile        << "\\endhead"  << std::endl;
+  tablesFile        << "\\hline"  << std::endl;
+  tablesFile        << "\\endfoot"  << std::endl;
+  tablesFile        << "\\hline"    << std::endl;
+  tablesFile        << "\\endlastfoot"  << std::endl;
+
   Double_t          overheadRate  = 0;
   for (UInt_t iSet = 0; iSet < numDatasets; ++iSet) {
     const Dataset&  dataset       = diagnostics[0][iSet];
@@ -733,8 +752,8 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, c
                     << " Hz of datasets storage overhead"
                     ;
   tablesFile        << "} \\\\ \\hline"                                       << std::endl;
-  tablesFile        << "\\end{tabular}"                                       << std::endl;
-  tablesFile        << "\\end{table}"                                         << std::endl;
+//  tablesFile        << "\\end{tabular}"                                       << std::endl;
+  tablesFile        << "\\end{longtable}"                                         << std::endl;
   tablesFile        << std::endl;
   tablesFile        << "\\clearpage"                                          << std::endl;
   tablesFile        << "%================================================================================" << std::endl;
@@ -791,8 +810,9 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, c
   pdfIt.Form("latex %s.tex ; latex %s.tex ; latex %s.tex ; dvipdf %s.dvi %s.pdf", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   //pdfIt       += TString::Format(" & (rm %s.aux %s.dvi %s.tex %s.log %s.toc)", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
-  if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
-  else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
+	// RR commenting the latex xompilation for now
+//   if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
+//   else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
   //...........................................................................
 }
 
@@ -809,6 +829,7 @@ UInt_t HLTDatasets::compileSamples( std::vector<SampleDiagnostics>& compiled ) c
   compiled.back().name = "physicssamples";  compiled.back().numConstituentSamples = 0;
 
   const UInt_t                              numSamples  = size();
+// 	printf("HLTDatasets::compileSamples. About to loop over %d samples\n",numSamples); //RR
   for (UInt_t iSample = 0; iSample < numSamples; ++iSample) {
     const SampleDiagnostics&                sample      = at(iSample);
     compiled.front()                        += sample;

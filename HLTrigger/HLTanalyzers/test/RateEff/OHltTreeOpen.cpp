@@ -1369,6 +1369,18 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
 	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
     } 
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon11_L1R") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(11.,0,9999.,9999.,9999.,9999.)>=1)
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+    } 
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon13_L1R") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1L2MuonPassed(5.,5.,2.)>=1 && OpenHlt1PhotonPassed(13.,0,9999.,9999.,9999.,9999.)>=1)
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
+    } 
+  }
     
 
   // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
@@ -1385,6 +1397,17 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet15") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+    } 
+  } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet20") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      int rc = 0;   
+      for(int i=0;i<NL1CenJet;i++) if(L1CenJetEt[i] >= 20.0) rc++;   
+      for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= 20.0) rc++;   
+      for(int i=0;i<NL1Tau   ;i++) if(L1TauEt   [i] >= 20.0) rc++;   
+      if(rc > 0)
+				if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+			
     } 
   } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30") == 0){ 
@@ -1432,7 +1455,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
   } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT150") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
-      if(OpenHltSumHTPassed(180., 30.) == 1) { 
+      if(OpenHltSumHTPassed(150., 30.) == 1) { 
         if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) { 
           if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }        
         } 
@@ -1453,6 +1476,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
       if(OpenHltSumHTPassed(200., 30.) == 1) {  
         if(OpenHlt1LWElectronPassed(10.,0,9999.,9999.)>=1) {  
           if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }         
+        }   
+      }            
+    }            
+  }   
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_LW_L1R_HT180") == 0){   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {     
+      if(OpenHltSumHTPassed(180., 30.) == 1) {   
+        if(OpenHlt1LWElectronPassed(15.,0,9999.,9999.)>=1) {   
+          if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }          
         }  
       }           
     }           
@@ -1497,6 +1529,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it)
     int njetswithe = 0; 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1ElectronPassed(10.,0,9999.,9999.)>=1) {
+        for(int i = 0; i < NrecoJetCal; i++) { 
+          if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy 
+            njetswithe++; 
+          } 
+        } 
+      } 
+      if(njetswithe >= 3) // Require >= 3 jets above threshold 
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; } 
+    } 
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_L1R_TripleJet30") == 0) {
+    int njetswithe = 0; 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1ElectronPassed(15.,0,9999.,9999.)>=1) {
         for(int i = 0; i < NrecoJetCal; i++) { 
           if(recoJetCorCalPt[i] > 30.) { // Cut on corrected jet energy 
             njetswithe++; 

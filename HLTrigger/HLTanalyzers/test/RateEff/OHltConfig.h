@@ -30,7 +30,7 @@ class OHltConfig {
   // Data
   Config cfg;
 
-  /**** General Menu & Run conditions ****/ 
+  /**** General Menu & Run conditions ****/
   int nEntries;
   int nPrintStatusEvery;
   bool isRealData;
@@ -38,46 +38,49 @@ class OHltConfig {
   TString alcaCondition;
   TString versionTag;
   bool doPrintAll;
+  TString dsList;
   /*************************/
 
-  /**** Beam conditions ****/ 
+  /**** Beam conditions ****/
   float iLumi;
   float bunchCrossingTime;
-  int maxFilledBunches;    
+  int maxFilledBunches;
   int nFilledBunches;
   float cmsEnergy;
   /*************************/
 
-  /**** Real data conditions ****/  
+  /**** Real data conditions ****/
   float liveTimeRun;
   int nL1AcceptsRun;
-  /******************************/ 
-  
-  /**** Samples & processes ****/ 
-  vector<TString> pnames; 
-  vector<TString> ppaths; 
-  vector<TString> pfnames; 
-  vector<bool> pdomucuts; 
-  vector<bool> pdoecuts; 
-  vector<float> psigmas; 
+  int prescaleNormalization;
+  /******************************/
+
+  /**** Samples & processes ****/
+  vector<TString> pnames;
+  vector<TString> ppaths;
+  vector<TString> pfnames;
+  vector<bool> pdomucuts;
+  vector<bool> pdoecuts;
+  vector<float> psigmas;
+  vector <int> pisPhysicsSample; // Is it a RATE sample (MB, QCD) or a PHYSICS sample (W,Z,top)
   /*****************************/
-  
-  /**** Menu ****/ 
-  bool isL1Menu; 
-  bool doL1preloop; 
+
+  /**** Menu ****/
+  bool isL1Menu;
+  bool doL1preloop;
   /**********************************/
 
-  /****  ****/ 
+  /****  ****/
   // Only for experts:
   // Select certain branches to speed up code.
   // Modify only if you know what you do!
-  bool doSelectBranches; 
-  bool selectBranchL1; 
+  bool doSelectBranches;
+  bool selectBranchL1;
   bool selectBranchHLT;
-  bool selectBranchOpenHLT; 
+  bool selectBranchOpenHLT;
   bool selectBranchReco;
-  bool selectBranchL1extra; 
-  bool selectBranchMC; 
+  bool selectBranchL1extra;
+  bool selectBranchMC;
 
   /**********************************/
 };

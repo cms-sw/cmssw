@@ -215,38 +215,85 @@ README for OpenHLT rate and Efficiencies calculating scripts
 
 
 
-Efficiency and PD parts to be implemented, old description below:
 
 --------------------------------------
 3. Efficiency code
 --------------------------------------
 
-  Once the HLT paths of interest are defined (either as 'standard' HLT paths or in OpenHLT) 
-  they must be inserted in the corresponding trigger menu using the menu->AddHlt() function.
-  At this step one must define the multiplicity of the relevant objects (electron,photon,muon,
-  jet,met) for booking of efficiency histograms.
+ Signal sample definition: 
+	If in the config file the sample name (names in process) is either zmumu or zee, 
+then the sample is supposed to be of signal type and some efficiency code is run. 
+Other kind of signal samples are yet to be defined. If you do not want to run the efficiency code
+it is enough to name your sample in some other way.
+	There are two kinds of output for this code
 
-  Then the script must be run with settings:
-    RateOnly=0, EfficiencyOnly=1 (runs only efficiency code on signal samples)
-    RateOnly=1, EfficiencyOnly=0 (runs efficiency and rate code on both background and
-                signal samples)
+ a) A print-out with the efficiency of every path in the given menu.
+ b) A root file containing turn-on curves for MC/L1/RECO quantities matched with HLT objects.
 
-  Histograms are filled with reconstructed pt,eta and phi of requested objects 
-    1) For all events in the input file
-    2) For all events passing the L1 seed corresponding to each HLT path
-    3) For all events passing the HLT paths
 
-  Efficiency histograms are filled dividing 3)/1) (overall HLT efficiency) and 3)/2) (HLT 
-  efficiency wrt L1)
-  
-  The output consists one root file per sample with efficiency histograms and a printout with global
-  integrated numbers. 
+	Detailed explanation of a) and b) is given bellow:
 
-  For more details see:
-  http://indico.cern.ch/materialDisplay.py?contribId=12&sessionId=1&materialId=slides&confId=41546
-  
-  In case of missing functionalities, please contact goylopez@cern.ch
+ a) The routine calcEff is defined in OHltRateEff.cpp and called from the main programm.
+It prints out as text the efficiency of every trigger path, taking as normalization events 
+in the sample passing a predifined set of cuts for muons and electrons.
+These normalization cuts are defined depending on the sample and based on MC
+quantities in OHltTree::Loop (OHltTree.cpp)
+-  muons eta cut 2.1, pt >3GeV (for zmumu sample 2 such muons are required)
+-  electrons eta cut 2.5, pt>5 GeV (for zee sample 2 such electrons are required)
+The user can modify these cuts and then recompile the code (make OHltRateEff)
+The efficiency definition is given by: number of events passing the path trigger condition 
+divided by the number of events in the sample surviving the normalization cuts.
+This calculation is based on MC quantities for normalization definition, therefore the 
+MC branch must be available in the sample and set to true in the config file (selectBranchMC),
+in order to obtain the corresponding printout.
 
+b) The routine PlotOHltEffCurves is called in OHltTree::Loop (OHltTree.cpp)
+Just before the calling of the routine one should set the hlteffmode variable,
+which is a TString taking as possible values: "GEN", "L1","RECO", so that turn on curves 
+of HLT objects are computed for MC,L1 or RECO variables.
+By default hlteffmode= "GEN"
+The variable ohltobject describes what would be the HLT object to be studied.
+For zmumu sample ohltobject="muon" and for zee sample ohltobject="electron" by default. 
+Code is implemented also for "photon" and "jet" HLT objects.
+The PlotOHltEffCurves routine itself is defined in PlotOHltEffCurves.cpp file.
+A matching is done dr = sqrt((deta*deta) + (dphi*dphi))<drmatch between the hltobject 
+and the gen,l1 or reco object. The default value for drmatch=0.5.
+A pt turn-on curve is constructed by filling one histogram with the pt distribution of the
+gen,l1 or reco objects (denominator of turn-on curve) and another histogram with the pt 
+distribution of the gen,l1 or reco objects that have been matched to the corresponding hlt 
+object. Similarly an eta turn-on curve is also obtained. 
+The pt turn-on curve is obtained for events within a eta range given by etacutforpt = 3.0.
+The eta turn-on curve is obtained for events with pt> ptcutforeta = 5.0.
+As output a .root file is created containing the numerator and denominator of the 
+turn-on curves (pt,eta) and the turn-on curve itself with binomial errors applied.
+
+Available signal samples:
+The following samples are OpenHLT rootuples, 50kevents reprocessed to have 1E31 L1 seeds 
+available, using IdealV12 conditions
+Top:
+ 	Original sample: /TTJets-madgraph/Fall08_IDEAL_V11_redigi_v10/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/TTjets_L1E31 
+Zmumu:
+ 	Original sample: /Zmumu/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Zmumu_L1E31/ 
+Zee:
+ 	Original sample: /Zee/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Zee_L1E31/ 
+Wmunu:
+ 	Original sample: /Wmunu/Summer08_IDEAL_V11_redigi_v2/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Wmunu_L1E31/ 
+Wenu:
+ 	Original sample: /Wenu/Summer08_IDEAL_V11_redigi_v1/GEN-SIM-RAW
+	Output OpenHLT : /castor/cern.ch/user/g/goys/OpenHLT/Wenu_L1E31/ 
+
+  In case of comments, suggestions, doubts or problems please contact goylopez@cern.ch
+
+
+
+
+
+
+PD part to be implemented, old description below:
 
 --------------------------------------
 4. Primary Datasets code

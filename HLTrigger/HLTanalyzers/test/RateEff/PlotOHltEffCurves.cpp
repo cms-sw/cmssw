@@ -47,6 +47,28 @@ void OHltTree::PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohlt
       }
       mctruthpid = 13;
     }
+  if(ohltobject == "ele_mu") //RR fill only the mu leg efficiency
+    {
+      nhlt=NohMuL3;
+      for(int i=0;i<nhlt;i++){
+        hltpt[i] = ohMuL3Pt[i];
+        hlteta[i] = ohMuL3Eta[i];
+        hltphi[i] = ohMuL3Phi[i];
+      }
+      if (cfg->selectBranchL1extra) nl1= NL1Mu;
+      for(int i=0;i<nl1;i++){
+        l1pt[i] = L1MuPt[i];
+        l1eta[i] = L1MuEta[i];
+        l1phi[i] = L1MuPhi[i];
+      }
+      if (cfg->selectBranchReco) nrec=NrecoMuon;
+      for(int i=0;i<nrec;i++){
+        recopt[i] = recoMuonPt[i];
+        recoeta[i] = recoMuonEta[i];
+        recophi[i] = recoMuonPhi[i];
+      }
+      mctruthpid = 13;
+    }
   else if(ohltobject == "photon")
     {
       nhlt=NohPhot;

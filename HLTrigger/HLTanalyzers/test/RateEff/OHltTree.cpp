@@ -14,7 +14,9 @@
 
 using namespace std;
 
-void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4) 
+void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID
+										,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4 
+										,SampleDiagnostics& primaryDatasetsDiagnostics)
 {
   cout<<"Start looping on sample "<<procID<<endl;
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
@@ -87,16 +89,20 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
 
 
-    if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
+//     if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
+    if(cfg->pisPhysicsSample[procID]!=0) {
       int accMCMu=0;
       int accMCEle=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
 	}
-	if((cfg->pnames[procID]=="zee" && accMCEle>1)||(cfg->pnames[procID] == "zmumu" && accMCMu>1)){ Den=Den+1;}
-	else{continue;}
+	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
+	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
+	else if((cfg->pisPhysicsSample[procID]==3 && accMCEle>=1 && accMCMu >=1)){ Den=Den+1;}
+
+	else {continue;}
       }
     }
 
@@ -110,8 +116,9 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //    hlteffmode="L1";
     //    hlteffmode="RECO";
     ohltobject="None";
-    if (cfg->pnames[procID]=="zee")ohltobject="electron";
-    if (cfg->pnames[procID]=="zmumu")ohltobject="muon";
+    if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
+    if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
+    if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -137,6 +144,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	CheckOpenHlt(cfg,menu,i);
       }
     }
+    primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
 
     /* ******************************** */
     // 2. Loop to check overlaps

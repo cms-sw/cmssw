@@ -97,7 +97,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.; 
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
-    
+
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
     cumulRateErr += pow(spureRateErr[i],2.); 
@@ -111,34 +111,34 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
       physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
     } 
 
-    TString tempTrigSeeds; 
     TString tempTrigSeedPrescales; 
+    TString tempTrigSeeds; 
     std::map<TString, std::vector<TString> > 
       mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
 
-    TString stmp; 
+    vector<TString> vtmp; 
     vector<int> itmp; 
+
     typedef map< TString, vector<TString> >  mymap; 
-    //std::cout<<mapL1seeds.size()<<std::endl;
-    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
-      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
-      //std::cout<<it->second.size()<<std::endl;
+    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
       if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
+        vtmp = it->second; 
+        //cout<<it->first<<endl; 
         for (unsigned int j=0;j<it->second.size();j++) { 
           itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
-	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
+          //cout<<"\t"<<(it->second)[j]<<endl; 
         } 
       } 
-    }
-
-    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
-    for (unsigned int j=0;j<itmp.size();j++) { 
+    } 
+    for (unsigned int j=0;j<vtmp.size();j++) { 
+      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
       tempTrigSeedPrescales += itmp[j]; 
-      if (j<(itmp.size()-1)) { 
+      if (j<(vtmp.size()-1)) { 
+	tempTrigSeeds = tempTrigSeeds + " or "; 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
-    }
-    
+    } 
+
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
@@ -247,13 +247,13 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
     eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));      
   }
 
-  for (unsigned int i=0;i<menu->GetTriggerSize();i++) {  
-    for (unsigned int j=0;j<menu->GetTriggerSize();j++) {  
-      overlap->SetBinContent(i,j,coMa[i][j]); 
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
+    for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
+      overlap->SetBinContent(i,j,coMa[i][j]);
       overlap->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
       overlap->GetYaxis()->SetBinLabel(j+1,menu->GetTriggerName(j));
-    } 
-  } 
+    }
+  }
 
   individual->SetStats(0); individual->SetYTitle("Rate (Hz)");
   individual->SetTitle("Individual trigger rate");
@@ -468,37 +468,36 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     TString tempTrigName = menu->GetTriggerName(i);
     tempTrigName.ReplaceAll("_","\\_");
 
+    TString tempTrigSeedPrescales;
+    TString tempTrigSeeds;
+    std::map<TString, std::vector<TString> >
+      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds
 
-
-    TString tempTrigSeeds; 
-    TString tempTrigSeedPrescales; 
-    std::map<TString, std::vector<TString> > 
-      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
-
-    TString stmp; 
-    vector<int> itmp; 
-    typedef map< TString, vector<TString> >  mymap; 
-    //std::cout<<mapL1seeds.size()<<std::endl;
+    vector<TString> vtmp;
+    vector<int> itmp;
+    typedef map< TString, vector<TString> >  mymap;
     for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
-      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
-      //std::cout<<it->second.size()<<std::endl;
-      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
-        for (unsigned int j=0;j<it->second.size();j++) { 
-          itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
-	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
-        } 
-      } 
+      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) {
+	vtmp = it->second;
+	//cout<<it->first<<endl;
+	for (unsigned int j=0;j<it->second.size();j++) {
+	  itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+	  //cout<<"\t"<<(it->second)[j]<<endl;
+	}
+      }
     }
+    // Faster, but crashes???:
+    //vector<TString> vtmp = mapL1seeds.find(TString(menu->GetTriggerName(i)))->second;
+    if (vtmp.size()>2) {
+      for (unsigned int j=0;j<vtmp.size();j++) {
+	tempTrigSeeds = tempTrigSeeds + vtmp[j];
+	tempTrigSeedPrescales += itmp[j];
+	if (j<(vtmp.size()-1)) {
+	  tempTrigSeeds = tempTrigSeeds + ", ";
+	  tempTrigSeedPrescales = tempTrigSeedPrescales + ", ";
+	}
+      }
 
-    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
-    for (unsigned int j=0;j<itmp.size();j++) { 
-      tempTrigSeedPrescales += itmp[j]; 
-      if (j<(itmp.size()-1)) { 
-	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
-      } 
-    }
-
-    if (itmp.size()>2) {
       tempTrigSeeds.ReplaceAll("_","\\_");
       tempTrigSeedPrescales.ReplaceAll("_","\\_");
       footTrigSeedPrescales.push_back(tempTrigSeedPrescales);
@@ -510,8 +509,16 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
       
       tempTrigSeeds = "List Too Long";
       tempTrigSeedPrescales = "-";
+    } else {
+      for (unsigned int j=0;j<vtmp.size();j++) {
+	tempTrigSeeds = tempTrigSeeds + vtmp[j];
+	tempTrigSeedPrescales += itmp[j];
+	if (j<(vtmp.size()-1)) {
+	  tempTrigSeeds = tempTrigSeeds + ",";
+	  tempTrigSeedPrescales = tempTrigSeedPrescales + ",";
+	}
+      }
     }
-    
     tempTrigSeeds.ReplaceAll("_","\\_");
     tempTrigSeedPrescales.ReplaceAll("_","\\_");
     
@@ -593,4 +600,74 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) {
   outFile << ")" << endl;
   
   outFile.close();
+}
+
+/* ********************************************** */
+// Print out HLTDataset report(s)
+/* ********************************************** */
+void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
+		, HLTDatasets &hltDatasets
+		, TString   &fullPathTableName       ///< Name for the output files. You can use this to put the output in your directory of choice (don't forget the trailing slash). Directories are automatically created as necessary.
+        , const Int_t     significantDigits = 3   ///< Number of significant digits to report percentages in.
+) {
+//  TString tableFileName = GetFileName(cfg,menu);
+  char sLumi[10];
+  sprintf(sLumi,"%1.1e",cfg->iLumi);
+// 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.report\n"); //RR
+  hltDatasets.report(sLumi, fullPathTableName+ "_PS_",significantDigits);   //SAK -- prints PDF tables
+// 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.write\n"); //RR
+  hltDatasets.write();
+
+	printf("**************************************************************************************************************************\n");
+	unsigned int HLTDSsize=hltDatasets.size();
+	for (unsigned int iHLTDS=0;iHLTDS< HLTDSsize; ++iHLTDS) {
+		unsigned int SampleDiasize=(hltDatasets.at(iHLTDS)).size();
+		for (unsigned int iDataset=0;iDataset< SampleDiasize; ++iDataset) {
+			unsigned int DSsize=hltDatasets.at(iHLTDS).at(iDataset).size();
+			printf("\n");
+			printf("%-60s\t%10.2lf\n", hltDatasets.at(iHLTDS).at(iDataset).name.Data(),
+						 hltDatasets.at(iHLTDS).at(iDataset).rate);
+			printf("\n");
+			for (unsigned int iTrigger=0; iTrigger< DSsize; ++iTrigger) {
+				TString DStriggerName(hltDatasets.at(iHLTDS).at(iDataset).at(iTrigger).name);
+				for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
+
+					TString tempTrigSeedPrescales; 
+					TString tempTrigSeeds; 
+					std::map<TString, std::vector<TString> > 
+						mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
+
+					vector<TString> vtmp; 
+					vector<int> itmp; 
+
+					typedef map< TString, vector<TString> >  mymap; 
+					for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
+						if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
+							vtmp = it->second; 
+							//cout<<it->first<<endl; 
+							for (unsigned int j=0;j<it->second.size();j++) { 
+								itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
+								//cout<<"\t"<<(it->second)[j]<<endl; 
+							} 
+						} 
+					} 
+					for (unsigned int j=0;j<vtmp.size();j++) { 
+						tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
+						tempTrigSeedPrescales += itmp[j]; 
+						if (j<(vtmp.size()-1)) { 
+							tempTrigSeeds = tempTrigSeeds + " or "; 
+							tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
+						} 
+					} 
+
+					TString iMenuTriggerName(menu->GetTriggerName(i));
+					if (DStriggerName.CompareTo(iMenuTriggerName)==0) {
+						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), menu->GetPrescale(i), Rate[i]);
+					}
+				}
+			}
+		}
+	}
+	printf("**************************************************************************************************************************\n");
+
 }

@@ -18,11 +18,12 @@ using namespace std;
 /* ********************************************** */
 // Declarations
 /* ********************************************** */
-void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &chains,OHltMenu *menu);
+void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &chains,OHltMenu *menu
+		, HLTDatasets &hltDatasets);
 void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
-	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint);
+	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint, HLTDatasets &hltDatasets);
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
-             vector<OHltRateCounter*> &ecs,OHltEffPrinter* eprint, float &DenEff);
+             vector<OHltRateCounter*> &ecs,OHltEffPrinter* eprint, float &DenEff, HLTDatasets &hltDatasets);
 
 /* ********************************************** */
 // Print out usage and example
@@ -46,11 +47,17 @@ int main(int argc, char *argv[]){
   OHltMenu *omenu = new OHltMenu();
   // Read & parse cfg file
   OHltConfig *ocfg = new OHltConfig(argv[1],omenu);
+  /**
+  Create a HLTDatasets object to record primary datasets.
+  Make sure to register each sample with it as well!
+  */
+  HLTDatasets   hltDatasets(omenu->GetTriggerNames(), ocfg->dsList.Data(), kFALSE);
+
 
   // Prepare process files
   vector<TChain*> chains; chains.clear();
   vector<OHltTree*> procs; procs.clear();
-  fillProcesses(ocfg,procs,chains,omenu);
+  fillProcesses(ocfg,procs,chains,omenu,hltDatasets);
 
   
   /* **** */
@@ -60,7 +67,7 @@ int main(int argc, char *argv[]){
     rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
   }
   OHltRatePrinter* rprint = new OHltRatePrinter();
-  calcRates(ocfg,omenu,procs,rcs,rprint);
+  calcRates(ocfg,omenu,procs,rcs,rprint,hltDatasets);
 
   /* **** */
   // Get Seed prescales
@@ -73,7 +80,17 @@ int main(int argc, char *argv[]){
     rprint->printRatesTex(ocfg,omenu);    
     rprint->printRatesTwiki(ocfg,omenu);     
     rprint->printPrescalesCfg(ocfg,omenu);
-    rprint->writeHistos(ocfg,omenu);    
+    rprint->writeHistos(ocfg,omenu);
+    char sLumi[10],sEnergy[10];
+    sprintf(sEnergy,"%1.0f",ocfg->cmsEnergy);
+    sprintf(sLumi,"%1.1e",ocfg->iLumi);
+    TString hltTableFileName= TString("hlt_DS_Table_") +
+							  sEnergy + "TeV_" +
+							  sLumi + TString("_") +
+							  ocfg->alcaCondition + TString("_") +
+							  ocfg->versionTag;
+// 		printf("About to call printHLTDatasets\n"); //RR
+    rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
   }
   /* **** */
   // Calculate Efficiencies
@@ -81,9 +98,12 @@ int main(int argc, char *argv[]){
   for (unsigned int i=0;i<procs.size();i++) {
     ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
   }
+	//RR debugging couts
+// 	printf("About to call calcEff\n");
   OHltEffPrinter* eprint = new OHltEffPrinter();
   float DenEff=0;
-  calcEff(ocfg,omenu,procs,ecs,eprint,DenEff);
+  calcEff(ocfg,omenu,procs,ecs,eprint,DenEff,hltDatasets);
+// 	printf("calcEff just executed. About to call printEffASCII\n");
   if(DenEff != 0)
     eprint->printEffASCII(ocfg,omenu);
   
@@ -95,12 +115,15 @@ int main(int argc, char *argv[]){
 /* ********************************************** */
 // Prepare process files
 /* ********************************************** */
-void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &chains,OHltMenu *menu) {
+void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &chains,OHltMenu *menu
+		, HLTDatasets &hltDatasets) {
   for (unsigned int i=0;i<cfg->pnames.size();i++) {
     chains.push_back(new TChain("HltTree"));
     chains.back()->Add(cfg->ppaths[i]+cfg->pfnames[i]);
     //chains[i]->Print();
     procs.push_back(new OHltTree((TTree*)chains[i],menu));
+    hltDatasets.addSample(cfg->pnames[i], 
+													(cfg->pisPhysicsSample[i]==0 ? RATE_SAMPLE : PHYSICS_SAMPLE));   //SAK
   }
 }
 
@@ -108,7 +131,7 @@ void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &cha
 // Do the actual rate count & rate conversion
 /* ********************************************** */
 void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
-	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint) {
+	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint, HLTDatasets &hltDatasets) {
 
   const int ntrig = (int)menu->GetTriggerSize();
   vector<float> Rate,pureRate,spureRate;
@@ -133,19 +156,21 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
   for (unsigned int i=0;i<procs.size();i++) {
-    procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4);
+    procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4,hltDatasets[i]);
 
     float deno = (float)cfg->nEntries;
 
     float scaleddeno = -1;
-    if(cfg->isRealData && cfg->nL1AcceptsRun > 0)
-      scaleddeno = ((float)cfg->nEntries/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun;
 
     float chainEntries = (float)procs[i]->fChain->GetEntries(); 
     if (deno <= 0. || deno > chainEntries) {
       deno = chainEntries;
     }
 
+    if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
+      { 
+        scaleddeno = ((float)deno/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun / (float)cfg->prescaleNormalization; 
+      } 
 
     float mu =
       cfg->bunchCrossingTime*cfg->psigmas[i]*cfg->iLumi*(float)cfg->maxFilledBunches
@@ -153,11 +178,12 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     float collisionRate =
       ((float)cfg->nFilledBunches/(float)cfg->maxFilledBunches)/cfg->bunchCrossingTime ; // Hz
 
-    
+    hltDatasets[i].computeRate(collisionRate, mu);   //SAK -- convert event counts into rates
+
 
     for (int j=0;j<ntrig;j++) {
       // JH - cosmics!
-      if(cfg->isRealData) {
+      if(cfg->isRealData == 1) {
 	Rate[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],scaleddeno);   
 	RateErr[j] += OHltRateCounter::effErr((float)rcs[i]->iCount[j],scaleddeno); 
 	spureRate[j]    += OHltRateCounter::eff((float)rcs[i]->sPureCount[j],scaleddeno);   
@@ -205,7 +231,8 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   
 }
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
-             vector<OHltRateCounter*> &rcs,OHltEffPrinter* eprint, float &DenEff) {
+             vector<OHltRateCounter*> &rcs,OHltEffPrinter* eprint, float &DenEff
+						 , HLTDatasets &hltDatasets) {
 
   const int ntrig = (int)menu->GetTriggerSize();
   vector<float> Rate,pureRate,spureRate;
@@ -227,7 +254,8 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
   for (unsigned int i=0;i<procs.size();i++) {
-    if(cfg->pnames[i]=="zee"||cfg->pnames[i]=="zmumu"){
+//     if(cfg->pnames[i]=="zee"||cfg->pnames[i]=="zmumu"){
+    if(cfg->pisPhysicsSample[i]!=0){
 
       char filename[256];
       snprintf(filename,255,"MyEffHist_%d.root",i);
@@ -242,7 +270,7 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       TH1F *Eff_pt = new TH1F("eff_pt","eff_pt",nbinpt,ptmin,ptmax);
       TH1F *Eff_eta = new TH1F("eff_eta","eff_eta",nbineta,etamin,etamax);
 
-      procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4);
+      procs[i]->Loop(rcs[i],cfg,menu,i,DenEff,h1,h2,h3,h4,hltDatasets[i]);
       
       for (int j=0;j<ntrig;j++) {
 	Eff[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],DenEff);

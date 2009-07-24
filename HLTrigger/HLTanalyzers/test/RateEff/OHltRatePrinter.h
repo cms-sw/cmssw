@@ -37,6 +37,10 @@ class OHltRatePrinter {
   void writeHistos(OHltConfig *cfg, OHltMenu *menu);
   TString GetFileName(OHltConfig *cfg, OHltMenu *menu);
   void printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu);
+  void printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
+  		, HLTDatasets &hltDatasets
+  		, TString   &fullPathTableName
+  		, const Int_t     significantDigits);
 
   vector<float> Rate;
   vector<float> RateErr;

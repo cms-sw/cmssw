@@ -68,6 +68,8 @@ public:
 */
 class Dataset : public std::vector<Trigger> {
 public:
+  using std::vector<Trigger>::at;
+  using std::vector<Trigger>::size;
   //.. Data ...................................................................
   TString               name;             ///< Name used to identify the dataset.
   Bool_t                isNewTrigger;     ///< True if this "dataset" is actually just a single new trigger to be considered, false otherwise.
@@ -163,6 +165,8 @@ enum  SampleCategory  { RATE_SAMPLE       ///< These are samples that drive the 
 class SampleDiagnostics : public std::vector<Dataset>
 {
 public:
+  using std::vector<Dataset>::at;
+  using std::vector<Dataset>::size;
   //.. Data ...................................................................
   TString                             name;                     ///< Name of the sample, for display purposes.
   SampleCategory                      typeOfSample;             ///< The type of sample (see the SampleCategory documentation), for presentation purposes.
@@ -329,6 +333,7 @@ protected:
 public:
   using std::vector<SampleDiagnostics>::operator[];
   using std::vector<SampleDiagnostics>::at;
+  using std::vector<SampleDiagnostics>::size;
 
   //.. Functions ..............................................................
   /**
