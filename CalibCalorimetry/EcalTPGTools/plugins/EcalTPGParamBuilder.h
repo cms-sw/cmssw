@@ -58,7 +58,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   ~EcalTPGParamBuilder() ;
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
   virtual void beginJob(const edm::EventSetup& evtSetup) ;
-  bool checkIfOK (EcalPedestals::Item item) ;
+  bool checkIfOK (EcalPedestals::Item item);
 
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;
@@ -75,8 +75,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
   void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
-  int getEtaSlice(int tccId, int towerInTCC) ;
-  void realignBaseline(linStruc & lin, bool forceBase12to0 = false) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -106,21 +104,11 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
   EcalTPGDBApp * db_ ;
+  bool readFromDB_ ;
   bool writeToDB_ ;
   bool writeToFiles_ ;
   unsigned int DBrunNb_ ;
   bool DBEE_ ;
-
-  int ped_conf_id_;
-  int lin_conf_id_;
-  int lut_conf_id_;
-  int fgr_conf_id_;
-  int sli_conf_id_;
-  int wei_conf_id_;
-  int bxt_conf_id_;
-  int btt_conf_id_;
-  std::string tag_;
-  int version_;
 
 };
 #endif

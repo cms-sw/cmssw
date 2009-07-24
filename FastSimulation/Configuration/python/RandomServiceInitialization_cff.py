@@ -23,6 +23,11 @@ RandomNumberGeneratorService = cms.Service(
     # restoreStateLabel = cms.string('randomEngineStateProducer'),
 
     # This is to initialize the random engine of the source
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+
     generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')

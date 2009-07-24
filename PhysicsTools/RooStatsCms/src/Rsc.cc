@@ -5,11 +5,7 @@
 
 #include "math.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "Rsc.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/Rsc.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/Rsc.h"
 
 #include "TF1.h"
 #include "TAxis.h"
@@ -113,7 +109,7 @@ namespace Rsc
         int current_bin=initial_maxbin;
         double bincontent=0;
         // right
-        while(bincontent==0 && current_bin < histo->GetNbinsX()){
+        while(bincontent==0){
             current_bin++;
             bincontent=histo->GetBinContent(current_bin);
             }

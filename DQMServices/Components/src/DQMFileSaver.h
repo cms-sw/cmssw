@@ -27,7 +27,8 @@ private:
   enum Convention
   {
     Online,
-    Offline
+    Offline,
+    RelVal
   };
 
   Convention	convention_;

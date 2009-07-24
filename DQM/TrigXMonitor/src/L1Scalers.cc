@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.12 2008/09/17 20:55:54 lorenzo Exp $
+// $Id: L1Scalers.cc,v 1.14 2009/03/25 10:34:13 lorenzo Exp $
 #include <iostream>
 
 
@@ -46,12 +46,12 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   nLumiBlock_(0),
   l1AlgoCounter_(0),
   l1TtCounter_(0),
-  rateAlgoCounter_(0),					  
-  rateTtCounter_(0),					  
   pixFedSize_(0),
   hfEnergy_(0),
   fedStart_(ps.getUntrackedParameter<unsigned int>("firstFED", 0)),
   fedStop_(ps.getUntrackedParameter<unsigned int>("lastFED", 931)), 
+  rateAlgoCounter_(0),					  
+  rateTtCounter_(0),					  
   fedRawCollection_(ps.getParameter<edm::InputTag>("fedRawData")),
   maskedList_(ps.getUntrackedParameter<std::vector<int> >("maskedChannels", std::vector<int>())), //this is using the ashed index
   HcalRecHitCollection_(ps.getParameter<edm::InputTag>("HFRecHitCollection"))

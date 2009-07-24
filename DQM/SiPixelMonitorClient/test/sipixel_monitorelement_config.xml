@@ -3,9 +3,12 @@
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="hitmap">            </MonElement> 
+     <MonElement name="NErrors"></MonElement> 
+     <MonElement name="ClustX"></MonElement>
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
+     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -18,6 +21,7 @@
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
+     <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc">            </MonElement> 
@@ -33,10 +37,7 @@
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage">	</MonElement> 
-     <MonElement name="TBMType">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -49,10 +50,7 @@
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Disc_" update_frequency="300"> 
-     <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
-     <MonElement name="TBMMessage">	</MonElement> 
-     <MonElement name="TBMType">	</MonElement> 
      <MonElement name="ndigis">         </MonElement>
      <MonElement name="ndigisFREQ"></MonElement>  
      <MonElement name="adc">            </MonElement> 
@@ -69,6 +67,15 @@
 </SubStructureGrandEndcapLevel> 
 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 	 
+     <MonElement name="errorType"></MonElement> 
+     <MonElement name="fullType"></MonElement> 
+     <MonElement name="NErrors"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
+     <MonElement name="EvtNbr"></MonElement> 
+     <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="chanNmbr"></MonElement> 
+     <MonElement name="evtSize"></MonElement> 
+     <MonElement name="linkId"></MonElement> 
 	 </SubStructureNonDetId>
 </SummaryPlot>
 

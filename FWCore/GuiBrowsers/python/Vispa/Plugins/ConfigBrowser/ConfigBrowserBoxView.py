@@ -3,7 +3,7 @@ import logging
 from PyQt4.QtCore import Qt
 
 from Vispa.Main.BoxDecayTree import BoxDecayTree
-from Vispa.Main.PortConnection import PortConnection,PointToPointConnection
+from Vispa.Main.PortConnection import PortConnection
 
 class ConfigBrowserBoxView(BoxDecayTree):
     """
@@ -14,7 +14,6 @@ class ConfigBrowserBoxView(BoxDecayTree):
         self._connections = []
         self._colors = [Qt.red, Qt.green, Qt.blue, Qt.cyan, Qt.magenta]
         self._colorIndex = 0
-        PointToPointConnection.CONNECTION_THICKNESS=3
 
     def connections(self):
         return self._connections

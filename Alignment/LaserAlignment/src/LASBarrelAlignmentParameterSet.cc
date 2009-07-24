@@ -1,5 +1,5 @@
 
-#include "Alignment/LaserAlignment/interface/LASBarrelAlignmentParameterSet.h"
+#include "Alignment/LaserAlignment/src/LASBarrelAlignmentParameterSet.h"
 
 
 

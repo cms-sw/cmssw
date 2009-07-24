@@ -1,5 +1,5 @@
 
-#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
+#include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
 
 
 ///

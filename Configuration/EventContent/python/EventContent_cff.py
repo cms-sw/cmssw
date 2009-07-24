@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.18 2009/07/17 17:04:11 ghete Exp $
+#  $Id: EventContent_cff.py,v 1.17 2009/07/15 22:17:21 futyand Exp $
 #
 #
 #

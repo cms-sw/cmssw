@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # input collection
-    electronSource = cms.InputTag("gsfElectrons"),
+    electronSource = cms.InputTag("electronsNoDuplicates"),
 
     # use particle flow instead of std reco    
     useParticleFlow  =  cms.bool( False ),
@@ -57,6 +57,11 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
     ),
 
+    # electron cluster shape
+    addElectronShapes = cms.bool(True),
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+
     # electron ID
     addElectronID = cms.bool(True),
     electronIDSources = cms.PSet(
@@ -70,7 +75,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     ),
 
     # mc matching
-    addGenMatch      = cms.bool(False),
+    addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(False),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
     

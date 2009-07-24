@@ -13,34 +13,69 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.14 2009/05/27 12:39:42 ahunt Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.11 2009/03/09 21:45:45 ahunt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
 
+
+// system include files
+#include <cmath>
+
+// user include files
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMNtuple.h"
 #include "PhysicsTools/TagAndProbe/interface/CandidateAssociation.h"
 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/RecoCandidate/interface/FitResult.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "Math/GenVector/VectorUtil.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+//
+// constants, enums and typedefs
+//
+using namespace std; 
+using namespace reco; 
+using namespace edm;
+using namespace trigger;
 
-#include "DataFormats/Math/interface/deltaR.h" // reco::deltaR
+//
+// static data member definitions
+//
 
 //
 // constructors and destructor
 //
 TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
 {
-   edm::LogInfo("TagProbeEDMNtuple") << "Here in TagProbeEDMNtuple init!";
+   cout << "Here in TagProbeEDMNtuple init!" << endl;
    
-   candType_ = iConfig.getUntrackedParameter<std::string>("tagProbeType","Muon");
+   candType_ = iConfig.getUntrackedParameter<string>("tagProbeType","Muon");
    candPDGId_ = 13;
    if( candType_ != "Muon" ) candPDGId_ = 11;
 
@@ -50,12 +85,12 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    isMC_ = iConfig.getUntrackedParameter<bool>("isMC",true);
 
    // Get the id's of any MC particles to store.
-   std::vector<int> defaultPIDs;
-   mcParticles_ = iConfig.getUntrackedParameter< std::vector<int> >(
+   vector<int> defaultPIDs;
+   mcParticles_ = iConfig.getUntrackedParameter< vector<int> >(
       "mcParticles",defaultPIDs);
 
-   std::vector<int> defaultPPIDs;
-   mcParents_ = iConfig.getUntrackedParameter< std::vector<int> >(
+   vector<int> defaultPPIDs;
+   mcParents_ = iConfig.getUntrackedParameter< vector<int> >(
       "mcParents",defaultPPIDs);
 
    if( mcParents_.size() != mcParticles_.size() )
@@ -68,26 +103,26 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    }
 
    // ********** Reco Tracks ********** //
-   std::vector< edm::InputTag > dTrackTags;
+   vector< edm::InputTag > dTrackTags;
    dTrackTags.push_back( edm::InputTag("ctfWithMaterialTracks"));
-   trackTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   trackTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "trackTags",dTrackTags);
    // ********************************* //
 
 
 
    // ********** Calo Jets ********** //
-   jetTags_ = iConfig.getUntrackedParameter<std::string>("jets","iterativeCone5CaloJets");
+   jetTags_ = iConfig.getUntrackedParameter<string>("jets","iterativeCone5CaloJets");
 
    // ********************************* //
 
 
    // ********** Tag-Probes ********** //
-   std::vector< edm::InputTag > defaultTagProbeMapTags;
-   tagProbeMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultTagProbeMapTags;
+   tagProbeMapTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "tagProbeMapTags",defaultTagProbeMapTags);
    for( int i=0; i<(int)tagProbeMapTags_.size(); ++i )
-      edm::LogInfo("TagProbeEDMtuple") << tagProbeMapTags_[i] ;
+      cout << tagProbeMapTags_[i] << endl;
    // ******************************** //
 
    // Make sure vector sizes are correct!
@@ -99,82 +134,82 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    genParticlesTag_ = iConfig.getUntrackedParameter<edm::InputTag>(
       "genParticlesTag",dGenParticlesTag);
 
-   std::vector< edm::InputTag > defaultTagCandTags;
-   tagCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultTagCandTags;
+   tagCandTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "tagCandTags",defaultTagCandTags);
    for( int i=0; i<(int)tagCandTags_.size(); ++i ) 
-      edm::LogInfo("TagProbeEDMtuple") << tagCandTags_[i] ;
+      cout << tagCandTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)tagCandTags_.size() < map_size )
    {
-      edm::LogInfo("TagProbeEDMtuple") << "Warning: Number of TagProbe maps bigger than number of tag arrays!" ;
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)tagCandTags_.size()); ++i ) 
 	 tagCandTags_.push_back(dBlankTag);
    } 
 
-   std::vector< edm::InputTag > defaultAllProbeCandTags;
-   allProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultAllProbeCandTags;
+   allProbeCandTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "allProbeCandTags",defaultAllProbeCandTags);
    for( int i=0; i<(int)allProbeCandTags_.size(); ++i ) 
-      edm::LogInfo("TagProbeEDMNtuple") << allProbeCandTags_[i] ;
+      cout << allProbeCandTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)allProbeCandTags_.size() < map_size )
    {
-      edm::LogWarning("TagProbeEDMNtuple") << "Number of TagProbe maps bigger than number of tag arrays!" ;
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)allProbeCandTags_.size()); ++i ) 
 	 allProbeCandTags_.push_back(dBlankTag);
    } 
 
-   std::vector< edm::InputTag > defaultPassProbeCandTags;
-   passProbeCandTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultPassProbeCandTags;
+   passProbeCandTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "passProbeCandTags",defaultPassProbeCandTags);
    for( int i=0; i<(int)passProbeCandTags_.size(); ++i ) 
-      edm::LogInfo("TagProbeEDMNtuple") << passProbeCandTags_[i] ;
+      cout << passProbeCandTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)passProbeCandTags_.size() < map_size )
    {
-      edm::LogWarning("TagProbeEDMNtuple") << "Number of TagProbe maps bigger than number of tag arrays!" ;
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)passProbeCandTags_.size()); ++i ) 
 	 passProbeCandTags_.push_back(dBlankTag);
    } 
    // ******************************************* //
 
    // ********** Truth matching ********** //
-   std::vector< edm::InputTag > defaultTagTruthMatchMapTags;
-   tagTruthMatchMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultTagTruthMatchMapTags;
+   tagTruthMatchMapTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "tagTruthMatchMapTags",defaultTagTruthMatchMapTags);
    for( int i=0; i<(int)tagTruthMatchMapTags_.size(); ++i ) 
-      edm::LogInfo("TagProbeEDMNtuple") << tagTruthMatchMapTags_[i] ;
+      cout << tagTruthMatchMapTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)tagTruthMatchMapTags_.size() < map_size )
    {
-      edm::LogWarning("TagProbeEDMNtuple") << "Warning: Number of TagProbe maps bigger than number of tag arrays!";
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)tagTruthMatchMapTags_.size()); ++i ) 
 	 tagTruthMatchMapTags_.push_back(dBlankTag);
    } 
 
-   std::vector< edm::InputTag > defaultAllProbeTruthMatchMapTags;
-   allProbeTruthMatchMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultAllProbeTruthMatchMapTags;
+   allProbeTruthMatchMapTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "allProbeTruthMatchMapTags",defaultAllProbeTruthMatchMapTags);
    for( int i=0; i<(int)allProbeTruthMatchMapTags_.size(); ++i ) 
-      edm::LogInfo("TagProbeEDMNtuple") << allProbeTruthMatchMapTags_[i] ;
+      cout << allProbeTruthMatchMapTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)allProbeTruthMatchMapTags_.size() < map_size )
    {
-      edm::LogWarning("TagProbeEDMNtuple") << "Number of TagProbe maps bigger than number of tag arrays!" ;
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)allProbeTruthMatchMapTags_.size()); ++i ) 
 	 allProbeTruthMatchMapTags_.push_back(dBlankTag);
    } 
 
-   std::vector< edm::InputTag > defaultPassProbeTruthMatchMapTags;
-   passProbeTruthMatchMapTags_ = iConfig.getUntrackedParameter< std::vector<edm::InputTag> >(
+   vector< edm::InputTag > defaultPassProbeTruthMatchMapTags;
+   passProbeTruthMatchMapTags_ = iConfig.getUntrackedParameter< vector<edm::InputTag> >(
       "passProbeTruthMatchMapTags",defaultPassProbeTruthMatchMapTags);
    for( int i=0; i<(int)passProbeTruthMatchMapTags_.size(); ++i )
-      edm::LogInfo("TagProbeEDMNtuple") << passProbeTruthMatchMapTags_[i] ;
+      cout << passProbeTruthMatchMapTags_[i] << endl;
    // Make sure the arrays won't cause a seg fault!
    if( (int)passProbeTruthMatchMapTags_.size() < map_size )
    {
-      edm::LogInfo("TagProbeEDMNtuple") << "Warning: Number of TagProbe maps bigger than number of tag arrays!" ;
+      cout << "Warning: Number of TagProbe maps bigger than number of tag arrays!" << endl;
       for( int i=0; i<(map_size-(int)passProbeTruthMatchMapTags_.size()); ++i ) 
 	 passProbeTruthMatchMapTags_.push_back(dBlankTag);
    } 
@@ -199,7 +234,7 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
       "BestProbeCriteria", defaultBestProbeCriteria);
    if( (int)bestProbeCriteria_.size() < map_size )
    {
-      edm::LogInfo("TagProbeEDMNtuple") << "Notice: Number of TagProbe maps bigger than number of BestProbeCriteria" ;
+      cout << "Notice: Number of TagProbe maps bigger than number of BestProbeCriteria" << endl;
       for( int i=0; i<(map_size-(int)bestProbeCriteria_.size()); ++i ) 
 	 bestProbeCriteria_.push_back(dBestProbeCriteria);
    } 
@@ -210,7 +245,7 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
       "BestProbeInvMass", defaultBestProbeInvMass);
    if( (int)bestProbeInvMass_.size() < map_size )
    {
-      edm::LogInfo("TagProbeEDMNtuple") << "Notice: Number of TagProbe maps bigger than number of BestProbeInvMass" ;
+      cout << "Notice: Number of TagProbe maps bigger than number of BestProbeInvMass" << endl;
       for( int i=0; i<(map_size-(int)bestProbeInvMass_.size()); ++i ) 
 	 bestProbeInvMass_.push_back(dBestProbeInvMass);
    } 
@@ -225,40 +260,40 @@ TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
    // types we will store this in the event also
    for( int i=0; i<(int)mcParticles_.size(); ++i )
    {
-      std::stringstream nstream;
+      stringstream nstream;
       nstream << "MC" << mcParticles_[i];
-      std::string prefix = nstream.str();
+      string prefix = nstream.str();
 
-      std::string name = "n"+prefix;
+      string name = "n"+prefix;
       produces< int >(name.c_str()).setBranchAlias(name.c_str());
 
       name = prefix+"ppid"; /* Particle PDGId of parent. */
-      produces< std::vector<int> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<int> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"pbc";  /* Particle barcode of parent. */
-      produces< std::vector<int> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<int> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"pid";  /* Particle PDGId. */
-      produces< std::vector<int> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<int> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"bc";   /* Particle barcode. */
-      produces< std::vector<int> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<int> >(name.c_str()).setBranchAlias(name.c_str());
 
       name = prefix+"mass"; /* Particle mass. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"p";    /* Particle momentum. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"pt";   /* Particle transverse momentum. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"px";   /* Particle x-momentum. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"py";   /* Particle y-momentum. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"pz";   /* Particle z-momentum. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"e";    /* Particle energy. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"eta";  /* Particle psuedorapidity. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
       name = prefix+"phi";  /* Particle phi. */
-      produces< std::vector<float> >(name.c_str()).setBranchAlias(name.c_str());
+      produces< vector<float> >(name.c_str()).setBranchAlias(name.c_str());
  
    }
 
@@ -433,8 +468,8 @@ TagProbeEDMNtuple::endJob() {
 void
 TagProbeEDMNtuple::fillRunEventInfo()
 {
-   std::auto_ptr< int > run_( new int );
-   std::auto_ptr< int > event_( new int );
+   auto_ptr< int > run_( new int );
+   auto_ptr< int > event_( new int );
 
    *run_ = m_event->id().run();
    *event_ = m_event->id().event();
@@ -448,16 +483,16 @@ TagProbeEDMNtuple::fillRunEventInfo()
 void
 TagProbeEDMNtuple::fillTriggerInfo()
 {
-   std::auto_ptr<int> nhlt_( new int );
+   auto_ptr<int> nhlt_( new int );
    
    // Trigger Info
-   edm::Handle< trigger::TriggerEvent > trgEvent;
+   Handle<TriggerEvent> trgEvent;
    m_event->getByLabel(triggerEventTag_,trgEvent);
 
    *nhlt_ = 0;
    if( trgEvent.isValid() )
    {
-      trigger::size_type index = trgEvent->filterIndex(hltTag_.label());
+      size_type index = trgEvent->filterIndex(hltTag_.label());
       if( index < trgEvent->sizeFilters() ) {
 	// find how many objects there are
 	const trigger::Keys& KEYS(trgEvent->filterKeys(index));
@@ -475,10 +510,10 @@ void TagProbeEDMNtuple::fillMCInfo()
    // Extract the MC information from the frame, if we are running on MC
    if( isMC_ )
    {      
-      edm::Handle< reco::GenParticleCollection > genparticles;
+      Handle<GenParticleCollection> genparticles;
       if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
-	edm::LogError("TagProbeEDMNtuple") << "Could not extract gen particles with input tag " 
-	      << genParticlesTag_ ;
+	 cerr << "Could not extract gen particles with input tag " 
+	      << genParticlesTag_ << endl;
       }
 
       if( genparticles.isValid() )
@@ -487,36 +522,36 @@ void TagProbeEDMNtuple::fillMCInfo()
 	 // be stored
 	 for( int j=0; j<(int)mcParticles_.size(); ++j )
 	 {
-	    std::stringstream nstream;
+	    stringstream nstream;
 	    nstream << "MC" << mcParticles_[j];
-	    std::string prefix = nstream.str();
+	    string prefix = nstream.str();
 
-	    std::auto_ptr< int > nmc_( new int );
+	    auto_ptr< int > nmc_( new int );
 	 
-	    std::auto_ptr< std::vector<int> > mc_ppid_( new std::vector<int> );
-	    std::auto_ptr< std::vector<int> > mc_pbc_( new std::vector<int> );
-	    std::auto_ptr< std::vector<int> > mc_pid_( new std::vector<int> );
-	    std::auto_ptr< std::vector<int> > mc_bc_( new std::vector<int> );
+	    auto_ptr< vector<int> > mc_ppid_( new vector<int> );
+	    auto_ptr< vector<int> > mc_pbc_( new vector<int> );
+	    auto_ptr< vector<int> > mc_pid_( new vector<int> );
+	    auto_ptr< vector<int> > mc_bc_( new vector<int> );
 
-	    std::auto_ptr< std::vector<float> > mc_mass_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_p_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_pt_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_px_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_py_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_pz_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_e_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_eta_( new std::vector<float> );
-	    std::auto_ptr< std::vector<float> > mc_phi_( new std::vector<float> );
+	    auto_ptr< vector<float> > mc_mass_( new vector<float> );
+	    auto_ptr< vector<float> > mc_p_( new vector<float> );
+	    auto_ptr< vector<float> > mc_pt_( new vector<float> );
+	    auto_ptr< vector<float> > mc_px_( new vector<float> );
+	    auto_ptr< vector<float> > mc_py_( new vector<float> );
+	    auto_ptr< vector<float> > mc_pz_( new vector<float> );
+	    auto_ptr< vector<float> > mc_e_( new vector<float> );
+	    auto_ptr< vector<float> > mc_eta_( new vector<float> );
+	    auto_ptr< vector<float> > mc_phi_( new vector<float> );
 
 	    int nmc = 0;
 
-	    for( unsigned int i=0; i<genparticles->size(); ++i)
+	    for( unsigned int i=0; i<genparticles->size(); i++ )
 	    {
 	       int pdg = (*genparticles)[i].pdgId();
 	       
 	       if( abs(pdg) == mcParticles_[j] )
 		  {
-		     reco::Particle::LorentzVector p4 = (*genparticles)[i].p4();
+		     Particle::LorentzVector p4 = (*genparticles)[i].p4();
 
 		     int    pid = pdg;
 		     int    barcode = 0;
@@ -535,7 +570,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 		     // we will just take the first).
 		     int parent_pi = 0;
 		     int parent_bc = 0;
-		     const reco::Candidate *mcand = (*genparticles)[i].mother();
+		     const Candidate *mcand = (*genparticles)[i].mother();
 		     if( mcand != 0 )
 		     {
 			parent_pi = mcand->pdgId();
@@ -543,7 +578,7 @@ void TagProbeEDMNtuple::fillMCInfo()
 			{
 			   if( mcand->mother() != 0 )
 			   {
-			      const reco::Candidate *gcand = mcand->mother();
+			      const Candidate *gcand = mcand->mother();
 			      parent_pi = gcand->pdgId();
 			   }
 			}
@@ -567,12 +602,12 @@ void TagProbeEDMNtuple::fillMCInfo()
 		     mc_phi_->push_back( phi );
 		     mc_eta_->push_back( eta );
 
-		     ++nmc;
+		     nmc++;
 		  }
 	    }
 
 	    // Insert these particles into the event!!
-	    std::string name = "n"+prefix;
+	    string name = "n"+prefix;
 	    nmc_.reset( new int(nmc) );
 	    m_event->put( nmc_, name.c_str());
 
@@ -614,76 +649,76 @@ void TagProbeEDMNtuple::fillMCInfo()
 void
 TagProbeEDMNtuple::fillTagProbeInfo()
 {
-   std::auto_ptr<int> nrtp_( new int );
-   std::auto_ptr< std::vector<int> > tp_type_( new std::vector<int> );
-   std::auto_ptr< std::vector<int> > tp_true_( new std::vector<int> );
-   std::auto_ptr< std::vector<int> > tp_ppass_( new std::vector<int> );
-   std::auto_ptr< std::vector<int> > tp_hlt_( new std::vector<int> ); 
+   auto_ptr<int> nrtp_( new int );
+   auto_ptr< vector<int> > tp_type_( new vector<int> );
+   auto_ptr< vector<int> > tp_true_( new vector<int> );
+   auto_ptr< vector<int> > tp_ppass_( new vector<int> );
+   auto_ptr< vector<int> > tp_hlt_( new vector<int> ); 
 
-   std::auto_ptr< std::vector<float> > tp_mass_( new std::vector<float> );
-   std::auto_ptr< std::vector<float> > tp_p_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_pt_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_px_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_py_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_pz_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_e_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_et_( new std::vector<float> ); 
+   auto_ptr< vector<float> > tp_mass_( new vector<float> );
+   auto_ptr< vector<float> > tp_p_( new vector<float> );  
+   auto_ptr< vector<float> > tp_pt_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_px_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_py_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_pz_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_e_( new vector<float> );  
+   auto_ptr< vector<float> > tp_et_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > tp_tag_p_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_tag_px_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_py_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_pz_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_pt_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_e_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_tag_et_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_q_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_tag_eta_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_tag_phi_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_tag_vx_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_tag_vy_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_tag_vz_( new std::vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_p_( new vector<float> );   
+   auto_ptr< vector<float> > tp_tag_px_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_py_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_pz_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_pt_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_e_( new vector<float> );   
+   auto_ptr< vector<float> > tp_tag_et_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_q_( new vector<float> );   
+   auto_ptr< vector<float> > tp_tag_eta_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_phi_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vx_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vy_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_vz_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > tp_tag_pDet_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_tag_pxDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_pyDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_pzDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_ptDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_eDet_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_tag_etDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_tag_etaDet_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_tag_phiDet_( new std::vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_pDet_( new vector<float> );   
+   auto_ptr< vector<float> > tp_tag_pxDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_pyDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_pzDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_ptDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_eDet_( new vector<float> );   
+   auto_ptr< vector<float> > tp_tag_etDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_tag_etaDet_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_tag_phiDet_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > tp_probe_p_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_px_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_py_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_pz_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_pt_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_e_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_et_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_q_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_eta_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_phi_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_vx_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_vy_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_vz_( new std::vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_p_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_px_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_py_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_pz_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_pt_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_e_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_et_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_q_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_eta_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_phi_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vx_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vy_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_vz_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > tp_probe_pDet_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_pxDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_pyDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_pzDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_ptDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_eDet_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_etDet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > tp_probe_qDet_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > tp_probe_etaDet_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_phiDet_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_jetDeltaR_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > tp_probe_totJets_( new std::vector<float> );
+   auto_ptr< vector<float> > tp_probe_pDet_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_pxDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_pyDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_pzDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_ptDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_eDet_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_etDet_( new vector<float> );  
+   auto_ptr< vector<float> > tp_probe_qDet_( new vector<float> );   
+   auto_ptr< vector<float> > tp_probe_etaDet_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_phiDet_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_jetDeltaR_( new vector<float> ); 
+   auto_ptr< vector<float> > tp_probe_totJets_( new vector<float> );
 
 
 
    // Trigger Info
-   edm::Handle< trigger::TriggerEvent> trgEvent;
+   Handle<TriggerEvent> trgEvent;
    m_event->getByLabel(triggerEventTag_,trgEvent);
 
    // Fill some information about the tag & probe collections
@@ -691,51 +726,50 @@ TagProbeEDMNtuple::fillTagProbeInfo()
    for( int itype=0; itype<(int)tagProbeMapTags_.size(); ++itype )
    {
       // Tag-Probes
-      edm::Handle< reco::CandViewCandViewAssociation> tagprobes;
+      Handle<CandViewCandViewAssociation> tagprobes;
       if ( !m_event->getByLabel(tagProbeMapTags_[itype],tagprobes) ) {
-	 edm::LogWarning("Z") << "Could not extract tag-probe map with input tag " 
+	 LogWarning("Z") << "Could not extract tag-probe map with input tag " 
 			 << tagProbeMapTags_[itype];
       }
 
       // Tag MC Truth Match Maps
-      edm::Handle< reco::GenParticleMatch> tagmatch;
+      Handle<GenParticleMatch> tagmatch;
       if ( !m_event->getByLabel(tagTruthMatchMapTags_[itype],tagmatch) ) {
-	 edm::LogWarning("Z") << "Could not extract muon tag match map "
+	 LogWarning("Z") << "Could not extract muon tag match map "
 			 << "with input tag " << tagTruthMatchMapTags_[itype];
       }
 
       // Truth match for probe
-      edm::Handle< reco::GenParticleMatch> allprobematch;
+      Handle<GenParticleMatch> allprobematch;
       if ( !m_event->getByLabel(allProbeTruthMatchMapTags_[itype],allprobematch) ) {
-	 edm::LogWarning("Z") << "Could not extract muon allprobe match map "
+	 LogWarning("Z") << "Could not extract muon allprobe match map "
 			 << "with input tag " << allProbeTruthMatchMapTags_[itype];
       }
 
       // Tag Candidates
-      edm::Handle< reco::CandidateView> tagmuons;
+      Handle<CandidateView> tagmuons;
       if ( !m_event->getByLabel(tagCandTags_[itype],tagmuons) ) {
-	 edm::LogWarning("Z") << "Could not extract tag muon cands with input tag " 
+	 LogWarning("Z") << "Could not extract tag muon cands with input tag " 
 			 << tagCandTags_[itype];
       }
 
       // Passing Probe Candidates
-      edm::Handle< reco::CandidateView> passprobemuons;
+      Handle<CandidateView> passprobemuons;
       if ( !m_event->getByLabel(passProbeCandTags_[itype],passprobemuons) ) {
-	 edm::LogWarning("Z") << "Could not extract tag muon cands with input tag " 
+	 LogWarning("Z") << "Could not extract tag muon cands with input tag " 
 			 << passProbeCandTags_[itype];
       }
 
       if( tagprobes.isValid() )
       {
-	 reco::CandViewCandViewAssociation::const_iterator tpItr = tagprobes->begin();
+	 CandViewCandViewAssociation::const_iterator tpItr = tagprobes->begin();
 	 for( ; tpItr != tagprobes->end(); ++tpItr )
 	 {
-	    const reco::CandidateBaseRef &tag = tpItr->key;
-	    std::vector< std::pair< reco::CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
+	    const CandidateBaseRef &tag = tpItr->key;
+	    vector< pair<CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
 
 	    // If there are two probes with the tag continue
-	    if( vprobes.size() > 1 ) {
-	      edm::LogInfo("TagProbeEDMNtuple") << " More than 1 probe for type " << itype; }///continue;}
+	    if( vprobes.size() > 1 ) {std::cout << " More than 1 probe for type " << itype << std::endl; }///continue;}
 
             int probenum = 0;
             probenum = getBestProbe(itype, tag, vprobes);
@@ -757,19 +791,19 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if( trgEvent.isValid() )
 	    {
-	       trigger::size_type index = trgEvent->filterIndex(hltTag_.label());
+	       size_type index = trgEvent->filterIndex(hltTag_.label());
 	       if( index < trgEvent->sizeFilters() )
 	       {
 
 		 const trigger::Keys& KEYS(trgEvent->filterKeys(index));
-		 const trigger::size_type nK(KEYS.size());
+		 const size_type nK(KEYS.size());
 		 // loop over these objects to see whether they match
 		 const trigger::TriggerObjectCollection& TOC = trgEvent->getObjects();
      
 		 for(int ipart = 0; ipart != nK; ++ipart) { 
 		   
 		   const trigger::TriggerObject& TO = TOC[KEYS[ipart]];	
-		   double dRval = reco::deltaR((float)tag->eta(), (float)tag->phi(), 
+		   double dRval = deltaR((float)tag->eta(), (float)tag->phi(), 
 					 TO.eta(), TO.phi());	
 		   hltTrigger = (dRval < delRMatchingCut_);
 		   if( hltTrigger ) break;
@@ -835,7 +869,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if(candType_ != "Muon") {	      
 	      reco::SuperClusterRef SC 
-		= tag->get< reco::SuperClusterRef >();
+		= tag->get<SuperClusterRef>();
 	      float theta = SC->position().Theta();
 	      deta = SC->eta();
 	      dphi = SC->phi();
@@ -894,7 +928,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 
 	    if(candType_ != "Muon") {	
 	      reco::SuperClusterRef SC 
-		= (vprobes[probenum].first)->get< reco::SuperClusterRef>();
+		= (vprobes[probenum].first)->get<SuperClusterRef>();
 	      float theta = SC->position().Theta();
 	      deta = SC->eta();
 	      dphi = SC->phi();
@@ -917,27 +951,27 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	    tp_probe_phiDet_->push_back(  dphi );
 
 	    // Now look for deltaR between tag & nearest CaloJet
-	    edm::Handle<reco::CaloJetCollection> jetsColl;
+	    Handle<reco::CaloJetCollection> jetsColl;
 	    if ( !m_event->getByLabel(jetTags_, jetsColl) ) {
-	      edm::LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;
-	      if ( !jetsColl->size() == 0){
-		double totaljets = 0.;
-		double dRjet_probe_min = 99.;
-		int iCounter = 0;
-		for ( reco::CaloJetCollection::const_iterator jet = jetsColl->begin(); 
-		     jet != jetsColl->end(); ++jet) {
-		  ++iCounter;
-		  if (jet->et() < 0.5 ) continue ;
-		  double dRjet_probe = deltaR(deta, dphi, jet->eta(), jet->phi());
-		  if(iCounter == 1) dRjet_probe_min = dRjet_probe;
-		  if (dRjet_probe < dRjet_probe_min) {
-		    dRjet_probe_min = dRjet_probe;
-		  }
-		  ++totaljets;
+	      LogWarning("Z") << "Could not extract jet with input tag " << jetTags_;}
+	    if ( !jetsColl->size() == 0){
+	      double totaljets = 0.;
+	      double dRjet_probe_min = 99.;
+	      int iCounter = 0;
+	      for (CaloJetCollection::const_iterator jet = jetsColl->begin(); 
+		   jet != jetsColl->end(); ++jet) {
+		++iCounter;
+		if (jet->et() < 0.5 ) continue ;
+		double dRjet_probe = deltaR(deta, dphi, jet->eta(), jet->phi());
+		if(iCounter == 1) dRjet_probe_min = dRjet_probe;
+		if (dRjet_probe < dRjet_probe_min) {
+		  dRjet_probe_min = dRjet_probe;
 		}
-		tp_probe_jetDeltaR_->push_back(  dRjet_probe_min );
-		tp_probe_totJets_->push_back(  totaljets);}
-	    }  
+		++totaljets;
+	      }
+	      tp_probe_jetDeltaR_->push_back(  dRjet_probe_min );
+	      tp_probe_totJets_->push_back(  totaljets);}
+
 	    ++nrtp;
 	 }
       }
@@ -1015,50 +1049,50 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 void
 TagProbeEDMNtuple::fillTrueEffInfo()
 {
-   std::auto_ptr<int> ncnd_( new int );
-   std::auto_ptr< std::vector<int> > cnd_type_( new std::vector<int> );   
-   std::auto_ptr< std::vector<int> > cnd_tag_( new std::vector<int> );    
-   std::auto_ptr< std::vector<int> > cnd_aprobe_( new std::vector<int> ); 
-   std::auto_ptr< std::vector<int> > cnd_pprobe_( new std::vector<int> ); 
-   std::auto_ptr< std::vector<int> > cnd_moid_( new std::vector<int> );   
-   std::auto_ptr< std::vector<int> > cnd_gmid_( new std::vector<int> );   
+   auto_ptr<int> ncnd_( new int );
+   auto_ptr< vector<int> > cnd_type_( new vector<int> );   
+   auto_ptr< vector<int> > cnd_tag_( new vector<int> );    
+   auto_ptr< vector<int> > cnd_aprobe_( new vector<int> ); 
+   auto_ptr< vector<int> > cnd_pprobe_( new vector<int> ); 
+   auto_ptr< vector<int> > cnd_moid_( new vector<int> );   
+   auto_ptr< vector<int> > cnd_gmid_( new vector<int> );   
 
-   std::auto_ptr< std::vector<float> > cnd_p_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_pt_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_px_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_py_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_pz_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_e_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_et_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_q_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_eta_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > cnd_phi_( new std::vector<float> ); 
+   auto_ptr< vector<float> > cnd_p_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_pt_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_px_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_py_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_pz_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_e_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_et_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_q_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_eta_( new vector<float> ); 
+   auto_ptr< vector<float> > cnd_phi_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > cnd_rp_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_rpt_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_rpx_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_rpy_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_rpz_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_re_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_ret_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_rq_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_reta_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > cnd_rphi_( new std::vector<float> ); 
+   auto_ptr< vector<float> > cnd_rp_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_rpt_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_rpx_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_rpy_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_rpz_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_re_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_ret_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_rq_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_reta_( new vector<float> ); 
+   auto_ptr< vector<float> > cnd_rphi_( new vector<float> ); 
 
-   std::auto_ptr< std::vector<float> > cnd_Detp_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_Detpt_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_Detpx_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_Detpy_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_Detpz_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_Dete_( new std::vector<float> );   
-   std::auto_ptr< std::vector<float> > cnd_Detet_( new std::vector<float> );  
-   std::auto_ptr< std::vector<float> > cnd_Deteta_( new std::vector<float> ); 
-   std::auto_ptr< std::vector<float> > cnd_Detphi_( new std::vector<float> ); 
+   auto_ptr< vector<float> > cnd_Detp_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_Detpt_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_Detpx_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_Detpy_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_Detpz_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_Dete_( new vector<float> );   
+   auto_ptr< vector<float> > cnd_Detet_( new vector<float> );  
+   auto_ptr< vector<float> > cnd_Deteta_( new vector<float> ); 
+   auto_ptr< vector<float> > cnd_Detphi_( new vector<float> ); 
 
    // Should change this to get the eff info for all types of tag-probe!!
-   edm::Handle< reco::GenParticleCollection> genparticles;
+   Handle<GenParticleCollection> genparticles;
    if ( !m_event->getByLabel(genParticlesTag_,genparticles) ) {
-      edm::LogWarning("Z") << "Could not extract gen particles with input tag " 
+      LogWarning("Z") << "Could not extract gen particles with input tag " 
 		      << genParticlesTag_;
    }
 
@@ -1068,43 +1102,43 @@ TagProbeEDMNtuple::fillTrueEffInfo()
    {
       for( int itype=0; itype<(int)tagProbeMapTags_.size(); ++itype )
       {
-	 edm::Handle< reco::GenParticleMatch> tagmatch;
+	 Handle<GenParticleMatch> tagmatch;
 	 if ( !m_event->getByLabel(tagTruthMatchMapTags_[itype],tagmatch) ) {
-	    edm::LogWarning("Z") << "Could not extract muon match map "
+	    LogWarning("Z") << "Could not extract muon match map "
 			    << "with input tag " << tagTruthMatchMapTags_[itype];
 	 }
 
-	 edm::Handle< reco::CandidateView> tags;
+	 Handle<CandidateView> tags;
 	 if ( !m_event->getByLabel(tagCandTags_[itype],tags) ) {
-	    edm::LogWarning("Z") << "Could not extract tag candidates "
+	    LogWarning("Z") << "Could not extract tag candidates "
 			    << "with input tag " << tagCandTags_[itype];
 	 }
 
-	 edm::Handle< reco::CandidateView> aprobes;
+	 Handle<CandidateView> aprobes;
 	 if ( !m_event->getByLabel(allProbeCandTags_[itype],aprobes) ) {
-	    edm::LogWarning("Z") << "Could not extract probe candidates "
+	    LogWarning("Z") << "Could not extract probe candidates "
 			    << "with input tag " << allProbeCandTags_[itype];
 	 }
 
-	 edm::Handle<reco::CandidateView> pprobes;
+	 Handle<CandidateView> pprobes;
 	 if ( !m_event->getByLabel(passProbeCandTags_[itype],pprobes) ) {
-	    edm::LogWarning("Z") << "Could not extract passing probe candidates "
+	    LogWarning("Z") << "Could not extract passing probe candidates "
 			    << "with input tag " << passProbeCandTags_[itype];
 	 }
 
-	 edm::Handle< reco::GenParticleMatch> apmatch;
+	 Handle<GenParticleMatch> apmatch;
 	 if ( !m_event->getByLabel(allProbeTruthMatchMapTags_[itype],apmatch) ) {
-	    edm::LogWarning("Z") << "Could not extract all probe match map "
+	    LogWarning("Z") << "Could not extract all probe match map "
 			    << "with input tag " << allProbeTruthMatchMapTags_[itype];
 	 }
 
-	 edm::Handle< reco::GenParticleMatch> ppmatch;
+	 Handle<GenParticleMatch> ppmatch;
 	 if ( !m_event->getByLabel(passProbeTruthMatchMapTags_[itype],ppmatch) ) {
-	    edm::LogWarning("Z") << "Could not extract pass probe match map "
+	    LogWarning("Z") << "Could not extract pass probe match map "
 			    << "with input tag " << passProbeTruthMatchMapTags_[itype];
 	 }
 
-	 for( unsigned int i=0; i<genparticles->size(); ++i )
+	 for( unsigned int i=0; i<genparticles->size(); i++ )
 	 {
 	    int pdg_id = (*genparticles)[i].pdgId();
 
@@ -1113,7 +1147,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    
 	    int moid  = -1;
 	    int gmoid = -1;
-	    const reco::Candidate *mcand = (*genparticles)[i].mother();
+	    const Candidate *mcand = (*genparticles)[i].mother();
 	    if( mcand != 0 )
 	    {
 	       moid = mcand->pdgId();
@@ -1121,7 +1155,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	       {
 		  if( mcand->mother() != 0 )
 		  {
-		     const reco::Candidate *gcand = mcand->mother();
+		     const Candidate *gcand = mcand->mother();
 		     gmoid = gcand->pdgId();
 		  }
 	       }
@@ -1163,24 +1197,24 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    double Detphi = -99999.9;
 	    double Deteta = -99999.9;
 
-	    reco::GenParticleRef mcRef( genparticles, (size_t)i );
+	    GenParticleRef mcRef( genparticles, (size_t)i );
 	    if( mcRef.isNull() ) continue;
 	    if( tagmatch.isValid() && tags.isValid() )
 	    {
 	       // Loop over the tag muons	      
-	       reco::CandidateView::const_iterator f = tags->begin();
+	       CandidateView::const_iterator f = tags->begin();
 	       for( ; f != tags->end(); ++f )
 	       {
 		  unsigned int index = f - tags->begin();
-		  reco::CandidateBaseRef tagRef = tags->refAt(index);
+		  CandidateBaseRef tagRef = tags->refAt(index);
 		  if( tagRef.isNull() ) continue;
-		  reco::GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
+		  GenParticleRef mcMatchRef = (*tagmatch)[tagRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {
 		     ftag = 1;
-		     const reco::Candidate *cnd = tagRef.get();
+		     const Candidate *cnd = tagRef.get();
 		     rp   = cnd->p();
 		     rpx  = cnd->px();
 		     rpy  = cnd->py();
@@ -1210,7 +1244,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		       Deteta = reta;
      
 		       reco::SuperClusterRef SC 
-			 = tagRef->get< reco::SuperClusterRef>();
+			 = tagRef->get<SuperClusterRef>();
 
 		       if ( SC.isNonnull() ) {
 			 float theta = SC->position().Theta();
@@ -1231,13 +1265,13 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    if( apmatch.isValid() && aprobes.isValid() )
 	    {	      
 	       // Loop over the tag muons
-	       reco::CandidateView::const_iterator f = aprobes->begin();
+	       CandidateView::const_iterator f = aprobes->begin();
 	       for( ; f != aprobes->end(); ++f )
 	       {
 		  unsigned int index = f - aprobes->begin();
-		  reco::CandidateBaseRef probeRef = aprobes->refAt(index);
+		  CandidateBaseRef probeRef = aprobes->refAt(index);
 		  if( probeRef.isNull() ) continue;
-		  reco::GenParticleRef mcMatchRef = (*apmatch)[probeRef];
+		  GenParticleRef mcMatchRef = (*apmatch)[probeRef];
 		  if( mcMatchRef.isNull() ) continue;
 
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
@@ -1245,7 +1279,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 		     fapb = 1;
 		     if( ftag == 0 )
 		     {
-			const reco::Candidate *cnd = probeRef.get();
+			const Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1275,7 +1309,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Deteta = reta;
      	      
 			  reco::SuperClusterRef SC 
-			    = probeRef->get< reco::SuperClusterRef>();
+			    = probeRef->get<SuperClusterRef>();
 
 			  if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
@@ -1297,20 +1331,20 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    if( ppmatch.isValid() && pprobes.isValid() )
 	    {     
 	       // Loop over the tag muons
-	       reco::CandidateView::const_iterator f = pprobes->begin();	       
+	       CandidateView::const_iterator f = pprobes->begin();	       
 	       for( ; f != pprobes->end(); ++f )
 	       {
 		  unsigned int index = f - pprobes->begin();		  
-		  reco::CandidateBaseRef probeRef = pprobes->refAt(index);		  
+		  CandidateBaseRef probeRef = pprobes->refAt(index);		  
 		  if( probeRef.isNull() ) continue;                
-		  reco::GenParticleRef mcMatchRef = (*ppmatch)[probeRef];                 
+		  GenParticleRef mcMatchRef = (*ppmatch)[probeRef];                 
 		  if( mcMatchRef.isNull() ) continue;                  
 		  if( &(*mcRef)==&(*mcMatchRef) ) 
 		  {                     
 		     fppb = 1;
 		     if( ftag == 0 && fapb == 0 )
 		     {
-			const reco::Candidate *cnd = probeRef.get();
+			const Candidate *cnd = probeRef.get();
 			rp   = cnd->p();
 			rpx  = cnd->px();
 			rpy  = cnd->py();
@@ -1340,7 +1374,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 			  Detphi = rphi;
 			  Deteta = reta;
 			  reco::SuperClusterRef SC 
-			    = probeRef->get< reco::SuperClusterRef>();
+			    = probeRef->get<SuperClusterRef>();
                           if ( SC.isNonnull() ) {
 			    float theta = SC->position().Theta();
 			    Deteta = SC->eta();
@@ -1399,7 +1433,7 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 	    cnd_Detphi_->push_back( Detphi );
 	    cnd_Deteta_->push_back( Deteta );
 
-	    ++ncnd;
+	    ncnd++;
 	 }
       }
    }
@@ -1449,15 +1483,16 @@ TagProbeEDMNtuple::fillTrueEffInfo()
 // *********************************************************************** //
 
 // ***************** Are Candidates from a Z? ******************** //
-bool TagProbeEDMNtuple::CandFromZ( reco::GenParticleRef mcRef )
+bool TagProbeEDMNtuple::CandFromZ( GenParticleRef mcRef )
 {
    bool isFromZ = false;
 
    if( mcRef.isNonnull() )
    {
+      //cout << "Id " << mcMatchRef->pdgId() << endl;
       int moid = -99;
       int gmoid = -99;
-      const reco::Candidate *mcand = mcRef->mother();
+      const Candidate *mcand = mcRef->mother();
       if( mcand != 0 )
       {
 	 moid = mcand->pdgId();
@@ -1465,7 +1500,7 @@ bool TagProbeEDMNtuple::CandFromZ( reco::GenParticleRef mcRef )
 	 {
 	    if( mcand->mother() != 0 )
 	    {
-	       const reco::Candidate *gcand = mcand->mother();
+	       const Candidate *gcand = mcand->mother();
 	       gmoid = gcand->pdgId();
 	    }
 	 }
@@ -1478,8 +1513,8 @@ bool TagProbeEDMNtuple::CandFromZ( reco::GenParticleRef mcRef )
 // *************************************************************** //
 
 // ***************** Does this probe pass? ******************** //
-int TagProbeEDMNtuple::ProbePassProbeOverlap( const reco::CandidateBaseRef& probe, 
-					      edm::Handle< reco::CandidateView>& passprobes )
+int TagProbeEDMNtuple::ProbePassProbeOverlap( const CandidateBaseRef& probe, 
+					      Handle<CandidateView>& passprobes )
 {
    int ppass = 0;
    if( passprobes.isValid() )
@@ -1494,12 +1529,12 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const reco::CandidateBaseRef& prob
 	   reco::SuperClusterRef passprobeSC; 
 
 	   if( not probe.isNull() ) probeSC  = 
-				    probe->get< reco::SuperClusterRef >();
+				    probe->get<SuperClusterRef>();
 
-	   reco::CandidateBaseRef ref = passprobes->refAt(ipp);
+	   CandidateBaseRef ref = passprobes->refAt(ipp);
 
 	   if( not ref.isNull() ) passprobeSC = 
-				    ref->get< reco::SuperClusterRef >();
+				    ref->get<SuperClusterRef>();
 
 	   isOverlap = isOverlap && ( probeSC == passprobeSC );
 	 }
@@ -1515,7 +1550,7 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const reco::CandidateBaseRef& prob
 
 
 // ***************** Trigger object matching ******************** //
-bool TagProbeEDMNtuple::MatchObjects( const reco::Candidate *hltObj, 
+bool TagProbeEDMNtuple::MatchObjects( const Candidate *hltObj, 
 				      const reco::CandidateBaseRef& tagObj,
 				      bool exact )
 {
@@ -1540,7 +1575,7 @@ bool TagProbeEDMNtuple::MatchObjects( const reco::Candidate *hltObj,
 
 // ***************** Trigger object matching ******************** //
 int TagProbeEDMNtuple::getBestProbe(int ptype, const reco::CandidateBaseRef& tag,
-				      std::vector< std::pair<reco::CandidateBaseRef,double> > vprobes )
+				      std::vector< std::pair<CandidateBaseRef,double> > vprobes )
 {
    int tempProbeNum = 0;
    if (bestProbeCriteria_[ptype] == "OneProbe")

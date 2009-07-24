@@ -111,6 +111,8 @@ class Summary {
     const bool ChamberCoordsToAddress(const unsigned int x, const unsigned int y, Address& adr) const;
     const bool ChamberAddressToCoords(const Address& adr, unsigned int& x, unsigned int& y) const;
     const double GetReportingArea(Address adr) const; 
+    const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const;
+    const double SignificanceLevelHot(const unsigned int N, const unsigned int n) const;
 
     /** Atomic HW element status matrix */
     HWStatusBitSet map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_LAYERS][N_CFEBS][N_HVS];

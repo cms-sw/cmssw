@@ -8,7 +8,7 @@ lumi::HLTScalerDummyReader::fill(int startRun,
 			    int numberOfRuns, 
        std::vector< std::pair<lumi::HLTScaler*,cond::Time_t> >& result){
   //fake 10 runs with 30 lumisection each with 3564 bunchcrossing,100 hlt path
-  for(int i=startRun; i<=startRun+numberOfRuns; ++i){
+  for(int i=startRun; i<startRun+numberOfRuns; ++i){
     for(int j=1; j<30; ++j){
       edm::LuminosityBlockID lu(i,j);
       cond::Time_t current=(cond::Time_t)(lu.value());

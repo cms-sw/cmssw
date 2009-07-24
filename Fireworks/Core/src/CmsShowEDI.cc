@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.25 2009/05/27 15:40:12 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.24 2009/04/15 21:54:17 chrjones Exp $
 //
 
 // system include files
@@ -96,10 +96,10 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    graphicsFrame->AddFrame(separator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    TGLabel* orderLabel = new TGLabel(graphicsFrame, "Set Drawing Order");
    graphicsFrame->AddFrame(orderLabel);
-   m_frontButton = new TGTextButton(graphicsFrame,"Move Projected to Front");
+   m_frontButton = new TGTextButton(graphicsFrame,"Move to Front");
    m_frontButton->SetEnabled(kFALSE);
    graphicsFrame->AddFrame(m_frontButton);
-   m_backButton = new TGTextButton(graphicsFrame,"Move Projected to Back");
+   m_backButton = new TGTextButton(graphicsFrame,"Move to Back");
    m_backButton->SetEnabled(kFALSE);
    graphicsFrame->AddFrame(m_backButton);
    m_tabs->AddTab("Graphics", graphicsFrame);

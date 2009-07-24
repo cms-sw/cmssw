@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/07/03 09:12:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/09 12:05:30 $
+ *  $Revision: 1.8 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -133,7 +133,7 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
 void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+  theService->eventSetup().get<TrackingComponentsRecord>().get(theFitterName,theFitter);
 
   // Transient Rechit Builders
   unsigned long long newCacheId_TRH = setup.get<TransientRecHitRecord>().cacheIdentifier();

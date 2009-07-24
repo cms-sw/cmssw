@@ -3,8 +3,7 @@
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
 //#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-//#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics71.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -24,14 +23,13 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT_EML 3.3 + CMS GFLASH\n";
+			      << "QGSP_BERT_EMV + CMS GFLASH\n";
 
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
   // EM Physics
   //  RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
-  //  RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
-  RegisterPhysics( new CMSEmStandardPhysicsLPM("standard EM LPM",ver));
+  RegisterPhysics( new CMSEmStandardPhysics71("standard EM v71",ver));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics("extra EM"));

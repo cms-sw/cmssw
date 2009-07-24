@@ -1,10 +1,10 @@
-// $Id: RPCWheelMap.cc,v 1.6 2009/06/01 12:57:20 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RPCWheelMap.h"
+#include "RPCWheelMap.h"
 #include <string>
 #include <iostream>
 //-----------------------------------------------------------------------------
@@ -17,25 +17,18 @@
 // Standard constructor, initializes variables
 //=============================================================================
 RPCWheelMap::RPCWheelMap( int wheelid ) {
-  
-  m_maxBx = 7;
-  m_maxBxWindow = 3; //... considering that we have a bxing in the range [-3,+3]
-  m_maxSectors = 12;
-  
-  int maxMaps = m_maxBx * m_maxSectors;
-  
+
+  //... considering that we have a bxing in the range [-3,+3]
   m_wheelid    = wheelid;
-  m_wheelMap   = new std::bitset<6>[m_maxSectors];
-  m_wheelMapBx = new std::bitset<6>[m_maxSectors * m_maxBx];
-  m_ttuinVec   = new TTUInput[m_maxBx];
-    
-  for(int i=0; i < m_maxSectors; ++i)
-    m_wheelMap[i].reset();
+  m_wheelmap   = new std::bitset<6>[12];
+  m_wheelmapbx = new std::bitset<6>[12 * 7];
+  m_ttuin      = new TTUInput();
   
-  for(int i=0; i < maxMaps; ++i)
-    m_wheelMapBx[i].reset();
+  for(int i=0; i < 12; ++i)
+    m_wheelmap[i].reset();
   
-  m_debug = false;
+  for(int i=0; i < 84; ++i)
+    m_wheelmapbx[i].reset();
   
 }
 //=============================================================================
@@ -43,9 +36,9 @@ RPCWheelMap::RPCWheelMap( int wheelid ) {
 //=============================================================================
 RPCWheelMap::~RPCWheelMap() {
   
-  if ( m_wheelMap )   delete[] m_wheelMap;
-  if ( m_wheelMapBx ) delete[] m_wheelMapBx;
-  if ( m_ttuinVec )   delete[] m_ttuinVec;
+  if ( m_wheelmap ) delete[] m_wheelmap;
+  if ( m_wheelmapbx ) delete[] m_wheelmapbx;
+  if ( m_ttuin ) delete m_ttuin;
   
 } 
 
@@ -53,47 +46,39 @@ RPCWheelMap::~RPCWheelMap() {
 void RPCWheelMap::addHit( int bx, int sec, int layer)
 {
   
-  // |--12--|--12--|--12--|--12--|--12--|--12--|--12--| (12 sectors x 6 layers x  7 bx)
-  // 0.....11
-  int indx1 = bx + m_maxBxWindow;
-  int indx2 = sec + indx1*m_maxSectors;
-  m_wheelMapBx[ indx2 ].set( layer-1, 1);
+  int indx1 = bx + 3;
+  int indx2 = sec + indx1*12;
+  m_wheelmapbx[ indx2 ].set( layer-1, 1);
+  
+}
+
+void RPCWheelMap::contractMaps()
+{
+  
+  std::bitset<6> tmp;
+  std::string test;
+  
+  for(int i=0; i < 12; ++i) {
+    tmp.reset();
+    for(int j=0; j < 7; ++j) {
+      int indx = i + j*12;
+      tmp |= m_wheelmapbx[ indx ];
+    }
+    m_wheelmap[i] = tmp;
+  }
+  
+  //for(int i=0; i<12; ++i) {
+  //test = m_wheelmap[i].to_string<char,std::char_traits<char>,std::allocator<char> >();
+  //std::cout << test << std::endl;
+  //}
   
 }
 
 void RPCWheelMap::prepareData()
 {
   
-  bool anyHits(false);
-  
-  for(int bx=0; bx < m_maxBx; ++bx) {
-  
-    anyHits = false;
-      
-    for(int i=0; i < m_maxSectors; ++i) {
-      
-      int indx = i + bx*m_maxSectors;
-      
-      m_ttuinVec[bx].m_bx = ( bx - m_maxBxWindow );
-      m_wheelMap[i] = m_wheelMapBx[ indx ];
-      m_ttuinVec[bx].input_sec[i] = m_wheelMap[i]; 
-    
-      anyHits |= m_wheelMap[i].any();
-      
-      if( m_debug ) {
-        std::string test;
-        test = m_wheelMap[i].to_string<char,std::char_traits<char>,std::allocator<char> >();
-        std::cout << "prepareData> sec: " << i << " " << test << " anyHits " << anyHits << std::endl;
-      }
-      
-    }
-    
-    m_ttuinVec[bx].m_hasHits = anyHits;
-    
+  for(int i=0; i < 12; ++i) {
+    m_ttuin->input_sec[i] = m_wheelmap[i]; 
   }
   
-  if( m_debug ) std::cout << "prepareData> done." << '\n';
-  
 }
-
-

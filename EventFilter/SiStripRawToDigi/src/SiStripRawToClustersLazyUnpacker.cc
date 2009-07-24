@@ -243,10 +243,13 @@ namespace sistrip {
 	  }
 	
 	  // construct FEDBuffer
-	  try {buffers_[iconn->fedId()] = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());}
+	  try {
+            buffers_[iconn->fedId()] = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());
+            if (!buffers_[iconn->fedId()]->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << iconn->fedId() << ".";
+          }
 	  catch (const cms::Exception& e) { 
 	    edm::LogWarning(sistrip::mlRawToCluster_) 
-	      << e.what();
+	      << "Exception caught when creating FEDBuffer object for FED " << iconn->fedId() << ": " << e.what();
 	    if ( buffers_[iconn->fedId()] ) { delete buffers_[iconn->fedId()]; }
 	    buffers_[iconn->fedId()] = 0;
 	    continue;

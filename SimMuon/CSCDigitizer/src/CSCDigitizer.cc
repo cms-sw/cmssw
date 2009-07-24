@@ -21,8 +21,7 @@ CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
   theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
   theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
   theNeutronReader(0),
-  theCSCGeometry(0),
-  digitizeBadChambers_(p.getParameter<bool>("digitizeBadChambers"))
+  theCSCGeometry(0)
 {
   if(p.getParameter<bool>("doNeutrons"))
   {
@@ -57,15 +56,6 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     hitMap[hitItr->detUnitId()].push_back(*hitItr);
   }
 
-  // count how many layers on each chamber are hit
-  std::map<int, int> layersInChamberHit;
-  for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
-      hitMapItr != hitMap.end(); ++hitMapItr)
-  {
-    int chamberId = CSCDetId(hitMapItr->first).chamberId();
-    ++layersInChamberHit[chamberId];
-  }
-
   // add neutron background, if needed
   if(theNeutronReader != 0)
   {
@@ -76,9 +66,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
-    int chamberId = CSCDetId(hitMapItr->first).chamberId();
-    // skip bad chambers
-    if ( !digitizeBadChambers_ && theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue;
+    if ( theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue; // skip 'bad' chamber
 
     const CSCLayer * layer = findLayer(hitMapItr->first);
     const edm::PSimHitContainer & layerSimHits = hitMapItr->second;

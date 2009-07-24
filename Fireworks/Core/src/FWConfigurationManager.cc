@@ -8,12 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.7 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWConfigurationManager.cc,v 1.6 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
 #include <fstream>
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include "TROOT.h"
@@ -102,31 +101,27 @@ FWConfigurationManager::to(FWConfiguration& oConfig) const
 void
 FWConfigurationManager::writeToFile(const std::string& iName) const
 {
-   try
-   {
-      ofstream file(iName.c_str());
-      if(not file) {
-         std::string message("unable to open file ");
-         message += iName;
-         throw std::runtime_error(message.c_str());
-      }
-      FWConfiguration top;
-      to(top);
-
-      printf("Writing to file...\n");
-      const std::string topName("top");
-      file <<"FWConfiguration* fwConfig() {\n"
-           <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
-           <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
-
-      for(FWConfiguration::KeyValues::const_iterator it = top.keyValues()->begin();
-          it != top.keyValues()->end();
-          ++it) {
-         addToCode(topName,it->first,it->second, file);
-      }
-      file<<"\n  return "<<topName<<"_p;\n}\n"<<std::flush;
+   ofstream file(iName.c_str());
+   if(not file) {
+      std::string message("unable to open file ");
+      message += iName;
+      throw std::runtime_error(message.c_str());
    }
-   catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
+   FWConfiguration top;
+   to(top);
+
+   printf("Writing to file...\n");
+   const std::string topName("top");
+   file <<"FWConfiguration* fwConfig() {\n"
+        <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
+        <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
+
+   for(FWConfiguration::KeyValues::const_iterator it = top.keyValues()->begin();
+       it != top.keyValues()->end();
+       ++it) {
+      addToCode(topName,it->first,it->second, file);
+   }
+   file<<"\n  return "<<topName<<"_p;\n}\n"<<std::flush;
 }
 
 void

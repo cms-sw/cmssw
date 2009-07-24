@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(300)
+    input = cms.untracked.int32(200)
 )
 
 process.load("Configuration/Generator/ZTT_Tauola_All_hadronic_cfi")
@@ -26,7 +26,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V1::All"
+process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -108,7 +108,7 @@ process.p3 = cms.Path(process.L1Emulator)
 process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+process.particleFlowSimParticle)
-process.outpath = cms.EndPath(process.reco)
+process.outpath = cms.EndPath(process.aod)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
 

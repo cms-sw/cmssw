@@ -41,20 +41,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def __init__(self):
         logging.debug(__name__ + ": __init__")
 
+        self._allObjects = []
+        self._connections = []
+        self._topLevelObjects = []
         self._file = None
         self._configName = ""
         self._isReplaceConfig = False
         self._cancelOperationsFlag = False
-        # lists for the opened config
-        self._allObjects = []
-        self._connections = []
-        self._topLevelObjects = []
-        self._inputTagsDict={}
-        self._foundInDict={}
-        self._usesDict={}
-        self._usedbyDict={}
-        self._childrenRelationsDict={}
-        self._motherRelationsDict={}
     
     def cancelOperations(self):
         self._cancelOperationsFlag = True
@@ -115,12 +108,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                         found = True
                         if not connection in self._connections:
                             self._connections += [connection]
-                            if not entry1 in self._motherRelationsDict.keys():
-                                self._motherRelationsDict[entry1]=[]
-                            self._motherRelationsDict[entry1]+=[entry2]
-                            if not entry2 in self._daughterRelationsDict.keys():
-                                self._daughterRelationsDict[entry2]=[]
-                            self._daughterRelationsDict[entry2]+=[entry1]
         ok = not self._cancelOperationsFlag
         self._cancelOperationsFlag = False
         return ok
@@ -182,14 +169,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 # collect all path/sequences/modules of the input-config in a list
         self._allObjects = []
         self._connections = []
+        self._producedOutput = []
         self._topLevelObjects = []
-        
-        self._inputTagsDict = {}
-        self._foundInDict = {}
-        self._usesDict = {}
-        self._usedByDict = {}
-        self._motherRelationsDict = {}
-        self._daughterRelationsDict = {}
 
         if self.process():
             parameters = {"name": self.process().process}
@@ -307,17 +288,19 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 
     def motherRelations(self, object):
         """ Get motherRelations of an object """
-        if object in self._motherRelationsDict.keys():
-            return self._motherRelationsDict[object]
-        else:
-            return []
+        objects = []
+        for connection in self._connections:
+            if connection[2] == object:
+                objects += [connection[0]]
+        return tuple(objects)
 
     def daughterRelations(self, object):
         """ Get daughterRelations of an object """
-        if object in self._daughterRelationsDict.keys():
-            return self._daughterRelationsDict[object]
-        else:
-            return []
+        objects = []
+        for connection in self._connections:
+            if connection[0] == object:
+                objects += [connection[2]]
+        return tuple(objects)
 
     def type(self, object):
         """ Get type of an object """
@@ -446,43 +429,35 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
-        if not object in self._inputTagsDict.keys():
-             self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
-        return self._inputTagsDict[object]
+        return self._readInputTagsRecursive(self.parameters(object))
 
     def uses(self, object):
         """ Get list of all config objects that are used as input """
-        if not object in self._usesDict.keys():
-            uses = []
-            for key, value in self.inputTags(object):
-                module = str(value).split(":")[0]
-                product = ".".join(str(value).split(":")[1:])
-                if module not in uses:
-                    uses += [module]
-            self._usesDict[object]=uses
-        return self._usesDict[object]
+        uses = []
+        for key, value in self.inputTags(object):
+            module = str(value).split(":")[0]
+            product = ".".join(str(value).split(":")[1:])
+            if module not in uses:
+                uses += [module]
+        return uses
     
     def foundIn(self, object):
         """ Make list of all mother sequences """
-        if not object in self._foundInDict.keys():
-            foundin = []
-            for entry in self._allObjects:
-                for daughter in self.children(entry):
-                    if self.label(object) == self.label(daughter) and len(self.children(entry)) > 0 and not self.label(entry) in foundin:
-                        foundin += [self.label(entry)]
-            self._foundInDict[object]=foundin
-        return self._foundInDict[object]
+        foundin = []
+        for entry in self._allObjects:
+            for daughter in self.children(entry):
+                if self.label(object) == self.label(daughter) and len(self.children(entry)) > 0 and not self.label(entry) in foundin:
+                    foundin += [self.label(entry)]
+        return foundin
 
     def usedBy(self, object):
         """ Find config objects that use this as input """
-        if not object in self._usedByDict.keys():
-            usedby = []
-            for entry in self._allObjects:
-                for uses in self.uses(entry):
-                    if self.label(object) == uses and not self.label(entry) in usedby:
-                        usedby += [self.label(entry)]
-            self._usedByDict[object]=usedby
-        return self._usedByDict[object]
+        usedby = []
+        for entry in self._allObjects:
+            for uses in self.uses(entry):
+                if self.label(object) == uses and not self.label(entry) in usedby:
+                    usedby += [self.label(entry)]
+        return usedby
 
     def recursePSetProperties(self, name, object, readonly=None):
         logging.debug(__name__ + ": recursePSetProperties: " + name)
@@ -515,7 +490,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         
     def properties(self, object):
         """ Make list of all properties """
-        logging.debug(__name__ + ": properties")
         properties = []
         properties += [("Category", "Object info", "")]
         if self.label(object) != "":
@@ -534,29 +508,26 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             properties += [("String", "package", self.package(object), "readonly")]
         if self.fullFilename(object) != "":
             properties += [("String", "full filename", self.fullFilename(object), "readonly")]
-        foundIn=self.foundIn(object)
-        if len(foundIn) > 0:
+        if len(self.foundIn(object)) > 0:
             text = ""
-            for entry in foundIn:
+            for entry in self.foundIn(object):
                 if text != "":
                     text += ", "
                 text += entry
             properties += [("String", "in sequence", text, "readonly")]
-        uses=self.uses(object)
-        usedBy=self.usedBy(object)
-        if len(uses) + len(usedBy) > 0:
+        if len(self.uses(object)) + len(self.usedBy(object)) > 0:
             properties += [("Category", "Connections", "")]
-            if len(uses) > 0:
+            if len(self.uses(object)) > 0:
                 text = ""
-                for label in uses:
+                for label in self.uses(object):
                     if text != "":
                         text += ", "
                     text += label
                 properties += [("Text", "uses", text, "readonly")]
-            if len(usedBy) > 0:
+            if len(self.usedBy(object)) > 0:
                 text = ""
                 usedby = []
-                for entry in usedBy:
+                for entry in self.usedBy(object):
                     if text != "":
                         text += ", "
                     text += entry
@@ -591,18 +562,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         allLabels = [self.label(object) for object in self._allObjects]
         for object in self._allObjects:
             for key, value in self.inputTags(object):
-                elements=str(value).split(":")
-                module = elements[0]
-                if len(elements)>1 and elements[1]!="":
-                    product = elements[1]
-                else:
-                    product = "*"
-                if len(elements)>2 and elements[2]!="":
-                    process = elements[2]
-                else:
-                    process = "*"
-                if not module in allLabels and not ("*",module,product,process) in content:
-                    content += [("*",module,product,process)]
+                module = str(value).split(":")[0]
+                product = ".".join(str(value).split(":")[1:])
+                if not module in allLabels and not ("*",module,product,"*") in content:
+                    content += [("*",module,product,"*")]
         return content
 
     def outputEventContent(self):

@@ -27,8 +27,8 @@ def adaptPFMuons(process,module):
         pfPhotons = cms.InputTag("pfMuonIsolationFromDepositsPhotons")
         )
     # matching the pfMuons, not the standard muons.
-    process.muonMatch.src = module.pfMuonSource
-
+    switchMCMatch(process,module.muonSource,module.pfMuonSource)
+    process.aodSummary.candidates.append(module.pfMuonSource)
     print " muon source:", module.pfMuonSource
     print " isolation  :",
     print module.isolationValues
@@ -81,16 +81,18 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     process.selectedLayer1Objects.replace(process.selectedLayer1Summary, filter +  process.selectedLayer1Summary)
     process.countLayer1Objects    += counter
     # summary tables
+    process.aodSummary.candidates.append(src)
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1' + patLabel))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1' + patLabel))
 
 def switchToPFMET(process,input=cms.InputTag('pfMET')):
     print 'MET: using ', input
     oldMETSource = process.layer1METs.metSource
+    switchMCMatch(process,oldMETSource,input)
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
     #process.patJetMETCorrections.remove(process.patMETCorrections)
-    process.patDefaultSequence.remove(process.patMETCorrections)
+    process.patAODExtraReco.remove(process.patMETCorrections)
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
@@ -101,22 +103,20 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         jetCorrLabel=None, 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
+    process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
 
-def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
+def usePF2PAT(process,runPF2PAT=True):
 
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
-    """If 'addElectrons' is True electrons are added and standard PAT cleaning wrt them is performed"""
 
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
-        process.patDefaultSequence.replace(process.allLayer1Objects,
-                                           process.PF2PAT +
-                                           process.allLayer1Objects
-                                           )
+        process.patAODCoreReco += process.PF2PAT
+        # note: I can't just replace it, because other people could have added stuff here (e.g. btagging)
 
-    if not addElectrons:
-        removeCleaning(process)
+    removeCleaning(process)
+    process.aodSummary.candidates = cms.VInputTag();
     
     # -------- OBJECTS ------------
     # Muons
@@ -126,60 +126,34 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
     # Electrons
 #    process.allLayer1Electrons.pfElectronSource = cms.InputTag("isolatedElectrons")
 #    adaptPFElectrons(process,process.allLayer1Electrons)
-#    process.electronMatch.src = process.allLayer1Electrons.pfElectronSource
-#    process.patDefaultSequence.remove(process.patElectronId)
-#    process.patDefaultSequence.remove(process.patElectronIsolation)
-    if not addElectrons:
-        print "Temporarily switching off electrons completely"
-        removeSpecificPATObject(process,'Electrons')
-        process.patDefaultSequence.remove(process.patElectronId)
-        process.patDefaultSequence.remove(process.patElectronIsolation)
-        #process.countLayer1Leptons.countElectrons = False
-    else:
-        print "Standard electrons added and then PAT-cleaning wrt electrons switched on"
-        #tune PAT-cleaning
-        process.cleanLayer1Objects.remove(process.cleanLayer1Hemispheres)
-        # store only isolated electrons passing the RobustLoose-ID, without any overlap with muons (to be tuned)
-        electronPresel = 'electronID("eidRobustLoose") > 0 '
-        electronPresel += '&& trackIso < 3 '
-        electronPresel += '&& ecalIso < 5 '
-        electronPresel += '&& hcalIso < 5 '
-        #electronPresel += '&& pt > 10 '
-        print "A \"good electron\" definition for cleaner: "+electronPresel
-        process.cleanLayer1Electrons.checkOverlaps.muons.requireNoOverlaps = True
-        process.cleanLayer1Electrons.finalCut = electronPresel
-        # clean taus wrt electrons
-        process.cleanLayer1Taus.preselection = ''
-        # a trick to remove overlaps wrt other objects than electrons
-        myOverlaps = cms.PSet( electrons = cms.PSet() )
-        myOverlaps.electrons = process.cleanLayer1Taus.checkOverlaps.electrons
-        process.cleanLayer1Taus.checkOverlaps = myOverlaps
-        process.cleanLayer1Taus.checkOverlaps.electrons.preselection = electronPresel # really needed?
-        process.cleanLayer1Taus.checkOverlaps.electrons.requireNoOverlaps = True
-        # clean jets wrt electrons
-        # a trick to remove overlaps wrt other objects than electrons
-        myOverlaps.electrons = process.cleanLayer1Jets.checkOverlaps.electrons
-        process.cleanLayer1Jets.checkOverlaps = myOverlaps
-        process.cleanLayer1Jets.checkOverlaps.electrons.preselection = electronPresel # really needed?
-        process.cleanLayer1Jets.checkOverlaps.electrons.deltaR = 0.3
-        process.cleanLayer1Jets.checkOverlaps.electrons.requireNoOverlaps = True
+#    switchMCMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
+#    process.aodSummary.candidates.append(process.allLayer1Electrons.pfElectronSource)
+#    process.patAODCoreReco.remove(process.electronsNoDuplicates)
+#    process.patAODExtraReco.remove(process.patElectronId)
+#    process.patAODExtraReco.remove(process.patElectronIsolation)
+    print "Temporarily switching off electrons completely"
+    removeSpecificPATObject(process,'Electrons')
+    process.patAODCoreReco.remove(process.electronsNoDuplicates)
+    process.patAODExtraReco.remove(process.patElectronId)
+    process.patAODExtraReco.remove(process.patElectronIsolation)
+    #process.countLayer1Leptons.countElectrons = False
     
     # Photons
     print "Temporarily switching off photons completely"
     removeSpecificPATObject(process,'Photons')
-    process.patDefaultSequence.remove(process.patPhotonIsolation)
+    process.patAODExtraReco.remove(process.patPhotonIsolation)
     
     # Jets
-    switchToPFJets( process, cms.InputTag('pfNoTau') )
+    switchToPFJets( process, 'pfNoTau' )
     
     # Taus
-    oldTaus = process.allLayer1Taus.tauSource
-    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-    tauType = 'fixedConePFTau'
-    redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
-                            process.allLayer1Taus.tauSource,
-                            tauType)
-    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+    #COLIN try to re-enable taus
+    removeSpecificPATObject(process,'Taus')
+#    oldTaus = process.allLayer1Taus.tauSource
+#    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+#    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
+#    redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
+#    process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))

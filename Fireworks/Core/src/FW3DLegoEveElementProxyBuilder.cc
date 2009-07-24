@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.5 2009/07/20 08:46:45 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -34,11 +34,26 @@ FW3DLegoEveElementProxyBuilder::FW3DLegoEveElementProxyBuilder()
 {
 }
 
+// FW3DLegoEveElementProxyBuilder::FW3DLegoEveElementProxyBuilder(const FW3DLegoEveElementProxyBuilder& rhs)
+// {
+//    // do actual copying here;
+// }
 
 FW3DLegoEveElementProxyBuilder::~FW3DLegoEveElementProxyBuilder()
 {
 }
 
+//
+// assignment operators
+//
+// const FW3DLegoEveElementProxyBuilder& FW3DLegoEveElementProxyBuilder::operator=(const FW3DLegoEveElementProxyBuilder& rhs)
+// {
+//   //An exception safe implementation is
+//   FW3DLegoEveElementProxyBuilder temp(rhs);
+//   swap(rhs);
+//
+//   return *this;
+// }
 
 //
 // member functions
@@ -48,14 +63,13 @@ void
 FW3DLegoEveElementProxyBuilder::attach(TEveElement* iElement,
                                        TEveCaloDataHist* iHist)
 {
-   m_elementHolder = new TEveElementList("FW3DLegoEveElementProxyBuilder Holder");
-   iElement->AddElement(m_elementHolder);
+   iElement->AddElement(&m_elementHolder);
 }
 
 void
 FW3DLegoEveElementProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
-   modelChanges(iIds,static_cast<TEveElementList*>(m_elementHolder->FirstChild()));
+   modelChanges(iIds,static_cast<TEveElementList*>(m_elementHolder.FirstChild()));
 }
 
 void
@@ -110,16 +124,34 @@ FW3DLegoEveElementProxyBuilder::build()
 {
    if(0==item()) { return;}
    TEveElementList* newElements=0;
-   bool notFirstTime = m_elementHolder->NumChildren();
+   bool notFirstTime = m_elementHolder.NumChildren();
    if(notFirstTime) {
       //we know the type since it is enforced in this routine so static_cast is safe
-      newElements = static_cast<TEveElementList*>(*(m_elementHolder->BeginChildren()));
+      newElements = static_cast<TEveElementList*>(*(m_elementHolder.BeginChildren()));
    }
    build(item(), &newElements);
    if(!notFirstTime && newElements) {
-      m_elementHolder->AddElement(newElements);
+      m_elementHolder.AddElement(newElements);
    }
    setUserData(item(),newElements,ids());
+   /*
+      if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
+      int index=0;
+      int largestIndex = m_ids.size();
+      if(m_ids.size()<m_item->size()) {
+         m_ids.resize(m_item->size());
+      }
+      std::vector<FWModelId>::iterator itId = m_ids.begin();
+      for(TEveElement::List_i it = newElements->BeginChildren(),
+          itEnd = newElements->EndChildren();
+          it != itEnd;
+    ++it,++itId,++index) {
+         if(largestIndex<=index) {
+    *itId=FWModelId(m_item,index);
+         }
+         setUserDataElementAndChildren(*it,&(*itId));
+      }
+    */
 }
 
 void
@@ -151,5 +183,13 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
 void
 FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
-   m_elementHolder->DestroyElements();
+   m_elementHolder.DestroyElements();
 }
+
+//
+// const member functions
+//
+
+//
+// static member functions
+//
