@@ -53,7 +53,6 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-#include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -263,10 +262,6 @@ class PFRootEventManager {
   /// reconstruct pf jets
   void reconstructPFJets();
   
-  // reconstruct pf MET
-  void reconstructPFMets();
-  
-
   /// used by the reconstruct*Jets functions
   void reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates,
                              std::vector<ProtoJet>& output);
@@ -670,7 +665,6 @@ class PFRootEventManager {
   PFJetBenchmark PFJetBenchmark_;
 
   /// PFMET Benchmark
-  PFMETBenchmark PFMETBenchmark_;
   double MET1cut;
   double DeltaMETcut;
   double DeltaPhicut;
