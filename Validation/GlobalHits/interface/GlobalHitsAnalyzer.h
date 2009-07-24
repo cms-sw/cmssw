@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2009/05/25 15:08:35 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/07/23 16:01:28 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -142,6 +142,7 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
   MonitorElement *meGeantVtxEta;
   MonitorElement *meGeantVtxPhi;
   MonitorElement *meGeantVtxRad[2];
+  MonitorElement *meGeantVtxMulti;
   int nRawGenPart;  
 
   // Electromagnetic info

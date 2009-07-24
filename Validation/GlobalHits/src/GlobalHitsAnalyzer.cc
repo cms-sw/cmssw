@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/23 19:47:47 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/07/23 16:01:28 $
+ *  $Revision: 1.16 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -226,6 +226,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   meGeantTrkE = 0;
   meGeantVtxEta = 0;
   meGeantVtxPhi = 0;
+  meGeantVtxMulti = 0;
   meCaloEcalPhi = 0;
   meCaloEcalEta = 0;
   meCaloPreShPhi = 0;
@@ -270,7 +271,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
     sprintf(hname,"hMCG4Vtx1");
     sprintf(htitle,"G4 Vertices");
-    meMCG4Vtx[0] = dbe->book1D(hname,htitle,100,0.,50000.);
+    meMCG4Vtx[0] = dbe->book1D(hname,htitle,150,0.,15000.);
     sprintf(hname,"hMCG4Vtx2");
     meMCG4Vtx[1] = dbe->book1D(hname,htitle,100,-0.5,99.5); 
     for (Int_t i = 0; i < 2; ++i) {
@@ -320,15 +321,15 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     }
 
     sprintf(hname,"hGeantTrkPt");
-    sprintf(htitle,"Geant track pt/GeV");
-    meGeantTrkPt = dbe->book1D(hname,htitle,100,0.,200.);
-    meGeantTrkPt->setAxisTitle("pT of Track (GeV)",1);
+    sprintf(htitle,"Log10 Geant track pt/GeV");
+    meGeantTrkPt = dbe->book1D(hname,htitle,80,-4.,4.);
+    meGeantTrkPt->setAxisTitle("Log10 pT of Track (GeV)",1);
     meGeantTrkPt->setAxisTitle("Count",2);
 
     sprintf(hname,"hGeantTrkE");
-    sprintf(htitle,"Geant track E/GeV");
-    meGeantTrkE = dbe->book1D(hname,htitle,100,0.,5000.);
-    meGeantTrkE->setAxisTitle("E of Track (GeV)",1);
+    sprintf(htitle,"Log10 Geant track E/GeV");
+    meGeantTrkE = dbe->book1D(hname,htitle,80,-4.,4.);
+    meGeantTrkE->setAxisTitle("Log10 E of Track (GeV)",1);
     meGeantTrkE->setAxisTitle("Count",2);
 
     sprintf(hname,"hGeantVtxEta");
@@ -352,6 +353,12 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
       meGeantVtxRad[i]->setAxisTitle("radius of SimVertex (cm)",1);
       meGeantVtxRad[i]->setAxisTitle("Count",2);
     }
+
+    sprintf(hname,"hGeantVtxMulti");
+    sprintf(htitle,"Geant vertices outgoing multiplicity");
+    meGeantVtxMulti = dbe->book1D(hname,htitle,20,0.,20);
+    meGeantVtxMulti->setAxisTitle("multiplicity of particles attached to a SimVertex",1);
+    meGeantVtxMulti->setAxisTitle("Count",2);
 
     // ECal
     dbe->setCurrentFolder("GlobalHitsV/ECals");
@@ -809,6 +816,12 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
 
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByType(G4VtxContainer);
+
+  // needed here by vertex multiplicity
+  edm::Handle<edm::SimTrackContainer> G4TrkContainer;
+  iEvent.getByType(G4TrkContainer);
+
+
   if (!G4VtxContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find SimVertex in event!";
@@ -843,6 +856,18 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
       if (meGeantVtxPhi) meGeantVtxPhi->Fill(G4Vtx1.phi());
       if (meGeantVtxRad[0]) meGeantVtxRad[0]->Fill(G4Vtx1.rho());
       if (meGeantVtxRad[1]) meGeantVtxRad[1]->Fill(G4Vtx1.rho());
+
+      if (meGeantVtxMulti) { 
+        int multi = 0;
+        if ( G4TrkContainer.isValid() ) {
+          edm::SimTrackContainer::const_iterator itTrk;
+          for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); 
+               ++itTrk) {
+            if ( (*itTrk).vertIndex() == i ) { multi++; }
+          }
+        }
+        meGeantVtxMulti->Fill(((double)multi+0.5));
+    }
       
     }
     
@@ -853,13 +878,12 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
     
     if (meMCG4Vtx[0]) meMCG4Vtx[0]->Fill((float)i);
     if (meMCG4Vtx[1]) meMCG4Vtx[1]->Fill((float)i);  
+
   }
 
   ///////////////////////////
   // get G4Track information
   ///////////////////////////
-  edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  iEvent.getByType(G4TrkContainer);
   if (!G4TrkContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find SimTrack in event!";
@@ -881,8 +905,8 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
       G4Trk1.GetCoordinates(G4Trk);
       
       if (meGeantTrkPt) meGeantTrkPt->
-			  Fill(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]));
-      if (meGeantTrkE) meGeantTrkE->Fill(G4Trk[3]);
+			  Fill(std::log10(std::max(sqrt(G4Trk[0]*G4Trk[0]+G4Trk[1]*G4Trk[1]),-9.)));
+      if (meGeantTrkE) meGeantTrkE->Fill(std::log10(std::max(G4Trk[3],-9.)));
     } 
     
     if (verbosity > 1) {
