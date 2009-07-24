@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id$
+// $Id: HcalChannelIterator.cc,v 1.1 2009/07/16 16:29:35 kukartse Exp $
 //
 
 #include <fstream>
@@ -158,3 +158,6 @@ int HcalChannelIterator::initHBEFListFromLmapAscii(void){
   addListFromLmapAscii("HCALmapHBEF_Jan.27.2009.txt");
   addListFromLmapAscii("HCALmapHO_Jan.27.2009.txt");
 }
+
+
+

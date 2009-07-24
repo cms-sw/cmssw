@@ -64,7 +64,7 @@ void test_lut_gen( void );
 
 int main( int argc, char **argv )
 {
-  cout << "Running xmlTools..." << endl;
+  //cout << "Running xmlTools..." << endl;
 
   //
   //===> command line options parser using boost  
@@ -74,6 +74,7 @@ int main( int argc, char **argv )
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
+    ("quicktest", "Quick feature testing")
     ("test-string", po::value<string>(), "print test string")
     ("test-lmap", po::value<string>(), "test logical map functionality")
     ("test-emap", po::value<string>(), "test electronic map functionality")
@@ -107,6 +108,7 @@ int main( int argc, char **argv )
     ("qie", "Generate new QIE table file")
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
     ("test-channel-data", "Test base class for DB entries per HCAL channel")
+    ("test-channel-quality", "Test channel quality operations")
     ("test-channel-masking", "Test base class for DB entries per HCAL channel")
     ("test-channel-iterator", "Test iterator class for HCAL channels")
     ("test-new-developer", "Test area for a new developer")
@@ -121,6 +123,33 @@ int main( int argc, char **argv )
     if (vm.count("help")) {
       cout << general << "\n";
       return 1;
+    }
+
+
+    if (vm.count("quicktest")) {
+      /*
+      std::string in_ = vm["input-file"].as<string>();
+      ifstream inFile( in_ . c_str(), ios::in );
+      if (!inFile){
+	cout << "Unable to open file with the electronic map: " << in_ << endl;
+      }
+      else{
+	cout << "File with the logical map opened successfully: " << in_ << endl;
+      }
+      */
+      HcalChannelQualityXml cq;
+      //cq.readStatusWordFromStdin( );
+      //cq.writeStatusWordToStdout( );
+      /*
+      cq.makeXmlFromAsciiStream(123456, // run number
+			     123456, // iov begin
+			     -1,     // iov end
+			     "superDuperTestTag",
+			     "comment"
+			     );
+      */
+      cq.writeBaseLineFromOmdsToStdout("AllChannelsMasked16Jul2009v1", 82000);
+      return 0;
     }
 
 
@@ -416,8 +445,34 @@ int main( int argc, char **argv )
       xml.set_elements_tag_name("AllChannelsMasked16Jul2009v1");
       xml.set_elements_iov_begin(80000);
       //xml.add_hcal_channel_dataset(39, 15, 1, "HF", 1, 0, "test channel quality comment field");
-      xml.set_all_channels_on_off( 0, 1, 1, 1);
+      //xml.set_all_channels_on_off( 0, 1, 1, 1);
+      HcalChannelQualityXml::ChannelQuality cq;
+      cq.status=2;
+      cq.onoff=1;
+      cq.comment = "test 18 Jul 2009";
+      std::map<int, HcalChannelQualityXml::ChannelQuality> _mcq;
+      _mcq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(-30311,cq));
+      cq.onoff=0;
+      _mcq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(-40311,cq));
+      cq.status=1;
+      _mcq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(50311,cq));
+      xml.addChannelQualityGeom(_mcq);
       xml.write("channel_quality.xml");
+      return 0;
+    }
+    
+    
+    if (vm.count("test-channel-quality")) {
+      HcalChannelQualityXml xml;
+      int nChan = xml.getBaseLineFromOmds("AllChannelsMasked16Jul2009v1", 82000);
+      xml.addChannelToGeomIdMap(41,71,2, "HF", 23,23,"huj");
+      cout << "Channels quality obtained from OMDS for " << nChan << " channels" << endl;
+      for(std::map<int, HcalChannelQualityXml::ChannelQuality>::const_iterator cq = xml.geomid_cq.begin();
+	  cq != xml.geomid_cq.end();
+	  cq++){
+	cout << cq->first << "     " << cq->second.status << endl;
+      }
+      cout << "Channels quality obtained from OMDS for " << nChan << " channels" << endl;
       return 0;
     }
     
