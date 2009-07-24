@@ -308,7 +308,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	  
 	if (!simtrack_comparestate.isValid()){
-	  edm::LogError("TrackCandidateProducer")<<" ok this is a state-based seed. simtrack state does not propagate to the seed surface. skipping.";
+	  LogDebug("TrackCandidateProducer")<<" ok this is a state-based seed. simtrack state does not propagate to the seed surface. skipping.";
 	  continue;}
 	
 	if (simtrack_comparestate.globalPosition().basicVector().dot(simtrack_comparestate.globalMomentum().basicVector()) * seedState.globalPosition().basicVector().dot(seedState.globalMomentum().basicVector()) <0. ){
