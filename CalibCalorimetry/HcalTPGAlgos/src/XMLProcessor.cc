@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.6 2009/04/08 23:03:45 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 // system include files
@@ -298,7 +298,7 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
 
 int XMLProcessor::init( void )
 {
-  cout << "Intializing Xerces-c...";
+  cerr << "Intializing Xerces-c...";
   try {
     XMLPlatformUtils::Initialize();
     //
@@ -310,7 +310,7 @@ int XMLProcessor::init( void )
     cout << " FAILED! Exiting..." << endl;
     return 1;
   }
-  cout << " done" << endl;
+  cerr << " done" << endl;
 
   return 0;
 }
