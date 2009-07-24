@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/09 19:01:15 $ 
+ **  $Date: 2009/07/14 15:52:13 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -98,6 +98,14 @@ void PhotonPostprocessing::endJob()
   phoRecoEffPhi_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated #phi",phiBin,phiMin, phiMax);
   histname = "recoEffVsEt";
   phoRecoEffEt_ =  dbe_->book1D(histname,"Photon reconstruction efficiency vs simulated Et",etBin,etMin, etMax) ;
+  // Fraction of photons with at least one dead channel
+  histname = "deadChVsEta";
+  phoDeadChEta_ =  dbe_->book1D(histname,"Fraction of photons with >=1 dead Xtal vs simulated #eta",etaBin,etaMin, etaMax);
+  histname = "deadChVsPhi";
+  phoDeadChPhi_ =  dbe_->book1D(histname,"Fraction of photons with >=1 dead Xtal vs simulated #phi",phiBin,phiMin, phiMax);
+  histname = "deadChVsEt";
+  phoDeadChEt_ =  dbe_->book1D(histname,"Fraction of photons with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
+
   // Conversion reconstruction efficiency
   histname = "convEffVsEtaTwoTracks";
   convEffEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
@@ -146,6 +154,10 @@ void PhotonPostprocessing::endJob()
   dividePlots(dbe_->get(effPathName+"recoEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"),dbe_->get(simInfoPathName+"h_SimPhoEta"), "effic");
   dividePlots(dbe_->get(effPathName+"recoEffVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoPhi"),dbe_->get(simInfoPathName+"h_SimPhoPhi"),"effic");
   dividePlots(dbe_->get(effPathName+"recoEffVsEt"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEt"),dbe_->get(simInfoPathName+"h_SimPhoEt"),"effic");
+  // fraction of photons with at least one dead channel
+  dividePlots(dbe_->get(effPathName+"deadChVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoBadChEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"), "effic");
+  dividePlots(dbe_->get(effPathName+"deadChVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoBadChPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoPhi"),"effic");
+  dividePlots(dbe_->get(effPathName+"deadChVsEt"), dbe_->get(simInfoPathName+"h_MatchedSimPhoBadChEt"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEt"),"effic");
   //
   dividePlots(dbe_->get(effPathName+"convEffVsEtaTwoTracks"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEta"),dbe_->get(simInfoPathName+"h_VisSimConvEta"),"effic");
   dividePlots(dbe_->get(effPathName+"convEffVsPhiTwoTracks"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksPhi"),dbe_->get(simInfoPathName+"h_VisSimConvPhi"),"effic");

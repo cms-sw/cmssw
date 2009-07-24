@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/06/29 15:26:14 $ 
- **  $Revision: 1.20 $
+ **  $Date: 2009/07/07 16:51:04 $ 
+ **  $Revision: 1.21 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -159,12 +159,17 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_simTkPt_;
   MonitorElement* h_simTkEta_;
 
+  MonitorElement* h_simConvVtxRvsZ_[4];
+  MonitorElement* h_simConvVtxYvsX_;
+
+
   ///   Denominator for efficiencies
   MonitorElement*   h_SimPho_[3];
   MonitorElement*   h_AllSimConv_[5];
   MonitorElement*   h_VisSimConv_[5];
   ///   Numerator for efficiencies
   MonitorElement*   h_MatchedSimPho_[3];
+  MonitorElement*   h_MatchedSimPhoBadCh_[3];
   MonitorElement*   h_SimConvOneTracks_[5];
   MonitorElement*   h_SimConvOneMTracks_[5];
   MonitorElement*   h_SimConvTwoTracks_[5];
@@ -343,6 +348,9 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h_convVtxRvsZ_[3];
   MonitorElement* h_convVtxYvsX_;
+  MonitorElement* h_convVtxRvsZ_zoom_[2];
+  MonitorElement* h_convVtxYvsX_zoom_[2];
+
   MonitorElement* h_convVtxdX_;
   MonitorElement* h_convVtxdY_;
   MonitorElement* h_convVtxdZ_;
