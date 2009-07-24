@@ -575,11 +575,11 @@ namespace sistrip {
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
         buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));
-        if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails.";
+        if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
       }
       catch (const cms::Exception& e) { 
 	if ( edm::isDebugEnabled() ) {
-	  edm::LogWarning("sistrip::RawToDigiUnpacker") << e.what();
+	  edm::LogWarning("sistrip::RawToDigiUnpacker") << "Exception caught when creating FEDBuffer object for FED " << *ifed << ": " << e.what();
 	}
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad. 
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
