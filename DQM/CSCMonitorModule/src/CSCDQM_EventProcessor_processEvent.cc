@@ -124,7 +124,7 @@ namespace cscdqm {
     */
 
     // run through the DCC's 
-    for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
+    for (int id = FEDNumbering::MINCSCFEDID; id <= FEDNumbering::MAXCSCFEDID; ++id) {
 
       // Take a reference to this FED's data and
       // construct the DCC data object
