@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.38 2009/04/30 13:19:07 rougny Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.39 2009/07/07 15:52:30 rougny Exp $
 //
 //
 
@@ -230,7 +230,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       yvalsall[ii]=ipix->getsum(ii)/(float)ipix->getnentries(ii);
       yerrvalsall[ii]=ipix->getsumsquares(ii)/(float)(ipix->getnentries(ii));
       yerrvalsall[ii]-=pow(yvalsall[ii],2);
-      yerrvalsall[ii]=sqrt(yerrvalsall[ii])*sqrt(ipix->getnentries(ii));
+      yerrvalsall[ii]=sqrt(yerrvalsall[ii])/sqrt(ipix->getnentries(ii));
       
       if(yvalsall[ii]<lowmeanval)
 	lowmeanval=yvalsall[ii];
@@ -271,7 +271,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     
   double maxgoodvalinfit=plateauval*(1.-reject_badpoints_frac_);
   npoints=0;
-  for(int ii=0; ii<nallpoints-4; ++ii){
+  for(int ii=0; ii<nallpoints; ++ii){
    
     // now selecting the appropriate points for the fit.
     use_point=true;
@@ -281,10 +281,12 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       use_point=false;
     if(ipix->getnentries(ii)==0 && reject_badpoints_)
       use_point=false;
-    if(yvalsall[ii]>maxgoodvalinfit)
+    if(yvalsall[ii]>maxgoodvalinfit && !noPlateau)
       use_point=false;
-    if(ii>1 && fabs(yvalsall[ii]-yvalsall[ii-1])<5. && yvalsall[ii]>0.8*maxgoodvalinfit && reject_plateaupoints_)
+    if(ii>1 && fabs(yvalsall[ii]-yvalsall[ii-1])<5. && yvalsall[ii]>0.8*maxgoodvalinfit && reject_plateaupoints_){
       use_point=false;
+      break;
+    }
     
     if(use_point){
       xvals[npoints]=xvalsall[ii];
@@ -428,8 +430,8 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   bookkeeper_[detid]["nfitpoints_1d"]->Fill(npoints);
   bookkeeper_[detid]["endpoint_1d"]->Fill((255 - intercept)*slope);
   bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,status);
-  
-  if(!savePixelHists_)
+
+    if(!savePixelHists_)
     return true;
   if(detidfinder==listofdetids_.end() && listofdetids_.size()!=0)
     return true;
