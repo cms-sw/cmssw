@@ -2,6 +2,12 @@
   <use name=Fireworks/Electrons>
   <use name=Fireworks/Tracks>
   <use name=Fireworks/Candidates>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/GsfTrackReco>
+  <use name=DataFormats/FWLite>
+  <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/EcalRecHit>
   <flags EDM_PLUGIN=1>
 </library>
 
