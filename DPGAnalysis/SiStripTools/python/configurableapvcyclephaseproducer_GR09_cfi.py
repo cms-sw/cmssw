@@ -20,6 +20,8 @@ APVPhases = cms.EDProducer('ConfigurableAPVCyclePhaseProducer',
                                cms.PSet( runNumber = cms.int32(105755),phases = cms.untracked.vint32(30,30,30,30)),
                                cms.PSet( runNumber = cms.int32(105765),phases = cms.untracked.vint32(30,30,30,30)),
                                cms.PSet( runNumber = cms.int32(105820),phases = cms.untracked.vint32(30,30,30,30)),
-                               cms.PSet( runNumber = cms.int32(106019),phases = cms.untracked.vint32(30,30,30,30))
+                               cms.PSet( runNumber = cms.int32(106019),phases = cms.untracked.vint32(30,30,30,30)),
+                               cms.PSet( runNumber = cms.int32(108219),phases = cms.untracked.vint32(30,30,30,30)),
+                               cms.PSet( runNumber = cms.int32(108239),phases = cms.untracked.vint32(30,30,30,30))
                                                  )
 )
