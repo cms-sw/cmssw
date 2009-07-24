@@ -188,43 +188,8 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag) {
     RecHitErrorYBarrel = bei->bookInt("BarrelRecHitErrorYCut");
     RecHitErrorXEndcap = bei->bookInt("EndcapRecHitErrorXCut");
     RecHitErrorYEndcap = bei->bookInt("EndcapRecHitErrorYCut");
-  bei->cd();  
-}
-
-//**********************************************************************************************
-
-void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei, 
-                                                           bool init,
-							   int nFEDs,
-							   bool Tier0Flag)
-{
-//cout<<"entering SiPixelDataQuality::ComputeGlobalQualityFlag"<<endl;
-//   cout << ACRed << ACBold
-//        << "[SiPixelDataQuality::ComputeGlobalQualityFlag]"
-//        << ACPlain
-//        << " Enter" 
-//        << endl ;
-  if(init){
-    allMods_=0; errorMods_=0; qflag_=0.; 
-    barrelMods_=0; endcapMods_=0;
     
-    objectCount_=0;
-    DONE_ = false;
-    
-    //Error counters and flags:
-    n_errors_barrel_=0; barrel_error_flag_=0.;
-    n_errors_endcap_=0; endcap_error_flag_=0.;
-    n_errors_feds_=0; feds_error_flag_=0.;
-    n_errors_barrelL1_=0; n_errors_barrelL2_=0; n_errors_barrelL3_=0; 
-    n_errors_endcapDP1_=0; n_errors_endcapDP2_=0; n_errors_endcapDM1_=0; n_errors_endcapDM2_=0;
-    BarrelL1_error_flag_=-1.; BarrelL2_error_flag_=-1.; BarrelL3_error_flag_=-1.;
-    EndcapDP1_error_flag_=-1.; EndcapDP2_error_flag_=-1.; EndcapDM1_error_flag_=-1.; EndcapDM2_error_flag_=-1.; 
-    for(int i=0; i!=14; i++){
-      BarrelL1_cuts_flag_[i]=-1.; BarrelL2_cuts_flag_[i]=-1.; BarrelL3_cuts_flag_[i]=-1.;
-      EndcapDP1_cuts_flag_[i]=-1.; EndcapDP2_cuts_flag_[i]=-1.; EndcapDM1_cuts_flag_[i]=-1.;
-      EndcapDM2_cuts_flag_[i]=-1.; 
-    }
-    //MonitoringElements:
+    // Init MonitoringElements:
     SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
     if(SummaryReport) SummaryReport->Fill(-1.);
     SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelDqmFraction");
@@ -295,6 +260,42 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     if(RecHitErrorXEndcap) RecHitErrorXEndcap->Fill(-1);
     RecHitErrorYEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/EndcapRecHitErrorYCut");
     if(RecHitErrorYEndcap) RecHitErrorYEndcap->Fill(-1);
+  bei->cd();  
+}
+
+//**********************************************************************************************
+
+void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei, 
+                                                           bool init,
+							   int nFEDs,
+							   bool Tier0Flag)
+{
+//cout<<"entering SiPixelDataQuality::ComputeGlobalQualityFlag"<<endl;
+//   cout << ACRed << ACBold
+//        << "[SiPixelDataQuality::ComputeGlobalQualityFlag]"
+//        << ACPlain
+//        << " Enter" 
+//        << endl ;
+  if(init){
+    allMods_=0; errorMods_=0; qflag_=0.; 
+    barrelMods_=0; endcapMods_=0;
+    
+    objectCount_=0;
+    DONE_ = false;
+    
+    //Error counters and flags:
+    n_errors_barrel_=0; barrel_error_flag_=0.;
+    n_errors_endcap_=0; endcap_error_flag_=0.;
+    n_errors_feds_=0; feds_error_flag_=0.;
+    n_errors_barrelL1_=0; n_errors_barrelL2_=0; n_errors_barrelL3_=0; 
+    n_errors_endcapDP1_=0; n_errors_endcapDP2_=0; n_errors_endcapDM1_=0; n_errors_endcapDM2_=0;
+    BarrelL1_error_flag_=-1.; BarrelL2_error_flag_=-1.; BarrelL3_error_flag_=-1.;
+    EndcapDP1_error_flag_=-1.; EndcapDP2_error_flag_=-1.; EndcapDM1_error_flag_=-1.; EndcapDM2_error_flag_=-1.; 
+    for(int i=0; i!=14; i++){
+      BarrelL1_cuts_flag_[i]=-1.; BarrelL2_cuts_flag_[i]=-1.; BarrelL3_cuts_flag_[i]=-1.;
+      EndcapDP1_cuts_flag_[i]=-1.; EndcapDP2_cuts_flag_[i]=-1.; EndcapDM1_cuts_flag_[i]=-1.;
+      EndcapDM2_cuts_flag_[i]=-1.; 
+    }
     init=false;
   }
   if(nFEDs==0) return;  
@@ -496,6 +497,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     meName0 = "Pixel/Barrel/SUMDIG_ndigis_Barrel";
     if(digiCounterBarrel/768 > 0.9) digiStatsBarrel = true;
     if(digiCounterEndcap/672 > 0.9) digiStatsEndcap = true;
+    //cout<<"digiStatsBarrel="<<digiStatsBarrel<<" , digiStatsEndcap="<<digiStatsEndcap<<endl;
   }else{
     meName0 = "Pixel/Barrel/SUMOFF_ndigis_Barrel"; 
     if(digiCounterBarrel/192 > 0.9) digiStatsBarrel = true;
@@ -531,6 +533,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     NDigisBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/BarrelNDigisCut");
+   // cout<<"NDigis: "<<NDigisBarrel<<" , "<<digiStatsBarrel<<" , "<<me->hasError()<<endl;
     if(NDigisBarrel && digiStatsBarrel){
       if(me->hasError()) NDigisBarrel->Fill(0);
       else NDigisBarrel->Fill(1); 
