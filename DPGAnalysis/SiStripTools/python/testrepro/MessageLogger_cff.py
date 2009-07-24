@@ -17,6 +17,7 @@ MessageLogger.categories.append("NoSimpleCluster")
 MessageLogger.categories.append("TrackProducer")
 MessageLogger.categories.append("SiStripMonitorTrack")
 MessageLogger.categories.append("SiStripRecHitConverter")
+MessageLogger.categories.append("CtfSpecialSeedGenerator")
 #
 MessageLogger.infos.NoSimpleCluster = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
@@ -31,6 +32,9 @@ MessageLogger.infos.SiStripMonitorTrack= cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
 MessageLogger.infos.SiStripRecHitConverter= cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+    )
+MessageLogger.infos.CtfSpecialSeedGenerator= cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
 #

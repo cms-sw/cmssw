@@ -48,7 +48,8 @@ process.mapout.fileName= cms.untracked.string('maps_RUNNUMBER.root')
 #------------------------------------------------------------------
 # Filter against APV-induced noisy events
 #------------------------------------------------------------------
-process.load("DPGAnalysis.SiStripTools.testrepro.noisyevent_filters_2009_cff")
+#process.load("DPGAnalysis.SiStripTools.testrepro.noisyevent_filters_2009_cff")
+process.load("DPGAnalysis.SiStripTools.testrepro.noisyevent_filters_2009_withdefaultphase_cff")
 
 #------------------------------------------------------------------------
 # TEC bad module analyzer
