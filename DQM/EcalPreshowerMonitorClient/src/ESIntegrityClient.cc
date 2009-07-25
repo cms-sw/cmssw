@@ -132,10 +132,8 @@ void ESIntegrityClient::analyze(void) {
   
   char histo[200];
 
-  Int_t nDI_FedErr[56];
-  Int_t nDI_KchipErr[1500];
+  Double_t nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
-  for (int i=0; i<1500; ++i) nDI_KchipErr[i] = 0;
   
   MonitorElement* me;
   
@@ -157,8 +155,10 @@ void ESIntegrityClient::analyze(void) {
   for (int i=1; i<=56; ++i) {
     if (hFED_->GetBinContent(i) > 0) 
       fedStatus_[i-1] = 1;      
-    if (hFiber_->GetBinContent(i+58) > 0) 
-      fiberStatus_[i-1] = 1;    
+    if (hFiber_->GetBinContent(i+58) > 0) {
+      fiberStatus_[i-1] = 1;
+      nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
+    }
   }
 
   // obtain MEs from ESRawDataTask
@@ -175,8 +175,11 @@ void ESIntegrityClient::analyze(void) {
   hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
 
   for (int i=1; i<=56; ++i) {
-    if (hL1ADiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
-    if (hBXDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
+    if (hL1ADiff_->GetBinContent(i) > 0 || hBXDiff_->GetBinContent(i) > 0) {
+      syncStatus_[i-1] = 1;
+      if (hL1ADiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hL1ADiff_->GetBinContent(i);
+      if (hBXDiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hBXDiff_->GetBinContent(i);
+    }
     //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
   }
 
@@ -266,10 +269,8 @@ void ESIntegrityClient::analyze(void) {
 	    xval = 0;
 	  } 
 	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
+	  meDIErrors_[iz][ip]->setBinContent(ix+1, iy+1, nDI_FedErr[fed_[iz][ip][ix][iy]-520]);
 	}
-  
-  // Calculate # of DI errors 
-
 
 }
 
