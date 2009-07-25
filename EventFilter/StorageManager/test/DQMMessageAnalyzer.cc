@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.6 2008/03/04 17:12:40 hcheung Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.7 2009/06/10 13:58:35 biery Exp $
 
 */
 
@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"

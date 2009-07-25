@@ -1,11 +1,11 @@
-// $Id: FileHandler.cc,v 1.3 2009/07/03 11:08:46 mommsen Exp $
+// $Id: FileHandler.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
 #include <EventFilter/StorageManager/interface/FileHandler.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/GetReleaseVersion.h>
+#include <FWCore/Version/interface/GetReleaseVersion.h>
 
 #include <errno.h>
 #include <iostream>
