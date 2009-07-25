@@ -190,15 +190,16 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if (dcc.getOptoRX0() == 128) {
 	meOptoRX_->Fill(dcc.fedId(), 0);
-	if (((dcc.getOptoBC0()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+	if (((dcc.getOptoBC0()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+       
       }
       if (dcc.getOptoRX1() == 128) {
 	meOptoRX_->Fill(dcc.fedId(), 1);
-	if (((dcc.getOptoBC1()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
+	if (((dcc.getOptoBC1()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
       }
       if (dcc.getOptoRX2() == 128) {
 	meOptoRX_->Fill(dcc.fedId(), 2);
-	if (((dcc.getOptoBC2()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
+	if (((dcc.getOptoBC2()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
       }
 
       fiberStatus = dcc.getFEChannelStatus();
