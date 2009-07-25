@@ -42,9 +42,9 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   if (!doBackFit){
     LogDebug("TransientInitialStateEstimator")
       <<"a backward fit will not be done. assuming that the state on first measurement is OK";
-    TSOS firstState = traj.firstMeasurement().forwardPredictedState();
-    firstState.rescaleError(100.);    
-    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
+    TSOS firstStateFromForward = traj.firstMeasurement().forwardPredictedState();
+    firstStateFromForward.rescaleError(100.);    
+    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstStateFromForward, 
 								traj.firstMeasurement().recHit()->det());
   }
 
@@ -97,7 +97,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
   TSOS firstState(firstMeas.updatedState().localParameters(),
 		  firstMeas.updatedState().localError(),
-  		  firstState.surface(),
+  		  firstMeas.updatedState().surface(),
   		  thePropagatorAlong->magneticField());
   // I couldn't do: 
   //TSOS firstState = firstMeas.updatedState();
