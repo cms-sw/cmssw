@@ -39,13 +39,17 @@ void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackFit) const
 {
-  if (!doBackFit){
+  if (!doBackFit && traj.firstMeasurement().forwardPredictedState().isValid()){
     LogDebug("TransientInitialStateEstimator")
       <<"a backward fit will not be done. assuming that the state on first measurement is OK";
     TSOS firstStateFromForward = traj.firstMeasurement().forwardPredictedState();
     firstStateFromForward.rescaleError(100.);    
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstStateFromForward, 
 								traj.firstMeasurement().recHit()->det());
+  }
+  if (!doBackFit){
+    LogDebug("TransientInitialStateEstimator")
+      <<"told to not do a back fit, but the forward state of the first measurement is not valid. doing a back fit.";
   }
 
   int nMeas = traj.measurements().size();
