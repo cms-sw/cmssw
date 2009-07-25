@@ -206,7 +206,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     head = (*word >> 60) & m4;
 
     if (head == 12) {
-      if ((opto==0 && ESDCCHeader.getOptoRX0()==129) || (opto==1 && ESDCCHeader.getOptoRX1()==129) || (opto==2 && ESDCCHeader.getOptoRX2()==129)) 
+      if ((opto==1 && ESDCCHeader.getOptoRX0()==129) || (opto==2 && ESDCCHeader.getOptoRX1()==129) || (opto==3 && ESDCCHeader.getOptoRX2()==129)) 
 	word2digi(kid, kPACE, *word, digis);
     } else if (head == 9) {
       kid      = (*word >> 2) & 0x07ff;
