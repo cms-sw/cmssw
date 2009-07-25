@@ -78,6 +78,7 @@ class ESIntegrityClient : public ESClient {
 
   MonitorElement* meFED_[2][2];
   MonitorElement* meKCHIP_[2][2];
+  MonitorElement* meDIErrors_[2][2];
 
   TH1F *hFED_;  
   TH2F *hFiber_;

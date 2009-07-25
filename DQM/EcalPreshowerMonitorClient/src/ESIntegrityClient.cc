@@ -114,6 +114,11 @@ void ESIntegrityClient::setup(void) {
       meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       meKCHIP_[i][j]->setAxisTitle("Si X", 1);
       meKCHIP_[i][j]->setAxisTitle("Si Y", 2);
+
+      sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
+      meDIErrors_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      meDIErrors_[i][j]->setAxisTitle("Si X", 1);
+      meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
     }
 }
 
@@ -126,6 +131,11 @@ void ESIntegrityClient::cleanup(void) {
 void ESIntegrityClient::analyze(void) {
   
   char histo[200];
+
+  Int_t nDI_FedErr[56];
+  Int_t nDI_KchipErr[1500];
+  for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
+  for (int i=0; i<1500; ++i) nDI_KchipErr[i] = 0;
   
   MonitorElement* me;
   
@@ -148,11 +158,10 @@ void ESIntegrityClient::analyze(void) {
     if (hFED_->GetBinContent(i) > 0) 
       fedStatus_[i-1] = 1;      
     if (hFiber_->GetBinContent(i+58) > 0) 
-      fiberStatus_[i-1] = 1;
+      fiberStatus_[i-1] = 1;    
   }
 
   // obtain MEs from ESRawDataTask
-
   sprintf(histo, (prefixME_ + "/ESRawDataTask/ES L1A DCC errors").c_str());
   me = dqmStore_->get(histo);
   hL1ADiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hL1ADiff_ ); 
@@ -259,6 +268,9 @@ void ESIntegrityClient::analyze(void) {
 	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
 	}
   
+  // Calculate # of DI errors 
+
+
 }
 
 void ESIntegrityClient::softReset(bool flag) {
