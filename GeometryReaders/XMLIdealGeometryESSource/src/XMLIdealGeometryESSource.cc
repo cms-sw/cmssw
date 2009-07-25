@@ -109,8 +109,9 @@ XMLIdealGeometryESSource::produce() {
   // NOTE TO SELF:  Mike, DO NOT try to fix the memory leak here by going global again!!!
   //copy the graph from the global one
   DDCompactView globalOne;
-  returnValue->writeableGraph() = globalOne.graph();
-  
+  //returnValue->writeableGraph() = globalOne.graph();
+  //  globalOne.clear();
+  returnValue->swap(globalOne);
   return returnValue;
 }
 
