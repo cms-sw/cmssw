@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/03/30 16:50:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/06/30 13:48:32 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
+#include "DQMOffline/JetMET/interface/JetPtAnalyzer.h"
 #include "DQMOffline/JetMET/interface/PFJetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/CaloMETAnalyzer.h"
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
@@ -73,7 +74,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   std::string LoJetTrigger;
   std::string HiJetTrigger;
   
-  bool theJetAnalyzerFlag;
+  bool theJetAnalyzerFlag;  
+  bool theJetPtAnalyzerFlag; 
+  bool theJetCleaningFlag;
   bool thePFJetAnalyzerFlag;
   bool theJPTJetAnalyzerFlag;
   bool theCaloMETAnalyzerFlag;
@@ -84,9 +87,13 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   // the jet analyzer
   JetAnalyzer       * theJetAnalyzer;
   JetAnalyzer       * theSCJetAnalyzer;
-  JetAnalyzer       * theICJetAnalyzer;
+  JetAnalyzer       * theICJetAnalyzer; 
+  JetAnalyzer       * theCleanedSCJetAnalyzer;
+  JetAnalyzer       * theCleanedICJetAnalyzer;
   JetAnalyzer       * theJPTJetAnalyzer;
   PFJetAnalyzer     * thePFJetAnalyzer;
+  JetPtAnalyzer       *  thePtSCJetAnalyzer;
+  JetPtAnalyzer       *  thePtICJetAnalyzer; 
   CaloMETAnalyzer   * theCaloMETAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFAnalyzer;
   CaloMETAnalyzer   * theCaloMETHOAnalyzer;
