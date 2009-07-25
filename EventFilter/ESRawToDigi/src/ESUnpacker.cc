@@ -131,7 +131,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   vector<int> FEch_status;
   int dccHeaderCount = 0;
   int dccLineCount = 0;
-  int dccHead, dccLine;
+  int dccHead, dccLine, dccCRC1_, dccCRC2_, dccCRC3_;
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     if (debug_) cout<<"DCC   : "<<print(*word)<<endl;
     dccHead = (*word >> 60) & m4;
@@ -144,7 +144,11 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       dccs.push_back(ESDCCHeader);
       return; 
     }
-    if (dccLineCount == 2) {
+    if (dccLineCount == 1) {
+      dccCRC1_ = (*word >> 24) & m1; 
+      dccCRC2_ = (*word >> 25) & m1; 
+      dccCRC3_ = (*word >> 26) & m1; 
+    } else if (dccLineCount == 2) {
       runtype_   = (*word >>  0) & m4;
       seqtype_   = (*word >>  4) & m4;
       dac_       = (*word >>  8) & m12; 
@@ -189,9 +193,9 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     dccs.push_back(ESDCCHeader);
     return;
   }
-  ESDCCHeader.setOptoRX0(optoRX0_);
-  ESDCCHeader.setOptoRX1(optoRX1_);
-  ESDCCHeader.setOptoRX2(optoRX2_);
+  ESDCCHeader.setOptoRX0(optoRX0_ + dccCRC1_);
+  ESDCCHeader.setOptoRX1(optoRX1_ + dccCRC2_);
+  ESDCCHeader.setOptoRX2(optoRX2_ + dccCRC3_);
   ESDCCHeader.setFEChannelStatus(FEch_status);
 
   // Event data
@@ -202,7 +206,8 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     head = (*word >> 60) & m4;
 
     if (head == 12) {
-      word2digi(kid, kPACE, *word, digis);
+      if ((opto==0 && ESDCCHeader.getOptoRX0()==129) || (opto==1 && ESDCCHeader.getOptoRX1()==129) || (opto==2 && ESDCCHeader.getOptoRX2()==129)) 
+	word2digi(kid, kPACE, *word, digis);
     } else if (head == 9) {
       kid      = (*word >> 2) & 0x07ff;
       kPACE[0] = (*word >> 16) & m1;
