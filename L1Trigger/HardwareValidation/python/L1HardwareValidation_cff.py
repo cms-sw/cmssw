@@ -135,5 +135,6 @@ deRpc = cms.Sequence(valRpcTriggerDigis)
 deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
 
-# the sequences
-L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
+# the sequence
+L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
+#note: gct has been temporarily removed while problems are sorted out
