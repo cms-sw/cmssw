@@ -38,7 +38,7 @@ photonPostprocessing = cms.EDAnalyzer("PhotonPostprocessing",
 
                                       
                                      
-    InputFileName = cms.untracked.string("inputPhotonValidation.root"),
+    InputFileName = cms.string("inputPhotonValidation.root"),
                                      
     OutputFileName = cms.string('standaloneOutputValidation.root'),
 )
