@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.19 2009/06/10 16:30:54 demattia Exp $
+// $Id: SiStripDetCabling.cc,v 1.20 2009/06/12 11:23:39 demattia Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,11 +16,11 @@
 using namespace std;
 
 //---- default constructor / destructor
-SiStripDetCabling::SiStripDetCabling() {}
+SiStripDetCabling::SiStripDetCabling() : fedCabling_(0) {}
 SiStripDetCabling::~SiStripDetCabling() {}
 
 //---- construct detector view (DetCabling) out of readout view (FedCabling)
-SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : fullcabling_(), connected_(), detected_(), undetected_()
+SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : fullcabling_(), connected_(), detected_(), undetected_(), fedCabling_(&fedcabling)
 {
   // --- CONNECTED = have fedid and i2cAddr
   // create fullcabling_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
@@ -95,15 +95,19 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
 //---- add to certain connections
 void SiStripDetCabling::addDevices( const FedChannelConnection& conn, 
 				    std::map< uint32_t, std::vector<FedChannelConnection> >& conns ){
-  if ( conn.detId() && conn.detId() != sistrip::invalid32_ &&  // check for valid detid
-       conn.apvPairNumber() != sistrip::invalid_ ) {           // check for valid apv pair number
-    if(conn.fedId()==0 || conn.fedId()==sistrip::invalid_ ){
+  if( conn.detId() && conn.detId() != sistrip::invalid32_ &&  // check for valid detid
+      conn.apvPairNumber() != sistrip::invalid_ ) {           // check for valid apv pair number
+    if( conn.fedId()==0 || conn.fedId()==sistrip::invalid_ ){
       edm::LogInfo("") << " SiStripDetCabling::addDevices for connection associated to detid " << conn.detId() << " apvPairNumber " << conn.apvPairNumber() << "the fedId is " << conn.fedId();
       return;
-    } 
-    if ( conn.apvPairNumber() >= conns[conn.detId()].size() )  // check cached vector size is sufficient
-      conns[conn.detId()].resize( conn.apvPairNumber()+1 );    // if not, resize
-    conns[conn.detId()][conn.apvPairNumber()] = conn;          // add latest connection object
+    }
+    // check cached vector size is sufficient
+    // if not, resize
+    if( conn.apvPairNumber() >= conns[conn.detId()].size() ) {
+      conns[conn.detId()].resize( conn.apvPairNumber()+1 );
+    }
+    // add latest connection object
+    conns[conn.detId()][conn.apvPairNumber()] = conn;
   }
 }
 

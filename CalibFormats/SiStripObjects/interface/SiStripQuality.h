@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.10 2009/03/27 14:19:50 giordano Exp $
+// $Id: SiStripQuality.h,v 1.11 2009/03/30 16:43:41 demattia Exp $
 //
 
 
@@ -27,6 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include <vector>
 
 class SiStripQuality: public SiStripBadStrip {
@@ -65,6 +66,8 @@ class SiStripQuality: public SiStripBadStrip {
   void add(const SiStripBadStrip*);
   void add(const SiStripDetCabling*);
   void add(const SiStripDetVOff*);
+  /// Used to get the cabling from RunInfo
+  void add(const RunInfo *);
   void addInvalidConnectionFromCabling();
   void addNotConnectedConnectionFromCabling();
 

@@ -10,7 +10,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripDetCabling.h,v 1.7 2008/11/27 13:25:52 bainbrid Exp $
+// $Id: SiStripDetCabling.h,v 1.8 2009/06/10 16:30:33 demattia Exp $
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
@@ -58,6 +58,7 @@ class SiStripDetCabling
   uint32_t connectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 0); }
   uint32_t detectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 1); }
   uint32_t undetectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 2); }
+  inline const SiStripFedCabling * fedCabling() const {return fedCabling_;}
 
  private:
   SiStripDetCabling(const SiStripDetCabling&); // stop default
@@ -81,5 +82,6 @@ class SiStripDetCabling
   // 2 = undetected
   // Note: it is mutable because the method changing it must be const.
   mutable std::map< int16_t, uint32_t > connectionCount[3];
+  const SiStripFedCabling * fedCabling_;
 };
 #endif
