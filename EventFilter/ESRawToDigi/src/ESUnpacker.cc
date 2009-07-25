@@ -94,6 +94,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   ESDCCHeader.setBX(bx_);
 
   // Event trailer
+  int slinkCRC = 1;
   const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); ++trailer;
   bool moreTrailers = true;
   while (moreTrailers) {
@@ -116,7 +117,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       dccs.push_back(ESDCCHeader);
       return;
     }
-
+    slinkCRC = (*trailer >> 2 ) & 0x1;
     if (debug_)  {
       cout<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
       if (ESTrailer.check())
@@ -127,11 +128,20 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     moreTrailers = ESTrailer.moreTrailers();
   }
 
+  if (slinkCRC == -1) {
+    ESDCCHeader.setDCCErrors(101);
+    dccs.push_back(ESDCCHeader);
+    return;
+  }
+
   // DCC data
   vector<int> FEch_status;
   int dccHeaderCount = 0;
   int dccLineCount = 0;
-  int dccHead, dccLine, dccCRC1_, dccCRC2_, dccCRC3_;
+  int dccHead, dccLine;
+  int dccCRC1_ = 0;
+  int dccCRC2_ = 0;
+  int dccCRC3_ = 0;
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     if (debug_) cout<<"DCC   : "<<print(*word)<<endl;
     dccHead = (*word >> 60) & m4;
