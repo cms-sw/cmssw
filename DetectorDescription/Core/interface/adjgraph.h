@@ -206,6 +206,8 @@ public:
   
   // inverts the directed graph, i.e. edge(A,B) -> edge(B,A)
   void invert(graph & g) const;
+
+  void swap( graph<N, E> & );
   
 // Data   
 private:
@@ -437,6 +439,14 @@ void graph<N,E>::invert(graph<N,E> & g) const
     } 
 }
 
+template<class N, class E>
+  void graph<N,E>::swap( graph<N, E> & g) { 
+  adjl_.swap(g.adjl_);
+  nodes_.swap(g.nodes_);
+  edges_.swap(g.edges_);
+  indexer_.swap(g.indexer_);
+  emptyEdges_.swap(g.emptyEdges_);
+}
 
 template<typename T> std::ostream & operator<<(std::ostream & o, const std::vector< std::vector<std::pair<T,T> > > v)
 {

@@ -151,6 +151,8 @@ public:
   
   // to modify the structure! DDCore internal!
   graph_type & writeableGraph();
+
+  void swap( DDCompactView& );
   
 protected:
   Ptr<DDCompactViewImpl> rep_;

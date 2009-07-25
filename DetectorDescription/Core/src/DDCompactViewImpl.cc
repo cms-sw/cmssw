@@ -119,6 +119,11 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
    
 }
 
+void DDCompactViewImpl::swap( DDCompactViewImpl& implToSwap ) {
+  //  root_.rep().swap(implToSwap.root_.rep()); // I do not want to do this because to construct a DDCompactView that is NOT global one needs to do DDCompactView(lp)
+  graph_.swap(implToSwap.graph_);
+}
+
 /*
 expnode_t * DDCompactViewImpl::expand(const DDPartSelector & path) const
 {

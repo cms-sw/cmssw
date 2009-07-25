@@ -55,7 +55,8 @@ public:
   
   //double weight(DDLogicalPart &);
   double weight(const DDLogicalPart &) const;
-  
+
+  void swap( DDCompactViewImpl& );  
   /**
    will return a walker beginning at the node specified by the PartSelector   
   
