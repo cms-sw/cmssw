@@ -128,7 +128,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     moreTrailers = ESTrailer.moreTrailers();
   }
 
-  if (slinkCRC == -1) {
+  if (slinkCRC != 0) {
     ESDCCHeader.setDCCErrors(101);
     dccs.push_back(ESDCCHeader);
     return;
