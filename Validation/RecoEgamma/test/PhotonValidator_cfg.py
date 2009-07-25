@@ -41,7 +41,9 @@ photonValidation.OutputFileName = 'PhotonValidationRelVal312_H130GGgluonfusion.r
 #photonValidation.OutputFileName = 'PhotonValidationRelVal312_QCD_Pt_50_80.root'
 
 photonPostprocessing.batch = cms.bool(True)
-photonPostprocessing.InputFileName = 'PhotonValidationRelVal312_H130GGgluonfusion.root'
+#photonPostprocessing.InputFileName = 'PhotonValidationRelVal312_H130GGgluonfusion.root'
+
+photonPostprocessing.InputFileName = photonValidation.OutputFileName
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),

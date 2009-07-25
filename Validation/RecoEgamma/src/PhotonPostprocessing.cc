@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/14 15:52:13 $ 
+ **  $Date: 2009/07/24 18:39:18 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -35,7 +35,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
   standAlone_ = pset.getParameter<bool>("standAlone");
   batch_ = pset.getParameter<bool>("batch");
   outputFileName_ = pset.getParameter<string>("OutputFileName");
-  inputFileName_  = pset.getUntrackedParameter<std::string>("InputFileName");
+  inputFileName_  = pset.getParameter<std::string>("InputFileName");
 
 
 
