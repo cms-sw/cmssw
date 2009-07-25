@@ -42,7 +42,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   if (!doBackFit){
     LogDebug("TransientInitialStateEstimator")
       <<"a backward fit will not be done. assuming that the state on first measurement is OK";
-    TSOS firstState = traj.firstMeasurement().backwardPredictedState();
+    TSOS firstState = traj.firstMeasurement().forwardPredictedState();
     firstState.rescaleError(100.);    
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
 								traj.firstMeasurement().recHit()->det());
