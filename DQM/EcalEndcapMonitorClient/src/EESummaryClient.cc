@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/07/14 14:05:16 $
- * $Revision: 1.170 $
+ * $Date: 2009/07/14 14:54:19 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  *
 */
@@ -2385,7 +2385,7 @@ void EESummaryClient::analyze(void) {
         float val_ls = 1;
         if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
 
-        // combine all the available wavelenghts in unique laser status
+        // combine all the available wavelenghts in unique led status
         // for each laser turn dark color and yellow into bright green
         float val_ld_1=2, val_ld_2=2;
         if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
@@ -2399,6 +2399,10 @@ void EESummaryClient::analyze(void) {
 
         float val_ld = 1;
         if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
+
+        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY UNTIL LHC COLLISIONS
+        val_ls = 1;
+        val_ld = 1;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
