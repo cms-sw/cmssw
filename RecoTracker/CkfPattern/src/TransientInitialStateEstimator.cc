@@ -37,12 +37,11 @@ void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) 
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
-TransientInitialStateEstimator::innerState( const Trajectory& traj) const
+TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackFit) const
 {
-  if(traj.firstMeasurement().forwardPredictedState().isValid()){    
+  if (!doBackFit){
     LogDebug("TransientInitialStateEstimator")
-      <<"The firstMeasurement fwd state is valid. Therefore the backward fitting has already been done"
-      <<"and we don't have to repeat it.";
+      <<"a backward fit will not be done. assuming that the state on first measurement is OK";
     TSOS firstState = traj.firstMeasurement().backwardPredictedState();
     firstState.rescaleError(100.);    
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
@@ -104,7 +103,15 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
   //TSOS firstState = firstMeas.updatedState();
   // why????
 
+
   firstState.rescaleError(100.);
+
+  LogDebug("TransientInitialStateEstimator")
+    <<"the initial state is found to be:\n:"<<firstState
+    <<"\n it's field pointer is: "<<firstState.magneticField()
+    <<"\n the pointer from the state of the back fit was: "<<firstMeas.updatedState().magneticField();
+
+
   return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
 							      firstMeas.recHit()->det());
 }
