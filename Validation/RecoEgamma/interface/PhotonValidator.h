@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/07 16:51:04 $ 
- **  $Revision: 1.21 $
+ **  $Date: 2009/07/24 18:37:25 $ 
+ **  $Revision: 1.22 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -137,6 +137,9 @@ class PhotonValidator : public edm::EDAnalyzer
   double mcConvZ_;
   double mcConvY_;            
   double mcConvX_;            
+  double mcConvPhi_;            
+  double mcConvEta_;            
+
   std::vector<TrackingParticleRef> theConvTP_;
   
   double simMinPt_;
@@ -355,6 +358,9 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_convVtxdY_;
   MonitorElement* h_convVtxdZ_;
   MonitorElement* h_convVtxdR_;
+  MonitorElement* h_convVtxdEta_;
+  MonitorElement* h_convVtxdPhi_;
+
 
   MonitorElement* h2_convVtxdRVsR_;
   MonitorElement* p_convVtxdRVsR_;

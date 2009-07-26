@@ -78,8 +78,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/17 17:44:43 $ 
- **  $Revision: 1.40 $
+ **  $Date: 2009/07/24 18:37:39 $ 
+ **  $Revision: 1.41 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -843,6 +843,9 @@ void  PhotonValidator::beginJob() {
     h_convVtxdY_ =   dbe_->book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -20.,20.);
     h_convVtxdZ_ =   dbe_->book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
     h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -20.,20.);
+    h_convVtxdPhi_ =   dbe_->book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.005,0.005);
+    h_convVtxdEta_ =   dbe_->book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
+
 
     h2_convVtxdRVsR_ =  dbe_->book2D("h2ConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
     p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR","Photon Reco conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
@@ -1228,7 +1231,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       mcConvR_= (*mcPho).vertex().perp();   
       mcConvX_= (*mcPho).vertex().x();    
       mcConvY_= (*mcPho).vertex().y();    
-      mcConvZ_= (*mcPho).vertex().z();    
+      mcConvZ_= (*mcPho).vertex().z();  
+      mcConvEta_= (*mcPho).vertex().eta();    
+      mcConvPhi_= (*mcPho).vertex().phi();  
+  
       if ( fabs(mcEta_) > END_HI ) continue;
       
       
@@ -1977,6 +1983,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      h_convVtxdY_ ->Fill ( aConv->conversionVertex().position().y() - mcConvY_);
 	      h_convVtxdZ_ ->Fill ( aConv->conversionVertex().position().z() - mcConvZ_);
 	      h_convVtxdR_ ->Fill ( sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_);
+	      h_convVtxdPhi_ ->Fill ( aConv->conversionVertex().position().phi() - mcConvPhi_);
+	      h_convVtxdEta_ ->Fill ( aConv->conversionVertex().position().eta() - mcConvEta_);
 	      h2_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 	      h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
 	      p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
