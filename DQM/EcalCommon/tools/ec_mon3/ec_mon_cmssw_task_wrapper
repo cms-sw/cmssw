@@ -337,11 +337,17 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHi
 
 process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
+#process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
+process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 
 process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+#process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
+process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
 process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
+#process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
+process.ecalEndcapLedTask.ledWavelengths = [ 1 ]
 process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEE'
 
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
@@ -358,7 +364,7 @@ process.ecalBarrelMonitorClient.dbPassword = dbPassword
 process.ecalBarrelMonitorClient.dbTagName = 'CMSSW'
 process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'P5_Co'
-#process.ecalBarrelMonitorClient.laserWavelengths = [ 1 ]
+#process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
@@ -370,10 +376,10 @@ process.ecalEndcapMonitorClient.dbPassword = dbPassword
 process.ecalEndcapMonitorClient.dbTagName = 'CMSSW'
 process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'P5_Co'
-#process.ecalEndcapMonitorClient.laserWavelengths = [ 1 ]
+#process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapMonitorClient.ledWavelengths = [ 1 ]
 #process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
+process.ecalEndcapMonitorClient.ledWavelengths = [ 1 ]
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Led', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
 process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
