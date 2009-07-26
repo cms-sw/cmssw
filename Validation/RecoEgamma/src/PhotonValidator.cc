@@ -78,8 +78,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/26 22:55:55 $ 
- **  $Revision: 1.43 $
+ **  $Date: 2009/07/26 23:51:14 $ 
+ **  $Revision: 1.44 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1264,8 +1264,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     
-      // if ( ! (  fabs(mcEta_) <= BARL || ( fabs(mcEta_) >= END_LO && fabs(mcEta_) <=END_HI ) ) ) 
-      //	continue;  // all ecal fiducial region
+      if ( ! (  fabs(mcEta_) <= BARL || ( fabs(mcEta_) >= END_LO && fabs(mcEta_) <=END_HI ) ) ) 
+      	continue;  // all ecal fiducial region
 
 
       nSimPho_[0]++;
