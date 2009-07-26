@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.7 2009/06/06 21:28:58 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.8 2009/07/26 17:18:19 chrjones Exp $
 //
 
 // system include files
@@ -96,6 +96,8 @@ private:
    std::string m_productInstanceLabel;
    std::string m_processName;
 
+   std::string m_lastProcessNameInFile;
+   
    DataAdderTableManager* m_tableManager;
    FWTableWidget* m_tableWidget;
    TGTextButton* m_apply;
