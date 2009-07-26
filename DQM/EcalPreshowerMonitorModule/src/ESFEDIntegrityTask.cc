@@ -4,6 +4,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -24,7 +26,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps){
+ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
 
   init_ = false;
 
@@ -44,11 +46,11 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps){
   
 }
 
-ESFEDIntegrityTask::~ESFEDIntegrityTask(){
+ESFEDIntegrityTask::~ESFEDIntegrityTask() {
 
 }
 
-void ESFEDIntegrityTask::beginJob(const EventSetup& c){
+void ESFEDIntegrityTask::beginJob(const EventSetup& c) {
 
   ievt_ = 0;
 
@@ -264,3 +266,4 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
+DEFINE_FWK_MODULE(ESFEDIntegrityTask);

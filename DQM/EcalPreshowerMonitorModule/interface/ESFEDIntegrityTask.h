@@ -9,14 +9,11 @@
 class MonitorElement;
 class DQMStore;
 
-class ESFEDIntegrityTask: public edm::EDAnalyzer{
+class ESFEDIntegrityTask : public edm::EDAnalyzer {
   
  public:
   
-  /// Constructor
   ESFEDIntegrityTask(const edm::ParameterSet& ps);
-  
-  /// Destructor
   virtual ~ESFEDIntegrityTask();
   
  protected:
