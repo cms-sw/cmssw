@@ -35,6 +35,7 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
   prefixME_      = ps.getUntrackedParameter<string>("prefixME", "");
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
   mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
+  debug_         = ps.getUntrackedParameter<bool>("debug", false);
 
   dccCollections_       = ps.getParameter<InputTag>("ESDCCCollections");
   kchipCollections_     = ps.getParameter<InputTag>("ESKChipCollections");
@@ -94,7 +95,7 @@ void ESFEDIntegrityTask::setup(void){
     sprintf(histo, "FEDFatal");
     meESFedsFatal_ = dqmStore_->book1D(histo, histo, 56, 520, 576);
 
-    sprintf(histo, "FEDNonnFatal");
+    sprintf(histo, "FEDNonFatal");
     meESFedsNonFatal_ = dqmStore_->book1D(histo, histo, 56, 520, 576);
   }
 
@@ -218,7 +219,7 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if ( meESFedsFatal_ ) meESFedsFatal_->Fill(dcc.fedId());
       
     }	else {
-      
+      if (debug_) cout<<dcc.fedId()<<" "<<dcc.getOptoRX0()<<" "<<dcc.getOptoRX1()<<" "<<dcc.getOptoRX2()<<endl;
       fiberStatus = dcc.getFEChannelStatus();
       
       if (dcc.getOptoRX0() == 128) {

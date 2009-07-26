@@ -51,6 +51,7 @@ class ESFEDIntegrityTask : public edm::EDAnalyzer {
   std::string prefixME_;
   bool enableCleanup_;
   bool mergeRuns_;
+  bool debug_;
 
   edm::InputTag dccCollections_;
   edm::InputTag kchipCollections_;
