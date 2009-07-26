@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/06/03 09:42:07 $
- * $Revision: 1.6 $
+ * $Date: 2009/07/26 18:32:58 $
+ * $Revision: 1.7 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -299,9 +299,12 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
     }
 
-    if(Nbins > 0) SummaryContent[k] = 1.-((float)Nfatal/(float)Nbins);
+    if (Nbins > 0) 
+         SummaryContent[k] = 1.-((float)Nfatal/(float)Nbins);
       //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
+    if (SummaryContent[k] < 1. && SummaryContent[k] >=0.95) 
+         SummaryContent[k] = 0.949;
     reportSummaryMap->setBinContent(1, nSubsystems-k, SummaryContent[k]);
     sum = sum + SummaryContent[k];
 
@@ -310,7 +313,8 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   }
 
-  if(count > 0)  reportSummary->Fill( sum/(float)count );
+  float fillvalue = 1.;
+  if (count > 0) reportSummary->Fill( sum/(float)count );
 
   // FED Non Fatal
 
