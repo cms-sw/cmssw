@@ -121,6 +121,9 @@ cat > efficiencyForPhotons <<EOF
   recoEffVsEta
   recoEffVsPhi
   recoEffVsEt
+  deadChVsEta
+  deadChVsPhi
+  deadChVsEt
 
 EOF
 
