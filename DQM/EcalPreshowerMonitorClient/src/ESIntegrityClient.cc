@@ -162,7 +162,7 @@ void ESIntegrityClient::analyze(void) {
       fedStatus_[i-1] = 1;      
     if (hFiber_->GetBinContent(i+58) > 0) {
       fiberStatus_[i-1] = 1;
-      nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
+      //nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
     }
     if (hSLinkCRCErr_->GetBinContent(i) > 0) 
       slinkCRCStatus_[i] = 1;
