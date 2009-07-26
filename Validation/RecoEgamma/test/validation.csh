@@ -17,10 +17,10 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_1_0
-setenv CMSSWver2 3_1_1
-setenv OLDRELEASE 311PreProd
-setenv NEWRELEASE 311PreProd
+setenv CMSSWver1 3_1_1
+setenv CMSSWver2 3_2_0
+setenv OLDRELEASE 311
+setenv NEWRELEASE 320
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
@@ -30,14 +30,14 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv SAMPLE PhotonJetPt15
+#setenv SAMPLE PhotonJetPt15
 #setenv SAMPLE PhotonJetPt0-15
 #setenv SAMPLE PhotonJetPt500toInf
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
@@ -51,8 +51,8 @@ setenv SAMPLE PhotonJetPt15
 
 
 
-setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
-setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
+#setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
+#setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
 
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
@@ -96,11 +96,10 @@ if (! -d $NEWRELEASE) then
 endif
 setenv OUTPATH $OUTPATH/$NEWRELEASE
 cd $OUTPATH
-if (! -d ${TYPE}) then
-  mkdir ${TYPE}
+if (! -d ${TYPE}_vs${OLDRELEASE}) then
+  mkdir ${TYPE}_vs${OLDRELEASE}
 endif
-#setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
-setenv OUTPATH $OUTPATH/${TYPE}
+setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
 
 setenv OUTDIR $OUTPATH/${SAMPLE}
 if (! -d $OUTDIR) then
@@ -110,6 +109,7 @@ if (! -d $OUTDIR) then
   mkdir gifs
 endif
 cd $OUTDIR
+
 
 #The list of histograms to be compared for each TYPE can be configured below:
 
@@ -191,7 +191,9 @@ pEResVsR9Endcap
 scpEResVsR9All
 scpEResVsR9Barrel
 scpEResVsR9Endcap
-
+pEResVsEtAll
+pEResVsEtBarrel
+pEResVsEtEndcap
 
 EOF
 
@@ -402,10 +404,10 @@ Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
 $i->SetMinimum(0.);
-if ( mnew > mold) 
- $i->SetMaximum(mnew+mnew*0.2);
-else 
-$i->SetMaximum(mold+mold*0.2);
+//if ( mnew > mold) 
+// $i->SetMaximum(mnew+mnew*0.2);
+//else 
+//$i->SetMaximum(mold+mold*0.2);
 //$i->SetMaximum(mold+mold*0.2);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
@@ -419,7 +421,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
-//$i->Scale(nold/nnew);
+$i->Scale(nold/nnew);
 $i->Draw("esame");
 c$i->SaveAs("gifs/$i.gif");
 
