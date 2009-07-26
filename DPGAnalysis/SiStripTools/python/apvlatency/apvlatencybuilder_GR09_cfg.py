@@ -43,7 +43,8 @@ process.load("DPGAnalysis.SiStripTools.apvlatency.apvlatencybuilder_cfi")
 process.apvLatencyBuilder.latencyIOVs = cms.VPSet(
     cms.PSet( runNumber = cms.int32(100966), latency = cms.int32(100)),
     cms.PSet( runNumber = cms.int32(102129), latency = cms.int32(140)),
-    cms.PSet( runNumber = cms.int32(105505), latency = cms.int32(142))
+    cms.PSet( runNumber = cms.int32(105505), latency = cms.int32(142)),
+    cms.PSet( runNumber = cms.int32(108449), latency = cms.int32(143))
     )
 
 process.p = cms.Path(process.apvLatencyBuilder)
