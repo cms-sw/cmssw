@@ -26,7 +26,7 @@ namespace cscdqm {
    * @param  data Chamber data to process
    * @param dduID DDU identifier
    */
-  void EventProcessor::processCSC(const CSCEventData& data, const int dduID) {
+  void EventProcessor::processCSC(const CSCEventData& data, const int dduID, const CSCDCCExaminer& binChecker) {
 
     config->incNUnpackedCSC();
 

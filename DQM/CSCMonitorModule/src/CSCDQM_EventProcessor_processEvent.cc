@@ -58,6 +58,21 @@ namespace cscdqm {
     const uint16_t *tmp = reinterpret_cast<const uint16_t *>(data);
     const uint16_t  tmpSize = dataSize / sizeof(short);
     
+    /** CSC DCC Examiner object */
+    CSCDCCExaminer binChecker;
+    binChecker.crcALCT(config->getBINCHECKER_CRC_ALCT());
+    binChecker.crcTMB(config->getBINCHECKER_CRC_CLCT());
+    binChecker.crcCFEB(config->getBINCHECKER_CRC_CFEB());
+    binChecker.modeDDU(config->getBINCHECKER_MODE_DDU());
+
+    if (config->getBINCHECKER_OUTPUT()) {
+      binChecker.output1().show();
+      binChecker.output2().show();
+    } else {
+      binChecker.output1().hide();
+      binChecker.output2().hide();
+    }
+
     binChecker.setMask(config->getBINCHECK_MASK());
     
     if (binChecker.check(tmp, tmpSize) < 0) {
@@ -77,13 +92,13 @@ namespace cscdqm {
       binChecker.payloadDetailed(),
       binChecker.statusDetailed());
 
-    if (processExaminer(formatStatusDigi)) {
+    if (processExaminer(binChecker, formatStatusDigi)) {
 
       config->incNEventsGood();
 
       if (config->getPROCESS_DDU()) {
         CSCDDUEventData dduData((short unsigned int*) tmp, &binChecker);
-        processDDU(dduData);
+        processDDU(dduData, binChecker);
       }
 
     }
@@ -147,8 +162,23 @@ namespace cscdqm {
         const uint16_t  dataSize = long(fedData.size() / 2);
         const short unsigned int* udata = (short unsigned int*) fedData.data();
         
+        /** CSC DCC Examiner object */
+        CSCDCCExaminer binChecker;
+        binChecker.crcALCT(config->getBINCHECKER_CRC_ALCT());
+        binChecker.crcTMB(config->getBINCHECKER_CRC_CLCT());
+        binChecker.crcCFEB(config->getBINCHECKER_CRC_CFEB());
+        binChecker.modeDDU(config->getBINCHECKER_MODE_DDU());
+
+        if (config->getBINCHECKER_OUTPUT()) {
+          binChecker.output1().show();
+          binChecker.output2().show();
+        } else {
+          binChecker.output1().hide();
+          binChecker.output2().hide();
+        }
+
         binChecker.setMask(config->getBINCHECK_MASK());
-    
+
         if (binChecker.check(data, dataSize) < 0) {
 
           if (getEMUHisto(h::EMU_FED_FATAL, mo)) mo->Fill(id);
@@ -163,7 +193,7 @@ namespace cscdqm {
               binChecker.payloadDetailed(),
               binChecker.statusDetailed());
 
-          if (processExaminer(formatStatusDigi)) {
+          if (processExaminer(binChecker, formatStatusDigi)) {
 
             config->incNEventsGood();
 
@@ -177,7 +207,7 @@ namespace cscdqm {
               const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
               
               for (int ddu = 0; ddu < (int)dduData.size(); ddu++) {
-                processDDU(dduData[ddu]);
+                processDDU(dduData[ddu], binChecker);
               }
             }
 

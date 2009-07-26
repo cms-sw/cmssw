@@ -24,7 +24,7 @@ namespace cscdqm {
    * @brief  Process DDU output and fill MOs
    * @param  dduData DDU object to process
    */
-  void EventProcessor::processDDU(const CSCDDUEventData& dduData) {
+  void EventProcessor::processDDU(const CSCDDUEventData& dduData, const CSCDCCExaminer& binChecker) {
     
     CSCDDUHeader dduHeader  = dduData.header();
     CSCDDUTrailer dduTrailer = dduData.trailer();
@@ -243,7 +243,7 @@ namespace cscdqm {
       nCSCs = chamberDatas.size();
 
       for(uint32_t i = 0; i < nCSCs; i++) {
-        processCSC(chamberDatas[i], dduID);
+        processCSC(chamberDatas[i], dduID, binChecker);
       }
 
     }

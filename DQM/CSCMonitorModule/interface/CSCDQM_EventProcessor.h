@@ -81,10 +81,10 @@ namespace cscdqm {
 
     private:
       
-      bool processExaminer(); 
-      bool processExaminer(const CSCDCCFormatStatusDigi& digi);
-      void processDDU(const CSCDDUEventData& data);
-      void processCSC(const CSCEventData& data, const int dduID);
+      bool processExaminer(const CSCDCCExaminer& binChecker); 
+      bool processExaminer(const CSCDCCExaminer& binChecker, const CSCDCCFormatStatusDigi& digi);
+      void processDDU(const CSCDDUEventData& data, const CSCDCCExaminer& binChecker);
+      void processCSC(const CSCEventData& data, const int dduID, const CSCDCCExaminer& binChecker);
 
       void calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset);
 
@@ -101,9 +101,6 @@ namespace cscdqm {
 
       /** Detector efficiency manipulation object */
       Summary summary;
-
-      /** CSC DCC Examiner object */
-      CSCDCCExaminer binChecker;
 
       std::map<uint32_t, uint32_t> L1ANumbers;
       uint32_t L1ANumber;
