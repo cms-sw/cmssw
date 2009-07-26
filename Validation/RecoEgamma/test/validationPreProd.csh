@@ -370,8 +370,13 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
+if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
+$i->SetMinimum(0.);
+$i->SetMaximum(0.4);
+} else {
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
+}
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
