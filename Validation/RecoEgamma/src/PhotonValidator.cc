@@ -78,8 +78,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/26 16:30:15 $ 
- **  $Revision: 1.42 $
+ **  $Date: 2009/07/26 22:55:55 $ 
+ **  $Revision: 1.43 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -515,8 +515,8 @@ void  PhotonValidator::beginJob() {
     h2_ecalRecHitSumEtConeDR04VsEt_[2] = dbe_->book2D(histname+"Endcap"," All photons ecalRecHitSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
     histname="pEcalRecHitSumEtConeDR04VsEt";
     p_ecalRecHitSumEtConeDR04VsEt_[0] = dbe_->bookProfile(histname+"All","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_ecalRecHitSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
-    p_ecalRecHitSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_ecalRecHitSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons ecalRecHitSumEtDR04 vs Et: Barrel ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_ecalRecHitSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons ecalRecHitSumEtDR04 vs Et: Endcap ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     //
     histname = "hcalTowerSumEtConeDR04";
     h_hcalTowerSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
