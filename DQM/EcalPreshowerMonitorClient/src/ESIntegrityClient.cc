@@ -34,6 +34,7 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
     fedStatus_[i] = -1;
     fiberStatus_[i] = -1;
     syncStatus_[i] = -1;
+    slinkCRCStatus_[i] = -1;
   }
 
   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -145,6 +146,10 @@ void ESIntegrityClient::analyze(void) {
   me = dqmStore_->get(histo);
   hFiber_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiber_ ); 
 
+  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES SLink CRC Errors").c_str());
+  me = dqmStore_->get(histo);
+  hSLinkCRCErr_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSLinkCRCErr_ ); 
+
   int xval = 0;
   int nevFEDs = 0;
   for (int i=1; i<=56; ++i) 
@@ -159,6 +164,8 @@ void ESIntegrityClient::analyze(void) {
       fiberStatus_[i-1] = 1;
       nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
     }
+    if (hSLinkCRCErr_->GetBinContent(i) > 0) 
+      slinkCRCStatus_[i] = 1;
   }
 
   // obtain MEs from ESRawDataTask
@@ -262,6 +269,10 @@ void ESIntegrityClient::analyze(void) {
 	    }
 	    if (syncStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
 	      xval = 6;
+	      nErr++;
+	    }
+	    if (slinkCRCStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	      xval = 8;
 	      nErr++;
 	    }
 	    if (nErr > 1) xval = 7;

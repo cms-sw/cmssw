@@ -64,6 +64,7 @@ class ESIntegrityClient : public ESClient {
   int fedStatus_[56];
   int fiberStatus_[56];
   int syncStatus_[56];
+  int slinkCRCStatus_[56];
 
   bool cloneME_;
   bool verbose_;
@@ -89,6 +90,7 @@ class ESIntegrityClient : public ESClient {
   TH1F *hL1ADiff_;
   TH1F *hBXDiff_;
   TH1F *hOrbitNumberDiff_;
+  TH1F *hSLinkCRCErr_; 
 
 };
 
