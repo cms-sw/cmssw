@@ -108,32 +108,35 @@ void ESSummaryClient::analyze(void) {
 
    char histo[200];
 
+   float nDI_FedErr[80][80];
    float DCC[80][80];
-   float KChip[80][80];
-   float Digi[80][80];
-   bool UseDCC, UseKChip, UseDigi;
+   float eCount;
 
    MonitorElement* me;
 
-   UseDCC = false;
-   UseKChip = false;
-   UseDigi = false;
-
    for ( int i = 0; i < 80; i++) {
       for( int j = 0; j < 80; j++) {
-	 DCC[i][j] = 0;
-	 KChip[i][j] = 0;
-	 Digi[i][j] = 0;
+	 nDI_FedErr[i][j] = 0;
+	 DCC[i][j]=0;
       }
    }
 
    for (int i=0 ; i<2; ++i){
       for (int j=0 ; j<2; ++j){
 	 int iz = (i==0)? 1:-1;
+	 sprintf(histo, "ES Integrity Errors 1 Z %d P %d", iz, j+1);
+	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
+	 if(me){
+	    for(int x=0; x<40; x++){
+	       for(int y=0; y<40; y++){
+		  nDI_FedErr[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+	       }
+	    }
+	 }
+	 
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
-	    UseDCC = true;
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
 		  DCC[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
@@ -141,28 +144,14 @@ void ESSummaryClient::analyze(void) {
 	    }
 	 }
 
-	 sprintf(histo, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
-	 if(me){
-	    UseKChip = true;
-	    for(int x=0; x<40; x++){
-	       for(int y=0; y<40; y++){
-		  KChip[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
-	       }
-	    }
-	 }
-
 	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
 	 if(me){
-	    UseDigi = true;
-	    float eCount = me->getBinContent(40,40);
-	    for(int x=0; x<40; x++){
-	       for(int y=0; y<40; y++){
-		  Digi[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1)/eCount;
-	       }
-	    }
+	    eCount = me->getBinContent(40,40);
 	 }
+	 else {
+	    eCount = 1.;
+	 } 
       }
    }
 
@@ -170,38 +159,21 @@ void ESSummaryClient::analyze(void) {
    //ReportSummary Map 
    //  ES+F  ES-F
    //  ES+R  ES-R
-   float nGlobalErrors = 0;
-   float nValidChannels = 0;
-   float nErrorKinds = 0;
-
-   if(UseDCC) nErrorKinds+=1;
-   if(UseKChip) nErrorKinds+=1;
-   if(UseDigi) nErrorKinds+=1;
-
+   float nValidChannels=0; 
+   float nGlobalErrors=0;
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
-      float xval, ErrorCount;
       for(int x=0; x<80; x++){
 	 for(int y=0; y<80; y++){
-	    //All three kind error has same weight
-	    //Fill good efficiency into reportSummaryMap
-	    xval = 0.;
-	    ErrorCount = 0.;
-	    if(Digi[x][y]>=1000&&UseDigi) ErrorCount+=1.;
-	    if(DCC[x][y]!=3.&&UseDCC) ErrorCount+=1.;
-	    if(KChip[x][y]!=3&&UseKChip) ErrorCount+=1.;
-
-	    if( nErrorKinds != 0 ) xval = 1. - ErrorCount/nErrorKinds;
-
-	    if(DCC[x][y]==0.&&UseDCC) xval = -1;	//-1 for non-module points
-	    if(KChip[x][y]==0.&&UseKChip) xval = -1;	//-1 for non-module points
-
-	    //Count Valid Channels and Error Channels
-	    if( xval != -1 ){
+	    if( nDI_FedErr[x][y] >= 0. ){
+	       me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount) );
 	       nValidChannels+=1.;
-	       nGlobalErrors = nGlobalErrors + ErrorCount/nErrorKinds;
+	       nGlobalErrors+=nDI_FedErr[x][y]/eCount;
 	    }
-	    me->setBinContent(x+1, y+1, xval);
+	    else {
+	       me->setBinContent(x+1, y+1, -1.);
+	    }
+	    if(DCC[x][y]==0.) me->setBinContent(x+1, y+1, -1.);
 	 }
       }
    }
