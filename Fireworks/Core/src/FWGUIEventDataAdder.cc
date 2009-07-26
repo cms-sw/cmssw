@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.19 2009/05/18 05:28:09 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.20 2009/06/06 21:28:58 chrjones Exp $
 //
 
 // system include files
@@ -296,11 +296,15 @@ FWGUIEventDataAdder::addNewItem()
       }
    }
    ++largest;
+   std::string processName = m_processName;
+   if(m_doNotUseProcessName->IsOn()) {
+      processName="";
+   }
    FWPhysicsObjectDesc desc(name, theClass, m_purpose,
                             FWDisplayProperties(),
                             moduleLabel,
                             m_productInstanceLabel,
-                            m_processName,
+                            processName,
                             "",
                             largest);
    m_manager->add( desc);
@@ -361,6 +365,9 @@ FWGUIEventDataAdder::createWindow()
    hints[index]=addToFrame(vf, "Name:", m_name,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}
    ++index;
+   m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
+   m_doNotUseProcessName->SetState(kButtonDown);
+   vf->AddFrame(m_doNotUseProcessName);
    /*
    hints[index]=addToFrame(vf, "Purpose:", m_purpose,widths[index]);
    if(widths[index] > maxWidth) {maxWidth = widths[index];}

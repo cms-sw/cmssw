@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:12:36 EDT 2008
-// $Id: FWGUIEventDataAdder.h,v 1.6 2009/02/04 15:40:47 chrjones Exp $
+// $Id: FWGUIEventDataAdder.h,v 1.7 2009/06/06 21:28:58 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class FWEventItemsManager;
 class TGTransientFrame;
 class TGTextEntry;
 class TGTextButton;
+class TGCheckButton;
 class TFile;
 class FWTypeToRepresentations;
 namespace fwlite {
@@ -86,6 +87,7 @@ private:
 
    TGTransientFrame* m_frame;
    TGTextEntry* m_name;
+   TGCheckButton* m_doNotUseProcessName;
 
    std::string m_purpose;
 
