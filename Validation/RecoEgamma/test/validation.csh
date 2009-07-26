@@ -36,8 +36,8 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-#setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
@@ -194,6 +194,9 @@ scpEResVsR9Endcap
 pEResVsEtAll
 pEResVsEtBarrel
 pEResVsEtEndcap
+pEcalRecHitSumEtConeDR04VsEtaAll
+pEcalRecHitSumEtConeDR04VsEtBarrel
+pEcalRecHitSumEtConeDR04VsEtEndcap
 
 EOF
 
@@ -437,8 +440,17 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 $i->SetStats(0);
+if ( $i==pEcalRecHitSumEtConeDR04VsEtaAll ) {  
+$i->GetYaxis()->SetRangeUser(0.,5.);
+} else if ( $i==pEcalRecHitSumEtConeDR04VsEtBarrel ) 
+{ $i->GetYaxis()->SetRangeUser(0.,20.); 
+} else if ( $i==pEcalRecHitSumEtConeDR04VsEtEndcap  ) 
+{
+$i->GetYaxis()->SetRangeUser(0.,20.);
+} else  {
 $i->SetMinimum(0.8);
 $i->SetMaximum(1.1);
+}
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
