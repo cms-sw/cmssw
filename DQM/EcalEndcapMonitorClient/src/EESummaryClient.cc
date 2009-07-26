@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/07/14 14:54:19 $
- * $Revision: 1.171 $
+ * $Date: 2009/07/25 15:38:22 $
+ * $Revision: 1.172 $
  * \author G. Della Ricca
  *
 */
@@ -2521,6 +2521,10 @@ void EESummaryClient::analyze(void) {
 
         float val_ld = 1;
         if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
+
+        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY UNTIL LHC COLLISIONS
+        val_ls = 1;
+        val_ld = 1;
 
         // turn each dark color to bright green
         // for laser & timing & trigger turn also yellow into bright green
