@@ -44,7 +44,7 @@ writeInt::endJob() {
 
 writeInt::writeInt(const edm::ParameterSet& iConfig ) :
   cont("oneInt"),
-  me(iConfig.getParam<int>("Number")) {}
+  me(iConfig.getParameter<int>("Number")) {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeInt);
