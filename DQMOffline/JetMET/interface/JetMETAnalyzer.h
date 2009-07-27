@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2009/06/30 13:48:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/07/25 13:25:48 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -23,6 +23,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/JetPtAnalyzer.h"
 #include "DQMOffline/JetMET/interface/PFJetAnalyzer.h"
@@ -49,6 +57,12 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   /// Save the histos
   void endJob(void);
 
+  /// Initialize run-based parameters
+  void beginRun(const edm::Run&,  const edm::EventSetup&);
+
+  /// Finish up a run
+  void endRun(const edm::Run&,  const edm::EventSetup&);
+
  private:
   // ----------member data ---------------------------
   
@@ -61,22 +75,34 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theICJetCollectionLabel;
   edm::InputTag thePFJetCollectionLabel;
   edm::InputTag theJPTJetCollectionLabel;
-  edm::InputTag theCaloMETCollectionLabel;
-  edm::InputTag theCaloMETNoHFCollectionLabel;
-  edm::InputTag theCaloMETHOCollectionLabel;
-  edm::InputTag theCaloMETNoHFHOCollectionLabel;
+/*   edm::InputTag theCaloMETCollectionLabel; */
+/*   edm::InputTag theCaloMETNoHFCollectionLabel; */
+/*   edm::InputTag theCaloMETHOCollectionLabel; */
+/*   edm::InputTag theCaloMETNoHFHOCollectionLabel; */
   edm::InputTag theTcMETCollectionLabel;
   edm::InputTag thePfMETCollectionLabel;
   edm::InputTag theJetCollectionForHTMHTLabel;
   edm::InputTag theTriggerResultsLabel;
   //
 
+  HLTConfigProvider hltConfig_;
+  std::string processname_;
+
+  MonitorElement* hltpathME;
+  MonitorElement* lumisecME;
+
   std::string LoJetTrigger;
   std::string HiJetTrigger;
   
+<<<<<<< JetMETAnalyzer.h
+  bool theJetAnalyzerFlag;
+  bool theJetPtAnalyzerFlag;
+  bool theJetCleaningFlag;
+=======
   bool theJetAnalyzerFlag;  
   bool theJetPtAnalyzerFlag; 
   bool theJetCleaningFlag;
+>>>>>>> 1.2
   bool thePFJetAnalyzerFlag;
   bool theJPTJetAnalyzerFlag;
   bool theCaloMETAnalyzerFlag;
@@ -87,13 +113,24 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   // the jet analyzer
   JetAnalyzer       * theJetAnalyzer;
   JetAnalyzer       * theSCJetAnalyzer;
+<<<<<<< JetMETAnalyzer.h
+  JetAnalyzer       * theICJetAnalyzer;
+  JetAnalyzer       * theCleanedSCJetAnalyzer;
+  JetAnalyzer       * theCleanedICJetAnalyzer;
+=======
   JetAnalyzer       * theICJetAnalyzer; 
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
+>>>>>>> 1.2
   JetAnalyzer       * theJPTJetAnalyzer;
   PFJetAnalyzer     * thePFJetAnalyzer;
+<<<<<<< JetMETAnalyzer.h
+  JetPtAnalyzer     * thePtSCJetAnalyzer;
+  JetPtAnalyzer     * thePtICJetAnalyzer;
+=======
   JetPtAnalyzer       *  thePtSCJetAnalyzer;
   JetPtAnalyzer       *  thePtICJetAnalyzer; 
+>>>>>>> 1.2
   CaloMETAnalyzer   * theCaloMETAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFAnalyzer;
   CaloMETAnalyzer   * theCaloMETHOAnalyzer;
