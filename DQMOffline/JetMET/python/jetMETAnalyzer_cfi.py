@@ -22,13 +22,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoPFJetAnalysis            = cms.untracked.bool(True),
     DoJPTJetAnalysis           = cms.untracked.bool(True),
     DoJetAnalysis              = cms.untracked.bool(True),
-<<<<<<< jetMETAnalyzer_cfi.py
-    DoJetCleaning              = cms.untracked.bool(True),
-    DoJetPtAnalysis            = cms.untracked.bool(False),
-=======
     DoJetCleaning              = cms.untracked.bool(True),
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
->>>>>>> 1.16
     PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
@@ -194,45 +189,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         phiMax  = cms.double(3.2)
     ),
 
-  # For jetcleaning Analysis
-    #
-    CleanedjetAnalysis = cms.PSet(
-        ptThreshold = cms.double(10.),
-        fEM = cms.double(0.01),
-        N90Cells = cms.double(2),
-        eBin    = cms.int32(100),
-        phiMin  = cms.double(-3.2),
-        ptBin   = cms.int32(100),
-        eMin    = cms.double(0.0),
-        eMax    = cms.double(500.0),
-        pMin    = cms.double(0.0),
-        etaBin  = cms.int32(100),
-        etaMin  = cms.double(-5.0),
-        ptMin   = cms.double(0.0),
-        phiBin  = cms.int32(70),
-        pBin    = cms.int32(100),
-        ptMax   = cms.double(50.0),
-        etaMax  = cms.double(5.0),
-        pMax    = cms.double(500.0),
-        phiMax  = cms.double(3.2)
-    ),
-
- # For Pt jet Analysis
-    
-    PtAnalysis = cms.PSet(    
-        phiMin  = cms.double(-3.2),
-        phiMax  = cms.double(3.2),
-        phiBin  = cms.int32(70),
-        ptMin   = cms.double(0.0),
-        ptMax   = cms.double(200.0),
-        ptBin   = cms.int32(200),
-        etaBin  = cms.int32(100),
-        etaMin  = cms.double(-5.0),             
-        etaMax  = cms.double(5.0),
-    ),
-
-
-                                
     #
     # For jetcleaning Analysis
     #
@@ -257,9 +213,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         phiMax  = cms.double(3.2)
     ),
 
+    #
     # For Pt jet Analysis
-
-    PtAnalysis = cms.PSet(
+    #
+    PtAnalysis = cms.PSet(    
         phiMin  = cms.double(-3.2),
         phiMax  = cms.double(3.2),
         phiBin  = cms.int32(70),
@@ -267,8 +224,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         ptMax   = cms.double(200.0),
         ptBin   = cms.int32(200),
         etaBin  = cms.int32(100),
-        etaMin  = cms.double(-5.0),
-        etaMax  = cms.double(5.0),
+        etaMin  = cms.double(-5.0),             
+        etaMax  = cms.double(5.0)
     ),
 
     #

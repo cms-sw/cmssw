@@ -77,7 +77,6 @@ void JetMETDQMOfflineClient::runClient_()
   LogDebug("JetMETDQMOfflineClient") << "runClient" << std::endl;
   if (verbose_) std::cout << "runClient" << std::endl; 
 
-//   std::vector<MonitorElement*> headMEs;
   std::vector<MonitorElement*> MEs;
 
   ////////////////////////////////////////////////////////
@@ -111,12 +110,19 @@ void JetMETDQMOfflineClient::runClient_()
   TH1F *tCaloMETRate;
   MonitorElement *hCaloMETRate;
 
-  // Look at all folders, go to the subfolder which includes the string "Eff"
+  // Look at all folders
   std::vector<std::string> fullPathDQMFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
 
     if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
     dbe_->setCurrentFolder(fullPathDQMFolders[i]);
+
+  // Look at all folders
+  std::vector<std::string> fullPathDQMSubFolders = dbe_->getSubdirs();
+  for(unsigned int i=0;i<fullPathDQMSubFolders.size();i++) {
+
+    if (verbose_) std::cout << fullPathDQMSubFolders[i] << std::endl;      
+    dbe_->setCurrentFolder(fullPathDQMSubFolders[i]);
 
     // Look at all MonitorElements in this folder
     me = dbe_->get(fullPathDQMFolders[i]+"/"+"METTask_CaloMET");
@@ -124,10 +130,12 @@ void JetMETDQMOfflineClient::runClient_()
     if ( me ) {
     if ( me->getRootObject() ) {
 
+      dbe_->removeElement(fullPathDQMFolders[i]+"/"+"METTask_CaloMETRate");
+
       tCaloMET     = me->getTH1F();
 
       // Integral plot 
-      tCaloMETRate = (TH1F*) tCaloMET->Clone("METTask_CaloMETRate2");
+      tCaloMETRate = (TH1F*) tCaloMET->Clone("METTask_CaloMETRate");
       for (int i = tCaloMETRate->GetNbinsX()-1; i>=0; i--){
 	tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+2)+tCaloMET->GetBinContent(i+1));
       }
@@ -139,11 +147,12 @@ void JetMETDQMOfflineClient::runClient_()
 	}
       }
 
-      hCaloMETRate      = dbe_->book1D("METTask_CaloMETRate2",tCaloMETRate);
+      hCaloMETRate      = dbe_->book1D("METTask_CaloMETRate",tCaloMETRate);
 
     } // me->getRootObject()
     } // me
-  }   // fullPathDQMFolders-loop
+  }   // fullPathDQMSubFolders-loop - All, Cleanup, ...
+  }   // fullPathDQMFolders-loop - CaloMET, CaloMETNoHF, ...
 
   /////////////////////////
   // Jet
