@@ -54,6 +54,18 @@ tpToGlbTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
 #    label_tr = cms.InputTag('muonGlb')
 )
 
+tpToTevFirstTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('tevMuons','firstHit')
+)
+
+tpToTevPickyTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('tevMuons','picky')
+)
+
 tpToL2TrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     ignoremissingtrackcollection=cms.untracked.bool(True),
     associator = cms.string('TrackAssociatorByDeltaR'),
@@ -97,6 +109,8 @@ tpToTkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorB
 tpToStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToTevFirstMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToTevPickyMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL3TkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL2MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToL2UpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -131,6 +145,24 @@ tpToGlbMuonAssociation.EfficiencyCut_muon = 0.5
 tpToGlbMuonAssociation.PurityCut_muon = 0.5
 tpToGlbMuonAssociation.EfficiencyCut_track = 0.5
 tpToGlbMuonAssociation.PurityCut_track = 0.75
+
+tpToTevFirstMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToTevFirstMuonAssociation.tracksTag = 'tevMuons:firstHit'
+tpToTevFirstMuonAssociation.UseTracker = True
+tpToTevFirstMuonAssociation.UseMuon = True
+tpToTevFirstMuonAssociation.EfficiencyCut_muon = 0.5
+tpToTevFirstMuonAssociation.PurityCut_muon = 0.5
+tpToTevFirstMuonAssociation.EfficiencyCut_track = 0.5
+tpToTevFirstMuonAssociation.PurityCut_track = 0.75
+
+tpToTevPickyMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToTevPickyMuonAssociation.tracksTag = 'tevMuons:picky'
+tpToTevPickyMuonAssociation.UseTracker = True
+tpToTevPickyMuonAssociation.UseMuon = True
+tpToTevPickyMuonAssociation.EfficiencyCut_muon = 0.5
+tpToTevPickyMuonAssociation.PurityCut_muon = 0.5
+tpToTevPickyMuonAssociation.EfficiencyCut_track = 0.5
+tpToTevPickyMuonAssociation.PurityCut_track = 0.75
 
 tpToL3TkMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
@@ -178,6 +210,9 @@ tpToL3MuonAssociation.ThreeHitTracksAreSpecial = False
 
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation))
+
+muonAssociationTEV_seq = cms.Sequence((tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
+                                     +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation))
 
 muonAssociationHLT_seq = cms.Sequence(
     (tpToL2MuonAssociation
