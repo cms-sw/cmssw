@@ -48,10 +48,10 @@ namespace condtest {
 
   void TestUpdater::update(int run) {
     std::ostringstream ss;
-    ss << run;
+    ss << "touch cfg.py; rm cfg.py; sed 's?CurrentRun?'" << run << "?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py";
    
     // write run in db
-    ::system("touch cfg.py; rm cfg.py; sed 's?CurrentRun?'"+ss.str()+"?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py");
+    ::system(ss.str().c_str());
 
   }
 
