@@ -20,7 +20,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
     cms.PSet(
     record = cms.string('oneInt'),
-    tag = cms.string('CneInt'),
+    tag = cms.string('OneInt'),
     timetype = cms.untracked.string('runnumber'),
     withWrapper = cms.untracked.bool(True),
     outOfOrder = cms.untracked.bool(False)
@@ -29,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("writeInt",
-                                Number=cms.int(10)
+                                Number=cms.int32(10)
                                 )
 
 process.p = cms.Path(process.mytest)
