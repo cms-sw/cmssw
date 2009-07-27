@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.25 2009/07/23 11:39:16 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.26 2009/07/27 20:12:44 wteo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -796,7 +796,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
     }
   }
-  else cout << "failed to get trigResult!!" << endl;
+  //else cout << "failed to get trigResult!!" << endl;
   // trigger fired
   if( !trigFired ) return;
   nTrig_++;
@@ -959,7 +959,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
       hNMu[ntrig][0]->Fill(l1map.size());
     }
-    else cout << "failed to get l2seed!" << endl;
+    //else cout << "failed to get l2seed!" << endl;
 
     if (!l3seeds.failedToGet()) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
@@ -1000,7 +1000,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
     }
     
-    else cout << "failed to get l3seed!" << endl;
+    //else cout << "failed to get l3seed!" << endl;
 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
