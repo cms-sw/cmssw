@@ -204,12 +204,14 @@ void Histograms::declareHistograms()
   for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth)
     etaBins.push_back(eta);
 
-  for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth/10)
+//  for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth/10)
+  for(double eta = etaMin; eta < etaMax + etaWidth/2; eta += etaWidth/5)
     metaBins.push_back(eta);
 
   static float zMin   = -20.;
   static float zMax   =  20.;
-  static float zWidth =  0.1;
+//  static float zWidth =  0.1;
+  static float zWidth =  0.2;
 
   for(double z = zMin; z < zMax + zWidth/2; z += zWidth)
     zBins.push_back(z);

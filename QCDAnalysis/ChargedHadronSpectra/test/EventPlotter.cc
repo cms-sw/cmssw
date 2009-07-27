@@ -114,10 +114,14 @@ void EventPlotter::printVertices(const edm::Event& ev, ofstream& file)
 {
   // Get vertices
   edm::Handle<reco::VertexCollection> vertexHandle;
-  ev.getByLabel("pixelVertices",      vertexHandle);
+  ev.getByLabel("pixel3Vertices",     vertexHandle);
   const reco::VertexCollection* vertices = vertexHandle.product();
 
   file << ", RGBColor[0,0.8,0], AbsolutePointSize[7]";
+
+  edm::LogVerbatim("MinBiasTracking")
+       << " [EventPlotter] vertices : "
+       << vertices->size();
 
   for(reco::VertexCollection::const_iterator vertex = vertices->begin();
                                              vertex!= vertices->end();
@@ -160,7 +164,8 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   PlotEcalRecHits theEcalRecHits(es,file);
   theEcalRecHits.printEcalRecHits(ev);
 
-  printVZeros  (ev,file);
+// FIXME
+//  printVZeros  (ev,file);
   printVertices(ev,file);
 
   // region (tracker + ecal)
@@ -168,12 +173,14 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   int mx = 120; int my = 120; int mz = 300;
 
   // add problems
+/*
   string str;
   ifstream prob("../data/problem.m");
   getline(prob, str);
   while(prob)
   { file << str; getline(prob, str); }
   prob.close();
+*/
 
   // beam line
   file << ", RGBColor[0.7,0.7,0.7]";

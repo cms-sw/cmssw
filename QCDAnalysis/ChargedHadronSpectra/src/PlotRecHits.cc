@@ -47,11 +47,11 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
 
   file << ", If[sd, {RGBColor[0.4,0.4,0.4], "
-             <<"Line[{{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
-                   <<"{"<< p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
-                   <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
-                   <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
-                   <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
+             <<"Line[{{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}, "
+                   <<"{"<<p01.x()<<","<<p01.y()<<",("<<p01.z()<<"-zs)*mz}, "
+                   <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
+                   <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
+                   <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
        << endl;
   
   // RecHit
@@ -123,6 +123,7 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
 void PlotRecHits::printPixelRecHits(const edm::Event& ev)
 {
   // Get pixel hit collections
+/*
   vector<edm::Handle<SiPixelRecHitCollection> > pixelColls;
   ev.getManyByType(pixelColls);
 
@@ -140,6 +141,20 @@ void PlotRecHits::printPixelRecHits(const edm::Event& ev)
         printPixelRecHit(&(*recHit));
     }
   }
+*/
+
+  edm::Handle<SiPixelRecHitCollection> pixelColl;
+  ev.getByLabel("siPixelRecHits", pixelColl);
+  const SiPixelRecHitCollection* thePixelHits = pixelColl.product();
+
+  for(SiPixelRecHitCollection::DataContainer::const_iterator
+          recHit = thePixelHits->data().begin();
+          recHit!= thePixelHits->data().end(); recHit++)
+  {
+    if(recHit->isValid())
+      printPixelRecHit(&(*recHit));
+  }
+
 }
 
 /*****************************************************************************/
@@ -201,13 +216,11 @@ void PlotRecHits::printRecHits(const edm::Event& ev)
 {
   file << "AbsolutePointSize[5]";
   file << ", If[pr, {RGBColor[0.4,0.4,1.0]";
-// FIXME
-//  printPixelRecHits(ev);
+  printPixelRecHits(ev);
   file << "}]";
 
   file << ", If[sr, {RGBColor[0.6,0.6,1.0]";
-// FIXME
-//  printStripRecHits(ev);
+  printStripRecHits(ev);
   file << "}]";
 }
 

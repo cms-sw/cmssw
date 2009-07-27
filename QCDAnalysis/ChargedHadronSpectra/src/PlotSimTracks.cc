@@ -92,6 +92,30 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
   edm::Handle<edm::PCaloHitContainer>      simHitsEndcap;
   ev.getByLabel("g4SimHits", "EcalHitsEE", simHitsEndcap);
 
+// FIXME
+/*
+  {
+  edm::Handle<edm::SimTrackContainer>  simTracks;
+  ev.getByType<edm::SimTrackContainer>(simTracks);
+  cerr << " SSSSS " << simTracks.product()->size() << endl;
+
+  for(edm::SimTrackContainer::const_iterator t = simTracks.product()->begin();
+                                             t!= simTracks.product()->end(); t++)
+  {
+    cerr << " simTrack " << t - simTracks.product()->begin()
+         << " " << t->type()
+         << " " << t->charge()
+         << " " << t->vertIndex()
+         << " " << t->genpartIndex()
+         << " " << t->momentum().x()
+         << " " << t->momentum().y()
+         << " " << t->momentum().z()
+         << endl;
+  } 
+
+  }
+*/
+
   const CaloSubdetectorGeometry* geom;
 
   // Utilities
