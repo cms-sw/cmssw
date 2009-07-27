@@ -1,7 +1,7 @@
 #include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 //
 //
