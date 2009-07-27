@@ -18,9 +18,12 @@ class TH1Store
       // Public Constants //
       //////////////////////
 
+      typedef std::vector< std::string >    SVec;
       typedef std::map< std::string, TH1* > STH1PtrMap;
       typedef STH1PtrMap::iterator          STH1PtrMapIter;
       typedef STH1PtrMap::const_iterator    STH1PtrMapConstIter;
+
+      static const SVec kEmptyVec;
 
       /////////////
       // friends //
@@ -64,8 +67,12 @@ class TH1Store
       { return hist( (const char*) name ); }
 
       // write all histograms to a root file
-      void write (const std::string &filename) const;
-      void write (TFile *filePtr) const;
+      void write (const std::string &filename, 
+                  const SVec &argsVec = kEmptyVec, 
+                  const SVec &inputFilesVec = kEmptyVec) const;
+      void write (TFile *filePtr, 
+                  const SVec &argsVec = kEmptyVec, 
+                  const SVec &inputFilesVec = kEmptyVec) const;
 
       /////////////////////////////
       // Static Member Functions //

@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <cassert>
 #include "PhysicsTools/FWLite/interface/TH1Store.h"
-#include "PhysicsTools/FWLite/interface/OptionUtils.h"
 
 using namespace std;
 
@@ -12,7 +11,8 @@ using namespace std;
 // Static Member Data Declaration //
 ////////////////////////////////////
 
-bool TH1Store::sm_verbose = false;
+const TH1Store::SVec TH1Store::kEmptyVec;
+bool                 TH1Store::sm_verbose = false;
 
 
 TH1Store::TH1Store() : m_deleteOnDestruction (false)
@@ -66,7 +66,9 @@ TH1Store::hist (const string &name)
 }
 
 void
-TH1Store::write (const string &filename) const
+TH1Store::write (const string &filename, 
+                 const SVec &argsVec, 
+                 const SVec &inputFilesVec) const
 {
    TFile *filePtr = TFile::Open (filename.c_str(), "RECREATE");
    if ( ! filePtr)
@@ -75,12 +77,14 @@ TH1Store::write (const string &filename) const
            << filename << "' for output.  Aborting." << endl;
       assert (0);
    }
-   write (filePtr);
+   write (filePtr, argsVec, inputFilesVec);
    delete filePtr;
 }
 
 void
-TH1Store::write (TFile *filePtr) const
+TH1Store::write (TFile *filePtr, 
+                 const SVec &argsVec, 
+                 const SVec &inputFilesVec) const
 {
    filePtr->cd();
    // write out all histograms
@@ -91,12 +95,13 @@ TH1Store::write (TFile *filePtr) const
       iter->second->Write();
    } // for iter
    // write out command line arguments
-   filePtr->WriteObject (&optutl::ns_fullArgVec, "argsVec");
-   // write out input file names
-   if (optutl::kStringVector == optutl::hasOption ("inputFiles"))
+   if (argsVec.size())
    {
-      const optutl::SVec &inputFilesVec = optutl::stringVector ("inputFiles");
-      filePtr->WriteObject (&inputFilesVec, "inputFilesVec");
+      filePtr->WriteObject (&argsVec, "argsVec");
+   }
+   if (inputFilesVec.size())
+   {
+      filePtr->WriteObject (&inputFilesVec, "inputFiles");
    }
    cout << "TH1Store::write(): Successfully written to '"
         << filePtr->GetName() << "'." << endl;

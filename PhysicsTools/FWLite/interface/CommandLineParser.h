@@ -46,6 +46,8 @@ class CommandLineParser : public VariableMapCont
       // One Liners //
       ////////////////
 
+      const SVec argVec() const { return m_fullArgVec; }
+
       //////////////////////////////
       // Regular Member Functions //
       //////////////////////////////

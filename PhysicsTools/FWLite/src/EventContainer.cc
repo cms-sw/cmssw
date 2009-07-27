@@ -6,7 +6,6 @@
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
-#include "PhysicsTools/FWLite/interface/OptionUtils.h"
 #include "PhysicsTools/FWLite/interface/dout.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
@@ -68,7 +67,17 @@ EventContainer::~EventContainer()
    // If we're still here, let's get to work.
    cout << "EventContainer Summary: Processed "
         << m_eventsSeen << " events." << endl;
-   m_histStore.write (m_outputName);
+   optutl::CommandLineParser &parser = this->parser();
+   if (optutl::CommandLineParser::kStringVector == 
+       parser.hasOption("inputFiles"))
+   {
+      m_histStore.write (m_outputName, 
+                         parser.argVec(),
+                         parser.stringVector ("inputFiles"));
+   } else {
+      m_histStore.write (m_outputName, 
+                         parser.argVec());
+   }
    delete m_eventBasePtr;
 }
 
