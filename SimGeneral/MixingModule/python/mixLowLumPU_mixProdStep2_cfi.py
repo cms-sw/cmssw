@@ -26,8 +26,8 @@ mix = cms.EDProducer("MixingModule",
 	nbPileupEvents = cms.PSet(
         averageNumber = cms.double(1.0)
     	),
-	
-       fileNames = cms.untracked.vstring('file:/tmp/ebecheva/PCFwriterNew.root')
+	sequential = cms.untracked.bool(True),
+        fileNames = cms.untracked.vstring('file:/tmp/ebecheva/PCFwriterNew.root')
     ),
     
     mixObjects = cms.PSet(
