@@ -1,4 +1,4 @@
-# last update on $Date: 2008/12/17 15:08:21 $ by $Author: flucke $
+# last update on $Date: 2009/07/17 14:17:33 $ by $Author: kaschube $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -20,15 +20,15 @@ process.MessageLogger = cms.Service("MessageLogger",
         'TrackProducer'),
     # FwkReport = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
     # TrackProducer = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        FwkReport = cms.untracked.PSet(
-            threshold = cms.untracked.string('ERROR')
-        ),
-        TrackProducer = cms.untracked.PSet(
-            threshold = cms.untracked.string('ERROR')
-        )
-    ),
+#    cout = cms.untracked.PSet(
+#        threshold = cms.untracked.string('DEBUG'),
+#        FwkReport = cms.untracked.PSet(
+#            threshold = cms.untracked.string('ERROR')
+#        ),
+#        TrackProducer = cms.untracked.PSet(
+#            threshold = cms.untracked.string('ERROR')
+#        )
+#    ),
     alignment = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(10)
@@ -64,21 +64,23 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # for Muon: process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V12::All' # 'CRAFT_ALL_V11::All' # 'IDEAL_30X::All'  # take your favourite
+process.GlobalTag.globaltag = 'MC_31X_V3::All' #'IDEAL_V12::All' # 'CRAFT_ALL_V11::All' # 'IDEAL_30X::All'  # take your favourite
 
 # using database file
 from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+process.trackerAlignment = cms.ESSource("PoolDBESSource",
+                                        CondDBSetup,
 #                                        connect = cms.string("sqlite_file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/LasReader/TestProducer/alignments_MP.db"),
-                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
+#                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
+                                        connect = cms.string("frontier://FrontierProd/CMS_COND_31X_FROM21X"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                                                                   tag = cms.string("Tracker_Geometry_v5_offline")), #"Alignments"
+                                                                   tag = cms.string("TrackerGeometry_v5_offline")), #"Alignments"
                                                           cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-                                                                   tag = cms.string("Tracker_GeometryErr_v5_offline")) #"AlignmentErrors"
+                                                                   tag = cms.string("TrackerGeometryErrors_v5_offline")) #"AlignmentErrors"
+                                                          )
                                         )
-)
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
-del process.es_prefer_GlobalTag
+#del process.es_prefer_GlobalTag
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
@@ -158,7 +160,9 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
 #
     #'TrackerTPBHalfBarrel,rrrrrr',
     #'TrackerTPEEndcap,rrrrrr',
-    'TrackerTIBHalfBarrel,110111',
+    #'TrackerTIBHalfBarrel,110111',
+    'TrackerTIBHalfBarrel,ff0fff,zIsNeg', # not yet enough fixed d.o.f. ...
+    'TrackerTIBHalfBarrel,110111,zIsPos',
     'TrackerTOBHalfBarrel,110111',
     #'TrackerTECEndcap,111111',
     #'TIBSSLayers,110111',
@@ -189,7 +193,21 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         yRanges = cms.vdouble(),
         xRanges = cms.vdouble(),
         zRanges = cms.vdouble()
-    )
+    ),
+    zIsPos = cms.PSet(phiRanges = cms.vdouble(),
+                      rRanges = cms.vdouble(),
+                      etaRanges = cms.vdouble(),
+                      yRanges = cms.vdouble(),
+                      xRanges = cms.vdouble(),
+                      zRanges = cms.vdouble(-99999., 0.)
+                      ),
+    zIsNeg = cms.PSet(phiRanges = cms.vdouble(),
+                      rRanges = cms.vdouble(),
+                      etaRanges = cms.vdouble(),
+                      yRanges = cms.vdouble(),
+                      xRanges = cms.vdouble(),
+                      zRanges = cms.vdouble(0, 99999.)
+                      )
 )
 
 # LAS first test misalignment
@@ -258,9 +276,10 @@ process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat
 #process.AlignmentProducer.algoConfig.pedeReader.fileDir = './'
 #process.AlignmentProducer.algoConfig.treeFile = 'treeFile_lasFirst.root'
 ##default is sparsGMRES                                    <method>  n(iter)  Delta(F)
-process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  9  0.8'
+process.AlignmentProducer.algoConfig.pedeSteerer.method = 'diagonalisation  6  0.8'
 process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
-   'entries 1', 'pedeSteerHierarchy_tecdisks.txt'
+    'hugecut 500.0',
+   'entries 1' #, 'pedeSteerHierarchy_tecdisks.txt'
    #'chisqcut  20.0  4.5' # ,'outlierdownweighting 3' #,'dwfractioncut 0.1'
    #'bandwidth 6'
 )
@@ -273,7 +292,8 @@ process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
     #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
-    "file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/Alignment/LaserAlignment/tkLasBeams_dataCRAFT.root"
+    #"file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_2_2_10/src/Alignment/LaserAlignment/tkLasBeams_dataCRAFT.root"
+    "file:/afs/cern.ch/user/f/flucke/cms/CMSSW/CMSSW_3_1_0_pre10/src/tkLasBeams_3_1_X.root"
     # old: tkLasBeams_dataCRAFT.root; new, bad: tkLasBeams_CRAFT_2_2_9.root
     )
 )
@@ -282,7 +302,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.load("Alignment.LaserAlignment.TkLasBeamFitter_cfi")
-process.AlignmentProducer.tkLasBeamTag = "TkLasBeamFitter" #cms.InputTag("LaserAlignment", "tkLaserBeams")
+process.AlignmentProducer.tkLasBeamTag = "TkLasBeamFitter"
 
 
 process.p = cms.Path(process.offlineBeamSpot
