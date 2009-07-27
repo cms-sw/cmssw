@@ -25,6 +25,7 @@
   <class name="FWConfiguration::KeyValues"/>
   <class name="CSGAction"/>
   <class name="CmsShowMainFrame"/>
+  <class name="CmsShowMain"/>
   <class name="FWGlimpseViewManager"/>
   <class name="FWViewBase"/>
   <class name="FWTableView"/>

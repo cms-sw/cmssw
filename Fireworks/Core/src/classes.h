@@ -30,6 +30,7 @@
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWTableView.h"
