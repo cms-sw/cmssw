@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.26 2009/07/10 14:32:39 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.27 2009/07/13 11:09:20 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -103,7 +103,8 @@ DataCertificationJetMET::beginJob(const edm::EventSetup& c)
 
     // -- Current & Reference Run
     //---------------------------------------------
-    dbe_->open(filename);
+    dbe_->load(filename);
+    //dbe_->open(filename);
     //dbe_->open(filename,false,"","Collate");
     //dbe_->setCurrentFolder("/Collate");
     //if (testType_>=1) dbe_->open(reffilename);
@@ -178,7 +179,7 @@ DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
 
   if (verbose_) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
+  //if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
 }
 
@@ -188,7 +189,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   
   if (verbose_) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
+  //if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
   // -----------------------------------------
 
@@ -360,59 +361,26 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   std::string newHistoName;
 
   MonitorElement * meNew;
-  MonitorElement * meRef;
+  //MonitorElement * meRef;
 
   // --- Loop over jet algorithms for Layer 2
   for (int iAlgo=0; iAlgo<NJetAlgo; iAlgo++) {    
 
-    // *** Kludge to allow using root files written by stand alone job
     if (iAlgo == 0) {
-      if (RefRunDir == "") {
         refHistoName = "JetMET/Jet/IterativeConeJets/";
-      } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/IterativeConeJets/";
-      }
-      if (RunDir == "") {
         newHistoName = "JetMET/Jet/IterativeConeJets/";
-      } else {
-        newHistoName = RunDir+"/JetMET/Run summary/Jet/IterativeConeJets/";
-      }
     }
     if (iAlgo == 1) {
-      if (RefRunDir == "") {
         refHistoName = "JetMET/Jet/SISConeJets/";
-      } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/SISConeJets/";
-      }
-      if (RunDir == "") {
         newHistoName = "JetMET/Jet/SISConeJets/";
-      } else {
-        newHistoName = RunDir+"/JetMET/Run summary/Jet/SISConeJets/";
-      }
     }
     if (iAlgo == 2) {
-      if (RefRunDir == "") {
         refHistoName = "JetMET/Jet/PFJets/";
-      } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/PFJets/";
-      }
-      if (RunDir == "") {
         newHistoName = "JetMET/Jet/PFJets/";
-      } else {
-        newHistoName = RunDir+"/JetMET/Run summary/Jet/PFJets/";
-      }
     }
     if (iAlgo == 3) {
-      if (RefRunDir == "") {
         refHistoName = "JetMET/Jet/JPTJets/";
-      } else {
-        refHistoName = RefRunDir+"/JetMET/Run summary/Jet/JPTJets/";
-      }
-      if (RunDir == "") {
         newHistoName = "JetMET/Jet/JPTJets/";
-      } else {
-        newHistoName = RunDir+"/JetMET/Run summary/Jet/JPTJets/";
-      }
     }
 
     // ----------------
@@ -424,13 +392,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     test_Constituents = 0.;
     test_HFrac        = 0.;
 
-    meRef = dbe_->get(refHistoName+"Pt");
     meNew = dbe_->get(newHistoName+"Pt");    
-
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
+	//std::cout << refHisto->GetEntries() << std::endl;
+	//std::cout << newHisto->GetEntries() << std::endl;
 	switch (testType_) {
 	case 1 :
 	  test_Pt = newHisto->KolmogorovTest(refHisto,"UO");
@@ -444,10 +412,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
 
-    meRef = dbe_->get(refHistoName+"Eta");
     meNew = dbe_->get(newHistoName+"Eta");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -461,10 +428,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
 
-    meRef = dbe_->get(refHistoName+"Phi");
     meNew = dbe_->get(newHistoName+"Phi");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -478,10 +444,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
      
-    meRef = dbe_->get(refHistoName+"Constituents");
     meNew = dbe_->get(newHistoName+"Constituents");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -495,10 +460,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
      
-    meRef = dbe_->get(refHistoName+"HFrac");
     meNew = dbe_->get(newHistoName+"HFrac");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -542,11 +506,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     test_Pt_Forward  = 0.;
     test_Phi_Forward = 0.;
 
-
-    meRef = dbe_->get(refHistoName+"Pt_Barrel");
     meNew = dbe_->get(newHistoName+"Pt_Barrel");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -560,10 +522,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
 
-    meRef = dbe_->get(refHistoName+"Phi_Barrel");
     meNew = dbe_->get(newHistoName+"Phi_Barrel");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -578,10 +539,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     }
 
     // --- EndCap
-    meRef = dbe_->get(refHistoName+"Pt_EndCap");
     meNew = dbe_->get(newHistoName+"Pt_EndCap");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -595,10 +555,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
 
-    meRef = dbe_->get(refHistoName+"Phi_EndCap");
     meNew = dbe_->get(newHistoName+"Phi_EndCap");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -614,10 +573,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     }
 
     // --- Forward
-    meRef = dbe_->get(refHistoName+"Pt_Forward");
     meNew = dbe_->get(newHistoName+"Pt_Forward");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -631,10 +589,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       }
     }
 
-    meRef = dbe_->get(refHistoName+"Phi_Forward");
     meNew = dbe_->get(newHistoName+"Phi_Forward");
-    if ((meRef) && (meNew)) {
-      TH1F *refHisto = meRef->getTH1F();
+    if (meNew->getRootObject() && meNew->getRefRootObject()) {
+      TH1F *refHisto = meNew->getRefTH1F();
       TH1F *newHisto = meNew->getTH1F();
       if ((refHisto) && (newHisto)) {
 	switch (testType_) {
@@ -720,7 +677,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   //  return;
 
-
   //-----------------------------
   // MET DQM Data Certification
   //-----------------------------
@@ -731,6 +687,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   MonitorElement *meMExy[6];
   MonitorElement *meMETPhi[3];
 
+  RunDir = "";
   if (RunDir == "") newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
 
