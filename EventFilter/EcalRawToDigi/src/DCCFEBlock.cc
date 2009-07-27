@@ -6,7 +6,7 @@
 
 
 
-DCCFEBlock::DCCFEBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e,bool unpack)
+DCCFEBlock::DCCFEBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e,bool unpack, bool forceToKeepFRdata)
   : DCCDataBlockPrototype(u,m,e,unpack), checkFeId_(false) {
    
   expXtalTSamples_           = mapper_->numbXtalTSamples();
@@ -154,7 +154,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   }
 
 
-  if(!zs_){
+  if(!zs_ && !forceToKeepFRdata_){
 	 
     if ( unfilteredDataBlockLength_ != blockLength_ ){
       if( ! DCCDataUnpacker::silentMode_ ){ 
@@ -168,10 +168,27 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
       //Safer approach...  - why pointers do not navigate in this case?
       return STOP_EVENT_UNPACKING;	  
+
+      
     }
 
     
-  }else if( blockLength_ > unfilteredDataBlockLength_ || (blockLength_-1) < numbDWInXtalBlock_ ){
+  }
+  else if (!zs && forceToKeepFRdata_){
+
+     if ( unfilteredDataBlockLength_ != blockLength_ ){
+      if( ! DCCDataUnpacker::silentMode_ ){ 
+        edm::LogWarning("EcalRawToDigiNumTowerBlocks")
+          <<"\n For event L1A "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
+          <<"\n => Keeps unpacking as the  unpacker was forced to keep FR data is on ...";
+       }
+
+      fillEcalElectronicsError(invalidBlockLengths_) ;
+     }
+
+  }
+  else if( blockLength_ > unfilteredDataBlockLength_ || (blockLength_-1) < numbDWInXtalBlock_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiNumTowerBlocks")
         <<"\n For event L1A "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
@@ -210,10 +227,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
   for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks && statusUnpackXtal!= SKIP_BLOCK_UNPACKING; numbXtal++){
 
-    // If zs is disabled we know the expected strip and xtal ids
-    // Note : this is valid for the EB how about the EE ? -> retieve expected index from mapper
     
-    if(!zs_){
+    if(!zs_ && ! forceToKeepFRdata_){
       expStripID  = ( numbXtal-1)/5 + 1;	
       expXtalID   =  numbXtal - (expStripID-1)*5;
     }

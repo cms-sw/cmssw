@@ -7,8 +7,8 @@
 
 
 
-DCCTowerBlock::DCCTowerBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack )
-: DCCFEBlock(u,m,e,unpack){}
+DCCTowerBlock::DCCTowerBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack , bool forceToKeepFRdata)
+: DCCFEBlock(u,m,e,unpack,forceToKeepFRdata){}
 
 
 void DCCTowerBlock::updateCollectors(){

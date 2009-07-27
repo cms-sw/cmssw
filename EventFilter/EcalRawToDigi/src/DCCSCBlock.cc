@@ -6,8 +6,8 @@
 
 
 
-DCCSCBlock::DCCSCBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m , DCCEventBlock * e, bool unpack)
-: DCCFEBlock(u,m,e,unpack){}
+DCCSCBlock::DCCSCBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m , DCCEventBlock * e, bool unpack, bool forceToKeepFRdata)
+: DCCFEBlock(u,m,e,unpack,forceToKeepFRdata){}
 
 
 void DCCSCBlock::updateCollectors(){

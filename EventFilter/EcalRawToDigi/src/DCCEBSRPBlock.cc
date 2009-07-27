@@ -30,32 +30,37 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
   
   uint towersInPhi = EcalElectronicsMapper::kTowersInPhi;
 
+  uint fov = event_->fov();
+
 
   for( uint n=0; n<expNumbSrFlags_ ; n++ ){
     
     if(n>0&&n%4==0) my16Bitp_++;
    
     ushort  srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
-    srFlags_[n] = srFlag;
 
+    uint theSRPi = n ;
+
+
+    if(NUMB_SM_EB_PLU_MIN<= mapper_->getActiveSM() && mapper_->getActiveSM()<=NUMB_SM_EB_PLU_MAX && fov>=1 ){
+      uint u   = n%towersInPhi;
+      u        = towersInPhi-u;
+      theSRPi  = ( n/towersInPhi )*towersInPhi + u - 1;
+    }
+
+    
+    srFlags_[theSRPi] = srFlag;
 
     if(unpackInternalData_){  
     
-      uint theSRPi = n ;
-
-      if(NUMB_SM_EB_PLU_MIN<= mapper_->getActiveSM() && mapper_->getActiveSM()<=NUMB_SM_EB_PLU_MAX){
-        uint u   = n%towersInPhi;
-        u        = towersInPhi-u;
-        theSRPi  = ( n/towersInPhi )*towersInPhi + u - 1;
-      }
 
       EBSrFlag * sr = (EBSrFlag*) mapper_->getSrFlagPointer(theSRPi+1);
       sr->setValue(srFlag);
       (*ebSrFlagsDigis_)->push_back(*sr);
 
-	 } 
+    } 
   }
-  
+
 
 }
 

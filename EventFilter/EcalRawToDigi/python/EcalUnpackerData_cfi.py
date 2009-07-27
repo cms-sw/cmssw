@@ -70,5 +70,6 @@ ecalEBunpacker = cms.EDFilter("EcalRawToDigi",
     # vint32 orderedDCCIdList = {28}
     DoRegional = cms.bool(False),
     memUnpacking = cms.bool(True),
-    silentMode = cms.untracked.bool(True)
+    silentMode = cms.untracked.bool(True),
+    forceKeepFRdata =  cms.bool(False)
 )

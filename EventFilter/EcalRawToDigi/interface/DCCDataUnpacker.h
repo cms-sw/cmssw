@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2008/12/11 18:05:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/07/01 17:16:24 $
+ * $Revision: 1.2 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -50,7 +50,7 @@ class DCCDataUnpacker{
 
 public : 
   
-  DCCDataUnpacker(EcalElectronicsMapper *, bool hU,bool srpU, bool tccU, bool feU, bool memU, bool syncCheck, bool feIdCheck);
+  DCCDataUnpacker(EcalElectronicsMapper *, bool hU,bool srpU, bool tccU, bool feU, bool memU, bool syncCheck, bool feIdCheck, bool forceToKeepFRdata);
   ~DCCDataUnpacker();
   /**
      Unpack data from a buffer

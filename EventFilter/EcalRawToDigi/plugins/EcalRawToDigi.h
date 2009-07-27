@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2008/12/11 18:05:57 $
- * $Revision: 1.1 $
+ * $Date: 2008/12/19 13:13:00 $
+ * $Revision: 1.2 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -74,6 +74,7 @@ class EcalRawToDigi : public edm::EDProducer{
   bool memUnpacking_;
   bool syncCheck_;
   bool feIdCheck_;
+  bool forceToKeepFRdata_;
   bool first_;
   bool put_;
 

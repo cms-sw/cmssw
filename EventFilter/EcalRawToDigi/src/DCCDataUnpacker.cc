@@ -6,11 +6,11 @@
 bool DCCDataUnpacker::silentMode_ = false;
 
 DCCDataUnpacker::DCCDataUnpacker( 
-  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck, bool feIdCheck
+  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck, bool feIdCheck, bool forceToKeepFRdata
 ){ 
   electronicsMapper_ = mapper;
-  ebEventBlock_   = new DCCEBEventBlock(this,mapper,hU,srpU,tccU,feU,memU);
-  eeEventBlock_   = new DCCEEEventBlock(this,mapper,hU,srpU,tccU,feU,memU);
+  ebEventBlock_   = new DCCEBEventBlock(this,mapper,hU,srpU,tccU,feU,memU,forceToKeepFRdata);
+  eeEventBlock_   = new DCCEEEventBlock(this,mapper,hU,srpU,tccU,feU,memU,forceToKeepFRdata);
   if(syncCheck){
     ebEventBlock_->enableSyncChecks();  
     eeEventBlock_->enableSyncChecks();

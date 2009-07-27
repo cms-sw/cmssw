@@ -25,7 +25,7 @@ class DCCSCBlock : public DCCFEBlock {
 	
   public :
 
-    DCCSCBlock(DCCDataUnpacker * u, EcalElectronicsMapper *m, DCCEventBlock * e, bool unpack);
+    DCCSCBlock(DCCDataUnpacker * u, EcalElectronicsMapper *m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata);
 	 
     void updateCollectors();
 	 

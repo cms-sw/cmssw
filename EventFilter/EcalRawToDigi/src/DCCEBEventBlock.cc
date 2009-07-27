@@ -15,12 +15,12 @@
 #include <sstream>
 
 
-DCCEBEventBlock::DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m , bool hU, bool srpU, bool tccU, bool feU , bool memU) : 
-  DCCEventBlock(u,m,hU,srpU,tccU,feU,memU)
+DCCEBEventBlock::DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m , bool hU, bool srpU, bool tccU, bool feU , bool memU, bool forceToKeepFRdata) : 
+  DCCEventBlock(u,m,hU,srpU,tccU,feU,memU,forceToKeepFRdata)
 {
 
   //Builds a tower unpacker block
-  towerBlock_ = new DCCTowerBlock(u,m,this,feUnpacking_); 
+  towerBlock_ = new DCCTowerBlock(u,m,this,feUnpacking_, forceToKeepFRdata_); 
   
   //Builds a srp unpacker block
   srpBlock_   = new DCCEBSRPBlock(u,m,this,srpUnpacking_);
@@ -226,6 +226,7 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
               && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
           
             if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
+
 	        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
             }
           }
