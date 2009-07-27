@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
+#include <cstdlib>
+#include <sstream>
 
 typedef std::vector<int> Payload;
 
@@ -40,13 +42,16 @@ namespace condtest {
     
 
     edm::ESHandle<std::vector<int> > h;
-    c.get<OneIntRcd>().get(h);
-    int number = (*h.product()).front();
+    // c.get<OneIntRcd>().get(h);
+    // int number = (*h.product()).front();
   }
 
   void TestUpdater::update(int run) {
-
+    std::ostringstream ss;
+    ss << run;
+   
     // write run in db
+    ::system("touch cfg.py; rm cfg.py; sed 's?CurrentRun?'"+run.str()+"?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py");
 
   }
 
