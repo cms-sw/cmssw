@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.24 2009/06/17 01:04:04 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.25 2009/07/23 11:39:16 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -221,6 +221,10 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%i Muon #phi",level);
 	  hphi[trig][level-1] = dbe_->book1D(name,title, phi_nbin, phi_bins);
 	  hphi[trig][level-1]->setAxisTitle("#phi", 1);
+	  sprintf(name,"HLTMuonL%i_phi_norm",level);
+	  sprintf(title,"L%i Muon #phi_norm",level);
+	  hphi_norm[trig][level-1] = dbe_->book1D(name,title, phi_nbin, phi_bins);
+	  hphi_norm[trig][level-1]->setAxisTitle("#phi", 1);
 	  sprintf(name,"HLTMuonL%i_etaphi",level);
 	  sprintf(title,"L%i Muon #eta vs #phi",level);
 	  hetaphi[trig][level-1] = dbe_->book2D(name,title, phi_nbin, phi_bins, eta_nbin, eta_bins);
@@ -258,6 +262,10 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  sprintf(title,"L%i Muon #phi",level);
 	  hphi[trig][level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
 	  hphi[trig][level-1]->setAxisTitle("#phi", 1);
+	  sprintf(name,"HLTMuonL%i_phi_norm",level);
+	  sprintf(title,"L%i Muon #phi_norm",level);
+	  hphi_norm[trig][level-1] = dbe_->book1D(name,title, NBINS, -3.15, 3.15);
+	  hphi_norm[trig][level-1]->setAxisTitle("#phi", 1);
 	  sprintf(name,"HLTMuonL%i_etaphi",level);
 	  sprintf(title,"L%i Muon #eta vs #phi",level);
 	  hetaphi[trig][level-1] = dbe_->book2D(name,title, NBINS, -3.15, 3.15,NBINS,-2.5, 2.5);
@@ -766,7 +774,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   counterEvt_++;
   if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
   LogDebug("HLTMuonDQMSource") << " processing conterEvt_: " << counterEvt_ <<endl;
-  
+
   bool trigFired = false;
   bool FiredTriggers[NTRIG] = {false};
   Handle<TriggerResults> trigResult;
@@ -776,18 +784,19 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
     TriggerNames trigName;
     trigName.init(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
-	//cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
+      //cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
       for( unsigned int n = 0; n < (unsigned int)theTriggerBits.size(); n++) { 
 	if( trigName.triggerIndex(theTriggerBits[n]) == (unsigned int)ntrigs ) continue;
         if( trigResult->accept(trigName.triggerIndex(theTriggerBits[n])) ) {
 	    for( unsigned int j = 0; j < (unsigned int)theDirectoryName.size(); j++ ) {
-		if( theHLTCollectionLevel[n] == theDirectoryName[j] ) FiredTriggers[j] = true;
+	      if( theHLTCollectionLevel[n] == theDirectoryName[j] ) FiredTriggers[j] = true;
 	    }
 	    trigFired = true;
 	}
       }
     }
   }
+  else cout << "failed to get trigResult!!" << endl;
   // trigger fired
   if( !trigFired ) return;
   nTrig_++;
@@ -812,6 +821,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
+    //cout << "trigger fired!" << endl;
     if( !l2seeds.failedToGet() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
@@ -845,6 +855,13 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hcharge[ntrig][0]->Fill(l1ref->charge());
 	hpt[ntrig][0]->Fill(l1ref->pt());
 	hphi[ntrig][0]->Fill(l1ref->phi());
+
+	if(hphi[ntrig][0]->getEntries()){
+	  for(int ibin = 1; ibin < hphi[ntrig][0]->getNbinsX(); ++ibin)
+	    hphi_norm[ntrig][0]->setBinContent(ibin, 
+					       hphi[ntrig][0]->getBinContent(ibin)/hphi[ntrig][0]->getEntries());
+	}
+	
 	heta[ntrig][0]->Fill(l1ref->eta());
 	hetaphi[ntrig][0]->Fill(l1ref->phi(),l1ref->eta());
 	hptphi[ntrig][0]->Fill(l1ref->pt(),l1ref->phi());
@@ -942,6 +959,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
       hNMu[ntrig][0]->Fill(l1map.size());
     }
+    else cout << "failed to get l2seed!" << endl;
+
     if (!l3seeds.failedToGet()) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
       L3MuonTrajectorySeedCollection::const_iterator l3seed;
@@ -981,6 +1000,8 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
       }
     }
     
+    else cout << "failed to get l3seed!" << endl;
+
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByLabel("hltOfflineBeamSpot",recoBeamSpotHandle);
@@ -1015,6 +1036,13 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	if ( tk->charge() != 0 ) {
 	  heta[ntrig][1]->Fill(tk->eta());      
 	  hphi[ntrig][1]->Fill(tk->phi()); 
+
+	  if(hphi[ntrig][1]->getEntries()){
+	    for(int ibin = 1; ibin < hphi[ntrig][1]->getNbinsX(); ++ibin)
+	      hphi_norm[ntrig][1]->setBinContent(ibin, 
+						 hphi[ntrig][1]->getBinContent(ibin)/hphi[ntrig][1]->getEntries());
+	  }
+	  
 	  hetaphi[ntrig][1]->Fill(tk->phi(),tk->eta()); 
 	  hptphi[ntrig][1]->Fill(tk->pt(),tk->phi()); 
 	  hpteta[ntrig][1]->Fill(tk->pt(),tk->eta()); 
@@ -1062,6 +1090,13 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hpt[ntrig][2]->Fill(tk->pt());      
 	heta[ntrig][2]->Fill(tk->eta());      
 	hphi[ntrig][2]->Fill(tk->phi()); 
+
+	if(hphi[ntrig][2]->getEntries()){
+	  for(int ibin = 1; ibin < hphi[ntrig][2]->getNbinsX(); ++ibin)
+	    hphi_norm[ntrig][2]->setBinContent(ibin, 
+					       hphi[ntrig][2]->getBinContent(ibin)/hphi[ntrig][2]->getEntries());
+	}
+
 	hetaphi[ntrig][2]->Fill(tk->phi(),tk->eta()); 
 	hptphi[ntrig][2]->Fill(tk->pt(),tk->phi()); 
 	hpteta[ntrig][2]->Fill(tk->pt(),tk->eta()); 

@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/03/24 10:13:15 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/06/17 01:02:30 $
+ *  $Revision: 1.16 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -87,6 +87,7 @@ private:
   MonitorElement * hpt[NTRIG][5];
   MonitorElement * heta[NTRIG][5];
   MonitorElement * hphi[NTRIG][5];
+  MonitorElement * hphi_norm[NTRIG][5];
   MonitorElement * hptphi[NTRIG][5];
   MonitorElement * hpteta[NTRIG][5];
   MonitorElement * hptres[NTRIG][3];
