@@ -164,6 +164,7 @@ void ESSummaryClient::analyze(void) {
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
       for(int x=0; x<80; x++){
+	 if(eCount < 100) break; //Fill reportSummaryMap after have 100 events
 	 for(int y=0; y<80; y++){
 	    if( nDI_FedErr[x][y] >= 0. ){
 	       me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount) );
