@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.4 2009/03/27 14:57:06 giordano Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.5 2009/03/30 16:47:00 demattia Exp $
 //
 //
 
@@ -46,10 +46,19 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   edm::ESHandle<SiStripBadStrip> obj;
   edm::ESHandle<SiStripDetCabling> cabling;
   edm::ESHandle<SiStripDetVOff> Voff;
-  
+  edm::ESHandle<RunInfo> runInfo;
+
   std::string tagName;  
   std::string recordName;
-  for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+
+  bool doRunInfo = false;
+
+  // Set the debug output level
+  if(pset_.getParameter<bool>("PrintDebugOutput")) {
+    quality->setPrintDebugOutput( true );
+  }
+
+  for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
     tagName = itToGet->getParameter<std::string>("tag");
     recordName = itToGet->getParameter<std::string>("record");
 
@@ -57,7 +66,7 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
 
     if (recordName=="SiStripBadModuleRcd"){
       iRecord.getRecord<SiStripBadModuleRcd>().get(tagName,obj); 
-      quality->add( obj.product() );    
+      quality->add( obj.product() );
     } else if (recordName=="SiStripBadFiberRcd"){
       iRecord.getRecord<SiStripBadFiberRcd>().get(tagName,obj); 
       quality->add( obj.product() );    
@@ -70,12 +79,19 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
     } else if (recordName=="SiStripDetVOffRcd"){
       iRecord.getRecord<SiStripDetVOffRcd>().get(tagName,Voff);
       quality->add( Voff.product() );
+    } else if (recordName=="RunInfoRcd") {
+      doRunInfo = true;
     } else {
       edm::LogError("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Skipping the requested data for unexisting record " << recordName << " with tag " << tagName << std::endl;
       continue;
     }
   }
-  
+  // We do this after all the others so we know it is done after the DetCabling (if any)
+  if( doRunInfo ) {
+    iRecord.getRecord<RunInfoRcd>().get(tagName,runInfo);
+    quality->add( runInfo.product() );
+  }
+
   quality->cleanUp();
 
   if(pset_.getParameter<bool>("ReduceGranularity")){
