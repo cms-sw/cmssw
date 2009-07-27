@@ -7,6 +7,7 @@
 #include "TList.h"
 #include <iostream>
 #include <cassert>
+#include <cfloat>
 
 static TH1 *
 checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
@@ -347,16 +348,24 @@ MonitorElement::Reset(void)
 std::string
 MonitorElement::valueString(void) const
 {
-  std::ostringstream buf;
+  char buf[64];
   if (kind_ == DQM_KIND_INT)
-    buf << "i=" << curvalue_.num;
+  {
+    sprintf(buf, "i=%d", curvalue_.num);
+    return buf;
+  }
   else if (kind_ == DQM_KIND_REAL)
-    buf << "f=" << std::setprecision(16) << curvalue_.real;
+  {
+    sprintf(buf, "f=%.*g", DBL_DIG+2, curvalue_.real);
+    return buf;
+  }
   else if (kind_ == DQM_KIND_STRING)
-    buf << "s=" << curvalue_.str;
+    return "s=" + curvalue_.str;
   else
+  {
     incompatible(__PRETTY_FUNCTION__);
-  return buf.str();
+    return std::string(); // unreachable
+  }
 }
 
 /// return tagged value of ME in string format 
@@ -375,9 +384,12 @@ MonitorElement::qualityTagString(const DQMNet::QValue &qv) const
   title += '.';
   title += qv.qtname;
 
+  char buf[64];
   std::ostringstream retval;
+
+  sprintf(buf, "qr=st:%d:%.*g:", qv.code, DBL_DIG+2, qv.qtresult);
   retval << "<" << title << ">"
-	 << "qr=st." << qv.code << "." << qv.message
+	 << buf << qv.message
 	 << "</" << title << ">";
   return retval.str();
 }
@@ -397,7 +409,11 @@ MonitorElement::getQReports(void) const
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
   for (size_t i = 0, e = qreports_.size(); i != e; ++i)
+  {
+    const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
+      = const_cast<DQMNet::QValue *>(&data_.qreports[i]);
     result.push_back(const_cast<QReport *>(&qreports_[i]));
+  }
   return result;
 }
 
@@ -408,7 +424,11 @@ MonitorElement::getQWarnings(void) const
   result.reserve(qreports_.size());
   for (size_t i = 0, e = qreports_.size(); i != e; ++i)
     if (data_.qreports[i].code == dqm::qstatus::WARNING)
+    {
+      const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
+	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
+    }
   return result;
 }
 
@@ -419,7 +439,11 @@ MonitorElement::getQErrors(void) const
   result.reserve(qreports_.size());
   for (size_t i = 0, e = qreports_.size(); i != e; ++i)
     if (data_.qreports[i].code == dqm::qstatus::ERROR)
+    {
+      const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
+	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
+    }
   return result;
 }
 
@@ -432,7 +456,11 @@ MonitorElement::getQOthers(void) const
     if (data_.qreports[i].code != dqm::qstatus::STATUS_OK
 	&& data_.qreports[i].code != dqm::qstatus::WARNING
 	&& data_.qreports[i].code != dqm::qstatus::ERROR)
+    {
+      const_cast<MonitorElement *>(this)->qreports_[i].qvalue_
+	= const_cast<DQMNet::QValue *>(&data_.qreports[i]);
       result.push_back(const_cast<QReport *>(&qreports_[i]));
+    }
   return result;
 }
 
@@ -452,7 +480,7 @@ MonitorElement::runQTests(void)
     qr.qvalue_ = &qv;
 
     // if (qc && (dirty || qc->wasModified()))  // removed for new QTest (abm-090503)
-    if (qc && dirty ) 
+    if (qc && dirty)
     {
       assert(qc->getName() == qv.qtname);
       std::string oldMessage = qv.message;
@@ -1168,6 +1196,7 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
 
     DQMNet::QValue &q = data_.qreports.back();
     q.code = dqm::qstatus::DID_NOT_RUN;
+    q.qtresult = 0;
     q.qtname = qtname;
     q.message = "NO_MESSAGE_ASSIGNED";
     q.algorithm = "UNKNOWN_ALGORITHM";

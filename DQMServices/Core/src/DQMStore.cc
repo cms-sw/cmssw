@@ -59,7 +59,8 @@ static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 static DQMStore *s_instance = 0;
 
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
-static const lat::Regexp s_rxmeqr  ("^st\\.(\\d+)\\.(.*)$");
+static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):(.*)$");
+static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 
 //////////////////////////////////////////////////////////////////////
 /// Check whether @a path is a subdirectory of @a ofdir.  Returns
@@ -1254,7 +1255,22 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
         std::string qrname (label, dot+1, std::string::npos);
 
         m.reset();
-        if (! s_rxmeqr.match(value, 0, 0, &m))
+        DQMNet::QValue qv;
+	if (s_rxmeqr1.match(value, 0, 0, &m))
+	{
+	  qv.code = atoi(m.matchString(value, 1).c_str());
+	  qv.qtresult = strtod(m.matchString(value, 2).c_str(), 0);
+	  qv.message = m.matchString(value, 3);
+	  qv.qtname = qrname;
+	}
+	else if (s_rxmeqr2.match(value, 0, 0, &m))
+	{
+	  qv.code = atoi(m.matchString(value, 1).c_str());
+	  qv.qtresult = 0; // unavailable in old format
+	  qv.message = m.matchString(value, 2);
+	  qv.qtname = qrname;
+	}
+	else
         {
 	  std::cout << "*** DQMStore: WARNING: quality test value '"
 		    << value << "' is incorrectly formatted\n";
@@ -1270,10 +1286,6 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
 	  return false;
         }
 
-        DQMNet::QValue qv;
-        qv.qtname = qrname;
-        qv.code = atoi(m.matchString(value, 1).c_str());
-        qv.message = m.matchString(value, 2);
         me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
       }
     }
