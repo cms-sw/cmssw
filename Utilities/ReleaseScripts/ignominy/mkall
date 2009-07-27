@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/python -u
 
 for v in `pwd | sed 's|.*/IGUANA_||; s|/.*||'`; do
 #   set --
