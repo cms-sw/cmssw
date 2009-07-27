@@ -175,10 +175,9 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
       if(tracks[i].second.size() >=3) 
       { // triplet tracks
-        if((*sharing).second > min(tracks[i].second.size(),
-                                   tracks[j].second.size())/2)
+        if((*sharing).second > min(int(tracks[i].second.size()),
+                                   int(tracks[j].second.size()))/2)
         { // more than min(hits1,hits2)/2 rechits are shared
-
           if(!hasCommonLayer(tracks[i].second,tracks[j].second,detLayers))
           { 
             // merge tracks, add separate hits of the second to the first one

@@ -1,21 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-thirdPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-thirdStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
-import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
-pixel2PrimTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
-import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
-tertSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-thirdMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-tertTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-globalTertTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+#################################
+# Remaining clusters
 thirdClusters = cms.EDFilter("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("secondClusters"),
     trajectories = cms.InputTag("globalSecoTracks"),
@@ -26,24 +12,37 @@ thirdClusters = cms.EDFilter("TrackClusterRemover",
     stripClusters = cms.InputTag("secondClusters")
 )
 
+#################################
+# Remaining pixel hits
+import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+thirdPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
+thirdPixelRecHits.src = 'thirdClusters:'
+
+#################################
+# Remaining strip hits
+import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+thirdStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
+thirdStripRecHits.ClusterProducer = 'thirdClusters'
+
+#################################
+# Tertiary pairs
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
-
 thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('thirdLayerPairs'),
-    layerList = cms.vstring('BPix1+BPix2', 
-        'BPix1+BPix3', 
-        'BPix2+BPix3', 
-        'BPix1+FPix1_pos', 
-        'BPix1+FPix1_neg', 
-        'BPix1+FPix2_pos', 
-        'BPix1+FPix2_neg', 
-        'BPix2+FPix1_pos', 
-        'BPix2+FPix1_neg', 
-        'BPix2+FPix2_pos', 
-        'BPix2+FPix2_neg', 
-        'FPix1_pos+FPix2_pos', 
-        'FPix1_neg+FPix2_neg'),
+    ComponentName = cms.string('ThirdLayerPairs'),
+    layerList = cms.vstring('BPix1+BPix2',
+        'BPix1+BPix3',
+        'BPix2+BPix3',
+        'BPix1+FPix1_pos',
+        'BPix1+FPix1_neg',
+        'BPix1+FPix2_pos',
+        'BPix1+FPix2_neg',
+        'BPix2+FPix1_pos',
+        'BPix2+FPix1_neg',
+        'BPix2+FPix2_pos',
+        'BPix2+FPix2_neg'),
+#       'FPix1_pos+FPix2_pos',
+#       'FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         BPixError,
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
@@ -56,30 +55,55 @@ thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
     )
 )
 
-thirdPixelRecHits.src = 'thirdClusters:'
-thirdStripRecHits.ClusterProducer = 'thirdClusters'
-pixel2PrimTracks.passLabel = 'Pixel pair tracks with vertex constraint'
-pixel2PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
-#pixel2PrimTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.2
-pixel2PrimTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
-pixel2PrimTracks.OrderedHitsFactoryPSet.SeedingLayers = 'thirdLayerPairs'
-pixel2PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'
-#tertSeeds.tripletList = ['pixel2PrimTracks']
-tertSeeds.InputCollection = 'pixel2PrimTracks'
-thirdMeasurementTracker.ComponentName = 'thirdMeasurementTracker'
+#################################
+# Pixel-2 tertiary tracks
+import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
+pixelTertTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
+pixelTertTracks.passLabel = 'Pixel pair tracks with vertex constraint'
+pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
+pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
+pixelTertTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
+pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = 'ThirdLayerPairs'
+pixelTertTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'
+
+#################################
+# Tertiary seeds
+import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
+tertSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
+tertSeeds.InputCollection = 'pixelTertTracks'
+
+#################################
+# Tertiary measurement tracker
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
+thirdMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+thirdMeasurementTracker.ComponentName        = 'thirdMeasurementTracker'
 thirdMeasurementTracker.pixelClusterProducer = 'thirdClusters'
 thirdMeasurementTracker.stripClusterProducer = 'thirdClusters'
-thirdCkfTrajectoryBuilder.ComponentName = 'thirdCkfTrajectoryBuilder'
+
+#################################
+# Tertiary trajectory builder
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+thirdCkfTrajectoryBuilder.ComponentName          = 'thirdCkfTrajectoryBuilder'
 thirdCkfTrajectoryBuilder.MeasurementTrackerName = 'thirdMeasurementTracker'
-thirdCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
+thirdCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
 
-tertTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedSeeds'
-tertTrackCandidates.src               = 'tertSeeds'
-tertTrackCandidates.TrajectoryBuilder = 'thirdCkfTrajectoryBuilder'
+#################################
+# Tertiary track candidates
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+tertTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+tertTrackCandidates.TrajectoryBuilder    = 'thirdCkfTrajectoryBuilder'
+tertTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
+tertTrackCandidates.src                  = 'tertSeeds'
 tertTrackCandidates.RedundantSeedCleaner = 'none'
-tertTrackCandidates.doSeedingRegionRebuilding = False
+tertTrackCandidates.useHitsSplitting          = cms.bool(False)
+tertTrackCandidates.doSeedingRegionRebuilding = cms.bool(False)
 
-globalTertTracks.src = 'tertTrackCandidates'
+#################################
+# Global tertiary tracks
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+globalTertTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalTertTracks.clusterRemovalInfo = 'thirdClusters'
-globalTertTracks.TrajectoryInEvent = True
+globalTertTracks.src                = 'tertTrackCandidates'
+globalTertTracks.TrajectoryInEvent  = cms.bool(True)
 

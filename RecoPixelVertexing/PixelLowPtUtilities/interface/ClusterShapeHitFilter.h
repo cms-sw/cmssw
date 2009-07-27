@@ -79,7 +79,7 @@ class ClusterShapeHitFilter
 
   bool getSizes
     (const SiPixelRecHit & recHit, const LocalVector & ldir,
-     int & part, std::pair<int,int> & meas,
+     int & part, std::vector<std::pair<int,int> > & meas,
      std::pair<float,float> & pred) const;
 
   bool getSizes

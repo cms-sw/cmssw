@@ -202,7 +202,7 @@ float TrackFitter::getZip
 
 /*****************************************************************************/
 void TrackFitter::getErrTipAndErrZip
-  (float pt, float eta, float & errZip, float & errTip) const 
+  (float pt, float eta, float & errTip, float & errZip) const 
 {
   float coshEta = cosh(eta);
 

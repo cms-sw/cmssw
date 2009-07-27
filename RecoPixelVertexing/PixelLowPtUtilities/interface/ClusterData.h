@@ -2,12 +2,13 @@
 #define _ClusterData_h_
 
 #include <utility>
+#include <vector>
 
 class ClusterData
 {
  public:
    bool isStraight,isComplete; 
-   std::pair<int,int> size;
+   std::vector<std::pair<int,int> > size;
 };
 
 #endif
