@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("test")
-#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #
 # DQM
@@ -16,6 +16,11 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet100945.root')
+process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
+process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
+process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
+process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
+process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")

@@ -17,6 +17,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reco")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #
 # DQM
@@ -29,10 +31,14 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring.root')
+process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
 process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
 process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
 process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
+
+# check # of bins
+process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -101,7 +107,10 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True) ## default is false
 
 )
-process.p = cms.Path(process.jetMETAnalyzer)
+
+process.p = cms.Path(process.jetMETDQMOfflineSource
+                     * process.MEtoEDMConverter
+                     * process.dqmStoreStats)
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 

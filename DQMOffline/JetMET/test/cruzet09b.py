@@ -12,18 +12,15 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-# the task - JetMET objects
+# the task
 process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
 process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet100945.root')
+process.jetMETAnalyzer.OutputFileName = cms.string('jetMETMonitoring_cruzet100945b.root')
 process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
 process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
 process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
 process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-
-# the task - JetMET trigger
-process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -37,8 +34,8 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning09/Calo/RECO/v3/000/100/945/FA72B935-0960-DE11-A902-000423D98DB4.root'
-    #'/store/data/Commissioning09/Calo/RECO/v3/000/100/945/0C547BAF-0C60-DE11-83C3-000423D98868.root'
+    #'/store/data/Commissioning09/Calo/RECO/v3/000/100/945/FA72B935-0960-DE11-A902-000423D98DB4.root'
+    '/store/data/Commissioning09/Calo/RECO/v3/000/100/945/0C547BAF-0C60-DE11-83C3-000423D98868.root'
     #'/store/data/CRUZET09/Calo/RECO/v1/000/098/154/EADF3BE3-BE4F-DE11-8BB8-000423D9870C.root'
     #'file:/tmp/hatake/EADF3BE3-BE4F-DE11-8BB8-000423D9870C.root'
     )
@@ -98,7 +95,7 @@ process.options = cms.untracked.PSet(
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
     #outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string('reco_DQM_cruzet100945.root')
+    fileName = cms.untracked.string('reco_DQM_cruzet100945b.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -109,8 +106,7 @@ process.options = cms.untracked.PSet(
 #process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
 #process.load("DQMOffline.JetMET.jetMETDQMStoreClean_cff");
 
-process.p = cms.Path(process.jetMETHLTOfflineSource
-                     * process.jetMETDQMOfflineSourceCosmic
+process.p = cms.Path(process.jetMETDQMOfflineSourceCosmic
                      * process.MEtoEDMConverter
                      * process.dqmStoreStats)
 process.outpath = cms.EndPath(process.FEVT)
