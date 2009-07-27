@@ -1,11 +1,11 @@
 #ifndef DataFormats_LaserAlignment_TkFittedLasBeam_h
 #define DataFormats_LaserAlignment_TkFittedLasBeam_h
 
-/// \class TkFittedLasBeam ($Revision: 1.1 $)
+/// \class TkFittedLasBeam ($Revision: 1.2 $)
 ///
 /// \author Gero Flucke 
 /// \date May 2009
-/// last update on $Date: 2009/05/11 10:16:13 $ by $Author: flucke $
+/// last update on $Date: 2009/07/16 15:16:01 $ by $Author: kaschube $
 ///
 /// An extension of the 'TkLasBeam' containing information about 
 /// a track model fit to the laser hits.
@@ -28,9 +28,9 @@ class TkFittedLasBeam : public TkLasBeam {
   /// parallel to derivatives()
   const std::vector<Scalar>& parameters() const { return parameters_;}
   /// covariance of first n=firstFixedParameter() parameters()
-  const AlgebraicSymMatrix & parametersCov() const {return paramCovariance_;}
+  const AlgebraicSymMatrix& parametersCov() const {return paramCovariance_;}
   /// matrix of local derivatives: columns are parameters, rows are hits
-  const AlgebraicMatrix derivatives() const { return derivatives_;}
+  const AlgebraicMatrix& derivatives() const { return derivatives_;}
   /// index of first parameter and its derivative that was not fixed
   /// in the fit, but might be free in a global fit, e.g. within millepede
   unsigned int firstFixedParameter() const { return firstFixedParameter_;}
