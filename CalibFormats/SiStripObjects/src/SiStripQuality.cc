@@ -1,11 +1,24 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.15 2009/05/04 10:52:55 lowette Exp $
+// $Id: SiStripQuality.cc,v 1.16 2009/07/25 11:34:40 demattia Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+// Uncomment this to activate all the debug code
+// #define DEBUG_CODE
+
+// Needed only for debug output
+#ifdef DEBUG_CODE
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/DetId/interface/DetId.h"
+#endif
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
@@ -186,10 +199,12 @@ void SiStripQuality::add(const RunInfo *runInfo)
   std::vector<uint16_t> activeFedsFromCabling = SiStripDetCabling_->fedCabling()->feds();
 
   // DEBUG code
+  #ifdef DEBUG_CODE
   std::sort(activeFedsFromCabling.begin(), activeFedsFromCabling.end());
   std::cout << "activeFedsFromCabling:" << std::endl;
   std::copy(activeFedsFromCabling.begin(), activeFedsFromCabling.end(), std::ostream_iterator<uint16_t>(std::cout, " "));
   std::cout << std::endl;
+  #endif
   // ----------
 
   // Take the list of active feds from RunInfo
@@ -203,20 +218,18 @@ void SiStripQuality::add(const RunInfo *runInfo)
                                     boost::bind(std::less_equal<int>(), _1, siStripFedIdMax)) );
 
   // DEBUG code
+  #ifdef DEBUG_CODE
   std::sort(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end());
   std::cout << "activeFedsFromRunInfo:" << std::endl;
   std::copy(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(), std::ostream_iterator<int>(std::cout, " "));
   std::cout << std::endl;
+  #endif
   // ----------
 
   // Compare the two. If a fedId from RunInfo is not present in the fedCabling we need to
   // get all the corresponding fedChannels and then the single apv pairs and use them to
   // turn off the corresponding strips (apvNumber*256).
-
   // set_difference returns the set of elements that are in the first and not in the second
-
-  // set_symmetric_difference returns the set of elements that are in the first and not in the
-  // second and in the second and not in the first.
   std::sort(activeFedsFromCabling.begin(), activeFedsFromCabling.end());
   std::sort(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end());
   std::vector<int> differentFeds;
@@ -226,10 +239,12 @@ void SiStripQuality::add(const RunInfo *runInfo)
                       std::back_inserter(differentFeds));
 
   // DEBUG code
+  #ifdef DEBUG_CODE
   std::cout << "differentFeds : ";
   std::copy(differentFeds.begin(), differentFeds.end(), std::ostream_iterator<int>(std::cout, " "));
   std::cout << std::endl;
-  std::cout << "associated to detIds : ";
+  std::cout << "associated to detIds : " << std::endl;
+  #endif
   // ----------
 
   // Feds in the differentFeds vector are now to be turned off as they are off according to runInfo
@@ -240,10 +255,54 @@ void SiStripQuality::add(const RunInfo *runInfo)
     std::vector<FedChannelConnection>::const_iterator fedChIt = SiStripDetCabling_->fedCabling()->connections( *fedIdIt ).begin();
     for( ; fedChIt != SiStripDetCabling_->fedCabling()->connections( *fedIdIt ).end(); ++fedChIt ) {
       uint32_t detId = fedChIt->detId();
+      if (detId == 0 || detId == 0xFFFFFFFF) continue;
       uint16_t apvPairNumber = fedChIt->apvPairNumber();
 
       // DEBUG code
+      #ifdef DEBUG_CODE
+      int layer = 0;
+      int stereo = 0;
+      std::string subDetName;
       std::cout << detId << " and apv = " << apvPairNumber << ", ";
+      DetId detid(detId);
+      switch (detid.subdetId()) {
+      case StripSubdetector::TIB:
+        {
+          TIBDetId theTIBDetId(detid.rawId());
+          layer = theTIBDetId.layer();
+          stereo = theTIBDetId.stereo();
+          subDetName = "TIB";
+          break;
+        }
+      case StripSubdetector::TOB:
+        {
+          TOBDetId theTOBDetId(detid.rawId());
+          layer = theTOBDetId.layer();
+          stereo = theTOBDetId.stereo();
+          subDetName = "TOB";
+          break;
+        }
+      case StripSubdetector::TEC:
+        {
+          TECDetId theTECDetId(detid.rawId());
+          // is this module in TEC+ or TEC-?
+          layer = theTECDetId.wheel();
+          stereo = theTECDetId.stereo();
+          subDetName = "TEC";
+          break;
+        }
+      case StripSubdetector::TID:
+        {
+          TECDetId theTIDDetId(detid.rawId());
+          // is this module in TID+ or TID-?
+          layer = theTIDDetId.wheel();
+          stereo = theTIDDetId.stereo();
+          subDetName = "TID";
+          break;
+        }
+      }
+      std::cout << "of subDet = " << subDetName << ", layer = " << layer << " stereo = " << stereo << std::endl;
+      #endif
       // ----------
 
 
@@ -257,7 +316,9 @@ void SiStripQuality::add(const RunInfo *runInfo)
   }
 
   // DEBUG code
+  #ifdef DEBUG_CODE
   std::cout << std::endl;
+  #endif
   // ----------
 
   // Consistency check
@@ -270,7 +331,7 @@ void SiStripQuality::add(const RunInfo *runInfo)
   if( !check.empty() ) {
     throw cms::Exception("LogicError")
       << "The cabling should always include the active feds in runInfo and possibly have some more"
-      << "there are instead " << check.size() << " feds only active in runInfo : ";
+      << "there are instead " << check.size() << " feds only active in runInfo";
   }
 }
 
