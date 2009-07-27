@@ -1,10 +1,7 @@
-// Standard includes
-#include <iostream>
-#include <string>
+// -*- C++ -*-
 
 // CMS includes
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
@@ -12,17 +9,11 @@
 #include "Math/GenVector/PxPyPzM4D.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
-#include "PhysicsTools/FWLite/interface/OptionUtils.h"  // (optutl::)
-#include "PhysicsTools/FWLite/interface/dout.h"
-#include "PhysicsTools/FWLite/interface/dumpSTL.icc"
+#include "PhysicsTools/FWLite/interface/CommandLineParser.h" 
 
-// root includes
-#include "TFile.h"
+// Root includes
 #include "TROOT.h"
-#include "TSystem.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TString.h"
+#include "TH2F.h"
 
 using namespace std;
 
@@ -45,12 +36,12 @@ void outputNameTagFunc (string &tag);
 
 // Book all histograms to be filled this job.  If wanted, you can skip
 // this subroutine and book all histograms in the main subroutine.
-void bookHistograms (fwlite::EventContainer &event);
+void bookHistograms (fwlite::EventContainer &eventCont);
 
 // Calculate the name that should be used for this event based on the
 // mode, the HF word, and (if necessary), whether or not it's a W or
 // Z.  Returns false if the event should not be processed.
-bool calcSampleName (fwlite::EventContainer &event, string &sampleName);
+bool calcSampleName (fwlite::EventContainer &eventCont, string &sampleName);
 
 ///////////////////////////
 // ///////////////////// //
@@ -67,20 +58,23 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::setUsageAndDefaultOptions ("Creates SecVtx Mass templates",
-                                      optutl::kEventContainer);
+   optutl::CommandLineParser parser ("Creates SecVtx Mass templates",
+                                     optutl::CommandLineParser::kEventContOpt);
 
    //////////////////////////////////////////////////////
    // Add any command line options you would like here //
    //////////////////////////////////////////////////////
-   optutl::addOption ("mode",         optutl::kInteger, 
-                      "Normal(0), VQQ(1), LF(2), Wc(3)", 
-                      0);   
-   optutl::addOption ("sampleName",   optutl::kString, 
-                      "Sample name (e.g., top, Wqq, etc.)");   
+   parser.addOption ("mode",         optutl::CommandLineParser::kInteger, 
+                     "Normal(0), VQQ(1), LF(2), Wc(3)", 
+                     0);   
+   parser.addOption ("sampleName",   optutl::CommandLineParser::kString, 
+                     "Sample name (e.g., top, Wqq, etc.)");   
+
+   ////////////////////////////////////////////////
+   parser.stringValue ("outputFile") = "jetPt"; // .root added automatically
 
    // Parse the command line arguments
-   optutl::parseArguments (argc, argv);
+   parser.parseArguments (argc, argv);
 
    //////////////////////////////////
    // //////////////////////////// //
@@ -88,9 +82,18 @@ int main (int argc, char* argv[])
    // //////////////////////////// //
    //////////////////////////////////
 
-   // This object 'event' is used both to get all information from the
-   // event as well as to store histograms, etc.
-   fwlite::EventContainer event (&outputNameTagFunc);
+   // This object 'eventCont' is used both to get all information from the
+   // eventCont as well as to store histograms, etc.
+   // Parse the command line arguments
+   parser.parseArguments (argc, argv);
+
+   //////////////////////////////////
+   // //////////////////////////// //
+   // // Create Event Container // //
+   // //////////////////////////// //
+   //////////////////////////////////
+
+   fwlite::EventContainer eventCont (parser);
 
    ////////////////////////////////////////
    // ////////////////////////////////// //
@@ -103,7 +106,7 @@ int main (int argc, char* argv[])
    gROOT->SetStyle ("Plain");
 
    // Book those histograms!
-   bookHistograms (event);
+   bookHistograms (eventCont);
 
    //////////////////////
    // //////////////// //
@@ -111,17 +114,17 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
-   for (event.toBegin(); !event.atEnd(); ++event) 
+   for (eventCont.toBegin(); !eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
       fwlite::Handle< vector< pat::Jet > > jetCollection;
-      jetCollection.getByLabel (event, "selectedLayer1Jets");
+      jetCollection.getByLabel (eventCont, "selectedLayer1Jets");
       assert ( jetCollection.isValid() );
 						
       fwlite::Handle< vector< pat::Muon > > goodMuonCollection;
-      goodMuonCollection.getByLabel (event, "goodLeptons");
+      goodMuonCollection.getByLabel (eventCont, "goodLeptons");
       assert ( goodMuonCollection.isValid() );
 			
       // If we don't have any good leptons, don't bother
@@ -132,7 +135,7 @@ int main (int argc, char* argv[])
 
       // get the sample name for this event
       string sampleName;
-      if ( ! calcSampleName (event, sampleName) )
+      if ( ! calcSampleName (eventCont, sampleName) )
       {
          // We don't want this one.
          continue;
@@ -147,8 +150,8 @@ int main (int argc, char* argv[])
       // Loop over the jets and find out which are tagged
       const vector< pat::Jet >::const_iterator kJetEnd = jetCollection->end();
       for (vector< pat::Jet >::const_iterator jetIter = jetCollection->begin(); 
-          kJetEnd != jetIter; 
-          ++jetIter) 
+           kJetEnd != jetIter; 
+           ++jetIter) 
       {
          // Is this jet tagged and does it have a good secondary vertex
          if( jetIter->bDiscriminator("simpleSecondaryVertexBJetTags") < 2.05 )
@@ -216,7 +219,7 @@ int main (int argc, char* argv[])
       // General Accounting //
       ////////////////////////
       int numJets = std::min( (int) jetCollection->size(), 5 );
-      event.hist( sampleName + "_jettag")->Fill (numJets, numTags);
+      eventCont.hist( sampleName + "_jettag")->Fill (numJets, numTags);
 
       // If we don't have any tags, don't bother going on
       if ( ! numTags)
@@ -249,9 +252,9 @@ int main (int argc, char* argv[])
       } // if two tags
       string massName = sampleName 
          + Form("_secvtxMass_%dj_%dt", numJets, numTags);
-      event.hist(massName)->Fill (sumVertexMass);
-      event.hist(massName + whichtag)->Fill (sumVertexMass);
-   } // for event
+      eventCont.hist(massName)->Fill (sumVertexMass);
+      eventCont.hist(massName + whichtag)->Fill (sumVertexMass);
+   } // for eventCont
       
    ////////////////////////
    // ////////////////// //
@@ -287,15 +290,16 @@ void outputNameTagFunc (string &tag)
 }
 
 
-void bookHistograms (fwlite::EventContainer &event)
+void bookHistograms (fwlite::EventContainer &eventCont)
 {
    /////////////////////////////////////////////
    // First, come up with all possible base   //
    // names (E.g., Wbb, Wb2, etc.).           //
    /////////////////////////////////////////////
-   optutl::SVec baseNameVec;
-   optutl::SVec beginningVec, endingVec;
-   switch ( optutl::integerValue ("mode") )
+   using namespace optutl;
+   CommandLineParser::SVec baseNameVec;
+   CommandLineParser::SVec beginningVec, endingVec;
+   switch ( eventCont.parser().integerValue ("mode") )
    {
       case kVqqMode:
          // We want Wbb, Wb2, .., Zbb, ..  In this case, we completely
@@ -309,11 +313,11 @@ void bookHistograms (fwlite::EventContainer &event)
          endingVec.push_back( "b2" );
          endingVec.push_back( "cc" );
          endingVec.push_back( "c2" );
-         for (optutl::SVecConstIter outerIter = beginningVec.begin();
+         for (CommandLineParser::SVecConstIter outerIter = beginningVec.begin();
               beginningVec.end() != outerIter;
               ++outerIter)
          {
-            for (optutl::SVecConstIter innerIter = endingVec.begin();
+            for (CommandLineParser::SVecConstIter innerIter = endingVec.begin();
                  endingVec.end() != innerIter;
                  ++innerIter)
             {
@@ -324,18 +328,18 @@ void bookHistograms (fwlite::EventContainer &event)
       case kLFMode:
          // just like the default case, except that we do have some
          // heavy flavor pieces here, too.
-         baseNameVec.push_back(optutl::stringValue ("sampleName") + "b3");
-         baseNameVec.push_back(optutl::stringValue ("sampleName") + "c3");
+         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName") + "b3");
+         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName") + "c3");
          // no break because to add just the name as well
       default:
          // We just want to use the sample name as it was given to us.
-         baseNameVec.push_back(optutl::stringValue ("sampleName"));
+         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName"));
    } // for switch
 
    ////////////////////////////////////////
    // Now the different tagging endings. //
    ////////////////////////////////////////
-   optutl::SVec singleTagEndingVec, doubleTagEndingVec;
+   CommandLineParser::SVec singleTagEndingVec, doubleTagEndingVec;
    singleTagEndingVec.push_back ("_b");
    singleTagEndingVec.push_back ("_c");
    singleTagEndingVec.push_back ("_q");
@@ -349,7 +353,7 @@ void bookHistograms (fwlite::EventContainer &event)
    /////////////////////////////////////////
    // Finally, let's put it all together. //
    /////////////////////////////////////////
-   for (optutl::SVecConstIter baseIter = baseNameVec.begin();
+   for (CommandLineParser::SVecConstIter baseIter = baseNameVec.begin();
         baseNameVec.end() != baseIter;
         ++baseIter)
    {
@@ -357,9 +361,9 @@ void bookHistograms (fwlite::EventContainer &event)
       // For each flavor, one jet/tag counting histogram. //
       //////////////////////////////////////////////////////
       TString histName = *baseIter + "_jettag";
-      event.add( new TH2F( histName, histName, 
-                           6, -0.5, 5.5,
-                           3, -0.5, 2.5) );
+      eventCont.add( new TH2F( histName, histName, 
+                               6, -0.5, 5.5,
+                               3, -0.5, 2.5) );
       for (int jet = 1; jet <= 5; ++jet)
       {
          for (int tag = 1; tag <= 2; ++tag)
@@ -369,13 +373,13 @@ void bookHistograms (fwlite::EventContainer &event)
             ////////////////////////////////////////////
             if (tag > jet) continue;
             histName = *baseIter + Form ("_secvtxMass_%dj_%dt", jet, tag);
-            event.add( new TH1F( histName, histName, 40, 0, 10) );
-            optutl::SVec *vecPtr = &singleTagEndingVec;
+            eventCont.add( new TH1F( histName, histName, 40, 0, 10) );
+            CommandLineParser::SVec *vecPtr = &singleTagEndingVec;
             if (2 == tag)
             {
                vecPtr = &doubleTagEndingVec;
             } // double tag
-            for (optutl::SVecConstIter tagIter = vecPtr->begin();
+            for (CommandLineParser::SVecConstIter tagIter = vecPtr->begin();
                  vecPtr->end() != tagIter;
                  ++tagIter)
             {
@@ -384,7 +388,7 @@ void bookHistograms (fwlite::EventContainer &event)
                ////////////////////////////////////////////////////
                histName = *baseIter + Form ("_secvtxMass_%dj_%dt", jet, tag)
                   + *tagIter;
-               event.add( new TH1F( histName, histName, 40, 0, 10) );
+               eventCont.add( new TH1F( histName, histName, 40, 0, 10) );
             } // for tagIter
          } // for tag
       } // for jet
@@ -392,11 +396,11 @@ void bookHistograms (fwlite::EventContainer &event)
 }
 					
 
-bool calcSampleName (fwlite::EventContainer &event, string &sampleName)
+bool calcSampleName (fwlite::EventContainer &eventCont, string &sampleName)
 {
    // calculate sample name
-   sampleName = optutl::stringValue  ("sampleName");
-   int mode   = optutl::integerValue ("mode");
+   sampleName = eventCont.parser().stringValue  ("sampleName");
+   int mode   = eventCont.parser().integerValue ("mode");
 
    /////////////////
    // Normal Mode //
@@ -408,7 +412,7 @@ bool calcSampleName (fwlite::EventContainer &event, string &sampleName)
    }
    // Get the heavy flavor category
    fwlite::Handle< unsigned int > heavyFlavorCategory;
-   heavyFlavorCategory.getByLabel (event, "flavorHistoryFilter");
+   heavyFlavorCategory.getByLabel (eventCont, "flavorHistoryFilter");
    assert ( heavyFlavorCategory.isValid() );
    int HFcat = (*heavyFlavorCategory);
 
@@ -457,7 +461,7 @@ bool calcSampleName (fwlite::EventContainer &event, string &sampleName)
    // (We'll eventually have to be more clever).
    sampleName = "X";
    fwlite::Handle< vector< reco::GenParticle > > genParticleCollection;
-   genParticleCollection.getByLabel (event, "genParticles");
+   genParticleCollection.getByLabel (eventCont, "genParticles");
    assert ( genParticleCollection.isValid() );
    // We don't know if it is a W, a Z, or neither
    // Iterate over genParticles

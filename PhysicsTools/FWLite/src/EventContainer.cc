@@ -22,8 +22,9 @@ using namespace fwlite;
 bool EventContainer::sm_autoloaderCalled = false;
 
 
-EventContainer::EventContainer (FuncPtr funcPtr) : 
-   m_eventsSeen (0), m_maxWanted (0)
+EventContainer::EventContainer (optutl::CommandLineParser &parser, 
+                                FuncPtr funcPtr) : 
+   m_eventsSeen (0), m_maxWanted (0), m_parserPtr (0)
 {
    // get the user-defined tag
    string tag;
@@ -33,7 +34,7 @@ EventContainer::EventContainer (FuncPtr funcPtr) :
    }
 
    // finish defaultt options and create fwlite::Event
-   optutl::_finishDefaultOptions (tag);
+   parser._finishDefaultOptions (tag);
 
    // Call the autoloader if not already called.
    if (! sm_autoloaderCalled)
@@ -43,12 +44,15 @@ EventContainer::EventContainer (FuncPtr funcPtr) :
    }
 
    m_eventBasePtr = 
-      new fwlite::ChainEvent( optutl::stringVector ("inputFiles") );
+      new fwlite::ChainEvent( parser.stringVector ("inputFiles") );
 
    // get whatever other info you want
-   m_outputName  = optutl::stringValue  ("outputFile");
-   m_maxWanted   = optutl::integerValue ("maxEvents");
-   m_outputEvery = optutl::integerValue ("outputEvery");
+   m_outputName  = parser.stringValue  ("outputFile");
+   m_maxWanted   = parser.integerValue ("maxEvents");
+   m_outputEvery = parser.integerValue ("outputEvery");
+
+   // remember my parser
+   m_parserPtr = &parser;
 
    TH1::AddDirectory(false);
 }
@@ -72,6 +76,13 @@ void
 EventContainer::add (TH1 *histPtr)
 {
    m_histStore.add (histPtr);
+}
+
+optutl::CommandLineParser &
+EventContainer::parser()
+{
+   assert (m_parserPtr);
+   return *m_parserPtr;
 }
 
 TH1*

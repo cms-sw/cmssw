@@ -1,25 +1,15 @@
-// Standard includes
-#include <iostream>
-#include <string>
+// -*- C++ -*-
 
 // CMS includes
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
-#include "PhysicsTools/FWLite/interface/OptionUtils.h"  // (optutl::)
-#include "PhysicsTools/FWLite/interface/dout.h"
-#include "PhysicsTools/FWLite/interface/dumpSTL.icc"
+#include "PhysicsTools/FWLite/interface/CommandLineParser.h" 
 
-// root includes
-#include "TFile.h"
+// Root includes
 #include "TROOT.h"
-#include "TSystem.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TString.h"
 
 using namespace std;
 
@@ -39,18 +29,18 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::setUsageAndDefaultOptions ("Playing around with jets");
+   optutl::CommandLineParser parser ("Playing with jets", 
+                                     optutl::CommandLineParser::kEventContOpt);
 
-   /////////////////////////////////////////////
-   // Change any defaults or add any command  //
-   // line options you would like here        //
-   /////////////////////////////////////////////
-
+   ////////////////////////////////////////////////
+   // Change any defaults or add any new command //
+   //      line options you would like here.     //
+   ////////////////////////////////////////////////
    // change default output filename
-   optutl::stringValue ("outputFile") = "jetInfo.root";
-
+   parser.stringValue ("outputFile") = "jetInfo.root";
+   
    // Parse the command line arguments
-   optutl::parseArguments (argc, argv);
+   parser.parseArguments (argc, argv);
 
    //////////////////////////////////
    // //////////////////////////// //
@@ -60,7 +50,7 @@ int main (int argc, char* argv[])
 
    // This object 'event' is used both to get all information from the
    // event as well as to store histograms, etc.
-   fwlite::EventContainer event;
+   fwlite::EventContainer eventCont (parser);
 
    ////////////////////////////////////////
    // ////////////////////////////////// //
@@ -73,12 +63,12 @@ int main (int argc, char* argv[])
    gROOT->SetStyle ("Plain");
 
    // Book those histograms!
-   event.add( new TH1F( "jetpt",        "Jet p_{T} using standard absolute p_{T} calibration", 100, 0, 60) );
-   event.add( new TH1F( "jeteta",       "Jet eta using standard absolute p_{T} calibration",   100, 0, 10) );
-   event.add( new TH1F( "reljetpt",     "Jet p_{T} using relative inter eta calibration",      100, 0, 60) );
-   event.add( new TH1F( "reljeteta",    "Jet eta using relative inter eta calibration",        100, 0, 10) );
-   event.add( new TH1F( "phijet1jet2",  "Phi between Jet 1 and Jet 2",                        100, 0, 3.5) );
-   event.add( new TH1F( "invarMass",    "Invariant Mass of the 4-vector sum of Two Jets",     100, 0, 200) );
+   eventCont.add( new TH1F( "jetpt",        "Jet p_{T} using standard absolute p_{T} calibration", 100, 0, 60) );
+   eventCont.add( new TH1F( "jeteta",       "Jet eta using standard absolute p_{T} calibration",   100, 0, 10) );
+   eventCont.add( new TH1F( "reljetpt",     "Jet p_{T} using relative inter eta calibration",      100, 0, 60) );
+   eventCont.add( new TH1F( "reljeteta",    "Jet eta using relative inter eta calibration",        100, 0, 10) );
+   eventCont.add( new TH1F( "phijet1jet2",  "Phi between Jet 1 and Jet 2",                        100, 0, 3.5) );
+   eventCont.add( new TH1F( "invarMass",    "Invariant Mass of the 4-vector sum of Two Jets",     100, 0, 200) );
 
    //////////////////////
    // //////////////// //
@@ -86,7 +76,7 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
-   for (event.toBegin(); ! event.atEnd(); ++event) 
+   for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
@@ -94,7 +84,7 @@ int main (int argc, char* argv[])
 
       // Get jets
       fwlite::Handle< vector<pat::Jet> > h_jet;
-      h_jet.getByLabel(event,"selectedLayer1Jets");
+      h_jet.getByLabel(eventCont,"selectedLayer1Jets");
       assert ( h_jet.isValid() );
 
       const vector< pat::Jet >::const_iterator kJetEnd = h_jet->end();
@@ -106,11 +96,11 @@ int main (int argc, char* argv[])
          // ABS - absolute pt calibration (automatic)
          // REL - relative inter eta calibration  
          // EMF - calibration as a function of the jet EMF
-         event.hist("reljetpt") ->Fill( jetIter->correctedJet("REL").pt() );
-         event.hist("reljeteta")->Fill( jetIter->correctedJet("REL").eta() );
-         event.hist("jetpt")    ->Fill( jetIter->correctedJet("ABS").pt() );
+         eventCont.hist("reljetpt") ->Fill( jetIter->correctedJet("REL").pt() );
+         eventCont.hist("reljeteta")->Fill( jetIter->correctedJet("REL").eta() );
+         eventCont.hist("jetpt")    ->Fill( jetIter->correctedJet("ABS").pt() );
          // Automatically ABS
-         event.hist("jeteta")   ->Fill( jetIter->eta() );
+         eventCont.hist("jeteta")   ->Fill( jetIter->eta() );
       } // for jetIter
 
       // Do we have at least two jets?
@@ -121,9 +111,9 @@ int main (int argc, char* argv[])
       }
 
       // Store invariant mass and delta phi between two leading jets.
-      event.hist("invarMass")->Fill( (h_jet->at(0).p4() + h_jet->at(1).p4()).M() );
-      event.hist("phijet1jet2")->Fill( deltaPhi( h_jet->at(0).phi(), h_jet->at(1).phi() ) );
-   } // for event
+      eventCont.hist("invarMass")->Fill( (h_jet->at(0).p4() + h_jet->at(1).p4()).M() );
+      eventCont.hist("phijet1jet2")->Fill( deltaPhi( h_jet->at(0).phi(), h_jet->at(1).phi() ) );
+   } // for eventCont
 
       
    ////////////////////////

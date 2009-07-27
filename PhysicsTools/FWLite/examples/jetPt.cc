@@ -1,24 +1,14 @@
-// Standard includes
-#include <iostream>
-#include <string>
+// -*- C++ -*-
 
 // CMS includes
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
-#include "PhysicsTools/FWLite/interface/OptionUtils.h"  // (optutl::)
-#include "PhysicsTools/FWLite/interface/dout.h"
-#include "PhysicsTools/FWLite/interface/dumpSTL.icc"
+#include "PhysicsTools/FWLite/interface/CommandLineParser.h" 
 
-// root includes
-#include "TFile.h"
+// Root includes
 #include "TROOT.h"
-#include "TSystem.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TString.h"
 
 using namespace std;
 
@@ -38,16 +28,17 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::setUsageAndDefaultOptions ("Plots Jet Pt");
+   optutl::CommandLineParser parser ("Plots Jet Pt", 
+                                     optutl::CommandLineParser::kEventContOpt);
 
-   //////////////////////////////////////////////////////
-   // Add any command line options you would like here //
-   //////////////////////////////////////////////////////
-   // optutl::addOption ("sampleName",   optutl::kString, 
-   //                    "Sample name (e.g., top, Wqq, etc.)");   
+   ////////////////////////////////////////////////
+   // Change any defaults or add any new command //
+   //      line options you would like here.     //
+   ////////////////////////////////////////////////
+   parser.stringValue ("outputFile") = "jetPt"; // .root added automatically
 
    // Parse the command line arguments
-   optutl::parseArguments (argc, argv);
+   parser.parseArguments (argc, argv);
 
    //////////////////////////////////
    // //////////////////////////// //
@@ -56,9 +47,8 @@ int main (int argc, char* argv[])
    //////////////////////////////////
 
    // This object 'event' is used both to get all information from the
-   // event as well as to store histograms, etc.  It automatically
-   // gets input files from command line options.
-   fwlite::EventContainer event;
+   // event as well as to store histograms, etc.
+   fwlite::EventContainer eventCont (parser);
 
    ////////////////////////////////////////
    // ////////////////////////////////// //
@@ -71,7 +61,7 @@ int main (int argc, char* argv[])
    gROOT->SetStyle ("Plain");
 
    // Book those histograms!
-   event.add( new TH1F( "jetPt", "jetPt", 1000, 0, 1000) );
+   eventCont.add( new TH1F( "jetPt", "jetPt", 1000, 0, 1000) );
 
    //////////////////////
    // //////////////// //
@@ -79,24 +69,24 @@ int main (int argc, char* argv[])
    // //////////////// //
    //////////////////////
 
-   for (event.toBegin(); ! event.atEnd(); ++event) 
+   for (eventCont.toBegin(); ! eventCont.atEnd(); ++eventCont) 
    {
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      fwlite::Handle< vector< reco::CaloJet > > jetCollection;
-      jetCollection.getByLabel (event, "sisCone5CaloJets");
+      fwlite::Handle< vector< pat::Jet > > jetCollection;
+      jetCollection.getByLabel (eventCont, "selectedLayer1Jets");
       assert ( jetCollection.isValid() );
 						
       // Loop over the jets
-      const vector< reco::CaloJet >::const_iterator kJetEnd = jetCollection->end();
-      for (vector< reco::CaloJet >::const_iterator jetIter = jetCollection->begin();
+      const vector< pat::Jet >::const_iterator kJetEnd = jetCollection->end();
+      for (vector< pat::Jet >::const_iterator jetIter = jetCollection->begin();
            kJetEnd != jetIter; 
            ++jetIter) 
       {         
-         event.hist("jetPt")->Fill (jetIter->pt());
+         eventCont.hist("jetPt")->Fill (jetIter->pt());
       } // for jetIter
-   } // for event
+   } // for eventCont
 
       
    ////////////////////////

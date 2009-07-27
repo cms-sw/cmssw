@@ -2,8 +2,7 @@
 
 // CMS includes
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h" 
@@ -12,6 +11,7 @@
 #include "TROOT.h"
 
 using namespace std;
+
 
 ///////////////////////////
 // ///////////////////// //
@@ -27,15 +27,15 @@ int main (int argc, char* argv[])
    // ////////////////////////// //
    ////////////////////////////////
 
-
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("", 
+   optutl::CommandLineParser parser ("Plots Jet Pt", 
                                      optutl::CommandLineParser::kEventContOpt);
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //
    //      line options you would like here.     //
    ////////////////////////////////////////////////
+   parser.stringValue ("outputFile") = "jetPt"; // .root added automatically
 
    // Parse the command line arguments
    parser.parseArguments (argc, argv);
@@ -61,6 +61,7 @@ int main (int argc, char* argv[])
    gROOT->SetStyle ("Plain");
 
    // Book those histograms!
+   eventCont.add( new TH1F( "jetPt", "jetPt", 1000, 0, 1000) );
 
    //////////////////////
    // //////////////// //
@@ -73,6 +74,18 @@ int main (int argc, char* argv[])
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
+      fwlite::Handle< vector< reco::CaloJet > > jetCollection;
+      jetCollection.getByLabel (eventCont, "sisCone5CaloJets");
+      assert ( jetCollection.isValid() );
+						
+      // Loop over the jets
+      const vector< reco::CaloJet >::const_iterator kJetEnd = jetCollection->end();
+      for (vector< reco::CaloJet >::const_iterator jetIter = jetCollection->begin();
+           kJetEnd != jetIter; 
+           ++jetIter) 
+      {         
+         eventCont.hist("jetPt")->Fill (jetIter->pt());
+      } // for jetIter
    } // for eventCont
 
       

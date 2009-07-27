@@ -10,6 +10,7 @@
 #include "TH1.h"
 #include "TFile.h"
 
+#include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "PhysicsTools/FWLite/interface/TH1Store.h"
 
@@ -44,7 +45,8 @@ namespace fwlite
          /////////////////////////////////
          // Constructors and Destructor //
          /////////////////////////////////
-         EventContainer (FuncPtr funcPtr = 0);
+         EventContainer (optutl::CommandLineParser &parser, 
+                         FuncPtr funcPtr = 0);
          ~EventContainer();
 
          ////////////////
@@ -67,6 +69,9 @@ namespace fwlite
          { return hist( (const std::string) name); }
          TH1* hist (const TString &name)
          { return hist( (const char*) name ); }
+
+         // return this containers parser
+         optutl::CommandLineParser &parser();
 
          ///////////////////////////////////////////////////////////////////
          // Implement the two functions needed to make this an EventBase. //
@@ -106,12 +111,13 @@ namespace fwlite
          // Private Member Data //
          /////////////////////////
 
-         fwlite::EventBase *m_eventBasePtr;
-         TH1Store           m_histStore;
-         std::string        m_outputName;
-         int                m_eventsSeen;
-         int                m_maxWanted;
-         int                m_outputEvery;
+         fwlite::EventBase         *m_eventBasePtr;
+         TH1Store                   m_histStore;
+         std::string                m_outputName;
+         int                        m_eventsSeen;
+         int                        m_maxWanted;
+         int                        m_outputEvery;
+         optutl::CommandLineParser *m_parserPtr;
 
          ////////////////////////////////
          // Private Static Member Data //

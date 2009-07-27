@@ -43,6 +43,15 @@
  <use name=FWCore/FWLite>
  <use name=FWCore/Framework>
  <use name=DataFormats/FWLite>
+ <use name=DataFormats/PatCandidates>
+ <use name=PhysicsTools/FWLite>
+</bin>
+
+<bin name=recoJetPt.exe file=recoJetPt.cc>
+ <use name=root>
+ <use name=FWCore/FWLite>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FWLite>
  <use name=DataFormats/JetReco>
  <use name=PhysicsTools/FWLite>
 </bin>
