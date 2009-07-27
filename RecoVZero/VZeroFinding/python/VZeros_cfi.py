@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelVZeros = cms.EDProducer("VZeroProducer",
+    #
+    trackCollection  = cms.InputTag("allTracks"),
+    vertexCollection = cms.InputTag("pixel3Vertices"),
+    #
     minImpactPositiveDaughter = cms.double(0.0),
     minImpactNegativeDaughter = cms.double(0.0),
     #

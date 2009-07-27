@@ -9,14 +9,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+using namespace std;
+using namespace edm;
+
 /*****************************************************************************/
-VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
+VZeroProducer::VZeroProducer(const ParameterSet& pset)
   : pset_(pset)
 {
-  edm::LogInfo("VZeroProducer") << " constructor";
+  LogInfo("VZeroProducer") << " constructor";
   produces<reco::VZeroCollection>();
 
   // Get track level cuts
@@ -29,20 +33,22 @@ VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
 /*****************************************************************************/
 VZeroProducer::~VZeroProducer()
 {
-  edm::LogInfo("VZeroProducer") << " destructor";
+  LogInfo("VZeroProducer") << " destructor";
 }
 
 /*****************************************************************************/
-void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void VZeroProducer::produce(Event& ev, const EventSetup& es)
 {
   // Get tracks
-  edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel("allTracks",  trackCollection);
+  Handle<reco::TrackCollection> trackCollection;
+  ev.getByLabel(pset_.getParameter<InputTag>("trackCollection"),
+                                              trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   // Get primary vertices
-  edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByLabel("pixelVertices",      vertexCollection);
+  Handle<reco::VertexCollection> vertexCollection;
+  ev.getByLabel(pset_.getParameter<InputTag>("vertexCollection"),
+                                              vertexCollection);
   const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros
@@ -67,7 +73,7 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
        << " +" << positives.size()
        << " -" << negatives.size();
 
-  std::auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
+  auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
 
   // Check all combination of positives and negatives
   if(positives.size() > 0 && negatives.size() > 0)
