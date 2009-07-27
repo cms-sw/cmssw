@@ -468,7 +468,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
     TGaxis *axis = new TGaxis(3060,36,3060,1530,minvalue,maxvalue,510,"+L");
-    axis->SetTextSize(100.);
+    axis->SetLabelSize(0.02);
     axis->Draw();
     TLatex l;
     l.SetTextSize(0.04);
