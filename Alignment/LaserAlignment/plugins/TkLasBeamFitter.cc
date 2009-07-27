@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.3 2009/07/17 12:20:20 kaschube Exp $
+           $Id: TkLasBeamFitter.cc,v 1.4 2009/07/23 14:58:09 flucke Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -1146,8 +1146,9 @@ bool TkLasBeamFitter::fitBeam(TkLasBeam &beam, TkFittedLasBeam &fittedBeam, Alge
     }
   }
 
-  unsigned int firstFixedParam = 3; // 3 parameters, but 0 and 1 local, while 2 is global/fixed
-
+  //  unsigned int firstFixedParam = 3; // 3 parameters, but 0 and 1 local, while 2 is global/fixed
+  // FIXME: all parameters local, but sometimes only 2 if hits are removed...
+  const unsigned int firstFixedParam = covMatrix.num_col();
   // set fit results
   fittedBeam.setParameters(paramType, params, covMatrix, derivatives, firstFixedParam, chi2);
 
