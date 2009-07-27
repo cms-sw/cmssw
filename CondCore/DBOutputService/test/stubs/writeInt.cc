@@ -2,6 +2,8 @@
 #include <string>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/Common/interface/GenericSummary.h"
+
 #include<vector>
 #include<sstream>
 
@@ -32,13 +34,15 @@ class writeInt : public edm::EDAnalyzer {
 void
 writeInt::endJob() {
 
-  outdb->writeOne(new vector<int>(1,me),
+  edm::Service<cond::service::PoolDBOutputService> outdb;
+  
+  outdb->writeOne(new std::vector<int>(1,me),
 		  new cond::GenericSummary(toa(me)),
 		  me,cont);
 
 }
 
-writeKeyed::writeKeyed(const edm::ParameterSet& iConfig ) :
+writeInt::writeInt(const edm::ParameterSet& iConfig ) :
   cont("oneInt"),
   me(iConfig.getParam<int>("Number")) {}
 
