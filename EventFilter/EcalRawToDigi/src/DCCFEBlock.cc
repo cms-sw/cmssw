@@ -7,7 +7,7 @@
 
 
 DCCFEBlock::DCCFEBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e,bool unpack, bool forceToKeepFRdata)
-  : DCCDataBlockPrototype(u,m,e,unpack), checkFeId_(false) {
+  : DCCDataBlockPrototype(u,m,e,unpack), checkFeId_(false), forceToKeepFRdata_(forceToKeepFRdata) {
    
   expXtalTSamples_           = mapper_->numbXtalTSamples();
   numbDWInXtalBlock_         = (expXtalTSamples_-2)/4+1;
@@ -181,7 +181,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
         edm::LogWarning("EcalRawToDigiNumTowerBlocks")
           <<"\n For event L1A "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
-          <<"\n => Keeps unpacking as the  unpacker was forced to keep FR data is on ...";
+          <<"\n => Keeps unpacking as the unpacker was forced to keep FR data (by configuration) ...";
        }
 
       fillEcalElectronicsError(invalidBlockLengths_) ;
