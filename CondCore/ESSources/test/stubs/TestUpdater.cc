@@ -51,7 +51,7 @@ namespace condtest {
     ss << run;
    
     // write run in db
-    ::system("touch cfg.py; rm cfg.py; sed 's?CurrentRun?'"+run.str()+"?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py");
+    ::system("touch cfg.py; rm cfg.py; sed 's?CurrentRun?'"+ss.str()+"?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py");
 
   }
 
