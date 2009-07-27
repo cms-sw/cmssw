@@ -28,7 +28,7 @@
 #include <iostream>
 #include <cassert>
 
-#define MESSAGE_SIZE_LIMIT	(2*1024*1024)
+#define MESSAGE_SIZE_LIMIT	(8*1024*1024)
 #define SOCKET_BUF_SIZE		(8*1024*1024)
 #define SOCKET_READ_SIZE	(SOCKET_BUF_SIZE/8)
 #define SOCKET_READ_GROWTH	(SOCKET_BUF_SIZE)
@@ -89,7 +89,7 @@ DQMNet::discard (Bucket *&b)
 /** Handle errors with a peer socket.  Zaps the socket send queue,
     the socket itself, detaches the socket from the selector, and
     purges any pending wait requests linked to the socket.  */
-bool
+void
 DQMNet::losePeer(const char *reason,
 		 Peer *peer,
 		 IOSelectEvent *ev,
@@ -118,9 +118,8 @@ DQMNet::losePeer(const char *reason,
 
   sel_.detach (s);
   s->close();
-  removePeer (peer, s);
+  removePeer(peer, s);
   delete s;
-  return true;
 }
 
 /// Queue an object request to the data server.
@@ -382,7 +381,7 @@ void
 DQMNet::releaseFromWait(Bucket *msg, WaitObject &w, Object *o)
 {
   if (o)
-    sendObjectToPeer (msg, *o, true, sendScalarAsText_);
+    sendObjectToPeer(msg, *o, true, sendScalarAsText_);
   else
   {
     uint32_t words [3];
@@ -517,9 +516,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	  << p->peeraddr << std::endl;
 
       // Send over current status: list of known objects.
-      lock();
       sendObjectListToPeer(msg, p->updatefull, true, false);
-      unlock();
     }
     return true;
 
@@ -550,7 +547,6 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	return false;
       }
 
-      lock();
       std::string name ((char *) data + 3*sizeof(uint32_t), namelen);
       Peer *owner = 0;
       Object *o = findObject(0, name, &owner);
@@ -573,7 +569,6 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	copydata(msg, &words[0], sizeof(words));
 	copydata(msg, &name[0], name.size());
       }
-      unlock();
     }
     return true;
 
@@ -602,11 +597,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       // removed, but we can keep making it available for a while if
       // there continues to be interest in it.
       if (flags)
-      {
-	lock();
 	markObjectsZombies(p);
-	unlock();
-      }
     }
     return true;
 
@@ -629,11 +620,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       // updates in many parts, and end up sending updates to others in
       // between; this avoids us lying live objects are dead.
       if (flags)
-      {
-	lock();
 	markObjectsDead(p);
-	unlock();
-      }
 
       if (debug_)
 	logme()
@@ -692,7 +679,6 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       p->source = true;
 
       // Initialise or update an object entry.
-      lock();
       Object *o = findObject(p, name);
       if (! o)
 	o = makeObject(p, name);
@@ -718,7 +704,6 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       // If we have the object data, release from wait.
       if (datalen)
 	releaseWaiters(o);
-      unlock();
     }
     return true;
 
@@ -760,14 +745,12 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       p->source = true;
 
       // If this was a known object, update its entry.
-      lock();
       Object *o = findObject(p, name);
       if (o)
 	o->flags |= DQM_FLAG_DEAD;
 
       // If someone was waiting for this, let them go.
       releaseWaiters(o);
-      unlock();
     }
     return true;
 
@@ -785,6 +768,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 bool
 DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 {
+  lock();
   assert (getPeer(dynamic_cast<Socket *> (ev->source)) == p);
 
   // If there is a problem with the peer socket, discard the peer
@@ -798,10 +782,13 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       logme()
 	<< "WARNING: connection to the DQM server at " << p->peeraddr
 	<< " lost (will attempt to reconnect in 15 seconds)\n";
-      return losePeer(0, p, ev);
+      losePeer(0, p, ev);
     }
     else
-      return losePeer("WARNING: lost peer connection ", p, ev);
+      losePeer("WARNING: lost peer connection ", p, ev);
+
+    unlock();
+    return true;
   }
 
   // If we can write to the peer socket, pump whatever we can into it.
@@ -824,8 +811,9 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       }
       catch (Error &e)
       {
-	return losePeer("WARNING: unable to write to peer ",
-			p, ev, &e);
+	losePeer("WARNING: unable to write to peer ", p, ev, &e);
+	unlock();
+	return true;
       }
 
       p->sendpos += done;
@@ -875,9 +863,12 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       if (next && next->portable() == SysErr::ErrTryAgain)
 	sz = 1; // Ignore it, and fake no end of data.
       else
+      {
 	// Houston we have a problem.
-	return losePeer("WARNING: failed to read from peer ",
-			p, ev, &e);
+	losePeer("WARNING: failed to read from peer ", p, ev, &e);
+	unlock();
+	return true;
+      }
     }
 
     // Process fully received messages as long as we can.
@@ -890,7 +881,11 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       memcpy (&msglen, &data[0]+consumed, sizeof(msglen));
 
       if (msglen >= MESSAGE_SIZE_LIMIT)
-	return losePeer("WARNING: excessively large message from ", p, ev);
+      {
+	losePeer("WARNING: excessively large message from ", p, ev);
+	unlock();
+	return true;
+      }
 
       if (data.size()-consumed >= msglen)
       {
@@ -923,7 +918,11 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	}
 
 	if (! valid)
-	  return losePeer("WARNING: data stream error with ", p, ev);
+	{
+	  losePeer("WARNING: data stream error with ", p, ev);
+	  unlock();
+	  return true;
+	}
 
 	consumed += msglen;
       }
@@ -941,6 +940,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
   }
 
   // Yes, please keep processing events for this socket.
+  unlock();
   return false;
 }
 
@@ -960,6 +960,7 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   assert (! s->isBlocking());
 
   // Record it to our list of peers.
+  lock();
   Peer *p = createPeer(s);
   InetAddress peeraddr = ((InetSocket *) s)->peername();
   InetAddress myaddr = ((InetSocket *) s)->sockname();
@@ -977,6 +978,7 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
 
   // Attach it to the listener.
   sel_.attach(s, p->mask, CreateHook(this, &DQMNet::onPeerData, p));
+  unlock();
 
   // We are never done.
   return false;
@@ -1309,11 +1311,9 @@ DQMNet::run(void)
 	// the upstream collector, queue a request for updates.
 	if (s)
 	{
-	  lock();
 	  Peer *p = createPeer(s);
 	  ap->peer = p;
 	  ap->warned = false;
-	  unlock();
 
 	  InetAddress peeraddr = ((InetSocket *) s)->peername();
 	  InetAddress myaddr = ((InetSocket *) s)->sockname();
@@ -1347,6 +1347,7 @@ DQMNet::run(void)
     // Pump events for a while.
     sel_.dispatch(delay_);
     now = Time::current();
+    lock();
 
     // Check if flush is required.  Flush only if one is needed.
     // Always sends the full object list, but only rarely.
@@ -1357,11 +1358,9 @@ DQMNet::run(void)
       flush_ = false;
       nextFlush = now + TimeSpan(0, 0, 0, 15 /* seconds */, 0);
 
-      lock();
       purgeDeadObjects(now - TimeSpan(0, 0, 2 /* minutes */, 0, 0),
 		       now - TimeSpan(0, 0, 20 /* minutes */, 0, 0));
       sendObjectListToPeers(true);
-      unlock();
     }
 
     // Update the data server and peer selection masks.  If we
@@ -1372,7 +1371,6 @@ DQMNet::run(void)
     updatePeerMasks();
 
     // Release peers that have been waiting for data for too long.
-    lock();
     Time waitold = now - TimeSpan(0, 0, 2 /* minutes */, 0, 0);
     for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
@@ -1384,6 +1382,7 @@ DQMNet::run(void)
       else
 	++i;
     }
+
     unlock();
   }
 }
