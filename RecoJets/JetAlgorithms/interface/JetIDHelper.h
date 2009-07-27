@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 
@@ -18,12 +18,13 @@ namespace reco {
     // and it can't be a non-static member function.
     static double select2nd (std::map<int,double>::value_type const &pair) {return pair.second;}
 
-    class JetID {
+    class JetIDHelper {
 
     public : 
       // construction
-      JetID();
-      ~JetID() {} 
+      JetIDHelper() {}
+      JetIDHelper( edm::ParameterSet const & pset );
+      ~JetIDHelper() {} 
 
       // interface
       void calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg = 0 );
@@ -69,6 +70,12 @@ namespace reco {
      double restrictedEMF_;
      int    nHCALTowers_;
      int    nECALTowers_;
+
+     edm::InputTag hbheRecHitsColl_;
+     edm::InputTag hoRecHitsColl_;
+     edm::InputTag hfRecHitsColl_;
+     edm::InputTag ebRecHitsColl_;
+     edm::InputTag eeRecHitsColl_;
   
     };
 
