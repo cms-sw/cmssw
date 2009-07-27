@@ -13,6 +13,10 @@
 #include "TStyle.h"
 #include "TColor.h"
 #include "TROOT.h"
+#include "TGaxis.h"
+#include "TLatex.h"
+#include "TArrow.h"
+
 
 using namespace std;
 
@@ -379,8 +383,8 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
   *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
-  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
-  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
+  *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3100 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3100\" height=\"1600\" /> "<<endl; 
   *savefile << "<svg:g id=\"tracker\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
    }
   for (int layer=1; layer < 44; layer++){
@@ -422,7 +426,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    gPad->Range(0,0,3000,1600);
+    gPad->Range(0,0,3200,1600);
     
     //First  build palette
     ncolor=0;
@@ -463,6 +467,39 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
         pline->Draw("f");
       }
     }
+    TGaxis *axis = new TGaxis(3060,36,3060,1530,minvalue,maxvalue,510,"+L");
+    axis->SetTextSize(100.);
+    axis->Draw();
+    TLatex l;
+    l.SetTextSize(0.04);
+    l.DrawLatex(500,50,"-z");
+    l.DrawLatex(500,1430,"+z");
+    l.DrawLatex(900,330,"TIB L1");
+    l.DrawLatex(900,1000,"TIB L2");
+    l.DrawLatex(1300,330,"TIB L3");
+    l.DrawLatex(1300,1000,"TIB L4");
+    l.DrawLatex(1700,330,"TOB L1");
+    l.DrawLatex(1700,1000,"TOB L2");
+    l.DrawLatex(2100,330,"TOB L3");
+    l.DrawLatex(2100,1000,"TOB L4");
+    l.DrawLatex(2500,330,"TOB L5");
+    l.DrawLatex(2500,1000,"TOB L6");
+    TArrow arx(2900,1190,2900,1350,0.01,"|>");
+    l.DrawLatex(2915,1350,"x");
+    TArrow ary(2900,1190,2790,1190,0.01,"|>");
+    l.DrawLatex(2790,1210,"y");
+    TArrow arz(2790,373,2790,672,0.01,"|>");
+    l.DrawLatex(2820,667,"z");
+    TArrow arphi(2790,511,2447,511,0.01,"|>");
+    l.DrawLatex(2433,520,"#Phi");
+    arx.SetLineWidth(3);
+    ary.SetLineWidth(3);
+    arz.SetLineWidth(3);
+    arphi.SetLineWidth(3);
+    arx.Draw();
+    ary.Draw();
+    arz.Draw();
+    arphi.Draw();
     MyC->Update();
     if(filetype=="png"){
       std::cout << "printing " << std::endl;
@@ -642,7 +679,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<endl;
   *savefile << "xmlns:xlink=\"http://www.w3.org/1999/xlink\">"<<endl;
   *savefile << "<svg:svg id=\"mainMap\" x=\"0\" y=\"0\" viewBox=\"0 0 3000 1600"<<"\" width=\""<<width<<"\" height=\""<<height<<"\">"<<endl;
-  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl;
+  *savefile << "<svg:rect fill=\"lightblue\" stroke=\"none\" x=\"0\" y=\"0\" width=\"3000\" height=\"1600\" /> "<<endl; 
   *savefile << "<svg:g id=\"fedtrackermap\" transform=\"translate(10,1500) rotate(270)\" style=\"fill:none;stroke:black;stroke-width:0;\"> "<<endl;
      }
   for (int crate=1; crate < (ncrates+1); crate++){
@@ -905,10 +942,16 @@ void TrackerMap::drawPalette(ofstream * svgfile){
      red=(color>>16)&0xFF;
      green=(color>>8)&0xFF;
      blue=(color)&0xFF;
-    if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"0\" width=\"1\" height=\"20\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n";
+    if(!temporary_file)*svgfile <<"<svg:rect  x=\"3010\" y=\""<<(1550-6*i)<<"\" width=\"50\" height=\"6\" fill=\"rgb("<<red<<","<<green<<","<<blue<<")\" />\n"; 
+    else *svgfile << red << " " << green << " " << blue << " 4 " << (6*i)+40 << " 3010. " <<//
+              (6*i)+40 << " 3060. " <<//
+              (6*(i-1))+40 << " 3060. " <<//
+              (6*(i-1))+40 <<" 3010. " << endl; //
+
     if(i%50 == 0){
-       if(!temporary_file)*svgfile <<"<svg:rect  x=\""<<i<<"\" y=\"10\" width=\"1\" height=\"10\" fill=\"black\" />\n";
-      if(i%100==0&&!temporary_file)*svgfile << " <svg:text  class=\"normalText\"  x=\""<<i<<"\" y=\"30\">" <<val<<"</svg:text>"<<endl;
+      if(!temporary_file)*svgfile <<"<svg:rect  x=\"3010\" y=\""<<(1550-6*i)<<"\" width=\"50\" height=\"1\" fill=\"black\" />\n";
+      if(i%50==0&&!temporary_file)*svgfile << " <svg:text  class=\"normalText\"  x=\"3060\" y=\""<<(1560-6*i)<<"\">" <<val<<"</svg:text>"<<endl;
+
        }
     val = val + dval;
    }

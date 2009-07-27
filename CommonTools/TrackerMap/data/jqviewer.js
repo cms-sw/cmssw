@@ -144,6 +144,7 @@ $(document).ready(function(){
        $tmap.unbind('click mouseenter mouseleave');
        $detail = $('#detail');
        imgwidth=$tmap.width();
+       imgwidth=imgwidth-imgwidth/15.;
        imgheight=$tmap.height();
        if(first==1)imgleft=$tmap.offset().left+30; else imgleft=$tmap.offset().left;
        imgtop=$tmap.offset().top;
