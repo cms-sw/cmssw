@@ -5,7 +5,7 @@
 #  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/MessageLogger/interface/JobReport.h"
-#  include "FWCore/Utilities/interface/GetReleaseVersion.h"
+#  include "FWCore/Version/interface/GetReleaseVersion.h"
 # else
 #  include <string>
 #  include <vector>
