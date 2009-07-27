@@ -22,6 +22,8 @@ process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
 process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
 process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
 
+#process.jetMETAnalyzer.caloMETAnalysis.verbose     = cms.int32(1)
+
 # the task - JetMET trigger
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 

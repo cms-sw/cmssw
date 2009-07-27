@@ -130,7 +130,9 @@ void JetMETDQMOfflineClient::runClient_()
     if ( me ) {
     if ( me->getRootObject() ) {
 
-      dbe_->removeElement(fullPathDQMFolders[i]+"/"+"METTask_CaloMETRate");
+      MonitorElement *metest = dbe_->get(fullPathDQMSubFolders[i]+"/"+"METTask_CaloMETRate");
+      if (metest)
+	dbe_->removeElement(fullPathDQMSubFolders[i]+"/"+"METTask_CaloMETRate");
 
       tCaloMET     = me->getTH1F();
 

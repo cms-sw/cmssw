@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/30 13:44:17 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/07/27 07:18:07 $
+ *  $Revision: 1.12 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -380,6 +380,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   // JetID 
 
+  if (_verbose) std::cout << "JetID starts" << std::endl;
   bool bJetID=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
@@ -391,6 +392,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (jetID.n90Hits()<2 || jetID.restrictedEMF()<0.01) bJetID=false; 
     }
   }
+  if (_verbose) std::cout << "JetID ends" << std::endl;
      
   // ==========================================================
   // HCAL Noise filter
@@ -401,9 +403,12 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   bool bHcalNoiseFilter=true;
 
+  if (NoiseSummary.isValid()) {
   //std::cout << "NoiseSummary: " << NoiseSummary->eventEMFraction() << std::endl;
   if (NoiseSummary->eventEMFraction() < EMFractionMin) bHcalNoiseFilter = false;
  
+  if (RBXCollection.isValid()) {
+
   //std::cout << "Size of NoiseRBX collection:  " << RBXCollection->size() << std::endl;
   for (HcalNoiseRBXCollection::const_iterator rbx = RBXCollection->begin();
        rbx!=(RBXCollection->end()); rbx++) {
@@ -411,6 +416,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //std::cout << "\tNumber of RBX hits:     " << nRBXhits << std::endl;
     if (nRBXhits > nRBXhitsMax ) bHcalNoiseFilter = false;
   }
+
+  } // RBX collection is valid
+  } // NoiseSummary is valid
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements

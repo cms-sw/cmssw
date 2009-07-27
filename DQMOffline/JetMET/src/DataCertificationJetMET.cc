@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.27 2009/07/13 11:09:20 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.28 2009/07/27 07:18:48 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -691,12 +691,12 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   if (RunDir == "") newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
 
-  meMExy[0]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMEx"))));
-  meMExy[1]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMEy"))));
-  meMExy[2]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMEx"))));
-  meMExy[3]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMEy"))));
-  meMETPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/METTask_CaloMETPhi"))));
-  meMETPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/METTask_CaloMETPhi"))));
+  meMExy[0]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMEx"))));
+  meMExy[1]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMEy"))));
+  meMExy[2]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMEx"))));
+  meMExy[3]   = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMEy"))));
+  meMETPhi[0] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMET/All/METTask_CaloMETPhi"))));
+  meMETPhi[1] = new MonitorElement(*(dbe_->get((newHistoName+"CaloMETNoHF/All/METTask_CaloMETPhi"))));
 				   
   //----------------------------------------------------------------
   //--- Extract quality test results and fill data certification results
