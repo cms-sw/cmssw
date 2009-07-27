@@ -21,7 +21,7 @@ namespace condtest {
     explicit TestUpdater(edm::ParameterSet const&);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
     virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void endRun(const edm::Run& r, const edm::EventSetup&);
+    virtual void endRun(const edm::Run& r, const edm::EventSetup&){}
 
     static void update(int run);
     
@@ -31,6 +31,7 @@ namespace condtest {
 
 
   TestUpdater::TestUpdater(edm::ParameterSet const&) : evCount(0){}
+
   void TestUpdater::beginRun(const edm::Run&, const edm::EventSetup&) {
     evCount=0;
   }
