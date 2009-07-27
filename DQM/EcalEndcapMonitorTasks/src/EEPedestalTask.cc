@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2009/07/27 09:54:24 $
- * $Revision: 1.46 $
+ * $Date: 2009/07/27 10:34:47 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -60,9 +60,9 @@ EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
     mePed5SumMapG01_[i] = 0;
     mePed5SumMapG06_[i] = 0;
     mePed5SumMapG12_[i] = 0;
+#endif
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
-#endif
   }
 
 }
