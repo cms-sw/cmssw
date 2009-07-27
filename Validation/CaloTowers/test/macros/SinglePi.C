@@ -1,10 +1,14 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-{
+
+void SinglePi(const TString ref_vers="218", const TString val_vers="218"){
 
    TCanvas *myc = new TCanvas("myc","",800,600);
+
+   TString ref_file = "pi50scan"+ref_vers+"_ECALHCAL_CaloTowers.root";
+   TString val_file = "pi50scan"+val_vers+"_ECALHCAL_CaloTowers.root";
       
-   TFile f1("pi50scan310_ECALHCAL_CaloTowers.root");
-   TFile f2("pi50scan320_ECALHCAL_CaloTowers.root");
+   TFile f1(ref_file);
+   TFile f2(val_file);
    
    // service variables
    //
@@ -22,25 +26,25 @@
    labelp[4] = &"RecHitsTask_emean_vs_ieta_H.gif";
    labelp[5] = &"RecHitsTask_emean_vs_ieta_EH.gif";
 
-   f1->cd("DQMData/CaloTowersV/CaloTowersTask");
+   f1.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
    f1_prof[0] = emean_vs_ieta_E1;
    f1_prof[1] = emean_vs_ieta_H1;
    f1_prof[2] = emean_vs_ieta_EH1;
 
    
-   f1->cd("DQMData/HcalRecHitsV/HcalRecHitTask");
+   f1.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
    f1_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
    f1_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f1_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
-   f2->cd("DQMData/CaloTowersV/CaloTowersTask");
+   f2.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
    f2_prof[0] = emean_vs_ieta_E1;
    f2_prof[1] = emean_vs_ieta_H1;
    f2_prof[2] = emean_vs_ieta_EH1;
 
-   f2->cd("DQMData/HcalRecHitsV/HcalRecHitTask");
+   f2.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
    f2_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
    f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f2_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
@@ -105,8 +109,8 @@
     TLegend *leg = new TLegend(0.40, 0.91, 0.74, 0.99, "","brNDC");    
      leg->SetBorderSize(2);
      leg->SetFillStyle(1001); 
-     leg->AddEntry(f1_prof[i],"CMSSW_310 ","pl");
-     leg->AddEntry(f2_prof[i],"CMSSW_320 ","pl");
+     leg->AddEntry(f1_prof[i],"CMSSW_"+ref_vers,"pl");
+     leg->AddEntry(f2_prof[i],"CMSSW_"+val_vers,"pl");
 
      leg->Draw("");   
      

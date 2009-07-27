@@ -75,6 +75,9 @@ mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHF/
 rm emean_seq_*.gif  
+
+root -l -q 'TimingMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'")'
+
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RecHits/
 
 #Process MC QCD
@@ -84,6 +87,9 @@ mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHF/
 rm emean_seq_*.gif
+
+root -l -q 'TimingMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_QCD_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_MC_${NEW_VERS}.root'")'
+
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RecHits/
 
 #Process Startup TTbar
@@ -93,6 +99,9 @@ mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHF/
 rm emean_seq_*.gif  
+
+root -l -q 'TimingMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}.root'")'
+
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/RecHits/
 
 #Process Startup QCD
@@ -102,6 +111,12 @@ mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHB/
 mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHF/
 rm emean_seq_*.gif
+
+root -l -q 'TimingMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_QCD_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_Startup_${NEW_VERS}.root'")'
+
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/RecHits/
+
+root -l -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
 
 exit
