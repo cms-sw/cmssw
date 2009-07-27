@@ -31,7 +31,7 @@ mixData = cms.EDFilter("DataMixingModule",
                    #
     pixeldigiCollectionSig = cms.InputTag("simSiPixelDigis"),
     #
-    SiStripPileInputTag = cms.InputTag("ZeroSuppressed","simSiStripDigis"),
+    SiStripPileInputTag = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
                    #
     pixeldigiCollectionPile = cms.InputTag("simSiPixelDigis"),
                    #
