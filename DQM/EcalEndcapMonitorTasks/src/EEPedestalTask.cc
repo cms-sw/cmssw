@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2009/05/22 08:39:21 $
- * $Revision: 1.45 $
+ * $Date: 2009/07/27 09:54:24 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -31,7 +31,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-// #define COMMON_NOISE_ANALYSYS
+// #define COMMON_NOISE_ANALYSIS
 
 EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
 
@@ -53,7 +53,7 @@ EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
     mePed3SumMapG01_[i] = 0;
     mePed3SumMapG06_[i] = 0;
     mePed3SumMapG12_[i] = 0;
@@ -100,7 +100,7 @@ void EEPedestalTask::reset(void) {
     if ( mePedMapG01_[i] ) mePedMapG01_[i]->Reset();
     if ( mePedMapG06_[i] ) mePedMapG06_[i]->Reset();
     if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
     if ( mePed3SumMapG01_[i] ) mePed3SumMapG01_[i]->Reset();
     if ( mePed3SumMapG06_[i] ) mePed3SumMapG06_[i]->Reset();
     if ( mePed3SumMapG12_[i] ) mePed3SumMapG12_[i]->Reset();
@@ -130,7 +130,7 @@ void EEPedestalTask::setup(void){
       mePedMapG01_[i]->setAxisTitle("jx", 1);
       mePedMapG01_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(mePedMapG01_[i], i+1);
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       sprintf(histo, "EEPT pedestal 3sum %s G01", Numbers::sEE(i+1).c_str());
       mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePed3SumMapG01_[i]->setAxisTitle("jx", 1);
@@ -151,7 +151,7 @@ void EEPedestalTask::setup(void){
       mePedMapG06_[i]->setAxisTitle("jx", 1);
       mePedMapG06_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(mePedMapG06_[i], i+1);
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       sprintf(histo, "EEPT pedestal 3sum %s G06", Numbers::sEE(i+1).c_str());
       mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePed3SumMapG06_[i]->setAxisTitle("jx", 1);
@@ -172,7 +172,7 @@ void EEPedestalTask::setup(void){
       mePedMapG12_[i]->setAxisTitle("jx", 1);
       mePedMapG12_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(mePedMapG12_[i], i+1);
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       sprintf(histo, "EEPT pedestal 3sum %s G12", Numbers::sEE(i+1).c_str());
       mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePed3SumMapG12_[i]->setAxisTitle("jx", 1);
@@ -221,7 +221,7 @@ void EEPedestalTask::cleanup(void){
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getName() );
       mePedMapG01_[i] = 0;
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       if ( mePed3SumMapG01_[i] ) dqmStore_->removeElement( mePed3SumMapG01_[i]->getName() );
       mePed3SumMapG01_[i] = 0;
       if ( mePed5SumMapG01_[i] ) dqmStore_->removeElement( mePed5SumMapG01_[i]->getName() );
@@ -233,7 +233,7 @@ void EEPedestalTask::cleanup(void){
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getName() );
       mePedMapG06_[i] = 0;
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       if ( mePed3SumMapG06_[i] ) dqmStore_->removeElement( mePed3SumMapG06_[i]->getName() );
       mePed3SumMapG06_[i] = 0;
       if ( mePed5SumMapG06_[i] ) dqmStore_->removeElement( mePed5SumMapG06_[i]->getName() );
@@ -245,7 +245,7 @@ void EEPedestalTask::cleanup(void){
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
       if ( mePed3SumMapG12_[i] ) dqmStore_->removeElement( mePed3SumMapG12_[i]->getName() );
       mePed3SumMapG12_[i] = 0;
       if ( mePed5SumMapG12_[i] ) dqmStore_->removeElement( mePed5SumMapG12_[i]->getName() );
@@ -389,7 +389,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     // to be re-done using the 3x3 & 5x5 Selectors (if faster)
 
-#ifdef COMMON_NOISE_ANALYSYS
+#ifdef COMMON_NOISE_ANALYSIS
     for ( int ism = 1; ism <= 18; ism++ ) {
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
