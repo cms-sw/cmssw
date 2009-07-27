@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.18 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.19 2009/07/18 08:00:27 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.18 2009/06/25 23:49:35 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.19 2009/07/18 08:00:27 srappocc Exp $
 */
 
 
@@ -31,6 +31,8 @@
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -91,6 +93,9 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+
+      
+      reco::helper::JetIDHelper jetIDHelper_;
 
   };
 

@@ -72,6 +72,13 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
 
     # add jet ID
     addJetID = cms.bool(True),
+    jetID = cms.PSet(
+        hbheRecHitsColl = cms.InputTag("hbhereco"),
+        hoRecHitsColl   = cms.InputTag("horeco"),
+        hfRecHitsColl   = cms.InputTag("hfreco"),
+        ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+    ),
 
     # mc matching
     addGenPartonMatch   = cms.bool(True),                 ## switch on/off matching to quarks from hard scatterin
