@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.11 2009/03/30 16:43:41 demattia Exp $
+// $Id: SiStripQuality.h,v 1.12 2009/07/25 11:34:10 demattia Exp $
 //
 
 
@@ -66,7 +66,12 @@ class SiStripQuality: public SiStripBadStrip {
   void add(const SiStripBadStrip*);
   void add(const SiStripDetCabling*);
   void add(const SiStripDetVOff*);
-  /// Used to get the cabling from RunInfo
+  /**
+   * Used to get the cabling from RunInfo. <br>
+   * It compares the feds from cabling with those from runInfo and it
+   * turns off all the strips associated to feds that are off for the RunInfo
+   * but not for FedCabling.
+   */
   void add(const RunInfo *);
   void addInvalidConnectionFromCabling();
   void addNotConnectedConnectionFromCabling();
@@ -117,12 +122,28 @@ class SiStripQuality: public SiStripBadStrip {
 
   void compact(unsigned int&,std::vector<unsigned int>&);
 
+  inline void setPrintDebugOutput(const bool printDebug) { printDebug_ = printDebug; }
+
  private:
 
   void compact(std::vector<unsigned int>&,std::vector<unsigned int>&,unsigned short&);
   void subtract(std::vector<unsigned int>&,const std::vector<unsigned int>&);
   void subtraction(std::vector<unsigned int>&,const unsigned int&);
   bool put_replace(const uint32_t& DetId, Range input);
+
+  /**
+   * Loop on all the fedIds, take the fedChannels and then the detId.
+   * Depending on the value of a bool turn off or not the strips in the list.
+   */
+  void turnOffFeds(const std::vector<int> & fedsList, const bool turnOffStrips, const bool printDebug);
+
+  /// Prints debug output for a given detId
+  void printDetInfo(const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss);
+  /// Prints debug output for the active feds comparing the list in RunInfo and FedCabling
+  void printActiveFedsInfo( const std::vector<uint16_t> & activeFedsFromCabling,
+                            const std::vector<int> & activeFedsFromRunInfo,
+                            const std::vector<int> & differentFeds,
+                            const bool printDebug );
 
   bool toCleanUp;
   edm::FileInPath FileInPath_;
@@ -131,6 +152,7 @@ class SiStripQuality: public SiStripBadStrip {
   std::vector<BadComponent> BadComponentVect;
 
   const SiStripDetCabling *SiStripDetCabling_;  
+  bool printDebug_;
 };
 
 #endif

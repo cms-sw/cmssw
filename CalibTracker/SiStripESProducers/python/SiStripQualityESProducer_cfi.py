@@ -16,7 +16,8 @@ siStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
         )
     ),
     ReduceGranularity = cms.bool(True),
-    ThresholdForReducedGranularity = cms.double(0.3)                                                                                  
+    ThresholdForReducedGranularity = cms.double(0.3),
+    PrintDebugOutput = cms.bool(False)
 )
 
 
