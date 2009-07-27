@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/30 13:38:46 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/07/25 13:25:48 $
+ *  $Revision: 1.22 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -41,22 +41,27 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
   theJPTJetCollectionLabel      = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
-
   thePFJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
-  theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
-  theCaloMETNoHFCollectionLabel   = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
-  theCaloMETHOCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETHOCollectionLabel");
-  theCaloMETNoHFHOCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFHOCollectionLabel");
+  //theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
+  //theCaloMETNoHFCollectionLabel   = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
+  //theCaloMETHOCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETHOCollectionLabel");
+  //theCaloMETNoHFHOCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFHOCollectionLabel");
   theTcMETCollectionLabel         = parameters.getParameter<edm::InputTag>("TcMETCollectionLabel");
   thePfMETCollectionLabel         = parameters.getParameter<edm::InputTag>("PfMETCollectionLabel");
   theJetCollectionForHTMHTLabel   = parameters.getParameter<edm::InputTag>("JetCollectionForHTMHTLabel");
 
   theTriggerResultsLabel        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   
+<<<<<<< JetMETAnalyzer.cc
+  theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
+  theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
+  theJetPtAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoJetPtAnalysis",  false);
+=======
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true); 
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);  
   theJetPtAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoJetPtAnalysis",  false);
+>>>>>>> 1.22
   theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", true);
   thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
   theCaloMETAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoCaloMETAnalysis",true);
@@ -71,6 +76,22 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theICJetAnalyzer->setSource("IterativeConeJets");  
   }
+<<<<<<< JetMETAnalyzer.cc
+  if(theJetCleaningFlag) {
+    theCleanedSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
+    theCleanedSCJetAnalyzer->setSource("CleanedSISConeJets");
+    theCleanedICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
+    theCleanedICJetAnalyzer->setSource("CleanedIterativeConeJets");
+  }
+  // Do Pt analysis
+  if(theJetPtAnalyzerFlag ) {
+    thePtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
+    thePtSCJetAnalyzer->setSource("PtAnalysisSISConeJets");
+    thePtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
+    thePtICJetAnalyzer->setSource("PtAnalysisIterativeConeJets");
+  }
+
+=======
   if(theJetCleaningFlag) {
     theCleanedSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
     theCleanedSCJetAnalyzer->setSource("CleanedSISConeJets");
@@ -86,6 +107,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   }
   
   
+>>>>>>> 1.22
   // --- do the analysis on JPT Jets
   if(theJPTJetAnalyzerFlag) {
     theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
@@ -98,14 +120,14 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag){
-     theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysisMain"));
-     theCaloMETAnalyzer       ->setSource("CaloMET");
-     theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
-     theCaloMETNoHFAnalyzer   ->setSource("CaloMETNoHF");
-     theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
-     theCaloMETHOAnalyzer     ->setSource("CaloMETHO");
-     theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
-     theCaloMETNoHFHOAnalyzer ->setSource("CaloMETNoHFHO");
+     theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
+     //theCaloMETAnalyzer       ->setSource("CaloMET");
+     theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
+     //theCaloMETNoHFAnalyzer   ->setSource("CaloMETNoHF");
+     theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
+     //theCaloMETHOAnalyzer     ->setSource("CaloMETHO");
+     theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
+     //theCaloMETNoHFHOAnalyzer ->setSource("CaloMETNoHFHO");
   }
   if(theTcMETAnalyzerFlag){
      theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
@@ -120,6 +142,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   LoJetTrigger = parameters.getParameter<std::string>("JetLo");
   HiJetTrigger = parameters.getParameter<std::string>("JetHi");
+
+  processname_ = parameters.getParameter<std::string>("processname");
 
 }
 
@@ -138,7 +162,18 @@ JetMETAnalyzer::~JetMETAnalyzer() {
     delete thePtSCJetAnalyzer;
     delete thePtICJetAnalyzer;
   }
+<<<<<<< JetMETAnalyzer.cc
+  if(theJetCleaningFlag) {
+    delete theCleanedSCJetAnalyzer;
+    delete theCleanedICJetAnalyzer;
+  }
+  if(theJetPtAnalyzerFlag) {
+    delete thePtSCJetAnalyzer;
+    delete thePtICJetAnalyzer;
+  }
+=======
 
+>>>>>>> 1.22
   if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
   if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
 
@@ -162,10 +197,22 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   LogTrace(metname)<<"[JetMETAnalyzer] Parameters initialization";
   dbe = edm::Service<DQMStore>().operator->();
 
+  //
+  //--- Jet
   if(theJetAnalyzerFlag) { 
     theSCJetAnalyzer->beginJob(iSetup, dbe);
     theICJetAnalyzer->beginJob(iSetup, dbe);
   }
+<<<<<<< JetMETAnalyzer.cc
+  if(theJetCleaningFlag) {
+    theCleanedSCJetAnalyzer->beginJob(iSetup, dbe);
+    theCleanedICJetAnalyzer->beginJob(iSetup, dbe);
+  }
+  if(theJetPtAnalyzerFlag ) {
+    thePtSCJetAnalyzer->beginJob(iSetup, dbe);
+    thePtICJetAnalyzer->beginJob(iSetup, dbe);
+  }
+=======
  if(theJetCleaningFlag) { 
     theCleanedSCJetAnalyzer->beginJob(iSetup, dbe);
     theCleanedICJetAnalyzer->beginJob(iSetup, dbe);
@@ -176,9 +223,12 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
    thePtICJetAnalyzer ->beginJob(iSetup, dbe);
   }
   
+>>>>>>> 1.22
   if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->beginJob(iSetup, dbe);
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(iSetup, dbe);
 
+  //
+  //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginJob(iSetup, dbe);
     theCaloMETNoHFAnalyzer->beginJob(iSetup, dbe);
@@ -188,18 +238,76 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(iSetup, dbe);
   if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginJob(iSetup, dbe);
   if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginJob(iSetup, dbe);
+  
+  dbe->setCurrentFolder("JetMET");
+  lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
 
 }
 
+// ***********************************************************
+void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  //LogDebug("JetMETAnalyzer") << "beginRun, run " << run.id();
+
+  //
+  //--- htlConfig_
+  processname_="HLT";
+  hltConfig_.init(processname_);
+  if (!hltConfig_.init(processname_)) {
+    processname_ = "FU";
+    if (!hltConfig_.init(processname_)){
+      LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
+    }
+  }
+
+  if (hltConfig_.size()){
+    dbe->setCurrentFolder("JetMET");
+    hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
+  }
+
+  for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+    hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
+  }
+
+}
+
+// ***********************************************************
+void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+
+  if(theCaloMETAnalyzerFlag){
+    theCaloMETAnalyzer->endRun(iRun, iSetup, dbe);
+    theCaloMETNoHFAnalyzer->endRun(iRun, iSetup, dbe);
+    theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
+    theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
+  }
+
+}
 
 // ***********************************************************
 void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Analysis of event # ";
 
+  // *** Fill lumisection ME
+  int myLuminosityBlock;
+  myLuminosityBlock = iEvent.luminosityBlock();
+  lumisecME->Fill(myLuminosityBlock);
+
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
+
+  // *** Fill trigger results ME
+  if (&triggerResults){
+    edm::TriggerNames triggerNames;
+    triggerNames.init(*(triggerResults.product()));
+    for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+      if (triggerResults->accept(j)){
+        hltpathME->Fill(j);
+      }
+    }
+  }
 
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
@@ -226,8 +334,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   } else {
 
     //
-    //edm::Handle<TriggerResults> *tr = new edm::Handle<TriggerResults>;
-    //triggerResults = (*tr);
     triggerResults = edm::Handle<TriggerResults>(); 
 
     if (DEBUG) std::cout << "trigger not valid " << std::endl;
@@ -250,6 +356,24 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
 
   if(caloJets.isValid()){
+<<<<<<< JetMETAnalyzer.cc
+    theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
+    theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
+    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+      if( theJetAnalyzerFlag  ){ // KH Is this correct?
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the SC Jet analyzer"; // KH Is this correct?
+        if (cal == caloJets->begin()) {
+          theCleanedSCJetAnalyzer->setNJets(caloJets->size());
+          theCleanedSCJetAnalyzer->setLeadJetFlag(1);
+        } else {
+          theCleanedSCJetAnalyzer->setLeadJetFlag(0);
+        }
+        theCleanedSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
+      }
+    }
+  }
+  if(caloJets.isValid()){
+=======
     theCleanedSCJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedSCJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
@@ -266,9 +390,32 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
   if(caloJets.isValid()){
+>>>>>>> 1.22
     theSCJetAnalyzer->setJetHiPass(JetHiPass);
     theSCJetAnalyzer->setJetLoPass(JetLoPass);
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+<<<<<<< JetMETAnalyzer.cc
+      if(theJetCleaningFlag){ // KH Is this correct?
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned SC Jet analyzer"; // KH Is this correct?
+        if (cal == caloJets->begin()) {
+          theSCJetAnalyzer->setNJets(caloJets->size());
+          theSCJetAnalyzer->setLeadJetFlag(1);
+        } else {
+          theSCJetAnalyzer->setLeadJetFlag(0);
+        }
+        theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
+      }
+    }
+  }
+ if(caloJets.isValid()){
+   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+      if(theJetPtAnalyzerFlag){
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt SisCone analyzer";
+        if (cal == caloJets->begin()) {
+          thePtSCJetAnalyzer->setNJets(caloJets->size());
+        }
+        thePtSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
+=======
       if(theJetCleaningFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned SC Jet analyzer";
 	if (cal == caloJets->begin()) {	  
@@ -278,6 +425,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  theSCJetAnalyzer->setLeadJetFlag(0);
 	}
 	theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
+>>>>>>> 1.22
       }
     }
   }
@@ -313,6 +461,37 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
+<<<<<<< JetMETAnalyzer.cc
+  if(caloJets.isValid()){
+    theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
+    theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
+    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+      if(theJetCleaningFlag){
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned IC Jet analyzer";
+        if (cal == caloJets->begin()) {
+          theCleanedICJetAnalyzer->setNJets(caloJets->size());
+          theCleanedICJetAnalyzer->setLeadJetFlag(1);
+        } else {
+          theCleanedICJetAnalyzer->setLeadJetFlag(0);
+        }
+        //      theICJetAnalyzer->analyze(iEvent, iSetup, *triggerResults, *cal);
+        theCleanedICJetAnalyzer->analyze(iEvent, iSetup, *cal);
+      }
+    }
+  }
+  if(caloJets.isValid()){
+    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
+      if(theJetPtAnalyzerFlag){
+        LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt ICone analyzer";
+        if (cal == caloJets->begin()) {
+          thePtICJetAnalyzer->setNJets(caloJets->size());
+        }
+        thePtICJetAnalyzer->analyze(iEvent, iSetup, *cal);
+      }
+    }
+  }
+
+=======
   if(caloJets.isValid()){
     theCleanedICJetAnalyzer->setJetHiPass(JetHiPass);
     theCleanedICJetAnalyzer->setJetLoPass(JetLoPass);
@@ -344,6 +523,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 
+>>>>>>> 1.22
 
 // **** Get the JPT Jet container
   iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
@@ -400,64 +580,16 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(theCaloMETAnalyzerFlag){
 
     // **** Get the MET container  
-    edm::Handle<reco::CaloMETCollection> calometcoll;
-    iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
-    
-    if(calometcoll.isValid()){
-      const CaloMETCollection *calometcol = calometcoll.product();
-      const CaloMET *calomet;
-      calomet = &(calometcol->front());
-      
-      LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMET analyzer";
-      theCaloMETAnalyzer->analyze(iEvent, iSetup,
-				  *triggerResults,
-				  *calomet);
-    }
+    theCaloMETAnalyzer->analyze(iEvent,       iSetup, *triggerResults);
 
     // **** Get the METNoHF container  
-    edm::Handle<reco::CaloMETCollection> calometNoHFcoll;
-    iEvent.getByLabel(theCaloMETNoHFCollectionLabel, calometNoHFcoll);
-    
-    if(calometNoHFcoll.isValid()){
-      const CaloMETCollection *calometNoHFcol = calometNoHFcoll.product();
-      const CaloMET *calometNoHF;
-      calometNoHF = &(calometNoHFcol->front());
-      
-      LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMETNoHF analyzer";
-      theCaloMETNoHFAnalyzer->analyze(iEvent, iSetup,
-				      *triggerResults,
-				      *calometNoHF);
-    }
+    theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
 
     // **** Get the METHO container  
-    edm::Handle<reco::CaloMETCollection> calometHOcoll;
-    iEvent.getByLabel(theCaloMETHOCollectionLabel, calometHOcoll);
-    
-    if(calometHOcoll.isValid()){
-      const CaloMETCollection *calometHOcol = calometHOcoll.product();
-      const CaloMET *calometHO;
-      calometHO = &(calometHOcol->front());
-      
-      LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMETHO analyzer";
-      theCaloMETHOAnalyzer->analyze(iEvent, iSetup,
-				    *triggerResults,
-				    *calometHO);
-    }
+    theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
 
     // **** Get the METNoHFHO container  
-    edm::Handle<reco::CaloMETCollection> calometNoHFHOcoll;
-    iEvent.getByLabel(theCaloMETNoHFHOCollectionLabel, calometNoHFHOcoll);
-    
-    if(calometNoHFHOcoll.isValid()){
-      const CaloMETCollection *calometNoHFHOcol = calometNoHFHOcoll.product();
-      const CaloMET *calometNoHFHO;
-      calometNoHFHO = &(calometNoHFHOcol->front());
-      
-      LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMETNoHFHO analyzer";
-      theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup,
-					*triggerResults,
-					*calometNoHFHO);
-    }
+    theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
 
   }
 
