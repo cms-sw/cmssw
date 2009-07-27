@@ -23,6 +23,10 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe,string clientN
   h_HEEnergy_1D=0;
   h_HOEnergy_1D=0;
   h_HFEnergy_1D=0;
+  h_HBEnergyRMS_1D=0;
+  h_HEEnergyRMS_1D=0;
+  h_HOEnergyRMS_1D=0;
+  h_HFEnergyRMS_1D=0;
 
   for (int i=0;i<4;++i)
     {
@@ -334,6 +338,18 @@ void HcalRecHitClient::getHistograms()
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
   h_HFEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HB_energy_RMS_1D";
+  h_HBEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_RMS_1D";
+  h_HEEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_RMS_1D";
+  h_HOEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_RMS_1D";
+  h_HFEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
   name.str("");
   getEtaPhiHists("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
@@ -914,12 +930,20 @@ void HcalRecHitClient::htmlExpertOutput(int runNo, string htmlDir, string htmlNa
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(1);
   htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo, h_HBEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, h_HEEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HBEnergy_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HBEnergyRMS_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<std::endl;
   htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo, h_HOEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, h_HFEnergy_1D,"Avg. Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HEEnergy_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HEEnergyRMS_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlFile <<"</tr>"<<std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
+  htmlAnyHisto(runNo, h_HOEnergy_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HOEnergyRMS_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlFile <<"</tr>"<<std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
+  htmlAnyHisto(runNo, h_HFEnergy_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, h_HFEnergyRMS_1D,"Energy (GeV)","", 92, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<std::endl;
 
   htmlFile <<"</table>"<<std::endl;

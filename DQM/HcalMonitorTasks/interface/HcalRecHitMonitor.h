@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.26 $
+  * $Date: 2009/07/21 11:02:48 $
+  * $Revision: 1.27 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -83,6 +83,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   unsigned int occupancy_[85][72][4]; // will get filled when rechit found
   unsigned int occupancy_thresh_[85][72][4]; // filled when above given energy
   double energy_[85][72][4]; // will get filled when rechit found
+  double energy2_[85][72][4]; // will get filled when rechit found
   double energy_thresh_[85][72][4]; // filled when above given  
   double time_[85][72][4]; // will get filled when rechit found
   double time_thresh_[85][72][4]; // filled when above given energy
@@ -165,6 +166,11 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HEEnergy_1D;
   MonitorElement* h_HOEnergy_1D;
   MonitorElement* h_HFEnergy_1D;
+
+  MonitorElement* h_HBEnergyRMS_1D;
+  MonitorElement* h_HEEnergyRMS_1D;
+  MonitorElement* h_HOEnergyRMS_1D;
+  MonitorElement* h_HFEnergyRMS_1D;
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
