@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 using namespace edm;
 
 FlatRandomOneOverPtGunProducer::FlatRandomOneOverPtGunProducer(const edm::ParameterSet& pset) : 
@@ -34,9 +35,8 @@ FlatRandomOneOverPtGunProducer::~FlatRandomOneOverPtGunProducer() {
 
 void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
 
-  if ( fVerbosity > 0 ) {
-    LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Begin New Event Generation"; 
-  }
+  LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Begin New Event Generation"; 
+
   // event loop (well, another step in it...)
           
   // no need to clean up GenEvent memory - done in HepMCProduct
@@ -57,11 +57,12 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
   int barcode = 1 ;
   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip) {
 
-    double pt     = fRandomGenerator->fire(fMinOneOverPt, fMaxOneOverPt) ;
+    double xx     = fRandomGenerator->fire(0.0,1.0);
+    double pt     = std::exp((1.-xx)*std::log(fMinOneOverPt)+
+			     xx*std::log(fMaxOneOverPt)) ;
     double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
     double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
     if (pt != 0) pt = 1./pt;
-    //    LogDebug("ParticleGun") << "FlatRandomOneOverPtGunProducer: Event generated with pt:eta:phi " << pt << " " << eta << " " << phi;
     int PartID = fPartIDs[ip] ;
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
@@ -78,6 +79,7 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
     Part->suggest_barcode( barcode ) ;
     barcode++ ;
     Vtx->add_particle_out(Part);
+    LogDebug("ParticleGun") << "FlatRandomOneOverPtGunProducer: Event generated with pt:eta:phi " << pt << " " << eta << " " << phi << " (" << theta/CLHEP::deg << ":" << phi/CLHEP::deg << ")";
 
     if ( fAddAntiParticle ) {
       HepMC::FourVector ap(-px,-py,-pz,energy) ;
@@ -108,11 +110,5 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(genEventInfo);
     
-  if ( fVerbosity > 0 ) {
-    // for testing purpose only
-    // fEvt->print() ; // prints empty info after it's made into edm::Event
-    LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Event Generation Done ";
-  }
+  LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Event Generation Done ";
 }
-//#include "FWCore/Framework/interface/MakerMacros.h"
-//DEFINE_FWK_MODULE(FlatRandomOneOverPtGunProducer);
