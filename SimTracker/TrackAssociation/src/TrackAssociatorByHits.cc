@@ -73,8 +73,8 @@ TrackAssociatorByHits::~TrackAssociatorByHits()
 //
 
 RecoToSimCollection  
-TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC, 
-					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track>& tC, 
+					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e ) const{
 
   //edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
@@ -150,8 +150,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 
 
 SimToRecoCollection  
-TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC, 
-					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
+TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track>& tC, 
+					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e ) const{
 //  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits

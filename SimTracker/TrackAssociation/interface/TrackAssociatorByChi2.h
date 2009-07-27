@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2008/02/15 17:50:47 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/02/22 13:56:24 $
+ *  $Revision: 1.24 $
  *  \author cerati, magni
  */
 
@@ -82,12 +82,12 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 									       float,// charge
 									       const reco::BeamSpot&) const;//beam spot
   /// Association Reco To Sim with Collections
-  reco::RecoToSimCollection associateRecoToSim(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0 ) const ;
   /// Association Sim To Reco with Collections
-  reco::SimToRecoCollection associateSimToReco(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0 ) const ;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections

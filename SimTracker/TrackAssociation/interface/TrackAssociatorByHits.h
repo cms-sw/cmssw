@@ -31,12 +31,12 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   /* Associate SimTracks to RecoTracks By Hits */
  
   /// Association Reco To Sim with Collections
-  reco::RecoToSimCollection associateRecoToSim(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0 ) const ;
   /// Association Sim To Reco with Collections
-  reco::SimToRecoCollection associateSimToReco(edm::RefToBaseVector<reco::Track>&,
-					       edm::RefVector<TrackingParticleCollection>&,
+  reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
+					       const edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0 ) const ;
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
