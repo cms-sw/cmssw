@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/10/08 10:27:50 $
- * $Revision: 1.84 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,8 @@
 using namespace cms;
 using namespace edm;
 using namespace std;
+
+// #define COMMON_NOISE_ANALYSYS
 
 EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
 
@@ -102,6 +104,7 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
     mer04_[ism-1] = 0;
     mer05_[ism-1] = 0;
 
+#ifdef COMMON_NOISE_ANALYSYS
     mes01_[ism-1] = 0;
     mes02_[ism-1] = 0;
     mes03_[ism-1] = 0;
@@ -109,6 +112,7 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
     met01_[ism-1] = 0;
     met02_[ism-1] = 0;
     met03_[ism-1] = 0;
+#endif
 
   }
 
@@ -252,6 +256,7 @@ void EEPedestalClient::setup(void) {
     mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
+#ifdef COMMON_NOISE_ANALYSYS
     if ( mes01_[ism-1] ) dqmStore_->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G01 %s", Numbers::sEE(ism).c_str());
     mes01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
@@ -283,6 +288,7 @@ void EEPedestalClient::setup(void) {
     met03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     met03_[ism-1]->setAxisTitle("jx", 1);
     met03_[ism-1]->setAxisTitle("jy", 2);
+#endif
 
   }
 
@@ -336,6 +342,7 @@ void EEPedestalClient::setup(void) {
     if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
     if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
+#ifdef COMMON_NOISE_ANALYSYS
     if ( mes01_[ism-1] ) mes01_[ism-1]->Reset();
     if ( mes02_[ism-1] ) mes02_[ism-1]->Reset();
     if ( mes03_[ism-1] ) mes03_[ism-1]->Reset();
@@ -357,6 +364,7 @@ void EEPedestalClient::setup(void) {
 
       }
     }
+#endif
 
   }
 
@@ -441,6 +449,7 @@ void EEPedestalClient::cleanup(void) {
     if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
 
+#ifdef COMMON_NOISE_ANALYSYS
     if ( mes01_[ism-1] ) dqmStore_->removeElement( mes01_[ism-1]->getName() );
     mes01_[ism-1] = 0;
     if ( mes02_[ism-1] ) dqmStore_->removeElement( mes02_[ism-1]->getName() );
@@ -454,6 +463,7 @@ void EEPedestalClient::cleanup(void) {
     met02_[ism-1] = 0;
     if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
     met03_[ism-1] = 0;
+#endif
 
   }
 
@@ -701,6 +711,7 @@ void EEPedestalClient::analyze(void) {
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
+#ifdef COMMON_NOISE_ANALYSYS
     sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
@@ -724,6 +735,7 @@ void EEPedestalClient::analyze(void) {
     sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
+#endif
 
     sprintf(histo, (prefixME_ + "/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
@@ -751,6 +763,7 @@ void EEPedestalClient::analyze(void) {
     if ( mer04_[ism-1] ) mer04_[ism-1]->Reset();
     if ( mer05_[ism-1] ) mer05_[ism-1]->Reset();
 
+#ifdef COMMON_NOISE_ANALYSYS
     if ( mes01_[ism-1] ) mes01_[ism-1]->Reset();
     if ( mes02_[ism-1] ) mes02_[ism-1]->Reset();
     if ( mes03_[ism-1] ) mes03_[ism-1]->Reset();
@@ -758,6 +771,7 @@ void EEPedestalClient::analyze(void) {
     if ( met01_[ism-1] ) met01_[ism-1]->Reset();
     if ( met02_[ism-1] ) met02_[ism-1]->Reset();
     if ( met03_[ism-1] ) met03_[ism-1]->Reset();
+#endif
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -933,7 +947,7 @@ void EEPedestalClient::analyze(void) {
         val = 1.;
         if ( mean01 < (expectedMeanPn_[0] - discrepancyMeanPn_[0])
              || (expectedMeanPn_[0] + discrepancyMeanPn_[0]) <  mean01)
-           val = 0.;
+          val = 0.;
         if ( rms01 >  RMSThresholdPn_[0])
           val = 0.;
 
@@ -946,12 +960,11 @@ void EEPedestalClient::analyze(void) {
         float val;
 
         val = 1.;
-        //        if ( mean02 < pedestalThresholdPn_ )
-         if ( mean02 < (expectedMeanPn_[1] - discrepancyMeanPn_[1])
-              || (expectedMeanPn_[1] + discrepancyMeanPn_[1]) <  mean02)
-           val = 0.;
-         if ( rms02 >  RMSThresholdPn_[1])
-           val = 0.;
+        if ( mean02 < (expectedMeanPn_[1] - discrepancyMeanPn_[1])
+             || (expectedMeanPn_[1] + discrepancyMeanPn_[1]) <  mean02)
+          val = 0.;
+        if ( rms02 >  RMSThresholdPn_[1])
+          val = 0.;
 
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
       }
@@ -978,6 +991,7 @@ void EEPedestalClient::analyze(void) {
 
     }
 
+#ifdef COMMON_NOISE_ANALYSYS
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
@@ -1132,6 +1146,7 @@ void EEPedestalClient::analyze(void) {
 
       }
     }
+#endif
 
   }
 
