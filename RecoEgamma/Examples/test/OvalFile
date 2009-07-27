@@ -11,8 +11,8 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_1_0_pre11">
-<!var name="DBS_RELEASE" value="LOCAL">
+<var name="DBS_RELEASE" value="CMSSW_3_1_1">
+<var name="DBS_TIER" value="RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
@@ -50,9 +50,17 @@ input data files returned by the data discovery web server. We guess that from
 time to time we will have to upgrade the values DBS_* variable so to keep in
 touch with changes in data catalog structure.
 
+<file name="dbs_discovery.txt">
+../../Configuration/test/RelValSingleElectronPt10-RECO.root
+../../Configuration/test/RelValSingleElectronPt35-RECO.root
+../../Configuration/test/RelValQCD_Pt_80_120-RECO.root
+</file>
+
 <environment name="FullSimStdStats">
 
-  <var name="DBS_LIKE" value="*MC_31X_V1-v1*-RECO">
+  <var name="DBS_COND" value="MC_31X_V2-v1">
+  <!var name="DBS_RELEASE" value="LOCAL">
+  <!var name="DBS_COND" value="">
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -88,7 +96,7 @@ touch with changes in data catalog structure.
   
   <environment name="FullZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="DBS_LIKE" value="*STARTUP31X_V1-v1*-RECO">
+    <var name="DBS_COND" value="STARTUP31X_V1-v2">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -107,7 +115,9 @@ touch with changes in data catalog structure.
 
 <environment name="FullSimHighStats">
 
-  <var name="DBS_LIKE" value="*MC_31X_V1-v1*-RECO">
+  <var name="DBS_COND" value="*MC_31X_V2-v1*-RECO">
+  <!var name="DBS_RELEASE" value="LOCAL">
+  <!var name="DBS_COND" value="">
 
   <environment name="HighFlatPt5To100">
     <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
@@ -122,7 +132,9 @@ touch with changes in data catalog structure.
 <environment name="FastSim">
 
   <var name="VAL_REF_RELEASE" value="FastSim">
-  <var name="DBS_LIKE" value="*MC_31X_V1_FastSim-v1*-RECO">
+  <var name="DBS_COND" value="MC_31X_V2_FastSim-v1">
+  <!var name="DBS_RELEASE" value="LOCAL">
+  <!var name="DBS_COND" value="">
 
   <environment name="FastTTbar">
     <var name="DBS_SAMPLE" value="RelValTTbar">
@@ -146,7 +158,7 @@ touch with changes in data catalog structure.
   
   <environment name="FastZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="DBS_LIKE" value="*STARTUP31X_V1_FastSim-v1*-RECO">
+    <var name="DBS_COND" value="STARTUP31X_V1_FastSim-v2">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
