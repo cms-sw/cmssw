@@ -82,23 +82,17 @@ void SiStripBadComponentsDQMService::readBadComponents()
 
         theBadStripRange = obj_->encode(firstBadStrip,NconsecutiveBadStrips,flag);
 
-//           if (printdebug_)
-//             ss << "detid " << BadModule_ << " \t"
-//                << " firstBadStrip " << firstBadStrip << "\t "
-//                << " NconsecutiveBadStrips " << NconsecutiveBadStrips << "\t "
-//                << " packed integer " << std::hex << theBadStripRange  << std::dec
-//                << std::endl;
+        LogDebug("SiStripBadComponentsDQMService") << "detid " << detId << " \t"
+                                                   << ", flag " << flag
+                                                   << std::endl;
 
         theSiStripVector.push_back(theBadStripRange);
         // }
 
         SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-        if ( ! obj_->put(detId,range) )
+        if ( !obj_->put(detId,range) ) {
           edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists"<<std::endl;
-
-
-
-
+	}
       }
     }
     nDetsTotal += nDets;
