@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/26 13:46:27 $ 
+ **  $Date: 2009/07/14 11:35:41 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -35,6 +35,14 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     
     photonProducer_     = pset.getParameter<std::string>("phoProducer");
     photonCollection_   = pset.getParameter<std::string>("photonCollection");
+
+    barrelRecHitProducer_ = pset.getParameter<std::string>("barrelRecHitProducer");
+    barrelRecHitCollection_ = pset.getParameter<std::string>("barrelRecHitCollection");
+
+    endcapRecHitProducer_ = pset.getParameter<std::string>("endcapRecHitProducer");
+    endcapRecHitCollection_ = pset.getParameter<std::string>("endcapRecHitCollection");
+
+
 
     triggerEvent_       = pset.getParameter<edm::InputTag>("triggerEvent");
 
@@ -817,7 +825,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     if ( phoIsInBarrel ) part = 1;
     if ( phoIsInEndcap ) part = 2;
 
-    /////  From 30X Photons are already pre-selected at reconstruction level with a looseEM isolation
+    /////  From 30X on, Photons are already pre-selected at reconstruction level with a looseEM isolation
     bool isIsolated=false;
     if ( isolationStrength_ == 0)  isIsolated = isLoosePhoton;
     if ( isolationStrength_ == 1)  isIsolated = isTightPhoton; 
@@ -825,6 +833,29 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     int type=0;
     if ( isIsolated ) type=1;
     if ( !isIsolated ) type=2;
+
+
+    //get rechit collection containing this photon
+    edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
+    if ( phoIsInBarrel ) {
+      // Get handle to rec hits ecal barrel 
+      e.getByLabel(barrelRecHitProducer_, barrelRecHitCollection_, ecalRecHitHandle);
+      if (!ecalRecHitHandle.isValid()) {
+	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelRecHitProducer_;
+	  return;
+	}
+
+    } else if ( phoIsInEndcap ) {    
+      // Get handle to rec hits ecal encap 
+      e.getByLabel(endcapRecHitProducer_, endcapRecHitCollection_, ecalRecHitHandle);
+      if (!ecalRecHitHandle.isValid()) {
+	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapRecHitProducer_;
+	return;
+      }
+      
+    }
+
+
 
 
 
@@ -986,6 +1017,37 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
+// 	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
+
+
+// 	bool atLeastOneDeadChannel=false;
+// 	for(reco::CaloCluster_iterator bcIt = matchingPho.superCluster()->clustersBegin();bcIt != matchingPho.superCluster()->clustersEnd(); ++bcIt) {
+// 	  for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != 
+// 		(*bcIt)->hitsAndFractions().end(); ++rhIt) {
+	    
+// 	    for(EcalRecHitCollection::const_iterator it =  
+// 		  ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) {
+// 	      if  (rhIt->first ==  (*it).id() ) {
+// 		if (  (*it).recoFlag() == 9 ) {
+// 		  atLeastOneDeadChannel=true;
+// 		  break;
+// 		}
+// 	      }
+// 	    }
+// 	  } 
+// 	}
+	
+// 	if (   atLeastOneDeadChannel ) {
+// 	  h_BadCh_[0]->Fill( Eta_ ) ;
+// 	  h_BadCh_[1]->Fill( Phi_ );
+// 	  h_BadCh_[2]->Fill(  et());
+	  
+// 	}
+
+
+
+
+
 	// filling conversion-related histograms
 
 	fill3DHistoVector(h_nConv_,float( (*iPho).conversions().size() ),cut,type,part);
@@ -1001,7 +1063,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	  reco::ConversionRef aConv=conversions[iConv];
 
-	  if ( conversions[iConv]->nTracks() <2 ) continue; 
+	  if ( aConv->nTracks() <2 ) continue; 
 
 	  fill3DHistoVector(h_phoConvE_,(*iPho).energy(),cut,type,part);
 	  fill3DHistoVector(h_phoConvEt_,(*iPho).et(),cut,type,part);
@@ -1018,41 +1080,45 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  }
 
 	
-	  fill2DHistoVector(h_phoConvEta_,conversions[iConv]->caloCluster()[0]->eta(),cut,type);
-	  fill2DHistoVector(h_phoConvPhi_,conversions[iConv]->caloCluster()[0]->phi(),cut,type);
+	  fill2DHistoVector(h_phoConvEta_,aConv->caloCluster()[0]->eta(),cut,type);
+	  fill2DHistoVector(h_phoConvPhi_,aConv->caloCluster()[0]->phi(),cut,type);
 
 
-	  if ( conversions[iConv]->conversionVertex().isValid() ) {
+	  if ( aConv->conversionVertex().isValid() ) {
 
-	    if(cut==0) h_phoEta_Vertex_->Fill(conversions[iConv]->caloCluster()[0]->eta());
+	    if(cut==0) h_phoEta_Vertex_->Fill(aConv->caloCluster()[0]->eta());
 
-	    float chi2Prob = ChiSquaredProbability( conversions[iConv]->conversionVertex().normalizedChi2(), conversions[iConv]->conversionVertex().ndof() );
+	    float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().normalizedChi2(), aConv->conversionVertex().ndof() );
 	    fill2DHistoVector(h_vertexChi2_,chi2Prob,cut,type);
 
+	    double convR= sqrt(aConv->conversionVertex().position().perp2());
+	    double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	    if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
 
-	    fill2DHistoVector(h_convVtxRvsZ_,fabs( conversions[iConv]->conversionVertex().position().z() ),  
-			      sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
 
-	    if(fabs(conversions[iConv]->caloCluster()[0]->eta()) > 1.5){
-	      fill2DHistoVector(h_convVtxZ_,fabs(conversions[iConv]->conversionVertex().position().z()), cut,type);
+	    fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);
+
+	    if(fabs(aConv->caloCluster()[0]->eta()) > 1.5){
+	      fill2DHistoVector(h_convVtxZ_,fabs(aConv->conversionVertex().position().z()), cut,type);
 	    }
-	    else if(fabs(conversions[iConv]->caloCluster()[0]->eta()) < 1){
-	      fill2DHistoVector(h_convVtxR_,sqrt( conversions[iConv]->conversionVertex().position().perp2() ),cut,type);
+	    else if(fabs(aConv->caloCluster()[0]->eta()) < 1){
+	      fill2DHistoVector(h_convVtxR_,convR,cut,type);
 
-	      fill2DHistoVector(h_convVtxYvsX_,conversions[iConv]->conversionVertex().position().x(),  
-				conversions[iConv]->conversionVertex().position().y(),cut,type);
+
+	      fill2DHistoVector(h_convVtxYvsX_,aConv->conversionVertex().position().x(),  
+				aConv->conversionVertex().position().y(),cut,type);
 	    }
 
 	  }
 
 
-	  std::vector<reco::TrackRef> tracks = conversions[iConv]->tracks();
+	  std::vector<reco::TrackRef> tracks = aConv->tracks();
 
 	  for (unsigned int i=0; i<tracks.size(); i++) {
 	    fill2DHistoVector(h_tkChi2_,tracks[i]->normalizedChi2(),cut,type);
-	    fill2DHistoVector(p_tkChi2VsEta_,conversions[iConv]->caloCluster()[0]->eta(),tracks[i]->normalizedChi2(),cut,type);
-	    fill2DHistoVector(p_dCotTracksVsEta_,conversions[iConv]->caloCluster()[0]->eta(),conversions[iConv]->pairCotThetaSeparation(),cut,type);	
-	    fill2DHistoVector(p_nHitsVsEta_,conversions[iConv]->caloCluster()[0]->eta(),float(tracks[i]->numberOfValidHits()),cut,type);
+	    fill2DHistoVector(p_tkChi2VsEta_,aConv->caloCluster()[0]->eta(),tracks[i]->normalizedChi2(),cut,type);
+	    fill2DHistoVector(p_dCotTracksVsEta_,aConv->caloCluster()[0]->eta(),aConv->pairCotThetaSeparation(),cut,type);	
+	    fill2DHistoVector(p_nHitsVsEta_,aConv->caloCluster()[0]->eta(),float(tracks[i]->numberOfValidHits()),cut,type);
 	  }
 
 	  //calculating delta eta and delta phi of the two tracks
@@ -1061,8 +1127,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  float  dPhiTracksAtEcal= -99;
 	  float  dEtaTracksAtEcal= -99;
 
-	  float phiTk1= tracks[0]->innerMomentum().phi();
-	  float phiTk2= tracks[1]->innerMomentum().phi();
+	  float phiTk1= aConv->tracksPin()[0].phi();
+	  float phiTk2= aConv->tracksPin()[1].phi();
 	  DPhiTracksAtVtx = phiTk1-phiTk2;
 	  DPhiTracksAtVtx = phiNormalization( DPhiTracksAtVtx );
 
@@ -1085,9 +1151,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  fill3DHistoVector(h_dPhiTracksAtVtx_,DPhiTracksAtVtx,cut,type,part);
 	  fill3DHistoVector(h_dPhiTracksAtEcal_,fabs(dPhiTracksAtEcal),cut,type,part);
 	  fill3DHistoVector(h_dEtaTracksAtEcal_, dEtaTracksAtEcal,cut,type,part);
-	  fill3DHistoVector(h_eOverPTracks_,conversions[iConv]->EoverP(),cut,type,part);
-	  fill3DHistoVector(h_pOverETracks_,1./conversions[iConv]->EoverP(),cut,type,part);
-	  fill3DHistoVector(h_dCotTracks_,conversions[iConv]->pairCotThetaSeparation(),cut,type,part);
+	  fill3DHistoVector(h_eOverPTracks_,aConv->EoverP(),cut,type,part);
+	  fill3DHistoVector(h_pOverETracks_,1./aConv->EoverP(),cut,type,part);
+	  fill3DHistoVector(h_dCotTracks_,aConv->pairCotThetaSeparation(),cut,type,part);
 
 
 	}//end loop over conversions

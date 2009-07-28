@@ -20,13 +20,21 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+
 
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -77,7 +85,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/17 13:15:26 $ 
+ **  $Date: 2009/06/19 14:29:12 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -133,6 +141,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   std::string photonProducer_;       
   std::string photonCollection_;
+
+  std::string barrelRecHitProducer_;
+  std::string barrelRecHitCollection_;
+
+  std::string endcapRecHitProducer_;
+  std::string endcapRecHitCollection_;
 
   edm::InputTag triggerEvent_;
 
