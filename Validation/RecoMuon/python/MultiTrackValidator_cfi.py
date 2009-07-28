@@ -10,17 +10,17 @@ RMmultiTrackValidator.dirName = 'RecoMuonV/MultiTrack/'
 RMmultiTrackValidator.pdgIdTP = (13,-13)
 
 RMmultiTrackValidator.useFabsEta = False
-RMmultiTrackValidator.nint = cms.int32(50)
+RMmultiTrackValidator.nint = cms.int32(30)
 RMmultiTrackValidator.min = cms.double(-2.5)
 RMmultiTrackValidator.max = cms.double(2.5)
 
 RMmultiTrackValidator.nintPhi = cms.int32(36)
-RMmultiTrackValidator.minPhi = cms.double(-3.15)
-RMmultiTrackValidator.maxPhi = cms.double(3.15)
+RMmultiTrackValidator.minPhi = cms.double(-3.1416)
+RMmultiTrackValidator.maxPhi = cms.double(3.1416)
 
-RMmultiTrackValidator.nintpT = cms.int32(25)
+RMmultiTrackValidator.nintpT = cms.int32(40)
 RMmultiTrackValidator.minpT = cms.double(0.0)
-RMmultiTrackValidator.maxpT = cms.double(1100.0)
+RMmultiTrackValidator.maxpT = cms.double(1500.0)
 
 RMmultiTrackValidator.nintHit = cms.int32(75)
 RMmultiTrackValidator.minHit = cms.double(-0.5)
