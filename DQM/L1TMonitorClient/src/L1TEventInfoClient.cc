@@ -296,7 +296,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
 
-    summaryContent[1] = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
+    float nonisoResult = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
+    summaryContent[1] = ( nonisoResult < (1.0+1e-10) ) ? nonisoResult : 1.0;
     reportSummaryContent_[1]->Fill( summaryContent[1] );
   }
 
@@ -334,7 +335,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
 
-    summaryContent[2] = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
+    float isoResult = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
+    summaryContent[2] = ( isoResult < (1.0+1e-10) ) ? isoResult : 1.0;
     reportSummaryContent_[2]->Fill( summaryContent[2] );
   }
 
@@ -372,7 +374,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
 
-    summaryContent[3] = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
+    float taujetsResult = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
+    summaryContent[3] = ( taujetsResult < (1.0+1e-10) ) ? taujetsResult : 1.0;
     reportSummaryContent_[3]->Fill( summaryContent[3] );
   }
 
@@ -412,6 +415,10 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     summaryContent[4] = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
     reportSummaryContent_[4]->Fill( summaryContent[4] );
+
+    float jetsResult = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
+    summaryContent[4] = ( jetsResult < (1.0+1e-10) ) ? jetsResult : 1.0;
+    reportSummaryContent_[4]->Fill( summaryContent[4] );
   }
 
 
@@ -421,10 +428,11 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // 05  Muon Quality Tests
   //
 
-  int GMT_nBadCh = 0;
   if (GMT_QHist){
     const QReport *GMT_DeadCh_QReport = GMT_QHist->getQReport("DeadChannels_GMT_2D");
     const QReport *GMT_HotCh_QReport  = GMT_QHist->getQReport("HotChannels_GMT_2D");
+
+    int GMT_nBadCh = 0;
 
     if (GMT_DeadCh_QReport) {
       int GMT_nDeadCh = GMT_DeadCh_QReport->getBadChannels().size();
@@ -447,12 +455,11 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     }
 
     if( verbose_ ) std::cout << "    GMT total efficiency = " << 1 - (float)GMT_nBadCh/(float)GMT_nCh << std::endl;
+
+    float muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
+    summaryContent[5] = ( muonResult < (1.0+1e-10) ) ? muonResult : 1.0;
+    reportSummaryContent_[5]->Fill( summaryContent[5] );
   }
-
-  float muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
-
-  summaryContent[5] = ( muonResult < (1.0+1e-10) ) ? muonResult : 1.0;
-  reportSummaryContent_[5]->Fill( summaryContent[5] );
 
 
 
