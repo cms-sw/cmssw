@@ -21,6 +21,14 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -163,6 +171,10 @@ void myJetAna::beginJob( const EventSetup & ) {
   ETime = fs->make<TH1F>("ETime","Ecal Time",200,-200,200);
   HTime = fs->make<TH1F>("HTime","Hcal Time",200,-200,200);
 
+  h_towerHadEn  = fs->make<TH1F>("h_towerHadEn" ,"Hadronic Energy in Calo Tower",12000,-20,100);
+  h_towerEmEn  	= fs->make<TH1F>("h_towerEmEn"  ,"EM Energy in Calo Tower",12000,-20,100);
+  h_towerEmFrac	= fs->make<TH1F>("h_towerEmFrac","EM Fraction of Energy in Calo Tower",1000,0.,1.0);
+
   RBX_et        = fs->make<TH1F>("RBX_et","ET in RBX",1000,-20,100);
   RBX_hadEnergy = fs->make<TH1F>("RBX_hadEnergy","Hcal Energy in RBX",1000,-20,100);
   RBX_hcalTime  = fs->make<TH1F>("RBX_hcalTime","Hcal Time in RBX",200,-200,200);
@@ -188,18 +200,56 @@ void myJetAna::beginJob( const EventSetup & ) {
   h_nCalJets  =  fs->make<TH1F>( "nCalJets",  "Number of CalJets", 20, 0, 20 );
 
 
-  HBEne     = fs->make<TH1F>( "HBEne",  "HBEne", 1000, -20, 100 );
+  HBEne     = fs->make<TH1F>( "HBEne",  "HBEne", 12000, -20, 100 );
   HBTime    = fs->make<TH1F>( "HBTime", "HBTime", 200, -200, 200 );
-  HEEne     = fs->make<TH1F>( "HEEne",  "HEEne", 1000, -20, 100 );
+  HEEne     = fs->make<TH1F>( "HEEne",  "HEEne", 12000, -20, 100 );
+  HEposEne  = fs->make<TH1F>( "HEposEne",  "HEposEne", 12000, -20, 100 );
+  HEnegEne  = fs->make<TH1F>( "HEnegEne",  "HEnegEne", 12000, -20, 100 );
   HETime    = fs->make<TH1F>( "HETime", "HETime", 200, -200, 200 );
-  HOEne     = fs->make<TH1F>( "HOEne",  "HOEne", 1000, -20, 100 );
+  HEposTime = fs->make<TH1F>( "HEposTime",  "HEposTime", 12000, -20, 100 );
+  HEnegTime = fs->make<TH1F>( "HEnegTime",  "HEnegTime", 12000, -20, 100 );
+  HOEne     = fs->make<TH1F>( "HOEne",  "HOEne", 12000, -20, 100 );
   HOTime    = fs->make<TH1F>( "HOTime", "HOTime", 200, -200, 200 );
-  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 1000, -20, 100 );
+
+  // Histos for separating SiPMs and HPDs in HO:
+  HOSEne     = fs->make<TH1F>( "HOSEne",  "HOSEne", 12000, -20, 100 );
+  HOSTime    = fs->make<TH1F>( "HOSTime", "HOSTime", 200, -200, 200 );
+  HOHEne     = fs->make<TH1F>( "HOHEne",  "HOHEne", 12000, -20, 100 );
+  HOHTime    = fs->make<TH1F>( "HOHTime", "HOHTime", 200, -200, 200 );
+
+  HOHr0Ene      = fs->make<TH1F>( "HOHr0Ene"  ,   "HOHr0Ene", 12000, -20 , 100 );
+  HOHr0Time     = fs->make<TH1F>( "HOHr0Time" ,  "HOHr0Time",   200, -200, 200 );
+  HOHrm1Ene     = fs->make<TH1F>( "HOHrm1Ene" ,  "HOHrm1Ene", 12000, -20 , 100 );
+  HOHrm1Time    = fs->make<TH1F>( "HOHrm1Time", "HOHrm1Time",   200, -200, 200 );
+  HOHrm2Ene     = fs->make<TH1F>( "HOHrm2Ene" ,  "HOHrm2Ene", 12000, -20 , 100 );
+  HOHrm2Time    = fs->make<TH1F>( "HOHrm2Time", "HOHrm2Time",   200, -200, 200 );
+  HOHrp1Ene     = fs->make<TH1F>( "HOHrp1Ene" ,  "HOHrp1Ene", 12000, -20 , 100 );
+  HOHrp1Time    = fs->make<TH1F>( "HOHrp1Time", "HOHrp1Time",   200, -200, 200 );
+  HOHrp2Ene     = fs->make<TH1F>( "HOHrp2Ene" ,  "HOHrp2Ene", 12000, -20 , 100 );
+  HOHrp2Time    = fs->make<TH1F>( "HOHrp2Time", "HOHrp2Time",   200, -200, 200 );
+
+  HOocc    = fs->make<TH2F>( "HOocc", "HOocc",81,-40.5,40.5,70,0.5,70.5);
+  HBocc    = fs->make<TH2F>( "HBocc", "HBocc",81,-40.5,40.5,70,0.5,70.5);
+  HEocc    = fs->make<TH2F>( "HEocc", "HEocc",81,-40.5,40.5,70,0.5,70.5);
+  HFocc    = fs->make<TH2F>( "HFocc", "HFocc",81,-40.5,40.5,70,0.5,70.5);
+
+  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 12000, -20, 100 );
   HFTime    = fs->make<TH1F>( "HFTime", "HFTime", 200, -200, 200 );
-  EBEne     = fs->make<TH1F>( "EBEne",  "EBEne", 1000, -20, 100 );
+
+  // Histos for separating HF long/short fibers:
+  HFLEne     = fs->make<TH1F>( "HFLEne",  "HFSEne", 12000, -20, 100 );
+  HFLTime    = fs->make<TH1F>( "HFLTime", "HFSTime", 200, -200, 200 );
+  HFSEne     = fs->make<TH1F>( "HFSEne",  "HFSEne", 12000, -20, 100 );
+  HFSTime    = fs->make<TH1F>( "HFSTime", "HFSTime", 200, -200, 200 );
+
+  EBEne     = fs->make<TH1F>( "EBEne",  "EBEne", 12000, -20, 100 );
   EBTime    = fs->make<TH1F>( "EBTime", "EBTime", 200, -200, 200 );
-  EEEne     = fs->make<TH1F>( "EEEne",  "EEEne", 1000, -20, 100 );
+  EEEne     = fs->make<TH1F>( "EEEne",  "EEEne", 12000, -20, 100 );
+  EEnegEne  = fs->make<TH1F>( "EEnegEne",  "EEnegEne", 12000, -20, 100 );
+  EEposEne  = fs->make<TH1F>( "EEposEne",  "EEposEne", 12000, -20, 100 );
   EETime    = fs->make<TH1F>( "EETime", "EETime", 200, -200, 200 );
+  EEnegTime = fs->make<TH1F>( "EEnegTime", "EEnegTime", 200, -200, 200 );
+  EEposTime = fs->make<TH1F>( "EEposTime", "EEposTime", 200, -200, 200 );
 
   h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 50, 0, 1000 );
   h_etaCal    = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
@@ -255,6 +305,8 @@ void myJetAna::beginJob( const EventSetup & ) {
 // ************************
 void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
  
+  using namespace edm;
+
   int EtaOk10, EtaOk13, EtaOk40;
 
   double LeadMass;
@@ -298,6 +350,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
+
+    // Raw tower energy without grouping or thresholds
+    h_towerHadEn->Fill(tower->hadEnergy());
+    h_towerEmEn->Fill(tower->emEnergy());
+    h_towerEmFrac->Fill(tower->emEnergy()/(tower->emEnergy()+tower->hadEnergy()));
 
     if ((tower->hadEnergy() + tower->emEnergy()) > 2.0) {
 
@@ -382,9 +439,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	 << " Type = "   << evtType 
 	 << endl; 
   }
-  
-
-
+ 
   // **************************************************************
   // ** Access Trigger Information
   // **************************************************************
@@ -636,7 +691,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
 
   // *********************
-  // *** recHits
+  // *** Hcal recHits
   // *********************
 
   edm::Handle<HcalSourcePositionData> spd;
@@ -649,12 +704,23 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      std::cout << *j << std::endl;
         if (j->id().subdet() == HcalBarrel) {
+	  HBocc->Fill(j->id().ieta(),j->id().iphi());
 	  HBEne->Fill(j->energy()); 
 	  HBTime->Fill(j->time()); 
         }
         if (j->id().subdet() == HcalEndcap) {
+	  HEocc->Fill(j->id().ieta(),j->id().iphi());
 	  HEEne->Fill(j->energy()); 
 	  HETime->Fill(j->time()); 
+	  // Fill +-HE separately
+	  if (j->id().ieta()<0) {
+	    HEnegEne->Fill(j->energy()); 
+	    HEnegTime->Fill(j->time()); 
+	  } else {
+	    HEposEne->Fill(j->energy()); 
+	    HEposTime->Fill(j->time()); 
+	  }
+	  
         }
 
         /***
@@ -681,8 +747,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
 	//	std::cout << *j << std::endl;
         if (j->id().subdet() == HcalForward) {
+	  HFocc->Fill(j->id().ieta(),j->id().iphi());
 	  HFEne->Fill(j->energy()); 
 	  HFTime->Fill(j->time()); 
+	  // Long and short fibers
+	  if (j->id().depth() == 1){
+	    HFLEne->Fill(j->energy()); 
+	    HFLTime->Fill(j->time());
+	  } else {
+	    HFSEne->Fill(j->energy()); 
+	    HFSTime->Fill(j->time());
+	  }
         }
       }
     }
@@ -699,7 +774,50 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         if (j->id().subdet() == HcalOuter) {
 	  HOEne->Fill(j->energy()); 
-	  HOTime->Fill(j->time()); 
+	  HOTime->Fill(j->time());
+	  HOocc->Fill(j->id().ieta(),j->id().iphi());
+	  // Separate SiPMs and HPDs:
+	  if (((j->id().iphi()>=59 && j->id().iphi()<=70 && 
+		j->id().ieta()>=11 && j->id().ieta()<=15) || 
+	       (j->id().iphi()>=47 && j->id().iphi()<=58 && 
+		j->id().ieta()>=5 && j->id().ieta()<=10)))
+	  {  
+	    HOSEne->Fill(j->energy());
+	    HOSTime->Fill(j->time());
+	  } else if ((j->id().iphi()<59 || j->id().iphi()>70 || 
+		      j->id().ieta()<11 || j->id().ieta()>15) && 
+		     (j->id().iphi()<47 || j->id().iphi()>58 ||
+		      j->id().ieta()<5  || j->id().ieta()>10))
+	  {
+	    HOHEne->Fill(j->energy());
+	    HOHTime->Fill(j->time());
+	    // Separate rings -1,-2,0,1,2 in HPDs:
+	    if (j->id().ieta()<= -11){
+	      HOHrm2Ene->Fill(j->energy());
+	      HOHrm2Time->Fill(j->time());
+	    } else if (j->id().ieta()>= -10 && j->id().ieta() <= -5) {
+	      HOHrm1Ene->Fill(j->energy());
+	      HOHrm1Time->Fill(j->time());
+	    } else if (j->id().ieta()>= -4 && j->id().ieta() <= 4) {
+	      HOHr0Ene->Fill(j->energy());
+	      HOHr0Time->Fill(j->time());
+	    } else if (j->id().ieta()>= 5 && j->id().ieta() <= 10) {
+	      HOHrp1Ene->Fill(j->energy());
+	      HOHrp1Time->Fill(j->time());
+	    } else if (j->id().ieta()>= 11) {
+	      HOHrp2Ene->Fill(j->energy());
+	      HOHrp2Time->Fill(j->time());
+	    } else {
+	      std::cout << "Finding events that are in no ring !?!" << std::endl;
+	      std::cout << "eta = " << j->id().ieta() << std::endl;
+	      
+	    }
+	  } else {
+	    std::cout << "Finding events that are neither SiPM nor HPD!?" << std::endl;	    
+	  }
+
+	  
+
         }
         //      std::cout << *j << std::endl;
       }
@@ -712,12 +830,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     std::vector<edm::Handle<EBRecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<EBRecHitCollection> >::iterator i;
+
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	//	if (j->id() == EcalBarrel) {
+	if (j->id().subdetId() == EcalBarrel) {
 	  EBEne->Fill(j->energy()); 
 	  EBTime->Fill(j->time()); 
-	  //	}
+	}
 	//	std::cout << *j << std::endl;
 	//	std::cout << j->id() << std::endl;
       }
@@ -732,10 +851,20 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     std::vector<edm::Handle<EERecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	//	if (j->id().subdet() == EcalEndcap) {
+	if (j->id().subdetId() == EcalEndcap) {
 	  EEEne->Fill(j->energy()); 
-	  EETime->Fill(j->time()); 
-	  //	}
+	  EETime->Fill(j->time());
+	  // Separate +-EE;
+	  EEDetId EEid = EEDetId(j->id());
+	  if (!EEid.positiveZ()) 
+	  {
+	    EEnegEne->Fill(j->energy()); 
+	    EEnegTime->Fill(j->time()); 
+	  }else{
+	    EEposEne->Fill(j->energy()); 
+	    EEposTime->Fill(j->time()); 
+	  }
+	}
 	//	std::cout << *j << std::endl;
       }
     }
