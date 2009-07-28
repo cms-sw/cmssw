@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/07/09 12:15:54 $ 
+ **  $Date: 2009/07/28 13:48:13 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -159,7 +159,6 @@ void PhotonOfflineClient::runClient()
  
   }
  
-  std::cout << "booked\n"; 
 
 
 
@@ -205,7 +204,6 @@ void PhotonOfflineClient::runClient()
   dbe_->removeElement("convEtLoose");
   dbe_->removeElement("convEtTight"); 
 
-  std::cout << "entering loop\n"; 
 
 
   for(uint type=0;type!=types.size();++type){
@@ -224,7 +222,7 @@ void PhotonOfflineClient::runClient()
       dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsEta"),dbe_->get(currentFolder_.str() +  "phoEtaBadChannels"),dbe_->get(currentFolder_.str() +  "phoEta"));
       dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsPhi"),dbe_->get(currentFolder_.str() +  "phoPhiBadChannels"),dbe_->get(currentFolder_.str() +  "phoPhi"));
 
-      std::cout << "divided " << types[type] << "\n"; 
+
 
       //removing unneeded plots
       
@@ -234,7 +232,7 @@ void PhotonOfflineClient::runClient()
       dbe_->removeElement("phoEtaBadChannels");
       dbe_->removeElement("phoPhiBadChannels");
 
-      std::cout << "removed " << types[type] << "\n"; 
+
 
 //       dbe_->removeElement("nIsoTracksSolidVsEta2D");
 //       dbe_->removeElement("nIsoTracksHollowVsEta2D");
