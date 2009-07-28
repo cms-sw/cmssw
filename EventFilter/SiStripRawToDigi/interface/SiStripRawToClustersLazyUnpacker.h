@@ -97,9 +97,6 @@ namespace sistrip {
     /// FED mode
     sistrip::FEDReadoutMode mode_;
     
-    /// Cache of buffers pointed to by FED9UEvent
-    std::list<FEDRawData> fedRawData_;
-    
   };
   
 }

@@ -542,12 +542,8 @@ namespace sistrip {
 	}
       }
     
-      // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
-      FEDRawData output;
-      locateStartOfFedBuffer( *ifed, input, output );
-
       // Check on FEDRawData pointer
-      if ( !output.data() ) {
+      if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning(sistrip::mlRawToDigi_)
 	    << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
@@ -558,7 +554,7 @@ namespace sistrip {
       }	
     
       // Check on FEDRawData size
-      if ( !output.size() ) {
+      if ( !input.size() ) {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning(sistrip::mlRawToDigi_)
 	    << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
@@ -574,7 +570,7 @@ namespace sistrip {
       // construct FEDBuffer
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
-        buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));
+        buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
       }
       catch (const cms::Exception& e) { 

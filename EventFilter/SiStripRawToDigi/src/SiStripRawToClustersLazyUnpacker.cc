@@ -173,8 +173,7 @@ namespace sistrip {
     buffers_(),
     rawToDigi_(0,0,0,0,0),
     dump_(dump),
-    mode_(sistrip::READOUT_MODE_INVALID),
-    fedRawData_()
+    mode_(sistrip::READOUT_MODE_INVALID)
   {
     buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));
   }
@@ -217,14 +216,10 @@ namespace sistrip {
 	if (!buffer) {
 	
 	  // Retrieve FED raw data for given FED
-	  const FEDRawData& input = raw_->FEDData( static_cast<int>(fedId) );
-	
-	  // Cache new correctly-ordered FEDRawData object (to maintain scope for Fed9UEvent)
-	  fedRawData_.push_back( FEDRawData() );
-	  rawToDigi_.locateStartOfFedBuffer( fedId, input, fedRawData_.back() );
+          const FEDRawData& rawData = raw_->FEDData( static_cast<int>(fedId) );
 	
 	  // Check on FEDRawData pointer
-	  if ( !fedRawData_.back().data() ) {
+	  if ( !rawData.data() ) {
             if (edm::isDebugEnabled()) {
               edm::LogWarning(sistrip::mlRawToCluster_)
                 << "[sistrip::RawToClustersLazyGetter::" 
@@ -237,7 +232,7 @@ namespace sistrip {
 	  }	
 	
 	  // Check on FEDRawData size
-	  if ( !fedRawData_.back().size() ) {
+	  if ( !rawData.size() ) {
 	    if (edm::isDebugEnabled()) {
               edm::LogWarning(sistrip::mlRawToCluster_)
                 << "[sistrip::RawToClustersLazyGetter::" 
@@ -250,7 +245,7 @@ namespace sistrip {
 	
 	  // construct FEDBuffer
 	  try {
-            buffer = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());
+            buffer = new sistrip::FEDBuffer(rawData.data(),rawData.size());
             if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
           }
 	  catch (const cms::Exception& e) { 
@@ -266,7 +261,7 @@ namespace sistrip {
 	  // dump of FEDRawData to stdout
 	  if ( dump_ ) {
 	    std::stringstream ss;
-	    rawToDigi_.dumpRawData( fedId, input, ss );
+	    rawToDigi_.dumpRawData( fedId, rawData, ss );
 	    LogTrace(mlRawToDigi_) 
 	      << ss.str();
 	  }
