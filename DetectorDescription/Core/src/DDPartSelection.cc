@@ -77,7 +77,6 @@ struct DDSelLevelFtor
   DDSelLevelCollector & c_;    
 };
 
-
 struct DDIsChildFtor
 {
   
@@ -520,3 +519,10 @@ std::ostream & operator<<(std::ostream & os, const std::vector<DDPartSelection> 
   }
   return os;
 }
+
+// explicit template instantiation.
+
+template class DDI::Singleton<DDSelLevelFtor>;
+//template class DDI::Singleton<DDI::Store<DDName, DDSelLevelCollector> >;
+template class DDI::Singleton<DDSelLevelCollector>;
+#include <DetectorDescription/Base/interface/Singleton.icc>
