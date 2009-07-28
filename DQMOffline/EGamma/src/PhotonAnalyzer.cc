@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/07/14 11:35:41 $ 
+ **  $Date: 2009/07/28 12:08:28 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -254,6 +254,12 @@ void PhotonAnalyzer::beginJob()
 
 	h_phoEta_isol_.push_back(dbe_->book1D("phoEta",types[type]+" Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
+
+	h_phoEta_BadChannels_isol_.push_back(dbe_->book1D("phoEtaBadChannels",types[type]+"Photons with bad channels: Eta",etaBin,etaMin, etaMax)) ;
+	h_phoEt_BadChannels_isol_.push_back(dbe_->book1D("phoEtBadChannels",types[type]+"Photons with bad channels: Et ", etBin,etMin, etMax));
+	h_phoPhi_BadChannels_isol_.push_back(dbe_->book1D("phoPhiBadChannels",types[type]+"Photons with bad channels: Phi ", phiBin,phiMin, phiMax));
+
+
 	h_scEta_isol_.push_back(dbe_->book1D("scEta",types[type]+" SuperCluster Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_scPhi_isol_.push_back(dbe_->book1D("scPhi",types[type]+" SuperCluster Phi;#phi ",phiBin,phiMin,phiMax)) ;
 
@@ -351,15 +357,18 @@ void PhotonAnalyzer::beginJob()
       }//end loop over isolation type
 
 
-
-
-
-
-
       h_phoE_.push_back(h_phoE_isol_);
       h_phoE_isol_.clear();
       h_phoEt_.push_back(h_phoEt_isol_);
       h_phoEt_isol_.clear();
+
+      h_phoEt_BadChannels_.push_back(h_phoEt_BadChannels_isol_);
+      h_phoEt_BadChannels_isol_.clear();
+      h_phoEta_BadChannels_.push_back(h_phoEta_BadChannels_isol_);
+      h_phoEta_BadChannels_isol_.clear();
+      h_phoPhi_BadChannels_.push_back(h_phoPhi_BadChannels_isol_);
+      h_phoPhi_BadChannels_isol_.clear();
+
       h_r9_.push_back(h_r9_isol_);
       h_r9_isol_.clear();
       h_hOverE_.push_back(h_hOverE_isol_);
@@ -664,7 +673,6 @@ void PhotonAnalyzer::beginJob()
 
 void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 {
-
   using namespace edm;
  
   if (nEvt_% prescaleFactor_ ) return; 
@@ -1017,32 +1025,29 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
-// 	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
+ 	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
 
 
-// 	bool atLeastOneDeadChannel=false;
-// 	for(reco::CaloCluster_iterator bcIt = matchingPho.superCluster()->clustersBegin();bcIt != matchingPho.superCluster()->clustersEnd(); ++bcIt) {
-// 	  for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != 
-// 		(*bcIt)->hitsAndFractions().end(); ++rhIt) {
+ 	bool atLeastOneDeadChannel=false;
+ 	for(reco::CaloCluster_iterator bcIt = (*iPho).superCluster()->clustersBegin();bcIt != (*iPho).superCluster()->clustersEnd(); ++bcIt) { //loop over basic clusters in SC
+ 	  for(std::vector< std::pair<DetId, float> >::const_iterator rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) { //loop over rec hits in basic cluster
 	    
-// 	    for(EcalRecHitCollection::const_iterator it =  
-// 		  ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) {
-// 	      if  (rhIt->first ==  (*it).id() ) {
-// 		if (  (*it).recoFlag() == 9 ) {
-// 		  atLeastOneDeadChannel=true;
-// 		  break;
-// 		}
-// 	      }
-// 	    }
-// 	  } 
-// 	}
+ 	    for(EcalRecHitCollection::const_iterator it = ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) { //loop over all rec hits to find the right ones
+ 	      if  (rhIt->first ==  (*it).id() ) { //found the matching rechit
+ 		if (  (*it).recoFlag() == 9 ) { //has a bad channel
+ 		  atLeastOneDeadChannel=true;
+ 		  break;
+ 		}
+ 	      }
+ 	    }
+ 	  } 
+ 	}
 	
-// 	if (   atLeastOneDeadChannel ) {
-// 	  h_BadCh_[0]->Fill( Eta_ ) ;
-// 	  h_BadCh_[1]->Fill( Phi_ );
-// 	  h_BadCh_[2]->Fill(  et());
-	  
-// 	}
+ 	if (   atLeastOneDeadChannel ) {
+	  fill2DHistoVector(h_phoPhi_BadChannels_,(*iPho).phi(),cut,type);
+	  fill2DHistoVector(h_phoEta_BadChannels_,(*iPho).eta(),cut,type);
+	  fill2DHistoVector(h_phoEt_BadChannels_,(*iPho).et(),cut,type);
+ 	}
 
 
 

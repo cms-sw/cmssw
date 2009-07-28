@@ -85,7 +85,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/19 14:29:12 $ 
+ **  $Date: 2009/07/28 12:08:18 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -331,6 +331,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_phoEta_;
   std::vector<MonitorElement*> h_phoPhi_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoPhi_;
+
+  std::vector<MonitorElement*> h_phoEta_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEta_BadChannels_;
+  std::vector<MonitorElement*> h_phoEt_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoEt_BadChannels_;
+  std::vector<MonitorElement*> h_phoPhi_BadChannels_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoPhi_BadChannels_;
+
 
   std::vector<MonitorElement*> h_scEta_isol_;
   std::vector<std::vector<MonitorElement*> > h_scEta_;
