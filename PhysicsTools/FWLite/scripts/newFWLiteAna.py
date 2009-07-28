@@ -162,10 +162,13 @@ if __name__ == '__main__':
             os.mkdir (currDir)
     # copy the file over
     shutil.copyfile (fullName, targetCC)
+    print "Copied:\n   %s\nto:\n   %s.\n" % (fullName, targetCC)
     createBuildFile (targetBuild)
     if extractBuildFilePiece (targetBuild, target):
         print "Buildfile already has '%s'.  Skipping" % target
     else :
         # we don't already have a piece here
-        if not addBuildPiece (targetBuild, buildPiece):
+        if addBuildPiece (targetBuild, buildPiece):
+            print "Added info to:\n   %s." % targetBuild
+        else:
             print "Unable to modify Buildfile.  Sorry."
