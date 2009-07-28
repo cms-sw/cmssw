@@ -76,7 +76,7 @@ namespace sistrip {
       }
       //if FE unit is enabled
       //check that channel length bytes fit into buffer
-      if (offsetBeginningOfChannel+2 >= payloadLength_) {
+      if (offsetBeginningOfChannel+1 >= payloadLength_) {
 	std::ostringstream ss;
         ss << "Channel " << uint16_t(i) << " does not fit into buffer. "
            << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
