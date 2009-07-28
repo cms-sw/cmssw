@@ -5,8 +5,8 @@
 //--------------------------------------------
 
 #include "IOPool/SecondaryInput/test/SecondaryProducer.h"
-#include "FWCore/Framework/interface/Event.h" 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,26 +17,37 @@
 
 namespace edm {
 
-  // Constructor 
+  // Constructor
   // make secondary input source
-  SecondaryProducer::SecondaryProducer(const edm::ParameterSet& ps) : secInput_(makeSecInput(ps)) {
+  SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
+	secInput_(makeSecInput(pset)),
+	sequential_(pset.getUntrackedParameter<bool>("sequential", false)) {
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
 
   // Virtual destructor needed.
-  SecondaryProducer::~SecondaryProducer() { }  
+  SecondaryProducer::~SecondaryProducer() {}
 
-  
+
   // Functions that get called by framework every event
-  void SecondaryProducer::produce(edm::Event& e, const edm::EventSetup&) { 
+  void SecondaryProducer::produce(Event& e, EventSetup const&) {
 
     typedef edmtest::ThingCollection TC;
-    typedef edm::Wrapper<TC> WTC;
+    typedef Wrapper<TC> WTC;
 
     VectorInputSource::EventPrincipalVector result;
     unsigned int fileSequenceNumber;
-    secInput_->readManyRandom(1, result, fileSequenceNumber);
+
+    if (sequential_) {
+      secInput_->readManySequential(1, result, fileSequenceNumber);
+      if (result.empty()) {
+        secInput_->rewind();
+        secInput_->readManySequential(1, result, fileSequenceNumber);
+      }
+    } else {
+      secInput_->readManyRandom(1, result, fileSequenceNumber);
+    }
 
     EventPrincipal *p = &**result.begin();
     EDProduct const* ep = p->getByType(TypeID(typeid(TC))).wrapper();
@@ -49,7 +60,6 @@ namespace edm {
     // Put output into event
     e.put(thing);
   }
-
 
   boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet sec_input = ps.getParameter<ParameterSet>("input");

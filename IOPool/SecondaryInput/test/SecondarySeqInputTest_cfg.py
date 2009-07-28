@@ -18,6 +18,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.Thing = cms.EDProducer("SecondaryProducer",
+    sequential = cms.untracked.bool(True),
     input = cms.SecSource("PoolSource",
         fileNames = cms.untracked.vstring('file:SecondaryInputTest2.root')
     )
