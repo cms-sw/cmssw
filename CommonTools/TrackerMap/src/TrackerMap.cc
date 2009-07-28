@@ -340,6 +340,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
   std::string filetype=s,outputfilename=s;
   vector<TPolyLine*> vp;
+  TGaxis *axis ;
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
@@ -378,6 +379,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     }
   }
 }
+  if (maxvalue == minvalue) printflag = false;
   if(!temporary_file){
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<endl;
@@ -467,9 +469,11 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
         pline->Draw("f");
       }
     }
-    TGaxis *axis = new TGaxis(3060,36,3060,1530,minvalue,maxvalue,510,"+L");
-    axis->SetLabelSize(0.02);
-    axis->Draw();
+    if (printflag) {
+      axis = new TGaxis(3060,36,3060,1530,minvalue,maxvalue,510,"+L");
+      axis->SetLabelSize(0.02);
+      axis->Draw();
+    }
     TLatex l;
     l.SetTextSize(0.04);
     l.DrawLatex(500,50,"-z");
@@ -520,6 +524,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     system(command1);
     MyC->Clear();
     delete MyC;
+    delete axis;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
 
