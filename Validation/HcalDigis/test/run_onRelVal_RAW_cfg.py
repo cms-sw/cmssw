@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
@@ -25,15 +25,14 @@ process.source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
-'file:'
-      )
+ )
 )
 
 process.hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
     digiLabel = cms.InputTag("hcalDigis"),
     outputFile = cms.untracked.string('HcalDigisValidation.root'),
     hcalselector = cms.untracked.string('all'),
-    zside = cms.untracked.string('*')
+    zside = cms.untracked.string('*'),
     mode = cms.untracked.string('multi')
 )
 
