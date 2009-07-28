@@ -73,13 +73,13 @@ int main (int argc, char* argv[])
       //////////////////////////////////
       // Take What We Need From Event //
       //////////////////////////////////
-      fwlite::Handle< vector< pat::Jet > > jetCollection;
-      jetCollection.getByLabel (eventCont, "selectedLayer1Jets");
-      assert ( jetCollection.isValid() );
+      fwlite::Handle< vector< pat::Jet > > jetHandle;
+      jetHandle.getByLabel (eventCont, "selectedLayer1Jets");
+      assert ( jetHandle.isValid() );
 						
       // Loop over the jets
-      const vector< pat::Jet >::const_iterator kJetEnd = jetCollection->end();
-      for (vector< pat::Jet >::const_iterator jetIter = jetCollection->begin();
+      const vector< pat::Jet >::const_iterator kJetEnd = jetHandle->end();
+      for (vector< pat::Jet >::const_iterator jetIter = jetHandle->begin();
            kJetEnd != jetIter; 
            ++jetIter) 
       {         
