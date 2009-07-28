@@ -4,8 +4,6 @@
 
 using namespace edm;
 
-template <> const int  CrossingFrame<PSimHit>::limHighLowTof = 36;
-
 template <> 
 void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
