@@ -29,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("writeInt",
-                                Number=cms.int32(10)
+                                Number=cms.int32(_CurrentRun_)
                                 )
 
 process.p = cms.Path(process.mytest)
