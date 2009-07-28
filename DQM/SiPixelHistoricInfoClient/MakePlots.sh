@@ -1,10 +1,14 @@
 #!/bin/sh
 
-First=2
+First=$1
 
 PlotDir="CurrentPixelPlots"
 
-SiPixelHDQMInspector 2
+if [ $2 ]; then
+SiPixelHDQMInspector $First $2
+else
+SiPixelHDQMInspector $First
+fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir
 mv *.eps $PlotDir
