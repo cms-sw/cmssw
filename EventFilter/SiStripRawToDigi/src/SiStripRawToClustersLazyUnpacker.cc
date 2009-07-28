@@ -207,68 +207,84 @@ namespace sistrip {
       // Loop over apv-pairs of det
       std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
       for (;iconn!=idet->second.end();iconn++) {
+        const uint16_t fedId = iconn->fedId();
       
 	// If fed id is null or connection is invalid continue
-	if ( !iconn->fedId() || !iconn->isConnected() ) { continue; }    
+	if ( !fedId || !iconn->isConnected() ) { continue; }    
       
 	// If Fed hasnt already been initialised, extract data and initialise
-	if (!buffers_[iconn->fedId()]) {
+        FEDBuffer* buffer = buffers_[fedId];
+	if (!buffer) {
 	
 	  // Retrieve FED raw data for given FED
-	  const FEDRawData& input = raw_->FEDData( static_cast<int>(iconn->fedId()) );
+	  const FEDRawData& input = raw_->FEDData( static_cast<int>(fedId) );
 	
 	  // Cache new correctly-ordered FEDRawData object (to maintain scope for Fed9UEvent)
 	  fedRawData_.push_back( FEDRawData() );
-	  rawToDigi_.locateStartOfFedBuffer( iconn->fedId(), input, fedRawData_.back() );
+	  rawToDigi_.locateStartOfFedBuffer( fedId, input, fedRawData_.back() );
 	
 	  // Check on FEDRawData pointer
 	  if ( !fedRawData_.back().data() ) {
-	    edm::LogWarning(sistrip::mlRawToCluster_)
-	      << "[sistrip::RawToClustersLazyGetter::" 
-	      << __func__ 
-	      << "]"
-	      << " NULL pointer to FEDRawData for FED id " 
-	      << iconn->fedId();
+            if (edm::isDebugEnabled()) {
+              edm::LogWarning(sistrip::mlRawToCluster_)
+                << "[sistrip::RawToClustersLazyGetter::" 
+                << __func__ 
+                << "]"
+                << " NULL pointer to FEDRawData for FED id " 
+                << fedId;
+            }
 	    continue;
 	  }	
 	
 	  // Check on FEDRawData size
 	  if ( !fedRawData_.back().size() ) {
-	    edm::LogWarning(sistrip::mlRawToCluster_)
-	      << "[sistrip::RawToClustersLazyGetter::" 
-	      << __func__ << "]"
-	      << " FEDRawData has zero size for FED id " 
-	      << iconn->fedId();
+	    if (edm::isDebugEnabled()) {
+              edm::LogWarning(sistrip::mlRawToCluster_)
+                << "[sistrip::RawToClustersLazyGetter::" 
+                << __func__ << "]"
+                << " FEDRawData has zero size for FED id " 
+                << fedId;
+            }
 	    continue;
 	  }
 	
 	  // construct FEDBuffer
 	  try {
-            buffers_[iconn->fedId()] = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());
-            if (!buffers_[iconn->fedId()]->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << iconn->fedId() << ".";
+            buffer = new sistrip::FEDBuffer(fedRawData_.back().data(),fedRawData_.back().size());
+            if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
           }
 	  catch (const cms::Exception& e) { 
-	    edm::LogWarning(sistrip::mlRawToCluster_) 
-	      << "Exception caught when creating FEDBuffer object for FED " << iconn->fedId() << ": " << e.what();
-	    if ( buffers_[iconn->fedId()] ) { delete buffers_[iconn->fedId()]; }
-	    buffers_[iconn->fedId()] = 0;
+            if (edm::isDebugEnabled()) {
+              edm::LogWarning(sistrip::mlRawToCluster_) 
+                << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << e.what();
+            }
+	    if ( buffer ) { delete buffer; }
+	    buffers_[fedId] = 0;
 	    continue;
 	  }
 
 	  // dump of FEDRawData to stdout
 	  if ( dump_ ) {
 	    std::stringstream ss;
-	    rawToDigi_.dumpRawData( iconn->fedId(), input, ss );
+	    rawToDigi_.dumpRawData( fedId, input, ss );
 	    LogTrace(mlRawToDigi_) 
 	      << ss.str();
 	  }
 
 	  // record readout mode
-	  mode_ = buffers_[iconn->fedId()]->readoutMode();
+	  mode_ = buffer->readoutMode();
 	}
 
 	// check channel
-	if (!buffers_[iconn->fedId()]->channelGood(iconn->fedCh())) continue; 
+        const uint8_t fedCh = iconn->fedCh();
+	if (!buffer->channelGood(fedCh)) {
+          if (edm::isDebugEnabled()) {
+            std::ostringstream ss;
+            ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
+            edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+          }
+          continue;
+        }
       
 	// Determine APV std::pair number
 	uint16_t ipair = iconn->apvPairNumber();
@@ -277,7 +293,7 @@ namespace sistrip {
 	if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
 	
 	  // create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
 	
 	  // unpack
 	  while (unpacker.hasData()) {
@@ -289,7 +305,7 @@ namespace sistrip {
 	else if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
 	
 	  // create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
 	
 	  // unpack
 	  while (unpacker.hasData()) {
@@ -301,7 +317,7 @@ namespace sistrip {
 	else if (mode_ == sistrip::READOUT_MODE_VIRGIN_RAW ) {
 
 	  // create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh));
 
 	  // unpack
 	  std::vector<int16_t> digis;
@@ -324,7 +340,7 @@ namespace sistrip {
 	else if (mode_ == sistrip::READOUT_MODE_PROC_RAW ) {
 
 	  // create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffers_[iconn->fedId()]->channel(iconn->fedCh()));
+	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(fedCh));
 
 	  // unpack
 	  std::vector<int16_t> digis;
@@ -350,7 +366,7 @@ namespace sistrip {
 	    << " FEDRawData readout mode "
 	    << mode_
 	    << " from FED id "
-	    << iconn->fedId() 
+	    << fedId 
 	    << " not supported."; 
 	  continue;
 	}

@@ -482,7 +482,7 @@ namespace sistrip {
     if ( edm::isDebugEnabled() ) {
       if ( cabling.feds().empty() ) {
 	edm::LogWarning(sistrip::mlRawToDigi_)
-	  << "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	  << " No FEDs found in cabling map!";
 	// Check which FED ids have non-zero size buffers
 	std::vector<uint16_t> feds;
@@ -493,7 +493,7 @@ namespace sistrip {
 	  }
 	}
 	LogTrace("SiStripRawToDigi")
-	  << "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	  << " Found " 
 	  << feds.size() 
 	  << " FED buffers with non-zero size!";
@@ -801,6 +801,15 @@ namespace sistrip {
 	} 
       } // channel loop
     } // fed loop
+
+    // bad channels warning
+    if ( edm::isDebugEnabled() ) {
+      std::ostringstream ss;
+      ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+         << " Problems were found in data and " << detids.size() << " channels could not be unpacked. "
+         << "See output of FED Hardware monitoring for more information. ";
+      edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
+    }
 
     // update DetSetVectors
     update(scope_mode, virgin_raw, proc_raw, zero_suppr);
