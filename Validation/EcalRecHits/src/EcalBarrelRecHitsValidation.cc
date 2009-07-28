@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2008/10/29 10:56:43 $
+ * $Date: 2009/07/02 11:17:47 $
  * \author C. Rovelli
  *
  */
@@ -81,7 +81,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
       
       sprintf (histo, "EB Chi2" );
-      meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+      meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
 
       sprintf (histo, "EB RecHit Max Sample Ratio"); 
       meEBUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
@@ -99,7 +99,7 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitsJitterGt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
       sprintf (histo, "EB Chi2 gt 100 adc counts" );
-      meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+      meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
     
       sprintf (histo, "EB RecHit Max Sample Ratio gt 100 adc counts"); 
       meEBUncalibRecHitMaxSampleRatioGt100adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);

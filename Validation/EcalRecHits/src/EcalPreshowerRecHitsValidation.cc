@@ -1,7 +1,7 @@
 /*
  * \file EcalPreshowerRecHitsValidation.cc
  *
- * $Date: 2008/02/29 20:48:32 $
+ * $Date: 2008/10/29 10:56:43 $
  * \author C. Rovelli
  *
  */
@@ -105,10 +105,10 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
       meESRecHitsMultip_zm2nd_ = dbe_->book1D(histo, histo, 100, 0., 700.);
 
       sprintf (histo, "Preshower EE vs ES energy Side+");
-      meESEERecHitsEnergy_zp_ = dbe_->book2D(histo, histo, 100, 0., 0.1, 100, 0., 40.);
+      meESEERecHitsEnergy_zp_ = dbe_->book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
       sprintf (histo, "Preshower EE vs ES energy Side-");
-      meESEERecHitsEnergy_zm_ = dbe_->book2D(histo, histo, 100, 0., 0.1, 100, 0., 40.);
+      meESEERecHitsEnergy_zm_ = dbe_->book2D(histo, histo, 100, 0., 0.2, 100, 0., 150.);
 
       for (int kk=0; kk<32; kk++)
 	{ 
