@@ -17,9 +17,10 @@ const std::string CommandLineParser::kSpaces = " \t";
 
 CommandLineParser::CommandLineParser (const string &usage,
                                       unsigned int optionsType) :
-   m_usageString (usage)
+   m_argv0(""), m_usageString (usage), 
+   m_printOptions (true), m_optionsType (optionsType)
 {
-   if (optionsType & kEventContOpt)
+   if (m_optionsType & kEventContOpt)
    {
       // Integer options
       addOption ("totalSections", kInteger,
@@ -102,8 +103,13 @@ CommandLineParser::parseArguments (int argc, char** argv, bool returnArgs)
             m_printOptions = true;
             continue;
          }
+         if ('n' == first)
+         {
+            m_printOptions = false;
+            continue;
+         }
          // Exit after printing values
-         if ('e' == first || 'h' == first)
+         if ('h' == first)
          {
             callHelp = true;
             continue;
@@ -133,6 +139,9 @@ CommandLineParser::help()
    {
       cout << m_argv0 << " - " << m_usageString << endl;
    }
+   cout << "--help    - This screen" << endl
+        << "--noPrint - Do not print out all settings" << endl 
+        << "--print   - Print out all settings" << endl;
    printOptionValues();
    exit (0);
 }

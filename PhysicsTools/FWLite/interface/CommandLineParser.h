@@ -40,12 +40,16 @@ class CommandLineParser : public VariableMapCont
       // Constructors and Destructor //
       /////////////////////////////////
       CommandLineParser (const std::string &usage, 
-                         unsigned int optionsType);
+                         unsigned int optionsType = kEventContOpt);
 
       ////////////////
       // One Liners //
       ////////////////
 
+      // turn on (true) or off (false) printing of options by default
+      void setPrintOptoins (bool print) { m_printOptions = print; }
+
+      // return vector calling arguments
       const SVec argVec() const { return m_fullArgVec; }
 
       //////////////////////////////

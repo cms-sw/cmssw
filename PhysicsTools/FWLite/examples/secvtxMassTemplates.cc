@@ -16,6 +16,7 @@
 #include "TH2F.h"
 
 using namespace std;
+using optutl::CommandLineParser;
 
 enum
 {
@@ -58,16 +59,16 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("Creates SecVtx Mass templates",
-                                     optutl::CommandLineParser::kEventContOpt);
+   CommandLineParser parser ("Creates SecVtx Mass templates",
+                                     CommandLineParser::kEventContOpt);
 
    //////////////////////////////////////////////////////
    // Add any command line options you would like here //
    //////////////////////////////////////////////////////
-   parser.addOption ("mode",         optutl::CommandLineParser::kInteger, 
+   parser.addOption ("mode",         CommandLineParser::kInteger, 
                      "Normal(0), VQQ(1), LF(2), Wc(3)", 
                      0);   
-   parser.addOption ("sampleName",   optutl::CommandLineParser::kString, 
+   parser.addOption ("sampleName",   CommandLineParser::kString, 
                      "Sample name (e.g., top, Wqq, etc.)");   
 
    ////////////////////////////////////////////////
@@ -283,7 +284,7 @@ void outputNameTagFunc (string &tag)
    // on the command line options, simply do nothing here.  This
    // function is designed to be called by fwlite::EventContainer constructor.
 
-   // if ( optutl::boolValue ("someCondition") )
+   // if ( boolValue ("someCondition") )
    // { 
    //    tag += "_someCond";
    // }
@@ -296,10 +297,10 @@ void bookHistograms (fwlite::EventContainer &eventCont)
    // First, come up with all possible base   //
    // names (E.g., Wbb, Wb2, etc.).           //
    /////////////////////////////////////////////
-   using namespace optutl;
+   CommandLineParser &parser = eventCont.parser();
    CommandLineParser::SVec baseNameVec;
    CommandLineParser::SVec beginningVec, endingVec;
-   switch ( eventCont.parser().integerValue ("mode") )
+   switch ( parser.integerValue ("mode") )
    {
       case kVqqMode:
          // We want Wbb, Wb2, .., Zbb, ..  In this case, we completely
@@ -328,12 +329,12 @@ void bookHistograms (fwlite::EventContainer &eventCont)
       case kLFMode:
          // just like the default case, except that we do have some
          // heavy flavor pieces here, too.
-         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName") + "b3");
-         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName") + "c3");
+         baseNameVec.push_back(parser.stringValue ("sampleName") + "b3");
+         baseNameVec.push_back(parser.stringValue ("sampleName") + "c3");
          // no break because to add just the name as well
       default:
          // We just want to use the sample name as it was given to us.
-         baseNameVec.push_back(eventCont.parser().stringValue ("sampleName"));
+         baseNameVec.push_back(parser.stringValue ("sampleName"));
    } // for switch
 
    ////////////////////////////////////////
@@ -399,8 +400,9 @@ void bookHistograms (fwlite::EventContainer &eventCont)
 bool calcSampleName (fwlite::EventContainer &eventCont, string &sampleName)
 {
    // calculate sample name
-   sampleName = eventCont.parser().stringValue  ("sampleName");
-   int mode   = eventCont.parser().integerValue ("mode");
+   CommandLineParser &parser = eventCont.parser();
+   sampleName = parser.stringValue  ("sampleName");
+   int mode   = parser.integerValue ("mode");
 
    /////////////////
    // Normal Mode //
