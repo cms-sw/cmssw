@@ -92,7 +92,8 @@ try:
       dbUserName = line.split()[2]
     if line.find('dbPassword') >= 0:
       dbPassword = line.split()[2]
-  file.close()except:  pass
+  file.close()
+except:  pass
 
 process = cms.Process("ECALDQM")
 
