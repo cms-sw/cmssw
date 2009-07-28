@@ -1,0 +1,8 @@
+
+namespace DDI {
+   template <class I> 
+	 I& Singleton<I>::instance() {
+		static I value;
+		return value;
+	}
+}

@@ -12,14 +12,7 @@ namespace DDI {
    
    //~Singleton() { delete instance_; }
    
-   static value_type & instance() {
-     static Ptr<I> value = new I;
-     return *value;
-   
-     //static char buf [sizeof (I)];
-     //static pointer_type obj = new (buf) I;
-     //return obj;
-   }
+   static value_type & instance();
    
  private:  
    Singleton();
