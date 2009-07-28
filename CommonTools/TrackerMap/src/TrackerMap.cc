@@ -524,7 +524,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     system(command1);
     MyC->Clear();
     delete MyC;
-    delete axis;
+    if (printflag)delete axis;
     for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
 
