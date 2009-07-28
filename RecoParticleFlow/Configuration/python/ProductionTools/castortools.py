@@ -1,10 +1,32 @@
 #!/usr/bin/env python
+# API for castor 
+# Colin Bernet, July 2009 
 
 from optparse import OptionParser
 import sys,os, re, pprint
 
+
+def isCastorDir( dir ):
+    try:
+        pattern = re.compile( '^/castor' )
+    except:
+        print 'please enter a valid regular expression '
+        sys.exit(1)
+
+    if pattern.match( dir ):
+        return True
+    else:
+        return False
+    
+
 # returns all castor files in a directory matching regexp
-def allCastorFiles( castorDir, regexp ):
+def allCastorFiles( castorDir, regexp, protocol=False, castor=True):
+
+    ls = 'rfdir'
+    protocol = 'rfio'
+    if castor == False:
+        ls = 'ls -l'
+        protocol = 'file'
 
     try:
         pattern = re.compile( regexp )
@@ -12,7 +34,7 @@ def allCastorFiles( castorDir, regexp ):
         print 'please enter a valid regular expression '
         sys.exit(1)
 
-    allFiles = os.popen("rfdir %s | awk '{print $9}'" % (castorDir))
+    allFiles = os.popen("%s %s | awk '{print $9}'" % (ls, castorDir))
 
     matchingFiles = []
     for file in allFiles.readlines():
@@ -20,7 +42,9 @@ def allCastorFiles( castorDir, regexp ):
         
         m = pattern.match( file )
         if m:
-            fullCastorFile = 'rfio:%s/%s' % (castorDir, file)
+            fullCastorFile = '%s/%s' % (castorDir, file)
+            if protocol:
+                fullCastorFile = '\'%s:%s/%s' % (protocol, castorDir, file)
             matchingFiles.append( fullCastorFile )
 
     allFiles.close()
@@ -66,7 +90,7 @@ def cleanFiles( castorDir, regexp, tolerance):
         relDiff = (averageSize - size) / averageSize
         if relDiff < tolerance:
             # ok
-            # print file, size, relDiff
+            print file, size, relDiff
             cleanFiles.append( file )
         else:
             print 'skipping', file, ': size too small: ', size, relDiff
@@ -87,12 +111,38 @@ def fileIndex( regexp, file ):
 
     m = numPattern.search( file )
     if m:
-        return int(m.group(1))
+        try:
+            return int( m.group(1) )
+        except:
+            print 'fileIndex: please modify your regular expression to find the file index. The expression should contain the string (\d+).'
+            sys.exit(2)
+            
     else:
-        print file, ': cannot find number.'
+        print file, "does not match your regexp ", regexp
         return -1
 
-# extract the file index using regexp
+def filePrefixAndIndex( regexp, file ):
+
+    try:
+        pattern = re.compile( regexp )
+    except:
+        print 'fileIndex: please enter a valid regular expression '
+        sys.exit(1)
+        
+    m = pattern.search( file )
+    if m:
+        try:
+            return (m.group(1), int( m.group(2) ) )
+        except:
+            print 'fileIndex: please modify your regular expression to find the prefix and file index. The expression should contain 2 statements in parenthesis. the second one should be (\d+).'
+            sys.exit(2)
+            
+    else:
+        print file, "does not match your regexp ", regexp
+        return -1
+    
+
+# extract the file index AND THE PREFIX using regexp
 # sort both collections of files according to the index 
 def extractNumberAndSort( regexp, files ):
     numAndFile = []
@@ -109,13 +159,11 @@ def extractNumberAndSort( regexp, files ):
 # finds the file index using regexp
 # sort both collections of files according to the index
 # returns the list of single files in each collection 
-def sync( regexp, files1, files2):
+def sync( regexp1, files1, regexp2, files2):
 
     # should be defined from outside
-    regexp = '_(\d+)\.root'
-
-    numAndFile1 = extractNumberAndSort( regexp, files1 )
-    numAndFile2 = extractNumberAndSort( regexp, files2 )
+    numAndFile1 = extractNumberAndSort( regexp1, files1 )
+    numAndFile2 = extractNumberAndSort( regexp2, files2 )
    
     i1 = 0
     i2 = 0
@@ -158,7 +206,14 @@ def move( absDestDir, files ):
     for file in files:
         baseName = os.path.basename(file)
         rfrename = 'rfrename %s %s/%s' % (file, absDestDir, baseName)
-        #print rfrename
+        print rfrename
         os.system( rfrename )
-        
+
+# remove a set of files
+def remove( files ):
+    for file in files:
+        rfrm = 'rfrm %s' % file
+        print rfrm
+        os.system( rfrm )
+
 

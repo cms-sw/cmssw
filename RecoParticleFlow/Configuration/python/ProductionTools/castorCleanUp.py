@@ -31,8 +31,8 @@ castorDir = args[0]
 regexp1 = args[1]
 regexp2 = args[2]
 
-(clean1, dirty1) = cleanFiles( castorDir, regexp1, options.cleanTolerance)
-(clean2, dirty2) = cleanFiles( castorDir, regexp2, options.cleanTolerance)
+(clean1, dirty1) = castortools.cleanFiles( castorDir, regexp1, options.cleanTolerance)
+(clean2, dirty2) = castortools.cleanFiles( castorDir, regexp2, options.cleanTolerance)
 
 print 'dirty files, 1: '
 pprint.pprint( dirty1 )
@@ -49,6 +49,9 @@ elif len(dirty1) or len(dirty2):
     print 'to remove dirty files in both collections, run again with option -d'
 
 single = castortools.sync( regexp1, clean1, regexp2, clean2 )
+print 'single files:'
+pprint.pprint( single )
+
 
 if options.removeSingle:
     trash = 'Single'

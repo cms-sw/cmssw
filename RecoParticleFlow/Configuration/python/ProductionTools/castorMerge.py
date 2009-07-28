@@ -2,24 +2,20 @@
 
 from optparse import OptionParser
 import sys,os, re, pprint
+import castortools 
 import FWCore.ParameterSet.Config as cms
 
 chunkNumber = 0
 
 
-def createDir( dir ):
-    absName = '%s/%s' % (castorDir, dir)
-    out = os.system( 'rfdir %s' % absName )
-    print out
-    if out!=0:
-        # dir does not exist
-        os.system( 'rfmkdir %s' % absName )
-    return absName
 
-
-def processFiles( files ):
+def processFiles( regexp, files ):
     
     global chunkNumber
+
+    if len(files) == 0:
+        print 'processFiles: no file in input'
+        sys.exit(2)
 
     print 'Processing files:'
     pprint.pprint( files )
@@ -34,9 +30,10 @@ def processFiles( files ):
         )
     
     # build output file name
+    file = os.path.basename( files[0] )
+    (prefix, index) = castortools.filePrefixAndIndex( regexp, file)
     
-    
-    tmpRootFile = '/tmp/aod_QCDForPF_Full_chunk%d.root' % chunkNumber
+    tmpRootFile = '/tmp/%s_chunk%d.root' % (prefix,chunkNumber)
 
     print '  destination: ', tmpRootFile
     process.aod = cms.OutputModule(
@@ -58,7 +55,7 @@ def processFiles( files ):
     if options.negate == True:
         return
 
-    chunkDir = createDir( 'Chunks' )
+    chunkDir = castortools.createSubDir( castorDir, 'Chunks' )
     
     os.system("cmsRun tmpConfig.py")
     print 'done. transferring file to: ', chunkDir
@@ -89,28 +86,7 @@ chunkSize = int(args[2])
 
 print 'Merging files in: ', castorDir
 
-try:
-    pattern = re.compile( regexp )
-except:
-    print 'please enter a valid regular expression '
-    sys.exit(1)
-
-allFiles = os.popen("rfdir %s | awk '{print $9}'" % (castorDir))
-
-matchingFiles = []
-
-
-print 'matching files:'
-for file in allFiles.readlines():
-    file = file.rstrip()
-
-    m = pattern.match( file )
-    if m:
-        print file
-        fullCastorFile = 'rfio:%s/%s' % (castorDir, file)
-        matchingFiles.append( fullCastorFile )
-
-
+matchingFiles = castortools.allCastorFiles( castorDir, regexp, rfio=True)
 
 # grouping files
 count = 0
@@ -120,7 +96,7 @@ for file in matchingFiles:
     chunk.append( file )
     if count == chunkSize:
         count = 0
-        processFiles( chunk )
+        processFiles( regexp, chunk )
         chunk = []
         
 # remaining files:
