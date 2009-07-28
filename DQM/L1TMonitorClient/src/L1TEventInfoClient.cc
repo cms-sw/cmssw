@@ -298,7 +298,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     float nonisoResult = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
     summaryContent[1] = ( nonisoResult < (1.0+1e-10) ) ? nonisoResult : 1.0;
-    reportSummaryContent_[1]->Fill( summaryContent[1] );
+    //reportSummaryContent_[1]->Fill( summaryContent[1] );
   }
 
 
@@ -337,7 +337,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     float isoResult = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
     summaryContent[2] = ( isoResult < (1.0+1e-10) ) ? isoResult : 1.0;
-    reportSummaryContent_[2]->Fill( summaryContent[2] );
+    //reportSummaryContent_[2]->Fill( summaryContent[2] );
   }
 
 
@@ -376,7 +376,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     float taujetsResult = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
     summaryContent[3] = ( taujetsResult < (1.0+1e-10) ) ? taujetsResult : 1.0;
-    reportSummaryContent_[3]->Fill( summaryContent[3] );
+    //reportSummaryContent_[3]->Fill( summaryContent[3] );
   }
 
 
@@ -418,7 +418,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     float jetsResult = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
     summaryContent[4] = ( jetsResult < (1.0+1e-10) ) ? jetsResult : 1.0;
-    reportSummaryContent_[4]->Fill( summaryContent[4] );
+    //reportSummaryContent_[4]->Fill( summaryContent[4] );
   }
 
 
@@ -458,7 +458,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     float muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
     summaryContent[5] = ( muonResult < (1.0+1e-10) ) ? muonResult : 1.0;
-    reportSummaryContent_[5]->Fill( summaryContent[5] );
+    //reportSummaryContent_[5]->Fill( summaryContent[5] );
   }
 
 
@@ -483,7 +483,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if( gt_algobits_prob!=-1 && gt_techbits_prob!=-1 ) summaryContent[6] = 0.5*( gt_algobits_prob + gt_techbits_prob );
   else if( GT_AlgoBits_QHist && GT_TechBits_QHist  ) summaryContent[6] = 1;
   else summaryContent[6] = 0;
-  reportSummaryContent_[6]->Fill( summaryContent[6] );
+  //reportSummaryContent_[6]->Fill( summaryContent[6] );
 
 
 
@@ -609,9 +609,13 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int numUnMaskedSystems = 0;
   for( int m=0; m<nSubsystems; m++ ){
-    if( summaryContent[m]!=-1 && m<7 ){
-      summarySum += summaryContent[m];
-      numUnMaskedSystems++;
+    if( summaryContent[m]!=-1){
+      if( m<7 ){
+	summarySum += summaryContent[m];
+	numUnMaskedSystems++;
+      }
+
+      reportSummaryContent_[m]->Fill( summaryContent[m] );
     }
   }
 
