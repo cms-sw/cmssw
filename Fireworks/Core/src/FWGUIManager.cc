@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.136 2009/07/02 19:09:00 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.137 2009/07/21 14:51:56 amraktad Exp $
 //
 
 // system include files
@@ -126,7 +126,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_waitForUserAction(true),
    m_code(0),
    m_editableSelected(0),
-   m_detailViewManager(new FWDetailViewManager),
+   m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
    m_dataAdder(0),
    m_ediFrame(0),
@@ -171,6 +171,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                                                 this);
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+
+      m_detailViewManager = new FWDetailViewManager(m_cmsShowMainFrame);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
