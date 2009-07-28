@@ -1,7 +1,8 @@
 #include "DQMServices/Diagnostic/test/HDQMInspector.h"
 #include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
+#include <string>
 
-void SiPixelHDQMInspector (int const NRuns) {
+void SiPixelHDQMInspector (const std::string & tagName, int const NRuns) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -21,7 +22,7 @@ void SiPixelHDQMInspector (int const NRuns) {
   HDQMInspectorConfigSiPixel PixelConfig;
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
-  A.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
+  A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
 
 
   A.setDebug(1);
@@ -51,7 +52,7 @@ void SiPixelHDQMInspector (int const NRuns) {
 }
 
 
-void SiPixelHDQMInspector (int const Start, int const End) {
+void SiPixelHDQMInspector (const std::string &tagName, int const Start, int const End) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -71,7 +72,7 @@ void SiPixelHDQMInspector (int const Start, int const End) {
   HDQMInspectorConfigSiPixel PixelConfig;
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
-  A.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
+  A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
 
 
   A.setDebug(1);
@@ -105,18 +106,18 @@ void SiPixelHDQMInspector (int const Start, int const End) {
 
 int main (int argc, char* argv[])
 {
-  if (argc != 2 && argc != 3) {
-    std::cerr << "Usage: " << argv[0] << " [NRuns]" << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [FirstRun] [LastRun]" << std::endl;
+  if (argc != 3 && argc != 4) {
+    std::cerr << "Usage: " << argv[0] << " [TagName] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [TagName] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
-  if (argc == 2) {
-    std::cout << "Creating trends for NRuns = " << argv[1] << std::endl;    
-    SiPixelHDQMInspector( atoi(argv[1]) );
-  } else if(argc == 3) {
-    std::cout << "Creating trends for range:  " << argv[1] << " " << argv[2] << std::endl;    
-    SiPixelHDQMInspector( atoi(argv[1]), atoi(argv[2]) );
+  if (argc == 3) {
+    std::cout << "Creating trends for NRuns = " << argv[2] << " for tag: " << argv[1] << std::endl;
+    SiPixelHDQMInspector( argv[1], atoi(argv[2]) );
+  } else if(argc == 4) {
+    std::cout << "Creating trends for range:  " << argv[2] << " " << argv[3] << " for tag: " << argv[1] << std::endl;
+    SiPixelHDQMInspector( argv[1], atoi(argv[2]), atoi(argv[3]) );
   }
 
   return 0;
