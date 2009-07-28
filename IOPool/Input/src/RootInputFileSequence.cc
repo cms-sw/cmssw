@@ -115,14 +115,9 @@ namespace edm {
 	  }
 	}
       }
-    } else {
-      Service<RandomNumberGenerator> rng;
-      if(!rng.isAvailable()) {
-        throw edm::Exception(errors::Configuration)
-          << "A secondary input source requires the RandomNumberGeneratorService\n"
-          << "which is not present in the configuration file.  You must add the service\n"
-          << "in the configuration file or remove the modules that require it.";
-      }
+    }
+    Service<RandomNumberGenerator> rng;
+    if(rng.isAvailable()) {
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
@@ -149,7 +144,7 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if(firstFile_) {
-      // The first input file has already been opened, or a rewind has occurred.
+      // The first input file has already been opened.
       firstFile_ = false;
       if(!rootFile_) {
 	initFile(skipBadFiles_);
@@ -362,18 +357,22 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    firstFile_ = true;
-    fileIter_ = fileIterBegin_;
-    currentRun_ = skippedToRun_ = 0U;
-    currentLumi_ = skippedToLumi_ = 0U;
-    skippedToEvent_ = 0U;
-    skippedToEntry_ = FileIndex::Element::invalidEntry;
+    if (fileIter_ != fileIterBegin_) {
+      closeFile_();
+      fileIter_ = fileIterBegin_;
+      initFile(false);
+    }
+    rewindFile();
   }
 
   // Rewind to the beginning of the current file
   void
   RootInputFileSequence::rewindFile() {
     rootFile_->rewind();
+    currentRun_ = skippedToRun_ = 0U;
+    currentLumi_ = skippedToLumi_ = 0U;
+    skippedToEvent_ = 0U;
+    skippedToEntry_ = FileIndex::Element::invalidEntry;
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
@@ -551,6 +550,13 @@ namespace edm {
 
   void
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    if (!flatDistribution_) {
+      throw edm::Exception(errors::Configuration)
+        << "The function PoolSource::readManyRandom(...) requires the RandomNumberGeneratorService,\n"
+        << "which is not present in the configuration file.  You must add the service\n"
+        << "in the configuration file or remove the modules that require it.\n";
+    }
+
     skipBadFiles_ = false;
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     while(eventsRemainingInFile_ < number) {
