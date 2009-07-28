@@ -67,7 +67,9 @@ namespace condtest {
   DEFINE_FWK_MODULE(TestUpdater);
 }
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+EVENTSETUP_DATA_REG(std::vector<int>);
 
+#include "CondCore/PluginSystem/interface/registration_macros.h"
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(OneIntRcd, std::vector<int> );
