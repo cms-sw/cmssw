@@ -29,7 +29,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.maxEvents = cms.untracked.PSet(
- input = cms.untracked.int32(1000)
+ input = cms.untracked.int32(400)
 )
 
 process.prod = cms.EDAnalyzer("TestUpdater")

@@ -46,7 +46,7 @@ namespace condtest {
   void TestUpdater::analyze(const edm::Event& e, const edm::EventSetup& c) {
     ++evCount;
 
-    if (evCount==3) update(e.id().run()+1);
+    if (0==e.id().run()%2 && evCount==3) update(e.id().run()+1);
     
 
     edm::ESHandle<std::vector<int> > h;
