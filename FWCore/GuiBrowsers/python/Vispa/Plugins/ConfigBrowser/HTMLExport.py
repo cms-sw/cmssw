@@ -130,7 +130,7 @@ class HTMLExport(FileExportPlugin):
       mod_pset = htmlPSet(mod.parameters_())
       
       mod_content_html = div(mod_table+mod_pset,'module_area',id='mod_%s'%data.label(mod))
-      return div(mod_label_html+mod_content_html,'module')
+      return div(mod_label_html+mod_content_html,'module',id='module_'+data.label(mod))
       
     def htmlPathRecursive(p):
       children = data.children(p)
@@ -148,7 +148,14 @@ class HTMLExport(FileExportPlugin):
         return htmlModule(p)
         
     toplevel={}
-    header_html = div('Config File Visualisation','header')
+    
+    
+    
+    filter_html = elem('span','Filter  '+
+                        elem('input',type='text',width=50,onkeyup="return doFilter();",id='input-filter'),
+                        'right label')
+    
+    header_html = div('Config File Visualisation'+filter_html,'header')
     
     if data.process():
       for tlo in data.children(data.topLevelObjects()[0]):
@@ -256,6 +263,22 @@ class HTMLExport(FileExportPlugin):
         area_elem.style.display='none';
         hidden_elem.style.display='block';
         label_elem.className = 'sequence_label_hidden';
+      }
+    }
+    
+    function doFilter() {
+      var text = document.getElementById('input-filter').value;
+      var regex = new RegExp(text);
+      for (var i=0;i<document.all.length;i++) {
+        if (document.all(i).id.substr(0,7)=="module_") {
+          var elem = document.all(i);
+          var elem_name = elem.id.substr(7);
+          if (regex.test(elem_name)) {
+            elem.style.display='block';
+          } else {
+            elem.style.display='none';
+          }
+        }
       }
     }
     """,
