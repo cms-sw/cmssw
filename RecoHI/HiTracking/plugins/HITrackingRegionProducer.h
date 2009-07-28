@@ -103,7 +103,7 @@ public:
 		  
       if(estTracks>regTracking) {  // regional tracking
         result.push_back( 
-            new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, thePrecise) );
+            new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, 0, thePrecise) );
       }
       else {                       // global tracking
         LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
