@@ -71,5 +71,5 @@ ecalEBunpacker = cms.EDFilter("EcalRawToDigi",
     DoRegional = cms.bool(False),
     memUnpacking = cms.bool(True),
     silentMode = cms.untracked.bool(True),
-    forceToKeepFRdata =  cms.bool(False)
+    forceToKeepFRData =  cms.bool(False)
 )
