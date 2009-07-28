@@ -9,6 +9,11 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
+    barrelRecHitProducer = cms.string('ecalRecHit'),
+    barrelRecHitCollection = cms.string('EcalRecHitsEB'),
+
+    endcapRecHitProducer = cms.string('ecalRecHit'),
+    endcapRecHitCollection = cms.string('EcalRecHitsEE'),
 
     triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
     prescaleFactor = cms.untracked.int32(1),
@@ -82,8 +87,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     yMin = cms.double(-80),                               
     yMax = cms.double(80),
                                 
-    rBin = cms.int32(200),
-    rMin = cms.double(0),                               
+    rBin = cms.int32(170),
+    rMin = cms.double(-5),                               
     rMax = cms.double(80),                                
 
     zBin = cms.int32(100),
