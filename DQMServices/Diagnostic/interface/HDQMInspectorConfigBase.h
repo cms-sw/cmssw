@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 /**
  * @author: M. De Mattia
