@@ -148,24 +148,51 @@ class HTMLExport(FileExportPlugin):
         return htmlModule(p)
         
     toplevel={}
-    for tlo in data.children(data.topLevelObjects()[0]):
-      children = data.children(tlo)
-      if children:
-        toplevel[tlo._label]=children
-        
-    path_html=''
-    if 'paths' in toplevel:
-      for path in toplevel['paths']:
-        path_html += div(htmlPathRecursive(path),'path')
-    
     header_html = div('Config File Visualisation','header')
-    file_html = div(elem('span','Process:')
+    
+    if data.process():
+      for tlo in data.children(data.topLevelObjects()[0]):
+        children = data.children(tlo)
+        if children:
+          toplevel[tlo._label]=children    
+      path_html=''
+      if 'paths' in toplevel:
+        for path in toplevel['paths']:
+          path_html += div(htmlPathRecursive(path),'path')
+    
+      file_html = div(elem('span','Process:')
                    +elem('span',data.process().name_(),'title')
                    +elem('span',data._filename,'right'),
                 'file')
+      head_html = elem('head',elem('title',data.process().name_()))
+    else:
+      toplevel['sequences']=[]
+      toplevel['paths']=[]
+      toplevel['modules']=[]
+      for tlo in data.topLevelObjects():
+        if data.type(tlo)=='Sequence':
+          toplevel['sequences']+=[tlo]
+        if data.type(tlo)=='Path':
+          toplevel['paths']+=[tlo]
+        if data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
+          toplevel['modules']+=[tlo]
+      
+      path_html = ''
+      sequence_html = ''
+      module_html = ''
+      for path in toplevel['paths']:
+        path_html += div(htmlPathRecursive(path),'path')
+      for sequence in toplevel['sequences']:
+        sequence_html += htmlPathRecursive(sequence)
+      for module in toplevel['modules']:
+        module_html += htmlModule(module)
+      file_html = div(elem('span',data._filename,'right'),'file')
+      path_html += sequence_html
+      path_html += module_html
+      head_html = elem('head',elem('title',data._filename))
     footer_html = div('gordon.ball','footer')
     
-    head_html = elem('head',elem('title',data.process().name_()))
+    
     
     style_html = elem('style',
     """
@@ -239,8 +266,8 @@ class HTMLExport(FileExportPlugin):
     return elem('html',head_html+style_html+body_html)
     
   def export(self,data,filename,filetype):
-    if not data.process():
-      raise "HTMLExport requires a cms.Process object"
+    #if not data.process():
+    #  raise "HTMLExport requires a cms.Process object"
     
     html = self.produce(data)
     
