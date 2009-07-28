@@ -45,7 +45,7 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    }
 
    // TODO - get calibration coefficients
-
+   
 
    // fill values
    double rgnEtLsb=0.;
@@ -58,10 +58,10 @@ L1GctJetFinderParamsOnlineProd::newObject( const std::string& objectKey )
    double mhtJetEtThresh=0.;
    short int etaBoundary=7;
    unsigned corrType=0;
-   std::vector< std::vector<double> > jetCorrCoeffs;
-   std::vector< std::vector<double> > tauCorrCoeffs;
+   std::vector< std::vector<double> > jetCorrCoeffs(11);
+   std::vector< std::vector<double> > tauCorrCoeffs(7);
    bool convertToEnergy=false;            // Not in OMDS
-   std::vector<double> energyConvCoeffs;  // Not in OMDS
+   std::vector<double> energyConvCoeffs(11);  // Not in OMDS
 
    results.fillVariable( "GCT_RGN_ET_LSB", rgnEtLsb );
    results.fillVariable( "GCT_HT_LSB", htLsb );
