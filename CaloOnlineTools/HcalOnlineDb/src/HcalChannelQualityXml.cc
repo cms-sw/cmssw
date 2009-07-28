@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.2 2009/07/16 16:29:35 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.3 2009/07/24 06:55:21 kukartse Exp $
 //
 
 #include <iostream>
@@ -276,6 +276,7 @@ int HcalChannelQualityXml::readStatusWordFromStdin(void){
       int _geomId = hAss.getGeomId(hAss.getSubdetector(std::string(_det))
 			      , _eta, _phi, _dep);
       _cq.status = _value;
+      _cq.onoff  = (_value & 65536)>>15;
       geomid_cq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(_geomId, _cq));      
       //cerr << "Line: " << _geomId << "   " << _cq.status << endl;
     } 
