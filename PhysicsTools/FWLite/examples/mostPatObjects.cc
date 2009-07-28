@@ -33,8 +33,7 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("Accessing many different PAT objects", 
-                                     optutl::CommandLineParser::kEventContOpt);
+   optutl::CommandLineParser parser ("Accessing many different PAT objects");
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //

@@ -11,7 +11,6 @@
 #include "TROOT.h"
 
 using namespace std;
-using optutl::CommandLineParser;
 
 ///////////////////////////
 // ///////////////////// //
@@ -29,13 +28,13 @@ int main (int argc, char* argv[])
 
 
    // Tell people what this analysis code does and setup default options.
-   CommandLineParser parser ("Plot mass of Z candidates", 
-                             CommandLineParser::kEventContOpt);
+   optutl::CommandLineParser parser ("Plot mass of Z candidates");
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //
    //      line options you would like here.     //
    ////////////////////////////////////////////////
+   parser.stringValue ("outputFile") = "zpeak1.root";
 
    // Parse the command line arguments
    parser.parseArguments (argc, argv);

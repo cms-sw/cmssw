@@ -59,8 +59,7 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   CommandLineParser parser ("Creates SecVtx Mass templates",
-                                     CommandLineParser::kEventContOpt);
+   CommandLineParser parser ("Creates SecVtx Mass templates");
 
    //////////////////////////////////////////////////////
    // Add any command line options you would like here //

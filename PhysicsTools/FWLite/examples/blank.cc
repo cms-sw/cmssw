@@ -28,8 +28,7 @@ int main (int argc, char* argv[])
 
 
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("", 
-                                     optutl::CommandLineParser::kEventContOpt);
+   optutl::CommandLineParser parser ("");
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //

@@ -28,8 +28,7 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("Plots Jet Pt", 
-                                     optutl::CommandLineParser::kEventContOpt);
+   optutl::CommandLineParser parser ("Plots Jet Pt");
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //

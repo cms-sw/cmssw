@@ -29,8 +29,7 @@ int main (int argc, char* argv[])
    ////////////////////////////////
 
    // Tell people what this analysis code does and setup default options.
-   optutl::CommandLineParser parser ("Playing with jets", 
-                                     optutl::CommandLineParser::kEventContOpt);
+   optutl::CommandLineParser parser ("Playing with jets");
 
    ////////////////////////////////////////////////
    // Change any defaults or add any new command //
