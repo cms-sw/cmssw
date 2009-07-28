@@ -11,6 +11,16 @@
 
 typedef std::vector<int> Payload;
 
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+class OneIntRcd : public edm::eventsetup::EventSetupRecordImplementation<OneIntRcd> {};
+
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+EVENTSETUP_RECORD_REG(OneIntRcd);
+
+#include "CondCore/PluginSystem/interface/registration_macros.h"
+
+REGISTER_PLUGIN(OneIntRcd, std::vector<int> );
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
