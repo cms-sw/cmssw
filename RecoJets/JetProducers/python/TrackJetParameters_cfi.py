@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-PFJetParameters = cms.PSet(
-    src            = cms.InputTag('particleFlow'),
+TrackJetParameters = cms.PSet(
+    src            = cms.InputTag("tracksForJets"),
     srcPVs         = cms.InputTag(''),
-    jetType        = cms.string('PFJet'),
+    jetType        = cms.string('BasicJet'),
     jetPtMin       = cms.double(1.0),
     inputEMin      = cms.double(0.0),
     inputEtMin     = cms.double(0.0),
@@ -16,3 +16,4 @@ PFJetParameters = cms.PSet(
       GhostArea = cms.double(0.01),
       Ghost_EtaMax = cms.double(6.0)
     )
+

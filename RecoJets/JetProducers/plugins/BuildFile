@@ -1,0 +1,10 @@
+<export></export>
+<library file="*.cc" name="RecoJetsJetProducers_plugins">
+  <use name=RecoJets/JetProducers>
+  <use name=FWCore/Framework>
+  <use name=DataFormats/JetReco>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/Records>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=fastjet>
+</library>

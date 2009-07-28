@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Cambridge-Aachen top jet producer parameters
 # $Id
 CATopJetParameters = cms.PSet(
-    subjetColl = cms.string("caTopSubJets"),# subjet collection
+    jetCollInstanceName = cms.string("caTopSubJets"),# subjet collection
     algorithm = cms.int32(1),               # 0 = KT, 1 = CA, 2 = anti-KT
     centralEtaCut = cms.double(2.5),        # eta for defining "central" jets                                     
     sumEtEtaCut = cms.double(3.0),          # eta for event SumEt                                                 

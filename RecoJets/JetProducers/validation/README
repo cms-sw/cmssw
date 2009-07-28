@@ -1,0 +1,33 @@
+--------------------
+ BUILD INSTRUCTIONS
+--------------------
+
+cmsrel CMSSW_X_Y_Z
+cd CMSSW_X_Y_Z/src
+cmsenv
+cvs co -d SchieferD/FastjetProducer UserCode/SchieferD/FastjetProducer
+cvs co Validation/RecoJets
+scram b -j4
+
+
+------------------------------------------
+ RECONSTRUCT JETS WITH FASTJETJETPRODUCER
+------------------------------------------
+
+cd SchieferD/FastjetProducer
+# edit test/runJetReco_cfg.py
+# set list of RECO files
+cmsRun test/runJetReco_cfg.py
+
+
+--------------------
+ RUN THE VALIDATION
+--------------------
+
+cd validation
+ln -s ../JetReco.root .
+cmsRun jetProducers_validation_cfg.py       # -> ref.root
+cmsRun fastjetJetProdcuer_validation_cfg.py # -> val.root
+./validation.sh
+# provide on the input line: ref.root val.root FastjetJetProducer
+firefox FastjetJetProducer/index.html &
