@@ -47,8 +47,9 @@ TH1Store::add (TH1 *histPtr)
    if (sm_verbose)
    {
       cout << "THStore::add() : Adding " << name << endl;
-   }
+   }   
    m_ptrMap[name] = histPtr;
+   histPtr->SetDirectory(0);
 }
 
 TH1*

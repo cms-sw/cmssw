@@ -53,7 +53,7 @@ EventContainer::EventContainer (optutl::CommandLineParser &parser,
    // remember my parser
    m_parserPtr = &parser;
 
-   TH1::AddDirectory(false);
+   // TH1::AddDirectory(false);
 }
 
 EventContainer::~EventContainer()
