@@ -58,7 +58,6 @@ void plotScript(string file1) {
     }
     
     TFile * f1 = new TFile(file1.c_str(), "READ");
-//    TFile * f2 = new TFile(file2.c_str(), "READ");
     
     TDirectory * mydir; 
     TObject * obj;
@@ -66,23 +65,16 @@ void plotScript(string file1) {
     anchor = 0;
     TLegend * leg = new TLegend(0.78,0.9,0.98,0.98);
     TH1F * firstH = new TH1F();
-//    TH1F * secondH = new TH1F();
     firstH->SetLineWidth(2);
-//    secondH->SetLineWidth(2);
     firstH->SetLineColor(4);
-//    secondH->SetLineColor(2);
     leg->AddEntry(firstH,file1.c_str(),"l");
-//    leg->AddEntry(secondH,file2.c_str(),"l");
     for (vector<string>::iterator vecIt = plotDirectories.begin();
             vecIt != plotDirectories.end(); ++vecIt) {
         outfile << "<br><a name=\"" << anchor << "\"><h2>" << *vecIt << "</h2></a> <a href=\"#top\">[Back to top]</a><br>\n";
         ++anchor;
-//        cout << *vecIt << endl;
-//        f1->cd((*vecIt).c_str());
         TH1 *h;
         TKey *key;
         mydir = f1->GetDirectory((*vecIt).c_str());
-//        mydir->cd((file1 + ":" + *vecIt).c_str());
         TIter nextkey(mydir->GetListOfKeys());
         float scale = 1.;
         while (key = (TKey*)nextkey()) {
@@ -110,7 +102,6 @@ void plotScript(string file1) {
                 bool is1D = true;
                 
                 if (obj->IsA()->InheritsFrom("TH2")) {
-//                    continue;
                     h->SetMarkerColor(4);
                     is1D = false;
                 } 
@@ -123,30 +114,22 @@ void plotScript(string file1) {
                     if (is1D) {
                         while (h->GetBinContent(firstBin) == 0. && firstBin < lastBin) ++firstBin;
                         while (h->GetBinContent(lastBin)  == 0. && firstBin < lastBin) --lastBin;
-                        //                    h->GetXaxis()->SetRange(firstBin, lastBin);
                     }
 
 
-//                    cout << h->GetName() << endl;
-//                    string name = h->GetName();
                     h->SetFillStyle(0);
                     h->SetLineColor(4);
                     h->SetLineWidth(2);
                     scale = 1./h->GetEntries();
                 }
 
-                //                int firstBin = h->FindFirstBinAbove();
-                //                int lastBin  = h->FindLastBinAbove();
                 if (vecIt->find("Efficiencies") == string::npos && 
                         !(obj->IsA()->InheritsFrom("TProfile"))) {
-                    //                    h->Scale(scale);
                 }
                 THStack * stack = new THStack("stack",h->GetTitle());
                 stack->Add(h);
-                //                h->Draw();
 
 
-                //                        h2->Draw("same");
 
                 stack->Draw("nostack");
                 if (is1D) stack->GetXaxis()->SetRange(firstBin, lastBin);
