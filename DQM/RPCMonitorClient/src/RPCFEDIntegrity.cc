@@ -140,14 +140,32 @@ void  RPCFEDIntegrity::bookFEDMe(void){
   if(dbe_){
     dbe_->setCurrentFolder(prefixDir_+"/FEDIntegrity/");
 
-    fedMe_[Entries] =  dbe_->book1D("FEDEntries","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    fedMe_[Fatal] =  dbe_->book1D("FEDFatal","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-    fedMe_[NonFatal] =  dbe_->book1D("FEDNonFatal","FEDEntries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
-
+    fedMe_[Entries] =  dbe_->book1D("FEDEntries","FED Entries",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+    this->labelBins(fedMe_[Entries]);
+    fedMe_[Fatal] =  dbe_->book1D("FEDFatal","FED Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+    this->labelBins(fedMe_[Fatal]);
+    fedMe_[NonFatal] =  dbe_->book1D("FEDNonFatal","FED NON Fatal Errors",numOfFED_, minFEDNum_, maxFEDNum_ +1);
+   this->labelBins(fedMe_[NonFatal]);
   }
 
   init_ = true;
 }
+
+void RPCFEDIntegrity::labelBins( MonitorElement * myMe){
+
+  int xbins = myMe->getNbinsX();
+  
+  if (xbins!= numOfFED_ ) return;
+  stringstream xLabel;
+
+  for (int i = 0; i<xbins; i++){
+    xLabel.str("");
+    int fedNum =  minFEDNum_ +0;
+    xLabel<<fedNum;
+    myMe->setBinLabel(i+1, xLabel.str(),1);    
+  }
+}
+
 
 void  RPCFEDIntegrity::reset(void){
 

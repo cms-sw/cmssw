@@ -113,7 +113,7 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     name << "Endcap, After Pulse, Diff bx, Disk # " << id.region()*id.station();
 	     me = dbe_->get(globalFolder_ + "/"+tag.str());
 	     if (!me){
-	       me = dbe_->book2D (tag.str(),name.str(),36,1.0,36.0, 3*numberOfRings_, 0.0, 3*numberOfRings_);
+	       me = dbe_->book2D (tag.str(),name.str(),36,0.5,36.5, 3*numberOfRings_, 0.0, 3*numberOfRings_);
 	       
 	       rpcUtils.labelXAxisSegment(me);
 	       rpcUtils.labelYAxisRing(me, numberOfRings_);
