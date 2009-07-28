@@ -17,9 +17,6 @@ class OneIntRcd : public edm::eventsetup::EventSetupRecordImplementation<OneIntR
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 EVENTSETUP_RECORD_REG(OneIntRcd);
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
-
-REGISTER_PLUGIN(OneIntRcd, std::vector<int> );
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -69,3 +66,8 @@ namespace condtest {
 
   DEFINE_FWK_MODULE(TestUpdater);
 }
+
+#include "CondCore/PluginSystem/interface/registration_macros.h"
+
+DEFINE_SEAL_MODULE();
+REGISTER_PLUGIN(OneIntRcd, std::vector<int> );
