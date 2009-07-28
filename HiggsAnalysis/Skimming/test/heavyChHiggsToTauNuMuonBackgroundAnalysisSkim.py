@@ -14,6 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("HiggsAnalysis.Skimming.heavyChHiggsToTauNu_SkimPaths_cff")
 process.load("HiggsAnalysis.Skimming.heavyChHiggsToTauNu_OutputModule_cff")
+process.heavyChHiggsToTauNuOutputModuleRECOSIM.outputCommands = cms.untracked.vstring("keep *")
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -25,7 +26,7 @@ process.source = cms.Source("PoolSource",
 )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/HiggsAnalysis/Skimming/test/heavyChHiggsToTauNuMuonBackgroundAnalysisSkim.py,v $'),
     annotation = cms.untracked.string('Skim for heavy H+->tau nu background events with muon selected instead of tau')
 )
