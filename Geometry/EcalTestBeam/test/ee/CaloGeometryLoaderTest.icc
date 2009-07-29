@@ -310,10 +310,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 const HepPoint3D SB ( sur[4*i+1] ) ;
 	 const HepPoint3D SC ( sur[4*i+2] ) ;
 	 const HepPoint3D SD ( sur[4*i+3] ) ;
-/*	 const HepPoint3D SB ( sur[4*i] ) ;
-	 const HepPoint3D SC ( sur[4*i+1] ) ;
-	 const HepPoint3D SD ( sur[4*i+2] ) ;
-	 const HepPoint3D SA ( sur[4*i+3] ) ;*/
+/*	 const HepPoint3D SD ( sur[4*i] ) ;
+	 const HepPoint3D SA ( sur[4*i+1] ) ;
+	 const HepPoint3D SB ( sur[4*i+2] ) ;
+	 const HepPoint3D SC ( sur[4*i+3] ) ;*/
 
 	 const HepPoint3D aa ( SA ) ;
 	 const HepPoint3D bb ( SA + ( SB-SA ).unit()*(B0-A0).mag() ) ;
@@ -556,7 +556,6 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       bool keepGoing ( true ) ;
       while( keepGoing )
       {
-
 	 std::cout<<"\n\n+++ Preparing to make two files for the table position you specify" ;
 
 	 std::cout<<"\n\n**Enter desired H position (integer, 25000-300000) [0 to quit]: "<<std::ends ;
@@ -583,22 +582,57 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       // calculate transform parameters ================================================
 
 
-//	       const HepPlane3D plaV ( sur[20], sur[28], sur[36] ) ;
-//	       const double angleVPerUnit ( ( plaV.point( sur[36] ) - PIVOT ).angle(
-//					       plaV.point( sur[20] ) - PIVOT ) ) ;
+	       const HepPlane3D plaV ( sur[20], sur[28], sur[36] ) ;
 
-//	       const HepPlane3D plaH ( sur[16], sur[0], sur[8] ) ;
-//	       const double angleHPerUnit ( ( plaH.point( sur[8] ) - PIVOT ).angle(
-//					       plaH.point( sur[16] ) - PIVOT ) ) ;
+	       const HepPoint3D projPiv ( plaV.point( PIVOT ) ) ;
 
-	       const double angleHPerUnit ( ( sur[8] - PIVOT ).angle( sur[16] - PIVOT )/176458. ) ;
+	       const double angleVPerUnit (
+		  ( plaV.point( sur[36] ) - projPiv ).angle(
+		     plaV.point( sur[20] ) - projPiv )/16000. ) ;
+
+	       const HepPlane3D plaH ( sur[16], sur[0], sur[8] ) ;
+
+	       const HepPoint3D projPivH ( plaH.point( PIVOT ) ) ;
+
+	       const double angleHPerUnit (
+		  ( plaH.point( sur[8] ) - projPivH ).angle(
+		     plaH.point( sur[16] ) - projPivH )/176458 ) ;
+
+
+	       const double angleV1 ( ( plaV.point( sur[24] ) - projPiv ).angle( plaV.point( sur[20] ) - projPiv ) ) ;
+	       const double angleV2 ( ( plaV.point( sur[28] ) - projPiv ).angle( plaV.point( sur[24] ) - projPiv ) ) ;
+	       const double angleV3 ( ( plaV.point( sur[32] ) - projPiv ).angle( plaV.point( sur[28] ) - projPiv ) ) ;
+	       const double angleV4 ( ( plaV.point( sur[36] ) - projPiv ).angle( plaV.point( sur[32] ) - projPiv ) ) ;
+
+	       const double angleH1 ( ( plaH.point( sur[12] ) - projPivH ).angle( plaH.point( sur[16] ) - projPivH ) ) ;
+	       const double angleH2 ( ( plaH.point( sur[ 0] ) - projPivH ).angle( plaH.point( sur[12] ) - projPivH ) ) ;
+	       const double angleH3 ( ( plaH.point( sur[ 4] ) - projPivH ).angle( plaH.point( sur[ 0] ) - projPivH ) ) ;
+	       const double angleH4 ( ( plaH.point( sur[ 8] ) - projPivH ).angle( plaH.point( sur[ 4] ) - projPivH ) ) ;
+
+
+	       std::cout<<"\n V angles are: "
+			<<angleV1*kRadToDeg/4000.<<", "
+			<<angleV2*kRadToDeg/4000.<<", "
+			<<angleV3*kRadToDeg/4000.<<", "
+			<<angleV4*kRadToDeg/4000.<<std::endl ;
+
+	       std::cout<<"\n H angles are: "
+			<<angleH1*kRadToDeg/50000.<<", "
+			<<angleH2*kRadToDeg/72402.<<", "
+			<<angleH3*kRadToDeg/9995.<<", "
+			<<angleH4*kRadToDeg/44601.<<std::endl ;
+
 	       std::cout<<"angleHPerUnit="<<kRadToDeg*angleHPerUnit*1.e3<<std::endl ;
 
-	       const double angleVPerUnit ( ( sur[36] - PIVOT ).angle( sur[20] - PIVOT )/16000. ) ;
 	       std::cout<<"angleVPerUnit="<<kRadToDeg*angleVPerUnit*1.e3<<std::endl ;
 
-	       const HepRotate3D  vRotate ( ( Vinput -  16000 )*angleVPerUnit, vpl[0] ) ;
-	       const HepRotateZ3D hRotate ( ( Hinput - 191000 )*angleHPerUnit ) ;
+
+	       const double hAngle ( ( 1.*Hinput - 191000. )*angleHPerUnit ) ;
+
+	       const double vAngle ( ( 1.*Vinput -  16000. )*angleVPerUnit ) ;
+
+	       const HepRotate3D  vRotate ( -vAngle, H4ToBeamLine*vpl[0] ) ;
+	       const HepRotateX3D hRotate ( -hAngle ) ;
 
 	       const HepTransform3D myTrf ( V3Transform*hRotate*vRotate ) ;
 
