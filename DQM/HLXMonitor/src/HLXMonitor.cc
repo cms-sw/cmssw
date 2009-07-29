@@ -59,7 +59,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    set2AboveIndex   = 5;
 
    runNumLength     = 9;
-   secNumLength     = 6;
+   secNumLength     = 8;
 
    if(NUM_HLX > 36)       
      NUM_HLX = 36;
@@ -691,10 +691,11 @@ void HLXMonitor::SaveDQMFile(){
 
   std::ostringstream tempStreamer;
   tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
+               << "_V0001"
 	       << "_R" << std::setfill('0') << std::setw(runNumLength) 
 	       << runNumber_ 
-// 	       << "_" << std::setfill('0') << std::setw(secNumLength) 
-// 	       << lumiSection.hdr.sectionNumber
+ 	       << "_T" << std::setfill('0') << std::setw(secNumLength) 
+ 	       << lumiSection.hdr.sectionNumber
  	       << ".root";
   dbe_->save(tempStreamer.str());
 }
