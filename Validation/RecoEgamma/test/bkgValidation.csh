@@ -84,6 +84,14 @@ cd $OUTDIR
 
 if ( $TYPE == Photons ) then
 
+cat > efficiencyForBkg <<EOF
+  bkgEffVsEta
+  bkgEffVsPhi
+  bkgEffVsEt
+  deadChVsEtaBkg
+  deadChVsPhiBkg
+  deadChVsEtBkg
+EOF
 
 
 
@@ -111,7 +119,13 @@ cat > unscaledhistosForBkg <<EOF
   pEcalRecHitSumEtConeDR04VsEtBkgEndcap
   pEcalRecHitSumEtConeDR04VsEtaBkgAll
 
+EOF
 
+cat > 2DhistosForBkg <<EOF
+  R9VsEtaBkgAll
+  R9VsEtBkgAll
+  hOverEVsEtaBkgAll
+  hOverEVsEtBkgAll
 
 
 EOF
@@ -133,6 +147,45 @@ cat begin.C >>& validation.C
 rm begin.C
 
 setenv N 1
+
+
+foreach i (`cat efficiencyForBkg`)
+  cat > temp$N.C <<EOF
+
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
+$i->SetStats(0);
+if ( $i==deadChVsEtaBkg ||  $i==deadChVsPhiBkg ||  $i==deadChVsEtBkg ) {
+$i->SetMinimum(0.);
+$i->SetMaximum(0.2);
+} else {
+$i->SetMinimum(0.);
+$i->SetMaximum(1.1);
+}
+$i->SetLineColor(kPink+8);
+$i->SetMarkerColor(kPink+8);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->SetLineWidth(1);
+$i->Draw();
+
+file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
+$i->SetStats(0);
+$i->SetMinimum(0.);
+$i->SetMaximum(1.1);
+$i->SetLineColor(kBlack);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->SetLineWidth(1);
+$i->Draw("same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
 
 
 
@@ -183,7 +236,7 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
 if ( $i==pEcalRecHitSumEtConeDR04VsEtaBkgAll ) {  
-$i->GetYaxis()->SetRangeUser(0.,5.);
+$i->GetYaxis()->SetRangeUser(0.,25.);
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgBarrel ) 
 { $i->GetYaxis()->SetRangeUser(0.,20.); 
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgEndcap  ) 
@@ -212,6 +265,34 @@ c$i->SaveAs("gifs/$i.gif");
 EOF
   setenv N `expr $N + 1`
 end
+
+
+
+
+
+foreach i (`cat 2DhistosForBkg`)
+  cat > temp$N.C <<EOF
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
+$i->SetStats(0);
+$i->SetMinimum(0.);
+$i->SetMarkerColor(kPink+8);
+$i->SetMarkerStyle(2);
+$i->SetMarkerSize(0.2);
+$i->Draw();
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
+$i->SetStats(0);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(2);
+$i->SetMarkerSize(0.2);
+$i->Draw("same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
 
 
 
@@ -277,6 +358,7 @@ rm   bkgValidationPlotsTemplate.html
 
 rm scaledhistosForBkg
 rm unscaledhistosForBkg
+rm 2DhistosForBkg
 
 #echo "Now paste the following into your terminal window:"
 #echo ""
