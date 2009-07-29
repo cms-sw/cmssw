@@ -30,11 +30,14 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-#setenv SAMPLE PhotonJetPt15
+
+#setenv SAMPLE allPhotonJet_Fid
+setenv SAMPLE PhotonJetPt15
 #setenv SAMPLE PhotonJetPt0-15
-setenv SAMPLE PhotonJetPt500toInf
 #setenv SAMPLE PhotonJetPt80
+#setenv SAMPLE PhotonJetPt80to120
 #setenv SAMPLE PhotonJetPt470
+#setenv SAMPLE PhotonJetPt500toInf
 
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
@@ -51,8 +54,14 @@ setenv SAMPLE PhotonJetPt500toInf
 
 
 
-setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/${SAMPLE}.root
-setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/${SAMPLE}.root
+#setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/${SAMPLE}.root
+#setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/${SAMPLE}.root
+
+setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/PhotonJetPt15_XrayFromData.root
+setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/results/PhotonJetPt15_XrayFromData.root
+
+
+
 
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
@@ -372,7 +381,7 @@ file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
 $i->SetMinimum(0.);
-$i->SetMaximum(0.4);
+$i->SetMaximum(0.2);
 } else {
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
@@ -449,7 +458,7 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 $i->SetStats(0);
 if ( $i==pEcalRecHitSumEtConeDR04VsEtaAll ) {  
-$i->GetYaxis()->SetRangeUser(0.,5.);
+$i->GetYaxis()->SetRangeUser(0.,3.);
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBarrel ) 
 { $i->GetYaxis()->SetRangeUser(0.,20.); 
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtEndcap  ) 
