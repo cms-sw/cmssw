@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/24 18:37:25 $ 
- **  $Revision: 1.22 $
+ **  $Date: 2009/07/26 16:30:24 $ 
+ **  $Revision: 1.23 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -169,7 +169,8 @@ class PhotonValidator : public edm::EDAnalyzer
   ///   Denominator for efficiencies
   MonitorElement*   h_SimPho_[3];
   MonitorElement*   h_AllSimConv_[5];
-  MonitorElement*   h_VisSimConv_[5];
+  MonitorElement*   h_VisSimConv_[6];
+  MonitorElement*   h_VisSimConvLarge_;
   ///   Numerator for efficiencies
   MonitorElement*   h_MatchedSimPho_[3];
   MonitorElement*   h_MatchedSimPhoBadCh_[3];
