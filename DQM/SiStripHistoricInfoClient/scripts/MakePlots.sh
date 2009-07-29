@@ -3,7 +3,9 @@
 TagName=$1
 First=$2
 
-PlotDir="CurrentStripPlots"
+PlotDir="CurrentPlots"
+
+rm -rf $PlotDir
 
 if [ $3 ]; then
 SiStripHDQMInspector $TagName $First $3

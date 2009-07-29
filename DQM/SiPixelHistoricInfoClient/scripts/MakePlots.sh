@@ -3,7 +3,9 @@
 TagName=$1
 First=$2
 
-PlotDir="CurrentPixelPlots"
+PlotDir="CurrentPlots"
+
+rm -rf $PlotDir
 
 if [ $3 ]; then
 SiPixelHDQMInspector $TagName $First $3

@@ -30,17 +30,7 @@ void SiStripHDQMInspector (const std::string & tagName, int const NRuns) {
 
   //A.setBlackList("68286");
 
-  //A.createTrend("268435456@Chi2_CKFTk@entries", "number_of_tracks.gif",1,"268435456@NumberOfTracks_CKFTk@entries>10000&&268435456@NumberOfRecHitsPerTrack_CKFTk@entries>0",NRuns);
-
-  // 
-  //A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean",
-  //                       "OnTrackClusters.gif",0,
-  //                       "268435456@NumberOfTracks_CKFTk@entries>10000&&268435456@NumberOfRecHitsPerTrack_CKFTk@entries>0",NRuns);
-
-
-A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean",
-            "OnTrackClusters.gif",1);
-
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, "", NRuns);
 
 
   A.closeFile();
@@ -80,15 +70,7 @@ void SiStripHDQMInspector (const std::string &tagName, int const Start, int cons
 
   //A.setBlackList("68286");
 
-  A.createTrend("1@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, "", Start, End);
 
 
   A.closeFile();
