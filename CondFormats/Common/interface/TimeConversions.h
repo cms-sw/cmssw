@@ -34,10 +34,11 @@ namespace cond {
 
     // for real time 
 
-    int itsNanoseconds(boost::posix_time::time_duration const & td) {
+    unsigned int itsNanoseconds(boost::posix_time::time_duration const & td) {
       boost::posix_time::time_duration::num_fractional_digits() == 6 ? 
-	1000*td.fractional_seconds() : td.fractional_seconds() );
+	1000*td.fractional_seconds() : td.fractional_seconds();
     }
+
 
     const boost::posix_time::ptime time0 =
       boost::posix_time::from_time_t(0);
