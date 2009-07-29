@@ -6,7 +6,7 @@ process.source = cms.Source("EmptySource")
 
 ### set number of events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
     )
 
 ### include to get DQM histogramming services
@@ -14,9 +14,9 @@ process.load("DQMServices.Core.DQM_cfg")
 
 ### include your reference file
 #process.DQMStore.referenceFileName = 'ref.root'
-
 ### set the verbose
-process.DQMStore.verbose = 0
+process.DQMStore.verbose = 2
+process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
 process.dqmSource   = cms.EDFilter("DQMSourceExample",
@@ -74,7 +74,7 @@ process.dqmSaver.producer = 'DQM'
 ### possible conventions are "Online" and "Offline"
 process.dqmSaver.convention = 'Online'
 
-process.dqmEnv.subSystemFolder = 'YourSubsystemName'
+process.dqmEnv.subSystemFolder = 'SubS'
 
 ### optionally change fileSaving  conditions
 process.dqmSaver.convention = 'Online'
@@ -83,10 +83,15 @@ process.dqmSaver.producer = 'DQM'
 process.dqmSaver.saveByTime = 4
 process.dqmSaver.saveByLumiSection = -1
 process.dqmSaver.saveByMinute = 8
-process.dqmSaver.saveByRun = -1
+process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 
 ### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
-process.p = cms.Path(process.dqmSource*process.qTester*process.dqmStoreStats*process.dqmClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.dqmSource
+#                    *process.qTester
+		    *process.dqmStoreStats
+#		    *process.dqmClient
+		    *process.dqmEnv
+		    *process.dqmSaver)
 

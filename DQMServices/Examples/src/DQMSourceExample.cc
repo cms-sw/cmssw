@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/01/19 12:50:46 $
- * $Revision: 1.18 $
- * $Author: dvolyans $
+ * $Date: 2009/03/09 20:20:11 $
+ * $Revision: 1.19 $
+ * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
  * monitoring elements
@@ -52,13 +52,15 @@ void DQMSourceExample::initialize() {
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   cout << "DQMSourceExample: DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
 
+// read in files (use DQMStore.collateHistograms = True for summing
+//  dbe_->load("ref.root");
+//  dbe_->load("ref.root");
 }
 
 //==================================================================//
 //========================= beginJob ===============================//
 //==================================================================//
 void DQMSourceExample::beginJob(const EventSetup& context) {
-
   ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
 
