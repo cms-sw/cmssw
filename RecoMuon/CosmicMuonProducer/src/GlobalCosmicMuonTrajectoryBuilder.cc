@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/04/15 09:40:18 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/04/16 10:43:16 $
+ *  $Revision: 1.20 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -337,7 +337,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
    vector<TrackCand> tkTrackCands;
    for(reco::TrackCollection::size_type i=0; i<theTrackerTracks->size(); ++i){
      reco::TrackRef tkTrack(theTrackerTracks,i);
-     TrackCand tkCand = TrackCand(0,tkTrack);
+     TrackCand tkCand = TrackCand((Trajectory*)(0)0,tkTrack);
      tkTrackCands.push_back(tkCand);
      LogTrace(category_) << "chisq is " << theTrackMatcher->match(mu,tkCand,0,0);
      LogTrace(category_) << "d is " << theTrackMatcher->match(mu,tkCand,1,0);

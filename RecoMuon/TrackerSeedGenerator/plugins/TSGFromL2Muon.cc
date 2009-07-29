@@ -132,7 +132,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     //get the seeds
     std::vector<TrajectorySeed> tkSeeds;
     //make this stupid TrackCand
-    std::pair<const Trajectory*,reco::TrackRef> staCand(0, muRef);
+    std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)(0), muRef);
     theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);
     if(h_nSeedPerTrack) h_nSeedPerTrack->Fill(tkSeeds.size());
 
