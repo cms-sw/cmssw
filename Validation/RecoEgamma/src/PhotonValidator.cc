@@ -78,8 +78,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/26 23:51:14 $ 
- **  $Revision: 1.44 $
+ **  $Date: 2009/07/26 23:53:44 $ 
+ **  $Revision: 1.45 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -304,6 +304,8 @@ void  PhotonValidator::beginJob() {
     h_nSimConv_[1] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
     histname = "h_VisSimConvEta";
     h_VisSimConv_[0] =  dbe_->book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
+    histname = "h_VisSimConvEtaLarge";
+    h_VisSimConvLarge_ =  dbe_->book1D(histname," All vis conversions: simulated #eta",etaBin,etaMin, etaMax);
     histname = "h_VisSimConvPhi";
     h_VisSimConv_[1] =  dbe_->book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_VisSimConvR";
@@ -312,6 +314,9 @@ void  PhotonValidator::beginJob() {
     h_VisSimConv_[3] =  dbe_->book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
     histname = "h_VisSimConvEt";
     h_VisSimConv_[4] =  dbe_->book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
+    histname = "h_VisSimConvRBarrel";
+    h_VisSimConv_[5] =  dbe_->book1D(histname," All vis conversions in barrel trk: simulated R",rBin,rMin,rMax);
+
     /// Numerators 
     histname = "h_SimConvOneTracksEta";
     h_SimConvOneTracks_[0] =  dbe_->book1D(histname," All vis conversions with 1 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
@@ -831,6 +836,7 @@ void  PhotonValidator::beginJob() {
 
     h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
     h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
+    // h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -5.,  rMaxForXray); 
     h_convVtxRvsZ_[2] =   dbe_->book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
     h_convVtxYvsX_ =   dbe_->book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.); 
     /// zooms
@@ -842,7 +848,7 @@ void  PhotonValidator::beginJob() {
     h_convVtxdX_ =   dbe_->book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -20.,20.);
     h_convVtxdY_ =   dbe_->book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -20.,20.);
     h_convVtxdZ_ =   dbe_->book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
-    h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -20.,20.);
+    h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",80, -20.,20.);
     h_convVtxdPhi_ =   dbe_->book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.005,0.005);
     h_convVtxdEta_ =   dbe_->book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
 
@@ -1326,11 +1332,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( goodSimConversion ) {
 	  nSimConv_[1]++;	
 	  h_VisSimConv_[0]->Fill( mcEta_ ) ;
+	  h_VisSimConvLarge_->Fill( mcEta_ ) ;
 	  h_VisSimConv_[1]->Fill( mcPhi_ );
 	  h_VisSimConv_[2]->Fill( mcConvR_ );
 	  h_VisSimConv_[3]->Fill( mcConvZ_ );
 	  h_VisSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
 	
+	  if (fabs(mcEta_) <=1) h_VisSimConv_[5]->Fill( mcConvR_ );
+
 	
 	  if ( useTP ) { 
 	    for ( vector<TrackingParticleRef>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
@@ -1972,55 +1981,59 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      h2_PoverPtrueVsEoverP_[2] ->Fill( eoverp, totP/ (*mcPho).fourMomentum().e()  ) ;
 	    }
 
-
-
 	    if ( aConv->conversionVertex().isValid() ) {
 	      float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
-	    
-	      h2_etaVsRreco_[0]->Fill (aConv->caloCluster()[0]->eta(),sqrt(aConv->conversionVertex().position().perp2()) );         
-	      h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+	      
+	      double convR= sqrt(aConv->conversionVertex().position().perp2());
+	      double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + 
+		aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	      if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
+	      
+	      //	      h2_etaVsRreco_[0]->Fill (aConv->caloCluster()[0]->eta(),sqrt(aConv->conversionVertex().position().perp2()) );         
+	      // h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
 	      h_convVtxdX_ ->Fill ( aConv->conversionVertex().position().x() - mcConvX_);
 	      h_convVtxdY_ ->Fill ( aConv->conversionVertex().position().y() - mcConvY_);
 	      h_convVtxdZ_ ->Fill ( aConv->conversionVertex().position().z() - mcConvZ_);
-	      h_convVtxdR_ ->Fill ( sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_);
+	      h_convVtxdR_ ->Fill ( convR - mcConvR_);
 	      h_convVtxdPhi_ ->Fill ( aConv->conversionVertex().position().phi() - mcConvPhi_);
 	      h_convVtxdEta_ ->Fill ( aConv->conversionVertex().position().eta() - mcConvEta_);
-	      h2_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
-	      h2_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
-	      p_convVtxdRVsR_ ->Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
-	      p_convVtxdRVsEta_ ->Fill (mcEta_, sqrt(aConv->conversionVertex().position().perp2()) - mcConvR_ );
-	      h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv->conversionVertex().position().perp2()) );
-
+	      h2_convVtxdRVsR_ ->Fill (mcConvR_, convR - mcConvR_ );
+	      h2_convVtxdRVsEta_ ->Fill (mcEta_, convR - mcConvR_ );
+	      p_convVtxdRVsR_ ->Fill (mcConvR_, convR - mcConvR_ );
+	      p_convVtxdRVsEta_ ->Fill (mcEta_, convR - mcConvR_ );
+	      h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, convR );
+	      
 	      if ( fabs(matchingPho.superCluster()->position().eta() ) <= 1.) {
-                if (  sqrt(aConv->conversionVertex().position().perp2()) <4 )   h_simConvVtxRvsZ_[3] ->Fill ( mcConvZ_, mcConvR_);
-
-		h_convVtxYvsX_ ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
-		h_convVtxRvsZ_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
-
-		h_convVtxYvsX_zoom_[0] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
-		h_convVtxYvsX_zoom_[1] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
-		h_convVtxRvsZ_zoom_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
-		h_convVtxRvsZ_zoom_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
-
-
+		if (  sqrt(aConv->conversionVertex().position().perp2()) <4 )   h_simConvVtxRvsZ_[3] ->Fill ( mcConvZ_, mcConvR_);
+		
+		//h_convVtxYvsX_ ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+		//h_convVtxRvsZ_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+		
+		//h_convVtxYvsX_zoom_[0] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+		//h_convVtxYvsX_zoom_[1] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+		//	h_convVtxRvsZ_zoom_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+		//h_convVtxRvsZ_zoom_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR ) ;
+		
+		
 	      }
-	      if ( fabs(matchingPho.superCluster()->position().eta() ) > 1.)      h_convVtxRvsZ_[2] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
-	    
-
-             
-
-	      h_vtxChi2Prob_[0]->Fill( chi2Prob ); 
-	      h_vtxChi2_[0]->Fill(  aConv->conversionVertex().normalizedChi2() );
-	      if ( phoIsInBarrel ) {
-		h_vtxChi2Prob_[1]->Fill( chi2Prob );
-		h_vtxChi2_[1]->Fill( aConv->conversionVertex().normalizedChi2() ); 
-	      }
-	      if ( phoIsInEndcap ) {   
-		h_vtxChi2Prob_[2]->Fill(  chi2Prob );
-		h_vtxChi2_[2]->Fill( aConv->conversionVertex().normalizedChi2() );
-	      }
-
+	      //if ( fabs(matchingPho.superCluster()->position().eta() ) > 1.)      h_convVtxRvsZ_[2] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+	      
+	      
+	      
+	      
+	      //	      h_vtxChi2Prob_[0]->Fill( chi2Prob ); 
+	      // h_vtxChi2_[0]->Fill(  aConv->conversionVertex().normalizedChi2() );
+	      //if ( phoIsInBarrel ) {
+	      //	h_vtxChi2Prob_[1]->Fill( chi2Prob );
+	      //	h_vtxChi2_[1]->Fill( aConv->conversionVertex().normalizedChi2() ); 
+	      // }
+	      //if ( phoIsInEndcap ) {   
+	      //	h_vtxChi2Prob_[2]->Fill(  chi2Prob );
+	      //		h_vtxChi2_[2]->Fill( aConv->conversionVertex().normalizedChi2() );
+	      // }
+	      
 	    } // end conversion vertex valid
+	    
 
 
 
@@ -2161,6 +2174,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       
       if (tracks.size() < 2 ) continue;
+
+      bool  phoIsInBarrel=false;
+      bool  phoIsInEndcap=false;
+      if ( fabs(aConv->caloCluster()[0]->eta() ) < 1.479 ) {
+	phoIsInBarrel=true;
+      } else {
+	phoIsInEndcap=true;
+      }
+
       
       if ( dCotCutOn_ ) {
 	if ( ( fabs(mcEta_) > 1.1 && fabs (mcEta_)  < 1.4  )  &&
@@ -2210,8 +2232,49 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	}
       }
-    }
-  }
+
+      ///////////////////////////// xray
+      if ( aConv->conversionVertex().isValid() ) {
+	float chi2Prob = ChiSquaredProbability( aConv->conversionVertex().chi2(),  aConv->conversionVertex().ndof() );
+	
+	double convR= sqrt(aConv->conversionVertex().position().perp2());
+	double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + 
+	  aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
+	if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
+	
+	h2_etaVsRreco_[0]->Fill (aConv->caloCluster()[0]->eta(),sqrt(aConv->conversionVertex().position().perp2()) );         
+	h_convVtxRvsZ_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  sqrt(aConv->conversionVertex().position().perp2())  ) ;
+	if ( fabs(aConv->caloCluster()[0]->eta() ) <= 1.) {
+	  
+	  h_convVtxYvsX_ ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+	  h_convVtxRvsZ_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+	  
+	  h_convVtxYvsX_zoom_[0] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+	  h_convVtxYvsX_zoom_[1] ->Fill ( aConv->conversionVertex().position().y() , aConv->conversionVertex().position().x()  ) ;
+	  h_convVtxRvsZ_zoom_[0] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+	  h_convVtxRvsZ_zoom_[1] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR ) ;
+	  
+	  
+	}
+	if ( fabs(aConv->caloCluster()[0]->eta() ) > 1.)      h_convVtxRvsZ_[2] ->Fill ( fabs (aConv->conversionVertex().position().z() ),  convR  ) ;
+	
+	
+	
+	
+	h_vtxChi2Prob_[0]->Fill( chi2Prob ); 
+	h_vtxChi2_[0]->Fill(  aConv->conversionVertex().normalizedChi2() );
+	if ( phoIsInBarrel ) {
+	  h_vtxChi2Prob_[1]->Fill( chi2Prob );
+	  h_vtxChi2_[1]->Fill( aConv->conversionVertex().normalizedChi2() ); 
+	}
+	if ( phoIsInEndcap ) {   
+	  h_vtxChi2Prob_[2]->Fill(  chi2Prob );
+	  h_vtxChi2_[2]->Fill( aConv->conversionVertex().normalizedChi2() );
+	}
+	
+      } // end conversion vertex valid
+    } // end loop over reco conversions
+  } // end loop on all reco photons
 
 
 
