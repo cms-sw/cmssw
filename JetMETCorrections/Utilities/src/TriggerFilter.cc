@@ -22,14 +22,14 @@ TriggerFilter::TriggerFilter(ParameterSet const& cfg)
 ////////////////////////////////////////////////////////////////////
 void TriggerFilter::beginJob(const edm::EventSetup &iSetup) 
 {
-  
+  EventsIN_ = 0;
+  EventsOUT_ = 0; 
 }
 
 bool TriggerFilter::beginRun(edm::Run  &,edm::EventSetup const&iSetup) 
 {
   //must be done at beginRun and not only at beginJob, because 
   //trigger names are allowed to change by run.
-
   hltConfig_.init(triggerProcessName_);
   // diagnostics:
   if (DEBUG_)
@@ -45,13 +45,13 @@ bool TriggerFilter::beginRun(edm::Run  &,edm::EventSetup const&iSetup)
     throw  cms::Exception("Configuration",errorMessage);
   }
   //return type: no, we do not filter whole runs.
-
   return true;
 }
 
 ////////////////////////////////////////////////////////////////////
 bool TriggerFilter::filter(edm::Event &event, const edm::EventSetup &iSetup)
 {
+  EventsIN_++;
   event.getByLabel(triggerResultsTag_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()){
     string errorMessage="Requested TriggerResult is not present in file! -- "+triggerName_+"\n";
@@ -62,6 +62,7 @@ bool TriggerFilter::filter(edm::Event &event, const edm::EventSetup &iSetup)
   assert(triggerResultsHandle_->size()==hltConfig_.size());
   
   bool result=triggerResultsHandle_->accept(triggerIndex_);
+  if (result) EventsOUT_++;
   return result;
   
 }
@@ -69,5 +70,5 @@ bool TriggerFilter::filter(edm::Event &event, const edm::EventSetup &iSetup)
 
 void TriggerFilter::endJob() 
 {
- 
+  cout<<"Total Events Processed: "<<EventsIN_<<", Events Passing the "<<triggerName_<<" trigger: "<<EventsOUT_<<endl;
 }
