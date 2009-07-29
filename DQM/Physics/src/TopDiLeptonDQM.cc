@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/07/13 10:11:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/05/13 11:00:00 $
+ *  $Revision: 1.0 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -15,10 +15,20 @@ TopDiLeptonDQM::TopDiLeptonDQM( const edm::ParameterSet& ps ) {
 
   parameters_ = ps;
   initialize();
-  muons_      = ps.getParameter<edm::InputTag>("muonCollection");
-  pT_cut_     = ps.getParameter<double>("pT_cut");
-  eta_cut_    = ps.getParameter<double>("eta_cut");
-  moduleName_ = ps.getUntrackedParameter<string>("moduleName");
+
+  moduleName_     = ps.getUntrackedParameter<string>("moduleName");
+  triggerResults_ = ps.getParameter<InputTag>("TriggerResults");
+  hltPaths_L3_    = ps.getParameter<vector<string> >("hltPaths_L3");
+  hltPaths_L3_mu_ = ps.getParameter<vector<string> >("hltPaths_L3_mu");
+  hltPaths_L3_el_ = ps.getParameter<vector<string> >("hltPaths_L3_el");
+
+  muons_          = ps.getParameter<edm::InputTag>("muonCollection");
+  muon_pT_cut_    = ps.getParameter<double>("muon_pT_cut");
+  muon_eta_cut_   = ps.getParameter<double>("muon_eta_cut");
+
+  elecs_          = ps.getParameter<edm::InputTag>("elecCollection");
+  elec_pT_cut_    = ps.getParameter<double>("elec_pT_cut");
+  elec_eta_cut_   = ps.getParameter<double>("elec_eta_cut");
 
 }
 
@@ -39,10 +49,29 @@ void TopDiLeptonDQM::beginJob(const edm::EventSetup& evt) {
 
   dbe_->setCurrentFolder(moduleName_);
 
-  Nmuons_    = dbe_->book1D("Nmuons",    "Nmuons",     10,  0.,  10.);
-  pT_muons_  = dbe_->book1D("pT_muons",  "pT_muons",  100,  0., 200.);
-  eta_muons_ = dbe_->book1D("eta_muons", "eta_muons", 100, -5.,   5.);
-  phi_muons_ = dbe_->book1D("phi_muons", "phi_muons",  80, -4.,   4.);
+  Trigs_ = dbe_->book1D("Trigs", "Fired muon/electron triggers", 10,  0.,  10.);
+
+  Muon_Trigs_ = dbe_->book1D("Muon_Trigs", "Fired muon triggers",  10,  0.,  10.);
+  Nmuons_     = dbe_->book1D("Nmuons",     "Nmuons",               10,  0.,  10.);
+  pT_muons_   = dbe_->book1D("pT_muons",   "pT_muons",            100,  0., 200.);
+  eta_muons_  = dbe_->book1D("eta_muons",  "eta_muons",           100, -5.,   5.);
+  phi_muons_  = dbe_->book1D("phi_muons",  "phi_muons",            80, -4.,   4.);
+
+  Elec_Trigs_ = dbe_->book1D("Elec_Trigs", "Fired electron triggers",  10,  0.,  10.);
+  Nelecs_     = dbe_->book1D("Nelecs",     "Nelecs",                   10,  0.,  10.);
+  pT_elecs_   = dbe_->book1D("pT_elecs",   "pT_elecs",                100,  0., 200.);
+  eta_elecs_  = dbe_->book1D("eta_elecs",  "eta_elecs",               100, -5.,   5.);
+  phi_elecs_  = dbe_->book1D("phi_elecs",  "phi_elecs",                80, -4.,   4.);
+
+  MuIso_emEt03_    = dbe_->book1D("MuIso_emEt03",    "Muon emEt03",    25, 0., 25.);
+  MuIso_hadEt03_   = dbe_->book1D("MuIso_hadEt03",   "Muon hadEt03",   20, 0., 25.);
+  MuIso_hoEt03_    = dbe_->book1D("MuIso_hoEt03",    "Muon hoEt03",    20, 0., 10.);
+  MuIso_nJets03_   = dbe_->book1D("MuIso_nJets03",   "Muon nJets03",   10, 0., 10.);
+  MuIso_nTracks03_ = dbe_->book1D("MuIso_nTracks03", "Muon nTracks03", 20, 0., 20.);
+  MuIso_sumPt03_   = dbe_->book1D("MuIso_sumPt03",   "Muon sumPt03",   20, 0., 40.);
+
+  ElecIso_cal_ = dbe_->book1D("ElecIso_cal", "Electron Iso_cal", 50, -5., 45.);
+  ElecIso_trk_ = dbe_->book1D("ElecIso_trk", "Electron Iso_trk", 50, -1.,  9.);
 
   // define logarithmic bins for a histogram with 100 bins going from 10^0 to 10^3
 
@@ -94,112 +123,190 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
     cout << "--- NO RECO MUONS !! ---" << endl;
     cout << "------------------------" << endl << endl;
 
-    return;
+    //    return;
 
   }
 
-  reco::MuonCollection::const_iterator muon;
+  edm::Handle<reco::GsfElectronCollection> elecs;
+  evt.getByLabel(elecs_, elecs);
 
-  for(muon = muons->begin(); muon!= muons->end(); ++muon) {
+  if( elecs.failedToGet() ) {
 
-    //    cout << " p_T: " << muon->pt()  << endl;
-    //    cout << " eta: " << muon->eta() << endl;
-    //    cout << " phi: " << muon->phi() << endl << endl;
+    cout << endl << "----------------------------" << endl;
+    cout << "--- NO RECO ELECTRONS !! ---" << endl;
+    cout << "----------------------------" << endl << endl;
 
-    if(     muon->pt()   < pT_cut_  )  continue;
-    if( abs(muon->eta()) > eta_cut_ )  continue;
-
-    pT_muons_->Fill( muon->pt() );
-    eta_muons_->Fill(muon->eta());
-    phi_muons_->Fill(muon->phi());
+    //    return;
 
   }
 
-  Nmuons_->Fill( muons->size() );
+  edm::Handle<TriggerResults> trigResults;
+  evt.getByLabel(triggerResults_, trigResults);
 
-  if( muons->size() < 2 )  return;
+  if( trigResults.failedToGet() ) {
 
-  reco::MuonCollection::const_reference mu1 = muons->at(0);
-  reco::MuonCollection::const_reference mu2 = muons->at(1);
-
-  if( mu1.pt() < pT_cut_ || abs(mu1.eta()) > eta_cut_ )  return;
-  if( mu2.pt() < pT_cut_ || abs(mu2.eta()) > eta_cut_ )  return;
-
-  D_eta_muons_->Fill(mu1.eta()-mu2.eta());
-  D_phi_muons_->Fill(mu1.phi()-mu2.phi());
-
-  double dilepMass = sqrt( (mu1.energy()+mu2.energy())*(mu1.energy()+mu2.energy())
-   			   - (mu1.px()+mu2.px())*(mu1.px()+mu2.px())
-   			   - (mu1.py()+mu2.py())*(mu1.py()+mu2.py())
-   			   - (mu1.pz()+mu2.pz())*(mu1.pz()+mu2.pz())
-   			   );
-
-  //  cout << "--------------------" << endl;
-  //  cout << " Dimuon mass: " << dilepMass << endl;
-  //  cout << "--------------------" << endl << endl;
-
-  if( mu1.charge()*mu2.charge() < 0. ) {
-
-    dimassRC_LOG_->Fill( dilepMass );
-    dimassRC_->Fill( dilepMass );
+    cout << endl << "-----------------------------" << endl;
+    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
+    cout << "-----------------------------" << endl << endl;
 
   }
 
-  if( mu1.charge()*mu2.charge() > 0. ) {
+  const int n_TrigPaths = hltPaths_L3_.size();
 
-    dimassWC_LOG_->Fill( dilepMass );
-    dimassWC_->Fill( dilepMass );
+  bool FiredTriggers[100] = {false};
+  bool trigFired          =  false;
+
+  if( !trigResults.failedToGet() ) {
+
+    int n_Triggers = trigResults->size();
+
+    TriggerNames trigName;
+    trigName.init(*trigResults);
+
+    for( int i_Trig = 0; i_Trig < n_Triggers; ++i_Trig ) {
+
+      if (trigResults.product()->accept(i_Trig)) {
+
+	for( int i = 0; i < n_TrigPaths; i++ ) {
+
+	  if ( trigName.triggerName(i_Trig)== hltPaths_L3_[i] ) {
+
+	    FiredTriggers[i] = true;
+	    Trigs_->Fill(i);
+
+	    //	  cout << endl << "-----------------------------" << endl;
+	    //	    cout << "Trigger: " << hltPaths_L3_[i] << " FIRED!!!  " << endl;
+	    //	    cout << "-----------------------------" << endl << endl;
+
+	    trigFired = true;
+
+	  }
+
+	}
+
+      }
+
+    }
 
   }
 
-  reco::MuonIsolation muIso03_1 = mu1.isolationR03();
-  reco::MuonIsolation muIso03_2 = mu2.isolationR03();
+  if( !muons.failedToGet() ) {
 
-  //  emEt03_   ->Fill( muIso03.emEt,   weight );
-  //  hadEt03_  ->Fill( muIso03.hadEt,  weight );
-  //  hoEt03_   ->Fill( muIso03.hoEt,   weight ); 
-  //  nTracks03_->Fill( muIso03.nTracks,weight );
-  //  sumPt03_  ->Fill( muIso03.sumPt,  weight );
+    Nmuons_->Fill( muons->size() );
 
-  //  double absTrackIso1 = mu1.trackIso();
-  //  double absTrackIso2 = mu2.trackIso();
+    reco::MuonCollection::const_iterator muon;
 
-  //  double absCaloIso1 = mu1.caloIso();
-  //  double absCaloIso2 = mu2.caloIso();  
+    for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
-  //  double relTrackIso1 = mu1.trackIso()/mu1.pt();
-  //  double relTrackIso2 = mu2.trackIso()/mu2.pt();
+      //      cout << " All muons p_T: " << muon->pt() << endl;
+      //    cout << " All muons eta: " << muon->eta() << endl;
+      //    cout << " All muons phi: " << muon->phi() << endl << endl;
 
-  //  double relCaloIso1 = mu1.caloIso()/mu1.pt();
-  //  double relCaloIso2 = mu2.caloIso()/mu2.pt();  
+      if(     muon->pt()   < muon_pT_cut_  )  continue;
+      if( abs(muon->eta()) > muon_eta_cut_ )  continue;
 
-  //  double combIso1 = mu1.pt()/(mu1.pt()+mu1.trackIso()+mu1.caloIso());
-  //  double combIso2 = mu2.pt()/(mu2.pt()+mu2.trackIso()+mu2.caloIso());     
+      pT_muons_->Fill(  muon->pt() );
+      eta_muons_->Fill( muon->eta() );
+      phi_muons_->Fill( muon->phi() );
 
-  //  double diCombIso = sqrt(combIso1*combIso1+combIso2*combIso2);
+      reco::MuonIsolation muIso03 = muon->isolationR03();
 
-  //  isoDimassCorrelation_->Fill( dilepMass, combIso1 );
-  //  isoDimassCorrelation_->Fill( dilepMass, combIso2 );
+      //      cout << " All muons sumPt: " << muIso03.sumPt << endl;
+      //      cout << " All muons emEt:  " << muIso03.emEt  << endl;
 
-  //  for( int i = 1; i <= 100; ++i ) {
+      MuIso_emEt03_->Fill(    muIso03.emEt );
+      MuIso_hadEt03_->Fill(   muIso03.hadEt );
+      MuIso_hoEt03_->Fill(    muIso03.hoEt );
+      MuIso_nJets03_->Fill(   muIso03.nJets );
+      MuIso_nTracks03_->Fill( muIso03.nTracks );
+      MuIso_sumPt03_->Fill(   muIso03.sumPt );
 
-  //    if( diCombIso>0.02*i ) {
-  //      diCombCount_->SetBinContent(i,diCombCount_->GetBinContent(i)+1);
-  //    }
+    }
 
-  //    if( combIso1>0.01*i && combIso2>0.01*i ) {
-  //      combCount_->SetBinContent(i,combCount_->GetBinContent(i)+1);
-  //    }
+    if( muons->size() > 2 ) {
 
-  //    if( relTrackIso1<(0.05*i) && relCaloIso1<(0.05*i) && relTrackIso2<(0.05*i) && relCaloIso2<(0.05*i) ) {
-  //      relCount_->SetBinContent(i,relCount_->GetBinContent(i)+1);
-  //    }
+      reco::MuonCollection::const_reference mu1 = muons->at(0);
+      reco::MuonCollection::const_reference mu2 = muons->at(1);
 
-  //    if( absTrackIso1<(0.5*i) && absCaloIso1<(0.5*i) && absTrackIso2<(0.5*i) && absCaloIso2<(0.5*i) ) {
-  //      absCount_->SetBinContent(i,absCount_->GetBinContent(i)+1);
-  //    }
+      //  cout << " Mu1 p_T: " << mu1.pt()  << endl;
+      //  cout << " Mu2 p_T: " << mu2.pt()  << endl;
 
-  //  }
+      if( mu1.pt() > muon_pT_cut_ && abs(mu1.eta()) < muon_eta_cut_ ) {
+
+	if( mu2.pt() > muon_pT_cut_ && abs(mu2.eta()) < muon_eta_cut_ ) {
+
+	  //	  cout << endl << "-----------------------" << endl;
+	  //	  cout << " Mu1 p_T: " << mu1.pt()  << endl;
+	  //	  cout << " Mu2 p_T: " << mu2.pt()  << endl;
+
+	  D_eta_muons_->Fill(mu1.eta()-mu2.eta());
+	  D_phi_muons_->Fill(mu1.phi()-mu2.phi());
+
+	  double dilepMass = sqrt( (mu1.energy()+mu2.energy())*(mu1.energy()+mu2.energy())
+				   - (mu1.px()+mu2.px())*(mu1.px()+mu2.px())
+				   - (mu1.py()+mu2.py())*(mu1.py()+mu2.py())
+				   - (mu1.pz()+mu2.pz())*(mu1.pz()+mu2.pz())
+				   );
+
+	  //  cout << "--------------------" << endl;
+	  //  cout << " Dimuon mass: " << dilepMass << endl;
+	  //  cout << "--------------------" << endl << endl;
+
+	  if( mu1.charge()*mu2.charge() < 0. ) {
+
+	    dimassRC_LOG_->Fill( dilepMass );
+	    dimassRC_->Fill( dilepMass );
+
+	  }
+
+	  if( mu1.charge()*mu2.charge() > 0. ) {
+
+	    dimassWC_LOG_->Fill( dilepMass );
+	    dimassWC_->Fill( dilepMass );
+
+	  }
+
+	}
+
+      }
+
+    }
+
+  }
+
+
+  if( !elecs.failedToGet() ) {
+
+    Nelecs_->Fill( elecs->size() );
+
+    reco::GsfElectronCollection::const_iterator elec;
+
+    //    cout << endl  << "--------------------" << endl;
+
+    for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
+
+      //      cout << " All electrons p_T: " << elec->pt() << endl;
+      //    cout << " All electrons eta: " << elec->eta() << endl;
+      //    cout << " All electrons phi: " << elec->phi() << endl << endl;
+
+      if(     elec->pt()   < elec_pT_cut_  )  continue;
+      if( abs(elec->eta()) > elec_eta_cut_ )  continue;
+
+      pT_elecs_->Fill( elec->pt() );
+      eta_elecs_->Fill(elec->eta());
+      phi_elecs_->Fill(elec->phi());
+
+      reco::GsfElectron::IsolationVariables elecIso = elec->dr03IsolationVariables();
+
+      //      cout << " All electrons EcalSumEt: " << elecIso.ecalRecHitSumEt << endl;
+      //      cout << " All electrons tkSumPt:   " << elecIso.tkSumPt << endl;
+
+      ElecIso_cal_->Fill( elecIso.ecalRecHitSumEt );
+      ElecIso_trk_->Fill( elecIso.tkSumPt );
+
+    }
+
+  }
 
 }
 
