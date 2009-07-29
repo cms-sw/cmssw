@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/26 16:30:24 $ 
- **  $Revision: 1.23 $
+ **  $Date: 2009/07/29 19:45:45 $ 
+ **  $Revision: 1.24 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -139,6 +139,9 @@ class PhotonValidator : public edm::EDAnalyzer
   double mcConvX_;            
   double mcConvPhi_;            
   double mcConvEta_;            
+  double mcJetEta_;
+  double mcJetPhi_;
+
 
   std::vector<TrackingParticleRef> theConvTP_;
   
@@ -403,8 +406,30 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* hBCEnergyOverTrackPout_[3];
 
+  // ME for bkg efficiencies
+  MonitorElement*   h_SimJet_[3];
+  MonitorElement*   h_MatchedSimJet_[3];
+  MonitorElement*   h_MatchedSimJetBadCh_[3];
   //
-  //
+  MonitorElement* h_scBkgEta_;
+  MonitorElement* h_scBkgPhi_;
+  MonitorElement* h_phoBkgEta_;
+  MonitorElement* h_phoBkgPhi_;
+  
+  MonitorElement* h_scBkgE_[3];
+  MonitorElement* h_scBkgEt_[3];
+
+  MonitorElement* h_r9Bkg_[3];
+  MonitorElement* h2_r9VsEtaBkg_;
+  MonitorElement* h2_r9VsEtBkg_;
+  MonitorElement* h_hOverEBkg_[3];
+  MonitorElement* h2_hOverEVsEtaBkg_;
+  MonitorElement* h2_hOverEVsEtBkg_;
+  MonitorElement* h_ecalRecHitSumEtConeDR04Bkg_[3];
+  MonitorElement* h2_ecalRecHitSumEtConeDR04VsEtaBkg_;
+  MonitorElement* p_ecalRecHitSumEtConeDR04VsEtaBkg_;
+  MonitorElement* h2_ecalRecHitSumEtConeDR04VsEtBkg_[3];
+  MonitorElement* p_ecalRecHitSumEtConeDR04VsEtBkg_[3];
 
 
 
