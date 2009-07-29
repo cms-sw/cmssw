@@ -9,6 +9,8 @@ Instruction about how to install and run a simple HDQM test
 
 #*** needed tags
 cvs co -r V03-00-02      DQM/SiPixelHistoricInfoClient                    
+cvs co -r V04-01-08      DQM/SiStripHistoricInfoClient                    
+cvs co -r V04-03-01      DQMServices/Diagnostic
 
 
 #****************
