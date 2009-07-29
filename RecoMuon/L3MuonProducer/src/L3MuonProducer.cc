@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2008/02/27 21:50:42 $
- *   $Revision: 1.13 $
+ *   $Date: 2009/07/29 12:22:50 $
+ *   $Revision: 1.14 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -141,7 +141,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     
     const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;      
     
-    MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand((Trajectory)(0),tk);
+    MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),tk);
     if( traj->isValid() ) L2Cand.first = &*traj ;
     L2TrackCands.push_back(L2Cand);
   }

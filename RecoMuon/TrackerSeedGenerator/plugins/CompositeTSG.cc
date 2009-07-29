@@ -22,8 +22,8 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par){
     edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
     if (TSGpset.empty()) {
       theNames.push_back((*nIt)+":"+"NULL");
-      theTSGs.push_back(0);
-      theHistos.push_back(0);
+      theTSGs.push_back((TrackerSeedGenerator*)(0));
+      theHistos.push_back((TH1F*)(0));
     }else {
       std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
       theNames.push_back((*nIt)+":"+SeedGenName);
@@ -31,7 +31,7 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par){
       theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset));
       std::string hName = "nSeedPerTrack_"+(*nIt)+"_"+SeedGenName;
       if(useTFileService_) theHistos.push_back(fs->make<TH1F>(hName.c_str(),hName.c_str(),76,-0.5,75.5));
-      else theHistos.push_back(0);
+      else theHistos.push_back((TH1F*)(0));
     }
   }
   
