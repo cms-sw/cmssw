@@ -35,9 +35,10 @@ int main() {
     std::cout << "ns " << td.total_nanoseconds()  << std::endl;
     std::cout << std::endl;
     
-    
-    bt +=  boost::posix_time::nanoseconds(19*25);
-   
+    // FIXME (when agree with Coral)
+    //bt +=  boost::posix_time::nanoseconds(19*25);
+    bt +=  cond::time::nanoseconds(19*25);
+
     td = bt - cond::time::time0;
  
     
