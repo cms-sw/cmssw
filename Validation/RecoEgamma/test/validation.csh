@@ -18,9 +18,9 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_1_1
-setenv CMSSWver2 3_2_0
+setenv CMSSWver2 3_1_2
 setenv OLDRELEASE 311
-setenv NEWRELEASE 320
+setenv NEWRELEASE 312
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
@@ -36,12 +36,12 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
-#setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 
 #==============END BASIC CONFIGURATION==================
@@ -77,8 +77,8 @@ setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/Phot
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 endif
@@ -121,7 +121,9 @@ cat > efficiencyForPhotons <<EOF
   recoEffVsEta
   recoEffVsPhi
   recoEffVsEt
-
+  deadChVsEta
+  deadChVsPhi
+  deadChVsEt
 EOF
 
 cat > scaledhistosForPhotons <<EOF
@@ -367,8 +369,13 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
+if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
+$i->SetMinimum(0.);
+$i->SetMaximum(0.2);
+} else {
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);
+}
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
