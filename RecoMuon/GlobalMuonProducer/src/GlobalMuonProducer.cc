@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2008/02/14 22:04:01 $
- *   $Revision: 1.33 $
+ *   $Date: 2008/02/27 21:50:41 $
+ *   $Revision: 1.34 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -132,14 +132,14 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       
       const reco::TrackRef tk = ( tkUpdated.isNonnull() ) ? tkUpdated : tkRegular ;
       
-      MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand(0,tk);
+      MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),tk);
       if( traj->isValid() ) tkCand.first = &*traj ;
       staTrackCands.push_back(tkCand);
     }
   } else {
     for ( unsigned int position = 0; position != staMuons->size(); ++position ) {
       reco::TrackRef staTrackRef(staMuons,position);
-      MuonTrajectoryBuilder::TrackCand staCand = MuonTrajectoryBuilder::TrackCand(0,staTrackRef);
+      MuonTrajectoryBuilder::TrackCand staCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),staTrackRef);
       staTrackCands.push_back(staCand); 
     }
   }
