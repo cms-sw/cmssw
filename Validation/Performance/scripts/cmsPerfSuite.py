@@ -1329,14 +1329,16 @@ class PerfSuite:
     
             #Archive it on CASTOR
             #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
-            checkcastor="nsls  %s" % (os.path.join(castordir,TarFile))
-            checkcastorerr=os.popen3(checkcastor)[2].read()
-            if not checkcastorerr:
-               castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
+            fullcastorpathfile=os.path.join(castordir,TarFile)
+            checkcastor="nsls  %s" % fullcastorpathfile
+            checkcastorout=os.popen3(checkcastor)[1].read()
+            if checkcastorout.rstrip()==fullcastorpathfile:
+               castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
+            else:
+               castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
                self.printFlush(castorcmd)
                castorcmdstderr=os.popen3(castorcmd)[2].read()
-            else:
-               castorcmdstderr="File already on CASTOR! Will NOT OVERWRITE!!!"
+               
             #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
             if castorcmdstderr:
                 #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory
