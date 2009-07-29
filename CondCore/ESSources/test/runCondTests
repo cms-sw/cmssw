@@ -46,7 +46,7 @@ echo "test refresh"
 cp  $runbasedir/src/CondCore/DBOutputService/test/python/writeInt_cfg.py .
 sed 's?_CurrentRun_?10?g' writeInt_cfg.py > cfg.py; cmsRun cfg.py
 cmscond_list_iov -c sqlite_file:Ints.db -t OneInt -s
-cmsRun $runbasedir/CondCore/ESSources/test/python/testUpdater_cfg.py
+cmsRun $runbasedir/src/CondCore/ESSources/test/python/testUpdater_cfg.py
 cmscond_list_iov -c sqlite_file:Ints.db -t OneInt -s
 
 
