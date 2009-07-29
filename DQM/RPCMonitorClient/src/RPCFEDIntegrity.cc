@@ -160,7 +160,7 @@ void RPCFEDIntegrity::labelBins( MonitorElement * myMe){
 
   for (int i = 0; i<xbins; i++){
     xLabel.str("");
-    int fedNum =  minFEDNum_ +0;
+    int fedNum =  minFEDNum_ + i;
     xLabel<<fedNum;
     myMe->setBinLabel(i+1, xLabel.str(),1);    
   }
