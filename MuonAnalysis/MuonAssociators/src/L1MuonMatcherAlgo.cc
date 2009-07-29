@@ -198,7 +198,7 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vecto
                     match = i;
                     deltaR   = std::sqrt(thisDeltaR2);
                     deltaPhi = thisDeltaPhi;
-                    if (sortByDeltaPhi_) sortByDeltaPhi_ = thisDeltaPhi; else minDeltaR2 = thisDeltaR2;
+                    if (sortByDeltaPhi_) minDeltaPhi = thisDeltaPhi; else minDeltaR2 = thisDeltaR2;
                 }
             }
         }
