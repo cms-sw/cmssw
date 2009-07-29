@@ -7,6 +7,10 @@
 int main() {
 
   {
+
+    std::cout << "boost frac digits " 
+	      << boost::posix_time::time_duration::num_fractional_digits()
+	      << std::endl;
     ::timeval stv;
     ::gettimeofday(&stv,0);
     
