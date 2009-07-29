@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/07 16:51:37 $ 
+ **  $Date: 2009/07/24 18:39:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -123,6 +123,15 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   MonitorElement*  convFakeRateRTwoTracks_;
   MonitorElement*  convFakeRateZTwoTracks_;
   MonitorElement*  convFakeRateEtTwoTracks_;
+
+  MonitorElement*  bkgRecoEffEta_;
+  MonitorElement*  bkgRecoEffPhi_;
+  MonitorElement*  bkgRecoEffEt_;
+
+  MonitorElement*  bkgDeadChEta_;
+  MonitorElement*  bkgDeadChPhi_;
+  MonitorElement*  bkgDeadChEt_;
+
 
 
    

@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/24 18:39:18 $ 
+ **  $Date: 2009/07/25 19:15:51 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -149,6 +149,21 @@ void PhotonPostprocessing::endJob()
   histname = "convFakeRateVsEtTwoTracks";
   convFakeRateEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
 
+  histname = "bkgEffVsEta";
+  bkgRecoEffEta_ =  dbe_->book1D(histname,"Bkg reconstruction efficiency vs simulated #eta",etaBin,etaMin, etaMax);
+  histname = "bkgEffVsPhi";
+  bkgRecoEffPhi_ =  dbe_->book1D(histname,"Bkg reconstruction efficiency vs simulated #phi",phiBin,phiMin, phiMax);
+  histname = "bkgEffVsEt";
+  bkgRecoEffEt_ =  dbe_->book1D(histname,"Bkg reconstruction efficiency vs simulated Et",etBin,etMin, etMax) ;
+  // Fraction of photons with at least one dead channel
+  histname = "deadChVsEtaBkg";
+  bkgDeadChEta_ =  dbe_->book1D(histname,"Fraction of bkg  with >=1 dead Xtal vs simulated #eta",etaBin,etaMin, etaMax);
+  histname = "deadChVsPhiBkg";
+  bkgDeadChPhi_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated #phi",phiBin,phiMin, phiMax);
+  histname = "deadChVsEtBkg";
+  bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
+
+
   
   // efficiencies
   dividePlots(dbe_->get(effPathName+"recoEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"),dbe_->get(simInfoPathName+"h_SimPhoEta"), "effic");
@@ -178,6 +193,14 @@ void PhotonPostprocessing::endJob()
   dividePlots(dbe_->get(effPathName+"convFakeRateVsRTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksR"),dbe_->get(convPathName+"h_RecoConvTwoTracksR"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsZTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksZ"),dbe_->get(convPathName+"h_RecoConvTwoTracksZ"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsEtTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEt"),dbe_->get(convPathName+"h_RecoConvTwoTracksEt"),"fakerate");
+  // Background efficiency
+  dividePlots(dbe_->get(effPathName+"bkgEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimJetEta"),dbe_->get(simInfoPathName+"h_SimJetEta"), "effic");
+  dividePlots(dbe_->get(effPathName+"bkgEffVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimJetPhi"),dbe_->get(simInfoPathName+"h_SimJetPhi"),"effic");
+  dividePlots(dbe_->get(effPathName+"bkgEffVsEt"),dbe_->get(simInfoPathName+"h_MatchedSimJetEt"),dbe_->get(simInfoPathName+"h_SimJetEt"),"effic");
+  // fraction of photons with at least one dead channel
+  dividePlots(dbe_->get(effPathName+"deadChVsEtaBkg"),dbe_->get(simInfoPathName+"h_MatchedSimJetBadChEta"),dbe_->get(simInfoPathName+"h_MatchedSimJetEta"), "effic");
+  dividePlots(dbe_->get(effPathName+"deadChVsPhiBkg"),dbe_->get(simInfoPathName+"h_MatchedSimJetBadChPhi"),dbe_->get(simInfoPathName+"h_MatchedSimJetPhi"),"effic");
+  dividePlots(dbe_->get(effPathName+"deadChVsEtBkg"), dbe_->get(simInfoPathName+"h_MatchedSimJetBadChEt"),dbe_->get(simInfoPathName+"h_MatchedSimJetEt"),"effic");
   
 
 
