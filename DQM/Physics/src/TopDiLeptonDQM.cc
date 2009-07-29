@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/05/13 11:00:00 $
- *  $Revision: 1.0 $
+ *  $Date: 2009/07/29 13:05:04 $
+ *  $Revision: 1.2 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -119,9 +119,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( muons.failedToGet() ) {
 
-    cout << endl << "------------------------" << endl;
-    cout << "--- NO RECO MUONS !! ---" << endl;
-    cout << "------------------------" << endl << endl;
+//    cout << endl << "------------------------" << endl;
+//    cout << "--- NO RECO MUONS !! ---" << endl;
+//    cout << "------------------------" << endl << endl;
 
     //    return;
 
@@ -132,9 +132,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( elecs.failedToGet() ) {
 
-    cout << endl << "----------------------------" << endl;
-    cout << "--- NO RECO ELECTRONS !! ---" << endl;
-    cout << "----------------------------" << endl << endl;
+//    cout << endl << "----------------------------" << endl;
+//    cout << "--- NO RECO ELECTRONS !! ---" << endl;
+//    cout << "----------------------------" << endl << endl;
 
     //    return;
 
@@ -145,9 +145,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( trigResults.failedToGet() ) {
 
-    cout << endl << "-----------------------------" << endl;
-    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
-    cout << "-----------------------------" << endl << endl;
+//    cout << endl << "-----------------------------" << endl;
+//    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
+//    cout << "-----------------------------" << endl << endl;
 
   }
 
