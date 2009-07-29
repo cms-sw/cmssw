@@ -799,7 +799,7 @@ namespace sistrip {
     } // fed loop
 
     // bad channels warning
-    if ( edm::isDebugEnabled() ) {
+    if ( edm::isDebugEnabled() && detids.size() ) {
       std::ostringstream ss;
       ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
          << " Problems were found in data and " << detids.size() << " channels could not be unpacked. "
