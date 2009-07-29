@@ -36,7 +36,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_allowCLCTonly = -1;
   m_preTrigger = -1;
 
-  for(int index=0; index<6; index++) m_etawin[index] = -1;
+  for(int index=0; index<7; index++) m_etawin[index] = -1;
   for(int index=0; index<8; index++) m_etamin[index] = -1;
   for(int index=0; index<8; index++) m_etamax[index] = -1;
 
@@ -58,7 +58,9 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_mindeta113_accp=-1;
   m_maxdeta113_accp=-1;
   m_maxdphi113_accp=-1;
-  
+  m_mindphip_halo=-1;
+	m_mindetap_halo=-1;
+	
   m_widePhi=-1;
   
   m_straightp=-1;
@@ -153,11 +155,14 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(m_mindeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_maxdeta113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_maxdphi113_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp113 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  if(m_widePhi<0) throw cms::Exception("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_mindphip_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+	if(m_mindetap_halo<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindetep_halo parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+	
+	if(m_widePhi<0) throw cms::Exception("CSCTFSectorProcessor")<<"widePhi parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   
   for(int index=0; index<8; index++) if(m_etamax[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<8; index++) if(m_etamin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
-  for(int index=0; index<6; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  for(int index=0; index<7; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(kill_fiber<0) throw cms::Exception("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
   if(run_core<0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
   if(trigger_on_ME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
@@ -199,7 +204,7 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
   std::vector<unsigned>::const_iterator iter;
   int index=0;
       std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
-      for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<6; iter++,index++) m_etawin[index] = *iter;
+      for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<7; iter++,index++) m_etawin[index] = *iter;
       std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
       for(iter=etamins.begin(),index=0; iter!=etamins.end()&&index<8; iter++,index++) m_etamin[index] = *iter;
       std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
@@ -222,6 +227,8 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
 	  m_mindeta113_accp = pset.getParameter<unsigned>("mindeta113_accp");
       m_maxdeta113_accp = pset.getParameter<unsigned>("maxdeta113_accp");
       m_maxdphi113_accp = pset.getParameter<unsigned>("maxdphi113_accp");
+			m_mindphip_halo = pset.getParameter<unsigned>("mindphip_halo");
+			m_mindetap_halo = pset.getParameter<unsigned>("mindetap_halo");
       kill_fiber = pset.getParameter<unsigned>("kill_fiber");
       run_core = pset.getParameter<bool>("run_core");
       trigger_on_ME1a = pset.getParameter<bool>("trigger_on_ME1a");
@@ -332,46 +339,46 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
    */
 
   for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++)
-    {
-      if(itr->station() != 5)
 	{
-	  CSCDetId id(itr->getDetId().rawId());
-	  unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
+      if(itr->station() != 5)
+			{
+	  		CSCDetId id(itr->getDetId().rawId());
+	  		unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
 
-          lclphidat lclPhi;
-          try {
-            lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
-          } catch( cms::Exception &e ) {
-            bzero(&lclPhi,sizeof(lclPhi));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from LocalPhi LUT in " << FPGAs[fpga]
-               << "(strip="<<itr->getStrip()<<",pattern="<<itr->getPattern()<<",quality="<<itr->getQuality()<<",bend="<<itr->getBend()<<")" <<std::endl;
-          }
-          gblphidat gblPhi;
-          try {
-            gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-		  } catch( cms::Exception &e ) {
-            bzero(&gblPhi,sizeof(gblPhi));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi LUT in " << FPGAs[fpga]
-               << "(phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
-          }
-          gbletadat gblEta;
-          try {
-            gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-          } catch( cms::Exception &e ) {
-            bzero(&gblEta,sizeof(gblEta));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalEta LUT in " << FPGAs[fpga]
-               << "(phi_bend_local="<<lclPhi.phi_bend_local<<",phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
-          }
+        lclphidat lclPhi;
+        try {
+        	lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
+        } catch( cms::Exception &e ) {
+        	bzero(&lclPhi,sizeof(lclPhi));
+          edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from LocalPhi LUT in " << FPGAs[fpga]
+          	<< "(strip="<<itr->getStrip()<<",pattern="<<itr->getPattern()<<",quality="<<itr->getQuality()<<",bend="<<itr->getBend()<<")" <<std::endl;
+        }
+        gblphidat gblPhi;
+        try {
+        	gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+		  	} catch( cms::Exception &e ) {
+        	bzero(&gblPhi,sizeof(gblPhi));
+          edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi LUT in " << FPGAs[fpga]
+          	<< "(phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
+        }
+        gbletadat gblEta;
+        try {
+        	gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
+        } catch( cms::Exception &e ) {
+        	bzero(&gblEta,sizeof(gblEta));
+          edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalEta LUT in " << FPGAs[fpga]
+          	<< "(phi_bend_local="<<lclPhi.phi_bend_local<<",phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
+        }
 
-	  itr->setEtaPacked(gblEta.global_eta);
-	  itr->setPhiPacked(gblPhi.global_phi);
+	  		itr->setEtaPacked(gblEta.global_eta);
+	  		itr->setPhiPacked(gblPhi.global_phi);
 
-	  if(itr->station() == 1) dt_stubs.push_back(*itr); // send stubs to DT
+	  		if(itr->station() == 1) dt_stubs.push_back(*itr); // send stubs to DT
 
-	  LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
-						 << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
-	}
-    }
+	  		LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
+					<< " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
+			}
+  }
 
   CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec_filtered);
 
@@ -385,22 +392,22 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 
   if(run_core){
     core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
-
     if( core_->run(m_endcap, m_sector, m_latency,
-                   m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
-                   m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
-                   m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
-                   m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
-                   m_etawin[0], m_etawin[1], m_etawin[2],
-                   m_etawin[3], m_etawin[4], m_etawin[5],
-                   m_mindphip, m_mindetap,  
-				   m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
-				   m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
-				   m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
-				   m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
-				   m_straightp, m_curvedp,
-				   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
-                   m_minBX, m_maxBX) )
+										m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
+										m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
+										m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
+										m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
+										m_etawin[0], m_etawin[1], m_etawin[2],
+										m_etawin[3], m_etawin[4], m_etawin[5], m_etawin[6],
+										m_mindphip, m_mindetap,  
+										m_mindeta12_accp,  m_maxdeta12_accp, m_maxdphi12_accp,
+										m_mindeta13_accp,  m_maxdeta13_accp, m_maxdphi13_accp,
+										m_mindeta112_accp,  m_maxdeta112_accp, m_maxdphi112_accp,
+										m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
+										m_mindphip_halo, m_mindetap_halo,
+										m_straightp, m_curvedp,
+										m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
+										m_minBX, m_maxBX) )
       {
         l1_tracks = core_->tracks();
       }

@@ -63,12 +63,13 @@ public:
   // All parameters below are signed to allow for uninitialized (<0) state
   int m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger;
   int m_minBX, m_maxBX;
-  int m_etawin[6], m_etamin[8], m_etamax[8];
+  int m_etawin[7], m_etamin[8], m_etamax[8];
   int m_mindphip, m_mindetap;
   int m_mindeta12_accp, m_maxdeta12_accp, m_maxdphi12_accp;
   int m_mindeta13_accp, m_maxdeta13_accp, m_maxdphi13_accp;
   int m_mindeta112_accp, m_maxdeta112_accp, m_maxdphi112_accp;
   int m_mindeta113_accp, m_maxdeta113_accp, m_maxdphi113_accp;
+	int m_mindphip_halo, m_mindetap_halo;
   int m_straightp, m_curvedp;
   int m_widePhi;
   
