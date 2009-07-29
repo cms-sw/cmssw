@@ -63,9 +63,9 @@ PFAlgo::~PFAlgo() {
 void 
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
-                      const shared_ptr<PFEnergyCalibration>& calibration,
-                      const shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
-		      const shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF,
+                      const boost::shared_ptr<PFEnergyCalibration>& calibration,
+                      const boost::shared_ptr<pftools::PFClusterCalibration>& clusterCalibration,
+		      const boost::shared_ptr<PFEnergyCalibrationHF>&  thepfEnergyCalibrationHF,
 		      unsigned int newCalib) {
 
   nSigmaECAL_ = nSigmaECAL;
