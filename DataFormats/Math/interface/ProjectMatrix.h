@@ -32,7 +32,7 @@ struct ProjectMatrix{
   }
 
   // S-K*H
-  void projectAndSubtractFrom(SMatNN & s, SMatND const & k) {
+  void projectAndSubtractFrom(SMatNN & __restrict__ s, SMatND const & __restrict__ k) {
     for (unsigned int i=0; i<N; i++)
       for (unsigned int j=0; j<D; j++)
 	s(i,index[j]) -= k(i,j);
