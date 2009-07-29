@@ -21,82 +21,37 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    # Define the cuts for your muon selections
    customCollection = cms.VPSet(
 
-	
-
-	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("topMuonPt10_QuadJet15U"),
+ 	cms.untracked.PSet(
+ 	  collectionName = cms.untracked.string ("dqmBarrelMuons"),
+ 	  # The track collection is just a switch, not a true collection name
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_QuadJet15U"),
-	  d0cut = cms.untracked.double(0.2),
+	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0),
-	  recoCuts = cms.untracked.string ("pt > 15 && abs(eta) < 2.1 && numberOfMatches >= 3"),
-	  hltCuts  = cms.untracked.string ("pt > 15 && abs(eta) < 2.1")	  
+	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 0.9")	  
 	),
 
 
-## 	cms.untracked.PSet(
-## 	  collectionName = cms.untracked.string ("dqmBarrelMuons3"),
-## 	  # The track collection is just a switch, not a true collection name
-## 	  trackCollection = cms.untracked.string ("outerTrack"),
-## 	  requiredTriggers = cms.untracked.vstring(""),
-## 	  d0cut = cms.untracked.double(2.0),
-## 	  z0cut = cms.untracked.double(25.0),
-## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
-## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
-## 	),
-
-## 	cms.untracked.PSet(
-## 	  collectionName = cms.untracked.string ("dqmBarrelMuons3_L1Mu"),
-## 	  # The track collection is just a switch, not a true collection name
-## 	  trackCollection = cms.untracked.string ("outerTrack"),
-## 	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
-## 	  d0cut = cms.untracked.double(2.0),
-## 	  z0cut = cms.untracked.double(25.0),
-## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 0.9"),
-## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 0.9")	  
-## 	),
-
-## 	cms.untracked.PSet(
-## 	  collectionName = cms.untracked.string ("endcapMuons3"),
-## 	  trackCollection = cms.untracked.string ("outerTrack"),
-## 	  requiredTriggers = cms.untracked.vstring(""),
-## 	  d0cut = cms.untracked.double(2.0),
-## 	  z0cut = cms.untracked.double(25.0), # 3 meters
-## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
-## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
-## 	),
-
-## 	cms.untracked.PSet(
-## 	  collectionName = cms.untracked.string ("endcapMuons3_L1Mu"),
-## 	  trackCollection = cms.untracked.string ("outerTrack"),
-## 	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
-## 	  d0cut = cms.untracked.double(2.0),
-## 	  z0cut = cms.untracked.double(25.0), # 3 meters
-## 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4"),
-## 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) > 1.4 && abs(eta) < 2.4")
-## 	),
-
- 	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("looseMuonPt3"),
+	cms.untracked.PSet(
+	  collectionName = cms.untracked.string ("endcapMuons"),
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring(""),
- 	  d0cut = cms.untracked.double(2.0),
- 	  z0cut = cms.untracked.double(25.0), # 3 meters
- 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 2.1 && numberOfMatches >= 3"),
- 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 2.1")
- 	),
+	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  d0cut = cms.untracked.double(2.0),
+	  z0cut = cms.untracked.double(25.0), # 3 meters
+	  recoCuts = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0"),
+	  hltCuts  = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0")
+	),
 
 	cms.untracked.PSet(
-	  collectionName = cms.untracked.string ("looseMuonPt3_L1Mu"),
+	  collectionName = cms.untracked.string ("allMuons"),
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1Mu"),
- 	  d0cut = cms.untracked.double(2.0),
- 	  z0cut = cms.untracked.double(25.0), # 3 meters
- 	  recoCuts = cms.untracked.string ("pt > 3 && abs(eta) < 2.1 "),
- 	  hltCuts  = cms.untracked.string ("pt > 3 && abs(eta) < 2.1")
- 	),
-	
-	
+	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  d0cut = cms.untracked.double(2.0),
+	  z0cut = cms.untracked.double(25.0),
+	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
+	  hltCuts  = cms.untracked.string ("abs(eta) < 2.0")	  
+	),
 									  
     ),
 

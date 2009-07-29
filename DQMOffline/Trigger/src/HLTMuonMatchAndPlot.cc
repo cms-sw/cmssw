@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/06/26 21:27:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/21 08:47:12 $
+ *  $Revision: 1.4 $
  */
 
 
@@ -222,6 +222,17 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
     }
   }
 
+
+
+  //=======================================
+
+
+
+  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut");
+  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut");
+  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut");
+
+  
   //==========================================
   // Hard-coded parameters
   // Make modifibly from script later
@@ -241,7 +252,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
   theDRParameters.push_back(50);
   theDRParameters.push_back(0.0);
-  theDRParameters.push_back(1.0);
+  theDRParameters.push_back(theL3DrCut);
 
   theChargeFlipParameters.push_back(2);
   theChargeFlipParameters.push_back(-0.5);
@@ -282,14 +293,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
       
   
 
-  //=======================================
-
-
-
-  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut");
-  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut");
-  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut");
-
+  
   dbe_ = 0 ;
   if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
     dbe_ = Service<DQMStore>().operator->();
@@ -326,7 +330,9 @@ void HLTMuonMatchAndPlot::finish()
 
 void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 {
-  
+
+
+    
   eventNumber++;
   LogTrace( "HLTMuonVal" ) << "\n\nIn analyze for trigger path " << 
     theTriggerName << ", Event:" << eventNumber <<"\n\n\n";
@@ -1351,6 +1357,17 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         fakeHltCandEta[iHltModule]->Fill(candVect.eta());
         fakeHltCandPhi[iHltModule]->Fill(candVect.phi());
         //fakeHltCandEtaPhi[iHltModule]->Fill(candVect.eta(), candVect.phi());
+
+        // JMS extra hack - print out run,event so you can look
+        // in event display
+        // int myRun = iEvent.id().run();
+        //         int myEvent = iEvent.id().event();
+        
+
+        //         cout << endl << "FAKE! run = " << myRun << ", event = "
+        //              << myEvent << ", pt = " << candVect.pt() << ", eta = "
+        //              << candVect.eta() << "phi, " << candVect.phi() << endl << endl;
+        
       }
       
     }
