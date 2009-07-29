@@ -9,7 +9,7 @@ void
 cond::ConnectionHandler::registerConnection(const std::string& name,
 					    const std::string& con,
 					    int connectionTimeoutInSec){
-  m_registry.insert(std::make_pair<std::string,cond::Connection*>(name, new cond::Connection(con,connectionTimeoutInSec)));
+  m_registry.insert(std::make_pair(name, new cond::Connection(con,connectionTimeoutInSec)));
 }
 void 
 cond::ConnectionHandler::registerConnection(const std::string& userconnect,
@@ -32,7 +32,7 @@ cond::ConnectionHandler::registerConnection(const std::string& userconnect,
   std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol,userconnect));
   realconnect=ptr->getRealConnectString();
   //std::cout<<"realconnect "<<realconnect<<std::endl;
-  m_registry.insert(std::make_pair<std::string,cond::Connection*>(userconnect, new cond::Connection(realconnect,connectionTimeOutInSec)));
+  m_registry.insert(std::make_pair(userconnect, new cond::Connection(realconnect,connectionTimeOutInSec)));
   ptr->setupSession(session);
 }
 void
