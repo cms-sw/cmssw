@@ -11,6 +11,7 @@ process.load('Configuration/StandardSequences/Reconstruction_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
+process.load("DQMOffline.EGamma.egammaDQMOffline_cff");
 process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 
@@ -27,8 +28,30 @@ process.maxEvents = cms.untracked.PSet(
 
 
 
+
+
+
+
+
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 photonValidation.OutputMEsInRootFile = True
+
+
+from DQMOffline.EGamma.photonAnalyzer_cfi import *
+from DQMOffline.EGamma.piZeroAnalyzer_cfi import *
+
+photonAnalysis.OutputMEsInRootFile = cms.bool(True)
+photonAnalysis.OutputFileName = photonValidation.OutputFileName
+photonAnalysis.standAlone = cms.bool(True)
+photonAnalysis.useTriggerFiltering = cms.bool(True)
+
+piZeroAnalysis.standAlone = cms.bool(True)
+piZeroAnalysis.OutputMEsInRootFile = cms.bool(True)
+piZeroAnalysis.OutputFileName = photonValidation.OutputFileName
+piZeroAnalysis.useTriggerFiltering = cms.bool(False)
+
+
+
 
 process.source = cms.Source("PoolSource",
 noEventSort = cms.untracked.bool(True),
@@ -63,7 +86,7 @@ process.photons.hcalTowerSumEtSlopeEndcap = 0.
 
 
 #process.p1 = cms.Path(process.photonValidation)
-process.p1 = cms.Path(process.tpSelection*process.photons*process.photonValidationSequence*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photons*process.egammaDQMOffline*process.photonValidationSequence*process.dqmStoreStats)
 #process.p1 = cms.Path(process.mix*process.trackingParticles*process.tpSelection*process.photonValidation)
 process.schedule = cms.Schedule(process.p1)
 
