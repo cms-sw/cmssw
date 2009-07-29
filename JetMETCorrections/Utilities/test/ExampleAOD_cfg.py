@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('JetMETCorrections.Configuration.JecTriggerFilters_cfi')
+process.load('JetMETCorrections.Configuration.jecHLTFilters_cfi')
 #############   Set the number of events #############
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
