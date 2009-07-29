@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.133 $"
+__version__ = "$Revision: 1.134 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -13,8 +13,8 @@ class Options:
 
 # the canonical defaults
 defaultOptions = Options()
-defaultOptions.pileup = 'NoPileUp'
 defaultOptions.datamix = 'DataOnSim'
+defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Ideal'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
@@ -334,16 +334,23 @@ class ConfigBuilder(object):
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
-        self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
 	
+	if "DATAMIX" in self._options.step:
+	    self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
+	    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+	    self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
+	    self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
+
 	self.ALCADefaultSeq=None
 	self.SIMDefaultSeq=None
 	self.GENDefaultSeq=None
 	self.DIGIDefaultSeq=None
+	self.DATAMIXDefaultSeq=None
 	self.DIGI2RAWDefaultSeq=None
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
-        self.HARVESTINGDefaultSeq=None
+	self.HARVESTINGDefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
 	self.L1RecoDefaultSeq='L1Reco'
 	self.RECODefaultSeq='reconstruction'
@@ -353,7 +360,7 @@ class ConfigBuilder(object):
 	self.VALIDATIONDefaultSeq='validation'
 	self.PATLayer0DefaultSeq='all'
 	self.ENDJOBDefaultSeq='endOfProcess'
-
+	
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
 	self.defaultBeamSpot='Early10TeVCollision'
@@ -391,8 +398,11 @@ class ConfigBuilder(object):
 	    self._options.magField=self.defaultMagField	
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
-
-	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
+        if self._options.gflash==True:
+                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
+        else:
+                self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
+                
 	if self._options.isMC==True:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
         else:
@@ -495,6 +505,9 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember(self.SIMDefaultCFF)
+        if self._options.gflash==True:
+                             self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
+
 	if self._options.magField=='0T':
 	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
 				
@@ -504,9 +517,19 @@ class ConfigBuilder(object):
 
     def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadAndRemember(self.DIGIDefaultCFF)
+	self.loadAndRemember(self.DIGIDefaultCFF)
+        if self._options.gflash==True:
+                self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
+                
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.schedule.append(self.process.digitisation_step)
+        return
+
+    def prepare_DATAMIX(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadAndRemember(self.DATAMIXDefaultCFF)
+        self.process.datamixing_step = cms.Path(self.process.pdatamix)
+        self.schedule.append(self.process.datamixing_step)
         return
 
     def prepare_DIGI2RAW(self, sequence = None):
@@ -518,7 +541,7 @@ class ConfigBuilder(object):
     def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
         if not sequence:
-            self.loadAndRemember(self.L1EMDefaultCFF) 
+	    self.loadAndRemember(self.L1EMDefaultCFF) 
 	else:
             # let the L1 package decide for the scenarios available
 	    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
@@ -728,7 +751,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.133 $"),
+              (version=cms.untracked.string("$Revision: 1.134 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
