@@ -36,7 +36,7 @@ public:
   CaloHitResponse(const CaloVSimParameterMap * parameterMap, const CaloVShape * shape);
 
   /// doesn't delete the pointers passed in
-  ~CaloHitResponse();
+  virtual ~CaloHitResponse();
 
   /// tells it which pileup bunches to do
   void setBunchRange(int minBunch, int maxBunch);
@@ -45,10 +45,10 @@ public:
   void setGeometry(const CaloGeometry * geometry) { theGeometry = geometry; }
 
   /// Complete cell digitization.
-  void run(MixCollection<PCaloHit> & hits);
+  virtual void run(MixCollection<PCaloHit> & hits);
 
   /// process a single SimHit
-  void add(const PCaloHit & hit);
+  virtual void add(const PCaloHit & hit);
 
   /// add a signal, in units of pe
   void add(const CaloSamples & signal);
