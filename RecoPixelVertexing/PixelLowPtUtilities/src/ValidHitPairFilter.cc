@@ -150,29 +150,29 @@ vector<int> ValidHitPairFilter::getMissingLayers(int a, int b) const
   vector<int> l;
   pair<int,int> c(a,b);
 
-  if(c == pair<int,int>(BPix1,BPix2))     { l.push_back(BPix3);
-                                            l.push_back(FPix1_pos);
-                                            l.push_back(FPix1_neg); return l; }
-  if(c == pair<int,int>(BPix1,BPix3))     { l.push_back(BPix2);     return l; }
-  if(c == pair<int,int>(BPix2,BPix3))     { l.push_back(BPix1);     return l; }
-  if(c == pair<int,int>(BPix1,FPix1_pos)) { l.push_back(BPix2);
-                                            l.push_back(FPix2_pos); return l; }
-  if(c == pair<int,int>(BPix1,FPix1_neg)) { l.push_back(BPix2); 
-                                            l.push_back(FPix2_neg); return l; }
-  if(c == pair<int,int>(BPix1,FPix2_pos)) { l.push_back(BPix2); 
-                                            l.push_back(FPix1_pos); return l; }
-  if(c == pair<int,int>(BPix1,FPix2_neg)) { l.push_back(BPix2); 
-                                            l.push_back(FPix1_neg); return l; }
-  if(c == pair<int,int>(BPix2,FPix1_pos)) { l.push_back(BPix1); 
-                                            l.push_back(FPix2_pos); return l; }
-  if(c == pair<int,int>(BPix2,FPix1_neg)) { l.push_back(BPix1); 
-                                            l.push_back(FPix2_neg); return l; }
-  if(c == pair<int,int>(BPix2,FPix2_pos)) { l.push_back(BPix1);
-                                            l.push_back(FPix1_pos); return l; }
-  if(c == pair<int,int>(BPix2,FPix2_neg)) { l.push_back(BPix1); 
-                                            l.push_back(FPix1_neg); return l; }
-  if(c == pair<int,int>(FPix1_pos,FPix2_pos)) { l.push_back(BPix1); return l; }
-  if(c == pair<int,int>(FPix1_neg,FPix2_neg)) { l.push_back(BPix1); return l; }
+  if(c == pair<int,int>(BPix1,BPix2))     { l.push_back(int(BPix3));
+                                            l.push_back(int(FPix1_pos));
+                                            l.push_back(int(FPix1_neg)); return l; }
+  if(c == pair<int,int>(BPix1,BPix3))     { l.push_back(int(BPix2));     return l; }
+  if(c == pair<int,int>(BPix2,BPix3))     { l.push_back(int(BPix1));     return l; }
+  if(c == pair<int,int>(BPix1,FPix1_pos)) { l.push_back(int(BPix2));
+                                            l.push_back(int(FPix2_pos)); return l; }
+  if(c == pair<int,int>(BPix1,FPix1_neg)) { l.push_back(int(BPix2)); 
+                                            l.push_back(int(FPix2_neg)); return l; }
+  if(c == pair<int,int>(BPix1,FPix2_pos)) { l.push_back(int(BPix2)); 
+                                            l.push_back(int(FPix1_pos)); return l; }
+  if(c == pair<int,int>(BPix1,FPix2_neg)) { l.push_back(int(BPix2)); 
+                                            l.push_back(int(FPix1_neg)); return l; }
+  if(c == pair<int,int>(BPix2,FPix1_pos)) { l.push_back(int(BPix1)); 
+                                            l.push_back(int(FPix2_pos)); return l; }
+  if(c == pair<int,int>(BPix2,FPix1_neg)) { l.push_back(int(BPix1)); 
+                                            l.push_back(int(FPix2_neg)); return l; }
+  if(c == pair<int,int>(BPix2,FPix2_pos)) { l.push_back(int(BPix1));
+                                            l.push_back(int(FPix1_pos)); return l; }
+  if(c == pair<int,int>(BPix2,FPix2_neg)) { l.push_back(int(BPix1)); 
+                                            l.push_back(int(FPix1_neg)); return l; }
+  if(c == pair<int,int>(FPix1_pos,FPix2_pos)) { l.push_back(int(BPix1)); return l; }
+  if(c == pair<int,int>(FPix1_neg,FPix2_neg)) { l.push_back(int(BPix1)); return l; }
 
   return l;
 }
