@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+#include "DataFormats/Math/interface/ProjectMatrix.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 bool BaseSiTrackerRecHit2DLocalPos::hasPositionAndError() const {
