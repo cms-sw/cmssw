@@ -1130,6 +1130,8 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     r->SetStats(0);
   } else {
     //gStyle->SetOptStat(1001);
+	s->SetStats(1);
+    r->SetStats(1);
 
     if (fit){
       s->Fit("gaus");
