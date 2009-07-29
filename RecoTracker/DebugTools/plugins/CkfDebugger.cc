@@ -679,7 +679,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     edm::LogVerbatim("CkfDebugger") << "CkfDebugger: propagation failed from state " << startingState << " to first det surface " 
 				    << position(&sh) ;
     propagation++;
-    return pair<CTTRHp, double>(0,-1);
+    return pair<CTTRHp, double>((CTTRHp)(0),-1);
   }
 
   bool found = false;
@@ -734,7 +734,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     }
     else {
       simple_hit_not_found++;
-      return pair<CTTRHp, double>(0,-8);//not found (is not a glued det)
+      return pair<CTTRHp, double>((CTTRHp)(0),-8);//not found (is not a glued det)
     }
   } else {
     edm::LogVerbatim("CkfDebugger") << "The DetUnit is part of a GluedDet" ;
@@ -765,7 +765,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
       if (partnerDet == 0) {
 	edm::LogVerbatim("CkfDebugger") << "Partner measurementDet not found!!!" ;
 	partner_det_not_fuond++;
-	return pair<CTTRHp, double>(0,-3);
+	return pair<CTTRHp, double>((CTTRHp)(0),-3);
       }
       TSOS simHitState2 = TSOSFromSimHitFactory()(*sh2, *det(sh2), *theMagField);
       MeasurementDet::RecHitContainer recHits2 = partnerDet->recHits( simHitState2);
@@ -775,7 +775,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
 	edm::LogVerbatim("CkfDebugger") << "CkfDebugger: propagation failed from state " << startingState << " to second det surface " 
 					<< position(sh2) ;
 	propagation++;
-	return pair<CTTRHp, double>(0,-1);
+	return pair<CTTRHp, double>((CTTRHp)(0),-1);
       }
 
       for ( MeasurementDet::RecHitContainer::const_iterator rh = recHits2.begin(); rh != recHits2.end(); rh++) {
@@ -806,7 +806,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     if ( gluedDet == 0) {
       edm::LogVerbatim("CkfDebugger") << "CkfDebugger ERROR: glued MeasurementDet not found!" ;
       glued_det_not_fuond++;
-      return pair<CTTRHp, double>(0,-4);
+      return pair<CTTRHp, double>((CTTRHp)(0),-4);
     }
 
     TSOS gluedDetState = theForwardPropagator->propagate( startingState, gluedDet->surface());
@@ -814,7 +814,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
       edm::LogVerbatim("CkfDebugger") << "CkfDebugger: propagation failed from state " << startingState << " to det surface " 
 				      << gluedDet->position() ;
       propagation++;
-      return pair<CTTRHp, double>(0,-1);
+      return pair<CTTRHp, double>((CTTRHp)(0),-1);
     }
 
     gluedHits = gluedDet->recHits( gluedDetState);
@@ -822,7 +822,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     if (gluedHits.size()==0){
       edm::LogVerbatim("CkfDebugger") << "Found and associated mono and stereo recHits but not matched!!!" ;
       matched_not_found++;
-      return pair<CTTRHp, double>(0,-5);
+      return pair<CTTRHp, double>((CTTRHp)(0),-5);
     } 
     bool found3 = false;
     for ( MeasurementDet::RecHitContainer::const_iterator rh = gluedHits.begin(); rh != gluedHits.end(); rh++) {
@@ -856,21 +856,21 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     else {
       edm::LogVerbatim("CkfDebugger") << "Found and associated mono and stereo recHits. Matched found but not associated!!!" ;
       matched_not_associated++;
-      return pair<CTTRHp, double>(0,-6);
+      return pair<CTTRHp, double>((CTTRHp)(0),-6);
     }
   }
   else if ( (found && !found2) || (!found && found2) ) {
     edm::LogVerbatim("CkfDebugger") << "Only one component is found" ;
     only_one_component++;
-    return pair<CTTRHp, double>(0,-7);
+    return pair<CTTRHp, double>((CTTRHp)(0),-7);
   }
   else {
     edm::LogVerbatim("CkfDebugger") << "No component is found" ;
     no_component++;
-    return pair<CTTRHp, double>(0,-2);
+    return pair<CTTRHp, double>((CTTRHp)(0),-2);
   }
   other++;
-  return pair<CTTRHp, double>(0,0);//other
+  return pair<CTTRHp, double>((CTTRHp)(0),0);//other
 }
 
 const PSimHit* CkfDebugger::pSimHit(unsigned int tkId, DetId detId)
