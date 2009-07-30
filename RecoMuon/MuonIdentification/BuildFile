@@ -11,6 +11,7 @@
 <use name="SimDataFormats/TrackingHit">
 <use name="roothistmatrix">
 <use name="RecoMuon/TrackingTools">
+<use name="DataFormats/CSCRecHit">
 <export>
   <use name="DataFormats/DetId">
   <use name="DataFormats/MuonDetId">
