@@ -9,8 +9,8 @@ FullSimRootFileDirectory=${current_area}/FullSim/
 mkdir $FullSimRootFileDirectory -p
 
 #======= Define list of samples that you will be validating ========#
-dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
-#dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500"
+#dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
+dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
@@ -19,6 +19,7 @@ RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyz
 echo "Run path = {" $RunPath "}"
 cmssw_version="3_1_2"
 condition="MC_31X_V3-v1"
+globalTag="MC_31X_V3::All"
 #condition="STARTUP31X_V1-v2"
 
 #==========================================#
@@ -81,7 +82,7 @@ process.load(\"Configuration.StandardSequences.MagneticField_cff\")
 
 process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
 
-process.GlobalTag.globaltag = cms.string(\"MC_31X_V3::All\")
+process.GlobalTag.globaltag = cms.string(\"$globalTag\")
 
 process.load(\"RecoLocalCalo.Configuration.hcalLocalReco_cff\")
 
