@@ -148,7 +148,7 @@ void EvtGenTestAnalyzer::analyze( const Event& e, const EventSetup& )
      hGeneralId->Fill((*p)->pdg_id()); 
 
      // --------------------------------------------------------------
-     if ( abs((*p)->pdg_id()) == 100443 )   // B+/- 
+     if ( abs((*p)->pdg_id()) == 521 )   // B+/- 
        // || abs((*p)->pdg_id()/100) == 4 || abs((*p)->pdg_id()/100) == 3) 
      {
        if (!endvert) {
