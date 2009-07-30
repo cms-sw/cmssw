@@ -57,13 +57,13 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 
     # Set the ranges and numbers of bins for histograms
 	# max pt is not very useful
-    MaxPtParameters    = cms.vdouble(40,0.,80.),
+    MaxPtParameters    = cms.vdouble(25,0.,100.),
     # PtParmeters is not currently used
 
-    EtaParameters      = cms.vdouble(50, -3.5,3.5),
-    PhiParameters      = cms.vdouble(50, -3.15,3.15),
-    ResParameters      = cms.vdouble(50, -0.15, 0.15),
-	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
+    EtaParameters      = cms.vdouble(25, -3.5,3.5),
+    PhiParameters      = cms.vdouble(25, -3.15,3.15),
+    ResParameters      = cms.vdouble(25, -0.15, 0.15),
+	DrParameters       = cms.vdouble(25, 0.0, 0.05),			
 
     # Use Pt Parameters to set bin edges
 

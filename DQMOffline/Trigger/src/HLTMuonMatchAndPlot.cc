@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/07/21 08:47:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/29 13:25:42 $
+ *  $Revision: 1.5 $
  */
 
 
@@ -73,14 +73,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theHltProcessName  = pset.getParameter<string>("HltProcessName");
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
   theTriggerName     = triggerName;
-
-  LogTrace ("HLTMuonVal") << "\n\n Getting AOD switch + lables \n\n";
-  
-  useAod         = true;  //pset.getUntrackedParameter<bool>("UseAod");
-  // theAodL1Label  = pset.getUntrackedParameter<string>("AodL1Label");
-  //   theAodL2Label  = pset.getUntrackedParameter<string>("AodL2Label");
-
-  // what type of matches do we need
+    
+  useAod         = true;  
 
   matchType = pset.getUntrackedParameter<string>("matchType");
 
@@ -89,7 +83,54 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   histoFileName = pset.getUntrackedParameter<string> ("histoFileName");
 
   theHltCollectionLabels.clear();
+
+  // make these config file inputs eventually
+  useOldLabels = false;
+  useFullDebugInformation = false;
+
+  if (useFullDebugInformation) {
+    // if you're filling all plots
+    // then you'll have (All, L1, HLT)
+    HLT_PLOT_OFFSET = 2;
+  } else {
+    // if you're only filling
+    // the plots for one trigger
+    // then have (All, HLT)
+    HLT_PLOT_OFFSET = 1;
+  }
+
+  isL1Path = false;
+  isL2Path = false;
+  isL3Path = true;
+
+  if (TString(triggerName).Contains("L1")) {
+    isL1Path = true;
+    isL3Path = false;
+  }
+
+  if (TString(triggerName).Contains("L2")) {
+    isL2Path = true;
+    isL3Path = false;
+  }
+  if (TString(triggerName).Contains("L3")) {
+    isL3Path = true;
+    isL3Path = false;
+  }
+
+    
+  
+  LogTrace ("HLTMuonVal") << "Parsing Module names... useOldLabels? "
+                          << useOldLabels
+                          << ",  useFullDebugInformation? "
+                          << useFullDebugInformation
+                          << endl;
+                          
+  
   TPRegexp l1Regexp("L1.*Filtered");
+  TPRegexp l2Regexp("L2.*Filtered");
+
+  string theLastHltFilter = "";
+  
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
 
@@ -97,15 +138,52 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
                             << module;
     
     if ( TString(module).Contains(l1Regexp) ) {
+      // this will be used to look up info
+      // in the AOD information
       theL1CollectionLabel = module;
-      LogTrace ("HLTMuonVal") << "... module is L1 collection";      
-    } else if ( TString(module).Contains("Filtered") ) {
-      theHltCollectionLabels.push_back(module);
-      LogTrace ("HLTMuonVal") << "... module is HLT collection";
+      LogTrace ("HLTMuonVal") << "... module is L1 collection";
+
+      
+    } else if ( TString(module).Contains(l2Regexp) ) {
+      // this is a l2 module, only consider it if the trigger
+      // is an L2 passthrough or if we want to use debug trigger info
+
+      if (useFullDebugInformation) {
+        theHltCollectionLabels.push_back(module);
+        LogTrace ("HLTMuonVal") << "... module added to HLT collection list";
+      } else if (isL2Path) {
+        LogTrace ("HLTMuonVal") << "... module saved for later";
+        theLastHltFilter = module;
+      }
+
+      
+    } else if (TString(module).Contains("Filtered") ) {
+      // must be L3 filtered here
+      // potential to have Pre vs Iso filtered
+      // In AOD, I think there is only information
+      // for the *final* filter
+
+      if (useFullDebugInformation) {
+        LogTrace ("HLTMuonVal") << "... module added to HLT collection list" << endl;
+        theHltCollectionLabels.push_back(module);        
+      } else if (isL3Path) {
+        LogTrace ("HLTMuonVal") << "... module saved for later" << endl;
+        theLastHltFilter = module;
+      }      
+
     }
   }
 
-  LogTrace ("HLTMuonVal") << "Skipping special AOD handling";
+  if (!useFullDebugInformation && theLastHltFilter != "" ) {
+    
+    LogTrace("HLTMuonVal") << "\nAfter running over labels, we find hlt label coll size = "
+                           << theHltCollectionLabels.size() << endl
+                           << "\n\nwill only use the final hlt label = "
+                           << theLastHltFilter << endl;
+
+    theHltCollectionLabels.push_back (theLastHltFilter);
+  }
+  
 
   numHltLabels   = theHltCollectionLabels.size();
   isIsolatedPath = ( numHltLabels == 4 ) ? true : false;
@@ -185,15 +263,15 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
       
       // also fill the eta/phi plot parameters
       // but don't worry about doubleing bins
-      if (i < 1){
-        if (iNum ==  theEtaParameters.begin()){
-          thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-        } else {
-          thePhiEtaParameters2d.push_back(*iNum);      
-          
-        } 
-        
-      }
+      // if (i < 1){
+      //         if (iNum ==  theEtaParameters.begin()){
+      //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+      //         } else {
+      //           thePhiEtaParameters2d.push_back(*iNum);      
+      
+      //         } 
+      
+      //       }
     }
   }
 
@@ -209,16 +287,16 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
         thePhiParameters2d.push_back(*iNum);
       }
 
-      if (i < 1){
-
-        if (iNum ==  theEtaParameters.begin()){
-          thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-        } else {
-          thePhiEtaParameters2d.push_back(*iNum);      
-          
-        } 
-        
-      }
+      //       if (i < 1){
+      
+      //         // if (iNum ==  theEtaParameters.begin()){
+      //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+      //         //         } else {
+      //         //           thePhiEtaParameters2d.push_back(*iNum);      
+      
+      //         //         } 
+      
+      //       }
     }
   }
 
@@ -238,11 +316,22 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   // Make modifibly from script later
   //==========================================
 
-  theD0Parameters.push_back(50);
+
+  // put in the phi parameters
+  thePhiEtaParameters2d.push_back(10);
+  thePhiEtaParameters2d.push_back(-3.15);
+  thePhiEtaParameters2d.push_back(3.15);
+
+  thePhiEtaParameters2d.push_back(10);
+  thePhiEtaParameters2d.push_back(-3.5);
+  thePhiEtaParameters2d.push_back(3.5);
+  
+  
+  theD0Parameters.push_back(25);
   theD0Parameters.push_back(-50.0);
   theD0Parameters.push_back(50.0);
   
-  theZ0Parameters.push_back(50);
+  theZ0Parameters.push_back(25);
   theZ0Parameters.push_back(-100);
   theZ0Parameters.push_back(100);
 
@@ -250,7 +339,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theChargeParameters.push_back(-1.5);
   theChargeParameters.push_back(1.5);
 
-  theDRParameters.push_back(50);
+  theDRParameters.push_back(25);
   theDRParameters.push_back(0.0);
   theDRParameters.push_back(theL3DrCut);
 
@@ -1044,11 +1133,13 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   }
 
   // Fill these if there are any L1 candidates
-  if ( numL1Cands >= theNumberOfObjects ) {
-    //if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
-    if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
-    if (numRecMatches == 1 && numL1Cands == 1) {
-      if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[1]->Fill(recMuonPt);
+  if (useFullDebugInformation || isL1Path) {
+    if ( numL1Cands >= theNumberOfObjects ) {
+      //if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
+      if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
+      if (numRecMatches == 1 && numL1Cands == 1) {
+        if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[1]->Fill(recMuonPt);
+      }
     }
   }
   
@@ -1156,7 +1247,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
     // if you found an L1 match, fill this histo
     // check for L1 match using pt, not energy
-    if ( recMatches[i].l1Cand.pt() > 0 ) {
+    if ( (recMatches[i].l1Cand.pt() > 0) && ((useFullDebugInformation) || (isL1Path)) ) {
       hPassEtaRec[1]->Fill(eta);
       hPassPhiRec[1]->Fill(phi);
       hPassPtRec[1]->Fill(pt);
@@ -1237,17 +1328,17 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         // these are histos where you have
         // all + L1 (= displaced two indices)
         // Which means your HLT histos are
-        // at index j+2 
-        hPassEtaRec[j+2]->Fill(eta);
-        hPassPhiRec[j+2]->Fill(phi);
-        hPassPtRec[j+2]->Fill(pt);
-        hPhiVsEtaRec[j+2]->Fill(eta,phi);
-        hPassD0Rec[j+2]->Fill(d0);
-        hPassD0BeamRec[j+2]->Fill(d0beam);
-        hPassZ0Rec[j+2]->Fill(z0);
-        hPassZ0BeamRec[j+2]->Fill(z0beam);
-        hPassCharge[j+2]->Fill(charge);
-        hIsolationRec[j+2]->Fill(myMuonIso);
+        // at index j+HLT_PLOT_OFFSET 
+        hPassEtaRec[j+HLT_PLOT_OFFSET]->Fill(eta);
+        hPassPhiRec[j+HLT_PLOT_OFFSET]->Fill(phi);
+        hPassPtRec[j+HLT_PLOT_OFFSET]->Fill(pt);
+        hPhiVsEtaRec[j+HLT_PLOT_OFFSET]->Fill(eta,phi);
+        hPassD0Rec[j+HLT_PLOT_OFFSET]->Fill(d0);
+        hPassD0BeamRec[j+HLT_PLOT_OFFSET]->Fill(d0beam);
+        hPassZ0Rec[j+HLT_PLOT_OFFSET]->Fill(z0);
+        hPassZ0BeamRec[j+HLT_PLOT_OFFSET]->Fill(z0beam);
+        hPassCharge[j+HLT_PLOT_OFFSET]->Fill(charge);
+        hIsolationRec[j+HLT_PLOT_OFFSET]->Fill(myMuonIso);
         
         
         // Histograms with Match in the name only have HLT
@@ -1260,15 +1351,15 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
         double deltaPhi = reco::deltaPhi (hltCand_phi, phi);
 
-        hDeltaRMatched[j+1]->Fill(deltaR);
-        hPassMatchPtRec[j+1]->Fill(pt);
-        //hPtMatchVsPtRec[j+1]->Fill(hltCand_pt, pt);
-        //hEtaMatchVsEtaRec[j+1]->Fill(hltCand_eta, eta);
-        //hPhiMatchVsPhiRec[j+1]->Fill(hltCand_phi, phi);
-        hMatchedDeltaPhi[j+1]->Fill(deltaPhi);
-        //hDeltaPhiVsPhi[j+1]->Fill(phi, deltaPhi);
-        //hDeltaPhiVsZ0[j+1]->Fill(z0, deltaPhi);
-        //hDeltaPhiVsD0[j+1]->Fill(d0, deltaPhi);
+        hDeltaRMatched[j+HLT_PLOT_OFFSET-1]->Fill(deltaR);
+        hPassMatchPtRec[j+HLT_PLOT_OFFSET-1]->Fill(pt);
+        //hPtMatchVsPtRec[j+HLT_PLOT_OFFSET-1]->Fill(hltCand_pt, pt);
+        //hEtaMatchVsEtaRec[j+HLT_PLOT_OFFSET-1]->Fill(hltCand_eta, eta);
+        //hPhiMatchVsPhiRec[j+HLT_PLOT_OFFSET-1]->Fill(hltCand_phi, phi);
+        hMatchedDeltaPhi[j+HLT_PLOT_OFFSET-1]->Fill(deltaPhi);
+        //hDeltaPhiVsPhi[j+HLT_PLOT_OFFSET-1]->Fill(phi, deltaPhi);
+        //hDeltaPhiVsZ0[j+HLT_PLOT_OFFSET-1]->Fill(z0, deltaPhi);
+        //hDeltaPhiVsD0[j+HLT_PLOT_OFFSET-1]->Fill(d0, deltaPhi);
         
 
         LogTrace ("HLTMuonVal") << "The pdg id is (hlt [" << j << "]) "
@@ -1285,18 +1376,18 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         
 
         
-        hChargeFlipMatched[j+1]->Fill( hltCand_plottedCharge, plottedCharge);
+        hChargeFlipMatched[j+HLT_PLOT_OFFSET-1]->Fill( hltCand_plottedCharge, plottedCharge);
 
         
         // Resolution histos must have hlt matches
 
-        hResoPtAodRec[j+1]->Fill((pt - hltCand_pt)/pt);
-        hResoEtaAodRec[j+1]->Fill((eta - hltCand_eta)/fabs(eta));
-        hResoPhiAodRec[j+1]->Fill((phi - hltCand_phi)/fabs(phi));
+        hResoPtAodRec[j+HLT_PLOT_OFFSET-1]->Fill((pt - hltCand_pt)/pt);
+        hResoEtaAodRec[j+HLT_PLOT_OFFSET-1]->Fill((eta - hltCand_eta)/fabs(eta));
+        hResoPhiAodRec[j+HLT_PLOT_OFFSET-1]->Fill((phi - hltCand_phi)/fabs(phi));
         
         if (numRecMatches == 1 && (recMatches[i].hltCands.size()== 1)) {
-          hPassExaclyOneMuonMaxPtRec[j+2]->Fill(pt);
-          hPassPtRecExactlyOne[j+2]->Fill(pt);
+          hPassExaclyOneMuonMaxPtRec[j+HLT_PLOT_OFFSET]->Fill(pt);
+          hPassPtRecExactlyOne[j+HLT_PLOT_OFFSET]->Fill(pt);
         }
       }      
     }
@@ -1304,29 +1395,29 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     /////////////////////////////////////////////////
     //         Fill some RAW histograms
     /////////////////////////////////////////////////
-
-    LogTrace ("HLTMuonVal")  << "\n.... now Filling Raw Histos";
-    if ( recMatches[i].l1RawCand.energy() > 0 ) {
+    if (useFullDebugInformation) {
+      LogTrace ("HLTMuonVal")  << "\n.... now Filling Raw Histos";
+      if ( recMatches[i].l1RawCand.energy() > 0 ) {
       
-      // you've found a L1 raw candidate
-      rawMatchHltCandPt[1]->Fill(pt);
-      rawMatchHltCandEta[1]->Fill(eta);
-      rawMatchHltCandPhi[1]->Fill(phi);      
-    }
-
-    LogTrace ("HLTMuonVal") << "There are " << recMatches[i].hltCands.size()
-                            << " hltRaw candidates that could match, starting loop"
-                            << endl;
-    
-    for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-      if ( recMatches[i].hltCands[j].pt() > 0 ) {
-        rawMatchHltCandPt[j+2]->Fill(pt);
-        rawMatchHltCandEta[j+2]->Fill(eta);
-        rawMatchHltCandPhi[j+2]->Fill(phi);   
+        // you've found a L1 raw candidate
+        rawMatchHltCandPt[1]->Fill(pt);
+        rawMatchHltCandEta[1]->Fill(eta);
+        rawMatchHltCandPhi[1]->Fill(phi);      
       }
-    }
 
+      LogTrace ("HLTMuonVal") << "There are " << recMatches[i].hltCands.size()
+                              << " hltRaw candidates that could match, starting loop"
+                              << endl;
     
+      for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
+        if ( recMatches[i].hltCands[j].pt() > 0 ) {
+          rawMatchHltCandPt[j+HLT_PLOT_OFFSET]->Fill(pt);
+          rawMatchHltCandEta[j+HLT_PLOT_OFFSET]->Fill(eta);
+          rawMatchHltCandPhi[j+HLT_PLOT_OFFSET]->Fill(phi);   
+        }
+      }
+
+    }
   } // end RECO matching
 
   /////////////////////////////////////////
@@ -1389,7 +1480,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     // this will only fill up if L3
     // I don't think it's correct to fill
     // all the labels with this
-    if (maxMatchPtRec > 0) hPassMaxPtRec[i+2]->Fill(maxMatchPtRec);
+    if (maxMatchPtRec > 0) hPassMaxPtRec[i+HLT_PLOT_OFFSET]->Fill(maxMatchPtRec);
   }                                          
   
 
@@ -1724,11 +1815,16 @@ void HLTMuonMatchAndPlot::begin()
 
     // JMS I think this is trimming all L1 names to
     // to be L1Filtered
-    myLabel = theL1CollectionLabel;
-    myLabel = myLabel(myLabel.Index("L1"),myLabel.Length());
-    myLabel = myLabel(0,myLabel.Index("Filtered")+8);
+    // Update this so that it really is just L1Filtered
+    // new trigger names ruin string trimming
 
-
+    if (useOldLabels) { 
+      myLabel = theL1CollectionLabel;
+      myLabel = myLabel(myLabel.Index("L1"),myLabel.Length());
+      myLabel = myLabel(0,myLabel.Index("Filtered")+8);
+    } else {
+      myLabel = "L1Filtered";
+    }
     // JMS Old way of doing things
     //newFolder = "HLT/Muon/Distributions/" + theTriggerName;
     newFolder = "HLT/Muon/Distributions/" + theTriggerName + "/" + mySelection.customLabel;
@@ -1769,40 +1865,40 @@ void HLTMuonMatchAndPlot::begin()
       // 0 = MaxPt_All
       hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" ,  theMaxPtParameters) );
       // 1 = MaxPt if matched to L1 Trigger
-      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
 
       hPassEtaRec.push_back( bookIt( "recPassEta_All", "#eta of Reco Muons", theEtaParameters) );
-      hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
+      if (useFullDebugInformation || isL1Path) hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
       
       hPassPhiRec.push_back( bookIt( "recPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
-      hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
+      if (useFullDebugInformation || isL1Path) hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
       
 
       
       hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-      hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
       
       hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_All", "pt of Leading Reco Muon (==1 muon)" ,  theMaxPtParameters) );
-      hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  theMaxPtParameters) );
       
       hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_All", "pt of Leading Reco Muon in events with exactly one muon" ,  theMaxPtParameters) );
-      hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );
 
       hPassD0Rec.push_back( bookIt("recPassD0_All", "Track 2-D impact parameter wrt (0,0,0)(d0) ALL", theD0Parameters));
-      hPassD0Rec.push_back( bookIt("recPassD0_" + myLabel, "Track 2-D impact parameter (0,0,0)(d0) " + myLabel, theD0Parameters));
+      if (useFullDebugInformation || isL1Path) hPassD0Rec.push_back( bookIt("recPassD0_" + myLabel, "Track 2-D impact parameter (0,0,0)(d0) " + myLabel, theD0Parameters));
       hPassD0BeamRec.push_back( bookIt("recPassD0Beam_All", "Track 2-D impact parameter wrt (beam)(d0) ALL", theD0Parameters));
-      hPassD0BeamRec.push_back( bookIt("recPassD0Beam_" + myLabel, "Track 2-D impact parameter (beam)(d0) " + myLabel, theD0Parameters));
+      if (useFullDebugInformation || isL1Path) hPassD0BeamRec.push_back( bookIt("recPassD0Beam_" + myLabel, "Track 2-D impact parameter (beam)(d0) " + myLabel, theD0Parameters));
       
       hPassZ0Rec.push_back( bookIt("recPassZ0_All", "Track Z0 wrt (0,0,0) ALL", theZ0Parameters));
-      hPassZ0Rec.push_back( bookIt("recPassZ0_" + myLabel, "Track Z0 (0,0,0) " + myLabel, theZ0Parameters));      
+      if (useFullDebugInformation || isL1Path) hPassZ0Rec.push_back( bookIt("recPassZ0_" + myLabel, "Track Z0 (0,0,0) " + myLabel, theZ0Parameters));      
       hPassZ0BeamRec.push_back( bookIt("recPassZ0Beam_All", "Track Z0 wrt (beam) ALL", theZ0Parameters));
-      hPassZ0BeamRec.push_back( bookIt("recPassZ0Beam_" + myLabel, "Track Z0 (beam) " + myLabel, theZ0Parameters));
+      if (useFullDebugInformation || isL1Path) hPassZ0BeamRec.push_back( bookIt("recPassZ0Beam_" + myLabel, "Track Z0 (beam) " + myLabel, theZ0Parameters));
 
       hPassCharge.push_back( bookIt("recPassCharge_All", "Track Charge  ALL", theChargeParameters));
-      hPassCharge.push_back( bookIt("recPassCharge_" + myLabel, "Track Charge  " + myLabel, theChargeParameters));
+      if (useFullDebugInformation || isL1Path) hPassCharge.push_back( bookIt("recPassCharge_" + myLabel, "Track Charge  " + myLabel, theChargeParameters));
 
       hIsolationRec.push_back ( bookIt("recPassIsolation_ALL", "Muon Isolation cone 0.3", theIsolationParameters));
-      hIsolationRec.push_back ( bookIt("recPassIsolation_" + myLabel, "Muon Isolation cone 0.3  " + myLabel, theIsolationParameters)); 
+      if (useFullDebugInformation || isL1Path) hIsolationRec.push_back ( bookIt("recPassIsolation_" + myLabel, "Muon Isolation cone 0.3  " + myLabel, theIsolationParameters)); 
 
         // beamspot filled only once
       hBeamSpotZ0Rec.push_back ( bookIt("recBeamSpotZ0_All", "Z0 of beamspot for this event", theZ0Parameters));
@@ -1815,22 +1911,22 @@ void HLTMuonMatchAndPlot::begin()
       // =======================================================
       
       // hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_All" , "#Delta R between matched HLTCand", theDRParameters));
-      hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_" + myLabel, "#Delta R between matched HLTCand", theDRParameters));
+      if (useFullDebugInformation || isL1Path) hDeltaRMatched.push_back ( bookIt("recDeltaRMatched_" + myLabel, "#Delta R between matched HLTCand", theDRParameters));
 
       // hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_All" , "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
-      hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
+      if (useFullDebugInformation || isL1Path) hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
 
-      hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
       //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
       //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
       //hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
       
-      hResoPtAodRec.push_back ( bookIt ("recResoPt_" + myLabel, "TrigSumAOD to RECO P_T resolution", theResParameters));
-      hResoEtaAodRec.push_back ( bookIt ("recResoEta_" + myLabel, "TrigSumAOD to RECO #eta resolution", theResParameters));
-      hResoPhiAodRec.push_back ( bookIt ("recResoPhi_" + myLabel, "TrigSumAOD to RECO #phi resolution", theResParameters));
+      if (useFullDebugInformation || isL1Path) hResoPtAodRec.push_back ( bookIt ("recResoPt_" + myLabel, "TrigSumAOD to RECO P_T resolution", theResParameters));
+      if (useFullDebugInformation || isL1Path) hResoEtaAodRec.push_back ( bookIt ("recResoEta_" + myLabel, "TrigSumAOD to RECO #eta resolution", theResParameters));
+      if (useFullDebugInformation || isL1Path) hResoPhiAodRec.push_back ( bookIt ("recResoPhi_" + myLabel, "TrigSumAOD to RECO #phi resolution", theResParameters));
 
       // Cosmic debugging histos
-      hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );
+      if (useFullDebugInformation || isL1Path) hMatchedDeltaPhi.push_back ( bookIt( "recDeltaPhiMatched_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters0Pi) );
       //hDeltaPhiVsPhi.push_back(bookIt( "recDeltaPhiVsPhi_" + myLabel, "#Delta #phi (reco,hlt) vs HLT #phi  " + myLabel, theDeltaPhiVsPhiParameters) );
       //hDeltaPhiVsZ0.push_back(bookIt( "recDeltaPhiVsZ0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT z0  " + myLabel, theDeltaPhiVsZ0Parameters) );
       //hDeltaPhiVsD0.push_back(bookIt( "recDeltaPhiVsD0_" + myLabel, "#Delta #phi (reco, hlt) vs HLT d0 " + myLabel, theDeltaPhiVsD0Parameters) );
@@ -1839,33 +1935,41 @@ void HLTMuonMatchAndPlot::begin()
       //  RAW Histograms 
       ////////////////////////////////////////////////
 
+      if (useFullDebugInformation) {
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
       
-      rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-      rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+        rawMatchHltCandEta.push_back( bookIt( "rawPassEta_All", "#eta of Reco Muons", theEtaParameters) );
+        rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
       
-      rawMatchHltCandEta.push_back( bookIt( "rawPassEta_All", "#eta of Reco Muons", theEtaParameters) );
-      rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
-      
-      rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
-      rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
-      
+        rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
+        rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
+      }
       
       //=================================
       //          2-D Histograms
       //=================================
       
       hPhiVsEtaRec.push_back ( bookIt ("recPhiVsRecEta_All", "Reco #phi vs Reco #eta  ", thePhiEtaParameters2d));
-      hPhiVsEtaRec.push_back ( bookIt ("recPhiVsRecEta_" + myLabel, "Reco #phi vs Reco #eta  " +myLabel, thePhiEtaParameters2d));
+      if (useFullDebugInformation || isL1Path) hPhiVsEtaRec.push_back ( bookIt ("recPhiVsRecEta_" + myLabel, "Reco #phi vs Reco #eta  " +myLabel, thePhiEtaParameters2d));
 
     }
 
+    // we won't enter this loop if we don't have an hlt label
+    // we won't have an hlt label is this is a l1 path
     for ( unsigned int i = 0; i < theHltCollectionLabels.size(); i++ ) {
 
-      myLabel = theHltCollectionLabels[i];
-      TString level = ( myLabel.Contains("L2") ) ? "L2" : "L3";
-      myLabel = myLabel(myLabel.Index(level),myLabel.Length());
-      myLabel = myLabel(0,myLabel.Index("Filtered")+8);
-
+      if (useOldLabels) {
+        myLabel = theHltCollectionLabels[i];
+        TString level = ( myLabel.Contains("L2") ) ? "L2" : "L3";
+        myLabel = myLabel(myLabel.Index(level),myLabel.Length());
+        myLabel = myLabel(0,myLabel.Index("Filtered")+8);
+      } else {
+        TString tempString = theHltCollectionLabels[i];
+        TString level = ( tempString.Contains("L2") ) ? "L2" : "L3";
+        myLabel = level + "Filtered";
+      }
+      
       if ( useMuonFromReco ) {
 
         // These histos have All, L1, L2, L3
@@ -1923,10 +2027,11 @@ void HLTMuonMatchAndPlot::begin()
 
         // raw histograms
 
-        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
-        rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
-        rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
-        
+        if (useFullDebugInformation) {
+          rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+          rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
+          rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
+        }
       }
 
     }
