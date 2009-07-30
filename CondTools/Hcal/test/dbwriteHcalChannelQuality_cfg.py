@@ -5,7 +5,7 @@ process = cms.Process("TEST")
 process.MessageLogger=cms.Service("MessageLogger",
                               destinations=cms.untracked.vstring("cout"),
                               cout=cms.untracked.PSet(
-                              treshold=cms.untracked.string("INFO")
+                              threshold=cms.untracked.string("INFO")
                               )
 )
 
@@ -23,7 +23,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('ChannelQuality'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
+        #file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_channelStatus_default.txt')
+        file = cms.FileInPath('CondTools/Hcal/test/DumpCondChannelQuality_Run1.txt')
     ))
 )
 
@@ -33,7 +34,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('HcalChannelQualityRcd'),
-        tag = cms.string('hcal_channelStatus_trivial_mc')
+        tag = cms.string('HcalChannelQuality_v1.02_mc')
          ))
 )
 

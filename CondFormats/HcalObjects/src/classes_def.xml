@@ -62,6 +62,10 @@
  <class name="std::vector<HcalTimeCorr>"/>
  <class name="HcalTimeCorrs"/>
 
+ <class name="HcalValidationCorr"/>
+ <class name="std::vector<HcalValidationCorr>"/>
+ <class name="HcalValidationCorrs"/>
+
 
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   

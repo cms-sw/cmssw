@@ -22,9 +22,8 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
-        object = cms.string('RespCorrs'),
-        #file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_respCorr_trivial_HF0.7.txt')
-        file = cms.FileInPath('CondTools/Hcal/test/DumpCondRespCorrs_Run1.txt')
+        object = cms.string('ValidationCorrs'),
+        file = cms.FileInPath('CondTools/Hcal/test/DumpCondValidationCorrs_Run1.txt')
     ))
 )
 
@@ -33,13 +32,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     logconnect= cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('HcalRespCorrsRcd'),
-        tag = cms.string('hcal_respcorr_trivial_v1.01_mc')
+        record = cms.string('HcalValidationCorrsRcd'),
+        tag = cms.string('hcal_validationcorr_trivial_v1.01_mc')
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalRespCorrsPopConAnalyzer",
-    record = cms.string('HcalRespCorrsRcd'),
+process.mytest = cms.EDAnalyzer("HcalValidationCorrsPopConAnalyzer",
+    record = cms.string('HcalValidationCorrsRcd'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(

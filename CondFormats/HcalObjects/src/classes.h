@@ -46,6 +46,9 @@ namespace {
 
     HcalTimeCorrs mytcorrs;
     std::vector<HcalTimeCorr> mytcorrsVec;
+
+    HcalValidationCorrs myVcorrs;
+    std::vector<HcalValidationCorr> myVcorrsVec;
   };
 }
 

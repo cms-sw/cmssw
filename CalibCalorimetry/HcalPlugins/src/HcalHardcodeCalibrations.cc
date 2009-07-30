@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.19 2009/05/19 16:06:01 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.20 2009/05/20 15:54:20 rofierzy Exp $
 //
 //
 
@@ -132,7 +132,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceL1TriggerObjects);
       findingRecord <HcalL1TriggerObjectsRcd> ();
     }
-
+    if ((*objectName == "ValidationCorrs") || (*objectName == "ResponseCorrection") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceValidationCorrs);
+      findingRecord <HcalValidationCorrsRcd> ();
+    }
   }
 }
 
@@ -297,6 +300,17 @@ std::auto_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMa
 
   std::auto_ptr<HcalElectronicsMap> result (new HcalElectronicsMap ());
   HcalDbHardcode::makeHardcodeMap(*result);
+  return result;
+}
+
+std::auto_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceValidationCorrs-> ...";
+  std::auto_ptr<HcalValidationCorrs> result (new HcalValidationCorrs ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalValidationCorr item(cell->rawId(),1.0);
+    result->addValues(item,h2mode_);
+  }
   return result;
 }
 

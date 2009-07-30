@@ -17,5 +17,6 @@
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalValidationCorrs.h"
 
 #endif
