@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.26 2009/06/25 16:51:11 gpetrucc Exp $
+// $Id: PATObject.h,v 1.27 2009/07/30 08:58:08 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.26 2009/06/25 16:51:11 gpetrucc Exp $
+  \version  $Id: PATObject.h,v 1.27 2009/07/30 08:58:08 gpetrucc Exp $
 */
 
 
@@ -92,13 +92,16 @@ namespace pat {
       }
       /// Get a generator level particle reference with a given pdg id and status
       /// If there is no MC match with that pdgId and status, it will return a null ref
+      /// Note: this might be a transient ref if the genParticle was embedded
       /// If status == 0, only the pdgId will be checked; likewise, if pdgId == 0, only the status will be checked.
-      /// When a charged reco particle is matched to a charged gen particle, positive pdgId means 'same charge', negative pdgId means 'opposite charge'; 
-      /// for example, electron.genParticleById(11) will get an e^+ matched to e^+ or e^- matched to e^-, while genParticleById(-15) will get e^+ matched to e^- or vice versa.
+      /// When autoCharge is set to true, and a charged reco particle is matched to a charged gen particle,
+      /// positive pdgId means 'same charge', negative pdgId means 'opposite charge'; 
+      /// for example, electron.genParticleById(11,0,true) will get an e^+ matched to e^+ or e^- matched to e^-, 
+      /// while genParticleById(-15,0,true) will get e^+ matched to e^- or vice versa.
       /// If a neutral reco particle is matched to a charged gen particle, the sign of the pdgId passed to getParticleById must match that of the gen particle;
       /// for example photon.getParticleById(11) will match gamma to e^-, while genParticleById(-11) will match gamma to e^+ (pdgId=-11)
-      /// Note: this might be a transient ref if the genParticle was embedded
-      reco::GenParticleRef      genParticleById(int pdgId, int status) const ;
+      // implementation note: uint8_t instead of bool, because the string parser doesn't allow bool currently
+      reco::GenParticleRef      genParticleById(int pdgId, int status, uint8_t autoCharge=0) const ;
 
       /// Get generator level particle, as C++ pointer (might be 0 if the ref was null)
       /// If you stored multiple GenParticles, you can specify which one you want.
@@ -472,7 +475,7 @@ namespace pat {
   }
 
   template <class ObjectType>
-  reco::GenParticleRef PATObject<ObjectType>::genParticleById(int pdgId, int status) const {
+  reco::GenParticleRef PATObject<ObjectType>::genParticleById(int pdgId, int status, uint8_t autoCharge) const {
         // get a vector, avoiding an unneeded copy if there is no embedding
         const std::vector<reco::GenParticleRef> & vec = (genParticleEmbedded_.empty() ? genParticleRef_ : genParticleRefs());
         for (std::vector<reco::GenParticleRef>::const_iterator ref = vec.begin(), end = vec.end(); ref != end; ++ref) {
@@ -481,6 +484,8 @@ namespace pat {
                 if ((status != 0) && (g.status() != status)) continue;
                 if (pdgId == 0) {
                     return *ref;
+                } else if (!autoCharge) {
+                    if (pdgId == g.pdgId()) return *ref;
                 } else if (abs(pdgId) == abs(g.pdgId())) {
                     // I want pdgId > 0 to match "correct charge" (for charged particles)
                     if (g.charge() == 0) return *ref;
