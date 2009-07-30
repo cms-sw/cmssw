@@ -25,9 +25,9 @@ my $doPB  = 0;
 my $doEP  = 1;
 my $doPyCfg  = 0;
 my $doSM  = 1;
+my $doTrigger = 0;
 my $doDQM = 0;
 my $useStepper = 0;
-my $useAtcp = 1;
 
 my $PBfile;
 my $EPcfg = "";
@@ -41,14 +41,19 @@ my $user     = $ENV{"USER"};
 my $BUport = 40000;
 my $SMport = 40001;
 my $EPport = 40002;
+my $Triggerport = 40003;
+my $EVMport = 40004;
 
+my $Triggerappname = "evf::AutoTrigger";
+my $EVMappname = "rubuilder::evm::Application";
 my $BUappname = "evf::BU";
 my $RBappname = "evf::FUResourceBroker";
 my $EPappname = "evf::FUEventProcessor";
 my $SMappname = "StorageManager";
 my $PTappname = "pt::atcp::PeerTransportATCP";
-my $PTTappname = "pt::tcp::PeerTransportTCP";
 
+my $Triggerlocalid=121;
+my $EVMlocalid=120;
 my $BUlocalid=21;
 my $PBlocalid=22;
 my $RBlocalid=26;
@@ -56,20 +61,22 @@ my $EPlocalid=27;
 my $SMlocalid=44;
 my $PTlocalid=47;
 
+my $Triggerlibpath = getLibraryPath("EventFilter/AutoBU");
+my $EVMlibpath = "/opt/xdaq/lib";
 my $BUlibpath = getLibraryPath("EventFilter/AutoBU");
 my $RBlibpath = getLibraryPath("EventFilter/ResourceBroker");
 my $EPlibpath = getLibraryPath("EventFilter/Processor");
 my $SMlibpath = getLibraryPath("EventFilter/StorageManager");
 my $PTlibpath = $ENV{"XDAQ_ROOT"} . "/lib";
 
+my $Triggerlibname = "libEventFilterAutoBU.so";
+my $EVMlibname = "librubuilderevm.so";
 my $BUlibname = "libEventFilterAutoBU.so";
 my $RBlibname = "libEventFilterResourceBroker.so";
 my $EPlibname = "libEventFilterProcessor.so";
 my $SMlibname = "libEventFilterStorageManager.so";
 my $PTlibname = "libptatcp.so";
-my $PTTlibname = "libpttcp.so";
 
-my $i2oprotocol = "atcp";
 
 my $SMperl = 
     $ENV{"CMSSW_RELEASE_BASE"} .
@@ -94,8 +101,8 @@ foreach $param (@ARGV) {
     elsif ($param    eq "-nEP")      { $doEP    =    -1; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
+    elsif ($param    eq "-trigger")  { $doTrigger=1; }
     elsif ($param    eq "-debug")    { $useStepper=1; }
-    elsif ($param    eq "-tcp")      { $useAtcp=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
     elsif ($param    eq "-python")   { $doPyCfg=1; }
     else { die ("Unknown parameter $param!\n"); }
@@ -105,11 +112,7 @@ print "hostname = $hostname\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
-if (!$useAtcp) { 
-    $PTappname   = $PTTappname; 
-    $PTlibname   = $PTTlibname;
-    $i2oprotocol = "tcp";
-}
+
 
 #
 # make directories
@@ -177,13 +180,8 @@ print XML makeXmlHeader();
 print XML makeXmlProfileHeader();
 print XML makeXmlAppHeader(0,"executive::Application",0,"executive");
 print XML makeXmlAppProperties("Executive",@EXproperties);
-if($useAtcp){
-  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
-  print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
-}
-else{
-  print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
-}
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libb2innub.so");
+print XML addModuleToXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
 print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
 print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@HTTPproperties);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
@@ -206,13 +204,25 @@ my @apps = ($BUappname,$BUlocalid,0,
 	    $RBappname,$RBlocalid,0);
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
+if ($doTrigger) { 
+    push (@apps,$Triggerappname); push (@apps,$Triggerlocalid); push (@apps,0);
+    push (@apps,$EVMappname); push (@apps,$EVMlocalid); push (@apps,0);
+ }
 
 my @BUproperties = ("runNumber","unsignedInt",$runNumber,
-		    "replay","boolean","false",
-		    "queueSize","unsignedInt","32",
-		    "crc","boolean","true",
-		    "overwriteEvtId","boolean","false",
-		    "eventBufferSize","unsignedInt","0x400000");
+			 "replay","boolean","false",
+			 "queueSize","unsignedInt","32",
+			 "crc","boolean","true",
+			 "overwriteEvtId","boolean","false",
+			 "eventBufferSize","unsignedInt","0x400000");
+
+
+my @Triggerproperties = ("triggerSourceId","unsignedInt","812",
+		    "fedPayloadSize","unsignedInt","32");
+
+my @EVMproperties = ("taClass","string","evf::AutoTrigger",
+		     "taInstance","unsignedInt","0",
+		     "nbEvtIdsInBuilder","unsignedInt","1024");
 
     
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
@@ -251,11 +261,37 @@ print XML makeXmlHeader();
 print XML makeXmlPartitionHeader();
 print XML makeXmlComm(@apps);
 
+# trigger context
+if($doTrigger) {
+    print XML makeXmlContextHeader("Trigger",$hostname,$Triggerport);
+    print XML makeXmlEndpoint($hostname,50003);
+    print XML makeXmlAppHeader(1,$Triggerappname,$Triggerlocalid);
+    print XML makeXmlAppProperties($Triggerappname,@Triggerproperties);
+    print XML makeXmlUnicast($EVMappname);
+    print XML makeXmlAppTrailer(1,$Triggerlibpath,$Triggerlibname);
+    print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
+    print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
+    print XML makeXmlContextTrailer();
+
+    print XML makeXmlContextHeader("EVM",$hostname,$EVMport);
+    print XML makeXmlEndpoint($hostname,50004);
+    print XML makeXmlAppHeader(1,$EVMappname,$EVMlocalid);
+    print XML makeXmlAppProperties($EVMappname,@EVMproperties);
+    print XML makeXmlUnicast($Triggerappname);
+    print XML makeXmlUnicast($BUappname);
+    print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
+    print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
+    print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
+    print XML makeXmlContextTrailer();
+
+}
+
 # BU context
 print XML makeXmlContextHeader("BU",$hostname,$BUport);
-if ($doSM) { print XML makeXmlEndpoint($hostname,50000,$i2oprotocol); }
+if ($doSM) { print XML makeXmlEndpoint($hostname,50000); }
 print XML makeXmlAppHeader(1,$BUappname,$BUlocalid);
 print XML makeXmlAppProperties($BUappname,@BUproperties);
+if ($doTrigger) { print XML makeXmlUnicast($EVMappname); }
 print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
 if ($doPB) {
     print XML makeXmlAppHeader(1,$EPappname,$PBlocalid);
@@ -284,7 +320,7 @@ for ($i=0;$i<$doEP;$i++) {
 # SM context
 if ($doSM) {
     print XML makeXmlContextHeader("SM",$hostname,$SMport);
-    print XML makeXmlEndpoint($hostname,50002,$i2oprotocol);
+    print XML makeXmlEndpoint($hostname,50002);
     print XML makeXmlAppHeader(1,$SMappname,$SMlocalid);
     print XML makeXmlAppProperties($SMappname,@SMproperties);
     print XML makeXmlUnicast($RBappname);
@@ -306,12 +342,28 @@ print "make soap command files ...\n";
 my @commands = ('Configure','Enable','Stop','Halt' );
 
 foreach  (@commands) {
+    open(CMD,">./soap/$_"."AT.xml") or die ("Can't open file: $!\n");
+    print CMD makeSoapCommand($hostname,$Triggerport,$Triggerlocalid,$_);
+    close(CMD);
+
+    open(CMD,">./soap/$_"."EVM0.xml") or die ("Can't open file: $!\n");
+    print CMD makeSoapCommand($hostname,$EVMport,$EVMlocalid,$_);
+    close(CMD);
+
     open(CMD,">./soap/$_"."BU.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$BUport,$BUlocalid,$_);
     close(CMD);
     
     open(CMD,">./soap/$_"."PB.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$BUport,$PBlocalid,$_);
+    close(CMD);
+
+    open(CMD,">./soap/$_"."TriggerPT.xml") or die ("Can't open file: $!\n");
+    print CMD makeSoapCommand($hostname,$Triggerport,$PTlocalid,$_);
+    close(CMD);
+
+    open(CMD,">./soap/$_"."EVMPT.xml") or die ("Can't open file: $!\n");
+    print CMD makeSoapCommand($hostname,$EVMport,$PTlocalid,$_);
     close(CMD);
 
     open(CMD,">./soap/$_"."BUPT.xml") or die ("Can't open file: $!\n");
@@ -348,20 +400,26 @@ print "make control scripts ...\n";
 open (CTL,">configure") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
 if ($doSM) {
-    if( $useAtcp ){
-	print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
-	print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
-    }
+    print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
+    print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
     print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
+}
+if ($doTrigger) {
+    print CTL makeCtlCommand("Configure",$PTappname,"TriggerPT",$hostname,$Triggerport,1);
+    print CTL makeCtlCommand("Enable",$PTappname,"TriggerPT",$hostname,$Triggerport,1);
+    print CTL makeCtlCommand("Configure",$PTappname,"EVMPT",$hostname,$Triggerport,1);
+    print CTL makeCtlCommand("Enable",$PTappname,"EVMPT",$hostname,$Triggerport,1);
+
+    print CTL makeCtlCommand("Configure",$Triggerappname,"AT",$hostname,$Triggerport,1);
+    print CTL makeCtlCommand("Configure",$EVMappname,"EVM0",$hostname,$EVMport,1);
+
 }
 if ($doPB) {
     print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,30);
     print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
 }
-if( $useAtcp ){
-    print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
-}
+print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
+print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
 print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
@@ -389,6 +447,8 @@ if ($doEP) {
 	print CTL makeCtlCommand("Enable",$EPappname,$appabrev,$hostname,$port,0);
     }
 }
+print CTL makeCtlCommand("Enable",$EVMappname,"EVM0",$hostname,$EVMport,1);
+print CTL makeCtlCommand("Enable",$Triggerappname,"AT",$hostname,$Triggerport,1);
 close (CTL);
 `chmod +x enable`;
 
@@ -451,6 +511,12 @@ if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
     `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
 }
+if ($doTrigger) {
+    print "\nstart xdaq.exe on $hostname:$Triggerport\n";
+    `nice -n 15 xdaq.exe -h $hostname -p $Triggerport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$Triggerport.log &`;
+    print "\nstart xdaq.exe on $hostname:$EVMport\n";
+    `nice -n 15 xdaq.exe -h $hostname -p $EVMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EVMport.log &`;
+}
 
 for ($i=0;$i<$doEP;$i++) {
     $port = $EPport + $i;
@@ -505,8 +571,8 @@ sub makeSoapCommand
     $result = $result . "  <xr:to url=\"http://$hostname:$port\" urn=\"urn:xdaq-application:lid=$localid\"/>\n";
     $result = $result . "</xr:relay>\n";
     $result = $result . "</SOAP-ENV:Header>\n\n";
-    $result = $result . "<SOAP-ENV:Body>\n";
-    $result = $result . "  <xdaq:$command xmlns:xdaq=\"urn:xdaq-soap:3.0\"></xdaq:$command>\n";
+    $result = $result . "<SOAP-ENV:Body>";
+    $result = $result . "<xdaq:$command xmlns:xdaq=\"urn:xdaq-soap:3.0\"></xdaq:$command>";
     $result = $result . "</SOAP-ENV:Body>\n\n";
     $result = $result . "</SOAP-ENV:Envelope>\n";
     
@@ -916,12 +982,12 @@ sub makeXmlContextHeader
 ################################################################################
 sub makeXmlEndpoint
 {
-    my ($hostname,$port,$protocol) = @_;
+    my ($hostname,$port) = @_;
 
     my $result = "";
     $result = $result . "    <xc:Endpoint hostname=\"" . $hostname .
 	"\" network=\"tcp0\" " .
-	"port=\"" .$port . "\" protocol=\"" . $protocol ."\" " .
+	"port=\"" .$port . "\" protocol=\"atcp\" " .
 	"service=\"i2o\"></xc:Endpoint>\n\n";
     return $result;
 }
