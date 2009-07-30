@@ -351,7 +351,8 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 //--------------------------------------------------------
 void HcalMonitorClient::endJob(void) {
 
-  if( debug_>0 ) std::cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
+  if( debug_>0 ) 
+    std::cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   if (summary_client_)         summary_client_->endJob();
   if( dataformat_client_ )     dataformat_client_->endJob();
