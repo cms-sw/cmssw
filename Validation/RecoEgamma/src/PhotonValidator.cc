@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/26 16:30:15 $ 
- **  $Revision: 1.42 $
+ **  $Date: 2009/07/29 19:49:16 $ 
+ **  $Revision: 1.47 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -417,6 +417,10 @@ void  PhotonValidator::beginJob() {
    
 
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/Background");
+
+    histname = "nOfPhotons";    
+    h_nPho_ = dbe_->book1D(histname,"# of Reco photons per event ",20,-0.5,19.5); 
+
     h_scBkgEta_ = dbe_->book1D("scBkgEta"," SC Bkg Eta ",etaBin,etaMin, etaMax) ;
     h_scBkgPhi_ = dbe_->book1D("scBkgPhi"," SC Bkg  Phi ",phiBin,phiMin,phiMax) ;
     //
@@ -1258,6 +1262,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     nSimPho_[i]=0;
   for (int i=0; i<2; i++)  
     nSimConv_[i]=0;
+
 
   //////////////////////////////////////////////////////////////////////
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
@@ -2359,6 +2364,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   bool jetMatching=false;
   const reco::GenJet* matchingJet=0;
+  float nPho=0;
   for (reco::GenJetCollection::const_iterator genJetIter = genJetCollection.begin();
        genJetIter != genJetCollection.end();	 ++genJetIter) {
     
@@ -2399,6 +2405,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }  // end loop over reco photons
 
     if (!  matched ) continue;
+    nPho++;
 
     h_MatchedSimJet_[0]->Fill( mcJetEta_ ) ;
     h_MatchedSimJet_[1]->Fill( mcJetPhi_ );
@@ -2507,7 +2514,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   } // end loop over sim jets
   
-
+  h_nPho_->Fill(float(nPho));
 
 }
 
