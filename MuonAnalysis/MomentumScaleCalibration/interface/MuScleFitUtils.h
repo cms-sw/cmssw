@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/05/27 14:35:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/04 10:42:12 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -15,6 +15,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 // #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include <DataFormats/FWLite/interface/Handle.h>
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +56,8 @@ public:
   // ----------
   static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
   static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
-  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
+  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<reco::GenParticleCollection> & genParticles);
+ static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC );
   static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
 								   const edm::Handle<edm::SimTrackContainer> & simTracks);
 

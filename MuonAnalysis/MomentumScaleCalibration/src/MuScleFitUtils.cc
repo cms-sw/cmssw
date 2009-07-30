@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/06/05 10:07:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/06/08 09:48:56 $
+ *  $Revision: 1.14 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -26,6 +26,7 @@
 // --------------------------------------------------------------------------------------------
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -51,6 +52,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace reco;
 
 // Lorenzian Peak function    
 // -----------------------
@@ -354,6 +356,34 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
   }
   return muFromRes;
 }
+
+
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<GenParticleCollection> & genParticles){
+
+  pair<lorentzVector,lorentzVector> muFromRes;
+
+  //Loop on generated particles
+  for( GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
+    if (fabs(part->pdgId())==13 && part->status()==1) {
+      bool fromRes = false;
+      unsigned int motherPdgId = part->mother()->pdgId();
+      for( int ires = 0; ires < 6; ++ires ) {
+	if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+      }
+      if(fromRes){
+	if(part->pdgId()==13)
+	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
+					   part->p4().pz(),part->p4().e()));
+	else
+	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
+					    part->p4().pz(),part->p4().e()));
+      }
+    }
+  }
+  return muFromRes;
+
+}
+
 
 pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Handle<HepMCProduct> & evtMC, const Handle<SimTrackContainer> & simTracks ){
   //Loop on simulated tracks
