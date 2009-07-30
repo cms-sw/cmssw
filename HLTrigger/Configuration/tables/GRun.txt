@@ -88,6 +88,7 @@ HLT_L1_BSC
 HLT_L1_HFtech
 HLT_L2Mu3_NoVertex
 HLT_OIstateTkMu3
+HLT_EgammaSuperClusterOnly_L1R
 HLT_TrackPointing
 AlCa_EcalPi0_Cosmics
 AlCa_EcalEta_Cosmics
