@@ -39,7 +39,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
   muon_             = conf.getParameter<edm::InputTag> ("muon");
   mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
-  genEventScale_    = conf.getParameter<edm::InputTag> ("genEventScale");
+  genEventInfo_     = conf.getParameter<edm::InputTag> ("genEventInfo");
   simhits_          = conf.getParameter<edm::InputTag> ("simhits");
 
   // keep this separate from l1extramc_ as needed by FastSim:
@@ -179,7 +179,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<GenMETCollection>                     genmet;
   edm::Handle<METCollection>                        ht;
   edm::Handle<CandidateView>                        mctruth;
-  edm::Handle<double>                               genEventScale;
+  edm::Handle<GenEventInfoProduct>                  genEventInfo;
   edm::Handle<std::vector<SimTrack> >               simTracks;
   edm::Handle<std::vector<SimVertex> >              simVertices;
   edm::Handle<MuonCollection>                       muon;
@@ -313,7 +313,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
   getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
   getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
-  getCollection( iEvent, missing, genEventScale,   genEventScale_,     kGenEventScale );
+  getCollection( iEvent, missing, genEventInfo,    genEventInfo_,      kGenEventInfo );
   getCollection( iEvent, missing, mucands2,        MuCandTag2_,        kMucands2 );
   getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
   getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
@@ -382,6 +382,11 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
   getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
   getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
+
+
+  double ptHat=-1.;
+  if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
+
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -454,7 +459,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
   mct_analysis_.analyze(
     mctruth,
-    genEventScale,
+    ptHat,
     simTracks,
     simVertices,
     HltTree);

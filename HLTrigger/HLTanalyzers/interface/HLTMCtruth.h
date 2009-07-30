@@ -34,7 +34,7 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<CandidateView> & mctruth,
-	       const edm::Handle<double>        & pthat,
+	       const double        & pthat,
 	       const edm::Handle<std::vector<SimTrack> > & simTracks,
 	       const edm::Handle<std::vector<SimVertex> > & simVertices,
 	       TTree* tree);

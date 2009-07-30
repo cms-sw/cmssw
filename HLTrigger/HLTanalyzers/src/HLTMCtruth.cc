@@ -67,7 +67,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 /* **Analyze the event** */
 void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
-			 const edm::Handle<double>        & pthat,
+			 const double        & pthat,
 			 const edm::Handle<std::vector<SimTrack> > & simTracks,
 			 const edm::Handle<std::vector<SimVertex> > & simVertices,
 			 TTree* HltTree) {
@@ -87,7 +87,7 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
 
     ptEleMax = -999.0;
     ptMuMax  = -999.0;    
-    pthatf   = pthat.isValid() ? * pthat : 0.0;
+    pthatf   = pthat;
 
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {

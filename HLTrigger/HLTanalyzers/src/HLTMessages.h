@@ -24,7 +24,7 @@ extern const char * kL1GctBitCounts;
 extern const char * kL1GctRingSums;
 extern const char * kMctruth;
 extern const char * kSimhit;
-extern const char * kGenEventScale;
+extern const char * kGenEventInfo;
 extern const char * kMucands2;
 extern const char * kMucands3;
 extern const char * kIsoMap2;
