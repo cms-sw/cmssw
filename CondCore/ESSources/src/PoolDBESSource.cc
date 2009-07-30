@@ -61,8 +61,8 @@ namespace {
 
 
   void dumpInfo(std::ostream & out, std::string const & recName, cond::DataProxyWrapperBase const & proxy) {
-    cond::SequenceState state(proxy->proxy()->iov().state());
-    out << recname << ": "
+    cond::SequenceState state(proxy.proxy()->iov().state());
+    out << recName << ": "
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
 	<< state.size() << ", " << state.revision()    << "\n  "  
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
