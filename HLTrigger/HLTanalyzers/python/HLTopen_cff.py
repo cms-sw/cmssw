@@ -555,7 +555,7 @@ DoHLTBTag = cms.Path(
 DoHLTAlCaPi0Eta1E31 = cms.Path(
     HLTBeginSequence +
     hltL1sAlCaEcalPi0Eta1E31 +
-    hltPreAlCaEcalPi01E31 +
+    #hltPreAlCaEcalPi01E31 +
     #HLTDoRegionalPi0EtaESSequence +
     #HLTDoRegionalPi0EtaEcalSequence +
     HLTDoRegionalPi0EtaSequence +
@@ -564,24 +564,19 @@ DoHLTAlCaPi0Eta1E31 = cms.Path(
 DoHLTAlCaPi0Eta8E29 = cms.Path(
     HLTBeginSequence +
     hltL1sAlCaEcalPi0Eta8E29 +
-    hltPreAlCaEcalPi08E29 +
+    #hltPreAlCaEcalPi08E29 +
     #HLTDoRegionalPi0EtaESSequence +
     #HLTDoRegionalPi0EtaEcalSequence +
     HLTDoRegionalPi0EtaSequence +
     HLTEndSequence )
 
 
-##DoHLTAlCaECALPhiSym = cms.Path(
-##    HLTBeginSequence +
-##    # ccla hltL1sAlCaEcalPhiSym +
-##    hltPreAlCaEcalPhiSym +
-##    hltEcalDigis +
-##    hltEcalWeightUncalibRecHit +
-##    hltEcalRecHit +
+DoHLTAlCaECALPhiSym = cms.Path(
+    HLTBeginSequence +
+    hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll +
 ##    hltAlCaPhiSymStream +
 ##    HLTDoLocalHcalSequence +
-##    HLTEndSequence
-##    )
+    HLTEndSequence )
 
 hltIsolPixelTrackProd1E31.MaxVtxDXYSeed = cms.double(101)
 hltIsolPixelTrackL2Filter1E31.MaxPtNearby = cms.double(3.0)
@@ -590,7 +585,7 @@ hltIsolPixelTrackL2Filter1E31.MinPtTrack = cms.double(3.0)
 DoHLTIsoTrack = cms.Path(
     HLTBeginSequence +
     hltL1sIsoTrack1E31 +
-    hltPreIsoTrack1E31 +
+    # hltPreIsoTrack1E31 +
     HLTL2HcalIsolTrackSequence +
     hltIsolPixelTrackProd1E31 +
     hltIsolPixelTrackL2Filter1E31 +
