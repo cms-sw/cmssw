@@ -29,138 +29,137 @@
 using namespace RooFit;
 using namespace edm;
 
-class AbstractFitter{
-  protected:
-    RooRealVar mass;
-    RooRealVar mean;
-    double expectedMean;
-    RooRealVar nSignalAll;
-    RooRealVar efficiency;
-    RooFormulaVar nSignalPass;
-    RooRealVar nBackgroundAll;
-    RooRealVar nBackgroundPass;
-    RooCategory category;
-    RooSimultaneous simPdf;
-    RooDataHist *data;
-    double chi2;
-  public:
-    AbstractFitter();
-    virtual ~AbstractFitter(){};
-    AbstractFitter(double massMean, double massLow, double massHigh):
-      mass("mass","mass",massLow,massHigh,"GeV"),
-      mean("mean","mean",massMean,massLow,massHigh,"GeV"),
-      expectedMean(massMean),
-      nSignalAll("nSignalAll","nSignalAll",0.,1e10),
-      efficiency("efficiency","efficiency",0.5,0.0,1.0),
-      nSignalPass("nSignalPass","nSignalAll*efficiency",RooArgList(nSignalAll,efficiency)),
-      nBackgroundAll("nBackgroundAll","nBackgroundAll",0.,1e10),
-      nBackgroundPass("nBackgroundPass","nBackgroundPass",0.,1e10),
-      category("category","category"),
-      simPdf("simPdf","simPdf",category)
-    {
-      category.defineType("pass");
-      category.defineType("all");
-    };
-    virtual void fit(TH1* num, TH1* den) = 0;
-    double getEfficiency(){ return efficiency.getVal(); }
-    double getEfficiencyError(){ return efficiency.getError(); }
-    double getChi2(){ return chi2; }
-    RooPlot* savePlot(TString name){ 
-      RooPlot* frame = mass.frame(Name(name), Title("All and Passing Probe Distributions"));
-      data->plotOn(frame,Cut("category==category::all"),LineColor(kRed));
-      data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen));
-      simPdf.plotOn(frame,Slice(category,"all"),ProjWData(category,*data),LineColor(kRed));
-      simPdf.plotOn(frame,Slice(category,"pass"),ProjWData(category,*data),LineColor(kGreen));
-      simPdf.paramOn(frame,Layout(0.55));
-      data->statOn(frame,Layout(0.65));
-      return frame; 
-    }
-};
-
-class GaussianPlusLinearFitter: public AbstractFitter{
-  protected:
-    double expectedSigma;
-    RooRealVar sigma;
-    RooGaussian gaussian;
-    RooRealVar slopeAll;
-    RooChebychev linearAll;
-    RooRealVar slopePass;
-    RooChebychev linearPass;
-    RooAddPdf pdfAll;
-    RooAddPdf pdfPass;
-  public:
-    GaussianPlusLinearFitter();
-    ~GaussianPlusLinearFitter(){};
-    GaussianPlusLinearFitter(double massMean, double massLow, double massHigh, double expectedSigma_):
-      AbstractFitter(massMean, massLow, massHigh),
-      expectedSigma(expectedSigma_),
-      sigma("sigma","sigma",0.,10.*expectedSigma_,"GeV"),
-      gaussian("gaussian","gaussian",mass,mean,sigma),
-      slopeAll("slopeAll","slopeAll",0.,-1.,1.),
-      linearAll("linearAll","linearAll",mass,slopeAll),
-      slopePass("slopePass","slopePass",0.,-1.,1.),
-      linearPass("linearPass","linearPass",mass,slopePass),
-      pdfAll("pdfAll","pdfAll", RooArgList(gaussian,linearAll), RooArgList(nSignalAll,nBackgroundAll)),
-      pdfPass("pdfPass","pdfPass", RooArgList(gaussian,linearPass), RooArgList(nSignalPass,nBackgroundPass))
-    {
-      simPdf.addPdf(pdfAll,"all");
-      simPdf.addPdf(pdfPass,"pass");
-    };
-    void fit(TH1* pass, TH1* all){
-      mean.setVal(expectedMean);
-      sigma.setVal(expectedSigma);
-      efficiency.setVal(pass->Integral()/all->Integral());
-      nSignalAll.setVal(0.5*all->Integral());
-      nBackgroundAll.setVal(0.5*all->Integral());
-      nBackgroundPass.setVal(0.5*pass->Integral());
-      slopeAll.setVal(0.);
-      slopePass.setVal(0.);
-//      delete data;
-      data = new RooDataHist("data", "data", mass, Index(category), Import("all",*all), Import("pass",*pass) );
-      simPdf.fitTo(*data);
-      RooDataHist dataAll("all", "all", mass, all );
-      RooDataHist dataPass("pass", "pass", mass, pass );
-      chi2 = ( RooChi2Var("chi2All","chi2All",pdfAll,dataAll,DataError(RooAbsData::Poisson)).getVal()
-        +RooChi2Var("chi2Pass","chi2Pass",pdfPass,dataPass,DataError(RooAbsData::Poisson)).getVal() )/(2*all->GetNbinsX()-8);
-    }
-};
-
 class HeavyFlavorTnPHarvesting : public edm::EDAnalyzer{
+  protected:
+  
+  class AbstractFitter{
+    protected:
+      RooRealVar mass;
+      RooRealVar mean;
+      double expectedMean;
+      RooRealVar sigma;
+      double expectedSigma;
+      RooRealVar nSignalAll;
+      RooRealVar efficiency;
+      RooFormulaVar nSignalPass;
+      RooRealVar nBackgroundAll;
+      RooRealVar nBackgroundPass;
+      RooCategory category;
+      RooSimultaneous simPdf;
+      RooDataHist *data;
+      double chi2;
+    public:
+      AbstractFitter():
+        mass("mass","mass",0.,100.,"GeV"),
+        mean("mean","mean",0.,100.,"GeV"),
+        sigma("sigma","sigma",0.,100.,"GeV"),
+        nSignalAll("nSignalAll","nSignalAll",0.,1e10),
+        efficiency("efficiency","efficiency",0.5,0.0,1.0),
+        nSignalPass("nSignalPass","nSignalAll*efficiency",RooArgList(nSignalAll,efficiency)),
+        nBackgroundAll("nBackgroundAll","nBackgroundAll",0.,1e10),
+        nBackgroundPass("nBackgroundPass","nBackgroundPass",0.,1e10),
+        category("category","category"),
+        simPdf("simPdf","simPdf",category),
+        data(0)
+      {
+        category.defineType("pass");
+        category.defineType("all");
+      };
+      virtual ~AbstractFitter(){};
+      void setup(double expectedMean_, double massLow, double massHigh, double expectedSigma_){
+        expectedMean = expectedMean_;
+        expectedSigma = expectedSigma_;
+        mass.setRange(massLow,massHigh);
+        mean.setRange(massLow,massHigh);
+      }
+      virtual void fit(TH1* num, TH1* den) = 0;
+      double getEfficiency(){ return efficiency.getVal(); }
+      double getEfficiencyError(){ return efficiency.getError(); }
+      double getChi2(){ return chi2; }
+      RooPlot* savePlot(TString name){ 
+        RooPlot* frame = mass.frame(Name(name), Title("All and Passing Probe Distributions"));
+        data->plotOn(frame,Cut("category==category::all"),LineColor(kRed));
+        data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen));
+        simPdf.plotOn(frame,Slice(category,"all"),ProjWData(category,*data),LineColor(kRed));
+        simPdf.plotOn(frame,Slice(category,"pass"),ProjWData(category,*data),LineColor(kGreen));
+        simPdf.paramOn(frame,Layout(0.55));
+        data->statOn(frame,Layout(0.65));
+        return frame; 
+      }
+  };
+  
+  class GaussianPlusLinearFitter: public AbstractFitter{
+    protected:
+      RooGaussian gaussian;
+      RooRealVar slopeAll;
+      RooChebychev linearAll;
+      RooRealVar slopePass;
+      RooChebychev linearPass;
+      RooAddPdf pdfAll;
+      RooAddPdf pdfPass;
+      bool verbose;
+    public:
+      GaussianPlusLinearFitter(bool verbose_ = false):
+        AbstractFitter(),
+        gaussian("gaussian","gaussian",mass,mean,sigma),
+        slopeAll("slopeAll","slopeAll",0.,-1.,1.),
+        linearAll("linearAll","linearAll",mass,slopeAll),
+        slopePass("slopePass","slopePass",0.,-1.,1.),
+        linearPass("linearPass","linearPass",mass,slopePass),
+        pdfAll("pdfAll","pdfAll", RooArgList(gaussian,linearAll), RooArgList(nSignalAll,nBackgroundAll)),
+        pdfPass("pdfPass","pdfPass", RooArgList(gaussian,linearPass), RooArgList(nSignalPass,nBackgroundPass)),
+        verbose(verbose_)
+      {
+        simPdf.addPdf(pdfAll,"all");
+        simPdf.addPdf(pdfPass,"pass");
+      };
+      ~GaussianPlusLinearFitter(){};
+      void fit(TH1* pass, TH1* all){
+        mean.setVal(expectedMean);
+        sigma.setVal(expectedSigma);
+        efficiency.setVal(pass->Integral()/all->Integral());
+        nSignalAll.setVal(0.5*all->Integral());
+        nBackgroundAll.setVal(0.5*all->Integral());
+        nBackgroundPass.setVal(0.5*pass->Integral());
+        slopeAll.setVal(0.);
+        slopePass.setVal(0.);
+        if(!data) delete data;
+        data = new RooDataHist("data", "data", mass, Index(category), Import("all",*all), Import("pass",*pass) );
+        if(verbose){
+          simPdf.fitTo( *data );
+        }else{
+          simPdf.fitTo( *data, Verbose(kFALSE), PrintLevel(-1), Warnings(kFALSE), PrintEvalErrors(-1) );
+        }
+        RooDataHist dataAll("all", "all", mass, all );
+        RooDataHist dataPass("pass", "pass", mass, pass );
+        chi2 = ( RooChi2Var("chi2All","chi2All",pdfAll,dataAll,DataError(RooAbsData::Poisson)).getVal()
+          +RooChi2Var("chi2Pass","chi2Pass",pdfPass,dataPass,DataError(RooAbsData::Poisson)).getVal() )/(2*all->GetNbinsX()-8);
+      }
+  };
+
   public:
     HeavyFlavorTnPHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorTnPHarvesting();
     virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
     virtual void endJob();
+    void calculateEfficiency(const ParameterSet& pset);
   private:
     DQMStore * dqmStore;
     TFile * plots;
     string myDQMrootFolder;
-    string numName;
-    string denName;
-    string effName;
-    int massDimension;
-    AbstractFitter *fitter;
+    bool verbose;
+    const VParameterSet efficiencies;
+    GaussianPlusLinearFitter *GPLfitter;
 };
 
-HeavyFlavorTnPHarvesting::HeavyFlavorTnPHarvesting(const edm::ParameterSet& pset){
-  myDQMrootFolder = pset.getUntrackedParameter<string>("MyDQMrootFolder");
+HeavyFlavorTnPHarvesting::HeavyFlavorTnPHarvesting(const edm::ParameterSet& pset):
+  myDQMrootFolder( pset.getUntrackedParameter<string>("MyDQMrootFolder") ),
+  verbose( pset.getUntrackedParameter<bool>("Verbose",false) ),
+  efficiencies( pset.getUntrackedParameter<VParameterSet>("Efficiencies") )
+{
   TString savePlotsInRootFileName = pset.getUntrackedParameter<string>("SavePlotsInRootFileName","");
   plots = savePlotsInRootFileName!="" ? new TFile(savePlotsInRootFileName,"recreate") : 0;
-  numName = pset.getUntrackedParameter<string>("NumeratorMEname");
-  denName = pset.getUntrackedParameter<string>("DenominatorMEname");
-  effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
-  massDimension = pset.getUntrackedParameter<int>("MassDimension");
-  string fitFunction = pset.getUntrackedParameter<string>("FitFunction");
-  if(fitFunction=="GaussianPlusLinear"){
-    fitter = new GaussianPlusLinearFitter(
-      pset.getUntrackedParameter<double>("ExpectedMean"),
-      pset.getUntrackedParameter<double>("FitRangeLow"),
-      pset.getUntrackedParameter<double>("FitRangeHigh"),
-      pset.getUntrackedParameter<double>("ExpectedSigma")
-    );
-  }else{
-    LogError("HLTriggerOfflineHeavyFlavor") << "Fit function: "<<fitFunction<<" does not exist"<<endl;
-  }
+  GPLfitter = new GaussianPlusLinearFitter(verbose);
 }
 
 void HeavyFlavorTnPHarvesting::endJob(){
@@ -169,10 +168,36 @@ void HeavyFlavorTnPHarvesting::endJob(){
     LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
     return;
   }
-  if(!fitter){
+  dqmStore->setCurrentFolder(myDQMrootFolder);
+  RooMsgService::instance().setSilentMode( !verbose?kTRUE:kFALSE );
+  for(int i=0; i<RooMsgService::instance().numStreams(); i++){
+    RooMsgService::instance().setStreamStatus( i, verbose?kTRUE:kFALSE );
+  }
+  for(VParameterSet::const_iterator pset = efficiencies.begin(); pset!=efficiencies.end(); pset++){
+    calculateEfficiency(*pset);
+  }
+}
+  
+void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
+  string numName = pset.getUntrackedParameter<string>("NumeratorMEname");
+  string denName = pset.getUntrackedParameter<string>("DenominatorMEname");
+  string effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
+  int massDimension = pset.getUntrackedParameter<int>("MassDimension");
+  string fitFunction = pset.getUntrackedParameter<string>("FitFunction");
+  AbstractFitter *fitter = 0;
+  if(fitFunction=="GaussianPlusLinear"){
+    fitter = GPLfitter;
+    fitter->setup(
+      pset.getUntrackedParameter<double>("ExpectedMean"),
+      pset.getUntrackedParameter<double>("FitRangeLow"),
+      pset.getUntrackedParameter<double>("FitRangeHigh"),
+      pset.getUntrackedParameter<double>("ExpectedSigma")
+    );
+  }else{
+    LogError("HLTriggerOfflineHeavyFlavor") << "Fit function: "<<fitFunction<<" does not exist"<<endl;
     return;
   }
-  dqmStore->setCurrentFolder(myDQMrootFolder);
+  
   TH1 *pass = dqmStore->get(myDQMrootFolder+"/"+numName)->getTH1();
   TH1 *all = dqmStore->get(myDQMrootFolder+"/"+denName)->getTH1();
   
@@ -286,8 +311,11 @@ void HeavyFlavorTnPHarvesting::endJob(){
 }
 
 HeavyFlavorTnPHarvesting::~HeavyFlavorTnPHarvesting(){
-  delete fitter;
-  if(plots) plots->Write();
+  delete GPLfitter;
+  if(plots){
+    plots->Write();
+    plots->Close();
+  }
 }
 
 //define this as a plug-in
