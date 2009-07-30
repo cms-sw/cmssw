@@ -65,7 +65,7 @@ namespace {
     cond::SequenceState state(proxy.proxy()->iov().state());
     out << recName << ": "
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
-	<< state.size() << ", " << state.revision() 
+	<< state.size() << ", " << state.revision()  << ", "
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
 	<< state.comment();
 
