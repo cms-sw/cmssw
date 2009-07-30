@@ -65,7 +65,7 @@ namespace {
     cond::SequenceState state(proxy.proxy()->iov().state());
     out << recName << ": "
 	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
-	<< state.size() << ", " << state.revision()    << "\n  "  
+	<< state.size() << ", " << state.revision() 
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
 	<< state.comment();
 
@@ -192,7 +192,7 @@ PoolDBESSource::~PoolDBESSource() {
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
       dumpInfo(std::cout,(*b).first,*(*b).second);
-      std::cout << std::endl;
+      std::cout << "\n" << std::endl;
     }
 	
 }
