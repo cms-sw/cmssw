@@ -1,6 +1,9 @@
 #ifndef Cond_SequenceState_h
 #define Cond_SequenceState_h
 
+#include "CondFormats/Common/interface/Time.h"
+#include<string>
+
 namespace cond {
   
   class IOVSequence;
