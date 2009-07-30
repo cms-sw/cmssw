@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.25 2009/05/21 18:38:06 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.26 2009/05/21 21:14:12 chrjones Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -134,17 +134,16 @@ CmsShowNavigator::~CmsShowNavigator()
 //
 // member functions
 //
-void
+bool
 CmsShowNavigator::loadFile(const std::string& fileName)
 {
-   CmsShowMain::resetFieldEstimate();
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(fileName.c_str());
-   if (newFile == 0) {
-      // Throw an exception
-      printf("Invalid file\n");
-      return;
+   if (newFile == 0 || newFile->IsZombie() || !newFile->Get("Events")) {
+      printf("Invalid file. Ignored.\n");
+      return false;
    }
+   CmsShowMain::resetFieldEstimate();
    if (m_file != 0) {
       delete m_eventList;
       delete m_eventTree;
@@ -161,6 +160,7 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    assert(m_eventTree!=0);
    m_eventList = new TEventList("list","");
    filterEventsAndReset(m_selection); // first event is loaded at the end
+   return true;
 }
 
 void
@@ -213,9 +213,9 @@ CmsShowNavigator::nextEvent()
 #endif
 
    if( !m_nextFile.empty()) {
-      loadFile(m_nextFile);
+      bool loadedNewFile = loadFile(m_nextFile);
       m_nextFile.clear();
-      return;
+      if (loadedNewFile) return;
    }
    if ( m_loopMode &&
         m_currentSelectedEntry == m_nEntries-1 ) {

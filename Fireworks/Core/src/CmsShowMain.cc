@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.80 2009/07/07 14:14:50 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.81 2009/07/08 19:52:08 dmytro Exp $
 //
 
 // system include files
@@ -720,7 +720,10 @@ CmsShowMain::setupDataHandling()
 
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
-      m_navigator->loadFile(m_inputFileName);
+      if (! m_navigator->loadFile(m_inputFileName) ){
+	m_guiManager->updateStatus("failed to load data file");
+	openData();
+      }
    }
    else {
       openData();
