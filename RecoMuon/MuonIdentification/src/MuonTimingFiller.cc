@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.1 2009/03/27 02:27:33 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.2 2009/07/30 09:59:56 ptraczyk Exp $
 //
 //
 
@@ -87,7 +87,7 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
   // Fill the master timing block
   // TEMPORARY! use DT only for now
   if (dtTime.nDof())
-    fillTimeFromMeasurements(cscTmSeq, combinedTime);
+    fillTimeFromMeasurements(dtTmSeq, combinedTime);
      
   LogTrace("MuonTime") << "Global 1/beta: " << combinedTime.inverseBeta() << " +/- " << combinedTime.inverseBetaErr()<<std::endl;
   LogTrace("MuonTime") << "  Free 1/beta: " << combinedTime.freeInverseBeta() << " +/- " << combinedTime.freeInverseBetaErr()<<std::endl;
