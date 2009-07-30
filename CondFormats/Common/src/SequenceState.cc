@@ -3,6 +3,7 @@
 
 namespace cond {
 
+  SequenceState::~SequenceState(){}
 
   SequenceState::SequenceState() : 
     m_size(0), m_revision(-1), m_timestamp(0), m_comment("not stamped"){}

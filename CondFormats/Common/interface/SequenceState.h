@@ -9,9 +9,9 @@ namespace cond {
    */
   class SequenceState {
   public:
+    ~SequenceState();
     SequenceState();
     explicit SequenceState(IOVSequence const & seq);
-
 
     unsigned int size() const { return m_size; }
     
