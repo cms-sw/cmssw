@@ -22,7 +22,9 @@ void SiPixelHDQMInspector (const std::string & tagName, int const NRuns) {
   HDQMInspectorConfigSiPixel PixelConfig;
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
-  A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
+  //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
+
 
 
   A.setDebug(1);
@@ -72,7 +74,8 @@ void SiPixelHDQMInspector (const std::string &tagName, int const Start, int cons
   HDQMInspectorConfigSiPixel PixelConfig;
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
-  A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
+  //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
 
 
   A.setDebug(1);
