@@ -42,7 +42,7 @@ class CrossingFrame
  public:
   // con- and destructors
 
-  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),maxNbSources_(0),limHighLowTof(36) {
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),maxNbSources_(0) {
 }
   CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources);
 
@@ -110,7 +110,8 @@ class CrossingFrame
 
   int getSourceType(unsigned int ip) const;
 
-  const int getlimHighLowTof() const { return limHighLowTof;}
+  // limits for tof to be considered for trackers
+  static const int getlimHighLowTof() { return 36;}
 
   // get object in pileup when position in the vector is known (for DigiSimLink typically)
 
@@ -169,9 +170,6 @@ class CrossingFrame
   std::vector<unsigned int> pileupOffsetsBcr_;
   std::vector< std::vector<unsigned int> > pileupOffsetsSource_; //one per source
   
-  // limits for tof to be considered for trackers
-  const int limHighLowTof; //nsec
-
 };
 
 //==============================================================================
@@ -181,7 +179,7 @@ class CrossingFrame
 template <class T> 
 CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int
 maxNbSources):firstCrossing_(minb), lastCrossing_(maxb),
-bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources),limHighLowTof(36) {
+bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
  pileupOffsetsSource_.resize(maxNbSources_);
  for (unsigned int i=0;i<maxNbSources_;++i)
    pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);
