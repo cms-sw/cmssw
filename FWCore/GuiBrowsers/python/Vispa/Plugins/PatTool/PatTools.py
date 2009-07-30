@@ -50,5 +50,5 @@ class RemoveMCMatching(ActionInterface):
         for p in self.parameters():
             if name==p[1]:
                 p[2]=value
-        else:
-            raise NameError("parameter "+name+" unkown.")
+                return
+        raise NameError("parameter "+name+" unknown.")
