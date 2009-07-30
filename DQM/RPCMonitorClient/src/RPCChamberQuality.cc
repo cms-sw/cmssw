@@ -95,7 +95,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     me->setBinLabel(12, "RB3+_B", 2);
     me->setBinLabel(13, "RB3+_F", 2);
     me->setBinLabel(14, "RB4,-,--_B", 2);
-    me->setBinLabel(15, "RB4,-,--,F", 2);
+    me->setBinLabel(15, "RB4,-,--_F", 2);
     me->setBinLabel(16, "RB4+,-+_B", 2);
     me->setBinLabel(17, "RB4+,-+_F", 2);
     me->setBinLabel(18, "RB4+-_B", 2);
