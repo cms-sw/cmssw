@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 #Client:
 sipixelEDAClientP5 = cms.EDFilter("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(True),
+    ActionOnLumiSection = cms.untracked.bool(True), ## do not set to False, otherwise Summary histos not filled!
     ActionOnRunEnd = cms.untracked.bool(True),
     HighResolutionOccupancy = cms.untracked.bool(True),
     NoiseRateCutValue = cms.untracked.double(-1.),
-    NEventsForNoiseCalculation = cms.untracked.int32(2000),
+    NEventsForNoiseCalculation = cms.untracked.int32(500),
     UseOfflineXMLFile = cms.untracked.bool(False),
     Tier0Flag = cms.untracked.bool(False)
 )
