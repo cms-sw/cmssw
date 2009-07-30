@@ -5,6 +5,8 @@
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+
 namespace sistrip {
 
   FEDBuffer::FEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowBadBuffer)
@@ -78,7 +80,9 @@ namespace sistrip {
       //check that channel length bytes fit into buffer
       if (offsetBeginningOfChannel+1 >= payloadLength_) {
 	std::ostringstream ss;
-        ss << "Channel " << uint16_t(i) << " does not fit into buffer. "
+        SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
+        ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)" 
+           << " does not fit into buffer. "
            << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
            << "Payload length is " << uint16_t(payloadLength_) << ". ";
         throw cms::Exception("FEDBuffer") << ss.str();
@@ -87,8 +91,9 @@ namespace sistrip {
       //get length and check that whole channel fits into buffer
       uint16_t channelLength = channels_.back().length();
       if (offsetBeginningOfChannel+channelLength > payloadLength_) {
+        SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
 	std::ostringstream ss;
-        ss << "Channel " << uint16_t(i) << " does not fit into buffer. "
+        ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)" 
            << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
            << "Channel length is " << uint16_t(channelLength) << ". "
            << "Payload length is " << uint16_t(payloadLength_) << ". ";
