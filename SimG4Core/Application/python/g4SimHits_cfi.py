@@ -71,6 +71,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
         Region      = cms.string(' '),
+        SRType      = cms.bool(True),
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
@@ -153,12 +154,18 @@ g4SimHits = cms.EDProducer("OscarProducer",
         HCNames   = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','ZDCHITS'),
         EminHits  = cms.vdouble(0.015,0.010,0.0,0.0,0.0),
         TmaxHits  = cms.vdouble(500.0,500.0,500.0,500.0,2000.0),
-        BeamPosition   = cms.double(0.0),
-        CorrectTOFBeam = cms.bool(False),
-        DetailedTiming = cms.untracked.bool(False),
-        UseMap         = cms.untracked.bool(False),
-        Verbosity      = cms.untracked.int32(0),
-        CheckHits      = cms.untracked.int32(25)
+        UseResponseTables = cms.vint32(0,0,0,0,0),
+        BeamPosition      = cms.double(0.0),
+        CorrectTOFBeam    = cms.bool(False),
+        DetailedTiming    = cms.untracked.bool(False),
+        UseMap            = cms.untracked.bool(False),
+        Verbosity         = cms.untracked.int32(0),
+        CheckHits         = cms.untracked.int32(25)
+    ),
+    CaloResponse = cms.PSet(
+        UseResponseTable  = cms.bool(True),
+        ResponseScale     = cms.double(1.0),
+        ResponseFile      = cms.FileInPath('SimG4CMS/Calo/data/responsTBpim50.dat')
     ),
     ECalSD = cms.PSet(
         UseBirkLaw = cms.bool(True),
