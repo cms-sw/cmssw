@@ -64,6 +64,7 @@ del process.PrescaleService
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
 process.analyzeThis = cms.Path( process.hltanalysis )
+process.hltanalysis.RunParameters.HistogramFile='openhlt.root'
 
 # pdt
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -79,7 +80,7 @@ process.schedule = cms.Schedule(
     process.DoHLTElectronSiStrip,
     process.DoHLTTau, 
     process.DoHLTBTag,
-##    process.DoHLTAlCaECALPhiSym,
+    process.DoHLTAlCaECALPhiSym,
     process.DoHLTAlCaPi0Eta1E31,
     process.DoHLTIsoTrack,
     process.DoHLTMinBiasPixelTracks,
