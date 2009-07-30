@@ -84,6 +84,7 @@ namespace cond {
 
     // the real persistent container...
     Container & piovs() { return m_iovs;}
+    Container const & piovs() const { return m_iovs;}
 
   private:
     
