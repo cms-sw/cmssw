@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/05/27 19:38:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/30 08:20:24 $
+ *  $Revision: 1.3 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -165,13 +165,14 @@ bool LmfSource::openFile(int iFile){
       fileList_.clear();
     }
   } else {
-  if(iFile > (int)fileNames_.size()-1) return false;
-  if(verbosity_) cout << "[LmfSource]"
-		   << "Opening file " << fileNames_[iFile] << "\n";
-  in_.open(fileNames_[iFile].c_str());
-  if(in_.fail()){
-    throw cms::Exception("FileOpenError")
-      << "Failed to open input file " << fileNames_[iFile] << "\n";
+    if(iFile > (int)fileNames_.size()-1) return false;
+    if(verbosity_) cout << "[LmfSource]"
+      << "Opening file " << fileNames_[iFile] << "\n";
+    in_.open(fileNames_[iFile].c_str());
+    if(in_.fail()){
+      throw cms::Exception("FileOpenError")
+        << "Failed to open input file " << fileNames_[iFile] << "\n";
+    }
   }
   return true;
 }
