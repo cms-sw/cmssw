@@ -8,9 +8,11 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BooEventNtuple.h,v 1.1.2.1 2009/01/07 22:31:00 yumiceva Exp $
+ version $Id: BooEventNtuple.h,v 1.1.2.4 2009/04/27 19:16:48 yumiceva Exp $
 
 ________________________________________________________________**/
+
+#include <vector>
 
 // ROOT
 #include "TObject.h"
@@ -56,31 +58,49 @@ public:
     std::vector< float > genjet_e;
 
 	//_____ muons ____________________________________
-	std::vector< double > muon_px;
-	std::vector< double > muon_py;
-	std::vector< double > muon_pz;
-	std::vector< double > muon_e;
-	std::vector< double > muon_normchi2;
-	std::vector< double > muon_d0;
-	std::vector< double > muon_d0Error;
+    std::vector< float > muon_px;
+    std::vector< float > muon_py;
+    std::vector< float > muon_pz;
+    std::vector< float > muon_e;
+    std::vector< float > muon_normchi2;
+    std::vector< float > muon_d0;
+    std::vector< float > muon_d0Error;
+    std::vector< float > muon_old_reliso;
+    std::vector< float > muon_new_reliso;
+    std::vector< float > muon_ptrel;
+	std::vector< float > muon_minDeltaR;
+	std::vector< float > muon_closestJet_px;
+	std::vector< float > muon_closestJet_py;
+	std::vector< float > muon_closestJet_pz;
+	std::vector< float > muon_closestJet_e;
+	
+	
+    std::vector< float > MET;
+    std::vector< float > Ht;
 
-    std::vector< double > genmuon_px;
-	std::vector< double > genmuon_py;
-	std::vector< double > genmuon_pz;
-	std::vector< double > genmuon_e;
+    //
+    std::vector< float > chi2;
+    //std::vector< TLorentzVector > hadronictop;
+    //std::vector< TLorentzVector > leptonictop;
+
+    // _____ gen ___
+    std::vector< float > genmuon_px;
+	std::vector< float > genmuon_py;
+	std::vector< float > genmuon_pz;
+	std::vector< float > genmuon_e;
 	std::vector< int > genmuon_pdg;
 	std::vector< int > genmoun_motherpdg;
 
-	std::vector< double > gentop_px;
-	std::vector< double > gentop_py;
-	std::vector< double > gentop_pz;
-	std::vector< double > gentop_e;
-	std::vector< double > gentop_charge;
+	std::vector< float > gentop_px;
+	std::vector< float > gentop_py;
+	std::vector< float > gentop_pz;
+	std::vector< float > gentop_e;
+	std::vector< float > gentop_charge;
 	std::vector< int > gentop_hadronic;
-	std::vector< double > gennu_px;
-	std::vector< double > gennu_py;
-	std::vector< double > gennu_pz;
-	std::vector< double > gennu_e;
+	std::vector< float > gennu_px;
+	std::vector< float > gennu_py;
+	std::vector< float > gennu_pz;
+	std::vector< float > gennu_e;
 	std::vector< int > gennu_pdg;
 
     ClassDef(BooEventNtuple,1);

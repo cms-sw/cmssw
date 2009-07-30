@@ -5,7 +5,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: JetCombinatorics.cc,v 1.1.4.2 2009/01/07 22:32:02 yumiceva Exp $
+ version $Id: JetCombinatorics.cc,v 1.1.4.6 2009/07/13 15:13:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -38,6 +38,11 @@ JetCombinatorics::JetCombinatorics() {
 	minPhi_ = -1.;
 	removeDuplicates_ = true;
 	maxNJets_ = 9999;
+	verbosef = false;
+	UsebTagging_ = false;
+	UseMtop_ = true;
+	SigmasTypef = 0;
+	UseFlv_ = false;
 	
 	Template4jCombos_ = NestedCombinatorics(); // 12 combinations
 	Template5jCombos_ = Combinatorics(4,5); // 5 combinations of 4 combos
@@ -204,7 +209,7 @@ std::map< int, std::string > JetCombinatorics::NestedCombinatorics() {
 }
 
 //______________________________________________________________
-void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets) {
+void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets, std::vector<double> bdiscriminators ) {
 
 
 	int n = 0; // total number of combos
@@ -222,21 +227,22 @@ void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets) {
 	// force to use only 4 jets
 	if ( maxNJets_ == 4 ) aTemplateCombos[0] = std::string("0123");
 	
-	//std::cout << "jets size = " << jets.size() << std::endl;
+	if (verbosef) std::cout << "[JetCombinatorics] size of vector of jets = " << jets.size() << std::endl;
 	
 	for (size_t ic=0; ic != aTemplateCombos.size(); ++ic) {
 
-		//std::cout << " ic = " << ic << std::endl;
+		if (verbosef) std::cout << "[JetCombinatorics] get 4 jets from the list, cluster # " << ic << "/"<< aTemplateCombos.size()-1 << std::endl;
 		
 		// get a template
 		std::string aTemplate = aTemplateCombos[ic];
 
-		//std::cout << "aTemplate = " << aTemplate << std::endl;
+		if (verbosef) std::cout << "[JetCombinatorics] template of 4 jets = " << aTemplate << std::endl;
 		
 		// make a list of 4 jets
 		std::vector< TLorentzVector > the4jets;
 		std::vector< int > the4Ids;
-		
+		std::vector< double > thebdisc;
+		std::vector< double > theFlvCorr;
 		//the4jets[0] = jets[0];
 		
 		for (int ij=0; ij<4; ij++) {
@@ -247,14 +253,19 @@ void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets) {
 			//std::cout << "tmpi= " << tmpi << std::endl;
 			the4jets.push_back(jets[tmpi]);
 			the4Ids.push_back(tmpi);
+			if ( UsebTagging_ ) thebdisc.push_back( bdiscriminators[tmpi] );
+			if ( UseFlv_ ) theFlvCorr.push_back( flavorCorrections_[tmpi] );
 		}
+
+		if (verbosef) std::cout<< "[JetCombinatorics] with these 4 jets, make 12 combinations: " <<std::endl;
+
 		//std::cout << " the4jets[ij].size = " << the4jets.size() << std::endl;
 			
 		for (size_t itemplate=0; itemplate!= Template4jCombos_.size(); ++itemplate) {
 			
 			std::string a4template = Template4jCombos_[itemplate];
 
-			//std::cout << "a4template = " << a4template << std::endl;
+			if (verbosef) std::cout << "[JetCombinatorics] ==> combination: " << a4template << " is # " << itemplate << "/"<<  Template4jCombos_.size()-1 << std::endl;
 			
 			Combo acombo;
 			
@@ -269,8 +280,36 @@ void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets) {
 			acombo.SetIdHadb( the4Ids[atoi((a4template.substr(2,1)).c_str())] );
 			acombo.SetIdLepb( the4Ids[atoi((a4template.substr(3,1)).c_str())] );
 			//std::cout << " acombo setup" << std::endl;
-			
+
+			if ( UseFlv_ ) {
+				acombo.SetFlvCorrWp( theFlvCorr[atoi((a4template.substr(0,1)).c_str())] );
+				acombo.SetFlvCorrWq( theFlvCorr[atoi((a4template.substr(1,1)).c_str())] );
+				acombo.SetFlvCorrHadb( theFlvCorr[atoi((a4template.substr(2,1)).c_str())] );
+				acombo.SetFlvCorrLepb( theFlvCorr[atoi((a4template.substr(3,1)).c_str())] );
+				acombo.ApplyFlavorCorrections();
+			}
+			if ( UsebTagging_ ) {
+
+				acombo.Usebtagging();
+				acombo.SetbDiscPdf(bTagPdffilename_);
+				acombo.SetWp_disc( thebdisc[atoi((a4template.substr(0,1)).c_str())] );
+				acombo.SetWq_disc( thebdisc[atoi((a4template.substr(1,1)).c_str())] );
+				acombo.SetHadb_disc( thebdisc[atoi((a4template.substr(2,1)).c_str())] );
+				acombo.SetLepb_disc( thebdisc[atoi((a4template.substr(3,1)).c_str())] );
+				
+			}
+
+			acombo.UseMtopConstraint(UseMtop_);
+			// choose value of sigmas
+			acombo.SetSigmas(SigmasTypef);
+
 			acombo.analyze();
+
+			if (verbosef) {
+
+			  std::cout << "[JetCombinatorics] ==> combination done:" << std::endl;
+			  acombo.Print();
+			}
 
 			// invariant mass cuts
 			TLorentzVector aHadWP4 = acombo.GetHadW();

@@ -48,6 +48,7 @@ void
 BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  using namespace edm;
 
   bool debug = false;
 
@@ -57,7 +58,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<std::vector<pat::Muon> > muonHandle;
    iEvent.getByLabel(muoLabel_,muonHandle);
    std::vector<pat::Muon> const & muons = *muonHandle;
-   
+  
    edm::Handle<std::vector<pat::Jet> > jetHandle;
    iEvent.getByLabel(jetLabel_,jetHandle);
    std::vector<pat::Jet> const & jets = *jetHandle;
@@ -277,10 +278,11 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        addFourMomenta.set( lepW );
 
        bool nuzHasComplex = false;
-       MEzCalculator zcalculator;
+       METzCalculator zcalculator;
+       
        zcalculator.SetMET( neutrino );
        if ( isMuon ) 
-	 zcalculator.SetMuon( *muon );
+ 	 zcalculator.SetMuon( *muon );
        else
 	 zcalculator.SetMuon( *electron ); // This name is misleading, should be setLepton
        double neutrinoPz = zcalculator.Calculate(1);// closest to the lepton Pz

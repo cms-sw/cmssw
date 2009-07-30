@@ -44,9 +44,11 @@ void CATopJetKit::produce( edm::Event & evt, const edm::EventSetup & es )
 		      tauHandle_,
 		      jetHandle_,
 		      METHandle_,
-		      photonHandle_);
+		      photonHandle_,
+		      trackHandle_,
+		      genParticles_);
 
-
+  
   cout << "Processing " << jetHandle_->size() << " jets" << endl;
 
   // --------------------------------------------------
@@ -64,7 +66,9 @@ void CATopJetKit::produce( edm::Event & evt, const edm::EventSetup & es )
 			  tauHandle_,
 			  jetHandle_,
 			  METHandle_,
-			  photonHandle_);
+			  photonHandle_,
+			  trackHandle_,
+			  genParticles_);
 }
 
 

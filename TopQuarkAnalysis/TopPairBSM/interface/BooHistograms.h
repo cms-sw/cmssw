@@ -8,7 +8,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BooHistograms.h,v 1.1.2.1 2009/01/07 22:31:00 yumiceva Exp $
+ version $Id: BooHistograms.h,v 1.1.2.2 2009/02/25 05:45:36 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -18,6 +18,7 @@ ________________________________________________________________**/
 #include "TH2.h"
 #include "TCanvas.h"
 #include "TFile.h"
+#include "TLorentzVector.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -29,9 +30,11 @@ class BooHistograms {
 	~BooHistograms();
 
 	void Init(TString type, TString suffix1="", TString suffix2="");
+	void Counter(TString name);
 	void Fill1d(TString name, Double_t x, Double_t weight = 1. );
 	void Fill2d(TString name, Double_t x, Double_t y, Double_t weight=1.);
 	void FillvsJets2d(TString name, Double_t x, edm::View<pat::Jet> jets, Double_t weight = 1.);
+	void FillvsJets2d(TString name, Double_t x, std::vector<TLorentzVector> jets, Double_t weight = 1.);
 	void Print(TString extension="png", TString tag="");
 	void Save();
 	void SaveToFile(TString filename="Ttplots.root");

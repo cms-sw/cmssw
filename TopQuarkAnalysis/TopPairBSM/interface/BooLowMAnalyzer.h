@@ -19,6 +19,7 @@
 #include "DataFormats/PatCandidates/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
@@ -65,14 +66,18 @@ class BooLowMAnalyzer : public edm::EDAnalyzer {
 	typedef math::XYZTLorentzVector LorentzVector;
 
 	/// Jet to parton matching
-	bool IsTruthMatch( Combo acombo, const edm::View<pat::Jet> jets,  TtGenEvent genEvt, bool MatchFlavor = false);
+	bool IsTruthMatch( Combo acombo, const edm::View<pat::Jet> jets,  TtGenEvent genEvt, bool MatchFlavor = false, bool fourJets = true);
 
+	/// apply jet flavor corrections
+	Combo ApplyFlavorCorrections( Combo acombo, const edm::View<pat::Jet> jets );
+ 
   private:
 
 
     // Histogram containers
 	BooHistograms *hcounter;
 	BooHistograms *hmuons_;
+	BooHistograms *helectrons_;
 	BooHistograms *hmet_;
 	BooHistograms *hjets_;
 	BooHistograms *hgen_;
@@ -97,16 +102,17 @@ class BooLowMAnalyzer : public edm::EDAnalyzer {
     std::string fasciiFileName; // ASCII filename
     // csa07 weights
     bool fApplyWeights;
+    bool fIsMCTop;
+    
     // verbose
     bool debug;
 	bool fdisplayJets; // make lego plots
     int feventToProcess;
 	
     std::string rootFileName;
-    int leptonFlavor;
 	edm::InputTag genEvnSrc;
-    edm::InputTag leptonSrc;
-    //edm::InputTag electronSrc;
+    edm::InputTag muonSrc;
+    edm::InputTag electronSrc;
     edm::InputTag metSrc;
     edm::InputTag jetSrc;
 	edm::InputTag jetSrc1;
@@ -114,22 +120,35 @@ class BooLowMAnalyzer : public edm::EDAnalyzer {
 
     edm::InputTag evtsols;
 
+	bool fUsebTagging;
+	bool fUseMtopConstraint;
+	bool fApplyFlavorJEC;
+
 	int nevents;
 	int nbadmuons;
 	int nWcomplex;
 	int MCAllmatch_chi2_;
 	int MCAllmatch_sumEt_;
+		
+	double fMinMuonPt;
+	double fMaxMuonEta;
+	double fMuonRelIso;
+	double fMaxMuonEm;
+	double fMaxMuonHad;
 	
-	double fMinLeptonPt;
-	double fMinLeptonEta;
-	double fTrackIso;
-	double fCaloIso;
-	double fMinLeadingJetEt;
-	double fMinJetEt;
-	double fMinJetEta;
+	double fMinElectronPt;
+	double fMaxElectronEta;
+	double fElectronRelIso;
+	
+	double fMinLeadingJetPt;
+	double fMinJetPt;
+	double fMaxJetEta;
 	double fMinHt;
 	double fMinMET;
-	
+	bool fUseMyMET;
+	bool fApplyJetAsymmetricCuts;
+	double fJES;
+	int SigmasTypef;
 };
 
 

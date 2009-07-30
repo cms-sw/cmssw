@@ -5,7 +5,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BooHistograms.cc,v 1.1.2.1 2009/01/07 22:32:02 yumiceva Exp $
+ version $Id: BooHistograms.cc,v 1.1.2.15.2.1 2009/07/29 22:05:36 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -33,8 +33,10 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 	if (suffix1 != "") suffix1 = "_" + suffix1;
 	if (suffix2 != "") suffix1 += "_" + suffix2;
 
-	if ( type == "counter" )  h1["counter"] = new TH1D("counter","Selection",20,0,20);
-	
+	if ( type == "counter" )  {
+		h1["counter"] = new TH1I("counter","Selection",20,0,20);
+		h1["counter"]->SetBit(TH1::kCanRebin);
+	}
 	if ( type == "generator") {
 		h1["gen_top_pt"] = new TH1D("gen_top_pt","top quark p_{T} [GeV/c]",80,0,1200);
 		h1["gen_top_eta"] = new TH1D("gen_top_eta","top quark #eta",60,-4,4);
@@ -42,7 +44,8 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["gen_top_eta1"] = new TH1D("gen_top_eta1","top quark #eta",60,-4,4);
 		h1["gen_top_eta2"] = new TH1D("gen_top_eta2","top quark #eta",60,-4,4);
 		h1["gen_top_eta3"] = new TH1D("gen_top_eta3","top quark #eta",60,-4,4);
-		h1["gen_top_decays"] = new TH1D("gen_top_decays","top decays",6,0,6);
+		//h1["gen_top_decays"] = new TH1D("gen_top_decays","top decays",6,0,6);
+		h2["gen_top_decays_vsJets"+suffix1] = new TH2D("gen_top_decays_vsJets"+suffix1,"top decays vs Jets",6,0,6,4,1,5);
 		
 		h2["gentop_rapidities"] = new TH2D("gentop_rapidities","y_{t} vs y_{T}",50,-3,3,50,-3,3);
 		h1["gen_toppair_mass"] = new TH1D("gen_toppair_mass","top pair Mass [Gev/c^{2}]",100,100,4500);
@@ -78,7 +81,10 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["jet1_et"+suffix1]  = new TH1D("jet1_et"+suffix1,"Jet #2 E_{T} [GeV]",50,0,500);
 		h1["jet2_et"+suffix1]  = new TH1D("jet2_et"+suffix1,"Jet #3 E_{T} [GeV]",50,0,500);
 		h1["jet3_et"+suffix1]  = new TH1D("jet3_et"+suffix1,"Jet #4 E_{T} [GeV]",50,0,500);
-		h1["jet0_eta"+suffix1]  = new TH1D("jet0_eta"+suffix1,"Jet #1 #eta [GeV]",50,-3.,3.);
+		h1["jet0_eta"+suffix1]  = new TH1D("jet0_eta"+suffix1,"Jet #1 #eta",50,-3.,3.);
+		h1["jet1_eta"+suffix1]  = new TH1D("jet1_eta"+suffix1,"Jet #2 #eta",50,-3.,3.);
+		h1["jet2_eta"+suffix1]  = new TH1D("jet2_eta"+suffix1,"Jet #3 #eta",50,-3.,3.);
+		h1["jet3_eta"+suffix1]  = new TH1D("jet3_eta"+suffix1,"Jet #4 #eta",50,-3.,3.);
 		h1["jet_et"+suffix1]  = new TH1D("jet_et"+suffix1,"Jet E_{T} [GeV]",50,0,500);
 		h1["jet_eta"+suffix1] = new TH1D("jet_eta"+suffix1,"Jet #eta",50,-3.,3.);
 		h2["jet_ptVseta"+suffix1] = new TH2D("jet_ptVseta"+suffix1,"Jet E_{T} vs #eta",50,0,500,50,-3.,3.);
@@ -98,6 +104,7 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["bjet_mass"+suffix1] = new TH1D("bjet_mass"+suffix1, "b (leptonic) Jet mass [GeV/c^{2}]",80,0,500);
 		h1["bjet_et"+suffix1] = new TH1D("bjet_et"+suffix1, "b (leptonic) Jet E_{T} [GeV/c]",50,0,500);
 		h1["topPair_mass"+suffix1] = new TH1D("topPair_mass"+suffix1, "top pair mass [GeV/c^{2}]",100,100,4500);
+		h1["fittopPair_mass"+suffix1] = new TH1D("fittopPair_mass"+suffix1, "top pair mass [GeV/c^{2}]",100,100,4500);
 		//h1["topPair_et"+suffix1] = new TH1D("Mjet_et"+suffix1, "MJet E_{T} [GeV/c^{2}]",100,0,2500);
 		h1["jet_deltaR_muon"+suffix1] = new TH1D("jet_deltaR_muon"+suffix1, "#Delta R(Jet,#mu)",35,0,9);
 		h1["jet_pTrel_muon"+suffix1] = new TH1D("jet_pTrel_muon"+suffix1, "p_{T}^{Rel}",35,0,10);
@@ -115,9 +122,17 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["LeptonicTop_pt"+suffix1] = new TH1D("LeptonicTop_pt"+suffix1, "p_{T} (jet+W_{#mu+#nu}) [GeV/c]",100,0,4500.);
 		h1["HadronicTop_pt"+suffix1] = new TH1D("HadronicTop_pt"+suffix1, "p_{T} (jet+leading-jet) [GeV/c]",100,0,4500.);
 		h1["jet_combinations_ProbChi2"+suffix1] = new TH1D("jet_combinations_ProbChi2"+suffix1, "#chi^{2} Probability",50,0,1.);
-		h1["jet_combinations_NormChi2"+suffix1] = new TH1D("jet_combinations_NormChi2"+suffix1, "#chi^{2}/ndf",100,0,500);
+		h1["jet_combinations_NormChi2"+suffix1] = new TH1D("jet_combinations_NormChi2"+suffix1, "#chi^{2}/ndf",120,0,30);
 		h1["MCjet_combinations_ProbChi2"+suffix1] = new TH1D("MCjet_combinations_ProbChi2"+suffix1, "#chi^{2} Probability",50,0,1.);
-                h1["MCjet_combinations_NormChi2"+suffix1] = new TH1D("MCjet_combinations_NormChi2"+suffix1, "#chi^{2}/ndf",100,0,500);
+		h1["MCjet_combinations_NormChi2"+suffix1] = new TH1D("MCjet_combinations_NormChi2"+suffix1, "#chi^{2}/ndf",120,0,30);
+
+		h1["jet_Hadb_disc"+suffix1] = new TH1D("jet_Hadb_disc"+suffix1,"b-tag discriminator",40,-20,100);
+		h1["jet_Lepb_disc"+suffix1] = new TH1D("jet_Lepb_disc"+suffix1,"b-tag discriminator",40,-20,100);
+		h1["jet_Hadb_flavor"+suffix1] = new TH1D("jet_Hadb_flavor"+suffix1,"Flavor",22,0,22);
+		h1["jet_Lepb_flavor"+suffix1] = new TH1D("jet_Lepb_flavor"+suffix1,"Flavor",22,0,22);
+		h1["jet_Wmass_sigmas"+suffix1] = new TH1D("jet_Wmass_sigmas"+suffix1,"#sigma",20,0,20.);
+		
+		h1["number_bjets"+suffix1] = new TH1D("number_bjets"+suffix1,"Number of b-tag jets",5,0,5);
 
 	}
 	else if ( type == "DisplayJets") {
@@ -138,9 +153,13 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h2["muons_vsJets"+suffix1]         = new TH2D("muons_vsJets"+suffix1,"Number of muons vs Jets",4,1,5,4,1,5);
 		h1["muons"+suffix1]                = new TH1D("muons"+suffix1,"Number of muons",4,1,5);
 		h1["muon_normchi2"+suffix1]        = new TH1D("muon_normchi2"+suffix1,"#chi^{2}/ndof",40,0,30);
-		h1["muon_pt"+suffix1]              = new TH1D("muon_pt"+suffix1,"Muon p_{T} [GeV/c]",80,0.0,200.0);
-		h1["muon_eta"+suffix1]              = new TH1D("muon_eta"+suffix1,"Muon #eta",50,-3.,3.);
-		h1["muon_phi"+suffix1]              = new TH1D("muon_phi"+suffix1,"Muon #phi",30,-3.15,3.15);
+		h1["muon_pt"+suffix1]              = new TH1D("muon_pt"+suffix1,"Muon p_{T} [GeV/c]",60,0.0,150);
+		h2["muon_pt_vsJets"+suffix1]         = new TH2D("muon_pt_vsJets"+suffix1,"Muon p_{T} [GeV/c] vs Jets",60,0,150,4,1,5);
+		h1["muon_d0"+suffix1]              = new TH1D("muon_d0"+suffix1,"Muon d_{0} [cm]",40,-0.2,0.2);
+		h1["muon_IPS"+suffix1]              = new TH1D("muon_IPS"+suffix1,"Muon d_{0}/#sigma_{d0}",40,0,15);
+		h2["muon_phi_vs_d0"+suffix1]       = new TH2D("muon_phi_vs_d0"+suffix1,"Muon d_{0} [cm] vs #phi",100,-3.2,3.2,100,-0.2,0.2);
+		h1["muon_eta"+suffix1]             = new TH1D("muon_eta"+suffix1,"Muon #eta",50,-3.,3.);
+		h1["muon_phi"+suffix1]             = new TH1D("muon_phi"+suffix1,"Muon #phi",30,-3.15,3.15);
 		h1["muon_caloIso"+suffix1]       = new TH1D("muon_caloIso"+suffix1,"caloIsolation",80,0.0,300.0);
 		h1["muon_trackIso"+suffix1]       = new TH1D("muon_trackIso"+suffix1,"trackIsolation",80,0.0,100.0);
 		h1["muon_leptonID"+suffix1]       = new TH1D("muon_leptonID"+suffix1,"leptonID",80,0.0,1.0);
@@ -148,21 +167,34 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["muon_deltaPhi_nu"+suffix1]  = new TH1D("muon_deltaPhi_nu"+suffix1, "#Delta #phi(#mu,#nu)",35,0,3.142);
 		h1["muon_deltaR_b"+suffix1]  = new TH1D("muon_deltaR_b"+suffix1, "#Delta R(#mu,b)",35,0,5);
 		h1["muon_RelIso"+suffix1]       = new TH1D("muon_RelIso"+suffix1,"RelIsolation",80,0.0,5.0);
-	
+		h1["muon_vetoEm"+suffix1]          = new TH1D("muon_vetoEM"+suffix1,"EM Energy in veto cone",35,0,25);
+		h1["muon_vetoHad"+suffix1]          = new TH1D("muon_vetoHad"+suffix1,"Had Energy in veto cone",35,0,25);
+		h2["muon_RelIso_vs_MET"+suffix1]       = new TH2D("muon_RelIso_vs_MET"+suffix1,"muon RelIso vs MET",100,0,2,100,0,300);
+		h2["muon_RelIso_vs_Htl"+suffix1]       = new TH2D("muon_RelIso_vs_Htl"+suffix1,"muon RelIso vs Htl",100,0,2,100,0,1500);
+	}
+	else if ( type == "Electrons") {
+		h1["electrons"+suffix1]            = new TH1D("electrons"+suffix1, "Number of electrons",4,1,5);
+		h1["electron_pt"+suffix1]              = new TH1D("electron_pt"+suffix1,"Electron p_{T} [GeV/c]",80,0.0,200.0);
+		h1["electron_eta"+suffix1]              = new TH1D("electron_eta"+suffix1,"Electron #eta",50,-3.,3.);
+		h1["electron_phi"+suffix1]              = new TH1D("electron_phi"+suffix1,"Electron #phi",30,-3.15,3.15);
+		h2["electron_phi_vs_d0"+suffix1]       = new TH2D("electron_phi_vs_d0"+suffix1,"Electron d_{0} [cm] vs #phi",100,-3.2,3.2,100,-0.2,0.2);
 	}
 	else if ( type == "MET") {
 
-		h2["MET_vsJets"+suffix1] = new TH2D("MET_vsJets"+suffix1,"MET [GeV] vs Jets",100,0.0,1500.0,4,0,4);
-		h1["MET"+suffix1] = new TH1D("MET"+suffix1,"MET [GeV]",100,0.0,1500.0);
+		h2["MET_vsJets"+suffix1] = new TH2D("MET_vsJets"+suffix1,"MET [GeV] vs Jets",100,0.0,400,4,1,5);
+		h1["MET"+suffix1] = new TH1D("MET"+suffix1,"MET [GeV]",100,0.0,400);
 		h1["MET_eta"+suffix1] = new TH1D("MET_eta"+suffix1,"#eta_{MET}",50,-3.,3.);
-		h1["MET_phi"+suffix1] = new TH1D("MET_phi"+suffix1,"#phi_{MET}",30,-3.15,3.15);
-
+ 		h1["MET_phi"+suffix1] = new TH1D("MET_phi"+suffix1,"#phi_{MET}",32,-3.2,3.2); //GYJ 2009/07/27
+//   		h1["MET_phi"+suffix1] = new TH1D("MET_phi"+suffix1,"#phi_{MET}",30,-3.15,3.15);
+		h1["MET_resolution"+suffix1] = new TH1D("MET_resolution"+suffix1,"MET_{reco}-MET_{gen}/MET_{gen}",30,-10,10);
+		
 		h1["Ht"+suffix1] = new TH1D("Ht"+suffix1,"Ht [GeV]",100,0,2500);
 		h2["Ht_vsJets"+suffix1] = new TH2D("Ht_vsJets"+suffix1,"Ht [GeV] vs Jets",100,0,2500,4,0,4);
-		
-		h1["myMET"+suffix1] = new TH1D("myMET"+suffix1,"MET [GeV]",100,0.0,1500.0);
+		h1["Htl"+suffix1] = new TH1D("Htl"+suffix1,"Htl [GeV]",100,0,2500);
+
+		h1["myMET"+suffix1] = new TH1D("myMET"+suffix1,"MET [GeV]",100,0.0,400);
 		h1["MET_deltaR_muon"+suffix1] = new TH1D("MET_deltaR_muon"+suffix1,"#DeltaR(MET,#mu)",35,0.,7.);
-		//h1["METcomplex"+suffix1] = new TH1D("METcomplex"+suffix1,"MET [GeV]",80,0.0,300.0);
+		//h1["nu_pz_complex"+suffix1] = new TH1D("nu_pz_complex"+suffix1,"Number of complex solutions",80,0.0,300.0);
 		h1["nu_pz"+suffix1] = new TH1D("nu_pz"+suffix1,"Neutrino p_{z} [GeV/c]",50,-500.0,500.0);
 		h2["nu_pt_vs_pz"+suffix1] = new TH2D("nu_pt_vs_pz"+suffix1,"Neutrino p_{T} vs p_{z} [GeV/c]",50,0,500,50,-500,500);
 		h1["nu_eta"+suffix1] = new TH1D("nu_eta"+suffix1,"Neutrino #eta",50,-3.,3.);
@@ -178,24 +210,41 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 		h1["LeptonicW_mass"+suffix1] = new TH1D("LeptonicW_mass"+suffix1, "Mass(#mu + #nu) [GeV/c^{2}]",20,0,300);
 		h1["HadronicW_mass"+suffix1] = new TH1D("HadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
 		h2["LepTop_vs_LepW"+suffix1] = new TH2D("LepTop_vs_LepW"+suffix1, "Mass LepTop vs LepW [GeV/c^{2}]",20,100,500,20,0.,300.);
-		h2["HadTop_vs_HadW"+suffix1] = new TH2D("HadTop_vs_HadW"+suffix1, "Mass HadTop vs HadW [GeV/c^{2}]",20,100,500,20,0.,300.);		
+		h2["HadTop_vs_HadW"+suffix1] = new TH2D("HadTop_vs_HadW"+suffix1, "Mass HadTop vs HadW [GeV/c^{2}]",20,100,500,20,0.,300.);
+		h2["HadTop_vs_LepTop"+suffix1] = new TH2D("HadTop_vs_LepTop"+suffix1, "Mass HadTop vs LepTop [GeV/c^{2}]",20,100,500,20,100,500.);
 		h1["MCLeptonicTop_mass"+suffix1] = new TH1D("MCLeptonicTop_mass"+suffix1, "Mass (jet+W_{#mu+#nu}) [GeV/c^{2}]",20,100.,500.);
-                h1["MCHadronicTop_mass"+suffix1] = new TH1D("MCHadronicTop_mass"+suffix1, "Mass (j_{1}j_{2}j_{3}) [GeV/c^{2}]",20,100.,500.);
-                h1["MCLeptonicW_mass"+suffix1] = new TH1D("MCLeptonicW_mass"+suffix1, "Mass(#mu + #nu) [GeV/c^{2}]",20,0,300);
-                h1["MCHadronicW_mass"+suffix1] = new TH1D("MCHadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
-                h2["MCLepTop_vs_LepW"+suffix1] = new TH2D("MCLepTop_vs_LepW"+suffix1, "Mass LepTop vs LepW [GeV/c^{2}]",20,100,500,20,0.,300.);
-                h2["MCHadTop_vs_HadW"+suffix1] = new TH2D("MCHadTop_vs_HadW"+suffix1, "Mass HadTop vs HadW [GeV/c^{2}]",20,100,500,20,0.,300.);
+		h1["MCHadronicTop_mass"+suffix1] = new TH1D("MCHadronicTop_mass"+suffix1, "Mass (j_{1}j_{2}j_{3}) [GeV/c^{2}]",20,100.,500.);
+		h1["MCLeptonicW_mass"+suffix1] = new TH1D("MCLeptonicW_mass"+suffix1, "Mass(#mu + #nu) [GeV/c^{2}]",20,0,300);
+		h1["MCHadronicW_mass"+suffix1] = new TH1D("MCHadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
+		h2["MCLepTop_vs_LepW"+suffix1] = new TH2D("MCLepTop_vs_LepW"+suffix1, "Mass LepTop vs LepW [GeV/c^{2}]",20,100,500,20,0.,300.);
+		h2["MCHadTop_vs_HadW"+suffix1] = new TH2D("MCHadTop_vs_HadW"+suffix1, "Mass HadTop vs HadW [GeV/c^{2}]",20,100,500,20,0.,300.);
+		h1["recLeptonicTop_mass"+suffix1] = new TH1D("recLeptonicTop_mass"+suffix1, "Mass (jet+W_{#mu+#nu}) [GeV/c^{2}]",20,100.,500.);
+		h1["recHadronicTop_mass"+suffix1] = new TH1D("recHadronicTop_mass"+suffix1, "Mass (j_{1}j_{2}j_{3}) [GeV/c^{2}]",20,100.,500.);
+		h1["recLeptonicW_mass"+suffix1] = new TH1D("recLeptonicW_mass"+suffix1, "Mass(#mu + #nu) [GeV/c^{2}]",20,0,300);
+		h1["recHadronicW_mass"+suffix1] = new TH1D("recHadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
+		h2["recLepTop_vs_LepW"+suffix1] = new TH2D("recLepTop_vs_LepW"+suffix1, "Mass LepTop vs LepW [GeV/c^{2}]",20,100,500,20,0.,300.);
+		h2["recHadTop_vs_HadW"+suffix1] = new TH2D("recHadTop_vs_HadW"+suffix1, "Mass HadTop vs HadW [GeV/c^{2}]",20,100,500,20,0.,300.);
 
+		h1["FlvHadronicTop_mass"+suffix1] = new TH1D("FlvHadronicTop_mass"+suffix1, "Mass (j_{1}j_{2}j_{3}) [GeV/c^{2}]",20,100.,500.);
+                h1["FlvLeptonicTop_mass"+suffix1] = new TH1D("FlvLeptonicTop_mass"+suffix1, "Mass (jet+W_{#mu+#nu}) [GeV/c^{2}]",20,100.,500.);
+		h1["FlvHadronicW_mass"+suffix1] = new TH1D("FlvHadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
 
-		h1["WTolnu"+suffix1] = new TH1D("WTolnu"+suffix1,"(#mu + #nu) mass [GeV/c^{2}]",80,0.0,300.0);
-		h1["tToWlnuj"+suffix1] = new TH1D("tToWlnuj"+suffix1,"(W_{l#nu} + jet) mass [GeV/c^{2}]",50,0.0,500.0);
-		h1["tToWlnub"+suffix1] = new TH1D("tToWlnub"+suffix1,"(W_{l#nu} + jet) mass [GeV/c^{2}]",50,0.0,500.0);
+		h1["fitHadronicW_mass"+suffix1] = new TH1D("fitHadronicW_mass"+suffix1, "Mass(j_{1}j_{2}) [GeV/c^{2}]",20,0,300);
+		h1["fitHadronicTop_mass"+suffix1] = new TH1D("fitHadronicTop_mass"+suffix1, "Mass (j_{1}j_{2}j_{3}) [GeV/c^{2}]",20,100.,500.);
+	
+		h1["res_fitHadronicTop-recHadronicTop_mass"+suffix1] = new TH1D("res_fitHadronicTop-recHadronicTop_mass"+suffix1,"m_{fit} - m_{rec} [GeV/c]",100,-200,200);
+                h1["res_fitHadronicTop-MCHadronicTop_mass"+suffix1] = new TH1D("res_fitHadronicTop-MCHadronicTop_mass"+suffix1,"m_{fit} - m_{MC} [GeV/c]",100,-200,200);
+
+		//h1["WTolnu"+suffix1] = new TH1D("WTolnu"+suffix1,"(#mu + #nu) mass [GeV/c^{2}]",80,0.0,300.0);
+		//h1["tToWlnuj"+suffix1] = new TH1D("tToWlnuj"+suffix1,"(W_{l#nu} + jet) mass [GeV/c^{2}]",50,0.0,500.0);
+		//h1["tToWlnub"+suffix1] = new TH1D("tToWlnub"+suffix1,"(W_{l#nu} + jet) mass [GeV/c^{2}]",50,0.0,500.0);
 		
-		h1["WTojj"+suffix1] = new TH1D("WTojj"+suffix1,"(jet+jet) mass [GeV/c^{2}]",80,0.0,300.0);
-		h1["tTojjj"+suffix1] = new TH1D("tTojjj"+suffix1,"(three-jet) mass [GeV/c^{2}]",50,0.0,500.0);
+		//h1["WTojj"+suffix1] = new TH1D("WTojj"+suffix1,"(jet+jet) mass [GeV/c^{2}]",80,0.0,300.0);
+		//h1["tTojjj"+suffix1] = new TH1D("tTojjj"+suffix1,"(three-jet) mass [GeV/c^{2}]",50,0.0,500.0);
 		//h1["tToWj"+suffix1] = new TH1D("tToWj"+suffix1,"(W_{jj} + jet) mass [GeV/c^{2}]",50,0.0,500.0);
 		h1["topPair"+suffix1] = new TH1D("topPair"+suffix1,"top pair Mass [Gev/c^{2}]",100,100,4500);
 		h1["fittopPair"+suffix1] = new TH1D("fittopPair"+suffix1,"top pair Mass [Gev/c^{2}]",100,100,4500);
+		
 		h1["topPairRes"+suffix1] = new TH1D("topPairRes"+suffix1,"top pair Mass Resolution",50,-1,1);
 		h1["fittopPairRes"+suffix1] = new TH1D("fittopPairRes"+suffix1,"top pair Mass Resolution",50,-1,1);
 		//h1["kinfit_chi2"+suffix1] = new TH1D("kinfit_chi2"+suffix1,"#chi^{2} Distribution",100,0.,200.);
@@ -255,6 +304,13 @@ void BooHistograms::Init(TString type, TString suffix1, TString suffix2) {
 	}
 }
 
+
+//_______________________________________________________________
+void BooHistograms::Counter(TString name) {
+
+	h1["counter"]->Fill(name, 1);
+}
+
 //_______________________________________________________________
 void BooHistograms::Fill1d(TString name, Double_t x, Double_t weight) {
 
@@ -270,6 +326,16 @@ void BooHistograms::Fill2d(TString name, Double_t x, Double_t y, Double_t weight
 
 //_______________________________________________________________
 void BooHistograms::FillvsJets2d(TString name, Double_t x, edm::View<pat::Jet> jets, Double_t weight ) {
+
+	if (jets.size() == 1 ) h2[name]->Fill(x,1,weight);
+	if (jets.size() == 2 ) h2[name]->Fill(x,2,weight);
+	if (jets.size() == 3 ) h2[name]->Fill(x,3,weight);
+	if (jets.size() >= 4 ) h2[name]->Fill(x,4,weight);
+		
+}
+
+//_______________________________________________________________
+void BooHistograms::FillvsJets2d(TString name, Double_t x, std::vector<TLorentzVector> jets, Double_t weight ) {
 
 	if (jets.size() == 1 ) h2[name]->Fill(x,1,weight);
 	if (jets.size() == 2 ) h2[name]->Fill(x,2,weight);

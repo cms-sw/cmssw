@@ -21,7 +21,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CATopJetKit.h,v 1.1 2008/09/05 15:03:30 srappocc Exp $
+// $Id: CATopJetKit.h,v 1.3 2008/09/22 22:18:07 yumiceva Exp $
 //
 //-------------------------------------------------------------------------------------
 
@@ -69,12 +69,14 @@ protected:
   int             verboseLevel_;
 
   // Physics objects handles
-  edm::Handle<std::vector<pat::Muon> >     muonHandle_;
-  edm::Handle<std::vector<pat::Electron> > electronHandle_;
-  edm::Handle<std::vector<pat::Tau> >      tauHandle_;
-  edm::Handle<std::vector<pat::Jet> >      jetHandle_;
-  edm::Handle<std::vector<pat::MET> >      METHandle_;
-  edm::Handle<std::vector<pat::Photon> >   photonHandle_;
+  edm::Handle<std::vector<pat::Muon> >                    muonHandle_;
+  edm::Handle<std::vector<pat::Electron> >                electronHandle_;
+  edm::Handle<std::vector<pat::Tau> >                     tauHandle_;
+  edm::Handle<std::vector<pat::Jet> >                     jetHandle_;
+  edm::Handle<std::vector<pat::MET> >                     METHandle_;
+  edm::Handle<std::vector<pat::Photon> >                  photonHandle_;
+  edm::Handle<std::vector<reco::RecoChargedCandidate> >   trackHandle_;
+  edm::Handle<std::vector<reco::GenParticle> >            genParticles_;
 
 };
 

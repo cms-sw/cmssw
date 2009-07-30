@@ -7,5 +7,5 @@ BoostedTopProducer = cms.EDProducer("BoostedTopProducer",
     caloIsoCut = cms.double(0.2),
     mTop = cms.double(175.0),
     solLabel = cms.InputTag("solutions"),
-    metLabel = cms.InputTag("selectedLayer1METs")
+    metLabel = cms.InputTag("layer1METs")
 )
