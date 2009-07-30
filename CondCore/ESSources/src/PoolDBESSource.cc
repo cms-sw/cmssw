@@ -191,7 +191,7 @@ PoolDBESSource::~PoolDBESSource() {
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
       dumpInfo(std::cout,(*b).first,*(*b).second);
-      std::endl;
+      std::cout << std::endl;
     }
 	
 }
