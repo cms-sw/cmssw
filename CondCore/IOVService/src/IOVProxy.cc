@@ -148,6 +148,12 @@ namespace cond {
     return iov().revision();
   }
 
+
+  cond::SequenceState state() const {
+    return cond::SequenceState(iov());
+  }
+
+
   cond::PoolTransaction & IOVProxy::db() const {
     return m_iov->pooldb();
   }

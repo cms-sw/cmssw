@@ -60,6 +60,17 @@ namespace {
   };
 
 
+  void dumpInfo(std::ostream & out, std::string const & recName, cond::DataProxyWrapperBase const & proxy) {
+    cond::SequenceState state(proxy->proxy()->iov().state());
+    out << recname << ": "
+	<< proxy.connString() << ", " << proxy.tag()   << "\n  "
+	<< state.size() << ", " << state.revision()    << "\n  "  
+	<< cond::time::to_boost(state.timestamp())     << "\n  "
+	<< state.comment();
+
+  }
+
+
 }
 
 
@@ -143,6 +154,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
       
       ProxyP proxy(pb);
+      proxy->addInfo(conn.connectStr(), it->tag);
       m_proxies[it->recordname] = proxy;
 
     }
@@ -174,6 +186,14 @@ PoolDBESSource::~PoolDBESSource() {
 	    <<" Refresh " << stats.nRefresh
 	    <<" Actual Refresh " << stats.nActualRefresh;
   std::cout << std::endl;
+
+   ProxyMap::iterator b= m_proxies.begin();
+    ProxyMap::iterator e= m_proxies.end();
+    for (;b!=e;b++) {
+      dumpInfo(std::cout,(*b).first,*(*b).second);
+      std::endl;
+    }
+	
 }
 
 

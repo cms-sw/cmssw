@@ -2,6 +2,8 @@
 #define CondCore_IOVService_IOVProxy_h
 
 #include "CondFormats/Common/interface/IOVSequence.h"
+#include "CondFormats/Common/interface/SequenceState.h"
+
 #include <string>
 #include "CondFormats/Common/interface/Time.h"
 #include <boost/shared_ptr.hpp>
@@ -39,6 +41,7 @@ namespace cond {
     std::string const & wrapperToken() const {return m_token;}
     Connection * connection() const { return m_conn;}
     PoolTransaction * db() const;
+
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
@@ -104,6 +107,13 @@ namespace cond {
     std::string payloadContainerName() const;
     std::string comment() const;
     int revision() const;
+
+    SequenceState state() const {
+      return SequenceState(iov());
+    }
+
+
+ 
 
     PoolTransaction & db() const;
  

@@ -58,12 +58,21 @@ namespace cond {
     virtual edmProxyP edmProxy() const=0;
 
 
-    DataProxyWrapperBase(std::string const & il) : m_label(il){}
+    explicit DataProxyWrapperBase(std::string const & il) : m_label(il){}
     virtual ~DataProxyWrapperBase(){}
     std::string const & label() const { return m_label;}
+
+    void addInfo(std::string const & cs, std::string const & tag) { 
+      m_connString = cs; m_tag=tag;
+    }
     
+    std::string const & connString() const { return m_connString;}
+      std::string const & tag() const { return m_tag;}
+
   private:
     std::string m_label;
+    std::string m_connString;
+    std::string m_tag;
 
   };
 }
