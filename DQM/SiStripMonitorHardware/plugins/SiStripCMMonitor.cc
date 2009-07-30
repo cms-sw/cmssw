@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.3 2009/07/24 06:56:29 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.1 2009/07/30 08:09:57 amagnan Exp $
 //
 
 #include <sstream>
@@ -34,6 +34,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -108,8 +109,8 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
 
   CMHistograms cmHists_;
 
-  std::map<unsigned int,std::pair<double,double> > CommonModesAPV0_;
-  std::map<unsigned int,std::pair<double,double> > CommonModesAPV1_;
+  std::map<unsigned int,std::pair<uint32_t,uint32_t> > CommonModesAPV0_;
+  std::map<unsigned int,std::pair<uint32_t,uint32_t> > CommonModesAPV1_;
   unsigned int NEntries_[2];
 
 
@@ -176,6 +177,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 {
 
   static bool firstEvent = true;
+  //static bool isBeingFilled = false;
   //update cabling
   updateCabling(iSetup);
   
@@ -196,12 +198,8 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
   //FED errors
   FEDErrors lFedErrors;
 
-  unsigned int lNMonitoring = 0;
-  unsigned int lNUnpacker = 0;
-  unsigned int lNTotBadFeds = 0;
-
   //initialise map of fedId/mean+RMS CM
-  std::pair<std::map<unsigned int,std::pair<double,double> >::iterator,bool> alreadyThere[2];
+  std::pair<std::map<unsigned int,std::pair<uint32_t,uint32_t> >::iterator,bool> alreadyThere[2];
 
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
@@ -212,8 +210,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     //create an object to fill all errors
     lFedErrors.initialise(fedId,cabling_);
 
-    bool lFullDebug = false;
-
     //Do detailed check
     //first check if data exists
     bool lDataExist = lFedErrors.checkDataPresent(fedData);
@@ -222,39 +218,12 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     }
 
     //Do exactly same check as unpacker
-    //will be used by channel check in following method fillFEDErrors so need to be called beforehand.
     bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
  
-    //check for problems
-    lFedErrors.fillFEDErrors(fedData,
-			     lFullDebug,
-			     printDebug_
-			     );
+    if (lFailUnpackerFEDcheck) continue;
 
-    bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
-    if (lFailMonitoringFEDcheck) lNTotBadFeds++;
-
-   
-    //sanity check: if something changed in the unpacking code 
-    //but wasn't propagated here
-    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck && printDebug_) {
-      std::ostringstream debugStream;
-      debugStream << " --- WARNING: FED " << fedId << std::endl 
-		  << " ------ Monitoring FED check " ;
-      if (lFailMonitoringFEDcheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl ;
-      debugStream << " ------ Unpacker FED check " ;
-      if (lFailUnpackerFEDcheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl ;
-
-      if (lFailMonitoringFEDcheck) lNMonitoring++;
-      else if (lFailUnpackerFEDcheck) lNUnpacker++;
-      edm::LogError("SiStripMonitorHardware") << debugStream.str();
-
-    }
-
-    if (lFedErrors.failMonitoringFEDCheck() ||
-	lFedErrors.anyFEProblems()) continue;
+    std::auto_ptr<const sistrip::FEDBuffer> buffer;
+    buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
 
     std::ostringstream infoStream;
 
@@ -262,10 +231,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     if (printDebug_ > 1) {
       infoStream << " --- Processing FED #" << fedId << std::endl;
     }
-
-    //need to construct full object to go any further
-    std::auto_ptr<const sistrip::FEDBuffer> buffer;
-    buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
 
 
     std::vector<CMHistograms::CMvalues> values;
@@ -279,21 +244,15 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
       //std::cout << "FedID " << fedId << ", ch " << iCh << ", nAPVPairs " << lConnection.nApvPairs() << " apvPairNumber " << lConnection.apvPairNumber() << std::endl;
 
-      if (!connected) continue;
-
-      bool isBadChan = false;
-      for (unsigned int badCh(0); badCh<lFedErrors.getBadChannels().size(); badCh++) {
-	if (lFedErrors.getBadChannels().at(badCh).first == iCh) {
-	  isBadChan = true;
-	  break;
-	}
-      }
-
-      if (isBadChan) continue;
-
+      bool lFailUnpackerChannelCheck = !buffer->channelGood(iCh) && connected;
+      if (lFailUnpackerChannelCheck) continue;
+      
       uint32_t lDetId = lConnection.detId();
+
+      if (!lDetId || lDetId == sistrip::invalid32_) continue;
+
       short lAPVPair = lConnection.apvPairNumber();
-      short lSubDet = 0;
+      short lSubDet = DetId(lDetId).subdetId();
       std::pair<float,float> lShotMedian = std::pair<float,float>(0,0);
 
       bool isShot = false;
@@ -302,7 +261,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
 	if (shot->detId() == lDetId && static_cast<short>(shot->apvNumber()/2.) == lAPVPair) {
 	  if(shot->isGenuine()) {
-	    lSubDet = shot->subDet();
+	    assert(shot->subDet() == lSubDet);
 	    isShot = true;
 	    if (shot->apvNumber()%2 == 0) lShotMedian.first = shot->median();
 	    else if (shot->apvNumber()%2 == 1) lShotMedian.second = shot->median();
@@ -334,29 +293,31 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       }
 
 
-      if (firstEvent){
-	if (lSubDet == 3) {
-	  TIBDetId lId(lDetId);
-	  std::cout << "TIB layer " << lId.layer()  << ", fedID " << fedId << ", channel " << iCh << std::endl;
-	}
-	else if (lSubDet == 4) {
-	  TIDDetId lId(lDetId);
-	  std::cout << "TID side " << lId.side()  << " wheel " << lId.wheel() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
-	}
-	else if (lSubDet == 5) {
-	  TOBDetId lId(lDetId);
-	  std::cout << "TOB side " << lId.rod()[0]  << " layer " << lId.layer() << ", rod " << lId.rodNumber() << ", fedID " << fedId << ", channel " << iCh << std::endl;
-	}
-	else if (lSubDet == 6) {
-	  TECDetId lId(lDetId);
-	  std::cout << "TEC side " << lId.side()  << " wheel " << lId.wheel() << ", petal " << lId.petalNumber() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
-	}
-      }
+//       if (firstEvent){
+// 	infoStream << "Subdet " << lSubDet << ", " ;
+// 	if (lSubDet == 3) {
+// 	  TIBDetId lId(lDetId);
+// 	  infoStream << "TIB layer " << lId.layer()  << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	}
+// 	else if (lSubDet == 4) {
+// 	  TIDDetId lId(lDetId);
+// 	  infoStream << "TID side " << lId.side()  << " wheel " << lId.wheel() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	}
+// 	else if (lSubDet == 5) {
+// 	  TOBDetId lId(lDetId);
+// 	  infoStream << "TOB side " << lId.rod()[0]  << " layer " << lId.layer() << ", rod " << lId.rodNumber() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	}
+// 	else if (lSubDet == 6) {
+// 	  TECDetId lId(lDetId);
+// 	  infoStream << "TEC side " << lId.side()  << " wheel " << lId.wheel() << ", petal " << lId.petalNumber() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	}
+// 	isBeingFilled=true;
+//       }
 
-      std::ostringstream lMode;
-      lMode << buffer->readoutMode();
+      //std::ostringstream lMode;
+      //lMode << buffer->readoutMode();
       const sistrip::FEDChannel & lChannel = buffer->channel(iCh);
-      std::pair<uint16_t,uint16_t> medians = fillMedians(lMode.str(),lChannel,iCh);
+      std::pair<uint16_t,uint16_t> medians = std::pair<uint16_t,uint16_t>(lChannel.cmMedian(0),lChannel.cmMedian(1));
       
       CMHistograms::CMvalues lVal;
       lVal.IsShot = isShot;
@@ -377,7 +338,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
       if (doTkHistoMap_){//if TkHistMap is enabled
 
-	alreadyThere[0] = CommonModesAPV0_.insert(std::pair<unsigned int,std::pair<double,double> >(lDetId,std::pair<double,double>(medians.first,medians.first*medians.first)));
+	alreadyThere[0] = CommonModesAPV0_.insert(std::pair<unsigned int,std::pair<uint32_t,uint32_t> >(lDetId,std::pair<uint32_t,uint32_t>(medians.first,medians.first*medians.first)));
 	if (alreadyThere[0].second) NEntries_[0]++;
 	else {
 	  ((alreadyThere[0].first)->second).first += medians.first;
@@ -385,7 +346,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	  //nBadChans++;
 	  NEntries_[0]++;
 	}
-	alreadyThere[1] = CommonModesAPV1_.insert(std::pair<unsigned int,std::pair<double,double> >(lDetId,std::pair<double,double>(medians.second,medians.second*medians.second)));
+	alreadyThere[1] = CommonModesAPV1_.insert(std::pair<unsigned int,std::pair<uint32_t,uint32_t> >(lDetId,std::pair<uint32_t,uint32_t>(medians.second,medians.second*medians.second)));
 	if (alreadyThere[1].second) NEntries_[1]++;
 	else {
 	  ((alreadyThere[1].first)->second).first += medians.second;
@@ -404,27 +365,13 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
     cmHists_.fillHistograms(values,lTime,fedId);
 
-    if (printDebug_ > 1) edm::LogInfo("SiStripMonitorHardware") << infoStream.str();
+    //if (printDebug_ > 0 && isBeingFilled && firstEvent) edm::LogVerbatim("SiStripMonitorHardware") << infoStream.str();
 
 
   }//loop on FEDs
 
 
-
-  if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
-    std::ostringstream debugStream;
-    debugStream
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNMonitoring << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
-      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl ;
-    edm::LogError("SiStripMonitorHardware") << debugStream.str();
-
-  }
-
+  //if (isBeingFilled) 
   firstEvent = false;
 
 }//analyze method
@@ -449,8 +396,7 @@ SiStripCMMonitorPlugin::endJob()
 {
 
   if (doTkHistoMap_) {//if TkHistoMap is enabled
-    std::map<unsigned int,std::pair<double,double> >::iterator fracIter;
-    std::vector<std::pair<unsigned int,unsigned int> >::iterator chanIter;
+    std::map<unsigned int,std::pair<uint32_t,uint32_t> >::iterator fracIter;
 
     //int ele = 0;
     //int nBadChannels = 0;
@@ -460,8 +406,10 @@ SiStripCMMonitorPlugin::endJob()
       //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
       //nBadChannels++;
       //}
-      float mean = (fracIter->second).first/NEntries_[0];
-      float rms = sqrt((fracIter->second).second/(NEntries_[0]-1)-(mean*mean));
+      float mean = 0;
+      float rms = 0;
+      if (NEntries_[0] > 0) mean = (fracIter->second).first/NEntries_[0];
+      if (NEntries_[0] > 1) rms = sqrt((fracIter->second).second/(NEntries_[0]-1)-(mean*mean));
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(0),detid,mean);
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(1),detid,rms);
       //ele++;
@@ -497,46 +445,46 @@ void SiStripCMMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
 }
 
 
-std::pair<uint16_t,uint16_t> SiStripCMMonitorPlugin::fillMedians(const std::string & aMode,
-								  const sistrip::FEDChannel & aChannel,
-								  const unsigned int aIndex
-								  )
-{
+// std::pair<uint16_t,uint16_t> SiStripCMMonitorPlugin::fillMedians(const std::string & aMode,
+// 								  const sistrip::FEDChannel & aChannel,
+// 								  const unsigned int aIndex
+// 								  )
+// {
 
-  /// create unpacker only if zero-suppressed mode
-  std::ostringstream debugStream;
-  if (printDebug_ > 1) debugStream << "Readout mode = " << aMode << std::endl;
-  if (aMode.find("Zero suppressed") == aMode.npos || aMode.find("lite") != aMode.npos) return std::pair<uint16_t,uint16_t>(0,0);
+//   /// create unpacker only if zero-suppressed mode
+//   std::ostringstream debugStream;
+//   if (printDebug_ > 1) debugStream << "Readout mode = " << aMode << std::endl;
+//   if (aMode.find("Zero suppressed") == aMode.npos || aMode.find("lite") != aMode.npos) return std::pair<uint16_t,uint16_t>(0,0);
 
-  const uint8_t* lData = aChannel.data();
-  //data are organised by lines of 8 8-bit words, numbered from 0->7 then 8->15, etc...
-  //word7 = beginning of packet for fiber12 = channel0, and is fibre12_len[0:7]
-  //word6 =  fibre12_len[11:8]
-  //if channel0 has no clusters (channel length=7), then offset for channel 1 is 7,
-  //and word0=beginning of packet for fiber11 = channel1, and is fibre11_len[0:7].
-  //the words should be inverted per line (offset^7: exclusive bit OR with 0x00000111):
-  //7=0, 0=7, 1=6, 6=1, 8=15, 15=8, etc....
-  uint8_t lWord1 = lData[aChannel.offset()^7];
-  uint8_t lWord2 = lData[(aChannel.offset()+1)^7] & 0x0F;
-  //uint8_t lWord3 = lData[(aChannel.offset()+2)^7];
-  uint8_t lWord4 = lData[(aChannel.offset()+3)^7];
-  uint8_t lWord5 = lData[(aChannel.offset()+4)^7] & 0x03;
-  uint8_t lWord6 = lData[(aChannel.offset()+5)^7];
-  uint8_t lWord7 = lData[(aChannel.offset()+6)^7] & 0x03;
+//   const uint8_t* lData = aChannel.data();
+//   //data are organised by lines of 8 8-bit words, numbered from 0->7 then 8->15, etc...
+//   //word7 = beginning of packet for fiber12 = channel0, and is fibre12_len[0:7]
+//   //word6 =  fibre12_len[11:8]
+//   //if channel0 has no clusters (channel length=7), then offset for channel 1 is 7,
+//   //and word0=beginning of packet for fiber11 = channel1, and is fibre11_len[0:7].
+//   //the words should be inverted per line (offset^7: exclusive bit OR with 0x00000111):
+//   //7=0, 0=7, 1=6, 6=1, 8=15, 15=8, etc....
+//   uint8_t lWord1 = lData[aChannel.offset()^7];
+//   uint8_t lWord2 = lData[(aChannel.offset()+1)^7] & 0x0F;
+//   //uint8_t lWord3 = lData[(aChannel.offset()+2)^7];
+//   uint8_t lWord4 = lData[(aChannel.offset()+3)^7];
+//   uint8_t lWord5 = lData[(aChannel.offset()+4)^7] & 0x03;
+//   uint8_t lWord6 = lData[(aChannel.offset()+5)^7];
+//   uint8_t lWord7 = lData[(aChannel.offset()+6)^7] & 0x03;
 
-  uint16_t lLength  = lWord1 + (lWord2 << 8);
-  uint16_t lMedian0 = lWord4 + (lWord5 << 8);
-  uint16_t lMedian1 = lWord6 + (lWord7 << 8);
+//   uint16_t lLength  = lWord1 + (lWord2 << 8);
+//   uint16_t lMedian0 = lWord4 + (lWord5 << 8);
+//   uint16_t lMedian1 = lWord6 + (lWord7 << 8);
 
-  if (lLength != aChannel.length()) {
-    if (printDebug_ > 1) debugStream << "Channel #" << aIndex << " offset: " << aChannel.offset() << ", offset^7 = " << (aChannel.offset()^7) << std::endl;
-    if (printDebug_ > 1) debugStream << "My length = " << lLength << ", Nicks's length = " << aChannel.length() << std::endl;
-  }
+//   if (lLength != aChannel.length()) {
+//     if (printDebug_ > 1) debugStream << "Channel #" << aIndex << " offset: " << aChannel.offset() << ", offset^7 = " << (aChannel.offset()^7) << std::endl;
+//     if (printDebug_ > 1) debugStream << "My length = " << lLength << ", Nicks's length = " << aChannel.length() << std::endl;
+//   }
 
-  if (printDebug_ > 1) edm::LogError("SiStripMonitorHardware") << debugStream.str();
+//   if (printDebug_ > 1) edm::LogError("SiStripMonitorHardware") << debugStream.str();
 
-  return std::pair<uint16_t,uint16_t>(lMedian0,lMedian1);
-}
+//   return std::pair<uint16_t,uint16_t>(lMedian0,lMedian1);
+// }
 
 //
 // Define as a plug-in

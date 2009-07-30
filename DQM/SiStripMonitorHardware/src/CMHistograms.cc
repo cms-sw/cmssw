@@ -39,7 +39,8 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("MedianAPV1vsAPV0",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0vsTime",iConfig,pDebugStream);
-  getConfigForHistogram("DiffMedianminusShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV1minusAPV0minusShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV0minusAPV1minusShotMedianAPV1",iConfig,pDebugStream);
 
   getConfigForHistogram("MedianAPV1vsAPV0perFED",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0perFED",iConfig,pDebugStream);
@@ -60,10 +61,15 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
 
     CMvalues lVal = aVec.at(iEle);
 
+    if (lVal.Medians.first >= 500 || lVal.Medians.second >= 500) {
+      std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << std::endl;
+    }
+
     if (lVal.IsShot) {
       fillHistogram(shotMedianAPV0_,lVal.ShotMedians.first);
       fillHistogram(shotMedianAPV1_,lVal.ShotMedians.second);
-      fillHistogram(diffMedianminusShotMedianAPV1_,lVal.Medians.second-lVal.Medians.first-lVal.ShotMedians.second);
+      fillHistogram(medianAPV1minusAPV0minusShotMedianAPV1_,lVal.Medians.second-lVal.Medians.first-lVal.ShotMedians.second);
+      fillHistogram(medianAPV0minusAPV1minusShotMedianAPV1_,lVal.Medians.first-lVal.Medians.second-lVal.ShotMedians.second);
     }
 
     bool lCat[5] = {
@@ -118,20 +124,20 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
     dqm_->cd(lDir);
 
-    std::cout << "Folder: " << lDir+categories_[i] << std::endl;
+    //std::cout << "Folder: " << lDir+categories_[i] << std::endl;
     
     dqm_->setCurrentFolder(lDir+categories_[i]);
 
     medianAPV0_[i] = bookHistogram("MedianAPV0",
 				   "MedianAPV0"+categories_[i],
 				   "median APV0",
-				   200,0,200,
+				   250,0,500,
 				   "median APV0");
 
     medianAPV1_[i] = bookHistogram("MedianAPV1",
 				   "MedianAPV1"+categories_[i],
 				   "median APV1",
-				   200,0,200,
+				   250,0,500,
 				   "median APV1");
 
     medianAPV0vsTime_[i] = bookProfile("MedianAPV0vsTime",
@@ -147,13 +153,13 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
     medianAPV1vsAPV0_[i] = book2DHistogram("MedianAPV1vsAPV0",
 					   "MedianAPV1vsAPV0"+categories_[i],
 					   "median APV1 vs APV0",
-					   200,0,200,200,0,200,
+					   250,0,500,250,0,500,
 					   "median APV0","median APV1");
 
     medianAPV1minusAPV0_[i] = bookHistogram("MedianAPV1minusAPV0",
 					    "MedianAPV1minusAPV0"+categories_[i],
 					    "median APV1 - median APV0",
-					    400,-200,200,
+					    500,-500,500,
 					    "median APV1 - median APV0");
 
     medianAPV1minusAPV0vsTime_[i] = bookProfile("MedianAPV1minusAPV0vsTime",
@@ -170,10 +176,14 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
 				      "median shot APV1",
 				      100,-50,50,
 				      "median shot APV1");
-      diffMedianminusShotMedianAPV1_ = bookHistogram("DiffMedianminusShotMedianAPV1","DiffMedianminusShotMedianAPV1",
+      medianAPV1minusAPV0minusShotMedianAPV1_ = bookHistogram("MedianAPV1minusAPV0minusShotMedianAPV1","MedianAPV1minusAPV0minusShotMedianAPV1",
 						     "(median APV1 - median APV0)-shot median APV1",
 						     500,-50,50,
 						     "(median APV1 - median APV0)-shot median APV1");
+      medianAPV0minusAPV1minusShotMedianAPV1_ = bookHistogram("MedianAPV0minusAPV1minusShotMedianAPV1","MedianAPV0minusAPV1minusShotMedianAPV1",
+						     "(median APV0 - median APV1)-shot median APV1",
+						     500,-50,50,
+						     "(median APV0 - median APV1)-shot median APV1");
     }
 
   }
@@ -183,10 +193,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
   //book map after, as it creates a new folder...
   if (histogramConfig_[tkMapConfigName_].enabled){
     //const std::string dqmPath = dqm_->pwd();
-    tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0",0.,200);
-    tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0",0.,200);
-    tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV1",0.,200);
-    tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV1",0.,200);
+    tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0",0.,500);
+    tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0",0.,500);
+    tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV1",0.,500);
+    tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV1",0.,500);
   }
   else {
     tkmapCM_[0] = 0;
@@ -213,13 +223,13 @@ void CMHistograms::bookFEDHistograms(unsigned int fedId, unsigned int aCategory)
     medianAPV1vsAPV0perFED_[aCategory][fedId] = book2DHistogram("MedianAPV1vsAPV0perFED",
 								"MedianAPV1vsAPV0forFED"+fedIdStream.str()+categories_[aCategory],
 								"median APV1 vs APV0 for FED "+fedIdStream.str(),
-								200,0,200,200,0,200,
+								250,0,500,250,0,500,
 								"APV0","APV1");
     
     medianAPV1minusAPV0perFED_[aCategory][fedId] = bookHistogram("MedianAPV1minusAPV0perFED",
 								 "MedianAPV1minusAPV0forFED"+fedIdStream.str()+categories_[aCategory],
 								 "median APV1 - median APV0 for FED "+fedIdStream.str(),
-								 400,-200,200,
+								 500,-500,500,
 								 "#Delta(medians)");
     histosBooked_[fedId] = true;
   }

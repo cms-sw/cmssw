@@ -83,7 +83,8 @@ private:
   MonitorElement *medianAPV1vsAPV0_[5];
   MonitorElement *medianAPV1minusAPV0_[5];
   MonitorElement *medianAPV1minusAPV0vsTime_[5];
-  MonitorElement *diffMedianminusShotMedianAPV1_;
+  MonitorElement *medianAPV1minusAPV0minusShotMedianAPV1_;
+  MonitorElement *medianAPV0minusAPV1minusShotMedianAPV1_;
 
   std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_[5];
   std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0perFED_[5];

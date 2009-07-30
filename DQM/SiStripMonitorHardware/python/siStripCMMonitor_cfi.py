@@ -51,7 +51,10 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   MedianAPV1minusAPV0vsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
-  DiffMedianminusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
+  MedianAPV1minusAPV0minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
+    ),
+  MedianAPV0minusAPV1minusShotMedianAPV1HistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
   MedianAPV1vsAPV0perFEDHistogramConfig = cms.untracked.PSet(
