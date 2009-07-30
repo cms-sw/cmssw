@@ -15,7 +15,8 @@
 /// vvv DEBUG
 #include <iostream>
 
-class MagneticField;
+//class MagneticField;
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 /** Concrete implementation for the state of one trajectory on a surface.
  */
@@ -178,10 +179,32 @@ public:
 
   void rescaleError(double factor) {
     if (!hasError()) throw TrajectoryStateException(
-      "TrajectoryStateOnSurface: attempt to access errors when none available");
-    if (theLocalErrorValid) theLocalError *= (factor*factor);
+      "TrajectoryStateOnSurface: attempt to access errors when none available while trying to rescale a BasicSingleTrajectoryState.");
+    
     if (theFreeState)
       theFreeState->rescaleError(factor);
+
+    if (theLocalErrorValid){
+      if (theFreeState){
+	//take the advantage of the presence of the free state to create the error.
+	//the rescale of freestate has just been done above.
+	createLocalError();
+      }else{
+	//do it by hand if the free state is not around.
+	bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag()==0;
+	if (zeroField){
+	  AlgebraicSymMatrix55 errors=theLocalError.matrix();
+	  double root_of_factor = sqrt(factor);
+	  //scale the 0 indexed covariance by the factor
+	  for (uint i=1;i!=5;++i)      errors(i,0)*=root_of_factor;
+	  //scale all others by the scared factor
+	  for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor;
+	  //term 0,0 is not scaled at all
+	  theLocalError = LocalTrajectoryError(errors);
+	}
+	else theLocalError *= (factor*factor);
+      }
+    }
   }
 
   BasicSingleTrajectoryState* clone() const {
