@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.25 2009/07/09 11:47:39 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.26 2009/07/09 14:34:53 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -130,7 +130,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   
   fedHists_.initialise(iConfig,pDebugStream);
 
-  doTkHistoMap_ = fedHists_.isTkHistoMapEnabled();
+  doTkHistoMap_ = fedHists_.isTkHistoMapEnabled(fedHists_.tkHistoMapName());
 
 
   if (printDebug_) {
@@ -300,7 +300,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       unsigned short nTotCh = (fracIter->second).first;
       unsigned short nBadCh = (fracIter->second).second;
       assert (nTotCh >= nBadCh);
-      if (nTotCh != 0) fedHists_.fillTkHistoMap(detid,static_cast<float>(nBadCh)/nTotCh);
+      if (nTotCh != 0) fedHists_.fillTkHistoMap(fedHists_.tkHistoMapPointer(),detid,static_cast<float>(nBadCh)/nTotCh);
       //ele++;
     }
     //std::cout << "--- Total number of badChannels in map = " << nBadChannels << std::endl;

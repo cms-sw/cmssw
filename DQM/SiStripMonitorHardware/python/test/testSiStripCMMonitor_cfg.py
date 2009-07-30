@@ -1,15 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('DQMFEDMonitor')
+process = cms.Process('DQMCMMonitor')
 
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run13.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run85269.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run96164.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/SiStripCommissioningSource_00096164_137.138.192.137_16715.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning08/FEED31F3-58AC-DD11-BF73-000423D99658.root'
         #'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning08/Run69750_FEED31F3-58AC-DD11-BF73-000423D99658.root'
         #'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning08/Run69800_026DBE87-A5AC-DD11-9397-0030487C608C.root'
         #'file:/home/magnan/SOFTWARE/CMS/CMSSW_3_1_0_pre11/src/FedWorkDir/FedMonitoring/test/Digi_run69800.root'
@@ -17,11 +12,10 @@ process.source = cms.Source(
         #'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning08/Run69874_98BB9120-E6AC-DD11-9B91-000423D99896.root'
         'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning09/Run106019_00D9F347-4D72-DE11-93F6-001D09F24399.root'
         #'file:/home/magnan/SOFTWARE/CMS/data/FED/Commissioning09/Run101045_A6F7D0D3-4560-DE11-A52A-001D09F2545B.root'
- 
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run82983.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run77848.root'
-        #'file:/home/magnan/SOFTWARE/CMS/data/FED/edmOutput_run79635.root'
-        )
+        ),
+  skipBadFiles = cms.untracked.bool(True),                        
+  #inputCommands = cms.untracked.vstring('drop *', 'keep *_source_*_*'),
+
   )
 
 #process.load("DQM.SiStripMonitorHardware.test.source_cff")
@@ -77,6 +71,7 @@ process.MessageLogger = cms.Service(
 
     )
 
+
 process.DQMStore = cms.Service("DQMStore")
 
 #needed to produce tkHistoMap
@@ -89,23 +84,54 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_31X_V1P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+# Real data raw to digi
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
-process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi')
-#process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff')
-#process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff')
-#process.siStripFEDMonitor.FillWithEventNumber = False
-#process.siStripFEDMonitor.PrintDebugMessages = 2
-process.siStripFEDMonitor.TimeHistogramConfig.NBins = 600
-process.siStripFEDMonitor.TimeHistogramConfig.Min = 0
-process.siStripFEDMonitor.TimeHistogramConfig.Max = 3600
-process.siStripFEDMonitor.WriteDQMStore = True
-process.siStripFEDMonitor.DQMStoreFileName = "DQMStore_monitoring_106019.root"
-#process.siStripFEDMonitor.FillAllDetailedHistograms = False
-process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
+
+process.load("DPGAnalysis.SiStripTools.apvshotsanalyzer_cfi")
+
+process.load('DQM.SiStripMonitorHardware.siStripCMMonitor_cfi')
+process.siStripCMMonitor.FillWithEventNumber = False
+process.siStripCMMonitor.PrintDebugMessages = 1
+process.siStripCMMonitor.WriteDQMStore = True
+process.siStripCMMonitor.DQMStoreFileName = "DQMStore_CM_run106019.root"
+#process.siStripCMMonitor.TimeHistogramConfig.NBins = 100
+#process.siStripCMMonitor.TimeHistogramConfig.Min = 0
+#process.siStripCMMonitor.TimeHistogramConfig.Max = 1
 
 process.load('PerfTools.Callgrind.callgrindSwitch_cff')
 
+process.TFileService = cms.Service("TFileService", 
+                                   fileName = cms.string("Shot_run106019.root"),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
+
+
+
+
 process.p = cms.Path( #process.profilerStart*
-                      process.siStripFEDMonitor
+                      process.siStripDigis
+                      *process.siStripZeroSuppression
+                      *process.apvshotsanalyzer
+                      *process.siStripCMMonitor
                       #*process.profilerStop 
                       )
+
+process.saveDigis = cms.OutputModule( 
+    "PoolOutputModule",
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_siStripDigis_ZeroSuppressed_*',
+        'keep *_*_*_TEST',
+        'keep *_source_*_*'
+        ),
+    fileName = cms.untracked.string('Digi_run106019.root')
+    )
+
+
+
+#process.pout = cms.EndPath( process.saveDigis )

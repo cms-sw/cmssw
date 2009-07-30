@@ -6,11 +6,10 @@
 
 
 
-FEDHistograms::FEDHistograms():
-  dqm_(0),
-  minAxis_(0)
+FEDHistograms::FEDHistograms()
 {
-
+  dqm_ = 0;
+  histogramConfig_.clear();
 }
 
 FEDHistograms::~FEDHistograms()
@@ -84,15 +83,6 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
 
 }
-
-void FEDHistograms::fillHistogram(MonitorElement* histogram, 
-				  double value, 
-				  double weight)
-{
-  if (histogram) histogram->Fill(value,weight);
-}
-
-
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
 					   const FEDErrors::ChannelCounters & chLevelCounters, 
@@ -214,13 +204,6 @@ void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId,
   if (aAPVErr.APVError) fillHistogram(apvErrorDetailed_[aFedId],lChId);
   if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailed_[aFedId],lChId);
 }
-
-void FEDHistograms::fillTkHistoMap(uint32_t & detid,
-				   float value
-				   ){
-  if (tkmapFED_) tkmapFED_->fill(detid,value);
-}
-
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 {
@@ -394,45 +377,75 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   nTotalBadChannelsvsTime_ = bookProfile("nTotalBadChannelsvsTime",
 					 "nTotalBadChannelsvsTime",
-					 "Number of channels with any error vs time");
+					 "Number of channels with any error vs time",
+					 0,
+					 42241 //total number of channels
+					 );
 
 
   nTotalBadActiveChannelsvsTime_  = bookProfile("nTotalBadActiveChannelsvsTime",
 						"nTotalBadActiveChannelsvsTime",
-						"Number of active channels with any error vs time");
+						"Number of active channels with any error vs time",
+						0,
+						42241 //total number of channels
+						);
 
 
   nFEDErrorsvsTime_ = bookProfile("nFEDErrorsvsTime",
 				  "nFEDErrorsvsTime",
-				  "Number of FEDs with any error vs time");
+				  "Number of FEDs with any error vs time",
+				  0,
+				  42241 //total number of channels
+				  );
 
   nFEDCorruptBuffersvsTime_ = bookProfile("nFEDCorruptBuffersvsTime",
 					  "nFEDCorruptBuffersvsTime",
-					  "Number of FEDs with corrupt buffer vs time");
+					  "Number of FEDs with corrupt buffer vs time",
+					  0,
+					  42241 //total number of channels
+					  );
 
   nFEDsWithFEProblemsvsTime_ = bookProfile("nFEDsWithFEProblemsvsTime",
 					   "nFEDsWithFEProblemsvsTime",
-					   "Number of FEDs with any FE error vs time");
+					   "Number of FEDs with any FE error vs time",
+					   0,
+					   42241 //total number of channels
+					   );
 
   nAPVStatusBitvsTime_ = bookProfile("nAPVStatusBitvsTime",
 				     "nAPVStatusBitvsTime",
-				     "Number of APVs with APVStatusBit error vs time");
+				     "Number of APVs with APVStatusBit error vs time",
+				     0,
+				     42241 //total number of channels
+				     );
 
   nAPVErrorvsTime_ = bookProfile("nAPVErrorvsTime",
 				 "nAPVErrorvsTime",
-				 "Number of APVs with APVError vs time");
+				 "Number of APVs with APVError vs time",
+				 0,
+				 42241 //total number of channels
+				 );
 
   nAPVAddressErrorvsTime_ = bookProfile("nAPVAddressErrorvsTime",
 					"nAPVAddressErrorvsTime",
-					"Number of APVs with APVAddressError vs time");
+					"Number of APVs with APVAddressError vs time",
+					0,
+					42241 //total number of channels
+					);
 
   nUnlockedvsTime_ = bookProfile("nUnlockedvsTime",
 				 "nUnlockedvsTime",
-				 "Number of channels Unlocked vs time");
+				 "Number of channels Unlocked vs time",
+				 0,
+				 42241 //total number of channels
+				 );
 
   nOutOfSyncvsTime_ = bookProfile("nOutOfSyncvsTime",
 				  "nOutOfSyncvsTime",
-				  "Number of channels OutOfSync vs time");
+				  "Number of channels OutOfSync vs time",
+				  0,
+				  42241 //total number of channels
+				  );
 
 
   //book map after, as it creates a new folder...
@@ -442,10 +455,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   }
   else tkmapFED_ = 0;
 
-}
-
-bool FEDHistograms::isTkHistoMapEnabled(){
-  return histogramConfig_[tkMapConfigName_].enabled;
 }
 
 void FEDHistograms::bookFEDHistograms(unsigned int fedId,
@@ -522,97 +531,10 @@ void FEDHistograms::bookAllFEDHistograms()
   }
 }
 
-void FEDHistograms::getConfigForHistogram(const std::string& configName, 
-					  const edm::ParameterSet& psetContainingConfigPSet, 
-					  std::ostringstream* pDebugStream
-					  )
-{
-
-  HistogramConfig config;
-  const std::string psetName = configName+std::string("HistogramConfig");
-  if (psetContainingConfigPSet.exists(psetName)) {
-    const edm::ParameterSet& pset = psetContainingConfigPSet.getUntrackedParameter<edm::ParameterSet>(psetName);
-    config.enabled = (pset.exists("Enabled") ? pset.getUntrackedParameter<bool>("Enabled") : true);
-    if (config.enabled) {
-      config.nBins = (pset.exists("NBins") ? pset.getUntrackedParameter<unsigned int>("NBins") : 600);
-      config.min = (pset.exists("Min") ? pset.getUntrackedParameter<double>("Min") : 0);
-      config.max = (pset.exists("Max") ? pset.getUntrackedParameter<double>("Max") : 40000);
-      if (config.nBins) {
-        if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tEnabled"
-                                          << "\tNBins: " << config.nBins << "\tMin: " << config.min << "\tMax: " << config.max << std::endl;
-      } else {
-        if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tEnabled" << std::endl;
-      }
-    } else {
-      config.enabled = false;
-      config.nBins = 0;
-      config.min = config.max = 0.;
-      if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tDisabled" << std::endl;
-    }
-  } else {
-    config.enabled = false;
-    config.nBins = 0;
-    config.min = config.max = 0.;
-    if (pDebugStream) (*pDebugStream) << "[FEDHistograms]\tHistogram: " << configName << "\tDisabled" << std::endl;
-  }
-  histogramConfig_[configName] = config;
-
-
+std::string FEDHistograms::tkHistoMapName(unsigned int aIndex){
+  return tkMapConfigName_;
 }
 
-MonitorElement* FEDHistograms::bookHistogram(const std::string& configName,
-					     const std::string& name, 
-					     const std::string& title,
-					     const unsigned int nBins, 
-					     const double min, 
-					     const double max,
-					     const std::string& xAxisTitle
-					     )
-{
-
-  if (histogramConfig_[configName].enabled) {
-    MonitorElement* histo = dqm_->book1D(name,title,nBins,min,max);
-    histo->setAxisTitle(xAxisTitle,1);
-    return histo;
-  } else {
-    return NULL;
-  }
-
+TkHistoMap * FEDHistograms::tkHistoMapPointer(unsigned int aIndex){
+  return tkmapFED_;
 }
-
-MonitorElement* FEDHistograms::bookHistogram(const std::string& configName,
-					     const std::string& name, 
-					     const std::string& title, 
-					     const std::string& xAxisTitle
-					     )
-{
-  return bookHistogram(configName,name,title,histogramConfig_[configName].nBins,histogramConfig_[configName].min,histogramConfig_[configName].max,xAxisTitle);
-
-}
- 
-
-MonitorElement* FEDHistograms::bookProfile(const std::string& configName,
-					   const std::string& name,
-					   const std::string& title
-					   )
-{
- 
-  if (histogramConfig_[configName].enabled) {
-    MonitorElement* histo = dqm_->bookProfile(name,
-					      title,
-					      histogramConfig_[configName].nBins,
-					      histogramConfig_[configName].min,
-					      histogramConfig_[configName].max,
-					      0,
-					      42241 //total number of channels
-					      );
-
-    histo->setAxisTitle("",1);
-    //automatically set the axis range: will accomodate new values keeping the same number of bins.
-    histo->getTProfile()->SetBit(TH1::kCanRebin);
-    return histo;
-  } else {
-    return NULL;
-  }
-}
- 
