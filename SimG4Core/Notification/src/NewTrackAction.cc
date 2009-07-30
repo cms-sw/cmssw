@@ -34,6 +34,8 @@ void NewTrackAction::addUserInfoToPrimary(G4Track * aTrack) const {
   trkInfo->isPrimary(true);
   trkInfo->storeTrack(true);
   trkInfo->putInHistory();
+  trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
+  trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
   aTrack->SetUserInformation(trkInfo);  
 }
 
@@ -46,8 +48,14 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
 //				   << " flag " << flag;
   
   // Take care of cascade decays
-  if (flag == 1)
+  if (flag == 1) {
     trkInfo->isPrimary(true);
+    trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
+    trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
+  } else {
+    trkInfo->setGenParticlePID(motherInfo.genParticlePID());
+    trkInfo->setGenParticleP(motherInfo.genParticleP());
+  }
 
   // Store if decay or conversion
   if (flag > 0) {

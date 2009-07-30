@@ -38,6 +38,12 @@ public:
     bool caloIDChecked() const 		{ return caloIDChecked_; }
     void setCaloIDChecked(bool f) 	{ caloIDChecked_ = f; }
 
+    // Generator information
+    int    genParticlePID() const       { return genParticlePID_; }
+    void   setGenParticlePID(int id)    { genParticlePID_ = id; }
+    double genParticleP() const         { return genParticleP_; }
+    void   setGenParticleP(double p)    { genParticleP_ = p; }
+
     virtual void Print() const;
 private:
     bool storeTrack_;    
@@ -49,12 +55,15 @@ private:
     int  idCaloVolume_;
     int  idLastVolume_;
     bool caloIDChecked_;
+    int    genParticlePID_;
+    double genParticleP_;
 
     // Restrict construction to friends
     TrackInformation() :G4VUserTrackInformation(),storeTrack_(false),isPrimary_(false),
 			hasHits_(false),isGeneratedSecondary_(false),isInHistory_(false),
                         idOnCaloSurface_(0),idCaloVolume_(-1),idLastVolume_(-1),
-                        caloIDChecked_(false) {}
+                        caloIDChecked_(false), genParticlePID_(-1),
+                        genParticleP_(0) {}
     friend class NewTrackAction;
 };
 
