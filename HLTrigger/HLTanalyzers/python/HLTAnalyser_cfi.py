@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### GEN objects
     mctruth                         = cms.InputTag("genParticles"),
-    genEventScale                   = cms.InputTag("genEventScale"),
+    # genEventScale                   = cms.InputTag("genEventScale"),
+    genEventInfo                   = cms.InputTag("generator"),
 
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
