@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSCSkim_Trial_BField_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSC_Trial_BField_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT CSCSkim trial+BField skim')
 )
 
@@ -58,7 +58,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 
 
@@ -70,7 +70,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_31X_V3P::All' 
+process.GlobalTag.globaltag = 'GR09_31X_V5P::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")

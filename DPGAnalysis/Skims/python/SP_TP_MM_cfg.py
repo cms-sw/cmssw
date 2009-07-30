@@ -47,12 +47,12 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/SP_TP_MM_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT SuperPointing TrackerPointing Multimuon skim')
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 
@@ -61,7 +61,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_31X_V3P::All' 
+process.GlobalTag.globaltag = 'GR09_31X_V5P::All' 
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 process.load('Configuration/EventContent/EventContentCosmics_cff')

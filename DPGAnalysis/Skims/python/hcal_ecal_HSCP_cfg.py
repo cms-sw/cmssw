@@ -50,13 +50,13 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/hcal_ecal_HSCP_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT HCALHighEnergy ecalhighenergy and stoppedhSCP skim')
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
     )
 
 
