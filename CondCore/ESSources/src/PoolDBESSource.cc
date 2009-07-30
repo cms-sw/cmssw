@@ -35,6 +35,7 @@
 #include <exception>
 //#include <iostream>
 
+#include "CondFormats/Common/interface/TimeConversions.h"
 
 
 namespace {
