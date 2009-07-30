@@ -261,6 +261,91 @@ void plotBERT(char name[10]="Hit0", char filx[10]="minbias", bool logy=true,
   leg1->Draw();
 }
 
+void plotValid(char name[10]="Hit0", char filx[10]="minbias", bool logy=true, 
+	       int bin=1, double xmax=-1., int mode=0) {
+
+  setTDRStyle();
+  TCanvas *myc = new TCanvas("myc","",800,600);
+  if (logy) gPad->SetLogy(1);
+  char lego1[32], lego2[32], lego3[32], lego4[32];
+  
+  sprintf (lego1,"Original 3_1_0"); 
+  sprintf (lego2,"3_1_0 + New PhysicsLists");
+  sprintf (lego3,"Modified Code (Default)");  
+  sprintf (lego4,"Change in Response");
+
+  TFile *File[4];
+  TH1F  *hist[4];
+  double xmin=0;
+  for (int i=0; i<4; i++) {
+    char file[50];
+    sprintf (file, "%s_QGSP_BERT_EML%d.root", filx, i); 
+    std::cout << "Open " << file << "\n";
+    File[i] = new TFile(file);
+    TDirectory *dir = (TDirectory*)File[i]->Get("caloSimHitStudy");
+    hist[i] = (TH1F*) dir->Get(name);
+    hist[i]->Rebin(bin);
+    hist[i]->SetLineStyle(i+1);
+    hist[i]->SetLineWidth(3);
+    hist[i]->SetLineColor(i+1);
+    xmin = hist[i]->GetXaxis()->GetXmin();
+    if (xmax > 0) hist[i]->GetXaxis()->SetRangeUser(xmin,xmax);
+  }
+
+  if (mode < 0 || mode > 3) mode = 0;
+  hist[mode]->Draw();
+  for (int i=0; i<4; i++) {
+    if (i != mode) hist[i]->Draw("sames");
+  }
+  
+  gPad->Update();
+  TPaveStats *st[4];
+  for (int i=0; i<4; i++) {
+    st[i] = (TPaveStats*)hist[i]->GetFunction("stats");
+    if (st[i]) {
+      st[i]->SetTextColor(i+1);
+      st[i]->SetLineColor(i+1);
+    }
+  }
+  double x1 = st[0]->GetX1NDC();
+  double y1 = st[0]->GetY1NDC();
+  double x2 = st[0]->GetX2NDC();
+  double y2 = st[0]->GetY2NDC();
+  double xx = x2-x1;
+  double yy = y2-y1;
+  if (st[1]) {
+    st[1]->SetX1NDC(0.95-2*xx);
+    st[1]->SetY1NDC(y1);
+    st[1]->SetX2NDC(x1);
+    st[1]->SetY2NDC(y2);
+  }
+  if (st[2]) {
+    st[2]->SetX1NDC(x1);
+    st[2]->SetY1NDC(0.95-2*yy);
+    st[2]->SetX2NDC(x2);
+    st[2]->SetY2NDC(y1);
+  }
+  if (st[3]) {
+    st[3]->SetX1NDC(0.95-2*xx);
+    st[3]->SetY1NDC(0.95-2*yy);
+    st[3]->SetX2NDC(x1);
+    st[3]->SetY2NDC(y1);
+  }
+  gPad->Modified();
+
+  TLegend *leg1 = new TLegend(0.10,0.75,0.45,0.90);
+  char head[40];
+  if      (filx == "ttbar") sprintf (head, "t#bar{t}");
+  else if (filx == "zee")   sprintf (head, "Z#rightarrowe^{+}e^{-}");
+  else                      sprintf (head, "Minimum Bias");
+  leg1->SetHeader(head); leg1->SetFillColor(0); leg1->SetTextSize(0.03);
+  leg1->AddEntry(hist[0],lego1,"F");
+  leg1->AddEntry(hist[1],lego2,"F");
+  leg1->AddEntry(hist[2],lego3,"F");
+  leg1->AddEntry(hist[3],lego4,"F");
+  leg1->Draw();
+}
+
 void plotHF(char name[10]="Dist", char beam[10]="elec", char ener[10]="100",
 	    char tag[10]="SL", bool logy=true, int bin=10) {
 

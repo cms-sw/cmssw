@@ -46,10 +46,12 @@ protected:
 
 private:
 
-  std::string    g4Label, hitLab[4], muonLab[3], tkHighLab[6], tkLowLab[6];
+  std::string    sourceLabel, g4Label, hitLab[4];
+  std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
 
-  TH1F           *hit_[7],  *time_[7], *edepEM_[7], *edepHad_[7];
-  TH1F           *edep_[7], *timeAll_[7], *hitMu, *hitHigh, *hitLow;
+  TH1F           *hit_[7],  *time_[7], *edepEM_[7], *edepHad_[7], *edep_[7];
+  TH1F           *etot_[7], *etotg_[7], *timeAll_[7], *hitMu, *hitHigh;
+  TH1F           *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
 };
 
 #endif

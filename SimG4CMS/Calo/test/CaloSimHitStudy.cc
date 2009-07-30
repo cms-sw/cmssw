@@ -1,11 +1,13 @@
 #include "SimG4CMS/Calo/test/CaloSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
+  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
@@ -38,7 +40,23 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
   std::string dets[7] = {"EB", "EE", "ES", "HB", "HE", "HO", "HF"};
-  char  name[20], title[60];
+  char  name[20], title[100];
+  sprintf (title, "Incident PT (GeV)");
+  ptInc_ = tfile->make<TH1F>("PtInc", title, 1000, 0., maxEnergy_);
+  ptInc_->GetXaxis()-> SetTitle(title);
+  ptInc_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Incident Energy (GeV)");
+  eneInc_ = tfile->make<TH1F>("EneInc", title, 1000, 0., maxEnergy_);
+  eneInc_->GetXaxis()-> SetTitle(title);
+  eneInc_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Incident #eta");
+  etaInc_ = tfile->make<TH1F>("EtaInc", title, 200, -5., 5.);
+  etaInc_->GetXaxis()->SetTitle(title);
+  etaInc_->GetYaxis()->SetTitle("Events");
+  sprintf (title, "Incident #phi");
+  phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
+  phiInc_->GetXaxis()->SetTitle(title);
+  phiInc_->GetYaxis()->SetTitle("Events");
   for (int i=0; i<7; i++) {
     sprintf (name, "Hit%d", i);
     sprintf (title, "Number of hits in %s", dets[i].c_str());
@@ -72,6 +90,16 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     edepHad_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
     edepHad_[i]->GetXaxis()->SetTitle(title); 
     edepHad_[i]->GetYaxis()->SetTitle("Hits");
+    sprintf (name, "Etot%d", i);
+    sprintf (title, "Total energy deposit (GeV) in %s", dets[i].c_str());
+    etot_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    etot_[i]->GetXaxis()->SetTitle(title); 
+    etot_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EtotG%d", i);
+    sprintf (title, "Total energy deposit (GeV) in %s (t < 100 ns)", dets[i].c_str());
+    etotg_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
+    etotg_[i]->GetXaxis()->SetTitle(title); 
+    etotg_[i]->GetYaxis()->SetTitle("Events");
   }
   hitLow = tfile->make<TH1F>("HitLow","Number of hits in Track (Low)",1000,0,10000.);
   hitLow->GetXaxis()->SetTitle("Number of hits in Track (Low)");
@@ -88,6 +116,23 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 
   LogDebug("HitStudy") << "Run = " << e.id().run() << " Event = " 
 		       << e.id().event();
+
+  edm::Handle<edm::HepMCProduct > EvtHandle;
+  e.getByLabel(sourceLabel, EvtHandle);
+  const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
+
+  double eInc=0, etaInc=0, phiInc=0;
+  HepMC::GenEvent::particle_const_iterator p=myGenEvent->particles_begin();
+  if (p != myGenEvent->particles_end()) {
+    eInc   = (*p)->momentum().e();
+    etaInc = (*p)->momentum().eta();
+    phiInc = (*p)->momentum().phi();
+  }
+  double ptInc = eInc/std::cosh(etaInc);
+  ptInc_->Fill(ptInc);
+  eneInc_->Fill(eInc);
+  etaInc_->Fill(etaInc);
+  phiInc_->Fill(phiInc);
 
   for (int i=0; i<4; i++) {
     bool getHits = false;
@@ -137,6 +182,7 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
   int nHB=0, nHE=0, nHO=0, nHF=0, nEB=0, nEE=0, nES=0, nBad=0;
   std::map<unsigned int,double> hitMap;
+  std::vector<double> etot(7,0), etotG(7,0);
   for (int i=0; i<nHit; i++) {
     double edep      = hits[i].energy();
     double time      = hits[i].time();
@@ -156,6 +202,10 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
       else if (indx == 1) nEE++;
       else if (indx == 2) nES++;
       else                nBad++;
+      if (indx < 3) {
+	etot[indx] += edep;
+	if (time < 100) etotG[indx] += edep;
+      }
     } else {
       HcalDetId id     = HcalDetId(id_);
       int idx          = -1;
@@ -169,17 +219,26 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 	edep_[idx]->Fill(edep);
 	edepEM_[indx]->Fill(edepEM);
 	edepHad_[indx]->Fill(edepHad);
+	etot[idx] += edep;
+	if (time < 100) etotG[idx] += edep;
       }
     }
   }
   if (indx != 3) {
     hit_[indx]->Fill(double(nHit));
+    etot_[indx]->Fill(etot[indx]);
+    etotg_[indx]->Fill(etotG[indx]);
   } else {
     hit_[3]->Fill(double(nHB));
     hit_[4]->Fill(double(nHE));
     hit_[5]->Fill(double(nHO));
     hit_[6]->Fill(double(nHF));
+    for (int idx=3; idx<7; idx++) {
+      etot_[idx]->Fill(etot[idx]);
+      etotg_[idx]->Fill(etotG[idx]);
+    }
   }
+
   LogDebug("HitStudy") << "CaloSimHitStudy::analyzeHits: EB " << nEB << " EE "
 		       << nEE << " ES " << nES << " HB " << nHB << " HE " 
 		       << nHE << " HO " << nHO << " HF " << nHF << " Bad " 

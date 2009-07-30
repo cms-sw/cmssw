@@ -9,6 +9,7 @@
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "SimG4CMS/Calo/interface/CaloMeanResponse.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -87,6 +88,7 @@ protected:
   virtual bool     filterHit(CaloG4Hit*, double);
 
   virtual uint16_t getDepth(G4Step*);   
+  double           getResponseWt(G4Track*);
 
 private:
 
@@ -136,6 +138,7 @@ private:
   std::map<CaloHitID,CaloG4Hit*>  hitMap;
 
   std::map<int,TrackWithHistory*> tkMap;
+  CaloMeanResponse*               meanResponse;
 
   int                             primAncestor;
   int                             cleanIndex;

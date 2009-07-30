@@ -24,7 +24,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), 
   theTrack(0), preStepPoint(0), eminHit(0), m_trackManager(manager), 
-  currentHit(0), hcID(-1), theHC(0){
+  currentHit(0), hcID(-1), theHC(0), meanResponse(0) {
 
   //Add Hcal Sentitive Detector Names
 
@@ -37,6 +37,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double> >("EminHits");
   std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double> >("TmaxHits");
   std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string> >("HCNames");
+  std::vector<int>   useResMap = m_CaloSD.getParameter<std::vector<int> >("UseResponseTables");
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
@@ -54,6 +55,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
     if (name == (G4String)(hcn[k])) {
       if (k < eminHits.size()) eminHit = eminHits[k]*MeV;
       tmaxHit = tmaxHits[k]*ns;
+      if (k < useResMap.size() && useResMap[k] > 0) 
+	meanResponse = new CaloMeanResponse(p);
       break;
     }
   }
@@ -113,6 +116,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 CaloSD::~CaloSD() { 
   if (slave)           delete slave; 
   if (theHC)           delete theHC;
+  if (meanResponse)    delete meanResponse;
 }
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -609,6 +613,17 @@ uint16_t CaloSD::getDepth(G4Step*) { return 0; }
 
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
   return ((time <= tmaxHit) && (hit->getEnergyDeposit() > eminHit));
+}
+
+double CaloSD::getResponseWt(G4Track* aTrack) {
+
+  if (meanResponse) {
+    TrackInformation * trkInfo = (TrackInformation *)(aTrack->GetUserInformation());
+    return meanResponse->getWeight(trkInfo->genParticlePID(), 
+				   trkInfo->genParticleP());
+  } else {
+    return 1;
+  }
 }
 
 void CaloSD::storeHit(CaloG4Hit* hit) {

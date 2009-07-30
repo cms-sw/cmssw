@@ -123,10 +123,11 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 	else           weight *= getAttenuation(aStep, birk1, birk2, birk3);
       }
     }
-    double edep   = aStep->GetTotalEnergyDeposit() * weight;
+    double wt1    = getResponseWt(theTrack);
+    double edep   = aStep->GetTotalEnergyDeposit() * weight * wt1;
 #ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
-			<<" Light Collection Efficiency " << weight 
+			<<" Light Collection Efficiency " <<weight << ":" <<wt1
 			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
 #endif
     return edep;
@@ -289,9 +290,11 @@ double ECalSD::getBirkL3(G4Step* aStep) {
     double density = mat->GetDensity();
     double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
     double rkb     = birk1/density;
-    if (dedx > 0.) weight         = 1. - birkSlope*log(rkb*dedx);
-    if (weight < birkCut) weight = birkCut;
-    else if (weight > 1.) weight = 1.;
+    if (dedx > 0) {
+      weight         = 1. - birkSlope*log(rkb*dedx);
+      if (weight < birkCut) weight = birkCut;
+      else if (weight > 1.) weight = 1.;
+    }
 #ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD::getBirkL3 in " << mat->GetName()
                         << " Charge " << charge << " dE/dx " << dedx
