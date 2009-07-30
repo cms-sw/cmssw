@@ -15,6 +15,7 @@
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
 
 
 #endif
