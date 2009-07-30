@@ -73,9 +73,9 @@ private:
   int prescaleEvt_;    ///prescale on number of events
   int nChannels;
 
-  enum DataValue { data_empty, data_gt, data_muons, data_jets, 
-		   data_taujets, data_isoem, data_nonisoem, 
-		   data_met };
+  enum DataValue { data_empty, data_all, data_gt, data_muons, 
+		   data_jets, data_taujets, data_isoem, 
+		   data_nonisoem, data_met };
   enum EmulValue { emul_empty, emul_all, emul_gt, emul_dtf, 
 		   emul_dtp, emul_ctf, emul_ctp, emul_rpc, 
 		   emul_gmt, emul_etp, emul_htp, emul_rct, 
@@ -83,6 +83,8 @@ private:
 
   std::map<std::string, DataValue> s_mapDataValues;
   std::map<std::string, EmulValue> s_mapEmulValues;
+
+  static const int nsys_=18;
 
   Float_t reportSummary;
   Float_t summarySum;
