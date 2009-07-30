@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/06/04 16:04:14 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/06/12 10:46:32 $
+ *  $Revision: 1.19 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -97,6 +97,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   int numberOfSimMuons;
   int numberOfSimVertices;
   int numberOfEwkZ;
+
+  bool ifHepMC;
+  bool ifGenPart;
 
   // Constants
   // ---------

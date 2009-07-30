@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/12 08:01:25 $
-//  $Revision: 1.48 $
+//  $Date: 2009/06/12 10:46:32 $
+//  $Revision: 1.49 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -341,7 +341,7 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 }
 
 // End of job method
-// -----------------
+// -----------------              
 void MuScleFit::endOfJob () {
   if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
   //delete plotter;
@@ -429,23 +429,25 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   // ----------------------------------------------------------------------------
   Handle<HepMCProduct> evtMC;
   Handle<SimTrackContainer> simTracks;
+  Handle<GenParticleCollection> genParticles; 
   if (!MuScleFitUtils::speedup) { // NB we skip the simulation part if we are in a hurry
-    bool ifGen=false;
+    ifHepMC=false;
+    ifGenPart=false;
     try {
       event.getByLabel ("source", evtMC);
       // Fill gen information only in the first loop
       if( loopCounter == 0 ) plotter->fillGen2(evtMC);
-      ifGen=true;
+      ifHepMC=true;
     } catch (...) { 
       cout << "HepMCProduct non existent" << endl;
     }
-
-    if(!ifGen){
-      Handle<GenParticleCollection> genParticles; 
+    
+    if(!ifHepMC){
       try {
         event.getByLabel ("genParticles", genParticles);
         // Fill gen information only in the first loop
         if( loopCounter == 0 ) plotter->fillGen1(genParticles);
+	ifGenPart=true;
         if (debug_>0) cout << "Found genParticles" << endl;
       } catch (...) {
         cout << "GenParticles non existent" << endl;
@@ -456,7 +458,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       try {
         event.getByLabel (simTracksCollection_, simTracks);
         plotter->fillSim(simTracks);
-        if(ifGen && loopCounter == 0){
+        if(ifHepMC && loopCounter == 0){
           plotter->fillGenSim(evtMC,simTracks);
         }
       }
@@ -623,7 +625,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     //--------------------------------------------------------
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu;
     if( !MuScleFitUtils::speedup ) {
-      genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
+      if(ifHepMC)
+	genMu = MuScleFitUtils::findGenMuFromRes(evtMC);
+      else if(ifGenPart)
+	genMu = MuScleFitUtils::findGenMuFromRes(genParticles);
+      else
+	cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<endl;
       //first is always mu-, second is always mu+
 
       // double genmass = (genMu.first+genMu.second).mass();
