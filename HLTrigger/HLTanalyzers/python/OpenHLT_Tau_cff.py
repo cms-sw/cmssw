@@ -238,7 +238,8 @@ openhltL25TauCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )

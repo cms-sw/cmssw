@@ -91,7 +91,8 @@ hltCkfL1IsoLWTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -124,7 +125,8 @@ hltCkfL1IsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -157,7 +159,8 @@ hltCkfL1NonIsoLWTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -190,7 +193,8 @@ hltCkfL1NonIsoSSTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -240,7 +244,8 @@ hltL1IsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -286,7 +291,8 @@ hltL1IsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -331,7 +337,8 @@ hltL1NonIsoLWEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
@@ -375,7 +382,8 @@ hltL1NonIsoSSEleRegioCkfTC = cms.EDProducer( "CkfTrackCandidateMaker",
     doSeedingRegionRebuilding = cms.bool( False ),
     TransientInitialStateEstimatorParameters = cms.PSet( 
       propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" ),
+      numberMeasurementsForFit = cms.int32(4)
     ),
     cleanTrajectoryAfterInOut = cms.bool( False )
 )
