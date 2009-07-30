@@ -64,6 +64,7 @@ void L1TEventInfoClient::initialize(){
   emulMask = parameters_.getUntrackedParameter<std::vector<string> >("emulatorMaskedSystems", emptyMask);
 
   s_mapDataValues["EMPTY"]    = data_empty;
+  s_mapDataValues["ALL"]      = data_all;
   s_mapDataValues["GT"]       = data_gt;
   s_mapDataValues["MUONS"]    = data_muons;
   s_mapDataValues["JETS"]     = data_jets;
@@ -103,8 +104,6 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
-  int nSubsystems = 18;
-
   //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
 
@@ -113,9 +112,8 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   char histo[100];
   
-  for (int n = 0; n < nSubsystems; n++) {    
+  for (int n = 0; n < nsys_; n++) {    
 
-    
     switch(n){
     case 0 :   sprintf(histo,"L1T_MET");      break;
     case 1 :   sprintf(histo,"L1T_NonIsoEM"); break;
@@ -135,20 +133,13 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
     case 15:   sprintf(histo,"L1TEMU_ETP");   break;
     case 16:   sprintf(histo,"L1TEMU_GCT");   break;
     case 17:   sprintf(histo,"L1TEMU_RCT");   break;
-
     }  
-    
-  
-    //    if( reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo) ) 
-    //  {
-    //	dbe_->removeElement(reportSummaryContent_[i]->getName());
-    //  }
     
     reportSummaryContent_[n] = dbe_->bookFloat(histo);
   }
 
   //initialize reportSummaryContents to 0
-  for (int k = 0; k < nSubsystems; k++) {
+  for (int k = 0; k < nsys_; k++) {
     summaryContent[k] = 0;
     reportSummaryContent_[k]->Fill(0.);
   }  
@@ -204,8 +195,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 
 
-  int nSubsystems = 18;
-  for (int k = 0; k < nSubsystems; k++) {
+  for (int k = 0; k < nsys_; k++) {
     summaryContent[k] = 0;
     reportSummaryContent_[k]->Fill(0.);
   }
@@ -499,6 +489,10 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       {
       case data_empty:
 	break;
+      case data_all:
+	for( int m=0; m<7; m++ ) summaryContent[m] = -1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
       case data_gt:
 	summaryContent[6]=-1;
 	maskedData.push_back(mask_sys_tmp);
@@ -599,7 +593,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 
   int numUnMaskedSystems = 0;
-  for( int m=0; m<nSubsystems; m++ ){
+  for( int m=0; m<nsys_; m++ ){
     if( summaryContent[m]!=-1){
       if( m<7 ){
 	summarySum += summaryContent[m];
