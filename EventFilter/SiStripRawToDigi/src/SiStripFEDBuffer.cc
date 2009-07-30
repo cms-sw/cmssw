@@ -259,7 +259,7 @@ namespace sistrip {
 
   std::string FEDBuffer::checkSummary() const
   {
-    std::stringstream summary;
+    std::ostringstream summary;
     summary << FEDBufferBase::checkSummary();
     summary << "Check FE unit payloads are all present: " << (checkFEPayloadsPresent() ? "passed" : "FAILED" ) << std::endl;
     if (!checkFEPayloadsPresent()) {
@@ -525,7 +525,7 @@ namespace sistrip {
 
   std::string FEDBufferBase::checkSummary() const
   {
-    std::stringstream summary;
+    std::ostringstream summary;
     summary << "Check buffer type valid: " << ( checkBufferFormat() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check header format valid: " << ( checkHeaderType() ? "passed" : "FAILED" ) << std::endl;
     summary << "Check readout mode valid: " << ( checkReadoutMode() ? "passed" : "FAILED" ) << std::endl;
@@ -572,7 +572,7 @@ namespace sistrip {
 
   void FEDRawChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << "Channel length is invalid. Raw channels have 3 header bytes and 2 bytes per sample. "
        << "Channel length is " << uint16_t(length) << "."
        << std::endl;
@@ -584,7 +584,7 @@ namespace sistrip {
 
   void FEDZSChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << "Channel length is longer than max allowed value. "
        << "Channel length is " << uint16_t(length) << "."
        << std::endl;
@@ -593,11 +593,37 @@ namespace sistrip {
 
   void FEDZSChannelUnpacker::throwBadClusterLength()
   {
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << "Cluster does not fit into channel. "
        << "Cluster length is " << uint16_t(valuesLeftInCluster_) << "."
        << std::endl;
     throw cms::Exception("FEDBuffer") << ss.str();
+  }
+  
+
+
+
+  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const
+  {
+    if (packetCode() != PACKET_CODE_ZERO_SUPPRESSED) {
+      std::ostringstream ss;
+      ss << "Request for CM median from channel with non-ZS packet code. "
+         << "Packet code is " << uint16_t(packetCode()) << "."
+         << std::endl;
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+    if (apvIndex > 1) {
+      std::ostringstream ss;
+      ss << "Channel APV index out of range when requesting CM median for APV. "
+         << "Channel APV index is " << uint16_t(apvIndex) << "."
+         << std::endl;
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+    uint16_t result = 0;
+    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
+    result |= data_[(offset_+3+2*apvIndex)^7];
+    result |= ( ((data_[(offset_+4+2*apvIndex)^7]) << 8) & 0x300 );
+    return result;
   }
 
 }
