@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.134 $"
+__version__ = "$Revision: 1.135 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +18,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Ideal'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
-defaultOptions.scenarioOptions=['pp','cosmics','nocoll']
+defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 
 # the pile up map
@@ -485,7 +485,13 @@ class ConfigBuilder(object):
           except ImportError:
             print "VertexSmearing type or beamspot",self.beamspot, "unknown."
             raise
-          self.process.generation_step = cms.Path( self.process.pgen )
+
+          if self._options.scenario == 'HeavyIons' :
+	      self.process.generation_step = cms.Path( self.process.pgen_hi )
+          else:
+	      self.process.generation_step = cms.Path( self.process.pgen )
+
+
 
         self.schedule.append(self.process.generation_step)
 
@@ -751,7 +757,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.134 $"),
+              (version=cms.untracked.string("$Revision: 1.135 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
