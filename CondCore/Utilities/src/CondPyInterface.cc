@@ -65,12 +65,12 @@ namespace cond {
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    //boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    //theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-    //  makePresence("MessageServicePresence").release());
-
+    boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+								 makePresence("MessageServicePresence").release());
+    
     // C.  Manufacture a configuration and establish it.
-    /*std::string config =
+    std::string config =
       "process x = {"
       "service = MessageLogger {"
       "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
@@ -94,9 +94,9 @@ namespace cond {
       "service = SiteLocalConfigService{}"
       "}";
     
-  
-
-  boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
+    
+    
+    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
     edm::makeParameterSets(config, params_, pServiceSets);
     
