@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/05/06 12:13:19 $
- * $Revision: 1.39.2.4 $
+ * $Date: 2009/07/06 09:42:23 $
+ * $Revision: 1.46 $
  * \author W. Fisher
  *
 */
@@ -157,8 +157,6 @@ public:
 
   // counters and flags
   int nevt_;
-  int nlumisecs_;
-  bool saved_;
 
   struct{
     timeval startTV,updateTV;
@@ -171,11 +169,15 @@ public:
   DQMStore* dbe_;  
   
   // environment variables
-  int irun_,ilumisec_,ievent_,itime_;
+  int irun_,ievent_,itime_;
+  unsigned int ilumisec_;
   bool actonLS_ ;
   std::string rootFolder_;
 
   int ievt_;
+  int ievt_rawdata_;
+  int ievt_digi_;
+  int ievt_rechit_;
   int ievt_pre_; // copy of counter used for prescale purposes
   bool fedsListed_;
   
@@ -195,6 +197,11 @@ public:
   std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
   std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
   std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
+
+  MonitorElement* meIEVTALL_;
+  MonitorElement* meIEVTRAW_;
+  MonitorElement* meIEVTDIGI_;
+  MonitorElement* meIEVTRECHIT_;
 
   MonitorElement* meFEDS_;
   MonitorElement* meStatus_;

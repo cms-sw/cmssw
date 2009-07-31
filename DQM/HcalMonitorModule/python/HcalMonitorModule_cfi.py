@@ -92,21 +92,12 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            
                            # HOT CELL MONITOR
                            HotCellMonitor                              = cms.untracked.bool(True),
-                           HotCellMonitor_pedestalsInFC                = cms.untracked.bool(True),
                            HotCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
                            HotCellMonitor_test_neighbor                = cms.untracked.bool(False),
-                           HotCellMonitor_test_pedestal                = cms.untracked.bool(True),
                            HotCellMonitor_test_energy                  = cms.untracked.bool(True),
                            HotCellMonitor_test_persistent              = cms.untracked.bool(True),
                            HotCellMonitor_checkNevents                 = cms.untracked.int32(1000),
                            
-                           #checking for cells consistently above (ped + Nsigma*width)
-                           HotCellMonitor_pedestal_Nsigma              = cms.untracked.double(3.),
-                           HotCellMonitor_pedestal_HB_Nsigma           = cms.untracked.double(3.),
-                           HotCellMonitor_pedestal_HE_Nsigma           = cms.untracked.double(3.),
-                           HotCellMonitor_pedestal_HO_Nsigma           = cms.untracked.double(3.),
-                           HotCellMonitor_pedestal_HF_Nsigma           = cms.untracked.double(3.),
-                           HotCellMonitor_pedestal_ZDC_Nsigma          = cms.untracked.double(5.),
                            # Checking for cells above energy threshold at any time
                            HotCellMonitor_energyThreshold              = cms.untracked.double(5.),
                            HotCellMonitor_HB_energyThreshold           = cms.untracked.double(5.),
