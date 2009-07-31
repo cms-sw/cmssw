@@ -7,7 +7,6 @@
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
   occThresh_ = 1;
-  ievt_=0;
   shape_=NULL;
 }
 
@@ -91,7 +90,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       std::cout <<std::endl;
     }
 
-  ievt_=0;
 
   /******** Zero all counters *******/
   
@@ -105,6 +103,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("Digi Task Event Number");    
       meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("Digi Task Total Events Processed");
+      meTOTALEVT_->Fill(tevt_);
 
       MonitorElement* checkN = m_dbe->bookInt("DigiCheckNevents");
       checkN->Fill(digi_checkNevents_);
@@ -217,8 +217,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       
 
       DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
-      DigiBQ -> setAxisTitle("# Bad Quality Digis",1);  
-      DigiBQ -> setAxisTitle("# of Events",2);
+      ProblemsVsLB=m_dbe->bookProfile("BadDigisVsLB","# Bad Digis vs Luminosity block", Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB -> setAxisTitle("# Bad Quality Digis",1);  
+      ProblemsVsLB -> setAxisTitle("# of Events",2);
       
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
@@ -250,7 +251,11 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	  name.str("");
 	}
       hbHists.presample= m_dbe->book1D("HB Digi Presamples","HB Digi Presamples",50,-0.5,49.5);
+      
       hbHists.BQ = m_dbe->book1D("HB Bad Quality Digis","HB Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
+      ProblemsVsLB_HB=m_dbe->bookProfile("HB Bad Quality Digis vs LB","HB Bad Quality Digis vs Luminosity Block",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+					 100,0,10000);
       hbHists.BQFrac = m_dbe->book1D("HB Bad Quality Digi Fraction","HB Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       hbHists.DigiFirstCapID = m_dbe->book1D("HB Capid 1st Time Slice","HB Capid for 1st Time Slice",7,-3.5,3.5);
       hbHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
@@ -283,6 +288,10 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	}
 
       heHists.presample= m_dbe->book1D("HE Digi Presamples","HE Digi Presamples",50,-0.5,49.5);
+      ProblemsVsLB_HE=m_dbe->bookProfile("HE Bad Quality Digis vs LB","HE Bad Quality Digis vs Luminosity Block",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+					 100,0,10000);
+
       heHists.BQ = m_dbe->book1D("HE Bad Quality Digis","HE Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       heHists.BQFrac = m_dbe->book1D("HE Bad Quality Digi Fraction","HE Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       heHists.DigiFirstCapID = m_dbe->book1D("HE Capid 1st Time Slice","HE Capid for 1st Time Slice",7,-3.5,3.5);
@@ -315,6 +324,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	  name.str("");
 	}
       hoHists.presample= m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,-0.5,49.5);
+      ProblemsVsLB_HO=m_dbe->bookProfile("HO Bad Quality Digis vs LB","HO Bad Quality Digis vs Luminosity Block",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+					 100,0,10000);
       hoHists.BQ = m_dbe->book1D("HO Bad Quality Digis","HO Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       hoHists.BQFrac = m_dbe->book1D("HO Bad Quality Digi Fraction","HO Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       hoHists.DigiFirstCapID = m_dbe->book1D("HO Capid 1st Time Slice","HO Capid for 1st Time Slice",7,-3.5,3.5);
@@ -347,6 +359,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       hfHists.shape->setAxisTitle("Time Slice",1);
       hfHists.shapeThresh->setAxisTitle("Time Slice",1);
       hfHists.presample= m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,-0.5,49.5);
+      ProblemsVsLB_HF=m_dbe->bookProfile("HF Bad Quality Digis vs LB","HF Bad Quality Digis vs Luminosity Block",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+					 100,0,10000);
       hfHists.BQ = m_dbe->book1D("HF Bad Quality Digis","HF Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
       hfHists.BQFrac = m_dbe->book1D("HF Bad Quality Digi Fraction","HF Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       hfHists.DigiFirstCapID = m_dbe->book1D("HF Capid 1st Time Slice","HF Capid for 1st Time Slice",7,-3.5,3.5);
@@ -416,10 +431,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       return; 
     }
   
-
-  ++ievt_;
-  meEVT_->Fill(ievt_);
-  
+  HcalBaseMonitor::processEvent();
   int iEta, iPhi, iDepth;
 
   int err;
@@ -1098,6 +1110,12 @@ void HcalDigiMonitor::fill_Nevents()
     } // for (int i=0;i<10;++i)
 
   // Fill plots of number of digis found
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadZDC=0;
+
   for (int i=0;i<DIGI_NUM;++i)
     {
       if (diginum[i]>0) DigiNum->Fill(i, diginum[i]);
@@ -1108,9 +1126,18 @@ void HcalDigiMonitor::fill_Nevents()
       if (hoHists.count_BQ[i]>0) hoHists.BQ->Fill(i, hoHists.count_BQ[i]);
       if (hfHists.count_BQ[i]>0) hfHists.BQ->Fill(i, hfHists.count_BQ[i]);
       if (zdcHists.count_BQ[i]>0) zdcHists.BQ->Fill(i, zdcHists.count_BQ[i]);
-
-
+      if (hbHists.count_BQ[i]>0) ++NumBadHB;
+      if (heHists.count_BQ[i]>0) ++NumBadHE;
+      if (hoHists.count_BQ[i]>0) ++NumBadHO;
+      if (hfHists.count_BQ[i]>0) ++NumBadHF;
     }//for int i=0;i<DIGI_NUM;++i)
+
+  ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+  ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
+  ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
+  ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
+  ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
+ 
 
   // Fill data-valid/error plots and capid plots
   for (int i=0;i<4;++i)

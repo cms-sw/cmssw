@@ -7,10 +7,8 @@ using namespace std;
 
 HcalHotCellMonitor::HcalHotCellMonitor()
 {
-  ievt_=0;
   // Default initialization
   hotmon_makeDiagnostics_   = false;
-  hotmon_test_pedestal_     = false;
   hotmon_test_energy_       = false;
   hotmon_test_neighbor_     = false;
   hotmon_test_persistent_   = false;
@@ -42,8 +40,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 
   if (fVerbosity>1)
     std::cout <<"<HcalHotCellMonitor::setup>  Getting variable values from cfg files"<<std::endl;
-  // determine whether database pedestals are in FC or ADC
-  doFCpeds_ = ps.getUntrackedParameter<bool>("HotCellMonitor_pedestalsInFC", true);
 
   // hotmon_makeDiagnostics_ will take on base task value unless otherwise specified
   hotmon_makeDiagnostics_ = ps.getUntrackedParameter<bool>("HotCellMonitor_makeDiagnosticPlots",makeDiagnostics);
@@ -53,19 +49,10 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
    
   // Set which hot cell checks will be performed
   hotmon_test_persistent_         = ps.getUntrackedParameter<bool>("HotCellMonitor_test_persistent",true);
-  hotmon_test_pedestal_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_pedestal",true);
-  hotmon_test_neighbor_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_neighbor",true);
+  hotmon_test_neighbor_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_neighbor",true); // deprecated right now
   hotmon_test_energy_             = ps.getUntrackedParameter<bool>("HotCellMonitor_test_energy",true);
 
   hotmon_minErrorFlag_ = ps.getUntrackedParameter<double>("HotCellMonitor_minErrorFlag",0.0);
-
-  // pedestal test -- cell must be above pedestal+nsigma for a number of consecutive events to be considered hot
-  nsigma_       = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_Nsigma",       -10);
-  HBnsigma_     = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_HB_Nsigma",nsigma_);
-  HEnsigma_     = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_HE_Nsigma",nsigma_);
-  HOnsigma_     = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_HO_Nsigma",nsigma_);
-  HFnsigma_     = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_HF_Nsigma",nsigma_);
-  ZDCnsigma_    = ps.getUntrackedParameter<double>("HotCellMonitor_pedestal_ZDC_Nsigma", nsigma_);
 
   // rechit energy test -- cell must be above threshold value for a number of consecutive events to be considered hot
   energyThreshold_       = ps.getUntrackedParameter<double>("HotCellMonitor_energyThreshold",   1);
@@ -100,10 +87,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   setupNeighborParams(ps,ZDCNeighborParams_,"ZDC");
   HFNeighborParams_.DeltaIphi*=2; // HF cell segmentation is 10 degrees, not 5 (mostly).  Need to multiply by 2 to convert from cell range to degree format
 
-  
-  // Set initial event # to 0
-  ievt_=0;
-
   zeroCounters();
 
 
@@ -116,6 +99,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("Hot Cell Task Event Number");
       meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("Hot Cell Task Total Events Processed");
+      meTOTALEVT_->Fill(tevt_);
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
@@ -126,6 +111,28 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       ProblemCells->setAxisTitle("i#eta",1);
       ProblemCells->setAxisTitle("i#phi",2);
       SetEtaPhiLabels(ProblemCells);
+
+      // 1D plots count number of bad cells vs. luminoisty block
+      ProblemsVsLB=m_dbe->bookProfile("TotalHotCells_HCAL_vs_LS",
+				      "Total Number of Hot Hcal Cells vs lumi section", 
+				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HB=m_dbe->bookProfile("TotalHotCells_HB_vs_LS",
+					 "Total Number of Hot HB Cells vs lumi section",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HE=m_dbe->bookProfile("TotalHotCells_HE_vs_LS",
+					 "Total Number of Hot HE Cells vs lumi section",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HO=m_dbe->bookProfile("TotalHotCells_HO_vs_LS",
+					 "Total Number of Hot HO Cells vs lumi section",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HF=m_dbe->bookProfile("TotalHotCells_HF_vs_LS",
+					 "Total Number of Hot HF Cells vs lumi section",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_ZDC=m_dbe->bookProfile("TotalHotCells_ZDC_vs_LS",
+					  "Total Number of Hot ZDC Cells vs lumi section",
+					  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+
 
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
@@ -182,28 +189,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 	  units.str("");
 	}
 
-      if (hotmon_test_pedestal_)
-	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/hot_pedestaltest");
-	  SetupEtaPhiHists(AbovePedestalHotCellsByDepth,"Hot Cells Above Pedestal","");
-	  //setMinMaxHists2D(AbovePedestalHotCellsByDepth,0.,1.);
-
-	  // set more descriptive titles for pedestal plots
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 1 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth.depth[0]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 2 -- HB > ped + "<<HBnsigma_<<" #sigma, HF > ped + "<<HFnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth.depth[1]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 3 -- HE > ped + "<<HEnsigma_<<" #sigma";
-	  AbovePedestalHotCellsByDepth.depth[2]->setTitle(units.str().c_str());
-	  units.str("");
-	  units<<"Hot Cells Above Pedestal Depth 4 -- HO > ped + "<<HOnsigma_<<" #sigma, ZDC TBD";
-	  AbovePedestalHotCellsByDepth.depth[3]->setTitle(units.str().c_str());
-	  units.str("");
-	}
-
       if (hotmon_test_neighbor_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/hot_neighbortest");
@@ -211,22 +196,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 	  //setMinMaxHists2D(AboveNeighborsHotCellsByDepth,0.,1.);
 	}
 
-      if (hotmon_test_pedestal_
-	  &&  hotmon_makeDiagnostics_
-	  )
-	{
-	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/pedestal");
-	  d_HBnormped=m_dbe->book1D("HB_normped","HB Hot Cell pedestal diagnostic ",300,-10,20);
-	  d_HEnormped=m_dbe->book1D("HE_normped","HE Hot Cell pedestal diagnostic",300,-10,20);
-	  d_HOnormped=m_dbe->book1D("HO_normped","HO Hot Cell pedestal diagnostic",300,-10,20);
-	  d_HFnormped=m_dbe->book1D("HF_normped","HF Hot Cell pedestal diagnostic",300,-10,20);
-	  d_HBnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
-	  d_HEnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
-	  d_HOnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
-	  d_HFnormped->setAxisTitle("(avg ADC-pedestal)/#sigma",1);
-	}
-      // TODO:  Clean these up so that they're always made (filling every N events), regardless
-      // of makeDiagnostics flag
+      // The 1D energy plots are already made in the rechit monitor.  
+      // Energy vs Neighbor plots might be useful for trying to set up the neighbor-identification hot cell algorithm
       if (hotmon_makeDiagnostics_)
 	{
 	  if (hotmon_test_energy_ || hotmon_test_persistent_)
@@ -301,7 +272,11 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
 {
 
   // Creates maps for pedestals, widths, and pedestals+Nsigma*widths, using HcalDetIds as keys
-  
+  // We're no longer using this method, but keep it around for posterity's sake (and because it's useful to know how to do)
+
+  return; 
+
+  /*
   if (!hotmon_test_pedestal_) return; // no need to create maps if we're not running the pedestal-based hot cell finder
 
   if (showTiming)
@@ -319,9 +294,9 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
   double myNsigma=0;
   double myADC=0;
 
-  for (int ieta=(int)etaMin_;ieta<=(int)etaMax_;++ieta)
+  for (int ieta=-41;ieta<=41;++ieta)
     {
-      for (int iphi=(int)phiMin_;iphi<=(int)phiMax_;++iphi)
+      for (int iphi=1;iphi<=72;++iphi)
 	{
 	  for (int depth=1;depth<=4;++depth)
 	    {
@@ -381,6 +356,7 @@ void HcalHotCellMonitor::createMaps(const HcalDbService& cond)
     } // for (int ieta...)
   
   return;
+  */
 } // void HcalHotCellMonitor::createMaps
 
 
@@ -549,14 +525,9 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  ++ievt_;
-  if (m_dbe) meEVT_->Fill(ievt_);
+  HcalBaseMonitor::processEvent();
 
   if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent> Processing event..."<<std::endl;
-
-  // Search for cells consistently above (pedestal + N sigma)
-  if (hotmon_test_pedestal_)
-    processEvent_pedestal(hbhedigi,hodigi,hfdigi,cond);
 
   // Search for hot cells above a certain energy
   if (hotmon_test_energy_ || hotmon_test_persistent_)
@@ -564,7 +535,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       processEvent_rechitenergy(hbHits, hoHits,hfHits);
     }
 
-  // Search for cells that are hot compared to their neighbors
+  // Search for cells that are hot compared to their neighbors -- currently disabled
   if (hotmon_test_neighbor_)
     {
       processEvent_rechitneighbors(hbHits, hoHits, hfHits);
@@ -572,7 +543,7 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   // Fill problem cells
   if ((ievt_%hotmon_checkNevents_ ==0) && 
-      (hotmon_test_persistent_ || hotmon_test_pedestal_  ||
+      (hotmon_test_persistent_ ||
        hotmon_test_neighbor_  || hotmon_test_energy_    ))
     {
       fillNevents_problemCells();
@@ -604,13 +575,6 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
       if (ievt_%hotmon_checkNevents_>0)
 	fillNevents_persistentenergy();
     }
-  if (hotmon_test_pedestal_)
-    {
-      for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.depth.size();++i)
-	AbovePedestalHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
-      if (ievt_%hotmon_checkNevents_ >0)
-	fillNevents_pedestal();
-    }
   if (hotmon_test_neighbor_)
     {
       for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.depth.size();++i)
@@ -618,7 +582,7 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
       if (ievt_%hotmon_checkNevents_ >0) fillNevents_neighbor();
     }
   if (hotmon_test_energy_    && ievt_%hotmon_checkNevents_   >0) fillNevents_energy();
-  if (hotmon_test_persistent_ || hotmon_test_pedestal_ || 
+  if (hotmon_test_persistent_ || 
       hotmon_test_neighbor_  || hotmon_test_energy_)  
     fillNevents_problemCells();
 }
@@ -1102,287 +1066,6 @@ void HcalHotCellMonitor::processEvent_rechitneighbors( const HBHERecHitCollectio
 /* --------------------------------------- */
 
 
-void HcalHotCellMonitor::processEvent_pedestal( const HBHEDigiCollection& hbhedigi,
-						const HODigiCollection& hodigi,
-						const HFDigiCollection& hfdigi,
-						//const ZDCDigiCollection& zdcdigi, 
-						const HcalDbService& cond
-						)
-{
-  if (!hotmon_test_pedestal_) return;
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if (fVerbosity>1) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing digis..."<<std::endl;
-
-  // Variables used in pedestal check
-  float digival=0;
-  float maxval=0;
-  int maxbin=0;
-  float ADCsum=0;
-
-  // Variables used in occupancy check
-  int ieta=0;
-  int iphi=0;
-  int depth=0;
-
-  HcalCalibrationWidths widths;
-  HcalCalibrations calibs;
-  const HcalQIEShape* shape=cond.getHcalShape();
-
-  // Loop over HBHE digis
-
-  if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HBHE..."<<std::endl;
-
-  for (HBHEDigiCollection::const_iterator j=hbhedigi.begin();
-       j!=hbhedigi.end(); ++j)
-    {
-       digival=0;
-      maxval=0;
-      maxbin=0;
-      ADCsum=0;
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
-
-      if (!checkHB_ && digi.id().subdet()==HcalBarrel) continue;
-      if (!checkHE_ && digi.id().subdet()==HcalEndcap) continue;
- 
-      ieta=digi.id().ieta();
-      iphi=digi.id().iphi();
-      depth=digi.id().depth();
-      HcalDetId myid = digi.id();
-      if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
-      //cond.makeHcalCalibrationWidth(digi.id(),&widths); // use in CMSSW_2_X
-      const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
-
-      calibs = cond.getHcalCalibrations(digi.id());
-
-      // Find digi time slice with maximum (pedestal-subtracted) ADC count
-      for (int i=0;i<digi.size();++i)
-	{
-	  int thisCapid = digi.sample(i).capid();
-	  if (doFCpeds_)
-	    {
-	      const HcalQIECoder* coder  = cond.getHcalCoder(digi.id());
-	      digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid())-calibs.pedestal(thisCapid);
-	    }
-	  else
-	    digival=digi.sample(i).adc()-calibs.pedestal(thisCapid);
-	  
-	  // Find maximum pedestal-subtracted digi value
-	  if (digival>maxval)
-	    {
-	      maxval=digival;
-	      maxbin=i;
-	    }
-	} // for (int i=0;i<digi.size();++i)
-      
-      // We'll assume steeply-peaked distribution, so that charge deposit occurs
-      // in slices (i-1) -> (i+2) around maximum deposit time i
-      
-      int bins=0;
-      for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
-	{
-	  ADCsum+=digi.sample(i).adc();
-	  ++bins;
-	} // for (int i=max(0,maxbin-1);...)      
-
-      // Compare ADCsum to minimum expected value (pedestal+nsigma)
-      // we want to compare the average over the sum to the average (ped+nsigma)
-      ADCsum*=1./bins;
-      // Search for digi in map of pedestal+threshold values
-      if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
-	{
-	  if (ADCsum > pedestal_thresholds_[myid])
-	    abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
-	  if (hotmon_makeDiagnostics_)
-	    {
-	      if (widths_[myid]==0) continue;
-	      if (1.*(ADCsum-pedestals_[myid])/widths_[myid]<=-10)
-		continue;
-	      if (1.*(ADCsum-pedestals_[myid])/widths_[myid]>=20)
-		continue;
-	      if (myid.subdet()==HcalBarrel)
-		++diagADC_HB[int(10*(10+1.*(ADCsum-pedestals_[myid])/widths_[myid]))];
-	      else
-		++diagADC_HE[int(10*(10+1.*(ADCsum-pedestals_[myid])/widths_[myid]))];
-	    } // if (hotmon_makeDiagnostics)
-	} // if (pedestal_thresholds_.find(myid)...)
-    } // for (HBHEDigiCollection...)
-
-  // Loop over HO
-  if (checkHO_)
-    {
-      if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HO..."<<std::endl;
-      
-      for (HODigiCollection::const_iterator j=hodigi.begin();
-	   j!=hodigi.end(); ++j)
-	{
-	  digival=0;
-	  maxval=0;
-	  maxbin=0;
-	  ADCsum=0;
-	  const HODataFrame digi = (const HODataFrame)(*j);
-	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
-
-	  ieta=digi.id().ieta();
-	  iphi=digi.id().iphi();
-	  depth=digi.id().depth();
-	  HcalDetId myid = digi.id();
-	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
-
-	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
-
-	  calibs = cond.getHcalCalibrations(digi.id());
-	  
-	  for (int i=0;i<digi.size();++i)
-	    {
-	      int thisCapid = digi.sample(i).capid();
-	      if (doFCpeds_)
-		{
-		  const HcalQIECoder* coder  = cond.getHcalCoder(digi.id());
-		  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid())-calibs.pedestal(thisCapid);
-		}
-	      else
-		digival=digi.sample(i).adc()-calibs.pedestal(thisCapid);
-	  
-	      // Find maximum pedestal-subtracted digi value
-	      if (digival>maxval)
-		{
-		  maxval=digival;
-		  maxbin=i;
-		}
-	    } // for (int i=0;i<digi.size();++i)
-      
-	  // We'll assume steeply-peaked distribution, so that charge deposit occurs
-	  // in slices (i-1) -> (i+2) around maximum deposit time i
-      
-	  int bins=0;
-	  for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
-	    {
-	      ADCsum+=digi.sample(i).adc();
-	      ++bins;
-	    } // for (int i=max(0,maxbin-1);...)      
-	  
-	  ADCsum*=1./bins;
-	  // Search for digi in map of pedestal+threshold values
-	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
-	    {
-	      if (ADCsum > pedestal_thresholds_[myid])
-		abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
-	      if (hotmon_makeDiagnostics_)
-		{
-		  if (widths_[myid]==0) continue;
-		  if (1.*(ADCsum-pedestals_[myid])/widths_[myid]<=-10)
-		    continue;
-		  if (1.*(ADCsum-pedestals_[myid])/widths_[myid]>=20)
-		    continue;
-		  ++diagADC_HO[int(10*(10+1.*(ADCsum-pedestals_[myid])/widths_[myid]))];
-		} // if (hotmon_makeDiagnostics)
-	    }
-	} // for (HODigiCollection...)
-    } // if (checkHO_)
-
-  if (checkHF_)
-    {
-      // Loop over HF
-      if (fVerbosity>2) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Processing HF..."<<std::endl;
-
-      for (HFDigiCollection::const_iterator j=hfdigi.begin();
-	   j!=hfdigi.end(); ++j)
-	{
-	  digival=0;
-	  maxval=0;
-	  maxbin=0;
-	  ADCsum=0;
-	  const HFDataFrame digi = (const HFDataFrame)(*j);
-	  if (!digi.id().validDetId(digi.id().subdet(),digi.id().ieta(),digi.id().iphi(),digi.id().depth())) continue;
-
-	  ieta=digi.id().ieta();
-	  iphi=digi.id().iphi();
-	  depth=digi.id().depth(); 
-	  HcalDetId myid = digi.id();
-	  if (CalcEtaBin(myid.subdet(),ieta,depth)==-9999) { continue;}
-
-	  //cond.makeHcalCalibrationWidth(digi.id(),&widths);
-	  const HcalCalibrationWidths widths = cond.getHcalCalibrationWidths(digi.id()); // use in CMSSW_3_X
-
-	  calibs = cond.getHcalCalibrations(digi.id());
-
-	  for (int i=0;i<digi.size();++i)
-	    {
-	      int thisCapid = digi.sample(i).capid();
-	      if (doFCpeds_)
-		{
-		  const HcalQIECoder* coder  = cond.getHcalCoder(digi.id());
-		  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid())-calibs.pedestal(thisCapid);
-		}
-	      else
-		digival=digi.sample(i).adc()-calibs.pedestal(thisCapid);
-	  
-	      // Find maximum pedestal-subtracted digi value
-	      if (digival>maxval)
-		{
-		  maxval=digival;
-		  maxbin=i;
-		}
-	    } // for (int i=0;i<digi.size();++i)
-      
-	  // We'll assume steeply-peaked distribution, so that charge deposit occurs
-	  // in slices (i-1) -> (i+2) around maximum deposit time i
-      
-	  int bins=0;
-	  for (int i=max(0,maxbin-1);i<=min(digi.size()-1,maxbin+2);++i)
-	    {
-	      ADCsum+=digi.sample(i).adc();
-	      ++bins;
-	    } // for (int i=max(0,maxbin-1);...)      
-
-	  ADCsum*=1./bins;
-	  // Search for digi in map of pedestal+threshold values
-	  if (pedestal_thresholds_.find(myid)!=pedestal_thresholds_.end())
-	    {
-	      if (ADCsum > pedestal_thresholds_[myid])
-		abovepedestal[CalcEtaBin(myid.subdet(),ieta,depth)][iphi-1][depth-1]++;
-	      if (hotmon_makeDiagnostics_)
-		{
-		  if (widths_[myid]==0) continue;
-		  if (1.*(ADCsum-pedestals_[myid])/widths_[myid]<=-10)
-		    continue;
-		  if (1.*(ADCsum-pedestals_[myid])/widths_[myid]>=20)
-		    continue;
-		  ++diagADC_HF[int(10*(10+1.*(ADCsum-pedestals_[myid])/widths_[myid]))];
-		} // if (hotmon_makeDiagnostics)
-	    }
-	} // for (HFDigiCollection...)
-    } // if (checkHF_)
-
-  // Fill Dummy histogram value each event
-  for (unsigned int i=0;i<AbovePedestalHotCellsByDepth.depth.size();++i)
-    AbovePedestalHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
-
-  // Fill histograms 
-  if (ievt_%hotmon_checkNevents_==0)
-    {
-      if (fVerbosity) std::cout <<"<HcalHotCellMonitor::processEvent_pedestal> Filling HotCell Pedestal plots"<<std::endl;
-      if (hotmon_test_pedestal_) fillNevents_pedestal();
-    }
-
-  if (showTiming)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor PROCESSEVENT_PEDESTAL -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
-
-  return;
-} // void HcalHotCellMonitor::processEvent_pedestal
-
-
-/* ----------------------------------- */
-
-
 void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 {
   // Fill Histograms showing rechits with energies > some threshold for N consecutive events
@@ -1458,100 +1141,6 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
   return;
 } // void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 
-
-
-/* ----------------------------------- */
-
-void HcalHotCellMonitor::fillNevents_pedestal(void)
-{
-  // Fill Histograms showing digi cells consistently above pedestal values
-
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if (fVerbosity>0)
-    std::cout <<"<HcalHotCellMonitor::fillNevents_pedestal> FILLING HOT CELL PEDESTAL PLOTS"<<std::endl;
-
-  for (unsigned int h=0;h<AbovePedestalHotCellsByDepth.depth.size();++h)
-    AbovePedestalHotCellsByDepth.depth[h]->setBinContent(0,0,ievt_);
-
-  if (hotmon_makeDiagnostics_)
-    {
-      for (int i=0;i<300;++i)
-	{
-	  if (diagADC_HB[i]>0)
-	    d_HBnormped->setBinContent(i+1,diagADC_HB[i]);
-	  if (diagADC_HE[i]>0)
-	    {
-	      d_HEnormped->setBinContent(i+1,diagADC_HE[i]);
-	    }
-	  if (diagADC_HO[i]>0)
-	    d_HOnormped->setBinContent(i+1,diagADC_HO[i]);
-	  if (diagADC_HF[i]>0)
-	    d_HFnormped->setBinContent(i+1,diagADC_HF[i]);
-	  // Add ZDC later!
-	}
-    }
-
-  
-  int ieta=0;
-  int iphi=0;
-  int etabins=0;
-  int phibins=0;
-
-   for (unsigned int depth=0;depth<AbovePedestalHotCellsByDepth.depth.size();++depth)
-     { 
-       etabins=AbovePedestalHotCellsByDepth.depth[depth]->getNbinsX();
-       phibins=AbovePedestalHotCellsByDepth.depth[depth]->getNbinsY();
-
-       for (int eta=0;eta<etabins;++eta)
-	 {
-	   for (int phi=0;phi<phibins;++phi)
-	     {
-	       iphi=phi+1;
-	       for (int subdet=1;subdet<=4;++subdet)
-		 {
-		   ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
-		   if (ieta==-9999) continue;
-		   if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
-		     continue;
-		   if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
-		      ieta<0 ? ieta-- : ieta++;
-
-		   if (abovepedestal[eta][phi][depth]==0)
-		     continue;
-		   // Require that event above pedestal for all N events?
-		   
-		   if (abovepedestal[eta][phi][depth]<hotmon_checkNevents_)
-		     {
-		       abovepedestal[eta][phi][depth]=0;
-		       continue; // cell was above pedestal threshold at least once; ignore it
-		     }
-
-		   if (fVerbosity>0) 
-		     std::cout <<"HOT CELL; ABOVE PEDESTAL THRESHOLD at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
-
-		   AbovePedestalHotCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
-		   AbovePedestalHotCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
-		   //ProblemCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepedestal[eta][phi][depth]);
-		   abovepedestal[eta][phi][depth]=0;
-		 }
-	     } // for (int phi=0;...)
-	 } // for (int eta=0;...)
-     } // for (unsigned int depth=0;...)
-  FillUnphysicalHEHFBins(AbovePedestalHotCellsByDepth);
-
-  if (showTiming)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_ABOVEPEDESTAL -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
-
-  return;
-
-
-} // void HcalHotCellMonitor::fillNevents_pedestal(void)
 
 
 /* ----------------------------------- */
@@ -1708,6 +1297,13 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   int phibins=0;
   double problemvalue=0;
 
+  // Count problem cells in each subdetector
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadZDC=0;
+
   ProblemCells->Reset();
   ProblemCells->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
   int zside=0;
@@ -1728,10 +1324,6 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      if (hotmon_test_persistent_)
 		{
 		  problemvalue+=AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
-		}
-	      if (hotmon_test_pedestal_)
-		{
-		  problemvalue+=AbovePedestalHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 		}
 	      if (hotmon_test_neighbor_)
 		{
@@ -1754,6 +1346,10 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 		}
 	      if (problemvalue>hotmon_minErrorFlag_*ievt_)
 		{
+		  if (isHB(eta,depth+1)) ++NumBadHB;
+		  else if (isHE(eta,depth+1)) ++NumBadHE;
+		  else if (isHO(eta,depth+1)) ++NumBadHO;
+		  else if (isHF(eta,depth+1)) ++NumBadHF;
 		  ProblemCellsByDepth.depth[depth]->Fill(ieta+zside,iphi,problemvalue);
 		  ProblemCells->Fill(ieta+zside,iphi,problemvalue);
 		}
@@ -1772,6 +1368,13 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
 	}
     }
+  
+  ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
+  ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
+  ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
+  ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
+  ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
+  ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
   
   FillUnphysicalHEHFBins(ProblemCells);
   FillUnphysicalHEHFBins(ProblemCellsByDepth);
@@ -1795,7 +1398,6 @@ void HcalHotCellMonitor::zeroCounters(void)
           for (int k=0;k<4;++k)
             {
               abovepersistent[i][j][k]=0;
-	      abovepedestal[i][j][k]=0;
               aboveneighbors[i][j][k]=0;
               aboveenergy[i][j][k]=0;
 	      rechit_occupancy_sum[i][j][k]=0;

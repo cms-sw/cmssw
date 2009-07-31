@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.41 $
+  * $Date: 2009/07/21 11:02:48 $
+  * $Revision: 1.42 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -73,7 +73,6 @@ private:  ///Methods
   void fill_Nevents();
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
 
-  int ievt_;
   bool doPerChannel_;
   bool doFCpeds_;
   int shapeThresh_;
@@ -91,7 +90,6 @@ private:
   const HcalQIECoder* channelCoder_;
 
   // Monitoring elements
-  MonitorElement* meEVT_;
 
   EtaPhiHists DigiErrorsBadCapID;
   EtaPhiHists DigiErrorsBadDigiSize;

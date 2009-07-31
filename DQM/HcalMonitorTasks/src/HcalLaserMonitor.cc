@@ -51,12 +51,13 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
 
   printf( "====================================================\n" );
 
-  ievt_ = 0;
 
   if( m_dbe ) {
     m_dbe->setCurrentFolder( baseFolder_ );
     meEVT_ = m_dbe->bookInt( "Laser Task Event Number" );
     meEVT_->Fill( ievt_ );
+    meTOTALEVT_ = m_dbe->bookInt("Laser Total Events Processed");
+    meTOTALEVT_->Fill(tevt_);
 
     MEAN_MAP_TIME_L1_ = m_dbe->book2D( "Laser Mean Time Depth 1", "Laser Mean Time Depth 1", etaBins_, etaMin_, etaMax_, phiBins_, phiMin_, phiMax_ );
     MEAN_MAP_TIME_L2_ = m_dbe->book2D( "Laser Mean Time Depth 2", "Laser Mean Time Depth 2", etaBins_, etaMin_, etaMax_, phiBins_, phiMin_, phiMax_ );
@@ -161,16 +162,16 @@ void HcalLaserMonitor::setup( const edm::ParameterSet& iConfig, DQMStore* dbe ) 
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODigiCollection& ho, const HFDigiCollection& hf, const HcalLaserDigi& laserDigi, const HcalDbService& cond ) {
-  if( fVerbosity ) printf( "-=-=-=-=-=HcalLaserMonitor processEvent=-=-=-=-=-\n" );
+  if( fVerbosity )std::cout<< "-=-=-=-=-=HcalLaserMonitor processEvent=-=-=-=-=-\n"<<std::endl;
 
-  ievt_++;
-  meEVT_->Fill( ievt_ );
 
   if( !m_dbe ) {
-    if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - DQMStore not instantiated!\n" );
+    if( fVerbosity ) 
+      std::cout<< "HcalLaserMonitor::processEvent - DQMStore not instantiated!"<<std::endl;
     return; 
   }
 
+  HcalBaseMonitor::processEvent();
   float pedSubTS[10];
 
   // TDC
@@ -199,7 +200,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
     
     if( tRawOpto > 0 && tTrig > 0 ) TDCHists.rawOptosync_Trigger_->Fill( tRawOpto - tTrig );
   } catch (...) {
-    if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - No Laser Digis.\n" );
+    if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - No Laser Digis."<<std::endl;
   }
   
   // HBHE
@@ -242,7 +243,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	if( digi.id().subdet() == HcalBarrel ) {
 	  hbHists.allEnergy_->Fill(en);
 	  if( denominator != 0 ) hbHists.allTime_->Fill( numerator / denominator );
-	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HB hit time had a zero denominator!\n" );
+	  else if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - Calculation of HB hit time had a zero denominator!"<<std::endl;
 
 	  for( int ts = 0; ts < digi.size(); ts++ ) {
 	    //int adc = digi.sample(ts).adc();
@@ -259,7 +260,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
 	else if( digi.id().subdet() == HcalEndcap ) {
 	  heHists.allEnergy_->Fill(en);
 	  if( denominator != 0 ) heHists.allTime_->Fill( numerator / denominator );
-	  else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HE hit time had a zero denominator!\n" );
+	  else if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - Calculation of HE hit time had a zero denominator!"<<std::endl;
 
 	  for( int ts = 0; ts < digi.size(); ts++ ) {
 	    //int adc = digi.sample(ts).adc();
@@ -276,7 +277,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       }
     }
   } catch (...) {
-    if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - No HBHE Digis.\n" );
+    if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - No HBHE Digis."<<std::endl;
   }
 
   // HO
@@ -317,7 +318,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       if( en > adcThresh_ ) {
 	hoHists.allEnergy_->Fill(en);
 	if( denominator != 0 ) hoHists.allTime_->Fill( numerator / denominator );
-	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HO hit time had a zero denominator!\n" );
+	else if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - Calculation of HO hit time had a zero denominator!\n"<<std::endl;
 
 	for( int ts = 0; ts < digi.size(); ts++ ) {
 	  //int adc = digi.sample(ts).adc();
@@ -373,7 +374,7 @@ void HcalLaserMonitor::processEvent( const HBHEDigiCollection& hbhe, const HODig
       if( en > adcThresh_) {
 	hfHists.allEnergy_->Fill(en);
 	if( denominator != 0 ) hfHists.allTime_->Fill( numerator / denominator );
-	else if( fVerbosity ) printf( "HcalLaserMonitor::processEvent - Calculation of HF hit time had a zero denominator!\n" );
+	else if( fVerbosity ) std::cout<< "HcalLaserMonitor::processEvent - Calculation of HF hit time had a zero denominator!\n"<<std::endl;
 
 	for( int ts = 0; ts < digi.size(); ts++ ) {
 	  //int adc = digi.sample(ts).adc();
@@ -397,7 +398,7 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
 					    map<HcalDetId, MonitorElement*>& tEnergy, const string baseFolder ) {  
   MonitorElement* _me;
   if( m_dbe == NULL ) {
-    printf( "HcalLaserMonitor::perChanHists - Null MonitorElement!\n" );
+    std::cout<< "HcalLaserMonitor::perChanHists - Null MonitorElement!\n"<<std::endl;
     return;
   }
 
@@ -407,7 +408,7 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
   else if( id == HcalOuter   ) type = "HO";
   else if( id == HcalForward ) type = "HF";
   else {
-    printf( "HcalLaserMonitor::perChanHists - ID not understood!\n" );
+    std::cout<< "HcalLaserMonitor::perChanHists - ID not understood!\n"<<std::endl;
     return;
   }
 
@@ -417,7 +418,7 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
   if( meIter_ != tShape.end() ) {
     _me = meIter_->second;
     if( _me == NULL ) {
-      printf( "HcalLaserAnalysis::perChanHists - This histo is NULL!!??\n" );
+      std::cout<< "HcalLaserAnalysis::perChanHists - This histo is NULL!!??"<<std::endl;
       return;
     }
     else {
@@ -438,7 +439,7 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
 
       _me = tTime[detid];
       if( denominator != 0 ) _me->Fill( numerator / denominator );
-      else if( fVerbosity ) printf( "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!\n" );
+      else if( fVerbosity ) std::cout<< "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!"<<std::endl;
 
       _me = tEnergy[detid];
       _me->Fill( en );
@@ -468,7 +469,7 @@ inline void HcalLaserMonitor::perChanHists( const int id, const HcalDetId detid,
     sprintf( name, "%s Laser Time ieta=%+03d iphi=%02d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth() );
     MonitorElement* insertTime = m_dbe->book1D( name, name, 100, 0, 10 );
     if( denominator != 0 ) insertTime->Fill( numerator / denominator );
-    else if( fVerbosity ) printf( "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!\n" );
+    else if( fVerbosity ) std::cout<< "HcalLaserMonitor::perChanHists - Calculation of hit time had a zero denominator!\n"<<std::endl;
     tTime[detid] = insertTime;
 
     sprintf( name, "%s Laser Energy ieta=%+03d iphi=%02d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth() );

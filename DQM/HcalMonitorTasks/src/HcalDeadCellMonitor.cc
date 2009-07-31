@@ -29,7 +29,9 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  
+  /*
+    // Uneven binning to show number of bad digis -- deprecated
   float bins_cellcount[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 
 			  11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 
 			  21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5, 
@@ -47,6 +49,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 			  6800.5, 6900.5, 7000.5, 7100.5, 7200.5, 7300.5, 7400.5, 7500.5, 
 			  7600.5, 7700.5, 7800.5, 7900.5, 8000.5, 8100.5, 8200.5, 8300.5, 
 			  8400.5, 8500.5, 8600.5, 8700.5, 8800.5, 8900.5, 9000.5, 9100.5};
+  */
 
   baseFolder_ = rootFolder_+"DeadCellMonitor_Hcal";
   if (fVerbosity>0)
@@ -71,7 +74,6 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   deadmon_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents",checkNevents_);
   // increases rate at which neverpresent tests are run
   deadmon_neverpresent_prescale_     = ps.getUntrackedParameter<int>("DeadCellMonitor_neverpresent_prescale",1);  
-
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in three ways:
      1)  never present -- digi is never present in run
@@ -102,9 +104,6 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   // neighboring-cell tests -- parameters no longer used
 
-  // Set initial event # to 0
-  ievt_=0;
-
   zeroCounters(true);
   
   // Set up histograms
@@ -116,6 +115,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("Dead Cell Task Event Number");
       meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("Dead Cell Total Events Processed");
+      meTOTALEVT_->Fill(tevt_);
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
@@ -127,25 +128,27 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       ProblemCells->setAxisTitle("i#phi",2);
       SetEtaPhiLabels(ProblemCells);
 
-      // 1D plots count number of bad cells
-      NumberOfDeadCells=m_dbe->book1D("Problem_TotalDeadCells_HCAL",
-				      "Total Number of Dead Hcal Cells",
-				      148, bins_cellcount);
-      NumberOfDeadCellsHB=m_dbe->book1D("Problem_TotalDeadCells_HB",
-					"Total Number of Dead HB Cells",
-					2593,-0.5,2592.5);
-      NumberOfDeadCellsHE=m_dbe->book1D("Problem_TotalDeadCells_HE",
-					"Total Number of Dead HE Cells",
-					2593,-0.5,2592.5);
-      NumberOfDeadCellsHO=m_dbe->book1D("Problem_TotalDeadCells_HO",
-					"Total Number of Dead HO Cells",
-					2161,-0.5,2160.5);
-      NumberOfDeadCellsHF=m_dbe->book1D("Problem_TotalDeadCells_HF",
-					"Total Number of Dead HF Cells",
-					1729,-0.5,1728.5);
-      NumberOfDeadCellsZDC=m_dbe->book1D("Problem_TotalDeadCells_ZDC",
-					"Total Number of Dead ZDC Cells",
-					 19,-0.5,18.5);
+      // 1D plots count number of bad cells vs. luminoisty block
+      ProblemsVsLB=m_dbe->bookProfile("TotalDeadCells_HCAL_vs_LS",
+				      "Total Number of Dead Hcal Cells vs lumi section", 
+				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+				      100,0,10000);
+      ProblemsVsLB_HB=m_dbe->bookProfile("TotalDeadCells_HB_vs_LS",
+					 "Total Number of Dead HB Cells vs lumi section",
+					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+					 100,0,10000);
+      ProblemsVsLB_HE=m_dbe->bookProfile("TotalDeadCells_HE_vs_LS",
+				    "Total Number of Dead HE Cells vs lumi section",
+				    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HO=m_dbe->bookProfile("TotalDeadCells_HO_vs_LS",
+				    "Total Number of Dead HO Cells vs lumi section",
+				    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_HF=m_dbe->bookProfile("TotalDeadCells_HF_vs_LS",
+				    "Total Number of Dead HF Cells vs lumi section",
+				    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      ProblemsVsLB_ZDC=m_dbe->bookProfile("TotalDeadCells_ZDC_vs_LS",
+				     "Total Number of Dead ZDC Cells vs lumi section",
+				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
       // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
       m_dbe->setCurrentFolder(baseFolder_+"/problem_deadcells");
@@ -163,24 +166,30 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  SetupEtaPhiHists(DigisNeverPresentByDepth,
 			    "Dead Cells with No Digis Ever","");
 	  // 1D plots count number of bad cells
-	  NumberOfNeverPresentCells=m_dbe->book1D("Problem_TotalNeverPresentCells_HCAL",
-						  "Total Number of Never-Present Hcal Cells",
-						  148, bins_cellcount);
-	  NumberOfNeverPresentCellsHB=m_dbe->book1D("Problem_NeverPresentCells_HB",
-						    "Total Number of Never-Present HB Cells",
-						    2593,-0.5,2592.5);
-	  NumberOfNeverPresentCellsHE=m_dbe->book1D("Problem_NeverPresentCells_HE",
-						    "Total Number of Never-Present HE Cells",
-						    2593,-0.5,2592.5);
-	  NumberOfNeverPresentCellsHO=m_dbe->book1D("Problem_NeverPresentCells_HO",
-						    "Total Number of Never-Present HO Cells",
-						    2161,-0.5,2160.5);
-	  NumberOfNeverPresentCellsHF=m_dbe->book1D("Problem_NeverPresentCells_HF",
-						    "Total Number of Never-Present HF Cells",
-						    1729,-0.5,1728.5);
-	  NumberOfNeverPresentCellsZDC=m_dbe->book1D("Problem_NeverPresentCells_ZDC",
-						     "Total Number of Never-Present ZDC Cells",
-						     19,-0.5,18.5);
+	  NumberOfNeverPresentCells=m_dbe->bookProfile("Problem_TotalNeverPresentCells_HCAL_vs_LS",
+						       "Total Number of Never-Present Hcal Cells vs LS",
+						       Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+						  
+	  NumberOfNeverPresentCellsHB=m_dbe->bookProfile("Problem_NeverPresentCells_HB_vs_LS",
+						    "Total Number of Never-Present HB Cells vs LS",
+						    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+	  NumberOfNeverPresentCellsHE=m_dbe->bookProfile("Problem_NeverPresentCells_HE_vs_LS",
+						    "Total Number of Never-Present HE Cells vs LS",
+						    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+	  NumberOfNeverPresentCellsHO=m_dbe->bookProfile("Problem_NeverPresentCells_HO_vs_LS",
+						    "Total Number of Never-Present HO Cells vs LS",
+						    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+			  
+	  NumberOfNeverPresentCellsHF=m_dbe->bookProfile("Problem_NeverPresentCells_HF_vs_LS",
+						    "Total Number of Never-Present HF Cells vs LS",
+						    Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+	  NumberOfNeverPresentCellsZDC=m_dbe->bookProfile("Problem_NeverPresentCells_ZDC_vs_LS",
+						     "Total Number of Never-Present ZDC Cells vs LS",
+						     Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
 	}
       if (deadmon_test_occupancy_)
 	{
@@ -208,35 +217,35 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 	  name.str("");
 
 	  // 1D plots count number of bad cells
-	  name<<"Total Number of Hcal Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCells=m_dbe->book1D("Problem_TotalUnoccupiedCells_HCAL",
+	  name<<"Total Number of Hcal Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCells=m_dbe->bookProfile("Problem_TotalUnoccupiedCells_HCAL_vs_LS",
 						name.str(),
-						148, bins_cellcount);
+						Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
-	  name<<"Total Number of HB Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCellsHB=m_dbe->book1D("Problem_UnoccupiedCells_HB",
+	  name<<"Total Number of HB Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCellsHB=m_dbe->bookProfile("Problem_UnoccupiedCells_HB_vs_LS",
 						  name.str(),
-						  2593,-0.5,2592.5);
+						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
-	  name<<"Total Number of HE Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCellsHE=m_dbe->book1D("Problem_UnoccupiedCells_HE",
+	  name<<"Total Number of HE Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCellsHE=m_dbe->bookProfile("Problem_UnoccupiedCells_HE_vs_LS",
 						  name.str(),
-						  2593,-0.5,2592.5);
+						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
-	  name<<"Total Number of HO Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCellsHO=m_dbe->book1D("Problem_UnoccupiedCells_HO",
+	  name<<"Total Number of HO Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCellsHO=m_dbe->bookProfile("Problem_UnoccupiedCells_HO_vs_LS",
 						  name.str(),
-						  2161,-0.5,2160.5);
+						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
-	  name<<"Total Number of HF Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCellsHF=m_dbe->book1D("Problem_UnoccupiedCells_HF",
+	  name<<"Total Number of HF Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCellsHF=m_dbe->bookProfile("Problem_UnoccupiedCells_HF_vs_LS",
 						  name.str(),
-						  1729,-0.5,1728.5);
+						  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
-	  name<<"Total Number of ZDC Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events";
-	  NumberOfUnoccupiedCellsZDC=m_dbe->book1D("Problem_UnoccupiedCells_ZDC",
+	  name<<"Total Number of ZDC Digis Unoccupied for "<<deadmon_checkNevents_<<" Consecutive Events vs LS";
+	  NumberOfUnoccupiedCellsZDC=m_dbe->bookProfile("Problem_UnoccupiedCells_ZDC_vs_LS",
 						   name.str(),
-						   19,-0.5,18.5);
+						   Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	}
       
       if (deadmon_test_energy_)
@@ -261,34 +270,34 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
 	  // 1D plots count number of bad cells
 	  name<<"Total Number of Hcal RecHits with Consistent Low Energy";
-	  NumberOfBelowEnergyCells=m_dbe->book1D("Problem_TotalBelowEnergyCells_HCAL",
-						name.str(),
-						148, bins_cellcount);
+	  NumberOfBelowEnergyCells=m_dbe->bookProfile("Problem_TotalBelowEnergyCells_HCAL_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
 	  name<<"Total Number of HB RecHits with Consistent Low Energy < "<<HBenergyThreshold_<<" GeV";
-	  NumberOfBelowEnergyCellsHB=m_dbe->book1D("Problem_BelowEnergyCells_HB",
-						  name.str(),
-						  2593,-0.5,2592.5);
+	  NumberOfBelowEnergyCellsHB=m_dbe->bookProfile("Problem_BelowEnergyCells_HB_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
 	  name<<"Total Number of HE RecHits with Consistent Low Energy < "<<HEenergyThreshold_<<" GeV";
-	  NumberOfBelowEnergyCellsHE=m_dbe->book1D("Problem_BelowEnergyCells_HE",
-						  name.str(),
-						  2593,-0.5,2592.5);
+	  NumberOfBelowEnergyCellsHE=m_dbe->bookProfile("Problem_BelowEnergyCells_HE_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
 	  name<<"Total Number of HO RecHits with Consistent Low Energy < "<<HOenergyThreshold_<<" GeV";
-	  NumberOfBelowEnergyCellsHO=m_dbe->book1D("Problem_BelowEnergyCells_HO",
-						  name.str(),
-						  2161,-0.5,2160.5);
+	  NumberOfBelowEnergyCellsHO=m_dbe->bookProfile("Problem_BelowEnergyCells_HO_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
 	  name<<"Total Number of HF RecHits with Consistent Low Energy < "<<HFenergyThreshold_<<" GeV";
-	  NumberOfBelowEnergyCellsHF=m_dbe->book1D("Problem_BelowEnergyCells_HF",
-						  name.str(),
-						  1729,-0.5,1728.5);
+	  NumberOfBelowEnergyCellsHF=m_dbe->bookProfile("Problem_BelowEnergyCells_HF_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
 	  name<<"Total Number of ZDC RecHits with Consistent Low Energy < "<<ZDCenergyThreshold_<<" GeV";
-	  NumberOfBelowEnergyCellsZDC=m_dbe->book1D("Problem_BelowEnergyCells_ZDC",
-						   name.str(),
-						   19,-0.5,18.5);
+	  NumberOfBelowEnergyCellsZDC=m_dbe->bookProfile("Problem_BelowEnergyCells_ZDC_vs_LS",
+							 name.str(),
+							 Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	}
 
     } // if (m_dbe)
@@ -519,8 +528,8 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  ++ievt_;
-  if (m_dbe) meEVT_->Fill(ievt_);
+  // increment counters
+  HcalBaseMonitor::processEvent();
 
   // HBpresent_, HEpresent need to be determined within loop, since HBHE is a single collection
   HOpresent_ = (hodigi.size()>0||hoHits.size()>0);
@@ -529,13 +538,6 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   if (fVerbosity>1) std::cout <<"<HcalDeadCellMonitor::processEvent> Processing event..."<<std::endl;
 
-  // Dummy fills
-  NumberOfDeadCells->setBinContent(0,ievt_);
-  NumberOfDeadCellsHB->setBinContent(0,ievt_);
-  NumberOfDeadCellsHE->setBinContent(0,ievt_);
-  NumberOfDeadCellsHO->setBinContent(0,ievt_);
-  NumberOfDeadCellsHF->setBinContent(0,ievt_);
-  NumberOfDeadCellsZDC->setBinContent(0,ievt_);
 
   // Do Digi-Based dead cell searches 
 
@@ -818,6 +820,8 @@ void HcalDeadCellMonitor::processEvent_HFRecHit(HFRecHitCollection::const_iterat
 
 void HcalDeadCellMonitor::processEvent_ZDCRecHit(ZDCRecHitCollection::const_iterator ZDCiter)
 {
+  /*
+    // Skipping ZDC at this point
   float en = ZDCiter->energy();
   HcalDetId id(ZDCiter->detid().rawId());
   int ieta = id.ieta();
@@ -825,6 +829,7 @@ void HcalDeadCellMonitor::processEvent_ZDCRecHit(ZDCRecHitCollection::const_iter
   int depth = id.depth();
   if (en>=ZDCenergyThreshold_)
 	++aboveenergy[static_cast<int>(ieta+(etaBins_-2)/2)][iphi-1][depth-1];
+  */
   return;
 } //void HcalDeadCellMonitor::processEvent_ZDCRecHit(HFRecHitCollection::const_iterator ZDCiter)
 
@@ -953,6 +958,8 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 		      (!checkHF_ && subdet==HcalForward))  continue;
 		  if (subdet==HcalForward) // shift HcalForward ieta
 		    ieta<0 ? ieta-- : ieta++;
+		  // Skip cells that are already marked as dead by the "neverpresent" test
+		  if (deadmon_test_neverpresent_ && present[eta][phi][depth]==false) continue;
 		  if (occupancy[eta][phi][depth]==0)
 		    {
 		      if (fVerbosity>0) 
@@ -983,6 +990,12 @@ void HcalDeadCellMonitor::fillNevents_occupancy(void)
 void HcalDeadCellMonitor::fillNevents_energy(void)
 {
   // Fill Histograms showing unoccupied rechits, or rec hits with low energy
+
+  // This test is a bit pointless, unless the energy threshold is greater than the ZS threshold.
+  // If we require that cells are always < thresh to be flagged by this test, and if 
+  // thresh < ZS, then we will never catch any cells, since they'll show up as dead in the
+  // neverpresent/occupancy test plots first.
+  // Only exception is if something strange is going on between ZS ADC value an RecHit energy?
 
   if (!deadmon_test_energy_) return;
   if (showTiming)
@@ -1036,7 +1049,8 @@ void HcalDeadCellMonitor::fillNevents_energy(void)
 		      ieta<0 ? ieta-- : ieta++;
 		    }
 		  if (aboveenergy[eta][phi][depth]>0) continue; // cell exceeded energy at least once, so it's not dead
-
+		  if (deadmon_test_neverpresent_ && present[eta][phi][depth]==false) continue; // don't mark cells as dead taht are caugh by never-present algorithm
+		  if (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0) continue;  // don't mark cells as dead that are already caught by digi occupancy check
 		  if (fVerbosity>2) 
 		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 		  // Cell is below energy for all 'checkNevents_' consecutive events; update histogram
@@ -1074,12 +1088,13 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
   double problemvalue=0;
 
   // Count problem cells in each subdetector
-  unsigned int deadHB=0;
-  unsigned int deadHE=0;
-  unsigned int deadHO=0;
-  unsigned int deadHF=0;
-  unsigned int deadZDC=0;
-  
+
+    NumBadHB=0;
+    NumBadHE=0;
+    NumBadHO=0;
+    NumBadHF=0;
+    NumBadZDC=0;
+
   unsigned int neverpresentHB=0;
   unsigned int neverpresentHE=0;
   unsigned int neverpresentHO=0;
@@ -1132,10 +1147,13 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 		      (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0 && (ievt_%deadmon_checkNevents_==0)) ||
 		      (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0  && (ievt_%deadmon_checkNevents_==0)))
 		    {
-		      if (subdet==HcalBarrel)       ++deadHB;
-		      else if (subdet==HcalEndcap)  ++deadHE;
-		      else if (subdet==HcalOuter)   ++deadHO;
-		      else if (subdet==HcalForward) ++deadHF;
+		      if (subdet==HcalBarrel)       
+			{
+			  ++NumBadHB;
+			}
+		      else if (subdet==HcalEndcap)  ++NumBadHE;
+		      else if (subdet==HcalOuter)   ++NumBadHO;
+		      else if (subdet==HcalForward) ++NumBadHF;
 		    }
 		  if ((deadmon_test_neverpresent_ && present[eta][phi][depth]==0))
 		    {
@@ -1164,39 +1182,38 @@ void HcalDeadCellMonitor::fillNevents_problemCells(void)
 	} //eta loop
     } // depth loop
 
-
  // Fill with number of problem cells found on this pass
   if (ievt_%deadmon_checkNevents_==0)
     {
-      NumberOfDeadCellsHB->Fill(deadHB,deadmon_checkNevents_);
-      NumberOfDeadCellsHE->Fill(deadHE,deadmon_checkNevents_);
-      NumberOfDeadCellsHO->Fill(deadHO,deadmon_checkNevents_);
-      NumberOfDeadCellsHF->Fill(deadHF,deadmon_checkNevents_);
-      NumberOfDeadCellsZDC->Fill(deadZDC,deadmon_checkNevents_);
-      NumberOfDeadCells->Fill(deadHB+deadHE+deadHO+deadHF+deadZDC,deadmon_checkNevents_);
+      ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
+      ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
+      ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
+      ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
+      ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
+      ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
 
-      NumberOfUnoccupiedCellsHE->Fill(unoccupiedHB,deadmon_checkNevents_);
-      NumberOfUnoccupiedCellsHE->Fill(unoccupiedHE,deadmon_checkNevents_);
-      NumberOfUnoccupiedCellsHO->Fill(unoccupiedHO,deadmon_checkNevents_);
-      NumberOfUnoccupiedCellsHF->Fill(unoccupiedHF,deadmon_checkNevents_);
-      NumberOfUnoccupiedCellsZDC->Fill(unoccupiedZDC,deadmon_checkNevents_);
-      NumberOfUnoccupiedCells->Fill(unoccupiedHB+unoccupiedHE+unoccupiedHO+unoccupiedHF+unoccupiedZDC,deadmon_checkNevents_);
+      NumberOfUnoccupiedCellsHE->Fill(lumiblock,unoccupiedHB);
+      NumberOfUnoccupiedCellsHE->Fill(lumiblock,unoccupiedHE);
+      NumberOfUnoccupiedCellsHO->Fill(lumiblock,unoccupiedHO);
+      NumberOfUnoccupiedCellsHF->Fill(lumiblock,unoccupiedHF);
+      NumberOfUnoccupiedCellsZDC->Fill(lumiblock,unoccupiedZDC);
+      NumberOfUnoccupiedCells->Fill(lumiblock,unoccupiedHB+unoccupiedHE+unoccupiedHO+unoccupiedHF+unoccupiedZDC);
       
-      NumberOfBelowEnergyCellsHB->Fill(belowenergyHB,deadmon_checkNevents_);
-      NumberOfBelowEnergyCellsHE->Fill(belowenergyHE,deadmon_checkNevents_);
-      NumberOfBelowEnergyCellsHO->Fill(belowenergyHO,deadmon_checkNevents_);
-      NumberOfBelowEnergyCellsHF->Fill(belowenergyHF,deadmon_checkNevents_);
-      NumberOfBelowEnergyCellsZDC->Fill(belowenergyZDC,deadmon_checkNevents_);
-      NumberOfBelowEnergyCells->Fill(belowenergyHB+belowenergyHE+belowenergyHO+belowenergyHF+belowenergyZDC,deadmon_checkNevents_);
+      NumberOfBelowEnergyCellsHB->Fill(lumiblock,belowenergyHB);
+      NumberOfBelowEnergyCellsHE->Fill(lumiblock,belowenergyHE);
+      NumberOfBelowEnergyCellsHO->Fill(lumiblock,belowenergyHO);
+      NumberOfBelowEnergyCellsHF->Fill(lumiblock,belowenergyHF);
+      NumberOfBelowEnergyCellsZDC->Fill(lumiblock,belowenergyZDC);
+      NumberOfBelowEnergyCells->Fill(lumiblock,belowenergyHB+belowenergyHE+belowenergyHO+belowenergyHF+belowenergyZDC);
     }
 
   // Neverpresent cell algorithm gets called more often; fill with smaller value
-  NumberOfNeverPresentCellsHB->Fill(neverpresentHB,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
-  NumberOfNeverPresentCellsHE->Fill(neverpresentHE,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
-  NumberOfNeverPresentCellsHO->Fill(neverpresentHO,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
-  NumberOfNeverPresentCellsHF->Fill(neverpresentHF,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
-  NumberOfNeverPresentCellsZDC->Fill(neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
-  NumberOfNeverPresentCells->Fill(neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC,deadmon_checkNevents_/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCellsHB->Fill(lumiblock,neverpresentHB/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCellsHE->Fill(lumiblock,neverpresentHE/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCellsHO->Fill(lumiblock,neverpresentHO/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCellsHF->Fill(lumiblock,neverpresentHF/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCellsZDC->Fill(lumiblock,neverpresentZDC/deadmon_neverpresent_prescale_);
+  NumberOfNeverPresentCells->Fill(lumiblock,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF+neverpresentZDC/deadmon_neverpresent_prescale_);
 
   ProblemCells->Reset();
   ProblemCells->setBinContent(0,0,ievt_);

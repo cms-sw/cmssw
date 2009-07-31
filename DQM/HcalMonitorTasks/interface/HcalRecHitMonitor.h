@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/07/21 11:02:48 $
-  * $Revision: 1.27 $
+  * $Date: 2009/07/27 19:21:49 $
+  * $Revision: 1.28 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -58,9 +58,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double HOenergyThreshold_;
   double HFenergyThreshold_;
   double ZDCenergyThreshold_;
-
-  MonitorElement* meEVT_;
-  int ievt_;
 
   double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
 

@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/07/06 11:58:16 $
-  * $Revision: 1.29 $
+  * $Date: 2009/07/21 11:02:48 $
+  * $Revision: 1.30 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -55,13 +55,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
                     const HcalDbService& cond
                     );
 
-  void processEvent_pedestal(const HBHEDigiCollection& hbhedigi,
-                             const HODigiCollection& hodigi,
-                             const HFDigiCollection& hfdigi,
-                             //const ZDCDigiCollection& zdcdigi, 
-                             const HcalDbService& cond
-                             );
-
   void processEvent_rechitenergy( const HBHERecHitCollection& hbheHits,
                                   const HORecHitCollection& hoHits,
                                   const HFRecHitCollection& hfHits);
@@ -72,7 +65,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void fillHotHistosAtEndRun();
 
  private:
-  void fillNevents_pedestal();
   void fillNevents_neighbor();
   void fillNevents_energy();
   void fillNevents_persistentenergy();
@@ -80,11 +72,9 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   void fillNevents_problemCells();
   void zeroCounters();
 
-  bool doFCpeds_; //specify whether pedestals are in fC (if not, assume ADC)
   bool hotmon_makeDiagnostics_;
 
   // Booleans to control which of the three hot cell checking routines are used
-  bool hotmon_test_pedestal_;
   bool hotmon_test_neighbor_;
   bool hotmon_test_energy_;
   bool hotmon_test_persistent_;
@@ -94,9 +84,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;
 
-  MonitorElement* meEVT_;
-  int ievt_;
-
   double hotmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
   
   double nsigma_;
@@ -104,16 +91,16 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
   EtaPhiHists   AboveNeighborsHotCellsByDepth;
   EtaPhiHists   AboveEnergyThresholdCellsByDepth;
   EtaPhiHists   AbovePersistentThresholdCellsByDepth; 
-  EtaPhiHists   AbovePedestalHotCellsByDepth;
 
   // map of pedestals from database (in ADC)
+  /*
   std::map<HcalDetId, float> pedestals_;
   std::map<HcalDetId, float> widths_;
   std::map<HcalDetId, float> pedestal_thresholds_;
+  */
   std::map<HcalDetId, double> rechitEnergies_;
 
   double SiPMscale_;
-  int abovepedestal[85][72][4]; // filled when digi is above pedestal+nsigma
   int aboveneighbors[85][72][4];
   int aboveenergy[85][72][4]; // when rechit is above threshold energy
   int abovepersistent[85][72][4]; // when rechit is consistently above some threshold
@@ -129,12 +116,6 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
 
 
   // Diagnostic plots
-  MonitorElement* d_HBnormped;
-  MonitorElement* d_HEnormped;
-  MonitorElement* d_HOnormped;
-  MonitorElement* d_HFnormped;
-  MonitorElement* d_ZDCnormped;
-
   MonitorElement* d_HBrechitenergy;
   MonitorElement* d_HErechitenergy;
   MonitorElement* d_HOrechitenergy;

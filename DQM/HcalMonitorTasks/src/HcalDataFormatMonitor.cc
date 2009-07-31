@@ -79,7 +79,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 				  DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   
-  ievt_=0;
   baseFolder_ = rootFolder_+"DataFormatMonitor";
 
   if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
@@ -126,6 +125,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);    
+    meTOTALEVT_ = m_dbe->bookInt("Data Format Total Events Processed");
+    meTOTALEVT_->Fill(tevt_);
 
     m_dbe->setCurrentFolder(baseFolder_ + "/HcalFEDChecking");
     
@@ -331,7 +332,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCSummariesOfHTRs_->setBinLabel(2, "HTR BSY", 2);
     meDCCSummariesOfHTRs_->setBinLabel(3, "Empty Events", 2);
     meDCCSummariesOfHTRs_->setBinLabel(4, "L1A Reject", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(5, "Latency Er", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(5, "Inval Stream", 2);
     meDCCSummariesOfHTRs_->setBinLabel(6, "Latncy Warn", 2);
     meDCCSummariesOfHTRs_->setBinLabel(7, "Optcl Data Err", 2);
     meDCCSummariesOfHTRs_->setBinLabel(8, "Clock", 2);
@@ -626,9 +627,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
     printf("HcalDataFormatMonitor::processEvent DQMStore not instantiated!!!\n");  
     return;}
   
-  ievt_++;
-  meEVT_->Fill(ievt_);
-  
+  HcalBaseMonitor::processEvent();
   
   ProblemCells->setBinContent(0,0,ievt_);
   for (int depth=0;depth<4;++depth) 
@@ -1183,7 +1182,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
     if (prtlvl_ > 0) HTRPrint(htr,prtlvl_);
-
+  
     unsigned int htrBCN = htr.getBunchNumber(); 
     meBCN_->Fill(htrBCN);
     unsigned int htrEvtN = htr.getL1ANumber();
@@ -1373,7 +1372,7 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
   mePlot -> setBinLabel(2,"Buffer Busy",axisType);
   mePlot -> setBinLabel(3,"Empty Event",axisType);
   mePlot -> setBinLabel(4,"Reject L1A",axisType);
-  mePlot -> setBinLabel(5,"Corrupt Stream",axisType);
+  mePlot -> setBinLabel(5,"Invalid Stream",axisType);
   mePlot -> setBinLabel(6,"Latency Warn",axisType);
   mePlot -> setBinLabel(7,"OptDat Err",axisType);
   mePlot -> setBinLabel(8,"Clock Err",axisType);

@@ -8,7 +8,6 @@ using namespace std;
 
 HcalRecHitMonitor::HcalRecHitMonitor()
 {
-  ievt_=0;
 } //constructor
 
 HcalRecHitMonitor::~HcalRecHitMonitor()
@@ -58,9 +57,6 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("RecHitMonitor_HF_energyThreshold",            -999);
   ZDCenergyThreshold_    = ps.getUntrackedParameter<double>("RecHitMonitor_ZDC_energyThreshold",           -999);
 
-  // Set initial event # to 0
-  ievt_=0;
-
   // zero all counters
 
   zeroCounters();
@@ -74,6 +70,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("RecHit Task Event Number");
       meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("RecHit Task Total Events Processed");
 
       // Create problem cell plots
       // Overall plot gets an initial " " in its name
@@ -215,9 +212,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-
-  ++ievt_;
-  if (m_dbe) meEVT_->Fill(ievt_);
+  HcalBaseMonitor::processEvent();
   
   if (hoHits.size()>0) HOpresent_=true;
   if (hfHits.size()>0) HFpresent_=true;
