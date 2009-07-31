@@ -172,12 +172,12 @@ void SiStripCommissioningSource::endJob() {
     if ( itask->second ) { itask->second->updateHistograms(); }
   }
   
-  if (task_ == sistrip::APV_LATENCY ||
-      task_ == sistrip::FINE_DELAY ) {
+  if (task_ == sistrip::APV_LATENCY) {
+    for (uint16_t partition = 0; partition < 4; ++partition) {
+      tasks_[0][partition]->updateHistograms();
+    }
+  } else if (task_ == sistrip::FINE_DELAY ) {
     tasks_[0][0]->updateHistograms();
-    tasks_[0][1]->updateHistograms();
-    tasks_[0][2]->updateHistograms();
-    tasks_[0][3]->updateHistograms();
   } else {
     // All tasks except cabling 
     uint16_t fed_id = 0;
@@ -596,16 +596,6 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
 void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const summary, 
 					     const edm::DetSetVector<SiStripRawDigi>& raw ) {
 
-  // tasks involving tracking have global histos, so treat separately
-  if (task_ == sistrip::APV_LATENCY ||
-      task_ == sistrip::FINE_DELAY) {
-    if ( raw.size() > 0 ) { 
-      tasks_[0][0]->fillHistograms( *summary, *raw.begin() );
-      tasks_[0][1]->fillHistograms( *summary, *raw.begin() );
-      tasks_[0][2]->fillHistograms( *summary, *raw.begin() );
-      tasks_[0][3]->fillHistograms( *summary, *raw.begin() );
-    }
-  } else { // now do any other task
     // Iterate through FED ids and channels
     std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin();
     for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
@@ -630,20 +620,44 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 
         // Retrieve digis for given FED key and check if found
         std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
-        if ( digis != raw.end() ) { 
-          if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
-            tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
+
+        if ( digis != raw.end() ) {
+          // tasks involving tracking have partition-level histos, so treat separately
+          if (task_ == sistrip::APV_LATENCY) {
+            if ( tasks_[0][iconn->fecCrate()-1] ) {
+              tasks_[0][iconn->fecCrate()-1]->fillHistograms( *summary, *digis );
+            } else {
+              std::stringstream ss;
+              ss << "[SiStripCommissioningSource::" << __func__ << "]"
+                 << " Unable to find CommissioningTask for FEC crate " 
+                 << iconn->fecCrate() << ". Unable to fill histograms!";
+              edm::LogWarning(mlDqmSource_) << ss.str();
+            }
+          } else if (task_ == sistrip::FINE_DELAY) {
+            if ( tasks_[0][0] ) {
+              tasks_[0][0]->fillHistograms( *summary, *digis );
+            } else {
+              std::stringstream ss;
+              ss << "[SiStripCommissioningSource::" << __func__ << "]"
+                 << " Unable to find global CommissioningTask for FineDelay. Unable to fill histograms!";
+              edm::LogWarning(mlDqmSource_) << ss.str();
+            }
+          // now do any other task
           } else {
-            std::stringstream ss;
-            ss << "[SiStripCommissioningSource::" << __func__ << "]"
-               << " Unable to find CommissioningTask object with FED key " 
-               << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
-               << " and FED id/ch " 
-               << iconn->fedId() << "/"
-               << iconn->fedCh()
-               << " Unable to fill histograms!";
-            edm::LogWarning(mlDqmSource_) << ss.str();
-          }
+            if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
+              tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
+            } else {
+              std::stringstream ss;
+              ss << "[SiStripCommissioningSource::" << __func__ << "]"
+                 << " Unable to find CommissioningTask object with FED key " 
+                 << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
+                 << " and FED id/ch " 
+                 << iconn->fedId() << "/"
+                 << iconn->fedCh()
+                 << " Unable to fill histograms!";
+              edm::LogWarning(mlDqmSource_) << ss.str();
+            }
+	  }
         } else {
           // issue a warning only for standard runs, as latency and fine delay only deliver 
           // pseudo zero-suppressed data
@@ -657,11 +671,10 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
                << iconn->fedId() << "/"
                << iconn->fedCh();
             edm::LogWarning(mlDqmSource_) << ss.str();
-          }
+	  }
         }
       } // fed channel loop
     } // fed id loop
-  } // end other tasks
 
 }
 
@@ -918,31 +931,27 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
 
   uint16_t booked = 0;
 
-  // tasks involving tracking have global histos, so treat separately
-  if (task_ == sistrip::APV_LATENCY ||
-      task_ == sistrip::FINE_DELAY) {
-    // make a task for every partition; tracker-wide histo is shared
-    tasks_[0][0] = new LatencyTask( dqm(), FedChannelConnection(1,0,0,0,0) );
-    tasks_[0][1] = new LatencyTask( dqm(), FedChannelConnection(2,0,0,0,0) );
-    tasks_[0][2] = new LatencyTask( dqm(), FedChannelConnection(3,0,0,0,0) );
-    tasks_[0][3] = new LatencyTask( dqm(), FedChannelConnection(4,0,0,0,0) );
+  // latency has partition-level histos, so treat separately
+  if (task_ == sistrip::APV_LATENCY) {
+
+    for (uint16_t partition = 0; partition < 4; ++partition) {
+      // make a task for every partition; tracker-wide histo is shared
+      tasks_[0][partition] = new LatencyTask( dqm(), FedChannelConnection(partition+1,sistrip::invalid_,sistrip::invalid_,sistrip::invalid_,sistrip::invalid_) );
+      tasks_[0][partition]->eventSetup( &setup );
+      tasks_[0][partition]->bookHistograms();
+      tasks_[0][partition]->updateFreq( updateFreq_ );
+      booked++;
+    }
+
+  // fine-delay has 1 histo for the whole tracker, so treat separately
+  } else if (task_ == sistrip::FINE_DELAY) {
+
+    tasks_[0][0] = new FineDelayTask( dqm(), FedChannelConnection() );
     tasks_[0][0]->eventSetup( &setup );
-    tasks_[0][1]->eventSetup( &setup );
-    tasks_[0][2]->eventSetup( &setup );
-    tasks_[0][3]->eventSetup( &setup );
-    tasks_[0][0]->bookHistograms(); 
-    tasks_[0][1]->bookHistograms(); 
-    tasks_[0][2]->bookHistograms(); 
-    tasks_[0][3]->bookHistograms(); 
-    tasks_[0][0]->updateFreq( updateFreq_ ); 
-    tasks_[0][1]->updateFreq( updateFreq_ ); 
-    tasks_[0][2]->updateFreq( updateFreq_ ); 
-    tasks_[0][3]->updateFreq( updateFreq_ ); 
+    tasks_[0][0]->bookHistograms();
+    tasks_[0][0]->updateFreq( updateFreq_ );
     booked++;
-    edm::LogVerbatim(mlDqmSource_)
-      << "[SiStripCommissioningSource::" << __func__ << "]"
-      << " Created " << booked 
-      << " CommissioningTask objects and booked histograms";
+
   } else { // now do any other task
 
     // Iterate through FED ids and channels 
@@ -1017,10 +1026,6 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
             tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
           } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
-          } else if ( task_ == sistrip::APV_LATENCY ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn );
-          } else if ( task_ == sistrip::FINE_DELAY ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn );
           } else if ( task_ == sistrip::CALIBRATION_SCAN || 
                       task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), 

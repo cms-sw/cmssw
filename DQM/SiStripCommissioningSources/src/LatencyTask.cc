@@ -3,6 +3,7 @@
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 
 #define NBINS (192)
 #define LOWBIN (-4800)
@@ -33,8 +34,10 @@ LatencyTask::~LatencyTask() {
 void LatencyTask::book() {
   LogDebug("Commissioning") << "[LatencyTask::book]";
 
-  std::string title, pwd, rootDir;
+  std::string title;
   int nBins = NBINS;
+  SiStripDetKey detkeytracker((uint32_t) 0);
+  SiStripDetKey detkeypartition((uint16_t) (connection().fecCrate()));
 
   // see if the global timing histogram is already booked
   if (timing_.histo()) {
@@ -47,17 +50,14 @@ void LatencyTask::book() {
     title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
                                sistrip::APV_LATENCY,
                                sistrip::DET_KEY,
-                               0,
+                               detkeytracker.key(),
                                sistrip::TRACKER,
                                0,
                                sistrip::extrainfo::clusterCharge_ ).title();
-    pwd = dqm()->pwd();
-    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
-    dqm()->setCurrentFolder( rootDir );
+    dqm()->setCurrentFolder( detkeytracker.path() );
     timing_.histo( dqm()->bookProfile( title, title,            // name and title
                                        nBins, LOWBIN, HIGHBIN,  // binning + range
-                                       100, 0., -1.,"s" ) );    // Y range : automatic
-    dqm()->setCurrentFolder( pwd );
+                                       100, 0., -1., "s" ) );    // Y range : automatic
     timing_.vNumOfEntries_.resize(nBins,0);
     timing_.vSumOfContents_.resize(nBins,0);
     timing_.vSumOfSquares_.resize(nBins,0);
@@ -68,18 +68,14 @@ void LatencyTask::book() {
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
                              sistrip::APV_LATENCY,
                              sistrip::DET_KEY,
-                             connection().fecCrate(),
+                             detkeypartition.key(),
                              sistrip::PARTITION,
                              0,
                              sistrip::extrainfo::clusterCharge_ ).title();
-  pwd = dqm()->pwd();
-  rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
-  rootDir += "/"; rootDir += sistrip::detectorView_;
-  dqm()->setCurrentFolder( rootDir );
+  dqm()->setCurrentFolder( detkeypartition.path() );
   timingPartition_.histo( dqm()->bookProfile( title, title,            // name and title
                                               nBins, LOWBIN, HIGHBIN,  // binning + range
-                                              100, 0., -1.,"s" ) );    // Y range : automatic
-  dqm()->setCurrentFolder( pwd );
+                                              100, 0., -1., "s" ) );    // Y range : automatic
   timingPartition_.vNumOfEntries_.resize(nBins,0);
   timingPartition_.vSumOfContents_.resize(nBins,0);
   timingPartition_.vSumOfSquares_.resize(nBins,0);
@@ -95,16 +91,13 @@ void LatencyTask::book() {
     title = SiStripHistoTitle( sistrip::EXPERT_HISTO,
                                sistrip::APV_LATENCY,
                                sistrip::DET_KEY,
-                               0,
+                               detkeytracker.key(),
                                sistrip::TRACKER,
                                0,
                                sistrip::extrainfo::occupancy_).title();
-    pwd = dqm()->pwd();
-    rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
-    dqm()->setCurrentFolder( rootDir );
+    dqm()->setCurrentFolder( detkeytracker.path() );
     cluster_.histo( dqm()->book1D( title, title,               // name and title
                                    nBins, LOWBIN, HIGHBIN ));  // binning + range
-    dqm()->setCurrentFolder( pwd );
     cluster_.isProfile_ = false;
     cluster_.vNumOfEntries_.resize(nBins,0);
     cluster_.vSumOfContents_.resize(nBins,0);
@@ -116,17 +109,13 @@ void LatencyTask::book() {
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
                              sistrip::APV_LATENCY, 
                              sistrip::DET_KEY, 
-                             connection().fecCrate(),
+                             detkeypartition.key(),
                              sistrip::PARTITION,
                              0,
                              sistrip::extrainfo::occupancy_ ).title(); 
-  pwd = dqm()->pwd();
-  rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/") + sizeof(sistrip::root_));
-  rootDir += "/"; rootDir += sistrip::detectorView_;
-  dqm()->setCurrentFolder( rootDir );
+  dqm()->setCurrentFolder( detkeypartition.path() );
   clusterPartition_.histo( dqm()->book1D( title, title,                // name and title
                                           nBins, LOWBIN, HIGHBIN ) );  // binning + range
-  dqm()->setCurrentFolder( pwd );
   clusterPartition_.isProfile_ = false;
   clusterPartition_.vNumOfEntries_.resize(nBins,0);
   clusterPartition_.vSumOfContents_.resize(nBins,0);
