@@ -15,7 +15,7 @@ fi
 
 touch /tmp/updateRunIndex.lock
 
-[ -d /data/ecalod-disk01/dqm-GUI/idx ] || visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
+[ -e /data/ecalod-disk01/dqm-GUI/idx/generation ] || visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
 
 echo "Index update: begin"
 
