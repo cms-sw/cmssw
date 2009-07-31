@@ -69,7 +69,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       float field_magnitude = magfield_->inTesla( center ).mag();
       
       templID_ = -999;
-     
+  
+      
       if ( field_magnitude > 3.9 ) 
 	{
 	  templID_ = 4;
@@ -78,24 +79,23 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 	{
 	  if ( field_magnitude > 1.0 ) 
 	    {
-	      if ( DoCosmics_ ) 
-		{ 
-		  // This is for existing COSMIC MC 
-		  templID_ = 15;
-		}
-	      else
-		{
-		  // this is for CRAFT09 and collisions
-		  templID_ = 13;
-		}
+	      // old cosmic simulation 
+	      //templID_ = 15;
+	      
+	      // CRAFT 08
+	      //templID_ = 11;
+	    	      
+	      // this is for CRAFT09 and collisions
+	      templID_ = 13;
 	    } 
 	  else 
 	    {	 
-	      //--- allow for zero field operation with new template ID=14
+	      // CRAFT 09, B = 0 Tesla
 	      templID_ = 14;
 	    }
 	}
       
+
       if ( LoadTemplatesFromDB_ )
 	{
 	  // Initialize template store to the selected ID [Morris, 6/25/08]  
@@ -111,18 +111,18 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 	      << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
 	}
   
-      //cout << "templID_                     = " << templID_                     << endl;
+      cout << "templID_                     = " << templID_                     << endl;
   
     } // if ( UseErrorsFromTemplates_ )
   
-  //cout << endl;
-  //cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
-  //cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
-  //cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
-  //cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
-  //cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
-  //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
-  //cout << endl;
+  cout << endl;
+  cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
+  cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
+  cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
+  cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
+  cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
+  cout << endl;
 
 }
 
@@ -148,58 +148,65 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
+  
+  if ( UseErrorsFromTemplates_ )
+    {
+      bool fpix;  //!< barrel(false) or forward(true)
+      if ( thePart == GeomDetEnumerators::PixelBarrel )
+	fpix = false;    // no, it's not forward -- it's barrel
+      else
+	fpix = true;     // yes, it's forward
+      
+      float qclus = cluster.charge();
+      
+      GlobalVector bfield = magfield_->inTesla( theDet->surface().position() ); 
+      
+      Frame detFrame( theDet->surface().position(), theDet->surface().rotation() );
+      LocalVector Bfield = detFrame.toLocal( bfield );
+      float locBz = Bfield.z();
+      cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
 
-	if ( UseErrorsFromTemplates_ )
-	{
-		bool fpix;  //!< barrel(false) or forward(true)
-		if ( thePart == GeomDetEnumerators::PixelBarrel )
-			fpix = false;    // no, it's not forward -- it's barrel
-		else
-			fpix = true;     // yes, it's forward
-
-		float qclus = cluster.charge();
-
-		pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
-		sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
-		deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
-		sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
-		deltax = -999.9; // CPE Generic x-bias for multi-pixel cluster
-		sy1    = -999.9; // CPE Generic y-error for single single-pixel
-		dy1    = -999.9; // CPE Generic y-bias for single single-pixel cluster
-		sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
-		dy2    = -999.9; // CPE Generic y-bias for single double-pixel cluster
-		sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
-		dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
-		sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
-		dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
-
-		qBin_ = templ_.qbin( templID_, fpix, cotalpha_, cotbeta_, qclus,  // inputs
-			pixmx,                                       // returned by reference
-			sigmay, deltay, sigmax, deltax,              // returned by reference
-			sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
-
-		// These numbers come in microns from the qbin(...) call. Transform them to cm.
-		const float micronsToCm = 1.0e-4;
-
-		deltax = deltax * micronsToCm;
-		dx1 = dx1 * micronsToCm;
-		dx2 = dx2 * micronsToCm;
-
-		deltay = deltay * micronsToCm;
-		dy1 = dy1 * micronsToCm;
-		dy2 = dy2 * micronsToCm;
-
-		sigmax = sigmax * micronsToCm;
-		sx1 = sx1 * micronsToCm;
-		sx2 = sx2 * micronsToCm;
-
-		sigmay = sigmay * micronsToCm;
-		sy1 = sy1 * micronsToCm;
-		sy2 = sy2 * micronsToCm;
-
-	} // if ( UseErrorsFromTemplates_ )
-
-	 
+      pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
+      sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
+      deltay = -999.9; // CPE Generic y-bias for multi-pixel cluster
+      sigmax = -999.9; // CPE Generic x-error for multi-pixel cluster
+      deltax = -999.9; // CPE Generic x-bias for multi-pixel cluster
+      sy1    = -999.9; // CPE Generic y-error for single single-pixel
+      dy1    = -999.9; // CPE Generic y-bias for single single-pixel cluster
+      sy2    = -999.9; // CPE Generic y-error for single double-pixel cluster
+      dy2    = -999.9; // CPE Generic y-bias for single double-pixel cluster
+      sx1    = -999.9; // CPE Generic x-error for single single-pixel cluster
+      dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
+      sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
+      dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
+      
+      qBin_ = templ_.qbin( templID_, fpix, cotalpha_, cotbeta_, locBz, qclus,  // inputs
+			   pixmx,                                       // returned by reference
+			   sigmay, deltay, sigmax, deltax,              // returned by reference
+			   sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
+      
+      // These numbers come in microns from the qbin(...) call. Transform them to cm.
+      const float micronsToCm = 1.0e-4;
+      
+      deltax = deltax * micronsToCm;
+      dx1 = dx1 * micronsToCm;
+      dx2 = dx2 * micronsToCm;
+      
+      deltay = deltay * micronsToCm;
+      dy1 = dy1 * micronsToCm;
+      dy2 = dy2 * micronsToCm;
+      
+      sigmax = sigmax * micronsToCm;
+      sx1 = sx1 * micronsToCm;
+      sx2 = sx2 * micronsToCm;
+      
+      sigmay = sigmay * micronsToCm;
+      sy1 = sy1 * micronsToCm;
+      sy2 = sy2 * micronsToCm;
+      
+    } // if ( UseErrorsFromTemplates_ )
+  
+  
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
   float Q_m_X = 0.0;        //!< Q of the middle pixels in X
@@ -648,9 +655,9 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;
       
       if ( UseErrorsFromTemplates_ )
-			{
-				if (qBin_ == 0 && inflate_errors )
-				{	       
+	{
+	  if (qBin_ == 0 && inflate_errors )
+	    {	       
 	      int n_bigx = 0;
 	      int n_bigy = 0;
 	      

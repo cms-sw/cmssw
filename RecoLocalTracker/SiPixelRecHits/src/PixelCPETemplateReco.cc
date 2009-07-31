@@ -45,7 +45,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 					   const SiPixelTemplateDBObject * templateDBobject) 
   : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
 {
-  //cout << "From PixelCPETemplateReco::PixelCPETemplateReco(...)" << endl;
+  cout << "From PixelCPETemplateReco::PixelCPETemplateReco(...)" << endl;
 
   // &&& initialize the templates, etc.
   
@@ -56,37 +56,35 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
-
+ 
   if ( field_magnitude > 3.9 ) 
     {
       templID_ = 4;
     } 
-  else 
-    {
-      if ( field_magnitude > 1.0 ) 
+      else 
 	{
-	  if ( DoCosmics_ ) 
-	    { 
-	      // This is for existing COSMIC MC 
-	      templID_ = 15;
-	    }
-	  else
+	  if ( field_magnitude > 1.0 ) 
 	    {
+	      // old cosmic simulation 
+	      //templID_ = 15;
+	      
+	      // CRAFT 08
+	      //templID_ = 11;
+	      
 	      // this is for CRAFT09 and collisions
 	      templID_ = 13;
+	    } 
+	  else 
+	    {	 
+	      // CRAFT 09, B = 0 Tesla
+	      templID_ = 14;
 	    }
-	} 
-      else 
-	{	 
-	  //--- allow for zero field operation with new template ID=14
-	  templID_ = 14;
 	}
-    }
   
-  //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
-  //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
-  //cout << "field_magnitude = " << field_magnitude << endl;
-  //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
+  cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
+  cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
+  cout << "field_magnitude = " << field_magnitude << endl;
+  cout << "--------------------------------------------- templID_ = " << templID_ << endl;
 
   // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
   if ( LoadTemplatesFromDB_ )
@@ -259,14 +257,23 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // ******************************************************************
   // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
 
+  GlobalVector bfield = magfield_->inTesla( theDet->surface().position() ); 
+  
+  Frame detFrame( theDet->surface().position(), theDet->surface().rotation() );
+  LocalVector Bfield = detFrame.toLocal( bfield );
+  float locBz = Bfield.z();
+  cout << "locBz = " << locBz << endl;
+    
   ierr =
     PixelTempReco2D( ID, fpix, cotalpha_, cotbeta_,
+		     locBz, 
 		     clust_array_2d, ydouble, xdouble,
 		     templ_,
 		     templYrec_, templSigmaY_, templProbY_,
 		     templXrec_, templSigmaX_, templProbX_, 
 		     templQbin_, 
 		     speed_ );
+
   // ******************************************************************
 
   // Check exit status
