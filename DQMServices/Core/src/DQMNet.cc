@@ -408,7 +408,7 @@ DQMNet::extractScalarData(DataBlob &objdata, Object &o)
     TBufferFile buf(TBufferFile::kRead, o.rawdata.size(), &o.rawdata[0], kFALSE);
     buf.InitMap();
     buf.Reset();
-    obj = extractNextObject(buf);
+    o.object = obj = extractNextObject(buf);
   }
 
   if (TObjString *ostr = dynamic_cast<TObjString *>(obj))
