@@ -14,9 +14,14 @@ gk7CaloJets = gk5CaloJets.clone( rParam = 0.7 )
 kt6CaloJets = kt4CaloJets.clone( rParam = 0.6 )
 ca6CaloJets = ca4CaloJets.clone( rParam = 0.6 )
 
+# Restrict SISCone algorithm to 1000 towers input
+sisCone5CaloJets.restrictInputs = cms.bool(True)
+sisCone5CaloJets.maxInputs = cms.uint32(1000)
 
+sisCone7CaloJets.restrictInputs = cms.bool(True)
+sisCone7CaloJets.maxInputs = cms.uint32(1000)
 
-doPileup = cms.bool(False)
+doPileup = cms.bool(True)
 
 sisCone5CaloJetsPUCorr      =sisCone5CaloJets.clone      (doPUOffsetCorr = doPileup)
 sisCone7CaloJetsPUCorr      =sisCone7CaloJets.clone      (doPUOffsetCorr = doPileup)
@@ -30,22 +35,11 @@ gk7CaloJetsPUCorr           =gk7CaloJets.clone           (doPUOffsetCorr = doPil
 ca4CaloJetsPUCorr           =ca4CaloJets.clone           (doPUOffsetCorr = doPileup)
 ca6CaloJetsPUCorr           =ca6CaloJets.clone           (doPUOffsetCorr = doPileup)
 
-#doPileupFastjet = cms.bool(False)
-#sisCone5CaloJets.doPUFastjet = doPileup
-#sisCone7CaloJets.doPUFastjet = doPileup
-#kt4CaloJets.doPUFastjet = doPileup
-#kt6CaloJets.doPUFastjet = doPileup
-#iterativeCone5CaloJets.doPUFastjet = doPileup
-#ak5CaloJets.doPUFastjet = doPileup
-#ak7CaloJets.doPUFastjet = doPileup
-#gk5CaloJets.doPUFastjet = doPileup
-#gk7CaloJets.doPUFastjet = doPileup
-#ca4CaloJets.doPUFastjet = doPileup
-#ca6CaloJets.doPUFastjet = doPileup
 
 recoCaloJets   =cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
                              kt4CaloJets+kt6CaloJets+
-                             iterativeCone5CaloJets)
+                             iterativeCone5CaloJets+
+                             ak5CaloJets+ak7CaloJets)
 
 recoAllCaloJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
                              kt4CaloJets+kt6CaloJets+

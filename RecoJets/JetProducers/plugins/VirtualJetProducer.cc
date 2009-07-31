@@ -347,7 +347,7 @@ void VirtualJetProducer::inputTowers( )
     fjInputs_.back().set_user_index(i - inBegin);
   }
 
-  if ( restrictInputs_ ) {
+  if ( restrictInputs_ && inputs_.size() > maxInputs_ ) {
     reco::helper::GreaterByPtPseudoJet   pTComparator;
     std::sort(fjInputs_.begin(), fjInputs_.end(), pTComparator);
     fjInputs_.resize(maxInputs_);

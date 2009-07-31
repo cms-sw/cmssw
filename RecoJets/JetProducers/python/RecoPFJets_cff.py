@@ -17,7 +17,8 @@ ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 
 recoPFJets   =cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt4PFJets+kt6PFJets+
-                           iterativeCone5PFJets)
+                           iterativeCone5PFJets+
+                           ak5PFJets+ak7PFJets)
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt4PFJets+kt6PFJets+

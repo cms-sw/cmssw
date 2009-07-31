@@ -12,11 +12,15 @@ CaloJetParameters = cms.PSet(
     inputEMin      = cms.double(0.0),
     # primary vertex correction
     doPVCorrection = cms.bool(True),
-    # pileup
+    # pileup with offset correction
     doPUOffsetCorr = cms.bool(False),
+       # if pileup is false, these are not read:
+       nSigmaPU = cms.double(1.0),
+       radiusPU = cms.double(0.5),  
+    # fastjet-style pileup 
     doPUFastjet    = cms.bool(False),
-      # if doPU is false, these are not read:
-      Active_Area_Repeats = cms.int32(5),
-      GhostArea = cms.double(0.01),
-      Ghost_EtaMax = cms.double(6.0)
+       # if doPU is false, these are not read:
+       Active_Area_Repeats = cms.int32(5),
+       GhostArea = cms.double(0.01),
+       Ghost_EtaMax = cms.double(6.0),
     )
