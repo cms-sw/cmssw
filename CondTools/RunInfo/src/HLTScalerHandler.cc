@@ -8,7 +8,7 @@ lumi::HLTScalerHandler::HLTScalerHandler(const edm::ParameterSet& pset):m_name(p
   m_to_transfer.reserve(100);
   m_startRun=pset.getParameter<int>("startRun");
   if(pset.exists("endRun")){
-    m_numberOfRuns=pset.getUntrackedParameter<int>("endfRun")-m_startRun+1; 
+    m_numberOfRuns=pset.getUntrackedParameter<int>("endRun")-m_startRun+1; 
   }else if(pset.exists("numberOfRuns")){
     m_numberOfRuns=pset.getUntrackedParameter<int>("numberOfRuns"); 
   }
