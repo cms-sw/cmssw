@@ -155,7 +155,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
       
       ProxyP proxy(pb);
-      proxy->addInfo(conn.connectStr(), it->tag);
+      proxy->addInfo(it->pfn, it->tag);
+      //      proxy->addInfo(conn.connectStr(), it->tag);
       m_proxies[it->recordname] = proxy;
 
     }
