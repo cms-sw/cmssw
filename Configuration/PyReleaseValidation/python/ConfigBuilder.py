@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.135 $"
+__version__ = "$Revision: 1.136 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -111,6 +111,10 @@ class ConfigBuilder(object):
            if 'HARVESTING' in self._options.step:
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
+        if 'CFWRITER' in self._options.step:
+            self.process.source=cms.Source("EmptySource")
+            return
+    
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -335,6 +339,7 @@ class ConfigBuilder(object):
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
 	self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
+	self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
 	
 	if "DATAMIX" in self._options.step:
 	    self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
@@ -351,6 +356,7 @@ class ConfigBuilder(object):
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
 	self.HARVESTINGDefaultSeq=None
+        self.CFWRITERDefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
 	self.L1RecoDefaultSeq='L1Reco'
 	self.RECODefaultSeq='reconstruction'
@@ -529,6 +535,13 @@ class ConfigBuilder(object):
                 
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.schedule.append(self.process.digitisation_step)
+        return
+    def prepare_CFWRITER(self, sequence = None):
+        """ Enrich the schedule with the crossing frame writer step"""
+	self.loadAndRemember(self.CFWRITERDefaultCFF)
+                
+        self.process.cfwriter_step = cms.Path(self.process.pcfw)    
+        self.schedule.append(self.process.cfwriter_step)
         return
 
     def prepare_DATAMIX(self, sequence = None):
@@ -757,7 +770,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.135 $"),
+              (version=cms.untracked.string("$Revision: 1.136 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
