@@ -19,14 +19,20 @@ from PhysicsTools.PFCandProducer.TopProjectors.pfNoTau_cfi import *
 # generator tools
 from PhysicsTools.PFCandProducer.GeneratorTools.sortGenParticles_cff import *
 
+
 PF2PAT = cms.Sequence(
     pfMET +
     pfNoPileUpSequence + 
-    pfSortByTypeSequence +
-#    pfElectronSequence +
+    # pfSortByTypeSequence +
+    pfAllNeutralHadrons+
+    pfAllChargedHadrons+
+    pfAllPhotons+
+    pfAllMuons + 
     pfMuonSequence + 
     pfNoMuon +
-#    noElectron + 
+    pfAllElectrons +
+    pfElectronSequence +
+    pfNoElectron + 
 # when uncommenting, change the source of the jet clustering
     pfJetSequence +
     pfNoJet + 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PFCandProducer.Isolation.tools_cfi import *
-from PhysicsTools.PFCandProducer.Isolation.pfElectronIsolationFromDeposits_cfi import *
+from PhysicsTools.PFCandProducer.Isolation.pfElectronIsolationFromDeposits_cff import *
 
 
 isoElectronWithCharged   = isoDepositReplace( 'pfElectronsPtGt5',
@@ -16,15 +16,15 @@ isoElectronWithMuons     = isoDepositReplace( 'pfElectronsPtGt5',
                                               'pfAllMuons' )
 
 pfElectronIsoDepositsSequence = cms.Sequence(
-    isoElectronWithCharged   +
-    isoElectronWithNeutral   +
-    isoElectronWithPhotons   
+    isoElectronWithCharged   
+#    isoElectronWithNeutral   +
+#    isoElectronWithPhotons   
 #    isoElectronWithElectrons +
 #    isoElectronWithMuons
 )
 
 pfElectronIsolationSequence = cms.Sequence(
     pfElectronIsoDepositsSequence +
-    pfElectronIsolationFromDeposits
+    pfElectronIsolationFromDepositsSequence
     )
 

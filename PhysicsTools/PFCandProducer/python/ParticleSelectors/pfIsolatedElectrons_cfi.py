@@ -5,8 +5,11 @@ pfIsolatedElectrons  = cms.EDProducer(
     src = cms.InputTag("pfElectronsPtGt5"),
     isolationValueMaps = cms.VInputTag(
        cms.InputTag("pfElectronIsolationFromDepositsChargedHadrons"),
-       cms.InputTag("pfElectronIsolationFromDepositsNeutralHadrons"),
-       cms.InputTag("pfElectronIsolationFromDepositsPhotons")
+       #       cms.InputTag("pfElectronIsolationFromDepositsNeutralHadrons"),
+       #       cms.InputTag("pfElectronIsolationFromDepositsPhotons")
        ),
-    isolationCuts = cms.vdouble(1., 1., 1.)
+    isolationCuts = cms.vdouble( 2.
+#                                 1.,
+#                                  1.
+                                 )
     )
