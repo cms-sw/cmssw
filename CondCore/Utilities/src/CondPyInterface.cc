@@ -94,10 +94,10 @@ namespace cond {
       "}";
     */
     std::string config =
-      "import FWCore.ParameterSet.Config as cms"
-      "process = cms.Process(x)"
-      "process.jobreport = cms.Service('JobReportService')"
-      "process.sitelocal = cms.Service('SiteLocalConfigService')"
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('x')\n"
+      "JobReportService = cms.Service('JobReportService')\n"
+      "SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n"
       ;
 
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
