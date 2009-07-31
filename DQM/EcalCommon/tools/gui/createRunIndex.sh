@@ -15,6 +15,10 @@ fi
 
 touch /tmp/updateRunIndex.lock
 
+rm -fr /data/ecalod-disk01/dqm-GUI/idx
+
+visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
+
 echo "Index update: begin"
 
 ./visDQMImport /data/ecalod-disk01/dqm-GUI/idx /data/ecalod-disk01/dqm-data/root
