@@ -16,7 +16,6 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   #Whether to write the DQM store to a file at the end of the run and the file name
   WriteDQMStore = cms.untracked.bool(True),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
-  DoShotAnalysis = cms.untracked.bool(True),
   digiCollection = cms.InputTag("siStripDigis","ZeroSuppressed"),
 
   TimeHistogramConfig = cms.untracked.PSet(
