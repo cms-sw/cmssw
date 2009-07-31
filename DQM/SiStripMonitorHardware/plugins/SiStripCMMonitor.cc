@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.1 2009/07/30 08:09:57 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.2 2009/07/30 14:16:38 amagnan Exp $
 //
 
 #include <sstream>
@@ -54,11 +54,14 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
-#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
-
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
+//#define DoShots
+
+#ifdef DoShots
+#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
+#endif
 //
 // Class declaration
 //
@@ -186,6 +189,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
   iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
+#ifdef DoShots
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
   iEvent.getByLabel(_digicollection,digis);
@@ -194,6 +198,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
   APVShotFinder apvsf(*digis,_zs);
   const std::vector<APVShot>& shots = apvsf.getShots();
+#endif
 
   //FED errors
   FEDErrors lFedErrors;
@@ -253,9 +258,11 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
       short lAPVPair = lConnection.apvPairNumber();
       short lSubDet = DetId(lDetId).subdetId();
-      std::pair<float,float> lShotMedian = std::pair<float,float>(0,0);
 
       bool isShot = false;
+      std::pair<float,float> lShotMedian = std::pair<float,float>(0,0);
+
+#ifdef DoShots
       //bool isFirst = true;
       for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {
 
@@ -292,7 +299,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	}
       }
 
-
+#endif
 //       if (firstEvent){
 // 	infoStream << "Subdet " << lSubDet << ", " ;
 // 	if (lSubDet == 3) {
