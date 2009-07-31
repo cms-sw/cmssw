@@ -111,18 +111,18 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 	      << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
 	}
   
-      cout << "templID_                     = " << templID_                     << endl;
+      //cout << "templID_                     = " << templID_                     << endl;
   
     } // if ( UseErrorsFromTemplates_ )
   
-  cout << endl;
-  cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
-  cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
-  cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
-  cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
-  cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
-  cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
-  cout << endl;
+  //cout << endl;
+  //cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
+  //cout << "(int)UseErrorsFromTemplates_ = " << (int)UseErrorsFromTemplates_    << endl;
+  //cout << "TruncatePixelCharge_         = " << (int)TruncatePixelCharge_       << endl;      
+  //cout << "IrradiationBiasCorrection_   = " << (int)IrradiationBiasCorrection_ << endl;
+  //cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
+  //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
+  //cout << endl;
 
 }
 
@@ -164,7 +164,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       Frame detFrame( theDet->surface().position(), theDet->surface().rotation() );
       LocalVector Bfield = detFrame.toLocal( bfield );
       float locBz = Bfield.z();
-      cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
+      //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
 
       pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
       sigmay = -999.9; // CPE Generic y-error for multi-pixel cluster
