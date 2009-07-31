@@ -116,11 +116,6 @@ namespace edm {
 	}
       }
     }
-    Service<RandomNumberGenerator> rng;
-    if(rng.isAvailable()) {
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_.reset(new CLHEP::RandFlat(engine));
-    }
   }
 
   std::vector<FileCatalogItem> const&
@@ -551,12 +546,10 @@ namespace edm {
   void
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     if (!flatDistribution_) {
-      throw edm::Exception(errors::Configuration)
-        << "The function PoolSource::readManyRandom(...) requires the RandomNumberGeneratorService,\n"
-        << "which is not present in the configuration file.  You must add the service\n"
-        << "in the configuration file or remove the modules that require it.\n";
+      Service<RandomNumberGenerator> rng;
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
-
     skipBadFiles_ = false;
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     while(eventsRemainingInFile_ < number) {
