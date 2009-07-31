@@ -11,7 +11,7 @@ cd ${HOME}/DQM/dqm-GUI
 
 LD_LIBRARY_PATH=
 source sw/cmsset_default.sh
-source sw/slc4_ia32_gcc345/cms/dqmgui/5.0.0/etc/profile.d/env.sh
+source sw/slc4_ia32_gcc345/cms/dqmgui/5.0.1/etc/profile.d/env.sh
 
 rm -f gui/*/blacklist.txt
 
