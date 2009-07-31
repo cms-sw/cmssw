@@ -7,19 +7,21 @@ os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 
 import coral
 from CondCore.TagCollection import Node,tagInventory,TagTree
-context = coral.Context()
-context.setVerbosityLevel( 'ERROR' )
+#context = coral.Context()
+#context.setVerbosityLevel( 'ERROR' )
 # context.setVerbosityLevel( 'DEBUG' )
-svc = coral.ConnectionService( context )
-session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_21X_GLOBALTAG",accessMode = coral.access_ReadOnly )
+svc = coral.ConnectionService()
+session = svc.connect("sqlite_file:CondCore/TagCollection/data/GlobalTag.db",accessMode = coral.access_ReadOnly )
+# session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG",accessMode = coral.access_ReadOnly )
 inv=tagInventory.tagInventory(session)
-mytree=TagTree.tagTree(session,"CRAFT_ALL_V3")
+# mytree=TagTree.tagTree(session,"GR09_31X_V5P")
+mytree=TagTree.tagTree(session,"GR09_31X")
 result=mytree.getAllLeaves()
 tags=[]
 for r in result:
     if r.tagid != 0:
         tagcontent=inv.getEntryById(r.tagid)
-        tags.append((tagcontent.tagname,tagcontent.pfn))
+        tags.append((tagcontent.recordname, tagcontent.labelname, tagcontent.tagname,tagcontent.pfn))
 
 
 mytree=0
