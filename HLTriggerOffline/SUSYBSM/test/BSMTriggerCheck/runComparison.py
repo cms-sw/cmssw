@@ -47,17 +47,17 @@ os.system("make clean; make; \\rm *.log log.list")
 
 ############################################
 
-dir1='TriggerValidation_310pre11_HLT'
-dir2='TriggerValidation_310_HLT'
-out='310pre11_vs_310'
+dir1='/afs/cern.ch/user/c/chiorbo/scratch0/SUSY_2007/TriggerValidation/TriggerValidation_DQM_312_commit_V00-06-00/src/HLTriggerOffline/SUSYBSM/test'
+dir2='/afs/cern.ch/user/c/chiorbo/scratch0/SUSY_2007/TriggerValidation/TriggerValidation_DQM_312_commit_V00-06-00/src/HLTriggerOffline/SUSYBSM/test'
+out='mc1_vs_mc2'
 
-samples=['LM1']
-prefix1 = "DQM_V0001_R000000001__RelVal"
-prefix2 = "DQM_V0001_R000000001__RelVal"
-sufix1 = "_sfts__CMSSW_3_1_0_pre11-MC_31X_V1-v1__GEN-SIM-RECO"
-sufix2 = "_sfts__CMSSW_3_1_0-MC_31X_V1-v1__GEN-SIM-RECO"
-label1 = "LM1_310pre11"
-label2 = "LM1_310"
+samples=['_HLT']
+prefix1 = "DQM_V0001"
+prefix2 = "DQM_V0001"
+sufix1 = "_R000000001"
+sufix2 = "_R000000001_2"
+label1 = "HLT"
+label2 = "HLT"
 
 ############################################
 

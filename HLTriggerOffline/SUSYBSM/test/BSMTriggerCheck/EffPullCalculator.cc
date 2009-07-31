@@ -1,13 +1,14 @@
-#include <TMath.h>
+using namespace std;
 #include <TH1D.h>
 #include <TAxis.h>
+#include <TMath.h>
 #include "EffPullCalculator.hh"
 
-using namespace std;
-
-EffPullcalculator::EffPullcalculator(TH1D* pathHisto1_v, TH1D* pathHisto2_v, string error_v) {
+EffPullcalculator::EffPullcalculator(TH1D* pathHisto1_v, TH1D* pathHisto2_v, vector<TH1D*> sortedHisto1_v, vector<TH1D*> sortedHisto2_v, string error_v) {
   pathHisto.push_back(pathHisto1_v);
   pathHisto.push_back(pathHisto2_v);
+  sortedHisto1 = sortedHisto1_v;
+  sortedHisto2 = sortedHisto2_v;
   error = error_v;
 }
 
@@ -32,8 +33,7 @@ void EffPullcalculator::CalculatePulls() {
     for(int i2=1; i2 <= pathHisto[1]->GetNbinsX(); i2++) {
       string label2 = axis2->GetBinLabel(i2);
       if(label2 == "Total") nEv2 = pathHisto[1]->GetBinContent(i2);
-      if(label1 == label2 && // we are comparing the same path
-	 GoodLabel(label1)) { // we are comparing an interesting path
+      if(label1 == label2) { // we are comparing the same path
 	eff1.push_back(pathHisto[0]->GetBinContent(i1));
 	eff2.push_back(pathHisto[1]->GetBinContent(i2));
 	name.push_back(label1);
@@ -51,12 +51,73 @@ void EffPullcalculator::CalculatePulls() {
   }
 
   // create 10x2 histograms with efficiencies
-  int nbin = eff1.size()/8+1;
+  int nbin = 10;//eff1.size()/8+1;
+  vector<int> nbins; nbins.resize(20);
+  nbins[0]=nbin;
+  nbins[1]=nbin;
+  nbins[10]=nbin;
+  nbins[11]=nbin;
+  for(int i=2; i<10; ++i)
+    {
+      if(i-2<int(sortedHisto1.size()))
+	{
+	  nbins[i] = sortedHisto1[i-2]->GetNbinsX();
+	  nbins[i+10] = sortedHisto1[i-2]->GetNbinsX();
+	}
+      else
+	{
+	  nbins[i]=0;
+	  nbins[i+10]=0;
+	}
+    }
   for(int iplot=0; iplot<20;iplot++) {
     char name[256];
     sprintf(name,"%s_eff_%i",pathHisto[0]->GetName(),iplot);
-    effhisto.push_back(new TH1D(name,"Trigger Efficiency", nbin, 0., double(nbin)));
+    effhisto.push_back(new TH1D(name, "Trigger Efficiency", nbins[iplot], 0., double(nbins[iplot])));
   }
+  for(int i=2; i<10 && i-2<int(sortedHisto1.size()); ++i)
+    {
+      effhisto[i]->SetTitle(sortedHisto1[i-2]->GetTitle());
+      effhisto[i+10]->SetTitle(sortedHisto1[i-2]->GetTitle());
+    }
+
+  for(int k=0; k<int(sortedHisto1.size()); ++k)
+    {
+      int i=0, j=0;
+      cout<<"111\n";
+      for(i=2; i<=sortedHisto1[k]->GetNbinsX(); ++i)
+	{
+	  if(abs(sortedHisto1[k]->GetBinContent(i) - sortedHisto2[k]->GetBinContent(i)) > abs(sortedHisto1[k]->GetBinContent(i-1)-sortedHisto2[k]->GetBinContent(i-1)))
+	    {
+	      double content1=sortedHisto1[k]->GetBinContent(i), content2=sortedHisto2[k]->GetBinContent(i), error1=sortedHisto1[k]->GetBinError(i), error2=sortedHisto2[k]->GetBinError(i);
+	      char name1[256], name2[256], char_name[256];
+	      sprintf(name1,"%s",sortedHisto1[k]->GetXaxis()->GetBinLabel(i));
+	      sprintf(name2,"%s",sortedHisto2[k]->GetXaxis()->GetBinLabel(i));
+	      for(j=i-1; j>=1; --j)
+		{
+		  if(abs(content1-content2) > abs(sortedHisto1[k]->GetBinContent(j) - sortedHisto2[k]->GetBinContent(j)))
+		    {
+		      sortedHisto1[k]->SetBinContent(j+1, sortedHisto1[k]->GetBinContent(j));
+		      sortedHisto1[k]->SetBinError(j+1, sortedHisto1[k]->GetBinError(j));
+		      sprintf(char_name,"%s",sortedHisto1[k]->GetXaxis()->GetBinLabel(j));
+		      sortedHisto1[k]->GetXaxis()->SetBinLabel(j+1, char_name);
+		      sortedHisto2[k]->SetBinContent(j+1, sortedHisto2[k]->GetBinContent(j));
+		      sortedHisto2[k]->SetBinError(j+1, sortedHisto2[k]->GetBinError(j));
+		      sprintf(char_name,"%s",sortedHisto2[k]->GetXaxis()->GetBinLabel(j));
+		      sortedHisto2[k]->GetXaxis()->SetBinLabel(j+1, char_name);
+		    }
+		  else
+		    break;
+		}
+	      sortedHisto1[k]->SetBinContent(j+1, content1);
+	      sortedHisto1[k]->SetBinError(j+1, error1);
+	      sortedHisto1[k]->GetXaxis()->SetBinLabel(j+1, name1);
+	      sortedHisto2[k]->SetBinContent(j+1, content2);
+	      sortedHisto2[k]->SetBinError(j+1, error2);
+	      sortedHisto2[k]->GetXaxis()->SetBinLabel(j+1, name2);
+	    }
+	}
+    }
 
   // set plot style
   for(int iplot=0; iplot<10;iplot++) {
@@ -74,20 +135,20 @@ void EffPullcalculator::CalculatePulls() {
     effhisto[iplot+10]->SetBarOffset(0.5*effhisto[iplot+10]->GetXaxis()->GetBinWidth(1));
   }
 
-  for(int iplot=2; iplot<10;iplot++) {
-    for(int ipath=0; ipath<nbin;ipath++) {
-      int index = (iplot-2)*nbin+ipath;
-      if(index<int(eff1.size())) {
-	effhisto[iplot]->SetBinContent(ipath+1,eff1[index]);
-	effhisto[iplot]->SetBinError(ipath+1,err_eff1[index]);
-	effhisto[iplot]->GetXaxis()->SetBinLabel(ipath+1,name[index].c_str());
-	effhisto[iplot+10]->SetBinContent(ipath+1,eff2[index]);
-	effhisto[iplot+10]->SetBinError(ipath+1,err_eff2[index]);
-	effhisto[iplot+10]->GetXaxis()->SetBinLabel(ipath+1,name[index].c_str());
-      }
+  for(int i=2; i<10;++i)
+    {
+      if(i-2<int(sortedHisto1.size()))
+	for(int j=0; j<nbins[i]; ++j)
+	  {
+	    effhisto[i]->SetBinContent(j+1,sortedHisto1[i-2]->GetBinContent(j+1));
+	    effhisto[i]->SetBinError(j+1,sortedHisto1[i-2]->GetBinError(j+1));
+	    effhisto[i]->GetXaxis()->SetBinLabel(j+1,sortedHisto1[i-2]->GetXaxis()->GetBinLabel(j+1));
+	    effhisto[i+10]->SetBinContent(j+1,sortedHisto2[i-2]->GetBinContent(j+1));
+	    effhisto[i+10]->SetBinError(j+1,sortedHisto2[i-2]->GetBinError(j+1));
+	    effhisto[i+10]->GetXaxis()->SetBinLabel(j+1,sortedHisto2[i-2]->GetXaxis()->GetBinLabel(j+1));
+	  }
     }
-  }
-
+  
   // Histograms with largest efficiencies
   vector<int> SortedEff = SortVec(eff2);
 
@@ -225,14 +286,10 @@ void EffPullcalculator::PrintTwikiTable(string filename) {
   fclose(f);
 }
 
-bool EffPullcalculator::GoodLabel(string pathname) {
-  bool good = false;
-  if(pathname.find("Ele") != string::npos ||
-     pathname.find("Pho") != string::npos ||
-     pathname.find("Mu") != string::npos ||
-     pathname.find("Jet") != string::npos ||
-     pathname.find("MET") != string::npos ||
-     pathname.find("Met") != string::npos ||
-     pathname.find("HT") != string::npos) good = true;
-  return good;
+double EffPullcalculator::abs(double value)
+{
+  if(value<0)
+    return -1.0*value;
+  else
+    return value;
 }

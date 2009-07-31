@@ -3,7 +3,7 @@
 
 class EffPullcalculator {
 public:
-  EffPullcalculator(TH1D* pathHisto1_v, TH1D* pathHisto2_v, string error_v);
+  EffPullcalculator(TH1D* pathHisto1_v, TH1D* pathHisto2_v, vector<TH1D*> sortedHisto1_v, vector<TH1D*> sortedHisto2_v, string error_v);
   ~EffPullcalculator(){};
   
   TH1D*  GetResidualHisto() {return resHisto;}
@@ -16,12 +16,15 @@ public:
   void AddGoldenPath(string name);
   void PrintTwikiTable(string filename);
   bool GoodLabel(string pathname);
+  double abs(double value);
 
 private:
   // log file
   vector<string> lines;
   vector<TH1D*> pathHisto;
   vector<TH1D*> effhisto;
+  vector<TH1D*> sortedHisto1;
+  vector<TH1D*> sortedHisto2;
   TH1D* pullHisto;
   TH1D* pullDist;
   TH1D* resHisto;

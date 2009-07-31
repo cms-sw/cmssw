@@ -16,6 +16,7 @@ class HltSusyExoPostProcessor : public edm::EDAnalyzer {
 
  private:
   std::string subDir_;
+  bool mcFlag;
 
 };
 

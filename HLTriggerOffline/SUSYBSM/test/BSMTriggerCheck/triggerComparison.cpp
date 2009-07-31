@@ -149,17 +149,52 @@ int main(int argc, char *argv[]){
   HLTeffhisto1 = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/HltPaths"); 
   HLTeffhisto2 = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/HltPaths"); 
 
+  vector<TH1D*> L1sortedhistos1; L1sortedhistos1.resize(7);
+  vector<TH1D*> L1sortedhistos2; L1sortedhistos2.resize(7);
+  vector<TH1D*> Hltsortedhistos1; Hltsortedhistos1.resize(8);
+  vector<TH1D*> Hltsortedhistos2; Hltsortedhistos2.resize(8);
+  L1sortedhistos1[0] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Mu");
+  L1sortedhistos1[1] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_EG");
+  L1sortedhistos1[2] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Jet");
+  L1sortedhistos1[3] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_ETM_ETT_HTT");
+  L1sortedhistos1[4] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_TauJet");
+  L1sortedhistos1[5] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_XTrigger");
+  L1sortedhistos1[6] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Overflow");
+  L1sortedhistos2[0] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Mu");
+  L1sortedhistos2[1] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_EG");
+  L1sortedhistos2[2] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Jet");
+  L1sortedhistos2[3] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_ETM_ETT_HTT");
+  L1sortedhistos2[4] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_TauJet");
+  L1sortedhistos2[5] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_XTrigger");
+  L1sortedhistos2[6] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/L1_Overflow");
+  Hltsortedhistos1[0] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Mu");
+  Hltsortedhistos1[1] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Ele");
+  Hltsortedhistos1[2] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Jet");
+  Hltsortedhistos1[3] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Photon");
+  Hltsortedhistos1[4] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_MET_HT");
+  Hltsortedhistos1[5] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Tau_BTag");
+  Hltsortedhistos1[6] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_XTrigger");
+  Hltsortedhistos1[7] = (TH1D*) files[0]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Overflow");
+  Hltsortedhistos2[0] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Mu");
+  Hltsortedhistos2[1] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Ele");
+  Hltsortedhistos2[2] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Jet");
+  Hltsortedhistos2[3] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Photon");
+  Hltsortedhistos2[4] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_MET_HT");
+  Hltsortedhistos2[5] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Tau_BTag");
+  Hltsortedhistos2[6] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_XTrigger");
+  Hltsortedhistos2[7] = (TH1D*) files[1]->Get("DQMData/Run 1/HLT/Run summary/SusyExo/TriggerBits/Hlt_Overflow");
+
   cout << "eeeeeeeeeeeeeeeee" << endl;
   // pull and residual histograms
-  EffPullcalculator* HLTpullcal = new EffPullcalculator(HLTeffhisto1,HLTeffhisto2,error);
-  HLTpullcal->CalculatePulls();
+  EffPullcalculator* HLTpullcal = new EffPullcalculator(HLTeffhisto1,HLTeffhisto2,Hltsortedhistos1,Hltsortedhistos2,error);
+  HLTpullcal->CalculatePulls();cout<<"!!!!!\n";
   HLTpullhisto = HLTpullcal->GetPullHisto();
   HLTreshisto  = HLTpullcal->GetResidualHisto();
   HLTeffhistos = HLTpullcal->GetEffHistos();
   HLTpullcal->WriteLogFile("HLTcomparison.log");
 
   cout << "ffffffffffffffff" << endl;
-  EffPullcalculator* L1pullcal = new EffPullcalculator(L1effhisto1,L1effhisto2,error);
+  EffPullcalculator* L1pullcal = new EffPullcalculator(L1effhisto1,L1effhisto2,L1sortedhistos1,L1sortedhistos2,error);
   L1pullcal->CalculatePulls();
   L1pullhisto = L1pullcal->GetPullHisto();
   L1reshisto  = L1pullcal->GetResidualHisto();
@@ -318,4 +353,3 @@ int main(int argc, char *argv[]){
   cout << "rrrrrrrrrrrrrrrrrr" << endl;
 
 }
-

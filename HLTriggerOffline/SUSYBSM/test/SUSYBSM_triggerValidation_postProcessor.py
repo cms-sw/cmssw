@@ -36,8 +36,8 @@ process.load("RecoMET.Configuration.GenMETParticles_cff")
 
 process.load("RecoMET.METProducers.genMetTrue_cfi")
 
-process.load("HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_fastSim_cff")
-#process.load("HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff")
+#process.load("HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_fastSim_cff")
+process.load("HLTriggerOffline.SUSYBSM.SUSYBSM_triggerValidation_cff")
 process.load("HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff")
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
@@ -48,7 +48,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-"file:/build/nuno/test31/CMSSW_3_1_0_pre5/src/TTbar_Tauola_cfi_py_GEN_FASTSIM_VALIDATION.root"
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0002/2A2BB3C2-DE66-DE11-8A25-001D09F27067.root',
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/D62DED56-8F66-DE11-96AF-001D09F241B4.root',
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/9E488F5D-9066-DE11-85E9-001D09F2543D.root',
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/58B73B6D-9266-DE11-AFC2-001617DBCF90.root',
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/28ACB7E0-9266-DE11-AFCF-001D09F25325.root',
+    #'/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/02841A84-9966-DE11-A26B-001D09F23A61.root',
+    '/store/relval/CMSSW_3_1_0/RelValLM1_sfts/GEN-SIM-RECO/MC_31X_V1-v1/0001/024EE1A1-8166-DE11-965F-001D09F2543D.root'
+#"file:/build/nuno/test31/CMSSW_3_1_0_pre5/src/TTbar_Tauola_cfi_py_GEN_FASTSIM_VALIDATION.root"
 #"file:myreco2_RAW2DIGI_RECO_ALCA_VALIDATION.root"
 #'/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0000/E63C1A00-0C2C-DE11-BFC1-000423D98800.root'
         )
