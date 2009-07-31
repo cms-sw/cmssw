@@ -49,6 +49,22 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
    me->Fill(-1.0);      
 
 
+   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+   for (int i=0 ; i<2; ++i){
+      for (int j=0 ; j<2; ++j){
+	 int iz = (i==0)? 1:-1;
+	 sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
+	 me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+	 if(me){
+	    dqmStore_->removeElement(me->getName());
+	 }
+         me = dqmStore_->bookFloat(histo);
+         me->Fill(-1.0);      
+      }
+   }
+
+
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
    sprintf(histo, "reportSummaryMap");
@@ -133,7 +149,7 @@ void ESSummaryClient::analyze(void) {
 	       }
 	    }
 	 }
-	 
+
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
@@ -161,21 +177,43 @@ void ESSummaryClient::analyze(void) {
    //  ES+R  ES-R
    float nValidChannels=0; 
    float nGlobalErrors=0;
+   float nValidChannelsES[2][2]={}; 
+   float nGlobalErrorsES[2][2]={};
+
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
       for(int x=0; x<80; x++){
 	 if(eCount < 100) break; //Fill reportSummaryMap after have 100 events
 	 for(int y=0; y<80; y++){
+	    int z = (x<40)? 0:1;
+	    int p = (y>=40)? 0:1;
+
 	    if( nDI_FedErr[x][y] >= 0. ){
 	       me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount) );
+
 	       nValidChannels+=1.;
 	       nGlobalErrors+=nDI_FedErr[x][y]/eCount;
+
+	       nValidChannelsES[z][p]+=1;
+	       nGlobalErrorsES[z][p]+=nDI_FedErr[x][y]/eCount;
 	    }
 	    else {
 	       me->setBinContent(x+1, y+1, -1.);
 	    }
 	    if(DCC[x][y]==0.) me->setBinContent(x+1, y+1, -1.);
 	 }
+      }
+   }
+
+   for (int i=0 ; i<2; ++i){
+      for (int j=0 ; j<2; ++j){
+	 int iz = (i==0)? 1:-1;
+         float reportSummaryES = -1.;
+         if( nValidChannelsES[i][j] !=0) 
+	    reportSummaryES = 1.0 - nGlobalErrorsES[i][j]/nValidChannelsES[i][j];
+	 sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
+	 me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+	 if ( me ) me->Fill(reportSummaryES);
       }
    }
 
