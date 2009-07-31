@@ -25,65 +25,78 @@ L1HLTJetsMatching::~L1HLTJetsMatching(){ }
 
 void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
-
- using namespace edm;
- using namespace std;
- using namespace reco;
- using namespace trigger;
- using namespace l1extra;
-
-
- auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
- 
- double deltaR = 1.0;
- double matchingR = 0.5;
- //Getting HLT jets to be matched
- edm::Handle<CaloJetCollection> tauJets;
- iEvent.getByLabel( jetSrc, tauJets );
-   
-     const CaloJetCollection myJets = *(tauJets.product());
-     
-     Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
-     iEvent.getByLabel(tauTrigger,l1TriggeredTaus);
 	
-       
-       tauCandRefVec.clear();
-       jetCandRefVec.clear();
+	using namespace edm;
+	using namespace std;
+	using namespace reco;
+	using namespace trigger;
+	using namespace l1extra;
 	
-       l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
-       l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+	typedef vector<LeafCandidate> LeafCandidateCollection;
 	
-       for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
-	 {  
-	   for(unsigned int iJet=0;iJet<myJets.size();iJet++)
-	     {
-	       //Find the relative L2TauJets, to see if it has been reconstructed
-	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJets[iJet].p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-	       if(deltaR < matchingR ) {
-		if(myJets[iJet].pt() > mEt_Min) tauL2jets->push_back(myJets[iJet]);
-		break;
-	       }
-	     }
-	 }  
-       
-       for(unsigned int iL1Tau=0; iL1Tau <jetCandRefVec.size();iL1Tau++)
-	 {  
-	   for(unsigned int iJet=0;iJet<myJets.size();iJet++)
-	     {
-	       //Find the relative L2TauJets, to see if it has been reconstructed
-	       deltaR = ROOT::Math::VectorUtil::DeltaR(myJets[iJet].p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
-	       if(deltaR < matchingR ) {
-		if(myJets[iJet].pt() > mEt_Min) tauL2jets->push_back(myJets[iJet]);
-		break;
-	       }
-	     }
-	 }
+	auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+	
+	double deltaR = 1.0;
+	double matchingR = 0.5;
+	//Getting HLT jets to be matched
+	edm::Handle<edm::View<Candidate> > tauJets;
+	iEvent.getByLabel( jetSrc, tauJets );
 
-    
+//		cout <<"Size of input jet collection "<<tauJets->size()<<endl;
+		
+	Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
+    iEvent.getByLabel(tauTrigger,l1TriggeredTaus);
+		
+		
+		tauCandRefVec.clear();
+		jetCandRefVec.clear();
+		
+		l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
+		l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+		math::XYZPoint a(0.,0.,0.);
+		CaloJet::Specific f;
+		
+		for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
+		{  
+			for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
+			{
+				//Find the relative L2TauJets, to see if it has been reconstructed
+				const Candidate &  myJet = (*tauJets)[iJet];
+				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+				if(deltaR < matchingR ) {
+					//		 LeafCandidate myLC(myJet);
+					CaloJet myCaloJet(myJet.p4(),a,f);
+					if(myJet.pt() > mEt_Min) {
+						//		  tauL2LC->push_back(myLC);
+						tauL2jets->push_back(myCaloJet);
+					}
+					break;
+				}
+			}
+		}  
+		
+		for(unsigned int iL1Tau=0; iL1Tau <jetCandRefVec.size();iL1Tau++)
+		{  
+			for(unsigned int iJet=0;iJet<tauJets->size();iJet++)
+			{
+				const Candidate & myJet = (*tauJets)[iJet];
+				//Find the relative L2TauJets, to see if it has been reconstructed
+				deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+				if(deltaR < matchingR ) {
+					//		 LeafCandidate myLC(myJet);
+					CaloJet myCaloJet(myJet.p4(),a,f);
+					if(myJet.pt() > mEt_Min) {
+						//tauL2LC->push_back(myLC);
+						tauL2jets->push_back(myCaloJet);
+					}
+					break;
+				}
+			}
+		}
+	
 
-    
- //  cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
+//cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<endl;
 
- iEvent.put(tauL2jets);
-
+iEvent.put(tauL2jets);
+// iEvent.put(tauL2LC);
 }
