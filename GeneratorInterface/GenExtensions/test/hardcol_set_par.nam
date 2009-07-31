@@ -1,0 +1,13 @@
+ $hardcol_set_par 
+   ENERGYOFLHC = 10000.
+   NUMOFEVENTS = 10
+   MSTP2 = 1
+   CKIN3 = 45.
+   MSEL0 = 0
+   MSUB406 = 1
+   MSUB407 = 1
+   MSUB408 = 1
+   MSTP198 = 1
+   irandom = 14789128
+ $End
+
