@@ -129,6 +129,8 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   mem_  = ((*data_)>>H_MEM_B) & B_MASK;
   if( fov_ < 2) { mem_ = 0;}
   
+
+  bool ignoreSR(true);
   
   srChStatus_          = ((*data_)>>H_SRCHSTATUS_B)    & H_CHSTATUS_MASK;
   
@@ -168,6 +170,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
       STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
+      if ( STATUS == BLOCK_UNPACKED ){ ignoreSR = false; }
     }
   }
 
@@ -224,12 +227,14 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	{
           if( fov_ > 0){  
             bool applyZS(true);
-            if( chStatus != CH_FORCEDZS1
+            if( !ignoreSR && chStatus != CH_FORCEDZS1
               && (srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) == SRP_FULLREADOUT){ applyZS = false; }
           
-            if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
+
+            // If there is a decision to fully suppress data this is updated in channel status by the dcc
+            //if ( ( srpBlock_->srFlag(chNumber) & SRP_SRVAL_MASK) != SRP_NREAD ){
 	        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,applyZS,chNumber);
-            }
+            //}
           }
           else{
 
