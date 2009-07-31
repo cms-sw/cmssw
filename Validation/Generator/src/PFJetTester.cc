@@ -16,7 +16,7 @@
 
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
-#include "Validation/RecoJets/src/PFJetTester.h"
+#include "PFJetTester.h"
 
 using namespace edm;
 using namespace reco;

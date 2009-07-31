@@ -27,7 +27,8 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -62,7 +63,7 @@ TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  bool select = false;
+  //bool select = false;
   eventCounter++;
 
   bool lepton = false;

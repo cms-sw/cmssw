@@ -6,7 +6,7 @@
 //
 // Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.4 2008/12/23 21:09:50 ksmith Exp $
+// $Id: NewAnalyzer.cc,v 1.5 2009/04/27 21:15:22 ksmith Exp $
 //
 //
 
@@ -96,7 +96,8 @@ NewAnalyzer::NewAnalyzer(const edm::ParameterSet& iConfig)
   Z2J_invmass_histo = new TH1F("Z2J_invmass_histo","Z2J_invmass_histo",200,0,200);
   Z3J_invmass_histo = new TH1F("Z3J_invmass_histo","Z3J_invmass_histo",200,0,200);
   Z4J_invmass_histo = new TH1F("Z4J_invmass_histo","Z4J_invmass_histo",200,0,200);
-  int event = 0 ; tau_evt =0;
+  // int event = 0 ;
+  tau_evt =0;
 }
 
 
@@ -163,7 +164,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   elecPx.clear();
   elecPy.clear();
   elecPz.clear();
-  double ZpT; int taur = 0;
+  double ZpT = 0; int taur = 0;
   float ptot, etot;
   double Jet1Pt, Jet2Pt;
   Jet1Pt = 0; 
@@ -176,7 +177,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       int id = p.pdgId();
       size_t NMoth = p.numberOfMothers() ;
       int motherID1 = 0 ;
-      int motherID2 = 0 ; 
+      //int motherID2 = 0 ; 
       if(abs(id) == 23)
 	{
 	  //ZPt_histo->Fill(sqrt(p.px()*p.px() + p.py()*p.py()));
@@ -190,7 +191,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //cout << "Checking daughters" << endl;
       if( p.numberOfDaughters() > 0)
 	{
-	  for(int dau = 0; dau < p.numberOfDaughters(); dau++)
+	  for(int dau = 0; dau < int(p.numberOfDaughters()); dau++)
 	    {//cout << "Checking charge" << endl;
 	      if(p.daughter(dau)->charge() != 0)
 		{
@@ -229,9 +230,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(genJets->size() > 1)
 	  {
 	   
-	    for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+	    for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 	      {
-		for(size_t elec2 = elec1 + 1; elec2 < elec; elec2++)
+		for(size_t elec2 = elec1 + 1; int(elec2) < int(elec); elec2++)
 		  {
 		    if(elecCh[elec2] == elecCh[elec1])
 		      continue;
@@ -245,7 +246,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    JetpT.clear();
 	    //Jet1Pt = 0.0;
 	    //Jet2Pt = 0.0;
-	    for(int Jets = 0; Jets < genJets->size(); Jets++)
+	    for(int Jets = 0; Jets < int(genJets->size()); Jets++)
 	      {
 		int incone = 0;
 		const Candidate & J1 = (*genJets)[Jets];
@@ -257,7 +258,7 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   
 		    if (EJDelR < .2) {  //cout << EJDelR << endl; 
 		      incone++;}
-		    if(elecs == elecPhi.size()) continue;
+		    if(elecs == int(elecPhi.size())) continue;
 		  }
 		//cout << J1.pt() << " Jet pT " << endl;
 		
@@ -282,22 +283,22 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 	      }
 	    if(JetpT.size() == 1)
-	      for(int i = 0; i < JetpT.size(); i++)
+	      for(int i = 0; i < int(JetpT.size()); i++)
 		{
 		  JetPt1J->Fill(JetpT[i]);
 		}
 	    if(JetpT.size() == 2)
-	      for(int i = 0; i < JetpT.size(); i++)
+	      for(int i = 0; i < int(JetpT.size()); i++)
 		{
 		  JetPt2J->Fill(JetpT[i]);
 		}
 	    if(JetpT.size() == 3)
-	      for(int i = 0; i < JetpT.size(); i++)
+	      for(int i = 0; i < int(JetpT.size()); i++)
 		{
 		  JetPt3J->Fill(JetpT[i]);
 		}
 	    if(JetpT.size() > 3)
-	      for(int i = 0; i < JetpT.size(); i++)
+	      for(int i = 0; i < int(JetpT.size()); i++)
 		{
 		  JetPt4J->Fill(JetpT[i]);
 		}
@@ -305,9 +306,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    //std::cout << "Jet 1 pt " << Jet1Pt << " Jet 2 Pt " << Jet2Pt <<  std::endl;
 	    if(nmyJets == 0 || (Jet1Pt < 12 && Jet2Pt < 12))
 	      {
-		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 		  {
-		    for(size_t elec2 = elec1 + 1; elec2 < elec; elec2++)
+		    for(size_t elec2 = elec1 + 1; int(elec2) <int(elec); elec2++)
 		      {
 			if(elecCh[elec2] == elecCh[elec1])
 			  continue;
@@ -349,9 +350,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    Z1JJ1Phi_histo->Fill(J1Phi);
 		    ZPt1J_histo->Fill(ZpT);
 		  }
-		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 		  {
-		    for(size_t elec2 = elec1 + 1; elec2 < elec; elec2++)
+		    for(size_t elec2 = elec1 + 1; int(elec2) < int(elec); elec2++)
 		      {
 			if(elecCh[elec2] == elecCh[elec1])
 			  continue;
@@ -389,9 +390,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    ZPt2J_histo->Fill(ZpT);
 			  }
 		  }
-		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 		  {
-		    for(size_t elec2 = elec1 +1 ; elec2 < elec; elec2++)
+		    for(size_t elec2 = elec1 +1 ; int(elec2) < int(elec); elec2++)
 		      {
 			if(elecCh[elec2] == elecCh[elec1])
 			  continue;
@@ -430,9 +431,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    ZPt3J_histo->Fill(ZpT);
 			  }
 		  }
-		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 		  {
-		    for(size_t elec2 = elec1 +1 ; elec2 < elec; elec2++)
+		    for(size_t elec2 = elec1 +1 ; int(elec2) < int(elec); elec2++)
 		      {	
 			if(elecCh[elec2] == elecCh[elec1])
 			  continue;
@@ -475,9 +476,9 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    ZPt4J_histo->Fill(ZpT);
 			  }
 		  }
-		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		for(size_t elec1 = 0; int(elec1) < int(elec-1); elec1++)
 		  {
-		    for(size_t elec2 = elec1+1; elec2 < elec; elec2++)
+		    for(size_t elec2 = elec1+1; int(elec2) < int(elec); elec2++)
 		      {
 			if(elecCh[elec2] == elecCh[elec1])
 			  continue;
@@ -501,7 +502,8 @@ NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // if there are at least four muons
       // calculate invarant mass of first two and fill it into histogram
       math::XYZTLorentzVector tot_momentum;  math::XYZTLorentzVector tot_mumomentum; 
-      float inv_mass = 0.0; double mu_invmass = 0.0; float Pt = 0; 
+      //float inv_mass = 0.0; double mu_invmass = 0.0; 
+      //float Pt = 0; 
       for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() ;  ++gen ) 
 	{
 	  //cout << "gen jet pt " << gen->pt() << endl ;   

@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: BBbarAnalyzer.cc,v 1.2 2008/03/26 21:23:49 ksmith Exp $
+// $Id: BBbarAnalyzer.cc,v 1.2 2008/07/01 02:55:39 ksmith Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 
 
 
-
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 
@@ -75,7 +75,9 @@ BBbarAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // if there are at least four muons
    // calculate invarant mass of first two and fill it into histogram
    math::XYZTLorentzVector tot_momentum;  math::XYZTLorentzVector tot_mumomentum; 
-   float inv_mass = 0.0; double mu_invmass = 0.0; float Pt = 0; 
+   float inv_mass = 0.0; 
+   //double mu_invmass = 0.0;
+   float Pt = 0; 
    
    HepMC::GenEvent::particle_const_iterator i;
    HepMC::GenEvent::particle_const_iterator j;

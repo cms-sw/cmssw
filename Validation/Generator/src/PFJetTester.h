@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: PFJetTester.h,v 1.1 2008/05/23 17:02:43 ksmith Exp $
+// $Id: PFJetTester.h,v 1.1 2008/05/27 21:52:15 ksmith Exp $
 
 #include <string>
 
@@ -19,8 +19,8 @@ class MonitorElement;
 class PFJetTester : public edm::EDAnalyzer {
 public:
 
-  PFJetTester (const edm::ParameterSet&);
-  ~PFJetTester();
+  explicit PFJetTester (const edm::ParameterSet&);
+  virtual ~PFJetTester();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
@@ -29,7 +29,7 @@ public:
   
   void fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fFPJet) ;
   
-    edm::InputTag mInputCollection; 
+  edm::InputTag mInputCollection; 
   edm::InputTag mInputGenCollection;
   std::string mOutputFile;
 

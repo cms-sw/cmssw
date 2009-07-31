@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: MuMuAnalyzer.cc,v 1.1 2008/05/27 21:52:15 ksmith Exp $
+// $Id: MuMuAnalyzer.cc,v 1.2 2009/04/27 21:15:22 ksmith Exp $
 //
 //
 
@@ -35,7 +35,8 @@
 #include "TLorentzVector.h"
 
 MuMuAnalyzer::MuMuAnalyzer(const edm::ParameterSet& iConfig)
-{ /// Copy plots from Steve exactly \\\
+{ 
+   /// Copy plots from Steve exactly
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
   J1Pt_histo = new TH1F("J1pT","J1pT",38,0,220);
   J2Pt_histo = new TH1F("J2pT","J2pT",38,0,120);
@@ -51,7 +52,7 @@ MuMuAnalyzer::MuMuAnalyzer(const edm::ParameterSet& iConfig)
   J1Phi_histo = new TH1F("J1Phi_histo", "J1Phi_histo", 38, 0, 5); 
   J2Phi_histo = new TH1F("J2Phi_histo", "J2Phi_histo", 38, 0, 5);
   MuMu_invmass_histo = new TH1F("MuMU_invmass_histo","MuMu_invmass_histo",100,0,100);
-  int event = 0 ; 
+  // int event = 0 ; 
 }
 
 
@@ -120,14 +121,14 @@ typedef std::vector<reco::GenJet> GenJetCollection;
       int id = p.pdgId();
       size_t NMoth = p.numberOfMothers() ;
       int motherID1 = 0 ;
-      int motherID2 = 0 ; 
+      //  int motherID2 = 0 ; 
       
       if(abs(id) == 23)
       {
         ZPt_histo->Fill(sqrt(p.px()*p.px() + p.py()*p.py()));
       }
       if(abs(id) != 13) continue;
-      for ( size_t moth1=0; moth1<NMoth; moth1++ )
+      for ( size_t moth1=0; moth1 < NMoth; moth1++ )
 	{
 	  motherID1 = (p.mother(moth1))->pdgId();
 	  if(motherID1 == 23) 
@@ -166,20 +167,20 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 	if(genJets->size() > 1)
 	  {
 	    int nmyJets = 0;
-	    for(int Jets = 0; Jets < genJets->size(); Jets++)
+	    for(int Jets = 0; Jets < int(genJets->size()); Jets++)
 	      {
 		int incone = 0;
 		const Candidate & J1 = (*genJets)[Jets];
-		for(int elecs = 0; elecs < elecPhi.size(); elecs++)
+		for(int elecs = 0; elecs < int(elecPhi.size()); elecs++)
 		  {
 		    float EJDelPhi = fabs(J1.phi()-elecPhi[elecs]);
 		    if(EJDelPhi >  3.1415926) EJDelPhi = 6.2831852 - EJDelPhi;
 		    float EJDelR = sqrt((J1.eta()-elecEta[elecs])*(J1.eta()-elecEta[elecs])+EJDelPhi*EJDelPhi);
 		   
 		    if (EJDelR < .2) {  cout << EJDelR << endl; incone++;}
-		    for(int elecs1 = elecs+1; elecs1 < elecPhi.size(); elecs1++)
+		    for(int elecs1 = elecs+1; elecs1 < int(elecPhi.size()); elecs1++)
 		      {
-			if(elecs == elecPhi.size()) continue;
+			if(elecs == int(elecPhi.size())) continue;
 			if(elecs == elecs1) continue;
 			MuMuInvaMass = sqrt(sqrt(elecPx[elecs]*elecPx[elecs]+elecPy[elecs]*elecPy[elecs]+elecPz[elecs]*elecPz[elecs])+sqrt(elecPx[elecs1]*elecPx[elecs1]+elecPy[elecs1]*elecPy[elecs1]+elecPz[elecs1]*elecPz[elecs1]) - sqrt((elecPx[elecs] + elecPx[elecs1])* (elecPx[elecs] + elecPx[elecs1]) + (elecPy[elecs] + elecPy[elecs1])* (elecPy[elecs] + elecPy[elecs1]) + (elecPz[elecs] + elecPz[elecs1])* (elecPz[elecs] + elecPz[elecs1]))) ; 
 			MuMu_invmass_histo->Fill(MuMuInvaMass);
@@ -242,7 +243,7 @@ typedef std::vector<reco::GenJet> GenJetCollection;
   // if there are at least four muons
       // calculate invarant mass of first two and fill it into histogram
       math::XYZTLorentzVector tot_momentum;  math::XYZTLorentzVector tot_mumomentum; 
-      float inv_mass = 0.0; double mu_invmass = 0.0; float Pt = 0; 
+      //float inv_mass = 0.0; double mu_invmass = 0.0; float Pt = 0; 
       for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() ;  ++gen ) 
 	{
 	  //cout << "gen jet pt " << gen->pt() << endl ;   

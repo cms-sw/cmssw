@@ -26,7 +26,7 @@
 //
 // Original Author:  Devdatta MAJUMDER
 //         Created:  Thu Apr 10 19:55:14 CEST 2008
-// $Id$
+// $Id: MCValidation.cc,v 1.1 2008/07/01 22:21:07 ksmith Exp $
 //
 //
 
@@ -57,7 +57,8 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+///#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -239,9 +240,9 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
     
     int pid = part.pdgId(), pst = part.status(), pch = part.charge();
     unsigned nDau = part.numberOfDaughters() ;
-    unsigned nMom = part.numberOfMothers() ;
+    //unsigned nMom = part.numberOfMothers() ;
     double ppt = part.pt(), peta = part.eta(), pphi = part.phi(), pmass = part.mass();
-    double pvx = part.vx(), pvy = part.vy(), pvz = part.vz();
+    //double pvx = part.vx(), pvy = part.vy(), pvz = part.vz();
 
     outfile << " pid " << pid << " pmass " << pmass << " pst " << pst << endl ;
     
@@ -301,8 +302,8 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	  
 	    const Candidate *dau = part.daughter(i) ;
 	    int did = dau->pdgId(), dst = dau->status(), dch = dau->charge() ;
-	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(), dmass = dau->mass();
-	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
+	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi();// dmass = dau->mass();
+	    // double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
 	    if(abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
@@ -342,8 +343,8 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	  
 	    const Candidate *dau = part.daughter(i) ;
 	    int did = dau->pdgId(), dst = dau->status(), dch = dau->charge() ;
-	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(), dmass = dau->mass();
-	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
+	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(); //dmass = dau->mass();
+	    //double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
 	    if(abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
@@ -383,8 +384,8 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	  
 	    const Candidate *dau = part.daughter(i) ;
 	    int did = dau->pdgId(), dst = dau->status(), dch = dau->charge() ;
-	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(), dmass = dau->mass();
-	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
+	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi();// dmass = dau->mass();
+	    //double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
 	    if(abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
@@ -428,8 +429,8 @@ void MCValidation::genparticles(const CandidateCollection &genParticles){ //GenP
 	  
 	    const Candidate *dau = part.daughter(i) ;
 	    int did = dau->pdgId(), dst = dau->status(), dch = dau->charge() ;
-	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(), dmass = dau->mass();
-	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
+	    double dpt = dau->pt(), deta = dau->eta(), dphi = dau->phi(); //dmass = dau->mass();
+	      //	    double dvx = dau->vx(), dvy = dau->vy(), dvz = dau->vz();
 	    
 	    if(abs(did) == 11 && dst==1){
 	      dau_e_pT_->Fill(dpt) ; 
