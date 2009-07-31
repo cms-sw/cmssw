@@ -2,7 +2,7 @@
 
 ulimit -c 0
 
-cd ~/work/cms/dqm-GUI
+cd ${HOME}/dqm/dqm-GUI
 
 LD_LIBRARY_PATH=
 source sw/cmsset_default.sh
@@ -15,11 +15,11 @@ fi
 
 touch /tmp/updateRunDb.lock
 
-[ -d ~/work/cms/dqm-GUI/idx ] || visDQMIndex create ~/work/cms/dqm-GUI/idx
+[ -d /data/ecalod-disk01/dqm-GUI/idx ] || visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
 
 echo "Index update: begin"
 
-./visDQMImport ~/work/cms/dqm-GUI/idx ~/work/cms/CMSSW_3_2_0/src/DQM/Ecal*MonitorModule/test/python
+./visDQMImport /data/ecalod-disk01/dqm-GUI/idx /data/ecalod-disk01/dqm-data/root
 
 echo "Index update: end"
 
