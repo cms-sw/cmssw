@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ $# -lt 1 ]; then
-  echo 'Usage: refreshRunIndex.sh NUMBER-OF-FILES'
+  echo 'Usage: updateRunIndex.sh NUMBER-OF-FILES'
   exit
 fi
 
@@ -15,12 +15,12 @@ LD_LIBRARY_PATH=
 source sw/cmsset_default.sh
 source sw/slc4_ia32_gcc345/cms/dqmgui/5.0.0/etc/profile.d/env.sh
 
-if [ -e /tmp/refreshRunIndex.lock ]; then
+if [ -e /tmp/updateRunIndex.lock ]; then
   echo "Lock file is present, exit"
   exit 1
 fi
 
-touch /tmp/refreshRunIndex.lock
+touch /tmp/updateRunIndex.lock
 
 echo "Index refresh: begin"
 
@@ -30,7 +30,7 @@ find ${HOME}/work/cms/CMSSW_3_2_0 -name 'DQM_V*.root' | xargs -r ls -tr | tail -
 
 echo "Index refresh: end"
 
-rm /tmp/refreshRunIndex.lock
+rm /tmp/updateRunIndex.lock
 
 exit 0
 
