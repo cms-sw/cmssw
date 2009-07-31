@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.8 2008/02/06 14:32:53 bainbrid Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.9 2009/07/31 09:53:47 lowette Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
-#include "iostream.h"
+
 // -----------------------------------------------------------------------------
 // 
 SiStripDetKey::SiStripDetKey( const uint16_t& partition ) :
