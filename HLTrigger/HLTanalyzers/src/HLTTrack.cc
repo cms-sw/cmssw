@@ -78,8 +78,6 @@ void HLTTrack::analyze(
 		       const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 		       TTree* HltTree) {
 
-  std::cout << " Beginning HLTTrack " << std::endl;
-
   //isoPixel
   if (IsoPixelTrackL3.isValid()) { 
     // Ref to Candidate object to be recorded in filter object 
