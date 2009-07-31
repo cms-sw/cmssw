@@ -23,6 +23,12 @@ namespace cond {
       // here one can make stuff really complicated...
     }
     void compute(Class const & it){
+      this->add(it.m_start_current);
+      this->add(it.m_stop_current);
+      this->add(it.m_avg_current);
+      this->add(it.m_max_current);
+      this->add(it.m_min_current);
+      this->add(it.m_run_intervall_micros);
     }
   private:
   
