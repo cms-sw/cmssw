@@ -39,12 +39,9 @@
 
 namespace cond {
   
-  static int c=0;
   static void topinit(){
-    if(c==0){
+    if(!edmplugin::PluginManager::isAvailable())
       edmplugin::PluginManager::configure(edmplugin::standard::config());
-    }
-    ++c;
     return;
   }
 
