@@ -7,15 +7,15 @@ os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 
 import coral
 from CondCore.TagCollection import Node,tagInventory,TagTree
-#context = coral.Context()
-#context.setVerbosityLevel( 'ERROR' )
+# context = coral.Context()
+# context.setVerbosityLevel( 'ERROR' )
 # context.setVerbosityLevel( 'DEBUG' )
 svc = coral.ConnectionService()
-session = svc.connect("sqlite_file:CondCore/TagCollection/data/GlobalTag.db",accessMode = coral.access_ReadOnly )
-# session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG",accessMode = coral.access_ReadOnly )
+# session = svc.connect("sqlite_file:CondCore/TagCollection/data/GlobalTag.db",accessMode = coral.access_ReadOnly )
+session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG",accessMode = coral.access_ReadOnly )
 inv=tagInventory.tagInventory(session)
-# mytree=TagTree.tagTree(session,"GR09_31X_V5P")
-mytree=TagTree.tagTree(session,"GR09_31X")
+mytree=TagTree.tagTree(session,"GR09_31X_V5P")
+# mytree=TagTree.tagTree(session,"GR09_31X")
 result=mytree.getAllLeaves()
 tags=[]
 for r in result:
@@ -105,4 +105,7 @@ for db in (dba,dbe) :
 ----------
 
 conn = 'frontier://FrontierProd/CMS_COND_31X_RUN_INFO'
+conn = 'oracle://orcoff_prod/CMS_COND_31X_RUN_INFO'
+tag = 'lumi83037_v1_iovFrom1'
 db = rdbms.getDB(conn)
+iov = db.iov(tag)

@@ -100,6 +100,7 @@ namespace cond {
       "SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n"
       ;
 
+    /*
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
     edm::makeParameterSets(config, params_, pServiceSets);
@@ -109,7 +110,7 @@ namespace cond {
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
-
+    */
   }
 
   //------------------------------------------------------------
