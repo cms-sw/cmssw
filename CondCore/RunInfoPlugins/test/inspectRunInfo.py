@@ -33,9 +33,11 @@ try :
     print iov.list()
     #for x in  iov.summaries():
     #    print x[1], x[2] ,x[3]
-    print "########average current value vs runnumber########"
     what={}
+    print "###(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber###"
     print iov.trend(what)
+    print "########(start_current,stop_current,avg_current,max_current,min_current,run_interval_micros) vs runnumber in a given range########"
+    print iov.trendinrange(what,109441L,109503L)
 except Exception, er :
     print er
 
