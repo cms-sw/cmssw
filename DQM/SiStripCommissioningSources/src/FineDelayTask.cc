@@ -22,12 +22,6 @@ FineDelayTask::FineDelayTask( DQMStore* dqm,
   CommissioningTask( dqm, conn, "FineDelayTask" )
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
-  // compute the fiber length correction
-  float length=conn.fiberLength();
-  // convert cm to ns
-  float c=30; //speed of light in cm/ns
-  float refractionIndex = 1.4; // refraction index of the optical fibers
-  fiberLengthCorrection_ =  length/c*refractionIndex;
 }
 
 // -----------------------------------------------------------------------------
