@@ -67,6 +67,8 @@ namespace cond {
 								 makePresence("MessageServicePresence").release());
     
     // C.  Manufacture a configuration and establish it.
+
+    /*
     std::string config =
       "process x = {"
       "service = MessageLogger {"
@@ -90,9 +92,14 @@ namespace cond {
       "service = JobReportService{}"
       "service = SiteLocalConfigService{}"
       "}";
-    
-    
-    
+    */
+    std::string config =
+      "import FWCore.ParameterSet.Config as cms"
+      "process = cms.Process(x)"
+      "process.jobreport = cms.Service('JobReportService')"
+      "process.sitelocal = cms.Service('SiteLocalConfigService')"
+      ;
+
     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
     boost::shared_ptr<edm::ParameterSet>          params_;
     edm::makeParameterSets(config, params_, pServiceSets);

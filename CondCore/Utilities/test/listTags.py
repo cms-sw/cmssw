@@ -100,3 +100,9 @@ for db in (dba,dbe) :
         except RuntimeError :
             print " no iov?"
 
+
+
+----------
+
+conn = 'frontier://FrontierProd/CMS_COND_31X_RUN_INFO'
+db = rdbms.getDB(conn)
