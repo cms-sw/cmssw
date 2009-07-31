@@ -45,7 +45,7 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 
 if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
@@ -97,6 +97,7 @@ EOF
 
 cat > scaledhistosForBkg <<EOF
 
+  nOfPhotons
   scBkgEta
   scBkgPhi
   scBkgEAll
@@ -220,7 +221,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -238,10 +239,10 @@ $i->SetStats(0);
 if ( $i==pEcalRecHitSumEtConeDR04VsEtaBkgAll ) {  
 $i->GetYaxis()->SetRangeUser(0.,25.);
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgBarrel ) 
-{ $i->GetYaxis()->SetRangeUser(0.,20.); 
+{ $i->GetYaxis()->SetRangeUser(0.,30.); 
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgEndcap  ) 
 {
-$i->GetYaxis()->SetRangeUser(0.,20.);
+$i->GetYaxis()->SetRangeUser(0.,30.);
 } else  {
 $i->SetMinimum(0.8);
 $i->SetMaximum(1.1);
@@ -259,7 +260,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -356,6 +357,7 @@ rm begin.html
 cat  bkgValidationPlotsTemplate.html >>& validation.html
 rm   bkgValidationPlotsTemplate.html 
 
+rm efficiencyForBkg
 rm scaledhistosForBkg
 rm unscaledhistosForBkg
 rm 2DhistosForBkg
