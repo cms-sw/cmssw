@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -426,6 +427,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     SiStripKey path;
     if ( view == sistrip::CONTROL_VIEW ) { path = SiStripFecKey( source_dir ); }
     else if ( view == sistrip::READOUT_VIEW ) { path = SiStripFedKey( source_dir ); }
+    else if ( view == sistrip::DETECTOR_VIEW ) { path = SiStripDetKey( source_dir ); }
     else { path = SiStripKey(); }
     
     // Check path is valid
@@ -438,6 +440,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     std::string client_dir(sistrip::undefinedView_);
     if ( view == sistrip::CONTROL_VIEW ) { client_dir = SiStripFecKey( path.key() ).path(); }
     else if ( view == sistrip::READOUT_VIEW ) { client_dir = SiStripFedKey( path.key() ).path(); }
+    else if ( view == sistrip::DETECTOR_VIEW ) { client_dir = SiStripDetKey( path.key() ).path(); }
     else { client_dir = SiStripKey( path.key() ).path(); }
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
@@ -499,6 +502,12 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 				       sistrip::invalid_,
 				       channel ).key(); // just record lld channel
 	mapping_[title.keyValue()] = temp;
+
+      } else if ( view == sistrip::DETECTOR_VIEW ) { 
+
+	SiStripDetKey temp( path.key() ); 
+	key = SiStripDetKey( temp.partition() ).key();
+	mapping_[title.keyValue()] = key;
 
       } else { key = SiStripKey( path.key() ).key(); }
       
@@ -581,6 +590,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     SiStripKey path;
     if ( view == sistrip::CONTROL_VIEW ) { path = SiStripFecKey( source_dir ); }
     else if ( view == sistrip::READOUT_VIEW ) { path = SiStripFedKey( source_dir ); }
+    else if ( view == sistrip::DETECTOR_VIEW ) { path = SiStripDetKey( source_dir ); }
     else { path = SiStripKey(); }
     
     // Check path is valid
@@ -595,6 +605,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     std::string client_dir(sistrip::undefinedView_);
     if ( view == sistrip::CONTROL_VIEW ) { client_dir = SiStripFecKey( path.key() ).path(); }
     else if ( view == sistrip::READOUT_VIEW ) { client_dir = SiStripFedKey( path.key() ).path(); }
+    else if ( view == sistrip::DETECTOR_VIEW ) { client_dir = SiStripDetKey( path.key() ).path(); }
     else { client_dir = SiStripKey( path.key() ).path(); }
     std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
     if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
@@ -654,6 +665,13 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 				       sistrip::invalid_,
 				       channel ).key(); // just record lld channel
 	mapping_[title.keyValue()] = temp;
+
+      } else if ( view == sistrip::DETECTOR_VIEW ) { 
+
+	// for all runs except cabling
+	SiStripDetKey temp( path.key() ); 
+	key = SiStripDetKey( temp.partition() ).key();
+	mapping_[title.keyValue()] = key;
 
       } else { key = SiStripKey( path.key() ).key(); }
       
