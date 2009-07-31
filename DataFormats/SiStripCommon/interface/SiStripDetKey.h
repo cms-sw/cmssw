@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDetKey.h,v 1.6 2007/07/31 15:20:24 ratnik Exp $
+// Last commit: $Id: SiStripDetKey.h,v 1.7 2008/02/06 14:32:33 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h
@@ -7,14 +7,9 @@
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
-class SiStripDetKey;
-
-/** Debug info for SiStripDetKey class. */
-std::ostream& operator<< ( std::ostream&, const SiStripDetKey& );
-
-/*
+/**
    @class SiStripDetKey
-   @author R.Bainbridge
+   @author R.Bainbridge, S.Lowette
 
    @brief Utility class that identifies a position within the strip
    tracker geometrical structure, down to the level of an APV25 chip.
@@ -37,10 +32,13 @@ class SiStripDetKey : public SiStripKey {
 
   // ---------- Constructors ----------
 
+  /** Constructor using partition. */
+  SiStripDetKey( const uint16_t& partition );
+
   /** Constructor using DetId, APV pair and APV pos within pair. */
   SiStripDetKey( const DetId& det_id,
-		 const uint16_t& apv_pair_number = 0,
-		 const uint16_t& apv_within_pair = 0 );
+                 const uint16_t& apv_pair_number = 0,
+                 const uint16_t& apv_within_pair = 0 );
   
   /** Constructor using SiStripDetId. */
   SiStripDetKey( const SiStripDetId& det_id );
@@ -57,10 +55,17 @@ class SiStripDetKey : public SiStripKey {
   /** Copy constructor using base class. */
   SiStripDetKey( const SiStripKey& );
   
+  /** Copy to level specified by granularity. */
+  SiStripDetKey( const SiStripKey&,
+                 const sistrip::Granularity& );
+
   /** Default constructor */
   SiStripDetKey();
   
   // ---------- Public interface to member data ----------
+  
+  /** Returns partition. */
+  inline const uint16_t& partition() const;
   
   /** Returns APV pair number. */
   inline const uint16_t& apvPairNumber() const;
@@ -102,7 +107,7 @@ class SiStripDetKey : public SiStripKey {
   virtual void print( std::stringstream& ss ) const;
   
   /** A terse summary of the key  */
-  virtual void terse( std::stringstream& ss ) const {;}
+  virtual void terse( std::stringstream& ss ) const;
   
  private: 
 
@@ -115,24 +120,33 @@ class SiStripDetKey : public SiStripKey {
   
   // ---------- Private member data ----------
 
+  /** partition [0,1-4,invalid]. */
+  uint16_t partition_;
+
   /** APV pair number [0,1-3,invalid]. */
-  uint16_t apvPairNumber_; 
+  uint16_t apvPairNumber_;
 
   /** APV position within pair [0,1-2,invalid]. */
   uint16_t apvWithinPair_; 
   
   // Definition of bit field positions for 32-bit key 
-  static const uint16_t tempOffset_ = 0;
+  static const uint16_t partitionOffset_ = 29;
 
   // Definition of bit field masks for 32-bit key 
-  static const uint16_t tempMask_ = 0x00F; // (4 bits)
+  static const uint16_t partitionMask_ = 0x07; // (3 bits)
   
 };
 
 // ---------- inline methods ----------
 
+const uint16_t& SiStripDetKey::partition() const { return partition_; }
 const uint16_t& SiStripDetKey::apvPairNumber() const { return apvPairNumber_; }
 const uint16_t& SiStripDetKey::apvWithinPair() const { return apvWithinPair_; }
 
-#endif // DataFormats_SiStripCommon_SiStripDetKey_h
+/** Debug info for SiStripDetKey class. */
+std::ostream& operator<< ( std::ostream&, const SiStripDetKey& );
 
+inline bool operator< ( const SiStripDetKey& a, const SiStripDetKey& b ) { return ( a.key() < b.key() ); }
+
+
+#endif // DataFormats_SiStripCommon_SiStripDetKey_h
