@@ -107,6 +107,8 @@ class Iov :
            return ret
     
        def trendinrange(self, what, head, tail) :
+           '''extract trend in the given range. the input parameters are in 64bit integer format. Users should pack the timestamp or lumiid before calling this method
+           '''
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
            exec('import '+self.__modName+' as Plug')
            ret = []
@@ -114,8 +116,8 @@ class Iov :
            ex = Plug.Extractor(w)
 
            for elem in self.__me.elements :
-                  since = elem.since()>>32
-                  till = elem.till()>>32
+                  since = elem.since()
+                  till = elem.till()
                   if (head < since < tail) or (since < head < till) or (since < tail < till):
                          p = Plug.Object(elem)
                          p.extract(ex)
