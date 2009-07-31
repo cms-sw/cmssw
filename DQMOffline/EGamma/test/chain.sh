@@ -1,49 +1,20 @@
 destdir=/afs/cern.ch/cms/Physics/egamma/www/validation/312PreProd/Photons/DQMOffline/
 echo Destination for plots is $destdir
-1=`echo $1 | sed 's/\/$//'`
-inputdir=`echo $1`
+fixedname=`echo $1 | sed 's/\/$//'`
+inputdir=`echo $fixedname`
 echo Input directory is $inputdir
-shortname=`echo $1 | sed 's/.*\///'`
+shortname=`echo $fixedname | sed 's/.*\///'`
 echo Nickname is $shortname
 rootfile=`echo $shortname.root`
 echo ROOT file containing plots will be $rootfile
 
 rfdir $inputdir | grep 'root' | awk '{print $9}' | sed "s,^,$inputdir/," | xargs hadd -f $rootfile
 
-rm ../python/photonOfflineClient_cfi.py
+#rm ../python/photonOfflineClient_cfi.py
 rm photonOfflineClient_cfi.template
-cat >> photonOfflineClient_cfi.template << EOF
-import FWCore.ParameterSet.Config as cms
-
-from DQMOffline.EGamma.photonAnalyzer_cfi import *
-
-
-photonOfflineClient = cms.EDAnalyzer("PhotonOfflineClient",
-
-    Name = cms.untracked.string('photonOfflineClient'),
-
-    standAlone = cms.bool(False),
-    batch = cms.bool(False),                                     
-
-
-    cutStep = photonAnalysis.cutStep,
-    numberOfSteps = photonAnalysis.numberOfSteps,
-
-
-    etBin = photonAnalysis.etBin,
-    etMin = photonAnalysis.etMin,
-    etMax = photonAnalysis.etMax,
-                             
-    etaBin = photonAnalysis.etaBin,
-    etaMin = photonAnalysis.etaMin,
-    etaMax = photonAnalysis.etaMax,
-                                     
-    InputFileName = cms.untracked.string("file:__FILENAME__"),
-                                     
-    OutputFileName = cms.string('DQMOfflinePhotonsStandAlone.root'),
-)
-EOF
-sed "s,__FILENAME__,$rootfile," photonOfflineClient_cfi.template > ../python/photonOfflineClient_cfi.py
+#    InputFileName = cms.untracked.string("file:__FILENAME__"),
+sed "s%InputFileName = cms\.untracked\.string(\".*\")%InputFileName = cms.untracked.string(\"$rootfile\")%" ../python/photonOfflineClient_cfi.py > photonOfflineClient_cfi.template
+mv -f photonOfflineClient_cfi.template ../python/photonOfflineClient_cfi.py
 cmsRun PhotonOfflineClient_cfg.py
 
 rm plotlist.txt
