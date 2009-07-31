@@ -19,5 +19,6 @@ RETVAL=$?
 #mv  DQM_V0001_R000000001__MC_31X_V1__${1}__Validation.root val.${1}.root
 mv  DQM_V0001_R000000001__STARTUP31X_V1__${1}__Validation.root val.${1}.root
 
-mv -f ${1}_1.log $OUTDIR/
 mv -f *.root $OUTDIR/
+gzip *.log
+mv -f ${1}_1.log* $OUTDIR/
