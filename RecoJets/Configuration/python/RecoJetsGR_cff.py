@@ -1,22 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+
+# $Id: RecoJetsGR_cff.py,v 1.3 2008/05/19 20:56:52 rpw Exp $
+
 # Standard set:
-from RecoJets.JetProducers.kt4CaloJets_cff import *
-from RecoJets.JetProducers.kt6CaloJets_cff import *
-from RecoJets.JetProducers.iterativeCone5CaloJets_cff import *
-from RecoJets.JetProducers.sisCone5CaloJets_cff import *
-from RecoJets.JetProducers.sisCone7CaloJets_cff import *
-# $Id: RecoJetsGR.cff,v 1.3 2008/04/30 14:23:31 arizzi Exp $
+from RecoJets.JetProducers.RecoCaloJets_cff import *
+
 #
 # special R=0.15 IC jets:
-iterativeCone15CaloJets = cms.EDProducer("IterativeConeJetProducer",
-    #       using IconeJetParameters
-    CaloJetParameters,
-    alias = cms.untracked.string('IC15CaloJet'),
-    coneRadius = cms.double(0.15),
-    seedThreshold = cms.double(0.5),
-    debugLevel = cms.untracked.int32(0)
-)
+iterativeCone15CaloJets = iterativeCone5CaloJets.clone( rParam = cms.double(0.15) )
+
 
 recoJetsGR = cms.Sequence(iterativeCone15CaloJets+kt4CaloJets+kt6CaloJets+iterativeCone5CaloJets+sisCone5CaloJets+sisCone7CaloJets)
 

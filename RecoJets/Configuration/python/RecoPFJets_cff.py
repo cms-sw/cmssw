@@ -1,62 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoPFJets_cff.py,v 1.4 2008/08/22 12:19:18 oehler Exp $
-#
-# ShR 27 Mar 07: move modules producing candidates for Jets into separate cff file due to scheduling problem
-#
-from RecoJets.JetProducers.PFJetParameters_cfi import *
-from RecoJets.JetProducers.FastjetParameters_cfi import *
-from RecoJets.JetProducers.KtJetParameters_cfi import *
-from RecoJets.JetProducers.AntiKtJetParameters_cfi import *
-from RecoJets.JetProducers.SISConeJetParameters_cfi import *
-from RecoJets.JetProducers.IconeJetParameters_cfi import *
-kt4PFJets = cms.EDProducer("KtJetProducer",
-    FastjetNoPU,
-    KtJetParameters,
-    PFJetParameters,
-    alias = cms.untracked.string('KT4PFJet'),
-    FJ_ktRParam = cms.double(0.4)
-)
+from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
+from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
 
-kt6PFJets = cms.EDProducer("KtJetProducer",
-    FastjetNoPU,
-    KtJetParameters,
-    PFJetParameters,
-    alias = cms.untracked.string('KT6PFJet'),
-    FJ_ktRParam = cms.double(0.6)
-)
 
-iterativeCone5PFJets = cms.EDProducer("IterativeConeJetProducer",
-    IconeJetParameters,
-    PFJetParameters,
-    alias = cms.untracked.string('IC5PFJet'),
-    coneRadius = cms.double(0.5)
-)
+sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
+ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
+gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
+kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
+ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 
-sisCone5PFJets = cms.EDProducer("SISConeJetProducer",
-    PFJetParameters,
-    SISConeJetParameters,
-    FastjetNoPU,
-    alias = cms.untracked.string('SISC5PFJet'),
-    coneRadius = cms.double(0.5)
-)
 
-sisCone7PFJets = cms.EDProducer("SISConeJetProducer",
-    PFJetParameters,
-    SISConeJetParameters,
-    FastjetNoPU,
-    alias = cms.untracked.string('SISC7PFJet'),
-    coneRadius = cms.double(0.7)
-)
+recoPFJets   =cms.Sequence(sisCone5PFJets+sisCone7PFJets+
+                           kt4PFJets+kt6PFJets+
+                           iterativeCone5PFJets+
+                           ak5PFJets+ak7PFJets)
 
-antikt5PFJets = cms.EDProducer("AntiKtJetProducer",
-    PFJetParameters,
-    AntiKtJetParameters,
-    FastjetNoPU,
-    
-    alias = cms.untracked.string('ANTIKT5PFJet'),
-    FJ_ktRParam = cms.double(0.5)
-)
-
-recoPFJets = cms.Sequence(kt4PFJets+kt6PFJets+antikt5PFJets+iterativeCone5PFJets+sisCone5PFJets+sisCone7PFJets)
-
+recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
+                           kt4PFJets+kt6PFJets+
+                           iterativeCone5PFJets+
+                           ak5PFJets+ak7PFJets+
+                           gk5PFJets+gk7PFJets+
+                           ca4PFJets+ca6PFJets)
