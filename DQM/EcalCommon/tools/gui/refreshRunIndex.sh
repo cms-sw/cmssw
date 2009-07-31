@@ -24,9 +24,7 @@ touch /tmp/updateRunIndex.lock
 
 echo "Index refresh: begin"
 
-#find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' | xargs -r ls -tr | tail -$N | xargs -n 1 -r visDQMIndex -d add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx
-
-find ${HOME}/work/cms/CMSSW_3_2_0 -name 'DQM_V*.root' | xargs -r ls -tr | tail -$N | xargs -n 1 -r visDQMIndex -d add --dataset /Global/Online/ALL ${HOME}/work/cms/dqm-GUI/idx
+find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' | xargs -r ls -tr | tail -$N | xargs -n 1 -r visDQMIndex -d add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx
 
 echo "Index refresh: end"
 
