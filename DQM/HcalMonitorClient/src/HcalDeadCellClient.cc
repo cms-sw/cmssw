@@ -319,7 +319,7 @@ void HcalDeadCellClient::getHistograms()
   // dummy histograms -- used for checking histogram types
   TH2F* dummy2D = new TH2F();
   TH1F* dummy1D = new TH1F();
-
+  TProfile* dummyProfile = new TProfile();
   
   // Grab individual histograms
   name.str("");
@@ -332,56 +332,56 @@ void HcalDeadCellClient::getHistograms()
   if (deadclient_test_occupancy_) getEtaPhiHists("DeadCellMonitor_Hcal/dead_digi_often_missing/",   "Dead Cells with No Digis", UnoccupiedDeadCellsByDepth);
   if (deadclient_test_energy_)    getEtaPhiHists("DeadCellMonitor_Hcal/dead_energytest/",   "Dead Cells Failing Energy Threshold Test", BelowEnergyThresholdCellsByDepth);
 
-  NumberOfDeadCells=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HCAL",
+  NumberOfDeadCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HCAL_vs_LS",
 				process_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHB=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HB",
+  NumberOfDeadCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HB_vs_LS",
 				  process_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHE=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HE",
+  NumberOfDeadCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HE_vs_LS",
 				  process_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHO=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HO",
+  NumberOfDeadCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HO_vs_LS",
 				  process_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHF=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HF",
+  NumberOfDeadCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_HF_vs_LS",
 				  process_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsZDC=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_ZDC",
+  NumberOfDeadCellsZDC=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/Problem_TotalDeadCells_ZDC_vs_LS",
 				   process_,dbe_,debug_,cloneME_);
 
-  NumberOfNeverPresentCells=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalNeverPresentCells_HCAL",
+  NumberOfNeverPresentCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalNeverPresentCells_HCAL_vs_LS",
 					process_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHB=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HB",
+  NumberOfNeverPresentCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HB_vs_LS",
 					  process_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHE=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HE",
+  NumberOfNeverPresentCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HE_vs_LS",
 					  process_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHO=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HO",
+  NumberOfNeverPresentCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HO_vs_LS",
 					  process_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHF=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HF",
+  NumberOfNeverPresentCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HF_vs_LS",
 					  process_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsZDC=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_ZDC",
+  NumberOfNeverPresentCellsZDC=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_ZDC_vs_LS",
 					   process_,dbe_,debug_,cloneME_);
 
-  NumberOfUnoccupiedCells=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalUnoccupiedCells_HCAL",
+  NumberOfUnoccupiedCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalUnoccupiedCells_HCAL_vs_LS",
 				      process_,dbe_,debug_,cloneME_);
-  NumberOfUnoccupiedCellsHB=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HB",
+  NumberOfUnoccupiedCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HB_vs_LS",
 					process_,dbe_,debug_,cloneME_);
-  NumberOfUnoccupiedCellsHE=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HE",
+  NumberOfUnoccupiedCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HE_vs_LS",
 					process_,dbe_,debug_,cloneME_);
-  NumberOfUnoccupiedCellsHO=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HO",
+  NumberOfUnoccupiedCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HO_vs_LS",
 					process_,dbe_,debug_,cloneME_);
-  NumberOfUnoccupiedCellsHF=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HF",
+  NumberOfUnoccupiedCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HF_vs_LS",
 					process_,dbe_,debug_,cloneME_);
-  NumberOfUnoccupiedCellsZDC=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_ZDC",
+  NumberOfUnoccupiedCellsZDC=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_ZDC_vs_LS",
 					 process_,dbe_,debug_,cloneME_);
 
-  NumberOfBelowEnergyCells=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HCAL",
+  NumberOfBelowEnergyCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HCAL_vs_LS",
 				       process_,dbe_,debug_,cloneME_);
-  NumberOfBelowEnergyCellsHB=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HB",
+  NumberOfBelowEnergyCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HB_vs_LS",
 					 process_,dbe_,debug_,cloneME_);
-  NumberOfBelowEnergyCellsHE=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HE",
+  NumberOfBelowEnergyCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HE_vs_LS",
 					 process_,dbe_,debug_,cloneME_);
-  NumberOfBelowEnergyCellsHO=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HO",
+  NumberOfBelowEnergyCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HO_vs_LS",
 					 process_,dbe_,debug_,cloneME_);
-  NumberOfBelowEnergyCellsHF=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HF",
+  NumberOfBelowEnergyCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HF_vs_LS",
 					 process_,dbe_,debug_,cloneME_);
-  NumberOfBelowEnergyCellsZDC=getAnyHisto(dummy1D,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_ZDC",
+  NumberOfBelowEnergyCellsZDC=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_ZDC_vs_LS",
 					  process_,dbe_,debug_,cloneME_);
 
   // Scale rate histograms -- no!  Scaling is all done in SummaryClient!
@@ -396,6 +396,7 @@ void HcalDeadCellClient::getHistograms()
 
   delete dummy1D;
   delete dummy2D;
+  delete dummyProfile;
   return;
 } //void HcalDeadCellClient::getHistograms()
 
@@ -838,33 +839,33 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
 
     } //for (int i=0;i<4;++i)
 
-  NumberOfDeadCells= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HCAL").c_str());
-  NumberOfDeadCellsHB= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HB").c_str());
-  NumberOfDeadCellsHE= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HE").c_str());
-  NumberOfDeadCellsHO= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HO").c_str());
-  NumberOfDeadCellsHF= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HF").c_str());
-  NumberOfDeadCellsZDC= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_ZDC").c_str());
+  NumberOfDeadCells= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HCAL").c_str());
+  NumberOfDeadCellsHB= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HB").c_str());
+  NumberOfDeadCellsHE= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HE").c_str());
+  NumberOfDeadCellsHO= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HO").c_str());
+  NumberOfDeadCellsHF= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_HF").c_str());
+  NumberOfDeadCellsZDC= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/Problem_TotalBelowEnergyCells_ZDC").c_str());
 
-  NumberOfNeverPresentCells= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HCAL").c_str());
-  NumberOfNeverPresentCellsHB= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HB").c_str());
-  NumberOfNeverPresentCellsHE= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HE").c_str());
-  NumberOfNeverPresentCellsHO= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HO").c_str());
-  NumberOfNeverPresentCellsHF= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HF").c_str());
-  NumberOfNeverPresentCellsZDC= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_ZDC").c_str());
+  NumberOfNeverPresentCells= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HCAL").c_str());
+  NumberOfNeverPresentCellsHB= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HB").c_str());
+  NumberOfNeverPresentCellsHE= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HE").c_str());
+  NumberOfNeverPresentCellsHO= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HO").c_str());
+  NumberOfNeverPresentCellsHF= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_HF").c_str());
+  NumberOfNeverPresentCellsZDC= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_TotalBelowEnergyCells_ZDC").c_str());
 
-  NumberOfUnoccupiedCells= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HCAL").c_str());
-  NumberOfUnoccupiedCellsHB= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HB").c_str());
-  NumberOfUnoccupiedCellsHE= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HE").c_str());
-  NumberOfUnoccupiedCellsHO= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HO").c_str());
-  NumberOfUnoccupiedCellsHF= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HF").c_str());
-  NumberOfUnoccupiedCellsZDC= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_ZDC").c_str());
+  NumberOfUnoccupiedCells= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HCAL").c_str());
+  NumberOfUnoccupiedCellsHB= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HB").c_str());
+  NumberOfUnoccupiedCellsHE= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HE").c_str());
+  NumberOfUnoccupiedCellsHO= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HO").c_str());
+  NumberOfUnoccupiedCellsHF= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_HF").c_str());
+  NumberOfUnoccupiedCellsZDC= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_TotalBelowEnergyCells_ZDC").c_str());
 
-  NumberOfBelowEnergyCells= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HCAL").c_str());
-  NumberOfBelowEnergyCellsHB= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HB").c_str());
-  NumberOfBelowEnergyCellsHE= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HE").c_str());
-  NumberOfBelowEnergyCellsHO= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HO").c_str());
-  NumberOfBelowEnergyCellsHF= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HF").c_str());
-  NumberOfBelowEnergyCellsZDC= (TH1F*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_ZDC").c_str());
+  NumberOfBelowEnergyCells= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HCAL").c_str());
+  NumberOfBelowEnergyCellsHB= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HB").c_str());
+  NumberOfBelowEnergyCellsHE= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HE").c_str());
+  NumberOfBelowEnergyCellsHO= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HO").c_str());
+  NumberOfBelowEnergyCellsHF= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_HF").c_str());
+  NumberOfBelowEnergyCellsZDC= (TProfile*)infile->Get((process_+"Hcal/DeadCellMonitor_Hcal/dead_energytest/Problem_TotalBelowEnergyCells_ZDC").c_str());
 
 
   // Scale rate histograms -- no!  Scaling of Problem Histograms is done in Summary Client!
