@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.33 2009/03/04 16:53:41 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.34 2009/05/20 20:41:43 chrjones Exp $
 //
 
 // system include files
@@ -411,7 +411,10 @@ FWEventItem::data(const std::type_info& iInfo) const
          const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
          if(not prod->isPresent()) {
             //not actually in this event
-            std::cerr <<"data unavailable for this event"<<std::endl;
+            if(!m_printedNoDataError) {
+               std::cerr <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
+               m_printedNoDataError = true;
+            }
             return 0;
          }
 
