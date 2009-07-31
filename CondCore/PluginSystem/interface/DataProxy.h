@@ -67,7 +67,7 @@ namespace cond {
     }
     
     std::string const & connString() const { return m_connString;}
-      std::string const & tag() const { return m_tag;}
+    std::string const & tag() const { return m_tag;}
 
   private:
     std::string m_label;
