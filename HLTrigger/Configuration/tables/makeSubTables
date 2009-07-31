@@ -1,0 +1,46 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+# usage: ./runMe.sh
+#
+
+ROOT="/dev/CMSSW_3_2_1"
+VERSION="V3"
+TABLES="1E31 8E29 GRun HIon"
+
+function makeCreateConfig() {
+  local DIR="$PWD"
+  cd "$CMSSW_BASE/src"
+  [ -d EventFilter/ConfigDB ] || cvs co EventFilter/ConfigDB
+  cd EventFilter/ConfigDB
+  [ -f classes/confdb/db/ConfDBCreateConfig.class ] || ant
+  cd "$DIR"
+}
+
+function runCreateConfig() {
+  # usage:
+  #   runCreateConfig DB PASSWORD MASTER PATHS TARGET
+  local DIR="$PWD"
+  cd "$CMSSW_BASE/src/EventFilter/ConfigDB/test"
+  ./runCreateConfig --$1 --dbpwrd $2 --master $3 --paths $DIR/$4 --name $5
+  cd "$DIR"
+}
+
+[ -n "$CMSSW_BASE" ] || {
+  echo "Error: SCRAM environment not set up"
+  exit 1
+}
+
+MASTER=$ROOT/HLT/$VERSION
+echo "ConfDB master: $MASTER"
+echo "Subtables:     $TABLES"
+read -p "Enter password for DB: " -s PASSWORD
+echo
+
+makeCreateConfig
+for TABLE in $TABLES; do
+  TARGET="${ROOT}/${TABLE}"
+  runCreateConfig "hltdev" "$PASSWORD" "$MASTER" "$TABLE.txt" "$TARGET"
+done
+
