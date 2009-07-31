@@ -261,7 +261,7 @@ if options.filetype=="MCDB" and options.filein.startswith("mcdb:"):
 filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
 
 first_step=trimmedStep.split(',')[0]             
-if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN","CFWRITER") and options.dirin == ""):
+if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN") and options.dirin == ""):
     if options.dirin=="":
         options.dirin="file:"
     options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix

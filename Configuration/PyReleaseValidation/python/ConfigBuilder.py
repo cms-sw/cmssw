@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.136 $"
+__version__ = "$Revision: 1.137 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -111,10 +111,6 @@ class ConfigBuilder(object):
            if 'HARVESTING' in self._options.step:
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
-        if 'CFWRITER' in self._options.step:
-            self.process.source=cms.Source("EmptySource")
-            return
-    
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -770,7 +766,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.136 $"),
+              (version=cms.untracked.string("$Revision: 1.137 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
