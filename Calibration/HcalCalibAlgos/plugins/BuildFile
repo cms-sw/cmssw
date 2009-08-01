@@ -22,6 +22,11 @@
 <use name=Utilities/Timing>
 <use name=rootphysics>
 
+#### Needed for ValidIsoTrkCalib
+<use name=TrackPropagation/SteppingHelixPropagator>
+<use name=TrackingTools/TrackAssociator>
+###########
+
 <library file="*.cc" name=CalibrationHcalCalibAlgosPlugins>
       <flags EDM_PLUGIN=1>
 </library>
