@@ -17,11 +17,9 @@ touch /tmp/createRunIndex.lock
 
 rm -fr /data/ecalod-disk01/dqm-GUI/idx
 
-visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
-
 echo "Index create: begin"
 
-./visDQMImport /data/ecalod-disk01/dqm-GUI/idx /data/ecalod-disk01/dqm-data/root
+visDQMIndex create /data/ecalod-disk01/dqm-GUI/idx
 
 echo "Index create: end"
 
