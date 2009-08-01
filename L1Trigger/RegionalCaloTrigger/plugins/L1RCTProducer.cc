@@ -209,24 +209,17 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	edm::Handle<HcalTrigPrimDigiCollection> hcal;
 
 	if (useEcal) { event.getByLabel(ecalDigis[sample], ecal); }
-	if (useHcal) { event.getByLabel(hcalDigis[sample], hcal); }
+	if (useHcal) {  }
 
 	EcalTrigPrimDigiCollection ecalIn;
 	HcalTrigPrimDigiCollection hcalIn;
 
 
-	if(hcal.isValid())
-	for(unsigned int i=0;i<hcal->size();++i)
-	 {
+	if(useHcal&&event.getByLabel(hcalDigis[sample], hcal))
+	  hcalIn = *hcal;
 
-	         hcalIn.push_back((*hcal)[i]);
-	 }
-	if(ecal.isValid())
-	for(unsigned int i=0;i<ecal->size();++i)
-	 {
-		ecalIn.push_back((*ecal)[i]);
-	 }
-
+	if(useEcal&&event.getByLabel(ecalDigis[sample],ecal))
+	  ecalIn = *ecal;
 
 	rct->digiInput(ecalIn,hcalIn);
 	rct->processEvent();

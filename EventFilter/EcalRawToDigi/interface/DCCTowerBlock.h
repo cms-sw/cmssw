@@ -25,7 +25,7 @@ class DCCTowerBlock : public DCCFEBlock {
 	
   public :
 
-    DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack );
+    DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata );
     
     void updateCollectors();
 	 

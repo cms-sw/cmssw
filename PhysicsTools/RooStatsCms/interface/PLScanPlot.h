@@ -2,8 +2,8 @@
 
 /**
 \class PLScanPlot
-$Revision: 1.4 $
-$Date: 2009/04/15 12:31:51 $
+$Revision: 1.3 $
+$Date: 2009/04/15 11:10:45 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 **/
 
@@ -13,11 +13,7 @@ $Date: 2009/04/15 12:31:51 $
 #include <vector>
 #include <iostream>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalPlot.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/StatisticalPlot.h"
 
 #include "TGraph.h"
 #include "TLine.h"
@@ -110,10 +106,6 @@ class PLScanPlot : public StatisticalPlot {
 
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(PLScanPlot,1)
-#endif
  };
 
 #endif

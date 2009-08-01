@@ -135,5 +135,5 @@ deRpc = cms.Sequence(valRpcTriggerDigis)
 deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
 
-# the sequences
+# the sequence
 L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)

@@ -1373,7 +1373,7 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
   mePlot -> setBinLabel(2,"Buffer Busy",axisType);
   mePlot -> setBinLabel(3,"Empty Event",axisType);
   mePlot -> setBinLabel(4,"Reject L1A",axisType);
-  mePlot -> setBinLabel(5,"Latency Err",axisType);
+  mePlot -> setBinLabel(5,"Corrupt Stream",axisType);
   mePlot -> setBinLabel(6,"Latency Warn",axisType);
   mePlot -> setBinLabel(7,"OptDat Err",axisType);
   mePlot -> setBinLabel(8,"Clock Err",axisType);

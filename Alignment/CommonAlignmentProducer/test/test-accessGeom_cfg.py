@@ -14,6 +14,7 @@ process.load("Geometry.CSCGeometryBuilder.cscGeometry_cfi")
 
 # global tag...
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "MC_31X_V3::All" # use a valid global tag here!
 #... or fake...
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 #... or specific tracker/muon conditions
@@ -44,5 +45,3 @@ process.demo = cms.EDFilter("TestAccessGeom",
 process.p = cms.Path(process.demo)
 process.MessageLogger.cerr.INFO.limit = 1000000
 process.MessageLogger.cerr.noTimeStamps = True
-
-

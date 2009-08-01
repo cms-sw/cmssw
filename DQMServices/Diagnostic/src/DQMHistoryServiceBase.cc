@@ -62,8 +62,17 @@ void DQMHistoryServiceBase::createSummary(){
 	setDBLabelsForGauss(keyName, userDBContent);
       else if  ( Quantities[i] == "stat" )
 	setDBLabelsForStat(keyName, userDBContent);
-      else 
-	setDBLabelsForUser(keyName, userDBContent, Quantities[i]);
+      else if  ( Quantities[i] == "user" )
+	setDBLabelsForUser(keyName, userDBContent);
+      else{
+	edm::LogError("DQMHistoryServiceBase") 
+	  << "Quantity " << Quantities[i] 
+	  << " cannot be handled\nAllowed quantities are" 
+	  << "\n  'stat'   that includes: entries, mean, rms"
+	  << "\n  'landau' that includes: landauPeak, landauPeakErr, landauSFWHM, landauChi2NDF"
+	  << "\n  'gauss'  that includes: gaussMean, gaussSigma, gaussChi2NDF"
+	  << std::endl;
+      }
     }
   }
   obj_->setUserDBContent(userDBContent);
@@ -143,9 +152,9 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
 	  setDBLabelsForStat(keyName, userDBContent);
   	  setDBValuesForStat(iterMes,values);
 	}
-	else{
-	  setDBLabelsForUser(keyName, userDBContent,Quantities[i]);
-	  setDBValuesForUser(iterMes,values,Quantities[i]);
+	else if  ( Quantities[i] == "user" ){
+	  setDBLabelsForUser(keyName, userDBContent);
+	  setDBValuesForUser(iterMes,values);
 	}
       }  
       

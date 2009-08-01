@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2008/04/25 21:23:14 $
- *  $Revision: 1.16 $
- *  (last update by $Author: pivarski $)
+ *  $Date: 2008/09/02 15:26:07 $
+ *  $Revision: 1.17 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -79,13 +79,31 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
 //________________________________________________________________________________
 void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet)
 {
+  // Allow non-specified arrays to be interpreted as empty (i.e. no selection),
+  // but take care that nothing unknown is configured (to fetch typos!). 
 
-  theRangesEta = pSet.getParameter<std::vector<double> >("etaRanges");
-  theRangesPhi = pSet.getParameter<std::vector<double> >("phiRanges");
-  theRangesR   = pSet.getParameter<std::vector<double> >("rRanges"  );
-  theRangesX   = pSet.getParameter<std::vector<double> >("xRanges"  );
-  theRangesY   = pSet.getParameter<std::vector<double> >("yRanges"  );
-  theRangesZ   = pSet.getParameter<std::vector<double> >("zRanges"  );
+  this->clearGeometryCuts();
+  const std::vector<std::string> parameterNames(pSet.getParameterNames());
+  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(),
+	 iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
+    // Calling swap is more efficient than assignment:
+    if (*iParam == "etaRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesEta);
+    } else if (*iParam == "phiRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesPhi);
+    } else if (*iParam == "rRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesR);
+    } else if (*iParam == "xRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesX);
+    } else if (*iParam == "yRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesY);
+    } else if (*iParam == "zRanges") {
+      pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesZ);
+    } else {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::setGeometryCuts] "
+					<< "Unknown parameter '" << *iParam << "'.\n";
+    }
+  }
 }
 
 //________________________________________________________________________________
@@ -110,7 +128,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   ////////////////////////////////////
   if (name.find("Tracker") == 0) { // string starts with "Tracker"
     if (!theTracker) {
-      throw cms::Exception("BadConfig") << "[TrackerAlignmentSelector::addSelection] "
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::addSelection] "
 					<< "Configuration requires access to AlignableTracker"
 					<< " (for " << name << ") that is not initialized";
     }
@@ -220,7 +238,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   // Check if name contains muon and react if alignable muon not initialized
   else if (name.find("Muon") != std::string::npos) {
     if  (!theMuon) {
-      throw cms::Exception("BadConfig") << "[TrackerAlignmentSelector::addSelection] "
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::addSelection] "
 					<< "Configuration requires access to AlignableMuon"
 					<< " which is not initialized";
     }

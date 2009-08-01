@@ -148,7 +148,8 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   
   if (dccHeader->getCDFEventType()!= CDFEvT_it->second) 
     {
-      CDFProbThisDCC = true; 
+      // On probation until safe against Orbit Gap Calibration Triggers...
+      // CDFProbThisDCC = true; 
     }
 
   /* 4 */ //There should always be a '5' in CDF Header word 0, bits [63:60]
@@ -174,7 +175,8 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) 
     {
-      CDFProbThisDCC = true; 
+    // On probation until safe against Orbit Gap Calibration Triggers...
+    //       CDFProbThisDCC = true; 
     }
 
   /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]

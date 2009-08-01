@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2008/12/11 18:05:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/03/12 10:06:15 $
+ * $Revision: 1.2 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -34,7 +34,7 @@ class DCCEventBlock {
 	
   public :
 
-   DCCEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU);
+   DCCEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU, bool forceToKeepFRdata);
 	
    virtual ~DCCEventBlock();  
  
@@ -115,6 +115,7 @@ class DCCEventBlock {
     bool tccUnpacking_;
     bool feUnpacking_;
     bool memUnpacking_;
+    bool forceToKeepFRdata_;
 
     std::auto_ptr<EcalRawDataCollection> *  dccHeaders_;
 	 

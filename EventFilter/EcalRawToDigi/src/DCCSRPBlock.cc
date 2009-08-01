@@ -17,7 +17,11 @@ DCCSRPBlock::DCCSRPBlock(
 
 
 int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){    
+
+  // Set SR flags to zero
+  for(uint i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
   
+
   expNumbSrFlags_ = numbFlags;
   error_          = false;  
   datap_          = data;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.2 2009/07/13 21:01:36 srappocc Exp $
+// $Id: MultiChainEvent.h,v 1.1 2009/07/12 05:09:08 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -25,7 +25,6 @@
 #include <boost/shared_ptr.hpp>
 
 // user include files
-#include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
 // forward declarations
@@ -42,7 +41,7 @@ namespace fwlite {
     class MultiProductGetter;
   }
 
-class MultiChainEvent: public EventBase
+class MultiChainEvent
 {
 
    public:

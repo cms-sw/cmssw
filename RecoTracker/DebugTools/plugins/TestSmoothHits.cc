@@ -11,7 +11,6 @@
 #include <TDirectory.h>
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
@@ -45,8 +44,8 @@ void TestSmoothHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
-  iSetup.get<TrajectoryFitter::Record>().get(fname, fit);
-  iSetup.get<TrajectoryFitter::Record>().get(sname, smooth);
+  iSetup.get<TrackingComponentsRecord>().get(fname, fit);
+  iSetup.get<TrackingComponentsRecord>().get(sname, smooth);
 
   file = new TFile("testSmoothHits.root","recreate");
   for (int i=0; i!=6; i++)

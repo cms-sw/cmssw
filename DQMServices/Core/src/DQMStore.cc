@@ -59,7 +59,8 @@ static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 static DQMStore *s_instance = 0;
 
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
-static const lat::Regexp s_rxmeqr  ("^st\\.(\\d+)\\.(.*)$");
+static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):(.*)$");
+static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 
 //////////////////////////////////////////////////////////////////////
 /// Check whether @a path is a subdirectory of @a ofdir.  Returns
@@ -154,7 +155,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (! ref.empty())
   {
     std::cout << "DQMStore: using reference file '" << ref << "'\n";
-    open(ref, false, "", s_referenceDirName);
+    readFile(ref, true, "", s_referenceDirName, StripRunDirs);
   }
 
   initQCriterion<Comp2RefChi2>(qalgos_);
@@ -1254,7 +1255,22 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
         std::string qrname (label, dot+1, std::string::npos);
 
         m.reset();
-        if (! s_rxmeqr.match(value, 0, 0, &m))
+        DQMNet::QValue qv;
+	if (s_rxmeqr1.match(value, 0, 0, &m))
+	{
+	  qv.code = atoi(m.matchString(value, 1).c_str());
+	  qv.qtresult = strtod(m.matchString(value, 2).c_str(), 0);
+	  qv.message = m.matchString(value, 3);
+	  qv.qtname = qrname;
+	}
+	else if (s_rxmeqr2.match(value, 0, 0, &m))
+	{
+	  qv.code = atoi(m.matchString(value, 1).c_str());
+	  qv.qtresult = 0; // unavailable in old format
+	  qv.message = m.matchString(value, 2);
+	  qv.qtname = qrname;
+	}
+	else
         {
 	  std::cout << "*** DQMStore: WARNING: quality test value '"
 		    << value << "' is incorrectly formatted\n";
@@ -1270,10 +1286,6 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
 	  return false;
         }
 
-        DQMNet::QValue qv;
-        qv.qtname = qrname;
-        qv.code = atoi(m.matchString(value, 1).c_str());
-        qv.message = m.matchString(value, 2);
         me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
       }
     }
@@ -1526,7 +1538,8 @@ DQMStore::readDirectory(TFile *file,
 			bool overwrite,
 			const std::string &onlypath,
 			const std::string &prepend,
-			const std::string &curdir)
+			const std::string &curdir,
+			OpenRunDirs stripdirs)
 {
   unsigned int ntot = 0;
   unsigned int count = 0;
@@ -1546,29 +1559,40 @@ DQMStore::readDirectory(TFile *file,
       
   // See if we are going to skip this directory.
   bool skip = (! onlypath.empty() && ! isSubdirectory(onlypath, dirpart));
-
-  // If we are prepending, add it to the directory name, with some
-  // special casing for collation and reading in a reference.
-  size_t slash = dirpart.find('/');
-  if (prepend == s_collateDirName || prepend == s_referenceDirName)
+  
+  if (prepend == s_collateDirName || 
+      prepend == s_referenceDirName || 
+      stripdirs == StripRunDirs )
   {
+    // Remove Run # and RunSummary dirs
+    // first look for Run summary, 
+    // if that is found and erased, also erase Run dir
+    size_t slash = dirpart.find('/');
+    size_t pos = dirpart.find("/Run summary");
+    if (slash != std::string::npos && pos !=std::string::npos) 
+    {
+      dirpart.erase(pos,12);
+    
+      pos = dirpart.find("Run ");
+      size_t length = dirpart.find('/',pos+1)-pos+1;
+      if (pos !=std::string::npos) 
+            dirpart.erase(pos,length);
+    }
+  } 
 
+  // If we are prepending, add it to the directory name, 
+  // and suppress reading of already existing reference histograms
+  if (prepend == s_collateDirName || 
+      prepend == s_referenceDirName)
+  {
+    size_t slash = dirpart.find('/');
     // If we are reading reference, skip previous reference.
     if (slash == std::string::npos   // skip if Reference is toplevel folder, i.e. no slash
 	&& slash+1+s_referenceDirName.size() == dirpart.size()
 	&& dirpart.compare(slash+1, s_referenceDirName.size(), s_referenceDirName) == 0)
       return 0;
 
-    // Remove Run # and RunSummary dirs from Reference dir structure
-    if (slash != std::string::npos
-        && dirpart.compare(0,4,"Run ")==0) 
-        dirpart.erase(0,dirpart.find('/')+1);
-
-    size_t pos = dirpart.find("/Run summary");
-    if (slash != std::string::npos && pos !=std::string::npos) 
-	dirpart.erase(pos,12);
-    
-    slash=dirpart.find('/');    
+    slash = dirpart.find('/');    
     // Skip reading of EventInfo subdirectory.
     if (slash != std::string::npos
         && slash + 10 == dirpart.size()
@@ -1607,7 +1631,7 @@ DQMStore::readDirectory(TFile *file,
 	subdir += '/';
       subdir += obj->GetName();
 
-      ntot += readDirectory(file, overwrite, onlypath, prepend, subdir);
+      ntot += readDirectory(file, overwrite, onlypath, prepend, subdir, stripdirs);
     }
     else if (skip)
       ;
@@ -1632,17 +1656,57 @@ DQMStore::readDirectory(TFile *file,
   return ntot + count;
 }
 
-/// open/read root file <filename>, and copy MonitorElements;
+/// public open/read root file <filename>, and copy MonitorElements;
 /// if flag=true, overwrite identical MonitorElements (default: false);
 /// if onlypath != "", read only selected directory
 /// if prepend !="", prepend string to path
-/// doesn't automatically update monitor element references!
+/// note: this method keeps the dir structure as in file
+/// and does not update monitor element references!
 void
 DQMStore::open(const std::string &filename,
 	       bool overwrite /* = false */,
 	       const std::string &onlypath /* ="" */,
 	       const std::string &prepend /* ="" */)
 {
+   readFile(filename,overwrite,onlypath,prepend,KeepRunDirs);
+}
+
+/// public load root file <filename>, and copy MonitorElements;
+/// overwrite identical MonitorElements (default: true);
+/// set DQMStore.collateHistograms to true to sum several files
+/// note: this method strips off run dir structure
+void 
+DQMStore::load(const std::string &filename,
+               OpenRunDirs stripdirs /* =StripRunDirs */)
+{
+   bool overwrite = true;
+   if (collateHistograms_) overwrite = false;
+   if (verbose_) 
+   {
+     std::cout << "DQMStore::load: reading from file '" << filename << "'\n";
+     if (collateHistograms_)
+       std::cout << "DQMStore::load: in collate mode   " << "\n";
+     else
+       std::cout << "DQMStore::load: in overwrite mode   " << "\n";
+   }
+    
+   readFile(filename,overwrite,"","",stripdirs);
+     
+}
+
+/// private readFile <filename>, and copy MonitorElements;
+/// if flag=true, overwrite identical MonitorElements (default: false);
+/// if onlypath != "", read only selected directory
+/// if prepend !="", prepend string to path
+/// if StripRunDirs is set the run and run summary folders are erased.
+void
+DQMStore::readFile(const std::string &filename,
+	       bool overwrite /* = false */,
+	       const std::string &onlypath /* ="" */,
+	       const std::string &prepend /* ="" */,
+	       OpenRunDirs stripdirs /* =StripRunDirs */)
+{
+
   if (verbose_)
     std::cout << "DQMStore::open: reading from file '" << filename << "'\n";
 
@@ -1650,7 +1714,7 @@ DQMStore::open(const std::string &filename,
   if (! f.get() || f->IsZombie())
     raiseDQMError("DQMStore", "Failed to open file '%s'", filename.c_str());
 
-  unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "");
+  unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "", stripdirs);
   f->Close();
 
   MEMap::iterator mi = data_.begin();

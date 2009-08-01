@@ -20,6 +20,7 @@
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 <use name=CondCore/Utilities>
+
 <use name=CondFormats/DQMObjects>
 <export>
   <use name=CondCore/DBCommon>

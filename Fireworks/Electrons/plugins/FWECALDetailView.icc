@@ -1,4 +1,4 @@
-// $Id: FWECALDetailView.icc,v 1.18 2009/07/20 15:06:19 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.19 2009/07/22 15:12:54 amraktad Exp $
 
 // system include files
 #include "TLatex.h"
@@ -125,7 +125,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 
 
    // points for centroids
-   Double_t x, y, z = 0;
+   Double_t x(0), y(0), z(0);
    TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
    scposition->SetDepthTest(kFALSE);
    if (subdetId == EcalBarrel) {

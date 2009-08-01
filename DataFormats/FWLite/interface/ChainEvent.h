@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.7 2009/07/13 21:01:36 srappocc Exp $
+// $Id: ChainEvent.h,v 1.6 2009/07/12 05:09:08 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -26,7 +26,6 @@
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/EventBase.h"
 
 // forward declarations
 namespace edm {
@@ -38,7 +37,7 @@ namespace edm {
 }
 
 namespace fwlite {
-   class ChainEvent : public EventBase
+class ChainEvent
 {
 
    public:

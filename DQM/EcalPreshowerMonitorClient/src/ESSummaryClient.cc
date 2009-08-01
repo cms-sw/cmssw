@@ -40,23 +40,12 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
 
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-   sprintf(histo, "reportSummary");
-   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-   if ( me ) {
-      dqmStore_->removeElement(me->getName());
-   }
-   me = dqmStore_->bookFloat(histo);
-   me->Fill(-1.0);      
-
-
-   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
    sprintf(histo, "reportSummaryMap");
    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
    if ( me ) {
       dqmStore_->removeElement(me->getName());
    }
-   me = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
+   me = dqmStore_->book2D(histo, histo, 80, 0., 80., 80, 0., 80);
    for ( int i = 0; i < 80; i++ ) {
       for ( int j = 0; j < 80; j++ ) {
 	 me->setBinContent( i+1, j+1, 0. );
@@ -107,22 +96,10 @@ void ESSummaryClient::analyze(void) {
 
    float DCC[80][80];
    float KChip[80][80];
-   float Digi[80][80];
-   bool UseDCC, UseKChip, UseDigi;
+   float DigiHit[80][80];
+   bool noDigiHit = 1;
 
    MonitorElement* me;
-
-   UseDCC = false;
-   UseKChip = false;
-   UseDigi = false;
-
-   for ( int i = 0; i < 80; i++) {
-      for( int j = 0; j < 80; j++) {
-	 DCC[i][j] = 0;
-	 KChip[i][j] = 0;
-	 Digi[i][j] = 0;
-      }
-   }
 
    for (int i=0 ; i<2; ++i){
       for (int j=0 ; j<2; ++j){
@@ -130,10 +107,9 @@ void ESSummaryClient::analyze(void) {
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
-	    UseDCC = true;
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
-		  DCC[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+		  DCC[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
 	       }
 	    }
 	 }
@@ -141,76 +117,44 @@ void ESSummaryClient::analyze(void) {
 	 sprintf(histo, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
-	    UseKChip = true;
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
-		  KChip[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+		  KChip[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
 	       }
 	    }
 	 }
 
-	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
+	 if(iz==1)  sprintf(histo, "ES+ P%d DigiHit 2D Occupancy", j+1);
+	 if(iz==-1) sprintf(histo, "ES- P%d DigiHit 2D Occupancy", j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
-	    UseDigi = true;
+	    noDigiHit = 0;
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
-		  Digi[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+		  DigiHit[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
 	       }
 	    }
 	 }
       }
    }
 
-   //The global-summary
-   //ReportSummary Map 
-   //  ES+F  ES-F
-   //  ES+R  ES-R
-   float nGlobalErrors = 0;
-   float nValidChannels = 0;
-   float nErrorKinds = 0;
-
-   if(UseDCC) nErrorKinds+=1;
-   if(UseKChip) nErrorKinds+=1;
-   if(UseDigi) nErrorKinds+=1;
-
+   //Number:Error mapping; 1:Normal 2:Noisy 3:No Readout 4:DCC & KChip Error 
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
-      float xval;
+      float xval = 0.;
       for(int x=0; x<80; x++){
 	 for(int y=0; y<80; y++){
-	    //All three kind error has same weight of 1/3
-	    //Fill good efficiency into reportSummaryMap
-	    xval = 0.;
-	    if(Digi[x][y]>20&&UseDigi) xval+=1.;
-	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval+=1.;
-	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval+=1.;
-
-	    if( nErrorKinds != 0 ) xval = 1. - xval/float(nErrorKinds);
-
-	    if(DCC[x][y]<0.5&&UseDCC) xval = -1;	//-1 for non-module points
-	    if(KChip[x][y]<0.5&&UseKChip) xval = -1;	//-1 for non-module points
-
-	    //Count Valid Channels and Error Channels
-	    if( xval != -1 ){
-	       nValidChannels+=1.;
-	       nGlobalErrors+=xval;
-	    }
+	    xval = 1.;
+	    if(DigiHit[x][y]>1&&noDigiHit==0) xval = 2.;
+	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval = 3.;
+	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval = 4.;
+	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval = 4.;
+	    if(DCC[x][y]<0.5) xval = 0.;	//0 for non-module point
 
 	    me->setBinContent(x+1, y+1, xval);
 	 }
       }
    }
-
-   //Return ratio of good channels
-   float reportSummary = -1.0;
-   if ( nValidChannels != 0 ){
-      reportSummary = 1.0 - nGlobalErrors/nValidChannels;
-   }
-   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-   if ( me ) me->Fill(reportSummary);
-
-
 }
 
 void ESSummaryClient::softReset(bool flag) {

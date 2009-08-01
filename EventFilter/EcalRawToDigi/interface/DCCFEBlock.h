@@ -23,7 +23,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
 	
   public :
 
-    DCCFEBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
+    DCCFEBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata);
     
     virtual ~DCCFEBlock(){ delete [] xtalGains_;}
 
@@ -48,6 +48,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     bool zs_;
     bool checkFeId_;
     uint expTowerID_;
+    bool forceToKeepFRdata_;
     uint expXtalTSamples_;
     uint unfilteredDataBlockLength_;
     uint lastStripId_;

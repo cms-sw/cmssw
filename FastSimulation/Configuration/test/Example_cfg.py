@@ -32,7 +32,7 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 
 # Famos sequences (Frontier conditions)
 process.load("FastSimulation/Configuration/CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_31X_V1::All"
+process.GlobalTag.globaltag = "MC_31X_V3::All"
 process.load("FastSimulation/Configuration/FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)

@@ -365,9 +365,6 @@ namespace edm {
   
     fillProductRegistryTransients(procConfigVector, inputProdDescReg);
 
-    // freeze our temporary product registry
-    inputProdDescReg.setFrozen();
-
     std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
@@ -393,12 +390,12 @@ namespace edm {
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
 	}
       }
+      dropOnInput(*newReg, groupSelectorRules, dropDescendants, dropMergeable);
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_.reset(newReg.release());
     }
 
-    dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
 
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry()->productList();
@@ -1095,12 +1092,12 @@ namespace edm {
   }
 
   void
-  RootFile::dropOnInput (GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
+  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
-    groupSelector.initialize(rules, productRegistry()->allBranchDescriptions());
+    groupSelector.initialize(rules, reg.allBranchDescriptions());
 
-    ProductRegistry::ProductList& prodList = const_cast<ProductRegistry::ProductList&>(productRegistry()->productList());
+    ProductRegistry::ProductList& prodList = reg.productListUpdator();
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
     std::set<BranchID> branchesToDrop;
     for(ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();

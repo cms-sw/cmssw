@@ -182,7 +182,13 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           const edm::EventSetup& c){
 
   MonitorElement *Muon_QHist = dbe_->get("HLT/HLTMonMuon/Summary/Ratio_HLT_L1MuOpen");
-  float muonResult = Muon_QHist->getQReport("CompareHist_Shape")->getQTresult();
+
+  float muonResult = 0;
+
+  if(Muon_QHist){
+    const QReport *Muon_QReport = Muon_QHist->getQReport("CompareHist_Shape");
+    if(Muon_QReport) muonResult = Muon_QReport->getQTresult();
+  }
 
   int nSubsystems = 20;
   for (int k = 0; k < nSubsystems; k++) {

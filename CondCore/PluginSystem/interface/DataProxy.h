@@ -1,23 +1,35 @@
 #ifndef CondCore_PluginSystem_DataProxy_H
 #define CondCore_PluginSystem_DataProxy_H
 //#include <iostream>
+#include <map>
 #include <string>
-#include "boost/shared_ptr.hpp"
-
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+#include "DataSvc/Ref.h"
+#include "DataSvc/RefException.h"
 
-#include "CondCore/IOVService/interface/PayloadProxy.h"
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
-  typedef DataProxy<RecordT,DataT> self;
-  typedef boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
-
-  explicit DataProxy(boost::shared_ptr<cond::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
- 
+  typedef cond::DataWrapper<DataT> DataWrapper;
+  /*  DataProxy( pool::IDataSvc* svc, std::map<std::string,std::string>::iterator& pProxyToToken ): m_svc(svc), m_pProxyToToken(pProxyToToken) { 
+  //NOTE: We do this so that the type 'DataT' will get registered
+  // when the plugin is dynamically loaded
+  edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
+  }
+  */
+  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pDatumToToken ): m_connection(connection), m_pDatumToToken(pDatumToToken) { 
+    //NOTE: We do this so that the type 'DataT' will get registered
+    // when the plugin is dynamically loaded
+    //std::cout<<"DataProxy constructor"<<std::endl;
+    edm::eventsetup::DataKey::makeTypeTag<DataT>();
+    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
   }
   //virtual ~DataProxy();
   
@@ -29,88 +41,48 @@ template< class RecordT, class DataT >
   
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
-    m_data->make();
-    return &(*m_data)();
+    DataT const * result=0;
+    //std::cout<<"DataT make "<<std::endl;
+    cond::PoolTransaction& pooldb=m_connection->poolTransaction();
+    pooldb.start(true);      
+    // FIXME (clean this mess)
+    try {
+      pool::Ref<DataWrapper> mydata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+      if (mydata) {
+	try{
+	  result = &mydata->data();
+	}
+	catch( const pool::Exception& e) {
+	throw cond::Exception("DataProxy::make: null result");
+	}
+	m_data.copyShallow(mydata);
+	pooldb.commit();
+	return result;
+      }
+    } catch(const pool::Exception&){}
+
+    // compatibility mode....
+    pool::Ref<DataT> myodata(&(pooldb.poolDataSvc()),m_pDatumToToken->second);
+    result = myodata.ptr();
+    if (!result) throw cond::Exception("DataProxy::make: null result");
+    m_OldData.copyShallow(myodata);
+
+    pooldb.commit();
+    return result;
   }
   virtual void invalidateCache() {
-    m_data->invalidateCache();
+    m_data.clear();
+    m_OldData.clear();
   }
   private:
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
+  cond::Connection* m_connection;
+  std::map<std::string,std::string>::iterator m_pDatumToToken;
 
-  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_data;
-
+  pool::Ref<DataWrapper> m_data;
+  // Backward compatibility
+  pool::Ref<DataT> m_OldData;
 };
-
-namespace cond {
-  class DataProxyWrapperBase {
-  public:
-    typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
-    typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
-    
-    // limitation of plugin manager...
-    typedef std::pair< std::string, std::string> Args;
-
-    virtual edm::eventsetup::TypeTag type() const=0;
-    virtual ProxyP proxy() const=0;
-    virtual edmProxyP edmProxy() const=0;
-
-
-    DataProxyWrapperBase(std::string const & il) : m_label(il){}
-    virtual ~DataProxyWrapperBase(){}
-    std::string const & label() const { return m_label;}
-    
-  private:
-    std::string m_label;
-
-  };
-}
-
-template< class RecordT, class DataT >
-class DataProxyWrapper : public  cond::DataProxyWrapperBase {
-public:
-  typedef ::DataProxy<RecordT,DataT> DataProxy;
-  typedef cond::PayloadProxy<DataT> PayProxy;
-  typedef boost::shared_ptr<PayProxy> DataP;
-  
-  
-  DataProxyWrapper(cond::Connection& conn,
-		   const std::string & token, std::string const & il, const char * source=0) :
-    cond::DataProxyWrapperBase(il),
-    m_proxy(new PayProxy(conn,token,false, source)),
-    m_edmProxy(new DataProxy(m_proxy)){
-   //NOTE: We do this so that the type 'DataT' will get registered
-    // when the plugin is dynamically loaded
-    //std::cout<<"DataProxy constructor"<<std::endl;
-    m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
-    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
-  }
-
-  DataProxyWrapper(cond::Connection& conn,
-		   Args const & args) :
-    cond::DataProxyWrapperBase(args.second),
-    m_proxy(new PayProxy(conn,args.first,false)),
-    m_edmProxy(new DataProxy(m_proxy)){
-   //NOTE: We do this so that the type 'DataT' will get registered
-    // when the plugin is dynamically loaded
-    //std::cout<<"DataProxy constructor"<<std::endl;
-    m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
-    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
-  }
-
-    
-  virtual edm::eventsetup::TypeTag type() const { return m_type;}
-  virtual ProxyP proxy() const { return m_proxy;}
-  virtual edmProxyP edmProxy() const { return m_edmProxy;}
- 
-private:
-  edm::eventsetup::TypeTag m_type;
-  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_proxy;
-  edmProxyP m_edmProxy;
-
-};
-
-
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */

@@ -33,7 +33,12 @@ public:
     SaveWithReference,
     SaveWithReferenceForQTest
   };
-  
+  enum OpenRunDirs
+  {
+    KeepRunDirs,
+    StripRunDirs
+  };
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset);
@@ -168,6 +173,8 @@ public:
 				     bool overwrite = false,
 				     const std::string &path ="",
 				     const std::string &prepend = "");
+  void                          load(const std::string &filename,
+				     OpenRunDirs stripdirs = StripRunDirs);
   std::string			getFileReleaseVersion(const std::string &filename);
   std::string			getFileDQMPatchVersion(const std::string &filename);
   std::string			getDQMPatchVersion(void);
@@ -199,12 +206,18 @@ private:
   MonitorElement *		getReferenceME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
+  void				readFile(const std::string &filename,
+				     bool overwrite = false,
+				     const std::string &path ="",
+				     const std::string &prepend = "",
+				     OpenRunDirs stripdirs = StripRunDirs);
   void				makeDirectory(const std::string &path);
   unsigned int			readDirectory(TFile *file,
 					      bool overwrite,
 					      const std::string &path,
 					      const std::string &prepend,
-					      const std::string &curdir);
+					      const std::string &curdir,
+					      OpenRunDirs stripdirs);
 
   MonitorElement *		findObject(const std::string &dir,
 					   const std::string &name,

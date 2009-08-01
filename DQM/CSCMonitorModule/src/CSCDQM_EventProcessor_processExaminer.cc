@@ -24,7 +24,7 @@ namespace cscdqm {
    * @brief  Fill monitor elements with CSCDCCFormatStatusDigi information.
    * @return true if this buffer (event) was accepted by Examiner else otherwise
    */
-  bool EventProcessor::processExaminer(const CSCDCCFormatStatusDigi& digi) {
+  bool EventProcessor::processExaminer(const CSCDCCExaminer& binChecker, const CSCDCCFormatStatusDigi& digi) {
 
     bool eventAccepted = true;
     MonitorObject* mo = 0;

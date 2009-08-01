@@ -14,8 +14,9 @@ hltL3Muons.L3TrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'With
 hltL3Muons.L3TrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 
 # L3 regional seeding, candidating, tracking
-from FastSimulation.Muons.TSGFromL2_cfi import *
+#--the two below have to be picked up from confDB: 
+# from FastSimulation.Muons.TSGFromL2_cfi import *
+# from FastSimulation.Muons.HLTL3TkMuons_cfi import *
 from FastSimulation.Muons.TrackCandidateFromL2_cfi import *
-from FastSimulation.Muons.HLTL3TkMuons_cfi import *
 
 

@@ -37,15 +37,19 @@ void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) 
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
-TransientInitialStateEstimator::innerState( const Trajectory& traj) const
+TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackFit) const
 {
-  if(traj.firstMeasurement().forwardPredictedState().isValid()){    
-    // The firstMeasurement fwd state is valid. Therefore the backward fitting has already been done
-    // and we don't have to repeat it.
-    TSOS firstState = traj.firstMeasurement().forwardPredictedState();
-    firstState.rescaleError(100.);    
-    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
+  if (!doBackFit && traj.firstMeasurement().forwardPredictedState().isValid()){
+    LogDebug("TransientInitialStateEstimator")
+      <<"a backward fit will not be done. assuming that the state on first measurement is OK";
+    TSOS firstStateFromForward = traj.firstMeasurement().forwardPredictedState();
+    firstStateFromForward.rescaleError(100.);    
+    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstStateFromForward, 
 								traj.firstMeasurement().recHit()->det());
+  }
+  if (!doBackFit){
+    LogDebug("TransientInitialStateEstimator")
+      <<"told to not do a back fit, but the forward state of the first measurement is not valid. doing a back fit.";
   }
 
   int nMeas = traj.measurements().size();
@@ -83,23 +87,35 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 					   backFitDirection);
 
   vector<Trajectory> fitres = backFitter.fit( fakeSeed, firstHits, startingState);
-
+  
+  LogDebug("TransientInitialStateEstimator")
+    <<"using a backward fit of :"<<firstHits.size()<<" hits, starting from:\n"<<startingState
+    <<" to get the estimate of the initial state of the track.";
 
   if (fitres.size() != 1) {
-    // cout << "FitTester: first hits fit failed!" << endl;
+        LogDebug("TransientInitialStateEstimator")
+	  << "FitTester: first hits fit failed!";
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>();
   }
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
   TSOS firstState(firstMeas.updatedState().localParameters(),
 		  firstMeas.updatedState().localError(),
-  		  firstState.surface(),
+  		  firstMeas.updatedState().surface(),
   		  thePropagatorAlong->magneticField());
   // I couldn't do: 
   //TSOS firstState = firstMeas.updatedState();
   // why????
 
+
   firstState.rescaleError(100.);
+
+  LogDebug("TransientInitialStateEstimator")
+    <<"the initial state is found to be:\n:"<<firstState
+    <<"\n it's field pointer is: "<<firstState.magneticField()
+    <<"\n the pointer from the state of the back fit was: "<<firstMeas.updatedState().magneticField();
+
+
   return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
 							      firstMeas.recHit()->det());
 }

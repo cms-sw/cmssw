@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2008/06/30 13:45:03 $
- *   $Revision: 1.9 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.10 $
  *
  *   \author C.Grandi
  */
@@ -249,6 +249,7 @@ class DTTrig {
     edm::InputTag _digitag;
     bool _debug;                        // Debug flag
     bool _usesyncdb;
+    bool _inputexist;
 
     unsigned long long _configid;
     unsigned long long _geomid;

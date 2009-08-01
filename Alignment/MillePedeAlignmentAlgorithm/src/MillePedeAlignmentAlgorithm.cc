@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.45 $
- *  $Date: 2009/06/24 12:59:18 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.46 $
+ *  $Date: 2009/07/17 14:03:53 $
+ *  (last update by $Author: kaschube $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -832,6 +832,7 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
   std::vector<float> lasLocalDerivsX;
 
   TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
+  int tmpCounter = 0; // very ugly hack for global LAS parameters
   for(TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
       iBeam != iEnd; ++iBeam, ++iTsoses){ // beam/tsoses parallel!
 
@@ -857,9 +858,17 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
 	
 	this->globalDerivativesHierarchy((*iTsoses)[hit], lasAli, lasAli, 
 					 theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPointer);
-	// fill local derivatives vector from derivatives matrix
-	for(unsigned int nFitParams = 0; nFitParams < iBeam->parameters().size(); ++nFitParams){
-	  lasLocalDerivsX.push_back((iBeam->derivatives())[hit][nFitParams]);
+	// fill derivatives vector from derivatives matrix
+	for (unsigned int nFitParams = 0; nFitParams < iBeam->parameters().size(); ++nFitParams) {
+ 	  if (nFitParams < iBeam->firstFixedParameter()) { // first local beam parameters
+ 	    lasLocalDerivsX.push_back((iBeam->derivatives())[hit][nFitParams]);
+ 	  } else {                                         // now global ones
+	    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
+					 << "Labels of global beam parameters not defined properly.";
+	    theFloatBufferX.push_back((iBeam->derivatives())[hit][nFitParams]);
+	    theIntBuffer.push_back(2147483647 - tmpCounter); // FIXME: label for global param!
+	    tmpCounter += 10; // hacking 10 is PedeLabeler::theMaxNumParam
+ 	  }
 	}
 
 	float localResidual = ((iBeam->getData())[hit].localPosition().x()) - ((*iTsoses)[hit].localPosition().x());

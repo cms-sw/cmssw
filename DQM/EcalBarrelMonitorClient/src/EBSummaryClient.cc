@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/06/29 13:28:46 $
- * $Revision: 1.182 $
+ * $Date: 2009/07/14 09:06:31 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  *
 */
@@ -1844,6 +1844,9 @@ void EBSummaryClient::analyze(void) {
         
         float val_ls = 1;
         if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
+
+        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY UNTIL LHC COLLISIONS
+        val_ls = 1;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green

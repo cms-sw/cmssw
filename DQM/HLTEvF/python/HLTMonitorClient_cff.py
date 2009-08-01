@@ -12,7 +12,8 @@ from DQM.HLTEvF.hltBitsQualityTests_cff import *
 #from DQMServices.Components.DQMEnvironment_cfi import *
 
 # hltmonitorClient = cms.Path(hltmonmuonseqClient*hltEventInfoseqClient)
-hltmonitorClient = cms.Path(hltmonmuonClient*hltqtest*hltEventInfoseqClient)
+#hltmonitorClient = cms.Path(hltmonmuonClient*hltqtest*hltEventInfoseqClient)
+hltmonitorClient = cms.Path(hltmonmuonseqClient*hltqtest*hltEventInfoseqClient)
 
 
 

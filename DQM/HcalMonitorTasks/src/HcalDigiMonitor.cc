@@ -153,12 +153,12 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       SetupEtaPhiHists(DigiOccupancyByDepth," Digi Eta-Phi Occupancy Map","");
       DigiOccupancyPhi= m_dbe->book1D("Digi Phi Occupancy Map",
 				      "Digi Phi Occupancy Map",
-				      phiBins_,phiMin_,phiMax_);
+				      72,0.5,72.5);
       DigiOccupancyPhi->setAxisTitle("i#phi",1);
       DigiOccupancyPhi->setAxisTitle("# of Events",2);
       DigiOccupancyEta= m_dbe->book1D("Digi Eta Occupancy Map",
 				      "Digi Eta Occupancy Map",
-				      etaBins_,etaMin_,etaMax_);
+				      83,-41.5,41.5);
       DigiOccupancyEta->setAxisTitle("i#eta",1);
       DigiOccupancyEta->setAxisTitle("# of Events",2);
 
@@ -178,8 +178,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/digi_errors");
       /*
       DigiErrorEtaPhi = m_dbe->book2D("Digi Geo Error Map","Digi Geo Error Map",
-				  etaBins_,etaMin_,etaMax_,
-				  phiBins_,phiMin_,phiMax_);
+                                      83, -41.5, 41.5, 72, 0.5, 72.5);
       DigiErrorEtaPhi -> setAxisTitle("i#eta",1);  
       DigiErrorEtaPhi -> setAxisTitle("i#phi",2);
       */

@@ -159,8 +159,6 @@ bool FEDErrors::failUnpackerFEDCheck(const FEDRawData & fedData)
   return lFail;
 }
 
-
-
 bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData, 
 			      bool & aFullDebug,
 			      const unsigned int aPrintDebug
@@ -213,6 +211,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   std::auto_ptr<const sistrip::FEDBuffer> buffer;
   buffer.reset(new sistrip::FEDBuffer(aFedData.data(),aFedData.size(),true));
 
+  //std::ostringstream lMode;
+  //lMode << buffer->readoutMode();
+  
   //payload checks
   if (!this->anyFEDErrors()) {
     //corrupt buffer checks
@@ -362,9 +363,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     lChErr.Unlocked = false;
     lChErr.OutOfSync = false;
 
-    //std::ostringstream lMode;
-    //lMode << aBuffer->readoutMode();
-  
+
     bool lFirst = true;
 
     for (unsigned int iAPV = 0; iAPV < 2; iAPV++) {//loop on APVs
@@ -452,11 +451,9 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
     unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
 	
     bool isBadFE = false;
-    bool isMissingFE = false;
     for (unsigned int badfe(0); badfe<feErrors_.size(); badfe++) {
       if ((feErrors_.at(badfe)).FeID == feNumber) {
 	isBadFE = true;
-	if ((feErrors_.at(badfe)).Missing) isMissingFE = true;
 	break;
       }
     }
@@ -480,8 +477,7 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
       if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
       //nBadChans++;
       aNBadChannels++;
-      //define as active channel if channel locked AND not from an unlocked FE.
-      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
+      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || isBadFE) aNBadActiveChannels++;
     }
     else {
       if (aFillAll) alreadyThere = aMap.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid,std::pair<unsigned short,unsigned short>(nChInModule,0)));

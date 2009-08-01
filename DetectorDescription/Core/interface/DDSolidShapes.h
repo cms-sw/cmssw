@@ -10,7 +10,7 @@ enum DDSolidShape { dd_not_init,
                     ddunion, ddsubtraction, ddintersection,
 		    ddreflected,
 		    ddshapeless,
-		    ddpseudotrap, ddtrunctubs, ddsphere
+		    ddpseudotrap, ddtrunctubs
 		   };
 		   
 struct DDSolidShapesName {
@@ -26,8 +26,7 @@ struct DDSolidShapesName {
       "UnionSolid", "SubtractionSolid", "IntersectionSolid",
       "ReflectedSolid", 
       "ShapelessSolid",
-      "PseudoTrapezoid","TruncatedTube(section)",
-      "Sphere(section)"
+      "PseudoTrapezoid","TruncatedTube(section)"
     };
     return c[s];   			  
   }
@@ -84,9 +83,6 @@ struct DDSolidShapesName {
       break;
     case 16:
       return ddtrunctubs;
-      break;
-    case 17:
-      return ddsphere;
       break;
     default:
       throw DDException("DDSolidShapes:index wrong shape");   

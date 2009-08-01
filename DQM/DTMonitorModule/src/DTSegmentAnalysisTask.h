@@ -12,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/11/24 09:14:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/07 09:38:08 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -96,10 +96,6 @@ private:
   int nLSTimeBin; 
   // switch on/off sliding bins in time histos
   bool slideTimeBins;
-  // top folder for the histograms in DQMStore
-  std::string topHistoFolder;
-  // hlt DQM mode
-  bool hltDQMMode;
 };
 #endif
 

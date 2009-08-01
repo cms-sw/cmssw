@@ -133,8 +133,8 @@ void HcalSummaryClient::endJob(void)
   if ( debug_>0 ) std::cout << "<HcalSummaryClient: endJob> ievt = " << ievt_ << std::endl;
   // When the job ends, do we want to make a summary before exiting?
   // Or does this interfere with normalization of histograms?
-  //if (ievt_>lastupdate_)
-  //  analyze();
+  if (ievt_>lastupdate_)
+    analyze();
   this->cleanup();
 } // void HcalSummaryClient::endJob(void)
 
@@ -143,7 +143,7 @@ void HcalSummaryClient::endRun(void)
   if ( debug_ ) std::cout << "<HcalSummaryClient: endRun> jevt = " << jevt_ << std::endl;
   // When the run ends, do we want to make a summary before exiting?
   // Or does this interfere with normalization of histograms?
-  //analyze();
+  analyze();
   lastupdate_=ievt_;
   this->cleanup();
 } // void HcalSummaryClient::endRun(void) 

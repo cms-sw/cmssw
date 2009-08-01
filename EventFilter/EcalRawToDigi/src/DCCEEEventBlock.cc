@@ -15,12 +15,12 @@
 #include <sstream>
 
 
-DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU) : 
-  DCCEventBlock(u,m,hU,srpU,tccU,feU,memU) 
+DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU, bool forceToKeepFRdata) : 
+  DCCEventBlock(u,m,hU,srpU,tccU,feU,memU,forceToKeepFRdata) 
 {
   
   //Builds a tower unpacker block
-  towerBlock_ = new DCCSCBlock(u,m,this,feUnpacking_); 
+  towerBlock_ = new DCCSCBlock(u,m,this,feUnpacking_,forceToKeepFRdata_); 
   
   //Builds a srp unpacker block
   srpBlock_   = new DCCEESRPBlock(u,m,this,srpUnpacking_);

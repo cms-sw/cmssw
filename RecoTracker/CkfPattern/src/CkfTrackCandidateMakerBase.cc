@@ -271,8 +271,9 @@ namespace cms{
 	 }
 
 	 LogDebug("CkfPattern") << "getting initial state.";
+	 const bool doBackFit = !doSeedingRegionRebuilding;
 	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
-	   theInitialState->innerState( *it);
+	   theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
 	 if (! initState.first.isValid() || initState.second == 0) {

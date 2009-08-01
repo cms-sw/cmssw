@@ -27,7 +27,7 @@ public:
   void setEventSetup( const edm::EventSetup& es );
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
-  innerState( const Trajectory& traj) const;
+    innerState( const Trajectory& traj, bool doBackFit=true) const;
 
 
 private:

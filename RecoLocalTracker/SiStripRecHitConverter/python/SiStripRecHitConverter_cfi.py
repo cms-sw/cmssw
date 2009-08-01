@@ -1,16 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 siStripMatchedRecHits = cms.EDFilter("SiStripRecHitConverter",
+    StripCPE = cms.string('StripCPEfromTrackAngle'),
     Regional = cms.bool(False),
-    ClusterProducer    = cms.InputTag('siStripClusters'),
-    LazyGetterProducer = cms.InputTag('SiStripRawToClustersFacility'), # used if Regional is True
-    StripCPE            = cms.ESInputTag('StripCPEfromTrackAngleESProducer:StripCPEfromTrackAngle'),
-    Matcher             = cms.ESInputTag('SiStripRecHitMatcherESProducer:StandardMatcher'),
-    siStripQualityLabel = cms.ESInputTag(''),
-    useSiStripQuality = cms.bool(False),
-    MaskBadAPVFibers  = cms.bool(False),
-    rphiRecHits    = cms.string('rphiRecHit'),
-    stereoRecHits  = cms.string('stereoRecHit'),
+    stereoRecHits = cms.string('stereoRecHit'),
+    Matcher = cms.string('StandardMatcher'),
     matchedRecHits = cms.string('matchedRecHit'),
-    VerbosityLevel = cms.untracked.int32(1)
+    # next label (LazyGetterProducer) is only used if Regional is true
+    LazyGetterProducer = cms.string('SiStripRawToClustersFacility'),
+    ClusterProducer = cms.string('siStripClusters'),
+    VerbosityLevel = cms.untracked.int32(1),
+    rphiRecHits = cms.string('rphiRecHit'),
+    useSiStripQuality = cms.bool(False),
+    siStripQualityLabel = cms.string(''),
+    MaskBadAPVFibers = cms.bool(False),
 )
+
+

@@ -482,7 +482,9 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.gtObject2);
 
             } else if ( ( *constIt ) == "COND_GEQ") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condGEq);
+                float condGEqFloat = -1;
+                resultsMenuCond.fillVariableFromRow(*constIt, iRow, condGEqFloat);
+                menuCond.condGEq = (condGEqFloat > 0.5) ? true : false;
 
             } else if ( ( *constIt ) == "COUNT_INDEX") {
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.countIndex);

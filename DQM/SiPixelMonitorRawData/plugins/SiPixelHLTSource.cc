@@ -169,15 +169,15 @@ void SiPixelHLTSource::bookMEs(){
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
   // Is a FED sending raw data
-  meRawWords_ = theDMBE->book1D("FEDEntries","Number of raw words",40,0.,39.);
+  meRawWords_ = theDMBE->book1D("FEDEntries","Number of raw words",40,-0.5,39.5);
   meRawWords_->setAxisTitle("Number of raw words",1);
 
   // Number of CRC errors
-  meNCRCs_ = theDMBE->book1D("FEDFatal","Number of fatal errors",40,0.,39.);
+  meNCRCs_ = theDMBE->book1D("FEDFatal","Number of fatal errors",40,-0.5,39.5);
   meNCRCs_->setAxisTitle("Number of fatal errors",1);
 
   // Number of translation error words
-  meNErrors_ = theDMBE->book1D("FEDNonFatal","Number of non-fatal errors",40,0.,39.);
+  meNErrors_ = theDMBE->book1D("FEDNonFatal","Number of non-fatal errors",40,-0.5,39.5);
   meNErrors_->setAxisTitle("Number of non-fatal errors",1);
 
   delete RawHistogramId;
