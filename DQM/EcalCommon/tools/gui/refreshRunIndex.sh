@@ -24,7 +24,14 @@ touch /tmp/updateRunIndex.lock
 
 echo "Index refresh: begin"
 
-find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' | xargs -r ls -tr | tail -$N | xargs -n 1 -r visDQMIndex -d add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx
+FILES=`find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' | xargs -r ls -tr | tail -$N`
+
+for F in $FILES; do
+  echo "Remove: "$F
+  visDQMIndex remove --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+ echo "Add: "$F
+  visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+done
 
 echo "Index refresh: end"
 
