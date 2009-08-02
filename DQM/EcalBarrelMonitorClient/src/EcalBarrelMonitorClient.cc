@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/07/02 12:23:03 $
- * $Revision: 1.448 $
+ * $Date: 2009/07/26 20:05:10 $
+ * $Revision: 1.449 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1388,11 +1388,11 @@ void EcalBarrelMonitorClient::analyze(void) {
     if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
   }
 
-  bool update = ( prescaleFactor_ != 1               ) ||
-                ( jevt_ <   10                       ) ||
-                ( jevt_ <  100 && jevt_ %    10 == 0 ) ||
-                ( jevt_ < 1000 && jevt_ %   100 == 0 ) ||
-                (                 jevt_ % 10000 == 0 );
+  bool update = ( prescaleFactor_ != 1              ) ||
+                ( jevt_ <   10                      ) ||
+                ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
+                ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
+                (                 jevt_ % 1000 == 0 );
 
   if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
@@ -1440,7 +1440,11 @@ void EcalBarrelMonitorClient::analyze(void) {
 
     if ( begin_run_ && ! end_run_ ) {
 
-      bool update = ( prescaleFactor_ != 1 || jevt_ < 3 || jevt_ % 1000 == 0 );
+      bool update = ( prescaleFactor_ != 1                ) ||
+                    ( jevt_ <     3                       ) ||
+                    ( jevt_ <  1000 && jevt_ %   100 == 0 ) ||
+                    ( jevt_ < 10000 && jevt_ %  1000 == 0 ) ||
+                    (                  jevt_ % 10000 == 0 );
 
       if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
