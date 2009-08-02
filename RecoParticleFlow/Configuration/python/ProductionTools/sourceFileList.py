@@ -33,7 +33,7 @@ regexp = args[1]
 
 castor = castortools.isCastorDir( dir )
 
-files = castortools.allCastorFiles( dir, regexp,
+files = castortools.matchingFiles( dir, regexp,
                                     protocol=True, castor=castor)
 
 print '''

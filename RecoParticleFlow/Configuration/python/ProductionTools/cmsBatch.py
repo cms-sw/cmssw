@@ -3,13 +3,18 @@
 # batch mode for cmsRun, March 2009
 
 
-import os, sys,  imp
+import os, sys,  imp, re, pprint
 from optparse import OptionParser
 
+# particle flow specific
 from batchmanager import BatchManager
 import castortools
 
+# cms specific
 import FWCore.ParameterSet.Config as cms
+from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
+
+
 
 
 def batchScriptCCIN2P3():
@@ -72,7 +77,7 @@ cp -r $jobdir $PBS_O_WORKDIR
    return script
 
 
-def batchScriptCERN( dir ):
+def batchScriptCERN( remoteFile, remoteDir, index ):
    script = """#!/usr/local/bin/bash
 #BSUB -q 8nm
 echo 'environment:'
@@ -90,12 +95,13 @@ echo 'running'
 cmsRun run_cfg.py
 echo
 echo 'sending the job directory back'
-cp -rf * $LS_SUBCWD
-#rm -rf $LS_SUBCWD
 """
    castorCopy = ''
    if dir != '':
-      script += 'rfcp $LS_SUBCWD'
+      newFileName = re.sub("\.root", "_%d.root" % index, remoteFile)
+      script += 'rfcp %s %s/%s\n' % (remoteFile, remoteDir, newFileName) 
+      script += 'rm *.root\n'
+   script += 'cp -rf * $LS_SUBCWD\n'
    
    return script
 
@@ -105,43 +111,58 @@ class MyBatchManager( BatchManager ):
     # prepare a job
     def PrepareJobUser(self, jobDir, value ):
 
+       process.source = fullSource.clone()
+
        #prepare the batch script
        scriptFileName = jobDir+'/batchScript.sh'
        scriptFile = open(scriptFileName,'w')
-       scriptFile.write( batchScriptCERN( self.options_.remoteOutputDir ) )
+
+       # are we at CERN or somewhere else? testing the afs path
+       cwd = os.getcwd()
+       patternCern = re.compile( '^/afs/cern.ch' )
+       patternIn2p3 = re.compile( '^/afs/in2p3.fr' )
+       if patternCern.match( cwd ):
+          print '@ CERN'
+          scriptFile.write( batchScriptCERN( self.remoteOutputFile_,
+                                             self.remoteOutputDir_,
+                                             value) )
+       elif patternIn2p3.match( cwd ):
+          print '@ IN2P3 - not supported yet'
+          sys.exit(2)
+       else:
+          print "I don't know on which computing cern you are... "
+          sys.exit(2)
+       
        scriptFile.close()
        os.system('chmod +x %s' % scriptFileName)
 
        #prepare the cfg
-       process.source = fullSource.clone()
-       # replace the list of fileNames by one of them
-
-       iFileMin = (value-1)*grouping
-       iFileMax = (value)*grouping
-
-       print value, iFileMin, iFileMax
-
-       process.source.fileNames = cms.untracked.vstring()
-
-       for i in range(iFileMin, iFileMax):
-          if(i>=len(fullSource.fileNames)):
-             break
-          process.source.fileNames.append( fullSource.fileNames[i] ) 
-
-       print process.source
+       
+       # replace the list of fileNames by a chunk of filenames:
+       if generator:
+          randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
+          randSvc.populate()
+       else:
+          grouping = len(process.source.fileNames)/nJobs
+          
+          iFileMin = (value)*grouping
+          iFileMax = (value+1)*grouping
+          
+          process.source.fileNames = fullSource.fileNames[iFileMin:iFileMax]
+          print process.source
           
        cfgFile = open(jobDir+'/run_cfg.py','w')
        cfgFile.write(process.dumpPython())
        cfgFile.close()
        
     def SubmitJob( self, jobDir ):
-       os.system('bsub < batchScript.sh')
+       os.system('bsub -q %s < batchScript.sh' % queue)
 
 
 batchManager = MyBatchManager()
 
 
-batchManager.parser_.usage = "usage: %prog [options] grouping your_cfg.py"
+batchManager.parser_.usage = "usage: %prog [options] <number of jobs> <your_cfg.py>"
 
 
 (options,args) = batchManager.parser_.parse_args()
@@ -152,8 +173,9 @@ if len(args)!=2:
    batchManager.parser_.print_help()
    sys.exit(1)
 
-grouping = int(args[0])
+nJobs = int(args[0])
 cfgFileName = args[1]
+queue = options.queue
 
 # load cfg script
 handle = open(cfgFileName, 'r')
@@ -163,16 +185,26 @@ handle.close()
 
 # keep track of the original source
 fullSource = process.source.clone()
-# will need to check the source contains local files
-# if yes, do grouping.
 
-print len(process.source.fileNames)
-nJobs =  len(process.source.fileNames)/grouping
-listOfValues = range( 0, nJobs)
-print "range ", listOfValues
+
+generator = False
+try:
+   process.source.fileNames
+except:
+   print 'No input file. This is a generator process.'
+   generator = True
+   listOfValues = range( 0, nJobs)
+else:
+   print "Number of files in the source:",len(process.source.fileNames), ":"
+   pprint.pprint(process.source.fileNames)
+   listOfValues = range( 0, nJobs)
+   if len(process.source.fileNames) % nJobs:
+      # imperfect grouping, need an extra job for the leftovers
+      listOfValues = range( 0, nJobs+1)
+
 batchManager.PrepareJobs( listOfValues )
 
-# if no, generate seeds
+
 
 batchManager.SubmitJobs()
 

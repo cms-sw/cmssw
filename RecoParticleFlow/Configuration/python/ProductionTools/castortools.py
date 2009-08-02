@@ -7,34 +7,28 @@ import sys,os, re, pprint
 
 
 def isCastorDir( dir ):
-    try:
-        pattern = re.compile( '^/castor' )
-    except:
-        print 'please enter a valid regular expression '
-        sys.exit(1)
-
+    pattern = re.compile( '^/castor' )
     if pattern.match( dir ):
         return True
     else:
         return False
     
 
-# returns all castor files in a directory matching regexp
-def allCastorFiles( castorDir, regexp, protocol=False, castor=True):
+# returns all files in a directory matching regexp.
+# the directory can be a castor dir.
+# optionnally, the protocol (rfio: or file:) is prepended to the absolute
+# file name
+def matchingFiles( dir, regexp, protocol=None, castor=True):
 
     ls = 'rfdir'
-    protocol = 'rfio'
-    if castor == False:
-        ls = 'ls -l'
-        protocol = 'file'
-
+ 
     try:
         pattern = re.compile( regexp )
     except:
         print 'please enter a valid regular expression '
         sys.exit(1)
 
-    allFiles = os.popen("%s %s | awk '{print $9}'" % (ls, castorDir))
+    allFiles = os.popen("%s %s | awk '{print $9}'" % (ls, dir))
 
     matchingFiles = []
     for file in allFiles.readlines():
@@ -42,9 +36,9 @@ def allCastorFiles( castorDir, regexp, protocol=False, castor=True):
         
         m = pattern.match( file )
         if m:
-            fullCastorFile = '%s/%s' % (castorDir, file)
+            fullCastorFile = '%s/%s' % (dir, file)
             if protocol:
-                fullCastorFile = '\'%s:%s/%s' % (protocol, castorDir, file)
+                fullCastorFile = '\'%s:%s/%s' % (protocol, dir, file)
             matchingFiles.append( fullCastorFile )
 
     allFiles.close()
@@ -201,7 +195,7 @@ def createSubDir( castorDir, subDir ):
         os.system( 'rfmkdir %s' % absName )
     return absName
 
-# move a set of files to another directory
+# move a set of files to another directory on castor
 def move( absDestDir, files ):
     for file in files:
         baseName = os.path.basename(file)
@@ -215,5 +209,26 @@ def remove( files ):
         rfrm = 'rfrm %s' % file
         print rfrm
         os.system( rfrm )
+
+# copy a set of files to a castor directory
+def cp( absDestDir, files ):
+    cp = 'cp'
+    destIsCastorDir = isCastorDir(absDestDir)
+    if destIsCastorDir: 
+        cp = 'rfcp'
+
+    for file in files:
+
+        if destIsCastorDir == False:
+            if isCastorDir( os.path.abspath(file) ):
+                cp = 'rfcp'
+            else:
+                cp = 'cp'
+        
+        cpfile = '%s %s %s' % (cp, file,absDestDir)
+        print cpfile
+        os.system(cpfile)
+        
+        
 
 

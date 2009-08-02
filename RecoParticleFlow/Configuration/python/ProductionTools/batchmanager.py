@@ -27,19 +27,28 @@ class BatchManager:
         self.parser_.add_option("-o", "--output-dir", dest="outputDir",
                           help="local output directory for your jobs",
                           default="Output")
-        self.parser_.add_option("-r", "--remote-output-dir", dest="remoteOutputDir",
-                          help="remote output directory for your jobs",
+        self.parser_.add_option("-r", "--remote-copy", dest="remoteCopy",
+                          help="remote output directory for your jobs, and file to be copied",
                           default="")
         # this opt can be removed
-        self.parser_.add_option("-n", "--negate", action="store_true", dest="negate", default=False, help="create jobs, but do nothing")
-        self.parser_.add_option("-b", "--batch-script",  
-                          dest="batchScript",
-                          help="give a script to run the jobs on the batch",
-                          default="")
-
+        self.parser_.add_option("-n", "--negate", action="store_true",
+                                dest="negate", default=False,
+                                help="create jobs, but do nothing")
+        self.parser_.add_option("-q", "--queue",  
+                          dest="queue",
+                          help="batch queue where to send the jobs",
+                          default="cms8nht3")
+        self.parser_.add_option(
+            "-b", "--batch-script",  
+            dest="batchScript",
+            help="give a script to run the jobs on the batch",
+            default="")
+        
     def ParseOptions(self):
         (self.options_,args) = self.parser_.parse_args()
-
+        self.remoteOutputDir_ = os.path.dirname( self.options_.remoteCopy )
+        self.remoteOutputFile_ = os.path.basename( self.options_.remoteCopy )
+        print "will copy the file ",self.remoteOutputFile_, "to the remote dir: ", self.remoteOutputDir_
 
     def PrepareJobs(self, listOfValues ):
         print 'PREPARING JOBS ======== '
