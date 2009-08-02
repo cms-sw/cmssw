@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/06/24 16:11:46 $
- * $Revision: 1.47 $
+ * $Date: 2009/07/14 09:06:31 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -87,6 +87,8 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 std::vector<EBClient*> clients_;
 

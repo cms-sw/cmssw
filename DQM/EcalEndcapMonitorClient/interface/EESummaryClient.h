@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/06/29 13:28:19 $
- * $Revision: 1.38 $
+ * $Date: 2009/07/14 09:13:32 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,8 @@ bool enableCleanup_;
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
 std::vector<int> ledWavelengths_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 std::vector<EEClient*> clients_;
 

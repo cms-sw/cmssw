@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2008/10/08 10:27:50 $
- * $Revision: 1.26 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,8 @@ std::string prefixME_;
 bool enableCleanup_;
 
 std::vector<int> superModules_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 DQMStore* dqmStore_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/07/14 09:06:31 $
- * $Revision: 1.183 $
+ * $Date: 2009/07/25 15:38:22 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  *
 */
@@ -64,6 +64,14 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
   laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+
+  MGPAGains_.reserve(3);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
+  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+
+  MGPAGainsPN_.reserve(2);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
+  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   // summary maps
   meIntegrity_            = 0;
@@ -527,85 +535,137 @@ void EBSummaryClient::setup(void) {
 
   }
 
-  if( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
-  sprintf(histo, "EBPT pedestal quality G01 summary");
-  mePedestalG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  mePedestalG01_->setAxisTitle("jphi", 1);
-  mePedestalG01_->setAxisTitle("jeta", 2);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-  if( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
-  sprintf(histo, "EBPT pedestal quality G06 summary");
-  mePedestalG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  mePedestalG06_->setAxisTitle("jphi", 1);
-  mePedestalG06_->setAxisTitle("jeta", 2);
+    if( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
+    sprintf(histo, "EBPT pedestal quality G01 summary");
+    mePedestalG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    mePedestalG01_->setAxisTitle("jphi", 1);
+    mePedestalG01_->setAxisTitle("jeta", 2);
 
-  if( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
-  sprintf(histo, "EBPT pedestal quality G12 summary");
-  mePedestalG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  mePedestalG12_->setAxisTitle("jphi", 1);
-  mePedestalG12_->setAxisTitle("jeta", 2);
-
-  if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
-  sprintf(histo, "EBPT PN pedestal quality G01 summary");
-  mePedestalPNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG01_->setAxisTitle("jphi", 1);
-  mePedestalPNG01_->setAxisTitle("jeta", 2);
-
-  if( mePedestalPNG16_ ) dqmStore_->removeElement( mePedestalPNG16_->getName() );
-  sprintf(histo, "EBPT PN pedestal quality G16 summary");
-  mePedestalPNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG16_->setAxisTitle("jphi", 1);
-  mePedestalPNG16_->setAxisTitle("jeta", 2);
-
-  if( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
-  sprintf(histo, "EBTPT test pulse quality G01 summary");
-  meTestPulseG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meTestPulseG01_->setAxisTitle("jphi", 1);
-  meTestPulseG01_->setAxisTitle("jeta", 2);
-
-  if( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
-  sprintf(histo, "EBTPT test pulse quality G06 summary");
-  meTestPulseG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meTestPulseG06_->setAxisTitle("jphi", 1);
-  meTestPulseG06_->setAxisTitle("jeta", 2);
-
-  if( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
-  sprintf(histo, "EBTPT test pulse quality G12 summary");
-  meTestPulseG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
-  meTestPulseG12_->setAxisTitle("jphi", 1);
-  meTestPulseG12_->setAxisTitle("jeta", 2);
-
-  if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
-  sprintf(histo, "EBTPT PN test pulse quality G01 summary");
-  meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG01_->setAxisTitle("jphi", 1);
-  meTestPulsePNG01_->setAxisTitle("jeta", 2);
-
-  if( meTestPulsePNG16_ ) dqmStore_->removeElement( meTestPulsePNG16_->getName() );
-  sprintf(histo, "EBTPT PN test pulse quality G16 summary");
-  meTestPulsePNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG16_->setAxisTitle("jphi", 1);
-  meTestPulsePNG16_->setAxisTitle("jeta", 2);
-
-  if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
-  sprintf(histo, "EBTPT test pulse amplitude G01 summary");
-  meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
-  for (int i = 0; i < 36; i++) {
-    meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
-  sprintf(histo, "EBTPT test pulse amplitude G06 summary");
-  meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
-  for (int i = 0; i < 36; i++) {
-    meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
+    sprintf(histo, "EBPT pedestal quality G06 summary");
+    mePedestalG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    mePedestalG06_->setAxisTitle("jphi", 1);
+    mePedestalG06_->setAxisTitle("jeta", 2);
+
   }
 
-  if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
-  sprintf(histo, "EBTPT test pulse amplitude G12 summary");
-  meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 2000., 4000., "s");
-  for (int i = 0; i < 36; i++) {
-    meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
+    sprintf(histo, "EBPT pedestal quality G12 summary");
+    mePedestalG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    mePedestalG12_->setAxisTitle("jphi", 1);
+    mePedestalG12_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
+    sprintf(histo, "EBPT PN pedestal quality G01 summary");
+    mePedestalPNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG01_->setAxisTitle("jphi", 1);
+    mePedestalPNG01_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG16_ ) dqmStore_->removeElement( mePedestalPNG16_->getName() );
+    sprintf(histo, "EBPT PN pedestal quality G16 summary");
+    mePedestalPNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG16_->setAxisTitle("jphi", 1);
+    mePedestalPNG16_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
+    sprintf(histo, "EBTPT test pulse quality G01 summary");
+    meTestPulseG01_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meTestPulseG01_->setAxisTitle("jphi", 1);
+    meTestPulseG01_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
+    sprintf(histo, "EBTPT test pulse quality G06 summary");
+    meTestPulseG06_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meTestPulseG06_->setAxisTitle("jphi", 1);
+    meTestPulseG06_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
+    sprintf(histo, "EBTPT test pulse quality G12 summary");
+    meTestPulseG12_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+    meTestPulseG12_->setAxisTitle("jphi", 1);
+    meTestPulseG12_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
+    sprintf(histo, "EBTPT PN test pulse quality G01 summary");
+    meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG01_->setAxisTitle("jphi", 1);
+    meTestPulsePNG01_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG16_ ) dqmStore_->removeElement( meTestPulsePNG16_->getName() );
+    sprintf(histo, "EBTPT PN test pulse quality G16 summary");
+    meTestPulsePNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG16_->setAxisTitle("jphi", 1);
+    meTestPulsePNG16_->setAxisTitle("jeta", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
+    sprintf(histo, "EBTPT test pulse amplitude G01 summary");
+    meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    for (int i = 0; i < 36; i++) {
+      meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
+    sprintf(histo, "EBTPT test pulse amplitude G06 summary");
+    meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    for (int i = 0; i < 36; i++) {
+      meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
+    sprintf(histo, "EBTPT test pulse amplitude G12 summary");
+    meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    for (int i = 0; i < 36; i++) {
+      meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
   if( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
@@ -974,7 +1034,7 @@ void EBSummaryClient::analyze(void) {
   if ( meTestPulsePNG01_ ) meTestPulsePNG01_->setEntries( 0 );
   if ( meTestPulsePNG16_ ) meTestPulsePNG16_->setEntries( 0 );
   if ( meTestPulseAmplG01_ ) meTestPulseAmplG01_->Reset();
-  if ( meTestPulseAmplG01_ ) meTestPulseAmplG06_->Reset();
+  if ( meTestPulseAmplG06_ ) meTestPulseAmplG06_->Reset();
   if ( meTestPulseAmplG12_ ) meTestPulseAmplG12_->Reset();
 
   if ( meCosmic_ ) meCosmic_->setEntries( 0 );
@@ -1211,26 +1271,28 @@ void EBSummaryClient::analyze(void) {
             me_02 = ebpc->meg02_[ism-1];
             me_03 = ebpc->meg03_[ism-1];
 
-            if ( me_01 && me_02 && me_03 ) {
+            int iex;
+            int ipx;
+            
+            if ( ism <= 18 ) {
+              iex = 1+(85-ie);
+              ipx = ip+20*(ism-1);
+            } else {
+              iex = 85+ie;
+              ipx = 1+(20-ip)+20*(ism-19);
+            }
+
+            if ( me_01 ) {
               float val_01=me_01->getBinContent(ie,ip);
-              float val_02=me_02->getBinContent(ie,ip);
-              float val_03=me_03->getBinContent(ie,ip);
-
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(85-ie);
-                ipx = ip+20*(ism-1);
-              } else {
-                iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
-              }
-
               if ( me_01->getEntries() != 0 ) mePedestalG01_->setBinContent( ipx, iex, val_01 );
+            }
+            if ( me_02 ) {
+              float val_02=me_02->getBinContent(ie,ip);
               if ( me_02->getEntries() != 0 ) mePedestalG06_->setBinContent( ipx, iex, val_02 );
+            }
+            if ( me_03 ) {
+              float val_03=me_03->getBinContent(ie,ip);
               if ( me_03->getEntries() != 0 ) mePedestalG12_->setBinContent( ipx, iex, val_03 );
-
             }
 
           }
@@ -1241,27 +1303,39 @@ void EBSummaryClient::analyze(void) {
             me_02 = ebtpc->meg02_[ism-1];
             me_03 = ebtpc->meg03_[ism-1];
 
-            if ( me_01 && me_02 && me_03 ) {
+            int iex;
+            int ipx;
+            
+            if ( ism <= 18 ) {
+              iex = 1+(85-ie);
+              ipx = ip+20*(ism-1);
+            } else {
+              iex = 85+ie;
+              ipx = 1+(20-ip)+20*(ism-19);
+            }
+
+            if ( me_01 ) {
+
               float val_01=me_01->getBinContent(ie,ip);
-              float val_02=me_02->getBinContent(ie,ip);
-              float val_03=me_03->getBinContent(ie,ip);
-
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(85-ie);
-                ipx = ip+20*(ism-1);
-              } else {
-                iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
-              }
 
               if ( me_01->getEntries() != 0 ) meTestPulseG01_->setBinContent( ipx, iex, val_01 );
+
+            }
+            if ( me_02 ) {
+
+              float val_02=me_02->getBinContent(ie,ip);
+
               if ( me_02->getEntries() != 0 ) meTestPulseG06_->setBinContent( ipx, iex, val_02 );
+
+            }
+            if ( me_03 ) {
+
+              float val_03=me_03->getBinContent(ie,ip);
+
               if ( me_03->getEntries() != 0 ) meTestPulseG12_->setBinContent( ipx, iex, val_03 );
 
             }
+
 
           }
 
@@ -1462,13 +1536,13 @@ void EBSummaryClient::analyze(void) {
             me_04 = ebpc->meg04_[ism-1];
             me_05 = ebpc->meg05_[ism-1];
 
-            if( me_04 && me_05) {
+            if( me_04 ) {
               float val_04=me_04->getBinContent(i,1);
-              float val_05=me_05->getBinContent(i,1);
-
               if ( me_04->getEntries() != 0 ) mePedestalPNG01_->setBinContent( ipx, iex, val_04 );
+            }
+            if( me_05 ) {
+              float val_05=me_05->getBinContent(i,1);
               if ( me_05->getEntries() != 0 ) mePedestalPNG16_->setBinContent( ipx, iex, val_05 );
-
             }
 
           }
@@ -1478,14 +1552,15 @@ void EBSummaryClient::analyze(void) {
             me_04 = ebtpc->meg04_[ism-1];
             me_05 = ebtpc->meg05_[ism-1];
 
-            if( me_04 && me_05) {
+            if( me_04 ) {
               float val_04=me_04->getBinContent(i,1);
-              float val_05=me_05->getBinContent(i,1);
-
               if ( me_04->getEntries() != 0 ) meTestPulsePNG01_->setBinContent( ipx, iex, val_04 );
-              if ( me_05->getEntries() != 0 ) meTestPulsePNG16_->setBinContent( ipx, iex, val_05 );
-
             }
+            if( me_05 ) {
+              float val_05=me_05->getBinContent(i,1);
+              if ( me_05->getEntries() != 0 ) meTestPulsePNG16_->setBinContent( ipx, iex, val_05 );
+            }
+
           }
 
           if ( eblc ) {
@@ -1590,7 +1665,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met01 = eblc->met01_[ism-1];
               MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
             
-              if( me && RtHalf == 0 ) {
+              if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
                 meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
                 meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
                 meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
@@ -1601,7 +1676,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met05 = eblc->met05_[ism-1];
               MonitorElement *meaopn05 = eblc->meaopn05_[ism-1];
 
-              if ( me && RtHalf == 1 ) {
+              if ( mea05 && met05 && meaopn05 && RtHalf == 1 ) {
                 meLaserL1Ampl_->Fill( ism, mea05->getBinContent( chan+1 ) );
                 meLaserL1Timing_->Fill( ism, met05->getBinContent( chan+1 ) );
                 meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( chan+1 ) );
@@ -1629,7 +1704,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met02 = eblc->met02_[ism-1];
               MonitorElement *meaopn02 = eblc->meaopn02_[ism-1];
             
-              if( me && RtHalf == 0 ) {
+              if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
                 meLaserL2Ampl_->Fill( ism, mea02->getBinContent( chan+1 ) );
                 meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
                 meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( chan+1 ) );
@@ -1640,7 +1715,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met06 = eblc->met06_[ism-1];
               MonitorElement *meaopn06 = eblc->meaopn06_[ism-1];
 
-              if ( me && RtHalf == 1 ) {
+              if ( mea06 && met06 && meaopn06 && RtHalf == 1 ) {
                 meLaserL2Ampl_->Fill( ism, mea06->getBinContent( chan+1 ) );
                 meLaserL2Timing_->Fill( ism, met06->getBinContent( chan+1 ) );
                 meLaserL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( chan+1 ) );
@@ -1668,7 +1743,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met03 = eblc->met03_[ism-1];
               MonitorElement *meaopn03 = eblc->meaopn03_[ism-1];
             
-              if( me && RtHalf == 0 ) {
+              if( mea03 && met03 && meaopn03 && RtHalf == 0 ) {
                 meLaserL3Ampl_->Fill( ism, mea03->getBinContent( chan+1 ) );
                 meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
                 meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( chan+1 ) );
@@ -1679,7 +1754,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met07 = eblc->met07_[ism-1];
               MonitorElement *meaopn07 = eblc->meaopn07_[ism-1];
 
-              if ( me && RtHalf == 1 ) {
+              if ( mea07 && met07 && meaopn07 && RtHalf == 1 ) {
                 meLaserL3Ampl_->Fill( ism, mea07->getBinContent( chan+1 ) );
                 meLaserL3Timing_->Fill( ism, met07->getBinContent( chan+1 ) );
                 meLaserL3AmplOverPN_->Fill( ism, meaopn07->getBinContent( chan+1 ) );
@@ -1707,7 +1782,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met04 = eblc->met04_[ism-1];
               MonitorElement *meaopn04 = eblc->meaopn04_[ism-1];
             
-              if( me && RtHalf == 0 ) {
+              if( mea04 && met04 && meaopn04 && RtHalf == 0 ) {
                 meLaserL4Ampl_->Fill( ism, mea04->getBinContent( chan+1 ) );
                 meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
                 meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( chan+1 ) );
@@ -1718,7 +1793,7 @@ void EBSummaryClient::analyze(void) {
               MonitorElement *met08 = eblc->met08_[ism-1];
               MonitorElement *meaopn08 = eblc->meaopn08_[ism-1];
 
-              if ( me && RtHalf == 1 ) {
+              if ( mea08 && met08 && meaopn08 && RtHalf == 1 ) {
                 meLaserL4Ampl_->Fill( ism, mea08->getBinContent( chan+1 ) );
                 meLaserL4Timing_->Fill( ism, met08->getBinContent( chan+1 ) );
                 meLaserL4AmplOverPN_->Fill( ism, meaopn08->getBinContent( chan+1 ) );

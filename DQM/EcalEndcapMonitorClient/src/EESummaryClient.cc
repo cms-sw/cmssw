@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/07/25 15:38:22 $
- * $Revision: 1.172 $
+ * $Date: 2009/07/26 08:42:32 $
+ * $Revision: 1.173 $
  * \author G. Della Ricca
  *
 */
@@ -72,6 +72,14 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   ledWavelengths_.reserve(2);
   for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
   ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
+
+  MGPAGains_.reserve(3);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
+  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+
+  MGPAGainsPN_.reserve(2);
+  for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
+  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -774,145 +782,240 @@ void EESummaryClient::setup(void) {
 
   }
 
-  if( mePedestalG01_[0] ) dqmStore_->removeElement( mePedestalG01_[0]->getName() );
-  sprintf(histo, "EEPT EE - pedestal quality G01 summary");
-  mePedestalG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG01_[0]->setAxisTitle("jx", 1);
-  mePedestalG01_[0]->setAxisTitle("jy", 2);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-  if( mePedestalG06_[0] ) dqmStore_->removeElement( mePedestalG06_[0]->getName() );
-  sprintf(histo, "EEPT EE - pedestal quality G06 summary");
-  mePedestalG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG06_[0]->setAxisTitle("jx", 1);
-  mePedestalG06_[0]->setAxisTitle("jy", 2);
+    if( mePedestalG01_[0] ) dqmStore_->removeElement( mePedestalG01_[0]->getName() );
+    sprintf(histo, "EEPT EE - pedestal quality G01 summary");
+    mePedestalG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG01_[0]->setAxisTitle("jx", 1);
+    mePedestalG01_[0]->setAxisTitle("jy", 2);
 
-  if( mePedestalG12_[0] ) dqmStore_->removeElement( mePedestalG12_[0]->getName() );
-  sprintf(histo, "EEPT EE - pedestal quality G12 summary");
-  mePedestalG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG12_[0]->setAxisTitle("jx", 1);
-  mePedestalG12_[0]->setAxisTitle("jy", 2);
-
-  if( mePedestalPNG01_[0] ) dqmStore_->removeElement( mePedestalPNG01_[0]->getName() );
-  sprintf(histo, "EEPT EE - PN pedestal quality G01 summary");
-  mePedestalPNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG01_[0]->setAxisTitle("jx", 1);
-  mePedestalPNG01_[0]->setAxisTitle("jy", 2);
-
-  if( mePedestalPNG16_[0] ) dqmStore_->removeElement( mePedestalPNG16_[0]->getName() );
-  sprintf(histo, "EEPT EE - PN pedestal quality G16 summary");
-  mePedestalPNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG16_[0]->setAxisTitle("jx", 1);
-  mePedestalPNG16_[0]->setAxisTitle("jy", 2);
-
-  if( mePedestalG01_[1] ) dqmStore_->removeElement( mePedestalG01_[1]->getName() );
-  sprintf(histo, "EEPT EE + pedestal quality G01 summary");
-  mePedestalG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG01_[1]->setAxisTitle("jx", 1);
-  mePedestalG01_[1]->setAxisTitle("jy", 2);
-
-  if( mePedestalG06_[1] ) dqmStore_->removeElement( mePedestalG06_[1]->getName() );
-  sprintf(histo, "EEPT EE + pedestal quality G06 summary");
-  mePedestalG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG06_[1]->setAxisTitle("jx", 1);
-  mePedestalG06_[1]->setAxisTitle("jy", 2);
-
-  if( mePedestalG12_[1] ) dqmStore_->removeElement( mePedestalG12_[1]->getName() );
-  sprintf(histo, "EEPT EE + pedestal quality G12 summary");
-  mePedestalG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalG12_[1]->setAxisTitle("jx", 1);
-  mePedestalG12_[1]->setAxisTitle("jy", 2);
-
-  if( mePedestalPNG01_[1] ) dqmStore_->removeElement( mePedestalPNG01_[1]->getName() );
-  sprintf(histo, "EEPT EE + PN pedestal quality G01 summary");
-  mePedestalPNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG01_[1]->setAxisTitle("jx", 1);
-  mePedestalPNG01_[1]->setAxisTitle("jy", 2);
-
-  if( mePedestalPNG16_[1] ) dqmStore_->removeElement( mePedestalPNG16_[1]->getName() );
-  sprintf(histo, "EEPT EE + PN pedestal quality G16 summary");
-  mePedestalPNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-  mePedestalPNG16_[1]->setAxisTitle("jx", 1);
-  mePedestalPNG16_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG01_[0] ) dqmStore_->removeElement( meTestPulseG01_[0]->getName() );
-  sprintf(histo, "EETPT EE - test pulse quality G01 summary");
-  meTestPulseG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG01_[0]->setAxisTitle("jx", 1);
-  meTestPulseG01_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG06_[0] ) dqmStore_->removeElement( meTestPulseG06_[0]->getName() );
-  sprintf(histo, "EETPT EE - test pulse quality G06 summary");
-  meTestPulseG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG06_[0]->setAxisTitle("jx", 1);
-  meTestPulseG06_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG12_[0] ) dqmStore_->removeElement( meTestPulseG12_[0]->getName() );
-  sprintf(histo, "EETPT EE - test pulse quality G12 summary");
-  meTestPulseG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG12_[0]->setAxisTitle("jx", 1);
-  meTestPulseG12_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulsePNG01_[0] ) dqmStore_->removeElement( meTestPulsePNG01_[0]->getName() );
-  sprintf(histo, "EETPT EE - PN test pulse quality G01 summary");
-  meTestPulsePNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG01_[0]->setAxisTitle("jx", 1);
-  meTestPulsePNG01_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulsePNG16_[0] ) dqmStore_->removeElement( meTestPulsePNG16_[0]->getName() );
-  sprintf(histo, "EETPT EE - PN test pulse quality G16 summary");
-  meTestPulsePNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG16_[0]->setAxisTitle("jx", 1);
-  meTestPulsePNG16_[0]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG01_[1] ) dqmStore_->removeElement( meTestPulseG01_[1]->getName() );
-  sprintf(histo, "EETPT EE + test pulse quality G01 summary");
-  meTestPulseG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG01_[1]->setAxisTitle("jx", 1);
-  meTestPulseG01_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG06_[1] ) dqmStore_->removeElement( meTestPulseG06_[1]->getName() );
-  sprintf(histo, "EETPT EE + test pulse quality G06 summary");
-  meTestPulseG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG06_[1]->setAxisTitle("jx", 1);
-  meTestPulseG06_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulseG12_[1] ) dqmStore_->removeElement( meTestPulseG12_[1]->getName() );
-  sprintf(histo, "EETPT EE + test pulse quality G12 summary");
-  meTestPulseG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTestPulseG12_[1]->setAxisTitle("jx", 1);
-  meTestPulseG12_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulsePNG01_[1] ) dqmStore_->removeElement( meTestPulsePNG01_[1]->getName() );
-  sprintf(histo, "EETPT EE + PN test pulse quality G01 summary");
-  meTestPulsePNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG01_[1]->setAxisTitle("jx", 1);
-  meTestPulsePNG01_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulsePNG16_[1] ) dqmStore_->removeElement( meTestPulsePNG16_[1]->getName() );
-  sprintf(histo, "EETPT EE + PN test pulse quality G16 summary");
-  meTestPulsePNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meTestPulsePNG16_[1]->setAxisTitle("jx", 1);
-  meTestPulsePNG16_[1]->setAxisTitle("jy", 2);
-
-  if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
-  sprintf(histo, "EETPT test pulse amplitude G01 summary");
-  meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 2000, 4000, "s");
-  for (int i = 0; i < 18; i++) {
-    meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
-  sprintf(histo, "EETPT test pulse amplitude G06 summary");
-  meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 2000, 4000, "s");
-  for (int i = 0; i < 18; i++) {
-    meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( mePedestalG06_[0] ) dqmStore_->removeElement( mePedestalG06_[0]->getName() );
+    sprintf(histo, "EEPT EE - pedestal quality G06 summary");
+    mePedestalG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG06_[0]->setAxisTitle("jx", 1);
+    mePedestalG06_[0]->setAxisTitle("jy", 2);
+
   }
 
-  if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
-  sprintf(histo, "EETPT test pulse amplitude G12 summary");
-  meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 2000, 4000, "s");
-  for (int i = 0; i < 18; i++) {
-    meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( mePedestalG12_[0] ) dqmStore_->removeElement( mePedestalG12_[0]->getName() );
+    sprintf(histo, "EEPT EE - pedestal quality G12 summary");
+    mePedestalG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG12_[0]->setAxisTitle("jx", 1);
+    mePedestalG12_[0]->setAxisTitle("jy", 2);
+
+  }
+
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG01_[0] ) dqmStore_->removeElement( mePedestalPNG01_[0]->getName() );
+    sprintf(histo, "EEPT EE - PN pedestal quality G01 summary");
+    mePedestalPNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG01_[0]->setAxisTitle("jx", 1);
+    mePedestalPNG01_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG16_[0] ) dqmStore_->removeElement( mePedestalPNG16_[0]->getName() );
+    sprintf(histo, "EEPT EE - PN pedestal quality G16 summary");
+    mePedestalPNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG16_[0]->setAxisTitle("jx", 1);
+    mePedestalPNG16_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( mePedestalG01_[1] ) dqmStore_->removeElement( mePedestalG01_[1]->getName() );
+    sprintf(histo, "EEPT EE + pedestal quality G01 summary");
+    mePedestalG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG01_[1]->setAxisTitle("jx", 1);
+    mePedestalG01_[1]->setAxisTitle("jy", 2);
+
+  }
+
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( mePedestalG06_[1] ) dqmStore_->removeElement( mePedestalG06_[1]->getName() );
+    sprintf(histo, "EEPT EE + pedestal quality G06 summary");
+    mePedestalG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG06_[1]->setAxisTitle("jx", 1);
+    mePedestalG06_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( mePedestalG12_[1] ) dqmStore_->removeElement( mePedestalG12_[1]->getName() );
+    sprintf(histo, "EEPT EE + pedestal quality G12 summary");
+    mePedestalG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    mePedestalG12_[1]->setAxisTitle("jx", 1);
+    mePedestalG12_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG01_[1] ) dqmStore_->removeElement( mePedestalPNG01_[1]->getName() );
+    sprintf(histo, "EEPT EE + PN pedestal quality G01 summary");
+    mePedestalPNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG01_[1]->setAxisTitle("jx", 1);
+    mePedestalPNG01_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( mePedestalPNG16_[1] ) dqmStore_->removeElement( mePedestalPNG16_[1]->getName() );
+    sprintf(histo, "EEPT EE + PN pedestal quality G16 summary");
+    mePedestalPNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+    mePedestalPNG16_[1]->setAxisTitle("jx", 1);
+    mePedestalPNG16_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( meTestPulseG01_[0] ) dqmStore_->removeElement( meTestPulseG01_[0]->getName() );
+    sprintf(histo, "EETPT EE - test pulse quality G01 summary");
+    meTestPulseG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG01_[0]->setAxisTitle("jx", 1);
+    meTestPulseG01_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( meTestPulseG06_[0] ) dqmStore_->removeElement( meTestPulseG06_[0]->getName() );
+    sprintf(histo, "EETPT EE - test pulse quality G06 summary");
+    meTestPulseG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG06_[0]->setAxisTitle("jx", 1);
+    meTestPulseG06_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( meTestPulseG12_[0] ) dqmStore_->removeElement( meTestPulseG12_[0]->getName() );
+    sprintf(histo, "EETPT EE - test pulse quality G12 summary");
+    meTestPulseG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG12_[0]->setAxisTitle("jx", 1);
+    meTestPulseG12_[0]->setAxisTitle("jy", 2);
+
+  }
+
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG01_[0] ) dqmStore_->removeElement( meTestPulsePNG01_[0]->getName() );
+    sprintf(histo, "EETPT EE - PN test pulse quality G01 summary");
+    meTestPulsePNG01_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG01_[0]->setAxisTitle("jx", 1);
+    meTestPulsePNG01_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG16_[0] ) dqmStore_->removeElement( meTestPulsePNG16_[0]->getName() );
+    sprintf(histo, "EETPT EE - PN test pulse quality G16 summary");
+    meTestPulsePNG16_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG16_[0]->setAxisTitle("jx", 1);
+    meTestPulsePNG16_[0]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( meTestPulseG01_[1] ) dqmStore_->removeElement( meTestPulseG01_[1]->getName() );
+    sprintf(histo, "EETPT EE + test pulse quality G01 summary");
+    meTestPulseG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG01_[1]->setAxisTitle("jx", 1);
+    meTestPulseG01_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( meTestPulseG06_[1] ) dqmStore_->removeElement( meTestPulseG06_[1]->getName() );
+    sprintf(histo, "EETPT EE + test pulse quality G06 summary");
+    meTestPulseG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG06_[1]->setAxisTitle("jx", 1);
+    meTestPulseG06_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( meTestPulseG12_[1] ) dqmStore_->removeElement( meTestPulseG12_[1]->getName() );
+    sprintf(histo, "EETPT EE + test pulse quality G12 summary");
+    meTestPulseG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    meTestPulseG12_[1]->setAxisTitle("jx", 1);
+    meTestPulseG12_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG01_[1] ) dqmStore_->removeElement( meTestPulsePNG01_[1]->getName() );
+    sprintf(histo, "EETPT EE + PN test pulse quality G01 summary");
+    meTestPulsePNG01_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG01_[1]->setAxisTitle("jx", 1);
+    meTestPulsePNG01_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
+
+    if( meTestPulsePNG16_[1] ) dqmStore_->removeElement( meTestPulsePNG16_[1]->getName() );
+    sprintf(histo, "EETPT EE + PN test pulse quality G16 summary");
+    meTestPulsePNG16_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+    meTestPulsePNG16_[1]->setAxisTitle("jx", 1);
+    meTestPulsePNG16_[1]->setAxisTitle("jy", 2);
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
+    sprintf(histo, "EETPT test pulse amplitude G01 summary");
+    meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 4096, 0., 4096., "s");
+    for (int i = 0; i < 18; i++) {
+      meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
+    sprintf(histo, "EETPT test pulse amplitude G06 summary");
+    meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 4096, 0., 4096., "s");
+    for (int i = 0; i < 18; i++) {
+      meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
+  }
+
+  if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
+
+    if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
+    sprintf(histo, "EETPT test pulse amplitude G12 summary");
+    meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 4096, 0., 4096., "s");
+    for (int i = 0; i < 18; i++) {
+      meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
   }
 
   if( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
@@ -1489,60 +1592,59 @@ void EESummaryClient::analyze(void) {
 
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
-
-          if ( eeic ) {
-
-            me = eeic->meg01_[ism-1];
-
-            if ( me ) {
-
-              float xval = me->getBinContent( ix, iy );
-
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meIntegrity_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meIntegrity_[1]->setBinContent( jx, jy, xval );
-              }
-              if ( xval == 0 ) meIntegrityErr_->Fill( ism );
-
-            }
-
-            h2 = eeic->h_[ism-1];
-
-            if ( h2 ) {
-
-              float xval = h2->GetBinContent( ix, iy );
-
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meOccupancy_[0]->setBinContent( 101 - jx, jy, xval );
-                }
-              } else {
-                if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, jx, jy) ) meOccupancy_[1]->setBinContent( jx, jy, xval );
-                }
-              }
-              meOccupancy1D_->Fill( ism, xval );
-
-            }
-
+          
+          if ( ism >= 1 && ism <= 9 ) {
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+          } else {
+            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
           }
-
+          
+          if ( eeic ) {
+            
+            me = eeic->meg01_[ism-1];
+            
+            if ( me ) {
+              
+              float xval = me->getBinContent( ix, iy );
+              
+              if ( ism >= 1 && ism <= 9 ) meIntegrity_[0]->setBinContent( 101 - jx, jy, xval );
+              else meIntegrity_[1]->setBinContent( jx, jy, xval );
+              
+              if ( xval == 0 ) meIntegrityErr_->Fill( ism );
+              
+            }
+            
+            h2 = eeic->h_[ism-1];
+            
+            if ( h2 ) {
+              
+              float xval = h2->GetBinContent( ix, iy );
+              
+              if ( ism >= 1 && ism <= 9 ) {
+                if ( xval != 0 ) meOccupancy_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                if ( xval != 0 ) meOccupancy_[1]->setBinContent( jx, jy, xval );
+              }
+              
+              meOccupancy1D_->Fill( ism, xval );
+              
+            }
+            
+          }
+          
           if ( eepoc ) {
 
             me = eepoc->meg03_[ism-1];
-
+          
             if ( me ) {
-
+            
               float xval = me->getBinContent( ix, iy );
-
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                if ( Numbers::validEE(ism, jx, jy) ) mePedestalOnline_[1]->setBinContent( jx, jy, xval );
-              }
+              
+              if ( ism >= 1 && ism <= 9 ) mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
+              else mePedestalOnline_[1]->setBinContent( jx, jy, xval );
+              
               if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
-
+              
             }
 
           }
@@ -1551,19 +1653,13 @@ void EESummaryClient::analyze(void) {
           bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ix, iy, num01, mean01, rms01);
 
           if ( update01 ) {
-
+            
             mePedestalOnlineRMS_->Fill( ism, rms01 );
             mePedestalOnlineMean_->Fill( ism, mean01 );
 
-            if ( ism >= 1 && ism <= 9 ) {
-              if ( Numbers::validEE(ism, 101 - jx, jy) ) {
-                mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
-              }
-            } else {
-              if ( Numbers::validEE(ism, jx, jy) ) {
-                mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
-              }
-            }
+            if ( ism >= 1 && ism <= 9 ) mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
+            else mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
+
           }
 
           if ( eelc ) {
@@ -1577,16 +1673,14 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL1_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLaserL1_[1]->setBinContent( jx, jy, xval );
+
                   if ( xval == 0 ) meLaserL1Err_->Fill( ism );
                 }
 
               }
-
+              
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
@@ -1598,11 +1692,9 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL2_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLaserL2_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLaserL2_[1]->setBinContent( jx, jy, xval );
+
                   if ( xval == 0 ) meLaserL2Err_->Fill( ism );
                 }
 
@@ -1619,16 +1711,14 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL3_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL3_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLaserL3_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLaserL3_[1]->setBinContent( jx, jy, xval );
+
                   if ( xval == 0 ) meLaserL3Err_->Fill( ism );
                 }
 
               }
-
+              
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
@@ -1640,11 +1730,9 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL4_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL4_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLaserL4_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLaserL4_[1]->setBinContent( jx, jy, xval );
+                  
                   if ( xval == 0 ) meLaserL4Err_->Fill( ism );
                 }
 
@@ -1665,11 +1753,9 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
                 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLedL1_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLedL1_[1]->setBinContent( jx, jy, xval );
+                  
                   if ( xval == 0 ) meLedL1Err_->Fill( ism );
                 }
                 
@@ -1686,14 +1772,12 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
                 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLedL2_[1]->setBinContent( jx, jy, xval );
-                  }
+                  if ( ism >= 1 && ism <= 9 ) meLedL2_[0]->setBinContent( 101 - jx, jy, xval );
+                  else meLedL2_[1]->setBinContent( jx, jy, xval );
+
                   if ( xval == 0 ) meLedL2Err_->Fill( ism );
                 }
-                
+
               }
 
             }
@@ -1701,40 +1785,31 @@ void EESummaryClient::analyze(void) {
           }
 
           if ( eepc ) {
-
+            
             me_01 = eepc->meg01_[ism-1];
             me_02 = eepc->meg02_[ism-1];
             me_03 = eepc->meg03_[ism-1];
-
-            if ( me_01 && me_02 && me_03 ) {
+            
+            if ( me_01 ) {
               float val_01=me_01->getBinContent(ix,iy);
-              float val_02=me_02->getBinContent(ix,iy);
-              float val_03=me_03->getBinContent(ix,iy);
-
               if ( me_01->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalG01_[0]->setBinContent( 101 - jx, jy, val_01 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) mePedestalG01_[1]->setBinContent( jx, jy, val_01 );
-                }
+                if ( ism >= 1 && ism <= 9 ) mePedestalG01_[0]->setBinContent( 101 - jx, jy, val_01 );
+                else mePedestalG01_[1]->setBinContent( jx, jy, val_01 );
               }
-
+            }
+            if ( me_02 ) {
+              float val_02=me_02->getBinContent(ix,iy);
               if ( me_02->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalG06_[0]->setBinContent( 101 - jx, jy, val_02 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) mePedestalG06_[1]->setBinContent( jx, jy, val_02 );
-                }
+                if ( ism >= 1 && ism <= 9 ) mePedestalG06_[0]->setBinContent( 101 - jx, jy, val_02 );
+                else mePedestalG06_[1]->setBinContent( jx, jy, val_02 );
               }
-
+            }
+            if ( me_03 ) {
+              float val_03=me_03->getBinContent(ix,iy);
               if ( me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalG12_[0]->setBinContent( 101 - jx, jy, val_03 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) mePedestalG12_[1]->setBinContent( jx, jy, val_03 );
-                }
+                if ( ism >= 1 && ism <= 9 ) mePedestalG12_[0]->setBinContent( 101 - jx, jy, val_03 );
+                else mePedestalG12_[1]->setBinContent( jx, jy, val_03 );
               }
-
             }
 
           }
@@ -1745,35 +1820,26 @@ void EESummaryClient::analyze(void) {
             me_02 = eetpc->meg02_[ism-1];
             me_03 = eetpc->meg03_[ism-1];
 
-            if ( me_01 && me_02 && me_03 ) {
+            if ( me_01 ) {
               float val_01=me_01->getBinContent(ix,iy);
-              float val_02=me_02->getBinContent(ix,iy);
-              float val_03=me_03->getBinContent(ix,iy);
-
               if ( me_01->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulseG01_[0]->setBinContent( 101 - jx, jy, val_01 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meTestPulseG01_[1]->setBinContent( jx, jy, val_01 );
-                }
+                if ( ism >= 1 && ism <= 9 ) meTestPulseG01_[0]->setBinContent( 101 - jx, jy, val_01 );
+                else meTestPulseG01_[1]->setBinContent( jx, jy, val_01 );
               }
-
+            }
+            if ( me_02 ) {
+              float val_02=me_02->getBinContent(ix,iy);
               if ( me_02->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulseG06_[0]->setBinContent( 101 - jx, jy, val_02 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meTestPulseG06_[1]->setBinContent( jx, jy, val_02 );
-                }
+                if ( ism >= 1 && ism <= 9 ) meTestPulseG06_[0]->setBinContent( 101 - jx, jy, val_02 );
+                else meTestPulseG06_[1]->setBinContent( jx, jy, val_02 );
               }
-
+            }
+            if ( me_03 ) {
+              float val_03=me_03->getBinContent(ix,iy);
               if ( me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulseG12_[0]->setBinContent( 101 - jx, jy, val_03 );
-                } else {
-                  if ( Numbers::validEE(ism, jx, jy) ) meTestPulseG12_[1]->setBinContent( jx, jy, val_03 );
-                }
+                if ( ism >= 1 && ism <= 9 ) meTestPulseG12_[0]->setBinContent( 101 - jx, jy, val_03 );
+                else meTestPulseG12_[1]->setBinContent( jx, jy, val_03 );
               }
-
             }
 
           }
@@ -1787,13 +1853,9 @@ void EESummaryClient::analyze(void) {
               float xval = h2d->GetBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meCosmic_[0]->setBinContent( 101 - jx, jy, xval );
-                }
+                if ( xval != 0 ) meCosmic_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
-                if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, jx, jy) ) meCosmic_[1]->setBinContent( jx, jy, xval );
-                }
+                if ( xval != 0 ) meCosmic_[1]->setBinContent( jx, jy, xval );
               }
 
             }
@@ -1808,11 +1870,8 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meTiming_[1]->setBinContent( jx, jy, xval );
-              }
+              if ( ism >= 1 && ism <= 9 ) meTiming_[0]->setBinContent( 101 - jx, jy, xval );
+              else meTiming_[1]->setBinContent( jx, jy, xval );
 
             }
 
@@ -1827,6 +1886,12 @@ void EESummaryClient::analyze(void) {
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
+          if ( ism >= 1 && ism <= 9 ) {
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+          } else {
+            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+          }
+
           if ( eesfc ) {
 
             me = eesfc->meh01_[ism-1];
@@ -1839,11 +1904,9 @@ void EESummaryClient::analyze(void) {
               if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                if ( Numbers::validEE(ism, jx, jy) ) meStatusFlags_[1]->setBinContent( jx, jy, xval );
-              }
+              if ( ism >= 1 && ism <= 9 ) meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
+              else meStatusFlags_[1]->setBinContent( jx, jy, xval );
+              
               if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
 
             }
