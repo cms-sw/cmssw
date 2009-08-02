@@ -13,10 +13,10 @@ L1CaloCluster::L1CaloCluster()
   eGamma_=false;
   leadTowerTau_ =false;
   eGammaValue_ = 0;
-  isoValue_=0;
   innerEta_=0;
   innerPhi_=0;
-  isoClusters_=0;
+  isoClustersEG_=0;
+  isoClustersTau_=0;
 
   isoEG_=false;
   isoTau_=false;
@@ -36,14 +36,15 @@ L1CaloCluster::L1CaloCluster(int iEta, int iPhi)
   fg_=false;
   eGamma_=false;
   eGammaValue_ = 0;
-  isoValue_=0;
   leadTowerTau_ =false;
   isoEG_=false;
   isoTau_=false;
   central_=false;
   innerEta_=0;
   innerPhi_=0;
-  isoClusters_=0;
+
+  isoClustersEG_=0;
+  isoClustersTau_=0;
 
 
   for(size_t i=0;i<4;++i)
@@ -137,16 +138,17 @@ L1CaloCluster::isCentral() const
 {
   return central_;
 }
+
 int
-L1CaloCluster::isoValue() const
+L1CaloCluster::isoClustersEG() const
 {
-  return isoValue_;
+  return isoClustersEG_;
 }
 
 int
-L1CaloCluster::isoClusters() const
+L1CaloCluster::isoClustersTau() const
 {
-  return isoClusters_;
+  return isoClustersTau_;
 }
 
 
@@ -232,16 +234,12 @@ L1CaloCluster::setIsoTau(bool eg)
 {
   isoTau_ = eg;
 }
-void 
-L1CaloCluster::setIsoValue(int eg)
-{
-  isoValue_ = eg;
-}
 
 void 
-L1CaloCluster::setIsoClusters(int eg)
+L1CaloCluster::setIsoClusters(int eg,int tau)
 {
-  isoClusters_ = eg;
+  isoClustersEG_ = eg;
+  isoClustersTau_ = tau;
 }
 
 
