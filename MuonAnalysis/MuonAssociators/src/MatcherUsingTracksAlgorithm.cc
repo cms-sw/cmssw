@@ -10,6 +10,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,20 +48,24 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
         maxLocalPosDiff_    = iConfig.getParameter<double>("maxDeltaLocalPos");
         maxGlobalMomDeltaR_ = iConfig.getParameter<double>("maxDeltaR");
         maxGlobalDPtRel_    = iConfig.getParameter<double>("maxDeltaPtRel");
+
         // choice of sorting variable
         std::string sortBy = iConfig.getParameter<std::string>("sortBy");
         if      (sortBy == "deltaLocalPos") sortBy_ = LocalPosDiff;
         else if (sortBy == "deltaPtRel")    sortBy_ = GlobalDPtRel;
         else if (sortBy == "deltaR")        sortBy_ = GlobalMomDeltaR;
-        else throw cms::Exception("Configuration") << "Parameter 'sortBy' must be one of: deltaLocalPos, deltaPtRel, deltaR.\n";
+        else if (sortBy == "pull")          sortBy_ = Pull;
+        else throw cms::Exception("Configuration") << "Parameter 'sortBy' must be one of: deltaLocalPos, deltaPtRel, deltaR, pull.\n";
         // validate the config
         if (algo_ == ByPropagatingSrc) {
             if (whichTrack2_ == None || whichState2_ == AtVertex) {
-                throw cms::Exception("Configuration") << "Destination track must be non-null, and state must not be 'AtVertex' (not yet).\n";
+                algo_ = ByPropagatingSrcTSCP;
+                //throw cms::Exception("Configuration") << "Destination track must be non-null, and state must not be 'AtVertex' (not yet).\n";
             }
         } else if (algo_ == ByPropagatingMatched) {
             if (whichTrack1_ == None || whichState1_ == AtVertex) {
-                throw cms::Exception("Configuration") << "Destination track must be non-null, and state must not be 'AtVertex' (not yet).\n";
+                algo_ = ByPropagatingMatchedTSCP;
+                //throw cms::Exception("Configuration") << "Destination track must be non-null, and state must not be 'AtVertex' (not yet).\n";
             }
         } else if (algo_ == ByDirectComparison) {
             bool firstAtVertex = (whichTrack1_ == None || whichState1_ == AtVertex);
@@ -71,6 +77,25 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
                 if (whichState1_ != whichState2_) throw cms::Exception("Configuration") << "You can't use 'byDirectComparison' with non-matching states.\n";
             }
         }
+
+        usePull_ = iConfig.existsAs<bool>("computePull") ? iConfig.getParameter<bool>("computePull") : false;
+        if (usePull_) {
+           if (whichTrack1_ == None && whichTrack2_ == None) throw cms::Exception("Configuration") << "Can't compute pulls if both tracks are set to 'none'.\n";
+           maxPull_ = iConfig.getParameter<double>("maxPull");
+           pullDiagonalOnly_ = iConfig.getParameter<bool>("pullDiagonalOnly");
+           if (algo_ == ByPropagatingSrc || algo_ == ByPropagatingMatched) {
+               pullUseVertex_ = iConfig.getParameter<bool>("pullUsePosition");
+           } else {
+               pullUseVertex_ = iConfig.getParameter<bool>("pullUseVertex");
+               if (algo_ == ByDirectComparison) {
+                    std::string choice = iConfig.getParameter<std::string>("pullMomentumForDxy");
+                    if (choice == "src") pullFirstMomentum_ = true;
+                    else if (choice != "matched") throw cms::Exception("Configuration") << "pullMomentumForDxy must be 'src' or 'matched'\n";
+               }
+           }
+        } else maxPull_ = 1;
+
+        if (sortBy_ == Pull && !usePull_) throw cms::Exception("Configuration") << "Can't sort by pulls if 'computePulls' is not set to true.\n";
     }
 }
 
@@ -94,7 +119,7 @@ MatcherUsingTracksAlgorithm::getConf(const edm::ParameterSet & iConfig, const st
 /// Try to match one track to another one. Return true if succeeded.
 /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
 bool 
-MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltaLocalPos, float &deltaPtRel) const {
+MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltaLocalPos, float &deltaPtRel, float &pull) const {
     switch (algo_) {
         case ByTrackRef: { 
             reco::TrackRef t1 = getTrack(c1, whichTrack1_); 
@@ -107,17 +132,28 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candid
         case ByPropagatingSrc: {
             FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
             TrajectoryStateOnSurface target = targetState(c2, whichTrack2_, whichState2_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel);
+            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, pull);
             }
         case ByPropagatingMatched: { 
             FreeTrajectoryState start = startingState(c2, whichTrack2_, whichState2_);
             TrajectoryStateOnSurface target = targetState(c1, whichTrack1_, whichState1_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel);
+            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, pull);
             }
+        case ByPropagatingSrcTSCP: {
+            FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
+            FreeTrajectoryState target = startingState(c2, whichTrack2_, whichState2_);
+            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, pull);
+            }
+        case ByPropagatingMatchedTSCP: { 
+            FreeTrajectoryState start = startingState(c2, whichTrack2_, whichState2_);
+            FreeTrajectoryState target = startingState(c1, whichTrack1_, whichState1_);
+            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, pull);
+            }
+
         case ByDirectComparison: {
             FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
             FreeTrajectoryState otherstart = startingState(c2, whichTrack2_, whichState2_);
-            return matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel);
+            return matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel, pull);
             }
     }
     return false;
@@ -127,15 +163,16 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candid
 /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
 /// Returns -1 if the match fails
 int 
-MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<reco::Candidate> &c2s, float &deltR, float &deltaLocalPos, float &deltaPtRel) const {
+MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<reco::Candidate> &c2s, float &deltR, float &deltaLocalPos, float &deltaPtRel, float &pull) const {
     
     // working and output variables
     FreeTrajectoryState start; TrajectoryStateOnSurface target;
     int match = -1;
 
     // pre-fetch some states if needed
-    if (algo_ == ByPropagatingSrc || algo_ == ByDirectComparison) start = startingState(c1, whichTrack1_, whichState1_);
-    else if (algo_ == ByPropagatingMatched) target = targetState(c1, whichTrack1_, whichState1_);
+    if (algo_ == ByPropagatingSrc || algo_ == ByPropagatingSrcTSCP || algo_ == ByPropagatingMatchedTSCP || algo_ == ByDirectComparison) {
+        start = startingState(c1, whichTrack1_, whichState1_);
+    } else if (algo_ == ByPropagatingMatched) target = targetState(c1, whichTrack1_, whichState1_);
 
     // loop on the  collection
     edm::View<reco::Candidate>::const_iterator it, ed; int i;
@@ -154,16 +191,28 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<re
             case ByPropagatingMatched: {
                      if (algo_ == ByPropagatingMatched)  start = startingState(*it, whichTrack2_, whichState2_);
                      else if (algo_ == ByPropagatingSrc) target = targetState(*it, whichTrack2_, whichState2_);
-                     if (matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel)) { 
+                     if (matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, pull)) { 
                          match = i; 
                      }
                  } break;
             case ByDirectComparison: {
                      FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
-                     if (matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel)) {
+                     if (matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel, pull)) {
                          match = i;
                      }
                  } break;
+            case ByPropagatingSrcTSCP: {
+                    FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
+                    if (matchWithPropagation(start, otherstart, deltR, deltaLocalPos, deltaPtRel, pull)) {
+                         match = i;
+                    }
+                } break;
+            case ByPropagatingMatchedTSCP: {
+                    FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
+                    if (matchWithPropagation(otherstart, start, deltR, deltaLocalPos, deltaPtRel, pull)) {
+                         match = i;
+                    }
+                } break;
         }
         if (exit) break;
     }
@@ -235,7 +284,8 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
                                               const TrajectoryStateOnSurface &target, 
                                               float &lastDeltaR, 
                                               float &lastDeltaLocalPos,
-                                              float &lastGlobalDPtRel) const 
+                                              float &lastGlobalDPtRel,
+                                              float &lastPull) const 
 {
     if ((start.momentum().mag() == 0) || !target.isValid()) return false;
 
@@ -250,15 +300,19 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
         if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
             (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
             (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
+            float thisPull         = usePull_ ? getPull(target, tsos, pullDiagonalOnly_, pullUseVertex_) : 0;
+            if (thisPull >= maxPull_) return false;
             switch (sortBy_) {
                 case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
                 case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
                 case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
+                case Pull:            isBest = (thisPull            < lastPull);          break;
             }
             if (isBest) {
                 lastDeltaLocalPos = thisLocalPosDiff;
                 lastDeltaR        = thisGlobalMomDeltaR;
                 lastGlobalDPtRel  = thisGlobalDPtRel;
+                lastPull          = thisPull;
             } 
         }  // if match
     }
@@ -267,11 +321,55 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
 }
 
 bool
+MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &start, 
+                                              const FreeTrajectoryState &target, 
+                                              float &lastDeltaR, 
+                                              float &lastDeltaLocalPos,
+                                              float &lastGlobalDPtRel,
+                                              float &lastPull) const 
+{
+    if ((start.momentum().mag() == 0) || (target.momentum().mag() == 0)) return false;
+    TSCPBuilderNoMaterial propagator;
+    /*2.2.X*/ try { 
+    TrajectoryStateClosestToPoint tscp = propagator(start, target.position());
+    // if (!tscp.isValid()) return false;  // in 3.1.X
+    
+    bool isBest = false;
+    float thisLocalPosDiff = (tscp.position()-target.position()).mag();
+    float thisGlobalMomDeltaR = deltaR(tscp.momentum(), target.momentum());
+    float thisGlobalDPtRel = (tscp.momentum().perp() - target.momentum().perp())/target.momentum().perp();
+
+    if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
+            (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
+            (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
+        float thisPull         = usePull_ ? getPull(target, tscp, pullDiagonalOnly_, pullUseVertex_) : 0;
+        if (thisPull >= maxPull_) return false;
+        switch (sortBy_) {
+            case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
+            case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
+            case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
+            case Pull:            isBest = (thisPull            < lastPull);          break;
+        }
+        if (isBest) {
+            lastDeltaLocalPos = thisLocalPosDiff;
+            lastDeltaR        = thisGlobalMomDeltaR;
+            lastGlobalDPtRel  = thisGlobalDPtRel;
+            lastPull          = thisPull;
+        } 
+    }  // if match
+
+    return isBest;
+    /*2.2.X*/ } catch (const TrajectoryStateException &err) { return false; } 
+}
+
+
+bool
 MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &start, 
                                                  const FreeTrajectoryState &target, 
                                                  float &lastDeltaR, 
                                                  float &lastDeltaLocalPos,
-                                                 float &lastGlobalDPtRel) const 
+                                                 float &lastGlobalDPtRel,
+                                                 float &lastPull) const 
 {
     if ((start.momentum().mag() == 0) || target.momentum().mag() == 0) return false;
 
@@ -283,17 +381,92 @@ MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &
     if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
             (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
             (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
+        float thisPull = usePull_ ? getPull(start, target, pullDiagonalOnly_, pullUseVertex_, pullFirstMomentum_) : 0;
+        if (thisPull >= maxPull_) return false;
         switch (sortBy_) {
             case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
             case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
             case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
+            case Pull:            isBest = (thisPull            < lastPull);          break;
         }
         if (isBest) {
             lastDeltaLocalPos = thisLocalPosDiff;
             lastDeltaR        = thisGlobalMomDeltaR;
             lastGlobalDPtRel  = thisGlobalDPtRel;
+            lastPull          = thisPull;
         } 
     }  // if match
 
     return isBest;
 }
+
+double
+MatcherUsingTracksAlgorithm::getPull(const FreeTrajectoryState &start, const FreeTrajectoryState &other, bool diagonalOnly, bool useVertex, bool useFirstMomentum) {
+    if (!start.hasError() && !other.hasError()) throw cms::Exception("LogicError") << "At least one of the two states must have errors to make pulls.\n";
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError()) cov += start.curvilinearError().matrix();
+    if (other.hasError()) cov += other.curvilinearError().matrix();
+    cropAndInvert(cov, diagonalOnly, !useVertex);
+    GlobalVector p1 = start.momentum(), p2 = other.momentum();
+    GlobalPoint  x1 = start.position(), x2 = other.position();
+    GlobalVector p = useFirstMomentum ? p1 : p2; double pt = p.perp(), pm = p.mag();
+    double dsz = (x1.z()-x2.z())*pt/pm - ( (x1.x()-x2.x())*p.x() + (x1.y()-x2.y())*p.y() ) / pt * p.z()/pm;
+    double dxy = ( -(x1.x()-x2.x())*p.y() + (x1.y()-x2.y())*p.x() )/pt;
+    AlgebraicVector5 diff(start.charge()/p1.mag()-other.charge()/p2.mag(),
+                          p1.theta()-p2.theta(),
+                          (p1.phi()-p2.phi()).value(), 
+                          dxy,
+                          dsz);
+    return ROOT::Math::Similarity(diff, cov);
+}
+
+double
+MatcherUsingTracksAlgorithm::getPull(const FreeTrajectoryState &start, const TrajectoryStateClosestToPoint &other, bool diagonalOnly, bool useVertex) {
+    if (!start.hasError() && !other.hasError()) throw cms::Exception("LogicError") << "At least one of the two states must have errors to make pulls.\n";
+    PerigeeConversions pgconvert; double pt; // needed by pgconvert
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError()) cov += pgconvert.ftsToPerigeeError(start).covarianceMatrix();
+    if (other.hasError()) cov += other.perigeeError().covarianceMatrix();
+    cropAndInvert(cov, diagonalOnly, !useVertex);
+    AlgebraicVector5 pgpar1 = pgconvert.ftsToPerigeeParameters(start,other.referencePoint(),pt).vector();
+    AlgebraicVector5 pgpar2 = other.perigeeParameters().vector();
+    AlgebraicVector5 diff(pgpar1-pgpar2);
+    return ROOT::Math::Similarity(diff, cov);
+}
+
+double
+MatcherUsingTracksAlgorithm::getPull(const TrajectoryStateOnSurface &start, const TrajectoryStateOnSurface &other, bool diagonalOnly, bool usePosition) {
+    if (!start.hasError() && !other.hasError()) throw cms::Exception("LogicError") << "At least one of the two states must have errors to make pulls.\n";
+    AlgebraicSymMatrix55 cov;
+    if (start.hasError()) cov += start.localError().matrix();
+    if (other.hasError()) cov += other.localError().matrix();
+    cropAndInvert(cov, diagonalOnly, !usePosition);
+    AlgebraicVector5 diff(start.localParameters().mixedFormatVector() - other.localParameters().mixedFormatVector());
+    return ROOT::Math::Similarity(diff, cov);
+}
+
+void
+MatcherUsingTracksAlgorithm::cropAndInvert(AlgebraicSymMatrix55 &cov, bool diagonalOnly, bool top3by3only) {
+    if (!top3by3only) {
+        if (diagonalOnly) {
+            for (size_t i = 0; i < 5; ++i) { for (size_t j = i+1; j < 5; ++j) {
+                cov(i,j) = 0;
+            } }
+        }
+        cov.Invert();
+    } else {
+        // get 3x3 covariance
+        AlgebraicSymMatrix33 momCov = cov.Sub<AlgebraicSymMatrix33>(0,0); // get 3x3 matrix
+        if (diagonalOnly) { momCov(0,1) = 0; momCov(0,2) = 0; momCov(1,2) = 0; }
+        // invert        
+        momCov.Invert();
+        // place it
+        cov.Place_at(momCov,0,0);
+        // zero the rest
+        for (size_t i = 3; i < 5; ++i) { for (size_t j = i; j < 5; ++j) { 
+            cov(i,j) = 0;
+        } }
+    }
+}
+
+
