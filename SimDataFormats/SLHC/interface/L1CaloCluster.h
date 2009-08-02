@@ -27,10 +27,8 @@ class L1CaloCluster
   void setEGamma(bool); //Set EGamma Bit
   void setLeadTowerTau(bool); //Set EGamma Bit
   void setEGammaValue(int); //Set EGamma Bit
-  void setIsoValue(int); //Isolation Energy
-  void setIsoClusters(int); //isolation Clusters
+  void setIsoClusters(int,int); //isolation Clusters
   void setIsoEG(bool); //2x2 isolation
-
   void setIsoTau(bool); //2x3 isolation 
   void setCentral(bool); //Central Bit 
   void setLorentzVector(const math::PtEtaPhiMLorentzVector&); //Central Bit 
@@ -57,8 +55,8 @@ class L1CaloCluster
   bool isCentral() const;//Means that the cluster was not pruned during isolation
   bool isoEG() const; //Egamma Isolatioon
   bool isoTau() const; //Tau isolation
-  int isoValue() const; //2x2 isolation
-  int isoClusters() const; //2x2 isolation
+  int isoClustersEG() const; //2x2 isolation
+  int isoClustersTau() const; //2x2 isolation
 
 
   //Trigger Results
@@ -82,10 +80,10 @@ class L1CaloCluster
   bool leadTowerTau_;
   bool isoTau_;
   int eGammaValue_;
-  int isoValue_;
   int innerEta_;
   int innerPhi_;
-  int isoClusters_;
+  int isoClustersEG_;
+  int isoClustersTau_;
 
 
 

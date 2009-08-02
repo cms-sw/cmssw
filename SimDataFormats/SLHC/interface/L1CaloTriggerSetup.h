@@ -34,9 +34,9 @@ class L1CaloTriggerSetup
 
   int isolationTA_;//Isolation ratio Tau;
   int isolationTB_;//Isolation ratio Tau;
-  int isolationThr_;//Isolation ratio Tau;
+  int isolationThrEG_;//Isolation threshold EG;
+  int isolationThrTau_;//Isolation threshold Tau;
   int isolationZone_;//Number of towers that define the isolation zone;
-
   int jetCenter_ ; //jet Center Deviation
   int jetET_ ; //jet Center Deviation
 
@@ -128,9 +128,13 @@ class L1CaloTriggerSetup
       return jetET_;
     }
 
-  int isoThr()
+  std::vector<int> isoThr()
     {
-      return isolationThr_;
+      std::vector<int> a;
+      a.push_back(isolationThrEG_);
+      a.push_back(isolationThrTau_);
+
+      return a;
     }
 
 
@@ -196,7 +200,7 @@ class L1CaloTriggerSetup
     }
 
  
-  void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThres,int jetc,int jetet)
+  void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetc,int jetet)
     {
 
       ecalActivityCut_ = ecal_a_c;
@@ -211,7 +215,8 @@ class L1CaloTriggerSetup
       isolationTA_ = isoRatioTA;
       isolationTB_ = isoRatioTB;
       isolationZone_ = isoZone;
-      isolationThr_ = isoThres;
+      isolationThrEG_ = isoThresEG;
+      isolationThrTau_ = isoThresTau;
       jetCenter_ = jetc;
       jetET_ = jetet;
     }
