@@ -38,7 +38,7 @@ def matchingFiles( dir, regexp, protocol=None, castor=True):
         if m:
             fullCastorFile = '%s/%s' % (dir, file)
             if protocol:
-                fullCastorFile = '\'%s:%s/%s' % (protocol, dir, file)
+                fullCastorFile = '%s:%s/%s' % (protocol, dir, file)
             matchingFiles.append( fullCastorFile )
 
     allFiles.close()

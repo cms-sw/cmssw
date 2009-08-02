@@ -58,9 +58,10 @@ def processFiles( regexp, files ):
     chunkDir = castortools.createSubDir( castorDir, 'Chunks' )
     
     os.system("cmsRun tmpConfig.py")
-    print 'done. transferring file to: ', chunkDir
-    os.system("rfcp %s %s" % (tmpRootFile, chunkDir) )
-    print 'done'
+    print 'done.'
+    rfcp = "rfcp %s %s" % (tmpRootFile, chunkDir)
+    print rfcp,'...'
+    os.system( rfcp )
     os.system("rm %s" % tmpRootFile)
     print 'temporary files removed.'
 
@@ -86,7 +87,7 @@ chunkSize = int(args[2])
 
 print 'Merging files in: ', castorDir
 
-matchingFiles = castortools.matchingFiles( castorDir, regexp, rfio=True)
+matchingFiles = castortools.matchingFiles( castorDir, regexp, protocol='rfio', castor=True)
 
 # grouping files
 count = 0
