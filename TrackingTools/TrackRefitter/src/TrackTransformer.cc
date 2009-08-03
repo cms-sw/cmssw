@@ -160,13 +160,12 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   // Build the transient Rechits
   TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = getTransientRecHits(track);
 
-  return transform(newTrack, track, recHitsForReFit);
+  return transform(track, recHitsForReFit);
 }
 
 
 /// Convert Tracks into Trajectories with a given set of hits
-vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack, 
-                                               const reco::TransientTrack track,
+vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack track,
                                                TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const {
   
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
