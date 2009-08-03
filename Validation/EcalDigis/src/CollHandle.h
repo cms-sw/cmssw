@@ -1,5 +1,5 @@
 /*
- * $Id: CollHandle.h,v 1.3 2008/01/11 11:25:44 pgras Exp $
+ * $Id: CollHandle.h,v 1.4 2008/07/03 14:29:00 pgras Exp $
  */
 
 #ifndef EcalDigis_CollHandle_h
@@ -61,7 +61,8 @@ public:
       if(notFoundWarn_
 	 && !notFoundAlreadyWarned_){//warning logged only once
 	edm::LogWarning("ProductNotFound") << tag_
-					   << " product was not found!";
+					   << " product "
+          "of type '" << typeid(T).name() << "' was not found!";
 	notFoundAlreadyWarned_ = true;
       }
       currentColl_ = &emptyColl_;
@@ -80,6 +81,8 @@ public:
    * absent from the event an empty collection is returned.
    */
   const T& operator*() const { return *currentColl_;}
+
+  edm::InputTag tag() const { return tag_; }
   
 private:
 
