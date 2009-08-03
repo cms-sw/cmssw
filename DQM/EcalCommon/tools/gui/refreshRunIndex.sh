@@ -28,9 +28,9 @@ FILES=`find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' -mtime -1 | x
 
 for F in $FILES; do
   echo "Remove: "$F
-  visDQMIndex remove --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+  visDQMIndex -d remove --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
  echo "Add: "$F
-  visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
+  visDQMIndex -d add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
 done
 
 echo "Index refresh: end"
