@@ -85,15 +85,17 @@ void SiPixelHDQMInspector (const std::string &tagName, std::string const& Passwo
 
   //A.setBlackList("68286");
 
-  A.createTrend("1@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, "", Start, End);
-  A.createTrend("1@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, "", Start, End);
+  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, "", Start, End);
+  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, "", Start, End);
 
 
   A.closeFile();
