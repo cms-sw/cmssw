@@ -432,7 +432,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -471,7 +471,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -568,7 +568,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Scale(nold/nnew);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -598,7 +598,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -727,7 +727,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 $i->Scale(nold/nnew);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
@@ -770,7 +770,7 @@ $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
 //$i->Scale(nold/nnew);
-$i->Draw("esame");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
