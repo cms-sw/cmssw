@@ -121,7 +121,7 @@ public:
     TH2F *h2 = (TH2*) dir->Get(key);
     //h2->Draw("colz");
 
-    const unsigned int nbin=10;
+    const unsigned int nbin=100;
 
     double y[nbin];
     double ey[nbin];
@@ -207,7 +207,7 @@ public:
     TH2F *h2 = (TH2*) dir->Get(key);
     //h2->Draw("colz");
 
-    const unsigned int nbin=10;
+    const unsigned int nbin=2;
 
     double y[nbin];
     double ey[nbin];
@@ -1429,10 +1429,7 @@ public:
     legend_.AddEntry( s0_, leg0, "mlf");
     legend_.AddEntry( s1_, leg1, "mlf");
   }
-  
-private:
-
-  // retrieve an histogram in one of the two directories
+   
   TH1* Histo( const char* key, unsigned dirIndex) {
     if(dirIndex<0 || dirIndex>1) { 
       cerr<<"bad dir index: "<<dirIndex<<endl;
@@ -1449,6 +1446,10 @@ private:
       cerr<<"no key "<<key<<" in directory "<<dir->GetName()<<endl;
     return h;
   }
+
+private:
+
+  // retrieve an histogram in one of the two directories
 
   // draw 2 1D histograms.
   // the histograms can be normalized to the same number of entries, 
