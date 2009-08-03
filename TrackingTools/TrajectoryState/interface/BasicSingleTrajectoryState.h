@@ -99,6 +99,13 @@ public:
   bool hasError() const {
     return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
   }
+  void missingError(std::string where) const{
+    std::stringstream form;
+    form<<"TrajectoryStateOnSurface: attempt to access errors when none available "
+	<<where<<".\nfreestate pointer: "
+	<<theFreeState<<"\nlocal error valid :"<<theLocalErrorValid ;
+    throw TrajectoryStateException(form.str());
+  }
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
@@ -123,13 +130,11 @@ public:
     return freeTrajectoryState(false)->transverseCurvature();
   }
   const CartesianTrajectoryError& cartesianError() const {
-    if(!hasError()) throw TrajectoryStateException(
-     "TrajectoryStateOnSurface: attempt to access cartesian errors when none available");
+    if(!hasError()) missingError(" accesing cartesian error.");
     return freeTrajectoryState()->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if(!hasError()) throw TrajectoryStateException(
-     "TrajectoryStateOnSurface: attempt to access curvilinear errors when none available");
+    if(!hasError()) missingError(" accesing curvilinearerror.");
     return freeTrajectoryState()->curvilinearError();
   }
   FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const {
@@ -164,8 +169,7 @@ public:
     return localMomentum().unit();
   }
   const LocalTrajectoryError& localError() const {
-    if (!hasError()) throw TrajectoryStateException(
-      "TrajectoryStateOnSurface: attempt to access errors when none available");
+    if (!hasError()) missingError(" accessing local error.");
     if (!theLocalErrorValid)
       createLocalError();
     return theLocalError;
@@ -178,32 +182,24 @@ public:
   virtual double weight() const {return theWeight;} 
 
   void rescaleError(double factor) {
-    if (!hasError()) throw TrajectoryStateException(
-      "TrajectoryStateOnSurface: attempt to access errors when none available while trying to rescale a BasicSingleTrajectoryState.");
-    
+    if (!hasError()) missingError(" trying to rescale");    
     if (theFreeState)
       theFreeState->rescaleError(factor);
 
     if (theLocalErrorValid){
-      if (theFreeState){
-	//take the advantage of the presence of the free state to create the error.
-	//the rescale of freestate has just been done above.
-	createLocalError();
-      }else{
-	//do it by hand if the free state is not around.
-	bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag()==0;
-	if (zeroField){
-	  AlgebraicSymMatrix55 errors=theLocalError.matrix();
-	  double root_of_factor = sqrt(factor);
-	  //scale the 0 indexed covariance by the factor
-	  for (uint i=1;i!=5;++i)      errors(i,0)*=root_of_factor;
-	  //scale all others by the scared factor
-	  for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor;
-	  //term 0,0 is not scaled at all
-	  theLocalError = LocalTrajectoryError(errors);
-	}
-	else theLocalError *= (factor*factor);
+      //do it by hand if the free state is not around.
+      bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag()==0;
+      if (zeroField){
+	AlgebraicSymMatrix55 errors=theLocalError.matrix();
+	double root_of_factor = sqrt(factor);
+	//scale the 0 indexed covariance by the square root of the factor
+	for (uint i=1;i!=5;++i)      errors(i,0)*=root_of_factor;
+	//scale all others by the scaled factor
+	for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor;
+	//term 0,0 is not scaled at all
+	theLocalError = LocalTrajectoryError(errors);
       }
+      else theLocalError *= (factor*factor);
     }
   }
 
