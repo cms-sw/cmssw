@@ -1,3 +1,11 @@
+
+//COLIN do not touch one of the files used by everybody without asking me and 
+//without writing a detailed proposal. 
+
+//COLIN The fit functions are not general and should be specified outside
+//the macro. A function can be passed as a pointer to a function of
+//the Comparator class if needed 
+// this one is just a gaussian, already implemented in ROOT. 
 Double_t fitFunction_g(Double_t *x, Double_t *par)
 {
   const double PI=2.0*acos(0.);
@@ -6,6 +14,8 @@ Double_t fitFunction_g(Double_t *x, Double_t *par)
   return value;
 };
 
+// this one is a curve to fit a graph
+// where to put it?? 
 Double_t fitFunction_f(Double_t *x, Double_t *par)
 {
   //const Double_t value=par[2]/(par[0]*sqrt(2*PI))*exp(-(x[0]-par[1])*(x[0]-par[1])/(2*par[0]*par[0]));
@@ -109,6 +119,14 @@ public:
   }
 
 
+  // COLIN 
+  // - This function is more general 
+  // its name should be something like DrawMeanY
+  // - mode is not used ??? mode can be used to decide whether we plot the mean
+  // of a fitted gaussian, or the arithmetic mean (RMS)
+  // - there is code duplication for dir0 and dir1. This function should call
+  // another function, with the argument dir0, and then with the arg dir1
+  // - such functionalities are already provided by ROOT (FitSlicesY and X)
   void DrawResp(const char* key, int binxmin, int binxmax, Mode mode, double Ymin, double Ymax )
   {
 
@@ -195,6 +213,9 @@ public:
     grb->Draw("P");
   }
 
+  //COLIN except for title, this function seems to be the same as 
+  // the preceeding one. Don't duplicate code! 
+  // call this function from the other one, with default title!!!
   void DrawResp(const char* key, int binxmin, int binxmax, Mode mode, double Ymin, double Ymax, std::string title)
   {
 
@@ -281,6 +302,10 @@ public:
     grb->Draw("P");
   }
 
+
+
+  //COLIN this function is not general enough, and should be removed
+  // the code is too long, hinting for code duplication 
   void DrawSigmaEt_Et(const char* key, int binxmin, int binxmax, Mode mode)
   {
     //std::cout << "binxmin = " << binxmin << std::endl;
@@ -553,6 +578,8 @@ public:
     fitFcne2->Draw("same"); 
   }
 
+  //COLIN what is this one doing? all functions must be commented 
+  // looks like this one is duplicating the previous one
   void DrawSigmaEt_var(const char* key, const char* key2, int binxmin, int binxmax, Mode mode)
   {
     TDirectory* dir = dir1_;
@@ -809,6 +836,7 @@ public:
 //    fitFcne23->Draw("same"); 
   }
 
+  //COLIN duplication again, very probably
   void DrawSigmaEt(const char* key, int binxmin, int binxmax, Mode mode)
   {
     //std::cout << "binxmin = " << binxmin << std::endl;
@@ -1085,6 +1113,7 @@ public:
     fitFcne23->Draw("same"); 
   }
 
+  //COLIN and again 
   void DrawSigmaEt2(const char* key, int binxmin, int binxmax, Mode mode)
   {
     //std::cout << "binxmin = " << binxmin << std::endl;
@@ -1370,6 +1399,9 @@ public:
 //    fitFcne23->Draw("same"); 
   }
 
+  //COLIN mode is not used
+  // loosing the possibility to pass options from TH1::Draw
+  // remove, and use Comparator::Histo to access histograms from outside
   void Draw2D_file1( const char* key, Mode mode) {
     TDirectory* dir = dir0_;
     dir->cd();
@@ -1378,6 +1410,11 @@ public:
     h2->Draw("colz");
   }
 
+  //COLIN mode is not used
+  // loosing the possibility to pass options from TH1::Draw
+  // remove, and use Comparator::Histo to access histograms from outside
+  // btw: file1 and file2 should not be hardcoded in the name of the function
+  // but provided as an integer as for the other functions of the class
   void Draw2D_file2( const char* key, Mode mode) {
     TDirectory* dir = dir1_;
     dir->cd();
