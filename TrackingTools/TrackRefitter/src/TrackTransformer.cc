@@ -236,17 +236,17 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
     
   // Apply rule -B-
   TrajectoryStateOnSurface firstTSOS = track.innermostMeasurementState();
-  unsigned int innerId = newTrack.innerDetId();
+  unsigned int innerId = track.track().innerDetId();
   if(theRefitDirection.propagationDirection() != anyDirection){
     if(propagationDirection == oppositeToMomentum){
-      innerId   = newTrack.outerDetId();
+      innerId   = track.track().outerDetId();
       firstTSOS = track.outermostMeasurementState();
     }
   }
   else { // if(theRefitDirection.propagationDirection() == anyDirection)
     // Apply rule -B0-
     if(theRefitDirection.geometricalDirection() == RefitDirection::outsideIn){
-      innerId   = newTrack.outerDetId();
+      innerId   = track.track().outerDetId();
       firstTSOS = track.outermostMeasurementState();
     }
     // -B0-
