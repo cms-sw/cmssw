@@ -39,7 +39,7 @@ inline int dccPhiIndexOfRU(int iDet, int i, int j){
   if(iDet==1){//barrel
     //iEta=i, iPhi=j
     //phi edge of a SM is 4 TT
-    return j/4;
+    return (j+2)/4;
   }
   char flag=endcapDccMap[i+j*20];
   return (flag==' ')?-1:(flag-'0');
@@ -68,7 +68,7 @@ inline int dccIndex(int iDet, int i, int j){
     //a SM is 85 crystal long:
     int iEtaSM = i/85;
     //a SM is 20 crystal wide:
-    int iPhiSM = j/20;
+    int iPhiSM = (j+10)/20;
     //DCC numbers start at 9 in the barrel and there 18 DCC/SM
     return 9+18*iEtaSM+iPhiSM;
   }
@@ -90,7 +90,7 @@ inline int dccIndexOfRU(int iDet, int i, int j){
     //a SM is 17 RU long:
     int iEtaSM = i/17;
     //a SM is 4 RU wide:
-    int iPhiSM = j/4;
+    int iPhiSM = (j+2)/4;
     //DCC numbers start at 9 in the barrel and there 18 DCC/SM
     return 9+18*iEtaSM+iPhiSM;
   }
