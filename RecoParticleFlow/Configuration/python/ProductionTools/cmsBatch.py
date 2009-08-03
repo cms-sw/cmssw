@@ -162,7 +162,7 @@ class MyBatchManager( BatchManager ):
 batchManager = MyBatchManager()
 
 
-batchManager.parser_.usage = "usage: %prog [options] <number of jobs> <your_cfg.py>"
+batchManager.parser_.usage = "%prog [options] <number of jobs> <your_cfg.py>. Submits a number of jobs taking your_cfg.py as a template. your_cfg.py can either read events from input files, or produce them with a generator. In the later case, the seeds are of course updated for each job.\n\nExample:\tcmsBatch.py 10 fastSimWithParticleFlow_cfg.py -o Out2 -r /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions/display.root"
 
 
 (options,args) = batchManager.parser_.parse_args()

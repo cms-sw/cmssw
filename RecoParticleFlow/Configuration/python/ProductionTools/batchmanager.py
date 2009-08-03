@@ -28,7 +28,7 @@ class BatchManager:
                           help="local output directory for your jobs",
                           default="Output")
         self.parser_.add_option("-r", "--remote-copy", dest="remoteCopy",
-                          help="remote output directory for your jobs, and file to be copied",
+                          help="remote output directory for your jobs, and file to be copied. Example: /castor/cern.ch/user/c/cbern/truc.root: for job 1, the file truc.root will be copied to /castor/cern.ch/user/c/cbern/truc_1.root",
                           default="")
         # this opt can be removed
         self.parser_.add_option("-n", "--negate", action="store_true",
@@ -36,19 +36,18 @@ class BatchManager:
                                 help="create jobs, but do nothing")
         self.parser_.add_option("-q", "--queue",  
                           dest="queue",
-                          help="batch queue where to send the jobs",
+                          help="batch queue where to send the jobs. default is cms8nht3 (you need to be in the CERN group to have access)",
                           default="cms8nht3")
         self.parser_.add_option(
             "-b", "--batch-script",  
             dest="batchScript",
-            help="give a script to run the jobs on the batch",
+            help="give a script to run the jobs on the batch. This option is... optional!",
             default="")
         
     def ParseOptions(self):
         (self.options_,args) = self.parser_.parse_args()
         self.remoteOutputDir_ = os.path.dirname( self.options_.remoteCopy )
         self.remoteOutputFile_ = os.path.basename( self.options_.remoteCopy )
-        print "will copy the file ",self.remoteOutputFile_, "to the remote dir: ", self.remoteOutputDir_
 
     def PrepareJobs(self, listOfValues ):
         print 'PREPARING JOBS ======== '
