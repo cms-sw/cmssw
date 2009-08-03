@@ -4,7 +4,7 @@
 
 #include <string>
 
-void SiStripHDQMInspector (const std::string & tagName, int const NRuns) {
+void SiStripHDQMInspector (const std::string & tagName, std::string const& Password, int const NRuns) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -28,7 +28,7 @@ void SiStripHDQMInspector (const std::string & tagName, int const NRuns) {
   HDQMInspector A(&StripConfig);
   //HDQMInspector A;
   //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip", Password,"");
 
 
   A.setDebug(1);
@@ -43,25 +43,25 @@ void SiStripHDQMInspector (const std::string & tagName, int const NRuns) {
 
 
 
-  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr_OnTrack@userExample_XMax,436207616@Summary_ClusterChargeCorr_OnTrack@userExample_XMax,402653184@Summary_ClusterChargeCorr_OnTrack@userExample_XMax,469762048@Summary_ClusterChargeCorr_OnTrack@userExample_XMax", "ClusterChargeCorr_OnTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterCharge_OffTrack@userExample_XMax,436207616@Summary_ClusterCharge_OffTrack@userExample_XMax,402653184@Summary_ClusterCharge_OffTrack@userExample_XMax,469762048@Summary_ClusterCharge_OffTrack@userExample_XMax", "ClusterCharge_OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr_OnTrack@mean,436207616@Summary_ClusterChargeCorr_OnTrack@mean,402653184@Summary_ClusterChargeCorr_OnTrack@mean,469762048@Summary_ClusterChargeCorr_OnTrack@mean", "ClusterChargeCorr_OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterCharge_OffTrack@mean,436207616@Summary_ClusterCharge_OffTrack@mean,402653184@Summary_ClusterCharge_OffTrack@mean,469762048@Summary_ClusterCharge_OffTrack@mean", "ClusterCharge_OffTrack.gif", 0, "", NRuns);
 
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OnTrack@userExample_XMax,436207616@Summary_ClusterNoise_OnTrack@userExample_XMax,402653184@Summary_ClusterNoise_OnTrack@userExample_XMax,469762048@Summary_ClusterNoise_OnTrack@userExample_XMax", "ClusterNoise_OnTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OffTrack@userExample_XMax,436207616@Summary_ClusterNoise_OffTrack@userExample_XMax,402653184@Summary_ClusterNoise_OffTrack@userExample_XMax,469762048@Summary_ClusterNoise_OffTrack@userExample_XMax", "ClusterNoise_OffTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@userExample_XMax,436207616@Summary_ClusterStoNCorr_OnTrack@userExample_XMax,402653184@Summary_ClusterStoNCorr_OnTrack@userExample_XMax,469762048@Summary_ClusterStoNCorr_OnTrack@userExample_XMax", "ClusterStoNCorr_OnTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@userExample_XMax,436207616@Summary_ClusterStoN_OffTrack@userExample_XMax,402653184@Summary_ClusterStoN_OffTrack@userExample_XMax,469762048@Summary_ClusterStoN_OffTrack@userExample_XMax", "ClusterStoN_OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OnTrack@mean,436207616@Summary_ClusterNoise_OnTrack@mean,402653184@Summary_ClusterNoise_OnTrack@mean,469762048@Summary_ClusterNoise_OnTrack@mean", "ClusterNoise_OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OffTrack@mean,436207616@Summary_ClusterNoise_OffTrack@mean,402653184@Summary_ClusterNoise_OffTrack@mean,469762048@Summary_ClusterNoise_OffTrack@mean", "ClusterNoise_OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@mean,436207616@Summary_ClusterStoNCorr_OnTrack@mean,402653184@Summary_ClusterStoNCorr_OnTrack@mean,469762048@Summary_ClusterStoNCorr_OnTrack@mean", "ClusterStoNCorr_OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@mean,436207616@Summary_ClusterStoN_OffTrack@mean,402653184@Summary_ClusterStoN_OffTrack@mean,469762048@Summary_ClusterStoN_OffTrack@mean", "ClusterStoN_OffTrack.gif", 0, "", NRuns);
   A.createTrendLastRuns("369098752@Summary_ClusterWidth_OnTrack@mean,436207616@Summary_ClusterWidth_OnTrack@mean,402653184@Summary_ClusterWidth_OnTrack@mean,469762048@Summary_ClusterWidth_OnTrack@mean", "ClusterWidth_OnTrack.gif", 0, "", NRuns);
   A.createTrendLastRuns("369098752@Summary_ClusterWidth_OffTrack@mean,436207616@Summary_ClusterWidth_OffTrack@mean,402653184@Summary_ClusterWidth_OffTrack@mean,469762048@Summary_ClusterWidth_OffTrack@mean", "ClusterWidth_OffTrack.gif", 0, "", NRuns);
 
 
-  A.createTrendLastRuns("369098752@Summary_TotalNumberOfDigis@userExample_XMax,436207616@Summary_TotalNumberOfDigis@userExample_XMax,402653184@Summary_TotalNumberOfDigis@userExample_XMax,469762048@Summary_TotalNumberOfDigis@userExample_XMax", "TotalNumberOfDigis.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr__OnTrack@userExample_XMax,436207616@Summary_ClusterChargeCorr__OnTrack@userExample_XMax,402653184@Summary_ClusterChargeCorr__OnTrack@userExample_XMax,469762048@Summary_ClusterChargeCorr__OnTrack@userExample_XMax", "_ClusterChargeCorr__OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfDigis@mean,436207616@Summary_TotalNumberOfDigis@mean,402653184@Summary_TotalNumberOfDigis@mean,469762048@Summary_TotalNumberOfDigis@mean", "TotalNumberOfDigis.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr__OnTrack@mean,436207616@Summary_ClusterChargeCorr__OnTrack@mean,402653184@Summary_ClusterChargeCorr__OnTrack@mean,469762048@Summary_ClusterChargeCorr__OnTrack@mean", "_ClusterChargeCorr__OnTrack.gif", 0, "", NRuns);
 
-  A.createTrendLastRuns("369098752@Summary_ClusterCharge__OffTrack@userExample_XMax,436207616@Summary_ClusterCharge__OffTrack@userExample_XMax,402653184@Summary_ClusterCharge__OffTrack@userExample_XMax,469762048@Summary_ClusterCharge__OffTrack@userExample_XMax", "ClusterCharge__OffTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise__OnTrack@userExample_XMax,436207616@Summary_ClusterNoise__OnTrack@userExample_XMax,402653184@Summary_ClusterNoise__OnTrack@userExample_XMax,469762048@Summary_ClusterNoise__OnTrack@userExample_XMax", "ClusterNoise__OnTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise__OffTrack@userExample_XMax,436207616@Summary_ClusterNoise__OffTrack@userExample_XMax,402653184@Summary_ClusterNoise__OffTrack@userExample_XMax,469762048@Summary_ClusterNoise__OffTrack@userExample_XMax", "ClusterNoise__OffTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr__OnTrack@userExample_XMax,436207616@Summary_ClusterStoNCorr__OnTrack@userExample_XMax,402653184@Summary_ClusterStoNCorr__OnTrack@userExample_XMax,469762048@Summary_ClusterStoNCorr__OnTrack@userExample_XMax", "ClusterStoNCorr__OnTrack.gif", 0, "", NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoN__OffTrack@userExample_XMax,436207616@Summary_ClusterStoN__OffTrack@userExample_XMax,402653184@Summary_ClusterStoN__OffTrack@userExample_XMax,469762048@Summary_ClusterStoN__OffTrack@userExample_XMax", "ClusterStoN__OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterCharge__OffTrack@mean,436207616@Summary_ClusterCharge__OffTrack@mean,402653184@Summary_ClusterCharge__OffTrack@mean,469762048@Summary_ClusterCharge__OffTrack@mean", "ClusterCharge__OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise__OnTrack@mean,436207616@Summary_ClusterNoise__OnTrack@mean,402653184@Summary_ClusterNoise__OnTrack@mean,469762048@Summary_ClusterNoise__OnTrack@mean", "ClusterNoise__OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise__OffTrack@mean,436207616@Summary_ClusterNoise__OffTrack@mean,402653184@Summary_ClusterNoise__OffTrack@mean,469762048@Summary_ClusterNoise__OffTrack@mean", "ClusterNoise__OffTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr__OnTrack@mean,436207616@Summary_ClusterStoNCorr__OnTrack@mean,402653184@Summary_ClusterStoNCorr__OnTrack@mean,469762048@Summary_ClusterStoNCorr__OnTrack@mean", "ClusterStoNCorr__OnTrack.gif", 0, "", NRuns);
+  A.createTrendLastRuns("369098752@Summary_ClusterStoN__OffTrack@mean,436207616@Summary_ClusterStoN__OffTrack@mean,402653184@Summary_ClusterStoN__OffTrack@mean,469762048@Summary_ClusterStoN__OffTrack@mean", "ClusterStoN__OffTrack.gif", 0, "", NRuns);
   A.createTrendLastRuns("369098752@Summary_ClusterWidth__OnTrack@mean,436207616@Summary_ClusterWidth__OnTrack@mean,402653184@Summary_ClusterWidth__OnTrack@mean,469762048@Summary_ClusterWidth__OnTrack@mean", "ClusterWidth__OnTrack.gif", 0, "", NRuns);
   A.createTrendLastRuns("369098752@Summary_ClusterWidth__OffTrack@mean,436207616@Summary_ClusterWidth__OffTrack@mean,402653184@Summary_ClusterWidth__OffTrack@mean,469762048@Summary_ClusterWidth__OffTrack@mean", "ClusterWidth__OffTrack.gif", 0, "", NRuns);
   //A.createTrendLastRuns("369098752@XXX@mean,436207616@XXX@mean,402653184@XXX@mean,469762048@XXX@mean", "OnTrackClusters.gif", 0, "", NRuns);
@@ -75,7 +75,7 @@ void SiStripHDQMInspector (const std::string & tagName, int const NRuns) {
 }
 
 
-void SiStripHDQMInspector (const std::string &tagName, int const Start, int const End) {
+void SiStripHDQMInspector (const std::string &tagName, std::string const& Password, int const Start, int const End) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -96,7 +96,7 @@ void SiStripHDQMInspector (const std::string &tagName, int const Start, int cons
   //HDQMInspector A(&StripConfig);
   HDQMInspector A(&StripConfig);
   //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip", Password,"");
 
 
   A.setDebug(1);
@@ -122,18 +122,18 @@ void SiStripHDQMInspector (const std::string &tagName, int const Start, int cons
 
 int main (int argc, char* argv[])
 {
-  if (argc != 3 && argc != 4) {
-    std::cerr << "Usage: " << argv[0] << " [TagName] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [TagName] [FirstRun] [LastRun] " << std::endl;
+  if (argc != 4 && argc != 5) {
+    std::cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
-  if (argc == 3) {
-    std::cout << "Creating trends for NRuns = " << argv[2] << " for tag: " << argv[1] << std::endl;
-    SiStripHDQMInspector( argv[1], atoi(argv[2]) );
+  if (argc == 4) {
+    std::cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
   } else if(argc == 4) {
-    std::cout << "Creating trends for range:  " << argv[2] << " " << argv[3] << " for tag: " << argv[1] << std::endl;
-    SiStripHDQMInspector( argv[1], atoi(argv[2]), atoi(argv[3]) );
+    std::cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << std::endl;
+    SiStripHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
   }
 
   return 0;
