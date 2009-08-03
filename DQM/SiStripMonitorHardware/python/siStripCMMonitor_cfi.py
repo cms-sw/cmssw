@@ -17,6 +17,7 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   WriteDQMStore = cms.untracked.bool(True),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
   digiCollection = cms.InputTag("siStripDigis","ZeroSuppressed"),
+  zeroSuppressed =  cms.untracked.bool(True),
 
   TimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
