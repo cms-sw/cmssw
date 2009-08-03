@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.29 2009/04/22 19:07:21 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.30 2009/07/02 01:43:53 wsun Exp $
 //
 //
 
@@ -156,33 +156,42 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
       vector< L1MuGMTExtendedCand > hwMuCands ;
 
-      if( centralBxOnly_ )
-      {
-	 // Get GMT candidates from central bunch crossing only
-	 hwMuCands = hwMuCollection->getRecord().getGMTCands() ;
-      }
+      if( !hwMuCollection.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
       else
-      {
-	 // Get GMT candidates from all bunch crossings
-	 vector< L1MuGMTReadoutRecord > records = hwMuCollection->getRecords();
-	 vector< L1MuGMTReadoutRecord >::const_iterator rItr = records.begin();
-	 vector< L1MuGMTReadoutRecord >::const_iterator rEnd = records.end();
+	{
+	  if( centralBxOnly_ )
+	    {
+	      // Get GMT candidates from central bunch crossing only
+	      hwMuCands = hwMuCollection->getRecord().getGMTCands() ;
+	    }
+	  else
+	    {
+	      // Get GMT candidates from all bunch crossings
+	      vector< L1MuGMTReadoutRecord > records = hwMuCollection->getRecords();
+	      vector< L1MuGMTReadoutRecord >::const_iterator rItr = records.begin();
+	      vector< L1MuGMTReadoutRecord >::const_iterator rEnd = records.end();
 
-	 for( ; rItr != rEnd ; ++rItr )
-	 {
-	    vector< L1MuGMTExtendedCand > tmpCands = rItr->getGMTCands() ;
+	      for( ; rItr != rEnd ; ++rItr )
+		{
+		  vector< L1MuGMTExtendedCand > tmpCands = rItr->getGMTCands() ;
 
-	    hwMuCands.insert( hwMuCands.end(),
-			      tmpCands.begin(),
-			      tmpCands.end() ) ;
-	 }
-      }
+		  hwMuCands.insert( hwMuCands.end(),
+				    tmpCands.begin(),
+				    tmpCands.end() ) ;
+		}
+	    }
 
 //       cout << "HW muons" << endl ;
-      vector< L1MuGMTExtendedCand >::const_iterator muItr = hwMuCands.begin() ;
-      vector< L1MuGMTExtendedCand >::const_iterator muEnd = hwMuCands.end() ;
-      for( int i = 0 ; muItr != muEnd ; ++muItr, ++i )
-      {
+	  vector< L1MuGMTExtendedCand >::const_iterator muItr = hwMuCands.begin() ;
+	  vector< L1MuGMTExtendedCand >::const_iterator muEnd = hwMuCands.end() ;
+	  for( int i = 0 ; muItr != muEnd ; ++muItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << muItr->name()
 // 	      << " empty " << muItr->empty()
@@ -194,34 +203,34 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << muItr->bx()
 // 	      << endl ;
 
-	 if( !muItr->empty() )
-	 {
-	    // keep x and y components non-zero and protect against roundoff.
-	    double pt =
-	      muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
-	    // muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
+	      if( !muItr->empty() )
+		{
+		  // keep x and y components non-zero and protect against roundoff.
+		  double pt =
+		    muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
 
 // 	    cout << "L1Extra pt " << pt << endl ;
 
-	    double eta =
-	       muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
+		  double eta =
+		    muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
 
-	    double phi =
-	       muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+		  double phi =
+		    muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
-	    math::PtEtaPhiMLorentzVector p4( pt,
-					     eta,
-					     phi,
-					     muonMassGeV_ ) ;
+		  math::PtEtaPhiMLorentzVector p4( pt,
+						   eta,
+						   phi,
+						   muonMassGeV_ ) ;
 
-	    muColl->push_back(
-	       L1MuonParticle( muItr->charge(),
-			       p4,
-			       *muItr,
-			       muItr->bx() )
- 	       ) ;
-	 }
-      }
+		  muColl->push_back(
+				    L1MuonParticle( muItr->charge(),
+						    p4,
+						    *muItr,
+						    muItr->bx() )
+				    ) ;
+		}
+	    }
+	}
    }
    
    OrphanHandle< L1MuonParticleCollection > muHandle =
@@ -272,12 +281,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctEmCandCollection > hwIsoEmCands ;
       iEvent.getByLabel( isoEmSource_, hwIsoEmCands ) ;
 
+      if( !hwIsoEmCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEmCandCollection with " << isoEmSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
 //       cout << "HW iso EM" << endl ;
 
-      L1GctEmCandCollection::const_iterator emItr = hwIsoEmCands->begin() ;
-      L1GctEmCandCollection::const_iterator emEnd = hwIsoEmCands->end() ;
-      for( int i = 0 ; emItr != emEnd ; ++emItr, ++i )
-      {
+	  L1GctEmCandCollection::const_iterator emItr = hwIsoEmCands->begin() ;
+	  L1GctEmCandCollection::const_iterator emEnd = hwIsoEmCands->end() ;
+	  for( int i = 0 ; emItr != emEnd ; ++emItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << emItr->name()
 // 	      << " empty " << emItr->empty()
@@ -289,31 +307,41 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << emItr->bx()
 // 	      << endl ;
 
-	 if( !emItr->empty() &&
-	     ( !centralBxOnly_ || emItr->bx() == 0 ) )
-	 {
-	    double et = emScale->et( emItr->rank() ) ;
+	      if( !emItr->empty() &&
+		  ( !centralBxOnly_ || emItr->bx() == 0 ) )
+		{
+		  double et = emScale->et( emItr->rank() ) ;
 
 // 	    cout << "L1Extra et " << et << endl ;
 
-	    isoEmColl->push_back(
-	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
-			     Ref< L1GctEmCandCollection >( hwIsoEmCands,
-							   i ),
-			     emItr->bx() ) ) ;
-	 }
-      }
+		  isoEmColl->push_back(
+				       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
+						     Ref< L1GctEmCandCollection >( hwIsoEmCands,
+										   i ),
+						     emItr->bx() ) ) ;
+		}
+	    }
+	}
 
 
       // Non-isolated EM
       Handle< L1GctEmCandCollection > hwNonIsoEmCands ;
       iEvent.getByLabel( nonIsoEmSource_, hwNonIsoEmCands ) ;
 
+      if( !hwNonIsoEmCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEmCandCollection with " << nonIsoEmSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
 //       cout << "HW non-iso EM" << endl ;
-      emItr = hwNonIsoEmCands->begin() ;
-      emEnd = hwNonIsoEmCands->end() ;
-      for( int i = 0 ; emItr != emEnd ; ++emItr, ++i )
-      {
+	  L1GctEmCandCollection::const_iterator emItr = hwNonIsoEmCands->begin() ;
+	  L1GctEmCandCollection::const_iterator emEnd = hwNonIsoEmCands->end() ;
+	  for( int i = 0 ; emItr != emEnd ; ++emItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << emItr->name()
 // 	      << " empty " << emItr->empty()
@@ -325,20 +353,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << emItr->bx()
 // 	      << endl ;
 
-	 if( !emItr->empty() &&
-	     ( !centralBxOnly_ || emItr->bx() == 0 ) )
-	 {
-	    double et = emScale->et( emItr->rank() ) ;
+	      if( !emItr->empty() &&
+		  ( !centralBxOnly_ || emItr->bx() == 0 ) )
+		{
+		  double et = emScale->et( emItr->rank() ) ;
 
 // 	    cout << "L1Extra et " << et << endl ;
 
-	    nonIsoEmColl->push_back(
-	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
-			     Ref< L1GctEmCandCollection >( hwNonIsoEmCands,
-							   i ),
-			     emItr->bx() ) );
-	 }
-      }
+		  nonIsoEmColl->push_back(
+					  L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
+							Ref< L1GctEmCandCollection >( hwNonIsoEmCands,
+										      i ),
+							emItr->bx() ) );
+		}
+	    }
+	}
 
 
       // ~~~~~~~~~~~~~~~~~~~~ Jets ~~~~~~~~~~~~~~~~~~~~
@@ -350,11 +379,20 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctJetCandCollection > hwCenJetCands ;
       iEvent.getByLabel( cenJetSource_, hwCenJetCands ) ;
 
+      if( !hwCenJetCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctJetCandCollection with " << cenJetSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
 //       cout << "HW central jets" << endl ;
-      L1GctJetCandCollection::const_iterator jetItr = hwCenJetCands->begin() ;
-      L1GctJetCandCollection::const_iterator jetEnd = hwCenJetCands->end() ;
-      for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
-      {
+	  L1GctJetCandCollection::const_iterator jetItr = hwCenJetCands->begin() ;
+	  L1GctJetCandCollection::const_iterator jetEnd = hwCenJetCands->end() ;
+	  for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << jetItr->name()
 // 	      << " empty " << jetItr->empty()
@@ -368,31 +406,41 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() &&
-	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
-	 {
-	    double et = jetScale->et( jetItr->rank() ) ;
+	      if( !jetItr->empty() &&
+		  ( !centralBxOnly_ || jetItr->bx() == 0 ) )
+		{
+		  double et = jetScale->et( jetItr->rank() ) ;
 
 // 	    cout << "L1Extra et " << et << endl ;
 
-	    cenJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
-			      Ref< L1GctJetCandCollection >( hwCenJetCands,
-							     i ),
-			      jetItr->bx() ) ) ;
-	 }
-      }
+		  cenJetColl->push_back(
+					L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
+						       Ref< L1GctJetCandCollection >( hwCenJetCands,
+										      i ),
+						       jetItr->bx() ) ) ;
+		}
+	    }
+	}
 
 
       // Forward jets.
       Handle< L1GctJetCandCollection > hwForJetCands ;
       iEvent.getByLabel( forJetSource_, hwForJetCands ) ;
 
+      if( !hwForJetCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEmCandCollection with " << forJetSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
 //       cout << "HW forward jets" << endl ;
-      jetItr = hwForJetCands->begin() ;
-      jetEnd = hwForJetCands->end() ;
-      for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
-      {
+	  L1GctJetCandCollection::const_iterator jetItr = hwForJetCands->begin() ;
+	  L1GctJetCandCollection::const_iterator jetEnd = hwForJetCands->end() ;
+	  for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << jetItr->name()
 // 	      << " empty " << jetItr->empty()
@@ -406,20 +454,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() &&
-	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
-	 {
-	    double et = jetScale->et( jetItr->rank() ) ;
+	      if( !jetItr->empty() &&
+		  ( !centralBxOnly_ || jetItr->bx() == 0 ) )
+		{
+		  double et = jetScale->et( jetItr->rank() ) ;
 
 // 	    cout << "L1Extra et " << et << endl ;
 
-	    forJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, false ),
-			      Ref< L1GctJetCandCollection >( hwForJetCands,
-							     i ),
-			      jetItr->bx() ) ) ;
-	 }
-      }
+		  forJetColl->push_back(
+					L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, false ),
+						       Ref< L1GctJetCandCollection >( hwForJetCands,
+										      i ),
+						       jetItr->bx() ) ) ;
+		}
+	    }
+	}
 
 
       // Tau jets.
@@ -427,10 +476,19 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctJetCandCollection > hwTauJetCands ;
       iEvent.getByLabel( tauJetSource_, hwTauJetCands ) ;
 
-      jetItr = hwTauJetCands->begin() ;
-      jetEnd = hwTauJetCands->end() ;
-      for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
-      {
+      if( !hwTauJetCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctJetCandCollection with " << tauJetSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
+	  L1GctJetCandCollection::const_iterator jetItr = hwTauJetCands->begin() ;
+	  L1GctJetCandCollection::const_iterator jetEnd = hwTauJetCands->end() ;
+	  for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
+	    {
 // 	 cout << "#" << i
 // 	      << " name " << jetItr->name()
 // 	      << " empty " << jetItr->empty()
@@ -444,20 +502,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() &&
-	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
-	 {
-	    double et = jetScale->et( jetItr->rank() ) ;
+	      if( !jetItr->empty() &&
+		  ( !centralBxOnly_ || jetItr->bx() == 0 ) )
+		{
+		  double et = jetScale->et( jetItr->rank() ) ;
 
 // 	    cout << "L1Extra et " << et << endl ;
 
-	    tauJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
-			      Ref< L1GctJetCandCollection >( hwTauJetCands,
-							     i ),
-			      jetItr->bx() ) ) ;
-	 }
-      }
+		  tauJetColl->push_back(
+					L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
+						       Ref< L1GctJetCandCollection >( hwTauJetCands,
+										      i ),
+						       jetItr->bx() ) ) ;
+		}
+	    }
+	}
 
       // ~~~~~~~~~~~~~~~~~~~~ ET Sums ~~~~~~~~~~~~~~~~~~~~
 
@@ -469,75 +528,91 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1GctEtMissCollection > hwEtMissColl ;
       iEvent.getByLabel( etMissSource_, hwEtMissColl ) ;
 
-      // Make a L1EtMissParticle even if either L1GctEtTotal or L1GctEtMiss
-      // is missing for a given bx.  Keep track of which L1GctEtMiss objects
-      // have a corresponding L1GctEtTotal object.
-      std::vector< bool > etMissMatched ;
-
-      L1GctEtMissCollection::const_iterator hwEtMissItr =
-	hwEtMissColl->begin() ;
-      L1GctEtMissCollection::const_iterator hwEtMissEnd =
-	hwEtMissColl->end() ;
-      for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr )
+      if( !hwEtTotColl.isValid() )
 	{
-	  etMissMatched.push_back( false ) ;
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEtTotalCollection with " << etTotSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
 	}
+      else if( !hwEtMissColl.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEtMissCollection with " << etMissSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
+	  // Make a L1EtMissParticle even if either L1GctEtTotal or L1GctEtMiss
+	  // is missing for a given bx.  Keep track of which L1GctEtMiss objects
+	  // have a corresponding L1GctEtTotal object.
+	  std::vector< bool > etMissMatched ;
+
+	  L1GctEtMissCollection::const_iterator hwEtMissItr =
+	    hwEtMissColl->begin() ;
+	  L1GctEtMissCollection::const_iterator hwEtMissEnd =
+	    hwEtMissColl->end() ;
+	  for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr )
+	    {
+	      etMissMatched.push_back( false ) ;
+	    }
       
-      // Collate energy sums by bx
-      L1GctEtTotalCollection::const_iterator hwEtTotItr =
-	 hwEtTotColl->begin() ;
-      L1GctEtTotalCollection::const_iterator hwEtTotEnd =
-	 hwEtTotColl->end() ;
+	  // Collate energy sums by bx
+	  L1GctEtTotalCollection::const_iterator hwEtTotItr =
+	    hwEtTotColl->begin() ;
+	  L1GctEtTotalCollection::const_iterator hwEtTotEnd =
+	    hwEtTotColl->end() ;
 
-      int iTot = 0 ;
-      for( ; hwEtTotItr != hwEtTotEnd ; ++hwEtTotItr, ++iTot )
-      {
-	 int bx = hwEtTotItr->bx() ;
+	  int iTot = 0 ;
+	  for( ; hwEtTotItr != hwEtTotEnd ; ++hwEtTotItr, ++iTot )
+	    {
+	      int bx = hwEtTotItr->bx() ;
 
-	 if( !centralBxOnly_ || bx == 0 )
-	 {
-	   // ET bin low edge
-	   double etTot =
-	     ( hwEtTotItr->overFlow() ?
-	       ( double ) L1GctEtTotal::kEtTotalMaxValue :
-	       ( double ) hwEtTotItr->et() ) * etSumLSB + 1.e-6 ;
+	      if( !centralBxOnly_ || bx == 0 )
+		{
+		  // ET bin low edge
+		  double etTot =
+		    ( hwEtTotItr->overFlow() ?
+		      ( double ) L1GctEtTotal::kEtTotalMaxValue :
+		      ( double ) hwEtTotItr->et() ) * etSumLSB + 1.e-6 ;
 
-	   int iMiss = 0 ;
-	   hwEtMissItr = hwEtMissColl->begin() ;
-	   hwEtMissEnd = hwEtMissColl->end() ;
-	   for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
-	     {
-	       if( hwEtMissItr->bx() == bx )
-		 {
-		   etMissMatched[ iMiss ] = true ;
-		   break ;
-		 }
-	     }
+		  int iMiss = 0 ;
+		  hwEtMissItr = hwEtMissColl->begin() ;
+		  hwEtMissEnd = hwEtMissColl->end() ;
+		  for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
+		    {
+		      if( hwEtMissItr->bx() == bx )
+			{
+			  etMissMatched[ iMiss ] = true ;
+			  break ;
+			}
+		    }
 
-	   double etMiss = 0. ;
-	   double phi = 0. ;
-	   math::PtEtaPhiMLorentzVector p4 ;
-	   Ref< L1GctEtMissCollection > metRef ;
+		  double etMiss = 0. ;
+		  double phi = 0. ;
+		  math::PtEtaPhiMLorentzVector p4 ;
+		  Ref< L1GctEtMissCollection > metRef ;
 
-	   // If a L1GctEtMiss with the right bx is not found, itr == end.
-	   if( hwEtMissItr != hwEtMissEnd )
-	     {
-	       // ET bin low edge
-	       etMiss =
-		 ( hwEtMissItr->overFlow() ?
-		   ( double ) L1GctEtMiss::kEtMissMaxValue :
-		   ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
-	       // keep x and y components non-zero and
-	       // protect against roundoff.
+		  // If a L1GctEtMiss with the right bx is not found, itr == end.
+		  if( hwEtMissItr != hwEtMissEnd )
+		    {
+		      // ET bin low edge
+		      etMiss =
+			( hwEtMissItr->overFlow() ?
+			  ( double ) L1GctEtMiss::kEtMissMaxValue :
+			  ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
+		      // keep x and y components non-zero and
+		      // protect against roundoff.
 
-	       phi = caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+		      phi = caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
 
-	       p4 = math::PtEtaPhiMLorentzVector( etMiss,
-						  0.,
-						  phi,
-						  0. ) ;
+		      p4 = math::PtEtaPhiMLorentzVector( etMiss,
+							 0.,
+							 phi,
+							 0. ) ;
 
-	       metRef = Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ) ;
+		      metRef = Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ) ;
 
 // 	       cout << "HW ET Sums " << endl
 // 		    << "MET: phi " << hwEtMissItr->phi() << " = " << phi
@@ -545,7 +620,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		    << " EtTot " << hwEtTotItr->et() << " = " << etTot
 // 		    << " bx " << bx
 // 		    << endl ;
-	     }
+		    }
 // 	   else
 // 	     {
 // 	       cout << "HW ET Sums " << endl
@@ -556,51 +631,51 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		    << endl ;
 // 	     }
 
-	   etMissColl->push_back(
-	     L1EtMissParticle(
-	       p4,
-	       L1EtMissParticle::kMET,
-	       etTot,
-	       metRef,
-	       Ref< L1GctEtTotalCollection >( hwEtTotColl, iTot ),
-	       Ref< L1GctHtMissCollection >(),
-	       Ref< L1GctEtHadCollection >(),
-	       bx
-	       ) ) ;
-	 }
-      }
+		  etMissColl->push_back(
+					L1EtMissParticle(
+							 p4,
+							 L1EtMissParticle::kMET,
+							 etTot,
+							 metRef,
+							 Ref< L1GctEtTotalCollection >( hwEtTotColl, iTot ),
+							 Ref< L1GctHtMissCollection >(),
+							 Ref< L1GctEtHadCollection >(),
+							 bx
+							 ) ) ;
+		}
+	    }
 
-      if( !centralBxOnly_ )
-	{
-	  // Make L1EtMissParticles for those L1GctEtMiss objects without
-	  // a matched L1GctEtTotal object.
-
-	  double etTot = 0. ;
-
-	  hwEtMissItr = hwEtMissColl->begin() ;
-	  hwEtMissEnd = hwEtMissColl->end() ;
-	  int iMiss = 0 ;
-	  for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
+	  if( !centralBxOnly_ )
 	    {
-	      if( !etMissMatched[ iMiss ] )
+	      // Make L1EtMissParticles for those L1GctEtMiss objects without
+	      // a matched L1GctEtTotal object.
+
+	      double etTot = 0. ;
+
+	      hwEtMissItr = hwEtMissColl->begin() ;
+	      hwEtMissEnd = hwEtMissColl->end() ;
+	      int iMiss = 0 ;
+	      for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
 		{
-		  int bx = hwEtMissItr->bx() ;
+		  if( !etMissMatched[ iMiss ] )
+		    {
+		      int bx = hwEtMissItr->bx() ;
 
-		  // ET bin low edge
-		  double etMiss =
-		    ( hwEtMissItr->overFlow() ?
-		      ( double ) L1GctEtMiss::kEtMissMaxValue :
-		      ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
-		  // keep x and y components non-zero and
-		  // protect against roundoff.
+		      // ET bin low edge
+		      double etMiss =
+			( hwEtMissItr->overFlow() ?
+			  ( double ) L1GctEtMiss::kEtMissMaxValue :
+			  ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
+		      // keep x and y components non-zero and
+		      // protect against roundoff.
 
-		  double phi =
-		    caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+		      double phi =
+			caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
 
-		  math::PtEtaPhiMLorentzVector p4( etMiss,
-						   0.,
-						   phi,
-						   0. ) ;
+		      math::PtEtaPhiMLorentzVector p4( etMiss,
+						       0.,
+						       phi,
+						       0. ) ;
 
 // 		  cout << "HW ET Sums " << endl
 // 		       << "MET: phi " << hwEtMissItr->phi() << " = " << phi
@@ -609,17 +684,18 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		       << " bx " << bx
 // 		       << endl ;
 
-		  etMissColl->push_back(
-		    L1EtMissParticle(
-		      p4,
-		      L1EtMissParticle::kMET,
-		      etTot,
-		      Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ),
-		      Ref< L1GctEtTotalCollection >(),
-		      Ref< L1GctHtMissCollection >(),
-		      Ref< L1GctEtHadCollection >(),
-		      bx
-		      ) ) ;
+		      etMissColl->push_back(
+					    L1EtMissParticle(
+							     p4,
+							     L1EtMissParticle::kMET,
+							     etTot,
+							     Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ),
+							     Ref< L1GctEtTotalCollection >(),
+							     Ref< L1GctHtMissCollection >(),
+							     Ref< L1GctEtHadCollection >(),
+							     bx
+							     ) ) ;
+		    }
 		}
 	    }
 	}
@@ -645,79 +721,112 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	{
 	  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
 
-	  // Make a L1EtMissParticle even if either L1GctEtHad or L1GctHtMiss
-	  // is missing for a given bx. Keep track of which L1GctHtMiss objects
-	  // have a corresponding L1GctHtTotal object.
-	  L1GctHtMissCollection::const_iterator hwHtMissItr =
-	    hwHtMissColl->begin() ;
-	  L1GctHtMissCollection::const_iterator hwHtMissEnd =
-	    hwHtMissColl->end() ;
-	  for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr )
+	  if( !hwEtHadColl.isValid() )
 	    {
-	      htMissMatched.push_back( false ) ;
+	      LogDebug("L1ExtraParticlesProd")
+		<< "\nWarning: L1GctEtHadCollection with " << etHadSource_
+		<< "\nrequested in configuration, but not found in the event."
+		<< std::endl;
+	    }
+	  else if( !hwHtMissColl.isValid() )
+	    {
+	      LogDebug("L1ExtraParticlesProd")
+		<< "\nWarning: L1GctHtMissCollection with " << htMissSource_
+		<< "\nrequested in configuration, but not found in the event."
+		<< std::endl;
+	    }
+	  else
+	    {
+	      // Make a L1EtMissParticle even if either L1GctEtHad or L1GctHtMiss
+	      // is missing for a given bx. Keep track of which L1GctHtMiss objects
+	      // have a corresponding L1GctHtTotal object.
+	      L1GctHtMissCollection::const_iterator hwHtMissItr =
+		hwHtMissColl->begin() ;
+	      L1GctHtMissCollection::const_iterator hwHtMissEnd =
+		hwHtMissColl->end() ;
+	      for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr )
+		{
+		  htMissMatched.push_back( false ) ;
+		}
 	    }
 	}
 
-      L1GctEtHadCollection::const_iterator hwEtHadItr =
-	hwEtHadColl->begin() ;
-      L1GctEtHadCollection::const_iterator hwEtHadEnd =
-	hwEtHadColl->end() ;
+      if( !hwEtHadColl.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctEtHadCollection with " << etHadSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else if( !hwHtMissColl.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctHtMissCollection with " << htMissSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
+	  L1GctEtHadCollection::const_iterator hwEtHadItr =
+	    hwEtHadColl->begin() ;
+	  L1GctEtHadCollection::const_iterator hwEtHadEnd =
+	    hwEtHadColl->end() ;
 
-      int iHad = 0 ;
-      for( ; hwEtHadItr != hwEtHadEnd ; ++hwEtHadItr, ++iHad )
-      {
-	 int bx = hwEtHadItr->bx() ;
+	  int iHad = 0 ;
+	  for( ; hwEtHadItr != hwEtHadEnd ; ++hwEtHadItr, ++iHad )
+	    {
+	      int bx = hwEtHadItr->bx() ;
 
-	 if( !centralBxOnly_ || bx == 0 )
-	 {
-	   // HT bin low edge
-	   double htTot =
-	     ( hwEtHadItr->overFlow() ?
-	       ( double ) L1GctEtHad::kEtHadMaxValue :
-	       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
+	      if( !centralBxOnly_ || bx == 0 )
+		{
+		  // HT bin low edge
+		  double htTot =
+		    ( hwEtHadItr->overFlow() ?
+		      ( double ) L1GctEtHad::kEtHadMaxValue :
+		      ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
 
-	   double htMiss = 0. ;
-	   double phi = 0. ;
-	   math::PtEtaPhiMLorentzVector p4 ;
-	   Ref< L1GctHtMissCollection > mhtRef ;
+		  double htMiss = 0. ;
+		  double phi = 0. ;
+		  math::PtEtaPhiMLorentzVector p4 ;
+		  Ref< L1GctHtMissCollection > mhtRef ;
 
-	   if( !ignoreHtMiss_ )
-	     {
-	       L1GctHtMissCollection::const_iterator hwHtMissItr =
-		 hwHtMissColl->begin() ;
-	       L1GctHtMissCollection::const_iterator hwHtMissEnd =
-		 hwHtMissColl->end() ;
+		  if( !ignoreHtMiss_ )
+		    {
+		      L1GctHtMissCollection::const_iterator hwHtMissItr =
+			hwHtMissColl->begin() ;
+		      L1GctHtMissCollection::const_iterator hwHtMissEnd =
+			hwHtMissColl->end() ;
 
-	       int iMiss = 0 ;
-	       for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
-		 {
-		   if( hwHtMissItr->bx() == bx )
-		     {
-		       htMissMatched[ iMiss ] = true ;
-		       break ;
-		     }
-		 }
+		      int iMiss = 0 ;
+		      for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
+			{
+			  if( hwHtMissItr->bx() == bx )
+			    {
+			      htMissMatched[ iMiss ] = true ;
+			      break ;
+			    }
+			}
 
-	       // If a L1GctHtMiss with the right bx is not found, itr == end.
-	       if( hwHtMissItr != hwHtMissEnd )
-		 {
-		   // HT bin low edge
-		   htMiss =
-		     htMissScale->et( hwHtMissItr->overFlow() ?
-				      htMissScale->rankScaleMax() :
-				      hwHtMissItr->et() ) + 1.e-6 ;
-		   // keep x and y components non-zero and
-		   // protect against roundoff.
+		      // If a L1GctHtMiss with the right bx is not found, itr == end.
+		      if( hwHtMissItr != hwHtMissEnd )
+			{
+			  // HT bin low edge
+			  htMiss =
+			    htMissScale->et( hwHtMissItr->overFlow() ?
+					     htMissScale->rankScaleMax() :
+					     hwHtMissItr->et() ) + 1.e-6 ;
+			  // keep x and y components non-zero and
+			  // protect against roundoff.
 
-		   phi =
-		     caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
+			  phi =
+			    caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
-		   p4 = math::PtEtaPhiMLorentzVector( htMiss,
-						      0.,
-						      phi,
-						      0. ) ;
+			  p4 = math::PtEtaPhiMLorentzVector( htMiss,
+							     0.,
+							     phi,
+							     0. ) ;
 
-		   mhtRef=Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss );
+			  mhtRef=Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss );
 
 // 		   cout << "HW HT Sums " << endl
 // 			<< "MHT: phi " << hwHtMissItr->phi() << " = " << phi
@@ -725,7 +834,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 			<< " HtTot " << hwEtHadItr->et() << " = " << htTot
 // 			<< " bx " << bx
 // 			<< endl ;
-		 }
+			}
 // 	       else
 // 		 {
 // 		   cout << "HW HT Sums " << endl
@@ -735,55 +844,55 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 			<< " bx " << bx
 // 			<< endl ;
 // 		 }
-	     }
+		    }
 
-	   htMissColl->push_back(
-	     L1EtMissParticle(
-	       p4,
-	       L1EtMissParticle::kMHT,
-	       htTot,
-	       Ref< L1GctEtMissCollection >(),
-	       Ref< L1GctEtTotalCollection >(),
-	       mhtRef,
-	       Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
-	       bx
-	       ) ) ;
-	 }
-      }
+		  htMissColl->push_back(
+					L1EtMissParticle(
+							 p4,
+							 L1EtMissParticle::kMHT,
+							 htTot,
+							 Ref< L1GctEtMissCollection >(),
+							 Ref< L1GctEtTotalCollection >(),
+							 mhtRef,
+							 Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
+							 bx
+							 ) ) ;
+		}
+	    }
 
-      if( !centralBxOnly_  && !ignoreHtMiss_ )
-	{
-	  // Make L1EtMissParticles for those L1GctHtMiss objects without
-	  // a matched L1GctHtTotal object.
-	  double htTot = 0. ;
-
-	  L1GctHtMissCollection::const_iterator hwHtMissItr =
-	    hwHtMissColl->begin() ;
-	  L1GctHtMissCollection::const_iterator hwHtMissEnd =
-	    hwHtMissColl->end() ;
-
-	  int iMiss = 0 ;
-	  for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
+	  if( !centralBxOnly_  && !ignoreHtMiss_ )
 	    {
-	      if( !htMissMatched[ iMiss ] )
+	      // Make L1EtMissParticles for those L1GctHtMiss objects without
+	      // a matched L1GctHtTotal object.
+	      double htTot = 0. ;
+
+	      L1GctHtMissCollection::const_iterator hwHtMissItr =
+		hwHtMissColl->begin() ;
+	      L1GctHtMissCollection::const_iterator hwHtMissEnd =
+		hwHtMissColl->end() ;
+
+	      int iMiss = 0 ;
+	      for( ; hwHtMissItr != hwHtMissEnd ; ++hwHtMissItr, ++iMiss )
 		{
-		  int bx = hwHtMissItr->bx() ;
+		  if( !htMissMatched[ iMiss ] )
+		    {
+		      int bx = hwHtMissItr->bx() ;
 
-		  // HT bin low edge
-		  double htMiss =
-		    htMissScale->et( hwHtMissItr->overFlow() ?
-				     htMissScale->rankScaleMax() :
-				     hwHtMissItr->et() ) + 1.e-6 ;
-		  // keep x and y components non-zero and
-		  // protect against roundoff.
+		      // HT bin low edge
+		      double htMiss =
+			htMissScale->et( hwHtMissItr->overFlow() ?
+					 htMissScale->rankScaleMax() :
+					 hwHtMissItr->et() ) + 1.e-6 ;
+		      // keep x and y components non-zero and
+		      // protect against roundoff.
 
-		  double phi =
-		    caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
+		      double phi =
+			caloGeom->htSumPhiBinCenter( hwHtMissItr->phi() ) ;
 
-		  math::PtEtaPhiMLorentzVector p4( htMiss,
-						   0.,
-						   phi,
-						   0. ) ;
+		      math::PtEtaPhiMLorentzVector p4( htMiss,
+						       0.,
+						       phi,
+						       0. ) ;
 
 // 		  cout << "HW HT Sums " << endl
 // 		       << "MHT: phi " << hwHtMissItr->phi() << " = " << phi
@@ -792,17 +901,18 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		       << " bx " << bx
 // 		       << endl ;
 
-		  htMissColl->push_back(
-		    L1EtMissParticle(
-		      p4,
-		      L1EtMissParticle::kMHT,
-		      htTot,
-		      Ref< L1GctEtMissCollection >(),
-		      Ref< L1GctEtTotalCollection >(),
-		      Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
-		      Ref< L1GctEtHadCollection >(),
-		      bx
-		      ) ) ;
+		      htMissColl->push_back(
+					    L1EtMissParticle(
+							     p4,
+							     L1EtMissParticle::kMHT,
+							     htTot,
+							     Ref< L1GctEtMissCollection >(),
+							     Ref< L1GctEtTotalCollection >(),
+							     Ref< L1GctHtMissCollection >( hwHtMissColl, iMiss ),
+							     Ref< L1GctEtHadCollection >(),
+							     bx
+							     ) ) ;
+		    }
 		}
 	    }
 	}
@@ -818,51 +928,67 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       ESHandle< L1CaloEtScale > hfRingEtScale ;
       iSetup.get< L1HfRingEtScaleRcd >().get( hfRingEtScale ) ;
 
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr =
-	hwHFEtSumsColl->begin() ;
-      L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd =
-	hwHFEtSumsColl->end() ;
+      if( !hwHFEtSumsColl.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctHFRingEtSumsCollection with " << hfRingEtSumsSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else if( !hwHFBitCountsColl.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctHFBitCountsCollection with " << hfRingBitCountsSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
+	  L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsItr =
+	    hwHFEtSumsColl->begin() ;
+	  L1GctHFRingEtSumsCollection::const_iterator hwHFEtSumsEnd =
+	    hwHFEtSumsColl->end() ;
 
-      int iEtSums = 0 ;
-      for( ; hwHFEtSumsItr != hwHFEtSumsEnd ; ++hwHFEtSumsItr, ++iEtSums )
-      {
-	 int bx = hwHFEtSumsItr->bx() ;
+	  int iEtSums = 0 ;
+	  for( ; hwHFEtSumsItr != hwHFEtSumsEnd ; ++hwHFEtSumsItr, ++iEtSums )
+	    {
+	      int bx = hwHFEtSumsItr->bx() ;
 
-	 if( !centralBxOnly_ || bx == 0 )
-	 {
-	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr =
-	     hwHFBitCountsColl->begin() ;
-	   L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd =
-	     hwHFBitCountsColl->end() ;
+	      if( !centralBxOnly_ || bx == 0 )
+		{
+		  L1GctHFBitCountsCollection::const_iterator hwHFBitCountsItr =
+		    hwHFBitCountsColl->begin() ;
+		  L1GctHFBitCountsCollection::const_iterator hwHFBitCountsEnd =
+		    hwHFBitCountsColl->end() ;
 
-	   int iBitCounts = 0 ;
-	   for( ; hwHFBitCountsItr != hwHFBitCountsEnd ;
-		++hwHFBitCountsItr, ++iBitCounts )
-	     {
-	       if( hwHFBitCountsItr->bx() == bx )
-		 {
-		   break ;
-		 }
-	     }
+		  int iBitCounts = 0 ;
+		  for( ; hwHFBitCountsItr != hwHFBitCountsEnd ;
+		       ++hwHFBitCountsItr, ++iBitCounts )
+		    {
+		      if( hwHFBitCountsItr->bx() == bx )
+			{
+			  break ;
+			}
+		    }
 
-	   // If a L1GctHFBitCounts with the right bx is not found, itr == end.
-	   if( hwHFBitCountsItr != hwHFBitCountsEnd )
-	     {
-	       // Construct L1HFRings only if both HW objects are present.
+		  // If a L1GctHFBitCounts with the right bx is not found, itr == end.
+		  if( hwHFBitCountsItr != hwHFBitCountsEnd )
+		    {
+		      // Construct L1HFRings only if both HW objects are present.
 
-	       // cout << "HF Rings " << endl
+		      // cout << "HF Rings " << endl
 
-	       // HF Et sums
-	       double etSums[ L1HFRings::kNumRings ] ;
-	       etSums[ L1HFRings::kRing1PosEta ] =
-		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 0 ) ) + 1.e-6 ;
-	       etSums[ L1HFRings::kRing1NegEta ] =
-		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 1 ) ) + 1.e-6 ;
-	       etSums[ L1HFRings::kRing2PosEta ] =
-		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 2 ) ) + 1.e-6 ;
-	       etSums[ L1HFRings::kRing2NegEta ] =
-		 hfRingEtScale->et( hwHFEtSumsItr->etSum( 3 ) ) + 1.e-6 ;
- 	       // protect against roundoff.
+		      // HF Et sums
+		      double etSums[ L1HFRings::kNumRings ] ;
+		      etSums[ L1HFRings::kRing1PosEta ] =
+			hfRingEtScale->et( hwHFEtSumsItr->etSum( 0 ) ) + 1.e-6 ;
+		      etSums[ L1HFRings::kRing1NegEta ] =
+			hfRingEtScale->et( hwHFEtSumsItr->etSum( 1 ) ) + 1.e-6 ;
+		      etSums[ L1HFRings::kRing2PosEta ] =
+			hfRingEtScale->et( hwHFEtSumsItr->etSum( 2 ) ) + 1.e-6 ;
+		      etSums[ L1HFRings::kRing2NegEta ] =
+			hfRingEtScale->et( hwHFEtSumsItr->etSum( 3 ) ) + 1.e-6 ;
+		      // protect against roundoff.
 
 // 	       cout << "HF Et Sums "
 // 		    << hwHFEtSumsItr->etSum( 0 ) << " = "
@@ -875,16 +1001,16 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		    << etSums[ L1HFRings::kRing2NegEta ]
 // 		    << endl ;
 
-	       // HF bit counts
-	       int bitCounts[ L1HFRings::kNumRings ] ;
-	       bitCounts[ L1HFRings::kRing1PosEta ] =
-		 hwHFBitCountsItr->bitCount( 0 ) ;
-	       bitCounts[ L1HFRings::kRing1NegEta ] =
-		 hwHFBitCountsItr->bitCount( 1 ) ;
-	       bitCounts[ L1HFRings::kRing2PosEta ] =
-		 hwHFBitCountsItr->bitCount( 2 ) ;
-	       bitCounts[ L1HFRings::kRing2NegEta ] =
-		 hwHFBitCountsItr->bitCount( 3 ) ;
+		      // HF bit counts
+		      int bitCounts[ L1HFRings::kNumRings ] ;
+		      bitCounts[ L1HFRings::kRing1PosEta ] =
+			hwHFBitCountsItr->bitCount( 0 ) ;
+		      bitCounts[ L1HFRings::kRing1NegEta ] =
+			hwHFBitCountsItr->bitCount( 1 ) ;
+		      bitCounts[ L1HFRings::kRing2PosEta ] =
+			hwHFBitCountsItr->bitCount( 2 ) ;
+		      bitCounts[ L1HFRings::kRing2NegEta ] =
+			hwHFBitCountsItr->bitCount( 3 ) ;
 
 // 	       cout << "HF bit counts "
 // 		    << hwHFBitCountsItr->bitCount( 0 ) << " "
@@ -893,18 +1019,19 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 		    << hwHFBitCountsItr->bitCount( 3 ) << " "
 // 		    << endl ;
 
-	       hfRingsColl->push_back(
-		 L1HFRings( etSums,
-			    bitCounts,
-			    Ref< L1GctHFRingEtSumsCollection >( hwHFEtSumsColl,
-								iEtSums ),
-			    Ref< L1GctHFBitCountsCollection >( hwHFBitCountsColl,
-							       iBitCounts ),
-			    bx
-			    ) ) ;
-	     }
-	 }
-      }
+		      hfRingsColl->push_back(
+					     L1HFRings( etSums,
+							bitCounts,
+							Ref< L1GctHFRingEtSumsCollection >( hwHFEtSumsColl,
+											    iEtSums ),
+							Ref< L1GctHFBitCountsCollection >( hwHFBitCountsColl,
+											   iBitCounts ),
+							bx
+							) ) ;
+		    }
+		}
+	    }
+	}
    }
 
    OrphanHandle< L1EmParticleCollection > isoEmHandle =
