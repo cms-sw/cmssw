@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/06/09 15:36:37 $
- * $Revision: 1.108 $
+ * $Date: 2009/06/29 13:27:50 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -99,29 +99,10 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
     h11_[ism-1] = 0;
     h12_[ism-1] = 0;
 
-    h13_[ism-1] = 0;
-    h14_[ism-1] = 0;
-    h15_[ism-1] = 0;
-    h16_[ism-1] = 0;
-    h17_[ism-1] = 0;
-    h18_[ism-1] = 0;
-    h19_[ism-1] = 0;
-    h20_[ism-1] = 0;
-
-    h21_[ism-1] = 0;
-    h22_[ism-1] = 0;
-    h23_[ism-1] = 0;
-    h24_[ism-1] = 0;
-
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
     hs04_[ism-1] = 0;
-
-    hs05_[ism-1] = 0;
-    hs06_[ism-1] = 0;
-    hs07_[ism-1] = 0;
-    hs08_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -165,46 +146,26 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
     mea02_[ism-1] = 0;
     mea03_[ism-1] = 0;
     mea04_[ism-1] = 0;
-    mea05_[ism-1] = 0;
-    mea06_[ism-1] = 0;
-    mea07_[ism-1] = 0;
-    mea08_[ism-1] = 0;
 
     met01_[ism-1] = 0;
     met02_[ism-1] = 0;
     met03_[ism-1] = 0;
     met04_[ism-1] = 0;
-    met05_[ism-1] = 0;
-    met06_[ism-1] = 0;
-    met07_[ism-1] = 0;
-    met08_[ism-1] = 0;
 
     metav01_[ism-1] = 0;
     metav02_[ism-1] = 0;
     metav03_[ism-1] = 0;
     metav04_[ism-1] = 0;
-    metav05_[ism-1] = 0;
-    metav06_[ism-1] = 0;
-    metav07_[ism-1] = 0;
-    metav08_[ism-1] = 0;
 
     metrms01_[ism-1] = 0;
     metrms02_[ism-1] = 0;
     metrms03_[ism-1] = 0;
     metrms04_[ism-1] = 0;
-    metrms05_[ism-1] = 0;
-    metrms06_[ism-1] = 0;
-    metrms07_[ism-1] = 0;
-    metrms08_[ism-1] = 0;
 
     meaopn01_[ism-1] = 0;
     meaopn02_[ism-1] = 0;
     meaopn03_[ism-1] = 0;
     meaopn04_[ism-1] = 0;
-    meaopn05_[ism-1] = 0;
-    meaopn06_[ism-1] = 0;
-    meaopn07_[ism-1] = 0;
-    meaopn08_[ism-1] = 0;
 
     mepnprms01_[ism-1] = 0;
     mepnprms02_[ism-1] = 0;
@@ -219,16 +180,12 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
     me_hs02_[ism-1] = 0;
     me_hs03_[ism-1] = 0;
     me_hs04_[ism-1] = 0;
-    me_hs05_[ism-1] = 0;
-    me_hs06_[ism-1] = 0;
-    me_hs07_[ism-1] = 0;
-    me_hs08_[ism-1] = 0;
 
   }
 
-  percentVariation_ = 0.4;
+  percentVariation_ = 0.4; // not used nor not normalized VPTs
 
-  amplitudeThreshold_ = 10.;
+  amplitudeThreshold_ = 100.;
 
   rmsThresholdRelative_ = 0.3;
 
@@ -384,271 +341,139 @@ void EELaserClient::setup(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude L1 %s", Numbers::sEE(ism).c_str());
       mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude L2 %s", Numbers::sEE(ism).c_str());
       mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude L3 %s", Numbers::sEE(ism).c_str());
       mea03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea03_[ism-1]->setAxisTitle("channel", 1);
       mea03_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude L4 %s", Numbers::sEE(ism).c_str());
       mea04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea04_[ism-1]->setAxisTitle("channel", 1);
       mea04_[ism-1]->setAxisTitle("amplitude", 2);
     }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
-      sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
-      mea05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea05_[ism-1]->setAxisTitle("channel", 1);
-      mea05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
-      mea06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea06_[ism-1]->setAxisTitle("channel", 1);
-      mea06_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
-      mea07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea07_[ism-1]->setAxisTitle("channel", 1);
-      mea07_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
-      mea08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea08_[ism-1]->setAxisTitle("channel", 1);
-      mea08_[ism-1]->setAxisTitle("amplitude", 2);
-    }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing L1 %s", Numbers::sEE(ism).c_str());
       met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met01_[ism-1]->setAxisTitle("channel", 1);
       met01_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing L2 %s", Numbers::sEE(ism).c_str());
       met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met02_[ism-1]->setAxisTitle("channel", 1);
       met02_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing L3 %s", Numbers::sEE(ism).c_str());
       met03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met03_[ism-1]->setAxisTitle("channel", 1);
       met03_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing L4 %s", Numbers::sEE(ism).c_str());
       met04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met04_[ism-1]->setAxisTitle("channel", 1);
       met04_[ism-1]->setAxisTitle("jitter", 2);
     }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L1B %s", Numbers::sEE(ism).c_str());
-      met05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met05_[ism-1]->setAxisTitle("channel", 1);
-      met05_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L2B %s", Numbers::sEE(ism).c_str());
-      met06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met06_[ism-1]->setAxisTitle("channel", 1);
-      met06_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L3B %s", Numbers::sEE(ism).c_str());
-      met07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met07_[ism-1]->setAxisTitle("channel", 1);
-      met07_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L4B %s", Numbers::sEE(ism).c_str());
-      met08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met08_[ism-1]->setAxisTitle("channel", 1);
-      met08_[ism-1]->setAxisTitle("jitter", 2);
-    }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing mean L1 %s", Numbers::sEE(ism).c_str());
       metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing mean L2 %s", Numbers::sEE(ism).c_str());
       metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing mean L3 %s", Numbers::sEE(ism).c_str());
       metav03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav03_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing mean L4 %s", Numbers::sEE(ism).c_str());
       metav04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav04_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L1B %s", Numbers::sEE(ism).c_str());
-      metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav05_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L2B %s", Numbers::sEE(ism).c_str());
-      metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav06_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L3B %s", Numbers::sEE(ism).c_str());
-      metav07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav07_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L4B %s", Numbers::sEE(ism).c_str());
-      metav08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav08_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing rms L1 %s", Numbers::sEE(ism).c_str());
       metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing rms L2 %s", Numbers::sEE(ism).c_str());
       metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing rms L3 %s", Numbers::sEE(ism).c_str());
       metrms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser timing rms L4 %s", Numbers::sEE(ism).c_str());
       metrms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms04_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L1B %s", Numbers::sEE(ism).c_str());
-      metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms05_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L2B %s", Numbers::sEE(ism).c_str());
-      metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms06_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L3B %s", Numbers::sEE(ism).c_str());
-      metrms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms07_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L4B %s", Numbers::sEE(ism).c_str());
-      metrms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms08_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude over PN L1 %s", Numbers::sEE(ism).c_str());
       meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn01_[ism-1]->setAxisTitle("channel", 1);
       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude over PN L2 %s", Numbers::sEE(ism).c_str());
       meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn02_[ism-1]->setAxisTitle("channel", 1);
       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude over PN L3 %s", Numbers::sEE(ism).c_str());
       meaopn03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn03_[ism-1]->setAxisTitle("channel", 1);
       meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT amplitude over PN L4 %s", Numbers::sEE(ism).c_str());
       meaopn04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn04_[ism-1]->setAxisTitle("channel", 1);
       meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-      meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn05_[ism-1]->setAxisTitle("channel", 1);
-      meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-      meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn06_[ism-1]->setAxisTitle("channel", 1);
-      meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
-      meaopn07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn07_[ism-1]->setAxisTitle("channel", 1);
-      meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
-      meaopn08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn08_[ism-1]->setAxisTitle("channel", 1);
-      meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
@@ -702,59 +527,31 @@ void EELaserClient::setup(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser shape L1 %s", Numbers::sEE(ism).c_str());
       me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser shape L2 %s", Numbers::sEE(ism).c_str());
       me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L3A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser shape L3 %s", Numbers::sEE(ism).c_str());
       me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs03_[ism-1]->setAxisTitle("sample", 1);
       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L4A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT laser shape L4 %s", Numbers::sEE(ism).c_str());
       me_hs04_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs04_[ism-1]->setAxisTitle("sample", 1);
       me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L1B %s", Numbers::sEE(ism).c_str());
-      me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs05_[ism-1]->setAxisTitle("sample", 1);
-      me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L2B %s", Numbers::sEE(ism).c_str());
-      me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs06_[ism-1]->setAxisTitle("sample", 1);
-      me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L3B %s", Numbers::sEE(ism).c_str());
-      me_hs07_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs07_[ism-1]->setAxisTitle("sample", 1);
-      me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L4B %s", Numbers::sEE(ism).c_str());
-      me_hs08_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs08_[ism-1]->setAxisTitle("sample", 1);
-      me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
   }
@@ -817,46 +614,26 @@ void EELaserClient::setup(void) {
     if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
     if ( mea03_[ism-1] ) mea03_[ism-1]->Reset();
     if ( mea04_[ism-1] ) mea04_[ism-1]->Reset();
-    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
-    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
-    if ( mea07_[ism-1] ) mea07_[ism-1]->Reset();
-    if ( mea08_[ism-1] ) mea08_[ism-1]->Reset();
 
     if ( met01_[ism-1] ) met01_[ism-1]->Reset();
     if ( met02_[ism-1] ) met02_[ism-1]->Reset();
     if ( met03_[ism-1] ) met03_[ism-1]->Reset();
     if ( met04_[ism-1] ) met04_[ism-1]->Reset();
-    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
-    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
-    if ( met07_[ism-1] ) met07_[ism-1]->Reset();
-    if ( met08_[ism-1] ) met08_[ism-1]->Reset();
 
     if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
     if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
     if ( metav03_[ism-1] ) metav03_[ism-1]->Reset();
     if ( metav04_[ism-1] ) metav04_[ism-1]->Reset();
-    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
-    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
-    if ( metav07_[ism-1] ) metav07_[ism-1]->Reset();
-    if ( metav08_[ism-1] ) metav08_[ism-1]->Reset();
 
     if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
     if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
     if ( metrms03_[ism-1] ) metrms03_[ism-1]->Reset();
     if ( metrms04_[ism-1] ) metrms04_[ism-1]->Reset();
-    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
-    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
-    if ( metrms07_[ism-1] ) metrms07_[ism-1]->Reset();
-    if ( metrms08_[ism-1] ) metrms08_[ism-1]->Reset();
 
     if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
     if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
     if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->Reset();
     if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->Reset();
-    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
-    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
-    if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->Reset();
-    if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->Reset();
 
     if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
     if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
@@ -871,10 +648,6 @@ void EELaserClient::setup(void) {
     if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
     if ( me_hs03_[ism-1] ) me_hs03_[ism-1]->Reset();
     if ( me_hs04_[ism-1] ) me_hs04_[ism-1]->Reset();
-    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
-    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
-    if ( me_hs07_[ism-1] ) me_hs07_[ism-1]->Reset();
-    if ( me_hs08_[ism-1] ) me_hs08_[ism-1]->Reset();
 
   }
 
@@ -903,29 +676,10 @@ void EELaserClient::cleanup(void) {
       if ( h11_[ism-1] ) delete h11_[ism-1];
       if ( h12_[ism-1] ) delete h12_[ism-1];
 
-      if ( h13_[ism-1] ) delete h13_[ism-1];
-      if ( h14_[ism-1] ) delete h14_[ism-1];
-      if ( h15_[ism-1] ) delete h15_[ism-1];
-      if ( h16_[ism-1] ) delete h16_[ism-1];
-      if ( h17_[ism-1] ) delete h17_[ism-1];
-      if ( h18_[ism-1] ) delete h18_[ism-1];
-      if ( h19_[ism-1] ) delete h19_[ism-1];
-      if ( h20_[ism-1] ) delete h20_[ism-1];
-
-      if ( h21_[ism-1] ) delete h21_[ism-1];
-      if ( h22_[ism-1] ) delete h22_[ism-1];
-      if ( h23_[ism-1] ) delete h23_[ism-1];
-      if ( h24_[ism-1] ) delete h24_[ism-1];
-
       if ( hs01_[ism-1] ) delete hs01_[ism-1];
       if ( hs02_[ism-1] ) delete hs02_[ism-1];
       if ( hs03_[ism-1] ) delete hs03_[ism-1];
       if ( hs04_[ism-1] ) delete hs04_[ism-1];
-
-      if ( hs05_[ism-1] ) delete hs05_[ism-1];
-      if ( hs06_[ism-1] ) delete hs06_[ism-1];
-      if ( hs07_[ism-1] ) delete hs07_[ism-1];
-      if ( hs08_[ism-1] ) delete hs08_[ism-1];
 
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
@@ -960,29 +714,10 @@ void EELaserClient::cleanup(void) {
     h11_[ism-1] = 0;
     h12_[ism-1] = 0;
 
-    h13_[ism-1] = 0;
-    h14_[ism-1] = 0;
-    h15_[ism-1] = 0;
-    h16_[ism-1] = 0;
-    h17_[ism-1] = 0;
-    h18_[ism-1] = 0;
-    h19_[ism-1] = 0;
-    h20_[ism-1] = 0;
-
-    h21_[ism-1] = 0;
-    h22_[ism-1] = 0;
-    h23_[ism-1] = 0;
-    h24_[ism-1] = 0;
-
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
     hs04_[ism-1] = 0;
-
-    hs05_[ism-1] = 0;
-    hs06_[ism-1] = 0;
-    hs07_[ism-1] = 0;
-    hs08_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -1044,14 +779,6 @@ void EELaserClient::cleanup(void) {
     mea03_[ism-1] = 0;
     if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
     mea04_[ism-1] = 0;
-    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );
-    mea05_[ism-1] = 0;
-    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
-    mea06_[ism-1] = 0;
-    if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
-    mea07_[ism-1] = 0;
-    if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
-    mea08_[ism-1] = 0;
 
     if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
@@ -1061,14 +788,6 @@ void EELaserClient::cleanup(void) {
     met03_[ism-1] = 0;
     if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
     met04_[ism-1] = 0;
-    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
-    met05_[ism-1] = 0;
-    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
-    met06_[ism-1] = 0;
-    if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
-    met07_[ism-1] = 0;
-    if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
-    met08_[ism-1] = 0;
 
     if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     metav01_[ism-1] = 0;
@@ -1078,14 +797,6 @@ void EELaserClient::cleanup(void) {
     metav03_[ism-1] = 0;
     if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
     metav04_[ism-1] = 0;
-    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
-    metav05_[ism-1] = 0;
-    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
-    metav06_[ism-1] = 0;
-    if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
-    metav07_[ism-1] = 0;
-    if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
-    metav08_[ism-1] = 0;
 
     if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     metrms01_[ism-1] = 0;
@@ -1095,14 +806,6 @@ void EELaserClient::cleanup(void) {
     metrms03_[ism-1] = 0;
     if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
     metrms04_[ism-1] = 0;
-    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
-    metrms05_[ism-1] = 0;
-    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
-    metrms06_[ism-1] = 0;
-    if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
-    metrms07_[ism-1] = 0;
-    if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
-    metrms08_[ism-1] = 0;
 
     if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
@@ -1112,14 +815,6 @@ void EELaserClient::cleanup(void) {
     meaopn03_[ism-1] = 0;
     if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
     meaopn04_[ism-1] = 0;
-    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
-    meaopn05_[ism-1] = 0;
-    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
-    meaopn06_[ism-1] = 0;
-    if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
-    meaopn07_[ism-1] = 0;
-    if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
-    meaopn08_[ism-1] = 0;
 
     if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     mepnprms01_[ism-1] = 0;
@@ -1146,14 +841,6 @@ void EELaserClient::cleanup(void) {
     me_hs03_[ism-1] = 0;
     if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
     me_hs04_[ism-1] = 0;
-    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
-    me_hs05_[ism-1] = 0;
-    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
-    me_hs06_[ism-1] = 0;
-    if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
-    me_hs07_[ism-1] = 0;
-    if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
-    me_hs08_[ism-1] = 0;
 
   }
 
@@ -1185,19 +872,15 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       cout << endl;
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-        UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
       }
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-        UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
       }
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
-        UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
       }
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
-        UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
       }
     }
 
@@ -1220,22 +903,9 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         bool update07;
         bool update08;
 
-        bool update09;
-        bool update10;
-        bool update11;
-        bool update12;
-        bool update13;
-        bool update14;
-        bool update15;
-        bool update16;
-
         float num01, num02, num03, num04, num05, num06, num07, num08;
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
-
-        float num09, num10, num11, num12, num13, num14, num15, num16;
-        float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
-        float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h02_[ism-1], ix, iy, num02, mean02, rms02);
@@ -1246,22 +916,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         update07 = UtilsClient::getBinStatistics(h07_[ism-1], ix, iy, num07, mean07, rms07);
         update08 = UtilsClient::getBinStatistics(h08_[ism-1], ix, iy, num08, mean08, rms08);
 
-        update09 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num09, mean09, rms09);
-        update10 = UtilsClient::getBinStatistics(h14_[ism-1], ix, iy, num10, mean10, rms10);
-        update11 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num11, mean11, rms11);
-        update12 = UtilsClient::getBinStatistics(h16_[ism-1], ix, iy, num12, mean12, rms12);
-        update13 = UtilsClient::getBinStatistics(h17_[ism-1], ix, iy, num13, mean13, rms13);
-        update14 = UtilsClient::getBinStatistics(h18_[ism-1], ix, iy, num14, mean14, rms14);
-        update15 = UtilsClient::getBinStatistics(h19_[ism-1], ix, iy, num15, mean15, rms15);
-        update16 = UtilsClient::getBinStatistics(h20_[ism-1], ix, iy, num16, mean16, rms16);
-
         if ( update01 || update02 ) {
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
               cout << endl;
             }
 
@@ -1292,50 +953,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update09 || update10 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
-              cout << endl;
-            }
-
-          }
-
-          apd_bl.setAPDMean(mean09);
-          apd_bl.setAPDRMS(rms09);
-
-          apd_bl.setAPDOverPNMean(mean10);
-          apd_bl.setAPDOverPNRMS(rms10);
-
-          if ( UtilsClient::getBinStatus(meg01_[ism-1], ix, iy) ) {
-            apd_bl.setTaskStatus(true);
-          } else {
-            apd_bl.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_bl[ecid] = apd_bl;
-          }
-
-        }
-
         if ( update03 || update04 ) {
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
               cout << endl;
             }
 
@@ -1366,50 +990,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update11 || update12 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
-              cout << endl;
-            }
-
-          }
-
-          apd_ir.setAPDMean(mean11);
-          apd_ir.setAPDRMS(rms11);
-
-          apd_ir.setAPDOverPNMean(mean12);
-          apd_ir.setAPDOverPNRMS(rms12);
-
-          if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
-            apd_ir.setTaskStatus(true);
-          } else {
-            apd_ir.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_ir[ecid] = apd_ir;
-          }
-
-        }
-
         if ( update05 || update06 ) {
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+              cout << "L3 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
               cout << endl;
             }
 
@@ -1440,50 +1027,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update13 || update14 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num13 << " " << mean13 << " " << rms13 << endl;
-              cout << endl;
-            }
-
-          }
-
-          apd_gr.setAPDMean(mean13);
-          apd_gr.setAPDRMS(rms13);
-
-          apd_gr.setAPDOverPNMean(mean14);
-          apd_gr.setAPDOverPNRMS(rms14);
-
-          if ( UtilsClient::getBinStatus(meg03_[ism-1], ix, iy) ) {
-            apd_gr.setTaskStatus(true);
-          } else {
-            apd_gr.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg03_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_gr[ecid] = apd_gr;
-          }
-
-        }
-
         if ( update07 || update08 ) {
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+              cout << "L4 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
               cout << endl;
             }
 
@@ -1494,43 +1044,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           apd_rd.setAPDOverPNMean(mean08);
           apd_rd.setAPDOverPNRMS(rms08);
-
-          if ( UtilsClient::getBinStatus(meg04_[ism-1], ix, iy) ) {
-            apd_rd.setTaskStatus(true);
-          } else {
-            apd_rd.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg04_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_rd[ecid] = apd_rd;
-          }
-
-        }
-
-        if ( update15 || update16 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num15 << " " << mean15 << " " << rms15 << endl;
-              cout << endl;
-            }
-
-          }
-
-          apd_rd.setAPDMean(mean15);
-          apd_rd.setAPDRMS(rms15);
-
-          apd_rd.setAPDOverPNMean(mean16);
-          apd_rd.setAPDOverPNRMS(rms16);
 
           if ( UtilsClient::getBinStatus(meg04_[ism-1], ix, iy) ) {
             apd_rd.setTaskStatus(true);
@@ -1883,23 +1396,15 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         bool update02;
         bool update03;
         bool update04;
-        bool update05;
-        bool update06;
-        bool update07;
-        bool update08;
 
-        float num01, num02, num03, num04, num05, num06, num07, num08;
-        float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-        float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+        float num01, num02, num03, num04;
+        float mean01, mean02, mean03, mean04;
+        float rms01, rms02, rms03, rms04;
 
         update01 = UtilsClient::getBinStatistics(h09_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h10_[ism-1], ix, iy, num02, mean02, rms02);
         update03 = UtilsClient::getBinStatistics(h11_[ism-1], ix, iy, num03, mean03, rms03);
         update04 = UtilsClient::getBinStatistics(h12_[ism-1], ix, iy, num04, mean04, rms04);
-        update05 = UtilsClient::getBinStatistics(h21_[ism-1], ix, iy, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStatistics(h22_[ism-1], ix, iy, num06, mean06, rms06);
-        update07 = UtilsClient::getBinStatistics(h23_[ism-1], ix, iy, num07, mean07, rms07);
-        update08 = UtilsClient::getBinStatistics(h24_[ism-1], ix, iy, num08, mean08, rms08);
 
         if ( update01 ) {
 
@@ -1907,7 +1412,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
               cout << endl;
             }
 
@@ -1935,47 +1440,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update05 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05  << " " << mean05 << " " << rms05  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_bl.setTimingMean(mean05);
-          t_bl.setTimingRMS(rms05);
-
-          if ( UtilsClient::getBinStatus(meg01_[ism-1], ix, iy) ) {
-            t_bl.setTaskStatus(true);
-          } else {
-            t_bl.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_bl[ecid] = t_bl;
-          }
-
-        }
-
         if ( update02 ) {
 
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
               cout << endl;
             }
 
@@ -2003,47 +1474,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update06 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num06  << " " << mean06 << " " << rms06  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_gr.setTimingMean(mean06);
-          t_gr.setTimingRMS(rms06);
-
-          if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
-            t_gr.setTaskStatus(true);
-          } else {
-            t_gr.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_gr[ecid] = t_gr;
-          }
-
-        }
-
         if ( update03 ) {
 
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << "L3 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
               cout << endl;
             }
 
@@ -2071,47 +1508,13 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         }
 
-        if ( update07 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num07  << " " << mean07 << " " << rms07  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_ir.setTimingMean(mean07);
-          t_ir.setTimingRMS(rms07);
-
-          if ( UtilsClient::getBinStatus(meg03_[ism-1], ix, iy) ) {
-            t_ir.setTaskStatus(true);
-          } else {
-            t_ir.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg03_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_ir[ecid] = t_ir;
-          }
-
-        }
-
         if ( update04 ) {
 
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num04  << " " << mean04 << " " << rms04  << endl;
+              cout << "L4 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num04  << " " << mean04 << " " << rms04  << endl;
               cout << endl;
             }
 
@@ -2119,40 +1522,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           t_rd.setTimingMean(mean04);
           t_rd.setTimingRMS(rms04);
-
-          if ( UtilsClient::getBinStatus(meg04_[ism-1], ix, iy) ) {
-            t_rd.setTaskStatus(true);
-          } else {
-            t_rd.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg04_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_rd[ecid] = t_rd;
-          }
-
-        }
-
-        if ( update08 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num08  << " " << mean08 << " " << rms08  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_bl.setTimingMean(mean08);
-          t_bl.setTimingRMS(rms08);
 
           if ( UtilsClient::getBinStatus(meg04_[ism-1], ix, iy) ) {
             t_rd.setTaskStatus(true);
@@ -2245,11 +1614,11 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
@@ -2257,11 +1626,11 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
@@ -2269,11 +1638,11 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
@@ -2281,11 +1650,11 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
@@ -2293,7 +1662,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
@@ -2301,7 +1670,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
@@ -2309,7 +1678,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
@@ -2317,7 +1686,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
@@ -2325,87 +1694,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
@@ -2413,7 +1702,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
@@ -2421,7 +1710,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
@@ -2429,41 +1718,9 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
 
     }
 
@@ -2613,46 +1870,26 @@ void EELaserClient::analyze(void) {
     if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
     if ( mea03_[ism-1] ) mea03_[ism-1]->Reset();
     if ( mea04_[ism-1] ) mea04_[ism-1]->Reset();
-    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
-    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
-    if ( mea07_[ism-1] ) mea07_[ism-1]->Reset();
-    if ( mea08_[ism-1] ) mea08_[ism-1]->Reset();
 
     if ( met01_[ism-1] ) met01_[ism-1]->Reset();
     if ( met02_[ism-1] ) met02_[ism-1]->Reset();
     if ( met03_[ism-1] ) met03_[ism-1]->Reset();
     if ( met04_[ism-1] ) met04_[ism-1]->Reset();
-    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
-    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
-    if ( met07_[ism-1] ) met07_[ism-1]->Reset();
-    if ( met08_[ism-1] ) met08_[ism-1]->Reset();
 
     if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
     if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
     if ( metav03_[ism-1] ) metav03_[ism-1]->Reset();
     if ( metav04_[ism-1] ) metav04_[ism-1]->Reset();
-    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
-    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
-    if ( metav07_[ism-1] ) metav07_[ism-1]->Reset();
-    if ( metav08_[ism-1] ) metav08_[ism-1]->Reset();
 
     if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
     if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
     if ( metrms03_[ism-1] ) metrms03_[ism-1]->Reset();
     if ( metrms04_[ism-1] ) metrms04_[ism-1]->Reset();
-    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
-    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
-    if ( metrms07_[ism-1] ) metrms07_[ism-1]->Reset();
-    if ( metrms08_[ism-1] ) metrms08_[ism-1]->Reset();
 
     if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
     if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
     if ( meaopn03_[ism-1] ) meaopn03_[ism-1]->Reset();
     if ( meaopn04_[ism-1] ) meaopn04_[ism-1]->Reset();
-    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
-    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
-    if ( meaopn07_[ism-1] ) meaopn07_[ism-1]->Reset();
-    if ( meaopn08_[ism-1] ) meaopn08_[ism-1]->Reset();
 
     if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
     if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
@@ -2667,22 +1904,14 @@ void EELaserClient::analyze(void) {
     if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
     if ( me_hs03_[ism-1] ) me_hs03_[ism-1]->Reset();
     if ( me_hs04_[ism-1] ) me_hs04_[ism-1]->Reset();
-    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
-    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
-    if ( me_hs07_[ism-1] ) me_hs07_[ism-1]->Reset();
-    if ( me_hs08_[ism-1] ) me_hs08_[ism-1]->Reset();
 
-    float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
-    float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
+    float meanAmplL1, meanAmplL2, meanAmplL3, meanAmplL4;
 
-    int nCryL1A, nCryL2A, nCryL3A, nCryL4A;
-    int nCryL1B, nCryL2B, nCryL3B, nCryL4B;
+    int nCryL1, nCryL2, nCryL3, nCryL4;
 
-    meanAmplL1A = meanAmplL2A = meanAmplL3A = meanAmplL4A = 0.;
-    meanAmplL1B = meanAmplL2B = meanAmplL3B = meanAmplL4B = 0.;
+    meanAmplL1 = meanAmplL2 = meanAmplL3 = meanAmplL4 = 0.;
 
-    nCryL1A = nCryL2A = nCryL3A = nCryL4A = 0;
-    nCryL1B = nCryL2B = nCryL3B = nCryL4B = 0;
+    nCryL1 = nCryL2 = nCryL3 = nCryL4 = 0;
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -2691,75 +1920,43 @@ void EELaserClient::analyze(void) {
         bool update02;
         bool update03;
         bool update04;
-        bool update05;
-        bool update06;
-        bool update07;
-        bool update08;
 
-        float num01, num02, num03, num04, num05, num06, num07, num08;
-        float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
-        float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+        float num01, num02, num03, num04;
+        float mean01, mean02, mean03, mean04;
+        float rms01, rms02, rms03, rms04;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num02, mean02, rms02);
         update03 = UtilsClient::getBinStatistics(h05_[ism-1], ix, iy, num03, mean03, rms03);
         update04 = UtilsClient::getBinStatistics(h07_[ism-1], ix, iy, num04, mean04, rms04);
-        update05 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num06, mean06, rms06);
-        update07 = UtilsClient::getBinStatistics(h17_[ism-1], ix, iy, num07, mean07, rms07);
-        update08 = UtilsClient::getBinStatistics(h19_[ism-1], ix, iy, num08, mean08, rms08);
 
         if ( update01 ) {
-          meanAmplL1A += mean01;
-          nCryL1A++;
+          meanAmplL1 += mean01;
+          nCryL1++;
         }
 
         if ( update02 ) {
-          meanAmplL2A += mean02;
-          nCryL2A++;
+          meanAmplL2 += mean02;
+          nCryL2++;
         }
 
         if ( update03 ) {
-          meanAmplL3A += mean03;
-          nCryL3A++;
+          meanAmplL3 += mean03;
+          nCryL3++;
         }
 
         if ( update04 ) {
-          meanAmplL4A += mean04;
-          nCryL4A++;
-        }
-
-        if ( update05 ) {
-          meanAmplL1B += mean05;
-          nCryL1B++;
-        }
-
-        if ( update06 ) {
-          meanAmplL2B += mean06;
-          nCryL2B++;
-        }
-
-        if ( update07 ) {
-          meanAmplL3B += mean07;
-          nCryL3B++;
-        }
-
-        if ( update08 ) {
-          meanAmplL4B += mean08;
-          nCryL4B++;
+          meanAmplL4 += mean04;
+          nCryL4++;
         }
 
       }
     }
 
-    if ( nCryL1A > 0 ) meanAmplL1A /= float (nCryL1A);
-    if ( nCryL2A > 0 ) meanAmplL2A /= float (nCryL2A);
-    if ( nCryL3A > 0 ) meanAmplL3A /= float (nCryL3A);
-    if ( nCryL4A > 0 ) meanAmplL4A /= float (nCryL4A);
-    if ( nCryL1B > 0 ) meanAmplL1B /= float (nCryL1B);
-    if ( nCryL2B > 0 ) meanAmplL2B /= float (nCryL2B);
-    if ( nCryL3B > 0 ) meanAmplL3B /= float (nCryL3B);
-    if ( nCryL4B > 0 ) meanAmplL4B /= float (nCryL4B);
+    if ( nCryL1 > 0 ) meanAmplL1 /= float (nCryL1);
+    if ( nCryL2 > 0 ) meanAmplL2 /= float (nCryL2);
+    if ( nCryL3 > 0 ) meanAmplL3 /= float (nCryL3);
+    if ( nCryL4 > 0 ) meanAmplL4 /= float (nCryL4);
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -2794,32 +1991,12 @@ void EELaserClient::analyze(void) {
         bool update11;
         bool update12;
 
-        bool update13;
-        bool update14;
-        bool update15;
-        bool update16;
-        bool update17;
-        bool update18;
-        bool update19;
-        bool update20;
-        bool update21;
-        bool update22;
-        bool update23;
-        bool update24;
-
         float num01, num02, num03, num04, num05, num06, num07, num08;
         float num09, num10, num11, num12;
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float mean09, mean10, mean11, mean12;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
         float rms09, rms10, rms11, rms12;
-
-        float num13, num14, num15, num16, num17, num18, num19, num20;
-        float num21, num22, num23, num24;
-        float mean13, mean14, mean15, mean16, mean17, mean18, mean19, mean20;
-        float mean21, mean22, mean23, mean24;
-        float rms13, rms14, rms15, rms16, rms17, rms18, rms19, rms20;
-        float rms21, rms22, rms23, rms24;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h02_[ism-1], ix, iy, num02, mean02, rms02);
@@ -2834,27 +2011,12 @@ void EELaserClient::analyze(void) {
         update11 = UtilsClient::getBinStatistics(h11_[ism-1], ix, iy, num11, mean11, rms11);
         update12 = UtilsClient::getBinStatistics(h12_[ism-1], ix, iy, num12, mean12, rms12);
 
-        // other SM half
-
-        update13 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num13, mean13, rms13);
-        update14 = UtilsClient::getBinStatistics(h14_[ism-1], ix, iy, num14, mean14, rms14);
-        update15 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num15, mean15, rms15);
-        update16 = UtilsClient::getBinStatistics(h16_[ism-1], ix, iy, num16, mean16, rms16);
-        update17 = UtilsClient::getBinStatistics(h17_[ism-1], ix, iy, num17, mean17, rms17);
-        update18 = UtilsClient::getBinStatistics(h18_[ism-1], ix, iy, num18, mean18, rms18);
-        update19 = UtilsClient::getBinStatistics(h19_[ism-1], ix, iy, num19, mean19, rms19);
-        update20 = UtilsClient::getBinStatistics(h20_[ism-1], ix, iy, num20, mean20, rms20);
-        update21 = UtilsClient::getBinStatistics(h21_[ism-1], ix, iy, num21, mean21, rms21);
-        update22 = UtilsClient::getBinStatistics(h22_[ism-1], ix, iy, num22, mean22, rms22);
-        update23 = UtilsClient::getBinStatistics(h23_[ism-1], ix, iy, num23, mean23, rms23);
-        update24 = UtilsClient::getBinStatistics(h24_[ism-1], ix, iy, num24, mean24, rms24);
-
         if ( update01 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2873,36 +2035,12 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update13 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ || rms13 > rmsThresholdRelative_ * mean13 )
-           val = 0.;
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea05_[ism-1] ) {
-              if ( mean13 > 0. ) {
-                mea05_[ism-1]->setBinContent( ic, mean13 );
-                mea05_[ism-1]->setBinError( ic, rms13 );
-            } else {
-                mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update03 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -2921,36 +2059,12 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update15 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ || rms15 > rmsThresholdRelative_ * mean15 )
-            val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea06_[ism-1] ) {
-              if ( mean15 > 0. ) {
-                mea06_[ism-1]->setBinContent( ic, mean15 );
-                mea06_[ism-1]->setBinError( ic, rms15 );
-              } else {
-                mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update05 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) || mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
+          if ( mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2969,36 +2083,12 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update17 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean17 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) || mean17 < amplitudeThreshold_ || rms17 > rmsThresholdRelative_ * mean17 )
-            val = 0.;
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea07_[ism-1] ) {
-              if ( mean17 > 0. ) {
-                mea07_[ism-1]->setBinContent( ic, mean17 );
-                mea07_[ism-1]->setBinError( ic, rms17 );
-              } else {
-                mea07_[ism-1]->setEntries( 1.+mea07_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update07 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) || mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
+          if ( mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
@@ -3011,30 +2101,6 @@ void EELaserClient::analyze(void) {
                 mea04_[ism-1]->setBinError( ic, rms07 );
               } else {
                 mea04_[ism-1]->setEntries( 1.+mea04_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
-        if ( update19 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean19 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) || mean19 < amplitudeThreshold_ || rms19 > rmsThresholdRelative_ * mean19 )
-            val = 0.;
-          if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea08_[ism-1] ) {
-              if ( mean19 > 0. ) {
-                mea08_[ism-1]->setBinContent( ic, mean19 );
-                mea08_[ism-1]->setBinError( ic, rms19 );
-              } else {
-                mea08_[ism-1]->setEntries( 1.+mea08_[ism-1]->getEntries() );
               }
             }
           }
@@ -3058,23 +2124,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update14 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn05_[ism-1] ) {
-              if ( mean14 > 0. ) {
-                meaopn05_[ism-1]->setBinContent( ic, mean14 );
-                meaopn05_[ism-1]->setBinError( ic, rms14 );
-              } else {
-                meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update04 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -3086,23 +2135,6 @@ void EELaserClient::analyze(void) {
                 meaopn02_[ism-1]->setBinError( ic, rms04 );
               } else {
                 meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
-        if ( update16 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn06_[ism-1] ) {
-              if ( mean16 > 0. ) {
-                meaopn06_[ism-1]->setBinContent( ic, mean16 );
-                meaopn06_[ism-1]->setBinError( ic, rms16 );
-              } else {
-                meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
               }
             }
           }
@@ -3126,23 +2158,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update18 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn07_[ism-1] ) {
-              if ( mean18 > 0. ) {
-                meaopn07_[ism-1]->setBinContent( ic, mean18 );
-                meaopn07_[ism-1]->setBinError( ic, rms18 );
-              } else {
-                meaopn07_[ism-1]->setEntries( 1.+meaopn07_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update08 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -3154,23 +2169,6 @@ void EELaserClient::analyze(void) {
                 meaopn04_[ism-1]->setBinError( ic, rms08 );
               } else {
                 meaopn04_[ism-1]->setEntries( 1.+meaopn04_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
-        if ( update20 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn08_[ism-1] ) {
-              if ( mean20 > 0. ) {
-                meaopn08_[ism-1]->setBinContent( ic, mean20 );
-                meaopn08_[ism-1]->setBinError( ic, rms20 );
-              } else {
-                meaopn08_[ism-1]->setEntries( 1.+meaopn08_[ism-1]->getEntries() );
               }
             }
           }
@@ -3197,26 +2195,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update21 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met05_[ism-1] ) {
-              if ( mean21 > 0. ) {
-                met05_[ism-1]->setBinContent( ic, mean21 );
-                met05_[ism-1]->setBinError( ic, rms21 );
-              } else {
-                met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav05_[ism-1] ) metav05_[ism-1] ->Fill(mean21);
-            if ( metrms05_[ism-1] ) metrms05_[ism-1]->Fill(rms21);
-          }
-
-        }
-
         if ( update10 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -3237,25 +2215,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update22 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met06_[ism-1] ) {
-              if ( mean22 > 0. ) {
-                met06_[ism-1]->setBinContent( ic, mean22 );
-                met06_[ism-1]->setBinError( ic, rms22 );
-              } else {
-                met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav06_[ism-1] ) metav06_[ism-1] ->Fill(mean22);
-            if ( metrms06_[ism-1] ) metrms06_[ism-1]->Fill(rms22);
-          }
-
-        }
 
         if ( update11 ) {
 
@@ -3277,26 +2236,6 @@ void EELaserClient::analyze(void) {
 
         }
 
-        if ( update23 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met07_[ism-1] ) {
-              if ( mean23 > 0. ) {
-                met07_[ism-1]->setBinContent( ic, mean23 );
-                met07_[ism-1]->setBinError( ic, rms23 );
-              } else {
-                met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav07_[ism-1] ) metav07_[ism-1] ->Fill(mean23);
-            if ( metrms07_[ism-1] ) metrms07_[ism-1]->Fill(rms23);
-          }
-
-        }
-
         if ( update12 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -3313,26 +2252,6 @@ void EELaserClient::analyze(void) {
 
             if ( metav04_[ism-1] ) metav04_[ism-1] ->Fill(mean12);
             if ( metrms04_[ism-1] ) metrms04_[ism-1]->Fill(rms12);
-          }
-
-        }
-
-        if ( update24 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met08_[ism-1] ) {
-              if ( mean24 > 0. ) {
-                met08_[ism-1]->setBinContent( ic, mean24 );
-                met08_[ism-1]->setBinError( ic, rms24 );
-              } else {
-                met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav08_[ism-1] ) metav08_[ism-1] ->Fill(mean24);
-            if ( metrms08_[ism-1] ) metrms08_[ism-1]->Fill(rms24);
           }
 
         }
@@ -3651,38 +2570,6 @@ void EELaserClient::analyze(void) {
         if ( me_hs04_[ism-1] ) {
           me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
           me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs05_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-        if ( me_hs05_[ism-1] ) {
-          me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-          me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs06_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs06_[ism-1] );
-        if ( me_hs06_[ism-1] ) {
-          me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
-          me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs07_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs07_[ism-1] );
-        if ( me_hs07_[ism-1] ) {
-          me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
-          me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs08_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs08_[ism-1] );
-        if ( me_hs08_[ism-1] ) {
-          me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
-          me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
         }
       }
 

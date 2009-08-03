@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/06/09 15:36:37 $
- * $Revision: 1.93 $
+ * $Date: 2009/06/29 13:27:50 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -87,19 +87,8 @@ EELedClient::EELedClient(const ParameterSet& ps) {
     h09_[ism-1] = 0;
     h10_[ism-1] = 0;
 
-    h13_[ism-1] = 0;
-    h14_[ism-1] = 0;
-    h15_[ism-1] = 0;
-    h16_[ism-1] = 0;
-
-    h21_[ism-1] = 0;
-    h22_[ism-1] = 0;
-
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
-
-    hs05_[ism-1] = 0;
-    hs06_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -131,32 +120,17 @@ EELedClient::EELedClient(const ParameterSet& ps) {
     mea01_[ism-1] = 0;
     mea02_[ism-1] = 0;
 
-    mea05_[ism-1] = 0;
-    mea06_[ism-1] = 0;
-
     met01_[ism-1] = 0;
     met02_[ism-1] = 0;
-
-    met05_[ism-1] = 0;
-    met06_[ism-1] = 0;
 
     metav01_[ism-1] = 0;
     metav02_[ism-1] = 0;
 
-    metav05_[ism-1] = 0;
-    metav06_[ism-1] = 0;
-
     metrms01_[ism-1] = 0;
     metrms02_[ism-1] = 0;
 
-    metrms05_[ism-1] = 0;
-    metrms06_[ism-1] = 0;
-
     meaopn01_[ism-1] = 0;
     meaopn02_[ism-1] = 0;
-
-    meaopn05_[ism-1] = 0;
-    meaopn06_[ism-1] = 0;
 
     mepnprms01_[ism-1] = 0;
     mepnprms02_[ism-1] = 0;
@@ -167,14 +141,11 @@ EELedClient::EELedClient(const ParameterSet& ps) {
     me_hs01_[ism-1] = 0;
     me_hs02_[ism-1] = 0;
 
-    me_hs05_[ism-1] = 0;
-    me_hs06_[ism-1] = 0;
-
   }
 
-  percentVariation_ = 0.4;
+  percentVariation_ = 0.4; // not used nor not normalized VPTs
   
-  amplitudeThreshold_ = 10.;
+  amplitudeThreshold_ = 100.;
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
@@ -288,144 +259,73 @@ void EELedClient::setup(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      sprintf(histo, "EELDT amplitude L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude L1 %s", Numbers::sEE(ism).c_str());
       mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude L2 %s", Numbers::sEE(ism).c_str());
       mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
-      sprintf(histo, "EELDT amplitude L1B %s", Numbers::sEE(ism).c_str());
-      mea05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea05_[ism-1]->setAxisTitle("channel", 1);
-      mea05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude L2B %s", Numbers::sEE(ism).c_str());
-      mea06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea06_[ism-1]->setAxisTitle("channel", 1);
-      mea06_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing L1 %s", Numbers::sEE(ism).c_str());
       met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met01_[ism-1]->setAxisTitle("channel", 1);
       met01_[ism-1]->setAxisTitle("jitter", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing L2 %s", Numbers::sEE(ism).c_str());
       met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       met02_[ism-1]->setAxisTitle("channel", 1);
       met02_[ism-1]->setAxisTitle("jitter", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L1B %s", Numbers::sEE(ism).c_str());
-      met05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met05_[ism-1]->setAxisTitle("channel", 1);
-      met05_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing L2B %s", Numbers::sEE(ism).c_str());
-      met06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met06_[ism-1]->setAxisTitle("channel", 1);
-      met06_[ism-1]->setAxisTitle("jitter", 2);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing mean L1 %s", Numbers::sEE(ism).c_str());
       metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav01_[ism-1]->setAxisTitle("mean", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing mean L2 %s", Numbers::sEE(ism).c_str());
       metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       metav02_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L1B %s", Numbers::sEE(ism).c_str());
-      metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav05_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing mean L2B %s", Numbers::sEE(ism).c_str());
-      metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav06_[ism-1]->setAxisTitle("mean", 1);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing rms L1 %s", Numbers::sEE(ism).c_str());
       metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led timing rms L2 %s", Numbers::sEE(ism).c_str());
       metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
       metrms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L1B %s", Numbers::sEE(ism).c_str());
-      metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms05_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
-      sprintf(histo, "EELDT led timing rms L2B %s", Numbers::sEE(ism).c_str());
-      metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms06_[ism-1]->setAxisTitle("rms", 1);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude over PN L1 %s", Numbers::sEE(ism).c_str());
       meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn01_[ism-1]->setAxisTitle("channel", 1);
       meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude over PN L2 %s", Numbers::sEE(ism).c_str());
       meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
       meaopn02_[ism-1]->setAxisTitle("channel", 1);
       meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-      meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn05_[ism-1]->setAxisTitle("channel", 1);
-      meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
-      sprintf(histo, "EELDT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-      meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn06_[ism-1]->setAxisTitle("channel", 1);
-      meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
@@ -456,32 +356,17 @@ void EELedClient::setup(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L1A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led shape L1 %s", Numbers::sEE(ism).c_str());
       me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L2A %s", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT led shape L2 %s", Numbers::sEE(ism).c_str());
       me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-      if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L1B %s", Numbers::sEE(ism).c_str());
-      me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs05_[ism-1]->setAxisTitle("sample", 1);
-      me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-      if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
-      sprintf(histo, "EELDT led shape L2B %s", Numbers::sEE(ism).c_str());
-      me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs06_[ism-1]->setAxisTitle("sample", 1);
-      me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
   }
@@ -531,32 +416,17 @@ void EELedClient::setup(void) {
     if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
     if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
 
-    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
-    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
-
     if ( met01_[ism-1] ) met01_[ism-1]->Reset();
     if ( met02_[ism-1] ) met02_[ism-1]->Reset();
-
-    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
-    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
 
     if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
     if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
 
-    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
-    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
-
     if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
     if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
 
-    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
-    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
-
     if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
     if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
-
-    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
-    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
 
     if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
     if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
@@ -566,9 +436,6 @@ void EELedClient::setup(void) {
 
     if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
     if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
-
-    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
-    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
 
   }
 
@@ -591,19 +458,8 @@ void EELedClient::cleanup(void) {
       if ( h09_[ism-1] ) delete h09_[ism-1];
       if ( h10_[ism-1] ) delete h10_[ism-1];
 
-      if ( h13_[ism-1] ) delete h13_[ism-1];
-      if ( h14_[ism-1] ) delete h14_[ism-1];
-      if ( h15_[ism-1] ) delete h15_[ism-1];
-      if ( h16_[ism-1] ) delete h16_[ism-1];
-
-      if ( h21_[ism-1] ) delete h21_[ism-1];
-      if ( h22_[ism-1] ) delete h22_[ism-1];
-
       if ( hs01_[ism-1] ) delete hs01_[ism-1];
       if ( hs02_[ism-1] ) delete hs02_[ism-1];
-
-      if ( hs05_[ism-1] ) delete hs05_[ism-1];
-      if ( hs06_[ism-1] ) delete hs06_[ism-1];
 
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
@@ -626,19 +482,8 @@ void EELedClient::cleanup(void) {
     h09_[ism-1] = 0;
     h10_[ism-1] = 0;
 
-    h13_[ism-1] = 0;
-    h14_[ism-1] = 0;
-    h15_[ism-1] = 0;
-    h16_[ism-1] = 0;
-
-    h21_[ism-1] = 0;
-    h22_[ism-1] = 0;
-
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
-
-    hs05_[ism-1] = 0;
-    hs06_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -680,50 +525,25 @@ void EELedClient::cleanup(void) {
     if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     mea02_[ism-1] = 0;
 
-    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );
-    mea05_[ism-1] = 0;
-    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
-    mea06_[ism-1] = 0;
-
     if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
     if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     met02_[ism-1] = 0;
-
-    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
-    met05_[ism-1] = 0;
-    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
-    met06_[ism-1] = 0;
 
     if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     metav01_[ism-1] = 0;
     if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
     metav02_[ism-1] = 0;
 
-    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
-    metav05_[ism-1] = 0;
-    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
-    metav06_[ism-1] = 0;
-
     if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     metrms01_[ism-1] = 0;
     if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
     metrms02_[ism-1] = 0;
 
-    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
-    metrms05_[ism-1] = 0;
-    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
-    metrms06_[ism-1] = 0;
-
     if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
     if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
     meaopn02_[ism-1] = 0;
-
-    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
-    meaopn05_[ism-1] = 0;
-    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
-    meaopn06_[ism-1] = 0;
 
     if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     mepnprms01_[ism-1] = 0;
@@ -739,11 +559,6 @@ void EELedClient::cleanup(void) {
     me_hs01_[ism-1] = 0;
     if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     me_hs02_[ism-1] = 0;
-
-    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
-    me_hs05_[ism-1] = 0;
-    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
-    me_hs06_[ism-1] = 0;
 
   }
 
@@ -774,11 +589,9 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     if ( verbose_ ) {
       if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-        UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
       }
       if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-        UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
       }
     }
 
@@ -797,28 +610,14 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
         bool update03;
         bool update04;
 
-        bool update09;
-        bool update10;
-        bool update11;
-        bool update12;
-
         float num01, num02, num03, num04;
         float mean01, mean02, mean03, mean04;
         float rms01, rms02, rms03, rms04;
-
-        float num09, num10, num11, num12;
-        float mean09, mean10, mean11, mean12;
-        float rms09, rms10, rms11, rms12;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h02_[ism-1], ix, iy, num02, mean02, rms02);
         update03 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num03, mean03, rms03);
         update04 = UtilsClient::getBinStatistics(h04_[ism-1], ix, iy, num04, mean04, rms04);
-
-        update09 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num09, mean09, rms09);
-        update10 = UtilsClient::getBinStatistics(h14_[ism-1], ix, iy, num10, mean10, rms10);
-        update11 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num11, mean11, rms11);
-        update12 = UtilsClient::getBinStatistics(h16_[ism-1], ix, iy, num12, mean12, rms12);
 
         if ( update01 || update02 ) {
 
@@ -826,7 +625,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << "L1 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
               cout << endl;
             }
 
@@ -857,50 +656,13 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         }
 
-        if ( update09 || update10 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
-              cout << endl;
-            }
-
-          }
-
-          vpt_l1.setVPTMean(mean09);
-          vpt_l1.setVPTRMS(rms09);
-
-          vpt_l1.setVPTOverPNMean(mean10);
-          vpt_l1.setVPTOverPNRMS(rms10);
-
-          if ( UtilsClient::getBinStatus(meg01_[ism-1], ix, iy) ) {
-            vpt_l1.setTaskStatus(true);
-          } else {
-            vpt_l1.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_l1[ecid] = vpt_l1;
-          }
-
-        }
-
         if ( update03 || update04 ) {
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << "L2 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
               cout << endl;
             }
 
@@ -911,43 +673,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           vpt_l2.setVPTOverPNMean(mean04);
           vpt_l2.setVPTOverPNRMS(rms04);
-
-          if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
-            vpt_l2.setTaskStatus(true);
-          } else {
-            vpt_l2.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, jx, jy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset1_l2[ecid] = vpt_l2;
-          }
-
-        }
-
-        if ( update11 || update12 ) {
-
-          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
-              cout << endl;
-            }
-
-          }
-
-          vpt_l2.setVPTMean(mean11);
-          vpt_l2.setVPTRMS(rms11);
-
-          vpt_l2.setVPTOverPNMean(mean12);
-          vpt_l2.setVPTOverPNRMS(rms12);
 
           if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
             vpt_l2.setTaskStatus(true);
@@ -1181,18 +906,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
         bool update01;
         bool update02;
 
-        bool update05;
-        bool update06;
-
-        float num01, num02, num05, num06;
-        float mean01, mean02, mean05, mean06;
-        float rms01, rms02, rms05, rms06;
+        float num01, num02;
+        float mean01, mean02;
+        float rms01, rms02;
 
         update01 = UtilsClient::getBinStatistics(h09_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h10_[ism-1], ix, iy, num02, mean02, rms02);
-
-        update05 = UtilsClient::getBinStatistics(h21_[ism-1], ix, iy, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStatistics(h22_[ism-1], ix, iy, num06, mean06, rms06);
 
         if ( update01 ) {
 
@@ -1200,7 +919,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "L1 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
               cout << endl;
             }
 
@@ -1228,47 +947,13 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         }
 
-        if ( update05 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05  << " " << mean05 << " " << rms05  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_l1.setTimingMean(mean05);
-          t_l1.setTimingRMS(rms05);
-
-          if ( UtilsClient::getBinStatus(meg01_[ism-1], ix, iy) ) {
-            t_l1.setTaskStatus(true);
-          } else {
-            t_l1.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_l1[ecid] = t_l1;
-          }
-
-        }
-
         if ( update02 ) {
 
           if ( Numbers::icEE(ism, ix, iy) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2A crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << "L2 crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
               cout << endl;
             }
 
@@ -1276,40 +961,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           t_l2.setTimingMean(mean02);
           t_l2.setTimingRMS(rms02);
-
-          if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
-            t_l2.setTaskStatus(true);
-          } else {
-            t_l2.setTaskStatus(false);
-          }
-
-          status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
-
-          int ic = Numbers::indexEE(ism, ix, iy);
-
-          if ( ic == -1 ) continue;
-
-          if ( econn ) {
-            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-            dataset3_l2[ecid] = t_l2;
-          }
-
-        }
-
-        if ( update06 ) {
-
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
-
-            if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2B crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num06  << " " << mean06 << " " << rms06  << endl;
-              cout << endl;
-            }
-
-          }
-
-          t_l2.setTimingMean(mean06);
-          t_l2.setTimingRMS(rms06);
 
           if ( UtilsClient::getBinStatus(meg02_[ism-1], ix, iy) ) {
             t_l2.setTaskStatus(true);
@@ -1400,11 +1051,11 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
@@ -1412,11 +1063,11 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
@@ -1424,7 +1075,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
@@ -1432,7 +1083,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
@@ -1440,47 +1091,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
@@ -1488,25 +1099,9 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
-
-    }
-
-    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
     }
 
@@ -1586,56 +1181,31 @@ void EELedClient::analyze(void) {
     if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
     if ( mea02_[ism-1] ) mea02_[ism-1]->Reset();
 
-    if ( mea05_[ism-1] ) mea05_[ism-1]->Reset();
-    if ( mea06_[ism-1] ) mea06_[ism-1]->Reset();
-
     if ( met01_[ism-1] ) met01_[ism-1]->Reset();
     if ( met02_[ism-1] ) met02_[ism-1]->Reset();
-
-    if ( met05_[ism-1] ) met05_[ism-1]->Reset();
-    if ( met06_[ism-1] ) met06_[ism-1]->Reset();
 
     if ( metav01_[ism-1] ) metav01_[ism-1]->Reset();
     if ( metav02_[ism-1] ) metav02_[ism-1]->Reset();
 
-    if ( metav05_[ism-1] ) metav05_[ism-1]->Reset();
-    if ( metav06_[ism-1] ) metav06_[ism-1]->Reset();
-
     if ( metrms01_[ism-1] ) metrms01_[ism-1]->Reset();
     if ( metrms02_[ism-1] ) metrms02_[ism-1]->Reset();
-
-    if ( metrms05_[ism-1] ) metrms05_[ism-1]->Reset();
-    if ( metrms06_[ism-1] ) metrms06_[ism-1]->Reset();
 
     if ( meaopn01_[ism-1] ) meaopn01_[ism-1]->Reset();
     if ( meaopn02_[ism-1] ) meaopn02_[ism-1]->Reset();
 
-    if ( meaopn05_[ism-1] ) meaopn05_[ism-1]->Reset();
-    if ( meaopn06_[ism-1] ) meaopn06_[ism-1]->Reset();
-
     if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Reset();
     if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Reset();
-
-    if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Reset();
-    if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Reset();
 
     if ( me_hs01_[ism-1] ) me_hs01_[ism-1]->Reset();
     if ( me_hs02_[ism-1] ) me_hs02_[ism-1]->Reset();
 
-    if ( me_hs05_[ism-1] ) me_hs05_[ism-1]->Reset();
-    if ( me_hs06_[ism-1] ) me_hs06_[ism-1]->Reset();
+    float meanAmplL1, meanAmplL2;
 
-    float meanAmplL1A, meanAmplL2A;
-    float meanAmplL1B, meanAmplL2B;
+    int nCryL1, nCryL2;
 
-    int nCryL1A, nCryL2A;
-    int nCryL1B, nCryL2B;
+    meanAmplL1 = meanAmplL2 = 0.;
 
-    meanAmplL1A = meanAmplL2A = 0.;
-    meanAmplL1B = meanAmplL2B = 0.;
-
-    nCryL1A = nCryL2A = 0;
-    nCryL1B = nCryL2B = 0;
+    nCryL1 = nCryL2 = 0;
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1643,47 +1213,28 @@ void EELedClient::analyze(void) {
         bool update01;
         bool update02;
 
-        bool update05;
-        bool update06;
-
-        float num01, num02, num05, num06;
-        float mean01, mean02, mean05, mean06;
-        float rms01, rms02, rms05, rms06;
+        float num01, num02;
+        float mean01, mean02;
+        float rms01, rms02;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num02, mean02, rms02);
 
-        update05 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num06, mean06, rms06);
-
         if ( update01 ) {
-          meanAmplL1A += mean01;
-          nCryL1A++;
+          meanAmplL1 += mean01;
+          nCryL1++;
         }
 
         if ( update02 ) {
-          meanAmplL2A += mean02;
-          nCryL2A++;
-        }
-
-        if ( update05 ) {
-          meanAmplL1B += mean05;
-          nCryL1B++;
-        }
-
-        if ( update06 ) {
-          meanAmplL2B += mean06;
-          nCryL2B++;
+          meanAmplL2 += mean02;
+          nCryL2++;
         }
 
       }
     }
 
-    if ( nCryL1A > 0 ) meanAmplL1A /= float (nCryL1A);
-    if ( nCryL2A > 0 ) meanAmplL2A /= float (nCryL2A);
-
-    if ( nCryL1B > 0 ) meanAmplL1B /= float (nCryL1B);
-    if ( nCryL2B > 0 ) meanAmplL2B /= float (nCryL2B);
+    if ( nCryL1 > 0 ) meanAmplL1 /= float (nCryL1);
+    if ( nCryL2 > 0 ) meanAmplL2 /= float (nCryL2);
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1709,27 +1260,12 @@ void EELedClient::analyze(void) {
         bool update09;
         bool update10;
 
-        bool update13;
-        bool update14;
-        bool update15;
-        bool update16;
-
-        bool update21;
-        bool update22;
-
         float num01, num02, num03, num04;
         float num09, num10;
         float mean01, mean02, mean03, mean04;
         float mean09, mean10;
         float rms01, rms02, rms03, rms04;
         float rms09, rms10;
-
-        float num13, num14, num15, num16;
-        float num21, num22;
-        float mean13, mean14, mean15, mean16;
-        float mean21, mean22;
-        float rms13, rms14, rms15, rms16;
-        float rms21, rms22;
 
         update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
         update02 = UtilsClient::getBinStatistics(h02_[ism-1], ix, iy, num02, mean02, rms02);
@@ -1739,22 +1275,12 @@ void EELedClient::analyze(void) {
         update09 = UtilsClient::getBinStatistics(h09_[ism-1], ix, iy, num09, mean09, rms09);
         update10 = UtilsClient::getBinStatistics(h10_[ism-1], ix, iy, num10, mean10, rms10);
 
-        // other SM half
-
-        update13 = UtilsClient::getBinStatistics(h13_[ism-1], ix, iy, num13, mean13, rms13);
-        update14 = UtilsClient::getBinStatistics(h14_[ism-1], ix, iy, num14, mean14, rms14);
-        update15 = UtilsClient::getBinStatistics(h15_[ism-1], ix, iy, num15, mean15, rms15);
-        update16 = UtilsClient::getBinStatistics(h16_[ism-1], ix, iy, num16, mean16, rms16);
-
-        update21 = UtilsClient::getBinStatistics(h21_[ism-1], ix, iy, num21, mean21, rms21);
-        update22 = UtilsClient::getBinStatistics(h22_[ism-1], ix, iy, num22, mean22, rms22);
-
         if ( update01 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1773,36 +1299,12 @@ void EELedClient::analyze(void) {
 
         }
 
-        if ( update13 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean13 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) || mean13 < amplitudeThreshold_ || rms13 > rmsThresholdRelative_ * mean13 )
-           val = 0.;
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea05_[ism-1] ) {
-              if ( mean13 > 0. ) {
-                mea05_[ism-1]->setBinContent( ic, mean13 );
-                mea05_[ism-1]->setBinError( ic, rms13 );
-            } else {
-                mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update03 ) {
 
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -1815,30 +1317,6 @@ void EELedClient::analyze(void) {
                 mea02_[ism-1]->setBinError( ic, rms03 );
               } else {
                 mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
-        if ( update15 ) {
-
-          float val;
-
-          val = 1.;
-          if ( fabs(mean15 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) || mean15 < amplitudeThreshold_ || rms15 > rmsThresholdRelative_ * mean15 )
-            val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( mea06_[ism-1] ) {
-              if ( mean15 > 0. ) {
-                mea06_[ism-1]->setBinContent( ic, mean15 );
-                mea06_[ism-1]->setBinError( ic, rms15 );
-              } else {
-                mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
               }
             }
           }
@@ -1862,23 +1340,6 @@ void EELedClient::analyze(void) {
 
         }
 
-        if ( update14 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn05_[ism-1] ) {
-              if ( mean14 > 0. ) {
-                meaopn05_[ism-1]->setBinContent( ic, mean14 );
-                meaopn05_[ism-1]->setBinError( ic, rms14 );
-              } else {
-                meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
         if ( update04 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -1890,23 +1351,6 @@ void EELedClient::analyze(void) {
                 meaopn02_[ism-1]->setBinError( ic, rms04 );
               } else {
                 meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
-              }
-            }
-          }
-
-        }
-
-        if ( update16 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( meaopn06_[ism-1] ) {
-              if ( mean16 > 0. ) {
-                meaopn06_[ism-1]->setBinContent( ic, mean16 );
-                meaopn06_[ism-1]->setBinError( ic, rms16 );
-              } else {
-                meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
               }
             }
           }
@@ -1933,26 +1377,6 @@ void EELedClient::analyze(void) {
 
         }
 
-        if ( update21 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met05_[ism-1] ) {
-              if ( mean21 > 0. ) {
-                met05_[ism-1]->setBinContent( ic, mean21 );
-                met05_[ism-1]->setBinError( ic, rms21 );
-              } else {
-                met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav05_[ism-1] ) metav05_[ism-1] ->Fill(mean21);
-            if ( metrms05_[ism-1] ) metrms05_[ism-1]->Fill(rms21);
-          }
-
-        }
-
         if ( update10 ) {
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -1969,26 +1393,6 @@ void EELedClient::analyze(void) {
 
             if ( metav02_[ism-1] ) metav02_[ism-1] ->Fill(mean10);
             if ( metrms02_[ism-1] ) metrms02_[ism-1]->Fill(rms10);
-          }
-
-        }
-
-        if ( update22 ) {
-
-          int ic = Numbers::icEE(ism, jx, jy);
-
-          if ( ic != -1 ) {
-            if ( met06_[ism-1] ) {
-              if ( mean22 > 0. ) {
-                met06_[ism-1]->setBinContent( ic, mean22 );
-                met06_[ism-1]->setBinError( ic, rms22 );
-              } else {
-                met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
-              }
-            }
-
-            if ( metav06_[ism-1] ) metav06_[ism-1] ->Fill(mean22);
-            if ( metrms06_[ism-1] ) metrms06_[ism-1]->Fill(rms22);
           }
 
         }
@@ -2194,22 +1598,6 @@ void EELedClient::analyze(void) {
         if ( me_hs02_[ism-1] ) {
           me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
           me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs05_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
-        if ( me_hs05_[ism-1] ) {
-          me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
-          me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
-        }
-      }
-
-      if ( hs06_[ism-1] ) {
-        int ic = UtilsClient::getFirstNonEmptyChannel( hs06_[ism-1] );
-        if ( me_hs06_[ism-1] ) {
-          me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
-          me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
         }
       }
 

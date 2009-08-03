@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/07/26 08:42:32 $
- * $Revision: 1.173 $
+ * $Date: 2009/08/02 15:46:40 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  *
 */
@@ -2045,33 +2045,14 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
                   MonitorElement *mea01 = eelc->mea01_[ism-1];
                   MonitorElement *met01 = eelc->met01_[ism-1];
                   MonitorElement *meaopn01 = eelc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
+                  if( mea01 && met01 && meaopn01 ) {
                     meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
                     meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
                     meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea05 = eelc->mea05_[ism-1];
-                  MonitorElement *met05 = eelc->met05_[ism-1];
-                  MonitorElement *meaopn05 = eelc->meaopn05_[ism-1];
-
-                  if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
-                    meLaserL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
-                    meLaserL1Timing_->Fill( ism, met05->getBinContent( ic ) );
-                    meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
                   }
 
                 }
@@ -2088,33 +2069,14 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
                   MonitorElement *mea02 = eelc->mea02_[ism-1];
                   MonitorElement *met02 = eelc->met02_[ism-1];
                   MonitorElement *meaopn02 = eelc->meaopn02_[ism-1];
 
-                  if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
+                  if( mea02 && met02 && meaopn02 ) {
                     meLaserL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
                     meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
                     meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea06 = eelc->mea06_[ism-1];
-                  MonitorElement *met06 = eelc->met06_[ism-1];
-                  MonitorElement *meaopn06 = eelc->meaopn06_[ism-1];
-
-                  if( mea06 && met06 && meaopn06 && RtHalf == 0 ) {
-                    meLaserL2Ampl_->Fill( ism, mea06->getBinContent( ic ) );
-                    meLaserL2Timing_->Fill( ism, met06->getBinContent( ic ) );
-                    meLaserL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( ic ) );
                   }
 
                 }
@@ -2131,33 +2093,14 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
                   MonitorElement *mea03 = eelc->mea03_[ism-1];
                   MonitorElement *met03 = eelc->met03_[ism-1];
                   MonitorElement *meaopn03 = eelc->meaopn03_[ism-1];
 
-                  if( mea03 && met03 && meaopn03 && RtHalf == 0 ) {
+                  if( mea03 && met03 && meaopn03 ) {
                     meLaserL3Ampl_->Fill( ism, mea03->getBinContent( ic ) );
                     meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
                     meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea07 = eelc->mea07_[ism-1];
-                  MonitorElement *met07 = eelc->met07_[ism-1];
-                  MonitorElement *meaopn07 = eelc->meaopn07_[ism-1];
-
-                  if( mea07 && met07 && meaopn07 && RtHalf == 0 ) {
-                    meLaserL3Ampl_->Fill( ism, mea07->getBinContent( ic ) );
-                    meLaserL3Timing_->Fill( ism, met07->getBinContent( ic ) );
-                    meLaserL3AmplOverPN_->Fill( ism, meaopn07->getBinContent( ic ) );
                   }
 
                 }
@@ -2174,33 +2117,14 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without laser data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
                   MonitorElement *mea04 = eelc->mea04_[ism-1];
                   MonitorElement *met04 = eelc->met04_[ism-1];
                   MonitorElement *meaopn04 = eelc->meaopn04_[ism-1];
 
-                  if( mea04 && met04 && meaopn04 && RtHalf == 0 ) {
+                  if( mea04 && met04 && meaopn04 ) {
                     meLaserL4Ampl_->Fill( ism, mea04->getBinContent( ic ) );
                     meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
                     meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea08 = eelc->mea08_[ism-1];
-                  MonitorElement *met08 = eelc->met08_[ism-1];
-                  MonitorElement *meaopn08 = eelc->meaopn08_[ism-1];
-
-                  if( mea08 && met08 && meaopn08 && RtHalf == 0 ) {
-                    meLaserL4Ampl_->Fill( ism, mea08->getBinContent( ic ) );
-                    meLaserL4Timing_->Fill( ism, met08->getBinContent( ic ) );
-                    meLaserL4AmplOverPN_->Fill( ism, meaopn08->getBinContent( ic ) );
                   }
 
                 }
@@ -2221,33 +2145,14 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without led data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-               
-                  // L1A
                   MonitorElement *mea01 = eeldc->mea01_[ism-1];
                   MonitorElement *met01 = eeldc->met01_[ism-1];
                   MonitorElement *meaopn01 = eeldc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
+                  if( mea01 && met01 && meaopn01 ) {
                     meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
                     meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
                     meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea05 = eeldc->mea05_[ism-1];
-                  MonitorElement *met05 = eeldc->met05_[ism-1];
-                  MonitorElement *meaopn05 = eeldc->meaopn05_[ism-1];
-
-                  if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
-                    meLedL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
-                    meLedL1Timing_->Fill( ism, met05->getBinContent( ic ) );
-                    meLedL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
                   }
  
                 }
@@ -2264,35 +2169,16 @@ void EESummaryClient::analyze(void) {
                 // exclude channels without led data (yellow in the quality map)
                 if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-               
-                  // L1A
                   MonitorElement *mea02 = eeldc->mea02_[ism-1];
                   MonitorElement *met02 = eeldc->met02_[ism-1];
                   MonitorElement *meaopn02 = eeldc->meaopn02_[ism-1];
 
-                  if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
+                  if( mea02 && met02 && meaopn02 ) {
                     meLedL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
                     meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
                     meLedL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
                   }
 
-                  // L1B
-                  MonitorElement *mea06 = eeldc->mea06_[ism-1];
-                  MonitorElement *met06 = eeldc->met06_[ism-1];
-                  MonitorElement *meaopn06 = eeldc->meaopn06_[ism-1];
-
-                  if( mea06 && met06 && meaopn06 && RtHalf == 0 ) {
-                    meLedL2Ampl_->Fill( ism, mea06->getBinContent( ic ) );
-                    meLedL2Timing_->Fill( ism, met06->getBinContent( ic ) );
-                    meLedL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( ic ) );
-                  }
- 
                 }
 
               }

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/07/25 15:38:22 $
- * $Revision: 1.184 $
+ * $Date: 2009/08/02 15:46:37 $
+ * $Revision: 1.185 $
  * \author G. Della Ricca
  *
 */
@@ -1657,29 +1657,14 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) { 
           
-              int RtHalf = 0;
-              if( ie > 5 && ip < 11 ) RtHalf = 1;
-          
-              // L1A (L-shaped)
               MonitorElement *mea01 = eblc->mea01_[ism-1];
               MonitorElement *met01 = eblc->met01_[ism-1];
               MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
             
-              if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
+              if( mea01 && met01 && meaopn01 ) {
                 meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
                 meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
                 meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
-              }
-            
-              // L1B (rectangular)
-              MonitorElement *mea05 = eblc->mea05_[ism-1];
-              MonitorElement *met05 = eblc->met05_[ism-1];
-              MonitorElement *meaopn05 = eblc->meaopn05_[ism-1];
-
-              if ( mea05 && met05 && meaopn05 && RtHalf == 1 ) {
-                meLaserL1Ampl_->Fill( ism, mea05->getBinContent( chan+1 ) );
-                meLaserL1Timing_->Fill( ism, met05->getBinContent( chan+1 ) );
-                meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( chan+1 ) );
               }
             
             }      
@@ -1696,29 +1681,14 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) { 
           
-              int RtHalf = 0;
-              if( ie > 5 && ip < 11 ) RtHalf = 1;
-          
-              // L1A (L-shaped)
               MonitorElement *mea02 = eblc->mea02_[ism-1];
               MonitorElement *met02 = eblc->met02_[ism-1];
               MonitorElement *meaopn02 = eblc->meaopn02_[ism-1];
             
-              if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
+              if( mea02 && met02 && meaopn02 ) {
                 meLaserL2Ampl_->Fill( ism, mea02->getBinContent( chan+1 ) );
                 meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
                 meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( chan+1 ) );
-              }
-            
-              // L1B (rectangular)
-              MonitorElement *mea06 = eblc->mea06_[ism-1];
-              MonitorElement *met06 = eblc->met06_[ism-1];
-              MonitorElement *meaopn06 = eblc->meaopn06_[ism-1];
-
-              if ( mea06 && met06 && meaopn06 && RtHalf == 1 ) {
-                meLaserL2Ampl_->Fill( ism, mea06->getBinContent( chan+1 ) );
-                meLaserL2Timing_->Fill( ism, met06->getBinContent( chan+1 ) );
-                meLaserL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( chan+1 ) );
               }
             
             }      
@@ -1735,29 +1705,14 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) { 
           
-              int RtHalf = 0;
-              if( ie > 5 && ip < 11 ) RtHalf = 1;
-          
-              // L1A (L-shaped)
               MonitorElement *mea03 = eblc->mea03_[ism-1];
               MonitorElement *met03 = eblc->met03_[ism-1];
               MonitorElement *meaopn03 = eblc->meaopn03_[ism-1];
             
-              if( mea03 && met03 && meaopn03 && RtHalf == 0 ) {
+              if( mea03 && met03 && meaopn03 ) {
                 meLaserL3Ampl_->Fill( ism, mea03->getBinContent( chan+1 ) );
                 meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
                 meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( chan+1 ) );
-              }
-            
-              // L1B (rectangular)
-              MonitorElement *mea07 = eblc->mea07_[ism-1];
-              MonitorElement *met07 = eblc->met07_[ism-1];
-              MonitorElement *meaopn07 = eblc->meaopn07_[ism-1];
-
-              if ( mea07 && met07 && meaopn07 && RtHalf == 1 ) {
-                meLaserL3Ampl_->Fill( ism, mea07->getBinContent( chan+1 ) );
-                meLaserL3Timing_->Fill( ism, met07->getBinContent( chan+1 ) );
-                meLaserL3AmplOverPN_->Fill( ism, meaopn07->getBinContent( chan+1 ) );
               }
             
             }      
@@ -1774,29 +1729,14 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) { 
           
-              int RtHalf = 0;
-              if( ie > 5 && ip < 11 ) RtHalf = 1;
-          
-              // L1A (L-shaped)
               MonitorElement *mea04 = eblc->mea04_[ism-1];
               MonitorElement *met04 = eblc->met04_[ism-1];
               MonitorElement *meaopn04 = eblc->meaopn04_[ism-1];
             
-              if( mea04 && met04 && meaopn04 && RtHalf == 0 ) {
+              if( mea04 && met04 && meaopn04 ) {
                 meLaserL4Ampl_->Fill( ism, mea04->getBinContent( chan+1 ) );
                 meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
                 meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( chan+1 ) );
-              }
-            
-              // L1B (rectangular)
-              MonitorElement *mea08 = eblc->mea08_[ism-1];
-              MonitorElement *met08 = eblc->met08_[ism-1];
-              MonitorElement *meaopn08 = eblc->meaopn08_[ism-1];
-
-              if ( mea08 && met08 && meaopn08 && RtHalf == 1 ) {
-                meLaserL4Ampl_->Fill( ism, mea08->getBinContent( chan+1 ) );
-                meLaserL4Timing_->Fill( ism, met08->getBinContent( chan+1 ) );
-                meLaserL4AmplOverPN_->Fill( ism, meaopn08->getBinContent( chan+1 ) );
               }
             
             }      
