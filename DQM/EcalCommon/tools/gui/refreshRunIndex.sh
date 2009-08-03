@@ -9,7 +9,7 @@ N=$1
 
 ulimit -c 0
 
-cd ${HOME}/work/cms/dqm-GUI
+cd ${HOME}/DQM/dqm-GUI
 
 LD_LIBRARY_PATH=
 source sw/cmsset_default.sh
