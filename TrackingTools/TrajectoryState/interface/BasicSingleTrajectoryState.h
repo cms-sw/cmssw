@@ -188,7 +188,7 @@ public:
 
     if (theLocalErrorValid){
       //do it by hand if the free state is not around.
-      bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag()==0;
+      bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
       if (zeroField){
 	AlgebraicSymMatrix55 errors=theLocalError.matrix();
 	double root_of_factor = sqrt(factor);

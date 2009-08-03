@@ -114,8 +114,7 @@ public:
     return theCurvilinearError;
   }
   void rescaleError(double factor) {
-    bool zeroField = parameters().magneticFieldInInverseGeV(position()).mag()==0;
-    //bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag()==0;
+    bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
     if (zeroField) {
       if (theCartesianErrorValid){
 	if (!theCurvilinearErrorValid) createCurvilinearError();
