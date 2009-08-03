@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2009/04/09 15:44:49 $
- * $Revision: 1.32 $
+ * $Date: 2009/07/29 10:30:30 $
+ * $Revision: 1.34 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -418,8 +418,8 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       else if (histoType.find("andTrig") != string::npos) histoLabel += " for triggers";
 
       float min,max;
-      trigGeomUtils->thetaRange(dtCh,min,max);
-      int nbins = static_cast<int>((min - max)/15);
+      int nbins;
+      trigGeomUtils->thetaRange(dtCh,min,max,nbins);
       (digiHistos[dtCh.rawId()])[histoTag] = 
 	dbe->book2D(histoName,histoLabel,16,-40.,40.,nbins,min,max);
       return ;
@@ -427,8 +427,8 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
     if( histoType.find("TrackPosvsAngle") == 0 ){
 
       float min,max;
-      trigGeomUtils->phiRange(dtCh,min,max);
-      int nbins = static_cast<int>((min - max)/15);
+      int nbins;
+      trigGeomUtils->phiRange(dtCh,min,max,nbins);
 
       string histoLabel = "Position vs Angle (phi)";
       if (histoType.find("andTrigHHHL")  != string::npos) histoLabel += " for HH/HL triggers";

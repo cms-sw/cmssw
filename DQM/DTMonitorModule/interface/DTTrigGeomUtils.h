@@ -4,7 +4,7 @@
 /*
  * \file DTTrigGeomUtils.h
  *
- * $Date: 2009/04/09 15:44:50 $
+ * $Date: 2009/07/29 10:30:29 $
  * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
@@ -30,22 +30,22 @@ class DTTrigGeomUtils {
   /// Destructor
   virtual ~DTTrigGeomUtils();
   
-  /// Calculate phi range in local chamber coordinates
-  void phiRange(const DTChamberId& id, float& min, float& max);
+  /// Compute phi range in local chamber coordinates
+  void phiRange(const DTChamberId& id, float& min, float& max, int&nbins, float step=15);
 
-  /// Calculate theta range in local chamber coordinates
-  void thetaRange(const DTChamberId& id, float& min, float& max);
+  /// Compute theta range in local chamber coordinates
+  void thetaRange(const DTChamberId& id, float& min, float& max, int& nbins, float step=15);
 
   /// Compute track coordinates with SC sector numbering
   void computeSCCoordinates(const DTRecSegment4D* track, int& scsec, float& x, float& xdir, float& y, float& ydir);
 
-  /// Return local position (chamber RF) for a given trigger segment
+  /// Return local position (trigger RF) for a given trigger primitive
   float trigPos(const L1MuDTChambPhDigi* trig);
 
-  /// Return local direction (chamber RF) for a given trigger segment
+  /// Return local direction (trigger RF) for a given trigger primitive
   float trigDir(const L1MuDTChambPhDigi* trig);
 
-  /// Propagate Trigger x coordinate to chamber z coordinate
+  /// Compute Trigger x coordinate in chamber RF
   void trigToSeg(int st, float& x, float dir) { x -= tan(dir/radToDeg_)*zcn_[st-1]; };
 
   /// Checks id the chamber has positive RF;

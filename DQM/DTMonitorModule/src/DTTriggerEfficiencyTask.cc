@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2008/06/15 10:20:48 $
- * $Revision: 1.0 $
+ * $Date: 2009/07/29 10:30:30 $
+ * $Revision: 1.1 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -347,8 +347,8 @@ void DTTriggerEfficiencyTask::bookChamberHistos(const DTChamberId& dtCh, string 
     
   if( histoType.find("TrackPosvsAngle") == 0 ){
     float min, max;
-    trigGeomUtils->phiRange(dtCh,min,max);
-    int nbins = int((max- min)/20);
+    int nbins;
+    trigGeomUtils->phiRange(dtCh,min,max,nbins,20);
     string histoLabel = "Position vs Angle (phi)";
     if (histoType.find("Corr")  != string::npos) histoLabel += " for correlated triggers";
     else if (histoType.find("AnyQual") != string::npos) histoLabel += " for any qual triggers";

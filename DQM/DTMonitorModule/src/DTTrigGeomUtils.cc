@@ -1,8 +1,8 @@
 /*
  * \file DTTrigGeomUtils.cc
  * 
- * $Date: 2009/04/09 15:44:49 $
- * $Revision: 1.32 $
+ * $Date: 2009/07/29 10:46:44 $
+ * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -66,44 +66,15 @@ void DTTrigGeomUtils::computeSCCoordinates(const DTRecSegment4D* track, int& scs
   ydir = atan(track->localDirection().y()/ track->localDirection().z())*radToDeg_;
 
 
-  if (station == 4){
-    switch (sector) {
-    case 4:
-      scsec = 4;
-      x = track->localPosition().x()-xCenter_[0];
-      y = track->localPosition().y();
-      break;
-    case 10:
-      scsec = 10;
-      x = track->localPosition().x()-xCenter_[1];
-      y = track->localPosition().y();
-      break;
-    case 13:
-      scsec = 4;
-      x = track->localPosition().x()+xCenter_[0];
-      y = track->localPosition().y();
-      break;
-    case 14:
-      scsec = 10;
-      x = track->localPosition().x()+xCenter_[1];
-      y = track->localPosition().y();
-      break;
-    default:
-      scsec = sector;
-      x = track->localPosition().x();
-      y = track->localPosition().y();
-    }
-  }
-  else {
-    scsec = sector;
-    x = track->localPosition().x();
-    y = track->localPosition().y();
-  }
+  scsec = sector>12 ? sector==13 ? 4 : 10 : sector;
+  float xcenter = (scsec==4||scsec==10) ? (sector-12.9)/abs(sector-12.9)*xCenter_[(sector==10||sector==14)] : 0.;
+  x = track->localPosition().x()+xcenter*(station==4);
+  y = track->localPosition().y();
 
 }
 
 
-void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max){
+void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max, int& nbins, float step){
 
   int station = id.station();
   int sector  = id.sector(); 
@@ -118,19 +89,22 @@ void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max){
     min = -range-10;
     max =  range+10;
   }
+  nbins = static_cast<int>((max-min)/step);
 
   return;
  
 }
 
 
-void DTTrigGeomUtils::thetaRange(const DTChamberId& id, float& min, float& max){
+void DTTrigGeomUtils::thetaRange(const DTChamberId& id, float& min, float& max, int& nbins, float step){
 
   const DTLayer  *layer = muonGeom_->layer(DTLayerId(id,2,1));
   DTTopology topo = layer->specificTopology();
   double range = topo.channels()*topo.cellWidth();
   min = -range*.5;
   max =  range*.5;
+
+  nbins = static_cast<int>((max-min)/step);
 
   return;
  
@@ -149,21 +123,22 @@ float DTTrigGeomUtils::trigPos(const L1MuDTChambPhDigi* trig){
   float phicenter = 0;
   float r = 0;
   float xcenter = 0;
-  if (st<4) {
-    GlobalPoint gpos = muonGeom_->chamber(DTChamberId(wh,st,sec))->position();
-    phicenter =  gpos.phi();
-    r = gpos.perp();
-  } else if (sec==4) {
+
+  if (sec==4 && st==4) {
     GlobalPoint gpos = phi>0 ? muonGeom_->chamber(DTChamberId(wh,st,13))->position() : muonGeom_->chamber(DTChamberId(wh,st,4))->position();
     xcenter = phi>0 ? xCenter_[0] : -xCenter_[0];
     phicenter =  gpos.phi();
     r = gpos.perp();
-  } else if (sec==10) {
+  } else if (sec==10 && st==4) {
     GlobalPoint gpos = phi>0 ? muonGeom_->chamber(DTChamberId(wh,st,14))->position() : muonGeom_->chamber(DTChamberId(wh,st,10))->position();
-    xcenter = phi>0 ? xCenter_[1] : -xCenter_[1];
+    xcenter = phi>0 ? xCenter_[1] : -xCenter_[1];  
     phicenter =  gpos.phi();
     r = gpos.perp();
-  } 
+  } else {
+    GlobalPoint gpos = muonGeom_->chamber(DTChamberId(wh,st,sec))->position();
+    phicenter =  gpos.phi();
+    r = gpos.perp();
+  }  
 
   float deltaphi = phicenter-phin;
   float x = (tan(phi/4096.)-tan(deltaphi))*(r*cos(deltaphi) - zcn_[st-1]); //zcn is in local coordinates -> z invreases approching to vertex
