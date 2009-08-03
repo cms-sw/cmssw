@@ -1,16 +1,18 @@
 #!/bin/sh
 
 TagName=$1
-First=$2
+Password=$2
+RunStart=$3
+RunEnd=$4
 
 PlotDir="CurrentPlots"
 
 rm -rf $PlotDir
 
-if [ $3 ]; then
-SiPixelHDQMInspector $TagName $First $3
+if [ $4 ]; then
+SiPixelHDQMInspector $TagName $Password $RunStart $RunEnd
 else
-SiPixelHDQMInspector $TagName $First
+SiPixelHDQMInspector $TagName $Password $RunStart
 fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir

@@ -2,7 +2,7 @@
 #include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
 #include <string>
 
-void SiPixelHDQMInspector (const std::string & tagName, int const NRuns) {
+void SiPixelHDQMInspector (const std::string & tagName, std::string const& Password, int const NRuns) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -23,7 +23,7 @@ void SiPixelHDQMInspector (const std::string & tagName, int const NRuns) {
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
   //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip", Password,"");
 
 
 
@@ -56,7 +56,7 @@ void SiPixelHDQMInspector (const std::string & tagName, int const NRuns) {
 }
 
 
-void SiPixelHDQMInspector (const std::string &tagName, int const Start, int const End) {
+void SiPixelHDQMInspector (const std::string &tagName, std::string const& Password, int const Start, int const End) {
 /////////////////////////////////////////////////////////////////
 //
 // Extraction of the summary information using 
@@ -77,7 +77,7 @@ void SiPixelHDQMInspector (const std::string &tagName, int const Start, int cons
   //HDQMInspector A(&PixelConfig);
   HDQMInspector A(&PixelConfig);
   //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip","WCYE6II08K530GPK","");
+  A.setDB("oracle://cms_orcoff_prep/CMS_COND_STRIP",tagName,"cms_cond_strip", Password,"");
 
 
   A.setDebug(1);
@@ -111,18 +111,18 @@ void SiPixelHDQMInspector (const std::string &tagName, int const Start, int cons
 
 int main (int argc, char* argv[])
 {
-  if (argc != 3 && argc != 4) {
-    std::cerr << "Usage: " << argv[0] << " [TagName] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [TagName] [FirstRun] [LastRun] " << std::endl;
+  if (argc != 4 && argc != 5) {
+    std::cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << std::endl;
+    std::cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
     return 1;
   }
 
   if (argc == 3) {
-    std::cout << "Creating trends for NRuns = " << argv[2] << " for tag: " << argv[1] << std::endl;
-    SiPixelHDQMInspector( argv[1], atoi(argv[2]) );
+    std::cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << std::endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
   } else if(argc == 4) {
-    std::cout << "Creating trends for range:  " << argv[2] << " " << argv[3] << " for tag: " << argv[1] << std::endl;
-    SiPixelHDQMInspector( argv[1], atoi(argv[2]), atoi(argv[3]) );
+    std::cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << std::endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
   }
 
   return 0;
