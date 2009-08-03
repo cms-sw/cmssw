@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/19 12:20:36 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/07/10 15:17:46 $
+ *  $Revision: 1.23 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -712,7 +712,7 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long since, long long t
   queryFTEMP2->addToTableList( "RPCFEB");
   queryFTEMP2->addToOutputList( "RPCFEB.DPID", "DPID" );
   queryFTEMP2->addToOutputList( "RPCFEB.CHANGE_DATE", "TSTAMP" );
-  queryFTEMP2->addToOutputList( "RPCFEB.TEMPERATURE2", "TEMP1" );
+  queryFTEMP2->addToOutputList( "RPCFEB.TEMPERATURE2", "TEMP2" );
 
   RPCObFebmap::Feb_Item Itemp;
   std::vector<RPCObFebmap::Feb_Item> febarray;
