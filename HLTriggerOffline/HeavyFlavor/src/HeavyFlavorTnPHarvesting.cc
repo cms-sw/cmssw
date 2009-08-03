@@ -31,7 +31,7 @@ using namespace edm;
 
 class HeavyFlavorTnPHarvesting : public edm::EDAnalyzer{
   protected:
-  
+//abstract fitter class with common variables and functions
   class AbstractFitter{
     protected:
       RooRealVar mass;
@@ -87,7 +87,7 @@ class HeavyFlavorTnPHarvesting : public edm::EDAnalyzer{
         return frame; 
       }
   };
-  
+//concrete fitter: Gaussian signal plus linear background
   class GaussianPlusLinearFitter: public AbstractFitter{
     protected:
       RooGaussian gaussian;
@@ -136,7 +136,7 @@ class HeavyFlavorTnPHarvesting : public edm::EDAnalyzer{
           +RooChi2Var("chi2Pass","chi2Pass",pdfPass,dataPass,DataError(RooAbsData::Poisson)).getVal() )/(2*all->GetNbinsX()-8);
       }
   };
-
+//finally the usual stuff
   public:
     HeavyFlavorTnPHarvesting(const edm::ParameterSet& pset);
     virtual ~HeavyFlavorTnPHarvesting();
@@ -169,20 +169,30 @@ void HeavyFlavorTnPHarvesting::endJob(){
     return;
   }
   dqmStore->setCurrentFolder(myDQMrootFolder);
+//turn off default messaging off roofit
   RooMsgService::instance().setSilentMode( !verbose?kTRUE:kFALSE );
   for(int i=0; i<RooMsgService::instance().numStreams(); i++){
     RooMsgService::instance().setStreamStatus( i, verbose?kTRUE:kFALSE );
   }
+//loop over all efficiency tasks
   for(VParameterSet::const_iterator pset = efficiencies.begin(); pset!=efficiencies.end(); pset++){
     calculateEfficiency(*pset);
   }
 }
   
 void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
-  string numName = pset.getUntrackedParameter<string>("NumeratorMEname");
-  string denName = pset.getUntrackedParameter<string>("DenominatorMEname");
-  string effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
-  int massDimension = pset.getUntrackedParameter<int>("MassDimension");
+//get hold of numerator and denominator histograms
+  string allMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
+  string passMEname = myDQMrootFolder+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
+  MonitorElement *allME = dqmStore->get(allMEname);
+  MonitorElement *passME = dqmStore->get(passMEname);
+  if(allME==0 || passME==0){
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<allMEname<<" or "<<passMEname<<endl;
+    return;
+  }
+  TH1 *all = allME->getTH1();
+  TH1 *pass = passME->getTH1();
+//setup the fitter  
   string fitFunction = pset.getUntrackedParameter<string>("FitFunction");
   AbstractFitter *fitter = 0;
   if(fitFunction=="GaussianPlusLinear"){
@@ -197,17 +207,16 @@ void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
     LogError("HLTriggerOfflineHeavyFlavor") << "Fit function: "<<fitFunction<<" does not exist"<<endl;
     return;
   }
-  
-  TH1 *pass = dqmStore->get(myDQMrootFolder+"/"+numName)->getTH1();
-  TH1 *all = dqmStore->get(myDQMrootFolder+"/"+denName)->getTH1();
-  
+//check dimensionality of the histograms  
   int dimensions = all->GetDimension();
   if( dimensions<2 || 3<dimensions ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring Element "<<numName<<" has dimension "<<dimensions<<", different from 2 or 3"<<endl;
+    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring Element "<<allMEname<<" has dimension "<<dimensions<<", different from 2 or 3"<<endl;
     return;
   }
+//determine which axes are parameters and which one is the mass
+  int massDimension = pset.getUntrackedParameter<int>("MassDimension");
   if(massDimension>dimensions){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring Element "<<numName<<" has smaller dimension than "<<massDimension<<endl;
+    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring Element "<<allMEname<<" has smaller dimension than "<<massDimension<<endl;
     return;
   }
   TAxis *par1Axis, *par2Axis, *massAxis;
@@ -241,16 +250,18 @@ void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
       return;
   }
   int par2Cout = dimensions>2 ? par1Axis->GetNbins()+2 : 0;
-  dqmStore->setCurrentFolder(myDQMrootFolder);
+//book the efficiency histogram  
+  string effName = pset.getUntrackedParameter<string>("EfficiencyMEname");
+  string effDir = myDQMrootFolder;
+  string::size_type slashPos = effName.rfind('/');
+  if ( string::npos != slashPos ) {
+    effDir += "/"+effName.substr(0, slashPos);
+    effName.erase(0, slashPos+1);
+  }
+  dqmStore->setCurrentFolder(effDir);
   MonitorElement * eff;
   MonitorElement * effChi2;
   switch(dimensions){
-/*    case 1:
-      TH1F* h1 = new TH1F("dummy","dummy",1,0,1);
-      eff = dqmStore->book1D(effName,h1);
-      effChi2 = dqmStore->book1D(effName+"Chi2",h1);
-      delete h1;
-      break;*/
     case 2:
       TH1F* h2;
       if(!par1Axis) return;
@@ -282,6 +293,7 @@ void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
     default:
       return;
   }
+//create the 1D mass distribution container histograms
   TH1D * all1D;
   if( massAxis->GetXbins()->GetSize()==0 ){
     all1D = new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXmin(),massAxis->GetXmax());
@@ -289,7 +301,7 @@ void HeavyFlavorTnPHarvesting::calculateEfficiency(const ParameterSet& pset){
     all1D = new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXbins()->GetArray()); 
   }
   TH1D * pass1D = (TH1D *)all1D->Clone("pass1D");
-
+//for each parameter bin fit the mass distributions
   for(int par1=1; par1<=par1Axis->GetNbins(); par1++){
     for(int par2=1; par2<=par2Axis->GetNbins(); par2++){
       for(int mass=1; mass<=massAxis->GetNbins(); mass++){
