@@ -199,14 +199,14 @@ namespace cond {
     const int kEndcWedgesX = EEDetId::IX_MAX;
     const int kEndcWedgesY = EEDetId::IY_MAX;
 
-
+    /// there's a cleaner way to plot this map...
     for (int sign=0; sign<kSides; sign++) {
 
        int thesign = sign==1 ? 1:-1;
 
        for (int ieta=0; ieta<kBarlRings; ieta++) {
          for (int iphi=0; iphi<kBarlWedges; iphi++) {
-	   EBDetId id(ieta+1, iphi+1);
+	   EBDetId id((ieta+1)*thesign, iphi+1);
 	   barrelmap.Fill(iphi+1,ieta*thesign + thesign, object()[id.rawId()]);
          }
        }
