@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.15 $ by $Author: flucke $
-#     $Date: 2009/06/24 10:29:47 $
+#     $Revision: 1.16 $ by $Author: parenti $
+#     $Date: 2009/07/15 15:05:09 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -95,8 +95,8 @@ if ($fireMerge == 0) {
 	if (@JOBSTATUS[$i] eq "SETUP") {
 	    if ($nSub < $maxJobs) {
 		# for some reasons LSF wants script with full path
-		print "bsub -J $theJobName -R\"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-		$result = `bsub -J $theJobName -R\"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+		print "bsub -J $theJobName -R \"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+		$result = `bsub -J $theJobName -R \"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
 		print "      $result";
 		chomp $result;
 		$nn = ($result =~ m/Job \<(\d+)\> is submitted/);
@@ -183,8 +183,8 @@ if ($fireMerge == 0) {
           }
         } # end of 'else' from if($forceMerge)
 
-        print "bsub -J almerge -R\"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-        $result = `bsub -J almerge -R\"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+        print "bsub -J almerge -R \"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+        $result = `bsub -J almerge -R \"type==SLC5_64 || type==SLC4_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
         print "     $result";
         chomp $result;
         $nn = ($result =~ m/Job \<(\d+)\> is submitted/);
