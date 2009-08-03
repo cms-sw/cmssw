@@ -191,11 +191,11 @@ public:
       bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
       if (zeroField){
 	AlgebraicSymMatrix55 errors=theLocalError.matrix();
-	double root_of_factor = sqrt(factor);
 	//scale the 0 indexed covariance by the square root of the factor
-	for (uint i=1;i!=5;++i)      errors(i,0)*=root_of_factor;
+	for (uint i=1;i!=5;++i)      errors(i,0)*=factor;
+	double factor_squared=factor*factor;
 	//scale all others by the scaled factor
-	for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor;
+	for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) errors(i,j)*=factor_squared;
 	//term 0,0 is not scaled at all
 	theLocalError = LocalTrajectoryError(errors);
       }
