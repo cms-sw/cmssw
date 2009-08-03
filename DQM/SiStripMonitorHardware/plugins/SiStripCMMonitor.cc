@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.2 2009/07/30 14:16:38 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.3 2009/07/31 12:45:34 amagnan Exp $
 //
 
 #include <sstream>
@@ -56,7 +56,7 @@
 
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
-//#define DoShots
+#define DoShots
 
 #ifdef DoShots
 #include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
