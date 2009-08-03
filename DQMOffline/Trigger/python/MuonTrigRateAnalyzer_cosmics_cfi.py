@@ -118,7 +118,8 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
         "HLT_Mu9",        
         "HLT_DoubleMu3",
         "HLT_DoubleMu0",
-		"HLT_L1DoubleMuOpen"		
+		"HLT_L1DoubleMuOpen",
+		"HLT_L2Mu3",
     ),
 
 
