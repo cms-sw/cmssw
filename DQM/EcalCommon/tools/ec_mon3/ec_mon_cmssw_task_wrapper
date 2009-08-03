@@ -355,10 +355,20 @@ process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2
 #process.ecalBarrelPedestalTask.MGPAGainsPN = [ 1, 16 ]
 #process.ecalBarrelPedestalTask.MGPAGainsPN = [ 16 ]
 
+#process.ecalBarrelTestPulseTask.MGPAGains = [ 1, 6, 12 ]
+#process.ecalBarrelTestPulseTask.MGPAGains = [ 12 ]
+#process.ecalBarrelTestPulseTask.MGPAGainsPN = [ 1, 16 ]
+#process.ecalBarrelTestPulseTask.MGPAGainsPN = [ 16 ]
+
 #process.ecalEndcapPedestalTask.MGPAGains = [ 1, 6, 12 ]
 #process.ecalEndcapPedestalTask.MGPAGains = [ 12 ]
 #process.ecalEndcapPedestalTask.MGPAGainsPN = [ 1, 16 ]
 #process.ecalEndcapPedestalTask.MGPAGainsPN = [ 16 ]
+
+#process.ecalEndcapTestPulseTask.MGPAGains = [ 1, 6, 12 ]
+#process.ecalEndcapTestPulseTask.MGPAGains = [ 12 ]
+#process.ecalEndcapTestPulseTask.MGPAGainsPN = [ 1, 16 ]
+#process.ecalEndcapTestPulseTask.MGPAGainsPN = [ 16 ]
 
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
