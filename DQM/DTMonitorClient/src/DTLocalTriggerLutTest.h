@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/29 11:10:52 $
+ *  $Revision: 1.4 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -46,6 +46,7 @@ protected:
 
   double thresholdPhiMean, thresholdPhibMean;
   double thresholdPhiRMS, thresholdPhibRMS;
+  bool doCorrStudy;
 
 };
 

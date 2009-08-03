@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/09 13:20:05 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/07/29 11:10:52 $
+ *  $Revision: 1.10 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -42,6 +42,8 @@ DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
   thresholdPhiRMS   = ps.getUntrackedParameter<double>("thresholdPhiRMS",.5);
   thresholdPhibMean = ps.getUntrackedParameter<double>("thresholdPhibMean",1.5);
   thresholdPhibRMS  = ps.getUntrackedParameter<double>("thresholdPhibRMS",.8);
+  doCorrStudy       = ps.getUntrackedParameter<bool>("doCorrelationStudy",false);
+
 
 }
 
@@ -73,13 +75,15 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
 	  bookWheelHistos(wh,"PhiResidualMean");  
 	  bookWheelHistos(wh,"PhiResidualRMS");
 	  bookWheelHistos(wh,"PhibResidualMean");  
-	  bookWheelHistos(wh,"PhibResidualRMS");  
-	  bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-	  bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-	  bookWheelHistos(wh,"PhiTkvsTrigCorr");  
-	  bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-	  bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-	  bookWheelHistos(wh,"PhibTkvsTrigCorr");  
+	  bookWheelHistos(wh,"PhibResidualRMS");
+	  if (doCorrStudy) {
+	    bookWheelHistos(wh,"PhiTkvsTrigSlope");  
+	    bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
+	    bookWheelHistos(wh,"PhiTkvsTrigCorr");  
+	    bookWheelHistos(wh,"PhibTkvsTrigSlope");  
+	    bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
+	    bookWheelHistos(wh,"PhibTkvsTrigCorr");
+	  }  
 	}
       }
     }
@@ -119,76 +123,79 @@ void DTLocalTriggerLutTest::runClientDiagnostic() {
 	int stat = chId.station();
 
 
-	// Perform Correlation Plots analysis (DCC + segment Phi)
-	TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
+	if (doCorrStudy) {
+	  // Perform Correlation Plots analysis (DCC + segment Phi)
+	  TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
 	
-	if (TrackPhitkvsPhitrig && TrackPhitkvsPhitrig->GetEntries()>10) {
-	  
-	  // Fill client histos
-	  if( whME[wh].find(fullName("PhiTkvsTrigCorr")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"PhiTkvsTrigSlope");  
-	    bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
-	    bookWheelHistos(wh,"PhiTkvsTrigCorr");  
-	  }
-	  
-	  TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
-	  double phiInt   = 0;
-	  double phiSlope = 0;
-	  double phiCorr  = 0;
-	  try {
-	    PhitkvsPhitrigProf->Fit("pol1","CQO");
-	    TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
-	    if (ffPhi) {
-	      phiInt   = ffPhi->GetParameter(0);
-	      phiSlope = ffPhi->GetParameter(1);
-	      phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
+	  if (TrackPhitkvsPhitrig && TrackPhitkvsPhitrig->GetEntries()>10) {
+	    
+	    // Fill client histos
+	    if( whME[wh].find(fullName("PhiTkvsTrigCorr")) == whME[wh].end() ){
+	      bookWheelHistos(wh,"PhiTkvsTrigSlope");  
+	      bookWheelHistos(wh,"PhiTkvsTrigIntercept");  
+	      bookWheelHistos(wh,"PhiTkvsTrigCorr");  
 	    }
-	  } catch (...) {
-	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhitkvsPhitrig for Wheel " << wh 
-				      <<" Sector " << sect << " Station " << stat;
-	  }
-	  
-	  std::map<std::string,MonitorElement*> &innerME = whME[wh];
-	  fillWhPlot(innerME.find(fullName("PhiTkvsTrigSlope"))->second,sect,stat,phiSlope-1);
-	  fillWhPlot(innerME.find(fullName("PhiTkvsTrigIntercept"))->second,sect,stat,phiInt);
-	  fillWhPlot(innerME.find(fullName("PhiTkvsTrigCorr"))->second,sect,stat,phiCorr,false);
-	  
-	}
-	
-	// Perform Correlation Plots analysis (DCC + segment Phib)
-	TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
-	
-	if (stat != 3 && TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information
-	  
-	  // Fill client histos
-	  if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"PhibTkvsTrigSlope");  
-	    bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
-	    bookWheelHistos(wh,"PhibTkvsTrigCorr");  
-	  }
-	  
-	  TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
-	  double phibInt  = 0;
-	  double phibSlope = 0;
-	  double phibCorr  = 0;
-	  try {
-	    PhibtkvsPhibtrigProf->Fit("pol1","CQO");
-	    TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
-	    if (ffPhib) {
-	      phibInt   = ffPhib->GetParameter(0);
-	      phibSlope = ffPhib->GetParameter(1);
-	      phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
+	    
+	    TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
+	    double phiInt   = 0;
+	    double phiSlope = 0;
+	    double phiCorr  = 0;
+	    try {
+	      PhitkvsPhitrigProf->Fit("pol1","CQO");
+	      TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
+	      if (ffPhi) {
+		phiInt   = ffPhi->GetParameter(0);
+		phiSlope = ffPhi->GetParameter(1);
+		phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
+	      }
+	    } catch (...) {
+	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhitkvsPhitrig for Wheel " << wh 
+					<<" Sector " << sect << " Station " << stat;
 	    }
-	  } catch (...) {
-	    edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibtkvsPhibtrig for Wheel " << wh 
-				      <<" Sector " << sect << " Station " << stat;
+	    
+	    std::map<std::string,MonitorElement*> &innerME = whME[wh];
+	    fillWhPlot(innerME.find(fullName("PhiTkvsTrigSlope"))->second,sect,stat,phiSlope-1);
+	    fillWhPlot(innerME.find(fullName("PhiTkvsTrigIntercept"))->second,sect,stat,phiInt);
+	    fillWhPlot(innerME.find(fullName("PhiTkvsTrigCorr"))->second,sect,stat,phiCorr,false);
+	    
 	  }
+	
+	  // Perform Correlation Plots analysis (DCC + segment Phib)
+	  TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	  
-	  std::map<std::string,MonitorElement*> &innerME = whME[wh];
-	  fillWhPlot(innerME.find(fullName("PhibTkvsTrigSlope"))->second,sect,stat,phibSlope-1);
-	  fillWhPlot(innerME.find(fullName("PhibTkvsTrigIntercept"))->second,sect,stat,phibInt);
-	  fillWhPlot(innerME.find(fullName("PhibTkvsTrigCorr"))->second,sect,stat,phibCorr,false);
+	  if (stat != 3 && TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information
 	  
+	    // Fill client histos
+	    if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
+	      bookWheelHistos(wh,"PhibTkvsTrigSlope");  
+	      bookWheelHistos(wh,"PhibTkvsTrigIntercept");  
+	      bookWheelHistos(wh,"PhibTkvsTrigCorr");  
+	    }
+	    
+	    TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
+	    double phibInt  = 0;
+	    double phibSlope = 0;
+	    double phibCorr  = 0;
+	    try {
+	      PhibtkvsPhibtrigProf->Fit("pol1","CQO");
+	      TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
+	      if (ffPhib) {
+		phibInt   = ffPhib->GetParameter(0);
+		phibSlope = ffPhib->GetParameter(1);
+		phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
+	      }
+	    } catch (...) {
+	      edm::LogError(category()) << "[" << testName << "Test]: Error fitting PhibtkvsPhibtrig for Wheel " << wh 
+					<<" Sector " << sect << " Station " << stat;
+	    }
+	    
+	    std::map<std::string,MonitorElement*> &innerME = whME[wh];
+	    fillWhPlot(innerME.find(fullName("PhibTkvsTrigSlope"))->second,sect,stat,phibSlope-1);
+	    fillWhPlot(innerME.find(fullName("PhibTkvsTrigIntercept"))->second,sect,stat,phibInt);
+	    fillWhPlot(innerME.find(fullName("PhibTkvsTrigCorr"))->second,sect,stat,phibCorr,false);
+	    
+	  }
+
 	}
 	
 	// Make Phi Residual Summary

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/29 11:10:52 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -196,17 +196,14 @@ void DTTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype,
 
   
   uint32_t indexChId = chambId.rawId();
+  float min, max;
+  int nbins;
+  trigGeomUtils->phiRange(chambId,min,max,nbins,20);
   if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
-    float min, max;
-    trigGeomUtils->phiRange(chambId,min,max);
-    int nbins = int((max- min)/20);
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (any qual.) position vs angle (Phi)",12,-30.,30.,nbins,min,max);
     return;
   }
   if (htype.find("TrigEffPosvsAngleCorrPhi") == 0 ){
-    float min, max;
-    trigGeomUtils->phiRange(chambId,min,max);
-    int nbins = int((max- min)/20);
     chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (correlated) pos vs angle (Phi)",12,-30.,30.,nbins,min,max);
     return;
   }
