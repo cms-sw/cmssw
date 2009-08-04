@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.37 2009/08/04 15:41:22 nc302 Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.38 2009/08/04 23:37:19 bbetchar Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -358,7 +358,7 @@ void OldSiStripDigiToRaw::createFedBuffers( edm::Event& event,
       
       //@@ OVERWRITE HEADER AND TRAILER FOR DAQ
       FEDHeader header( fedrawdata.data() );
-      header.set( fedrawdata.data(), 0, ( 0xFFFFFF && event.id().event() ), 0, *ifed ); //@@ LIMIT LV1 TO 24-BITS!!!
+      header.set( fedrawdata.data(), 0, ( 0xFFFFFF & event.id().event() ), 0, *ifed ); //@@ LIMIT LV1 TO 24-BITS!!!
       
       FEDTrailer trailer( fedrawdata.data() + ( fedrawdata.size() - 8 )  );
       trailer.set( fedrawdata.data() + ( fedrawdata.size() - 8 ), 
