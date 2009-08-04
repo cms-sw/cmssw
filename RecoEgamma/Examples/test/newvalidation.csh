@@ -58,9 +58,11 @@ if ( ${VAL_REF_FILE} == "" ) then
 endif
  
 if ( ${VAL_WEB_SUB_DIR} == "" ) then
-  if ( "${DBS_LIKE}" =~ *IDEAL* ) then
+  if ( "${DBS_COND}" =~ *MC* ) then
+    setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Mc
+  else if ( "${DBS_COND}" =~ *IDEAL* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
-  else if ( "${DBS_LIKE}" =~ *STARTUP* ) then
+  else if ( "${DBS_COND}" =~ *STARTUP* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
@@ -88,8 +90,7 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $cwd
-#cd /afs/cern.ch/cms/Physics/egamma/www/validation
-cd /home/llr/cms/charlot/cmssw/CMSSW_3_1_1/src/RecoEgamma/Examples/test/validation
+cd $VAL_WEB
 
 if (! -d $VAL_NEW_RELEASE) then
   mkdir $VAL_NEW_RELEASE
