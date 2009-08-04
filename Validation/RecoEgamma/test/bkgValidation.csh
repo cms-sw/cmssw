@@ -45,8 +45,8 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 
 if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120Updated.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120Updated.root
 
 
 endif
@@ -104,21 +104,52 @@ cat > scaledhistosForBkg <<EOF
   scBkgEtAll
   phoBkgEta
   phoBkgPhi
-  r9BkgAll
   r9BkgBarrel
   r9BkgEndcap
-  hOverEBkgAll
+  r1BkgBarrel
+  r1BkgEndcap
+  r2BkgBarrel
+  r2BkgEndcap
+  sigmaIetaIetaBkgBarrel
+  sigmaIetaIetaBkgEndcap
   hOverEBkgBarrel
   hOverEBkgEndcap
   ecalRecHitSumEtConeDR04BkgBarrel
   ecalRecHitSumEtConeDR04BkgEndcap
+  hcalTowerSumEtConeDR04BkgBarrel
+  hcalTowerSumEtConeDR04BkgEndcap
+  isoTrkSolidConeDR04BkgBarrel
+  isoTrkSolidConeDR04BkgEndcap
+  nTrkSolidConeDR04BkgBarrel
+  nTrkSolidConeDR04BkgEndcap
+  
 
 EOF
 
 cat > unscaledhistosForBkg <<EOF
+
+  pR1VsEtaBkgAll
+  pR2VsEtaBkgAll
+  pR1VsEtBkgAll
+  pR2VsEtBkgAll
+  pSigmaIetaIetaVsEtaBkgAll
+  pSigmaIetaIetaVsEtBkgAll
+  pHOverEVsEtaBkgAll
+  pHOverEVsEtBkgAll
   pEcalRecHitSumEtConeDR04VsEtBkgBarrel
   pEcalRecHitSumEtConeDR04VsEtBkgEndcap
   pEcalRecHitSumEtConeDR04VsEtaBkgAll
+  pHcalTowerSumEtConeDR04VsEtBkgBarrel
+  pHcalTowerSumEtConeDR04VsEtBkgEndcap
+  pHcalTowerSumEtConeDR04VsEtaBkgAll
+  pIsoTrkSolidConeDR04VsEtBkgBarrel
+  pIsoTrkSolidConeDR04VsEtBkgEndcap
+  pIsoTrkSolidConeDR04VsEtaBkgAll
+  pnTrkSolidConeDR04VsEtBkgBarrel
+  pnTrkSolidConeDR04VsEtBkgEndcap
+  p_nTrkSolidConeDR04VsEtaBkgAll
+ 
+
 
 EOF
 
@@ -236,16 +267,21 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
 $i->SetStats(0);
-if ( $i==pEcalRecHitSumEtConeDR04VsEtaBkgAll ) {  
+if ( $i==pEcalRecHitSumEtConeDR04VsEtaBkgAll ||  $i==pHcalTowerSumEtConeDR04VsEtaBkgAll  ) {  
 $i->GetYaxis()->SetRangeUser(0.,25.);
-} else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgBarrel ) 
-{ $i->GetYaxis()->SetRangeUser(0.,30.); 
-} else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgEndcap  ) 
-{
-$i->GetYaxis()->SetRangeUser(0.,30.);
+} else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgBarrel || $i==pHcalTowerSumEtConeDR04VsEtBkgBarrel ) 
+{ $i->GetYaxis()->SetRangeUser(0.,30.);
+} else if (  $i==p_nTrkSolidConeDR04VsEtaBkgAll || $i==pnTrkSolidConeDR04VsEtBkgBarrel ||   $i==pnTrkSolidConeDR04VsEtBkgEndcap ) 
+{ $i->GetYaxis()->SetRangeUser(0.,20.);
+} else if (   $i==pIsoTrkSolidConeDR04VsEtaBkgAll ||  $i==pIsoTrkSolidConeDR04VsEtBkgBarrel || $i==pIsoTrkSolidConeDR04VsEtBkgEndcap)
+{ $i->GetYaxis()->SetRangeUser(0.,100.);
+} else if ( $i==pEcalRecHitSumEtConeDR04VsEtBkgEndcap || $i==pHcalTowerSumEtConeDR04VsEtBkgEndcap ) 
+{$i->GetYaxis()->SetRangeUser(0.,30.);
+} else if ( $i==pSigmaIetaIetaVsEtaBkgAll || $i==pSigmaIetaIetaVsEtBkgAll ||  $i==pHOverEVsEtaBkgAll ||  $i==pHOverEVsEtBkgAll ) 
+{ $i->GetYaxis()->SetRangeUser(0.,0.1);
 } else  {
-$i->SetMinimum(0.8);
-$i->SetMaximum(1.1);
+$i->SetMinimum(0.);
+$i->SetMaximum(1.);
 }
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
