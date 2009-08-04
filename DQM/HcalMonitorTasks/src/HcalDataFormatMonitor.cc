@@ -793,8 +793,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   } // then check against it.
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) {
     meCDFErrorFound_->Fill(dccid,5);
-    // On probation until safe against Orbit Gap Calibration Triggers...
-    // CDFProbThisDCC = true; 
+    CDFProbThisDCC = true; 
   }
   /* 6 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
   if (dccHeader->BOEshouldBeZeroAlways() !=0) {
