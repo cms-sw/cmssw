@@ -387,18 +387,17 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 //    meDCCVersion_ ->setAxisTitle("FED ID", 1);
 
     type = "Common Data Format violations";
-    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
+    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
     meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
     meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
     meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
-    meCDFErrorFound_->setBinLabel(3, "EvTypChange", 2);
-    meCDFErrorFound_->setBinLabel(4, "BOE not '0x5'", 2);
-    meCDFErrorFound_->setBinLabel(5, "Hdr2Bit Set", 2);
-    meCDFErrorFound_->setBinLabel(6, "Hdr1 36-59", 2);
-    meCDFErrorFound_->setBinLabel(7, "BOE not 0", 2);
-    meCDFErrorFound_->setBinLabel(8, "Trlr1Bit Set", 2);
-    meCDFErrorFound_->setBinLabel(9, "Size Error", 2);
-    meCDFErrorFound_->setBinLabel(10, "TrailerBad", 2);
+    meCDFErrorFound_->setBinLabel(3, "BOE not '0x5'", 2);
+    meCDFErrorFound_->setBinLabel(4, "Hdr2Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(5, "Hdr1 36-55", 2);
+    meCDFErrorFound_->setBinLabel(6, "BOE not 0", 2);
+    meCDFErrorFound_->setBinLabel(7, "Trlr1Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(8, "Size Error", 2);
+    meCDFErrorFound_->setBinLabel(9, "TrailerBad", 2);
 
     type = "DCC Event Format violation";
     meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,4,0.5,4.5);
@@ -775,60 +774,48 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meCDFErrorFound_->Fill(dccid,2);
     CDFProbThisDCC = true; 
   }
-  /* 3 */ //Make sure a reference CDF EventType value has been recorded for this dccid
-  CDFEvT_it = CDFEventType_list.find(dccid);
-  if (CDFEvT_it  == CDFEventType_list.end()) {
-    CDFEventType_list.insert(pair<int,short>
-			     (dccid,dccHeader->getCDFEventType() ) );
-    CDFEvT_it = CDFEventType_list.find(dccid);
-  } // then check against it.
-  if (dccHeader->getCDFEventType()!= CDFEvT_it->second) {
-    meCDFErrorFound_->Fill(dccid,3);
-    // OK to change for Orbit Gap Calibration Triggers... 
-    // CDFProbThisDCC = true; 
-  }
-  /* 4 */ //There should always be a '5' in CDF Header word 0, bits [63:60]
+  /* 3 */ //There should always be a '5' in CDF Header word 0, bits [63:60]
   if (dccHeader->BOEshouldBe5Always()!=5) {
+    meCDFErrorFound_->Fill(dccid, 3);
+    CDFProbThisDCC = true; 
+  }
+  /* 4 */ //There should never be a third CDF Header word indicated.
+  if (dccHeader->thereIsAThirdCDFHeaderWord()) {
     meCDFErrorFound_->Fill(dccid, 4);
     CDFProbThisDCC = true; 
   }
-  /* 5 */ //There should never be a third CDF Header word indicated.
-  if (dccHeader->thereIsAThirdCDFHeaderWord()) {
-    meCDFErrorFound_->Fill(dccid, 5);
-    CDFProbThisDCC = true; 
-  }
-  /* 6 */ //Make sure a reference value of Reserved Bits has been recorded for this dccid
+  /* 5 */ //Make sure a reference value of Reserved Bits has been recorded for this dccid
   CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   if (CDFReservedBits_it  == CDFReservedBits_list.end()) {
     CDFReservedBits_list.insert(pair<int,short>
- 				(dccid,dccHeader->getSlink64ReservedBits() & 0x00FFFF ) );
+ 				(dccid,dccHeader->getSlink64ReservedBits() & 0x0000FFFF ) );
     CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   } // then check against it.
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) {
-    meCDFErrorFound_->Fill(dccid,6);
+    meCDFErrorFound_->Fill(dccid,5);
     // On probation until safe against Orbit Gap Calibration Triggers...
     // CDFProbThisDCC = true; 
   }
-  /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
+  /* 6 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
   if (dccHeader->BOEshouldBeZeroAlways() !=0) {
+    meCDFErrorFound_->Fill(dccid, 6);
+    CDFProbThisDCC = true; 
+  }
+  /* 7 */ //There should only be one trailer
+  if (trailer.moreTrailers()) {
     meCDFErrorFound_->Fill(dccid, 7);
     CDFProbThisDCC = true; 
   }
-  /* 8 */ //There should only be one trailer
-  if (trailer.moreTrailers()) {
-    meCDFErrorFound_->Fill(dccid, 8);
-    CDFProbThisDCC = true; 
-  }
   //  if trailer.
-  /* 9 */ //CDF Trailer [55:30] should be the # 64-bit words in the EvFragment
+  /* 8 */ //CDF Trailer [55:30] should be the # 64-bit words in the EvFragment
   if ((uint64_t) raw.size() != ( (uint64_t) trailer.lenght()*sizeof(uint64_t)) )  //The function name is a typo! Awesome.
     {
-      meCDFErrorFound_->Fill(dccid, 9);
+      meCDFErrorFound_->Fill(dccid, 8);
       CDFProbThisDCC = true; 
     }
-  /*10 */ //There is a rudimentary sanity check built into the FEDTrailer class
+  /* 9 */ //There is a rudimentary sanity check built into the FEDTrailer class
   if (!trailer.check()) {
-    meCDFErrorFound_->Fill(dccid, 10);
+    meCDFErrorFound_->Fill(dccid, 9);
     CDFProbThisDCC = true; 
   }
   if (CDFProbThisDCC) {
