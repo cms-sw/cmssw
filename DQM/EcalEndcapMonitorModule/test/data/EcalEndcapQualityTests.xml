@@ -302,7 +302,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal EE* G01 L1">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EELT PNs pedestal EE* G01 L1">
         <TestName activate="true">EE_Laser_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -319,7 +319,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal EE* G16 L1">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EELT PNs pedestal EE* G16 L1">
         <TestName activate="true">EE_Laser_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -336,7 +336,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude EE* G01 L1">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EELT PNs amplitude EE* G01 L1">
         <TestName activate="true">EE_Laser_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -353,7 +353,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude EE* G16 L1">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EELT PNs amplitude EE* G16 L1">
         <TestName activate="true">EE_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -387,7 +387,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal EE* G01 L2">
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EELT PNs pedestal EE* G01 L2">
         <TestName activate="true">EE_Laser_L2_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -404,7 +404,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal EE* G16 L2">
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EELT PNs pedestal EE* G16 L2">
         <TestName activate="true">EE_Laser_L2_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -421,7 +421,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude EE* G01 L2">
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EELT PNs amplitude EE* G01 L2">
         <TestName activate="true">EE_Laser_L2_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -438,7 +438,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude EE* G16 L2">
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EELT PNs amplitude EE* G16 L2">
         <TestName activate="true">EE_Laser_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -472,7 +472,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal EE* G01 L3">
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EELT PNs pedestal EE* G01 L3">
         <TestName activate="true">EE_Laser_L3_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -489,7 +489,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal EE* G16 L3">
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EELT PNs pedestal EE* G16 L3">
         <TestName activate="true">EE_Laser_L3_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -506,7 +506,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude EE* G01 L3">
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EELT PNs amplitude EE* G01 L3">
         <TestName activate="true">EE_Laser_L3_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -523,7 +523,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude EE* G16 L3">
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EELT PNs amplitude EE* G16 L3">
         <TestName activate="true">EE_Laser_L3_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -557,7 +557,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal EE* G01 L4">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EELT PNs pedestal EE* G01 L4">
         <TestName activate="true">EE_Laser_L4_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -574,7 +574,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal EE* G16 L4">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EELT PNs pedestal EE* G16 L4">
         <TestName activate="true">EE_Laser_L4_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -591,7 +591,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude EE* G01 L4">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EELT PNs amplitude EE* G01 L4">
         <TestName activate="true">EE_Laser_L4_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -608,7 +608,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude EE* G16 L4">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EELT PNs amplitude EE* G16 L4">
         <TestName activate="true">EE_Laser_L4_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -642,7 +642,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal EE* G01 L1">
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EELDT PNs pedestal EE* G01 L1">
         <TestName activate="true">EE_Led_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -659,7 +659,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal EE* G16 L1">
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EELDT PNs pedestal EE* G16 L1">
         <TestName activate="true">EE_Led_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -676,7 +676,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude EE* G01 L1">
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EELDT PNs amplitude EE* G01 L1">
         <TestName activate="true">EE_Led_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -693,7 +693,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude EE* G16 L1">
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EELDT PNs amplitude EE* G16 L1">
         <TestName activate="true">EE_Led_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -727,7 +727,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal EE* G01 L2">
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EELDT PNs pedestal EE* G01 L2">
         <TestName activate="true">EE_Led_L2_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -744,7 +744,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal EE* G16 L2">
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EELDT PNs pedestal EE* G16 L2">
         <TestName activate="true">EE_Led_L2_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -761,7 +761,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude EE* G01 L2">
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EELDT PNs amplitude EE* G01 L2">
         <TestName activate="true">EE_Led_L2_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -778,7 +778,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude EE* G16 L2">
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EELDT PNs amplitude EE* G16 L2">
         <TestName activate="true">EE_Led_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -846,7 +846,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs pedestal EE* G01">
+<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EETPT PNs pedestal EE* G01">
         <TestName activate="true">EE_TestPulse_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -863,7 +863,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs pedestal EE* G16">
+<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EETPT PNs pedestal EE* G16">
         <TestName activate="true">EE_TestPulse_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -880,7 +880,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude EE* G01">
+<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EETPT PNs amplitude EE* G01">
         <TestName activate="true">EE_TestPulse_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -897,7 +897,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs amplitude EE* G16">
+<LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EETPT PNs amplitude EE* G16">
         <TestName activate="true">EE_TestPulse_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 

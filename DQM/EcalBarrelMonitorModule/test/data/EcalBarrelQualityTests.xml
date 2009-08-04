@@ -302,7 +302,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal EB* G01 L1">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBLT PNs pedestal EB* G01 L1">
         <TestName activate="true">EB_Laser_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -319,7 +319,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal EB* G16 L1">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBLT PNs pedestal EB* G16 L1">
         <TestName activate="true">EB_Laser_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -336,7 +336,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude EB* G01 L1">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBLT PNs amplitude EB* G01 L1">
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -353,7 +353,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude EB* G16 L1">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBLT PNs amplitude EB* G16 L1">
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -387,7 +387,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal EB* G01 L2">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBLT PNs pedestal EB* G01 L2">
         <TestName activate="true">EB_Laser_L2_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -404,7 +404,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal EB* G16 L2">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBLT PNs pedestal EB* G16 L2">
         <TestName activate="true">EB_Laser_L2_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -421,7 +421,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude EB* G01 L2">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBLT PNs amplitude EB* G01 L2">
         <TestName activate="true">EB_Laser_L2_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -438,7 +438,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude EB* G16 L2">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBLT PNs amplitude EB* G16 L2">
         <TestName activate="true">EB_Laser_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -472,7 +472,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal EB* G01 L3">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBLT PNs pedestal EB* G01 L3">
         <TestName activate="true">EB_Laser_L3_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -489,7 +489,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal EB* G16 L3">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBLT PNs pedestal EB* G16 L3">
         <TestName activate="true">EB_Laser_L3_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -506,7 +506,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude EB* G01 L3">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBLT PNs amplitude EB* G01 L3">
         <TestName activate="true">EB_Laser_L3_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -523,7 +523,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude EB* G16 L3">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBLT PNs amplitude EB* G16 L3">
         <TestName activate="true">EB_Laser_L3_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -557,7 +557,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal EB* G01 L4">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBLT PNs pedestal EB* G01 L4">
         <TestName activate="true">EB_Laser_L4_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -574,7 +574,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal EB* G16 L4">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBLT PNs pedestal EB* G16 L4">
         <TestName activate="true">EB_Laser_L4_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -591,7 +591,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude EB* G01 L4">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBLT PNs amplitude EB* G01 L4">
         <TestName activate="true">EB_Laser_L4_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -608,7 +608,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude EB* G16 L4">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBLT PNs amplitude EB* G16 L4">
         <TestName activate="true">EB_Laser_L4_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -676,7 +676,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal EB* G01">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBTPT PNs pedestal EB* G01">
         <TestName activate="true">EB_TestPulse_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -693,7 +693,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal EB* G16">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBTPT PNs pedestal EB* G16">
         <TestName activate="true">EB_TestPulse_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -710,7 +710,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude EB* G01">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBTPT PNs amplitude EB* G01">
         <TestName activate="true">EB_TestPulse_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -727,7 +727,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude EB* G16">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBTPT PNs amplitude EB* G16">
         <TestName activate="true">EB_TestPulse_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
