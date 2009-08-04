@@ -7,27 +7,27 @@
 #include <RooVoigtian.h>
 #include <RooAddPdf.h>
 
-ZLineShape::ZLineShape ():rooZMean_(NULL),
-			  rooZWidth_(NULL),
-			  rooZSigma_(NULL),
-			  rooZWidthL_(NULL),
-			  rooZWidthR_(NULL),
-			  rooZBifurGaussFrac_(NULL),
-			  rooZVoigtPdf_(NULL),
-			  rooZBifurGaussPdf_(NULL),
-			  ZPDF_(NULL){}
+ZLineShape::ZLineShape ():rooZMean_(0),
+			  rooZWidth_(0),
+			  rooZSigma_(0),
+			  rooZWidthL_(0),
+			  rooZWidthR_(0),
+			  rooZBifurGaussFrac_(0),
+			  rooZVoigtPdf_(0),
+			  rooZBifurGaussPdf_(0),
+			  ZPDF_(0){}
 
 ZLineShape::ZLineShape (const edm::ParameterSet& ZLinePSet, 
 			RooRealVar *massBins):
-  rooZMean_(NULL),
-  rooZWidth_(NULL),
-  rooZSigma_(NULL),
-  rooZWidthL_(NULL),
-  rooZWidthR_(NULL),
-  rooZBifurGaussFrac_(NULL),
-  rooZVoigtPdf_(NULL),
-  rooZBifurGaussPdf_(NULL),
-  ZPDF_(NULL){
+  rooZMean_(0),
+  rooZWidth_(0),
+  rooZSigma_(0),
+  rooZWidthL_(0),
+  rooZWidthR_(0),
+  rooZBifurGaussFrac_(0),
+  rooZVoigtPdf_(0),
+  rooZBifurGaussPdf_(0),
+  ZPDF_(0){
   
   Configure(ZLinePSet, massBins);
 }
@@ -39,39 +39,39 @@ ZLineShape::~ZLineShape () {
 void ZLineShape::CleanUp(){
   if (rooZMean_) {
     delete rooZMean_;
-    rooZMean_ = NULL;
+    rooZMean_ = 0;
   }
   if (rooZWidth_) {
     delete rooZWidth_;
-    rooZWidth_ = NULL;
+    rooZWidth_ = 0;
   }
   if (rooZSigma_) {
     delete rooZSigma_;
-    rooZSigma_ = NULL;
+    rooZSigma_ = 0;
   }
   if (rooZWidthL_) {
     delete rooZWidthL_;
-    rooZWidthL_ = NULL;
+    rooZWidthL_ = 0;
   }
   if (rooZWidthR_) {
     delete rooZWidthR_;
-    rooZWidthR_ = NULL;
+    rooZWidthR_ = 0;
   }
   if (rooZBifurGaussFrac_) {
     delete rooZBifurGaussFrac_;
-    rooZBifurGaussFrac_ = NULL;
+    rooZBifurGaussFrac_ = 0;
   }
   if (rooZBifurGaussPdf_) {
     delete rooZBifurGaussPdf_;
-    rooZBifurGaussPdf_ = NULL;
+    rooZBifurGaussPdf_ = 0;
   }
   if (rooZVoigtPdf_) {
     delete rooZVoigtPdf_;
-    rooZVoigtPdf_ = NULL;
+    rooZVoigtPdf_ = 0;
   }
   if (ZPDF_) {
     delete ZPDF_;
-    ZPDF_ = NULL;
+    ZPDF_ = 0;
   } 
 }
 
@@ -155,11 +155,9 @@ void ZLineShape::Configure (const edm::ParameterSet& ZLinePSet,
    rooZBifurGaussPdf_ = new RooBifurGauss("zBifurGaussPdf", "zBifurGaussPdf", 
 					  *rooMass, *rooZMean_, *rooZWidthL_, *rooZWidthR_);
    
-   // Bifurcated Gaussian fraction
-   
+   // Bifurcated Gaussian fraction   
    ZPDF_ = new RooAddPdf("signalShapePdf", "signalShapePdf",
 			 *rooZVoigtPdf_,*rooZBifurGaussPdf_,*rooZBifurGaussFrac_);      
-
 }
 
 void  ZLineShape::CreatePDF (RooAddPdf *&ZPDF){

@@ -7,23 +7,23 @@
 #include <RooAddPdf.h>
 
 CMSBkgLineShape::CMSBkgLineShape():
-  rooCMSBkgAlpha_(NULL),
-  rooCMSBkgBeta_(NULL),
-  rooCMSBkgPeak_(NULL),
-  rooCMSBkgGamma_(NULL),
-  rooCMSBkgDummyFrac_(NULL),
-  rooCMSBkgPdf_(NULL),
-  CMSBkgPDF_(NULL){}
+  rooCMSBkgAlpha_(0),
+  rooCMSBkgBeta_(0),
+  rooCMSBkgPeak_(0),
+  rooCMSBkgGamma_(0),
+  rooCMSBkgDummyFrac_(0),
+  rooCMSBkgPdf_(0),
+  CMSBkgPDF_(0){}
 
 CMSBkgLineShape::CMSBkgLineShape(const edm::ParameterSet  &pSet, 
 				 RooRealVar *massBins):
-  rooCMSBkgAlpha_(NULL),
-  rooCMSBkgBeta_(NULL),
-  rooCMSBkgPeak_(NULL),
-  rooCMSBkgGamma_(NULL),
-  rooCMSBkgDummyFrac_(NULL),
-  rooCMSBkgPdf_(NULL),
-  CMSBkgPDF_(NULL){
+  rooCMSBkgAlpha_(0),
+  rooCMSBkgBeta_(0),
+  rooCMSBkgPeak_(0),
+  rooCMSBkgGamma_(0),
+  rooCMSBkgDummyFrac_(0),
+  rooCMSBkgPdf_(0),
+  CMSBkgPDF_(0){
   
   Configure(pSet, massBins);
 }
@@ -36,31 +36,31 @@ void CMSBkgLineShape::CleanUp() {
 
   if (rooCMSBkgAlpha_) {
     delete rooCMSBkgAlpha_;
-    rooCMSBkgAlpha_ = NULL;
+    rooCMSBkgAlpha_ = 0;
   }
   if (rooCMSBkgBeta_) {
     delete rooCMSBkgBeta_;
-    rooCMSBkgBeta_ = NULL;
+    rooCMSBkgBeta_ = 0;
   }
   if (rooCMSBkgPeak_) {
     delete rooCMSBkgPeak_;
-    rooCMSBkgPeak_ = NULL;
+    rooCMSBkgPeak_ = 0;
   }
   if (rooCMSBkgGamma_) {
     delete rooCMSBkgGamma_;
-    rooCMSBkgGamma_ = NULL;
+    rooCMSBkgGamma_ = 0;
   }
   if (rooCMSBkgDummyFrac_) {
     delete rooCMSBkgDummyFrac_;
-    rooCMSBkgDummyFrac_ = NULL;
+    rooCMSBkgDummyFrac_ = 0;
   }
   if (rooCMSBkgPdf_) {
     delete rooCMSBkgPdf_;
-    rooCMSBkgPdf_ = NULL;
+    rooCMSBkgPdf_ = 0;
   }
   if (CMSBkgPDF_) {
     delete CMSBkgPDF_;
-    CMSBkgPDF_ = NULL;
+    CMSBkgPDF_ = 0;
   }
 }
 

@@ -73,13 +73,13 @@
 #include <vector>
 #include <string>
 
-TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig): 
-  effBinsFromTxt_(NULL),SBS_(NULL),
-  zLineShape_(NULL), cbLineShape_(NULL), gaussLineShape_(NULL),
-  polyBkgLineShape_(NULL),cmsBkgLineShape_(NULL), signalShapePdf_(NULL),
-  var1Pass_(NULL), var1All_(NULL),
-  var2Pass_(NULL), var2All_(NULL),
-  var1var2Pass_(NULL), var1var2All_(NULL) {
+TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig): 
+  effBinsFromTxt_(0),SBS_(0),
+  zLineShape_(0), cbLineShape_(0), gaussLineShape_(0),
+  polyBkgLineShape_(0),cmsBkgLineShape_(0), signalShapePdf_(0),
+  var1Pass_(0), var1All_(0),
+  var2Pass_(0), var2All_(0),
+  var1var2Pass_(0), var1var2All_(0) {
 
   // Efficiency input variables
   tagProbeType_   = iConfig.getUntrackedParameter< int >("TagProbeType",0);
@@ -97,7 +97,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):
   // This gives the option to use bins from a file. 
   doTextDefinedBins_ = iConfig.getUntrackedParameter< bool >("DoBinsFromTxt",false);
   if (doTextDefinedBins_) {
-    textBinsFile_ = iConfig.getUntrackedParameter< std::string >("EffBinsFile","EffBinsFile.txt");
+    textBinsFile_ = iConfig.getUntrackedParameter< std::string >("EffBinsFile",
+								 "EffBinsFile.txt");
     effBinsFromTxt_ = new EffTableLoader(textBinsFile_);
     var1Bins_.clear();
     unsigned int nBins = effBinsFromTxt_->size();
@@ -111,30 +112,8 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):
   useRecoVarsForTruthMatchedCands_ = 
     iConfig.getUntrackedParameter< bool >("useRecoVarsForTruthMatchedCands",true);
   
-  // Check that the names of the variables are okay ...
-  if (!(var1Name_ == "pt" || var1Name_ == "p"   || var1Name_ == "px" ||
-	var1Name_ == "py" || var1Name_ == "pz"  || var1Name_ == "e"  ||
-	var1Name_ == "et" || var1Name_ == "eta" || var1Name_ == "phi" || 
-	var1Name_ == "ptDet" || var1Name_ == "pDet"   || var1Name_ == "pxDet" ||
-	var1Name_ == "pyDet" || var1Name_ == "pzDet"  || var1Name_ == "eDet"  ||
-	var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
-	var1Name_ == "jetDeltaR" || var1Name_ == "totJets")) {
-    edm::LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
-    var1Name_ = "pt";
-  }
+  CheckEfficiencyVariables ();
   
-  if (!(var2Name_ == "pt" || var2Name_ == "p"   || var2Name_ == "px" ||
-	var2Name_ == "py" || var2Name_ == "pz"  || var2Name_ == "e"  ||
-	var2Name_ == "et" || var2Name_ == "eta" || var2Name_ == "phi" ||
-	var2Name_ == "ptDet" || var2Name_ == "pDet"   || var2Name_ == "pxDet" ||
-	var2Name_ == "pyDet" || var2Name_ == "pzDet"  || var2Name_ == "eDet"  ||
-	var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
-	var2Name_ == "jetDeltaR" || var2Name_ == "totJets")) {
-    edm::LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
-    var2Name_ = "eta";
-  }
-  
-  // Make the uppercase names ...
   var1NameUp_ = var1Name_;
   std::toupper(var1NameUp_.at(0));
   
@@ -163,14 +142,20 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):
   const edm::ParameterSet dummyPSet;
   edm::ParameterSet quantityPSet
     = iConfig.getUntrackedParameter< edm::ParameterSet >("Quantities", dummyPSet);
-  ConfigureQuantityHistograms(quantityPSet);
-  
+  if ( !quantityPSet.empty() ){
+    ConfigureQuantityHistograms(quantityPSet);
+  }
+
   // Fitter variables
   massNbins_      = iConfig.getUntrackedParameter< int >("NumBinsMass");
   massLow_        = iConfig.getUntrackedParameter< double >("MassLow");
   massHigh_       = iConfig.getUntrackedParameter< double >("MassHigh");
   
-  rooMass_ = new RooRealVar("Mass","Invariant Di-Lepton Mass", massLow_, massHigh_, "GeV/c^{2}");
+  rooMass_ = new RooRealVar("Mass",
+			    "Invariant Di-Lepton Mass", 
+			    massLow_, 
+			    massHigh_, 
+			    "GeV/c^{2}");
   rooMass_->setBins(massNbins_);
   
   edm::ParameterSet ZLineShapePSet
@@ -220,19 +205,49 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis(const edm::ParameterSet& iConfig):
 
   std::vector< double > dBins;
   var1Name_  = iConfig.getUntrackedParameter< std::string >("NameVar1","pt");
-  var1Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar1");
-  var1Low_   = iConfig.getUntrackedParameter< double >("Var1Low");
-  var1High_  = iConfig.getUntrackedParameter< double >("Var1High");
   var1Bins_  = iConfig.getUntrackedParameter< std::vector<double> >("Var1BinBoundaries",dBins);
+  if (var1Bins_.size() == 0) {  // bins are not specified, bins must be equally spaced.
+    var1Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar1");
+    var1Low_   = iConfig.getUntrackedParameter< double >("Var1Low");
+    var1High_  = iConfig.getUntrackedParameter< double >("Var1High");
+  }
   
   var2Name_  = iConfig.getUntrackedParameter< std::string >("NameVar2","eta");
-  var2Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar2");
-  var2Low_   = iConfig.getUntrackedParameter< double >("Var2Low");
-  var2High_  = iConfig.getUntrackedParameter< double >("Var2High");
   var2Bins_  = iConfig.getUntrackedParameter< std::vector<double> >("Var2BinBoundaries",dBins);
+  if (var2Bins_.size() == 0) {  // bins are not specified, bins must be equally spaced.
+    var2Nbins_ = iConfig.getUntrackedParameter< unsigned int >("NumBinsVar2");
+    var2Low_   = iConfig.getUntrackedParameter< double >("Var2Low");
+    var2High_  = iConfig.getUntrackedParameter< double >("Var2High");
+  }
 
   CreateFitTree();
   InitializeMCHistograms();
+}
+
+void TagProbeEDMAnalysis::CheckEfficiencyVariables () {
+
+  // Check that the names of the variables are okay ...
+  if (!(var1Name_ == "pt" || var1Name_ == "p"   || var1Name_ == "px" ||
+	var1Name_ == "py" || var1Name_ == "pz"  || var1Name_ == "e"  ||
+	var1Name_ == "et" || var1Name_ == "eta" || var1Name_ == "phi" || 
+	var1Name_ == "ptDet" || var1Name_ == "pDet"   || var1Name_ == "pxDet" ||
+	var1Name_ == "pyDet" || var1Name_ == "pzDet"  || var1Name_ == "eDet"  ||
+	var1Name_ == "etDet" || var1Name_ == "etaDet" || var1Name_ == "phiDet" ||
+	var1Name_ == "jetDeltaR" || var1Name_ == "totJets")) {
+    edm::LogWarning("TagAndProbe") << "Warning: Var1 name invalid, setting var1 name to pt!";
+    var1Name_ = "pt";
+  }
+  
+  if (!(var2Name_ == "pt" || var2Name_ == "p"   || var2Name_ == "px" ||
+	var2Name_ == "py" || var2Name_ == "pz"  || var2Name_ == "e"  ||
+	var2Name_ == "et" || var2Name_ == "eta" || var2Name_ == "phi" ||
+	var2Name_ == "ptDet" || var2Name_ == "pDet"   || var2Name_ == "pxDet" ||
+	var2Name_ == "pyDet" || var2Name_ == "pzDet"  || var2Name_ == "eDet"  ||
+	var2Name_ == "etDet" || var2Name_ == "etaDet" || var2Name_ == "phiDet" ||
+	var2Name_ == "jetDeltaR" || var2Name_ == "totJets")) {
+    edm::LogWarning("TagAndProbe") << "Warning: Var2 name invalid, setting var2 name to eta!";
+    var2Name_ = "eta";
+  }
 }
 
 void TagProbeEDMAnalysis::InitializeMCHistograms(){
@@ -649,7 +664,7 @@ void TagProbeEDMAnalysis::CreateQuantityHistograms(const edm::Event& iEvent) {
   
    if(Histograms_) {
       delete [] Histograms_; 
-      Histograms_ = NULL;
+      Histograms_ = 0;
    }
 }
 
@@ -1013,19 +1028,19 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 
    if (PassProbes) {
      delete PassProbes;
-     PassProbes = NULL;
+     PassProbes = 0;
    }
    if (FailProbes) {
      delete FailProbes;
-     FailProbes = NULL;
+     FailProbes = 0;
    }
    if(SBSPassProbes) {
      delete SBSPassProbes;
-     SBSPassProbes = NULL;
+     SBSPassProbes = 0;
    }
    if (SBSFailProbes) {
      delete SBSFailProbes;
-     SBSFailProbes = NULL;
+     SBSFailProbes = 0;
    }
 }
 
@@ -1098,8 +1113,9 @@ void TagProbeEDMAnalysis::TPEffFitter( std::string &fileName, std::string &bvar,
 
 
 // ********** Z -> l+l- Fitter ********** //
-void TagProbeEDMAnalysis::TPEffFitter2D( std::string &fileName, std::string &bvar1, std::vector< double > bins1,
-					  std::string &bvar2, std::vector<double> bins2 )
+void TagProbeEDMAnalysis::TPEffFitter2D (
+const std::string &fileName, std::string &bvar1, std::vector< double > &bins1,
+const std::string &bvar2, std::vector<double> &bins2 )
 {
 
    outRootFile_->cd();
@@ -1345,7 +1361,7 @@ TagProbeEDMAnalysis::endJob()
       fitTree_ = (TTree*)f.Get("fitter_tree");
       edm::LogInfo("TagProbeEDMAnalysis") << "Read mode: Fit tree total entries " << fitTree_->GetEntries();
 
-      //ReadMCHistograms();
+      ReadMCHistograms();
       
       // Now call for and calculate the efficiencies as normal
       // Set the file pointer
@@ -1375,19 +1391,19 @@ void TagProbeEDMAnalysis::CleanUpMCHistograms() {
 
   if (var1Pass_) {
     delete var1Pass_;
-    var1Pass_ = NULL;
+    var1Pass_ = 0;
   }
   if (var1All_) {
     delete var1All_;
-    var1All_ = NULL;
+    var1All_ = 0;
   }
   if (var2Pass_) {
     delete var2Pass_;
-    var2Pass_ = NULL;
+    var2Pass_ = 0;
   }
   if (var2All_) {
     delete var2All_;
-    var2All_ = NULL;
+    var2All_ = 0;
   }  
 }
 
@@ -1408,15 +1424,15 @@ void TagProbeEDMAnalysis::cleanFitVariables()
   
   if (rooMass_) {
     delete rooMass_;
-    rooMass_ = NULL;
+    rooMass_ = 0;
   }
   if (signalShapePdf_) {
     delete signalShapePdf_;
-    signalShapePdf_ = NULL;
+    signalShapePdf_ = 0;
   }
   if (bkgShapePdf_) {
     delete bkgShapePdf_;
-    bkgShapePdf_ = NULL;
+    bkgShapePdf_ = 0;
   }
 }
 
@@ -1669,17 +1685,12 @@ void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< dou
      loerr = efficiency.getError();
    }
 
-
-
    edm::LogInfo("TagProbeEDMAnalysis") << "Signal yield: " << numSignal.getVal() << " +- "
 	     << numSignal.getError() << " + " << numSignal.getAsymErrorHi()
 	     <<" - "<< numSignal.getAsymErrorLo() << std::endl;
    edm::LogInfo("TagProbeEDMAnalysis") << "Efficiency: "<< efficiency.getVal() << " +- "
 	     << efficiency.getError() << " + " << efficiency.getAsymErrorHi()
 	     <<" - "<< efficiency.getAsymErrorLo() << std::endl;
-
-
-
 
    // ********** Make and save Canvas for the plots ********** //
 

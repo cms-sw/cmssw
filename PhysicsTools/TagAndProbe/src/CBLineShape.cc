@@ -7,23 +7,23 @@
 
 #include <vector>
 
-CBLineShape::CBLineShape():rooCBMean_(NULL),
-			   rooCBSigma_(NULL),
-			   rooCBAlpha_(NULL),
-			   rooCBN_(NULL),
-			   rooCBDummyFrac_(NULL),
-			   rooCBPdf_(NULL),
-			   CBPDF_(NULL){}
+CBLineShape::CBLineShape():rooCBMean_(0),
+			   rooCBSigma_(0),
+			   rooCBAlpha_(0),
+			   rooCBN_(0),
+			   rooCBDummyFrac_(0),
+			   rooCBPdf_(0),
+			   CBPDF_(0){}
 
 CBLineShape::CBLineShape(const edm::ParameterSet& CBLinePSet,
 			 RooRealVar *massBins):
-  rooCBMean_(NULL),
-  rooCBSigma_(NULL),
-  rooCBAlpha_(NULL),
-  rooCBN_(NULL),
-  rooCBDummyFrac_(NULL),
-  rooCBPdf_(NULL),
-  CBPDF_(NULL){
+  rooCBMean_(0),
+  rooCBSigma_(0),
+  rooCBAlpha_(0),
+  rooCBN_(0),
+  rooCBDummyFrac_(0),
+  rooCBPdf_(0),
+  CBPDF_(0){
 
   Configure(CBLinePSet, massBins);
 }
@@ -36,31 +36,31 @@ void CBLineShape::CleanUp() {
 
   if (rooCBMean_) {
     delete rooCBMean_;
-    rooCBMean_ = NULL;
+    rooCBMean_ = 0;
   }
   if (rooCBSigma_) {
     delete rooCBSigma_;
-    rooCBSigma_ = NULL;
+    rooCBSigma_ = 0;
   }
   if (rooCBAlpha_) {
     delete rooCBAlpha_;
-    rooCBAlpha_ = NULL;
+    rooCBAlpha_ = 0;
   }
   if (rooCBN_) {
     delete rooCBN_;
-    rooCBN_ = NULL;
+    rooCBN_ = 0;
   }
   if (rooCBDummyFrac_) {
     delete rooCBDummyFrac_;
-    rooCBDummyFrac_ = NULL;
+    rooCBDummyFrac_ = 0;
   }
   if (rooCBPdf_) {
     delete rooCBPdf_;
-    rooCBPdf_ = NULL;
+    rooCBPdf_ = 0;
   }
   if (CBPDF_) {
     delete CBPDF_;
-    CBPDF_ = NULL;
+    CBPDF_ = 0;
   }
 }
 

@@ -12,24 +12,24 @@
 #include <vector>
 
 PolynomialLineShape::PolynomialLineShape():
-  rooPolyBkgC0_(NULL),
-  rooPolyBkgC1_(NULL),
-  rooPolyBkgC2_(NULL),
-  rooPolyBkgC3_(NULL),
-  rooPolyBkgC4_(NULL),
-  rooPolyBkgDummyFrac_(NULL),
-  rooPolyBkgPdf_(NULL),
-  PolyPDF_(NULL){}
+  rooPolyBkgC0_(0),
+  rooPolyBkgC1_(0),
+  rooPolyBkgC2_(0),
+  rooPolyBkgC3_(0),
+  rooPolyBkgC4_(0),
+  rooPolyBkgDummyFrac_(0),
+  rooPolyBkgPdf_(0),
+  PolyPDF_(0){}
 
 PolynomialLineShape::PolynomialLineShape(const edm::ParameterSet& polyConfig, RooRealVar *massBins):
-  rooPolyBkgC0_(NULL),
-  rooPolyBkgC1_(NULL),
-  rooPolyBkgC2_(NULL),
-  rooPolyBkgC3_(NULL),
-  rooPolyBkgC4_(NULL),
-  rooPolyBkgDummyFrac_(NULL),
-  rooPolyBkgPdf_(NULL),
-  PolyPDF_(NULL){
+  rooPolyBkgC0_(0),
+  rooPolyBkgC1_(0),
+  rooPolyBkgC2_(0),
+  rooPolyBkgC3_(0),
+  rooPolyBkgC4_(0),
+  rooPolyBkgDummyFrac_(0),
+  rooPolyBkgPdf_(0),
+  PolyPDF_(0){
 
   Configure (polyConfig, massBins);
 }
@@ -42,35 +42,35 @@ void PolynomialLineShape::CleanUp(){
   
   if (rooPolyBkgC0_) {
     delete rooPolyBkgC0_;
-    rooPolyBkgC0_ = NULL;
+    rooPolyBkgC0_ = 0;
   }
   if (rooPolyBkgC1_) {
     delete rooPolyBkgC1_;
-    rooPolyBkgC1_ = NULL;
+    rooPolyBkgC1_ = 0;
   }
   if (rooPolyBkgC2_) {
     delete rooPolyBkgC2_;
-    rooPolyBkgC2_ = NULL;
+    rooPolyBkgC2_ = 0;
   }
   if (rooPolyBkgC3_) {
     delete rooPolyBkgC3_;
-    rooPolyBkgC3_ = NULL;
+    rooPolyBkgC3_ = 0;
   }
   if (rooPolyBkgC4_) {
     delete rooPolyBkgC4_;
-    rooPolyBkgC4_ = NULL;
+    rooPolyBkgC4_ = 0;
   }
   if (rooPolyBkgPdf_) {
     delete rooPolyBkgPdf_;
-    rooPolyBkgPdf_ = NULL;
+    rooPolyBkgPdf_ = 0;
   }
   if (rooPolyBkgDummyFrac_) {
     delete rooPolyBkgDummyFrac_;
-    rooPolyBkgDummyFrac_ = NULL;
+    rooPolyBkgDummyFrac_ = 0;
   }
   if (PolyPDF_) {
     delete PolyPDF_;
-    PolyPDF_ = NULL;
+    PolyPDF_ = 0;
   }
 }
 

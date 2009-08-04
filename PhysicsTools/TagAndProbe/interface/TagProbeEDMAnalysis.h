@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.18 2009/05/28 05:22:53 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.19 2009/06/01 21:57:25 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -49,9 +49,15 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       int SaveHistogram(TH1F& Histo, std::string outFileName, int LogY = 0);
       void TPEffFitter( std::string &fileName, std::string &bvar, std::vector<double> bins,
 			 std::string &bvar2, double bvar2Lo, double bvar2Hi );
-      void TPEffFitter2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
-			   std::string &bvar2, std::vector<double> bins2 );
-      void TPEffSBS( std::string &fileName, std::string &bvar, std::vector<double> bins,
+
+      void TPEffFitter2D (
+			  const std::string &fileName, 
+			  std::string &bvar1, 
+			  std::vector< double > &bins1,
+			  const std::string &bvar2, 
+			  std::vector<double> &bins2 );
+
+      void TPEffSBS(std::string &fileName, std::string &bvar, std::vector<double> bins,
 		      std::string &bvar2, double bvar2Lo, double bvar2Hi );
       void TPEffSBS2D( std::string &fileName, std::string &bvar1, std::vector<double> bins1,
 			std::string &bvar2, std::vector<double> bins2 );
@@ -62,6 +68,8 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 		  const std::string &bvar2, const std::vector< double >& bins2, const int bin2,
 		  double &eff, double &hierr, double &loerr, double &chi2Val, double& quality, const bool is2D = false );
 
+
+
       void TPEffMCTruth();
       void TPEffMCTruth2D();
 
@@ -69,6 +77,8 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       void CreateFitTree();
       void FillFitTree(const edm::Event& iEvent);
+      void CheckEfficiencyVariables();
+
 
       void CreateMCTree();
       void FillMCTree(const edm::Event& iEvent);

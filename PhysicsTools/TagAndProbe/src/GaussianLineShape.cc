@@ -7,19 +7,19 @@
 #include <RooAddPdf.h>
 
 GaussianLineShape::GaussianLineShape():
-  rooGaussMean_(NULL),
-  rooGaussSigma_(NULL),
-  rooGaussDummyFrac_(NULL),
-  rooGaussPdf_(NULL),
-  GaussPDF_(NULL){}
+  rooGaussMean_(0),
+  rooGaussSigma_(0),
+  rooGaussDummyFrac_(0),
+  rooGaussPdf_(0),
+  GaussPDF_(0){}
 
 GaussianLineShape::GaussianLineShape(const edm::ParameterSet& GaussianPSet, 
 				     RooRealVar *massBins):
-  rooGaussMean_(NULL),
-  rooGaussSigma_(NULL),
-  rooGaussDummyFrac_(NULL),
-  rooGaussPdf_(NULL),
-  GaussPDF_(NULL){
+  rooGaussMean_(0),
+  rooGaussSigma_(0),
+  rooGaussDummyFrac_(0),
+  rooGaussPdf_(0),
+  GaussPDF_(0){
   
   Configure(GaussianPSet, massBins);
 }
@@ -31,23 +31,23 @@ GaussianLineShape::~GaussianLineShape(){
 void GaussianLineShape::CleanUp() {
   if (rooGaussMean_) {
     delete rooGaussMean_;
-    rooGaussMean_ = NULL;
+    rooGaussMean_ = 0;
   }
   if (rooGaussSigma_) {
     delete rooGaussSigma_;
-    rooGaussSigma_ = NULL;
+    rooGaussSigma_ = 0;
   }
   if (rooGaussPdf_) {
     delete rooGaussPdf_;
-    rooGaussPdf_ = NULL;
+    rooGaussPdf_ = 0;
   }
   if (rooGaussDummyFrac_) {
     delete rooGaussDummyFrac_;
-    rooGaussDummyFrac_ = NULL;
+    rooGaussDummyFrac_ = 0;
   }
   if (GaussPDF_) {
     delete GaussPDF_;
-    GaussPDF_ = NULL;
+    GaussPDF_ = 0;
   }
 }
 
