@@ -1,14 +1,11 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.7 2009/07/15 14:28:23 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.8 2009/07/16 08:25:49 argiro Exp $
 #
 #
-# WARNING: we assume that the list of iovs for a given tag
-#          contains one element only, the case of several elements
-#          will need to be addressed
 
-#from pluginCondDBPyInterface import *
+
 from CondCore.Utilities import iovInspector as inspect
 from ROOT import TCanvas,TH1F, TH2F, gStyle
 import EcalPyUtils
@@ -175,9 +172,12 @@ def histo (db, tag,since,filename='histo.root'):
     eb = TH1F("EB","EB",100, -2,4)
     ee = TH1F("EE","EE",100, -2,4)
 
-    for cb,ce in zip(coeff_barl,coeff_endc):
+    for cb in coeff_barl:
         eb.Fill(cb)
+
+    for ce in coeff_endc:    
         ee.Fill(ce)
+
 
     c.cd(1)  
     eb.Draw()
