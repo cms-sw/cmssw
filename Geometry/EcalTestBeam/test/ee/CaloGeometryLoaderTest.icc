@@ -203,9 +203,12 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       const HepTransform3D H4ToBeamLine ( PIVOT + HepPoint3D( 0, 1, 0),
 					  PIVOT + HepPoint3D( 0, 0, 1),
 					  PIVOT + HepPoint3D( 1, 0, 0),
-					  HepPoint3D( 0, -1, 0),
+					  HepPoint3D( -1,  0, 0),
+					  HepPoint3D(  0, -1, 0),
+					  HepPoint3D(  0,  0, 1) ) ;
+/*					  HepPoint3D( 0, -1, 0),
 					  HepPoint3D( 1,  0, 0),
-					  HepPoint3D( 0,  0, 1) ) ;
+					  HepPoint3D( 0,  0, 1) ) ;*/
 
       std::cout<<"pivot to beamline="<<H4ToBeamLine*PIVOT<<std::endl ;
       std::cout<<"endcap to beamline="<<H4ToBeamLine*HepPoint3D(PIVOT.x()+316,0,50)
@@ -597,6 +600,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       const double angleHPerUnit (
 		  ( plaH.point( sur[8] ) - projPivH ).angle(
 		     plaH.point( sur[16] ) - projPivH )/176458 ) ;
+/*
 
 
 	       const double angleV1 ( ( plaV.point( sur[24] ) - projPiv ).angle( plaV.point( sur[20] ) - projPiv ) ) ;
@@ -608,7 +612,6 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       const double angleH2 ( ( plaH.point( sur[ 0] ) - projPivH ).angle( plaH.point( sur[12] ) - projPivH ) ) ;
 	       const double angleH3 ( ( plaH.point( sur[ 4] ) - projPivH ).angle( plaH.point( sur[ 0] ) - projPivH ) ) ;
 	       const double angleH4 ( ( plaH.point( sur[ 8] ) - projPivH ).angle( plaH.point( sur[ 4] ) - projPivH ) ) ;
-
 
 	       std::cout<<"\n V angles are: "
 			<<angleV1*kRadToDeg/4000.<<", "
@@ -625,20 +628,78 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       std::cout<<"angleHPerUnit="<<kRadToDeg*angleHPerUnit*1.e3<<std::endl ;
 
 	       std::cout<<"angleVPerUnit="<<kRadToDeg*angleVPerUnit*1.e3<<std::endl ;
-
+*/
 
 	       const double hAngle ( ( 1.*Hinput - 191000. )*angleHPerUnit ) ;
 
 	       const double vAngle ( ( 1.*Vinput -  16000. )*angleVPerUnit ) ;
 
 	       const HepRotate3D  vRotate ( -vAngle, H4ToBeamLine*vpl[0] ) ;
-	       const HepRotateX3D hRotate ( -hAngle ) ;
+	       const HepRotateY3D hRotate (  hAngle ) ;
 
-	       const HepTransform3D myTrf ( V3Transform*hRotate*vRotate ) ;
+	       const HepTransform3D myTrf ( V3Transform*vRotate*hRotate ) ;
 
 	       const HepRotation myRot  ( myTrf.getRotation()    ) ;
 	       const HepVector3D myTran ( myTrf.getTranslation() ) ;
-	       
+
+	       const HepRotateZ3D R1 ( myRot.phiZ() - M_PI/2. ) ;
+	       const HepPoint3D xUnit ( 1,0,0 ) ;
+	       const HepPoint3D yUnit ( 0,1,0 ) ;
+	       const HepPoint3D zUnit ( 0,0,1 ) ;
+
+	       const HepTransform3D RXRZ ( HepRotate3D( -myRot.thetaZ(), R1*xUnit )*R1 ) ;
+
+	       const HepPoint3D zzUnit ( RXRZ*zUnit ) ;
+	       const HepPoint3D yyUnit ( RXRZ*yUnit ) ;
+	       const HepPoint3D xxUnit ( RXRZ*xUnit ) ;
+/*
+	       std::cout<<"new z axis = theta "
+			<< zzUnit.theta()*kRadToDeg 
+			<< ", "
+			<< zzUnit.phi()*kRadToDeg 
+			<<"\nnew y axis = theta "
+			<< yyUnit.theta()*kRadToDeg 
+			<< ", "
+			<< yyUnit.phi()*kRadToDeg 
+			<<"\nnew x axis = theta "
+			<< xxUnit.theta()*kRadToDeg 
+			<< ", "
+			<< xxUnit.phi()*kRadToDeg 
+			<< std::endl ;
+*/
+	       const HepTransform3D RPSI ( HepTransform3D( myRot, HepPoint3D(0,0,0) )*
+					   (RXRZ.inverse()) ) ;
+
+	       Hep3Vector axis ;
+	       double     psi ;
+	       RPSI.getRotation().getAngleAxis( psi , axis ) ;
+
+	       const double zdiff ( axis.angle(zzUnit-HepPoint3D(0,0,0)) ) ;
+
+	       if( 0.95*M_PI < fabs( zdiff ) ) psi = -psi ;
+
+	       if( 0.005 < fabs( zdiff ) &&
+		   0.005 < fabs( fabs( zdiff ) - M_PI ) )
+	       {
+		  std::cout<<"**************** BAD 3RD AXIS, zdiff="
+			   <<zdiff*kRadToDeg<<" degrees"<<std::endl ;
+	       }
+/*	       std::cout<<"\n3rd rotation = "
+			<< axis.angle(zzUnit-HepPoint3D(0,0,0))*kRadToDeg 
+			<<", "<<angle*kRadToDeg
+			<< std::endl ;
+
+	       std::cout<<"PSI="<<(RPSI*xUnit).phi()*kRadToDeg<<std::endl;
+	       std::cout<<"xUnitT="<<(RPSI*xUnit)<<std::endl;
+	       std::cout<<"RPSI="<<RPSI.getRotation()<<", "<<RPSI.getTranslation()<<std::endl;
+
+//HepRotateZ3D(-0.75*M_PI)*
+	       const HepTransform3D TEMP1 ( HepRotateX3D(-myRot.thetaZ())*HepRotateZ3D(M_PI/2.-myRot.phiZ()) ) ;
+	       const HepTransform3D TEMP ( HepTransform3D(myTrf.getRotation(),HepVector3D(0,0,0) )*TEMP1.inverse() ) ;
+	       std::cout<<"TEMP="<<TEMP.getRotation()<<", "<<TEMP.getTranslation()<<std::endl;
+
+	       std::cout<<"Trot="<<myTrf.getRotation()<<", "<<myTrf.getTranslation()<<std::endl;
+*/
 	       const double TthetaX ( myRot.thetaX() ) ;
 	       const double TthetaY ( myRot.thetaY() ) ;
 	       const double TthetaZ ( myRot.thetaZ() ) ;
@@ -649,8 +710,16 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       const double Tytra   ( myTran.y() ) ;
 	       const double Tztra   ( myTran.z() ) ;
 	       const double TetaZ   ( -log(tan(TthetaZ/2.)) ) ;
+
+	       const double Tpsi    ( psi ) ;
 	    
 	       // write to files ================================================================
+
+	       std::stringstream ssTpsir ;
+	       ssTpsir<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		       << Tpsi ;
+	       const std::string strTpsir ( ssTpsir.str() ) ;
+
 
 	       std::stringstream ssTxtra ;
 	       ssTxtra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
@@ -678,7 +747,15 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       ssTphiX<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
 		      << TphiX*kRadToDeg << "*deg" ;
 	       const std::string strTphiX ( ssTphiX.str() ) ;
-
+/*	       std::stringstream ssTthetaXr ;
+	       ssTthetaXr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		       << TthetaX ;
+	       const std::string strTthetaXr ( ssTthetaXr.str() ) ;
+	       std::stringstream ssTphiXr ;
+	       ssTphiXr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		       << TphiX ;
+	       const std::string strTphiXr ( ssTphiXr.str() ) ;
+*/
 	       std::stringstream ssTthetaY ;
 	       ssTthetaY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
 			<< TthetaY*kRadToDeg << "*deg" ;
@@ -687,7 +764,15 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       ssTphiY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
 		      << TphiY*kRadToDeg << "*deg" ;
 	       const std::string strTphiY ( ssTphiY.str() ) ;
-	    
+/*	       std::stringstream ssTthetaYr ;
+	       ssTthetaYr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+			 << TthetaY ;
+	       const std::string strTthetaYr ( ssTthetaYr.str() ) ;
+	       std::stringstream ssTphiYr ;
+	       ssTphiYr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		       << TphiY ;
+	       const std::string strTphiYr ( ssTphiYr.str() ) ;
+*/	    
 	       std::stringstream ssTthetaZ ;
 	       ssTthetaZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
 			<< TthetaZ*kRadToDeg << "*deg" ;
@@ -700,6 +785,22 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       ssTphiZr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
 		       << TphiZ ;
 	       const std::string strTphiZr ( ssTphiZr.str() ) ;
+
+
+	       std::stringstream ssTxpos ;
+	       ssTxpos<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		      << psumy ;
+	       const std::string strTxpos ( ssTxpos.str() ) ;
+
+	       std::stringstream ssTypos ;
+	       ssTypos<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+		      << -psumx ;
+	       const std::string strTypos ( ssTypos.str() ) ;
+
+	       std::stringstream ssTzpos ;
+	       ssTzpos<<std::setw(11) << setiosflags( ios::fixed ) << std::setprecision(2)
+		      << -26733.5 + psumz ;
+	       const std::string strTzpos ( ssTzpos.str() ) ;
 	       //-------------- first tbrot file ---------------------------
 	       std::stringstream ss ;
 	       ss<<"tbrot_H"<<std::setw(6)<<std::setfill('0')<< Hinput 
@@ -748,9 +849,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 		       <<"\n    MaxEta = cms.double("<< strTetaZ <<"),"
 		       <<"\n    MinPhi = cms.double("<< strTphiZr <<"),"
 		       <<"\n    MaxPhi = cms.double("<< strTphiZr <<"),"
-		       <<"\n    BeamMeanX = cms.double(0.0),"
-		       <<"\n    BeamMeanY = cms.double(0.0),"
-		       <<"\n    BeamPosition = cms.double(-26733.5)\n    )"
+		       <<"\n    Psi    = cms.double("<< strTpsir <<"),"
+		       <<"\n    BeamMeanX = cms.double("<< strTxpos <<"),"
+		       <<"\n    BeamMeanY = cms.double("<< strTypos <<"),"
+		       <<"\n    BeamPosition = cms.double("<< strTzpos <<")\n    )"
 		       <<std::endl;
 	    
 	       beamfile.close() ;
