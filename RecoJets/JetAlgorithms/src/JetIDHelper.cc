@@ -314,6 +314,7 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   energies.insert( energies.end(), Hcal_energies.begin(), Hcal_energies.end() );
   if( iDbg>7 ) cout<<"DBG # energies "<<energies.size();
   energies.insert( energies.end(), Ecal_energies.begin(), Ecal_energies.end() );
+  energies.insert( energies.end(), HO_energies.begin(), HO_energies.end() );
   std::sort( energies.begin(), energies.end(), greater<double>() );
 }
 
