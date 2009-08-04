@@ -30,6 +30,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -60,22 +63,33 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
 
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
+  HLTResultsLabel_     = iConfig.getParameter<edm::InputTag>("HLTResultsLabel");  
+  HLTBitLabel_         = iConfig.getParameter<edm::InputTag>("HLTBitLabel");
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
   FolderName_            = iConfig.getUntrackedParameter<string>("FolderName");
+
+  
 }
 
 
 void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+  cout << "DEBUG BeginRun (1) " << endl;
   Nevents = 0;
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
  
-    //TString dirName = "RecoMETV/MET_CaloTowers/";
-    dbe_->setCurrentFolder(FolderName_); 
+    //    TString FolderName(FolderName_.c_str());
+    //TString HLTLabel(HLTBitLabel_.label());
+    if(HLTBitLabel_.label().size())
+      dbe_->setCurrentFolder(FolderName_+"/"+HLTBitLabel_.label()); 
+    else
+      dbe_->setCurrentFolder(FolderName_); 
+
+    //    if( dbe_->setCurrentFolder(FolderName); 
     
     //--Store number of events used
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
@@ -144,10 +158,40 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
 void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //----------GREG & CHRIS' idea---///
-   float ETTowerMin = -1; //GeV
-   float METRingMin = -2; // GeV
+  
+  edm::Handle<edm::TriggerResults> TheHLTResults;
+  iEvent.getByLabel( HLTResultsLabel_ , TheHLTResults);
 
+  if( TheHLTResults.isValid() )
+    {
+      if( HLTBitLabel_.label().size() )
+	{
+	  edm::TriggerNames TheTriggerNames;
+	  TheTriggerNames.init(*TheHLTResults);
+	  
+	  unsigned int index = TheTriggerNames.triggerIndex( HLTBitLabel_.label().c_str());
+	  if( index < TheHLTResults->size() )
+	    {
+	      if( !TheHLTResults->accept( index ) && !TheHLTResults->error( index ) )  
+		return;
+	    }
+	  else
+	    {
+	      edm::LogInfo("OutputInfo") << "The HLT Trigger Name : " << HLTBitLabel_.label() << " is not valid for this trigger table " << endl;
+	      return;
+	    }
+	}
+    }else
+      {
+	edm::LogInfo("OutputInfo") << "ERROR with TheHLTResults Handle" << endl;
+	return;
+      }
+      
+ 
+  //----------GREG & CHRIS' idea---///
+  float ETTowerMin = -1; //GeV
+  float METRingMin = -2; // GeV
+  
   Nevents++;
   me["hCT_Nevents"]->Fill(0);
 
