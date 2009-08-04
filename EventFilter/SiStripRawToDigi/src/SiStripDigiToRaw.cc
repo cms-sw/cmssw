@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.36 2009/07/24 10:47:37 nc302 Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.37 2009/08/04 15:41:22 nc302 Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -6,6 +6,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -64,11 +65,35 @@ namespace sistrip {
   void DigiToRaw::createFedBuffers( edm::Event& event,
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
-				    std::auto_ptr<FEDRawDataCollection>& buffers ) {
+				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+    createFedBuffers_(event, cabling, collection, buffers, true);
+  }
+
+  void DigiToRaw::createFedBuffers( edm::Event& event,
+				    edm::ESHandle<SiStripFedCabling>& cabling,
+				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
+				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+    createFedBuffers_(event, cabling, collection, buffers, false);
+  }
+
+  inline
+  const uint16_t& DigiToRaw::STRIP(const edm::DetSet<SiStripDigi>::const_iterator& it, const edm::DetSet<SiStripDigi>::const_iterator& begin) const  
+  {return it->strip();}
+  
+  inline
+  uint16_t DigiToRaw::STRIP(const edm::DetSet<SiStripRawDigi>::const_iterator& it, const edm::DetSet<SiStripRawDigi>::const_iterator& begin) const 
+  {return it-begin;}
+
+template<class Digi_t>
+  void DigiToRaw::createFedBuffers_( edm::Event& event,
+				     edm::ESHandle<SiStripFedCabling>& cabling,
+				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
+				     std::auto_ptr<FEDRawDataCollection>& buffers,
+				     bool zeroSuppressed) {
     try {
       
       //set the L1ID to use in the buffers
-      bufferGenerator_.setL1ID(0xFFFFFF && event.id().event());
+      bufferGenerator_.setL1ID(0xFFFFFF & event.id().event());
       
       const std::vector<uint16_t>& fed_ids = cabling->feds();
       std::vector<uint16_t>::const_iterator ifed;
@@ -78,7 +103,7 @@ namespace sistrip {
         const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
 	std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
         
-        FEDStripData fedData(true);
+        FEDStripData fedData(zeroSuppressed);
         
 	for ( ; iconn != conns.end(); iconn++ ) {
           
@@ -97,14 +122,15 @@ namespace sistrip {
           FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
 
 	  // Find digis for DetID in collection
-	  std::vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( key );
+	  typename std::vector< edm::DetSet<Digi_t> >::const_iterator digis = collection->find( key );
 	  if (digis == collection->end()) { continue; } 
 
-	  edm::DetSet<SiStripDigi>::const_iterator idigi;
-	  for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
-	    if ( (*idigi).strip() < ipair*256 ||
-		 (*idigi).strip() > ipair*256+255 ) { continue; }
-	    const unsigned short strip = (*idigi).strip() % 256;
+	  typename edm::DetSet<Digi_t>::const_iterator idigi, digis_begin(digis->data.begin());
+	  for ( idigi = digis_begin; idigi != digis->data.end(); idigi++ ) {
+	    
+	    if ( STRIP(idigi, digis_begin) < ipair*256 ||
+		 STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
+	    const unsigned short strip = STRIP(idigi, digis_begin) % 256;
 
 	    if ( strip >= STRIPS_PER_FEDCH ) {
 	      if ( edm::isDebugEnabled() ) {
@@ -124,7 +150,7 @@ namespace sistrip {
 		ss << "[sistrip::DigiToRaw::createFedBuffers]" 
 		   << " Incompatible ADC values in buffer!"
 		   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
-		   << "  DetStrip: " << (*idigi).strip() 
+		   << "  DetStrip: " << STRIP(idigi, digis_begin)
 		   << "  FedChStrip: " << strip
 		   << "  AdcValue: " << (*idigi).adc()
 		   << "  RawData[" << strip << "]: " << value;
