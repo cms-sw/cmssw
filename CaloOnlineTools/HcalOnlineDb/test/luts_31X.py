@@ -10,7 +10,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+#process.GlobalTag.globaltag = 'IDEAL_31X::All'
+process.GlobalTag.globaltag = 'GR09_31X_V5P::All'
+
+process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+                                   toGet = cms.untracked.vstring('ChannelQuality')
+                                   )
+
 
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
