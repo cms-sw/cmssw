@@ -162,7 +162,7 @@ void WMuNuSelector::beginJob(const EventSetup &) {
 void WMuNuSelector::endJob() {
       double esel = nsel/nall;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events passing pre-selected: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events passing pre-selection: " << nall << " [events]";
       LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
