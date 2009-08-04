@@ -181,13 +181,12 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
     MonitorElement * Chip=NULL;
     MonitorElement * HV=NULL;
     MonitorElement * LV=NULL;
-   
+    
     float dead =0;
-   
-     float firstbin= 0;
-     float noisystrips = 0;
-     float mult = 0;
-     float asy = 0;
+    float firstbin= 0;
+    float noisystrips = 0;
+    float mult = 0;
+    float asy = 0;
     for (int i=-2; i<3; i++) {    
       
       meName.str("");
@@ -198,6 +197,8 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
       meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Distribution_Wheel"<<i; 
       RCQD = dbe_ -> get(meName.str());
       
+      RCQD->Reset();
+      RCQ->Reset();
       //get HV Histo
       meName.str("");                        
       meName<<"RPC/RecHits/SummaryHistograms/HVStatus_Wheel_"<<i;
@@ -323,7 +324,7 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	meName.str("");
 	meName<<"RPC/RecHits/SummaryHistograms/RPCChamberQuality_Ring_vs_Segment_Disk"<<i; 
 	RCQ = dbe_ -> get(meName.str());
-	
+	if(RCQ) RCQ->Reset();
 	mme.str("");
 	mme << "RPC/RecHits/SummaryHistograms/DeadChannelFraction_Ring_vs_Segment_Disk"<<i;
 	meDEAD = dbe_->get(mme.str());
@@ -335,8 +336,8 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	    if (meDEAD) dead = meDEAD->getBinContent(x,y);
 	    else cout<<"not found ME"<<endl;
 	    
-	    if(dead>=0.8) RCQ -> Fill(x,y,6);
-	    else if (dead>=0.33 && dead<0.8) RCQ->Fill(x,y,5);
+	    if(dead>=0.8) RCQ -> setBinContent(x,y,6);
+	    else if (dead>=0.33 && dead<0.8) RCQ->setBinContent(x,y,5);
 	    else {
 	      mme.str("");
 	      mme << "RPC/RecHits/SummaryHistograms/ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<i;
@@ -349,22 +350,22 @@ void RPCChamberQuality::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 		firstbin = CLS->getBinContent(x,y);
 		noisystrips = NoisySt -> getBinContent(x,y);
 	      }
-	      if(firstbin>0.88) RCQ -> Fill(x,y,3);
-	      else if(noisystrips>0) RCQ -> Fill(x,y,3);
+	      if(firstbin>0.88) RCQ -> setBinContent(x,y,3);
+	      else if(noisystrips>0) RCQ -> setBinContent(x,y,3);
 	      else {
 		mme.str("");
 		mme << "RPC/RecHits/SummaryHistograms/NumberOfDigi_Mean_Ring_vs_Segment_Disk"<<i;
 		MULT = dbe_->get(mme.str());
 		
 		if(MULT) mult=MULT->getBinContent(x,y);
-		if(mult>=6) RCQ->Fill(x,y,4);
+		if(mult>=6) RCQ->setBinContent(x,y,4);
 		else {
 		  mme.str("");
 		  mme << "RPC/RecHits/SummaryHistograms/AsymmetryLeftRight_Ring_vs_Segment_Disk"<<i;
 		  myMe = dbe_->get(mme.str());
 		  if(myMe) asy = myMe->getBinContent(x,y);
-		  if(asy>0.35) RCQ->Fill(x,y,7);
-		  else RCQ->Fill(x,y,1);
+		  if(asy>0.35) RCQ->setBinContent(x,y,7);
+		  else RCQ->setBinContent(x,y,1);
 		}
 	      }
 	    }
