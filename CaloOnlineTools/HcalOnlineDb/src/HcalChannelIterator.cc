@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id: HcalChannelIterator.cc,v 1.1 2009/07/16 16:29:35 kukartse Exp $
+// $Id: HcalChannelIterator.cc,v 1.2 2009/07/24 06:55:21 kukartse Exp $
 //
 
 #include <fstream>
@@ -94,6 +94,7 @@ int HcalChannelIterator::begin(void){
 
 int HcalChannelIterator::next(void){
   const_iterator++;
+  return 0;
 }
 
 
@@ -157,7 +158,13 @@ int HcalChannelIterator::initHBEFListFromLmapAscii(void){
   clearChannelList();
   addListFromLmapAscii("HCALmapHBEF_Jan.27.2009.txt");
   addListFromLmapAscii("HCALmapHO_Jan.27.2009.txt");
+  return channel_list.size();
 }
 
 
+int HcalChannelIterator::init(std::vector<HcalGenericDetId> map){
+  channel_list.clear();
+  channel_list = map;
+  return channel_list.size();
+}
 

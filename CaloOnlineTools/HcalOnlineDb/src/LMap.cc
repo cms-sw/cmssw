@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.4 2008/05/18 12:29:56 kukartse Exp $
+// $Id: LMap.cc,v 1.5 2008/08/24 22:56:18 kukartse Exp $
 //
 
 // system include files
@@ -22,7 +22,9 @@
 // user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 
 using namespace std;
 
@@ -158,6 +160,82 @@ int LMap::impl::read( string map_file, string type )
   cout << "LMap: " << lines . getCount() << " lines read" << endl;
 
   return 0;
+}
+
+//_______________________________________________________________________
+//
+//_____ EMAP stuff
+//
+//_______________________________________________________________________
+
+EMap::EMap( const HcalElectronicsMap * emap ){
+  if (emap){
+    HcalAssistant _ass;
+    //
+    //_____ precision channels __________________________________________
+    //
+    std::vector <HcalElectronicsId> v_eId = emap->allElectronicsIdPrecision();
+    for (std::vector <HcalElectronicsId>::const_iterator eId=v_eId.begin();
+	 eId!=v_eId.end();
+	 eId++){
+      EMapRow row;
+      row.rawId     = eId->rawId();
+      row.crate     = eId->readoutVMECrateId();
+      row.slot      = eId->htrSlot();
+      row.dcc       = eId->dccid();
+      row.spigot    = eId->spigot();
+      row.fiber     = eId->fiberIndex();
+      row.fiberchan = eId->fiberChanId();
+      if (eId->htrTopBottom()==1) row.topbottom = "t";
+      else row.topbottom = "b";
+      //
+      HcalGenericDetId _gid( emap->lookup(*eId) );
+      if ( !(_gid.null()) &&
+	   (_gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
+	    _gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap ||
+	    _gid.genericSubdet()==HcalGenericDetId::HcalGenForward ||
+	    _gid.genericSubdet()==HcalGenericDetId::HcalGenOuter
+	    )
+	   ){
+	HcalDetId _id( emap->lookup(*eId) );
+	row.ieta      = _id.ieta();
+	row.iphi      = _id.iphi();
+	row.idepth    = _id.depth();
+	row.subdet    = _ass.getSubdetectorString(_id.subdet());
+	// fill the map
+	map.push_back(row);
+      }
+    }
+    //
+    //_____ trigger channels __________________________________________
+    //
+    v_eId = emap->allElectronicsIdTrigger();
+    for (std::vector <HcalElectronicsId>::const_iterator eId=v_eId.begin();
+	 eId!=v_eId.end();
+	 eId++){
+      EMapRow row;
+      row.rawId     = eId->rawId();
+      row.crate     = eId->readoutVMECrateId();
+      row.slot      = eId->htrSlot();
+      row.dcc       = eId->dccid();
+      row.spigot    = eId->spigot();
+      if (eId->htrTopBottom()==1) row.topbottom = "t";
+      else row.topbottom = "b";
+      //
+      HcalTrigTowerDetId _id( emap->lookupTrigger(*eId) );
+      if ( !(_id.null()) ){
+	row.ieta      = _id.ieta();
+	row.iphi      = _id.iphi();
+	row.idepth    = _id.depth();
+	row.subdet    = _ass.getSubdetectorString(_id.subdet());
+	// fill the map
+	map.push_back(row);
+      }
+    }
+  }
+  else{
+    cerr << "Pointer to HcalElectronicsMap is 0!!!" << endl;
+  }
 }
 
 

@@ -14,7 +14,8 @@ process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 process.GlobalTag.globaltag = 'GR09_31X_V5P::All'
 
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-                                   toGet = cms.untracked.vstring('ChannelQuality')
+                                   toGet = cms.untracked.vstring('ChannelQuality',
+                                                                 'GainWidths')
                                    )
 
 

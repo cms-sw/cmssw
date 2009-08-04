@@ -8,6 +8,9 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 //#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+ #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
+#include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 
 #include <iostream>
@@ -31,26 +34,36 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   
   cout << " --> HcalLutGenerator::analyze()" << endl;
-
+  
+  //
+  //_____ get the coders from Event Setup _______________________________
+  //
   edm::ESHandle<HcalTPGCoder> inputCoder;
   iSetup.get<HcalTPGRecord>().get(inputCoder);
   HcalTopology theTopo;
   HcalDetId did;
+  //
+  edm::ESHandle<CaloTPGTranscoder> outTranscoder;
+  iSetup.get<CaloTPGRecord>().get(outTranscoder);
+  outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
+  edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
+  transcoder.swap(outTranscoder);
 
-  
-edm::ESHandle<CaloTPGTranscoder> outTranscoder;
-iSetup.get<CaloTPGRecord>().get(outTranscoder);
-outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
-edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
-transcoder.swap(outTranscoder);
-//Pass *transcoder to LUT HcalLutManager
-//Then you have same functionality for CaloTPGTranscoderULUT
-//HcalTrigTowerDetId id(8,18);
-//std::vector<unsigned char>  v = transcoder->getCompressionLUT(id);
+  //
+  //_____ get EMAP from Event Setup _____________________________________
+  //
+  edm::ESHandle<HcalElectronicsMap> hEmap;
+  iSetup.get<HcalElectronicsMapRcd>().get(hEmap);
+  std::vector<HcalGenericDetId> vEmap = hEmap->allPrecisionId();
+  cout << "EMAP from Event Setup has " << vEmap.size() << " entries" << endl;
 
+  //EMap _emap(&(*hEmap));
 
-
-  HcalLutManager * manager = new HcalLutManager();
+  //
+  //_____ generate LUTs _________________________________________________
+  //
+  //HcalLutManager * manager = new HcalLutManager(); // old ways
+  HcalLutManager * manager = new HcalLutManager(&(*hEmap));
   bool split_by_crate = true;
   //manager . createAllLutXmlFilesFromCoder( *inputCoder, _tag, split_by_crate );
   cout << " tag name: " << _tag << endl;
@@ -59,7 +72,7 @@ transcoder.swap(outTranscoder);
   manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
   delete manager;
 
-transcoder->releaseSetup();
+  transcoder->releaseSetup();
    
 }
 

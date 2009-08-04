@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.1 2009/07/16 16:29:35 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.2 2009/07/24 06:55:21 kukartse Exp $
 //
 
 
@@ -60,6 +60,7 @@ int HcalAssistant::addQuotes(){
   quotes.push_back("Mrs. Robinson, you're trying to seduce me. Aren't you?");
   quotes.push_back("I feel the need - the need for speed!");
   quotes.push_back("He's got emotional problems. What, beyond pacifism?");
+  return quotes.size();
 }
 
 
@@ -127,6 +128,7 @@ HcalSubdetector HcalAssistant::getSubdetector(std::string _det){
   else if ( _det.find("HE") != std::string::npos ) return HcalEndcap;
   else if ( _det.find("HF") != std::string::npos ) return HcalForward;
   else if ( _det.find("HO") != std::string::npos ) return HcalOuter;
+  else if ( _det.find("HT") != std::string::npos ) return HcalTriggerTower;
   else return HcalOther;
 }
 
@@ -136,6 +138,7 @@ std::string HcalAssistant::getSubdetectorString(HcalSubdetector _det){
   else if ( _det==HcalEndcap)  sDet = "HE";
   else if      ( _det==HcalForward) sDet = "HF";
   else if      ( _det==HcalOuter)   sDet = "HO";
+  else if      ( _det==HcalTriggerTower)   sDet = "HT";
   else sDet = "other";
   return sDet;
 }

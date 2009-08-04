@@ -19,7 +19,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.3 2008/04/16 13:31:25 kukartse Exp $
+// $Id: LMap.h,v 1.4 2008/05/18 12:29:56 kukartse Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 using namespace std;
 using namespace boost;
@@ -99,6 +100,7 @@ class EMap
  public:
   EMap(){}
   EMap( std::string filename ){ read_map(filename); }
+  EMap( const HcalElectronicsMap * map );
   ~EMap(){}
 
   class EMapRow
