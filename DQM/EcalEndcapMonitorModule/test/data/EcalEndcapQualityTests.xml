@@ -285,7 +285,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/EELT amplitude EE* L1*">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/EELT amplitude EE* L1">
         <TestName activate="true">EE_Laser_L1_Quality</TestName>
 </LINK>
 
@@ -302,7 +302,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal EE* G01">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal EE* G01 L1">
         <TestName activate="true">EE_Laser_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -319,7 +319,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal EE* G16">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal EE* G16 L1">
         <TestName activate="true">EE_Laser_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -336,7 +336,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude EE* G01">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude EE* G01 L1">
         <TestName activate="true">EE_Laser_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -353,8 +353,178 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude EE* G16">
+<LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude EE* G16 L1">
         <TestName activate="true">EE_Laser_L1_PN_Amplitude_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L2_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser2/EELT amplitude EE* L2">
+        <TestName activate="true">EE_Laser_L2_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L2_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal EE* G01 L2">
+        <TestName activate="true">EE_Laser_L2_PN_Pedestal_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L2_PN_Pedestal_G16_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal EE* G16 L2">
+        <TestName activate="true">EE_Laser_L2_PN_Pedestal_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L2_PN_Amplitude_G01_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude EE* G01 L2">
+        <TestName activate="true">EE_Laser_L2_PN_Amplitude_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L2_PN_Amplitude_G16_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude EE* G16 L2">
+        <TestName activate="true">EE_Laser_L2_PN_Amplitude_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L3_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">10.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser3/EELT amplitude EE* L3">
+        <TestName activate="true">EE_Laser_L3_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L3_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal EE* G01 L3">
+        <TestName activate="true">EE_Laser_L3_PN_Pedestal_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L3_PN_Pedestal_G16_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal EE* G16 L3">
+        <TestName activate="true">EE_Laser_L3_PN_Pedestal_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L3_PN_Amplitude_G01_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude EE* G01 L3">
+        <TestName activate="true">EE_Laser_L3_PN_Amplitude_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L3_PN_Amplitude_G16_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude EE* G16 L3">
+        <TestName activate="true">EE_Laser_L3_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
 <QTEST name="EE_Laser_L4_Quality">
@@ -370,7 +540,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/EELT amplitude EE* L4*">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/EELT amplitude EE* L4">
         <TestName activate="true">EE_Laser_L4_Quality</TestName>
 </LINK>
 
@@ -387,7 +557,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal EE* G01">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal EE* G01 L4">
         <TestName activate="true">EE_Laser_L4_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -404,7 +574,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal EE* G16">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal EE* G16 L4">
         <TestName activate="true">EE_Laser_L4_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -421,7 +591,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude EE* G01">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude EE* G01 L4">
         <TestName activate="true">EE_Laser_L4_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -438,7 +608,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude EE* G16">
+<LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude EE* G16 L4">
         <TestName activate="true">EE_Laser_L4_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -455,7 +625,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led1/EELDT amplitude EE* L1*">
+<LINK name="*EcalEndcap/EELedTask/Led1/EELDT amplitude EE* L1">
         <TestName activate="true">EE_Led_L1_Quality</TestName>
 </LINK>
 
@@ -540,7 +710,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/Led2/EELDT amplitude EE* L2*">
+<LINK name="*EcalEndcap/EELedTask/Led2/EELDT amplitude EE* L2">
         <TestName activate="true">EE_Led_L2_Quality</TestName>
 </LINK>
 
@@ -797,6 +967,14 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L2 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L3 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
 <LINK name="*EcalEndcap/EELaserClient/EELT laser quality L4 EE*">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
@@ -806,6 +984,22 @@
 </LINK>
 
 <LINK name="*EcalEndcap/EELaserClient/EELT laser quality L1 PNs G16 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L2 PNs G01 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L2 PNs G16 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L3 PNs G01 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELaserClient/EELT laser quality L3 PNs G16 EE*">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
