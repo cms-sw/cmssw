@@ -63,6 +63,8 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement*  emean_vs_ieta_EH1;
 
   MonitorElement* Ntowers_vs_ieta;
+  MonitorElement* occupancy_map;
+  MonitorElement* occupancy_vs_ieta;
 
   // Global maps
   MonitorElement*  mapEnergy_E;

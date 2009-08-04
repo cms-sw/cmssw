@@ -41,7 +41,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   }
 
 
-  sprintf  (histo, "Ntowers_pre_event_vs_ieta" );
+  sprintf  (histo, "Ntowers_per_event_vs_ieta" );
   Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
 
   sprintf  (histo, "emean_vs_ieta_E" );
@@ -69,6 +69,13 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
   sprintf  (histo, "CaloTowersTask_map_Nentries" );
   mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+
+  sprintf  (histo, "CaloTowersTask_map_occupancy" );
+  occupancy_map = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
+  occupancy_vs_ieta = dbe_->book1D(histo, histo, 82, -41, 41);
+
 
 
   if( isub == 1 || isub == 0) {
@@ -214,19 +221,22 @@ CaloTowersValidation::~CaloTowersValidation() {
     Ntowers_vs_ieta -> setBinContent(i,cont);
   }
 
-  // mean energies evaluation
+  // mean energies & occupancies evaluation
   
   nx = mapEnergy_N->getNbinsX();    
   int ny = mapEnergy_N->getNbinsY();
   float cnorm;
-  
+  float phi_factor;    
+
   for (int i = 1; i <= nx; i++) {
-    for (int j = 1; j <= ny; j++) {
-      
+    float sumphi = 0.;
+
+    for (int j = 1; j <= ny; j++) {      
+
+      // Emean
       cnorm   = mapEnergy_N -> getBinContent(i,j);
       if(cnorm > 0.000001) {
 	
-	// Emean
 	cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
 	mapEnergy_E -> setBinContent(i,j,cont);	      
 	
@@ -235,12 +245,35 @@ CaloTowersValidation::~CaloTowersValidation() {
 	
 	cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
 	mapEnergy_EH -> setBinContent(i,j,cont);	      
-
       }
-    }
-  }
-  
-  
+      
+      // Occupancy
+      cnorm   = occupancy_map -> getBinContent(i,j) / fev; 
+      if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
+
+      sumphi += cnorm;
+
+    } // end of iphy cycle (j)
+
+    // phi-factor evaluation for occupancy_vs_ieta calculation
+    int ieta = i - 42;        // -41 -1, 0 40 
+    if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
+    
+    if(ieta >= -20 && ieta <= 20 )
+      {phi_factor = 72.;}
+      else {
+	if(ieta >= 40 || ieta <= -40 ) {phi_factor = 18.;}
+        else 
+	  phi_factor = 36.;
+      }  
+    if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
+    
+    cnorm = sumphi / phi_factor;
+    occupancy_vs_ieta->Fill(double(ieta), cnorm);
+
+
+  } // end of ieta cycle (i)
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
@@ -370,6 +403,8 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
       
 
     Ntowers_vs_ieta -> Fill(double(ieta),1.);
+    occupancy_map -> Fill(double(ieta),double(iphi));
+    
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
