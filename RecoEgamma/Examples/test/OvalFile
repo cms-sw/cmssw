@@ -18,8 +18,8 @@ The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="310pre11">
-<var name="VAL_REF_RELEASE" value="310pre11">
+<var name="VAL_NEW_RELEASE" value="310">
+<var name="VAL_REF_RELEASE" value="310">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
