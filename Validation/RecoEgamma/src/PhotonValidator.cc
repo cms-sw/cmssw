@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/29 19:49:16 $ 
- **  $Revision: 1.47 $
+ **  $Date: 2009/07/30 20:02:47 $ 
+ **  $Revision: 1.48 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -447,21 +447,76 @@ void  PhotonValidator::beginJob() {
     histname="R9VsEtBkg";
     h2_r9VsEtBkg_ = dbe_->book2D(histname+"All"," Bkg photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
     //
+    histname = "r1Bkg";
+    h_r1Bkg_[0] = dbe_->book1D(histname+"All",   " Bkg photon e1x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r1Bkg_[1] = dbe_->book1D(histname+"Barrel"," Bkg photon e1x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r1Bkg_[2] = dbe_->book1D(histname+"Endcap"," Bkg photon e1x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+    //
+    histname="R1VsEtaBkg";
+    h2_r1VsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    histname="pR1VsEtaBkg";
+    p_r1VsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons e1x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    //
+    histname="R1VsEtBkg";
+    h2_r1VsEtBkg_ = dbe_->book2D(histname+"All"," Bkg photons e1x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+    histname="pR1VsEtBkg";
+    p_r1VsEtBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+    //
+    histname = "r2Bkg";
+    h_r2Bkg_[0] = dbe_->book1D(histname+"All",   " Bkg photon e2x5/e5x5: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r2Bkg_[1] = dbe_->book1D(histname+"Barrel"," Bkg photon e2x5/e5x5: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r2Bkg_[2] = dbe_->book1D(histname+"Endcap"," Bkg photon e2x5/e5x5: Endcap ",r9Bin,r9Min, r9Max) ;
+    //
+    histname="R2VsEtaBkg";
+    h2_r2VsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    histname="pR2VsEtaBkg";
+    p_r2VsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    //
+    histname="R2VsEtBkg";
+    h2_r2VsEtBkg_ = dbe_->book2D(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+    histname="pR2VsEtBkg";
+    p_r2VsEtBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons e2x5/e5x5 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
+
+
+    histname = "sigmaIetaIetaBkg";
+    h_sigmaIetaIetaBkg_[0] = dbe_->book1D(histname+"All",   "Bkg sigmaIetaIeta: All Ecal",100,0., 0.1) ;
+    h_sigmaIetaIetaBkg_[1] = dbe_->book1D(histname+"Barrel","Bkg sigmaIetaIeta: Barrel ", 100,0., 0.05) ;
+    h_sigmaIetaIetaBkg_[2] = dbe_->book1D(histname+"Endcap","Bkg sigmaIetaIeta: Endcap ", 100,0., 0.1) ;
+    //
+    histname="sigmaIetaIetaVsEtaBkg";
+    h2_sigmaIetaIetaVsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    histname="pSigmaIetaIetaVsEtaBkg";
+    p_sigmaIetaIetaVsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    //
+    histname="sigmaIetaIetaVsEtBkg";
+    h2_sigmaIetaIetaVsEtBkg_[0] = dbe_->book2D(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    h2_sigmaIetaIetaVsEtBkg_[1] = dbe_->book2D(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    h2_sigmaIetaIetaVsEtBkg_[2] = dbe_->book2D(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    //
+    histname="pSigmaIetaIetaVsEtBkg";
+    p_sigmaIetaIetaVsEtBkg_[0] = dbe_->bookProfile(histname+"All"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    p_sigmaIetaIetaVsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    p_sigmaIetaIetaVsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap"," Bkg photons sigmaIetaIeta vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    //
     histname = "hOverEBkg";
-    h_hOverEBkg_[0] = dbe_->book1D(histname+"All",   "H/E bkg: All Ecal",100,0., 0.1) ;
-    h_hOverEBkg_[1] = dbe_->book1D(histname+"Barrel","H/E bkg: Barrel ", 100,0., 0.1) ;
-    h_hOverEBkg_[2] = dbe_->book1D(histname+"Endcap","H/E bkg: Endcap ", 100,0., 0.1) ;
+    h_hOverEBkg_[0] = dbe_->book1D(histname+"All",   "H/E bkg: All Ecal",100,0., 1.) ;
+    h_hOverEBkg_[1] = dbe_->book1D(histname+"Barrel","H/E bkg: Barrel ", 100,0., 1.) ;
+    h_hOverEBkg_[2] = dbe_->book1D(histname+"Endcap","H/E bkg: Endcap ", 100,0., 1.) ;
     //
     histname="hOverEVsEtaBkg";
     h2_hOverEVsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    histname="pHOverEVsEtaBkg";
+    p_hOverEVsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
     //
     histname="hOverEVsEtBkg";
     h2_hOverEVsEtBkg_ = dbe_->book2D(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    histname="pHOverEVsEtBkg";
+    p_hOverEVsEtBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
     //
     histname = "ecalRecHitSumEtConeDR04Bkg";
-    h_ecalRecHitSumEtConeDR04Bkg_[0] = dbe_->book1D(histname+"All",   "bkg ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
-    h_ecalRecHitSumEtConeDR04Bkg_[1] = dbe_->book1D(histname+"Barrel","bkg ecalRecHitSumEtDR04: Barrel ", etBin,etMin,20.);
-    h_ecalRecHitSumEtConeDR04Bkg_[2] = dbe_->book1D(histname+"Endcap","bkg ecalRecHitSumEtDR04: Endcap ", etBin,etMin,20.);
+    h_ecalRecHitSumEtConeDR04Bkg_[0] = dbe_->book1D(histname+"All",   "bkg ecalRecHitSumEtDR04: All Ecal",etBin,etMin,50.);
+    h_ecalRecHitSumEtConeDR04Bkg_[1] = dbe_->book1D(histname+"Barrel","bkg ecalRecHitSumEtDR04: Barrel ", etBin,etMin,50.);
+    h_ecalRecHitSumEtConeDR04Bkg_[2] = dbe_->book1D(histname+"Endcap","bkg ecalRecHitSumEtDR04: Endcap ", etBin,etMin,50.);
     //
     histname="ecalRecHitSumEtConeDR04VsEtaBkg";
     h2_ecalRecHitSumEtConeDR04VsEtaBkg_ = dbe_->book2D(histname+"All"," bkg ecalRecHitSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
@@ -476,9 +531,65 @@ void  PhotonValidator::beginJob() {
     p_ecalRecHitSumEtConeDR04VsEtBkg_[0] = dbe_->bookProfile(histname+"All","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     p_ecalRecHitSumEtConeDR04VsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     p_ecalRecHitSumEtConeDR04VsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap","Bkg ecalRecHitSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    //
+    histname = "hcalTowerSumEtConeDR04Bkg";
+    h_hcalTowerSumEtConeDR04Bkg_[0] = dbe_->book1D(histname+"All",   "bkg hcalTowerSumEtDR04: All Ecal",etBin,etMin,20.);
+    h_hcalTowerSumEtConeDR04Bkg_[1] = dbe_->book1D(histname+"Barrel","bkg hcalTowerSumEtDR04: Barrel ", etBin,etMin,20.);
+    h_hcalTowerSumEtConeDR04Bkg_[2] = dbe_->book1D(histname+"Endcap","bkg hcalTowerSumEtDR04: Endcap ", etBin,etMin,20.);
+    //
+    histname="hcalTowerSumEtConeDR04VsEtaBkg";
+    h2_hcalTowerSumEtConeDR04VsEtaBkg_ = dbe_->book2D(histname+"All"," bkg hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale);
+    histname="pHcalTowerSumEtConeDR04VsEtaBkg";
+    p_hcalTowerSumEtConeDR04VsEtaBkg_ = dbe_->bookProfile(histname+"All","bkg photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*etScale, "");
+    //
+    histname="hcalTowerSumEtConeDR04VsEtBkg";
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[0] = dbe_->book2D(histname+"All"," Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[1] = dbe_->book2D(histname+"Barrel"," Bkg hcalTowerSumEtDR04 vs Et: Barrel ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    h2_hcalTowerSumEtConeDR04VsEtBkg_[2] = dbe_->book2D(histname+"Endcap"," Bkg hcalTowerSumEtDR04 vs Et: Endcap ",etBin,etMin, etMax, etBin,etMin,etMax*etScale);
+    histname="pHcalTowerSumEtConeDR04VsEtBkg";
+    p_hcalTowerSumEtConeDR04VsEtBkg_[0] = dbe_->bookProfile(histname+"All","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerSumEtConeDR04VsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerSumEtConeDR04VsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap","Bkg hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    //
+    histname = "isoTrkSolidConeDR04Bkg";
+    h_isoTrkSolidConeDR04Bkg_[0] = dbe_->book1D(histname+"All",   "isoTrkSolidConeDR04 Bkg: All Ecal",etBin,etMin,etMax*0.1);
+    h_isoTrkSolidConeDR04Bkg_[1] = dbe_->book1D(histname+"Barrel","isoTrkSolidConeDR04 Bkg: Barrel ", etBin,etMin,etMax*0.1);
+    h_isoTrkSolidConeDR04Bkg_[2] = dbe_->book1D(histname+"Endcap","isoTrkSolidConeDR04 Bkg: Endcap ", etBin,etMin,etMax*0.1);
+    //
+    histname="isoTrkSolidConeDR04VsEtaBkg";
+    h2_isoTrkSolidConeDR04VsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+    histname="pIsoTrkSolidConeDR04VsEtaBkg";
+    p_isoTrkSolidConeDR04VsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1);
+    //
+    histname="isoTrkSolidConeDR04VsEtBkg";
+    h2_isoTrkSolidConeDR04VsEtBkg_[0] = dbe_->book2D(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    h2_isoTrkSolidConeDR04VsEtBkg_[1] = dbe_->book2D(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    h2_isoTrkSolidConeDR04VsEtBkg_[2] = dbe_->book2D(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    histname="pIsoTrkSolidConeDR04VsEtBkg";
+    p_isoTrkSolidConeDR04VsEtBkg_[0] = dbe_->bookProfile(histname+"All"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    p_isoTrkSolidConeDR04VsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    p_isoTrkSolidConeDR04VsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap"," Bkg photons isoTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, etBin,etMin,etMax*0.1);
+    //
+    histname = "nTrkSolidConeDR04Bkg";
+    h_nTrkSolidConeDR04Bkg_[0] = dbe_->book1D(histname+"All",   "Bkg nTrkSolidConeDR04: All Ecal",20,0., 20) ;
+    h_nTrkSolidConeDR04Bkg_[1] = dbe_->book1D(histname+"Barrel","Bkg nTrkSolidConeDR04: Barrel ", 20,0., 20) ;
+    h_nTrkSolidConeDR04Bkg_[2] = dbe_->book1D(histname+"Endcap","Bkg nTrkSolidConeDR04: Endcap ", 20,0., 20) ;
+    //
+    histname="nTrkSolidConeDR04VsEtaBkg";
+    h2_nTrkSolidConeDR04VsEtaBkg_ = dbe_->book2D(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
+    histname="p_nTrkSolidConeDR04VsEtaBkg";
+    p_nTrkSolidConeDR04VsEtaBkg_ = dbe_->bookProfile(histname+"All"," Bkg photons nTrkSolidConeDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, 20,0., 20) ;
+    //
+    histname="nTrkSolidConeDR04VsEtBkg";
+    h2_nTrkSolidConeDR04VsEtBkg_[0] = dbe_->book2D(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    h2_nTrkSolidConeDR04VsEtBkg_[1] = dbe_->book2D(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    h2_nTrkSolidConeDR04VsEtBkg_[2] = dbe_->book2D(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    //
+    histname="pnTrkSolidConeDR04VsEtBkg";
+    p_nTrkSolidConeDR04VsEtBkg_[0] = dbe_->bookProfile(histname+"All","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    p_nTrkSolidConeDR04VsEtBkg_[1] = dbe_->bookProfile(histname+"Barrel","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
+    p_nTrkSolidConeDR04VsEtBkg_[2] = dbe_->bookProfile(histname+"Endcap","Bkg photons nTrkSolidConeDR04 vs Et: all Ecal ",etBin,etMin, etMax, 20,0., 20) ;
 
-
-    
 
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/Photons");
 
@@ -2484,31 +2595,128 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_phoBkgEta_->Fill( matchingPho.eta() );
       h_phoBkgPhi_->Fill( matchingPho.phi() );
 
+      
       h_r9Bkg_[0]->Fill( r9 );
+      h_r1Bkg_[0]->Fill( r1 );
+      h_r2Bkg_[0]->Fill( r2 );
+      h_sigmaIetaIetaBkg_[0]->Fill( sigmaIetaIeta );
+      h_hOverEBkg_[0]->Fill( hOverE );
+      h_ecalRecHitSumEtConeDR04Bkg_[0]->Fill( ecalIso );
+      h_hcalTowerSumEtConeDR04Bkg_[0]->Fill( hcalIso );
+      h_isoTrkSolidConeDR04Bkg_[0]->Fill( trkIso );
+      h_nTrkSolidConeDR04Bkg_[0]->Fill( nIsoTrk );
+      
+
       h2_r9VsEtaBkg_ -> Fill (mcJetEta_, r9);      
       h2_r9VsEtBkg_ -> Fill (mcJetPt, r9);      
-      
-      h_hOverEBkg_[0]->Fill( hOverE );
+
+      h2_r1VsEtaBkg_ -> Fill (mcJetEta_, r1);      
+      h2_r1VsEtBkg_ -> Fill (mcJetPt, r1);      
+      p_r1VsEtaBkg_ -> Fill (mcJetEta_, r1);      
+      p_r1VsEtBkg_ -> Fill (mcJetPt, r1);      
+
+      h2_r2VsEtaBkg_ -> Fill (mcJetEta_, r2);      
+      h2_r2VsEtBkg_ -> Fill (mcJetPt, r2);  
+      p_r2VsEtaBkg_ -> Fill (mcJetEta_, r2);      
+      p_r2VsEtBkg_ -> Fill (mcJetPt, r2);  
+
+
+      h2_sigmaIetaIetaVsEtaBkg_ -> Fill (mcJetEta_, sigmaIetaIeta );      
+      p_sigmaIetaIetaVsEtaBkg_ -> Fill (mcJetEta_, sigmaIetaIeta );      
+      h2_sigmaIetaIetaVsEtBkg_[0] -> Fill (mcJetPt, sigmaIetaIeta);
+      p_sigmaIetaIetaVsEtBkg_[0] -> Fill (mcJetPt, sigmaIetaIeta);
+
+
       h2_hOverEVsEtaBkg_ -> Fill (mcJetEta_, hOverE );      
       h2_hOverEVsEtBkg_ -> Fill (mcJetPt, hOverE);
+      p_hOverEVsEtaBkg_ -> Fill (mcJetEta_, hOverE );      
+      p_hOverEVsEtBkg_ -> Fill (mcJetPt, hOverE);
 
-      h_ecalRecHitSumEtConeDR04Bkg_[0]->Fill( ecalIso );
+
       h2_ecalRecHitSumEtConeDR04VsEtaBkg_ -> Fill (mcJetEta_, ecalIso );      
-      h2_ecalRecHitSumEtConeDR04VsEtBkg_[0] -> Fill ( mcJetPt, ecalIso);      
       p_ecalRecHitSumEtConeDR04VsEtaBkg_ -> Fill (mcJetEta_, ecalIso );      
+      h2_ecalRecHitSumEtConeDR04VsEtBkg_[0] -> Fill ( mcJetPt, ecalIso);      
       p_ecalRecHitSumEtConeDR04VsEtBkg_[0] -> Fill ( mcJetPt, ecalIso);
+
+
+      h2_hcalTowerSumEtConeDR04VsEtaBkg_ -> Fill (mcJetEta_, hcalIso );      
+      p_hcalTowerSumEtConeDR04VsEtaBkg_ -> Fill (mcJetEta_, hcalIso );      
+      h2_hcalTowerSumEtConeDR04VsEtBkg_[0] -> Fill ( mcJetPt, hcalIso);      
+      p_hcalTowerSumEtConeDR04VsEtBkg_[0] -> Fill ( mcJetPt, hcalIso);
+
+      h2_isoTrkSolidConeDR04VsEtaBkg_ -> Fill (mcJetEta_, trkIso );      
+      p_isoTrkSolidConeDR04VsEtaBkg_ -> Fill (mcJetEta_, trkIso );      
+      h2_isoTrkSolidConeDR04VsEtBkg_[0] -> Fill (mcJetPt, trkIso); 
+      p_isoTrkSolidConeDR04VsEtBkg_[0] -> Fill (mcJetPt, trkIso); 
+
+
+      h2_nTrkSolidConeDR04VsEtaBkg_ -> Fill (mcJetEta_, nIsoTrk );      
+      p_nTrkSolidConeDR04VsEtaBkg_ -> Fill (mcJetEta_, nIsoTrk );      
+      h2_nTrkSolidConeDR04VsEtBkg_[0] -> Fill (mcJetPt, nIsoTrk); 
+      p_nTrkSolidConeDR04VsEtBkg_[0] -> Fill (mcJetPt, nIsoTrk); 
+
+
+
+
       if ( phoIsInBarrel ) {
+
 	h_r9Bkg_[1]->Fill( r9 );
+	h_r1Bkg_[1]->Fill( r1 );
+	h_r2Bkg_[1]->Fill( r2 );
+
+
+	h_sigmaIetaIetaBkg_[1]->Fill( sigmaIetaIeta );
 	h_hOverEBkg_[1]->Fill( hOverE );
 	h_ecalRecHitSumEtConeDR04Bkg_[1]->Fill( ecalIso );
+	h_hcalTowerSumEtConeDR04Bkg_[1]->Fill( hcalIso );
+	h_isoTrkSolidConeDR04Bkg_[1]->Fill( trkIso );
+	h_nTrkSolidConeDR04Bkg_[1]->Fill( nIsoTrk );
+
+	h2_sigmaIetaIetaVsEtBkg_[1] -> Fill (mcJetPt, sigmaIetaIeta);
+	p_sigmaIetaIetaVsEtBkg_[1] -> Fill (mcJetPt, sigmaIetaIeta);
+
 	h2_ecalRecHitSumEtConeDR04VsEtBkg_[1] -> Fill ( mcJetPt, ecalIso);   
 	p_ecalRecHitSumEtConeDR04VsEtBkg_[1] -> Fill ( mcJetPt, ecalIso);   
+
+	h2_hcalTowerSumEtConeDR04VsEtBkg_[1] -> Fill ( mcJetPt, hcalIso);      
+	p_hcalTowerSumEtConeDR04VsEtBkg_[1] -> Fill ( mcJetPt, hcalIso);
+
+	h2_isoTrkSolidConeDR04VsEtBkg_[1] -> Fill (mcJetPt, trkIso); 
+	p_isoTrkSolidConeDR04VsEtBkg_[1] -> Fill (mcJetPt, trkIso); 
+
+	h2_nTrkSolidConeDR04VsEtBkg_[1] -> Fill (mcJetPt, nIsoTrk); 
+	p_nTrkSolidConeDR04VsEtBkg_[1] -> Fill (mcJetPt, nIsoTrk); 
+
+
       } else if ( phoIsInEndcap )  {
+	
 	h_r9Bkg_[2]->Fill( r9 );
+	h_r1Bkg_[2]->Fill( r1 );
+	h_r2Bkg_[2]->Fill( r2 );
+
+	h_sigmaIetaIetaBkg_[2]->Fill( sigmaIetaIeta );
 	h_hOverEBkg_[2]->Fill( hOverE );
 	h_ecalRecHitSumEtConeDR04Bkg_[2]->Fill( ecalIso );
-	h2_ecalRecHitSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, ecalIso);      
-	p_ecalRecHitSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, ecalIso);
+	h_hcalTowerSumEtConeDR04Bkg_[2]->Fill( hcalIso );
+	h_isoTrkSolidConeDR04Bkg_[2]->Fill( trkIso );
+	h_nTrkSolidConeDR04Bkg_[2]->Fill( nIsoTrk );
+
+	h2_sigmaIetaIetaVsEtBkg_[2] -> Fill (mcJetPt, sigmaIetaIeta);
+	p_sigmaIetaIetaVsEtBkg_[2] -> Fill (mcJetPt, sigmaIetaIeta);
+
+	h2_ecalRecHitSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, ecalIso);   
+	p_ecalRecHitSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, ecalIso);   
+
+	h2_hcalTowerSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, hcalIso);      
+	p_hcalTowerSumEtConeDR04VsEtBkg_[2] -> Fill ( mcJetPt, hcalIso);
+
+	h2_isoTrkSolidConeDR04VsEtBkg_[2] -> Fill (mcJetPt, trkIso); 
+	p_isoTrkSolidConeDR04VsEtBkg_[2] -> Fill (mcJetPt, trkIso); 
+
+	h2_nTrkSolidConeDR04VsEtBkg_[2] -> Fill (mcJetPt, nIsoTrk); 
+	p_nTrkSolidConeDR04VsEtBkg_[2] -> Fill (mcJetPt, nIsoTrk); 
+
+
       }
 
 
