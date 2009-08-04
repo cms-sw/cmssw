@@ -1,0 +1,22 @@
+<use name=PhysicsTools/Utilities>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/PatCandidates>
+<use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/PatUtils>
+<use name=PhysicsTools/CandUtils>
+<use name=rootrflx>
+
+### With global LHAPDF
+<use name=LHAPDF>
+### With local LHAPDF
+#<flags CXXFLAGS="-I/usr/local/include">
+#<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+
+<export>
+<lib name=ElectroWeakAnalysisUtilities>
+</export>
+
