@@ -101,8 +101,8 @@ void WMuNuProducer::endJob() {
       double esel = npresel/all;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Total numer of events selected: " << npresel << " [events]";
-      LogVerbatim("") << "Overall efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
+      LogVerbatim("") << "Total numer of events pre-selected: " << npresel << " [events]";
+      LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY END >>>>>>>>>>>>>>>";
 }
 
@@ -132,7 +132,8 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             LogError("") << ">>> MET collection does not exist !!!";
             return;
       }
-      const MET& Met = metCollection->at(0);
+      //const MET& Met = metCollection->at(0);
+      edm::Ptr<reco::MET> met(metCollection,0);
 
       // Trigger
       Handle<TriggerResults> triggerResults;
@@ -197,9 +198,9 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
       double MaxPt[5]={0,0,0,0,0};
       int Maxi[5]={0,0,0,0,0};
-     
+      int nmuons=0;
       // Now order remaining Muons by Pt  - there should be only one if preselection has been applied
-      
+       
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
@@ -209,25 +210,32 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             reco::TrackRef gm = mu.globalTrack();
             reco::TrackRef tk = mu.innerTrack();
 
-            // Pt,eta cuts
             double pt = mu.pt();
             if (useTrackerPt_) pt = tk->pt();
+          
+            nmuons++; 
+           
             bool foundPosition=false; int j=0;
             do{   if (pt > MaxPt[j]) { MaxPt[j]=pt; Maxi[j]=i; foundPosition=true;}
                   j++;
             }while(!foundPosition);
                
      }
+     if (nmuons<0) return;
+
      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
-     for (int indx=0; indx<5; indx++){ 
+
+     // Fill Collection with n muons --> n W Candidates ordered by pt
+ 
+     for (int indx=0; indx<nmuons; indx++){ 
      int MuonIndx=Maxi[indx]; 
      const Muon& Muon = muonCollection->at(MuonIndx);
      edm::Ptr<reco::Muon> muon(muonCollection,MuonIndx);
    
       // Build WMuNuCandidate
       LogTrace("")<<"Building WMuNu Candidate!"; 
-      WMuNuCandidate* WCand = new WMuNuCandidate(Muon,Met); WCand->setMuon(muonCollection,MuonIndx); WCand->setNeutrino(metCollection,0);
+      WMuNuCandidate* WCand = new WMuNuCandidate(muon,met); 
       LogTrace("") << "\t... W mass, W_et, W_px, W_py: "<<WCand->massT(useTrackerPt_)<<", "<<WCand->eT(useTrackerPt_)<<"[GeV]";
       LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
       LogTrace("") << "\t... acop  " << WCand->acop();

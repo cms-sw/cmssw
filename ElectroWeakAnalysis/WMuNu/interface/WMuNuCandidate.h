@@ -19,7 +19,7 @@ namespace reco{
 class WMuNuCandidate : public reco::CompositeCandidate {
 public:
   WMuNuCandidate();
-  WMuNuCandidate(const reco::Muon &, const reco::MET &);
+  WMuNuCandidate(edm::Ptr<reco::Muon>,edm::Ptr<reco::MET>);
   ~WMuNuCandidate();
 
       //WARNING: W Candidates combine the information from a Muon with the (px,py) information of the MET as the Neutrino
@@ -41,8 +41,6 @@ public:
       reco::Muon getMuon()     const {return *muon_;}; 
       reco::MET  getNeutrino() const {return *neutrino_;};
 
-      void setMuon(const edm::Handle<edm::View<reco::Muon> > & muons, int  i) { edm::Ptr<reco::Muon> mu(muons,i); muon_=mu; }
-      void setNeutrino(const edm::Handle<edm::View<reco::MET> > & mets, int  i){ edm::Ptr<reco::MET> nu(mets,i); neutrino_=nu;}
 
 private:
       edm::Ptr<Muon> muon_;

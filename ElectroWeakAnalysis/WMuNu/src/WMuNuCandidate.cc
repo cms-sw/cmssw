@@ -9,17 +9,15 @@ using namespace reco;
 
 WMuNuCandidate::WMuNuCandidate(){}
 
-WMuNuCandidate::WMuNuCandidate(const reco::Muon &muon, const reco::MET &met)
+WMuNuCandidate::WMuNuCandidate(edm::Ptr<reco::Muon> muon, edm::Ptr<reco::MET> met): muon_(muon), neutrino_(met)  
 {
-	addDaughter(muon,"Muon");
-      addDaughter(met,"Met");
+      addDaughter(*muon,"Muon");
+      addDaughter(*met,"Met");
       AddFourMomenta addP4;
       addP4.set(*this);
 
-      
-
       //WARNING: W Candidates combine the information from a Muon with the (px,py) information of the MET as the Neutrino
-      // --> There is no Pz information!!!!     
+      // --> There is no Pz information!!!!
       // Be very careful when using the default Candidate functions (.mass, .mt, .et, etc). They may not be what you are looking for :-).
 }
 
