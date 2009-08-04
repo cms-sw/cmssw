@@ -221,7 +221,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             }while(!foundPosition);
                
      }
-     if (nmuons<0) return;
+     if (nmuons<1) return;
 
      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
