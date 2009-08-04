@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/06/29 13:27:50 $
- * $Revision: 1.109 $
+ * $Date: 2009/08/03 23:44:22 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -183,7 +183,7 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
 
   }
 
-  percentVariation_ = 0.4; // not used nor not normalized VPTs
+  percentVariation_ = 999.; // not used nor not normalized VPTs
 
   amplitudeThreshold_ = 100.;
 
@@ -478,49 +478,49 @@ void EELaserClient::setup(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
       mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
       mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
       mepnprms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms03_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
       mepnprms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms04_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
       mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
       if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
       mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
       mepnprms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms07_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
       mepnprms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms08_[ism-1]->setAxisTitle("rms", 1);
     }
@@ -1726,7 +1726,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EELT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
@@ -1734,7 +1734,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EELT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
@@ -1742,7 +1742,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EELT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
@@ -1750,7 +1750,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EELT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
@@ -1758,7 +1758,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EELT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
@@ -1766,7 +1766,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EELT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
@@ -1774,7 +1774,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EELT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
@@ -1782,7 +1782,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EELT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
@@ -1790,7 +1790,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EELT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
@@ -1798,7 +1798,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EELT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
@@ -1806,7 +1806,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EELT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
@@ -1814,7 +1814,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EELT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
@@ -1822,7 +1822,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EELT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
@@ -1830,7 +1830,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EELT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
@@ -1838,7 +1838,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EELT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
@@ -1846,7 +1846,7 @@ void EELaserClient::analyze(void) {
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EELT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
@@ -2016,7 +2016,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2040,7 +2040,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
@@ -2064,7 +2064,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
+          if ( fabs(mean05 - meanAmplL3) > fabs(percentVariation_ * meanAmplL3) || mean05 < amplitudeThreshold_ || rms05 > rmsThresholdRelative_ * mean05 )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
@@ -2088,7 +2088,7 @@ void EELaserClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
+          if ( fabs(mean07 - meanAmplL4) > fabs(percentVariation_ * meanAmplL4) || mean07 < amplitudeThreshold_ || rms07 > rmsThresholdRelative_ * mean07 )
             val = 0.;
           if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 

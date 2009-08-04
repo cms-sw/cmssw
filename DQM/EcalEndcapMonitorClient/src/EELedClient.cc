@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/06/29 13:27:50 $
- * $Revision: 1.94 $
+ * $Date: 2009/08/03 23:44:22 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -143,7 +143,7 @@ EELedClient::EELedClient(const ParameterSet& ps) {
 
   }
 
-  percentVariation_ = 0.4; // not used nor not normalized VPTs
+  percentVariation_ = 999.; // not used nor not normalized VPTs
   
   amplitudeThreshold_ = 100.;
 
@@ -330,26 +330,26 @@ void EELedClient::setup(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
       mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms01_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
       mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms02_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
       if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
       mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms05_[ism-1]->setAxisTitle("rms", 1);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
       mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
       mepnprms06_[ism-1]->setAxisTitle("rms", 1);
     }
@@ -1107,7 +1107,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
@@ -1115,7 +1115,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
@@ -1123,7 +1123,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EELDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
@@ -1131,7 +1131,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EELDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
@@ -1139,7 +1139,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
@@ -1147,7 +1147,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
@@ -1155,7 +1155,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EELDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
@@ -1163,7 +1163,7 @@ void EELedClient::analyze(void) {
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EELDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
       me = dqmStore_->get(histo);
       i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
@@ -1280,7 +1280,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
+          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation_ * meanAmplL1) || mean01 < amplitudeThreshold_ || rms01 > rmsThresholdRelative_ * mean01 )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1304,7 +1304,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
+          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation_ * meanAmplL2) || mean03 < amplitudeThreshold_ || rms03 > rmsThresholdRelative_ * mean03 )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
