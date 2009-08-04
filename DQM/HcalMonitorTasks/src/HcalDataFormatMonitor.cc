@@ -1377,7 +1377,7 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
   mePlot -> setBinLabel(7,"OptDat Err",axisType);
   mePlot -> setBinLabel(8,"Clock Err",axisType);
   mePlot -> setBinLabel(9,"Bunch Err",axisType);
-  mePlot -> setBinLabel(10,"Link Err",axisType);
+  mePlot -> setBinLabel(10,"Corrupt Stream",axisType);
   mePlot -> setBinLabel(11,"CapId Err",axisType);
   mePlot -> setBinLabel(12,"FE Format Err",axisType);
   mePlot -> setBinLabel(13,"Test Mode",axisType);
