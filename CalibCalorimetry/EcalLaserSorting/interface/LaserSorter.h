@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.1 2009/02/25 17:34:04 pgras Exp $
+ * $Id: LaserSorter.h,v 1.2 2009/02/25 17:38:11 pgras Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -141,7 +141,7 @@ private:
    * blocks, -1 is returned otherwise.
    */
   int getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
-                             double* proba = 0) const;
+                             double* proba = 0);
 
   /** Closes output stream 2 lumi block older than the input 'lumiBlock' ID.
    * @param lumiBlock ID of the reference luminosity block.
@@ -392,7 +392,27 @@ private:
   /** Buffer to compute minimal orbit ID of process events
    */
   uint32_t minOrbitId_;
+
 #endif
+
+  /** Number of "No fully readout DCC error"
+   */
+  int iNoFullReadoutDccError_;
+
+
+  /** Maximum number of "No fully readout DCC error" message in a run
+   */
+  int maxFullReadoutDccError_;  
+
+
+  /** number of "ECAL DCC data" message in a run
+   */
+  int iNoEcalDataMess_;
+
+  /** Maximum number of "ECAL DCC data" message in a run
+   */
+  int maxNoEcalDataMess_;
+
   
   /** FED ID associated to Matacq data
    */

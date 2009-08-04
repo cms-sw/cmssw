@@ -18,6 +18,10 @@ laserSorter = cms.EDAnalyzer("LaserSorter",
   timeLogFile = cms.untracked.string("laserSortingTime.txt"),
   disableOutput = cms.untracked.bool(False),
   outputListFile = cms.untracked.string("lmfFileList.txt"),
-  verbosity = cms.untracked.int32(0)
+  verbosity = cms.untracked.int32(0),
+  #limit on "no fully readout dcc error" messages per run
+  maxFullReadoutDccError = cms.int32(10),
+  #limit on "No ECAL DCC Data" messages per run
+  maxNoEcalDataMess = cms.int32(10)
 )
 

@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.1 2009/02/25 17:34:05 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.2 2009/05/27 14:52:48 pgras Exp $
  */
 
 /***************************************************
@@ -79,6 +79,10 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     outputListFile_(pset.getUntrackedParameter<string>("outputListFile", "")),
     doOutputList_(false),
     verbosity_(pset.getUntrackedParameter<int>("verbosity", 0)),
+    iNoFullReadoutDccError_(0),
+    maxFullReadoutDccError_(pset.getParameter<int>("maxFullReadoutDccError")),
+    iNoEcalDataMess_(0),
+    maxNoEcalDataMess_(pset.getParameter<int>("maxNoEcalDataMess")),
     stats_(stats_init)
 {
 
@@ -170,6 +174,8 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     //for a new run, starts with a new output stream set.
     closeAllStreams();
     runNumber_ = event.id().run();
+    iNoFullReadoutDccError_ = 0;
+    iNoEcalDataMess_ = 0;
   }
   
   edm::Handle<FEDRawDataCollection> rawdata;
@@ -198,7 +204,10 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     ++stats_.nInvalidDccWeak;
     vector<int> ids = getFullyReadoutDccs(*rawdata);
     if(ids.size()==0){
-      if(verbosity_) cout << " No fully read-out DCC found\n";
+      if(verbosity_ && iNoFullReadoutDccError_ < maxFullReadoutDccError_){
+        cout << " No fully read-out DCC found\n";
+        ++iNoFullReadoutDccError_;
+      }
     } else if(ids.size()==1){
       triggeredFedId = ids[0];
       if(verbosity_) cout << " ID guessed from DCC payloads\n";
@@ -336,7 +345,7 @@ int LaserSorter::dcc2Lme(int dcc, int side){
 }
 
 int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
-                                        double* proba) const{  
+                                        double* proba){  
   Majority<int> stat;
   for(int id=ecalDccFedIdMin_; id<=ecalDccFedIdMax_; ++id){
     if(!FEDNumbering::inRange(id)) continue;
@@ -357,7 +366,12 @@ int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>&
   int tType = stat.result(&p);
   if(p<0){
     //throw cms::Exception("NotFound") << "No ECAL DCC data found\n";
-    edm::LogWarning("NotFound")  << "No ECAL DCC data found\n";
+    if(iNoEcalDataMess_ < maxNoEcalDataMess_){
+      edm::LogWarning("NotFound")  << "No ECAL DCC data found. "
+        "(This warning will be disabled for the current run after "
+                                   << maxNoEcalDataMess_ << " occurences.)";
+      ++iNoEcalDataMess_;
+    }
     tType = -1;
   } else if(p<.8){
     //throw cms::Exception("EventCorruption") << "Inconsitency in detailed trigger type indicated in ECAL DCC data headers\n";
@@ -445,8 +459,8 @@ bool LaserSorter::writeEvent(OutStreamRecord& outRcd, const edm::Event& event,
   rc &= writeEventHeader(out, event, dtt, fedIds.size());
   
   for(unsigned iFed = 0; iFed < fedIds.size() && rc; ++iFed){
-    //  cout << "------> data.FEDData(" << fedIds[iFed] << ") = "
-    //     << data.FEDData(fedIds[iFed]).size() << "\n";
+//     cout << "------> data.FEDData(" << fedIds[iFed] << ").size = "
+//          << data.FEDData(fedIds[iFed]).size() << "\n";
     rc  &= writeFedBlock(out, data.FEDData(fedIds[iFed]));
   }
 
@@ -870,7 +884,12 @@ void LaserSorter::getOutputFedList(const edm::Event& event,
         << ", Data of this FED dropped.";
     }
   }
+//   cout << __FILE__ << ":" << __LINE__ << ": "
+//        <<  "data.FEDData(" << matacqFedId_ << ").size() = "
+//        <<  data.FEDData(matacqFedId_).size() << "\n";
   if(data.FEDData(matacqFedId_).size()>4){//matacq block present
+    //    cout << __FILE__ << ":" << __LINE__ << ": "
+    //     <<  "Adding matacq to list of FEDs\n";
     fedIds.push_back(matacqFedId_);
   }
 }
