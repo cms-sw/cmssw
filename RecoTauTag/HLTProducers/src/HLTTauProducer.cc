@@ -1,5 +1,7 @@
 #include "RecoTauTag/HLTProducers/interface/HLTTauProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "Math/GenVector/VectorUtil.h"
+
 //
 // class decleration
 //
@@ -35,9 +37,11 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   edm::Handle<PFTauCollection> tauL3Jets;
   iEvent.getByLabel(trackIsolatedJetsL3_, tauL3Jets );
 
-  
-  
-  int i=0;
+  //  std::cout <<"L2 jets "<< tauL2Jets->size()<<std::endl;
+  //  std::cout <<"L25 jets "<< tauL25Jets->size()<<std::endl;
+  bool foundAtL25 = false;
+  bool foundAtL3 = false;
+ float deltaR = 0.3;
   
  for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
 	   {
@@ -50,6 +54,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	     float phi_ = jet.phi();
 	     float pt_ = jet.pt();
 	     HLTTau pippo(eta_,phi_,pt_);
+	     //get L2 quantities
 	     pippo.setEMIsolationValue(l2info.ecalIsolEt());
 	     pippo.setSeedEcalHitEt(l2info.seedEcalHitEt());
 	     pippo.setEcalClusterShape(l2info.ecalClusterShape());
@@ -58,40 +63,47 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	     pippo.setSeedHcalHitEt(l2info.seedHcalHitEt());
 	     pippo.setHcalClusterShape(l2info.hcalClusterShape());
 	     pippo.setNHcalHits(l2info.nHcalHits());
-	     //getting the pftau reference
-	     PFTauRef thePFTauRef(tauL25Jets,i);
+
 	     //setting up L2.5 quantities
-	     pippo.setL25TauPt(thePFTauRef->pt());
-	     if(thePFTauRef->leadPFChargedHadrCand().isNonnull()) {
-	       pippo.setL25LeadTrackPtValue(thePFTauRef->leadPFChargedHadrCand()->pt());
-	     }else{
-	       pippo.setL25LeadTrackPtValue(0.);
+	     for(unsigned int i=0 ; i<tauL25Jets->size(); i++){
+	       //getting the pftau reference
+	       PFTauRef thePFTauRef(tauL25Jets,i);	      
+	       if(ROOT::Math::VectorUtil::DeltaR(thePFTauRef->p4().Vect(),jet.p4().Vect()) < deltaR)
+		 {
+		   pippo.setL25TauPt(thePFTauRef->pt());
+		   if(thePFTauRef->leadPFChargedHadrCand().isNonnull()) {
+		     pippo.setL25LeadTrackPtValue(thePFTauRef->leadPFChargedHadrCand()->pt());
+		   }else{
+		     pippo.setL25LeadTrackPtValue(0.);
+		   }
+		   if(thePFTauRef->leadPFCand().isNonnull()) {
+		     pippo.setL25LeadPionPtValue(thePFTauRef->leadPFCand()->pt());
+		   }else{
+		     pippo.setL25LeadPionPtValue(0.);
+		   }
+		   foundAtL25 = true;
+		 }
 	     }
-
-	     if(thePFTauRef->leadPFCand().isNonnull()) {
-	       pippo.setL25LeadPionPtValue(thePFTauRef->leadPFCand()->pt());
-	     }else{
-	       pippo.setL25LeadPionPtValue(0.);
+	     //setting up L3 quantities
+	     for(unsigned int i=0 ; i<tauL3Jets->size(); i++){
+	       //getting the pftau reference  
+	       PFTauRef thePFTauL3Ref(tauL3Jets,i);
+	       if(ROOT::Math::VectorUtil::DeltaR(thePFTauL3Ref->p4().Vect(),jet.p4().Vect()) < deltaR)
+		 {
+		   pippo.setNL3TrackIsolation(thePFTauL3Ref->isolationTracks().size());
+		   float sumPtL3 = 0.;
+		   for(unsigned int j=0;j<thePFTauL3Ref->isolationTracks().size();j++){
+		     sumPtL3 = sumPtL3 + thePFTauL3Ref->isolationTracks()[j]->pt();
+		   }
+		   pippo.setSumPtTracksL3(sumPtL3);
+		   foundAtL3 = true;
+		 }
 	     }
-	     
-       //setting up L3 quantities
-	     PFTauRef thePFTauL3Ref(tauL3Jets,i);
-	     pippo.setNL3TrackIsolation(thePFTauL3Ref->isolationTracks().size());
-	     float sumPtL3 = 0.;
-	     for(unsigned int j=0;j<thePFTauL3Ref->isolationTracks().size();j++){
-	       sumPtL3 = sumPtL3 + thePFTauL3Ref->isolationTracks()[j]->pt();
-	     }
-	     pippo.setSumPtTracksL3(sumPtL3);
-
-	     jetCollection->push_back(pippo);
-	     i++;
-  }
+	     if(foundAtL25 && foundAtL3) jetCollection->push_back(pippo);
+	   }
+ auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
   
-  auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
+ iEvent.put(selectedTaus);
   
-  iEvent.put(selectedTaus);
-  
-
-
 
 }
