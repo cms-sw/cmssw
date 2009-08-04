@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/29 19:45:45 $ 
- **  $Revision: 1.24 $
+ **  $Date: 2009/07/29 19:49:49 $ 
+ **  $Revision: 1.25 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -200,7 +200,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_phoDPhi_[2];
 
 
-  MonitorElement* h_nPho_[2][3];
+
   MonitorElement* h_scEta_[2];
   MonitorElement* h_scEtaWidth_[2];
   MonitorElement* h_scPhi_[2];
@@ -411,6 +411,9 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*   h_MatchedSimJet_[3];
   MonitorElement*   h_MatchedSimJetBadCh_[3];
   //
+
+  MonitorElement*   h_nPho_;
+
   MonitorElement* h_scBkgEta_;
   MonitorElement* h_scBkgPhi_;
   MonitorElement* h_phoBkgEta_;
@@ -420,11 +423,36 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scBkgEt_[3];
 
   MonitorElement* h_r9Bkg_[3];
+  MonitorElement* h_r1Bkg_[3];
+  MonitorElement* h_r2Bkg_[3];
+  MonitorElement* h_hOverEBkg_[3];
+
   MonitorElement* h2_r9VsEtaBkg_;
   MonitorElement* h2_r9VsEtBkg_;
-  MonitorElement* h_hOverEBkg_[3];
+
+  MonitorElement* h2_r1VsEtaBkg_;
+  MonitorElement* h2_r1VsEtBkg_;
+  MonitorElement* p_r1VsEtaBkg_;
+  MonitorElement* p_r1VsEtBkg_;
+
+  MonitorElement* h2_r2VsEtaBkg_;
+  MonitorElement* h2_r2VsEtBkg_;
+  MonitorElement* p_r2VsEtaBkg_;
+  MonitorElement* p_r2VsEtBkg_;
+
+  MonitorElement* h_sigmaIetaIetaBkg_[3];  
+  MonitorElement* h2_sigmaIetaIetaVsEtaBkg_;
+  MonitorElement* p_sigmaIetaIetaVsEtaBkg_;
+  MonitorElement* h2_sigmaIetaIetaVsEtBkg_[3];
+  MonitorElement* p_sigmaIetaIetaVsEtBkg_[3];
+
+
   MonitorElement* h2_hOverEVsEtaBkg_;
   MonitorElement* h2_hOverEVsEtBkg_;
+  MonitorElement* p_hOverEVsEtaBkg_;
+  MonitorElement* p_hOverEVsEtBkg_;
+
+
   MonitorElement* h_ecalRecHitSumEtConeDR04Bkg_[3];
   MonitorElement* h2_ecalRecHitSumEtConeDR04VsEtaBkg_;
   MonitorElement* p_ecalRecHitSumEtConeDR04VsEtaBkg_;
@@ -432,7 +460,29 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* p_ecalRecHitSumEtConeDR04VsEtBkg_[3];
 
 
+  MonitorElement* h_hcalTowerSumEtConeDR04Bkg_[3];
+  MonitorElement* h2_hcalTowerSumEtConeDR04VsEtaBkg_;
+  MonitorElement* p_hcalTowerSumEtConeDR04VsEtaBkg_;
+  MonitorElement* h2_hcalTowerSumEtConeDR04VsEtBkg_[3];
+  MonitorElement* p_hcalTowerSumEtConeDR04VsEtBkg_[3];
+
+  MonitorElement* h_isoTrkSolidConeDR04Bkg_[3];  
+  MonitorElement* h2_isoTrkSolidConeDR04VsEtaBkg_;
+  MonitorElement* p_isoTrkSolidConeDR04VsEtaBkg_;
+  MonitorElement* h2_isoTrkSolidConeDR04VsEtBkg_[3];
+  MonitorElement* p_isoTrkSolidConeDR04VsEtBkg_[3];
+  //
+  MonitorElement* h_nTrkSolidConeDR04Bkg_[3];  
+  MonitorElement* h2_nTrkSolidConeDR04VsEtaBkg_;
+  MonitorElement* p_nTrkSolidConeDR04VsEtaBkg_;
+  MonitorElement* h2_nTrkSolidConeDR04VsEtBkg_[3];
+  MonitorElement* p_nTrkSolidConeDR04VsEtBkg_[3];
+  //
+
 
 };
+
+
+
 
 #endif
