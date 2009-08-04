@@ -106,14 +106,18 @@ if __name__ == '__main__':
     copy = options.copy
     if not re.search ('\.cc$', copy):
         copy += '.cc'
-    buildCopy = os.path.dirname (copy) + 'BuildFile'
+    buildCopy = os.path.dirname (copy)
+    if len (buildCopy):
+        buildCopy += '/BuildFile'
+    else:
+        buildCopy = 'BuildFile'
     found = False
     searchList = ['',
                   base + "/src/PhysicsTools/FWLite/examples/",
                   release_base+ "/src/PhysicsTools/FWLite/examples/"]
     fullName  = ''
     fullBuild = ''
-    for where in searchList:
+    for where in searchList:        
         name  = where + copy
         build = where + buildCopy
         # Is the copy file here
