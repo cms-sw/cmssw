@@ -18,6 +18,7 @@ FittingSmootherRKP5.Fitter = 'RKFitter'
 FittingSmootherRKP5.Smoother = 'RKSmoother'
 FittingSmootherRKP5.MinNumberOfHits = 4 #why is this set to 4??
 FittingSmootherRKP5.EstimateCut = cms.double(20.0)
+FittingSmootherRKP5.BreakTrajWith2ConsecutiveMissing = cms.bool(False)
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
 ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
