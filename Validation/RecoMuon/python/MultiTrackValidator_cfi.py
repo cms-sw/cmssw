@@ -6,7 +6,7 @@ from Validation.RecoMuon.associators_cff import *
 import Validation.RecoTrack.MultiTrackValidator_cfi
 
 RMmultiTrackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
-RMmultiTrackValidator.dirName = 'RecoMuonV/MultiTrack/'
+RMmultiTrackValidator.dirName = 'Muons/RecoMuonV/MultiTrack/'
 RMmultiTrackValidator.pdgIdTP = (13,-13)
 
 RMmultiTrackValidator.useFabsEta = False

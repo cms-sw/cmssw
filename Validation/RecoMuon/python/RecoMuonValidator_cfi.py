@@ -18,7 +18,7 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     doAssoc = cms.untracked.bool(False),
 
     outputFileName = cms.untracked.string(''),
-    subDir = cms.untracked.string('RecoMuonV/'),
+    subDir = cms.untracked.string('Muons/RecoMuonV/'),
 
     #
     # Histogram dimensions     #

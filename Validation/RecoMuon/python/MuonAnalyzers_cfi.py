@@ -16,7 +16,7 @@ MuonTrackAnalysisParameters = cms.PSet(
 STAMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
     MuonTrackAnalysisParameters,
     DoSeedsAnalysis = cms.untracked.bool(True),
-    dirName = cms.untracked.string('RecoMuonV/TrackAnalyzer/'),
+    dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/'),
     Tracks = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
     MuonSeed = cms.InputTag("MuonSeed")
 )
@@ -24,19 +24,19 @@ STAMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
 GLBMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("globalMuons"),
-    dirName = cms.untracked.string('RecoMuonV/TrackAnalyzer/')
+    dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
 TrackerMuonAnalyzer = cms.EDAnalyzer("MuonTrackAnalyzer",
     MuonTrackAnalysisParameters,
     Tracks = cms.InputTag("generalTracks"),
-    dirName = cms.untracked.string('RecoMuonV/TrackAnalyzer/')
+    dirName = cms.untracked.string('Muons/RecoMuonV/TrackAnalyzer/')
 )
 
 MuonTrackResidualAnalyzer = cms.EDAnalyzer("MuonTrackResidualAnalyzer",
     MuonTrackAnalysisParameters,
     MuonTrack = cms.InputTag("standAloneMuons"),
-    dirName = cms.untracked.string('RecoMuonV/TrackResidualAnalyzer/'),
+    dirName = cms.untracked.string('Muons/RecoMuonV/TrackResidualAnalyzer/'),
     MuonSeed = cms.InputTag("MuonSeed")
 )
 
