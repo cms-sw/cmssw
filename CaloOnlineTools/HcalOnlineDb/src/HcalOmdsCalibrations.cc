@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalOmdsCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.6 2009/03/26 13:58:37 kukartse Exp $
+// $Id: HcalOmdsCalibrations.cc,v 1.7 2009/03/27 09:02:14 kukartse Exp $
 //
 //
 
@@ -48,6 +48,7 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
 
     if (request->exists("version")) mVersion[objectName] = request->getParameter<string>("version");
     if (request->exists("subversion")) mSubversion[objectName] = request->getParameter<int>("subversion");
+    if (request->exists("iov_begin")) mIOVBegin[objectName] = request->getParameter<int>("iov_begin");
     if (request->exists("accessor")) mAccessor[objectName] = request->getParameter<string>("accessor");
     if (request->exists("query")) mQuery[objectName] = request->getParameter<string>("query");
 
@@ -128,6 +129,7 @@ template <class T>
 std::auto_ptr<T> produce_impl (const std::string & fTag, 
 			       const std::string & fVersion=default_version, 
 			       const int fSubversion=1, 
+			       const int fIOVBegin=1,
 			       const std::string & fQuery = default_query, 
 			       const std::string& fAccessor = omds_occi_default_accessor ) {
   std::auto_ptr<T> result (new T ());
@@ -140,7 +142,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
   }
   oracle::occi::Connection * _connection = db -> getConnection();
   if (_connection){
-    if (!HcalDbOmds::getObject (_connection, fTag, fVersion, fSubversion, fQuery, &*result)) {
+    if (!HcalDbOmds::getObject (_connection, fTag, fVersion, fSubversion, fIOVBegin, fQuery, &*result)) {
       std::cerr << "HcalOmdsCalibrations-> Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
       throw cms::Exception("ReadError") << "Can not read tag name '" << fTag << "' from database '" << fAccessor << "'" << std::endl;
     }
@@ -154,42 +156,92 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
 
 
 std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  return produce_impl<HcalPedestals> (mInputs ["Pedestals"], mVersion["Pedestals"], mSubversion["Pedestals"], mQuery["Pedestals"], mAccessor["Pedestals"]);
+  return produce_impl<HcalPedestals> (mInputs ["Pedestals"],
+				      mVersion["Pedestals"], 
+				      mSubversion["Pedestals"], 
+				      mIOVBegin["Pedestals"], 
+				      mQuery["Pedestals"], 
+				      mAccessor["Pedestals"]);
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"], mVersion["PedestalWidths"], mSubversion["PedestalWidths"], mQuery["PedestalWidths"], mAccessor["PedestalWidths"]);
+  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"], 
+					   mVersion["PedestalWidths"], 
+					   mSubversion["PedestalWidths"], 
+					   mIOVBegin["PedestalWidths"], 
+					   mQuery["PedestalWidths"], 
+					   mAccessor["PedestalWidths"]);
 }
 
 std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&) {
-  return produce_impl<HcalGains> (mInputs ["Gains"], mVersion["Gains"], mSubversion["Gains"], mQuery["Gains"], mAccessor["Gains"]);
+  return produce_impl<HcalGains> (mInputs ["Gains"], 
+				  mVersion["Gains"], 
+				  mSubversion["Gains"], 
+				  mIOVBegin["Gains"], 
+				  mQuery["Gains"], 
+				  mAccessor["Gains"]);
 }
 
 std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
-  return produce_impl<HcalGainWidths> (mInputs ["GainWidths"], mVersion["GainWidths"], mSubversion["GainWidths"], mQuery["GainWidths"], mAccessor["GainWidths"]);
+  return produce_impl<HcalGainWidths> (mInputs ["GainWidths"], 
+				       mVersion["GainWidths"], 
+				       mSubversion["GainWidths"], 
+				       mIOVBegin["GainWidths"], 
+				       mQuery["GainWidths"], 
+				       mAccessor["GainWidths"]);
 }
 
 std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
-  return produce_impl<HcalQIEData> (mInputs ["QIEData"], mVersion["QIEData"], mSubversion["QIEData"], mQuery["QIEData"], mAccessor["QIEData"]);
+  return produce_impl<HcalQIEData> (mInputs ["QIEData"], 
+				    mVersion["QIEData"], 
+				    mSubversion["QIEData"], 
+				    mIOVBegin["QIEData"], 
+				    mQuery["QIEData"], 
+				    mAccessor["QIEData"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
-  return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"], mVersion["ChannelQuality"], mSubversion["ChannelQuality"], mQuery["ChannelQuality"], mAccessor["ChannelQuality"]);
+  return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"], 
+					   mVersion["ChannelQuality"], 
+					   mSubversion["ChannelQuality"], 
+					   mIOVBegin["ChannelQuality"], 
+					   mQuery["ChannelQuality"], 
+					   mAccessor["ChannelQuality"]);
 }
 
 std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
-  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"], mVersion["ZSThresholds"], mSubversion["ZSThresholds"], mQuery["ZSThresholds"], mAccessor["ZSThresholds"]);
+  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"], 
+					 mVersion["ZSThresholds"], 
+					 mSubversion["ZSThresholds"], 
+					 mIOVBegin["ZSThresholds"], 
+					 mQuery["ZSThresholds"], 
+					 mAccessor["ZSThresholds"]);
 }
 
 std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
-  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"], mVersion["RespCorrs"], mSubversion["RespCorrs"], mQuery["RespCorrs"], mAccessor["RespCorrs"]);
+  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"], 
+				      mVersion["RespCorrs"], 
+				      mSubversion["RespCorrs"], 
+				      mIOVBegin["RespCorrs"], 
+				      mQuery["RespCorrs"], 
+				      mAccessor["RespCorrs"]);
 }
 
 std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
-  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"], mVersion["L1TriggerObjects"], mSubversion["L1TriggerObjects"], mQuery["L1TriggerObjects"], mAccessor["L1TriggerObjects"]);
+  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"], 
+					     mVersion["L1TriggerObjects"], 
+					     mSubversion["L1TriggerObjects"], 
+					     mIOVBegin["L1TriggerObjects"], 
+					     mQuery["L1TriggerObjects"], 
+					     mAccessor["L1TriggerObjects"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
-  return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"], mVersion["ElectronicsMap"], mSubversion["ElectronicsMap"], mQuery["ElectronicsMap"], mAccessor["ElectronicsMap"]);
+  return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"], 
+					   mVersion["ElectronicsMap"], 
+					   mSubversion["ElectronicsMap"], 
+					   mIOVBegin["ElectronicsMap"], 
+					   mQuery["ElectronicsMap"], 
+					   mAccessor["ElectronicsMap"]);
 }
 

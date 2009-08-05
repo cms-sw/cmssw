@@ -1,7 +1,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalTextCalibrations
-// $Id: HcalOmdsCalibrations.h,v 1.1 2009/03/13 11:27:36 kukartse Exp $
+// $Id: HcalOmdsCalibrations.h,v 1.2 2009/03/24 14:33:27 kukartse Exp $
 //
 //
 #include <map>
@@ -54,6 +54,7 @@ protected:
   std::map <std::string, std::string> mInputs;
   std::map <std::string, std::string> mVersion;
   std::map <std::string, int> mSubversion;
+  std::map <std::string, int> mIOVBegin;
   std::map <std::string, std::string> mAccessor;
   std::map <std::string, std::string> mQuery;
 };

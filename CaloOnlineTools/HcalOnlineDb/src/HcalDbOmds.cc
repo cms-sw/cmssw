@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.10 2009/03/27 09:02:14 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.11 2009/03/27 09:46:13 kukartse Exp $
 //
 //
 #include <vector>
@@ -65,6 +65,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalPedestals* fObject) {
   bool result=true;
@@ -129,6 +130,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalPedestalWidths* fObject) {
   bool result=true;
@@ -220,6 +222,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalGains* fObject) {
   bool result=true;
@@ -275,6 +278,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalGainWidths* fObject) {
   bool result=true;
@@ -330,6 +334,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalQIEData* fObject) {
   bool result=true;
@@ -397,6 +402,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalCalibrationQIEData* fObject) {
   std::cerr << "NOT IMPLEMENTED!" << std::endl;
@@ -408,6 +414,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalElectronicsMap* fObject) {
   bool result=true;
@@ -484,6 +491,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalChannelQuality* fObject) {
   bool result=true;
@@ -493,6 +501,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     stmt->setString(1,fTag);
     stmt->setString(2,fVersion);
     //stmt->setInt(3,fSubversion);
+    stmt->setInt(3,fIOVBegin);
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -506,7 +515,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     //
     // The query result must be ordered in the following way
     // 1.objectname, ( values: HcalDetId, HcalCalibDetId, HcalTrigTowerDetId, HcalZDCDetId or HcalCastorDetId)
-    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
+    // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel_on_off_state
     // 12. channel_status_word
     //
     while (rs->next()) {
@@ -536,6 +545,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalRespCorrs* fObject) {
   bool result=true;
@@ -588,6 +598,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalZSThresholds* fObject) {
   bool result=true;
@@ -640,6 +651,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fTag, 
 			    const std::string & fVersion,
 			    const int fSubversion,
+			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalL1TriggerObjects* fObject) {
   bool result=true;
