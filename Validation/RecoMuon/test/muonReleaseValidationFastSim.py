@@ -13,16 +13,16 @@ import string
 FastSimUse="False"
 
 #Reference release
-NewRelease='CMSSW_3_1_1'
+NewRelease='CMSSW_3_2_3'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar','RelValZMM']
-#startupsamples= ['']
+startupsamples= ['RelValTTbar','RelValZMM', 'RelValCosmics']
+#startupsamples= ['RelValCosmics']
 
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
 idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
-#idealsamples= ['RelValSingleMuPt10']
+#idealsamples= ['']
 
 
 
@@ -43,8 +43,8 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 
-#Sequence='only_validation_and_TP'
-Sequence='harvesting'
+Sequence='only_validation_and_TP'
+#Sequence='harvesting'
 
 Submit=False
 #DBS=False  # Ineffective...

@@ -71,23 +71,20 @@ else:
 ######
 
 
-#process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring (
-#    FILENAMES
-#    )
-#)
-#process.extend("RelValTTbar_cff")
-
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
 if (FastSim):
-    process.recoMuonValidationSequence = cms.Sequence(process.recoMuonValidationFastSim
-                                  *process.recoMuonValidationHLTFastSim_seq)
+    process.recoMuonValidationSequence = cms.Sequence(process.multiTrackValidator
+                                                      *process.recoMuonValidationFastSim
+                                                      *process.recoMuonValidationHLTFastSim_seq)
+elif ('SAMPLE'=='RelValCosmics'):
+    process.recoMuonValidationSequence = cms.Sequence(process.recoCosmicMuonValidation)
 else:
-    process.recoMuonValidationSequence = cms.Sequence(process.recoMuonValidation
-                                  *process.recoMuonValidationHLT_seq)
+    process.recoMuonValidationSequence = cms.Sequence(process.multiTrackValidator
+                                                      *process.recoMuonValidation
+                                                      *process.recoMuonValidationHLT_seq)
 
 process.digi2track = cms.Sequence(process.siPixelDigis
                                   *process.SiStripRawToDigis
@@ -96,10 +93,7 @@ process.digi2track = cms.Sequence(process.siPixelDigis
                                   *(process.ckftracks
                                     *process.muonreco_plus_isolation)
                                   *process.cutsRecoTracks
-                                  ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                  *process.multiTrackValidator
                                   *process.recoMuonValidationSequence
-#                                  *process.endOfProcess
                                   )
 #redo also tracking particles
 process.digi2track_and_TP = cms.Sequence(process.mix
@@ -111,10 +105,7 @@ process.digi2track_and_TP = cms.Sequence(process.mix
                                          *(process.ckftracks
                                            *process.muonreco_plus_isolation)
                                          *process.cutsRecoTracks
-                                         ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                         *process.multiTrackValidator
                                          *process.recoMuonValidationSequence
-#                                         *process.endOfProcess
                                          )
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits
@@ -122,10 +113,7 @@ process.re_tracking = cms.Sequence(process.siPixelRecHits
                                    *(process.ckftracks
                                      *process.muonreco_plus_isolation)
                                    *process.cutsRecoTracks
-                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                   *process.multiTrackValidator
                                    *process.recoMuonValidationSequence
-#                                   *process.endOfProcess
                                    )
 
 process.re_tracking_and_TP = cms.Sequence(process.mix
@@ -135,42 +123,29 @@ process.re_tracking_and_TP = cms.Sequence(process.mix
                                           *(process.ckftracks
                                             *process.muonreco_plus_isolation)
                                           *process.cutsRecoTracks
-                                          ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                          *process.multiTrackValidator
                                           *process.recoMuonValidationSequence
-#                                          *process.endOfProcess
                                           )
 
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation = cms.Sequence(##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                           process.multiTrackValidator
-                                           *process.recoMuonValidationSequence
-#                                           *process.endOfProcess
-                                           )
+
+    process.only_validation = cms.Sequence(process.recoMuonValidationSequence)
 else:
     process.only_validation = cms.Sequence(process.cutsRecoTracks
-                                           ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
-                                           *process.multiTrackValidator
                                            *process.recoMuonValidationSequence
-#                                           *process.endOfProcess
                                            )
     
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
     process.only_validation_and_TP = cms.Sequence(process.mix
                                                   *process.trackingParticles
-                                                  *process.multiTrackValidator
-#                                                  *process.recoMuonValidation
                                                   *process.recoMuonValidationSequence
-#                                                  *process.endOfProcess
                                                   )
 else:
     process.only_validation_and_TP = cms.Sequence(process.mix
                                                   *process.trackingParticles
                                                   *process.cutsRecoTracks
-                                                  *process.multiTrackValidator
                                                   *process.recoMuonValidationSequence
-#                                                  *process.endOfProcess
                                                   )
+
 
 ### customized version of the OutputModule
 ### it saves the mininal information which is necessary to perform tracking validation (tracks, tracking particles, 

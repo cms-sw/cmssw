@@ -7,11 +7,12 @@ import string
 
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
-NewRelease='CMSSW_3_2_2'
-RefRelease='CMSSW_3_2_0'
+NewRelease='CMSSW_3_2_3'
+RefRelease='CMSSW_3_2_2'
 
-#samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
-samples= ['RelValTTbar','RelValZMM']
+samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+#samples= ['RelValTTbar','RelValZMM']
+#samples= ['RelValCosmics']
 
 #samples= ['ppMuXLoose', 'InclusiveMu5_Pt50', 'InclusiveMu5_Pt250', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
 #samples= ['InclusiveMu5_Pt50', 'ZmumuJet_Pt0to15', 'ZmumuJet_Pt300toInf', 'ZmumuJet_Pt80to120']
@@ -29,10 +30,10 @@ CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 
 ValidateHLT=True
 
-#NewCondition='MC'
-#RefCondition='MC'
-NewCondition='STARTUP'
-RefCondition='STARTUP'
+NewCondition='MC'
+RefCondition='MC'
+#NewCondition='STARTUP'
+#RefCondition='STARTUP'
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
