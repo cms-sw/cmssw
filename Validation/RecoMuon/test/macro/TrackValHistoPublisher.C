@@ -42,6 +42,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  }
  else if (dataType == "RECO") {
    if(sfile->cd("DQMData/Run 1/RecoMuonV")) {sfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");}
+   else if(sfile->cd("DQMData/Run 1/Muons/RecoMuonV")) {sfile->cd("DQMData/Run 1/Muons/RecoMuonV/Run summary/MultiTrack");}
    else {sfile->cd("DQMData/RecoMuonV/MultiTrack");}
  }
  else {
@@ -68,6 +69,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  }
  else if (dataType == "RECO") {
    if(rfile->cd("DQMData/Run 1/RecoMuonV")) rfile->cd("DQMData/Run 1/RecoMuonV/Run summary/MultiTrack");
+   else if(rfile->cd("DQMData/Run 1/Muons/RecoMuonV")) rfile->cd("DQMData/Run 1/Muons/RecoMuonV/Run summary/MultiTrack");
    else rfile->cd("DQMData/RecoMuonV/MultiTrack");
  }
  rdir=gDirectory;
