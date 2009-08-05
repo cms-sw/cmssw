@@ -28,6 +28,7 @@ pixel3PrimTracks.RegionFactoryPSet.RegionPSet.ptMin = 1.5
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
 pixel3PrimTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 pixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.checkClusterShape = False # don't use low-pt cluster shape filter
+pixel3PrimTracks.CleanerPSet.ComponentName= "PixelTrackCleanerBySharedHits" # if two or more shared hits, discard lower pt track
 
 ### pixel seeds
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
