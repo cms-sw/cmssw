@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RatioFinder.cc,v 1.7 2009/05/15 11:49:19 schott Exp $
+// @(#)root/hist:$Id: RatioFinder.cc,v 1.8 2009/06/02 11:44:33 matze Exp $
 // Author: Danilo.Piparo@cern.ch   07/10/2008
 
 #include "assert.h"
@@ -99,8 +99,7 @@ RatioFinderResults* RatioFinder::findRatio(unsigned int n_toys,
                                            double init_upper_ratio,
                                            double n_sigma,
                                            double CL_level,
-                                           double delta_ratios_min,
-                                           bool dump_Limit_results){
+                                           double delta_ratios_min){
 
     /*
     Find the value of -2lnQ corresponding to the number of sigmas.

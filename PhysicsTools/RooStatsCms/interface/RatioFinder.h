@@ -2,8 +2,8 @@
 
 /**
 \class RatioFinder
-$Revision: 1.7 $
-$Date: 2009/06/02 11:44:33 $
+$Revision: 1.8 $
+$Date: 2009/06/15 08:56:05 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Find the production cross section to exclude at a fixed confidence level.
@@ -53,8 +53,7 @@ class RatioFinder : public StatisticalMethod {
                                   double init_upper_ratio,
                                   double n_sigma=0.,
                                   double CLs_level=0.05,
-                                  double delta_ratios_min=0.5,
-                                  bool dump_Limit_results=false);
+                                  double delta_ratios_min=0.5);
 
     /// Destructor
     ~RatioFinder();
