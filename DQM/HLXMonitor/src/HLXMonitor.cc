@@ -577,6 +577,10 @@ HLXMonitor::SetupHists()
    RecentIntegratedLumiOccSet2->setAxisTitle( RecentHistXTitle, 1 );
    RecentIntegratedLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
 
+   std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+   for( size_t i=0, e = systems.size(); i<e; ++i ){
+      std::cout << "Systems " << systems[i] << std::endl;
+   }
  
    dbe_->showDirStructure();
 }
@@ -690,14 +694,21 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void HLXMonitor::SaveDQMFile(){
 
   std::ostringstream tempStreamer;
-  tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
-               << "_V0001"
+  tempStreamer << OutputDir << "/" << OutputFilePrefix << subSystemName_
 	       << "_R" << std::setfill('0') << std::setw(runNumLength) 
-	       << runNumber_ 
- 	       << "_T" << std::setfill('0') << std::setw(secNumLength) 
- 	       << lumiSection.hdr.sectionNumber
- 	       << ".root";
-  dbe_->save(tempStreamer.str());
+	       << runNumber_ << "_T00000001.root";
+
+  std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
+  char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", runNumber_);
+  int saveReference_ = DQMStore::SaveWithoutReference;
+  int saveReferenceQMin_ = dqm::qstatus::STATUS_OK;
+
+  for( size_t i = 0, e = systems.size(); i != e; ++i )
+     if (systems[i] != "Reference")
+         dbe_->save( tempStreamer.str(), systems[i], "^(Reference/)?([^/]+)", rewrite,
+		     (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
+
+  //dbe_->save(tempStreamer.str());
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -8,7 +8,7 @@ hlxdqmsource = cms.EDFilter("HLXMonitor",
 
     Style = cms.untracked.string('BX'), ## BX for bunch crossing vs. Num events
 
-    outputFile = cms.untracked.string('DQM'),
+    outputFile = cms.untracked.string('DQM_V0001'),
     # 2 random data
     NewRun_Reset = cms.untracked.bool(True),
     PrimaryHLXDAQIP = cms.untracked.string('vmepcs2f17-18'),
