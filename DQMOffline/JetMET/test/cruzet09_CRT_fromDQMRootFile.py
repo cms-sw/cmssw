@@ -19,7 +19,7 @@ process.source = cms.Source("EmptySource"
 
 #
 #--- Load dqm root files
-process.dqmFileLoaderJetMET = cms.EDFilter("DQMFileLoader",
+process.dqmFileReaderJetMET = cms.EDFilter("DQMFileReader",
   FileNames = cms.untracked.vstring('jetMETMonitoring_cruzet100945.root',
                                     'jetMETMonitoring_cruzet100945b.root')
 )
@@ -72,7 +72,7 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
 #-----------------------------
 # 
 #-----------------------------
-process.p = cms.Path(process.dqmFileLoaderJetMET
+process.p = cms.Path(process.dqmFileReaderJetMET
                      * process.dqmInfoJetMET
                      * process.dataCertificationJetMETSequence
                      * process.dqmSaver)
