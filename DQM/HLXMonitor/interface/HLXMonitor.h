@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.10 2008/10/24 20:15:02 neadam Exp $
+// $Id: HLXMonitor.h,v 1.11 2009/04/08 15:14:38 ahunt Exp $
 //
 //
 
@@ -72,6 +72,7 @@ class HLXMonitor : public edm::EDAnalyzer
 
       void FillHistograms(const LUMI_SECTION&);
       void FillHistoHFCompare(const LUMI_SECTION&);
+      void FillReportSummary();
       void FillEventInfo(const LUMI_SECTION&);
 
       void ResetAll();

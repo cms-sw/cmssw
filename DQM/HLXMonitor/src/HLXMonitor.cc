@@ -652,6 +652,7 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       FillHistograms(lumiSection);
       FillHistoHFCompare(lumiSection);
       FillEventInfo(lumiSection);
+      FillReportSummary();
       
       cout << "Run: " << lumiSection.hdr.runNumber 
 	   << " Section: " << lumiSection.hdr.sectionNumber 
@@ -769,25 +770,10 @@ void HLXMonitor::endJob()
 
 void HLXMonitor::EndRun( bool saveFile )
 {
-   // Run summary - Loop over the HLX's and fill the map, 
-   // also calculate the overall quality.
-   float overall = 0.0;
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
-      unsigned int iWedge = HLXHFMap[iHLX] + 1;
-      unsigned int iEta = 2;
-      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
-      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
-      reportSummaryMap_->setBinContent(iWedge,iEta,frac);
-      overall += frac;
-   }   
-      
-   overall /= (float)NUM_HLX;
-   if( overall > 1.0 ) overall = 0.0;
-   //std::cout << "Filling report summary! Main. " << overall << std::endl;
-   reportSummary_->Fill(overall);
+   FillReportSummary();
    
    // Do some things that should be done at the end of the run ...
-   if( saveFile ) SaveDQMFile();  
+   if( saveFile && runNumber_ != 0 ) SaveDQMFile();  
    expectedNibbles_ = 0;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
    
@@ -1124,6 +1110,25 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
       totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
    }   
 
+}
+
+void HLXMonitor::FillReportSummary(){
+   // Run summary - Loop over the HLX's and fill the map, 
+   // also calculate the overall quality.
+   float overall = 0.0;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      unsigned int iEta = 2;
+      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
+      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+      reportSummaryMap_->setBinContent(iWedge,iEta,frac);
+      overall += frac;
+   }   
+      
+   overall /= (float)NUM_HLX;
+   if( overall > 1.0 ) overall = 0.0;
+   //std::cout << "Filling report summary! Main. " << overall << std::endl;
+   reportSummary_->Fill(overall);
 }
 
 void HLXMonitor::ResetAll()
