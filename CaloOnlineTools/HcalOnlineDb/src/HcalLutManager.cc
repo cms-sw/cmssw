@@ -49,10 +49,11 @@ HcalLutManager::HcalLutManager(std::vector<HcalGenericDetId> & map)
 }
 
 
-HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap)
+HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap, const HcalChannelQuality * _cq)
 {
   init();
   emap = _emap;
+  cq   = _cq;
 }
 
 

@@ -20,7 +20,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.es_ascii = cms.ESSource("HcalOmdsCalibrations",
+process.es_omds = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('ChannelQuality'),
         tag = cms.string('hcal-quality-test-v1'),

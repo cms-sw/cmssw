@@ -19,7 +19,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.4 2008/05/18 12:29:56 kukartse Exp $
+// $Id: LMap.h,v 1.5 2009/08/04 22:25:17 kukartse Exp $
 //
 
 // system include files
@@ -108,6 +108,10 @@ class EMap
   public:
     int rawId,crate,slot,dcc,spigot,fiber,fiberchan,ieta,iphi,idepth;
     string topbottom,subdet;
+    // ZDC channels:
+    // section: ZDC EM, ZDC HAD, ZDC LUM(?)
+    int zdc_zside,zdc_channel;
+    string zdc_section;
     
     EMapRow(){
       rawId=0;
@@ -122,6 +126,9 @@ class EMap
       idepth=0;
       topbottom="";
       subdet="";
+      zdc_zside=0;
+      zdc_channel = 0;
+      zdc_section = "UNKNOWN";
     }
     ~EMapRow(){};  
 

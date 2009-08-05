@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.5 2008/08/24 22:56:18 kukartse Exp $
+// $Id: LMap.cc,v 1.6 2009/08/04 22:25:18 kukartse Exp $
 //
 
 // system include files
@@ -202,6 +202,17 @@ EMap::EMap( const HcalElectronicsMap * emap ){
 	row.iphi      = _id.iphi();
 	row.idepth    = _id.depth();
 	row.subdet    = _ass.getSubdetectorString(_id.subdet());
+	// fill the map
+	map.push_back(row);
+      }
+      else if ( !(_gid.null()) &&
+	   _gid.genericSubdet()==HcalGenericDetId::HcalGenZDC
+	   ){
+	HcalZDCDetId _id( emap->lookup(*eId) );
+	row.zdc_channel      = _id.channel();
+	row.zdc_section      = _ass.getZDCSectionString(_id.section());
+	row.idepth           = _id.depth();
+	row.zdc_zside        = _id.zside();
 	// fill the map
 	map.push_back(row);
       }

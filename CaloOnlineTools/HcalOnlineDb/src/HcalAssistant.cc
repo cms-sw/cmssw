@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.2 2009/07/24 06:55:21 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.3 2009/08/04 22:25:18 kukartse Exp $
 //
 
 
@@ -141,6 +141,24 @@ std::string HcalAssistant::getSubdetectorString(HcalSubdetector _det){
   else if      ( _det==HcalTriggerTower)   sDet = "HT";
   else sDet = "other";
   return sDet;
+}
+
+
+std::string HcalAssistant::getZDCSectionString(HcalZDCDetId::Section _section){
+  std::string zdcSection;
+  if           ( _section==HcalZDCDetId::EM)   zdcSection = "ZDC EM";
+  else if      ( _section==HcalZDCDetId::HAD)  zdcSection = "ZDC HAD";
+  else if      ( _section==HcalZDCDetId::LUM)  zdcSection = "ZDC LUM";
+  else zdcSection = "UNKNOWN";
+  return zdcSection;
+}
+
+
+HcalZDCDetId::Section HcalAssistant::getZDCSection(std::string _section){
+  if      ( _section.find("ZDC EM") != std::string::npos ) return HcalZDCDetId::EM;
+  else if ( _section.find("ZDC HAD") != std::string::npos ) return HcalZDCDetId::HAD;
+  else if ( _section.find("ZDC LUM") != std::string::npos ) return HcalZDCDetId::LUM;
+  else return HcalZDCDetId::Unknown;
 }
 
 

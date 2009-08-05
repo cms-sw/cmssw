@@ -25,7 +25,7 @@ enum HcalOtherSubdetector { HcalOtherEmpty=0, HcalCalibration=2 };
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:31 CEST 2009
-// $Id: HcalAssistant.h,v 1.1 2009/07/16 16:29:34 kukartse Exp $
+// $Id: HcalAssistant.h,v 1.2 2009/07/24 06:55:21 kukartse Exp $
 //
 
 #include <iostream>
@@ -33,6 +33,14 @@ enum HcalOtherSubdetector { HcalOtherEmpty=0, HcalCalibration=2 };
 #include <vector>
 #include <map>
 
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+
+#ifndef DATAFORMATS_HCALDETID_HCALSUBDETECTOR_H
+#define DATAFORMATS_HCALDETID_HCALSUBDETECTOR_H
+enum HcalSubdetector { HcalEmpty=0, HcalBarrel=1, HcalEndcap=2, HcalOuter=3, HcalForward=4, HcalTriggerTower=5, HcalOther=7 };
+enum HcalOtherSubdetector { HcalOtherEmpty=0, HcalCalibration=2 };
+#endif
 
 class HcalAssistant
 {
@@ -50,6 +58,8 @@ class HcalAssistant
   
   HcalSubdetector getSubdetector(std::string _det);
   std::string getSubdetectorString(HcalSubdetector _det);
+  HcalZDCDetId::Section getZDCSection(std::string _section);
+  std::string getZDCSectionString(HcalZDCDetId::Section _section);
   
   int getListOfChannelsFromDb();
   int getSubdetector(int _rawid);

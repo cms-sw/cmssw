@@ -17,7 +17,7 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-//#include "DataFormats/HcalDetId/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 //#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
@@ -48,7 +48,7 @@ class HcalLutManager{
   
   HcalLutManager( );
   HcalLutManager(std::vector<HcalGenericDetId> & map);
-  HcalLutManager(const HcalElectronicsMap * map);
+  HcalLutManager(const HcalElectronicsMap * _emap, const HcalChannelQuality * _cq = 0);
   ~HcalLutManager( );
 
   void init( void );
@@ -124,6 +124,7 @@ class HcalLutManager{
   HcalChannelIterator _iter;
   HcalAssistant _ass;
   const HcalElectronicsMap * emap;
+  const HcalChannelQuality * cq;
 };
 
 
