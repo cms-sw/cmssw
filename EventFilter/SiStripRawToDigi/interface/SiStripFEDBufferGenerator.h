@@ -95,8 +95,6 @@ namespace sistrip {
       void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
       //add the ZS cluster data for the channel to the end of the vector
       void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
-      //add data for a cluster to the buffer
-      void writeClusterToBuffer(std::vector<uint8_t>* buffer, const uint8_t address, const std::list<uint8_t> adcCounts) const;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;
     };
