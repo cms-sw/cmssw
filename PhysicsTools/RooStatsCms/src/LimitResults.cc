@@ -1,6 +1,7 @@
-// @(#)root/hist:$Id: LimitResults.cc,v 1.6 2009/06/02 11:37:58 matze Exp $
+// @(#)root/hist:$Id: LimitResults.cc,v 1.7 2009/06/15 08:49:49 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
+#include <cmath>
 #include "assert.h"
 #if (defined (STANDALONE) or defined (__CINT__) )
    #include "LimitResults.h"
@@ -126,6 +127,18 @@ double LimitResults::getCLs(){
         return CLs;
 
     }
+
+/*----------------------------------------------------------------------------*/
+
+double LimitResults::getCLsError() {
+	int toys = m_m2lnQ_sb.size();
+	double cl_b = getCLb();
+	double cl_sb = getCLsb();
+
+	return getCLs() * std::sqrt(
+		(1. - cl_b) / (cl_b * toys) +
+		(1. - cl_sb) / (cl_sb * toys));
+}
 
 /*----------------------------------------------------------------------------*/
 

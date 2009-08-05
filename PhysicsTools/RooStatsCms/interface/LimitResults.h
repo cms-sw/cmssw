@@ -4,8 +4,8 @@
 
 /**
 \class LimitResults
-$Revision: 1.6 $
-$Date: 2009/06/02 11:37:57 $
+$Revision: 1.7 $
+$Date: 2009/06/15 08:49:49 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The objects of this class store and access with lightweight methods the 
@@ -63,6 +63,10 @@ class LimitResults : public StatisticalMethod {
 
     /// Get the CLs value
     double getCLs();
+
+    /// Get the error on CLs, which is calculated from the binomial
+    /// errors of CLb and CLsb.
+    double getCLsError();
 
     /// Get the plot object pointer
     LimitPlot* getPlot(const char* name="",const char* title="", int n_bins=100);
