@@ -155,7 +155,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       TkMap_On                =  cms.bool(True),
       TkMapName               =  cms.string('QualityTkMap.svg'),
       minValue               =  cms.double(0.),
-      maxValue               =  cms.double(100.), 
+      maxValue               =  cms.double(0.), 
       
 
       CondObj_name   = cms.string('quality'),

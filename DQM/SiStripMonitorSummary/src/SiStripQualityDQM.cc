@@ -115,84 +115,88 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
       
-  std::string hSummary_description;
-  hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
+    std::string hSummary_description;
+    hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
       
-  std::string hSummary_name; 
+    std::string hSummary_name; 
   
-  // ----
-  int subDetId_ = ((selDetId_>>25)&0x7);
+    // ----
+    int subDetId_ = ((selDetId_>>25)&0x7);
   
-  if( subDetId_<3 || subDetId_>6 ){ 
-    edm::LogError("SiStripQualityDQM")
-       << "[SiStripQualityDQM::fillMEsForLayer] WRONG INPUT : no such subdetector type : "
-       << subDetId_ << " no folder set!" 
-       << std::endl;
-    return;
-  }
-  // ----
-
-  hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
-                                              "layer", 
-					      getLayerNameAndId(selDetId_).first, 
-					      "") ;
-        
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
-    
-  ModMEs selME_;
-  selME_ =selMEsMapIter_->second;
-
-  getSummaryMEs(selME_,selDetId_ );
-  
-  
-  std::vector<uint32_t> sameLayerDetIds_;
-  sameLayerDetIds_.clear();
-  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
-  // -----
-  //  unsigned int iBin=0;
-  for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
-    
-    SiStripQuality::Range qualityRange = qualityHandle_->getRange(sameLayerDetIds_[i]);
-    int nStrip =  reader->getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first*128;
-    
-    numberOfBadStrips=0;
-    
-    for( int istrip=0;istrip<nStrip;++istrip){
-      if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
-   }
-    
-    try{ 
-      float fr=100*float(numberOfBadStrips)/nStrip;
-      selME_.SummaryDistr->Fill(i+1,fr);
-      if(fr>20){
-	char c[9];
-	sprintf(c,"%d",sameLayerDetIds_[i]);
-	selME_.SummaryDistr->getTH1()->GetXaxis()->SetBinLabel(i+1,c);
-      }
-
-   // Fill the TkHistoMap with Quality output :
-      if(HistoMaps_On_ ) Tk_HM_->setBinContent(selDetId_, fr);
-
-    // Fill the TkMap
-    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, fr);
-   }
-
-    }
-    catch(cms::Exception& e){
+    if( subDetId_<3 || subDetId_>6 ){ 
       edm::LogError("SiStripQualityDQM")
-	<< "[SiStripQualityDQM::fillMEsForLayer] cms::Exception filling fraction of bad strips for detId "
-	<< sameLayerDetIds_[i]
-	<< " :  "
-	<< e.what() ;
+	<< "[SiStripQualityDQM::fillMEsForLayer] WRONG INPUT : no such subdetector type : "
+	<< subDetId_ << " no folder set!" 
+	<< std::endl;
+      return;
+    }
+    // ----
+
+    hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
+						"layer", 
+						getLayerNameAndId(selDetId_).first, 
+						"") ;
+        
+    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+    
+    ModMEs selME_;
+    selME_ =selMEsMapIter_->second;
+
+    getSummaryMEs(selME_,selDetId_ );
+  
+  
+    std::vector<uint32_t> sameLayerDetIds_;
+    sameLayerDetIds_.clear();
+    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
+    // -----
+  //  unsigned int iBin=0;
+
+    //%%%%%%%%%%%%%%%%%%%
+    //%%% FIXME: patch to fix the bug causing double counting on each layer
+    //%%%%%%%%%%%%%%%%%%%%%%%
+    if(std::binary_search(alreadyFilledLayers.begin(),alreadyFilledLayers.end(),sameLayerDetIds_[0]))
+      return;
+    alreadyFilledLayers.push_back(sameLayerDetIds_[0]);
+    sort(alreadyFilledLayers.begin(),alreadyFilledLayers.end());
+    //%%%%%%%%%%%%%%%%%%%%%%% END %%%%%%%%%%
+
+    for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
+    
+      SiStripQuality::Range qualityRange = qualityHandle_->getRange(sameLayerDetIds_[i]);
+      int nStrip =  reader->getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first*128;
+    
+      numberOfBadStrips=0;
+    
+      for( int istrip=0;istrip<nStrip;++istrip){
+	if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
+      }
+    
+      try{ 
+	float fr=100*float(numberOfBadStrips)/nStrip;
+	selME_.SummaryDistr->Fill(i+1,fr);
+	if(fr>20){
+	  char c[9];
+	  sprintf(c,"%d",sameLayerDetIds_[i]);
+	  selME_.SummaryDistr->getTH1()->GetXaxis()->SetBinLabel(i+1,c);
+	}
+
+	// Fill the TkHistoMap with Quality output :
+	if(HistoMaps_On_ ) Tk_HM_->setBinContent(sameLayerDetIds_[i], fr);
+
+	// Fill the TkMap
+	if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
+	  fillTkMap(sameLayerDetIds_[i], fr);
+	}
+
+      }
+      catch(cms::Exception& e){
+	edm::LogError("SiStripQualityDQM")
+	  << "[SiStripQualityDQM::fillMEsForLayer] cms::Exception filling fraction of bad strips for detId "
+	  << sameLayerDetIds_[i]
+	  << " :  "
+	  << e.what() ;
+      } 
     } 
-
-
-
-
-
-
-  } 
   }//if Fill ...  
 }  
 // -----

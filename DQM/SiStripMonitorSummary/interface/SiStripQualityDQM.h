@@ -60,8 +60,8 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
     int NBadComponent[4][19][4];  
     std::stringstream ssV[4][19];
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC);
-   
 
+    std::vector<uint32_t> alreadyFilledLayers;
 };
 
 #endif
