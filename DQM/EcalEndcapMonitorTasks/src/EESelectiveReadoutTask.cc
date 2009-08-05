@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/07/17 17:14:23 $
- * $Revision: 1.30 $
+ * $Date: 2009/07/21 17:32:59 $
+ * $Revision: 1.31 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -132,6 +132,7 @@ void EESelectiveReadoutTask::setup(void) {
     
     sprintf(histo, "EESRT DCC event size");
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
+    EEDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
       EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/05/05 10:02:31 $
- * $Revision: 1.33 $
+ * $Date: 2009/07/17 17:14:23 $
+ * $Revision: 1.34 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -114,6 +114,7 @@ void EBSelectiveReadoutTask::setup(void) {
     
     sprintf(histo, "EBSRT DCC event size");
     EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
+    EBDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
