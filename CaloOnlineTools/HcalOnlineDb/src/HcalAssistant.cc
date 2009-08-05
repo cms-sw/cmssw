@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.3 2009/08/04 22:25:18 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.4 2009/08/05 16:23:31 kukartse Exp $
 //
 
 
@@ -255,3 +255,8 @@ int HcalAssistant::getRawId(HcalSubdetector _det, int _ieta, int _iphi, int _dep
 
 
 
+int HcalAssistant::a_to_i(char * inbuf){
+  int result;
+  sscanf(inbuf,"%d",&result);
+  return result;
+}

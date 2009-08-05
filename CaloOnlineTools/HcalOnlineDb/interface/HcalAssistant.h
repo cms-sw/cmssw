@@ -1,12 +1,3 @@
-#ifndef DATAFORMATS_HCALDETID_HCALSUBDETECTOR_H
-#define DATAFORMATS_HCALDETID_HCALSUBDETECTOR_H
-
-enum HcalSubdetector { HcalEmpty=0, HcalBarrel=1, HcalEndcap=2, HcalOuter=3, HcalForward=4, HcalTriggerTower=5, HcalOther=7 };
-
-enum HcalOtherSubdetector { HcalOtherEmpty=0, HcalCalibration=2 };
-
-#endif
-
 #ifndef CaloOnlineTools_HcalOnlineDb_HcalAssistant_h
 #define CaloOnlineTools_HcalOnlineDb_HcalAssistant_h
 // -*- C++ -*-
@@ -25,7 +16,7 @@ enum HcalOtherSubdetector { HcalOtherEmpty=0, HcalCalibration=2 };
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:31 CEST 2009
-// $Id: HcalAssistant.h,v 1.2 2009/07/24 06:55:21 kukartse Exp $
+// $Id: HcalAssistant.h,v 1.3 2009/08/05 16:23:31 kukartse Exp $
 //
 
 #include <iostream>
@@ -67,6 +58,8 @@ class HcalAssistant
   int getIphi(int _rawid);
   int getDepth(int _rawid);
   int getRawId(HcalSubdetector _det, int _ieta, int _iphi, int _depth);
+
+  int a_to_i(char * inbuf);
   
  private:
   std::vector<std::string> quotes;

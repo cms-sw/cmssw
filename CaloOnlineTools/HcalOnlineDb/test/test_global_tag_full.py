@@ -2,27 +2,32 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
+
 process.source = cms.Source("EmptySource")
 process.source.firstRun = cms.untracked.uint32(67838)
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+#process.GlobalTag.connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL')
+#process.GlobalTag.connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_GLOBALTAG')
+
+#process.GlobalTag.connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG')
+
+#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
 
 process.GlobalTag.connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG')
 
-process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 
 process.GlobalTag.globaltag = 'GR09_31X_V1H::All'
 
-process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-                                   toGet = cms.untracked.vstring('ChannelQuality',
-                                                                 'GainWidths')
-                                   )
-
 
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
+
+
 
 process.checkTPGsModule = cms.EDAnalyzer("HcalLutGenerator",
                                          tag = cms.string('CRAFTPhysicsV2'),

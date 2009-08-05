@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelDataXml.cc,v 1.1 2009/07/09 17:00:13 kukartse Exp $
+// $Id: HcalChannelDataXml.cc,v 1.2 2009/07/16 16:29:35 kukartse Exp $
 //
 
 #include <iostream>
@@ -292,10 +292,5 @@ DOMNode * HcalChannelDataXml::set_maps_dataset_idref(int value){
 
 
 
-int HcalChannelDataXml::a_to_i(char * inbuf){
-  int result;
-  sscanf(inbuf,"%d",&result);
-  return result;
-}
 
 

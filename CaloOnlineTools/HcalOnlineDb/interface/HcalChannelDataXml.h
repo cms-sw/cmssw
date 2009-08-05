@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelDataXml.h,v 1.1 2009/07/09 17:00:13 kukartse Exp $
+// $Id: HcalChannelDataXml.h,v 1.2 2009/07/16 16:29:34 kukartse Exp $
 //
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
@@ -65,7 +65,6 @@ class HcalChannelDataXml : public XMLDOMBlock
   DOMElement * get_data_element( DOMNode * _dataset );
   DOMElement * get_channel_element( DOMNode * _dataset );
 
-  int a_to_i(char * inbuf);
   //
   //_____ tester methods ________________________________________________
   //

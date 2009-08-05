@@ -39,15 +39,24 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //_____ get the coders from Event Setup _______________________________
   //
   edm::ESHandle<HcalTPGCoder> inputCoder;
+  cout << "***DEBUG1 --> HcalLutGenerator::analyze()" << endl;
   iSetup.get<HcalTPGRecord>().get(inputCoder);
+  cout << "***DEBUG2 --> HcalLutGenerator::analyze()" << endl;
   HcalTopology theTopo;
+  cout << "***DEBUG3 --> HcalLutGenerator::analyze()" << endl;
   HcalDetId did;
+  cout << "***DEBUG4 --> HcalLutGenerator::analyze()" << endl;
   //
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
+  cout << "***DEBUG5 --> HcalLutGenerator::analyze()" << endl;
   iSetup.get<CaloTPGRecord>().get(outTranscoder);
+  cout << "***DEBUG6 --> HcalLutGenerator::analyze()" << endl;
   outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
+  cout << "***DEBUG7 --> HcalLutGenerator::analyze()" << endl;
   edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
+  cout << "***DEBUG8 --> HcalLutGenerator::analyze()" << endl;
   transcoder.swap(outTranscoder);
+  cout << "***DEBUG9 --> HcalLutGenerator::analyze()" << endl;
 
   //
   //_____ get EMAP from Event Setup _____________________________________
