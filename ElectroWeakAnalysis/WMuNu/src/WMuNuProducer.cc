@@ -230,7 +230,6 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
  
      for (int indx=0; indx<nmuons; indx++){ 
      int MuonIndx=Maxi[indx]; 
-     const Muon& Muon = muonCollection->at(MuonIndx);
      edm::Ptr<reco::Muon> muon(muonCollection,MuonIndx);
    
       // Build WMuNuCandidate
