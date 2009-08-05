@@ -42,7 +42,6 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(edm::ParameterSet parSet) :
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
   theRandGamma = new CLHEP::RandGamma(rng->getEngine());
   theRandPoissonQ = new CLHEP::RandPoissonQ(rng->getEngine());
-  theRandChiSquare = new CLHEP::RandChiSquare(rng->getEngine());
 }
 
 GflashHadronShowerProfile::~GflashHadronShowerProfile() 
@@ -501,11 +500,9 @@ G4double GflashHadronShowerProfile::hoProfile(G4double pathLength, G4double refD
   return heightProfile;
 }
 
-G4double* GflashHadronShowerProfile::getFluctuationVector(G4double *lowTriangle) {
+void GflashHadronShowerProfile::getFluctuationVector(G4double *lowTriangle, G4double *correlationVector) {
 
     const G4int dim = Gflash::NPar;
-
-    G4double *correlationVector = new G4double [dim*(dim+1)/2];
 
     G4double **xr   = new G4double *[dim];
     G4double **xrho = new G4double *[dim];
@@ -533,8 +530,6 @@ G4double* GflashHadronShowerProfile::getFluctuationVector(G4double *lowTriangle)
       }
     }
 
-    return correlationVector;
-    
     for(G4int j=0;j<dim;j++) delete [] xr[j];
     delete [] xr;
     for(G4int j=0;j<dim;j++) delete [] xrho[j];
