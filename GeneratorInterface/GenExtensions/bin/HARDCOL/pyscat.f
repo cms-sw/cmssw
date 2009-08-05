@@ -1,15 +1,17 @@
 C=====================================================================
-C  This routine was modified from the PYTHIA 6.418 code, which is
+C  This routine was modified from the PYTHIA 6.421 code, which is
 C              (C) Torbjorn Sjostrand, Lund 2008.
 C
-C  The modifications are part of the HARDCOL package for 
-C  hard color singlet exchange, and refer to PYTHIA version 6.418.
 C  Modifications implemented by Rikard Enberg, 2001-2003 and 2008.  
-C  See http://www.isv.uu.se/thep/hardcol/      
+C  See http://www.isv.uu.se/thep/hardcol/
+C
+C  The modifications are part of the HARDCOL package for 
+C  hard color singlet exchange, and refer to PYTHIA version 6.421.     
+C  Modifications implemented by Sheila Amaral, 2009.
 C=====================================================================
  
 C*********************************************************************
- 
+
 C...PYSCAT
 C...Finds outgoing flavours and event type; sets up the kinematics
 C...and colour flow of the hard scattering
@@ -159,7 +161,11 @@ C...Store incoming partons in their CM-frame. Save pdf value.
         K(I,3)=MINT(83)+2+JT
         P(I,3)=0.5D0*SHUSER*(-1D0)**(JT-1)
         P(I,4)=0.5D0*SHUSER
-        VINT(38+JT)=XSFX(JT,MINT(14+JT))
+        IF(MINT(14+JT).GE.-40.AND.MINT(14+JT).LE.40) THEN
+         VINT(38+JT)=XSFX(JT,MINT(14+JT))
+        ELSE
+         VINT(38+JT)=1D0
+        ENDIF
   150 CONTINUE
  
 C...Copy incoming partons to documentation lines
@@ -2305,7 +2311,8 @@ C...q + qbar -> t + b + H+/-
           MINT(22)=ISIGN(INT(6.-.5*KFL),-KCS)
           KCC=4
           KFRES=ISIGN(KFHIGG,-KFL*KCS)
-
+        ENDIF
+ 
 C=====================================================================
 C BEGIN HARDCOL MODIFICATION
 C=====================================================================
@@ -2318,12 +2325,12 @@ C...the two remnants, and a rapidity gap with no string.
         ELSEIF(ISUB.EQ.403) THEN
 C...q + q' -> q + q' color singlet exchange
           KCC=22
-          
+
         ELSEIF(ISUB.EQ.404) THEN
 C...q + g -> q + g color singlet exchange
           KCC=22
           KCS=ISIGN(1,MINT(15)*MINT(16))
-          
+
         ELSEIF(ISUB.EQ.405) THEN
 C...g + g -> g + g color singlet exchange
           KCC=22
@@ -2331,21 +2338,22 @@ C...g + g -> g + g color singlet exchange
         ELSEIF(ISUB.EQ.406) THEN
 C...q + q' -> q + q' color singlet exchange
           KCC=22
-          
+
         ELSEIF(ISUB.EQ.407) THEN
 C...q + g -> q + g color singlet exchange
           KCC=22
           KCS=ISIGN(1,MINT(15)*MINT(16))
-          
+
         ELSEIF(ISUB.EQ.408) THEN
 C...g + g -> g + g colour singlet exchange
           KCC=22
-        
+
 C=====================================================================
 C END HARDCOL MODIFICATION
 C=====================================================================
-        ENDIF
- 
+
+
+
 C...QUARKONIA+++
 C...Additional code by Stefan Wolf
       ELSEIF(ISUB.LE.430) THEN

@@ -1,15 +1,17 @@
 C=====================================================================
-C  This routine was modified from the PYTHIA 6.418 code, which is
+C  This routine was modified from the PYTHIA 6.421 code, which is
 C              (C) Torbjorn Sjostrand, Lund 2008.
 C
-C  The modifications are part of the HARDCOL package for 
-C  hard color singlet exchange, and refer to PYTHIA version 6.418.
 C  Modifications implemented by Rikard Enberg, 2001-2003 and 2008.  
-C  See http://www.isv.uu.se/thep/hardcol/      
+C  See http://www.isv.uu.se/thep/hardcol/ 
+C
+C  The modifications are part of the HARDCOL package for 
+C  hard color singlet exchange, and refer to PYTHIA version 6.421.
+C  Modifications implemented by Sheila Amaral, 2009.
 C=====================================================================
  
 C***********************************************************************
- 
+
 C...PYSIGH
 C...Differential matrix elements for all included subprocesses
 C...Note that what is coded is (disregarding the COMFAC factor)
@@ -952,3 +954,4 @@ C...Multiply with parton distributions
  
       RETURN
       END
+ 
