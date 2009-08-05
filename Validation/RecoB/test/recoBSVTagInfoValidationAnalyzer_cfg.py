@@ -24,7 +24,10 @@ process.load("DQMServices.Core.DQM_cfg")
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/SV'
-process.dqmSaver.convention = 'RelVal'
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
+process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
 process.svTagInfoValidationAnalyzer = cms.EDFilter("recoBSVTagInfoValidationAnalyzer",
     process.vertexClassifier,

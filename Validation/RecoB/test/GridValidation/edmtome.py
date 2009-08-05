@@ -28,7 +28,10 @@ process.plots = cms.Path(process.EDMtoMEConverter * process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
-process.dqmSaver.convention = 'RelVal'
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
+process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
     'file:MEtoEDMConverter_1.root'
 #    'file:MEtoEDMConverter_2.root',

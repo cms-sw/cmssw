@@ -36,7 +36,10 @@ process.plots = cms.Path(process.myPartons* process.iterativeCone5Flavour * proc
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'
-process.dqmSaver.convention = 'RelVal'
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
+process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
        '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/CAAA36CC-9841-DE11-A587-0019B9F730D2.root',
        '/store/relval/CMSSW_3_1_0_pre7/RelValTTbar/GEN-SIM-RECO/IDEAL_31X_v1/0004/B47CEC98-E641-DE11-9999-001D09F2437B.root',

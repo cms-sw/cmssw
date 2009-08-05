@@ -8,7 +8,7 @@ int markerStyleList[] = {21,21,23,23,22,22,23,23,24,24,24,24,25,25,25,25,26,26,2
 
 TObject * getHistogram(TFile * f, string algo,string histoName, string range, string suffix)
 {
-string prefix = "DQMData/POG_V0001/Btag/JetTag";
+string prefix = "DQMData/Run 1/Btag/Run summary/JetTag";
 string d = prefix+"_"+algo+"_"+range;
  cout <<" STR: "<<d<<endl; 
  cout <<" DIR: "<<  f->Get(d.c_str())<<endl;
