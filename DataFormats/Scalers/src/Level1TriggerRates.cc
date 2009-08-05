@@ -10,14 +10,11 @@
 
 Level1TriggerRates::Level1TriggerRates():
   version_(0),
-  collectionTimeGeneral_(0,0),
+  collectionTime_(0,0),
   deltaNS_(0),
   deltaT_(0.0),
-  gtPartition0ResetsRate_(0.0),
-  bunchCrossingErrorsRate_(0.0),
-  gtPartition0TriggersRate_(0.0),
-  gtPartition0EventsRate_(0.0),
-  collectionTimeLumiSeg_(0,0),
+  gtTriggersRate_(0.0),
+  gtEventsRate_(0.0),
   triggersPhysicsGeneratedFDLRate_(0.0),
   triggersPhysicsLostRate_(0.0),
   triggersPhysicsLostBeamActiveRate_(0.0),
@@ -58,11 +55,8 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
 {
   version_ = t.version();
 
-  collectionTimeGeneral_.set_tv_sec(static_cast<long>(t.collectionTimeGeneral().tv_sec));
-  collectionTimeGeneral_.set_tv_nsec(t.collectionTimeGeneral().tv_nsec);
-
-  collectionTimeLumiSeg_.set_tv_sec(static_cast<long>(t.collectionTimeLumiSeg().tv_sec));
-  collectionTimeLumiSeg_.set_tv_nsec(t.collectionTimeLumiSeg().tv_nsec);
+  collectionTime_.set_tv_sec(static_cast<long>(t.collectionTime().tv_sec));
+  collectionTime_.set_tv_nsec(t.collectionTime().tv_nsec);
 
   triggersPhysicsGeneratedFDLRate_ 
     = Level1TriggerScalers::rateLS(t.triggersPhysicsGeneratedFDL());
@@ -105,6 +99,9 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
   {
     gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts));
   }
+  gtTriggersRate_ = t.gtTriggersRate();
+  gtEventsRate_   = t.gtEventsRate();
+
   deltaNS_ = 0ULL;
   deltaT_ = 0.0;
 }
@@ -115,12 +112,11 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t1,
   computeRates(t1);
 
   unsigned long long zeit1 = 
-    ( (unsigned long long)t1.collectionTimeGeneral().tv_sec * 1000000000ULL)| 
-    ( (unsigned long long)t1.collectionTimeGeneral().tv_nsec );
+    ( (unsigned long long)t1.collectionTime().tv_sec * 1000000000ULL)| 
+    ( (unsigned long long)t1.collectionTime().tv_nsec );
   unsigned long long zeit2 = 
-    ( (unsigned long long)t2.collectionTimeGeneral().tv_sec * 1000000000ULL)| 
-    ( (unsigned long long)t2.collectionTimeGeneral().tv_nsec );
-
+    ( (unsigned long long)t2.collectionTime().tv_sec * 1000000000ULL)| 
+    ( (unsigned long long)t2.collectionTime().tv_nsec );
 
   deltaT_  = 0.0;
   deltaNS_ = 0ULL;
@@ -128,14 +124,10 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t1,
   {
     deltaNS_ = zeit2 - zeit1;
     deltaT_  = ((double)deltaNS_) / 1.0E9;
-    gtPartition0ResetsRate_ = 
-      ((double)(t2.gtPartition0Resets() - t1.gtPartition0Resets()))/deltaT_;
-    bunchCrossingErrorsRate_  = 
-      ((double)(t2.bunchCrossingErrors()-t1.bunchCrossingErrors()))/deltaT_;
-    gtPartition0TriggersRate_ = 
-      ((double)(t2.gtPartition0Triggers()-t1.gtPartition0Triggers()))/deltaT_;
-    gtPartition0EventsRate_   = 
-      ((double)(t2.gtPartition0Events()-t1.gtPartition0Events()))/deltaT_;
+    gtTriggersRate_ = 
+      ((double)(t2.gtTriggers()-t1.gtTriggers()))/deltaT_;
+    gtEventsRate_   = 
+      ((double)(t2.gtEvents()-t1.gtEvents()))/deltaT_;
   }
 }
 
@@ -145,9 +137,7 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
 {
   char line[128];
   char zeitHeaven[128];
-  char zeitHell[128];
   struct tm * horaHeaven;
-  struct tm * horaHell;
 
   s << "Level1TriggerRates Version: " << c.version() 
     << " Rates in Hz, DeltaT: ";
@@ -161,44 +151,27 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
     s << "n/a" << std::endl;
   }
 
-  struct timespec secondsToHeaven = c.collectionTimeGeneral();
+  struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTimeGeneral: %s.%9.9d" , 
+  sprintf(line, " CollectionTime: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
-  s << line << std::endl;
-
-  struct timespec secondsToHell= c.collectionTimeLumiSeg();
-  horaHell = gmtime(&secondsToHell.tv_sec);
-  strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
-  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
-	  zeitHell, (int)secondsToHell.tv_nsec);
   s << line << std::endl;
 
   if ( c.deltaNS() > 0 )
   {
-    sprintf(line, " GtPartition0ResetsRate:                     %22.3f Hz",
-	    c.gtPartition0ResetsRate());
+    sprintf(line, " GtTriggersRate:                   %22.3f Hz",
+	    c.gtTriggersRate());
     s << line << std::endl;
     
-    sprintf(line, " BunchCrossingErrorsRate:                    %22.3f Hz",
-	    c.bunchCrossingErrorsRate());
-    s << line << std::endl;
-    
-    sprintf(line, " GtPartition0TriggersRate:                   %22.3f Hz",
-	    c.gtPartition0TriggersRate());
-    s << line << std::endl;
-    
-    sprintf(line, " GtPartition0EventsRate:                     %22.3f Hz",
-	    c.gtPartition0EventsRate());
+    sprintf(line, " GtEventsRate:                     %22.3f Hz",
+	    c.gtEventsRate());
     s << line << std::endl;
   }
   else
   {
-    s << " GtPartition0ResetsRate:                     n/a" << std::endl;
-    s << " BunchCrossingErrorsRate:                    n/a" << std::endl;
-    s << " GtPartition0TriggersRate:                   n/a" << std::endl;
-    s << " GtPartition0EventsRate:                     n/a" << std::endl;
+    s << " GtTriggersRate:                   n/a" << std::endl;
+    s << " GtEventsRate:                     n/a" << std::endl;
   }
 
   sprintf(line, " TriggersPhysicsGeneratedFDLRate:             %22.3f Hz",

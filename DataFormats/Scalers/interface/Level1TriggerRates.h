@@ -42,7 +42,8 @@ class Level1TriggerRates
 
   Level1TriggerRates();
   Level1TriggerRates(Level1TriggerScalers const& s);
-  Level1TriggerRates(Level1TriggerScalers const& s1, Level1TriggerScalers const& s2);
+  Level1TriggerRates(Level1TriggerScalers const& s1, 
+		     Level1TriggerScalers const& s2);
   virtual ~Level1TriggerRates();
 
   void computeRates(Level1TriggerScalers const& t1);
@@ -59,22 +60,16 @@ class Level1TriggerRates
   /// get the data
 
   int version() const { return(version_);}
-  timespec collectionTimeGeneral() { return(collectionTimeGeneral_.get_timespec());}
+  timespec collectionTime() { return(collectionTime_.get_timespec());}
 
   unsigned long long deltaNS()  const { return(deltaNS_);}
   double deltaT()               const { return(deltaT_);}
 
-  double gtPartition0ResetsRate() const 
-  { return(gtPartition0ResetsRate_);}
+  double gtTriggersRate() const 
+  { return(gtTriggersRate_);}
 
-  double bunchCrossingErrorsRate() const 
-  { return(bunchCrossingErrorsRate_);}
-
-  double gtPartition0TriggersRate() const 
-  { return(gtPartition0TriggersRate_);}
-
-  double gtPartition0EventsRate() const 
-  { return(gtPartition0EventsRate_);}
+  double gtEventsRate() const 
+  { return(gtEventsRate_);}
 
   double triggersPhysicsGeneratedFDLRate() const 
   { return(triggersPhysicsGeneratedFDLRate_);}
@@ -116,11 +111,8 @@ class Level1TriggerRates
   double deadtimeBeamActiveTimeSlotPercent() const 
   { return(deadtimeBeamActiveTimeSlotPercent_);}
 
-  timespec collectionTimeGeneral() const 
-  { return(collectionTimeGeneral_.get_timespec());}
-
-  timespec collectionTimeLumiSeg() const 
-  { return(collectionTimeLumiSeg_.get_timespec());}
+  timespec collectionTime() const 
+  { return(collectionTime_.get_timespec());}
 
   std::vector<double> gtAlgoCountsRate() const { return(gtAlgoCountsRate_);}
   std::vector<double> gtTechCountsRate() const{ return(gtTechCountsRate_);}
@@ -134,16 +126,13 @@ class Level1TriggerRates
 protected:
 
   int version_;
-  TimeSpec collectionTimeGeneral_;
+  TimeSpec collectionTime_;
 
   unsigned long long deltaNS_;
   double deltaT_;
-  double gtPartition0ResetsRate_;
-  double bunchCrossingErrorsRate_;
-  double gtPartition0TriggersRate_;
-  double gtPartition0EventsRate_;
+  double gtTriggersRate_;
+  double gtEventsRate_;
 
-  TimeSpec collectionTimeLumiSeg_;
   double triggersPhysicsGeneratedFDLRate_;
   double triggersPhysicsLostRate_;
   double triggersPhysicsLostBeamActiveRate_;

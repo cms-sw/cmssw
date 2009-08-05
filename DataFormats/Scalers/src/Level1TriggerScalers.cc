@@ -15,17 +15,20 @@ Level1TriggerScalers::Level1TriggerScalers():
   eventID_(0),
   sourceID_(0),
   bunchNumber_(0),
-  collectionTimeGeneral_(0,0),
+  collectionTime_(0,0),
   lumiSegmentNr_(0),
   lumiSegmentOrbits_(0),
   orbitNr_(0),
-  gtPartition0Resets_(0),
+  gtResets_(0),
   bunchCrossingErrors_(0),
-  gtPartition0Triggers_(0),
-  gtPartition0Events_(0),
+  gtTriggers_(0),
+  gtEvents_(0),
+  gtTriggersRate_((float)0.0),
+  gtEventsRate_((float)0.0),
   prescaleIndexAlgo_(0),
   prescaleIndexTech_(0),
   collectionTimeLumiSeg_(0,0),
+  lumiSegmentNrLumiSeg_(0),
   triggersPhysicsGeneratedFDL_(0),
   triggersPhysicsLost_(0),
   triggersPhysicsLostBeamActive_(0),
@@ -61,18 +64,18 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
   version_      = raw->version;
   if ( version_ >= 3 )
   {
-    collectionTimeGeneral_.set_tv_sec( static_cast<long>(
-      raw->trig.collectionTimeGeneral_sec));
-    collectionTimeGeneral_.set_tv_nsec( 
-      raw->trig.collectionTimeGeneral_nsec);
+    collectionTime_.set_tv_sec( static_cast<long>(
+      raw->trig.collectionTime_sec));
+    collectionTime_.set_tv_nsec( 
+      raw->trig.collectionTime_nsec);
 
     lumiSegmentNr_        = raw->trig.lumiSegmentNr;
     lumiSegmentOrbits_    = raw->trig.lumiSegmentOrbits;
     orbitNr_              = raw->trig.orbitNr;
-    gtPartition0Resets_   = raw->trig.gtPartition0Resets;
+    gtResets_   = raw->trig.gtResets;
     bunchCrossingErrors_  = raw->trig.bunchCrossingErrors;
-    gtPartition0Triggers_ = raw->trig.gtPartition0Triggers;
-    gtPartition0Events_   = raw->trig.gtPartition0Events;
+    gtTriggers_ = raw->trig.gtTriggers;
+    gtEvents_   = raw->trig.gtEvents;
     prescaleIndexAlgo_    = raw->trig.prescaleIndexAlgo;
     prescaleIndexTech_    = raw->trig.prescaleIndexTech;
 
@@ -144,36 +147,27 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
     "   SourceID: " << c.sourceID() << std::endl;
   char line[128];
   char zeitHeaven[128];
-  char zeitHell[128];
   struct tm * horaHeaven;
-  struct tm * horaHell;
 
   sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  struct timespec secondsToHeaven = c.collectionTimeGeneral();
+  struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTimeGeneral: %s.%9.9d" , 
+  sprintf(line, " CollectionTime: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
-  struct timespec secondsToHell= c.collectionTimeLumiSeg();
-  horaHell = gmtime(&secondsToHell.tv_sec);
-  strftime(zeitHell, sizeof(zeitHell), "%Y.%m.%d %H:%M:%S", horaHell);
-  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
-	  zeitHell, (int)secondsToHell.tv_nsec);
-  s << line << std::endl;
-
   sprintf(line,
-	  " LumiSegmentNr: %10u  LumiSegmentOrbits: %10u   OrbitNr: %10u",
+	  " LumiSegmentNr: %10u  LumiSegmentOrbits:     %10u   OrbitNr: %10u",
 	  c.lumiSegmentNr(), c.lumiSegmentOrbits(), c.orbitNr());
   s << line << std::endl;
 
   sprintf(line,
-	  " GtPartition0Resets:   %10u    BunchCrossingErrors:   %10u",
-	  c.gtPartition0Resets(), c.bunchCrossingErrors());
+	  " GtResets:      %10u  BunchCrossingErrors:   %10u",
+	  c.gtResets(), c.bunchCrossingErrors());
   s << line << std::endl;
 
   sprintf(line,
@@ -181,12 +175,12 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 	  c.prescaleIndexAlgo(), c.prescaleIndexTech());
   s << line << std::endl;
 
-  sprintf(line, " GtPartition0Triggers:            %20llu", 
-	  c.gtPartition0Triggers());
+  sprintf(line, " GtTriggers:            %20llu    %22.3f Hz", 
+	  c.gtTriggers(), c.gtTriggersRate());
   s << line << std::endl;
 
-  sprintf(line, " GtPartition0Events:              %20llu", 
-	  c.gtPartition0Events());
+  sprintf(line, " GtEvents:              %20llu    %22.3f Hz", 
+	  c.gtEvents(), c.gtEventsRate());
   s << line << std::endl;
 
 
