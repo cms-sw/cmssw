@@ -15,6 +15,7 @@ Level1TriggerRates::Level1TriggerRates():
   deltaT_(0.0),
   gtTriggersRate_(0.0),
   gtEventsRate_(0.0),
+  collectionTimeLumiSeg_(0,0),
   triggersPhysicsGeneratedFDLRate_(0.0),
   triggersPhysicsLostRate_(0.0),
   triggersPhysicsLostBeamActiveRate_(0.0),
@@ -58,6 +59,12 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
   collectionTime_.set_tv_sec(static_cast<long>(t.collectionTime().tv_sec));
   collectionTime_.set_tv_nsec(t.collectionTime().tv_nsec);
 
+  gtTriggersRate_ = t.gtTriggersRate();
+  gtEventsRate_   = t.gtEventsRate();
+
+  collectionTimeLumiSeg_.set_tv_sec(static_cast<long>(t.collectionTimeLumiSeg().tv_sec));
+  collectionTimeLumiSeg_.set_tv_nsec(t.collectionTimeLumiSeg().tv_nsec);
+
   triggersPhysicsGeneratedFDLRate_ 
     = Level1TriggerScalers::rateLS(t.triggersPhysicsGeneratedFDL());
   triggersPhysicsLostRate_ 
@@ -99,8 +106,6 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
   {
     gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts));
   }
-  gtTriggersRate_ = t.gtTriggersRate();
-  gtEventsRate_   = t.gtEventsRate();
 
   deltaNS_ = 0ULL;
   deltaT_ = 0.0;
@@ -154,26 +159,25 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
   struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTime: %s.%9.9d" , 
+  sprintf(line, " CollectionTime:        %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
+  
+  sprintf(line, " GtTriggersRate:                              %22.3f Hz",
+	  c.gtTriggersRate());
+  s << line << std::endl;
+  
+  sprintf(line, " GtEventsRate:                                %22.3f Hz",
+	  c.gtEventsRate());
+  s << line << std::endl;
 
-  if ( c.deltaNS() > 0 )
-  {
-    sprintf(line, " GtTriggersRate:                   %22.3f Hz",
-	    c.gtTriggersRate());
-    s << line << std::endl;
-    
-    sprintf(line, " GtEventsRate:                     %22.3f Hz",
-	    c.gtEventsRate());
-    s << line << std::endl;
-  }
-  else
-  {
-    s << " GtTriggersRate:                   n/a" << std::endl;
-    s << " GtEventsRate:                     n/a" << std::endl;
-  }
-
+  secondsToHeaven = c.collectionTimeLumiSeg();
+  horaHeaven = gmtime(&secondsToHeaven.tv_sec);
+  strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
+  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
+	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
+  s << line << std::endl;
+  
   sprintf(line, " TriggersPhysicsGeneratedFDLRate:             %22.3f Hz",
 	  c.triggersPhysicsGeneratedFDLRate());
   s << line << std::endl;

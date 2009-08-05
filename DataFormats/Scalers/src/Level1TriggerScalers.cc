@@ -156,31 +156,43 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTime: %s.%9.9d" , 
+  sprintf(line, " CollectionTime:        %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
   sprintf(line,
-	  " LumiSegmentNr: %10u  LumiSegmentOrbits:     %10u   OrbitNr: %10u",
-	  c.lumiSegmentNr(), c.lumiSegmentOrbits(), c.orbitNr());
+	  " LumiSegmentNr:        %10u   LumiSegmentOrbits:     %10u",
+	  c.lumiSegmentNr(), c.lumiSegmentOrbits());
   s << line << std::endl;
 
   sprintf(line,
-	  " GtResets:      %10u  BunchCrossingErrors:   %10u",
+	  " LumiSegmentNrLumiSeg: %10u   OrbitNr:               %10u ",
+	  c.lumiSegmentNrLumiSeg(),  c.orbitNr());
+  s << line << std::endl;
+
+  sprintf(line,
+	  " GtResets:             %10u   BunchCrossingErrors:   %10u",
 	  c.gtResets(), c.bunchCrossingErrors());
   s << line << std::endl;
 
   sprintf(line,
-	  " PrescaleIndexAlgo:    %10d    PrescaleIndexTech:     %10d",
+	  " PrescaleIndexAlgo:    %10d   PrescaleIndexTech:     %10d",
 	  c.prescaleIndexAlgo(), c.prescaleIndexTech());
   s << line << std::endl;
 
-  sprintf(line, " GtTriggers:            %20llu    %22.3f Hz", 
+  sprintf(line, " GtTriggers:                      %20llu %22.3f Hz", 
 	  c.gtTriggers(), c.gtTriggersRate());
   s << line << std::endl;
 
-  sprintf(line, " GtEvents:              %20llu    %22.3f Hz", 
+  sprintf(line, " GtEvents:                        %20llu %22.3f Hz", 
 	  c.gtEvents(), c.gtEventsRate());
+  s << line << std::endl;
+
+  secondsToHeaven = c.collectionTimeLumiSeg();
+  horaHeaven = gmtime(&secondsToHeaven.tv_sec);
+  strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
+  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
+	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
 

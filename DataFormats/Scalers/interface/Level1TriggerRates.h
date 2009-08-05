@@ -71,6 +71,9 @@ class Level1TriggerRates
   double gtEventsRate() const 
   { return(gtEventsRate_);}
 
+  timespec collectionTimeLumiSeg() 
+  { return(collectionTimeLumiSeg_.get_timespec());}
+
   double triggersPhysicsGeneratedFDLRate() const 
   { return(triggersPhysicsGeneratedFDLRate_);}
 
@@ -114,6 +117,9 @@ class Level1TriggerRates
   timespec collectionTime() const 
   { return(collectionTime_.get_timespec());}
 
+  timespec collectionTimeLumiSeg() const 
+  { return(collectionTimeLumiSeg_.get_timespec());}
+
   std::vector<double> gtAlgoCountsRate() const { return(gtAlgoCountsRate_);}
   std::vector<double> gtTechCountsRate() const{ return(gtTechCountsRate_);}
 
@@ -126,13 +132,14 @@ class Level1TriggerRates
 protected:
 
   int version_;
-  TimeSpec collectionTime_;
 
+  TimeSpec collectionTime_;
   unsigned long long deltaNS_;
   double deltaT_;
   double gtTriggersRate_;
   double gtEventsRate_;
 
+  TimeSpec collectionTimeLumiSeg_;
   double triggersPhysicsGeneratedFDLRate_;
   double triggersPhysicsLostRate_;
   double triggersPhysicsLostBeamActiveRate_;

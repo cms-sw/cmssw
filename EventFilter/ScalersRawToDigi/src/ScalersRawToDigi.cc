@@ -93,7 +93,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
     {
       L1TriggerScalers oldTriggerScalers(fedData.data());
-      pOldTrigger->push_back(oldTriggerScalers);
+       pOldTrigger->push_back(oldTriggerScalers);
     }
     else if ( raw->version >= 3 )
     {
