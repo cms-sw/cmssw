@@ -224,6 +224,7 @@ namespace sistrip {
                                                                    const FEDStripData::ChannelData& data,
                                                                    const bool channelEnabled) const
   {
+    channelBuffer->reserve(50);
     //if channel is disabled then create empty channel header and return
     if (!channelEnabled) {
       //min length 2
@@ -244,9 +245,10 @@ namespace sistrip {
   
   void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
   {
-    size_t clusterSize = 0;
-    for( size_t strip = 0; strip < data.size(); ++strip) {
-      const uint8_t& adc = data.get8BitSample(strip);
+    uint16_t clusterSize = 0;
+    const uint16_t nSamples = data.size();
+    for( uint16_t strip = 0; strip < nSamples; ++strip) {
+      const uint8_t adc = data.get8BitSample(strip);
 
       if(adc) {
 	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
