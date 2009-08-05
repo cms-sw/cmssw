@@ -10,15 +10,15 @@ isoElectronWithNeutral   = isoDepositReplace( 'pfElectronsPtGt5',
                                               'pfAllNeutralHadrons' )
 isoElectronWithPhotons   = isoDepositReplace( 'pfElectronsPtGt5',
                                               'pfAllPhotons' )
-isoElectronWithElectrons = isoDepositReplace( 'pfElectronsPtGt5',
-                                              'pfAllElectrons' )
-isoElectronWithMuons     = isoDepositReplace( 'pfElectronsPtGt5',
-                                              'pfAllMuons' )
+# isoElectronWithElectrons = isoDepositReplace( 'pfElectronsPtGt5',
+# 'pfAllElectrons' )
+# isoElectronWithMuons     = isoDepositReplace( 'pfElectronsPtGt5',
+#                                               'pfAllMuons' )
 
 pfElectronIsoDepositsSequence = cms.Sequence(
-    isoElectronWithCharged   
-#    isoElectronWithNeutral   +
-#    isoElectronWithPhotons   
+    isoElectronWithCharged   +
+    isoElectronWithNeutral   +
+    isoElectronWithPhotons   
 #    isoElectronWithElectrons +
 #    isoElectronWithMuons
 )

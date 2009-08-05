@@ -110,6 +110,8 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
+
+#        process.dump = cms.EDAnalyzer("EventContentAnalyzer")
         process.patDefaultSequence.replace(process.allLayer1Objects,
                                            process.PF2PAT +
                                            process.allLayer1Objects
