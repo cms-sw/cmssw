@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.37 2009/06/28 23:28:51 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.38 2009/07/10 01:16:38 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -94,8 +94,14 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   trackEtMin_ = iConfig.getUntrackedParameter<double>("trackEtMin",3.0);
   trackDRMatch_  =iConfig.getUntrackedParameter<double>("trackDRMatch",0.3); 
 
+  metEtaMax_ = iConfig.getUntrackedParameter<double>("metEtaMax",5);
   metMin_ = iConfig.getUntrackedParameter<double>("metMin",10.0);
+  metDRMatch_  =iConfig.getUntrackedParameter<double>("metDRMatch",0.5); 
+
+  htEtaMax_ = iConfig.getUntrackedParameter<double>("htEtaMax",5);
   htMin_ = iConfig.getUntrackedParameter<double>("htMin",10.0);
+  htDRMatch_  =iConfig.getUntrackedParameter<double>("htDRMatch",0.5); 
+
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
   
 }
@@ -343,6 +349,18 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   objMonData<reco::CaloJetCollection> btagMon; // Generic btagMon
  
+  // met Monitor
+	// ------------
+  objMonData<reco::CaloMETCollection> metMon;
+  metMon.setReco(metHandle);
+  metMon.setLimits(metEtaMax_, metMin_, metDRMatch_);
+  
+  metMon.pushTriggerType(TriggerMET);
+
+  metMon.pushL1TriggerType(TriggerL1ETM);
+
+
+
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
 { 
@@ -373,6 +391,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       phoMon.clearSets();
       jetMon.clearSets();
       btagMon.clearSets();
+      metMon.clearSets();
 
       //cout << " New hltPath  and denompassed" << endl;
       // set to keep maps of DR matches of each L1 objects with each Off object
@@ -404,6 +423,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			  phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 			  btagMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+			  metMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
 
   		eleMon.fillL1Match(this);
   		muoMon.fillL1Match(this);
@@ -411,6 +431,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   		phoMon.fillL1Match(this);
   		jetMon.fillL1Match(this);
   		btagMon.fillL1Match(this);
+  		metMon.fillL1Match(this);
 
 
     // did we pass the numerator path?
@@ -473,6 +494,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         phoMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
         jetMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
         btagMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        metMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
 
       } //online object loop
 
@@ -482,6 +504,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       phoMon.fillOnlineMatch(this, l1k, toc);
       jetMon.fillOnlineMatch(this, l1k, toc);
       btagMon.fillOnlineMatch(this, l1k, toc);
+      metMon.fillOnlineMatch(this, l1k, toc);
 
 
 			/*
@@ -738,7 +761,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     float ptMax = 100.0;
     if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
     if (objectType == trigger::TriggerElectron) ptMax = 100.0;
-    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 150.0;
     if (objectType == trigger::TriggerTau) ptMax = 100.0;
     if (objectType == trigger::TriggerJet) ptMax = 300.0;
     if (objectType == trigger::TriggerBJet) ptMax = 300.0;
@@ -834,7 +857,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     float ptMax = 100.0;
     if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
     if (objectType == trigger::TriggerElectron) ptMax = 100.0;
-    if (objectType == trigger::TriggerMuon) ptMax = 100.0;
+    if (objectType == trigger::TriggerMuon) ptMax = 150.0;
     if (objectType == trigger::TriggerTau) ptMax = 100.0;
     if (objectType == trigger::TriggerJet) ptMax = 300.0;
     if (objectType == trigger::TriggerBJet) ptMax = 300.0;
@@ -895,7 +918,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 	  }
         else if (v->getObjectType() == trigger::TriggerMET || v->getObjectType() == trigger::TriggerL1ETM )
 	  {
-	    histEtaMax = 5.0; 
+	    histEtaMax = metEtaMax_; 
 	  }
         else if (v->getObjectType() == trigger::TriggerPhoton)
 	  {

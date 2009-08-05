@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.25 2009/06/28 23:28:50 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.26 2009/07/10 01:16:37 rekovic Exp $
 //
 //
 
@@ -154,8 +154,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double trackEtaMax_;
       double trackEtMin_;
       double trackDRMatch_;
+      double metEtaMax_;
       double metMin_;
+      double metDRMatch_;
+      double htEtaMax_;
       double htMin_;
+      double htDRMatch_;
       double sumEtMin_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
