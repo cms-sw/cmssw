@@ -244,32 +244,29 @@ namespace sistrip {
   
   void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
   {
-    uint8_t clusterSize = 0;
+    size_t clusterSize = 0;
     for( size_t strip = 0; strip < data.size(); ++strip) {
       const uint8_t& adc = data.get8BitSample(strip);
 
-      if( adc && strip != STRIPS_PER_APV) {
-	if(clusterSize==0) {
+      if(adc) {
+	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
+	  if(clusterSize) { 
+	    *(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	    clusterSize = 0; 
+	  }
 	  channelBuffer->push_back(strip); 
-	  channelBuffer->push_back(0); //clustersize
+	  channelBuffer->push_back(0); //clustersize	  
 	}
 	channelBuffer->push_back(adc);
 	++clusterSize;
       }
 
-      else {
-	if(clusterSize) { *(channelBuffer->end() - clusterSize - 1) = clusterSize ; }
-	clusterSize = 0;
-	if(adc) {
-	  channelBuffer->push_back(strip);
-	  channelBuffer->push_back(0); //clustersize
-	  channelBuffer->push_back(adc);
-	  ++clusterSize;
-	}
+      else if(clusterSize) { 
+	*(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	clusterSize = 0; 
       }
-
     }
-    if(clusterSize) { *(channelBuffer->end() - clusterSize - 1) = clusterSize ; }
+    if(clusterSize) *(channelBuffer->end() - clusterSize - 1) = clusterSize ;
   }
 
   //FEDBufferGenerator
