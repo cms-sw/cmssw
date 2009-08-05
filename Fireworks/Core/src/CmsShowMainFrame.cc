@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.53 2009/07/02 19:09:00 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.54 2009/07/28 16:15:56 dmytro Exp $
 //
 // hacks
 #define private public
@@ -175,9 +175,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    goToFirst->createMenuEntry(viewMenu);
    goToLast->createMenuEntry(viewMenu);
    playEvents->createMenuEntry(viewMenu);
-   playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
+   playEvents->createShortcut(kKey_Space, "CTRL");
    playEventsBack->createMenuEntry(viewMenu);
-   playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
+   playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT");
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
