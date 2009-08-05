@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.81 2009/07/08 19:52:08 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.82 2009/07/30 04:10:19 dmytro Exp $
 //
 
 // system include files
@@ -691,6 +691,8 @@ CmsShowMain::setupDataHandling()
    m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
    m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
    m_navigator->atEnd.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
+   m_navigator->preFiltering.connect(boost::bind(&CmsShowMain::preFiltering,this));
+   m_navigator->postFiltering.connect(boost::bind(&CmsShowMain::postFiltering,this));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
@@ -829,6 +831,19 @@ void
 CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
+}
+
+void 
+CmsShowMain::preFiltering()
+{
+   m_guiManager->enableActions(false);
+   m_guiManager->updateStatus("Filtering events");
+
+}
+void 
+CmsShowMain::postFiltering()
+{
+   m_guiManager->enableActions(true);
 }
 
 //

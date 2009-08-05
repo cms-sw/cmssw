@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.14 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.15 2009/07/30 04:10:18 dmytro Exp $
 //
 
 // system include files
@@ -74,6 +74,9 @@ public:
    sigc::signal<void, const TFile*> newFileLoaded;
    sigc::signal<void> atBeginning;
    sigc::signal<void> atEnd;
+   
+   sigc::signal<void> preFiltering;
+   sigc::signal<void> postFiltering;
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default

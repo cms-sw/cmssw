@@ -44,6 +44,8 @@ namespace {
       switch (opcode) {
          case edm::MessageLoggerQ::LOG_A_MESSAGE: {
             edm::ErrorObj *  errorobj_p = static_cast<edm::ErrorObj *>(operand);
+            std::cerr<<errorobj_p->xid().severity.getInputStr()<<" "<<errorobj_p->xid().id<<" -----------------------"<<std::endl;
+            std::cerr <<errorobj_p->fullText()<<std::endl;
             delete errorobj_p;
             break;
          }

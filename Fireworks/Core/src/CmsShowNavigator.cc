@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.26 2009/05/21 21:14:12 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.27 2009/07/30 04:10:19 dmytro Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -312,6 +312,7 @@ CmsShowNavigator::goToEvent(Int_t event)
 void
 CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
+   preFiltering();
    for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
                                             end = m_main.m_eiManager->end();
         i != end;
@@ -402,6 +403,8 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
          m_nEntries = m_event->size();
       }
    }
+   postFiltering();
+   
    m_event->to(realEntry(0));
    m_firstID = m_event->id();
    m_event->to(realEntry(m_nEntries - 1));

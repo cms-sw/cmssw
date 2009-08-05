@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.19 2009/05/15 14:26:06 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.20 2009/05/17 06:15:43 jmuelmen Exp $
 //
 
 // system include files
@@ -120,6 +120,9 @@ private:
    void stopPlaying();
    void reachedEnd();
 
+   void preFiltering();
+   void postFiltering();
+   
    void setPlayDelay(Float_t);
 
    // ---------- member data --------------------------------
