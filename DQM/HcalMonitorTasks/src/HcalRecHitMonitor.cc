@@ -109,10 +109,10 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       h_HOEnergy_1D=m_dbe->book1D("HO_energy_1D","HO Average Energy Per Rec Hit;Energy (GeV)",600,-10,20);
       h_HFEnergy_1D=m_dbe->book1D("HF_energy_1D","HF Average Energy Per Rec Hit;Energy (GeV)",400,-5,15);
 
-      h_HBEnergyRMS_1D=m_dbe->book1D("HB_energy_RMS_1D","HB Energy RMS Per Rec Hit;Energy (GeV)",500,0,2);
-      h_HEEnergyRMS_1D=m_dbe->book1D("HE_energy_RMS_1D","HE Energy RMS Per Rec Hit;Energy (GeV)",500,0,2);
-      h_HOEnergyRMS_1D=m_dbe->book1D("HO_energy_RMS_1D","HO Energy RMS Per Rec Hit;Energy (GeV)",500,0,3);
-      h_HFEnergyRMS_1D=m_dbe->book1D("HF_energy_RMS_1D","HF Energy RMS Per Rec Hit;Energy (GeV)",500,0,2);
+      h_HBEnergyRMS_1D=m_dbe->book1D("HB_energy_RMS_1D","HB Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
+      h_HEEnergyRMS_1D=m_dbe->book1D("HE_energy_RMS_1D","HE Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
+      h_HOEnergyRMS_1D=m_dbe->book1D("HO_energy_RMS_1D","HO Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
+      h_HFEnergyRMS_1D=m_dbe->book1D("HF_energy_RMS_1D","HF Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
 
       if (rechit_makeDiagnostics_)
 	{
