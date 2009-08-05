@@ -5,5 +5,6 @@ ALCARECODTCalibrationDQM = cms.EDFilter("DTPreCalibrationTask",
     outputFileName = cms.untracked.string('DigiHistos.root'),
     digiLabel = cms.untracked.string('muonDTDigis'),
     minTriggerWidth = cms.untracked.int32(2000),
-    maxTriggerWidth = cms.untracked.int32(6000)
+    maxTriggerWidth = cms.untracked.int32(6000),
+    folderName = cms.untracked.string('AlcaReco')
 )
