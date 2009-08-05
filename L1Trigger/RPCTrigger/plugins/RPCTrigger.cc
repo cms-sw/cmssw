@@ -99,6 +99,28 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(m_label, rpcDigis);
   std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
   std::auto_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
+  if (!rpcDigis.isValid()) 
+  {
+     LogDebug("RPCTrigger")
+          << "\nWarning: RPCDigiCollection with input tag " << m_label
+          << "\nrequested in configuration, but not found in the event. Emulator will produce empty collection \n ";
+
+          iEvent.put(candBarell, "RPCb");
+          iEvent.put(candForward, "RPCf");
+ 
+          return;
+  }
+
+  
+  if (rpcDigis->begin() == rpcDigis->end() )
+  {
+     LogDebug("RPCTrigger")
+          << "\nWarning: RPCDigiCollection with input tag " << m_label
+          << "\n seems to be empty for this event. Emulator will run on empty collection ";
+
+  }
+
+
     
   for (int iBx = -1; iBx < 2; ++ iBx) {
     

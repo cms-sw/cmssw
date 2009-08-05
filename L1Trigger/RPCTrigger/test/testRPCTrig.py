@@ -19,7 +19,7 @@ process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
 # emulation
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
 
-process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff")
+process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
 process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
 process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
