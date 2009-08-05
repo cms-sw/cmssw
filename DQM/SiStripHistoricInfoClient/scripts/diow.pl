@@ -24,7 +24,7 @@ $mylinkcolor ='FFFF00';   # color for unvisited links
 $myvlinkcolor = 'FF00FF'; # color for visited link
 $barcolor = '9999FF';     # background color for title bar
 $diowurl = 'http://mips.as.arizona.edu/~hdole/diow/'; # URL where you can download DIOW
-$nbrow = 4;               # number of rows in the table
+$nbrow = 2;               # number of rows in the table
 $iconsize = 200;           # size of icons
 
 # test if there are keywords
