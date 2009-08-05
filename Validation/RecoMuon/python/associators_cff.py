@@ -102,6 +102,7 @@ tpToL3L2TrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
 )
 
 
+
 #MuonAssociation
 import SimMuon.MCTruth.MuonAssociatorByHits_cfi
 
@@ -208,11 +209,68 @@ tpToL3MuonAssociation.UseSplitting = False
 tpToL3MuonAssociation.UseGrouped = False
 tpToL3MuonAssociation.ThreeHitTracksAreSpecial = False 
 
+#
+# Associators for cosmics:
+#
+
+tpToTkCosmicTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByHits'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('ctfWithMaterialTracksP5LHCNavigation')
+)
+
+tpToStaCosmicTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('cosmicMuons')
+)
+
+tpToGlbCosmicTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByDeltaR'),
+    label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('globalCosmicMuons')
+)
+
+tpToTkCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToGlbCosmicMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+
+tpToTkCosmicMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToTkCosmicMuonAssociation.tracksTag = 'ctfWithMaterialTracksP5LHCNavigation'
+tpToTkCosmicMuonAssociation.UseTracker = True
+tpToTkCosmicMuonAssociation.UseMuon = False
+tpToTkCosmicMuonAssociation.EfficiencyCut_track = 0.5
+tpToTkCosmicMuonAssociation.PurityCut_track = 0.75
+
+tpToStaCosmicMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToStaCosmicMuonAssociation.tracksTag = 'cosmicMuons'
+tpToStaCosmicMuonAssociation.UseTracker = False
+tpToStaCosmicMuonAssociation.UseMuon = True
+tpToStaCosmicMuonAssociation.EfficiencyCut_muon = 0.5
+tpToStaCosmicMuonAssociation.PurityCut_muon = 0.5
+
+tpToGlbCosmicMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
+tpToGlbCosmicMuonAssociation.tracksTag = 'globalCosmicMuons'
+tpToGlbCosmicMuonAssociation.UseTracker = True
+tpToGlbCosmicMuonAssociation.UseMuon = True
+tpToGlbCosmicMuonAssociation.EfficiencyCut_muon = 0.5
+tpToGlbCosmicMuonAssociation.PurityCut_muon = 0.5
+tpToGlbCosmicMuonAssociation.EfficiencyCut_track = 0.5
+tpToGlbCosmicMuonAssociation.PurityCut_track = 0.75
+
+
+#
+# The full-sim association sequences
+#
+
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation))
 
 muonAssociationTEV_seq = cms.Sequence((tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
                                      +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation))
+
+muonAssociationCosmic_seq = cms.Sequence((tpToTkCosmicMuonAssociation+tpToStaCosmicMuonAssociation+tpToGlbCosmicMuonAssociation)
+                                        +(tpToTkCosmicTrackAssociation+tpToStaCosmicTrackAssociation+tpToGlbCosmicTrackAssociation))
 
 muonAssociationHLT_seq = cms.Sequence(
     (tpToL2MuonAssociation
