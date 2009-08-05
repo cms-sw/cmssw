@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/05/05 12:13:30 $
- * $Revision: 1.58 $
+ * $Date: 2009/07/14 09:11:53 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -546,7 +546,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+    LogWarning("EEOccupancyTask") << EcalRawDataCollection_ << " not available";
   }
 
   Handle<EEDigiCollection> digis;
