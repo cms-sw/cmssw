@@ -167,18 +167,19 @@ namespace sistrip {
                                                     const bool channelEnabled,
                                                     const bool reorderData) const
   {
-    const uint16_t channelLength = data.size();
+    const uint16_t nSamples = data.size();
     //2 bytes per sample + packet code + 2 bytes for length
-    channelBuffer->reserve(channelLength*2 + 3);
+    const uint16_t channelLength = nSamples*2 + 3;
+    channelBuffer->reserve(channelLength);
     //length (max length is 0xFFF)
     channelBuffer->push_back( channelLength & 0xFF );
     channelBuffer->push_back( (channelLength & 0xF00) >> 8 );
     //packet code
     channelBuffer->push_back(packetCode);
     //channel samples
-    for (uint16_t sampleNumber = 0; sampleNumber < channelLength; sampleNumber++) {
+    for (uint16_t sampleNumber = 0; sampleNumber < nSamples; sampleNumber++) {
       const uint16_t sampleIndex = ( reorderData ? FEDStripOrdering::physicalOrderForStripInChannel(sampleNumber) : sampleNumber );
-      uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
+      const uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
       channelBuffer->push_back(sampleValue & 0xFF);
       channelBuffer->push_back((sampleValue & 0x300) >> 8);
     }

@@ -521,7 +521,7 @@ namespace sistrip {
 
   inline uint8_t FEDStripOrdering::physicalOrderForStripInChannel(const uint8_t readoutOrderStripIndexInChannel)
     {
-      return ( physicalOrderForStripInAPV(readoutOrderStripIndexInChannel/2)*2 + (readoutOrderStripIndexInChannel%2) );
+      return physicalOrderForStripInAPV(readoutOrderStripInChannel/2) + (readoutOrderStripIndexInChannel%2)*STRIPS_PER_APV;
     }
   
   inline uint8_t FEDStripOrdering::readoutOrderForStripInChannel(const uint8_t physicalOrderStripIndexInChannel)
