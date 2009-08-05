@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/02/27 12:31:33 $
- * $Revision: 1.47 $
+ * $Date: 2009/02/27 19:14:18 $
+ * $Revision: 1.48 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -213,7 +213,7 @@ void EETriggerTowerTask::setup( const char* nameext,
       dqmStore_->tag(meEmulError_[i], i+1);
 
       string emulMatchNameSM = emulMatchName;
-      emulMatchNameSM += " " + Numbers::sEB(i+1);
+      emulMatchNameSM += " " + Numbers::sEE(i+1);
 
       meEmulMatch_[i] = dqmStore_->book3D(emulMatchNameSM.c_str(), emulMatchNameSM.c_str(),
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
