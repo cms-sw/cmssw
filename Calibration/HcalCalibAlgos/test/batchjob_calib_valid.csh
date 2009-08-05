@@ -12,6 +12,11 @@ cvs co Calibration/HcalCalibAlgos
 scram b
 cd Calibration/HcalCalibAlgos/test
 
+set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/data
+
+# if you want to validate your own calibration, copy it to data/ from your local place: 
+cp $respcorrdir/response_corrections.txt ../data/response_corrections.txt
+
 cat > validator.py <<@EOF
 
 import FWCore.ParameterSet.Config as cms
@@ -38,7 +43,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
 
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
-process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/calibConst_IsoTrk_test071809.txt")
+process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt")
 process.ValidationIsoTrk.AxB = cms.string("3x3")
 process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
 
@@ -71,8 +76,8 @@ process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIso
 
 #-----------
 @EOF
-cmsRun validator.py
 
+cmsRun validator.py
 
 set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/test
 #set outdir=/castor/cern.ch/user/a/andrey/pi50_310_pre10

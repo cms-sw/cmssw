@@ -26,7 +26,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
 #process.load("UserCode.AndreyPozdnyakov.validator_cfi")
 process.load("Calibration.HcalCalibAlgos.calib_validator_cfi")
 process.ValidationIsoTrk.outputFileName = cms.string("ValidFile_XX.root")
-process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/calibConst_IsoTrk_test071809.txt")
+process.ValidationIsoTrk.calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections2.txt")
 process.ValidationIsoTrk.AxB = cms.string("3x3")
 process.ValidationIsoTrk.takeAllRecHits = cms.untracked.bool(False)
 

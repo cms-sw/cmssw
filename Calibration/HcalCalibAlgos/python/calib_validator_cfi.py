@@ -18,7 +18,7 @@ ValidationIsoTrk = cms.EDAnalyzer("ValidIsoTrkCalib",
         trackInput = cms.InputTag("IsoProd:IsoTrackTracksCollection"),
         associationConeSize = cms.double(0.5),
         outputFileName = cms.string("ValidFile.root"),
-        calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/calibFactors_isotrk_3x3.txt"),
+        calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt"),
         AxB = cms.string("3x3"),
 
         energyECALmip = cms.double(500.0), #take a broad range. put cuts later
