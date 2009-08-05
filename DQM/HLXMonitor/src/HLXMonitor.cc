@@ -694,7 +694,7 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void HLXMonitor::SaveDQMFile(){
 
   std::ostringstream tempStreamer;
-  tempStreamer << OutputDir << "/" << OutputFilePrefix << subSystemName_
+  tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
 	       << "_R" << std::setfill('0') << std::setw(runNumLength) 
 	       << runNumber_ << "_T00000001.root";
 
