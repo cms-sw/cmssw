@@ -31,8 +31,10 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 	if (myEt>0x3ff) myEt=0x3ff ;
 	if (isInInnerRings) myEt = myEt /2 ;
 	
+	// badTTStatus_ ==0 if the TT works
+	// badTTStatus_ !=0 if there are some problems
 	int lut_out;
-	if (badTTStatus_==0){
+	if (badTTStatus_!=0){
 	  lut_out = 0;
 	}
 	else
@@ -53,7 +55,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
       if (isInInnerRings) myEt = myEt /2 ;  
          
 	int lut_out;
-	if (badTTStatus_==0){
+	if (badTTStatus_!=0){
 	  lut_out = 0;
 	}
 	else

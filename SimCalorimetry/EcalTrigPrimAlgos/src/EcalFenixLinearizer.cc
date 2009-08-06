@@ -61,8 +61,9 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     shift_ = linConsts_ -> shift_x12;
     
     // take into account the badX
-    // check if the badX has a status code=0 or 1  
-    if (badXStatus_->getStatusCode()==0){
+    // badXStatus_ == 0 if the crystal works
+    // badXStatus_ !=0 some problem with the crystal
+    if (badXStatus_->getStatusCode()!=0){
       mult_ = 0;
     }
     else{ 
@@ -75,7 +76,7 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     
     // take into account the badX
     // check if the badX has a status code=0 or 1 
-    if (badXStatus_->getStatusCode()==0){
+    if (badXStatus_->getStatusCode()!=0){
       mult_ = 0;
     }
     else{
@@ -88,7 +89,7 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     
     // take into account the badX 
     // check if the badX has a status code=0 or 1
-    if (badXStatus_->getStatusCode()==0){
+    if (badXStatus_->getStatusCode()!=0){
       mult_ = 0;
     }
     else{
