@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_2_2/GRun/V1 (CMSSW_3_2_2_HLT1)
+# /dev/CMSSW_3_2_3/GRun/V1 (CMSSW_3_2_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_2/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_3_2_3/GRun/V1')
 )
 
 essourceSev = cms.ESSource( "EmptyESSource",
@@ -1081,6 +1081,9 @@ PrescaleService = cms.Service( "PrescaleService",
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_OIstateTkMu3" ),
+      prescales = cms.vuint32( 1, 1, 1, 2 )
+    ),
+    cms.PSet(  pathName = cms.string( "HLT_EgammaSuperClusterOnly_L1R" ),
       prescales = cms.vuint32( 1, 1, 1, 2 )
     ),
     cms.PSet(  pathName = cms.string( "HLT_TrackPointing" ),
@@ -6157,7 +6160,7 @@ hltMuonPointingFilter = cms.EDFilter( "HLTMuonPointingFilter",
     SALabel = cms.string( "hltCosmicMuonBarrelOnly" ),
     PropagatorName = cms.string( "SteppingHelixPropagatorAny" ),
     radius = cms.double( 90.0 ),
-    maxZ = cms.double( 130.0 )
+    maxZ = cms.double( 280.0 )
 )
 hltL1sAlCaEcalPi0EtaCosmics = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
