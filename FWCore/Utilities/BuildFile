@@ -4,11 +4,9 @@
 <use name=rootcore>
 <use name=rootrflx>
 <use name=uuid>
-<use name=FWCore/Version>
 <export>
  <lib name=FWCoreUtilities>
  <use name=boost>
  <use name=boost_filesystem> 
  <use name=uuid>
- <use name=FWCore/Version>
 </export>
