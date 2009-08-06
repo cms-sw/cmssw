@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.8 2009/04/01 22:43:01 sunanda Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.9 2009/05/25 12:46:03 fabiocos Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -30,6 +31,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   double fMaxPhi = p.getParameter<double>("MaxPhi");
   eta(0.5*(fMinEta+fMaxEta));
   phi(0.5*(fMinPhi+fMaxPhi));
+  psi(p.getParameter<double>("Psi"));
   nBinx = p.getParameter<int>("BinX");
   nBiny = p.getParameter<int>("BinY");
   ffile = p.getParameter<bool>("UseFile");
@@ -68,6 +70,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
 				  << "beam along eta = " << fEta 
 				  << " (Theta = " << fTheta/deg 
 				  << ") phi = " << fPhi/deg 
+				  << ") psi = " << fPhi/deg 
 				  << " centred at (" << fMeanX << ", " 
 				  << fMeanY << ", "  << fMeanZ << ") "
 				  << "and spread (" << fSigmaX << ", "
@@ -109,10 +112,53 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
       aY = (dynamic_cast<CLHEP::RandFlat*>(fRandom))->fire(-0.5*fSigmaY,0.5*fSigmaY) + fMeanY;
     }
   }
-  double xp = -aX*cos(fTheta)*cos(fPhi) +aY*sin(fPhi) +fMeanZ*sin(fTheta)*cos(fPhi);
-  double yp = -aX*cos(fTheta)*sin(fPhi) -aY*cos(fPhi) +fMeanZ*sin(fTheta)*sin(fPhi);
-  double zp =  aX*sin(fTheta)                         +fMeanZ*cos(fTheta);
 
+  double xp, yp, zp ;
+  if( 2.*M_PI < fabs(fPsi) )
+  {
+     xp = -aX*cos(fTheta)*cos(fPhi) +aY*sin(fPhi) +fMeanZ*sin(fTheta)*cos(fPhi);
+     yp = -aX*cos(fTheta)*sin(fPhi) -aY*cos(fPhi) +fMeanZ*sin(fTheta)*sin(fPhi);
+     zp =  aX*sin(fTheta)                         +fMeanZ*cos(fTheta);
+  }
+  else // for endcap testbeam, use 3rd angle psi
+  {
+     const HepVector3D av ( aX, aY, fMeanZ ) ;
+
+/*
+     static const double kRadToDeg ( 180./M_PI ) ;
+     std::cout<<"theta = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<fTheta*kRadToDeg<<", phi="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<fPsi*kRadToDeg<<std::endl ;
+*/
+     const HepRotateZ3D R1 ( fPhi - M_PI ) ;
+     const HepPoint3D xUnit ( 0,1,0 ) ;
+     const HepPoint3D zUnit ( 0,0,1 ) ;
+     const HepTransform3D RXRZ ( HepRotate3D( -fTheta, R1*xUnit )*R1 ) ;
+     const HepTransform3D TRF ( HepRotate3D(fPsi,RXRZ*zUnit)*RXRZ ) ;
+/*
+     std::cout<<"\n\n$$$$$$$$$$$Transform="
+	      <<" thetaZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().thetaZ()*kRadToDeg
+	      <<", phiZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().phiZ()*kRadToDeg
+	      <<", thetaY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().thetaY()*kRadToDeg
+	      <<", phiY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().phiY()*kRadToDeg
+	      <<", thetaX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().thetaX()*kRadToDeg
+	      <<", phiX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getRotation().phiX()*kRadToDeg
+	      <<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<TRF.getTranslation()<<std::endl ;
+*/
+     const HepVector3D pv ( TRF*av ) ;
+
+     xp = pv.x() ;
+     yp = pv.y() ;
+     zp = pv.z() ;
+  }
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   //fVertex->set(xp, yp, zp);
   if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;

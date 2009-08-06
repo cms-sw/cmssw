@@ -7,7 +7,7 @@
  * Attention: Units are assumed to be cm and radian!
  * \author Sunanda Banerjee
  *
- * $Id: BeamProfileVtxGenerator.h,v 1.5 2007/11/02 21:40:33 sunanda Exp $
+ * $Id: BeamProfileVtxGenerator.h,v 1.6 2008/04/04 21:38:24 yumiceva Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -49,6 +49,8 @@ public:
   void eta(double m=0);
   /// set phi in radian
   void phi(double m=0)     {fPhi=m;}
+  /// set psi in radian
+  void psi(double m=999)     {fPsi=m;}
   /// set type
   void setType(bool m=true);
   
@@ -61,6 +63,9 @@ private:
   double      fSigmaX, fSigmaY;
   double      fMeanX,  fMeanY, fMeanZ;
   double      fEta,    fPhi,   fTheta;
+
+      double      fPsi;
+
   bool        fType,   ffile;
   int         nBinx,   nBiny;
   std::vector<double> fdistn;
