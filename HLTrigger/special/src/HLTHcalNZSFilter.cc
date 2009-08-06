@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.5 2009/07/08 13:26:31 gruen Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.1 2009/08/03 20:15:42 bdahmes Exp $
 //
 //
 
@@ -48,8 +48,8 @@ HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
-  DataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
-  Summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
+  dataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
+  summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
 }
 
 
@@ -73,7 +73,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(DataLabel_,rawdata);
+  iEvent.getByLabel(dataLabel_,rawdata);
 
   bool hcalIsZS = false ; 
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
@@ -107,13 +107,13 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTHcalNZSFilter::beginJob(const edm::EventSetup&)
+HLTHcalNZSFilter::beginJob(void)
 {
   eventsNZS_ = 0 ; 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-HLTHcalNZSFilter::endJob() {
-  if ( Summary_ ) edm::LogWarning("HLTHcalNZSFilter") << "Kept " << eventsNZS_ << " non-ZS events" ;  
+HLTHcalNZSFilter::endJob(void) {
+  if ( summary_ ) edm::LogWarning("HLTHcalNZSFilter") << "Kept " << eventsNZS_ << " non-ZS events" ;  
 }

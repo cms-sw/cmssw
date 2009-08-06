@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.h,v 1.3 2009/05/04 13:46:39 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.h,v 1.1 2009/08/03 20:15:41 bdahmes Exp $
 //
 //
 
@@ -38,15 +38,15 @@ public:
   virtual ~HLTHcalNZSFilter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(void);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob(void);
   
   // ----------member data ---------------------------
   
-  std::string DataLabel_ ;
-  bool        Summary_ ;
-  int         eventsNZS_ ; 
+  std::string dataLabel_;
+  bool        summary_;
+  int         eventsNZS_; 
 
 };
 
