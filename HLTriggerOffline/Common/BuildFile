@@ -5,6 +5,7 @@
 <use name=DataFormats/MuonReco>
 <use name=FWCore/ServiceRegistry>
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/StdDictionaries>
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/TrackReco>
@@ -35,6 +36,7 @@
   <use name=DataFormats/MuonReco>
   <use name=FWCore/ServiceRegistry>
   <use name=DataFormats/RecoCandidate>
+  <use name=DataFormats/StdDictionaries>
   <use name=DataFormats/HLTReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>

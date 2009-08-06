@@ -1,6 +1,6 @@
 // Originally written by James Jackson
 // modified by Peter Wittich
-// $Id: HltComparator.cc,v 1.1.2.1 2009/06/22 20:11:40 wittich Exp $
+// $Id: HltComparator.cc,v 1.4 2009/07/19 14:34:19 wittich Exp $
 
 // user include files
 #include "HLTriggerOffline/Common/interface/HltComparator.h"
@@ -12,6 +12,11 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include <TH1.h>
+#include <vector>
+#include <string>
+
+
+typedef std::vector<std::string> StringCollection;
 
 
 // types of outcomes possible.
@@ -29,8 +34,12 @@ HltComparator::HltComparator(const edm::ParameterSet & iConfig):
   hltOfflineResults_(iConfig.getParameter<edm::InputTag>("OfflineResults")),
   init_(false),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
-  skipPathList_(iConfig.getUntrackedParameter<std::vector<std::string> >("skipPaths"))
+  skipPathList_(iConfig.getUntrackedParameter<std::vector<std::string> >("skipPaths")),
+  usePathList_(iConfig.getUntrackedParameter<std::vector<std::string> >("usePaths"))
 {
+  //std::cout << " HERE I AM " << std::endl;
+  produces<StringCollection >("failedTriggerDescription");
+  //std::cout << " HERE I GO " << std::endl;
 }
 
 
@@ -147,11 +156,14 @@ bool
 HltComparator::filter(edm::Event & event,
 		      const edm::EventSetup & iSetup)
 {
+  //std::cout << "top of the filter " << std::endl;
   // Get trigger results
   edm::Handle<edm::TriggerResults> onlineResults;
   edm::Handle<edm::TriggerResults> offlineResults;
   event.getByLabel(hltOnlineResults_, onlineResults);
   event.getByLabel(hltOfflineResults_, offlineResults);
+
+  std::auto_ptr<StringCollection> resultDescription(new StringCollection);
   
   // Initialise comparator if required
   if (!init_) {
@@ -220,12 +232,24 @@ HltComparator::filter(edm::Event & event,
  	 (result == kOnRunOffNot)   || ( result == kOnNotOffRun ) ) {
       // is this one we should ignore? check the skip list
       if ( verbose() ) {
-	std::cout << "Found disagreemenet " << result << ", name is " << onlineActualNames_[i]
+	std::cout << "Found disagreemenet " << result << ", name is " 
+		  << onlineActualNames_[i]
 		  << std::endl;
       }
+      std::ostringstream desc;
+      desc << onlineActualNames_[i] << ":" << formatResult(result);
+      resultDescription->push_back(desc.str());
       if ( std::find(skipPathList_.begin(), skipPathList_.end(), 
 		     onlineActualNames_[i]) == skipPathList_.end() ) {
-	hasDisagreement = true;
+
+	if (usePathList_.size()!=0){
+	  //only use specified paths to debug
+	  if (std::find(usePathList_.begin(), usePathList_.end(),
+			onlineActualNames_[i]) != usePathList_.end() )
+	    hasDisagreement = true;
+	}
+	else
+	  hasDisagreement = true;
       }
     }
       
@@ -240,6 +264,11 @@ HltComparator::filter(edm::Event & event,
 #endif // NOTDEF
     }
   }
+
+  //std::cout << " HERE I STAY " << std::endl;
+  event.put(resultDescription,"failedTriggerDescription");
+  //std::cout << " HERE I WENT " << std::endl;
+
   if ( hasDisagreement ) 
     return true;
   else

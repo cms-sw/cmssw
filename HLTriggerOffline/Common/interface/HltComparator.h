@@ -1,7 +1,7 @@
 #ifndef HLTCOMPARATOR_H
 #define HLTCOMPARATOR_H
 // Original Author: James Jackson
-// $Id: HltComparator.h,v 1.1 2009/06/22 20:11:40 wittich Exp $
+// $Id: HltComparator.h,v 1.2 2009/07/19 14:34:19 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -38,6 +38,7 @@ class HltComparator : public edm::EDFilter
 	bool verbose() const { return verbose_; }
 
 	std::vector<std::string> skipPathList_;
+	std::vector<std::string> usePathList_;
 
         unsigned int numTriggers_;
 
