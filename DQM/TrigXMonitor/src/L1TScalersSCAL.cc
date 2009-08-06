@@ -324,7 +324,7 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        l1accept = abs(it4->l1AcceptOffset());   
 
-       //cout << "l1a orbit number = " << it4->orbitNumber() << endl;
+       //cout << "l1a orbit number (before if)= " << it4->orbitNumber() << endl;
        //cout << "l1a bunch crossing = " << it4->bunchCrossing() << endl;
 
        if(l1accept == 0){
@@ -336,10 +336,10 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 //eventType->Fill(it4->eventType());
        }
-       else {
+       else if (l1accept==1 || l1accept==2 || l1accept==3){
 	 orbitNumL1A[l1accept]->Fill(it4->orbitNumber());
 	 bunchCrossingL1A[l1accept]->Fill(it4->bunchCrossing());
-
+	 //cout << "l1accept = " << l1accept << ", bx_current = " << bx_current << ", it4->bunchCrossing() = " << it4->bunchCrossing() << endl;
 	 bunchCrossingCorr[l1accept-1]->Fill(bx_current, it4->bunchCrossing());
 	 bxdiff = 3564*(orbitnumber_current-it4->orbitNumber()) + bx_current - it4->bunchCrossing();
 	 bunchCrossingDiff[l1accept-1]->Fill(bxdiff);
