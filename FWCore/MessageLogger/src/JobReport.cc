@@ -17,7 +17,6 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.44 2008/09/30 21:42:21 evansde Exp $
 //
 
 /*
@@ -50,6 +49,7 @@ namespace edm
 
       os << "\n<InputFile>";
       formatFile(f, os);
+      os << "\n<InputType>" << f.inputType << "</InputType>";
       os << "\n<InputSourceClass>" << f.inputSourceClassName
 	 << "</InputSourceClass>";
       os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
@@ -451,6 +451,7 @@ namespace edm
     JobReport::inputFileOpened(std::string const& physicalFileName,
 			       std::string const& logicalFileName,
 			       std::string const& catalog,
+			       std::string const& inputType,
 			       std::string const& inputSourceClassName,
 			       std::string const& moduleLabel,
 			       std::string const& guid,
@@ -464,6 +465,7 @@ namespace edm
       r.logicalFileName      = logicalFileName;
       r.physicalFileName     = physicalFileName;
       r.catalog              = catalog;
+      r.inputType            = inputType;
       r.inputSourceClassName = inputSourceClassName;
       r.moduleLabel          = moduleLabel;
       r.guid                 = guid;
@@ -478,23 +480,6 @@ namespace edm
       //  currently open.
       impl_->insertInputForOutputs(newToken);
       return newToken;
-    }
-
-    JobReport::Token
-    JobReport::inputFileOpened(std::string const& physicalFileName,
-			       std::string const& logicalFileName,
-			       std::string const& catalog,
-			       std::string const& inputSourceClassName,
-			       std::string const& moduleLabel,
-			       std::vector<std::string> const& branchNames)
-    {
-      return this->inputFileOpened(physicalFileName,
-				   logicalFileName,
-				   catalog,
-				   inputSourceClassName,
-				   moduleLabel,
-				   "",
-				   branchNames);
     }
 
     void
@@ -556,72 +541,6 @@ namespace edm
       r.contributingInputs = std::vector<JobReport::Token>(impl_->openInputFiles());
       return impl_->outputFiles_.size()-1;
     }
-
-    JobReport::Token
-    JobReport::outputFileOpened(std::string const& physicalFileName,
-				std::string const& logicalFileName,
-				std::string const& catalog,
-				std::string const& outputModuleClassName,
-				std::string const& moduleLabel,
-				std::string const& guid,
-				std::string const& dataType,
-				std::vector<std::string> const& branchNames)
-    {
-      return this->outputFileOpened(physicalFileName,
-				    logicalFileName,
-				    catalog,
-				    outputModuleClassName,
-				    moduleLabel,
-				    guid,
-				    "",
-				    "NO_BRANCH_HASH",
-				    branchNames);
-
-
-    }
-
-    JobReport::Token
-    JobReport::outputFileOpened(std::string const& physicalFileName,
-				std::string const& logicalFileName,
-				std::string const& catalog,
-				std::string const& outputModuleClassName,
-				std::string const& moduleLabel,
-				std::string const& guid,
-				std::vector<std::string> const& branchNames)
-    {
-      return this->outputFileOpened(physicalFileName,
-				    logicalFileName,
-				    catalog,
-				    outputModuleClassName,
-				    moduleLabel,
-				    guid,
-				    "",
-				    branchNames);
-
-    }
-
-
-
-  JobReport::Token
-  JobReport::outputFileOpened(std::string const& physicalFileName,
-			      std::string const& logicalFileName,
-			      std::string const& catalog,
-			      std::string const& outputModuleClassName,
-			      std::string const& moduleLabel,
-			      std::vector<std::string> const& branchNames)
-  {
-
-    return this->outputFileOpened(physicalFileName,
-				  logicalFileName,
-				  catalog,
-				  outputModuleClassName,
-				  moduleLabel,
-				  "",
-				  "",
-				  branchNames);
-  }
-
-
 
     void
     JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int run, unsigned int)

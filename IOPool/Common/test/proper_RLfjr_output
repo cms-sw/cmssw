@@ -9,6 +9,7 @@
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
+<InputType>primaryFiles</InputType>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>0</EventsRead>
 <Runs>
@@ -28,6 +29,7 @@
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
+<InputType>primaryFiles</InputType>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>0</EventsRead>
 <Runs>

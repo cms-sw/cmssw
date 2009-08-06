@@ -82,7 +82,7 @@ namespace edm {
              std::vector<boost::shared_ptr<FileIndex> > const& fileIndexes,
              std::vector<boost::shared_ptr<FileIndex> >::size_type currentFileIndex);
     ~RootFile();
-    void reportOpened();
+    void reportOpened(std::string const& inputType);
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
 	boost::shared_ptr<ProductRegistry const> pReg);

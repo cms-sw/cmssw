@@ -19,7 +19,6 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.27 2008/09/29 19:14:03 evansde Exp $
 //
 
 
@@ -91,6 +90,7 @@ namespace edm {
         std::string     logicalFileName;
         std::string     physicalFileName;
         std::string     catalog;
+        std::string	inputType; // primaryFiles, secondaryFiles, mixingFiles
         std::string     inputSourceClassName; // class which created the file
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
@@ -250,17 +250,12 @@ namespace edm {
       Token inputFileOpened(std::string const& physicalFileName,
 			    std::string const& logicalFileName,
 			    std::string const& catalog,
+			    std::string const& inputType,
 			    std::string const& inputSourceClassName,
 			    std::string const& moduleLabel,
                             std::string const& guid,
 			    std::vector<std::string> const& branchNames);
       
-     Token inputFileOpened(std::string const& physicalFileName,
-			    std::string const& logicalFileName,
-			    std::string const& catalog,
-			    std::string const& inputSourceClassName,
-			    std::string const& moduleLabel,
-			    std::vector<std::string> const& branchNames);
       /// Report that the event with the given id has been read from
       /// the file identified by the given Token.
       void eventReadFromFile(Token fileToken, unsigned int run, unsigned int event);
@@ -289,42 +284,6 @@ namespace edm {
 			     std::string const& dataType,
 			     std::string const& branchHash,
 			     std::vector<std::string> const& branchNames);
-
-      Token outputFileOpened(std::string const& physicalFileName,
-			     std::string const& logicalFileName,
-			     std::string const& catalog,
-			     std::string const& outputModuleClassName,
-			     std::string const& moduleLabel,
-			     std::string const& guid,
-			     std::string const& dataType,
-			     std::vector<std::string> const& branchNames);
-      
-      /*      Token outputFileOpened(std::string const& physicalFileName,
-			     std::string const& logicalFileName,
-			     std::string const& catalog,
-			     std::string const& outputModuleClassName,
-			     std::string const& moduleLabel,
-			     std::string const& dataType,
-			     std::vector<std::string> const& branchNames);
-      */
-      
-      Token outputFileOpened(std::string const& physicalFileName,
-			     std::string const& logicalFileName,
-			     std::string const& catalog,
-			     std::string const& outputModuleClassName,
-			     std::string const& moduleLabel,
-			     std::string const& guid,
-			     std::vector<std::string> const& branchNames);
-      
-      
-      Token outputFileOpened(std::string const& physicalFileName,
-			     std::string const& logicalFileName,
-			     std::string const& catalog,
-			     std::string const& outputModuleClassName,
-			     std::string const& moduleLabel,
-			     std::vector<std::string> const& branchNames);
-			     
-      
 
       /// Report that the event with the given id has been written to
       /// the file identified by the given Token.
