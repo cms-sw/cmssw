@@ -38,6 +38,8 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   reco::CompositeCandidate hypo();
   /// check if index is in valid range of selected jets
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
+  /// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron 
+  WDecay::LeptonType leptonType(const reco::RecoCandidate* cand);
 
   // -----------------------------------------
   // implemet the following two functions

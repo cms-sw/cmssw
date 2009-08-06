@@ -36,13 +36,9 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  if( !leps->empty() ){
-    int iLepton = findMatchingLepton(evt,leps);
-    if( iLepton>=0 )
-      setCandidate(leps, iLepton, lepton_);
-    match.push_back( iLepton );
-  }
-  else match.push_back( -1 );
+  int iLepton = findMatchingLepton(evt,leps);
+  if( iLepton>=0 ) setCandidate(leps, iLepton, lepton_);
+  match.push_back( iLepton );
 
   // -----------------------------------------------------
   // add neutrino
@@ -51,16 +47,20 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
     setCandidate(mets, 0, neutrino_);
 }
 
+/// find index of the candidate nearest to the singleLepton of the generator event in the collection; return -1 if this fails
 int
 TtSemiLepHypGenMatch::findMatchingLepton(edm::Event& evt, const edm::Handle<edm::View<reco::RecoCandidate> >& leps)
 {
   int genIdx=-1;
 
+  // jump out with -1 when the collection is empty
+  if( leps->empty() ) return genIdx;
+
   // set genEvent
   edm::Handle<TtGenEvent> genEvt;
   evt.getByLabel("genEvt", genEvt);  
   
-  if( genEvt->isTtBar() && genEvt->isSemiLeptonic() && genEvt->singleLepton() ){
+  if( genEvt->isTtBar() && genEvt->isSemiLeptonic( leptonType( &(leps->front()) ) ) && genEvt->singleLepton() ){
     double minDR=-1;
     for(unsigned i=0; i<leps->size(); ++i){
       double dR = deltaR(genEvt->singleLepton()->eta(), genEvt->singleLepton()->phi(), (*leps)[i].eta(), (*leps)[i].phi());

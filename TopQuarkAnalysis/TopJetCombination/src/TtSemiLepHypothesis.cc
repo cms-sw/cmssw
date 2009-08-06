@@ -1,3 +1,5 @@
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
@@ -127,4 +129,18 @@ TtSemiLepHypothesis::hypo()
   addFourMomenta.set( hyp );
 
   return hyp;
+}
+
+WDecay::LeptonType
+TtSemiLepHypothesis::leptonType(const reco::RecoCandidate* cand)
+{
+  // check whetherwe are dealing with a reco muon or a reco electron
+  WDecay::LeptonType type = WDecay::kNone;
+  if( dynamic_cast<const reco::Muon*>(cand) ){
+    type = WDecay::kMuon;
+  } 
+  else if( dynamic_cast<const reco::GsfElectron*>(cand) ){
+    type = WDecay::kElec;
+  }
+  return type;
 }
