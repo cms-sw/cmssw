@@ -238,6 +238,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DetDiagPedestalMonitor = cms.untracked.bool(False),
                            DetDiagLEDMonitor      = cms.untracked.bool(False),
                            DetDiagLaserMonitor    = cms.untracked.bool(False),
+			   
+			   DetDiagNoiseMonitor    = cms.untracked.bool(False),
+			   
                            UseDB                  = cms.untracked.bool(False),
                            LEDReferenceData       = cms.untracked.string("./"),
                            PedReferenceData       = cms.untracked.string("./"),
