@@ -9,7 +9,7 @@ TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel 
 TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHBHERecHitCollection")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHORecHitCollection")
 
-isoTrkCalib = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
+isoAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
 	TrackAssociatorParameterBlock,
         hbheInput = cms.InputTag("IsoProd:IsoTrackHBHERecHitCollection"),
         hoInput = cms.InputTag("IsoProd:IsoTrackHORecHitCollection"),

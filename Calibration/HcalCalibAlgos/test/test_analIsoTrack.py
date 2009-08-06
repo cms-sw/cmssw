@@ -20,7 +20,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
 
-process.load("Calibration.HcalCalibAlgos.isoTrkCalib_cfi")
+process.load("Calibration.HcalCalibAlgos.isoAnalyzer_cfi")
 
 process.load("HLTrigger.Timer.timer_cfi")
 
@@ -51,9 +51,9 @@ process.pts = cms.EDFilter("PathTimerInserter")
 process.PathTimerService = cms.Service("PathTimerService")
 
 #Use this Path to run the code on RECO data sets (such as single pions produced by Salavat):
-#process.AnalIsoTrTest = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.isoTrkCalib)
+#process.AnalIsoTrTest = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.isoAnalyzer)
 
 #Use this Path instead to run it on ALCARECO format data:
-process.AnalIsoTrTest = cms.Path(process.isoTrkCalib)
+process.AnalIsoTrTest = cms.Path(process.isoAnalyzer)
 
 
