@@ -48,7 +48,7 @@
 
 
 
-#include <iostream>
+
 #include <cmath>
 
 using namespace std;
@@ -58,9 +58,9 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 {
   // Get the debug parameter for verbose output
   debug = pSet.getUntrackedParameter<bool>("debug","false");
-
-  if(debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
-	      << "DTChamberEfficiency: constructor called";
+  
+  LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: constructor called";
 
   // Get the DQM needed services
   theDbe = Service<DQMStore>().operator->();
@@ -92,14 +92,14 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 
 DTChamberEfficiency::~DTChamberEfficiency()
 {
-  if(debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
-	      << "DTChamberEfficiency: destructor called";
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: destructor called";
 }
 
 void DTChamberEfficiency::beginJob(const EventSetup& eventSetup) {
 
-  if(debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
-	      << "DTChamberEfficiency: beginOfJob";
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: beginOfJob";
 
   bookHistos();
 
@@ -119,8 +119,8 @@ void DTChamberEfficiency::beginRun(const Run& run, const EventSetup& setup)
 
 void DTChamberEfficiency::endJob()
 {
-  if(debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
-	      << "DTChamberEfficiency: endOfJob";
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: endOfJob";
 
   return;
 }
@@ -128,8 +128,8 @@ void DTChamberEfficiency::endJob()
 // Book a set of histograms for a given Layer
 void DTChamberEfficiency::bookHistos()
 {
-  if(debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
-	      << "DTChamberEfficiency: booking histos";
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: booking histos";
 
   // Create the monitor elements
   theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
@@ -160,7 +160,7 @@ void DTChamberEfficiency::analyze(const Event & event,
                             const EventSetup& eventSetup)
 {
 
-  if (debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency") <<
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") <<
     "--- [DTChamberEfficiency] Event analysed #Run: " <<
     event.id().run() << " #Event: " << event.id().event() << endl;
 
@@ -175,22 +175,26 @@ void DTChamberEfficiency::analyze(const Event & event,
 
     //loop over the muons
     for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track) {
+
+      
       reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if(recHitsize < theMinNrec) continue;
 
-//       // printout the DT rechits used by the track
-//       set<DTChamberId> chAlrUsed;
-//       for(trackingRecHit_iterator rHit = trans_track.recHitsBegin();
-// 	  rHit != trans_track.recHitsEnd(); ++rHit) {
-// 	DetId rHitid = (*rHit)->geographicalId();
-// 	if(!(rHitid.det() == DetId::Muon && rHitid.subdetId() == MuonSubdetId::DT)) continue;
-// 	DTChamberId wId(rHitid.rawId());
-// 	if(chAlrUsed.find(wId) !=  chAlrUsed.end()) continue;
-// 	chAlrUsed.insert(wId);
-// 	cout << "   " << wId << endl;
-//       }
-
+      // printout the DT rechits used by the track
+      if (debug) {
+	LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") << "--- New track" << endl;
+	set<DTChamberId> chAlrUsed;
+	for(trackingRecHit_iterator rHit = trans_track.recHitsBegin();
+	    rHit != trans_track.recHitsEnd(); ++rHit) {
+	  DetId rHitid = (*rHit)->geographicalId();
+	  if(!(rHitid.det() == DetId::Muon && rHitid.subdetId() == MuonSubdetId::DT)) continue;
+	  DTChamberId wId(rHitid.rawId());
+	  if(chAlrUsed.find(wId) !=  chAlrUsed.end()) continue;
+	  chAlrUsed.insert(wId);
+	  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") << "   " << wId << endl;
+	}
+      }
 
       // Get the layer on which the seed relies
       DetId id = trans_track.track().innerDetId();
@@ -208,7 +212,7 @@ void DTChamberEfficiency::analyze(const Event & event,
       set<DTChamberId> alreadyCheckedCh;
 
       //loop over the list of compatible layers
-      for(int i=0;i< (int)layer_list.size();i++){
+      for(int i=0;i< (int)layer_list.size();i++) {
 
 	//propagate the track to the i-th layer
 	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface()); 
@@ -217,35 +221,39 @@ void DTChamberEfficiency::analyze(const Event & event,
 	//determine the chambers kinematically compatible with the track on the i-th layer
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
 
-	for(vector<DetWithState>::const_iterator detWithStateItr = dss.begin();
-	    detWithStateItr != dss.end(); ++detWithStateItr) {
+	// get the first det (it's the most compatible)
+	const DetWithState detWithState = dss.front();
+	const DetId idDetLay = detWithState.first->geographicalId(); 
 
-	  const DetId idDetLay = detWithStateItr->first->geographicalId(); 
+	// check if this is a DT and the track has the needed quality
+	if(!chamberSelection(idDetLay,trans_track)) continue;
 
-	  if(!chamberSelection(idDetLay,trans_track)) continue;
+	DTChamberId DTid = (DTChamberId) idDetLay;
 
-	  DTChamberId DTid = (DTChamberId) idDetLay;
+	// check if the chamber has already been counted
+	if(alreadyCheckedCh.find(DTid) != alreadyCheckedCh.end()) continue;
+	alreadyCheckedCh.insert(DTid);
+	
+	// get the compatible measurements
+	MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
+											     detWithState.first,
+											     detWithState.second,
+											     *theEstimator, event);
+	LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") << "     chamber: " << DTid
+							      << " has: " << detMeasurements_initial.size() << " comp. meas." << endl;
 
-	  // check if the chamber has already been counted
-	  if(alreadyCheckedCh.find(DTid) != alreadyCheckedCh.end()) continue;
-	  alreadyCheckedCh.insert(DTid);
 
-	  MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
-											       detWithStateItr->first,
-											       detWithStateItr->second,
-											       *theEstimator, event);
-
-
-	  //we want to be more picky about the quality of the segments:
-	  //exclude the segments with less than 12 hits
-	  MeasurementContainer detMeasurements = segQualityCut(detMeasurements_initial);
-
-	  vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];  
-
-	  if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
-	  if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
-	  histos[2]->Fill(DTid.sector(),DTid.station(),1.);
-	}
+	//we want to be more picky about the quality of the segments:
+	//exclude the segments with less than 12 hits
+	MeasurementContainer detMeasurements = segQualityCut(detMeasurements_initial);
+	
+	// get the histos for this chamber
+	vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];  
+	// fill them
+	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
+	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
+	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
+	
 
       }
     }
@@ -317,7 +325,7 @@ if(theNavigationType == "Standard"){
    detLayers = navigation.compatibleLayers(fts,propDir);
      }
  else
-   LogError("Muon|RecoMuon|StandAloneMuonFilter") << "No Properly Navigation Selected!!"<<endl;
+   LogError("DTDQM|DTMonitorModule|DTChamberEfficiency") << "No Properly Navigation Selected!!"<<endl;
 
  return detLayers;
 } 
