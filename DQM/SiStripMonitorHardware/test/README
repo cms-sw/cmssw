@@ -5,12 +5,13 @@ Script to look inside the DQM file and print a list of bad APV/channel
 numbers due to different FED channel error types (APVAddressError,
 APVError, Out-of-sync, Unlocked), and FE numbers of FEs with
 errors. It also gives the percentage of events for which each channel
-is in the given error.
+is in the given error.  CHANNEL/FE ARE REPORTED IN INTERNAL NUMBERING
+SCHEME (0-95/0-7, FE #0 is channel 0-11).
 
 
 To compile :
 
-g++ -g -m32 -Wall -ansi -I $ROOTSYS/include -o extractErrors  
+g++ -g -m32 -Wall -ansi -I $ROOTSYS/include -o extractErrors \
 extractErrors.C -L $ROOTSYS/lib `root-config --glibs`
 
 and to execute:
