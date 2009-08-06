@@ -28,16 +28,15 @@ namespace WDecay{
   enum LeptonType {kNone, kElec, kMuon, kTau};
 }
 
-// ----------------------------------------------------------------------
-// common base class for: 
-//
-//  * TtGenEvent
-//  * StGenEvent
-//
-//  the structure holds reference information to the generator particles 
-//  of the decay chains for each top quark and of the initial partons 
-//  and provides access and administration
-// ----------------------------------------------------------------------
+/**
+   \class   TopGenEvent TopGenEvent.h "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
+
+   \brief   Base class to hold information for reduced top generator information
+
+   The structure holds reference information to the generator particles 
+   of the decay chains for each top quark and of the initial partons. It 
+   provides access and administration.
+*/
 
 class TopGenEvent {
 
@@ -96,7 +95,7 @@ class TopGenEvent {
 
   /// print content of the top decay chain as formated 
   /// LogInfo to the MessageLogger output for debugging
-  void dumpEventContent() const;
+  void print() const;
 
 
  protected:

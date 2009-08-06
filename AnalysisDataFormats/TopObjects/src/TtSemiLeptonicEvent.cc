@@ -74,7 +74,7 @@ TtSemiLeptonicEvent::print()
     else {
       // jetLepComb
       log << " * JetLepComb:";
-      std::vector<int> jets = this->jetLepComb( hypKey );
+      std::vector<int> jets = this->jetLeptonCombination( hypKey );
       for(unsigned int iJet = 0; iJet < jets.size(); iJet++) {
 	log << "   " << jets[iJet] << "   ";
       }
