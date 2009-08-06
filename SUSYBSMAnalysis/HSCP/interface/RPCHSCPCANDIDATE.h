@@ -27,7 +27,7 @@ class  RPCHSCPCANDIDATE{
       bool found(){return foundvalue;}
       float eta(){return etavalue;}
       float phi(){return phivalue;}
-      float beta(){return phivalue;}
+      float beta(){return betavalue;}
         
    private:
       bool foundvalue;

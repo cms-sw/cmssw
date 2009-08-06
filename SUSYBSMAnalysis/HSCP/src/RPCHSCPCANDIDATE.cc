@@ -57,7 +57,7 @@ float RPCHSCPCANDIDATE::dist3(float phi1,float phi2,float phi3){
 
 RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
-   using namespace edm;
+  using namespace edm;
 
    //int event = iEvent.id().event();
 
@@ -141,7 +141,7 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
    }
 
    bool hscp = false;
-   bool foundvalue= false;
+   foundvalue= false;
    bool increasingbx = false;
  
    if(minetaspread!=100.){
@@ -165,6 +165,7 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
        }
        hscp = hscp*thisbx;
        lastbx = Point->bx; 
+       std::cout<<"Inside the class hscp="<<hscp;
      }
      std::cout<<"Inside the class "<<std::endl;
    }
@@ -173,13 +174,110 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
    
    hscp = hscp*increasingbx;
    
+   //if(hscp) foundvalue = 1;
+   //else foundvalue = 0;
    foundvalue = hscp;
+
+   std::cout<<"Inside the class "<<" bool foundvalue = "<<foundvalue<<std::endl;
+   
+
+   //from now on beta estimation rpc standalone
    
    if(hscp){ 
      std::cout<<"Inside the class "<<" Candidate phi="<<phivalue<<" eta="<<etavalue<<std::endl;
+     float beta =0;
      betavalue =0;
-   }
-   else std::cout<<"Inside the class "<<"No Candidate HSCP"<<std::endl;
 
+     bool anydifferentzero = true;
+     bool anydifferentone = true;
+     
+     int lastbx=-7;
+     bool increasing = true;
+
+     for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
+       float r=point->gp.mag();
+       increasing &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.
+       anydifferentzero &= (!point->bx==0); //to check one knee withoutzeros
+       anydifferentone &= (!point->bx==1); //to check one knee withoutones
+       lastbx = point->bx;
+       std::cout<<"Inside the class"<<"\t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" increasing"<<increasing<<" anydifferentzero"<<anydifferentzero<<std::endl;
+     }
+     
+     for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
+       std::cout<<point->bx;
+      }
+      std::cout<<std::endl;
+      
+     std::cout<<"Inside the class"<<"\t \t \t yes! We found an HSCPs let's try to stimate beta"<<std::endl;
+     // here we should get some pattern-based estimate
+     
+     //Counting knees
+     lastbx=-7;
+     int knees=0;
+     float maginknee = 0;
+     float maginfirstknee = 0;
+     
+     for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
+       if(lastbx==-7){
+	 maginfirstknee = point->gp.mag();
+       }else if((lastbx!=point->bx)){
+	 std::cout<<"Inside the class"<<"\t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
+	 maginknee=point->gp.mag();
+	 knees++;
+       }
+       lastbx=point->bx;
+     }
+      
+     if(knees==0){
+       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
+       beta=maginfirstknee/(25+maginfirstknee/30.)/30.;
+     }else if(knees==1){
+       float beta1=0;
+       float beta2=0;
+       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
+       std::cout<<"Inside the class"<<"\t \t \t \t anydifferentzero="<<anydifferentzero<<" anydifferentone="<<anydifferentone<<std::endl;
+       if(!anydifferentzero){
+	 beta=maginknee/(25+maginknee/30.)/30.;
+       }else if(!anydifferentone){//i.e non zeros and no ones
+	 beta=maginknee/(50+maginknee/30.)/30.;
+       }else{
+	 beta1=maginknee/(25+maginknee/30.)/30.;
+	 float dr =(maginknee-maginfirstknee);
+	 beta2 = dr/(25.+dr/30.);
+	 std::cout<<"Inside the class"<<"\t \t \t \t \t not zero neither ones beta1="<<beta1<<" beta2="<<beta2<<std::endl;
+	 beta = (beta1 + beta2)*0.5;
+       }
+     }else if(knees==2){
+       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
+       knees=0;
+       float beta1=0;
+       float beta2=0;
+       lastbx=-7;
+       std::cout<<"Inside the class"<<"\t \t \t \t looping again on the RPCRecHits4D="<<knees<<std::endl;
+       for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
+	 if(lastbx==-7){
+	   maginfirstknee = point->gp.mag();
+	 }else if((lastbx!=point->bx)){
+	   std::cout<<"Inside the class"<<"\t \t \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
+	   knees++;
+	   if(knees==2){
+	     float maginsecondknee=point->gp.mag();
+	     beta1=maginknee/(25+maginknee/30.)/30.;
+	     float dr =(maginknee-maginsecondknee);
+	     beta2 = dr/(25.+dr/30.);
+	     std::cout<<"Inside the class"<<"\t \t \t \t \t beta1="<<beta1<<" beta2="<<beta2<<std::endl;
+	   }
+	 }
+	 lastbx=point->bx;
+       }
+       beta = (beta1 + beta2)*0.5;
+     }
+     
+     betavalue = beta;
+     
+     std::cout<<"Inside the class \t \t \t beta="<<beta<<std::endl;
+   }else std::cout<<"Inside the class "<<"No Candidate HSCP"<<std::endl;
+   
+   std::cout<<"Inside the class lastfoundvalue="<<foundvalue<<std::endl;
 }
 

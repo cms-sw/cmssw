@@ -5,7 +5,7 @@
 // 
 /**\class HSCParticleProducer HSCParticleProducer.cc SUSYBSMAnalysis/HSCParticleProducer/src/HSCParticleProducer.cc
 
- Description: Producer for HSCP candidates, merging tracker and dt information
+ Description: Producer for HSCP candidates, merging tracker dt information and rpc information
 
  Implementation:
      <Notes on implementation>
@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.7 2009/05/13 15:18:29 delaer Exp $
+// $Id: HSCParticleProducer.cc,v 1.8 2009/05/13 21:55:47 delaer Exp $
 //
 //
 
@@ -168,7 +168,6 @@ HSCParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for(susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin(); hscpcandidate < hscp->end(); ++hscpcandidate) {
     addBetaFromEcal(*hscpcandidate,trackCollectionHandle,iEvent,iSetup);
   }
-
   // output result
   iEvent.put(result); 
 }

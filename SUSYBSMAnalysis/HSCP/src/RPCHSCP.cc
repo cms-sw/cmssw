@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo camilo.carrillo AT cern.ch
 //         Created:  Wed Aug  6 17:45:45 CEST 2008
-// $Id: RPCHSCP.cc,v 1.1 2008/08/06 17:04:27 carrillo Exp $
+// $Id: RPCHSCP.cc,v 1.2 2009/05/07 11:25:01 carrillo Exp $
 //
 //
 
@@ -118,6 +118,7 @@ class RPCHSCP : public edm::EDProducer {
 
       TH1F * residualeta;
       TH1F * residualphi;
+      TH1F * residualbeta;
 
       int Maxbx[7];
       int totalHSCP;
@@ -183,7 +184,7 @@ RPCHSCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       //ABOUT BETA
       float p=partIt->p();
       float e=partIt->energy();
-      float beta=p/e;
+      float betamc=p/e;
       //betaHisto->Fill(beta);
       //if(hscp)betaMyHisto->Fill(beta);
       float pt = partIt->pt();
@@ -193,37 +194,42 @@ RPCHSCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       //if(count!=0)bxLayerFile<<"\t"<<" eta="<<partIt->eta()<<" beta="<<beta<<"c";
       //if(count!=0)fileMatrix<<" eta="<<partIt->eta()<<" beta="<<beta<<"c Event "<<iEvent.id().event()<<"\n";
       //if(fabs(partIt->eta()>1.14))etaout++;
-      std::cout<<"\t phi="<<partIt->phi()<<" eta="<<partIt->eta()<<"beta="<<beta<<" p="<<p<<"GeV pt="<<pt<<"GeV m="<<sqrt(e*e-p*p)<<"GeV"<<std::endl;
+      std::cout<<"\t phimc="<<partIt->phi()<<" etamc="<<partIt->eta()<<"betamc="<<betamc<<" pmc="<<p<<"GeV ptmc="<<pt<<"GeV mmc="<<sqrt(e*e-p*p)<<"GeV"<<std::endl;
       
       int event = iEvent.id().event();
-      float eta = partIt->eta();
-      float phi = partIt->phi();
+      float etamc = partIt->eta();
+      float phimc = partIt->phi();
       
       RPCHSCPCANDIDATE rpcCandidate(iEvent,iSetup);
 
-      expectedeta->Fill(eta);
-      expectedphi->Fill(phi);
-      expectedbeta->Fill(beta);
+      expectedeta->Fill(etamc);
+      expectedphi->Fill(phimc);
+      expectedbeta->Fill(betamc);
       
+      std::cout<<" rpcCandidate.found()="<<rpcCandidate.found()<<std::endl;
+
       if(rpcCandidate.found()){
-	std::cout<<" eta="<<eta<<" phi="<<phi<<std::endl;
-	std::cout<<" eta="<<rpcCandidate.eta()<<" phi="<<rpcCandidate.phi()<<std::endl;
+	std::cout<<" etamc="<<etamc<<" phimc="<<phimc<<" betamc="<<betamc<<std::endl;
+	std::cout<<" eta  ="<<rpcCandidate.eta()<<" phi  ="<<rpcCandidate.phi()<<" beta="<<rpcCandidate.beta()<<std::endl;
+
 	
-	float diffeta = eta - rpcCandidate.eta();
-	float diffphi = phi - rpcCandidate.phi();
+	float diffeta = etamc - rpcCandidate.eta();
+	float diffphi = phimc - rpcCandidate.phi();
+	float diffbeta = betamc - rpcCandidate.beta();
 
 	if(fabs(diffeta)<=0.3 && fabs(diffphi)<=0.03){
-	  std::cout<<"Coincidence!!"<<std::endl;
-	  observedeta->Fill(eta);
-	  observedphi->Fill(phi);
-	  observedbeta->Fill(beta);
+	  std::cout<<"Coincidence also in direction!!!"<<std::endl;
+	  observedeta->Fill(etamc);
+	  observedphi->Fill(phimc);
+	  observedbeta->Fill(betamc);
 	  residualphi->Fill(diffphi);
 	  residualeta->Fill(diffeta);
+	  residualbeta->Fill(diffbeta);
 	}else{
 	  std::cout<<" Identified but in different direction"<<std::endl;
 	}
       }else{
-	std::cout<<" eta="<<eta<<" phi="<<phi<<std::endl;
+	std::cout<<" eta="<<etamc<<" phi="<<phimc<<std::endl;
 	std::cout<<" Not identified"<<std::endl;
       }
     }
@@ -240,21 +246,22 @@ RPCHSCP::beginJob(const edm::EventSetup&){
   //matrixHisto = new TH1F("LayersandBX","Histogram 2D Layers and BX",6,0.5,6.5,4,-0.5,3.5);
   matrixHisto = new TH1F("LayersandBX","Histogram 2D Layers and BX",30,-0.5,29.5);
   
-   efficiencyeta = new TH1F("EtaEff","Eta Efficiency",100,-2.5,2.5);		 
-   efficiencyphi = new TH1F("PhiEff","Phi Efficiency",100,-3.1415926,3.1415926); 
+  efficiencyeta = new TH1F("EtaEff","Eta Efficiency",100,-2.5,2.5);		 
+  efficiencyphi = new TH1F("PhiEff","Phi Efficiency",100,-3.1415926,3.1415926); 
   efficiencybeta = new TH1F("BetaEff","Beta Efficiency",100,0,1);                
-
-   expectedeta = new TH1F("EtaExpected","Eta Expected",100,-2.5,2.5);		 
-   expectedphi = new TH1F("PhiExpected","Phi Expected",100,-3.1415926,3.1415926); 
+  
+  expectedeta = new TH1F("EtaExpected","Eta Expected",100,-2.5,2.5);		 
+  expectedphi = new TH1F("PhiExpected","Phi Expected",100,-3.1415926,3.1415926); 
   expectedbeta = new TH1F("BetaExpected","Beta Expected",100,0,1);                
-
-   observedeta = new TH1F("EtaObserved","Eta Observed",100,-2.5,2.5);		 
-   observedphi = new TH1F("PhiObserved","Phi Observed",100,-3.1415926,3.1415926); 
+  
+  observedeta = new TH1F("EtaObserved","Eta Observed",100,-2.5,2.5);		 
+  observedphi = new TH1F("PhiObserved","Phi Observed",100,-3.1415926,3.1415926); 
   observedbeta = new TH1F("BetaObserved","Beta Observed",100,0,1);                
 
   residualeta = new TH1F("Residual Eta","Eta Residuals",100,-0.2,0.2);
   residualphi = new TH1F("Residual Phi","Phi Residuals",100,-0.02,0.02);
-
+  residualbeta = new TH1F("ResidualBeta","Beta Residuals",100,-3.0,3.0);
+  
   totalHSCP=0;
 
 }
@@ -308,6 +315,7 @@ RPCHSCP::endJob() {
 
   residualeta->Write();
   residualphi->Write();
+  residualbeta->Write();
 
   theFile->Close();
   fileMatrix.close();
