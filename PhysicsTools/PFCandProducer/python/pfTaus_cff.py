@@ -18,7 +18,7 @@ allLayer0Taus.discriminators = cms.VPSet(
       cms.PSet( discriminator=cms.InputTag("allLayer0TausDiscrimination"),selectionCut=cms.double(0.5))
    )
 
-pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoMuon'
+pfRecoTauTagInfoProducer.PFCandidateProducer = 'pfNoElectron'
 
 
 pfTauSequence = cms.Sequence(

@@ -27,10 +27,10 @@ PF2PAT = cms.Sequence(
     pfAllNeutralHadrons+
     pfAllChargedHadrons+
     pfAllPhotons+
-    pfAllMuons + 
+    # pfAllMuons + in 'pfMuonSequence' 
     pfMuonSequence + 
     pfNoMuon +
-    pfAllElectrons +
+    # pfAllElectrons + in 'pfElectronSequence' 
     pfElectronSequence +
     pfNoElectron + 
 # when uncommenting, change the source of the jet clustering
