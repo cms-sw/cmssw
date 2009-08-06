@@ -18,38 +18,49 @@
  */
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h" 
-#include "DataFormats/DetId/interface/DetId.h"
+
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+
+
+
+
+
+
 
 #include <iosfwd>
 #include <bitset>
 #include <vector>
 
-class MuonDetLayerMeasurements;
-class TransientTrack;
+namespace reco {
+  class TransientTrack;
+}
+
+
+
+class Chi2MeasurementEstimator;
+class MuonServiceProxy;
+
 class DQMStore;
 class MonitorElement;
+class FreeTrajectoryState;
+class DetLayer;
+class DetId;
 
 class DTChamberEfficiency : public edm::EDAnalyzer
 {
