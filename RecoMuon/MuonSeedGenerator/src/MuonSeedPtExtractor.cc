@@ -303,7 +303,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
         //std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
     ParametersMap::const_iterator parametersItr = theParametersForCombo.find(combination);
     if(parametersItr == theParametersForCombo.end()) {
-       edm::LogWarning("MuonSeedPtExtractor") << "Cannot find parameters for combo " << combination;
+       edm::LogWarning("RecoMuon|MuonSeedGenerator|MuonSeedPtExtractor") << "Cannot find parameters for combo " << combination;
        pTestimate[0] = pTestimate[1] = 100;
     }
 
