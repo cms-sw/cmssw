@@ -10,7 +10,7 @@ RMmultiTrackValidator.dirName = 'Muons/RecoMuonV/MultiTrack/'
 RMmultiTrackValidator.pdgIdTP = (13,-13)
 
 RMmultiTrackValidator.useFabsEta = False
-RMmultiTrackValidator.nint = cms.int32(30)
+RMmultiTrackValidator.nint = cms.int32(50)
 RMmultiTrackValidator.min = cms.double(-2.5)
 RMmultiTrackValidator.max = cms.double(2.5)
 
