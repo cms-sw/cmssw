@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/07/06 08:34:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/22 09:15:46 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -35,24 +35,24 @@ class HRes1DHit{
       // Position, sigma, residual, pull
       //sprintf (histo_n, "1D_%s_hDist",N); sprintf(histo_t, "1D RHit distance from wire");
       //      hDist=0; hDist = dbe_->book1D(histo_n, histo_t, 100, 0,2.5);
-      dbe_->setCurrentFolder("/DT/1DRecHits/");
+      dbe_->setCurrentFolder("DT/1DRecHits/");
       
       if(doall){
 	hDist=0; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
 	//hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
-	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, 0.,1.2, 150, -1.5,1.5);    
-	hResVsDistFE = 0; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -1.5,1.5);    
+	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, 0.,1.2, 150, -0.5,0.5);    
+	hResVsDistFE = 0; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);    
 	hPullVsPos= 0; hPullVsPos  = dbe_->book2D (pre+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
 	hPullVsAngle = 0; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, 0.,+1.2, 100, -5,5);
 	hPullVsDistFE = 0; hPullVsDistFE  = dbe_->book2D (pre+"_hPullVsDistFE", "1D RHit pull vs FE distance", 100, 0., 400., 100, -5,5);
       }
-      hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residua", 300, -1.5,1.5);
+      hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residua", 300, -0.5,0.5);
       //hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
-      hResVsEta=0; hResVsEta = dbe_->book2D(pre +"_hResVsEta" , "1D RHit residual vs eta", 50, -1.25,1.25,150,-1.5,1.5);
+      hResVsEta=0; hResVsEta = dbe_->book2D(pre +"_hResVsEta" , "1D RHit residual vs eta", 50, -1.25,1.25,150,-0.5,0.5);
       //hResVsEta   = new TH2F("1D_"+N+"_hResVsEta", "1D RHit residual vs eta",50, -1.25,1.25, 150, -1.5,1.5);
-      hResVsPhi = 0; hResVsPhi   = dbe_->book2D(pre+"_hResVsPhi" , "1D RHit residual vs phi",100, -3.2, 3.2, 150, -1.5,1.5);
+      hResVsPhi = 0; hResVsPhi   = dbe_->book2D(pre+"_hResVsPhi" , "1D RHit residual vs phi",100, -3.2, 3.2, 150, -0.5,0.5);
       //hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi", 100, -3.2, 3.2, 150, -1.5,1.5);
-      hResVsPos = 0; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
+      hResVsPos = 0; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -0.5,0.5);    
       //hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
       hPull =0; hPull       = dbe_->book1D (pre+"_hPull", "1D RHit pull", 100, -5,5);
     }
@@ -153,7 +153,7 @@ class HEff1DHit{
       std::string pre ="1D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("/DT/1DRecHits/");
+      dbe_->setCurrentFolder("DT/1DRecHits/");
       hEtaMuSimHit=0; hEtaMuSimHit = dbe_->book1D(pre+"_hEtaMuSimHit", "SimHit Eta distribution",100, -1.5, 1.5);
       hEtaRecHit=0; hEtaRecHit = dbe_->book1D(pre+"_hEtaRecHit", "SimHit Eta distribution with 1D RecHit",100, -1.5, 1.5);
       hEffVsEta = 0;
@@ -320,7 +320,7 @@ class HRes2DHit{
       _doall = doall;
       std::string pre ="2D_";
       pre += name_;
-      dbe_->setCurrentFolder("/DT/2DSegments/");
+      dbe_->setCurrentFolder("DT/2DSegments/");
       if(doall){
 	hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -3.5, 3.5);
 	hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -3.5, 3.5);
@@ -339,7 +339,7 @@ class HRes2DHit{
 	
       }
       
-      hResAngle=0; hResAngle   = dbe_->book1D (pre+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 150, -0.15, 0.15);
+      hResAngle=0; hResAngle   = dbe_->book1D (pre+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 150, -0.05, 0.05);
       
       hResPos=0;hResPos   = dbe_->book1D (pre+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
 					  150, -0.2, 0.2);
@@ -442,7 +442,7 @@ class HEff2DHit{
       std::string pre ="2D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("/DT/2DSegments/");
+      dbe_->setCurrentFolder("DT/2DSegments/");
       hEtaSimSegm=0;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=0;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 2D RecHit",
                                  100, -1.5, 1.5);
@@ -656,7 +656,7 @@ class HRes4DHit{
       pre += name_;
       _doall = doall;
       
-      dbe_->setCurrentFolder("/DT/4DSegments/");    
+      dbe_->setCurrentFolder("DT/4DSegments/");    
       if(doall){
 	hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
 	hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
@@ -1102,7 +1102,7 @@ class HEff4DHit{
       std::string pre ="4D_";
       pre += name_;
       name = pre;
-      dbe_->setCurrentFolder("/DT/4DSegments/");     
+      dbe_->setCurrentFolder("DT/4DSegments/");     
       hEtaSimSegm=0;hEtaSimSegm     = dbe_->book1D(pre+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
       hEtaRecHit=0;hEtaRecHit      = dbe_->book1D(pre+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
                                  100, -1.5, 1.5);

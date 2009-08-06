@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/22 09:14:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/08/03 12:57:17 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -67,16 +67,17 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   // get hold of back-end interface 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
+  /*if ( dbe_ ) {
     if (debug) {
       dbe_->setVerbose(1);
     } else {
       dbe_->setVerbose(0);
     }
-  }
-  if ( dbe_ ) {
+    }*/
+  dbe_->setVerbose(0);
+  /*if ( dbe_ ) {
     if ( debug ) dbe_->showDirStructure();
-  }
+    }*/
   if(doall && doStep1){
     hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_);    // RecHits, 1. step, RPhi
     hRes_S1RZ= new HRes1DHit("S1RZ",dbe_);         // RecHits, 1. step, RZ
@@ -107,18 +108,20 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall);   // RecHits, 3. step, RZ, wheel 0
     hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-1
     hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_,doall);   // RecHits, 3. step, RZ, wheel +-2
-    hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
-    hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
-    hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
-    hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
-    hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+    if(doall){
+      hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
+      hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
+      hEff_S3RZ_W0= new HEff1DHit("S3RZ_W0",dbe_);   // RecHits, 3. step, RZ, wheel 0
+      hEff_S3RZ_W1= new HEff1DHit("S3RZ_W1",dbe_);   // RecHits, 3. step, RZ, wheel +-1
+      hEff_S3RZ_W2= new HEff1DHit("S3RZ_W2",dbe_);   // RecHits, 3. step, RZ, wheel +-2
+    }
   }
 }
 
 
 // Destructor
-  DTRecHitQuality::~DTRecHitQuality(){
-  }
+DTRecHitQuality::~DTRecHitQuality(){
+}
 
 
 
