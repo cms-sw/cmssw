@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.1 2009/08/03 20:15:42 bdahmes Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.2 2009/08/06 07:12:55 fwyzard Exp $
 //
 //
 
@@ -75,11 +75,12 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByLabel(dataLabel_,rawdata);
 
-  bool hcalIsZS = false ; 
+  bool hcalIsZS = false ; int nFEDs = 0 ; 
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
       if ( fedData.size() < 24 ) continue ; 
-
+      nFEDs++ ;
+      
       // Check for Zero-suppression
       HcalHTRData htr;
       const HcalDCCHeader* dccHeader = (const HcalDCCHeader*)(fedData.data()) ; 
@@ -101,6 +102,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                        << i << " are zero-suppressed for this event" ;
   }
 
+  if ( nFEDs == 0 ) return false ; // No HCAL 
   if ( !hcalIsZS ) eventsNZS_++ ; 
   return ( !hcalIsZS ) ; 
 }
