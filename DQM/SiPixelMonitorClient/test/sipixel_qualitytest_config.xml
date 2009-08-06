@@ -8,8 +8,8 @@
      <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">20</PARAM> 
-     <PARAM name="ymax">60.</PARAM> 
+     <PARAM name="ymin">10</PARAM> 
+     <PARAM name="ymax">200.</PARAM> 
 </QTEST>
 <!-- ndigis in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:ndigis" activate="true"> 
@@ -241,19 +241,19 @@
 <!-- LINKS between Quality Tests and Monitoring Elements: -->
 <!-- LINKS for BARREL: -->
 <!-- YRange in BARREL: -->
-<LINK name="*Barrel/*SUMDIG_adc_*"> 
+<LINK name="*Barrel/SUMDIG_adc_*"> 
   <TestName activate="true">Yrange:Barrel:adc</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMDIG_ndigis_*"> 
+<LINK name="*Barrel/SUMDIG_ndigis_*"> 
   <TestName activate="true">Yrange:Barrel:ndigis</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMCLU_nclusters_*"> 
+<LINK name="*Barrel/SUMCLU_nclusters_*"> 
   <TestName activate="true">Yrange:Barrel:ncluster</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMCLU_size_*"> 
+<LINK name="*Barrel/SUMCLU_size_*"> 
   <TestName activate="true">Yrange:Barrel:size</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMCLU_charge_*"> 
+<LINK name="*Barrel/SUMCLU_charge_*"> 
   <TestName activate="true">Yrange:Barrel:charge</TestName> 
 </LINK>
 <!-- MeanWithInExpected in LADDER: -->
@@ -274,19 +274,19 @@
 </LINK>
 <!-- LINKS for ENDCAP: -->
 <!-- YRange in ENDCAP: -->
-<LINK name="*Endcap/*SUMDIG_adc_*"> 
+<LINK name="*Endcap/SUMDIG_adc_*"> 
   <TestName activate="true">Yrange:Endcap:adc</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMDIG_ndigis_*"> 
+<LINK name="*Endcap/SUMDIG_ndigis_*"> 
   <TestName activate="true">Yrange:Endcap:ndigis</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMCLU_nclusters_*"> 
+<LINK name="*Endcap/SUMCLU_nclusters_*"> 
   <TestName activate="true">Yrange:Endcap:nclusters</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMCLU_size_*"> 
+<LINK name="*Endcap/SUMCLU_size_*"> 
   <TestName activate="true">Yrange:Endcap:size</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMCLU_charge_*"> 
+<LINK name="*Endcap/SUMCLU_charge_*"> 
   <TestName activate="true">Yrange:Endcap:charge</TestName> 
 </LINK>
 <!-- MeanWithinExpected in BLADE: -->

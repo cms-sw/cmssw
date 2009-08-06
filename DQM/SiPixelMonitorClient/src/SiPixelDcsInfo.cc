@@ -51,21 +51,21 @@ void SiPixelDcsInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, cons
     //Fill active dcs fraction ME's
 //    if(NumberOfFeds_>0){
       //all Pixel:
-      DcsFraction_->Fill(1.);
+      Fraction_->Fill(1.);
       //Barrel:
-      DcsFractionBarrel_->Fill(1.);
+      FractionBarrel_->Fill(1.);
       //Endcap:
-      DcsFractionEndcap_->Fill(1.);
+      FractionEndcap_->Fill(1.);
 /*    }else{
-      DaqFraction_->Fill(-1);
-      DaqFractionBarrel_->Fill(-1);
-      DaqFractionEndcap_->Fill(-1);
+      Fraction_->Fill(-1);
+      FractionBarrel_->Fill(-1);
+      FractionEndcap_->Fill(-1);
     }
 
   }else{      
-    DaqFraction_->Fill(-1);    
-    DaqFractionBarrel_->Fill(-1);
-    DaqFractionEndcap_->Fill(-1);
+    Fraction_->Fill(-1);    
+    FractionBarrel_->Fill(-1);
+    FractionEndcap_->Fill(-1);
 */ 
     return; 
   }
@@ -82,9 +82,9 @@ void SiPixelDcsInfo::beginJob(const edm::EventSetup& iSetup){
   
  
   dbe_->setCurrentFolder("Pixel/EventInfo/DCSContents");
-  DcsFraction_= dbe_->bookFloat("PixelDcsFraction");  
-  DcsFractionBarrel_= dbe_->bookFloat("PixelBarrelDcsFraction");  
-  DcsFractionEndcap_= dbe_->bookFloat("PixelEndcapDcsFraction");  
+  Fraction_= dbe_->bookFloat("PixelFraction");  
+  FractionBarrel_= dbe_->bookFloat("PixelBarrelFraction");  
+  FractionEndcap_= dbe_->bookFloat("PixelEndcapFraction");  
 }
 
 

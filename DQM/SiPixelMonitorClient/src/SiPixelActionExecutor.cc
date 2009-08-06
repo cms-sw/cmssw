@@ -1228,6 +1228,7 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool i
       if(!isbarrel && (*it).find("Endcap")==string::npos) continue;
 		
       if((*it).find("Module_")!=string::npos) continue;
+      if((*it).find("Panel_")!=string::npos) continue;
       bei->cd(*it);
       bookOccupancyPlots(bei, hiRes, isbarrel);
       if(!hiRes){
@@ -1329,16 +1330,6 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 							
 		  for(int i=1; i!=me->getNbinsX()+1; i++) for(int j=1; j!=me->getNbinsY()+1; j++) tmpHist->SetBinContent(i,j,me->getBinContent(i,j));
 		  //							me->getTH2F()->Print();
-		  // Exceptions for endcap
-		  if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_1")!=string::npos || currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos)
-		    for(int i=27 ; i<=52 ; i++)
-		      for(int j=1 ; j<=40 ; j++)
-			tmpHist->SetBinContent(i,j,0);
-		  if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_09/Panel_1/Module_4")!=string::npos)
-		    for(int i=52 ; i<=78 ; i++)
-		      for(int j=1 ; j<=40 ; j++)
-			tmpHist->SetBinContent(i,j,0);							
-							
 		  OccupancyMap->getTH2F()->Add(tmpHist);
 							
 		  tmpHist->Delete();

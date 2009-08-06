@@ -107,15 +107,7 @@
      <MonElement name="sizeY_OnTrack"></MonElement>
 </SubStructureGrandEndcapLevel> 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
-     <MonElement name="errorType"></MonElement> 
-     <MonElement name="fullType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
-     <MonElement name="chanNmbr"></MonElement> 
-     <MonElement name="evtSize"></MonElement> 
-     <MonElement name="linkId"></MonElement> 
 </SubStructureNonDetId> 
 </SummaryPlot>
 

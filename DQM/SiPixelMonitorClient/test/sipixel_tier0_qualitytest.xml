@@ -365,42 +365,42 @@
 <!-- LINKS between Quality Tests and Monitoring Elements: -->
 <!-- LINKS for BARREL: -->
 <!-- YRange in BARREL: -->
-<LINK name="*Barrel/*SUMOFF_adc_*"> 
+<LINK name="*Barrel/SUMOFF_adc_*"> 
   <TestName activate="true">Yrange:Barrel:adc</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_ndigis_*"> 
+<LINK name="*Barrel/SUMOFF_ndigis_*"> 
   <TestName activate="true">Yrange:Barrel:ndigis</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_nclusters_OnTrack_*"> 
+<LINK name="*Barrel/SUMOFF_nclusters_OnTrack_*"> 
   <TestName activate="true">Yrange:Barrel:ncluster</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_nRecHits_*"> 
+<LINK name="*Barrel/SUMOFF_nRecHits_*"> 
   <TestName activate="false">Yrange:Barrel:nRecHits</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_charge_OnTrack_*"> 
+<LINK name="*Barrel/SUMOFF_charge_OnTrack_*"> 
   <TestName activate="true">Yrange:Barrel:charge</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_size_OnTrack_*"> 
+<LINK name="*Barrel/SUMOFF_size_OnTrack_*"> 
   <TestName activate="true">Yrange:Barrel:size</TestName> 
 </LINK>
 <!-- LINKS for ENDCAP: -->
 <!-- YRange in ENDCAP: -->
-<LINK name="*Endcap/*SUMOFF_adc_*"> 
+<LINK name="*Endcap/SUMOFF_adc_*"> 
   <TestName activate="true">Yrange:Endcap:adc</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_ndigis_*"> 
+<LINK name="*Endcap/SUMOFF_ndigis_*"> 
   <TestName activate="true">Yrange:Endcap:ndigis</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_nclusters_OnTrack_*"> 
+<LINK name="*Endcap/SUMOFF_nclusters_OnTrack_*"> 
   <TestName activate="true">Yrange:Endcap:nclusters</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_nRecHits_*"> 
+<LINK name="*Endcap/SUMOFF_nRecHits_*"> 
   <TestName activate="false">Yrange:Endcap:nRecHits</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_charge_OnTrack_*"> 
+<LINK name="*Endcap/SUMOFF_charge_OnTrack_*"> 
   <TestName activate="true">Yrange:Endcap:charge</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_size_OnTrack_*"> 
+<LINK name="*Endcap/SUMOFF_size_OnTrack_*"> 
   <TestName activate="true">Yrange:Endcap:size</TestName> 
 </LINK>
 </TESTSCONFIGURATION>

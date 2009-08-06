@@ -137,6 +137,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
+  if(Tier0Flag_) nFEDs_ = 40;
   
   bei_->setCurrentFolder("Pixel/");
   // Setting up QTests:
@@ -148,8 +149,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   // Booking noisy pixel ME's:
   sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
-  sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_);
-  if(Tier0Flag_) nFEDs_ = 40;
+  sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_, nFEDs_);
 
 //  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
@@ -204,10 +204,11 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
   nLumiSecs_++;
-
+  //cout << "nLumiSecs_: "<< nLumiSecs_ << endl;
+  
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
-  if(actionOnLumiSec_){
+  if(actionOnLumiSec_ && nLumiSecs_ % 4 == 0 ){
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
@@ -216,8 +217,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->performAction();
      //cout << " Updating occupancy plots" << endl;
     sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
-    sipixelWebInterface_->performAction();
+    sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;
@@ -264,8 +264,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->performAction();
     //cout << " Updating occupancy plots" << endl;
     sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
-    sipixelWebInterface_->performAction();
+    sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
     bei_->cd();
     bool init=true;

@@ -51,7 +51,8 @@ class SiPixelDataQuality {
   int getDetId(                 MonitorElement                          * mE) ;				
 
   void bookGlobalQualityFlag    (DQMStore                               * bei,
-				 bool                                     Tier0Flag);
+				 bool                                     Tier0Flag,
+				 int                                      nFEDs);
 
   void computeGlobalQualityFlag (DQMStore                               * bei,
                                  bool                                     init,
@@ -114,6 +115,25 @@ class SiPixelDataQuality {
   float BarrelL1_cuts_flag_[14], BarrelL2_cuts_flag_[14], BarrelL3_cuts_flag_[14];
   float EndcapDP1_cuts_flag_[14], EndcapDP2_cuts_flag_[14], EndcapDM1_cuts_flag_[14], EndcapDM2_cuts_flag_[14];
   
+  bool digiStatsBarrel, clusterOntrackStatsBarrel, clusterOfftrackStatsBarrel, rechitStatsBarrel, trackStatsBarrel;
+  int digiCounterBarrel, clusterOntrackCounterBarrel, clusterOfftrackCounterBarrel, rechitCounterBarrel, trackCounterBarrel;
+  bool digiStatsEndcap, clusterOntrackStatsEndcap, clusterOfftrackStatsEndcap, rechitStatsEndcap, trackStatsEndcap;
+  int digiCounterEndcap, clusterOntrackCounterEndcap, clusterOfftrackCounterEndcap, rechitCounterEndcap, trackCounterEndcap;
+  bool digiStatsBarrelL1, clusterOntrackStatsBarrelL1, clusterOfftrackStatsBarrelL1, rechitStatsBarrelL1, trackStatsBarrelL1;
+  int digiCounterBarrelL1, clusterOntrackCounterBarrelL1, clusterOfftrackCounterBarrelL1, rechitCounterBarrelL1, trackCounterBarrelL1;
+  bool digiStatsBarrelL2, clusterOntrackStatsBarrelL2, clusterOfftrackStatsBarrelL2, rechitStatsBarrelL2, trackStatsBarrelL2;
+  int digiCounterBarrelL2, clusterOntrackCounterBarrelL2, clusterOfftrackCounterBarrelL2, rechitCounterBarrelL2, trackCounterBarrelL2;
+  bool digiStatsBarrelL3, clusterOntrackStatsBarrelL3, clusterOfftrackStatsBarrelL3, rechitStatsBarrelL3, trackStatsBarrelL3;
+  int digiCounterBarrelL3, clusterOntrackCounterBarrelL3, clusterOfftrackCounterBarrelL3, rechitCounterBarrelL3, trackCounterBarrelL3;
+  bool digiStatsEndcapDP1, clusterOntrackStatsEndcapDP1, clusterOfftrackStatsEndcapDP1, rechitStatsEndcapDP1, trackStatsEndcapDP1;
+  int digiCounterEndcapDP1, clusterOntrackCounterEndcapDP1, clusterOfftrackCounterEndcapDP1, rechitCounterEndcapDP1, trackCounterEndcapDP1;
+  bool digiStatsEndcapDP2, clusterOntrackStatsEndcapDP2, clusterOfftrackStatsEndcapDP2, rechitStatsEndcapDP2, trackStatsEndcapDP2;
+  int digiCounterEndcapDP2, clusterOntrackCounterEndcapDP2, clusterOfftrackCounterEndcapDP2, rechitCounterEndcapDP2, trackCounterEndcapDP2;
+  bool digiStatsEndcapDM1, clusterOntrackStatsEndcapDM1, clusterOfftrackStatsEndcapDM1, rechitStatsEndcapDM1, trackStatsEndcapDM1;
+  int digiCounterEndcapDM1, clusterOntrackCounterEndcapDM1, clusterOfftrackCounterEndcapDM1, rechitCounterEndcapDM1, trackCounterEndcapDM1;
+  bool digiStatsEndcapDM2, clusterOntrackStatsEndcapDM2, clusterOfftrackStatsEndcapDM2, rechitStatsEndcapDM2, trackStatsEndcapDM2;
+  int digiCounterEndcapDM2, clusterOntrackCounterEndcapDM2, clusterOfftrackCounterEndcapDM2, rechitCounterEndcapDM2, trackCounterEndcapDM2;
+
   // Digis Cuts:
   MonitorElement * NDigisBarrel;
   MonitorElement * NDigisEndcap;
