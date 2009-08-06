@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.5 2009/07/08 13:26:31 gruen Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.6 2009/08/06 09:05:46 bdahmes Exp $
 //
 //
 
@@ -105,7 +105,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTHcalCalibTypeFilter::beginJob(const edm::EventSetup&)
+HLTHcalCalibTypeFilter::beginJob(void)
 {
   eventsByType.clear() ; 
   eventsByType.resize(8,0) ; 
