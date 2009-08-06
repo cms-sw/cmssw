@@ -11,6 +11,9 @@ public:
 
   HcalSubdetDigiMonitor(DQMStore* dbe, const std::string & subdet, int noise);
 
+  // Ndigis 
+  void fillmeNdigis(double v1)
+  {fillElement(meNdigis, v1);}
 
   // occupancies filling
   void fillmeOccupancy_map_depth1(double v1, double v2)
@@ -341,6 +344,8 @@ private:
   DQMStore* dbe_;
   std::string subdet_;
   int noise_;
+
+  MonitorElement* meNdigis;
 
   MonitorElement* meOccupancy_map_depth1;
   MonitorElement* meOccupancy_map_depth2;

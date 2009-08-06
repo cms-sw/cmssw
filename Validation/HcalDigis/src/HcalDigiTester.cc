@@ -126,6 +126,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   // CYCLE OVER CELLS ========================================================
+  int Ndig = 0;
 
   for (digiItr=digiCollection->begin();digiItr!=digiCollection->end();digiItr++) {
     
@@ -287,10 +288,13 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }     // end of event #1 
     
+
+    if ( sub == subdet)  Ndig++;  // subdet number of digi
     
 // No-noise case, only single  subdet selected  ===========================
 
     if ( sub == subdet && noise_ == 0 ) {   
+
       
       HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
@@ -475,6 +479,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }    
 
   } //  end of if( subdet != 0 && noise_ == 0) { // signal only 
+
+  monitor()->fillmeNdigis(double(Ndig));
+
+
 }
 
 
