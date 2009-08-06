@@ -1,6 +1,6 @@
 #include "CombinedCaloTowers.C"
 
-void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers);
+void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers);
 
 void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname){
 
@@ -22,13 +22,14 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   //RecHits
   const int TTbar_RH_nHistTot = 91; 
   const int TTbar_RH_nHist1   = 16;
-  const int TTbar_RH_nProfInd = 16;
+  const int TTbar_RH_nHist2   = 4;
+  const int TTbar_RH_nProfInd = 20;
 
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
 
-  ProcessRelValRecHit(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers);
+  ProcessRelValRecHit(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nHist2, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers);
 
   Ref_File.Close();
   Val_File.Close();
@@ -36,15 +37,17 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   return;
 }
 
-void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers){
+void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers){
 
   TCanvas* myc;
 
   TH1F*     ref_hist1[nHist1];
+  TH2F*     ref_hist2[nHist2];
   TProfile* ref_prof[nProfInd];
   TH1D*     ref_fp[nProfInd];
  
   TH1F*     val_hist1[nHist1];
+  TH2F*     val_hist2[nHist2];
   TProfile* val_prof[nProfInd];
   TH1D*     val_fp[nProfInd];
 
@@ -56,9 +59,9 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
   int DrawSwitch;
   TString StatSwitch, Chi2Switch, LogSwitch, DimSwitch;
   int RefCol, ValCol;
-  TString HistName;
+  TString HistName, HistName2;
   char xAxisTitle[200];
-  float xAxisRange, yAxisRange;
+  float xAxisRange, yAxisRange, xMin;
   TString OutLabel;
   string xTitleCheck;
 
@@ -112,7 +115,10 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
       
-      if (xAxisRange > 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(0.,xAxisRange);
+      if (xAxisRange > 0){
+	xMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
+	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xMin,xAxisRange);
+      }
       if (yAxisRange > 0) ref_hist1[nh1]->GetYaxis()->SetRangeUser(0.,yAxisRange);
 
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
@@ -289,6 +295,51 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
       myc->SaveAs(OutLabel);
       
       npi++;
+    }
+
+    //Timing Histograms (special: read two lines at once)
+    else if (DimSwitch == "TM"){
+      
+      recstr>>HistName2;
+
+      ref_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
+      
+      ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
+      ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
+      
+      val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
+      
+      val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
+      val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
+
+      //Legend
+      TLegend *leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
+      leg->SetBorderSize(2);
+      leg->SetFillStyle(1001); 
+      
+      ref_hist2[nh2]->GetXaxis()->SetTitle(xAxisTitle);
+      ref_hist2[nh2]->SetStats(kFALSE);
+      
+      ref_hist2[nh2]->SetMarkerColor(RefCol); // rose
+      ref_hist2[nh2]->Draw();
+      ref_prof[npi]->SetLineColor(41); 
+      ref_prof[npi]->Draw("same");
+      
+      val_hist2[nh2]->SetMarkerColor(ValCol); 
+      val_hist2[nh2]->Draw("same");
+      val_prof[npi]->SetLineColor(45); 
+      val_prof[npi]->Draw("same");
+      
+      leg->AddEntry(ref_prof[npi],"CMSSW_"+ref_vers,"pl");
+      leg->AddEntry(val_prof[npi],"CMSSW_"+val_vers,"pl");   	     
+      
+      leg->Draw("");
+      
+      myc->SaveAs(OutLabel);    
+
+      npi++;
+      nh2++;
+      i++;
     }
   }
   return;    
