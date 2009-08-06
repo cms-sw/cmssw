@@ -370,7 +370,7 @@ namespace sistrip {
   
   inline bool FEDBufferBase::majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const
     {
-      return specialHeader_.majorityAddressErrorForFEUnit(internalFEUnitNum);
+      return (specialHeader_.majorityAddressErrorForFEUnit(internalFEUnitNum) && (specialHeader_.apveAddress() != 0x00));
     }
   
   inline bool FEDBufferBase::feEnabled(const uint8_t internalFEUnitNum) const

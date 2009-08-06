@@ -569,7 +569,7 @@ namespace sistrip {
   
   inline bool TrackerSpecialHeader::majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const
     {
-      return ( (0x1<<internalFEUnitNum) & apvAddressErrorRegister() );
+      return !( (0x1<<internalFEUnitNum) & apvAddressErrorRegister() );
     }
   
   inline uint8_t TrackerSpecialHeader::feEnableRegister() const
