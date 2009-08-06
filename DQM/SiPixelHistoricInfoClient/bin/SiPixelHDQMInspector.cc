@@ -2,6 +2,8 @@
 #include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
 #include <string>
 
+std::string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
+
 void SiPixelHDQMInspector (const std::string & tagName, std::string const& Password, int const NRuns) {
 /////////////////////////////////////////////////////////////////
 //
@@ -32,17 +34,17 @@ void SiPixelHDQMInspector (const std::string & tagName, std::string const& Passw
 
   //A.setBlackList("68286");
 
-  A.createTrendLastRuns("0@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "0@SUMOFF_adc@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, "0@SUMOFF_charge_OffTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, "0@SUMOFF_charge_OnTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "0@SUMOFF_nRecHits@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, "0@SUMOFF_nclusters_OffTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, "0@SUMOFF_nclusters_OnTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "0@SUMOFF_ndigis@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, "0@SUMOFF_size_OffTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, "0@SUMOFF_size_OnTrack@yMean > 0", NRuns);
-  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll > 0", NRuns);
-  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix > 0", NRuns);
+  A.createTrendLastRuns("0@SUMOFF_adc@yMean", "adc_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, NRuns);
 
 
 
@@ -84,17 +86,17 @@ void SiPixelHDQMInspector (const std::string &tagName, std::string const& Passwo
   A.setDoStat(1);
 
   //A.setBlackList("68286");
-  A.createTrend("0@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "0@SUMOFF_adc@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, "0@SUMOFF_charge_OffTrack@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, "0@SUMOFF_charge_OnTrack@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "0@SUMOFF_nRecHits@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, "0@SUMOFF_nclusters_OffTrack@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, "0@SUMOFF_nclusters_OnTrack@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "0@SUMOFF_ndigis@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, "0@SUMOFF_size_OffTrack@yMean > 0", Start, End);
-  A.createTrend("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, "0@SUMOFF_size_OnTrack@yMean > 0", Start, End);
-  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll > 0", Start, End);
-  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix > 0", Start, End);
+  A.createTrend("0@SUMOFF_adc@yMean", "adc_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, Start, End);
+  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, Start, End);
+  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, Start, End);
 
   A.closeFile();
 
