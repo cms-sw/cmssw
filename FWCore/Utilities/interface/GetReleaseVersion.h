@@ -1,1 +1,1 @@
-#include "FWCore/Version/interface/GetReleaseVersion.h"
+#error Header moved to FWCore/Version/interface/GetReleaseVersion.h
