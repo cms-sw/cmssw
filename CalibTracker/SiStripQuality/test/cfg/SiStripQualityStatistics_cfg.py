@@ -10,8 +10,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue= cms.uint64(108701),
-    lastValue= cms.uint64(108701),
+    # The RunInfo for this run is NOT in the globalTag
+    firstValue = cms.uint64(105592),
+    lastValue = cms.uint64(105592),
+    # The RunInfo for this run is in the globalTag
+    # firstValue= cms.uint64(108701),
+    # lastValue= cms.uint64(108701),
     interval = cms.uint64(1)
 )
 
@@ -53,7 +57,12 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 )
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 # True means all the debug output from adding the RunInfo (default is False)
-process.siStripQualityESProducer.PrintDebugOutput = cms.bool(False)
+process.siStripQualityESProducer.PrintDebugOutput = cms.bool(True)
+# "True" means that the RunInfo is used even if all the feds are off (including other subdetectors).
+# This means that if the RunInfo was filled with a fake empty object we will still set the full tracker as bad.
+# With "False", instead, in that case the RunInfo information is discarded.
+# Default is "False".
+process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 
 #-------------------------------------------------
 # Services for the TkHistoMap

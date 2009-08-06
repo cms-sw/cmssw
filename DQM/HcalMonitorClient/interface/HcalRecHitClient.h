@@ -123,11 +123,6 @@ private:
   TH1F* h_HEEnergy_1D;
   TH1F* h_HOEnergy_1D;
   TH1F* h_HFEnergy_1D;
-
-  TH1F* h_HBEnergyRMS_1D;
-  TH1F* h_HEEnergyRMS_1D;
-  TH1F* h_HOEnergyRMS_1D;
-  TH1F* h_HFEnergyRMS_1D;
 };
 
 

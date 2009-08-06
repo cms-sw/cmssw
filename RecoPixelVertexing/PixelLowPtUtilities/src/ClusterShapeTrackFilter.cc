@@ -36,9 +36,6 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   theFilter = shape.product();
-
-  // Get ptMin if available
-  ptMin = (ps.exists("ptMin") ? ps.getParameter<double>("ptMin") : 0.);
 }
 
 /*****************************************************************************/
@@ -126,13 +123,8 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 
 /*****************************************************************************/
 bool ClusterShapeTrackFilter::operator()
-  (const reco::Track* track,
-   const vector<const TrackingRecHit *> & recHits) const
+  (const reco::Track* track, const vector<const TrackingRecHit *> & recHits) const
 {
-  // Check pt
-  if(track->pt() < ptMin)
-    return false;
-
   // Get global positions
   vector<GlobalPoint>  globalPoss = getGlobalPoss(recHits);
 
@@ -143,7 +135,7 @@ bool ClusterShapeTrackFilter::operator()
 
   // Check whether shape of pixel cluster is compatible
   // with local track direction
-  for(unsigned int i = 0; i < recHits.size(); i++)
+  for(int i = 0; i < 3; i++)
   {
     const SiPixelRecHit* pixelRecHit =
       dynamic_cast<const SiPixelRecHit *>(recHits[i]);

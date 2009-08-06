@@ -35,6 +35,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
+    MuLinkTag                       = cms.InputTag("hltL3Muons"),
     ### egamma OpenHLT objects                             
     CandIso                         = cms.InputTag("hltL1IsoRecoEcalCandidate"),
     CandNonIso                      = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),
@@ -60,13 +61,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PixelSeedL1NonIsoLargeWindows   = cms.InputTag("hltL1NonIsoLargeWindowElectronPixelSeeds"),
     IsoEleTrackIsolLargeWindows     = cms.InputTag("hltL1IsoLWEleTrackIsol"),
     NonIsoEleTrackIsolLargeWindows  = cms.InputTag("hltL1NonIsoLWEleTrackIsol"),
-    ### egamma - SiStrip
-    IsoElectronsSiStrip             = cms.InputTag("hltPixelMatchElectronsL1IsoSS"),
-    NonIsoElectronsSiStrip          = cms.InputTag("hltPixelMatchElectronsL1NonIsoSS"),
-    PixelSeedL1IsoSiStrip           = cms.InputTag("hltL1IsoSiStripElectronPixelSeeds"),
-    PixelSeedL1NonIsoSiStrip        = cms.InputTag("hltL1NonIsoSiStripElectronPixelSeeds"),
-    IsoEleTrackIsolSiStrip          = cms.InputTag("hltL1IsoSSEleTrackIsol"),
-    NonIsoEleTrackIsolSiStrip       = cms.InputTag("hltL1NonIsoSSEleTrackIsol"),
 
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),
@@ -92,11 +86,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
     IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
-    IsoPixelTracksL2            = cms.InputTag("hltIsolPixelTrackProd1E31"),
-    IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
-
-    ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
 
     ### AlCa pi0 settings
     clusSeedThr                 = cms.double( 0.5 ),

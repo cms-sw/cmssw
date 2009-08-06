@@ -10,6 +10,8 @@
 #include <Pythia.h>
 #include <HepMCInterface.h>
 
+#include <LesHouches.h>
+
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -24,6 +26,8 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 using namespace gen;
 using namespace Pythia8;
@@ -59,13 +63,51 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	/// Events to print if verbosity
 	unsigned int		maxEventsToPrint;
 
-    string LHEInputFileName;
+    class LHAupLesHouches;
 
 	std::auto_ptr<Pythia>	pythia;
 	Event			*pythiaEvent;
 	HepMC::I_Pythia8	toHepMC;   
 
+    std::auto_ptr<LHAupLesHouches>      lhaUP;
+
 };
+
+class Pythia8Hadronizer::LHAupLesHouches : public LHAup {
+    public:
+    LHAupLesHouches() {}
+
+    void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
+    { this->runInfo = runInfo; }
+
+    //void loadEvent(const boost::shared_ptr<LHEEvent> &event)
+    //{ this->event = event; }
+
+    private:
+
+    bool setInit();
+    bool setEvent(int idProcIn);
+
+    //Hadronisation           *hadronisation;
+    boost::shared_ptr<lhef::LHERunInfo>   runInfo;
+    //boost::shared_ptr<LHEEvent> event;
+};
+
+bool Pythia8Hadronizer::LHAupLesHouches::setInit()
+{
+    //if (!runInfo)
+    //    return false;
+    //runInfo.reset();
+    return true;
+}
+
+bool Pythia8Hadronizer::LHAupLesHouches::setEvent(int inProcId)
+{
+    //if (!event)
+    //    return false;
+    //event.reset();
+    return true;
+}
 
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
@@ -74,8 +116,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 	comEnergy(params.getParameter<double>("comEnergy")),
 	pythiaPylistVerbosity(params.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
 	pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
-	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-    LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName",""))
+	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
     randomEngine = &getEngineReference();
 
@@ -133,22 +174,15 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     std::cout << "Initializing for external partons" << std::endl;
 
-    if(LHEInputFileName != string()) {
-      cout << endl;
-      cout << "LHE Input File Name = " << LHEInputFileName << endl;
-      cout << endl;
-    } else {
-      throw cms::Exception("PythiaError") << "LHE Input File Name is empty"
-                                          << std::endl;
-    }
-
     RandomP8* RP8 = new RandomP8();
 
     pythia.reset(new Pythia);
     pythia->setRndmEnginePtr(RP8);
     pythiaEvent = &pythia->event;
 
-    pythia->init(LHEInputFileName);
+    lhaUP.reset(new LHAupLesHouches());
+
+    pythia->init("ttbar.lhe");
 
     return true;
 }

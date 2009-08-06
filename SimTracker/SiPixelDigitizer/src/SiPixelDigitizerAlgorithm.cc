@@ -20,32 +20,21 @@
 // Modify to the new random number services. d.k. 5/07
 // Protect against sigma=0 (delta tracks on the surface). d.k.5/07
 // Change the TOF cut to lower and upper limit. d.k. 7/07
-//
-// July 2008: Split Lorentz Angle configuration in BPix/FPix (V. Cuplov)
+// Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
-//
-// Sept. 2008: Disable Pixel modules which are declared dead in the configuration python file. (V. Cuplov)
-//
-// Oct. 2008: Accessing/Reading the Lorentz angle from the DataBase instead of the cfg file. (V. Cuplov)
+// Disable Pixel modules which are declared dead in the configuration python file. (sept 2008)
+// Accessing/Reading the Lorentz angle from the DataBase instead of the cfg file. (oct 2008)
 // Accessing dead modules from the DB. Implementation done and tested on a test.db
 // Do not use this option for now. The PixelQuality Objects are not in the official DB yet.
-//
-// Feb. 2009: Split Fpix and Bpix threshold and use official numbers (V. Cuplov)
+// Accessing dead modules via DB is tested using GlobalTag STARTUP_30X (jan 2009). Ok
+// Split Fpix and Bpix threshold and use official numbers (fev 2009)
 // ThresholdInElectrons_FPix = 2870 and ThresholdInElectrons_BPix = 3700
 // update the electron to VCAL conversion using: VCAL_electrons = VCAL * 65.5 - 414
-//
-// Feb. 2009: Threshold gaussian smearing (V. Cuplov)
-// Fpix: Mean=2870 and RMS=200  (COSMICS)
-// Bpix: Mean=3700 and RMS=410  (COSMICS)
-//
-// Fpix=BPix: Mean=2870 and RMS=200  (COLLISIONS)
+// Threshold gaussian smearing: (fev. 2009)
+// Fpix: Mean=2870 and RMS=200 
+// Bpix: Mean=3700 and RMS=410
 //
 // March 13, 2009: changed DB access to *SimRcd objects (to de-couple the DB objects from reco chain) (F. Blekman) 
-//
-// May 28, 2009: Pixel charge VCAL smearing.
-// The RMS depends on the pixel charge: see Danek's talk on February 19th 2009
-// see http://indico.cern.ch/conferenceDisplay.py?confId=47919
-//
 
 #include <vector>
 #include <iostream>
@@ -163,11 +152,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Add noise   
   addNoise=conf_.getParameter<bool>("AddNoise");
-
-  // Smear the pixel charge with a gaussian which RMS is a function of the
-  // pixel charge (Danek's study)
-  addChargeVCALSmearing=conf_.getParameter<bool>("ChargeVCALSmearing");
-
   // Add noisy pixels 
   addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
   // Noise in electrons:
@@ -1134,62 +1118,11 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 #endif
  
   // First add noise to hit pixels
-  
+  // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
-    
-    //    std::cout << "Initial signal is: " << (*i).second << std::endl;
-
-    if(addChargeVCALSmearing) 
-      {
-
-	edm::Service<edm::RandomNumberGenerator> rng;
-	CLHEP::HepRandomEngine& engine = rng->getEngine();
-	smearedChargeDistribution_ = new CLHEP::RandGaussQ(engine, 0. , theSmearedChargeRMS);
-	
-	if((*i).second < 3000)
-	  {
-	    theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-	  }
-	if((*i).second > 3000  && (*i).second < 6000)
-	  {
-	    theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
-	  }
-	if((*i).second > 6000) 
-	  {
-	    theSmearedChargeRMS = -432.4 +(*i).second * 0.123;
-
-	  }
-
-	float noise_ChargeVCALSmearing = smearedChargeDistribution_->fire() ;
-	(*i).second += Amplitude( noise_ChargeVCALSmearing,0,-1.); 
-
-	//	std::cout << "The signal after charge smearing: " << (*i).second << std::endl;
-
-	// Now add full READOUT Noise: 
-	// Noises: full readout noise + full readout noise.
-	// Will be used if we have the ChargeVCALSmearing boolean in the configuration file set to TRUE: 
-	// Define the Gaussian distribution that will take care of the pixel charge smearing:
-	
-	float noise  = gaussDistribution_->fire() ;
-
-	(*i).second +=Amplitude(noise,0,-1.);
-
-	//	std::cout << "The signal after read out noise is: " << (*i).second << std::endl;
-
-
-
-      } // end if(addChargeVCALSmearing)
-    else 
-      {
-	// Noise: ONLY full READOUT Noise.
-	// Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
-
-	float noise  = gaussDistribution_->fire() ;
-	(*i).second += Amplitude(noise ,0,-1.);  
-	//	std::cout << " the signal after Readout noise only is: " << (*i).second << std::endl;
-	
-      }
-    
+    //float noise  = RandGaussQ::shoot(0.,theReadoutNoise);
+    float noise  = gaussDistribution_->fire() ;
+    (*i).second += Amplitude( noise,0,-1.);  
   }
   
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels

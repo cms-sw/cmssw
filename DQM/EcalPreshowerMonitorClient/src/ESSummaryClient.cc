@@ -40,29 +40,15 @@ void ESSummaryClient::beginJob(DQMStore* dqmStore) {
 
    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-   sprintf(histo, "reportSummary");
-   me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-   if ( me ) {
-      dqmStore_->removeElement(me->getName());
-   }
-   me = dqmStore_->bookFloat(histo);
-   me->Fill(-1.0);      
-
-
-   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
    sprintf(histo, "reportSummaryMap");
    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
    if ( me ) {
       dqmStore_->removeElement(me->getName());
    }
-   me = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
-   me->setAxisTitle("Si X", 1);
-   me->setAxisTitle("Si Y", 2);
-
+   me = dqmStore_->book2D(histo, histo, 80, 0., 80., 80, 0., 80);
    for ( int i = 0; i < 80; i++ ) {
       for ( int j = 0; j < 80; j++ ) {
-	 me->setBinContent( i+1, j+1, -1. );
+	 me->setBinContent( i+1, j+1, 0. );
       }
    }
 
@@ -108,86 +94,67 @@ void ESSummaryClient::analyze(void) {
 
    char histo[200];
 
-   float nDI_FedErr[80][80];
    float DCC[80][80];
-   float eCount;
+   float KChip[80][80];
+   float DigiHit[80][80];
+   bool noDigiHit = 1;
 
    MonitorElement* me;
-
-   for ( int i = 0; i < 80; i++) {
-      for( int j = 0; j < 80; j++) {
-	 nDI_FedErr[i][j] = 0;
-	 DCC[i][j]=0;
-      }
-   }
 
    for (int i=0 ; i<2; ++i){
       for (int j=0 ; j<2; ++j){
 	 int iz = (i==0)? 1:-1;
-	 sprintf(histo, "ES Integrity Errors 1 Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
-	 if(me){
-	    for(int x=0; x<40; x++){
-	       for(int y=0; y<40; y++){
-		  nDI_FedErr[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
-	       }
-	    }
-	 }
-	 
 	 sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
 	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
 	    for(int x=0; x<40; x++){
 	       for(int y=0; y<40; y++){
-		  DCC[i*40+x][(1-j)*40+y]=me->getBinContent(x+1,y+1);
+		  DCC[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
 	       }
 	    }
 	 }
 
-	 sprintf(histo, "ES Digi 2D Occupancy Z %d P %d", iz, j+1);
-	 me = dqmStore_->get(prefixME_ + "/ESOccupancyTask/" + histo);
+	 sprintf(histo, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
+	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
 	 if(me){
-	    eCount = me->getBinContent(40,40);
+	    for(int x=0; x<40; x++){
+	       for(int y=0; y<40; y++){
+		  KChip[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
+	       }
+	    }
 	 }
-	 else {
-	    eCount = 1.;
-	 } 
+
+	 if(iz==1)  sprintf(histo, "ES+ P%d DigiHit 2D Occupancy", j+1);
+	 if(iz==-1) sprintf(histo, "ES- P%d DigiHit 2D Occupancy", j+1);
+	 me = dqmStore_->get(prefixME_ + "/ESIntegrityClient/" + histo);
+	 if(me){
+	    noDigiHit = 0;
+	    for(int x=0; x<40; x++){
+	       for(int y=0; y<40; y++){
+		  DigiHit[i*40+x][j*40+y]=me->getBinContent(x+1,y+1);
+	       }
+	    }
+	 }
       }
    }
 
-   //The global-summary
-   //ReportSummary Map 
-   //  ES+F  ES-F
-   //  ES+R  ES-R
-   float nValidChannels=0; 
-   float nGlobalErrors=0;
+   //Number:Error mapping; 1:Normal 2:Noisy 3:No Readout 4:DCC & KChip Error 
    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
    if(me){
+      float xval = 0.;
       for(int x=0; x<80; x++){
-	 if(eCount < 100) break; //Fill reportSummaryMap after have 100 events
 	 for(int y=0; y<80; y++){
-	    if( nDI_FedErr[x][y] >= 0. ){
-	       me->setBinContent(x+1, y+1, 1-(nDI_FedErr[x][y]/eCount) );
-	       nValidChannels+=1.;
-	       nGlobalErrors+=nDI_FedErr[x][y]/eCount;
-	    }
-	    else {
-	       me->setBinContent(x+1, y+1, -1.);
-	    }
-	    if(DCC[x][y]==0.) me->setBinContent(x+1, y+1, -1.);
+	    xval = 1.;
+	    if(DigiHit[x][y]>1&&noDigiHit==0) xval = 2.;
+	    if(DigiHit[x][y]<0.01&&noDigiHit==0) xval = 3.;
+	    if(DCC[x][y]<2.5||DCC[x][y]>3.5) xval = 4.;
+	    if(KChip[x][y]<2.5||KChip[x][y]>3.5) xval = 4.;
+	    if(DCC[x][y]<0.5) xval = 0.;	//0 for non-module point
+
+	    me->setBinContent(x+1, y+1, xval);
 	 }
       }
    }
-
-   //Return ratio of good channels
-   float reportSummary = -1.0;
-   if ( nValidChannels != 0 ){
-      reportSummary = 1.0 - nGlobalErrors/nValidChannels;
-   }
-   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-   if ( me ) me->Fill(reportSummary);
-
-
 }
 
 void ESSummaryClient::softReset(bool flag) {

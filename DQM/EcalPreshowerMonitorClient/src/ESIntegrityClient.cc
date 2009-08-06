@@ -33,8 +33,6 @@ ESIntegrityClient::ESIntegrityClient(const ParameterSet& ps) {
   for (int i=0; i<56; ++i) {
     fedStatus_[i] = -1;
     fiberStatus_[i] = -1;
-    syncStatus_[i] = -1;
-    slinkCRCStatus_[i] = -1;
   }
 
   int nLines_, z, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
@@ -69,6 +67,7 @@ void ESIntegrityClient::beginJob(DQMStore* dqmStore) {
 
   ievt_ = 0;
   jevt_ = 0;
+
 }
 
 void ESIntegrityClient::beginRun(void) {
@@ -107,19 +106,14 @@ void ESIntegrityClient::setup(void) {
     for (int j=0 ; j<2; ++j) {
       int iz = (i==0)? 1:-1;
       sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
-      meFED_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      meFED_[i][j] = dqmStore_->book2D(histo, histo, 40, 1, 41, 40, 1, 41);
       meFED_[i][j]->setAxisTitle("Si X", 1);
       meFED_[i][j]->setAxisTitle("Si Y", 2);
       
       sprintf(histo, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
-      meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 1, 41, 40, 1, 41);
       meKCHIP_[i][j]->setAxisTitle("Si X", 1);
       meKCHIP_[i][j]->setAxisTitle("Si Y", 2);
-
-      sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j+1);
-      meDIErrors_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
-      meDIErrors_[i][j]->setAxisTitle("Si X", 1);
-      meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
     }
 }
 
@@ -132,9 +126,6 @@ void ESIntegrityClient::cleanup(void) {
 void ESIntegrityClient::analyze(void) {
   
   char histo[200];
-
-  Double_t nDI_FedErr[56];
-  for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
   
   MonitorElement* me;
   
@@ -145,11 +136,7 @@ void ESIntegrityClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Status").c_str());
   me = dqmStore_->get(histo);
   hFiber_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiber_ ); 
-
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES SLink CRC Errors").c_str());
-  me = dqmStore_->get(histo);
-  hSLinkCRCErr_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSLinkCRCErr_ ); 
-
+  
   int xval = 0;
   int nevFEDs = 0;
   for (int i=1; i<=56; ++i) 
@@ -160,36 +147,24 @@ void ESIntegrityClient::analyze(void) {
   for (int i=1; i<=56; ++i) {
     if (hFED_->GetBinContent(i) > 0) 
       fedStatus_[i-1] = 1;      
-    if (hFiber_->GetBinContent(i+58) > 0) {
+    if (hFiber_->GetBinContent(i+58) > 0) 
       fiberStatus_[i-1] = 1;
-      //nDI_FedErr[i] = hFiber_->GetBinContent(i+58);
-    }
-    if (hSLinkCRCErr_->GetBinContent(i) > 0) 
-      slinkCRCStatus_[i] = 1;
   }
 
-  // obtain MEs from ESRawDataTask
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES L1A DCC errors").c_str());
-  me = dqmStore_->get(histo);
-  hL1ADiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hL1ADiff_ ); 
-
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES BX DCC errors").c_str());
-  me = dqmStore_->get(histo);
-  hBXDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBXDiff_ ); 
-
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES Orbit Number DCC errors").c_str());
-  me = dqmStore_->get(histo);
-  hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
-
-  for (int i=1; i<=56; ++i) {
-    if (hL1ADiff_->GetBinContent(i) > 0 || hBXDiff_->GetBinContent(i) > 0) {
-      syncStatus_[i-1] = 1;
-      if (hL1ADiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hL1ADiff_->GetBinContent(i);
-      if (hBXDiff_->GetBinContent(i) > nDI_FedErr[i-1]) nDI_FedErr[i-1] = hBXDiff_->GetBinContent(i);
-    }
-    //if (hOrbitNumberDiff_->GetBinContent(i) > 0) syncStatus_[i-1] = 1;
-  }
-
+  for (int iz=0; iz<2; ++iz) 
+    for (int ip=0; ip<2; ++ip)
+      for (int ix=0; ix<40; ++ix)
+	for (int iy=0; iy<40; ++iy) {
+	  if (fed_[iz][ip][ix][iy] == -1) continue;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
+	    xval = (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) ? 3:5;
+	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) xval = 2;
+	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
+	    xval = 1;
+	  } 
+	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
+	}
+  
   // KCHIP integrity
   sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip Flag 1 Error codes").c_str());
   me = dqmStore_->get(histo);
@@ -208,7 +183,7 @@ void ESIntegrityClient::analyze(void) {
   hKEC_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hKEC_ ); 
 
   Int_t kchip_xval[1550];
-  for (int i=0; i<=1550; ++i) {
+  for (int i=1; i<=1550; ++i) {
 
     xval = 3;
     Int_t kErr = 0;
@@ -234,55 +209,16 @@ void ESIntegrityClient::analyze(void) {
     kchip_xval[i] = xval;
   }
 
-  // detailed KCHIP summary (i.e. summary 2)
   for (int iz=0; iz<2; ++iz) 
     for (int ip=0; ip<2; ++ip)
       for (int ix=0; ix<40; ++ix)
 	for (int iy=0; iy<40; ++iy) {
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
-	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) kchip_xval[kchip_[iz][ip][ix][iy]-1] = 0;
+	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) kchip_xval[kchip_[iz][ip][ix][iy]-1] = 1;
 	  meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-1]); 
 	}
 
-  // FED, Fiber, KCHIP summary (i.e. summary 1) 
-  Int_t nErr = 0;
-  for (int iz=0; iz<2; ++iz) 
-    for (int ip=0; ip<2; ++ip)
-      for (int ix=0; ix<40; ++ix)
-	for (int iy=0; iy<40; ++iy) {
-	  if (fed_[iz][ip][ix][iy] == -1) continue;
-	  nErr = 0;
-	  if (fedStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	    if (hFED_->GetBinContent(fed_[iz][ip][ix][iy]-520+1) == nevFEDs) 
-	      xval = 3;
-	    else {
-	      xval = 4; // FED problem
-	      nErr++;
-	    }
-	    if (fiberStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	      xval = 2; // fiber problem
-	      nErr++;
-	    }
-	    if (kchip_xval[kchip_[iz][ip][ix][iy]-1] != 3 && kchip_xval[kchip_[iz][ip][ix][iy]-1] != 0) {
-	      xval = 5; // kchip problem
-	      nErr++;
-	    }
-	    if (syncStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	      xval = 6;
-	      nErr++;
-	    }
-	    if (slinkCRCStatus_[fed_[iz][ip][ix][iy]-520] == 1) {
-	      xval = 8;
-	      nErr++;
-	    }
-	    if (nErr > 1) xval = 7;
-	  } else if (fedStatus_[fed_[iz][ip][ix][iy]-520] == -1) {
-	    xval = 0;
-	  } 
-	  meFED_[iz][ip]->setBinContent(ix+1, iy+1, xval); 
-	  meDIErrors_[iz][ip]->setBinContent(ix+1, iy+1, nDI_FedErr[fed_[iz][ip][ix][iy]-520]);
-	}
-
+  
 }
 
 void ESIntegrityClient::softReset(bool flag) {

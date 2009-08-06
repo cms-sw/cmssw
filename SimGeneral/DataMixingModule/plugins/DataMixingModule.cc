@@ -300,7 +300,7 @@ namespace edm
   } // end of addSignals
 
   
-
+  void DataMixingModule::checkSignal(const edm::Event &e){}
 
   void DataMixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr, unsigned int worker, const edm::EventSetup& ES) {  
 

@@ -37,6 +37,21 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
    kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
 
+   // temp. solution for Opto
+   int fed_rx[56] = {2, 0, 2, 3, 3,
+		     3, 0, 0, 2, 2,
+		     3, 3, 3, 0, 3,
+		     3, 0, 2, 0, 2,
+		     3, 3, 3, 0, 0,
+		     2, 2, 3, 3, 2,
+		     0, 2, 0, 3, 3,
+		     3, 2, 2, 0, 0,
+		     3, 3, 0, 3, 3,
+		     3, 2, 0, 2, 0,
+		     3, 3, 3, 2, 2,
+		     0};
+   for (int i=0; i<56; ++i) fed_rx[i] = fed_rx_[i];
+
 }
 
 ESIntegrityTask::~ESIntegrityTask() {
@@ -101,16 +116,6 @@ void ESIntegrityTask::setup(void){
       meDCCErr_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 6, -0.5, 5.5); 
       meDCCErr_->setAxisTitle("ES FED", 1);
       meDCCErr_->setAxisTitle("ES DCC Error code", 2);
-
-      sprintf(histo, "ES SLink CRC Errors");
-      meSLinkCRCErr_ = dqmStore_->book1D(histo, histo, 56, 519.5, 575.5); 
-      meSLinkCRCErr_->setAxisTitle("ES FED", 1);
-      meSLinkCRCErr_->setAxisTitle("Num of Events", 2);
-
-      sprintf(histo, "ES DCC CRC Errors");
-      meDCCCRCErr_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 3, -0.5, 2.5); 
-      meDCCCRCErr_->setAxisTitle("ES FED", 1);
-      meDCCCRCErr_->setAxisTitle("ES OptoRX", 2);
 
       sprintf(histo, "ES OptoRX used for data taking");
       meOptoRX_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 3, -0.5, 2.5); 
@@ -198,25 +203,14 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       meDCCErr_->Fill(dcc.fedId(), dcc.getDCCErrors());
 
-      // SLink CRC error
-      if (dcc.getDCCErrors() == 101) meSLinkCRCErr_->Fill(dcc.fedId());
+      if (dcc.getOptoRX0() == 128) meOptoRX_->Fill(dcc.fedId(), 0);
+      if (dcc.getOptoRX1() == 128) meOptoRX_->Fill(dcc.fedId(), 1);
+      if (dcc.getOptoRX2() == 128) meOptoRX_->Fill(dcc.fedId(), 2);
 
-      if (dcc.getOptoRX0() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 0);
-	if (((dcc.getOptoBC0()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
-      }
-      if (dcc.getOptoRX1() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 1);
-	if (((dcc.getOptoBC1()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
-      }
-      if (dcc.getOptoRX2() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 2);
-	if (((dcc.getOptoBC2()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
-      }
-
-      if (dcc.getOptoRX0() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 0);
-      if (dcc.getOptoRX1() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 1);
-      if (dcc.getOptoRX2() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 2);
+      if (((dcc.getOptoBC0()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+      if (((dcc.getOptoBC1()+9) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
+      if ((((dcc.getOptoBC2()+9) & 0x0fff) != dcc.getBX()) && fed_rx_[dcc.fedId()-520]==3)
+	meOptoBC_->Fill(dcc.fedId(), 2);
 
       fiberStatus = dcc.getFEChannelStatus();
 

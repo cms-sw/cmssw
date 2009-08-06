@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.MixingModule.mixObjects_cfi import *
-CFWriter = cms.EDProducer("CFWriter",
+cfWriter = cms.EDProducer("CFWriter",
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5),
     
@@ -23,3 +23,4 @@ CFWriter = cms.EDProducer("CFWriter",
     )
     )
 )
+

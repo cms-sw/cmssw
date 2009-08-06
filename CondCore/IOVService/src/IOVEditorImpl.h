@@ -2,7 +2,6 @@
 #define CondCore_IOVService_IOVEditorImpl_h
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
-#include<iosfwd>
 
 namespace cond{
   class PoolTransaction;
@@ -16,15 +15,8 @@ namespace cond{
     /// Destructor
     virtual ~IOVEditorImpl();
 
-     // create empty default sequence
-    virtual void create(cond::TimeType timetype);
-
-    // create empty sequence with fixed time boundary
-    virtual void create(cond::TimeType timetype, cond::Time_t lastTill);
-
-    // return the current sequence
-    virtual IOVSequence & iov();
-
+    /// create a new IOV
+    void create(cond::TimeType timetype,cond::Time_t lastTill);
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     virtual unsigned int insert( cond::Time_t tillTime,
@@ -54,10 +46,6 @@ namespace cond{
 
     virtual void deleteEntries( bool withPayload=false );
 
-    // remove last entry
-    virtual unsigned int truncate(bool withPayload);
-
-
     virtual void import( const std::string& sourceIOVtoken );
 
     std::string token() const {
@@ -73,10 +61,6 @@ namespace cond{
     void init();
     bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
-
-    void debugInfo(std::ostream & co) const;
-    void reportError(std::string message) const;
-    void reportError(std::string message, cond::Time_t time) const;
 
     cond::PoolTransaction* m_pooldb;
     std::string m_token;

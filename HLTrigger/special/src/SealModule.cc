@@ -9,6 +9,7 @@
 #include "HLTrigger/special/interface/HLTHcalNoiseFilter.h"
 #include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
 #include "HLTrigger/special/interface/HLTEventNumberFilter.h"
+#include "HLTrigger/special/interface/HLTHcalNZSFilter.h"
 
 #include "HLTrigger/special/interface/HLTPi0RecHitsFilter.h"
 #include "HLTrigger/special/interface/HLTCSCOverlapFilter.h"
@@ -35,6 +36,7 @@ DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalCalibTypeFilter);
 DEFINE_FWK_MODULE(HLTEventNumberFilter);
+DEFINE_FWK_MODULE(HLTHcalNZSFilter);
 
 
 DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);

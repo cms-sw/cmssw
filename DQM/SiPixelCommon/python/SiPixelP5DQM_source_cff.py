@@ -45,7 +45,7 @@ SiPixelRawDataErrorSource.ringOn = False
 SiPixelDigiSource.modOn = True
 SiPixelDigiSource.twoDimOn = True
 SiPixelDigiSource.reducedSet = False
-SiPixelDigiSource.hiRes = True
+SiPixelDigiSource.hiRes = True ## do not set to False, otherwise occupancy map code will crash!
 SiPixelDigiSource.ladOn = False
 SiPixelDigiSource.layOn = False
 SiPixelDigiSource.phiOn = False
@@ -97,8 +97,8 @@ dqmInfo = cms.EDFilter("DQMEventInfo",
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
 
-siPixelP5DQM_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + dqmInfo)
+siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + dqmInfo)
 
-siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
+siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 
-siPixelP5DQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
+siPixelP5DQM_source_woTrack = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)

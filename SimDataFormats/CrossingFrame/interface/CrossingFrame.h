@@ -110,6 +110,9 @@ class CrossingFrame
 
   int getSourceType(unsigned int ip) const;
 
+  // limits for tof to be considered for trackers
+  static const int getlimHighLowTof() { return 36;}
+
   // get object in pileup when position in the vector is known (for DigiSimLink typically)
 
   const T & getObject(unsigned int ip) const { 
@@ -136,15 +139,8 @@ class CrossingFrame
   void setPileupOffsetsSource(std::vector< std::vector<unsigned int> > pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
   void setBunchRange(std::pair<int,int> bunchRange) { firstCrossing_ = bunchRange.first;
   						      lastCrossing_ = bunchRange.second;} 
-
   
-// limits for tof to be considered for trackers
-  static const int lowTrackTof; //nsec
-  static const int highTrackTof;
-  static const int minLowTof;
-  static const int limHighLowTof;
-					    
- private:
+ private: 					    
   // please update the swap() function below if any data members are added.
   // general information
   int firstCrossing_;
@@ -173,6 +169,7 @@ class CrossingFrame
   // as a function of the position of an object in the pileups_ vector
   std::vector<unsigned int> pileupOffsetsBcr_;
   std::vector< std::vector<unsigned int> > pileupOffsetsSource_; //one per source
+  
 };
 
 //==============================================================================
@@ -180,7 +177,9 @@ class CrossingFrame
 //==============================================================================
 
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int
+maxNbSources):firstCrossing_(minb), lastCrossing_(maxb),
+bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
  pileupOffsetsSource_.resize(maxNbSources_);
  for (unsigned int i=0;i<maxNbSources_;++i)
    pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);

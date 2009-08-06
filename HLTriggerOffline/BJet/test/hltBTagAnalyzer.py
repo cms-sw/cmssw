@@ -9,6 +9,10 @@ process.TFileService.fileName = 'plots.root'
 # Message Logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append('HLTBtagAnalyzer')
+process.MessageLogger.debugModules.extend(process.hltBLifetime_modules.modules)
+process.MessageLogger.debugModules.extend(process.hltBLifetimeRelaxed_modules.modules)
+process.MessageLogger.debugModules.extend(process.hltBSoftmuon_modules.modules)
+process.MessageLogger.debugModules.extend(process.hltBSoftmuonRelaxed_modules.modules)
 
 process.load("HLTriggerOffline.BJet.hltJetMCTools_cff")
 process.load("HLTriggerOffline.BJet.hltBLifetimeExtra_cff")
@@ -17,10 +21,6 @@ process.load("HLTriggerOffline.BJet.hltBLifetimeRelaxed_cff")
 process.load("HLTriggerOffline.BJet.hltBSoftmuonExtra_cff")
 process.load("HLTriggerOffline.BJet.hltBSoftmuon_cff")
 process.load("HLTriggerOffline.BJet.hltBSoftmuonRelaxed_cff")
-process.MessageLogger.debugModules.extend(process.hltBLifetime_modules.modules)
-process.MessageLogger.debugModules.extend(process.hltBLifetimeRelaxed_modules.modules)
-process.MessageLogger.debugModules.extend(process.hltBSoftmuon_modules.modules)
-process.MessageLogger.debugModules.extend(process.hltBSoftmuonRelaxed_modules.modules)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

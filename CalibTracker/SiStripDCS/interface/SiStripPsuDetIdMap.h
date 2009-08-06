@@ -37,46 +37,26 @@ class SiStripPsuDetIdMap
   SiStripPsuDetIdMap();
   /** Destructor */
   ~SiStripPsuDetIdMap();
-
-  std::vector<uint32_t> getLvDetID(std::string pvss);
-  std::vector<uint32_t> getHvDetID(std::string pvss);
-
   /** Returns the DetIDs associate to the specified PSU channel. */
   std::vector<uint32_t> getDetID(std::string pvss);
-  /** Returns the PSU channel name for the specified Det ID, for power groups only. */
-  std::string getPSUName(uint32_t detid);
   /** Returns the PSU channel name for the specified Det ID. */
-  std::string getPSUName(uint32_t detid, std::string group);
-  /** Returns the detector location for the specified Det ID, for power groups only. */
+  std::string getPSUName(uint32_t detid);
+  /** Returns the detector location for the specified Det ID. */
   std::string getDetectorLocation(uint32_t detid);
   /** Returns the detector location for the specified PSU channel. */
   std::string getDetectorLocation(std::string pvss);
-  /** Returns the detector location for the specified Det ID and specified group type (PG or CG). */
-  std::string getDetectorLocation(uint32_t detid, std::string group);
-  /** Returns the DCU ID for the specified PSU channel - checks power and control groups. */
+  /** Returns the DCU ID for the specified PSU channel. */
   uint32_t getDcuId(std::string pvss);
-  /** Returns the DCU ID associated to the specified Det ID.  NB.  This checks power groups only, by definition. */
   uint32_t getDcuId(uint32_t detid);
-  
-  /** Return the PG PSU-DETID map as a vector. */
-  std::vector< std::pair<uint32_t, std::string> > getPsuDetIdMap() {return pgMap;}
-  /** Return the PG detector locations as a vector - one-to-one correspondance with the contents of the PSU-DetID map vector. */
-  std::vector<std::string> getDetectorLocations() {return detectorLocations;}
-  /** Return the DCU IDs associated to the PG map. */
-  std::vector<uint32_t> getDcuIds() {return dcuIds;}
-  /** Return the CG PSU-DETID map as a vector. */
-  std::vector< std::pair<uint32_t, std::string> > getControlPsuDetIdMap() {return cgMap;}
-  /** Return the CG detector locations as a vector - one-to-one correspondance with the contents of the PSU-DetID map vector. */
-  std::vector<std::string> getControlDetectorLocations() {return controlLocations;}
-  /** Return the module DCU IDs associated to the CG map. */
-  std::vector<uint32_t> getCgDcuIds() {return cgDcuIds;}
-  /** Return the CCU DCU IDs associated to the CG map. */
-  std::vector<uint32_t> getCcuDcuIds() {return ccuDcuIds;}
-  
   /** Produces a formatted printout of the PSU-DETID map. */
+
+  /** Return the PSU-DETID map as a vector. */
+  std::vector< std::pair<uint32_t, std::string> > getPsuDetIdMap();
+  /** Return the detector locations as a vector - one-to-one correspondance with the contents of the PSU-DetID map vector. */
+  std::vector<std::string> getDetectorLocations();
+  std::vector<uint32_t> getDcuIds();
+
   void printMap();
-  /** Produces a formatted printout of the control PSU-DETID map. */
-  void printControlMap();
   /** Main routine that accesses the DB and builds the PSU-DETID map. */
   void BuildMap();
   /** Returns the DCU-PSU map as a vector. */
@@ -91,12 +71,7 @@ class SiStripPsuDetIdMap
   typedef edm::MapOfVectors<std::string,TkDcuPsuMap*> DcuPsus;
   typedef DcuPsus::range DcuPsusRange;
   /** Extracts the DCU-PSU map from the DB. */
-  void getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition);
-  /** Extracts the DCU device descriptions and stores them for further use. Only used for control groups. */
-  //  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >  retrieveDcuDeviceAddresses(std::string partition);
-  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > retrieveDcuDeviceAddresses(std::string partition);
-  /** Searches the DCU device descriptions for the specified DCU ID. Needed for control groups. */
-  std::vector<uint32_t>  findDcuIdFromDeviceAddress(uint32_t dcuid_);
+  void getDcuPsuMap(DcuPsusRange &pRange, std::string partition = "");
   /** Utility to clone a DCU-PSU map. */
   void clone(DcuPsuVector &input, DcuPsuVector &output);
   /** Produces a detailed debug of the input values. */
@@ -105,11 +80,10 @@ class SiStripPsuDetIdMap
   
   // member variables
   edm::Service<SiStripConfigDb> db_;
-  PsuDetIdMap pgMap, cgMap;
-  std::vector<std::string> detectorLocations, controlLocations;
-  std::vector<uint32_t> dcuIds, cgDcuIds, ccuDcuIds;
-  DcuPsus DcuPsuMapPG_, DcuPsuMapCG_;
-  //  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > dcu_device_addr_vector;
-  std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > dcu_device_addr_vector;
+  PsuDetIdMap pgMap;
+  std::vector<std::string> detectorLocations;
+  std::vector<uint32_t> dcuIds;
+  DcuPsus DcuPsuMapPG_;
 };
 #endif
+

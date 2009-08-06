@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.33 2009/03/04 16:53:41 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.35 2009/07/31 15:42:14 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +71,8 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
                             defaultMemberFunctionNames()),
    m_filter(iDesc.filterExpression(),""),
-   m_printedNoDataError(false)
+   m_printedNoDataError(false),
+   m_printedErrorThisEvent(false)
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -119,6 +120,7 @@ void
 FWEventItem::setEvent(const fwlite::Event* iEvent)
 {
    if ( m_event != iEvent ) m_printedNoDataError = false;
+   m_printedErrorThisEvent = false;
    m_event = iEvent;
    m_accessor->reset();
    m_itemInfos.clear();
@@ -409,9 +411,13 @@ FWEventItem::data(const std::type_info& iInfo) const
          static Type s_edproductType(Type::ByTypeInfo(typeid(edm::EDProduct)));
          Object edproductObj(wrapperObj.CastObject(s_edproductType));
          const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
+
          if(not prod->isPresent()) {
             //not actually in this event
-            std::cerr <<"data unavailable for this event"<<std::endl;
+            if(!m_printedErrorThisEvent) {
+               std::cerr <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
+               m_printedErrorThisEvent = true;
+            }
             return 0;
          }
 

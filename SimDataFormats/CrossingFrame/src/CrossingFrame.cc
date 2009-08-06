@@ -4,8 +4,6 @@
 
 using namespace edm;
 
-template <> const int  CrossingFrame<PSimHit>::limHighLowTof = 36;
-
 template <> 
 void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
@@ -40,7 +38,7 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *sim
     float newtof;
     if (checkTof) {
       newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
-      accept=high ? newtof>= limHighLowTof : newtof < limHighLowTof;
+      accept=high ? newtof>= getlimHighLowTof() : newtof < getlimHighLowTof();
     }
     if (!checkTof || accept) {
       (*simhits)[i].setEventId(id);

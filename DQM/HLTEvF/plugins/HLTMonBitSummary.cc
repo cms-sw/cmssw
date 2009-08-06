@@ -279,20 +279,23 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     HLTPathsByIndex_[trig]=triggerNames_.triggerIndex(HLTPathsByName_[trig]);
     lastModule = trh->index(HLTPathsByIndex_[trig]);
     //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
-    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", trh->index = " << lastModule << endl; 
+    //cout << "Trigger Name = " << HLTPathsByName_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
  
     //go through the list of filters
     for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
-      if(triggerFilterIndices_[trig][filt+1] <= lastModule){//check if filter passed
 	//cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
 	//     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
 	//     << " , lastModule = " << lastModule << endl;
+      if(triggerFilterIndices_[trig][filt+1] <= lastModule){//check if filter passed
+	if( triggerFilterIndices_[trig][filt+1] == lastModule && filt == 0 ) continue; // reject to count L1seeds only
+	if( triggerFilterIndices_[trig][filt+1] == lastModule && !trh->accept(HLTPathsByIndex_[trig]) ) continue; // reject to count events which didn't pass final filter 
 	if(hSubFilterCount[trig]){
 	  int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());
 	  hSubFilterCount[trig]->Fill(binNumber-1);
 	}
       }
     }
+    hSubFilterCount[trig]->Fill(-1);
 
   }
 

@@ -44,7 +44,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
 { 
   L1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v1 * raw 
+  ScalersEventRecordRaw_v1 * raw 
     = (struct ScalersEventRecordRaw_v1 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
@@ -53,7 +53,7 @@ L1TriggerScalers::L1TriggerScalers(const unsigned char * rawData)
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
 
   version_ = raw->version;
-  if ( ( version_ == 1 ) || ( version_ == 2 ) )
+  if ( version_ >= 1 )
   {
     collectionTimeSpecial_.set_tv_sec( static_cast<long>(
       raw->trig.collectionTimeSpecial_sec));

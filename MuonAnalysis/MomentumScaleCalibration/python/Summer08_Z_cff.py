@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(
-    "file:/data2/demattia/Data/Z/Filter_Z_10.root",
     "file:/data2/demattia/Data/Z/Filter_Z_11.root",
     "file:/data2/demattia/Data/Z/Filter_Z_12.root",
     "file:/data2/demattia/Data/Z/Filter_Z_13.root",
@@ -28,7 +27,6 @@ source = cms.Source("PoolSource",
     "file:/data2/demattia/Data/Z/Filter_Z_31.root",
     "file:/data2/demattia/Data/Z/Filter_Z_32.root",
     "file:/data2/demattia/Data/Z/Filter_Z_33.root",
-    "file:/data2/demattia/Data/Z/Filter_Z_34.root",
     "file:/data2/demattia/Data/Z/Filter_Z_35.root",
     "file:/data2/demattia/Data/Z/Filter_Z_36.root",
     "file:/data2/demattia/Data/Z/Filter_Z_37.root",
@@ -50,7 +48,6 @@ source = cms.Source("PoolSource",
     "file:/data2/demattia/Data/Z/Filter_Z_5.root",
     "file:/data2/demattia/Data/Z/Filter_Z_6.root",
     "file:/data2/demattia/Data/Z/Filter_Z_7.root",
-    "file:/data2/demattia/Data/Z/Filter_Z_8.root",
-    "file:/data2/demattia/Data/Z/Filter_Z_9.root"
+    "file:/data2/demattia/Data/Z/Filter_Z_8.root"
     )
                     )

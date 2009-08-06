@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ewkDQM = cms.EDAnalyzer("EwkDQM",
             elecTriggerPathToPass    = cms.string("HLT_Ele10_LW_L1R"),
             muonTriggerPathToPass    = cms.string("HLT_Mu9"),
-            triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
+            triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT8E29"),
             muonCollection           = cms.InputTag("muons"),
             electronCollection       = cms.InputTag("gsfElectrons"),
             caloJetCollection        = cms.InputTag("sisCone5CaloJets"),

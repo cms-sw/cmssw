@@ -1,10 +1,10 @@
-// $Id: RBCPatternLogic.cc,v 1.2 2009/05/16 19:43:32 aosorio Exp $
+// $Id: $
 // Include files 
 
 
 
 // local
-#include "L1Trigger/RPCTechnicalTrigger/interface/RBCPatternLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/RBCPatternLogic.h"
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : RBCPatternLogic
@@ -42,13 +42,4 @@ void RBCPatternLogic::process( const RBCInput & _input, std::bitset<2> & _decisi
   //....
 
 
-}
-
-void RBCPatternLogic::setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & specs )
-{
-  
-  
-  
-  
-  
 }

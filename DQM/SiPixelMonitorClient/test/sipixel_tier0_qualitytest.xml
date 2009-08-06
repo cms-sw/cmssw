@@ -5,34 +5,34 @@
 <!-- adc in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:adc" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">63.0</PARAM> 
-     <PARAM name="ymax">142.0</PARAM> 
+     <PARAM name="ymin">20.0</PARAM> 
+     <PARAM name="ymax">80.0</PARAM> 
 </QTEST>
 <!-- ndigis in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:ndigis" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">0.5</PARAM> 
-     <PARAM name="ymax">10.0</PARAM> 
+     <PARAM name="ymin">0.9</PARAM> 
+     <PARAM name="ymax">7.0</PARAM> 
 </QTEST>
 <!-- ncluster in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:ncluster" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="ymin">1.5</PARAM> 
-     <PARAM name="ymax">1.8</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">0.9</PARAM> 
+     <PARAM name="ymax">2.0</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelBarrel: -->
-<QTEST name="Yrange:Barrel:nRecHits" activate="true"> 
+<QTEST name="Yrange:Barrel:nRecHits" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">0.500003</PARAM> 
@@ -41,15 +41,24 @@
 <!-- charge in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:charge" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="ymin">7.0</PARAM> 
-     <PARAM name="ymax">66.0</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">4.0</PARAM> 
+     <PARAM name="ymax">40.0</PARAM> 
+</QTEST>
+<!-- size in PixelBarrel: -->
+<QTEST name="Yrange:Barrel:size" activate="true"> 
+     <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">0.9</PARAM> 
+     <PARAM name="ymax">6.0</PARAM> 
 </QTEST>
 <!-- YRange in LAYER: -->
 <!-- size in Layer: -->
-<QTEST name="Yrange:Layer:size" activate="true"> 
+<QTEST name="Yrange:Layer:size" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -58,7 +67,7 @@
      <PARAM name="ymax">5.9</PARAM> 
 </QTEST>
 <!-- sizeX in Layer: -->
-<QTEST name="Yrange:Layer:sizeX" activate="true"> 
+<QTEST name="Yrange:Layer:sizeX" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -67,7 +76,7 @@
      <PARAM name="ymax">4.2</PARAM> 
 </QTEST>
 <!-- sizeY in Layer: -->
-<QTEST name="Yrange:Layer:sizeY" activate="true"> 
+<QTEST name="Yrange:Layer:sizeY" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -77,7 +86,7 @@
 </QTEST>
 <!-- MeanWithInExpected in LADDER: -->
 <!-- adc in Ladder: -->
-<QTEST name="MeanExp:Ladder:adc" activate="true"> 
+<QTEST name="MeanExp:Ladder:adc" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -89,7 +98,7 @@
      <PARAM name="xmax">142.0</PARAM> 
 </QTEST>
 <!-- ndigis in Ladder: -->
-<QTEST name="MeanExp:Ladder:ndigis" activate="true"> 
+<QTEST name="MeanExp:Ladder:ndigis" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -101,7 +110,7 @@
      <PARAM name="xmax">7.0</PARAM> 
 </QTEST>
 <!-- nclusters in Ladder: -->
-<QTEST name="MeanExp:Ladder:nclusters" activate="true"> 
+<QTEST name="MeanExp:Ladder:nclusters" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -113,7 +122,7 @@
      <PARAM name="xmax">1.7</PARAM> 
 </QTEST>
 <!-- nRecHits in Ladder: -->
-<QTEST name="MeanExp:Ladder:nRecHits" activate="true"> 
+<QTEST name="MeanExp:Ladder:nRecHits" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -125,7 +134,7 @@
      <PARAM name="xmax">0.500017</PARAM> 
 </QTEST>
 <!-- charge in Ladder: -->
-<QTEST name="MeanExp:Ladder:charge" activate="true"> 
+<QTEST name="MeanExp:Ladder:charge" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -137,7 +146,7 @@
      <PARAM name="xmax">65.0</PARAM> 
 </QTEST>
 <!-- size in Ladder: -->
-<QTEST name="MeanExp:Ladder:size" activate="true"> 
+<QTEST name="MeanExp:Ladder:size" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -149,7 +158,7 @@
      <PARAM name="xmax">5.9</PARAM> 
 </QTEST>
 <!-- sizeX in Ladder: -->
-<QTEST name="MeanExp:Ladder:sizeX" activate="true"> 
+<QTEST name="MeanExp:Ladder:sizeX" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -161,7 +170,7 @@
      <PARAM name="xmax">4.2</PARAM> 
 </QTEST>
 <!-- sizeY in Ladder: -->
-<QTEST name="MeanExp:Ladder:sizeY" activate="true"> 
+<QTEST name="MeanExp:Ladder:sizeY" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -177,34 +186,34 @@
 <!-- adc in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:adc" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">1.0</PARAM> 
-     <PARAM name="ymax">124.0</PARAM> 
+     <PARAM name="ymin">70.0</PARAM> 
+     <PARAM name="ymax">130.0</PARAM> 
 </QTEST>
 <!-- ndigis in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:ndigis" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="ymin">0.1</PARAM> 
-     <PARAM name="ymax">10.0</PARAM> 
+     <PARAM name="ymin">0.9</PARAM> 
+     <PARAM name="ymax">8.0</PARAM> 
 </QTEST>
 <!-- nclusters in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:nclusters" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="ymin">0.02</PARAM> 
-     <PARAM name="ymax">2.21</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">0.9</PARAM> 
+     <PARAM name="ymax">2.0</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelEndcap: -->
-<QTEST name="Yrange:Endcap:nRecHits" activate="true"> 
+<QTEST name="Yrange:Endcap:nRecHits" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="useEmptyBins">1</PARAM>
+     <PARAM name="useEmptyBins">0</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">0.5000</PARAM> 
@@ -213,15 +222,24 @@
 <!-- charge in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:charge" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="useEmptyBins">1</PARAM>
-     <PARAM name="warning">0.95</PARAM> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">7.0</PARAM> 
+     <PARAM name="ymax">50.0</PARAM> 
+</QTEST>
+<!-- size in PixelEndcap: -->
+<QTEST name="Yrange:Endcap:size" activate="true"> 
+     <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">0</PARAM>
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.2</PARAM> 
-     <PARAM name="ymax">95.0</PARAM> 
+     <PARAM name="ymax">10.0</PARAM> 
 </QTEST>
 <!-- YRange in DISK: -->
 <!-- size in Disk: -->
-<QTEST name="Yrange:Disk:size" activate="true"> 
+<QTEST name="Yrange:Disk:size" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -230,7 +248,7 @@
      <PARAM name="ymax">10.0</PARAM> 
 </QTEST>
 <!-- sizeX in Disk: -->
-<QTEST name="Yrange:Disk:sizeX" activate="true"> 
+<QTEST name="Yrange:Disk:sizeX" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -239,7 +257,7 @@
      <PARAM name="ymax">4.5</PARAM> 
 </QTEST>
 <!-- sizeY in Disk: -->
-<QTEST name="Yrange:Disk:sizeY" activate="true"> 
+<QTEST name="Yrange:Disk:sizeY" activate="false"> 
      <TYPE>ContentsYRange</TYPE> 
      <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.80</PARAM> 
@@ -249,7 +267,7 @@
 </QTEST>
 <!-- MeanWithInExpected in BLADE: -->
 <!-- adc in Blade: -->
-<QTEST name="MeanExp:Blade:adc" activate="true"> 
+<QTEST name="MeanExp:Blade:adc" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -261,7 +279,7 @@
      <PARAM name="xmax">124.0</PARAM> 
 </QTEST>
 <!-- ndigis in Blade: -->
-<QTEST name="MeanExp:Blade:ndigis" activate="true"> 
+<QTEST name="MeanExp:Blade:ndigis" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -273,7 +291,7 @@
      <PARAM name="xmax">9.8</PARAM> 
 </QTEST>
 <!-- nclusters in Blade: -->
-<QTEST name="MeanExp:Blade:nclusters" activate="true"> 
+<QTEST name="MeanExp:Blade:nclusters" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -285,7 +303,7 @@
      <PARAM name="xmax">2.2</PARAM> 
 </QTEST>
 <!-- nRecHits in Blade: -->
-<QTEST name="MeanExp:Blade:nRecHits" activate="true"> 
+<QTEST name="MeanExp:Blade:nRecHits" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -297,7 +315,7 @@
      <PARAM name="xmax">0.5006</PARAM> 
 </QTEST>
 <!-- charge in Blade: -->
-<QTEST name="MeanExp:Blade:charge" activate="true"> 
+<QTEST name="MeanExp:Blade:charge" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -309,7 +327,7 @@
      <PARAM name="xmax">94.6</PARAM> 
 </QTEST>
 <!-- size in Blade: -->
-<QTEST name="MeanExp:Blade:size" activate="true"> 
+<QTEST name="MeanExp:Blade:size" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -321,7 +339,7 @@
      <PARAM name="xmax">10.0</PARAM> 
 </QTEST>
 <!-- sizeX in Blade: -->
-<QTEST name="MeanExp:Blade:sizeX" activate="true"> 
+<QTEST name="MeanExp:Blade:sizeX" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -333,7 +351,7 @@
      <PARAM name="xmax">4.5</PARAM> 
 </QTEST>
 <!-- sizeY in Blade: -->
-<QTEST name="MeanExp:Blade:sizeY" activate="true"> 
+<QTEST name="MeanExp:Blade:sizeY" activate="false"> 
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
@@ -353,49 +371,17 @@
 <LINK name="*Barrel/*SUMOFF_ndigis_*"> 
   <TestName activate="true">Yrange:Barrel:ndigis</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_nclusters_*"> 
+<LINK name="*Barrel/*SUMOFF_nclusters_OnTrack_*"> 
   <TestName activate="true">Yrange:Barrel:ncluster</TestName> 
 </LINK>
 <LINK name="*Barrel/*SUMOFF_nRecHits_*"> 
-  <TestName activate="true">Yrange:Barrel:nRecHits</TestName> 
+  <TestName activate="false">Yrange:Barrel:nRecHits</TestName> 
 </LINK>
-<LINK name="*Barrel/*SUMOFF_charge_*"> 
+<LINK name="*Barrel/*SUMOFF_charge_OnTrack_*"> 
   <TestName activate="true">Yrange:Barrel:charge</TestName> 
 </LINK>
-<!-- YRange in LAYER: they are ready for run on each level when bug for size hist will be fix -->
-<LINK name="*Barrel/*SUMOFF_size_*"> 
-  <TestName activate="true">Yrange:Layer:size</TestName> 
-</LINK>
-<LINK name="*Barrel/*SUMOFF_sizeX_*"> 
-  <TestName activate="true">Yrange:Layer:sizeX</TestName> 
-</LINK>
-<LINK name="*Barrel/*SUMOFF_sizeY_*"> 
-  <TestName activate="true">Yrange:Layer:sizeY</TestName> 
-</LINK>
-<!-- MeanWithInExpected in LADDER: -->
-<LINK name="*Ladder*/adc_*"> 
-  <TestName activate="true">MeanExp:Ladder:adc</TestName> 
-</LINK>
-<LINK name="*Ladder*/ndigis_*"> 
-  <TestName activate="true">MeanExp:Ladder:ndigis</TestName> 
-</LINK>
-<LINK name="*Ladder*/nclusters_*"> 
-  <TestName activate="true">MeanExp:Ladder:nclusters</TestName> 
-</LINK>
-<LINK name="*Ladder*/nRecHits_*"> 
-  <TestName activate="true">MeanExp:Ladder:nRecHits</TestName> 
-</LINK>
-<LINK name="*Ladder*/charge_*"> 
-  <TestName activate="true">MeanExp:Ladder:charge</TestName> 
-</LINK>
-<LINK name="*Ladder*/size_*"> 
-  <TestName activate="true">MeanExp:Ladder:size</TestName> 
-</LINK>
-<LINK name="*Ladder*/sizeX_*"> 
-  <TestName activate="true">MeanExp:Ladder:sizeX</TestName> 
-</LINK>
-<LINK name="*Ladder*/sizeY_*"> 
-  <TestName activate="true">MeanExp:Ladder:sizeY</TestName> 
+<LINK name="*Barrel/*SUMOFF_size_OnTrack_*"> 
+  <TestName activate="true">Yrange:Barrel:size</TestName> 
 </LINK>
 <!-- LINKS for ENDCAP: -->
 <!-- YRange in ENDCAP: -->
@@ -405,48 +391,16 @@
 <LINK name="*Endcap/*SUMOFF_ndigis_*"> 
   <TestName activate="true">Yrange:Endcap:ndigis</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_nclusters_*"> 
+<LINK name="*Endcap/*SUMOFF_nclusters_OnTrack_*"> 
   <TestName activate="true">Yrange:Endcap:nclusters</TestName> 
 </LINK>
 <LINK name="*Endcap/*SUMOFF_nRecHits_*"> 
-  <TestName activate="true">Yrange:Endcap:nRecHits</TestName> 
+  <TestName activate="false">Yrange:Endcap:nRecHits</TestName> 
 </LINK>
-<LINK name="*Endcap/*SUMOFF_charge_*"> 
+<LINK name="*Endcap/*SUMOFF_charge_OnTrack_*"> 
   <TestName activate="true">Yrange:Endcap:charge</TestName> 
 </LINK>
-<!-- YRange in DISK: they are ready for run on each level when bug for size hist will be fix -->
-<LINK name="*Endcap/*SUMOFF_size_*"> 
-  <TestName activate="true">Yrange:Disk:size</TestName> 
-</LINK>
-<LINK name="*Endcap/*SUMOFF_sizeX_*"> 
-  <TestName activate="true">Yrange:Disk:sizeX</TestName> 
-</LINK>
-<LINK name="*Endcap/*SUMOFF_sizeY_*"> 
-  <TestName activate="true">Yrange:Disk:sizeY</TestName> 
-</LINK>
-<!-- MeanWithinExpected in BLADE: -->
-<LINK name="*Blade*/adc_*"> 
-  <TestName activate="true">MeanExp:Blade:adc</TestName> 
-</LINK>
-<LINK name="*Blade*/ndigis_*"> 
-  <TestName activate="true">MeanExp:Blade:ndigis</TestName> 
-</LINK>
-<LINK name="*Blade*/nclusters_*"> 
-  <TestName activate="true">MeanExp:Blade:nclusters</TestName> 
-</LINK>
-<LINK name="*Blade*/nRecHits_*"> 
-  <TestName activate="true">MeanExp:Blade:nRecHits</TestName> 
-</LINK>
-<LINK name="*Blade*/charge_*"> 
-  <TestName activate="true">MeanExp:Blade:charge</TestName> 
-</LINK>
-<LINK name="*Blade*/size_*"> 
-  <TestName activate="true">MeanExp:Blade:size</TestName> 
-</LINK>
-<LINK name="*Blade*/sizeX_*"> 
-  <TestName activate="true">MeanExp:Blade:sizeX</TestName> 
-</LINK>
-<LINK name="*Blade*/sizeY_*"> 
-  <TestName activate="true">MeanExp:Blade:sizeY</TestName> 
+<LINK name="*Endcap/*SUMOFF_size_OnTrack_*"> 
+  <TestName activate="true">Yrange:Endcap:size</TestName> 
 </LINK>
 </TESTSCONFIGURATION>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.43 2009/07/17 18:25:24 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.44 2009/07/22 15:12:51 amraktad Exp $
 //
 
 // system include files
@@ -42,10 +42,10 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 
-class DetailViewFrame : public TGMainFrame
+class DetailViewFrame : public TGTransientFrame
 {
 public:
-  DetailViewFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1): TGMainFrame(p, w, h) {};
+  DetailViewFrame(const TGWindow *p,UInt_t w = 1,UInt_t h = 1): TGTransientFrame(gClient->GetRoot(), p, w, h) {};
 
   virtual void CloseWindow()
   {
@@ -64,7 +64,9 @@ public:
 //
 // constructors and destructor
 //
-FWDetailViewManager::FWDetailViewManager():
+FWDetailViewManager::FWDetailViewManager(const TGWindow* parentWindow):
+   m_parentWindow(parentWindow),
+
    m_detailView(0),
    m_modeGL(kTRUE),
 
@@ -189,7 +191,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 void
 FWDetailViewManager::createDetailViewFrame()
 {
-   m_mainFrame = new  DetailViewFrame(0, 800, 600);
+   m_mainFrame = new  DetailViewFrame(m_parentWindow, 800, 600);
    Float_t leftW = 2;
    Float_t rightW = 5;
 

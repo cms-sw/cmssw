@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/20 20:02:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/22 15:00:38 $
+ *  $Revision: 1.8 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -90,8 +90,8 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
   h_m2_pt        = theDbe->book1D("h_m2_pt",  "p_{T} of Second Muon;p_{T}(2^{nd} #mu) (GeV)" , 20,  0.0 , 100.0);
   h_m1_eta       = theDbe->book1D("h_m1_eta", "#eta of Leading Muon;#eta(1^{st} #mu)"        , 20, -4.0 , 4.0);
   h_m2_eta       = theDbe->book1D("h_m2_eta", "#eta of Second Muon;#eta(2^{nd} #mu)"         , 20, -4.0 , 4.0);
-  h_m1_phi       = theDbe->book1D("h_m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)"        , 20, -4.0 , 4.0);
-  h_m2_phi       = theDbe->book1D("h_m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)"         , 20, -4.0 , 4.0);
+  h_m1_phi       = theDbe->book1D("h_m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)"        , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
+  h_m2_phi       = theDbe->book1D("h_m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)"         , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
 //  h_t1_et          = theDbe->book1D("h_t1_et",           "E_{T} of Leading Tau;E_{T} (GeV)" , 20, 0.0 , 100.0);
 //  h_t1_eta         = theDbe->book1D("h_t1_eta",          "#eta of Leading Tau;#eta"               , 20, -4.0, 4.0);
 //  h_t1_phi         = theDbe->book1D("h_t1_phi",          "#phi of Leading Tau;#phi"               , 20, -4.0, 4.0);
@@ -110,7 +110,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
   if ( !HLTresults.isValid() ) return;
   HLTConfigProvider hltConfig;
-  hltConfig.init("HLT");
+  hltConfig.init("HLT8E29");
   unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
   unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
   bool passed_electron_HLT = false;

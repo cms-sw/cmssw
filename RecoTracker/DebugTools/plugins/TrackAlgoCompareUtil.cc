@@ -15,8 +15,7 @@ TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig)
     vertexLabel_algoA = iConfig.getParameter<edm::InputTag>("vertexLabel_algoA");
     vertexLabel_algoB = iConfig.getParameter<edm::InputTag>("vertexLabel_algoB");
     beamSpotLabel = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-    assocLabel_algoA = iConfig.getUntrackedParameter<std::string>("assocLabel_algoA", "TrackAssociatorByHits");
-    assocLabel_algoB = iConfig.getUntrackedParameter<std::string>("assocLabel_algoB", "TrackAssociatorByHits");
+    assocLabel = iConfig.getUntrackedParameter<std::string>("assocLabel", "TrackAssociator");
     associatormap_algoA = iConfig.getParameter< edm::InputTag >("associatormap_algoA");
     associatormap_algoB = iConfig.getParameter< edm::InputTag >("associatormap_algoB");
     UseAssociators = iConfig.getParameter< bool >("UseAssociators");
@@ -82,17 +81,14 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if(UseAssociators)
     {
-        edm::ESHandle<TrackAssociatorBase> theAssociator_algoA;
-        iSetup.get<TrackAssociatorRecord>().get(assocLabel_algoA, theAssociator_algoA);
+        edm::ESHandle<TrackAssociatorBase> theAssociator;
+        iSetup.get<TrackAssociatorRecord>().get(assocLabel, theAssociator);
   
-        edm::ESHandle<TrackAssociatorBase> theAssociator_algoB;
-        iSetup.get<TrackAssociatorRecord>().get(assocLabel_algoB, theAssociator_algoB);
-  
-        recSimColl_AlgoA = theAssociator_algoA->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes, &iEvent);
-        recSimColl_AlgoB = theAssociator_algoB->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes, &iEvent);
+        recSimColl_AlgoA = theAssociator->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes, &iEvent);
+        recSimColl_AlgoB = theAssociator->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes, &iEvent);
 
-        simRecColl_AlgoA = theAssociator_algoA->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic, &iEvent);
-        simRecColl_AlgoB = theAssociator_algoB->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic, &iEvent);
+        simRecColl_AlgoA = theAssociator->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic, &iEvent);
+        simRecColl_AlgoB = theAssociator->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic, &iEvent);
     }
     else
     {

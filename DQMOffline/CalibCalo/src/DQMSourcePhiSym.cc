@@ -4,8 +4,8 @@
  * \author Andrea Gozzelino - Universita  e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2008/08/13 09:20:27 $
- * $Revision: 1.1 $
+ * $Date: 2008/06/18 15:19:19 $
+ * $Revision: 1.4 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -61,8 +61,8 @@ eventCounter_(0)
     
   // Distribution of rechits in iEta
   hiEtaDistrEB_nbin_= ps.getUntrackedParameter<int>("hiEtaDistrEB_nbin",171); 
-  hiEtaDistrEB_min_ = ps.getUntrackedParameter<double>("hiEtaDistrEB_min",-85);
-  hiEtaDistrEB_max_ = ps.getUntrackedParameter<double>("hiEtaDistrEB_max",85);
+  hiEtaDistrEB_min_ = ps.getUntrackedParameter<double>("hiEtaDistrEB_min",1.);
+  hiEtaDistrEB_max_ = ps.getUntrackedParameter<double>("hiEtaDistrEB_max",171.);
   
   // Energy Distribution of rechits  
   hRechitEnergyEB_nbin_=ps.getUntrackedParameter<int>("hRechitEnergyEB_nbin",160);

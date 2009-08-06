@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2009/02/17 13:40:43 $
- * $Revision: 1.21 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.19 $
  *
  */
 
@@ -60,10 +60,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 	     collNotFoundWarn_),
   eeSrFlags_(ps.getParameter<edm::InputTag>("EeSrFlagCollection"), false,
 	     collNotFoundWarn_),
-  ebSrFlagsFromTT_(ps.getParameter<edm::InputTag>("EbSrFlagFromTTCollection"), false,
-		   collNotFoundWarn_),
-  eeSrFlagsFromTT_(ps.getParameter<edm::InputTag>("EeSrFlagFromTTCollection"), false,
-		   collNotFoundWarn_),
   ebSimHits_(ps.getParameter<edm::InputTag>("EbSimHitCollection"), false,
 	     collNotFoundWarn_),
   eeSimHits_(ps.getParameter<edm::InputTag>("EeSimHitCollection"), false,
@@ -85,21 +81,11 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   allHists_(false),
   histDir_(ps.getParameter<string>("histDir")){
 
-  //ASCII file name
-  asciiOutputFileName_ =ps.getUntrackedParameter<string>("asciiOutputFile",""); 
-
-  //RU ASCII file name
-  asciiRUOutputFileName_ = ps.getUntrackedParameter<string>("asciiRUOuputFile","");
-
-  //Skipping Inner SC
-  SkipInnerSC_ = ps.getUntrackedParameter<bool>("skipInnerSC","");
-
   //FIR ZS weights
   configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  
   
   if(outputFile_.size() != 0){
     LogInfo("OutputInfo") << " Ecal Digi Task histograms will be saved to '"
@@ -284,7 +270,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		    "iPhi;"
 		    "iEta;"
 		    "Event count",
-		    72, 1, 73, 52, -26, 26) ;
+		    72, 1, 73, 38, -19, 19) ;
   
 
   const float ebMinE = 0.;
@@ -397,58 +383,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 			      "energy;Esim (GeV);Erec GeV);Event count",
 			      100, eeMinE, eeMaxE,
 			      100, eeMinE, eeMaxE);
-
- //Consistency histos for SRflags/TTFlags
-
-  meSRFlagsFromData_ = book2D("hSRFlagsFromData",
-			      "SR Flags from data;"
-			      "iX-40 / iEta / iX0 + 20 ;"
-			      "iY / iPhi (starting from 1);",
-			      91, -45.5, 45.5,
-			      73, -.5, 72.5);
-
-  meSRFlagsComputed_ =  book2D("hSRFlagsComputed",
-			       "SR Flags Computed from TT Flags;"
-			       "iX-40 / iEta / iX0 + 20 ;"
-			       "iY / iPhi (starting from 1);",
-			       91, -45.5, 45.5,
-			       73, -.5,72.5);
-  
-  meSRFlagsConsistency_ = book2D("hSRFlagsConsistency",
-				 "Consitency between TTFlags and SR Flags;"
-				 "iX-40 / iEta / iX0 + 20 ;"
-				 "iY / iPhi (starting from 1);"
-				 "Event count",
-				 91, -45.5, 45.5,
-				 73, -.5, 72.5);
-  
-  //Readout Units histos (interest/Ncrystals)
-  meIncompleteFRO_ = book2D("hIncompleteFRO",
-			    "Incomplete full-readout-flagged readout units;"
-			    "iX-40 / iEta / iX0 + 20 ;"
-			    "iY / iPhi (starting from 1);"
-			    "Event count",
-			    91, -45.5, 45.5,
-			    73, -.5, 72.5);
-  
-  meDroppedFRO_ = book2D("hDroppedFRO",
-			 "Dropped full-readout-flagged readout units"
-			 "iX-40 / iEta / iX0 + 20 ;"
-			 "iY / iPhi (starting from 1);"
-			 "Event count",
-			 91, -45.5, 45.5,
-			 73, -.5, 72.5);
-
-  
-  meCompleteZS_ = book2D("hCompleteZS",
-			 "Complete zero-suppressed-flagged readout units;"
-			 "iX-40 / iEta / iX0 + 20 ;"
-			 "iY / iPhi (starting from 1);"
-			 "Event count",
-			 91, -45.5, 45.5,
-			 73, -.5, 72.5);
-  
-
   //print list of available histograms (must be called after
   //the bookXX methods):
   printAvailableHists();
@@ -490,10 +424,6 @@ void EcalSelectiveReadoutValidation::analyze(const Event& event,
   
   //TP
   analyzeTP(event, es);
-
-  //SR Consistency and validation
-  SRFlagValidation(event,es);
-
 }
 
 
@@ -588,12 +518,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
     int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
     int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
     if(iX0<0 || iX0>=nEeX){
-      cout << "iX0 (= " << iX0 << ") is out of range ("
-	   << "[0," << nEeX -1 << "]\n";
+        cout << "iX0 (= " << iX0 << ") is out of range ("
+             << "[0," << nEeX -1 << "]\n";
     }
     if(iY0<0 || iY0>=nEeY){
-      cout << "iY0 (= " << iY0 << ") is out of range ("
-	   << "[0," << nEeY -1 << "]\n";
+        cout << "iY0 (= " << iY0 << ") is out of range ("
+             << "[0," << nEeY -1 << "]\n";
     }
     //    cout << "EE zs Energy computation...";
     if(localReco_){
@@ -601,41 +531,22 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
     }
     fill(meChOcc_, iX0 + iZ0*310, iY0);
     
-    bool skipInnerDigi = false; //to debug
     EESrFlagCollection::const_iterator srf
-	  = eeSrFlags_->find(readOutUnitOf(frame.id()));
-   
-	
-	if(srf == eeSrFlags_->end()){
-	  if(SkipInnerSC_)
-	    skipInnerDigi=true;
-	  else
-	    throw cms::Exception("EcalSelectiveReadoutValidation")
-	      << __FILE__ << ":" << __LINE__ << ": SR flag not found";
-	}
-	
-	if(!skipInnerDigi)  //to debug
-	  {
-	    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-				 == EcalSrFlag::SRF_FULL);
-	    int RUix = srf->id().ix() -1;
-	    int RUiy = srf->id().iy() -1;
-	    int RUiz = srf->id().zside()>0?1:0;
-
-
-	    if(highInterest){
-	      fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-
-	      //Making RU SRF vs the number of crystals read in the same RU.
-	      EENxtal_HIRU_[RUix][RUiy][RUiz] +=1;
-	    } else{
-	      fill(meEeLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-
-	      //Making RU SRF vs the number of crystals read in the same RU.
-	      EENxtal_LIRU_[RUix][RUiy][RUiz] +=1;
-	    }
-	    skipInnerDigi=false;
-	  }
+      = eeSrFlags_->find(readOutUnitOf(frame.id()));
+    
+    if(srf == eeSrFlags_->end()){
+	throw cms::Exception("EcalSelectiveReadoutValidation")
+	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+    }
+      
+    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+			 == EcalSrFlag::SRF_FULL);
+      
+    if(highInterest){
+      fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    } else{
+      fill(meEeLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+    }
   } //next ZS digi.
   
   for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
@@ -646,7 +557,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
         fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
 	
         fill(meEeEMean_, ievt_+1,
-	     eeEnergies[iZ0][iX0][iY0].recE);
+			 eeEnergies[iZ0][iX0][iY0].recE);
         
         if(!eeEnergies[iZ0][iX0][iY0].simHit){//noise only crystal channel
           fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
@@ -655,32 +566,12 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
           fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
         }
 	fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-	     eeEnergies[iZ0][iX0][iY0].recE);
+			     eeEnergies[iZ0][iX0][iY0].recE);
 	fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-	     eeEnergies[iZ0][iX0][iY0].noZsRecE); 
+				 eeEnergies[iZ0][iX0][iY0].noZsRecE); 
       }
     }
   }
-  
-  //Filling RU histo
-  /* for(EESrFlagCollection::const_iterator it = eeSrFlags_->begin();
-      it != eeSrFlags_->end(); ++it){
-    const EESrFlag& srf = *it;
-    int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-    int iX = srf.id().ix();
-    int iY = srf.id().iy();
-    int iZ = srf.id().zside()>0?20:-40;
-    int iX0 = iX -1;
-    int iY0 = iY -1;
-    int iZ0 = iZ >0?1:0;
-
-    if(flag==EcalSrFlag::SRF_FULL && EENxtal_HIRU_[iX0][iY0][iZ0]!=nXtalRU)
-      fill(meIncompleteFRO_, iX+iZ, iY);
-    if(flag==EcalSrFlag::SRF_ZS1 && EENxtal_LIRU_[iX0][iY0][iZ0]==nXtalRU)
-      fill(meCompleteZS_, iX+iZ, iY);
-
-  }*/
-  
 } //end of analyzeEE
 
 void
@@ -706,8 +597,8 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   CaloSubdetectorGeometry const& geometry = *geometry_p;
   
   //EB unsuppressed digis:
-  for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();
-      it != ebNoZsDigis_->end(); ++it){
+  for(EBDigiCollection::const_iterator it = ebDigis_->begin();
+      it != ebDigis_->end(); ++it){
     const EBDataFrame& frame = *it;
     int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
     int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());
@@ -771,50 +662,39 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 	     << "[0," << nEbEta -1 << "]");
     }
     if(iPhi0<0 || iPhi0>=nEbPhi){
-      throw (cms::Exception("EcalSelectiveReadoutValidation")
-	     << "iPhi0 (= " << iPhi0 << ") is out of range ("
-	     << "[0," << nEbPhi -1 << "]");
-    }
-    assert(iEta0>=0 && iEta0<nEbEta);
-    assert(iPhi0>=0 && iPhi0<nEbPhi);
-    if(!crystalShot[iEta0][iPhi0]){
-      crystalShot[iEta0][iPhi0] = true;
-    } else{
-      cout << "Error: several digi for same crystal!";
-      abort();
-    }
-    if(localReco_){
-      ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
-    }
-    fill(meChOcc_, iEta0+120, iPhi0);
-    EBSrFlagCollection::const_iterator srf
-      = ebSrFlags_->find(readOutUnitOf(frame.id()));
+	throw (cms::Exception("EcalSelectiveReadoutValidation")
+	       << "iPhi0 (= " << iPhi0 << ") is out of range ("
+	       << "[0," << nEbPhi -1 << "]");
+      }
+      assert(iEta0>=0 && iEta0<nEbEta);
+      assert(iPhi0>=0 && iPhi0<nEbPhi);
+      if(!crystalShot[iEta0][iPhi0]){
+        crystalShot[iEta0][iPhi0] = true;
+      } else{
+        cout << "Error: several digi for same crystal!";
+        abort();
+      }
+      if(localReco_){
+        ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
+      }
+      fill(meChOcc_, iEta0+120, iPhi0);
+      EBSrFlagCollection::const_iterator srf
+	= ebSrFlags_->find(readOutUnitOf(frame.id()));
       
-    if(srf == ebSrFlags_->end()){
-      throw cms::Exception("EcalSelectiveReadoutValidation")
-	<< __FILE__ << ":" << __LINE__ << ": SR flag not found";
-    }
+      if(srf == ebSrFlags_->end()){
+	throw cms::Exception("EcalSelectiveReadoutValidation")
+	  << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+      }
       
-    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-			 == EcalSrFlag::SRF_FULL);
-    int RUieta = iTTEta2cIndex(srf->id().ieta());
-    int RUiphi = iTTPhi2cIndex(srf->id().iphi()); 
+      bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+			   == EcalSrFlag::SRF_FULL);
       
-    if(highInterest){
-      fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-      
-      //Making RU SRF vs the number of crystals read in the same RU.
-      EBNxtal_HIRU_[RUieta][RUiphi] +=1;
-
-    } else{
-      fill(meEbLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-
-      //Making RU SRF vs the number of crystals read in the same RU.
-      EBNxtal_LIRU_[RUieta][RUiphi] +=1;
-    }
+      if(highInterest){
+	fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      } else{
+	fill(meEbLiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      }
   } //next EB digi
-
-
 
   if(!localReco_){
     for(EcalRecHitCollection::const_iterator it
@@ -880,20 +760,10 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
     if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
       fill(meForcedTt_, iPhi, iEta);
     }
-
-    //Filling RU histos
-    /* int iEta0=iTTEta2cIndex(iEta);
-    int iPhi0=iTTPhi2cIndex(iPhi);
-    if(flag == EcalSrFlag::SRF_FULL && EBNxtal_HIRU_[iEta0][iPhi0]!=nXtalRU)
-      fill(meIncompleteFRO_, iEta, iPhi);
-    
-    if(flag == EcalSrFlag::SRF_ZS1 && EBNxtal_LIRU_[iEta0][iPhi0]==nXtalRU)
-    fill(meCompleteZS_, iEta, iPhi);*/
   }
 }
 
-EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){
-  normalizeHists(ievt_);
+EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){ 
   if(outputFile_.size()!=0) dbe_->save(outputFile_);
 }
 
@@ -907,246 +777,9 @@ void EcalSelectiveReadoutValidation::beginJob(const EventSetup& setup){
   ESHandle< EcalElectronicsMapping > ecalmapping;
   setup.get< EcalMappingRcd >().get(ecalmapping);
   elecMap_ = ecalmapping.product();
-
-  initAsciiFile();
-  file << "RUN" << setw(11) << "EVENT" << setw(13) << "NBadTowers" ;
-  file << setw(25) << "Bad Trigger Towers" ; 
-  file <<endl;
-
-  RUfile << "RUN" << setw(11) << "EVENT" << setw(15) << "NReadoutUnit" ;
-  RUfile << setw(20) << " Readout Unit" ; 
-  RUfile <<endl;
-
 }
 
 void EcalSelectiveReadoutValidation::endJob(){
-
- 
-
-  file.close();
-  RUfile.close();
-}
-
-void
-EcalSelectiveReadoutValidation::SRFlagValidation(const edm::Event& event,
-						 const edm::EventSetup& es){
-  
-  int NTower=0; int NTower_forced=0;
-  vector <vector<int> > EBTower;
-  vector<int> temp(2,-100);
-
-  for(EBSrFlagCollection::const_iterator it = ebSrFlags_->begin();
-      it != ebSrFlags_->end(); ++it){
-    const EBSrFlag& srf_sr = *it;
-     int iEta_sr = static_cast<const EcalTrigTowerDetId&>(srf_sr.id()).ieta();
-     int iPhi_sr = static_cast<const EcalTrigTowerDetId&>(srf_sr.id()).iphi();
-     int flag_sr = srf_sr.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-     bool forced_sr = srf_sr.value() & EcalSrFlag::SRF_FORCED_MASK;
-    
-    fill(meSRFlagsFromData_,iEta_sr,iPhi_sr,flag_sr+forced_sr); 
-    
-    for(EBSrFlagCollection::const_iterator it2 = ebSrFlagsFromTT_->begin();
-	it2 != ebSrFlagsFromTT_->end(); ++it2){
-      const EBSrFlag& srf_tt = *it2;
-      int flag_tt = srf_tt.value() & ~EcalSrFlag::SRF_FORCED_MASK; 
-      bool forced_tt = srf_tt.value() & EcalSrFlag::SRF_FORCED_MASK;
-    
-      if(srf_tt.id()==srf_sr.id())
-	{
-	  fill(meSRFlagsComputed_,iEta_sr,iPhi_sr,flag_tt+forced_tt);
-	  if(flag_sr!=flag_tt || forced_sr)
-	    {
-	      fill(meSRFlagsConsistency_,iEta_sr,iPhi_sr);
-	    }
-	  if(flag_sr!=flag_tt)
-	    {
-	      if(forced_sr)
-		NTower_forced++;
-	      else
-		{
-		  NTower++;
-		  temp[0]=static_cast<const EcalTrigTowerDetId&>(srf_sr.id()).iDCC();
-		  temp[1]=static_cast<const EcalTrigTowerDetId&>(srf_sr.id()).iTT();
-		  EBTower.push_back(temp);
-		}
-	    }
-	  break;
-	}
-    }
-  }
-
-vector <vector<int> > EETower;
-
- for(EESrFlagCollection::const_iterator it = eeSrFlags_->begin();
-      it != eeSrFlags_->end(); ++it){
-    const EESrFlag& srf_sr = *it;
-    int iX_sr = static_cast<const EcalScDetId&>(srf_sr.id()).ix();
-    int iY_sr = static_cast<const EcalScDetId&>(srf_sr.id()).iy();
-    int iZ_sr = static_cast<const EcalScDetId&>(srf_sr.id()).zside()>0?20:-40;
-   
-    int flag_sr = srf_sr.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-     bool forced_sr = srf_sr.value() & EcalSrFlag::SRF_FORCED_MASK;
-     
-    fill(meSRFlagsFromData_,iX_sr+iZ_sr,iY_sr,flag_sr); 
-    
-    for(EESrFlagCollection::const_iterator it2 = eeSrFlagsFromTT_->begin();
-	it2 != eeSrFlagsFromTT_->end(); ++it2){
-      const EESrFlag& srf_tt = *it2;
-      
-      int flag_tt = srf_tt.value() & ~EcalSrFlag::SRF_FORCED_MASK; 
-      
-      if(srf_tt.id()==srf_sr.id())
-	{
-	  fill(meSRFlagsComputed_,iX_sr+iZ_sr,iY_sr,flag_tt);
-	  if(flag_sr!=flag_tt || forced_sr)
-	    {
-	      fill(meSRFlagsConsistency_,iX_sr+iZ_sr,iY_sr);
-	    }
-	  if(flag_sr!=flag_tt)
-	    {
-	      if(forced_sr)
-		NTower_forced++;
-	      else
-		{
-		  NTower++;
-		  temp[0] = static_cast<const EcalScDetId&>(srf_sr.id()).zside();
-		  temp[1] = static_cast<const EcalScDetId&>(srf_sr.id()).isc();
-		  EETower.push_back(temp);
-		}	 
-	    }
-	  break;
-	}
-    }
- }
-
- file << event.run() << setw(9) << event.eventAuxiliary().event()
-      << setw(7) << NTower << setw(4) <<"("<< NTower_forced<<")" <<endl;
-
- file << setw(40) << "Barrel" <<endl;
- for(int unsigned it=0;it<EBTower.size();it++)
-   {
-     file << setw(40) << "DCC : " << setw(3) << EBTower[it][0] << setw(6) 
-	  << "TT : " << setw(2) <<  EBTower[it][1] << endl;
-   }
- file << setw(40) << "Endcap" <<endl;
-  for(int unsigned it=0;it<EETower.size();it++)
-   {
-     file << setw(40) << "Zside : " << setw(3) << EETower[it][0] << setw(6) 
-	  << "SC : " << setw(4) <<  EETower[it][1] << endl;
-   }
-  
-
-
- //Filling RU histo
-  int nRU_HI=0;
-  int nRU_LI=0;
-  int forced_HI=0,forced_LI=0;
-  vector<vector<int> > EBRU_HI,EBRU_LI,EERU_HI,EERU_LI;
-
-  for(EBSrFlagCollection::const_iterator it = ebSrFlags_->begin();
-      it != ebSrFlags_->end(); ++it){
-    const EBSrFlag& srf = *it;
-    int iEta = srf.id().ieta();
-    int iPhi = srf.id().iphi();
-    int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-    bool forced = srf.value() & EcalSrFlag::SRF_FORCED_MASK;
-    int iEta0=iTTEta2cIndex(iEta);
-    int iPhi0=iTTPhi2cIndex(iPhi);
-
-    vector<int> vect_temp(2,-100);
-
-    if(flag == EcalSrFlag::SRF_FULL && EBNxtal_HIRU_[iEta0][iPhi0]!=nXtalRU){
-      nRU_HI++;
-      if(!forced){
-	fill(meIncompleteFRO_, iEta, iPhi);
-	if(EBNxtal_HIRU_[iEta0][iPhi0]==0) fill(meDroppedFRO_, iEta, iPhi);
-	vect_temp[0]=static_cast<const EcalTrigTowerDetId&>(srf.id()).iDCC();
-	vect_temp[1]=static_cast<const EcalTrigTowerDetId&>(srf.id()).iTT();
-	EBRU_HI.push_back(vect_temp);
-      } else {
-	forced_HI +=1;
-      }  
-    }
-    
-    if((flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2)
-       && EBNxtal_LIRU_[iEta0][iPhi0]==nXtalRU){
-      nRU_LI++;
-      if(!forced){
-	fill(meCompleteZS_, iEta, iPhi);
-	vect_temp[0]=static_cast<const EcalTrigTowerDetId&>(srf.id()).iDCC();
-	vect_temp[1]=static_cast<const EcalTrigTowerDetId&>(srf.id()).iTT();
-	EBRU_LI.push_back(vect_temp);
-      } else{
-	forced_LI +=1;
-      }
-    }
-  }
-  
-  for(EESrFlagCollection::const_iterator it = eeSrFlags_->begin();
-      it != eeSrFlags_->end(); ++it){
-    const EESrFlag& srf = *it;
-    int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-    bool forced = srf.value() & EcalSrFlag::SRF_FORCED_MASK;
-    int iX = srf.id().ix();
-    int iY = srf.id().iy();
-    int iZ = srf.id().zside()>0?20:-40;
-    int iX0 = iX -1;
-    int iY0 = iY -1;
-    int iZ0 = iZ >0?1:0;
-    
-    vector<int> vect_temp(2,-100);
-
-    if(flag==EcalSrFlag::SRF_FULL && EENxtal_HIRU_[iX0][iY0][iZ0]!=nXtalRU)
-      {nRU_HI++;
-      if(!forced){
-	fill(meIncompleteFRO_, iX+iZ, iY);
-	vect_temp[0]= static_cast<const EcalScDetId&>(srf.id()).zside();
-	vect_temp[1]= static_cast<const EcalScDetId&>(srf.id()).isc();
-	EERU_HI.push_back(vect_temp);
-      }
-      else forced_HI +=1;
-      }
-    if(flag==EcalSrFlag::SRF_ZS1 && EENxtal_LIRU_[iX0][iY0][iZ0]==nXtalRU)
-      {  nRU_LI++;
-      if(!forced){
-	fill(meCompleteZS_, iX+iZ, iY);
-	
-	vect_temp[0]= static_cast<const EcalScDetId&>(srf.id()).zside();
-	vect_temp[1]= static_cast<const EcalScDetId&>(srf.id()).isc();
-	EERU_LI.push_back(vect_temp);
-      }
-      else forced_LI +=1;
-      }
-  }
-
-  RUfile << event.run() << setw(9) << event.eventAuxiliary().event()
-	 << setw(5) << nRU_HI << "("<<forced_HI<<")" 
-	 << setw(3)<< nRU_LI<< "("<<forced_LI<<")"  <<endl;
-  
- RUfile << setw(40) << "Barrel HI" <<endl;
- for(int unsigned it=0;it<EBRU_HI.size();it++)
-   {
-     RUfile << setw(40) << "DCC : " << setw(3) << EBRU_HI[it][0] << setw(6) 
-	  << "TT : " << setw(2) <<  EBRU_HI[it][1] << endl;
-   }
- RUfile << setw(40) << "Endcap HI" <<endl;
-  for(int unsigned it=0;it<EERU_HI.size();it++)
-   {
-     RUfile << setw(40) << "Zside : " << setw(3) << EERU_HI[it][0] << setw(6) 
-	  << "SC : " << setw(4) <<  EERU_HI[it][1] << endl;
-   }
-  RUfile << setw(40) << "Barrel LI" <<endl;
-  for(int unsigned it=0;it<EBRU_LI.size();it++)
-    {
-      RUfile << setw(40) << "DCC : " << setw(3) << EBRU_LI[it][0] << setw(6) 
-	   << "TT : " << setw(2) <<  EBRU_LI[it][1] << endl;
-    }
-  RUfile << setw(40) << "Endcap LI" <<endl;
-  for(int unsigned it=0;it<EERU_LI.size();it++)
-    {
-      RUfile << setw(40) << "Zside : " << setw(3) << EERU_LI[it][0] << setw(6) 
-	   << "SC : " << setw(4) <<  EERU_LI[it][1] << endl;
-    }
 }
 
 void
@@ -1212,7 +845,6 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
   
   anaDigiInit();
 
-
   //Barrel
   for (unsigned int digis=0; digis<ebDigis_->size(); ++digis){
     EBDataFrame ebdf = (*ebDigis_)[digis];
@@ -1230,7 +862,7 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
     fill(meDccVol_, iDcc+1, getDccEventSize(iDcc, nPerDcc_[iDcc])/kByte_);
     const FEDRawDataCollection& raw = *fedRaw_;
     fill(meDccVolFromData_, iDcc+1,
-	 ((double)raw.FEDData(601+iDcc).size())/kByte_);
+			    ((double)raw.FEDData(601+iDcc).size())/kByte_);
   }
 
 
@@ -1353,15 +985,15 @@ double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) 
 }
   
 int EcalSelectiveReadoutValidation::getRuCount(int iDcc0) const{
-  //   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
-  //   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
-  //   if(iDcc0<9){//EE-
-  //     return nEemRu[iDcc0];
-  //   } else if(iDcc0>=45){//EE+
-  //     return nEepRu[iDcc0-45];
-  //   } else{//EB
-  //     return 68;
-  //   }
+//   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
+//   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
+//   if(iDcc0<9){//EE-
+//     return nEemRu[iDcc0];
+//   } else if(iDcc0>=45){//EE+
+//     return nEepRu[iDcc0-45];
+//   } else{//EB
+//     return 68;
+//   }
   return nRuPerDcc_[iDcc0];
 }
 
@@ -1395,39 +1027,10 @@ unsigned EcalSelectiveReadoutValidation::dccNum(const DetId& xtalId) const{
 EcalScDetId
 EcalSelectiveReadoutValidation::superCrystalOf(const EEDetId& xtalId) const
 {
-
-  const EcalElectronicsId& EcalElecId = elecMap_->getElectronicsId(xtalId);
-  /*const int scEdge = 5;
-  EcalScDetId id = EcalScDetId((xtalId.ix()-1)/scEdge+1,
-  		     (xtalId.iy()-1)/scEdge+1,
-  		     xtalId.zside());
-  co
-  return id;*/
-
-  int iDCC= EcalElecId.dccId();
-  int iDccChan = EcalElecId.towerId();
-  const EcalScDetId id = elecMap_->getEcalScDetId(iDCC, iDccChan);
-
-  if(SkipInnerSC_)
-    {
-      if( (id.ix()>=9 && id.ix()<=12) && (id.iy()>=9 && id.iy()<=12) )
-	return EcalScDetId();
-   else
-     return id;
-    }
-  else
-    {
-      if(id.ix()==9 && id.iy()==9)
-	return EcalScDetId(2,5,xtalId.zside());
-      else if(id.ix()==9 && id.iy()==12)
-	return EcalScDetId(1,13,xtalId.zside());
-      else if(id.ix()==12 && id.iy()==9)
-	return EcalScDetId(19,5,xtalId.zside());
-      else if(id.ix()==12 && id.iy()==12)
-	return EcalScDetId(20,13,xtalId.zside());
-      else
-	return id;
-    }
+  const int scEdge = 5;
+  return EcalScDetId((xtalId.ix()-1)/scEdge+1,
+		     (xtalId.iy()-1)/scEdge+1,
+		     xtalId.zside());
 }
 
 
@@ -1632,8 +1235,6 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
   eeNoZsDigis_.read(event);
   ebSrFlags_.read(event);
   eeSrFlags_.read(event);
-  ebSrFlagsFromTT_.read(event);
-  eeSrFlagsFromTT_.read(event);
   ebSimHits_.read(event);
   eeSimHits_.read(event);
   tps_.read(event);
@@ -1641,16 +1242,16 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
 }
  
 void EcalSelectiveReadoutValidation::printAvailableHists(){
-  LogInfo log("HistoList");
-  log << "Avalailable histograms (DQM monitor elements): \n";
-  for(map<string, string>::iterator it = availableHistList_.begin();
-      it != availableHistList_.end();
-      ++it){
-    log << it->first << ": " << it->second << "\n";
-  }
-  log << "\nTo include an histogram add its name in the vstring parameter "
-    "'histograms' of the EcalSelectiveReadoutValidation module\n";
-}
+   LogInfo log("HistoList");
+   log << "Avalailable histograms (DQM monitor elements): \n";
+   for(map<string, string>::iterator it = availableHistList_.begin();
+       it != availableHistList_.end();
+       ++it){
+     log << it->first << ": " << it->second << "\n";
+   }
+   log << "\nTo include an histogram add its name in the vstring parameter "
+     "'histograms' of the EcalSelectiveReadoutValidation module\n";
+ }
  
 double EcalSelectiveReadoutValidation::getEbEventSize(double nReadXtals) const{
   double ruHeaderPayload = 0.;
@@ -1669,27 +1270,13 @@ double EcalSelectiveReadoutValidation::getEeEventSize(double nReadXtals) const{
   for(unsigned iDcc0 = 0; iDcc0 < nDccs; ++iDcc0){
     //skip barrel:
     if(iDcc0== firstEbDcc0) iDcc0 += nEbDccs;
-    ruHeaderPayload += getRuCount(iDcc0)*8.;      
+      ruHeaderPayload += getRuCount(iDcc0)*8.;      
   }
   return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
     + ruHeaderPayload;
 }
 
-void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
-  MonitorElement* mes[] = { meChOcc_, meTtf_, meTpMap_, meFullRoTt_,
-			    meZs1Tt_, meForcedTt_, meLiTtf_, meHiTtf_, 
-			    meSRFlagsFromData_, meSRFlagsComputed_,
-			    meIncompleteFRO_, meCompleteZS_ };
-  
-  double scale = 1./eventCount;
-  
-  for(unsigned i = 0; i < sizeof(mes)/sizeof(mes[0]); ++i){
-    if(mes[i] == 0) continue;
-    TH1* h = mes[i]->getTH1();
-    cout << "[SRValid] " << "Normalizing " << h->GetName() << "\n";
-    h->Scale(scale);
-  }
-}
+//------
 
 //This implementation  assumes that int is coded on at least 28-bits,
 //which in pratice should be always true.
@@ -1801,29 +1388,4 @@ EcalSelectiveReadoutValidation::configFirWeights(vector<double> weightsForZsFIR)
   }
   
   log <<"\nFirst FIR sample: " << firstFIRSample_;
-}
-
-void EcalSelectiveReadoutValidation::initAsciiFile(){
-  string fName = asciiOutputFileName_.size()!=0?
-    asciiOutputFileName_.c_str()
-    :"BadTowers.txt";
-  file.open(fName.c_str(), ios::out | ios::trunc);
-  if(!file.good()){
-    throw cms::Exception("Output")
-      << "Failed to open file '"
-      << fName
-      << "'for writing BadTower ascii file \n";
-  }
-
-  string fRUName = asciiRUOutputFileName_.size()!=0?
-    asciiRUOutputFileName_.c_str()
-    :"StrangeRUs.txt";
-  RUfile.open(fRUName.c_str(), ios::out | ios::trunc);
-  if(!RUfile.good()){
-    throw cms::Exception("Output")
-      << "Failed to open file '"
-      << fName
-      << "'for writing strange Tower ascii file \n";
-  }
- 
 }

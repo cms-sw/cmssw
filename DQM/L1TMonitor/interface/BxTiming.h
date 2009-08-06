@@ -77,8 +77,8 @@ class BxTiming : public edm::EDAnalyzer {
 
   std::vector<int>  listGtBits_;  // selected gt bit numbers for synch monitoring
 
-  enum nsys {NSYS=9};
-  enum syslist {ETP=0, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT};
+  enum nsys {NSYS=10};
+  enum syslist {PS=0, ETP, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT};
   std::pair<int,int> fedRange_[NSYS];
   int nfed_;   // number of feds
   int fedRef_; // reference fed
