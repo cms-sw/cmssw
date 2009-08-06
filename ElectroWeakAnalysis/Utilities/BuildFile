@@ -10,13 +10,19 @@
 <use name=PhysicsTools/CandUtils>
 <use name=rootrflx>
 
-### With global LHAPDF
+
+### Default LHAPDF in CMSSW takes forever for CMSSW versions <= 312
 <use name=LHAPDF>
-### With local LHAPDF
-#<flags CXXFLAGS="-I/usr/local/include">
-#<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+
+### To use a full LHAPDF library:
+###    1) Install it on your machine (let us say version 5.6.0 on $LHAPDF_PREFIX)
+###    2) mkdir -p $CMSSW_BASE/external/$SCRAM_ARCH/include
+###    3) mkdir -p $CMSSW_BASE/external/$SCRAM_ARCH/lib
+###    4) cp -R $LHAPDF_PREFIX/include/LHAPDF $CMSSW_BASE/external/$SCRAM_ARCH/include/
+###    5) cp -R $LHAPDF_PREFIX/lib/libLHAPDF* $CMSSW_BASE/external/$SCRAM_ARCH/lib/
+###    6) ln -s $LHAPDF_PREFIX/share $CMSSW_BASE/external/$SCRAM_ARCH/share
 
 <export>
-<lib name=ElectroWeakAnalysisUtilities>
+      <lib name=ElectroWeakAnalysisUtilities>
 </export>
 
