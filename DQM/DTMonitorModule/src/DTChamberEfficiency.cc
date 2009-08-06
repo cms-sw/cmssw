@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -32,6 +33,20 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "DataFormats/Common/interface/RefToBase.h" 
+
+
+
 
 #include <iostream>
 #include <cmath>
@@ -146,8 +161,8 @@ void DTChamberEfficiency::analyze(const Event & event,
 {
 
   if (debug) LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency") <<
-	       "--- [DTChamberEfficiency] Event analysed #Run: " <<
-	       event.id().run() << " #Event: " << event.id().event() << endl;
+    "--- [DTChamberEfficiency] Event analysed #Run: " <<
+    event.id().run() << " #Event: " << event.id().event() << endl;
 
   theService->update(eventSetup);
   theMeasurementExtractor->setEvent(event); 
@@ -160,13 +175,25 @@ void DTChamberEfficiency::analyze(const Event & event,
 
     //loop over the muons
     for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track) {
-
       reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if(recHitsize < theMinNrec) continue;
 
+//       // printout the DT rechits used by the track
+//       set<DTChamberId> chAlrUsed;
+//       for(trackingRecHit_iterator rHit = trans_track.recHitsBegin();
+// 	  rHit != trans_track.recHitsEnd(); ++rHit) {
+// 	DetId rHitid = (*rHit)->geographicalId();
+// 	if(!(rHitid.det() == DetId::Muon && rHitid.subdetId() == MuonSubdetId::DT)) continue;
+// 	DTChamberId wId(rHitid.rawId());
+// 	if(chAlrUsed.find(wId) !=  chAlrUsed.end()) continue;
+// 	chAlrUsed.insert(wId);
+// 	cout << "   " << wId << endl;
+//       }
+
+
       // Get the layer on which the seed relies
-      DetId id = trans_track.recHit(recHitsize-1)->geographicalId();
+      DetId id = trans_track.track().innerDetId();
       const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer(id);
 
       TrajectoryStateOnSurface init_fs = trans_track.innermostMeasurementState();
@@ -177,6 +204,8 @@ void DTChamberEfficiency::analyze(const Event & event,
       vector<const DetLayer*> layer_list_2 = compatibleLayers(initialLayer,*init_fs_free,oppositeToMomentum);
 
       layer_list.insert(layer_list.end(),layer_list_2.begin(),layer_list_2.end());
+      
+      set<DTChamberId> alreadyCheckedCh;
 
       //loop over the list of compatible layers
       for(int i=0;i< (int)layer_list.size();i++){
@@ -189,7 +218,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
 
 	for(vector<DetWithState>::const_iterator detWithStateItr = dss.begin();
-	    detWithStateItr != dss.end(); ++detWithStateItr){
+	    detWithStateItr != dss.end(); ++detWithStateItr) {
 
 	  const DetId idDetLay = detWithStateItr->first->geographicalId(); 
 
@@ -197,10 +226,15 @@ void DTChamberEfficiency::analyze(const Event & event,
 
 	  DTChamberId DTid = (DTChamberId) idDetLay;
 
+	  // check if the chamber has already been counted
+	  if(alreadyCheckedCh.find(DTid) != alreadyCheckedCh.end()) continue;
+	  alreadyCheckedCh.insert(DTid);
+
 	  MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
 											       detWithStateItr->first,
 											       detWithStateItr->second,
 											       *theEstimator, event);
+
 
 	  //we want to be more picky about the quality of the segments:
 	  //exclude the segments with less than 12 hits
