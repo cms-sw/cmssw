@@ -86,7 +86,7 @@ process.calibDB = cms.ESSource("PoolDBESSource",
 process.es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB')
 
 # if read from RAW
-#process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
+process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
 
 process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')
@@ -115,9 +115,9 @@ process.dummyProducer = cms.EDProducer("ThingWithMergeProducer")
 
 # if read from RAW
 #process.firstStep = cms.Sequence(process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation)
-#process.firstStep = cms.Sequence(process.dummyProducer + process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
+process.firstStep = cms.Sequence(process.dummyProducer + process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
 
-process.firstStep = cms.Sequence(process.dummyProducer + process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
+#process.firstStep = cms.Sequence(process.dummyProducer + process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
 process.p = cms.Path(process.firstStep)
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
