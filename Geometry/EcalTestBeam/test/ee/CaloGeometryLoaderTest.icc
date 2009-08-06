@@ -210,6 +210,21 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 					  HepPoint3D( 1,  0, 0),
 					  HepPoint3D( 0,  0, 1) ) ;*/
 
+
+
+	 std::cout<<"\nH4ToBeamLine"
+		  <<"   Theta_x = "<<H4ToBeamLine.getRotation().thetaX()*kRadToDeg
+		  <<",  Theta_y = "<<H4ToBeamLine.getRotation().thetaY()*kRadToDeg
+		  <<",  Theta_z = "<<H4ToBeamLine.getRotation().thetaZ()*kRadToDeg
+		  <<",  eta = "<<-log(tan(H4ToBeamLine.getRotation().thetaZ()/2.))
+		  <<std::endl ;
+
+	 std::cout<<"\nH4ToBeamLine"
+		  <<"   Phi_x = "<<H4ToBeamLine.getRotation().phiX()*kRadToDeg
+		  <<",  Phi_y = "<<H4ToBeamLine.getRotation().phiY()*kRadToDeg
+		  <<",  Phi_z = "<<H4ToBeamLine.getRotation().phiZ()*kRadToDeg<<std::endl ;
+
+
       std::cout<<"pivot to beamline="<<H4ToBeamLine*PIVOT<<std::endl ;
       std::cout<<"endcap to beamline="<<H4ToBeamLine*HepPoint3D(PIVOT.x()+316,0,50)
 	       <<std::endl ;
@@ -642,9 +657,9 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       const HepRotation myRot  ( myTrf.getRotation()    ) ;
 	       const HepVector3D myTran ( myTrf.getTranslation() ) ;
 
-	       const HepRotateZ3D R1 ( myRot.phiZ() - M_PI/2. ) ;
-	       const HepPoint3D xUnit ( 1,0,0 ) ;
-	       const HepPoint3D yUnit ( 0,1,0 ) ;
+	       const HepRotateZ3D R1 ( myRot.phiZ() - M_PI ) ;
+	       const HepPoint3D xUnit ( 0,1,0 ) ;
+	       const HepPoint3D yUnit (-1,0,0 ) ;
 	       const HepPoint3D zUnit ( 0,0,1 ) ;
 
 	       const HepTransform3D RXRZ ( HepRotate3D( -myRot.thetaZ(), R1*xUnit )*R1 ) ;
@@ -677,14 +692,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       const double zdiff ( axis.angle(zzUnit-HepPoint3D(0,0,0)) ) ;
 
 	       if( 0.95*M_PI < fabs( zdiff ) ) psi = -psi ;
-
+/*
 	       if( 0.005 < fabs( zdiff ) &&
 		   0.005 < fabs( fabs( zdiff ) - M_PI ) )
 	       {
 		  std::cout<<"**************** BAD 3RD AXIS, zdiff="
 			   <<zdiff*kRadToDeg<<" degrees"<<std::endl ;
 	       }
-/*	       std::cout<<"\n3rd rotation = "
+	       std::cout<<"\n3rd rotation = "
 			<< axis.angle(zzUnit-HepPoint3D(0,0,0))*kRadToDeg 
 			<<", "<<angle*kRadToDeg
 			<< std::endl ;
@@ -812,8 +827,8 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	       tbrotfile<<"<?xml version=\"1.0\"?>"
 			<<"<DDDefinition xmlns=\"http://www.cern.ch/cms/DDL\""
-			<<"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-			<<"xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../"
+			<<" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+			<<" xsi:schemaLocation=\"http://www.cern.ch/cms/DDL ../../"
 			<<"DetectorDescription/Schema/DDLSchema.xsd\">"
 			<<"\n\n<ConstantsSection  label=\"tbrot.xml\" eval=\"true\" >"
 			<<"\n\n<Constant name=\"eta\"        value=\""<<strTetaZ<<"\"/>"
@@ -844,7 +859,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       std::ofstream beamfile ( myname2.c_str() ) ;
 
 	       beamfile<<"import FWCore.ParameterSet.Config as cms"
-		       <<"\n\n common_beam_direction_parameters = cms.PSet("
+		       <<"\n\ncommon_beam_direction_parameters = cms.PSet("
 		       <<"\n    MinEta = cms.double("<< strTetaZ <<"),"
 		       <<"\n    MaxEta = cms.double("<< strTetaZ <<"),"
 		       <<"\n    MinPhi = cms.double("<< strTphiZr <<"),"
