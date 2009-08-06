@@ -138,7 +138,7 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
   if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
 
   dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
-  MonitorElement* HcalDaqFraction = dbe->bookFloat("HcalDaqFraction");
+  MonitorElement* HcalDaqFraction = dbe->bookFloat("Hcal");
 
   HcalDaqFraction->Fill(-1);
 
