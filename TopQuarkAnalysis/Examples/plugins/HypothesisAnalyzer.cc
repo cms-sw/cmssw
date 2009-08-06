@@ -30,10 +30,10 @@ HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     return;
   }
   
-  const reco::Candidate* hadTop = semiLepEvt->hadronicTop(hypoClassKey);
-  const reco::Candidate* hadW   = semiLepEvt->hadronicW  (hypoClassKey);
-  const reco::Candidate* lepTop = semiLepEvt->leptonicTop(hypoClassKey);
-  const reco::Candidate* lepW   = semiLepEvt->leptonicW  (hypoClassKey);
+  const reco::Candidate* hadTop = semiLepEvt->hadronicDecayTop(hypoClassKey);
+  const reco::Candidate* hadW   = semiLepEvt->hadronicDecayW  (hypoClassKey);
+  const reco::Candidate* lepTop = semiLepEvt->leptonicDecayTop(hypoClassKey);
+  const reco::Candidate* lepW   = semiLepEvt->leptonicDecayW  (hypoClassKey);
 
   if(hadTop && hadW && lepTop && lepW){
     hadWPt_    ->Fill( hadW->pt()    );
