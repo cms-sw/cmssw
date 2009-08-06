@@ -7,7 +7,6 @@ process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.Generator_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
