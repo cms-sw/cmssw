@@ -3,8 +3,8 @@
 cmsenv
 rehash
 
-setenv HLTMASTER  "/dev/CMSSW_3_2_2"
-setenv HLTVERSION "V2"
+setenv HLTMASTER  "/dev/CMSSW_3_2_3"
+setenv HLTVERSION "V1"
 setenv SUBTABLES  "8E29 1E31 GRun HIon"
 setenv SUBVERSION "V1"
 
