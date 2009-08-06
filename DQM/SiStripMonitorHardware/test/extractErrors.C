@@ -72,7 +72,8 @@ int main(int argc, char** argv) {//main
   TH1F *hNorm = (TH1F*)gDirectory->Get("nFEDErrors");
   double norm = hNorm->GetEntries(); 
 
-  outfile << " - File contains " << norm << " events." << std::endl; 
+  outfile << " - File contains " << norm << " events." << std::endl
+	  << " - CHANNEL/FE ARE REPORTED IN INTERNAL NUMBERING SCHEME (0-95/0-7, FE #0 is channel 0-11)" << std::endl; 
 
   for (unsigned int ifed(50); ifed<500;ifed++){//loop on FEDs
 
