@@ -52,7 +52,7 @@ process.load("MagneticField.Engine.uniformMagneticField_cfi")
 process.source = cms.Source("EmptySource")
 
 # defines common_beam_direction_parameters
-process.load("SimG4CMS.EcalTestBeam.ee_beam_direction_center_cff")
+process.load("SimG4CMS.EcalTestBeam.ee_PositionParticleGun_cff")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
