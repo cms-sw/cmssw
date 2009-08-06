@@ -18,8 +18,8 @@ CREATE OR REPLACE FUNCTION INJECTED_CHECK ( s_safe0 in NUMBER, s_closed in NUMBE
    status NUMBER;
 BEGIN
         status := 0;
-	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN
-		IF ABS(s_closed - s_safe0) > 25 THEN
+	IF (ABS(time_diff(sysdate, lastWrite)) < 300) THEN
+		IF ABS(s_closed - s_safe0) > 50 THEN
 			status := 1;
 		END IF;
 		IF ABS(s_closed - s_safe0) > 100 THEN
@@ -35,7 +35,7 @@ BEGIN
 END INJECTED_CHECK;
 /
 
-CREATE OR REPLACE FUNCTION CHECKED_CHECK ( lastWrite in DATE, lastTrans in DATE, s_safe0 in number, s_safe99 in number)
+CREATE OR REPLACE FUNCTION TRANSFERRED_CHECK ( lastWrite in DATE, lastTrans in DATE, s_new in number, s_copied in number)
    RETURN NUMBER AS 
    status NUMBER;
 BEGIN
@@ -45,7 +45,27 @@ BEGIN
 			status := 2;
 		END IF;
 	ELSE
-		IF ( (ABS(time_diff(sysdate, lastTrans)) > 300) AND (s_safe0 - s_safe99 > 0) ) THEN
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 300) AND (s_new - s_copied > 0) ) THEN
+                        status := 2;
+		END IF;
+        END IF;
+
+	RETURN status;			
+END TRANSFERRED_CHECK;
+/
+
+CREATE OR REPLACE FUNCTION CHECKED_CHECK ( lastWrite in DATE, lastTrans in DATE, s_checked in number, s_copied in number)
+   RETURN NUMBER AS 
+   status NUMBER;
+BEGIN
+        status := 0;
+	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Run is On
+		status:= 0;
+		--IF (ABS(time_diff(sysdate, lastTrans)) > 300) THEN
+			--status := 2;
+		--END IF;
+	ELSE
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 300) AND (s_copied - s_checked > 0) ) THEN
                         status := 2;
 		END IF;
         END IF;
@@ -60,7 +80,7 @@ CREATE OR REPLACE FUNCTION TRANS_RATE_CHECK ( lastWrite in DATE, writeRate in Nu
 BEGIN
         status := 0;
 	
-	IF (time_diff(lastWrite,startRun) > 300) AND (transRate = 0) THEN
+	IF (time_diff(lastWrite,startRun) > 300) AND (writeRate > 0) AND (transRate = 0) THEN
 		status := 2;
                 RETURN status;
 	END IF;
@@ -163,7 +183,8 @@ AS SELECT  "RUN_NUMBER",
 	   "WRITE_STATUS",
 	   "TRANS_STATUS",
 	   "INJECTED_STATUS",
-	   "CHECKED_STATUS",
+           "CHECKED_STATUS",
+	   "TRANSFERRED_STATUS",
 	   "DELETED_STATUS",
            "RANK" 
 FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
@@ -222,7 +243,8 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 					 ROUND (SUM(NVL(s_filesize,0))/1073741824, 2),
                                          MAX(M_INSTANCE) + 1)) AS TRANS_STATUS,
 	      TO_CHAR ( INJECTED_CHECK(SUM(NVL(s_NEW,0)), SUM(NVL(s_injected,0)), MAX(STOP_WRITE_TIME) ) ) AS INJECTED_STATUS,
-	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_CHECKED,0)) ) ) AS CHECKED_STATUS,
+	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)) ) ) AS TRANSFERRED_STATUS,
+	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_COPIED,0)) ) ) AS CHECKED_STATUS,
 	      TO_CHAR ( DELETED_CHECK(MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS,
               TO_CHAR ( MAX(runRank) ) AS RANK
 FROM (SELECT RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, S_NEW, S_COPIED, S_CHECKED, S_INSERTED, S_REPACKED, S_DELETED, N_INSTANCE, M_INSTANCE, START_WRITE_TIME, STOP_WRITE_TIME, START_TRANS_TIME, STOP_TRANS_TIME, START_REPACK_TIME, STOP_REPACK_TIME, HLTKEY, LAST_UPDATE_TIME, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) runRank 

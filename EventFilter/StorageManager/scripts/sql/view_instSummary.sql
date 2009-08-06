@@ -6,9 +6,9 @@ BEGIN
     status := 0;
 
     
-    IF (maxClosed < 10) THEN
-         RETURN status;
-    END IF;
+    --IF (maxClosed < 10) THEN
+        -- RETURN status;
+    --END IF;
 
     SELECT COUNT(INSTANCE) INTO lastNumInstance FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) RUN_RANK FROM (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER < run AND SETUPLABEL = currentSETUP)) WHERE RUN_RANK = 1;
 
@@ -36,7 +36,7 @@ BEGIN
     numFlagged := 0;
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
-	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 240) ) THEN --AND (maxNum - NVL(entry.N_INJECTED, 0) > .30 * maxNum) )  THEN
+	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 300) ) THEN --AND (maxNum - NVL(entry.N_INJECTED, 0) > .30 * maxNum) )  THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'CLOSED:';
