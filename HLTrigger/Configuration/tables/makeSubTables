@@ -5,8 +5,8 @@
 # usage: ./runMe.sh
 #
 
-ROOT="/dev/CMSSW_3_2_2"
-VERSION="V2"
+ROOT="/dev/CMSSW_3_2_3"
+VERSION="V1"
 TABLES="1E31 8E29 GRun HIon"
 
 function makeCreateConfig() {
