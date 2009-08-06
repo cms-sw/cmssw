@@ -30,30 +30,6 @@ namespace sistrip {
     }
   }
   
-  uint16_t FEDStripData::ChannelData::getSample(const uint16_t sampleNumber) const
-  {
-    try {
-      return data_.at(sampleNumber);
-    } catch (const std::out_of_range&) {
-      std::ostringstream ss;
-      ss << "Sample index out of range. "
-         << "Requesting sample " << sampleNumber
-         << " when channel has only " << data_.size() << " samples.";
-      throw cms::Exception("FEDBufferGenerator") << ss.str();
-    }
-  }
-  
-  uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber) const
-  {
-    if (dataIs8Bit_) return (0xFF & getSample(sampleNumber));
-    else {
-      const uint16_t sample = getSample(sampleNumber);
-      if (sample < 0xFE) return sample;
-      else if (sample == 0x3FF) return 0xFF;
-      else return 0xFE;
-    }
-  }
-  
   void FEDStripData::ChannelData::setSample(const uint16_t sampleNumber, const uint16_t value)
   {
     if (value > 0x3FF) {
@@ -145,7 +121,7 @@ namespace sistrip {
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW,data,channelEnabled,true);
       break;
     case READOUT_MODE_PROC_RAW:
-      fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,true);
+      fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,false);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED:
       fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
