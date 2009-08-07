@@ -23,6 +23,8 @@
 ///      UE  - Underlying event analysis (activity in respective regions)
 ///      Jet - study charged jet properties
 ///      MPI - count MPI via MiniJets
+///      MPIGen - count MPI via MiniJets (only MC)
+///      Gam - Gamma+Jet analysis (only MC)
 ///  4) eta region 
 ///  5) pT threshold (in MeV/c)
 ///
