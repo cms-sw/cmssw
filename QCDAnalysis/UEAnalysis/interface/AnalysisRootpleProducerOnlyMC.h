@@ -53,11 +53,13 @@ private:
   InputTag genJetCollName; // label of Jet made with MC particles
   InputTag chgJetCollName; // label of Jet made with only charged MC particles
   InputTag chgGenPartCollName; // label of charged MC particles
+  InputTag gammaGenPartCollName; // label of gamma
 
   Handle< HepMCProduct        > EvtHandle        ;
   Handle< vector<GenParticle> > CandHandleMC     ;
   Handle< GenJetCollection    > GenJetsHandle    ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
+  Handle< vector<GenParticle> > GammaHandleMC    ;
 
   
   float piG;
@@ -71,6 +73,7 @@ private:
   TClonesArray* MonteCarlo;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
+  TClonesArray* MCGamma;
   
 };
 
