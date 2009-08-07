@@ -5,17 +5,18 @@ process = cms.Process("DTDQMOfflineSources")
 # the source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4AEAE98-B0A4-DD11-8414-0019B9F707D8.root',
-#      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4EED1F7-DEA4-DD11-BC31-001D09F2AD4D.root',
-#      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4FD1F4A-CBA4-DD11-9E99-001D09F23174.root',
-#      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E67F79EA-E3A4-DD11-94BD-001D09F2A465.root',
-#      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E6D73E61-A0A4-DD11-A769-000423D98844.root'
-      '/store/data/Commissioning08/Cosmics/RECO/v1/000/067/818/02276573-56A5-DD11-845D-001617C3B65A.root'
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/F8EA0C0B-8E7D-DE11-A114-001D09F23A6B.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/F669FC3F-977D-DE11-BFB6-001D09F241B9.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/EEA05855-927D-DE11-BDBC-000423D99B3E.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/EC6E901F-A17D-DE11-8DC1-0019B9F72F97.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/EA01D71C-957D-DE11-B32D-001D09F2545B.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/D6772604-937D-DE11-B191-000423D98834.root',
+    '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/459/D4EEE43A-977D-DE11-90C3-001D09F2AD7F.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
     )
 
 
@@ -29,8 +30,8 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT_V4P::All"
-process.GlobalTag.globaltag = "CRAFT_ALL_V3::All"
-process.prefer("GlobalTag")
+process.GlobalTag.globaltag = "GR09_31X_V5P::All"
+#process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
@@ -76,14 +77,9 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                       limit = cms.untracked.int32(0)),
                                                               INFO = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
-                                                              DTSegmentAnalysisTest = cms.untracked.PSet(
-                                                                                 limit = cms.untracked.int32(-1)),
-                                                              DTTimeEvolutionHisto = cms.untracked.PSet(
-                                                                                 limit = cms.untracked.int32(-1))
+                                                              DTTimeEvolutionHisto = cms.untracked.PSet(limit = cms.untracked.int32(-1))
                                                               )
                                     )
-
-
 
 
 # raw to digi
@@ -94,7 +90,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
 
-del process.dtDataIntegrityUnpacker
+
 
 #Paths
 process.allPath = cms.Path(process.DTDQMOfflineCosmics *
