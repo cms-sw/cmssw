@@ -6,7 +6,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_30X::All"
+process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -28,8 +28,17 @@ process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
     fileNames = cms.untracked.vstring(
-"rfio:/castor/cern.ch/user/c/cerminar/DT-DQM/test/r68958_calibS2/DTDQMOffline_1.root"
-)
+"rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_1.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_10.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_2.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_3.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_4.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_5.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_6.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_7.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_8.root",
+                            "rfio:/castor/cern.ch//user/c/cerminar/DT-DQM/test/run109459/DTDQMOffline_9.root"
+                            )
 )
 
 process.maxEvents.input = -1
@@ -64,8 +73,6 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                       limit = cms.untracked.int32(0)),
                                                               INFO = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
-                                                              DTSegmentAnalysisTest = cms.untracked.PSet(
-                                                                                 limit = cms.untracked.int32(-1)),
                                                               DTTimeEvolutionHisto = cms.untracked.PSet(
                                                                                  limit = cms.untracked.int32(-1))
                                                               )
