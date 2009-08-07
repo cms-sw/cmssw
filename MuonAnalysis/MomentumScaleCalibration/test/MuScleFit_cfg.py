@@ -291,8 +291,8 @@ process.looper = cms.Looper(
     # ------------------------- #
 
     # Window factors for: Z, Upsilons and (J/Psi,Psi2S) regions
-    LeftWindowFactor = cms.vdouble(1., 3., 3.),
-    RightWindowFactor = cms.vdouble(1., 3., 3.),
+    LeftWindowFactor = cms.vdouble(1., 10., 10.),
+    RightWindowFactor = cms.vdouble(1., 10., 10.),
 
     # The parameter of BgrFitType=1 is the bgr fraction
     # -------------------------------------------------
@@ -304,13 +304,11 @@ process.looper = cms.Looper(
     # The two parameters of BgrFitType=2 are respectively:
     # bgr fraction, (negative of) bgr exp. slope, bgr constant
     # --------------------------------------------------------
-    # The function types for resonances in a region must be the same as
-    # the function type for the region.
-    BgrFitType = cms.vint32(2, 2, 2,           # regions
-                            2, 2, 2, 2, 2, 2), # resonances
+    # The function types for resonances in a region must be the same
+    BgrFitType = cms.vint32(2, 2, 2), # resonances
     # parBgr = cms.vdouble(0.05, 0.001),
-    parBgr = cms.vdouble(0., 0.,   0., 0.,   0., 0.,
-                         0., 0.,   0., 0.,   0., 0.,   0.,0.,   0.,0.,   0.,0.),
+    parBgr = cms.vdouble(0., 0.,   0.9, 0.1,   0.9, 0.1,
+                         0., 0.,   0., 0.,     0., 0.,     0.,0.,   0.,0.,   0.,0.),
     parBgrFix = cms.vint32(0, 0,   0, 0,   0, 0,
                            # The rest of the parameters is used for the resonance regions. They are automatically fixed in the code
                            # because they are never used to fit the background, but only after the rescaling.
