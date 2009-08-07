@@ -11,10 +11,10 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_1_1'
+RefRelease='CMSSW_3_2_2'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_1_2'
+NewRelease='CMSSW_3_2_3'
 
 # startup and ideal sample list
 
@@ -60,8 +60,8 @@ Tracksname=''
 #   -harvesting
 #   -preproduction
 
-Sequence='preproduction'
-#Sequence='harvesting'
+#Sequence='preproduction'
+Sequence='harvesting'
 
 
 # Ideal and Statup tags
@@ -72,8 +72,8 @@ StartupTag='STARTUP31X_V2'
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='MC_31X_V2_'+PileUp
-StartupReferenceSelection='STARTUP31X_V1_'+PileUp
+ReferenceSelection='MC_31X_V3_'+PileUp
+StartupReferenceSelection='STARTUP31X_V2_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -150,7 +150,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     else:
         Tracks=Tracksname
     NewSelection+=NewSelectionLabel
-
+    listofdatasets = open('listofdataset.txt' , 'w' )
     #loop on all the requested samples
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
@@ -160,147 +160,149 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 	cfgFileName=sample+GlobalTag
         #check if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
-            #if the job is harvesting check if the file is already harvested
+
             if( Sequence=="harvesting"):
             	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
-		if(( (Sequence=="harvesting" or Sequence=="preproduction") and os.path.isfile(harvestedfile) )==False):
-			#search the primary dataset
-			cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
-		#            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-			cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-			cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
-			print cmd
-			dataset= os.popen(cmd).readline().strip()
-			print 'DataSet:  ', dataset, '\n'
-		
-			#Check if a dataset is found
-			if dataset!="":
-		
-				#Find and format the list of files
-				cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
-				filenames='import FWCore.ParameterSet.Config as cms\n'
-				filenames+='readFiles = cms.untracked.vstring()\n'
-				filenames+='secFiles = cms.untracked.vstring()\n'
-				filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
-				filenames+='readFiles.extend( [\n'
-                                first=True
-                                print cmd2
-				for line in os.popen(cmd2).readlines():
-                                    filename=line.strip()
-                                    if first==True:
-                                        filenames+="'"
-                                        filenames+=filename
-                                        filenames+="'"
-                                        first=False
-                                    else :
-                                        filenames+=",\n'"
-                                        filenames+=filename
-                                        filenames+="'"
-				filenames+=']);\n'
-				
-				# if not harvesting find secondary file names
-				if(Sequence!="harvesting"):
-					cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
-					parentdataset=os.popen(cmd3).readline()
-					print 'Parent DataSet:  ', parentdataset, '\n'
-		
-				#Check if a dataset is found
-					if parentdataset!="":
-						cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
-						filenames+='secFiles.extend( [\n'
-						first=True
-		
-						for line in os.popen(cmd4).readlines():
-                                                    secfilename=line.strip()
-                                                    if first==True:
-                                                        filenames+="'"
-                                                        filenames+=secfilename
-                                                        filenames+="'"
-                                                        first=False
-                                                    else :
-                                                        filenames+=",\n'"
-                                                        filenames+=secfilename
-                                                        filenames+="'"
-						filenames+=']);\n'
-					else :
-						print "No primary dataset found skipping sample: ", sample
-						continue
-				else :
-					filenames+='secFiles.extend( (               ) )'
 
-				cfgFile = open(cfgFileName+'.py' , 'w' )
-				cfgFile.write(filenames)
-	
-				if (Events.has_key(sample)!=True):
-					Nevents=defaultNevents
-				else:
-					Nevents=Events[sample]
-                                thealgo=trackalgorithm
-                                thequality=trackquality
-                                if(trackalgorithm=='ootb'):
-                                    thealgo=''
-				if(thealgo!=''):
-                                    thealgo='\''+thealgo+'\''
-                                if(trackquality!=''):
-                                    thequality='\''+trackquality+'\''
-                                symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
-                                
-		
-				cfgFile = open(cfgFileName+'.py' , 'a' )
-				replace(symbol_map, templatecfgFile, cfgFile)
-		
-				cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-				retcode=os.system(cmdrun)
-		
-			else:      
-				print 'No dataset found skipping sample: '+ sample, '\n'  
-				continue
-		else: 
-			retcode=0
-		if (retcode!=0):
-			print 'Job for sample '+ sample + ' failed. \n'
-		else:
-			if (Sequence=="harvesting" or Sequence=="preproduction"):
-				#copy only the needed histograms
-				if(trackquality==""):
-					rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
-					os.system(rootcommand)
-				elif(trackquality=="highPurity"):
-					os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
-		
-		
-			referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
-			if os.path.isfile(referenceSample ):
-				replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
-		
-				if(os.path.exists(RefRelease+'/'+RefSelection)==False):
-					os.makedirs(RefRelease+'/'+RefSelection)
-				os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
-			else:
-				print "No reference file found at: ", RefRelease+'/'+RefSelection
-                                replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
-		
-		
-			macroFile = open(cfgFileName+'.C' , 'w' )
-			replace(replace_map, templatemacroFile, macroFile)
-		
-		
-			os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
-		
-		
-			if(os.path.exists(newdir)==False):
-				os.makedirs(newdir)
-		
-			print "moving pdf files for sample: " , sample
-			os.system('mv  *.pdf ' + newdir)
-		
-			print "moving root file for sample: " , sample
-			os.system('mv val.'+ sample+ '.root ' + newdir)
-		
-			print "copy py file for sample: " , sample
-			os.system('cp '+cfgFileName+'.py ' + newdir)
+            #search the primary dataset
+            cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
+    #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
+            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
+            cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
+            print cmd
+            dataset= os.popen(cmd).readline().strip()
+            print 'DataSet:  ', dataset, '\n'
+
+            #Check if a dataset is found
+            if dataset!="":
+                    listofdatasets.write(dataset)
+                    #Find and format the list of files
+                    cmd2='dbsql "find file where dataset like '+ dataset +'"|grep ' + sample
+                    filenames='import FWCore.ParameterSet.Config as cms\n'
+                    filenames+='readFiles = cms.untracked.vstring()\n'
+                    filenames+='secFiles = cms.untracked.vstring()\n'
+                    filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
+                    filenames+='readFiles.extend( [\n'
+                    first=True
+                    print cmd2
+                    for line in os.popen(cmd2).readlines():
+                        filename=line.strip()
+                        if first==True:
+                            filenames+="'"
+                            filenames+=filename
+                            filenames+="'"
+                            first=False
+                        else :
+                            filenames+=",\n'"
+                            filenames+=filename
+                            filenames+="'"
+                    filenames+=']);\n'
+
+                    # if not harvesting find secondary file names
+                    if(Sequence!="preproduction"):
+                            cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
+                            parentdataset=os.popen(cmd3).readline()
+                            print 'Parent DataSet:  ', parentdataset, '\n'
+
+                    #Check if a dataset is found
+                            if parentdataset!="":
+                                    cmd4='dbsql  "find file where dataset like '+ parentdataset +'"|grep ' + sample 
+                                    filenames+='secFiles.extend( [\n'
+                                    first=True
+
+                                    for line in os.popen(cmd4).readlines():
+                                        secfilename=line.strip()
+                                        if first==True:
+                                            filenames+="'"
+                                            filenames+=secfilename
+                                            filenames+="'"
+                                            first=False
+                                        else :
+                                            filenames+=",\n'"
+                                            filenames+=secfilename
+                                            filenames+="'"
+                                    filenames+='\n ]);\n'
+                            else :
+                                    print "No primary dataset found skipping sample: ", sample
+                                    continue
+                    else :
+                            filenames+='secFiles.extend( (               ) )'
+
+                    cfgFile = open(cfgFileName+'.py' , 'w' )
+                    cfgFile.write(filenames)
+
+                    if (Events.has_key(sample)!=True):
+                            Nevents=defaultNevents
+                    else:
+                            Nevents=Events[sample]
+                    thealgo=trackalgorithm
+                    thequality=trackquality
+                    if(trackalgorithm=='ootb'):
+                        thealgo=''
+                    if(thealgo!=''):
+                        thealgo='\''+thealgo+'\''
+                    if(trackquality!=''):
+                        thequality='\''+trackquality+'\''
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
+
+
+                    cfgFile = open(cfgFileName+'.py' , 'a' )
+                    replace(symbol_map, templatecfgFile, cfgFile)
+                    if(( (Sequence=="harvesting" or Sequence=="preproduction") and os.path.isfile(harvestedfile) )==False):
+                        # if the file is already harvested do not run the job again
+                        cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
+                        retcode=os.system(cmdrun)
+                    else:
+                        retcode=0
+
+            else:      
+                    print 'No dataset found skipping sample: '+ sample, '\n'  
+                    continue
+
+            if (retcode!=0):
+                    print 'Job for sample '+ sample + ' failed. \n'
+            else:
+                    if (Sequence=="harvesting" or Sequence=="preproduction"):
+                            #copy only the needed histograms
+                            if(trackquality==""):
+                                    rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
+                                    os.system(rootcommand)
+                            elif(trackquality=="highPurity"):
+                                    os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
+
+
+                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    if os.path.isfile(referenceSample ):
+                            replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+
+                            if(os.path.exists(RefRelease+'/'+RefSelection)==False):
+                                    os.makedirs(RefRelease+'/'+RefSelection)
+                            os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
+                    else:
+                            print "No reference file found at: ", RefRelease+'/'+RefSelection
+                            replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
+
+
+                    macroFile = open(cfgFileName+'.C' , 'w' )
+                    replace(replace_map, templatemacroFile, macroFile)
+
+
+                    os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
+
+
+                    if(os.path.exists(newdir)==False):
+                            os.makedirs(newdir)
+
+                    print "moving pdf files for sample: " , sample
+                    os.system('mv  *.pdf ' + newdir)
+
+                    print "moving root file for sample: " , sample
+                    os.system('mv val.'+ sample+ '.root ' + newdir)
+
+                    print "copy py file for sample: " , sample
+                    os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
         else:
