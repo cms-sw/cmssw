@@ -43,8 +43,6 @@
 
 
 
-#include <iosfwd>
-#include <bitset>
 #include <vector>
 
 namespace reco {
