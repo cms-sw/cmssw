@@ -88,24 +88,27 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {
+    int nWords = length / 8;
+    int nBytesExtra = 0;
+
     const ScalersEventRecordRaw_v3 * raw 
 	     = (struct ScalersEventRecordRaw_v3 *)fedData.data();
     if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
     {
       L1TriggerScalers oldTriggerScalers(fedData.data());
-       pOldTrigger->push_back(oldTriggerScalers);
+      pOldTrigger->push_back(oldTriggerScalers);
+      nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
     }
     else if ( raw->version >= 3 )
     {
       Level1TriggerScalers triggerScalers(fedData.data());
       pTrigger->push_back(triggerScalers);
+      nBytesExtra = ScalersRaw::N_BX_v2 * sizeof(unsigned long long);
     }
 
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
 
-    int nWords = length / 8;
-    int nBytesExtra = length - sizeof(struct ScalersEventRecordRaw_v1);
     if (( nBytesExtra >= 8 ) && (( nBytesExtra % 8 ) == 0 ))
     {
       unsigned long long * data = 
