@@ -17,10 +17,10 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_1_1
-setenv CMSSWver2 3_1_2
-setenv OLDRELEASE 311
-setenv NEWRELEASE 312
+setenv CMSSWver1 3_2_2
+setenv CMSSWver2 3_2_3
+setenv OLDRELEASE 322
+setenv NEWRELEASE 323
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
@@ -45,8 +45,8 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 
 if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120Updated.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120Updated.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 endif
@@ -200,7 +200,7 @@ $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Draw();
+$i->Draw("e1");
 
 file_new->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
@@ -211,7 +211,7 @@ $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
 $i->SetLineWidth(1);
-$i->Draw("same");
+$i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
 
 EOF
