@@ -360,7 +360,6 @@ namespace edm {
       initFile(false);
     }
     rewindFile();
-    firstFile_ = true;
   }
 
   // Rewind to the beginning of the current file
