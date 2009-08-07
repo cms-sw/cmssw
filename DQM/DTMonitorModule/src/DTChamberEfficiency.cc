@@ -220,6 +220,8 @@ void DTChamberEfficiency::analyze(const Event & event,
 
 	//determine the chambers kinematically compatible with the track on the i-th layer
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
+	
+	if(dss.size() == 0) continue;
 
 	// get the first det (it's the most compatible)
 	const DetWithState detWithState = dss.front();
