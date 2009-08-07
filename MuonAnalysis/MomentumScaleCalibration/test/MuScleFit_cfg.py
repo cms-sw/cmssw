@@ -305,10 +305,10 @@ process.looper = cms.Looper(
     # bgr fraction, (negative of) bgr exp. slope, bgr constant
     # --------------------------------------------------------
     # The function types for resonances in a region must be the same
-    BgrFitType = cms.vint32(2, 2, 2), # resonances
-    # parBgr = cms.vdouble(0.05, 0.001),
-    parBgr = cms.vdouble(0., 0.,   0.9, 0.1,   0.9, 0.1,
-                         0., 0.,   0., 0.,     0., 0.,     0.,0.,   0.,0.,   0.,0.),
+    BgrFitType = cms.vint32(2, 2, 2), # regions
+    # These empty parameters should be used when there is no background
+    parBgr = cms.vdouble(0., 0.,   0., 0.,   0., 0.,
+                         0., 0.,   0., 0.,   0., 0.,   0.,0.,   0.,0.,   0.,0.),
     parBgrFix = cms.vint32(0, 0,   0, 0,   0, 0,
                            # The rest of the parameters is used for the resonance regions. They are automatically fixed in the code
                            # because they are never used to fit the background, but only after the rescaling.
