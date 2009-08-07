@@ -5,11 +5,13 @@ process = cms.Process("DTDQMOfflineSources")
 # the source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4AEAE98-B0A4-DD11-8414-0019B9F707D8.root',
-      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4EED1F7-DEA4-DD11-BC31-001D09F2AD4D.root',
-      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E4FD1F4A-CBA4-DD11-9E99-001D09F23174.root',
-      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E67F79EA-E3A4-DD11-94BD-001D09F2A465.root',
-      '/store/data/Commissioning08/Monitor/RAW/v1/000/067/818/E6D73E61-A0A4-DD11-A769-000423D98844.root'
+      '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/FA1FEED3-4D7D-DE11-A695-000423D98B6C.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/F6F17AD3-4D7D-DE11-8E8C-000423D99F3E.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/F2C412D1-4D7D-DE11-8C60-000423D99E46.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/EAC40AC3-527D-DE11-A2BF-000423D952C0.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/EA44F625-4D7D-DE11-A259-000423D9A212.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/E6ACE824-4D7D-DE11-93CF-000423D996C8.root',
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/459/DA838A3D-4F7D-DE11-AA12-001D09F248F8.root'
     )
 )
 
@@ -26,7 +28,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # Conditions (Global Tag is used here):
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
+process.GlobalTag.globaltag = "GR09_31X_V5P::All"
 #process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 3.8 tesla
@@ -76,8 +78,6 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                       limit = cms.untracked.int32(0)),
                                                               INFO = cms.untracked.PSet(
                                                                       limit = cms.untracked.int32(0)),
-                                                              DTSegmentAnalysisTest = cms.untracked.PSet(
-                                                                                 limit = cms.untracked.int32(-1)),
                                                               DTChamberEfficiency = cms.untracked.PSet(
                                                                                  limit = cms.untracked.int32(-1))
                                                               )
@@ -87,10 +87,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 # raw to digi
-process.unpackers = cms.Sequence(process.muonDTDigis + process.muonCSCDigis + process.muonRPCDigis)
+process.unpackers = cms.Sequence(process.gtDigis + process.dttfDigis + process.muonDTDigis + process.muonCSCDigis + process.muonRPCDigis)
 # reco
 #process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments + process.muonRecoGR)
-process.reco = cms.Sequence(process.offlineBeamSpot + process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics1Leg)
+process.reco = cms.Sequence(process.offlineBeamSpot + process.muonsLocalRecoCosmics + process.STAmuontrackingforcosmics)
 
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
 
