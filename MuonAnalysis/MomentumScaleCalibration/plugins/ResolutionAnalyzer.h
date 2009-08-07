@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ResolutionAnalyzer.h,v 1.5 2009/05/27 14:35:43 demattia Exp $
+// $Id: ResolutionAnalyzer.h,v 1.6 2009/06/04 10:42:25 demattia Exp $
 //
 //
 
@@ -46,8 +46,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
