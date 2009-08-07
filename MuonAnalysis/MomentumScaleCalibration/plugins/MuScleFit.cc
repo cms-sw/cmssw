@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/07/30 13:06:28 $
-//  $Revision: 1.50 $
+//  $Date: 2009/08/07 11:46:06 $
+//  $Revision: 1.51 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -602,7 +602,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     // Fill histogram of Res mass vs muon variable
     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
-    mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1);
 
     vector<double> * parval;
     vector<double> initpar;
