@@ -17,5 +17,3 @@ UEAnalysisRootpleOnlyMC500 = cms.EDFilter("AnalysisRootpleProducerOnlyMC",
 )
 
 UEAnalysisOnlyMC = cms.Sequence(UEAnalysisRootpleOnlyMC*UEAnalysisRootpleOnlyMC500)
-
-

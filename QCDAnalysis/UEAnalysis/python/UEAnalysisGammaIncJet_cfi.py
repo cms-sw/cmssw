@@ -12,9 +12,13 @@ goodParticles = cms.EDFilter("GenParticleSelector",
 chargeParticles = cms.EDFilter("GenParticleSelector",
     filter = cms.bool(False),
     src = cms.InputTag("genParticles"),
-    cut = cms.string('charge != 0 & pt > 0.29 & status = 1')
+    cut = cms.string('pt > 0.29 & status = 1')
 )
 
-UEAnalysisParticles = cms.Sequence(genParticles*genJetParticles*goodParticles*chargeParticles)
+gammaParticles = cms.EDFilter("GenParticleSelector",
+    filter = cms.bool(False),
+    src = cms.InputTag("genParticles"),
+    cut = cms.string('pdgId = 22')
+)
 
-
+UEAnalysisGammaIncJet = cms.Sequence(genParticles*genJetParticles*goodParticles*gammaParticles*chargeParticles)
