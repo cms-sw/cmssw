@@ -306,17 +306,18 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
        edm::LogWarning("RecoMuon|MuonSeedGenerator|MuonSeedPtExtractor") << "Cannot find parameters for combo " << combination;
        pTestimate[0] = pTestimate[1] = 100;
     }
-
-    if(scaleDT_ && outerHit->isDT() )
-    {
-      dPhi = scaledPhi(dPhi, combination, detId_outer);
+    else {
+      if(scaleDT_ && outerHit->isDT() )
+      {
+        dPhi = scaledPhi(dPhi, combination, detId_outer);
+      }
+      pTestimate = getPt(parametersItr->second, eta, dPhi);
+      if(singleSegment){
+        pTestimate[0] = fabs(pTestimate[0]);
+        pTestimate[1] = fabs(pTestimate[1]);
+      }
+      pTestimate[0] *= double(sign);
     }
-    pTestimate = getPt(parametersItr->second, eta, dPhi);
-    if(singleSegment){
-      pTestimate[0] = fabs(pTestimate[0]);
-      pTestimate[1] = fabs(pTestimate[1]);
-    }
-    pTestimate[0] *= double(sign);
   }
   else{
     // often a MB3 - ME1/3 seed
