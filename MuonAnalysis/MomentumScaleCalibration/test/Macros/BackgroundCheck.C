@@ -97,8 +97,8 @@ void BackgroundCheck()
   double integral = allHisto->Integral(lowBin, upBin);
   double functionIntegral = backgroundFunction->Integral(lowWindowValue, upWindowValue);
   double functionHistoIntegral = backgroundFunctionHisto->Integral(lowBin, upBin);
-  double normalization = integral/functionIntegral*Bgrp1/(upBin-lowBin);
-  double normalizationHisto = integral*Bgrp1/functionHistoIntegral;
+  double normalization = integral/functionIntegral*(1-Bgrp1)/(upBin-lowBin);
+  double normalizationHisto = integral*(1-Bgrp1)/functionHistoIntegral;
 
   // To normalize the function so that its integral in the resonance mass
   // window gives the fraction of events determined by the fit.

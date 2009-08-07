@@ -178,8 +178,8 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo
 
   TPad * pad = (TPad*)canvas->GetPrimitive(canvasName+resonanceNum);
   histo1 = (TH1F*)pad->GetPrimitive("hRecBestRes_Mass");
-  if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TProfile*)pad->GetPrimitive("Mass_P");
-  else histo2 = (TProfile*)pad->GetPrimitive("Mass_fine_P");
+  if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TProfile*)pad->GetPrimitive("Mass_PProf");
+  else histo2 = (TProfile*)pad->GetPrimitive("Mass_fine_PProf");
   // cout << "histo1 = " << histo1 << ", histo2 = " << histo2 << endl;
   // cout << "histo1 = " << histo1->GetEntries() << ", histo2 = " << histo2->GetEntries() << endl;
 }
