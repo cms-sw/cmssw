@@ -538,18 +538,61 @@ public :
   Int_t           AlCa_EcalPi0; 
   Int_t           HLTriggerFinalPath; 
 
+  // 8E29 menu
+  Int_t           HLT_L1Jet6U;
+  Int_t           HLT_Jet15U;
+  Int_t           HLT_Jet30U;
+  Int_t           HLT_Jet50U;
+  Int_t           HLT_FwdJet20U;
+  Int_t           HLT_DiJetAve15U_8E29;
+  Int_t           HLT_DiJetAve30U_8E29;
+  Int_t           HLT_QuadJet15U;
+  Int_t           HLT_MET45;
+  Int_t           HLT_MET100;
+  Int_t           HLT_HT100U;
+  Int_t           HLT_L1Mu20;
+  Int_t           HLT_L2Mu11;
+  Int_t           HLT_IsoMu3;
+  Int_t           HLT_L1DoubleMuOpen;
+  Int_t           HLT_DoubleMu0;
+  Int_t           HLT_L1SingleEG5;
+  Int_t           HLT_L1SingleEG8;
+  Int_t           HLT_Ele10_LW_L1R;
+  Int_t           HLT_Ele10_LW_EleId_L1R;
+  Int_t           HLT_Ele15_SC10_LW_L1R;
+  Int_t           HLT_Ele15_SiStrip_L1R;
+  Int_t           HLT_Ele20_LW_L1R;
+  Int_t           HLT_L1DoubleEG5;
+  Int_t           HLT_DoublePhoton5_eeRes_L1R;
+  Int_t           HLT_DoublePhoton5_Jpsi_L1R;
+  Int_t           HLT_DoublePhoton5_Upsilon_L1R;
+  Int_t           HLT_Photon10_L1R;
+  Int_t           HLT_Photon15_TrackIso_L1R;
+  Int_t           HLT_Photon15_LooseEcalIso_L1R;
+  Int_t           HLT_Photon20_L1R;
+  Int_t           HLT_Photon30_L1R_8E29;
+  Int_t           HLT_DoublePhoton10_L1R;
+  Int_t           HLT_SingleLooseIsoTau20;
+  Int_t           HLT_DoubleLooseIsoTau15;
+  Int_t           HLT_BTagMu_Jet10U;
+  Int_t           HLT_BTagIP_Jet50U;
+  Int_t           HLT_StoppedHSCP_8E29;
+  Int_t           HLT_L1Mu14_L1SingleEG10;
+  Int_t           HLT_L1Mu14_L1SingleJet6U;
+  Int_t           HLT_L1Mu14_L1ETM30;
+  Int_t           HLT_IsoTrack_8E29;
+  Int_t           AlCa_HcalPhiSym;
+  Int_t           AlCa_EcalPi0_8E29;
+  Int_t           AlCa_EcalEta_8E29;
+  Int_t           AlCa_RPCMuonNoHits;
+  Int_t           AlCa_RPCMuonNormalisation;  
+
   // Commissioning and other HLT Paths for the CRAFT09 cosmics menu
   Int_t           HLT_Random;
   Int_t           HLT_L2Mu3_NoVertex;
   Int_t           HLT_OIstateTkMu3;
   Int_t           HLT_TrackPointing;
   Int_t           HLT_EgammaSuperClusterOnly_L1R;
-  Int_t           HLT_BTagIP_Jet50U; 
-  Int_t           HLT_BTagMu_Jet10U; 
-  Int_t           HLT_L1Mu14_L1SingleJet6U; 
-  Int_t           HLT_IsoTrack_8E29; 
-  Int_t           AlCa_EcalPi0_8E29; 
-  Int_t           AlCa_EcalEta_8E29; 
   Int_t           AlCa_EcalPi0_Cosmics; 
   Int_t           AlCa_EcalEta_Cosmics; 
   Int_t           HLT_DataIntegrity; 
@@ -559,19 +602,10 @@ public :
   Int_t           HLT_HFThreshold; 
   Int_t           HLT_Physics; 
   Int_t           HLT_PhysicsNoMuon; 
-  Int_t           HLT_L1Jet6U; 
-  Int_t           HLT_DiJetAve15U_8E29; 
-  Int_t           HLT_DiJetAve30U_8E29; 
-  Int_t           HLT_StoppedHSCP_8E29; 
   Int_t           HLT_Calibration; 
   Int_t           HLT_EcalCalibration; 
   Int_t           HLT_PixelFEDSize; 
   Int_t           HLT_GlobalRunHPDNoise; 
-  Int_t           AlCa_RPCMuonNoHits;
-  Int_t           AlCa_RPCMuonNormalisation;
-  Int_t           HLT_Jet15U;  
-  Int_t           HLT_Jet30U;  
-  Int_t           HLT_Jet50U;  
 
     
   // List of branches
@@ -1065,18 +1099,61 @@ public :
   TBranch        *b_AlCa_EcalPi0;   //! 
   TBranch        *b_HLTriggerFinalPath;   //! 
 
+  // 8E29 menu
+  TBranch        *b_HLT_L1Jet6U;   //!
+  TBranch        *b_HLT_Jet15U;   //!
+  TBranch        *b_HLT_Jet30U;   //!
+  TBranch        *b_HLT_Jet50U;   //!
+  TBranch        *b_HLT_FwdJet20U;   //!
+  TBranch        *b_HLT_DiJetAve15U_8E29;   //!
+  TBranch        *b_HLT_DiJetAve30U_8E29;   //!
+  TBranch        *b_HLT_QuadJet15U;   //!
+  TBranch        *b_HLT_MET45;   //!
+  TBranch        *b_HLT_MET100;   //!
+  TBranch        *b_HLT_HT100U;   //!
+  TBranch        *b_HLT_L1Mu20;   //!
+  TBranch        *b_HLT_L2Mu11;   //!
+  TBranch        *b_HLT_IsoMu3;   //!
+  TBranch        *b_HLT_L1DoubleMuOpen;   //!
+  TBranch        *b_HLT_DoubleMu0;   //!
+  TBranch        *b_HLT_L1SingleEG5;   //!
+  TBranch        *b_HLT_L1SingleEG8;   //!
+  TBranch        *b_HLT_Ele10_LW_L1R;   //!
+  TBranch        *b_HLT_Ele10_LW_EleId_L1R;   //!
+  TBranch        *b_HLT_Ele15_SC10_LW_L1R;   //!
+  TBranch        *b_HLT_Ele15_SiStrip_L1R;   //!
+  TBranch        *b_HLT_Ele20_LW_L1R;   //!
+  TBranch        *b_HLT_L1DoubleEG5;   //!
+  TBranch        *b_HLT_DoublePhoton5_eeRes_L1R;   //!
+  TBranch        *b_HLT_DoublePhoton5_Jpsi_L1R;   //!
+  TBranch        *b_HLT_DoublePhoton5_Upsilon_L1R;   //!
+  TBranch        *b_HLT_Photon10_L1R;   //!
+  TBranch        *b_HLT_Photon15_TrackIso_L1R;   //!
+  TBranch        *b_HLT_Photon15_LooseEcalIso_L1R;   //!
+  TBranch        *b_HLT_Photon20_L1R;   //!
+  TBranch        *b_HLT_Photon30_L1R_8E29;   //!
+  TBranch        *b_HLT_DoublePhoton10_L1R;   //!
+  TBranch        *b_HLT_SingleLooseIsoTau20;   //!
+  TBranch        *b_HLT_DoubleLooseIsoTau15;   //!
+  TBranch        *b_HLT_BTagMu_Jet10U;   //!
+  TBranch        *b_HLT_BTagIP_Jet50U;   //!
+  TBranch        *b_HLT_StoppedHSCP_8E29;   //!
+  TBranch        *b_HLT_L1Mu14_L1SingleEG10;   //!
+  TBranch        *b_HLT_L1Mu14_L1SingleJet6U;   //!
+  TBranch        *b_HLT_L1Mu14_L1ETM30;   //!
+  TBranch        *b_HLT_IsoTrack_8E29;   //!
+  TBranch        *b_AlCa_HcalPhiSym;   //!
+  TBranch        *b_AlCa_EcalPi0_8E29;   //!
+  TBranch        *b_AlCa_EcalEta_8E29;   //!
+  TBranch        *b_AlCa_RPCMuonNoHits;   //!
+  TBranch        *b_AlCa_RPCMuonNormalisation;   //!
+
   // Commissioning and other HLT Paths for the CRAFT09 cosmics menu 
   TBranch        *b_HLT_Random;   //! 
   TBranch        *b_HLT_L2Mu3_NoVertex;   //! 
   TBranch        *b_HLT_OIstateTkMu3;   //! 
   TBranch        *b_HLT_TrackPointing;   //! 
   TBranch        *b_HLT_EgammaSuperClusterOnly_L1R;   //! 
-  TBranch        *b_HLT_BTagIP_Jet50U;   //!  
-  TBranch        *b_HLT_BTagMu_Jet10U;   //!  
-  TBranch        *b_HLT_L1Mu14_L1SingleJet6U;   //!  
-  TBranch        *b_HLT_IsoTrack_8E29;   //!  
-  TBranch        *b_AlCa_EcalPi0_8E29;   //!  
-  TBranch        *b_AlCa_EcalEta_8E29;   //!  
   TBranch        *b_AlCa_EcalPi0_Cosmics;   //!  
   TBranch        *b_AlCa_EcalEta_Cosmics;   //!  
   TBranch        *b_HLT_DataIntegrity;   //!  
@@ -1086,20 +1163,10 @@ public :
   TBranch        *b_HLT_HFThreshold;   //!  
   TBranch        *b_HLT_Physics;   //!  
   TBranch        *b_HLT_PhysicsNoMuon;   //!  
-  TBranch        *b_HLT_L1Jet6U;   //!  
-  TBranch        *b_HLT_DiJetAve15U_8E29;   //!  
-  TBranch        *b_HLT_DiJetAve30U_8E29;   //!  
-  TBranch        *b_HLT_StoppedHSCP_8E29;   //!  
   TBranch        *b_HLT_Calibration;   //!  
   TBranch        *b_HLT_EcalCalibration;   //!  
   TBranch        *b_HLT_PixelFEDSize;   //!  
   TBranch        *b_HLT_GlobalRunHPDNoise;   //!  
-  TBranch        *b_AlCa_RPCMuonNoHits;   //!
-  TBranch        *b_AlCa_RPCMuonNormalisation;  //!
-  TBranch        *b_HLT_Jet15U;   //!  
-  TBranch        *b_HLT_Jet30U;   //!  
-  TBranch        *b_HLT_Jet50U;   //!  
-
 
   // Cut on mu quality
   Int_t           NL1OpenMu;
@@ -1801,18 +1868,61 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_EcalPi0", &AlCa_EcalPi0, &b_AlCa_EcalPi0); 
   fChain->SetBranchAddress("HLTriggerFinalPath", &HLTriggerFinalPath, &b_HLTriggerFinalPath); 
 
+  // 8E29 menu
+  fChain->SetBranchAddress("HLT_L1Jet6U", &HLT_L1Jet6U, &b_HLT_L1Jet6U);
+  fChain->SetBranchAddress("HLT_Jet15U", &HLT_Jet15U, &b_HLT_Jet15U);
+  fChain->SetBranchAddress("HLT_Jet30U", &HLT_Jet30U, &b_HLT_Jet30U);
+  fChain->SetBranchAddress("HLT_Jet50U", &HLT_Jet50U, &b_HLT_Jet50U);
+  fChain->SetBranchAddress("HLT_FwdJet20U", &HLT_FwdJet20U, &b_HLT_FwdJet20U);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29", &HLT_DiJetAve15U_8E29, &b_HLT_DiJetAve15U_8E29);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29", &HLT_DiJetAve30U_8E29, &b_HLT_DiJetAve30U_8E29);
+  fChain->SetBranchAddress("HLT_QuadJet15U", &HLT_QuadJet15U, &b_HLT_QuadJet15U);
+  fChain->SetBranchAddress("HLT_MET45", &HLT_MET45, &b_HLT_MET45);
+  fChain->SetBranchAddress("HLT_MET100", &HLT_MET100, &b_HLT_MET100);
+  fChain->SetBranchAddress("HLT_HT100U", &HLT_HT100U, &b_HLT_HT100U);
+  fChain->SetBranchAddress("HLT_L1Mu20", &HLT_L1Mu20, &b_HLT_L1Mu20);
+  fChain->SetBranchAddress("HLT_L2Mu11", &HLT_L2Mu11, &b_HLT_L2Mu11);
+  fChain->SetBranchAddress("HLT_IsoMu3", &HLT_IsoMu3, &b_HLT_IsoMu3);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, &b_HLT_L1DoubleMuOpen);
+  fChain->SetBranchAddress("HLT_DoubleMu0", &HLT_DoubleMu0, &b_HLT_DoubleMu0);
+  fChain->SetBranchAddress("HLT_L1SingleEG5", &HLT_L1SingleEG5, &b_HLT_L1SingleEG5);
+  fChain->SetBranchAddress("HLT_L1SingleEG8", &HLT_L1SingleEG8, &b_HLT_L1SingleEG8);
+  fChain->SetBranchAddress("HLT_Ele10_LW_L1R", &HLT_Ele10_LW_L1R, &b_HLT_Ele10_LW_L1R);
+  fChain->SetBranchAddress("HLT_Ele10_LW_EleId_L1R", &HLT_Ele10_LW_EleId_L1R, &b_HLT_Ele10_LW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SC10_LW_L1R", &HLT_Ele15_SC10_LW_L1R, &b_HLT_Ele15_SC10_LW_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SiStrip_L1R", &HLT_Ele15_SiStrip_L1R, &b_HLT_Ele15_SiStrip_L1R);
+  fChain->SetBranchAddress("HLT_Ele20_LW_L1R", &HLT_Ele20_LW_L1R, &b_HLT_Ele20_LW_L1R);
+  fChain->SetBranchAddress("HLT_L1DoubleEG5", &HLT_L1DoubleEG5, &b_HLT_L1DoubleEG5);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_eeRes_L1R", &HLT_DoublePhoton5_eeRes_L1R, &b_HLT_DoublePhoton5_eeRes_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Jpsi_L1R", &HLT_DoublePhoton5_Jpsi_L1R, &b_HLT_DoublePhoton5_Jpsi_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Upsilon_L1R", &HLT_DoublePhoton5_Upsilon_L1R, &b_HLT_DoublePhoton5_Upsilon_L1R);
+  fChain->SetBranchAddress("HLT_Photon10_L1R", &HLT_Photon10_L1R, &b_HLT_Photon10_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_L1R", &HLT_Photon15_TrackIso_L1R, &b_HLT_Photon15_TrackIso_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_L1R", &HLT_Photon15_LooseEcalIso_L1R, &b_HLT_Photon15_LooseEcalIso_L1R);
+  fChain->SetBranchAddress("HLT_Photon20_L1R", &HLT_Photon20_L1R, &b_HLT_Photon20_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_L1R_8E29", &HLT_Photon30_L1R_8E29, &b_HLT_Photon30_L1R_8E29);
+  fChain->SetBranchAddress("HLT_DoublePhoton10_L1R", &HLT_DoublePhoton10_L1R, &b_HLT_DoublePhoton10_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20", &HLT_SingleLooseIsoTau20, &b_HLT_SingleLooseIsoTau20);
+  fChain->SetBranchAddress("HLT_DoubleLooseIsoTau15", &HLT_DoubleLooseIsoTau15, &b_HLT_DoubleLooseIsoTau15);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet10U", &HLT_BTagMu_Jet10U, &b_HLT_BTagMu_Jet10U);
+  fChain->SetBranchAddress("HLT_BTagIP_Jet50U", &HLT_BTagIP_Jet50U, &b_HLT_BTagIP_Jet50U);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29", &HLT_StoppedHSCP_8E29, &b_HLT_StoppedHSCP_8E29);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleEG10", &HLT_L1Mu14_L1SingleEG10, &b_HLT_L1Mu14_L1SingleEG10);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U", &HLT_L1Mu14_L1SingleJet6U, &b_HLT_L1Mu14_L1SingleJet6U);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1ETM30", &HLT_L1Mu14_L1ETM30, &b_HLT_L1Mu14_L1ETM30);
+  fChain->SetBranchAddress("HLT_IsoTrack_8E29", &HLT_IsoTrack_8E29, &b_HLT_IsoTrack_8E29);
+  fChain->SetBranchAddress("AlCa_HcalPhiSym", &AlCa_HcalPhiSym, &b_AlCa_HcalPhiSym);
+  fChain->SetBranchAddress("AlCa_EcalPi0_8E29", &AlCa_EcalPi0_8E29, &b_AlCa_EcalPi0_8E29);
+  fChain->SetBranchAddress("AlCa_EcalEta_8E29", &AlCa_EcalEta_8E29, &b_AlCa_EcalEta_8E29);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &AlCa_RPCMuonNoHits, &b_AlCa_RPCMuonNoHits);
+  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &AlCa_RPCMuonNormalisation, &b_AlCa_RPCMuonNormalisation);
+
   // Commissioning and other HLT Paths for the CRAFT09 cosmics menu 
   fChain->SetBranchAddress("HLT_Random", &HLT_Random, &b_HLT_Random); 
   fChain->SetBranchAddress("HLT_L2Mu3_NoVertex", &HLT_L2Mu3_NoVertex, &b_HLT_L2Mu3_NoVertex); 
   fChain->SetBranchAddress("HLT_OIstateTkMu3", &HLT_OIstateTkMu3, &b_HLT_OIstateTkMu3); 
   fChain->SetBranchAddress("HLT_TrackPointing", &HLT_TrackPointing, &b_HLT_TrackPointing); 
   fChain->SetBranchAddress("HLT_EgammaSuperClusterOnly_L1R", &HLT_EgammaSuperClusterOnly_L1R, &b_HLT_EgammaSuperClusterOnly_L1R); 
-  fChain->SetBranchAddress("HLT_BTagIP_Jet50U", &HLT_BTagIP_Jet50U, &b_HLT_BTagIP_Jet50U);  
-  fChain->SetBranchAddress("HLT_BTagMu_Jet10U", &HLT_BTagMu_Jet10U, &b_HLT_BTagMu_Jet10U);  
-  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U", &HLT_L1Mu14_L1SingleJet6U, &b_HLT_L1Mu14_L1SingleJet6U);  
-  fChain->SetBranchAddress("HLT_IsoTrack_8E29", &HLT_IsoTrack_8E29, &b_HLT_IsoTrack_8E29);  
-  fChain->SetBranchAddress("AlCa_EcalPi0_8E29", &AlCa_EcalPi0_8E29, &b_AlCa_EcalPi0_8E29);  
-  fChain->SetBranchAddress("AlCa_EcalEta_8E29", &AlCa_EcalEta_8E29, &b_AlCa_EcalEta_8E29);  
   fChain->SetBranchAddress("AlCa_EcalPi0_Cosmics", &AlCa_EcalPi0_Cosmics, &b_AlCa_EcalPi0_Cosmics);  
   fChain->SetBranchAddress("AlCa_EcalEta_Cosmics", &AlCa_EcalEta_Cosmics, &b_AlCa_EcalEta_Cosmics);  
   fChain->SetBranchAddress("HLT_DataIntegrity", &HLT_DataIntegrity, &b_HLT_DataIntegrity);  
@@ -1822,20 +1932,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HFThreshold", &HLT_HFThreshold, &b_HLT_HFThreshold);  
   fChain->SetBranchAddress("HLT_Physics", &HLT_Physics, &b_HLT_Physics);  
   fChain->SetBranchAddress("HLT_PhysicsNoMuon", &HLT_PhysicsNoMuon, &b_HLT_PhysicsNoMuon);  
-  fChain->SetBranchAddress("HLT_L1Jet6U", &HLT_L1Jet6U, &b_HLT_L1Jet6U);  
-  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29", &HLT_DiJetAve15U_8E29, &b_HLT_DiJetAve15U_8E29);  
-  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29", &HLT_DiJetAve30U_8E29, &b_HLT_DiJetAve30U_8E29);  
-  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29", &HLT_StoppedHSCP_8E29, &b_HLT_StoppedHSCP_8E29);  
   fChain->SetBranchAddress("HLT_Calibration", &HLT_Calibration, &b_HLT_Calibration);  
   fChain->SetBranchAddress("HLT_EcalCalibration", &HLT_EcalCalibration, &b_HLT_EcalCalibration);  
   fChain->SetBranchAddress("HLT_PixelFEDSize", &HLT_PixelFEDSize, &b_HLT_PixelFEDSize);  
   fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &HLT_GlobalRunHPDNoise, &b_HLT_GlobalRunHPDNoise);  
-  fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &AlCa_RPCMuonNoHits, &b_AlCa_RPCMuonNoHits);
-  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &AlCa_RPCMuonNormalisation, &b_AlCa_RPCMuonNormalisation); 
-  fChain->SetBranchAddress("HLT_Jet15U", &HLT_Jet15U, &b_HLT_Jet15U);  
-  fChain->SetBranchAddress("HLT_Jet30U", &HLT_Jet30U, &b_HLT_Jet30U);  
-  fChain->SetBranchAddress("HLT_Jet50U", &HLT_Jet50U, &b_HLT_Jet50U);  
-
 
   //
   /* Also associate with the maps to speed up code! */
@@ -2086,18 +2186,61 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("AlCa_EcalPi0", &map_BitOfStandardHLTPath["AlCa_EcalPi0"], &b_AlCa_EcalPi0); 
   fChain->SetBranchAddress("HLTriggerFinalPath", &map_BitOfStandardHLTPath["HLTriggerFinalPath"], &b_HLTriggerFinalPath); 
 
+  // 8E29 menu
+  fChain->SetBranchAddress("HLT_L1Jet6U", &map_BitOfStandardHLTPath["HLT_L1Jet6U"], &b_HLT_L1Jet6U);
+  fChain->SetBranchAddress("HLT_Jet15U", &map_BitOfStandardHLTPath["HLT_Jet15U"], &b_HLT_Jet15U);
+  fChain->SetBranchAddress("HLT_Jet30U", &map_BitOfStandardHLTPath["HLT_Jet30U"], &b_HLT_Jet30U);
+  fChain->SetBranchAddress("HLT_Jet50U", &map_BitOfStandardHLTPath["HLT_Jet50U"], &b_HLT_Jet50U);
+  fChain->SetBranchAddress("HLT_FwdJet20U", &map_BitOfStandardHLTPath["HLT_FwdJet20U"], &b_HLT_FwdJet20U);
+  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29", &map_BitOfStandardHLTPath["HLT_DiJetAve15U_8E29"], &b_HLT_DiJetAve15U_8E29);
+  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29", &map_BitOfStandardHLTPath["HLT_DiJetAve30U_8E29"], &b_HLT_DiJetAve30U_8E29);
+  fChain->SetBranchAddress("HLT_QuadJet15U", &map_BitOfStandardHLTPath["HLT_QuadJet15U"], &b_HLT_QuadJet15U);
+  fChain->SetBranchAddress("HLT_MET45", &map_BitOfStandardHLTPath["HLT_MET45"], &b_HLT_MET45);
+  fChain->SetBranchAddress("HLT_MET100", &map_BitOfStandardHLTPath["HLT_MET100"], &b_HLT_MET100);
+  fChain->SetBranchAddress("HLT_HT100U", &map_BitOfStandardHLTPath["HLT_HT100U"], &b_HLT_HT100U);
+  fChain->SetBranchAddress("HLT_L1Mu20", &map_BitOfStandardHLTPath["HLT_L1Mu20"], &b_HLT_L1Mu20);
+  fChain->SetBranchAddress("HLT_L2Mu11", &map_BitOfStandardHLTPath["HLT_L2Mu11"], &b_HLT_L2Mu11);
+  fChain->SetBranchAddress("HLT_IsoMu3", &map_BitOfStandardHLTPath["HLT_IsoMu3"], &b_HLT_IsoMu3);
+  fChain->SetBranchAddress("HLT_L1DoubleMuOpen", &map_BitOfStandardHLTPath["HLT_L1DoubleMuOpen"], &b_HLT_L1DoubleMuOpen);
+  fChain->SetBranchAddress("HLT_DoubleMu0", &map_BitOfStandardHLTPath["HLT_DoubleMu0"], &b_HLT_DoubleMu0);
+  fChain->SetBranchAddress("HLT_L1SingleEG5", &map_BitOfStandardHLTPath["HLT_L1SingleEG5"], &b_HLT_L1SingleEG5);
+  fChain->SetBranchAddress("HLT_L1SingleEG8", &map_BitOfStandardHLTPath["HLT_L1SingleEG8"], &b_HLT_L1SingleEG8);
+  fChain->SetBranchAddress("HLT_Ele10_LW_L1R", &map_BitOfStandardHLTPath["HLT_Ele10_LW_L1R"], &b_HLT_Ele10_LW_L1R);
+  fChain->SetBranchAddress("HLT_Ele10_LW_EleId_L1R", &map_BitOfStandardHLTPath["HLT_Ele10_LW_EleId_L1R"], &b_HLT_Ele10_LW_EleId_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SC10_LW_L1R", &map_BitOfStandardHLTPath["HLT_Ele15_SC10_LW_L1R"], &b_HLT_Ele15_SC10_LW_L1R);
+  fChain->SetBranchAddress("HLT_Ele15_SiStrip_L1R", &map_BitOfStandardHLTPath["HLT_Ele15_SiStrip_L1R"], &b_HLT_Ele15_SiStrip_L1R);
+  fChain->SetBranchAddress("HLT_Ele20_LW_L1R", &map_BitOfStandardHLTPath["HLT_Ele20_LW_L1R"], &b_HLT_Ele20_LW_L1R);
+  fChain->SetBranchAddress("HLT_L1DoubleEG5", &map_BitOfStandardHLTPath["HLT_L1DoubleEG5"], &b_HLT_L1DoubleEG5);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_eeRes_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton5_eeRes_L1R"], &b_HLT_DoublePhoton5_eeRes_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Jpsi_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton5_Jpsi_L1R"], &b_HLT_DoublePhoton5_Jpsi_L1R);
+  fChain->SetBranchAddress("HLT_DoublePhoton5_Upsilon_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton5_Upsilon_L1R"], &b_HLT_DoublePhoton5_Upsilon_L1R);
+  fChain->SetBranchAddress("HLT_Photon10_L1R", &map_BitOfStandardHLTPath["HLT_Photon10_L1R"], &b_HLT_Photon10_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_TrackIso_L1R", &map_BitOfStandardHLTPath["HLT_Photon15_TrackIso_L1R"], &b_HLT_Photon15_TrackIso_L1R);
+  fChain->SetBranchAddress("HLT_Photon15_LooseEcalIso_L1R", &map_BitOfStandardHLTPath["HLT_Photon15_LooseEcalIso_L1R"], &b_HLT_Photon15_LooseEcalIso_L1R);
+  fChain->SetBranchAddress("HLT_Photon20_L1R", &map_BitOfStandardHLTPath["HLT_Photon20_L1R"], &b_HLT_Photon20_L1R);
+  fChain->SetBranchAddress("HLT_Photon30_L1R_8E29", &map_BitOfStandardHLTPath["HLT_Photon30_L1R_8E29"], &b_HLT_Photon30_L1R_8E29);
+  fChain->SetBranchAddress("HLT_DoublePhoton10_L1R", &map_BitOfStandardHLTPath["HLT_DoublePhoton10_L1R"], &b_HLT_DoublePhoton10_L1R);
+  fChain->SetBranchAddress("HLT_SingleLooseIsoTau20", &map_BitOfStandardHLTPath["HLT_SingleLooseIsoTau20"], &b_HLT_SingleLooseIsoTau20);
+  fChain->SetBranchAddress("HLT_DoubleLooseIsoTau15", &map_BitOfStandardHLTPath["HLT_DoubleLooseIsoTau15"], &b_HLT_DoubleLooseIsoTau15);
+  fChain->SetBranchAddress("HLT_BTagMu_Jet10U", &map_BitOfStandardHLTPath["HLT_BTagMu_Jet10U"], &b_HLT_BTagMu_Jet10U);
+  fChain->SetBranchAddress("HLT_BTagIP_Jet50U", &map_BitOfStandardHLTPath["HLT_BTagIP_Jet50U"], &b_HLT_BTagIP_Jet50U);
+  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29", &map_BitOfStandardHLTPath["HLT_StoppedHSCP_8E29"], &b_HLT_StoppedHSCP_8E29);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleEG10", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1SingleEG10"], &b_HLT_L1Mu14_L1SingleEG10);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1SingleJet6U"], &b_HLT_L1Mu14_L1SingleJet6U);
+  fChain->SetBranchAddress("HLT_L1Mu14_L1ETM30", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1ETM30"], &b_HLT_L1Mu14_L1ETM30);
+  fChain->SetBranchAddress("HLT_IsoTrack_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrack_8E29"], &b_HLT_IsoTrack_8E29);
+  fChain->SetBranchAddress("AlCa_HcalPhiSym", &map_BitOfStandardHLTPath["AlCa_HcalPhiSym"], &b_AlCa_HcalPhiSym);
+  fChain->SetBranchAddress("AlCa_EcalPi0_8E29", &map_BitOfStandardHLTPath["AlCa_EcalPi0_8E29"], &b_AlCa_EcalPi0_8E29);
+  fChain->SetBranchAddress("AlCa_EcalEta_8E29", &map_BitOfStandardHLTPath["AlCa_EcalEta_8E29"], &b_AlCa_EcalEta_8E29);
+  fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &map_BitOfStandardHLTPath["AlCa_RPCMuonNoHits"], &b_AlCa_RPCMuonNoHits);
+  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &map_BitOfStandardHLTPath["AlCa_RPCMuonNormalisation"], &b_AlCa_RPCMuonNormalisation);
+
   // Commissioning and other HLT Paths for the CRAFT09 cosmics menu  
   fChain->SetBranchAddress("HLT_Random", &map_BitOfStandardHLTPath["HLT_Random"], &b_HLT_Random);  
   fChain->SetBranchAddress("HLT_L2Mu3_NoVertex", &map_BitOfStandardHLTPath["HLT_L2Mu3_NoVertex"], &b_HLT_L2Mu3_NoVertex);  
   fChain->SetBranchAddress("HLT_OIstateTkMu3", &map_BitOfStandardHLTPath["HLT_OIstateTkMu3"], &b_HLT_OIstateTkMu3);  
   fChain->SetBranchAddress("HLT_TrackPointing", &map_BitOfStandardHLTPath["HLT_TrackPointing"], &b_HLT_TrackPointing);  
   fChain->SetBranchAddress("HLT_EgammaSuperClusterOnly_L1R", &map_BitOfStandardHLTPath["HLT_EgammaSuperClusterOnly_L1R"], &b_HLT_EgammaSuperClusterOnly_L1R);  
-  fChain->SetBranchAddress("HLT_BTagIP_Jet50U", &map_BitOfStandardHLTPath["HLT_BTagIP_Jet50U"], &b_HLT_BTagIP_Jet50U);   
-  fChain->SetBranchAddress("HLT_BTagMu_Jet10U", &map_BitOfStandardHLTPath["HLT_BTagMu_Jet10U"], &b_HLT_BTagMu_Jet10U);   
-  fChain->SetBranchAddress("HLT_L1Mu14_L1SingleJet6U", &map_BitOfStandardHLTPath["HLT_L1Mu14_L1SingleJet6U"], &b_HLT_L1Mu14_L1SingleJet6U);   
-  fChain->SetBranchAddress("HLT_IsoTrack_8E29", &map_BitOfStandardHLTPath["HLT_IsoTrack_8E29"], &b_HLT_IsoTrack_8E29);   
-  fChain->SetBranchAddress("AlCa_EcalPi0_8E29", &map_BitOfStandardHLTPath["AlCa_EcalPi0_8E29"], &b_AlCa_EcalPi0_8E29);   
-  fChain->SetBranchAddress("AlCa_EcalEta_8E29", &map_BitOfStandardHLTPath["AlCa_EcalEta_8E29"], &b_AlCa_EcalEta_8E29);   
   fChain->SetBranchAddress("AlCa_EcalPi0_Cosmics", &map_BitOfStandardHLTPath["AlCa_EcalPi0_Cosmics"], &b_AlCa_EcalPi0_Cosmics);   
   fChain->SetBranchAddress("AlCa_EcalEta_Cosmics", &map_BitOfStandardHLTPath["AlCa_EcalEta_Cosmics"], &b_AlCa_EcalEta_Cosmics);   
   fChain->SetBranchAddress("HLT_DataIntegrity", &map_BitOfStandardHLTPath["HLT_DataIntegrity"], &b_HLT_DataIntegrity);   
@@ -2107,20 +2250,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HFThreshold", &map_BitOfStandardHLTPath["HLT_HFThreshold"], &b_HLT_HFThreshold);   
   fChain->SetBranchAddress("HLT_Physics", &map_BitOfStandardHLTPath["HLT_Physics"], &b_HLT_Physics);   
   fChain->SetBranchAddress("HLT_PhysicsNoMuon", &map_BitOfStandardHLTPath["HLT_PhysicsNoMuon"], &b_HLT_PhysicsNoMuon);   
-  fChain->SetBranchAddress("HLT_L1Jet6U", &map_BitOfStandardHLTPath["HLT_L1Jet6U"], &b_HLT_L1Jet6U);   
-  fChain->SetBranchAddress("HLT_DiJetAve15U_8E29", &map_BitOfStandardHLTPath["HLT_DiJetAve15U_8E29"], &b_HLT_DiJetAve15U_8E29);   
-  fChain->SetBranchAddress("HLT_DiJetAve30U_8E29", &map_BitOfStandardHLTPath["HLT_DiJetAve30U_8E29"], &b_HLT_DiJetAve30U_8E29);   
-  fChain->SetBranchAddress("HLT_StoppedHSCP_8E29", &map_BitOfStandardHLTPath["HLT_StoppedHSCP_8E29"], &b_HLT_StoppedHSCP_8E29);   
   fChain->SetBranchAddress("HLT_Calibration", &map_BitOfStandardHLTPath["HLT_Calibration"], &b_HLT_Calibration);   
   fChain->SetBranchAddress("HLT_EcalCalibration", &map_BitOfStandardHLTPath["HLT_EcalCalibration"], &b_HLT_EcalCalibration);   
   fChain->SetBranchAddress("HLT_PixelFEDSize", &map_BitOfStandardHLTPath["HLT_PixelFEDSize"], &b_HLT_PixelFEDSize);   
   fChain->SetBranchAddress("HLT_GlobalRunHPDNoise", &map_BitOfStandardHLTPath["HLT_GlobalRunHPDNoise"], &b_HLT_GlobalRunHPDNoise);   
-  fChain->SetBranchAddress("AlCa_RPCMuonNoHits", &map_BitOfStandardHLTPath["AlCa_RPCMuonNoHits"], &b_AlCa_RPCMuonNoHits); 
-  fChain->SetBranchAddress("AlCa_RPCMuonNormalisation", &map_BitOfStandardHLTPath["AlCa_RPCMuonNormalisation"], &b_AlCa_RPCMuonNormalisation);  
-  fChain->SetBranchAddress("HLT_Jet15U", &map_BitOfStandardHLTPath["HLT_Jet15U"], &b_HLT_Jet15U);  
-  fChain->SetBranchAddress("HLT_Jet30U", &map_BitOfStandardHLTPath["HLT_Jet30U"], &b_HLT_Jet30U);  
-  fChain->SetBranchAddress("HLT_Jet50U", &map_BitOfStandardHLTPath["HLT_Jet50U"], &b_HLT_Jet50U);  
- 
   
   Notify();
 }
