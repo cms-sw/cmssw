@@ -34,15 +34,15 @@ iterativeConePu5CaloJets = cms.EDProducer("IterativeConePilupSubtractionJetProdu
 #    alias = cms.untracked.string('MCJetCorJetIconePu5')
 #)
 
-iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
-                                         IconeJetParameters,
-                                         inputEtMin = cms.double(0.0),                                        
-                                         inputEMin = cms.double(0.0),                                        
-                                         src = cms.InputTag("hiGenParticles"),
-                                         jetType = cms.string('GenJet'),                                        
-                                         alias = cms.untracked.string('IC5HiGenJet'),
-                                         coneRadius = cms.double(0.5)
-                                         )
+#iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
+#                                         IconeJetParameters,
+#                                         inputEtMin = cms.double(0.0),                                        
+#                                         inputEMin = cms.double(0.0),                                        
+#                                         src = cms.InputTag("hiGenParticles"),
+#                                         jetType = cms.string('GenJet'),                                        
+#                                         alias = cms.untracked.string('IC5HiGenJet'),
+#                                         coneRadius = cms.double(0.5)
+#                                         )
 
 CaloJetPileupSubtractionParameters.inputEtJetMin = 10.
 
