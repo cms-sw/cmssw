@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/06/04 10:42:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/30 13:05:00 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -22,6 +22,8 @@
 #include "TGraphErrors.h"
 #include "TH2F.h"
 
+#include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
+
 #include <vector>
 
 using namespace std;
@@ -34,6 +36,7 @@ template <class T> class scaleFunctionBase;
 class smearFunctionBase;
 template <class T> class resolutionFunctionBase;
 class backgroundFunctionBase;
+class BackgroundHandler;
 
 class SimTrack; 
 class TString;
@@ -88,7 +91,8 @@ public:
   // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
   static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval );
   static double massProb2( const double & mass, const int ires, const double & massResol ); // Not used yet
-  static double computeWeight( const double & mass );
+  static double computeWeight( const double & mass, const int iev );
+
 
   static double deltaPhi( const double & phi1, const double & phi2 )
   {
@@ -113,9 +117,11 @@ public:
   static int debug;       // debug option set by MuScleFit
   static bool ResFound;   // bool flag true if best resonance found (cuts on pt and eta)
 
+  static const int totalResNum; // Total number of resonance: 6
   static double massWindowHalfWidth[6][3]; // parameter set by MuScleFitUtils
   static double ResGamma[6];     // parameter set by MuScleFitUtils
   static double ResMass[6];      // parameter set by MuScleFitUtils
+  static double ResMassForBackground[3]; // The three windows used to fit the background
   static const double mMu2;
   static const double muMass;
 
@@ -136,7 +142,18 @@ public:
   static scaleFunctionBase<double*> * scaleFunction;
   static scaleFunctionBase<vector<double> > * scaleFunctionForVec;
   static int BgrFitType;
-  static backgroundFunctionBase * backgroundFunction;
+  // Three background regions:
+  // - one for the Z
+  // - one for the Upsilons
+  // - one for J/Psi and Psi2S
+  static const int backgroundFunctionsRegions;
+  // static backgroundFunctionBase * backgroundFunctionForRegion[];
+  // A background function for each resonance
+  // static backgroundFunctionBase * backgroundFunction[];
+
+  // The background handler takes care of using the correct function in each
+  // window, use regions or resonance windows and rescale the fractions when needed
+  static BackgroundHandler * backgroundHandler;
 
   // Parameters used to select whether to do a fit
   static std::vector<int> doResolFit;
@@ -144,7 +161,9 @@ public:
   static std::vector<int> doBackgroundFit;
 
   static int minuitLoop_;
-  static TH1F* likelihoodInLoop_;
+  static TH1D* likelihoodInLoop_;
+  static TH1D* signalProb_;
+  static TH1D* backgroundProb_;
 
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
@@ -171,6 +190,7 @@ public:
   static double ResHalfWidth[6];        // halfwidth in matrix
   static int nbins;                     // number of bins in matrix
   static int MuonType; // 0, 1, 2 - 0 is GM, 1 is SM, 2 is track
+  static int MuonTypeForCheckMassWindow; // Reduced to be 0, 1 or 2. It is = MuonType when MuonType < 3, = 2 otherwise.
 
   static std::vector<std::vector<double> > parvalue;
   // static std::map<unsigned int,std::vector<double> > parvalue;
@@ -179,17 +199,18 @@ public:
   
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
 
-  // Defined to allow asymmetric mass windows.
-  static double leftWindowFactor;
-  static double rightWindowFactor;
+  static bool scaleFitNotDone_;
 
   // This must be set to true if using events generated with Sherpa
   static bool sherpa_;
 
-protected:
+  static int iev_;
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
-  static bool checkMassWindow( const double & mass, const int ires );
+  static bool checkMassWindow( const double & mass, const int ires, const double & leftFactor = 1., const double & rightFactor = 1. );
+
+protected:
+
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
                              const double GLvalue[][1001][1001], const double GLnorm[][1001],

@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/06/12 10:46:32 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/07/30 13:06:02 $
+ *  $Revision: 1.20 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -120,6 +120,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   // ------------------------------------------------------
   reco::Particle::LorentzVector recMu1, recMu2;
   int iev;
+  int totalEvents_;
 
   bool compareToSimTracks_;
   edm::InputTag simTracksCollection_;

@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/06/12 10:46:32 $
-//  $Revision: 1.49 $
+//  $Date: 2009/07/30 13:06:28 $
+//  $Revision: 1.50 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -144,7 +144,7 @@ using namespace reco; // For AODSIM MC objects
 
 // Constructor
 // -----------
-MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
+MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalEvents_(0)
 {
   MuScleFitUtils::debug = debug_;
   if (debug_>0) cout << "[MuScleFit]: Constructor" << endl;
@@ -154,7 +154,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  if ((theMuonType_<1 || theMuonType_>4) && theMuonType_!=10) {
+  if ((theMuonType_<1 || theMuonType_>5) && theMuonType_!=10) {
     cout << "[MuScleFit]: Unknown muon type! Aborting." << endl;
     abort();
   }
@@ -194,11 +194,6 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   MuScleFitUtils::SmearType = smearType;
   MuScleFitUtils::smearFunction = smearFunctionService( smearType );
 
-  double leftWindowFactor = pset.getParameter<double>("LeftWindowFactor");
-  MuScleFitUtils::leftWindowFactor = leftWindowFactor;
-  double rightWindowFactor = pset.getParameter<double>("RightWindowFactor");
-  MuScleFitUtils::leftWindowFactor = rightWindowFactor;
-
   // Fit types
   // ---------
   int resolFitType = pset.getParameter<int>("ResolFitType");
@@ -209,11 +204,11 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   MuScleFitUtils::ScaleFitType = scaleType;
   MuScleFitUtils::scaleFunction = scaleFunctionService( scaleType );
   MuScleFitUtils::scaleFunctionForVec = scaleFunctionVecService( scaleType );
-  int backgroundType = pset.getParameter<int>("BgrFitType");
-  MuScleFitUtils::BgrFitType   = backgroundType;
-  MuScleFitUtils::backgroundFunction = backgroundFunctionService( backgroundType );
-  MuScleFitUtils::backgroundFunction->setLeftWindowFactor(MuScleFitUtils::leftWindowFactor);
-  MuScleFitUtils::backgroundFunction->setRightWindowFactor(MuScleFitUtils::rightWindowFactor);
+
+  MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<vector<int> >("BgrFitType"),
+                                                             pset.getParameter<vector<double> >("LeftWindowFactor"),
+                                                             pset.getParameter<vector<double> >("RightWindowFactor"),
+                                                             MuScleFitUtils::ResMass );
 
   // Initial parameters values
   // -------------------------
@@ -300,13 +295,19 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset )
   MuScleFitUtils::massWindowHalfWidth[5][2] = 0.2;
 
   MuScleFitUtils::MuonType = theMuonType_-1;
-
+  if( MuScleFitUtils::MuonType < 3 ) {
+    MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
+  }
+  else {
+    MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
+  }
 }
 
 // Destructor
 // ----------
 MuScleFit::~MuScleFit () {
   if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
+  cout << "Total number of analyzed events = " << totalEvents_ << endl;
   plotter->writeHistoMap();
 }
 
@@ -369,6 +370,7 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
   MuScleFitUtils::loopCounter = loopCounter;
 
   iev = 0;
+  MuScleFitUtils::iev_ = 0;
 
   MuScleFitUtils::cleanEstimator();
 }
@@ -475,6 +477,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   // ----------------------------------------------------------------------------------------------
   if (loopCounter==0) {
 
+    ++totalEvents_;
+
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
     vector<reco::LeafCandidate> muons;
@@ -484,7 +488,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       vector<reco::Track> tracks;
 
       for (vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon){
-	cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
+	// cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
 	//NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
 	// to avoid double counting of the same muon
 	if(muon->isGlobalMuon() && theMuonType_==1)
@@ -538,9 +542,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	cout << "mu1.pt = " << recMu1.Pt() << endl;
 	cout << "mu2.pt = " << recMu2.Pt() << endl;
       }
-      MuScleFitUtils::SavedPair.push_back (make_pair (recMu1, recMu2));
+      MuScleFitUtils::SavedPair.push_back( make_pair (recMu1, recMu2) );
     } else {
-      MuScleFitUtils::SavedPair.push_back (make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)));
+      MuScleFitUtils::SavedPair.push_back( make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)) );
     }
 
   } else {
@@ -565,7 +569,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     // Find weight and reference mass for this muon pair
     // -------------------------------------------------
-    double weight = MuScleFitUtils::computeWeight ((recMu1+recMu2).mass());
+    double weight = MuScleFitUtils::computeWeight( (recMu1+recMu2).mass(), iev );
     if (debug_>0) {
       cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
@@ -589,20 +593,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     //------------------
     mapHisto_["hRecBestMu"]->Fill(recMu1);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu1);
-    /*if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5)) {
-      mapHisto_["hRecBestMu_Acc"]->Fill(recMu1);
-      }*/
     mapHisto_["hRecBestMu"]->Fill(recMu2);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu2);
-    /*if ((abs(recMu2.eta())<2.5) && (recMu2.pt()>2.5)) {
-      mapHisto_["hRecBestMu_Acc"]->Fill(recMu2);
-      }*/
     mapHisto_["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
-    
-    mapHisto_["hRecBestRes"]->Fill(bestRecRes);
-    /*if ((abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
-      mapHisto_["hRecBestRes_Acc"]->Fill(bestRecRes);
-      }*/
+    // Reconstructed resonance
+    mapHisto_["hRecBestRes"]->Fill(bestRecRes, weight);
+    mapHisto_["hRecBestResAllEvents"]->Fill(bestRecRes, 1.);
     // Fill histogram of Res mass vs muon variable
     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
@@ -728,8 +724,6 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
         mapHisto_["hMass_P"]->Fill(bestRecRes.mass(), prob);
         mapHisto_["hMass_fine_P"]->Fill(bestRecRes.mass(), prob);
-	// Mass_P->Fill(bestRecRes.mass(), prob);
-	// Mass_fine_P->Fill(bestRecRes.mass(), prob);
       }
     }
 
@@ -752,6 +746,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
   }
 
   iev++;
+  MuScleFitUtils::iev_++;
 
 #ifdef USE_CALLGRIND
   CALLGRIND_STOP_INSTRUMENTATION;
@@ -875,15 +870,15 @@ void MuScleFit::checkParameters() {
     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
     abort();
   }
-  // Bgr fit parameters: dimension check
-  // -----------------------------------
-  if ((MuScleFitUtils::BgrFitType==1 && MuScleFitUtils::parBgr.size()!=1) ||
-      (MuScleFitUtils::BgrFitType==2 && MuScleFitUtils::parBgr.size()!=2) ||
-      (MuScleFitUtils::BgrFitType==3 && MuScleFitUtils::parBgr.size()!=3) ||
-      MuScleFitUtils::BgrFitType<1 || MuScleFitUtils::BgrFitType>3) {
-    cout << "[MuScleFit-Constructor]: Wrong Bgr fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
+//   // Bgr fit parameters: dimension check
+//   // -----------------------------------
+//   if ((MuScleFitUtils::BgrFitType==1 && MuScleFitUtils::parBgr.size()!=1) ||
+//       (MuScleFitUtils::BgrFitType==2 && MuScleFitUtils::parBgr.size()!=2) ||
+//       (MuScleFitUtils::BgrFitType==3 && MuScleFitUtils::parBgr.size()!=3) ||
+//       MuScleFitUtils::BgrFitType<1 || MuScleFitUtils::BgrFitType>3) {
+//     cout << "[MuScleFit-Constructor]: Wrong Bgr fit type or number of parameters: aborting!" << endl;
+//     abort();
+//   }
 
   // Protect against bad size of parameters
   // --------------------------------------
