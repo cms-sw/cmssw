@@ -42,6 +42,7 @@ AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet
   genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
   chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
   chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
+  gammaGenPartCollName = pset.getUntrackedParameter<InputTag>("GammaGenPartCollectionName",std::string(""));
 
   piG = acos(-1.);
 
@@ -58,6 +59,9 @@ void AnalysisRootpleProducerOnlyMC::beginJob( const EventSetup& )
   
   // save TClonesArrays of TLorentzVectors
   // i.e. store 4-vectors of particles and jets
+
+  MCGamma = new TClonesArray("TLorentzVector", 10000);
+  AnalysisTree->Branch("MCGamma", "TClonesArray", &MCGamma, 128000, 0);
 
   MonteCarlo = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
@@ -77,6 +81,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   e.getByLabel( chgGenPartCollName, CandHandleMC     );
   e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
   e.getByLabel( genJetCollName    , GenJetsHandle    );
+  e.getByLabel( gammaGenPartCollName , GammaHandleMC );
   
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
   
@@ -85,11 +90,14 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   std::vector<math::XYZTLorentzVector> GenPart;
   std::vector<GenJet> ChgGenJetContainer;
   std::vector<GenJet> GenJetContainer;
+  std::vector<math::XYZTLorentzVector> GammaPart;
   
   GenPart.clear();
   ChgGenJetContainer.clear();
   GenJetContainer.clear();
+  GammaPart.clear();
   
+  MCGamma->Clear();
   ChargedJet->Clear();
   InclusiveJet->Clear();
   MonteCarlo->Clear();
@@ -128,22 +136,39 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
       }
   }
   
-  if (CandHandleMC->size()){
+   if (CandHandleMC->size()){
 
     for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
-	 it != itEnd;it++)
-      {
-	GenPart.push_back(it->p4());
-      }
+         it != itEnd;it++)
+    {
+      GenPart.push_back(it->p4());
+    }
 
-    std::stable_sort(GenPart.begin(),GenPart.end(),GreaterPt());
+  std::stable_sort(GenPart.begin(),GenPart.end(),GreaterPt());
 
-    std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
-    for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
-      {
-	new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E()); 
-      }
+  std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
+  for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
+    {
+      new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+    }
   }
+ 
+   // cout << GammaHandleMC->size() << endl; //It's a test. It work for CandHandleMC
+   if(GammaHandleMC->size()){
+      for (vector<GenParticle>::const_iterator it(GammaHandleMC->begin()), itEnd(GammaHandleMC->end());
+	   it != itEnd;it++)
+	{
+	  GammaPart.push_back(it->p4());
+	}
+    
+      std::stable_sort(GammaPart.begin(),GammaPart.end(),GreaterPt());
+      std::vector<math::XYZTLorentzVector>::const_iterator it(GammaPart.begin()), itEnd(GammaPart.end());
+      for( int iMCGamma(0); it != itEnd; ++it, ++iMCGamma )
+	{
+	  new((*MCGamma)[iMCGamma]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+	}
+
+   }
 
   store();
 }
