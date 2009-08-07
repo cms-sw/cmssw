@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.26 2009/07/27 20:12:44 wteo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.27 2009/07/27 20:15:45 wteo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -857,7 +857,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hphi[ntrig][0]->Fill(l1ref->phi());
 
 	if(hphi[ntrig][0]->getEntries()){
-	  for(int ibin = 1; ibin < hphi[ntrig][0]->getNbinsX(); ++ibin)
+	  for(int ibin = 1; ibin <= hphi[ntrig][0]->getNbinsX(); ++ibin)
 	    hphi_norm[ntrig][0]->setBinContent(ibin, 
 					       hphi[ntrig][0]->getBinContent(ibin)/hphi[ntrig][0]->getEntries());
 	}
@@ -1038,7 +1038,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	  hphi[ntrig][1]->Fill(tk->phi()); 
 
 	  if(hphi[ntrig][1]->getEntries()){
-	    for(int ibin = 1; ibin < hphi[ntrig][1]->getNbinsX(); ++ibin)
+	    for(int ibin = 1; ibin <= hphi[ntrig][1]->getNbinsX(); ++ibin)
 	      hphi_norm[ntrig][1]->setBinContent(ibin, 
 						 hphi[ntrig][1]->getBinContent(ibin)/hphi[ntrig][1]->getEntries());
 	  }
@@ -1092,7 +1092,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 	hphi[ntrig][2]->Fill(tk->phi()); 
 
 	if(hphi[ntrig][2]->getEntries()){
-	  for(int ibin = 1; ibin < hphi[ntrig][2]->getNbinsX(); ++ibin)
+	  for(int ibin = 1; ibin <= hphi[ntrig][2]->getNbinsX(); ++ibin)
 	    hphi_norm[ntrig][2]->setBinContent(ibin, 
 					       hphi[ntrig][2]->getBinContent(ibin)/hphi[ntrig][2]->getEntries());
 	}
