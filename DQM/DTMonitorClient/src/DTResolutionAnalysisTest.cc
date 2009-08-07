@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 14:44:49 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/07/16 09:11:45 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -46,7 +46,7 @@ DTResolutionAnalysisTest::DTResolutionAnalysisTest(const ParameterSet& ps){
   permittedMeanRange = ps.getUntrackedParameter<double>("permittedMeanRange",0.005); 
   permittedSigmaRange = ps.getUntrackedParameter<double>("permittedSigmaRange",0.01); 
   // top folder for the histograms in DQMStore
-  topHistoFolder = ps.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
 }
 
 

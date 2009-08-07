@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 13:29:16 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/07/16 09:11:45 $
+ *  $Revision: 1.28 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,7 +53,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
   normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
   // top folder for the histograms in DQMStore
-  topHistoFolder = ps.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
   hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
 }
