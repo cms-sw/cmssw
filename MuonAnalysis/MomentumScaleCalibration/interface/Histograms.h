@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/05/27 14:49:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/06/08 09:48:59 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -60,9 +60,9 @@ public:
   virtual void Fill( const reco::Particle::LorentzVector & p4 ) {};
   virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2, const int charge ) {};
+  virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2, const int charge, const double & weight = 1.) {};
   virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2 ) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge ) {};
+  virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) {};
   virtual void Fill( const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & likeValue ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & resValue, const int charge ) {};
@@ -234,17 +234,17 @@ class HParticle : public Histograms {
     delete hNumber_;
   }
 
-  virtual void Fill (const reco::Particle::LorentzVector & p4) {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()));
+  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill (CLHEP::HepLorentzVector momentum) {
-    hPt_->Fill(momentum.perp());
-    hPtVsEta_->Fill(momentum.perp(), momentum.eta());
-    hEta_->Fill(momentum.eta());
-    hPhi_->Fill(momentum.phi());
-    hMass_->Fill(momentum.m());
-    //hMass_fine_->Fill(momentum.m());
+  virtual void Fill (CLHEP::HepLorentzVector momentum, const double & weight = 1.) {
+    hPt_->Fill(momentum.perp(), weight);
+    hPtVsEta_->Fill(momentum.perp(), momentum.eta(), weight);
+    hEta_->Fill(momentum.eta(), weight);
+    hPhi_->Fill(momentum.phi(), weight);
+    hMass_->Fill(momentum.m(), weight);
+    //hMass_fine_->Fill(momentum.m(), weight);
   }
   
   virtual void Fill (int number) {
@@ -684,23 +684,23 @@ class HMassVSPart : public Histograms
     delete hMassVSPhiMinus_;
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge) {
+  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) {
     Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
-	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge);
+	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
   }
   
-   virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge) { 
-     hMassVSPt_->Fill(momentum1.perp(),momentum2.m()); 
+  virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) { 
+     hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
      //hMassVSPt_prof_->Fill(momentum1.perp(),momentum2.m()); 
-     hMassVSEta_->Fill(momentum1.eta(),momentum2.m()); 
+     hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
      //hMassVSEta_prof_->Fill(momentum1.eta(),momentum2.m()); 
      if(charge>0){
-       hMassVSPhiPlus_->Fill(momentum1.phi(),momentum2.m()); 
-       //hMassVSPhiPlus_prof_->Fill(momentum1.phi(),momentum2.m()); 
+       hMassVSPhiPlus_->Fill(momentum1.phi(),momentum2.m(), weight);
+       //hMassVSPhiPlus_prof_->Fill(momentum1.phi(),momentum2.m());
      }
      else if(charge<0){
-       hMassVSPhiMinus_->Fill(momentum1.phi(),momentum2.m()); 
-       //hMassVSPhiMinus_prof_->Fill(momentum1.phi(),momentum2.m()); 
+       hMassVSPhiMinus_->Fill(momentum1.phi(),momentum2.m(), weight);
+       //hMassVSPhiMinus_prof_->Fill(momentum1.phi(),momentum2.m());
      }
      else {
        LogDebug("Histograms") << "HMassVSPart: wrong charge value = " << charge << std::endl;
@@ -747,7 +747,8 @@ class HResolutionVSPart : public Histograms
 {
  public:
   HResolutionVSPart(TFile * outputFile, const TString & name,
-                    const double & yMinEta = -1, const double & yMaxEta = 1) : Histograms(outputFile, name) {
+                    const double & yMinEta = -1, const double & yMaxEta = 1,
+                    const double & yMinPt = -1, const double & yMaxPt = 1) : Histograms(outputFile, name) {
 
     // Kinematical variables
 
@@ -768,7 +769,7 @@ class HResolutionVSPart : public Histograms
 
     hReso_           = new TH1F( name+"_Reso", "resolution", 200, -1, 1 );
     hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, 200, 60, -3, 3 );
-    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 400, -1, 1 );
+    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 400, yMinPt, yMaxPt );
     //hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1 );
     hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 400, yMinEta, yMaxEta );
     hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 400, -1, 1 );
