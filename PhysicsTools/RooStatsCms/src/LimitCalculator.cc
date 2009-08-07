@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitCalculator.cc,v 1.4 2009/04/15 11:57:39 dpiparo Exp $
+// @(#)root/hist:$Id: LimitCalculator.cc,v 1.5 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -86,7 +86,7 @@ LimitResults* LimitCalculator::calculate(TH1* data,
 
 /*----------------------------------------------------------------------------*/
 
-LimitResults* LimitCalculator::calculate(RooTreeData* data,
+LimitResults* LimitCalculator::calculate(RooDataHist* data,
                                          unsigned int n_toys,
                                          bool fluctuate){
 
@@ -155,9 +155,11 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 
     assert(n_toys > 0);
 
-    RooTreeData* b_data;
-    RooTreeData* sb_data;
-
+    //RooTreeData* b_data;
+    //RooTreeData* sb_data;
+    RooDataHist* b_data;
+    RooDataHist* sb_data;
+    
     bool check_sb=false;
     bool check_b=false;
 
@@ -190,13 +192,15 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 
 
 
-        b_data = static_cast<RooTreeData*> (m_b_model->generate(*m_variables,RooFit::Extended()));
+        //b_data = static_cast<RooTreeData*> (m_b_model->generate(*m_variables,RooFit::Extended()));
+	b_data=m_b_model->generateBinned(*m_variables,RooFit::Extended());
 
         if (b_data==NULL){
               std::cerr << "\n\n\n\nEmpty B dataset!\n\n\n\n\n";
               RooDataSet* b_data_dummy=new RooDataSet("an empty one","",*m_variables);
-              b_data = static_cast<RooTreeData*>(new RooDataHist ("datab","",*m_variables,*b_data_dummy));
-              delete b_data_dummy;
+              //b_data = static_cast<RooTreeData*>(new RooDataHist ("datab","",*m_variables,*b_data_dummy));
+              b_data = new RooDataHist ("datab","",*m_variables,*b_data_dummy);
+	      delete b_data_dummy;
               check_b=true;
              }
 
@@ -219,13 +223,16 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 //             delete b_data_dummy;
 //             }
 
-         sb_data = static_cast<RooTreeData*> (m_sb_model->generate(*m_variables,RooFit::Extended()));
+	//sb_data = static_cast<RooTreeData*> (m_sb_model->generate(*m_variables,RooFit::Extended()));
+	sb_data = m_sb_model->generateBinned(*m_variables,RooFit::Extended());
+ 
 
          if (sb_data==NULL){
               std::cerr << "Empty SB dataset!\n";
               RooDataSet* sb_data_dummy=new RooDataSet("an empty one","",*m_variables);
-              sb_data = static_cast<RooTreeData*>(new RooDataHist ("datasb","",*m_variables,*sb_data_dummy));
-              delete sb_data_dummy;
+              //sb_data = static_cast<RooTreeData*>(new RooDataHist ("datasb","",*m_variables,*sb_data_dummy));
+	      sb_data = new RooDataHist ("datasb","",*m_variables,*sb_data_dummy);
+	      delete sb_data_dummy;
               check_sb=true;
              }
 

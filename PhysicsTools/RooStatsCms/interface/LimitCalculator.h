@@ -2,8 +2,8 @@
 
 /**
 \class LimitCalculator
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/05/15 09:55:43 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 The class is born from the need to have an implementation of the CLs 
@@ -86,8 +86,9 @@ class LimitCalculator : public StatisticalMethod {
     ~LimitCalculator();
 
     /// Calculate limit with unbinned data
-    LimitResults* calculate(RooTreeData* data,
-                            unsigned int n_toys,
+    //LimitResults* calculate(RooTreeData* data,
+    LimitResults* calculate(RooDataHist* data,
+			    unsigned int n_toys,
                             bool fluctuate=false); //calculate limit with unbinned data
 
 
