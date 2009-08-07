@@ -82,6 +82,7 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
    std::cout<<"Inside the class "<<"The Number of Rec Hits is "<<nRPC<<std::endl;
 
    std::vector<RPC4DHit> BestAngularMatch;
+   std::vector<RPC4DHit> bufferBestAngularMatch;
    std::vector<RPC4DHit> GlobalRPC4DHits;
    std::vector<RPC4DHit> GlobalRPC4DHitsNoBx0;
 
@@ -130,10 +131,38 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
 	     minetaspread = etaspread;
 	     std::cout<<"Inside the class "<<"For eta"<<Point->gp.eta()<<" "<<Point2->gp.eta()<<" "<<Point3->gp.eta()<<std::endl;
 	     etavalue = (float(Point->gp.eta())+float(Point2->gp.eta())+float(Point3->gp.eta()))/3.;
-	     BestAngularMatch.clear();
-	     BestAngularMatch.push_back(*Point);
-	     BestAngularMatch.push_back(*Point2);
-	     BestAngularMatch.push_back(*Point3);
+
+	     //Cheking that our best match has a good bx pattern
+
+	     bufferBestAngularMatch.clear();
+	     bufferBestAngularMatch.push_back(*Point);
+	     bufferBestAngularMatch.push_back(*Point2);
+	     bufferBestAngularMatch.push_back(*Point3);
+
+	     std::sort(bufferBestAngularMatch.begin(), bufferBestAngularMatch.end(), bigmag);
+	     
+	     int lastbx=-7; 
+	     bool increasing = false;
+	     
+	     for(std::vector<RPC4DHit>::iterator Pointbuff = bufferBestAngularMatch.begin(); Pointbuff!=bufferBestAngularMatch.end(); ++Pointbuff){
+	       bool thisbx = false;           
+	       if(lastbx<=Pointbuff->bx){
+		 thisbx = true;
+		 if(lastbx!= -7 && lastbx<Pointbuff->bx){
+		   increasing=true;
+		 } 
+	       }
+	       increasing = increasing*thisbx;
+	       lastbx = Pointbuff->bx; 
+	     }
+	     //------------------------------------------------------
+	     
+	     if(increasing){
+	       BestAngularMatch.clear();
+	       BestAngularMatch.push_back(*Point);
+	       BestAngularMatch.push_back(*Point2);
+	       BestAngularMatch.push_back(*Point3);
+	     }
 	   }
 	 }
        }}
