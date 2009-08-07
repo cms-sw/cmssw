@@ -11,17 +11,26 @@
 <use name=rootrflx>
 
 
-### Default LHAPDF in CMSSW takes forever for CMSSW versions <= 312
+### Default LHAPDF choices => EwkPDFWeightProducer takes too long
+### in CMSSW versions less or equal than CMSSW_3_1_2
+###
+### To save time (by orders of magnitude), you should install the 
+### "full" LHAPDF package on your machine under $CMSSW_BASE/external/$SCRAM_ARCH/. 
+### If your CMSSW version is associated to LHAPDF 5.6.0 (5.7.0) packages 
+### (check the $LHAPATH variable), then you may alternatively get the LHAPDF structure
+### from LHAPDF_PREFIX=/afs/cern.ch/user/j/jalcaraz/public/lhapdf-5.6.0
+### (or LHAPDF_PREFIX=/afs/cern.ch/user/j/jalcaraz/public/lhapdf-5.7.0). 
+###
+### Proceed as follows (assuming that you have access to AFS CERN):
+###    1) mkdir -p $CMSSW_BASE/lib/$SCRAM_ARCH/
+###    2) cp -RP $LHAPDF_PREFIX/lib/libLHAPDF* $CMSSW_BASE/lib/$SCRAM_ARCH/
+###    3) scramv1 b; ...
+###
+### IMPORTANT: DO NOT DO "scramv1 b distclean" AFTER THE PREVIOUS OPERATION:
+###            A cleanup will remove the whole $CMSSW_BASE/lib/$SCRAM_ARCH/ 
+###            directory, forcing you to redo 1) and 2) again.
+
 <use name=LHAPDF>
-
-### To use a full LHAPDF library:
-###    1) Install it on your machine (let us say version 5.6.0 on $LHAPDF_PREFIX)
-###    2) mkdir -p $CMSSW_BASE/external/$SCRAM_ARCH/include
-###    3) mkdir -p $CMSSW_BASE/external/$SCRAM_ARCH/lib
-###    4) cp -R $LHAPDF_PREFIX/include/LHAPDF $CMSSW_BASE/external/$SCRAM_ARCH/include/
-###    5) cp -R $LHAPDF_PREFIX/lib/libLHAPDF* $CMSSW_BASE/external/$SCRAM_ARCH/lib/
-###    6) ln -s $LHAPDF_PREFIX/share $CMSSW_BASE/external/$SCRAM_ARCH/share
-
 <export>
       <lib name=ElectroWeakAnalysisUtilities>
 </export>

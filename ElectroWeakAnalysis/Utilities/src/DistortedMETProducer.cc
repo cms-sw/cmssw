@@ -26,7 +26,7 @@ class DistortedMETProducer : public edm::EDProducer {
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
-a////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 DistortedMETProducer::DistortedMETProducer(const edm::ParameterSet& pset) {
 
   // What is being produced

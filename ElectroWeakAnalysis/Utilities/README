@@ -1,0 +1,73 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+UTILITIES in ElectroWeakAnalysis/Utilities:
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+src/EwkPdfWeightProducer.cc
+===========================
+- Writes into the data structure a std::vector<double> containing the LHAPDF weights 
+  PDF_user(i)/PDF__in_generated_sample for each event, where 
+  PDF_user(i) corresponds to the PDF set chosen by the user in the configuration file
+  and i runs over the total number of members in the set. These weights can be 
+  easily used later to assign systematics. Example of usage:
+
+      process.ewkPdfWeights = cms.EDProducer("EwkPdfWeightProducer",
+            PdfInfoTag = cms.untracked.InputTag("generator"),
+            #Look inside the $LHAPATH/ directory for all possible PDF set choices
+            PdfSetName = cms.untracked.string("cteq65.LHgrid")
+      )
+
+- WARNING AT CREATION TIME: At present (version 312) you are forced to link against 
+  your own full LHAPDF libraries in order to be reasonably fast. Hopefully this 
+  will change in the future. Details on how to use your own LHAPDF library in 
+  the simpelst way are given inside "BuildFile".
+
+- A simple example showing how to use this PDF information is given in 
+  "test/EwkPdfWeightAnalyzer.cc". A test example is "test/EwkPdfWeightAnalyzer.py".
+
+src/DistortedMuonProducer.cc
+============================
+
+- Writes into the data structure a new reco::Muon collection and its associated 
+  reco::Track (innerTrack modified) collection after smearing and efficiency 
+  effects. This new collection can be easily used as a realistic Monte Carlo 
+  prediction for the latest steps of the analysis. One can provide the necessary 
+  distortions as a function of pseudorapidity via vectors in the configuration file. 
+  To include momentum distortions properly we require a previous matching between 
+  reconstructed and generated muons using standard CMSSW matching utilities.  
+  Example of usage:
+
+      process.genMatchMap = cms.EDFilter("MCTruthDeltaRMatcherNew",
+        src = cms.InputTag("muons"),
+        matched = cms.InputTag("genParticles"),
+        distMin = cms.double(0.15),
+        matchPDGId = cms.vint32(13)
+      )   
+
+      process.distortedMuons = cms.EDFilter("DistortedMuonProducer",
+        MuonTag = cms.untracked.InputTag("muons"),
+        GenMatchTag = cms.untracked.InputTag("genMatchMap"),
+        EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
+        MomentumScaleShift = cms.untracked.vdouble(1.e-3),
+        UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-4), #in [1/GeV]
+        RelativeUncertaintyOnPt = cms.untracked.vdouble(1.e-3),
+        EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)
+      )
+
+- A simple example showing how to use this code is given in "test/distortedMuons.py".
+
+src/DistortedMETProducer.cc
+===========================
+
+- Writes into the data structure a new reco::MET collection after distortion.
+  This new collection can be easily used as a realistic Monte Carlo 
+  prediction for (muon-uncorrected) MET at the latest steps of the analysis. 
+  At present, only the simplest possibility of scaling MET and sum(ET) by 
+  a global scale factor is implemented, and no matching with GenMET has been 
+  tried yet. Example of usage:
+
+      process.distortedMET = cms.EDFilter("DistortedMETProducer",
+        MetTag = cms.untracked.InputTag("met"),
+        MetScaleShift = cms.untracked.double(0.1)
+      )
+
+- A simple example showing how to use this code is given in "test/distortedMET.py".
