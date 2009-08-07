@@ -3,7 +3,8 @@ objects = UEAnalysis.o UEAnalysisOnRootple.o \
           UEAnalysisJets.o  \
           UEAnalysisMPI.o  UEAnalysisUE.o  \
           UEJetArea.o UEActivity.o \
-          UETrigger.o
+          UETrigger.o  \
+	  UEAnalysisGAM.o
 source1  = UEAnalysis.cpp
 source2  = UEAnalysisOnRootple.C
 source3  = UEAnalysisWeight.C
@@ -14,6 +15,7 @@ source7  = UEAnalysisUE.C
 source8  = UEJetArea.C
 source9  = UEActivity.C
 source10 = UETrigger.C
+source11 = UEAnalysisGAM.C
 
 PREFIX        = /afs/cern.ch/sw/lcg/external
 SYSNAME       = slc4_ia32_gcc34
@@ -43,6 +45,7 @@ lib :
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source8)
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source9)
 	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source10)
+	$(LD) -g $(ROOTCFLAGS) -I$(FastJetdir)/include -c $(source11)
 	$(LD) -g $(objects) $(LIBS) $(SHARE) -o $(NAMELIB) $(FastJetlib)
  
 bin:

@@ -1,5 +1,5 @@
-#ifndef UEAnalysisMPI_h
-#define UEAnalysisMPI_h
+#ifndef UEAnalysisGAM_h
+#define UEAnalysisGAM_h
 
 #include <iostream>
 #include <fstream>
@@ -15,19 +15,24 @@
 
 using namespace std;
 
-class UEAnalysisMPI {
+class UEAnalysisGAM {
  public :
 
-  UEAnalysisMPI();
-  ~UEAnalysisMPI(){}
+  UEAnalysisGAM();
+  ~UEAnalysisGAM(){}
   
-  void mpiAnalysisMC(Float_t,Float_t,Float_t,TClonesArray&);
-  void mpiAnalysisRECO(float,float,float,TClonesArray*);
-
+  void gammaAnalysisMC(Float_t,Float_t,Float_t,TClonesArray&,TClonesArray&);
+ 
   void Begin(TFile *);
 
   void writeToFile(TFile *);
-
+  
+  TH1D* fdPhiGamma1JetMC;
+  TH1D* fdPhiGamma2JetMC;
+  TH1D* fdPhiGamma3JetMC;
+  TH1D* fPtLeadingGammaMC;
+  TH1D* fEtaLeadingGammaMC;
+  TH1D* fPhiLeadingGammaMC;
   TH1D* fNumbMPIMC;
   TH1D* fdEtaLeadingPairMC;
   TH1D* fdPhiLeadingPairMC;
@@ -35,15 +40,7 @@ class UEAnalysisMPI {
   TProfile* pPtRatio_vs_PtJleadMC;
   TProfile* pPtRatio_vs_EtaJleadMC;
   TProfile* pPtRatio_vs_PhiJleadMC;
-
-  TH1D* fNumbMPIRECO;
-  TH1D* fdEtaLeadingPairRECO;
-  TH1D* fdPhiLeadingPairRECO;
-  TH1D* fptRatioLeadingPairRECO;
-  TProfile* pPtRatio_vs_PtJleadRECO;
-  TProfile* pPtRatio_vs_EtaJleadRECO;
-  TProfile* pPtRatio_vs_PhiJleadRECO;
-
+  
   float piG;
   float rangePhi;
 };

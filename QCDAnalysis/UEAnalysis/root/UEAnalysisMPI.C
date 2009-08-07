@@ -34,13 +34,14 @@ void UEAnalysisMPI::Begin(TFile * f){
 
 }
 
-void UEAnalysisMPI::mpiAnalysisMC(float weight,float etaRegion,float ptThreshold, TClonesArray* ChargedJet)
+
+void UEAnalysisMPI::mpiAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThreshold, TClonesArray& ChargedJet)
 {
   vector<TLorentzVector*> JetMC;
   JetMC.clear();
   
-  for(int j=0;j<ChargedJet->GetSize();++j){
-    TLorentzVector *v = (TLorentzVector*)ChargedJet->At(j);
+  for(int j=0;j<ChargedJet.GetSize();++j){
+    TLorentzVector *v = (TLorentzVector*)ChargedJet.At(j);
     if(fabs(v->Eta())<etaRegion){
       JetMC.push_back(v);
     }

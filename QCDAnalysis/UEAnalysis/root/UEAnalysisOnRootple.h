@@ -20,6 +20,7 @@
 #include "UEAnalysisUE.h"
 #include "UEAnalysisMPI.h"
 #include "UEAnalysisJets.h"
+#include "UEAnalysisGAM.h"
 
 using namespace std;
 
@@ -36,6 +37,7 @@ public :
   TClonesArray    *MonteCarlo;
   TClonesArray    *Track;
   TClonesArray    *InclusiveJet;
+  TClonesArray    *MCGamma;
   TClonesArray    *ChargedJet;
   TClonesArray    *TracksJet;
   TClonesArray    *CalorimeterJet;
@@ -47,6 +49,7 @@ public :
   TBranch        *b_MonteCarlo;   //!
   TBranch        *b_Track;   //!
   TBranch        *b_InclusiveJet;   //!
+  TBranch        *b_MCGamma;
   TBranch        *b_ChargedJet;   //!
   TBranch        *b_TracksJet;   //!
   TBranch        *b_CalorimeterJet;   //!
@@ -100,6 +103,7 @@ public :
   UEAnalysisJets* jetsAll            ;
 
   UEAnalysisMPI* mpi;
+  UEAnalysisGAM* gam;
 
 
   TH1D* h_acceptedTriggers;

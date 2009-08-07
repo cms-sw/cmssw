@@ -75,6 +75,22 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 
   /// declare jet algo
   //  jetsWithAreas = new UEAnalysisJetAreas( eta , ptCut , "kT" );
+ 
+   TFile *MpiOutFile = TFile::Open( outname,"recreate" ); //Declare TFile for MPI and Gamma Analysis
+
+   if (type == "Gam" )
+     {
+       gam = new UEAnalysisGAM();
+       gam->Begin(MpiOutFile);
+     }
+
+   if ( type == "MPI" || type == "MPIGen" )
+     {
+      /// declare histogram filler
+       mpi = new UEAnalysisMPI();
+       mpi->Begin(MpiOutFile);
+     }
+
 
   if ( type == "Area" || type == "AreaGen" )
     {
@@ -166,7 +182,7 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 	  //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC500;1    UEAnalysisRootpleOnlyMC500 (AnalysisRootpleProducerOnlyMC) folder
 
 	  char   buffer[200];
-	  if ( type == "UEGen" || type == "AreaGen" ) 
+	  if ( type == "UEGen" || type == "AreaGen" || type == "MPIGen" || type == "Gam") 
 	    {
 	      sprintf ( buffer, "UEAnalysisRootpleOnlyMC%i", int(ptCut) );
 	    }
@@ -176,7 +192,7 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 	  f->cd( buffer );
 
 	  TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
-	  Init(tree, trigger);
+	  Init(tree, type);
 	  
 	  Loop(weight[filenumber],ptThreshold,type,trigger,tkpt);
 	  
@@ -194,6 +210,16 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
   
   EndJob ( type );
   
+  if (type == "Gam")
+    {
+      gam->writeToFile(MpiOutFile);
+      delete gam;
+    }
+  if ( type == "MPI"  || type == "MPIGen"  ) 
+    {
+      mpi->writeToFile(MpiOutFile);
+      delete mpi;
+    }
   if ( type == "Area" || type == "AreaGen" ) delete areaHistos;
   if ( type == "UE"   || type == "UEGen"   ) delete ueHistos;
   if ( type == "HLT"                       ) delete hltHistos;
@@ -285,6 +311,23 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
  	  delete areaFinder;
 	}    
       
+      //Gamma
+      if (type=="Gam")
+	{
+	  gam->gammaAnalysisMC(we, etaRegion, ptThreshold, *MCGamma, *ChargedJet);
+	}
+
+      ///MPI and MPIGen
+      if (type=="MPIGen")
+      	{ 
+	  mpi->mpiAnalysisMC(we, etaRegion, ptThreshold, *ChargedJet);
+	}
+
+      // if (type=="MPI")
+      //	{
+	  //Not yet tested
+      //	  mpi->mpiAnalysisRECO(we, etaRegion, ptThreshold,*TracksJet);
+	  //	}
 
       ///
       /// UE: identify UE densities
@@ -364,7 +407,7 @@ Long64_t UEAnalysisOnRootple::LoadTree(Long64_t entry)
    return centry;
 }
 
-void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
+void UEAnalysisOnRootple::Init(TTree *tree, string type)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -382,6 +425,7 @@ void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
    Track = 0;
    InclusiveJet = 0;
    ChargedJet = 0;
+   MCGamma = 0;
    TracksJet = 0;
    CalorimeterJet = 0;
    acceptedTriggers = 0;
@@ -403,8 +447,9 @@ void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
    fChain->SetBranchAddress("EventKind", &EventKind, &b_EventKind);
    fChain->SetBranchAddress("MonteCarlo", &MonteCarlo, &b_MonteCarlo);
    fChain->SetBranchAddress("ChargedJet", &ChargedJet, &b_ChargedJet);
+   fChain->SetBranchAddress("MCGamma", &MCGamma, &b_MCGamma);
 
-   if ( trigger != "UEGen" )
+   if ( type != "UEGen" || type != "MPIGen" || type != "Gam" )
      {
        fChain->SetBranchAddress("InclusiveJet", &InclusiveJet, &b_InclusiveJet);
        fChain->SetBranchAddress("Track", &Track, &b_Track);
