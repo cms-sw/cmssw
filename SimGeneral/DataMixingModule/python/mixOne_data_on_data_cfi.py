@@ -97,8 +97,8 @@ mixData = cms.EDFilter("DataMixingModule",
                    #
     #  Pileup
                    #                   
-    DTPileInputTag        = cms.InputTag("muonDTDigis","MuonDTDigis"),
-    RPCPileInputTag       = cms.InputTag("muonRPCDigis","MuonRPCDigis"),
+    DTPileInputTag        = cms.InputTag("muonDTDigis"),
+    RPCPileInputTag       = cms.InputTag("muonRPCDigis"),
     CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
     CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
     CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi"),
