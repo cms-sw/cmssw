@@ -593,9 +593,9 @@ void ResolutionAnalyzer::fillHistoMap() {
   mapHisto_["EtaResolutionSimVSMu"]       = new HResolutionVSPart (outputFile_, "EtaResolutionSimVSMu");
   mapHisto_["ThetaResolutionGenVSMu"]     = new HResolutionVSPart (outputFile_, "ThetaResolutionGenVSMu");
   mapHisto_["ThetaResolutionSimVSMu"]     = new HResolutionVSPart (outputFile_, "ThetaResolutionSimVSMu");
-  mapHisto_["CotgThetaResolutionGenVSMu"] = new HResolutionVSPart (outputFile_, "CotgThetaResolutionGenVSMu");
+  mapHisto_["CotgThetaResolutionGenVSMu"] = new HResolutionVSPart (outputFile_, "CotgThetaResolutionGenVSMu", -0.02, 0.02, -0.02, 0.02);
   mapHisto_["CotgThetaResolutionSimVSMu"] = new HResolutionVSPart (outputFile_, "CotgThetaResolutionSimVSMu");
-  mapHisto_["PhiResolutionGenVSMu"]       = new HResolutionVSPart (outputFile_, "PhiResolutionGenVSMu", -0.05, 0.05);
+  mapHisto_["PhiResolutionGenVSMu"]       = new HResolutionVSPart (outputFile_, "PhiResolutionGenVSMu", -0.002, 0.002, -0.002, 0.002);
   mapHisto_["PhiResolutionSimVSMu"]       = new HResolutionVSPart (outputFile_, "PhiResolutionSimVSMu");
 
   // Covariances between muons kinematic quantities
