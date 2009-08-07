@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/07/31 20:33:31 $
- * $Revision: 1.121 $
+ * $Date: 2009/08/06 11:21:53 $
+ * $Revision: 1.122 $
  * \author W Fisher
  * \author J Temple
  *
@@ -579,15 +579,15 @@ void HcalMonitorModule::endJob(void) {
 		} 	 
 	      // Only perform these checks if bit 0 not set?
 	      // check dead cells
-	      if ((myquality_[id]>>5)&0x1)
-		  mystatus->setBit(5);
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
+		  mystatus->setBit(HcalChannelStatus::HcalCellDead);
 	      else
-		mystatus->unsetBit(5);
+		mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
 	      // check hot cells
-	      if ((myquality_[id]>>6)&0x1)
-		mystatus->setBit(6);
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
+		mystatus->setBit(HcalChannelStatus::HcalCellHot);
 	      else
-		mystatus->unsetBit(6);
+		mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
 	    } // if (myquality_.find_...)
 	  newChanQual->addValues(*mystatus);
 	  // Clean up pointers to avoid memory leaks
