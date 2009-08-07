@@ -72,10 +72,12 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
     lumiSegmentNr_        = raw->trig.lumiSegmentNr;
     lumiSegmentOrbits_    = raw->trig.lumiSegmentOrbits;
     orbitNr_              = raw->trig.orbitNr;
-    gtResets_   = raw->trig.gtResets;
+    gtResets_             = raw->trig.gtResets;
     bunchCrossingErrors_  = raw->trig.bunchCrossingErrors;
-    gtTriggers_ = raw->trig.gtTriggers;
-    gtEvents_   = raw->trig.gtEvents;
+    gtTriggers_           = raw->trig.gtTriggers;
+    gtEvents_             = raw->trig.gtEvents;
+    gtTriggersRate_       = raw->trig.gtTriggersRate;
+    gtEventsRate_         = raw->trig.gtEventsRate;
     prescaleIndexAlgo_    = raw->trig.prescaleIndexAlgo;
     prescaleIndexTech_    = raw->trig.prescaleIndexTech;
 
@@ -128,14 +130,14 @@ double Level1TriggerScalers::rateLS(unsigned long long counts)
 
 double Level1TriggerScalers::percentLS(unsigned long long counts)
 { 
-  double percent = ((double)counts) * 373712486400.0;
+  double percent = ((double)counts) / 37371248.64;
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }
 
 double Level1TriggerScalers::percentLSActive(unsigned long long counts)
 { 
-  double percent = ((double)counts) * 294440140800.0;
+  double percent = ((double)counts) / 29444014.08;
   if ( percent > 100.0000 ) { percent = 100.0;}
   return(percent);
 }
@@ -276,7 +278,7 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   int length = gtAlgoCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
+    sprintf(line," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
 	    i,              gtAlgoCounts[i], 
 	    (i+length),     gtAlgoCounts[i+length], 
 	    (i+(length*2)), gtAlgoCounts[i+(length*2)], 
@@ -289,7 +291,7 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   length = gtTechCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line," %3.3d: %10d    %3.3d: %10d    %3.3d: %10d    %3.3d: %10d",
+    sprintf(line," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
 	    i,              gtTechCounts[i], 
 	    (i+length),     gtTechCounts[i+length], 
 	    (i+(length*2)), gtTechCounts[i+(length*2)], 
