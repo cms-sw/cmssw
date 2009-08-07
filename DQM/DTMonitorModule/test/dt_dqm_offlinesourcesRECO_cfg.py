@@ -87,7 +87,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # reco
 # process.reco = cms.Sequence(process.dt1DRecHits + process.dt4DSegments)
 
-
+process.dtSources.remove(process.dtDataIntegrityUnpacker)
 process.DTDQMOfflineCosmics = cms.Sequence(process.dtSources)
 
 
