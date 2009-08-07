@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2009/07/29 10:30:30 $
- * $Revision: 1.1 $
+ * $Date: 2009/08/03 16:08:38 $
+ * $Revision: 1.2 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -45,7 +45,7 @@ using namespace std;
 
 DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : trigGeomUtils(0) {
   
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Constructor" << endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
   parameters = ps;
   dbe = edm::Service<DQMStore>().operator->();
@@ -55,14 +55,14 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
 DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
 
-  edm::LogProblem ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
 
 }
 
 
 void DTTriggerEfficiencyTask::beginJob(const edm::EventSetup& context){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
 
   detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis",false);
   processDCC = parameters.getUntrackedParameter<bool>("processDCC",true);    // CB Li metto untracked? Guarda resto del DQM...
@@ -112,14 +112,14 @@ void DTTriggerEfficiencyTask::beginJob(const edm::EventSetup& context){
 
 void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
 
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
   
 }
 
 
 void DTTriggerEfficiencyTask::endJob(){
 
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
   if (processDDU) { dbe->rmdir(topFolder(0)); } // DDU top Folder
   if (processDCC) { dbe->rmdir(topFolder(1)); } // DCC top Folder
 
@@ -343,7 +343,7 @@ void DTTriggerEfficiencyTask::bookChamberHistos(const DTChamberId& dtCh, string 
 
   dbe->setCurrentFolder(bookingFolder);
     
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: booking " << bookingFolder << "/" << histoName << endl;
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: booking " << bookingFolder << "/" << histoName << endl;
     
   if( histoType.find("TrackPosvsAngle") == 0 ){
     float min, max;
