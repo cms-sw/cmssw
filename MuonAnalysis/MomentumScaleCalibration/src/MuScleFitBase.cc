@@ -22,7 +22,8 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass); 
   mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 
-  mapHisto_["hRecBestRes"]     = new HParticle   ("hRecBestRes", minMass, maxMass);
+  mapHisto_["hRecBestRes"]          = new HParticle   ("hRecBestRes", minMass, maxMass);
+  mapHisto_["hRecBestResAllEvents"] = new HParticle   ("hRecBestResAllEvents", minMass, maxMass);
   //mapHisto_["hRecBestRes_Acc"] = new HParticle   ("hRecBestRes_Acc", minMass, maxMass); 
   // If not finding Z, use a smaller mass window
   mapHisto_["hRecBestResVSMu"] = new HMassVSPart ("hRecBestResVSMu", minMass, maxMass);
