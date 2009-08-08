@@ -6,7 +6,7 @@ process = cms.Process("EcalSelectiveReadoutValid")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # initialize magnetic field
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # geometry (Only Ecal)
 process.load("Geometry.EcalCommonData.EcalOnly_cfi")
@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/2008/6/25/RelVal-RelValQCD_Pt_50_80-1214239099-STARTUP_V1-2nd/0007/0026A328-B542-DD11-8F0E-001617E30F58.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_2_2/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0001/A03E16E9-3C78-DE11-B612-0018F3D09620.root')
 )
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
