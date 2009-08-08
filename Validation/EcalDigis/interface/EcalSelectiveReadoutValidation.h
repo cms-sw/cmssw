@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2009/06/19 13:28:57 $
- * $Revision: 1.8 $
+ * $Date: 2009/08/03 12:50:31 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -643,8 +643,6 @@ private:
   MonitorElement* meDroppedFRO_;
   MonitorElement* meCompleteZS_;
   
-  MonitorElement* meSRFlagsConsistency_;
-	
   MonitorElement* meIncompleteFROMap_;
   MonitorElement* meDroppedFROMap_;
   MonitorElement* meCompleteZSMap_;
