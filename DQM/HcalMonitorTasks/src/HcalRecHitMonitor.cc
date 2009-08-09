@@ -1,6 +1,9 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
+#include <iostream>
+#include <fstream>
+//to exclude bits 2 to 5
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
-#define OUT if(fverbosity_)cout
 #define TIME_MIN -250
 #define TIME_MAX 250
 
@@ -27,7 +30,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       cpu_timer.reset(); cpu_timer.start();
     }
   if (fVerbosity>0)
-    cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
+    std::cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
   baseFolder_ = rootFolder_+"RecHitMonitor_Hcal";
 
@@ -40,7 +43,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   // Rec Hit Monitor - specific cfg variables
 
   if (fVerbosity>1)
-    cout <<"<HcalRecHitMonitor::setup>  Getting variable values from cfg files"<<endl;
+    std::cout <<"<HcalRecHitMonitor::setup>  Getting variable values from cfg files"<<endl;
   
   // rechit_makeDiagnostics_ will take on base task value unless otherwise specified
   rechit_makeDiagnostics_ = ps.getUntrackedParameter<bool>("RecHitMonitor_makeDiagnosticPlots",makeDiagnostics);
@@ -65,7 +68,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
   if (m_dbe)
     {
       if (fVerbosity>1)
-	cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
+	std::cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<endl;
 
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("RecHit Task Event Number");
@@ -114,6 +117,58 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       h_HOEnergyRMS_1D=m_dbe->book1D("HO_energy_RMS_1D","HO Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
       h_HFEnergyRMS_1D=m_dbe->book1D("HF_energy_RMS_1D","HF Energy RMS Per Rec Hit;Energy (GeV)",500,0,5);
 
+      TH1F* tempflag;
+      m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags/hb");//HB Flag Histograms
+      h_HBflagcounter=m_dbe->book1D("HBflags","HB flags",32,-0.5,31.5);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEPulseShape, "PulseShape",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_R1R2, "HSCP R1R2",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
+      h_HBflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
+
+      m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags/he");///HE Flag Histograms
+      h_HEflagcounter=m_dbe->book1D("HEflags","HE flags",32,-0.5,31.5);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEHpdHitMultiplicity, "HpdHitMult",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HBHEPulseShape, "PulseShape",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_R1R2, "HSCP R1R2",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_FracLeader, "HSCP FracLeader",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_OuterEnergy, "HSCP OuterEnergy",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::HSCP_ExpFit, "HSCP ExpFit",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
+      h_HEflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
+
+      m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags/ho");///HO Flag Histograms
+      h_HOflagcounter=m_dbe->book1D("HOflags","HO flags",32,-0.5,31.5);
+      h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
+      h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
+      h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
+      h_HOflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
+  
+      m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags/hf");///HF Flag Histograms
+      h_HFflagcounter=m_dbe->book1D("HFflags","HF flags",32,-0.5,31.5);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFLongShort, "LongShort",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::HFDigiTime, "DigiTime",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingSubtractedBit, "Subtracted",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingAddedBit, "Added",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::TimingErrorBit, "TimingError",1);
+      h_HFflagcounter->setBinLabel(1+HcalCaloFlagLabels::ADCSaturationBit, "Saturation",1);
+
+      tempflag=h_HBflagcounter->getTH1F();
+      tempflag->LabelsOption("v");
+      tempflag=h_HEflagcounter->getTH1F();
+      tempflag->LabelsOption("v");
+      tempflag=h_HOflagcounter->getTH1F();
+      tempflag->LabelsOption("v");
+      tempflag=h_HFflagcounter->getTH1F();
+      tempflag->LabelsOption("v");
+      
       if (rechit_makeDiagnostics_)
 	{
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hb");
@@ -136,7 +191,8 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HEThreshTime=m_dbe->book1D("HE_time_thresh", "HE Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
 	  h_HEOccupancy=m_dbe->book1D("HE_occupancy","HE Rec Hit Occupancy",2593,-0.5,2592.5);
 	  h_HEThreshOccupancy=m_dbe->book1D("HE_occupancy_thresh","HE Rec Hit Occupancy Above Threshold",2593,-0.5,2592.5);
-	  // he
+
+	  //he
 
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/ho");	
 	  h_HOEnergy=m_dbe->book1D("HO_energy","HO Rec Hit Energy",200,-5,5);
@@ -147,6 +203,8 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HOThreshTime=m_dbe->book1D("HO_time_thresh", "HO Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
 	  h_HOOccupancy=m_dbe->book1D("HO_occupancy","HO Rec Hit Occupancy",2161,-0.5,2160.5);
 	  h_HOThreshOccupancy=m_dbe->book1D("HO_occupancy_thresh","HO Rec Hit Occupancy Above Threshold",2161,-0.5,2160.5);
+
+
 	  // ho
 
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hf");	
@@ -158,6 +216,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF Rec Hit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
 	  h_HFOccupancy=m_dbe->book1D("HF_occupancy","HF Rec Hit Occupancy",1729,-0.5,1728.5);
 	  h_HFThreshOccupancy=m_dbe->book1D("HF_occupancy_thresh","HF Rec Hit Occupancy Above Threshold",1729,-0.5,1728.5);
+
 	  // hf
 	  
 	} // if (rechit_Diagnostics_)
@@ -207,7 +266,6 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     //const ZDCRecHitCollection& zdcHits,
 				     )
 {
-
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -217,7 +275,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   if (hoHits.size()>0) HOpresent_=true;
   if (hfHits.size()>0) HFpresent_=true;
 
-  if (fVerbosity>1) cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
+  if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<endl;
 
   processEvent_rechit(hbHits, hoHits, hfHits);
   
@@ -264,7 +322,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  if (fVerbosity>1) cout <<"<HcalRecHitMonitor::processEvent_rechitenergy> Processing rechits..."<<endl;
+  if (fVerbosity>1) std::cout <<"<HcalRecHitMonitor::processEvent_rechitenergy> Processing rechits..."<<endl;
   
   // loop over HBHE
   
@@ -302,23 +360,42 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       SumTimeByDepth.depth[i]->setBinContent(0,0,ievt_);
     }
   
-
+  
   for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
     { // loop over all hits
       float en = HBHEiter->energy();
       float ti = HBHEiter->time();
-
       HcalDetId id(HBHEiter->detid().rawId());
       int ieta = id.ieta();
       int iphi = id.iphi();
       int depth = id.depth();
       HcalSubdetector subdet = id.subdet();
       int calcEta = CalcEtaBin(subdet,ieta,depth);
+     
       if (subdet==HcalBarrel)
 	{
 	  HBpresent_=true;
 	  if (!checkHB_) continue;
-	
+	  
+	  
+	  //Looping over HB searching for flags --- cris
+	  for (int f=0;f<32;f++)
+	    {
+	       if(f == HcalCaloFlagLabels::HSCP_R1R2)
+		continue;
+              if(f == HcalCaloFlagLabels::HSCP_FracLeader)
+                continue;
+              if(f == HcalCaloFlagLabels::HSCP_OuterEnergy)
+                continue;
+              if(f == HcalCaloFlagLabels::HSCP_ExpFit)
+                continue;
+
+	      if (HBHEiter->flagField(f))
+		HBflagcounter_[f]++;
+	      
+	    }
+	  
+
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
           energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -362,6 +439,15 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  HEpresent_=true;
 	  if (!checkHE_) continue;
 	  
+
+	  //Looping over HE searching for flags --- cris
+	  for (int f=0;f<32;f++)
+            {
+              if (HBHEiter->flagField(f))
+                HEflagcounter_[f]++;
+            }
+
+
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
           energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -435,6 +521,15 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int depth = id.depth();
          int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
 
+
+	 //Looping over HO searching for flags --- cris
+	 for (int f=0;f<32;f++)
+	   {
+	     if (HOiter->flagField(f))
+	       HOflagcounter_[f]++;
+	   }
+
+
 	 ++occupancy_[calcEta][iphi-1][depth-1];
 	 energy_[calcEta][iphi-1][depth-1]+=en;
          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -501,6 +596,15 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	 int depth = id.depth();
          int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
+
+	 //Looping over HF searching for flags --- cris
+	 for (int f=0;f<32;f++)
+	   {
+	     if (HFiter->flagField(f))
+	       HFflagcounter_[f]++;
+	   }
+
+
 	 ++occupancy_[calcEta][iphi-1][depth-1];
 	 energy_[calcEta][iphi-1][depth-1]+=en;
          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -550,7 +654,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
  
  if (showTiming)
    {
-     cpu_timer.stop();  cout <<"TIMER:: HcalRecHitMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitMonitor PROCESSEVENT_RECHITENERGY -> "<<cpu_timer.cpuTime()<<endl;
    }
  return;
 } // void HcalRecHitMonitor::processEvent_rechitenergy
@@ -561,6 +665,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
 
 void HcalRecHitMonitor::fillNevents(void)
+  //void HcalRecHitMonitor::fillNevents(const HBHERecHitCollection& hbheHits)
+
 {
   if (showTiming)
     {
@@ -576,6 +682,32 @@ void HcalRecHitMonitor::fillNevents(void)
   h_HEEnergy_1D->Reset();
   h_HOEnergy_1D->Reset();
   h_HFEnergy_1D->Reset();
+
+  //Flag histogram fill---- cris
+  h_HBflagcounter->setBinContent(0,ievt_); // hide total number in underflow bin (0)
+  h_HEflagcounter->setBinContent(0,ievt_);
+  h_HFflagcounter->setBinContent(0,ievt_);
+  h_HOflagcounter->setBinContent(0,ievt_); 
+
+  //looking at the contents of HbFlagcounters
+  if (fVerbosity>0)
+    {
+      for (int k = 0; k <= 32; k++){
+	std::cout << "<HcalRecHitMonitor::fillNevents>  HF Flag counter:  Bin #" << k+1 << " = "<< HFflagcounter_[k] << endl;
+      }
+    }
+
+  for (int i=0;i<32;i++)
+    {
+      h_HBflagcounter->Fill(i,HBflagcounter_[i]);
+      h_HEflagcounter->Fill(i,HEflagcounter_[i]);
+      h_HOflagcounter->Fill(i,HOflagcounter_[i]);
+      h_HFflagcounter->Fill(i,HFflagcounter_[i]);
+      HBflagcounter_[i]=0;
+      HEflagcounter_[i]=0;
+      HOflagcounter_[i]=0;
+      HFflagcounter_[i]=0;
+    }
 
   h_HBEnergyRMS_1D->Reset();
   h_HEEnergyRMS_1D->Reset();
@@ -772,11 +904,11 @@ void HcalRecHitMonitor::fillNevents(void)
   //zeroCounters();
 
   if (fVerbosity>0)
-    cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
+    std::cout <<"<HcalRecHitMonitor::fillNevents_problemCells> FILLED REC HIT CELL PLOTS"<<endl;
     
   if (showTiming)
     {
-      cpu_timer.stop();  cout <<"TIMER:: HcalRecHitMonitor FILLNEVENTS -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalRecHitMonitor FILLNEVENTS -> "<<cpu_timer.cpuTime()<<endl;
     }
 
 } // void HcalRecHitMonitor::fillNevents(void)
@@ -786,6 +918,14 @@ void HcalRecHitMonitor::zeroCounters(void)
 {
   // Set all histogram counters back to zero
 
+  for (int i=0;i<32;++i)
+    {
+      HBflagcounter_[i]=0;
+      HEflagcounter_[i]=0;
+      HOflagcounter_[i]=0;
+      HFflagcounter_[i]=0;
+
+    }
   // TH2F counters
   for (int i=0;i<ETABINS;++i)
     {

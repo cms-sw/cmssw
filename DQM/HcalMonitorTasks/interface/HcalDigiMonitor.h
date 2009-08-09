@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/07/21 11:02:48 $
-  * $Revision: 1.42 $
+  * $Date: 2009/07/31 20:32:36 $
+  * $Revision: 1.43 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -35,6 +35,7 @@ struct DigiHists
   MonitorElement* CapID;
   MonitorElement* ADC;
   MonitorElement* ADCsum;
+  MonitorElement* fibBCNOff;
   std::vector<MonitorElement*> TS_sum_plus, TS_sum_minus;
 
   int count_shape[10];
@@ -49,6 +50,7 @@ struct DigiHists
   int capid[4];
   int adc[200];
   int adcsum[200];
+  int fibbcnoff[15];
   int tssumplus[50][10];
   int tssumminus[50][10];
 };
@@ -95,11 +97,13 @@ private:
   EtaPhiHists DigiErrorsBadDigiSize;
   EtaPhiHists DigiErrorsBadADCSum;
   EtaPhiHists DigiErrorsDVErr;
+  EtaPhiHists DigiErrorsBadFibBCNOff;
   MonitorElement* DigiSize;
   int problemdigis[85][72][4];
   int badcapID[85][72][4];
   int baddigisize[85][72][4];
   int badADCsum[85][72][4];
+  int badFibBCNOff[85][72][4];
   int digisize[20][4];
   int digierrorsdverr[85][72][4];
 
@@ -121,6 +125,12 @@ private:
   MonitorElement* DigiErrorSpigot;
   MonitorElement* DigiBQ;
   MonitorElement* DigiBQFrac;
+
+  MonitorElement* HBocc_vs_LB;
+  MonitorElement* HEocc_vs_LB;
+  MonitorElement* HOocc_vs_LB;
+  MonitorElement* HFocc_vs_LB;
+
 
   int digiBQ[DIGI_NUM]; 
   int digiBQfrac[DIGI_BQ_FRAC_NBINS]; 

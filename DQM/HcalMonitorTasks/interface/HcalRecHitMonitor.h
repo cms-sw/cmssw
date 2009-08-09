@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/07/27 19:21:49 $
-  * $Revision: 1.28 $
+  * $Date: 2009/07/31 20:32:36 $
+  * $Revision: 1.29 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -122,6 +122,12 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double HFshort_occupancy_[865];
   double HFshort_occupancy_thresh_[865];
 
+  int HEflagcounter_[32];
+  int HBflagcounter_[32];
+  int HOflagcounter_[32];
+  int HFflagcounter_[32];
+
+
   // Diagnostic plots
   MonitorElement* h_HBEnergy;
   MonitorElement* h_HBThreshEnergy;
@@ -163,6 +169,11 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HEEnergy_1D;
   MonitorElement* h_HOEnergy_1D;
   MonitorElement* h_HFEnergy_1D;
+
+  MonitorElement* h_HBflagcounter;
+  MonitorElement* h_HEflagcounter;
+  MonitorElement* h_HOflagcounter;
+  MonitorElement* h_HFflagcounter;
 
   MonitorElement* h_HBEnergyRMS_1D;
   MonitorElement* h_HEEnergyRMS_1D;

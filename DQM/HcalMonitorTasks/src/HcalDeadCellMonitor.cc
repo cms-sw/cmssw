@@ -644,7 +644,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       */
       if (showTiming)
 	{
-	  cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor PROCESSEVENT_DIGI -> "<<cpu_timer.cpuTime()<<std::endl;
+	  cpu_timer.stop();  std::cout <<"TIMER:: HcalDeadCellMonitor PROCESSEVENT_RECHIT -> "<<cpu_timer.cpuTime()<<std::endl;
 	}
     }
   
@@ -1302,3 +1302,53 @@ void HcalDeadCellMonitor::zeroCounters(bool resetpresent)
 
   return;
 } // void HcalDeadCellMonitor::zeroCounters(bool resetpresent)
+
+
+
+void HcalDeadCellMonitor::periodicReset()
+{
+
+  // first reset base class objects
+  HcalBaseMonitor::periodicReset();
+
+  // then reset the temporary histograms
+  HcalDeadCellMonitor::zeroCounters(true);
+
+  // now reset all the MonitorElements
+  if(NumberOfDeadCells)     NumberOfDeadCells->Reset();
+  if(NumberOfDeadCellsHB)   NumberOfDeadCellsHB->Reset();
+  if(NumberOfDeadCellsHE)   NumberOfDeadCellsHE->Reset();
+  if(NumberOfDeadCellsHO)   NumberOfDeadCellsHO->Reset();
+  if(NumberOfDeadCellsHF)   NumberOfDeadCellsHF->Reset();
+  if(NumberOfDeadCellsZDC)  NumberOfDeadCellsZDC->Reset();
+
+  if(NumberOfNeverPresentCells)     NumberOfNeverPresentCells->Reset();
+  if(NumberOfNeverPresentCellsHB)   NumberOfNeverPresentCellsHB->Reset();
+  if(NumberOfNeverPresentCellsHE)   NumberOfNeverPresentCellsHE->Reset();
+  if(NumberOfNeverPresentCellsHO)   NumberOfNeverPresentCellsHO->Reset();
+  if(NumberOfNeverPresentCellsHF)   NumberOfNeverPresentCellsHF->Reset();
+  if(NumberOfNeverPresentCellsZDC)  NumberOfNeverPresentCellsZDC->Reset();
+
+  if(NumberOfUnoccupiedCells)     NumberOfUnoccupiedCells->Reset();
+  if(NumberOfUnoccupiedCellsHB)   NumberOfUnoccupiedCellsHB->Reset();
+  if(NumberOfUnoccupiedCellsHE)   NumberOfUnoccupiedCellsHE->Reset();
+  if(NumberOfUnoccupiedCellsHO)   NumberOfUnoccupiedCellsHO->Reset();
+  if(NumberOfUnoccupiedCellsHF)   NumberOfUnoccupiedCellsHF->Reset();
+  if(NumberOfUnoccupiedCellsZDC)  NumberOfUnoccupiedCellsZDC->Reset();
+
+  if(NumberOfBelowEnergyCells)     NumberOfBelowEnergyCells->Reset();
+  if(NumberOfBelowEnergyCellsHB)   NumberOfBelowEnergyCellsHB->Reset();
+  if(NumberOfBelowEnergyCellsHE)   NumberOfBelowEnergyCellsHE->Reset();
+  if(NumberOfBelowEnergyCellsHO)   NumberOfBelowEnergyCellsHO->Reset();
+  if(NumberOfBelowEnergyCellsHF)   NumberOfBelowEnergyCellsHF->Reset();
+  if(NumberOfBelowEnergyCellsZDC)  NumberOfBelowEnergyCellsZDC->Reset();
+
+
+  // now reset the display histograms
+  UnoccupiedDeadCellsByDepth.Reset();
+  DigisNeverPresentByDepth.Reset();
+  BelowEnergyThresholdCellsByDepth.Reset();
+
+  // okay, we are out of here.
+  return;
+}

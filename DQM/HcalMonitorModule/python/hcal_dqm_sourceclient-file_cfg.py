@@ -146,6 +146,7 @@ process.hcalMonitor.DeadCellMonitor     = True
 process.hcalMonitor.HotCellMonitor      = True
 process.hcalMonitor.BeamMonitor         = True
 process.hcalMonitor.PedestalMonitor     = True
+process.hcalMonitor.DetDiagNoiseMonitor = True
 process.hcalMonitor.LEDMonitor          = False
 process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.MTCCMonitor         = False

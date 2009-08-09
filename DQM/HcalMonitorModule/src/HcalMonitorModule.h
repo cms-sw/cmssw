@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/07/31 20:33:31 $
- * $Revision: 1.47 $
+ * $Date: 2009/08/06 11:22:17 $
+ * $Revision: 1.48 $
  * \author W. Fisher
  *
 */
@@ -54,6 +54,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalCaloTowerMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 
 #include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEEUSMonitor.h"

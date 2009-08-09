@@ -68,8 +68,14 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
   inputLabelDigi_       = ps.getParameter<edm::InputTag>         ("digiLabel");
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
   
   HcalBaseMonitor::setup(ps,dbe);
+
   baseFolder_ = rootFolder_+"HcalNoiseMonitor";
   char *name;
   if(m_dbe!=NULL){    
@@ -128,13 +134,25 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   IsReference=false;
   //LoadReference();
   lmap =new HcalLogicalMap(gen.createMap());
+
+  if (showTiming)
+    {
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDetDiagNoiseMonitor Setup -> "<<cpu_timer.cpuTime()<<std::endl;
+    }
+
   return;
 } 
 
 void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond){
-bool isNoiseEvent=false;   
-   if(!m_dbe) return;
+  bool isNoiseEvent=false;   
+  if(!m_dbe) return;
    
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+
    ievt_++;
    meEVT_->Fill(ievt_);
    run_number=iEvent.id().run();
@@ -242,7 +260,12 @@ bool isNoiseEvent=false;
    
    UpdateHistos();
        
-   if((ievt_%100)==0) printf("%i\t%i\n",ievt_,NoisyEvents);
+   if((ievt_%100)==0 && fVerbosity) printf("%i\t%i\n",ievt_,NoisyEvents);
+   if (showTiming)
+    {
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalDetDiagNoiseMonitor PROCESSEVENT -> "<<cpu_timer.cpuTime()<<std::endl;
+    }
+
    return;
 }
 
