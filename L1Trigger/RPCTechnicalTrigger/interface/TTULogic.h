@@ -1,4 +1,4 @@
-// $Id: TTULogic.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
+// $Id: TTULogic.h,v 1.2 2009/06/04 11:52:58 aosorio Exp $
 #ifndef INTERFACE_TTULOGIC_H 
 #define INTERFACE_TTULOGIC_H 1
 
@@ -25,7 +25,13 @@ public:
   virtual bool process ( const TTUInput & ) = 0;
 
   virtual void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) = 0;
+  
+  virtual void setOption( int option ) {
+    m_option = option;
+  };
     
+  int m_option;
+  
   bool m_triggersignal;
 
 protected:

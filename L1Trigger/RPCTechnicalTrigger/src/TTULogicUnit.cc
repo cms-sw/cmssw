@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.cc,v 1.3 2009/06/01 12:57:20 aosorio Exp $
+// $Id: TTULogicUnit.cc,v 1.4 2009/06/04 11:52:59 aosorio Exp $
 // Include files 
 
 
@@ -79,6 +79,13 @@ void TTULogicUnit::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardSpc
 void TTULogicUnit::run( const TTUInput & input )
 {
  
+  m_logic->process( input );
+ 
+}
+
+void TTULogicUnit::run( const TTUInput & input , int option )
+{
+  m_logic->setOption( option );
   m_logic->process( input );
  
 }

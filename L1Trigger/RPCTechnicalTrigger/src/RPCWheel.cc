@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.9 2009/07/01 22:52:06 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.10 2009/07/04 20:07:40 aosorio Exp $
 // Include files
 
 
@@ -299,6 +299,8 @@ void RPCWheel::printinfo()
 void RPCWheel::print_wheel(const TTUInput & wmap )
 {
 
+  std::cout << "RPCWheel::print_wheel>" << std::endl;
+  
   for( int i=0; i < m_maxsectors; ++i) std::cout << '\t' << (i+1);
   std::cout << std::endl;
   

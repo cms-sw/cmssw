@@ -1,4 +1,4 @@
-// $Id: TTUBasicConfig.cc,v 1.4 2009/06/04 11:52:59 aosorio Exp $
+// $Id: TTUBasicConfig.cc,v 1.5 2009/07/01 22:52:06 aosorio Exp $
 // Include files 
 
 
@@ -18,14 +18,15 @@
 TTUBasicConfig::TTUBasicConfig( const TTUBoardSpecs * ttuspecs ) {
 
   m_ttuboardspecs = ttuspecs;
-  m_ttulogic      = new TTULogicUnit();
 
+  m_ttulogic      = new TTULogicUnit();
+  
   m_debug = false;
-    
+  
 }
 
 TTUBasicConfig::TTUBasicConfig( const char * logic  ) {
-
+  
   m_ttulogic = new TTULogicUnit( logic );
 
   m_debug = false;
@@ -54,15 +55,13 @@ bool TTUBasicConfig::initialise( int line )
   
   std::vector<TTUBoardSpecs::TTUBoardConfig>::const_iterator itr;
   itr = m_ttuboardspecs->m_boardspecs.begin();
- 
+  
   // initialise logic unit
   
   if ( line == 2 ) {
-    
-    // itr+=3; // <- ideally one would select the next three specifications
+    //itr+=3; // <- ideally one would select the next three specifications
     //temporary fix
-    
-    m_ttulogic->setlogic( "SectorORLogic" );
+    m_ttulogic->setlogic( "WedgeORLogic" );
     
   } else {
     

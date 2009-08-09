@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.11 2009/07/01 22:52:06 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.12 2009/07/04 20:07:40 aosorio Exp $
 // Include files 
 
 
@@ -24,7 +24,7 @@ TTUEmulator::TTUEmulator( int id, int mxw  )
   m_id        = id;
   m_maxWheels = mxw;
   
-  int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  int tmp[6]  = {1,  2, 0, 0, -1, -2};
   m_wheelIds = new int[6];
   for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
@@ -51,7 +51,7 @@ TTUEmulator::TTUEmulator( int id, const char * rbclogic_type, const char * ttulo
   m_id        = id;
   m_maxWheels = mxw;
 
-  int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  int tmp[6]  = {1,  2, 0, 0, -1, -2};
   m_wheelIds = new int[6];
   for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
@@ -80,7 +80,7 @@ TTUEmulator::TTUEmulator( int id, const char * f_name, const char * rbclogic_typ
   m_id        = id;
   m_maxWheels = mxw;
 
-  int tmp[6]  = {1, -2, 0, 0, -1, 2};
+  int tmp[6]  = {1,  2, 0, 0, -1, -2};
   m_wheelIds = new int[6];
   for( int k=0; k < 6; ++k) m_wheelIds[k]=tmp[k];
   
@@ -239,6 +239,85 @@ void TTUEmulator::processTtu( RPCInputSignal * signal )
   bxVec.clear();
     
 }
+
+void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId ) 
+{
+  
+  //. 
+  int bx(0);
+  bool trg(false); 
+  
+  m_trigger.reset();
+  m_triggerBx.clear();
+  
+  std::vector<int> bxVec;
+  std::vector<int>::iterator bxItr;
+  std::map<int,RBCInput*> * linkboardin;
+  std::map<int,RBCInput*>::iterator inItr;
+  
+  linkboardin = dynamic_cast<RBCLinkBoardGLSignal*>( signal )->m_linkboardin;
+  
+  for( inItr = (*linkboardin).begin(); inItr != (*linkboardin).end(); ++inItr) 
+  {
+    
+    if ( (*inItr).first < 0 ) bx = (int) ceil( (*inItr).first / 1000000.0 );
+    else bx = (int) floor( (*inItr).first / 1000000.0 );
+    bxVec.push_back(bx);
+    
+  }
+  
+  bxItr = unique (bxVec.begin(), bxVec.end());
+  bxVec.resize(bxItr - bxVec.begin());
+  
+  for ( bxItr = bxVec.begin(); bxItr != bxVec.end(); ++bxItr) {
+    
+    TriggerResponse * triggerResponse = new TriggerResponse();
+    
+    for( int k=0; k < m_maxWheels; ++k )
+    {
+      
+      if ( m_Wheels[k].process( (*bxItr) , (*linkboardin) ) ) {
+        
+        m_Wheels[k].createWheelMap();
+        
+        m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
+        
+        //.. execute selected logic at Ttu level
+        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
+        
+        //... and produce a Wheel level trigger
+        trg = m_ttuconf->m_ttulogic->isTriggered();
+        
+        m_trigger.set(k,trg);
+        
+        if( m_debug ) std::cout << "TTUEmulator::processTtu ttuid: " << m_id 
+                                << " bx: "          << (*bxItr)
+                                << " wheel: "       << m_Wheels[k].getid()
+                                << " response: "    << trg << std::endl;
+        
+      }
+      
+      
+    }
+    
+    
+    triggerResponse->setTriggerBits( (*bxItr) , m_trigger );
+    m_triggerBxVec.push_back( triggerResponse );
+    m_triggerBx[ (*bxItr) ] = m_trigger;
+    
+  }
+  
+  
+  if( m_debug ) std::cout << "TTUEmulator::processTtu> size of trigger map " 
+                          << m_triggerBx.size() << std::endl;
+  
+  
+  if( m_debug ) std::cout << "TTUEmulator::processTtu> done with this TTU: " << m_id << std::endl;
+
+  bxVec.clear();
+    
+}
+
 
 void TTUEmulator::clearTriggerResponse()
 {

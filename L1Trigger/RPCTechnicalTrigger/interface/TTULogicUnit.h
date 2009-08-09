@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
+// $Id: TTULogicUnit.h,v 1.4 2009/06/04 11:52:58 aosorio Exp $
 #ifndef TTULOGICUNIT_H 
 #define TTULOGICUNIT_H 1
 
@@ -35,11 +35,13 @@ public:
   void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
   
   void run( const TTUInput & );
+
+  void run( const TTUInput & , int );
   
   bool isTriggered() {
     return m_logic->m_triggersignal;
   };
-      
+    
 protected:
   
 private:

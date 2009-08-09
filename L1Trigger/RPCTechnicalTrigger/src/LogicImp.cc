@@ -1,4 +1,4 @@
-// $Id: LogicImp.cc,v 1.2 2009/05/16 19:43:31 aosorio Exp $
+// $Id: LogicImp.cc,v 1.3 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 // local
@@ -16,3 +16,5 @@ RBCPatternLogic   * createPatternLogic()   { return new RBCPatternLogic()   ;}
 TTUTrackingAlg    * createTrackingAlg()    { return new TTUTrackingAlg()    ;}
 TTUSectorORLogic  * createSectorORLogic()  { return new TTUSectorORLogic()  ;}
 TTUTwoORLogic     * createTwoORLogic()     { return new TTUTwoORLogic()     ;}
+TTUWedgeORLogic   * createWedgeORLogic()   { return new TTUWedgeORLogic()   ;}
+TTUPointingLogic  * createPointingLogic()  { return new TTUPointingLogic()  ;}

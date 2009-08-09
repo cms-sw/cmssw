@@ -34,11 +34,14 @@ if usedatabase >= 1:
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                       RPCDigiLabel = cms.InputTag("simMuonRPCDigis"),
                                       UseDatabase = cms.untracked.int32(usedatabase),
-                                      BitNumbers=cms.vuint32(24,25,26,27,28),
+                                      BitNumbers=cms.vuint32(24,25,26,27,28,29,30),
                                       BitNames=cms.vstring('L1Tech_rpcBit1',
                                                            'L1Tech_rpcBit2',
                                                            'L1Tech_rpcBit3',
                                                            'L1Tech_rpcBit4',
-                                                           'L1Tech_rpcBit5') )
+                                                           'L1Tech_rpcBit5',
+                                                           'L1Tech_rpcBit6',
+                                                           'L1Tech_rpcBit7',
+                                                           ) )
 
 

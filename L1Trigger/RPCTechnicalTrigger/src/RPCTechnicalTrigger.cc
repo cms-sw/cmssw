@@ -182,7 +182,8 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::sort( m_serializedInfoLine1.begin(), m_serializedInfoLine1.end(), sortByBx() );
   
   for( ttuItr = m_serializedInfoLine1.begin(); ttuItr != m_serializedInfoLine1.end(); ++ttuItr ) {
-    if ( m_verbosity ) std::cout << (*ttuItr)->m_ttuidx << '\t'
+    if ( m_verbosity ) std::cout << "RPCTechnicalTrigger> " 
+                                 << (*ttuItr)->m_ttuidx << '\t'
                                  << (*ttuItr)->m_bx << '\t'
                                  << (*ttuItr)->m_trigWheel1 << '\t'
                                  << (*ttuItr)->m_trigWheel2 << '\n';
@@ -207,9 +208,13 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       bool five_wheels_OR = m_triggerbits.any();
       
       ttVec.at(0)=L1GtTechnicalTrigger(m_ttNames.at(0), m_ttBits.at(0), bx, five_wheels_OR ) ; // bit 24 = Or 5 wheels in TTU mode
-      ttVec.at(2)=L1GtTechnicalTrigger(m_ttNames.at(2), m_ttBits.at(2), bx, five_wheels_OR ) ; // bit 26 = 24
-      ttVec.at(3)=L1GtTechnicalTrigger(m_ttNames.at(3), m_ttBits.at(3), bx, five_wheels_OR ) ; // bit 27 = 24
-      ttVec.at(4)=L1GtTechnicalTrigger(m_ttNames.at(4), m_ttBits.at(4), bx, five_wheels_OR ) ; // bit 28 = 24
+      
+      ttVec.at(2)=L1GtTechnicalTrigger(m_ttNames.at(2), m_ttBits.at(2), bx, m_triggerbits[0] ) ; // bit 26 
+      ttVec.at(3)=L1GtTechnicalTrigger(m_ttNames.at(3), m_ttBits.at(3), bx, m_triggerbits[1] ) ; // bit 27 
+      ttVec.at(4)=L1GtTechnicalTrigger(m_ttNames.at(4), m_ttBits.at(4), bx, m_triggerbits[2] ) ; // bit 28 
+      ttVec.at(5)=L1GtTechnicalTrigger(m_ttNames.at(5), m_ttBits.at(5), bx, m_triggerbits[3] ) ; // bit 29
+      ttVec.at(6)=L1GtTechnicalTrigger(m_ttNames.at(6), m_ttBits.at(6), bx, m_triggerbits[4] ) ; // bit 30
+      
       
       m_triggerbits.reset();
   

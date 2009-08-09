@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.h,v 1.3 2009/06/17 15:27:24 aosorio Exp $
+// $Id: TTUTrackingAlg.h,v 1.4 2009/07/09 14:03:37 aosorio Exp $
 #ifndef TTUTRACKINGALG_H 
 #define TTUTRACKINGALG_H 1
 
@@ -29,7 +29,6 @@ public:
   TTUTrackingAlg( ); 
   
   virtual ~TTUTrackingAlg( ); ///< Destructor
-
 
   //... from TTULogic interface:
   
@@ -162,7 +161,8 @@ private:
   struct CompareSeeds {
     bool operator()( const Seed * a, const Seed * b )
     {
-      std::cout << (*a).m_sectorId << " " << (*b).m_sectorId << " " << (*a).m_stationId << " " << (*b).m_stationId << std::endl;
+      //std::cout << (*a).m_sectorId << " " << (*b).m_sectorId << " " 
+      //<< (*a).m_stationId << " " << (*b).m_stationId << std::endl;
       return ((*a).m_sectorId == (*b).m_sectorId ) && ((*a).m_stationId == (*b).m_stationId );
     }
   };
@@ -171,7 +171,6 @@ private:
     bool operator()( const Seed * a, const Seed * b )
     {
       return ((*a).m_sectorId <= (*b).m_sectorId );
-      
     }
   };
   

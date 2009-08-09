@@ -1,42 +1,46 @@
-// $Id: TTUSectorORLogic.h,v 1.1 2009/06/17 15:27:24 aosorio Exp $
-#ifndef INTERFACE_TTUSECTORORLOGIC_H 
-#define INTERFACE_TTUSECTORORLOGIC_H 1
+// $Id: $
+#ifndef TTUPOINTINGLOGIC_H 
+#define TTUPOINTINGLOGIC_H 1
 
 // Include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTULogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
 
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUWedgeORLogic.h"
+
 #include <iostream>
 #include <vector>
 
-/** @class TTUSectorORLogic TTUSectorORLogic.h interface/TTUSectorORLogic.h
+/** @class TTUPointingLogic TTUPointingLogic.h
  *  
  *
  *  @author Andres Felipe Osorio Oliveros
- *  @date   2009-06-15
+ *  @date   2009-07-29
  */
-class TTUSectorORLogic : public TTULogic {
+
+class TTUPointingLogic : public TTULogic {
 public: 
   /// Standard constructor
-  TTUSectorORLogic( ); 
-
-  virtual ~TTUSectorORLogic( ); ///< Destructor
+  TTUPointingLogic( ); 
+  
+  virtual ~TTUPointingLogic( ); ///< Destructor
 
   //... from TTULogic interface:
   
   bool process( const TTUInput & );
   
   void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
-
+  
   //...
-      
+  
 protected:
   
 private:
-  
-  bool m_debug;
-  
-  int m_maxsectors;
 
+  bool m_debug;
+
+  TTUWedgeORLogic * m_wedgeLogic;
+    
+    
 };
-#endif // INTERFACE_TTUSECTORORLOGIC_H
+#endif // TTUPOINTINGLOGIC_H

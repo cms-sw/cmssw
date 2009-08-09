@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 100
+
 inputfile = '/store/relval/CMSSW_3_1_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_31X_v1/0004/D0DE109C-E641-DE11-B0CD-001D09F25325.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
@@ -32,8 +33,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring( inputfile ) )
 
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
-
-
 
 process.out = cms.OutputModule("PoolOutputModule",
 	                               fileName = cms.untracked.string('rpcttbits.root'),

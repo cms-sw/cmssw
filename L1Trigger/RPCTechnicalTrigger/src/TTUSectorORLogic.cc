@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUSectorORLogic.cc,v 1.1 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 
@@ -44,12 +44,7 @@ bool TTUSectorORLogic::process( const TTUInput & inmap )
   m_triggersignal = false;
   
   for(int i=0; i < m_maxsectors; ++i) 
-  {
-    
     m_triggersignal |= inmap.m_rbcDecision[i];
-    
-  }
-  
   
   if( m_debug ) 
     std::cout << "TTUSectorORLogic " << m_triggersignal << std::endl;

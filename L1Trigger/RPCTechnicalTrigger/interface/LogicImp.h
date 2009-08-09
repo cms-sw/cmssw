@@ -1,4 +1,4 @@
-// $Id: LogicImp.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: LogicImp.h,v 1.2 2009/06/17 15:27:23 aosorio Exp $
 #ifndef LOGICIMP_H 
 #define LOGICIMP_H 1
 
@@ -9,6 +9,8 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUTrackingAlg.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUSectorORLogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUTwoORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUWedgeORLogic.h"
+#include "L1Trigger/RPCTechnicalTrigger/interface/TTUPointingLogic.h"
 
 
 RBCTestLogic      * createTestLogic();
@@ -17,5 +19,7 @@ RBCPatternLogic   * createPatternLogic();
 TTUTrackingAlg    * createTrackingAlg();
 TTUSectorORLogic  * createSectorORLogic();
 TTUTwoORLogic     * createTwoORLogic();
+TTUWedgeORLogic   * createWedgeORLogic();
+TTUPointingLogic  * createPointingLogic();
 
 #endif // LOGICIMP_H

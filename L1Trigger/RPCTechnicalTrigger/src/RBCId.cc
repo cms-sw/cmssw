@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCId.cc,v 1.7 2009/01/30 15:42:48 aosorio Exp $
 // Include files 
 
 // local
@@ -42,7 +42,7 @@ RBCId::~RBCId() {}
 void RBCId::printinfo()
 {
   
-  std::cout << " ----> " << m_wheel << '\n';
-  std::cout << m_sector[0] << '\t' << m_sector[1] << '\n';
-    
+  std::cout << " ---->whe " << m_wheel << '\n';
+  std::cout << " ---->sec " << m_sector[0] << '\t' << m_sector[1] << '\n';
+  
 }
