@@ -12,7 +12,7 @@
 #include <vector>
 #include <map>
 
-#define _debug_GroupedDAFHitCollector_ 
+//#define _debug_GroupedDAFHitCollector_ 
 
  using namespace std;
 
@@ -166,13 +166,14 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
       // " on " << giulioGetLayer(idet->det()->geographicalId());
     }
     //debug
-    vector<const TrackingRecHit*> hits;
+    //    vector<const TrackingRecHit*> hits;
+    TransientTrackingRecHit::ConstRecHitContainer hits;
     for (vector<TrajectoryMeasurement>::const_iterator imeas = igroup->measurements().begin(); imeas != igroup->measurements().end(); imeas++){
       //collect the non missing hits to build the MultiRecHits
       //we ese the recHits method; anyway only simple hits, not MultiHits should be present 
       if (imeas->recHit()->getType() == TrackingRecHit::valid) {
 	LogTrace("MultiRecHitCollector") << "This hit is valid ";
-	hits.push_back(imeas->recHit()->hit());
+	hits.push_back(imeas->recHit());
       }
     }
     if (hits.empty()){
@@ -211,7 +212,7 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 	  }
 #endif
 	  
-	  result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state)));
+	  result.push_back(TrajectoryMeasurement(state,theUpdator->update(hits, state)));
 	}
 	
 	//can this happen? it means that the measgroup was not empty but no valid measurement was found inside
