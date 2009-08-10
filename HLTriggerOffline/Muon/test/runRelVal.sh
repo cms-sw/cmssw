@@ -1,15 +1,32 @@
 #!/bin/bash
 
 # Accepts a DBS path, so use looks like:
-# runRelVal.sh /RelValZMM/CMSSW_2_1_10_STARTUP_V7_v2/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO
-
-# This script creates a copy of muonTriggerRateTimeAnalyzer_cfg.py and includes
-# the root files from the chosen sample in the PoolSource, then runs the new
-# ana.py file.
+# runRelVal.sh /RelValZMM/CMSSW_3_1_1-STARTUP31X_V1-v2/GEN-SIM-RECO
 
 # You must have the DBS CLI (command line interface) set up to use this script.
 # To set it up on lxplus, run:
 # source /afs/cern.ch/user/v/valya/scratch0/setup.sh
+
+# This script creates a copy of muonTriggerRateTimeAnalyzer_cfg.py and includes
+# the root files from the chosen sample in the PoolSource, then runs the new
+# ana.py file.  It then runs the copies PostProcessor_cfg.py into post.py 
+# using the ouput from the analyzer job.
+
+# Use the --post (or -p) option to only run the post processing, using
+# validation content already existing in the DBS dataset.
+
+POST_ONLY=false
+
+LONGOPTSTRING=`getopt --long post -o p -- "$@"`
+eval set -- "$LONGOPTSTRING"
+while true ; do
+    case "$1" in
+        --post) POST_ONLY=true ; shift ;;
+        -p)     POST_ONLY=true ; shift ;;
+        --)     shift ; break ;;
+        *)      echo "Internal error!" ; exit 1 ;;
+    esac
+done
 
 if [[ $1 =~ .*GEN-SIM-RECO ]]; then
     HLTDEBUGPATH=`echo $1 | sed 's/GEN-SIM-RECO/GEN-SIM-DIGI-RAW-HLTDEBUG/'`
@@ -25,7 +42,7 @@ else
     exit
 fi
 
-echo "Using datasets: "
+echo "Using dataset(s): "
 echo $HLTDEBUGPATH
 echo $RECOPATH
 
@@ -51,12 +68,19 @@ else
     SECFILES=
 fi
 
-cat muonTriggerRateTimeAnalyzer_cfg.py | \
-    sed "s:\(fileNames.*\)vstring():\1vstring($FILES):" | \
-    sed "s:\(secondaryFileNames.*\)vstring():\1vstring($SECFILES):" > ana.py
+if [ $POST_ONLY = true ]; then
+    cat PostProcessor_cfg.py | \
+	sed "s:\(fileNames.*\)vstring(.*):\1vstring($FILES):" > post.py
+    cmsRun post.py
+    LONGNAME=$RECOPATH
+else
+    cat muonTriggerRateTimeAnalyzer_cfg.py | \
+      sed "s:\(fileNames.*\)vstring():\1vstring($FILES):" | \
+      sed "s:\(secondaryFileNames.*\)vstring():\1vstring($SECFILES):" > ana.py
+    cmsRun ana.py
+    cmsRun PostProcessor_cfg.py
+    LONGNAME=$HLTDEBUGPATH
+fi
 
-cmsRun ana.py
-cmsRun PostProcessor_cfg.py
-
-jobName=`echo $HLTDEBUGPATH | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-mv PostProcessor.root $jobName.root
+SHORTNAME=`echo $LONGNAME | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
+mv PostProcessor.root $SHORTNAME.root
