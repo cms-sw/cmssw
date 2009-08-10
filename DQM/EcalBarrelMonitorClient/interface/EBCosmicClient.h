@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2008/06/25 15:08:17 $
- * $Revision: 1.57 $
+ * $Date: 2009/02/27 13:54:04 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,12 +92,10 @@ DQMStore* dqmStore_;
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];
 MonitorElement* meh03_[36];
-MonitorElement* meh04_[36];
 
 TProfile2D* h01_[36];
-TProfile2D* h02_[36];
+TH1F* h02_[36];
 TH1F* h03_[36];
-TH1F* h04_[36];
 
 };
 

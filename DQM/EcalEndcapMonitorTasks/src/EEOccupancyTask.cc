@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/07/14 09:11:53 $
- * $Revision: 1.59 $
+ * $Date: 2009/08/05 10:54:01 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,6 +55,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   for (int i = 0; i < 18; i++) {
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
+    meRecHitEnergy_[i] = 0;
   }
 
   meEEDigiOccupancy_[0] = 0;
@@ -104,7 +105,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   meEEPedestalDigiOccupancy_[0] = 0;
   meEEPedestalDigiOccupancy_[1] = 0;
 
-  recHitEnergyMin_ = 1.; // GeV
+  recHitEnergyMin_ = 0.150; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
@@ -141,6 +142,7 @@ void EEOccupancyTask::reset(void) {
   for (int i = 0; i < 18; i++) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
+    if ( meRecHitEnergy_[i] ) meRecHitEnergy_[i]->Reset(); 
   }
 
   if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Reset();
@@ -207,13 +209,19 @@ void EEOccupancyTask::setup(void){
       meOccupancy_[i]->setAxisTitle("jx", 1);
       meOccupancy_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(meOccupancy_[i], i+1);
-    }
-    for (int i = 0; i < 18; i++) {
+
       sprintf(histo, "EEOT MEM digi occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancyMem_[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meOccupancyMem_[i]->setAxisTitle("pseudo-strip", 1);
       meOccupancyMem_[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meOccupancyMem_[i], i+1);
+
+      sprintf(histo, "EEOT rec hit energy %s", Numbers::sEE(i+1).c_str());
+      meRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meRecHitEnergy_[i]->setAxisTitle("jx", 1);
+      meRecHitEnergy_[i]->setAxisTitle("jy", 2);
+      meRecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
+      dqmStore_->tag(meRecHitEnergy_[i], i+1);
     }
 
     sprintf(histo, "EEOT digi occupancy EE -");
@@ -402,6 +410,8 @@ void EEOccupancyTask::cleanup(void){
       meOccupancy_[i] = 0;
       if ( meOccupancyMem_[i] ) dqmStore_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
+      if ( meRecHitEnergy_[i] ) dqmStore_->removeElement( meRecHitEnergy_[i]->getName() );
+      meRecHitEnergy_[i] = 0;
     }
 
     if ( meEEDigiOccupancy_[0] ) dqmStore_->removeElement( meEEDigiOccupancy_[0]->getName() );
@@ -698,6 +708,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
+      // sector view (from electronics)
+      float xix = ( ism >= 1 && ism <= 9 ) ? 101 - eex - 0.5 : eex - 0.5;
+      float xiy = eey - 0.5;
+
+      // physics view (from IP)
       float xeex = eex - 0.5;
       float xeey = eey - 0.5;
 
@@ -725,6 +740,8 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
             if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( atan2(xeey-50.,xeex-50.) );
           }
           
+          if ( meRecHitEnergy_[ism-1] ) meRecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
+
         }
       }
     }

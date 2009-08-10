@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/02 15:46:37 $
- * $Revision: 1.185 $
+ * $Date: 2009/08/03 23:44:18 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  *
 */
@@ -1341,7 +1341,7 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebcc ) {
 
-            h2d = ebcc->h02_[ism-1];
+            h2d = ebcc->h01_[ism-1];
 
             if ( h2d ) {
 
