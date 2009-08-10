@@ -56,6 +56,8 @@ HiggsToTauTauElectronTauSkim::HiggsToTauTauElectronTauSkim(const edm::ParameterS
 	electronIdLabel  = iConfig.getParameter<InputTag>("ElectronIdTagCollection");
 	minNumberOfjets  = iConfig.getParameter<int>("minNumberOfJets");
 	minNumberOfelectrons  = iConfig.getParameter<int>("minNumberOfElectrons");
+        electronEtMin    = iConfig.getParameter<double>("electronEtMin");
+        electronEtaMax   = iConfig.getParameter<double>("electronEtaMax");
 	jetEtMin         = iConfig.getParameter<double>("jetEtMin");
 	jetEtaMin        = iConfig.getParameter<double>("jetEtaMin");
 	jetEtaMax        = iConfig.getParameter<double>("jetEtaMax");
@@ -67,8 +69,8 @@ HiggsToTauTauElectronTauSkim::HiggsToTauTauElectronTauSkim(const edm::ParameterS
 
 
 HiggsToTauTauElectronTauSkim::~HiggsToTauTauElectronTauSkim(){
-  edm::LogVerbatim("HiggsToTauTauElectronTauSkim") 
-  //std::cout 
+  //edm::LogVerbatim("HiggsToTauTauElectronTauSkim") 
+  std::cout 
   << " Number_events_read " << nEvents
   << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
@@ -188,7 +190,8 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
 	std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
 	iEvent.getByLabel( electronIdLabel , eIDValueMap[3] ); 
 	const edm::ValueMap<float> & eIDmap = * eIDValueMap[3] ;
-	if (eIDmap[electronRef] ) {
+	if (eIDmap[electronRef] && 
+	    (electronRef->et() > electronEtMin) &&  abs(electronRef->eta()) < electronEtaMax ) {
 	  nElectrons++;
 	}
       }

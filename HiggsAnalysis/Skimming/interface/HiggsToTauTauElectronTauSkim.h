@@ -71,6 +71,8 @@ class HiggsToTauTauElectronTauSkim : public edm::EDFilter {
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;
+        double 		electronEtMin;
+        double 		electronEtaMax;
 	double		minDRFromElectron;
 
         int nEvents, nSelectedEvents;
