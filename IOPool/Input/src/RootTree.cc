@@ -64,7 +64,9 @@ namespace edm {
   RootTree::setPresence(BranchDescription const& prod) {
       assert(isValid());
       prod.init();
-      prod.setPresent(tree_->GetBranch(prod.branchName().c_str()) != 0);
+      if(tree_->GetBranch(prod.branchName().c_str()) == 0){
+	prod.setDropped();
+      }
   }
 
   void
@@ -75,7 +77,7 @@ namespace edm {
       prod.init();
       //use the translated branch name 
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
-      assert (prod.present() == (branch != 0));
+      assert (prod.dropped() == (branch == 0));
       input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
       info.productBranch_ = 0;
       if (prod.present()) {

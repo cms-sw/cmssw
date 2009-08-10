@@ -110,7 +110,7 @@ namespace edm {
           it != itEnd;
           ++it) {
          if(*it) {
-            BranchID branchID = (*it)->productDescription().branchID();
+            BranchID branchID = (*it)->branchDescription().branchID();
             if((*it)->productUnavailable()) {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
                OutputHandle const oh = e.getForOutput(branchID, false);
