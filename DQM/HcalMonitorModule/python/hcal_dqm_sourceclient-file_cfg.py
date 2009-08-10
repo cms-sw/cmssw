@@ -38,11 +38,11 @@ process.source = cms.Source("PoolSource",
     #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/C4BA5958-BC4B-DE11-9BF7-0019B9F6C674.root',
     #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2515C5A-BC4B-DE11-ACE7-001D09F2432B.root',
     #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2BA0BB4-BD4B-DE11-8935-001D09F24691.root',
-
+    '/store/data/Commissioning09/TestEnables/RAW/v3/000/108/478/28FD7000-8978-DE11-8475-000423D98BC4.root'
     #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/2ADB500C-BD4B-DE11-B3F9-001D09F23A61.root',
     # cosmics run with known hot cell in HF
-    '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
-    '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
+    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
+    #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
     # NON-ZERO-SUPPRESSED RUN
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/904/02944F1F-EB9E-DD11-8D88-001D09F2A465.root',
@@ -209,7 +209,7 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = '/tmp/temple'  # set to '' to ignore html output
+process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
