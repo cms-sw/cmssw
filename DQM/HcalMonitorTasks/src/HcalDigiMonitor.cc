@@ -238,8 +238,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
       DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
       ProblemsVsLB=m_dbe->bookProfile("BadDigisVsLB","# Bad Digis vs Luminosity block", Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      ProblemsVsLB -> setAxisTitle("# Bad Quality Digis",1);  
-      ProblemsVsLB -> setAxisTitle("# of Events",2);
+      ProblemsVsLB -> setAxisTitle("Lumi block",1);  
+      ProblemsVsLB -> setAxisTitle("# of Bad digis",2);
       
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
@@ -735,13 +735,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   HEocc_vs_LB->Fill(lumiblock,hecount);
 
   // Calculate number of bad quality cells and bad quality fraction
-  if (hbHists.check && hbHists.count_all>0)
+  if (hbHists.check && hbHists.count_all>0 && hbHists.count_bad>0)
     {
       ++hbHists.count_BQ[static_cast<int>(hbHists.count_bad)];
       //if (hbHists.count_bad>0)
 	++hbHists.count_BQFrac[static_cast<int>(hbHists.count_bad/hbHists.count_all)*DIGI_BQ_FRAC_NBINS];
     }
-  if (heHists.check && heHists.count_all>0)
+  if (heHists.check && heHists.count_all>0 && heHists.count_bad>0)
     {
       ++heHists.count_BQ[static_cast<int>(heHists.count_bad)];
       //if (heHists.count_bad>0)
@@ -878,7 +878,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    }
 	} // for (HODigiCollection)
    
-      if (hoHists.count_all>0)
+      if (hoHists.count_bad>0 && hoHists.count_all>0)
 	{
 	  ++hoHists.count_BQ[static_cast<int>(hoHists.count_bad)];
 	  // if (hoHists.count_bad>0)
@@ -1017,7 +1017,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    }
 	} // for (HFDigiCollection)
    
-      if (hfHists.count_all>0)
+      if (hfHists.count_bad>0 && hfHists.count_all>0)
 	{
 	  ++hfHists.count_BQ[static_cast<int>(hfHists.count_bad)];
 	  // if (hfHists.count_bad>0)
@@ -1166,6 +1166,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ++diginum[count_all];
   if (count_all>0)
     ++digiBQfrac[static_cast<int>(count_bad/count_all)*DIGI_BQ_FRAC_NBINS];
+
+  //Jeff's dummy fills to make sure plots update.  Hmm...
+  hbHists.fibBCNOff->Fill(-1,0);
+  heHists.fibBCNOff->Fill(-1,0);
+  hoHists.fibBCNOff->Fill(-1,0);
+  hfHists.fibBCNOff->Fill(-1,0);
 
   if (ievt_%digi_checkNevents_==0)
     fill_Nevents();
