@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.64 2008/09/05 13:39:13 emanuele Exp $
+// $Id: Numbers.cc,v 1.65 2009/03/01 08:13:09 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.64 $
-  \date $Date: 2008/09/05 13:39:13 $
+  \version $Revision: 1.65 $
+  \date $Date: 2009/03/01 08:13:09 $
 */
 
 #include <sstream>
@@ -15,6 +15,7 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalScDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
 #include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
@@ -137,6 +138,14 @@ EcalSubdetector Numbers::subDet( const EEDetId& id ) {
 EcalSubdetector Numbers::subDet( const EcalTrigTowerDetId& id ) {
 
   return( id.subDet() );
+
+}
+
+//-------------------------------------------------------------------------                                                                                                                                                                
+
+EcalSubdetector Numbers::subDet( const EcalScDetId& id ) {
+
+  return( id.subdet() );
 
 }
 

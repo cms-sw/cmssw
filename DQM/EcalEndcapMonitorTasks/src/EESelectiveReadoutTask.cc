@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/07/21 17:32:59 $
- * $Revision: 1.31 $
+ * $Date: 2009/08/05 11:49:24 $
+ * $Revision: 1.32 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -422,10 +422,14 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
 
-      int ix = it->id().ix();
-      int iy = it->id().iy();
+      EcalScDetId id = it->id();
 
-      int zside = it->id().zside();
+      if ( Numbers::subDet( id ) != EcalEndcap ) continue;
+
+      int ix = id.ix();
+      int iy = id.iy();
+
+      int zside = id.zside();
 
       int iz = ( zside < 0 ) ? 0 : 1;
 

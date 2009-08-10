@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/07/14 09:11:53 $
- * $Revision: 1.74 $
+ * $Date: 2009/08/10 15:49:11 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -540,6 +540,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
+      if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
+
       int ebeta = tpdigiItr->id().ieta();
       int ebphi = tpdigiItr->id().iphi();
 
@@ -554,7 +556,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ism = Numbers::iSM( tpdigiItr->id() );
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-            
+
         if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
         if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
         if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );

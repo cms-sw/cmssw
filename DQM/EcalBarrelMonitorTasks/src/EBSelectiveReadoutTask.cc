@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/07/17 17:14:23 $
- * $Revision: 1.34 $
+ * $Date: 2009/08/05 11:49:23 $
+ * $Revision: 1.35 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -308,6 +308,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
       EcalTrigTowerDetId id = it->id();
+
+      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int iet = id.ieta();
       int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
