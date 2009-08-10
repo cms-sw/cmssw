@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.21 $
-///  $Date: 2009/05/11 09:41:47 $
+///  $Revision: 1.22 $
+///  $Date: 2009/06/23 10:25:55 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -122,6 +122,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   void addLaserData(const TkFittedLasBeamCollection &tkLasBeams,
 		    const TsosVectorCollection &tkLasBeamTsoses);
+  void addLasBeam(const TkFittedLasBeam &lasBeam,
+		  const std::vector<TrajectoryStateOnSurface> &tsoses);
 
   //--------------------------------------------------------
   // Data members

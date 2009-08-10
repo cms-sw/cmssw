@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.9 $
- *  $Date: 2007/12/17 18:59:52 $
+ *  $Revision: 1.10 $
+ *  $Date: 2008/10/14 07:19:32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -129,6 +129,8 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
                                     unsigned int bufLength, float *buf, bool setUserVars) const
 {
   Alignable *alignable = myLabels.alignableFromLabel(paramLabel);
+  const unsigned int paramNum = myLabels.paramNumFromLabel(paramLabel);
+  const double cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
   if (alignable) {
     AlignmentParameters *params = this->checkAliParams(alignable, setUserVars);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
@@ -141,10 +143,8 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
 
     AlgebraicVector parVec(params->parameters());
     AlgebraicSymMatrix covMat(params->covariance());
-    const unsigned int paramNum = myLabels.paramNumFromLabel(paramLabel);
 
     if (userParams) userParams->setAllDefault(paramNum);
-    const double cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
 
     switch (bufLength) {
     case 5: // global correlation
@@ -181,7 +181,16 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
       break;
     }
     alignable->setAlignmentParameters(params->clone(parVec, covMat));//transferred mem. responsib.
+  } else {
+    unsigned int lasBeamId = myLabels.lasBeamIdFromLabel(paramLabel);
+    edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
+			       << "No alignable for paramLabel " << paramLabel
+			       << ", probably LasBeam with Id " << lasBeamId
+			       << ",\nparam " << paramNum << ": " 
+			       << buf[0] / cmsToPede * mySteerer.parameterSign()
+			       << " += " << (bufLength >= 4 ? buf[3] / cmsToPede : -99.);
   }
+
   return alignable;
 }
 

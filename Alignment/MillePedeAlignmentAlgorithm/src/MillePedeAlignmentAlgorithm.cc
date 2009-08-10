@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.46 $
- *  $Date: 2009/07/17 14:03:53 $
- *  (last update by $Author: kaschube $)
+ *  $Revision: 1.47 $
+ *  $Date: 2009/07/27 14:58:47 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -828,11 +828,7 @@ int MillePedeAlignmentAlgorithm
 void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &lasBeams,
 					       const TsosVectorCollection &lasBeamTsoses)
 {
-  AlignmentParameters *dummyPointer = 0; // for globalDerivativesHierarchy()
-  std::vector<float> lasLocalDerivsX;
-
   TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
-  int tmpCounter = 0; // very ugly hack for global LAS parameters
   for(TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
       iBeam != iEnd; ++iBeam, ++iTsoses){ // beam/tsoses parallel!
 
@@ -841,45 +837,51 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
 			      << iBeam->parameters().size() << " parameters and " 
 			      << iBeam->getData().size() << " hits.\n There are " 
 			      << iTsoses->size() << " TSOSes.";
-    if(iTsoses->size() > 0){
-      edm::LogInfo("Alignment")	<< " First TSOS is " << ((*iTsoses)[0].isValid() ? "valid." : "invalid.");
-    }
+    this->addLasBeam(*iBeam, *iTsoses);
 
-    for(unsigned int hit = 0; hit < (*iTsoses).size(); ++hit){
-      
-      theFloatBufferX.clear();
-      theFloatBufferY.clear();
-      theIntBuffer.clear();
-      lasLocalDerivsX.clear();
-  
-      if((*iTsoses)[hit].isValid()){
-	
-	AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(iBeam->getData()[hit].getDetId()));
-	
-	this->globalDerivativesHierarchy((*iTsoses)[hit], lasAli, lasAli, 
-					 theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPointer);
-	// fill derivatives vector from derivatives matrix
-	for (unsigned int nFitParams = 0; nFitParams < iBeam->parameters().size(); ++nFitParams) {
- 	  if (nFitParams < iBeam->firstFixedParameter()) { // first local beam parameters
- 	    lasLocalDerivsX.push_back((iBeam->derivatives())[hit][nFitParams]);
- 	  } else {                                         // now global ones
-	    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
-					 << "Labels of global beam parameters not defined properly.";
-	    theFloatBufferX.push_back((iBeam->derivatives())[hit][nFitParams]);
-	    theIntBuffer.push_back(2147483647 - tmpCounter); // FIXME: label for global param!
-	    tmpCounter += 10; // hacking 10 is PedeLabeler::theMaxNumParam
- 	  }
-	}
-
-	float localResidual = ((iBeam->getData())[hit].localPosition().x()) - ((*iTsoses)[hit].localPosition().x());
-	// error from file or assume 0.003
-	float localError = 0.003; // (iBeam->getData())[hit].localPositionError().xx();
-	
-	theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(), &(theFloatBufferX[0]), 
-			&(theIntBuffer[0]), localResidual, localError);
-      }
-    } // end of loop over hits
-    theMille->end();
   }
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
+					     const std::vector<TrajectoryStateOnSurface> &tsoses)
+{
+  AlignmentParameters *dummyPtr = 0; // for globalDerivativesHierarchy()
+  std::vector<float> lasLocalDerivsX; // buffer for local derivatives
+  const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
+  
+  for (unsigned int iHit = 0; iHit < tsoses.size(); ++iHit) {
+    if (!tsoses[iHit].isValid()) continue;
+    // clear buffer
+    theFloatBufferX.clear();
+    theFloatBufferY.clear();
+    theIntBuffer.clear();
+    lasLocalDerivsX.clear();
+    // get alignables and global parameters
+    const SiStripLaserRecHit2D &hit = lasBeam.getData()[iHit];
+    AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(hit.getDetId()));
+    this->globalDerivativesHierarchy(tsoses[iHit], lasAli, lasAli, 
+				     theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPtr);
+    // fill derivatives vector from derivatives matrix
+    for (unsigned int nFitParams = 0; nFitParams < lasBeam.parameters().size(); ++nFitParams) {
+      const float derivative = lasBeam.derivatives()[iHit][nFitParams];
+      if (nFitParams < lasBeam.firstFixedParameter()) { // first local beam parameters
+	lasLocalDerivsX.push_back(derivative);
+      } else {                                          // now global ones
+	const unsigned int numPar = nFitParams - lasBeam.firstFixedParameter();
+	theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
+	theFloatBufferX.push_back(derivative);
+      }
+
+      const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
+      // error from file or assume 0.003
+      const float error = 0.003; // hit.localPositionError().xx(); sqrt???
+	
+      theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
+		      &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
+    } // end loop over parameters
+  } // end of loop over hits
+  
+  theMille->end();
 }
 
