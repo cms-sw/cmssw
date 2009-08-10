@@ -8,6 +8,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DQMServices/Components>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/Scalers>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMTrigXMonitor>
@@ -21,4 +22,5 @@
    <use name=DataFormats/FEDRawData>
    <use name=DQMServices/Components>
    <use name=DataFormats/L1GlobalTrigger>
+   <use name=DataFormats/Scalers>
 </export>
