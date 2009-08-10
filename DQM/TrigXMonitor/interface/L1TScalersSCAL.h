@@ -54,30 +54,32 @@ private:
   std::string outputFile_;	//file name for ROOT ouput
   bool verbose_, monitorDaemon_;
   int nev_; // Number of events processed
-  unsigned int bufferOrbitNumber_;
-  std::vector<unsigned int> bufferBits_; 
-  std::vector<float> algorithmRates_;
-                                                                       
+  long reftime_,buffertime_;
+  std::vector<double> algorithmRates_;
+  std::vector<double> bufferAlgoRates_;
+  std::vector<double> technicalRates_;
+  std::vector<double> bufferTechRates_;                                 
+  
   MonitorElement * orbitNum;
   MonitorElement * trigNum;
   MonitorElement * eventNum;
-  MonitorElement * finalTrig;
+  MonitorElement * physTrig;
   MonitorElement * randTrig;
   MonitorElement * numberResets;
   MonitorElement * deadTime;
   MonitorElement * lostFinalTriggers;
   MonitorElement * algoRate[128];
+  MonitorElement * techRate[64];
 
-/*
-  MonitorElement * trigNumRate;
-  MonitorElement * eventNumRate;
-  MonitorElement * finalTrigRate;
-  MonitorElement * randTrigRate;
-  MonitorElement * orbitNumRate;
-  MonitorElement * numberResetsRate;
+
+  MonitorElement * physRate;
+  MonitorElement * randRate;
   MonitorElement * deadTimePercent;
-  MonitorElement * lostFinalTriggersPercent;
-*/            
+  MonitorElement * lostPhysRate;
+  MonitorElement * lostPhysRateBeamActive;
+  MonitorElement * instTrigRate;
+  MonitorElement * instEventRate;
+  
 
   MonitorElement *  instLumi;
   MonitorElement *  instLumiErr; 
@@ -92,7 +94,6 @@ private:
  
   MonitorElement *  orbitNumL1A[4];
   MonitorElement *  bunchCrossingL1A[4];
-  //MonitorElement *  eventType;
   MonitorElement *  bunchCrossingCorr[3];
   MonitorElement *  bunchCrossingDiff[3];
   MonitorElement *  bunchCrossingDiff_small[3];
