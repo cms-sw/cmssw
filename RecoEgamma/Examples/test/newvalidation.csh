@@ -12,12 +12,12 @@
 #
 # $1 : eventual first command-line argument, immediatly duplicated into VAL_ENV,
 #   is the name of the current context, used to build some default value
-#   for other variables.
+#   for other variables, especially VAL_NEW_FILE and VAL_REF_FILE.
 # $2 : eventual second command-line argument, immediatly duplicated into VAL_OUTPUT_FILE,
-#   is the default default base name of the files containing the histograms ; it is
+#   is the default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
 # $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}Ideal
+#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}_Ideal
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
@@ -34,29 +34,91 @@
 #   and used to build the path where the web pages will be stored.
 #=========================================================================================
 
+
+#============== Core config ==================
+
 setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
 setenv VAL_WEB_SUB_DIR $3
+setenv VAL_ORIGINAL_DIR $cwd
 setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
+setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
+
+# those must have a value
+#setenv VAL_NEW_RELEASE ...
+#setenv VAL_REF_RELEASE ...
+# those either have a value, or will receive a default below
+#setenv VAL_NEW_FILE ...
+#setenv VAL_REF_FILE ...
+
+#============== Find and prepare main output directory ==================
+
+echo "VAL_WEB = ${VAL_WEB}"
+cd $VAL_WEB
+
+if (! -d $VAL_NEW_RELEASE) then
+  mkdir $VAL_NEW_RELEASE
+endif
+
+echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
+cd $VAL_NEW_RELEASE
+
+#============== Find and archive new log and data files ==================
 
 if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
-if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 
 if ( ${VAL_NEW_FILE} == "" ) then
-  setenv VAL_NEW_FILE ${cwd}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+  setenv VAL_NEW_FILE ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
 endif
+
+if (! -d data) then
+  mkdir data
+endif
+
+if ( "${VAL_NEW_FILE}" != "" ) then
+  if ( -r "$VAL_NEW_FILE" ) then
+    cp -f $VAL_NEW_FILE data
+  endif
+endif
+
+if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog" ) then
+  cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog data
+endif
+
+if ( -e "${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
+  cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog data
+endif
+
+echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
+
+#============== Find reference data file (eventually the freshly copied new data) ==================
+
+if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 
 if ( ${VAL_REF_FILE} == "" ) then
   if ( -e "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
     setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
   endif
 endif
+
 if ( ${VAL_REF_FILE} == "" ) then
-  if ( -e "${cwd}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
-    setenv VAL_REF_FILE ${cwd}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}
+  if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}
   endif
 endif
  
+echo "VAL_REF_FILE = ${VAL_REF_FILE}"
+
+ 
+#============== Prepare output subdirectories ==================
+
+if (! -d "vs${VAL_REF_RELEASE}") then
+  mkdir "vs${VAL_REF_RELEASE}"
+endif
+
+echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
+cd "vs${VAL_REF_RELEASE}"
+
 if ( ${VAL_WEB_SUB_DIR} == "" ) then
   if ( "${DBS_COND}" =~ *MC* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Mc
@@ -68,65 +130,19 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
   endif
 endif
- 
-#setenv VAL_ANALYZER GsfElectronMCAnalyzer
-
-#setenv VAL_NEW_RELEASE 220pre1IDEAL
-#setenv VAL_REF_RELEASE 219IDEAL
-
-#setenv VAL_WEB_SUB_DIR RelValQCD_Pt_80_120
-
-
-#============== Echo parameters ==================
-
-echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
-echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
-echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
-echo "VAL_REF_FILE = ${VAL_REF_FILE}"
-
-#============== Prepare the output directories ==================
-
-#Location of output.  The default will put your output in:
-#http://cmsdoc.cern.ch/Physics/egamma/www/validation/
-
-setenv CURRENTDIR $cwd
-cd $VAL_WEB
-
-if (! -d $VAL_NEW_RELEASE) then
-  mkdir $VAL_NEW_RELEASE
-endif
-cd $VAL_NEW_RELEASE
-
-if (! -d data) then
-  mkdir data
-endif
-if ( "${VAL_NEW_FILE}" != "" ) then
-  if ( -r "$VAL_NEW_FILE" ) then
-    cp -f $VAL_NEW_FILE data
-  endif
-endif
-if ( -e "${CURRENTDIR}/cmsRun.${VAL_ENV}.olog" ) then
-  cp -f ${CURRENTDIR}/cmsRun.${VAL_ENV}.olog data
-endif
-if ( -e "${CURRENTDIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
-  cp -f ${CURRENTDIR}/dbs_discovery.py.${VAL_ENV}.olog data
-endif
-
-if (! -d "vs${VAL_REF_RELEASE}") then
-  mkdir "vs${VAL_REF_RELEASE}"
-endif
-cd "vs${VAL_REF_RELEASE}"
 
 if (! -d ${VAL_WEB_SUB_DIR}) then
   mkdir ${VAL_WEB_SUB_DIR}
 endif
+
+echo "VAL_WEB_SUB_DIR = ${VAL_WEB_SUB_DIR}"
 cd ${VAL_WEB_SUB_DIR}
 
 if (! -d gifs) then
   mkdir gifs
 endif
 
-cp -f $CURRENTDIR/newvalidation.C .
+cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C .
 
 
 #============== Prepare the list of histograms ==================
@@ -490,4 +506,4 @@ endif
 
 root -b -l -q newvalidation.C
 echo "You can view your validation plots here:"
-echo "http://cmsdoc.cern.ch/Physics/egamma/www/validation/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/validation.html"
+echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/validation.html"
