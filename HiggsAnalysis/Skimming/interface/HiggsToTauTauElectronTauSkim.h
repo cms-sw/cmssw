@@ -1,13 +1,13 @@
-#ifndef HiggsToTauTauLeptonTauSkim_h
-#define HiggsToTauTauLeptonTauSkim_h
+#ifndef HiggsToTauTauElectronTauSkim_h
+#define HiggsToTauTauElectronTauSkim_h
 
-/** \class HiggsToTauTauLeptonTauSkim
+/** \class HiggsToTauTauElectronTauSkim
  *
  *  
  *  Filter to select events passing 
- *  single electron or muon HLT
+ *  single electron HLT
  *  1 calojet (Et>15 GeV, eta<2.6 not overlapping DeltaR=0.5 with
- *  the trigger lepton)
+ *  the trigger electron)
  *  \author Monica Vazquez Acosta  -  Imperial College London
  *
  */
@@ -29,11 +29,11 @@ using namespace std;
 
 #include <math.h>
 
-class HiggsToTauTauLeptonTauSkim : public edm::EDFilter {
+class HiggsToTauTauElectronTauSkim : public edm::EDFilter {
 
     public:
-        explicit HiggsToTauTauLeptonTauSkim(const edm::ParameterSet&);
-        ~HiggsToTauTauLeptonTauSkim();
+        explicit HiggsToTauTauElectronTauSkim(const edm::ParameterSet&);
+        ~HiggsToTauTauElectronTauSkim();
 
   	virtual bool filter(edm::Event&, const edm::EventSetup& );
 
@@ -62,7 +62,6 @@ class HiggsToTauTauLeptonTauSkim : public edm::EDFilter {
         InputTag        hltResultsLabel;
         InputTag        hltEventLabel;
         std::vector<std::string>  hltElectronBits;
-        std::vector<std::string>  hltMuonBits;
         std::vector<std::string>  hltFilterLabels;
 	InputTag	jetLabel;
 	InputTag	electronLabel;
@@ -72,7 +71,7 @@ class HiggsToTauTauLeptonTauSkim : public edm::EDFilter {
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;
-	double		minDRFromLepton;
+	double		minDRFromElectron;
 
         int nEvents, nSelectedEvents;
 };
