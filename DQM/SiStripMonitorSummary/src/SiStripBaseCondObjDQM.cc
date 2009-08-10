@@ -1221,9 +1221,6 @@ void SiStripBaseCondObjDQM::saveTkMap(const std::string& TkMapname, double minVa
       max+=tkMapScaler[i]/entries;
       imax=i;
     }
-
-    edm::LogInfo("DOMENICO")<< "min value "<< min << " imin " << imin << " max " << max << " imax " << imax; 
-    edm::LogInfo("DOMENICO")<< "size " << tkMapScaler.size() << " emntries " << entries; 
     
     //reset maxValue;
     if(maxValue<imax){
