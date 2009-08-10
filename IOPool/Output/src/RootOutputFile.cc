@@ -625,24 +625,13 @@ namespace edm {
 
       EDProduct const* product = 0;
       OutputHandle const oh = principal.getForOutput(id, getProd);
-      if(!oh.productProvenance()) {
-	// No product with this ID is in the event.
-	// Create and write the provenance.
-	if(keepProvenance) {
-	  if(produced) {
-            provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
-		        productstatus::neverCreated()));
-	  }
-	}
-      } else {
-	product = oh.wrapper();
-	if(keepProvenance) {
-	  provenanceToKeep.insert(*oh.productProvenance());
-	  assert(principal.branchMapperPtr());
-	  insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
-	  parentageIDs_.insert(oh.productProvenance()->parentageID());
-	}
+      if(keepProvenance && oh.productProvenance()) {
+	provenanceToKeep.insert(*oh.productProvenance());
+	assert(principal.branchMapperPtr());
+	insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
+	parentageIDs_.insert(oh.productProvenance()->parentageID());
       }
+      product = oh.wrapper();
       if(getProd) {
 	if(product == 0) {
 	  // No product with this ID is in the event.
