@@ -2,7 +2,7 @@
 # Created by Monica Vazquez Acosta, 20/05/2009
 
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HTauTauLepTauSkim")
+process = cms.Process("HTauTauElectronTauSkim")
 
 process.maxEvents = cms.untracked.PSet(
          input = cms.untracked.int32(-1)
@@ -32,6 +32,6 @@ configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('Skim for heavy MSSM Higgs> tau tau > electron tau events')
 )
 
-#process.outpath = cms.EndPath(process.higgsToTauTauElectronTauOutputModuleRECOSIM)
+process.outpath = cms.EndPath(process.higgsToTauTauElectronTauOutputModuleRECOSIM)
 
 
