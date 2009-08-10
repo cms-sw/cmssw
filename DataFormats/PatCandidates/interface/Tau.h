@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.23 2009/04/09 12:01:40 veelken Exp $
+// $Id: Tau.h,v 1.24 2009/06/15 08:28:48 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.23 2009/04/09 12:01:40 veelken Exp $
+  \version  $Id: Tau.h,v 1.24 2009/06/15 08:28:48 veelken Exp $
 */
 
 
@@ -131,6 +131,12 @@ namespace pat {
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float leadPFChargedHadrCandsignedSipt() const { return pfSpecific().leadPFChargedHadrCandsignedSipt_; }
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const reco::PFCandidateRef & leadPFNeutralCand() const { return pfSpecific().leadPFNeutralCand_; }
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const reco::PFCandidateRef & leadPFCand() const { return pfSpecific().leadPFCand_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFCandidateRefVector & signalPFCands() const { return pfSpecific().selectedSignalPFCands_; } 
