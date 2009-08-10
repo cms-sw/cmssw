@@ -353,22 +353,18 @@ namespace edm {
   void 
   InputSource::preRead() {
 
-    if (primary()) {
-      Service<RandomNumberGenerator> rng;
-      if (rng.isAvailable()) {
-        rng->snapShot();
-      }
+    Service<RandomNumberGenerator> rng;
+    if (rng.isAvailable()) {
+      rng->snapShot();
     }
   }
 
   void 
   InputSource::postRead(Event& event) {
 
-    if (primary()) {
-      Service<RandomNumberGenerator> rng;
-      if (rng.isAvailable()) {
-        rng->restoreState(event);
-      }
+    Service<RandomNumberGenerator> rng;
+    if (rng.isAvailable()) {
+      rng->restoreState(event);
     }
   }
 

@@ -51,19 +51,23 @@ namespace edm {
   }
 
   Group*
-  Principal::getExistingGroup(Group const& group) {
-    ProductTransientIndex index = preg_->indexFrom(group.productDescription().branchID());
-    if(index==ProductRegistry::kInvalidIndex) {
-       return 0;
-    }
+  Principal::getExistingGroup(BranchID const& branchID) {
+    ProductTransientIndex index = preg_->indexFrom(branchID);
+    assert(index != ProductRegistry::kInvalidIndex);
     SharedGroupPtr ptr = groups_[index];
-    assert(0==ptr.get() || BranchKey(group.productDescription())==BranchKey(ptr->productDescription()));
     return ptr.get();
+  }
+
+  Group*
+  Principal::getExistingGroup(Group const& group) {
+    Group* g = getExistingGroup(group.branchDescription().branchID());
+    assert(0 == g || BranchKey(group.branchDescription()) == BranchKey(g->branchDescription()));
+    return g;
   }
 
   void 
   Principal::addGroup_(std::auto_ptr<Group> group) {
-    ConstBranchDescription const& bd = group->productDescription();
+    ConstBranchDescription const& bd = group->branchDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
@@ -71,24 +75,53 @@ namespace edm {
     SharedGroupPtr g(group);
     
     ProductTransientIndex index = preg_->indexFrom(bd.branchID());
-    assert(index!= ProductRegistry::kInvalidIndex);
-    groups_[index]=g;
-    if(bool(g)){
+    assert(index != ProductRegistry::kInvalidIndex);
+    groups_[index] = g;
+    if(bool(g)) {
       ++size_;
     }
   }
 
+  void
+  Principal::addGroupOrThrow(std::auto_ptr<Group> group) {
+    Group const* g = getExistingGroup(*group);
+    if (g != 0) {
+      ConstBranchDescription const& bd = group->branchDescription();
+      throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "addGroupOrThrow: Problem found while adding product, "
+	  << "product already exists for ("
+	  << bd.friendlyClassName() << ","
+	  << bd.moduleLabel() << ","
+	  << bd.productInstanceName() << ","
+	  << bd.processName()
+	  << ")\n";
+    }
+    addGroup_(group);
+  }
+
+  void
+  Principal::addGroupOrNoThrow(std::auto_ptr<Group> group) {
+    Group const* g = getExistingGroup(*group);
+    if (g == 0) {
+      addGroup_(group);
+    }
+  }
+
   void 
-  Principal::replaceGroup(std::auto_ptr<Group> group) {
-    ConstBranchDescription const& bd = group->productDescription();
+  Principal::replaceGroup(Group& group) {
+    ConstBranchDescription const& bd = group.branchDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
-    SharedGroupPtr g(group);
     ProductTransientIndex index = preg_->indexFrom(bd.branchID());
     assert(index!=ProductRegistry::kInvalidIndex);
-    groups_[index]->replace(*g);
+    if (!groups_[index]) {
+      // If the group is not there, we add it;
+      groups_[index].reset(new Group);
+      ++size_;
+    }
+    groups_[index]->replace(group);
   }
 
   void
@@ -124,7 +157,7 @@ namespace edm {
   Principal::SharedConstGroupPtr const
   Principal::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
     ProductTransientIndex index = preg_->indexFrom(bid);
-    if(index==ProductRegistry::kInvalidIndex){
+    if(index == ProductRegistry::kInvalidIndex){
        return SharedConstGroupPtr();
     }
     return getGroupByIndex(index, resolveProd, resolveProv, fillOnDemand); 
@@ -143,18 +176,13 @@ namespace edm {
          this->resolveProduct(*g, true);
          //check if this failed (say because of a caught exception)
          if(0 == g->product()) {
-            //behavior is the same as if the group wasn't there
-            return SharedConstGroupPtr();
+            return g;
          }
       }
       this->resolveProvenance(*g);
     }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
-      if(g->onDemand() && 0 == g->product()) {
-         //behavior is the same as if the group wasn't there
-         return SharedConstGroupPtr();
-      }
     }
     return g;
   }
@@ -478,53 +506,59 @@ namespace edm {
 
   void
   Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
-    if (g.productUnavailable()) {
-      throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
-	<< "resolve_: product is not accessible\n"
-	<< g.provenance() << '\n';
-    }
-
-    if (g.product()) return; // nothing to do.
-
     // Try unscheduled production.
     if (g.onDemand()) {
-      if (fillOnDemand) unscheduledFill(g.productDescription().moduleLabel());
+      if (fillOnDemand) {
+        unscheduledFill(g.branchDescription().moduleLabel());
+      }
       return;
     }
 
+    if (g.product()) return; // nothing to do.
+    if (g.productUnavailable()) return; // nothing to do.
+    if (g.branchDescription().produced()) return; // nothing to do.
+
     // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(g.productDescription());
+    BranchKey const bk = BranchKey(g.branchDescription());
     std::auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
 
     // Now fix up the Group
     g.setProduct(edp);
+    g.updateStatus();
   }
 
   void
   Principal::resolveProvenance(Group const& g) const {
-    g.provenance()->setStore(branchMapperPtr_);
-    g.provenance()->resolve();
+    if (!g.branchDescription().produced()) {
+      g.provenance()->setStore(branchMapperPtr_);
+      g.provenance()->resolve();
+      g.updateStatus();
+    }
   }
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
     SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
     if (g.get() == 0) {
-      return OutputHandle();
+        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
+         << "No entry is present for this branch.\n"
+         << "The branch id is " << bid << "\n"
+         << "Contact a framework developer.\n";
     }
     if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->productDescription().present() &&
-	    g->productDescription().branchType() == InEvent &&
+	    g->branchDescription().present() &&
+	    g->branchDescription().branchType() == InEvent &&
+	    g->productProvenancePtr() &&
             productstatus::present(g->productProvenancePtr()->productStatus())) {
         throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
          << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->productDescription().branchName() << "\n"
+         << "The branch name is " << g->branchDescription().branchName() << "\n"
          << "Contact a framework developer.\n";
     }
     if (!g->product() && !g->productProvenancePtr()) {
       return OutputHandle();
     }
-    return OutputHandle(g->product().get(), &g->productDescription(), g->productProvenancePtr());
+    return OutputHandle(g->product().get(), &g->branchDescription(), g->productProvenancePtr());
   }
 
   Provenance
@@ -536,7 +570,7 @@ namespace edm {
     }
 
     if (g->onDemand()) {
-      unscheduledFill(g->productDescription().moduleLabel());
+      unscheduledFill(g->branchDescription().moduleLabel());
     }
     // We already tried to produce the unscheduled products above
     // If they still are not there, then throw

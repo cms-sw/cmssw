@@ -11,121 +11,153 @@ using Reflex::TypeTemplate;
 
 namespace edm {
 
+
   Group::Group() :
     product_(),
     branchDescription_(),
     pid_(),
+    status_(productstatus::uninitialized()),
     prov_(),
     dropped_(false),
     onDemand_(false) {}
 
+
   Group::Group(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-      ProductID const& pid,  std::auto_ptr<ProductProvenance> productProvenance) :
+      ProductID const& pid, std::auto_ptr<ProductProvenance> productProvenance) :
     product_(edp),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    prov_(new Provenance(*branchDescription_, pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
-    dropped_(!branchDescription_->present()),
+    status_(productProvenance->productStatus()),
+    prov_(new Provenance(branchDescription(), pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
+    dropped_(false),
     onDemand_(false) {
-  }
-
-  Group::Group(ConstBranchDescription const& bd,
-      ProductID const& pid,  std::auto_ptr<ProductProvenance> productProvenance) :
-    product_(),
-    branchDescription_(new ConstBranchDescription(bd)),
-    pid_(pid),
-    prov_(new Provenance(*branchDescription_, pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
-    dropped_(!branchDescription_->present()),
-    onDemand_(false) {
+        assert(!branchDescription().dropped());
   }
 
   Group::Group(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
+      ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
     product_(edp),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance)),
-    dropped_(!branchDescription_->present()),
+    status_(productProvenance->productStatus()),
+    prov_(new Provenance(branchDescription(), pid_, productProvenance)),
+    dropped_(false),
     onDemand_(false) {
+        assert(!branchDescription().dropped());
   }
 
   Group::Group(ConstBranchDescription const& bd,
-         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
+      ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance)),
-    dropped_(!branchDescription_->present()),
+    status_(productProvenance->productStatus()),
+    prov_(new Provenance(branchDescription(), pid_, productProvenance)),
+    dropped_(branchDescription().dropped()),
     onDemand_(false) {
   }
 
-  Group::Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand) :
+  Group::Group(ConstBranchDescription const& bd, ProductID const& pid, ProductStatus const& status) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
+    status_(status),
     prov_(),
-    dropped_(!branchDescription_->present()),
-    onDemand_(true) {
-	assert(demand);
+    dropped_(false),
+    onDemand_(productstatus::unscheduledProducerNotRun(status)) {
+        assert(!branchDescription().dropped());
   }
 
-  Group::Group(ConstBranchDescription const& bd, ProductID const& pid) :
+  Group::Group(ConstBranchDescription const& bd, ProductID const& pid, bool dropped) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
+    status_((dropped || bd.dropped()) ? productstatus::dropped() : productstatus::uninitialized()),
     prov_(),
-    dropped_(!branchDescription_->present()),
+    dropped_(dropped || bd.dropped()),
     onDemand_(false) {
   }
 
   Group::~Group() {
   }
 
-  ProductStatus
-  Group::status() const {
-    if (dropped_) return productstatus::dropped();
-    if (!provenance()->productProvenanceSharedPtr()) {
-      if (product_) return product_->isPresent() ? productstatus::present() : productstatus::neverCreated();
-      else return productstatus::unknown();
-    }
-    if (product_) {
-      // for backward compatibility
-      product_->isPresent() ? prov_->productProvenance().setPresent() : prov_->productProvenance().setNotPresent();
-    }
-    return provenance()->productStatus();
+  void 
+  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
+    assert (!product_);
+    product_.reset(prod.release());  // Group takes ownership
+    assert (product_);
   }
-
+  void
+  Group::updateStatus() const {
+    if (product_) {
+      if(product_->isPresent()) {
+        status_ = productstatus::present();
+      } else {
+        ProductStatus provStatus = prov_->productProvenancePtr() ?
+				   prov_->productProvenance().productStatus() :
+				   productstatus::uninitialized();
+        if (productstatus::dropped(provStatus)) {
+	  // fixes a backward compatibility problem
+	  prov_->productProvenance().setStatus(productstatus::uninitialized());
+        }
+        if (productstatus::uninitialized(provStatus) || productstatus::unknown(provStatus)) {
+	  status_ = productstatus::neverCreated();
+        } else {
+	  assert(productstatus::notPresent(provStatus));
+	  status_ = provStatus;
+        }
+      }
+    } else if (prov_->productProvenancePtr()) {
+      status_ = prov_->productProvenance().productStatus();
+    }
+  }
+  
   bool
   Group::onDemand() const {
     return onDemand_;
   }
 
+  // This routine returns true if it is known that currently there is no real product.
+  // If there is a real product, it returns false.
+  // If it is not known if there is a real product, it returns false.
   bool 
   Group::productUnavailable() const { 
     if (onDemand()) return false;
     if (dropped_) return true;
-    if (productstatus::unknown(status())) return false;
-    return not productstatus::present(status());
-
+    bool unavailable = productstatus::notPresent(status());
+    // If this product is from a the current process,
+    // the product is available if and only if a product has been put.
+    if (branchDescription().produced()) {
+      assert (!productstatus::presenceUnknown(status()));
+      assert ((product_ && product_->isPresent()) == !unavailable);
+    }
+    // The product is from a prior process.
+    // if there is a product, we know if it is real or a dummy.
+    else if (product_) {
+      assert (!productstatus::presenceUnknown(status()));
+      assert (product_->isPresent() == !productstatus::notPresent(status()));
+    }
+    return unavailable;
   }
 
   bool 
   Group::provenanceAvailable() const { 
-    if (onDemand()) return false;
-    return true;    
+    // If this product is from a the current process,
+    // the provenance is available if and only if a product has been put.
+    if (branchDescription().produced()) {
+      return product_ && product_->isPresent();
+    }
+    // If this product is from a prior process, the provenance is available,
+    // although the per event part may have been dropped.
+    return true;
   }
 
-  void 
-  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
-    assert (product() == 0);
-    product_.reset(prod.release());  // Group takes ownership
-  }
-  
   void  
   Group::swap(Group& other) {
     std::swap(product_, other.product_);
     std::swap(pid_, other.pid_);
     std::swap(branchDescription_, other.branchDescription_);
+    std::swap(status_, other.status_);
     std::swap(prov_, other.prov_);
     std::swap(dropped_, other.dropped_);
     std::swap(onDemand_, other.onDemand_);
@@ -165,7 +197,7 @@ namespace edm {
   Provenance const *
   Group::provenance() const {
     if (!prov_.get()) {
-      prov_.reset(new Provenance(*branchDescription_, pid_));
+      prov_.reset(new Provenance(branchDescription(), pid_));
     }
     return prov_.get();
   }
@@ -194,7 +226,7 @@ namespace edm {
         << "fixing the producer module, then contact the Framework development\n"
         << "group with details so we can discuss whether and how to support this\n"
         << "use case.\n"
-        << "className = " << branchDescription_->className() << "\n"
+        << "className = " << branchDescription().className() << "\n"
         << "moduleLabel = " << moduleLabel() << "\n"
         << "instance = " << productInstanceName() << "\n"
         << "process = " << processName() << "\n";
@@ -216,7 +248,7 @@ namespace edm {
             << "Group::mergeGroup\n" 
             << "Two run/lumi products for the same run/lumi which should be equal are not\n"
             << "Using the first, ignoring the second\n"
-            << "className = " << branchDescription_->className() << "\n"
+            << "className = " << branchDescription().className() << "\n"
             << "moduleLabel = " << moduleLabel() << "\n"
             << "instance = " << productInstanceName() << "\n"
             << "process = " << processName() << "\n";
@@ -227,7 +259,7 @@ namespace edm {
           << "Group::mergeGroup\n" 
           << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
           << "Using the first, ignoring the second in merge\n"
-          << "className = " << branchDescription_->className() << "\n"
+          << "className = " << branchDescription().className() << "\n"
           << "moduleLabel = " << moduleLabel() << "\n"
           << "instance = " << productInstanceName() << "\n"
           << "process = " << processName() << "\n";

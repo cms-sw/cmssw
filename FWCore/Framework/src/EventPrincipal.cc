@@ -55,66 +55,56 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addOnDemandGroup(ConstBranchDescription const& desc) {
-    std::auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
-    addOrReplaceGroup(g);
+  EventPrincipal::addOnDemandGroup(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productstatus::unscheduledProducerNotRun()));
+    addGroupOrThrow(g);
   }
 
   void
-  EventPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-    Group const* group = getExistingGroup(*g);
-    if (group != 0) {
-      if(!group->onDemand()) {
-        ConstBranchDescription const& bd = group->productDescription();
-	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	  << "addGroup_: Problem found while adding product provenance, "
-	  << "product already exists for ("
-	  << bd.friendlyClassName() << ","
-	  << bd.moduleLabel() << ","
-	  << bd.productInstanceName() << ","
-	  << bd.processName()
-	  << ")\n";
-      }
-      replaceGroup(g);
-    } else {
-      addGroup_(g);
+  EventPrincipal::addGroupScheduled(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productstatus::producerNotRun()));
+    addGroupOrThrow(g);
+  }
+
+  void
+  EventPrincipal::addGroupSource(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productstatus::producerDidNotPutProduct()));
+    addGroupOrNoThrow(g);
+  }
+
+  void
+  EventPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
+    if (getExistingGroup(bd.branchID()) == 0) {
+      addGroup(bd, true);
     }
   }
 
   void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
-    addOrReplaceGroup(g);
+  EventPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), dropped));
+    addGroupOrThrow(g);
   }
 
   void
-  EventPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
-	 ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  EventPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
-	 ConstBranchDescription const& bd,
+  EventPrincipal::addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
+    addGroupOrThrow(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
+    addGroupOrThrow(g);
+  }
+
+  void
+  EventPrincipal::addToGroup(boost::shared_ptr<EDProduct> prod,
+	 ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance) {
+    Group g(prod, bd, branchIDToProductID(bd.branchID()), productProvenance);
+    replaceGroup(g);
   }
 
   void 
@@ -135,7 +125,7 @@ namespace edm {
 	<< "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
-    this->addGroup(edp, bd, productProvenance);
+    this->addToGroup(edp, bd, productProvenance);
   }
 
   BranchID

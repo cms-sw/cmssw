@@ -10,8 +10,6 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.36 2009/04/15 23:22:30 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -90,16 +88,21 @@ namespace edm {
     void put(boost::shared_ptr<EDProduct> edp,
 	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd);
+    void addGroupScheduled(ConstBranchDescription const& bd);
 
-    void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroupSource(ConstBranchDescription const& bd);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(ConstBranchDescription const& bd, bool dropped = false);
+
+    void addGroupIfNeeded(ConstBranchDescription const& bd);
+
+    void addToGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance);
 
     void swap(LuminosityBlockPrincipal&);
 
   private:
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+    void addOrReplaceGroup(std::auto_ptr<Group> g);
 
     virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 

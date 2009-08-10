@@ -24,46 +24,60 @@ namespace edm {
   LuminosityBlockPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
 
     Group* group = getExistingGroup(*g);
-    if (group != 0) {
-
+    if (group == 0) {
+      addGroup_(g);
+    } else if (group->productUnavailable() && group->branchDescription().produced()) {
+      // In this case, group is for the current process, and the existing group is just
+      // a placeholder. Just replace the existing group.
+      assert(g->branchDescription().produced());
+      replaceGroup(*g);
+    } else {
       if (!group->productUnavailable()) {
         assert(group->product() != 0);
       }
       if (!g->productUnavailable()) {
         assert(g->product() != 0);
       }
-
       if(static_cast<bool> (g.get())) {
-         //PrincipalCache holds onto the 'newest' version of a RunPrincipal for a given run
+         //PrincipalCache holds onto the 'newest' version of a LumiPrincipal for a given lumi
          // but our behavior is to keep the 'old' group and merge in the new one because if there
          // is no way to merge we keep the 'old' group
          edm::swap(*group,*g);
       }
-       
       group->mergeGroup(g.get());
-    } else {
-      addGroup_(g);
     }
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID()));
+  LuminosityBlockPrincipal::addGroupScheduled(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerNotRun()));
+    addGroupOrNoThrow(g);
+  }
+
+  void
+  LuminosityBlockPrincipal::addGroupSource(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerDidNotPutProduct()));
+    addGroupOrNoThrow(g);
+  }
+
+  void
+  LuminosityBlockPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
+    if (getExistingGroup(bd.branchID()) == 0) {
+      addGroup(bd, true);
+    }
+  }
+
+  void
+  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), dropped));
     addOrReplaceGroup(g);
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
+  LuminosityBlockPrincipal::addToGroup(boost::shared_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
@@ -79,7 +93,7 @@ namespace edm {
     }
     branchMapperPtr()->insert(*productProvenance);
     // Group assumes ownership
-    this->addGroup(edp, bd, productProvenance);
+    this->addToGroup(edp, bd, productProvenance);
   }
 
   void

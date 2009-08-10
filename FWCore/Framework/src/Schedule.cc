@@ -245,16 +245,25 @@ namespace edm {
 
     prod_reg_->setFrozen();
 
-    //Now that these have been set, we can create the list of Branches we need for the 'on demand'
+    //Now that these have been set, we can create the list of Branches we need.
+    std::string const source("source");
     ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
 	  itProdInfoEnd = prodsList.end();
 	itProdInfo != itProdInfoEnd;
 	++itProdInfo) {
-      if(processName() == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
-         unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-	demandBranches_.push_back(bd);
+      boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+      if (bd->produced()) {
+	if (bd->moduleLabel() == source) {
+	  sourceBranches_[bd->branchType()].push_back(bd);
+	} else if(bd->branchType() == InEvent &&
+          unscheduledLabels.end() != unscheduledLabels.find(bd->moduleLabel())) {
+	  demandBranches_.push_back(bd);
+        } else {
+	  scheduledBranches_[bd->branchType()].push_back(bd);
+	}
+      } else {
+	inputBranches_[bd->branchType()].push_back(bd);
       }
     }
 

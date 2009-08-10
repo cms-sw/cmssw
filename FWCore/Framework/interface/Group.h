@@ -24,27 +24,23 @@ namespace edm {
   public:
     Group();
 
-    Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand);
+    Group(ConstBranchDescription const& bd, ProductID const& pid, ProductStatus const& status);
 
-    Group(ConstBranchDescription const& bd, ProductID const& pid);
-
-    Group(boost::shared_ptr<EDProduct> edp,
-	  ConstBranchDescription const& bd,
-	  ProductID const& pid,
-	  std::auto_ptr<ProductProvenance> productProvenance);
+    Group(ConstBranchDescription const& bd, ProductID const& pid, bool dropped);
 
     Group(ConstBranchDescription const& bd,
 	  ProductID const& pid,
-	  std::auto_ptr<ProductProvenance> productProvenance);
+	  boost::shared_ptr<ProductProvenance> productProvenance);
 
     Group(boost::shared_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
 	  ProductID const& pid,
 	  boost::shared_ptr<ProductProvenance> productProvenance);
 
-    Group(ConstBranchDescription const& bd,
+    Group(boost::shared_ptr<EDProduct> edp,
+	  ConstBranchDescription const& bd,
 	  ProductID const& pid,
-	  boost::shared_ptr<ProductProvenance> productProvenance);
+	  std::auto_ptr<ProductProvenance> productProvenance);
 
     ~Group();
 
@@ -63,17 +59,19 @@ namespace edm {
 
     boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenanceSharedPtr();}
 
-    ConstBranchDescription const& productDescription() const {return *branchDescription_;}
+    ConstBranchDescription const& branchDescription() const {return *branchDescription_;}
 
-    std::string const& moduleLabel() const {return branchDescription_->moduleLabel();}
+    std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
 
-    std::string const& productInstanceName() const {return branchDescription_->productInstanceName();}
+    std::string const& productInstanceName() const {return branchDescription().productInstanceName();}
 
-    std::string const& processName() const {return branchDescription_->processName();}
+    std::string const& processName() const {return branchDescription().processName();}
 
-    Provenance const * provenance() const;
+    Provenance const* provenance() const;
 
-    ProductStatus status() const;
+    ProductStatus const& status() const {return status_;}
+
+    void updateStatus() const;
 
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning
@@ -109,6 +107,7 @@ namespace edm {
     mutable boost::shared_ptr<EDProduct> product_;
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
     mutable ProductID pid_;
+    mutable ProductStatus status_;
     mutable boost::shared_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;

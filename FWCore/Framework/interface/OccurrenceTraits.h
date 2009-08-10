@@ -7,6 +7,7 @@ OccurrenceTraits:
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -26,6 +27,7 @@ namespace edm {
   class OccurrenceTraits<EventPrincipal, BranchActionBegin> {
   public:
     typedef EventPrincipal MyPrincipal;
+    static BranchType const branchType_ = InEvent;
     static bool const begin_ = true;
     static bool const isEvent_ = true;
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal const* ep) {
@@ -53,6 +55,7 @@ namespace edm {
   class OccurrenceTraits<RunPrincipal, BranchActionBegin> {
   public:
     typedef RunPrincipal MyPrincipal;
+    static BranchType const branchType_ = InRun;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
@@ -80,6 +83,7 @@ namespace edm {
   class OccurrenceTraits<RunPrincipal, BranchActionEnd> {
   public:
     typedef RunPrincipal MyPrincipal;
+    static BranchType const branchType_ = InRun;
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
@@ -107,6 +111,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
+    static BranchType const branchType_ = InLumi;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
@@ -134,6 +139,7 @@ namespace edm {
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
+    static BranchType const branchType_ = InLumi;
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {

@@ -21,8 +21,14 @@ namespace edm {
   RunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
 
     Group* group = getExistingGroup(*g);
-    if (group != 0) {
-
+    if (group == 0) {
+      addGroup_(g);
+    } else if (group->productUnavailable() && group->branchDescription().produced()) {
+      // In this case, group is for the current process, and the existing group is just
+      // a placeholder. Just replace the existing group.
+      assert(g->branchDescription().produced());
+      replaceGroup(*g);
+    } else {
       if (!group->productUnavailable()) {
         assert(group->product() != 0);
       }
@@ -36,30 +42,39 @@ namespace edm {
          edm::swap(*group,*g);
       }
       group->mergeGroup(g.get());
-    } else {
-      addGroup_(g);
     }
   }
 
+  void
+  RunPrincipal::addGroupScheduled(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerNotRun()));
+    addGroupOrNoThrow(g);
+  }
 
   void
-  RunPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID()));
+  RunPrincipal::addGroupSource(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerDidNotPutProduct()));
+    addGroupOrNoThrow(g);
+  }
+
+  void
+  RunPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
+    if (getExistingGroup(bd.branchID()) == 0) {
+      addGroup(bd, true);
+    }
+  }
+
+  void
+  RunPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID(), dropped));
     addOrReplaceGroup(g);
   }
 
   void
-  RunPrincipal::addGroup(boost::shared_ptr<EDProduct> prod,
+  RunPrincipal::addToGroup(boost::shared_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  RunPrincipal::addGroup(ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
@@ -75,7 +90,7 @@ namespace edm {
     }
     branchMapperPtr()->insert(*productProvenance);
     // Group assumes ownership
-    this->addGroup(edp, bd, productProvenance);
+    this->addToGroup(edp, bd, productProvenance);
   }
 
   void

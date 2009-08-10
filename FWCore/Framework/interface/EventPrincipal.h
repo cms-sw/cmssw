@@ -103,8 +103,6 @@ namespace edm {
 
     RunPrincipal & runPrincipal();
 
-    void addOnDemandGroup(ConstBranchDescription const& desc);
-
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
 
@@ -123,17 +121,24 @@ namespace edm {
     void put(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
 	 std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd);
+    void addOnDemandGroup(ConstBranchDescription const& desc);
 
-    void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroupScheduled(ConstBranchDescription const& bd);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroupSource(ConstBranchDescription const& bd);
+
+    void addGroup(ConstBranchDescription const& bd, bool dropped = false);
 
     void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<ProductProvenance> productProvenance);
+    void addGroup(ConstBranchDescription const& bd,
+	 boost::shared_ptr<ProductProvenance> productProvenance);
+
+    void addGroupIfNeeded(ConstBranchDescription const& bd);
+
+    void addToGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
@@ -144,8 +149,6 @@ namespace edm {
   private:
 
     BranchID pidToBid(ProductID const& pid) const;
-
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
     virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
 
