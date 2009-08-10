@@ -190,7 +190,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 			  tauDecayMode == kOneProng1pi0 || 
 			  tauDecayMode == kOneProng2pi0 ) 
 		    {
-		      if ((abs(Visible_Taus.eta()) < etaMax) && (Visible_Taus.pt() > ptMinMCElectron_)){
+		      if ((abs(Visible_Taus.eta()) < etaMax) && (Visible_Taus.pt() > ptMinMCTau_)){
 			product_OneProng->push_back(Visible_Taus);
 			product_OneAndThreeProng->push_back(Visible_Taus);
 			product_Neutrina->push_back(Neutrino);
