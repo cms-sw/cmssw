@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.82 2009/07/30 04:10:19 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.83 2009/08/05 14:39:01 chrjones Exp $
 //
 
 // system include files
@@ -727,7 +727,7 @@ CmsShowMain::setupDataHandling()
 	openData();
       }
    }
-   else {
+   else if (m_monitor.get() != 0) {
       openData();
    }
 }

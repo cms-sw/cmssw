@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.27 2009/07/30 04:10:19 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.28 2009/08/05 14:38:43 chrjones Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -166,7 +166,10 @@ CmsShowNavigator::loadFile(const std::string& fileName)
 void
 CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
 {
-   m_nextFile = fileName;
+   if (m_file == 0)
+      loadFile(fileName);
+   else
+      m_nextFile = fileName;
 }
 
 
@@ -199,6 +202,7 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEvent()
 {
+   if (m_file == 0) return;
 
 #ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
    ProcInfo_t pInf;
