@@ -10,7 +10,8 @@
 #include <HiggsAnalysis/Skimming/interface/HiggsToWW2LeptonsSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HeavyChHiggsToTauNuSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsTo2GammaSkim.h>
-#include <HiggsAnalysis/Skimming/interface/HiggsToTauTauLeptonTauSkim.h>
+#include <HiggsAnalysis/Skimming/interface/HiggsToTauTauElectronTauSkim.h>
+#include <HiggsAnalysis/Skimming/interface/HiggsToTauTauMuonTauSkim.h>
 #include <HiggsAnalysis/Skimming/interface/LightChHiggsToTauNuSkim.h>
 
 
@@ -24,6 +25,7 @@ DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsPreFilter);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToWW2LeptonsSkim);
 DEFINE_ANOTHER_FWK_MODULE(HeavyChHiggsToTauNuSkim);
 DEFINE_ANOTHER_FWK_MODULE(HiggsTo2GammaSkim);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauLeptonTauSkim);
+DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauElectronTauSkim);
+DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauMuonTauSkim);
 DEFINE_ANOTHER_FWK_MODULE(LightChHiggsToTauNuSkim);
 
