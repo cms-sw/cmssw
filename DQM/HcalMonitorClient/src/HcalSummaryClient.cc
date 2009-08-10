@@ -412,7 +412,9 @@ void HcalSummaryClient::analyze(void)
  resetSummaryPlots();
 
  // Calculate status values for individual tasks
- if (dataFormatMon_.IsOn()) analyze_subtask(dataFormatMon_);
+
+ // Disable the dataformat monitor for the moment -- it's causing crazy errors.
+ //if (dataFormatMon_.IsOn()) analyze_subtask(dataFormatMon_);
  if (digiMon_.IsOn()) analyze_subtask(digiMon_);
  if (recHitMon_.IsOn()) analyze_subtask(recHitMon_);
  if (pedestalMon_.IsOn()) analyze_subtask(pedestalMon_);
