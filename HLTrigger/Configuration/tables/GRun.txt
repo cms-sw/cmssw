@@ -92,3 +92,4 @@ HLT_EgammaSuperClusterOnly_L1R
 HLT_TrackPointing
 AlCa_EcalPi0_Cosmics
 AlCa_EcalEta_Cosmics
+AlCa_DTErrors
