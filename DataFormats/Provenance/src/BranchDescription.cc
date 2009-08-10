@@ -18,7 +18,7 @@ namespace edm {
     branchName_(),
     wrappedName_(),
     produced_(false),
-    present_(true),
+    dropped_(false),
     transient_(false),
     type_(),
     splitLevel_(),
@@ -62,7 +62,7 @@ namespace edm {
     branchAliases_(aliases),
     transients_()
   {
-    present() = true;
+    dropped() = false;
     produced() = true;
     transients_.get().parameterSetID_ = modDesc.parameterSetID();
     transients_.get().moduleName_ = modDesc.moduleName();
@@ -161,7 +161,7 @@ namespace edm {
     parameterSetIDs().insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
     moduleNames().insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    present() = present() || other.present();
+    dropped() = dropped() && other.dropped();
     if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
     if (basketSize() == invalidBasketSize) basketSize() = other.basketSize();
   }
@@ -255,7 +255,7 @@ namespace edm {
   bool
   operator==(BranchDescription const& a, BranchDescription const& b) {
     return combinable(a, b) &&
-       (a.present() == b.present()) &&
+       (a.dropped() == b.dropped()) &&
        (a.moduleNames() == b.moduleNames()) &&
        (a.parameterSetIDs() == b.parameterSetIDs()) &&
        (a.branchAliases() == b.branchAliases());
@@ -286,7 +286,7 @@ namespace edm {
       differences << "Products on branch '" << b.branchName() << "' have type '" << b.fullClassName() << "'\n";
       differences << "    in file '" << fileName << "', but '" << a.fullClassName() << "' in previous files.\n";
     }
-    if (b.present() && !a.present()) {
+    if (!b.dropped() && a.dropped()) {
       differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {

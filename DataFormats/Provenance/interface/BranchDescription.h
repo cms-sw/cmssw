@@ -66,7 +66,8 @@ namespace edm {
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;} 
     bool & produced() const {return transients_.get().produced_;}
-    bool & present() const {return transients_.get().present_;}
+    bool present() const {return !transients_.get().dropped_;}
+    bool & dropped() const {return transients_.get().dropped_;}
     bool & transient() const {return transients_.get().transient_;}
     Reflex::Type & type() const {return transients_.get().type_;}
     int & splitLevel() const {return transients_.get().splitLevel_;}
@@ -89,7 +90,7 @@ namespace edm {
     BranchType const& branchType() const {return branchType_;}
     std::string & wrappedName() const {return transients_.get().wrappedName_;}
 
-    void setPresent(bool isPresent) const {present() = isPresent;}
+    void setDropped() const {dropped() = true;}
     void updateFriendlyClassName();
 
     struct Transients {
@@ -113,9 +114,9 @@ namespace edm {
       // rather than in a previous process
       bool produced_;
 
-      // Is the branch present in the product tree
-      // in the input file (or any of the input files)
-      bool present_;
+      // Has the branch been dropped from the product tree
+      // in the input files
+      bool dropped_;
 
       // Is the class of the branch marked as transient
       // in the data dictionary
