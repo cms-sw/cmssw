@@ -2079,13 +2079,13 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
           bool anyerr=false; bool type30=false; bool othererr=false;
           if(full_path.find("ndigis")!=string::npos) full_path = full_path.replace(full_path.find("ndigis"),6,"NErrors");
 	  me = bei->get(full_path);
-	  if(me) anyerr=true;
+	  if(me && me->getMean()>0.) anyerr=true;
          // cout<<"here is an error: "<<detId<<","<<me->getMean()<<endl;
 	  if(full_path.find("NErrors")!=string::npos) full_path = full_path.replace(full_path.find("NErrors"),7,"errorType");
 	  me = bei->get(full_path);
 	  if(me){
 	    for(int jj=1; jj<16; jj++){
-	    cout<<"looping over errorType: "<<jj<<" , "<<me->getBinContent(jj)<<endl;
+	    //cout<<"looping over errorType: "<<jj<<" , "<<me->getBinContent(jj)<<endl;
 	      if(me->getBinContent(jj)>0.){
 	        if(jj!=6) othererr=true;
 		else type30=true;
@@ -2105,7 +2105,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  }
           if(anyerr && othererr){
 	    errmodsMap->Fill(fedId,linkId);
-	    cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
+	   // cout<<"this is a module that has errors: "<<detId<<","<<fedId<<","<<linkId<<endl;
 	  }
 	}
       }

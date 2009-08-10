@@ -444,6 +444,27 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		(*isum)->Fill(ndet, float(NegFitPixels));
 	      }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos || sname.find("ALLMODS_chargeCOMB_")!=string::npos){
 		(*isum)->getTH1F()->Add(me->getTH1F());
+	      }else if (sname.find("_NErrors_")!=string::npos){
+	        string path1 = fullpathname;
+		path1 = path1.replace(path1.find("NErrors"),7,"errorType");
+		MonitorElement * me1 = bei->get(path1);
+		bool othererror=false;
+	        if(me1){
+	          for(int jj=1; jj<16; jj++){
+	            if(me1->getBinContent(jj)>0.){
+	              if(jj==6){ //errorType=30 (reset)
+	                string path2 = path1;
+			path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
+	                MonitorElement * me2 = bei->get(path2);
+	                if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
+			  othererror=true;
+		      }else{ //not reset, but other error
+		        othererror=true;
+		      }
+		    }
+		  }
+		}
+		if(othererror) (*isum)->Fill(ndet, me->getMean());
 	      }else{
 		(*isum)->Fill(ndet, me->getMean());
 	      }
@@ -633,7 +654,30 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	    MonitorElement *  me = bei->get(fullpathname);
 						
 	    if (me){ 
-	      if(me->getMean()>0.)(*isum)->Fill(ndet-1, me->getMean());
+	      if(me->getMean()>0.){
+	        if (sname.find("_NErrors_")!=string::npos){
+	          string path1 = fullpathname;
+		  path1 = path1.replace(path1.find("NErrors"),7,"errorType");
+		  MonitorElement * me1 = bei->get(path1);
+		  bool othererror=false;
+	          if(me1){
+	            for(int jj=1; jj<16; jj++){
+	              if(me1->getBinContent(jj)>0.){
+	                if(jj==6){ //errorType=30 (reset)
+	                  string path2 = path1;
+			  path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
+	                  MonitorElement * me2 = bei->get(path2);
+	                  if(me2) for(int kk=1; kk<9; kk++) if(me2->getBinContent(kk)>0.) if(kk!=6 && kk!=7) 
+			    othererror=true;
+		        }else{ //not reset, but other error
+		          othererror=true;
+		        }
+		      }
+		    }
+		  }
+		  if(othererror) (*isum)->Fill(ndet, me->getMean());
+	        }else (*isum)->Fill(ndet-1, me->getMean());
+	      }
 	      (*isum)->setAxisTitle("FED #",1);
 	      string title = " ";
 	      title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per FED"; 
