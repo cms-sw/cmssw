@@ -1,6 +1,7 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include <ostream>
+#include <cassert>
 
 /*----------------------------------------------------------------------
 
@@ -82,18 +83,18 @@ namespace edm {
   }
 
   void
-  ProductProvenance::setPresent() {
-    if (productstatus::present(productStatus())) return;
-    assert(productstatus::unknown(productStatus()));
-    setStatus(productstatus::present());
-  }
-
-  void
-  ProductProvenance::setNotPresent() {
-    if (productstatus::neverCreated(productStatus())) return;
-    if (productstatus::dropped(productStatus())) return;
-    assert(productstatus::unknown(productStatus()));
-    setStatus(productstatus::neverCreated());
+  ProductProvenance::setStatus(ProductStatus const& status) {
+    if (productstatus::presenceUnknown(productStatus())) {
+      productStatus_ = status;
+    } else if (productstatus::present(productStatus())) {
+      assert(productstatus::present(status));
+    } else {
+      assert(productstatus::notPresent(productStatus()));
+      assert(productstatus::notPresent(status));
+      if (!productstatus::neverCreated(status)) {
+        productStatus_ = status;
+      }
+    }
   }
 
   void
