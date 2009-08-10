@@ -67,17 +67,31 @@ cd $VAL_NEW_RELEASE
 
 if ( ${?VAL_NEW_FILE} == "0" ) setenv VAL_NEW_FILE ""
 
+if ( "${VAL_NEW_FILE}" != "" && ! -r "${VAL_NEW_FILE}" ) then
+  echo "${VAL_NEW_FILE} is unreadable !"
+  setenv VAL_NEW_FILE ""
+endif
+
 if ( ${VAL_NEW_FILE} == "" ) then
   setenv VAL_NEW_FILE ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+endif
+
+if ( "${VAL_NEW_FILE}" != "" && ! -r "${VAL_NEW_FILE}" ) then
+  echo "${VAL_NEW_FILE} is unreadable !"
+  setenv VAL_NEW_FILE ""
 endif
 
 if (! -d data) then
   mkdir data
 endif
 
+echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
+
 if ( "${VAL_NEW_FILE}" != "" ) then
   if ( -r "$VAL_NEW_FILE" ) then
     cp -f $VAL_NEW_FILE data
+	setenv VAL_NEW_FILE "${cwd}/data/${VAL_NEW_FILE:t}"
+	echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
   endif
 endif
 
@@ -89,9 +103,14 @@ if ( -e "${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
   cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog data
 endif
 
-echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
-
 #============== Find reference data file (eventually the freshly copied new data) ==================
+
+if (! -d "vs${VAL_REF_RELEASE}") then
+  mkdir "vs${VAL_REF_RELEASE}"
+endif
+
+echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
+cd "vs${VAL_REF_RELEASE}"
 
 if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 
@@ -110,14 +129,7 @@ endif
 echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
  
-#============== Prepare output subdirectories ==================
-
-if (! -d "vs${VAL_REF_RELEASE}") then
-  mkdir "vs${VAL_REF_RELEASE}"
-endif
-
-echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
-cd "vs${VAL_REF_RELEASE}"
+#============== Prepare sample/cond subdirectory ==================
 
 if ( ${VAL_WEB_SUB_DIR} == "" ) then
   if ( "${DBS_COND}" =~ *MC* ) then
@@ -143,7 +155,6 @@ if (! -d gifs) then
 endif
 
 cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C .
-
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise

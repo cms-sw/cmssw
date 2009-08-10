@@ -11,15 +11,15 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_1_2">
+<var name="DBS_RELEASE" value="CMSSW_3_2_4">
 <var name="DBS_TIER" value="-RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="312">
-<var name="VAL_REF_RELEASE" value="311">
+<var name="VAL_NEW_RELEASE" value="324">
+<var name="VAL_REF_RELEASE" value="324">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
