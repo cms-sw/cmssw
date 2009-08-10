@@ -53,7 +53,8 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     TkMapName               =  cms.string('CablingTkMap.png'),
     minValue               =  cms.double(0.),
     maxValue               =  cms.double(6.), 
-
+    saturatedFraction      = cms.double(.01),
+    
     CondObj_fillId       = cms.string('ProfileAndCumul'),
     CondObj_name         = cms.string('fedcabling')
     ),    
@@ -68,7 +69,8 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       TkMapName               =  cms.string('PedestalTkMap.png'),
       minValue               =  cms.double(0.),
       maxValue               =  cms.double(400.),  
-      
+      saturatedFraction      = cms.double(.01),
+
       CondObj_fillId       = cms.string('onlyProfile'),
       CondObj_name         = cms.string('pedestal'),
 
@@ -102,8 +104,9 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       
       TkMap_On                =  cms.bool(True),
       TkMapName               =  cms.string('NoiseTkMap.png'),
-      minValue               =  cms.double(0.),
-      maxValue               =  cms.double(6.),      
+      minValue               =  cms.double(3.),
+      maxValue               =  cms.double(9.),      
+      saturatedFraction      = cms.double(.01),
 
       CondObj_fillId    = cms.string('onlyCumul'),
       CondObj_name      = cms.string('noise'),
@@ -156,7 +159,8 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       TkMapName               =  cms.string('QualityTkMap.svg'),
       minValue               =  cms.double(0.),
       maxValue               =  cms.double(0.), 
-      
+      saturatedFraction      = cms.double(.01),
+
 
       CondObj_name   = cms.string('quality'),
       CondObj_fillId = cms.string('onlyProfile'),
@@ -207,6 +211,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       TkMapName               =  cms.string('GainTkMap.svg'),
       minValue               =  cms.double(0.),
       maxValue               =  cms.double(1.5),  
+      saturatedFraction      = cms.double(.01),
 
       CondObj_name   = cms.string('apvgain'),
       CondObj_fillId = cms.string('ProfileAndCumul'),
@@ -250,7 +255,8 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     TkMapName               =  cms.string('LorentzAngleTkMap.png'),
     minValue               =  cms.double(0.01),
     maxValue               =  cms.double(0.03),
-      
+    saturatedFraction      = cms.double(.01),
+
       CondObj_name = cms.string('lorentzangle'),
       CondObj_fillId = cms.string('ProfileAndCumul'),
       
@@ -282,6 +288,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
       TkMapName               =  cms.string('LowThresholdTkMap.png'),
       minValue               =  cms.double(0.),
       maxValue               =  cms.double(10.), 
+      saturatedFraction      = cms.double(.01),
 
       WhichThreshold= cms.string('Low'),
 
@@ -322,6 +329,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     TkMapName               =  cms.string('HighThresholdTkMap.png'),
     minValue               =  cms.double(0.),
     maxValue               =  cms.double(10.), 	
+    saturatedFraction      = cms.double(.01),
 
     WhichThreshold= cms.string('High'),
     

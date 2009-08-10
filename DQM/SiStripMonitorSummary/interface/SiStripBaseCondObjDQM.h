@@ -109,6 +109,8 @@ class SiStripBaseCondObjDQM {
     bool SummaryOnLayerLevel_On_;
     bool SummaryOnStringLevel_On_;
     bool GrandSummary_On_;
+    double minValue, maxValue;
+    std::vector<int> tkMapScaler;
 
     //bool ActiveDetIds_On_;
 
@@ -137,7 +139,7 @@ class SiStripBaseCondObjDQM {
     void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookTkMap(const std::string& TkMapname);
 
-    void saveTkMap(const std::string& TkMapname, const double& minValue, const double& maxValue);
+    void saveTkMap(const std::string& TkMapname, double minValue, double maxValue);
 
     std::vector<uint32_t> ModulesToBeExcluded_;
     std::vector<uint32_t> ModulesToBeIncluded_;

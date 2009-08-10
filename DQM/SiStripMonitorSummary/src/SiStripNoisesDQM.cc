@@ -86,7 +86,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 //FIXME of the derived class. Moreover, several loops on the same quantities should be avoided...
 
 void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
-  
+
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);
   
@@ -184,7 +184,8 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 
     // Fill the TkMap
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
-      fillTkMap(selDetId_, stripnoise);   }
+      fillTkMap(selDetId_, stripnoise);   
+    }
   
   } //istrip
 
@@ -204,7 +205,16 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     // Fill the Histo_TkMap with the mean Noise:
     if(HistoMaps_On_ ){Tk_HM_->fill(selDetId_, meanNoise); }
 
-  } //if Fill...
+
+    //Check the axis range for tkmap, and in case redefine;
+    int intNoise = int(meanNoise);
+    if(intNoise+1 > tkMapScaler.size()){
+      edm::LogInfo("DOMENICO")<< "Domenico Noise " << intNoise;
+      tkMapScaler.resize(intNoise+1,0);
+    }
+    tkMapScaler[intNoise]++;
+      
+  } 
 
 
 }
