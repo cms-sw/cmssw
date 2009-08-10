@@ -84,7 +84,6 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
 
   nEvents++;
 
-
  //FIND HLT Filter objects
   edm::Handle<trigger::TriggerEvent> TriggerEventHandle;
   iEvent.getByLabel(hltEventLabel,TriggerEventHandle);
@@ -132,7 +131,6 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
     }
   }
   if (maxPt == 0) return false;
-
 
   // LOOP over jets which pass cuts and are DeltaR separated to highest pt trigger electron
   Handle<CaloJetCollection> jetHandle;	
@@ -182,8 +180,7 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
 
 
     if (electronHandle.isValid() ) {
-
-      // Loop over electrons
+         // Loop over electrons
       for (unsigned int i = 0; i < electronHandle->size(); i++){
 	edm::Ref<reco::GsfElectronCollection> electronRef(electronHandle,i);
 	//Read eID results
@@ -205,12 +202,7 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
       nSelectedEvents++;
     }
   }
-  else{
-    if (nJets >= minNumberOfjets) {
-      accepted = true;
-      nSelectedEvents++;
-    }	
-  }
+
   
   return accepted;
 }
