@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.28 2009/06/30 22:00:54 cbern Exp $
+// $Id: PATMuonProducer.cc,v 1.29 2009/07/02 12:31:58 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -20,6 +20,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/Common/interface/Association.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -103,6 +105,12 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     userDataHelper_ = PATUserDataHelper<Muon>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
+  // embed high level selection variables?
+  embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
+  if ( embedHighLevelSelection_ ) {
+    beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
+  }
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 
@@ -140,6 +148,30 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
     }
   }
+
+  // prepare the high level selection:
+  // needs beamline
+  reco::TrackBase::Point beamPoint(0,0,0);
+  if ( embedHighLevelSelection_ ) {
+    // Get the beamspot
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
+    
+    if ( beamSpotHandle.isValid() ){
+      beamSpot = *beamSpotHandle;
+    } else{
+      edm::LogError("DataNotAvailable")
+	<< "No beam spot available from EventSetup, not adding high level selection \n";
+    }
+  
+    double x0 = beamSpot.x0();
+    double y0 = beamSpot.y0();
+    double z0 = beamSpot.z0();
+    
+    beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
+  }
+	
 
   std::vector<Muon> * patMuons = new std::vector<Muon>();
 
@@ -246,6 +278,23 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	userDataHelper_.add( aMuon, iEvent, iSetup );
       }
 
+      // embed high level selection
+      if ( embedHighLevelSelection_ ) {
+	// get the global track
+	reco::TrackRef globalTrack = itMuon->globalTrack();
+      
+	// Make sure the collection it points to is there
+	if ( globalTrack.isNonnull() && globalTrack.isAvailable() ) {
+	  double norm_chi2 = globalTrack->chi2() / globalTrack->ndof();
+	  double corr_d0 = globalTrack->dxy( beamPoint );
+	  unsigned int nhits = globalTrack->numberOfValidHits();
+	  
+	  aMuon.setDB( corr_d0 );
+	  aMuon.setNormChi2( norm_chi2 );
+	  aMuon.setNumberOfValidHits( nhits );
+	}
+      }
+      
       patMuons->push_back(aMuon);
     }
     
@@ -401,6 +450,13 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
   iDesc.add("isolation", isolationPSet);
+
+  iDesc.add<bool>("embedHighLevelSelection", true)->setComment("embed high level selection");
+  edm::ParameterSetDescription highLevelPSet;
+  highLevelPSet.setAllowAnything();
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true) 
+                 )->setComment("input with high level selection");
+
 
   descriptions.add("PATMuonProducer", iDesc);
 

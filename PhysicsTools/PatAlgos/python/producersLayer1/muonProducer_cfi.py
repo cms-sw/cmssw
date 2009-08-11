@@ -94,6 +94,10 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     # resolution configurables
     addResolutions  = cms.bool(False),
     resolutions      = cms.PSet(),
+
+    # high level selections
+    embedHighLevelSelection = cms.bool(True),
+    beamLineSrc             = cms.InputTag("offlineBeamSpot")
 )
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.29 2009/07/02 12:31:58 cbern Exp $
+// $Id: PATElectronProducer.cc,v 1.30 2009/07/08 08:51:14 salerno Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -17,6 +17,8 @@
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -122,6 +124,13 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     userDataHelper_ = PATUserDataHelper<Electron>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
 
+  // embed high level selection variables?
+  embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
+  if ( embedHighLevelSelection_ ) {
+    beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
+  }
+
+
   // produces vector of muons
   produces<std::vector<Electron> >();
 
@@ -166,6 +175,30 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         iEvent.getByLabel(elecIDSrcs_[i].second, idhandles[i]);
         ids[i].first = elecIDSrcs_[i].first;
      }
+  }
+
+
+  // prepare the high level selection:
+  // needs beamline
+  reco::TrackBase::Point beamPoint(0,0,0);
+  if ( embedHighLevelSelection_ ) {
+    // Get the beamspot
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
+    
+    if ( beamSpotHandle.isValid() ){
+      beamSpot = *beamSpotHandle;
+    } else{
+      edm::LogError("DataNotAvailable")
+	<< "No beam spot available from EventSetup, not adding high level selection \n";
+    }
+  
+    double x0 = beamSpot.x0();
+    double y0 = beamSpot.y0();
+    double z0 = beamSpot.z0();
+    
+    beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
   }
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
@@ -220,7 +253,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    ids.push_back(std::make_pair("pf_evsmu",pfRef->mva_e_mu()));
 	    anElectron.setElectronIDs(ids);
 	  }
-
+	  	  
 	  patElectrons->push_back(anElectron);
 
 	}
@@ -272,6 +305,19 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       userDataHelper_.add( anElectron, iEvent, iSetup );
     }
     
+
+    // embed high level selection
+    if ( embedHighLevelSelection_ ) {
+      // get the global track
+      reco::GsfTrackRef track = itElectron->gsfTrack();
+      
+      // Make sure the collection it points to is there
+      if ( track.isNonnull() && track.isAvailable() ) {
+	double corr_d0 = track->dxy( beamPoint );
+	
+	anElectron.setDB( corr_d0 );
+      } 
+    }
     
     // add sel to selected
     patElectrons->push_back(anElectron);
@@ -384,6 +430,12 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
   // Resolution configurables
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
+
+  iDesc.add<bool>("embedHighLevelSelection", true)->setComment("embed high level selection");
+  edm::ParameterSetDescription highLevelPSet;
+  highLevelPSet.setAllowAnything();
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true) 
+                 )->setComment("input with high level selection");
 
   descriptions.add("PATElectronProducer", iDesc);
 
