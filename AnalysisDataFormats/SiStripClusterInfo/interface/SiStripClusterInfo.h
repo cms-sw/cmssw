@@ -26,6 +26,7 @@ class SiStripClusterInfo {
   uint16_t firstStrip() const {return cluster()->firstStrip();}
   float    baryStrip() const  {return cluster()->barycenter();}
   uint16_t maxStrip() const   {return firstStrip() + maxIndex();}
+  float    variance() const;
 
   const std::vector<uint8_t>& stripCharges() const {return cluster()->amplitudes();}
   std::vector<float>          stripGains() const;
