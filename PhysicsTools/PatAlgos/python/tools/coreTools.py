@@ -2,6 +2,72 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+def useAODInputFor(process,
+                   names
+                   ):
+    """
+    ------------------------------------------------------------------
+    remove pat object production steps which rely on RECO event
+    content:
+
+    process : process
+    name    : list of collection names; supported are 'Photons', 
+              'Electrons',, 'Muons', 'Taus', 'Jets', 'METs', 'All'
+    ------------------------------------------------------------------    
+    """
+    for obj in range(len(names)):
+        print "-----------------------------------------------------------------------------"
+        print "WARNING: the following additional information can only be used on RECO format"
+        if( names[obj] == 'Photons' or names[obj] == 'All' ):
+            print "          * gamIsoDepositEcalFromHits"
+            print "          * gamIsoFromDepsEcalFromHits" 
+            ## get allLayer1Photons module
+            photonProducer = getattr(process, 'allLayer1Photons')
+            ## remove gamIsoDepositEcalFromHits from sequence and pat photon
+            process.makeAllLayer1Photons.remove(process.gamIsoDepositEcalFromHits)
+            process.makeAllLayer1Photons.remove(process.gamIsoFromDepsEcalFromHits)
+            photonProducer.isoDeposits = cms.PSet(
+                tracker = cms.InputTag("gamIsoDepositTk"),
+                hcal = cms.InputTag("gamIsoDepositHcalFromTowers"),
+                )
+            photonProducer.isolation = cms.PSet(tracker = cms.PSet(src = cms.InputTag("gamIsoFromDepsTk"),),
+                                                hcal = cms.PSet(src = cms.InputTag("gamIsoFromDepsHcalFromTowers"),),
+                                                )
+            
+        if( names[obj] == 'Electrons' or names[obj] == 'All' ):
+            print "          * eidRobustHighEnergy"
+            print "          * eleIsoDepositEcalFromHits"
+            print "          * eleIsoFromDepsEcalFromHits" 
+            ## get allLayer1Electrons module
+            electronProducer = getattr(process, 'allLayer1Electrons')
+            ## remove eidRobustHighEnergy from sequence and pat electron
+            process.makeAllLayer1Electrons.remove(process.eidRobustHighEnergy)
+            electronProducer.electronIDSources = cms.PSet(
+                eidRobustLoose = cms.InputTag("eidRobustLoose"),
+                eidRobustTight = cms.InputTag("eidRobustTight"),
+                eidLoose       = cms.InputTag("eidLoose"),
+                eidTight       = cms.InputTag("eidTight"),
+                )
+            ## remove eleIsoDepositEcalFromHits from sequence and pat electron
+            process.makeAllLayer1Electrons.remove(process.eleIsoDepositEcalFromHits)
+            process.makeAllLayer1Electrons.remove(process.eleIsoFromDepsEcalFromHits)
+            electronProducer.isoDeposits = cms.PSet(tracker = cms.InputTag("eleIsoDepositTk"),
+                                                    hcal = cms.InputTag("eleIsoDepositHcalFromTowers"),
+                                                    )
+            electronProducer.isolation = cms.PSet(
+                tracker = cms.PSet(src = cms.InputTag("eleIsoFromDepsTk"),),
+                hcal = cms.PSet(src = cms.InputTag("eleIsoFromDepsHcalFromTowers"),),
+                )
+
+        if( names[obj] == 'Jets' or names[obj] == 'All' ):
+            print "          * jetID"
+            ## get allLayer1Electrons module
+            jetProducer = getattr(process, 'allLayer1Jets')
+            jetProducer.addJetID = False
+            jetProducer.jetID = cms.PSet()
+    print "-----------------------------------------------------------------------------"
+    
+
 def removeMCMatching(process,
                      name
                      ):

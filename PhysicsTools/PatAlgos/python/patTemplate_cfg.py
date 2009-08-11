@@ -9,7 +9,10 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_1_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V1-v1/0001/D48CD6F6-8F66-DE11-B835-001D09F2983F.root'
+        # RECO relval at CERN
+        #'/store/relval/CMSSW_3_1_0/RelValTTbar/GEN-SIM-RECO/STARTUP31X_V1-v1/0001/D48CD6F6-8F66-DE11-B835-001D09F2983F.root'
+        # AODSIM at DESY
+        '/store/mc/Summer09/ppMuX/AODSIM/MC_31X_V3_preproduction_312_AODSIM-v1/0011/56607CE1-BE79-DE11-AEB1-001E4F3D3147.root'
     )
 )
 
