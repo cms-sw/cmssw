@@ -44,7 +44,7 @@ do
 
     echo
     echo "file[$i] = $file"
-    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $5}'`
+    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $(NF-1)}'`
     # Strip the R at the start of the string
     runNumber=`echo ${runNumber#R}`
     # Strip all the 0s at the start of the runNumber
