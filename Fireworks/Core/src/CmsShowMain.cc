@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.83 2009/08/05 14:39:01 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.84 2009/08/10 12:45:29 amraktad Exp $
 //
 
 // system include files
@@ -126,8 +126,10 @@ static const char* const kGeomFileOpt = "geom-file";
 static const char* const kGeomFileCommandOpt = "geom-file,g";
 static const char* const kNoConfigFileOpt = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
-static const char* const kLoopPlaybackOpt = "play";
-static const char* const kLoopPlaybackCommandOpt = "play,p";
+static const char* const kPlayOpt = "play";
+static const char* const kPlayCommandOpt = "play,p";
+
+
 static const char* const kDebugOpt = "debug";
 static const char* const kDebugCommandOpt = "debug,d";
 static const char* const kEveOpt = "eve";
@@ -173,7 +175,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
               (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
               (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
-              (kLoopPlaybackCommandOpt, po::value<float>(),       "Start in auto playback mode with given interval between events in seconds")
+              (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
               (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
               (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
               (kPlainRootCommandOpt,                              "Plain ROOT without event display")
@@ -303,8 +305,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
-      if (vm.count(kLoopPlaybackOpt)) {
-         m_playDelay = vm[kLoopPlaybackOpt].as<float>();
+      if (vm.count(kPlayOpt)) {
+         m_playDelay = vm[kPlayOpt].as<float>();
          f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
          m_startupTasks->addTask(f);
       }
@@ -788,7 +790,7 @@ CmsShowMain::notified(TSocket* iSocket)
       std::stringstream s;
       s <<"Ready to change to new file '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
-      m_navigator->nextEventChangeAlsoChangeFile(fileName);
+      m_navigator->nextEventChangeAlsoChangeFile(fileName, m_isPlaying);
    }
 }
 

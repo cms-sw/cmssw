@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.28 2009/08/05 14:38:43 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.29 2009/08/10 12:45:29 amraktad Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -163,14 +163,6 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    return true;
 }
 
-void
-CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
-{
-   if (m_file == 0)
-      loadFile(fileName);
-   else
-      m_nextFile = fileName;
-}
 
 
 Int_t
@@ -200,39 +192,40 @@ CmsShowNavigator::checkPosition() {
 }
 
 void
+CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName, bool isPlaying)
+{
+   if ( m_file == 0 && isPlaying)
+   {
+      loadFile(fileName);
+      firstEvent();
+   }
+   else
+   {
+      m_nextFile = fileName; 
+   }
+}
+
+void
 CmsShowNavigator::nextEvent()
 {
-   if (m_file == 0) return;
-
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-   ProcInfo_t pInf;
-   gSystem->GetProcInfo(&pInf);
-
-   mg_memoryResidentVec.push_back(pInf.fMemResident/1024.0);
-   mg_memoryVirtualVec.push_back(pInf.fMemVirtual/1024.0);
-   Int_t n = mg_memoryResidentVec.size();
-   printf("%d RESIDENT %f VIRTUAL %f\n", mg_memoryResidentVec.size(), mg_memoryResidentVec.back(), mg_memoryVirtualVec.back());
-   //   if (n%5 == 0) writeLeak();
-   writeLeak();
-#endif
+   //   std::cout << "CmsShowNavigator::nextEvent \n"; fflush(stdout);
 
    if( !m_nextFile.empty()) {
       bool loadedNewFile = loadFile(m_nextFile);
       m_nextFile.clear();
       if (loadedNewFile) return;
    }
-   if ( m_loopMode &&
-        m_currentSelectedEntry == m_nEntries-1 ) {
-      firstEvent();
-      return;
-   }
-   if (m_currentSelectedEntry < m_nEntries-1 &&
-       m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
-      ++m_currentSelectedEntry;
-      newEvent.emit(*m_event);
-      checkPosition();
-   } else {
-      oldEvent.emit(*m_event);
+
+   if (m_file)
+   {
+      if (m_currentSelectedEntry < m_nEntries-1 &&
+          m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
+         ++m_currentSelectedEntry;
+         newEvent.emit(*m_event);
+         checkPosition();
+      } else {
+         oldEvent.emit(*m_event);
+      }
    }
 }
 
