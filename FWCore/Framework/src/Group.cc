@@ -93,7 +93,7 @@ namespace edm {
       if(product_->isPresent()) {
         status_ = productstatus::present();
       } else {
-        ProductStatus provStatus = prov_->productProvenancePtr() ?
+        ProductStatus provStatus = (prov_ && prov_->productProvenancePtr()) ?
 				   prov_->productProvenance().productStatus() :
 				   productstatus::uninitialized();
         if (productstatus::dropped(provStatus)) {
