@@ -13,92 +13,113 @@ using namespace std;
 SiStripBadComponentsDQMService::SiStripBadComponentsDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
   SiStripCondObjBuilderBase<SiStripBadStrip>::SiStripCondObjBuilderBase(iConfig),
   iConfig_(iConfig),
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+  notAlreadyRead_(true)
 {
+  obj_ = 0;
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::SiStripBadComponentsDQMService]";
 }
-
 
 SiStripBadComponentsDQMService::~SiStripBadComponentsDQMService()
 {
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::~SiStripBadComponentsDQMService]";
 }
 
+void SiStripBadComponentsDQMService::getMetaDataString(std::stringstream& ss)
+{
+  ss << "Run " << getRunNumber() << endl;
+  readBadComponents();
+  obj_->printSummary(ss);
+}
+
+bool SiStripBadComponentsDQMService::checkForCompatibility(std::string ss)
+{
+  stringstream localString;
+  getMetaDataString(localString);
+  if( ss == localString.str() ) return false;
+
+  return true;
+}
+
 void SiStripBadComponentsDQMService::readBadComponents()
 {
-  //*LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB*//
+  // Do this only if it was not already read
+  if( notAlreadyRead_ ) {
+    //*LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB*//
 
-  openRequestedFile();
+      openRequestedFile();
 
-  obj_=new SiStripBadStrip();
+    cout << "[readBadComponents]: opened requested file" << endl;
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
+    obj_=new SiStripBadStrip();
 
-  dqmStore_->cd();
+    SiStripDetInfoFileReader reader(fp_.fullPath());
 
-  string mdir = "MechanicalView";
-  if (!goToDir(dqmStore_, mdir)) return;
-  string mechanicalview_dir = dqmStore_->pwd();
+    dqmStore_->cd();
 
-  vector<string> subdet_folder;
-  subdet_folder.push_back("TIB");
-  subdet_folder.push_back("TOB");
-  subdet_folder.push_back("TEC/side_1");
-  subdet_folder.push_back("TEC/side_2");
-  subdet_folder.push_back("TID/side_1");
-  subdet_folder.push_back("TID/side_2");
+    string mdir = "MechanicalView";
+    if (!goToDir(dqmStore_, mdir)) return;
+    string mechanicalview_dir = dqmStore_->pwd();
 
-  int nDetsTotal = 0;
-  int nDetsWithErrorTotal = 0;
-  for( vector<string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im ) {
-    string dname = mechanicalview_dir + "/" + (*im);
-    if (!dqmStore_->dirExists(dname)) continue;
+    vector<string> subdet_folder;
+    subdet_folder.push_back("TIB");
+    subdet_folder.push_back("TOB");
+    subdet_folder.push_back("TEC/side_1");
+    subdet_folder.push_back("TEC/side_2");
+    subdet_folder.push_back("TID/side_1");
+    subdet_folder.push_back("TID/side_2");
 
-    dqmStore_->cd(dname);
-    vector<string> module_folders;
-    getModuleFolderList(dqmStore_, module_folders);
-    int nDets = module_folders.size();
+    int nDetsTotal = 0;
+    int nDetsWithErrorTotal = 0;
+    for( vector<string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im ) {
+      string dname = mechanicalview_dir + "/" + (*im);
+      if (!dqmStore_->dirExists(dname)) continue;
 
-    int nDetsWithError = 0;
-    string bad_module_folder = dname + "/" + "BadModuleList";
-    if (dqmStore_->dirExists(bad_module_folder)) {
-      std::vector<MonitorElement *> meVec = dqmStore_->getContents(bad_module_folder);
-      for( std::vector<MonitorElement *>::const_iterator it = meVec.begin(); it != meVec.end(); ++it ) {
-        nDetsWithError++;
- 	cout << (*it)->getName() <<  " " << (*it)->getIntValue() << endl;
-        uint32_t detId = boost::lexical_cast<uint32_t>((*it)->getName());
-        short flag = (*it)->getIntValue();
+      dqmStore_->cd(dname);
+      vector<string> module_folders;
+      getModuleFolderList(dqmStore_, module_folders);
+      int nDets = module_folders.size();
 
+      int nDetsWithError = 0;
+      string bad_module_folder = dname + "/" + "BadModuleList";
+      if (dqmStore_->dirExists(bad_module_folder)) {
+	std::vector<MonitorElement *> meVec = dqmStore_->getContents(bad_module_folder);
+	for( std::vector<MonitorElement *>::const_iterator it = meVec.begin(); it != meVec.end(); ++it ) {
+	  nDetsWithError++;
+	  cout << (*it)->getName() <<  " " << (*it)->getIntValue() << endl;
+	  uint32_t detId = boost::lexical_cast<uint32_t>((*it)->getName());
+	  short flag = (*it)->getIntValue();
 
-        std::vector<unsigned int> theSiStripVector;
+	  std::vector<unsigned int> theSiStripVector;
 
-        unsigned short firstBadStrip=0, NconsecutiveBadStrips=0;
-        unsigned int theBadStripRange;
+	  unsigned short firstBadStrip=0, NconsecutiveBadStrips=0;
+	  unsigned int theBadStripRange;
 
-        // for(std::vector<uint32_t>::const_iterator is=BadApvList_.begin(); is!=BadApvList_.end(); ++is){
+	  // for(std::vector<uint32_t>::const_iterator is=BadApvList_.begin(); is!=BadApvList_.end(); ++is){
 
-        //   firstBadStrip=(*is)*128;
-        NconsecutiveBadStrips=reader.getNumberOfApvsAndStripLength(detId).first*128;
+	  //   firstBadStrip=(*is)*128;
+	  NconsecutiveBadStrips=reader.getNumberOfApvsAndStripLength(detId).first*128;
 
-        theBadStripRange = obj_->encode(firstBadStrip,NconsecutiveBadStrips,flag);
+	  theBadStripRange = obj_->encode(firstBadStrip,NconsecutiveBadStrips,flag);
 
-        LogDebug("SiStripBadComponentsDQMService") << "detid " << detId << " \t"
-                                                   << ", flag " << flag
-                                                   << std::endl;
+	  LogDebug("SiStripBadComponentsDQMService") << "detid " << detId << " \t"
+						     << ", flag " << flag
+						     << std::endl;
 
-        theSiStripVector.push_back(theBadStripRange);
-        // }
+	  theSiStripVector.push_back(theBadStripRange);
+	  // }
 
-        SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-        if ( !obj_->put(detId,range) ) {
-          edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists"<<std::endl;
+	  SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
+	  if ( !obj_->put(detId,range) ) {
+	    edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists"<<std::endl;
+	  }
 	}
       }
+      nDetsTotal += nDets;
+      nDetsWithErrorTotal += nDetsWithError;        
     }
-    nDetsTotal += nDets;
-    nDetsWithErrorTotal += nDetsWithError;        
+    dqmStore_->cd();
   }
-  dqmStore_->cd();
 }
 
 void SiStripBadComponentsDQMService::openRequestedFile()
@@ -150,8 +171,8 @@ void SiStripBadComponentsDQMService::getModuleFolderList(DQMStore * dqm_store, v
     mfolders.push_back(currDir);
   } else {  
     vector<string> subdirs = dqm_store->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-         it != subdirs.end(); it++) {
+    for( vector<string>::const_iterator it = subdirs.begin();
+         it != subdirs.end(); ++it) {
       dqm_store->cd(*it);
       getModuleFolderList(dqm_store, mfolders);
       dqm_store->goUp();
