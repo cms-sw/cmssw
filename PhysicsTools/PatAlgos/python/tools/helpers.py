@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ## and replacing that to a given value
 
 class MassSearchReplaceParamVisitor(object):
-    """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value"""
+    """Visitor that travels within a cms.Sequence, looks for a parameter and replaces its value"""
     def __init__(self,paramName,paramSearch,paramValue):
         self._paramName   = paramName
         self._paramValue  = paramValue
