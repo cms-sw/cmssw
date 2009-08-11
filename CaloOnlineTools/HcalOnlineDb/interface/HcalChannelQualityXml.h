@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelQualityXml.h,v 1.2 2009/07/16 16:29:34 kukartse Exp $
+// $Id: HcalChannelQualityXml.h,v 1.3 2009/07/24 06:55:21 kukartse Exp $
 //
 
 #include <map>
@@ -76,6 +76,22 @@ class HcalChannelQualityXml : public HcalChannelDataXml
 
   // adds to XML datasets for channels in the map
   int addChannelQualityGeom(std::map<int,ChannelQuality> & _cq); // the map key is geom hash as in HcalAssistant
+
+  // reads tags from OMDS and dumps them to stdout newest first
+  // returns number of available tags
+  int dumpTagsFromOmdsToStdout(void);
+
+  // reads a sorted list of tags, newest first
+  std::vector<std::string> getTagsFromOmds(void);
+
+  // Reads IOVs available for a given tag from OMDS and dumps them
+  // to stdout newest first.
+  // Returns the number of available IOVs
+  int dumpIovsFromOmdsToStdout(std::string tag);
+
+  // reads a sorted list of IOVs for a given tag, newest first
+  std::vector<int> getIovsFromOmds(std::string tag);
+
 
   std::map<int,ChannelQuality> detid_cq; // HcalDetId as key
   std::map<int,ChannelQuality> geomid_cq; // geomId as key

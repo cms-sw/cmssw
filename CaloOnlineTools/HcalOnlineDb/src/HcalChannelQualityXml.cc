@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.4 2009/07/28 15:22:21 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.5 2009/08/11 14:23:32 kukartse Exp $
 //
 
 #include <iostream>
@@ -141,6 +141,7 @@ int HcalChannelQualityXml::set_all_channels_on_off( int _hb, int _he, int _hf, i
 std::string HcalChannelQualityXml::get_random_comment( void ){
   return hcal_ass.getRandomQuote();
 }
+
 
 
 //
@@ -333,4 +334,91 @@ int HcalChannelQualityXml::writeBaseLineFromOmdsToStdout(std::string _tag, int _
   getBaseLineFromOmds(_tag, _iov_begin);
   writeStatusWordToStdout();
   return 0;
+}
+
+
+
+//
+//_____ dumps a sorted list of tags to stdout, newest first
+//
+int HcalChannelQualityXml::dumpTagsFromOmdsToStdout(){
+  std::vector<std::string> _tags = getTagsFromOmds();
+  for (std::vector<std::string>::const_iterator tag=_tags.begin(); tag!=_tags.end(); tag++){
+    cout << *tag << endl;
+  }
+  return _tags.size();
+}
+
+//
+//_____ reads a sorted list of tags, newest first
+//
+std::vector<std::string> HcalChannelQualityXml::getTagsFromOmds(){
+  std::vector<std::string> _tags;
+  static ConnectionManager conn;
+  conn.connect();
+  std::string query = "select distinct tag_name, min(record_id) as mrid ";
+  query            += "from ";
+  query            += "cms_hcl_hcal_cond.v_hcal_channel_quality cq ";
+  query            += "group by tag_name ";
+  query            += "order by mrid desc ";
+  int _n_tags = 0;
+  try {
+    oracle::occi::Statement* stmt = conn.getStatement(query);
+    oracle::occi::ResultSet *rs = stmt->executeQuery();
+    while (rs->next()) {
+      _n_tags++;
+      _tags.push_back( rs->getString(1) );
+    }
+  }
+  catch (SQLException& e) {
+    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+  conn.disconnect();
+  return _tags;
+}
+
+
+
+//
+//_____ reads a sorted list of Iovs for a given tag, newest on top
+//
+int HcalChannelQualityXml::dumpIovsFromOmdsToStdout(std::string tag){
+  std::vector<int> _iovs = getIovsFromOmds(tag);
+  for (std::vector<int>::const_iterator tag=_iovs.begin(); tag!=_iovs.end(); tag++){
+    cout << *tag << endl;
+  }
+  return _iovs.size();
+}
+
+//
+//_____ reads a sorted list of iovs, newest first
+//
+std::vector<int> HcalChannelQualityXml::getIovsFromOmds(std::string tag){
+  std::vector<int> _iovs;
+  static ConnectionManager conn;
+  conn.connect();
+  std::string query = "select distinct cq.interval_of_validity_begin, min(record_id) as mrid ";
+  query            += "from ";
+  query            += "cms_hcl_hcal_cond.v_hcal_channel_quality cq ";
+  query            += "where ";
+  query            += "tag_name=:1 ";
+  query            += "group by cq.interval_of_validity_begin ";
+  query            += "order by mrid desc ";
+  int _n_iovs = 0;
+  try {
+    oracle::occi::Statement* stmt = conn.getStatement(query);
+    stmt->setString(1,tag);
+    oracle::occi::ResultSet *rs = stmt->executeQuery();
+    while (rs->next()) {
+      _n_iovs++;
+      _iovs.push_back( rs->getInt(1) );
+    }
+  }
+  catch (SQLException& e) {
+    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+  conn.disconnect();
+  return _iovs;
 }

@@ -26,6 +26,8 @@ int main( int argc, char **argv )
     ("quicktest", "Quick feature testing")
     ("make-xml-from-stdin","reads channel status from stdin in the ASCII format, generates XML for loading to OMDS and outputs XML to stdout")
     ("get-baseline-from-omds-to-stdout","reads channel status from OMDS for a given tag and IOV begin and outputs it to stdout in the ASCII format")
+    ("dump-tags","dumps available channel quality tags from OMDS to stdout, newest first")
+    ("dump-iovs","dumps available IOVs for a given channel quality tag from OMDS to stdout, newest first")
     ("tag-name", po::value<string>(), "tag name")
     ("run-number", po::value<int>(&run_number)->default_value( 1 ), "run number")
     ("iov-begin", po::value<int>(&iov_begin)->default_value( 1 ), "beginning of the interval of validity, units: run numbers")
@@ -85,6 +87,26 @@ int main( int argc, char **argv )
       cq.writeBaseLineFromOmdsToStdout(_tag, iov_begin);      
       return 0;
     }
+
+    if (vm.count("dump-tags")) {
+      HcalChannelQualityXml xml;
+      xml.dumpTagsFromOmdsToStdout();
+    }
+
+
+    if (vm.count("dump-iovs")) {
+      std::string _tag;
+      if ( !vm.count("tag-name") ){
+	cerr << "No tag name specified, impossible to proceed, exiting..." << endl;
+	exit(-1);
+      }
+      else{
+	_tag = vm["tag-name"].as<string>();
+      }
+      HcalChannelQualityXml xml;
+      xml.dumpIovsFromOmdsToStdout(_tag);
+    }
+
 
   } catch(boost::program_options::unknown_option) {
     cout << "Unknown option..." << endl;
