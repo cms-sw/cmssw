@@ -23,6 +23,9 @@ void SiPixelHDQMInspector (const std::string & tagName, std::string const& Passw
 
 
   HDQMInspectorConfigSiPixel PixelConfig;
+  std::vector<std::string> ItemsForIntegration;
+  //ItemsForIntegration.push_back("SUMOFF_nclusters_OffTrack_entries");
+  PixelConfig.computeIntegralList(ItemsForIntegration);
   HDQMInspector A(&PixelConfig);
   //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
   A.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
