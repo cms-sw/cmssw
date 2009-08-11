@@ -6,8 +6,8 @@
  *  Generic interpolator that is a wrapper of MagneticFieldGrid, i.e.
  *  non-specialized/optimized for each kind of grid.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/04/09 19:40:33 $
+ *  $Revision: 1.2 $
  *  \author T. Todorov
  */
 
@@ -33,7 +33,7 @@ public:
 
   virtual LocalPoint fromGridFrame( double a, double b, double c) const;
 
-  virtual std::vector<int> dimensions() const;
+  virtual Dimensions dimensions() const;
 
   virtual LocalPoint  nodePosition( int i, int j, int k) const;
 

@@ -17,7 +17,7 @@ public:
 
   virtual LocalPoint fromGridFrame( double a, double b, double c) const ;
 
-  virtual std::vector<int> dimensions() const ;
+  virtual Dimensions dimensions() const ;
 
   virtual LocalPoint  nodePosition( int i, int j, int k) const ;
 

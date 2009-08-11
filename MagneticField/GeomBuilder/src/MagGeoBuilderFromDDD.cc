@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/23 22:40:44 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/05/25 16:02:09 $
+ *  $Revision: 1.24 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -573,18 +573,18 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
       const MFGrid3D* grid = dynamic_cast<const MFGrid3D*>(interpolators[vol->magFile]);
       if (grid!=0) {
 	
-	vector<int> sizes = grid->dimensions();
-	cout << "Grid has " << sizes.size() << " dimensions " 
-	     << " number of nodes is " << sizes[0] << " " << sizes[1]
-	     << " " << sizes[2] << endl;
+	Dimensions sizes = grid->dimensions();
+	cout << "Grid has 3 dimensions " 
+	     << " number of nodes is " << sizes.w << " " << sizes.h
+	     << " " << sizes.h << endl;
       
 	const double tolerance = 0.03;
 
 
 	int dumpCount = 0;
-	for (int j=0; j < sizes[1]; j++) {
-	  for (int k=0; k < sizes[2]; k++) {
-	    for (int i=0; i < sizes[0]; i++) {
+	for (int j=0; j < sizes.h; j++) {
+	  for (int k=0; k < sizes.d; k++) {
+	    for (int i=0; i < sizes.w; i++) {
 	      MFGrid::LocalPoint lp = grid->nodePosition( i, j, k);
 	      if (! tempVolume.inside(lp, tolerance)) {
 		if (++dumpCount < 2) {
@@ -599,7 +599,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	  }
 	}
     
-	cout << vol->name << " : Number of grid points outside the MagVolume: " << dumpCount << "/" << sizes[0]*sizes[1]*sizes[2] << endl;
+	cout << vol->name << " : Number of grid points outside the MagVolume: " << dumpCount << "/" << sizes.w*sizes.h*sizes.d << endl;
       }
     }
 }

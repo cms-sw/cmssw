@@ -40,7 +40,7 @@ MFGrid::LocalPoint ZReflectedMFGrid::fromGridFrame( double a, double b, double c
   return LocalPoint();
 }
 
-vector<int> ZReflectedMFGrid::dimensions() const {return theSectorGrid->dimensions();}
+Dimensions ZReflectedMFGrid::dimensions() const {return theSectorGrid->dimensions();}
 
 MFGrid::LocalPoint  ZReflectedMFGrid::nodePosition( int i, int j, int k) const
 {

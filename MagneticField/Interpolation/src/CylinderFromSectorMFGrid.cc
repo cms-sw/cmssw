@@ -52,7 +52,8 @@ MFGrid::LocalPoint CylinderFromSectorMFGrid::fromGridFrame( double a, double b, 
   return LocalPoint();
 }
 
-std::vector<int> CylinderFromSectorMFGrid::dimensions() const {return theSectorGrid->dimensions();}
+Dimensions CylinderFromSectorMFGrid::dimensions() const 
+{return theSectorGrid->dimensions();}
 
 MFGrid::LocalPoint  CylinderFromSectorMFGrid::nodePosition( int i, int j, int k) const
 {

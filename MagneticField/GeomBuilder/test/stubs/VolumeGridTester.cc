@@ -31,14 +31,14 @@ bool VolumeGridTester::testInside() const
   cout << "Is the volume position inside the volume? " 
        << volume_->inside( volume_->position(), tolerance) <<endl;
 
-  vector<int> sizes = grid->dimensions();
-  cout << "Grid has " << sizes.size() << " dimensions " 
-       << " number of nodes is " << sizes[0] << " " << sizes[1] << " " << sizes[2] << endl;
+  Dimensions sizes = grid->dimensions();
+  cout << "Grid has " << 3 << " dimensions " 
+       << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d << endl;
 
   int dumpCount = 0;
-  for (int j=0; j < sizes[1]; j++) {
-    for (int k=0; k < sizes[2]; k++) {
-      for (int i=0; i < sizes[0]; i++) {
+  for (int j=0; j < sizes.h; j++) {
+    for (int k=0; k < sizes.d; k++) {
+      for (int i=0; i < sizes.w; i++) {
 	MFGrid::LocalPoint lp = grid->nodePosition( i, j, k);
 	if (! volume_->inside(lp, tolerance)) {
 	  result = false;
