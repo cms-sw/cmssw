@@ -132,7 +132,7 @@ namespace edm {
       tree->SetEntries(-1);
     }
     setRefCoreStreamer(true);
-    tree->AutoSave();
+    tree->AutoSave("FlushBaskets");
   }
 
   void
