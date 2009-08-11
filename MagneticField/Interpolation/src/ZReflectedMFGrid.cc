@@ -24,7 +24,7 @@ MFGrid::LocalVector ZReflectedMFGrid::valueInTesla( const LocalPoint& p) const
   return LocalVector( -mirrorB.x(), -mirrorB.y(), mirrorB.z());
 }
 
-void ZReflectedMFGrid::throwUp( const std::string& message) const
+void ZReflectedMFGrid::throwUp( const char* message) const
 {
   std::cout << "Throwing exception " << message << std::endl;
   throw MagGeometryError(message);

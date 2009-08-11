@@ -31,7 +31,7 @@ private:
   MFGrid* theSectorGrid;
   double  theDelta;
 
-  void throwUp( const std::string& message) const;
+  void throwUp( const char *message) const;
 
 };
 

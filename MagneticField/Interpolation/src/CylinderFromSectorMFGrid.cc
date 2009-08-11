@@ -36,7 +36,7 @@ MFGrid::LocalVector CylinderFromSectorMFGrid::valueInTesla( const LocalPoint& p)
   }
 }
 
-void CylinderFromSectorMFGrid::throwUp( const std::string& message) const
+void CylinderFromSectorMFGrid::throwUp( const char *message) const
 {
   std::cout << "Throwing exception " << message << std::endl;
   throw MagGeometryError(message);

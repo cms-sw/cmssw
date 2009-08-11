@@ -2,11 +2,12 @@
 #define Mag_MagExceptions_H
 
 #include <exception>
+#include <string>
 
 class MagException : public std::exception {
 public:
   MagException() throw() {}
-  MagException( const std::string& message) : theMessage(message) {}
+  MagException( const char *message);
   virtual ~MagException() throw() {}
   virtual const char* what() const throw() { return theMessage.c_str();}
 private:
@@ -16,14 +17,14 @@ private:
 class MagGeometryError : public MagException {
 public:
   MagGeometryError() throw() {}
-  MagGeometryError( const std::string& message) : MagException(message) {}
+  MagGeometryError(const char *message) : MagException(message) {}
   virtual ~MagGeometryError() throw() {}
 };
 
 class MagLogicError : public MagException {
 public:
   MagLogicError() throw() {}
-  MagLogicError( const std::string& message) : MagException(message) {}
+  MagLogicError(const char *message) : MagException(message) {}
   virtual ~MagLogicError() throw() {}
 };
 
