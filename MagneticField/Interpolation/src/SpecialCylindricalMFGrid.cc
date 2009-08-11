@@ -36,6 +36,7 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
   vector<BVector> fieldValues;
   float Bx, By, Bz;
   int nLines = n1*n2*n3;
+  fieldValues.reserve(nLines);
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
     // This would be fine only if local r.f. has the axes oriented as the global r.f.

@@ -53,6 +53,8 @@ void MagneticFieldGrid::load(const string& name){
   float Bx, By, Bz;
   BVector FieldEntry;
   int nLines = NumberOfPoints[0]*NumberOfPoints[1]*NumberOfPoints[2];
+  FieldValues.reserve(nLines);
+
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
     FieldEntry.putB3(Bx,By,Bz);
