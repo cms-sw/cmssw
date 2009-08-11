@@ -25,6 +25,7 @@ class HLTEgammaGenericFilter : public HLTFilter {
       edm::InputTag isoTag_; // input tag identifying product that contains isolated map
       edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
       bool lessThan_;           // the cut is "<" or ">" ?
+      bool useEt_;              // use E or Et in relative isolation cuts
       double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel 
       double thrRegularEE_;     // threshold for regular cut (x < thr) - ECAL endcap
       double thrOverEEB_;       // threshold for x/E < thr cut (isolations) - ECAL barrel 
