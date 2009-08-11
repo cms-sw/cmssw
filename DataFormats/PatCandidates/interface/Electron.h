@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.23 2009/03/26 06:23:10 hegner Exp $
+// $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.23 2009/03/26 06:23:10 hegner Exp $
+  \version  $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
 */
 
 
@@ -102,6 +102,12 @@ namespace pat {
       void embedPFCandidate();
 
 
+      /// dB gives the impact parameter wrt the beamline.
+      /// If this is not cached it is not meaningful, since
+      /// it relies on the distance to the beamline. 
+      double dB() const;
+      void setDB(double dB) { dB_ = dB; cachedDB_ = true;}
+
     protected:
 
       // ---- for content embedding ----
@@ -123,6 +129,10 @@ namespace pat {
       /// reference to the IsolatedPFCandidate this has been built from
       /// null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef_;
+
+      // V+Jets group selection variables. 
+      bool    cachedDB_;         // have these values been cached? 
+      double  dB_;               // track->dxy( beamPoint ) 
 
   };
 
