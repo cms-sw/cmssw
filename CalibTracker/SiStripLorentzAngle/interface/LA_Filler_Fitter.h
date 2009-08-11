@@ -60,7 +60,7 @@ fill(TTree* tree, Book& book) {
 		      std::vector<float>*    LEAF( tsoslocalpitch )
 		      std::vector<float>*    LEAF( tsoslocaltheta )
 		      std::vector<float>*    LEAF( tsoslocalphi )
-		      std::vector<float>*    LEAF( tsosBdotYhat )
+		      std::vector<float>*    LEAF( tsosBdotY )
 		      std::vector<float>*    LEAF( trackchi2ndof )
 		      std::vector<unsigned>* LEAF( trackhitsvalid )
 		      ) {
@@ -76,7 +76,7 @@ fill(TTree* tree, Book& book) {
 	  detid.subDetector()!=SiStripDetId::TOB        ) 
 	continue;
       
-      float BdotYhat = (*tsosBdotYhat)[i];
+      float BdotY = (*tsosBdotY)[i];
       float driftx = (*tsosdriftx)[i];
       float driftz = (*tsosdriftz)[i];
 
@@ -102,7 +102,7 @@ fill(TTree* tree, Book& book) {
       if(width==1) all_one*="_width1";
 
       float N=2.5;
-      book.fill( sign*fabs(BdotYhat),           granular+"_field"          , 101, 1, 5 );
+      book.fill( sign*fabs(BdotY),              granular+"_field"          , 101, 1, 5 );
       book.fill( sign*driftx/driftz,            granular+"_reconstruction" , 101, -N*pitch/driftz, N*pitch/driftz          );
       book.fill( sign*projection/driftz,        granular+all_one+"_tanLA"  , 101, -N*pitch/driftz, N*pitch/driftz          );
       book.fill( sign*projection/driftz, width, granular+"_width-tanLA"    , 101, -N*pitch/driftz, N*pitch/driftz, 20,0,20 );

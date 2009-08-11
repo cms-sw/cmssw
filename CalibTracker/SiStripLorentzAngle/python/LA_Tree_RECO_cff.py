@@ -33,7 +33,7 @@ calibrationTree = cms.EDAnalyzer("ShallowTree",
     'keep *_*_tsoslocalpitch_*',
     'keep *_*_tsoslocaltheta_*',
     'keep *_*_tsoslocalphi_*',
-    'keep *_*_tsosBdotYhat_*',
+    'keep *_*_tsosBdotY_*',
     'keep *_*_trackchi2ndof_*',
     'keep *_*_trackhitsvalid_*'
     ))
