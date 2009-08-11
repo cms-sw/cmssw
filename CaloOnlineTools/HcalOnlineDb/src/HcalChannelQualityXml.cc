@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.3 2009/07/24 06:55:21 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.4 2009/07/28 15:22:21 kukartse Exp $
 //
 
 #include <iostream>
@@ -155,10 +155,10 @@ int HcalChannelQualityXml::getBaseLineFromOmds(std::string _tag, int _iov_begin)
   query            += "       ,sp.ieta as IETA ";
   query            += "       ,sp.iphi as IPHI ";
   query            += "       ,sp.depth as DEPTH ";
-  //query            += "       ,sp.channel_map_id detid ";
   query            += "       ,sp.channel_status_word as STATUS_WORD ";
   query            += "       ,sp.channel_on_off_state as ON_OFF ";
   query            += "       ,sp.commentdescription ";
+  //query            += "       ,sp.channel_map_id detid ";
   //query            += "       ,sp.interval_of_validity_begin as IOV_BEGIN ";
   //query            += "       ,sp.interval_of_validity_end as IOV_END ";
   query            += "from ";
@@ -295,7 +295,8 @@ int HcalChannelQualityXml::writeStatusWordToStdout(void){
        _cq != geomid_cq.end();
        _cq++){
     _lines++;
-    sprintf(_buf," %16d%16d%16d%16s%16d%11.8d",
+    _detId = hAss.getRawIdFromCmssw(_cq->first);
+    sprintf(_buf," %16d%16d%16d%16s%16d%11.8X",
 	    hAss.getHcalIeta(_cq->first),
 	    hAss.getHcalIphi(_cq->first),
 	    hAss.getHcalDepth(_cq->first),

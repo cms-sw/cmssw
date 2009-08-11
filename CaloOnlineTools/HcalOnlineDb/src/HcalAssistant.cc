@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.4 2009/08/05 16:23:31 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.5 2009/08/05 18:19:25 kukartse Exp $
 //
 
 
@@ -22,6 +22,7 @@
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
 #include "occi.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -114,12 +115,27 @@ int HcalAssistant::getHcalDepth(int _geomId){
 HcalSubdetector HcalAssistant::getHcalSubdetector(int _geomId){
   int _det = abs(_geomId) % 10;
   if (_det==1) return HcalBarrel;
-  if (_det==2) return HcalEndcap;
-  if (_det==3) return HcalOuter;
-  if (_det==4) return HcalForward;
-  if (_det==5) return HcalTriggerTower;
-  if (_det==0) return HcalEmpty;
+  else if (_det==2) return HcalEndcap;
+  else if (_det==3) return HcalOuter;
+  else if (_det==4) return HcalForward;
+  else if (_det==5) return HcalTriggerTower;
+  else if (_det==0) return HcalEmpty;
   else return HcalOther;
+}
+
+
+std::string HcalAssistant::getSubdetectorString(int _geomId){
+  int _det = abs(_geomId) % 10;
+  std::string s_det = "";
+  if (_det==1) s_det = "HB";
+  else if (_det==2) s_det = "HE";
+  else if (_det==3) s_det = "HO";
+  else if (_det==4) s_det = "HF";
+  else if (_det==5) s_det = "HT";
+  else if (_det==6) s_det = "ZDC";
+  else if (_det==0) s_det = "Empty";
+  else s_det = "Other";
+  return s_det;
 }
 
 
@@ -222,6 +238,29 @@ int HcalAssistant::getRawId(int _geomId){
     else return -1;
   }
   else return -1;
+}
+
+
+int HcalAssistant::getRawIdFromCmssw(int _geomId){
+  std::string s_det = getSubdetectorString(_geomId);
+  if ( s_det.find("HB") != std::string::npos ||
+       s_det.find("HE") != std::string::npos ||
+       s_det.find("HF") != std::string::npos ||
+       s_det.find("HO") != std::string::npos ||
+       s_det.find("HT") != std::string::npos )
+    {
+      HcalDetId _id( getSubdetector(s_det),
+		     getHcalIeta(_geomId),
+		     getHcalIphi(_geomId),
+		     getHcalDepth(_geomId)
+		     );
+      return _id.rawId();
+    }
+  else if ( s_det.find("ZDC") != std::string::npos )
+    {
+      // FIXME: implement for ZDC channels
+      return -1;
+    }
 }
 
 

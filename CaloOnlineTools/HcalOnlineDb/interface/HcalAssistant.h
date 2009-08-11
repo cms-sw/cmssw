@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:31 CEST 2009
-// $Id: HcalAssistant.h,v 1.3 2009/08/05 16:23:31 kukartse Exp $
+// $Id: HcalAssistant.h,v 1.4 2009/08/05 18:19:25 kukartse Exp $
 //
 
 #include <iostream>
@@ -75,7 +75,9 @@ class HcalAssistant
   int getHcalIphi(int _geomId);
   int getHcalDepth(int _geomId);
   HcalSubdetector getHcalSubdetector(int _geomId);
+  std::string getSubdetectorString(int _geomId);
   int getRawId(int _geomId);
+  int getRawIdFromCmssw(int _geomId);
   int getGeomId(int _rawid);
 };
 
