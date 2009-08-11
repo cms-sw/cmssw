@@ -10,7 +10,7 @@ LHCTransport = cms.EDProducer("HectorProducer",
         HectorEtaCut,
         Beam1 = cms.string('SimTransport/HectorProducer/data/LHCB1IR5_5TeV.tfs'),
         Beam2 = cms.string('SimTransport/HectorProducer/data/LHCB2IR5_5TeV.tfs'),
-        BeamLineLengthD1 = cms.double(105.0),     ## distance of transport for ZDC case, length of beam line 
+        BeamLineLengthD1 = cms.double(139.0),     ## distance of transport for ZDC case, length of beam line 
         BeamLineLengthZDC = cms.double(140.0),    ## length of beam line for ZDC: important for aperture checks
         BeamLineLengthFP420 = cms.double(430.0),  ## length of beam line for FP420: important for aperture checks
         RP420f = cms.double(419.0),               ## distance of transport in clockwise dir. for FP420
