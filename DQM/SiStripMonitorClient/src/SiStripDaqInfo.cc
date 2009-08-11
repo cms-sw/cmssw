@@ -23,7 +23,8 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-
+#include <vector>
+using namespace std;
 //
 // -- Contructor
 //
@@ -34,6 +35,7 @@ SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) {
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
   nFedTotal = 0;
+  bookedStatus_ = false;
 }
 SiStripDaqInfo::~SiStripDaqInfo() {
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
@@ -44,27 +46,41 @@ SiStripDaqInfo::~SiStripDaqInfo() {
 //
 void SiStripDaqInfo::beginJob( const edm::EventSetup &eSetup) {
  
+}
+//
+// -- Book MEs for SiStrip Daq Fraction
+//
+void SiStripDaqInfo::bookStatus() {
 
   dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
 
-  // Book MEs for SiStrip DAQ fractions
-  DaqFraction_= dqmStore_->bookFloat("SiStripDaqFraction");  
-  DaqFractionTIB_= dqmStore_->bookFloat("SiStripDaqFraction_TIB");  
-  DaqFractionTOB_= dqmStore_->bookFloat("SiStripDaqFraction_TOB");  
-  DaqFractionTIDF_= dqmStore_->bookFloat("SiStripDaqFraction_TIDF");  
-  DaqFractionTIDB_= dqmStore_->bookFloat("SiStripDaqFraction_TIDB");  
-  DaqFractionTECF_= dqmStore_->bookFloat("SiStripDaqFraction_TECF");  
-  DaqFractionTECB_= dqmStore_->bookFloat("SiStripDaqFraction_TECB");
 
-  // Fill them with -1 to start with
+  DaqFraction_= dqmStore_->bookFloat("SiStripDaqFraction");  
+
+  for (map<string, vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
+       it != subDetFedMap.end(); it++) {
+    string det = it->first;
+
+    SubDetMEs local_mes;	
+    string me_name;
+    me_name = "SiStrip_" + det;    
+    local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
+    local_mes.ConnectedFeds = 0;
+    SubDetMEsMap.insert(make_pair(det, local_mes));
+  } 
+  bookedStatus_ = true;
+  fillDummyStatus();
+}
+
+//
+// -- Fill with Dummy values
+//
+void SiStripDaqInfo::fillDummyStatus() {
+  if (!bookedStatus_) bookStatus();
+  for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    it->second.DaqFractionME->Fill(-1.0);
+  }
   DaqFraction_->Fill(-1.0);
-  DaqFractionTIB_->Fill(-1.0);
-  DaqFractionTOB_->Fill(-1.0);
-  DaqFractionTIDF_->Fill(-1.0);
-  DaqFractionTIDB_->Fill(-1.0);
-  DaqFractionTECF_->Fill(-1.0);
-  DaqFractionTECB_->Fill(-1.0);
- 
 }
 //
 // -- Begin Run
@@ -82,6 +98,7 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
     readFedIds(fed_cabling);
   }
+  if (!bookedStatus_) bookStatus();  
 }
 //
 // -- Analyze
@@ -113,7 +130,7 @@ void SiStripDaqInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     eSetup.get<RunInfoRcd>().get(sumFED);    
     
     if ( sumFED.isValid() ) {
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
 	
@@ -130,7 +147,7 @@ void SiStripDaqInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 // -- Read Sub Detector FEDs
 //
 void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling) {
-  const std::vector<uint16_t>& feds = fedcabling->feds(); 
+  const vector<uint16_t>& feds = fedcabling->feds(); 
 
   nFedTotal = feds.size();
   for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++){
@@ -155,8 +172,15 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
   const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
   const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
 
-  float  nFEDConnecteTIB,  nFEDConnecteTOB,  nFEDConnecteTIDF,  nFEDConnecteTIDB,  nFEDConnecteTECF,  nFEDConnecteTECB;
-  nFEDConnecteTIB  = nFEDConnecteTOB  = nFEDConnecteTIDF  = nFEDConnecteTIDB  = nFEDConnecteTECF  = nFEDConnecteTECB  = 0;
+  // initialiase 
+  for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
+       it != subDetFedMap.end(); it++) {
+    std::string name = it->first;
+    map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
+    if (iPos == SubDetMEsMap.end()) continue;
+    iPos->second.ConnectedFeds = 0;
+  }
+  // count sub detector feds
   for(unsigned int it = 0; it < fed_ids.size(); ++it) {
     unsigned short fedID = fed_ids[it];     
 	
@@ -165,7 +189,7 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
       for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
 	   it != subDetFedMap.end(); it++) {
 	std::string name = it->first;
-	std::vector<unsigned short> subdetIds = it->second;
+	std::vector<unsigned short> subdetIds = it->second;       
         bool fedid_found = false;
 	for (std::vector<unsigned short>::iterator iv = subdetIds.begin();
 	     iv != subdetIds.end(); iv++) {
@@ -175,24 +199,22 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
           }
         }
         if (fedid_found) {
-          if (name == "TIB") nFEDConnecteTIB++;
-          else if (name == "TOB") nFEDConnecteTOB++;
-          else if (name == "TIDF") nFEDConnecteTIDF++;
-          else if (name == "TIDB") nFEDConnecteTIDB++;
-          else if (name == "TECF") nFEDConnecteTECF++;
-          else if (name == "TECB") nFEDConnecteTECB++;
+	  map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
+	  if (iPos != SubDetMEsMap.end()) iPos->second.ConnectedFeds++;
           break;
 	}   
       } 
     }
   }
   
-  DaqFractionTIB_->Fill(nFEDConnecteTIB/subDetFedMap["TIB"].size());
-  DaqFractionTOB_->Fill(nFEDConnecteTOB/subDetFedMap["TOB"].size());
-  DaqFractionTIDF_->Fill(nFEDConnecteTIDF/subDetFedMap["TIDF"].size());
-  DaqFractionTIDB_->Fill(nFEDConnecteTIDB/subDetFedMap["TIDB"].size());
-  DaqFractionTECF_->Fill(nFEDConnecteTECF/subDetFedMap["TECF"].size());
-  DaqFractionTECB_->Fill(nFEDConnecteTECB/subDetFedMap["TECB"].size());
+  for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    string type = it->first;
+    int nFedsConnected   = it->second.ConnectedFeds;
+    int nFedsTot = 0;        
+    map<std::string,std::vector<unsigned short> >::iterator iPos = subDetFedMap.find(type);
+    if (iPos != subDetFedMap.end()) nFedsTot = iPos->second.size();
+    if (nFedsTot > 0) it->second.DaqFractionME->Fill(nFedsConnected*1.0/nFedsTot);
+  }
 
 }
 

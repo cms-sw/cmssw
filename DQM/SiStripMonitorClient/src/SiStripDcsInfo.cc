@@ -68,7 +68,7 @@ void SiStripDcsInfo::bookStatus() {
     SubDetMEs local_mes;	
     string me_name;
     string det = (*it);
-    me_name = "SiStripDcsFraction_" + det;    
+    me_name = "SiStrip_" + det;    
     local_mes.DcsFractionME = dqmStore_->bookFloat(me_name);  	
     local_mes.TotalDetectors = 0;
     local_mes.FaultyDetectors = 0;
