@@ -44,20 +44,34 @@ void SiStripHDQMInspector (const std::string & tagName, std::string const& Passw
 
   //A.setBlackList("68286");
 
-  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OnTrack@entries,436207616@Summary_TotalNumberOfClusters_OnTrack@entries,402653184@Summary_TotalNumberOfClusters_OnTrack@entries,469762048@Summary_TotalNumberOfClusters_OnTrack@entries", "OnTrackClusters_entries.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OffTrack@mean,436207616@Summary_TotalNumberOfClusters_OffTrack@mean,402653184@Summary_TotalNumberOfClusters_OffTrack@mean,469762048@Summary_TotalNumberOfClusters_OffTrack@mean", "TotalNumberOfClusters_OffTrack.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OffTrack@entries,436207616@Summary_TotalNumberOfClusters_OffTrack@entries,402653184@Summary_TotalNumberOfClusters_OffTrack@entries,469762048@Summary_TotalNumberOfClusters_OffTrack@entries", "TotalNumberOfClusters_OffTrack_entries.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak,436207616@Summary_ClusterChargeCorr_OnTrack@landauPeak,402653184@Summary_ClusterChargeCorr_OnTrack@landauPeak,469762048@Summary_ClusterChargeCorr_OnTrack@landauPeak", "ClusterChargeCorr_OnTrack_landau.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterCharge_OffTrack@landauPeak,436207616@Summary_ClusterCharge_OffTrack@landauPeak,402653184@Summary_ClusterCharge_OffTrack@landauPeak,469762048@Summary_ClusterCharge_OffTrack@landauPeak", "ClusterCharge_OffTrack_landau.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OnTrack@gaussMean,436207616@Summary_ClusterNoise_OnTrack@gaussMean,402653184@Summary_ClusterNoise_OnTrack@gaussMean,469762048@Summary_ClusterNoise_OnTrack@gaussMean", "ClusterNoise_OnTrack_gauss.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OffTrack@gaussMean,436207616@Summary_ClusterNoise_OffTrack@gaussMean,402653184@Summary_ClusterNoise_OffTrack@gaussMean,469762048@Summary_ClusterNoise_OffTrack@gaussMean", "ClusterNoise_OffTrack_gauss.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@mean,436207616@Summary_ClusterStoNCorr_OnTrack@mean,402653184@Summary_ClusterStoNCorr_OnTrack@mean,469762048@Summary_ClusterStoNCorr_OnTrack@mean", "ClusterStoNCorr_OnTrack.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak,436207616@Summary_ClusterStoNCorr_OnTrack@landauPeak,402653184@Summary_ClusterStoNCorr_OnTrack@landauPeak,469762048@Summary_ClusterStoNCorr_OnTrack@landauPeak", "ClusterStoNCorr_OnTrack_landau.gif", 0, Condition, NRuns);
-  //A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@mean,436207616@Summary_ClusterStoN_OffTrack@mean,402653184@Summary_ClusterStoN_OffTrack@mean,469762048@Summary_ClusterStoN_OffTrack@mean", "ClusterStoN_OffTrack.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@landauPeak,436207616@Summary_ClusterStoN_OffTrack@landauPeak,402653184@Summary_ClusterStoN_OffTrack@landauPeak,469762048@Summary_ClusterStoN_OffTrack@landauPeak", "ClusterStoN_OffTrack_landau.gif", 0, Condition, NRuns);
-  //A.createTrendLastRuns("369098752@Summary_TotalNumberOfDigis@mean,436207616@Summary_TotalNumberOfDigis@mean,402653184@Summary_TotalNumberOfDigis@mean,469762048@Summary_TotalNumberOfDigis@mean", "TotalNumberOfDigis.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("369098752@Summary_ClusterWidth_OnTrack@mean,436207616@Summary_ClusterWidth_OnTrack@mean,402653184@Summary_ClusterWidth_OnTrack@mean,469762048@Summary_ClusterWidth_OnTrack@mean", "ClusterWidth_OnTrack.gif", 0, Condition, NRuns);
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, "369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OnTrack@mean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OnTrack@entries,436207616@Summary_TotalNumberOfClusters_OnTrack@entries,402653184@Summary_TotalNumberOfClusters_OnTrack@entries,469762048@Summary_TotalNumberOfClusters_OnTrack@entries", "OnTrackClusters_entries.gif", 0, "369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OffTrack@mean,436207616@Summary_TotalNumberOfClusters_OffTrack@mean,402653184@Summary_TotalNumberOfClusters_OffTrack@mean,469762048@Summary_TotalNumberOfClusters_OffTrack@mean", "TotalNumberOfClusters_OffTrack.gif", 0, "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_TotalNumberOfClusters_OffTrack@entries,436207616@Summary_TotalNumberOfClusters_OffTrack@entries,402653184@Summary_TotalNumberOfClusters_OffTrack@entries,469762048@Summary_TotalNumberOfClusters_OffTrack@entries", "TotalNumberOfClusters_OffTrack_entries.gif", 0, "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak,436207616@Summary_ClusterChargeCorr_OnTrack@landauPeak,402653184@Summary_ClusterChargeCorr_OnTrack@landauPeak,469762048@Summary_ClusterChargeCorr_OnTrack@landauPeak", "ClusterChargeCorr_OnTrack_landau.gif", 0, "369098752@Summary_ClusterChargeCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterCharge_OffTrack@landauPeak,436207616@Summary_ClusterCharge_OffTrack@landauPeak,402653184@Summary_ClusterCharge_OffTrack@landauPeak,469762048@Summary_ClusterCharge_OffTrack@landauPeak", "ClusterCharge_OffTrack_landau.gif", 0, "369098752@Summary_ClusterCharge_OffTrack@entries > 10000 && 369098752@Summary_ClusterCharge_OffTrack@landauPeak > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OnTrack@gaussMean,436207616@Summary_ClusterNoise_OnTrack@gaussMean,402653184@Summary_ClusterNoise_OnTrack@gaussMean,469762048@Summary_ClusterNoise_OnTrack@gaussMean", "ClusterNoise_OnTrack_gauss.gif", 0, "369098752@Summary_ClusterNoise_OnTrack@entries > 10000 && 369098752@Summary_ClusterNoise_OnTrack@gaussMean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterNoise_OffTrack@gaussMean,436207616@Summary_ClusterNoise_OffTrack@gaussMean,402653184@Summary_ClusterNoise_OffTrack@gaussMean,469762048@Summary_ClusterNoise_OffTrack@gaussMean", "ClusterNoise_OffTrack_gauss.gif", 0, "369098752@Summary_ClusterNoise_OffTrack@entries > 10000 && 369098752@Summary_ClusterNoise_OffTrack@gaussMean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@mean,436207616@Summary_ClusterStoNCorr_OnTrack@mean,402653184@Summary_ClusterStoNCorr_OnTrack@mean,469762048@Summary_ClusterStoNCorr_OnTrack@mean", "ClusterStoNCorr_OnTrack.gif", 0, "369098752@Summary_ClusterStoNCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak,436207616@Summary_ClusterStoNCorr_OnTrack@landauPeak,402653184@Summary_ClusterStoNCorr_OnTrack@landauPeak,469762048@Summary_ClusterStoNCorr_OnTrack@landauPeak", "ClusterStoNCorr_OnTrack_landau.gif", 0, "369098752@Summary_ClusterStoNCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak > 0", NRuns);
+
+  //A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@mean,436207616@Summary_ClusterStoN_OffTrack@mean,402653184@Summary_ClusterStoN_OffTrack@mean,469762048@Summary_ClusterStoN_OffTrack@mean", "ClusterStoN_OffTrack.gif", 0, "369098752@Summary_ClusterStoN_OffTrack@entries > 10000 && 369098752@Summary_ClusterStoN_OffTrack@mean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterStoN_OffTrack@landauPeak,436207616@Summary_ClusterStoN_OffTrack@landauPeak,402653184@Summary_ClusterStoN_OffTrack@landauPeak,469762048@Summary_ClusterStoN_OffTrack@landauPeak", "ClusterStoN_OffTrack_landau.gif", 0, "369098752@Summary_ClusterStoN_OffTrack@entries > 10000 && 369098752@Summary_ClusterStoN_OffTrack@landauPeak > 0", NRuns);
+
+  //A.createTrendLastRuns("369098752@Summary_TotalNumberOfDigis@mean,436207616@Summary_TotalNumberOfDigis@mean,402653184@Summary_TotalNumberOfDigis@mean,469762048@Summary_TotalNumberOfDigis@mean", "TotalNumberOfDigis.gif", 0, "369098752@Summary_TotalNumberOfDigis@entries > 10000 && 369098752@Summary_TotalNumberOfDigis@mean > 0", NRuns);
+
+  A.createTrendLastRuns("369098752@Summary_ClusterWidth_OnTrack@mean,436207616@Summary_ClusterWidth_OnTrack@mean,402653184@Summary_ClusterWidth_OnTrack@mean,469762048@Summary_ClusterWidth_OnTrack@mean", "ClusterWidth_OnTrack.gif", 0, "369098752@Summary_ClusterWidth_OnTrack@entries > 10000 && 369098752@Summary_ClusterWidth_OnTrack@mean > 0", NRuns);
+
 
   A.closeFile();
 
@@ -99,20 +113,34 @@ void SiStripHDQMInspector (const std::string &tagName, std::string const& Passwo
 
   //A.setBlackList("68286");
 
-  A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@entries,436207616@Summary_TotalNumberOfClusters_OnTrack@entries,402653184@Summary_TotalNumberOfClusters_OnTrack@entries,469762048@Summary_TotalNumberOfClusters_OnTrack@entries", "OnTrackClusters_entries.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_TotalNumberOfClusters_OffTrack@mean,436207616@Summary_TotalNumberOfClusters_OffTrack@mean,402653184@Summary_TotalNumberOfClusters_OffTrack@mean,469762048@Summary_TotalNumberOfClusters_OffTrack@mean", "TotalNumberOfClusters_OffTrack.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_TotalNumberOfClusters_OffTrack@entries,436207616@Summary_TotalNumberOfClusters_OffTrack@entries,402653184@Summary_TotalNumberOfClusters_OffTrack@entries,469762048@Summary_TotalNumberOfClusters_OffTrack@entries", "TotalNumberOfClusters_OffTrack_entries.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak,436207616@Summary_ClusterChargeCorr_OnTrack@landauPeak,402653184@Summary_ClusterChargeCorr_OnTrack@landauPeak,469762048@Summary_ClusterChargeCorr_OnTrack@landauPeak", "ClusterChargeCorr_OnTrack_landau.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterCharge_OffTrack@landauPeak,436207616@Summary_ClusterCharge_OffTrack@landauPeak,402653184@Summary_ClusterCharge_OffTrack@landauPeak,469762048@Summary_ClusterCharge_OffTrack@landauPeak", "ClusterCharge_OffTrack_landau.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterNoise_OnTrack@gaussMean,436207616@Summary_ClusterNoise_OnTrack@gaussMean,402653184@Summary_ClusterNoise_OnTrack@gaussMean,469762048@Summary_ClusterNoise_OnTrack@gaussMean", "ClusterNoise_OnTrack.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterNoise_OffTrack@gaussMean,436207616@Summary_ClusterNoise_OffTrack@gaussMean,402653184@Summary_ClusterNoise_OffTrack@gaussMean,469762048@Summary_ClusterNoise_OffTrack@gaussMean", "ClusterNoise_OffTrack_gauss.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterStoNCorr_OnTrack@mean,436207616@Summary_ClusterStoNCorr_OnTrack@mean,402653184@Summary_ClusterStoNCorr_OnTrack@mean,469762048@Summary_ClusterStoNCorr_OnTrack@mean", "ClusterStoNCorr_OnTrack_landau.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak,436207616@Summary_ClusterStoNCorr_OnTrack@landauPeak,402653184@Summary_ClusterStoNCorr_OnTrack@landauPeak,469762048@Summary_ClusterStoNCorr_OnTrack@landauPeak", "ClusterStoNCorr_OnTrack_landau.gif", 0, Condition, Start, End);
-  //A.createTrend("369098752@Summary_ClusterStoN_OffTrack@mean,436207616@Summary_ClusterStoN_OffTrack@mean,402653184@Summary_ClusterStoN_OffTrack@mean,469762048@Summary_ClusterStoN_OffTrack@mean", "ClusterStoN_OffTrack.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterStoN_OffTrack@landauPeak,436207616@Summary_ClusterStoN_OffTrack@landauPeak,402653184@Summary_ClusterStoN_OffTrack@landauPeak,469762048@Summary_ClusterStoN_OffTrack@landauPeak", "ClusterStoN_OffTrack_landau.gif", 0, Condition, Start, End);
-  //A.createTrend("369098752@Summary_TotalNumberOfDigis@mean,436207616@Summary_TotalNumberOfDigis@mean,402653184@Summary_TotalNumberOfDigis@mean,469762048@Summary_TotalNumberOfDigis@mean", "TotalNumberOfDigis.gif", 0, Condition, Start, End);
-  A.createTrend("369098752@Summary_ClusterWidth_OnTrack@mean,436207616@Summary_ClusterWidth_OnTrack@mean,402653184@Summary_ClusterWidth_OnTrack@mean,469762048@Summary_ClusterWidth_OnTrack@mean", "ClusterWidth_OnTrack.gif", 0, Condition, Start, End);
+  A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@mean,436207616@Summary_TotalNumberOfClusters_OnTrack@mean,402653184@Summary_TotalNumberOfClusters_OnTrack@mean,469762048@Summary_TotalNumberOfClusters_OnTrack@mean", "OnTrackClusters.gif", 0, "369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OnTrack@mean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_TotalNumberOfClusters_OnTrack@entries,436207616@Summary_TotalNumberOfClusters_OnTrack@entries,402653184@Summary_TotalNumberOfClusters_OnTrack@entries,469762048@Summary_TotalNumberOfClusters_OnTrack@entries", "OnTrackClusters_entries.gif", 0, "369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", Start, End);
+
+  A.createTrend("369098752@Summary_TotalNumberOfClusters_OffTrack@mean,436207616@Summary_TotalNumberOfClusters_OffTrack@mean,402653184@Summary_TotalNumberOfClusters_OffTrack@mean,469762048@Summary_TotalNumberOfClusters_OffTrack@mean", "TotalNumberOfClusters_OffTrack.gif", 0, "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_TotalNumberOfClusters_OffTrack@entries,436207616@Summary_TotalNumberOfClusters_OffTrack@entries,402653184@Summary_TotalNumberOfClusters_OffTrack@entries,469762048@Summary_TotalNumberOfClusters_OffTrack@entries", "TotalNumberOfClusters_OffTrack_entries.gif", 0, "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 && 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak,436207616@Summary_ClusterChargeCorr_OnTrack@landauPeak,402653184@Summary_ClusterChargeCorr_OnTrack@landauPeak,469762048@Summary_ClusterChargeCorr_OnTrack@landauPeak", "ClusterChargeCorr_OnTrack_landau.gif", 0, "369098752@Summary_ClusterChargeCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterChargeCorr_OnTrack@landauPeak > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterCharge_OffTrack@landauPeak,436207616@Summary_ClusterCharge_OffTrack@landauPeak,402653184@Summary_ClusterCharge_OffTrack@landauPeak,469762048@Summary_ClusterCharge_OffTrack@landauPeak", "ClusterCharge_OffTrack_landau.gif", 0, "369098752@Summary_ClusterCharge_OffTrack@entries > 10000 && 369098752@Summary_ClusterCharge_OffTrack@landauPeak > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterNoise_OnTrack@gaussMean,436207616@Summary_ClusterNoise_OnTrack@gaussMean,402653184@Summary_ClusterNoise_OnTrack@gaussMean,469762048@Summary_ClusterNoise_OnTrack@gaussMean", "ClusterNoise_OnTrack.gif", 0, "369098752@Summary_ClusterNoise_OnTrack@entries > 10000 && 369098752@Summary_ClusterNoise_OnTrack@gaussMean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterNoise_OffTrack@gaussMean,436207616@Summary_ClusterNoise_OffTrack@gaussMean,402653184@Summary_ClusterNoise_OffTrack@gaussMean,469762048@Summary_ClusterNoise_OffTrack@gaussMean", "ClusterNoise_OffTrack_gauss.gif", 0, "369098752@Summary_ClusterNoise_OffTrack@entries > 10000 && 369098752@Summary_ClusterNoise_OffTrack@gaussMean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterStoNCorr_OnTrack@mean,436207616@Summary_ClusterStoNCorr_OnTrack@mean,402653184@Summary_ClusterStoNCorr_OnTrack@mean,469762048@Summary_ClusterStoNCorr_OnTrack@mean", "ClusterStoNCorr_OnTrack_landau.gif", 0, "369098752@Summary_ClusterStoNCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak,436207616@Summary_ClusterStoNCorr_OnTrack@landauPeak,402653184@Summary_ClusterStoNCorr_OnTrack@landauPeak,469762048@Summary_ClusterStoNCorr_OnTrack@landauPeak", "ClusterStoNCorr_OnTrack_landau.gif", 0, "369098752@Summary_ClusterStoNCorr_OnTrack@entries > 10000 && 369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak > 0", Start, End);
+
+  //A.createTrend("369098752@Summary_ClusterStoN_OffTrack@mean,436207616@Summary_ClusterStoN_OffTrack@mean,402653184@Summary_ClusterStoN_OffTrack@mean,469762048@Summary_ClusterStoN_OffTrack@mean", "ClusterStoN_OffTrack.gif", 0, "369098752@Summary_ClusterStoN_OffTrack@entries > 10000 && 369098752@Summary_ClusterStoN_OffTrack@mean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterStoN_OffTrack@landauPeak,436207616@Summary_ClusterStoN_OffTrack@landauPeak,402653184@Summary_ClusterStoN_OffTrack@landauPeak,469762048@Summary_ClusterStoN_OffTrack@landauPeak", "ClusterStoN_OffTrack_landau.gif", 0, "369098752@Summary_ClusterStoN_OffTrack@entries > 10000 && 369098752@Summary_ClusterStoN_OffTrack@landauPeak > 0", Start, End);
+
+  //A.createTrend("369098752@Summary_TotalNumberOfDigis@mean,436207616@Summary_TotalNumberOfDigis@mean,402653184@Summary_TotalNumberOfDigis@mean,469762048@Summary_TotalNumberOfDigis@mean", "TotalNumberOfDigis.gif", 0, "369098752@Summary_TotalNumberOfDigis@entries > 10000 && 369098752@Summary_TotalNumberOfDigis@mean > 0", Start, End);
+
+  A.createTrend("369098752@Summary_ClusterWidth_OnTrack@mean,436207616@Summary_ClusterWidth_OnTrack@mean,402653184@Summary_ClusterWidth_OnTrack@mean,469762048@Summary_ClusterWidth_OnTrack@mean", "ClusterWidth_OnTrack.gif", 0, "369098752@Summary_ClusterWidth_OnTrack@entries > 10000 && 369098752@Summary_ClusterWidth_OnTrack@mean > 0", Start, End);
+
 
 
 
