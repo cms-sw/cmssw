@@ -1,0 +1,25 @@
+Example on how to generate a tkmap starting from a list of 
+<detids> <value>  (NB: a single entry for each detid)
+
+Starting from a ascii file containing the list (dummy.txt) and from an empty tkmap.xml 
+run this awk script to create a new xml tkmap
+ 
+awk -f tkmap.awk dummy.txt tkmap_white.xml > ! dummy.xml
+
+-------------------------------------------------
+
+To generate a .png, .pdf, .C file containing the same tkmap included in a tkmap.xml
+run the application 
+
+svgTopng.exe <inputTkMap> <outputFile>
+
+for example
+./svgTopng.exe dummy.xml dummy.png
+./svgTopng.exe dummy.xml dummy.pdf
+
+-------------------------------------------------
+
+To compile the executable svtTopng.exe run the script ./compile.sh
+
+
+
