@@ -38,7 +38,8 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 const TrajectorySeed& seed,
 						 float ndof,
 						 const reco::BeamSpot& bs,
-						 SeedRef seedRef)
+						 SeedRef seedRef,
+						 int qualityMask)						 
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -100,6 +101,8 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 			       tscbl.trackStateAtPCA().curvilinearError(),
 			       Algo);
     
+    theTrack->setQualityMask(qualityMask);
+    
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
 
     LogDebug("TrackProducer") <<"track done\n";
@@ -121,7 +124,8 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    const TrajectorySeed& seed,
 						    float ndof,
 						    const reco::BeamSpot& bs,
-						    SeedRef seedRef)
+						    SeedRef seedRef,
+						    int qualityMask)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;

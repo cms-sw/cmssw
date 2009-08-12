@@ -21,8 +21,14 @@ TrackRefitter = cms.EDFilter("TrackRefitter",
     ### the tracks are reconstructed the first time                         
     useHitsSplitting = cms.bool(False),
 
-
-    TrajectoryInEvent = cms.bool(True)
+    TrajectoryInEvent = cms.bool(True),
+                             
+    # Navigation school is necessary to fill the secondary hit patterns                         
+    NavigationSchool = cms.string('SimpleNavigationSchool') 
+    #
+    # in order to avoid to fill the secondary hit patterns and
+    # refit the tracks more quickly 
+    #NavigationSchool = cms.string('') 
 )
 
 
