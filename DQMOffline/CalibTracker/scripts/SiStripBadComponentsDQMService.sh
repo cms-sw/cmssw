@@ -1,16 +1,13 @@
 #!/bin/sh
-
-DQMfilesDir=/home/dqmprolocal/done/
+RELEASE=CMSSW_3_2_0
+DQMfilesDir=/dqmdata/dqm/done
 
 # rootFilesList=(`ls $DQMfilesDir | grep .root`)
 
 # The playback_full is what is used now. It is supposed to change in the future
 # when the DQM gui will be able to handle to complete file.
 # The list is sorted.
-rootFilesList=(`find $DQMfilesDir -name "*.root" | grep Playback_full | sort`)
-#rootFilesList=(`echo ${rootFilesList[@]} | grep Playback_full`)
-
-# echo "List of files: $rootFilesList"
+rootFilesList=(`find $DQMfilesDir -name "*.root" | grep SiStrip | sort`)
 
 if [ -e tempList.txt ]; then
     rm tempList.txt
@@ -31,7 +28,7 @@ rm tempList.txt
 
 echo "Setting up the environment"
 source /nfshome0/cmssw2/scripts/setup.sh
-cd /nfshome0/demattia/CMSSW_3_1_0/src/
+cd /nfshome0/popcondev/SiStripDQMJob/${RELEASE}/src/
 echo pwd is `pwd`
 cmsenv
 echo "Release base is $CMSSW_RELEASE_BASE"
@@ -44,7 +41,7 @@ do
 
     echo
     echo "file[$i] = $file"
-    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $(NF-1)}'`
+    runNumber=`echo $file | awk -F/ '{print $NF}' | awk -F_ '{print $NF}' | awk -F. '{print $1}'`
     # Strip the R at the start of the string
     runNumber=`echo ${runNumber#R}`
     # Strip all the 0s at the start of the runNumber

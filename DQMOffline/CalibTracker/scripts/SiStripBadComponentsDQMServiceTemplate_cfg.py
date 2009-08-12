@@ -42,19 +42,19 @@ process.load("DQMServices.Core.DQM_cfg")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 #connect = cms.string("sqlite_file:historicDQM.db"),
 BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-connect = cms.string("sqlite_file:dbfile.db"),
+connect = cms.string("oracle://cms_orcon_prod/CMS_COND_31X_STRIP"),
 timetype = cms.untracked.string("runnumber"),
 DBParameters = cms.PSet(
-   authenticationPath = cms.untracked.string("/afs/cern.ch/cms/DB/conddb"),
-   messageLevel = cms.untracked.int32(4)
+   authenticationPath = cms.untracked.string("/nfshome0/popcondev/conddb"),
+   messageLevel = cms.untracked.int32(1)
 ),
 toPut = cms.VPSet(
     cms.PSet(
         record = cms.string("SiStripBadStripRcd"),
-        tag = cms.string("SiStripBadStrip_test1")
+        tag = cms.string("SiStripBadStrip_FromOnlineDQM_V2")
     )
 ),
-logconnect = cms.untracked.string("sqlite_file:log.db") 
+logconnect = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG") 
 )
 
 
