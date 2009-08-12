@@ -62,13 +62,11 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     # (note: if 'fileDir' empty, the one from 'pedeSteerer' will be used...): 
     pedeReaderInputs = cms.VPSet(),
 
-    TrajectoryFactory = cms.PSet(
-        ReferenceTrajectoryFactory # from TrajectoryFactories
-	# BzeroReferenceTrajectoryFactory
-	# TwoBodyDecayReferenceTrajectoryFactory
-    ),
+    TrajectoryFactory = ReferenceTrajectoryFactory, # from TrajectoryFactories
+	# BzeroReferenceTrajectoryFactory,
+	# TwoBodyDecayReferenceTrajectoryFactory,
     minNumHits = cms.int32(7), ## minimum number of hits (with alignable parameters)
-    max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements get diagonalized
+    max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements in TID/TEC get diagonalized
     useTrackTsos = cms.bool(False) ## Tsos from track or from reference trajectory for global derivatives
 )
 
