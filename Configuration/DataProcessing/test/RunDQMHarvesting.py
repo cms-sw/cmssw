@@ -64,7 +64,7 @@ class RunDQMHarvesting:
             msg += str(ex)
             raise RuntimeError, msg
 
-        process.source.logicalFileNames.append(self.inputLFN)
+        process.source.fileNames.append(self.inputLFN)
 
 
         psetFile = open("RunDQMHarvestingCfg.py", "w")
