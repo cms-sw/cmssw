@@ -12,7 +12,10 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
    depth_(0), worldpos_(0)
 {
     DCOUT('C', "Building a DDExpandedView" );
+   DDRotation::StoreT::instance().setReadOnly(false);
     static DDPosData s_worldpos = DDPosData(DDTranslation(),DDRotation(),0);     
+   DDRotation::StoreT::instance().setReadOnly(true);
+
     worldpos_ =  &s_worldpos;//new DDPosData(trans_,DDRotation(DDName("","")),0);    
     //const DDLogicalPart & rt = cpv.root(); 
     
