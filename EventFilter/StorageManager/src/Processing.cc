@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.10 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Processing.cc,v 1.11 2009/07/20 13:07:28 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -88,6 +88,15 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
       this->noFragmentToProcess();
     }
   }
+
+  // 12-Aug-2009, KAB - I put the sampling of the fragment store size
+  // *after* the code to add fragments to the store and move them from the
+  // fragment store to the relevant queues (when needed) so that the baseline
+  // number of events in the fragment store is zero.  For example, when
+  // disk writing is slow or stopped, the stream queue fills up, and there
+  // is backpressure within the SM, the true number of events in the fragment
+  // store is zero, and putting the sampling here reflects that.
+  outermost_context().getSharedResources()->_statisticsReporter->getThroughputMonitorCollection().setFragmentStoreSize(outermost_context().getFragmentStore()->size());
 }
 
 void
