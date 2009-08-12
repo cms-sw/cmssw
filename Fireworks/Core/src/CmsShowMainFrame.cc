@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.55 2009/08/05 15:27:54 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.56 2009/08/12 14:43:08 amraktad Exp $
 //
 // hacks
 #define private public
@@ -349,7 +349,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
 
    // file name
-   m_fileName = new TGLabel(texts2, "file name");
+   m_fileName = new TGLabel(texts2, "File name");
    m_fileName->SetTextJustify(kTextLeft);
    m_fileName->SetTextColor(0xffffff);
    m_fileName->SetBackgroundColor(backgroundColor);
@@ -466,7 +466,7 @@ void CmsShowMainFrame::defaultAction() {
 void CmsShowMainFrame::newFile(const char* fileName)
 {
    char name[256];
-   snprintf(name, 256, "File name: %s", fileName);
+   snprintf(name, 256, "%s", fileName);
    m_fileName->SetText(name);
 }
 
