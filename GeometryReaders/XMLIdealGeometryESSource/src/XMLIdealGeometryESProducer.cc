@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id$
+// $Id: XMLIdealGeometryESProducer.cc,v 1.1 2009/03/04 14:47:00 fambrogl Exp $
 //
 //
 
@@ -102,23 +102,48 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    iRecord.getRecord<GeometryFileRcd>().get( "", gdd );
 
    DDLParser * parser = DDLParser::instance();
-   DDRootDef::instance().set(DDName(rootDDName_));
-
+   parser->getDDLSAX2FileHandler()->setUserNS(true);
+   // 2009-07-09 memory patch
+   parser->clearFiles();
+   //std::cout <<"got in produce"<<std::endl;
+   DDName ddName(rootNodeName_);
+   //std::cout <<"ddName \""<<ddName<<"\""<<std::endl;
+   DDLogicalPart rootNode(ddName);
+   //std::cout <<"made the DDLogicalPart"<<std::endl;
+   DDRootDef::instance().set(rootNode);
+   
+   
    std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
-
+   
    parser->parse(*tb, tb->size()); 
-
-
+   
    delete tb;
    
    std::cout << std::endl;
+  // at this point we should have a valid store of DDObjects and we will move these
+  // to the local storage area using swaps with the existing Singleton<Store...>'s
+  // NOTE TO SELF:  this is similar to the below explicit copy of the graph of the
+  // DDCompactView at this point with this XMLIdealGeometryESSource so as not to
+  // share the Store's anymore.
+  // 2009-07-09 memory patch
+   DDMaterial::StoreT::instance().swap(matStore_);
+   DDSolid::StoreT::instance().swap(solidStore_);
+   DDLogicalPart::StoreT::instance().swap(lpStore_);
+   DDSpecifics::StoreT::instance().swap(specStore_);
+   DDRotation::StoreT::instance().swap(rotStore_);
 
-   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(DDLogicalPart(DDName(rootDDName_))));
+   DDMaterial::StoreT::instance().setReadOnly(true);
+   DDSolid::StoreT::instance().setReadOnly(true);
+   DDLogicalPart::StoreT::instance().setReadOnly(true);
+   DDSpecifics::StoreT::instance().setReadOnly(true);
+   DDRotation::StoreT::instance().setReadOnly(true);
 
+   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
 
+   //copy the graph from the global one
    DDCompactView globalOne;
-   returnValue->writeableGraph() = globalOne.graph();
-
+   returnValue->swap(globalOne);
+   
    return returnValue ;
 }
 
