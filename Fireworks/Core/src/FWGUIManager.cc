@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.139 2009/08/12 14:43:08 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.140 2009/08/12 18:16:24 chrjones Exp $
 //
 
 // system include files
@@ -61,11 +61,6 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
-
-#include "Fireworks/Core/src/FWListViewObject.h"
-#include "Fireworks/Core/src/FWListModel.h"
-#include "Fireworks/Core/src/FWListMultipleModels.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -85,8 +80,6 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
-
-#include "Fireworks/Core/src/FWListWidget.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
@@ -604,12 +597,6 @@ FWGUIManager::createEDIFrame() {
 }
 
 void
-FWGUIManager::updateEDI(FWEventItem* iItem) {
-   createEDIFrame();
-   //m_ediFrame->fillEDIFrame(iItem);
-}
-
-void
 FWGUIManager::showEDIFrame(int iToShow)
 {
    createEDIFrame();
@@ -721,51 +708,7 @@ FWGUIManager::getGUISubviewArea(TEveWindow* w)
    FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
    return ar;
 }
-
-void
-FWGUIManager::itemChecked(TObject* obj, Bool_t state)
-{
-}
-void
-FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
-{
-   TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
-   FWListItemBase* lib = dynamic_cast<FWListItemBase*>(el);
-   //assert(0!=lib);
-   if(3==btn) {
-      //open the appropriate controller window
-   }
-   //NOTE: the return of doSelection is 'true' if this is a collection, else it returns false
-   if(1==btn || 3==btn) {
-      if(lib) {
-         bool isCollection =lib->doSelection(mask&kKeyControlMask);
-         if(3==btn) {
-            if(isCollection) {
-               showEDIFrame();
-            } else {
-               showModelPopup();
-            }
-         }
-         if(isCollection) {
-            gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
-         }
-      }
-   }
-}
-void
-FWGUIManager::itemDblClicked(TGListTreeItem* item, Int_t btn)
-{
-}
-void
-FWGUIManager::itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask)
-{
-}
-
-void
-FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
-{
-}
-
+ 
 void
 FWGUIManager::promptForConfigurationFile()
 {

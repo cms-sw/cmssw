@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.69 2009/06/26 21:06:33 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.70 2009/06/28 19:54:45 amraktad Exp $
 //
 
 // system include files
@@ -59,9 +59,7 @@ class CmsShowMainFrame;
 class FWSelectionManager;
 class FWEventItemsManager;
 class FWEventItem;
-class FWListEventItem;
 class FWViewBase;
-class FWListModel;
 class FWGUISubviewArea;
 
 class FWSummaryManager;
@@ -110,7 +108,6 @@ public:
    void createViews(TGTab *p);
 
    void createEDIFrame();
-   void updateEDI(FWEventItem* iItem);
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
 
@@ -160,12 +157,6 @@ public:
    void selectByExpression();
 
    void processGUIEvents();
-
-   void itemChecked(TObject* obj, Bool_t state);
-   void itemClicked(TGListTreeItem *entry, Int_t btn,  UInt_t mask, Int_t x, Int_t y);
-   void itemDblClicked(TGListTreeItem* item, Int_t btn);
-   void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
-   void itemBelowMouse(TGListTreeItem*, UInt_t);
 
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
    sigc::signal<void, const std::string&> changedEventFilter_;
