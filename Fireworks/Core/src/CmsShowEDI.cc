@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.26 2009/06/29 19:16:28 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.27 2009/08/12 18:17:21 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,6 @@
 #include "Fireworks/Core/interface/CmsShowEDI.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
