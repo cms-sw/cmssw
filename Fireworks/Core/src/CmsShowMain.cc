@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.84 2009/08/10 12:45:29 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.85 2009/08/11 15:43:55 amraktad Exp $
 //
 
 // system include files
@@ -128,8 +128,8 @@ static const char* const kNoConfigFileOpt = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
 static const char* const kPlayOpt = "play";
 static const char* const kPlayCommandOpt = "play,p";
-
-
+static const char* const kLoopOpt = "loop";
+static const char* const kLoopCommandOpt = "loop";
 static const char* const kDebugOpt = "debug";
 static const char* const kDebugCommandOpt = "debug,d";
 static const char* const kEveOpt = "eve";
@@ -178,10 +178,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
               (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
               (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+              (kLoopCommandOpt,                                   "Loop events in play mode")
               (kPlainRootCommandOpt,                              "Plain ROOT without event display")
-              (kRootInteractiveCommandOpt,                        "Enable root interactive prompt.")
+              (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
-              (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
+              (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
               (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
@@ -201,7 +202,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }
       if(vm.count(kPlainRootCommandOpt)) {
          std::cout << "Plain ROOT prompt requested" <<std::endl;
-	 return;
+         return;
       }
 
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
@@ -295,6 +296,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_startupTasks->addTask(f);
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
+      if (vm.count(kLoopOpt)) 
+      {
+         f=boost::bind(&CmsShowMain::setPlayAutoRewind,this);
+         m_startupTasks->addTask(f);
+      }
+
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
          f=boost::bind(&CmsShowMain::setupDebugSupport,this);
@@ -799,7 +806,6 @@ CmsShowMain::playForward()
 {
    m_isPlaying=true;
    m_forward=true;
-   m_navigator->setAutoRewind( true );
    m_guiManager->setPlayMode(m_isPlaying);
    m_guiManager->getAction(cmsshow::sNextEvent)->activated();
 }
@@ -819,7 +825,6 @@ CmsShowMain::stopPlaying()
    m_guiManager->setPlayMode(false);
    if(m_isPlaying) {
       m_isPlaying=false;
-      m_navigator->setAutoRewind( false );
       if(m_forward) {
          m_playTimer->TurnOff();
       } else {
@@ -833,6 +838,12 @@ void
 CmsShowMain::reachedEnd()
 {
    if(!m_isPlaying) m_guiManager->disableNext();
+}
+
+void
+CmsShowMain::setPlayAutoRewind()
+{
+   m_navigator->setAutoRewind( true );
 }
 
 void 

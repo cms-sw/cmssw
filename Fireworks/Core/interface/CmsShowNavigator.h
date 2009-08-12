@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.16 2009/08/05 14:38:42 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.17 2009/08/11 15:43:55 amraktad Exp $
 //
 
 // system include files
@@ -58,10 +58,10 @@ public:
    void goToEvent(Int_t);
 
    bool autoRewind() const {
-      return m_loopMode;
+      return m_autoRewind;
    }
    void setAutoRewind( bool mode ) {
-      m_loopMode = mode;
+      m_autoRewind = mode;
    }
 
    //      void checkBefore();
@@ -95,7 +95,7 @@ private:
    int m_nEntries;
    int m_currentSelectedEntry;
    const CmsShowMain         &m_main;
-   bool m_loopMode;    // auto-rewind event loop
+   bool m_autoRewind;    // auto-rewind event loop
    std::string m_nextFile;
 };
 

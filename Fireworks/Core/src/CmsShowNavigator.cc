@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.29 2009/08/10 12:45:29 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.30 2009/08/11 15:43:55 amraktad Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -92,7 +92,7 @@ namespace
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
    : m_main(main),
-     m_loopMode(false)
+     m_autoRewind(false)
 {
    m_file = 0;
    m_eventTree = 0;
@@ -218,6 +218,12 @@ CmsShowNavigator::nextEvent()
 
    if (m_file)
    {
+      if ( m_autoRewind &&
+           m_currentSelectedEntry == m_nEntries-1 ) {
+         firstEvent();
+         return;
+      }
+
       if (m_currentSelectedEntry < m_nEntries-1 &&
           m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
          ++m_currentSelectedEntry;
@@ -237,13 +243,23 @@ CmsShowNavigator::previousEvent()
       m_nextFile.clear();
       return;
    }
-   if (m_currentSelectedEntry > 0 &&
-       m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
-      --m_currentSelectedEntry;
-      newEvent.emit(*m_event);
-      checkPosition();
+
+   if (m_file)
+   {
+      if ( m_autoRewind &&
+           m_currentSelectedEntry == 0 ) {
+         lastEvent();
+         return;
+      }
+
+      if (m_currentSelectedEntry > 0 &&
+          m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
+         --m_currentSelectedEntry;
+         newEvent.emit(*m_event);
+         checkPosition();
+      }
+      else oldEvent.emit(*m_event);
    }
-   else oldEvent.emit(*m_event);
 }
 
 void
