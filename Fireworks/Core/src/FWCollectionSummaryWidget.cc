@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.12 2009/05/27 15:40:48 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.13 2009/08/12 18:19:35 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,8 @@
 #include "TSystem.h"
 #include "TColor.h"
 #include "TGButton.h"
-#include "TGLabel.h"
+//#include "TGLabel.h"
+#include "TGButton.h"
 #include "TGResourcePool.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWBoxIconButton.h"
@@ -45,6 +46,46 @@
 //
 // static data member definitions
 //
+namespace {
+   class BorderlessTextButton : public TGTextButton {
+   public:
+      BorderlessTextButton(const TGWindow *p = 0, const char *s = 0, Int_t id = -1,
+                           GContext_t norm = GetDefaultGC()(),
+                           FontStruct_t font = GetDefaultFontStruct()):
+      TGTextButton(p,s,id,norm,font,0){}
+      
+      void DoRedraw();
+   };
+   
+   void BorderlessTextButton::DoRedraw() {
+      gVirtualX->ClearArea(fId, fBorderWidth, fBorderWidth,
+                           fWidth - (fBorderWidth << 1), fHeight - (fBorderWidth << 1));
+      //TGFrame::DoRedraw();
+      
+      int x, y;
+      if (fTMode & kTextLeft) {
+         x = fMLeft + 4;
+      } else if (fTMode & kTextRight) {
+         x = fWidth - fTWidth - fMRight - 4;
+      } else {
+         x = (fWidth - fTWidth + fMLeft - fMRight) >> 1;
+      }
+
+      if (fTMode & kTextTop) {
+         y = fMTop + 3;
+      } else if (fTMode & kTextBottom) {
+         y = fHeight - fTHeight - fMBottom - 3;
+      } else {
+         y = (fHeight - fTHeight + fMTop - fMBottom) >> 1;
+      }
+
+      Int_t hotpos = fLabel->GetHotPos();
+
+      fTLayout->DrawText(fId, fNormGC, x, y, 0, -1);
+      if (hotpos) fTLayout->UnderlineChar(fId, fNormGC, x, y, hotpos - 1);
+   }
+}
+
 
 static 
 const TGPicture* filtered(bool iBackgroundIsBlack)
@@ -237,11 +278,14 @@ m_backgroundIsWhite(false)
    m_colorSelectBox->setColor(m_graphicsContext->GetGC());
    
    
-   m_label = new TGLabel(this,m_collection->name().c_str());
+   m_label = new BorderlessTextButton(this,
+                                      m_collection->name().c_str());
    m_label->SetBackgroundColor(backgroundColor);
    m_label->SetTextJustify(kTextLeft|kTextCenterY);
    m_label->SetTextColor(static_cast<Pixel_t>(gVirtualX->GetPixel(kWhite)));
    hFrame->AddFrame(m_label, new TGLayoutHints(kLHintsCenterY | kLHintsLeft | kLHintsExpandX,5,5));
+   m_label->Connect("Clicked()","FWCollectionSummaryWidget",this,"labelClicked()");
+   m_label->SetToolTipText("select collection and show controller");
    
    m_stateButton = new FWCustomIconsButton(this,unfiltered(!m_backgroundIsWhite),
                                            unfiltered_over(!m_backgroundIsWhite),
@@ -250,7 +294,7 @@ m_backgroundIsWhite(false)
    itemChanged();
    displayChanged();
    m_stateButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"stateClicked()");
-   m_stateButton->SetToolTipText("show collection filter");
+   m_stateButton->SetToolTipText("select collection and show filter");
    
    m_infoButton = new FWCustomIconsButton(this,
                                           info(!m_backgroundIsWhite),
@@ -259,7 +303,7 @@ m_backgroundIsWhite(false)
    );
    hFrame->AddFrame(m_infoButton, new TGLayoutHints(kLHintsCenterY| kLHintsRight,2,2));
    m_infoButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"infoClicked()");
-   m_infoButton->SetToolTipText("show Collection Controller");
+   m_infoButton->SetToolTipText("select collection and show data info");
 
    m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this));
    m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
@@ -306,7 +350,7 @@ FWCollectionSummaryWidget::~FWCollectionSummaryWidget()
 //
 static
 void
-setLabelBackgroundColor(TGLabel* iLabel, bool iIsSelected, bool iBackgroundIsWhite)
+setLabelBackgroundColor(TGTextButton* iLabel, bool iIsSelected, bool iBackgroundIsWhite)
 {
    if(iIsSelected) {
       if(iBackgroundIsWhite) {
@@ -528,6 +572,12 @@ FWCollectionSummaryWidget::requestForErrorInfo(FWEventItem* iItem)
    Emit("requestForErrorInfo(FWEventItem*)",reinterpret_cast<long>(iItem));
 }
 
+void 
+FWCollectionSummaryWidget::requestForController(FWEventItem* iItem)
+{
+   Emit("requestForController(FWEventItem*)",reinterpret_cast<long>(iItem));
+}
+
 void
 FWCollectionSummaryWidget::infoClicked()
 {
@@ -548,6 +598,17 @@ FWCollectionSummaryWidget::stateClicked()
       m_collection->selectItem();
    }
    requestForFilter(m_collection);
+}
+
+void
+FWCollectionSummaryWidget::labelClicked()
+{
+   if(!m_collection->itemIsSelected()) {
+      //NOTE: Want to be sure if models are selected then their collection is also selected
+      m_collection->selectionManager()->clearSelection();
+      m_collection->selectItem();
+   }
+   requestForController(m_collection);
 }
 
 void 
