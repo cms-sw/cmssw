@@ -286,7 +286,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 //        << " Enter" 
 //        << endl ;
   if(init){
-cout<<"Entering SiPixelDataQuality::computeGlobalQualityFlag for the first time"<<endl;
+//cout<<"Entering SiPixelDataQuality::computeGlobalQualityFlag for the first time"<<endl;
     allMods_=0; errorMods_=0; qflag_=0.; 
     barrelMods_=0; endcapMods_=0;
     barrelModsL1_=0; barrelModsL2_=0; barrelModsL3_=0; endcapModsDP1_=0; endcapModsDP2_=0; endcapModsDM1_=0; endcapModsDM2_=0;
