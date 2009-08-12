@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16 $
- *  $Date: 2008/07/30 15:44:49 $
+ *  $Revision: 1.17 $
+ *  $Date: 2008/08/12 18:23:15 $
  *  (last update by $Author: flucke $)
  */
 
@@ -580,8 +580,11 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
   const AlgebraicVector &trajectoryLoc = refTrajPtr->trajectoryPositions();
   const TransientTrackingRecHit::ConstRecHitContainer &recHits = refTrajPtr->recHits();
   const AlgebraicMatrix &derivatives = refTrajPtr->derivatives();
+  
+// CHK
+  const int nRow = refTrajPtr->numberOfHitMeas(); 
 
-  for (int iRow = 0; iRow < covMeasLoc.num_row(); ++iRow) {
+  for (int iRow = 0; iRow < nRow; ++iRow) {
     const double residuum = measurementsLoc[iRow] - trajectoryLoc[iRow];
     const double covMeasLocRow = covMeasLoc[iRow][iRow];
     const bool is2DhitRow = (!recHits[iRow/2]->detUnit() // FIXME: as in MillePedeAlignmentAlgorithm::is2D()
@@ -637,7 +640,7 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
     float nHitRow = iRow/2; // '/2' not '/2.'!
     if (TMath::Odd(iRow)) nHitRow += 0.5; // y-hit gets 0.5
     // correlations
-    for (int iCol = iRow+1; iCol < covMeasLoc.num_col(); ++iCol) {
+    for (int iCol = iRow+1; iCol < nRow; ++iCol) {
       double rho = TMath::Sqrt(covMeasLocRow + covMeasLoc[iCol][iCol]);
       rho = (0. == rho ? -2 : covMeasLoc[iRow][iCol] / rho);
       float nHitCol = iCol/2; //cf. comment nHitRow
