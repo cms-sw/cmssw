@@ -198,6 +198,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   for( int i=1; it != projections.end(); ++it, ++fit, ++i ) {
     canvasYcheck->cd(i);
     (*it)->Draw();
+    (*it)->GetXaxis()->SetRangeUser(fitXmin, fitXmax);
     (*fit)->Draw("same");
   }
 
@@ -284,8 +285,10 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   cout << "File 2 = " << nameFile2 << endl;
 
   double y[2];
-  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=0.; y[1]=6.; }
-  else if( resonanceType.Contains("Upsilon") ) { y[0]=8.; y[1]=12.; }
+  if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=2.9; y[1]=3.3; }
+  else if( resonanceType.Contains("Upsilon1S") ) { y[0]=9.25; y[1]=9.85; }
+  else if( resonanceType.Contains("Upsilon2S") ) { y[0]=9.85; y[1]=10.2; }
+  else if( resonanceType.Contains("Upsilon3S") ) { y[0]=10.2; y[1]=10.7; }
   else if( resonanceType == "Z" ) { y[0]=70; y[1]=110; }
   else if( resonanceType == "Resolution" ) { y[0]=-0.3; y[1]=0.3; }
 
