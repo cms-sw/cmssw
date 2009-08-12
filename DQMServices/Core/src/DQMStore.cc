@@ -1373,7 +1373,7 @@ DQMStore::save(const std::string &filename,
 	       const std::string &path /* = "" */,
 	       const std::string &pattern /* = "" */,
 	       const std::string &rewrite /* = "" */,
-	       SaveReferenceTag ref /* = SaveWithReferenceForQTest */,
+	       SaveReferenceTag ref /* = SaveWithReference */,
 	       int minStatus /* = dqm::qstatus::STATUS_OK */)
 {
   std::set<std::string>::iterator di, de;
