@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/22 15:00:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/07/28 17:07:37 $
+ *  $Revision: 1.9 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -31,6 +31,9 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 // Trigger stuff
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -75,8 +78,12 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
   const float pi = 3.14159265;
 
   // Keep the number of plots and number of bins to a minimum!
-  h_mumu_invMass = theDbe->book1D("h_mumu_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0);
-  h_ee_invMass   = theDbe->book1D("h_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0);
+  h_vertex_chi2  = theDbe->book1D("h_vertex_chi2" , "Event Vertex #chi^{2}"                  , 20,  0.0, 100.0 );
+  h_vertex_numTrks = theDbe->book1D("h_vertex_numTrks", "Event Vertex, number of tracks"     , 10, -0.5,   9.5 );
+  h_vertex_sumTrks = theDbe->book1D("h_vertex_sumTrks", "Event Vertex, sum of track pt"      , 100, 0.0, 100.0 );
+  h_vertex_d0    = theDbe->book1D("h_vertex_d0"   , "Event Vertex d0"                        , 20,  0.0,   0.05);
+  h_mumu_invMass = theDbe->book1D("h_mumu_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0 );
+  h_ee_invMass   = theDbe->book1D("h_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0 );
   h_jet_et       = theDbe->book1D("h_jet_et",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., 200.0);
   h_jet2_et      = theDbe->book1D("h_jet2_et",      "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
   h_jet_count    = theDbe->book1D("h_jet_count",    "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
@@ -110,15 +117,31 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
   if ( !HLTresults.isValid() ) return;
   HLTConfigProvider hltConfig;
-  hltConfig.init("HLT8E29");
+  hltConfig.init("HLT");
   unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
   unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
-  bool passed_electron_HLT = false;
-  bool passed_muon_HLT     = false;
-  if (triggerIndex_elec < HLTresults->size()) passed_electron_HLT = HLTresults->accept(triggerIndex_elec);
-  if (triggerIndex_muon < HLTresults->size()) passed_muon_HLT     = HLTresults->accept(triggerIndex_muon);
-  if ( !(passed_electron_HLT || passed_muon_HLT) ) return;
+  bool passed_electron_HLT = true;
+  bool passed_muon_HLT     = true;
+  //if (triggerIndex_elec < HLTresults->size()) passed_electron_HLT = HLTresults->accept(triggerIndex_elec);
+  //if (triggerIndex_muon < HLTresults->size()) passed_muon_HLT     = HLTresults->accept(triggerIndex_muon);
+  //if ( !(passed_electron_HLT || passed_muon_HLT) ) return;
 
+  ////////////////////////////////////////////////////////////////////////////////
+  //Vertex information
+  Handle<VertexCollection> vertexHandle;
+  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+  if ( !vertexHandle.isValid() ) return;
+  VertexCollection vertexCollection = *(vertexHandle.product());
+  VertexCollection::const_iterator v = vertexCollection.begin();
+  double vertex_chi2    = v->chi2();
+  double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+  double vertex_numTrks = v->tracksSize();
+  double vertex_sumTrks = 0.0;
+  for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
+    vertex_sumTrks += (*vertex_curTrack)->pt();
+  }
+
+  cout << "hi mom" << endl;
 
   ////////////////////////////////////////////////////////////////////////////////
   //Missing ET
@@ -126,7 +149,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel(theCaloMETCollectionLabel, caloMETCollection);
   if ( !caloMETCollection.isValid() ) return;
   float missing_et = caloMETCollection->begin()->et();
-  float met_phi = caloMETCollection->begin()->phi();
+  float met_phi    = caloMETCollection->begin()->phi();
 
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -316,6 +339,13 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (jet_et>0.0) {
     h_jet_et   ->Fill(jet_et);
     h_jet_count->Fill(jet_count);
+  }
+
+  if (fill_e1 || fill_m1) {
+    h_vertex_chi2->Fill(vertex_chi2);
+    h_vertex_d0  ->Fill(vertex_d0);
+    h_vertex_numTrks->Fill(vertex_numTrks);
+    h_vertex_sumTrks->Fill(vertex_sumTrks);
   }
 
   if (fill_e1) {
