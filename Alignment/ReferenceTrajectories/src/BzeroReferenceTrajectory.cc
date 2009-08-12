@@ -15,7 +15,7 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
 						   MaterialEffects materialEffects,
 						   PropagationDirection propDir,
 						   double mass, double momentumEstimate) :
-  ReferenceTrajectory( refTsos.localParameters().mixedFormatVector().kSize, recHits.size() ),
+  ReferenceTrajectory( refTsos.localParameters().mixedFormatVector().kSize, recHits.size(), materialEffects),
   theMomentumEstimate( momentumEstimate )
 {
   // no check against magField == 0
@@ -47,5 +47,5 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
 
   // Exclude momentum from the parameters and also the derivatives of the measurements w.r.t. the momentum.
   theParameters = theParameters.sub( 2, 5 );
-  theDerivatives = theDerivatives.sub( 1, theDerivatives.num_row(), 2, 5 );
+  theDerivatives = theDerivatives.sub( 1, theDerivatives.num_row(), 2, theDerivatives.num_col() );
 }

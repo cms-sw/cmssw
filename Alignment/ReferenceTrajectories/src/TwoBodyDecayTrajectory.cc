@@ -10,7 +10,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
+// Break Points not implemented
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState& trajectoryState,
 						const ConstRecHitCollection & recHits,
 						const MagneticField* magField,
@@ -20,7 +20,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 						bool useRefittedState,
 						bool constructTsosWithErrors )
 
-  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size() )
+  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(), 0 )
 {
   if ( hitsAreReverse )
   {
@@ -51,7 +51,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
-  : ReferenceTrajectoryBase( 0, 0 )
+  : ReferenceTrajectoryBase( 0, 0, 0 )
 {}
 
 
@@ -72,7 +72,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   //
 
   // construct a trajectory (hits should be already in correct order)
-  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, materialEffects, propDir, mass );
+  ReferenceTrajectory trajectory1( tsos.first, recHits.first, false, field, (materialEffects ==  breakPoints) ? combined : materialEffects, propDir, mass );
 
   // check if construction of trajectory was successful
   if ( !trajectory1.isValid() ) return false;
@@ -84,7 +84,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   // second track
   //
 
-  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, materialEffects, propDir, mass );
+  ReferenceTrajectory trajectory2( tsos.second, recHits.second, false, field, (materialEffects ==  breakPoints) ? combined : materialEffects, propDir, mass );
 
   if ( !trajectory2.isValid() ) return false;
 

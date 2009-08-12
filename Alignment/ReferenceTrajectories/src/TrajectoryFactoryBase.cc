@@ -11,7 +11,7 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 {
   const std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
   theMaterialEffects = this->materialEffects( strMaterialEffects );
-
+  
   const std::string strPropagationDirection = config.getParameter< std::string >( "PropagationDirection" );
   thePropDir = this->propagationDirection( strPropagationDirection );
 
@@ -114,7 +114,8 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
   if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
   if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
-
+  if ( strME == "BreakPoints" ) return ReferenceTrajectoryBase::breakPoints;
+  
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
 }

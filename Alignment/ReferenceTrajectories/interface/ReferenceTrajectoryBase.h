@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2008/02/15 15:35:57 $
+ * last update: $Date: 2008/07/10 15:24:35 $
  * by         : $Author: ewidl $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -49,6 +49,23 @@
  * 
  * Take care to check validity of the calculation (isValid()) before using the results.
  *
+ *.............................................................................
+ *
+ * 090730 C. Kleinwort: 'Break Points' introduced for better description of multiple 
+ *                      scattering (correlations)
+ *
+ * For each detector layer (in the hit collection) two orthogonal scattering angles are
+ * introduced as new local track parameters ("break points"). To constrain those to the
+ * expected mean (=0.) and variance (~1/p^2 X/X0) corresponding measurements are added.
+ * Invalid hits may be used to produce break points too (UseInvalidHits = True).
+ *
+ * Break points have been implemented for: ReferenceTrajectory, BzeroReferenceTrajectory,
+ *    DualReferenceTrajectory and DualBzeroReferenceTrajectory
+ * For 'Dual' trajectories they make no sense as only the correlations between the hits  
+ * in a track half are accounted for and not those between the halves! 
+ *
+ * Break Points are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
+ *
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
@@ -68,7 +85,7 @@ public:
 
   typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
-  enum MaterialEffects { none, multipleScattering, energyLoss, combined };
+  enum MaterialEffects { none, multipleScattering, energyLoss, combined, breakPoints };
 
   virtual ~ReferenceTrajectoryBase() {}
 
@@ -81,7 +98,7 @@ public:
   /** Returns the full covariance matrix of the measurements. ORCA-equivalent: covariance()
    */
   const AlgebraicSymMatrix& measurementErrors() const { return theMeasurementsCov; }
-
+  
   /** Returns the local coordinates of the reference trajectory.
       ORCA-equivalent: referenceTrack()
    */
@@ -98,7 +115,11 @@ public:
 
   /** Returns the set of 'track'-parameters.
    */
+   
   const AlgebraicVector& parameters() const { return theParameters; }
+  /** Returns the set of global 'track'-parameters.
+   */
+  const AlgebraicVector6& globalPars() const { return theGlobalPars; }
 
   /** Returns true if the covariance matrix of the 'track'-parameters is set.
    */
@@ -121,13 +142,16 @@ public:
    */
   const TransientTrackingRecHit::ConstRecHitContainer& recHits() const { return theRecHits; }
 
-  inline int numberOfHits() const { return theNumberOfHits; }
-
+  inline unsigned int numberOfHits() const { return theNumberOfHits; }
+  inline unsigned int numberOfPar() const { return theNumberOfPars; }
+  inline unsigned int numberOfBreakPoints() const { return theNumberOfBreakPoints; }  
+  inline unsigned int numberOfHitMeas() const { return theNumberOfHits * nMeasPerHit; } 
+     
   virtual ReferenceTrajectoryBase* clone() const = 0;
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0);
+  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nBreakPoints = 0 );
 
   unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
   bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;
@@ -136,7 +160,9 @@ protected:
   bool theParamCovFlag;
 
   unsigned int theNumberOfHits;
-
+  unsigned int theNumberOfPars;
+  unsigned int theNumberOfBreakPoints;
+    
   std::vector<TrajectoryStateOnSurface> theTsosVec;
   TransientTrackingRecHit::ConstRecHitContainer theRecHits;
 
@@ -150,7 +176,9 @@ protected:
   AlgebraicSymMatrix  theParameterCov;
 
   AlgebraicMatrix     theDerivatives;
-
+// CHK for debug  
+  AlgebraicVector6    theGlobalPars;
+  
   static const unsigned int nMeasPerHit = 2;
 };
 

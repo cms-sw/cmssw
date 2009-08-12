@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2008/07/10 15:24:35 $
+ * last update: $Date: 2008/07/14 11:46:53 $
  * by         : $Author: ewidl $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-  ReferenceTrajectory( unsigned int nPar = 0, unsigned int nHits = 0 );
+  ReferenceTrajectory( unsigned int nPar = 0, unsigned int nHits = 0, MaterialEffects materialEffects = none );
 
   /** internal method to calculate members
    */
@@ -107,7 +107,8 @@ protected:
   virtual void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
-				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
+				     const std::vector<AlgebraicMatrix> &allLocalToCurv);
 
   // Don't care for propagation direction 'anyDirection' - in that case the material effects
   // are anyway not updated ...

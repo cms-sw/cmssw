@@ -1,14 +1,17 @@
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
-ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits)
+ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits, unsigned int nBreakPoints)
   : theValidityFlag(false), theParamCovFlag(false),
-    theNumberOfHits( nHits ),
+    theNumberOfHits( nHits ), theNumberOfPars( nPar ), 
+    theNumberOfBreakPoints( nBreakPoints ), //theNumberOfHitMeas( nMeasPerHit * nHits ),
     theTsosVec(), theRecHits(),
-    theMeasurements(nMeasPerHit * nHits), theMeasurementsCov(nMeasPerHit * nHits, 0),
+    theMeasurements(nMeasPerHit * nHits + nBreakPoints), 
+    theMeasurementsCov(nMeasPerHit * nHits + nBreakPoints, 0),
     theTrajectoryPositions(nMeasPerHit * nHits), 
-    theTrajectoryPositionCov(nMeasPerHit * nHits,0),
-    theParameters(nPar), theParameterCov(nPar, 0),
-    theDerivatives(nMeasPerHit * nHits, nPar, 0) 
+    theTrajectoryPositionCov(nMeasPerHit * nHits, 0),
+    theParameters(nPar), 
+    theParameterCov(nPar, 0),
+    theDerivatives(nMeasPerHit * nHits + nBreakPoints, nPar + nBreakPoints, 0)
 {
   theTsosVec.reserve(nHits);
   theRecHits.reserve(nHits);
