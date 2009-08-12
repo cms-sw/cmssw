@@ -40,6 +40,7 @@
 #include "DDLRotationSequence.h"
 #include "DDLShapelessSolid.h" 
 #include "DDLSpecPar.h"
+#include "DDLSphere.h"
 #include "DDLString.h"
 #include "DDLTorus.h"
 #include "DDLTrapezoid.h"
@@ -179,6 +180,10 @@ DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
         {
       	  myret = new DDLSpecPar;
         }
+      else if (name == "Sphere")
+	{
+	  myret = new DDLSphere;
+	}
       else if (name == "RotationSequence")
 	{
 	  myret = new DDLRotationSequence;

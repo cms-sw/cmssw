@@ -38,6 +38,9 @@ DDXMLElementRegistry::~DDXMLElementRegistry()
 {
   // Complicated cleanup.  I keep track of DDXMLElements that have
   // already been deleted using this vector.  Then delete them one-by-one.
+  // This is because more than one string can be associated with the same 
+  // DDXMLElement*, maybe only the "default" "***" named one.  Still need 
+  // to protect from "over" deleteing
   std::vector<DDXMLElement*> toDelete;
   for ( RegistryMap::const_iterator it = registry_.begin(); it != registry_.end(); ++it) {
     std::vector<DDXMLElement*>::const_iterator deleteIt = std::find(toDelete.begin(), toDelete.end(), it->second);
