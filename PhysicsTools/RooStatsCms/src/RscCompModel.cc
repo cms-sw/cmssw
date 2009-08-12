@@ -152,7 +152,7 @@ void RscCompModel::buildPdf()
 
       index++;
       }
-    delete[] yield_formulas;
+    //delete[] yield_formulas;
     TString tot_yield_formula("");
     for (int i=0;i< index ;++i){
         tot_yield_formula += yield_formulas[i] + " + ";
@@ -175,7 +175,7 @@ void RscCompModel::buildPdf()
     */
     //_thePdf = new RooAddPdf(_name,"composite PDF",pdfList,coefList);
     _thePdf = new RooAddPdf(_name,"composite PDF",pdfList);
-
+    delete[] yield_formulas;
   }
 }
 
