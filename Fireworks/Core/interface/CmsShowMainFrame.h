@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.21 2009/05/11 10:10:35 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.22 2009/06/10 16:11:19 chrjones Exp $
 //
 
 // system include files
@@ -62,13 +62,14 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-  virtual void CloseWindow();
+   virtual void CloseWindow();
 
    void addToActionMap(CSGAction *action);
    Bool_t activateMenuEntry(int entry);
    Bool_t activateToolBarEntry(int entry);
    void defaultAction();
    void loadEvent(const fwlite::Event& event);
+   void newFile(const char* fileName);
    void quit();
    CSGAction* getAction(const std::string& name);
    void enableActions(bool enable = true);
@@ -110,6 +111,7 @@ private:
    Long_t m_tooltipDelay;
    TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
+   TGLabel* m_fileName;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
    CSGAction *m_goToFirst;

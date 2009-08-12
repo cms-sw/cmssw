@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.137 2009/07/21 14:51:56 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.138 2009/07/28 17:25:55 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "TGSlider.h"
 #include "TColor.h"
 #include "TVirtualX.h"
+#include "TFile.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -304,6 +305,7 @@ void
 FWGUIManager::newFile(const TFile* iFile)
 {
    m_openFile = iFile;
+   m_cmsShowMainFrame->newFile(m_openFile->GetName());
 }
 
 void

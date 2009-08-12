@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.54 2009/07/28 16:15:56 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.55 2009/08/05 15:27:54 amraktad Exp $
 //
 // hacks
 #define private public
@@ -281,14 +281,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
    // delay label
-   TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 60, 10, 0, backgroundColor);
+   TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 40, 10, 0, backgroundColor);
    TGLabel *label = new TGLabel(delayFrame, "Delay");
    label->SetTextJustify(kTextCenterX);
    label->SetTextColor(0xb3b3b3);
    label->SetBackgroundColor(backgroundColor);
-   delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
+   delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 30, 0));
 
-   TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
+   TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 40, 15, kFixedSize, backgroundColor);
    m_delayLabel = new TGLabel(labFixed, "0.0s");
    m_delayLabel->SetBackgroundColor(backgroundColor);
    m_delayLabel->SetTextJustify(kTextCenterX);
@@ -296,7 +296,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX, 0, 0, 0, 0));
    delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
 
-   fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
+   fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, -5, 0, 0, 0));
 
    /**************************************************************************/
    // text/num entries
@@ -329,17 +329,17 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterEntry = new TGTextEntry(filterFrame, "");
    filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
-   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
+   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 0, 5, 5, 5));
 
    /**************************************************************************/
-   TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, 200, 44, kFixedSize, backgroundColor);
+   TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, 200, 54, kFixedSize, backgroundColor);
 
    // Lumi
    m_lumiBlock = new TGLabel(texts2, "Lumi block id: ");
    m_lumiBlock->SetTextJustify(kTextLeft);
    m_lumiBlock->SetTextColor(0xffffff);
    m_lumiBlock->SetBackgroundColor(backgroundColor);
-   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,3,1));
+   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
 
    // time
    m_timeText = new TGLabel(texts2, "...");
@@ -348,7 +348,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_timeText->SetBackgroundColor(backgroundColor);
    texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
 
-   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 6, 5, 5, 5));
+   // file name
+   m_fileName = new TGLabel(texts2, "file name");
+   m_fileName->SetTextJustify(kTextLeft);
+   m_fileName->SetTextColor(0xffffff);
+   m_fileName->SetBackgroundColor(backgroundColor);
+   texts2->AddFrame(m_fileName, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
+
+   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 6, 5, 0, 6));
 
    /**************************************************************************/
    //  logo
@@ -454,6 +461,13 @@ Long_t CmsShowMainFrame::getToolTipDelay() const {
 
 void CmsShowMainFrame::defaultAction() {
    printf("Default action!\n");
+}
+
+void CmsShowMainFrame::newFile(const char* fileName)
+{
+   char name[256];
+   snprintf(name, 256, "File name: %s", fileName);
+   m_fileName->SetText(name);
 }
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
