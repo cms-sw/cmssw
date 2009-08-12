@@ -162,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.7 $'),
+            version = cms.untracked.string('$Revision: 1.8 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -308,7 +308,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.7 $'),
+            version = cms.untracked.string('$Revision: 1.8 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -442,7 +442,7 @@ class Cosmics(Scenario):
         options.eventcontent = None
         options.name = "EDMtoMEConvert"
         options.number = -1
-        options.conditions = "FrontierConditions_GlobalTag,%s" % globaTag
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.arguments = ""
         options.evt_type = ""
         options.filein = []
@@ -458,7 +458,7 @@ class Cosmics(Scenario):
         #
         # customise process for particular job
         #
-        process.GlobalTag.globalTag = globalTag
+        process.GlobalTag.globaltag = globalTag
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
