@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.30 2009/08/11 15:43:55 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.31 2009/08/12 12:49:44 amraktad Exp $
 //
 
 // #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
@@ -91,20 +91,16 @@ namespace
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-   : m_main(main),
+   : m_file(0),
+     m_event(0),
+     m_eventTree(0),
+     m_eventList(0),
+     m_currentEntry(0),
+     m_nEntries(0),
+     m_currentSelectedEntry(0),
+     m_main(main),
      m_autoRewind(false)
 {
-   m_file = 0;
-   m_eventTree = 0;
-   m_eventList = 0;
-   m_selection = "";
-   m_currentSelectedEntry = 0;
-
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-   mg_memoryResidentVec.reserve(100000);
-   mg_memoryVirtualVec.reserve(100000);
-#endif
-
 }
 
 // CmsShowNavigator::CmsShowNavigator(const CmsShowNavigator& rhs)
@@ -163,8 +159,6 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    return true;
 }
 
-
-
 Int_t
 CmsShowNavigator::realEntry(Int_t selectedEntry) {
    if (m_eventTree && m_eventTree->GetEventList() )
@@ -194,7 +188,8 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName, bool isPlaying)
 {
-   if ( m_file == 0 && isPlaying)
+   if ( ( m_file == 0 || ( m_autoRewind == kFALSE &&  m_currentSelectedEntry == m_nEntries-1 ))
+       && isPlaying)
    {
       loadFile(fileName);
       firstEvent();
