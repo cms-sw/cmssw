@@ -234,8 +234,8 @@ void parseSVG(char* inputFile){
 
       data.value=getValue(line);
       DataVect.push_back(data);
-      if(check==2)
-	data.print();
+      //if(check==2)
+      //data.print();
     }
   }
 }

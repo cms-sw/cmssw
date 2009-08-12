@@ -17,6 +17,8 @@ for example
 ./svgTopng.exe dummy.xml dummy.png
 ./svgTopng.exe dummy.xml dummy.pdf
 
+or
+./svgTopng.exe NoiseTkMap_Run_109574.svg Noise.png
 -------------------------------------------------
 
 To compile the executable svtTopng.exe run the script ./compile.sh
