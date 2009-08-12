@@ -57,7 +57,7 @@ class Cosmics(Scenario):
 
         # Input source
         process.source = cms.Source("PoolSource",
-            logicalFileNames = cms.untracked.vstring()
+            fileNames = cms.untracked.vstring()
         )
 
 
@@ -162,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.6 $'),
+            version = cms.untracked.string('$Revision: 1.7 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -172,7 +172,7 @@ class Cosmics(Scenario):
         # Input source
         process.source = cms.Source(
             "NewEventStreamFileReader",
-            logicalFileNames = cms.untracked.vstring()
+            fileNames = cms.untracked.vstring()
             
         )
         
@@ -308,7 +308,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.6 $'),
+            version = cms.untracked.string('$Revision: 1.7 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -321,7 +321,7 @@ class Cosmics(Scenario):
         # Input source
         process.source = cms.Source(
             "PoolSource",
-            logicalFileNames = cms.untracked.vstring()
+            fileNames = cms.untracked.vstring()
         )
         
         # Additional output definition
@@ -442,10 +442,11 @@ class Cosmics(Scenario):
         options.eventcontent = None
         options.name = "EDMtoMEConvert"
         options.number = -1
-        options.conditions = "FrontierConditions_GlobalTag"
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globaTag
         options.arguments = ""
         options.evt_type = ""
         options.filein = []
+        options.gflash = False
         options.customisation_file = ""
 
         process = cms.Process("HARVESTING")
@@ -457,7 +458,8 @@ class Cosmics(Scenario):
         #
         # customise process for particular job
         #
-        process.source.logicalFileNames = cms.untracked(cms.vstring())
+        process.GlobalTag.globalTag = globalTag
+        process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
         
