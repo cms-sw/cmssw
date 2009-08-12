@@ -137,7 +137,8 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
-  if(Tier0Flag_) nFEDs_ = 40;
+//  if(Tier0Flag_) nFEDs_ = 40;
+  nFEDs_ = 40;
   
   bei_->setCurrentFolder("Pixel/");
   // Setting up QTests:

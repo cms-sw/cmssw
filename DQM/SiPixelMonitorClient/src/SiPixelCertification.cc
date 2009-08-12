@@ -33,9 +33,9 @@ SiPixelCertification::~SiPixelCertification(){
 void SiPixelCertification::beginJob(const edm::EventSetup& iSetup){
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::beginJob ";
 
+  dbe_->setCurrentFolder("Pixel/EventInfo");
+  CertificationPixel= dbe_->bookFloat("CertificationSummary");  
   dbe_->setCurrentFolder("Pixel/EventInfo/CertificationContents");
-
-  CertificationPixel= dbe_->bookFloat("PixelFraction");  
   CertificationBarrel= dbe_->bookFloat("PixelBarrelFraction");  
   CertificationEndcap= dbe_->bookFloat("PixelEndcapFraction");  
 
@@ -51,15 +51,16 @@ void SiPixelCertification::beginLuminosityBlock(const LuminosityBlock& lumiBlock
 
 
 void SiPixelCertification::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
+//cout<<"Entering SiPixelCertification::endLuminosityBlock: "<<endl;
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::endLuminosityBlock ";
   // Compute and fill overall certification bits, for now use smallest single value:
-  float dcsFrac = (dbe_->get("Pixel/EventInfo/DCSContents/PixelFraction"))->getFloatValue();
-  float daqFrac = (dbe_->get("Pixel/EventInfo/DAQContents/PixelFraction"))->getFloatValue();
-  float dqmFrac = (dbe_->get("Pixel/EventInfo/reportSummaryContents/PixelFraction"))->getFloatValue();
+  float dcsFrac = (dbe_->get("Pixel/EventInfo/DCSSummary"))->getFloatValue();
+  float daqFrac = (dbe_->get("Pixel/EventInfo/DAQSummary"))->getFloatValue();
+  float dqmFrac = (dbe_->get("Pixel/EventInfo/reportSummary"))->getFloatValue();
   float pixel_all = std::min(dcsFrac,daqFrac);
   pixel_all = std::min(pixel_all,dqmFrac);
 //std::cout<<"Pixel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_all<<std::endl;
-  CertificationPixel = dbe_->get("Pixel/EventInfo/CertificationContents/PixelFraction");
+  CertificationPixel = dbe_->get("Pixel/EventInfo/CertificationSummary");
   if(CertificationPixel) CertificationPixel->Fill(pixel_all);
 
   dcsFrac = (dbe_->get("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();

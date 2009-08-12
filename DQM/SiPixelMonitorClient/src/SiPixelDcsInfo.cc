@@ -81,8 +81,9 @@ void SiPixelDcsInfo::beginJob(const edm::EventSetup& iSetup){
   dbe_ = Service<DQMStore>().operator->();
   
  
+  dbe_->setCurrentFolder("Pixel/EventInfo");
+  Fraction_= dbe_->bookFloat("DCSSummary");  
   dbe_->setCurrentFolder("Pixel/EventInfo/DCSContents");
-  Fraction_= dbe_->bookFloat("PixelFraction");  
   FractionBarrel_= dbe_->bookFloat("PixelBarrelFraction");  
   FractionEndcap_= dbe_->bookFloat("PixelEndcapFraction");  
 }

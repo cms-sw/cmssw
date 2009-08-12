@@ -87,7 +87,6 @@ class SiPixelDataQuality {
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   
   // Final combined Data Quality Flags:
-  MonitorElement * SummaryReport;
   MonitorElement * SummaryReportMap;
   MonitorElement * SummaryPixel;
   MonitorElement * SummaryBarrel;

@@ -122,7 +122,6 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
   bei->cd();
   
   bei->setCurrentFolder("Pixel/EventInfo");
-  SummaryReport = bei->bookFloat("reportSummary");
   if(!Tier0Flag){
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
     SummaryReportMap->setAxisTitle("Pixel FED #",1);
@@ -152,8 +151,8 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setBinLabel(14,"Pass rechit errorX cut",2);
     SummaryReportMap->setBinLabel(15,"Pass rechit errorY cut",2);
   }  
+    SummaryPixel = bei->bookFloat("reportSummary");
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
-    SummaryPixel = bei->bookFloat("PixelFraction");
     SummaryBarrel = bei->bookFloat("PixelBarrelFraction");
     SummaryEndcap = bei->bookFloat("PixelEndcapFraction");
   // book the data certification cuts:
@@ -194,18 +193,14 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     
     // Init MonitoringElements:
     if(nFEDs>0){
-      SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
-      if(SummaryReport) SummaryReport->Fill(1.);
-      SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelFraction");
+      SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
       if(SummaryPixel) SummaryPixel->Fill(1.);
       SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
       if(SummaryBarrel) SummaryBarrel->Fill(1.);
       SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction");
       if(SummaryEndcap)	SummaryEndcap->Fill(1.);
     }else{
-      SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
-      if(SummaryReport) SummaryReport->Fill(-1.);
-      SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelFraction");
+      SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
       if(SummaryPixel) SummaryPixel->Fill(-1.);
       SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
       if(SummaryBarrel) SummaryBarrel->Fill(-1.);
@@ -291,6 +286,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 //        << " Enter" 
 //        << endl ;
   if(init){
+cout<<"Entering SiPixelDataQuality::computeGlobalQualityFlag for the first time"<<endl;
     allMods_=0; errorMods_=0; qflag_=0.; 
     barrelMods_=0; endcapMods_=0;
     barrelModsL1_=0; barrelModsL2_=0; barrelModsL3_=0; endcapModsDP1_=0; endcapModsDP2_=0; endcapModsDM1_=0; endcapModsDM2_=0;
@@ -1988,9 +1984,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   
   
   //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
-  SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
-  if(SummaryReport) SummaryReport->Fill(pixelFlag);
-  SummaryPixel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelFraction");
+  SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryPixel) SummaryPixel->Fill(pixelFlag);
   SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
   if(SummaryBarrel) SummaryBarrel->Fill(barrelFlag);
