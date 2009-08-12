@@ -52,10 +52,11 @@ void SiStripDaqInfo::beginJob( const edm::EventSetup &eSetup) {
 //
 void SiStripDaqInfo::bookStatus() {
 
-  dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
-
+  dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
   DaqFraction_= dqmStore_->bookFloat("SiStripDaqFraction");  
+
+  dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
 
   for (map<string, vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
        it != subDetFedMap.end(); it++) {
