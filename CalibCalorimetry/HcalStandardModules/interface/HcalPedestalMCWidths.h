@@ -91,6 +91,7 @@ class HcalPedestalMCWidths : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
+   bool histflag;
 };
 #endif
 
