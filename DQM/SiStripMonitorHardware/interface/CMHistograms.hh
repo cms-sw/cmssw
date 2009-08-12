@@ -48,7 +48,6 @@ public:
 		  std::ostringstream* pDebugStream
 		  );
 
-  void fillHistograms(unsigned int aFedId, unsigned int aChId);
   void fillHistograms(std::vector<CMvalues> aVec, float aTime, unsigned int aFedId);
 
 
@@ -56,7 +55,9 @@ public:
   void bookTopLevelHistograms(DQMStore* dqm);
 
   //book individual FED histograms or book all FED level histograms at once
+  void bookFEDHistograms(unsigned int fedId);
   void bookFEDHistograms(unsigned int fedId, unsigned int aCategory);
+  void bookChannelsHistograms(unsigned int fedId);
 
   void bookAllFEDHistograms();
 
@@ -71,8 +72,11 @@ private:
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_;
 
+  bool doFed_[500];
+
   std::string tkMapConfigName_;
-  TkHistoMap *tkmapCM_[4];
+  TkHistoMap *tkmapCM_[6];
+  TkHistoMap *tkmapCMFED_[6];
 
   MonitorElement *medianAPV0_[5];
   MonitorElement *medianAPV1_[5];
@@ -94,6 +98,11 @@ private:
   //std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0vsTimeperFED_[5];
   //std::map<unsigned int,MonitorElement*> medianAPV0vsTimeperFED_[5];
   //std::map<unsigned int,MonitorElement*> medianAPV1vsTimeperFED_[5];
+
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0perChannel_;
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV1perChannel_;
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0minusAPV1perChannel_;
+
 
   std::string categories_[5]; 
 

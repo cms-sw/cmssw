@@ -5,6 +5,8 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   RawDataTag = cms.untracked.InputTag('source'),
   #Folder in DQM Store to write global histograms to
   HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedMedians'),
+  #ids of FEDs which will have detailed histograms made
+  FedIdVec = cms.untracked.vuint32(),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
   #do histos vs time with time=event number. Default time = orbit number (s).
@@ -65,6 +67,12 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
     Enabled = cms.untracked.bool(True)
     ),
   MedianAPV1minusAPV0perFEDHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
+    ),
+  MedianAPV0perChannelHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
+    ),
+  MedianAPV1perChannelHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
   #TkHistoMap

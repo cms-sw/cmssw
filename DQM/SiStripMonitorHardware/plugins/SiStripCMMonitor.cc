@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.4 2009/08/03 14:02:13 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.5 2009/08/12 08:54:57 amagnan Exp $
 //
 
 #include <sstream>
@@ -56,7 +56,7 @@
 
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
-//#define DoShots
+#define DoShots
 
 #ifdef DoShots
 #include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
@@ -73,6 +73,13 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
   explicit SiStripCMMonitorPlugin(const edm::ParameterSet&);
   ~SiStripCMMonitorPlugin();
  private:
+
+  struct Statistics {
+    double Mean;
+    double Rms;
+    double Counter;
+  };
+
   virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
@@ -80,15 +87,21 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
+
+  void fillMaps(uint32_t aDetId, unsigned short aChInModule, std::pair<uint16_t,uint16_t> aMedians);
+
   //medians of all strip per channel (APV1,APV2). Return 0,0 if not zero-suppressed mode.
-  std::pair<uint16_t,uint16_t> fillMedians(const std::string & aMode,
-					   const sistrip::FEDChannel & aChannel,
-					   const unsigned int aIndex
-					   );
+  //std::pair<uint16_t,uint16_t> fillMedians(const std::string & aMode,
+  //					   const sistrip::FEDChannel & aChannel,
+  //					   const unsigned int aIndex
+  //					   );
+
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
   //folder name for histograms in DQMStore
   std::string folderName_;
+  //vector of fedIDs which will have detailed histograms made
+  std::vector<unsigned int> fedIdVec_;
   //book detailed histograms even if they will be empty (for merging)
   bool fillAllDetailedHistograms_;
   //do histos vs time with time=event number. Default time = orbit number (s)
@@ -112,10 +125,9 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
 
   CMHistograms cmHists_;
 
-  std::map<unsigned int,std::pair<uint32_t,uint32_t> > CommonModesAPV0_;
-  std::map<unsigned int,std::pair<uint32_t,uint32_t> > CommonModesAPV1_;
-  unsigned int NEntries_[2];
-
+  std::map<unsigned int,Statistics> CommonModesAPV0_;
+  std::map<unsigned int,Statistics> CommonModesAPV1_;
+  std::map<unsigned int,Statistics> CommonModesAPV0minusAPV1_;
 
 };
 
@@ -127,6 +139,7 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
 SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/CMMonitoring")),
+    fedIdVec_(iConfig.getUntrackedParameter<std::vector<unsigned int> >("FedIdVec")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
@@ -156,6 +169,9 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
 
  doTkHistoMap_ = cmHists_.isTkHistoMapEnabled(cmHists_.tkHistoMapName());
 
+ CommonModesAPV0_.clear();
+ CommonModesAPV1_.clear();
+ CommonModesAPV0minusAPV1_.clear();
 
  if (printDebug_) {
    LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -203,8 +219,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
   //FED errors
   FEDErrors lFedErrors;
 
-  //initialise map of fedId/mean+RMS CM
-  std::pair<std::map<unsigned int,std::pair<uint32_t,uint32_t> >::iterator,bool> alreadyThere[2];
 
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
@@ -249,12 +263,21 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
       //std::cout << "FedID " << fedId << ", ch " << iCh << ", nAPVPairs " << lConnection.nApvPairs() << " apvPairNumber " << lConnection.apvPairNumber() << std::endl;
 
-      bool lFailUnpackerChannelCheck = !buffer->channelGood(iCh) && connected;
-      if (lFailUnpackerChannelCheck) continue;
-      
+      if (!connected) {
+	continue;
+      }
+
       uint32_t lDetId = lConnection.detId();
+      unsigned short nChInModule = lConnection.nApvPairs();
 
       if (!lDetId || lDetId == sistrip::invalid32_) continue;
+
+      bool lFailUnpackerChannelCheck = !buffer->channelGood(iCh) && connected;
+
+      if (lFailUnpackerChannelCheck) {
+	continue;
+      }
+      
 
       short lAPVPair = lConnection.apvPairNumber();
       short lSubDet = DetId(lDetId).subdetId();
@@ -277,7 +300,6 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	    //std::cout << std::dec << "Fed/Ch/APV " << fedId << "/" <<  iCh << "/" << shot->apvNumber()%2    
 	    //<< " median = " << shot->median() << ", nStrips = " << shot->nStrips() << std::endl;
 	    //}
-	    cmHists_.fillHistograms(fedId,iCh);
 	  }
 	  //isFirst = false;
 	}
@@ -329,7 +351,12 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       std::ostringstream lMode;
       lMode << buffer->readoutMode();
       if (printDebug_ > 1) {
-	std::cout << "Readout mode: " << lMode << std::endl;
+	static bool lFirst = true;
+	if (lFirst) {
+	  std::cout << "Readout mode: " << lMode.str() << std::endl;
+	  lFirst = false;
+	}
+
       }
 
       const sistrip::FEDChannel & lChannel = buffer->channel(iCh);
@@ -357,29 +384,8 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	}
       }
 
-      //if some clusters are found:
       values.push_back(lVal);
-
-      if (doTkHistoMap_){//if TkHistMap is enabled
-
-	alreadyThere[0] = CommonModesAPV0_.insert(std::pair<unsigned int,std::pair<uint32_t,uint32_t> >(lDetId,std::pair<uint32_t,uint32_t>(medians.first,medians.first*medians.first)));
-	if (alreadyThere[0].second) NEntries_[0]++;
-	else {
-	  ((alreadyThere[0].first)->second).first += medians.first;
-	  ((alreadyThere[0].first)->second).second += medians.first*medians.first;
-	  //nBadChans++;
-	  NEntries_[0]++;
-	}
-	alreadyThere[1] = CommonModesAPV1_.insert(std::pair<unsigned int,std::pair<uint32_t,uint32_t> >(lDetId,std::pair<uint32_t,uint32_t>(medians.second,medians.second*medians.second)));
-	if (alreadyThere[1].second) NEntries_[1]++;
-	else {
-	  ((alreadyThere[1].first)->second).first += medians.second;
-	  ((alreadyThere[1].first)->second).second += medians.second*medians.second;
-	  //nBadChans++;
-	  NEntries_[1]++;
-	}
-
-      }
+      fillMaps(lDetId,nChInModule,medians);
 
     }//loop on channels
     
@@ -421,7 +427,7 @@ SiStripCMMonitorPlugin::endJob()
 {
 
   if (doTkHistoMap_) {//if TkHistoMap is enabled
-    std::map<unsigned int,std::pair<uint32_t,uint32_t> >::iterator fracIter;
+    std::map<unsigned int,Statistics>::iterator fracIter;
 
     //int ele = 0;
     //int nBadChannels = 0;
@@ -433,10 +439,18 @@ SiStripCMMonitorPlugin::endJob()
       //}
       float mean = 0;
       float rms = 0;
-      if (NEntries_[0] > 0) mean = (fracIter->second).first/NEntries_[0];
-      if (NEntries_[0] > 1) rms = sqrt((fracIter->second).second/(NEntries_[0]-1)-(mean*mean));
+      Statistics lStat = fracIter->second;
+      if (lStat.Counter > 0) mean = lStat.Mean/lStat.Counter;
+      if (lStat.Counter > 1) rms = sqrt(lStat.Rms/(lStat.Counter-1)-(mean*mean));
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(0),detid,mean);
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(1),detid,rms);
+
+      if (printDebug_ > 1) {
+	std::ostringstream message;
+	message << "TkHistoMap APV0: Detid " << detid << ", mean = " <<  mean << ", rms = " << rms << ", counter = " << lStat.Counter << std::endl;
+	edm::LogVerbatim("SiStripMonitorHardware") << message.str();
+      }
+
       //ele++;
     }
 
@@ -446,10 +460,42 @@ SiStripCMMonitorPlugin::endJob()
       //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
       //nBadChannels++;
       //}
-      float mean = (fracIter->second).first/NEntries_[1];
-      float rms = sqrt((fracIter->second).second/(NEntries_[1]-1)-(mean*mean));
+      float mean = 0;
+      float rms = 0;
+      Statistics lStat = fracIter->second;
+      if (lStat.Counter > 0) mean = lStat.Mean/lStat.Counter;
+      if (lStat.Counter > 1) rms = sqrt(lStat.Rms/(lStat.Counter-1)-(mean*mean));
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(2),detid,mean);
       cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(3),detid,rms);
+      if (printDebug_ > 1) {
+	std::ostringstream message;
+	message << "TkHistoMap APV1: Detid " << detid << ", mean = " <<  mean << ", rms = " << rms << ", counter = " << lStat.Counter << std::endl;
+	edm::LogVerbatim("SiStripMonitorHardware") << message.str();
+      }
+     //ele++;
+    }
+
+
+    for (fracIter = CommonModesAPV0minusAPV1_.begin(); fracIter!=CommonModesAPV0minusAPV1_.end(); fracIter++){
+      uint32_t detid = fracIter->first;
+      //if ((fracIter->second).second != 0) {
+      //std::cout << "------ ele #" << ele << ", Frac for detid #" << detid << " = " <<(fracIter->second).second << "/" << (fracIter->second).first << std::endl;
+      //nBadChannels++;
+      //}
+      float mean = 0;
+      float rms = 0;
+      Statistics lStat = fracIter->second;
+      if (lStat.Counter > 0) mean = lStat.Mean/lStat.Counter;
+      if (lStat.Counter > 1) rms = sqrt(lStat.Rms/(lStat.Counter-1)-(mean*mean));
+      cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(4),detid,mean);
+      cmHists_.fillTkHistoMap(cmHists_.tkHistoMapPointer(5),detid,rms);
+
+      if (printDebug_ > 1) {
+	std::ostringstream message;
+	message << "TkHistoMap APV0minusAPV1: Detid " << detid << ", mean = " <<  mean << ", rms = " << rms << ", counter = " << lStat.Counter << std::endl;
+	edm::LogVerbatim("SiStripMonitorHardware") << message.str();
+      }
+
       //ele++;
     }
 
@@ -469,6 +515,50 @@ void SiStripCMMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
   }
 }
 
+
+void SiStripCMMonitorPlugin::fillMaps(uint32_t aDetId, unsigned short aChInModule, std::pair<uint16_t,uint16_t> aMedians)
+{
+
+  if (doTkHistoMap_){//if TkHistMap is enabled
+    std::pair<std::map<unsigned int,Statistics>::iterator,bool> alreadyThere[2];
+
+    Statistics lStat;
+    lStat.Mean = aMedians.first*1./aChInModule;
+    lStat.Rms = aMedians.first*aMedians.first*1./aChInModule;
+    lStat.Counter = 1./aChInModule;
+
+    alreadyThere[0] = CommonModesAPV0_.insert(std::pair<unsigned int,Statistics>(aDetId,lStat));
+    if (!alreadyThere[0].second) {
+      ((alreadyThere[0].first)->second).Mean += aMedians.first*1./aChInModule;
+      ((alreadyThere[0].first)->second).Rms += aMedians.first*aMedians.first*1./aChInModule;
+      ((alreadyThere[0].first)->second).Counter += 1./aChInModule;
+    }
+
+    lStat.Mean = aMedians.second*1./aChInModule;
+    lStat.Rms = aMedians.second*aMedians.second*1./aChInModule;
+    lStat.Counter = 1./aChInModule;
+
+    alreadyThere[1] = CommonModesAPV1_.insert(std::pair<unsigned int,Statistics>(aDetId,lStat));
+    if (!alreadyThere[1].second) {
+      ((alreadyThere[1].first)->second).Mean += aMedians.second*1./aChInModule;
+      ((alreadyThere[1].first)->second).Rms += aMedians.second*aMedians.second*1./aChInModule;
+      ((alreadyThere[1].first)->second).Counter += 1./aChInModule;
+    }
+
+    lStat.Mean = (aMedians.first-aMedians.second)*1./aChInModule;
+    lStat.Rms = (aMedians.first-aMedians.second)*(aMedians.first-aMedians.second)*1./aChInModule;
+    lStat.Counter = 1./aChInModule;
+
+    alreadyThere[0] = CommonModesAPV0minusAPV1_.insert(std::pair<unsigned int,Statistics>(aDetId,lStat));
+    if (!alreadyThere[0].second) {
+      ((alreadyThere[0].first)->second).Mean += (aMedians.first-aMedians.second)*1./aChInModule;
+      ((alreadyThere[0].first)->second).Rms += (aMedians.first-aMedians.second)*(aMedians.first-aMedians.second)*1./aChInModule;
+      ((alreadyThere[0].first)->second).Counter += 1./aChInModule;
+    }
+
+  }
+
+}
 
 // std::pair<uint16_t,uint16_t> SiStripCMMonitorPlugin::fillMedians(const std::string & aMode,
 // 								  const sistrip::FEDChannel & aChannel,

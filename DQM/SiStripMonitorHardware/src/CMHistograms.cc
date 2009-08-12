@@ -17,6 +17,10 @@ CMHistograms::CMHistograms()
   categories_[3] = "APV1sup";
   categories_[4] = "APV0sup";
 
+  for (unsigned int i(0); i<500; i++){
+    doFed_[i] = false;
+  }
+
 }
 
 CMHistograms::~CMHistograms()
@@ -24,8 +28,8 @@ CMHistograms::~CMHistograms()
 }
   
 void CMHistograms::initialise(const edm::ParameterSet& iConfig,
-			       std::ostringstream* pDebugStream
-			       )
+			      std::ostringstream* pDebugStream
+			      )
 {
   getConfigForHistogram("DataPresent",iConfig,pDebugStream);
 
@@ -46,32 +50,42 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("MedianAPV1vsAPV0perFED",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0perFED",iConfig,pDebugStream);
 
+  getConfigForHistogram("MedianAPV0perChannel",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV1perChannel",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV0minusAPV1perChannel",iConfig,pDebugStream);
+
   
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
 
-
+  if (iConfig.exists("FedIdVec")){
+    std::vector<unsigned int> lIdVec = iConfig.getUntrackedParameter<std::vector<unsigned int> >("FedIdVec");
+    for (unsigned int i(0); i<lIdVec.size(); i++){
+      if (lIdVec.at(i) < 500) doFed_[lIdVec.at(i)] = true;
+    }
+  }
 }
-
-void CMHistograms::fillHistograms(unsigned int aFedId, unsigned int aChId){
-  fillHistogram(shotChannels_,aChId,aFedId);
-}
-
 
 void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsigned int aFedId)
 {
 
-  bool lBooked[5] = {false,false,false,false,false};
+  if (doFed_[aFedId]){
+    bookFEDHistograms(aFedId);
+  }
 
   for (unsigned iEle(0); iEle<aVec.size(); iEle++){//loop on elements
 
     CMvalues lVal = aVec.at(iEle);
 
     if (lVal.Medians.first >= 500 || lVal.Medians.second >= 500) {
-      std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << std::endl;
+      std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << " " << __FILE__ << " " << __LINE__ << std::endl;
     }
 
+
+
+
     if (lVal.IsShot) {
+      fillHistogram(shotChannels_,lVal.ChannelID,aFedId);
       fillHistogram(shotMedianAPV0_,lVal.ShotMedians.first);
       fillHistogram(shotMedianAPV1_,lVal.ShotMedians.second);
       fillHistogram(medianAPV1minusAPV0minusShotMedianAPV1_,lVal.Medians.second-lVal.Medians.first-lVal.ShotMedians.second);
@@ -97,16 +111,19 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
 	fillHistogram(medianAPV1minusAPV0_[i],lVal.Medians.second-lVal.Medians.first);
 	fillHistogram(medianAPV1minusAPV0vsTime_[i],aTime,lVal.Medians.second-lVal.Medians.first);
 
-	if (!lBooked[i]) {
-	  bookFEDHistograms(aFedId,i);
-	  lBooked[i] = true;
+	if (doFed_[aFedId]) {
+	  fillHistogram(medianAPV1vsAPV0perFED_[i][aFedId],lVal.Medians.first,lVal.Medians.second);
+	  fillHistogram(medianAPV1minusAPV0perFED_[i][aFedId],lVal.Medians.second-lVal.Medians.first);
 	}
-
-	fillHistogram(medianAPV1vsAPV0perFED_[i][aFedId],lVal.Medians.first,lVal.Medians.second);
-	fillHistogram(medianAPV1minusAPV0perFED_[i][aFedId],lVal.Medians.second-lVal.Medians.first);
-
       }
     }
+
+    if (doFed_[aFedId]){
+      fillHistogram(medianAPV0perChannel_[aFedId].at(lVal.ChannelID),lVal.Medians.first);
+      fillHistogram(medianAPV1perChannel_[aFedId].at(lVal.ChannelID),lVal.Medians.second);
+      fillHistogram(medianAPV0minusAPV1perChannel_[aFedId].at(lVal.ChannelID),lVal.Medians.first-lVal.Medians.second);
+    }
+
   }//loop on elements
 
 }
@@ -207,46 +224,105 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
     tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0",0.,500);
     tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV1",0.,500);
     tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV1",0.,500);
+    tkmapCM_[4] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,500);
+    tkmapCM_[5] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,500);
   }
   else {
     tkmapCM_[0] = 0;
     tkmapCM_[1] = 0;
     tkmapCM_[2] = 0;
     tkmapCM_[3] = 0;
+    tkmapCM_[4] = 0;
+    tkmapCM_[5] = 0;
   }
 
 
 }
 
 
-void CMHistograms::bookFEDHistograms(unsigned int fedId, unsigned int aCategory)
+void CMHistograms::bookFEDHistograms(unsigned int fedId)
 {
   if (!histosBooked_[fedId]) {
     //will do that only once
-    SiStripFedKey fedKey(fedId,0,0,0);
-    std::stringstream fedIdStream;
-    fedIdStream << fedId;
 
+    for (unsigned int i(0); i<5;i++){
+      bookFEDHistograms(fedId,i);
+    }
 
-    dqm_->setCurrentFolder(fedKey.path()+categories_[aCategory]);
-    
-    medianAPV1vsAPV0perFED_[aCategory][fedId] = book2DHistogram("MedianAPV1vsAPV0perFED",
-								"MedianAPV1vsAPV0forFED"+fedIdStream.str()+categories_[aCategory],
-								"median APV1 vs APV0 for FED "+fedIdStream.str(),
-								250,0,500,250,0,500,
-								"APV0","APV1");
-    
-    medianAPV1minusAPV0perFED_[aCategory][fedId] = bookHistogram("MedianAPV1minusAPV0perFED",
-								 "MedianAPV1minusAPV0forFED"+fedIdStream.str()+categories_[aCategory],
-								 "median APV1 - median APV0 for FED "+fedIdStream.str(),
-								 500,-500,500,
-								 "#Delta(medians)");
+    bookChannelsHistograms(fedId);
+
     histosBooked_[fedId] = true;
   }
+}
+
+void CMHistograms::bookFEDHistograms(unsigned int fedId, unsigned int aCategory)
+{
+  SiStripFedKey fedKey(fedId,0,0,0);
+  std::stringstream fedIdStream;
+  fedIdStream << fedId;
+
+  dqm_->setCurrentFolder(fedKey.path()+categories_[aCategory]);
+    
+  medianAPV1vsAPV0perFED_[aCategory][fedId] = book2DHistogram("MedianAPV1vsAPV0perFED",
+							      "MedianAPV1vsAPV0forFED"+fedIdStream.str()+categories_[aCategory],
+							      "median APV1 vs APV0 for FED "+fedIdStream.str(),
+							      250,0,500,250,0,500,
+							      "APV0","APV1");
+    
+  medianAPV1minusAPV0perFED_[aCategory][fedId] = bookHistogram("MedianAPV1minusAPV0perFED",
+							       "MedianAPV1minusAPV0forFED"+fedIdStream.str()+categories_[aCategory],
+							       "median APV1 - median APV0 for FED "+fedIdStream.str(),
+							       500,-500,500,
+							       "#Delta(medians)");
 
 }
 
 
+void CMHistograms::bookChannelsHistograms(unsigned int fedId)
+{
+  SiStripFedKey fedKey(fedId,0,0,0);
+  std::stringstream fedIdStream;
+  fedIdStream << fedId;
+
+  dqm_->setCurrentFolder(fedKey.path());
+
+  for (unsigned int iCh(0); iCh < 96; iCh++){
+
+    std::ostringstream lName0,lTitle0,lName1,lTitle1,lName2,lTitle2;
+    lName0 << "MedianAPV0ForFed" << fedId << "Channel" << iCh;
+    lTitle0 << "Median APV0 for FED/Ch " << fedId << "/" << iCh ;
+    lName1 << "MedianAPV1ForFed" << fedId << "Channel" << iCh;
+    lTitle1 << "Median APV1 for FED/Ch " << fedId << "/" << iCh ;
+    lName2 << "MedianAPV0minusAPV1ForFed" << fedId << "Channel" << iCh;
+    lTitle2 << "Median APV0-APV1 for FED/Ch " << fedId << "/" << iCh ;
+
+    medianAPV0perChannel_[fedId].push_back( bookHistogram("MedianAPV0perChannel",
+							  lName0.str(),
+							  lTitle0.str(),
+							  250,0,500,
+							  "median APV0")
+					    );
+
+    medianAPV1perChannel_[fedId].push_back( bookHistogram("MedianAPV1perChannel",
+							  lName1.str(),
+							  lTitle1.str(),
+							  250,0,500,
+							  "median APV1")
+					    );
+
+    medianAPV0minusAPV1perChannel_[fedId].push_back( bookHistogram("MedianAPV0minusAPV1perChannel",
+								   lName2.str(),
+								   lTitle2.str(),
+								   250,-500,500,
+								   "median APV0-APV1")
+						     );
+
+
+
+  }
+
+
+}
 
 void CMHistograms::bookAllFEDHistograms()
 {
@@ -266,6 +342,6 @@ std::string CMHistograms::tkHistoMapName(unsigned int aIndex){
 }
 
 TkHistoMap * CMHistograms::tkHistoMapPointer(unsigned int aIndex){
-  assert(aIndex < 4);
+  assert(aIndex < 6);
   return tkmapCM_[aIndex];
 }

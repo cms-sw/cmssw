@@ -96,9 +96,11 @@ process.load("DPGAnalysis.SiStripTools.apvshotsanalyzer_cfi")
 
 process.load('DQM.SiStripMonitorHardware.siStripCMMonitor_cfi')
 process.siStripCMMonitor.FillWithEventNumber = False
+process.siStripCMMonitor.FedIdVec = 100,200,400
 process.siStripCMMonitor.PrintDebugMessages = 1
 process.siStripCMMonitor.WriteDQMStore = True
 process.siStripCMMonitor.DQMStoreFileName = "DQMStore_CM_run106019.root"
+
 #process.siStripCMMonitor.TimeHistogramConfig.NBins = 100
 #process.siStripCMMonitor.TimeHistogramConfig.Min = 0
 #process.siStripCMMonitor.TimeHistogramConfig.Max = 1
