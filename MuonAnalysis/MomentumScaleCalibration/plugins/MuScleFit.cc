@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/08/07 14:06:03 $
-//  $Revision: 1.52 $
+//  $Date: 2009/08/07 15:57:16 $
+//  $Revision: 1.53 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -98,8 +98,8 @@
 // ---------------------------------------------------------------------------------------------
 
 #include "MuScleFit.h"
-// #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-// #include "MuScleFitUtils.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+//#include "MuScleFitUtils.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -321,9 +321,10 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
   // -------------------------------------------------
   // if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
   // else
+  	  
   if(maxLoopNumber>1)
     readProbabilityDistributionsFromFile();
-
+    
   if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
   
   // Create the root file
@@ -843,7 +844,8 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
       (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=31) ||
       (MuScleFitUtils::ResolFitType==10 && MuScleFitUtils::parResol.size()!=21) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>10) {
+      (MuScleFitUtils::ResolFitType==11 && MuScleFitUtils::parResol.size()!=8) ||
+      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>11) {
     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
     abort();
   }
@@ -864,7 +866,9 @@ void MuScleFit::checkParameters() {
       (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
       (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=10) || // cubic in pt and 6th grade polynomial in |eta|
       (MuScleFitUtils::ScaleFitType==15 && MuScleFitUtils::parScale.size()!=5) || // two different slopes in pt and parabolic in |eta|
-      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>16) {
+      (MuScleFitUtils::ScaleFitType==16 && MuScleFitUtils::parScale.size()!=5) || 
+      (MuScleFitUtils::ScaleFitType==17 && MuScleFitUtils::parScale.size()!=4) || 
+      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>17) {
     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
     abort();
   }

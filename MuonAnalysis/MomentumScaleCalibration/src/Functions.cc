@@ -19,6 +19,8 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 13 ): return ( new scaleFunctionType13<double * > ); break;
   case ( 14 ): return ( new scaleFunctionType14<double * > ); break;
   case ( 15 ): return ( new scaleFunctionType15<double * > ); break;
+  case ( 16 ): return ( new scaleFunctionType16<double * > ); break;
+  case ( 17 ): return ( new scaleFunctionType17<double * > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -42,6 +44,8 @@ scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifi
   case ( 13 ): return ( new scaleFunctionType13<vector<double> > ); break;
   case ( 14 ): return ( new scaleFunctionType14<vector<double> > ); break;
   case ( 15 ): return ( new scaleFunctionType15<vector<double> > ); break;
+  case ( 16 ): return ( new scaleFunctionType16<vector<double> > ); break;
+  case ( 17 ): return ( new scaleFunctionType17<vector<double> > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -73,6 +77,7 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 8 ): return ( new resolutionFunctionType8<double *> ); break;
   case ( 9 ): return ( new resolutionFunctionType9<double *> ); break;
   case ( 10 ): return ( new resolutionFunctionType10<double *> ); break;
+  case ( 11 ): return ( new resolutionFunctionType11<double *> ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }
@@ -91,6 +96,7 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
   case ( 8 ): return ( new resolutionFunctionType8<vector<double> > ); break;
   case ( 9 ): return ( new resolutionFunctionType9<vector<double> > ); break;
   case ( 10 ): return ( new resolutionFunctionType10<vector<double> > ); break;
+  case ( 11 ): return ( new resolutionFunctionType11<vector<double> > ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }
