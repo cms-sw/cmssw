@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.35 2009/07/31 15:42:14 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.36 2009/08/05 13:36:02 chrjones Exp $
 //
 
 // system include files
@@ -72,7 +72,8 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
                             defaultMemberFunctionNames()),
    m_filter(iDesc.filterExpression(),""),
    m_printedNoDataError(false),
-   m_printedErrorThisEvent(false)
+   m_printedErrorThisEvent(false),
+   m_isSelected(false)
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -249,6 +250,9 @@ FWEventItem::select(int iIndex) const
       sel = true;
       FWModelId id(this,iIndex);
       selectionManager()->select(id);
+      //want to make it obvious what type of object was selected
+      // therefore we also select the item
+      const_cast<FWEventItem*>(this)->selectItem();
       changeManager()->changed(id);
    }
 }
@@ -616,7 +620,44 @@ void
 FWEventItem::destroy() const
 {
    goingToBeDestroyed_(this);
+   const_cast<FWEventItem*>(this)->unselectItem();
    delete this;
+}
+
+
+void 
+FWEventItem::selectItem() 
+{
+   if(!m_isSelected) {
+      m_isSelected=true;
+      selectionManager()->selectItem(this);
+      defaultDisplayPropertiesChanged_(this);
+   }
+}
+void 
+FWEventItem::unselectItem()
+{
+   if(m_isSelected) {
+      m_isSelected=false;
+      selectionManager()->unselectItem(this);
+      defaultDisplayPropertiesChanged_(this);
+   }
+}
+void 
+FWEventItem::toggleSelectItem()
+{
+   m_isSelected = !m_isSelected;
+   if(m_isSelected) {
+      selectionManager()->selectItem(this);
+   }else {
+      selectionManager()->unselectItem(this);
+   }
+   defaultDisplayPropertiesChanged_(this);
+}
+bool 
+FWEventItem::itemIsSelected() const
+{
+   return m_isSelected;
 }
 
 //
