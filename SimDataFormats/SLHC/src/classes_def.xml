@@ -43,6 +43,8 @@
 	<class pattern="edm::Wrapper< edm::DetSet<TrackTriggerHit> >" splitLevel="0"/>
 	<class pattern="edm::Wrapper< std::vector<edm::DetSet<TrackTriggerHit> > >" splitLevel="0"/>
 	<class pattern="edm::Wrapper< edm::DetSetVector<TrackTriggerHit> >" splitLevel="0"/>
+    
+    <class pattern="cmsUpgrades::StackedTrackerDetUnit"/>
 
 <!-- ========================================================================== -->
 <!-- LocalStub -->
@@ -69,6 +71,12 @@
 <!-- Tracklet Collections -->
 	 <class pattern="std::vector<cmsUpgrades::Tracklet*>"/>
 	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::Tracklet*>>"/>
+
+<!-- Cluster Types -->
+     <class pattern="cmsUpgrades::Cluster*"/>
+     <class name="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/>
+     
+     <class pattern="edm::Wrapper<*>"/>
 
 <!-- ========================================================================================= -->
 <!-- ========================================================================================= -->

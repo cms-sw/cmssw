@@ -132,6 +132,14 @@ namespace {
 	edm::Wrapper<cmsUpgrades::Tracklet_TTHit_Collection>		T_TTH_CW;
 
 /* ========================================================================== */
+      
+//Cluster types
+      cmsUpgrades::Cluster_PSimHit_Map                          CL_PSH_M;
+      edm::Wrapper<cmsUpgrades::Cluster_PSimHit_Map>            CL_PSH_MW;
+      cmsUpgrades::Cluster_PixelDigi_Map                        CL_PD_M;
+      edm::Wrapper<cmsUpgrades::Cluster_PixelDigi_Map>          CL_PD_MW;
+      cmsUpgrades::Cluster_TTHit_Map                            CL_TTH_M;
+      edm::Wrapper<cmsUpgrades::Cluster_TTHit_Map>              CL_TTH_MW;
 
   }
 }

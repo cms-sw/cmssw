@@ -125,7 +125,17 @@ typedef edm::Ref< edm::DetSetVector< TrackTriggerHit > , TrackTriggerHit >				Re
     typedef edm::RefProd	< Tracklet_TTHit_Collection >								Tracklet_TTHit_RefProd;
     typedef edm::RefVector	< Tracklet_TTHit_Collection , Tracklet_TTHit_ >				Tracklet_TTHit_RefVector;*/
 
+    // Cluster data types
+    typedef std::vector<Ref_PSimHit_> Cluster_PSimHit;
+    typedef std::vector<Ref_PixelDigi_> Cluster_PixelDigi;
+    typedef std::vector<Ref_TTHit_> Cluster_TTHit;
+    
+    typedef std::vector<Cluster_PSimHit> Cluster_PSimHit_Collection;
+    typedef std::vector<Cluster_PixelDigi> Cluster_PixelDigi_Collection;
+    typedef std::vector<Cluster_TTHit> Cluster_TTHit_Collection;
 
-
+    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_PSimHit_Collection> Cluster_PSimHit_Map;
+    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_PixelDigi_Collection> Cluster_PixelDigi_Map;
+    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_TTHit_Collection> Cluster_TTHit_Map;
 }
 #endif
