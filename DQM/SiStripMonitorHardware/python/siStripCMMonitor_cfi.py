@@ -43,6 +43,9 @@ siStripCMMonitor = cms.EDAnalyzer("SiStripCMMonitorPlugin",
   ShotMedianAPV1HistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),
+  ShotChannelsHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
+    ),
   MedianAPV1vsAPV0HistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True)
     ),

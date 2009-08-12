@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.3 2009/07/31 12:45:34 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.4 2009/08/03 14:02:13 amagnan Exp $
 //
 
 #include <sstream>
@@ -56,7 +56,7 @@
 
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
-#define DoShots
+//#define DoShots
 
 #ifdef DoShots
 #include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
@@ -273,6 +273,11 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	    if (shot->apvNumber()%2 == 0) lShotMedian.first = shot->median();
 	    else if (shot->apvNumber()%2 == 1) lShotMedian.second = shot->median();
 	    //shot->nStrips()
+	    //if (printDebug_ > 0) {                                                                          
+	    //std::cout << std::dec << "Fed/Ch/APV " << fedId << "/" <<  iCh << "/" << shot->apvNumber()%2    
+	    //<< " median = " << shot->median() << ", nStrips = " << shot->nStrips() << std::endl;
+	    //}
+	    cmHists_.fillHistograms(fedId,iCh);
 	  }
 	  //isFirst = false;
 	}
@@ -321,10 +326,16 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 // 	isBeingFilled=true;
 //       }
 
-      //std::ostringstream lMode;
-      //lMode << buffer->readoutMode();
+      std::ostringstream lMode;
+      lMode << buffer->readoutMode();
+      if (printDebug_ > 1) {
+	std::cout << "Readout mode: " << lMode << std::endl;
+      }
+
       const sistrip::FEDChannel & lChannel = buffer->channel(iCh);
-      std::pair<uint16_t,uint16_t> medians = std::pair<uint16_t,uint16_t>(lChannel.cmMedian(0),lChannel.cmMedian(1));
+      std::pair<uint16_t,uint16_t> medians = std::pair<uint16_t,uint16_t>(0,0);
+
+      if (lMode.str().find("Zero suppressed") != lMode.str().npos && lMode.str().find("lite") == lMode.str().npos) medians = std::pair<uint16_t,uint16_t>(lChannel.cmMedian(0),lChannel.cmMedian(1));
       
       CMHistograms::CMvalues lVal;
       lVal.IsShot = isShot;
@@ -333,6 +344,12 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       lVal.Medians = std::pair<uint16_t,uint16_t>(medians.first,medians.second);
       lVal.ShotMedians = std::pair<float,float>(lShotMedian.first,lShotMedian.second);
 
+//       if (medians.second-medians.first > 26){
+// 	std::ostringstream info;
+// 	if (medians.second-medians.first > 44) info << " --- Second bump: event " << iEvent.id().event() << ", FED/Channel " << fedId << "/" << iCh << ", delta=" << medians.second-medians.first << std::endl;
+// 	else info << " --- First bump: event " << iEvent.id().event() << ", FED/Channel " << fedId << "/" << iCh << ", delta=" << medians.second-medians.first << std::endl;
+// 	edm::LogVerbatim("SiStripMonitorHardware") << info.str();
+//       }
 
       if (printDebug_ > 1) {
 	if (lChannel.length() > 7) {
@@ -373,6 +390,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     cmHists_.fillHistograms(values,lTime,fedId);
 
     //if (printDebug_ > 0 && isBeingFilled && firstEvent) edm::LogVerbatim("SiStripMonitorHardware") << infoStream.str();
+ 
 
 
   }//loop on FEDs

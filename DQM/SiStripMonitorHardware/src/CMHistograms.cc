@@ -36,6 +36,7 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram("ShotMedianAPV0",iConfig,pDebugStream);
   getConfigForHistogram("ShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("ShotChannels",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1vsAPV0",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0vsTime",iConfig,pDebugStream);
@@ -51,6 +52,11 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
 
 
 }
+
+void CMHistograms::fillHistograms(unsigned int aFedId, unsigned int aChId){
+  fillHistogram(shotChannels_,aChId,aFedId);
+}
+
 
 void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsigned int aFedId)
 {
@@ -176,6 +182,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
 				      "median shot APV1",
 				      100,-50,50,
 				      "median shot APV1");
+      shotChannels_ = book2DHistogram("ShotChannels","ShotChannels",
+				      "Channels with shots",
+				      96,0,96,440,50,490,
+				      "Channel id","FED id");
       medianAPV1minusAPV0minusShotMedianAPV1_ = bookHistogram("MedianAPV1minusAPV0minusShotMedianAPV1","MedianAPV1minusAPV0minusShotMedianAPV1",
 						     "(median APV1 - median APV0)-shot median APV1",
 						     500,-50,50,

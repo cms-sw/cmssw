@@ -48,6 +48,7 @@ public:
 		  std::ostringstream* pDebugStream
 		  );
 
+  void fillHistograms(unsigned int aFedId, unsigned int aChId);
   void fillHistograms(std::vector<CMvalues> aVec, float aTime, unsigned int aFedId);
 
 
@@ -80,12 +81,14 @@ private:
 
   MonitorElement *shotMedianAPV0_;
   MonitorElement *shotMedianAPV1_;
+  MonitorElement *shotChannels_;
   MonitorElement *medianAPV1vsAPV0_[5];
   MonitorElement *medianAPV1minusAPV0_[5];
   MonitorElement *medianAPV1minusAPV0vsTime_[5];
   MonitorElement *medianAPV1minusAPV0minusShotMedianAPV1_;
   MonitorElement *medianAPV0minusAPV1minusShotMedianAPV1_;
 
+  
   std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_[5];
   std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0perFED_[5];
   //std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0vsTimeperFED_[5];
