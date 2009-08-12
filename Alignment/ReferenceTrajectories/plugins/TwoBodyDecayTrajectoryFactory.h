@@ -6,6 +6,9 @@
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayFitter.h"
 
+/**
+   by Edmund Widl, see CMS NOTE-2007/032.
+ */
 
 class TwoBodyDecayTrajectoryFactory : public TrajectoryFactoryBase
 {

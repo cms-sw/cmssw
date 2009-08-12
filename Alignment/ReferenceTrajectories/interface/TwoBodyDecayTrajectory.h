@@ -5,6 +5,10 @@
 #include "Alignment/ReferenceTrajectories/interface/TwoBodyDecayTrajectoryState.h"
 
 
+/**
+   by Edmund Widl, see CMS NOTE-2007/032.
+ */
+
 class TwoBodyDecayTrajectory : public ReferenceTrajectoryBase
 {
 
