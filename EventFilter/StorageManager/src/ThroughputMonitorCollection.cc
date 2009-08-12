@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.4 2009/07/09 15:34:29 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -7,11 +7,12 @@ using namespace stor;
 
 ThroughputMonitorCollection::ThroughputMonitorCollection() :
   MonitorCollection(),
-  _binCount(300)
+  _currentFragmentStoreSize(0),_binCount(300)
 {
   _entriesInFragmentQueue.setNewTimeWindowForRecentResults(_binCount);
   _poppedFragmentSize.setNewTimeWindowForRecentResults(_binCount);
   _fragmentProcessorIdleTime.setNewTimeWindowForRecentResults(_binCount);
+  _entriesInFragmentStore.setNewTimeWindowForRecentResults(_binCount);
   _entriesInStreamQueue.setNewTimeWindowForRecentResults(_binCount);
   _poppedEventSize.setNewTimeWindowForRecentResults(_binCount);
   _diskWriterIdleTime.setNewTimeWindowForRecentResults(_binCount);
@@ -78,10 +79,12 @@ void ThroughputMonitorCollection::do_calculateStatistics()
   if (_dqmEventQueue.get() != 0) {
     _entriesInDQMEventQueue.addSample(_dqmEventQueue->size());
   }
+  _entriesInFragmentStore.addSample(getFragmentStoreSize());
 
   _entriesInFragmentQueue.calculateStatistics();
   _poppedFragmentSize.calculateStatistics();
   _fragmentProcessorIdleTime.calculateStatistics();
+  _entriesInFragmentStore.calculateStatistics();
   _entriesInStreamQueue.calculateStatistics();
   _poppedEventSize.calculateStatistics();
   _diskWriterIdleTime.calculateStatistics();
@@ -97,6 +100,7 @@ void ThroughputMonitorCollection::do_reset()
   _entriesInFragmentQueue.reset();
   _poppedFragmentSize.reset();
   _fragmentProcessorIdleTime.reset();
+  _entriesInFragmentStore.reset();
   _entriesInStreamQueue.reset();
   _poppedEventSize.reset();
   _diskWriterIdleTime.reset();

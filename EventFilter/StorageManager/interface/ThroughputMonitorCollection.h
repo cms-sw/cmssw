@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -19,8 +19,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -58,6 +58,13 @@ namespace stor {
     }
     MonitoredQuantity& getFragmentProcessorIdleMQ() {
       return _fragmentProcessorIdleTime;
+    }
+
+    const MonitoredQuantity& getFragmentStoreEntryCountMQ() const {
+      return _entriesInFragmentStore;
+    }
+    MonitoredQuantity& getFragmentStoreEntryCountMQ() {
+      return _entriesInFragmentStore;
     }
 
     void setStreamQueue(boost::shared_ptr<StreamQueue> streamQueue) {
@@ -127,6 +134,24 @@ namespace stor {
       return _dqmEventProcessorIdleTime;
     }
 
+    /**
+     * Sets the current number of events in the fragment store.
+     */
+    void setFragmentStoreSize(unsigned int size) {
+      // do we really need this lock?
+      boost::mutex::scoped_lock sl(_fragmentStoreSizeMutex);
+      _currentFragmentStoreSize = size;
+    }
+
+    /**
+     * Returns the current number of events in the fragment store.
+     */
+    unsigned int getFragmentStoreSize() {
+      // do we really need this lock?
+      boost::mutex::scoped_lock sl(_fragmentStoreSizeMutex);
+      return _currentFragmentStoreSize;
+    }
+
   private:
 
     //Prevent copying of the ThroughputMonitorCollection
@@ -141,6 +166,7 @@ namespace stor {
     MonitoredQuantity _entriesInFragmentQueue;
     MonitoredQuantity _poppedFragmentSize;
     MonitoredQuantity _fragmentProcessorIdleTime;
+    MonitoredQuantity _entriesInFragmentStore;
 
     MonitoredQuantity _entriesInStreamQueue;
     MonitoredQuantity _poppedEventSize;
@@ -154,6 +180,9 @@ namespace stor {
     boost::shared_ptr<FragmentQueue> _fragmentQueue;
     boost::shared_ptr<StreamQueue> _streamQueue;
     boost::shared_ptr<DQMEventQueue> _dqmEventQueue;
+
+    unsigned int _currentFragmentStoreSize;
+    mutable boost::mutex _fragmentStoreSizeMutex;
 
   };
   
