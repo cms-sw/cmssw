@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.11 2009/05/20 20:42:13 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.12 2009/05/27 15:40:48 chrjones Exp $
 //
 
 // system include files
@@ -304,6 +304,25 @@ FWCollectionSummaryWidget::~FWCollectionSummaryWidget()
 //
 // member functions
 //
+static
+void
+setLabelBackgroundColor(TGLabel* iLabel, bool iIsSelected, bool iBackgroundIsWhite)
+{
+   if(iIsSelected) {
+      if(iBackgroundIsWhite) {
+         iLabel->SetBackgroundColor(0x7777FF);
+      } else {
+         iLabel->SetBackgroundColor(0x0000FF);
+      }
+   } else {
+      if(iBackgroundIsWhite) {
+         iLabel->SetBackgroundColor(0xFFFFFF);
+      } else {
+         iLabel->SetBackgroundColor(0x000000);
+      }
+   }
+}
+
 void
 FWCollectionSummaryWidget::displayChanged()
 {
@@ -312,6 +331,8 @@ FWCollectionSummaryWidget::displayChanged()
    fClient->NeedRedraw(m_colorSelectWidget);
    m_isVisibleCheckBox->setChecked(m_collection->defaultDisplayProperties().isVisible());
    fClient->NeedRedraw(m_isVisibleButton);
+   setLabelBackgroundColor(m_label,m_collection->itemIsSelected(),m_backgroundIsWhite);
+   fClient->NeedRedraw(m_label);
 }
 
 void
@@ -510,12 +531,22 @@ FWCollectionSummaryWidget::requestForErrorInfo(FWEventItem* iItem)
 void
 FWCollectionSummaryWidget::infoClicked()
 {
+   if(!m_collection->itemIsSelected()) {
+      //NOTE: Want to be sure if models are selected then their collection is also selected
+      m_collection->selectionManager()->clearSelection();
+      m_collection->selectItem();
+   }
    requestForInfo(m_collection);
 }
 
 void
 FWCollectionSummaryWidget::stateClicked()
 {
+   if(!m_collection->itemIsSelected()) {
+      //NOTE: Want to be sure if models are selected then their collection is also selected
+      m_collection->selectionManager()->clearSelection();
+      m_collection->selectItem();
+   }
    requestForFilter(m_collection);
 }
 
@@ -566,7 +597,7 @@ FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
    }
    colorTable();
    m_holder->SetBackgroundColor(bc);
-   m_label->SetBackgroundColor(bc);
+   setLabelBackgroundColor(m_label,m_collection->itemIsSelected(),m_backgroundIsWhite);
    m_label->SetTextColor(fg);
    m_isVisibleButton->SetBackgroundColor(bc);
    m_colorSelectWidget->SetBackgroundColor(bc);
