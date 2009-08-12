@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.10 2009/04/07 18:56:04 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.11 2009/04/09 21:19:34 chrjones Exp $
 //
 
 // system include files
@@ -178,19 +178,16 @@ FWSummaryManager::colorsChanged()
 void 
 FWSummaryManager::requestForInfo(FWEventItem* iItem)
 {
-   m_guiManager->updateEDI(iItem);
    m_guiManager->showEDIFrame(kData);
 }
 void 
 FWSummaryManager::requestForFilter(FWEventItem* iItem)
 {
-   m_guiManager->updateEDI(iItem);
    m_guiManager->showEDIFrame(kFilter);
 }
 void 
 FWSummaryManager::requestForError(FWEventItem* iItem)
 {
-   m_guiManager->updateEDI(iItem);
    m_guiManager->showEDIFrame();
 }
 
