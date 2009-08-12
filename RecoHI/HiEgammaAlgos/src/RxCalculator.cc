@@ -1,8 +1,11 @@
 #include "RecoHI/HiEgammaAlgos/interface/RxCalculator.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -14,18 +17,18 @@ using namespace reco;
 #define PI 3.141592653589793238462643383279502884197169399375105820974945
 
 
-RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup)
+RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag hbheLabel, edm::InputTag hfLabel, edm::InputTag hoLabel)
 {
    Handle<HFRecHitCollection> hfhandle;
-   iEvent.getByLabel(InputTag("hfreco"), hfhandle);
+   iEvent.getByLabel(hfLabel, hfhandle);
    fHFRecHits_ = hfhandle.product();
 
    Handle<HORecHitCollection> hohandle;
-   iEvent.getByLabel(InputTag("horeco"), hohandle);
+   iEvent.getByLabel(hoLabel, hohandle);
    fHORecHits_ = hohandle.product();
 
    Handle<HBHERecHitCollection> hehbhandle;
-   iEvent.getByLabel(InputTag("hbhereco"), hehbhandle);
+   iEvent.getByLabel(hbheLabel, hehbhandle);
    fHBHERecHits_ = hehbhandle.product();
 
    ESHandle<CaloGeometry> geometryHandle;

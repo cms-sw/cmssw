@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -23,7 +25,7 @@
 class dRxyCalculator
 {
 public:  
-   dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+   dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
    double getDRxy(const reco::SuperClusterRef cluster, double x, double y);
 
 private:

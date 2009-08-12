@@ -10,10 +10,10 @@
 using namespace edm;
 using namespace reco;
 
-TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup)
+TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
 { 
    // Get reconstructed tracks
-   iEvent.getByLabel("globalPrimTracks", recCollection); // !!
+   iEvent.getByLabel(trackLabel, recCollection); // !!
 } 
 
 double TxyCalculator::getTxy(const reco::SuperClusterRef p, double x, double y)

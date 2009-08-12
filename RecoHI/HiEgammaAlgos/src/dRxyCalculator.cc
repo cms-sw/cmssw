@@ -10,10 +10,10 @@
 using namespace edm;
 using namespace reco;
 
-dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup)
+dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
 {
    // Get reconstructed tracks
-   iEvent.getByLabel("globalPrimTracks", recCollection); // !!
+   iEvent.getByLabel(trackLabel, recCollection); // !!
 
 } 
 

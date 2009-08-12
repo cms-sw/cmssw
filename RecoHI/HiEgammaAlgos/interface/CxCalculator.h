@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -16,7 +19,7 @@ class CxCalculator
 {
   public:
   
-   CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+   CxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag barrelLabel, edm::InputTag endcapLabel) ;
   
    double getBCMax(const reco::SuperClusterRef clus,int i);
    double getCx(const reco::SuperClusterRef clus, double i,double threshold);
@@ -33,6 +36,7 @@ class CxCalculator
    const reco::BasicClusterCollection *fEBclusters_;
    const reco::BasicClusterCollection *fEEclusters_;
    const CaloGeometry                 *geometry_;
+   
 };
 
 #endif

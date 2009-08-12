@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
+
 isoT11 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(1),
@@ -9,6 +12,7 @@ isoT11 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT12 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(1),
@@ -17,6 +21,7 @@ isoT12 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT13 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(1),
@@ -25,6 +30,7 @@ isoT13 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT14 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(1),
@@ -33,6 +39,7 @@ isoT14 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT21 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(2),
@@ -41,6 +48,7 @@ isoT21 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT22 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(2),
@@ -49,6 +57,7 @@ isoT22 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT23 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(2),
@@ -57,6 +66,7 @@ isoT23 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT24 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(2),
@@ -65,6 +75,7 @@ isoT24 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT31 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(3),
@@ -73,6 +84,7 @@ isoT31 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT32 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(3),
@@ -81,6 +93,7 @@ isoT32 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT33 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(3),
@@ -89,6 +102,7 @@ isoT33 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT34 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(3),
@@ -97,6 +111,7 @@ isoT34 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT41 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(4),
@@ -105,6 +120,7 @@ isoT41 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT42 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(4),
@@ -113,6 +129,7 @@ isoT42 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT43 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(4),
@@ -121,6 +138,7 @@ isoT43 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoT44 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Txy"),
     x  = cms.double(4),
@@ -129,6 +147,7 @@ isoT44 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR11 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(1),
@@ -137,6 +156,7 @@ isoDR11 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR12 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(1),
@@ -145,6 +165,7 @@ isoDR12 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR13 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(1),
@@ -153,6 +174,7 @@ isoDR13 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR14 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(1),
@@ -161,6 +183,7 @@ isoDR14 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR21 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(2),
@@ -169,6 +192,7 @@ isoDR21 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR22 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(2),
@@ -177,6 +201,7 @@ isoDR22 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR23 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(2),
@@ -185,6 +210,7 @@ isoDR23 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR24 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(2),
@@ -193,6 +219,7 @@ isoDR24 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR31 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(3),
@@ -201,6 +228,7 @@ isoDR31 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR32 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(3),
@@ -209,6 +237,7 @@ isoDR32 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR33 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(3),
@@ -217,6 +246,7 @@ isoDR33 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR34 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(3),
@@ -225,6 +255,7 @@ isoDR34 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR41 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(4),
@@ -233,6 +264,7 @@ isoDR41 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR42 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(4),
@@ -241,6 +273,7 @@ isoDR42 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR43 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(4),
@@ -249,6 +282,7 @@ isoDR43 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoDR44 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("dRxy"),
     x  = cms.double(4),

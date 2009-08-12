@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoHI.HiEgammaAlgos.HiIsolationCommonParameters_cff import *
+
 isoC1 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(1),
@@ -9,6 +12,7 @@ isoC1 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoC2 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(2),
@@ -17,6 +21,7 @@ isoC2 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoC3 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(3),
@@ -25,6 +30,7 @@ isoC3 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoC4 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(4),
@@ -33,6 +39,7 @@ isoC4 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoC5 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(5),
@@ -41,6 +48,7 @@ isoC5 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCC1 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(1),
@@ -49,6 +57,7 @@ isoCC1 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCC2 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(2),
@@ -57,6 +66,7 @@ isoCC2 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCC3 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(3),
@@ -65,6 +75,7 @@ isoCC3 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCC4 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(4),
@@ -73,6 +84,7 @@ isoCC4 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCC5 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Cx"),
     x  = cms.double(5),
@@ -81,6 +93,7 @@ isoCC5 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoR1 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(1),
@@ -89,6 +102,7 @@ isoR1 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoR2 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(2),
@@ -97,6 +111,7 @@ isoR2 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoR3 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(3),
@@ -105,6 +120,7 @@ isoR3 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoR4 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(4),
@@ -113,6 +129,7 @@ isoR4 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoR5 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("noBackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(5),
@@ -121,6 +138,7 @@ isoR5 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCR1 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(1),
@@ -129,6 +147,7 @@ isoCR1 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCR2 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(2),
@@ -137,6 +156,7 @@ isoCR2 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCR3 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(3),
@@ -145,6 +165,7 @@ isoCR3 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCR4 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(4),
@@ -153,6 +174,7 @@ isoCR4 = cms.EDProducer("HiEgammaIsolationProducer",
 )
 
 isoCR5 = cms.EDProducer("HiEgammaIsolationProducer",
+    isolationInputParameters,
     mode  = cms.string("BackgroundSubtracted"),
     iso  = cms.string("Rx"),
     x  = cms.double(5),

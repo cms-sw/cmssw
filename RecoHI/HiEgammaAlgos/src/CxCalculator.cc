@@ -1,15 +1,16 @@
 // ROOT includes
 #include <Math/VectorUtil.h>
 
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "RecoHI/HiEgammaAlgos/interface/CxCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 
 using namespace edm;
@@ -19,27 +20,22 @@ using namespace ROOT::Math::VectorUtil;
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974945
 
-CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup)
+CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag barrelLabel, edm::InputTag endcapLabel)
 {
+//InputTag("islandBasicClusters:islandBarrelBasicClusters")
+//InputTag("islandBasicClusters:islandEndcapBasicClusters")
    Handle<BasicClusterCollection> pEBclusters;
-   iEvent.getByLabel(InputTag("islandBasicClusters:islandBarrelBasicClusters"), pEBclusters);
+   iEvent.getByLabel(barrelLabel, pEBclusters);
    fEBclusters_ = pEBclusters.product(); 
 
    Handle<BasicClusterCollection> pEEclusters;
-   iEvent.getByLabel(InputTag("islandBasicClusters:islandEndcapBasicClusters"), pEEclusters);
+   iEvent.getByLabel(endcapLabel, pEEclusters);
    fEEclusters_ = pEEclusters.product(); 
 
    ESHandle<CaloGeometry> geometryHandle;
    iSetup.get<CaloGeometryRecord>().get(geometryHandle);
 
-
-
-
    geometry_ = geometryHandle.product();
-
-
-
-
 } 
 
 double CxCalculator::getCx(const reco::SuperClusterRef cluster, double x, double threshold)

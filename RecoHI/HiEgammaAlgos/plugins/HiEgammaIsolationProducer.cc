@@ -60,6 +60,13 @@ class HiEgammaIsolationProducer : public edm::EDProducer {
 
       // ----------member data ---------------------------
       edm::InputTag photons_;
+      edm::InputTag barrelBCLabel_;
+      edm::InputTag endcapBCLabel_;
+      edm::InputTag hfLabel_;
+      edm::InputTag hoLabel_;
+      edm::InputTag hbheLabel_;
+      edm::InputTag trackLabel_;
+      
       std::string   label_;
       enum IsoMode { calcCx, calcRx, calcTxy, calcDRxy, calcErr };
       double x_;
@@ -80,7 +87,13 @@ HiEgammaIsolationProducer::HiEgammaIsolationProducer(const edm::ParameterSet& iC
        iConfig.getParameter<std::string>("iso") == "Rx" ? calcRx :
        iConfig.getParameter<std::string>("iso") == "Txy" ? calcTxy :
        iConfig.getParameter<std::string>("iso") == "dRxy" ? calcDRxy : calcErr ),
-  mode_( iConfig.getParameter<std::string>("mode") == "backgroundSubtracted" ? 1 : 0)
+  mode_( iConfig.getParameter<std::string>("mode") == "backgroundSubtracted" ? 1 : 0),
+  barrelBCLabel_(iConfig.getParameter<edm::InputTag>("barrelBasicCluster")),
+  endcapBCLabel_(iConfig.getParameter<edm::InputTag>("endcapBasicCluster")),
+  hfLabel_(iConfig.getParameter<edm::InputTag>("hfreco")),
+  hoLabel_(iConfig.getParameter<edm::InputTag>("horeco")),
+  hbheLabel_(iConfig.getParameter<edm::InputTag>("hbhereco")),
+  trackLabel_(iConfig.getParameter<edm::InputTag>("track"))
 {
       produces<edm::ValueMap<float> >();
 }
@@ -103,10 +116,10 @@ HiEgammaIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    std::cout << "mode "<<mode_<<std::endl;
    vector<float> floats(recoPhotons->size(), -100);
    
-   CxCalculator   CxC(iEvent,iSetup);
-   RxCalculator   RxC(iEvent,iSetup);
-   TxyCalculator  TxyC(iEvent,iSetup);
-   dRxyCalculator dRxyC(iEvent,iSetup);
+   CxCalculator   CxC(iEvent,iSetup,barrelBCLabel_,endcapBCLabel_);
+   RxCalculator   RxC(iEvent,iSetup,hbheLabel_,hfLabel_,hoLabel_);
+   TxyCalculator  TxyC(iEvent,iSetup,trackLabel_);
+   dRxyCalculator dRxyC(iEvent,iSetup,trackLabel_);
 
    for (size_t i = 0; i < recoPhotons->size(); ++i) {
       if (var_ == calcRx) {
