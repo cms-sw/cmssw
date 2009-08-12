@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2009/06/03 15:01:15 $
- *  $Revision: 1.62 $
+ *  $Date: 2009/06/12 14:59:40 $
+ *  $Revision: 1.63 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.62 2009/06/03 15:01:15 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.63 2009/06/12 14:59:40 slava77 Exp $
 //
 //
 
@@ -1560,11 +1560,17 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	double bVal = lVec.dot(nPlane)/tN;
 	if (fabs(aVal*bVal)< 0.3){
 	  double cVal = - sv.bf.cross(lVec).dot(nPlane)/b0/tN; //1- bHat_n*bHat_tau/tau_n;
-	  double tanDCorr = bVal/2. + (bVal*bVal/2. + cVal/6)*aVal; 
-	  tanDCorr *= aVal;
-	  //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
-	  if (debug_) LogTrace(metname)<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
-	  tanDist *= (1.+tanDCorr);
+	  double aacVal = cVal*aVal*aVal;
+	  if (fabs(aacVal)<1){
+	    double tanDCorr = bVal/2. + (bVal*bVal/2. + cVal/6)*aVal; 
+	    tanDCorr *= aVal;
+	    //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
+	    if (debug_) LogTrace(metname)<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
+	    tanDist *= (1.+tanDCorr);
+	  } else {
+	    if (debug_) LogTrace(metname)<<"AACVal "<< fabs(aacVal)
+					 <<" = "<<aVal<<"**2 * "<<cVal<<" too large:: will not converge"<<std::endl;
+	  }
 	} else {
 	  if (debug_) LogTrace(metname)<<"ABVal "<< fabs(aVal*bVal)
 				       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
