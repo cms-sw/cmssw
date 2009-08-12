@@ -253,6 +253,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 
   //printing cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
   string currDir = bei->pwd();
+//  cout<<"currDir= "<<currDir<<endl;
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -351,12 +352,12 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	}
 	if(prefix=="SUMDIG" && (*iv)=="adc"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = bei->book1D(tag.c_str(), tag.c_str(),256, 0., 256.);
+	  temp = bei->book1D(tag.c_str(), tag.c_str(),128, 0., 256.);
 	  sum_mes.push_back(temp);
 	}
 	if(prefix=="SUMCLU" && (*iv)=="charge"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = bei->book1D(tag.c_str(), tag.c_str(),500, 0., 500.); // To look to get the size automatically	  
+	  temp = bei->book1D(tag.c_str(), tag.c_str(),100, 0., 200.); // To look to get the size automatically	  
 	  sum_mes.push_back(temp);
 	}
       }
@@ -409,6 +410,11 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	    MonitorElement *  me = bei->get(fullpathname);
 
 	    if (me){ 
+	      if(sname.find("_charge")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
+	      if(sname.find("_nclusters_")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
+	      if(sname.find("_size")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
+//cout<<"tell me the sname and me name: "<<sname<<" , "<<me->getName()<<endl;
+	      // fill summary histos:
 	      if (sname.find("_RMS_")!=string::npos && 
 		  sname.find("GainDynamicRange2d")==string::npos && 
 		  sname.find("GainSaturate2d")==string::npos){
@@ -442,7 +448,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		  if(me->getBinContent(cols,rows)<0.) NegFitPixels++;
 		}
 		(*isum)->Fill(ndet, float(NegFitPixels));
-	      }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos || sname.find("ALLMODS_chargeCOMB_")!=string::npos){
+	      }else if (sname.find("ALLMODS_adcCOMB_")!=string::npos || 
+	                (sname.find("ALLMODS_chargeCOMB_")!=string::npos && me->getName().find("Track_")==string::npos)){
 		(*isum)->getTH1F()->Add(me->getTH1F());
 	      }else if (sname.find("_NErrors_")!=string::npos){
 	        string path1 = fullpathname;
@@ -465,9 +472,30 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		  }
 		}
 		if(othererror) (*isum)->Fill(ndet, me->getMean());
-	      }else{
+	      }else if ((sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos && 
+	                me->getName().find("Track_")==string::npos) ||
+			(sname.find("_charge_")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
+	                me->getName().find("_OnTrack_")!=string::npos) ||
+			(sname.find("_charge_")!=string::npos && sname.find("_OffTrack_")!=string::npos && 
+	                me->getName().find("_OffTrack_")!=string::npos) ||
+			(sname.find("_nclusters_")!=string::npos && sname.find("Track_")==string::npos && 
+	                me->getName().find("Track_")==string::npos) ||
+			(sname.find("_nclusters_")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
+	                me->getName().find("_OnTrack_")!=string::npos) ||
+			(sname.find("_nclusters_")!=string::npos && sname.find("_OffTrack_")!=string::npos && 
+	                me->getName().find("_OffTrack_")!=string::npos) ||
+			(sname.find("_size")!=string::npos && sname.find("Track_")==string::npos && 
+	                me->getName().find("Track_")==string::npos) ||
+			(sname.find("_size")!=string::npos && sname.find("_OnTrack_")!=string::npos && 
+	                me->getName().find("_OnTrack_")!=string::npos) ||
+			(sname.find("_size")!=string::npos && sname.find("_OffTrack_")!=string::npos && 
+	                me->getName().find("_OffTrack_")!=string::npos)){
+	        (*isum)->Fill(ndet, me->getMean());
+	      }else if(sname.find("_charge_")==string::npos && sname.find("_nclusters_")==string::npos && sname.find("_size")==string::npos){
 		(*isum)->Fill(ndet, me->getMean());
 	      }
+	      
+	      // set titles:
 	      if(prefix=="SUMOFF"){
 		(*isum)->setAxisTitle(isbarrel?"Ladders":"Blades",1);
 	      }else if(sname.find("ALLMODS_adcCOMB_")!=string::npos){
@@ -675,7 +703,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 		      }
 		    }
 		  }
-		  if(othererror) (*isum)->Fill(ndet, me->getMean());
+		  if(othererror) (*isum)->Fill(ndet-1, me->getMean());
 	        }else (*isum)->Fill(ndet-1, me->getMean());
 	      }
 	      (*isum)->setAxisTitle("FED #",1);
@@ -858,9 +886,9 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 		  // Setting binning
 
 	      if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
-		nbin_subdir=256;
+		nbin_subdir=128;
 	      }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
-		nbin_subdir=500;
+		nbin_subdir=100;
 	      }else if((*igm)->getName().find("Ladder") != string::npos){
 		nbin_i=0; nbin_subdir=4;
 	      }else if((*igm)->getName().find("Layer") != string::npos){
@@ -1068,9 +1096,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	      (*igm)->setAxisTitle(title,2);
 	      nbin_i=0; 
 	      if((*igm)->getName().find("ALLMODS_adcCOMB_")!=string::npos){
-		nbin_subdir=256;
+		nbin_subdir=128;
 	      }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
-		nbin_subdir=500;
+		nbin_subdir=100;
 	      }else if((*igm)->getName().find("Panel_") != string::npos){
 		nbin_subdir=7;
 //	      }else if((*igm)->getName().find("Panel_1") != string::npos){
@@ -1172,7 +1200,8 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
   //  MonitorElement* temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
   //  if (temp_me) mes.push_back(temp_me);
   MonitorElement* temp_me(0);
-  if(me_name.find("ALLMODS_adcCOMB_")!=string::npos || me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,0,nbin);
+  if(me_name.find("ALLMODS_adcCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),128,0,256);
+  else if(me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),100,0,200);
   else temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
   if (temp_me) mes.push_back(temp_me);
 	
