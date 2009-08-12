@@ -80,7 +80,7 @@ namespace edmtest {
 	
 	DQMStore *dqm = &*edm::Service<DQMStore>();
 	dqm->open(outfile, false, "", "Reference");
-// 	remove(outfile.c_str());
+ 	remove(outfile.c_str());
 	
 	std::vector<MonitorElement *> mes = dqm->getAllContents("");
 	for (std::vector<MonitorElement *>::iterator i = mes.begin(), e = mes.end(); i != e; ++i)
