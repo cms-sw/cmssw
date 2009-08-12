@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.1 2009/03/04 14:47:00 fambrogl Exp $
+// $Id: XMLIdealGeometryESProducer.cc,v 1.2 2009/08/12 01:00:28 case Exp $
 //
 //
 
@@ -36,7 +36,18 @@
 #include "CondFormats/GeometryObjects/interface/GeometryFile.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
+
+namespace DDI {
+  class Material;
+  class Solid;
+  class LogicalPart;
+  class Specific;
+}
 
 //
 // class decleration
@@ -54,6 +65,14 @@ private:
   // ----------member data ---------------------------
   //  std::string label_;
   std::string rootDDName_; // this must be the form namespace:name
+    // 2009-07-09 memory patch
+    // for copying and protecting DD Store's after parsing is complete.
+    DDI::Store<DDName, DDI::Material*>::registry_type matStore_;
+    DDI::Store<DDName, DDI::Solid*>::registry_type solidStore_;
+    DDI::Store<DDName, DDI::LogicalPart*>::registry_type lpStore_;
+    DDI::Store<DDName, DDI::Specific*>::registry_type specStore_;
+    DDI::Store<DDName, DDRotationMatrix*>::registry_type rotStore_;    
+
 };
 
 //
@@ -106,7 +125,7 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    // 2009-07-09 memory patch
    parser->clearFiles();
    //std::cout <<"got in produce"<<std::endl;
-   DDName ddName(rootNodeName_);
+   DDName ddName(rootDDName_);
    //std::cout <<"ddName \""<<ddName<<"\""<<std::endl;
    DDLogicalPart rootNode(ddName);
    //std::cout <<"made the DDLogicalPart"<<std::endl;
