@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.138 2009/07/28 17:25:55 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.139 2009/08/12 14:43:08 amraktad Exp $
 //
 
 // system include files
@@ -606,7 +606,7 @@ FWGUIManager::createEDIFrame() {
 void
 FWGUIManager::updateEDI(FWEventItem* iItem) {
    createEDIFrame();
-   m_ediFrame->fillEDIFrame(iItem);
+   //m_ediFrame->fillEDIFrame(iItem);
 }
 
 void
