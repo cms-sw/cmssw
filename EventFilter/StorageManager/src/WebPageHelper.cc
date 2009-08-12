@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.15 2009/07/20 06:33:26 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.16 2009/07/20 13:07:28 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1783,15 +1783,16 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
                                                   XHTMLMaker::Node *parent,
                                                   ThroughputMonitorCollection const& tmc)
 {
-  const int NUMBER_OF_AVERAGES = 16;
+  const int NUMBER_OF_AVERAGES = 17;
   double busyPercentage, dataRate;
 
-  MonitoredQuantity::Stats fqEntryCountMQ, fragSizeMQ, fpIdleMQ;
+  MonitoredQuantity::Stats fqEntryCountMQ, fragSizeMQ, fpIdleMQ, fsEntryCountMQ;
   MonitoredQuantity::Stats sqEntryCountMQ, eventSizeMQ, dwIdleMQ, diskWriteMQ;
   MonitoredQuantity::Stats dqEntryCountMQ, dqmEventSizeMQ, dqmIdleMQ;
   tmc.getFragmentQueueEntryCountMQ().getStats(fqEntryCountMQ);
   tmc.getPoppedFragmentSizeMQ().getStats(fragSizeMQ);
   tmc.getFragmentProcessorIdleMQ().getStats(fpIdleMQ);
+  tmc.getFragmentStoreEntryCountMQ().getStats(fsEntryCountMQ);
   tmc.getStreamQueueEntryCountMQ().getStats(sqEntryCountMQ);
   tmc.getPoppedEventSizeMQ().getStats(eventSizeMQ);
   tmc.getDiskWriterIdleMQ().getStats(dwIdleMQ);
@@ -1802,7 +1803,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   int binCount = tmc.getBinCount();
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "17";
+  colspanAttr[ "colspan" ] = "18";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -1830,6 +1831,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   maker.addText(tableDiv, "Data Rate Popped from Fragment Queue (MB/sec)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Fragment Processor Thread Busy Percentage");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Instantaneous Number of Events in Fragment Store");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Instantaneous Number of Events in Stream Queue");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -1936,6 +1939,11 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
     maker.addText(tableDiv, busyPercentage, 0);
     sums[4] += busyPercentage;
+
+    // number of events in fragment store
+    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+    maker.addText(tableDiv, fsEntryCountMQ.recentBinnedValueSums[idx], 0);
+    sums[16] += fsEntryCountMQ.recentBinnedValueSums[idx];
 
     // number of events in stream queue
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
@@ -2089,6 +2097,10 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
     // number of events in stream queue
     tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
     maker.addText(tableDiv, averages[5], 1);
+
+    // number of events in fragment store
+    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
+    maker.addText(tableDiv, averages[16], 1);
 
     // number of events popped from stream queue
     tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
