@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.11 2009/04/09 21:19:34 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.12 2009/08/12 19:21:49 chrjones Exp $
 //
 
 // system include files
@@ -104,6 +104,7 @@ FWSummaryManager::newItem(FWEventItem* iItem)
    lst->Connect("requestForInfo(FWEventItem*)","FWSummaryManager",this,"requestForInfo(FWEventItem*)");
    lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
    lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
+   lst->Connect("requestForController(FWEventItem*)","FWSummaryManager",this,"requestForController(FWEventItem*)");
 }
 
 void 
@@ -187,6 +188,12 @@ FWSummaryManager::requestForFilter(FWEventItem* iItem)
 }
 void 
 FWSummaryManager::requestForError(FWEventItem* iItem)
+{
+   m_guiManager->showEDIFrame();
+}
+
+void 
+FWSummaryManager::requestForController(FWEventItem* iItem)
 {
    m_guiManager->showEDIFrame();
 }
