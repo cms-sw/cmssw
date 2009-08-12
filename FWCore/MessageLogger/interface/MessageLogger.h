@@ -15,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.31 2008/11/18 02:06:20 wmtan Exp $
+// $Id: MessageLogger.h,v 1.32 2009/03/24 20:14:48 fischler Exp $
 //
 // =================================================
 // Change log
@@ -63,6 +63,8 @@
 //
 // 13 mf  3/23/09   ap.get() used whenever possible suppression, to avoid
 //		    null pointer usage
+//
+// 14 mf  8/11/09   provision for control of standalone threshold and ignores
 //
 // =================================================
 
@@ -420,6 +422,12 @@ public:
   void GroupLogStatistics(std::string const & category);
   bool isMessageProcessingSetUp();
 
+  // Change Log 14
+  // The following two methods have no effect except in stand-alone apps
+  // that do not create a MessageServicePresence:
+  void setStandAloneMessageThreshold    (std::string const & severity);
+  void squelchStandAloneMessageCategory (std::string const & category);
+  
 }  // namespace edm
 
 

@@ -1,14 +1,17 @@
 #ifndef FWCore_MessageService_MessageServicePresence_h
 #define FWCore_MessageService_MessageServicePresence_h
 
+#include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/MessageService/interface/MainThreadMLscribe.h"
 
 #include "boost/thread/thread.hpp"
-#include "FWCore/Utilities/interface/Presence.h"
+#include "boost/shared_ptr.hpp"
 
 
 namespace edm  {
 namespace service {       
 
+class ThreadQueue;
 
 class MessageServicePresence : public Presence
 {
@@ -23,7 +26,9 @@ private:
   void  operator = (MessageServicePresence const &);
 
   // --- data:
-  boost::thread  scribe;
+  boost::shared_ptr<ThreadQueue> m_queue;
+  MainThreadMLscribe m_scribeFrontEnd;
+  boost::thread  m_scribeThread;
 
 };  // MessageServicePresence
 

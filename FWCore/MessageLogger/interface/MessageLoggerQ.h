@@ -1,9 +1,11 @@
 #ifndef FWCore_MessageLogger_MessageLoggerQ_h
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
-#include "FWCore/Utilities/interface/SingleConsumerQ.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
+#include <string>
 #include <map>
+#include <set>
 
 namespace edm
 {
@@ -25,15 +27,15 @@ public:
   enum OpCode      // abbrev's used hereinafter
   { END_THREAD     // END
   , LOG_A_MESSAGE  // LOG
-  , CONFIGURE      // CFG
+  , CONFIGURE      // CFG -- handshaked
   , EXTERN_DEST    // EXT
   , SUMMARIZE      // SUM
   , JOBREPORT      // JOB
   , JOBMODE        // MOD
   , SHUT_UP        // SHT
-  , FLUSH_LOG_Q    // FLS
+  , FLUSH_LOG_Q    // FLS -- handshaked
   , GROUP_STATS    // GRP
-  , FJR_SUMMARY    // JRS
+  , FJR_SUMMARY    // JRS -- handshaked
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -52,12 +54,18 @@ public:
   static  void  MLqGRP(std::string * cat_p);
   static  void  MLqJRS(std::map<std::string, double> * sum_p);
 
-  // ---  obtain a message from the queue:
-  static  void  consume( OpCode & opcode, void * & operand );
-
   // ---  bookkeeping for single-thread mode
   static  void  setMLscribe_ptr(edm::service::AbstractMLscribe * m);
 
+  // ---  helper for scribes
+  static bool handshaked ( const OpCode & op );
+
+  // --- special control of standAlone logging behavior
+  static  void standAloneThreshold(std::string const & severity);
+  static  void squelch(std::string const & category);
+  static  bool ignore ( edm::ELseverityLevel const & severity, 
+  			std::string const & category );
+			
 private:
   // ---  traditional birth/death, but disallowed to users:
   MessageLoggerQ();
@@ -73,16 +81,11 @@ private:
   MessageLoggerQ( MessageLoggerQ const & );
   void  operator = ( MessageLoggerQ const & );
 
-  // --- buffer parameters:
-  static  const int  buf_depth = 500;
-  static  const int  buf_size  = sizeof(OpCode)
-                               + sizeof(void *);
-
   // --- data:
-  static  SingleConsumerQ  buf;
   static  edm::service::AbstractMLscribe * mlscribe_ptr;
-  static  bool singleThread;
-
+  static  edm::ELseverityLevel threshold;
+  static  std::set<std::string> squelchSet;
+  
 };  // MessageLoggerQ
 
 

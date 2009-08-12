@@ -16,6 +16,10 @@
 //		 (in the message drop) to avoid hangs if that thread is not
 //		 around.
 //
+//  8/11/09  mf setStandAloneMessageThreshold() and 
+//		squelchStandAloneMessageCategory()
+//		
+//
 // ------------------------------------------------------------------------
 
 namespace edm {
@@ -78,6 +82,13 @@ edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
   if (lastSlash == std::string::npos) return file;
   if (lastSlash == file.size()-1)     return file;
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
+}
+
+void setStandAloneMessageThreshold(std::string const & severity) {
+  edm::MessageLoggerQ::standAloneThreshold(severity);
+}
+void squelchStandAloneMessageCategory(std::string const & category){
+  edm::MessageLoggerQ::squelch(category);
 }
 
 }  // namespace edm

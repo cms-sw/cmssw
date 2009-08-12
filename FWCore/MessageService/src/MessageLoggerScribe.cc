@@ -169,14 +169,18 @@
 //       Avoiding throw when duplicate destination names are used, to let the
 //	 validation report that and abort instead.
 //
+//  35 - 8/10/09 mf, cdj
+//       Use ThreadQ in place of the singleton MessageLoggerQ to consume
+//
 // ----------------------------------------------------------------------
 
+#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
 #include "FWCore/MessageService/interface/ErrorLog.h"
-#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
+#include "FWCore/MessageService/interface/ThreadQueue.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
@@ -199,7 +203,7 @@ namespace edm {
 namespace service {
 
 
-MessageLoggerScribe::MessageLoggerScribe()
+MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
 : admin_p   ( ELadministrator::instance() )
 , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
 , errorlog_p( new ErrorLog() )
@@ -209,28 +213,11 @@ MessageLoggerScribe::MessageLoggerScribe()
 , jobReportOption( )
 , clean_slate_configuration( true )
 , active( true )
-, singleThread (false)						// changeLog 32
+, singleThread (queue.get() == 0)				// changeLog 36
 , done (false)							// changeLog 32
 , purge_mode (false)						// changeLog 32
 , count (false)							// changeLog 32
-{
-  admin_p->setContextSupplier(msg_context);
-}
-
-MessageLoggerScribe::MessageLoggerScribe(bool singleThreadMode)	// changeLog 33
-: admin_p   ( ELadministrator::instance() )
-, early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
-, errorlog_p( new ErrorLog() )
-, file_ps   ( )
-, job_pset_p( )
-, extern_dests( )
-, jobReportOption( )
-, clean_slate_configuration( true )
-, active( true )
-, singleThread (singleThreadMode)				
-, done (false)							
-, purge_mode (false)						
-, count (false)							
+, m_queue(queue)						// changeLog 36
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -255,7 +242,8 @@ void
 //      << (int)MessageDrop::instance()->messageLoggerScribeIsRunning << "\n";
 
   do  {
-    MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+    m_queue->consume(opcode, operand);  // grab next work item from Q 
+    					// changeLog 36
     runCommand (opcode, operand);
   } while(! done);
 
@@ -499,7 +487,7 @@ void
     if (!singleThread) {
       MessageLoggerQ::OpCode  opcode;
       void *                  operand;
-      MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+      m_queue->consume(opcode, operand);  // grab next work item from Q
       assert (opcode == MessageLoggerQ::LOG_A_MESSAGE);
       ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
       log (errorobj_p);        

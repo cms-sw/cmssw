@@ -12,6 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "boost/shared_ptr.hpp"
+
 
 namespace edm {
 namespace service {
@@ -19,7 +21,7 @@ namespace service {
 
 SingleThreadMSPresence::SingleThreadMSPresence()
   : Presence()
-  , m(true)
+  , m(boost::shared_ptr<ThreadQueue>())
 {
   //std::cout << "SingleThreadMSPresence ctor\n";
   MessageLoggerQ::setMLscribe_ptr(&m);
