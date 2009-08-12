@@ -111,8 +111,6 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-
-
 process.p = cms.Path( #process.profilerStart*
                       process.siStripDigis
                       *process.siStripZeroSuppression
@@ -124,14 +122,13 @@ process.p = cms.Path( #process.profilerStart*
 process.saveDigis = cms.OutputModule( 
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring(
-        'drop *',
+        'drop *_*_*_HLT',
+        'drop *_*_*Raw_DQMCMMonitor',
+        'drop *_*_ScopeMode_DQMCMMonitor',
         'keep *_siStripDigis_ZeroSuppressed_*',
-        'keep *_*_*_TEST',
         'keep *_source_*_*'
         ),
     fileName = cms.untracked.string('Digi_run106019.root')
     )
 
-
-
-#process.pout = cms.EndPath( process.saveDigis )
+process.pout = cms.EndPath( process.saveDigis )
