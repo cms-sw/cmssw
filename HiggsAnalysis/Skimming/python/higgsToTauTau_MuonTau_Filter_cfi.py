@@ -4,7 +4,7 @@ higgsToTauTauMuonTauFilter = cms.EDFilter("HiggsToTauTauMuonTauSkim",
     # Collection to be accessed
     DebugHiggsToTauTauMuonTauSkim = cms.bool(False),
     HLTResultsCollection = cms.InputTag("TriggerResults::HLT8E29"),
-    HLTEventCollection = cms.InputTag("hltTriggerSummaryAOD"),
+    HLTEventCollection = cms.InputTag("hltTriggerSummaryAOD::HLT8E29"),
     #HLTFilterCollections = cms.vstring('hltSingleMuIsoL3IsoFiltered15',
     #                                   'hltSingleMuNoIsoL3PreFiltered11'),
     HLTFilterCollections = cms.vstring('hltSingleMu9L3Filtered9'),

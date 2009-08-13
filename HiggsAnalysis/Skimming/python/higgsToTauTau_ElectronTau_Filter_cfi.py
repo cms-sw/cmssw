@@ -3,9 +3,8 @@ import FWCore.ParameterSet.Config as cms
 higgsToTauTauElectronTauFilter = cms.EDFilter("HiggsToTauTauElectronTauSkim",
     # Collection to be accessed
     DebugHiggsToTauTauElectronTauSkim = cms.bool(False),
-    #HLTResultsCollection = cms.InputTag("TriggerResults::HLT"),
     HLTResultsCollection = cms.InputTag("TriggerResults::HLT8E29"),
-    HLTEventCollection = cms.InputTag("hltTriggerSummaryAOD"),
+    HLTEventCollection = cms.InputTag("hltTriggerSummaryAOD::HLT8E29"),
     #HLTFilterCollections = cms.vstring('hltL1IsoSingleElectronTrackIsolFilter'),
     HLTFilterCollections = cms.vstring('hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter'),
     #HLTElectronBits =  cms.vstring('HLT_IsoEle15_L1I'),
