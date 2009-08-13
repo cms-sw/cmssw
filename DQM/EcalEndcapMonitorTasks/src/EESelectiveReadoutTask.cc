@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/08/05 11:49:24 $
- * $Revision: 1.32 $
+ * $Date: 2009/08/10 17:52:35 $
+ * $Revision: 1.33 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -63,6 +63,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EEDccEventSizeMap_ = 0;
 
   EETowerSize_[0] = 0;
+  EETTFMismatch_[0] = 0;
   EEReadoutUnitForcedBitMap_[0] = 0;
   EEFullReadoutSRFlagMap_[0] = 0;
   EEHighInterestTriggerTowerFlagMap_[0] = 0;
@@ -74,6 +75,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EELowInterestZsFIR_[0] = 0;
 
   EETowerSize_[1] = 0;
+  EETTFMismatch_[1] = 0;
   EEReadoutUnitForcedBitMap_[1] = 0;
   EEFullReadoutSRFlagMap_[1] = 0;
   EEHighInterestTriggerTowerFlagMap_[1] = 0;
@@ -129,7 +131,17 @@ void EESelectiveReadoutTask::setup(void) {
     EETowerSize_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
     EETowerSize_[1]->setAxisTitle("jx", 1);
     EETowerSize_[1]->setAxisTitle("jy", 2);
-    
+
+    sprintf(histo, "EESRT TT flag mismatch EE -");
+    EETTFMismatch_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EETTFMismatch_[0]->setAxisTitle("jx", 1);
+    EETTFMismatch_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EESRT TT flag mismatch EE +");
+    EETTFMismatch_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EETTFMismatch_[1]->setAxisTitle("jx", 1);
+    EETTFMismatch_[1]->setAxisTitle("jy", 2);
+
     sprintf(histo, "EESRT DCC event size");
     EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
     EEDccEventSize_->setAxisTitle("event size (kB)", 2);
@@ -248,6 +260,12 @@ void EESelectiveReadoutTask::cleanup(void){
 
     if ( EETowerSize_[1] ) dqmStore_->removeElement( EETowerSize_[1]->getName() );
     EETowerSize_[1] = 0;
+
+    if ( EETTFMismatch_[0] ) dqmStore_->removeElement( EETTFMismatch_[0]->getName() );
+    EETTFMismatch_[0] = 0;
+
+    if ( EETTFMismatch_[1] ) dqmStore_->removeElement( EETTFMismatch_[1]->getName() );
+    EETTFMismatch_[1] = 0;
     
     if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
     EEDccEventSize_ = 0;
@@ -350,6 +368,9 @@ void EESelectiveReadoutTask::reset(void) {
 
   if ( EETowerSize_[0] ) EETowerSize_[0]->Reset();
   if ( EETowerSize_[1] ) EETowerSize_[1]->Reset();
+
+  if ( EETTFMismatch_[0] ) EETTFMismatch_[0]->Reset();
+  if ( EETTFMismatch_[1] ) EETTFMismatch_[1]->Reset();
   
   if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
 
@@ -495,6 +516,17 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
   }
 
+  int TTFlags[100][100][2];
+  int TTSize[100][100][2];
+  for(int iz = 0; iz < 2; iz++) {
+    for(int ietindex = 0; ietindex < 100; ietindex++ ) {
+      for(int iptindex = 0; iptindex < 100; iptindex++ ) {
+        TTFlags[iptindex][ietindex][iz] = -1;
+        TTSize[iptindex][ietindex][iz] = 0;
+      }
+    }
+  }
+
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
 
@@ -507,7 +539,9 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       int ismt = Numbers::iSM( TPdigi->id() );
       
       vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
-      
+
+      int ncry = crystals.size();
+
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
         
         EEDetId id = crystals[i];
@@ -525,7 +559,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[ix-1][iy-1][iz]++;
         
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
-        
+
+        TTFlags[ix-1][iy-1][iz] = TPdigi->ttFlag() & 0x3;
+        TTSize[ix-1][iy-1][iz] = ncry;
+
       }
 
     }
@@ -642,6 +679,23 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       }
     }
 
+    for(int iz = 0; iz < 2; iz++) {
+      for(int ix = 0; ix < 100; ix++ ) {
+        for(int iy = 0; iy < 100; iy++ ) {
+
+          float xix = ix;
+          if ( iz == 0 ) xix = 99 - xix;
+          xix += 0.5;
+
+          float xiy = iy+0.5;
+          
+          if( (TTFlags[ix][iy][iz]==1 || TTFlags[ix][iy][iz]==3) && nCryTower[ix][iy][iz] != TTSize[ix][iy][iz] )
+            EETTFMismatch_[iz]->Fill(xix, xiy);
+
+        }
+      }
+    }
+    
   } else {
     LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
   }

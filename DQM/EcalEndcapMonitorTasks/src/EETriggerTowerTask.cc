@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/02/27 19:14:18 $
- * $Revision: 1.48 $
+ * $Date: 2009/08/05 10:54:50 $
+ * $Revision: 1.49 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -42,16 +42,20 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  meEtSpectrumReal_[0] = 0;
+  meEtSpectrumReal_[1] = 0;
+  meEtSpectrumEmul_[0] = 0;
+  meEtSpectrumEmul_[1] = 0;
+  meEtSpectrumEmulMax_[0] = 0;
+  meEtSpectrumEmulMax_[1] = 0;
+
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
-  reserveArray(meFlagsReal_);
   reserveArray(meEtMapEmul_);
   reserveArray(meVetoEmul_);
-  reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
-  reserveArray(meFlagEmulError_);
 
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
@@ -100,18 +104,21 @@ void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 
 void EETriggerTowerTask::reset(void) {
 
+  for (int iside = 0; iside < 2; iside++) {
+    if ( meEtSpectrumReal_[iside] ) meEtSpectrumReal_[iside]->Reset();
+    if ( meEtSpectrumEmul_[iside] ) meEtSpectrumEmul_[iside]->Reset();
+    if ( meEtSpectrumEmulMax_[iside] ) meEtSpectrumEmulMax_[iside]->Reset();
+  }
+
   for (int i = 0; i < 18; i++) {
 
     if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
     if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
-    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
     if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
     if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
-    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
     if ( meEmulError_[i] ) meEmulError_[i]->Reset();
     if ( meEmulMatch_[i] ) meEmulMatch_[i]->Reset();
     if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
-    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
 
   }
 
@@ -139,36 +146,47 @@ void EETriggerTowerTask::setup( const char* nameext,
 
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
-  array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
     meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
-    meFlags= &meFlagsEmul_;
   }
 
   dqmStore_->setCurrentFolder(folder);
 
-  static const unsigned namesize = 200;
+  char histo[200];
 
-  char histo[namesize];
-  sprintf(histo, "EETTT Et map %s", nameext);
-  string etMapName = histo;
-  sprintf(histo, "EETTT FineGrainVeto %s", nameext);
-  string fineGrainVetoName = histo;
-  sprintf(histo, "EETTT Flags %s", nameext);
-  string flagsName = histo;
-  string emulErrorName = "EETTT EmulError";
-  string emulMatchName = "EETTT EmulMatch";
-  string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
-  string emulFlagErrorName = "EETTT EmulFlagError";
+  if(!emulated) {
+    sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
+    meEtSpectrumReal_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumReal_[0]->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
+    meEtSpectrumReal_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumReal_[1]->setAxisTitle("energy (ADC)", 1);
+
+  } else {
+    sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
+    meEtSpectrumEmul_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmul_[0]->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
+    meEtSpectrumEmul_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmul_[1]->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EETTT Et spectrum %s max EE -", nameext);
+    meEtSpectrumEmulMax_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmulMax_[0]->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EETTT Et spectrum %s max EE +", nameext);
+    meEtSpectrumEmulMax_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmulMax_[1]->setAxisTitle("energy (ADC)", 1);
+  }
 
   for (int i = 0; i < 18; i++) {
 
-    string etMapNameSM = etMapName;
-    etMapNameSM += " " + Numbers::sEE(i+1);
-
-    (*meEtMap)[i] = dqmStore_->bookProfile2D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    sprintf(histo, "EETTT Et map %s %s", nameext, Numbers::sEE(i+1).c_str());
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(histo, histo,
                                              50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                              50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                              256, 0, 256.);
@@ -176,46 +194,18 @@ void EETriggerTowerTask::setup( const char* nameext,
     (*meEtMap)[i]->setAxisTitle("jy", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
 
-    string fineGrainVetoNameSM = fineGrainVetoName;
-    fineGrainVetoNameSM += " " + Numbers::sEE(i+1);
-
-    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
-                               fineGrainVetoNameSM.c_str(),
-                               50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
-                               50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-                               2, 0., 2.);
-    (*meVeto)[i]->setAxisTitle("jx", 1);
-    (*meVeto)[i]->setAxisTitle("jy", 2);
-    dqmStore_->tag((*meVeto)[i], i+1);
-
-    string flagsNameSM = flagsName;
-    flagsNameSM += " " + Numbers::sEE(i+1);
-
-    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
-                                50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
-                                50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-                                8, 0., 8.);
-    (*meFlags)[i]->setAxisTitle("jx", 1);
-    (*meFlags)[i]->setAxisTitle("jy", 2);
-    dqmStore_->tag((*meFlags)[i], i+1);
-
     if(!emulated) {
 
-      string emulErrorNameSM = emulErrorName;
-      emulErrorNameSM += " " + Numbers::sEE(i+1);
-
-      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
-                                    emulErrorNameSM.c_str(),
-                                    50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
-                                    50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
+      sprintf(histo, "EETTT EmulError %s", Numbers::sEE(i+1).c_str());
+      meEmulError_[i] = dqmStore_->book2D(histo, histo,
+                                          50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                          50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
       meEmulError_[i]->setAxisTitle("jx", 1);
       meEmulError_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(meEmulError_[i], i+1);
 
-      string emulMatchNameSM = emulMatchName;
-      emulMatchNameSM += " " + Numbers::sEE(i+1);
-
-      meEmulMatch_[i] = dqmStore_->book3D(emulMatchNameSM.c_str(), emulMatchNameSM.c_str(),
+      sprintf(histo, "EETTT EmulMatch %s", Numbers::sEE(i+1).c_str());
+      meEmulMatch_[i] = dqmStore_->book3D(histo, histo,
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           6, 0., 6.);
@@ -223,29 +213,13 @@ void EETriggerTowerTask::setup( const char* nameext,
       meEmulMatch_[i]->setAxisTitle("jy'", 2);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
-      string emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
-      emulFineGrainVetoErrorNameSM += " " + Numbers::sEE(i+1);
-
-      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
-                                          emulFineGrainVetoErrorNameSM.c_str(),
-                                          50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
-                                          50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-                                          8, 0., 8.);
+      sprintf(histo, "EETTT EmulFineGrainVetoError %s", Numbers::sEE(i+1).c_str());
+      meVetoEmulError_[i] = dqmStore_->book2D(histo, histo,
+                                              50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                              50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meVetoEmulError_[i]->setAxisTitle("jx", 1);
       meVetoEmulError_[i]->setAxisTitle("jy", 2);
       dqmStore_->tag(meVetoEmulError_[i], i+1);
-
-      string emulFlagErrorNameSM = emulFlagErrorName;
-      emulFlagErrorNameSM += " " + Numbers::sEE(i+1);
-
-      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
-                                          emulFlagErrorNameSM.c_str(),
-                                          50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
-                                          50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
-                                          8, 0., 8.);
-      meFlagEmulError_[i]->setAxisTitle("jx", 1);
-      meFlagEmulError_[i]->setAxisTitle("jy", 2);
-      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -292,8 +266,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     processDigis( e,
                   realDigis,
                   meEtMapReal_,
-                  meVetoReal_,
-                  meFlagsReal_);
+                  meVetoReal_);
 
   } else {
     LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
@@ -307,7 +280,6 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   emulDigis,
                   meEtMapEmul_,
                   meVetoEmul_,
-                  meFlagsEmul_,
                   realDigis);
 
   } else {
@@ -320,10 +292,10 @@ void
 EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  array1& meFlags,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
-  map<int, int> crystalsInTower;
+  int readoutCrystalsInTower[41];
+  for(int i=0; i<41; i++) readoutCrystalsInTower[i] = 0;
 
   Handle<EEDigiCollection> crystalDigis;
 
@@ -338,10 +310,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       int ism = Numbers::iSM( id );
       int itt = Numbers::iTT( ism, EcalEndcap, ix, iy );
 
-      map<int, int>::const_iterator itrTower = crystalsInTower.find(itt);
-
-      if( itrTower==crystalsInTower.end() ) crystalsInTower.insert(std::make_pair(itt,1));
-      else crystalsInTower[itt]++;
+      readoutCrystalsInTower[itt-1]++;
 
     }
 
@@ -349,68 +318,61 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
   }
 
+  bool validCompDigis = false;
+  if( compDigis.isValid() ) validCompDigis = true;
+
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalEndcap ) continue;
 
     int ismt = Numbers::iSM( tpdigiItr->id() );
-
     int itt = Numbers::iTT( tpdigiItr->id() );
 
-    vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+    float xvalEt = tpdigiItr->compressedEt();
+    float xvalVeto = 0.5 + tpdigiItr->fineGrain();
 
-    for ( unsigned int i=0; i<crystals.size(); i++ ) {
+    bool good = true;
+    bool goodVeto = true;
+    bool matchSample[6];
+    for(int j=0; j<6; j++) matchSample[j] = false;
+    bool matchedAny=false;
 
-    EEDetId id = crystals[i];
+    int compDigiEt = -1;
 
-    int ix = id.ix();
-    int iy = id.iy();
+    if( validCompDigis ) {
 
-    if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
-
-    float xix = ix-0.5;
-    float xiy = iy-0.5;
-
-//    LogDebug("EETriggerTowerTask") << "det id = "
-//                                   << tpdigiItr->id().rawId() << " "
-//                                   << "sm, tt, ieta, iphi "
-//                                   << ismt << " " << itt << " "
-//                                   << iet << " " << ipt;
-
-    // count the number of readout crystals / TT
-    // do do the match emul-real only if ncry/TT=25
-    int nReadoutCrystals=crystalsInTower[itt];
-
-    float xval;
-
-    xval = tpdigiItr->compressedEt();
-    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xix, xiy, xval);
-
-    xval = 0.5 + tpdigiItr->fineGrain();
-    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xix, xiy, xval);
-
-    xval = 0.5 + tpdigiItr->ttFlag();
-    if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xix, xiy, xval);
-
-    if( compDigis.isValid() ) {
-      bool good = true;
-      bool goodFlag = true;
-      bool goodVeto = true;
+      if ( ismt >= 1 && ismt <= 9 ) {
+        if ( meEtSpectrumEmul_[0] ) meEtSpectrumEmul_[0]->Fill( xvalEt );
+      } else {
+        if ( meEtSpectrumEmul_[1] ) meEtSpectrumEmul_[1]->Fill( xvalEt );
+      }
+      float maxEt = 0;
+      for(int j=0; j<5; j++) {
+        float EtTP = (*tpdigiItr)[j].compressedEt();
+        if ( EtTP > maxEt ) maxEt = EtTP;
+      }
+      if ( ismt >= 1 && ismt <= 9 ) {
+        if ( meEtSpectrumEmulMax_[0] ) meEtSpectrumEmulMax_[0]->Fill( maxEt );
+      } else {
+        if ( meEtSpectrumEmulMax_[1] ) meEtSpectrumEmulMax_[1]->Fill( maxEt );
+      }
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if( compDigiItr != compDigis->end() ) {
-//        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
+        //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
+        compDigiEt = compDigiItr->compressedEt();
+        if ( ismt >= 1 && ismt <= 9 ) {
+          if ( meEtSpectrumReal_[0] ) meEtSpectrumReal_[0]->Fill( compDigiEt );
+        } else {
+          if ( meEtSpectrumReal_[1] ) meEtSpectrumReal_[1]->Fill( compDigiEt );
+        }
         if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
-//          LogDebug("EETriggerTowerTask") << "but it is different...";
+          //          LogDebug("EETriggerTowerTask") << "but it is different...";
           good = false;
         }
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
-        bool matchSample[6];
-        for(int j=0; j<6; j++) matchSample[j] = false;
-        bool matchedAny=false;
-
         for(int j=0; j<5; j++) {
           if((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
             matchSample[j+1]=true;
@@ -418,41 +380,55 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           }
         }
         if(!matchedAny) matchSample[0]=true;
+        if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+          //          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
+          goodVeto = false;
+        }
+      } else {
+        good = false;
+        goodVeto = false;
+      }
+    }
 
-        if(nReadoutCrystals==25 && compDigiItr->compressedEt()>0) {
+    vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+    
+    int crystalsInTower = crystals.size();
+    
+    for ( unsigned int i=0; i<crystals.size(); i++ ) {
+        
+      EEDetId id = crystals[i];
+        
+      int ix = id.ix();
+      int iy = id.iy();
+      
+      if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+      
+      float xix = ix-0.5;
+      float xiy = iy-0.5;
+      
+      if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xix, xiy, xvalEt);
+
+      if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xix, xiy, xvalVeto);
+
+      if ( validCompDigis ) { 
+
+        if(!good ) {
+          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+        if(!goodVeto) {
+          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+
+        if(readoutCrystalsInTower[itt-1]==crystalsInTower && compDigiEt > 0) {
           for(int j=0; j<6; j++) {
             if(matchSample[j]) meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
           }
         }
 
-        if( tpdigiItr->ttFlag() != compDigiItr->ttFlag() ) {
-//          LogDebug("EETriggerTowerTask") << "but flag is different...";
-          goodFlag = false;
-        }
-        if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
-//          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
-          goodVeto = false;
-        }
       }
-      else {
-        good = false;
-        goodFlag = false;
-        goodVeto = false;
-//        LogDebug("EETriggerTowerTask") << "could not find corresponding digi...";
-      }
-      if(!good ) {
-        if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
-      }
-      if(!goodFlag) {
-        float zval = tpdigiItr->ttFlag();
-        if ( meFlagEmulError_[ismt-1] ) meFlagEmulError_[ismt-1]->Fill(xix, xiy, zval);
-      }
-      if(!goodVeto) {
-        float zval = tpdigiItr->fineGrain();
-        if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy, zval);
-      }
-    }
-    }
-  }
+
+    } // loop over crustalsInTower
+  } // loop over TPs
+  
 }
 

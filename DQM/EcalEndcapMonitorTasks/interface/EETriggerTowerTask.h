@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/02/08 23:59:42 $
- * $Revision: 1.18 $
+ * $Date: 2009/02/27 12:31:33 $
+ * $Revision: 1.19 $
  * \author C. Bernet
  *
 */
@@ -80,7 +80,6 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
                      const edm::Handle<EcalTrigPrimDigiCollection>& digis, 
 		     array1& meEtMap,
 		     array1& meVeto,
-		     array1& meFlags,
 		     const edm::Handle<EcalTrigPrimDigiCollection>& compDigis
 		     = edm::Handle<EcalTrigPrimDigiCollection>());
 
@@ -100,25 +99,18 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   /// fine grain veto vs ix vs iy, for each SM 
   array1 meVetoReal_;
 
-  /// flag vs ix vs iy, for each SM   
-  array1 meFlagsReal_;
-  
   /// Emulated Et vs ix vs iy, for each SM 
   array1 meEtMapEmul_;
 
   /// Emulated fine grain veto vs ix vs iy, for each SM 
   array1 meVetoEmul_;
 
-  /// Emulated flag vs ix vs iy, for each SM   
-  array1 meFlagsEmul_;
-  
   /// error flag vs ix vs iy, for each SM
   /// the error flag is set to true in case of a discrepancy between 
   /// the emulator and the real data
   array1 meEmulError_;
   array1 meEmulMatch_;
   array1 meVetoEmulError_;
-  array1 meFlagEmulError_;
 
   /// init flag
   bool init_;
@@ -146,6 +138,11 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
+
+  /// ET spectrums for the whole EE+/-
+  MonitorElement* meEtSpectrumReal_[2];
+  MonitorElement* meEtSpectrumEmul_[2];
+  MonitorElement* meEtSpectrumEmulMax_[2];
 
 };
 

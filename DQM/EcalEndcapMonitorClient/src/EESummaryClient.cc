@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/03 23:44:22 $
- * $Revision: 1.175 $
+ * $Date: 2009/08/10 15:50:02 $
+ * $Revision: 1.176 $
  * \author G. Della Ricca
  *
 */
@@ -175,12 +175,12 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meTiming_[1]         = 0;
   meTriggerTowerEt_[0]        = 0;
   meTriggerTowerEt_[1]        = 0;
-  meTriggerTowerEtSpectrum_[0] = 0;
-  meTriggerTowerEtSpectrum_[1] = 0;
   meTriggerTowerEmulError_[0] = 0;
   meTriggerTowerEmulError_[1] = 0;
   meTriggerTowerTiming_[0] = 0;
   meTriggerTowerTiming_[1] = 0;
+  meTriggerTowerNonSingleTiming_[0] = 0;
+  meTriggerTowerNonSingleTiming_[1] = 0;
 
   // summary errors
   meIntegrityErr_       = 0;
@@ -1054,16 +1054,6 @@ void EESummaryClient::setup(void) {
   meTriggerTowerEt_[1]->setAxisTitle("jx", 1);
   meTriggerTowerEt_[1]->setAxisTitle("jy", 2);
 
-  if( meTriggerTowerEtSpectrum_[0] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[0]->getName() );
-  sprintf(histo, "EETTT EE - Et trigger tower spectrum");
-  meTriggerTowerEtSpectrum_[0] = dqmStore_->book1D(histo, histo, 256, 1., 256.);
-  meTriggerTowerEtSpectrum_[0]->setAxisTitle("transverse energy (GeV)", 1);
-
-  if( meTriggerTowerEtSpectrum_[1] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[1]->getName() );
-  sprintf(histo, "EETTT EE + Et trigger tower spectrum");
-  meTriggerTowerEtSpectrum_[1] = dqmStore_->book1D(histo, histo, 256, 1., 256.);
-  meTriggerTowerEtSpectrum_[1]->setAxisTitle("transverse energy (GeV)", 1);
-
   if( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
   meTriggerTowerEmulError_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
@@ -1087,6 +1077,20 @@ void EESummaryClient::setup(void) {
   meTriggerTowerTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerTiming_[1]->setAxisTitle("jx", 1);
   meTriggerTowerTiming_[1]->setAxisTitle("jy", 2);
+
+  if( meTriggerTowerNonSingleTiming_[0] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[0]->getName() );
+  sprintf(histo, "EETTT EE - Trigger Primitives Non Single Timing summary");
+  meTriggerTowerNonSingleTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("jx", 1);
+  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("fraction", 3);
+
+  if( meTriggerTowerNonSingleTiming_[1] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[1]->getName() );
+  sprintf(histo, "EETTT EE + Trigger Primitives Non Single Timing summary");
+  meTriggerTowerNonSingleTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("jx", 1);
+  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("fraction", 3);
 
   if( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
@@ -1311,12 +1315,6 @@ void EESummaryClient::cleanup(void) {
   if ( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
   meTriggerTowerEt_[1] = 0;
 
-  if ( meTriggerTowerEtSpectrum_[0] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[0]->getName() );
-  meTriggerTowerEtSpectrum_[0] = 0;
-
-  if ( meTriggerTowerEtSpectrum_[1] ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_[1]->getName() );
-  meTriggerTowerEtSpectrum_[1] = 0;
-
   if ( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   meTriggerTowerEmulError_[0] = 0;
 
@@ -1328,6 +1326,12 @@ void EESummaryClient::cleanup(void) {
 
   if ( meTriggerTowerTiming_[1] ) dqmStore_->removeElement( meTriggerTowerTiming_[1]->getName() );
   meTriggerTowerTiming_[1] = 0;
+
+  if ( meTriggerTowerNonSingleTiming_[0] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[0]->getName() );
+  meTriggerTowerNonSingleTiming_[0] = 0;
+
+  if ( meTriggerTowerNonSingleTiming_[1] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[1]->getName() );
+  meTriggerTowerNonSingleTiming_[1] = 0;
 
   if ( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
@@ -1439,6 +1443,8 @@ void EESummaryClient::analyze(void) {
       if ( meTriggerTowerEmulError_[1] ) meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
       if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setBinContent( ix, iy, -1 );
       if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setBinContent( ix, iy, -1 );
+      if ( meTriggerTowerNonSingleTiming_[0] ) meTriggerTowerNonSingleTiming_[0]->setBinContent( ix, iy, -1 );
+      if ( meTriggerTowerNonSingleTiming_[1] ) meTriggerTowerNonSingleTiming_[1]->setBinContent( ix, iy, -1 );
     }
   }
 
@@ -1540,12 +1546,12 @@ void EESummaryClient::analyze(void) {
   if ( meTiming_[1] ) meTiming_[1]->setEntries( 0 );
   if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setEntries( 0 );
   if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setEntries( 0 );
-  if ( meTriggerTowerEtSpectrum_[0] ) meTriggerTowerEtSpectrum_[0]->Reset();
-  if ( meTriggerTowerEtSpectrum_[1] ) meTriggerTowerEtSpectrum_[1]->Reset();
   if ( meTriggerTowerEmulError_[0] ) meTriggerTowerEmulError_[0]->setEntries( 0 );
   if ( meTriggerTowerEmulError_[1] ) meTriggerTowerEmulError_[1]->setEntries( 0 );
   if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setEntries( 0 );
   if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setEntries( 0 );
+  if ( meTriggerTowerNonSingleTiming_[0] ) meTriggerTowerNonSingleTiming_[0]->setEntries( 0 );
+  if ( meTriggerTowerNonSingleTiming_[1] ) meTriggerTowerNonSingleTiming_[1]->setEntries( 0 );
 
   if ( meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
   if ( meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries( 0 );
@@ -1921,11 +1927,9 @@ void EESummaryClient::analyze(void) {
             if ( update01 ) {
               if ( ism >= 1 && ism <= 9 ) {
                 if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
-                if ( meTriggerTowerEtSpectrum_[0] ) meTriggerTowerEtSpectrum_[0]->Fill( mean01 );
               }
               else {
                 if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
-                if ( meTriggerTowerEtSpectrum_[1] ) meTriggerTowerEtSpectrum_[1]->Fill( mean01 );
               }
             }
 
@@ -1943,6 +1947,20 @@ void EESummaryClient::analyze(void) {
 
             }
 
+            me = eetttc->me_o02_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ix, iy );
+
+              if ( ism >= 1 && ism <= 9 ) {
+                meTriggerTowerNonSingleTiming_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                meTriggerTowerNonSingleTiming_[1]->setBinContent( jx, jy, xval );
+              }
+
+            }
+
             float xval = 6;
             if( mean01 <= 0 ) xval = 2;
             else {
@@ -1955,32 +1973,6 @@ void EESummaryClient::analyze(void) {
                 if( emulErrorVal!=0 ) xval = 0;
 
               }
-
-              // do not propagate the flag bits to the summary for now
-//               for ( int iflag=0; iflag<6; iflag++ ) {
-
-//                 me_f[iflag] = eetttc->me_m01_[ism-1][iflag];
-
-//                 if ( me_f[iflag] ) {
-
-//                   float emulFlagErrorVal = me_f[iflag]->getBinContent( ix, iy );
-//                   if ( emulFlagErrorVal!=0 ) xval = 0;
-
-//                 }
-
-//               }
-
-//               for ( int ifg=0; ifg<2; ifg++) {
-
-//                 me_fg[ifg] = eetttc->me_n01_[ism-1][ifg];
-//                 if ( me_fg[ifg] ) {
-
-//                   float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ix, iy );
-//                   if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
-
-//                 }
-
-//               }
 
               if ( xval!=0 ) xval = 1;
 

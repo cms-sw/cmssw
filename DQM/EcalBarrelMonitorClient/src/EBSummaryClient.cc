@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/03 23:44:18 $
- * $Revision: 1.186 $
+ * $Date: 2009/08/10 15:49:28 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  *
 */
@@ -126,9 +126,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   meCosmic_         = 0;
   meTiming_         = 0;
   meTriggerTowerEt_        = 0;
-  meTriggerTowerEtSpectrum_ = 0;
   meTriggerTowerEmulError_ = 0;
   meTriggerTowerTiming_ = 0;
+  meTriggerTowerNonSingleTiming_ = 0;
 
   // summary errors
   meIntegrityErr_       = 0;
@@ -686,11 +686,6 @@ void EBSummaryClient::setup(void) {
   meTriggerTowerEt_->setAxisTitle("jphi'", 1);
   meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
-  if( meTriggerTowerEtSpectrum_ ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_->getName() );
-  sprintf(histo, "EBTTT Et trigger tower spectrum");
-  meTriggerTowerEtSpectrum_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
-  meTriggerTowerEtSpectrum_->setAxisTitle("transverse energy (GeV)", 1);
-
   if( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
   meTriggerTowerEmulError_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
@@ -702,6 +697,14 @@ void EBSummaryClient::setup(void) {
   meTriggerTowerTiming_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meTriggerTowerTiming_->setAxisTitle("jphi'", 1);
   meTriggerTowerTiming_->setAxisTitle("jeta'", 2);
+  meTriggerTowerTiming_->setAxisTitle("TP data matching emulator", 3);
+
+  if( meTriggerTowerNonSingleTiming_ ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_->getName() );
+  sprintf(histo, "EBTTT Trigger Primitives Non Single Timing summary");
+  meTriggerTowerNonSingleTiming_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerNonSingleTiming_->setAxisTitle("jphi'", 1);
+  meTriggerTowerNonSingleTiming_->setAxisTitle("jeta'", 2);
+  meTriggerTowerNonSingleTiming_->setAxisTitle("fraction", 3);
 
   if( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
@@ -893,14 +896,14 @@ void EBSummaryClient::cleanup(void) {
   if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   meTriggerTowerEt_ = 0;
 
-  if ( meTriggerTowerEtSpectrum_ ) dqmStore_->removeElement( meTriggerTowerEtSpectrum_->getName() );
-  meTriggerTowerEtSpectrum_ = 0;
-
   if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   meTriggerTowerEmulError_ = 0;
 
   if ( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getName() );
   meTriggerTowerTiming_ = 0;
+
+  if ( meTriggerTowerNonSingleTiming_ ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_->getName() );
+  meTriggerTowerNonSingleTiming_ = 0;
 
   if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
@@ -974,6 +977,7 @@ void EBSummaryClient::analyze(void) {
       if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
       if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
       if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setBinContent( ipx, iex, -1. );
+      if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, 0. );
     }
   }
 
@@ -1040,9 +1044,9 @@ void EBSummaryClient::analyze(void) {
   if ( meCosmic_ ) meCosmic_->setEntries( 0 );
   if ( meTiming_ ) meTiming_->setEntries( 0 );
   if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setEntries( 0 );
-  if ( meTriggerTowerEtSpectrum_ ) meTriggerTowerEtSpectrum_->Reset();
   if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setEntries( 0 );
   if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setEntries( 0 );
+  if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setEntries( 0 );
 
   meGlobalSummary_->setEntries( 0 );
 
@@ -1432,7 +1436,6 @@ void EBSummaryClient::analyze(void) {
             
             if ( update01 ) { 
               if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
-              if ( meTriggerTowerEtSpectrum_ ) meTriggerTowerEtSpectrum_->Fill( mean01 );
             }
               
             me = ebtttc->me_o01_[ism-1];
@@ -1442,6 +1445,16 @@ void EBSummaryClient::analyze(void) {
               float xval = me->getBinContent( ie, ip );
 
               meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
+
+            }
+
+            me = ebtttc->me_o02_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
 
             }
             
@@ -1457,32 +1470,6 @@ void EBSummaryClient::analyze(void) {
                 if( emulErrorVal!=0 ) xval = 0;
 
               }
-
-              // do not propagate the flag bits to the summary for now
-//               for ( int iflag=0; iflag<6; iflag++ ) {
-
-//                 me_f[iflag] = ebtttc->me_m01_[ism-1][iflag];
-
-//                 if ( me_f[iflag] ) {
-
-//                   float emulFlagErrorVal = me_f[iflag]->getBinContent( ie, ip );
-//                   if ( emulFlagErrorVal!=0 ) xval = 0;
-
-//                 }
-
-//               }
-
-//               for ( int ifg=0; ifg<2; ifg++) {
-
-//                 me_fg[ifg] = ebtttc->me_n01_[ism-1][ifg];
-//                 if ( me_fg[ifg] ) {
-
-//                   float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ie, ip );
-//                   if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
-
-//                 }
-
-//               }
 
               if ( xval!=0 ) xval = 1;
 
