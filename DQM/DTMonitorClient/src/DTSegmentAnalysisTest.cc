@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 09:11:45 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/08/07 10:16:49 $
+ *  $Revision: 1.29 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -323,8 +323,8 @@ void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
   if(normalizeHistoPlots) {
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
     MonitorElement* hNevtPerLS = 0;
-    if(hltDQMMode) dbe->get(topHistoFolder + "/NevtPerLS");
-    else  dbe->get("DT/EventInfo/NevtPerLS");
+    if(hltDQMMode) hNevtPerLS = dbe->get(topHistoFolder + "/NevtPerLS");
+    else  hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
 
     if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
