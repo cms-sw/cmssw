@@ -12,6 +12,10 @@
 //		  cdj	so that standalones can work easily
 //			
 // 
+//   2 - 8/12/09  mf 	Mods to get ownership of mlscribe better
+//		  cdj	
+//			
+// 
 
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
@@ -47,7 +51,6 @@ namespace service {
 MessageServicePresence::MessageServicePresence()
   : Presence()
   , m_queue (new ThreadQueue)
-  , m_scribeFrontEnd (m_queue)
   , m_scribeThread
          ( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
             , boost::bind(&runMessageLoggerScribe, m_queue)
@@ -62,8 +65,10 @@ MessageServicePresence::MessageServicePresence()
 	  // creates a single argument, wheich evaluates to runMessageLoggerScribe after
 	  // first executing the before-the-comma statement. 
 {
-  MessageLoggerQ::setMLscribe_ptr(&m_scribeFrontEnd);
-
+  MessageLoggerQ::setMLscribe_ptr(
+    boost::shared_ptr<edm::service::AbstractMLscribe>
+        (new MainThreadMLscribe(m_queue))); 
+    								// change log 3
   //std::cout << "MessageServicePresence ctor\n";
 }
 
@@ -72,6 +77,8 @@ MessageServicePresence::~MessageServicePresence()
 {
   MessageLoggerQ::MLqEND();
   m_scribeThread.join();
+  MessageLoggerQ::setMLscribe_ptr
+    (boost::shared_ptr<edm::service::AbstractMLscribe>());   // change log 3
 }
 
 } // end of namespace service  

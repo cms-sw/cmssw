@@ -27,7 +27,6 @@ private:
 
   // --- data:
   boost::shared_ptr<ThreadQueue> m_queue;
-  MainThreadMLscribe m_scribeFrontEnd;
   boost::thread  m_scribeThread;
 
 };  // MessageServicePresence
