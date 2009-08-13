@@ -2,14 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
 
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("Geometry.DTGeometry.dtGeometry_cfi")
-#process.DTGeometryESModule.applyAlignment = False
-#process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.DTGeometry.dtGeometry_cfi")
+process.DTGeometryESModule.applyAlignment = False
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-#process.load("RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -27,20 +26,19 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('DTTtrigRcd'),
-        #tag = cms.string('REFTTRIGTEMPLATE'),
-        tag = cms.string('ttrig'),
-        connect = cms.untracked.string('sqlite_file:REFTTRIGTEMPLATE'), 
-        label = cms.untracked.string('ttrigRef')
-    ), 
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('DTTtrigRcd'),
+            tag = cms.string('ttrig'),
+            connect = cms.untracked.string('sqlite_file:REFTTRIGTEMPLATE'), 
+            label = cms.untracked.string('ttrigRef')
+        ), 
         cms.PSet(
             record = cms.string('DTTtrigRcd'),
             tag = cms.string('ttrig'),
             connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/ttrig_ResidCorr_RUNNUMBERTEMPLATE.db'),
             label = cms.untracked.string('ttrigToValidate')
         )),
-    #connect = cms.string('CMSCONDVSTEMPLATE'),
     connect = cms.string(''),
     siteLocalConfig = cms.untracked.bool(False)
 )
