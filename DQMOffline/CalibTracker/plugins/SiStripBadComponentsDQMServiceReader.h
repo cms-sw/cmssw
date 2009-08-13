@@ -13,9 +13,16 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <sstream>
 #include <string>
+
+using namespace std;
 
 class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
@@ -25,7 +32,9 @@ class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
   void analyze( const edm::Event&, const edm::EventSetup& );
 
-  void printError( std::stringstream & ss, const bool error, const std::string & errorText );
+  void printError( stringstream & ss, const bool error, const string & errorText );
+
+  string detIdToString(const DetId & detid);
 
  private:
   bool printdebug_;

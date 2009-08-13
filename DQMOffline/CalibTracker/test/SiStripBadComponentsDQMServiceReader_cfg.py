@@ -5,9 +5,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptySource",
-    lastRun = cms.untracked.uint32(1),
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(110213),
+    lastRun = cms.untracked.uint32(110213),
     interval = cms.uint32(1)
 )
 
@@ -26,9 +26,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string("SiStripBadStripRcd"),
-        tag = cms.string("SiStripBadStrip_test1")
+        tag = cms.string("SiStripBadStrip_FromOnlineDQM_V2")
     )),
-    connect = cms.string('sqlite_file:dbfile.db')
+    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_STRIP')
 )
 
 process.prod = cms.EDFilter("SiStripBadComponentsDQMServiceReader",
