@@ -47,6 +47,8 @@
 //	longer
 // 13 - 8/10/09 mf
 //      Special control of standAlone message logging
+// 14 - 8/12/09 mf, cdj
+//      Better ownership management of standAlone or other scribe
 
 using namespace edm;
 
@@ -103,11 +105,20 @@ namespace {
             break;
       }
    }   
-  StandAloneScribe standAloneScribe;
-}
 
-edm::service::AbstractMLscribe * 
-	MessageLoggerQ::mlscribe_ptr = &standAloneScribe;  // changeLog 8, 11
+  // Changelog 14
+  boost::shared_ptr<StandAloneScribe> obtainStandAloneScribePtr() {   
+    static boost::shared_ptr<StandAloneScribe> 
+      standAloneScribe_ptr( new StandAloneScribe );
+    return standAloneScribe_ptr;
+  }
+
+
+} // end of anonymous namespace
+
+boost::shared_ptr<edm::service::AbstractMLscribe>  
+  MessageLoggerQ::mlscribe_ptr = obtainStandAloneScribePtr();  
+  				// changeLog 8, 11, 14
 
 MessageLoggerQ::MessageLoggerQ()
 { }
@@ -125,10 +136,14 @@ MessageLoggerQ *
 }  // MessageLoggerQ::instance()
 
 void
-  MessageLoggerQ::setMLscribe_ptr(edm::service::AbstractMLscribe * m)
-  								// changeLog 8
+  MessageLoggerQ::setMLscribe_ptr
+  	(boost::shared_ptr<edm::service::AbstractMLscribe> m) // changeLog 8, 14
 {
-  mlscribe_ptr = m;
+  if (!m) { 
+    mlscribe_ptr = obtainStandAloneScribePtr();
+  } else {
+    mlscribe_ptr = m;
+  }
 }  // MessageLoggerQ::setMLscribe_ptr(m)
 
 void

@@ -3,6 +3,8 @@
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <string>
 #include <map>
 #include <set>
@@ -55,7 +57,8 @@ public:
   static  void  MLqJRS(std::map<std::string, double> * sum_p);
 
   // ---  bookkeeping for single-thread mode
-  static  void  setMLscribe_ptr(edm::service::AbstractMLscribe * m);
+  static  void  setMLscribe_ptr
+     (boost::shared_ptr<edm::service::AbstractMLscribe>  m);
 
   // ---  helper for scribes
   static bool handshaked ( const OpCode & op );
@@ -82,7 +85,7 @@ private:
   void  operator = ( MessageLoggerQ const & );
 
   // --- data:
-  static  edm::service::AbstractMLscribe * mlscribe_ptr;
+  static  boost::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
   static  edm::ELseverityLevel threshold;
   static  std::set<std::string> squelchSet;
   
