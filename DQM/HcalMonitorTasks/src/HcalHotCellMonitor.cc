@@ -512,9 +512,9 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HORecHitCollection& hoHits,
 				       const HFRecHitCollection& hfHits,
 				       //const ZDCRecHitCollection& zdcHits,
-				       const HBHEDigiCollection& hbhedigi,
-				       const HODigiCollection& hodigi,
-				       const HFDigiCollection& hfdigi,
+				      //const HBHEDigiCollection& hbhedigi,
+				      // const HODigiCollection& hodigi,
+				      // const HFDigiCollection& hfdigi,
 				       //const ZDCDigiCollection& zdcdigi,
 				       const HcalDbService& cond
 				       )

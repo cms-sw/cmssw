@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/07/21 11:02:48 $
-  * $Revision: 1.30 $
+  * $Date: 2009/07/31 20:32:36 $
+  * $Revision: 1.31 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -48,9 +48,9 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
                     //const ZDCRecHitCollection& zdcHits,
-                    const HBHEDigiCollection& hbhedigi,
-                    const HODigiCollection& hodigi,
-                    const HFDigiCollection& hfdigi,
+                    //const HBHEDigiCollection& hbhedigi,
+                    //const HODigiCollection& hodigi,
+                    //const HFDigiCollection& hfdigi,
                     //const ZDCDigiCollection& zdcdigi, 
                     const HcalDbService& cond
                     );
