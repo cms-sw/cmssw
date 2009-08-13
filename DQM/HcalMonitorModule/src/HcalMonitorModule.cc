@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/06 11:21:53 $
- * $Revision: 1.122 $
+ * $Date: 2009/08/07 17:40:20 $
+ * $Revision: 1.123 $
  * \author W Fisher
  * \author J Temple
  *
@@ -696,7 +696,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" source not available";
     }
-  if (rawOK_&&!rawraw.isValid()) {
+  if ((rawOK_)&&!rawraw.isValid()) {
     rawOK_=false;
   }
 
@@ -706,10 +706,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" Digi Collection "<<inputLabelDigi_<<" not available";
     }
-  if (rawOK_&&!report.isValid()) {
+  if ((rawOK_) && (!report.isValid())) {
     rawOK_=false;
   }
-  else 
+  if (rawOK_)
     {
       if(!fedsListed_){
 	const std::vector<int> feds =  (*report).getFedsUnpacked();    
@@ -720,7 +720,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 	fedss = feds; //Assign to a non-const holder
       }
     }
-
   if (rawOK_==true) ++ievt_rawdata_;
 
   //Orbit Gap Data Quality Monitoring
@@ -751,6 +750,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (CalibType == hc_Null) return;
     }
   }
+
   if (!InconsistentCalibTypes && AnalyzeOrbGapCT_) {
     // If we're doing the Orbit Gap DQM, set the right evtMask for
     // the Calibration Event Type.
@@ -1075,7 +1075,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       if (lumiswitch) hotMon_->LumiBlockUpdate(ilumisec_);
       hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
-			    *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+			    //*hbhe_digi,*ho_digi,*hf_digi,
+			    *conditions_);
       //hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
     }
   if (showTiming_)
