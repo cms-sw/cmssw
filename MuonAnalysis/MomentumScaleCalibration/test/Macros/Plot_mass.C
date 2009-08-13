@@ -1,5 +1,6 @@
 #include "TH1F.h"
 #include "TProfile.h"
+#include "TProfile.h"
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TStyle.h"
@@ -17,8 +18,12 @@ public:
     mass         = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
     TDirectory * MassPdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_P"));
     massProb     = dynamic_cast<TProfile*>(MassPdir->Get("Mass_PProf"));
+    // TDirectory * MassPdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_Probability"));
+    // massProb     = dynamic_cast<TProfile*>(MassPdir->Get("Mass_Probability"));
     TDirectory * massFinePdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_fine_P"));
     massFineProb = dynamic_cast<TProfile*>(massFinePdir->Get("Mass_fine_PProf"));
+    // TDirectory * massFinePdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_fine_Probability"));
+    // massFineProb = dynamic_cast<TProfile*>(massFinePdir->Get("Mass_fine_Probability"));
     likePt       = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPt_prof"));
     likePhi      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSPhi_prof"));
     likeEta      = dynamic_cast<TProfile*>(inputFile->Get("hLikeVSMu_LikelihoodVSEta_prof"));
@@ -48,10 +53,11 @@ int getXbins(const TH1 * h, const double & xMin, const double & xMax)
 }
 
 /// Helper function to draw mass and mass probability histograms
-void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, const int ires)
+void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, const int ires, const int rebin = 1)
 {
   TH1F * mass = mass = (TH1F*)h.mass->Clone();
   TProfile * massProb = 0;
+  mass->Rebin(rebin);
   // Use massProb for the Z and fineMass for the other resonances
   if( ires == 0 ) massProb = (TProfile*)h.massProb->Clone();
   else massProb = (TProfile*)h.massFineProb->Clone();
@@ -116,7 +122,7 @@ void drawLike(TProfile * likeHisto1, TProfile * likeHisto2)
 }
 
 /// Function drawing the histograms
-void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAfter = "1") {
+void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAfter = "1", const int rebin = 1) {
 
   gStyle->SetOptStat ("111111");
   gStyle->SetOptFit (1);
@@ -137,46 +143,46 @@ void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAft
   Allres->Divide (2,3);
   for (int ires=0; ires<6; ires++) {
     Allres->cd(ires+1);
-    drawMasses(ResMass[ires], ResHalfWidth[ires], histos1, ires);
+    drawMasses(ResMass[ires], ResHalfWidth[ires], histos1, ires, rebin);
   }
   Allres->Write();
   TCanvas * AllresTogether = new TCanvas ("AllresTogether", "All resonances together", 600, 600);
   AllresTogether->Divide(2,2); 
   // The J/Psi + Psi2S
   AllresTogether->cd(1);
-  drawMasses(ResMass[5], 2, histos1, 3);
+  drawMasses(ResMass[5], 2, histos1, 3, rebin);
  // Draw also the Upsilons
   AllresTogether->cd(2);
-  drawMasses(ResMass[2], 2, histos1, 3);
+  drawMasses(ResMass[2], 2, histos1, 3, rebin);
   // All low Pt resonances
   AllresTogether->cd(3);
-  drawMasses(6., 6, histos1, 3);
+  drawMasses(6., 6, histos1, 3, rebin);
   // All resonances
   AllresTogether->cd(4);
-  drawMasses(50., 50, histos1, 0);
+  drawMasses(50., 50, histos1, 0, rebin);
   AllresTogether->Write();
 
   TCanvas * Allres2 = new TCanvas ("Allres2", "All resonances", 600, 600);
   Allres2->Divide (2,3);
   for (int ires=0; ires<6; ires++) {
     Allres2->cd(ires+1);
-    drawMasses(ResMass[ires], ResHalfWidth[ires], histos2, ires);
+    drawMasses(ResMass[ires], ResHalfWidth[ires], histos2, ires, rebin);
   }
   Allres2->Write();
   TCanvas * AllresTogether2 = new TCanvas ("AllresTogether2", "All resonances together", 600, 600);
   AllresTogether2->Divide(2,2);
   // The J/Psi + Psi2S
   AllresTogether2->cd(1);
-  drawMasses(ResMass[5], 2, histos2, 3);
+  drawMasses(ResMass[5], 2, histos2, 3, rebin);
   // Draw also the Upsilons
   AllresTogether2->cd(2);
-  drawMasses(ResMass[2], 2, histos2, 3);
+  drawMasses(ResMass[2], 2, histos2, 3, rebin);
   // All low Pt resonances
   AllresTogether2->cd(3);
-  drawMasses(6., 6, histos2, 3);
+  drawMasses(6., 6, histos2, 3, rebin);
   // All resonances
   AllresTogether2->cd(4);
-  drawMasses(50., 50, histos2, 0);
+  drawMasses(50., 50, histos2, 0, rebin);
   AllresTogether2->Write();
 
   TCanvas * LR = new TCanvas ("LR", "Likelihood and resolution before and after corrections", 600, 600 );

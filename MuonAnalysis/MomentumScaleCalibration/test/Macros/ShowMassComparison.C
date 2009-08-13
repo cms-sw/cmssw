@@ -2,7 +2,7 @@
 #include "TCanvas.h"
 #include "TPad.h"
 #include "TH1F.h"
-#include "TProfile.h"
+#include "TH1D.h"
 #include "TLegend.h"
 
 #include <map>
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo2, const TString & resonance);
+void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, const TString & resonance);
 
 /**
  * This macro creates the histograms to compare mass before and after
@@ -24,28 +24,38 @@ void ShowMassComparison(const TString & resonance = "Z")
     canvasName += "Together";
   }
   TH1F * histo1 = 0;
-  TProfile * histo2 = 0;
+  TH1D * histo2 = 0;
   getHistograms(canvasName, histo1, histo2, resonance);
 
   TH1F * histo3 = 0;
-  TProfile * histo4 = 0;
+  TH1D * histo4 = 0;
   getHistograms(canvasName+"2", histo3, histo4, resonance);
 
-  //TString option("width");
-  //double integral = histo1->Integral(option);
-  //histo2->Scale(integral/histo2->Integral(option));
-  //histo3->Scale(integral/histo3->Integral(option));
-  //histo4->Scale(integral/histo4->Integral(option));
+  TString option("width");
+  double integral = histo1->Integral(option);
+  histo2->Scale(integral/histo2->Integral(option));
+  histo3->Scale(integral/histo3->Integral(option));
+  histo4->Scale(integral/histo4->Integral(option));
 
 //   histo1->Scale(1./histo1->GetEntries());
 //   histo2->Scale(1./histo2->GetEntries());
 //   histo3->Scale(1./histo3->GetEntries());
 //   histo4->Scale(1./histo4->GetEntries());
 
-  histo1->Scale(1./histo1->Integral());
-  histo2->Scale(1./histo2->Integral());
-  histo3->Scale(1./histo3->Integral());
-  histo4->Scale(1./histo4->Integral());
+//   double integral = histo1->Integral(histo1->GetXaxis()->FindBin(9.1), histo1->GetXaxis()->FindBin(10.8));
+//   histo1->Scale(1./integral);
+//   integral = histo2->Integral(histo2->GetXaxis()->FindBin(9.1), histo2->GetXaxis()->FindBin(10.8));
+//   histo2->Scale(1./integral);
+//   integral = histo3->Integral(histo3->GetXaxis()->FindBin(9.1), histo3->GetXaxis()->FindBin(10.8));
+//   histo3->Scale(1./integral);
+//   integral = histo4->Integral(histo4->GetXaxis()->FindBin(9.1), histo4->GetXaxis()->FindBin(10.8));
+//   histo4->Scale(1./integral);
+
+
+//   histo1->Scale(1./histo1->Integral());
+//   histo2->Scale(1./histo2->Integral());
+//   histo3->Scale(1./histo3->Integral());
+//   histo4->Scale(1./histo4->Integral());
 
   map<double, TH1*, greater<double> > histoMap;
   histoMap.insert(make_pair(histo1->GetMaximum(), histo1));
@@ -55,28 +65,17 @@ void ShowMassComparison(const TString & resonance = "Z")
 
   TCanvas * newCanvas = new TCanvas("newCanvas", "newCanvas", 1000, 800);
   histo4->SetLineColor(kBlue);
+  // histo4->SetLineStyle(2);
   histo4->SetMarkerColor(kBlue);
   histo2->SetMarkerColor(kRed);
   histo2->SetLineColor(kRed);
+  // histo2->SetLineStyle(2);
   histo1->SetLineColor(kBlack);
   histo3->SetLineColor(kGreen);
 
   map<double, TH1*, greater<double> >::const_iterator it = histoMap.begin();
   it->second->Draw();
   for( ; it != histoMap.end(); ++it ) it->second->Draw("SAME");
-
-//   if( histo2->GetMaximum() > histo4->GetMaximum() ) {
-//     histo2->Draw();
-//     histo4->Draw("SAME");
-//   }
-//   else {
-//     histo4->Draw();
-//     histo2->Draw("SAME");
-//   }
-//   histo1->Draw("SAME");
-//   histo3->Draw("SAME");
-//   histo2->Draw("SAME");
-//   histo4->Draw("SAME");
 
   TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
   legend->SetTextSize(0.02);
@@ -99,10 +98,10 @@ void ShowMassComparison(const TString & resonance = "Z")
 void fillMapAndLegend( const TString & canvasName, const TString & resonance, map<double, TH1*, greater<double> > & histoMap, TLegend * legend = 0 )
 {
   TH1F * histo1 = 0;
-  TProfile * histo2 = 0;
+  TH1D * histo2 = 0;
   getHistograms(canvasName, histo1, histo2, resonance);
   TH1F * histo3 = 0;
-  TProfile * histo4 = 0;
+  TH1D * histo4 = 0;
   getHistograms(canvasName+"2", histo3, histo4, resonance);
 
   histo2->Scale(histo1->GetEntries()/histo2->GetEntries());
@@ -160,7 +159,7 @@ void ShowMassesComparison(const TString & resonance = "Z")
  * Helper function to extract the histograms from the canvas file. <br>
  * Takes references to pointers in order to fill them.
  */
-void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo2, const TString & resonance)
+void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, const TString & resonance)
 {
   TFile * inputFile = new TFile("plotMassOutput.root");
   TCanvas * canvas = (TCanvas*)inputFile->Get(canvasName);
@@ -178,8 +177,12 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TProfile * & histo
 
   TPad * pad = (TPad*)canvas->GetPrimitive(canvasName+resonanceNum);
   histo1 = (TH1F*)pad->GetPrimitive("hRecBestRes_Mass");
-  if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TProfile*)pad->GetPrimitive("Mass_PProf");
-  else histo2 = (TProfile*)pad->GetPrimitive("Mass_fine_PProf");
+  if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_PProf");
+  else histo2 = (TH1D*)pad->GetPrimitive("Mass_fine_PProf");
+  // if( resonance == "Z" || resonance == "AllResonances" ) histo2 = (TH1D*)pad->GetPrimitive("Mass_Probability");
+  // else histo2 = (TH1D*)pad->GetPrimitive("Mass_fine_Probability");
+
   // cout << "histo1 = " << histo1 << ", histo2 = " << histo2 << endl;
   // cout << "histo1 = " << histo1->GetEntries() << ", histo2 = " << histo2->GetEntries() << endl;
 }
+
