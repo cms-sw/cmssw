@@ -29,6 +29,8 @@ namespace cond {
       this->add(it.m_max_current);
       this->add(it.m_min_current);
       this->add(it.m_run_intervall_micros);
+      this->add(it.m_start_time_ll);
+      this->add(it.m_stop_time_ll);
     }
   private:
   
