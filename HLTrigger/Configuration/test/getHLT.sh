@@ -3,10 +3,10 @@
 cmsenv
 rehash
 
-setenv HLTMASTER  "/dev/CMSSW_3_2_3"
-setenv HLTVERSION "V1"
+setenv HLTMASTER  "/dev/CMSSW_3_2_4"
+setenv HLTVERSION "V2"
 setenv SUBTABLES  "8E29 1E31 GRun HIon"
-setenv SUBVERSION "V1"
+setenv SUBVERSION "V2"
 
 echo "ConfDB path of master: $HLTMASTER/HLT/$HLTVERSION"
 echo "Subtables:             $SUBTABLES"
