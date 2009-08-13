@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# $Id: RecoJetsGR_cff.py,v 1.4 2009/07/31 03:27:31 srappocc Exp $
+# $Id: RecoJetsGR_cff.py,v 1.5 2009/08/13 15:02:34 srappocc Exp $
 
 # Standard set:
-from RecoJets.Configuration.RecoCaloJets_cff import *
+from RecoJets.Configuration.RecoJets_cff import *
 
 #
 # special R=0.15 IC jets:
