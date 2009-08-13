@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 higgsToTauTauElectronTauFilter = cms.EDFilter("HiggsToTauTauElectronTauSkim",
     # Collection to be accessed
     DebugHiggsToTauTauElectronTauSkim = cms.bool(False),
-    HLTResultsCollection = cms.InputTag("TriggerResults::HLT"),
+    #HLTResultsCollection = cms.InputTag("TriggerResults::HLT"),
+    HLTResultsCollection = cms.InputTag("TriggerResults::HLT8E29"),
     HLTEventCollection = cms.InputTag("hltTriggerSummaryAOD"),
     #HLTFilterCollections = cms.vstring('hltL1IsoSingleElectronTrackIsolFilter'),
     HLTFilterCollections = cms.vstring('hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter'),
@@ -19,5 +20,8 @@ higgsToTauTauElectronTauFilter = cms.EDFilter("HiggsToTauTauElectronTauSkim",
     jetEtMin = cms.double(20.0),
     JetTagCollection = cms.InputTag("iterativeCone5CaloJets"),
     ElectronTagCollection = cms.InputTag("gsfElectrons"),
-    ElectronIdTagCollection = cms.InputTag("eidRobustTight") 
+    #ElectronIdTagCollection = cms.InputTag("eidLoose")
+    #ElectronIdTagCollection = cms.InputTag("eidRobustLoose") 
+    #ElectronIdTagCollection = cms.InputTag("eidRobustTight")
+    ElectronIdTagCollection = cms.InputTag("eidTight")
 )
