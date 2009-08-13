@@ -124,15 +124,15 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid)
     }
   }
   string name( detector + "\t" + boost::lexical_cast<string>(layer) + "\t" + boost::lexical_cast<string>(stereo) + "\t" );
-//   if( side == 1 ) {
-//     name += "-";
-//   }
-//   else if ( side == 2 ) {
-//     name += "+";
-//   }
-  if( side != -1 ) {
-    name += boost::lexical_cast<string>(side);
+  if( side == 1 ) {
+    name += "-";
   }
+  else if ( side == 2 ) {
+    name += "+";
+  }
+//   if( side != -1 ) {
+//     name += boost::lexical_cast<string>(side);
+//   }
 
   return name;
 }
