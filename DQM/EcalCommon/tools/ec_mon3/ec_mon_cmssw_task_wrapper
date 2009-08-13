@@ -115,7 +115,8 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+#process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_craft_cff")
 
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
@@ -374,7 +375,8 @@ process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_craft.txt.gz'
 
 process.ecalBarrelMonitorClient.dbName = dbName
 process.ecalBarrelMonitorClient.dbHostName = dbHostName
