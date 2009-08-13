@@ -112,9 +112,13 @@ HLTTauDQMSummaryPlotter::plot()
 	plotEfficiencyHisto(L1Folder_[i],"L1JetEtaEff","L1JetEtaEffNum","L1JetEtaEffDenom",dbe);
 	plotEfficiencyHisto(L1Folder_[i],"L1JetPhiEff","L1JetPhiEffNum","L1JetPhiEffDenom",dbe);
 
-	plotEfficiencyHisto(L1Folder_[i],"L1LeptonEtEff","L1LeptonEtEffNum","L1LeptonEtEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1LeptonEtaEff","L1LeptonEtaEffNum","L1LeptonEtaEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1LeptonPhiEff","L1LeptonPhiEffNum","L1LeptonPhiEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtEff","L1ElectronEtEffNum","L1ElectronEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtaEff","L1ElectronEtaEffNum","L1ElectronEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronPhiEff","L1ElectronPhiEffNum","L1ElectronPhiEffDenom",dbe);
+
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtEff","L1MuonEtEffNum","L1MuonEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtaEff","L1MuonEtaEffNum","L1MuonEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonPhiEff","L1MuonPhiEffNum","L1MuonPhiEffDenom",dbe);
 
       }
 

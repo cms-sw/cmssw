@@ -63,62 +63,62 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,int etbins,in
 	  l1tauPhiEffNum_   = store->book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency",binsPhi_,-3.2,3.2);
 	  l1tauPhiEffNum_->getTH1F()->Sumw2();
 
-	  l1tauPhiEffDenom_ = store->book1D("l1TauPhiEffDenom","L1 #tau #phi Denominator",binsPhi_,-3.2,3.2);
+	  l1tauPhiEffDenom_ = store->book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator",binsPhi_,-3.2,3.2);
 	  l1tauPhiEffDenom_->getTH1F()->Sumw2();
 
-	  l1jetEtEffNum_   = store->book1D("l1JetEtEffNum","L1 jet E_{t} Efficiency",binsEt_,0,maxEt_);
+	  l1jetEtEffNum_   = store->book1D("L1JetEtEffNum","L1 jet E_{t} Efficiency",binsEt_,0,maxEt_);
 	  l1jetEtEffNum_->getTH1F()->Sumw2();
 
-	  l1jetEtEffDenom_ = store->book1D("l1JetEtEffDenom","L1 jet E_{t} Denominator",binsEt_,0,maxEt_);
+	  l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 jet E_{t} Denominator",binsEt_,0,maxEt_);
 	  l1jetEtEffDenom_->getTH1F()->Sumw2();
 
-	  l1jetEtaEffNum_   = store->book1D("l1JetEtaEffNum","L1 jet #eta Efficiency",binsEta_,-2.5,2.5);
+	  l1jetEtaEffNum_   = store->book1D("L1JetEtaEffNum","L1 jet #eta Efficiency",binsEta_,-2.5,2.5);
 	  l1jetEtaEffNum_->getTH1F()->Sumw2();
 
-	  l1jetEtaEffDenom_ = store->book1D("l1JetEtaEffDenom","L1 jet #eta Denominator",binsEta_,-2.5,2.5);
+	  l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom","L1 jet #eta Denominator",binsEta_,-2.5,2.5);
 	  l1jetEtaEffDenom_->getTH1F()->Sumw2();
 
-	  l1jetPhiEffNum_   = store->book1D("l1JetPhiEffNum","L1 jet #phi Efficiency",binsPhi_,-3.2,3.2);
+	  l1jetPhiEffNum_   = store->book1D("L1JetPhiEffNum","L1 jet #phi Efficiency",binsPhi_,-3.2,3.2);
 	  l1jetPhiEffNum_->getTH1F()->Sumw2();
 
-	  l1jetPhiEffDenom_ = store->book1D("l1JetPhiEffDenom","L1 jet #phi Denominator",binsPhi_,-3.2,3.2);
+	  l1jetPhiEffDenom_ = store->book1D("L1JetPhiEffDenom","L1 jet #phi Denominator",binsPhi_,-3.2,3.2);
 	  l1jetPhiEffDenom_->getTH1F()->Sumw2();
 
 
-	  l1electronEtEffNum_   = store->book1D("l1ElectronEtEffNum","L1 Electron p_t Efficiency",binsEt_,0,maxEt_);
+	  l1electronEtEffNum_   = store->book1D("L1ElectronEtEffNum","L1 Electron p_t Efficiency",binsEt_,0,maxEt_);
 	  l1electronEtEffNum_->getTH1F()->Sumw2();
 	  
-	  l1electronEtEffDenom_ = store->book1D("l1ElectronEtEffDenom","L1 Electron p_{t} Denominator",binsEt_,0,maxEt_);
+	  l1electronEtEffDenom_ = store->book1D("L1ElectronEtEffDenom","L1 Electron p_{t} Denominator",binsEt_,0,maxEt_);
 	  l1electronEtEffDenom_->getTH1F()->Sumw2();
 	  
-	  l1electronEtaEffNum_   = store->book1D("l1ElectronEtaEffNum","L1 Electron #eta Efficiency",binsEta_,-2.5,2.5);
+	  l1electronEtaEffNum_   = store->book1D("L1ElectronEtaEffNum","L1 Electron #eta Efficiency",binsEta_,-2.5,2.5);
 	  l1electronEtaEffNum_->getTH1F()->Sumw2();
 
-	  l1electronEtaEffDenom_ = store->book1D("l1ElectronEtaEffDenom","L1 Electron #eta Denominator",binsEta_,-2.5,2.5);
+	  l1electronEtaEffDenom_ = store->book1D("L1ElectronEtaEffDenom","L1 Electron #eta Denominator",binsEta_,-2.5,2.5);
 	  l1electronEtaEffDenom_->getTH1F()->Sumw2();
 	      
-	  l1electronPhiEffNum_   = store->book1D("l1ElectronPhiEffNum","L1 Electron #phi Efficiency",binsPhi_,-3.2,3.2);
+	  l1electronPhiEffNum_   = store->book1D("L1ElectronPhiEffNum","L1 Electron #phi Efficiency",binsPhi_,-3.2,3.2);
 	  l1electronPhiEffNum_->getTH1F()->Sumw2();
 	  
-	  l1electronPhiEffDenom_ = store->book1D("l1ElectronPhiEffDenom","L1 Electron #phi Denominator",binsPhi_,-3.2,3.2);
+	  l1electronPhiEffDenom_ = store->book1D("L1ElectronPhiEffDenom","L1 Electron #phi Denominator",binsPhi_,-3.2,3.2);
 	  l1electronPhiEffDenom_->getTH1F()->Sumw2();
 	  
-	  l1muonEtEffNum_   = store->book1D("l1MuonEtEffNum","L1 Muon E_{t} Efficiency",binsEt_,0,maxEt_);
+	  l1muonEtEffNum_   = store->book1D("L1MuonEtEffNum","L1 Muon E_{t} Efficiency",binsEt_,0,maxEt_);
 	  l1muonEtEffNum_->getTH1F()->Sumw2();
 	  
-	  l1muonEtEffDenom_ = store->book1D("l1MuonEtEffDenom","L1 Muon E_{t} Denominator",binsEt_,0,maxEt_);
+	  l1muonEtEffDenom_ = store->book1D("L1MuonEtEffDenom","L1 Muon E_{t} Denominator",binsEt_,0,maxEt_);
 	  l1muonEtEffDenom_->getTH1F()->Sumw2();
 
-	  l1muonEtaEffNum_   = store->book1D("l1MuonEtaEffNum","L1 Muon #eta Efficiency",binsEta_,-2.5,2.5);
+	  l1muonEtaEffNum_   = store->book1D("L1MuonEtaEffNum","L1 Muon #eta Efficiency",binsEta_,-2.5,2.5);
 	  l1muonEtaEffNum_->getTH1F()->Sumw2();
 
-	  l1muonEtaEffDenom_ = store->book1D("l1MuonEtaEffDenom","L1 Muon #eta Denominator",binsEta_,-2.5,2.5);
+	  l1muonEtaEffDenom_ = store->book1D("L1MuonEtaEffDenom","L1 Muon #eta Denominator",binsEta_,-2.5,2.5);
 	  l1muonEtaEffDenom_->getTH1F()->Sumw2();
 
-	  l1muonPhiEffNum_   = store->book1D("l1MuonPhiEffNum","L1 Muon #phi Efficiency",binsPhi_,-3.2,3.2);
+	  l1muonPhiEffNum_   = store->book1D("L1MuonPhiEffNum","L1 Muon #phi Efficiency",binsPhi_,-3.2,3.2);
 	  l1muonPhiEffNum_->getTH1F()->Sumw2();
 
-	  l1muonPhiEffDenom_ = store->book1D("l1MuonPhiEffDenom","L1 Muon #phi Denominator",binsPhi_,-3.2,3.2);
+	  l1muonPhiEffDenom_ = store->book1D("L1MuonPhiEffDenom","L1 Muon #phi Denominator",binsPhi_,-3.2,3.2);
 	  l1muonPhiEffDenom_->getTH1F()->Sumw2();
 	}
     }
