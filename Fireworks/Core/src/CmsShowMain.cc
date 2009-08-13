@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.85 2009/08/11 15:43:55 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.86 2009/08/12 12:49:44 amraktad Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/interface/CSGContinuousAction.h"
+#include "Fireworks/Core/src/CSGContinuousAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
@@ -159,6 +159,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_playTimer(0),
    m_playBackTimer(0),
    m_isPlaying(false),
+   m_forward(true),
+   m_rewindMode(false),
    m_playDelay(3.f)
    //  m_configFileName(iConfigFileName)
 {
@@ -693,15 +695,15 @@ CmsShowMain::setupDataHandling()
 {
    m_guiManager->updateStatus("Setting up data handling...");
    m_navigator = new CmsShowNavigator(*this);
-   m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-   m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
-   m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
-   m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
-   m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
-   m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
-   m_navigator->atEnd.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
-   m_navigator->preFiltering.connect(boost::bind(&CmsShowMain::preFiltering,this));
-   m_navigator->postFiltering.connect(boost::bind(&CmsShowMain::postFiltering,this));
+   m_navigator->oldEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+   m_navigator->newEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+   m_navigator->newEvent_.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
+   m_navigator->newFileLoaded_.connect(boost::bind(&CmsShowMain::resetInitialization,this));
+   m_navigator->newFileLoaded_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
+   m_navigator->atBeginning_.connect((sigc::mem_fun(*this, &CmsShowMain::reachedBeginning)));
+   m_navigator->atEnd_.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
+   m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
+   m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
@@ -797,7 +799,13 @@ CmsShowMain::notified(TSocket* iSocket)
       std::stringstream s;
       s <<"Ready to change to new file '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
-      m_navigator->nextEventChangeAlsoChangeFile(fileName, m_isPlaying);
+
+      // start play new file
+      m_navigator->nextEventChangeAlsoChangeFile(fileName);
+      if ( !m_isPlaying )
+      {
+         playForward();
+      }
    }
 }
 
@@ -837,13 +845,33 @@ CmsShowMain::stopPlaying()
 void
 CmsShowMain::reachedEnd()
 {
-   if(!m_isPlaying) m_guiManager->disableNext();
+   if (m_isPlaying)
+   {
+      if ( m_forward && !m_rewindMode ) {
+         stopPlaying();
+         m_guiManager->disableNext();
+      }
+   }
+   else m_guiManager->disableNext();
+}
+
+void
+CmsShowMain::reachedBeginning()
+{
+   if (m_isPlaying)
+   {
+      if ( !m_forward && !m_rewindMode) {
+         stopPlaying();
+         m_guiManager->disablePrevious();
+      }
+   }
+   else m_guiManager->disablePrevious();
 }
 
 void
 CmsShowMain::setPlayAutoRewind()
 {
-   m_navigator->setAutoRewind( true );
+   m_rewindMode = true;
 }
 
 void 

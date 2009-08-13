@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.21 2009/08/05 14:39:01 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.22 2009/08/12 12:49:44 amraktad Exp $
 //
 
 // system include files
@@ -119,6 +119,7 @@ private:
    void playBackward();
    void stopPlaying();
    void reachedEnd();
+   void reachedBeginning();
    void setPlayAutoRewind();
 
    void preFiltering();
@@ -152,8 +153,9 @@ private:
 
    TTimer* m_playTimer;
    TTimer* m_playBackTimer;
-   bool m_isPlaying;
-   bool m_forward;
+   bool    m_isPlaying;
+   bool    m_forward;
+   bool    m_rewindMode;
    Float_t m_playDelay;  // delay between events in seconds
 
    std::auto_ptr<TMonitor> m_monitor;
