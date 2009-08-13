@@ -2,17 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ROOTFILERETRIEVER')
 
-# setting the Global Tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_P_V2::All' 
-
 # import of standard configurations
 process.load("DQMServices.Core.DQMStore_cfg")
 process.DQMStore.verbose   = cms.untracked.int32(1)
 process.DQMStore.verboseQT = cms.untracked.int32(0)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+# Put reference histograms into the EventSetup
+process.load('CondTools/DQM/DQMReferenceHistogramRootFileEventSetupAnalyzer_OrcoffOnly_cfi')
 
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 # Input source
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),

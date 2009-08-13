@@ -34,18 +34,18 @@ namespace edmtest {
   
   DQMReferenceHistogramRootFileEventSetupAnalyzer::DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet &ps) {
     init_ = false ;
-    std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet &ps)" << std::endl;
+    //std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet &ps)" << std::endl;
   }
   
   DQMReferenceHistogramRootFileEventSetupAnalyzer::DQMReferenceHistogramRootFileEventSetupAnalyzer(int i) {
     init_ = false ;
-    std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer(int i) " << i << std::endl;
+    //std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer(int i) " << i << std::endl;
   }
   
   DQMReferenceHistogramRootFileEventSetupAnalyzer::~DQMReferenceHistogramRootFileEventSetupAnalyzer()
   {
     init_ = false ;
-    std::cout << "~DQMReferenceHistogramRootFileEventSetupAnalyzer" << std::endl;
+    //std::cout << "~DQMReferenceHistogramRootFileEventSetupAnalyzer" << std::endl;
   }
   
   void DQMReferenceHistogramRootFileEventSetupAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -55,7 +55,7 @@ namespace edmtest {
 
   void DQMReferenceHistogramRootFileEventSetupAnalyzer::beginRun(edm::Run const& run , edm::EventSetup const& iSetup)
   {
-    std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer::beginRun()" << std::endl;    
+    //std::cout << "DQMReferenceHistogramRootFileEventSetupAnalyzer::beginRun()" << std::endl;    
     if(!init_)
       {
 	init_ = true ;
@@ -66,7 +66,7 @@ namespace edmtest {
 	}
 	edm::ESHandle<GeometryFile> rootgeo;
 	iSetup.get<DQMReferenceHistogramRootFileRcd>().get(rootgeo);
-	std::cout<<"ROOT FILE IN MEMORY"<<std::endl;
+	//std::cout<<"ROOT FILE IN MEMORY"<<std::endl;
 	boost::scoped_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );
 	// char filename[128];
 	// sprintf(filename, "mem:%p,%ul", &(*tb)[0], (unsigned long) tb->size());
@@ -83,10 +83,10 @@ namespace edmtest {
  	remove(outfile.c_str());
 	
 	std::vector<MonitorElement *> mes = dqm->getAllContents("");
-	for (std::vector<MonitorElement *>::iterator i = mes.begin(), e = mes.end(); i != e; ++i)
-	  std::cout << "ME '" << (*i)->getFullname() << "'\n";
+	// for (std::vector<MonitorElement *>::iterator i = mes.begin(), e = mes.end(); i != e; ++i)
+	//  std::cout << "ME '" << (*i)->getFullname() << "'\n";
 	
-	std::cout<<"SIZE FILE = "<<tb->size()<<std::endl;
+	//std::cout<<"SIZE FILE = "<<tb->size()<<std::endl;
       }
   }
   
