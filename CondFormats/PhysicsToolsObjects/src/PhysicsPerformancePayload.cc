@@ -1,4 +1,4 @@
-#include "CondFormats/BTauObjects/interface/PhysicsPerformancePayload.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 
 //#include <iostream>
 
@@ -12,8 +12,7 @@ PhysicsPerformancePayload::Row PhysicsPerformancePayload::getRow(int n) const{
   return temp;
 }
 
-PhysicsPerformancePayload::PhysicsPerformancePayload(int stride, std::string columns, std::vector<float> table) : stride_(stride), 
-														  columns_(columns),
+PhysicsPerformancePayload::PhysicsPerformancePayload(int stride, std::vector<float> table) : stride_(stride), 
 														  table_(table)
 {}
 

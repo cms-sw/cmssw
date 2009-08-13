@@ -6,14 +6,13 @@
 // Zongru Wan, Kansas State University
 //
 
-#include <string>
 #include <vector>
 
 class PhysicsPerformancePayload
 {
  public:
   PhysicsPerformancePayload(){}
-  PhysicsPerformancePayload(int stride, std::string columns, std::vector<float> table);
+  PhysicsPerformancePayload(int stride, std::vector<float> table);
   int stride(){return stride_;}
 
   typedef std::vector<float> Row;
@@ -29,7 +28,6 @@ class PhysicsPerformancePayload
   
  protected:
   int stride_;
-  std::string columns_;
   std::vector<float> table_;
 };
 

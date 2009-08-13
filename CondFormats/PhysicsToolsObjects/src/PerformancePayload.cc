@@ -1,6 +1,6 @@
-#include "CondFormats/BTauObjects/interface/BtagPerformancePayload.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
-const float BtagPerformancePayload::InvalidResult = -100.;
+const float PerformancePayload::InvalidResult = -100.;
 
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,4 +9,4 @@ const float BtagPerformancePayload::InvalidResult = -100.;
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(BtagPerformancePayload);
+EVENTSETUP_DATA_REG(PerformancePayload);
