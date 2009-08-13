@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.86 2009/08/12 12:49:44 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.87 2009/08/13 19:11:17 amraktad Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/src/CSGContinuousAction.h"
+#include "Fireworks/Core/interface/CSGContinuousAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
