@@ -9,26 +9,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
-
+//#include "CondFormats/PhysicsPerformance/interface/PhysicsPerformancePayload.h"
+//#include "CondFormats/DataRecord/interface/PerformancePayloadRecord.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-
-class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
+class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyzer
 {
 public:
-  PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
+  PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
-  ~PhysicsPerformanceDBWriterFromFile_WPandPayload() {}
+  ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() {}
 
 private:
   std::string inputTxtFile;
   std::string rec1,rec2;
+  
 };
 
-PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromFile_WPandPayload
+PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL
   (const edm::ParameterSet& p)
 {
   inputTxtFile = p.getUntrackedParameter<std::string>("inputTxtFile");
@@ -36,7 +37,7 @@ PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromF
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
 }
 
-void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventSetup&)
+void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob(const edm::EventSetup&)
 {
   //
   // read object from file
@@ -47,9 +48,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   // - tagger name
   // - cut
   // - concrete class name
-  // - how many results and how many binning
-  // - their values
-  // - vector<float>
+  // number of results (== number of formulas)
+  // number of variables in the parameterization
+  // - results (as ints)
+  // - variables (as ints)
+  // - formulas
+  // - the limits
   //
 
   std::ifstream in;
@@ -58,9 +62,8 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   float cut;
  
   std::string concreteType;
-  std::string comment;
-  std::vector<float> pl;
-  int stride;
+  std::vector< std::pair<float, float> > limits;
+  std::vector<std::string> formulas;
 
   in >> tagger;
   std::cout << "WP Tagger is "<<tagger<<std::endl;
@@ -71,81 +74,94 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   in >> concreteType;
   std::cout << "concrete Type is "<<concreteType<<std::endl;
 
-  //  return ;
-
-  // read # of results
-
-  int nres, nbin;
+  int nres=0, nvar=0;
+  
   in >> nres;
-  in >> nbin;
-  std::cout <<" Results: " << nres<<" Binning variables: "<<nbin<<std::endl;
+  in >> nvar;
 
-  stride = nres+nbin*2;
-  
-  int number=0;
-  
+  std::cout <<" Using "<<nres<<" results and "<< nvar<<" variables"<<std::endl;
+
+  int number=0;;
+
   std::vector<PerformanceResult::ResultType> res;
   std::vector<BinningVariables::BinningVariablesType> bin;
-
+  //
+  // read results
+  //
+  number=0;
   while (number<nres && !in.eof()) {
     int tmp;
     in>> tmp;
     res.push_back((PerformanceResult::ResultType)(tmp));
+    std::cout <<" Result #"<<number <<" is "<<tmp<<std::endl;;
     number++;
   }
   if (number != nres){
     std::cout <<" Table not well formed"<<std::endl;
   }
+
+  //
+  // read the variables
+  //
+
+
   number=0;
-  while (number<nbin && !in.eof()) {
+  while (number<nvar && !in.eof()) {
     int tmp;
     in>> tmp;
     bin.push_back((BinningVariables::BinningVariablesType)(tmp));
+    std::cout <<" Variable #"<<number <<" is "<<tmp<<std::endl;;
     number++;
   }
-  if (number != nbin){
+  if (number != nvar){
     std::cout <<" Table not well formed"<<std::endl;
   }
+
+
+  //
+  // now read the formulas
+  //
+  number =0;
+
+  while (number < nres && (!in.eof())){
+    std::string temp;
+    in >> temp;
+    std::cout <<" Inserting "<<temp<< " as formula in position "<<number<<std::endl;
+    number++;
+    formulas.push_back(temp);
+  }
+
+  if (nres!= number ){
+    std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
+    abort();
+  }
+
 
   number=0;
-  while (!in.eof()){
-    float temp;
-    in >> temp;
-    std::cout <<" Intersing "<<temp<< " in position "<<number<<std::endl;
+  while (number < nvar && (!in.eof())){
+    float temp1,temp2;
+    in >> temp1;
+    in >> temp2;
+    std::cout <<" Inserting "<<temp1<<","<<temp2<< " as limits in position "<<number<<std::endl;
     number++;
-    pl.push_back(temp);
+    limits.push_back(std::pair<float, float>(temp1,temp2));
   }
-
-  //
-  // CHECKS
-  //
-  if (stride != nbin*2+nres){
-    std::cout <<" Table not well formed"<<std::endl;
-  }
-  if ((number % stride) != 0){
-    std::cout <<" Table not well formed"<<std::endl;
+  if (nvar != number ){
+    std::cout <<" NOT OK, this is not what I would expect"<<std::endl;
+    abort();
   }
 
   in.close();
 
 
-  /*  for (int k=0;k<(number/stride); k++){
-    for (int j=0; j<stride; j++){
-      std::cout << "Pos["<<k<<","<<j<<"] = "<<pl[k*stride+j]<<std::endl;
-    }
-  }
-  */
-
-  //
-  // now create pl etc etc
-  //
-
   PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
+  PerformancePayloadFromTFormula * btagpl = 0;
 
-  PerformancePayloadFromTable * btagpl = 0;
+  PhysicsTFormulaPayload ppl(limits, formulas);
 
-  if (concreteType == "PerformancePayloadFromTable"){
-    btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);
+
+  if (concreteType == "PerformancePayloadFromTFormula"){
+    btagpl = new PerformancePayloadFromTFormula(res, bin, ppl);
   }else{
     std::cout <<" Non existing request: " <<concreteType<<std::endl;
   }
@@ -197,4 +213,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   
 }
 
-DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterFromFile_WPandPayload);
+
+
+
+DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL);

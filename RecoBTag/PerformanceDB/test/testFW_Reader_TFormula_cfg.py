@@ -18,17 +18,24 @@ process.source = cms.Source("EmptySource")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBCommon,
                                       toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('PerformanceWPRecord'),
-    tag = cms.string('TEST_TABLE_1_WP'),
-    label = cms.untracked.string('TEST_TABLE_1_WP')
-    ),
+#    cms.PSet(
+#    record = cms.string('PerformanceWPRecord'),
+#    tag = cms.string('TEST_TABLE_1_WP'),
+#    label = cms.untracked.string('TEST_TABLE_1_WP')
+#    ),
                                                         cms.PSet(
     record = cms.string('PerformancePayloadRecord'),
-    tag = cms.string('TEST_TABLE_1'),
-    label = cms.untracked.string('TEST_TABLE_1')
-    ))
+    tag = cms.string('TEST_TF_1'),
+    label = cms.untracked.string('TEST_TF_1')
+    ),
+                                                        cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('TEST_TF_1_WP'),
+    label = cms.untracked.string('TEST_TF_1_WP')
+    )
 
+
+                                                        )
 )
 
 process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES',
@@ -37,8 +44,8 @@ process.demo2 = cms.EDAnalyzer('TestPerformanceFW_ES',
 #
 # change inside the source
 #
-process.BtagPerformanceESProducer_test.PayloadName = "TEST_TABLE_1"
-process.BtagPerformanceESProducer_test.WorkingPointName = "TEST_TABLE_1_WP"
+process.BtagPerformanceESProducer_test.PayloadName = "TEST_TF_1"
+process.BtagPerformanceESProducer_test.WorkingPointName = "TEST_TF_1_WP"
 
 process.p = cms.Path(process.demo2)
 

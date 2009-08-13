@@ -14,29 +14,32 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 
-class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
+class PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV : public edm::EDAnalyzer
 {
 public:
-  PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
+  PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV(const edm::ParameterSet&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
   virtual void endJob() {}
-  ~PhysicsPerformanceDBWriterFromFile_WPandPayload() {}
+  ~PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV() {}
 
 private:
   std::string inputTxtFile;
   std::string rec1,rec2;
+  boost::uint64_t iovBegin,iovEnd;  
 };
 
-PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromFile_WPandPayload
+PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV
   (const edm::ParameterSet& p)
 {
   inputTxtFile = p.getUntrackedParameter<std::string>("inputTxtFile");
   rec1 = p.getUntrackedParameter<std::string>("RecordPayload");
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
+  iovBegin = p.getParameter<boost::uint64_t>("IOVBegin"); 
+  iovEnd = p.getParameter<boost::uint64_t>("IOVEnd"); 
 }
 
-void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventSetup&)
+void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob(const edm::EventSetup&)
 {
   //
   // read object from file
@@ -158,16 +161,19 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
       if (s->isNewTagRequest(rec1))
 	{
 	  s->createNewIOV<PerformancePayload>(btagpl,
-						  s->beginOfTime(),
-						  s->endOfTime(),
+					      //						  s->beginOfTime(),
+					      //						  s->endOfTime(),
+					      iovBegin,
+					      iovEnd,
 						  rec1);
 	}
       else
 	{
 	  
 	  s->appendSinceTime<PerformancePayload>(btagpl,
-						     // JUST A STUPID PATCH
-						     111,
+						 // JUST A STUPID PATCH
+						 //						     111,
+						 iovBegin,
 						     rec1);
 	}
     }
@@ -179,16 +185,19 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
       if (s->isNewTagRequest(rec2))
 	{
 	  s->createNewIOV<PerformanceWorkingPoint>(wp,
-					    s->beginOfTime(),
-					    s->endOfTime(),
+						   //					    s->beginOfTime(),
+						   //					    s->endOfTime(),
+						   iovBegin,
+						   iovEnd,
 					    rec2);
 	}
       else
 	{
 	  
 	  s->appendSinceTime<PerformanceWorkingPoint>(wp,
-					       /// JUST A STUPID PATCH
-					       111,
+						      /// JUST A STUPID PATCH
+						      //					       111,
+						      iovBegin,
 					       rec2);
 	}
     }
@@ -197,4 +206,4 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   
 }
 
-DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterFromFile_WPandPayload);
+DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV);
