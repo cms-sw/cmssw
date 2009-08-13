@@ -62,14 +62,13 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void CloseWindow();
+  virtual void CloseWindow();
 
    void addToActionMap(CSGAction *action);
    Bool_t activateMenuEntry(int entry);
    Bool_t activateToolBarEntry(int entry);
    void defaultAction();
    void loadEvent(const fwlite::Event& event);
-   void newFile(const char* fileName);
    void quit();
    CSGAction* getAction(const std::string& name);
    void enableActions(bool enable = true);
@@ -111,7 +110,6 @@ private:
    Long_t m_tooltipDelay;
    TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
-   TGLabel* m_fileName;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
    CSGAction *m_goToFirst;
