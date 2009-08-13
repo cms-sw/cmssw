@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-hepMCCopy = cms.EDProducer("HepMCCopy")
+generator = cms.EDProducer("HepMCCopy")

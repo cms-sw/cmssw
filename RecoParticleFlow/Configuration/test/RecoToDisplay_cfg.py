@@ -68,7 +68,7 @@ process.load("RecoMET.Configuration.GenMETParticles_cff")
 process.load("RecoMET.Configuration.RecoGenMET_cff")
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 process.load("RecoParticleFlow.Configuration.HepMCCopy_cfi")
-process.genReReco = cms.Sequence(process.hepMCCopy+
+process.genReReco = cms.Sequence(process.generator+
                                  process.genParticles+
                                  process.genJetParticles+
                                  process.recoGenJets+
