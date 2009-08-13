@@ -24,7 +24,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.output = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('/uscms_data/d2/rappocc/JetMET/reco/FastJetReco_phase5.root')
+    fileName = cms.untracked.string('/uscms_data/d2/rappocc/JetMET/reco/FastJetReco_phase6.root')
 )
 process.output.outputCommands.append('keep *_*_*_JETRECO');
 
@@ -34,31 +34,31 @@ process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.load('RecoJets.Configuration.GenJetParticles_cff')
-process.load('RecoJets.JetProducers.RecoGenJets_cff')
-process.load('RecoJets.JetProducers.RecoCaloJets_cff')
-process.load('RecoJets.JetProducers.RecoPFJets_cff')
+process.load('RecoJets.Configuration.RecoGenJets_cff')
+process.load('RecoJets.Configuration.RecoJets_cff')
+process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.load('RecoJets.JetProducers.TracksForJets_cff')
-process.load('RecoJets.JetProducers.RecoTrackJets_cff')
+process.load('RecoJets.Configuration.RecoTrackJets_cff')
 
 process.recoJets = cms.Path(process.genParticlesForJets+process.recoGenJets+
-                            process.recoCaloJets+
+                            process.recoJets+
                             process.recoPFJets+
                             process.tracksForJets+process.recoTrackJets
                             )
 
 process.recoAllJets = cms.Path(process.genParticlesForJets+process.recoAllGenJets+
-                               process.recoAllCaloJets+
+                               process.recoAllJets+
                                process.recoAllPFJets+
                                process.tracksForJets+process.recoAllTrackJets
                                )
 
-process.recoAllJetsPUOffsetCorr = cms.Path(process.recoAllCaloJetsPUOffsetCorr
+process.recoAllJetsPUOffsetCorr = cms.Path(process.recoAllJetsPUOffsetCorr
                                            )
 
 process.out = cms.EndPath(process.output)
 
 # schedule
-process.schedule = cms.Schedule(process.recoAllJets,process.recoAllJetsPUOffsetCorr,process.out)
+process.schedule = cms.Schedule(process.recoAllJets,process.out)
 
 # Set the threshold for output logging to 'info'
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
