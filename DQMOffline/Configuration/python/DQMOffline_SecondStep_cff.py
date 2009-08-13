@@ -14,7 +14,7 @@ from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-dqmRefHistoRootFileGetter=cms.EDAnalyzer("DQMReferenceHistogramRootFileEventSetupAnalyzer")
+from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 
 DQMOffline_SecondStep = cms.Sequence(dqmRefHistoRootFileGetter*ecal_dqm_client_offline*muonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*bTagCollectorSequence*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*dqmFEDIntegrityClient)
 
