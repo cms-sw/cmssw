@@ -1235,8 +1235,9 @@ class PerfSuite:
                #Save the original AvailableCores list to use it as a test to break the infinite loop:
                #While in the regular RelVal use-case it makes sense to use the actual number of cores of the machines, in
                #the IB case the AvailableCores will always consist of only 1 single core..
-               OriginalAvailableCores=AvailableCores
-               print AvailableCores
+               OriginalAvailableCores=list(AvailableCores) #Tricky list copy bug! without the list() OriginalAvalaibleCores would point to AvailableCores!
+               #Print this out in the log for debugging reasons
+               print "Original available cores list:", AvailableCores
 
                #Create a dictionaty to keep track of running threads on the various cores:
                activePerfTestThreads={}
@@ -1278,10 +1279,18 @@ class PerfSuite:
                         print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
                         print "About to append cpu %s to AvailableCores list"%cpu
                         AvailableCores.append(cpu)
+                  #Buggy if... it seems we don't wait for the running thread to be finished...
+                  #We should request:
+                  #-All OriginalAvailableCores should be actually available.
                   if not AvailableCores==[] and (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
                      print "PHEW! We're done... all TestsToDo are done..."
-                     print AvailableCores
-                     print TestsToDo
+                     #Debug printouts:
+                     #print "AvailableCores",AvailableCores
+                     #print "set(AvailableCores)",set(AvailableCores)
+                     #print "set(range(cmsCpuInfo.get_NumOfCores())",set(range(cmsCpuInfo.get_NumOfCores()))
+                     #print "OriginalAvailableCores",OriginalAvailableCores
+                     #print "set(OriginalAvailableCores)",set(OriginalAvailableCores)                                   
+                     #print "TestsToDo",TestsToDo
                      break
                   else:
                      #Putting the sleep statement first to avoid writing Waiting... before the output of the started thread reaches the log... 
