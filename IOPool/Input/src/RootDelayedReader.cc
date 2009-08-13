@@ -12,10 +12,12 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
-      boost::shared_ptr<TFile const> filePtr,
+      TTreeCache* treeCache,
+      boost::shared_ptr<TFile> filePtr,
       FileFormatVersion const& fileFormatVersion) :
    entryNumber_(entry),
    branches_(bMap),
+   treeCache_(treeCache),
    filePtr_(filePtr),
    nextReader_(),
    fileFormatVersion_(fileFormatVersion) {}
@@ -40,7 +42,7 @@ namespace edm {
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
-    input::getEntry(br, entryNumber_);
+    input::getEntryWithCache(br, entryNumber_, treeCache_, filePtr_.get());
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
     return p;
   }

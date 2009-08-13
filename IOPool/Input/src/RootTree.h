@@ -53,13 +53,13 @@ namespace edm {
     boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
-    void fillAux(T *& pAux) const {
+    void fillAux(T *& pAux) {
       auxBranch_->SetAddress(&pAux);
-      input::getEntry(auxBranch_, entryNumber_);
+      input::getEntryWithCache(auxBranch_, entryNumber_, treeCache_, filePtr_.get());
     }
     TTree const* tree() const {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
-    void setCacheSize(unsigned int cacheSize) const;
+    void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     BranchMap const& branches() const {return *branches_;}
     std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
@@ -78,6 +78,7 @@ namespace edm {
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
     TTree * tree_;
+    TTreeCache * treeCache_;
     TTree * metaTree_;
     BranchType branchType_;
     TBranch * auxBranch_;

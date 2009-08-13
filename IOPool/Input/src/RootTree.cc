@@ -34,6 +34,7 @@ namespace edm {
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
+    treeCache_(0),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
@@ -115,13 +116,15 @@ namespace edm {
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
+        store(new RootDelayedReader(entryNumber_, branches_, treeCache_, filePtr_, fileFormatVersion));
     return store;
   }
 
   void
-  RootTree::setCacheSize(unsigned int cacheSize) const {
+  RootTree::setCacheSize(unsigned int cacheSize) {
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
+    treeCache_ = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead());
+    filePtr_->SetCacheRead(0);
   }
 
   void
@@ -131,21 +134,23 @@ namespace edm {
 
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
-    if (TTreeCache *tc = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead())) {
-      if (theEntryNumber >= 0 && tc->GetOwner() == tree_ && tc->IsLearning()) {
-	tc->SetLearnEntries(1);
-	tc->SetEntryRange(0, tree_->GetEntries());
+    filePtr_->SetCacheRead(treeCache_);
+    if (treeCache_) {
+      assert(treeCache_->GetOwner() == tree_);
+      if (theEntryNumber >= 0 && treeCache_->IsLearning()) {
+	treeCache_->SetLearnEntries(1);
+	treeCache_->SetEntryRange(0, tree_->GetEntries());
         for (BranchMap::const_iterator i = branches_->begin(), e = branches_->end(); i != e; ++i) {
 	  if (i->second.productBranch_) {
-	    tc->AddBranch(i->second.productBranch_, kTRUE);
+	    treeCache_->AddBranch(i->second.productBranch_, kTRUE);
 	  }
 	}
-        tc->StopLearningPhase();
+        treeCache_->StopLearningPhase();
       }
     }
-
     entryNumber_ = theEntryNumber;
     tree_->LoadTree(theEntryNumber);
+    filePtr_->SetCacheRead(0);
   }
 
 
@@ -155,6 +160,7 @@ namespace edm {
     // Just to play it safe, zero all pointers to quantities in the file.
     auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
     tree_ = metaTree_ = infoTree_ = 0;
+    treeCache_ = 0;
     filePtr_.reset();
   }
 
@@ -180,6 +186,28 @@ namespace edm {
       catch(cms::Exception e) {
 	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
       }
+      return n;
+    }
+
+    Int_t
+    getEntryWithCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* tc, TFile* filePtr) {
+      if (tc == 0) {
+        return getEntry(branch, entryNumber);
+      }
+      filePtr->SetCacheRead(tc);
+      Int_t n = getEntry(branch, entryNumber);
+      filePtr->SetCacheRead(0);
+      return n;
+    }
+
+    Int_t
+    getEntryWithCache(TTree* tree, EntryNumber entryNumber, TTreeCache* tc, TFile* filePtr) {
+      if (tc == 0) {
+        return getEntry(tree, entryNumber);
+      }
+      filePtr->SetCacheRead(tc);
+      Int_t n = getEntry(tree, entryNumber);
+      filePtr->SetCacheRead(0);
       return n;
     }
   }

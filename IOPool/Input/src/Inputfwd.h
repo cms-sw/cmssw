@@ -6,7 +6,9 @@
 #include "Rtypes.h"
 #include "Reflex/Type.h"
 class TBranch;
+class TFile;
 class TTree;
+class TTreeCache;
 
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
@@ -31,6 +33,8 @@ namespace edm {
     typedef Long64_t EntryNumber;
     Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
     Int_t getEntry(TTree * tree, EntryNumber entryNumber);
+    Int_t getEntryWithCache(TBranch * branch, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
+    Int_t getEntryWithCache(TTree * tree, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
   }
 }
 #endif
