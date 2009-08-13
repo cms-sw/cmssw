@@ -499,8 +499,8 @@ IMGC.getApplicationURL = function()
   var s0          = (url.lastIndexOf(":")+1);
   var s1          = url.lastIndexOf("/");
   var port_number = url.substring(s0, s1);
-  if (port_number == "40000") {
-    url += "urn:xdaq-application:lid=27/moduleWeb?module=SiPixelEDAClient&";
+  if (port_number == "22101") {
+    url += "urn:xdaq-application:lid=50/moduleWeb?module=SiPixelEDAClient&";
   } else if (port_number == "1972") {
     url += "urn:xdaq-application:lid=15/Request?";
   }
@@ -838,7 +838,8 @@ IMGC.handleImageClick = function (theEvent)
  element.opacity_fx = new Fx.Styles(element, {duration: 300, transition: Fx.Transitions.quadOut}); 
 
  if(element.offsetWidth != IMGC.BASE_IMAGE_WIDTH)	 // If current image is a small icon, bring forward and fill whole canvas
- {                                                       // with it; in the mean time cycle through all other images and make them
+ {    
+	IMGC.removePrintWindow() ;		                                                   // with it; in the mean time cycle through all other images and make them
   element.style.zIndex = 3;                              // small again
  
   element.slide_fx.clearTimer();
