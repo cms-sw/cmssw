@@ -1449,7 +1449,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
   if(bei->pwd().find("EventInfo")!=string::npos) endOfModules_ = true;
   
   if(!endOfModules_) return;
-  myfile_ <<"am in "<<bei->pwd()<<" now!"<<endl;
+  // myfile_ <<"am in "<<bei->pwd()<<" now!"<<endl;
   if(currDir == "Pixel/EventInfo/reportSummaryContents"){
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     std::vector<std::pair<sipixelobjects::DetectorIndex,double> > pixelvec;

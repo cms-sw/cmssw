@@ -499,8 +499,8 @@ IMGC.getApplicationURL = function()
   var s0          = (url.lastIndexOf(":")+1);
   var s1          = url.lastIndexOf("/");
   var port_number = url.substring(s0, s1);
-  if (port_number == "22101") {
-    url += "urn:xdaq-application:lid=50/moduleWeb?module=SiPixelEDAClient&";
+  if (port_number == "40000") {
+    url += "urn:xdaq-application:lid=27/moduleWeb?module=SiPixelEDAClient&";
   } else if (port_number == "1972") {
     url += "urn:xdaq-application:lid=15/Request?";
   }
