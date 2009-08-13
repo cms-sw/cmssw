@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.140 2009/08/12 18:16:24 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.141 2009/08/12 19:21:03 chrjones Exp $
 //
 
 // system include files
@@ -298,7 +298,9 @@ void
 FWGUIManager::newFile(const TFile* iFile)
 {
    m_openFile = iFile;
-   m_cmsShowMainFrame->newFile(m_openFile->GetName());
+   char title[128];
+   snprintf(title,128,"cmsShow: %s", iFile->GetName());
+   m_cmsShowMainFrame->SetWindowName(title);
 }
 
 void
