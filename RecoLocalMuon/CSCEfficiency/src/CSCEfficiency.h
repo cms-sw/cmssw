@@ -154,6 +154,11 @@ public:
   double maxNormChi2;
   uint minTrackHits;
 
+  bool applyIPangleCuts;
+  double local_DY_DZ_Max;
+  double local_DY_DZ_Min;
+  double local_DX_DZ_Max;
+
   // trigger
   bool useTrigger;
   //edm::Handle<edm::TriggerResults> hltR

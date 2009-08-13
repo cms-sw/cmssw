@@ -365,13 +365,16 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		DataFlow->Fill(19.);  
 		if (printalot) std::cout<<"Do efficiencies..."<<std::endl;
 		//---- Do efficiencies
-                bool digi_flag; digi_flag = efficienciesPerChamber(theCSCId, cscChamber, ftsStart);  
-		if(useDigis){
+		// angle cuts applied (if configured)
+		bool angle_flag = true; angle_flag = efficienciesPerChamber(theCSCId, cscChamber, ftsStart);  
+		if(useDigis && angle_flag){
 		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
 		}
-		bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
-		if(!isData){
-		  recSimHitEfficiency(theCSCId, ftsStart);
+                if(angle_flag){
+		  bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
+		  if(!isData){
+		    recSimHitEfficiency(theCSCId, ftsStart);
+		  }
 		}
 	      }
               else{
@@ -950,6 +953,12 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
   }
   bool missingALCT = false;
   bool missingCLCT = false;
+  bool out = false;
+  if(applyIPangleCuts){
+    if(dydz<local_DY_DZ_Max && dydz>local_DY_DZ_Min && fabs(dxdz)<local_DX_DZ_Max){ 
+      out = true;
+    }
+  }
   if(useDigis){
     // ALCTs
     firstCondition = allALCT[ec][st][rg][ch];
@@ -958,17 +967,26 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
       secondCondition = allALCT[ec][st][secondRing][ch];
     }
     if(firstCondition || secondCondition){
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
-      StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-      ChHist[ec][st][rg][ch].EfficientALCT_dydz->Fill(dydz);
+      if(out){
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(3);
+      }
+      // always apply partial angle cuts for this kind of histos 
+      if(fabs(dxdz)<local_DX_DZ_Max){
+	StHist[ec][st].EfficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+	ChHist[ec][st][rg][ch].EfficientALCT_dydz->Fill(dydz);
+      }
     }
     else{
-      missingALCT = true;
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
-      StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
-      ChHist[ec][st][rg][ch].InefficientALCT_dydz->Fill(dydz);
+      missingALCT = true; 
+      if(out){
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
+      }
+      if(fabs(dxdz)<local_DX_DZ_Max){ 
+	StHist[ec][st].InefficientALCT_momTheta->Fill(ftsChamber.momentum().theta());
+	ChHist[ec][st][rg][ch].InefficientALCT_dydz->Fill(dydz);
+      }
       if(printalot){
-	std::cout<<" missing ALCT";
+	std::cout<<" missing ALCT (dy/dz = "<<dydz<<")";
 	printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
       }
     }
@@ -980,38 +998,42 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
       secondCondition = allCLCT[ec][st][secondRing][ch];
     }
     if(firstCondition || secondCondition){
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
-      StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
-      ChHist[ec][st][rg][ch].EfficientCLCT_dxdz->Fill(dxdz);
+      if(out){
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(5);
+      }
+      if(dydz<local_DY_DZ_Max && dydz>local_DY_DZ_Min){
+	StHist[ec][st].EfficientCLCT_momPhi->Fill(ftsChamber.momentum().phi() );// - phi chamber...
+	ChHist[ec][st][rg][ch].EfficientCLCT_dxdz->Fill(dxdz);
+      }
     }
     else{
       missingCLCT = true;
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
-      StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
-      ChHist[ec][st][rg][ch].InefficientCLCT_dxdz->Fill(dxdz);
+      if(out){
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
+      }
+      if(dydz<local_DY_DZ_Max && dydz>local_DY_DZ_Min){ 
+	StHist[ec][st].InefficientCLCT_momPhi->Fill(ftsChamber.momentum().phi());// - phi chamber...
+	ChHist[ec][st][rg][ch].InefficientCLCT_dxdz->Fill(dxdz);
+      }
       if(printalot){
-	std::cout<<" missing CLCT";
+	std::cout<<" missing CLCT  (dx/dz = "<<dxdz<<")";
 	printf("\t\tendcap/station/ring/chamber: %i/%i/%i/%i\n",ec+1,st+1,rg+1,ch+1);
       }
     }
-    
-    // CorrLCTs
-    firstCondition = allCorrLCT[ec][st][rg][ch];
-    secondCondition = false;
-    if(secondRing>-1){
-      secondCondition = allCorrLCT[ec][st][secondRing][ch];
+    if(out){
+      // CorrLCTs
+      firstCondition = allCorrLCT[ec][st][rg][ch];
+      secondCondition = false;
+      if(secondRing>-1){
+	secondCondition = allCorrLCT[ec][st][secondRing][ch];
+      }
+      if(firstCondition || secondCondition){
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(7);
+      }
+      else{
+	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
+      }
     }
-    if(firstCondition || secondCondition){
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(7);
-    }
-    else{
-      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(6);
-    }
-  }
-  bool out = false;
-  //if((missingCLCT && !missingALCT )|| (missingALCT && 0==st&&2==rg)){
-  if(missingALCT && 0==st&&2==rg){
-    out = true;
   }
   return out;
 }
@@ -1492,6 +1514,10 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
   maxNormChi2 = pset.getUntrackedParameter<double>("maxNormChi2", 3.);//
   minTrackHits = pset.getUntrackedParameter<uint>("minTrackHits",10);//
 
+  applyIPangleCuts = pset.getUntrackedParameter<bool>("applyIPangleCuts", false);// 
+    local_DY_DZ_Max = pset.getUntrackedParameter<double>("local_DY_DZ_Max",-0.1);//
+      local_DY_DZ_Min = pset.getUntrackedParameter<double>("local_DY_DZ_Min",-0.8);//
+        local_DX_DZ_Max = pset.getUntrackedParameter<double>("local_DX_DZ_Max",0.2);//
 
   alctDigiTag_  = pset.getParameter<edm::InputTag>("alctDigiTag") ;
   clctDigiTag_  = pset.getParameter<edm::InputTag>("clctDigiTag") ;
