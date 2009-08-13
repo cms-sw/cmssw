@@ -4,9 +4,11 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <map>
 #include <boost/lexical_cast.hpp>
 #include <TTree.h>
-#include "TF1.h"
+#include <TF1.h>
+#include <TGraphErrors.h>
 #include "TTREE_FOREACH_ENTRY.hh"
 #include "Book.h"
 
@@ -27,7 +29,7 @@ class LA_Filler_Fitter {
   static void fit(Book& book) {make_and_fit_ratio(book); make_and_fit_profile(book,"-tanLA");}
   static void make_and_fit_ratio(Book&);
   static void make_and_fit_profile(Book&, const std::string&);
-  static void collate_ensemble(const Book&, Book&);
+  static std::map<std::string, TGraphErrors*> harvest_samples(const Book&);
 
  private:
 
@@ -42,6 +44,9 @@ class LA_Filler_Fitter {
   double tanLA_low, tanLA_up;
   bool bySub, byLayer, byModule, byPitch, summary;
   Long64_t maxEvents;
+
+  struct Point { float x,y,xerr,yerr; Point(){}};
+  static TGraphErrors* tgraphe(const std::vector<Point>& vpoints);
 
 };
 
@@ -131,35 +136,59 @@ make_and_fit_profile(Book& book, const std::string& key) {
     std::string name = hist2D.name()+"_profile";
     book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
     TF1* fit = new TF1("fitfunc","[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
-    fit->SetParameters(book(name)->GetMean(1),book(name)->GetMean(2),1);
-    book(name)->Fit(fit);
+    fit->SetParameters(book(name)->GetMean(1),
+		       -0.5 * book(name)->GetMaximum() / book(name)->GetBinCenter(0),
+		       0.5*book(name)->GetMean(2));
+    book(name)->Fit(fit,"IMQ");
   }
 }
 
-void LA_Filler_Fitter::
-collate_ensemble(const Book& laBook, Book& book) {
-  for(Book::const_iterator recoSample = laBook.begin(".*_sample\\d*_reconstruction"); recoSample!=laBook.end(); ++recoSample ) {
-    std::string name = recoSample.name();
-    std::string base = name.substr(0, name.find("_sample"));
-    std::string sample = name.substr(name.find("_sample"),name.find("_reconstruction")-name.find("_sample"));
+std::map<std::string, TGraphErrors*> LA_Filler_Fitter::
+harvest_samples(const Book& book) {
+  typedef std::map<std::string, std::vector<Point> > harvest_t;
 
-    TH1* ratio = laBook(base+sample+"_ratio_tanLA");
-    TH1* wprofile = laBook(base+sample+"_width-tanLA_profile");
-    TH1* vprofile = laBook(base+sample+"_variance-tanLA_profile");
-    double true_value = (*recoSample)->GetMean();
-    double ratio_value = ratio->GetFunction("gaus")->GetParameter(1);
-    double ratio_pull = (ratio_value-true_value) / ratio->GetFunction("gaus")->GetParError(1);
-    double wprofile_value = wprofile->GetFunction("fitfunc")->GetParameter(0);
-    double wprofile_pull = (wprofile_value-true_value) / wprofile->GetFunction("fitfunc")->GetParError(0);
-    double vprofile_value = vprofile->GetFunction("fitfunc")->GetParameter(0);
-    double vprofile_pull = (vprofile_value-true_value) / vprofile->GetFunction("fitfunc")->GetParError(0);
+  harvest_t harvest;
+  for(Book::const_iterator sample = book.begin(".*_sample.*"); sample!=book.end(); ++sample ) {
 
-    book.fill( ratio_value,    base+"_ratio_value",    101, -0.2, 0.1 );
-    book.fill( wprofile_value, base+"_wprofile_value", 101, -0.2, 0.1 );
-    book.fill( vprofile_value, base+"_vprofile_value", 101, -0.2, 0.1 );
+    Point p;
 
-    book.fill( ratio_pull,     base+"_ratio_pull",     101, -5, 5 );
-    book.fill( wprofile_pull,  base+"_wprofile_pull",  101, -5, 5 );
-    book.fill( vprofile_pull,  base+"_vprofile_pull",  101, -5, 5 );
+    if( sample.name().find("ratio") != std::string::npos ) {
+      p.y = (*sample)->GetFunction("gaus")->GetParameter(1);
+      p.yerr = (*sample)->GetFunction("gaus")->GetParError(1);
+    } else 
+    if( sample.name().find("profile") != std::string::npos ) {
+      p.y = (*sample)->GetFunction("fitfunc")->GetParameter(0);
+      p.yerr = (*sample)->GetFunction("fitfunc")->GetParError(0);
+    } else continue;
+
+    std::string s = sample.name();
+    std::string reconame = s.substr(0, s.find("_", s.find("sample")) ) + "_reconstruction";
+    std::string name = "graph_"+s.substr(1+s.find("_",s.find("recoLA")));
+    name.erase(name.find("_sample"),name.find("_",name.find("sample"))-name.find("_sample"));
+
+    p.x = book(reconame)->GetMean();
+    p.xerr = book(reconame)->GetRMS();
+    harvest[name].push_back(p);
   }
+  
+  std::map<std::string, TGraphErrors*> harvest_graphs;
+  for(harvest_t::const_iterator it = harvest.begin(); it!=harvest.end(); ++it) {
+    std::cout << it->first << std::endl;
+    harvest_graphs[it->first] = tgraphe(it->second);
+  }
+
+  return harvest_graphs;
+}
+
+TGraphErrors* LA_Filler_Fitter::
+tgraphe(const std::vector<Point>& vpoints) {
+  std::vector<float> x,y,xerr,yerr;
+  BOOST_FOREACH(Point p, vpoints) {
+    x.push_back(p.x);
+    y.push_back(p.y);
+    xerr.push_back(p.xerr);
+    yerr.push_back(p.yerr);
+    std::cout << p.x << "(" << p.xerr << ")\t" << p.y << "(" << p.yerr << ")" << std::endl;
+  }
+  return new TGraphErrors(vpoints.size(), &(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
 }
