@@ -5,7 +5,6 @@ root outtree 1
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
-//root file /castor/cern.ch/user/l/lacroix/MET_Validation/ttbar_fastsim_310_pre11_muonAndJEC/display_001.root
 
 // filter ------------------------------------------------------------
 
@@ -42,14 +41,11 @@ root muon_branch           recoMuons_muons__PROD.obj
 // Conversion branch
 root conversion_branch     recoPFConversions_pfConversions__PROD.obj
 
-// root clusters_island_barrel_branch recoBasicClusters_islandBasicClusters_islandBarrelBasicClusters_PROD.obj
-
 root caloTowers_branch     CaloTowersSorted_towerMaker__PROD.obj
 
 // reconstructed tracks branch
 
 root recTracks_branch      recoPFRecTracks_trackerDrivenElectronSeeds__PROD.obj
-//root stdTracks_branch      recoTracks_iterativeGSWithMaterialTracks__PROD.obj
 root stdTracks_branch      recoTracks_generalTracks__PROD.obj
 
 // true particles branch
