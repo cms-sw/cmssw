@@ -1,20 +1,29 @@
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtFullLepHypothesis.h"
 
-
+/// default constructor
 TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg):
-  match_(cfg.getParameter<edm::InputTag>("match")), 
   elecs_(cfg.getParameter<edm::InputTag>("electrons")),
   mus_  (cfg.getParameter<edm::InputTag>("muons")),
   jets_ (cfg.getParameter<edm::InputTag>("jets")),
   mets_ (cfg.getParameter<edm::InputTag>("mets")),
+
   lepton_(0), leptonBar_(0), b_(0), 
   bBar_(0), neutrino_(0), neutrinoBar_(0)
 {  
+  getMatch_ = false;
+  if( cfg.exists("match") ) {
+    getMatch_ = true;
+    match_ = cfg.getParameter<edm::InputTag>("match");
+  }
+  if( cfg.exists("jetCorrectionLevel") ) {
+    jetCorrectionLevel_ = cfg.getParameter<std::string>("jetCorrectionLevel");
+  }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
 }
 
+/// default destructor
 TtFullLepHypothesis::~TtFullLepHypothesis()
 {
   if( lepton_      ) delete lepton_;
@@ -26,6 +35,7 @@ TtFullLepHypothesis::~TtFullLepHypothesis()
   //if( met_         ) delete met_;
 }
 
+/// produce the event hypothesis as CompositeCandidate and Key
 void
 TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
@@ -42,9 +52,17 @@ TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(mets_, mets);
 
   std::vector<std::vector<int> > matchVec;
-  edm::Handle<std::vector<std::vector<int> > > matchHandle;
-  evt.getByLabel(match_, matchHandle);;  
-  matchVec = *matchHandle;
+  if( getMatch_ ) {
+    edm::Handle<std::vector<std::vector<int> > > matchHandle;
+    evt.getByLabel(match_, matchHandle);;  
+    matchVec = *matchHandle;
+  }
+  else {
+    std::vector<int> dummyMatch;
+    for(unsigned int i = 0; i < 4; ++i) 
+      dummyMatch.push_back( -1 );
+    matchVec.push_back( dummyMatch );
+  }
 
   // declare auto_ptr for products
   std::auto_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
@@ -59,21 +77,18 @@ TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   // go through given vector of jet combinations
   unsigned int idMatch = 0;  
   typedef std::vector<std::vector<int> >::iterator MatchVecIterator;
-  for(MatchVecIterator match = matchVec.begin(); match != matchVec.end(); ++match) {
-        
+  for(MatchVecIterator match = matchVec.begin(); match != matchVec.end(); ++match) {        
     // reset pointers
     resetCandidates();
-
     // build hypothesis
-    buildHypo(evt, elecs, mus, jets, mets, *match, idMatch++);
-        
+    buildHypo(evt, elecs, mus, jets, mets, *match, idMatch++);        
     pOut->push_back( std::make_pair(hypo(), *match) );    
   }
-
   // feed out hyps and matches
   evt.put(pOut);
 }
 
+/// reset candidate pointers before hypo build process
 void
 TtFullLepHypothesis::resetCandidates()
 {
@@ -86,6 +101,7 @@ TtFullLepHypothesis::resetCandidates()
   //met_        = 0;
 }
 
+/// return event hypothesis
 reco::CompositeCandidate
 TtFullLepHypothesis::hypo()
 { 
@@ -138,6 +154,27 @@ TtFullLepHypothesis::hypo()
   // the four momentum of the met is not added to the hypothesis
   // because it is allready included through the neutrinos     
   //hyp.addDaughter(*met_, TtFullLepDaughter::Met);
-  
   return hyp;
+}
+
+/// helper function to contruct the proper correction level string for corresponding quarkType, for unknown quarkTypes an emty string is returned 
+std::string
+TtFullLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
+{
+  std::string level=jetCorrectionLevel_+":";
+  if( level=="had:" || level=="ue:" || level=="part:" ){
+    if(quarkType=="lightQuark"){level+="uds";}
+    if(quarkType=="bJet"      ){level+="b";  }
+  }
+  return level;
+}
+
+/// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
+void 
+TtFullLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel)
+{
+  std::string step   = correctionLevel.substr(0,correctionLevel.find(":"));
+  std::string flavor = correctionLevel.substr(1+correctionLevel.find(":"));
+  edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
+  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->correctedJet(step, flavor).p4(), ptr->vertex() );
 }

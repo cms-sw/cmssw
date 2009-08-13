@@ -22,17 +22,17 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
     if( isValid(match[idx], jets) ){
       switch(idx){
       case TtSemiLepEvtPartons::LightQ:
-	setCandidate(jets, match[idx], lightQ_); break;
+	jetCorrectionLevel("lightQuark").empty() ? setCandidate(jets, match[idx], lightQ_) : setCandidate(jets, match[idx], lightQ_, jetCorrectionLevel("lightQuark")); break;
       case TtSemiLepEvtPartons::LightQBar:
-	setCandidate(jets, match[idx], lightQBar_); break;
+	jetCorrectionLevel("lightQuark").empty() ? setCandidate(jets, match[idx], lightQBar_) : setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("lightQuark")); break;
       case TtSemiLepEvtPartons::HadB:
-	setCandidate(jets, match[idx], hadronicB_); break;
+	jetCorrectionLevel("bJet").empty() ? setCandidate(jets, match[idx], hadronicB_) : setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bJet")); break;
       case TtSemiLepEvtPartons::LepB: 
-	setCandidate(jets, match[idx], leptonicB_); break;
+	jetCorrectionLevel("bJet").empty() ? setCandidate(jets, match[idx], leptonicB_) : setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bJet")); break;
       }
     }
   }
-
+ 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
