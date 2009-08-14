@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <ios>
+#include <stdexcept>
 #include <assert.h>
 #include <stdio.h>
 
@@ -105,7 +106,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 
     if (!in.good()){
       std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-      assert(0);
+      throw std::runtime_error("Failed to open file "+filename);
     }
     else {
       std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
@@ -113,7 +114,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
         
     if (in.eof()){
       std::cout << __LINE__ << "]\t" << mthn << "EOF before reading anything!" << std::endl;
-      ::abort();
+      throw std::runtime_error("File seems to be empty "+filename);
     }
 
         

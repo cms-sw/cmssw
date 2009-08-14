@@ -13,7 +13,7 @@
 #include <iostream>
 #include <ios>
 #include <assert.h>
-
+#include <stdexcept>
 
 
 using namespace pos;
@@ -111,7 +111,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 	if (!in.good()){
 	    std::cout << __LINE__ << mthn << "Could not open:"<<filename<<std::endl;
-	    assert(0);
+	    throw std::runtime_error("Failed to open file "+filename);
 	}
 	else {
 	  // std::cout << "Opened:"<<filename<<std::endl;

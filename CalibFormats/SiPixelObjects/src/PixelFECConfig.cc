@@ -10,6 +10,7 @@
 #include <sstream>
 #include <map>
 #include <assert.h>
+#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -101,7 +102,7 @@ PixelFECConfig::PixelFECConfig(std::string filename):
 
     if (!in.good()){
 	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	assert(0);
+	throw std::runtime_error("Failed to open file "+filename);
     }
     else {
 	std::cout << __LINE__ << "]\t" << mthn <<" Opened: "         << filename << std::endl;

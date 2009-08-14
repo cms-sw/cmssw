@@ -13,6 +13,7 @@
 #include <ios>
 #include <assert.h>
 #include <stdio.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace pos;
@@ -88,7 +89,7 @@ PixelMaxVsf::PixelMaxVsf(std::string filename):
 
     if (!in.good()){
       std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-      assert(0);
+      throw std::runtime_error("Failed to open file "+filename);
     }
     else {
       std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
@@ -96,7 +97,7 @@ PixelMaxVsf::PixelMaxVsf(std::string filename):
 	
     if (in.eof()){
       std::cout << __LINE__ << "]\t" << mthn << "eof before reading anything!" << std::endl;
-      ::abort();
+      throw std::runtime_error("File appears to be empty: "+filename);
     }
 
 	

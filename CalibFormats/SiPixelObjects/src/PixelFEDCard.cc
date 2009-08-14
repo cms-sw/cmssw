@@ -9,6 +9,7 @@
 #include <cassert>
 #include <sstream>
 #include <map>
+#include <stdexcept>
 
 using namespace std;
 
@@ -545,13 +546,10 @@ PixelFEDCard::PixelFEDCard(string fileName):
   // Added by Dario (March 26th, 2008): insure variables are all cleared before read-in
   clear() ;
 
-  //cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
+  //  cout << __LINE__ << "]\t" << mthn <<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
-  if (infile == NULL) {
-    cout<< __LINE__ << mthn << "No parameter file:"<<fileName<<endl; 
-    return;
-  }
-  
+  if (infile == NULL)  throw std::runtime_error("Failed to open FED Card parameter file: "+fileName); 
+
   //Fed Base Address
   fscanf(infile,"FED Base address                         :%lx\n",
          &FEDBASE_0);

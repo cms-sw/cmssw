@@ -15,6 +15,7 @@
 #include <iostream>
 #include <ios>
 #include <assert.h>
+#include <stdexcept>
 #include <map>
 #include <sstream>
 #include <sys/time.h>
@@ -33,7 +34,8 @@ PixelDACSettings::PixelDACSettings(std::string filename):
 
     if (!in.good()){
       std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-      assert(0);
+      // assert(0); //in case of failure, we don't want POS to die here
+      throw std::runtime_error("Failed to open file "+filename);
     }
     else {
       // std::cout << "Opened:"<<filename<<std::endl;

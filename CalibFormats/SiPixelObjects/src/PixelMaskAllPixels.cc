@@ -18,6 +18,7 @@
 #include <map>
 #include <iostream>
 #include <assert.h>
+#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -103,7 +104,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::string filename):
 
 	if (!in.good()){
 	    std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	    assert(0);
+	    throw std::runtime_error("Failed to open file "+filename);
 	}
 	
 	std::string tag;

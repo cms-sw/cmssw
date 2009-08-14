@@ -8,6 +8,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <sstream>   
 #include <cassert>   
+#include <stdexcept>
 
 using namespace pos;
 using namespace std;
@@ -68,7 +69,7 @@ PixelLTCConfig::PixelLTCConfig(std::string filename):
 
     if (!in.good()){
 	std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-	assert(0);
+	throw std::runtime_error("Failed to open file "+filename);
     }
     else {
 	std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;

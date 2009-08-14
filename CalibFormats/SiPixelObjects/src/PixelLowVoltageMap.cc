@@ -13,6 +13,7 @@
 #include <ios>
 #include <assert.h>
 #include <stdio.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace pos;
@@ -110,7 +111,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     
     if (!in.good()){
       std::cout << __LINE__ << "]\t" << mthn << "Could not open: " << filename << std::endl;
-      assert(0);
+      throw std::runtime_error("Failed to open file "+filename);
     }
     else {
       std::cout << __LINE__ << "]\t" << mthn << "Opened: "         << filename << std::endl;
@@ -118,7 +119,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename):
     
     if (in.eof()){
       std::cout << __LINE__ << "]\t" << mthn << "eof before reading anything!" << std::endl;
-      ::abort();
+      throw std::runtime_error("Failure when reading file; file seems to be empty: "+filename);
     }
 
     
