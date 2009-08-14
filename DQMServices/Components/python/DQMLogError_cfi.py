@@ -6,7 +6,7 @@ logErrorDQM = cms.EDAnalyzer("DQMLogError",
                              Categories = cms.vstring(
     'PFTrackTransformer', 'RPCHitAssociator', 'GaussianSumUtilities'
     ),
-                             Directory = cms.string("Test"):q!
+                             Directory = cms.string("Test")
                              )
 
 
