@@ -31,13 +31,13 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TFile * rfile = new TFile(refFile);
  TDirectory * rdir=gDirectory;
 
- if(sfile->GetDirectory("DQMData/Run 1/RecoTrackV")) sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Seed");
+ if(sfile->GetDirectory("DQMData/Run 1/Tracking")) sfile->cd("DQMData/Run 1/Tracking/Run summary/Seed");
  else sfile->cd("DQMData/RecoTrackV/Seed");
  sdir=gDirectory;
  TList *sl= sdir->GetListOfKeys();
  TString collname2 =sl->At(0)->GetName(); 
 
- if(rfile->GetDirectory("DQMData/Run 1/RecoTrackV")) rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Seed");
+ if(rfile->GetDirectory("DQMData/Run 1/Tracking")) rfile->cd("DQMData/Run 1/Tracking/Run summary/Seed");
  else rfile->cd("DQMData/RecoTrackV/Seed");
  rdir=gDirectory;
  TList *rl= rdir->GetListOfKeys();

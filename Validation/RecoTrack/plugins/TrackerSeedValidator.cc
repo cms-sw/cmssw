@@ -34,7 +34,7 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
 
       dbe_->cd();
       InputTag algo = label[www];
-      string dirName="RecoTrackV/Seed/";
+      string dirName="Tracking/Seed/";
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")

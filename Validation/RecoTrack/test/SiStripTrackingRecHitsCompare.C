@@ -53,11 +53,16 @@ void SiStripTrackingRecHitsCompare()
  TDirectory * sdir=gDirectory; 
 
  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
- else rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else if(rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else if(rfile->cd("DQMData/Run 1/Tracking"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
+ else if(rfile->cd("DQMData/Tracking/TrackingRecHits/Strip"))rfile->cd("DQMData/Tracking/TrackingRecHits/Strip");
+
  rdir=gDirectory;
 
  if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
- else sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else if(sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Strip");
+ else if(sfile->cd("DQMData/Run 1/Tracking"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Strip");
+ else if(sfile->cd("DQMData/Tracking/TrackingRecHits/Strip"))sfile->cd("DQMData/Tracking/TrackingRecHits/Strip");
  sdir=gDirectory; 
 
  Char_t histo[200];

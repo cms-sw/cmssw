@@ -138,7 +138,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   dbe_ = edm::Service<DQMStore>().operator->();
   //  dbe_->showDirStructure();
 
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/ALL");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/ALL");
 
   Char_t histo[200];
 
@@ -231,7 +231,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   sprintf(histo,"ErrxMFAngleProfile");
   meErrxMFAngleProfile = dbe_->bookProfile(histo,"Resolution Angle Profile", 100, 0., 60.,100, 0.,2.,"s");
 
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/TIB");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/TIB");
   //one histo per Layer rphi hits
   for(int i = 0 ;i<4 ; i++) {
     Char_t histo[200];
@@ -444,7 +444,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
     mePullyMatchedTIB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
   }
 
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/TOB");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/TOB");
   //one histo per Layer rphi hits
   for(int i = 0 ;i<6 ; i++) {
     Char_t histo[200];
@@ -651,7 +651,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
     mePullyMatchedTOB[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
   }
 
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/TID");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/TID");
   //one histo per Ring rphi hits: 3 rings, 6 disks, 2 inner rings are glued 
   for(int i = 0 ;i<3 ; i++) {
     Char_t histo[200];
@@ -821,7 +821,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
     mePullyMatchedTID[i] = dbe_->book1D(histo,"Pull",100,-5.,5.);  
   }
 
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/TEC");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/TEC");
   //one histo per Ring rphi hits: 7 rings, 18 disks. Innermost 3 rings are same as TID above.  
   for(int i = 0 ;i<7 ; i++) {
     Char_t histo[200];
@@ -1003,7 +1003,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 void SiStripTrackingRecHitsValid::endJob() {
 
   /*  
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/ALL");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/ALL");
   
   PullvsTrackwidth->FitSlicesY();
   ErrxMFvsTrackwidth->FitSlicesY();
@@ -1178,7 +1178,7 @@ void SiStripTrackingRecHitsValid::endJob() {
 
   
   /*
-  dbe_->setCurrentFolder("RecoTrackV/TrackingRecHits/Strip/ALL");
+  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Strip/ALL");
   unsigned int NBINS = meErrxMFTrackwidthProfile->getNbinsX();
   float Entries = meErrxMFTrackwidthProfile->getEntries();
   cout<<"Entries = "<<Entries<<endl;

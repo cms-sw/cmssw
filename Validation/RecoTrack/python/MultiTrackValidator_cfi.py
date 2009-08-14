@@ -24,7 +24,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     skipHistoFit=cms.untracked.bool(True),
     associators = cms.vstring('TrackAssociatorByHitsRecoDenom'),
     useInvPt = cms.bool(False),
-    dirName = cms.string('RecoTrackV/Track/'),
+    dirName = cms.string('Tracking/Track/'),
     #
     min = cms.double(-2.5),
     max = cms.double(2.5),

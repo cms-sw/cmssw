@@ -49,7 +49,7 @@ void CopySubdir(const char * oldfile, const char * newfile, const char * dirname
   TFile *newf =new TFile(newfile,"RECREATE");
   TDirectory *dirnew=newf->mkdir("DQMData");
   dirnew=dirnew->mkdir("Run 1");
-  dirnew=dirnew->mkdir("RecoTrackV");
+  dirnew=dirnew->mkdir("Tracking");
   dirnew=dirnew->mkdir("Run summary");
   dirnew=dirnew->mkdir(type);
   gDirectory=dirnew;

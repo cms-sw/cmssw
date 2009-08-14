@@ -11,10 +11,10 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_2_2'
+RefRelease='CMSSW_3_2_3'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_2_3'
+NewRelease='CMSSW_3_2_4'
 
 # startup and ideal sample list
 
@@ -39,13 +39,14 @@ idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100',
 #to skip ideal samples:
 #idealsamples= []
 
+#idealsamples= ['RelValSingleMuPt10']
 
 
 # track algorithm name and quality. Can be a list.
-#Algos= ['ootb']
-Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-#Qualities=['']
-Qualities=['', 'highPurity']
+Algos= ['ootb']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+Qualities=['']
+#Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -65,8 +66,8 @@ Sequence='harvesting'
 
 
 # Ideal and Statup tags
-IdealTag='MC_31X_V3'
-StartupTag='STARTUP31X_V2'
+IdealTag='MC_31X_V5'
+StartupTag='STARTUP31X_V4'
 
 # PileUp: PU . No PileUp: noPU
 PileUp='noPU'
@@ -82,7 +83,7 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+NewRepository = './'
 
 #for preproduction samples:
 #RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
@@ -167,10 +168,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
 
             #search the primary dataset
-            cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
+            cmd='dbsql "find  dataset where dataset like *'
     #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* "'
-            cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
+            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* order by dataset.createdate "'
+            cmd+='|grep '+sample+'|grep -v test|tail -1'
             print cmd
             dataset= os.popen(cmd).readline().strip()
             print 'DataSet:  ', dataset, '\n'

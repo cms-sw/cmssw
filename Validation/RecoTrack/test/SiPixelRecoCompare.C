@@ -75,11 +75,15 @@ void SiPixelRecoCompare()
   
 
  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
- else rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel"))rfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/Run 1/Tracking"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
+ else if(rfile->cd("DQMData/Tracking/TrackingRecHits/Pixel"))rfile->cd("DQMData/Tracking/TrackingRecHits/Pixel");
  rdir=gDirectory;
 
  if(sfile->cd("DQMData/Run 1/RecoTrackV"))sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Pixel");
- else sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel"))sfile->cd("DQMData/RecoTrackV/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/Run 1/Tracking"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingRecHits/Pixel");
+ else if(sfile->cd("DQMData/Tracking/TrackingRecHits/Pixel"))sfile->cd("DQMData/Tracking/TrackingRecHits/Pixel");
  sdir=gDirectory; 
 
 

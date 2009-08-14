@@ -32,13 +32,17 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TDirectory * rdir=gDirectory;
 
  if(sfile->GetDirectory("DQMData/Run 1/RecoTrackV")) sfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
- else sfile->cd("DQMData/RecoTrackV/Track");
+ else if(sfile->cd("DQMData/RecoTrackV/Track"))sfile->cd("DQMData/RecoTrackV/Track");
+ else if(sfile->GetDirectory("DQMData/Run 1/Tracking")) sfile->cd("DQMData/Run 1/Tracking/Run summary/Track");
+ else if(sfile->cd("DQMData/Tracking/Track"))sfile->cd("DQMData/Tracking/Track");
  sdir=gDirectory;
  TList *sl= sdir->GetListOfKeys();
  TString collname2 =sl->At(0)->GetName(); 
 
  if(rfile->GetDirectory("DQMData/Run 1/RecoTrackV")) rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/Track");
- else rfile->cd("DQMData/RecoTrackV/Track");
+ else if(rfile->cd("DQMData/RecoTrackV/Track"))rfile->cd("DQMData/RecoTrackV/Track");
+ else if(rfile->GetDirectory("DQMData/Run 1/Tracking")) rfile->cd("DQMData/Run 1/Tracking/Run summary/Track");
+ else if(rfile->cd("DQMData/Tracking/Track"))rfile->cd("DQMData/Tracking/Track");
  rdir=gDirectory;
  TList *rl= rdir->GetListOfKeys();
  TString collname1=rl->At(0)->GetName(); 
