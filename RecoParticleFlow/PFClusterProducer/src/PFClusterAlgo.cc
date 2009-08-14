@@ -27,6 +27,7 @@ PFClusterAlgo::PFClusterAlgo() :
   posCalcNCrystal_(-1),
   posCalcP1_(-1),
   showerSigma_(5),
+  useCornerCells_(false),
   debug_(false) {}
 
 
@@ -361,9 +362,14 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
 
   //   cout<<" hit ptr "<<hit<<endl;
 
-  // get neighbours with 1 common corner
-  // to use those with 1 common side use rh.neighbours4()
-  const std::vector< unsigned >& nbs = rh.neighbours8();
+  // get neighbours
+  const std::vector< unsigned >& nbs4 = rh.neighbours4();
+  const std::vector< unsigned >& nbs8 = rh.neighbours8();
+  // topo-cluster is computed from cells with 1 common side
+  std::vector< unsigned > nbs = nbs4;
+  // or cells with 1 common corner
+  if( useCornerCells_ ) 
+    nbs = nbs8;
   
   for(unsigned i=0; i<nbs.size(); i++) {
 
@@ -1102,6 +1108,7 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
   out<<"posCalcNCrystal  : "<<algo.posCalcNCrystal_  <<endl;
   out<<"posCalcP1        : "<<algo.posCalcP1_        <<endl;
   out<<"showerSigma      : "<<algo.showerSigma_      <<endl;
+  out<<"useCornerCells   : "<<algo.useCornerCells_   <<endl;
 
   out<<endl;
   out<<algo.pfClusters_->size()<<" clusters:"<<endl;

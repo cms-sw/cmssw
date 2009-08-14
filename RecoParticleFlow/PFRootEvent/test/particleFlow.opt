@@ -191,6 +191,9 @@ clustering thresh_Pt_Ecal_Endcap        0.00
 clustering thresh_Seed_Ecal_Endcap      0.60
 clustering thresh_Pt_Seed_Ecal_Endcap   0.15
 
+// build topo-cluster from cells with 1 common side or corner
+clustering useCornerCells_Ecal 1
+
 // number of neighbours to be considered for seed finding in ECAL. 
 // 4 means that it is checked that the 4 direct neighbours 
 // have a lower energy than the seed. 
@@ -231,6 +234,9 @@ clustering thresh_Pt_Hcal_Endcap        0.0
 // seed threshold for HCAL endcap rechits
 clustering thresh_Seed_Hcal_Endcap      1.1
 clustering thresh_Pt_Seed_Hcal_Endcap   0.0
+
+// build topo-cluster from cells with 1 common side or corner
+clustering useCornerCells_Hcal 1
 
 // number of neighbours to be considered for seed finding in HCAL. 
 // 4 means that it is checked that the 4 direct neighbours 

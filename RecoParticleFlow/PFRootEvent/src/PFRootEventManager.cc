@@ -326,6 +326,10 @@ void PFRootEventManager::readOptions(const char* file,
 //   options_->GetOpt("clustering", "posCalc_p1_Ecal", 
 //                    posCalcP1Ecal);
   
+  bool useCornerCellsEcal = false;
+  options_->GetOpt("clustering", "useCornerCells_Ecal",
+                   useCornerCellsEcal);
+
 
   clusterAlgoECAL_.setThreshBarrel( threshEcalBarrel );
   clusterAlgoECAL_.setThreshSeedBarrel( threshSeedEcalBarrel );
@@ -345,8 +349,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoECAL_.setPosCalcNCrystal( posCalcNCrystalEcal );
   clusterAlgoECAL_.setPosCalcP1( posCalcP1Ecal );
 
-  clusterAlgoECAL_.enableDebugging( clusteringDebug ); 
+  clusterAlgoECAL_.setUseCornerCells( useCornerCellsEcal );
 
+  clusterAlgoECAL_.enableDebugging( clusteringDebug ); 
 
   int dcormode = 0;
   options_->GetOpt("clustering", "depthCor_Mode", dcormode);
@@ -419,6 +424,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_Hcal",
                    posCalcNCrystalHcal);
 
+  bool useCornerCellsHcal = false;
+  options_->GetOpt("clustering", "useCornerCells_Hcal",
+                   useCornerCellsHcal);
+
   double posCalcP1Hcal 
     = threshHcalBarrel<threshHcalEndcap ? threshHcalBarrel:threshHcalEndcap;
 //   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
@@ -444,6 +453,8 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoHCAL_.setPosCalcNCrystal( posCalcNCrystalHcal );
   clusterAlgoHCAL_.setPosCalcP1( posCalcP1Hcal );
+
+  clusterAlgoHCAL_.setUseCornerCells( useCornerCellsHcal );
 
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
@@ -475,6 +486,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_HFEM",
                    posCalcNCrystalHFEM);
 
+  bool useCornerCellsHFEM = false;
+  options_->GetOpt("clustering", "useCornerCells_HFEM",
+                   useCornerCellsHFEM);
+
   double posCalcP1HFEM = threshHFEM;
 //   options_->GetOpt("clustering", "posCalc_p1_HFEM", 
 //                    posCalcP1HFEM);
@@ -491,6 +506,8 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoHFEM_.setPosCalcNCrystal( posCalcNCrystalHFEM );
   clusterAlgoHFEM_.setPosCalcP1( posCalcP1HFEM );
+
+  clusterAlgoHFEM_.setUseCornerCells( useCornerCellsHFEM );
 
   clusterAlgoHFEM_.enableDebugging( clusteringDebug ); 
 
@@ -522,6 +539,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_HFHAD",
                    posCalcNCrystalHFHAD);
 
+  bool useCornerCellsHFHAD = false;
+  options_->GetOpt("clustering", "useCornerCells_HFHAD",
+                   useCornerCellsHFHAD);
+
   double posCalcP1HFHAD = threshHFHAD;
 //   options_->GetOpt("clustering", "posCalc_p1_HFHAD", 
 //                    posCalcP1HFHAD);
@@ -538,6 +559,8 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoHFHAD_.setPosCalcNCrystal( posCalcNCrystalHFHAD );
   clusterAlgoHFHAD_.setPosCalcP1( posCalcP1HFHAD );
+
+  clusterAlgoHFHAD_.setUseCornerCells( useCornerCellsHFHAD );
 
   clusterAlgoHFHAD_.enableDebugging( clusteringDebug ); 
 
@@ -584,6 +607,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_nCrystal_PS",
                    posCalcNCrystalPS);
 
+  bool useCornerCellsPS = false;
+  options_->GetOpt("clustering", "useCornerCells_PS",
+                   useCornerCellsPS);
+
   double posCalcP1PS = threshPS;
 //   options_->GetOpt("clustering", "posCalc_p1_PS", 
 //                    posCalcP1PS);
@@ -608,6 +635,8 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoPS_.setPosCalcNCrystal( posCalcNCrystalPS );
   clusterAlgoPS_.setPosCalcP1( posCalcP1PS );
+
+  clusterAlgoPS_.setUseCornerCells( useCornerCellsPS );
 
   clusterAlgoPS_.enableDebugging( clusteringDebug ); 
 

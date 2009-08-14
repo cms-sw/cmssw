@@ -83,6 +83,9 @@ class PFClusterAlgo {
   /// set shower sigma for 
   void setShowerSigma( double sigma ) { showerSigma_ = sigma;}
 
+  /// activate use of cells with a common corner to build topo-clusters
+  void setUseCornerCells( double usecornercells ) { useCornerCells_ = usecornercells;}
+
   /// set rechit mask
   void setMask( const std::vector<bool>& mask );
 
@@ -113,7 +116,7 @@ class PFClusterAlgo {
 
   /// get shower sigma
   double showerSigma() const { return showerSigma_ ;}
-  
+
 
   /// ----------------------------------------------------------------
 
@@ -261,6 +264,8 @@ class PFClusterAlgo {
   /// sigma of shower (cm)
   double showerSigma_;
 
+  /// option to use cells with a common corner to build topo-clusters
+  bool useCornerCells_;
 
 
   /// debugging on/off

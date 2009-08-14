@@ -23,6 +23,8 @@ particleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
     nNeighbours = cms.int32(4),
     # sigma of the shower in HCAL     
     showerSigma = cms.double(10.0),
+    # use cells with common corner to build topo-clusters
+    useCornerCells = cms.bool(True),
     # n crystals for position calculation in HCAL
     posCalcNCrystal = cms.int32(5), 
     #----depth correction

@@ -59,6 +59,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   double showerSigma = 
     iConfig.getParameter<double>("showerSigma");
     
+  bool useCornerCells =
+    iConfig.getParameter<bool>("useCornerCells");
+
 
   clusterAlgo_.setThreshBarrel( threshBarrel );
   clusterAlgo_.setThreshSeedBarrel( threshSeedBarrel );
@@ -80,6 +83,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setPosCalcNCrystal( posCalcNCrystal );
   clusterAlgo_.setShowerSigma( showerSigma );
 
+  clusterAlgo_.setUseCornerCells( useCornerCells  );
 
 
   int dcormode = 

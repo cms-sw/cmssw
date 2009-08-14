@@ -26,6 +26,8 @@ particleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     showerSigma = cms.double(0.2),
     # n crystals for position calculation in PS
     posCalcNCrystal = cms.int32(-1),
+    # use cells with common corner to build topo-clusters
+    useCornerCells = cms.bool(False),
     # depth correction for ECAL clusters:
     #   0: no depth correction
     #   1: electrons/photons - depth correction is proportionnal to E
