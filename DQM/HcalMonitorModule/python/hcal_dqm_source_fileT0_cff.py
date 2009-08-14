@@ -8,6 +8,9 @@ dqmInfoHcal = cms.EDFilter("DQMEventInfo",
 from DQM.HcalMonitorModule.HcalMonitorModule_cfi import *
 hcalOfflineDQMSource = cms.Sequence(hcalMonitor + dqmInfoHcal)
 
+# Loosen HF hot cell thresholds when using cosmic reconstruction
+hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
+hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
 hcalMonitor.PedestalMonitor        = False
 hcalMonitor.DataFormatMonitor      = True
 hcalMonitor.DigiMonitor            = True
