@@ -130,7 +130,6 @@ class PerfSuite:
                             cmsdriverOptions = "--eventcontent FEVTDEBUGHLT", # Decided to avoid using the automatic parsing of cmsDriver_highstats_hlt.txt: cmsRelValCmd.get_cmsDriverOptions(), #Get these options automatically now!
                             #"Release Integrators" will create another file relative to the performance suite and the operators will fetch from that file the --cmsdriver option... for now just set the eventcontent since that is needed in order for things to run at all now...
                             stepOptions      = ""         ,
-                            candleOptions    = ""         ,
                             profilers        = ""         ,
                             outputdir        = ""         ,
                             logfile          = None       ,
@@ -171,27 +170,25 @@ class PerfSuite:
         parser.add_option('-m', '--memcheck'  , type='int'   , dest='MemcheckEvents'  , metavar='<#EVENTS>'   ,
             help = 'specify the number of events for the Memcheck tests'                   )
         parser.add_option('--cmsScimark'      , type='int'   , dest='cmsScimark'      , metavar=''            ,
-            help = 'specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1'         )
+            help = 'specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1')
         parser.add_option('--cmsScimarkLarge' , type='int'   , dest='cmsScimarkLarge' , metavar=''            ,
-            help = 'specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1'    )
+            help = 'specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1')
         parser.add_option('--cores'           , type='int', dest='cores'              , metavar='<CORES>'     ,
-            help = 'specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)' )        
+            help = 'specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)')        
         parser.add_option('--cmsdriver' , type='string', dest='cmsdriverOptions', metavar='<OPTION_STR>',
-            help = 'specify special options to use with the cmsDriver.py commands (designed for integration build use'                  )        
+            help = 'specify special options to use with the cmsDriver.py commands (designed for integration build use')        
         parser.add_option('-a', '--archive'   , type='string', dest='castordir'       , metavar='<DIR>'       ,
-            help = 'specify the wanted CASTOR directory where to store the results tarball'                                             )
+            help = 'specify the wanted CASTOR directory where to store the results tarball')
         parser.add_option('-L', '--logfile'   , type='string', dest='logfile'         , metavar='<FILE>'      ,
-            help = 'file to store log output of the script'                                                                             )                
+            help = 'file to store log output of the script')                
         parser.add_option('-o', '--output'    , type='string', dest='outputdir'       , metavar='<DIR>'       ,
-            help = 'specify the directory where to store the output of the script'                                                      )        
+            help = 'specify the directory where to store the output of the script')        
         parser.add_option('-r', '--prevrel'   , type='string', dest='previousrel'     , metavar='<DIR>'       ,
-            help = 'Top level dir of previous release for regression analysis'                                                          )        
+            help = 'Top level dir of previous release for regression analysis')        
         parser.add_option('--step'            , type='string', dest='stepOptions'     , metavar='<STEPS>'     ,
             help = 'specify the processing steps intended (instead of the default ones)' )
-        parser.add_option('--candle'          , type='string', dest='candleOptions'   , metavar='<CANDLES>'   ,
-            help = 'specify the candle(s) to run (instead of all 7 default candles)'                                                    )
         parser.add_option('--cpu'             , type='string', dest='cpu'             , metavar='<CPU>'       ,
-            help = 'specify the core on which to run the performance suite'                                                             )
+            help = 'specify the core on which to run the performance suite')
 
         #Adding new options to put everything configurable at command line:
         parser.add_option('--RunTimeSize'             , type='string', dest='RunTimeSize' , metavar='<CANDLES>'       ,
@@ -259,7 +256,7 @@ class PerfSuite:
         cmsdriverOptions = options.cmsdriverOptions
         stepOptions      = options.stepOptions
         quicktest        = options.quicktest
-        candleoption     = options.candleOptions
+        #candleoption     = options.candleOptions
         runonspare       = options.runonspare
         profilers        = options.profilers.strip()
         cpu              = options.cpu.strip()
@@ -365,8 +362,6 @@ class PerfSuite:
         #
         if self._unittest:
             self._verbose = False
-            if candleoption == "":
-                candleoption = "MinBias"
             if stepOptions == "":
                 stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI-RECO"
             cmsScimark      = 0
@@ -376,16 +371,6 @@ class PerfSuite:
             IgProfEvents    = 0
             TimeSizeEvents  = 1
         
-        #############
-        # Setup candle option
-        #
-        isAllCandles = candleoption == ""
-        candles = {}
-        if isAllCandles:
-            candles = Candles
-        else:
-            candles = candleoption.split(",")
-
         #Split all the RunTimeSize etc candles in lists:
         TimeSizeCandles=[]
         IgProfCandles=[]
@@ -465,8 +450,6 @@ class PerfSuite:
                 cpu             ,
                 cores           ,
                 prevrel         ,
-                isAllCandles    ,
-                candles         ,
                 bypasshlt       ,
                 runonspare      ,
                 outputdir       ,
@@ -835,8 +818,6 @@ class PerfSuite:
                      cpus             = [1]        ,
                      cores            = 4          ,#Could use directly cmsCpuInfo.get_NumOfCores()
                      prevrel          = ""         ,
-                     isAllCandles     = False      ,
-                     candles          = Candles    ,
                      bypasshlt        = False      ,
                      runonspare       = True       ,
                      perfsuitedir     = os.getcwd(),
@@ -879,8 +860,6 @@ class PerfSuite:
                 #Attach the full option synthax for cmsRelvalreportInput.py:
                 bypasshltRelvalInput="--bypass-hlt"
                 #FIXME: should import cmsRelvalreportInput.py and avoid these issues...
-            if not len(candles) == len(Candles):
-                self.logh.write("Running only %s candle, instead of the whole suite\n" % str(candles))
             
             self.logh.write("This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s\n" %(self.host,cores,cpus))
             path=os.path.abspath(".")
@@ -962,33 +941,22 @@ class PerfSuite:
                     if cmsScimarkLarge > 0:
                         self.logh.write("Following with %s cmsScimarkLarge on cpu%s\n" % (cmsScimarkLarge,cpu))
                         self.benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
-            #Added in the past to be able to run whatever candles with whatever profilers alone: this way all the others would be set to zero
-            #Can probably eliminate this:
-            if not profilers == "":
-                # which profile sets should we go into if custom profiles have been selected
-                runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
-                runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
-                runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
-                if not runTime:
-                    TimeSizeEvents = 0
-                if not runIgProf:
-                    IgProfEvents   = 0
-                if not runValgrind:
-                    CallgrindEvents = 0
             
             #Handling the Pile up input file here:
-            if TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles:
+            if (TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles) and not ("FASTSIM" in stepOptions):
+                #Note the FASTSIM exclusion... since there is no need to copy the file for FASTSIM.
                 PUInputName=os.path.join(perfsuitedir,"INPUT_PILEUP_EVENTS.root")
                 if PUInputFile:
                     #Define the actual command to copy the file locally:
                     #Allow the file to be mounted locally (or accessible via AFS)
                     copycmd="cp"
                     #Allow the file to be on CASTOR (taking a full CASTOR path)
-                    if '/castor/cern.ch/' in PUInputFile or '/store/relval/' in PUInputFile:
-                        copycmd="rfcp"
-                    #Accept plain LFNs from DBS for RelVal CASTOR files:
                     if '/store/relval/' in PUInputFile:
-                        PUInputFile="/castor/cern.ch/cms"+PUInputFile
+                        copycmd="rfcp"
+                        #Accept plain LFNs from DBS for RelVal CASTOR files:
+                        if '/store/relval/' in PUInputFile[0:13]: #Minor fix to allow the case of user using the full path /castor/cern.ch/cms...
+                           PUInputFile="/castor/cern.ch/cms"+PUInputFile
+                    #Copy the file locally
                     self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))
                     self.logh.flush()
                     GetPUInput=subprocess.Popen("%s %s %s"%(copycmd,PUInputFile,PUInputName), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -1009,19 +977,30 @@ class PerfSuite:
             
             #TimeSize tests:
             if TimeSizeEvents > 0:
-                self.logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
-                self.printDate()
-                self.logh.flush()
-                ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizeCandles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
-                FinalExitCode=FinalExitCode+ReportExit
-                #Launch eventual Digi Pile Up TimeSize too:
-                if TimeSizePUCandles:
-                    self.logh.write("Launching the PILE UP TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
-                    self.printDate()
-                    self.logh.flush()
-                    ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizePUCandles,cmsdriverPUOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
-                    FinalExitCode=FinalExitCode+ReportExit
-
+               if TimeSizeCandles:
+                  self.logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
+                  self.printDate()
+                  self.logh.flush()
+                  ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizeCandles,cmsdriverOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
+                  FinalExitCode=FinalExitCode+ReportExit
+                  #Adding a time stamp here to parse for performance suite running time data
+                  print "Regular TimeSize tests were finished at %s"%(self.getDate())
+               
+               #Launch eventual Digi Pile Up TimeSize too:
+               if TimeSizePUCandles:
+                  self.logh.write("Launching the PILE UP TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each\n" % TimeSizeEvents)
+                  self.printDate()
+                  self.logh.flush()
+                  ReportExit=self.simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,TimeSizePUCandles,cmsdriverPUOptions,stepOptions,"TimeSize",profilers,bypasshlt,userInputFile)
+                  FinalExitCode=FinalExitCode+ReportExit
+                  #Adding a time stamp here to parse for performance suite running time data
+                  print "Pileup TimeSize tests were finished at %s"%(self.getDate())
+               #Check for issue with 
+               if not (TimeSizeCandles or TimeSizePUCandles):
+                  print "A number of events (%s) for TimeSize tests was selected, but no candle for regular or pileup tests was selected!"%(TimeSizeEvents)
+               #Adding a time stamp here to parse for performance suite running time data
+               print "All TimeSize tests were finished at %s"%(self.getDate())
+            
             #Stopping all cmsScimark jobs and analysing automatically the logfiles
             #No need to waste CPU while the load does not affect Valgrind measurements!
             if not (self._unittest or self._noexec):
@@ -1042,68 +1021,69 @@ class PerfSuite:
             TestsToDo=[]
             #IgProf tests:
             if IgProfEvents > 0:
-                print "Preparing IgProf tests"
-                #Special case for IgProf: user could pick with the option --profilers to run only IgProf perf or Mem (or Mem_Total alone etc)
-                #So in general we want to be able to split the perf and mem tests...
-                #For the case of --profiler option we will run only 1 test (i.e. it will get one core slot until it is done with whatever profiling choosen)
-                if profilers:
-                   print "Special profiler option for IgProf was indicated by the user: %s"%profilers
-                   #Prepare the simpleGenReport arguments for this test:
-                   IgProfProfilerArgs={
-                      'perfdir':perfsuitedir,
-                      'NumEvents':IgProfEvents,
-                      'candles':IgProfCandles,
-                      'cmsdriverOptions':cmsdriverOptions,
-                      'stepOptions':stepOptions,
-                      'Name':"IgProf",
-                      'profilers':profilers,
-                      'bypasshlt':bypasshlt,
-                      'userInputRootFiles':userInputFile
-                      }
-                   #Append the test to the TestsToDo list:
-                   TestsToDo.append(IgProfProfilerArgs)
-                   print "Appended IgProf test with profiler option %s to the TestsToDo list"%profilers 
-                #For the default case (4,5,6,7) we split the tests into 2 jobs since they naturally are 2 cmsRun jobs and for machines with many cores this will
-                #make the performance suite run faster.
-                else:
-                   print "Splitting the IgProf tests into Perf and Mem to parallelize the cmsRun execution as much as possible:"
-                   ##PERF##
-                   #Prepare the simpleGenReport arguments for this test:
-                   IgProfPerfArgs={
-                      'perfdir':perfsuitedir,
-                      'NumEvents':IgProfEvents,
-                      'candles':IgProfCandles,
-                      'cmsdriverOptions':cmsdriverOptions,
-                      'stepOptions':stepOptions,
-                      'Name':"IgProf_Perf",
-                      'profilers':profilers,
-                      'bypasshlt':bypasshlt,
-                      'userInputRootFiles':userInputFile
-                      }
-                   #Append the test to the TestsToDo list:
-                   TestsToDo.append(IgProfPerfArgs)
-                   print "Appended IgProf PERF test to the TestsToDo list"
-                   ##MEM##
-                   #Prepare the simpleGenReport arguments for this test:
-                   IgProfMemArgs={
-                      'perfdir':perfsuitedir,
-                      'NumEvents':IgProfEvents,
-                      'candles':IgProfCandles,
-                      'cmsdriverOptions':cmsdriverOptions,
-                      'stepOptions':stepOptions,
-                      'Name':"IgProf_Mem",
-                      'profilers':profilers,
-                      'bypasshlt':bypasshlt,
-                      'userInputRootFiles':userInputFile
-                      }
-                   #Append the test to the TestsToDo list:
-                   TestsToDo.append(IgProfMemArgs)
-                   print "Appended IgProf MEM test to the TestsToDo list"
+               if IgProfCandles:
+                   print "Preparing IgProf tests"
+                   #Special case for IgProf: user could pick with the option --profilers to run only IgProf perf or Mem (or Mem_Total alone etc)
+                   #So in general we want to be able to split the perf and mem tests...
+                   #For the case of --profiler option we will run only 1 test (i.e. it will get one core slot until it is done with whatever profiling choosen)
+                   if profilers:
+                      print "Special profiler option for IgProf was indicated by the user: %s"%profilers
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfProfilerArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfCandles,
+                         'cmsdriverOptions':cmsdriverOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfProfilerArgs)
+                      print "Appended IgProf test with profiler option %s to the TestsToDo list"%profilers 
+                   #For the default case (4,5,6,7) we split the tests into 2 jobs since they naturally are 2 cmsRun jobs and for machines with many cores this will
+                   #make the performance suite run faster.
+                   else:
+                      print "Splitting the IgProf tests into Perf and Mem to parallelize the cmsRun execution as much as possible:"
+                      ##PERF##
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfPerfArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfCandles,
+                         'cmsdriverOptions':cmsdriverOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf_Perf",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfPerfArgs)
+                      print "Appended IgProf PERF test to the TestsToDo list"
+                      ##MEM##
+                      #Prepare the simpleGenReport arguments for this test:
+                      IgProfMemArgs={
+                         'perfdir':perfsuitedir,
+                         'NumEvents':IgProfEvents,
+                         'candles':IgProfCandles,
+                         'cmsdriverOptions':cmsdriverOptions,
+                         'stepOptions':stepOptions,
+                         'Name':"IgProf_Mem",
+                         'profilers':profilers,
+                         'bypasshlt':bypasshlt,
+                         'userInputRootFiles':userInputFile
+                         }
+                      #Append the test to the TestsToDo list:
+                      TestsToDo.append(IgProfMemArgs)
+                      print "Appended IgProf MEM test to the TestsToDo list"
                 #The following will be handled in the while loop that handles the starting of the threads:
                 #ReportExit=self.simpleGenReport(cpus,perfsuitedir,IgProfEvents,IgProfCandles,cmsdriverOptions,stepOptions,"IgProf",profilers,bypasshlt,userInputFile)
                 #FinalExitCode=FinalExitCode+ReportExit
                 #Launch eventual Digi Pile Up IgProf too:
-                if IgProfPUCandles:
+               if IgProfPUCandles:
                    print "Preparing IgProf PileUp tests"
                    #Special case for IgProf: user could pick with the option --profilers to run only IgProf perf or Mem (or Mem_Total alone etc)
                    #So in general we want to be able to split the perf and mem tests...
@@ -1159,24 +1139,28 @@ class PerfSuite:
                       #Append the test to the TestsToDo list:
                       TestsToDo.append(IgProfMemPUArgs)
                       print "Appended IgProf MEM PileUp test to the TestsToDo list"
+               if not (IgProfCandles or IgProfPUCandles):
+                   print "A number of events (%s) for IgProf tests was selected, but no candle for regular or pileup tests was selected!"%(IgProfEvents)
+               
                     
             #Valgrind tests:
             if CallgrindEvents > 0:
-               print "Preparing Callgrind tests"
-               CallgrindArgs={
-                  'perfdir':perfsuitedir,
-                  'NumEvents':CallgrindEvents,
-                  'candles':CallgrindCandles,
-                  'cmsdriverOptions':cmsdriverOptions,
-                  'stepOptions':stepOptions,
-                  'Name':"Callgrind",
-                  'profilers':profilers,
-                  'bypasshlt':bypasshlt,
-                  'userInputRootFiles':userInputFile
-                  }
-               #Append the test to the TestsToDo list:
-               TestsToDo.append(CallgrindArgs)
-               print "Appended Callgrind test to the TestsToDo list"
+               if CallgrindCandles:
+                  print "Preparing Callgrind tests"
+                  CallgrindArgs={
+                     'perfdir':perfsuitedir,
+                     'NumEvents':CallgrindEvents,
+                     'candles':CallgrindCandles,
+                     'cmsdriverOptions':cmsdriverOptions,
+                     'stepOptions':stepOptions,
+                     'Name':"Callgrind",
+                     'profilers':profilers,
+                     'bypasshlt':bypasshlt,
+                     'userInputRootFiles':userInputFile
+                     }
+                  #Append the test to the TestsToDo list:
+                  TestsToDo.append(CallgrindArgs)
+                  print "Appended Callgrind test to the TestsToDo list"
                #Launch eventual Digi Pile Up Callgrind too:
                if CallgrindPUCandles:
                   print "Preparing Callgrind PileUp tests"
@@ -1194,22 +1178,26 @@ class PerfSuite:
                   #Append the test to the TestsToDo list:
                   TestsToDo.append(CallgrindPUArgs)
                   print "Appended Callgrind PileUp test to the TestsToDo list"
+               if not (CallgrindCandles or CallgrindPUCandles):
+                  print "A number of events (%s) for Callgrind tests was selected, but no candle for regular or pileup tests was selected!"%(CallgrindEvents)
+                  
             if MemcheckEvents > 0:
-               print "Preparing Memcheck tests"
-               MemcheckArgs={
-                  'perfdir':perfsuitedir,
-                  'NumEvents':MemcheckEvents,
-                  'candles':MemcheckCandles,
-                  'cmsdriverOptions':cmsdriverOptions,
-                  'stepOptions':stepOptions,
-                  'Name':"Memcheck",
-                  'profilers':profilers,
-                  'bypasshlt':bypasshlt,
-                  'userInputRootFiles':userInputFile
-                  }
-               #Append the test to the TestsToDo list:
-               TestsToDo.append(MemcheckArgs)
-               print "Appended Memcheck test to the TestsToDo list"
+               if MemcheckCandles:
+                  print "Preparing Memcheck tests"
+                  MemcheckArgs={
+                     'perfdir':perfsuitedir,
+                     'NumEvents':MemcheckEvents,
+                     'candles':MemcheckCandles,
+                     'cmsdriverOptions':cmsdriverOptions,
+                     'stepOptions':stepOptions,
+                     'Name':"Memcheck",
+                     'profilers':profilers,
+                     'bypasshlt':bypasshlt,
+                     'userInputRootFiles':userInputFile
+                     }
+                  #Append the test to the TestsToDo list:
+                  TestsToDo.append(MemcheckArgs)
+                  print "Appended Memcheck test to the TestsToDo list"
                #Launch eventual Digi Pile Up Memcheck too:
                if MemcheckPUCandles:
                   print "Preparing Memcheck PileUp tests"
@@ -1227,11 +1215,16 @@ class PerfSuite:
                   #Append the test to the TestsToDo list:
                   TestsToDo.append(MemcheckPUArgs)  
                   print "Appended Memcheck PileUp test to the TestsToDo list"
+               if not (MemcheckCandles or MemcheckPUCandles):
+                  print "A number of events (%s) for Memcheck tests was selected, but no candle for regular or pileup tests was selected!"%(MemcheckEvents)
+                  
             #Here if there are any IgProf, Callgrind or MemcheckEvents to be run,
             #run the infinite loop that submits the PerfTest() threads on the available cores:
             if IgProfEvents or CallgrindEvents or MemcheckEvents:
                #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
                print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
+               self.printDate()
+               self.logh.flush()
                #Save the original AvailableCores list to use it as a test to break the infinite loop:
                #While in the regular RelVal use-case it makes sense to use the actual number of cores of the machines, in
                #the IB case the AvailableCores will always consist of only 1 single core..
@@ -1239,7 +1232,7 @@ class PerfSuite:
                #Print this out in the log for debugging reasons
                print "Original available cores list:", AvailableCores
 
-               #Create a dictionaty to keep track of running threads on the various cores:
+               #Create a dictionary to keep track of running threads on the various cores:
                activePerfTestThreads={}
                #Flag for waiting messages:
                Waiting=False
@@ -1283,7 +1276,7 @@ class PerfSuite:
                   #We should request:
                   #-All OriginalAvailableCores should be actually available.
                   if not AvailableCores==[] and (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
-                     print "PHEW! We're done... all TestsToDo are done..."
+                     print "PHEW! We're done... all TestsToDo are done... at %s "%(self.getDate())
                      #Debug printouts:
                      #print "AvailableCores",AvailableCores
                      #print "set(AvailableCores)",set(AvailableCores)
@@ -1386,6 +1379,11 @@ def main(argv=[__name__]): #argv is a list of arguments.
                      #main(["-timeSize,100])
                      #Invalid ways:
                      #main(["One string with all options"])
+    #Three lines to add the exact command line used to call the performance suite directly in the log.
+    print "Performance suite invoked with command line:"
+    cmdline=reduce(lambda x,y:x+" "+y,sys.argv)
+    print cmdline
+    
     #Let's instatiate the class:
     suite=PerfSuite()
 
@@ -1409,8 +1407,6 @@ def main(argv=[__name__]): #argv is a list of arguments.
      PerfSuiteArgs['cpus'],            
      PerfSuiteArgs['cores'],           
      PerfSuiteArgs['prevrel'],         
-     PerfSuiteArgs['isAllCandles'],    
-     PerfSuiteArgs['candles'],         
      PerfSuiteArgs['bypasshlt'],       
      PerfSuiteArgs['runonspare'],      
      PerfSuiteArgs['perfsuitedir'],    
@@ -1426,7 +1422,8 @@ def main(argv=[__name__]): #argv is a list of arguments.
      PerfSuiteArgs['PUInputFile'],
      PerfSuiteArgs['userInputFile']
      ) = suite.optionParse(argv)
-    
+
+    #Debug printout that we could silence...
     print "Initial PerfSuite Arguments:"
     for key in PerfSuiteArgs.keys():
         print key,PerfSuiteArgs[key]
@@ -1492,4 +1489,5 @@ def main(argv=[__name__]): #argv is a list of arguments.
         suite.runPerfSuite(**PerfSuiteArgs)
     
 if __name__ == "__main__":
+    
     main(sys.argv)
