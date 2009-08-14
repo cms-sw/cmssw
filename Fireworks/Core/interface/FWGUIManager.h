@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.70 2009/06/28 19:54:45 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.71 2009/08/12 19:21:03 chrjones Exp $
 //
 
 // system include files
@@ -126,6 +126,7 @@ public:
    //      bool waitingForUserAction() const;
    CSGContinuousAction* playEventsAction();
    CSGContinuousAction* playEventsBackwardsAction();
+   CSGContinuousAction* autoRewindAction();
 
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();

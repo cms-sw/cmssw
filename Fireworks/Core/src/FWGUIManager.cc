@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.141 2009/08/12 19:21:03 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.142 2009/08/13 19:11:16 amraktad Exp $
 //
 
 // system include files
@@ -329,6 +329,12 @@ CSGContinuousAction*
 FWGUIManager::playEventsBackwardsAction()
 {
    return m_cmsShowMainFrame->playEventsBackwardsAction();
+}
+
+CSGContinuousAction*
+FWGUIManager::autoRewindAction()
+{
+   return m_cmsShowMainFrame->autoRewindAction();
 }
 
 void

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.22 2009/06/10 16:11:19 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.24 2009/08/13 19:11:15 amraktad Exp $
 //
 
 // system include files
@@ -86,10 +86,15 @@ public:
    CSGContinuousAction* playEventsAction() const {
       return m_playEvents;
    }
+   CSGContinuousAction* autoRewindAction() const {
+      return m_autoRewindAction;
+   }
+   
    CSGContinuousAction* playEventsBackwardsAction() const {
       return m_playEventsBack;
    }
-
+   
+   
    CSGAction* createNewViewerAction(const std::string& iActionName);
 
 protected:
@@ -116,6 +121,7 @@ private:
    CSGAction *m_goToLast;
    CSGContinuousAction *m_playEvents;
    CSGContinuousAction *m_playEventsBack;
+   CSGContinuousAction *m_autoRewindAction;
 
    TGSlider* m_delaySlider;
    TGLabel*  m_delayLabel;
