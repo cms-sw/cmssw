@@ -40,6 +40,16 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for outputDB")
+options.register('overwriteKey',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Overwrite existing key")
+options.register('startup',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Use L1StartupConfig_cff instead of L1DummyConfig_cff")
 options.parseArguments()
 
 # Generate L1TriggerKey
@@ -64,7 +74,13 @@ process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.outputDBAuth)
 
 # Generate dummy configuration data
-process.load("L1Trigger.Configuration.L1DummyConfig_cff")
+if options.startup == 0:
+    process.load("L1Trigger.Configuration.L1DummyConfig_cff")
+    process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v2_L1T_Scales_20090624_Imp0_Unprescaled_cff")
+else:
+    process.load("L1Trigger.Configuration.L1StartupConfig_cff")
+    process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v3_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff")
+    
 process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
 
 # writer modules
@@ -74,6 +90,11 @@ initPayloadWriter( process,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
 process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
+
+if options.overwriteKey == 0:
+    process.L1CondDBPayloadWriter.overwriteKeys = False
+else:
+    process.L1CondDBPayloadWriter.overwriteKeys = True
 
 # Use highest possible run number so we always get the latest version
 # of L1TriggerKeyList.
