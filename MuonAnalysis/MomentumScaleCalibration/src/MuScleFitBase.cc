@@ -64,8 +64,11 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   // Mass probability histograms
   // ---------------------------
+  // The word "profile" is added to the title automatically
   mapHisto_["hMass_P"]      = new HTProfile( outputFile, "Mass_P", "Mass probability", 4000, 0., 200., 0., 1. );
   mapHisto_["hMass_fine_P"] = new HTProfile( outputFile, "Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1. );
+  mapHisto_["hMass_Probability"]      = new HTH1D( outputFile, "Mass_Probability", "Mass probability", 4000, 0., 200.);
+  mapHisto_["hMass_fine_Probability"] = new HTH1D( outputFile, "Mass_fine_Probability", "Mass probability", 4000, 0., 20.);
 
   double ptMax = 40.;
   // Mass resolution vs (pt, eta) of the muons from MC

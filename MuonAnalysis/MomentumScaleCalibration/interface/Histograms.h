@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/06/08 09:48:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/08/07 11:43:25 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -148,6 +148,37 @@ public:
 protected:
   TH2D * tH2d_;
   TProfile * tProfile_;
+};
+
+/// A wrapper for the TH1D histogram to allow it to be put inside the same map as all the other classes in this file
+class HTH1D : public Histograms
+{
+public:
+  HTH1D( TFile * outputFile, const TString & name, const TString & title,
+         const int xBins, const double & xMin, const double & xMax ) : Histograms(outputFile, name),
+                                                                       tH1D_( new TH1D(name, title, xBins, xMin, xMax) ) {}
+  ~HTH1D() {
+    delete tH1D_;
+  }
+  virtual void Fill( const double & x, const double & y ) {
+    tH1D_->Fill(x, y);
+  }
+  virtual void Write() {
+    if(histoDir_ != 0) histoDir_->cd();
+    tH1D_->Write();
+  }
+  virtual void Clear() {
+    tH1D_->Clear();
+  }
+  virtual void SetXTitle(const TString & title) {
+    tH1D_->GetXaxis()->SetTitle(title);
+  }
+  virtual void SetYTitle(const TString & title) {
+    tH1D_->GetYaxis()->SetTitle(title);
+  }
+  TH1D * operator->() { return tH1D_; }
+protected:
+  TH1D * tH1D_;
 };
 
 /// A wrapper for the TProfile histogram to allow it to be put inside the same map as all the other classes in this file
