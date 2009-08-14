@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/8/05 19:17:57 $
- * $Revision: 0.1 $
+ * $Date: 2009/08/14 13:22:56 $
+ * $Revision: 1.1 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -18,8 +18,8 @@
 //CMSSW Headers
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
+//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+//#include <DataFormats/GeometrySurface/interface/LocalError.h>
 
 /* Collaborating Class Declarations */
 namespace edm {
@@ -56,26 +56,49 @@ class DTLPPatternReco : public DTRecSegment2DBaseAlgo {
 
 private:
 
-enum ReconstructInSLOrChamber { ReconstructInSL, ReconstructInChamber };
+  enum ReconstructInSLOrChamber { ReconstructInSL, ReconstructInChamber };
 
-class ResultPerformFit{
+  class ResultLPAlgo{
   public:
-       ResultPerformFit(){ Chi2var =0;};
-      ~ResultPerformFit(){lambdas.clear();};
-      double Mvar;
-      double Qvar;
-      double Chi2var;
+      ResultLPAlgo(){ Chi2var =0;};
+      ~ResultLPAlgo(){lambdas.clear();};
+      double mVar;
+      double qVar;
+      double chi2Var;
       std::vector<int> lambdas;  
-    };
+  };
 
-  //This function implements the LP algorithm
-bool perform_fit(ResultPerformFit& theAlgoResults,const std::list<double>& pz, const std::list<double>& px, const std::list<double>& pex, const double m_min, const double m_max, const double q_min, const double q_max, const double theBigM);
+  edm::OwnVector<DTChamberRecSegment2D>
+  DTLPPatternReco::reconstructSupersegment(const DTChamber* chamber,
+					   const std::vector<DTRecHit1DPair>& pairs);
+  
+  void reconstructSegmentOrSupersegment(edm::OwnVector<DTSLRecSegment2D>& ResultsSegment,
+					edm::OwnVector<DTChamberRecSegment2D>& ResultsSuperSegments,
+					const std::vector<DTRecHit1DPair>& pairs,
+					const DTSuperLayer* sl,
+					const DTChamber* chamber,
+					ReconstructInSLOrChamber sl_chamber )
 
-  void remove_used_hits(ResultPerformFit& theAlgoResults, std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex );
+  void populateCoordinatesLists(std::list<double>& pz,
+				  std::list<double>& px,
+				  std::list<double>& pex,
+				  const DTSuperLayer* sl,
+				  const DTChamber* chamber,
+				  const std::vector<DTRecHit1DPair>& pairs,
+				  ReconstructInSLOrChamber sl_chamber);
 
-  DTSLRecSegment2D * create_2D_segment(ResultPerformFit& theAlgoResults, const DTSuperLayer* sl, const std::vector<DTRecHit1DPair>& pairs );
+  bool lpAlgorithm(ResultLPAlgo& theAlgoResults, //This function implements the LP algorithm
+		 const std::list<double>& pz,
+		 const std::list<double>& px,
+		 const std::list<double>& pex,
+		 const double m_min, const double m_max,
+		 const double q_min, const double q_max,
+		 const double theBigM);
 
-  void populate_coordinates_lists(std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex, const DTSuperLayer* sl, const std::vector<DTRecHit1DPair>& pairs );
+  void removeUsedHhits(ResultPerformFit& theAlgoResults,
+			std::list<double>& pz,
+			std::list<double>& px,
+			std::list<double>& pex);
 
   edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
   double theDeltaFactor, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM;

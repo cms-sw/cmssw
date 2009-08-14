@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/8/05 19:17:57 $
- * $Revision: 0.1 $
+ * $Date: 2009/08/14 13:22:56 $
+ * $Revision: 1.1 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
 // Linear Programming Header
 extern "C" {
@@ -49,21 +50,24 @@ DTLPPatternReco::~DTLPPatternReco() {
 std::cout << "DTLPPatternReco Destructor Called" << std::endl;
 }
 
-
+void DTLPPatternReco::setES(const edm::EventSetup& setup){
+   // Get the DT Geometry
+  setup.get<MuonGeometryRecord>().get(theDTGeometry);
+  }
 
 edm::OwnVector<DTSLRecSegment2D> DTLPPatternReco::reconstruct(const DTSuperLayer* sl, const std::vector<DTRecHit1DPair>& pairs){
   edm::OwnVector<DTSLRecSegment2D> theResults;
-  reconstruct_segment_or_supersegment(theResults, NULL, pairs, sl, NULL, ReconstructInSL);
+  reconstructSegmentOrSupersegment(theResults, NULL, pairs, sl, NULL, ReconstructInSL);
   return theResults
 }
 
-edm::OwnVector<DTChamberRecSegment2D> DTLPPatternReco::reconstruct_supersegment(const DTChamber* chamber, const std::vector<DTRecHit1DPair>& pairs){
+edm::OwnVector<DTChamberRecSegment2D> DTLPPatternReco::reconstructSupersegment(const DTChamber* chamber, const std::vector<DTRecHit1DPair>& pairs){
   edm::OwnVector<DTChamberRecSegment2D> theResults;
-  reconstruct_segment_or_supersegment(NULL, theResults, pairs, NULL, chamber,  ReconstructInChamber);
+  reconstructSegmentOrSupersegment(NULL, theResults, pairs, NULL, chamber,  ReconstructInChamber);
   return theResults
 }
 
-void DTLPPatternReco::reconstruct_segment_or_supersegment(edm::OwnVector<DTSLRecSegment2D>& ResultsSegment, edm::OwnVector<DTChamberRecSegment2D>& ResultsSuperSegments, const std::vector<DTRecHit1DPair>& pairs, const DTSuperLayer* sl, const DTChamber* chamber, ReconstructInSLOrChamber sl_chamber ){
+void DTLPPatternReco::reconstructSegmentOrSupersegment(edm::OwnVector<DTSLRecSegment2D>& ResultsSegment, edm::OwnVector<DTChamberRecSegment2D>& ResultsSuperSegments, const std::vector<DTRecHit1DPair>& pairs, const DTSuperLayer* sl, const DTChamber* chamber, ReconstructInSLOrChamber sl_chamber ){
   if (sl_chamber == ReconstructInSL && sl == NULL) 
     sl = theDTGeometry -> SuperLayer( pairs.begin()->WireId().SLId() );
   if (sl_chamber == ReconstructInChamber && chamber == NULL)
@@ -71,23 +75,32 @@ void DTLPPatternReco::reconstruct_segment_or_supersegment(edm::OwnVector<DTSLRec
   std::list<double> pz; //positions of hits along z
   std::list<double> px; //along x (left and right the wires)
   std::list<double> pex; //errors (sigmas) on x
-  ResultPerformFit theAlgoResults;//datastructure containing all useful results from perform_fit
-  populate_coordinates_lists(pz, px, pex, pairs, sl, chamber, sl_chamber);//in SL or chamber ref frame
-  while(perform_fit(theAlgoResults, pz, px, pex, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM) ){
+  ResultLPAlgo theAlgoResults;//datastructure containing all useful results from perform_fit
+  populateCoordinatesLists(pz, px, pex, pairs, sl, chamber, sl_chamber);//in SL or chamber ref frame
+  while(lpAlgo(theAlgoResults, pz, px, pex, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM) ){
     std::cout << "Creating 2Dsegment" << std::endl;
-    ResultsSegment.push_back(*create_segment(theAlgoResults, sl, chamber, pairs, sl_chamber));
-    std::cout << "2D segment created, removing used hits" << std::endl;
-    remove_used_hits(theAlgoResults, pz, px, pex);
-    std::cout << "Used hits removed" << std::endl;
-    theAlgoResults.lambdas.clear();
-    std::cout << "Checking if I need to reiterate perform_fit" << std::endl;
+    LocalPoint seg2Dposition( (float)theAlgoResults.Qvar, 0. , 0. );
+    LocalVector seg2DDirection ((float) theAlgoResults.Mvar,  0. , 1.  );//don't know if I need to normalize the vector
+    AlgebraicSymMatrix seg2DCovMatrix;
+    std::vector<DTRecHit1D> hits1D;
+    for(unsigned int i = 0; i < theAlgoResults.lambdas.size(); i++){
+      if(theAlgoResults.lambdas[i]%2) hits1D.push_back(pairs[(theAlgoResults.lambdas[i] - 1)/2].componentRecHit(DTEnums::Right));
+      else hits1D.push_back(pairs[theAlgoResults.lambdas[i]/2].componentRecHit(DTEnums::Left));
+    }
+  if(sl_chamber == ReconstructInSL) ResultsSegments.push_back(new DTSLRecSegment2D(sl->id(),seg2Dposition,seg2DDirection, seg2DCovMatrix, theAlgoResults.Chi2var, hits1D));
+  if(sl_chamber == ReconstructInChamber) ResultsSuperSegments.push_back(new DTChamberRecSegment2D(chamber->id(),seg2Dposition,seg2DDirection, seg2DCovMatrix, theAlgoResults.Chi2var, hits1D) );
+  std::cout << "2D segment created, removing used hits" << std::endl;
+  remove_used_hits(theAlgoResults, pz, px, pex);
+  std::cout << "Used hits removed" << std::endl;
+  theAlgoResults.lambdas.clear();
+  std::cout << "Checking if I need to reiterate perform_fit" << std::endl;
   }
   px.clear();
   pz.clear();
   pex.clear();
 }
 
-void DTLPPatternReco::populate_coordinates_lists(std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex, const DTSuperLayer* sl, const DTChamber* chamber, const std::vector<DTRecHit1DPair>& pairs, ReconstructInSLOrChamber sl_chamber) {
+void DTLPPatternReco::populateCoordinatesLists(std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex, const DTSuperLayer* sl, const DTChamber* chamber, const std::vector<DTRecHit1DPair>& pairs, ReconstructInSLOrChamber sl_chamber) {
   //populate the arrays with positions in the SuperLayer (or chamber) reference frame, iterating on pairs
   for (std::vector<DTRecHit1DPair>::const_iterator it = pairs.begin(); it!=pairs.end(); ++it){
     DTWireId theWireId = it->wireId();
@@ -115,31 +128,7 @@ void DTLPPatternReco::populate_coordinates_lists(std::list<double>& pz,  std::li
 }
 
 
-DTSLRecSegment2D *  DTLPPatternReco::create_2D_segment(ResultPerformFit& theAlgoResults, const DTSuperLayer* sl, const std::vector<DTRecHit1DPair>& pairs ) {    
-    //position is -q/m, 0, 0
-    LocalPoint seg2Dposition( (float)theAlgoResults.Qvar, 0. , 0. );
-    LocalVector seg2DDirection ((float) theAlgoResults.Mvar,  0. , 1.  );//don't know if I need to normalize the vector
-    AlgebraicSymMatrix seg2DCovMatrix;
-    std::vector<DTRecHit1D> hits1D;
-    //DTEnums::DTCellSide side;
-    for(unsigned int i = 0; i < theAlgoResults.lambdas.size(); i++){
-      if(theAlgoResults.lambdas[i]%2){
-	//side = right;
-	hits1D.push_back( * pairs[(theAlgoResults.lambdas[i] - 1)/2].componentRecHit(DTEnums::Right));
-      }
-      else {
-	//side = left;
-	hits1D.push_back( * pairs[theAlgoResults.lambdas[i]/2].componentRecHit(DTEnums::Left));
-      }
-    }
-    return new DTSLRecSegment2D(sl->id(), seg2Dposition, seg2DDirection, seg2DCovMatrix, theAlgoResults.Chi2var, hits1D);
-}   
-
-DTRecSegment4D *  DTLPPatternReco::create_4D_segment(ResultPerformFit& theAlgoResults, const DTChamber* sl, const std::vector<DTRecHit1DPair>& pairs ){
-}
-
-
-void DTLPPatternReco::remove_used_hits(ResultPerformFit& theAlgoResults, std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex){
+void DTLPPatternReco::removeUsedHits(ResultLPAlgo& theAlgoResults, std::list<double>& pz,  std::list<double>& px,  std::list<double>& pex){
   int jz =0;
   int jx =0;
   int jex =0;  
@@ -174,8 +163,7 @@ void DTLPPatternReco::remove_used_hits(ResultPerformFit& theAlgoResults, std::li
   }
 }
 
-
-bool DTLPPatternReco::perform_fit(ResultPerformFit& theAlgoResults, const std::list<double>& pz, const std::list<double>& px, const std::list<double>& pex, const double m_min, const double m_max, const double q_min, const double q_max, const double BIG_M)
+bool DTLPPatternReco::lpAlgorithm(ResultLPAlgo& theAlgoResults, const std::list<double>& pz, const std::list<double>& px, const std::list<double>& pex, const double m_min, const double m_max, const double q_min, const double q_max, const double BIG_M)
     {
     //the data struct representing the problem
 	LPX *lp;
@@ -342,9 +330,4 @@ bool DTLPPatternReco::perform_fit(ResultPerformFit& theAlgoResults, const std::l
 }
 
 
-void DTLPPatternReco::setES(const edm::EventSetup& setup){
-                   
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(theDTGeometry);
-  }
 
