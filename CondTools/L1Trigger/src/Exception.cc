@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Mar 24 21:38:43 CET 2008
-// $Id$
+// $Id: Exception.cc,v 1.1 2008/04/16 23:44:23 wsun Exp $
 //
 
 // system include files
@@ -40,6 +40,16 @@ l1t::DataAlreadyPresentException::DataAlreadyPresentException(
 // }
 
 l1t::DataAlreadyPresentException::~DataAlreadyPresentException() throw()
+{
+}
+
+l1t::DataInvalidException::DataInvalidException(
+  const std::string& message )
+  : cond::Exception( message )
+{
+}
+
+l1t::DataInvalidException::~DataInvalidException() throw()
 {
 }
 

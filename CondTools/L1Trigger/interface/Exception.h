@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Mar 24 21:27:21 CET 2008
-// $Id$
+// $Id: Exception.h,v 1.1 2008/04/16 23:44:23 wsun Exp $
 //
 
 // system include files
@@ -49,7 +49,29 @@ namespace l1t {
 
       // ---------- member data --------------------------------
 
-};
+  };
+
+  class DataInvalidException : public cond::Exception
+  {
+
+  public:
+    explicit DataInvalidException( const std::string& message );
+    virtual ~DataInvalidException() throw();
+
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+
+   private:
+    //DataInvalidException(const DataInvalidException&); // stop default
+
+    //const DataInvalidException& operator=(const DataInvalidException&); // stop default
+
+      // ---------- member data --------------------------------
+
+  };
 
 }
 
