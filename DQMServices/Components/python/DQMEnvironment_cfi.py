@@ -22,6 +22,8 @@ dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     # Version name to be used in file name.
     version = cms.untracked.int32(1),
+    # runIsComplete
+    runIsComplete = cms.untracked.bool(False),
 
     # Save file every N lumi sections (-1: disabled)
     saveByLumiSection = cms.untracked.int32(-1),
