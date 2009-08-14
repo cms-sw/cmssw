@@ -43,6 +43,7 @@
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
+#include <stdexcept>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -361,6 +362,8 @@ namespace pos{
       std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
     
       //std::cout << "Directory for configuration data:"<<fullpath<<std::endl;
+
+      try {
     
       if (typeid(data)==typeid(PixelTrimBase*)){
 	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelTrimBase" << std::endl;
@@ -431,8 +434,7 @@ namespace pos{
 	    if(delayin.good()){
 	      data = (T*) new PixelFEDTestDAC(calibfile);
 	    }else{
-	      std::cout << "[pos::PixelConfigFile::get()]\t\t\tCan't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
-	      data=0;
+	      throw std::runtime_error("[pos::PixelConfigFile::get()]\t\t\tCan't find calibration file calib.dat or delay25.dat or fedtestdac.dat");    
 	    }
 	  }
 	}
@@ -485,10 +487,11 @@ namespace pos{
       }else{
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tNo match" << std::endl;
 	assert(0);
-	data=0;
-	return;
       }
-
+      } catch (std::exception & e) {
+	std::cout<<"[PixelConfigFile::get] Caught exception while constructing configuration object. Will rethrow."<<std::endl;
+	throw;
+      }
     }
 
     //----- Method added by Dario (March 10, 2008)
@@ -726,7 +729,7 @@ namespace pos{
 	//std::cout << __LINE__ << mthn << "Will open:"<<fullpath+"params_fed_"+ext+".dat"<< std::endl;
 	data = (T*) new PixelFEDCard(fullpath+"params_fed_"+ext+".dat");
 	return;
-      }else if (typeid(data)==typeid(PixelCalibBase*)){
+      }else if (typeid(data)==typeid(PixelCalibBase*)) {
 	//std::cout << __LINE__ << mthn << "Will return PixelCalibBase" << std::endl;
 	assert(base=="calib");
 	std::string calibfile=fullpath+"calib.dat";
