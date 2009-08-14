@@ -12,26 +12,18 @@
 #include "FWCore/Utilities/interface/Exception.h"
 //
 #include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 IPTCorrector::IPTCorrector(const edm::ParameterSet& config){
   
   corSource_=config.getParameter<edm::InputTag>("corTracksLabel");
   uncorSource_=config.getParameter<edm::InputTag>("filterLabel");
-
-  corrIsolRadiusHB_=config.getParameter<double>("corrIsolRadiusHB");
-  corrIsolRadiusHE_=config.getParameter<double>("corrIsolRadiusHE");
-  corrIsolMaxP_=config.getParameter<double>("corrIsolMaxP");  
+  assocCone_=config.getParameter<double>("associationCone");
 
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
@@ -63,30 +55,22 @@ void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEvent
     {
       double iptEta=isoPixTrackRefs[p]->track()->eta();
       double iptPhi=isoPixTrackRefs[p]->track()->phi();
-      if (fabs(iptEta)<1.479) corrIsolRadius_ = corrIsolRadiusHB_;
-      else corrIsolRadius_ = corrIsolRadiusHE_;
-
+  
       int ntrk=0;
+      double minDR=100;
       reco::TrackCollection::const_iterator citSel;
 
       for (reco::TrackCollection::const_iterator cit=corTracks->begin(); cit!=corTracks->end(); cit++)
 	{
-	  double dphi=fabs(iptPhi-cit->phi());
-	  if (dphi>acos(-1)) dphi=2*acos(-1)-dphi;
-	  double dR=sqrt(dphi*dphi+pow(iptEta-cit->eta(),2));
-	  //          std::cout<<"distance to primary pixel track: "<<dR<<std::endl;
-	  if (dR<corrIsolRadius_) 
+	  double dR=deltaR(cit->eta(), cit->phi(), iptEta, iptPhi);
+	  if (dR<minDR&&dR<assocCone_) 
 	    {
-	      if (cit->p()>corrIsolMaxP_) 
-		{	
-		  ntrk++;
-		  citSel=cit;
-		}		
+	      ntrk++;
+	      citSel=cit;
 	    }
-	  
 	}
 
-      if (ntrk==1) 
+      if (ntrk>0) 
 	{
           reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(corTracks,citSel-corTracks->begin()), isoPixTrackRefs[p]->l1tau(),isoPixTrackRefs[p]->maxPtPxl(), isoPixTrackRefs[p]->sumPtPxl());
 	  trackCollection->push_back(newCandidate);
