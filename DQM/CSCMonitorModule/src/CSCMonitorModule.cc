@@ -48,6 +48,15 @@ CSCMonitorModule::~CSCMonitorModule() {
 }
 
 /**
+ * @brief  Begin the run.
+ * @param  r Run object
+ * @param  c Event setup
+ */
+void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+  dispatcher->updateFractionAndEfficiencyHistos();
+}
+
+/**
  * @brief  Analyze Event.
  * @param  e Event to analyze
  * @param  c Event Setup
