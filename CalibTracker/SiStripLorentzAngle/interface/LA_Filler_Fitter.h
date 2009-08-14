@@ -126,7 +126,7 @@ make_and_fit_ratio(Book& book) {
     book(ratio_name)->Fit("gaus");
     double mean = book(ratio_name)->GetFunction("gaus")->GetParameter(1);
     double sigma = book(ratio_name)->GetFunction("gaus")->GetParameter(2);
-    book(ratio_name)->Fit("gaus","","",mean-sigma,mean+sigma);
+    book(ratio_name)->Fit("gaus","IMQ","",mean-sigma,mean+sigma);
   }
 }
 
@@ -134,11 +134,13 @@ void LA_Filler_Fitter::
 make_and_fit_profile(Book& book, const std::string& key) {
   for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
     std::string name = hist2D.name()+"_profile";
-    book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
+    TH1* p = book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
     TF1* fit = new TF1("fitfunc","[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
-    fit->SetParameters(book(name)->GetMean(1),
-		       -0.5 * book(name)->GetMaximum() / book(name)->GetBinCenter(0),
-		       0.5*book(name)->GetMean(2));
+    fit->SetParameters( p->GetBinCenter(p->GetMinimumBin()),
+		       ( p->GetMaximum() - p->GetMinimum() ) / fabs(p->GetBinCenter(p->GetMaximumBin()) - p->GetBinCenter(p->GetMinimumBin())),
+			p->GetMinimum() );
+    fit->SetParLimits(0,-0.15,0.05);
+    fit->SetParLimits(2, 0.6*p->GetMinimum(), 1.2* p->GetMinimum() );
     book(name)->Fit(fit,"IMQ");
   }
 }
