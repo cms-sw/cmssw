@@ -15,6 +15,7 @@
 #include <iostream>
 #include <ios>
 #include <assert.h>
+#include <stdexcept>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
@@ -91,6 +92,7 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::string filename):
 
       std::ifstream in(filename.c_str());
 	
+      if (!in.good())  throw std::runtime_error("Failed to open file "+filename);
       //	std::cout << "filename =" << filename << std::endl;
 
       std::string s1;
@@ -128,6 +130,7 @@ PixelTrimAllPixels::PixelTrimAllPixels(std::string filename):
     else{
 
       std::ifstream in(filename.c_str(),std::ios::binary);
+      if (!in.good())  throw std::runtime_error("Failed to open file "+filename);
 
       char nchar;
 
