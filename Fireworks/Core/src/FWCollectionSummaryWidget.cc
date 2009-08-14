@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.13 2009/08/12 18:19:35 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.14 2009/08/12 22:03:23 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,11 @@ namespace {
       BorderlessTextButton(const TGWindow *p = 0, const char *s = 0, Int_t id = -1,
                            GContext_t norm = GetDefaultGC()(),
                            FontStruct_t font = GetDefaultFontStruct()):
-      TGTextButton(p,s,id,norm,font,0){}
+      TGTextButton(p,s,id,norm,font,0){
+         //by default, it uses too much padding
+         fMTop = -3;
+         fMBottom = -3;
+      }
       
       void DoRedraw();
    };
