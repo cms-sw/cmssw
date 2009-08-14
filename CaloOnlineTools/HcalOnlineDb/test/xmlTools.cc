@@ -9,7 +9,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/HcalChannelQualityManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatterns.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatternLoader.h"
@@ -109,7 +108,6 @@ int main( int argc, char **argv )
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
     ("test-channel-data", "Test base class for DB entries per HCAL channel")
     ("test-channel-quality", "Test channel quality operations")
-    ("test-channel-masking", "Test base class for DB entries per HCAL channel")
     ("test-channel-iterator", "Test iterator class for HCAL channels")
     ("test-new-developer", "Test area for a new developer")
     ;
@@ -477,18 +475,7 @@ int main( int argc, char **argv )
     }
     
     
-    if (vm.count("test-channel-masking")) {
-      HcalChannelQualityManager manager;
-      DetId id1(13408717);
-      DetId id2(13408718);
-      DetId id3(13401380);
-      cout << "channel " << id1.rawId() << "is masked: " << manager.isChannelMasked(id1,true) << endl;
-      cout << "channel " << id2.rawId() << "is masked: " << manager.isChannelMasked(id2,true) << endl;
-      cout << "channel " << id3.rawId() << "is masked: " << manager.isChannelMasked(id3,true) << endl << endl;
-      return 0;
-    }
-    
-    
+   
     if (vm.count("test-channel-iterator")) {
       HcalChannelIterator iter;
       iter.clearChannelList();
