@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.4 2007/08/15 21:51:13 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.5 2008/05/14 15:31:57 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -22,6 +22,7 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 
 // ROOT
 #include "TFile.h"
@@ -74,20 +75,12 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   
   std::vector< BSTrkParameters > fBSvector;
   
-  std::string ckfSeedProducerLabel_;
-  std::string ckfTrackCandidateProducerLabel_;
-  std::string ckfTrackProducerLabel_;
-
-  unsigned int sameNumberOfTracks;
-
-  float fptmin;
-  int fmaxNtracks;  
-
   bool write2DB_;
   bool runallfitters_;
-  int ftotal_tracks;
   double inputBeamWidth_;
-  
+  int ftotal_tracks;
+
+  BeamFitter * theBeamFitter;
 };
 
 #endif
