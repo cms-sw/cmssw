@@ -10,8 +10,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-
-
+#include "RecoMuon/L3TrackFinder/src/EtaPhiEstimator.h"
 #include <sstream>
 
 MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
@@ -29,10 +28,19 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
   //and something specific to me ?
   theUseSeedLayer = conf.getParameter<bool>("useSeedLayer");
   theRescaleErrorIfFail = conf.getParameter<double>("rescaleErrorIfFail");
+  double dEta=conf.getParameter<double>("deltaEta");
+  double dPhi=conf.getParameter<double>("deltaPhi");
+  if (dEta>0 && dPhi>0)
+    theEtaPhiEstimator = new EtaPhiEstimator(dEta,dPhi,theEstimator);
+  else theEtaPhiEstimator = (Chi2MeasurementEstimatorBase*)0;
+
+
 }
 
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder()
-{}
+{
+  if (theEtaPhiEstimator) delete theEtaPhiEstimator;
+}
 
 /*
 std::string dumpMeasurement(const TrajectoryMeasurement & tm)
@@ -64,7 +72,11 @@ std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
 }
 */
 
-void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits, const Propagator * prop) const{
+void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
+						  const std::vector<const DetLayer*>& nl,
+						  const TrajectoryStateOnSurface & currentState,
+						  std::vector<TM>& result,int& invalidHits,
+						  const Propagator * prop) const{
   for (std::vector<const DetLayer*>::const_iterator il = nl.begin();
        il != nl.end(); il++) {
 
@@ -83,8 +95,12 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,const st
     }
 
     std::vector<TM> tmp =
-      theLayerMeasurements->measurements((**il),currentState, *prop, *theEstimator);
+      theLayerMeasurements->measurements((**il),stateToUse, *prop, *theEstimator);
     
+    if (tmp.size()==1 && theEtaPhiEstimator){
+      LogDebug("CkfPattern")<<"only an invalid hit is found. trying differently";
+      tmp = theLayerMeasurements->measurements((**il),stateToUse, *prop, *theEtaPhiEstimator);
+    }
     LogDebug("CkfPattern")<<tmp.size()<<" measurements returned by LayerMeasurements";
     
     if ( !tmp.empty()) {
