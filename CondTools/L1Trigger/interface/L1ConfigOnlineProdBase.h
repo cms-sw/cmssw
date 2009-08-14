@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.2 2008/09/30 20:33:39 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.3 2009/04/06 05:16:32 wsun Exp $
 //
 
 // system include files
@@ -104,7 +104,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
 
    // Get object key and check if already in ORCON
    std::string key ;
-   if( m_forceGeneration || getObjectKey( iRecord, pData, key ) )
+   if( getObjectKey( iRecord, pData, key ) || m_forceGeneration )
    {
      pData = newObject( key ) ;
    }
