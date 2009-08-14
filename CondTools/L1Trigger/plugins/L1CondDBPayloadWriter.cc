@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.12 2009/03/29 00:33:57 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.13 2009/08/14 17:44:59 wsun Exp $
 //
 //
 
@@ -168,7 +168,18 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 			    << it->first << ": " << it->second ;
 			}
 
-		      token = m_writer.writePayload( iSetup, it->first ) ;
+		      try
+			{
+			  token = m_writer.writePayload( iSetup, it->first ) ;
+			}
+		      catch( l1t::DataInvalidException& ex )
+			{
+			  edm::LogVerbatim( "L1-O2O" )
+			    << ex.what()
+			    << " Skipping to next record." ;
+
+			  continue ;
+			}
 
 		      if( !token.empty() )
 			{

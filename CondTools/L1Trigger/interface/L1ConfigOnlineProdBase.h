@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.3 2009/04/06 05:16:32 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.4 2009/08/14 17:44:12 wsun Exp $
 //
 
 // system include files
@@ -107,6 +107,17 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
    if( getObjectKey( iRecord, pData, key ) || m_forceGeneration )
    {
      pData = newObject( key ) ;
+
+     if( pData.get() == 0 )
+       {
+	 std::string dataType =
+	   edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
+	   edm::eventsetup::DataKey >::className() ;
+
+	 throw l1t::DataInvalidException( "Unable to generate " +
+					  dataType + " for key " + key +
+					  "." ) ;
+       }
    }
    else
    {
