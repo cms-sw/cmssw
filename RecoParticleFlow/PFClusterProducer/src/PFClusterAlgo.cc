@@ -361,8 +361,9 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
 
   //   cout<<" hit ptr "<<hit<<endl;
 
-  // get neighbours (1 common side)
-  const std::vector< unsigned >& nbs = rh.neighbours4();
+  // get neighbours with 1 common corner
+  // to use those with 1 common side use rh.neighbours4()
+  const std::vector< unsigned >& nbs = rh.neighbours8();
   
   for(unsigned i=0; i<nbs.size(); i++) {
 
