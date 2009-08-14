@@ -10,7 +10,8 @@ metAnalyzer = cms.EDFilter(
     OutputFile = cms.untracked.string('METTester_met.root'),
     InputMETLabel = cms.InputTag("met"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
 metHOAnalyzer = cms.EDAnalyzer(
@@ -18,7 +19,8 @@ metHOAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('METTester_metHO.root'),
     InputMETLabel = cms.InputTag("metHO"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
 metNoHFAnalyzer = cms.EDFilter(
@@ -26,7 +28,9 @@ metNoHFAnalyzer = cms.EDFilter(
     OutputFile = cms.untracked.string('METTester_metNoHF.root'),
     InputMETLabel = cms.InputTag("metNoHF"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+
     )
 
 metNoHFHOAnalyzer = cms.EDAnalyzer(
@@ -34,7 +38,8 @@ metNoHFHOAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('METTester_metNoHFHO.root'),
     InputMETLabel = cms.InputTag("metNoHFHO"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
 metOptAnalyzer = cms.EDFilter(
@@ -42,7 +47,9 @@ metOptAnalyzer = cms.EDFilter(
     OutputFile = cms.untracked.string('METTester_metOpt.root'),
     InputMETLabel = cms.InputTag("metOpt"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+
     )
 
 metOptHOAnalyzer = cms.EDAnalyzer(
@@ -50,7 +57,8 @@ metOptHOAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('METTester_metOptHO.root'),
     InputMETLabel = cms.InputTag("metOptHO"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
 metOptNoHFAnalyzer = cms.EDFilter(
@@ -58,7 +66,9 @@ metOptNoHFAnalyzer = cms.EDFilter(
     OutputFile = cms.untracked.string('METTester_metOptNoHF.root'),
     InputMETLabel = cms.InputTag("metOptNoHF"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+    
     )
 
 metOptNoHFHOAnalyzer = cms.EDAnalyzer(
@@ -66,7 +76,9 @@ metOptNoHFHOAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('METTester_metOptNoHFHO.root'),
     InputMETLabel = cms.InputTag("metOptNoHFHO"),
     METType = cms.untracked.string('CaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+
     )
 
 

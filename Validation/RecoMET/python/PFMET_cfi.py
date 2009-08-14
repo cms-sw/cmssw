@@ -11,7 +11,8 @@ pfMetAnalyzer = cms.EDAnalyzer(
     OutputFile = cms.untracked.string('output.root'),
     InputMETLabel = cms.InputTag("pfMet"),
     METType = cms.untracked.string('PFMET'),
-   FineBinning = cms.untracked.bool(False)
+   FineBinning = cms.untracked.bool(False),
+   FolderName = cms.untracked.string("RecoMETV/MET_Global/")
    ) 
 
 
