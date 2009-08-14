@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/08/11 07:24:15 $
- * $Revision: 1.83 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -447,7 +447,7 @@ void EEPedestalOnlineClient::softReset(bool flag) {
  
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
     MonitorElement* me = dqmStore_->get(histo);
 
     if ( flag ) {
