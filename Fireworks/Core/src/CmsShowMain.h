@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.23 2009/08/13 19:11:17 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.24 2009/08/14 10:23:32 amraktad Exp $
 //
 
 // system include files
@@ -120,6 +120,11 @@ private:
    void stopPlaying();
    void reachedEnd();
    void reachedBeginning();
+   void setPlayAutoRewind();
+   void unsetPlayAutoRewind();
+
+   void setPlayAutoRewindImp();
+   void unsetPlayAutoRewindImp();
 
    void preFiltering();
    void postFiltering();

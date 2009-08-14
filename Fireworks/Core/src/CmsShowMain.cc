@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.89 2009/08/14 10:23:32 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.90 2009/08/14 14:41:02 amraktad Exp $
 //
 
 // system include files
@@ -299,7 +299,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
       if (vm.count(kLoopOpt)) 
-        m_rewindMode = true;
+         setPlayAutoRewind();
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
@@ -711,7 +711,9 @@ CmsShowMain::setupDataHandling()
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
-
+   m_guiManager->autoRewindAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayAutoRewindImp));
+   m_guiManager->autoRewindAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayAutoRewindImp));
+   
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
@@ -870,6 +872,37 @@ CmsShowMain::reachedBeginning()
    }
    else m_guiManager->disablePrevious();
 }
+
+void
+CmsShowMain::setPlayAutoRewind()
+{
+   if(!m_rewindMode) {
+      setPlayAutoRewindImp();
+      m_guiManager->autoRewindAction()->activated();
+   }
+}
+
+void
+CmsShowMain::unsetPlayAutoRewind()
+{
+   if(m_rewindMode) {
+      unsetPlayAutoRewindImp();
+      m_guiManager->autoRewindAction()->stop();
+   }
+}
+
+void
+CmsShowMain::setPlayAutoRewindImp()
+{
+   m_rewindMode = true;
+}
+
+void
+CmsShowMain::unsetPlayAutoRewindImp()
+{
+   m_rewindMode = false;
+}
+
 
 void 
 CmsShowMain::preFiltering()
