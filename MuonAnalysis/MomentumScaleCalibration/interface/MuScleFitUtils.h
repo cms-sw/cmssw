@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/08/07 11:43:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/07 15:57:06 $
+ *  $Revision: 1.9 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -206,7 +206,7 @@ public:
   static int iev_;
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
-  static bool checkMassWindow( const double & mass, const int ires, const double & leftFactor = 1., const double & rightFactor = 1. );
+  static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );
 
 protected:
 

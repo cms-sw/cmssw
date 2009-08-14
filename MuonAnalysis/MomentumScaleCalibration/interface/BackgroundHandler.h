@@ -44,6 +44,13 @@ public:
   pair<double, double> windowFactors( const bool doBackgroundFit, const int ires );
 
   /**
+   * Returns the appropriate resMass value depending on whether the background is being fitted and on the resonance. <br>
+   * The resMass used for the region is the mean of the mass of the corresponding resonances, so for the Z is the same Z mass,
+   * for the Upsilons is the arithmetic mean of the Upsilon masses and the same for the J/Psi and Psi2S region.
+   */
+  double resMass( const bool doBackgroundFit, const int ires );
+
+  /**
    * Computes the rescaled parameters from the regions functions to the
    * resonances functions. It takes into account the difference in intervals
    * and rescales the parameters so that the fraction of events is correctly accounter for. <br>
@@ -94,6 +101,8 @@ private:
 
   // Holds the mass values used as the center of each region.
   double resMassForRegion_[3];
+  // Holds the mass values for the resonances
+  double resMassForResonance_[6];
 
   vector<backgroundFunctionBase*> backgroundFunctionsForRegions_;
   vector<backgroundFunctionBase*> backgroundFunctionsForResonances_;

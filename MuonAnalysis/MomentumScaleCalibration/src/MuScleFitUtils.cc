@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/07/30 13:05:25 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/08/07 11:41:16 $
+ *  $Revision: 1.16 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -361,11 +361,6 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
             if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
           }
         }
-
-// 	if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
-// 	    (*mother)->pdg_id()==553 || (*mother)->pdg_id()==100553 || (*mother)->pdg_id()==200553) {
-// 	  fromRes = true;
-// 	}
       }
       if(fromRes){
 	if((*part)->pdg_id()==13)
@@ -931,9 +926,9 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   }
   if (iSigmaRight>nbins ) { 
     if (counter_resprob<100)
-      LogInfo("probablity") << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
-                            << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
-                            << ResMaxSigma[iRes] << " -  iSigmaRight set to " << nbins-1 << endl;
+      LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" 
+                             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
+                             << ResMaxSigma[iRes] << " -  iSigmaRight set to " << nbins-1 << endl;
     iSigmaLeft  = nbins-1;
     iSigmaRight = nbins;
   }
@@ -1082,8 +1077,10 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 
 
 
-
-  if( resfind[0]>0 && checkMassWindow( mass, 0 ) && fabs(rapidity)<4 ) {
+  pair<double, double> windowFactors = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], 0 );
+  if( resfind[0]>0 && checkMassWindow( mass, 0,
+                                       backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
+                                       windowFactors.first, windowFactors.second ) && fabs(rapidity)<4 ) {
     int iY = (int)(fabs(rapidity)*10.);
     resConsidered[0] = true;
     nres += 1;
@@ -1096,7 +1093,9 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
     for( int otherRes = 0; otherRes < 6; ++otherRes ) {
       if( otherRes != 0 ) {
-        if( checkMassWindow( mass, otherRes ) ) ++superpositionFactor;
+        if( checkMassWindow( mass, 0,
+                             backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
+                             windowFactors.first, windowFactors.second ) ) ++superpositionFactor;
       }
     }
   }
@@ -1110,10 +1109,11 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 
       // First is left, second is right (returns (1,1) in the case of resonances, it could be improved avoiding the call in this case)
       pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
-      if( checkMassWindow(mass, ires, windowFactor.first, windowFactor.second) ) {
+      if( checkMassWindow(mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
+                          windowFactor.first, windowFactor.second) ) {
 
         resConsidered[ires] = true;
-        nres += 1; 
+        nres += 1;
 
         if (MuScleFitUtils::debug>1) cout << "massProb:resFound = " << ires << endl;
 
@@ -1123,7 +1123,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         // We are inside the current resonance mass window, check if we are also inside any other resonance mass window.
         for( int otherRes = 0; otherRes < 6; ++otherRes ) {
           if( otherRes != ires ) {
-            if( checkMassWindow( mass, otherRes, windowFactor.first, windowFactor.second ) ) ++superpositionFactor;
+            if( checkMassWindow( mass, otherRes, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
+                                 windowFactor.first, windowFactor.second ) ) ++superpositionFactor;
           }
         }
       }
@@ -1141,7 +1142,9 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
       pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
                                                                               &(parval[shift]), MuScleFitUtils::totalResNum, ires,
                                                                               resConsidered, ResMass, ResHalfWidth, MuonType, mass, nbins );
-      cout << "doBackgroundFit["<<loopCounter<<"] = " << doBackgroundFit[loopCounter] << ", Bgrp1 = " << bgrResult.first << ", backgroundFunctionResult = " << bgrResult.second << endl;
+      if( debug>0 ) {
+        cout << "doBackgroundFit["<<loopCounter<<"] = " << doBackgroundFit[loopCounter] << ", Bgrp1 = " << bgrResult.first << ", backgroundFunctionResult = " << bgrResult.second << endl;
+      }
       Bgrp1 = bgrResult.first;
       PStot += PS[ires]*(1-Bgrp1);
       PB += Bgrp1*bgrResult.second;
@@ -1149,30 +1152,28 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
     }
   }
 
-  if (debug>0) cout << "MassProb: Pstot, Pb, bgrp1 = " << PStot << " " << PB << " " << Bgrp1 << endl;
   // P = PStot*Bgrp1 + PB*(1+superpositionFactor)*(1-Bgrp1);
   // P = PStot*Bgrp1 + PB*(1-Bgrp1);
 
   // Note that they alreay contain the fraction coefficients.
   P = PStot + PB;
 
-  if (debug>1) cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
-
-  cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
+  if (debug>0) cout << "mass = " << mass << ", P = " << P << ", Pstot = " << PStot << ", Pb = " << PB << ", bgrp1 = " << Bgrp1 << endl;
 
   if( MuScleFitUtils::signalProb_ != 0 && MuScleFitUtils::backgroundProb_ != 0 ) {
-    MuScleFitUtils::signalProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::signalProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + (1-Bgrp1)*PStot);
-    MuScleFitUtils::backgroundProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::backgroundProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + (Bgrp1)*PB);
+    MuScleFitUtils::signalProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::signalProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PStot);
+    MuScleFitUtils::backgroundProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::backgroundProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PB);
   }
-
   return P;
 }
 
 // Method to check if the mass value is within the mass window of the i-th resonance.
-inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires, const double & leftFactor, const double & rightFactor )
+inline bool MuScleFitUtils::checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor, const double & rightFactor )
 {
-  return( mass-ResMass[ires] > -leftFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow]
-          && mass-ResMass[ires] < rightFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow] );
+//   return( mass-ResMass[ires] > -leftFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow]
+//           && mass-ResMass[ires] < rightFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow] );
+  return( mass-resMass > -leftFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow]
+          && mass-resMass < rightFactor*massWindowHalfWidth[ires][MuonTypeForCheckMassWindow] );
 }
 
 // Function that returns the weight for a muon pair
@@ -1190,7 +1191,8 @@ double MuScleFitUtils::computeWeight( const double & mass, const int iev )
   for (int ires=0; ires<6; ires++) {
     if (resfind[ires]>0 && weight==0.) {
       pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
-      if( checkMassWindow(mass, ires, windowFactor.first, windowFactor.second) ) {
+      if( checkMassWindow(mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
+                          windowFactor.first, windowFactor.second) ) {
         weight = 1.0;
       }
     }
@@ -1461,7 +1463,7 @@ void MuScleFitUtils::minimizeLikelihood()
       if( ipar == 0 ) {
         FitParametersFile << " Resolution fit parameters:" << endl;
       }
-      if( ipar == int(parScale.size()) ) {
+      if( ipar == int(parResol.size()) ) {
         FitParametersFile << " Scale fit parameters:" << endl;
       }
       if( ipar == int(parResol.size()+parScale.size()) ) {
@@ -1640,8 +1642,10 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
   }
   else cout << "minuitLoop over 10000. Not filling histogram" << endl;
 
-  cout << "Events in likelihood = " << evtsinlik << endl;
-  cout << "Events out likelihood = " << evtsoutlik << endl;
+  if( MuScleFitUtils::debug > 0 ) {
+    cout << "Events in likelihood = " << evtsinlik << endl;
+    cout << "Events out likelihood = " << evtsoutlik << endl;
+  }
 //  #endif
 }
 
