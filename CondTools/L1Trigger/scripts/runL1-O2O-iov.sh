@@ -1,10 +1,8 @@
 #!/bin/sh
 
 source /nfshome0/cmssw2/scripts/setup.sh
-#source /afs/cern.ch/cms/sw/cmsset_default.sh
 eval `scramv1 run -sh`
-##export TNS_ADMIN=/nfshome0/xiezhen/conddb
-export TNS_ADMIN=/nfshome0/l1emulator/o2o/conddb
+export TNS_ADMIN=/nfshome0/popcondev/conddb_cmsusr
 
 xflag=0
 while getopts 'xh' OPTION
@@ -42,16 +40,16 @@ if [ ${xflag} -eq 0 ]
 	exit 199
     fi
 else
-    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T inputDBAuth=/nfshome0/l1emulator/o2o/conddb printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "TSC payloads present"
+    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "TSC payloads present"
     else
         echo "TSC payloads absent; writing now"
-	cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T outputDBAuth=/nfshome0/l1emulator/o2o/conddb print
+	cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
     fi
 
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T outputDBAuth=/nfshome0/l1emulator/o2o/conddb print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
     echo
     echo "`date` : checking O2O"
-    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T inputDBAuth=/nfshome0/l1emulator/o2o/conddb printL1TriggerKey=1 runNumber=${runnum} | grep ${tsckey} ; then echo "IOV SET SUCCESSFULLY"
+    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKey=1 runNumber=${runnum} | grep ${tsckey} ; then echo "IOV SET SUCCESSFULLY"
     else
 	echo "IOV SETTING FAILED"
 	exit 199

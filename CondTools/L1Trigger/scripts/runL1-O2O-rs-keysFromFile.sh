@@ -2,8 +2,7 @@
 
 source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
-#export TNS_ADMIN=/nfshome0/xiezhen/conddb
-export TNS_ADMIN=/nfshome0/l1emulator/o2o/conddb
+export TNS_ADMIN=/nfshome0/popcondev/conddb_cmsusr
 
 xflag=0
 while getopts 'xh' OPTION
@@ -32,8 +31,8 @@ do
       cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSPayloadOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. keysFromDB=0 ${line} print
       cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSIOVOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db outputDBAuth=. keysFromDB=0 ${line} print
   else
-      cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSPayloadOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T outputDBAuth=/nfshome0/l1emulator/o2o/conddb keysFromDB=0 ${line} print
-      cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSIOVOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcoff_prep/CMS_COND_L1T outputDBAuth=/nfshome0/l1emulator/o2o/conddb keysFromDB=0 ${line} print
+      cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSPayloadOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb keysFromDB=0 ${line} print
+      cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSIOVOnline_cfg.py tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb keysFromDB=0 ${line} print
   fi
 done
 
