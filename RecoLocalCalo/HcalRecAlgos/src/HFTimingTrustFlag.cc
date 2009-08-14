@@ -1,8 +1,6 @@
 #include "../interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
-#include <iostream>
-
 namespace HFTimingTrust 
 {
   // Template class checks HF timing, sets rechit 
@@ -37,7 +35,6 @@ namespace HFTimingTrust
 	  else if (timerr<=level1) status = 0; // time reconstructed; precision better than level1 value
 	  else if (timerr<=level2) status = 1; // precision worse than level1 value
 	  else status = 2; //precision worse than level 2 value
-	  std::cout<<" status  = "<<status<<std::endl;
 	  rechit.setFlagField(status,HcalCaloFlagLabels::HFTimingTrustBits,2);
 	  return;
 	}

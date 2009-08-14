@@ -17,6 +17,8 @@ namespace HcalCaloFlagLabels
 		      HSCP_OuterEnergy=4,
 		      HSCP_ExpFit=5};
 
+  enum HFTimingTrustFlag{HFTimingTrustBits=6};
+
   enum HOStatusFlag{HOBit=0};
 
   enum HFStatusFlag{HFLongShort=0,
