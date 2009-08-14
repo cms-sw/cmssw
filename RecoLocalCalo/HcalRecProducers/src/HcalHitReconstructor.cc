@@ -30,6 +30,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
+  setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
   
 {
@@ -39,6 +40,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   hfdigibit_=0;
   hfrechitbit_=0;
   saturationFlagSetter_=0;
+  HFTimingTrustFlagSetter_=0;
 
   if (setSaturationFlags_)
     {
@@ -77,6 +79,15 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
+
+    if (setTimingTrustFlags_) {
+      
+      const edm::ParameterSet& pstrust      = conf.getParameter<edm::ParameterSet>("hfTimingTrustParameters");
+      HFTimingTrustFlagSetter_=new HFTimingTrustFlag(pstrust.getParameter<int>("hfTimingTrustLevel1"),
+						     pstrust.getParameter<int>("hfTimingTrustLevel2"));
+    }
+
+
     if (setNoiseFlags_)
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("digistat");
@@ -275,6 +286,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (setNoiseFlags_) hfdigibit_->hfSetFlagFromDigi(rec->back(),*i);
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
+	if (setTimingTrustFlags_)
+	  HFTimingTrustFlagSetter_->setHFTimingTrustFlag(rec->back(),*i);
 	if (correctTiming_)
 	  HcalTimingCorrector::Correct(rec->back(), *i, favorite_capid);
       }

@@ -15,6 +15,7 @@ hfreco = cms.EDFilter("HcalHitReconstructor",
                       setNoiseFlags = cms.bool(True),
                       setHSCPFlags  = cms.bool(True),
                       setSaturationFlags = cms.bool(True),
+                      setTimingTrustFlags = cms.bool(True),
                       
                       digistat= cms.PSet(
                         HFpulsetimemin     = cms.int32(0),
@@ -27,7 +28,12 @@ hfreco = cms.EDFilter("HcalHitReconstructor",
                         HFlongshortratio = cms.double(0.99), # max allowed ratio of (L-S)/(L+S)
                         HFthresholdET = cms.double(2.0), # minimum energy (in GeV) required for a cell to be considered hot (started at 0.5, loosened to 2.0 after pion studies)
                       ),
-                      saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))                      
+                      saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
+                      hfTimingTrustParameters = cms.PSet(
+                        hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
+                        hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
+                      )
+                        
                   )
 
 

@@ -16,6 +16,8 @@ hbhereco = cms.EDFilter(
     setNoiseFlags      = cms.bool(True),
     setHSCPFlags       = cms.bool(True),
     setSaturationFlags = cms.bool(True),
+    setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
+    
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(2.0), #GeV
                              hitMultiplicityThreshold=cms.int32(17),

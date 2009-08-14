@@ -17,6 +17,8 @@ zdcreco = cms.EDFilter(
     setNoiseFlags = cms.bool(True),
     setHSCPFlags  = cms.bool(True),
     setSaturationFlags = cms.bool(True),
+    setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
+    
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
     ) # zdcreco
 

@@ -19,11 +19,12 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/03/27 14:47:13 $
-    $Revision: 1.3 $
+    $Date: 2009/03/27 15:56:31 $
+    $Revision: 1.4 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -35,6 +36,7 @@
     private:      
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
+      HFTimingTrustFlag* HFTimingTrustFlagSetter_;
       HBHEStatusBitSetter* hbheFlagSetter_;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;
@@ -49,6 +51,7 @@
       bool setNoiseFlags_; // turn on/off basic noise flags
       bool setHSCPFlags_;  // turn on/off HSCP noise flags
       bool setSaturationFlags_; // turn on/off flag indicating ADC saturation
+      bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
     };
