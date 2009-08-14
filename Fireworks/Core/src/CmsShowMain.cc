@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.88 2009/08/13 21:40:00 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.89 2009/08/14 10:23:32 amraktad Exp $
 //
 
 // system include files
@@ -797,10 +797,18 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"Ready to change to new file '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
-      // start play new file
-      m_navigator->newRemoteFile(fileName);
-      if ( !m_isPlaying )
-         m_guiManager->playEventsAction()->switchMode();
+      // bootstrap case: --port without and no input file
+      if (!m_inputFileName.size())
+      {
+         m_navigator->loadFile(fileName);
+      }
+      else
+      {
+         m_navigator->newRemoteFile(fileName);
+         if ( !m_isPlaying )
+            m_guiManager->playEventsAction()->switchMode();
+      }
+      m_inputFileName = fileName; 
    }
 }
 
