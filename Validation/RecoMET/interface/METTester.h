@@ -41,6 +41,7 @@ public:
 
   // Inputs from Configuration File
   std::string METType_;
+  std::string FolderName_;
   edm::InputTag inputMETLabel_;
   bool finebinning_;
 
