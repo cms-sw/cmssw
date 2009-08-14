@@ -43,7 +43,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 
 void
 DataWriter::writeKeyList( L1TriggerKeyList* keyList,
-			  edm::RunNumber_t sinceRun )
+			  edm::RunNumber_t sinceRun,
+			  bool logTransactions )
 {
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if( !poolDb.isAvailable() )
@@ -70,13 +71,15 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
    // Set L1TriggerKeyList IOV
    updateIOV( "L1TriggerKeyListRcd",
 	      payloadToken,
-	      sinceRun ) ;
+	      sinceRun,
+	      logTransactions ) ;
 }
 
 bool
 DataWriter::updateIOV( const std::string& esRecordName,
 		       const std::string& payloadToken,
-		       edm::RunNumber_t sinceRun )
+		       edm::RunNumber_t sinceRun,
+		       bool logTransactions )
 {
   edm::LogVerbatim( "L1-O2O" ) << esRecordName
 			       << " PAYLOAD TOKEN " << payloadToken ;
@@ -96,7 +99,8 @@ DataWriter::updateIOV( const std::string& esRecordName,
       poolDb->createNewIOV( payloadToken,
 			    sinceRun,
 			    poolDb->endOfTime(),
-			    esRecordName ) ;
+			    esRecordName,
+			    logTransactions ) ;
     }
   else
     {	
@@ -113,7 +117,8 @@ DataWriter::updateIOV( const std::string& esRecordName,
 	{
 	  poolDb->appendSinceTime( payloadToken,
 				   sinceRun,
-				   esRecordName ) ;
+				   esRecordName,
+				   logTransactions ) ;
 	}
       else
 	{

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.12 2009/04/06 02:14:19 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.13 2009/05/06 02:02:10 wsun Exp $
 //
 //
 
@@ -47,7 +47,8 @@
 L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
    : m_tscKey( iConfig.getParameter<std::string> ("tscKey") ),
      m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") ),
-     m_logKeys( iConfig.getParameter<bool>( "logKeys" ) )
+     m_logKeys( iConfig.getParameter<bool>( "logKeys" ) ),
+     m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) )
 {
    //now do what ever initialization is needed
    typedef std::vector<edm::ParameterSet> ToSave;
@@ -110,7 +111,7 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	   // Update IOV sequence for this token with since-time = new run 
 	   triggerKeyIOVUpdated =
-	     m_writer.updateIOV( "L1TriggerKeyRcd", keyToken, run ) ;
+	     m_writer.updateIOV( "L1TriggerKeyRcd", keyToken, run, m_logTransactions ) ;
 
 	   // Read current L1TriggerKey directly from ORCON using token
 	   L1TriggerKey key ;
@@ -203,7 +204,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	       m_writer.updateIOV( recordName,
 				   payloadToken,
-				   run ) ;
+				   run,
+				   m_logTransactions ) ;
 	     }
 	 }
      }

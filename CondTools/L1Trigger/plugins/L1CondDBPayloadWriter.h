@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 07:06:56 CET 2008
-// $Id: L1CondDBPayloadWriter.h,v 1.3 2008/10/09 19:49:10 wsun Exp $
+// $Id: L1CondDBPayloadWriter.h,v 1.4 2009/03/18 18:23:48 wsun Exp $
 //
 
 // system include files
@@ -58,6 +58,8 @@ class L1CondDBPayloadWriter : public edm::EDAnalyzer {
 
       // substitute new payload tokens for existing keys in L1TriggerKeyList
       bool m_overwriteKeys ;
+
+      bool m_logTransactions ;
 };
 
 #endif

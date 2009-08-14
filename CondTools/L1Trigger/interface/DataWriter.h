@@ -53,11 +53,13 @@ class DataWriter
   // up to date.
   bool updateIOV( const std::string& esRecordName,
 		  const std::string& payloadToken,
-		  edm::RunNumber_t sinceRun ) ;
+		  edm::RunNumber_t sinceRun,
+		  bool logTransactions = false ) ;
 
   // Write L1TriggerKeyList payload and set IOV.  Takes ownership of pointer.
   void writeKeyList( L1TriggerKeyList* keyList,
-		     edm::RunNumber_t sinceRun = 0 ) ;
+		     edm::RunNumber_t sinceRun = 0,
+		     bool logTransactions = false ) ;
 
   // Read object directly from Pool, not from EventSetup.
   template< class T >
