@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
+offlineDQMMuonTrigCosmics = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 
     HltProcessName = cms.string("HLT"),
 

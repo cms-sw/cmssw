@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/07/29 13:25:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/07/30 15:42:37 $
+ *  $Revision: 1.6 $
  */
 
 
@@ -420,14 +420,41 @@ void HLTMuonMatchAndPlot::finish()
 void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 {
 
-
-    
-  eventNumber++;
   LogTrace( "HLTMuonVal" ) << "\n\nIn analyze for trigger path " << 
     theTriggerName << ", Event:" << eventNumber <<"\n\n\n";
 
+  
+  
+  bool validSelection = selectAndMatchMuons (iEvent, recMatches, hltFakeCands);
+  if (validSelection) fillPlots (recMatches, hltFakeCands);
+
+  eventNumber++;
+  
+}// end analyze
+
+bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<MatchStruct> & myRecMatches,
+                                               std::vector< std::vector<HltFakeStruct> > & myHltFakeCands){
+
+  // clear the matches from the last event
+  myRecMatches.clear();
+
+  // a fake hlt cand is an hlt object not matched to a
+  // reco object
+  //  std::vector< std::vector<HltFakeStruct> > myHltFakeCands(numHltLabels);
+
+  myHltFakeCands.clear();
+  for (unsigned iLabel = 0; iLabel < numHltLabels; iLabel++){
+
+    std::vector<HltFakeStruct> tempFake;
+    
+    myHltFakeCands.push_back(tempFake);
+    
+  }
+
+  
+
   // Update event numbers
-  meNumberOfEvents->Fill(eventNumber);
+  // meNumberOfEvents->Fill(eventNumber);
 
 
   //------------------------------------------
@@ -445,7 +472,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     LogTrace ("HLTMuonVal") << "You didn't pass the required trigger"
                             << "skipping event"
                             << endl;
-    return;
+    return false;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -464,12 +491,12 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
   LogTrace ("HLTMuonVal") << "\n\n\n\nDone getting gen, now getting reco\n\n\n";
   
-  recMatches.clear();
+
   
   //std::vector<MatchStruct> highPtMatches;
   
-  reco::BeamSpot  beamSpot;
-  bool foundBeamSpot = false;
+  //reco::BeamSpot  beamSpot;
+  foundBeamSpot = false;
   
   if ( useMuonFromReco ) {
     //Handle<reco::TrackCollection> muTracks;
@@ -505,7 +532,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
             float eta = muon->eta();
             MatchStruct newMatchStruct;
             newMatchStruct.recCand = &*muon;
-            recMatches.push_back(newMatchStruct);
+            myRecMatches.push_back(newMatchStruct);
 
             LogTrace ("HLTMuonVal") << "\n\nFound a muon track in " << mySelection.customLabel
                                     << " with pt = " << pt
@@ -525,9 +552,9 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     LogTrace ("HLTMuonVal") << "Print out all rec cands for " << mySelection.customLabel
                             << endl;
     
-    for (unsigned iMatch = 0; iMatch < recMatches.size(); iMatch++) {
+    for (unsigned iMatch = 0; iMatch < myRecMatches.size(); iMatch++) {
       LogTrace ("HLTMuonVal") << "Cand #" << iMatch << "   ";
-      LogTrace ("HLTMuonVal") << "Pt = " << recMatches[iMatch].recCand->pt()
+      LogTrace ("HLTMuonVal") << "Pt = " << myRecMatches[iMatch].recCand->pt()
                               << endl;
     }
 
@@ -647,7 +674,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     iEvent.getByLabel(HltAodInputTag, aodTriggerEvent);
     if ( !aodTriggerEvent.isValid() ) { 
       LogInfo("HLTMuonVal") << "No AOD trigger summary found! Returning..."; 
-      return; 
+      return false; 
     }
 
     LogTrace ("HLTMuonVal") << "\n\n\nFound a branch! Getting objects\n\n\n";
@@ -664,7 +691,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
       LogTrace ("HLTMuonVal")
         << "You found the collection, but doesn't have any entries";
 
-      return;
+      return false;
     }
 
     // The AOD block has many collections, and you need to
@@ -889,10 +916,10 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
 
   
-  hNumObjects->getTH1()->AddBinContent( 3, l1Particles.size() );
+  //hNumObjects->getTH1()->AddBinContent( 3, l1Particles.size() );
 
-  for ( size_t i = 0; i < numHltLabels; i++ ) 
-    hNumObjects->getTH1()->AddBinContent( i + 4, hltParticles[i].size() );
+  //for ( size_t i = 0; i < numHltLabels; i++ ) 
+    //hNumObjects->getTH1()->AddBinContent( i + 4, hltParticles[i].size() );
 
   //////////////////////////////////////////////////////////////////////////
   // Initialize MatchStructs
@@ -904,18 +931,15 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   
   //L1MuonParticleRef nullL1Ref(L1MuonParticle(-1, nullLorentzVector));
 
-  // a fake hlt cand is an hlt object not matched to a
-  // reco object
-  std::vector< std::vector<HltFakeStruct> > hltFakeCands(numHltLabels);
 
 
-  for ( size_t i = 0; i < recMatches.size(); i++ ) {
-    recMatches[i].l1Cand = nullTriggerObject;
-    recMatches[i].hltCands. assign( numHltLabels, nullTriggerObject );
-    //recMatches[i].hltTracks.assign( numHltLabels, false );
+  for ( size_t i = 0; i < myRecMatches.size(); i++ ) {
+    myRecMatches[i].l1Cand = nullTriggerObject;
+    myRecMatches[i].hltCands. assign( numHltLabels, nullTriggerObject );
+    //myRecMatches[i].hltTracks.assign( numHltLabels, false );
     // new! raw matches too
-    recMatches[i].hltRawCands.assign(numHltLabels, nullLorentzVector);
-    recMatches[i].l1RawCand = nullLorentzVector;
+    myRecMatches[i].hltRawCands.assign(numHltLabels, nullLorentzVector);
+    myRecMatches[i].l1RawCand = nullLorentzVector;
   }
 
 
@@ -925,7 +949,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   //////////////////////////////////////////////////////////////////////////
   // Loop through L1 candidates, matching to gen/reco muons 
 
-  unsigned int numL1Cands = 0;
+  numL1Cands = 0;
 
   
   for ( size_t i = 0; i < l1Particles.size(); i++ ) {
@@ -941,14 +965,14 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
 
     if ( useMuonFromReco ){
-      int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
-      if ( match != -1 && recMatches[match].l1Cand.pt() < 0 ) {
-        recMatches[match].l1Cand = l1Cand;
+      int match = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
+      if ( match != -1 && myRecMatches[match].l1Cand.pt() < 0 ) {
+        myRecMatches[match].l1Cand = l1Cand;
         LogTrace ("HLTMuonVal") << "Found a rec match to L1 particle (aod)  "
-                                << " rec pt = " << recMatches[match].recCand->pt()
-                                << ",  l1 pt  = " << recMatches[match].l1Cand.pt(); 
+                                << " rec pt = " << myRecMatches[match].recCand->pt()
+                                << ",  l1 pt  = " << myRecMatches[match].l1Cand.pt(); 
       } else {
-        hNumOrphansRec->getTH1F()->AddBinContent( 1 );
+        //hNumOrphansRec->getTH1F()->AddBinContent( 1 );
       }
     }
 
@@ -973,12 +997,12 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
 
     if ( useMuonFromReco ){
-      int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
-      if ( match != -1 && recMatches[match].l1RawCand.energy() < 0 ) {
-        recMatches[match].l1RawCand = l1Cand;
+      int match = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
+      if ( match != -1 && myRecMatches[match].l1RawCand.energy() < 0 ) {
+        myRecMatches[match].l1RawCand = l1Cand;
         LogTrace ("HLTMuonVal") << "Found an L1 match to a RAW object";
       } else {
-        hNumOrphansRec->getTH1F()->AddBinContent( 1 );
+        //hNumOrphansRec->getTH1F()->AddBinContent( 1 );
       }
     }
 
@@ -1017,16 +1041,16 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         HltFakeStruct tempFakeCand; 
         tempFakeCand.myHltCand  = hltCand;
 
-        int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
+        int match  = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
 
         // if match doesn't return error (-1)
         // and if this candidate spot isn't filled
-        if ( match != -1 && recMatches[match].hltCands[i].pt() < 0 ) {
-          recMatches[match].hltCands[i] = hltCand;
+        if ( match != -1 && myRecMatches[match].hltCands[i].pt() < 0 ) {
+          myRecMatches[match].hltCands[i] = hltCand;
 
           LogTrace ("HLTMuonVal") << "Found a HLT cand match!   "
-                                  << " rec pt = " << recMatches[match].recCand->pt()
-                                  << ",   hlt pt = " << recMatches[match].hltCands[i].pt();
+                                  << " rec pt = " << myRecMatches[match].recCand->pt()
+                                  << ",   hlt pt = " << myRecMatches[match].hltCands[i].pt();
 
           // since this matched, it's not a fake, so
           // record it as "not a fake"
@@ -1039,11 +1063,11 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
           // fixed 
         } else if (match == -1){
           tempFakeCand.isAFake = true;
-          hNumOrphansRec->getTH1F()->AddBinContent( i + 2 );
+          //hNumOrphansRec->getTH1F()->AddBinContent( i + 2 );
         }
 
         // add this cand 
-        hltFakeCands[i].push_back(tempFakeCand);
+        myHltFakeCands[i].push_back(tempFakeCand);
         LogTrace ("HLTMuonVal") << "\n\nWas this a fake hlt cand? "
                               << tempFakeCand.isAFake;
 
@@ -1074,12 +1098,12 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         //HltFakeStruct tempFakeCand; 
         //tempFakeCand.myHltCand  = hltCand;
 
-        int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
+        int match  = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
 
         // if match doesn't return error (-1)
         // and if this candidate spot isn't filled
-        if ( match != -1 && recMatches[match].hltCands[i].pt() < 0 ) {
-          recMatches[match].hltRawCands[i] = hltCand;
+        if ( match != -1 && myRecMatches[match].hltCands[i].pt() < 0 ) {
+          myRecMatches[match].hltRawCands[i] = hltCand;
           LogTrace ("HLTMuonVal") << "Found a RAW hlt match to reco";
         }
 
@@ -1089,7 +1113,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
           //}
 
         // add this cand 
-        //hltFakeCands[i].push_back(tempFakeCand);
+        //myHltFakeCands[i].push_back(tempFakeCand);
         //LogTrace ("HLTMuonVal") << "\n\nWas this a fake hlt cand? "
         //                      << tempFakeCand.isAFake;
 
@@ -1104,6 +1128,36 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
   } // End loop over HLT labels
 
+
+  // if you reach this point, then the code was
+  // successful
+
+  return true;
+  
+}// end select and match muons
+
+
+void HLTMuonMatchAndPlot::fillPlots (vector<MatchStruct> & myRecMatches,
+                                     std::vector< std::vector<HltFakeStruct> > & myHltFakeCands) {
+
+
+  if (!dbe_) {
+
+    LogTrace ("HLTMuonVal")
+      << "===Warning=== You've tried to call fill plots, "
+      << "but no DQMStore object exists... refusing to fill plots"
+      << endl;
+
+    return;
+
+  }
+
+  int numRecMatches = myRecMatches.size();
+
+  
+
+  //double recMuonPt = -1;
+  
   //=======================
   // DoubleMu Triggers
   // ----------------------
@@ -1112,36 +1166,10 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   // If you haven't, then skip this event!
   //========================
 
-  if ((theNumberOfObjects == 2) && (recMatches.size() < 2)) return;
+  if ((theNumberOfObjects == 2) && (myRecMatches.size() < 2)) return;
   
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
-
-  // genMuonPt and recMuonPt are the max values
-  // fill these hists with the max reconstructed Pt  
-  //if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
-  if ( recMuonPt > 0 ) hPassMaxPtRec[0]->Fill( recMuonPt );
-
-  int numRecMatches = recMatches.size();
-
-  // there will be one hlt match for each
-  // trigger module label
-  // int numHltMatches = recMatches[i].hltCands.size();
-
-  if (numRecMatches == 1) {
-    if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[0]->Fill(recMuonPt);
-  }
-
-  // Fill these if there are any L1 candidates
-  if (useFullDebugInformation || isL1Path) {
-    if ( numL1Cands >= theNumberOfObjects ) {
-      //if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
-      if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
-      if (numRecMatches == 1 && numL1Cands == 1) {
-        if (recMuonPt >0) hPassExaclyOneMuonMaxPtRec[1]->Fill(recMuonPt);
-      }
-    }
-  }
   
   ////////////////////////////////////////////
   //
@@ -1155,18 +1183,18 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   
   // Look at each rec & hlt cand
 
-  for ( size_t i = 0; i < recMatches.size(); i++ ) {
+  for ( size_t i = 0; i < myRecMatches.size(); i++ ) {
 
     LogTrace("HLTMuonVal") << "Reco Candidate loop:"
                            << "looking at cand " << i
-                           << " out of " << recMatches.size()
+                           << " out of " << myRecMatches.size()
                            << endl;
 
 
-    double pt  = recMatches[i].recCand->pt();
-    double eta = recMatches[i].recCand->eta();
-    double phi = recMatches[i].recCand->phi();
-    int recPdgId = recMatches[i].recCand->pdgId();
+    double pt  = myRecMatches[i].recCand->pt();
+    double eta = myRecMatches[i].recCand->eta();
+    double phi = myRecMatches[i].recCand->phi();
+    int recPdgId = myRecMatches[i].recCand->pdgId();
 
     //allRecPts.push_back(pt);
 
@@ -1181,7 +1209,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
     LogTrace ("HLTMuonVal") << "trying to get a global track for this muon" << endl;
     
-    TrackRef theMuoGlobalTrack = recMatches[i].recCand->globalTrack();
+    TrackRef theMuoGlobalTrack = myRecMatches[i].recCand->globalTrack();
 
     double d0 = -999;
     double z0 = -999;
@@ -1219,7 +1247,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     // the hlt matching later.    
     //    if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
     
-    hNumObjects->getTH1()->AddBinContent(2);
+    //hNumObjects->getTH1()->AddBinContent(2);
 
     // fill the "all" histograms for basic muon
     // parameters
@@ -1233,7 +1261,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     hPassZ0BeamRec[0]->Fill(z0beam);
     hPassCharge[0]->Fill(charge);
     
-    MuonIsolation thisIso = recMatches[i].recCand->isolationR03();
+    MuonIsolation thisIso = myRecMatches[i].recCand->isolationR03();
     double emEnergy = thisIso.emEt;
     double hadEnergy = thisIso.hadEt;
     double myMuonIso = (emEnergy + hadEnergy) / pt;
@@ -1247,7 +1275,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
     // if you found an L1 match, fill this histo
     // check for L1 match using pt, not energy
-    if ( (recMatches[i].l1Cand.pt() > 0) && ((useFullDebugInformation) || (isL1Path)) ) {
+    if ( (myRecMatches[i].l1Cand.pt() > 0) && ((useFullDebugInformation) || (isL1Path)) ) {
       hPassEtaRec[1]->Fill(eta);
       hPassPhiRec[1]->Fill(phi);
       hPassPtRec[1]->Fill(pt);
@@ -1259,15 +1287,15 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
       hPassCharge[1]->Fill(charge);
       hIsolationRec[1]->Fill(myMuonIso);
 
-      double l1eta = recMatches[i].l1Cand.eta();
-      double l1phi = recMatches[i].l1Cand.phi();
-      double l1pt  = recMatches[i].l1Cand.energy();
+      double l1eta = myRecMatches[i].l1Cand.eta();
+      double l1phi = myRecMatches[i].l1Cand.phi();
+      double l1pt  = myRecMatches[i].l1Cand.energy();
 
       // Get the charges in terms of charge constants
       // this reduces bins in histogram.
-      int l1plottedCharge = getCharge (recMatches[i].l1Cand.id());
+      int l1plottedCharge = getCharge (myRecMatches[i].l1Cand.id());
       LogTrace ("HLTMuonVal") << "The pdg id is (L1)   "
-                              << recMatches[i].l1Cand.id()
+                              << myRecMatches[i].l1Cand.id()
                               << "  and the L1 plotted charge is "
                               << l1plottedCharge;
       
@@ -1309,12 +1337,12 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     //
 
     
-    for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-      if ( recMatches[i].hltCands[j].pt() > 0 ) {
-        double hltCand_pt = recMatches[i].hltCands[j].pt();
-        double hltCand_eta = recMatches[i].hltCands[j].eta();
-        double hltCand_phi = recMatches[i].hltCands[j].phi();
-        int hltCand_plottedCharge = getCharge(recMatches[i].hltCands[j].id());
+    for ( size_t j = 0; j < myRecMatches[i].hltCands.size(); j++ ) {
+      if ( myRecMatches[i].hltCands[j].pt() > 0 ) {
+        double hltCand_pt = myRecMatches[i].hltCands[j].pt();
+        double hltCand_eta = myRecMatches[i].hltCands[j].eta();
+        double hltCand_phi = myRecMatches[i].hltCands[j].phi();
+        int hltCand_plottedCharge = getCharge(myRecMatches[i].hltCands[j].id());
 
         // store this rec muon pt, not hlt cand pt
         if (theHltCollectionLabels.size() > j) {
@@ -1363,7 +1391,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         
 
         LogTrace ("HLTMuonVal") << "The pdg id is (hlt [" << j << "]) "
-                                << recMatches[i].hltCands[j].id()
+                                << myRecMatches[i].hltCands[j].id()
                                 << "  and the plotted charge is "
                                 << hltCand_plottedCharge
                                 << ", w/ rec  charge "
@@ -1385,7 +1413,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         hResoEtaAodRec[j+HLT_PLOT_OFFSET-1]->Fill((eta - hltCand_eta)/fabs(eta));
         hResoPhiAodRec[j+HLT_PLOT_OFFSET-1]->Fill((phi - hltCand_phi)/fabs(phi));
         
-        if (numRecMatches == 1 && (recMatches[i].hltCands.size()== 1)) {
+        if (numRecMatches == 1 && (myRecMatches[i].hltCands.size()== 1)) {
           hPassExaclyOneMuonMaxPtRec[j+HLT_PLOT_OFFSET]->Fill(pt);
           hPassPtRecExactlyOne[j+HLT_PLOT_OFFSET]->Fill(pt);
         }
@@ -1397,7 +1425,7 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     /////////////////////////////////////////////////
     if (useFullDebugInformation) {
       LogTrace ("HLTMuonVal")  << "\n.... now Filling Raw Histos";
-      if ( recMatches[i].l1RawCand.energy() > 0 ) {
+      if ( myRecMatches[i].l1RawCand.energy() > 0 ) {
       
         // you've found a L1 raw candidate
         rawMatchHltCandPt[1]->Fill(pt);
@@ -1405,12 +1433,12 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
         rawMatchHltCandPhi[1]->Fill(phi);      
       }
 
-      LogTrace ("HLTMuonVal") << "There are " << recMatches[i].hltCands.size()
+      LogTrace ("HLTMuonVal") << "There are " << myRecMatches[i].hltCands.size()
                               << " hltRaw candidates that could match, starting loop"
                               << endl;
     
-      for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-        if ( recMatches[i].hltCands[j].pt() > 0 ) {
+      for ( size_t j = 0; j < myRecMatches[i].hltCands.size(); j++ ) {
+        if ( myRecMatches[i].hltCands[j].pt() > 0 ) {
           rawMatchHltCandPt[j+HLT_PLOT_OFFSET]->Fill(pt);
           rawMatchHltCandEta[j+HLT_PLOT_OFFSET]->Fill(eta);
           rawMatchHltCandPhi[j+HLT_PLOT_OFFSET]->Fill(phi);   
@@ -1428,16 +1456,16 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 
   LogTrace ("HLTMuonVal")  << "\n.... now looping over fake cands";
   for (unsigned int  iHltModule = 0;  iHltModule < numHltLabels; iHltModule++) {
-    for(size_t iCand = 0; iCand < hltFakeCands[iHltModule].size() ; iCand ++){
+    for(size_t iCand = 0; iCand < myHltFakeCands[iHltModule].size() ; iCand ++){
       LogTrace ("HLTMuonVal") << "Label number : " << iHltModule
                               << "(max = " << numHltLabels << ")\n"
                               << "Candidate number: " << iCand
-                              << "(max = " <<  hltFakeCands[iHltModule].size()
+                              << "(max = " <<  myHltFakeCands[iHltModule].size()
                               << " )\n";
         
                               
-      TriggerObject candVect = hltFakeCands[iHltModule][iCand].myHltCand;
-      bool candIsFake = hltFakeCands[iHltModule][iCand].isAFake;
+      TriggerObject candVect = myHltFakeCands[iHltModule][iCand].myHltCand;
+      bool candIsFake = myHltFakeCands[iHltModule][iCand].isAFake;
       
       allHltCandPt[iHltModule]->Fill(candVect.pt());
       allHltCandEta[iHltModule]->Fill(candVect.eta());
@@ -1466,25 +1494,61 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
   }
   
 
-  LogTrace ("HLTMuonVal") << "There are " << recMatches.size()
+  LogTrace ("HLTMuonVal") << "There are " << myRecMatches.size()
                           << "  RECO muons in this event"
                           << endl;
     
   LogTrace ("HLTMuonVal") << "The max pt found by looking at candiates is   "
                           << maxMatchPtRec
-                          << "\n and the max found while storing reco was "
-                          << recMuonPt
+    //<< "\n and the max found while storing reco was "
+    //<< recMuonPt
                           << endl;
+  
+  ///////////////////////////////////////////
+  //
+  //  Fill MAX PT plot
+  //
+  ////////////////////////////////////////////
+
+
+  // genMuonPt and maxMatchPtRec are the max values
+  // fill these hists with the max reconstructed Pt  
+  //if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
+  if ( maxMatchPtRec > 0 ) hPassMaxPtRec[0]->Fill( maxMatchPtRec );
+
+  // there will be one hlt match for each
+  // trigger module label
+  // int numHltMatches = myRecMatches[i].hltCands.size();
+
+  if (numRecMatches == 1) {
+    if (maxMatchPtRec >0) hPassExaclyOneMuonMaxPtRec[0]->Fill(maxMatchPtRec);
+  }
+
+  // Fill these if there are any L1 candidates
+  if (useFullDebugInformation || isL1Path) {
+    if ( numL1Cands >= theNumberOfObjects ) {
+      //if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
+      if ( maxMatchPtRec > 0 ) hPassMaxPtRec[1]->Fill( maxMatchPtRec );
+      if (numRecMatches == 1 && numL1Cands == 1) {
+        if (maxMatchPtRec >0) hPassExaclyOneMuonMaxPtRec[1]->Fill(maxMatchPtRec);
+      }
+    }
+  }
+
+
   
   for ( size_t i = 0; i < numHltLabels; i++ ) {
     // this will only fill up if L3
     // I don't think it's correct to fill
     // all the labels with this
     if (maxMatchPtRec > 0) hPassMaxPtRec[i+HLT_PLOT_OFFSET]->Fill(maxMatchPtRec);
-  }                                          
+
+  }
+
+
   
 
-} // Done filling histograms
+} // end fillPlots: Done filling histograms
 
 
 
@@ -1833,31 +1897,31 @@ void HLTMuonMatchAndPlot::begin()
     
     dbe_->setCurrentFolder( newFolder.Data() );
 
-    meNumberOfEvents            = dbe_->bookInt("NumberOfEvents");
-    MonitorElement *meMinPtCut  = dbe_->bookFloat("MinPtCut"    );
-    MonitorElement *meMaxEtaCut = dbe_->bookFloat("MaxEtaCut"   );
-    meMinPtCut ->Fill(theMinPtCut );
-    meMaxEtaCut->Fill(theMaxEtaCut);
+    //meNumberOfEvents            = dbe_->bookInt("NumberOfEvents");
+    //MonitorElement *meMinPtCut  = dbe_->bookFloat("MinPtCut"    );
+    //MonitorElement *meMaxEtaCut = dbe_->bookFloat("MaxEtaCut"   );
+    //meMinPtCut ->Fill(theMinPtCut );
+    //meMaxEtaCut->Fill(theMaxEtaCut);
     
     vector<string> binLabels;
     binLabels.push_back( theL1CollectionLabel.c_str() );
     for ( size_t i = 0; i < theHltCollectionLabels.size(); i++ )
       binLabels.push_back( theHltCollectionLabels[i].c_str() );
 
-    hNumObjects = dbe_->book1D( "numObjects", "Number of Objects", 7, 0, 7 );
-    hNumObjects->setBinLabel( 1, "Gen" );
-    hNumObjects->setBinLabel( 2, "Reco" );
-    for ( size_t i = 0; i < binLabels.size(); i++ )
-      hNumObjects->setBinLabel( i + 3, binLabels[i].c_str() );
-    hNumObjects->getTH1()->LabelsDeflate("X");
+    //hNumObjects = dbe_->book1D( "numObjects", "Number of Objects", 7, 0, 7 );
+    //hNumObjects->setBinLabel( 1, "Gen" );
+    //hNumObjects->setBinLabel( 2, "Reco" );
+    //for ( size_t i = 0; i < binLabels.size(); i++ )
+    //hNumObjects->setBinLabel( i + 3, binLabels[i].c_str() );
+    //hNumObjects->getTH1()->LabelsDeflate("X");
 
 
     if ( useMuonFromReco ){
 
-      hNumOrphansRec = dbe_->book1D( "recNumOrphans", "Number of Orphans;;Number of Objects Not Matched to a Reconstructed #mu", 5, 0, 5 );
-      for ( size_t i = 0; i < binLabels.size(); i++ )
-        hNumOrphansRec->setBinLabel( i + 1, binLabels[i].c_str() );
-      hNumOrphansRec->getTH1()->LabelsDeflate("X");
+      //hNumOrphansRec = dbe_->book1D( "recNumOrphans", "Number of Orphans;;Number of Objects Not Matched to a Reconstructed #mu", 5, 0, 5 );
+      //       for ( size_t i = 0; i < binLabels.size(); i++ )
+      //         hNumOrphansRec->setBinLabel( i + 1, binLabels[i].c_str() );
+      //hNumOrphansRec->getTH1()->LabelsDeflate("X");
 
 
       

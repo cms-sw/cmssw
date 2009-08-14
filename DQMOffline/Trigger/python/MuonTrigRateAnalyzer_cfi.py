@@ -22,7 +22,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
    customCollection = cms.VPSet(
 
  	cms.untracked.PSet(
- 	  collectionName = cms.untracked.string ("dqmBarrelMuons"),
+ 	  collectionName = cms.untracked.string ("barrelMuons"),
  	  # The track collection is just a switch, not a true collection name
 	  trackCollection = cms.untracked.string ("globalTrack"),
 	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),

@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/07/21 08:47:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/30 15:42:38 $
+ *  $Revision: 1.5 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -37,6 +37,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 //#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <vector>
 #include "TFile.h"
@@ -105,11 +107,11 @@ public:
                       std::vector<std::string> validTriggers );
 
   // Operations
-  void            begin  ( );
-  void            analyze( const edm::Event & iEvent );
-  void            finish ( );
-  MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
-  MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
+  virtual void            begin  ( );
+  virtual void            analyze( const edm::Event & iEvent );
+  virtual void            finish ( );
+  virtual MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
+  virtual MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
 
 
   // Struct and methods for matching
@@ -148,8 +150,32 @@ public:
 
   // store the matches for each event
   std::vector<MatchStruct> recMatches;
+
+  std::vector< std::vector<HltFakeStruct> > hltFakeCands;
+
+  virtual ~HLTMuonMatchAndPlot() {} ;
+
+  //-------- The fuctions/data below used to be private, but we want to
+  //-------- have other classes inherit them, so we make them public
+
   
-private:
+
+  // Functions that are an internal decomposition of the stages of the
+  // public "analyze" function
+
+  // They need to be public so that other modules can use them?
+  
+  bool virtual selectAndMatchMuons(const edm::Event & iEvent,
+                                   std::vector<MatchStruct> & myRecMatches,
+                                   std::vector< std::vector<HltFakeStruct> > & myHltFakeCands
+                                   );
+  
+  void virtual fillPlots(std::vector<MatchStruct> & myRecMatches,
+                         std::vector< std::vector<HltFakeStruct> > & myHltFakeCands);
+
+protected:
+  
+  ////////////////////////////////////////////////////
   
   const reco::Candidate* findMother( const reco::Candidate* );
   int findGenMatch( double eta, double phi, double maxDeltaR,
@@ -157,10 +183,11 @@ private:
   int findRecMatch( double eta, double phi, double maxdeltaR,
 		    std::vector<MatchStruct> matches );
 
-  bool applyTrackSelection (MuonSelectionStruct mySelection, reco::Muon candMuon);
+  bool virtual applyTrackSelection (MuonSelectionStruct mySelection, reco::Muon candMuon);
   reco::TrackRef getCandTrackRef (MuonSelectionStruct mySelection, reco::Muon candMuon);
 
-  bool applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
+  bool virtual applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
+
   
   // Data members
 
@@ -172,10 +199,16 @@ private:
   int     HLT_PLOT_OFFSET;
   bool    isL1Path, isL2Path, isL3Path;
 
+  unsigned int numL1Cands;
+
   bool    makeNtuple;
   float   theNtuplePars[100]; 
   TNtuple *theNtuple;
   TFile   *theFile;
+
+  reco::BeamSpot  beamSpot;
+  bool foundBeamSpot;
+
 
   // Input from cfg file
 
