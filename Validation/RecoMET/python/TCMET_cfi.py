@@ -10,7 +10,9 @@ tcMetAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("tcMet"),
     METType = cms.untracked.string('TCMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
+
     ) 
 
 

@@ -10,7 +10,8 @@ corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("corMetGlobalMuons"),
     METType = cms.untracked.string('MuonCorrectedCaloMET'),
-    FineBinning = cms.untracked.bool(True)
+    FineBinning = cms.untracked.bool(True),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     ) 
 
 
