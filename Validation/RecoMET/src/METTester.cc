@@ -58,6 +58,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   inputMETLabel_           = iConfig.getParameter<edm::InputTag>("InputMETLabel");
   METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
   finebinning_             = iConfig.getUntrackedParameter<bool>("FineBinning");
+  FolderName_           = iConfig.getUntrackedParameter<std::string>("FolderName");
 }
 
 //void METTester::beginJob(const edm::EventSetup& iSetup)
@@ -70,7 +71,8 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if (dbe_) {
     //    TString dirName = "RecoMETV/METTask/MET/";
     //TString dirName = "JetMET/EventInfo/CertificationSummary/MET_Global/";
-    TString dirName = "RecoMETV/MET_Global/";
+    //    TString dirName = "RecoMETV/MET_Global/";
+    TString dirName(FolderName_.c_str()); 
     TString label(inputMETLabel_.label());
     dirName += label;
     dbe_->setCurrentFolder((string)dirName);
