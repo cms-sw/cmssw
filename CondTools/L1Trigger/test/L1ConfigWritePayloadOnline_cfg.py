@@ -94,6 +94,8 @@ initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
+initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
+process.L1CondDBPayloadWriter.logTransactions = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
