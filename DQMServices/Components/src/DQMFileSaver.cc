@@ -104,13 +104,14 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
+    version_ (1),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
     saveByTime_ (-1),
     saveByRun_ (1),
     saveAtJobEnd_ (false),
-    saveReference_ (DQMStore::SaveWithReferenceForQTest),
+    saveReference_ (DQMStore::SaveWithReference),
     saveReferenceQMin_ (dqm::qstatus::STATUS_OK),
     forceRunNumber_ (-1),
     fileBaseName_ (""),
@@ -172,16 +173,28 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "'.  Expected 'DQM'.";
   }
 
+  // version number to be used in filename
+  version_ = ps.getUntrackedParameter<int>("version", version_);
+
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
   if (refsave == "default")
     ;
-  else if (refsave == "skip")
+  else if (refsave == "skip") 
+  {
     saveReference_ = DQMStore::SaveWithoutReference;
+  //  std::cout << "skip saving all references" << std::endl;
+  }
   else if (refsave == "all")
+  {
     saveReference_ = DQMStore::SaveWithReference;
+  //  std::cout << "saving all references" << std::endl;
+  }
   else if (refsave == "qtests")
+  {
     saveReference_ = DQMStore::SaveWithReferenceForQTest;
+  //  std::cout << "saving qtest references" << std::endl;
+  }
   else
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'referenceHandling' parameter '" << refsave
@@ -225,8 +238,11 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "If saving at the end of the job, the run number must be"
       << " overridden to a specific value using 'forceRunNumber'.";
 
+  
   // Set up base file name and determine the start time.
-  fileBaseName_ = dirName_ + "/" + producer_ + "_V0001_";
+  char version[7];
+  sprintf(version, "_V%04d_", int(version_));
+  fileBaseName_ = dirName_ + "/" + producer_ + version;
   gettimeofday(&start_, 0);
   saved_ = start_;
 

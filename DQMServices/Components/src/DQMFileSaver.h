@@ -34,6 +34,7 @@ private:
   std::string	workflow_;
   std::string	producer_;
   std::string	dirName_;
+  int        	version_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;
