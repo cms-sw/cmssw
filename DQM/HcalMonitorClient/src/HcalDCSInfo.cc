@@ -40,10 +40,11 @@ HcalDCSInfo::~HcalDCSInfo()
 void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
  
 
-  dqmStore_->setCurrentFolder("Hcal/EventInfo/DCSContents");
+  dqmStore_->setCurrentFolder("Hcal/EventInfo/");
 
   // Book MEs for Hcal DAQ fractions
-  DCSFraction_= dqmStore_->bookFloat("Hcal");  
+  DCSFraction_= dqmStore_->bookFloat("DCSSummary"); 
+  dqmStore_->setCurrentFolder("Hcal/EventInfo/DCSSummaryContents");
   DCSFractionHB_= dqmStore_->bookFloat("Hcal_HB");  
   DCSFractionHE_= dqmStore_->bookFloat("Hcal_HE");  
   DCSFractionHO_= dqmStore_->bookFloat("Hcal_HO");  

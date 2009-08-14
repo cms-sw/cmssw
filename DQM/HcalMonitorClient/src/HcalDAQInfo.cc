@@ -137,10 +137,25 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
   if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
 
-  dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
-  MonitorElement* HcalDaqFraction = dbe->bookFloat("Hcal");
+  //dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
+  //MonitorElement* HcalDaqFraction = dbe->bookFloat("Hcal");
 
+  dbe->setCurrentFolder("Hcal/EventInfo/");
+  MonitorElement* HcalDaqFraction = dbe->bookFloat("DAQSummary");
   HcalDaqFraction->Fill(-1);
+
+  dbe->setCurrentFolder("Hcal/EventInfo/DAQSummaryContents/");
+  MonitorElement* HBDaqFraction = dbe->bookFloat("Hcal_HB");
+  MonitorElement* HEDaqFraction = dbe->bookFloat("Hcal_HE");
+  MonitorElement* HODaqFraction = dbe->bookFloat("Hcal_HO");
+  MonitorElement* HFDaqFraction = dbe->bookFloat("Hcal_HF");
+  MonitorElement* ZDCDaqFraction = dbe->bookFloat("Hcal_ZDC");
+  
+  HBDaqFraction->Fill(-1);
+  HEDaqFraction->Fill(-1);
+  HODaqFraction->Fill(-1);
+  HFDaqFraction->Fill(-1);
+  ZDCDaqFraction->Fill(-1);
 
   int nevt = (dbe->get("Hcal/EventInfo/processedEvents"))->getIntValue();
   if (debug_>0) std::cout << "HcalDAQInfo::nevt= " << nevt << std::endl;
@@ -154,8 +169,14 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
 
   if (dbe->get("Hcal/DataFormatMonitor/HcalFEDChecking/FEDEntries")) {
     hFEDEntries = (dbe->get("Hcal/DataFormatMonitor/HcalFEDChecking/FEDEntries"))->getTH1F();
-    nFEDEntries = hFEDEntries->Integral();
+    nFEDEntries = hFEDEntries->Integral(); 
     HcalDaqFraction->Fill(nFEDEntries/(32.0*nevt));
+    //Subdetector FEDs:  HB/HE:  700-717, HF:  718-723, HO:  724-731
+    // (Integral(...) uses BinContent; starts with bin 1)
+    HBDaqFraction->Fill(hFEDEntries->Integral(1,18)/(18.*nevt));
+    HEDaqFraction->Fill(hFEDEntries->Integral(1,18)/(18.*nevt));
+    HFDaqFraction->Fill(hFEDEntries->Integral(19,24)/(6.*nevt));
+    HODaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
   }
   else {
     edm::LogInfo("HcalDAQInfo")<<"No DAQ info"<<std::endl;
