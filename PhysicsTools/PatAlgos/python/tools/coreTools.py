@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
-def useAODInputFor(process,
+def restrictInputToAOD(process,
                    names
                    ):
     """
