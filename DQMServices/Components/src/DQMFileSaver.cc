@@ -61,7 +61,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	  std::cout << systems[i] << "  " ;
           dbe_->save(fileBaseName_ + suffix + wflow + ".root",
 	     systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
-	     (DQMStore::SaveReferenceTag) DQMStore::SaveWithoutReference,
+	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_);
         }
       }
@@ -105,6 +105,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     producer_ ("DQM"),
     dirName_ ("."),
     version_ (1),
+    runIsComplete_ (false),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
@@ -175,6 +176,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   // version number to be used in filename
   version_ = ps.getUntrackedParameter<int>("version", version_);
+  // flag to signal that file contains data from complete run
+  runIsComplete_ = ps.getUntrackedParameter<bool>("runIsComplete", runIsComplete_);
 
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");

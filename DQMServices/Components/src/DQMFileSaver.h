@@ -35,6 +35,7 @@ private:
   std::string	producer_;
   std::string	dirName_;
   int        	version_;
+  bool		runIsComplete_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;
