@@ -10,12 +10,12 @@ siStripBuildTrackerMap = cms.EDAnalyzer(
     HistogramFolderName = cms.untracked.string('DQMData/'),
     #Whether to dump buffer info and raw data if any error is found: 
     #1=errors, 2=minimum info, 3=full debug with printing of the data buffer of each FED per event.
-    PrintDebugMessages = cms.untracked.uint32(1),
-    TkmapParameters = cms.PSet(
-        loadFedCabling = cms.untracked.bool(True),
-        trackerdatPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
-        trackermaptxtPath = cms.untracked.string('CommonTools/TrackerMap/data/')
-        )
+    PrintDebugMessages = cms.untracked.uint32(1)#,
+    #TkmapParameters = cms.PSet(
+    #    loadFedCabling = cms.untracked.bool(True),
+    #    trackerdatPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
+    #    trackermaptxtPath = cms.untracked.string('CommonTools/TrackerMap/data/')
+#        )
 
 
     )

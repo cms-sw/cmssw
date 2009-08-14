@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.3 2009/07/31 12:45:34 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.1 2009/08/12 16:13:58 amagnan Exp $
 //
 
 #include <sstream>
@@ -50,7 +50,7 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
  private:
   virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(const edm::EventSetup& iSetup);
+  virtual void endJob();
 
   void read();
 
@@ -81,8 +81,8 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
   : fileName_(iConfig.getUntrackedParameter<std::string>("InputFileName","DQMStore.root")),
     tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","DQMData/")),
-    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
-    pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
+    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1))//,
+    //pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 
   read();
@@ -123,6 +123,8 @@ void BuildTrackerMapPlugin::read(){
     tkHistoMap->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),true);
     tkHistoMapVec_.push_back(tkHistoMap);
   }
+
+  std::cout << "Maps read with success." << std::endl;
  	    
 }
 
@@ -133,7 +135,7 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
 
-
+  return;
 }//analyze method
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -144,12 +146,15 @@ BuildTrackerMapPlugin::beginJob(const edm::EventSetup&)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-BuildTrackerMapPlugin::endJob(const edm::EventSetup& iSetup)
+BuildTrackerMapPlugin::endJob()
 {
   //edm::ESHandle<SiStripFedCabling> pDD1;
   //iSetup.get<SiStripFedCablingRcd>().get(pDD1);
+  std::cout << "Processing endjob" << std::endl;
 
   for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
+
+    std::cout << "Processing element " << i << std::endl;
 
     TrackerMap tkmap;//(pset_,pDD1); 
     tkmap.setPalette(1);

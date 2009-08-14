@@ -57,7 +57,7 @@ public:
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(unsigned int fedId);
   void bookFEDHistograms(unsigned int fedId, unsigned int aCategory);
-  void bookChannelsHistograms(unsigned int fedId);
+  void bookChannelsHistograms(unsigned int fedId, unsigned int aCategory);
 
   void bookAllFEDHistograms();
 
@@ -78,33 +78,33 @@ private:
   TkHistoMap *tkmapCM_[6];
   TkHistoMap *tkmapCMFED_[6];
 
-  MonitorElement *medianAPV0_[5];
-  MonitorElement *medianAPV1_[5];
-  MonitorElement *medianAPV0vsTime_[5];
-  MonitorElement *medianAPV1vsTime_[5];
+  MonitorElement *medianAPV0_[3];
+  MonitorElement *medianAPV1_[3];
+  MonitorElement *medianAPV0vsTime_[3];
+  MonitorElement *medianAPV1vsTime_[3];
 
   MonitorElement *shotMedianAPV0_;
   MonitorElement *shotMedianAPV1_;
   MonitorElement *shotChannels_;
-  MonitorElement *medianAPV1vsAPV0_[5];
-  MonitorElement *medianAPV1minusAPV0_[5];
-  MonitorElement *medianAPV1minusAPV0vsTime_[5];
+  MonitorElement *medianAPV1vsAPV0_[3];
+  MonitorElement *medianAPV1minusAPV0_[3];
+  MonitorElement *medianAPV1minusAPV0vsTime_[3];
   MonitorElement *medianAPV1minusAPV0minusShotMedianAPV1_;
   MonitorElement *medianAPV0minusAPV1minusShotMedianAPV1_;
 
   
-  std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_[5];
-  std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0perFED_[5];
-  //std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0vsTimeperFED_[5];
-  //std::map<unsigned int,MonitorElement*> medianAPV0vsTimeperFED_[5];
+  std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_[3];
+  std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0perFED_[3];
+  //std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0vsTimeperFED_[3];
+  //std::map<unsigned int,MonitorElement*> medianAPV0vsTimeperFED_[3];
   //std::map<unsigned int,MonitorElement*> medianAPV1vsTimeperFED_[5];
 
-  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0perChannel_;
-  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV1perChannel_;
-  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0minusAPV1perChannel_;
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0perChannel_[3];
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV1perChannel_[3];
+  std::map<unsigned int,std::vector<MonitorElement*> > medianAPV0minusAPV1perChannel_[3];
 
 
-  std::string categories_[5]; 
+  std::string categories_[3]; 
 
 };//class
 
