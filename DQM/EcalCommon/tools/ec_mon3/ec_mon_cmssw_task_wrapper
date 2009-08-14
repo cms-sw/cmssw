@@ -157,8 +157,8 @@ process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
 process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     dirName = cms.untracked.string('$config{'ec_mon_master_rundir'}/dqm-data/tmp'),
     convention = cms.untracked.string('Online'),
-    #referenceHandling = cms.untracked.string('qtests')
-    referenceHandling = cms.untracked.string('all')
+    referenceHandling = cms.untracked.string('qtests')
+    #referenceHandling = cms.untracked.string('all')
 )
 
 process.load("FWCore.Modules.preScaler_cfi")
