@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.32 2009/08/12 13:29:30 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.33 2009/08/13 19:11:17 amraktad Exp $
 //
 
 // hacks
@@ -120,14 +120,10 @@ CmsShowNavigator::checkPositionInGoTo()
 }
 
 void
-CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
+CmsShowNavigator::newRemoteFile(const std::string& fileName)
 {
-   if (m_file == 0)
-      loadFile(fileName);
-   else
-      m_nextFile = fileName;
+   m_nextFile = fileName;
 }
-
 
 void
 CmsShowNavigator::nextEvent()

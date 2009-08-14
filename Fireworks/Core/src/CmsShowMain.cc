@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.87 2009/08/13 19:11:17 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.88 2009/08/13 21:40:00 amraktad Exp $
 //
 
 // system include files
@@ -299,10 +299,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
       if (vm.count(kLoopOpt)) 
-      {
-         f=boost::bind(&CmsShowMain::setPlayAutoRewind,this);
-         m_startupTasks->addTask(f);
-      }
+        m_rewindMode = true;
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       if(eveMode) {
@@ -801,11 +798,9 @@ CmsShowMain::notified(TSocket* iSocket)
       m_guiManager->updateStatus(s.str().c_str());
 
       // start play new file
-      m_navigator->nextEventChangeAlsoChangeFile(fileName);
+      m_navigator->newRemoteFile(fileName);
       if ( !m_isPlaying )
-      {
-         playForward();
-      }
+         m_guiManager->playEventsAction()->switchMode();
    }
 }
 
@@ -866,12 +861,6 @@ CmsShowMain::reachedBeginning()
       }
    }
    else m_guiManager->disablePrevious();
-}
-
-void
-CmsShowMain::setPlayAutoRewind()
-{
-   m_rewindMode = true;
 }
 
 void 

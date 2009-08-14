@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.18 2009/08/12 12:49:44 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.19 2009/08/13 19:11:17 amraktad Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ public:
    Int_t realEntry(Int_t run, Int_t event);    // -1 means event not found
 
    bool loadFile(const std::string& fileName);
-   void nextEventChangeAlsoChangeFile(const std::string& fileName);
+   void newRemoteFile(const std::string& fileName);
    void checkPositionInGoTo();
    void nextEvent();
    void previousEvent();
