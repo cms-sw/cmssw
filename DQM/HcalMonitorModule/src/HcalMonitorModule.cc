@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/07 17:40:20 $
- * $Revision: 1.123 $
+ * $Date: 2009/08/13 13:52:12 $
+ * $Revision: 1.124 $
  * \author W Fisher
  * \author J Temple
  *
@@ -696,7 +696,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" source not available";
     }
-  if ((rawOK_)&&!rawraw.isValid()) {
+  if (rawOK_&&!rawraw.isValid()) {
     rawOK_=false;
   }
 
@@ -706,7 +706,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" Digi Collection "<<inputLabelDigi_<<" not available";
     }
-  if ((rawOK_) && (!report.isValid())) {
+  if (rawOK_ && !report.isValid()) {
     rawOK_=false;
   }
   if (rawOK_)
