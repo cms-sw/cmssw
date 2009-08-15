@@ -39,7 +39,8 @@ calibrationTree = cms.EDAnalyzer("ShallowTree",
     'keep *_*_trackchi2ndof_*',
     'keep *_*_trackhitsvalid_*'
     ))
-theBigNtuple = cms.Sequence( (shallowClusters +
+theBigNtuple = cms.Sequence( (shallowEventRun+
+                              shallowClusters +
                               shallowTracks +
                               shallowTrackClusters) *
                              calibrationTree
