@@ -22,23 +22,30 @@ public:
   
   HICSimpleNavigationSchool() : theField(0),theTracker(0){};
   HICSimpleNavigationSchool(const GeometricSearchTracker* theTracker,
-			 const MagneticField* field);
-  
+			    const MagneticField* field);
+  HICSimpleNavigationSchool(const GeometricSearchTracker* theTracker,
+			    const MagneticField* field,int j, int l);
+
+  void setExcludedBarrelLayer(int& j){excludedBarrelLayer=j;}; 
+
+  int getExcludedBarrelLayer() {return excludedBarrelLayer;};
+
   // from base class
   virtual StateType navigableLayers() const;
 
 //private:
 protected:
 
-  typedef std::vector<const DetLayer*>              DLC;
-//  typedef std::vector<DetLayer*>                    theDetLayers; 
-  typedef std::vector<BarrelDetLayer*>              BDLC;
-  typedef std::vector<ForwardDetLayer*>             FDLC;
-  typedef DLC::iterator                        DLI;
-  typedef BDLC::iterator                       BDLI;
-  typedef FDLC::iterator                       FDLI;
-  typedef BDLC::const_iterator                 ConstBDLI;
-  typedef FDLC::const_iterator                 ConstFDLI;
+  int                                             excludedBarrelLayer;
+  int                                             excludedForwardLayer;
+  typedef std::vector<const DetLayer*>            DLC;
+  typedef std::vector<BarrelDetLayer*>            BDLC;
+  typedef std::vector<ForwardDetLayer*>           FDLC;
+  typedef DLC::iterator                           DLI;
+  typedef BDLC::iterator                          BDLI;
+  typedef FDLC::iterator                          FDLI;
+  typedef BDLC::const_iterator                    ConstBDLI;
+  typedef FDLC::const_iterator                    ConstFDLI;
  
   BDLC theBarrelLayers;
   FDLC theForwardLayers;  

@@ -8,6 +8,9 @@ TrajectoryStateOnSurface
              HICTrajectoryCorrector::correct(FreeTrajectoryState& fts, FreeTrajectoryState& ftsnew,
   			                const GeomDet* det) const
   {
+        double pi=4.*atan(1.);
+        double twopi=8.*atan(1.);
+
 #ifdef CORRECT_DEBUG
         std::cout<<" HICTrajectoryCorrector::correct::start "<<std::endl;
 #endif
@@ -20,7 +23,7 @@ TrajectoryStateOnSurface
 	GlobalPoint gdet=det->position();
 	double rdet=gdet.perp();
 	double phidet=gdet.phi();
-	double zdet=gdet.z();
+	//double zdet=gdet.z();
 	if(phidet<0.) phidet=phidet+twopi;
 	double zpoint,a,b; 
 	
@@ -30,7 +33,8 @@ TrajectoryStateOnSurface
 	{ 
             a = fts.parameters().momentum().perp()/fts.parameters().momentum().z();
             b = -a*zvert;
-	if( det->subDetector() == GeomDetEnumerators::PixelBarrel || det->subDetector() == GeomDetEnumerators::TIB || det->subDetector() == GeomDetEnumerators::TOB )
+	if( det->subDetector() == GeomDetEnumerators::PixelBarrel || 
+                    det->subDetector() == GeomDetEnumerators::TIB || det->subDetector() == GeomDetEnumerators::TOB )
 	{  
 	    zpoint=(rdet-b)/a;
 	}
@@ -93,7 +97,7 @@ TrajectoryStateOnSurface
 		
 	float width=det->surface().bounds().width();
 	float tolerance=atan(width/rdet)/2.+0.001;
-	
+
 #ifdef CORRECT_DEBUG	
 	cout<<"MuUpdator::correct::Tolerance="<<tolerance<<" Detector line::adet= "<<adet<<" bdet= "<<bdet<<endl;
 #endif	
@@ -215,15 +219,21 @@ TrajectoryStateOnSurface
 	
 #ifdef CORRECT_DEBUG
        cout<<" MuUpdator::correct::Coordinates="<<x1<<" "<<y1<<" "<<x2<<" "<<y2<<endl;
-       cout<<" MuUpdator::correct::New phi="<<ph1<<" "<<ph2<<" phidet"<<phidet<<" dfi1"<<dfi1<<" dfi2="<<dfi2<<endl;
+       cout<<" MuUpdator::correct::New phi="<<ph1<<" "<<ph2<<" phidet"<<phidet<<" dfi1="<<dfi1<<" dfi2="<<dfi2<<endl;
        cout<<" MuUpdator::correct::New r,phi,z= "<<xnew1.perp()<<" "<<xnew1.phi()<<" "<<xnew1.z()<<endl;
        
 #endif
 
        if(dfi1<dfi2)
        {
+#ifdef CORRECT_DEBUG
+        cout<<" MuUpdator::correct::dfi1<dfi2= "<<dfi1<<" Tolerance "<<tolerance<<endl;
+#endif
        if(dfi1<tolerance)
-       {      
+       {
+#ifdef CORRECT_DEBUG
+        cout<<" MuUpdator::correct::keep tsos "<<endl;
+#endif      
              TrajectoryStateOnSurface tsos( 
                            GlobalTrajectoryParameters(xnew1, ftsnew.parameters().momentum(), 
 			   ftsnew.parameters().charge(), field),
@@ -257,6 +267,9 @@ TrajectoryStateOnSurface
   }
 
 double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDet* det) const{
+        double pi=4.*atan(1.);
+        //double twopi=8.*atan(1.);
+
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();
      double psi;
@@ -278,7 +291,7 @@ double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, c
 	cout<<"radius of track="<<rc<<endl;
 	cout<<"acharge="<<acharge<<endl;
 	cout<<"psi="<<psi<<endl;
-	cout<<"phic="<<phic<<" pi="<<pi<<" pi2="<<pi2<<endl;
+	cout<<"phic="<<phic<<" pi="<<pi<<" pi2="<<twopi<<endl;
 #endif
      
      return phic;

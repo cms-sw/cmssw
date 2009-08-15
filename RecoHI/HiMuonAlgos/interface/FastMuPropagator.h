@@ -25,7 +25,9 @@ public:
 
 
 
-  virtual  ~FastMuPropagator() {delete theFmpConst;}
+  virtual  ~FastMuPropagator() {
+ //   delete theFmpConst;
+  }
 
   TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
 				     const Cylinder& bound) const;

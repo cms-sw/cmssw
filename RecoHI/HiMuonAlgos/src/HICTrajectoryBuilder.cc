@@ -1,10 +1,5 @@
 #include "RecoHI/HiMuonAlgos/interface/HICTrajectoryBuilder.h"
 #include "RecoHI/HiMuonAlgos/interface/HICTrajectoryCorrector.h"
-#include "RecoHI/HiMuonAlgos/interface/HICConst.h"
-#include "RecoHI/HiMuonAlgos/interface/DiMuonTrajectorySeed.h"
-#include "RecoHI/HiMuonAlgos/interface/HICMuonUpdator.h"
-#include "RecoHI/HiMuonAlgos/interface/HICMuonPropagator.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,6 +22,10 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
+#include "RecoHI/HiMuonAlgos/interface/HICConst.h"
+#include "RecoHI/HiMuonAlgos/interface/DiMuonTrajectorySeed.h"
+#include "RecoHI/HiMuonAlgos/interface/HICMuonUpdator.h"
+#include "RecoHI/HiMuonAlgos/interface/HICMuonPropagator.h"
 
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -36,10 +35,11 @@
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToPointBuilder.h"
+//#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 using namespace std;
 using namespace cms;
+
 //#define DEBUG
 
 HICTrajectoryBuilder::
@@ -259,7 +259,7 @@ std::vector<TrajectoryMeasurement>
 HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 {
   std::vector<TrajectoryMeasurement> result;
-  TrajectoryStateTransform tsTransform;
+//  TrajectoryStateTransform tsTransform;
 
 #ifdef DEBUG 
   cout<<" HICTrajectoryBuilder::seedMeasurements number of TM "<<dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements().size()<<endl;
@@ -343,6 +343,8 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     }
 
     TSCBLBuilderNoMaterial tscblBuilder;
+
+    //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
     if (tscbl.isValid()==false) {
@@ -378,8 +380,10 @@ bool HICTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
   TSOS predictedState = tm.predictedState();
   TM::ConstRecHitPointer hit = tm.recHit();
   Trajectory traj0 = traj.toTrajectory();
+  
 // My update
-   vector<double> theCut = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->setCuts(traj0,tm.layer());
+   vector<double> theCut = dynamic_cast<HICMeasurementEstimator*>
+                          (const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->setCuts(traj0,tm.layer());
    int icut = 3;
    dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->chooseCuts(icut);
    const MagneticField * mf = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->getField();
@@ -387,10 +391,30 @@ bool HICTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
    double chi2rz,chi2rf;
  
   if ( hit->isValid()) {
+// Check the charge
+// if() { 
 
+   TrajectoryMeasurement tmlast = traj.lastMeasurement();
+   TM::ConstRecHitPointer lasthit = tmlast.recHit();
+   double dfi1 = predictedState.freeTrajectoryState()->position().phi() - lasthit->globalPosition().phi();
+   double dfi2 = hit->globalPosition().phi() - lasthit->globalPosition().phi();
+   
+
+   if(dfi1*dfi2<0) {
+//    cout<<" Need to change charge "<<endl;
+    TrackCharge aCharge = -1*predictedState.freeTrajectoryState()->charge();
+    GlobalPoint xnew = predictedState.globalPosition();
+    GlobalVector pnew = predictedState.globalMomentum();
+    TrajectoryStateOnSurface tsos(
+                            GlobalTrajectoryParameters(xnew, pnew, aCharge, predictedState.magneticField()),
+                            predictedState.curvilinearError(), predictedState.surface());
+    predictedState = tsos;
+   }
+   
 // Update trajectory
 //
   TrajectoryStateOnSurface newUpdateState=hicup.update(traj0, predictedState, tm, tm.layer(), chi2rz, chi2rf);
+
   bool accept=
               (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(newUpdateState,*hit)).first;
   if(accept)
@@ -453,7 +477,7 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 {
   //cout<<" HICTrajectoryBuilder::FindCompatibleMeasurement start "<<traj.empty()<<endl; 
   vector<TM> result;
-  int invalidHits = 0;
+ // int invalidHits = 0;
   int theLowMult = 1; 
 
   TSOS currentState( traj.lastMeasurement().updatedState());
@@ -528,20 +552,45 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 #endif
   const MagneticField * mf = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->getField();
   vector<TM> tmp0;
-//  if(currentLayerCode > 100&&traj0.measurements().size()>1) {
-//           HICMuonPropagator hmp(mf);
-//#ifdef DEBUG
-//  std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward "<<std::endl;
-//#endif	   
-//               tmp0 = 
-//                      theLayerMeasurements->measurements((**il), currentState, hmp, *theEstimator); 
-//  }
-//  else
-//  {
+
+//
+// We must check the charge of the high pt track after first step
+//
+
+/*
+  if(abs(currentLayerCode) > 100&&traj0.measurements().size()>1) {
+           HICMuonPropagator hmp(mf);
+#ifdef DEBUG
+  std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward::start "<<std::endl;
+#endif	   
                tmp0 = 
-                      theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
-//  }		      
-		      
+                      theLayerMeasurements->measurements((**il), currentState, hmp, *theEstimator); 
+      for( vector<TM>::iterator itm = tmp0.begin(); itm != tmp0.end(); itm++ )
+     {
+        TM tm = (*itm);
+        TSOS predictedState = tm.predictedState();
+	TM::ConstRecHitPointer  hit = tm.recHit();
+	TSOS updateState = traj0.lastMeasurement().updatedState();
+#ifdef DEBUG
+	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<
+                   " valid updated state "<< updateState.isValid()<<" Predicted state is valid "
+                    <<predictedState.isValid()<<
+                   " charge "<< predictedState.freeTrajectoryState()->parameters().charge()<<
+                   " pt "<<predictedState.freeTrajectoryState()->parameters().momentum().perp()<<
+                   " pz "<<predictedState.freeTrajectoryState()->parameters().momentum().z()<<
+                   " r  "<<predictedState.freeTrajectoryState()->parameters().position().perp()<<
+                   " phi  "<<predictedState.freeTrajectoryState()->parameters().position().phi()<<
+                   " z  "<<predictedState.freeTrajectoryState()->parameters().position().z()<<
+	 std::endl;        
+#endif
+     }
+#ifdef DEBUG
+  std::cout<<" findCompatibleMeasurements::HICMuonPropagator::for forward::end "<<std::endl;
+#endif             
+  }
+*/
+       tmp0 = theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator); 
+		      		      
 #ifdef DEBUG 
   std::cout<<" findCompatibleMeasurements Point 6 "<<theCut[0]<<" "<<theCut[1]<<std::endl;
   std::cout<<" findCompatibleMeasurements Point 7 "<<traj0.measurements().size()<<std::endl;
@@ -562,9 +611,21 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
         TSOS predictedState = tm.predictedState();
 	TM::ConstRecHitPointer  hit = tm.recHit();
 	TSOS updateState = traj0.lastMeasurement().updatedState();
+//
+// If track is not valid - stop with this hit
+//
+        if(!(*hit).isValid()) {
 #ifdef DEBUG
-	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<" Number of TM "<< numtmp<<
-                   " valid updated state "<< updateState.isValid()<<" Predicted state is valid "<<predictedState.isValid()<<
+         cout<<" findCompatibleMeasurements::hit is not valid "<<endl;
+#endif
+         continue;
+        } 
+
+#ifdef DEBUG
+	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()
+                 <<" Number of TM "<< numtmp<<
+                   " valid updated state "<< updateState.isValid()<<" Predicted state is valid "
+                    <<predictedState.isValid()<<
                    " charge "<< predictedState.freeTrajectoryState()->parameters().charge()<<
                    " pt "<<predictedState.freeTrajectoryState()->parameters().momentum().perp()<<
                    " pz "<<predictedState.freeTrajectoryState()->parameters().momentum().z()<<
@@ -592,13 +653,15 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
       if(predictedState0.isValid()) 
       {
 #ifdef DEBUG
-              std::cout<<" Accept the corrected state "<<numtmp<<std::endl; 
+              std::cout<<" Accept the corrected state "<<numtmp<<" Hit Valid "<<(*hit).isValid()<<std::endl; 
 #endif
               predictedState = predictedState0;
 	      
 	if((*hit).isValid())
 	{
-  
+#ifdef DEBUG
+                 std::cout<<" findCompatibleMeasurements::end corrector::hit valid "<<std::endl;
+#endif  
               bool accept= true;
               accept = (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(predictedState,*hit)).first; 
 	      
