@@ -45,7 +45,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag vertexLabel_;
   edm::ParameterSet parameters;
 
-  double pixelIsolationConeSize_;
+  double prelimCone_;
   double pixelIsolationConeSizeAtEC_;
   double vtxCutSeed_;
   double vtxCutIsol_;
