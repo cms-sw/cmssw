@@ -65,6 +65,7 @@ void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEvent
 	  double dR=deltaR(cit->eta(), cit->phi(), iptEta, iptPhi);
 	  if (dR<minDR&&dR<assocCone_) 
 	    {
+	      minDR=dR;
 	      ntrk++;
 	      citSel=cit;
 	    }
