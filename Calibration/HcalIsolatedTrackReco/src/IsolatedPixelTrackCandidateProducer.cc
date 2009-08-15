@@ -208,7 +208,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 	  if (getDistInCM(seedCooAtEC.first, seedCooAtEC.second, cooAtEC.first, cooAtEC.second)<pixelIsolationConeSizeAtEC_)
 	    {
 	      sumP+=pixelTrackRefs[iSurr]->pt()*cosh(pixelTrackRefs[iSurr]->eta());
-	      if(pixelTrackRefs[iSurr]->pt()>maxP) maxP=pixelTrackRefs[iSurr]->pt()*cosh(pixelTrackRefs[iSurr]->eta());
+	      if(pixelTrackRefs[iSurr]->pt()*cosh(pixelTrackRefs[iSurr]->eta())>maxP) maxP=pixelTrackRefs[iSurr]->pt()*cosh(pixelTrackRefs[iSurr]->eta());
 	    }
 	}
 
