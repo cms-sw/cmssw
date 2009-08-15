@@ -17,12 +17,14 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
 recotrack = cms.Sequence( offlineBeamSpot + siPixelRecHits*siStripMatchedRecHits*recopixelvertexing*ckftracks)
 
 #ntuple
+from UserCode.ShallowTools.ShallowEventDataProducer_cfi import *
 from UserCode.ShallowTools.ShallowClustersProducer_cfi import *
 from UserCode.ShallowTools.ShallowTrackClustersProducer_cfi import *
 from UserCode.ShallowTools.ShallowTracksProducer_cfi import *
 calibrationTree = cms.EDAnalyzer("ShallowTree",
                              outputCommands = cms.untracked.vstring(
     'drop *',
+    'keep *_*_run_*',
     'keep *_*_clusterdetid_*',
     'keep *_*_clusterwidth_*',
     'keep *_*_clustervariance_*',
