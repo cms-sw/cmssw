@@ -41,7 +41,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 	
   edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
-  edm::InputTag pixelTracksSource_;
+  std::vector<edm::InputTag> pixelTracksSources_;
   edm::InputTag vertexLabel_;
   edm::ParameterSet parameters;
 
