@@ -101,7 +101,7 @@ private:
   }
 
 private:
-  const int theMaxSteps;
+  const unsigned int theMaxSteps;
   TFile* theFile;
   TTree* theTree;
 
