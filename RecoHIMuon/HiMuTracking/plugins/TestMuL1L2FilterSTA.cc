@@ -7,13 +7,13 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2FilterSTA.cc,v 1.5 2009/02/11 16:54:57 kodolova Exp $
+// $Id: TestMuL1L2FilterSTA.cc,v 1.6 2009/02/20 13:06:11 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
 //
  
-#include "RecoHIMuon/HiMuTracking/plugins/TestMuL1L2FilterSTA.h" 
+#include "RecoHI/HiMuonAlgos/plugins/TestMuL1L2FilterSTA.h" 
 
 #include <memory>
 

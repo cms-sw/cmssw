@@ -18,7 +18,7 @@ process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("RecoHIMuon.HiMuTracking.HiMuL3_cff")
+process.load("RecoHI.HiMuonAlgos.HiMuL3_cff")
 process.load("RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",

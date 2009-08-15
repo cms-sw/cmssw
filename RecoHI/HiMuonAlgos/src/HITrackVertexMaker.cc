@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.16 2009/07/09 14:50:49 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.2 2009/08/15 07:31:44 kodolova Exp $
 //
 //
  
@@ -149,7 +149,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG
    cout<<"L2 muon accepted"<<endl;
 #endif
-   std::cout<<" Just do nothing for L3 but initiate ESHandles "<<std::endl;
+//   std::cout<<" Just do nothing for L3 but initiate ESHandles "<<std::endl;
    edm::Handle<reco::VertexCollection> vertexcands;
    e1.getByLabel (primaryVertexTag,vertexcands);
 

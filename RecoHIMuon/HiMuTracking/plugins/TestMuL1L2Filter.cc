@@ -7,13 +7,13 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2Filter.cc,v 1.5 2009/02/11 15:37:04 kodolova Exp $
+// $Id: TestMuL1L2Filter.cc,v 1.6 2009/02/20 13:06:11 kodolova Exp $
 //
 //
 // Comment: Dimuon reconstruction need primary vertex
 //
  
-#include "RecoHIMuon/HiMuTracking/plugins/TestMuL1L2Filter.h" 
+#include "RecoHI/HiMuonAlgos/plugins/TestMuL1L2Filter.h" 
 
 #include <memory>
 
@@ -42,17 +42,16 @@ TestMuL1L2Filter::TestMuL1L2Filter(const edm::ParameterSet& ps1)
 
 void TestMuL1L2Filter::beginJob(const edm::EventSetup& es1)
 {
-   theHICConst = new HICConst();
-   theFmpConst = new FmpConst();
+//   theHICConst = new HICConst();
+//   theFmpConst = new FmpConst();
    theTrackVertexMaker = new HITrackVertexMaker(pset_,es1);
 }
 
 void TestMuL1L2Filter::endJob()
 {
-   delete theHICConst;
-   delete theFmpConst;
-   delete theTrackVertexMaker;
-   
+//   delete theHICConst;
+//   delete theFmpConst;
+//   delete theTrackVertexMaker;
 }
 
 
@@ -66,8 +65,9 @@ bool TestMuL1L2Filter::filter(edm::Event& e1, const edm::EventSetup& es1)
 {
 
 // Start track finder
-
-   bool dimuon = theTrackVertexMaker->produceTracks(e1,es1,theHICConst,theFmpConst);
+   HICConst theHICConst;
+   FmpConst theFmpConst;
+   bool dimuon = theTrackVertexMaker->produceTracks(e1,es1,&theHICConst,&theFmpConst);
 //   if(dimuon) cout<<" The vertex is found : "<<endl; 
    return dimuon;
    
