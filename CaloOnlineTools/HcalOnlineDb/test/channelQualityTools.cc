@@ -19,7 +19,7 @@ int main( int argc, char **argv )
   //===> command line options parser using boost  
   //
   int run_number, iov_begin, iov_end;
-  std::string comment;
+  std::string comment, base;
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
@@ -29,6 +29,7 @@ int main( int argc, char **argv )
     ("dump-tags","dumps available channel quality tags from OMDS to stdout, newest first")
     ("dump-iovs","dumps available IOVs for a given channel quality tag from OMDS to stdout, newest first")
     ("tag-name", po::value<string>(), "tag name")
+    ("base", po::value<string>(&base)->default_value("hex"), "Set hexadecimal(hex) or decimal(dec) base")
     ("run-number", po::value<int>(&run_number)->default_value( 1 ), "run number")
     ("iov-begin", po::value<int>(&iov_begin)->default_value( 1 ), "beginning of the interval of validity, units: run numbers")
     ("iov-end", po::value<int>(&iov_end)->default_value( -1 ), "end of the interval of validity, units: run numbers")
@@ -83,8 +84,9 @@ int main( int argc, char **argv )
       else{
 	_tag = vm["tag-name"].as<string>();
       }
+      base = vm["base"].as<string>();
       HcalChannelQualityXml cq;
-      cq.writeBaseLineFromOmdsToStdout(_tag, iov_begin);      
+      cq.writeBaseLineFromOmdsToStdout(_tag, iov_begin, base);
       return 0;
     }
 

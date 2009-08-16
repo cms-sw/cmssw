@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.5 2009/08/11 14:23:32 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.6 2009/08/11 18:36:06 kukartse Exp $
 //
 
 #include <iostream>
@@ -286,7 +286,7 @@ int HcalChannelQualityXml::readStatusWordFromStdin(void){
 }
 
 
-int HcalChannelQualityXml::writeStatusWordToStdout(void){
+int HcalChannelQualityXml::writeStatusWordToStdout(std::string denom){
   int _lines = 0;
   char _buf[128];
   int _detId = 0; // dummy as it is optional in the ASCII file
@@ -297,14 +297,30 @@ int HcalChannelQualityXml::writeStatusWordToStdout(void){
        _cq++){
     _lines++;
     _detId = hAss.getRawIdFromCmssw(_cq->first);
-    sprintf(_buf," %16d%16d%16d%16s%16d%11.8X",
-	    hAss.getHcalIeta(_cq->first),
-	    hAss.getHcalIphi(_cq->first),
-	    hAss.getHcalDepth(_cq->first),
-	    hAss.getSubdetectorString(hAss.getHcalSubdetector(_cq->first)).c_str(),
-	    _cq->second.status,
-	    _detId
-	    );
+    if ( denom.find('hex')!=std::string::npos ){
+      sprintf(_buf," %16d%16d%16d%16s%16.8X%11.8X",
+	      hAss.getHcalIeta(_cq->first),
+	      hAss.getHcalIphi(_cq->first),
+	      hAss.getHcalDepth(_cq->first),
+	      hAss.getSubdetectorString(hAss.getHcalSubdetector(_cq->first)).c_str(),
+	      _cq->second.status,
+	      _detId
+	      );
+    }
+    else if ( denom.find('dec')!=std::string::npos ){
+      sprintf(_buf," %16d%16d%16d%16s%16d%11.8d",
+	      hAss.getHcalIeta(_cq->first),
+	      hAss.getHcalIphi(_cq->first),
+	      hAss.getHcalDepth(_cq->first),
+	      hAss.getSubdetectorString(hAss.getHcalSubdetector(_cq->first)).c_str(),
+	      _cq->second.status,
+	      _detId
+	      );
+    }
+    else{
+      cerr << "Undefined or invalid base. Specify hex or dec. Exiting..." << endl;
+      exit(-1);
+    }
     cout << _buf << endl;
   }
   return _lines;
@@ -330,9 +346,9 @@ int HcalChannelQualityXml::makeXmlFromAsciiStream(int _runnumber,
 }
 
 
-int HcalChannelQualityXml::writeBaseLineFromOmdsToStdout(std::string _tag, int _iov_begin){
+int HcalChannelQualityXml::writeBaseLineFromOmdsToStdout(std::string _tag, int _iov_begin, std::string denom){
   getBaseLineFromOmds(_tag, _iov_begin);
-  writeStatusWordToStdout();
+  writeStatusWordToStdout(denom);
   return 0;
 }
 
