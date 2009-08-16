@@ -11,7 +11,6 @@
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatterns.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRPatternLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLHTRZeroSuppressionLoader.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
