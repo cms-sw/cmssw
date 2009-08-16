@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <fstream>
+#include <iterator>
 #include <boost/program_options.hpp>
 
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -37,6 +38,10 @@
 #include "occi.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
+
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalO2OManager.h"
+
+
 
 using namespace std;
 using namespace oracle::occi;
@@ -125,31 +130,22 @@ int main( int argc, char **argv )
 
 
     if (vm.count("quicktest")) {
-      /*
-      std::string in_ = vm["input-file"].as<string>();
-      ifstream inFile( in_ . c_str(), ios::in );
-      if (!inFile){
-	cout << "Unable to open file with the electronic map: " << in_ << endl;
-      }
-      else{
-	cout << "File with the logical map opened successfully: " << in_ << endl;
-      }
-      */
-      HcalChannelQualityXml cq;
-      //cq.readStatusWordFromStdin( );
-      //cq.writeStatusWordToStdout( );
-      /*
-      cq.makeXmlFromAsciiStream(123456, // run number
-			     123456, // iov begin
-			     -1,     // iov end
-			     "superDuperTestTag",
-			     "comment"
-			     );
-      */
-      cq.writeBaseLineFromOmdsToStdout("AllChannelsMasked16Jul2009v1", 82000);
+      HcalO2OManager m;
+      std::string connect = "frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL";
+      std::vector<std::string> alltags = m.getListOfPoolTags(connect);
+      std::copy (alltags.begin(),
+		 alltags.end(),
+		 std::ostream_iterator<std::string>(std::cout,"\n")
+		 );
+      std::string tag = "HcalPedestals_ADC_v7.03_hlt";
+      std::vector<uint32_t> allIovs = m.getListOfPoolIovs(tag,connect);
+      std::copy (allIovs.begin(),
+		 allIovs.end(),
+		 std::ostream_iterator<uint32_t>(std::cout,"\n")
+		 );
       return 0;
     }
-
+    
 
     if (vm.count("test-lut-xml-file-access")) {
       cout << "Testing reading LUTs from local XML file..." << "\n";

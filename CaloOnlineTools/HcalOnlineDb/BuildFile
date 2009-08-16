@@ -14,6 +14,7 @@
 <use name=CalibCalorimetry/CaloTPG>
 <use name=CalibCalorimetry/HcalAlgos>
 <use name=CalibCalorimetry/HcalTPGAlgos>
+<use name=CondTools/Hcal>
 
 <export>
   <lib name=CaloOnlineToolsHcalOnlineDb>
