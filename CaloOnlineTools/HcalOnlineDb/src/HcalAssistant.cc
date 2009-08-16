@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.5 2009/08/05 18:19:25 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.6 2009/08/11 14:23:32 kukartse Exp $
 //
 
 
@@ -261,6 +261,9 @@ int HcalAssistant::getRawIdFromCmssw(int _geomId){
       // FIXME: implement for ZDC channels
       return -1;
     }
+  else{
+      return -1;
+  }
 }
 
 

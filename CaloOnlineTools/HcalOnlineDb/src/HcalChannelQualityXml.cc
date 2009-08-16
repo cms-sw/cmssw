@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.7 2009/08/16 14:02:10 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.8 2009/08/16 14:21:17 kukartse Exp $
 //
 
 #include <iostream>
@@ -267,13 +267,13 @@ int HcalChannelQualityXml::readStatusWordFromStdin(std::string base){
     int _eta, _phi, _dep, _value;
     char _det[32];
     int _read;
-    if ( base.find('hex')!=std::string::npos ){
+    if ( base.find("hex")!=std::string::npos ){
       const char * _format = "%d %d %d %s %X";
       _read = sscanf( _row . c_str(), _format,
 		      &_eta, &_phi, &_dep, _det, &_value
 		      );
     }
-    else if ( base.find('dec')!=std::string::npos ){
+    else if ( base.find("dec")!=std::string::npos ){
       const char * _format = "%d %d %d %s %d";
       _read = sscanf( _row . c_str(), _format,
 		      &_eta, &_phi, &_dep, _det, &_value
@@ -309,7 +309,7 @@ int HcalChannelQualityXml::writeStatusWordToStdout(std::string base){
        _cq++){
     _lines++;
     _detId = hAss.getRawIdFromCmssw(_cq->first);
-    if ( base.find('hex')!=std::string::npos ){
+    if ( base.find("hex")!=std::string::npos ){
       sprintf(_buf," %16d%16d%16d%16s%16.8X%11.8X",
 	      hAss.getHcalIeta(_cq->first),
 	      hAss.getHcalIphi(_cq->first),
@@ -319,7 +319,7 @@ int HcalChannelQualityXml::writeStatusWordToStdout(std::string base){
 	      _detId
 	      );
     }
-    else if ( base.find('dec')!=std::string::npos ){
+    else if ( base.find("dec")!=std::string::npos ){
       sprintf(_buf," %16d%16d%16d%16s%16d%11.8d",
 	      hAss.getHcalIeta(_cq->first),
 	      hAss.getHcalIphi(_cq->first),

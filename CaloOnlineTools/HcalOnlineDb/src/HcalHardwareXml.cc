@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Feb 25 14:30:20 CDT 2008
-// $Id: HcalHardwareXml.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
+// $Id: HcalHardwareXml.cc,v 1.4 2009/04/14 22:53:06 kukartse Exp $
 
 #include <sstream>
 
@@ -85,7 +85,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
 	  _p4 . attr_value = _buffer . str();
 
 	  // check for multiple QIE entries
-	  int _nqie = double_entry.size();
+	  unsigned int _nqie = double_entry.size();
 	  double_entry[_p4 . barcode]++;
 	  if (double_entry.size() == _nqie){
 	    cout << "QIE #" << _p4.barcode << " found " << double_entry[_p4 . barcode] << "times!" << endl;

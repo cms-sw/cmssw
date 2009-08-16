@@ -165,7 +165,7 @@ void HcalQIEManager::getTableFromDb( string query_file, string output_file)
 	
 	cout << "Processing the query results..." << endl;
 	RooGKCounter _lines(1,100);
-	int count;
+	//int count;
 	while (rs->next()) {
 	  _lines . count();
 	  HcalChannelId _id;
