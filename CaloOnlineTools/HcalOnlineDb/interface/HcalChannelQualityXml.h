@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelQualityXml.h,v 1.4 2009/08/11 18:36:06 kukartse Exp $
+// $Id: HcalChannelQualityXml.h,v 1.5 2009/08/16 14:02:09 kukartse Exp $
 //
 
 #include <map>
@@ -44,18 +44,19 @@ class HcalChannelQualityXml : public HcalChannelDataXml
 			     int _iov_begin,
 			     int _iov_end,
 			     std::string _tag,
-			     std::string _elements_comment
+			     std::string _elements_comment,
+			     std::string _base="hex"
 			     );
 
   // get baseline channel status from a tag for a given IOV
   // and output it in the ASCII format to stdout
-  int writeBaseLineFromOmdsToStdout(std::string _tag, int _iov_begin, std::string denom="hex");
+  int writeBaseLineFromOmdsToStdout(std::string _tag, int _iov_begin, std::string base="hex");
 
   // read ASCII stream with channel status word (cat ascii file)
-  int readStatusWordFromStdin(void);
+  int readStatusWordFromStdin(std::string base="hex");
 
   // write ASCII stream with channel status word
-  int writeStatusWordToStdout(std::string denom = "hex"); // status and detId in hex or dec
+  int writeStatusWordToStdout(std::string base = "hex"); // status and detId in hex or dec
 
   // add dataset to the XML document
   DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,

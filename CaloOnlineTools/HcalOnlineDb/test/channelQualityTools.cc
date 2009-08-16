@@ -61,6 +61,7 @@ int main( int argc, char **argv )
       else{
 	_tag = vm["tag-name"].as<string>();
       }
+      base = vm["base"].as<string>();
       HcalChannelQualityXml cq;
       if (comment.size()<1){
 	HcalAssistant ass;
@@ -70,7 +71,8 @@ int main( int argc, char **argv )
 				iov_begin,
 				iov_end,
 				_tag,
-				comment
+				comment,
+				base
 			     );
       return 0;
     }
