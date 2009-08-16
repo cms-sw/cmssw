@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.5 2009/01/30 21:46:00 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.6 2009/04/14 22:53:06 kukartse Exp $
 //
 
 // system include files
@@ -106,7 +106,7 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   XMLDOMBlock rbxBrickDoc( brickFileName );
   DOMDocument * rbxBrick = rbxBrickDoc . getDocument();
   if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" || rbx_config_type == "gols" ){
-    for ( int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ ){
+    for ( unsigned int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ ){
       DOMElement * dataset_root = dataSet -> getDocumentElement();
       
       string _rm;

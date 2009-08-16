@@ -275,7 +275,7 @@ int main( int argc, char **argv )
     if (vm.count("create-lin-lut-xml")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
-	int _cr = vm["crate"].as<int>();
+	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
 	  cout << "Linearizer LUT master file name is not specified..." << endl;
@@ -299,7 +299,7 @@ int main( int argc, char **argv )
     if (vm.count("create-lut-xml")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
-	int _cr = vm["crate"].as<int>();
+	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
 	  cout << "Linearizer LUT master file name is not specified..." << endl;
@@ -349,7 +349,7 @@ int main( int argc, char **argv )
     if (vm.count("create-lut-xml-lin-ascii-comp-coder")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
-	int _cr = vm["crate"].as<int>();
+	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
 	  cout << "Linearizer LUT master file name is not specified..." << endl;
@@ -500,14 +500,14 @@ int main( int argc, char **argv )
   // FIXME: deprecated parse command line options - switch to boost above
   //
   int c;
-  int digit_optind = 0;
+  //int digit_optind = 0;
   
   // default parameter values
   bool luts = false;
   bool rbx = false;
   bool tag_b = false;
   bool comment_b = false;
-  bool testdb_b = false;
+  //bool testdb_b = false;
   bool lmaptest_b = false;
   bool hardware_b = false;
   bool test_db_access_b = false;
@@ -532,7 +532,7 @@ int main( int argc, char **argv )
   string zs2HF = "";
 
   while (1) {
-    int this_option_optind = optind ? optind : 1;
+    //int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     static struct option long_options[] = {
       {"filename", 1, 0, 1},
@@ -1068,17 +1068,20 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 	_subdet = HcalBarrel;
 	sscanf(zs2HB.c_str(),"%d", &_zs);
       }
-      if ( subdet == "HE" ){
+      else if ( subdet == "HE" ){
 	_subdet = HcalEndcap;
 	sscanf(zs2HE.c_str(),"%d", &_zs);
       }
-      if ( subdet == "HO" ){
+      else if ( subdet == "HO" ){
 	_subdet = HcalOuter;
 	sscanf(zs2HO.c_str(),"%d", &_zs);
       }
-      if ( subdet == "HF" ){
+      else if ( subdet == "HF" ){
 	_subdet = HcalForward;
 	sscanf(zs2HF.c_str(),"%d", &_zs);
+      }
+      else{
+	_subdet = HcalOther;
       }
       HcalDetId _hcaldetid( _subdet, side*eta_abs, phi, depth );
       conf . hcal_channel_id = _hcaldetid . rawId();
