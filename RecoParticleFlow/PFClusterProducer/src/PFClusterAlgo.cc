@@ -362,14 +362,10 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
 
   //   cout<<" hit ptr "<<hit<<endl;
 
-  // get neighbours
-  const std::vector< unsigned >& nbs4 = rh.neighbours4();
-  const std::vector< unsigned >& nbs8 = rh.neighbours8();
-  // topo-cluster is computed from cells with 1 common side
-  std::vector< unsigned > nbs = nbs4;
-  // or cells with 1 common corner
-  if( useCornerCells_ ) 
-    nbs = nbs8;
+  // get neighbours, either with one side in common, 
+  // or with one corner in common (if useCornerCells_)
+  const std::vector< unsigned >& nbs 
+    = useCornerCells_ ? rh.neighbours8() : rh.neighbours4();
   
   for(unsigned i=0; i<nbs.size(); i++) {
 
