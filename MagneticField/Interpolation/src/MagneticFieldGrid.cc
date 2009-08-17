@@ -105,6 +105,7 @@ void MagneticFieldGrid::interpolateAtPoint(double X1, double X2, double X3, floa
   double tmpX[3];
   float  tmpB[3];
   // define the corners of interpolation volume
+  // FIXME: should not unpack the arrays to then repack them as first thing.
   putIndicesGetB(index0[0],index0[1],index0[2],tmpB[0],tmpB[1],tmpB[2]);
   putIndGetCoord(index0[0],index0[1],index0[2],tmpX[0],tmpX[1],tmpX[2]);
   MagInterpol.defineCellPoint000(tmpX[0],tmpX[1],tmpX[2],double(tmpB[0]),double(tmpB[1]),double(tmpB[2]));
@@ -137,6 +138,10 @@ void MagneticFieldGrid::interpolateAtPoint(double X1, double X2, double X3, floa
   return;
 }
 
+// FIXME: Signature should be:
+//
+//     void MagneticFieldGrid::putCoordGetInd(double *pos, int *index) 
+//
 void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Index1, int &Index2, int &Index3){
   double pnt[3] = {X1,X2,X3};
   int index[3];
@@ -147,6 +152,7 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
     }
     break;
   case 2:
+    // FIXME: Should use else!
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
@@ -170,6 +176,7 @@ void MagneticFieldGrid::putCoordGetInd(double X1, double X2, double X3, int &Ind
     }
     break;
   case 4:
+    // FIXME: should use else!
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
@@ -212,6 +219,7 @@ void MagneticFieldGrid::putIndicesGetB(int Index1, int Index2, int Index3, float
   return;
 }
 
+// FIXME: same as above.
 void MagneticFieldGrid::putIndGetCoord(int Index1, int Index2, int Index3, double &X1, double &X2, double &X3){
   int index[3] = {Index1, Index2, Index3};
   double pnt[3];
