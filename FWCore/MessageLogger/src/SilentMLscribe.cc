@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul 30 09:57:57 CDT 2009
-// $Id: SilentMLscribe.cc,v 1.1 2009/07/30 15:33:10 chrjones Exp $
 //
 
 // system include files
