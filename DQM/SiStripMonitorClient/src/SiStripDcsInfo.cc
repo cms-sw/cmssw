@@ -54,7 +54,7 @@ void SiStripDcsInfo::bookStatus() {
   dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
 
-  DcsFraction_= dqmStore_->bookFloat("SiStripDcsFraction");  
+  DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
  
   dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents");
   vector<string> det_type;

@@ -54,7 +54,7 @@ void SiStripDaqInfo::bookStatus() {
 
   dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
-  DaqFraction_= dqmStore_->bookFloat("SiStripDaqFraction");  
+  DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
 
   dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
 
