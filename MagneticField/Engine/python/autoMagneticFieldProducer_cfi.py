@@ -94,8 +94,9 @@ VBF40.label = '071212_4t'
 AutoMagneticFieldESProducer = cms.ESProducer("AutoMagneticFieldESProducer",
    # if positive, set B value (in kGauss), overriding the current reading from DB
    valueOverride = cms.int32(-1),
-   nominalCurrents = cms.untracked.vint32(0,9558,14416,16819,18268,19262),
-   mapLabels = cms.untracked.vstring("0t",
+   nominalCurrents = cms.untracked.vint32(-1, 0,9558,14416,16819,18268,19262),
+   mapLabels = cms.untracked.vstring("090322_3_8t",
+                                     "0t",
                                      "071212_2t",
                                      "071212_3t",
                                      "071212_3_5t",
