@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.14 2009/04/16 12:15:30 alinn Exp $
-// Latest tag:  $Name: V03-02-05 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.16 2009/07/02 13:55:44 alinn Exp $
+// Latest tag:  $Name: V04-00-00 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -37,7 +37,7 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
   m_defaultnoisevalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultNoise",0.))), 
   m_defaultthresholdhighvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdHigh",0.))), 
   m_defaultthresholdlowvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultThresholdLow",0.))), 
-  m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",640.))) 
+  m_defaulttickheightvalue(static_cast<float>(pset.getUntrackedParameter<double>("DefaultTickHeight",690.))) 
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -91,6 +91,8 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
       ;
     if (label!="Cabling")
       output << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;
+    if(label=="ApvTiming")
+      output<< " ApvTimingVer " << partition.apvTimingVersion().first << "." << partition.apvTimingVersion().second;
   }
   
   if (!strcmp(output.str().c_str(),input.str().c_str()))
