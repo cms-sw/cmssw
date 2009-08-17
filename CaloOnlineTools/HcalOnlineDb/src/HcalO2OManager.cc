@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id$
+// $Id: HcalO2OManager.cc,v 1.1 2009/08/16 20:50:54 kukartse Exp $
 //
 
 
@@ -17,6 +17,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
+#include "CondFormats/Common/interface/PayloadWrapper.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -24,15 +25,20 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
-#include "CondFormats/Common/interface/PayloadWrapper.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
+#include "xgi/Utils.h"
+#include "toolbox/string.h"
+#include "occi.h"
+
+using namespace oracle::occi;
+
 
 
 HcalO2OManager::HcalO2OManager()
@@ -139,5 +145,42 @@ std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::st
     std::cout<<er.what()<<std::endl;
   }
   delete session;
+  return allIovs;
+}
+
+
+
+std::vector<std::string> HcalO2OManager::getListOfOmdsTags(){
+  std::vector<std::string> alltags;
+  static ConnectionManager conn;
+  conn.connect();
+  std::string query = "select ";
+  query            += "       channel_map_id,subdet,ieta,iphi,depth ";
+  query            += "from ";
+  query            += "       cms_hcl_hcal_cond.hcal_channels ";
+  query            += "where ";
+  query            += "       subdet='HB' or subdet='HE' or subdet='HF' or subdet='HO' ";
+  int _n_tags = 0;
+  try {
+    oracle::occi::Statement* stmt = conn.getStatement(query);
+    oracle::occi::ResultSet *rs = stmt->executeQuery();
+    while (rs->next()) {
+      _n_tags++;
+      //alltags.push_back(rs->getString(1));
+    }
+  }
+  catch (SQLException& e) {
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+  conn.disconnect();
+  return alltags;
+}
+
+
+
+std::vector<uint32_t> HcalO2OManager::getListOfOmdsIovs(std::string tagname){
+  std::vector<uint32_t> allIovs;
+
   return allIovs;
 }

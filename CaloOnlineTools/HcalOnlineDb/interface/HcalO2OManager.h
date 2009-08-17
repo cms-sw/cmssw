@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-// $Id$
+// $Id: HcalO2OManager.h,v 1.1 2009/08/16 20:50:54 kukartse Exp $
 //
 
 #include<vector>
@@ -31,6 +31,9 @@ class HcalO2OManager
 
       std::vector<std::string> getListOfPoolTags(std::string connect);
       std::vector<uint32_t>    getListOfPoolIovs(std::string tagname, std::string connect);
+
+      std::vector<std::string> getListOfOmdsTags();
+      std::vector<uint32_t>    getListOfOmdsIovs(std::string tagname);
 
    private:
 
