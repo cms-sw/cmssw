@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/28 17:07:37 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/08/12 21:32:45 $
+ *  $Revision: 1.10 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -78,9 +78,10 @@ void EwkDQM::beginJob(EventSetup const& iSetup) {
   const float pi = 3.14159265;
 
   // Keep the number of plots and number of bins to a minimum!
-  h_vertex_chi2  = theDbe->book1D("h_vertex_chi2" , "Event Vertex #chi^{2}"                  , 20,  0.0, 100.0 );
-  h_vertex_numTrks = theDbe->book1D("h_vertex_numTrks", "Event Vertex, number of tracks"     , 10, -0.5,   9.5 );
-  h_vertex_sumTrks = theDbe->book1D("h_vertex_sumTrks", "Event Vertex, sum of track pt"      , 100, 0.0, 100.0 );
+  h_vertex_number = theDbe->book1D("h_vertex_number", "Number of event vertices in collection", 10,-0.5,   9.5 );
+  h_vertex_chi2  = theDbe->book1D("h_vertex_chi2" , "Event Vertex #chi^{2}/n.d.o.f."          , 20, 0.0,   2.0 );
+  h_vertex_numTrks = theDbe->book1D("h_vertex_numTrks", "Event Vertex, number of tracks"     , 20, -0.5,  59.5 );
+  h_vertex_sumTrks = theDbe->book1D("h_vertex_sumTrks", "Event Vertex, sum of track pt"      , 20,  0.0, 100.0 );
   h_vertex_d0    = theDbe->book1D("h_vertex_d0"   , "Event Vertex d0"                        , 20,  0.0,   0.05);
   h_mumu_invMass = theDbe->book1D("h_mumu_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0 );
   h_ee_invMass   = theDbe->book1D("h_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0 );
@@ -118,8 +119,8 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if ( !HLTresults.isValid() ) return;
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
-  unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
-  unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
+  //unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
+  //unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
   bool passed_electron_HLT = true;
   bool passed_muon_HLT     = true;
   //if (triggerIndex_elec < HLTresults->size()) passed_electron_HLT = HLTresults->accept(triggerIndex_elec);
@@ -132,16 +133,16 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
   if ( !vertexHandle.isValid() ) return;
   VertexCollection vertexCollection = *(vertexHandle.product());
+  int vertex_number     = vertexCollection.size();
   VertexCollection::const_iterator v = vertexCollection.begin();
-  double vertex_chi2    = v->chi2();
+  double vertex_chi2    = v->normalizedChi2(); //v->chi2();
   double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+  //double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
   double vertex_numTrks = v->tracksSize();
   double vertex_sumTrks = 0.0;
   for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
     vertex_sumTrks += (*vertex_curTrack)->pt();
   }
-
-  cout << "hi mom" << endl;
 
   ////////////////////////////////////////////////////////////////////////////////
   //Missing ET
@@ -342,6 +343,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   }
 
   if (fill_e1 || fill_m1) {
+    h_vertex_number->Fill(vertex_number);
     h_vertex_chi2->Fill(vertex_chi2);
     h_vertex_d0  ->Fill(vertex_d0);
     h_vertex_numTrks->Fill(vertex_numTrks);
