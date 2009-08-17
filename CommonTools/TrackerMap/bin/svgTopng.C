@@ -349,17 +349,9 @@ void createCanvas(){
 
 //---------------------------------------------------------------------
 
-int main(int argc, char *argv[]){
-
-  char* inputFile;
-  char* outputFile;
+int svgTopng(char* inputFile,char* outputFile){
 
   hmin=99999999; hmax=0;
-
-  if(argc>1)
-    inputFile=argv[1];
-  if(argc>2)
-    outputFile=argv[2];
 
   parseSVG(inputFile);
 
@@ -370,3 +362,15 @@ int main(int argc, char *argv[]){
 
   return 0;
 }
+
+int main(int argc, char *argv[]){
+
+  char *inputFile, *outputFile;
+  if(argc>1)
+    inputFile=argv[1];
+  if(argc>2)
+    outputFile=argv[2];
+
+  return svgTopng(inputFile,outputFile);
+}
+
