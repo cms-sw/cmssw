@@ -3,7 +3,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 
 bool CSCCLCTData::debug = false;
 

@@ -4,6 +4,8 @@
 
 #include <string>
 #include <cstdio>
+#include <strings.h> // for bzero
+#include <cstring>
 
 /** data format is
   RPC0  Tbin 0  Pads[7:0]
