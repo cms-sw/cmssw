@@ -52,9 +52,11 @@ namespace {
          case edm::MessageLoggerQ::JOBREPORT:
          case edm::MessageLoggerQ::JOBMODE:
          case edm::MessageLoggerQ::GROUP_STATS:
+         {
             std::string* string_p = static_cast<std::string*> (operand);
             delete string_p;
             break;
+         }
          default:
             break;
       }
@@ -64,8 +66,7 @@ namespace {
 void run_app(TApplication &app, int argc, char **argv)
 {
    //Remove when FWLite handles the MessageLogger
-   SilentMLscribe scribe;
-   edm::MessageLoggerQ::setMLscribe_ptr(&scribe);
+   edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
    edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
    //---------------------
    AutoLibraryLoader::enable();
