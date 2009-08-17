@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/08/10 15:49:11 $
- * $Revision: 1.75 $
+ * $Date: 2009/08/10 17:52:34 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -354,20 +354,20 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
-            int runtype = dcchItr->getRunType();
+      int runtype = dcchItr->getRunType();
             
-            if ( runtype == EcalDCCHeaderBlock::COSMIC ||
-                 runtype == EcalDCCHeaderBlock::MTCC ||
-                 runtype == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-                 runtype == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-                 runtype == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-                 runtype == EcalDCCHeaderBlock::PHYSICS_LOCAL ) runType[ism-1] = physics;
-            if ( runtype == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-                 runtype == EcalDCCHeaderBlock::TESTPULSE_GAP ) runType[ism-1] = testpulse;
-            if ( runtype == EcalDCCHeaderBlock::LASER_STD ||
-                 runtype == EcalDCCHeaderBlock::LASER_GAP ) runType[ism-1] = laser;
-            if ( runtype == EcalDCCHeaderBlock::PEDESTAL_STD ||
-                 runtype == EcalDCCHeaderBlock::PEDESTAL_GAP ) runType[ism-1] = pedestal;
+      if ( runtype == EcalDCCHeaderBlock::COSMIC ||
+           runtype == EcalDCCHeaderBlock::MTCC ||
+           runtype == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           runtype == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           runtype == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           runtype == EcalDCCHeaderBlock::PHYSICS_LOCAL ) runType[ism-1] = physics;
+      if ( runtype == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           runtype == EcalDCCHeaderBlock::TESTPULSE_GAP ) runType[ism-1] = testpulse;
+      if ( runtype == EcalDCCHeaderBlock::LASER_STD ||
+           runtype == EcalDCCHeaderBlock::LASER_GAP ) runType[ism-1] = laser;
+      if ( runtype == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           runtype == EcalDCCHeaderBlock::PEDESTAL_GAP ) runType[ism-1] = pedestal;
 
     }
 
