@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <fstream>
 #include <boost/lexical_cast.hpp>
 #include <TTree.h>
 #include <TF1.h>
@@ -26,10 +27,18 @@ class LA_Filler_Fitter {
 
   LA_Filler_Fitter& setMaxEvents(Long64_t max) {maxEvents=max; return *this;}
   LA_Filler_Fitter& fill(TTree*, Book&);
-  static void fit(Book& book) {make_and_fit_ratio(book); make_and_fit_profile(book,"-tanLA");}
+  static void fit(Book& book) { make_and_fit_ratio(book); make_and_fit_profile(book,"-tanLA"); }
   static void make_and_fit_ratio(Book&);
   static void make_and_fit_profile(Book&, const std::string&);
-  static std::map<std::string, TGraphErrors*> harvest_samples(const Book&);
+
+  struct Result { 
+    float reco,measure,recoErr,measureErr,chi2,field; 
+    unsigned ndof,entries; 
+    Result() : reco(0), measure(0), recoErr(0), measureErr(0), chi2(0), field(0), ndof(0), entries(0) {}
+  };
+  static std::map<std::string, std::vector<Result> > harvest_results(const Book&);
+  static TGraphErrors* tgraphe(const std::vector<Result>&);
+  static void print_to_file(std::string, const std::vector<Result>&);
 
  private:
 
@@ -44,9 +53,6 @@ class LA_Filler_Fitter {
   double tanLA_low, tanLA_up;
   bool bySub, byLayer, byModule, byPitch, summary;
   Long64_t maxEvents;
-
-  struct Point { float x,y,xerr,yerr; Point(){}};
-  static TGraphErrors* tgraphe(const std::vector<Point>& vpoints);
 
 };
 
@@ -123,10 +129,10 @@ make_and_fit_ratio(Book& book) {
     std::string all_name = width1.name();      all_name.replace( all_name.find("width1"),6,"all");
     std::string ratio_name = width1.name();  ratio_name.replace( ratio_name.find("width1"),6,"ratio");
     book.book(ratio_name, (TH1*) book(width1.name())->Clone(ratio_name.c_str()))->Divide(book(all_name));
-    book(ratio_name)->Fit("gaus");
+    book(ratio_name)->Fit("gaus","Q");
     double mean = book(ratio_name)->GetFunction("gaus")->GetParameter(1);
     double sigma = book(ratio_name)->GetFunction("gaus")->GetParameter(2);
-    book(ratio_name)->Fit("gaus","IMQ","",mean-sigma,mean+sigma);
+    book(ratio_name)->Fit("gaus","IMEQ","",mean-sigma,mean+sigma);
   }
 }
 
@@ -135,62 +141,84 @@ make_and_fit_profile(Book& book, const std::string& key) {
   for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
     std::string name = hist2D.name()+"_profile";
     TH1* p = book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
-    TF1* fit = new TF1("fitfunc","[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
-    fit->SetParameters( p->GetBinCenter(p->GetMinimumBin()),
-		       ( p->GetMaximum() - p->GetMinimum() ) / fabs(p->GetBinCenter(p->GetMaximumBin()) - p->GetBinCenter(p->GetMinimumBin())),
-			p->GetMinimum() );
-    fit->SetParLimits(0,-0.15,0.05);
-    fit->SetParLimits(2, 0.6*p->GetMinimum(), 1.2* p->GetMinimum() );
-    book(name)->Fit(fit,"IMQ");
+    float min = p->GetMinimum();
+    float max = p->GetMaximum();
+    float xofmin = p->GetBinCenter(p->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
+    float xofmax = p->GetBinCenter(p->GetMaximumBin());
+
+    TF1* fit = new TF1("LA_profile_fit","[2]*(TMath::Abs(x-[0]))+[1]",-1,1);
+    fit->SetParLimits(0,-0.15,0.01);
+    fit->SetParLimits(1, 0.6*min, 1.25*min );
+    fit->SetParLimits(2,0.1,10);
+    fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
+    p->Fit(fit,"IMEQ");
+    if( p->GetFunction("LA_profile_fit")->GetChisquare() / p->GetFunction("LA_profile_fit")->GetNDF() > 5 ||
+	p->GetFunction("LA_profile_fit")->GetParError(0) > 0.03) 
+      p->Fit(fit,"IMEQ");
   }
 }
 
-std::map<std::string, TGraphErrors*> LA_Filler_Fitter::
-harvest_samples(const Book& book) {
-  typedef std::map<std::string, std::vector<Point> > harvest_t;
-
-  harvest_t harvest;
+std::map<std::string, std::vector<LA_Filler_Fitter::Result> > LA_Filler_Fitter::
+harvest_results(const Book& book) {
+  std::map<std::string, std::vector<Result> > harvest;
   for(Book::const_iterator sample = book.begin(".*_sample.*"); sample!=book.end(); ++sample ) {
-
-    Point p;
+    Result p;
 
     if( sample.name().find("ratio") != std::string::npos ) {
-      p.y = (*sample)->GetFunction("gaus")->GetParameter(1);
-      p.yerr = (*sample)->GetFunction("gaus")->GetParError(1);
+      p.measure = (*sample)->GetFunction("gaus")->GetParameter(1);
+      p.measureErr = (*sample)->GetFunction("gaus")->GetParError(1);
+      p.chi2 = (*sample)->GetFunction("gaus")->GetChisquare();
+      p.ndof = (*sample)->GetFunction("gaus")->GetNDF();
     } else 
     if( sample.name().find("profile") != std::string::npos ) {
-      p.y = (*sample)->GetFunction("fitfunc")->GetParameter(0);
-      p.yerr = (*sample)->GetFunction("fitfunc")->GetParError(0);
+      p.measure = (*sample)->GetFunction("LA_profile_fit")->GetParameter(0);
+      p.measureErr = (*sample)->GetFunction("LA_profile_fit")->GetParError(0);
+      p.chi2 = (*sample)->GetFunction("LA_profile_fit")->GetChisquare();
+      p.ndof = (*sample)->GetFunction("LA_profile_fit")->GetNDF();
     } else continue;
 
     std::string s = sample.name();
     std::string reconame = s.substr(0, s.find("_", s.find("sample")) ) + "_reconstruction";
+    std::string fieldname = s.substr(0, s.find("_", s.find("sample")) ) + "_field";
     std::string name = "graph_"+s.substr(1+s.find("_",s.find("recoLA")));
     name.erase(name.find("_sample"),name.find("_",name.find("sample"))-name.find("_sample"));
 
-    p.x = book(reconame)->GetMean();
-    p.xerr = book(reconame)->GetRMS();
+    p.reco = book(reconame)->GetMean();
+    p.recoErr = book(reconame)->GetRMS();
+    p.entries = (unsigned)((*sample)->GetEntries());
+    p.field = book(fieldname)->GetMean();
     harvest[name].push_back(p);
   }
-  
-  std::map<std::string, TGraphErrors*> harvest_graphs;
-  for(harvest_t::const_iterator it = harvest.begin(); it!=harvest.end(); ++it) {
-    std::cout << it->first << std::endl;
-    harvest_graphs[it->first] = tgraphe(it->second);
-  }
-
-  return harvest_graphs;
+  return harvest;
 }
 
 TGraphErrors* LA_Filler_Fitter::
-tgraphe(const std::vector<Point>& vpoints) {
+tgraphe(const std::vector<Result>& vpoints) {
   std::vector<float> x,y,xerr,yerr;
-  BOOST_FOREACH(Point p, vpoints) {
-    x.push_back(p.x);
-    y.push_back(p.y);
-    xerr.push_back(p.xerr);
-    yerr.push_back(p.yerr);
-    std::cout << p.x << "(" << p.xerr << ")\t" << p.y << "(" << p.yerr << ")" << std::endl;
+  BOOST_FOREACH(const Result& p, vpoints) {
+    if( p.chi2 / p.ndof < 10 ) {
+      x.push_back(p.reco);
+      y.push_back(p.measure);
+      xerr.push_back(p.recoErr);
+      yerr.push_back(p.measureErr);
+    }
   }
-  return new TGraphErrors(vpoints.size(), &(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
+  return new TGraphErrors(x.size(), &(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
+}
+
+void LA_Filler_Fitter::
+print_to_file(std::string filename, const std::vector<Result>& results) {
+  fstream file(filename.c_str(),std::ios::out);
+  file << "#reco\trecoErr\tmeasure\tmeasureErr\tchi2\tndof\tentries\tfield" << std::endl;
+  BOOST_FOREACH(const Result& r, results) {
+    file << r.reco       << "\t" 
+	 << r.recoErr    << "\t"
+	 << r.measure    << "\t"
+	 << r.measureErr << "\t"
+	 << r.chi2       << "\t"
+	 << r.ndof       << "\t"
+	 << r.entries    << "\t"
+	 << r.field      << std::endl;
+  }
+  file.close();
 }
