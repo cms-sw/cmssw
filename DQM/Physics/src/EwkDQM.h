@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/22 15:00:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/08/12 21:32:54 $
+ *  $Revision: 1.6 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -58,6 +58,7 @@ class EwkDQM : public edm::EDAnalyzer {
   edm::InputTag theCaloMETCollectionLabel;
 
   // Histograms
+  MonitorElement* h_vertex_number;
   MonitorElement* h_vertex_chi2;
   MonitorElement* h_vertex_d0;
   MonitorElement* h_vertex_numTrks;
