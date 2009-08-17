@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.39 2009/07/20 19:31:07 loizides Exp $
+# $Id: setup_sm.sh,v 1.40 2009/07/23 08:28:55 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -125,7 +125,7 @@ startcopymanager () {
     local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
 
     if test "$hname" != "$cmhost"; then
-        echo "This host is not configured to by CopyManager: $hname != $cmhost"
+        echo "This host is not configured to be THE CopyManager: $hname != $cmhost"
         return;
     fi
 
@@ -166,7 +166,7 @@ start () {
                 fi
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
 
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
@@ -273,7 +273,7 @@ stop () {
                 fi
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
             stopworkers
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
@@ -329,7 +329,7 @@ status () {
                 printmstat $i $sn
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
                 printmstat $i $sn
@@ -418,7 +418,7 @@ case "$1" in
 	RETVAL=$?
 	;;
     *)
-	echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy}"
+	echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy|startmanager|stopmanager|statusmanager}"
 	RETVAL=1
 	;;
 esac
