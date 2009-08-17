@@ -919,20 +919,6 @@ void CSCEfficiency::chamberCandidates(int station, int ring, float phi, std::vec
 bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscChamber, FreeTrajectoryState &ftsChamber){
   int ec, st, rg, ch, secondRing;
   returnTypes(id, ec, st, rg, ch, secondRing);
-  
-  // Segments
-  bool firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
-  bool secondCondition = false;
-  //---- ME1 is special as usual - ME1a and ME1b are actually one chamber
-  if(secondRing>-1){
-    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
-  }
-  if(firstCondition || secondCondition){
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(1);
-  }
-  else{
-    ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(0);
-  }
 
   LocalVector localDir = cscChamber->toLocal(ftsChamber.momentum());
   if(printalot){
@@ -951,14 +937,34 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
   if(printalot){
     std::cout<<"dy/dz = "<<dydz<<std::endl;
   }
-  bool missingALCT = false;
-  bool missingCLCT = false;
-  bool out = false;
+  // Apply angle cut
+  bool out = true;
   if(applyIPangleCuts){
-    if(dydz<local_DY_DZ_Max && dydz>local_DY_DZ_Min && fabs(dxdz)<local_DX_DZ_Max){ 
-      out = true;
+    if(dydz>local_DY_DZ_Max || dydz<local_DY_DZ_Min || fabs(dxdz)>local_DX_DZ_Max){ 
+      out = false;
     }
   }
+
+  // Segments
+  bool firstCondition = allSegments[ec][st][rg][ch].size() ? true : false;
+  bool secondCondition = false;
+  //---- ME1 is special as usual - ME1a and ME1b are actually one chamber
+  if(secondRing>-1){
+    secondCondition = allSegments[ec][st][secondRing][ch].size() ? true : false;
+  }
+  if(firstCondition || secondCondition){
+    if(out){
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(1);
+    }  
+  }
+  else{
+    if(out){
+      ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(0);
+    } 
+  }
+
+  bool missingALCT = false;
+  bool missingCLCT = false;
   if(useDigis){
     // ALCTs
     firstCondition = allALCT[ec][st][rg][ch];
