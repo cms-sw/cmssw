@@ -92,7 +92,7 @@ RectangularCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(RectangularCartesianMFGrid)"];
 //   TimeMe t(timer,false);
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
   GridType::ValueType value = interpol.interpolate( p.x(), p.y(), p.z());
   return LocalVector(value);
 }

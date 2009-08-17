@@ -89,7 +89,7 @@ MFGrid::LocalVector SpecialCylindricalMFGrid::uncheckedValueInTesla( const Local
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(SpecialCylindricalMFGrid)"];
 //   TimeMe t(timer,false);
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
   double a, b, c;
   toGridFrame( p, a, b, c);
   // the following holds if B values was not converted to local coords -- see ctor

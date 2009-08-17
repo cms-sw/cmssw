@@ -96,7 +96,7 @@ MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const L
     }
   }
   
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
   // FIXME: "OLD" convention of phi.
   // GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
   GridType::ValueType value = interpol.interpolate( R, p.phi(), p.z());

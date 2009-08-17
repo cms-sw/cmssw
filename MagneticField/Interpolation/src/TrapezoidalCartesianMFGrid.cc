@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/08/11 07:10:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/08/17 09:06:05 $
+ *  $Revision: 1.6 $
  *  \author T. Todorov - updated N. Amapane (2008)
  */
 
@@ -238,7 +238,7 @@ MFGrid::LocalVector TrapezoidalCartesianMFGrid::uncheckedValueInTesla( const Loc
 //   cout << p.x() << " " << p.y()  
 //        << " transformed to grid frame: " << xrec << " " << yrec << endl;
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
 
   if (!increasingAlongX) {
     std::swap(xrec,yrec);

@@ -5,12 +5,13 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2009/08/17 09:06:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/08/17 09:14:02 $
+ *  $Revision: 1.4 $
  *  \author T. Todorov 
  */
 
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
@@ -18,16 +19,16 @@ using namespace std;
 #include "MagneticField/Interpolation/src/InterpolationDebug.h"
 #endif
 
-template <class Value, class T>
 class LinearGridInterpolator3D {
 public:
 
-  typedef T  Scalar;
+  typedef Basic3DVector<float> ValueType;
+  typedef double  Scalar;
 
   LinearGridInterpolator3D( const Grid3D& g) :
     grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
 
-  Value interpolate( Scalar a, Scalar b, Scalar c) {
+  ValueType interpolate( Scalar a, Scalar b, Scalar c) {
     int i = grida.index(a);
     int j = gridb.index(b);
     int k = gridc.index(c);
@@ -69,7 +70,7 @@ public:
 
 #endif
 
-    Value result = 
+    ValueType result = 
       (1-s)*(1-t)*(1-u)*grid(i,  j,  k) + (1-s)*(1-t)*u*grid(i,  j,  k+1) + 
       (1-s)*   t *(1-u)*grid(i,  j+1,k) + (1-s)*   t *u*grid(i,  j+1,k+1) +
       s    *(1-t)*(1-u)*grid(i+1,j,  k) + s    *(1-t)*u*grid(i+1,j,  k+1) + 

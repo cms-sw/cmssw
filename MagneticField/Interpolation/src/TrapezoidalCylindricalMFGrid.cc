@@ -137,7 +137,7 @@ TrapezoidalCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(TrapezoidalCylindricalMFGrid)"];
 //   TimeMe t(timer,false);
 
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
+  LinearGridInterpolator3D interpol( grid_);
   double a, b, c;
   toGridFrame( p, a, b, c);
   GlobalVector gv( interpol.interpolate( a, b, c)); // grid in global frame
