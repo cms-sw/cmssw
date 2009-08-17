@@ -3,4 +3,6 @@
 <class name="edm::Wrapper<reco::EvtPlane>"/>
 <class name="reco::Centrality"/>
 <class name="edm::Wrapper<reco::Centrality>"/>
+<class name="pat::HeavyIon" />
+<class name="edm::Wrapper<pat::HeavyIon >" />
 </lcgdict>
