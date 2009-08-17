@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.15 2009/07/06 16:08:41 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.16 2009/07/09 14:50:49 kodolova Exp $
 //
 //
  
@@ -104,7 +104,7 @@ using namespace std;
 namespace cms{
 HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::EventSetup& es1)
 {
-
+   
    L2candTag_          = ps1.getParameter< edm::InputTag > ("L2CandTag");
    rphirecHitsTag      = ps1.getParameter< edm::InputTag > ("rphiRecHits");
    builderName         = ps1.getParameter< std::string >   ("TTRHBuilder");
@@ -114,45 +114,8 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
    std::cout<<" Start HI TrackVertexMaker constructor "<<std::endl;
 #endif
    pset_ = ps1;
-
-//
-// Initializetion from Records
-    es1.get<TrackerRecoGeometryRecord>().get( tracker );
-    es1.get<IdealMagneticFieldRecord>().get(magfield);
-    es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
-    es1.get<TransientRecHitRecord>().get(builderName,recHitBuilderHandle); 
-       
-    double theChiSquareCut = 500.;
-    double nsig = 3.;
-//    int theLowMult = 1;
-    theEstimator = new HICMeasurementEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
-    std::string updatorName = "KFUpdator";
-    std::string propagatorAlongName    = "PropagatorWithMaterial";
-    std::string propagatorOppositeName = "PropagatorWithMaterialOpposite";
-    es1.get<TrackingComponentsRecord>().get(propagatorAlongName,propagatorAlongHandle);
-    es1.get<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
-    es1.get<TrackingComponentsRecord>().get(updatorName,updatorHandle);
-    double ptmin=1.;
-    theMinPtFilter = new MinPtTrajectoryFilter(ptmin); 
-    theTrajectoryBuilder = new HICTrajectoryBuilder(        pset_, es1,
-                                                     updatorHandle.product(),
-                                                     propagatorAlongHandle.product(),
-                                                     propagatorOppositeHandle.product(),
-                                                     theEstimator,
-                                                     recHitBuilderHandle.product(),
-                                                     measurementTrackerHandle.product(),
-                                                     theMinPtFilter);
-// Fill vector of navigation schools for barrel
-   int lost=-1;
-   int lostf=-1;
-   theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, lostf));  
-   for(int i=11;i>-1;i--) {
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), i, lostf));
-   } 
-   lost=-1;    
-   for(int i=12;i>-1;i--) {
-     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, i));
-   }
+   std::cout<<" No initialization "<<std::endl;
+   eventCount = 0;
 #ifdef DEBUG
     std::cout<<" HICTrajectoryBuilder constructed "<<std::endl;
 #endif
@@ -164,22 +127,36 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
 HITrackVertexMaker::~HITrackVertexMaker()
 {
+//  std::cout<<" HITrackVertexMaker::destructor "<<std::endl;
 } 
 
 bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSetup& es1, HICConst* theHICConst, FmpConst* theFmpConst)
 {
     
    bool dimuon = false;
+   
+   edm::Handle<RecoChargedCandidateCollection> L2mucands;
+//   edm::Handle<TrackCollection> L2mucands;
+   e1.getByLabel (L2candTag_,L2mucands);
+      
+#ifdef DEBUG
+   cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
+   if( L2mucands->size() < 2 ) cout<<"L2 muon failed"<<endl;
+#endif
+
+   if( L2mucands->size() < 2 ) return dimuon;
+   
+#ifdef DEBUG
+   cout<<"L2 muon accepted"<<endl;
+#endif
+//   std::cout<<" Just do nothing for L3 but initiate ESHandles "<<std::endl;
    edm::Handle<reco::VertexCollection> vertexcands;
    e1.getByLabel (primaryVertexTag,vertexcands);
-   int iv = 0;
 
 #ifdef DEBUG   
    cout<<" Number of vertices primary  "<<vertexcands->size()<<endl;
    if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
 #endif
-
-//   if(vertexcands->size()<1) cout<<" Primary vertex failed "<<endl;
 
    if(vertexcands->size()<1) return dimuon;
 
@@ -188,6 +165,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #endif
    
 
+   int iv = 0;
    for (reco::VertexCollection::const_iterator ipvertex=vertexcands->begin();ipvertex!=vertexcands->end();ipvertex++)
    {
 //     cout<<" Vertex position from pixels "<<(*ipvertex).position().z()<<endl;
@@ -196,68 +174,95 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    } 
 
 //   cout << " Vertex is set to (found by pixel finder)"<<theHICConst->zvert<<endl;
- 
-//
-// Get recHit builder
-//
+   
+   eventCount++;
+// ============================ Event accepted for L3   
+// Initialization from Records
+// 
+   std::string updatorName = "KFUpdator";
+   std::string propagatorAlongName    = "PropagatorWithMaterial";
+   std::string propagatorOppositeName = "PropagatorWithMaterialOpposite";
+   double theChiSquareCut = 500.;
+   double nsig = 3.;
+   double ptmin=1.;
 
-  es1.get<TransientRecHitRecord>().get(builderName,recHitBuilderHandle);
+  
+   edm::ESHandle<MagneticField>                  magfield;
+   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
+   edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
+   edm::ESHandle<GeometricSearchTracker>         tracker; 
+   edm::ESHandle<Propagator>                     propagatorAlongHandle;
+   edm::ESHandle<Propagator>                     propagatorOppositeHandle;
+   edm::ESHandle<TrajectoryStateUpdator>         updatorHandle;
 
-//
-// Get measurement tracker
-//
-//  
- 
-  es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
+   es1.get<TrackerRecoGeometryRecord>().get( tracker );
+   es1.get<IdealMagneticFieldRecord>().get(magfield);
+   es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
+   es1.get<TransientRecHitRecord>().get(builderName,recHitBuilderHandle); 
+   es1.get<TrackingComponentsRecord>().get(propagatorAlongName,propagatorAlongHandle);
+   es1.get<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
+   es1.get<TrackingComponentsRecord>().get(updatorName,updatorHandle);
+
+// Initialization of navigation school
+
+   if(eventCount == 1) {
+
+   int lost=-1;
+   int lostf=-1;
+   theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, lostf)); 
+   for(int i=11;i>-1;i--) {
+     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), i, lostf));
+   } 
+   lost=-1;    
+   for(int i=12;i>-1;i--) {
+     theNavigationSchoolV.push_back(new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost, i));
+   }
+
+   } // initialization at the first event
+       
     
-#ifdef DEBUG  
-  std::cout<<" Before first tracker update "<<std::endl;
-#endif
 
+   MinPtTrajectoryFilter theMinPtFilter(ptmin);
+   HICMeasurementEstimator theEstimator(&(*tracker), &(*magfield), theChiSquareCut, nsig);
+   
+   
+   HICTrajectoryBuilder theTrajectoryBuilder(        pset_, es1,
+                                                     updatorHandle.product(),
+                                                     propagatorAlongHandle.product(),
+                                                     propagatorOppositeHandle.product(),
+                                                     &theEstimator,
+                                                     recHitBuilderHandle.product(),
+                                                     measurementTrackerHandle.product(),
+                                                     &theMinPtFilter);
+
+   
+
+
+ 
   measurementTrackerHandle->update(e1);
   
 #ifdef DEBUG
   std::cout<<" After first tracker update "<<std::endl;
 #endif
 
-   edm::Handle<RecoChargedCandidateCollection> L2mucands;
-//   edm::Handle<TrackCollection> L2mucands;
-   e1.getByLabel (L2candTag_,L2mucands);
-//   RecoChargedCandidateCollection::const_iterator L2cand1;
-//   RecoChargedCandidateCollection::const_iterator L2cand2;
-      
-#ifdef DEBUG
-   cout<<" Number of muon candidates "<<L2mucands->size()<<endl;
-   if( L2mucands->size() < 2 ) cout<<"L2 muon failed"<<endl;
-#endif
-
-   if( L2mucands->size() < 2 ) return dimuon;
-
-#ifdef DEBUG
-   cout<<"L2 muon accepted"<<endl;
-#endif
 
 // For trajectory builder   
    int  theLowMult = 1;
-   theEstimator->setHICConst(theHICConst);
-   theEstimator->setMult(theLowMult);
-//   int lost=-1;
-//   theNavigationSchool = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
-//   lost=10;
-//   theNavigationSchooln = new HICSimpleNavigationSchool(&(*tracker), &(*magfield), lost);
-   theTrajectoryBuilder->settracker(measurementTrackerHandle.product());
+   theEstimator.setHICConst(theHICConst);
+   theEstimator.setMult(theLowMult);
+
+
+   theTrajectoryBuilder.settracker(measurementTrackerHandle.product());
+   
 //============================   
-    FastMuPropagator* theFmp = new FastMuPropagator(&(*magfield),theFmpConst); 
-    StateOnTrackerBound state(theFmp); 
+//    FastMuPropagator* theFmp = new FastMuPropagator(&(*magfield),theFmpConst); 
+//    StateOnTrackerBound state(theFmp);  
+      
+    FastMuPropagator theFmp(&(*magfield),theFmpConst);
+    StateOnTrackerBound state(&theFmp); 
+
     TrajectoryStateOnSurface tsos;
     
-#ifdef DEBUG   
-//   for (cand1=L2mucands->begin(); cand1!=L2mucands->end(); cand1++) {
-//     reco::TrackRef mytr = (*cand1).track(); 
-//      std::cout<<" Inner position "<<(*mytr).innerPosition().x()<<" "<<(*mytr).innerPosition().y()<<" "<<(*mytr).innerPosition().z()<<std::endl;
-//
-//   } 
-#endif 
   
     HICFTSfromL1orL2 vFts(&(*magfield));
     
@@ -362,13 +367,13 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
 #endif
 
-	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed); 
+	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder.trajectories(*iseed); 
     
 #ifdef DEBUG
         cout<<" Number of found trajectories "<<theTmpTrajectories.size()<<endl;	 
 #endif
         if(theTmpTrajectories.size()>0) {
-//	allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+
         theTmpTrajectories0.insert(theTmpTrajectories0.end(),
                                    theTmpTrajectories.begin(),
                                    theTmpTrajectories.end());
@@ -387,8 +392,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     }
    } // seedlayer
 
-
-
     if( theTmpTrajectories0.size() > 0 ) {
 #ifdef DEBUG
         std::cout<<"We found trajectories for at least one seed "<<theTmpTrajectories0.size()
@@ -404,6 +407,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
                    "try second path"<<std::endl; 
 #endif
 
+   
 // No trajectories found for this Muon FTS although seeds exist. 
 // Try to allow another trajectory map with lost 1 layer (only for barrel layers)
 
@@ -426,10 +430,10 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
                                                            iseed!=seeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
+         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder.trajectories(*iseed);
 
          if(theTmpTrajectories.size()>0) {
-//	 allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+
          theTmpTrajectories0.insert(theTmpTrajectories0.end(),
                                     theTmpTrajectories.begin(),
                                     theTmpTrajectories.end());
@@ -456,10 +460,10 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
                                                            iseed!=seeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
+         vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder.trajectories(*iseed);
 
          if(theTmpTrajectories.size()>0) {
-//	 allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+
          theTmpTrajectories0.insert(theTmpTrajectories0.end(),
                                     theTmpTrajectories.begin(),
                                     theTmpTrajectories.end());
@@ -526,14 +530,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 
 
     reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
-
-//    edm::ESHandle<TrajectoryFitter> theFitterTrack;
-//    edm::ESHandle<TrajectorySmoother> theSmootherTrack;
-//    edm::ESHandle<Propagator> thePropagatorTrack;
-//    es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
-//    es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
-//    es1.get<TrackingComponentsRecord>().get("SmartPropagatorAny",thePropagatorTrack);
-//    enum RefitDirection{insideOut,outsideIn,undetermined};
 
 // For trajectory refitting
         vector<reco::Track> firstTrack;
@@ -640,10 +636,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
            secondTransTracks.push_back( tmpTk );
         }
         if( secondTrack.size() == 0 ) continue;
-        //cout<<" Number of tracks first "<<firstTrack.size()<<" second "<<secondTrack.size()<<endl;
-// Try to reconstruct vertex
-
-
 
     } // FTS
   } // FTS 
@@ -702,11 +694,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
      double quality = theRecoVertex.normalisedChiSquared();
      std::vector<reco::TransientTrack> tracks = theRecoVertex.originalTracks();
      
-//     vector<TransientTrack> refittedTrax;
-//     if( theRecoVertex.hasRefittedTracks() ) {
-//          refittedTrax = theRecoVertex.refittedTracks();
-//     }
-
      for (std::vector<reco::TransientTrack>::iterator ivb = tracks.begin(); ivb != tracks.end(); ivb++)
      {
       quality = quality * (*ivb).chi2() /(*ivb).ndof();
@@ -723,19 +710,6 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
       if(dimuon) break; 
   } // iplus
 
-       
-/*
-       if( theVertexContainer.size() < 1 ) { 
-#ifdef DEBUG
-        std::cout<<" No vertex found in event "<<std::endl; 
-#endif
-       return dimuon; 
-       } else {
-          // cout<<" Event vertex is selected "<<endl;
-       }
-
-    dimuon = true;
-*/
     return dimuon;
 
 } 

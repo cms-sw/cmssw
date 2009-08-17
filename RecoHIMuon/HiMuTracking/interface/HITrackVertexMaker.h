@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.h,v 1.3 2008/09/14 12:25:19 kodolova Exp $
+// $Id: HITrackVertexMaker.h,v 1.4 2009/06/22 15:53:59 kodolova Exp $
 //
 //
 
@@ -77,27 +77,15 @@ class HITrackVertexMaker {
 
    private:
 
-//  edm::InputTag                                 STAcandTag_;
-//  edm::InputTag                                 L1candTag_;
+  int                                           eventCount;
   edm::InputTag                                 L2candTag_; 
   edm::InputTag                                 rphirecHitsTag;
   edm::InputTag                                 primaryVertexTag;
 
   edm::ParameterSet                             pset_;
   std::string                                   builderName;
+  std::vector<const NavigationSchool*>          theNavigationSchoolV;   
 
-  edm::ESHandle<MagneticField>                  magfield;
-  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-  edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
-  edm::ESHandle<GeometricSearchTracker>         tracker;  
-  std::vector<const NavigationSchool*>          theNavigationSchoolV;
-  HICTrajectoryBuilder*                         theTrajectoryBuilder; 
-  MinPtTrajectoryFilter*                        theMinPtFilter;  
-  HICMeasurementEstimator*                      theEstimator;
-
-  edm::ESHandle<Propagator>             propagatorAlongHandle;
-  edm::ESHandle<Propagator>             propagatorOppositeHandle;
-  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
 };
 }
 #endif
