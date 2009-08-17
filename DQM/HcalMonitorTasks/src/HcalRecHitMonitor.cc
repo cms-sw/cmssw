@@ -381,6 +381,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	  //Looping over HB searching for flags --- cris
 	  for (int f=0;f<32;f++)
 	    {
+	      // Let's display HSCP just to see if tese bits are set
+	      /*
 	       if(f == HcalCaloFlagLabels::HSCP_R1R2)
 		continue;
               if(f == HcalCaloFlagLabels::HSCP_FracLeader)
@@ -389,7 +391,7 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
                 continue;
               if(f == HcalCaloFlagLabels::HSCP_ExpFit)
                 continue;
-
+	      */
 	      if (HBHEiter->flagField(f))
 		HBflagcounter_[f]++;
 	      

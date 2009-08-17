@@ -1316,6 +1316,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
       for (int eta=0;eta<etabins;++eta)
 	{
 	  ieta=CalcIeta(eta,depth+1);
+	  if (ieta==-9999) continue;
 	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      		  
@@ -1337,8 +1338,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      if (problemvalue==0) continue;
 	      iphi=phi+1;
 	      zside=0;
-	      if (ieta==-9999) continue;
-
+	  
 	      if (depth<2)
 		{
 		  if (isHF(eta,depth+1))
@@ -1368,7 +1368,6 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
 	}
     }
-  
   ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
   ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
   ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);

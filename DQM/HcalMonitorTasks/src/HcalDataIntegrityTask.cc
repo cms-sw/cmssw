@@ -213,6 +213,6 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   fedEntries_->Fill(dccid);
 
   return;
-} // void HcalDataIntegrityTask::unpack(
+} // void HcalDataIntegrityTask::unpack()
 
 
