@@ -8,8 +8,9 @@ MFGrid::LocalVector MFGrid3D::valueInTesla( const LocalPoint& p) const
     return uncheckedValueInTesla( p);
   }
   catch ( GridInterpolator3DException& outside) {
-    LocalPoint lower = fromGridFrame( outside.a1_, outside.b1_, outside.c1_);
-    LocalPoint upper = fromGridFrame( outside.a2_, outside.b2_, outside.c2_);
+    double *limits = outside.limits();
+    LocalPoint lower = fromGridFrame( limits[0], limits[1], limits[2]);
+    LocalPoint upper = fromGridFrame( limits[3], limits[4], limits[5]);
     throw MagVolumeOutsideValidity( lower, upper);
   }
 
