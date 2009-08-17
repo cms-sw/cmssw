@@ -34,10 +34,15 @@ hltpostvalidation_fastsim = cms.Sequence(
     +SusyExoPostVal
     )
 
-hltpostvalidation_prod = cms.Sequence( 
-     HLTTauPostVal
+hltpostvalidation_preprod = cms.Sequence( 
+    HLTTauPostVal
     +HLTTopPostVal
     +hltriggerFourVectorClient
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
-)
+    )
+
+hltpostvalidation_prod = cms.Sequence( 
+    hltriggerFourVectorClient
+    )
+

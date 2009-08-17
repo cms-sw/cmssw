@@ -40,7 +40,7 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTSusyExoValSeq_FastSim
     )
 
-hltvalidation_prod = cms.Sequence(
+hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +HLTTopVal
   +HLTFourVector
@@ -48,6 +48,9 @@ hltvalidation_prod = cms.Sequence(
   +HLTSusyExoValSeq
   )
 
+hltvalidation_prod = cms.Sequence(
+  HLTFourVector
+  )
 
 trigdqm_forValidation = cms.Sequence(
     hltMonTauReco+HLTTauDQMOffline
