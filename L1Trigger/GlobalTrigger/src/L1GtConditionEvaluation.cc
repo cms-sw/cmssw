@@ -20,6 +20,7 @@
 // system include files
 #include <iostream>
 #include <iomanip>
+#include <iterator>
 
 // user include files
 
