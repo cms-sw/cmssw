@@ -8,15 +8,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reader")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
-    NoisesReader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('UnitTestReader.log')
+process.MessageLogger = cms.Service("MessageLogger", 
+    debugModules = cms.untracked.vstring(''), 
+    destinations = cms.untracked.vstring('UnitTestReader') 
 )
 
 process.maxEvents = cms.untracked.PSet(

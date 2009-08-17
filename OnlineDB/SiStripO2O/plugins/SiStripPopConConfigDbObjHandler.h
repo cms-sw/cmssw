@@ -89,7 +89,7 @@ namespace popcon{
     bool isTransferNeeded(){
 
 
-      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[isTransferNeeded] checking for transfer : typeid " <<   std::endl;
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[isTransferNeeded] checking for transfer: " << typeid(T).name()  <<   std::endl;
       std::stringstream ss_logdb, ss;
 
       //get log information from previous upload
@@ -101,6 +101,9 @@ namespace popcon{
       std::string label="";
       if(typeid(T)==typeid(SiStripFedCabling))
 	label="Cabling";
+
+      if(typeid(T)==typeid(SiStripApvGain))
+	label="ApvTiming";
 
       if(!condObjBuilder->checkForCompatibility(ss_logdb,ss,label)){
 	//string are equal, no need to do transfer
