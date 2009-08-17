@@ -306,26 +306,26 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       //    meEnConeEtaProfiel_depth1->Fill(eta_RecHit, HcalCone_d1);
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth1");
-      meEnConeEtaProfile_depth1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);   
+      meEnConeEtaProfile_depth1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);   
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth2");
-      meEnConeEtaProfile_depth2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile_depth2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth3");
-      meEnConeEtaProfile_depth3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile_depth3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth4");
-      meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41.,        2100, -100., 2000.);  
 
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41.,      2100, -100., 2000.);  
 
 
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
+      meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41.,     2100, -100., 2000.);  
 
 
     }
