@@ -37,6 +37,8 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   string nameRoll = RPCname.name();
 
   
+
+  
   stringstream os;
   os.str("");
   os<<"Occupancy_"<<nameRoll;
@@ -103,19 +105,28 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
   myMe = dbe->get(WheelSummary+"/"+os.str());
   
+  rpcdqm::utils rpcUtils;
   //check if ME for this sector have already been booked
   if(myMe)  meMap[os.str()]=myMe;
   else {
-    if(detId.region()==0){
+    if(detId.region()==0) {
       if (detId.sector()==9 || detId.sector()==11)
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 15, 0.5, 15.5);
       else  if (detId.sector()==4) 
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
+      
+      for (int i = -3; i<3; i++) {
+	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, i);
+      }
+
     }else{//Endcap
-	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 32, 0.5, 32.5, 54, 0.5, 54.5);
-    }
+      meMap[os.str()] = dbe->book2D(os.str(), os.str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
+      for (int i = -3; i<3; i++) {
+	rpcUtils.labelYAxisRing(meMap[os.str()], 2);
+      }
+    } 
   }
   
   os.str("");
@@ -158,6 +169,14 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   os<<"1DOccupancy_"<<ringType<<"_"<<ring;
   if (region!=0)  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 6, 0.5, 6.5);
   else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
+  int sect=7;
+  if(region==0) sect=13;
+  for(int i=1; i<sect; i++) {
+    label.str("");
+    label<<"Sec"<<i;
+    cout<<label.str()<<endl;
+    meMap[os.str()] ->setBinLabel(i, label.str(), 1); // to be corrected !!!!
+  }
   
   if(region==0) {
     
