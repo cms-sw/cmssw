@@ -870,7 +870,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Add a photon is the energy excess is large enough
 	double resol = neutralHadronEnergyResolution(trackMomentum,pivotalRef->positionREP().Eta());
 	resol *= trackMomentum;
-	if ( neutralEnergy > nSigmaECAL_*resol ) {
+	if ( neutralEnergy > std::max(0.5,nSigmaECAL_*resol) ) {
 	  neutralEnergy /= slopeEcal;
 	  unsigned tmpj = reconstructCluster( *pivotalRef, neutralEnergy ); 
 	  (*pfCandidates_)[tmpj].setEcalEnergy( neutralEnergy );
@@ -2347,7 +2347,6 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   default:
     assert(0);
   }
-
 
   // The pf candidate
   pfCandidates_->push_back( PFCandidate( charge, 
