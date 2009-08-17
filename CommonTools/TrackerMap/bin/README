@@ -4,7 +4,7 @@ Example on how to generate a tkmap starting from a list of
 Starting from a ascii file containing the list (dummy.txt) and from an empty tkmap.xml 
 run this awk script to create a new xml tkmap
  
-awk -f tkmap.awk dummy.txt tkmap_white.xml > ! dummy.xml
+awk -f tkmap.awk [optional vmin=value0 vmax=value1] dummy.txt tkmap_white.xml > ! dummy.xml
 
 -------------------------------------------------
 
