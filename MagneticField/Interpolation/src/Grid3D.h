@@ -5,8 +5,8 @@
  *
  *  Implementation of a 3D regular grid.
  *
- *  $Date: 2009/08/17 09:06:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/08/17 09:14:01 $
+ *  $Revision: 1.4 $
  *  \author T. Todorov
  */
 
@@ -23,8 +23,9 @@ public:
   Grid3D() {}
 
   Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
-	  const std::vector<ValueType>& data) : 
-    grida_(ga), gridb_(gb), gridc_(gc), data_(data) {
+	  std::vector<ValueType>& data) : 
+    grida_(ga), gridb_(gb), gridc_(gc) {
+     data_.swap(data);
      stride1_ = gridb_.nodes() * gridc_.nodes();
      stride2_ = gridc_.nodes();
   }
