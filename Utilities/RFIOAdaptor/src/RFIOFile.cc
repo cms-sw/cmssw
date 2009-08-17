@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <cstring>
+#include <vector>
 
 static double realNanoSecs (void)
 {

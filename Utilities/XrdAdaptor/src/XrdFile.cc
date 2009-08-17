@@ -1,6 +1,7 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <vector>
 
 XrdFile::XrdFile (void)
   : m_client (0),
