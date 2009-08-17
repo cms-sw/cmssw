@@ -19,7 +19,7 @@
 
 class SiStripApvGain {
 
-	public:
+ public:
 
   typedef std::vector<float>::const_iterator               ContainerIterator;  
   typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
@@ -28,13 +28,43 @@ class SiStripApvGain {
   typedef Registry::const_iterator                         RegistryConstIterator;
   typedef std::vector<float>                               InputVector;
 
+
+  struct RegistryPointers{
+    RegistryConstIterator detid_begin;
+    RegistryConstIterator detid_end;
+    RegistryConstIterator ibegin_begin;
+    RegistryConstIterator ibegin_end;
+    RegistryConstIterator iend_begin;
+    RegistryConstIterator iend_end;
+    ContainerIterator v_begin;
+    ContainerIterator v_end;
+
+    ContainerIterator getFirstElement(RegistryConstIterator& idet){return v_begin+*(ibegin_begin+(idet-detid_begin));} 
+    ContainerIterator getLastElement(RegistryConstIterator& idet){return v_begin+*(iend_begin+(idet-detid_begin));} 
+  };
+
   SiStripApvGain(){};
   ~SiStripApvGain(){};
+
+  RegistryPointers getRegistryPointers() const {
+    RegistryPointers p;
+    p.detid_begin=v_detids.begin();
+    p.detid_end=v_detids.end();
+    p.ibegin_begin=v_ibegin.begin();
+    p.ibegin_end=v_ibegin.end();
+    p.iend_begin=v_iend.begin();
+    p.iend_end=v_iend.end();
+    p.v_begin=v_gains.begin();
+    p.v_end=v_gains.end();
+
+    return p;
+}
+
   
   bool put(const uint32_t& detID, Range input);
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
-
+  
   float   getStripGain     (const uint16_t& strip, const Range& range) const;
   float   getApvGain  (const uint16_t& apv, const Range& range) const;
 

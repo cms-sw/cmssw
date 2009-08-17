@@ -263,3 +263,55 @@ void SiStripNoises::printSummary(std::stringstream& ss) const{
     ss << "Nstrips " << Nstrips << " \t; mean " << mean << " \t; rms " << rms << " \t; min " << min << " \t; max " << max << "\t " ; 
   }
 }
+
+std::vector<SiStripNoises::ratioData> SiStripNoises::operator / ( SiStripNoises d) {
+  std::vector<ratioData> result;
+  ratioData aData;
+
+  RegistryIterator iter=getRegistryVectorBegin();
+  RegistryIterator iterE=getRegistryVectorEnd();
+
+  //Divide result by d
+  for(;iter!=iterE;++iter){
+    float value;
+    //get noise from d
+    aData.detid=iter->detid;
+    aData.values.clear();
+    Range d_range=d.getRange(iter->detid);
+    Range range=Range(v_noises.begin()+iter->ibegin,v_noises.begin()+iter->iend);
+
+    size_t strip=0, stripE= (range.second-range.first)*8/9;
+    for (;strip<stripE;++strip){       
+      if(d_range.first==d_range.second){
+	value=50.;
+      }else{
+	value=getNoise(strip,range)/d.getNoise(strip,d_range);
+      }
+      aData.values.push_back(value);
+    }
+    result.push_back(aData);
+  }
+
+  iter=d.getRegistryVectorBegin();
+  iterE=d.getRegistryVectorEnd();
+
+  //Divide result by d
+  for(;iter!=iterE;++iter){
+    float value;
+    //get noise from d
+    Range range=this->getRange(iter->detid);
+    Range d_range=Range(d.v_noises.begin()+iter->ibegin,d.v_noises.begin()+iter->iend);
+    if(range.first==range.second){
+      aData.detid=iter->detid;
+      aData.values.clear();
+      size_t strip=0, stripE= (d_range.second-d_range.first)*8/9;
+      for (;strip<stripE;++strip){       
+	value=0.;
+	aData.values.push_back(value);
+      }
+      result.push_back(aData);
+    }
+  }
+  
+  return result;
+}

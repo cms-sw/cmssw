@@ -19,6 +19,11 @@ class SiStripNoises
 {
  public:
 
+  struct ratioData{
+    uint32_t detid;
+    std::vector<float> values;
+  };
+  
   struct DetRegistry{
     uint32_t detid;
     uint32_t ibegin;
@@ -58,6 +63,8 @@ class SiStripNoises
   void printDebug(std::stringstream& ss) const;
   void printSummary(std::stringstream& ss) const;
 
+  std::vector<ratioData> operator / (SiStripNoises d) ;
+
  private:
   void     encode(const InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
   uint16_t decode (const uint16_t& strip, const Range& range) const;
@@ -67,6 +74,7 @@ class SiStripNoises
 
   Container 	v_noises; 
   Registry 	indexes;
+
 
   /*
     const std::string print_as_binary(const uint8_t ch) const;
