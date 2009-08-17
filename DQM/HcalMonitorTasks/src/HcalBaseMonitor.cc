@@ -13,6 +13,7 @@ const int HcalBaseMonitor::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-
 				       30,31,32,33,34,35,36,37,38,39,40,41,42};
 
 // This stores eta binning in depth 3 (where HE is only present at a few ieta values)
+
 const int HcalBaseMonitor::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
 
 HcalBaseMonitor::HcalBaseMonitor() {
@@ -41,6 +42,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi", true);
   showTiming      = ps.getUntrackedParameter<bool>("showTiming",false);
   dump2database   = ps.getUntrackedParameter<bool>("dump2database",false); // dumps output to database file 
+
   checkHB_ = ps.getUntrackedParameter<bool>("checkHB",true);
   checkHE_ = ps.getUntrackedParameter<bool>("checkHE",true);
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
@@ -789,10 +791,19 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
   int ieta=-9999; // default value is nonsensical
   if (subdet==HcalBarrel)
     {
-      if (depth==1) ieta=eta-42;
+      if (depth==1) 
+	{
+	  ieta=eta-42;
+	  if (ieta==0) return -9999;
+	  return ieta;
+	}
       else if (depth==2)
 	{
 	  ieta=binmapd2[eta];
+	  if (ieta==0) return -9999;
+	  if (ieta==17 || ieta == -17) 
+	    return -9999; // no depth 2 cells at |ieta| = 17
+	  return ieta;
 	}
       else
 	return -9999; // non-physical value
@@ -826,6 +837,7 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	{
 	  ieta=binmapd2[eta];
 	  if (abs(ieta)>29 || abs(ieta)<18) return -9999; // outside HE
+	  if (ieta==0) return -9999;
 	  return ieta;
 	}
       else if (depth==3)
@@ -833,6 +845,7 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	  if (eta<0 || eta>8) return -9999;
 	  else
 	    ieta=binmapd3[eta];
+	  if (ieta==0) return -9999;
 	  return ieta;
 	}
       else return -9999;
@@ -845,6 +858,8 @@ int HcalBaseMonitor::CalcIeta(int subdet, int eta, int depth)
 	{
 	  ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
 	  if (abs(ieta)>15) return -9999;
+	  if (ieta==0) return -9999;
+	  return ieta;
 	}
     } // HcalOuter
   if (ieta==0) return -9999;
@@ -862,6 +877,7 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
       ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
       if (eta<13) ieta++;
       else if (eta>71) ieta--;
+      if (ieta==0) ieta=-9999;
       return ieta;
     }
   else if (depth==2)
@@ -871,6 +887,8 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
 	{
 	  ieta=binmapd2[eta];
 	  if (ieta==-9999) return ieta;
+	  if (ieta==0) return -9999;
+	  if (ieta==17 || ieta == -17) return -9999; // no depth 2 cells at |ieta| = 17
 	  else if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
 	  return ieta;
@@ -881,15 +899,17 @@ int HcalBaseMonitor::CalcIeta(int eta, int depth)
       if (eta>8) return -9999;
       else
 	ieta=binmapd3[eta];
+      if (ieta==0) return -9999;
       return ieta;
     }
   else if (depth==4)
     {
       ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
       if (abs(ieta)>15) return -9999;
+      if (ieta==0) return -9999;
+      return ieta;
     }
-  if (ieta==0) ieta=-9999; // default value for non-physical regions
-  return ieta;
+  return ieta; //needed to avoid compilation warning
 }
 
 
