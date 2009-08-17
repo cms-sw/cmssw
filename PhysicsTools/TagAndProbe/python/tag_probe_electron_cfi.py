@@ -15,6 +15,9 @@ from Geometry.CaloEventSetup.CaloGeometry_cff import *
 
 from Configuration.EventContent.EventContent_cff import *
 
+from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+
+
 hfRecoEcalCandidate.Correct = True
 ##hfRecoEcalCandidate.e9e25Cut = 0
 ##hfRecoEcalCandidate.intercept2DCut = -99
@@ -107,7 +110,7 @@ sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuper
 
 #  GsfElectron
 electrons = cms.EDFilter("ElectronDuplicateRemover",
-    src = cms.untracked.string('pixelMatchGsfElectrons'),
+    src = cms.untracked.string('gsfElectrons'),
     ptMin = cms.untracked.double(20.0),
     EndcapMinEta = cms.untracked.double(1.56),
     ptMax = cms.untracked.double(1000.0),
@@ -139,7 +142,9 @@ theIsolation = cms.EDProducer("IsolatedElectronCandProducer",
     electronProducer = cms.InputTag('theGsfElectrons'),
     extRadius = cms.double(0.2),
     ptMin = cms.double(1.5),
-    maxVtxDist = cms.double(0.1)
+    maxVtxDist = cms.double(0.1),
+    BeamspotProducer = cms.InputTag('offlineBeamSpot'),
+    maxVtxDistXY  = cms.double(0.1)                         
 )
 
 # Cut-based Robust electron ID  ######
@@ -160,7 +165,7 @@ theHLT = cms.EDProducer("eTriggerCandProducer",
     #hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter","","HLT")
 )
 
-electron_sequence = cms.Sequence(electrons * theGsfElectrons * theIsolation * eidRobust * theId * theHLT * HFElectronID )
+electron_sequence = cms.Sequence(electrons * theGsfElectrons * offlineBeamSpot * theIsolation * eidRobust * theId * theHLT * HFElectronID )
 
 
 
