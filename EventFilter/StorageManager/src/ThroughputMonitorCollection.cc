@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.6 2009/08/12 14:58:58 biery Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -7,7 +7,8 @@ using namespace stor;
 
 ThroughputMonitorCollection::ThroughputMonitorCollection() :
   MonitorCollection(),
-  _currentFragmentStoreSize(0),_binCount(300)
+  _binCount(300),
+  _currentFragmentStoreSize(0)
 {
   _entriesInFragmentQueue.setNewTimeWindowForRecentResults(_binCount);
   _poppedFragmentSize.setNewTimeWindowForRecentResults(_binCount);
