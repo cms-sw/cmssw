@@ -5,31 +5,31 @@
  *
  *  Implementation of a 3D regular grid.
  *
- *  $Date: 2008/04/09 19:42:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/08/17 09:06:05 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov
  */
 
-
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "MagneticField/Interpolation/src/Grid1D.h"
 #include <vector>
 
-template <class Value, class T>
 class Grid3D {
 public:
 
-  typedef Value    ValueType;
-  typedef T        Scalar;
+  typedef Basic3DVector<float>   ValueType;
+  typedef double   Scalar;
 
   Grid3D() {}
 
   Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
-	  const std::vector<Value>& data) : 
+	  const std::vector<ValueType>& data) : 
     grida_(ga), gridb_(gb), gridc_(gc), data_(data) {
      stride1_ = gridb_.nodes() * gridc_.nodes();
      stride2_ = gridc_.nodes();
   }
 
-  const Value& operator()( int i, int j, int k) const {
+  const ValueType& operator()( int i, int j, int k) const {
     return data_[index(i,j,k)];
   }
 
@@ -37,7 +37,7 @@ public:
   const Grid1D& gridb() const {return gridb_;}
   const Grid1D& gridc() const {return gridc_;}
 
-  const std::vector<Value>& data() const {return data_;}
+  const std::vector<ValueType>& data() const {return data_;}
 
   void dump() const;
 
@@ -47,7 +47,7 @@ private:
   Grid1D gridb_;
   Grid1D gridc_;
 
-  std::vector<Value> data_;
+  std::vector<ValueType> data_;
 
   int stride1_;
   int stride2_;
@@ -55,18 +55,5 @@ private:
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
 
 };
-
-#include <iostream>
-template <class Value, class T>
-void Grid3D<Value,T>::dump() const 
-{
-  for (int j=0; j<gridb().nodes(); ++j) {
-    for (int k=0; k<gridc().nodes(); ++k) {
-      for (int i=0; i<grida().nodes(); ++i) {
-	std::cout << grida().node(i) << " " << gridb().node(j) << " " << gridc().node(k) << " " << operator()(i,j,k) << std::endl;
-      }
-    }
-  }
-}
 
 #endif

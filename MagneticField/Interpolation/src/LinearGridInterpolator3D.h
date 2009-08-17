@@ -5,8 +5,8 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2008/04/09 19:45:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/08/17 09:06:05 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov 
  */
 
@@ -24,7 +24,7 @@ public:
 
   typedef T  Scalar;
 
-  LinearGridInterpolator3D( const Grid3D<Value,T>& g) :
+  LinearGridInterpolator3D( const Grid3D& g) :
     grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
 
   Value interpolate( Scalar a, Scalar b, Scalar c) {
@@ -81,7 +81,7 @@ public:
   //  Value operator()( Scalar a, Scalar b, Scalar c) {return interpolate(a,b,c);}
 
 private:
-  const Grid3D<Value,T>& grid;
+  const Grid3D& grid;
   const Grid1D& grida;
   const Grid1D& gridb;
   const Grid1D& gridc;
