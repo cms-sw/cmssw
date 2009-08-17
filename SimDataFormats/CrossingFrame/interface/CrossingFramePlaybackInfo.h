@@ -16,6 +16,7 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <vector>
 
 class CrossingFramePlaybackInfo 
 { 
