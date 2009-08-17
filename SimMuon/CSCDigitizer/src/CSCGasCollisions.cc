@@ -33,6 +33,7 @@
 #include <functional>
 // for 'accumulate':
 #include <numeric>
+#include <iterator>
 
 using namespace std;
 
