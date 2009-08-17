@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.5 2009/06/15 19:46:29 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.6 2009/06/16 11:40:06 edwenger Exp $
 //
 //
 
@@ -89,10 +89,10 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
   genLabel_ = iConfig.getParameter<edm::InputTag>("genLabel");
 
   if(recoLevel_){
-    produces<reco::Centrality>("recoBased");
+    produces<reco::CentralityCollection>("recoBased");
   }
   if(genLevel_){
-    produces<reco::Centrality>("genBased");
+    produces<reco::CentralityCollection>("genBased");
   }
 
 }
@@ -133,7 +133,9 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        const HFRecHit & rechit = (*hits)[ ihit ];
        eHF = eHF + rechit.energy();
      }
-     std::auto_ptr<Centrality> centOutput(new Centrality(eHF,eCASTOR,eZDC,cnt));
+     std::auto_ptr<CentralityCollection> centOutput(new CentralityCollection);
+     Centrality creco(eHF,eCASTOR,eZDC,cnt);
+     centOutput->push_back(creco);
      iEvent.put(centOutput, "recoBased");
 
      /*
@@ -178,7 +180,12 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }    
        }
      
-     std::auto_ptr<Centrality> centOutput(new Centrality(eHF,eCASTOR,eZDC,cnt));
+
+     Centrality c1(eHF,eCASTOR,eZDC,cnt);
+
+     std::auto_ptr<CentralityCollection> centOutput(new CentralityCollection);
+     centOutput->push_back(c1);
+
      iEvent.put(centOutput, "genBased");
      
    }
