@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: mk_satamap.pl,v 1.5 2008/11/28 09:25:40 jserrano Exp $
+# $Id: mk_satamap.pl,v 1.6 2009/02/06 17:15:29 gbauer Exp $
 #
 # Make sata mapping of volume serial numbers, suitable for intput to "makeall" script
 #
@@ -16,7 +16,9 @@ my @satabeasts = (
 		  "SATAB-C2C07-03-00",
 		  "SATAB-C2C07-04-00",
 		  "SATAB-C2C07-05-00",
-		  "SATAB-C2C07-06-00"
+		  "SATAB-C2C07-06-00",
+#
+		  "SATAB-C2f37-01-00"
                   );
 
 #nominal node mapping to satabeasts (ordering tied to that in @satabeasts):
@@ -37,7 +39,10 @@ my @nodeAssign = (
 		  "srv-C2C07-16",
 		  "srv-C2C07-17",
 		  "srv-C2C07-18",
-		  "srv-C2C07-19"
+		  "srv-C2C07-19",
+#
+		  "dvsrv-C2f37-01",
+		  "dvsrv-C2f37-02"
                   );
 
 # wwpn for each node (can be obtained with getwwpn.sh)
@@ -62,7 +67,10 @@ my %nodeWWPN = (
 		 "srv-C2C07-20" => "21-00-00-1B-32-1B-50-3B      21-01-00-1B-32-3B-50-3B",
 #spare PCs:
                  "srv-C2C06-20" => "21-00-00-1B-32-1B-58-86      21-01-00-1B-32-3B-58-86",
-		 "srv-C2C07-20" => "21-00-00-1B-32-1B-50-3B      21-01-00-1B-32-3B-50-3B"
+		 "srv-C2C07-20" => "21-00-00-1B-32-1B-50-3B      21-01-00-1B-32-3B-50-3B",
+#DaqVal
+                 "dvsrv-C2f37-01" => "21-00-00-E0-8B-9D-37-F1      21-00-00-E0-8B-9D-37-F1",
+                 "dvsrv-C2f37-02" => "21-00-00-E0-8B-9E-68-0C      21-00-00-E0-8B-9E-68-0C"
                  );
 
 my $nbeast=0;
