@@ -12,9 +12,13 @@ namespace {
     reco::Centrality dummy3;
     edm::Wrapper<reco::Centrality> dummy4;
 
+     reco::CentralityCollection ccol;
+     edm::Wrapper<reco::CentralityCollection> wccol;
+
+     reco::EvtPlaneCollection evcol;
+     edm::Wrapper<reco::EvtPlaneCollection> wevcol;
+
      edm::Wrapper<pat::HeavyIon >              w_v_p_hi;
-
-
 
   };
 }

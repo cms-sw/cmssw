@@ -31,7 +31,8 @@ namespace pat {
       int ncoll_;
       int nhard_;
       double phi_;
-
+      reco::CentralityCollection cents_;
+      reco::EvtPlaneCollection planes_;
    };
 
 }

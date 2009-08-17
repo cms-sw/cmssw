@@ -1,14 +1,15 @@
 //
-// $Id: EvtPlane.cc,v 1.2 2008/07/11 10:05:00 sergeant Exp $
+// $Id: EvtPlane.cc,v 1.1 2008/07/20 19:18:24 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
 using namespace reco;
 
-EvtPlane::EvtPlane(double planeA)
+EvtPlane::EvtPlane(double planeA, std::string label)
   : 
-EvtPlaneAngle_(planeA)
+   angle_(planeA),
+   label_(label)
 {
   // default constructor
 }
