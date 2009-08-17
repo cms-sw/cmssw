@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul 30 09:57:57 CDT 2009
-// $Id$
+// $Id: SilentMLscribe.cc,v 1.1 2009/07/30 15:33:10 chrjones Exp $
 //
 
 // system include files
@@ -71,9 +71,11 @@ namespace edm {
             case MessageLoggerQ::JOBREPORT:
             case MessageLoggerQ::JOBMODE:
             case MessageLoggerQ::GROUP_STATS:
+	    {
                std::string* string_p = static_cast<std::string*> (operand);
                delete string_p;
                break;
+	    }
             default:
                break;
          }
