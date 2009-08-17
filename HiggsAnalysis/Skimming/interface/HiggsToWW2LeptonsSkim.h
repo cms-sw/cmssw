@@ -7,8 +7,8 @@
  *  This class is an EDFilter choosing reconstructed di-tracks
  *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2009/05/22 07:49:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/06/16 10:29:37 $
+ *  $Revision: 1.5 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised J. Fernandez  -  Univ. Oviedo
@@ -42,8 +42,9 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
        virtual bool filter(Event&, const EventSetup&);
 
    private:
-      double singleTrackPtMin_;
-      double diTrackPtMin_;
+      double singleLeptonPtMin_;
+      double diLeptonPtMin_;
+      int    nLeptons_;
       double etaMin_;
       double etaMax_;
       bool   beTight_;

@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2009/05/22 07:58:26 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/06/16 10:29:37 $
+ *  $Revision: 1.16 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised Javier Fernandez - Univ. Oviedo	
@@ -42,8 +42,14 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
   theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
-  singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin");
-  diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin");
+  nLeptons_	     = iConfig.getParameter<int>("nLeptons");
+  if(nLeptons_>2) {nLeptons_=2;
+    edm::LogVerbatim("HiggsToWW2LeptonsSkim")
+            << "\nnLeptons_ must be 1 or 2!!!"
+            << std::endl;
+	}
+  singleLeptonPtMin_ = iConfig.getParameter<double>("SingleLeptonPtMin");
+  diLeptonPtMin_     = iConfig.getParameter<double>("DiLeptonPtMin");
   etaMin_           = iConfig.getParameter<double>("etaMin");
   etaMax_           = iConfig.getParameter<double>("etaMax");
 
@@ -73,7 +79,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
   nEvents_++;
   bool accepted = false;
   bool accepted1 = false;
-  int nTrackOver2ndCut = 0;
+  int nLeptonOver2ndCut = 0;
   std::vector<Particle::LorentzVector> leptons;
   double MuMass = 0.106;
   double EMass=0.000511;
@@ -95,11 +101,11 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
       if ( muons->eta() > etaMin_ && muons->eta() < etaMax_ ) {
-        if ( muons->pt() > singleTrackPtMin_ ) accepted1 = true;
-        if ( muons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
+        if ( muons->pt() > singleLeptonPtMin_ ) accepted1 = true;
+        if ( muons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
 	if(beTight_){
-	double e = sqrt(muons->momentum().Mag2()+MuMass*MuMass);
-	leptons.push_back(Particle::LorentzVector(muons->px(),muons->py(),muons->pz(),e));
+	double E = sqrt(muons->momentum().Mag2()+MuMass*MuMass);
+	leptons.push_back(Particle::LorentzVector(muons->px(),muons->py(),muons->pz(),E));
 	}
       }
     }
@@ -124,14 +130,14 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
       if ( electrons->eta() > etaMin_ && electrons->eta() < etaMax_ ) {
 
 	if(beTight_ && electrons->hadronicOverEm() < eleHadronicOverEm_){
-        if ( electrons->pt() > singleTrackPtMin_ ) accepted1 = true;
-        if ( electrons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
+        if ( electrons->pt() > singleLeptonPtMin_ ) accepted1 = true;
+        if ( electrons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
         double e = sqrt(electrons->momentum().Mag2()+EMass*EMass);
         leptons.push_back(Particle::LorentzVector(electrons->px(),electrons->py(),electrons->pz(),e));
 	}
 	else{
-        if ( electrons->pt() > singleTrackPtMin_ ) accepted1 = true;
-        if ( electrons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
+        if ( electrons->pt() > singleLeptonPtMin_ ) accepted1 = true;
+        if ( electrons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
   	}
 		
      }
@@ -139,7 +145,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
   }
 
 
-  if ( accepted1 && nTrackOver2ndCut >= 2 ) accepted = true;
+  if ( accepted1 && nLeptonOver2ndCut >= nLeptons_ ) accepted = true;
 
   if(accepted && beTight_){
 	accepted=false;
