@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.1 2008/07/20 19:19:35 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.3 2009/01/09 10:23:21 saout Exp $
 //
 //
 
@@ -89,7 +89,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
   useECAL_ = iConfig.getUntrackedParameter<bool>("useECAL",true);
   useHCAL_ = iConfig.getUntrackedParameter<bool>("useHCAL",true);
 
-  produces<reco::EvtPlane>("caloLevel");
+  produces<reco::EvtPlaneCollection>("recoLevel");
 
 }
 
@@ -237,23 +237,17 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 */
 
-   if(useECAL_ && !useHCAL_){
-     planeA=ugol2[6];
-     std::auto_ptr<EvtPlane> evtplaneOutput(new EvtPlane(planeA));
-     iEvent.put(evtplaneOutput, "caloLevel");   
-   }
+      std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
+      EvtPlane ecalPlane(ugol2[6],"Ecal");
+      EvtPlane hcalPlane(ugol2[3],"Hcal");
+      EvtPlane caloPlane(ugol2[0],"Calo");
 
-   if(useHCAL_ && !useECAL_){
-     planeA=ugol2[3];
-     std::auto_ptr<EvtPlane> evtplaneOutput(new EvtPlane(planeA));
-     iEvent.put(evtplaneOutput, "caloLevel");   
-   }   
+      if(useECAL_) evtplaneOutput->push_back(ecalPlane);
+      if(useHCAL_) evtplaneOutput->push_back(hcalPlane);
+      if(useECAL_ && useHCAL_) evtplaneOutput->push_back(caloPlane);
 
-   if(useECAL_ && useHCAL_){
-     planeA=ugol2[0];
-     std::auto_ptr<EvtPlane> evtplaneOutput(new EvtPlane(planeA));
-     iEvent.put(evtplaneOutput,"caloLevel");   
-   }   	
+      iEvent.put(evtplaneOutput, "recoLevel");
+
 
 // cout << "  "<< planeA << endl;
  
