@@ -52,9 +52,9 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
   GlobalPoint grefp( xref, yref, zref);
   LocalPoint lrefp = frame().toLocal( grefp);
 
-  Grid1D<double> gridX( lrefp.x(), lrefp.x() + stepx*(n1-1), n1);
-  Grid1D<double> gridY( lrefp.y(), lrefp.y() + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
+  Grid1D gridX( lrefp.x(), lrefp.x() + stepx*(n1-1), n1);
+  Grid1D gridY( lrefp.y(), lrefp.y() + stepy*(n2-1), n2);
+  Grid1D gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
   
   // Activate/deactivate timers

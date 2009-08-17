@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/09 19:59:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/08/11 07:10:18 $
+ *  $Revision: 1.5 $
  *  \author T. Todorov - updated N. Amapane (2008)
  */
 
@@ -153,9 +153,9 @@ TrapezoidalCartesianMFGrid::TrapezoidalCartesianMFGrid( binary_ifstream& inFile,
   double xrec, yrec;
   mapping_.rectangle( lrefp.x(), lrefp.y(), xrec, yrec);
 
-  Grid1D<double> gridX( xrec, xrec + (a+b)/2., nx);
-  Grid1D<double> gridY( yrec, yrec + h, ny);
-  Grid1D<double> gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);  
+  Grid1D gridX( xrec, xrec + (a+b)/2., nx);
+  Grid1D gridY( yrec, yrec + h, ny);
+  Grid1D gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);  
 
 #ifdef DEBUG_GRID
   cout << " GRID X range: local " << gridX.lower() <<  " - " << gridX.upper()

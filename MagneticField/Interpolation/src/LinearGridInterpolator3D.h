@@ -5,8 +5,8 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/04/09 19:45:29 $
+ *  $Revision: 1.2 $
  *  \author T. Todorov 
  */
 
@@ -82,9 +82,9 @@ public:
 
 private:
   const Grid3D<Value,T>& grid;
-  const Grid1D<T>& grida;
-  const Grid1D<T>& gridb;
-  const Grid1D<T>& gridc;
+  const Grid1D& grida;
+  const Grid1D& gridb;
+  const Grid1D& gridc;
 
 };
 

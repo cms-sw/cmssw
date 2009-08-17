@@ -57,10 +57,10 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   cout << "steps " << stepx << "," <<  stepy << "," << stepz << endl;
 #endif
 
-  Grid1D<double> gridX( lrefp.perp(), lrefp.perp() + stepx*(n1-1), n1);
-  //Grid1D<double> gridY( lrefp.phi(), lrefp.phi() + stepy*(n2-1), n2); // wrong: gives zero
-  Grid1D<double> gridY( yref, yref + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
+  Grid1D gridX( lrefp.perp(), lrefp.perp() + stepx*(n1-1), n1);
+  //Grid1D gridY( lrefp.phi(), lrefp.phi() + stepy*(n2-1), n2); // wrong: gives zero
+  Grid1D gridY( yref, yref + stepy*(n2-1), n2);
+  Grid1D gridZ( lrefp.z(), lrefp.z() + stepz*(n3-1), n3);
 
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
   

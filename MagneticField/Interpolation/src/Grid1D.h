@@ -1,11 +1,10 @@
 #ifndef Grid1D_H
 #define Grid1D_H
 
-template <class T>
 class Grid1D {
 public:
 
-  typedef T Scalar;
+  typedef double Scalar;
 
   Grid1D() {}
 

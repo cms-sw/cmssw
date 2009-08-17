@@ -118,9 +118,9 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   double xrec, yrec;
   mapping_.rectangle( lrefp.perp(), lrefp.z(), xrec, yrec);
 
-  Grid1D<double> gridX( xrec, xrec + (a+b)/2., n1);
-  Grid1D<double> gridY( yref, yref + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( yrec, yrec + h, n3);
+  Grid1D gridX( xrec, xrec + (a+b)/2., n1);
+  Grid1D gridY( yref, yref + stepy*(n2-1), n2);
+  Grid1D gridZ( yrec, yrec + h, n3);
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
     
   // Activate/deactivate timers

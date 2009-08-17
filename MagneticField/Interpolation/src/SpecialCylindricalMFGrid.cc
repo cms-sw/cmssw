@@ -67,9 +67,9 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
   for (int i=0; i<4; ++i) cout << RParAsFunOfPhi[i] << " "; cout << endl;
 #endif
 
-  Grid1D<double> gridX( 0, n1-1, n1); // offset and step size not constant
-  Grid1D<double> gridY( yref, yref + stepy*(n2-1), n2);
-  Grid1D<double> gridZ( grefp.z(), grefp.z() + stepz*(n3-1), n3);
+  Grid1D gridX( 0, n1-1, n1); // offset and step size not constant
+  Grid1D gridY( yref, yref + stepy*(n2-1), n2);
+  Grid1D gridZ( grefp.z(), grefp.z() + stepz*(n3-1), n3);
 
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
 
