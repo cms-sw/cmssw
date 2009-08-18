@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
+// $Id: FragmentMonitorCollection.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: FragmentMonitorCollection.cc
 
 #include <string>
@@ -10,16 +10,15 @@
 
 using namespace stor;
 
-FragmentMonitorCollection::FragmentMonitorCollection() :
-MonitorCollection()
-{
-  _allFragmentSizes.setNewTimeWindowForRecentResults(5);
-  _allFragmentBandwidth.setNewTimeWindowForRecentResults(5);
-  _eventFragmentSizes.setNewTimeWindowForRecentResults(5);
-  _eventFragmentBandwidth.setNewTimeWindowForRecentResults(5);
-  _dqmEventFragmentSizes.setNewTimeWindowForRecentResults(300);
-  _dqmEventFragmentBandwidth.setNewTimeWindowForRecentResults(300);
-}
+FragmentMonitorCollection::FragmentMonitorCollection(const utils::duration_t& updateInterval) :
+MonitorCollection(updateInterval),
+_allFragmentSizes(updateInterval, 5),
+_allFragmentBandwidth(updateInterval, 5),
+_eventFragmentSizes(updateInterval, 5),
+_eventFragmentBandwidth(updateInterval, 5),
+_dqmEventFragmentSizes(updateInterval, 300),
+_dqmEventFragmentBandwidth(updateInterval, 300)
+{}
 
 
 void FragmentMonitorCollection::addEventFragmentSample(const double bytecount)

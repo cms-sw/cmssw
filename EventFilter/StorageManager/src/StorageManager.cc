@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.106 2009/07/13 07:11:17 mommsen Exp $
+// $Id: StorageManager.cc,v 1.107 2009/07/20 13:07:28 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -28,7 +28,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.106 2009/07/13 07:11:17 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.107 2009/07/20 13:07:28 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -38,28 +38,29 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   bindWebInterfaceCallbacks();
   bindConsumerCallbacks();
 
+  std::string errorMsg = "Exception in StorageManager constructor: ";
   try
-    {
-      // need the line below so that deserializeRegistry can run in
-      // order to compare two registries (cannot compare
-      // byte-for-byte) (if we keep this) need line below anyway in
-      // case we deserialize DQMEvents for collation
-      edm::RootAutoLibraryLoader::enable();
-      initializeSharedResources();
-    }
+  {
+    // need the line below so that deserializeRegistry can run in
+    // order to compare two registries (cannot compare
+    // byte-for-byte) (if we keep this) need line below anyway in
+    // case we deserialize DQMEvents for collation
+    edm::RootAutoLibraryLoader::enable();
+    initializeSharedResources();
+  }
   catch(std::exception &e)
-    {
-      LOG4CPLUS_FATAL( getApplicationLogger(), e.what() );
-      XCEPT_RAISE( stor::exception::Exception, e.what() );
-    }
+  {
+    errorMsg += e.what();
+    LOG4CPLUS_FATAL( getApplicationLogger(), e.what() );
+    XCEPT_RAISE( stor::exception::Exception, e.what() );
+  }
   catch(...)
   {
-    std::string errorMsg = "Unknown exception in StorageManager constructor";
+    errorMsg += "unknown exception";
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
     XCEPT_RAISE( stor::exception::Exception, errorMsg );
   }
-
-
+  
   startWorkerThreads();
 }
 
@@ -155,7 +156,10 @@ void StorageManager::initializeSharedResources()
   _sharedResources->_dqmEventQueue.
     reset(new DQMEventQueue(queueParams._dqmEventQueueSize));
 
-  _sharedResources->_statisticsReporter.reset(new StatisticsReporter(this));
+  _sharedResources->_statisticsReporter.reset(
+    new StatisticsReporter(this, _sharedResources->_configuration->
+      getWorkerThreadParams()._monitoringSleepSec)
+  );
   _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
   _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
   _sharedResources->_dqmEventProcessorResources.reset(new DQMEventProcessorResources());

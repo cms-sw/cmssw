@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.4 2009/07/09 15:34:29 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -19,23 +19,29 @@
 using namespace stor;
 
 
-StatisticsReporter::StatisticsReporter(xdaq::Application *app) :
+StatisticsReporter::StatisticsReporter
+(
+  xdaq::Application *app,
+  const utils::duration_t& monitoringSleepSec
+) :
 _app(app),
-_runMonCollection(),
-_fragMonCollection(),
-_filesMonCollection(),
-_streamsMonCollection(),
-_dataSenderMonCollection(),
-_dqmEventMonCollection(),
-_resourceMonCollection(app),
-_stateMachineMonCollection(),
-_throughputMonCollection(),
+_monitoringSleepSec(monitoringSleepSec),
+_runMonCollection(_monitoringSleepSec),
+_fragMonCollection(_monitoringSleepSec),
+_filesMonCollection(5*_monitoringSleepSec),
+_streamsMonCollection(_monitoringSleepSec),
+_dataSenderMonCollection(_monitoringSleepSec),
+_dqmEventMonCollection(5*_monitoringSleepSec),
+_resourceMonCollection(app,60*_monitoringSleepSec),
+_stateMachineMonCollection(_monitoringSleepSec),
+_throughputMonCollection(_monitoringSleepSec),
 _monitorWL(0),
 _doMonitoring(true)
 {
-  _eventConsumerMonitorCollection.reset( new ConsumerMonitorCollection() );
-  _dqmConsumerMonitorCollection.reset( new ConsumerMonitorCollection() );
+  _eventConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
+  _dqmConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
 
+  reset();
   createMonitoringInfoSpace();
   collectInfoSpaceItems();
   addRunInfoQuantitiesToApplicationInfoSpace();
@@ -183,7 +189,7 @@ void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
 
 bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
 {
-  utils::sleep(MonitoredQuantity::ExpectedCalculationInterval());
+  utils::sleep(_monitoringSleepSec);
 
   std::string errorMsg = "Failed to update the monitoring information";
 
@@ -231,17 +237,19 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
 
 void StatisticsReporter::calculateStatistics()
 {
-  _runMonCollection.calculateStatistics();
-  _fragMonCollection.calculateStatistics();
-  _filesMonCollection.calculateStatistics();
-  _streamsMonCollection.calculateStatistics();
-  _dataSenderMonCollection.calculateStatistics();
-  _dqmEventMonCollection.calculateStatistics();
-  _resourceMonCollection.calculateStatistics();
-  _stateMachineMonCollection.calculateStatistics();
-  _eventConsumerMonitorCollection->calculateStatistics();
-  _dqmConsumerMonitorCollection->calculateStatistics();
-  _throughputMonCollection.calculateStatistics();
+  const utils::time_point_t now = utils::getCurrentTime();
+
+  _runMonCollection.calculateStatistics(now);
+  _fragMonCollection.calculateStatistics(now);
+  _filesMonCollection.calculateStatistics(now);
+  _streamsMonCollection.calculateStatistics(now);
+  _dataSenderMonCollection.calculateStatistics(now);
+  _dqmEventMonCollection.calculateStatistics(now);
+  _resourceMonCollection.calculateStatistics(now);
+  _stateMachineMonCollection.calculateStatistics(now);
+  _eventConsumerMonitorCollection->calculateStatistics(now);
+  _dqmConsumerMonitorCollection->calculateStatistics(now);
+  _throughputMonCollection.calculateStatistics(now);
 }
 
 
@@ -254,7 +262,7 @@ void StatisticsReporter::updateInfoSpace()
   try
   {
     _infoSpace->lock();
-    
+
     _runMonCollection.updateInfoSpaceItems();
     _fragMonCollection.updateInfoSpaceItems();
     _filesMonCollection.updateInfoSpaceItems();
@@ -299,18 +307,20 @@ void StatisticsReporter::updateInfoSpace()
 
 void StatisticsReporter::reset()
 {
+  const utils::time_point_t now = utils::getCurrentTime();
+
   // do not reset the stateMachineMonCollection, as we want to
   // keep the state machine history
-  _runMonCollection.reset();
-  _fragMonCollection.reset();
-  _filesMonCollection.reset();
-  _streamsMonCollection.reset();
-  _dataSenderMonCollection.reset();
-  _dqmEventMonCollection.reset();
-  _resourceMonCollection.reset();
-  _eventConsumerMonitorCollection->reset();
-  _dqmConsumerMonitorCollection->reset();
-  _throughputMonCollection.reset();
+  _runMonCollection.reset(now);
+  _fragMonCollection.reset(now);
+  _filesMonCollection.reset(now);
+  _streamsMonCollection.reset(now);
+  _dataSenderMonCollection.reset(now);
+  _dqmEventMonCollection.reset(now);
+  _resourceMonCollection.reset(now);
+  _eventConsumerMonitorCollection->reset(now);
+  _dqmConsumerMonitorCollection->reset(now);
+  _throughputMonCollection.reset(now);
 }
 
 

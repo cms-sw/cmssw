@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -20,6 +20,7 @@
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
@@ -39,15 +40,19 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
   {
   public:
     
-    explicit StatisticsReporter(xdaq::Application*);
+    explicit StatisticsReporter
+    (
+      xdaq::Application*,
+      const utils::duration_t& monitoringSleepSec
+    );
     
     virtual ~StatisticsReporter();
 
@@ -159,6 +164,8 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
+    utils::duration_t _monitoringSleepSec;
+
     RunMonitorCollection _runMonCollection;
     FragmentMonitorCollection _fragMonCollection;
     FilesMonitorCollection _filesMonCollection;

@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.3 2009/07/09 15:34:29 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -10,8 +10,12 @@
 
 using namespace stor;
 
-RunMonitorCollection::RunMonitorCollection() :
-MonitorCollection()
+RunMonitorCollection::RunMonitorCollection(const utils::duration_t& updateInterval) :
+MonitorCollection(updateInterval),
+_eventIDsReceived(updateInterval, 1),
+_errorEventIDsReceived(updateInterval, 1),
+_runNumbersSeen(updateInterval, 1),
+_lumiSectionsSeen(updateInterval, 1)
 {}
 
 

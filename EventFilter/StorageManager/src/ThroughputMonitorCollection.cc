@@ -1,27 +1,27 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.6 2009/08/12 14:58:58 biery Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.7 2009/08/17 07:18:45 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
 
 using namespace stor;
 
-ThroughputMonitorCollection::ThroughputMonitorCollection() :
-  MonitorCollection(),
-  _binCount(300),
+ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t& updateInterval) :
+  MonitorCollection(updateInterval),
+  _binCount(static_cast<int>(300/updateInterval)),
+  _entriesInFragmentQueue(updateInterval, _binCount),
+  _poppedFragmentSize(updateInterval, _binCount),
+  _fragmentProcessorIdleTime(updateInterval, _binCount),
+  _entriesInFragmentStore(updateInterval, _binCount),
+  _entriesInStreamQueue(updateInterval, _binCount),
+  _poppedEventSize(updateInterval, _binCount),
+  _diskWriterIdleTime(updateInterval, _binCount),
+  _diskWriteSize(updateInterval, _binCount),
+  _entriesInDQMEventQueue(updateInterval, _binCount),
+  _poppedDQMEventSize(updateInterval, _binCount),
+  _dqmEventProcessorIdleTime(updateInterval, _binCount),
   _currentFragmentStoreSize(0)
-{
-  _entriesInFragmentQueue.setNewTimeWindowForRecentResults(_binCount);
-  _poppedFragmentSize.setNewTimeWindowForRecentResults(_binCount);
-  _fragmentProcessorIdleTime.setNewTimeWindowForRecentResults(_binCount);
-  _entriesInFragmentStore.setNewTimeWindowForRecentResults(_binCount);
-  _entriesInStreamQueue.setNewTimeWindowForRecentResults(_binCount);
-  _poppedEventSize.setNewTimeWindowForRecentResults(_binCount);
-  _diskWriterIdleTime.setNewTimeWindowForRecentResults(_binCount);
-  _diskWriteSize.setNewTimeWindowForRecentResults(_binCount);
-  _entriesInDQMEventQueue.setNewTimeWindowForRecentResults(_binCount);
-  _poppedDQMEventSize.setNewTimeWindowForRecentResults(_binCount);
-  _dqmEventProcessorIdleTime.setNewTimeWindowForRecentResults(_binCount);
-}
+{}
+
 
 
 void ThroughputMonitorCollection::addPoppedFragmentSample(double dataSize)

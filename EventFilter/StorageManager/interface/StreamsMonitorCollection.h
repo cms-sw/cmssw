@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -26,18 +26,12 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
   {
-  private:
-
-    MonitoredQuantity _allStreamsFileCount;
-    MonitoredQuantity _allStreamsVolume;
-    MonitoredQuantity _allStreamsBandwidth;
-
   public:
 
     struct StreamRecord
@@ -50,7 +44,15 @@ namespace stor {
       void addSizeInBytes(double);
       StreamsMonitorCollection* parentCollection;
 
-      StreamRecord(StreamsMonitorCollection* coll):
+      StreamRecord
+      (
+        StreamsMonitorCollection* coll,
+        const utils::duration_t& updateInterval,
+        const utils::duration_t& timeWindowForRecentResults
+      ) :
+        fileCount(updateInterval,timeWindowForRecentResults),
+        volume(updateInterval,timeWindowForRecentResults),
+        bandwidth(updateInterval,timeWindowForRecentResults),
         parentCollection(coll) {}
     };
 
@@ -60,7 +62,7 @@ namespace stor {
     typedef std::vector<StreamRecordPtr> StreamRecordList;
 
 
-    StreamsMonitorCollection();
+    explicit StreamsMonitorCollection(const utils::duration_t& updateInterval);
 
     const StreamRecordPtr getNewStreamRecord();
 
@@ -105,7 +107,12 @@ namespace stor {
     StreamRecordList _streamRecords;
     mutable boost::mutex _streamRecordsMutex;
 
-    utils::duration_t _timeWindowForRecentResults;
+    const utils::duration_t _updateInterval;
+    const utils::duration_t _timeWindowForRecentResults;
+
+    MonitoredQuantity _allStreamsFileCount;
+    MonitoredQuantity _allStreamsVolume;
+    MonitoredQuantity _allStreamsBandwidth;
 
     xdata::UnsignedInteger32 _storedEvents;   // number of events stored in all streams
     xdata::Double _storedVolume;              // total volume in MB stored on disk

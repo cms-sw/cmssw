@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.6 2009/07/03 11:07:35 mommsen Exp $
+// $Id: Configuration.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -233,9 +233,10 @@ namespace stor
       ceil(_workerThreadParamCopy._DWdeqWaitTime);
     _workerThreadParamCopy._DQMEPdeqWaitTime =
       ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
-
+  
     _workerThreadParamCopy._staleFragmentTimeOut = 60;
-  }
+    _workerThreadParamCopy._monitoringSleepSec = 1;
+}
 
   void Configuration::
   setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace)
@@ -372,12 +373,14 @@ namespace stor
     _DWdeqWaitTime = _workerThreadParamCopy._DWdeqWaitTime;
     _DQMEPdeqWaitTime = _workerThreadParamCopy._DQMEPdeqWaitTime;
     _staleFragmentTimeOut = _workerThreadParamCopy._staleFragmentTimeOut;
+    _monitoringSleepSec = _workerThreadParamCopy._monitoringSleepSec;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("FPdeqWaitTime", &_FPdeqWaitTime);
     infoSpace->fireItemAvailable("DWdeqWaitTime", &_DWdeqWaitTime);
     infoSpace->fireItemAvailable("DQMEPdeqWaitTime", &_DQMEPdeqWaitTime);
     infoSpace->fireItemAvailable("staleFragmentTimeOut", &_staleFragmentTimeOut);
+    infoSpace->fireItemAvailable("monitoringSleepSec", &_monitoringSleepSec);
   }
 
   void Configuration::updateLocalDiskWritingData()
@@ -480,6 +483,7 @@ namespace stor
       ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
 
     _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
+    _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;
   }
 
   void Configuration::updateLocalRunNumber()

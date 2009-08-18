@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -52,7 +52,7 @@ namespace stor {
     };
 
 
-    explicit ResourceMonitorCollection(xdaq::Application*);
+    explicit ResourceMonitorCollection(xdaq::Application*, const utils::duration_t& updateInterval);
 
     /**
      * Stores the given memory pool pointer if not yet set.
@@ -81,11 +81,17 @@ namespace stor {
       std::string pathName;
       std::string warningColor;
       std::string alarmName;
+
+      DiskUsage(const utils::duration_t& updateInterval) :
+        absDiskUsage(updateInterval,10),
+        relDiskUsage(updateInterval,10) {}
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
     typedef std::vector<DiskUsagePtr> DiskUsagePtrList;
     DiskUsagePtrList _diskUsageList;
     mutable boost::mutex _diskUsageListMutex;
+
+    const utils::duration_t _updateInterval;
 
     MonitoredQuantity _poolUsage;
     MonitoredQuantity _numberOfCopyWorkers;

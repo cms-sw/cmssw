@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.3 2009/07/09 15:34:29 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -11,25 +11,24 @@
 using namespace stor;
 
 
-StreamsMonitorCollection::StreamsMonitorCollection() :
-MonitorCollection(),
-_timeWindowForRecentResults(300)
-{
-  _allStreamsFileCount.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-  _allStreamsVolume.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-  _allStreamsBandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-}
+StreamsMonitorCollection::StreamsMonitorCollection(const utils::duration_t& updateInterval) :
+MonitorCollection(updateInterval),
+_updateInterval(updateInterval),
+_timeWindowForRecentResults(300),
+_allStreamsFileCount(updateInterval, _timeWindowForRecentResults),
+_allStreamsVolume(updateInterval, _timeWindowForRecentResults),
+_allStreamsBandwidth(updateInterval, _timeWindowForRecentResults)
+{}
 
 
 const StreamsMonitorCollection::StreamRecordPtr
 StreamsMonitorCollection::getNewStreamRecord()
 {
   boost::mutex::scoped_lock sl(_streamRecordsMutex);
-  
-  boost::shared_ptr<StreamRecord> streamRecord(new StreamsMonitorCollection::StreamRecord(this));
-  streamRecord->fileCount.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-  streamRecord->volume.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
-  streamRecord->bandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+
+  StreamRecordPtr streamRecord(
+    new StreamRecord(this,_updateInterval,_timeWindowForRecentResults)
+  );
   _streamRecords.push_back(streamRecord);
   return streamRecord;
 }

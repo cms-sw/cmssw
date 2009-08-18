@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
@@ -6,8 +6,9 @@
 using namespace stor;
 
 
-ConsumerMonitorCollection::ConsumerMonitorCollection():
-  MonitorCollection()
+ConsumerMonitorCollection::ConsumerMonitorCollection(const utils::duration_t& updateInterval):
+MonitorCollection(updateInterval),
+_updateInterval(updateInterval)
 {}
 
 
@@ -21,7 +22,9 @@ void ConsumerMonitorCollection::addQueuedEventSample( QueueID qid,
     }
   else
     {
-      _qmap[ qid ] = boost::shared_ptr<MonitoredQuantity>( new MonitoredQuantity() );
+      _qmap[ qid ] = boost::shared_ptr<MonitoredQuantity>(
+        new MonitoredQuantity(_updateInterval,10)
+      );
       _qmap[ qid ]->addSample( data_size );
     }
 }
@@ -37,7 +40,9 @@ void ConsumerMonitorCollection::addServedEventSample( QueueID qid,
     }
   else
     {
-      _smap[ qid ] = boost::shared_ptr<MonitoredQuantity>( new MonitoredQuantity() );
+      _smap[ qid ] = boost::shared_ptr<MonitoredQuantity>(
+        new MonitoredQuantity(_updateInterval,10)
+      );
       _smap[ qid ]->addSample( data_size );
     }
 }

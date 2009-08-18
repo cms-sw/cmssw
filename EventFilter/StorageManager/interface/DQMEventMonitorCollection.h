@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: DQMEventMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMEventMonitorCollection.h 
 
 #ifndef StorageManager_DQMEventMonitorCollection_h
@@ -13,8 +13,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class DQMEventMonitorCollection : public MonitorCollection
@@ -51,7 +51,7 @@ namespace stor {
       MonitoredQuantity::Stats numberOfWrittenGroupsStats; // number of groups written to disk
     };
 
-    DQMEventMonitorCollection();
+    explicit DQMEventMonitorCollection(const utils::duration_t& updateInterval);
 
     const MonitoredQuantity& getDQMEventSizeMQ() const {
       return _dqmEventSizes;

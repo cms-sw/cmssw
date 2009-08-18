@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: FragmentMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FragmentMonitorCollection.h 
 
 #ifndef StorageManager_FragmentMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection
@@ -25,11 +25,12 @@ namespace stor {
   private:
 
     MonitoredQuantity _allFragmentSizes;
-    MonitoredQuantity _eventFragmentSizes;
-    MonitoredQuantity _dqmEventFragmentSizes;
-
     MonitoredQuantity _allFragmentBandwidth;
+
+    MonitoredQuantity _eventFragmentSizes;
     MonitoredQuantity _eventFragmentBandwidth;
+
+    MonitoredQuantity _dqmEventFragmentSizes;
     MonitoredQuantity _dqmEventFragmentBandwidth;
 
 
@@ -38,15 +39,16 @@ namespace stor {
     struct FragmentStats
     {
       MonitoredQuantity::Stats allFragmentSizeStats;
-      MonitoredQuantity::Stats eventFragmentSizeStats;
-      MonitoredQuantity::Stats dqmEventFragmentSizeStats;
-      
       MonitoredQuantity::Stats allFragmentBandwidthStats;
+
+      MonitoredQuantity::Stats eventFragmentSizeStats;
       MonitoredQuantity::Stats eventFragmentBandwidthStats;
+
+      MonitoredQuantity::Stats dqmEventFragmentSizeStats;
       MonitoredQuantity::Stats dqmEventFragmentBandwidthStats;
     };
 
-    FragmentMonitorCollection();
+    explicit FragmentMonitorCollection(const utils::duration_t& updateInterval);
 
     void addEventFragmentSample(const double bytecount);
 

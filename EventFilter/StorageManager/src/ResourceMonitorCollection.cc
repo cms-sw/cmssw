@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.5 2009/07/09 15:34:28 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -15,8 +15,16 @@
 
 using namespace stor;
 
-ResourceMonitorCollection::ResourceMonitorCollection(xdaq::Application* app) :
-MonitorCollection(),
+ResourceMonitorCollection::ResourceMonitorCollection
+(
+  xdaq::Application* app,
+  const utils::duration_t& updateInterval
+) :
+MonitorCollection(updateInterval),
+_updateInterval(updateInterval),
+_poolUsage(updateInterval, 10),
+_numberOfCopyWorkers(updateInterval, 10),
+_numberOfInjectWorkers(updateInterval, 10),
 _app(app),
 _pool(0),
 _progressMarker( "unused" )
@@ -36,7 +44,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
   for (unsigned int i=0; i<nD; ++i) {
 
-    DiskUsagePtr diskUsage(new DiskUsage);
+    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
     diskUsage->pathName = dwParams._filePath;
     if(nLogicalDisk>0) {
       std::ostringstream oss;

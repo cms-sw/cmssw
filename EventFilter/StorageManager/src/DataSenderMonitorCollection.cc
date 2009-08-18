@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.5 2009/07/09 15:34:28 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -14,9 +14,10 @@
 using namespace stor;
 
 
-DataSenderMonitorCollection::DataSenderMonitorCollection() :
-MonitorCollection(),
-_connectedRBs(0)
+DataSenderMonitorCollection::DataSenderMonitorCollection(const utils::duration_t& updateInterval) :
+MonitorCollection(updateInterval),
+_connectedRBs(0),
+_updateInterval(updateInterval)
 {}
 
 
@@ -523,7 +524,7 @@ DSMC::getResourceBrokerRecord(DSMC::ResourceBrokerKey const& rbKey)
   rbMapIter = _resourceBrokerMap.find(uniqueRBID);
   if (rbMapIter == _resourceBrokerMap.end())
     {
-      rbRecordPtr.reset(new ResourceBrokerRecord(rbKey));
+      rbRecordPtr.reset(new ResourceBrokerRecord(rbKey,_updateInterval));
       _resourceBrokerMap[uniqueRBID] = rbRecordPtr;
     }
   else
@@ -570,7 +571,7 @@ DSMC::getFilterUnitRecord(DSMC::RBRecordPtr& rbRecordPtr,
   fuMapIter = rbRecordPtr->filterUnitMap.find(fuKey);
   if (fuMapIter == rbRecordPtr->filterUnitMap.end())
     {
-      fuRecordPtr.reset(new FilterUnitRecord(fuKey));
+      fuRecordPtr.reset(new FilterUnitRecord(fuKey,_updateInterval));
       rbRecordPtr->filterUnitMap[fuKey] = fuRecordPtr;
     }
   else
@@ -590,7 +591,7 @@ DSMC::getOutputModuleRecord(OutputModuleRecordMap& outModMap,
   omMapIter = outModMap.find(outModKey);
   if (omMapIter == outModMap.end())
     {
-      outModRecordPtr.reset(new OutputModuleRecord());
+      outModRecordPtr.reset(new OutputModuleRecord(_updateInterval));
 
       outModRecordPtr->name = "Unknown";
       outModRecordPtr->id = outModKey;

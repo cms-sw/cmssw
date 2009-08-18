@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.4 2009/07/03 11:07:43 mommsen Exp $
+// $Id: Configuration.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -102,10 +102,11 @@ namespace stor
    */
   struct WorkerThreadParams
   {
-    double _FPdeqWaitTime;
-    double _DWdeqWaitTime;
-    double _DQMEPdeqWaitTime;
-    double _staleFragmentTimeOut;
+    utils::duration_t _FPdeqWaitTime;
+    utils::duration_t _DWdeqWaitTime;
+    utils::duration_t _DQMEPdeqWaitTime;
+    utils::duration_t _staleFragmentTimeOut;
+    utils::duration_t _monitoringSleepSec;
   };
 
   /**
@@ -122,8 +123,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/03 11:07:43 $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -321,6 +322,7 @@ namespace stor
     xdata::Double _DWdeqWaitTime;
     xdata::Double _DQMEPdeqWaitTime;
     xdata::Double _staleFragmentTimeOut;
+    xdata::Double _monitoringSleepSec;
 
     mutable boost::mutex _evtStrCfgMutex;
     mutable boost::mutex _errStrCfgMutex;

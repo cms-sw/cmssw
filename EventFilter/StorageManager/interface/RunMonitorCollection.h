@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -32,7 +32,7 @@ namespace stor {
 
   public:
 
-    RunMonitorCollection();
+    explicit RunMonitorCollection(const utils::duration_t& updateInterval);
 
     const MonitoredQuantity& getEventIDsReceivedMQ() const {
       return _eventIDsReceived;

@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.5 2009/07/09 15:34:44 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.6 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -22,8 +22,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.6 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -123,6 +123,9 @@ namespace stor {
       unsigned int initMsgSize;
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
+      
+      OutputModuleRecord(const utils::duration_t& updateInterval) :
+        eventSize(updateInterval,10) {}
     };
     typedef boost::shared_ptr<OutputModuleRecord> OutModRecordPtr;
     typedef std::map<OutputModuleKey, OutModRecordPtr> OutputModuleRecordMap;
@@ -150,8 +153,14 @@ namespace stor {
       unsigned long long latchedDQMDiscardCount;
       unsigned long long latchedSkippedDiscardCount;
 
-      explicit FilterUnitRecord(FilterUnitKey fuKey) :
-        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+      explicit FilterUnitRecord
+      (
+        FilterUnitKey fuKey,
+        const utils::duration_t& updateInterval
+      ) :
+        key(fuKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
+        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
+        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
         workingDataDiscardCount(0), workingDQMDiscardCount(0),
         workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
         latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
@@ -188,8 +197,14 @@ namespace stor {
       unsigned long long latchedDQMDiscardCount;
       unsigned long long latchedSkippedDiscardCount;
 
-      explicit ResourceBrokerRecord(ResourceBrokerKey rbKey) :
-        key(rbKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+      explicit ResourceBrokerRecord
+      (
+        ResourceBrokerKey rbKey,
+        const utils::duration_t& updateInterval
+      ) :
+        key(rbKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
+        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
+        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
         workingDataDiscardCount(0), workingDQMDiscardCount(0),
         workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
         latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
@@ -271,7 +286,7 @@ namespace stor {
     /**
      * Constructor.
      */
-    DataSenderMonitorCollection();
+    explicit DataSenderMonitorCollection(const utils::duration_t& updateInterval);
 
     /**
      * Adds the specified fragment to the monitor collection.
@@ -391,6 +406,8 @@ namespace stor {
 
     std::map<ResourceBrokerKey, UniqueResourceBrokerID_t> _resourceBrokerIDs;
     std::map<UniqueResourceBrokerID_t, RBRecordPtr> _resourceBrokerMap;
+
+    const utils::duration_t _updateInterval;
 
   };
 
