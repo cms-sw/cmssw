@@ -305,16 +305,23 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
 
   edm::ESHandle<CaloGeometry> geometry ;
 
+  //Status word histos
+  MonitorElement* RecHit_StatusWord_HB;
+  MonitorElement* RecHit_StatusWord_HE;
+  MonitorElement* RecHit_StatusWord_HF;
+  MonitorElement* RecHit_StatusWord_HO;
+
  // Filling vectors with essential RecHits data
-  std::vector<int>    csub;
-  std::vector<int>    cieta;
-  std::vector<int>    ciphi;
-  std::vector<int>    cdepth;
-  std::vector<double> cen;
-  std::vector<double> ceta;
-  std::vector<double> cphi;
-  std::vector<double> ctime;
-  std::vector<double> cz;
+  std::vector<int>      csub;
+  std::vector<int>      cieta;
+  std::vector<int>      ciphi;
+  std::vector<int>      cdepth;
+  std::vector<double>   cen;
+  std::vector<double>   ceta;
+  std::vector<double>   cphi;
+  std::vector<double>   ctime;
+  std::vector<double>   cz;
+  std::vector<uint32_t> cstwd;
 
   // array or min. e-values  ieta x iphi x depth x subdet
   double emap_min[82][72][4][4];
