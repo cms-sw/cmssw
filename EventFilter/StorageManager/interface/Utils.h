@@ -1,4 +1,4 @@
-// $Id: Utils.h,v 1.3 2009/07/09 09:36:31 mommsen Exp $
+// $Id: Utils.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
@@ -24,8 +24,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.3 $
-     * $Date: 2009/07/09 09:36:31 $
+     * $Revision: 1.4 $
+     * $Date: 2009/07/20 13:06:11 $
      */
 
     /**
@@ -61,6 +61,12 @@ namespace stor {
        error (returning -1, and no sleeping).
      */
     int sleep(duration_t interval);
+
+    /**
+       Sleep until at least the given time_point_t. Uses internally
+       sleep(duration_t). See notes to this method.
+    */
+    int sleepUntil(time_point_t);
 
     /**
        Converts a time_point_t into a string.

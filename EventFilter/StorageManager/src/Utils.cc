@@ -1,5 +1,5 @@
 /**
- * $Id: Utils.cc,v 1.4 2009/07/09 14:50:12 mommsen Exp $
+ * $Id: Utils.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
 /// @file: Utils.cc
  */
 
@@ -60,7 +60,13 @@ namespace stor
       rqtp.tv_nsec = static_cast<long>((interval-rqtp.tv_sec)*1000000);
       return nanosleep(&rqtp, 0);
     }
-    
+
+    int sleepUntil(time_point_t theTime)
+    {
+      time_point_t now = getCurrentTime();
+      duration_t interval = theTime - now;
+      return sleep(interval);
+    }
     
     std::string timeStamp(time_point_t theTime)
     {
