@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.49 $
- *  $Date: 2009/08/12 14:40:22 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.50 $
+ *  $Date: 2009/08/18 12:07:32 $
+ *  (last update by $Author: kaschube $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -906,7 +906,6 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
 			      << iTsoses->size() << " TSOSes.";
 
     this->addLasBeam(*iBeam, *iTsoses);
-
   }
 }
 
@@ -942,6 +941,16 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
 	theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
 	theFloatBufferX.push_back(derivative);
       }
+<<<<<<< MillePedeAlignmentAlgorithm.cc
+    } // end loop over parameters
+
+    const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
+    // error from file or assume 0.003
+    const float error = 0.003; // hit.localPositionError().xx(); sqrt???
+    
+    theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
+		    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
+=======
     } // end loop over parameters
     
     const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
@@ -950,6 +959,7 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
     
     theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
 		    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
+>>>>>>> 1.50
   } // end of loop over hits
   
   theMille->end();
