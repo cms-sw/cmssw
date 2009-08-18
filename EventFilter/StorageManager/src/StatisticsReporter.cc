@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.6 2009/08/18 08:55:12 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -65,6 +65,7 @@ void StatisticsReporter::startWorkLoop(std::string workloopName)
           identifier + "MonitorAction");
       _monitorWL->submit(monitorAction);
 
+      _lastMonitorAction = utils::getCurrentTime();
       _monitorWL->activate();
     }
   }
@@ -189,7 +190,8 @@ void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
 
 bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
 {
-  utils::sleep(_monitoringSleepSec);
+  utils::sleepUntil(_lastMonitorAction + _monitoringSleepSec);
+  _lastMonitorAction = utils::getCurrentTime();
 
   std::string errorMsg = "Failed to update the monitoring information";
 
