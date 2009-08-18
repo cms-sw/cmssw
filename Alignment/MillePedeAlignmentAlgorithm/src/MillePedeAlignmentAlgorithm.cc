@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.48 $
- *  $Date: 2009/08/10 16:29:40 $
+ *  $Revision: 1.49 $
+ *  $Date: 2009/08/12 14:40:22 $
  *  (last update by $Author: flucke $)
  */
 
@@ -904,6 +904,7 @@ void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &
 			      << iBeam->parameters().size() << " parameters and " 
 			      << iBeam->getData().size() << " hits.\n There are " 
 			      << iTsoses->size() << " TSOSes.";
+
     this->addLasBeam(*iBeam, *iTsoses);
 
   }
@@ -930,7 +931,9 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
     this->globalDerivativesHierarchy(tsoses[iHit], lasAli, lasAli, 
 				     theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPtr);
     // fill derivatives vector from derivatives matrix
-    for (unsigned int nFitParams = 0; nFitParams < lasBeam.parameters().size(); ++nFitParams) {
+    for (unsigned int nFitParams = 0; 
+	 nFitParams < static_cast<unsigned int>(lasBeam.parameters().size()); 
+	 ++nFitParams) {
       const float derivative = lasBeam.derivatives()[iHit][nFitParams];
       if (nFitParams < lasBeam.firstFixedParameter()) { // first local beam parameters
 	lasLocalDerivsX.push_back(derivative);
@@ -939,14 +942,14 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
 	theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
 	theFloatBufferX.push_back(derivative);
       }
-
-      const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
-      // error from file or assume 0.003
-      const float error = 0.003; // hit.localPositionError().xx(); sqrt???
-	
-      theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
-		      &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
     } // end loop over parameters
+    
+    const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
+    // error from file or assume 0.003
+    const float error = 0.003; // hit.localPositionError().xx(); sqrt???
+    
+    theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
+		    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
   } // end of loop over hits
   
   theMille->end();
