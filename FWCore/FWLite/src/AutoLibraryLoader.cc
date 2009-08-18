@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.24 2009/05/07 19:22:25 dsr Exp $
 //
 
 // system include files
