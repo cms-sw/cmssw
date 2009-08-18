@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.25 2009/07/12 05:09:09 srappocc Exp $
+// $Id: Event.cc,v 1.27 2009/07/22 16:14:35 cplager Exp $
 //
 
 // system include files
@@ -468,23 +468,14 @@ Event::getByLabel(const std::type_info& iInfo,
   else return true;
 }
 
-edm::EventID
-Event::id() const
+edm::EventAuxiliary const& 
+Event::eventAuxiliary() const
 {
-  Long_t eventIndex = branchMap_.getEventEntry();
-  updateAux(eventIndex);
-  return aux_.id();
+   Long_t eventIndex = branchMap_.getEventEntry();
+   updateAux(eventIndex);
+   return aux_;
 }
 
-const edm::Timestamp& 
-Event::time() const
-{
-  Long_t eventIndex = branchMap_.getEventEntry();
-  updateAux(eventIndex);
-  return aux_.time();
-}
-
-   
 void
 Event::updateAux(Long_t eventIndex) const
 {

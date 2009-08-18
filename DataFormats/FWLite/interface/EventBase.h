@@ -36,8 +36,9 @@
 // #include "FWCore/Utilities/interface/TypeID.h"
 // #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 // #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
-// #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-// #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 // #include "DataFormats/Provenance/interface/ProductID.h"
 // #include "DataFormats/Provenance/interface/FileIndex.h"
 // #include "FWCore/FWLite/interface/BranchMapReader.h"
@@ -68,6 +69,17 @@ namespace fwlite
 
          virtual const EventBase& toBegin() = 0;
 
+         // AUX functions.
+         edm::EventID id() const {return eventAuxiliary().id();}
+         edm::Timestamp time() const {return eventAuxiliary().time();}
+         edm::LuminosityBlockNumber_t
+         luminosityBlock() const {return eventAuxiliary().luminosityBlock();}
+         bool isRealData() const {return eventAuxiliary().isRealData();}
+         edm::EventAuxiliary::ExperimentType experimentType() const {return eventAuxiliary().experimentType();}
+         int bunchCrossing() const {return eventAuxiliary().bunchCrossing();}
+         int orbitNumber() const {return eventAuxiliary().orbitNumber();}
+         virtual edm::EventAuxiliary const& eventAuxiliary() const =0;
+      
    };
 } // fwlite namespace
 

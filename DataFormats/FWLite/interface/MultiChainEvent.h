@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.3 2009/07/20 20:51:33 cplager Exp $
+// $Id: MultiChainEvent.h,v 1.5 2009/07/22 16:14:35 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -79,8 +79,7 @@ class MultiChainEvent: public EventBase
       
       Long64_t size() const;
 
-      edm::EventID id() const;
-      const edm::Timestamp& time() const;
+      virtual edm::EventAuxiliary const& eventAuxiliary() const;
 
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
       const std::vector<std::string>& getProcessHistory() const;

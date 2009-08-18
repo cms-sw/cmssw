@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.2 2009/07/13 21:01:38 srappocc Exp $
+// $Id: MultiChainEvent.cc,v 1.4 2009/07/22 16:14:35 cplager Exp $
 //
 
 // system include files
@@ -170,18 +170,12 @@ MultiChainEvent::getProcessHistory() const
   return event1_->getProcessHistory();
 }
 
-edm::EventID
-MultiChainEvent::id() const
+edm::EventAuxiliary const&
+MultiChainEvent::eventAuxiliary() const
 {
-  return event1_->id();
+   return event1_->eventAuxiliary();
 }
-
-const edm::Timestamp&
-MultiChainEvent::time() const
-{
-  return event1_->time();
-}
-
+   
 bool 
 MultiChainEvent::getByLabel(const std::type_info& iType, 
                        const char* iModule, 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.18 2009/07/20 20:51:33 cplager Exp $
+// $Id: Event.h,v 1.20 2009/07/22 16:14:35 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -154,8 +154,7 @@ namespace fwlite {
       
          Long64_t size() const;
 
-         edm::EventID id() const;
-         const edm::Timestamp& time() const;
+         virtual edm::EventAuxiliary const& eventAuxiliary() const;
    
          const std::vector<edm::BranchDescription>& getBranchDescriptions() const { 
             return branchMap_.getBranchDescriptions();

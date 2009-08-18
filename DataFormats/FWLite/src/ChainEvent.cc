@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.9 2009/07/13 21:01:38 srappocc Exp $
+// $Id: ChainEvent.cc,v 1.11 2009/07/22 16:14:35 cplager Exp $
 //
 
 // system include files
@@ -216,18 +216,14 @@ ChainEvent::getProcessHistory() const
   return event_->getProcessHistory();
 }
 
-edm::EventID
-ChainEvent::id() const
+edm::EventAuxiliary const& 
+ChainEvent::eventAuxiliary() const
 {
-  return event_->id();
+   return event_->eventAuxiliary();
 }
 
-const edm::Timestamp&
-ChainEvent::time() const
-{
-  return event_->time();
-}
-
+   
+   
 bool 
 ChainEvent::getByLabel(const std::type_info& iType, 
                        const char* iModule, 
