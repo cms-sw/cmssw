@@ -1,3 +1,10 @@
+2009-08-19  Remi Mommsen <remigius.mommsen@cern.ch>
+
+	* tag V01-08-15
+	* Add the option 'esSelectedEventSelection', an array of strings, used to
+	  specify the event selection used by the proxy server when requesting
+	  events from the StorageManager.
+	
 2009-05-22  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-14
