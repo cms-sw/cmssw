@@ -49,7 +49,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoEgamma/Examples/plugins/ElectronIDAnalyzer.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 /** \class HLTEgamma
