@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.31 2009/05/22 16:01:05 biery Exp $
+// $Id: SMProxyServer.cc,v 1.32 2009/08/18 09:45:41 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1512,8 +1512,16 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         //}
         *out << "    <br/>" << std::endl;
         *out << "    Selected HLT output module is "
-             << eventServer->getHLTOutputSelection()
+             << esSelectedHLTOutputModule_.toString()
              << "." << std::endl;
+        if ( ! esSelectedEventSelection_.empty() )
+        {
+            *out << "    <br/>" << std::endl;
+            *out << "    Selected Event Selection is";
+            for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+                *out << " " << esSelectedEventSelection_[i].toString();
+            *out << "." << std::endl;
+        }
         *out << "  </td>" << std::endl;
         *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
         if (autoUpdate) {
