@@ -1,3 +1,4 @@
+--Basically dumps all per-instance information for the last 10 runs (view has a row for each instance for each run)
 create or replace view view_sm_instances
 AS SELECT "RUN_NUMBER",
           "INSTANCE_NUMBER",
@@ -25,7 +26,8 @@ FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
              TO_CHAR( NVL(N_CHECKED, 0)) AS NUM_CHECKED,
              TO_CHAR( NVL(N_DELETED, 0)) AS NUM_DELETED,
              TO_CHAR( NVL(N_REPACKED, 0)) AS NUM_REPACKED,
-            (CASE NVL(N_CREATED,0) - NVL(N_INJECTED,0)
+            --These fields will return 1 if the field has a value differing from the preceding field (still active)
+	    (CASE NVL(N_CREATED,0) - NVL(N_INJECTED,0)
              WHEN 0 THEN TO_CHAR(0)
              ELSE TO_CHAR(1)
              END) AS OPEN_STATUS,
