@@ -3,6 +3,8 @@
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include <cstdio>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace reco;
 
 TrackResiduals::TrackResiduals () : residualType(X_Y_RESIDUALS)
@@ -23,6 +25,9 @@ void TrackResiduals::setResidualType (enum ResidualType type)
 void TrackResiduals::setResidualXY (int idx, double residualX, double residualY)
 {
      assert(residualType == X_Y_RESIDUALS);
+     if (idx>=numResiduals) {
+       edm::LogWarning("TrackResiduals")<<" setting residual over the array size.";
+       return;}
      residuals_[idx] = (pack_residual(residualX) << 4) | pack_residual(residualY);
 }
 
@@ -86,6 +91,10 @@ double TrackResiduals::residualY (int i, const HitPattern &h) const
 void TrackResiduals::setPullXY (int idx, double pullX, double pullY)
 {
      assert(residualType == X_Y_PULLS);
+     if (idx>=numResiduals) {
+       edm::LogWarning("TrackResiduals")<<" setting pulls over the array size.";
+       return;}
+
      residuals_[idx] = (pack_pull(pullX) << 4) | pack_pull(pullY);
 }
 
