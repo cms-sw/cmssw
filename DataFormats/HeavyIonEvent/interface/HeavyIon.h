@@ -6,11 +6,11 @@
 
 namespace pat {
 
-   class HeavyIon : public reco::Centrality, public reco::EvtPlane {
+   class HeavyIon {
    public:
       HeavyIon();
-      HeavyIon(const reco::Centrality & c, const reco::EvtPlane & e);
-      HeavyIon(const reco::Centrality & c, const reco::EvtPlane & e, double b, int npart, int ncoll, int nhard, double phi);
+      HeavyIon(const reco::CentralityCollection & c, const reco::EvtPlaneCollection & e);
+      HeavyIon(const reco::CentralityCollection & c, const reco::EvtPlaneCollection & e, double b, int npart, int ncoll, int nhard, double phi);
       virtual ~HeavyIon(){;}
 
       bool initializeCentrality();

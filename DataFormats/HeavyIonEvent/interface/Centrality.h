@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.2 2008/07/04 13:54:04 yilmaz Exp $
+// $Id: Centrality.h,v 1.3 2009/08/17 18:08:14 yilmaz Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -10,22 +10,13 @@
 
 namespace reco { class Centrality {
 public:
-  Centrality(double eHF=0, double eCASTOR=0, double eZDC=0, int ZDCHits=0);
+  Centrality(double d=0, std::string label = "");
   virtual ~Centrality();
 
+  std::string label()           const { return label_; }
   double    raw()               const { return value_; }
-  double    HFEnergy()          const { return HFEnergy_; } 
-  double    CASTOREnergy()      const { return CASTOREnergy_; } 
-  double    ZDCEnergy()         const { return ZDCEnergy_; } 
-  int       ZDCHitCounts()      const { return ZDCHitCounts_; } 
 
 private:
-  double    HFEnergy_  ;
-  double    CASTOREnergy_  ;
-  double    ZDCEnergy_  ;
-  int       ZDCHitCounts_  ;
-
-  //Preparaion for new format:
   std::string label_;
   double value_;
 

@@ -1,11 +1,11 @@
 
 #include "DataFormats/HeavyIonEvent/interface/HeavyIon.h"
 
-pat::HeavyIon::HeavyIon() : reco::Centrality(), reco::EvtPlane() {;}
+pat::HeavyIon::HeavyIon(){;}
 
-pat::HeavyIon::HeavyIon(const reco::Centrality & c, const reco::EvtPlane & e) :
-   reco::Centrality(c),
-   reco::EvtPlane(e),
+pat::HeavyIon::HeavyIon(const reco::CentralityCollection & c, const reco::EvtPlaneCollection & e) :
+   cents_(c),
+   planes_(e),
    isMC_(false),
    b_(-99),
    npart_(-99),
@@ -13,9 +13,9 @@ pat::HeavyIon::HeavyIon(const reco::Centrality & c, const reco::EvtPlane & e) :
    nhard_(-99),
    phi_(-99) {;}
 
-pat::HeavyIon::HeavyIon(const reco::Centrality & c, const reco::EvtPlane & e, double b, int npart, int ncoll, int nhard, double phi) : 
-   reco::Centrality(c), 
-   reco::EvtPlane(e), 
+pat::HeavyIon::HeavyIon(const reco::CentralityCollection & c, const reco::EvtPlaneCollection & e, double b, int npart, int ncoll, int nhard, double phi) : 
+   cents_(c),
+   planes_(e),
    isMC_(true), 
    b_(b), 
    npart_(npart), 
