@@ -64,7 +64,7 @@ private:
 void
 testEventQueueCollection::setUp()
 { 
-  _cmcptr.reset(new stor::ConsumerMonitorCollection());
+  _cmcptr.reset(new stor::ConsumerMonitorCollection(1));
 
   CPPUNIT_ASSERT(g_factory);
   CPPUNIT_ASSERT(g_alloc);

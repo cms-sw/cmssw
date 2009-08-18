@@ -76,7 +76,7 @@ void testEventDistributor::initEventDistributor()
       _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
       _sharedResources->_streamQueue.reset(new StreamQueue(1024));
       _sharedResources->_dqmEventQueue.reset(new DQMEventQueue(1024));
-      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app));
+      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app,1));
       _eventDistributor.reset(new EventDistributor(_sharedResources));
       boost::shared_ptr<ConsumerMonitorCollection>
         cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );

@@ -108,7 +108,7 @@ void testStateMachine::setUp()
     _sr->_registrationQueue.reset(new RegistrationQueue(32));
     _sr->_streamQueue.reset(new StreamQueue(32));
     _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
-    _sr->_statisticsReporter.reset( new StatisticsReporter( _app ) );
+    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 1 ) );
     boost::shared_ptr<ConsumerMonitorCollection>
       cmcptr( _sr->_statisticsReporter->getEventConsumerMonitorCollection() );
     _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
@@ -137,7 +137,7 @@ void testStateMachine::tearDown()
 void testStateMachine::resetStateMachine()
 {
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   _machine->initiate();
 }
 
@@ -424,7 +424,7 @@ void testStateMachine::testStopSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   stMachEvent.reset( new Stop() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
@@ -453,7 +453,7 @@ void testStateMachine::testHaltSequence()
 
   resetStateMachine();
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   CPPUNIT_ASSERT( checkState( "Halted" ) );
 
   stMachEvent.reset( new Configure() );
@@ -465,7 +465,7 @@ void testStateMachine::testHaltSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   stMachEvent.reset( new Halt() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Halted" ) );
@@ -491,7 +491,7 @@ void testStateMachine::testReconfigureSequence()
 
   resetStateMachine();
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   CPPUNIT_ASSERT( checkState( "Halted" ) );
 
   stMachEvent.reset( new Configure() );
@@ -499,7 +499,7 @@ void testStateMachine::testReconfigureSequence()
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   stMachEvent.reset( new Reconfigure() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );
@@ -533,7 +533,7 @@ void testStateMachine::testEmergencyStopSequence()
   CPPUNIT_ASSERT( checkState( "Processing" ) );
 
   _sr->_statisticsReporter->
-    getStateMachineMonitorCollection().reset();
+    getStateMachineMonitorCollection().reset(0);
   stMachEvent.reset( new EmergencyStop() );
   processEvent( stMachEvent );
   CPPUNIT_ASSERT( checkState( "Stopped" ) );

@@ -56,11 +56,10 @@ private:
 };
 
 testMonitoredQuantity::testMonitoredQuantity() :
-  _multiplier(drand48()*100)
-{
-  //Only 2 bins deep history for testing
-  _quantity.setNewTimeWindowForRecentResults(2);
+_quantity(1,2), //Only 2 bins deep history for testing
 
+_multiplier(drand48()*100)
+{
   srand48(static_cast<long int>(utils::getCurrentTime()));
 }
 
