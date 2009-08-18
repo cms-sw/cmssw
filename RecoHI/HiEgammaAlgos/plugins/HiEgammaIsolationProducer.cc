@@ -80,6 +80,12 @@ class HiEgammaIsolationProducer : public edm::EDProducer {
 //
 HiEgammaIsolationProducer::HiEgammaIsolationProducer(const edm::ParameterSet& iConfig):
   photons_(iConfig.getParameter<edm::InputTag>("photons")),
+  barrelBCLabel_(iConfig.getParameter<edm::InputTag>("barrelBasicCluster")),
+  endcapBCLabel_(iConfig.getParameter<edm::InputTag>("endcapBasicCluster")),
+  hfLabel_(iConfig.getParameter<edm::InputTag>("hfreco")),
+  hoLabel_(iConfig.getParameter<edm::InputTag>("horeco")),
+  hbheLabel_(iConfig.getParameter<edm::InputTag>("hbhereco")),
+  trackLabel_(iConfig.getParameter<edm::InputTag>("track")),
   label_(iConfig.existsAs<std::string>("label") ? iConfig.getParameter<std::string>("label") : ""),
   x_(iConfig.getParameter<double>("x")),
   y_(iConfig.getParameter<double>("y")),
@@ -87,13 +93,7 @@ HiEgammaIsolationProducer::HiEgammaIsolationProducer(const edm::ParameterSet& iC
        iConfig.getParameter<std::string>("iso") == "Rx" ? calcRx :
        iConfig.getParameter<std::string>("iso") == "Txy" ? calcTxy :
        iConfig.getParameter<std::string>("iso") == "dRxy" ? calcDRxy : calcErr ),
-  mode_( iConfig.getParameter<std::string>("mode") == "backgroundSubtracted" ? 1 : 0),
-  barrelBCLabel_(iConfig.getParameter<edm::InputTag>("barrelBasicCluster")),
-  endcapBCLabel_(iConfig.getParameter<edm::InputTag>("endcapBasicCluster")),
-  hfLabel_(iConfig.getParameter<edm::InputTag>("hfreco")),
-  hoLabel_(iConfig.getParameter<edm::InputTag>("horeco")),
-  hbheLabel_(iConfig.getParameter<edm::InputTag>("hbhereco")),
-  trackLabel_(iConfig.getParameter<edm::InputTag>("track"))
+  mode_( iConfig.getParameter<std::string>("mode") == "backgroundSubtracted" ? 1 : 0)
 {
       produces<edm::ValueMap<float> >();
 }
