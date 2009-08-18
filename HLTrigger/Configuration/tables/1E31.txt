@@ -94,6 +94,7 @@ AlCa_EcalPi0_1E31
 AlCa_EcalEta_1E31
 AlCa_RPCMuonNoHits
 AlCa_RPCMuonNormalisation
+AlCa_DTErrors
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput
