@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/08/05 13:04:50 $
- * $Revision: 1.27 $
+ * $Date: 2009/08/07 13:11:18 $
+ * $Revision: 1.28 $
  * \author J. Berryhill
  *
  */
@@ -14,16 +14,9 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
-// Also remember geometry classes, which are needed to SR LUTs to function
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 // KK_end
-
-// JAG start: grab reco info
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-//#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-//JAG end
 
 using namespace std;
 using namespace edm;
@@ -95,45 +88,46 @@ L1TCSCTF::~L1TCSCTF()
 void L1TCSCTF::beginJob(const EventSetup& c)
 {
 
-  	nev_ = 0;
+  nev_ = 0;
 
-  	// get hold of back-end interface
-  	DQMStore* dbe = 0;
-  	dbe = Service<DQMStore>().operator->();
+  // get hold of back-end interface
+  DQMStore* dbe = 0;
+  dbe = Service<DQMStore>().operator->();
 
-  	if ( dbe ) {
-    	dbe->setCurrentFolder("L1T/L1TCSCTF");
-    	dbe->rmdir("L1T/L1TCSCTF");
-  	}
+  if( dbe )
+	{
+  	dbe->setCurrentFolder("L1T/L1TCSCTF");
+    dbe->rmdir("L1T/L1TCSCTF");
+  }
 
 
-	if ( dbe )
-  	{
-    	dbe->setCurrentFolder("L1T/L1TCSCTF");
+	if( dbe )
+	{
+  	dbe->setCurrentFolder("L1T/L1TCSCTF");
 		
-  		// KK_start: declaration of two monitoring histograms
-  		//  Error counting histogram:
-  		//  1) checks TF data integrity (error rate - first bin),
-  		//  2) monitors sychronization on input links (4 errors types: SE/SM/BX/AF; ORed for all time bins, links, and SPs),
-  		//  3) reports FMM status (if in any SP FMM status != "Ready" - fill the last bin)
-  		csctferrors = dbe->book1D("CSCTF_errors","CSCTF Errors",6,0,6);	
+  	// KK_start: declaration of two monitoring histograms
+  	//  Error counting histogram:
+  	//  1) checks TF data integrity (error rate - first bin),
+  	//  2) monitors sychronization on input links (4 errors types: SE/SM/BX/AF; ORed for all time bins, links, and SPs),
+  	//  3) reports FMM status (if in any SP FMM status != "Ready" - fill the last bin)
+  	csctferrors = dbe->book1D("CSCTF_errors","CSCTF Errors",6,0,6);	
 		csctferrors->setAxisTitle("Error type",1);
-  		csctferrors->setAxisTitle("Number of Errors",2);
-  		csctferrors->setBinLabel(1,"Corruptions",1);
-  		csctferrors->setBinLabel(2,"Synch. Err.",1);
-  		csctferrors->setBinLabel(3,"Synch. Mod.",1);
-  		csctferrors->setBinLabel(4,"BX mismatch",1);
-  		csctferrors->setBinLabel(5,"Time misalign.",1);
-  		csctferrors->setBinLabel(6,"FMM != Ready",1);
-  		
+  	csctferrors->setAxisTitle("Number of Errors",2);
+  	csctferrors->setBinLabel(1,"Corruptions",1);
+  	csctferrors->setBinLabel(2,"Synch. Err.",1);
+  	csctferrors->setBinLabel(3,"Synch. Mod.",1);
+  	csctferrors->setBinLabel(4,"BX mismatch",1);
+  	csctferrors->setBinLabel(5,"Time misalign.",1);
+  	csctferrors->setBinLabel(6,"FMM != Ready",1);
+  	
 		//  Occupancy histogram Eta x Y, where Y:
-  		//  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
-  		//  2) Phi_packed of output tracks
-  		//  (all 12 SPs - 360 degree coveradge)
-  		//csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1229,0,1.2);
-  		
+  	//  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
+  	//  2) Phi_packed of output tracks
+  	//  (all 12 SPs - 360 degree coveradge)
+  	//csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1229,0,1.2);
+  	
 		//JAG MOD
-		csctfoccupancies = dbe->book2D("CSCTF_occupancies", "CSCTF Occupancies", 64,-1.6,1.6,32,0,6.2);
+		csctfoccupancies = dbe->book2D("CSCTF_occupancies", "CSCTF Occupancies", 64,-32,31,32,0,6.2);
 		csctfoccupancies->setAxisTitle("#eta",1);
 		csctfoccupancies->setAxisTitle("#phi",2);
 		csctfoccupancies->setBinLabel(1, "-2.5", 1);
@@ -142,18 +136,8 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		csctfoccupancies->setBinLabel(33,"0.9", 1);
 		csctfoccupancies->setBinLabel(45,"1.3", 1);
 		csctfoccupancies->setBinLabel(64,"2.5", 1);
-		//csctfoccupancies->setAxisTitle("#phi of LCTs x station x endcap & #phi of tracks",2);
-  		//csctfoccupancies->setBinLabel(64,  "ME-1",2);
-  		//csctfoccupancies->setBinLabel(192, "ME+1",2);
-  		//csctfoccupancies->setBinLabel(320, "ME-2",2);
-  		//csctfoccupancies->setBinLabel(448, "ME+2",2);
-  		//csctfoccupancies->setBinLabel(576, "ME-3",2);
-  		//csctfoccupancies->setBinLabel(704, "ME+3",2);
-  		//csctfoccupancies->setBinLabel(832, "ME-4",2);
-  		//csctfoccupancies->setBinLabel(960, "ME+4",2);
-  		//csctfoccupancies->setBinLabel(1088,"Tracks",2);
-  		// KK_end
-  		
+  	// KK_end
+  	
 		//JAG
 		haloDelEta23 = dbe->book1D("CSCTF_Halo_Eta23","Delta station 2 to station 3 Eta for Halo Muons", 40, -0.20,0.30);
 		
@@ -166,7 +150,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		csctfTrackQ->setBinLabel(4,"ME1-2-4",1);
 		csctfTrackQ->setBinLabel(5,"ME1-3-4",1);
 		csctfTrackQ->setBinLabel(6,"ME2-3-4",1);
-		csctfTrackQ->setBinLabel(6,"ME1-2",1);
+		csctfTrackQ->setBinLabel(7,"ME1-2",1);
 		csctfTrackQ->setBinLabel(8,"ME1-3",1);
 		csctfTrackQ->setBinLabel(9,"ME2-3",1);
 		csctfTrackQ->setBinLabel(10,"ME2-4",1);
@@ -177,9 +161,9 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		csctfTrackQ->setBinLabel(15,"ME2,MB1",1);
 		csctfTrackQ->setBinLabel(16,"Halo Trigger",1);
 		
-  		csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
+  	csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
 		csctfChamberOccupancies->setAxisTitle("Sector (Endcap), (chambers 1-9 not labeled)",1);
-  		csctfChamberOccupancies->setBinLabel(1,"ME-4",2);
+  	csctfChamberOccupancies->setBinLabel(1,"ME-4",2);
 		csctfChamberOccupancies->setBinLabel(2,"ME-3",2);
 		csctfChamberOccupancies->setBinLabel(3,"ME-2",2);
 		csctfChamberOccupancies->setBinLabel(4,"ME-1b",2);
@@ -196,10 +180,18 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		csctfChamberOccupancies->setBinLabel(37,"5(+), 11(-)",1);
 		csctfChamberOccupancies->setBinLabel(46,"6(+), 12(-)",1);
 		
-		csctfTrackPhi = dbe->book1D("CSCTF_Track_Phi", "CSCTF Track Phi",32,0,6.2);
+		csctfTrackPhi = dbe->book1D("CSCTF_Track_Phi", "CSCTF Track Phi",144,0,2*M_PI);
+		//csctfTrackPhi = dbe->book1D("CSCTF_Track_Phi", "CSCTF Track Phi",32,0,32);
 		csctfTrackPhi->setAxisTitle("Track #phi", 1);
-		csctfTrackEta = dbe->book1D("CSCTF_Track_Eta", "CSCTF Track Eta",32,0.9,2.5);
+		csctfTrackEta = dbe->book1D("CSCTF_Track_Eta", "CSCTF Track Eta",64,-32,32);
+		//csctfTrackEta = dbe->book1D("CSCTF_Track_Eta", "CSCTF TrackEta",32,0,32);
 		csctfTrackEta->setAxisTitle("Track #eta", 1);
+		csctfTrackEta->setBinLabel(1, "-2.5", 1);
+		csctfTrackEta->setBinLabel(16,"-1.3", 1);
+		csctfTrackEta->setBinLabel(32,"-0.9", 1);
+		csctfTrackEta->setBinLabel(33,"0.9", 1);
+		csctfTrackEta->setBinLabel(45,"1.3", 1);
+		csctfTrackEta->setBinLabel(64,"2.5", 1);
 		
 		csctfbx = dbe->bookProfile("CSCTF_bx","CSCTF bx", 36, 0.5, 36.5, 15, -5.5,9.5 ) ;
 		csctfbx->setAxisTitle("Sector, Endcap, MPC Link", 1);
@@ -219,7 +211,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		cscTrackStubNumbers = dbe->book1D("CSCTF_TrackStubs", "Number of Stubs in CSC Tracks", 5, 0.5, 5.5);
 		
 		csctfntrack = dbe->book1D("CSCTF_ntrack","Number of CSCTracks found per event", 5, 0.5, 5.5 ) ;
-  		//JAG
+  	//JAG
 	}
 }
 
@@ -239,49 +231,35 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 {
 	int NumCSCTfTracksRep = 0;
 	nev_++;
-  	if(verbose_) cout << "L1TCSCTF: analyze...." << endl;
+  if(verbose_) cout << "L1TCSCTF: analyze...." << endl;
 
-  	edm::Handle<L1MuGMTReadoutCollection> pCollection;
-
-  	// KK_start ///////////////////////////////////
-	
-  	if( gmtProducer.label() != "null" )
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+  if( gmtProducer.label() != "null" )
 	{ // GMT block
-    	e.getByLabel(gmtProducer,pCollection);
-  		// KK_end   ///////////////////////////////////
-
+  	e.getByLabel(gmtProducer,pCollection);
 		if (!pCollection.isValid()) 
-  		{
-    		edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label ";  // << csctfSource_.label() ;
-    		return;
-  		}
+  	{
+    	edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label ";  // << csctfSource_.label() ;
+    	return;
+  	}
 
-  		L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
-  		vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  		vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
-
-  		int ncsctftrack = 0;
-  		
-      	//csctfntrack->Fill(ncsctftrack);
-		
-      	if (verbose_)
+  	L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  	vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  	vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  	int ncsctftrack = 0;
+    if (verbose_)
 		{
-     	cout << "\tCSCTFCand ntrack " << ncsctftrack << endl;
+    	cout << "\tCSCTFCand ntrack " << ncsctftrack << endl;
 		}
-  
-  	// KK_start  ///////////////////////////////////
-  	} // end of GMT block
-  	// KK_end    ///////////////////////////////////
+  } // end of GMT block
 
-
-  	// KK_start ///////////////////////////////////
-  	if( statusProducer.label() != "null" )
+  if( statusProducer.label() != "null" )
 	{
     	edm::Handle<L1CSCStatusDigiCollection> status;
      	e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
      	bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
      	for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin(); stat!=status->second.end(); stat++)
-		{
+			{
         	se |= stat->SEs()&0xFFF;
         	sm |= stat->SMs()&0xFFF;
         	bx |= stat->BXs()&0xFFF;
@@ -289,36 +267,34 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
         	fmm|= stat->FMM()!=8;
      	}
      
-	 	if(integrity) csctferrors->Fill(0.5);
+	 		if(integrity) csctferrors->Fill(0.5);
      	if(se)        csctferrors->Fill(1.5);
      	if(sm)        csctferrors->Fill(2.5);
      	if(bx)        csctferrors->Fill(3.5);
      	if(af)        csctferrors->Fill(4.5);
      	if(fmm)       csctferrors->Fill(5.5);
-  	}
+  }
 
-
-  	if( lctProducer.label() != "null" )
+  if( lctProducer.label() != "null" )
 	{
-     	edm::ESHandle<CSCGeometry> pDD;
-     	c.get<MuonGeometryRecord>().get( pDD );
-     	CSCTriggerGeometry::setGeometry(pDD);
+  	edm::ESHandle<CSCGeometry> pDD;
+    c.get<MuonGeometryRecord>().get( pDD );
+    CSCTriggerGeometry::setGeometry(pDD);
 
-     	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-     	e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+    edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
+    e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
 
-     	for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
+    for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
 		{
-        	CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-        	for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++)
+    	CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
+      for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++)
 			{
-           		int endcap  = (*csc).first.endcap()-1;
-           		int station = (*csc).first.station()-1;
-           		int sector  = (*csc).first.triggerSector()-1;
-           		int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-           		int cscId   = (*csc).first.triggerCscId()-1;
-           		int fpga    = ( subSector ? subSector-1 : station+1 );
-				
+        int endcap  = (*csc).first.endcap()-1;
+        int station = (*csc).first.station()-1;
+        int sector  = (*csc).first.triggerSector()-1;
+        int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+        int cscId   = (*csc).first.triggerCscId()-1;
+        int fpga    = ( subSector ? subSector-1 : station+1 );
 				//JAG
 				int endcapAssignment = 1;
 				int shift = 1;
@@ -362,162 +338,156 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 				//End JAG
 				
 				// Check if Det Id is within pysical range:
-           		if( endcap<0||endcap>1 || sector<0||sector>6 || station<0||station>3 || cscId<0||cscId>8 || fpga<0||fpga>4)
+        if( endcap<0||endcap>1 || sector<0||sector>6 || station<0||station>3 || cscId<0||cscId>8 || fpga<0||fpga>4)
 				{
-              		edm::LogError("L1CSCTF: CSC TP are out of range: ")<<"  endcap: "<<(endcap+1)<<"  station: "<<(station+1) <<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  fpga: "<<fpga<<"  cscId: "<<(cscId+1);
-              		continue;
-           		}
-				
-           		lclphidat lclPhi;
-           		
+        	edm::LogError("L1CSCTF: CSC TP are out of range: ")<<"  endcap: "<<(endcap+1)<<"  station: "<<(station+1) <<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  fpga: "<<fpga<<"  cscId: "<<(cscId+1);
+        	continue;
+        }
+        lclphidat lclPhi;  		
 				try {
-             		lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
-           		} catch(...) { 
+        	lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
+        } catch(...) { 
 					bzero(&lclPhi,sizeof(lclPhi)); 
 				}
 				
-           		gblphidat gblPhi;
-				
-           		try {
-             		gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
-           		} catch(...) { 
+				gblphidat gblPhi;
+				try {
+        	gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+        } catch(...) { 
 					bzero(&gblPhi,sizeof(gblPhi)); 
 				}
 				
-           		gbletadat gblEta;
-				
-           		try {
-             		gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
-           		} catch(...) { 
+        gbletadat gblEta;
+				try {
+        	gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
+        } catch(...) { 
 					bzero(&gblEta,sizeof(gblEta)); 
 				}
            
-		   		// SR LUT gives packed eta and phi values -> normilize them to 1 by scale them to 'max' and shift by 'min'
-           		//float etaP = gblEta.global_eta/127*1.5 + 0.9;
+		   	// SR LUT gives packed eta and phi values -> normilize them to 1 by scale them to 'max' and shift by 'min'
+        //float etaP = gblEta.global_eta/127*1.5 + 0.9;
 				//float phiP =  (gblPhi.global_phi);// + ( sector )*4096 + station*4096*12) * 1./(4*4096*12);
 				//std::cout << "LCT Eta & Phi Coordinates: " << etaP << ", " << phiP << "." << std::endl;
 				//csctfoccupancies->Fill( gblEta.global_eta/127. * 1.5 + 0.9, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./(4*4096*12) );
-        	}//lct != range1.scond
-     	}//csc!=corrlcts.product()->end()
-  	}// lctProducer.label() != "null"
+      }//lct != range1.scond
+    }//csc!=corrlcts.product()->end()
+	}// lctProducer.label() != "null"
+
+
 
   	if( trackProducer.label() != "null" )
-	{
+		{
 		
      	edm::Handle<L1CSCTrackCollection> tracks;
      	e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
-     	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
-        	NumCSCTfTracksRep++;
-			
-			//JAG_START
-			edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-     		e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
-			
-			long LUTAdd = trk->first.ptLUTAddress();
-			int trigMode = ( (LUTAdd)&0xf0000 ) >> 16;
-			float etaReal = (trk->first.eta_packed() )*1.6/32;
-			if( trk->first.endcap() == 1) 
+     	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++)
 			{
-				float holder = etaReal;
-				etaReal = -1*holder;
-			}
-			float phiReal = (trk->first.phi_packed() )*(M_PI)/96 + (trk->first.sector() - 1)*(M_PI)/3 + 0.253;
-			if( phiReal > (2 *(M_PI) ) ) phiReal -= (2*(M_PI));
-						
-			csctfoccupancies->Fill( etaReal, phiReal);
-			csctfTrackPhi->Fill(phiReal);
-			csctfTrackEta->Fill(etaReal);
-			//std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
-			
-			csctfTrackQ->Fill( trigMode );
-			
-			if( trigMode == 15 ){
-				
-				
-				double haloVals[4][4];
-				for( int i = 0; i < 4; i++)
+				//JAG_START
+				NumCSCTfTracksRep++;
+				long LUTAdd = trk->first.ptLUTAddress();
+				int trigMode = ( (LUTAdd)&0xf0000 ) >> 16;
+				float etaReal = (trk->first.eta_packed() );
+				if( trk->first.endcap() == 1) 
 				{
-					haloVals[i][0] = 0;
+					float holder = etaReal;
+					etaReal = -1*holder;
+					etaReal -= 1;
 				}
 				
-				edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
+				float phiReal = ((trk->first.localPhi())*(62.5/24) + (trk->first.sector() - 1)*60)*M_PI/180 ;//+ 15;
+				if( phiReal > (2*M_PI) ) phiReal -= (2*M_PI);
+				
+				csctfoccupancies->Fill( etaReal, phiReal);
+				csctfTrackPhi->Fill(phiReal);
+				csctfTrackEta->Fill( etaReal );
+				//std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
+			
+				csctfTrackQ->Fill( trigMode );
+			
+				if( trigMode == 15 )
+				{
+					double haloVals[4][4];
+					for( int i = 0; i < 4; i++)
+					{
+						haloVals[i][0] = 0;
+					}
+				
+					edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
      			e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
      			for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
-				{
-        			CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-        			for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++)
 					{
-						int endcap  = (*csc).first.endcap()-1;
-           				int station = (*csc).first.station()-1;
-           				int sector  = (*csc).first.triggerSector()-1;
-		           		int cscId   = (*csc).first.triggerCscId()-1;
-           				int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-						int fpga    = ( subSector ? subSector-1 : station+1 );
-						
-						if( (station == 1) || (station == 2) )
+        		CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
+        		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++)
 						{
-							int modEnd = 1;
-							if( endcap == 0 ) modEnd = -1;
-							//if( endcap == 1 ) modEnd = 1;
-							int indexHalo = modEnd + station;
-							if(haloVals[indexHalo][0] == 1.0) haloVals[indexHalo][3] = 1.0;
-							if(haloVals[indexHalo][0] == 0) haloVals[indexHalo][0] = 1.0;
-							haloVals[indexHalo][1] = sector*1.0;
+							int endcap  = (*csc).first.endcap()-1;
+           		int station = (*csc).first.station()-1;
+           		int sector  = (*csc).first.triggerSector()-1;
+		          int cscId   = (*csc).first.triggerCscId()-1;
+           		int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
+							int fpga    = ( subSector ? subSector-1 : station+1 );
 						
-							lclphidat lclPhi;
-           		   			lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
+							if( (station == 1) || (station == 2) )
+							{
+								int modEnd = 1;
+								if( endcap == 0 ) modEnd = -1;
+								//if( endcap == 1 ) modEnd = 1;
+								int indexHalo = modEnd + station;
+								if(haloVals[indexHalo][0] == 1.0) haloVals[indexHalo][3] = 1.0;
+								if(haloVals[indexHalo][0] == 0) haloVals[indexHalo][0] = 1.0;
+								haloVals[indexHalo][1] = sector*1.0;
+						
+								lclphidat lclPhi;
+           		  lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
            					
-           					gblphidat gblPhi;
+           			gblphidat gblPhi;
 				   			gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
            		
-           					gbletadat gblEta;
+           			gbletadat gblEta;
 				   			gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
 							
-							haloVals[indexHalo][2] = gblEta.global_eta/127. * 1.5 + 0.9;
-						
-						} //station1 or 2
-					} //lct first to second
-				} //corrlcts
+								haloVals[indexHalo][2] = gblEta.global_eta/127. * 1.5 + 0.9;
+							} //station1 or 2
+						} //lct first to second
+					} //corrlcts
 				
-				if( (haloVals[0][0] == 1.) && (haloVals[1][0] == 1.) && (haloVals[0][3] != 1.) && (haloVals[1][3] != 1.)  ){
-					if( haloVals[0][1] == haloVals[1][1] ){
-						double delEta23 = haloVals[1][2] - haloVals[0][2];
-						haloDelEta23->Fill( delEta23 );
+					if( (haloVals[0][0] == 1.) && (haloVals[1][0] == 1.) && (haloVals[0][3] != 1.) && (haloVals[1][3] != 1.)  )
+					{
+						if( haloVals[0][1] == haloVals[1][1] ){
+							double delEta23 = haloVals[1][2] - haloVals[0][2];
+							haloDelEta23->Fill( delEta23 );
+						}
 					}
-				}
 				
-				if( (haloVals[2][0] == 1.) && (haloVals[3][0] == 1.) && (haloVals[2][3] != 1.) && (haloVals[3][3] != 1.)  ){
-					if( haloVals[2][1] == haloVals[3][1] ){
-						double delEta23 = haloVals[3][2] - haloVals[2][2];
-						haloDelEta23->Fill( delEta23 );
-					}
-				}
-				
-			} //halo trigger
+					if( (haloVals[2][0] == 1.) && (haloVals[3][0] == 1.) && (haloVals[2][3] != 1.) && (haloVals[3][3] != 1.)  )
+					{
+						if( haloVals[2][1] == haloVals[3][1] ){
+							double delEta23 = haloVals[3][2] - haloVals[2][2];
+							haloDelEta23->Fill( delEta23 );
+						}
+					}	
+				} //halo trigger
 			
-			int cscTrackStub = 0;
+				int cscTrackStub = 0;
 
-			CSCCorrelatedLCTDigiCollection lctsOfTracks=trk->second;
+				CSCCorrelatedLCTDigiCollection lctsOfTracks=trk->second;
 
      		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator trackStub=lctsOfTracks.begin(); trackStub!=lctsOfTracks.end(); trackStub++)
-			{
-        		CSCCorrelatedLCTDigiCollection::Range range2 = lctsOfTracks.get((*trackStub).first);
-        		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range2.first; lct!=range2.second; lct++)
 				{
-					cscTrackStub++;
-           			
+        	CSCCorrelatedLCTDigiCollection::Range range2 = lctsOfTracks.get((*trackStub).first);
+        	for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range2.first; lct!=range2.second; lct++)
+					{
+						cscTrackStub++;			
+					}
 				}
-			}
 			
-			//
+				//
      		//edm::Handle<L1CSCTrack> tfInf;
-			//e.getByLabel(trackProducer.label(), tfInf);
-			
-			cscTrackStubNumbers->Fill(cscTrackStub);
+				//e.getByLabel(trackProducer.label(), tfInf);
+				cscTrackStubNumbers->Fill(cscTrackStub);
 				
-			//JAG_END
+				//JAG_END
+			}
 		}
-  	}
-	csctfntrack->Fill(NumCSCTfTracksRep);
+		csctfntrack->Fill(NumCSCTfTracksRep);
   	// KK_end    ///////////////////////////////////
 }
