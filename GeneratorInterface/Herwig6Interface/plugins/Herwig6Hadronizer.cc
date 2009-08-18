@@ -419,10 +419,9 @@ bool Herwig6Hadronizer::hadronize()
 	hwcdec();	// cluster decays
 	
 	// if event *not* killed by HERWIG, return true
-	if (!hwevnt.IERROR) {
-	  hwufne();	// finalize event
-	  if (!hwevnt.IERROR) return true;
-	}
+	if (!hwevnt.IERROR)  return true;
+	
+	hwufne();	// finalize event, to keep system clean
 	return false;
 }
 
