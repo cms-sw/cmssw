@@ -34,5 +34,12 @@ process.hcalTowerAnalyzer = cms.EDFilter("CaloTowersValidation",
     hcalselector = cms.untracked.string('all')
 )
 
-process.p = cms.Path(process.hcalRecoAnalyzer * process.hcalTowerAnalyzer)
+process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
+     rbxCollName = cms.string('hcalnoise'),
+     outputFile = cms.untracked.string('NoiseRatesRelVal.root'),
+     minRBXEnergy = cms.double(20.0),
+     minHitEnergy = cms.double(1.5)
+)
+
+process.p = cms.Path(process.hcalRecoAnalyzer * process.hcalTowerAnalyzer * process.hcalNoiseRates)
 
