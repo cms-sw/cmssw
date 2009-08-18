@@ -1,3 +1,5 @@
+--provides per stream information (one row per stream each run)
+--utilizes many of the functions declared in view_summary.sql
 create or replace view view_sm_streams
 AS SELECT  "RUN_NUMBER",
 	   "STREAM", 
