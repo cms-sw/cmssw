@@ -62,7 +62,7 @@ namespace edm {
 
     void copyProduct(BranchDescription const& productdesc);
 
-    void setFrozen() const;
+    void setFrozen(bool initializeLookupInfo = true) const;
 
     std::string merge(ProductRegistry const& other,
 	std::string const& fileName,
@@ -148,7 +148,7 @@ namespace edm {
 
     bool & frozen() const {return transients_.get().frozen_;}
     
-    void initializeTransients() const;
+    void initializeLookupTables() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;

@@ -93,11 +93,13 @@ namespace edm {
   }
   
   void
-  ProductRegistry::setFrozen() const {
+  ProductRegistry::setFrozen(bool initializeLookupInfo) const {
     checkAllDictionaries();
     if(frozen()) return;
     frozen() = true;
-    initializeTransients();
+    if (initializeLookupInfo) {
+      initializeLookupTables();
+    }
   }
   
   void
@@ -205,7 +207,7 @@ namespace edm {
 	++j;
       }
     }
-    initializeTransients();
+    initializeLookupTables();
     return differences.str();
   }
 
@@ -220,7 +222,7 @@ namespace edm {
                         branchDesc)]=index;
   }
   
-  void ProductRegistry::initializeTransients() const {
+  void ProductRegistry::initializeLookupTables() const {
     constProductList().clear();
     transients_.get().branchIDToIndex_.clear();
     ProductTransientIndex index=0;
