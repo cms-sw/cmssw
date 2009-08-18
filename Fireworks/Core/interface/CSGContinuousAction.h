@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.4 2008/11/06 22:05:22 amraktad Exp $
+// $Id: CSGContinuousAction.h,v 1.5 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ public:
    //virtual ~CSGContinuousAction();
 
    // ---------- const member functions ---------------------
-   bool isRunning() const;
+   bool isRunning() const { return m_isRunning; }
 
    // ---------- static member functions --------------------
 
