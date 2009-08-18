@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.19 2009/08/13 19:11:17 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.20 2009/08/14 10:23:32 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ public:
 
    bool loadFile(const std::string& fileName);
    void newRemoteFile(const std::string& fileName);
-   void checkPositionInGoTo();
+   void checkPosition();
    void nextEvent();
    void previousEvent();
    void firstEvent();

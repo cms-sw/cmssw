@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.33 2009/08/13 19:11:17 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.34 2009/08/14 10:23:32 amraktad Exp $
 //
 
 // hacks
@@ -111,7 +111,7 @@ CmsShowNavigator::realEntry(Int_t run, Int_t event) {
 }
 
 void
-CmsShowNavigator::checkPositionInGoTo()
+CmsShowNavigator::checkPosition()
 {
    if ( m_event->id() == m_firstID )
       atBeginning_.emit();
@@ -213,7 +213,7 @@ CmsShowNavigator::goToRun(Int_t run)
       else
          m_currentSelectedEntry = index;
       newEvent_.emit(*m_event);
-      checkPositionInGoTo();
+      checkPosition();
    }
    else oldEvent_.emit(*m_event);
 }
@@ -234,7 +234,7 @@ CmsShowNavigator::goToEvent(Int_t event)
       else
          m_currentSelectedEntry = index;
       newEvent_.emit(*m_event);
-      checkPositionInGoTo();
+      checkPosition();
    }
    else oldEvent_.emit(*m_event);
 }
