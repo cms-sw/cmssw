@@ -5,8 +5,7 @@ source /afs/cern.ch/cms/sw/cmsset_default.sh
 RunStart=$1
 RunEnd=$2
 
-#Password=<<!!INSERT_DATABASE_PASSWORD_HERE!!>>
-Password=YHIX4CVVAJVRUXE6
+Password=<<!!INSERT_DATABASE_PASSWORD_HERE!!>>
 
 BasePlotOutDir=`pwd`/./HistoricDQMPlots
 mkdir -pv $BasePlotOutDir
