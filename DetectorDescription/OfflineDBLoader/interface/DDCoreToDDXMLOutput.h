@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 
 #include <iostream>
+#include <set>
 
 /** @class DDCoreToDDXMLOutput DDCoreToDDXMLOutput.h
  *
@@ -40,6 +41,12 @@ struct DDCoreToDDXMLOutput {
 
   void specpar ( const DDSpecifics & sp, std::ostream& xos );
 
+/*   void specpar ( const std::pair<DDPartSelection*, DDsvalues_type*>& pssv, std::ostream& xos ); */
+
+/*   //  void specpar ( const std::pair<DDsvalues_type*, std::vector<DDPartSelection*> > pssv, std::ostream& xos ); */
+/*   void specpar ( const std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> >& pssv, std::ostream& xos ); */
+
+  void specpar ( const std::pair<DDsvalues_type, std::vector<DDPartSelection*> >& pssv, std::ostream& xos );
   // data
   //  std::vector<std::string> ddNsName_;
   //  std::map<int, std::string> newddNsName_; // this int is the index in ddNsName_

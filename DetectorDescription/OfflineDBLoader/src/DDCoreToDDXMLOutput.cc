@@ -289,7 +289,7 @@ void DDCoreToDDXMLOutput::material ( const DDMaterial& material, std::ostream& x
    //   return temp;
 }
 
-void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos, const std::string& rotn) {
+void DDCoreToDDXMLOutput::rotation (DDRotation& rotation, std::ostream& xos, const std::string& rotn) {
   double tol = 1.0e-3; // Geant4 compatible
   DD3Vector x,y,z; 
   rotation.matrix()->GetComponents(x,y,z); 
@@ -314,6 +314,7 @@ void DDCoreToDDXMLOutput::rotation ( DDRotation& rotation, std::ostream& xos, co
   if ( rotName == ":" ) {
     if ( rotn != "" ) {
       rotName = rotn;
+      std::cout << "about to try to make a new DDRotation... should fail!" << std::endl;
       DDRotation rot( DDName(rotn), rotation.matrix() );
       std:: cout << "new rotation: " << rot << std::endl;
     } else {
@@ -435,3 +436,155 @@ void DDCoreToDDXMLOutput::specpar ( const DDSpecifics& sp, std::ostream& xos ) {
    xos << "</SpecPar>" << std::endl;
 }
 
+// void DDCoreToDDXMLOutput::specpar ( const std::pair<DDPartSelection*, DDsvalues_type*>& pssv, std::ostream& xos ) {
+//   static std::string madeName("specparname");
+//   static int numspecpars(0);
+//   std::ostringstream ostr;
+//   ostr << numspecpars++;
+//   std::string spname = madeName + ostr.str(); 
+//   //  xos << "<SpecPar name=\"" << sp.toString() << "\" eval=\"false\">" << std::endl;
+//   xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
+//   //  std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
+  
+//   // ========...  all the selection strings out as strings by using the DDPartSelection's std::ostream function...
+// //   const std::vector<DDPartSelection> sels = sp.selection();
+// // //   for (; sit != sed; ++sit) {
+// // //     std::ostringstream selStringStream;
+// // //     selStringStream << *sit;
+// // //     xos << "<PartSelector path=\"" << selStringStream.str() << "\"/>" << std::endl;
+// // //   }
+// //   std::vector<DDPartSelection>::const_iterator psit = sels.begin();
+// //   std::vector<DDPartSelection>::const_iterator psendit = sels.end();
+// //   for (; psit != psendit ; ++psit) {
+// //    xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
+//     xos << "<PartSelector path=\"" << *(pssv.first) << "\"/>" << std::endl;
+//     //  }
+
+//  // =========  ... and iterate over all DDValues...
+//     //  DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
+//   DDsvalues_type::const_iterator vit(pssv.second->begin()), ved(pssv.second->end());
+//    for (; vit != ved; ++vit) {
+//     const DDValue & v = vit->second;
+//     size_t s=v.size();
+//     size_t i=0;
+//     // ============  ... all actual values with the same name
+//     const std::vector<std::string>& strvec = v.strings();
+//     if ( v.isEvaluated() ) {
+//       for (; i<s; ++i) {
+// 	xos << "<Parameter name=\"" << v.name() << "\""
+// 	    << " value=\"" << v[i] << "\""
+// 	    << " eval=\"true\"/>" << std::endl;
+//       }
+//     } else {
+//       for (; i<s; ++i ) {
+// 	xos << "<Parameter name=\"" << v.name() << "\""
+// 	    << " value=\"" << strvec[i] << "\""
+// 	    << " eval=\"false\"/>" << std::endl;
+//       }
+//     }
+    
+//    }
+//    xos << "</SpecPar>" << std::endl;
+// }
+
+// //void DDCoreToDDXMLOutput::specpar ( const std::pair<DDsvalues_type*, std::vector<DDPartSelection*> > pssv, std::ostream& xos ) {
+// void DDCoreToDDXMLOutput::specpar ( const std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> >& pssv, std::ostream& xos ) {
+//   static std::string madeName("specparname");
+//   static int numspecpars(0);
+//   std::ostringstream ostr;
+//   ostr << numspecpars++;
+//   std::string spname = madeName + ostr.str(); 
+//   //  xos << "<SpecPar name=\"" << sp.toString() << "\" eval=\"false\">" << std::endl;
+//   xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
+//   //  std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
+  
+//   // ========...  all the selection strings out as strings by using the DDPartSelection's std::ostream function...
+// //   const std::vector<DDPartSelection> sels = sp.selection();
+// // //   for (; sit != sed; ++sit) {
+// // //     std::ostringstream selStringStream;
+// // //     selStringStream << *sit;
+// // //     xos << "<PartSelector path=\"" << selStringStream.str() << "\"/>" << std::endl;
+// // //   }
+// //   std::vector<DDPartSelection>::const_iterator psit = sels.begin();
+// //   std::vector<DDPartSelection>::const_iterator psendit = sels.end();
+// //   for (; psit != psendit ; ++psit) {
+// //    xos << "<PartSelector path=\"" << *psit << "\"/>" << std::endl;
+// //   std::vector<DDPartSelection*>::const_iterator psit = pssv.second.begin();
+// //   std::vector<DDPartSelection*>::const_iterator psendit = pssv.second.end();
+//   std::set<DDPartSelection*>::const_iterator psit = pssv.second.begin();
+//   std::set<DDPartSelection*>::const_iterator psendit = pssv.second.end();
+//   for (; psit != psendit; ++psit) {
+//     xos << "<PartSelector path=\"" << *(*psit) << "\"/>" << std::endl;
+//   }
+//     //  }
+
+//  // =========  ... and iterate over all DDValues...
+//     //  DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
+//   std::set<DDsvalues_type*>::const_iterator dsvit(pssv.first.begin()), dsvendit(pssv.first.end());
+//   while ( dsvit != dsvendit ) {
+//     DDsvalues_type::const_iterator vit((*dsvit)->begin()), ved((*dsvit)->end());
+//     for (; vit != ved; ++vit) {
+//       const DDValue & v = vit->second;
+//       size_t s=v.size();
+//       size_t i=0;
+//       // ============  ... all actual values with the same name
+//       const std::vector<std::string>& strvec = v.strings();
+//       if ( v.isEvaluated() ) {
+// 	for (; i<s; ++i) {
+// 	  xos << "<Parameter name=\"" << v.name() << "\""
+// 	      << " value=\"" << v[i] << "\""
+// 	      << " eval=\"true\"/>" << std::endl;
+// 	}
+//       } else {
+// 	for (; i<s; ++i ) {
+// 	  xos << "<Parameter name=\"" << v.name() << "\""
+// 	      << " value=\"" << strvec[i] << "\""
+// 	      << " eval=\"false\"/>" << std::endl;
+// 	}
+//       }
+//     }
+//     ++dsvit;
+//   }
+//   xos << "</SpecPar>" << std::endl;
+// }
+
+void DDCoreToDDXMLOutput::specpar ( const std::pair<DDsvalues_type, std::vector<DDPartSelection*> >& pssv, std::ostream& xos ) {
+  static std::string madeName("specparname");
+  static int numspecpars(0);
+  std::ostringstream ostr;
+  ostr << numspecpars++;
+  std::string spname = madeName + ostr.str(); 
+  xos << "<SpecPar name=\"" << spname << "\" eval=\"false\">" << std::endl;
+  std::vector<DDPartSelection*>::const_iterator psit = pssv.second.begin();
+  std::vector<DDPartSelection*>::const_iterator psendit = pssv.second.end();
+  for (; psit != psendit; ++psit) {
+    xos << "<PartSelector path=\"" << *(*psit) << "\"/>" << std::endl;
+  }
+    //  }
+
+  // =========  ... and iterate over all DDValues...
+  
+  DDsvalues_type::const_iterator vit(pssv.first.begin()), ved(pssv.first.end());
+  for (; vit != ved; ++vit) {
+    const DDValue & v = vit->second;
+    size_t s=v.size();
+    size_t i=0;
+    // ============  ... all actual values with the same name
+    const std::vector<std::string>& strvec = v.strings();
+    if ( v.isEvaluated() ) {
+      for (; i<s; ++i) {
+	xos << "<Parameter name=\"" << v.name() << "\""
+	    << " value=\"" << v[i] << "\""
+	    << " eval=\"true\"/>" << std::endl;
+      }
+    } else {
+      for (; i<s; ++i ) {
+	xos << "<Parameter name=\"" << v.name() << "\""
+	    << " value=\"" << strvec[i] << "\""
+	    << " eval=\"false\"/>" << std::endl;
+      }
+    }
+  }
+  
+  xos << "</SpecPar>" << std::endl;
+}
