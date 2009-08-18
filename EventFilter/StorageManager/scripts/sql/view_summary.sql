@@ -1,11 +1,10 @@
-CREATE OR REPLACE FUNCTION OPEN_STATUS( LAST_WRITE_TIME IN DATE, s_created in number, s_injected in number) RETURN NUMBER
-
-AS
-	result_1   NUMBER;
-
+CREATE OR REPLACE FUNCTION OPEN_STATUS( LAST_WRITE_TIME IN DATE, s_created in number, s_injected in number) 
+    RETURN NUMBER AS
+    result_1   NUMBER;
 BEGIN
 	result_1 := 0;
-	IF (ABS(time_diff(sysdate, LAST_WRITE_TIME)) > 420) THEN
+	--If last write was more than 7 min ago (run is assumed over), turns magenta if open files not zero
+	IF (ABS(time_diff(sysdate, LAST_WRITE_TIME)) > 360) THEN
 		IF( (S_CREATED - S_INJECTED) > 0) THEN
 		  result_1 := 1;
                 END IF;
@@ -13,19 +12,25 @@ BEGIN
 return result_1;
 END;
 /
+
 CREATE OR REPLACE FUNCTION INJECTED_CHECK ( s_safe0 in NUMBER, s_closed in NUMBER, lastWrite in DATE)
    RETURN NUMBER AS 
    status NUMBER;
 BEGIN
         status := 0;
-	IF (ABS(time_diff(sysdate, lastWrite)) < 300) THEN
+	--if last write was less than 6 min ago (running)
+	IF (ABS(time_diff(sysdate, lastWrite)) < 360) THEN
+		--magenta if more than 50 files waiting to be injected
 		IF ABS(s_closed - s_safe0) > 50 THEN
 			status := 1;
 		END IF;
+		--red if more than 100 files waiting to be injected
 		IF ABS(s_closed - s_safe0) > 100 THEN
 			status :=2;
 		END IF;
+	--if not running
 	ELSE
+		--red if any files waiting to be injected
 		IF (s_closed - s_safe0 > 0) THEN
 			status := 2;
                 END IF;
@@ -40,12 +45,16 @@ CREATE OR REPLACE FUNCTION TRANSFERRED_CHECK ( lastWrite in DATE, lastTrans in D
    status NUMBER;
 BEGIN
         status := 0;
-	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Run is On
-		IF (ABS(time_diff(sysdate, lastTrans)) > 300) THEN
+	--if last write was less than 3 min ago
+	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Currently happening
+		--turn red if it's been more than 6 min since last transfer
+		IF (ABS(time_diff(sysdate, lastTrans)) > 360) THEN
 			status := 2;
 		END IF;
+	--last write was more than 3 min ago
 	ELSE
-		IF ( (ABS(time_diff(sysdate, lastTrans)) > 300) AND (s_new - s_copied > 0) ) THEN
+		--turn red if it's been 6 min since last transfer and all files haven't been transferred
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 360) AND (s_new - s_copied > 0) ) THEN
                         status := 2;
 		END IF;
         END IF;
@@ -59,13 +68,12 @@ CREATE OR REPLACE FUNCTION CHECKED_CHECK ( lastWrite in DATE, lastTrans in DATE,
    status NUMBER;
 BEGIN
         status := 0;
+	--if last write less than 3 min ago currently no check
 	IF (ABS(time_diff(sysdate, lastWrite)) < 180) THEN --Run is On
 		status:= 0;
-		--IF (ABS(time_diff(sysdate, lastTrans)) > 300) THEN
-			--status := 2;
-		--END IF;
+	--if last write more than 3 min ago and not all transferred files checked turn red
 	ELSE
-		IF ( (ABS(time_diff(sysdate, lastTrans)) > 300) AND (s_copied - s_checked > 0) ) THEN
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 360) AND (s_copied - s_checked > 0) ) THEN
                         status := 2;
 		END IF;
         END IF;
@@ -80,17 +88,22 @@ CREATE OR REPLACE FUNCTION TRANS_RATE_CHECK ( lastWrite in DATE, writeRate in Nu
 BEGIN
         status := 0;
 	
-	IF (time_diff(lastWrite,startRun) > 300) AND (writeRate > 0) AND (transRate = 0) THEN
+	--This checks if transfers aren't happening at all
+	IF (time_diff(lastWrite,startRun) > 360) AND (writeRate > 0) AND (transRate = 0) THEN
 		status := 2;
                 RETURN status;
 	END IF;
 	
+	--Otherwise only check if size greater than certain lower limit
 	IF (totalSizeGB > 50) THEN
+		--if write rate is low, turn magenta if transfer rate is less than 10% of write rate
 		IF (writeRate < 20) THEN
 			IF (transRate < .1 * writeRate) THEN
 				status := 1;  --Used to be red (2)
 			END IF;
+		--high write rate
 		ELSE
+			--if transfer rate is not too high, flags if transfer rate is relatively too low (currently only magenta)
 			IF (transRate + 5 < .75 * writeRate) AND (transRate < 900 * (numInst / 16)) THEN
 				status := 1;
 			END IF;
@@ -100,36 +113,7 @@ BEGIN
 		END IF;
 	END IF;
 
-	RETURN status;
-	
-	
---	IF (writeRate < 50 OR totalSizeGB < 100) THEN
---		RETURN status;
---	END IF;
---	IF (ABS(time_diff(sysdate, lastWrite)) < 180) AND (ABS(time_diff(sysdate, startRun)) > 600)  THEN
---		IF ((writeRate - transRate) / writeRate) > .30 THEN 
---			status := 1;
---		END IF;
---		IF ((writeRate - transRate) / writeRate) > .50 AND (writeRate - transRate) > 50 THEN
---			IF (writeRate < (numInst / 16) *1000) THEN
---				status := 2;
---			ELSE
---				status := 1;
---			END IF;
---		END IF;
---	ELSE --Run is off	
---		IF ((writeRate - transRate) / writeRate) > .30  THEN 
---			status := 1;
---		END IF;
---		IF ((writeRate - transRate) / writeRate) > .50 AND (writeRate - transRate) > 50 THEN
---			IF (writeRate < (numInst / 16) * 1000) THEN
---				status := 2;
---			ELSE
---				status := 1;
---			END IF;
---		END IF;	
---	END IF;
---	RETURN status;			
+	RETURN status;			
 END TRANS_RATE_CHECK;
 /
 
@@ -138,16 +122,20 @@ CREATE or REPLACE FUNCTION DELETED_CHECK ( Start_time in DATE, s_deleted in numb
    result_1    number;
 BEGIN
     result_1 := 0;
+    --no check if no files should be deleted
     IF s_checked = 0 THEN
 	return result_1; 
     END IF;
+    --if it's less than 2.5 hours since last transfer, determine if the number of undeleted files is larger than a predicted upper limit
     IF ( (time_diff(sysdate, LastTrans)) < 9000) THEN
         IF ( (s_checked  - s_deleted )  > (7200 * ( s_checked / time_diff( sysdate, Start_time )))) THEN
         result_1 := 1;
         END IF;
+    --if it's been more than 2.5 hours since last transfer, all files should be deleted
     ELSE
         IF ( ABS(S_checked - s_deleted) > 0 ) THEN
              result_1 := 1;
+	     --it's been even longer than last transfer, so go red
              IF ( (time_diff(sysdate, LastTrans)) > 12600) THEN
 	          result_1 := 2;
              END IF;
@@ -158,6 +146,7 @@ return result_1;
 END DELETED_CHECK;
 /
 
+--Provides per run summary information (one row per run)
 create or replace view V_SM_SUMMARY
 AS SELECT  "RUN_NUMBER", 
 	   "START_TIME",
@@ -209,7 +198,8 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	     (CASE SUM(NVL(s_NEvents,0))
                 WHEN 0 THEN TO_CHAR('NA')
                 ELSE TO_CHAR ( SUM(NVL(s_NEvents,0)) )
-              END) AS NEVTS, 
+              END) AS NEVTS,
+	      -- N_OPEN = N_FILES - N_CLOSED
 	      TO_CHAR ( SUM(NVL(s_Created,0) ) - SUM( NVL(s_Injected,0) ) ) AS N_OPEN, 
 	      TO_CHAR ( SUM(NVL(s_Injected, 0) ) ) AS N_CLOSED, 
 	      TO_CHAR ( SUM(NVL(s_New, 0) ) ) AS N_INJECTED,
@@ -217,11 +207,13 @@ FROM ( SELECT TO_CHAR ( RUNNUMBER ) AS RUN_NUMBER,
 	      TO_CHAR ( SUM(NVL(s_Checked, 0) ) ) AS N_CHECKED,
 	      TO_CHAR ( SUM(NVL(s_Deleted, 0) ) ) AS N_DELETED, 
 	      TO_CHAR ( SUM(NVL(s_Repacked, 0) ) ) AS N_REPACKED,
+	      --This will turn red if the hltkey contains the phrase "TransferTest"
 	      TO_CHAR ( MAX(HLTKEY) ) AS HLTKEY,
              (CASE
                 WHEN MAX(setupLabel) LIKE '%TransferTest%' THEN TO_CHAR(2)
                 ELSE TO_CHAR(0)
               END) AS SETUP_STATUS,
+	      --This is the check for the write rate - it turns magenta if the rate is more than 2000 mbs scaled by active instances
 	      TO_CHAR ( OPEN_STATUS(NVL(MAX(STOP_WRITE_TIME), MAX(LAST_UPDATE_TIME)), SUM(NVL(S_CREATED,0)), SUM(NVL(S_INJECTED,0))) ) AS N_OPEN_STATUS,
 	     (CASE 
 		WHEN (CASE SUM(NVL(s_injected, 0))
