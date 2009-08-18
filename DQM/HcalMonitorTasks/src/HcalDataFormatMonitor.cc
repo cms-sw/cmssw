@@ -294,7 +294,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCErrorAndWarnConditions_->setBinLabel(30, "729", 1);
     meDCCErrorAndWarnConditions_->setBinLabel(31, "730", 1);
     meDCCErrorAndWarnConditions_->setBinLabel(32, "731", 1);
-    meDCCErrorAndWarnConditions_->setBinLabel(15, "MisM S0(top)", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel( 1, "MisM S14", 2);
     meDCCErrorAndWarnConditions_->setBinLabel( 2, "MisM S13", 2);
     meDCCErrorAndWarnConditions_->setBinLabel( 3, "MisM S12", 2);
     meDCCErrorAndWarnConditions_->setBinLabel( 4, "MisM S11", 2);
@@ -350,7 +350,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCSummariesOfHTRs_->setBinLabel(20, "Trunct by LRB", 2);
 
     // These status bits set in the header could be useful: They're set once, and stay on
-    // even if the event in which they're set is not analyzed...
+    // even if the event in which they're set is not analyzed, until "BC0"/Reset...
 
     ///type = "DCC Status Flags (Nonzero Error Counters)";
     ///meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
@@ -426,6 +426,20 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
       for(int s=1; s<HcalDCCHeader::SPIGOT_COUNT; s++) {
 	sprintf(label, "sp%02d", s);
 	meUSFractSpigs_->setBinLabel(1+(HcalDCCHeader::SPIGOT_COUNT*f)+s, label);}}
+
+    type = "HTR BCN when OrN Diff";
+    meBCNwhenOrNDiff_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meBCNwhenOrNDiff_->setAxisTitle("BCN",1);
+    meBCNwhenOrNDiff_->setAxisTitle("# of Entries",2);
+
+    type = "OrN Difference Between Ref HTR and DCC";
+    meOrNCheck_ = m_dbe->book1D(type,type,65,-32.5,32.5);
+    meOrNCheck_->setAxisTitle("htr OrN - dcc OrN",1);
+
+    type = "OrN Inconsistent - HTR vs Ref HTR";
+    meOrNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meOrNSynch_->setAxisTitle("Slot #",1);
+    meOrNSynch_->setAxisTitle("Crate #",2);
 
     type = "BCN Difference Between Ref HTR and DCC";
     meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
@@ -639,6 +653,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
   lastEvtN_ = -1;
   lastBCN_ = -1;
+  lastOrN_ = -1;
   
   // Fill event counters (underflow bins of histograms)
   // This is the only way we can make these histograms appear in online DQM!
@@ -753,7 +768,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   //Orbit, BunchCount, and Event Numbers
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
   int dccBCN = dccHeader->getBunchId();
-  int dccOrN = dccHeader->getOrbitNumber();
+  //Mask down to 5 bits, since only used for comparison to HTR's five bit number...
+  unsigned int dccOrN = (unsigned int) (dccHeader->getOrbitNumber() & 0x0000001F);
   medccBCN_ -> Fill(dccBCN);
 
   ////////// Histogram problems with the Common Data Format compliance;////////////
@@ -1062,9 +1078,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     if (htr.isHistogramEvent()) continue;
 
+    unsigned int htrOrN = htr.getOrbitNumber(); 
+    unsigned int htrBCN = htr.getBunchNumber(); 
+    unsigned int htrEvtN = htr.getL1ANumber();
+
     //We trust the data now.  Finish with the check against DCCHeader
-    if (htr.getOrbitNumber() != (unsigned int) dccOrN)
+    if (htr.getOrbitNumber() !=  dccOrN ) {
       ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+0][halfhtrDIM_y+0];
+      ++DCC_DataIntegrityCheck_[bin][10]; 
+    }
     if (htr.getBunchNumber() != (unsigned int) dccBCN)
       ++HalfHTR_DataIntegrityCheck_[halfhtrDIM_x+0][halfhtrDIM_y+1];
     if (htr.getL1ANumber() != dccEvtNum)
@@ -1124,7 +1146,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	  if (channAOK) 
 	    ++Chann_DataIntegrityCheck_[dcc_][channDIM_x][channDIM_y+1];
 	}
-	//..and setup for this new channel
+	//..and set up for this new channel
 	channum= (3* (qie_work->fiber() -1)) + qie_work->fiberChan();  
 	channDIM_x = (channum*3)+1;
 	lastcapid=qie_work->capid();
@@ -1170,15 +1192,13 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
     if (prtlvl_ > 0) HTRPrint(htr,prtlvl_);
   
-    unsigned int htrBCN = htr.getBunchNumber(); 
     meBCN_->Fill(htrBCN);
-    unsigned int htrEvtN = htr.getL1ANumber();
 
     if (dccEvtNum != htrEvtN)
       ++DCC_DataIntegrityCheck_[bin][12];
     if ((unsigned int) dccBCN != htrBCN)
       ++DCC_DataIntegrityCheck_[bin][11];
- 
+    
     unsigned int fib1BCN = htr.getFib1OrbMsgBCN();
     unsigned int fib2BCN = htr.getFib2OrbMsgBCN();
     unsigned int fib3BCN = htr.getFib3OrbMsgBCN();
@@ -1187,17 +1207,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     unsigned int fib6BCN = htr.getFib6OrbMsgBCN();
     unsigned int fib7BCN = htr.getFib7OrbMsgBCN();
     unsigned int fib8BCN = htr.getFib8OrbMsgBCN();
-    
-    if ( (dccEvtNum != fib1BCN) ||
-	 (dccEvtNum != fib2BCN) ||
-	 (dccEvtNum != fib3BCN) ||
-	 (dccEvtNum != fib4BCN) ||
-	 (dccEvtNum != fib5BCN) ||
-	 (dccEvtNum != fib6BCN) ||
-	 (dccEvtNum != fib7BCN) ||
-	 (dccEvtNum != fib8BCN) ) 
-      ++DCC_DataIntegrityCheck_[bin][10];
- 
     meFibBCN_->Fill(fib1BCN);
     meFibBCN_->Fill(fib2BCN);
     meFibBCN_->Fill(fib3BCN);
@@ -1220,43 +1229,41 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
     meFWVersion_->Fill(cratenum,htrFWVer);
 
-    ///check that all HTRs have the same L1A number
-    unsigned int refEvtNum = dccEvtNum;
-    /*Could use Evt # from dcc as reference, but not now.
-      if(htr.getL1ANumber()!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< refEvtNum << "  "<<htr.getL1ANumber() <<endl;
+    ///check that all HTRs have the same L1A number.
+    if(lastEvtN_==-1) {
+      lastEvtN_ = htrEvtN;  ///the first one will be the reference
+      int EvtNdiff = htrEvtN - dccEvtNum;
+      meEvtNCheck_->Fill(EvtNdiff);
+    } else {
+      if((int) htrEvtN!=lastEvtN_) {
+	meEvtNumberSynch_->Fill(slotnum,cratenum);
+	if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;
       }
-    */
-
-    if(lastEvtN_==-1) {lastEvtN_ = htrEvtN;  ///the first one will be the reference
-    refEvtNum = lastEvtN_;
-    int EvtNdiff = htrEvtN - dccEvtNum;
-    meEvtNCheck_->Fill(EvtNdiff);
-    }
-    else {
-      if((int) htrEvtN!=lastEvtN_) {meEvtNumberSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;}
-
     }
 
     ///check that all HTRs have the same BCN
-
-    unsigned int refBCN = dccBCN;
-    /*Could use BCN from dcc as reference, but not now.
-      if(htr.getBunchNumber()!=refBCN) {meBCNSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;
+    if(lastBCN_==-1) {
+      lastBCN_ = htrBCN;  ///the first one will be the reference
+      int BCNdiff = htrBCN-dccBCN;
+      meBCNCheck_->Fill(BCNdiff);
+    } else {
+      if((int)htrBCN!=lastBCN_) {
+	meBCNSynch_->Fill(slotnum,cratenum);
+	if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;
       }
-    */
-    // Use 1st HTR as reference
-    if(lastBCN_==-1) {lastBCN_ = htrBCN;  ///the first one will be the reference
-    refBCN = lastBCN_;
-    int BCNdiff = htrBCN-dccBCN;
-    meBCNCheck_->Fill(BCNdiff);
     }
 
-    else {
-      if((int)htrBCN!=lastBCN_) {meBCNSynch_->Fill(slotnum,cratenum);
-      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< lastBCN_ << "  "<<htrBCN <<endl;}
+    ///check that all HTRs have the same OrN
+    if(lastOrN_==-1) {
+      lastOrN_ = htrOrN;  ///the first one will be the reference
+      int OrNdiff = htrOrN-dccOrN;
+      meOrNCheck_->Fill(OrNdiff);
+    } else {
+      if((int)htrOrN!=lastOrN_) {
+	meOrNSynch_->Fill(slotnum,cratenum);
+	meBCNwhenOrNDiff_->Fill(htrBCN); // Are there special BCN where OrN mismatched occur?
+	if (prtlvl_==1)cout << "++++ OrN # out of sync, ref, this HTR: "<< lastOrN_ << "  "<<htrOrN <<endl;
+      }
     }
 
     MonitorElement* tmpErr = 0;

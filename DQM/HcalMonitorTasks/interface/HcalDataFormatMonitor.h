@@ -34,9 +34,10 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/07/21 11:02:48 $
- * $Revision: 1.45 $
+ * $Date: 2009/07/31 20:32:33 $
+ * $Revision: 1.46 $
  * \author W. Fisher - FNAL
+ * \author J. St. John - Boston University
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
  public:
@@ -44,7 +45,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   ~HcalDataFormatMonitor();
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  //  void setup(const edm::ParameterSet& ps, DQMStore* dbe,const HcalElectronicsMap& emap );
   void processEvent(const FEDRawDataCollection& rawraw, const
 		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
@@ -88,8 +88,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int firstFED_;
   int lastEvtN_;
   int lastBCN_;
-  //   int dccnum_;
-  //int cratenum_;
+  int lastOrN_;
 
   int prtlvl_;
   int dfmon_checkNevents;
@@ -131,6 +130,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   //Check that evt numbers are synchronized across all HTRs
   MonitorElement* meEvtNumberSynch_;
   MonitorElement* meBCNSynch_;
+  MonitorElement* meOrNSynch_;
+  MonitorElement* meBCNwhenOrNDiff_;
   MonitorElement* meBCN_;
   MonitorElement* medccBCN_;
 
@@ -149,6 +150,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void label_xChanns (MonitorElement* me_ptr,int xbins);
 
   MonitorElement* meInvHTRData_;
+  MonitorElement* meOrNCheck_; // htr OrN compared to dcc OrN
   MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
   MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
   MonitorElement* meFibBCN_;
