@@ -19,6 +19,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,10 +31,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// forward declarations
-class TH1D;
-class TH2D;
-class TFile;
 
 //
 // class declaration
@@ -46,7 +43,7 @@ class NoiseRates : public edm::EDAnalyzer {
   
   
  private:
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
