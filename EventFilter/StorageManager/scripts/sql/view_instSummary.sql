@@ -5,17 +5,20 @@ CREATE OR REPLACE FUNCTION INSTANCE_CHECK(run in number, numInstance in number, 
 BEGIN
     status := 0;
 
-    
+    --Won't perform check if no instance has at least 10 closed files 
     --IF (maxClosed < 10) THEN
         -- RETURN status;
     --END IF;
-
+    
+    --Retrieves the number of active instances from the preceding run with the same setup label
     SELECT COUNT(INSTANCE) INTO lastNumInstance FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) RUN_RANK FROM (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER < run AND SETUPLABEL = currentSETUP)) WHERE RUN_RANK = 1;
 
+    --If the current run has a different number of active instances than the preceding run of the same setup label turn magenta
     IF (numInstance != lastNumInstance) THEN
          status := 1;
     END IF;
     
+    --If the number of active instances does not match the maximum observed instance (ie there is a gap) turn magenta
     IF (numInstance != maxInstance + 1) THEN
          status := 1;
     END IF;
@@ -34,14 +37,16 @@ BEGIN
 
     flag := ' ';
     numFlagged := 0;
+    --Loop through all of the instances for this run
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
-	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 300) ) THEN --AND (maxNum - NVL(entry.N_INJECTED, 0) > .30 * maxNum) )  THEN
+	--Check if the difference between the last write on this instance and the most recent write on any instance is greater than 6 minutes
+	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 360) ) THEN --AND (maxNum - NVL(entry.N_INJECTED, 0) > .30 * maxNum) )  THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'CLOSED:';
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_INJECTED,0)) || ')'; 
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_INJECTED,0)) || ')';  --Flag this instance
 	END IF;
     END LOOP;
 
@@ -55,18 +60,18 @@ CREATE OR REPLACE FUNCTION GENERATE_FLAG_INJECTED(run in number, maxRatio in num
     threshold NUMBER(10);
     numFlagged NUMBER(5); 
 BEGIN
-    --Determine minimum below which should be flagged.
-
     flag := ' ';
     numFlagged := 0;
+    --Loop through all instances for this run
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
+	--Formula to check if this instance is lagging the max instance by too much or is not injecting
 	IF ( (NVL(entry.N_INJECTED,0) * maxRatio - NVL(entry.N_NEW,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_NEW,0) = 0) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'INJECTED:';
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_NEW,0)) || ')'; 
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_NEW,0)) || ')'; --flag the instance
 	END IF;
     END LOOP;
 
@@ -80,18 +85,18 @@ CREATE OR REPLACE FUNCTION GENERATE_FLAG_TRANSFERRED(run in number, maxRatio in 
     threshold NUMBER(10);
     numFlagged NUMBER(5); 
 BEGIN
-    --Determine minimum below which should be flagged.
-
     flag := ' ';
     numFlagged := 0;
+    --Loop through all the instances for this run
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
+	--Formula to check if this instance is lagging the max instance by too much or not transferring
 	IF ( (NVL(entry.N_NEW,0) * maxRatio - NVL(entry.N_COPIED,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_COPIED,0) = 0) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'TRANS:';
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_COPIED,0)) || ')'; 
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_COPIED,0)) || ')'; --flag the instance
 	END IF;
     END LOOP;
 
@@ -105,18 +110,18 @@ CREATE OR REPLACE FUNCTION GENERATE_FLAG_CHECKED(run in number, maxRatio in numb
     threshold NUMBER(10);
     numFlagged NUMBER(5); 
 BEGIN
-    --Determine minimum below which should be flagged.
-
     flag := ' ';
     numFlagged := 0;
+    --Loop through all the instances for this run
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
+	--Formula to check if this instance is lagging the max instance by too much or not checking
 	IF ( (NVL(entry.N_NEW,0) * maxRatio - NVL(entry.N_CHECKED,0)) > 50) OR (sumNum > 50 AND NVL(entry.N_CHECKED,0) = 0) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'CHECKED:';
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_CHECKED,0)) || ')'; 
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_CHECKED,0)) || ')'; --flag the instance
 	END IF;
     END LOOP;
 
@@ -129,23 +134,23 @@ CREATE OR REPLACE FUNCTION GENERATE_FLAG_DELETED(run in number, maxLastClosedTim
     flag VARCHAR2(1000);
     numFlagged NUMBER(5); 
 BEGIN
-    --Determine minimum below which should be flagged.
-
     flag := ' ';
     numFlagged := 0;
-    
+    --If a file has been closed within the last 2.5 hours then don't do the check
     IF (time_diff(sysdate, maxLastClosedTime) < 9000) THEN
         RETURN flag;
     END IF;
 
+    --Loop through all the instances
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run)
     LOOP
+	--If all injected files have been checked and not all have been deleted, flag the instance
 	IF ( (NVL(entry.N_NEW,0) = NVL(entry.N_CHECKED,0) ) AND ( NVL(entry.N_CHECKED,0) > NVL(entry.N_DELETED,0) ) ) THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
 			flag := flag || 'DELETED:';
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_DELETED,0)) || ')'; 
+		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_DELETED,0)) || ')';--flag the instance 
 	END IF;
     END LOOP;
 
@@ -153,6 +158,7 @@ BEGIN
 END GENERATE_FLAG_DELETED;
 /
 
+--Provides per run information about the sm instances (one row per run) including the min and max counts for each stage and flagged suspicious instances
 create or replace view view_sm_instance_summary
 AS SELECT "RUN_NUMBER",
           "N_INSTANCES",
