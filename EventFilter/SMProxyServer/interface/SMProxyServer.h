@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.14 2008/10/14 15:02:18 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.15 2009/05/22 16:01:05 biery Exp $
 */
 
 #include <string>
@@ -29,7 +29,6 @@
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
-#include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
 #include "xdaq/Application.h"
 #include "xdaq/ApplicationContext.h"
@@ -160,6 +159,7 @@ namespace stor {
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
     xdata::String esSelectedHLTOutputModule_;
+    xdata::Vector<xdata::String> esSelectedEventSelection_;
     xdata::Boolean allowMissingSM_;
 
     std::map< std::string, bool > smsenders_;

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.30 2009/05/04 20:47:41 biery Exp $
+// $Id: SMProxyServer.cc,v 1.31 2009/05/22 16:01:05 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -146,6 +146,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
   esSelectedHLTOutputModule_ = "hltOutputDQM";
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  esSelectedEventSelection_.clear();
+  ispace->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   allowMissingSM_ = false;
   ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
 
@@ -2945,6 +2947,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  is->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
@@ -2992,6 +2995,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
+  is->addItemRetrieveListener("esSelectedEventSelection",this);
   is->addItemRetrieveListener("allowMissingSM",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
@@ -3076,6 +3080,11 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     try {
       dpm_.reset(new stor::DataProcessManager());
       dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
+      std::vector<std::string> tmpVector;
+      tmpVector.resize(esSelectedEventSelection_.elements());
+      for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+          tmpVector[i] = static_cast<std::string>(esSelectedEventSelection_[i]);
+      dpm_->setEventSelection(tmpVector);
       dpm_->setAllowMissingSM(allowMissingSM_);
       
       boost::shared_ptr<EventServer>
