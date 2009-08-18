@@ -59,8 +59,8 @@ void TrackTransformer::setServices(const EventSetup& setup){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
     
-    setup.get<TrackingComponentsRecord>().get(theFitterName,theFitter);
-    setup.get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
+    setup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
+    setup.get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
 
     setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
   }

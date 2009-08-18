@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/11 08:01:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/02/20 14:20:50 $
+ *  $Revision: 1.6 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -70,7 +70,7 @@ void SeedTransformer::setServices(const EventSetup& iSetup) {
 
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
-  iSetup.get<TrackingComponentsRecord>().get(theFitterName,theFitter);
+  iSetup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
   iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
 
