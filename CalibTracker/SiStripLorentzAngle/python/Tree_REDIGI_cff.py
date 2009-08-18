@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripLorentzAngle.LA_Tree_RAW_cff import *
+from CalibTracker.SiStripLorentzAngle.Tree_RAW_cff import *
 
 dbfile = 'sqlite_file:SiStripLorentzAngle_CalibrationSmear.db'
 dbtag = 'SiStripLorentzAngle_CalibrationSmear_31X'

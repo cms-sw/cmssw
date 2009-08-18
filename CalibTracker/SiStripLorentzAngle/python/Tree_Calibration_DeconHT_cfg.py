@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
-process.load('CalibTracker.SiStripLorentzAngle.LA_Tree_REDIGI_cff')
+process.load('CalibTracker.SiStripLorentzAngle.Tree_REDIGI_cff')
 process.GlobalTag.globaltag = 'DESIGN_31X_V4::All'
 process.simSiStripDigis.APVpeakmode = False
 process.siStripClusters.Clusterizer.ChannelThreshold=5.0

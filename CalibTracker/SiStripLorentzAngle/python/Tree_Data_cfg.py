@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
-process.load('CalibTracker.SiStripLorentzAngle.LA_Tree_RECO_cff')
+process.load('CalibTracker.SiStripLorentzAngle.Tree_COSMICS_cff')
 process.GlobalTag.globaltag = 'GR09_P_V1::All'
 
 process.add_( cms.Service( "TFileService",

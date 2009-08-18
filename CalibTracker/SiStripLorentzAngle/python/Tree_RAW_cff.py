@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripLorentzAngle.LA_Tree_RECO_cff import *
+from CalibTracker.SiStripLorentzAngle.Tree_RECO_cff import *
 
 #local reconstruction
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *

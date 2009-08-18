@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
-process.load('CalibTracker.SiStripLorentzAngle.LA_Tree_REDIGI_cff')
+process.load('CalibTracker.SiStripLorentzAngle.Tree_REDIGI_cff')
 process.GlobalTag.globaltag = 'DESIGN_31X_V4::All'
-process.simSiStripDigis.APVpeakmode = True
+process.simSiStripDigis.APVpeakmode = False
 
 process.add_( cms.Service( "TFileService",
-                           fileName = cms.string( 'calibTree_peak.root' ),
+                           fileName = cms.string( 'calibTree_decon.root' ),
                            closeFileFast = cms.untracked.bool(True)  ) )
 
 #following ignored by CRAB
