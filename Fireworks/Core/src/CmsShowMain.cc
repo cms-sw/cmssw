@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.90 2009/08/14 14:41:02 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.91 2009/08/14 15:40:44 chrjones Exp $
 //
 
 // system include files
@@ -215,7 +215,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       // input file
       if (vm.count(kInputFileOpt)) {
          m_inputFileName = vm[kInputFileOpt].as<std::string>();
-      }      
+      }
 
       if (!m_inputFileName.size())
          std::cout << "No data file given." << std::endl;
@@ -298,7 +298,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_startupTasks->addTask(f);
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
       m_startupTasks->addTask(f);
-      if (vm.count(kLoopOpt)) 
+      if (vm.count(kLoopOpt))
          setPlayAutoRewind();
 
       gSystem->IgnoreSignal(kSigSegmentationViolation, true);
@@ -366,8 +366,8 @@ void CmsShowMain::doExit()
 {
   // fflush(stdout);
   m_guiManager->evePreTerminate();
-  // sleep at least 150 ms 
-  // windows in ROOT GUI are destroyed in 150 ms timeout after 
+  // sleep at least 150 ms
+  // windows in ROOT GUI are destroyed in 150 ms timeout after
   gSystem->Sleep(151);
   gSystem->ProcessEvents();
 
@@ -713,7 +713,7 @@ CmsShowMain::setupDataHandling()
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->autoRewindAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::setPlayAutoRewindImp));
    m_guiManager->autoRewindAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::unsetPlayAutoRewindImp));
-   
+
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
@@ -795,22 +795,40 @@ CmsShowMain::notified(TSocket* iSocket)
       if(lastNonSpace != std::string::npos) {
          fileName.erase(lastNonSpace+1);
       }
+
       std::stringstream s;
-      s <<"Ready to change to new file '"<<fileName<<"'";
+      s <<"New file notified '"<<fileName<<"'";
       m_guiManager->updateStatus(s.str().c_str());
 
+      bool accept = false;
       // bootstrap case: --port without and no input file
       if (!m_inputFileName.size())
       {
          m_navigator->loadFile(fileName);
+         accept = true;
       }
       else
       {
-         m_navigator->newRemoteFile(fileName);
-         if ( !m_isPlaying )
-            m_guiManager->playEventsAction()->switchMode();
+         if ( m_guiManager->playEventsAction()->isRunning())
+         {
+            m_navigator->newRemoteFile(fileName);
+            accept = true;
+            if (!m_isPlaying)
+            {
+               m_isPlaying=true;
+               m_forward=true;
+               m_guiManager->getAction(cmsshow::sNextEvent)->activated();
+            }
+         }
+
       }
-      m_inputFileName = fileName; 
+      if (accept)
+      {
+         m_inputFileName = fileName;
+         std::stringstream sr;
+         sr <<"Ready to change to new file '"<<fileName<<"'";
+         m_guiManager->updateStatus(sr.str().c_str());
+      }
    }
 }
 
@@ -836,25 +854,33 @@ void
 CmsShowMain::stopPlaying()
 {
    m_guiManager->setPlayMode(false);
-   if(m_isPlaying) {
-      m_isPlaying=false;
-      if(m_forward) {
-         m_playTimer->TurnOff();
-      } else {
-         m_playBackTimer->TurnOff();
-      }
-      m_guiManager->enableActions();
+   m_isPlaying=false;
+   if(m_forward) {
+      m_playTimer->TurnOff();
+   } else {
+      m_playBackTimer->TurnOff();
    }
+   m_guiManager->enableActions();
+   m_navigator->checkPosition();
 }
 
 void
 CmsShowMain::reachedEnd()
 {
+   if (m_rewindMode && m_guiManager->playEventsAction()->isRunning())
+      return;
+
    if (m_isPlaying)
    {
-      if ( m_forward && !m_rewindMode ) {
-         stopPlaying();
-         m_guiManager->disableNext();
+      if ( m_forward ) {
+         if (m_monitor.get())
+         {
+            m_isPlaying=false;
+            m_playTimer->TurnOff();
+         } else {
+            stopPlaying();
+            m_guiManager->disableNext();
+         }
       }
    }
    else m_guiManager->disableNext();
@@ -863,11 +889,21 @@ CmsShowMain::reachedEnd()
 void
 CmsShowMain::reachedBeginning()
 {
+   if (m_rewindMode && m_guiManager->playEventsBackwardsAction()->isRunning())
+      return;
+
    if (m_isPlaying)
    {
-      if ( !m_forward && !m_rewindMode) {
-         stopPlaying();
-         m_guiManager->disablePrevious();
+      if (!m_forward) {
+
+         if (m_monitor.get())
+         {
+            m_isPlaying=false;
+            m_playBackTimer->TurnOff();
+         } else {
+            stopPlaying();
+            m_guiManager->disablePrevious();
+         }
       }
    }
    else m_guiManager->disablePrevious();
@@ -903,15 +939,14 @@ CmsShowMain::unsetPlayAutoRewindImp()
    m_rewindMode = false;
 }
 
-
-void 
+void
 CmsShowMain::preFiltering()
 {
    m_guiManager->enableActions(false);
    m_guiManager->updateStatus("Filtering events");
 
 }
-void 
+void
 CmsShowMain::postFiltering()
 {
    m_guiManager->enableActions(true);
