@@ -29,7 +29,8 @@ from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 from RecoHI.HiJetAlgos.IterativeConePu5Jets_PbPb_cff import *
 
 # Muon Reco
-from RecoMuon.Configuration.RecoMuon_cff import *
+from RecoLuminosity.LumiProducer.lumiProducer_cfi import *
+from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
@@ -38,12 +39,15 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 #--------------------------------------------------------------------------
 
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
-localReco = cms.Sequence(offlineBeamSpot*trackerlocalreco*caloReco)
+muonReco = cms.Sequence(trackerlocalreco+muonlocalreco+lumiProducer)
+localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco)
 
 #--------------------------------------------------------------------------
 # Main Sequence
+
+reconstruct_PbPb = cms.Sequence(localReco*heavyIonTracking*muontracking_with_TeVRefinement*hiEcalClusters*runjets*hiEgammaSequence*hiCentrality*hiEvtPlane)
 reconstruct_PbPb_CaloOnly = cms.Sequence(caloReco*hiEcalClusters*runjets*hiCentrality*hiEvtPlane)
-reconstruct_PbPb = cms.Sequence(localReco*heavyIonTracking*hiEcalClusters*runjets*hiEgammaSequence*hiCentrality*hiEvtPlane)
+reconstruct_PbPb_MuonOnly = cms.Sequence(offlineBeamSpot*muonReco*heavyIonTracking*muontracking_with_TeVRefinement)
 
 #--------------------------------------------------------------------------
 
