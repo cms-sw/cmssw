@@ -1,3 +1,4 @@
+--basically identical to view_streams except it returns data for more runs
 create or replace view view_sm_streams_full
 AS SELECT  "RUN_NUMBER",
 	   "STREAM", 
