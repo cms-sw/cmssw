@@ -5,8 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # 
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 
-#from PhysicsTools.TagAndProbe.tag_probe_electron_cfi import *
-
 from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *
 
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
@@ -15,7 +13,12 @@ from Geometry.CaloEventSetup.CaloGeometry_cff import *
 
 from Configuration.EventContent.EventContent_cff import *
 
-from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+#from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+
+#  electron isolation  ################
+#
+from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import *
+from RecoEgamma.EgammaIsolationAlgos.eleIsoDepositTk_cff import *
 
 
 hfRecoEcalCandidate.Correct = True
@@ -35,10 +38,6 @@ hfSuperClusterCandidate.intercept2DCut = -99
 #  SC --> GsfElectron --> isolation --> id --> Trigger
 #
 #
-
-
-
-
 #  SuperClusters  ################
 # 
 HybridSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
@@ -86,7 +85,6 @@ theHFSuperClusters = cms.EDFilter("CandViewSelector",
 )
 
 
-
 allSuperClusters = cms.EDFilter("CandViewMerger",
    # src = cms.VInputTag(cms.InputTag("EBSuperClusters"), cms.InputTag("EESuperClusters"),cms.InputTag("theHFSuperClusters"))
    src = cms.VInputTag(cms.InputTag("EBSuperClusters"), cms.InputTag("EESuperClusters"))
@@ -94,10 +92,16 @@ allSuperClusters = cms.EDFilter("CandViewMerger",
 
 
 # My final selection of superCluster candidates 
+## theSuperClusters = cms.EDFilter("CandViewSelector",
+##     src = cms.InputTag("allSuperClusters"),
+##     cut = cms.string('et  > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0) | (abs( eta ) > 3 & abs( eta ) < 5))')
+## )
+
 theSuperClusters = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("allSuperClusters"),
-    cut = cms.string('et  > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0) | (abs( eta ) > 3 & abs( eta ) < 5))')
+    cut = cms.string('et  > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 2.5) )')
 )
+
 ###Old sequence to be used again when HF calibration is in the corrected SuperCluster Step.
 #sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuperClusters * EESuperClusters + HFSuperClusterCands * HFSuperClusters * theHFSuperClusters) *allSuperClusters * theSuperClusters)
 
@@ -106,22 +110,13 @@ sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuper
 
 
 
-
-
-#  GsfElectron
-electrons = cms.EDFilter("ElectronDuplicateRemover",
+#  GsfElectron within acceptance: no other cuts
+theGsfElectrons = cms.EDFilter("GenericElectronSelection",
     src = cms.untracked.string('gsfElectrons'),
-    ptMin = cms.untracked.double(20.0),
-    EndcapMinEta = cms.untracked.double(1.56),
-    ptMax = cms.untracked.double(1000.0),
-    BarrelMaxEta = cms.untracked.double(1.4442),
-    EndcapMaxEta = cms.untracked.double(3.0)
+    etMin = cms.untracked.double(20.0),
+    histogramFile = cms.string('hist-gsfElectrons.root')
 )
 
-theGsfElectrons = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("electrons"),
-    cut = cms.string('pt > 20.0 & ((abs( eta ) < 1.4442) | (abs( eta ) > 1.560 & abs( eta ) < 3.0)) &  (( caloEnergy * sin( caloPosition.theta ) )  > 20.0) ')
-)
 
 #HFElectronIDCands = cms.EDProducer("ConcreteEcalCandidateProducer",
 #    src = cms.InputTag("hfRecoEcalCandidate"),
@@ -133,21 +128,20 @@ HFElectronID = cms.EDFilter("CandViewSelector",
     cut = cms.string('et > 10.0')
 )
 
-#  isolation  ################
-theIsolation = cms.EDProducer("IsolatedElectronCandProducer",
-    absolut = cms.bool(False),
-    trackProducer = cms.InputTag('generalTracks'),
-    isoCut = cms.double(0.2),
-    intRadius = cms.double(0.02),
-    electronProducer = cms.InputTag('theGsfElectrons'),
-    extRadius = cms.double(0.2),
-    ptMin = cms.double(1.5),
-    maxVtxDist = cms.double(0.1),
-    BeamspotProducer = cms.InputTag('offlineBeamSpot'),
-    maxVtxDistXY  = cms.double(0.1)                         
+
+## #  isolation  ################
+theIsolation = cms.EDFilter("GenericElectronSelection",
+    src = cms.untracked.string('gsfElectrons'),
+    etMin = cms.untracked.double(20.0),
+    requireTkIso = cms.untracked.bool(True),
+    eleIsoTk = cms.InputTag("eleIsoFromDepsTk"),                        
+    tkIsoCutBarrel = cms.untracked.double(7.2),
+    tkIsoCutEndcaps = cms.untracked.double(5.1),    
+    histogramFile = cms.string('hist-trackIso.root')
 )
 
-# Cut-based Robust electron ID  ######
+
+## # Cut-based Robust electron ID  ######
 from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import *
 import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi
 eidRobust = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
@@ -158,16 +152,18 @@ theId = cms.EDProducer("eidCandProducer",
     electronLabelLoose = cms.InputTag('eidRobust')
 )
 
+
+
 # Trigger  ##################
 theHLT = cms.EDProducer("eTriggerCandProducer",
-    InputProducer = cms.InputTag('theId'),              
-    hltTag = cms.untracked.InputTag("hltL1NonIsoHLTLooseIsoSingleElectronLWEt15TrackIsolFilter","","HLT")
-    #hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter","","HLT")
+    InputProducer = cms.InputTag('theId'),
+    hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTITrackIsolFilter","","HLT")
+    #hltTag = cms.untracked.InputTag("hltL1NonIsoHLTLooseIsoSingleElectronLWEt15TrackIsolFilter","","HLT")
 )
 
-electron_sequence = cms.Sequence(electrons * theGsfElectrons * offlineBeamSpot * theIsolation * eidRobust * theId * theHLT * HFElectronID )
-
-
+electron_sequence = cms.Sequence(theGsfElectrons * eleIsoDepositTk *
+                                 eleIsoFromDepsTk * theIsolation *
+                                 eidRobust * theId * theHLT * HFElectronID )
 
 
 
@@ -218,7 +214,8 @@ tpMapHFSuperClusters = cms.EDProducer("TagProbeProducer",
     ProbeCollection = cms.InputTag("theHFSuperClusters")
 )
 
-tpMap_sequence = cms.Sequence(tpMapSuperClusters + tpMapGsfElectrons + tpMapIsolation + tpMapId + tpMapHFSuperClusters)
+tpMap_sequence = cms.Sequence(tpMapSuperClusters + tpMapGsfElectrons +
+                              tpMapIsolation + tpMapId + tpMapHFSuperClusters)
 
 
 
@@ -283,11 +280,12 @@ HFIDMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
 
 
 
-truthMatch_sequence = cms.Sequence(SuperClustersMatch + GsfElectronsMatch + IsolationMatch + IdMatch + HLTMatch + HFSCMatch + HFIDMatch)
+truthMatch_sequence = cms.Sequence(SuperClustersMatch + GsfElectronsMatch +
+                                   IsolationMatch + IdMatch + HLTMatch +
+                                   HFSCMatch + HFIDMatch)
 
 
-
-
-
-lepton_cands = cms.Sequence(genParticles * hfEMClusteringSequence * sc_sequence * electron_sequence * tpMap_sequence * truthMatch_sequence)
+lepton_cands = cms.Sequence(genParticles * hfEMClusteringSequence *
+                            sc_sequence * electron_sequence *
+                            tpMap_sequence * truthMatch_sequence)
 

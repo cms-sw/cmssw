@@ -4,8 +4,7 @@
 #include <string>
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 PatElectronSelection::PatElectronSelection(const edm::ParameterSet &params)
 {

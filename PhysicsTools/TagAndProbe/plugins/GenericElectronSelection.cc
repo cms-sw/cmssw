@@ -10,8 +10,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 GenericElectronSelection::GenericElectronSelection(const edm::ParameterSet &params)
 {
@@ -61,9 +60,12 @@ GenericElectronSelection::GenericElectronSelection(const edm::ParameterSet &para
 
   if(_requireID)
     elecIDSrc_     = params.getParameter<edm::InputTag>("electronIDSource");
-  tkIsoTag         = params.getParameter<edm::InputTag>("eleIsoTk");
-  ecalIsoTag       = params.getParameter<edm::InputTag>("eleIsoEcal");
-  hcalIsoTag       = params.getParameter<edm::InputTag>("eleIsoHcal");
+  if(_requireTkIso) 
+    tkIsoTag         = params.getParameter<edm::InputTag>("eleIsoTk");
+  if(_requireEcalIso) 
+    ecalIsoTag       = params.getParameter<edm::InputTag>("eleIsoEcal");
+  if(_requireHcalIso) 
+    hcalIsoTag       = params.getParameter<edm::InputTag>("eleIsoHcal");
 
   const edm::InputTag dSummaryObj( "hltTriggerSummaryAOD","","HLT" );
   triggerSummaryLabel_ = 
@@ -114,9 +116,12 @@ void GenericElectronSelection::produce(edm::Event &event, const edm::EventSetup 
 
 
      // --------- get track isolation value map
-   const edm::ValueMap<double>& tkIsoMap = getValueMap(event, tkIsoTag);
-   const edm::ValueMap<double>& ecalIsoMap = getValueMap(event, ecalIsoTag);
-   const edm::ValueMap<double>& hcalIsoMap = getValueMap(event, hcalIsoTag);
+   edm::ValueMap<double> tkIsoMap;
+   if(_requireTkIso) tkIsoMap = getValueMap(event, tkIsoTag);
+   edm::ValueMap<double> ecalIsoMap;
+   if(_requireEcalIso) ecalIsoMap = getValueMap(event, ecalIsoTag);
+   edm::ValueMap<double> hcalIsoMap;
+   if(_requireHcalIso) hcalIsoMap = getValueMap(event, hcalIsoTag);
 
 
    // ---------- electron id
@@ -185,9 +190,9 @@ void GenericElectronSelection::produce(edm::Event &event, const edm::EventSetup 
 
      // ------------ isolation variables -----------------
      edm::RefToBase<reco::GsfElectron> electronRef(electrons, index);    
-     tkIsolation = tkIsoMap[electronRef];
-     ecalIsolation = ecalIsoMap[electronRef];
-     hcalIsolation = hcalIsoMap[electronRef];
+     if(_requireTkIso) tkIsolation = tkIsoMap[electronRef];
+     if(_requireEcalIso) ecalIsolation = ecalIsoMap[electronRef];
+     if(_requireHcalIso) hcalIsolation = hcalIsoMap[electronRef];
      if(_requireID) electronId = (*idhandle)[electronRef];
      else electronId = 1.0;
 
