@@ -15,7 +15,7 @@ def customise(process):
 
     process.load("L1Trigger.Configuration.CaloTriggerPrimitives_cff")
     process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
-    process.simHcalTriggerPrimitiveDigis.inputLabel = 'hcalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = ('hcalDigis', 'hcalDigis')
 
 # patch the process to use 'sim*Digis' from the L1 emulator
 # instead of 'hlt*Digis' from the RAW data
