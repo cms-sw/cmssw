@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.7 2008/12/23 20:37:28 dsr Exp $
+// $Id: BranchMapReader.cc,v 1.8 2009/03/19 04:26:22 wmtan Exp $
 //
 
 // system include files
@@ -101,7 +101,7 @@ namespace fwlite {
         bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
         bReg->SetAddress(ppReg);
         bReg->GetEntry(0);
-        (*ppReg)->setFrozen();
+        (*ppReg)->setFrozen(false);
       }
       return bReg;
     }
