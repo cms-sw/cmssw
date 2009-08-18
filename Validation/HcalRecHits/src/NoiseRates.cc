@@ -11,13 +11,6 @@
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-// root stuff
-// #include "TFile.h"
-// #include "TAxis.h"
-// #include "TH1D.h"
-// #include "TH2D.h"
-// #include "TMath.h"
-
 //
 // constructors and destructor
 //
@@ -118,10 +111,7 @@ NoiseRates::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-NoiseRates::beginJob(const edm::EventSetup&)
-{
-
-}
+NoiseRates::beginJob(){}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
