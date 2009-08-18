@@ -43,9 +43,9 @@ private:
   std::vector<ForwardDetLayer*>              forwardPosLayers;
   std::vector<ForwardDetLayer*>              forwardNegLayers;
   std::vector<DetLayer*>                     theDetLayer;
+  int                                        NumberOfSigm;
   const MagneticField*                       magfield;
   const GeometricSearchTracker*              theTracker;
-  int                                        NumberOfSigm;
   const HICConst*                            theHICConst;
   double                                     length; 
 };
