@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.1 2009/08/03 09:41:55 yilmaz Exp $
+// $Id: HiMixingModule.cc,v 1.1 2009/08/13 14:18:13 yilmaz Exp $
 //
 //
 
@@ -107,7 +107,7 @@ public:
 	    std::auto_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );	    
 	    // Following should be reconsidered, what should be the bkg, is bcr useful?
 	    crFrame->addSignals(handle2.product(),e.id());
-	    crFrame->addPileups(0,const_cast< std::vector<T> * >(handle1.product()),e.id().event());	 
+	    crFrame->addPileups(0,const_cast< std::vector<T> * >(handle1.product()),1);	 
 	    e.put(crFrame,label_);
 	 }else if(get1 || get2){
 	    LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
@@ -141,7 +141,7 @@ void MixingWorker<HepMCProduct>::addSignals(edm::Event &e){
       */
 
       crFrame->addSignals(handle2.product(),e.id());
-      crFrame->addPileups(0, const_cast<HepMCProduct *>(handle1.product()),e.id().event());
+      crFrame->addPileups(0, const_cast<HepMCProduct *>(handle1.product()),1);
 
       e.put(crFrame,label_);
    }else if(get1 || get2){
