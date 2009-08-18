@@ -14,7 +14,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTParametersOnlineProd.cc,v 1.2 2008/11/07 21:07:44 wsun Exp $
+// $Id: L1RCTChannelMaskOnlineProd.cc,v 1.1 2009/03/11 10:15:45 jleonard Exp $
 //
 //
 
@@ -43,14 +43,7 @@ class L1RCTChannelMaskOnlineProd :
   
   virtual boost::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) ;
 
-  /*  void fillScaleFactors(
-    const l1t::OMDSReader::QueryResults& results,
-    std::vector< double >& output ) ;
- 
-  void fillMasks(
-		 const l1t::OMDSREADER::QueryResults& results,
-		 std::vector< bool >& outuput);
-  */
+
    private:
       // ----------member data ---------------------------
 };
@@ -71,6 +64,9 @@ boost::shared_ptr< L1RCTChannelMask >
 L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
+
+
+      std::cout << " Current key is " << objectKey <<std::endl;
 
      std::string rctSchema = "CMS_RCT" ;
 
@@ -153,8 +149,8 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 			     dc_maskStrings,
 			     rctSchema,
 			     "RCT_DEADCHANNEL_SUMMARY",
-			     "RCT_DEADCHANNEL_SUMMARY.TIME_MODIFIED",
-			     m_omdsReader.basicQuery( "DC_MODIFIED_TIME",
+			     "RCT_DEADCHANNEL_SUMMARY.ID",
+			     m_omdsReader.basicQuery( "DC_SUM_ID",
                                 rctSchema,
                                 "RCT_RUN_SETTINGS_KEY",
                                 "RCT_RUN_SETTINGS_KEY.ID",
@@ -166,25 +162,29 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 	 dcMaskResults.numberRows() != 1 ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1RCTChannelMask key." ;
+	 
+
+	 std::cout << " Returened rows " << dcMaskResults.numberRows() <<std::endl;
 	 return boost::shared_ptr< L1RCTChannelMask >() ;
        }
      
       L1RCTChannelMask* m = new L1RCTChannelMask;
 
-     int temp;
+     long long hcal_temp;
+     int ecal_temp;
      for(int i = 0 ; i < 36 ; i++) {
-       dcMaskResults.fillVariable(dc_maskStrings.at(i),temp);
+       dcMaskResults.fillVariable(dc_maskStrings.at(i),hcal_temp);
        for(int j = 0; j < 32 ;  j++) 
 	 if(j< 28)
-	   m->hcalMask[i/2][i%2][j] = ((temp >> j ) & 1) == 1;
+	   m->hcalMask[i/2][i%2][j] = ((hcal_temp >> j ) & 1) == 1;
 	 else
-	   m->hfMask[i/2][i%2][j-28] = ((temp >> j ) & 1) == 1;
+	   m->hfMask[i/2][i%2][j-28] = ((hcal_temp >> j ) & 1) == 1;
      }
      for(int i = 36; i < 72 ; i++) {
-       dcMaskResults.fillVariable(dc_maskStrings.at(i),temp);
+       dcMaskResults.fillVariable(dc_maskStrings.at(i),ecal_temp);
        for(int j = 0; j < 28 ;  j++) {
 	 int k = i - 36;
-	 m->ecalMask[k/2][k%2][j] = ((temp >> j ) & 1) ==1;
+	 m->ecalMask[k/2][k%2][j] = ((ecal_temp >> j ) & 1) ==1;
        }
      }
 
@@ -295,8 +295,8 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 	   if(m->hfMask[i][j][k])
 	     std::cout << "hf masked channel: crate " << i << " phi " << j <<" ieta " <<k <<std::endl; 
        }
+     
      */
-
      //~~~~~~~~~ Instantiate new L1RCTChannelMask object. ~~~~~~~~~
 
 
