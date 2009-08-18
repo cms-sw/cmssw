@@ -26,7 +26,7 @@ void EventHeader::setup(TTree* HltTree) {
 
   HltTree->Branch("Run",&fRun,"Run/I");
   HltTree->Branch("Event",&fEvent,"Event/I");
-
+  HltTree->Branch("LumiBlock",&fLumiBlock,"LumiBlock/I"); 
 }
 
 /* **Analyze the event** */
@@ -34,12 +34,13 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
 					
 		fRun 		= iEvent.id().run();
 		fEvent 	= iEvent.id().event();
+		fLumiBlock = iEvent.luminosityBlock();
 
     if (_Debug) {
 		
 			std::cout << "EventHeader -- run   = " << fRun << std::endl;
 			std::cout << "EventHeader -- event = " << fEvent << std::endl;
-
+			std::cout << "EventHeader -- lumisection = " << fLumiBlock << std::endl; 
 		}
 
 }

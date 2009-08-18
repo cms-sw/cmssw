@@ -162,7 +162,7 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
       }
 
     }
-    else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
+    //    else {std::cout << "%HLTMCtruth -- No MC truth information" << std::endl;}
 
     nmcpart = nmc;
     nmu3 = mu3;
