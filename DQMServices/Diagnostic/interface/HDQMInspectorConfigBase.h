@@ -40,12 +40,12 @@ class HDQMInspectorConfigBase
   /// fills a vector<pair<string, string> > associating values with the corresponding errors
   virtual bool valueErrorMap(std::vector<std::pair<std::string, std::string> > & valueErrorVector) const {return false;}
   /// fills the list of names of quantities for which a summation over the runs is required
-  virtual bool computeIntegralList(std::vector<std::string> & computeIntegralVector)
+  virtual bool computeIntegralList(const std::vector<std::string> & computeIntegralVector)
   {
     fComputeIntegral = computeIntegralVector;
     return true;
   }
-  bool computeIntegral(std::string const& in)
+  bool computeIntegral(const std::string & in) const
   {
     if (std::find(fComputeIntegral.begin(), fComputeIntegral.end(), in) != fComputeIntegral.end()) {
       return true;
@@ -53,12 +53,12 @@ class HDQMInspectorConfigBase
     return false;
   }
 
-  std::string getErrorForQuantity(std::string const& QuantityName)
+  std::string getErrorForQuantity(const std::string & QuantityName) const
   {
     // Return the error name for a quantity name given.  This is designed to be used for the
     // "user" input quantities
 
-    for (std::map<std::string, std::string>::iterator It = fErrorMap.begin(); It != fErrorMap.end(); ++It) {
+    for (std::map<std::string, std::string>::const_iterator It = fErrorMap.begin(); It != fErrorMap.end(); ++It) {
       if (QuantityName.find( It->first ) != std::string::npos) {
         return It->second;
       }
