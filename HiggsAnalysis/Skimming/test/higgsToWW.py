@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
                             debugFlag = cms.untracked.bool(True),
                             debugVebosity = cms.untracked.uint32(10),
-                            fileNames = cms.untracked.vstring('/store/mc/Summer09/ZeeJet_Pt300toInf/GEN-SIM-RECO/MC_31X_V3-v1/0004/F41C0D61-727E-DE11-9EF2-001CC4BF8694.root')
+                            fileNames = cms.untracked.vstring('/store/mc/Summer09/TTbar/GEN-SIM-RECO/MC_31X_V3-v1/0024/FE8CFDCF-2F88-DE11-A502-001F29C9D4A8.root')
                            )
 
 # Endpath
