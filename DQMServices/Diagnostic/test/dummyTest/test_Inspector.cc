@@ -18,7 +18,9 @@ gROOT->Reset();
 
 
 HDQMInspector A;
-A.setDB("sqlite_file:dbfile.db","HDQM_test","cms_cond_strip","w3807dev","");
+// DB, Tag, User, Password, ...
+// A.setDB("sqlite_file:dbfile.db","HDQM_HDQM_SiStrip_V1","cms_cond_strip","w3807dev","");
+A.setDB("sqlite_file:dbfile.db","HDQM_V1_SiStrip","cms_cond_strip","w3807dev","");
 
 A.setDebug(1);
 A.setDoStat(1);
