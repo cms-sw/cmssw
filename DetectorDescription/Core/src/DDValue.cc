@@ -260,7 +260,7 @@ bool DDValue::operator<(const DDValue & v) const
     if (id()==v.id()) {
       assert(vecPair_);
       assert(v.vecPair_);
-      if (vecPair_->first) { // numerical values
+      if (vecPair_->first && v.vecPair_->first) { // numerical values
         result = (vecPair_->second.second < v.vecPair_->second.second);
       }  
       else { // std::string values
