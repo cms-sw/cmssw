@@ -29,19 +29,6 @@ class GenRunInfoProduct {
 	void setExternalXSecNLO(const XSec &xsec) { externalXSecNLO_ = xsec; }
 	void setFilterEfficiency(double effic) { externalFilterEfficiency_ = effic; }
 
-#ifndef __GCCXML__
-	// compatibility with GenInfoProduct
-	// will go away with the removal of GenInfoProduct
-
-	void set_cross_section(double xsec) { warn(__PRETTY_FUNCTION__); setInternalXSec(XSec(xsec)); } __attribute__ ((deprecated))
-	void set_external_cross_section(double xsec) { warn(__PRETTY_FUNCTION__); setExternalXSecLO(XSec(xsec)); } __attribute__ ((deprecated))
-	void set_filter_efficiency(double eff) { warn(__PRETTY_FUNCTION__); setFilterEfficiency(eff); } __attribute__ ((deprecated))
-
-	double cross_section() const { warn(__PRETTY_FUNCTION__); return internalXSec().value(); } __attribute__ ((deprecated))
-	double external_cross_section() const { warn(__PRETTY_FUNCTION__); return externalXSecLO().value() ; } __attribute__ ((deprecated))
-	double filter_efficiency() const { warn(__PRETTY_FUNCTION__); return filterEfficiency(); } __attribute__ ((deprecated))
-#endif
-
 	// struct definitions
 	struct XSec {
 	    public:
@@ -77,10 +64,6 @@ class GenRunInfoProduct {
 	virtual bool isProductEqual(const GenRunInfoProduct &other) const;
 
     private:
-#ifndef __GCCXML__
-	void warn(const char*) const;
-#endif
-
 	// cross sections
 	XSec	internalXSec_;	// the one computed during cmsRun
 	XSec	externalXSecLO_, externalXSecNLO_;	// from config file

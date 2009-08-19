@@ -52,14 +52,3 @@ bool GenRunInfoProduct::isProductEqual(GenRunInfoProduct const &other) const
 	       externalXSecNLO_ == other.externalXSecNLO_ &&
 	       externalFilterEfficiency_ == other.externalFilterEfficiency_;
 }
-
-void GenRunInfoProduct::warn(const char *function) const
-{
-	LogSystem("DeprecationWarning")
-		 << "**************************************\n"
-		    "* WARNING: The deprecated method\n* \"" << function
-		 << "\" has been called.\n* Please fix your code to use"
-		    " the new GenRunInfoProduct and\n* the non-deprecated"
-		    " methods instead.  GenInfoProduct is going away!"
-		 << std::endl;
-}
