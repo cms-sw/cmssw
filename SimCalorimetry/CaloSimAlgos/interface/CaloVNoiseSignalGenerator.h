@@ -3,7 +3,6 @@
 
 #include<vector>
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-class CaloVSimParameterMap;
 
 class CaloVNoiseSignalGenerator
 {
@@ -22,16 +21,11 @@ public:
   /// before fillEvent gets called.
   void setNoiseSignals(const std::vector<CaloSamples> & noiseSignals);
 
-  void setParameterMap(CaloVSimParameterMap * map) {theParameterMap = map;}
-
 protected:
   /// if you want to fill signals on demand, override this
   /// subclass is responsible for clearing theNoiseSignals before adding
   virtual void fillNoiseSignals() {}
   std::vector<CaloSamples> theNoiseSignals;
-
-  // maybe not used
-  CaloVSimParameterMap * theParameterMap;
 
 private:
   void fillDetIds();
