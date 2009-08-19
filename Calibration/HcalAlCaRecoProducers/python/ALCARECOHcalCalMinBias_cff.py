@@ -49,3 +49,10 @@ horecoMB.firstSample = 4
 horecoMB.samplesToAdd = 4
 horecoMB.digiLabel = 'hcalDigiAlCaMB'
 
+#switch off "ZS in reco":
+hbherecoNoise.dropZSmarkedPassed = cms.bool(False)
+hfrecoNoise.dropZSmarkedPassed = cms.bool(False)
+horecoNoise.dropZSmarkedPassed = cms.bool(False)
+hbherecoMB.dropZSmarkedPassed = cms.bool(False)
+hfrecoMB.dropZSmarkedPassed = cms.bool(False)
+horecoMB.dropZSmarkedPassed = cms.bool(False)

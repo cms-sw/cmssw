@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2009/06/24 16:11:46 $
- * $Revision: 1.47 $
+ * $Date: 2009/08/02 15:46:36 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -87,6 +87,8 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 std::vector<EBClient*> clients_;
 
@@ -150,9 +152,9 @@ MonitorElement* meTestPulseAmplG12_;
 MonitorElement* meCosmic_;
 MonitorElement* meTiming_;
 MonitorElement* meTriggerTowerEt_;
-MonitorElement* meTriggerTowerEtSpectrum_;
 MonitorElement* meTriggerTowerEmulError_;
 MonitorElement* meTriggerTowerTiming_;
+MonitorElement* meTriggerTowerNonSingleTiming_;
 
 MonitorElement* meGlobalSummary_;
 

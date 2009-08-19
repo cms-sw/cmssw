@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
-
+from PhysicsTools.HepMCCandAlgos.genParticleCandidates_cfi import *
 # Muons
-SelectGenMuons = cms.EDFilter("EtaPtMinPdgIdCandViewSelector",
-    src = cms.InputTag("genParticles"),
+SelectGenMuons = cms.EDFilter("EtaPtMinPdgIdCandSelector",
+    src = cms.InputTag("genParticleCandidates"),
     etaMin = cms.double(-5.0),
     etaMax = cms.double(5.0),
     ptMin = cms.double(10.0),
@@ -13,8 +12,8 @@ SelectGenMuons = cms.EDFilter("EtaPtMinPdgIdCandViewSelector",
 )
 
 # Electrons
-SelectGenElec = cms.EDFilter("EtaPtMinPdgIdCandViewSelector",
-    src = cms.InputTag("genParticles"),
+SelectGenElec = cms.EDFilter("EtaPtMinPdgIdCandSelector",
+    src = cms.InputTag("genParticleCandidates"),
     etaMin = cms.double(-3.0),
     etaMax = cms.double(3.0),
     ptMin = cms.double(10.0),
@@ -36,15 +35,17 @@ SelectGenCenJets = cms.EDFilter("EtaPtMinCandSelector",
 )
 
 # Select forward generator jets
-SelectGenForJets = cms.EDFilter("CandViewSelector",
+SelectGenForJets = cms.EDFilter("EtaPtMinCandSelector",
     src = cms.InputTag("CloneGenJets"),
-    cut = cms.string("(-5.0 < eta < -3.0 | 3.0 < eta < 5.0) & pt > 20.0")                            
+    etaMin = cms.double(-5.0),
+    etaMax = cms.double(-3.0),
+    ptMin = cms.double(20.0)
 )
 
 # Tau
 # Select generator tau particles
-SelectGenTauJets = cms.EDFilter("EtaPtMinPdgIdCandViewSelector",
-    src = cms.InputTag("genParticles"),
+SelectGenTauJets = cms.EDFilter("EtaPtMinPdgIdCandSelector",
+    src = cms.InputTag("genParticleCandidates"),
     etaMin = cms.double(-3.0),
     etaMax = cms.double(3.0),
     ptMin = cms.double(20.0),
@@ -54,7 +55,7 @@ SelectGenTauJets = cms.EDFilter("EtaPtMinPdgIdCandViewSelector",
 # Missing Et
 # Clone generator Met
 CloneGenMet = cms.EDProducer("GenMETShallowCloneProducer",
-    src = cms.InputTag("genMetTrue")
+    src = cms.InputTag("genMet")
 )
 
 # Select generator Met
@@ -63,22 +64,10 @@ SelectGenMet = cms.EDFilter("PtMinCandSelector",
     ptMin = cms.double(10.0)
 )
 
-# Select generator jets
-SelectGenJets = cms.EDFilter("PtMinCandSelector",
-    src = cms.InputTag("CloneGenJets"),
-    ptMin = cms.double(20.0)
-)
-
-# Merge generator jets with generator tau jets to make a collection of all jets
-MergeGenJets = cms.EDProducer("CandViewMerger",
-    src = cms.VInputTag("SelectGenJets","SelectGenTauJets")
-)
-
-GenMuonSelection = cms.Sequence(genParticles*SelectGenMuons)
-GenElecSelection = cms.Sequence(genParticles*SelectGenElec)
+GenMuonSelection = cms.Sequence(genParticleCandidates*SelectGenMuons)
+GenElecSelection = cms.Sequence(genParticleCandidates*SelectGenElec)
 GenCenJetSelection = cms.Sequence(CloneGenJets*SelectGenCenJets)
 GenForJetSelection = cms.Sequence(CloneGenJets*SelectGenForJets)
-GenTauJetSelection = cms.Sequence(genParticles*SelectGenTauJets)
+GenTauJetSelection = cms.Sequence(genParticleCandidates*SelectGenTauJets)
 GenMetSelection = cms.Sequence(CloneGenMet*SelectGenMet)
 
-GenJetSelection = cms.Sequence(CloneGenJets*SelectGenJets)

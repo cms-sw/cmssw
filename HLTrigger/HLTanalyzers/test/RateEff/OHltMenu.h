@@ -10,8 +10,6 @@
 #include <map>
 #include <TROOT.h>
 
-#include "HLTDatasets.h"    //SAK
-
 class OHltMenu {
  public:
   OHltMenu();

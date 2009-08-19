@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/06/29 13:28:19 $
- * $Revision: 1.38 $
+ * $Date: 2009/08/02 15:46:40 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,8 @@ bool enableCleanup_;
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
 std::vector<int> ledWavelengths_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 std::vector<EEClient*> clients_;
 
@@ -166,6 +168,7 @@ MonitorElement* meTriggerTowerEt_[2];
 MonitorElement* meTriggerTowerEtSpectrum_[2];
 MonitorElement* meTriggerTowerEmulError_[2];
 MonitorElement* meTriggerTowerTiming_[2];
+MonitorElement* meTriggerTowerNonSingleTiming_[2];
 
 MonitorElement* meGlobalSummary_[2];
 

@@ -77,7 +77,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">300</PARAM>
-      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTOB">
@@ -89,7 +89,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">300</PARAM>
-      <PARAM name="xmin">30.0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTEC">
@@ -101,7 +101,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">200</PARAM>
-      <PARAM name="xmin">27.0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:StoNTID">
@@ -113,7 +113,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">200</PARAM>
-      <PARAM name="xmin">25.0</PARAM>
+      <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">50.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:TrkRate" activate="true">

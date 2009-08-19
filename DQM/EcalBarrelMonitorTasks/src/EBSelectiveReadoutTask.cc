@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/05/05 10:02:31 $
- * $Revision: 1.33 $
+ * $Date: 2009/08/10 17:52:34 $
+ * $Revision: 1.36 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -59,6 +59,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
 
   // histograms...
   EBTowerSize_ = 0;
+  EBTTFMismatch_ = 0;
   EBDccEventSize_ = 0;
   EBDccEventSizeMap_ = 0;
   EBReadoutUnitForcedBitMap_ = 0;
@@ -111,9 +112,15 @@ void EBSelectiveReadoutTask::setup(void) {
     EBTowerSize_ = dqmStore_->bookProfile2D(histo, histo, 72, 0, 72, 34, -17, 17, 100, 0, 200, "s");
     EBTowerSize_->setAxisTitle("jphi", 1);
     EBTowerSize_->setAxisTitle("jeta", 2);
+ 
+    sprintf(histo, "EBSRT TT flag mismatch");
+    EBTTFMismatch_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBTTFMismatch_->setAxisTitle("jphi", 1);
+    EBTTFMismatch_->setAxisTitle("jeta", 2);
     
     sprintf(histo, "EBSRT DCC event size");
     EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
+    EBDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -183,6 +190,9 @@ void EBSelectiveReadoutTask::cleanup(void){
 
     if ( EBTowerSize_ ) dqmStore_->removeElement( EBTowerSize_->getName() );
     EBTowerSize_ = 0;
+
+    if ( EBTTFMismatch_ ) dqmStore_->removeElement( EBTTFMismatch_->getName() );
+    EBTTFMismatch_ = 0;
     
     if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
     EBDccEventSize_ = 0;
@@ -255,6 +265,8 @@ void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 void EBSelectiveReadoutTask::reset(void) {
 
   if ( EBTowerSize_ ) EBTowerSize_->Reset();
+
+  if ( EBTTFMismatch_ ) EBTTFMismatch_->Reset();
   
   if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
 
@@ -307,6 +319,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
       EcalTrigTowerDetId id = it->id();
+
+      if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int iet = id.ieta();
       int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
@@ -369,6 +383,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
   }
 
+  int TTFlags[72][34];
+  for(int ietindex = 0; ietindex < 34; ietindex++ ) {
+    for(int iptindex = 0; iptindex < 72; iptindex++ ) {
+      TTFlags[iptindex][ietindex] = -1;
+    }
+  }
+
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
 
@@ -391,6 +412,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[iptindex][ietindex]++;
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[iptindex][ietindex]++;
+
+      TTFlags[iptindex][ietindex] = TPdigi->ttFlag() & 0x3;
 
     }
   } else {
@@ -475,7 +498,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         
         double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
         EBTowerSize_->Fill(xipt, xiet, towerSize);
-        
+
+        if( (TTFlags[iptindex][ietindex]==1 || TTFlags[iptindex][ietindex]==3) && nCryTower[iptindex][ietindex] != 25 )
+          EBTTFMismatch_->Fill(xipt, xiet);
+
       }
     }
   } else {

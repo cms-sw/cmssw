@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.24 2008/09/05 13:39:13 emanuele Exp $
+// $Id: Numbers.h,v 1.25 2009/03/01 08:13:09 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.24 $
-  \date $Date: 2008/09/05 13:39:13 $
+  \version $Revision: 1.25 $
+  \date $Date: 2009/03/01 08:13:09 $
 */
 
 #ifndef Numbers_H
@@ -26,6 +26,7 @@ class EEDetId;
 class EcalTrigTowerDetId;
 class EcalElectronicsId;
 class EcalPnDiodeDetId;
+class EcalScDetId;
 
 class EcalDCCHeaderBlock;
 
@@ -50,6 +51,8 @@ class Numbers {
   static EcalSubdetector subDet( const EEDetId& id );
 
   static EcalSubdetector subDet( const EcalTrigTowerDetId& id );
+
+  static EcalSubdetector subDet( const EcalScDetId& id );
 
   static EcalSubdetector subDet( const EcalElectronicsId& id );
 

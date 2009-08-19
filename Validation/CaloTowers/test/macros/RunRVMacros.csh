@@ -42,9 +42,6 @@ cp ../html_indices/CaloTowers_HB.html        TTbar/CalTowHB/index.html
 cp ../html_indices/CaloTowers_HE.html        TTbar/CalTowHE/index.html
 cp ../html_indices/CaloTowers_HF.html        TTbar/CalTowHF/index.html
 
-cp -r TTbar TTbarStartup
-mv    TTbar TTbarMC
-
 #QCD
 mkdir QCD
 mkdir QCD/CalTowHB
@@ -57,66 +54,32 @@ cp ../html_indices/CaloTowers_HB.html      QCD/CalTowHB/index.html
 cp ../html_indices/CaloTowers_HE.html      QCD/CalTowHE/index.html
 cp ../html_indices/CaloTowers_HF.html      QCD/CalTowHF/index.html
 
-cp -r QCD QCDStartup
-mv    QCD QCDMC
-
-#Single Pions
-
-mkdir SinglePi50_ECAL+HCAL_Scan
-
-cp ../html_indices/SinglePiScan.html       SinglePi50_ECAL+HCAL_Scan/index.html
-
 cd ../
 
-#Process MC TTbar
-root -l -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'")'
+if (-d emean_seq_${NEW_VERS}_vs_${OLD_VERS}) then
+     rm -rf emean_seq_${NEW_VERS}_vs_${OLD_VERS}
+endif
 
-mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHB/
-mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHE/
-mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHF/
-rm emean_seq_*.gif  
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}/TTbar
+mkdir emean_seq_${NEW_VERS}_vs_${OLD_VERS}/QCD
 
-root -l -q 'TimingMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'")'
+#Process TTbar
+root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root'")'
 
-mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RecHits/
+mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHB/
+mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHE/
+mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CalTowHF/
+mv emean_seq_*.gif      emean_seq_${NEW_VERS}_vs_${OLD_VERS}/TTbar
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/RecHits/
 
-#Process MC QCD
-root -l -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_QCD_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_MC_${NEW_VERS}.root'")'
+#Process QCD
+root -l -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_QCD_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_${NEW_VERS}.root'")'
 
-mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHB/
-mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHE/
-mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHF/
-rm emean_seq_*.gif
-
-root -l -q 'TimingMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_QCD_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_MC_${NEW_VERS}.root'")'
-
-mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RecHits/
-
-#Process Startup TTbar
-root -l -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}.root'")'
-
-mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHB/
-mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHE/
-mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHF/
-rm emean_seq_*.gif  
-
-root -l -q 'TimingMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}.root'")'
-
-mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/RecHits/
-
-#Process Startup QCD
-root -l -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_QCD_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_Startup_${NEW_VERS}.root'")'
-
-mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHB/
-mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHE/
-mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHF/
-rm emean_seq_*.gif
-
-root -l -q 'TimingMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_QCD_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_Startup_${NEW_VERS}.root'")'
-
-mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/RecHits/
-
-root -l -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
-mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
+mv HB_CaloTowers*HB.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHB/
+mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHE/
+mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CalTowHF/
+mv emean_seq_*.gif      emean_seq_${NEW_VERS}_vs_${OLD_VERS}/QCD
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/RecHits/
 
 exit

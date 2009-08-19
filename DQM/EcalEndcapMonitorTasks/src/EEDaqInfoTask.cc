@@ -71,7 +71,7 @@ void EEDaqInfoTask::beginJob(const EventSetup& c){
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
       meEEDaqActive_[i] = dqmStore_->bookFloat(histo);
       meEEDaqActive_[i]->Fill(0.0);
     }

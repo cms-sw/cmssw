@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/06/26 21:27:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/07/21 08:47:26 $
+ *  $Revision: 1.4 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -163,6 +163,14 @@ private:
   bool applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
   
   // Data members
+
+  // flag to decide how you want to label output histos
+  // old label scheme kept lots of the trigger name,
+  // but complicated harvesting step
+  bool    useOldLabels;
+  bool    useFullDebugInformation;
+  int     HLT_PLOT_OFFSET;
+  bool    isL1Path, isL2Path, isL3Path;
 
   bool    makeNtuple;
   float   theNtuplePars[100]; 

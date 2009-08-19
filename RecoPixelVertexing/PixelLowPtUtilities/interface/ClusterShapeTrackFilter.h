@@ -39,8 +39,6 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
  
   const TrackerGeometry * theTracker;
   const ClusterShapeHitFilter * theFilter;
-
-  double ptMin;
 };
 
 #endif

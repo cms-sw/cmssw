@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.25 2009/07/12 05:09:09 srappocc Exp $
+// $Id: Event.cc,v 1.24 2008/12/27 05:24:02 wmtan Exp $
 //
 
 // system include files
@@ -145,16 +145,14 @@ Event::~Event()
 //
 // member functions
 //
-
 const Event& 
 Event::operator++()
 {
-   Long_t eventIndex = branchMap_.getEventEntry();
-   if(eventIndex < size()) 
-   {
-      branchMap_.updateEvent(++eventIndex);
-   }
-   return *this;
+  Long_t eventIndex = branchMap_.getEventEntry();
+  if(eventIndex < size()) {
+    branchMap_.updateEvent(++eventIndex);
+  }
+  return *this;
 }
 
 const Event& 
@@ -207,8 +205,8 @@ Event::to(edm::EventID id)
 const Event& 
 Event::toBegin()
 {
-   branchMap_.updateEvent(0);
-   return *this;
+  branchMap_.updateEvent(0);
+  return *this;
 }
 
 //

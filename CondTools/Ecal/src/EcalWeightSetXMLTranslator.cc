@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -23,8 +22,7 @@ using namespace std;
 
 
 int  EcalWeightSetXMLTranslator::readXML(const std::string& filename, 
-					 EcalCondHeader& header,
-					 EcalWeightSet& record){
+				                   EcalWeightSet& record){
 
   XMLPlatformUtils::Initialize();
 
@@ -43,7 +41,6 @@ int  EcalWeightSetXMLTranslator::readXML(const std::string& filename,
 
   DOMElement* elementRoot = xmlDoc->getDocumentElement();
 
-  xuti::readHeader(elementRoot, header);
   // get the first cell node
   DOMNode * wgtBSnode=getChildNode(elementRoot,wgtBeforeSwitch_tag);
   DOMNode * wgtASnode=getChildNode(elementRoot,wgtAfterSwitch_tag);
@@ -200,14 +197,57 @@ int  EcalWeightSetXMLTranslator::readXML(const std::string& filename,
 
 
 
-int EcalWeightSetXMLTranslator::writeXML(const std::string& filename,
-					 const EcalCondHeader& header, 
-					 const EcalWeightSet& record){
+int EcalWeightSetXMLTranslator::writeXML(const std::string& filename, 
+					  const EcalWeightSet& record){
     
-  std::fstream fs(filename.c_str(),ios::out);
-  fs<< dumpXML(header,record);
-  return 0;  
 
+
+  
+  XMLPlatformUtils::Initialize();
+  
+  DOMImplementation*  impl =
+    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  
+  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
+  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  
+  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+  DOMDocument *    doc = 
+    impl->createDocument( 0,fromNative(EcalWeightSet_tag).c_str(), doctype );
+  
+  
+  doc->setEncoding(fromNative("UTF-8").c_str() );
+  doc->setStandalone(true);
+  doc->setVersion(fromNative("1.0").c_str() );
+  
+  DOMElement* root = doc->getDocumentElement();
+  
+  DOMElement* wgtBS = doc->createElement(fromNative(wgtBeforeSwitch_tag).c_str());
+  root->appendChild(wgtBS);
+  
+  DOMElement* wgtAS = doc->createElement(fromNative(wgtAfterSwitch_tag).c_str());
+  root->appendChild(wgtAS);
+  
+  DOMElement* wgtChi2BS = doc->createElement(fromNative(wgtChi2BeforeSwitch_tag).c_str());
+  root->appendChild(wgtChi2BS);
+  
+  DOMElement* wgtChi2AS = doc->createElement(fromNative(wgtChi2AfterSwitch_tag).c_str());
+  root->appendChild(wgtChi2AS);
+  
+  write3x10(wgtBS,record);
+  write3x10(wgtAS,record);
+  
+  write10x10(wgtChi2BS,record);
+  write10x10(wgtChi2AS,record);
+  
+  LocalFileFormatTarget file(filename.c_str());
+  
+  writer->writeNode(&file, *root);
+  
+  doc->release();
+  //   XMLPlatformUtils::Terminate();
+  
+  return 0;
 }
 
 
@@ -309,56 +349,4 @@ void EcalWeightSetXMLTranslator::write3x10(xercesc::DOMElement* node,
       rowvalue[i] = node->getOwnerDocument()->createTextNode(fromNative(row_s.str()).c_str());
       row[i]->appendChild(rowvalue[i]);
     }//for loop on row
-}
-
-
-std::string EcalWeightSetXMLTranslator::dumpXML(const EcalCondHeader& header,
-						const EcalWeightSet&  record){
-
-  
-  XMLPlatformUtils::Initialize();
-  
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-  
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-  
-  DOMDocumentType* doctype = impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
-  DOMDocument *    doc = 
-    impl->createDocument( 0,fromNative(EcalWeightSet_tag).c_str(), doctype );
-  
-  
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
-  
-  DOMElement* root = doc->getDocumentElement();
-
-  xuti::writeHeader(root, header);
-
-  DOMElement* wgtBS = doc->createElement(fromNative(wgtBeforeSwitch_tag).c_str());
-  root->appendChild(wgtBS);
-  
-  DOMElement* wgtAS = doc->createElement(fromNative(wgtAfterSwitch_tag).c_str());
-  root->appendChild(wgtAS);
-  
-  DOMElement* wgtChi2BS = doc->createElement(fromNative(wgtChi2BeforeSwitch_tag).c_str());
-  root->appendChild(wgtChi2BS);
-  
-  DOMElement* wgtChi2AS = doc->createElement(fromNative(wgtChi2AfterSwitch_tag).c_str());
-  root->appendChild(wgtChi2AS);
-  
-  write3x10(wgtBS,record);
-  write3x10(wgtAS,record);
-  
-  write10x10(wgtChi2BS,record);
-  write10x10(wgtChi2AS,record);
-  
-  std::string dump= toNative(writer->writeToString(*root)); 
-  doc->release(); 
-  
-  return dump;  
-
-
 }

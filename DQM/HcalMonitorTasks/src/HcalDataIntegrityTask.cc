@@ -45,7 +45,6 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
 {
   HcalBaseMonitor::setup(ps,dbe);
   
-  ievt_=0;
   baseFolder_ = rootFolder_+"HcalDataIntegrityTask";
 
   if(fVerbosity) 
@@ -67,7 +66,13 @@ void HcalDataIntegrityTask::setup(const edm::ParameterSet& ps,
     {
       
       if (fVerbosity)
-	cout <<"SET TO HCAL/FEDIntegrity"<<std::endl;
+	std::cout <<"SET TO HCAL/FEDIntegrity"<<std::endl;
+
+      meEVT_ = m_dbe->bookInt("Data Integrity Task Event Number");
+      meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("Data Integrity Task Total Events Processed");
+      meTOTALEVT_->Fill(tevt_);
+
       m_dbe->setCurrentFolder("Hcal/FEDIntegrity/");
       fedEntries_ = m_dbe->book1D("FEDEntries","# entries per HCAL FED",32,700,732);
       fedFatal_ = m_dbe->book1D("FEDFatal","# fatal errors HCAL FED",32,700,732);
@@ -88,7 +93,7 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
       return;
     }
   
-  ievt_++;
+  HcalBaseMonitor::processEvent();
 
   // Loop over all FEDs reporting the event, unpacking if good.
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
@@ -148,7 +153,8 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   
   if (dccHeader->getCDFEventType()!= CDFEvT_it->second) 
     {
-      CDFProbThisDCC = true; 
+      // On probation until safe against Orbit Gap Calibration Triggers...
+      // CDFProbThisDCC = true; 
     }
 
   /* 4 */ //There should always be a '5' in CDF Header word 0, bits [63:60]
@@ -174,7 +180,8 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) 
     {
-      CDFProbThisDCC = true; 
+    // On probation until safe against Orbit Gap Calibration Triggers...
+    //       CDFProbThisDCC = true; 
     }
 
   /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]

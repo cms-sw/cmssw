@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.15 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,6 +88,9 @@ bool enableCleanup_;
 std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
+
+TH1F* i01_[18];
+TProfile2D* i02_[18];
 
 TH2F* h01_[2][3];
 TH1F* h01ProjR_[2][3];

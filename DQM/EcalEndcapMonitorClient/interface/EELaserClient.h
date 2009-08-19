@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2009/06/18 12:27:01 $
- * $Revision: 1.31 $
+ * $Date: 2009/06/29 13:27:49 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -103,29 +103,10 @@ TProfile2D* h10_[18];
 TProfile2D* h11_[18];
 TProfile2D* h12_[18];
 
-TProfile2D* h13_[18];
-TProfile2D* h14_[18];
-TProfile2D* h15_[18];
-TProfile2D* h16_[18];
-TProfile2D* h17_[18];
-TProfile2D* h18_[18];
-TProfile2D* h19_[18];
-TProfile2D* h20_[18];
-
-TProfile2D* h21_[18];
-TProfile2D* h22_[18];
-TProfile2D* h23_[18];
-TProfile2D* h24_[18];
-
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
 TProfile2D* hs03_[18];
 TProfile2D* hs04_[18];
-
-TProfile2D* hs05_[18];
-TProfile2D* hs06_[18];
-TProfile2D* hs07_[18];
-TProfile2D* hs08_[18];
 
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];
@@ -145,46 +126,26 @@ MonitorElement* mea01_[18];
 MonitorElement* mea02_[18];
 MonitorElement* mea03_[18];
 MonitorElement* mea04_[18];
-MonitorElement* mea05_[18];
-MonitorElement* mea06_[18];
-MonitorElement* mea07_[18];
-MonitorElement* mea08_[18];
 
 MonitorElement* met01_[18];
 MonitorElement* met02_[18];
 MonitorElement* met03_[18];
 MonitorElement* met04_[18];
-MonitorElement* met05_[18];
-MonitorElement* met06_[18];
-MonitorElement* met07_[18];
-MonitorElement* met08_[18];
 
 MonitorElement* metav01_[18];
 MonitorElement* metav02_[18];
 MonitorElement* metav03_[18];
 MonitorElement* metav04_[18];
-MonitorElement* metav05_[18];
-MonitorElement* metav06_[18];
-MonitorElement* metav07_[18];
-MonitorElement* metav08_[18];
 
 MonitorElement* metrms01_[18];
 MonitorElement* metrms02_[18];
 MonitorElement* metrms03_[18];
 MonitorElement* metrms04_[18];
-MonitorElement* metrms05_[18];
-MonitorElement* metrms06_[18];
-MonitorElement* metrms07_[18];
-MonitorElement* metrms08_[18];
 
 MonitorElement* meaopn01_[18];
 MonitorElement* meaopn02_[18];
 MonitorElement* meaopn03_[18];
 MonitorElement* meaopn04_[18];
-MonitorElement* meaopn05_[18];
-MonitorElement* meaopn06_[18];
-MonitorElement* meaopn07_[18];
-MonitorElement* meaopn08_[18];
 
 MonitorElement* mepnprms01_[18];
 MonitorElement* mepnprms02_[18];
@@ -199,10 +160,6 @@ MonitorElement* me_hs01_[18];
 MonitorElement* me_hs02_[18];
 MonitorElement* me_hs03_[18];
 MonitorElement* me_hs04_[18];
-MonitorElement* me_hs05_[18];
-MonitorElement* me_hs06_[18];
-MonitorElement* me_hs07_[18];
-MonitorElement* me_hs08_[18];
 
 TProfile* i01_[18];
 TProfile* i02_[18];

@@ -203,6 +203,7 @@ int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if (! isSaturation)
       {
 	(*invalidGains_)->push_back(*pDetId_);
+	(*digis_)->pop_back(); 
 	errorOnXtal = true; 
 	
 	//Point to begin of next xtal Block

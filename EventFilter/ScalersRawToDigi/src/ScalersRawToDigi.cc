@@ -28,8 +28,6 @@
 // Scalers classes
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
-#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
-#include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
@@ -51,7 +49,6 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
 {
   produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
-  produces<Level1TriggerScalersCollection>();
   produces<LumiScalersCollection>();
   if ( iConfig.exists("scalersInputTag") )
   {
@@ -75,10 +72,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
 
   std::auto_ptr<L1TriggerScalersCollection> 
-    pOldTrigger(new L1TriggerScalersCollection());
-
-  std::auto_ptr<Level1TriggerScalersCollection> 
-    pTrigger(new Level1TriggerScalersCollection());
+    pTrigger(new L1TriggerScalersCollection());
 
   std::auto_ptr<L1AcceptBunchCrossingCollection> 
     pBunch(new L1AcceptBunchCrossingCollection());
@@ -88,18 +82,8 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   unsigned short int length =  fedData.size();
   if ( length > 0 ) 
   {
-    const ScalersEventRecordRaw_v3 * raw 
-	     = (struct ScalersEventRecordRaw_v3 *)fedData.data();
-    if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
-    {
-      L1TriggerScalers oldTriggerScalers(fedData.data());
-      pOldTrigger->push_back(oldTriggerScalers);
-    }
-    else if ( raw->version >= 3 )
-    {
-      Level1TriggerScalers triggerScalers(fedData.data());
-      pTrigger->push_back(triggerScalers);
-    }
+    L1TriggerScalers triggerScalers(fedData.data());
+    pTrigger->push_back(triggerScalers);
 
     LumiScalers      lumiScalers(fedData.data());
     pLumi->push_back(lumiScalers);
@@ -120,7 +104,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       }
     }
   }
-  iEvent.put(pOldTrigger); 
   iEvent.put(pTrigger); 
   iEvent.put(pLumi); 
   iEvent.put(pBunch);

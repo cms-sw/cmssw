@@ -21,9 +21,6 @@ if __name__ == "__main__":
                           help='Loads files and prepares "event" '
                           'for interactive mode')
     # tuple group
-    tupleGroup.add_option ('--tuple', dest='tuple', type='string',
-                           default='',
-                           help="Tuple type of 1st and 2nd tuple")
     tupleGroup.add_option ('--tuple1', dest='tuple1', type='string',
                            default='GenObject',
                            help="Tuple type of 1st tuple")
@@ -36,15 +33,9 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--file2', dest='file2', type='string',
                            default="",
                            help="2nd tuple file")
-    tupleGroup.add_option ('--numEvents', dest='numEvents', type='int',
-                           default=0,
-                           help="number of events for first and second file")
     tupleGroup.add_option ('--numEvents1', dest='numEvents1', type='int',
                            default=0,
-                           help="number of events for first file")
-    tupleGroup.add_option ('--numEvents2', dest='numEvents2', type='int',
-                           default=0,
-                           help="number of events for second file")
+                           help="number of events")
     tupleGroup.add_option ('--alias', dest='alias', type='string',
                            action='append',
                            help="Change alias ('tuple:object:alias')")
@@ -71,24 +62,13 @@ if __name__ == "__main__":
                              default=0.02,
                              help="Rate at which objects will be changed. " + \
                              "(%default default)")
-    optionsGroup.add_option ('--compRoot', dest='compRoot', type='string',
-                             default='',
-                             help="Write out root file for file comparisons")
-    optionsGroup.add_option ('--oldLoad', dest='oldLoad', action='store_true',
-                             help="Use old loading routine (DEBUGGING ONLY)")
-    optionsGroup.add_option ('--debug', dest='debug', action='store_true',
-                             help="Print debugging information")
-    optionsGroup.add_option 
     parser.add_option_group (modeGroup)
     parser.add_option_group (tupleGroup)
     parser.add_option_group (optionsGroup)
     (options, args) = parser.parse_args()
     # Here we go
     random.seed( os.getpid() )
-    if options.oldLoad:
-        GenObject.oldLoadConfigFile (options.config)
-    else:
-        GenObject.loadConfigFile (options.config)
+    GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
     # Let's parse any args
@@ -123,22 +103,12 @@ if __name__ == "__main__":
     if options.blur:
         GenObject.setGlobalFlag ('blur', options.blur)
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
-    if options.debug:
-        GenObject.setGlobalFlag ('debug', True)
-    # take care of any 'double' options now
-    if options.tuple:
-        options.tuple1 = options.tuple2 = options.tuple
-    if options.numEvents:
-        options.numEvents1 = options.numEvents2 = options.numEvents
     if options.compare:
         # Compare two files
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
                                          options.numEvents1)
-        chain2 = GenObject.prepareTuple (options.tuple2, options.file2,
-                                         options.numEvents2)
-        problems = \
-                 GenObject.compareTwoTrees (chain1, chain2,
-                                            diffOutputName = options.compRoot)
+        chain2 = GenObject.prepareTuple (options.tuple2, options.file2)
+        problems = GenObject.compareTwoTrees (chain1, chain2)
         print "problems"
         pprint.pprint (problems)
     if options.saveAs:
@@ -166,7 +136,7 @@ if __name__ == "__main__":
         import atexit
         historyPath = os.path.expanduser("~/.pyhistory")
 
-        def save_history (historyPath=historyPath):
+        def save_history(historyPath=historyPath):
             import readline
             readline.write_history_file(historyPath)
             if os.path.exists(historyPath):

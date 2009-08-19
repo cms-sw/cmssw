@@ -1,6 +1,0 @@
-Plots/electronbenchmark.png	 "The electron benchmark: E_T(rec) - E_T(true)."
-Plots/etresolution.png		 "E_{T}(rec) - E_T(true)/E_T(true)"
-Plots/deltaeta.png		 "Eta resolution"
-Plots/deltaphi.png		 "Phi resolution"     
-Plots/etagen.png	         "Generated eta distribution"
-Plots/etgen.png 		 "Generated E_{T} distribution"

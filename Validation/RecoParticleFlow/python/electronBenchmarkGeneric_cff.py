@@ -5,7 +5,6 @@ from PhysicsTools.PFCandProducer.ParticleSelectors.pfAllElectrons_cfi import pfA
 
 from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectronBenchmarkGeneric
 
-from  PhysicsTools.PFCandProducer.pfNoPileUp_cff import *
 # setting the sources
 
 gensource = cms.EDProducer(
@@ -21,9 +20,7 @@ gensource = cms.EDProducer(
 pfElectronBenchmarkGeneric.InputRecoLabel = cms.InputTag("pfAllElectrons")
 pfElectronBenchmarkGeneric.InputTruthLabel = cms.InputTag("gensource")
 
-
 electronBenchmarkGeneric = cms.Sequence(
-    pfNoPileUpSequence+
     pfAllElectrons +
     gensource + 
     pfElectronBenchmarkGeneric

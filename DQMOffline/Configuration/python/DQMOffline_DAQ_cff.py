@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMServices.Components.DQMDaqInfo_cfi import *
 from DQM.DTMonitorClient.dtDAQInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBDaqInfoTask_cfi import *
@@ -11,5 +10,5 @@ siPixelDaqInfo  = cms.EDFilter("SiPixelDaqInfo")
 from DQM.HcalMonitorClient.HcalDAQInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 
-daq_dqmoffline = cms.Sequence(dqmDaqInfo*dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*siPixelDaqInfo*hcalDAQInfo*rpcDaqInfo)
+daq_dqmoffline = cms.Sequence(dtDAQInfo*rpcDaqInfo*ecalBarrelDaqInfoTask*ecalEndcapDaqInfoTask*siStripDaqInfo*cscDaqInfo*siPixelDaqInfo*hcalDAQInfo*rpcDaqInfo)
 

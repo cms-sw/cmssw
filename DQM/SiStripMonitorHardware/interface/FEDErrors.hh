@@ -91,6 +91,7 @@ public:
     bool IsActive;
     bool Unlocked;
     bool OutOfSync;
+
     bool operator <(const ChannelLevelErrors & aErr) const;
   };
 
@@ -119,7 +120,6 @@ public:
 
   //perform a sanity check with unpacking code check
   bool failUnpackerFEDCheck(const FEDRawData & fedData);
-
 
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked

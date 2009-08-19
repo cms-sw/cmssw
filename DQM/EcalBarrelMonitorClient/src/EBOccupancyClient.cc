@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2009/01/29 11:17:45 $
- * $Revision: 1.31 $
+ * $Date: 2009/02/27 13:54:06 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -15,6 +15,10 @@
 #include <math.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -47,6 +51,12 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps) {
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    int ism = superModules_[i];
+    i01_[ism-1] = 0;
+    i02_[ism-1] = 0;
+  }
 
   for ( int i=0; i<3; i++) {
     h01_[i] = 0;
@@ -115,6 +125,12 @@ void EBOccupancyClient::cleanup(void) {
 
   if ( cloneME_ ) {
 
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+      int ism = superModules_[i];
+      if ( i01_[ism-1] ) delete i01_[ism-1];
+      if ( i02_[ism-1] ) delete i02_[ism-1];
+    }
+
     for ( int i=0; i<3; ++i ) {
       if ( h01_[i] ) delete h01_[i];
       if ( h01ProjEta_[i] ) delete h01ProjEta_[i];
@@ -149,6 +165,92 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( ! flag ) return false;
 
+  EcalLogicID ecid;
+
+  MonOccupancyDat o;
+  map<EcalLogicID, MonOccupancyDat> dataset;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
+
+    const float n_min_tot = 1000.;
+    const float n_min_bin = 10.;
+
+    float num01, num02;
+    float mean01, mean02;
+    float rms01, rms02;
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        num01  = num02  = -1.;
+        mean01 = mean02 = -1.;
+        rms01  = rms02  = -1.;
+
+        bool update_channel = false;
+
+        if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = i01_[ism-1]->GetBinContent(ie, ip);
+          if ( num01 >= n_min_bin ) update_channel = true;
+        }
+
+        if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(ie, ip));
+          if ( num02 >= n_min_bin ) {
+            mean02 = i02_[ism-1]->GetBinContent(ie, ip);
+            rms02  = i02_[ism-1]->GetBinError(ie, ip);
+          }
+        }
+
+        if ( update_channel ) {
+
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Digi (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "RecHitThr (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
+
+          }
+
+
+          o.setEventsOverLowThreshold(int(num01));
+          o.setEventsOverHighThreshold(int(num02));
+
+          o.setAvgEnergy(mean02);
+
+          int ic = Numbers::indexEB(ism, ie, ip);
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset[ecid] = o;
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
+      if ( verbose_ ) cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
   return true;
 
 }
@@ -164,6 +266,20 @@ void EBOccupancyClient::analyze(void) {
   char histo[200];
 
   MonitorElement* me;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    i01_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit energy %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+
+  }
 
   sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy").c_str());
   me = dqmStore_->get(histo);

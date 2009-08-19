@@ -13,11 +13,7 @@ process.VisConfigurationService = cms.Service("VisConfigurationService",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(0)
 )
-
-process.source = cms.Source("EmptySource",
-    firstRun   = cms.untracked.uint32(1),
-    firstEvent = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.m = cms.EDProducer("GeometryProducer",
     MagneticField = cms.PSet(

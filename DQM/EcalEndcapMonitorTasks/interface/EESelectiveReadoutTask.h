@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/05/05 10:04:27 $
- * $Revision: 1.13 $
+ * $Date: 2009/07/17 17:14:23 $
+ * $Revision: 1.14 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -308,6 +308,7 @@ float ybins[133];
 MonitorElement* EEDccEventSize_;
 MonitorElement* EEDccEventSizeMap_;
 MonitorElement* EETowerSize_[2];
+MonitorElement* EETTFMismatch_[2];
 MonitorElement* EETowerFullReadoutFrequency_[2];
 MonitorElement* EEReadoutUnitForcedBitMap_[2];
 MonitorElement* EEFullReadoutSRFlagMap_[2];

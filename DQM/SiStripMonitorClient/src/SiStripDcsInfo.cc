@@ -51,11 +51,12 @@ void SiStripDcsInfo::beginJob( const edm::EventSetup &eSetup) {
 //
 void SiStripDcsInfo::bookStatus() {
 
-  dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents");
+  dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
 
-  DcsFraction_= dqmStore_->bookFloat("SiStripDcsFraction");  
+  DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
  
+  dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents");
   vector<string> det_type;
   det_type.push_back("TIB");
   det_type.push_back("TOB");
@@ -68,7 +69,7 @@ void SiStripDcsInfo::bookStatus() {
     SubDetMEs local_mes;	
     string me_name;
     string det = (*it);
-    me_name = "SiStripDcsFraction_" + det;    
+    me_name = "SiStrip_" + det;    
     local_mes.DcsFractionME = dqmStore_->bookFloat(me_name);  	
     local_mes.TotalDetectors = 0;
     local_mes.FaultyDetectors = 0;

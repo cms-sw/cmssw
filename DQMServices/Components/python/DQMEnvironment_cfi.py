@@ -20,6 +20,10 @@ dqmSaver = cms.EDFilter("DQMFileSaver",
     workflow = cms.untracked.string(''),
     # Directory in which to save the files.
     dirName = cms.untracked.string('.'),
+    # Version name to be used in file name.
+    version = cms.untracked.int32(1),
+    # runIsComplete
+    runIsComplete = cms.untracked.bool(False),
 
     # Save file every N lumi sections (-1: disabled)
     saveByLumiSection = cms.untracked.int32(-1),
@@ -39,7 +43,7 @@ dqmSaver = cms.EDFilter("DQMFileSaver",
     forceRunNumber = cms.untracked.int32(-1),
 
     # Control reference saving (default / skip / qtests / all)
-    referenceHandling = cms.untracked.string("qtests"),
+    referenceHandling = cms.untracked.string('all'),
     # Control which references are saved for qtests (default: STATUS_OK)
     referenceRequireStatus = cms.untracked.int32(100)
 )

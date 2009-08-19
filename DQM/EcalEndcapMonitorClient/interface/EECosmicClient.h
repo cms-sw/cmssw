@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.24 $
+ * $Date: 2009/02/27 13:54:07 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,12 +92,10 @@ DQMStore* dqmStore_;
 MonitorElement* meh01_[18];
 MonitorElement* meh02_[18];
 MonitorElement* meh03_[18];
-MonitorElement* meh04_[18];
 
 TProfile2D* h01_[18];
-TProfile2D* h02_[18];
+TH1F* h02_[18];
 TH1F* h03_[18];
-TH1F* h04_[18];
 
 };
 

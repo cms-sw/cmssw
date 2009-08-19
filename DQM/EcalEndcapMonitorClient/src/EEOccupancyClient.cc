@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2009/02/12 11:28:12 $
- * $Revision: 1.30 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -15,6 +15,8 @@
 #include <math.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -49,6 +51,12 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps) {
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    int ism = superModules_[i];
+    i01_[ism-1] = 0;
+    i02_[ism-1] = 0;
+  }
 
   for ( int i=0; i<3; i++) {
     h01_[0][i] = 0;
@@ -123,6 +131,12 @@ void EEOccupancyClient::cleanup(void) {
 
   if ( cloneME_ ) {
 
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+      int ism = superModules_[i];
+      if ( i01_[ism-1] ) delete i01_[ism-1];
+      if ( i02_[ism-1] ) delete i02_[ism-1];
+    }
+
     for ( int i=0; i<3; ++i ) {
       if ( h01_[0][i] ) delete h01_[0][i];
       if ( h01ProjR_[0][i] ) delete h01ProjR_[0][i];
@@ -169,6 +183,100 @@ bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( ! flag ) return false;
 
+  EcalLogicID ecid;
+
+  MonOccupancyDat o;
+  map<EcalLogicID, MonOccupancyDat> dataset;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
+
+    const float n_min_tot = 1000.;
+    const float n_min_bin = 10.;
+
+    float num01, num02;
+    float mean01, mean02;
+    float rms01, rms02;
+
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+
+        num01  = num02  = -1.;
+        mean01 = mean02 = -1.;
+        rms01  = rms02  = -1.;
+
+        bool update_channel = false;
+
+        if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(ix, iy));
+          if ( num01 >= n_min_bin ) update_channel = true;
+        }
+
+        if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(ix, iy));
+          if ( num02 >= n_min_bin ) {
+            mean02 = i02_[ism-1]->GetBinContent(ix, iy);
+            rms02  = i02_[ism-1]->GetBinError(ix, iy);
+          }
+        }
+
+        if ( update_channel ) {
+
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Digi (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "RecHitThr (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
+
+          }
+
+          o.setEventsOverLowThreshold(int(num01));
+          o.setEventsOverHighThreshold(int(num02));
+
+          o.setAvgEnergy(mean02);
+
+          int ic = Numbers::indexEE(ism, jx, jy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset[ecid] = o;
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
+      if ( verbose_ ) cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
   return true;
 
 }
@@ -184,6 +292,20 @@ void EEOccupancyClient::analyze(void) {
   char histo[200];
 
   MonitorElement* me;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i01_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit energy %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+
+  }
 
   sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE -").c_str());
   me = dqmStore_->get(histo);

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Tue May 19 09:54:19 CEST 2009
-// $Id: HLTDummyCollections.cc,v 1.1 2009/05/26 11:26:56 gruen Exp $
+// $Id: HLTDummyCollections.cc,v 1.2 2009/07/15 09:36:16 fwyzard Exp $
 //
 //
 
@@ -71,9 +71,7 @@ class HLTDummyCollections : public edm::EDProducer {
     ~HLTDummyCollections();
 
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
     virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
 
     // ----------member data ---------------------------
 
@@ -299,17 +297,6 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(gtObjectMapRecord);
   }
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-  void 
-HLTDummyCollections::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTDummyCollections::endJob() {
 }
 
 //define this as a plug-in

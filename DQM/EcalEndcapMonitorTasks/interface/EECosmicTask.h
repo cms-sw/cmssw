@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.13 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -69,14 +69,11 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_; 
 edm::InputTag EcalRecHitCollection_;
 
-MonitorElement* meCutMap_[18];
-
 MonitorElement* meSelMap_[18];
 
 MonitorElement* meSpectrum_[2][18];
 
-double lowThreshold_;
-double highThreshold_;
+double threshold_;
 double minJitter_;
 double maxJitter_;
 

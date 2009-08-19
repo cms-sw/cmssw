@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2008/11/05 11:37:55 $
- * $Revision: 1.19 $
+ * $Date: 2009/04/09 15:44:50 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,6 +33,7 @@
 #include <map>
 
 class DTGeometry;
+class DTTrigGeomUtils;
 class DTChamberId;
 class DTRecSegment4D;
 class DTLocalTrigger;
@@ -63,18 +64,6 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   /// Book the histograms
   void bookCMSHistos(std::string histoTag);
   
-  /// Calculate phi range for histograms
-  std::pair<float,float> phiRange(const DTChamberId& id);
-
-  /// Compute track coordinates using trigger SC sectors
-  void computeCoordinates(const DTRecSegment4D* track, int& scsector, float& phpos, float& phdir, float& zpos, float& zdir);
-
-  /// Convert phi to local x coordinate
-  float phi2Pos(const DTChamberId & id, int phi);
-
-  /// Convert phib to global angle coordinate
-  float phib2Ang(const DTChamberId & id, int phib, double phi); 
-
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
 
@@ -130,6 +119,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
+  DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   
   MonitorElement* dcc_IDDataErrorPlot;

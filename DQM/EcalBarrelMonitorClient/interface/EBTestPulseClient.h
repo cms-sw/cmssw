@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2008/10/07 18:34:22 $
- * $Revision: 1.78 $
+ * $Date: 2009/02/27 13:54:04 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,8 @@ std::string prefixME_;
 bool enableCleanup_;
 
 std::vector<int> superModules_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 DQMStore* dqmStore_;
 

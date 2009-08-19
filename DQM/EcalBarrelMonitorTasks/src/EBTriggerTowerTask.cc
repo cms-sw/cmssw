@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/12/08 08:01:50 $
- * $Revision: 1.82 $
+ * $Date: 2009/02/27 12:31:30 $
+ * $Revision: 1.83 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -40,16 +40,17 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
+  meEtSpectrumReal_ = 0;
+  meEtSpectrumEmul_ = 0;
+  meEtSpectrumEmulMax_ = 0;
+
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
-  reserveArray(meFlagsReal_);
   reserveArray(meEtMapEmul_);
   reserveArray(meVetoEmul_);
-  reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
-  reserveArray(meFlagEmulError_);
   
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
@@ -97,19 +98,20 @@ void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EBTriggerTowerTask::reset(void) {
+  
+  if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Reset();
+  if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Reset();
+  if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Reset();
 
   for (int i = 0; i < 36; i++) {
 
     if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
     if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
-    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
     if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
     if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
-    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
     if ( meEmulError_[i] ) meEmulError_[i]->Reset();
     if ( meEmulMatch_[i] ) meEmulMatch_[i]->Reset();
     if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
-    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
 
   }
 
@@ -137,114 +139,58 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
-  array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
     meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
-    meFlags= &meFlagsEmul_;
   }
 
   dqmStore_->setCurrentFolder(folder);
 
-  static const unsigned namesize = 200;
+  char histo[200];
 
-  char histo[namesize];
-  sprintf(histo, "EBTTT Et map %s", nameext);
-  string etMapName = histo;
-  sprintf(histo, "EBTTT FineGrainVeto %s", nameext);
-  string fineGrainVetoName = histo;
-  sprintf(histo, "EBTTT Flags %s", nameext);
-  string flagsName = histo;
-  string emulErrorName = "EBTTT EmulError";
-  string emulMatchName = "EBTTT EmulMatch";
-  string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
-  string emulFlagErrorName = "EBTTT EmulFlagError";
+  if(!emulated) {
+    sprintf(histo, "EBTTT Et spectrum %s", nameext);
+    meEtSpectrumReal_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
+  } else {
+    sprintf(histo, "EBTTT Et spectrum %s", nameext);
+    meEtSpectrumEmul_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmul_->setAxisTitle("energy (ADC)", 1);
 
+    sprintf(histo, "EBTTT Et spectrum %s max", nameext);
+    meEtSpectrumEmulMax_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
+    meEtSpectrumEmulMax_->setAxisTitle("energy (ADC)", 1);
+  }
 
   for (int i = 0; i < 36; i++) {
-    
-    string etMapNameSM = etMapName;
-    etMapNameSM += " " + Numbers::sEB(i+1);
 
-    (*meEtMap)[i] = dqmStore_->bookProfile2D(etMapNameSM.c_str(), etMapNameSM.c_str(),
-                                               nTTEta, 0, nTTEta,
-                                               nTTPhi, 0, nTTPhi,
-                                               256, 0, 256.);
+    sprintf(histo, "EBTTT Et map %s %s", nameext, Numbers::sEB(i+1).c_str());
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(histo, histo, nTTEta, 0, nTTEta, nTTPhi, 0, nTTPhi, 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("ieta'", 1);
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
     
-    string fineGrainVetoNameSM = fineGrainVetoName;
-    fineGrainVetoNameSM += " " + Numbers::sEB(i+1);
-
-    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
-                               fineGrainVetoNameSM.c_str(),
-                               nTTEta, 0, nTTEta,
-                               nTTPhi, 0, nTTPhi,
-                               2, 0., 2.);
-    (*meVeto)[i]->setAxisTitle("ieta'", 1);
-    (*meVeto)[i]->setAxisTitle("iphi'", 2);
-    dqmStore_->tag((*meVeto)[i], i+1);
-
-    string flagsNameSM = flagsName;
-    flagsNameSM += " " + Numbers::sEB(i+1);
-
-    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
-                                nTTEta, 0, nTTEta,
-                                nTTPhi, 0, nTTPhi,
-                                8, 0., 8.);
-    (*meFlags)[i]->setAxisTitle("ieta'", 1);
-    (*meFlags)[i]->setAxisTitle("iphi'", 2);
-    dqmStore_->tag((*meFlags)[i], i+1);
-
     if(!emulated) {
 
-      string emulErrorNameSM = emulErrorName;
-      emulErrorNameSM += " " + Numbers::sEB(i+1);
-
-      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
-                                    emulErrorNameSM.c_str(),
-                                    nTTEta, 0., nTTEta,
-                                    nTTPhi, 0., nTTPhi );
+      sprintf(histo, "EBTTT EmulError %s", Numbers::sEB(i+1).c_str());
+      meEmulError_[i] = dqmStore_->book2D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi );
       meEmulError_[i]->setAxisTitle("ieta'", 1);
       meEmulError_[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meEmulError_[i], i+1);
 
-      string emulMatchNameSM = emulMatchName;
-      emulMatchNameSM += " " + Numbers::sEB(i+1);
-
-      meEmulMatch_[i] = dqmStore_->book3D(emulMatchNameSM.c_str(), emulMatchNameSM.c_str(),
-                                          nTTEta, 0., nTTEta,
-                                          nTTPhi, 0., nTTPhi,
-                                          6, 0., 6.);
+      sprintf(histo, "EBTTT EmulMatch %s", Numbers::sEB(i+1).c_str());
+      meEmulMatch_[i] = dqmStore_->book3D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi, 6, 0., 6.);
       meEmulMatch_[i]->setAxisTitle("ieta'", 1);
       meEmulMatch_[i]->setAxisTitle("iphi'", 2);
+      meEmulMatch_[i]->setAxisTitle("TP timing", 3);
       dqmStore_->tag(meEmulMatch_[i], i+1);
 
-      string emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
-      emulFineGrainVetoErrorNameSM += " " + Numbers::sEB(i+1);
-
-      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
-                                          emulFineGrainVetoErrorNameSM.c_str(),
-                                          nTTEta, 0., nTTEta,
-                                          nTTPhi, 0., nTTPhi,
-                                          8, 0., 8.);
+      sprintf(histo, "EBTTT EmulFineGrainVetoError %s", Numbers::sEB(i+1).c_str());
+      meVetoEmulError_[i] = dqmStore_->book2D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi);
       meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
       meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meVetoEmulError_[i], i+1);
-
-      string emulFlagErrorNameSM = emulFlagErrorName;
-      emulFlagErrorNameSM += " " + Numbers::sEB(i+1);
-
-      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
-                                          emulFlagErrorNameSM.c_str(),
-                                          nTTEta, 0., nTTEta,
-                                          nTTPhi, 0., nTTPhi,
-                                          8, 0., 8.);
-      meFlagEmulError_[i]->setAxisTitle("ieta'", 1);
-      meFlagEmulError_[i]->setAxisTitle("iphi'", 2);
-      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -291,8 +237,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     processDigis( e,
                   realDigis,
                   meEtMapReal_,
-                  meVetoReal_,
-                  meFlagsReal_);
+                  meVetoReal_);
 
   } else {
     LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
@@ -306,7 +251,6 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   emulDigis,
                   meEtMapEmul_,
                   meVetoEmul_,
-                  meFlagsEmul_,
                   realDigis);
 
   } else {
@@ -319,7 +263,6 @@ void
 EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  array1& meFlags,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
   map<EcalTrigTowerDetId, int> crystalsInTower;
@@ -369,36 +312,33 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     float xiet = iet-0.5;
     float xipt = ipt-0.5;
 
-//    LogDebug("EBTriggerTowerTask") << "det id = "
-//                                   << tpdigiItr->id().rawId() << " "
-//                                   << "sm, tt, ieta, iphi "
-//                                   << ismt << " " << itt << " "
-//                                   << iet << " " << ipt;
+    float xvalEt = tpdigiItr->compressedEt();
+    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
 
-    float xval;
-
-    xval = tpdigiItr->compressedEt();
-    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xval);
-
-    xval = 0.5 + tpdigiItr->fineGrain();
-    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xval);
-
-    xval = 0.5 + tpdigiItr->ttFlag();
-    if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
+    float xvalVeto = 0.5 + tpdigiItr->fineGrain();
+    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
 
     if( compDigis.isValid() ) {
 
+      if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Fill( xvalEt );
+      float maxEt = 0;
+      for(int j=0; j<5; j++) {
+        float EtTP = (*tpdigiItr)[j].compressedEt();
+        if ( EtTP > maxEt ) maxEt = EtTP;
+      }
+      if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Fill( maxEt );
+
       // count the number of readout crystals / TT
-      // do do the match emul-real only if ncry/TT=25
+      // do the match emul-real only if ncry/TT=25
       int nReadoutCrystals=crystalsInTower[tpdigiItr->id()];
 
       bool good = true;
-      bool goodFlag = true;
       bool goodVeto = true;
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if( compDigiItr != compDigis->end() ) {
 //        LogDebug("EBTriggerTowerTask") << "found corresponding digi! " << *compDigiItr;
+        if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiItr->compressedEt() );
         if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
 //          LogDebug("EBTriggerTowerTask") << "but it is different...";
           good = false;
@@ -424,33 +364,23 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           }
         }
 
-        if( tpdigiItr->ttFlag() != compDigiItr->ttFlag() ) {
-//          LogDebug("EBTriggerTowerTask") << "but flag is different...";
-          goodFlag = false;
-        }
         if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
-//          LogDebug("EBTriggerTowerTask") << "but fine grain veto is different...";
           goodVeto = false;
         }
       }
       else {
         good = false;
-        goodFlag = false;
         goodVeto = false;
-//        LogDebug("EBTriggerTowerTask") << "could not find corresponding digi...";
       }
       if(!good ) {
         if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
       }
-      if(!goodFlag) {
-        float zval = tpdigiItr->ttFlag();
-        if ( meFlagEmulError_[ismt-1] ) meFlagEmulError_[ismt-1]->Fill(xiet, xipt, zval);
-      }
       if(!goodVeto) {
-        float zval = tpdigiItr->fineGrain();
-        if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt, zval);
+        if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
       }
+    } else { 
     }
+
   }
 }
 

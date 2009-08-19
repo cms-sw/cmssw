@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:45 EST 2008
-// $Id: FWSelectionManager.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWSelectionManager.h,v 1.5 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -43,12 +43,15 @@ public:
    // ---------- const member functions ---------------------
    const std::set<FWModelId>& selected() const;
 
+   const std::set<FWEventItem*>& selectedItems() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    void clearSelection();
+   void clearItemSelection();
 
    sigc::signal<void, const FWSelectionManager&> selectionChanged_;
+   sigc::signal<void, const FWSelectionManager&> itemSelectionChanged_;
 
 private:
    void finishedAllSelections();
@@ -56,6 +59,9 @@ private:
    void unselect(const FWModelId& iId);
    void itemChanged(const FWEventItem*);
 
+   void selectItem(FWEventItem*);
+   void unselectItem(FWEventItem*);
+   
    FWSelectionManager(const FWSelectionManager&);    // stop default
 
    const FWSelectionManager& operator=(const FWSelectionManager&);    // stop default
@@ -66,6 +72,7 @@ private:
    std::set<FWModelId> m_newSelection;
    bool m_wasChanged;
    std::vector<std::pair<int,sigc::connection> > m_itemConnectionCount;
+   std::set<FWEventItem*> m_itemSelection;
 };
 
 

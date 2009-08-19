@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.8 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -69,28 +69,21 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
+std::vector<int> ledWavelengths_;
 
-MonitorElement* meShapeMapL1A_[18];
-MonitorElement* meAmplMapL1A_[18];
-MonitorElement* meTimeMapL1A_[18];
-MonitorElement* meAmplPNMapL1A_[18];
-MonitorElement* meShapeMapL1B_[18];
-MonitorElement* meAmplMapL1B_[18];
-MonitorElement* meTimeMapL1B_[18];
-MonitorElement* meAmplPNMapL1B_[18];
+MonitorElement* meShapeMapL1_[18];
+MonitorElement* meAmplMapL1_[18];
+MonitorElement* meTimeMapL1_[18];
+MonitorElement* meAmplPNMapL1_[18];
 MonitorElement* mePnAmplMapG01L1_[18];
 MonitorElement* mePnPedMapG01L1_[18];
 MonitorElement* mePnAmplMapG16L1_[18];
 MonitorElement* mePnPedMapG16L1_[18];
 
-MonitorElement* meShapeMapL2A_[18];
-MonitorElement* meAmplMapL2A_[18];
-MonitorElement* meTimeMapL2A_[18];
-MonitorElement* meAmplPNMapL2A_[18];
-MonitorElement* meShapeMapL2B_[18];
-MonitorElement* meAmplMapL2B_[18];
-MonitorElement* meTimeMapL2B_[18];
-MonitorElement* meAmplPNMapL2B_[18];
+MonitorElement* meShapeMapL2_[18];
+MonitorElement* meAmplMapL2_[18];
+MonitorElement* meTimeMapL2_[18];
+MonitorElement* meAmplPNMapL2_[18];
 MonitorElement* mePnAmplMapG01L2_[18];
 MonitorElement* mePnPedMapG01L2_[18];
 MonitorElement* mePnAmplMapG16L2_[18];

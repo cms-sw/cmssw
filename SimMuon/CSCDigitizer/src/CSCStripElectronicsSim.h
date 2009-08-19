@@ -32,9 +32,6 @@ public:
   void fillDigis(CSCStripDigiCollection & digis,
                  CSCComparatorDigiCollection & comparators);
 
-  void fillMissingLayer(const CSCLayer * layer, const CSCComparatorDigiCollection & comparators, 
-                        CSCStripDigiCollection & digis);
-
   void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
   CSCAnalogSignal makeNoiseSignal(int element);
@@ -72,9 +69,6 @@ private:
   /// the keystrip, or the whole CFEB, based on doSuppression_
   std::list<int>
   channelsToRead(const std::list<int> & keyStrips, int window) const;
-
-  void fillStripDigis(const std::list<int> & keyStrips,
-                      CSCStripDigiCollection & digis);
 
   void addCrosstalk();
   void addCrosstalk(const CSCAnalogSignal & signal,

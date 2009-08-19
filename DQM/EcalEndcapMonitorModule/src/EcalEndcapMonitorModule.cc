@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/04/28 10:35:59 $
- * $Revision: 1.64 $
+ * $Date: 2009/06/23 17:11:24 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -205,6 +205,7 @@ void EcalEndcapMonitorModule::setup(void){
 
     meRunType_ = dqmStore_->bookInt("RUNTYPE");
     meEvtType_ = dqmStore_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meEvtType_->setAxisTitle("number of events", 2);
     meEvtType_->setBinLabel(1, "UNKNOWN", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);

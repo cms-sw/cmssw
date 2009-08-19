@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Mon Nov 17 14:34:30 2008 by ROOT version 5.18/00a
+// Tue Jul 15 10:02:59 2008 by ROOT version 5.14/00f
 // from TTree t1/analysis tree
-// found on file: SinglePionEfficiencyNew.root
+// found on file: SinglePionEfficiencyNewNoZSP_10.root
 //////////////////////////////////////////////////////////
 
 #ifndef SinglePionEfficiencyNewVSpT_h
@@ -11,13 +11,15 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TH2.h>
+#include <TH1.h>
 
 class SinglePionEfficiencyNewVSpT {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
-   // Declaration of leaf types
+   // Declaration of leave types
    Double_t        ptSim1;
    Double_t        etaSim1;
    Double_t        phiSim1;
@@ -56,12 +58,6 @@ public :
    Double_t        e1HCAL5x5;
    Double_t        e2HCAL3x3;
    Double_t        e2HCAL5x5;
-   Int_t           trkQuality1;
-   Int_t           trkQuality2;
-   Int_t           trkNVhits1;
-   Int_t           trkNVhits2;
-   Int_t           idmax1;
-   Int_t           idmax2;
 
    // List of branches
    TBranch        *b_ptSim1;   //!
@@ -102,12 +98,6 @@ public :
    TBranch        *b_e1HCAL5x5;   //!
    TBranch        *b_e2HCAL3x3;   //!
    TBranch        *b_e2HCAL5x5;   //!
-   TBranch        *b_trkQuality1;   //!
-   TBranch        *b_trkQuality2;   //!
-   TBranch        *b_trkNVhits1;   //!
-   TBranch        *b_trkNVhits2;   //!
-   TBranch        *b_idmax1;   //!
-   TBranch        *b_idmax2;   //!
 
    SinglePionEfficiencyNewVSpT(TTree *tree=0);
    virtual ~SinglePionEfficiencyNewVSpT();
@@ -127,14 +117,27 @@ SinglePionEfficiencyNewVSpT::SinglePionEfficiencyNewVSpT(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SinglePionEfficiencyNew.root");
+/*
+o   if (tree == 0) {
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SinglePionEfficiencyNewNoZSP_10.root");
       if (!f) {
-         f = new TFile("SinglePionEfficiencyNew.root");
+         f = new TFile("SinglePionEfficiencyNewNoZSP_10.root");
       }
       tree = (TTree*)gDirectory->Get("t1");
 
    }
+*/
+   if (tree == 0) {
+     TChain * chain = new TChain("t1","");
+
+     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiency/SinglePionEfficiency_*.root");
+     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewNoZSP_*.root");
+     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewNoSR_*.root");
+     //     chain->Add("rfio:/shift/lxfsrk4102/data01/zh/anikiten/SinglePionEfficiencyNew/SinglePionEfficiencyNewWithZSP_*.root");
+
+     tree = chain;
+   }
+
    Init(tree);
 }
 
@@ -170,7 +173,7 @@ void SinglePionEfficiencyNewVSpT::Init(TTree *tree)
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
    // pointers of the tree will be set.
-   // It is normally not necessary to make changes to the generated
+   // It is normaly not necessary to make changes to the generated
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
@@ -219,12 +222,6 @@ void SinglePionEfficiencyNewVSpT::Init(TTree *tree)
    fChain->SetBranchAddress("e1HCAL5x5", &e1HCAL5x5, &b_e1HCAL5x5);
    fChain->SetBranchAddress("e2HCAL3x3", &e2HCAL3x3, &b_e2HCAL3x3);
    fChain->SetBranchAddress("e2HCAL5x5", &e2HCAL5x5, &b_e2HCAL5x5);
-   fChain->SetBranchAddress("trkQuality1", &trkQuality1, &b_trkQuality1);
-   fChain->SetBranchAddress("trkQuality2", &trkQuality2, &b_trkQuality2);
-   fChain->SetBranchAddress("trkNVhits1", &trkNVhits1, &b_trkNVhits1);
-   fChain->SetBranchAddress("trkNVhits2", &trkNVhits2, &b_trkNVhits2);
-   fChain->SetBranchAddress("idmax1", &idmax1, &b_idmax1);
-   fChain->SetBranchAddress("idmax2", &idmax2, &b_idmax2);
    Notify();
 }
 
@@ -232,7 +229,7 @@ Bool_t SinglePionEfficiencyNewVSpT::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
+   // is started when using PROOF. It is normaly not necessary to make changes
    // to the generated code, but the routine can be extended by the
    // user if needed. The return value is currently not used.
 

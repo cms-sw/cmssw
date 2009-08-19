@@ -2,7 +2,6 @@
 #include "Validation/RecoJets/interface/ConfigFile.h"
 #include "Validation/RecoJets/interface/RootPostScript.h"
 
-
 using namespace std;
 
 void 

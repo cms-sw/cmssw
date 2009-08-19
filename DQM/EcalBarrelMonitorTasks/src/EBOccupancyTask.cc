@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/05/05 12:13:30 $
- * $Revision: 1.73 $
+ * $Date: 2009/08/10 15:49:11 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,6 +55,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   for (int i = 0; i < 36; i++) {
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
+    meRecHitEnergy_[i] = 0;
   }
 
   meEBDigiOccupancy_ = 0;
@@ -81,7 +82,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   meEBLaserDigiOccupancy_ = 0;
   meEBPedestalDigiOccupancy_ = 0;
 
-  recHitEnergyMin_ = 1.; // GeV
+  recHitEnergyMin_ = 0.150; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
@@ -118,6 +119,7 @@ void EBOccupancyTask::reset(void) {
   for (int i = 0; i < 36; i++) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
+    if ( meRecHitEnergy_[i] ) meRecHitEnergy_[i]->Reset();
   }
 
   if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Reset();
@@ -161,13 +163,19 @@ void EBOccupancyTask::setup(void){
       meOccupancy_[i]->setAxisTitle("ieta", 1);
       meOccupancy_[i]->setAxisTitle("iphi", 2);
       dqmStore_->tag(meOccupancy_[i], i+1);
-    }
-    for (int i = 0; i < 36; i++) {
+
       sprintf(histo, "EBOT MEM digi occupancy %s", Numbers::sEB(i+1).c_str());
       meOccupancyMem_[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meOccupancyMem_[i]->setAxisTitle("pseudo-strip", 1);
       meOccupancyMem_[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meOccupancyMem_[i], i+1);
+
+      sprintf(histo, "EBOT rec hit energy %s", Numbers::sEB(i+1).c_str());
+      meRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meRecHitEnergy_[i]->setAxisTitle("ieta", 1);
+      meRecHitEnergy_[i]->setAxisTitle("iphi", 2);
+      meRecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
+      dqmStore_->tag(meRecHitEnergy_[i], i+1);
     }
 
     sprintf(histo, "EBOT digi occupancy");
@@ -266,6 +274,8 @@ void EBOccupancyTask::cleanup(void){
       meOccupancy_[i] = 0;
       if ( meOccupancyMem_[i] ) dqmStore_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
+      if ( meRecHitEnergy_[i] ) dqmStore_->removeElement( meRecHitEnergy_[i]->getName() );
+      meRecHitEnergy_[i] = 0;
     }
 
     if ( meEBDigiOccupancy_ ) dqmStore_->removeElement( meEBDigiOccupancy_->getName() );
@@ -480,6 +490,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       EBDetId id = rechitItr->id();
 
+      // global coordinates
       int ebeta = id.ieta();
       int ebphi = id.iphi();
 
@@ -487,6 +498,14 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       float xebphi = ebphi - 0.5;
 
       int ism = Numbers::iSM( id );
+
+      // local coordinates
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
         
@@ -500,6 +519,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
           if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
           
+          if ( meRecHitEnergy_[ism-1] ) meRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
+
         }
       }
     }
@@ -519,6 +540,8 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = trigPrimDigis->begin(); tpdigiItr != trigPrimDigis->end(); ++tpdigiItr ) {
 
+      if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
+
       int ebeta = tpdigiItr->id().ieta();
       int ebphi = tpdigiItr->id().iphi();
 
@@ -533,7 +556,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ism = Numbers::iSM( tpdigiItr->id() );
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-            
+
         if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
         if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
         if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );

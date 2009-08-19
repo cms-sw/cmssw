@@ -65,12 +65,10 @@ public:
 
   void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
-private:
   /// finds the layer in the geometry associated with this det ID
   const CSCLayer * findLayer(int detId) const;
 
-  /// finds which layers, 1-6, aren't in the current list
-  std::list<int> layersMissing(const CSCStripDigiCollection & stripDigis) const;
+private:
 
   CSCDriftSim            * theDriftSim;
   CSCWireHitSim          * theWireHitSim;
@@ -80,8 +78,6 @@ private:
   CSCNeutronReader       * theNeutronReader;
   const CSCGeometry      * theCSCGeometry;
   CSCStripConditions     * theConditions;
-  unsigned int theLayersNeeded;
-  bool digitizeBadChambers_;
 };
 
 #endif

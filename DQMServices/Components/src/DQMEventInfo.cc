@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/07/06 17:32:30 $
- * $Revision: 1.21 $
- * $Author: ameyer $
+ * $Date: 2008/10/21 20:29:40 $
+ * $Revision: 1.22 $
+ * $Author: elmer $
  *
  */
 
@@ -42,8 +42,11 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
 
   //Event specific contents
   runId_     = dbe_->bookInt("iRun");
+  runId_->Fill(-1);
   lumisecId_ = dbe_->bookInt("iLumiSection");
+  lumisecId_->Fill(-1);
   eventId_   = dbe_->bookInt("iEvent");
+  eventId_->Fill(-1);
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
   
   dbe_->setCurrentFolder(currentfolder) ;
