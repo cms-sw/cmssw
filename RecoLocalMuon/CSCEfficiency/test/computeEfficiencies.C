@@ -462,11 +462,21 @@ void getEfficiency(float efficientEvents, float allEvents, std::vector<float> &e
     if(efficientEvents<allEvents){
       effError = sqrt( (1.-efficiency)*efficiency/allEvents );
     }
+    else{
+      double effTemp = (allEvents -1)/allEvents;
+      if(allEvents<=1){
+	effError = 1;
+      }
+      else{
+	effError = sqrt( (1.-effTemp)*effTemp/allEvents );
+      }
+    }
   }
   efficiencyResult.clear();
   efficiencyResult.push_back(efficiency);
   efficiencyResult.push_back(effError);
 }
+
 void getType(int iE, int iS, int iR, float & verticalScale){
   if (1==iS){
     if(4==iR){
