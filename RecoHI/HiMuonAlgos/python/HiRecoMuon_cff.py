@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.Configuration.RecoMuon_cff import *
-muons.inputCollectionLabels = ['globalPrimTracks', 'globalMuons', 'standAloneMuons:UpdatedAtVtx']
-muons.TrackExtractorPSet.inputTrackCollection = 'globalPrimTracks'
-calomuons.inputTracks = 'globalPrimTracks'
-muIsoDepositTk.ExtractorPSet.inputTrackCollection = 'globalPrimTracks'
-globalMuons.TrackerCollectionLabel = 'globalPrimTracks'
+muons.inputCollectionLabels = ['hiGlobalPrimTracks', 'globalMuons', 'standAloneMuons:UpdatedAtVtx']
+muons.TrackExtractorPSet.inputTrackCollection = 'hiGlobalPrimTracks'
+calomuons.inputTracks = 'hiGlobalPrimTracks'
+muIsoDepositTk.ExtractorPSet.inputTrackCollection = 'hiGlobalPrimTracks'
+globalMuons.TrackerCollectionLabel = 'hiGlobalPrimTracks'
